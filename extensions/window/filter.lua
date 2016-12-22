@@ -106,8 +106,7 @@ local preexistingWindowFocused,preexistingWindowCreated={},{} -- used to 'bootst
 ---
 --- Notes:
 ---  * As the name implies, even the empty, "allow all" windowfilter will ignore these apps.
----  * You don't *need* to keep this table up to date, since non GUI apps will simply never show up anywhere;
----    this table is just used as a "root" filter to gain a (very small) performance improvement.
+---  * You don't *need* to keep this table up to date, since non GUI apps will simply never show up anywhere; this table is just used as a "root" filter to gain a (very small) performance improvement.
 
 do
   local SKIP_APPS_NO_PID = {
@@ -407,8 +406,7 @@ end
 ---  * the `hs.window.filter` object for method chaining
 ---
 --- Notes:
----  * This is just a convenience wrapper for setting the `allowRegions` field in the `override` filter (other
----    fields will be left untouched); per-app filters will maintain their `allowRegions` and `rejectRegions` fields, if present
+---  * This is just a convenience wrapper for setting the `allowRegions` field in the `override` filter (other fields will be left untouched); per-app filters will maintain their `allowRegions` and `rejectRegions` fields, if present
 function WF:setRegions(val)
   local nf=self.filters.override or {}
   if nf~=false then nf.allowRegions=val end
@@ -440,32 +438,21 @@ end
 ---
 --- Parameters:
 ---  * appname - app name as per `hs.application:name()`
----  * filter - if `false`, reject the app; if `true`, `nil`, or omitted, allow all visible windows (in any Space) for the app; otherwise
----    it must be a table describing the filtering rules for the app, via the following fields:
+---  * filter - if `false`, reject the app; if `true`, `nil`, or omitted, allow all visible windows (in any Space) for the app; otherwise it must be a table describing the filtering rules for the app, via the following fields:
 ---    * visible - if `true`, only allow visible windows (in any Space); if `false`, reject visible windows; if omitted, this rule is ignored
----    * currentSpace - if `true`, only allow windows in the current Mission Control Space (minimized and hidden windows are included, as
----      they're considered to belong to all Spaces); if `false`, reject windows in the current Space (including all minimized and hidden windows);
----      if omitted, this rule is ignored
+---    * currentSpace - if `true`, only allow windows in the current Mission Control Space (minimized and hidden windows are included, as they're considered to belong to all Spaces); if `false`, reject windows in the current Space (including all minimized and hidden windows); if omitted, this rule is ignored
 ---    * fullscreen - if `true`, only allow fullscreen windows; if `false`, reject fullscreen windows; if omitted, this rule is ignored
 ---    * focused - if `true`, only allow a window while focused; if `false`, reject the focused window; if omitted, this rule is ignored
----    * activeApplication - only allow any of this app's windows while it is (if `true`) or it's not (if `false`) the active application;
----      if omitted, this rule is ignored
+---    * activeApplication - only allow any of this app's windows while it is (if `true`) or it's not (if `false`) the active application; if omitted, this rule is ignored
 ---    * allowTitles
 ---      * if a number, only allow windows whose title is at least as many characters long; e.g. pass `1` to filter windows with an empty title
 ---      * if a string or table of strings, only allow windows whose title matches (one of) the pattern(s) as per `string.match`
 ---      * if omitted, this rule is ignored
----    * rejectTitles - if a string or table of strings, reject windows whose titles matches (one of) the pattern(s) as per `string.match`;
----      if omitted, this rule is ignored
----    * allowRegions - an `hs.geometry` rect or constructor argument, or a list of them, designating (a) screen "region(s)" in absolute coordinates:
----      only allow windows that "cover" at least 50% of (one of) the region(s), and/or windows that have at least 50% of their surface inside
----      (one of) the region(s); if omitted, this rule is ignored
----    * rejectRegions - an `hs.geometry` rect or constructor argument, or a list of them, designating (a) screen "region(s)" in absolute coordinates:
----      reject windows that "cover" at least 50% of (one of) the region(s), and/or windows that have at least 50% of their surface inside
----      (one of) the region(s); if omitted, this rule is ignored
----    * allowScreens - a valid argument for `hs.screen.find()`, or a list of them, indicating one (or more) screen(s): only allow windows
----      that (mostly) lie on (one of) the screen(s); if omitted, this rule is ignored
----    * rejectScreens - a valid argument for `hs.screen.find()`, or a list of them, indicating one (or more) screen(s): reject windows
----      that (mostly) lie on (one of) the screen(s); if omitted, this rule is ignored
+---    * rejectTitles - if a string or table of strings, reject windows whose titles matches (one of) the pattern(s) as per `string.match`; if omitted, this rule is ignored
+---    * allowRegions - an `hs.geometry` rect or constructor argument, or a list of them, designating (a) screen "region(s)" in absolute coordinates: only allow windows that "cover" at least 50% of (one of) the region(s), and/or windows that have at least 50% of their surface inside (one of) the region(s); if omitted, this rule is ignored
+---    * rejectRegions - an `hs.geometry` rect or constructor argument, or a list of them, designating (a) screen "region(s)" in absolute coordinates: reject windows that "cover" at least 50% of (one of) the region(s), and/or windows that have at least 50% of their surface inside (one of) the region(s); if omitted, this rule is ignored
+---    * allowScreens - a valid argument for `hs.screen.find()`, or a list of them, indicating one (or more) screen(s): only allow windows that (mostly) lie on (one of) the screen(s); if omitted, this rule is ignored
+---    * rejectScreens - a valid argument for `hs.screen.find()`, or a list of them, indicating one (or more) screen(s): reject windows that (mostly) lie on (one of) the screen(s); if omitted, this rule is ignored
 ---    * allowRoles
 ---      * if a string or table of strings, only allow these window roles as per `hs.window:subrole()`
 ---      * if the special string `'*'`, this rule is ignored (i.e. all window roles, including empty ones, are allowed)
@@ -477,10 +464,8 @@ end
 --- Notes:
 ---  * Passing `focused=true` in `filter` will (naturally) result in the windowfilter ever allowing 1 window at most
 ---  * If you want to allow *all* windows for an app, including invisible ones, pass an empty table for `filter`
----  * Spaces-aware windowfilters might experience a (sometimes significant) delay after every Space switch, since
----    (due to OS X limitations) they must re-query for the list of all windows in the current Space every time.
----  * If System Preferences>Mission Control>Displays have separate Spaces is *on*, the *current Space* is defined
----    as the union of all the Spaces that are currently visible
+---  * Spaces-aware windowfilters might experience a (sometimes significant) delay after every Space switch, since (due to OS X limitations) they must re-query for the list of all windows in the current Space every time.
+---  * If System Preferences>Mission Control>Displays have separate Spaces is *on*, the *current Space* is defined as the union of all the Spaces that are currently visible
 ---  * This table explains the effects of different combinations of `visible` and `currentSpace`, showing which windows will be allowed:
 --- ```
 ---              |visible=         nil                      |             true             |     false    |
@@ -1513,12 +1498,9 @@ local spacesDone = {}
 --- * None
 ---
 --- Notes:
----  * Only use this function if "Displays have separate Spaces" and "Automatically rearrange Spaces" are
----    OFF in System Preferences>Mission Control
+---  * Only use this function if "Displays have separate Spaces" and "Automatically rearrange Spaces" are OFF in System Preferences>Mission Control
 ---  * Calling this function will set `hs.window.filter.forceRefreshOnSpaceChange` to `false`
----  * If you defined one or more Spaces-aware windowfilters (i.e. when the `currentSpace` field of a filter
----    is present), windows need refreshing at every space change anyway, so using this callback will not
----    result in improved performance
+---  * If you defined one or more Spaces-aware windowfilters (i.e. when the `currentSpace` field of a filter is present), windows need refreshing at every space change anyway, so using this callback will not result in improved performance
 local pendingSpace
 local function spaceChanged()
   if not pendingSpace then return end
@@ -1553,8 +1535,7 @@ end
 --- callback instead.
 ---
 --- Notes:
----  * If you defined one or more Spaces-aware windowfilters (i.e. when the `currentSpace` field of a filter
----    is present), windows need refreshing at every space change anyway, so this variable is ignored
+---  * If you defined one or more Spaces-aware windowfilters (i.e. when the `currentSpace` field of a filter is present), windows need refreshing at every space change anyway, so this variable is ignored
 windowfilter.forceRefreshOnSpaceChange = false
 
 local spacesWatcher = require'hs.spaces'.watcher.new(function()pendingSpace=pendingSpace or -1 spaceChanged()end)
@@ -1900,8 +1881,7 @@ end
 --- Subscribe to one or more events on the allowed windows
 ---
 --- Parameters:
----  * event - string or list of strings, the event(s) to subscribe to (see the `hs.window.filter` constants);
----    alternatively, this can be a map `{event1=fn1,event2=fn2,...}`: fnN will be subscribed to eventN, and the parameter `fn` will be ignored
+---  * event - string or list of strings, the event(s) to subscribe to (see the `hs.window.filter` constants); alternatively, this can be a map `{event1=fn1,event2=fn2,...}`: fnN will be subscribed to eventN, and the parameter `fn` will be ignored
 ---  * fn - function or list of functions, the callback(s) to add for the event(s); each will be passed 3 parameters
 ---    * a `hs.window` object referring to the event's window
 ---    * a string containing the application name (`window:application():name()`) for convenience
@@ -1912,11 +1892,8 @@ end
 ---  * the `hs.window.filter` object for method chaining
 ---
 --- Notes:
----  * Passing lists means that *all* the `fn`s will be called when *any* of the `event`s fires,
----    so it's *not* a shortcut for subscribing distinct callbacks to distinct events; use a map
----    or chained `:subscribe` calls for that.
----  * Use caution with `immediate`: if for example you're subscribing to `hs.window.filter.windowUnfocused`,
----    `fn`(s) will be called for *all* the windows except the currently focused one.
+---  * Passing lists means that *all* the `fn`s will be called when *any* of the `event`s fires, so it's *not* a shortcut for subscribing distinct callbacks to distinct events; use a map or chained `:subscribe` calls for that.
+---  * Use caution with `immediate`: if for example you're subscribing to `hs.window.filter.windowUnfocused`, `fn`(s) will be called for *all* the windows except the currently focused one.
 ---  * If the windowfilter was paused with `hs.window.filter:pause()`, calling this will resume it.
 function WF:subscribe(event,fn,immediate)
   if type(event)=='string' then event={event} end
@@ -2158,16 +2135,14 @@ end
 --- Parameters:
 ---  * window - (optional) an `hs.window` object; if nil, `hs.window.frontmostWindow()` will be used
 ---  * frontmost - (optional) boolean, if true unoccluded windows will be placed before occluded ones in the result list
----  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the
----    westward axis
+---  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the westward axis
 ---
 --- Returns:
 ---  * A list of `hs.window` objects representing all windows positioned west (i.e. left) of the window, in ascending order of distance
 ---
 --- Notes:
 ---  * This is a convenience wrapper that returns `hs.window.windowsToWest(window,self:getWindows(),...)`
----  * You'll likely want to add `:setCurrentSpace(true)` to the windowfilter used for this method call (or just use
----    `hs.window.filter.defaultCurrentSpace`)
+---  * You'll likely want to add `:setCurrentSpace(true)` to the windowfilter used for this method call (or just use `hs.window.filter.defaultCurrentSpace`)
 
 --- hs.window.filter:windowsToNorth(window, frontmost, strict) -> list of `hs.window` objects
 --- Method
@@ -2230,8 +2205,7 @@ end
 --- Parameters:
 ---  * window - (optional) an `hs.window` object; if nil, `hs.window.frontmostWindow()` will be used
 ---  * frontmost - (optional) boolean, if true focuses the nearest window that isn't occluded by any other window in this windowfilter
----  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the
----    westward axis
+---  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the westward axis
 ---
 --- Returns:
 ---  * None
