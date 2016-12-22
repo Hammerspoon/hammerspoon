@@ -224,6 +224,10 @@
     NSString *shortcutText = @"";
     NSImage  *image        = [choice objectForKey:@"image"];
 
+    if (text    && ![text isKindOfClass:[NSString class]])    text    = [NSString stringWithFormat:@"%@", text] ;
+    if (subText && ![subText isKindOfClass:[NSString class]]) subText = [NSString stringWithFormat:@"%@", subText] ;
+    if (image   && ![image isKindOfClass:[NSImage class]])    image   = nil ;
+
     if (row >= 0 && row < 9) {
         shortcutText = [NSString stringWithFormat:@"⌘%ld", (long)row + 1];
     } else {
@@ -316,10 +320,16 @@
             NSMutableArray *filteredChoices = [[NSMutableArray alloc] init];
 
             for (NSDictionary *choice in [self getChoicesWithOptions:NO]) {
-                if ([[[choice objectForKey:@"text"] lowercaseString] containsString:[queryString lowercaseString]]) {
+                NSString *text = [choice objectForKey:@"text"];
+                if (text && ![text isKindOfClass:[NSString class]]) text = [NSString stringWithFormat:@"%@", text] ;
+                if (!text) text = @"" ;
+                if ([[text lowercaseString] containsString:[queryString lowercaseString]]) {
                     [filteredChoices addObject: choice];
                 } else if (self.searchSubText) {
-                    if ([[[choice objectForKey:@"subText"] lowercaseString] containsString:[queryString lowercaseString]]) {
+                    NSString *subText = [choice objectForKey:@"subText"];
+                    if (subText && ![subText isKindOfClass:[NSString class]]) subText = [NSString stringWithFormat:@"%@", subText] ;
+                    if (!subText) subText = @"" ;
+                    if ([[subText lowercaseString] containsString:[queryString lowercaseString]]) {
                         [filteredChoices addObject:choice];
                     }
                 }
