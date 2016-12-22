@@ -2,15 +2,14 @@
 """Hammerspoon API Documentation Builder
 
 Usage:
-    build_docs.py [-d] validate <dir>...
-    build_docs.py [-d] json <dir>...
-    build_docs.py [-d] html <dir>...
+    build_docs.py [-d] -o <output_dir> [validate] [json] [sql] [html] <dir>...
     build_docs.py (-h | --help)
     build_docs.py --version
 
 Options:
-    -h --help   Show this help text
-    -d --debug  Enable debugging output
+    -h --help    Show this help text
+    -d --debug   Enable debugging output
+    -o --output  Directory to write output files into
 """
 
 from __future__ import print_function
@@ -225,6 +224,7 @@ def process_module(modulename, raw_module):
     module["desc"] = raw_module["header"][CHUNK_DESC]
     module["doc"] = '\n'.join(raw_module["header"][CHUNK_DESC:])
     module["stripped_doc"] = '\n'.join(raw_module["header"][CHUNK_DESC+1:])
+    module["items"] = []  # Deprecated
     module["Function"] = []
     module["Method"] = []
     module["Constructor"] = []
@@ -263,6 +263,7 @@ def process_module(modulename, raw_module):
         item["stripped_doc"] = '\n'.join(strip_sections_from_chunk(
                                             chunk[CHUNK_DESC+1:]))
         module[item["type"]].append(item)
+        module["items"].append(item)
 
         dbg("    %s" % pprint.pformat(item).replace('\n', "\n            "))
 
@@ -293,14 +294,27 @@ def main(arguments):
         DEBUG = True
     dbg("Arguments: %s" % arguments)
 
+    if not arguments["validate"] and \
+       not arguments["json"] and \
+       not arguments["sql"] and \
+       not arguments["html"]:
+        err("At least one of validate/json/sql/html is required. See --help")
+
     results = do_processing(arguments["<dir>"])
 
     if arguments["validate"]:
         # If we got this far, we already processed the docs, and validated them
-        sys.exit(0)
-    elif arguments["json"]:
-        print(json.dumps(results, sort_keys=True, indent=2,
-                         separators=(',', ': ')))
+        pass
+    if arguments["json"]:
+        with open(arguments["<output_dir>"] + "/docs.json", "w") as jsonfile:
+            print("Writing JSON...")
+            jsonfile.write(json.dumps(results, sort_keys=True, indent=2,
+                                      separators=(',', ': ')))
+    if arguments["sql"]:
+        print("Not doing SQL yet")
+
+    if arguments["html"]:
+        print("Not doing HTML yet")
 
 
 if __name__ == "__main__":
