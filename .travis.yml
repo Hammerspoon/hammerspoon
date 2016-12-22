@@ -1,9 +1,9 @@
 language: objective-c
 osx_image: xcode8.2
 before_install:
-  - gem install github-markdown
   - gem install xcpretty
   - gem install xcpretty-travis-profiler-formatter
+  - pip install -r requirements.txt
 before_script:
   - make docs
 script:
