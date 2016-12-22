@@ -42,10 +42,10 @@ build/html/LuaSkin:
 	rmdir $@/Skin_h
 
 build/docs.sqlite: build/docs.json
-	scripts/docs/bin/build_docs.py -o build/ sql $(DOCS_SEARCH_DIRS)
+	scripts/docs/bin/build_docs.py -o build/ --sql $(DOCS_SEARCH_DIRS)
 
 build/docs.json: build
-	scripts/docs/bin/build_docs.py -o build/ json $(DOCS_SEARCH_DIRS)
+	scripts/docs/bin/build_docs.py -o build/ --json $(DOCS_SEARCH_DIRS)
 
 build:
 	mkdir -p build

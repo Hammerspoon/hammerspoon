@@ -13,19 +13,12 @@ Options:
 """
 
 from __future__ import print_function
+import argparse
 import json
 import os
 import pprint
 import sqlite3
 import sys
-
-try:
-    from docopt import docopt
-except ImportError:
-    print("Unable to import docopt. You should probably do the following in "
-          "the top level of our source tree: pip install -r requirements.txt."
-          "\nOr, install docopt in some other way.")
-    sys.exit(1)
 
 DEBUG = False
 
@@ -330,31 +323,61 @@ def write_html(output_dir, data):
     pass
 
 
-def main(arguments):
+def main():
     """Main entrypoint"""
     global DEBUG
-    if arguments["--debug"]:
+
+    parser = argparse.ArgumentParser()
+    commands = parser.add_argument_group("Commands")
+    commands.add_argument("-v", "--validate", action="store_true",
+                          dest="validate", default=False,
+                          help="Ensure all docstrings are valid")
+    commands.add_argument("-j", "--json", action="store_true",
+                          dest="json", default=False,
+                          help="Output docs.json")
+    commands.add_argument("-s", "--sql", action="store_true",
+                          dest="sql", default=False,
+                          help="Output docs.sqlite")
+    commands.add_argument("-t", "--html", action="store_true",
+                          dest="html", default=False,
+                          help="Output HTML docs")
+    parser.add_argument("-d", "--debug", help="Enable debugging output",
+                        action="store_true", default=False,
+                        dest="debug")
+    parser.add_argument("-o", "--output_dir", action="store",
+                        dest="output_dir", default="build/",
+                        help="Directory to write outputs to")
+    parser.add_argument("DIRS", nargs=argparse.REMAINDER,
+                        help="Directories to search")
+    arguments, leftovers = parser.parse_known_args()
+
+    if arguments.debug:
         DEBUG = True
     dbg("Arguments: %s" % arguments)
 
-    if not arguments["validate"] and \
-       not arguments["json"] and \
-       not arguments["sql"] and \
-       not arguments["html"]:
-        err("At least one of validate/json/sql/html is required. See --help")
+    if not arguments.validate and \
+       not arguments.json and \
+       not arguments.sql and \
+       not arguments.html:
+        parser.print_help()
+        err("At least one of validate/json/sql/html is required.")
 
-    results = do_processing(arguments["<dir>"])
+    if len(arguments.DIRS) == 0:
+        parser.print_help()
+        err("At least one directory is required. See DIRS")
 
-    if arguments["validate"]:
+    results = do_processing(arguments.DIRS)
+
+    if arguments.validate:
         # If we got this far, we already processed the docs, and validated them
         pass
-    if arguments["json"]:
-        write_json(arguments["<output_dir>"] + "/docs.json", results)
-    if arguments["sql"]:
-        write_sql(arguments["<output_dir>"] + "/docs.sqlite", results)
-    if arguments["html"]:
-        write_html(arguments["<output_dir>"] + "/html/", results)
+    if arguments.json:
+        write_json(arguments.output_dir + "/docs.json", results)
+    if arguments.sql:
+        write_sql(arguments.output_dir + "/docs.sqlite", results)
+    if arguments.html:
+        write_html(arguments.output_dir + "/html/", results)
 
 
 if __name__ == "__main__":
-    main(docopt(__doc__, version='build_docs.py 1.0'))
+    main()
