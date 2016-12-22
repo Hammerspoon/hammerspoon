@@ -16,6 +16,7 @@ from __future__ import print_function
 import json
 import os
 import pprint
+import sqlite3
 import sys
 
 try:
@@ -120,10 +121,10 @@ def remove_method_from_itemname(itemname):
 
 def find_basename_from_itemname(itemname):
     """Find the base name of an item, from its full name"""
+    splitchar = '.'
     if ':' in itemname:
-        return itemname.split(':')[-1]
-    else:
-        return itemname.split('.')[-1]
+        splitchar = ':'
+    return itemname.split(splitchar)[-1].split(' ')[0]
 
 
 def get_section_from_chunk(chunk, sectionname):
@@ -287,6 +288,48 @@ def do_processing(directories):
     return processed_docstrings
 
 
+def write_json(filepath, data):
+    """Write out a JSON version of the docs"""
+    with open(filepath, "w") as jsonfile:
+        jsonfile.write(json.dumps(data, sort_keys=True, indent=2,
+                                  separators=(',', ': ')))
+
+
+def write_sql(filepath, data):
+    """Write out an SQLite DB of docs metadata, for Dash"""
+    db = sqlite3.connect(filepath)
+    cur = db.cursor()
+
+    try:
+        cur.execute("DROP TABLE searchIndex;")
+    except sqlite3.OperationalError:
+        # This table won't have existed in a blank database
+        pass
+    cur.execute("CREATE TABLE searchIndex(id INTEGER PRIMARY KEY, name TEXT, "
+                "type TEXT, path TEXT);")
+    cur.execute("CREATE UNIQUE INDEX anchor ON searchIndex (name, type, "
+                "path);")
+
+    for module in data:
+        cur.execute("INSERT INTO searchIndex VALUES(NULL, '%(modname)s', "
+                    "'Module', '%(modname)s.html');" %
+                    {"modname": module["name"]})
+        for item in module["items"]:
+            cur.execute("INSERT INTO searchIndex VALUES(NULL, "
+                        "'%(modname)s.%(itemname)s', "
+                        "'%(itemtype)s', '%(modname)s.html#%(itemname)s');" %
+                        {"modname": module["name"], "itemname": item["name"],
+                         "itemtype": item["type"]})
+
+    cur.execute("VACUUM;")
+    db.commit()
+
+
+def write_html(output_dir, data):
+    """Write out an HTML version of the docs"""
+    pass
+
+
 def main(arguments):
     """Main entrypoint"""
     global DEBUG
@@ -306,15 +349,11 @@ def main(arguments):
         # If we got this far, we already processed the docs, and validated them
         pass
     if arguments["json"]:
-        with open(arguments["<output_dir>"] + "/docs.json", "w") as jsonfile:
-            print("Writing JSON...")
-            jsonfile.write(json.dumps(results, sort_keys=True, indent=2,
-                                      separators=(',', ': ')))
+        write_json(arguments["<output_dir>"] + "/docs.json", results)
     if arguments["sql"]:
-        print("Not doing SQL yet")
-
+        write_sql(arguments["<output_dir>"] + "/docs.sqlite", results)
     if arguments["html"]:
-        print("Not doing HTML yet")
+        write_html(arguments["<output_dir>"] + "/html/", results)
 
 
 if __name__ == "__main__":
