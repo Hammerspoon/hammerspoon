@@ -2,7 +2,7 @@
 ---
 --- Convert between key-strings and key-codes. Also provides funcionality for querying and changing keyboard layouts.
 
---- hs.keycodes.map = {...}
+--- hs.keycodes.map
 --- Constant
 --- A mapping from string representation of a key to its keycode, and vice versa.
 --- For example: keycodes[1] == "s", and keycodes["s"] == 1, and so on.

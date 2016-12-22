@@ -249,7 +249,7 @@ module.unregister = function(id)
   end
 end
 
---- hs.notify.notification.unregisterall()
+--- hs.notify.unregisterall()
 --- Function
 --- Unregisters all functions registered as callbacks.
 ---
