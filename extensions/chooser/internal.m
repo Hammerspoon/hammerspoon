@@ -451,7 +451,7 @@ static int chooserSetBgDark(lua_State *L) {
     return 1;
 }
 
-/// hs.chooser.searchSubText([searchSubText]) -> hs.chooser object or boolean
+/// hs.chooser:searchSubText([searchSubText]) -> hs.chooser object or boolean
 /// Method
 /// Gets/Sets whether the chooser should search in the sub-text of each item
 ///
