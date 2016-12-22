@@ -2,6 +2,7 @@ language: objective-c
 osx_image: xcode7.3
 before_install:
   - gem install github-markdown xcpretty-travis-formatter
+  - pip install -r requirements.txt
 before_script:
   - make docs
   - sudo sqlite3 /Library/Application\ Support/com.apple.TCC/TCC.db "INSERT INTO access VALUES('kTCCServiceAccessibility','org.hammerspoon.Hammerspoon',0,1,1,NULL,NULL);"
