@@ -45,7 +45,7 @@ build/docs.sqlite: build/docs.json
 	scripts/docs/bin/gensql < $< | sqlite3 $@
 
 build/docs.json: build
-	scripts/docs/bin/build_docs.py json Hammerspoon extensions > $@
+	scripts/docs/bin/build_docs.py -o build/ json Hammerspoon extensions
 
 build:
 	mkdir -p build
