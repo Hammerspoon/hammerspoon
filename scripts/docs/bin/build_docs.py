@@ -225,6 +225,8 @@ def process_module(modulename, raw_module):
     module["desc"] = raw_module["header"][CHUNK_DESC]
     module["doc"] = '\n'.join(raw_module["header"][CHUNK_DESC:])
     module["stripped_doc"] = '\n'.join(raw_module["header"][CHUNK_DESC+1:])
+    module["source_file"] = raw_module["header"][CHUNK_FILE]
+    module["source_line"] = raw_module["header"][CHUNK_LINE]
     module["items"] = []  # Deprecated
     module["Function"] = []
     module["Method"] = []
@@ -251,6 +253,8 @@ def process_module(modulename, raw_module):
         item["type"] = chunk[CHUNK_TYPE]
         item["desc"] = chunk[CHUNK_DESC]
         item["doc"] = '\n'.join(chunk[CHUNK_DESC:])
+        item["source_file"] = chunk[CHUNK_FILE]
+        item["source_line"] = chunk[CHUNK_LINE]
 
         for section in ["Parameters", "Returns", "Notes"]:
             if section + ':' in chunk:
@@ -295,12 +299,18 @@ def process_markdown(data):
         module = data[i]
         module["desc_gfm"] = md(module["desc"])
         module["doc_gfm"] = md(module["doc"])
+        module["stripped_doc_gfm"] = md(module["stripped_doc"])
         for item_type in TYPE_NAMES:
             items = module[item_type]
             for j in xrange(0, len(items)):
                 item = items[j]
                 item["def_gfm"] = strip_paragraph(md(item["def"]))
                 item["doc_gfm"] = md(item["doc"])
+                item["desc_gfm"] = md(item["desc"])
+                item["stripped_doc_gfm"] = md(item["stripped_doc"])
+                for section in ["parameters", "returns", "notes"]:
+                    if section in item:
+                        item[section + "_gfm"] = md('\n'.join(item[section]))
                 items[j] = item
         # Now do the same for the deprecated 'items' list
         for j in xrange(0, len(module["items"])):
@@ -429,7 +439,8 @@ def write_html(output_dir, template_dir, data):
         err("Unable to open module.j2.html: %s" % error)
 
     for module in data:
-        with open("%s/%s.html" % (output_dir, module["name"]), "wb") as docfile:
+        with open("%s/%s.html" % (output_dir,
+                                  module["name"]), "wb") as docfile:
             render = template.render(module=module,
                                      type_order=TYPE_NAMES,
                                      type_desc=TYPE_DESC)

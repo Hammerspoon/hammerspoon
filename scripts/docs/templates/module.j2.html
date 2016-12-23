@@ -42,7 +42,11 @@
             <table>
               <tr>
                 <th>Signature</th>
-                <td><code>{{ item.def_gfm }}</code></td>
+                <td><code>{{ item.def_gfm }}</code>
+                {% if item.source_file and item.source_line %}
+                <a href="https://github.com/Hammerspoon/hammerspoon/blob/master/{{ item.source_file }}#L{{ item.source_line }}">[Source]</a>
+                {% endif %}
+                </td>
               </tr>
               <tr>
                 <th>Type</th>
@@ -50,8 +54,28 @@
               </tr>
               <tr>
                 <th>Description</th>
-                <td>{{ item.doc_gfm }}</td>
+                <td>{{ item.desc_gfm }}
+                    {{ item.stripped_doc_gfm }}</td>
               </tr>
+              {% if item.parameters_gfm %}
+              <tr>
+                <th>Parameters</th>
+                <td>{{ item.parameters_gfm }}</td>
+              </tr>
+              {% endif %}
+              {% if item.returns_gfm %}
+              <tr>
+                <th>Returns</th>
+                <td>{{ item.returns_gfm }}</td>
+              </tr>
+              {% endif %}
+              {% if item.notes_gfm %}
+              <tr>
+                <th>Notes</th>
+                <td>{{ item.notes_gfm }}</td>
+              </tr>
+              {% endif %}
+
             </table>
           </section>
           {% endfor %}
