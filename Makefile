@@ -33,7 +33,7 @@ build/html: build/docs.json
 	mkdir -p $@
 	rm -rf $@/*
 	cp scripts/docs/templates/docs.css $@
-	scripts/docs/bin/genhtml $@ < $<
+	scripts/docs/bin/build_docs.py -o build/ --html $(DOCS_SEARCH_DIRS)
 
 build/html/LuaSkin:
 	headerdoc2html -u -o $@ LuaSkin/LuaSkin/Skin.h
