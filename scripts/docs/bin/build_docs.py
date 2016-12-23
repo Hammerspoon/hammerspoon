@@ -347,9 +347,10 @@ def do_processing(directories):
 
 def write_json(filepath, data):
     """Write out a JSON version of the docs"""
-    with open(filepath, "w") as jsonfile:
+    with open(filepath, "wb") as jsonfile:
         jsonfile.write(json.dumps(data, sort_keys=True, indent=2,
-                                  separators=(',', ': ')))
+                                  separators=(',', ': '),
+                                  ensure_ascii=False).encode('utf-8'))
 
 
 def write_sql(filepath, data):
@@ -398,7 +399,7 @@ def write_html(output_dir, template_dir, data):
 
     # Prepare for writing index.html
     try:
-        outfile = open(output_dir + "/index.html", "w")
+        outfile = open(output_dir + "/index.html", "wb")
     except Exception as error:
         err("Unable to create %s: %s" % (output_dir + "/index.html",
             error))
@@ -413,7 +414,7 @@ def write_html(output_dir, template_dir, data):
     data = process_markdown(data)
 
     # Render and write index.html
-    template = jinja.from_string(tmplfile.read())
+    template = jinja.from_string(tmplfile.read().decode('utf-8'))
     render = template.render(data=data)
     outfile.write(render.encode("utf-8"))
     outfile.close()
@@ -423,12 +424,12 @@ def write_html(output_dir, template_dir, data):
     # Render and write module docs
     try:
         tmplfile = open(template_dir + "/module.j2.html", "r")
-        template = jinja.from_string(tmplfile.read())
+        template = jinja.from_string(tmplfile.read().decode('utf-8'))
     except Exception as error:
         err("Unable to open module.j2.html: %s" % error)
 
     for module in data:
-        with open("%s/%s.html" % (output_dir, module["name"]), "w") as docfile:
+        with open("%s/%s.html" % (output_dir, module["name"]), "wb") as docfile:
             render = template.render(module=module,
                                      type_order=TYPE_NAMES,
                                      type_desc=TYPE_DESC)
