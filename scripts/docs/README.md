@@ -18,9 +18,7 @@
 ### To generate docs
 
 ~~~bash
-$ cd docs
-$ bundle install
-$ cd ..
+$ sudo -H pip install -r requirements.txt
 $ make docs
 ~~~
 
