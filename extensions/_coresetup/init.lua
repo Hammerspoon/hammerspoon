@@ -191,11 +191,9 @@ return {setup=function(...)
 ---
 --- Notes:
 ---  * This function is mainly for runtime API help while using Hammerspoon's Console
----
 ---  * You can also access the results of this function by the following methods from the console:
 ---    * help("identifier") -- quotes are required, e.g. `help("hs.reload")`
 ---    * help.identifier.path -- no quotes are required, e.g. `help.hs.reload`
----
 ---  * Lua information can be accessed by using the `lua` prefix, rather than `hs`.
 ---    * the identifier `lua._man` provides the table of contents for the Lua 5.3 manual.  You can pull up a specific section of the lua manual by including the chapter (and subsection) like this: `lua._man._3_4_8`.
 ---    * the identifier `lua._C` will provide information specifically about the Lua C API for use when developing modules which require external libraries.
@@ -217,9 +215,7 @@ return {setup=function(...)
 --- Notes:
 ---  * You can also access the results of this function by the following methods from the console:
 ---    * hs.hsdocs.identifier.path -- no quotes are required, e.g. `hs.hsdocs.hs.reload`
----
 ---  * See `hs.doc.hsdocs` for more information about the available settings for the documentation browser.
----
 ---  * This function provides documentation for Hammerspoon modules, functions, and methods similar to the Hammerspoon Dash docset, but does not require any additional software.
 ---  * This currently only provides documentation for the built in Hammerspoon modules, functions, and methods.  The Lua documentation and third-party modules are not presently supported, but may be added in a future release.
   local hsdocsMetatable
