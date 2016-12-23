@@ -1,0 +1,60 @@
+<html>
+    <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Hammerspoon docs: {{ module.name }}</title>
+    <style type="text/css">
+      a { text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      th { background-color: #DDDDDD; vertical-align: top; padding: 3px; }
+      td { width: 100%; background-color: #EEEEEE; vertical-align: top; padding: 3px; }
+      table { width: 100% ; border: 1px solid #0; text-align: left; }
+      section > table table td { width: 0; }
+    </style>
+    <link rel="stylesheet" href="docs.css" type="text/css" media="screen" />
+  </head>
+  <body>
+    <header>
+      <h1><a href="./index.html">docs</a> &raquo; {{ module.name }}</h1>
+      {{ module.doc_gfm }}
+      </header>
+      <h3>API Overview</h3>
+      <ul>
+      {% for type in type_order %}
+      {# Considering: {{ type }} ({{ module[type]|length }}) #}
+        {% if module[type]|length > 0 %}
+        <li>{{ type }}s - {{ type_desc.type }}</li>
+          <ul>
+          {% for item in module[type] %}
+            <li><a href="#{{ item.name }}">{{ item.name }}</a></li>
+          {% endfor %}
+          </ul>
+        {% endif %}
+      {% endfor %}
+      </ul>
+      <h3>API Documentation</h3>
+      {% for type in type_order %}
+        {% if module[type]|length > 0 %}
+        <h4 class="documentation-section">{{ type}}s</h4>
+          {% for item in module[type] %}
+          <section id="{{ item.name }}">
+            <a name="//apple_ref/cpp/{{ item.type }}/{{ item.name }}" class="dashAnchor"></a>
+            <table>
+              <tr>
+                <th>Signature</th>
+                <td><code>{{ item.def_gfm }}</code></td>
+              </tr>
+              <tr>
+                <th>Type</th>
+                <td>{{ item.type }}</td>
+              </tr>
+              <tr>
+                <th>Description</th>
+                <td>{{ item.doc_gfm }}</td>
+              </tr>
+            </table>
+          </section>
+          {% endfor %}
+        {% endif %}
+      {% endfor %}
+  </body>
+</html>

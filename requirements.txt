@@ -1,1 +1,3 @@
-docopt
+jinja2
+misaka
+pygments
