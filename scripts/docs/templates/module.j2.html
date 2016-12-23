@@ -22,7 +22,7 @@
       {% for type in type_order %}
       {# Considering: {{ type }} ({{ module[type]|length }}) #}
         {% if module[type]|length > 0 %}
-        <li>{{ type }}s - {{ type_desc.type }}</li>
+        <li>{{ type }}s - {{ type_desc[type] }}</li>
           <ul>
           {% for item in module[type] %}
             <li><a href="#{{ item.name }}">{{ item.name }}</a></li>
@@ -38,6 +38,7 @@
           {% for item in module[type] %}
           <section id="{{ item.name }}">
             <a name="//apple_ref/cpp/{{ item.type }}/{{ item.name }}" class="dashAnchor"></a>
+            <h5><a href="#{{ item.name }}">{{ item.name }}</a></h5>
             <table>
               <tr>
                 <th>Signature</th>

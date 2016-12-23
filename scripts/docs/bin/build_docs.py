@@ -19,6 +19,7 @@ import json
 import os
 import pprint
 import sqlite3
+import string
 import sys
 
 DEBUG = False
@@ -35,11 +36,16 @@ TYPE_DESC = {
         "Constant": "Useful values which cannot be changed",
         "Variable": "Configurable values",
         "Function": "API calls offered directly by the extension",
-        "Method": "API calls which can only be made on an object returned by a constructor",
-        "Constructor": "API calls which return an object, typically one that offers API methods",
+        "Method": "API calls which can only be made on an object returned "
+                  "by a constructor",
+        "Constructor": "API calls which return an object, typically one "
+                       "that offers API methods",
         "Command": "External shell commands",
-        "Field": "Variables which can only be access from an object returned by a constructor",
-        "Deprecated": "API features which will be removed in an future release"}
+        "Field": "Variables which can only be access from an object returned "
+                 "by a constructor",
+        "Deprecated": "API features which will be removed in an future "
+                      "release"}
+
 
 def dbg(msg):
     """Print a debug message"""
@@ -85,7 +91,10 @@ def extract_docstrings(filename):
                     chunk.append(filename)
                     chunk.append("%d" % i)
                 # Append the line to the current chunk
-                chunk.append(line.strip("/- "))
+                line = line.strip("/-")
+                if len(line) > 0 and line[0] == ' ':
+                    line = line[1:]
+                chunk.append(line)
             else:
                 # We hit a line that isn't a docstring. If we were previously
                 #  processing docstrings, we just exited a chunk of docs, so
@@ -99,16 +108,32 @@ def extract_docstrings(filename):
 
 
 def find_module_for_item(modules, item):
-    """Find the longest matching module for a given item"""
+    """Find the matching module for a given item"""
     dbg("find_module_for_item: Searching for: %s" % item)
-    matches = []
-    for module in modules:
-        if item.startswith(module):
-            matches.append(module)
+    module = None
 
-    matches.sort()
-    dbg("find_module_for_item: Found: %s" % matches[-1])
-    return matches[-1]
+    # We need a shortcut here for root level items
+    if string.count(item, '.') == 1:
+        dbg("find_module_for_item: Using root-level shortcut")
+        module = "hs"
+
+    # Methods are very easy to shortcut
+    if string.count(item, ':') == 1:
+        dbg("find_module_for_item: Using method shortcut")
+        module = item.split(':')[0]
+
+    if not module:
+        matches = []
+        for mod in modules:
+            if item.startswith(mod):
+                matches.append(mod)
+
+        matches.sort()
+        dbg("find_module_for_item: Found options: %s" % matches)
+        module = matches[-1]
+
+    dbg("find_module_for_item: Found: %s" % module)
+    return module
 
 
 def find_itemname_from_signature(signature):
@@ -123,6 +148,7 @@ def remove_method_from_itemname(itemname):
 
 def find_basename_from_itemname(itemname):
     """Find the base name of an item, from its full name"""
+    # (where "base name" means the function/method/variable/etc name
     splitchar = '.'
     if ':' in itemname:
         splitchar = ':'
@@ -208,9 +234,7 @@ def process_docstrings(docstrings):
                 itemname,
                 chunk[CHUNK_FILE],
                 chunk[CHUNK_LINE]))
-            item_name_without_method = remove_method_from_itemname(itemname)
-            modulename = find_module_for_item(docs.keys(),
-                                              item_name_without_method)
+            modulename = find_module_for_item(docs.keys(), itemname)
             dbg("process_docstrings:   Assigning item to module: %s" %
                 modulename)
             docs[modulename]["items"][itemname] = chunk
@@ -273,53 +297,47 @@ def process_module(modulename, raw_module):
     return module
 
 
+def strip_paragraph(text):
+    """Strip <p> from the start of a string, and </p>\n from the end"""
+    text = text.replace("<p>", "")
+    text = text.replace("</p>\n", "")
+    return text
+
+
 def process_markdown(data):
     """Pre-render GitHub-flavoured Markdown, and syntax-highlight code"""
-    import misaka
-    from misaka import HtmlRenderer
+    import mistune
     from pygments import highlight
     from pygments.lexers import get_lexer_by_name
-    from pygments.formatters import HtmlFormatter
+    from pygments.formatters import html
 
-    class HighlighterRenderer(HtmlRenderer):
-        def block_code(self, text, lang):
-            s = ''
+    class HighlightRenderer(mistune.Renderer):
+        def block_code(self, code, lang):
             if not lang:
-                lang = 'text'
-            try:
-                lexer = get_lexer_by_name(lang, stripall=True)
-            except:
-                s += '<div class="highlight"><span class="err">Error: ' \
-                     'language "%s" is not supported</span></div>' % lang
-                lexer = get_lexer_by_name('text', stripall=True)
-            formatter = HtmlFormatter()
-            s += highlight(text, lexer, formatter)
-            return s
+                return '\n<pre><code>%s</code></pre>\n' % \
+                    mistune.escape(code)
+            lexer = get_lexer_by_name(lang, stripall=True)
+            formatter = html.HtmlFormatter()
+            return highlight(code, lexer, formatter)
 
-        def table(self, header, body):
-            return '<table class="table">\n'+header+'\n'+body+'\n</table>'
-
-    renderer = HighlighterRenderer(flags=misaka.HTML_ESCAPE |
-                                   misaka.HTML_HARD_WRAP)
-    md = misaka.Markdown(renderer, extensions=misaka.EXT_FENCED_CODE |
-                         misaka.EXT_NO_INTRA_EMPHASIS | misaka.EXT_TABLES |
-                         misaka.EXT_AUTOLINK | misaka.EXT_SPACE_HEADERS |
-                         misaka.EXT_STRIKETHROUGH | misaka.EXT_SUPERSCRIPT)
+    renderer = HighlightRenderer()
+    md = mistune.Markdown(renderer=renderer)
 
     for i in xrange(0, len(data)):
         module = data[i]
         module["desc_gfm"] = md(module["desc"])
+        module["doc_gfm"] = md(module["doc"])
         for item_type in TYPE_NAMES:
             items = module[item_type]
             for j in xrange(0, len(items)):
                 item = items[j]
-                item["def_gfm"] = md(item["def"])
+                item["def_gfm"] = strip_paragraph(md(item["def"]))
                 item["doc_gfm"] = md(item["doc"])
                 items[j] = item
         # Now do the same for the deprecated 'items' list
         for j in xrange(0, len(module["items"])):
             item = module["items"][j]
-            item["def_gfm"] = md(item["def"])
+            item["def_gfm"] = strip_paragraph(md(item["def"]))
             item["doc_gfm"] = md(item["doc"])
             module["items"][j] = item
         data[i] = module
