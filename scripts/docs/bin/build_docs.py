@@ -1,17 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Hammerspoon API Documentation Builder
-
-Usage:
-    build_docs.py [-d] -o <output_dir> [validate] [json] [sql] [html] <dir>...
-    build_docs.py (-h | --help)
-    build_docs.py --version
-
-Options:
-    -h --help    Show this help text
-    -d --debug   Enable debugging output
-    -o --output  Directory to write output files into
-"""
+"""Hammerspoon API Documentation Builder"""
 
 from __future__ import print_function
 import argparse
@@ -173,21 +162,6 @@ def get_section_from_chunk(chunk, sectionname):
     return section
 
 
-def get_parameters_from_chunk(chunk):
-    """Extract the Parameters: section of a chunk"""
-    return get_section_from_chunk(chunk, "Parameters:")
-
-
-def get_returns_from_chunk(chunk):
-    """Extract the Returns: section of a chunk"""
-    return get_section_from_chunk(chunk, "Returns:")
-
-
-def get_notes_from_chunk(chunk):
-    """Extract the Notes: section of a chunk"""
-    return get_section_from_chunk(chunk, "Notes:")
-
-
 def strip_sections_from_chunk(chunk):
     """Remove the Parameters/Returns/Notes sections from a chunk"""
     stripped_chunk = []
@@ -278,22 +252,17 @@ def process_module(modulename, raw_module):
         item["desc"] = chunk[CHUNK_DESC]
         item["doc"] = '\n'.join(chunk[CHUNK_DESC:])
 
-        if "Parameters:" in chunk:
-            item["parameters"] = get_parameters_from_chunk(chunk)
-
-        if "Returns:" in chunk:
-            item["returns"] = get_returns_from_chunk(chunk)
-
-        if "Notes:" in chunk:
-            item["notes"] = get_notes_from_chunk(chunk)
+        for section in ["Parameters", "Returns", "Notes"]:
+            if section + ':' in chunk:
+                item[section.lower()] = get_section_from_chunk(chunk,
+                                                               section + ':')
 
         item["stripped_doc"] = '\n'.join(strip_sections_from_chunk(
                                             chunk[CHUNK_DESC+1:]))
         module[item["type"]].append(item)
-        module["items"].append(item)
+        module["items"].append(item)  # Deprecated
 
         dbg("    %s" % pprint.pformat(item).replace('\n', "\n            "))
-
     return module
 
 
@@ -320,8 +289,7 @@ def process_markdown(data):
             formatter = html.HtmlFormatter()
             return highlight(code, lexer, formatter)
 
-    renderer = HighlightRenderer()
-    md = mistune.Markdown(renderer=renderer)
+    md = mistune.Markdown(renderer=HighlightRenderer())
 
     for i in xrange(0, len(data)):
         module = data[i]
@@ -341,7 +309,6 @@ def process_markdown(data):
             item["doc_gfm"] = md(item["doc"])
             module["items"][j] = item
         data[i] = module
-
     return data
 
 
