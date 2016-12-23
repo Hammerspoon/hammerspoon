@@ -1,0 +1,32 @@
+<html>
+  <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Hammerspoon Docs</title>
+      <style type="text/css">
+      a { text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      th, td { border: 1px solid #ccc; padding: 5px 10px; text-align: left; vertical-align: top; }
+    </style>
+    <link rel="stylesheet" href="docs.css" type="text/css" media="screen" />
+  </head>
+  <body>
+    <header>
+      <h1>Hammerspoon.app</h1>
+    </header>
+    <section>
+      {{ content }}
+      </section>
+    <section>
+    <!-- tables suck., I know, but it's fast to code -->
+    <h3>API documentation</h3>
+    <table class="api-documentation-overview">
+{% for module in data %}
+            <tr>
+                <th><a href="{{ module.name}}.html">{{ module.name }}</a></th>
+                <td>{{ module.desc_gfm }}</td>
+            </tr>
+{% endfor %}
+    </table>
+    </section>
+  </body
+</html>

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """Hammerspoon API Documentation Builder
 
 Usage:
@@ -27,10 +28,18 @@ CHUNK_LINE = 1
 CHUNK_SIGN = 2
 CHUNK_TYPE = 3
 CHUNK_DESC = 4
-TYPE_NAMES = ["Constant", "Variable", "Function", "Method", "Constructor",
-              "Command", "Field", "Deprecated"]
+TYPE_NAMES = ["Deprecated", "Command", "Constant", "Variable", "Function",
+              "Constructor", "Field", "Method"]
 SECTION_NAMES = ["Parameters", "Returns", "Notes"]
-
+TYPE_DESC = {
+        "Constant": "Useful values which cannot be changed",
+        "Variable": "Configurable values",
+        "Function": "API calls offered directly by the extension",
+        "Method": "API calls which can only be made on an object returned by a constructor",
+        "Constructor": "API calls which return an object, typically one that offers API methods",
+        "Command": "External shell commands",
+        "Field": "Variables which can only be access from an object returned by a constructor",
+        "Deprecated": "API features which will be removed in an future release"}
 
 def dbg(msg):
     """Print a debug message"""
@@ -264,20 +273,90 @@ def process_module(modulename, raw_module):
     return module
 
 
+def process_markdown(data):
+    """Pre-render GitHub-flavoured Markdown, and syntax-highlight code"""
+    import misaka
+    from misaka import HtmlRenderer
+    from pygments import highlight
+    from pygments.lexers import get_lexer_by_name
+    from pygments.formatters import HtmlFormatter
+
+    class HighlighterRenderer(HtmlRenderer):
+        def block_code(self, text, lang):
+            s = ''
+            if not lang:
+                lang = 'text'
+            try:
+                lexer = get_lexer_by_name(lang, stripall=True)
+            except:
+                s += '<div class="highlight"><span class="err">Error: ' \
+                     'language "%s" is not supported</span></div>' % lang
+                lexer = get_lexer_by_name('text', stripall=True)
+            formatter = HtmlFormatter()
+            s += highlight(text, lexer, formatter)
+            return s
+
+        def table(self, header, body):
+            return '<table class="table">\n'+header+'\n'+body+'\n</table>'
+
+    renderer = HighlighterRenderer(flags=misaka.HTML_ESCAPE |
+                                   misaka.HTML_HARD_WRAP)
+    md = misaka.Markdown(renderer, extensions=misaka.EXT_FENCED_CODE |
+                         misaka.EXT_NO_INTRA_EMPHASIS | misaka.EXT_TABLES |
+                         misaka.EXT_AUTOLINK | misaka.EXT_SPACE_HEADERS |
+                         misaka.EXT_STRIKETHROUGH | misaka.EXT_SUPERSCRIPT)
+
+    for i in xrange(0, len(data)):
+        module = data[i]
+        module["desc_gfm"] = md(module["desc"])
+        for item_type in TYPE_NAMES:
+            items = module[item_type]
+            for j in xrange(0, len(items)):
+                item = items[j]
+                item["def_gfm"] = md(item["def"])
+                item["doc_gfm"] = md(item["doc"])
+                items[j] = item
+        # Now do the same for the deprecated 'items' list
+        for j in xrange(0, len(module["items"])):
+            item = module["items"][j]
+            item["def_gfm"] = md(item["def"])
+            item["doc_gfm"] = md(item["doc"])
+            module["items"][j] = item
+        data[i] = module
+
+    return data
+
+
 def do_processing(directories):
     """Run all processing steps for one or more directories"""
     raw_docstrings = []
     codefiles = []
     processed_docstrings = []
+
     for directory in directories:
         codefiles += find_code_files(directory)
+    if len(codefiles) == 0:
+        err("No .m/.lua files found")
+
     for filename in codefiles:
         raw_docstrings += extract_docstrings(filename)
+    if len(raw_docstrings) == 0:
+        err("No docstrings found")
+
     docs = process_docstrings(raw_docstrings)
 
-    for module in docs:
-        processed_docstrings.append(process_module(module, docs[module]))
+    if len(docs) == 0:
+        err("No modules found")
 
+    for module in docs:
+        dbg("Processing: %s" % module)
+        module_docs = process_module(module, docs[module])
+        module_docs["items"].sort(key=lambda item: item["name"])
+        for item_type in TYPE_NAMES:
+            module_docs[item_type].sort(key=lambda item: item["name"])
+        processed_docstrings.append(module_docs)
+
+    processed_docstrings.sort(key=lambda module: module["name"])
     return processed_docstrings
 
 
@@ -318,9 +397,60 @@ def write_sql(filepath, data):
     db.commit()
 
 
-def write_html(output_dir, data):
+def write_html(output_dir, template_dir, data):
     """Write out an HTML version of the docs"""
-    pass
+    from jinja2 import Environment
+
+    jinja = Environment(trim_blocks=True, lstrip_blocks=True)
+
+    # Make sure we have a valid output_dir
+    if not os.path.isdir(output_dir):
+        try:
+            os.makedirs(output_dir)
+        except Exception as error:
+            err("Output directory is not a directory, "
+                "and/or can't be created: %s" % error)
+
+    # Prepare for writing index.html
+    try:
+        outfile = open(output_dir + "/index.html", "w")
+    except Exception as error:
+        err("Unable to create %s: %s" % (output_dir + "/index.html",
+            error))
+
+    # Prepare for reading index.j2.html
+    try:
+        tmplfile = open(template_dir + "/index.j2.html", "r")
+    except Exception as error:
+        err("Unable to open index.j2.html: %s" % error)
+
+    # Re-process the doc data to convert Markdown to HTML
+    data = process_markdown(data)
+
+    # Render and write index.html
+    template = jinja.from_string(tmplfile.read())
+    render = template.render(data=data)
+    outfile.write(render.encode("utf-8"))
+    outfile.close()
+    tmplfile.close()
+    dbg("Wrote index.html.")
+
+    # Render and write module docs
+    try:
+        tmplfile = open(template_dir + "/module.j2.html", "r")
+        template = jinja.from_string(tmplfile.read())
+    except Exception as error:
+        err("Unable to open module.j2.html: %s" % error)
+
+    for module in data:
+        with open("%s/%s.html" % (output_dir, module["name"]), "w") as docfile:
+            render = template.render(module=module,
+                                     type_order=TYPE_NAMES,
+                                     type_desc=TYPE_DESC)
+            docfile.write(render.encode("utf-8"))
+            dbg("Wrote %s.html" % module["name"])
+
+    tmplfile.close()
 
 
 def main():
@@ -344,6 +474,9 @@ def main():
     parser.add_argument("-d", "--debug", help="Enable debugging output",
                         action="store_true", default=False,
                         dest="debug")
+    parser.add_argument("-e", "--templates", action="store",
+                        help="Directory of HTML templates",
+                        dest="template_dir", default="scripts/docs/templates")
     parser.add_argument("-o", "--output_dir", action="store",
                         dest="output_dir", default="build/",
                         help="Directory to write outputs to")
@@ -376,7 +509,8 @@ def main():
     if arguments.sql:
         write_sql(arguments.output_dir + "/docs.sqlite", results)
     if arguments.html:
-        write_html(arguments.output_dir + "/html/", results)
+        write_html(arguments.output_dir + "/html/",
+                   arguments.template_dir, results)
 
 
 if __name__ == "__main__":
