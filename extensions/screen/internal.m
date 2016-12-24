@@ -1024,6 +1024,43 @@ static int screen_desktopImageURL(lua_State *L) {
     return 1;
 }
 
+/// hs.screen.accessibilitySettings() -> table
+/// Function
+/// Gets the current state of the screen-related accessibility settings
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A table containing the following keys, and corresponding boolean values for whether the user has enabled these options:
+///    * ReduceMotion (only available on macOS 10.12 or later)
+///    * ReduceTransparency
+///    * IncreaseContrast
+///    * InvertColors (only available on macOS 10.12 or later)
+///    * DifferentiateWithoutColor
+static int screen_accessibilitySettings(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TBREAK];
+
+    NSWorkspace *ws = [NSWorkspace sharedWorkspace];
+    NSMutableDictionary *settings = [[NSMutableDictionary alloc] initWithCapacity:5];
+
+    if ([[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:(NSOperatingSystemVersion){10, 12, 0}]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpartial-availability"
+        [settings setObject:[NSNumber numberWithBool:ws.accessibilityDisplayShouldInvertColors] forKey:@"InvertColors"];
+        [settings setObject:[NSNumber numberWithBool:ws.accessibilityDisplayShouldReduceMotion] forKey:@"ReduceMotion"];
+#pragma clang diagnostic pop
+    }
+
+    [settings setObject:[NSNumber numberWithBool:ws.accessibilityDisplayShouldReduceTransparency] forKey:@"ReduceTransparency"];
+    [settings setObject:[NSNumber numberWithBool:ws.accessibilityDisplayShouldIncreaseContrast] forKey:@"IncreaseContrast"];
+    [settings setObject:[NSNumber numberWithBool:ws.accessibilityDisplayShouldDifferentiateWithoutColor] forKey:@"DifferentiateWithoutColor"];
+
+    [skin pushNSObject:settings];
+    return 1;
+}
+
 static int screens_gc(lua_State* L __unused) {
     CGDisplayRemoveReconfigurationCallback(displayReconfigurationCallback, NULL);
     screen_gammaRestore(nil);
@@ -1058,6 +1095,7 @@ static const luaL_Reg screenlib[] = {
     {"allScreens", screen_allScreens},
     {"mainScreen", screen_mainScreen},
     {"restoreGamma", screen_gammaRestore},
+    {"accessibilitySettings", screen_accessibilitySettings},
 
     {NULL, NULL}
 };
