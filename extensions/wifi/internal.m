@@ -56,16 +56,16 @@ CWInterface *get_wifi_interface(NSString *theInterface) {
     if (_fnRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin shared] ;
         lua_State *L = [skin L] ;
-        [[LuaSkin shared] pushLuaRef:refTable ref:_fnRef];
+        [skin pushLuaRef:refTable ref:_fnRef];
         if ([object isKindOfClass:[NSError class]]) {
-            [LuaSkin logInfo:[(NSError *)object localizedDescription]] ;
+            [skin logInfo:[(NSError *)object localizedDescription]] ;
             [skin pushNSObject:[(NSError *)object localizedDescription]] ;
         } else {
             [skin pushNSObject:(NSSet *)object] ;
         }
 
         if (![skin protectedCallAndTraceback:1 nresults:0]) {
-            [LuaSkin logError:[skin toNSObjectAtIndex:-1]] ;
+            [skin logError:[skin toNSObjectAtIndex:-1]] ;
             lua_pop(L, 1) ;
         }
     }
