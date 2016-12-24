@@ -635,8 +635,19 @@ static int userdata_tostring(lua_State* L) {
 static int userdata_gc(lua_State* L) {
     chooser_userdata_t *userData = lua_touserdata(L, 1);
     HSChooser *chooser = (__bridge_transfer HSChooser *)userData->chooser;
+    if (chooser) {
+        LuaSkin *skin = [LuaSkin shared] ;
+        chooser.choicesCallbackRef = [skin luaUnref:refTable ref:chooser.choicesCallbackRef];
+        chooser.queryChangedCallbackRef = [skin luaUnref:refTable ref:chooser.queryChangedCallbackRef];
+        chooser.completionCallbackRef = [skin luaUnref:refTable ref:chooser.completionCallbackRef];
+        chooser.rightClickCallbackRef = [skin luaUnref:refTable ref:chooser.rightClickCallbackRef];
+    }
     userData->chooser = nil;
     chooser = nil;
+
+    // Remove the Metatable so future use of the variable in Lua won't think its valid
+    lua_pushnil(L) ;
+    lua_setmetatable(L, 1) ;
 
     return 0;
 }
