@@ -37,7 +37,12 @@ static int audiodevicewatcher_stop(lua_State *L);
 #pragma mark - CoreAudio helper functions
 
 OSStatus audiodevicewatcher_callback(AudioDeviceID deviceID, UInt32 numAddresses, const AudioObjectPropertyAddress addressList[], void *clientData) {
-    dispatch_sync(dispatch_get_main_queue(), ^{
+    NSMutableArray *events = [[NSMutableArray alloc] init];
+    for (UInt32 i = 0; i < numAddresses; i++) {
+        [events addObject:(__bridge_transfer NSString *)UTCreateStringForOSType(addressList[i].mSelector)];
+    }
+
+    dispatch_async(dispatch_get_main_queue(), ^{
 
         //NSLog(@"%i addresses to check", numAddresses);
         LuaSkin *skin = [LuaSkin shared];
@@ -48,12 +53,11 @@ OSStatus audiodevicewatcher_callback(AudioDeviceID deviceID, UInt32 numAddresses
         if (theWatcher->callback == LUA_NOREF) {
             [skin logWarn:@"hs.audiodevice.watcher callback fired, but there is no callback. This is a bug"];
         } else {
-            for (UInt32 i = 0; i < numAddresses; i++) {
-                //NSLog(@"Examining selector: %@", UTCreateStringForOSType(addressList[i].mSelector));
+            for (NSString *event in events) {
                 [skin pushLuaRef:refTable ref:theWatcher->callback];
-                lua_pushstring(skin.L, [(__bridge_transfer NSString *)UTCreateStringForOSType(addressList[i].mSelector) UTF8String]);
+                [skin pushNSObject:event];
                 if (![skin protectedCallAndTraceback:1 nresults:0]) {
-                    lua_pop(skin.L, 1) ; // remove error message
+                    lua_pop(skin.L, 1); //remove error message
                 }
             }
         }

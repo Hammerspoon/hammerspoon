@@ -246,7 +246,7 @@ testWatcherCallbackSuccess = false
 function testWatcherCallback()
   local device = hs.audiodevice.defaultOutputDevice()
   device:watcherCallback(function(uid, eventName, eventScope, eventElement)
-                           --print("testWatcherCallback callback fired")
+                           print("testWatcherCallback callback fired: uid:'"..uid.."' eventName:'"..eventName.."' eventScope:'"..eventScope.."' eventElement:'"..eventElement.."'")
                            testWatcherCallbackSuccess = true
                          end)
   device:watcherStart()

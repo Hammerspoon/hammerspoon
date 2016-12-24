@@ -47,7 +47,36 @@ void watcherStop(audioDeviceUserData *audioDevice);
 #pragma mark - CoreAudio helper functions
 
 OSStatus audiodevice_callback(AudioDeviceID deviceID, UInt32 numAddresses, const AudioObjectPropertyAddress addressList[], void *clientData) {
-    dispatch_sync(dispatch_get_main_queue(), ^{
+    // Get the UID of the device, to pass into the callback
+    NSString *deviceUIDNS = nil;
+
+    AudioObjectPropertyAddress propertyAddress = {
+        kAudioDevicePropertyDeviceUID,
+        kAudioObjectPropertyScopeGlobal,
+        kAudioObjectPropertyElementMaster
+    };
+    CFStringRef deviceUID;
+    UInt32 propertySize = sizeof(CFStringRef);
+
+    OSStatus result;
+
+    result = AudioObjectGetPropertyData(deviceID, &propertyAddress, 0, NULL, &propertySize, &deviceUID);
+    if (result == noErr) {
+        deviceUIDNS = (__bridge NSString *)deviceUID;
+    }
+
+    //NSLog(@"Found UID: %@", deviceUIDNS);
+
+    NSMutableArray *events = [[NSMutableArray alloc] init];
+
+    for (UInt32 i = 0; i < numAddresses; i++) {
+        NSString *mSelector = (__bridge_transfer NSString *)UTCreateStringForOSType(addressList[i].mSelector);
+        NSString *mScope = (__bridge_transfer NSString *)UTCreateStringForOSType(addressList[i].mScope);
+        NSNumber *mElement = [NSNumber numberWithInt:addressList[i].mElement];
+        [events addObject:@{@"mSelector":mSelector, @"mScope":mScope, @"mElement":mElement}];
+    }
+
+    dispatch_async(dispatch_get_main_queue(), ^{
         //NSLog(@"audiodevice_callback called with %i addresses", numAddresses);
 
         audioDeviceUserData *userData = (audioDeviceUserData *)clientData;
@@ -55,38 +84,21 @@ OSStatus audiodevice_callback(AudioDeviceID deviceID, UInt32 numAddresses, const
         if (userData->callback == LUA_NOREF) {
             [skin logError:@"hs.audiodevice.watcher callback fired, but no function has been set with hs.audiodevice.watcher.setCallback()"];
         } else {
-            // Get the UID of the device, to pass into the callback
-            NSString *deviceUIDNS = nil;
-
-            AudioObjectPropertyAddress propertyAddress = {
-                kAudioDevicePropertyDeviceUID,
-                kAudioObjectPropertyScopeGlobal,
-                kAudioObjectPropertyElementMaster
-            };
-            CFStringRef deviceUID;
-            UInt32 propertySize = sizeof(CFStringRef);
-
-            OSStatus result;
-
-            result = AudioObjectGetPropertyData(deviceID, &propertyAddress, 0, NULL, &propertySize, &deviceUID);
-            if (result == noErr) {
-                deviceUIDNS = (__bridge NSString *)deviceUID;
-            }
-
-            //NSLog(@"Found UID: %@", deviceUIDNS);
-
-            for (UInt32 i = 0; i < numAddresses; i++) {
+            for (NSDictionary *event in events) {
                 [skin pushLuaRef:refTable ref:userData->callback];
+
                 if (deviceUIDNS) {
                     lua_pushstring(skin.L, deviceUIDNS.UTF8String);
                 } else {
                     lua_pushnil(skin.L);
                 }
-                lua_pushstring(skin.L, ((__bridge_transfer NSString *)UTCreateStringForOSType(addressList[i].mSelector)).UTF8String);
-                lua_pushstring(skin.L, ((__bridge_transfer NSString *)UTCreateStringForOSType(addressList[i].mScope)).UTF8String);
-                lua_pushinteger(skin.L, addressList[i].mElement);
+
+                [skin pushNSObject:event[@"mSelector"]];
+                [skin pushNSObject:event[@"mScope"]];
+                [skin pushNSObject:event[@"mElement"]];
+
                 if (![skin protectedCallAndTraceback:4 nresults:0]) {
-                    lua_pop(skin.L, 1) ; // remove error message
+                    lua_pop(skin.L, 1); // remove error message
                 }
             }
         }
