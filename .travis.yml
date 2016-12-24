@@ -1,6 +1,7 @@
 language: objective-c
 osx_image: xcode7.3
 before_install:
+  - gem install xcpretty
   - gem install github-markdown xcpretty-travis-formatter
 before_script:
   - make docs
