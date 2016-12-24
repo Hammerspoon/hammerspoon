@@ -890,7 +890,8 @@ id _getMenuStructure(AXUIElementRef menuItem) {
         }
 
         // Convert the modifier keys into a format we can usefully hand over to Lua
-        id modsSrc = [attributeValues objectAtIndex:5];
+        NSUInteger modifiersIndex = [attributeNames indexOfObjectIdenticalTo:(__bridge NSString *)kAXMenuItemCmdModifiersAttribute];
+        id modsSrc = [attributeValues objectAtIndex:modifiersIndex];
         id modsDst = nil;
         if (![modsSrc isKindOfClass:[NSNumber class]]) {
             modsDst = [NSNull null];
@@ -918,7 +919,7 @@ id _getMenuStructure(AXUIElementRef menuItem) {
             }
         }
 
-        [attributeValues replaceObjectAtIndex:5 withObject:modsDst];
+        [attributeValues replaceObjectAtIndex:modifiersIndex withObject:modsDst];
 
         // Get the children of this item, if any
         if (AXUIElementCopyAttributeValues(menuItem, kAXChildrenAttribute, 0, MAX_INT, &cfChildren) == kAXErrorSuccess) {
