@@ -72,7 +72,7 @@
 
 // HSChooserTableViewDelegate
 - (void)tableView:(NSTableView *)tableView didClickedRow:(NSInteger)row;
-- (void)didRightClick;
+- (void)didRightClickAtRow:(NSInteger)row;
 
 // NSTextFieldDelgate
 

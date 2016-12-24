@@ -7,6 +7,7 @@
 //
 
 #import "HSChooser.h"
+#import "chooser.h"
 
 #pragma mark - Chooser object implementation
 
@@ -264,17 +265,20 @@
         [skin pushLuaRef:*(self.refTable) ref:self.completionCallbackRef];
         [skin pushNSObject:choice];
         if (![skin protectedCallAndTraceback:1 nresults:0]) {
+            [skin logError:[NSString stringWithFormat:@"%s:completionCallback error - %@", USERDATA_TAG, [skin toNSObjectAtIndex:-1]]] ;
             lua_pop(skin.L, 1) ; // remove error message
         }
     }
 }
 
-- (void)didRightClick {
+- (void)didRightClickAtRow:(NSInteger)row {
     if (self.rightClickCallbackRef != LUA_NOREF && self.rightClickCallbackRef != LUA_REFNIL) {
         // We have a right click callback set
         LuaSkin *skin = [LuaSkin shared];
         [skin pushLuaRef:*(self.refTable) ref:self.rightClickCallbackRef];
-        if (![skin protectedCallAndTraceback:0 nresults:0]) {
+        lua_pushinteger(skin.L, row + 1) ;
+        if (![skin protectedCallAndTraceback:1 nresults:0]) {
+            [skin logError:[NSString stringWithFormat:@"%s:rightClickCallback error - %@", USERDATA_TAG, [skin toNSObjectAtIndex:-1]]] ;
             lua_pop(skin.L, 1) ; // remove error message
         }
     }
@@ -289,6 +293,7 @@
     [skin pushLuaRef:*(self.refTable) ref:self.completionCallbackRef];
     lua_pushnil(skin.L);
     if (![skin protectedCallAndTraceback:1 nresults:0]) {
+        [skin logError:[NSString stringWithFormat:@"%s:completionCallback error - %@", USERDATA_TAG, [skin toNSObjectAtIndex:-1]]] ;
         lua_pop(skin.L, 1) ; // remove error message
     }
 }
@@ -308,6 +313,7 @@
         [skin pushLuaRef:*(self.refTable) ref:self.queryChangedCallbackRef];
         [skin pushNSObject:queryString];
         if (![skin protectedCallAndTraceback:1 nresults:0]) {
+            [skin logError:[NSString stringWithFormat:@"%s:queryChangedCallback error - %@", USERDATA_TAG, [skin toNSObjectAtIndex:-1]]] ;
             lua_pop(skin.L, 1) ; // remove error message
         }
     } else {
@@ -419,6 +425,8 @@
                     [[LuaSkin shared] logError:@"ERROR: data returned by hs.chooser:choices() callback could not be parsed correctly"];
                     self.currentCallbackChoices = nil;
                 }
+            } else {
+                [skin logError:[NSString stringWithFormat:@"%s:choices error - %@", USERDATA_TAG, [skin toNSObjectAtIndex:-1]]] ;
             }
             lua_pop(skin.L, 1) ; // remove result or error message
         }

@@ -51,8 +51,11 @@
 }
 
 - (void)rightMouseDown:(NSEvent *)theEvent {
-    if ([self.extendedDelegate respondsToSelector:@selector(didRightClick)]) {
-        [self.extendedDelegate didRightClick];
+    if ([self.extendedDelegate respondsToSelector:@selector(didRightClickAtRow:)]) {
+        NSPoint globalLocation = [theEvent locationInWindow];
+        NSPoint localLocation = [self convertPoint:globalLocation fromView:nil];
+        NSInteger row = [self rowAtPoint:localLocation];
+        [self.extendedDelegate didRightClickAtRow:row];
     }
 }
 
