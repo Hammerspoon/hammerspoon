@@ -9,6 +9,7 @@ export HS_MODULES="application \
     battery \
     brightness \
     caffeinate \
+    canvas \
     chooser \
     console \
     crash \
@@ -116,6 +117,13 @@ cp -av "${BUILT_PRODUCTS_DIR}/libeventtapevent.dylib" "${HS_DST}/eventtap/event.
 mkdir -pv "${HS_DST}/drawing/color"
 cp -av "${SRCROOT}/extensions/drawing/color/init.lua" "${HS_DST}/drawing/color/init.lua"
 cp -av "${BUILT_PRODUCTS_DIR}/libdrawing_color.dylib" "${HS_DST}/drawing/color/internal.so"
+
+# Special copier for hs.drawing.canvasWrapper
+cp -av "${SRCROOT}/extensions/drawing/canvasWrapper.lua" "${HS_DST}/drawing/canvasWrapper.lua"
+
+# Special copier for hs.canvas.matrix
+cp -av "${SRCROOT}/extensions/canvas/matrix.lua" "${HS_DST}/canvas/matrix.lua"
+cp -av "${BUILT_PRODUCTS_DIR}/libcanvasmatrix.dylib" "${HS_DST}/canvas/matrix_internal.so"
 
 # Special copier for hs.ipc
 mkdir -pv "${HS_DST}/ipc/bin"
