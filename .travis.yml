@@ -4,8 +4,6 @@ before_install:
   - gem install github-markdown xcpretty-travis-formatter
 before_script:
   - make docs
-  - sudo sqlite3 /Library/Application\ Support/com.apple.TCC/TCC.db "INSERT INTO access VALUES('kTCCServiceAccessibility','org.hammerspoon.Hammerspoon',0,1,1,NULL,NULL);"
-  - sudo sqlite3 /Library/Application\ Support/com.apple.TCC/TCC.db "INSERT INTO access VALUES('kTCCServiceAccessibility','com.apple.dt.Xcode-Helper',0,1,1,NULL,NULL);"
 xcode_workspace: Hammerspoon.xcworkspace
 xcode_scheme: Release
 script:
