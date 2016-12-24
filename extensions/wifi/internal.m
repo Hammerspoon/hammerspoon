@@ -1,70 +1,18 @@
 @import Cocoa;
 @import CoreWLAN;
-@import CoreWLAN;
 @import LuaSkin;
 
-#define USERDATA_TAG "hs.wifi"
+static const char *USERDATA_TAG = "hs.wifi" ;
+static int        refTable      = LUA_NOREF;
+
 #define get_objectFromUserdata(objType, L, idx) (objType*)*((void**)luaL_checkudata(L, idx, USERDATA_TAG))
-
-static int refTable = LUA_NOREF;
-static int logFnRef = LUA_NOREF;
-
-#pragma mark - Testing out better logging with hs.logger
-
-#define _cERROR   "ef"
-#define _cWARN    "wf"
-#define _cINFO    "f"
-#define _cDEBUG   "df"
-#define _cVERBOSE "vf"
-
-// allow this to be potentially unused in the module
-static int __unused log_to_console(lua_State *L, const char *level, NSString *theMessage) {
-    LuaSkin *skin = [LuaSkin shared];
-    lua_Debug functionDebugObject, callerDebugObject;
-    int status = lua_getstack(L, 0, &functionDebugObject);
-    status = status + lua_getstack(L, 1, &callerDebugObject);
-    NSString *fullMessage = nil ;
-    if (status == 2) {
-        lua_getinfo(L, "n", &functionDebugObject);
-        lua_getinfo(L, "Sl", &callerDebugObject);
-        fullMessage = [NSString stringWithFormat:@"%s - %@ (%d:%s)", functionDebugObject.name,
-                                                                     theMessage,
-                                                                     callerDebugObject.currentline,
-                                                                     callerDebugObject.short_src];
-    } else {
-        fullMessage = [NSString stringWithFormat:@"%s callback - %@", USERDATA_TAG,
-                                                                      theMessage];
-    }
-    // Put it into the system logs, may help with troubleshooting
-    [skin logBreadcrumb:[NSString stringWithFormat:@"hs.wifi: %@", fullMessage]];
-
-    // If hs.logger reference set, use it and the level will indicate whether the user sees it or not
-    // otherwise we print to the console for everything, just in case we forget to register.
-    if (logFnRef != LUA_NOREF) {
-        [skin pushLuaRef:refTable ref:logFnRef];
-        lua_getfield(L, -1, level); lua_remove(L, -2);
-    } else {
-        lua_getglobal(L, "print");
-    }
-
-    lua_pushstring(L, [fullMessage UTF8String]);
-    if (![[LuaSkin shared] protectedCallAndTraceback:1 nresults:0]) { return lua_error(L); }
-    return 0;
-}
-
-static int lua_registerLogForC(__unused lua_State *L) {
-    [[LuaSkin shared] checkArgs:LS_TTABLE, LS_TBREAK];
-    logFnRef = [[LuaSkin shared] luaRef:refTable];
-    return 0;
-}
 
 #pragma mark - Support Functions
 
 CWInterface *get_wifi_interface(NSString *theInterface) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        return (theInterface) ? [CWInterface interfaceWithName:theInterface] : [CWInterface interface] ;
-#pragma clang diagnostic pop
+        CWWiFiClient *sharedClient = [CWWiFiClient sharedWiFiClient] ;
+        return (theInterface) ? [sharedClient interfaceWithName:theInterface] :
+                                [sharedClient interface] ;
 }
 
 @interface HSWifiScan : NSObject
@@ -108,16 +56,16 @@ CWInterface *get_wifi_interface(NSString *theInterface) {
     if (_fnRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin shared] ;
         lua_State *L = [skin L] ;
-        [[LuaSkin shared] pushLuaRef:refTable ref:_fnRef];
+        [skin pushLuaRef:refTable ref:_fnRef];
         if ([object isKindOfClass:[NSError class]]) {
-            log_to_console(L, _cINFO, [(NSError *)object localizedDescription]) ;
+            [skin logInfo:[(NSError *)object localizedDescription]] ;
             [skin pushNSObject:[(NSError *)object localizedDescription]] ;
         } else {
             [skin pushNSObject:(NSSet *)object] ;
         }
 
         if (![skin protectedCallAndTraceback:1 nresults:0]) {
-            log_to_console(L, _cERROR, [skin toNSObjectAtIndex:-1]) ;
+            [skin logError:[skin toNSObjectAtIndex:-1]] ;
             lua_pop(L, 1) ;
         }
     }
@@ -237,10 +185,7 @@ static int associate(lua_State *L) {
 static int wifi_interfaces(__unused lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TBREAK] ;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    [skin pushNSObject:[CWInterface interfaceNames]] ;
-#pragma clang diagnostic pop
+    [skin pushNSObject:[CWWiFiClient interfaceNames]] ;
     return 1 ;
 }
 
@@ -256,7 +201,7 @@ static int wifi_interfaces(__unused lua_State *L) {
 ///
 /// Notes:
 ///  * WARNING: This function will block all Lua execution until the scan has completed. It's probably not very sensible to use this function very much, if at all.
-static int wifi_scan(lua_State* L __unused) {
+static int wifi_scan(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
     NSString *theName = nil ;
@@ -337,7 +282,7 @@ static int wifi_scan(lua_State* L __unused) {
 ///    ~~~
 ///
 ///    * These precautions are in response to Hammerspoon Github Issue #859.  As binary data, even when cleaned up with the Console's UTF8 wrapper code, some valid UTF8 sequences have been found to cause crashes in the OSX CoreText API during rendering.  While some specific sequences have made the rounds on the Internet, the specific code analysis at http://www.theregister.co.uk/2015/05/27/text_message_unicode_ios_osx_vulnerability/ suggests a possible cause of the problem which may be triggered by other currently unknown sequences as well.  As the sequences aren't at present predictable, we can't add to the UTF8 wrapper already in place for the Hammerspoon console.
-static int wifi_scan_background(lua_State* L __unused) {
+static int wifi_scan_background(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TFUNCTION | LS_TNIL, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
 
@@ -493,6 +438,7 @@ static int pushCWInterface(lua_State *L, id obj) {
         case kCWSecurityWPAEnterpriseMixed: lua_pushstring(L, "WPA Enterprise Mixed") ; break ;
         case kCWSecurityWPA2Enterprise:     lua_pushstring(L, "WPA2 Enterprise") ; break ;
         case kCWSecurityEnterprise:         lua_pushstring(L, "Enterprise") ; break ;
+        case kCWSecurityUnknown:            lua_pushstring(L, "Unknown") ; break ;
         default:                            lua_pushstring(L, [[NSString stringWithFormat:@"unrecognized (%ld)", [theInterface security]] UTF8String]) ; break ;
     }
     lua_setfield(L, -2, "security") ;
@@ -706,6 +652,7 @@ static int pushCWNetworkProfile(lua_State *L, id obj) {
         case kCWSecurityWPAEnterpriseMixed: lua_pushstring(L, "WPA Enterprise Mixed") ; break ;
         case kCWSecurityWPA2Enterprise:     lua_pushstring(L, "WPA2 Enterprise") ; break ;
         case kCWSecurityEnterprise:         lua_pushstring(L, "Enterprise") ; break ;
+        case kCWSecurityUnknown:            lua_pushstring(L, "Unknown") ; break ;
         default:                            lua_pushstring(L, [[NSString stringWithFormat:@"unrecognized (%ld)", [theProfile security]] UTF8String]) ; break ;
     }
     lua_setfield(L, -2, "security") ;
@@ -748,8 +695,6 @@ static const luaL_Reg wifilib[] = {
     {"setPower", setPower},
     {"disassociate", disassociate},
     {"associate", associate},
-
-    {"_registerLogForC", lua_registerLogForC},
     {NULL, NULL}
 };
 
@@ -775,8 +720,6 @@ int luaopen_hs_wifi_internal(__unused lua_State* L) {
                                  metaFunctions:nil // metalib
                                objectFunctions:userdata_metaLib];
 
-    logFnRef = LUA_NOREF;
-
     [skin registerPushNSHelper:pushCWInterface      forClass:"CWInterface"] ;
     [skin registerPushNSHelper:pushCWChannel        forClass:"CWChannel"] ;
     [skin registerPushNSHelper:pushCWConfiguration  forClass:"CWConfiguration"] ;
@@ -785,6 +728,4 @@ int luaopen_hs_wifi_internal(__unused lua_State* L) {
 
     return 1;
 }
-
-// #pragma clang diagnostic pop
 

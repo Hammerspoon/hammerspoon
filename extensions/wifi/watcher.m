@@ -1,96 +1,241 @@
-#import <Foundation/Foundation.h>
-#import <Cocoa/Cocoa.h>
-#import <CoreWLAN/CoreWLAN.h>
-#import <LuaSkin/LuaSkin.h>
-
 /// === hs.wifi.watcher ===
 ///
 /// Watch for changes to the associated wifi network
 
+@import Cocoa ;
+@import LuaSkin ;
+@import CoreWLAN ;
 
-// Common Code
+@class HSWifiWatcher ;
+@class HSWifiWatcherManager ;
 
-#define USERDATA_TAG    "hs.wifi.watcher"
-int refTable;
+static const char           *USERDATA_TAG = "hs.wifi.watcher" ;
+static int                  refTable = LUA_NOREF ;
+static NSDictionary         *watchableTypes ;
+static HSWifiWatcherManager *manager ;
 
-// Not so common code
+#define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
+// #define get_structFromUserdata(objType, L, idx, tag) ((objType *)luaL_checkudata(L, idx, tag))
+// #define get_cfobjectFromUserdata(objType, L, idx, tag) *((objType *)luaL_checkudata(L, idx, tag))
 
-@interface HSWiFiWatcher : NSObject
-@property lua_State* L;
-@property int fn;
-@property (strong) CWInterface *interface;
+#pragma mark - Support Functions and Classes
+
+@interface HSWifiWatcherManager : NSObject <CWEventDelegate>
+@property CWWiFiClient *client ;
+@property NSMutableSet *watchers ;
 @end
 
-@implementation HSWiFiWatcher
-- (id)init {
-    if (self = [super init]) {
-        // Re need to retain a reference to the WiFi interface so we receive the NSNotification
-        self.interface = [CWInterface interface];
-    }
-    return self;
-}
-
-- (void) _ssidChanged:(id __unused)bla {
-    [self performSelectorOnMainThread:@selector(ssidChanged:)
-                                       withObject:nil
-                                       waitUntilDone:YES];
-}
-
-- (void) ssidChanged:(id __unused)bla {
-    LuaSkin *skin = [LuaSkin shared];
-    lua_State *L = skin.L;
-
-    [skin pushLuaRef:refTable ref:self.fn];
-    if (![skin protectedCallAndTraceback:0 nresults:0]) {
-        const char *errorMsg = lua_tostring(L, -1);
-        [skin logError:[NSString stringWithFormat:@"hs.wifi.watcher callback error: %s", errorMsg]];
-        lua_pop(L, 1) ;
-    }
-}
+@interface HSWifiWatcher : NSObject
+@property int   callbackRef ;
+@property int   selfRef ;
+@property NSSet *watchingFor ;
 @end
 
+@implementation HSWifiWatcherManager
+- (instancetype)init {
+    self = [super init] ;
+    if (self) {
+        _watchers = [[NSMutableSet alloc] init] ;
 
-typedef struct _wifiwatcher_t {
-    bool running;
-    int fn;
-    void* obj;
-} wifiwatcher_t;
+        _client = [[CWWiFiClient alloc] init] ;
+        _client.delegate = self ;
+        [watchableTypes enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSNumber *value, __unused BOOL *stop) {
+            if ([value isKindOfClass:[NSNumber class]]) {
+                NSError *error ;
+                [self->_client startMonitoringEventWithType:[value integerValue] error:&error] ;
+                if (error) {
+                    [LuaSkin logWarn:[NSString stringWithFormat:@"%s:initManager unable to register for event type %@: %@", USERDATA_TAG, key, [error localizedDescription]]] ;
+                }
+            }
+        }] ;
+    }
+    return self ;
+}
 
+// // Need to determine if these are useful or if they indicate problems we can't handle at present
+// // anyways... will wait until I know more or someone asks about them.
+//
+// - (void)clientConnectionInterrupted {
+//     [self invokeCallbacksFor:@"connectionInterrupted" withDetails:nil] ;
+// }
+//
+// - (void)clientConnectionInvalidated {
+//     [self invokeCallbacksFor:@"connectionInvalidated" withDetails:nil] ;
+// }
+
+- (void)powerStateDidChangeForWiFiInterfaceWithName:(NSString *)interfaceName {
+    [self invokeCallbacksFor:@"powerChange" withDetails:@[ interfaceName ]] ;
+}
+
+- (void)ssidDidChangeForWiFiInterfaceWithName:(NSString *)interfaceName {
+    [self invokeCallbacksFor:@"SSIDChange" withDetails:@[ interfaceName ]] ;
+}
+
+- (void)bssidDidChangeForWiFiInterfaceWithName:(NSString *)interfaceName {
+    [self invokeCallbacksFor:@"BSSIDChange" withDetails:@[ interfaceName ]] ;
+}
+
+- (void)countryCodeDidChangeForWiFiInterfaceWithName:(NSString *)interfaceName {
+    [self invokeCallbacksFor:@"countryCodeChange" withDetails:@[ interfaceName ]] ;
+}
+
+// // apparently Travis doesn't know about this yet... and since I don't know how to test it
+// // anyways, I'll wait until I know more or someone asks for it
+//
+// - (void)virtualInterfaceStateChangedForWiFiInterfaceWithName:(NSString *)interfaceName {
+//     [self invokeCallbacksFor:@"virtualInterfaceStateChanged" withDetails:@[ interfaceName ]] ;
+// }
+
+// // I think this applies to beacon support which I can't really test with my current hardware
+// // and can't find well documented for macOS at present... I'm holding off on this until I
+// // know more or someone asks about it.
+//
+// - (void)rangingReportEventForWiFiInterfaceWithName:(NSString *)interfaceName data:(NSArray *)rangingData error:(NSError *)error {
+//     NSMutableDictionary *details = [[NSMutableArray alloc] init] ;
+//     [details addObject:interfaceName] ;
+//     if (rangingData) [details addObject:rangingData] ;
+//     if (error)       [details addObject:[error localizedDescription]] ;
+//     [self invokeCallbacksFor:@"rangingReport" withDetails:details] ;
+// }
+
+- (void)linkDidChangeForWiFiInterfaceWithName:(NSString *)interfaceName {
+    [self invokeCallbacksFor:@"linkChange" withDetails:@[ interfaceName ]] ;
+}
+
+- (void)linkQualityDidChangeForWiFiInterfaceWithName:(NSString *)interfaceName rssi:(NSInteger)rssi transmitRate:(double)transmitRate {
+    [self invokeCallbacksFor:@"linkQualityChange" withDetails:@[ interfaceName, @(rssi), @(transmitRate) ]] ;
+}
+
+- (void)modeDidChangeForWiFiInterfaceWithName:(NSString *)interfaceName {
+    [self invokeCallbacksFor:@"modeChange" withDetails:@[ interfaceName ]] ;
+}
+
+- (void)scanCacheUpdatedForWiFiInterfaceWithName:(NSString *)interfaceName {
+    [self invokeCallbacksFor:@"scanCacheUpdated" withDetails:@[ interfaceName ]] ;
+}
+
+- (void)invokeCallbacksFor:(NSString *)message withDetails:(NSArray *)details {
+    if (!watchableTypes[message]) {
+        [LuaSkin logError:[NSString stringWithFormat:@"%s:invokeCallbacksFor called with unrecognized lable:%@", USERDATA_TAG, message]] ;
+        return ;
+    }
+    [_watchers enumerateObjectsUsingBlock:^(HSWifiWatcher *aWatcher, __unused BOOL *stop) {
+        if ([aWatcher.watchingFor containsObject:message]) {
+            if (aWatcher.callbackRef != LUA_NOREF) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    LuaSkin *skin = [LuaSkin shared] ;
+                    [skin pushLuaRef:refTable ref:aWatcher.callbackRef] ;
+                    [skin pushNSObject:aWatcher] ;
+                    [skin pushNSObject:message] ;
+                    NSUInteger count = (details) ? [details count] : 0 ;
+                    if (details) {
+                        for (id argument in details) {
+                            [skin pushNSObject:argument withOptions:LS_NSDescribeUnknownTypes] ;
+                        }
+                    }
+                    if (![skin protectedCallAndTraceback:(2 + (int)count) nresults:0]) {
+                        [skin logError:[NSString stringWithFormat:@"%s:callback for %@ error:%s", USERDATA_TAG, message, lua_tostring(skin.L, -1)]] ;
+                        lua_pop(skin.L, 1) ;
+                    }
+                }) ;
+            }
+        }
+    }] ;
+}
+
+@end
+
+@implementation HSWifiWatcher
+
+- (instancetype)init {
+    self = [super init] ;
+    if (self) {
+        _callbackRef = LUA_NOREF ;
+        _selfRef     = 0 ;
+        _watchingFor = [NSSet setWithObject:@"SSIDChange"] ;
+    }
+    return self ;
+}
+
+@end
+
+#pragma mark - Module Functions
 
 /// hs.wifi.watcher.new(fn) -> watcher
 /// Constructor
 /// Creates a new watcher for WiFi network events
 ///
 /// Parameters:
-///  * fn - A function that will be called when a WiFi network is connected or disconnected. The function should accept no parameters.
+///  * fn - A function that will be called when a WiFi event that is being monitored occurs. The function should expect 2 or 4 arguments as described in the notes below.
 ///
 /// Returns:
 ///  * A `hs.wifi.watcher` object
 ///
 /// Notes:
-///  * The callback function will be called both when you join a network and leave it. You can identify which type of event is happening with `hs.wifi.currentNetwork()`, which will return nil if you have just disconnected from a WiFi network.
-///  * This means that when you switch from one network to another, you will receive a disconnection event as you leave the first network, and a connection event as you join the second. You are advised to keep a variable somewhere that tracks the name of the last network you were connected to, so you can track changes that involve multiple events.
-static int wifi_watcher_new(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TFUNCTION, LS_TBREAK];
-
-    wifiwatcher_t* wifiwatcher = lua_newuserdata(L, sizeof(wifiwatcher_t));
-    memset(wifiwatcher, 0, sizeof(wifiwatcher_t));
-
-    lua_pushvalue(L, 1);
-    wifiwatcher->fn = [skin luaRef:refTable];
-
-    HSWiFiWatcher* object = [[HSWiFiWatcher alloc] init];
-    object.L = L;
-    object.fn = wifiwatcher->fn;
-    wifiwatcher->obj = (__bridge_retained void*)object;
-    wifiwatcher->running = NO;
-
-    luaL_getmetatable(L, USERDATA_TAG);
-    lua_setmetatable(L, -2);
-
-    return 1;
+///  * For backwards compatibility, only "SSIDChange" is watched for by default, so existing code can continue to ignore the callback function arguments unless you add or change events with the [hs.wifi.watcher:watchingFor](#watchingFor).
+///
+///  * The callback function should expect between 3 and 5 arguments, depending upon the events being watched.  The possible arguments are as follows:
+///
+///    * `watcher`, "SSIDChange", `interface` - occurs when the associated network for the Wi-Fi interface changes
+///      * `watcher`   - the watcher object itself
+///      * `message`   - the message specifying the event, in this case "SSIDChange"
+///      * `interface` - the name of the interface for which the event occured
+///    * Use `hs.wifi.currentNetwork([interface])` to identify the new network, which may be nil when you leave a network.
+///
+///    * `watcher`, "BSSIDChange", `interface` - occurs when the base station the Wi-Fi interface is connected to changes
+///      * `watcher`   - the watcher object itself
+///      * `message`   - the message specifying the event, in this case "BSSIDChange"
+///      * `interface` - the name of the interface for which the event occured
+///
+///    * `watcher`, "countryCodeChange", `interface` - occurs when the adopted country code of the Wi-Fi interface changes
+///      * `watcher`   - the watcher object itself
+///      * `message`   - the message specifying the event, in this case "countryCodeChange"
+///      * `interface` - the name of the interface for which the event occured
+///
+///    * `watcher`, "linkChange", `interface` - occurs when the link state for the Wi-Fi interface changes
+///      * `watcher`   - the watcher object itself
+///      * `message`   - the message specifying the event, in this case "linkChange"
+///      * `interface` - the name of the interface for which the event occured
+///
+///    * `watcher`, "linkQualityChange", `interface` - occurs when the RSSI or transmit rate for the Wi-Fi interface changes
+///      * `watcher`   - the watcher object itself
+///      * `message`   - the message specifying the event, in this case "linkQualityChange"
+///      * `interface` - the name of the interface for which the event occured
+///      * `rssi`      - the RSSI value for the currently associated network on the Wi-Fi interface
+///      * `rate`      - the transmit rate for the currently associated network on the Wi-Fi interface
+///
+///    * `watcher`, "modeChange", `interface` - occurs when the operating mode of the Wi-Fi interface changes
+///      * `watcher`   - the watcher object itself
+///      * `message`   - the message specifying the event, in this case "modeChange"
+///      * `interface` - the name of the interface for which the event occured
+///
+///    * `watcher`, "powerChange", `interface` - occurs when the power state of the Wi-Fi interface changes
+///      * `watcher`   - the watcher object itself
+///      * `message`   - the message specifying the event, in this case "powerChange"
+///      * `interface` - the name of the interface for which the event occured
+///
+///    * `watcher`, "scanCacheUpdated", `interface` - occurs when the scan cache of the Wi-Fi interface is updated with new information
+///      * `watcher`   - the watcher object itself
+///      * `message`   - the message specifying the event, in this case "scanCacheUpdated"
+///      * `interface` - the name of the interface for which the event occured
+// ///
+// ///    * `watcher`, "virtualInterfaceStateChanged", `interface` - occurs when the state of a Wi-Fi virtual interface changes
+// ///      * `watcher`   - the watcher object itself
+// ///      * `message`   - the message specifying the event, in this case "virtualInterfaceStateChanged"
+// ///      * `interface` - the name of the interface for which the event occured
+static int wifi_watcher_new(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TFUNCTION, LS_TBREAK] ;
+    HSWifiWatcher *newWatcher = [[HSWifiWatcher alloc] init] ;
+    if (newWatcher) {
+        lua_pushvalue(L, 1) ;
+        newWatcher.callbackRef = [skin luaRef:refTable] ;
+    }
+    [skin pushNSObject:newWatcher] ;
+    return 1 ;
 }
+
+#pragma mark - Module Methods
 
 /// hs.wifi.watcher:start() -> watcher
 /// Method
@@ -101,19 +246,13 @@ static int wifi_watcher_new(lua_State* L) {
 ///
 /// Returns:
 ///  * The `hs.wifi.watcher` object
-static int wifi_watcher_start(lua_State* L) {
-    wifiwatcher_t* wifiwatcher = luaL_checkudata(L, 1, USERDATA_TAG);
-    lua_settop(L,1) ;
-
-    if (wifiwatcher->running) return 1;
-    wifiwatcher->running = YES;
-
-    [[NSNotificationCenter defaultCenter] addObserver:(__bridge id)wifiwatcher->obj
-                                             selector:@selector(_ssidChanged:)
-                                                 name:CWSSIDDidChangeNotification
-                                               object:nil];
-
-    return 1;
+static int wifi_watcher_start(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
+    HSWifiWatcher *watcher = [skin toNSObjectAtIndex:1] ;
+    [manager.watchers addObject:watcher] ;
+    lua_pushvalue(L, 1) ;
+    return 1 ;
 }
 
 /// hs.wifi.watcher:stop() -> watcher
@@ -125,68 +264,211 @@ static int wifi_watcher_start(lua_State* L) {
 ///
 /// Returns:
 ///  * The `hs.wifi.watcher` object
-static int wifi_watcher_stop(lua_State* L) {
-    wifiwatcher_t* wifiwatcher = luaL_checkudata(L, 1, USERDATA_TAG);
-    lua_settop(L,1) ;
-
-    if (!wifiwatcher->running) return 1;
-    wifiwatcher->running = NO;
-
-    [[NSNotificationCenter defaultCenter] removeObserver:(__bridge id)wifiwatcher->obj
-                                                    name:CWSSIDDidChangeNotification
-                                                  object:nil];
-
-    return 1;
-}
-
-static int wifi_watcher_gc(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
-
-    wifiwatcher_t* wifiwatcher = luaL_checkudata(L, 1, USERDATA_TAG);
-
-    lua_pushcfunction(L, wifi_watcher_stop) ; lua_pushvalue(L,1); lua_call(L, 1, 1);
-
-    wifiwatcher->fn = [skin luaUnref:refTable ref:wifiwatcher->fn];
-
-    HSWiFiWatcher* object = (__bridge_transfer id)wifiwatcher->obj;
-    object = nil;
-
-    return 0;
-}
-
-static int userdata_tostring(lua_State* L) {
-    lua_pushstring(L, [[NSString stringWithFormat:@"%s: (%p)", USERDATA_TAG, lua_topointer(L, 1)] UTF8String]) ;
+static int wifi_watcher_stop(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
+    HSWifiWatcher *watcher = [skin toNSObjectAtIndex:1] ;
+    [manager.watchers removeObject:watcher] ;
+    lua_pushvalue(L, 1) ;
     return 1 ;
 }
 
-static int meta_gc(lua_State* __unused L) {
-    return 0;
+/// hs.wifi.watcher:watchingFor([messages]) -> watcher | current-value
+/// Method
+/// Get or set the specific types of wifi events to generate a callback for with this watcher.
+///
+/// Parameters:
+///  * `messages` - an optional table of or list of strings specifying the types of events this watcher should invoke a callback for.  You can specify multiple types of events to watch for. Defaults to `{ "SSIDChange" }`.
+///
+/// Returns:
+///  * if a value is provided, returns the watcher object; otherwise returns the current values as a table of strings.
+///
+/// Notes:
+///  * the possible values for this method are described in [hs.wifi.watcher.eventTypes](#eventTypes).
+///  * the special string "all" specifies that all event types should be watched for.
+static int wifi_watcher_watchingFor(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE | LS_TOPTIONAL, LS_TBREAK] ;
+    HSWifiWatcher *watcher = [skin toNSObjectAtIndex:1] ;
+    if (lua_gettop(L) == 1) {
+        [skin pushNSObject:watcher.watchingFor] ;
+    } else {
+        NSArray *messages = [skin toNSObjectAtIndex:2] ;
+        if ([messages isKindOfClass:[NSArray class]]) {
+            __block NSString *messageError ;
+            [messages enumerateObjectsUsingBlock:^(NSString *obj, NSUInteger idx, BOOL *stop) {
+                if ([obj isKindOfClass:[NSString class]]) {
+                    if (![[watchableTypes allKeys] containsObject:obj]) {
+                        *stop = YES ;
+                        messageError = [NSString stringWithFormat:@"unrecognized message at index %lu; expected one of %@", idx + 1, [[watchableTypes allKeys] componentsJoinedByString:@", "]] ;
+                    }
+                } else {
+                    *stop = YES ;
+                    messageError = [NSString stringWithFormat:@"expected string at index %lu", idx + 1] ;
+                }
+            }] ;
+            if (messageError) return luaL_argerror(L, 2, [messageError UTF8String]) ;
+            watcher.watchingFor = [NSSet setWithArray:messages] ;
+            lua_pushvalue(L, 1) ;
+        } else {
+            return luaL_argerror(L, 2, "expected an array of messages") ;
+        }
+    }
+    return 1 ;
 }
 
-// Metatable for created objects when _new invoked
-static const luaL_Reg wifi_metalib[] = {
-    {"start",   wifi_watcher_start},
-    {"stop",    wifi_watcher_stop},
-    {"__tostring", userdata_tostring},
-    {"__gc",    wifi_watcher_gc},
-    {NULL,      NULL}
+#pragma mark - Module Constants
+
+/// hs.wifi.watcher.eventTypes[]
+/// Constant
+/// A table containing the possible event types that this watcher can monitor for.
+///
+/// The following events are available for monitoring:
+/// * "SSIDChange"                   - monitor when the associated network for the Wi-Fi interface changes
+/// * "BSSIDChange"                  - monitor when the base station the Wi-Fi interface is connected to changes
+/// * "countryCodeChange"            - monitor when the adopted country code of the Wi-Fi interface changes
+/// * "linkChange"                   - monitor when the link state for the Wi-Fi interface changes
+/// * "linkQualityChange"            - monitor when the RSSI or transmit rate for the Wi-Fi interface changes
+/// * "modeChange"                   - monitor when the operating mode of the Wi-Fi interface changes
+/// * "powerChange"                  - monitor when the power state of the Wi-Fi interface changes
+/// * "scanCacheUpdated"             - monitor when the scan cache of the Wi-Fi interface is updated with new information
+// /// * "virtualInterfaceStateChanged" - monitor when the state of a Wi-Fi virtual interface changes
+static int pushEventTypes(__unused lua_State *L) {
+    [[LuaSkin shared] pushNSObject:[watchableTypes allKeys]] ;
+    return 1 ;
+}
+
+#pragma mark - Lua<->NSObject Conversion Functions
+// These must not throw a lua error to ensure LuaSkin can safely be used from Objective-C
+// delegates and blocks.
+
+static int pushHSWifiWatcher(lua_State *L, id obj) {
+    HSWifiWatcher *value = obj;
+    value.selfRef++ ;
+    void** valuePtr = lua_newuserdata(L, sizeof(HSWifiWatcher *));
+    *valuePtr = (__bridge_retained void *)value;
+    luaL_getmetatable(L, USERDATA_TAG);
+    lua_setmetatable(L, -2);
+    return 1;
+}
+
+id toHSWifiWatcherFromLua(lua_State *L, int idx) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    HSWifiWatcher *value ;
+    if (luaL_testudata(L, idx, USERDATA_TAG)) {
+        value = get_objectFromUserdata(__bridge HSWifiWatcher, L, idx, USERDATA_TAG) ;
+    } else {
+        [skin logError:[NSString stringWithFormat:@"expected %s object, found %s", USERDATA_TAG,
+                                                   lua_typename(L, lua_type(L, idx))]] ;
+    }
+    return value ;
+}
+
+#pragma mark - Hammerspoon/Lua Infrastructure
+
+static int userdata_tostring(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+//     HSWifiWatcher *obj = [skin luaObjectAtIndex:1 toClass:"HSWifiWatcher"] ;
+    [skin pushNSObject:[NSString stringWithFormat:@"%s: (%p)", USERDATA_TAG, lua_topointer(L, 1)]] ;
+    return 1 ;
+}
+
+static int userdata_eq(lua_State* L) {
+// can't get here if at least one of us isn't a userdata type, and we only care if both types are ours,
+// so use luaL_testudata before the macro causes a lua error
+    if (luaL_testudata(L, 1, USERDATA_TAG) && luaL_testudata(L, 2, USERDATA_TAG)) {
+        LuaSkin *skin = [LuaSkin shared] ;
+        HSWifiWatcher *obj1 = [skin luaObjectAtIndex:1 toClass:"HSWifiWatcher"] ;
+        HSWifiWatcher *obj2 = [skin luaObjectAtIndex:2 toClass:"HSWifiWatcher"] ;
+        lua_pushboolean(L, [obj1 isEqualTo:obj2]) ;
+    } else {
+        lua_pushboolean(L, NO) ;
+    }
+    return 1 ;
+}
+
+static int userdata_gc(lua_State* L) {
+    HSWifiWatcher *obj = get_objectFromUserdata(__bridge_transfer HSWifiWatcher, L, 1, USERDATA_TAG) ;
+    if (obj) {
+        obj.selfRef-- ;
+        if (obj.selfRef == 0) {
+            obj.callbackRef = [[LuaSkin shared] luaUnref:refTable ref:obj.callbackRef] ;
+            [manager.watchers removeObject:obj] ;
+            obj = nil ;
+        }
+    }
+    // Remove the Metatable so future use of the variable in Lua won't think its valid
+    lua_pushnil(L) ;
+    lua_setmetatable(L, 1) ;
+    return 0 ;
+}
+
+static int meta_gc(lua_State* __unused L) {
+    [manager.watchers removeAllObjects] ;
+    NSError *error ;
+    [manager.client stopMonitoringAllEventsAndReturnError:&error] ;
+    if (error) {
+        [LuaSkin logWarn:[NSString stringWithFormat:@"%s:meta_gc unable to unregister events: %@", USERDATA_TAG, [error localizedDescription]]] ;
+    }
+    manager.client = nil ;
+    manager = nil ;
+    return 0 ;
+}
+
+// Metatable for userdata objects
+static const luaL_Reg userdata_metaLib[] = {
+    {"start",       wifi_watcher_start},
+    {"stop",        wifi_watcher_stop},
+    {"watchingFor", wifi_watcher_watchingFor},
+
+    {"__tostring",  userdata_tostring},
+    {"__eq",        userdata_eq},
+    {"__gc",        userdata_gc},
+    {NULL,          NULL}
 };
 
 // Functions for returned object when module loads
-static const luaL_Reg wifiLib[] = {
-    {"new",     wifi_watcher_new},
-    {NULL,      NULL}
+static luaL_Reg moduleLib[] = {
+    {"new", wifi_watcher_new},
+    {NULL,  NULL}
 };
 
-// Metatable for returned object when module loads
-static const luaL_Reg meta_gcLib[] = {
-    {"__gc",    meta_gc},
-    {NULL,      NULL}
+// Metatable for module, if needed
+static const luaL_Reg module_metaLib[] = {
+    {"__gc", meta_gc},
+    {NULL,   NULL}
 };
 
-int luaopen_hs_wifi_watcher(lua_State* L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
-    refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:wifiLib metaFunctions:meta_gcLib objectFunctions:wifi_metalib];
+int luaopen_hs_wifi_watcher(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    refTable = [skin registerLibraryWithObject:USERDATA_TAG
+                                     functions:moduleLib
+                                 metaFunctions:module_metaLib
+                               objectFunctions:userdata_metaLib];
+
+    watchableTypes = @{
+        @"powerChange"                  : @(CWEventTypePowerDidChange),
+        @"SSIDChange"                   : @(CWEventTypeSSIDDidChange),
+        @"BSSIDChange"                  : @(CWEventTypeBSSIDDidChange),
+        @"countryCodeChange"            : @(CWEventTypeCountryCodeDidChange),
+        @"linkChange"                   : @(CWEventTypeLinkDidChange),
+        @"linkQualityChange"            : @(CWEventTypeLinkQualityDidChange),
+        @"modeChange"                   : @(CWEventTypeModeDidChange),
+        @"scanCacheUpdated"             : @(CWEventTypeScanCacheUpdated),
+// see delegate for comments regarding these
+//         @"virtualInterfaceStateChanged" : @(CWEventTypeVirtualInterfaceStateChanged),
+//         @"rangingReport"                : @(CWEventTypeRangingReportEvent),
+//         @"connectionInterrupted"        : @"clientConnectionInterrupted",
+//         @"connectionInvalidated"        : @"clientConnectionInvalidated",
+    } ;
+
+    manager = [[HSWifiWatcherManager alloc] init] ;
+
+    [skin registerPushNSHelper:pushHSWifiWatcher         forClass:"HSWifiWatcher"];
+    [skin registerLuaObjectHelper:toHSWifiWatcherFromLua forClass:"HSWifiWatcher"
+                                             withUserdataMapping:USERDATA_TAG];
+
+    pushEventTypes(L) ; lua_setfield(L, -2, "eventTypes") ;
 
     return 1;
 }
