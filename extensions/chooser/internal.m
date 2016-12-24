@@ -223,33 +223,41 @@ static int chooserRefreshChoicesCallback(lua_State *L) {
 /// Sets/gets the search string
 ///
 /// Parameters:
-///  * queryString - An optional string to search for. If omitted, the current contents of the search box are returned
+///  * queryString - An optional string to search for, or an explicit nil to clear the query. If omitted, the current contents of the search box are returned
 ///
 /// Returns:
 ///  * The `hs.chooser` object or a string
+///
+/// Notes:
+///  * You can provide an explicit nil or empty string to clear the current query string.
 static int chooserSetQuery(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TNIL | LS_TOPTIONAL, LS_TBREAK];
 
     chooser_userdata_t *userData = lua_touserdata(L, 1);
     HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
 
-    switch (lua_type(L, 2)) {
-        case LUA_TSTRING:
-            chooser.queryField.stringValue = [skin toNSObjectAtIndex:2];
-            lua_pushvalue(L, 1);
-            break;
+    if (lua_gettop(L) == 1) {
+        [skin pushNSObject:chooser.queryField.stringValue];
+    } else {
+        switch (lua_type(L, 2)) {
+            case LUA_TSTRING:
+                chooser.queryField.stringValue = [skin toNSObjectAtIndex:2];
+                lua_pushvalue(L, 1);
+                break;
 
-        case LUA_TNONE:
-            [skin pushNSObject:chooser.queryField.stringValue];
-            break;
+            case LUA_TNIL:
+                chooser.queryField.stringValue = @"" ;
+                lua_pushvalue(L, 1);
+                break;
 
-        default:
-            NSLog(@"ERROR: Unknown type passed to hs.chooser:query(). This should not be possible");
-            lua_pushnil(L);
-            break;
+            default:
+                NSLog(@"ERROR: Unknown type passed to hs.chooser:query(). This should not be possible");
+                lua_pushnil(L);
+                break;
+        }
+        [chooser controlTextDidChange:nil] ;
     }
-
     return 1;
 }
 

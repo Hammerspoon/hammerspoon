@@ -374,6 +374,7 @@
 #pragma mark - Choice management methods
 
 - (void)updateChoices {
+    [self controlTextDidChange:nil] ;
     if (self.window.visible) {
         [self.choicesTableView reloadData];
     } else {
