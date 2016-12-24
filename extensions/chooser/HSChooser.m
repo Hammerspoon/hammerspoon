@@ -57,9 +57,15 @@
         if (![self setupWindow]) {
             return nil;
         }
+        
+        [[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(setBgLightDark) name:@"AppleInterfaceThemeChangedNotification" object:nil];
     }
 
     return self;
+}
+
+- (void)dealloc {
+    [[NSDistributedNotificationCenter defaultCenter] removeObserver:self name:@"AppleInterfaceThemeChangedNotification" object:nil];
 }
 
 #pragma mark - Window related methods
@@ -68,8 +74,8 @@
     [super windowDidLoad];
 
     [self.queryField setFocusRingType:NSFocusRingTypeNone];
+    [self setBgLightDark];
 }
-
 
 - (void)windowDidBecomeKey:(NSNotification *)notification {
     __weak id _self = self;
@@ -476,7 +482,16 @@
     }
 }
 
+- (void)setBgLightDark {
+    NSString *interfaceStyle = [[NSUserDefaults standardUserDefaults] stringForKey:@"AppleInterfaceStyle"];
+    BOOL isDark = (interfaceStyle && [[interfaceStyle lowercaseString] isEqualToString:@"dark"]);
+
+    NSAppearance *appearance = isDark ? [NSAppearance appearanceNamed:NSAppearanceNameVibrantDark] : [NSAppearance appearanceNamed:NSAppearanceNameVibrantLight];
+    self.window.appearance = appearance;
+}
+
 - (void)setBgLightDark:(BOOL)isDark {
+    [[NSDistributedNotificationCenter defaultCenter] removeObserver:self name:@"AppleInterfaceThemeChangedNotification" object:nil];
     NSAppearance *appearance = isDark ? [NSAppearance appearanceNamed:NSAppearanceNameVibrantDark] : [NSAppearance appearanceNamed:NSAppearanceNameVibrantLight];
     self.window.appearance = appearance;
 }
