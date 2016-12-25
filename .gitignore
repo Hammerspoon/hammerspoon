@@ -2,7 +2,7 @@
 .DS_Store
 
 # Rebuild script
-rebuild.sh
+/rebuild.sh
 
 # Build artifacts
 /Hammerspoon.app
