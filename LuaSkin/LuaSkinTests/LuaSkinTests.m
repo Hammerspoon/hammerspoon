@@ -165,7 +165,8 @@ static int pushTestUserData(lua_State *L, id object) {
 
     if (chopPoint.location == NSNotFound) {
         // We're probably running under Xcode 8.1 (and later?) which doesn't export XCTestConfigurationFilePath anymore
-        bundlePath = [NSString stringWithFormat:@"%@/LuaSkinTests.xctest/Contents/Resources/", environment[@"PWD"]];
+        //bundlePath = [NSString stringWithFormat:@"%@/LuaSkinTests.xctest/Contents/Resources/", environment[@"PWD"]];
+        bundlePath = [[NSBundle bundleForClass:[self class]] resourcePath];
     } else {
         // We're probably running under Xcode 8.0 or earlier
         bundlePath = [xcTestConfigurationFilePath substringWithRange:NSMakeRange(0, chopPoint.location + chopPoint.length - 1)];
