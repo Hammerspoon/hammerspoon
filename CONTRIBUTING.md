@@ -13,26 +13,7 @@ The extension modules are built before the core Hammerspoon binary as target dep
 
 Create a self-signed Code Signing certificate named 'Internal Code Signing' or similar as described [here](http://bd808.com/blog/2013/10/21/creating-a-self-signed-code-certificate-for-xcode/).
 
-Create a file `rebuild.sh` or similar with execute permissions in your local repo as follows:
-```bash
-#!/bin/bash
-
-killall Hammerspoon
-
-make clean
-make
-make docs
-
-rm -fr `xcodebuild -workspace Hammerspoon.xcworkspace -scheme Hammerspoon -configuration DEBUG -showBuildSettings | sort | uniq | grep " BUILT_PRODUCTS_DIR =" | awk '{ print $3 }'`/Hammerspoon.app
-
-# signing with self-signed cert so I no longer have to reset accessibility all the time
-codesign --verbose --sign "Internal Code Signing" "build/Hammerspoon.app/Contents/Frameworks/LuaSkin.framework/Versions/A"
-codesign --verbose --sign "Internal Code Signing" "build/Hammerspoon.app"
-
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-open -a $DIR/build/Hammerspoon.app
-```
-Then, simply run `./rebuild.sh` for more streamlined builds.
+Then, simply run `./scripts/rebuild.sh` for more streamlined builds.
 
 ## Contributing to the core app or LuaSkin
 This is generally very simple in terms of the workflow, but there's less likely to be any reason to work on the core app:
