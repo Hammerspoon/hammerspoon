@@ -182,8 +182,8 @@ static int pushTestUserData(lua_State *L, id object) {
     NSLog(@"Loading LuaSkinTests lsunit.lua from %@", lsUnitPath);
     int loadresult = luaL_loadfile(self.skin.L, [lsUnitPath UTF8String]);
     if (loadresult != 0) {
-        NSLog(@"ERROR: Unable to load lsunit.lua from LuaSkinTests.xctest");
-        NSException *loadException = [NSException exceptionWithName:@"LuaSkinTestsLSInitLoadfileFailed" reason:@"Unable to load lsunit.lua from LuaSkinTests.xctest" userInfo:nil];
+        NSLog(@"ERROR: Unable to load lsunit.lua from %@", lsUnitPath);
+        NSException *loadException = [NSException exceptionWithName:@"LuaSkinTestsLSInitLoadfileFailed" reason:[NSString stringWithFormat:@"Unable to load lsunit.lua from %@", lsUnitPath] userInfo:nil];
         @throw loadException;
     }
 
