@@ -141,6 +141,15 @@ NSString *specMaskToString(int spec) {
     NSAssert((self.L == NULL), @"createLuaState called on a live Lua environment", nil);
     self.L = luaL_newstate();
     luaL_openlibs(self.L);
+
+    NSString *luaSkinLua = [[NSBundle bundleForClass:[self class]] pathForResource:@"luaskin" ofType:@"lua"];
+    NSAssert((luaSkinLua != nil), @"createLuaState was unable to find luaskin.lua. Your installation may be damaged");
+
+    int loadresult = luaL_loadfile(self.L, luaSkinLua.fileSystemRepresentation);
+    NSAssert((loadresult == 0), @"createLuaState was unable to load luaskin.lua. Your installation may be damaged.");
+
+    int luaresult = lua_pcall(self.L, 0, 0, 0);
+    NSAssert((luaresult == LUA_OK), @"createLuaState was unable to evaluate luaskin.lua. Your installation may be damaged.");
 }
 
 - (void)destroyLuaState {
