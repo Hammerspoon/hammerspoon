@@ -1,3 +1,5 @@
+require("hs.distributednotifications")
+
 -- Storage for a notifications watcher object
 distNotWatcher = nil
 -- Storage for a timer callback to modify in various tests

@@ -1,4 +1,6 @@
 -- hs.fs tests
+require("hs.fs")
+require("hs.socket")
 
 testDir = "/private/tmp/hs_fs_test_dir/"
 

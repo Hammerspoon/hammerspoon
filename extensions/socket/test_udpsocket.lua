@@ -1,3 +1,7 @@
+require("hs.socket")
+require("hs.timer")
+require("hs.fnutils")
+
 -- globals for async UDP tests
 port = 9001
 

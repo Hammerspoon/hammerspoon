@@ -1,3 +1,6 @@
+require("hs.screen")
+require("hs.geometry")
+
 function testMainScreen()
   local screen = hs.screen.mainScreen()
   assertIsUserdataOfType("hs.screen", screen)

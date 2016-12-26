@@ -1,4 +1,8 @@
 -- hs.socket tests
+require("hs.socket")
+require("hs.timer")
+require("hs.fnutils")
+
 require "test_udpsocket"
 
 -- globals for async TCP tests

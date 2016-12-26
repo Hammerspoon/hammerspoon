@@ -1,3 +1,9 @@
+require("hs.uielement")
+require("hs.window")
+require("hs.timer")
+require("hs.eventtap")
+require("hs.application")
+
 function getPrefs()
   hs.openPreferences()
   return hs.uielement.focusedElement()

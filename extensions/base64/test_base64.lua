@@ -1,3 +1,5 @@
+require("hs.base64")
+
 function testEncode()
   local original = "encoding test"
   assertIsEqual("ZW5jb2RpbmcgdGVzdA==", hs.base64.encode(original))

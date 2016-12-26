@@ -1,3 +1,5 @@
+require("hs.osascript")
+
 function testAppleScriptParseError()
   local as = "2 +"
   local status, object, descriptor = hs.osascript.applescript(as)

@@ -1,3 +1,5 @@
+require("hs.audiodevice")
+
 -- Test constructors/functions
 function testGetDefaultOutput()
   assertIsUserdataOfType("hs.audiodevice", hs.audiodevice.defaultOutputDevice())

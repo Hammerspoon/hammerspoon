@@ -1,3 +1,5 @@
+require("hs.json")
+
 function testOSExit()
   assertIsEqual("function", type(hs._exit))
   assertIsEqual(hs._exit, os.exit)
