@@ -225,8 +225,8 @@ logger.defaultLogLevel = 'warning'
 ---    therefore, do not use the colon syntax for so-called "methods" in this module (as in `mylogger:setLogLevel(3)`);
 ---    you must instead use the regular dot syntax: `mylogger.setLogLevel(3)`
 ---
---- Usage:
---- ```
+--- Example:
+--- ```lua
 --- local log = hs.logger.new('mymodule','debug')
 --- log.i('Initializing') -- will print "[mymodule] Initializing" to the console
 --- ```
