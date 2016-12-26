@@ -2,9 +2,9 @@
 ---
 --- Manipulate screens (i.e. monitors)
 ---
---- The OSX coordinate system used by Hammerspoon assumes a grid that spans all the screens (positioned as per
+--- The macOS coordinate system used by Hammerspoon assumes a grid that spans all the screens (positioned as per
 --- System Preferences->Displays->Arrangement). The origin `0,0` is at the top left corner of the *primary screen*.
---- (Screens to the top or the left of the primary screen, and windows on these screens, will have negative coordinates)
+--- (Screens to the left of the primary screen, or above it, and windows on these screens, will have negative coordinates)
 
 local screen = require "hs.screen.internal"
 local geometry = require "hs.geometry"
@@ -20,7 +20,13 @@ local screenObject = hs.getObjectMetatable("hs.screen")
 
 --- hs.screen.primaryScreen() -> screen
 --- Constructor
---- Returns the primary screen, i.e. the one containing the menubar
+--- Gets the primary screen
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * An `hs.screen` object
 function screen.primaryScreen()
   return screen.allScreens()[1]
 end
@@ -31,11 +37,11 @@ end
 ---
 --- Parameters:
 ---  * hint - search criterion for the desired screen(s); it can be:
----    - a number as per `hs.screen:id()`
----    - a string pattern that matches (via `string.match`) the screen name as per `hs.screen:name()` (for convenience, the matching will be done on lowercased strings)
----    - an hs.geometry *point* object, or constructor argument, with the *x and y position* of the screen in the current layout as per `hs.screen:position()`
----    - an hs.geometry *size* object, or constructor argument, with the *resolution* of the screen as per `hs.screen:fullFrame()`
----    - an hs.geometry *rect* object, or constructor argument, with an arbitrary rect in absolute coordinates; the screen
+---   * a number as per `hs.screen:id()`
+---   * a string pattern that matches (via `string.match`) the screen name as per `hs.screen:name()` (for convenience, the matching will be done on lowercased strings)
+---   * an hs.geometry *point* object, or constructor argument, with the *x and y position* of the screen in the current layout as per `hs.screen:position()`
+---   * an hs.geometry *size* object, or constructor argument, with the *resolution* of the screen as per `hs.screen:fullFrame()`
+---   * an hs.geometry *rect* object, or constructor argument, with an arbitrary rect in absolute coordinates; the screen
 ---      containing the largest part of the rect will be returned
 ---
 --- Returns:
@@ -44,8 +50,8 @@ end
 --- Notes:
 ---  * for convenience you call call this as `hs.screen(hint)`
 ---
---- Usage:
---- ```
+--- Example:
+--- ```lua
 --- hs.screen(724562417) --> Color LCD - by id
 --- hs.screen'Dell'      --> DELL U2414M - by name
 --- hs.screen'0,0'       --> PHL BDM4065 - by position, same as hs.screen.primaryScreen()
@@ -105,9 +111,7 @@ screen.findByID=screen.find
 ---  * None
 ---
 --- Returns:
----  * a table where each *key* is an `hs.screen` object, and the corresponding value is a table {x=X,y=Y}, where X and Y attempt to indicate
----    each screen's position relative to the primary screen (which is at {x=0,y=0}); so e.g. a value of {x=-1,y=0} indicates a screen immediately to
----    the left of the primary screen, and a value of {x=0,y=2} indicates a screen positioned below the primary screen, with another screen inbetween.
+---  * a table where each *key* is an `hs.screen` object, and the corresponding value is a table {x=X,y=Y}, where X and Y attempt to indicate each screen's position relative to the primary screen (which is at {x=0,y=0}); so e.g. a value of {x=-1,y=0} indicates a screen immediately to the left of the primary screen, and a value of {x=0,y=2} indicates a screen positioned below the primary screen, with another screen inbetween.
 ---
 --- Notes:
 ---  * grid-like arrangements of same-sized screens should behave consistently; but there's no guarantee of a consistent result for more "exotic" screen arrangements
@@ -251,7 +255,13 @@ end
 
 --- hs.screen:next() -> screen
 --- Method
---- Returns the screen 'after' this one (in arbitrary order); this method wraps around to the first screen.
+--- Gets the screen 'after' this one (in arbitrary order); this method wraps around to the first screen.
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * An `hs.screen` object
 function screenObject:next()
   local screens = screen.allScreens()
   local idx=1 for i,s in ipairs(screens) do if s==self then idx=i+1 break end end
@@ -262,7 +272,13 @@ end
 
 --- hs.screen:previous() -> screen
 --- Method
---- Returns the screen 'before' this one (in arbitrary order); this method wraps around to the last screen.
+--- Gets the screen 'before' this one (in arbitrary order); this method wraps around to the last screen.
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * An `hs.screen` object
 function screenObject:previous()
   local screens = screen.allScreens()
   local idx=1 for i,s in ipairs(screens) do if s==self then idx=i-1 break end end
@@ -322,7 +338,7 @@ screen.strictScreenInDirection = false
 ---   * strict - If `true`, disregard screens that lie completely above or below this one (alternatively, set `hs.screen.strictScreenInDirection`)
 ---
 --- Returns:
----   * the desired hs.screen object, or `nil` if not found
+---   * An `hs.screen` object, or `nil` if not found
 
 --- hs.screen:toWest() -> hs.screen object
 --- Method
@@ -333,7 +349,7 @@ screen.strictScreenInDirection = false
 ---   * strict - If `true`, disregard screens that lie completely above or below this one (alternatively, set `hs.screen.strictScreenInDirection`)
 ---
 --- Returns:
----   * the desired hs.screen object, or `nil` if not found
+---   * An `hs.screen` object, or `nil` if not found
 
 --- hs.screen:toNorth() -> hs.screen object
 --- Method
@@ -344,7 +360,7 @@ screen.strictScreenInDirection = false
 ---   * strict - If `true`, disregard screens that lie completely to the left or to the right of this one (alternatively, set `hs.screen.strictScreenInDirection`)
 ---
 --- Returns:
----   * the desired hs.screen object, or `nil` if not found
+---   * An `hs.screen` object, or `nil` if not found
 
 --- hs.screen:toSouth() -> hs.screen object
 --- Method
@@ -355,7 +371,7 @@ screen.strictScreenInDirection = false
 ---   * strict - If `true`, disregard screens that lie completely to the left or to the right of this one (alternatively, set `hs.screen.strictScreenInDirection`)
 ---
 --- Returns:
----   * the desired hs.screen object, or `nil` if not found
+---   * An `hs.screen` object, or `nil` if not found
 for r,d in pairs{[0]='East','North','West','South'} do
   screenObject['to'..d]=function(self,...) return first_screen_in_direction(self,r,...) end
 end
@@ -366,7 +382,7 @@ end
 ---
 --- Parameters:
 ---  * filePath - A string containing a file path to save the screenshot as
----  * screenRect - An optional hs.geometry rect (or arguments for its constructor) containing a portion of the screen to capture. Defaults to the whole screen
+---  * screenRect - An optional `hs.geometry` rect (or arguments for its constructor) containing a portion of the screen to capture. Defaults to the whole screen
 ---
 --- Returns:
 ---  * None
@@ -381,7 +397,7 @@ end
 ---
 --- Parameters:
 ---  * filePath - A string containing a file path to save the screenshot as
----  * screenRect - An optional hs.geometry rect (or arguments for its constructor) containing a portion of the screen to capture. Defaults to the whole screen
+---  * screenRect - An optional `hs.geometry` rect (or arguments for its constructor) containing a portion of the screen to capture. Defaults to the whole screen
 ---
 --- Returns:
 ---  * None
