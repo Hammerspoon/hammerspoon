@@ -72,7 +72,7 @@
     [super windowDidLoad];
 
     [self.queryField setFocusRingType:NSFocusRingTypeNone];
-    [self setBgLightDark];
+    [self setAutoBgLightDark];
 }
 
 - (void)windowDidBecomeKey:(NSNotification *)notification {
@@ -480,23 +480,27 @@
     }
 }
 
-- (void)setBgLightDark {
+- (void)applyDarkSetting:(BOOL)beDark {
+    NSAppearance *appearance = beDark ? [NSAppearance appearanceNamed:NSAppearanceNameVibrantDark] : [NSAppearance appearanceNamed:NSAppearanceNameVibrantLight];
+    self.window.appearance = appearance;
+}
+
+- (void)setAutoBgLightDark {
     NSString *interfaceStyle = [[NSUserDefaults standardUserDefaults] stringForKey:@"AppleInterfaceStyle"];
     BOOL isDark = (interfaceStyle && [[interfaceStyle lowercaseString] isEqualToString:@"dark"]);
 
-    NSAppearance *appearance = isDark ? [NSAppearance appearanceNamed:NSAppearanceNameVibrantDark] : [NSAppearance appearanceNamed:NSAppearanceNameVibrantLight];
-    self.window.appearance = appearance;
+    [self applyDarkSetting:isDark];
 }
 
 - (void)setBgLightDark:(NSNumber *)isDark {
     if (isDark == nil) {
         self.isObservingThemeChanges = YES;
+        [self setAutoBgLightDark];
         return;
     }
     self.isObservingThemeChanges = NO;
 
-    NSAppearance *appearance = isDark ? [NSAppearance appearanceNamed:NSAppearanceNameVibrantDark] : [NSAppearance appearanceNamed:NSAppearanceNameVibrantLight];
-    self.window.appearance = appearance;
+    [self applyDarkSetting:isDark.boolValue];
 }
 
 - (BOOL)isBgLightDark {
@@ -539,7 +543,7 @@
     _isObservingThemeChanges = isObservingThemeChanges;
     if (isObservingThemeChanges) {
         // Activate the observer.
-        [[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(setBgLightDark) name:@"AppleInterfaceThemeChangedNotification" object:nil];
+        [[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(setBgLightDark:) name:@"AppleInterfaceThemeChangedNotification" object:nil];
     } else {
         // Deactivate the observer.
         [[NSDistributedNotificationCenter defaultCenter] removeObserver:self name:@"AppleInterfaceThemeChangedNotification" object:nil];
