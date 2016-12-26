@@ -341,8 +341,8 @@ function release_submit_dash_docs() {
 EOF
   git add docsets/Hammerspoon/Hammerspoon.tgz
   git commit -qam "Update Hammerspoon docset to ${VERSION}"
-  git push -qf hammerspoon
-  hub pull-request -m "Update Hammerspoon docset to ${VERSION}" -h hammerspoon:master
+  git push -qfv hammerspoon master
+  hub pull-request -f -m "Update Hammerspoon docset to ${VERSION}" -h hammerspoon:master
   popd >/dev/null
   popd >/dev/null
 }
