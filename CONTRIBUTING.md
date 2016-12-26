@@ -62,13 +62,14 @@ To create such an extension:
   * Make a directory for your extension
   * Create an `init.lua` to load your Objective-C code and contain any additional Lua code. You might find it easier to provide much of your API in Lua and just provide undocumented API from Objective C that does the minimum work possible. The choice is ultimately down to you, depending on the nature of the work the extension is doing.
   * Create an `internal.m` to contain your Objective-C code. Please use the LuaSkin methods to do as much work as possible, they are well tested and in most extensions can reduce the amount of Lua C API calls to almost zero. Not all of our extensions have been fully converted to LuaSkin yet (a good example is [`hs.chooser`](https://github.com/Hammerspoon/hammerspoon/blob/master/extensions/chooser/internal.m))
-  * Right click on the `extensions` group in Xcode and add a new sub-group for your extension, then right click on the sub-group and add your `init.lua` and `internal.m` files (and any supporting `.h`/`.c`/`.m`/etc files)
+  * Right click on the `extensions` group in Xcode's Project Browser and add a new sub-group for your extension, then right click on the sub-group and add your `init.lua` and `internal.m` files (and any supporting `.h`/`.c`/`.m`/etc files)
+  * The files you've added will probably be made members of the Hammerspoon target. You do not want this; Select each file in the Project Browser and using the File Inspector in the Utilities pane on the right of Xcode's window, deselect them from the maim Hammerspoon target.
 * Configure Xcode to build your extension and include it in the `Hammerspoon.app` bundle:
-  * Click on the `Hammerspoon` workspace at the very top of the Xcode Navigator (i.e. the bar on the left)
-  * Right click on `alert` and choose `Duplicate`, which creates `alert copy` at the bottom of the list.
+  * Click on the `Hammerspoon` workspace at the very top of the Xcode Project Browser (i.e. the bar on the left)
+  * Right click on `alert` in the "project and targets list" and choose `Duplicate`, which creates `alert copy` at the bottom of the list.
   * Rename the copy and drag it to the right place in the list (alphabetically)
-  * Click on the target you just created, remove `internal.m` from the `Compile Sources` build phase, add in the `.m` files from your new module
-  * Check the `Link Binary With Libraries` section for any frameworks you need to add. Typically this will just mean adding `Fabric.framework` from the top level of the Hammerspoon source tree if you've included `hammerspoon.h`, plus any additional system frameworks you need to link against.
+  * Click on the target you just created, remove hs.alert's `internal.m` from the `Compile Sources` build phase, add in the `.m` files from your new module
+  * Check the `Link Binary With Libraries` section for any frameworks you need to add. Typically this will jsut mean `LuaSkin.framework`, plus any additional system frameworks you need to link against.
   * Click on the `Hammerspoon` target (not the project), and in the `Target Dependencies` build phase, add the module target you just created
   * Click the menu item Product → Scheme → Manage Schemes, find `alert copy`, rename it and move it to the right place in the list of schemes
   * Edit `scripts/copy_extensions_to_bundle.sh` and add your module name to the `HS_MODULES` section. *Note*: Some modules may also need to copy extra files into the app bundle, in which case add a "special copier" to the bottom of the script.
@@ -162,7 +163,7 @@ When Hammerspoon detects it is is being run by `XCTest`, it loads a special `ini
  * `assertTrue(a)`/`assertFalse(a)` - Ensure that the argument is `true`/`false` respectively
  * `assertIsString(a)`/`assertIsNumber(a)`/`assertIsBoolean(a)`/etc - Ensure that the Lua type of a variable is correct
  * `assertIsUserdataOfType(type, a)` - Ensures that the argument is a Lua userdata object of a particular type (where the type is a string, as given to `LuaSkin` when the extension registered its libraries/objects). This is particularly useful for verifying the return values of constructor functions
- 
+
 When adding both the `HSfoo.m` and `test_foo.lua` files to Xcode, it is important to ensure that they do not become members of the `Hammerspoon` target. They should instead both be members of the `Hammerspoon Tests` target (`HSfoo.m` in the `Compile Sources` Build Phase, `test_foo.lua` in the `Copy Bundle Resources` Build Phase).
 
 ### Third party extension distribution
