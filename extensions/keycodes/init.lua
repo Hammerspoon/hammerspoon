@@ -19,11 +19,19 @@
 local keycodes = require "hs.keycodes.internal"
 keycodes.map = keycodes._cachemap()
 
---- hs.keycodes.inputSourceChanged(fn())
+--- hs.keycodes.inputSourceChanged(fn)
 --- Function
 --- Sets the function to be called when your input source (i.e. qwerty, dvorak, colemac) changes.
---- You can use this to rebind your hotkeys or whatever.
---- Note: setting this will un-set functions previously registered by this function.
+---
+--- Parameters:
+---  * fn - A function that will be called when the input source changes. No arguments are supplied to the function.
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * This may be helpful for rebinding your hotkeys to appropriate keys in the new layout
+---  * Setting this will un-set functions previously registered by this function.
 function keycodes.inputSourceChanged(fn)
   if keycodes._callback then keycodes._callback:_stop() end
   keycodes._callback = keycodes._newcallback(function()

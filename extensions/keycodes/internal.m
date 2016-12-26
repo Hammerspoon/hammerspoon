@@ -295,7 +295,7 @@ CFArrayRef getAllInputMethods() {
 ///  * sourceID - an optional string specifying the input source to set for keyboard input
 ///
 /// Returns:
-///  * if no parameter is provided, returns a string containing the source id for the current keyboard layout or input method; if a parameter is provided, returns true or false specifying whether or not the input source was able to be changed.
+///  * If no parameter is provided, returns a string containing the source id for the current keyboard layout or input method; if a parameter is provided, returns true or false specifying whether or not the input source was able to be changed.
 static int keycodes_sourceID(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
@@ -394,7 +394,6 @@ static int keycodes_layouts(lua_State* L) {
 ///
 /// Parameters:
 ///  * sourceID - an optional boolean, default false, indicating whether the keyboard input method names should be returned (false) or their source IDs (true).
-///
 ///
 /// Returns:
 ///  * A table containing a list of input methods enabled in System Preferences
