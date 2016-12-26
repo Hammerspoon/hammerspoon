@@ -117,6 +117,12 @@ static void push_element(lua_State* L, AXUIElementRef element) {
 /// hs.uielement:isWindow() -> bool
 /// Method
 /// Returns whether the UI element represents a window.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A boolean, true if the UI element is a window, otherwise false
 static int uielement_iswindow(lua_State* L) {
     luaL_checktype(L, 1, LUA_TUSERDATA);
     AXUIElementRef element = get_element(L, 1);
@@ -128,6 +134,12 @@ static int uielement_iswindow(lua_State* L) {
 /// hs.uielement:role() -> string
 /// Method
 /// Returns the role of the element.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A string containing the role of the UI element
 static int uielement_role(lua_State* L) {
     luaL_checktype(L, 1, LUA_TUSERDATA);
     AXUIElementRef element = get_element(L, 1);

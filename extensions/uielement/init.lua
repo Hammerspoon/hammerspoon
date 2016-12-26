@@ -11,6 +11,12 @@ local fnutils = require "hs.fnutils"
 --- hs.uielement:isApplication() -> bool
 --- Method
 --- Returns whether the UI element represents an application.
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * A boolean, true if the UI element is an application
 function uielement:isApplication()
     return self:role() == "AXApplication"
 end
@@ -115,7 +121,7 @@ end
 ---  * an optional userData object which will be included as the final argument to the callback function when it is called.
 ---
 --- Returns:
----  * hs.uielement.watcher object, or nil if an error occurred
+---  * An `hs.uielement.watcher` object, or `nil` if an error occurred
 function uielement:newWatcher(callback, ...)
     if type(callback) ~= "function" then
         hs.showError("hs.uielement:newWatcher() called with incorrect arguments. The first argument must be a function")
