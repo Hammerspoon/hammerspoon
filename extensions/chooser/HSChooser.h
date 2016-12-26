@@ -90,6 +90,6 @@
 - (NSArray *)getChoicesWithOptions:(BOOL)includeFiltered;
 
 // UI customisation methods
-- (void)setBgLightDark:(NSNumber *)isDark;
+- (void)setBgLightDark:(NSNotification *)notification;
 - (BOOL)isBgLightDark;
 @end

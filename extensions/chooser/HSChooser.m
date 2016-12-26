@@ -491,15 +491,15 @@
     [self applyDarkSetting:isDark];
 }
 
-- (void)setBgLightDark:(NSNumber *)isDark {
-    if (isDark == nil) {
+- (void)setBgLightDark:(NSNotification *)notification {
+    if (notification.object == nil) {
         self.isObservingThemeChanges = YES;
         [self setAutoBgLightDark];
         return;
     }
     self.isObservingThemeChanges = NO;
 
-    [self applyDarkSetting:isDark.boolValue];
+    [self applyDarkSetting:((NSNumber *)notification.object).boolValue];
 }
 
 - (BOOL)isBgLightDark {

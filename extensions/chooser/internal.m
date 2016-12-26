@@ -443,13 +443,13 @@ static int chooserSetBgDark(lua_State *L) {
 
     switch (lua_type(L, 2)) {
         case LUA_TNIL:
-            [chooser setBgLightDark:nil];
+            [chooser setBgLightDark:[NSNotification notificationWithName:@"UNUSED" object:nil]];
             lua_pushvalue(L, 1);
             break;
 
         case LUA_TBOOLEAN:
             beDark = lua_toboolean(L, 2);
-            [chooser setBgLightDark:[NSNumber numberWithBool:beDark]];
+            [chooser setBgLightDark:[NSNotification notificationWithName:@"UNUSED" object:[NSNumber numberWithBool:beDark]]];
             lua_pushvalue(L, 1);
             break;
 
