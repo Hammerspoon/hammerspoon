@@ -376,7 +376,10 @@ NSString *specMaskToString(int spec) {
                 if (spec & LS_TTYPEDTABLE) {
                     lsType = LS_TTYPEDTABLE;
                     char *expectedTableTag = va_arg(args, char*);
-                    if (!expectedTableTag) luaL_error(self.L, "ERROR: unable to get expected LuaSkin table type for argument %d", idx) ;
+                    if (!expectedTableTag) {
+                        luaL_error(self.L, "ERROR: unable to get expected LuaSkin table type for argument %d", idx) ;
+                        return; // This is useless since luaL_error() never returns, but this makes clang's analyser happier
+                    }
 
                     const char *actualTableTag   = NULL ;
                     if (lua_getfield(self.L, idx, "__luaSkinType") == LUA_TSTRING) {

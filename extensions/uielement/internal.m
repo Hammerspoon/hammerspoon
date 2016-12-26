@@ -365,6 +365,7 @@ static int uielement_focusedElement(lua_State* L) {
     if (AXUIElementCopyAttributeValue(systemWide, kAXFocusedUIElementAttribute, (CFTypeRef *)&focusedElement) != kAXErrorSuccess) {
         NSLog(@"Failed to get kAXFocusedUIElementAttribute");
         lua_pushnil(L);
+        CFRelease(systemWide);
         return 1;
     }
     CFRelease(systemWide);

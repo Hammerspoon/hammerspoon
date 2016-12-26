@@ -567,8 +567,8 @@ static int keycodes_getIcon(lua_State* L) {
         lua_pushnil(L);
     }
 
-    CFRelease(layoutRefs);
-    CFRelease(methodRefs);
+    if (layoutRefs) CFRelease(layoutRefs);
+    if (methodRefs) CFRelease(methodRefs);
 
     return 1;
 }
