@@ -66,10 +66,6 @@
     return self;
 }
 
-- (void)dealloc {
-    self.isObservingThemeChanges = NO;
-}
-
 #pragma mark - Window related methods
 
 - (void)windowDidLoad {
