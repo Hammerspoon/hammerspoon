@@ -171,7 +171,7 @@ int keycodes_cachemap(lua_State* L) {
 
     pushkeycode(L, kVK_JIS_Yen, "¥");
     pushkeycode(L, kVK_JIS_Underscore, "underscore");
-    pushkeycode(L, kVK_JIS_KeypadComma, "padcomma");
+    pushkeycode(L, kVK_JIS_KeypadComma, "pad,");
     pushkeycode(L, kVK_JIS_Eisu, "eisu");
     pushkeycode(L, kVK_JIS_Kana, "kana");
 
