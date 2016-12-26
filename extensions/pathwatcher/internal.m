@@ -40,7 +40,14 @@ void event_callback(ConstFSEventStreamRef __unused streamRef, void *clientCallBa
 
 /// hs.pathwatcher.new(path, fn) -> watcher
 /// Constructor
-/// Returns a new watcher.path that can be started and stopped.  The function registered receives as it's argument, a table containing a list of the files which have changed since it was last invoked.
+/// Creates a new path watcher object
+///
+/// Parameters:
+///  * path - A string containing the path to be watched
+///  * fn - A function to be called when changes are detected. It should accept a single argument, a table containing a list of files that have changed
+///
+/// Returns:
+///  * An `hs.pathwatcher` object
 static int watcher_path_new(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TFUNCTION, LS_TBREAK];
@@ -75,7 +82,13 @@ static int watcher_path_new(lua_State* L) {
 
 /// hs.pathwatcher:start()
 /// Method
-/// Registers watcher's fn as a callback for when watcher's path or any descendent changes.
+/// Starts a path watcher
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The `hs.pathwatcher` object
 static int watcher_path_start(lua_State* L) {
     watcher_path_t* watcher_path = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L, 1);
@@ -91,7 +104,13 @@ static int watcher_path_start(lua_State* L) {
 
 /// hs.pathwatcher:stop()
 /// Method
-/// Unregisters watcher's fn so it won't be called again until the watcher is restarted.
+/// Stops a path watcher
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
 static int watcher_path_stop(lua_State* L) {
     watcher_path_t* watcher_path = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L, 1);
