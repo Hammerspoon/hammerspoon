@@ -3,7 +3,7 @@ osx_image: xcode8.2
 before_install:
   - gem install github-markdown
   - gem install xcpretty -v 0.2.2
-  - gem install xcpretty-travis-profile-formatter -v 0.0.2
+  - gem install xcpretty-travis-profiler-formatter -v 0.0.2
   - defaults write org.hammerspoon.Hammerspoon HSAutoLoadExtensions false
 before_script:
   - make docs
@@ -11,7 +11,7 @@ xcode_workspace: Hammerspoon.xcworkspace
 xcode_scheme: Release
 script:
   - xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release build test GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES
-  - set -o pipefail ; xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release build test GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES | xcpretty -f `xcpretty-travis-profile-formatter`
+  - set -o pipefail ; xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release build test GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES | xcpretty -f `xcpretty-travis-profiler-formatter`
 after_script:
   - make build/html
 after_success:
