@@ -13,6 +13,7 @@
 @property IBOutlet NSTextView* outputView;
 @property (weak) IBOutlet NSTextField* inputField;
 @property NSMutableArray* preshownStdouts;
+@property NSDateFormatter *dateFormatter;
 
 @end
 
@@ -23,6 +24,15 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
 };
 
 @implementation MJConsoleWindowController
+
+- (id) init {
+    self = [super init];
+    if (self) {
+        self.dateFormatter = [[NSDateFormatter alloc] init];
+        [self.dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+    }
+    return self;
+}
 
 - (NSString*) windowNibName {
     return @"ConsoleWindow";
@@ -80,6 +90,10 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
         case MJReplLineTypeStdout:  color = MJColorForStdout; break;
         case MJReplLineTypeCommand: color = MJColorForCommand; break;
         case MJReplLineTypeResult:  color = MJColorForResult; break;
+    }
+
+    if (type == MJReplLineTypeStdout) {
+        str = [NSString stringWithFormat:@"%@: %@", [self.dateFormatter stringFromDate:[NSDate date]], str];
     }
 
     NSDictionary* attrs = @{NSFontAttributeName: [NSFont fontWithName:@"Menlo" size:12.0], NSForegroundColorAttributeName: color};
