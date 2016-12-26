@@ -55,6 +55,9 @@
 // A pointer to the hs.chooser module's references table
 @property(nonatomic) int *refTable;
 
+// Keep track of whether we are observing macOS interface theme (light/dark)
+@property(nonatomic) BOOL isObservingThemeChanges;
+
 // Initialiser
 - (id)initWithRefTable:(int *)refTable completionCallbackRef:(int)completionCallbackRef;
 
@@ -87,6 +90,6 @@
 - (NSArray *)getChoicesWithOptions:(BOOL)includeFiltered;
 
 // UI customisation methods
-- (void)setBgLightDark:(BOOL)isDark;
+- (void)setBgLightDark:(NSNumber *)isDark;
 - (BOOL)isBgLightDark;
 @end

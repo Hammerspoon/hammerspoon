@@ -435,7 +435,7 @@ static int chooserSetSubTextColor(lua_State *L) {
 ///  * The text colors will not automatically change when you toggle the darkness of the chooser window, you should also set appropriate colors with `hs.chooser:fgColor()` and `hs.chooser:subTextColor()`
 static int chooserSetBgDark(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNIL | LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
 
     chooser_userdata_t *userData = lua_touserdata(L, 1);
     HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
@@ -443,9 +443,14 @@ static int chooserSetBgDark(lua_State *L) {
     BOOL beDark;
 
     switch (lua_type(L, 2)) {
+        case LUA_TNIL:
+            [chooser setBgLightDark:nil];
+            lua_pushvalue(L, 1);
+            break;
+
         case LUA_TBOOLEAN:
             beDark = lua_toboolean(L, 2);
-            [chooser setBgLightDark:beDark];
+            [chooser setBgLightDark:[NSNumber numberWithBool:beDark]];
             lua_pushvalue(L, 1);
             break;
 
