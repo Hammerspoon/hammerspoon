@@ -69,7 +69,7 @@ typedef struct _screenwatcher_t {
 ///  * The function to be called when a change in the screen layout occurs.  This function should take no arguments.
 ///
 /// Returns:
-///  * the screen watcher object
+///  * An `hs.screen.watcher` object
 ///
 /// Notes:
 ///  * A screen layout change usually involves a change that is made from the Displays Preferences Panel or when a monitor is attached or removed.
@@ -104,7 +104,7 @@ static int screen_watcher_new(lua_State* L) {
 ///  * The function to be called when a change in the screen layout or active screen occurs.  This function can optionally take one argument, a boolean which will indicate if the change was due to a screen layout change (nil) or because the active screen changed (true).
 ///
 /// Returns:
-///  * the screen watcher object
+///  * An `hs.screen.watcher` object
 ///
 /// Notes:
 ///  * A screen layout change usually involves a change that is made from the Displays Preferences Panel or when a monitor is attached or removed.
@@ -124,14 +124,14 @@ static int screen_watcher_new_with_active_screen(lua_State* L) {
 }
 
 /// hs.screen.watcher:start() -> watcher
-/// Function
-/// Starts the screen watcher, making it so fn is called each time the screen arrangement changes.
+/// Method
+/// Starts the screen watcher, making it so fn is called each time the screen arrangement changes
 ///
 /// Parameters:
 ///  * None
 ///
 /// Returns:
-///  * the screen watcher object
+///  * The `hs.screen.watcher` object
 static int screen_watcher_start(lua_State* L) {
     screenwatcher_t* screenwatcher = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L,1);
@@ -153,14 +153,14 @@ static int screen_watcher_start(lua_State* L) {
 }
 
 /// hs.screen.watcher:stop() -> watcher
-/// Function
-/// Stops the screen watcher's fn from getting called until started again.
+/// Method
+/// Stops the screen watcher's fn from getting called until started again
 ///
 /// Parameters:
 ///  * None
 ///
 /// Returns:
-///  * the screen watcher object
+///  * The `hs.screen.watcher` object
 static int screen_watcher_stop(lua_State* L) {
     screenwatcher_t* screenwatcher = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L,1);
