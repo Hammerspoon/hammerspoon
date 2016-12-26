@@ -906,8 +906,10 @@ id _getMenuStructure(AXUIElementRef menuItem) {
             NSMutableArray *modsArr = [[NSMutableArray alloc] init];
             modsDst = modsArr;
 
-            // Cmd is assumed
-            [modsArr addObject:@"cmd"];
+            if (!(modsInt & kAXMenuItemModifierNoCommand)) {
+                // cmd is handled differently, it exists unless kAXMenuItemModifierNoCommand is found
+                [modsArr addObject:@"cmd"];
+            }
 
             if (modsInt & kAXMenuItemModifierShift) {
                 [modsArr addObject:@"shift"];
@@ -917,11 +919,6 @@ id _getMenuStructure(AXUIElementRef menuItem) {
             }
             if (modsInt & kAXMenuItemModifierControl) {
                 [modsArr addObject:@"ctrl"];
-            }
-            if (modsInt & kAXMenuItemModifierNoCommand) {
-                // Special case, this means nothing, not even Cmd
-                [modsArr removeAllObjects];
-                modsDst = [NSNull null];
             }
         }
 
