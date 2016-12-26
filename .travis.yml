@@ -2,6 +2,7 @@ language: objective-c
 osx_image: xcode8.2
 before_install:
   - gem install github-markdown xcpretty-travis-formatter
+  - pip install -r requirements.txt
 before_script:
   - make docs
 xcode_workspace: Hammerspoon.xcworkspace

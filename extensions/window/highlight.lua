@@ -1,4 +1,4 @@
---- ==== hs.window.highlight ===
+--- === hs.window.highlight ===
 ---
 --- Highlight the focused window
 ---

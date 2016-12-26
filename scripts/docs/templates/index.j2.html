@@ -1,0 +1,66 @@
+<html>
+  <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Hammerspoon Docs</title>
+      <style type="text/css">
+      a { text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      th, td { border: 1px solid #ccc; padding: 5px 10px; text-align: left; vertical-align: top; }
+    </style>
+    <link rel="stylesheet" href="docs.css" type="text/css" media="screen" />
+  </head>
+  <body>
+    <header>
+      <h1>Hammerspoon.app</h1>
+    </header>
+    <section>
+      <h3>Project links</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Resource</th>
+              <th>Link</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Website</td>
+              <td><a href="http://www.hammerspoon.org/">http://www.hammerspoon.org/</a></td>
+            </tr>
+            <tr>
+              <td>GitHub page</td>
+              <td><a href="https://github.com/Hammerspoon/hammerspoon/">https://github.com/Hammerspoon/hammerspoon/</a></td>
+            </tr>
+            <tr>
+              <td>Getting Started Guide</td>
+              <td><a href="http://www.hammerspoon.org/go/">http://www.hammerspoon.org/go/</a></td>
+            </tr>
+            <tr>
+              <td>IRC channel</td>
+              <td>#hammerspoon on freenode</td>
+            </tr>
+            <tr>
+              <td>Mailing list</td>
+              <td><a href="https://groups.google.com/forum/#!forum/hammerspoon/">https://groups.google.com/forum/#!forum/hammerspoon/</a></td>
+            </tr>
+            <tr>
+              <td>LuaSkin API docs</td>
+              <td><a href="http://www.hammerspoon.org/docs/LuaSkin/">http://www.hammerspoon.org/docs/LuaSkin/</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    <section>
+    <!-- tables suck., I know, but it's fast to code -->
+    <h3>API documentation</h3>
+    <table class="api-documentation-overview">
+{% for module in data %}
+            <tr>
+                <th><a href="{{ module.name}}.html">{{ module.name }}</a></th>
+                <td>{{ module.desc_gfm }}</td>
+            </tr>
+{% endfor %}
+    </table>
+    </section>
+  </body
+</html>

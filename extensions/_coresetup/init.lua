@@ -11,38 +11,39 @@ return {setup=function(...)
 
   os.exit = hs._exit
 
-  --- hs.configdir
-  --- Constant
-  --- A string containing Hammerspoon's configuration directory. Typically `~/.hammerspoon/`
+--- hs.configdir
+--- Constant
+--- A string containing Hammerspoon's configuration directory. Typically `~/.hammerspoon/`
   hs.configdir = configdir
 
-  --- hs.shutdownCallback
-  --- Variable
-  --- An optional function that will be called when the Lua environment is being destroyed (either because Hammerspoon is exiting or reloading its config)
-  --- Notes:
-  ---  * This function should not perform any asynchronous tasks
-  ---  * You do not need to fastidiously destroy objects you have created, this callback exists purely for utility reasons (e.g. serialising state, destroying system resources that will not be released by normal Lua garbage collection processes, etc)
+--- hs.shutdownCallback
+--- Variable
+--- An optional function that will be called when the Lua environment is being destroyed (either because Hammerspoon is exiting or reloading its config)
+---
+--- Notes:
+---  * This function should not perform any asynchronous tasks
+---  * You do not need to fastidiously destroy objects you have created, this callback exists purely for utility reasons (e.g. serialising state, destroying system resources that will not be released by normal Lua garbage collection processes, etc)
   hs.shutdownCallback = nil
 
-  --- hs.docstrings_json_file
-  --- Constant
-  --- A string containing the full path to the `docs.json` file inside Hammerspoon's app bundle. This contains the full Hammerspoon API documentation and can be accessed in the Console using `help("someAPI")`. It can also be loaded and processed by the `hs.doc` extension
+--- hs.docstrings_json_file
+--- Constant
+--- A string containing the full path to the `docs.json` file inside Hammerspoon's app bundle. This contains the full Hammerspoon API documentation and can be accessed in the Console using `help("someAPI")`. It can also be loaded and processed by the `hs.doc` extension
   hs.docstrings_json_file = docstringspath
 
-  --- hs.showError(err)
-  --- Function
-  --- Shows an error to the user, using Hammerspoon's Console
-  ---
-  --- Parameters:
-  ---  * err - A string containing an error message
-  ---
-  --- Returns:
-  ---  * None
-  ---
-  --- Notes:
-  ---  * This function is called whenever an (uncaught) error occurs or is thrown (via `error()`)
-  ---  * The default implementation shows a notification, opens the Console, and prints the error message and stacktrace
-  ---  * You can override this function if you wish to route errors differently (e.g. for remote systems)
+--- hs.showError(err)
+--- Function
+--- Shows an error to the user, using Hammerspoon's Console
+---
+--- Parameters:
+---  * err - A string containing an error message
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * This function is called whenever an (uncaught) error occurs or is thrown (via `error()`)
+---  * The default implementation shows a notification, opens the Console, and prints the error message and stacktrace
+---  * You can override this function if you wish to route errors differently (e.g. for remote systems)
 
   function hs.showError(err)
     hs._notify("Hammerspoon error") -- undecided on this line
@@ -62,19 +63,19 @@ return {setup=function(...)
     end
   end
 
-  --- hs.toggleConsole()
-  --- Function
-  --- Toggles the visibility of the console
-  ---
-  --- Parameters:
-  ---  * None
-  ---
-  --- Returns:
-  ---  * None
-  ---
-  --- Notes:
-  ---  * If the console is not currently open, it will be opened. If it is open and not the focused window, it will be brought forward and focused.
-  ---  * If the console is focused, it will be closed.
+--- hs.toggleConsole()
+--- Function
+--- Toggles the visibility of the console
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * If the console is not currently open, it will be opened. If it is open and not the focused window, it will be brought forward and focused.
+---  * If the console is focused, it will be closed.
   function hs.toggleConsole()
     local console = hs.appfinder.windowFromWindowTitle("Hammerspoon Console")
     if console and (console ~= hs.window.focusedWindow()) then
@@ -86,18 +87,18 @@ return {setup=function(...)
     end
   end
 
-  --- hs.rawprint(aString)
-  --- Function
-  --- The original Lua print() function
-  ---
-  --- Parameters:
-  ---  * aString - A string to be printed
-  ---
-  --- Returns:
-  ---  * None
-  ---
-  --- Notes:
-  ---  * Hammerspoon overrides Lua's print() function, but this is a reference we retain to is, should you need it for any reason
+--- hs.rawprint(aString)
+--- Function
+--- The original Lua print() function
+---
+--- Parameters:
+---  * aString - A string to be printed
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * Hammerspoon overrides Lua's print() function, but this is a reference we retain to is, should you need it for any reason
   local rawprint,logmessage = print,hs._logmessage
   hs.rawprint = rawprint
   function print(...)
@@ -112,40 +113,40 @@ return {setup=function(...)
     logmessage(str)
   end
 
-  --- hs.printf(format, ...)
-  --- Function
-  --- Prints formatted strings to the Console
-  ---
-  --- Parameters:
-  ---  * format - A format string
-  ---  * ... - Zero or more arguments to fill the placeholders in the format string
-  ---
-  --- Returns:
-  ---  * None
-  ---
-  --- Notes:
-  ---  * This is a simple wrapper around the Lua code `print(string.format(...))`.
+--- hs.printf(format, ...)
+--- Function
+--- Prints formatted strings to the Console
+---
+--- Parameters:
+---  * format - A format string
+---  * ... - Zero or more arguments to fill the placeholders in the format string
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * This is a simple wrapper around the Lua code `print(string.format(...))`.
   function hs.printf(fmt,...) return print(sformat(fmt,...)) end
 
 
-  --- hs.execute(command[, with_user_env]) -> output, status, type, rc
-  --- Function
-  --- Runs a shell command, optionally loading the users shell environment first, and returns stdout as a string, followed by the same result codes as `os.execute` would return.
-  ---
-  --- Parameters:
-  ---  * command - a string containing the shell command to execute
-  ---  * with_user_env - optional boolean argument which if provided and is true, executes the command in the users login shell as an "interactive" login shell causing the user's local profile (or other login scripts) to be loaded first.
-  ---
-  --- Returns:
-  ---  * output -- the stdout of the command as a string.  May contain an extra terminating new-line (\n).
-  ---  * status -- `true` if the command terminated successfully or nil otherwise.
-  ---  * type   -- a string value of "exit" or "signal" indicating whether the command terminated of its own accord or if it was terminated by a signal (killed, segfault, etc.)
-  ---  * rc     -- if the command exited of its own accord, then this number will represent the exit code (usually 0 for success, not 0 for an error, though this is very command specific, so check man pages when there is a question).  If the command was killed by a signal, then this number corresponds to the signal type that caused the command to terminate.
-  ---
-  --- Notes:
-  ---  * Setting `with_user_env` to true does incur noticeable overhead, so it should only be used if necessary (to set the path or other environment variables).
-  ---  * Because this function returns the stdout as it's first return value, it is not quite a drop-in replacement for `os.execute`.  In most cases, it is probable that `stdout` will be the empty string when `status` is nil, but this is not guaranteed, so this trade off of shifting os.execute's results was deemed acceptable.
-  ---  * This particular function is most useful when you're more interested in the command's output then a simple check for completion and result codes.  If you only require the result codes or verification of command completion, then `os.execute` will be slightly more efficient.
+--- hs.execute(command[, with_user_env]) -> output, status, type, rc
+--- Function
+--- Runs a shell command, optionally loading the users shell environment first, and returns stdout as a string, followed by the same result codes as `os.execute` would return.
+---
+--- Parameters:
+---  * command - a string containing the shell command to execute
+---  * with_user_env - optional boolean argument which if provided and is true, executes the command in the users login shell as an "interactive" login shell causing the user's local profile (or other login scripts) to be loaded first.
+---
+--- Returns:
+---  * output -- the stdout of the command as a string.  May contain an extra terminating new-line (\n).
+---  * status -- `true` if the command terminated successfully or nil otherwise.
+---  * type   -- a string value of "exit" or "signal" indicating whether the command terminated of its own accord or if it was terminated by a signal (killed, segfault, etc.)
+---  * rc     -- if the command exited of its own accord, then this number will represent the exit code (usually 0 for success, not 0 for an error, though this is very command specific, so check man pages when there is a question).  If the command was killed by a signal, then this number corresponds to the signal type that caused the command to terminate.
+---
+--- Notes:
+---  * Setting `with_user_env` to true does incur noticeable overhead, so it should only be used if necessary (to set the path or other environment variables).
+---  * Because this function returns the stdout as it's first return value, it is not quite a drop-in replacement for `os.execute`.  In most cases, it is probable that `stdout` will be the empty string when `status` is nil, but this is not guaranteed, so this trade off of shifting os.execute's results was deemed acceptable.
+---  * This particular function is most useful when you're more interested in the command's output then a simple check for completion and result codes.  If you only require the result codes or verification of command completion, then `os.execute` will be slightly more efficient.
   hs.execute = function(command, user_env)
     local f
     if user_env then
@@ -158,18 +159,18 @@ return {setup=function(...)
     return s, status, exit_type, rc
   end
 
-  --- hs.dockIcon([state]) -> bool
-  --- Function
-  --- Set or display whether or not the Hammerspoon dock icon is visible.
-  ---
-  --- Parameters:
-  ---  * state - an optional boolean which will set whether or not the Hammerspoon dock icon should be visible.
-  ---
-  --- Returns:
-  ---  * True if the icon is currently set (or has just been) to be visible or False if it is not.
-  ---
-  --- Notes:
-  ---  * This function is a wrapper to functions found in the `hs.dockicon` module, but is provided here to provide an interface consistent with other selectable preference items.
+--- hs.dockIcon([state]) -> bool
+--- Function
+--- Set or display whether or not the Hammerspoon dock icon is visible.
+---
+--- Parameters:
+---  * state - an optional boolean which will set whether or not the Hammerspoon dock icon should be visible.
+---
+--- Returns:
+---  * True if the icon is currently set (or has just been) to be visible or False if it is not.
+---
+--- Notes:
+---  * This function is a wrapper to functions found in the `hs.dockicon` module, but is provided here to provide an interface consistent with other selectable preference items.
   hs.dockIcon = function(value)
     local hsdi = require("hs.dockicon")
     if type(value) == "boolean" then
@@ -178,49 +179,45 @@ return {setup=function(...)
     return hsdi.visible()
   end
 
-  --- hs.help(identifier)
-  --- Function
-  --- Prints the documentation for some part of Hammerspoon's API and Lua 5.3.  This function is actually sourced from hs.doc.help.
-  ---
-  --- Parameters:
-  ---  * identifier - A string containing the signature of some part of Hammerspoon's API (e.g. `"hs.reload"`)
-  ---
-  --- Returns:
-  ---  * None
-  ---
-  --- Notes:
-  ---  * This function is mainly for runtime API help while using Hammerspoon's Console
-  ---
-  ---  * You can also access the results of this function by the following methods from the console:
-  ---    * help("identifier") -- quotes are required, e.g. `help("hs.reload")`
-  ---    * help.identifier.path -- no quotes are required, e.g. `help.hs.reload`
-  ---
-  ---  * Lua information can be accessed by using the `lua` prefix, rather than `hs`.
-  ---    * the identifier `lua._man` provides the table of contents for the Lua 5.3 manual.  You can pull up a specific section of the lua manual by including the chapter (and subsection) like this: `lua._man._3_4_8`.
-  ---    * the identifier `lua._C` will provide information specifically about the Lua C API for use when developing modules which require external libraries.
+--- hs.help(identifier)
+--- Function
+--- Prints the documentation for some part of Hammerspoon's API and Lua 5.3.  This function is actually sourced from hs.doc.help.
+---
+--- Parameters:
+---  * identifier - A string containing the signature of some part of Hammerspoon's API (e.g. `"hs.reload"`)
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * This function is mainly for runtime API help while using Hammerspoon's Console
+---  * You can also access the results of this function by the following methods from the console:
+---    * help("identifier") -- quotes are required, e.g. `help("hs.reload")`
+---    * help.identifier.path -- no quotes are required, e.g. `help.hs.reload`
+---  * Lua information can be accessed by using the `lua` prefix, rather than `hs`.
+---    * the identifier `lua._man` provides the table of contents for the Lua 5.3 manual.  You can pull up a specific section of the lua manual by including the chapter (and subsection) like this: `lua._man._3_4_8`.
+---    * the identifier `lua._C` will provide information specifically about the Lua C API for use when developing modules which require external libraries.
 
   hs.help = require("hs.doc")
   help = hs.help
 
 
-  --- hs.hsdocs([identifier])
-  --- Function
-  --- Display's Hammerspoon API documentation in a webview browser.
-  ---
-  --- Parameters:
-  ---  * identifier - An optional string containing the signature of some part of Hammerspoon's API (e.g. `"hs.reload"`).  If no string is provided, then the table of contents for the Hammerspoon documentation is displayed.
-  ---
-  --- Returns:
-  ---  * None
-  ---
-  --- Notes:
-  ---  * You can also access the results of this function by the following methods from the console:
-  ---    * hs.hsdocs.identifier.path -- no quotes are required, e.g. `hs.hsdocs.hs.reload`
-  ---
-  ---  * See `hs.doc.hsdocs` for more information about the available settings for the documentation browser.
-  ---
-  ---  * This function provides documentation for Hammerspoon modules, functions, and methods similar to the Hammerspoon Dash docset, but does not require any additional software.
-  ---  * This currently only provides documentation for the built in Hammerspoon modules, functions, and methods.  The Lua documentation and third-party modules are not presently supported, but may be added in a future release.
+--- hs.hsdocs([identifier])
+--- Function
+--- Display's Hammerspoon API documentation in a webview browser.
+---
+--- Parameters:
+---  * identifier - An optional string containing the signature of some part of Hammerspoon's API (e.g. `"hs.reload"`).  If no string is provided, then the table of contents for the Hammerspoon documentation is displayed.
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * You can also access the results of this function by the following methods from the console:
+---    * hs.hsdocs.identifier.path -- no quotes are required, e.g. `hs.hsdocs.hs.reload`
+---  * See `hs.doc.hsdocs` for more information about the available settings for the documentation browser.
+---  * This function provides documentation for Hammerspoon modules, functions, and methods similar to the Hammerspoon Dash docset, but does not require any additional software.
+---  * This currently only provides documentation for the built in Hammerspoon modules, functions, and methods.  The Lua documentation and third-party modules are not presently supported, but may be added in a future release.
   local hsdocsMetatable
   hsdocsMetatable = {
     __index = function(self, key)
@@ -377,18 +374,18 @@ return {setup=function(...)
     end), remnant)
   end
 
-  --- hs.completionsForInputString(completionWord) -> table of strings
-  --- Variable
-  --- Gathers tab completion options for the Console window
-  ---
-  --- Parameters:
-  ---  * completionWord - A string from the Console window's input field that completions are needed for
-  ---
-  --- Returns:
-  ---  * A table of strings, each of which will be shown as a possible completion option to the user
-  ---
-  --- Notes:
-  ---  * Hammerspoon provides a default implementation of this function, which can complete against the global Lua namespace, the 'hs' (i.e. extension) namespace, and object metatables. You can assign a new function to the variable to replace it with your own variant.
+--- hs.completionsForInputString(completionWord) -> table of strings
+--- Variable
+--- Gathers tab completion options for the Console window
+---
+--- Parameters:
+---  * completionWord - A string from the Console window's input field that completions are needed for
+---
+--- Returns:
+---  * A table of strings, each of which will be shown as a possible completion option to the user
+---
+--- Notes:
+---  * Hammerspoon provides a default implementation of this function, which can complete against the global Lua namespace, the 'hs' (i.e. extension) namespace, and object metatables. You can assign a new function to the variable to replace it with your own variant.
   function hs.completionsForInputString(completionWord)
     local completions = {}
     local mapJoiner = "."
