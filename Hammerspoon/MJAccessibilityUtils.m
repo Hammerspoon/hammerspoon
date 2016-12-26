@@ -8,7 +8,10 @@ BOOL MJAccessibilityIsEnabled(void) {
     if (AXIsProcessTrustedWithOptions != NULL)
         return AXIsProcessTrustedWithOptions(NULL);
     else
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         return AXAPIEnabled();
+#pragma clang diagnostic pop
 }
 
 void MJAccessibilityOpenPanel(void) {

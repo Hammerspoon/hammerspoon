@@ -380,7 +380,7 @@
 #pragma mark - Choice management methods
 
 - (void)updateChoices {
-    [self controlTextDidChange:nil] ;
+    [self controlTextDidChange:[NSNotification notificationWithName:NSControlTextDidChangeNotification object:nil]] ;
     if (self.window.visible) {
         [self.choicesTableView reloadData];
     } else {

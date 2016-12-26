@@ -274,7 +274,10 @@ static int application_isunresponsive(lua_State* L) {
 
     pid_t pid = pid_for_app(L, 1);
     ProcessSerialNumber psn;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     GetProcessForPID(pid, &psn);
+#pragma clang diagnostic pop
 
     CGSConnectionID conn = CGSMainConnectionID();
     bool is = CGSEventIsAppUnresponsive(conn, &psn);
@@ -287,8 +290,11 @@ static int application__bringtofront(lua_State* L) {
     pid_t pid = pid_for_app(L, 1);
     BOOL allWindows = lua_toboolean(L, 2);
     ProcessSerialNumber psn;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     GetProcessForPID(pid, &psn);
     BOOL success = (SetFrontProcessWithOptions(&psn, allWindows ? 0 : kSetFrontProcessFrontWindowOnly) == noErr);
+#pragma clang diagnostic pop
     lua_pushboolean(L, success);
     return 1;
 }

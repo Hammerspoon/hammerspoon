@@ -187,10 +187,13 @@
     [alert setMessageText:@"How to get back to this window"];
     [alert setInformativeText:@"When both the dock icon and menu icon are disabled, you can get back to this Preferences window by activating Hammerspoon from Spotlight or by running `open -a Hammerspoon` from Terminal, and then pressing Command + Comma."];
     [alert setShowsSuppressionButton:YES];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [alert beginSheetModalForWindow:[self window]
                       modalDelegate:self
                      didEndSelector:@selector(dockMenuProblemAlertDidEnd:returnCode:contextInfo:)
                         contextInfo:NULL];
+#pragma clang diagnostic pop
 }
 
 @end

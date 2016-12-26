@@ -599,8 +599,11 @@ static int pushTestUserData(lua_State *L, id object) {
     XCTAssertEqual(LUA_TTABLE, lua_type(self.skin.L, -1));
 
     // Test pushing an object which contains itself
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wobjc-circular-container"
     NSMutableDictionary *selfRefDict = [NSMutableDictionary dictionary];
     selfRefDict[@"self"] = selfRefDict;
+#pragma clang diagnostic pop
     [self.skin pushNSObject:selfRefDict];
     XCTAssertEqual(LUA_TTABLE, lua_type(self.skin.L, -1));
 

@@ -2,6 +2,9 @@
 #import <LuaSkin/LuaSkin.h>
 #import "chooser.h"
 
+#pragma mark - Lua API defines
+static int userdata_gc(lua_State *L);
+
 #pragma mark - Lua API - Constructors
 
 /// hs.chooser.new(completionFn) -> hs.chooser object
@@ -256,7 +259,7 @@ static int chooserSetQuery(lua_State *L) {
                 lua_pushnil(L);
                 break;
         }
-        [chooser controlTextDidChange:nil] ;
+        [chooser controlTextDidChange:[NSNotification notificationWithName:NSControlTextDidChangeNotification object:nil]] ;
     }
     return 1;
 }
