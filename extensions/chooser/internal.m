@@ -649,6 +649,7 @@ static int userdata_gc(lua_State* L) {
         chooser.queryChangedCallbackRef = [skin luaUnref:refTable ref:chooser.queryChangedCallbackRef];
         chooser.completionCallbackRef = [skin luaUnref:refTable ref:chooser.completionCallbackRef];
         chooser.rightClickCallbackRef = [skin luaUnref:refTable ref:chooser.rightClickCallbackRef];
+        chooser.isObservingThemeChanges = NO;  // Stop observing for interface theme changes.
     }
     userData->chooser = nil;
     chooser = nil;
