@@ -259,7 +259,7 @@ static int chooserSetQuery(lua_State *L) {
                 lua_pushnil(L);
                 break;
         }
-        [chooser controlTextDidChange:[NSNotification notificationWithName:NSControlTextDidChangeNotification object:nil]] ;
+        //[chooser controlTextDidChange:[NSNotification notificationWithName:NSControlTextDidChangeNotification object:nil]] ;
     }
     return 1;
 }
