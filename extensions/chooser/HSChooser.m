@@ -32,6 +32,7 @@
         // We're setting these directly, because we've overridden the setters and we don't need to invoke those now
         _fgColor = nil;
         _subTextColor = nil;
+        _isObservingThemeChanges = NO;
 
         self.currentStaticChoices = nil;
         self.currentCallbackChoices = nil;
@@ -57,6 +58,9 @@
         if (![self setupWindow]) {
             return nil;
         }
+
+        // Start observing interface theme changes.
+        self.isObservingThemeChanges = YES;
     }
 
     return self;
@@ -68,8 +72,8 @@
     [super windowDidLoad];
 
     [self.queryField setFocusRingType:NSFocusRingTypeNone];
+    [self setBgLightDark];
 }
-
 
 - (void)windowDidBecomeKey:(NSNotification *)notification {
     __weak id _self = self;
@@ -476,7 +480,21 @@
     }
 }
 
-- (void)setBgLightDark:(BOOL)isDark {
+- (void)setBgLightDark {
+    NSString *interfaceStyle = [[NSUserDefaults standardUserDefaults] stringForKey:@"AppleInterfaceStyle"];
+    BOOL isDark = (interfaceStyle && [[interfaceStyle lowercaseString] isEqualToString:@"dark"]);
+
+    NSAppearance *appearance = isDark ? [NSAppearance appearanceNamed:NSAppearanceNameVibrantDark] : [NSAppearance appearanceNamed:NSAppearanceNameVibrantLight];
+    self.window.appearance = appearance;
+}
+
+- (void)setBgLightDark:(NSNumber *)isDark {
+    if (isDark == nil) {
+        self.isObservingThemeChanges = YES;
+        return;
+    }
+    self.isObservingThemeChanges = NO;
+
     NSAppearance *appearance = isDark ? [NSAppearance appearanceNamed:NSAppearanceNameVibrantDark] : [NSAppearance appearanceNamed:NSAppearanceNameVibrantLight];
     self.window.appearance = appearance;
 }
@@ -509,6 +527,23 @@
         return event;
     }];
     [self.eventMonitors addObject: x];
+}
+
+#pragma mark - Interface theme changes observer
+
+-(void)setIsObservingThemeChanges:(BOOL)isObservingThemeChanges {
+    if (_isObservingThemeChanges == isObservingThemeChanges) {
+        return;
+    }
+
+    _isObservingThemeChanges = isObservingThemeChanges;
+    if (isObservingThemeChanges) {
+        // Activate the observer.
+        [[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(setBgLightDark) name:@"AppleInterfaceThemeChangedNotification" object:nil];
+    } else {
+        // Deactivate the observer.
+        [[NSDistributedNotificationCenter defaultCenter] removeObserver:self name:@"AppleInterfaceThemeChangedNotification" object:nil];
+    }
 }
 
 @end
