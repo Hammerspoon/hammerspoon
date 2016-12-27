@@ -86,6 +86,7 @@ local showAlert = function(message, style, screenObj, duration)
         textFont  = thisAlertStyle.textStyle.font.name
         textColor = thisAlertStyle.textStyle.color
         message   = stext(message, thisAlertStyle.textStyle)
+--        print(finspect(message:asTable()))
     end
 
     local screenFrame = screenObj:fullFrame()
@@ -106,7 +107,9 @@ local showAlert = function(message, style, screenObj, duration)
     alertEntry.UUID = UUID
 
     local textFrame = drawing.getTextDrawingSize(message, { font = textFont, size = textSize })
-    textFrame.w = textFrame.w + 4 -- known fudge factor, see hs.drawing.getTextDrawingSize docs
+    textFrame.w = textFrame.w + 8 -- known fudge factor, see hs.drawing.getTextDrawingSize docs
+    -- fudge factor seems worse when using `hs.drawing` but completely unnecessary with `hs.canvas`
+    -- need to figure out where drawing is inheriting margins from or push to retire hs.drawing completely...
     local drawingFrame = {
 -- approximates, but it scales a *little* better than hard coded numbers for differing sizes...
 --         x = screenFrame.x + (screenFrame.w - (textFrame.w + 26)) / 2,
