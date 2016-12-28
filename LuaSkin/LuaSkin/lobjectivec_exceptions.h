@@ -23,7 +23,13 @@ LUAI_FUNC void luai_objcthrow(struct lua_longjmp* errorJmp);
 #define LUAI_THROW(L,c)	luai_objcthrow(c)
 
 /* used for pfunc */
-#include "ldo.h"
+// NOTE: (cmsj) This declaration of Pfunc will need to be updated if Lua changes it.
+//              Including ldo.h here can cause Xcode to create a weird dependency of
+//              LuaSkin.framework for this file, which is circular, and causes a very
+//              inscrutable build failure in some situations.
+//#include "ldo.h"
+typedef void (*Pfunc) (lua_State *L, void *ud);
+
 LUAI_FUNC void luai_objcttry(lua_State *L, struct lua_longjmp* c_lua_longjmp, Pfunc a_func, void* userdata);
 #define LUAI_TRY(L,c,a,u)	luai_objcttry(L,c,a,u)
 
