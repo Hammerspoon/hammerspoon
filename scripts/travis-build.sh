@@ -23,8 +23,8 @@ else
 fi
 
 dump_output() {
-   echo Tailing the last 500 lines of output:
-   tail -500 $OUTPUT_FILE
+   echo Tailing the last 200 lines of output:
+   tail -200 $OUTPUT_FILE
 }
 error_handler() {
   echo ERROR: An error was encountered with the build.
