@@ -11,7 +11,6 @@ script:
   - scripts/travis-build.sh test
 after_script:
   - make build/html
-  - echo "You can find full logs for this build at: https://s3-eu-west-1.amazonaws.com/hammerspoontravisartifacts/index.html?prefix=logs/${TRAVIS_BUILD_NUMBER}/"
 after_success:
   - bash <(curl -s https://codecov.io/bash) >$HOME/codecov.log 2>&1
 after_failure:
