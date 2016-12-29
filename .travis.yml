@@ -37,4 +37,3 @@ addons:
       - $HOME/test.log
       - $HOME/codecov.log
     target_paths: logs/$TRAVIS_BUILD_NUMBER
-    debug: true
