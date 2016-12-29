@@ -48,5 +48,7 @@ xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release ${XCODE_ARGS} | te
 echo "Log file: "
 ls -l $OUTPUT_FILE
 
+echo "Will be uploaded to: https://s3-eu-west-1.amazonaws.com/hammerspoontravisartifacts/index.html?prefix=logs/${TRAVIS_BUILD_NUMBER}/"
+
 # nicely terminate the ping output loop
 kill $PING_LOOP_PID
