@@ -1,14 +1,14 @@
 env:
   global:
-    - ARTIFACTS_BUCKET=hammerspoontravisartifacts
-    - ARTIFACTS_PERMISSIONS=public-read
-    - ARTIFACTS_CACHE_CONTROL='public, max-age=315360000'
+    # AWS S3 secrets for artifacts storage
     - secure: "W1awxpwgPSxprZ8/hlMWMM9DDi4CUhJLgCrDdMTpv5WplicuHr/xzD6UWyAlqKAh5Gwti8K1PK0RF4ty0FoTQLUWbIYKkoyvS9BAb4dxXEPFhaWwXUf85ItNvKPzNjCJbUZmnBzBnvLMkIO6bQYP8giu6oAQB5YJzGTrCx5ahnU="
     - secure: "TEL0n7UKwhh7mx5IdLAhWN7GMrznOZb/JiqJfKSTh/134uRdofg6V0ofZC67B7sffRjWeFsHRhCl+qIjheJFY4Z4YYPibG4WJaJJdwUaJHU1ZCrwtq2DpeXzLZ+wdJPlK9Zh4Ssqu6+ilfdzk4yF8ZJ/yK7EyB+GB/Xnx/4ts24="
 language: objective-c
 osx_image: xcode8.2
 before_install:
   - gem install github-markdown
+  - gem install xcpretty
+  - gem install xcpretty-travis-formatter
 before_script:
   - make docs
 xcode_workspace: Hammerspoon.xcworkspace
@@ -19,7 +19,7 @@ script:
 after_script:
   - make build/html
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - bash <(curl -s https://codecov.io/bash) >$HOME/codecov.log 2>&1
 after_failure:
   - tail -500 $HOME/build.log
   - tail -500 $HOME/test.log
@@ -33,9 +33,13 @@ notifications:
     skip_join: true
 addons:
   artifacts:
+    bucket: hammerspoontravisartifacts
     s3_region: "eu-west-1"
     paths:
       - $HOME/build.log
       - $HOME/test.log
+      - $HOME/codecov.log
     target_paths: $TRAVIS_BUILD_NUMBER
+    permissions: public
+    cache-control: public
     debug: true

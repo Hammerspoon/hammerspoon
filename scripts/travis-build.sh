@@ -26,26 +26,24 @@ dump_output() {
    echo Tailing the last 200 lines of output:
    tail -200 $OUTPUT_FILE
 }
+
 error_handler() {
   echo ERROR: An error was encountered with the build.
   kill $PING_LOOP_PID
   dump_output
   exit 1
 }
+
 # If an error occurs, run our error handler to output a tail of the build
 trap 'error_handler' ERR
 
 # Set up a repeating loop to send some output to Travis.
-
-bash -c "while true; do echo \$(date) - ${OP}ing ...; sleep $PING_SLEEP; done" &
+bash -c "while true; do echo \$(date) - ${OP}ing keepalive ...; sleep $PING_SLEEP; done" &
 export PING_LOOP_PID=$!
 
 # Build command
 #mvn clean install >> $OUTPUT_FILE 2>&1
-xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release ${XCODE_ARGS} >> $OUTPUT_FILE 2>&1
-
-# The build finished without returning an error so dump a tail of the output
-dump_output
+xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release ${XCODE_ARGS} | tee $OUTPUT_FILE | xcpretty -f `xcpretty-travis-formatter`
 
 # nicely terminate the ping output loop
 kill $PING_LOOP_PID
