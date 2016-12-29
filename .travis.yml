@@ -1,7 +1,7 @@
 env:
   global:
     # AWS S3 secrets for artifacts storage
-    ARTIFACTS_BUCKET=hammerspoontravisartifacts
+    - ARTIFACTS_BUCKET=hammerspoontravisartifacts
     - secure: "W1awxpwgPSxprZ8/hlMWMM9DDi4CUhJLgCrDdMTpv5WplicuHr/xzD6UWyAlqKAh5Gwti8K1PK0RF4ty0FoTQLUWbIYKkoyvS9BAb4dxXEPFhaWwXUf85ItNvKPzNjCJbUZmnBzBnvLMkIO6bQYP8giu6oAQB5YJzGTrCx5ahnU="
     - secure: "TEL0n7UKwhh7mx5IdLAhWN7GMrznOZb/JiqJfKSTh/134uRdofg6V0ofZC67B7sffRjWeFsHRhCl+qIjheJFY4Z4YYPibG4WJaJJdwUaJHU1ZCrwtq2DpeXzLZ+wdJPlK9Zh4Ssqu6+ilfdzk4yF8ZJ/yK7EyB+GB/Xnx/4ts24="
 language: objective-c
