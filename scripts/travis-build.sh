@@ -1,6 +1,6 @@
 #!/bin/bash
 # Abort on Error
-set -e
+set -e -o pipefail
 
 export PING_SLEEP=30s
 export WORKDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -43,7 +43,10 @@ export PING_LOOP_PID=$!
 
 # Build command
 #mvn clean install >> $OUTPUT_FILE 2>&1
-xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release ${XCODE_ARGS} | tee $OUTPUT_FILE | xcpretty -f `xcpretty-travis-profiler-formatter`
+echo xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release ${XCODE_ARGS} | tee $OUTPUT_FILE | xcpretty -f `xcpretty-travis-profiler-formatter`
+
+echo "Log file: "
+ls -l $OUTPUT_FILE
 
 # nicely terminate the ping output loop
 kill $PING_LOOP_PID
