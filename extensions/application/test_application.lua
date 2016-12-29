@@ -1,5 +1,5 @@
-require("hs.application")
-require("hs.dockicon")
+hs.application = require("hs.application")
+hs.dockicon = require("hs.dockicon")
 
 function testAttributesFromBundleID()
   local appName = "Safari"

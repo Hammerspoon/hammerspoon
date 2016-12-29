@@ -1,8 +1,8 @@
-require("hs.uielement")
-require("hs.window")
-require("hs.timer")
-require("hs.eventtap")
-require("hs.application")
+hs.uielement = require("hs.uielement")
+hs.window = require("hs.window")
+hs.timer = require("hs.timer")
+hs.eventtap = require("hs.eventtap")
+hs.application = require("hs.application")
 
 function getPrefs()
   hs.openPreferences()

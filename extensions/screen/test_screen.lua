@@ -1,5 +1,5 @@
-require("hs.screen")
-require("hs.geometry")
+hs.screen = require("hs.screen")
+hs.geometry = require("hs.geometry")
 
 function testMainScreen()
   local screen = hs.screen.mainScreen()

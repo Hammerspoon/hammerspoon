@@ -1,4 +1,4 @@
-require("hs.alert")
+hs.alert = require("hs.alert")
 
 function testAlert()
   hs.alert.show("Test alert 1")

@@ -1,7 +1,7 @@
 -- hs.socket tests
-require("hs.socket")
-require("hs.timer")
-require("hs.fnutils")
+hs.socket = require("hs.socket")
+hs.timer = require("hs.timer")
+hs.fnutils = require("hs.fnutils")
 
 require "test_udpsocket"
 

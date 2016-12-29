@@ -1,4 +1,4 @@
-require("hs.distributednotifications")
+hs.distributednotifications = require("hs.distributednotifications")
 
 -- Storage for a notifications watcher object
 distNotWatcher = nil

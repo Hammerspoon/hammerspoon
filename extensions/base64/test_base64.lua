@@ -1,4 +1,4 @@
-require("hs.base64")
+hs.base64 = require("hs.base64")
 
 function testEncode()
   local original = "encoding test"

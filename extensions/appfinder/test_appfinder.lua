@@ -1,4 +1,4 @@
-require("hs.appfinder")
+hs.appfinder = require("hs.appfinder")
 
 function testAppFromName()
   local app = hs.appfinder.appFromName("Finder")

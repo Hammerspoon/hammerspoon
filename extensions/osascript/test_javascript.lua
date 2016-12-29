@@ -1,4 +1,4 @@
-require("hs.osascript")
+hs.osascript = require("hs.osascript")
 
 function testJavaScriptParseError()
   local js = "2 +"

@@ -1,4 +1,4 @@
-require("hs.timer")
+hs.timer = require("hs.timer")
 
 -- Storage for a timer object in various tests
 testTimer = nil

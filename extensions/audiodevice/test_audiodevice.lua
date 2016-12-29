@@ -1,4 +1,4 @@
-require("hs.audiodevice")
+hs.audiodevice = require("hs.audiodevice")
 
 -- Test constructors/functions
 function testGetDefaultOutput()
