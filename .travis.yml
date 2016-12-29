@@ -7,8 +7,6 @@ language: objective-c
 osx_image: xcode8.2
 before_install:
   - gem install github-markdown
-  - gem install xcpretty -v 0.2.2
-  - gem install xcpretty-travis-formatter -v 0.0.2
   - defaults write org.hammerspoon.Hammerspoon HSAutoLoadExtensions false
 before_script:
   - make docs
