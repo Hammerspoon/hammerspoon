@@ -2270,7 +2270,6 @@
 		4F98506D1B722C4100F7E909 /* extensions */ = {
 			isa = PBXGroup;
 			children = (
-				6AE181151D36E8BE0097211C /* noises */,
 				4F6689DF1C2852A100E48AF1 /* _coresetup */,
 				4F64D8BC1B724C3A00FC4C65 /* alert */,
 				4FDE05F71B73568E00E9E8EE /* appfinder */,
@@ -2322,6 +2321,7 @@
 				4F6B3EEF1B73E77D00B2A4DE /* mjomatic */,
 				4F6B3EFC1B73E7E200B2A4DE /* mouse */,
 				D6477BFB1C5ED57400F67BBC /* network */,
+				6AE181151D36E8BE0097211C /* noises */,
 				4F6B3F0F1B73E9BA00B2A4DE /* notify */,
 				4C3D55A81C7F05D00023B633 /* osascript */,
 				4F6B3F241B73EBF000B2A4DE /* pasteboard */,
@@ -2357,8 +2357,8 @@
 				4FD0ABA51B74AE5A00A82496 /* wifi */,
 				4FD0ABA91B74AE7200A82496 /* wifiwatcher */,
 				4FD0ABBC1B74AF8B00A82496 /* window */,
-				4FB602ED1DDBB08300FA751B /* windowlayout */,
 				4FD0ABC71B74B0E200A82496 /* windowfilter */,
+				4FB602ED1DDBB08300FA751B /* windowlayout */,
 			);
 			name = extensions;
 			sourceTree = "<group>";
