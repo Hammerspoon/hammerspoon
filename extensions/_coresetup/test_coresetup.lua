@@ -1,4 +1,4 @@
-require("hs.json")
+hs.json = require("hs.json")
 
 function testOSExit()
   assertIsEqual("function", type(hs._exit))

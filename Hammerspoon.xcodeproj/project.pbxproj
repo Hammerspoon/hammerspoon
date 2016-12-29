@@ -121,6 +121,8 @@
 		4FC09F7C19F99ECE007542A6 /* docs.json in Resources */ = {isa = PBXBuildFile; fileRef = 4FC09F7B19F99ECE007542A6 /* docs.json */; };
 		4FC93CA21BCD872D0041B820 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4FC93CA81BCD87440041B820 /* watcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FC93C9B1BCD2D8A0041B820 /* watcher.m */; settings = {COMPILER_FLAGS = "-std=c99"; }; };
+		4FCC52CE1E1527EF007F93D0 /* HSbrightness.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FCC52CD1E1527EF007F93D0 /* HSbrightness.m */; };
+		4FCC52CF1E1528D4007F93D0 /* test_brightness.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FCC52CB1E1526A6007F93D0 /* test_brightness.lua */; };
 		4FD0AB181B7484D700A82496 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4FD0AB241B74857D00A82496 /* watcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FD0AB231B74857D00A82496 /* watcher.m */; };
 		4FD0AB2F1B74867600A82496 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
@@ -979,6 +981,8 @@
 		4FC09F7B19F99ECE007542A6 /* docs.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = docs.json; path = build/docs.json; sourceTree = "<group>"; };
 		4FC93C9B1BCD2D8A0041B820 /* watcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = watcher.m; path = extensions/audiodevice/watcher.m; sourceTree = "<group>"; };
 		4FC93CA71BCD872D0041B820 /* libaudiodevicewatcher.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libaudiodevicewatcher.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		4FCC52CB1E1526A6007F93D0 /* test_brightness.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = test_brightness.lua; path = extensions/brightness/test_brightness.lua; sourceTree = "<group>"; };
+		4FCC52CD1E1527EF007F93D0 /* HSbrightness.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSbrightness.m; sourceTree = "<group>"; };
 		4FD0AB1D1B7484D700A82496 /* libspaceswatcher.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libspaceswatcher.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FD0AB211B74856600A82496 /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/spaces/init.lua; sourceTree = "<group>"; };
 		4FD0AB231B74857D00A82496 /* watcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = watcher.m; path = extensions/spaces/watcher.m; sourceTree = "<group>"; };
@@ -2622,6 +2626,7 @@
 			children = (
 				4FDE05C91B72C24700E9E8EE /* init.lua */,
 				4FDE05CA1B72C24700E9E8EE /* internal.m */,
+				4FCC52CB1E1526A6007F93D0 /* test_brightness.lua */,
 			);
 			name = brightness;
 			sourceTree = "<group>";
@@ -2877,6 +2882,7 @@
 				4C403D631CBE5B9F00EE20ED /* HSapplication.m */,
 				4FEF4D4E1C5FA01000E3B939 /* HSaudiodevice.m */,
 				4FDD8E4D1C834C8100085D7A /* HSbase64.m */,
+				4FCC52CD1E1527EF007F93D0 /* HSbrightness.m */,
 				4FDD8E8C1C8C8BF200085D7A /* HScoresetup.m */,
 				4F40EC3F1CCD0FE3006342D7 /* HSdistributednotifications.m */,
 				4C5BA6B41C85EAEB00E68CA9 /* HSfs.m */,
@@ -5131,6 +5137,7 @@
 				4FDD8E911C8DEE3700085D7A /* test_appfinder.lua in Resources */,
 				4F40EC441CCD126F006342D7 /* test_distributednotifications.lua in Resources */,
 				4CE639141C772DC700BB7CD2 /* test_udpsocket.lua in Resources */,
+				4FCC52CF1E1528D4007F93D0 /* test_brightness.lua in Resources */,
 				4FEF4D551C5FBC0F00E3B939 /* test_audiodevice.lua in Resources */,
 				4C5BA6B71C85EB0400E68CA9 /* test_fs.lua in Resources */,
 				4C403D661CBE627200EE20ED /* test_application.lua in Resources */,
@@ -5793,6 +5800,7 @@
 			files = (
 				4FDD8E8F1C8DED1C00085D7A /* HSappfinder.m in Sources */,
 				6AE181321D39C8F10097211C /* HSnoises.m in Sources */,
+				4FCC52CE1E1527EF007F93D0 /* HSbrightness.m in Sources */,
 				4FDD8E4E1C834C8100085D7A /* HSbase64.m in Sources */,
 				4FDD8E8D1C8C8BF200085D7A /* HScoresetup.m in Sources */,
 				4FDD8E4C1C6E4FBB00085D7A /* HSscreen.m in Sources */,
