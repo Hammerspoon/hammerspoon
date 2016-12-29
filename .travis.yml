@@ -4,24 +4,26 @@ env:
     - secure: "W1awxpwgPSxprZ8/hlMWMM9DDi4CUhJLgCrDdMTpv5WplicuHr/xzD6UWyAlqKAh5Gwti8K1PK0RF4ty0FoTQLUWbIYKkoyvS9BAb4dxXEPFhaWwXUf85ItNvKPzNjCJbUZmnBzBnvLMkIO6bQYP8giu6oAQB5YJzGTrCx5ahnU="
     - secure: "TEL0n7UKwhh7mx5IdLAhWN7GMrznOZb/JiqJfKSTh/134uRdofg6V0ofZC67B7sffRjWeFsHRhCl+qIjheJFY4Z4YYPibG4WJaJJdwUaJHU1ZCrwtq2DpeXzLZ+wdJPlK9Zh4Ssqu6+ilfdzk4yF8ZJ/yK7EyB+GB/Xnx/4ts24="
 language: objective-c
-osx_image: xcode8.1
+osx_image: xcode8.2
 before_install:
   - gem install github-markdown
   - gem install xcpretty -v 0.2.2
-  - gem install xcpretty-travis-profiler-formatter -v 0.0.2
+  - gem install xcpretty-travis-formatter -v 0.0.2
   - defaults write org.hammerspoon.Hammerspoon HSAutoLoadExtensions false
 before_script:
   - make docs
 xcode_workspace: Hammerspoon.xcworkspace
 xcode_scheme: Release
 script:
-  - set -o pipefail
-  - xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release build build-for-testing GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES 2>&1 | tee $HOME/build.log | xcpretty -f `xcpretty-travis-profiler-formatter`
-  - xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release test-without-building GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES 2>&1 | tee $HOME/test.log | xcpretty -f `xcpretty-travis-profiler-formatter`
+  - scripts/travis-build.sh build
+  - scripts/travis-build.sh test
 after_script:
   - make build/html
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+after_failure:
+  - tail -500 $HOME/build.log
+  - tail -500 $HOME/test.log
 notifications:
   irc:
     channels:
@@ -36,4 +38,5 @@ addons:
     paths:
       - $HOME/build.log
       - $HOME/test.log
+    target_paths: $TRAVIS_BUILD_NUMBER
     debug: true
