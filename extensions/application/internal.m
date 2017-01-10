@@ -870,15 +870,20 @@ id _getMenuStructure(AXUIElementRef menuItem) {
                                                                       (__bridge NSString *)kAXEnabledAttribute,
                                                                       (__bridge NSString *)kAXMenuItemCmdGlyphAttribute]];
     CFArrayRef cfAttributeValues = NULL;
+    AXError result;
 
-    AXUIElementCopyMultipleAttributeValues(menuItem, (__bridge CFArrayRef)attributeNames, 0, &cfAttributeValues);
+    result = AXUIElementCopyMultipleAttributeValues(menuItem, (__bridge CFArrayRef)attributeNames, 0, &cfAttributeValues);
 
-    // See if we're dealing with the "special" Apple menu, and ignore it
-    CFTypeRef firstElement = CFArrayGetValueAtIndex(cfAttributeValues, 0);
-    if (firstElement && CFGetTypeID(firstElement) == CFStringGetTypeID()) {
-        if (CFStringCompare((CFStringRef)CFArrayGetValueAtIndex(cfAttributeValues, 0), (__bridge CFStringRef)@"Apple", 0) == kCFCompareEqualTo) {
-            CFRelease(cfAttributeValues);
-            cfAttributeValues = nil;
+    if (result != kAXErrorSuccess) {
+        [LuaSkin logBreadcrumb:@"Unable to fetch menu structure"];
+    } else {
+        // See if we're dealing with the "special" Apple menu, and ignore it
+        CFTypeRef firstElement = CFArrayGetValueAtIndex(cfAttributeValues, 0);
+        if (firstElement && CFGetTypeID(firstElement) == CFStringGetTypeID()) {
+            if (CFStringCompare((CFStringRef)CFArrayGetValueAtIndex(cfAttributeValues, 0), (__bridge CFStringRef)@"Apple", 0) == kCFCompareEqualTo) {
+                CFRelease(cfAttributeValues);
+                cfAttributeValues = nil;
+            }
         }
     }
 
