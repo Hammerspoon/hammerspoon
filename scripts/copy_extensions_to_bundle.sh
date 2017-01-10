@@ -178,3 +178,8 @@ cp -av "${BUILT_PRODUCTS_DIR}/libfsvolume.dylib" "${HS_DST}/fs/volume.so"
 
 # Special (compiling) copier for hs.chooser
 ibtool --compile "${HS_RESOURCES}/HSChooserWindow.nib" "${SRCROOT}/extensions/chooser/HSChooserWindow.xib"
+
+# Special copier for hs.sqlite3
+mkdir -pv "${HS_DST}/sqlite3"
+cp -av "${SRCROOT}/extensions/sqlite3/init.lua" "${HS_DST}/sqlite3/init.lua"
+cp -av "${BUILT_PRODUCTS_DIR}/liblsqlite3.dylib" "${HS_DST}/sqlite3/lsqlite3.so"
