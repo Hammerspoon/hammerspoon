@@ -39,34 +39,20 @@
   @definedblock Bit masks for Lua type checking with LuaSkin:checkArgs:
   @hidesingletons
   */
-/*! @define LS_TBREAK The final value in all @link //apple_ref/occ/instm/LuaSkin/checkArgs: checkArgs @/link calls, signals the end of the argument list */
-#define LS_TBREAK         1 << 0
-/*! @define LS_TOPTIONAL Can be OR'd with any argument to indicate that it does not have to be present */
-#define LS_TOPTIONAL      1 << 1
-/*! @define LS_TNIL maps to LUA_TNIL */
-#define LS_TNIL           1 << 2
-/*! @define LS_TBOOLEAN maps to LUA_TBOOLEAN */
-#define LS_TBOOLEAN       1 << 3
-/*! @define LS_TNUMBER maps to LUA_TNUMBER */
-#define LS_TNUMBER        1 << 4
-/*! @define LS_TSTRING maps to LUA_TSTRING */
-#define LS_TSTRING        1 << 5
-/*! @define LS_TTABLE maps to LUA_TTABLE */
-#define LS_TTABLE         1 << 6
-/*! @define LS_TFUNCTION maps to LUA_TFUNCTION */
-#define LS_TFUNCTION      1 << 7
-/*! @define LS_TUSERDATA maps to LUA_TUSERDATA */
-#define LS_TUSERDATA      1 << 8
-/*! @define LS_TNONE maps to LUA_TNONE.  Deprecated, as this serves no real use in checkArgs except to provide parity with Lua's LUA_TNONE, which is handled by optional argument tagging or as an argument count error. */
-#define LS_TNONE          1 << 9
-/*! @define LS_TANY indicates that any Lua variable type is accepted */
-#define LS_TANY           1 << 10
-/*! @define LS_TINTEGER Can be OR'd with LS_TNUMBER to specify that the number must be an integer.  This option is ignored if paired with other types. */
-#define LS_TINTEGER       1 << 11
-/*! @define LS_TVARARG Can be OR'd with LS_TBREAK to indicate that any additional arguments on the stack after this location are to be ignored by @link //apple_ref/occ/instm/LuaSkin/checkArgs: checkArgs @/link.  It is the responsibility of the module function to check and use or ignore any additional arguments. */
-#define LS_TVARARG        1 << 12
-/*! @define LS_TTYPEDTABLE maps to LUA_TTABLE, but like LS_TUSERDATA, expects a string argument following which specifies the specific value expected in the __luaSkinType field of the table. */
-#define LS_TTYPEDTABLE    1 << 13
+#define LS_TBREAK         1 << 0  /*! @define LS_TBREAK The final value in all @link //apple_ref/occ/instm/LuaSkin/checkArgs: checkArgs @/link calls, signals the end of the argument list */
+#define LS_TOPTIONAL      1 << 1  /*! @define LS_TOPTIONAL Can be OR'd with any argument to indicate that it does not have to be present */
+#define LS_TNIL           1 << 2  /*! @define LS_TNIL maps to LUA_TNIL */
+#define LS_TBOOLEAN       1 << 3  /*! @define LS_TBOOLEAN maps to LUA_TBOOLEAN */
+#define LS_TNUMBER        1 << 4  /*! @define LS_TNUMBER maps to LUA_TNUMBER */
+#define LS_TSTRING        1 << 5  /*! @define LS_TSTRING maps to LUA_TSTRING */
+#define LS_TTABLE         1 << 6  /*! @define LS_TTABLE maps to LUA_TTABLE */
+#define LS_TFUNCTION      1 << 7  /*! @define LS_TFUNCTION maps to LUA_TFUNCTION */
+#define LS_TUSERDATA      1 << 8  /*! @define LS_TUSERDATA maps to LUA_TUSERDATA */
+#define LS_TNONE          1 << 9  /*! @define LS_TNONE maps to LUA_TNONE.  Deprecated, as this serves no real use in checkArgs except to provide parity with Lua's LUA_TNONE, which is handled by optional argument tagging or as an argument count error. */
+#define LS_TANY           1 << 10 /*! @define LS_TANY indicates that any Lua variable type is accepted */
+#define LS_TINTEGER       1 << 11 /*! @define LS_TINTEGER Can be OR'd with LS_TNUMBER to specify that the number must be an integer.  This option is ignored if paired with other types. */
+#define LS_TVARARG        1 << 12 /*! @define LS_TVARARG Can be OR'd with LS_TBREAK to indicate that any additional arguments on the stack after this location are to be ignored by @link //apple_ref/occ/instm/LuaSkin/checkArgs: checkArgs @/link.  It is the responsibility of the module function to check and use or ignore any additional arguments. */
+#define LS_TTYPEDTABLE    1 << 13 /*! @define LS_TTYPEDTABLE maps to LUA_TTABLE, but like LS_TUSERDATA, expects a string argument following which specifies the specific value expected in the __luaSkinType field of the table. */
 
 /*! @/definedblock Bit masks for Lua type checking */
 
@@ -100,18 +86,12 @@ typedef NS_OPTIONS(NSUInteger, LS_NSConversionOptions) {
  @definedblock Log level definitions for logAtLevel:withMessage:
  @hidesingletons
  */
-/*! @define LS_LOG_BREADCRUMB for messages that should be considered for recording in crash logs */
-#define LS_LOG_BREADCRUMB 6
-/*! @define LS_LOG_VERBOSE for messages that contain excessive detail that is usually only of interest during debugging */
-#define LS_LOG_VERBOSE  5
-/*! @define LS_LOG_DEBUG for messages that are usually only of interest during debugging */
-#define LS_LOG_DEBUG    4
-/*! @define LS_LOG_INFO for messages that are informative */
-#define LS_LOG_INFO     3
-/*! @define LS_LOG_WARN for messages that contain warnings */
-#define LS_LOG_WARN     2
-/*! @define LS_LOG_ERROR for messages that indicate an error has occured */
-#define LS_LOG_ERROR    1
+#define LS_LOG_BREADCRUMB 6 /*! @define LS_LOG_BREADCRUMB for messages that should be considered for recording in crash logs */
+#define LS_LOG_VERBOSE    5 /*! @define LS_LOG_VERBOSE for messages that contain excessive detail that is usually only of interest during debugging */
+#define LS_LOG_DEBUG      4 /*! @define LS_LOG_DEBUG for messages that are usually only of interest during debugging */
+#define LS_LOG_INFO       3 /*! @define LS_LOG_INFO for messages that are informative */
+#define LS_LOG_WARN       2 /*! @define LS_LOG_WARN for messages that contain warnings */
+#define LS_LOG_ERROR      1 /*! @define LS_LOG_ERROR for messages that indicate an error has occured */
 
 /*! @/definedblock Log level definitions */
 
