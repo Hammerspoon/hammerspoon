@@ -98,6 +98,7 @@ typedef NS_ENUM(NSInteger, NSStatusBarItemPriority) {
 @interface HSMenubarCallbackObject : NSObject
 @property lua_State *L;
 @property int fn;
+@property int item;
 @end
 @implementation HSMenubarCallbackObject
 // Generic callback runner that will execute a Lua function stored in self.fn
@@ -135,7 +136,9 @@ typedef NS_ENUM(NSInteger, NSStatusBarItemPriority) {
         lua_pushboolean(L, isFnKey);
         lua_setfield(L, -2, "fn");
 
-        fn_result = [skin protectedCallAndTraceback:1 nresults:1];
+        [skin pushLuaRef:refTable ref:self.item];
+
+        fn_result = [skin protectedCallAndTraceback:2 nresults:1];
     } else {
         // event is very unlikely to be nil, but we'll handle it just in case
         fn_result = [skin protectedCallAndTraceback:0 nresults:1];
@@ -283,6 +286,7 @@ void parse_table(lua_State *L, int idx, NSMenu *menu, NSSize stateBoxImageSize) 
                 lua_pushvalue(L, -1);
                 delegate.fn = [skin luaRef:refTable];
                 delegate.L = L;
+                delegate.item = [skin luaRef:refTable atIndex:-2];
                 [menuItem setTarget:delegate];
                 [menuItem setAction:@selector(click:)];
                 [menuItem setRepresentedObject:delegate]; // representedObject is a strong reference, so we don't need to retain the delegate ourselves
@@ -736,6 +740,7 @@ static int menubarSetClickCallback(lua_State *L) {
 ///  * The available keys for each menu item are (note that `title` is the only required key -- all other keys are optional):
 ///      * `title`           - A string or `hs.styledtext` object to be displayed in the menu. If this is the special string `"-"` the item will be rendered as a menu separator.  This key can be set to the empty string (""), but it must be present.
 ///      * `fn`              - A function to be executed when the menu item is clicked
+///         * The function will be called with two arguments. The first argument will be a table containing boolean values indicating which keyboard modifiers were held down when the menubar item was clicked (see `menuTable` parameter for possible keys) and the second is the table representing the item.
 ///      * `checked`         - A boolean to indicate if the menu item should have a checkmark (by default) next to it or not. Defaults to false.
 ///      * `state`           - a text value of "on", "off", or "mixed" indicating the menu item state.  "on" and "off" are equivalent to `checked` being true or false respectively, and "mixed" will have a dash (by default) beside it.
 ///      * `disabled`        - A boolean to indicate if the menu item should be unselectable or not. Defaults to false (i.e. menu items are selectable by default)
