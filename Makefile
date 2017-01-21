@@ -1,5 +1,5 @@
 VERSION = $(shell defaults read `pwd`/Hammerspoon/Hammerspoon-Info CFBundleVersion)
-APPFILE = build/Hammerspoon.app
+APPFILE = build/FCPXHacks.app
 ZIPFILE = build/Hammerspoon-$(VERSION).zip
 SCHEME = Hammerspoon
 CONFIGURATION = Debug
@@ -13,10 +13,10 @@ release: all
 
 $(APPFILE): PRODUCT_DIR = $(shell xcodebuild -workspace Hammerspoon.xcworkspace -scheme $(SCHEME) -configuration $(CONFIGURATION) -showBuildSettings | sort | uniq | grep " BUILT_PRODUCTS_DIR =" | awk '{ print $$3 }')
 $(APPFILE): build $(shell find Hammerspoon -type f)
-	echo "Building Hammerspoon in $(CONFIGURATION) configuration"
+	echo "Building FCPX Hacks in $(CONFIGURATION) configuration"
 	rm -rf $@
 	xcodebuild -workspace Hammerspoon.xcworkspace -scheme $(SCHEME) -configuration $(CONFIGURATION) clean build > build/$(CONFIGURATION)-build.log
-	cp -R ${PRODUCT_DIR}/Hammerspoon.app $@
+	cp -R ${PRODUCT_DIR}/FCPX\ Hacks.app $@
 	cp -R ${PRODUCT_DIR}/Hammerspoon.app.dSYM build/
 	cp -R ${PRODUCT_DIR}/LuaSkin.framework.dSYM build/
 
