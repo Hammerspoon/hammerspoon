@@ -433,12 +433,14 @@ return {setup=function(...)
     return hs.fnutils.map(completions, function(item) return mod..mapJoiner..item..mapEnder end)
   end
 
+--[[
   if not hasinitfile then
     hs.notify.register("__noinitfile", function() os.execute("open http://www.hammerspoon.org/go/") end)
     hs.notify.show("Hammerspoon", "No config file found", "Click here for the Getting Started Guide", "__noinitfile")
     hs.printf("-- Can't find %s; create it and reload your config.", prettypath)
     return hs.completionsForInputString, runstring
   end
+--]]
 
   local hscrash = require("hs.crash")
   rawrequire = require
@@ -471,6 +473,7 @@ return {setup=function(...)
   end
   hscrash.crashLog("Loaded from: "..modpath)
 
+--[[
   print("-- Loading " .. prettypath)
   local fn, err = loadfile(fullpath)
   if not fn then hs.showError(err) return hs.completionsForInputString, runstring end
@@ -479,6 +482,12 @@ return {setup=function(...)
   if not ok then hs.showError(err) return hs.completionsForInputString, runstring end
 
   print "-- Done."
+
+  print "Load FCPX Hacks time!"
+--]]
+
+  print("Loading FCPX Hacks...")
+  require("hs.fcpxhacks")
 
   return hs.completionsForInputString, runstring
 end}
