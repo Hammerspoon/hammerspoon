@@ -127,7 +127,7 @@ local ax                        = require("hs._asm.axuielement")
 local metadata					= require("hs.fcpxhacks.metadata")
 
 local tools                     = require("hs.fcpxhacks.modules.tools")
-local semver                    = require("hs.fcpxhacks.modules.semver.semver")
+--local semver                    = require("hs.fcpxhacks.modules.semver.semver")
 
 --------------------------------------------------------------------------------
 -- DEBUG MODE:
@@ -218,8 +218,9 @@ function mod.init()
     --------------------------------------------------------------------------------
     -- Check Hammerspoon Version:
     --------------------------------------------------------------------------------
-    local requiredHammerspoonVersion        = semver("0.9.52")
     local hammerspoonVersion                = semver(hs.processInfo["version"])
+    --[[
+    local requiredHammerspoonVersion        = semver("0.9.52.0")
     if hammerspoonVersion < requiredHammerspoonVersion then
         if hs.canCheckForUpdates() then
             hs.checkForUpdates()
@@ -229,6 +230,7 @@ function mod.init()
             application.applicationsForBundleID(hsBundleID)[1]:kill()
         end
     end
+	--]]
 
     --------------------------------------------------------------------------------
     -- Check Versions & Language:

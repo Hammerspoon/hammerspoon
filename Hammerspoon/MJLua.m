@@ -244,11 +244,11 @@ static int automaticallyChecksForUpdates(lua_State *L) {
             lua_pushboolean(L, (BOOL)[sharedUpdater performSelector:@selector(automaticallyChecksForUpdates)]) ;
 #pragma clang diagnostic pop
         } else {
-            [skin logWarn:@"Sparkle Update framework not available for the running instance of Hammerspoon."] ;
+            [skin logWarn:@"Sparkle Update framework not available for the running instance of FCPX Hacks."] ;
             lua_pushboolean(L, NO) ;
         }
     } else {
-        [skin logWarn:@"Sparkle Update framework not available for the running instance of Hammerspoon."] ;
+        [skin logWarn:@"Sparkle Update framework not available for the running instance of FCPX Hacks."] ;
         lua_pushboolean(L, NO) ;
     }
     return 1 ;
@@ -278,10 +278,10 @@ static int checkForUpdates(lua_State *L) {
             [sharedUpdater performSelector:@selector(checkForUpdates:) withObject:nil] ;
 #pragma clang diagnostic pop
         } else {
-            [skin logWarn:@"Sparkle Update framework not available for the running instance of Hammerspoon."] ;
+            //[skin logWarn:@"Sparkle Update framework not available for the running instance of Hammerspoon."] ;
         }
     } else {
-        [skin logWarn:@"Sparkle Update framework not available for the running instance of Hammerspoon."] ;
+        //[skin logWarn:@"Sparkle Update framework not available for the running instance of Hammerspoon."] ;
     }
     return 0 ;
 }
@@ -464,8 +464,8 @@ void MJLuaInit(void) {
         HSNSLOG(@"Unable to load setup.lua from bundle. Terminating");
         NSAlert *alert = [[NSAlert alloc] init];
         [alert addButtonWithTitle:@"OK"];
-        [alert setMessageText:@"Hammerspoon installation is corrupted"];
-        [alert setInformativeText:@"Please re-install Hammerspoon"];
+        [alert setMessageText:@"FCPX Hacks installation is corrupted"];
+        [alert setInformativeText:@"Please re-install FCPX Hacks"];
         [alert setAlertStyle:NSCriticalAlertStyle];
         [alert runModal];
         [[NSApplication sharedApplication] terminate: nil];
@@ -484,7 +484,7 @@ void MJLuaInit(void) {
         HSNSLOG(@"Error running setup.lua:%@", errorMessage);
         NSAlert *alert = [[NSAlert alloc] init];
         [alert addButtonWithTitle:@"OK"];
-        [alert setMessageText:@"Hammerspoon initialization failed"];
+        [alert setMessageText:@"FCPX Hacks initialization failed"];
         [alert setInformativeText:errorMessage];
         [alert setAlertStyle:NSCriticalAlertStyle];
         [alert runModal];

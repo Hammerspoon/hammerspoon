@@ -5050,7 +5050,7 @@
 			attributes = {
 				CLASSPREFIX = HS;
 				LastUpgradeCheck = 0800;
-				ORGANIZATIONNAME = Hammerspoon;
+				ORGANIZATIONNAME = FCPXHacks;
 				TargetAttributes = {
 					4F20B5281C1F1C5B00F52437 = {
 						CreatedOnToolsVersion = 7.2;

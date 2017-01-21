@@ -29,7 +29,7 @@
                                     <action selector="showAboutPanel:" target="Voe-Tx-rLC" id="bG4-ba-EWj"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Check for Updates..." id="BOF-NM-1cW">
+                            <menuItem title="Check for Updates..." hidden="YES" id="BOF-NM-1cW">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="checkForUpdates:" target="9hz-Cm-Er1" id="sY1-SF-eDC"/>
@@ -76,7 +76,7 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="File" id="bib-Uj-vzu">
                         <items>
-                            <menuItem title="Reload Config" hidden="YES" keyEquivalent="R" id="Was-JA-tGl">
+                            <menuItem title="Force Reload" keyEquivalent="R" id="Was-JA-tGl">
                                 <connections>
                                     <action selector="reloadConfig:" target="Voe-Tx-rLC" id="9tp-b3-puT"/>
                                 </connections>
