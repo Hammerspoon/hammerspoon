@@ -244,11 +244,11 @@ static int automaticallyChecksForUpdates(lua_State *L) {
             lua_pushboolean(L, (BOOL)[sharedUpdater performSelector:@selector(automaticallyChecksForUpdates)]) ;
 #pragma clang diagnostic pop
         } else {
-            [skin logWarn:@"Sparkle Update framework not available for the running instance of FCPX Hacks."] ;
+            //[skin logWarn:@"Sparkle Update framework not available for the running instance of FCPX Hacks."] ;
             lua_pushboolean(L, NO) ;
         }
     } else {
-        [skin logWarn:@"Sparkle Update framework not available for the running instance of FCPX Hacks."] ;
+        //[skin logWarn:@"Sparkle Update framework not available for the running instance of FCPX Hacks."] ;
         lua_pushboolean(L, NO) ;
     }
     return 1 ;

@@ -132,9 +132,9 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     [[NSUserDefaults standardUserDefaults]
      registerDefaults: @{@"NSApplicationCrashOnExceptions": @YES,
                          MJShowDockIconKey: @YES,
-                         MJShowMenuIconKey: @YES,
+                         MJShowMenuIconKey: @NO,
                          HSAutoLoadExtensions: @YES,
-                         HSUploadCrashDataKey: @YES,
+                         HSUploadCrashDataKey: @NO,
                          }];
 }
 
@@ -157,7 +157,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     @try {
         [[NSApplication sharedApplication] orderFrontStandardAboutPanel: nil];
     } @catch (NSException *exception) {
-        [[LuaSkin shared] logError:@"Unable to open About dialog. This may mean your Hammerspoon installation is corrupt. Please re-install it!"];
+        [[LuaSkin shared] logError:@"Unable to open About dialog. This may mean your FCPX Hacks installation is corrupt. Please re-install it!"];
     }
 }
 
@@ -184,8 +184,8 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 - (void)showMjolnirMigrationNotification {
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:@"OK"];
-    [alert setMessageText:@"Hammerspoon crash detected"];
-    [alert setInformativeText:@"Your init.lua is loading Mjolnir modules and a previous launch crashed.\n\nHammerspoon ships with updated versions of many of the Mjolnir modules, with both new features and many bug fixes.\n\nPlease consult our API documentation and migrate your config."];
+    [alert setMessageText:@"FCPX Hacks crash detected"];
+    [alert setInformativeText:@"Your init.lua is loading Mjolnir modules and a previous launch crashed.\n\nFCPX Hacks ships with updated versions of many of the Mjolnir modules, with both new features and many bug fixes.\n\nPlease consult our API documentation and migrate your config."];
     [alert setAlertStyle:NSCriticalAlertStyle];
     [alert runModal];
 }
