@@ -21,14 +21,14 @@
         <window title="FCPX Hacks Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" frameAutosaveName="prefs" animationBehavior="default" id="1ae-mv-r5b" customClass="NSPanel">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="957" y="580" width="406" height="164"/>
+            <rect key="contentRect" x="957" y="580" width="406" height="174"/>
             <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1418"/>
             <view key="contentView" misplaced="YES" id="Akb-Ed-9u3">
-                <rect key="frame" x="0.0" y="0.0" width="406" height="164"/>
+                <rect key="frame" x="0.0" y="0.0" width="406" height="174"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <button hidden="YES" misplaced="YES" id="LCE-lg-IdY">
-                        <rect key="frame" x="126" y="-141" width="121" height="18"/>
+                        <rect key="frame" x="126" y="-131" width="121" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="check" title="Show dock icon" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="1Ay-Q1-93j">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -39,7 +39,7 @@
                         </connections>
                     </button>
                     <button hidden="YES" misplaced="YES" id="onk-bV-cOj">
-                        <rect key="frame" x="126" y="-161" width="126" height="18"/>
+                        <rect key="frame" x="126" y="-151" width="126" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="check" title="Show menu icon" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="uNE-4I-dRd">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -50,7 +50,7 @@
                         </connections>
                     </button>
                     <button id="e5P-fQ-lSS">
-                        <rect key="frame" x="127" y="106" width="241" height="18"/>
+                        <rect key="frame" x="127" y="116" width="241" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="check" title="Launch FCPX Hacks at login" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="WYx-7x-qXj">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -60,8 +60,8 @@
                             <action selector="toggleOpensAtLogin:" target="-2" id="3mA-c3-HVf"/>
                         </connections>
                     </button>
-                    <button hidden="YES" misplaced="YES" id="8hE-jn-yvO">
-                        <rect key="frame" x="126" y="-121" width="137" height="18"/>
+                    <button misplaced="YES" id="8hE-jn-yvO">
+                        <rect key="frame" x="127" y="96" width="137" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="check" title="Check for updates" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="eue-1N-zi1">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -69,7 +69,7 @@
                         </buttonCell>
                     </button>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="VQb-h7-4Va">
-                        <rect key="frame" x="50" y="107" width="73" height="17"/>
+                        <rect key="frame" x="50" y="117" width="73" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Behavior:" id="dha-iU-GWx">
                             <font key="font" metaFont="system"/>
@@ -78,7 +78,7 @@
                         </textFieldCell>
                     </textField>
                     <button hidden="YES" misplaced="YES" id="pYS-Wj-7iw">
-                        <rect key="frame" x="126" y="-181" width="205" height="18"/>
+                        <rect key="frame" x="126" y="-171" width="205" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="check" title="Keep Console window on top" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="OSm-zw-Lk8">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -89,7 +89,7 @@
                         </connections>
                     </button>
                     <button hidden="YES" misplaced="YES" id="gOt-KN-83u">
-                        <rect key="frame" x="126" y="-201" width="227" height="18"/>
+                        <rect key="frame" x="126" y="-191" width="227" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="check" title="Send crash data (requires restart)" bezelStyle="regularSquare" imagePosition="left" alignment="left" state="on" inset="2" id="YwH-Pc-MwX">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -100,7 +100,7 @@
                         </connections>
                     </button>
                     <button hidden="YES" verticalHuggingPriority="750" misplaced="YES" id="Brc-yV-QuI">
-                        <rect key="frame" x="105" y="-233" width="195" height="32"/>
+                        <rect key="frame" x="105" y="-223" width="195" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="push" title="Crash Data Privacy Policy" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="hjR-yP-MS1">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -111,7 +111,7 @@
                         </connections>
                     </button>
                     <button verticalHuggingPriority="750" misplaced="YES" id="4ho-hR-nJI">
-                        <rect key="frame" x="123" y="38" width="162" height="32"/>
+                        <rect key="frame" x="123" y="26" width="162" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="push" title="Enable Accessibility" bezelStyle="rounded" imagePosition="left" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="cuD-Tg-hc1">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -127,7 +127,7 @@
                         </connections>
                     </button>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" id="fRb-9A-PSe">
-                        <rect key="frame" x="127" y="74" width="241" height="17"/>
+                        <rect key="frame" x="127" y="62" width="241" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Accessibility is enabled. You're all set!" id="PqP-7R-CO6">
                             <font key="font" metaFont="system"/>
@@ -139,7 +139,7 @@
                         </connections>
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" id="Ljs-s0-qtL">
-                        <rect key="frame" x="38" y="74" width="85" height="17"/>
+                        <rect key="frame" x="38" y="62" width="85" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Accessibility:" id="xX6-GD-rGt">
                             <font key="font" metaFont="system"/>
@@ -148,7 +148,7 @@
                         </textFieldCell>
                     </textField>
                     <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" id="fzK-vc-sjF">
-                        <rect key="frame" x="287" y="47" width="16" height="16"/>
+                        <rect key="frame" x="287" y="35" width="16" height="16"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="NSStatusAvailable" id="6r9-hh-evU"/>
                         <connections>
@@ -157,7 +157,7 @@
                     </imageView>
                 </subviews>
             </view>
-            <point key="canvasLocation" x="333" y="306"/>
+            <point key="canvasLocation" x="333" y="311"/>
         </window>
         <userDefaultsController representsSharedInstance="YES" id="dqg-7Y-qrg"/>
     </objects>

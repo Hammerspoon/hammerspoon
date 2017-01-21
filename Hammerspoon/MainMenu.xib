@@ -29,7 +29,7 @@
                                     <action selector="showAboutPanel:" target="Voe-Tx-rLC" id="bG4-ba-EWj"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Check for Updates..." hidden="YES" id="BOF-NM-1cW">
+                            <menuItem title="Check for Updates..." id="BOF-NM-1cW">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="checkForUpdates:" target="9hz-Cm-Er1" id="sY1-SF-eDC"/>
