@@ -486,8 +486,12 @@ return {setup=function(...)
   print "Load FCPX Hacks time!"
 --]]
 
-  print("Loading FCPX Hacks...")
-  require("hs.fcpxhacks")
+	----------------------------------------------------------
+	-- FCPX HACKS:
+	----------------------------------------------------------
+	hs.alert("Loading FCPX Hacks")
+	require("hs.fcpxhacks")
+	----------------------------------------------------------
 
   return hs.completionsForInputString, runstring
 end}

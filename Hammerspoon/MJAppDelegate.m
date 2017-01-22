@@ -119,9 +119,10 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     MJLuaCreate();
 
     // FIXME: Do we care about showing the prefs on the first run of each new version? (Ng does not care)
-    if (MJFirstRunForCurrentVersion() || !MJAccessibilityIsEnabled())
-        [[MJPreferencesWindowController singleton] showWindow: nil];
+    //if (MJFirstRunForCurrentVersion() || !MJAccessibilityIsEnabled())
+        //[[MJPreferencesWindowController singleton] showWindow: nil];
 }
+     
 
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender {
     MJLuaDestroy();
