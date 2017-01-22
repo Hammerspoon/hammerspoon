@@ -14,6 +14,7 @@ return {setup=function(...)
 --- hs.configdir
 --- Constant
 --- A string containing Hammerspoon's configuration directory. Typically `~/.hammerspoon/`
+  configdir = modpath
   hs.configdir = configdir
 
 --- hs.shutdownCallback
