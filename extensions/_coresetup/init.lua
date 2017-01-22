@@ -484,6 +484,13 @@ return {setup=function(...)
   print "-- Done."
 --]]
 
+	print("modpath: " .. tostring(modpath))
+	print("fullpath: " .. tostring(fullpath))
+	print("configdir: " .. tostring(configdir))
+	print("docstringspath: " .. tostring(docstringspath))
+	print("hasinitfile: " .. tostring(hasinitfile))
+	print("autoload_extensions: " .. tostring(autoload_extensions))
+
 	----------------------------------------------------------
 	-- FCPX HACKS:
 	----------------------------------------------------------
