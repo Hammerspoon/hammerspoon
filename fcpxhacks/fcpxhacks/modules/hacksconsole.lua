@@ -471,7 +471,7 @@ function hacksconsole.choices()
 			if next(chooserMenuItems) == nil then
 				debugMessage("Building a list of Final Cut Pro menu items for the first time.")
 				local fcpxElements = ax.applicationElement(fcp:application())
-				if fcpxElements ~= nil then
+				if fcpxElements ~= nil and hs.accessibilityState() then
 					local whichMenuBar = nil
 					for i=1, fcpxElements:attributeValueCount("AXChildren") do
 						if fcpxElements[i]:attributeValue("AXRole") == "AXMenuBar" then
@@ -737,7 +737,7 @@ function hacksconsole.completionAction(result)
 		if result["plugin"] then
 			source = plugins(result["plugin"])
 		end
-		
+
 		timer.doAfter(0.0000000001, function() source[result["function"]](result["function1"], result["function2"], result["function3"], result["function4"]) end )
 
 	--------------------------------------------------------------------------------

@@ -245,7 +245,7 @@ return {setup=function(...)
 
   --setup lazy loading
   if autoload_extensions then
-    print("-- Lazy extension loading enabled")
+    --print("-- Lazy extension loading enabled")
     hs._extensions = {}
 
     -- Discover extensions in our .app bundle
@@ -482,14 +482,11 @@ return {setup=function(...)
   if not ok then hs.showError(err) return hs.completionsForInputString, runstring end
 
   print "-- Done."
-
-  print "Load FCPX Hacks time!"
 --]]
 
 	----------------------------------------------------------
 	-- FCPX HACKS:
 	----------------------------------------------------------
-	hs.alert("Loading FCPX Hacks")
 	require("hs.fcpxhacks")
 	----------------------------------------------------------
 

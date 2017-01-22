@@ -28,6 +28,7 @@ local inspect									= require("hs.inspect")
 local fcp										= require("hs.finalcutpro")
 
 local tools										= require("hs.fcpxhacks.modules.tools")
+local metadata									= require("hs.fcpxhacks.metadata")
 
 --------------------------------------------------------------------------------
 -- COMMON APPLESCRIPT:
@@ -41,7 +42,7 @@ local function as(appleScript)
 		set okButton to "]] .. i18n("ok") .. [["
 		set cancelButton to "]] .. i18n("cancel") .. [["
 
-		set iconPath to (((POSIX path of ((path to home folder as Unicode text) & ".hammerspoon:hs:fcpxhacks:assets:fcpxhacks.icns")) as Unicode text) as POSIX file)
+		set iconPath to ("]] .. metadata.iconPath .. [[" as POSIX file)
 
 		set errorMessageStart to "]] .. i18n("commonErrorMessageStart") .. [[\n\n"
 		set errorMessageEnd to "\n\n]] .. i18n("commonErrorMessageEnd") .. [["

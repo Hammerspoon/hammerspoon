@@ -97,8 +97,6 @@
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
-print("FCPX Hacks Module Loading...")
-
 local mod = {}
 
 --------------------------------------------------------------------------------
@@ -116,38 +114,21 @@ local console                   = require("hs.console")
 local drawing                   = require("hs.drawing")
 local fs                        = require("hs.fs")
 local geometry                  = require("hs.geometry")
+local hotkey					= require("hs.hotkey")
 local inspect                   = require("hs.inspect")
 local keycodes                  = require("hs.keycodes")
 local logger                    = require("hs.logger")
 local mouse                     = require("hs.mouse")
 local settings                  = require("hs.settings")
 local styledtext                = require("hs.styledtext")
+local timer						= require("hs.timer")
 local timer                     = require("hs.timer")
-
-local ax                        = require("hs._asm.axuielement")
+local window					= require("hs.window")
 
 local metadata					= require("hs.fcpxhacks.metadata")
+local tools 					= require("hs.fcpxhacks.modules.tools")
 
-local tools                     = require("hs.fcpxhacks.modules.tools")
---local semver                    = require("hs.fcpxhacks.modules.semver.semver")
-
---------------------------------------------------------------------------------
--- DEBUG MODE:
---------------------------------------------------------------------------------
-if settings.get("fcpxHacks.debugMode") then
-
-    --------------------------------------------------------------------------------
-    -- Logger Level (defaults to 'warn' if not specified)
-    --------------------------------------------------------------------------------
-    logger.defaultLogLevel = 'debug'
-
-    --------------------------------------------------------------------------------
-    -- This will test that our global/local values are set up correctly
-    -- by forcing a garbage collection.
-    --------------------------------------------------------------------------------
-    timer.doAfter(5, collectgarbage)
-
-end
+local ax                        = require("hs._asm.axuielement")
 
 --------------------------------------------------------------------------------
 -- SETUP I18N LANGUAGES:
@@ -168,7 +149,7 @@ end
 i18n.setLocale(userLocale)
 
 --------------------------------------------------------------------------------
--- LOAD MORE EXTENSIONS:
+-- LOAD EXTENSIONS THAT REQUIRE I18N:
 --------------------------------------------------------------------------------
 
 local dialog                    = require("hs.fcpxhacks.modules.dialog")
@@ -186,9 +167,18 @@ local hsBundleID                = hs.processInfo["bundleID"]
 function mod.init()
 
     --------------------------------------------------------------------------------
+    -- Check Versions & Language:
+    --------------------------------------------------------------------------------
+    local hammerspoonVersion    = hs.processInfo["version"]
+    local fcpVersion   			= fcp:getVersion()
+    local fcpPath				= fcp:getPath()
+    local osVersion     		= tools.macOSVersion()
+    local fcpLanguage   		= fcp:getCurrentLanguage()
+
+    --------------------------------------------------------------------------------
     -- Clear The Console:
     --------------------------------------------------------------------------------
-    console.clearConsole()
+    --console.clearConsole()
 
     --------------------------------------------------------------------------------
     -- Display Welcome Message In The Console:
@@ -197,52 +187,6 @@ function mod.init()
     writeToConsole("| FCPX Hacks v" .. metadata.scriptVersion .. "          |", true)
     writeToConsole("| Created by LateNite Films |", true)
     writeToConsole("-----------------------------", true)
-
-    --------------------------------------------------------------------------------
-    -- Check All The Required Files Exist:
-    --------------------------------------------------------------------------------
-    -- NOTE: Only check for a few files otherwise it slows down startup too much.
-    --[[
-    local requiredFiles = {
-        "hs/finalcutpro/init.lua",
-        "hs/fcpxhacks/init.lua",
-        "hs/fcpxhacks/assets/fcpxhacks.icns",
-        "hs/fcpxhacks/languages/en.lua",
-        }
-    local checkFailed = false
-    for i=1, #requiredFiles do
-        if fs.attributes(requiredFiles[i]) == nil then checkFailed = true end
-    end
-    if checkFailed then
-        dialog.displayAlertMessage(i18n("missingFiles"))
-        application.applicationsForBundleID(hsBundleID)[1]:kill()
-    end
-    --]]
-
-    --------------------------------------------------------------------------------
-    -- Check Hammerspoon Version:
-    --------------------------------------------------------------------------------
-    local hammerspoonVersion                = hs.processInfo["version"]
-    --[[
-    local requiredHammerspoonVersion        = semver("0.9.52.0")
-    if hammerspoonVersion < requiredHammerspoonVersion then
-        if hs.canCheckForUpdates() then
-            hs.checkForUpdates()
-            return self
-        else
-            dialog.displayAlertMessage(i18n("wrongHammerspoonVersionError", {version=tostring(requiredHammerspoonVersion)}))
-            application.applicationsForBundleID(hsBundleID)[1]:kill()
-        end
-    end
-	--]]
-
-    --------------------------------------------------------------------------------
-    -- Check Versions & Language:
-    --------------------------------------------------------------------------------
-    local fcpVersion    = fcp:getVersion()
-    local fcpPath		= fcp:getPath()
-    local osVersion     = tools.macOSVersion()
-    local fcpLanguage   = fcp:getCurrentLanguage()
 
     --------------------------------------------------------------------------------
     -- Display Useful Debugging Information in Console:
@@ -256,6 +200,43 @@ function mod.init()
 	if fcpPath ~= nil then						writeToConsole("Final Cut Pro Path:             " .. tostring(fcpPath),                 	true) end
                                                 writeToConsole("", true)
 
+	--------------------------------------------------------------------------------
+	-- Console Settings:
+	--------------------------------------------------------------------------------
+	logger.defaultLogLevel = 'debug'
+	hotkey.setLogLevel("warning")
+	window.filter.setLogLevel(0) -- The wfilter errors are too annoying.
+
+	--------------------------------------------------------------------------------
+	-- Accessibility Check:
+	--------------------------------------------------------------------------------
+	if not hs.accessibilityState() then
+		local result = dialog.displayMessage("FCPX Hacks requires Accessibility Permissions to do its magic. By clicking Continue you will be asked to enable these permissions.\n\nThe FCPX Hacks menubar will appear once these permissions are granted.", {"Continue", "Quit"})
+		if result == "Quit" then
+			application.applicationsForBundleID(hsBundleID)[1]:kill()
+		else
+			hs.accessibilityState(true)
+			timer.doEvery(3, function()
+				if hs.accessibilityState() then
+					loadFCPXHacksVersion()
+				end
+			end)
+		end
+	else
+		loadFCPXHacksVersion()
+	end
+
+	return self
+end
+
+--------------------------------------------------------------------------------
+-- LOAD FCPX HACKS VERSION:
+--------------------------------------------------------------------------------
+function loadFCPXHacksVersion()
+	--------------------------------------------------------------------------------
+	-- Load the correct version of FCPX Hacks:
+	--------------------------------------------------------------------------------
+	local fcpVersion = fcp:getVersion()
     local validFinalCutProVersion = false
     if fcpVersion == "10.2.3" then
         validFinalCutProVersion = true
@@ -269,9 +250,6 @@ function mod.init()
         dialog.displayAlertMessage(i18n("noValidFinalCutPro"))
         application.applicationsForBundleID(hsBundleID)[1]:kill()
     end
-
-    return self
-
 end
 
 --------------------------------------------------------------------------------

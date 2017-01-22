@@ -247,15 +247,15 @@ function loadScript()
 	--------------------------------------------------------------------------------
 	-- Need Accessibility Activated:
 	--------------------------------------------------------------------------------
-	hs.accessibilityState(true)
+	--hs.accessibilityState(true)
 
 	--------------------------------------------------------------------------------
 	-- Limit Error Messages for a clean console:
 	--------------------------------------------------------------------------------
-	console.titleVisibility("hidden")
-	hotkey.setLogLevel("warning")
-	windowfilter.setLogLevel(0) -- The wfilter errors are too annoying.
-	windowfilter.ignoreAlways['System Events'] = true
+	--console.titleVisibility("hidden")
+	--hotkey.setLogLevel("warning")
+	--windowfilter.setLogLevel(0) -- The wfilter errors are too annoying.
+	--windowfilter.ignoreAlways['System Events'] = true
 
 	--------------------------------------------------------------------------------
 	-- First time running 10.3? If so, let's trash the settings incase there's
@@ -516,9 +516,14 @@ function loadScript()
 	--------------------------------------------------------------------------------
 	-- Check for Script Updates:
 	--------------------------------------------------------------------------------
+	if hs.canCheckForUpdates() and hs.automaticallyCheckForUpdates() and hs.accessibilityState() then
+		hs.checkForUpdates()
+	end
+	--[[
 	local checkForUpdatesInterval = settings.get("fcpxHacks.checkForUpdatesInterval")
 	checkForUpdatesTimer = timer.doEvery(checkForUpdatesInterval, checkForUpdates)
 	checkForUpdatesTimer:fire()
+	--]]
 
 	mod.hacksLoaded = true
 

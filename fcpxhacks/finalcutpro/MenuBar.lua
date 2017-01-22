@@ -10,10 +10,11 @@ local log											= require("hs.logger").new("menubar")
 local json											= require("hs.json")
 local axutils										= require("hs.finalcutpro.axutils")
 local just											= require("hs.just")
+local metadata										= require("hs.fcpxhacks.metadata")
 
 local MenuBar = {}
 
-MenuBar.MENU_MAP_FILE								= "hs/finalcutpro/menumap.json"
+MenuBar.MENU_MAP_FILE								= metadata.extensionsPath .. "hs/finalcutpro/menumap.json"
 MenuBar.ROLE										= "AXMenuBar"
 
 --- hs.finalcutpro.MenuBar:new(App) -> MenuBar
@@ -66,7 +67,7 @@ end
 --- Selects a Final Cut Pro Menu Item based on the list of menu titles in English.
 ---
 --- Parameters:
----  * ... - The list of menu items you'd like to activate, for example: 
+---  * ... - The list of menu items you'd like to activate, for example:
 ---            select("View", "Browser", "as List")
 ---
 --- Returns:
@@ -74,7 +75,7 @@ end
 ---
 function MenuBar:selectMenu(...)
 	local menuItemUI = self:findMenuUI(...)
-	
+
 	if menuItemUI then
 		return menuItemUI:doPress()
 	end
@@ -115,19 +116,19 @@ function MenuBar:uncheckMenu(...)
 	return false
 end
 
---- Finds a specific Menu UI element for the provided path. 
+--- Finds a specific Menu UI element for the provided path.
 --- Eg `findMenuUI("Edit", "Copy")` returns the 'Copy' menu item in the 'Edit' menu.
 function MenuBar:findMenuUI(...)
 	-- Start at the top of the menu bar list
 	local menuMap = self:getMenuMap()
 	local menuUI = self:UI()
-	
+
 	if not menuUI then
 		return nil
 	end
-	
+
 	local menuItemUI = nil
-	
+
 	for i=1,select('#', ...) do
 		step = select(i, ...)
 		if type(step) == "number" then
@@ -149,7 +150,7 @@ function MenuBar:findMenuUI(...)
 			log.w("Searching manually for '"..step.."'.")
 			menuItemUI = axutils.childWith(menuUI, "AXTitle", step)
 		end
-		
+
 		if menuItemUI then
 			if #menuItemUI == 1 then
 				-- Assign the contained AXMenu to the menuUI - it contains the next set of AXMenuItems
@@ -187,7 +188,7 @@ end
 ---
 function MenuBar:generateMenuMap()
 	local menuMap = self:_processMenuItems(self:UI())
-	
+
 	-- Opens a file in append mode
 	file = io.open(MenuBar.MENU_MAP_FILE, "w")
 
