@@ -29,7 +29,7 @@ mod.SETTINGS_DISABLED = "fcpxHacks.plugins.disabled"
 
 --- hs.plugins.loadPackage(package) -> boolean
 --- Function
---- Loads any plugins present in the specified package. 
+--- Loads any plugins present in the specified package.
 --- Any `*.lua` file, or folder containing an `init.lua` file will automatically be
 --- loaded as a plugin.
 ---
@@ -46,18 +46,20 @@ mod.SETTINGS_DISABLED = "fcpxHacks.plugins.disabled"
 ---  * boolean - `true` if all plugins loaded successfully
 ---
 function mod.loadPackage(package)
-	local path = fs.pathToAbsolute("~/.hammerspoon/" .. package:gsub("%.", "/"))
+	--local path = fs.pathToAbsolute("~/.hammerspoon/" .. package:gsub("%.", "/"))
+	local path = fs.pathToAbsolute(hs.processInfo["resourcePath"] .. "/extensions/" .. package:gsub("%.", "/"))
+
 	if not path then
 		log.ef("The provided path does not exist: '%s'", package)
 		return false
 	end
-	
+
 	local attrs = fs.attributes(path)
 	if not attrs or attrs.mode ~= "directory" then
 		log.ef("The provided path is not a directory: '%s'", package)
 		return false
 	end
-	
+
 	local files = tools.dirFiles(path)
 	for i,file in ipairs(files) do
 		if file ~= "." and file ~= ".." then
@@ -79,7 +81,7 @@ function mod.loadPackage(package)
 			end
 		end
 	end
-	
+
 	return true
 end
 
@@ -104,13 +106,13 @@ end
 ---
 function mod.load(pluginPath)
 	-- log.df("Loading plugin '%s'", pluginPath)
-	
+
 	-- First, check the plugin is not disabled:
 	if mod.isDisabled(pluginPath) then
 		log.df("Plugin disabled: '%s'", pluginPath)
 		return nil
 	end
-	
+
 	local cache = mod.CACHE[pluginPath]
 	if cache ~= nil then
 		-- we've already loaded it
@@ -122,7 +124,7 @@ function mod.load(pluginPath)
 		log.ef("Unable to load plugin '%s'.", pluginPath)
 		return nil
 	end
-	
+
 	local dependencies = {}
 	if plugin.dependencies then
 		-- log.df("Processing dependencies for '%s'.", pluginPath)
@@ -132,7 +134,7 @@ function mod.load(pluginPath)
 				path = alias
 				alias = nil
 			end
-			
+
 			local dependency = mod.load(path)
 			if dependency then
 				dependencies[path] = dependency
@@ -146,11 +148,11 @@ function mod.load(pluginPath)
 			end
 		end
 	end
-	
+
 	-- initialise the plugin instance
 	-- log.df("Initialising plugin '%s'.", pluginPath)
 	local instance = nil
-	
+
 	if plugin.init then
 		local status, err = pcall(function()
 			instance = plugin.init(dependencies)
@@ -168,7 +170,7 @@ function mod.load(pluginPath)
 	if instance == nil then
 		instance = true
 	end
-	
+
 	-- cache it
 	mod.CACHE[pluginPath] = {plugin = plugin, instance = instance}
 	-- return the instance
@@ -202,12 +204,12 @@ function mod.init(...)
 		local status, err = pcall(function()
 			mod.loadPackage(package)
 		end)
-		
+
 		if not status then
 			log.ef("Error while loading package '%s':\n%s", package, hs.inspect(err))
 		end
 	end
-	
+
 	return mod
 end
 

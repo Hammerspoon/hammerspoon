@@ -32,3 +32,7 @@ codesign --verbose --sign "Internal Code Signing" "build/FCPX Hacks.app/Contents
 codesign --verbose --sign "Internal Code Signing" "build/FCPX Hacks.app/Contents/Frameworks/LuaSkin.framework/Versions/A"
 codesign --verbose --sign "Internal Code Signing" "build/FCPX Hacks.app"
 
+#
+# Trash Preferences:
+#
+rm ~/Library/Preferences/org.latenitefilms.FCPXHacks.plist

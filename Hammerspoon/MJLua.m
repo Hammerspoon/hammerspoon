@@ -278,10 +278,10 @@ static int checkForUpdates(lua_State *L) {
             [sharedUpdater performSelector:@selector(checkForUpdates:) withObject:nil] ;
 #pragma clang diagnostic pop
         } else {
-            //[skin logWarn:@"Sparkle Update framework not available for the running instance of Hammerspoon."] ;
+            [skin logWarn:@"Sparkle Update framework not available for the running instance of FCPX Hacks."] ;
         }
     } else {
-        //[skin logWarn:@"Sparkle Update framework not available for the running instance of Hammerspoon."] ;
+        [skin logWarn:@"Sparkle Update framework not available for the running instance of FCPX Hacks."] ;
     }
     return 0 ;
 }

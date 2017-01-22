@@ -131,7 +131,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 - (void) registerDefaultDefaults {
     [[NSUserDefaults standardUserDefaults]
      registerDefaults: @{@"NSApplicationCrashOnExceptions": @YES,
-                         MJShowDockIconKey: @YES,
+                         MJShowDockIconKey: @NO,
                          MJShowMenuIconKey: @NO,
                          HSAutoLoadExtensions: @YES,
                          HSUploadCrashDataKey: @NO,

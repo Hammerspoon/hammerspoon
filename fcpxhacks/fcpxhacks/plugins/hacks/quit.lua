@@ -5,21 +5,25 @@ local application		= require("hs.application")
 local PRIORITY = 9999999
 
 local function quitFCPXHacks()
-	application("Hammerspoon"):kill()
+
+	print("CHRIS")
+	print(hs.processInfo["bundleID"])
+
+	application.applicationsForBundleID(hs.processInfo["bundleID"])[1]:kill()
 end
 
 --- The Plugin
 local plugin = {}
 
 plugin.dependencies = {
-	["hs.fcpxhacks.plugins.menu.bottom"] = "bottom"	
+	["hs.fcpxhacks.plugins.menu.bottom"] = "bottom"
 }
 
 function plugin.init(deps)
 	deps.bottom:addItem(PRIORITY, function()
 		return { title = i18n("quit") .. " FCPX Hacks",	fn = quitFCPXHacks }
 	end)
-	
+
 	return quitFCPXHacks
 end
 

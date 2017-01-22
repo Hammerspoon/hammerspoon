@@ -398,7 +398,7 @@ function loadScript()
 		--------------------------------------------------------------------------------
 		-- Watch For Hammerspoon Script Updates:
 		--------------------------------------------------------------------------------
-		hammerspoonWatcher = pathwatcher.new(os.getenv("HOME") .. "/.hammerspoon/", hammerspoonConfigWatcher):start()
+		--hammerspoonWatcher = pathwatcher.new(os.getenv("HOME") .. "/.hammerspoon/", hammerspoonConfigWatcher):start()
 
 		--------------------------------------------------------------------------------
 		-- Watch for Final Cut Pro plist Changes:
@@ -1442,6 +1442,15 @@ end
 		if menubarToolsEnabled then 		menuTable = fnutils.concat(menuTable, toolsTable)		end
 		if menubarHacksEnabled then 		menuTable = fnutils.concat(menuTable, hacksTable)		end
 
+		local hammerspoonTable = {
+			{ title = "-" },
+			{ title = "DEVELOPER:", 																	disabled = true },
+			{ title = "Open " .. i18n("console") .. "...",												fn = openHammerspoonConsole },
+			{ title = "Reload LUA Scripts",																fn = function() hs.reload() end },
+		}
+
+		menuTable = fnutils.concat(menuTable, hammerspoonTable)
+
 		--------------------------------------------------------------------------------
 		-- Check for Updates:
 		--------------------------------------------------------------------------------
@@ -1525,13 +1534,10 @@ end
 			{ title = i18n("custom"), 																	fn = function() changeHighlightColour("Custom") end, 				checked = displayHighlightColour == "Custom" },
 		}
 		local settingsHammerspoonSettings = {
-			{ title = i18n("console") .. "...", 														fn = openHammerspoonConsole },
 			{ title = "-" },
 			{ title = i18n("showDockIcon"),																fn = toggleHammerspoonDockIcon, 									checked = hammerspoonDockIcon		},
 			{ title = i18n("showMenuIcon"), 															fn = toggleHammerspoonMenuIcon, 									checked = hammerspoonMenuIcon		},
 			{ title = "-" },
-			{ title = i18n("launchAtStartup"), 															fn = toggleLaunchHammerspoonOnStartup, 								checked = startHammerspoonOnLaunch		},
-			{ title = i18n("checkForUpdates"), 															fn = toggleCheckforHammerspoonUpdates, 								checked = hammerspoonCheckForUpdates	},
 		}
 		local settingsTouchBarLocation = {
 			{ title = i18n("mouseLocation"), 															fn = function() changeTouchBarLocation("Mouse") end,				checked = displayTouchBarLocationMouse, disabled = not touchBarSupported },
@@ -1571,7 +1577,7 @@ end
 		local settingsMenuTable = {
 			{ title = i18n("hudOptions"), 																menu = settingsHUD},
 			{ title = i18n("voiceCommandOptions"), 														menu = settingsVoiceCommand},
-			{ title = "Hammerspoon " .. i18n("options"),												menu = settingsHammerspoonSettings},
+			--{ title = "Hammerspoon " .. i18n("options"),												menu = settingsHammerspoonSettings},
 			{ title = "-" },
 			{ title = i18n("touchBarLocation"), 														menu = settingsTouchBarLocation},
 			{ title = "-" },
@@ -1579,8 +1585,10 @@ end
 			{ title = i18n("highlightPlayheadShape"), 													menu = settingsShapeMenuTable},
 			{ title = i18n("highlightPlayheadTime"), 													menu = settingsHighlightPlayheadTime},
 			{ title = "-" },
-			{ title = i18n("checkForUpdates"), 															fn = toggleCheckForUpdates, 										checked = enableCheckForUpdates},
-			{ title = i18n("enableDebugMode"), 															fn = toggleDebugMode, 												checked = mod.debugMode},
+			{ title = i18n("launchAtStartup"), 															fn = toggleLaunchHammerspoonOnStartup, 								checked = startHammerspoonOnLaunch},
+			--{ title = i18n("checkForUpdates"), 														fn = toggleCheckForUpdates, 										checked = enableCheckForUpdates},
+			{ title = i18n("checkForUpdates"), 															fn = toggleCheckforHammerspoonUpdates, 								checked = hammerspoonCheckForUpdates},
+			--{ title = i18n("enableDebugMode"), 														fn = toggleDebugMode, 												checked = mod.debugMode},
 			{ title = "-" },
 			{ title = i18n("trashFCPXHacksPreferences"), 												fn = resetSettings },
 			{ title = "-" },

@@ -97,6 +97,8 @@
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
+print("FCPX Hacks Module Loading...")
+
 local mod = {}
 
 --------------------------------------------------------------------------------
@@ -151,7 +153,7 @@ end
 -- SETUP I18N LANGUAGES:
 --------------------------------------------------------------------------------
 i18n = require("hs.fcpxhacks.modules.i18n")
-local languagePath = "hs/fcpxhacks/languages/"
+local languagePath = metadata.extensionsPath .. "hs/fcpxhacks/languages/"
 for file in fs.dir(languagePath) do
 	if file:sub(-4) == ".lua" then
 		i18n.loadFile(languagePath .. file)
@@ -200,6 +202,7 @@ function mod.init()
     -- Check All The Required Files Exist:
     --------------------------------------------------------------------------------
     -- NOTE: Only check for a few files otherwise it slows down startup too much.
+    --[[
     local requiredFiles = {
         "hs/finalcutpro/init.lua",
         "hs/fcpxhacks/init.lua",
@@ -214,11 +217,12 @@ function mod.init()
         dialog.displayAlertMessage(i18n("missingFiles"))
         application.applicationsForBundleID(hsBundleID)[1]:kill()
     end
+    --]]
 
     --------------------------------------------------------------------------------
     -- Check Hammerspoon Version:
     --------------------------------------------------------------------------------
-    local hammerspoonVersion                = semver(hs.processInfo["version"])
+    local hammerspoonVersion                = hs.processInfo["version"]
     --[[
     local requiredHammerspoonVersion        = semver("0.9.52.0")
     if hammerspoonVersion < requiredHammerspoonVersion then
