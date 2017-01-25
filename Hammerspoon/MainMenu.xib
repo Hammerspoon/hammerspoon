@@ -19,11 +19,11 @@
         <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
         <menu title="Main Menu" systemMenu="main" id="AYu-sK-qS6">
             <items>
-                <menuItem title="FCPX Hacks" id="1Xt-HY-uBw">
+                <menuItem title="CommandPost" id="1Xt-HY-uBw">
                     <modifierMask key="keyEquivalentModifierMask"/>
-                    <menu key="submenu" title="FCPX Hacks" systemMenu="apple" id="uQy-DD-JDr">
+                    <menu key="submenu" title="CommandPost" systemMenu="apple" id="uQy-DD-JDr">
                         <items>
-                            <menuItem title="About FCPX Hacks" id="5kV-Vb-QxS">
+                            <menuItem title="About CommandPost" id="5kV-Vb-QxS">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="showAboutPanel:" target="Voe-Tx-rLC" id="bG4-ba-EWj"/>
@@ -47,7 +47,7 @@
                                 <menu key="submenu" title="Services" systemMenu="services" id="hz9-B4-Xy5"/>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" hidden="YES" id="4je-JR-u6R"/>
-                            <menuItem title="Hide FCPX Hacks" hidden="YES" keyEquivalent="h" id="Olw-nP-bQN">
+                            <menuItem title="Hide CommandPost" hidden="YES" keyEquivalent="h" id="Olw-nP-bQN">
                                 <connections>
                                     <action selector="hide:" target="-1" id="PnN-Uc-m68"/>
                                 </connections>
@@ -64,7 +64,7 @@
                                     <action selector="unhideAllApplications:" target="-1" id="Dhg-Le-xox"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Quit FCPX Hacks" keyEquivalent="q" id="4sb-4s-VLi">
+                            <menuItem title="Quit CommandPost" keyEquivalent="q" id="4sb-4s-VLi">
                                 <connections>
                                     <action selector="quitHammerspoon:" target="Voe-Tx-rLC" id="gjE-dV-WIu"/>
                                 </connections>
@@ -361,7 +361,7 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Help" systemMenu="help" id="F2S-fz-NVQ">
                         <items>
-                            <menuItem title="FCPX Hacks Help" keyEquivalent="?" id="FKE-Sm-Kum">
+                            <menuItem title="CommandPost Help" keyEquivalent="?" id="FKE-Sm-Kum">
                                 <connections>
                                     <action selector="showHelp:" target="-1" id="y7X-2Q-9no"/>
                                 </connections>
@@ -399,7 +399,7 @@
                     </connections>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="47L-wL-Aut"/>
-                <menuItem title="About FCPX Hacks" id="2LS-Fs-g1y">
+                <menuItem title="About CommandPost" id="2LS-Fs-g1y">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
                         <action selector="showAboutPanel:" target="Voe-Tx-rLC" id="Vu4-C4-kcK"/>
@@ -412,7 +412,7 @@
                     </connections>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="tOT-wg-m6d"/>
-                <menuItem title="Quit FCPX Hacks" id="MPd-JN-QB1">
+                <menuItem title="Quit CommandPost" id="MPd-JN-QB1">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
                         <action selector="quitHammerspoon:" target="Voe-Tx-rLC" id="5Aw-nP-mqa"/>

@@ -474,29 +474,13 @@ return {setup=function(...)
   end
   hscrash.crashLog("Loaded from: "..modpath)
 
---[[
-  print("-- Loading " .. prettypath)
-  local fn, err = loadfile(fullpath)
+  --print("-- Loading " .. prettypath)
+  local fn, err = loadfile(modpath .. "/hs/fcpxhacks/init.lua")
   if not fn then hs.showError(err) return hs.completionsForInputString, runstring end
 
   local ok, err = xpcall(fn, debug.traceback)
   if not ok then hs.showError(err) return hs.completionsForInputString, runstring end
-
-  print "-- Done."
---]]
-
-	print("modpath: " .. tostring(modpath))
-	print("fullpath: " .. tostring(fullpath))
-	print("configdir: " .. tostring(configdir))
-	print("docstringspath: " .. tostring(docstringspath))
-	print("hasinitfile: " .. tostring(hasinitfile))
-	print("autoload_extensions: " .. tostring(autoload_extensions))
-
-	----------------------------------------------------------
-	-- FCPX HACKS:
-	----------------------------------------------------------
-	require("hs.fcpxhacks")
-	----------------------------------------------------------
+  --print "-- Done."
 
   return hs.completionsForInputString, runstring
 end}

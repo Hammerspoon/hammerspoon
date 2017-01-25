@@ -158,7 +158,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     @try {
         [[NSApplication sharedApplication] orderFrontStandardAboutPanel: nil];
     } @catch (NSException *exception) {
-        [[LuaSkin shared] logError:@"Unable to open About dialog. This may mean your FCPX Hacks installation is corrupt. Please re-install it!"];
+        [[LuaSkin shared] logError:@"Unable to open About dialog. This may mean your CommandPost installation is corrupt. Please re-install it!"];
     }
 }
 
@@ -185,8 +185,8 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 - (void)showMjolnirMigrationNotification {
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:@"OK"];
-    [alert setMessageText:@"FCPX Hacks crash detected"];
-    [alert setInformativeText:@"Your init.lua is loading Mjolnir modules and a previous launch crashed.\n\nFCPX Hacks ships with updated versions of many of the Mjolnir modules, with both new features and many bug fixes.\n\nPlease consult our API documentation and migrate your config."];
+    [alert setMessageText:@"CommandPost crash detected"];
+    [alert setInformativeText:@"Your init.lua is loading Mjolnir modules and a previous launch crashed.\n\nCommandPost ships with updated versions of many of the Mjolnir modules, with both new features and many bug fixes.\n\nPlease consult our API documentation and migrate your config."];
     [alert setAlertStyle:NSCriticalAlertStyle];
     [alert runModal];
 }
