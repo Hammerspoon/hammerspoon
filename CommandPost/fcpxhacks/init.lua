@@ -114,27 +114,44 @@ local console                   = require("hs.console")
 local drawing                   = require("hs.drawing")
 local fs                        = require("hs.fs")
 local geometry                  = require("hs.geometry")
-local hotkey					= require("hs.hotkey")
 local inspect                   = require("hs.inspect")
 local keycodes                  = require("hs.keycodes")
 local logger                    = require("hs.logger")
 local mouse                     = require("hs.mouse")
 local settings                  = require("hs.settings")
 local styledtext                = require("hs.styledtext")
-local timer						= require("hs.timer")
 local timer                     = require("hs.timer")
-local window					= require("hs.window")
-
-local metadata					= require("hs.fcpxhacks.metadata")
-local tools 					= require("hs.fcpxhacks.modules.tools")
 
 local ax                        = require("hs._asm.axuielement")
+
+local metadata					= require("hs.fcpxhacks.metadata")
+
+local tools                     = require("hs.fcpxhacks.modules.tools")
+local semver                    = require("hs.fcpxhacks.modules.semver.semver")
+
+--------------------------------------------------------------------------------
+-- DEBUG MODE:
+--------------------------------------------------------------------------------
+if settings.get("fcpxHacks.debugMode") then
+
+    --------------------------------------------------------------------------------
+    -- Logger Level (defaults to 'warn' if not specified)
+    --------------------------------------------------------------------------------
+    logger.defaultLogLevel = 'debug'
+
+    --------------------------------------------------------------------------------
+    -- This will test that our global/local values are set up correctly
+    -- by forcing a garbage collection.
+    --------------------------------------------------------------------------------
+    timer.doAfter(5, collectgarbage)
+
+end
 
 --------------------------------------------------------------------------------
 -- SETUP I18N LANGUAGES:
 --------------------------------------------------------------------------------
 i18n = require("hs.fcpxhacks.modules.i18n")
-local languagePath = metadata.extensionsPath .. "hs/fcpxhacks/languages/"
+local languagePath = metadata.scriptPath .. "/hs/fcpxhacks/languages/"
 for file in fs.dir(languagePath) do
 	if file:sub(-4) == ".lua" then
 		i18n.loadFile(languagePath .. file)
@@ -149,7 +166,7 @@ end
 i18n.setLocale(userLocale)
 
 --------------------------------------------------------------------------------
--- LOAD EXTENSIONS THAT REQUIRE I18N:
+-- LOAD MORE EXTENSIONS:
 --------------------------------------------------------------------------------
 
 local dialog                    = require("hs.fcpxhacks.modules.dialog")
@@ -167,26 +184,65 @@ local hsBundleID                = hs.processInfo["bundleID"]
 function mod.init()
 
     --------------------------------------------------------------------------------
-    -- Check Versions & Language:
-    --------------------------------------------------------------------------------
-    local hammerspoonVersion    = hs.processInfo["version"]
-    local fcpVersion   			= fcp:getVersion()
-    local fcpPath				= fcp:getPath()
-    local osVersion     		= tools.macOSVersion()
-    local fcpLanguage   		= fcp:getCurrentLanguage()
-
-    --------------------------------------------------------------------------------
     -- Clear The Console:
     --------------------------------------------------------------------------------
-    --console.clearConsole()
+    console.clearConsole()
 
     --------------------------------------------------------------------------------
     -- Display Welcome Message In The Console:
     --------------------------------------------------------------------------------
-    writeToConsole("-----------------------------", true)
-    writeToConsole("| FCPX Hacks v" .. metadata.scriptVersion .. "          |", true)
-    writeToConsole("| Created by LateNite Films |", true)
-    writeToConsole("-----------------------------", true)
+    writeToConsole("-----------------------------------------------", true)
+    writeToConsole("| " .. metadata.scriptName .. " v" .. metadata.scriptVersion .. "                           |", true)
+    writeToConsole("| Developed by Chris Hocking & David Peterson |", true)
+    writeToConsole("-----------------------------------------------", true)
+
+	--------------------------------------------------------------------------------
+	-- If running script via Hammerspoon:
+	--------------------------------------------------------------------------------
+	if bundleID == "org.hammerspoon.Hammerspoon" then
+		--------------------------------------------------------------------------------
+		-- Check All The Required Files Exist:
+		--------------------------------------------------------------------------------
+		-- NOTE: Only check for a few files otherwise it slows down startup too much.
+		local requiredFiles = {
+			"finalcutpro/init.lua",
+			"fcpxhacks/init.lua",
+			"fcpxhacks/assets/fcpxhacks.icns",
+			"fcpxhacks/languages/en.lua",
+			}
+		local checkFailed = false
+		for i=1, #requiredFiles do
+			if fs.attributes(metadata.scriptPath .. "/hs/" .. requiredFiles[i]) == nil then checkFailed = true end
+		end
+		if checkFailed then
+			dialog.displayAlertMessage(i18n("missingFiles"))
+			application.applicationsForBundleID(hsBundleID)[1]:kill()
+		end
+
+		--------------------------------------------------------------------------------
+		-- Check Hammerspoon Version:
+		--------------------------------------------------------------------------------
+		local requiredHammerspoonVersion        = semver("0.9.52")
+		local hammerspoonVersion                = semver(hs.processInfo["version"])
+		if hammerspoonVersion < requiredHammerspoonVersion then
+			if hs.canCheckForUpdates() then
+				hs.checkForUpdates()
+				return self
+			else
+				dialog.displayAlertMessage(i18n("wrongHammerspoonVersionError", {version=tostring(requiredHammerspoonVersion)}))
+				application.applicationsForBundleID(hsBundleID)[1]:kill()
+			end
+		end
+	end
+
+    --------------------------------------------------------------------------------
+    -- Check Versions & Language:
+    --------------------------------------------------------------------------------
+    local fcpVersion    		= fcp:getVersion()
+    local fcpPath				= fcp:getPath()
+    local osVersion    			= tools.macOSVersion()
+    local fcpLanguage   		= fcp:getCurrentLanguage()
+    local hammerspoonVersion	= hs.processInfo["version"]
 
     --------------------------------------------------------------------------------
     -- Display Useful Debugging Information in Console:
@@ -195,44 +251,38 @@ function mod.init()
     if osVersion ~= nil then                    writeToConsole("macOS Version:                  " .. tostring(osVersion),                   true) end
     if fcpVersion ~= nil then                   writeToConsole("Final Cut Pro Version:          " .. tostring(fcpVersion),                  true) end
     if fcpLanguage ~= nil then                  writeToConsole("Final Cut Pro Language:         " .. tostring(fcpLanguage),                 true) end
-        										writeToConsole("FCPX Hacks Locale:              " .. tostring(i18n.getLocale()),          	true)
+        										writeToConsole(metadata.scriptName .. " Locale:             " .. tostring(i18n.getLocale()),          	true)
     if keycodes.currentLayout() ~= nil then     writeToConsole("Current Keyboard Layout:        " .. tostring(keycodes.currentLayout()),    true) end
 	if fcpPath ~= nil then						writeToConsole("Final Cut Pro Path:             " .. tostring(fcpPath),                 	true) end
                                                 writeToConsole("", true)
 
 	--------------------------------------------------------------------------------
-	-- Console Settings:
-	--------------------------------------------------------------------------------
-	logger.defaultLogLevel = 'debug'
-	hotkey.setLogLevel("warning")
-	window.filter.setLogLevel(0) -- The wfilter errors are too annoying.
-
-	--------------------------------------------------------------------------------
 	-- Accessibility Check:
 	--------------------------------------------------------------------------------
 	if not hs.accessibilityState() then
-		local result = dialog.displayMessage("FCPX Hacks requires Accessibility Permissions to do its magic. By clicking Continue you will be asked to enable these permissions.\n\nThe FCPX Hacks menubar will appear once these permissions are granted.", {"Continue", "Quit"})
+		local result = dialog.displayMessage(metadata.scriptName .. " requires Accessibility Permissions to do its magic. By clicking Continue you will be asked to enable these permissions.\n\nThe " .. metadata.scriptName .. " menubar will appear once these permissions are granted.", {"Continue", "Quit"})
 		if result == "Quit" then
 			application.applicationsForBundleID(hsBundleID)[1]:kill()
 		else
 			hs.accessibilityState(true)
 			timer.doEvery(3, function()
 				if hs.accessibilityState() then
-					loadFCPXHacksVersion()
+					loadScriptVersion()
 				end
 			end)
 		end
 	else
-		loadFCPXHacksVersion()
+		loadScriptVersion()
 	end
 
-	return self
+    return self
+
 end
 
 --------------------------------------------------------------------------------
 -- LOAD FCPX HACKS VERSION:
 --------------------------------------------------------------------------------
-function loadFCPXHacksVersion()
+function loadScriptVersion()
 	--------------------------------------------------------------------------------
 	-- Load the correct version of FCPX Hacks:
 	--------------------------------------------------------------------------------

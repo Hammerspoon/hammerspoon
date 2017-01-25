@@ -52,12 +52,13 @@ function WindowWatcher:watch(events)
 		local filter = windowfilter.new(function(window)
 			return window:application():bundleID() == bundleID
 		end)
+		filter.setLogLevel("error") -- The wfilter errors are too annoying.
 
 		--------------------------------------------------------------------------------
 		-- Final Cut Pro Window Created:
 		--------------------------------------------------------------------------------
 		filter:subscribe(
-			windowfilter.windowVisible, 
+			windowfilter.windowVisible,
 			function(window, applicationName)
 				local windowUI = axuielement.windowElement(window)
 				if self._window:UI() == windowUI and self._window:isShowing() then
@@ -87,7 +88,7 @@ function WindowWatcher:watch(events)
 						end
 					end
 				end
-			end, 
+			end,
 			true
 		)
 		self.windowFilter = filter

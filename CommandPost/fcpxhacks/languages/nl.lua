@@ -120,7 +120,7 @@ return {
 			--------------------------------------------------------------------------------
 			-- Error Messages:
 			--------------------------------------------------------------------------------
-			wrongHammerspoonVersionError		=			"FCPX Hacks requires Hammerspoon %{version} or later.\n\nPlease download the latest version of Hammerspoon and try again.",
+			wrongHammerspoonVersionError		=			"FCPX Hacks werkt met Hammerspoon %{version}of hoger.\n\nDownload U a.u.b. de laatste versie van Hammerspoon en probeer het opnieuw.",
 
 			noValidFinalCutPro                  =           "FCPX Hacks kan op deze computer geen geschikte versie van Final Cut Pro vinden\n\nkijkt u alstublieft of Final Cut Pro 10.2.3, 10.3 of een hogere versie is geïnstalleerd in the hoofdmap van de Programmafolder en geen andere naam heeft gekregen dan ’Final Cut Pro'.\n\nHammerspoon wordt nu gestopt.",
 			missingFiles                        =           "FCPX Hacks mist een aantal noodzakelijke files.\n\nWilt u alstublieft proberen om opnieuw de laatste versie van FCPX Hacks te downloaden van de website en volg de installatie-instructies zorgvuldig op.\n\nHammerspoon wordt nu gestopt.",
@@ -152,18 +152,18 @@ return {
 			item								=
 			{
 				one								=			"item",
-				other							=			"items"
+				other							=			"items",
 			},
 
-			batchExportDestinationsNotFound		=	"We kunnen de lijst met gedeelde lokaties niet vinden.",
-			batchExportNoDestination		=	"Blijkbaar heeft u geen standaard lokatie ingesteld.\n\nU kunt een standaardlokatie instellen door naar ‘Preferences’ te gaan, klik op de 'Destinations' tab, klik dan met de rechtermuisknop ingedrukt op de te kiezen lokatie en klik op ‘Make Default’.\n\nU kunt een Batch Export Lokatie preset instellen via de FCP Hacks menubar.",
-			batchExportEnableBrowser		=	"Zorg er a.u.b. voor dat de browser is ingeschakeld vóór het  exporteren.",
-			batchExportCheckPath				=			"Final Cut Pro will export the%{count}selected %{item} to the following location:\n\n\t%{path}\n\nUsing the following preset:\n\n\t%{preset}\n\nIf the preset is adding the export to an iTunes Playlist, the Destination Folder will be ignored. %{replace}\n\nYou can change these settings via the FCPX Hacks Menubar Preferences.\n\nPlease do not interrupt Final Cut Pro once you press the Continue button as it may break the automation.",
-			batchExportCheckPathSidebar			=			"Final Cut Pro will export all items in the selected containers to the following location:\n\n\t%{path}\n\nUsing the following preset:\n\n\t%{preset}\n\nIf the preset is adding the export to an iTunes Playlist, the Destination Folder will be ignored. %{replace}\n\nYou can change these settings via the FCPX Hacks Menubar Preferences.\n\nPlease do not interrupt Final Cut Pro once you press the Continue button as it may break the automation.",
-			batchExportReplaceYes				=			"Exports met dezelfde filenamen with duplicate filenames will be replaced.",
-			batchExportReplaceNo				=			"Exports with duplicate filenames will be incremented.",
-			batchExportNoClipsSelected			="Zorg er a.u.b. voor dat tenminste 1 clip voor export is geselecteerd.",
-			batchExportComplete				="Batch Export is nu compleet. De geselecteerde clips zijn toegevoegd aan uw render wachtrij.",
+			batchExport 						=			"We zijn niet in staat om de lijst met gedeelde bestemmingen te vinden.",
+			batchExportNoDestination			=			"IHet schijnt dat u geen standaardbestemmingt heeft gekozen.\n\nU kunt een standaardbestemming kiezen door naar 'Preferences' te gaan, klik op de 'Destinations'  knop , dan rechts klikkend op de bestemming die u wilt kiezen en  klik dan op 'Make Default'Y'.\n\nU kunt een Batch Export bestemming instellen via De FCPX Hacks menubar.",
+			batchExportEnableBrowser			=			"Let a.u.b. op voordat  u exporteert dat de browser is ingeschakeld.",
+			batchExportCheckPath				=			"Final Cut Pro exporteert de %{count}geselecteerde %{item} naar de volgende lokatie:\n\n\t%{path}\n\ngebruik makend van de volgende preset:\n\n\t%{preset}\n\nAls de preset de export toevoegt aan een iTunes speellijst zal de bestemmingsfolder worden genegeerd. %{replace}\n\nU kunt deze instellingen veranderen via CPX Hacks Menubar preferences.\n\nOnderbreekt u a.u.b. FCP X niet nadat u de ‘Continue’ knop heeft ingedrukt omdat de automatisering dan kan worden onderbroken.",
+			batchExportCheckPathSidebar			=			"Final Cut Pro zal alle items in de geselecteerde mappen exporteren naar de volgende lokatie:\n\n\t%{path}\n\ngebruik makend van de volgende preset:\n\n\t%{preset}\n\nAls de preset de export toevoegt aan een iTunes speellijst zal de bestemmingsfolder worden genegeerd. %{replace}\n\nU kunt deze instellingen veranderen via de FCPX Hacks menubar.\n\nOnderbreekt u a.u.b. FCP X niet nadat u de ‘Continue’ knop heeft ingedrukt omdat de automatisering dan kan worden onderbroken.",
+			batchExportReplaceYes				=			"Exports met dezelfde filenamen zullen worden vervangen.",
+			batchExportReplaceNo				=			"Exports met dezelfde filenamen zullen worden toegevoegd.",
+			batchExportNoClipsSelected			=			"Zorg er a.u.b. voor dat tenminste een clip is geselecteerd voor export.",
+			batchExportComplete					=			"Batch Export is nu  geheel uitgevoerd. De geselecteerd clips zijn toegevoegd aan uw render-wachtrij.",
 
 			activeCommandSetError               =           "Er ging iets mis tijdens het uitlezen van de Huidige Command Set.",
 			failedToWriteToPreferences          =           "Het lukte niet om data weg te schrijven naar de Final Cut Pro Preferences file.",
@@ -173,7 +173,7 @@ return {
 
 			backupIntervalFail                  =           "Het lukte niet om de Backup Interval weg te schrijven naar de Final Cut Pro Preferences file.",
 
-			voiceCommandsError 					= 			"Voice Commands could not be activated.\n\nPlease try again.",
+			voiceCommandsError 					= 			"Voice Commands could not be activated.\n\nProbeer het a.u.b. opnieuw.",
 
 			--------------------------------------------------------------------------------
 			-- Yes/No Dialog Boxes:
@@ -202,18 +202,18 @@ return {
 			changeBackupIntervalTextbox         =           "Op welke waarde (in minuten) wilt u Final Cut Pro Backup Interval zetten?",
 			changeBackupIntervalError           =           "De backup interval die u heeft ingevoerd is niet geldig. Voer aub een waarde in minuten in.",
 
-			selectDestinationPreset				=			"Please select a Destination Preset:",
-			selectDestinationFolder				=			"Please select a Destination Folder:",
+			selectDestinationPreset				=			"Selecteer een bestemmings-preset:",
+			selectDestinationFolder				=			"Selecteer a.u.b. een bestemmingsfolder:",
 
 			--------------------------------------------------------------------------------
 			-- Mobile Notifications
 			--------------------------------------------------------------------------------
-			iMessageTextBox						=			"Please enter the phone number or email address registered with iMessage to send the message to:",
-			prowlTextbox						=			"Please enter your Prowl API key below.\n\nIf you don't have one you can register for free at prowlapp.com.",
-			prowlTextboxError 					=			"The Prowl API Key you entered is not valid.",
+			iMessageTextBox						=			"Voer, om een bericht te sturen,  a.u.b. een telefoonnummer of e-mailadres in,  dat bekend is bij iMessage:",
+			prowlTextbox						=			"Voer hieronder a.u.b. uw Prowl API sleutel in .\n\nAls u geen sleutel heeft registreer dan gratis bij prowlapp.com.",
+			prowlTextboxError 					=			"De Prowl API sleutel die u heeft ingevoerd is niet geldig.",
 
-			shareSuccessful 					=			"Share Successful\n%{info}",
-			shareFailed							=			"Share Failed",
+			shareSuccessful 					=			"Share geslaagd\n%{info}",
+			shareFailed							=			"Share niet gelukt",
 			shareUnknown						=			"Type: %{type}",
 			shareDetails_export					=			"Type: Local Export\nLocation: %{result}",
 			shareDetails_youtube				=			"Type: YouTube\nLogin: %{login}\nTitle: %{title}",
@@ -221,7 +221,6 @@ return {
 			shareDetails_Facebook				=			"Type: Facebook\nLogin: %{login}\nTitle: %{title}",
 			shareDetails_Youku					=			"Type: Youku\nLogin: %{login}\nTitle: %{title}",
 			shareDetails_Tudou					=			"Type: Tudou\nLogin: %{login}\nTitle: %{title}",
-
 
 		--------------------------------------------------------------------------------
 		-- MENUBAR:
@@ -369,9 +368,9 @@ return {
 			--------------------------------------------------------------------------------
 			-- Batch Export Options:
 			--------------------------------------------------------------------------------
-			setDestinationPreset	 			=			"Set Destination Preset",
-			setDestinationFolder				=			"Set Destination Folder",
-			replaceExistingFiles				=			"Replace Existing Files",
+			setDestinationPreset	 			=			"Stel Destination Preset in",
+			setDestinationFolder				=			"Stel Destination Folder in",
+			replaceExistingFiles				=			"Vervang bestaande Files",
 
 			--------------------------------------------------------------------------------
 			-- Menubar Options:
@@ -393,9 +392,9 @@ return {
 			--------------------------------------------------------------------------------
 			-- Voice Command Options:
 			--------------------------------------------------------------------------------
-			enableAnnouncements					=			"Enable Announcements",
-			enableVisualAlerts					=			"Enable Visual Alerts",
-			openDictationPreferences			=			"Open Dictation Preferences...",
+			enableAnnouncements					= 			"Schakel berichten in",
+			enableVisualAlerts					=			"schakel Visuele Alerts in",
+			openDictationPreferences			=			"Open spraak Idictations) Preferences...",
 
 			--------------------------------------------------------------------------------
 			-- Touch Bar Location:
@@ -412,7 +411,7 @@ return {
 			blue                                =           "Blauw",
 			green                               =           "Groen",
 			yellow                              =           "Geel",
-			custom								=			"Custom",
+			custom								=			"Standaard",
 
 			--------------------------------------------------------------------------------
 			-- Highlight Shape:
@@ -436,7 +435,7 @@ return {
 	keyboardShortcuts					=			"Keyboard Shortcuts",
 	scrollingTimeline					=			"Scrolling Timeline",
 	highlight							=			"Highlight",
-	reveal								=			"Reveal",
+	reveal								=			"Toon",
 	play								=			"Play",
 	lane								=			"Lane",
 
@@ -444,39 +443,39 @@ return {
 	-- HACKS HUD:
 	--------------------------------------------------------------------------------
 	hacksHUD							=			"Hacks HUD",
-	originalOptimised					=			"Original/Optimised",
-	betterQuality						=			"Better Quality",
-	betterPerformance					=			"Better Performance",
+	originalOptimised					=			"Origineell/Optimaal gemaakt",
+	betterQuality						=			"Betere kwaliteit",
+	betterPerformance					=			"Betere weergave",
 	proxy								=			"Proxy",
 	hudDropZoneText						=			"Drag from Browser to Here",
-	hudDropZoneError					=			"Ah, I'm not sure what you dragged here, but it didn't look like FCPXML?",
-	hudButtonError						=			"There is currently no action assigned to this button.\n\nYou can allocate a function to this button via the FCPX Hacks menubar.",
-	hudXMLNameDialog					=			"How would you like to label this XML file?",
-	hudXMLNameError						=			"The label you entered has special characters that cannot be used.\n\nPlease try again.",
-	hudXMLSharingDisabled				=			"XML Sharing is currently disabled.\n\nPlease enable it via the FCPX Hacks menu and try again.",
+	hudDropZoneError					=			"Ah, ik weet precies wat u hierheen gesleept heeft, maar het is geen FCPXML?",
+	hudButtonError						=			"Er is momenteel geen functie  toegevoegd aan deze knop.\n\nU kunt een functie aan deze knop via  de FCPX Hacks menubar toewijzen.",
+	hudXMLNameDialog					=			"Hoe wilt u deze XML file labelen?",
+	hudXMLNameError						=			"The label you entered has special characters that cannot be used.\n\nProbeert u het a.u.b. opnieuw.",
+	hudXMLSharingDisabled				=			"XML deling  is op dit moment niet actief .\n\nActiveert u dit a.u.b. via  het FCPX Hacks menu en probeer het opnieuw.",
 
 	--------------------------------------------------------------------------------
 	-- CONSOLE:
 	--------------------------------------------------------------------------------
-	highlightedItem						=			"Highlighted Item",
-	removeFromList						=			"Remove from List",
+	highlightedItem						=			"Accentueer Item",
+	removeFromList						=			"Verwijder van de lijst",
 	mode								=			"Mode",
-	normal								=			"Normal",
-	removeFromList						=			"Remove from List",
-	restoreToList						=			"Restore to List",
-	displayOptions						=			"Display Options",
-	showNone							=			"Show None",
-	showAll								=			"Show All",
-	showAutomation						=			"Show Automation",
-	showHacks							=			"Show Hacks",
-	showShortcuts						=			"Show Shortcuts",
-	showVideoEffects					=			"Show Video Effects",
-	showAudioEffects					=			"Show Audio Effects",
-	showTransitions						=			"Show Transitions",
-	showTitles							=			"Show Titles",
-	showGenerators						=			"Show Generators",
-	showMenuItems						=			"Show Menu Items",
-	rememberLastQuery					=			"Remember Last Query",
+	normal								=			"Normaal",
+	removeFromList						=			"Verwijder van de lijst",
+	restoreToList						=			"Herstel naar lijstt",
+	displayOptions						=			"Geef keuzes weer",
+	showNone							=			"Toon niets",
+	showAll								=			"Toon alles",
+	showAutomation						=			"Toon Automation",
+	showHacks							=			"Toon Hacks",
+	showShortcuts						=			"Toon Shortcuts",
+	showVideoEffects					=			"Toon Video Effects",
+	showAudioEffects					=			"Toon Audio Effects",
+	showTransitions						=			"Toon Transitions",
+	showTitles							=			"Toon Titles",
+	showGenerators						=			"Toon Generators",
+	showMenuItems						=			"Toon Menu Items",
+	rememberLastQuery					=			"Onthoud de laatste wachtrij",
 	update								=			"Update",
 	effectsShortcuts					=			"Effects Shortcuts",
 	transitionsShortcuts				=			"Transitions Shortcuts",

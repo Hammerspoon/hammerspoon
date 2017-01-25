@@ -8,12 +8,13 @@ local tools			= require("hs.fcpxhacks.modules.tools")
 
 local log			= require("hs.logger").new("lang")
 local inspect		= require("hs.inspect")
+local metadata		= require("hs.fcpxhacks.metadata")
 
 -- Constants
 
 local PRIORITY = 1000
 
-local LANGUAGE_PATH = hs.processInfo["resourcePath"] .. "/extensions/hs/fcpxhacks/languages/"
+local LANGUAGE_PATH = metadata.scriptPath .. "/hs/fcpxhacks/languages/"
 
 -- The Module
 
@@ -122,7 +123,7 @@ function plugin.init(deps)
 
 	-- The FCPX Hacks Languages Menu
 
-	local fcpxHacksLangs = section:addMenu(200, function() return "FCPX Hacks " .. i18n("language") end)
+	local fcpxHacksLangs = section:addMenu(200, function() return metadata.scriptName .. " " .. i18n("language") end)
 	fcpxHacksLangs:addItems(1, function()
 		local settingsLanguage = {}
 		local userLocale = settings.get("fcpxHacks.language") or tools.userLocale()

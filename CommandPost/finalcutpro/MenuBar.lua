@@ -14,7 +14,7 @@ local metadata										= require("hs.fcpxhacks.metadata")
 
 local MenuBar = {}
 
-MenuBar.MENU_MAP_FILE								= metadata.extensionsPath .. "hs/finalcutpro/menumap.json"
+MenuBar.MENU_MAP_FILE								= metadata.scriptPath .. "/hs/finalcutpro/menumap.json"
 MenuBar.ROLE										= "AXMenuBar"
 
 --- hs.finalcutpro.MenuBar:new(App) -> MenuBar

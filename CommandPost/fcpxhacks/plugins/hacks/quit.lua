@@ -1,14 +1,11 @@
 local application		= require("hs.application")
+local metadata			= require("hs.fcpxhacks.metadata")
 
 --- The function
 
 local PRIORITY = 9999999
 
-local function quitFCPXHacks()
-
-	print("CHRIS")
-	print(hs.processInfo["bundleID"])
-
+local function quitScript()
 	application.applicationsForBundleID(hs.processInfo["bundleID"])[1]:kill()
 end
 
@@ -21,10 +18,10 @@ plugin.dependencies = {
 
 function plugin.init(deps)
 	deps.bottom:addItem(PRIORITY, function()
-		return { title = i18n("quit") .. " FCPX Hacks",	fn = quitFCPXHacks }
+		return { title = i18n("quit") .. " " .. metadata.scriptName,	fn = quitScript }
 	end)
 
-	return quitFCPXHacks
+	return quitScript
 end
 
 return plugin

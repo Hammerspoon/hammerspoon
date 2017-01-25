@@ -13,9 +13,11 @@ local settings						= require("hs.settings")
 local fs							= require("hs.fs")
 
 local tools							= require("hs.fcpxhacks.modules.tools")
+local metadata						= require("hs.fcpxhacks.metadata")
 
 local log							= require("hs.logger").new("plugins")
 local inspect						= require("hs.inspect")
+
 
 --------------------------------------------------------------------------------
 -- THE MODULE:
@@ -46,9 +48,7 @@ mod.SETTINGS_DISABLED = "fcpxHacks.plugins.disabled"
 ---  * boolean - `true` if all plugins loaded successfully
 ---
 function mod.loadPackage(package)
-	--local path = fs.pathToAbsolute("~/.hammerspoon/" .. package:gsub("%.", "/"))
-	local path = fs.pathToAbsolute(hs.processInfo["resourcePath"] .. "/extensions/" .. package:gsub("%.", "/"))
-
+	local path = fs.pathToAbsolute(metadata.scriptPath .. "/" .. package:gsub("%.", "/"))
 	if not path then
 		log.ef("The provided path does not exist: '%s'", package)
 		return false

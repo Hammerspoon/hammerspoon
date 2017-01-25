@@ -34,7 +34,7 @@ function manager.init()
 	--------------------------------------------------------------------------------
 	-- Set Tool Tip:
 	--------------------------------------------------------------------------------
-	manager.menubar:setTooltip("FCPX Hacks " .. i18n("version") .. " " .. metadata.scriptVersion)
+	manager.menubar:setTooltip(metadata.scriptName .. " " .. i18n("version") .. " " .. metadata.scriptVersion)
 
 	--------------------------------------------------------------------------------
 	-- Work out Menubar Display Mode:
@@ -58,7 +58,7 @@ function manager.updateMenubarIcon()
 	local displayMenubarAsIcon = settings.get("fcpxHacks.displayMenubarAsIcon") or false
 	local enableProxyMenuIcon = settings.get("fcpxHacks.enableProxyMenuIcon") or false
 
-	local title = "FCPX Hacks"
+	local title = metadata.scriptName
 	local icon = nil
 
 	if displayMenubarAsIcon then

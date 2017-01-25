@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# Compile FCPX Hacks:
+# Compile CommandPost:
 #
 make clean
 make release
@@ -13,15 +13,15 @@ rm -fr `xcodebuild -workspace Hammerspoon.xcworkspace -scheme Hammerspoon -confi
 # Copy CommandPost Files:
 #
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cp -R $DIR/../fcpxhacks/* $DIR/../build/CommandPost.app/Contents/Resources/extensions/hs/
+cp -R $DIR/../CommandPost/* $DIR/../build/CommandPost.app/Contents/Resources/extensions/hs/
 
 #
-# Remove all extended attributes from App Bundle (https://developer.apple.com/library/content/qa/qa1940/_index.html):
+# Remove all extended attributes from App Bundle (See: https://developer.apple.com/library/content/qa/qa1940/_index.html):
 #
 xattr -cr $DIR/../build/FCPXHacks.app $DIR/../build/CommandPost.app
 
 #
-# Signing with self-signed cert so I no longer have to reset accessibility all the time:
+# Sign App with self-signed certificate:
 #
 codesign --verbose --sign "Internal Code Signing" "build/CommandPost.app/Contents/Frameworks/Sparkle.framework/Versions/A"
 codesign --verbose --sign "Internal Code Signing" "build/CommandPost.app/Contents/Frameworks/LuaSkin.framework/Versions/A"
