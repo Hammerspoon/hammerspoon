@@ -264,7 +264,7 @@ function spotify.volumeDown() return spotify.setVolume(spotify.getVolume()-5) en
 ---
 --- Returns:
 ---  * A number indicating the current position in the song
-function spotify.getPosition() return tell'player position' end
+function spotify.getPosition() return tell('player position') end
 
 --- hs.spotify.setPosition(pos)
 --- Function
@@ -279,6 +279,20 @@ function spotify.setPosition(p)
   p=tonumber(p)
   if not p then error('position must be a number in seconds',2) end
   return tell('set player position to '..p)
+end
+
+--- hs.spotify.getDuration()
+--- Function
+--- Gets the duration (in seconds) of the current song
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * The number of seconds long the current song is, 0 if no song is playing
+function spotify.getDuration()
+  local duration = tonumber(tell('duration of current track'))
+  return duration ~= nil and duration / 1000 or 0
 end
 
 --- hs.spotify.ff()
