@@ -43,10 +43,10 @@ int keycodes_cachemap(lua_State* L) {
         for (int i = 0 ; i < (int)(sizeof(relocatableKeyCodes)/sizeof(relocatableKeyCodes[0])) ; i++) {
             UCKeyTranslate(keyboardLayout,
                            relocatableKeyCodes[i],
-                           kUCKeyActionDisplay,
+                           kUCKeyActionDown,
                            0,
                            LMGetKbdType(),
-                           kUCKeyTranslateNoDeadKeysBit,
+                           kUCKeyTranslateNoDeadKeysMask,
                            &keysDown,
                            sizeof(chars) / sizeof(chars[0]),
                            &realLength,
