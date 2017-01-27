@@ -26,7 +26,7 @@ static OSStatus trigger_hotkey_callback(int eventUID, int eventKind, BOOL isRepe
     //NSLog(@"startTimer");
     if (keyRepeatTimer) {
         LuaSkin *skin = [LuaSkin shared];
-        [skin logWarn:@"hs.timer:startTimer() called while an existing timer is running. Stopping existing timer and refusing to proceed."];
+        [skin logWarn:@"hs.hotkey - startTimer() called while an existing repeat timer is running. Stopping existing timer and refusing to proceed."];
         [self stopTimer];
         return;
     }
