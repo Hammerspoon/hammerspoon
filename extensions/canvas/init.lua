@@ -680,22 +680,26 @@ end
 --- ~~~lua
 --- c = require("hs.canvas")
 --- a = c.new{ x = 100, y = 100, h = 100, w = 100 }:show()
---- a:insertElement({ type = "rectangle", fillColor = { blue = 1 } })
---- a:insertElement({ type = "circle", fillColor = { green = 1 } })
+--- a:insertElement({ type = "rectangle", id = "part1", fillColor = { blue = 1 } })
+--- a:insertElement({ type = "circle", id = "part2", fillColor = { green = 1 } })
 --- ~~~
 --- can also be expressed as:
 --- ~~~lua
 --- c = require("hs.canvas")
 --- a = c.new{ x = 100, y = 100, h = 100, w = 100 }:show()
---- a[1] = { type = "rectangle", fillColor = { blue = 1 } }
---- a[2] = { type = "circle", fillColor = { green = 1 } }
+--- a[1] = { type = "rectangle", id = "part1", fillColor = { blue = 1 } }
+--- a[2] = { type = "circle", id = "part2", fillColor = { green = 1 } }
 --- ~~~
 ---
---- In addition, you can change a canvas element's attributes using this same style: `a[2].fillColor.alpha = .5` will adjust the alpha value for element 2 of the canvas without adjusting any of the other color fields.  To replace the color entirely, assign it like this: `a[2].fillColor = { white = .5, alpha = .25 }`
+--- You can change a canvas element's attributes using this same style: `a[2].fillColor.alpha = .5` will adjust the alpha value for element 2 of the canvas without adjusting any of the other color fields.  To replace the color entirely, assign it like this: `a[2].fillColor = { white = .5, alpha = .25 }`
 ---
 --- The canvas defaults can also be accessed with the `_default` field like this: `a._default.strokeWidth = 5`.
 ---
---- It is important to note that these methods are a convenience and that the canvas object is not a true table.  The tables are generated dynamically as needed; as such `hs.inspect` cannot properly display them; however, you can just type in the element or element attribute you wish to see expanded in the Hammerspoon console (or in a `print` command) to see the assigned attributes, e.g. `a[1]` or `a[2].fillColor`, and an inspect-like output will be provided.  Attributes which allow using a string to specify a percentage (see [percentages](#percentages)) can also be retrieved as their actual number for the canvas's current size by appending `_raw` to the attribute name, e.g. `a[2].frame_raw`.
+--- Attributes which have a string specified as their `id` attribute can also be accessed as if the `id` where a `key` in the table-like canvas: e.g. `a.part2.action = "skip"`
+---
+--- It is important to note that these methods are a convenience and that the canvas object is not a true table.  The tables are generated dynamically as needed; as such `hs.inspect` cannot properly display them; however, you can just type in the element or element attribute you wish to see expanded in the Hammerspoon console (or in a `print` command) to see the assigned attributes, e.g. `a[1]` or `a[2].fillColor`, and an inspect-like output will be provided.
+---
+--- Attributes which allow using a string to specify a percentage (see [percentages](#percentages)) can also be retrieved as their actual number for the canvas's current size by appending `_raw` to the attribute name, e.g. `a[2].frame_raw`.
 ---
 --- Because the canvas object is actually a Lua userdata, and not a real table, you cannot use the `table.insert` and `table.remove` functions on it.  For inserting or removing an element in any position except at the end of the canvas, you must still use [hs.canvas:insertElement](#insertElement) and [hs.canvas:removeElement](#removeElement).
 ---
@@ -709,7 +713,18 @@ canvasMT.__index = function(self, key)
             elementMT.__e[newTable] = { self = self, index = "_default" }
             return setmetatable(newTable, elementMT)
         else
-            return canvasMT[key]
+            if canvasMT[key] then
+                return canvasMT[key]
+            else
+                local answer
+                for i,v in ipairs(self) do
+                    if v.id == key then
+                        answer = v
+                        break
+                    end
+                end
+                return answer
+            end
         end
     elseif type(key) == "number" and key > 0 and key <= self:elementCount() and math.tointeger(key) then
         local newTable = {}
