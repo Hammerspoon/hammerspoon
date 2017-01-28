@@ -2,6 +2,8 @@
 ---
 --- Convert between key-strings and key-codes. Also provides funcionality for querying and changing keyboard layouts.
 
+local log = require"hs.logger".new("hs.keycodes", "warning")
+
 -- fallback table based on ANSI-Standard US Keyboard as defined in /System/Library/Frameworks/Carbon.framework/Versions/Current/Frameworks/HIToolbox.framework/Versions/Current/Headers/Events.h as of macOS 10.12, Xcode 8.
 local fallbackKeyMap = {
     ["0"]        = 0x1d,  ["1"]        = 0x12,  ["2"]        = 0x13,  ["3"]        = 0x14,
@@ -51,10 +53,10 @@ local attachFallbackTable = function(tableMap)
             else
                 newKey = fallbackKeyMap[key]
                 if newKey then
-                    print("-- hs.keycodes.map:key '" .. tostring(key) .. "' not found in active keymap; using ANSI-standard US keyboard layout as fallback, returning " .. tostring(newKey))
+                    log.wf("key '%s' not found in active keymap; using ANSI-standard US keyboard layout as fallback, returning '%s'", tostring(key), tostring(newKey))
                     return newKey
                 else
-                    print("-- hs.keycodes.map:key '" .. tostring(key) .. "' not found in active keymap or ANSI-standard US keyboard layout")
+                    log.wf("key '%s' not found in active keymap or ANSI-standard US keyboard layout", tostring(key))
                     return nil
                 end
             end
@@ -78,6 +80,7 @@ end
 
 local keycodes = require "hs.keycodes.internal"
 keycodes.map = attachFallbackTable(keycodes._cachemap())
+keycodes.log = log
 
 --- hs.keycodes.inputSourceChanged(fn)
 --- Function
