@@ -2431,7 +2431,7 @@ static int default_textAttributes(lua_State *L) {
 }
 
 /// hs.drawing.getTextDrawingSize(styledTextObject or theText, [textStyle]) -> sizeTable | nil
-/// Method
+/// Function
 /// Get the size of the rectangle necessary to fully render the text with the specified style so that is will be completely visible.
 ///
 /// Parameters:

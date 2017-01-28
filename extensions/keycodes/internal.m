@@ -28,6 +28,7 @@ int keycodes_cachemap(lua_State* L) {
         kVK_ANSI_Grave, kVK_ANSI_Equal, kVK_ANSI_Minus, kVK_ANSI_RightBracket,
         kVK_ANSI_LeftBracket, kVK_ANSI_Quote, kVK_ANSI_Semicolon, kVK_ANSI_Backslash,
         kVK_ANSI_Comma, kVK_ANSI_Slash, kVK_ANSI_Period, kVK_ISO_Section,
+        kVK_JIS_Yen, kVK_JIS_Underscore, kVK_JIS_KeypadComma, kVK_JIS_Eisu, kVK_JIS_Kana,
     };
 
     // NOTE: It appears that TISCopyCurrentKeyboardInputSources() can return NULL
@@ -43,10 +44,10 @@ int keycodes_cachemap(lua_State* L) {
         for (int i = 0 ; i < (int)(sizeof(relocatableKeyCodes)/sizeof(relocatableKeyCodes[0])) ; i++) {
             UCKeyTranslate(keyboardLayout,
                            relocatableKeyCodes[i],
-                           kUCKeyActionDisplay,
+                           kUCKeyActionDown,
                            0,
                            LMGetKbdType(),
-                           kUCKeyTranslateNoDeadKeysBit,
+                           kUCKeyTranslateNoDeadKeysMask,
                            &keysDown,
                            sizeof(chars) / sizeof(chars[0]),
                            &realLength,
@@ -167,6 +168,12 @@ int keycodes_cachemap(lua_State* L) {
     pushkeycode(L, kVK_RightArrow, "right");
     pushkeycode(L, kVK_DownArrow, "down");
     pushkeycode(L, kVK_UpArrow, "up");
+
+    pushkeycode(L, kVK_JIS_Yen, "yen");
+    pushkeycode(L, kVK_JIS_Underscore, "underscore");
+    pushkeycode(L, kVK_JIS_KeypadComma, "pad,");
+    pushkeycode(L, kVK_JIS_Eisu, "eisu");
+    pushkeycode(L, kVK_JIS_Kana, "kana");
 
     return 1;
 }
