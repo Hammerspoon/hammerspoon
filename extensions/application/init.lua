@@ -148,8 +148,12 @@ function application.find(hint,exact)
   else for _,a in ipairs(apps) do local aname=a:name() if aname and aname:lower():find(hint:lower()) then r[#r+1]=a end end end
 
   if spotlightEnabled then
-      for i, v in ipairs(table.pack(realNameFor(hint, exact))) do
-          for _, a in ipairs(apps) do if v:lower() == a:name():lower() then r[#r+1]=a end end
+      for _, v in ipairs(table.pack(realNameFor(hint, exact))) do
+          for _, a in ipairs(apps) do
+              if a:name() ~= nil and v:lower() == a:name():lower() then
+                  r[#r+1]=a
+              end
+          end
       end
   elseif type(spotlightEnabled) == "nil" and not findSpotlightWarningGiven then
       findSpotlightWarningGiven = true
