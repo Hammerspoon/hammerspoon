@@ -1,8 +1,8 @@
 local modpath, prettypath, fullpath, configdir, docstringspath, hasinitfile, autoload_extensions = ...
 
 print("-- Augmenting require paths")
-package.path=modpath.."/?.lua"..";"..modpath.."/?/init.lua"
-package.cpath=modpath.."/?.so"
+package.path=configdir.."/?.lua"..";"..configdir.."/?/init.lua"..";"..modpath.."/?.lua"..";"..modpath.."/?/init.lua"
+package.cpath=configdir.."/?.so"..";"..modpath.."/?.so"
 
 print("-- package.path:")
 for part in string.gmatch(package.path, "([^;]+)") do

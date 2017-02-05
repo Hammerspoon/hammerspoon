@@ -14,8 +14,12 @@ return {setup=function(...)
 --- hs.configdir
 --- Constant
 --- A string containing Hammerspoon's configuration directory. Typically `~/.hammerspoon/`
-  configdir = modpath
   hs.configdir = configdir
+
+--- hs.hasinitfile
+--- Constant
+--- A boolean that returns true if loading local file or false
+  hs.hasinitfile = hasinitfile
 
 --- hs.shutdownCallback
 --- Variable
@@ -57,8 +61,7 @@ return {setup=function(...)
 
   function hs.assert(pred,desc,data)
     if not pred then error([[
-  Internal error: please open an issue at
-  https://github.com/Hammerspoon/hammerspoon/issues/new   and paste the following stack trace:
+  Internal Error. Please open an issue (https://github.com/CommandPost/CommandPost/issues/new) and paste the following stack trace:
 
   Assertion failed: ]]..desc..'\n'..(data and hs.inspect(data) or ''),2)
     end
@@ -78,7 +81,7 @@ return {setup=function(...)
 ---  * If the console is not currently open, it will be opened. If it is open and not the focused window, it will be brought forward and focused.
 ---  * If the console is focused, it will be closed.
   function hs.toggleConsole()
-    local console = hs.appfinder.windowFromWindowTitle("Hammerspoon Console")
+    local console = hs.appfinder.windowFromWindowTitle("CommandPost Console")
     if console and (console ~= hs.window.focusedWindow()) then
       console:focus()
     elseif console then
@@ -474,13 +477,52 @@ return {setup=function(...)
   end
   hscrash.crashLog("Loaded from: "..modpath)
 
-  --print("-- Loading " .. prettypath)
-  local fn, err = loadfile(modpath .. "/hs/fcpxhacks/init.lua")
-  if not fn then hs.showError(err) return hs.completionsForInputString, runstring end
+  --[[
+  print("DEBUG INFORMATION")
+  print("modpath: " .. tostring(modpath))
+  print("prettypath: " .. tostring(prettypath))
+  print("fullpath: " .. tostring(fullpath))
+  print("configdir: " .. tostring(configdir))
+  print("docstringspath: " .. tostring(docstringspath))
+  print("hasinitfile: " .. tostring(hasinitfile))
+  print("autoload_extensions: " .. tostring(autoload_extensions))
+  print("")
+  print("-- package.path:")
+  for part in string.gmatch(package.path, "([^;]+)") do
+    print("      "..part)
+  end
+  print("")
+  print("-- package.cpath:")
+  for part in string.gmatch(package.cpath, "([^;]+)") do
+    print("      "..part)
+  end
+  print("")
+  --]]
 
-  local ok, err = xpcall(fn, debug.traceback)
-  if not ok then hs.showError(err) return hs.completionsForInputString, runstring end
-  --print "-- Done."
+  if hasinitfile then
+	  print("-- Loading " .. prettypath)
+	  local fn, err = loadfile(fullpath)
+	  if not fn then hs.showError(err) return hs.completionsForInputString, runstring end
+
+	  local ok, err = xpcall(fn, debug.traceback)
+	  if not ok then hs.showError(err) return hs.completionsForInputString, runstring end
+
+	  print "-- Done."
+
+	  return hs.completionsForInputString, runstring
+  else
+      local bundleCommandPostPath = modpath .. "/cp/init.lua"
+  	  print("-- Loading " .. bundleCommandPostPath)
+	  local fn, err = loadfile(bundleCommandPostPath)
+	  if not fn then hs.showError(err) return hs.completionsForInputString, runstring end
+
+	  local ok, err = xpcall(fn, debug.traceback)
+	  if not ok then hs.showError(err) return hs.completionsForInputString, runstring end
+
+	  print "-- Done."
+
+	  return hs.completionsForInputString, runstring
+  end
 
   return hs.completionsForInputString, runstring
 end}
