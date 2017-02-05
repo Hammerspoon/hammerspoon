@@ -191,7 +191,7 @@
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
 	<key>SUFeedURL</key>
-	<string>https://raw.githubusercontent.com/fcpxhacks/hammerspoon/master/appcast.xml</string>
+	<string>https://raw.githubusercontent.com/CommandPost/CommandPost-App/master/appcast.xml</string>
 	<key>SUScheduledCheckInterval</key>
 	<integer>21600</integer>
 </dict>
