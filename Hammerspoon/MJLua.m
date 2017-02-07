@@ -302,6 +302,9 @@ static int checkForUpdates(lua_State *L) {
 ///
 /// Returns:
 ///  * A boolean, true if an update is available, otherwise false
+///
+/// Notes:
+///  * This is not a live check, it is a cached result of whatever the previous update check found. By default Hammerspoon checks for updates every few hours, but you can also add your own timer to check for updates more frequently with `hs.checkForUpdates()`
 static int updateAvailable(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TBREAK];
