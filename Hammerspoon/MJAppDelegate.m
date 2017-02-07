@@ -40,6 +40,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     self.startupEvent = nil;
     self.startupFile = nil;
     self.openFileDelegate = nil;
+    self.updateAvailable = @NO;
 }
 
 - (void)handleGetURLEvent:(NSAppleEventDescriptor *)event withReplyEvent:(NSAppleEventDescriptor *)replyEvent
@@ -112,6 +113,25 @@ static BOOL MJFirstRunForCurrentVersion(void) {
         [Crashlytics startWithAPIKey:[NSString stringWithUTF8String:CRASHLYTICS_API_KEY] delegate:self];
     }
 #endif
+
+    // Become the Sparkle delegate, if it's available
+    if (NSClassFromString(@"SUUpdater")) {
+        NSString *frameworkPath = [[[NSBundle mainBundle] privateFrameworksPath] stringByAppendingPathComponent:@"Sparkle.framework"];
+        if ([[NSBundle bundleWithPath:frameworkPath] load]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
+            id sharedUpdater = [NSClassFromString(@"SUUpdater")  performSelector:@selector(sharedUpdater)];
+            NSMethodSignature * mySignature = [NSClassFromString(@"SUUpdater") instanceMethodSignatureForSelector:@selector(setDelegate:)];
+            NSInvocation * myInvocation = [NSInvocation invocationWithMethodSignature:mySignature];
+            [myInvocation setTarget:sharedUpdater];
+            // even though signature specifies this, we need to specify it in the invocation, since the signature is re-usable
+            // for any method which accepts the same signature list for the target.
+            [myInvocation setSelector:@selector(setDelegate:)];
+            [myInvocation setArgument:(void *)&self atIndex:2];
+            [myInvocation invoke];
+#pragma clang diagnostic pop
+        }
+    }
 
     MJMenuIconSetup(self.menuBarMenu);
     MJDockIconSetup();
@@ -202,6 +222,15 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     if (showMjolnirMigrationDialog) {
         [self showMjolnirMigrationNotification];
     }
+}
+
+#pragma mark - Sparkle delegate methods
+- (void)updater:(id)updater didFindValidUpdate:(id)update {
+    self.updateAvailable = @YES;
+}
+
+- (void)updaterDidNotFindUpdate:(id)update {
+    self.updateAvailable = @NO;
 }
 
 @end

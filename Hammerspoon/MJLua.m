@@ -254,12 +254,12 @@ static int automaticallyChecksForUpdates(lua_State *L) {
     return 1 ;
 }
 
-/// hs.checkForUpdates() -> none
+/// hs.checkForUpdates([silent]) -> none
 /// Function
 /// Check for an update now, and if one is available, prompt the user to continue the update process.
 ///
 /// Parameters:
-///  * None
+///  * silent - An optional boolean. If true, no UI will be displayed if an update is available. Defaults to false.
 ///
 /// Returns:
 ///  * None
@@ -268,14 +268,21 @@ static int automaticallyChecksForUpdates(lua_State *L) {
 ///  * If you are running a non-release or locally compiled version of Hammerspoon then the results of this function are unspecified.
 static int checkForUpdates(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
+
     if (NSClassFromString(@"SUUpdater")) {
         NSString *frameworkPath = [[[NSBundle mainBundle] privateFrameworksPath] stringByAppendingPathComponent:@"Sparkle.framework"];
         if ([[NSBundle bundleWithPath:frameworkPath] load]) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
-            id sharedUpdater = [NSClassFromString(@"SUUpdater")  performSelector:@selector(sharedUpdater)] ;
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+            id sharedUpdater = [NSClassFromString(@"SUUpdater") performSelector:@selector(sharedUpdater)] ;
 
-            [sharedUpdater performSelector:@selector(checkForUpdates:) withObject:nil] ;
+            SEL checkMethod = @selector(checkForUpdates:);
+            if (lua_type(L, 1) == LUA_TBOOLEAN && lua_toboolean(L, 1) == YES) {
+                checkMethod = @selector(checkForUpdateInformation);
+            }
+            [sharedUpdater performSelector:checkMethod withObject:nil] ;
 #pragma clang diagnostic pop
         } else {
             [skin logWarn:@"Sparkle Update framework not available for the running instance of Hammerspoon."] ;
@@ -284,6 +291,31 @@ static int checkForUpdates(lua_State *L) {
         [skin logWarn:@"Sparkle Update framework not available for the running instance of Hammerspoon."] ;
     }
     return 0 ;
+}
+
+/// hs.updateAvailable() -> boolean
+/// Function
+/// Returns a boolean indicating whether or not the Sparkle framework has found a Hammerspoon update.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A boolean, true if an update is available, otherwise false
+static int updateAvailable(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TBREAK];
+
+    id appDelegate = [[NSApplication sharedApplication] delegate];
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
+
+    NSNumber *updateAvailable = [appDelegate performSelector:@selector(updateAvailable)];
+    lua_pushboolean(L, [updateAvailable boolValue]);
+
+#pragma clang diagnostic pop
+    return 1;
 }
 
 /// hs.canCheckForUpdates() -> boolean
@@ -395,6 +427,7 @@ static luaL_Reg corelib[] = {
     {"autoLaunch", core_autolaunch},
     {"automaticallyCheckForUpdates", automaticallyChecksForUpdates},
     {"checkForUpdates", checkForUpdates},
+    {"updateAvailable", updateAvailable},
     {"canCheckForUpdates", canCheckForUpdates},
     {"reload", core_reload},
     {"focus", core_focus},
