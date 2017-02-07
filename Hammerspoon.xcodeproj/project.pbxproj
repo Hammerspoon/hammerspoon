@@ -5299,7 +5299,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -eux\n${SRCROOT}/scripts/copy_extensions_to_bundle.sh";
+			shellScript = "set -eux\n\"${SRCROOT}/scripts/copy_extensions_to_bundle.sh\"";
 		};
 		4FC09F7A19F99E48007542A6 /* Compile docs.json */ = {
 			isa = PBXShellScriptBuildPhase;
