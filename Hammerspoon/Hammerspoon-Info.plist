@@ -189,10 +189,10 @@
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 	<key>SUEnableAutomaticChecks</key>
-	<true/>
+	<false/>
 	<key>SUFeedURL</key>
 	<string>https://raw.githubusercontent.com/CommandPost/CommandPost-App/master/appcast.xml</string>
 	<key>SUScheduledCheckInterval</key>
-	<integer>21600</integer>
+	<integer>900</integer>
 </dict>
 </plist>
