@@ -128,17 +128,17 @@
 			<key>CFBundleURLIconFile</key>
 			<string></string>
 			<key>CFBundleURLName</key>
-			<string>org.hammerspoon.Hammerspoon</string>
+			<string>org.latenitefilms.CommandPost</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>hammerspoon</string>
+				<string>commandpost</string>
 			</array>
 		</dict>
 		<dict>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>hammerspoon.Hammerspoon.http</string>
+			<string>latenitefilms.CommandPost.http</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>http</string>
@@ -148,7 +148,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>hammerspoon.Hammerspoon.https</string>
+			<string>latenitefilms.CommandPost.https</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>https</string>
