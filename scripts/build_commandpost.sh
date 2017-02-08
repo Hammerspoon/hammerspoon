@@ -24,11 +24,6 @@ xattr -cr $DIR/../build/CommandPost.app
 #
 # Sign App with self-signed certificate:
 #
-codesign --verbose --sign "Internal Code Signing" "build/CommandPost.app/Contents/Frameworks/Sparkle.framework/Versions/A"
-codesign --verbose --sign "Internal Code Signing" "build/CommandPost.app/Contents/Frameworks/LuaSkin.framework/Versions/A"
-codesign --verbose --sign "Internal Code Signing" "build/CommandPost.app"
-
-#
-# Trash Preferences:
-#
-rm ~/Library/Preferences/org.latenitefilms.CommandPost.plist
+codesign --verbose --sign "Internal Code Signing" "$DIR/../build/CommandPost.app/Contents/Frameworks/Sparkle.framework/Versions/A"
+codesign --verbose --sign "Internal Code Signing" "$DIR/../build/CommandPost.app/Contents/Frameworks/LuaSkin.framework/Versions/A"
+codesign --verbose --sign "Internal Code Signing" "$DIR/../build/CommandPost.app"
