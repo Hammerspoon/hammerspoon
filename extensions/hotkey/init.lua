@@ -221,6 +221,7 @@ end
 --- Function
 --- Disables all previously set callbacks for a given keyboard combination
 ---
+--- Parameters:
 ---  * mods - A table or a string containing (as elements, or as substrings with any separator) the keyboard modifiers required,
 ---    which should be zero or more of the following:
 ---    * "cmd", "command" or "⌘"
@@ -240,6 +241,7 @@ end
 --- Function
 --- Deletes all previously set callbacks for a given keyboard combination
 ---
+--- Parameters:
 ---  * mods - A table or a string containing (as elements, or as substrings with any separator) the keyboard modifiers required,
 ---    which should be zero or more of the following:
 ---    * "cmd", "command" or "⌘"
