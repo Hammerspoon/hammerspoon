@@ -429,7 +429,8 @@ def write_html(output_dir, template_dir, data):
         err("Unable to open module.j2.html: %s" % error)
 
     for module in data:
-        with open("%s/%s.html" % (output_dir, module["name"]), "wb") as docfile:
+        with open("%s/%s.html" % (output_dir,
+                                  module["name"]), "wb") as docfile:
             render = template.render(module=module,
                                      type_order=TYPE_NAMES,
                                      type_desc=TYPE_DESC)
