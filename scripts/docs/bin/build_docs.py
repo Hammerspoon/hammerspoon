@@ -225,6 +225,7 @@ def process_module(modulename, raw_module):
     module["desc"] = raw_module["header"][CHUNK_DESC]
     module["doc"] = '\n'.join(raw_module["header"][CHUNK_DESC:])
     module["stripped_doc"] = '\n'.join(raw_module["header"][CHUNK_DESC+1:])
+    module["submodules"] = []
     module["items"] = []  # Deprecated
     module["Function"] = []
     module["Method"] = []
@@ -317,6 +318,7 @@ def do_processing(directories):
     raw_docstrings = []
     codefiles = []
     processed_docstrings = []
+    module_tree = {}
 
     for directory in directories:
         codefiles += find_code_files(directory)
@@ -340,6 +342,31 @@ def do_processing(directories):
         for item_type in TYPE_NAMES:
             module_docs[item_type].sort(key=lambda item: item["name"])
         processed_docstrings.append(module_docs)
+
+        # Add this module to our module tree
+        module_parts = module.split('.')
+        cursor = module_tree
+        for part in module_parts:
+            if part not in cursor:
+                cursor[part] = {}
+            cursor = cursor[part]
+
+    # Iterate over the modules, consulting the module tree, to find their
+    # submodules
+    # (Note that this is done as a separate step after the above loop, to
+    #  ensure that we know about all possible modules by this point)
+    i = 0
+    for module in processed_docstrings:
+        dbg("Finding submodules for: %s" % module["name"])
+        module_parts = module["name"].split('.')
+        cursor = module_tree
+        for part in module_parts:
+            cursor = cursor[part]
+        # cursor now points at this module, so now we can check for subs
+        for sub in cursor.keys():
+            processed_docstrings[i]["submodules"].append(sub)
+        processed_docstrings[i]["submodules"].sort()
+        i += 1
 
     processed_docstrings.sort(key=lambda module: module["name"])
     return processed_docstrings
