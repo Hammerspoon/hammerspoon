@@ -17,6 +17,14 @@
       <h1><a href="./index.html">docs</a> &raquo; {{ module.name }}</h1>
       {{ module.doc_gfm }}
       </header>
+      {% if module["submodules"]|length > 0 %}
+        <h3>Submodules</h3>
+        <ul>
+        {% for submodule in module["submodules"] %}
+        <li><a href="{{ module.name }}.{{ submodule }}.html">{{ module.name }}.{{ submodule }}</a></li>
+        {% endfor %}
+        </ul>
+      {% endif %}
       <h3>API Overview</h3>
       <ul>
       {% for type in type_order %}
