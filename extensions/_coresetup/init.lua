@@ -51,12 +51,40 @@ return {setup=function(...)
 ---  * You can override this function if you wish to route errors differently (e.g. for remote systems)
 
   function hs.showError(err)
-    hs._notify("Hammerspoon error") -- undecided on this line
+
+    --hs._notify("CommandPost Error") -- undecided on this line
     --  print(debug.traceback())
     print("*** ERROR: "..err)
-    hs.focus()
-    hs.openConsole()
-    hs._TERMINATED=true
+    --hs.focus()
+    --hs.openConsole()
+    --hs._TERMINATED=true
+
+    local osascript	= require("hs.osascript")
+    local appleScript = [[
+		set whatError to "]] .. tostring(err) .. [["
+		set iconPath to ("]] .. hs.processInfo["resourcePath"] .. "/extensions/cp/resources/assets/CommandPost.icns" .. [[" as POSIX file)
+
+		display dialog "I'm sorry, but an unexpected fatal error has occurred and CommandPost must now close.\n\nWould you like to open Apple Mail to email information about this bug to the team?" buttons {"Email Bug Report", "Quit CommandPost"} with icon iconPath
+		if the button returned of the result is equal to "Email Bug Report" then
+			return true
+		else
+			return false
+		end if
+	]]
+	local _, result = osascript.applescript(appleScript)
+
+	if result then
+		local sharing			= require("hs.sharing")
+		local console			= require("hs.console")
+		local screen			= require("hs.screen")
+
+		local mailer = sharing.newShare("com.apple.share.Mail.compose"):subject("[CommandPost " .. hs.processInfo["version"] .. "] Bug Report"):recipients({"team@commandpost.io"})
+		 														       :shareItems({"Please enter any notes, comments or suggestions here.\n\n---",console.getConsole(true), screen.mainScreen():snapshot()})
+		hs.timer.doAfter(5, function() hs.application.applicationForPID(hs.processInfo["processID"]):kill() end)
+	else
+		hs.application.applicationForPID(hs.processInfo["processID"]):kill()
+	end
+
   end
 
   function hs.assert(pred,desc,data)
@@ -476,28 +504,6 @@ return {setup=function(...)
     return result
   end
   hscrash.crashLog("Loaded from: "..modpath)
-
-  --[[
-  print("DEBUG INFORMATION")
-  print("modpath: " .. tostring(modpath))
-  print("prettypath: " .. tostring(prettypath))
-  print("fullpath: " .. tostring(fullpath))
-  print("configdir: " .. tostring(configdir))
-  print("docstringspath: " .. tostring(docstringspath))
-  print("hasinitfile: " .. tostring(hasinitfile))
-  print("autoload_extensions: " .. tostring(autoload_extensions))
-  print("")
-  print("-- package.path:")
-  for part in string.gmatch(package.path, "([^;]+)") do
-    print("      "..part)
-  end
-  print("")
-  print("-- package.cpath:")
-  for part in string.gmatch(package.cpath, "([^;]+)") do
-    print("      "..part)
-  end
-  print("")
-  --]]
 
   if hasinitfile then
 	  print("-- Loading " .. prettypath)
