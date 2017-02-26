@@ -59,13 +59,18 @@ return {setup=function(...)
     --hs.openConsole()
     --hs._TERMINATED=true
 
+	if not i18n then
+		i18n = require("i18n")
+		i18n.loadFile(hs.processInfo["resourcePath"] .. "/extensions/" .. "/cp/resources/languages/en.lua")
+	end
+
     local osascript	= require("hs.osascript")
     local appleScript = [[
 		set whatError to "]] .. tostring(err) .. [["
 		set iconPath to ("]] .. hs.processInfo["resourcePath"] .. "/extensions/cp/resources/assets/CommandPost.icns" .. [[" as POSIX file)
 
-		display dialog "I'm sorry, but an unexpected fatal error has occurred and CommandPost must now close.\n\nWould you like to open Apple Mail to email information about this bug to the team?" buttons {"Email Bug Report", "Quit CommandPost"} with icon iconPath
-		if the button returned of the result is equal to "Email Bug Report" then
+		display dialog "]] .. i18n("unexpectedError") .. [[" buttons {"]] .. i18n("sendBugReport") .. [[", "]] .. i18n("quit") .. " " .. i18n("scriptName") .. [["} with icon iconPath
+		if the button returned of the result is equal to "]] .. i18n("sendBugReport") .. [[" then
 			return true
 		else
 			return false
@@ -74,13 +79,8 @@ return {setup=function(...)
 	local _, result = osascript.applescript(appleScript)
 
 	if result then
-		local sharing			= require("hs.sharing")
-		local console			= require("hs.console")
-		local screen			= require("hs.screen")
-
-		local mailer = sharing.newShare("com.apple.share.Mail.compose"):subject("[CommandPost " .. hs.processInfo["version"] .. "] Bug Report"):recipients({"team@commandpost.io"})
-		 														       :shareItems({"Please enter any notes, comments or suggestions here.\n\n---",console.getConsole(true), screen.mainScreen():snapshot()})
-		hs.timer.doAfter(5, function() hs.application.applicationForPID(hs.processInfo["processID"]):kill() end)
+		local feedback = require("cp.feedback")
+		feedback.showFeedback(true)
 	else
 		hs.application.applicationForPID(hs.processInfo["processID"]):kill()
 	end
