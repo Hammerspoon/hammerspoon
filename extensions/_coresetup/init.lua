@@ -52,37 +52,46 @@ return {setup=function(...)
 
   function hs.showError(err)
 
-    --hs._notify("CommandPost Error") -- undecided on this line
-    --  print(debug.traceback())
-    print("*** ERROR: "..err)
-    --hs.focus()
-    --hs.openConsole()
-    --hs._TERMINATED=true
+	local metadata = require("cp.metadata")
+	local debugMode = metadata.get("debugMode")
 
-	if not i18n then
-		i18n = require("i18n")
-		i18n.loadFile(hs.processInfo["resourcePath"] .. "/extensions/" .. "/cp/resources/languages/en.lua")
-	end
+	if debugMode then
 
-    local osascript	= require("hs.osascript")
-    local appleScript = [[
-		set whatError to "]] .. tostring(err) .. [["
-		set iconPath to ("]] .. hs.processInfo["resourcePath"] .. "/extensions/cp/resources/assets/CommandPost.icns" .. [[" as POSIX file)
+	    hs._notify("CommandPost Error")
+    	-- print(debug.traceback())
+    	print("*** ERROR: "..err)
+    	hs.focus()
+    	hs.openConsole()
+    	hs._TERMINATED=true
 
-		display dialog "]] .. i18n("unexpectedError") .. [[" buttons {"]] .. i18n("sendBugReport") .. [[", "]] .. i18n("quit") .. " " .. i18n("scriptName") .. [["} with icon iconPath
-		if the button returned of the result is equal to "]] .. i18n("sendBugReport") .. [[" then
-			return true
-		else
-			return false
-		end if
-	]]
-	local _, result = osascript.applescript(appleScript)
-
-	if result then
-		local feedback = require("cp.feedback")
-		feedback.showFeedback(true)
 	else
-		hs.application.applicationForPID(hs.processInfo["processID"]):kill()
+		print("*** ERROR: "..err)
+
+		if not i18n then
+			i18n = require("i18n")
+			i18n.loadFile(hs.processInfo["resourcePath"] .. "/extensions/" .. "/cp/resources/languages/en.lua")
+		end
+
+		local osascript	= require("hs.osascript")
+		local appleScript = [[
+			set whatError to "]] .. tostring(err) .. [["
+			set iconPath to ("]] .. hs.processInfo["resourcePath"] .. "/extensions/cp/resources/assets/CommandPost.icns" .. [[" as POSIX file)
+
+			display dialog "]] .. i18n("unexpectedError") .. [[" buttons {"]] .. i18n("sendBugReport") .. [[", "]] .. i18n("quit") .. " " .. i18n("scriptName") .. [["} with icon iconPath
+			if the button returned of the result is equal to "]] .. i18n("sendBugReport") .. [[" then
+				return true
+			else
+				return false
+			end if
+		]]
+		local _, result = osascript.applescript(appleScript)
+
+		if result then
+			local feedback = require("cp.feedback")
+			feedback.showFeedback(true)
+		else
+			hs.application.applicationForPID(hs.processInfo["processID"]):kill()
+		end
 	end
 
   end
