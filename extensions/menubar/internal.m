@@ -399,6 +399,7 @@ void erase_menu_items(lua_State *L, NSMenu *menu) {
         if (target) {
             // This menuitem has a delegate object. Destroy its Lua reference and nuke all the references to the object, so ARC will deallocate it
             target.fn = [skin luaUnref:refTable ref:target.fn];
+            target.item = [skin luaUnref:refTable ref:target.item];
             [menuItem setTarget:nil];
             [menuItem setAction:nil];
             [menuItem setRepresentedObject:nil];
