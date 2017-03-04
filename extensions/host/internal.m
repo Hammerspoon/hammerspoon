@@ -1,13 +1,13 @@
-#import <Cocoa/Cocoa.h>
-#import <LuaSkin/LuaSkin.h>
-#import <sys/sysctl.h>
-#import <sys/types.h>
-#import <mach/mach.h>
-#import <mach/processor_info.h>
-#import <mach/host_info.h>
-#import <mach/mach_host.h>
-#import <mach/task_info.h>
-#import <mach/task.h>
+@import Cocoa ;
+@import LuaSkin ;
+@import Darwin.sys.sysctl ;
+@import Darwin.POSIX.sys.types ;
+@import Darwin.Mach ;
+@import Darwin.Mach.processor_info ;
+@import Darwin.Mach.host_info ;
+@import Darwin.Mach.mach_host ;
+@import Darwin.Mach.task_info ;
+@import Darwin.Mach.task ;
 
 /// hs.host.addresses() -> table
 /// Function
@@ -161,60 +161,65 @@ static int hs_vmstat(lua_State *L) {
     }
 
     lua_newtable(L) ;
-        lua_pushinteger(L, (uint64_t) (vm_stat.free_count - vm_stat.speculative_count)) ; lua_setfield(L, -2, "pagesFree") ;
-        lua_pushinteger(L, (uint64_t) (vm_stat.active_count))                           ; lua_setfield(L, -2, "pagesActive") ;
-        lua_pushinteger(L, (uint64_t) (vm_stat.inactive_count))                         ; lua_setfield(L, -2, "pagesInactive") ;
-        lua_pushinteger(L, (uint64_t) (vm_stat.speculative_count))                      ; lua_setfield(L, -2, "pagesSpeculative") ;
-        lua_pushinteger(L, (uint64_t) (vm_stat.throttled_count))                        ; lua_setfield(L, -2, "pagesThrottled") ;
-        lua_pushinteger(L, (uint64_t) (vm_stat.wire_count))                             ; lua_setfield(L, -2, "pagesWiredDown") ;
-        lua_pushinteger(L, (uint64_t) (vm_stat.purgeable_count))                        ; lua_setfield(L, -2, "pagesPurgeable") ;
-        lua_pushinteger(L, (uint64_t) (vm_stat.faults))                                 ; lua_setfield(L, -2, "translationFaults") ;
-        lua_pushinteger(L, (uint64_t) (vm_stat.cow_faults))                             ; lua_setfield(L, -2, "pagesCopyOnWrite") ;
-        lua_pushinteger(L, (uint64_t) (vm_stat.zero_fill_count))                        ; lua_setfield(L, -2, "pagesZeroFilled") ;
-        lua_pushinteger(L, (uint64_t) (vm_stat.reactivations))                          ; lua_setfield(L, -2, "pagesReactivated") ;
-        lua_pushinteger(L, (uint64_t) (vm_stat.purges))                                 ; lua_setfield(L, -2, "pagesPurged") ;
-        lua_pushinteger(L, (uint64_t) (vm_stat.external_page_count))                    ; lua_setfield(L, -2, "fileBackedPages") ;
-        lua_pushinteger(L, (uint64_t) (vm_stat.internal_page_count))                    ; lua_setfield(L, -2, "anonymousPages") ;
-        lua_pushinteger(L, (uint64_t) (vm_stat.total_uncompressed_pages_in_compressor)) ; lua_setfield(L, -2, "uncompressedPages") ;
-        lua_pushinteger(L, (uint64_t) (vm_stat.compressor_page_count))                  ; lua_setfield(L, -2, "pagesUsedByVMCompressor") ;
-        lua_pushinteger(L, (uint64_t) (vm_stat.decompressions))                         ; lua_setfield(L, -2, "pagesDecompressed") ;
-        lua_pushinteger(L, (uint64_t) (vm_stat.compressions))                           ; lua_setfield(L, -2, "pagesCompressed") ;
-        lua_pushinteger(L, (uint64_t) (vm_stat.pageins))                                ; lua_setfield(L, -2, "pageIns") ;
-        lua_pushinteger(L, (uint64_t) (vm_stat.pageouts))                               ; lua_setfield(L, -2, "pageOuts") ;
-        lua_pushinteger(L, (uint64_t) (vm_stat.swapins))                                ; lua_setfield(L, -2, "swapIns") ;
-        lua_pushinteger(L, (uint64_t) (vm_stat.swapouts))                               ; lua_setfield(L, -2, "swapOuts") ;
-        lua_pushinteger(L, (uint64_t) (vm_stat.lookups))                                ; lua_setfield(L, -2, "cacheLookups") ;
-        lua_pushinteger(L, (uint64_t) (vm_stat.hits))                                   ; lua_setfield(L, -2, "cacheHits") ;
-        lua_pushinteger(L, (uint32_t) (pagesize))                                       ; lua_setfield(L, -2, "pageSize") ;
-        lua_pushinteger(L, (uint64_t) (memsize))                                        ; lua_setfield(L, -2, "memSize") ;
+        lua_pushinteger(L, (vm_stat.free_count - vm_stat.speculative_count)) ;            lua_setfield(L, -2, "pagesFree") ;
+        lua_pushinteger(L, vm_stat.active_count) ;                                        lua_setfield(L, -2, "pagesActive") ;
+        lua_pushinteger(L, vm_stat.inactive_count) ;                                      lua_setfield(L, -2, "pagesInactive") ;
+        lua_pushinteger(L, vm_stat.speculative_count) ;                                   lua_setfield(L, -2, "pagesSpeculative") ;
+        lua_pushinteger(L, vm_stat.throttled_count) ;                                     lua_setfield(L, -2, "pagesThrottled") ;
+        lua_pushinteger(L, vm_stat.wire_count) ;                                          lua_setfield(L, -2, "pagesWiredDown") ;
+        lua_pushinteger(L, vm_stat.purgeable_count) ;                                     lua_setfield(L, -2, "pagesPurgeable") ;
+        lua_pushinteger(L, (lua_Integer)vm_stat.faults) ;                                 lua_setfield(L, -2, "translationFaults") ;
+        lua_pushinteger(L, (lua_Integer)vm_stat.cow_faults) ;                             lua_setfield(L, -2, "pagesCopyOnWrite") ;
+        lua_pushinteger(L, (lua_Integer)vm_stat.zero_fill_count) ;                        lua_setfield(L, -2, "pagesZeroFilled") ;
+        lua_pushinteger(L, (lua_Integer)vm_stat.reactivations) ;                          lua_setfield(L, -2, "pagesReactivated") ;
+        lua_pushinteger(L, (lua_Integer)vm_stat.purges) ;                                 lua_setfield(L, -2, "pagesPurged") ;
+        lua_pushinteger(L, vm_stat.external_page_count) ;                                 lua_setfield(L, -2, "fileBackedPages") ;
+        lua_pushinteger(L, vm_stat.internal_page_count) ;                                 lua_setfield(L, -2, "anonymousPages") ;
+        lua_pushinteger(L, (lua_Integer)vm_stat.total_uncompressed_pages_in_compressor) ; lua_setfield(L, -2, "uncompressedPages") ;
+        lua_pushinteger(L, vm_stat.compressor_page_count) ;                               lua_setfield(L, -2, "pagesUsedByVMCompressor") ;
+        lua_pushinteger(L, (lua_Integer)vm_stat.decompressions) ;                         lua_setfield(L, -2, "pagesDecompressed") ;
+        lua_pushinteger(L, (lua_Integer)vm_stat.compressions) ;                           lua_setfield(L, -2, "pagesCompressed") ;
+        lua_pushinteger(L, (lua_Integer)vm_stat.pageins) ;                                lua_setfield(L, -2, "pageIns") ;
+        lua_pushinteger(L, (lua_Integer)vm_stat.pageouts) ;                               lua_setfield(L, -2, "pageOuts") ;
+        lua_pushinteger(L, (lua_Integer)vm_stat.swapins) ;                                lua_setfield(L, -2, "swapIns") ;
+        lua_pushinteger(L, (lua_Integer)vm_stat.swapouts) ;                               lua_setfield(L, -2, "swapOuts") ;
+        lua_pushinteger(L, (lua_Integer)vm_stat.lookups) ;                                lua_setfield(L, -2, "cacheLookups") ;
+        lua_pushinteger(L, (lua_Integer)vm_stat.hits) ;                                   lua_setfield(L, -2, "cacheHits") ;
+        lua_pushinteger(L, pagesize) ;                                                    lua_setfield(L, -2, "pageSize") ;
+        lua_pushinteger(L, (lua_Integer)memsize) ;                                        lua_setfield(L, -2, "memSize") ;
     return 1 ;
 }
 
-/// hs.host.cpuUsage() -> table
+/// hs.host.cpuUsageTicks() -> table
 /// Function
-/// Returns a table containing cpu usage information for the current machine.
+/// Returns a table containing the current cpu usage information for the system in `ticks` since the most recent system boot.
 ///
 /// Parameters:
 ///  * None
 ///
 /// Returns:
 ///  * A table containing the following:
-///    * A tables, indexed by the core number, for each CPU core with the following keys in each subtable:
-///      * user   -- percentage of CPU time occupied by user level processes.
-///      * system -- percentage of CPU time occupied by system (kernel) level processes.
-///      * nice   -- percentage of CPU time occupied by user level processes with a positive nice value (lower scheduling priority).
+///    * Individual tables, indexed by the core number, for each CPU core with the following keys in each subtable:
+///      * user   -- number of ticks the cpu core has spent in user mode since system startup.
+///      * system -- number of ticks the cpu core has spent in system mode since system startup.
+///      * nice   --
 ///      * active -- For convenience, when you just want the total CPU usage, this is the sum of user, system, and nice.
-///      * idle   -- percentage of CPU time spent idle
-///    * The key `overall` containing the same keys as described above but based upon the average of all cores combined.
+///      * idle   -- number of ticks the cpu core has spent idle
+///    * The key `overall` containing the same keys as described above but based upon the combined total of all cpu cores for the system.
 ///    * The key `n` containing the number of cores detected.
 ///
 /// Notes:
-///  * The subtables for each core and `overall` have a __tostring() metamethod which allows listing it's contents in the Hammerspoon console by typing `hs.host.cpuUsage()[#]` where # is the core you are interested in or the string "overall".
+///  * CPU mode ticks are updated during system interrupts and are incremented based upon the mode the CPU is in at the time of the interrupt. By its nature, this is always going to be approximate, and a single call to this function will return the current tick values since the system was last rebooted.
+///  * To generate a snapshot of the system's usage "at this moment", you must take two samples and calculate the difference between them.  The [hs.host.cpuUsage](#cpuUsage) function is a wrapper which does this for you and returns the cpu usage statistics as a percentage of the total number of ticks which occurred during the sample period you specify when invoking `hs.host.cpuUsage`.
+///
+///  * Historically on Unix based systems, the `nice` cpu state represents processes for which the execution priority has been reduced to allow other higher priority processes access to more system resources.  The source code for the version of the [XNU Kernel](https://opensource.apple.com/source/xnu/xnu-3789.41.3/) currently provided by Apple (for macOS 10.12.3) shows this value as returned by the `host_processor_info` as hardcoded to 0.  For completeness, this value *is* included in the statistics returned by this function, but unless Apple makes a change in the future, it is not expected to provide any useful information.
+///
 ///  * Adapted primarily from code found at http://stackoverflow.com/questions/6785069/get-cpu-percent-usage
-static int hs_cpuInfo(lua_State *L) {
+static int hs_cpuUsageTicks(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
-    unsigned numCPUs;
+    [skin checkArgs:LS_TBREAK] ;
 
+    unsigned numCPUs;
     int mib[2U] = { CTL_HW, HW_NCPU };
     size_t sizeOfNumCPUs = sizeof(numCPUs);
     int status = sysctl(mib, 2U, &numCPUs, &sizeOfNumCPUs, NULL, 0U);
@@ -226,39 +231,46 @@ static int hs_cpuInfo(lua_State *L) {
     kern_return_t err = host_processor_info(mach_host_self(), PROCESSOR_CPU_LOAD_INFO, &numCPUsU, &cpuInfo, &numCpuInfo);
 
     if(err == KERN_SUCCESS) {
-        float overallInUser   = 0.0 ;
-        float overallInSystem = 0.0 ;
-        float overallInNice   = 0.0 ;
-        float overallInIdle   = 0.0 ;
-        float overallInUse    = 0.0 ;
-        float overallTotal    = 0.0 ;
+        uint64_t overallInUser   = 0 ;
+        uint64_t overallInSystem = 0 ;
+        uint64_t overallInNice   = 0 ;
+        uint64_t overallInIdle   = 0 ;
+        uint64_t overallInUse    = 0 ;
+        uint64_t overallTotal    = 0 ;
         lua_newtable(L) ;
         for(unsigned i = 0U; i < numCPUs; ++i) {
-            float inUser   = cpuInfo[(CPU_STATE_MAX * i) + CPU_STATE_USER] ;    overallInUser   += inUser ;
-            float inSystem = cpuInfo[(CPU_STATE_MAX * i) + CPU_STATE_SYSTEM] ;  overallInSystem += inSystem ;
-            float inNice   = cpuInfo[(CPU_STATE_MAX * i) + CPU_STATE_NICE] ;    overallInNice   += inNice ;
-            float inIdle   = cpuInfo[(CPU_STATE_MAX * i) + CPU_STATE_IDLE] ;    overallInIdle   += inIdle ;
-            float inUse    = inUser + inSystem + inNice ;                       overallInUse    += inUse ;
-            float total    = inUse + inIdle ;                                   overallTotal    += total ;
+            uint32_t inUser   = (uint32_t)cpuInfo[(CPU_STATE_MAX * i) + CPU_STATE_USER] ;
+            uint32_t inSystem = (uint32_t)cpuInfo[(CPU_STATE_MAX * i) + CPU_STATE_SYSTEM] ;
+            uint32_t inNice   = (uint32_t)cpuInfo[(CPU_STATE_MAX * i) + CPU_STATE_NICE] ;
+            uint32_t inIdle   = (uint32_t)cpuInfo[(CPU_STATE_MAX * i) + CPU_STATE_IDLE] ;
+            uint32_t inUse    = inUser + inSystem + inNice ;
+            uint32_t total    = inUse + inIdle ;
+
+            overallInUser   += inUser ;
+            overallInSystem += inSystem ;
+            overallInNice   += inNice ;
+            overallInIdle   += inIdle ;
+            overallInUse    += inUse ;
+            overallTotal    += total ;
+
             lua_newtable(L) ;
-                lua_pushnumber(L, (  inUser / total) * 100) ; lua_setfield(L, -2, "user") ;
-                lua_pushnumber(L, (inSystem / total) * 100) ; lua_setfield(L, -2, "system") ;
-                lua_pushnumber(L, (  inNice / total) * 100) ; lua_setfield(L, -2, "nice") ;
-                lua_pushnumber(L, (   inUse / total) * 100) ; lua_setfield(L, -2, "active") ;
-                lua_pushnumber(L, (  inIdle / total) * 100) ; lua_setfield(L, -2, "idle") ;
+                lua_pushinteger(L, inUser) ;   lua_setfield(L, -2, "user") ;
+                lua_pushinteger(L, inSystem) ; lua_setfield(L, -2, "system") ;
+                lua_pushinteger(L, inNice) ;   lua_setfield(L, -2, "nice") ;
+                lua_pushinteger(L, inUse) ;    lua_setfield(L, -2, "active") ;
+                lua_pushinteger(L, inIdle) ;   lua_setfield(L, -2, "idle") ;
             lua_rawseti(L, -2, luaL_len(L, -2) + 1);  // Insert this table at end of result table
         }
         lua_newtable(L) ;
-            lua_pushnumber(L, (  overallInUser / overallTotal) * 100) ; lua_setfield(L, -2, "user") ;
-            lua_pushnumber(L, (overallInSystem / overallTotal) * 100) ; lua_setfield(L, -2, "system") ;
-            lua_pushnumber(L, (  overallInNice / overallTotal) * 100) ; lua_setfield(L, -2, "nice") ;
-            lua_pushnumber(L, (   overallInUse / overallTotal) * 100) ; lua_setfield(L, -2, "active") ;
-            lua_pushnumber(L, (  overallInIdle / overallTotal) * 100) ; lua_setfield(L, -2, "idle") ;
+            lua_pushinteger(L, (lua_Integer)overallInUser) ;   lua_setfield(L, -2, "user") ;
+            lua_pushinteger(L, (lua_Integer)overallInSystem) ; lua_setfield(L, -2, "system") ;
+            lua_pushinteger(L, (lua_Integer)overallInNice) ;   lua_setfield(L, -2, "nice") ;
+            lua_pushinteger(L, (lua_Integer)overallInUse) ;    lua_setfield(L, -2, "active") ;
+            lua_pushinteger(L, (lua_Integer)overallInIdle) ;   lua_setfield(L, -2, "idle") ;
         lua_setfield(L, -2, "overall") ;
+        vm_deallocate(mach_task_self(), (vm_address_t)cpuInfo, sizeof(integer_t) * numCpuInfo);
     } else {
-        char errStr[255] ;
-        snprintf(errStr, 255, "Error getting CPU Usage data: %s", mach_error_string(err)) ;
-        [skin logError:[NSString stringWithFormat:@"hs.host.cpuUsage() error: %s", errStr]];
+        [skin logError:[NSString stringWithFormat:@"hs.host.cpuUsage() error: %s", mach_error_string(err)]];
         return 0 ;
     }
 
@@ -507,18 +519,15 @@ static int hs_volumeInformation(lua_State* L) {
     NSVolumeEnumerationOptions options = NSVolumeEnumerationSkipHiddenVolumes;
 
     if (lua_type(L, 1) == LUA_TBOOLEAN && lua_toboolean(L, 1)) {
-        options = 0;
+        options = (NSVolumeEnumerationOptions)0;
     }
 
     NSArray *URLs = [fileManager mountedVolumeURLsIncludingResourceValuesForKeys:urlResourceKeys options:options];
 
     for (NSURL *url in URLs) {
-        id result = [url resourceValuesForKeys:urlResourceKeys error:nil] ;
-        if ([url path]) {
-                if (result) [volumeInfo setObject:result forKey:[url path]];
-                if ([url resourceValuesForKeys:urlResourceKeys error:nil])
-                        [volumeInfo setObject:[url resourceValuesForKeys:urlResourceKeys error:nil] forKey:[url path]];
-        }
+        id       result = [url resourceValuesForKeys:urlResourceKeys error:nil] ;
+        NSString *path  = [url path] ;
+        if (path && result) [volumeInfo setObject:result forKey:path] ;
     }
 
     [skin pushNSObject:volumeInfo];
@@ -531,7 +540,7 @@ static const luaL_Reg hostlib[] = {
     {"names",                        hostNames},
     {"localizedName",                hostLocalizedName},
     {"vmStat",                       hs_vmstat},
-    {"cpuUsage",                     hs_cpuInfo},
+    {"cpuUsageTicks",                hs_cpuUsageTicks},
     {"operatingSystemVersion",       hs_operatingSystemVersion},
     {"operatingSystemVersionString", hs_operatingSystemVersionString},
     {"interfaceStyle",               hs_interfaceStyle},
