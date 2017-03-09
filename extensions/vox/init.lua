@@ -293,7 +293,7 @@ end
 ---  * 0 for paused
 ---  * 1 for playing
 function vox.getPlayerState()
-  return tell('playerState')
+  return tell('player state')
 end
 
 --- hs.vox.isRunning()
