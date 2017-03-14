@@ -75,9 +75,9 @@ layout.maximized = geometry.rect(0, 0, 1, 1)
 ---   * A string containing an application name, or an `hs.application` object, or nil
 ---   * A string containing a window title or nil
 ---   * A string containing a screen name, or an `hs.screen` object, or a function that accepts no parameters and returns an `hs.screen` object, or nil to select the first available screen
----   * A Unit rect, or a function which is called for each window and returns a unit rect (see `hs.window.moveToUnit()`)
----   * A Frame rect, or a function which is called for each window and returns a frame rect (see `hs.screen:frame()`)
----   * A Full-frame rect, of a function which is called for each window and returns a full-frame rect (see `hs.screen:fullFrame()`)
+---   * A Unit rect, or a function which is called for each window and returns a unit rect (see `hs.window.moveToUnit()`). The function should accept one parameter, which is the window object.
+---   * A Frame rect, or a function which is called for each window and returns a frame rect (see `hs.screen:frame()`). The function should accept one parameter, which is the window object.
+---   * A Full-frame rect, of a function which is called for each window and returns a full-frame rect (see `hs.screen:fullFrame()`). The function should accept one parameter, which is the window object.
 ---  * windowTitleComparator - (optional) Function to use for window title comparison. It is called with two string arguments (below) and its return value is evaluated as a boolean. If no comparator is provided, the '==' operator is used
 ---   * windowTitle: The `:title()` of the window object being examined
 ---   * layoutWindowTitle: The window title string (second field) specified in each element of the layout table
