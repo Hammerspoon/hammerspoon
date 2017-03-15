@@ -96,7 +96,7 @@ end
 --- Returns:
 ---  * None
 function itunes.previous()
-  tell('previous track')
+  tell('back track')
 end
 
 --- hs.itunes.displayCurrentTrack()
