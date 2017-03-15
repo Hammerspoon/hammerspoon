@@ -21,7 +21,9 @@ static HSWifiWatcherManager *manager ;
 #pragma mark - Support Functions and Classes
 
 @interface HSWifiWatcherManager : NSObject <CWEventDelegate>
-@property CWWiFiClient *client ;
+// Having problems with 10.10 and 10.11 even though Docs say it should work, so for now, we'll go the old route...
+// @property CWWiFiClient *client ;
+@property CWInterface  *interface;
 @property NSMutableSet *watchers ;
 @end
 
@@ -37,82 +39,131 @@ static HSWifiWatcherManager *manager ;
     if (self) {
         _watchers = [[NSMutableSet alloc] init] ;
 
-        _client = [[CWWiFiClient alloc] init] ;
-        _client.delegate = self ;
-        [watchableTypes enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSNumber *value, __unused BOOL *stop) {
-            if ([value isKindOfClass:[NSNumber class]]) {
-                NSError *error ;
-                [self->_client startMonitoringEventWithType:[value integerValue] error:&error] ;
-                if (error) {
-                    [LuaSkin logWarn:[NSString stringWithFormat:@"%s:initManager unable to register for event type %@: %@", USERDATA_TAG, key, [error localizedDescription]]] ;
-                }
-            }
+// Having problems with 10.10 and 10.11 even though Docs say it should work, so for now, we'll go the old route...
+//         _client = [[CWWiFiClient alloc] init] ;
+//         _client.delegate = self ;
+        // Using the notification center for the notifications requires us to retain a reference to the interface
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        _interface = [CWInterface interface] ;
+#pragma clang diagnostic pop
+
+
+        NSNotificationCenter *nc = [NSNotificationCenter defaultCenter] ;
+        [watchableTypes enumerateKeysAndObjectsUsingBlock:^(__unused NSString *key, NSString *value, __unused BOOL *stop) {
+// Having problems with 10.10 and 10.11 even though Docs say it should work, so for now, we'll go the old route...
+//             if ([value isKindOfClass:[NSNumber class]]) {
+//                 NSError *error ;
+//                 [self->_client startMonitoringEventWithType:[value integerValue] error:&error] ;
+//                 if (error) {
+//                     [LuaSkin logWarn:[NSString stringWithFormat:@"%s:initManager unable to register for event type %@: %@", USERDATA_TAG, key, [error localizedDescription]]] ;
+//                 }
+//             }
+            [nc addObserver:self selector:@selector(identifyNotification:) name:value object:nil];
         }] ;
     }
     return self ;
 }
 
-// // Need to determine if these are useful or if they indicate problems we can't handle at present
-// // anyways... will wait until I know more or someone asks about them.
+// If we ever go back to the "non-deprecated" approach, this is no longer required
+- (void)dealloc {
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter] ;
+    [watchableTypes enumerateKeysAndObjectsUsingBlock:^(__unused NSString *key, NSString *value, __unused BOOL *stop) {
+        [nc removeObserver:self name:value object:nil];
+    }] ;
+}
+
+- (void)identifyNotification:(NSNotification *)notification {
+    NSString *type = notification.name ;
+    NSString *interface = _interface.interfaceName ;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    if ([type isEqualToString:CWPowerDidChangeNotification]) {
+        [self invokeCallbacksFor:@"powerChange" withDetails:@[ interface ]] ;
+    } else if ([type isEqualToString:CWSSIDDidChangeNotification]) {
+        [self invokeCallbacksFor:@"SSIDChange" withDetails:@[ interface ]] ;
+    } else if ([type isEqualToString:CWBSSIDDidChangeNotification]) {
+        [self invokeCallbacksFor:@"BSSIDChange" withDetails:@[ interface ]] ;
+    } else if ([type isEqualToString:CWCountryCodeDidChangeNotification]) {
+        [self invokeCallbacksFor:@"countryCodeChange" withDetails:@[ interface ]] ;
+    } else if ([type isEqualToString:CWLinkDidChangeNotification]) {
+        [self invokeCallbacksFor:@"linkChange" withDetails:@[ interface ]] ;
+    } else if ([type isEqualToString:CWLinkQualityDidChangeNotification]) {
+        NSNumber *rssi = notification.userInfo[CWLinkQualityNotificationRSSIKey] ;
+        NSNumber *transmitRate = notification.userInfo[CWLinkQualityNotificationTransmitRateKey] ;
+        [self invokeCallbacksFor:@"linkQualityChange" withDetails:@[ interface, rssi, transmitRate ]] ;
+    } else if ([type isEqualToString:CWModeDidChangeNotification]) {
+        [self invokeCallbacksFor:@"modeChange" withDetails:@[ interface ]] ;
+    } else if ([type isEqualToString:CWScanCacheDidUpdateNotification]) {
+        [self invokeCallbacksFor:@"scanCacheUpdated" withDetails:@[ interface ]] ;
+    } else {
+        [LuaSkin logWarn:[NSString stringWithFormat:@"%s:identifyNotification - unrecognized notification received: %@", USERDATA_TAG, type]] ;
+    }
+#pragma clang diagnostic pop
+}
+
+// Having problems with 10.10 and 10.11 even though Docs say it should work, so for now, we'll go the old route...
+// // // Need to determine if these are useful or if they indicate problems we can't handle at present
+// // // anyways... will wait until I know more or someone asks about them.
+// //
+// // - (void)clientConnectionInterrupted {
+// //     [self invokeCallbacksFor:@"connectionInterrupted" withDetails:nil] ;
+// // }
+// //
+// // - (void)clientConnectionInvalidated {
+// //     [self invokeCallbacksFor:@"connectionInvalidated" withDetails:nil] ;
+// // }
 //
-// - (void)clientConnectionInterrupted {
-//     [self invokeCallbacksFor:@"connectionInterrupted" withDetails:nil] ;
+// - (void)powerStateDidChangeForWiFiInterfaceWithName:(NSString *)interfaceName {
+//     [self invokeCallbacksFor:@"powerChange" withDetails:@[ interfaceName ]] ;
 // }
 //
-// - (void)clientConnectionInvalidated {
-//     [self invokeCallbacksFor:@"connectionInvalidated" withDetails:nil] ;
+// - (void)ssidDidChangeForWiFiInterfaceWithName:(NSString *)interfaceName {
+//     [self invokeCallbacksFor:@"SSIDChange" withDetails:@[ interfaceName ]] ;
 // }
-
-- (void)powerStateDidChangeForWiFiInterfaceWithName:(NSString *)interfaceName {
-    [self invokeCallbacksFor:@"powerChange" withDetails:@[ interfaceName ]] ;
-}
-
-- (void)ssidDidChangeForWiFiInterfaceWithName:(NSString *)interfaceName {
-    [self invokeCallbacksFor:@"SSIDChange" withDetails:@[ interfaceName ]] ;
-}
-
-- (void)bssidDidChangeForWiFiInterfaceWithName:(NSString *)interfaceName {
-    [self invokeCallbacksFor:@"BSSIDChange" withDetails:@[ interfaceName ]] ;
-}
-
-- (void)countryCodeDidChangeForWiFiInterfaceWithName:(NSString *)interfaceName {
-    [self invokeCallbacksFor:@"countryCodeChange" withDetails:@[ interfaceName ]] ;
-}
-
-// // apparently Travis doesn't know about this yet... and since I don't know how to test it
-// // anyways, I'll wait until I know more or someone asks for it
 //
-// - (void)virtualInterfaceStateChangedForWiFiInterfaceWithName:(NSString *)interfaceName {
-//     [self invokeCallbacksFor:@"virtualInterfaceStateChanged" withDetails:@[ interfaceName ]] ;
+// - (void)bssidDidChangeForWiFiInterfaceWithName:(NSString *)interfaceName {
+//     [self invokeCallbacksFor:@"BSSIDChange" withDetails:@[ interfaceName ]] ;
 // }
-
-// // I think this applies to beacon support which I can't really test with my current hardware
-// // and can't find well documented for macOS at present... I'm holding off on this until I
-// // know more or someone asks about it.
 //
-// - (void)rangingReportEventForWiFiInterfaceWithName:(NSString *)interfaceName data:(NSArray *)rangingData error:(NSError *)error {
-//     NSMutableDictionary *details = [[NSMutableArray alloc] init] ;
-//     [details addObject:interfaceName] ;
-//     if (rangingData) [details addObject:rangingData] ;
-//     if (error)       [details addObject:[error localizedDescription]] ;
-//     [self invokeCallbacksFor:@"rangingReport" withDetails:details] ;
+// - (void)countryCodeDidChangeForWiFiInterfaceWithName:(NSString *)interfaceName {
+//     [self invokeCallbacksFor:@"countryCodeChange" withDetails:@[ interfaceName ]] ;
 // }
-
-- (void)linkDidChangeForWiFiInterfaceWithName:(NSString *)interfaceName {
-    [self invokeCallbacksFor:@"linkChange" withDetails:@[ interfaceName ]] ;
-}
-
-- (void)linkQualityDidChangeForWiFiInterfaceWithName:(NSString *)interfaceName rssi:(NSInteger)rssi transmitRate:(double)transmitRate {
-    [self invokeCallbacksFor:@"linkQualityChange" withDetails:@[ interfaceName, @(rssi), @(transmitRate) ]] ;
-}
-
-- (void)modeDidChangeForWiFiInterfaceWithName:(NSString *)interfaceName {
-    [self invokeCallbacksFor:@"modeChange" withDetails:@[ interfaceName ]] ;
-}
-
-- (void)scanCacheUpdatedForWiFiInterfaceWithName:(NSString *)interfaceName {
-    [self invokeCallbacksFor:@"scanCacheUpdated" withDetails:@[ interfaceName ]] ;
-}
+//
+// // // apparently Travis doesn't know about this yet... and since I don't know how to test it
+// // // anyways, I'll wait until I know more or someone asks for it
+// //
+// // - (void)virtualInterfaceStateChangedForWiFiInterfaceWithName:(NSString *)interfaceName {
+// //     [self invokeCallbacksFor:@"virtualInterfaceStateChanged" withDetails:@[ interfaceName ]] ;
+// // }
+//
+// // // I think this applies to beacon support which I can't really test with my current hardware
+// // // and can't find well documented for macOS at present... I'm holding off on this until I
+// // // know more or someone asks about it.
+// //
+// // - (void)rangingReportEventForWiFiInterfaceWithName:(NSString *)interfaceName data:(NSArray *)rangingData error:(NSError *)error {
+// //     NSMutableDictionary *details = [[NSMutableArray alloc] init] ;
+// //     [details addObject:interfaceName] ;
+// //     if (rangingData) [details addObject:rangingData] ;
+// //     if (error)       [details addObject:[error localizedDescription]] ;
+// //     [self invokeCallbacksFor:@"rangingReport" withDetails:details] ;
+// // }
+//
+// - (void)linkDidChangeForWiFiInterfaceWithName:(NSString *)interfaceName {
+//     [self invokeCallbacksFor:@"linkChange" withDetails:@[ interfaceName ]] ;
+// }
+//
+// - (void)linkQualityDidChangeForWiFiInterfaceWithName:(NSString *)interfaceName rssi:(NSInteger)rssi transmitRate:(double)transmitRate {
+//     [self invokeCallbacksFor:@"linkQualityChange" withDetails:@[ interfaceName, @(rssi), @(transmitRate) ]] ;
+// }
+//
+// - (void)modeDidChangeForWiFiInterfaceWithName:(NSString *)interfaceName {
+//     [self invokeCallbacksFor:@"modeChange" withDetails:@[ interfaceName ]] ;
+// }
+//
+// - (void)scanCacheUpdatedForWiFiInterfaceWithName:(NSString *)interfaceName {
+//     [self invokeCallbacksFor:@"scanCacheUpdated" withDetails:@[ interfaceName ]] ;
+// }
 
 - (void)invokeCallbacksFor:(NSString *)message withDetails:(NSArray *)details {
     if (!watchableTypes[message]) {
@@ -406,11 +457,13 @@ static int userdata_gc(lua_State* L) {
 static int meta_gc(lua_State* __unused L) {
     [manager.watchers removeAllObjects] ;
     NSError *error ;
-    [manager.client stopMonitoringAllEventsAndReturnError:&error] ;
+// Having problems with 10.10 and 10.11 even though Docs say it should work, so for now, we'll go the old route...
+//     [manager.client stopMonitoringAllEventsAndReturnError:&error] ;
     if (error) {
         [LuaSkin logWarn:[NSString stringWithFormat:@"%s:meta_gc unable to unregister events: %@", USERDATA_TAG, [error localizedDescription]]] ;
     }
-    manager.client = nil ;
+// Having problems with 10.10 and 10.11 even though Docs say it should work, so for now, we'll go the old route...
+//     manager.client = nil ;
     manager = nil ;
     return 0 ;
 }
@@ -447,19 +500,31 @@ int luaopen_hs_wifi_watcher(lua_State* L) {
                                objectFunctions:userdata_metaLib];
 
     watchableTypes = @{
-        @"powerChange"                  : @(CWEventTypePowerDidChange),
-        @"SSIDChange"                   : @(CWEventTypeSSIDDidChange),
-        @"BSSIDChange"                  : @(CWEventTypeBSSIDDidChange),
-        @"countryCodeChange"            : @(CWEventTypeCountryCodeDidChange),
-        @"linkChange"                   : @(CWEventTypeLinkDidChange),
-        @"linkQualityChange"            : @(CWEventTypeLinkQualityDidChange),
-        @"modeChange"                   : @(CWEventTypeModeDidChange),
-        @"scanCacheUpdated"             : @(CWEventTypeScanCacheUpdated),
-// see delegate for comments regarding these
-//         @"virtualInterfaceStateChanged" : @(CWEventTypeVirtualInterfaceStateChanged),
-//         @"rangingReport"                : @(CWEventTypeRangingReportEvent),
-//         @"connectionInterrupted"        : @"clientConnectionInterrupted",
-//         @"connectionInvalidated"        : @"clientConnectionInvalidated",
+// Having problems with 10.10 and 10.11 even though Docs say it should work, so for now, we'll go the old route...
+//         @"powerChange"                  : @(CWEventTypePowerDidChange),
+//         @"SSIDChange"                   : @(CWEventTypeSSIDDidChange),
+//         @"BSSIDChange"                  : @(CWEventTypeBSSIDDidChange),
+//         @"countryCodeChange"            : @(CWEventTypeCountryCodeDidChange),
+//         @"linkChange"                   : @(CWEventTypeLinkDidChange),
+//         @"linkQualityChange"            : @(CWEventTypeLinkQualityDidChange),
+//         @"modeChange"                   : @(CWEventTypeModeDidChange),
+//         @"scanCacheUpdated"             : @(CWEventTypeScanCacheUpdated),
+// // see delegate for comments regarding these
+// //         @"virtualInterfaceStateChanged" : @(CWEventTypeVirtualInterfaceStateChanged),
+// //         @"rangingReport"                : @(CWEventTypeRangingReportEvent),
+// //         @"connectionInterrupted"        : @"clientConnectionInterrupted",
+// //         @"connectionInvalidated"        : @"clientConnectionInvalidated",
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        @"powerChange"                  : CWPowerDidChangeNotification,
+        @"SSIDChange"                   : CWSSIDDidChangeNotification,
+        @"BSSIDChange"                  : CWBSSIDDidChangeNotification,
+        @"countryCodeChange"            : CWCountryCodeDidChangeNotification,
+        @"linkChange"                   : CWLinkDidChangeNotification,
+        @"linkQualityChange"            : CWLinkQualityDidChangeNotification,
+        @"modeChange"                   : CWModeDidChangeNotification,
+        @"scanCacheUpdated"             : CWScanCacheDidUpdateNotification,
+#pragma clang diagnostic pop
     } ;
 
     manager = [[HSWifiWatcherManager alloc] init] ;
