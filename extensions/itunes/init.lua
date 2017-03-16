@@ -96,7 +96,7 @@ end
 --- Returns:
 ---  * None
 function itunes.previous()
-  tell('previous track')
+  tell('back track')
 end
 
 --- hs.itunes.displayCurrentTrack()
@@ -263,8 +263,8 @@ function itunes.volumeDown() return itunes.setVolume(itunes.getVolume()-5) end
 ---  * None
 ---
 --- Returns:
----  * None
-function itunes.getPosition() return tell'player position' end
+---  * A number indicating the current position in the song
+function itunes.getPosition() return tell('player position') end
 
 --- hs.itunes.setPosition(pos)
 --- Function
@@ -279,6 +279,20 @@ function itunes.setPosition(p)
   p=tonumber(p)
   if not p then error('position must be a number in seconds',2) end
   return tell('set player position to '..p)
+end
+
+--- hs.itunes.getDuration()
+--- Function
+--- Gets the duration (in seconds) of the current song
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * The number of seconds long the current song is, 0 if no song is playing
+function itunes.getDuration()
+  local duration = tonumber(tell('duration of current track'))
+  return duration ~= nil and duration or 0
 end
 
 --- hs.itunes.ff()

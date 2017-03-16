@@ -266,7 +266,7 @@ end
 --- Returns:
 ---  * A string containing the artist of current Album, or nil if an error occurred
 function vox.getAlbumArtist()
-  return tell('albumArtist') or "Unknown album artist"
+  return tell('album artist') or "Unknown album artist"
 end
 
 --- hs.vox.getUniqueID()
@@ -279,7 +279,7 @@ end
 --- Returns:
 ---  * A string containing the name of the current track, or nil if an error occurred
 function vox.getUniqueID()
-  return tell('uniqueID') or "Unknown ID"
+  return tell('unique id') or "Unknown ID"
 end
 
 --- hs.vox.getPlayerState()
@@ -293,7 +293,7 @@ end
 ---  * 0 for paused
 ---  * 1 for playing
 function vox.getPlayerState()
-  return tell('playerState')
+  return tell('player state')
 end
 
 --- hs.vox.isRunning()

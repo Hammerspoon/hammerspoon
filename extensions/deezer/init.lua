@@ -277,6 +277,20 @@ function deezer.setPosition(p)
     return tell('set player position to ' .. p)
 end
 
+--- hs.itunes.getDuration()
+--- Function
+--- Gets the duration (in seconds) of the current song
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * The number of seconds long the current song is, 0 if no song is playing
+function deezer.getDuration()
+  local duration = tonumber(tell('duration of loaded track'))
+  return duration ~= nil and duration or 0
+end
+
 --- hs.deezer.ff()
 --- Function
 --- Skips the playback position forwards by 5 seconds
