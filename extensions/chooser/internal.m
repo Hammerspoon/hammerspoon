@@ -601,6 +601,7 @@ static int chooserSelectedRow(lua_State *L) {
         NSInteger newRow = lua_tointeger(L, 2) - 1 ;
         newRow = (newRow < 0) ? 0 : ((newRow > maxRow) ? maxRow : newRow) ;
         [chooser.choicesTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:newRow] byExtendingSelection:NO] ;
+        [chooser.choicesTableView scrollRowToVisible:newRow];
         lua_pushvalue(L, 1) ;
     }
     return 1;
