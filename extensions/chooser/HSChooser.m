@@ -38,6 +38,7 @@
         self.currentCallbackChoices = nil;
         self.filteredChoices = nil;
 
+        self.showCallbackRef = LUA_NOREF;
         self.choicesCallbackRef = LUA_NOREF;
         self.queryChangedCallbackRef = LUA_NOREF;
         self.rightClickCallbackRef = LUA_NOREF;
@@ -197,6 +198,14 @@
     }
 
     [self controlTextDidChange:[NSNotification notificationWithName:@"Unused" object:nil]];
+
+	LuaSkin *skin = [LuaSkin shared];
+
+	[skin pushLuaRef:*(self.refTable) ref:self.showCallbackRef];
+	if (![skin protectedCallAndTraceback:0 nresults:0]) {
+		[skin logError:[NSString stringWithFormat:@"%s:showCallback error - %@", USERDATA_TAG, [skin toNSObjectAtIndex:-1]]] ;
+		lua_pop(skin.L, 1) ; // remove error message
+	}
 }
 
 - (void)hide {
