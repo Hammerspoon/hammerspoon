@@ -199,13 +199,15 @@
 
     [self controlTextDidChange:[NSNotification notificationWithName:@"Unused" object:nil]];
 
-	LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin shared];
 
-	[skin pushLuaRef:*(self.refTable) ref:self.showCallbackRef];
-	if (![skin protectedCallAndTraceback:0 nresults:0]) {
-		[skin logError:[NSString stringWithFormat:@"%s:showCallback error - %@", USERDATA_TAG, [skin toNSObjectAtIndex:-1]]] ;
-		lua_pop(skin.L, 1) ; // remove error message
-	}
+    if (self.showCallbackRef != LUA_NOREF && self.showCallbackRef != LUA_REFNIL) {
+        [skin pushLuaRef:*(self.refTable) ref:self.showCallbackRef];
+        if (![skin protectedCallAndTraceback:0 nresults:0]) {
+            [skin logError:[NSString stringWithFormat:@"%s:showCallback error - %@", USERDATA_TAG, [skin toNSObjectAtIndex:-1]]] ;
+            lua_pop(skin.L, 1) ; // remove error message
+        }
+    }
 }
 
 - (void)hide {
