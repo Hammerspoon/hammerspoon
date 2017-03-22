@@ -657,6 +657,47 @@ static int chooserSelectedRowContents(lua_State *L) {
     return 1 ;
 }
 
+/// hs.chooser:select([row]) -> hs.chooser object
+/// Method
+/// Closes the chooser by selecting the specified row, or the currently selected row if not given
+///
+/// Parameters:
+///  * `row` - an optional integer specifying the row to select.
+///
+/// Returns:
+///  * The `hs.chooser` object
+static int chooserSelect(lua_State *L) {
+    chooser_userdata_t *userData = lua_touserdata(L, 1);
+    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+
+    chooserSelectedRow(L);
+    lua_pop(L, 1);
+
+    [chooser queryDidPressEnter:nil];
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
+/// hs.chooser:cancel() -> hs.chooser object
+/// Method
+/// Cancels the chooser
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The `hs.chooser` object
+static int chooserCancel(lua_State *L) {
+    chooser_userdata_t *userData = lua_touserdata(L, 1);
+    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+
+    [chooser cancel:nil];
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
 #pragma mark - Hammerspoon Infrastructure
 
 static int userdata_tostring(lua_State* L) {
@@ -708,6 +749,8 @@ static const luaL_Reg userdataLib[] = {
     {"rightClickCallback", chooserRightClickCallback},
     {"selectedRow", chooserSelectedRow},
     {"selectedRowContents", chooserSelectedRowContents},
+    {"select", chooserSelect},
+    {"cancel", chooserCancel},
     {"fgColor", chooserSetFgColor},
     {"subTextColor", chooserSetSubTextColor},
     {"bgDark", chooserSetBgDark},

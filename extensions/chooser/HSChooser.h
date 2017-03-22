@@ -82,6 +82,7 @@
 
 // Actions
 - (IBAction)queryDidPressEnter:(id)sender;
+- (IBAction)cancel:(id)sender;
 
 // Choice related methods
 - (void)updateChoices;
