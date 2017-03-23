@@ -47,6 +47,7 @@
 @property(nonatomic, retain) NSArray *filteredChoices;
 
 // Lua callback references
+@property(nonatomic) int showCallbackRef;
 @property(nonatomic) int choicesCallbackRef;
 @property(nonatomic) int queryChangedCallbackRef;
 @property(nonatomic) int completionCallbackRef;
@@ -81,6 +82,7 @@
 
 // Actions
 - (IBAction)queryDidPressEnter:(id)sender;
+- (IBAction)cancel:(id)sender;
 
 // Choice related methods
 - (void)updateChoices;

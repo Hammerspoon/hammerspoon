@@ -192,6 +192,32 @@ static int chooserSetChoices(lua_State *L) {
     return 1;
 }
 
+/// hs.chooser:showCallback([fn]) -> hs.chooser object
+/// Method
+/// Sets/clears a callback for when the chooser window is shown
+///
+/// Parameters:
+///  * fn - An optional function that will be called when the chooser window is shown. If this parameter is omitted, the existing callback will be removed.
+///
+/// Returns:
+///  * The hs.chooser object
+static int chooserShowCallback(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION|LS_TOPTIONAL, LS_TBREAK];
+
+    chooser_userdata_t *userData = lua_touserdata(L, 1);
+    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+
+    chooser.showCallbackRef = [skin luaUnref:refTable ref:chooser.showCallbackRef];
+
+    if (lua_type(L, 2) == LUA_TFUNCTION) {
+        chooser.showCallbackRef = [skin luaRef:refTable atIndex:2];
+    }
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
 /// hs.chooser:refreshChoicesCallback() -> hs.chooser object
 /// Method
 /// Refreshes the choices data from a callback
@@ -601,6 +627,7 @@ static int chooserSelectedRow(lua_State *L) {
         NSInteger newRow = lua_tointeger(L, 2) - 1 ;
         newRow = (newRow < 0) ? 0 : ((newRow > maxRow) ? maxRow : newRow) ;
         [chooser.choicesTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:newRow] byExtendingSelection:NO] ;
+        [chooser.choicesTableView scrollRowToVisible:newRow];
         lua_pushvalue(L, 1) ;
     }
     return 1;
@@ -630,6 +657,47 @@ static int chooserSelectedRowContents(lua_State *L) {
     return 1 ;
 }
 
+/// hs.chooser:select([row]) -> hs.chooser object
+/// Method
+/// Closes the chooser by selecting the specified row, or the currently selected row if not given
+///
+/// Parameters:
+///  * `row` - an optional integer specifying the row to select.
+///
+/// Returns:
+///  * The `hs.chooser` object
+static int chooserSelect(lua_State *L) {
+    chooser_userdata_t *userData = lua_touserdata(L, 1);
+    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+
+    chooserSelectedRow(L);
+    lua_pop(L, 1);
+
+    [chooser queryDidPressEnter:nil];
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
+/// hs.chooser:cancel() -> hs.chooser object
+/// Method
+/// Cancels the chooser
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The `hs.chooser` object
+static int chooserCancel(lua_State *L) {
+    chooser_userdata_t *userData = lua_touserdata(L, 1);
+    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+
+    [chooser cancel:nil];
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
 #pragma mark - Hammerspoon Infrastructure
 
 static int userdata_tostring(lua_State* L) {
@@ -644,6 +712,7 @@ static int userdata_gc(lua_State* L) {
     HSChooser *chooser = (__bridge_transfer HSChooser *)userData->chooser;
     if (chooser) {
         LuaSkin *skin = [LuaSkin shared] ;
+        chooser.showCallbackRef = [skin luaUnref:refTable ref:chooser.showCallbackRef];
         chooser.choicesCallbackRef = [skin luaUnref:refTable ref:chooser.choicesCallbackRef];
         chooser.queryChangedCallbackRef = [skin luaUnref:refTable ref:chooser.queryChangedCallbackRef];
         chooser.completionCallbackRef = [skin luaUnref:refTable ref:chooser.completionCallbackRef];
@@ -672,6 +741,7 @@ static const luaL_Reg userdataLib[] = {
     {"hide", chooserHide},
     {"isVisible", chooserIsVisible},
     {"choices", chooserSetChoices},
+    {"showCallback", chooserShowCallback},
     {"queryChangedCallback", chooserQueryCallback},
     {"query", chooserSetQuery},
     {"delete", chooserDelete},
@@ -679,6 +749,8 @@ static const luaL_Reg userdataLib[] = {
     {"rightClickCallback", chooserRightClickCallback},
     {"selectedRow", chooserSelectedRow},
     {"selectedRowContents", chooserSelectedRowContents},
+    {"select", chooserSelect},
+    {"cancel", chooserCancel},
     {"fgColor", chooserSetFgColor},
     {"subTextColor", chooserSetSubTextColor},
     {"bgDark", chooserSetBgDark},
