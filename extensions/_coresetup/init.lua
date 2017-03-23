@@ -52,8 +52,8 @@ return {setup=function(...)
 
   function hs.showError(err)
 
-	local metadata = require("cp.metadata")
-	local debugMode = metadata.get("debugMode")
+	local config = require("cp.config")
+	local debugMode = config.get("debugMode")
 
 	if debugMode then
 
@@ -514,9 +514,10 @@ return {setup=function(...)
   end
   hscrash.crashLog("Loaded from: "..modpath)
 
-  if hasinitfile then
-	  print("-- Loading " .. prettypath)
-	  local fn, err = loadfile(fullpath)
+  local customPath = require("hs.fs").pathToAbsolute("~/CommandPost/cp/init.lua")
+  if customPath then
+	  print("-- Loading " .. customPath)
+	  local fn, err = loadfile(customPath)
 	  if not fn then hs.showError(err) return hs.completionsForInputString, runstring end
 
 	  local ok, err = xpcall(fn, debug.traceback)

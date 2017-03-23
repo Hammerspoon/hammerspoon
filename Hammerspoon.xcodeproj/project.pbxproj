@@ -5372,7 +5372,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -eux\ncp -R ~/CommandPost/* \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/extensions/\"\nrm \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/extensions/init.lua\"\nxattr -cr ${BUILT_PRODUCTS_DIR}";
+			shellScript = "set -eux\ncp -R ~/CommandPost/* \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/extensions/\"\nxattr -cr ${BUILT_PRODUCTS_DIR}";
 		};
 		E849AEC367EA9502A25B9A7C /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
