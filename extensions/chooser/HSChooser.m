@@ -38,6 +38,7 @@
         self.currentCallbackChoices = nil;
         self.filteredChoices = nil;
 
+        self.showCallbackRef = LUA_NOREF;
         self.choicesCallbackRef = LUA_NOREF;
         self.queryChangedCallbackRef = LUA_NOREF;
         self.rightClickCallbackRef = LUA_NOREF;
@@ -100,6 +101,12 @@
 
     [self addShortcut:@"Up" keyCode:NSUpArrowFunctionKey mods:NSFunctionKeyMask|NSNumericPadKeyMask handler:^{ [_self selectPreviousChoice]; }];
     [self addShortcut:@"Down" keyCode:NSDownArrowFunctionKey mods:NSFunctionKeyMask|NSNumericPadKeyMask handler:^{ [_self selectNextChoice]; }];
+    [self addShortcut:@"p" keyCode:-1 mods:NSControlKeyMask handler:^{ [_self selectPreviousChoice]; }];
+    [self addShortcut:@"n" keyCode:-1 mods:NSControlKeyMask handler:^{ [_self selectNextChoice]; }];
+
+    [self addShortcut:@"PageUp" keyCode:NSPageUpFunctionKey mods:NSFunctionKeyMask handler:^{ [_self selectPreviousPage]; }];
+    [self addShortcut:@"PageDown" keyCode:NSPageDownFunctionKey mods:NSFunctionKeyMask handler:^{ [_self selectNextPage]; }];
+    [self addShortcut:@"v" keyCode:-1 mods:NSControlKeyMask handler:^{ [_self selectNextPage]; }];
 }
 
 - (void)windowDidResignKey:(NSNotification *)notification {
@@ -197,6 +204,16 @@
     }
 
     [self controlTextDidChange:[NSNotification notificationWithName:@"Unused" object:nil]];
+
+    LuaSkin *skin = [LuaSkin shared];
+
+    if (self.showCallbackRef != LUA_NOREF && self.showCallbackRef != LUA_REFNIL) {
+        [skin pushLuaRef:*(self.refTable) ref:self.showCallbackRef];
+        if (![skin protectedCallAndTraceback:0 nresults:0]) {
+            [skin logError:[NSString stringWithFormat:@"%s:showCallback error - %@", USERDATA_TAG, [skin toNSObjectAtIndex:-1]]] ;
+            lua_pop(skin.L, 1) ; // remove error message
+        }
+    }
 }
 
 - (void)hide {
@@ -379,6 +396,29 @@
         currentRow = [[self getChoices] count];
     }
     [self selectChoice:currentRow-1];
+}
+
+- (void)selectNextPage {
+    NSInteger currentRow = [self.choicesTableView selectedRow];
+	NSInteger count = [[self getChoices] count];
+    if (currentRow == count-1) {
+        [self selectChoice:0];
+    } else if (currentRow >= count-10) {
+        [self selectChoice:count-1];
+    } else {
+        [self selectChoice:currentRow+10];
+    }
+}
+
+- (void)selectPreviousPage {
+    NSInteger currentRow = [self.choicesTableView selectedRow];
+    if (currentRow == 0) {
+        [self selectChoice:[[self getChoices] count]-1];
+    } else if (currentRow < 10) {
+        [self selectChoice:0];
+    } else {
+        [self selectChoice:currentRow-10];
+    }
 }
 
 #pragma mark - Choice management methods
