@@ -232,9 +232,13 @@ static int eventtap_event_post(lua_State* L) {
         ProcessSerialNumber psn;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        GetProcessForPID(pid, &psn);
+        OSStatus err = GetProcessForPID(pid, &psn);
 #pragma clang diagnostic pop
-        CGEventPostToPSN(&psn, event);
+        if (err != noErr) {
+            NSLog(@"ERROR: Unable to get PSN for PID: %d", pid);
+        } else {
+            CGEventPostToPSN(&psn, event);
+        }
     }
     else {
         CGEventPost(kCGSessionEventTap, event);
