@@ -499,7 +499,7 @@ static int writeArchivedDataForType(lua_State *L) {
     return 1 ;
 }
 
-/// hs.pasteboard.writeDataForUTI([name], uti, data) -> boolean
+/// hs.pasteboard.writeDataForUTI([name], uti, data, [add]) -> boolean
 /// Function
 /// Sets the pasteboard to the contents of the data and assigns its type to the specified UTI.
 ///
@@ -507,6 +507,7 @@ static int writeArchivedDataForType(lua_State *L) {
 ///  * name - an optional string indicating the pasteboard name.  If nil or not present, defaults to the system pasteboard.
 ///  * uti  - a string specifying the UTI of the pasteboard item to set.
 ///  * data - a string specifying the raw data to assign to the pasteboard.
+///  * add  - an optional boolean value specifying if data with other UTI values should retain.  This value must be strictly either true or false if given, to avoid ambiguity with preceding parameters.
 ///
 /// Returns:
 ///  * True if the operation succeeded, otherwise false
@@ -516,8 +517,17 @@ static int writeArchivedDataForType(lua_State *L) {
 static int writeItemForType(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     NSPasteboard *pb ;
+    BOOL          add = NO ;
     NSString     *type ;
     NSData       *data ;
+    if (lua_gettop(L) >= 3) {
+        if (lua_isboolean(L, -1)) {
+            add = (BOOL)lua_toboolean(L, -1) ;
+            lua_settop(L, -2) ;
+        } else if (lua_isnil(L, -1)) {
+            lua_settop(L, -2) ;
+        }
+    }
     if (lua_gettop(L) == 2) {
         [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TBREAK] ;
         pb   = [NSPasteboard generalPasteboard] ;
@@ -531,7 +541,9 @@ static int writeItemForType(lua_State *L) {
     }
     if (pb && type && data) {
         @try {
-            [pb clearContents];
+            if (!add) {
+                [pb clearContents] ;
+            }
             lua_pushboolean(L, [pb setData:data forType:type]) ;
         } @catch (NSException *exception) {
             return luaL_error(L, [[exception reason] UTF8String]) ;
