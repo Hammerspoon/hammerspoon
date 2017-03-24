@@ -192,6 +192,8 @@
 	<true/>
 	<key>SUFeedURL</key>
 	<string>https://raw.githubusercontent.com/CommandPost/CommandPost-App/master/appcast.xml</string>
+	<key>SUPublicDSAKeyFile</key>
+	<string>dsa_pub.pem</string>
 	<key>SUScheduledCheckInterval</key>
 	<integer>900</integer>
 </dict>
