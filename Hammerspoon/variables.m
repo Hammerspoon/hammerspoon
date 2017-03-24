@@ -6,4 +6,4 @@
 //  Copyright (c) 2014 Hammerspoon. All rights reserved.
 //
 
-NSString* MJConfigFile = @"~/Library/Application Support/CommandPost/init.lua";
+NSString* MJConfigFile = @"~/Library/Application Support/CommandPost/Extensions/init.lua";
