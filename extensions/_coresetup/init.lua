@@ -514,7 +514,7 @@ return {setup=function(...)
   end
   hscrash.crashLog("Loaded from: "..modpath)
 
-  local customPath = require("hs.fs").pathToAbsolute("~/CommandPost/cp/init.lua")
+  local customPath = require("hs.fs").pathToAbsolute("~/Library/Application Support/CommandPost/cp/init.lua")
   if customPath then
 	  print("-- Loading " .. customPath)
 	  local fn, err = loadfile(customPath)
