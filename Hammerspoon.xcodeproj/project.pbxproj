@@ -277,7 +277,6 @@
 		D6FD56901C0422DE00BAE238 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = D6FD56821C04228800BAE238 /* internal.m */; };
 		E29DDE461E85524F00313995 /* dsa_pub.pem in Resources */ = {isa = PBXBuildFile; fileRef = E29DDE451E85524F00313995 /* dsa_pub.pem */; };
 		E2E2B1FE1E8546FE009AEAD6 /* PFMoveApplication.m in Sources */ = {isa = PBXBuildFile; fileRef = E2E2B1FD1E8546FE009AEAD6 /* PFMoveApplication.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		E2E2B2001E854781009AEAD6 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E2E2B1FF1E854781009AEAD6 /* Security.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1217,7 +1216,6 @@
 		E29DDE451E85524F00313995 /* dsa_pub.pem */ = {isa = PBXFileReference; lastKnownFileType = text; name = dsa_pub.pem; path = Hammerspoon/dsa_pub.pem; sourceTree = "<group>"; };
 		E2E2B1FC1E8546FE009AEAD6 /* PFMoveApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PFMoveApplication.h; sourceTree = "<group>"; };
 		E2E2B1FD1E8546FE009AEAD6 /* PFMoveApplication.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PFMoveApplication.m; sourceTree = "<group>"; };
-		E2E2B1FF1E854781009AEAD6 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Security.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1685,7 +1683,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F9F02BB1B3D9591009C32E5 /* LuaSkin.framework in Frameworks */,
-				E2E2B2001E854781009AEAD6 /* Security.framework in Frameworks */,
 				394FD223913AE68B92126D37 /* libPods-Hammerspoon.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2845,7 +2842,6 @@
 		9445CA0D19083251002568BB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				E2E2B1FF1E854781009AEAD6 /* Security.framework */,
 				4F9618AE1E24ED650048F71D /* libsqlite3.tbd */,
 				6AE1812D1D36E96A0097211C /* CoreAudio.framework */,
 				6AE1812B1D36E9600097211C /* Accelerate.framework */,
