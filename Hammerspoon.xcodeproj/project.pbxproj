@@ -275,6 +275,7 @@
 		D6F310F01BDF113900045CCD /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = D6F310D11BDF0E0000045CCD /* internal.m */; };
 		D6FD568A1C0422B400BAE238 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		D6FD56901C0422DE00BAE238 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = D6FD56821C04228800BAE238 /* internal.m */; };
+		E29DDE461E85524F00313995 /* dsa_pub.pem in Resources */ = {isa = PBXBuildFile; fileRef = E29DDE451E85524F00313995 /* dsa_pub.pem */; };
 		E2E2B1FE1E8546FE009AEAD6 /* PFMoveApplication.m in Sources */ = {isa = PBXBuildFile; fileRef = E2E2B1FD1E8546FE009AEAD6 /* PFMoveApplication.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		E2E2B2001E854781009AEAD6 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E2E2B1FF1E854781009AEAD6 /* Security.framework */; };
 /* End PBXBuildFile section */
@@ -1213,6 +1214,7 @@
 		D6FD56821C04228800BAE238 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/console/internal.m; sourceTree = "<group>"; };
 		D6FD568F1C0422B400BAE238 /* libconsole.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libconsole.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE2547C1592A3EDD90D9815D /* Pods-Hammerspoon.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hammerspoon.release.xcconfig"; path = "Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon.release.xcconfig"; sourceTree = "<group>"; };
+		E29DDE451E85524F00313995 /* dsa_pub.pem */ = {isa = PBXFileReference; lastKnownFileType = text; name = dsa_pub.pem; path = Hammerspoon/dsa_pub.pem; sourceTree = "<group>"; };
 		E2E2B1FC1E8546FE009AEAD6 /* PFMoveApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PFMoveApplication.h; sourceTree = "<group>"; };
 		E2E2B1FD1E8546FE009AEAD6 /* PFMoveApplication.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PFMoveApplication.m; sourceTree = "<group>"; };
 		E2E2B1FF1E854781009AEAD6 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Security.framework; sourceTree = "<group>"; };
@@ -2742,6 +2744,7 @@
 		9445CA0219083251002568BB = {
 			isa = PBXGroup;
 			children = (
+				E29DDE451E85524F00313995 /* dsa_pub.pem */,
 				E2E2B1FB1E8545F9009AEAD6 /* LetsMove */,
 				4FC09F7B19F99ECE007542A6 /* docs.json */,
 				9445CA1419083251002568BB /* Hammerspoon */,
@@ -5193,6 +5196,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E29DDE461E85524F00313995 /* dsa_pub.pem in Resources */,
 				4FC09F7C19F99ECE007542A6 /* docs.json in Resources */,
 				4FB602EF1DDBB0A900FA751B /* layout.lua in Resources */,
 				4F8E84311B90EDBF00C25955 /* statusicon.pdf in Resources */,
