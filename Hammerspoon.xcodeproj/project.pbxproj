@@ -275,6 +275,8 @@
 		D6F310F01BDF113900045CCD /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = D6F310D11BDF0E0000045CCD /* internal.m */; };
 		D6FD568A1C0422B400BAE238 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		D6FD56901C0422DE00BAE238 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = D6FD56821C04228800BAE238 /* internal.m */; };
+		E2E2B1FE1E8546FE009AEAD6 /* PFMoveApplication.m in Sources */ = {isa = PBXBuildFile; fileRef = E2E2B1FD1E8546FE009AEAD6 /* PFMoveApplication.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		E2E2B2001E854781009AEAD6 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E2E2B1FF1E854781009AEAD6 /* Security.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1211,6 +1213,9 @@
 		D6FD56821C04228800BAE238 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/console/internal.m; sourceTree = "<group>"; };
 		D6FD568F1C0422B400BAE238 /* libconsole.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libconsole.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE2547C1592A3EDD90D9815D /* Pods-Hammerspoon.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hammerspoon.release.xcconfig"; path = "Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon.release.xcconfig"; sourceTree = "<group>"; };
+		E2E2B1FC1E8546FE009AEAD6 /* PFMoveApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PFMoveApplication.h; sourceTree = "<group>"; };
+		E2E2B1FD1E8546FE009AEAD6 /* PFMoveApplication.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PFMoveApplication.m; sourceTree = "<group>"; };
+		E2E2B1FF1E854781009AEAD6 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Security.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1678,6 +1683,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F9F02BB1B3D9591009C32E5 /* LuaSkin.framework in Frameworks */,
+				E2E2B2001E854781009AEAD6 /* Security.framework in Frameworks */,
 				394FD223913AE68B92126D37 /* libPods-Hammerspoon.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2736,6 +2742,7 @@
 		9445CA0219083251002568BB = {
 			isa = PBXGroup;
 			children = (
+				E2E2B1FB1E8545F9009AEAD6 /* LetsMove */,
 				4FC09F7B19F99ECE007542A6 /* docs.json */,
 				9445CA1419083251002568BB /* Hammerspoon */,
 				4F98506D1B722C4100F7E909 /* extensions */,
@@ -2835,6 +2842,7 @@
 		9445CA0D19083251002568BB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				E2E2B1FF1E854781009AEAD6 /* Security.framework */,
 				4F9618AE1E24ED650048F71D /* libsqlite3.tbd */,
 				6AE1812D1D36E96A0097211C /* CoreAudio.framework */,
 				6AE1812B1D36E9600097211C /* Accelerate.framework */,
@@ -3094,6 +3102,15 @@
 				D6FD56821C04228800BAE238 /* internal.m */,
 			);
 			name = console;
+			sourceTree = "<group>";
+		};
+		E2E2B1FB1E8545F9009AEAD6 /* LetsMove */ = {
+			isa = PBXGroup;
+			children = (
+				E2E2B1FC1E8546FE009AEAD6 /* PFMoveApplication.h */,
+				E2E2B1FD1E8546FE009AEAD6 /* PFMoveApplication.m */,
+			);
+			name = LetsMove;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -5875,6 +5892,7 @@
 				9422ACBD19B6163800F06A90 /* MJConfigUtils.m in Sources */,
 				943BF0F319A4BC730017F79D /* Images.xcassets in Sources */,
 				942E71A619B1112F001BA156 /* MJPreferencesWindowController.m in Sources */,
+				E2E2B1FE1E8546FE009AEAD6 /* PFMoveApplication.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -14244,6 +14262,10 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Hammerspoon/Hammerspoon-Prefix.pch";
 				INFOPLIST_FILE = "Hammerspoon/Hammerspoon-Info.plist";
@@ -14268,6 +14290,10 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Hammerspoon/Hammerspoon-Prefix.pch";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
