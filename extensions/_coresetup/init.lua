@@ -514,7 +514,38 @@ return {setup=function(...)
   end
   hscrash.crashLog("Loaded from: "..modpath)
 
-  local customPath = require("hs.fs").pathToAbsolute("~/Library/Application Support/CommandPost/cp/init.lua")
+  --------------------------------------------------------------------------------
+  -- USED FOR TESTING:
+  --------------------------------------------------------------------------------
+  local function printBasic(value)
+    local console = require("hs.console")
+    console.printStyledtext(value)
+  end
+  printBasic("")
+  printBasic("")
+  printBasic("CORE SETUP VARIABLES:")
+  printBasic("")
+  printBasic("modpath:             " .. tostring(modpath))
+  printBasic("prettypath:          " .. tostring(prettypath))
+  printBasic("fullpath:            " .. tostring(fullpath))
+  printBasic("configdir:           " .. tostring(configdir))
+  printBasic("docstringspath:      " .. tostring(docstringspath))
+  printBasic("hasinitfile:         " .. tostring(hasinitfile))
+  printBasic("autoload_extensions: " .. tostring(autoload_extensions))
+  printBasic("")
+  printBasic("-- package.path:")
+  for part in string.gmatch(package.path, "([^;]+)") do
+    printBasic("                     "..part)
+  end
+  printBasic("")
+  printBasic("-- package.cpath:")
+  for part in string.gmatch(package.cpath, "([^;]+)") do
+    printBasic("                     "..part)
+  end
+  printBasic("")
+  --------------------------------------------------------------------------------
+
+  local customPath = require("hs.fs").pathToAbsolute(configdir .. "/Extensions/cp/init.lua")
   if customPath then
 	  print("-- Loading " .. customPath)
 	  local fn, err = loadfile(customPath)
