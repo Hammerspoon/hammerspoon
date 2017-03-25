@@ -545,7 +545,7 @@ return {setup=function(...)
   printBasic("")
   --------------------------------------------------------------------------------
 
-  local customPath = require("hs.fs").pathToAbsolute(configdir .. "/Extensions/cp/init.lua")
+  local customPath = require("hs.fs").pathToAbsolute(configdir .. "/cp/init.lua")
   if customPath then
 	  print("-- Loading " .. customPath)
 	  local fn, err = loadfile(customPath)
