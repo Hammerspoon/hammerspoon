@@ -22,9 +22,13 @@ local module = require("hs.drawing.color.internal")
 ---   * white - the ratio of white to black from 0.0 (completely black) to 1.0 (completely white)
 ---   * alpha - the color transparency from 0.0 (completely transparent) to 1.0 (completely opaque)
 ---
---- * From the system color lists:
+--- * From the system or Hammerspoon color lists:
 ---   * list - the name of a system color list or a collection list defined in `hs.drawing.color`
 ---   * name - the color name within the specified color list
+---
+--- * As an HTML style hex color specification:
+---   * hex   - a string of the format "#rrggbb" or "#rgb" where `r`, `g`, and `b` are hexadecimal digits (i.e. 0-9, A-F)
+---   * alpha - the color transparency from 0.0 (completely transparent) to 1.0 (completely opaque)
 ---
 --- * From an image to be used as a tiled pattern:
 ---   * image - an `hs.image` object representing the image to be used as a tiled pattern
