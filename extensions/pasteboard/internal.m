@@ -447,7 +447,7 @@ static int readArchivedDataForType(lua_State *L) {
     return 1 ;
 }
 
-/// hs.pasteboard.writeArchiverDataForUTI([name], uti, data) -> boolean
+/// hs.pasteboard.writeArchiverDataForUTI([name], uti, data, [add]) -> boolean
 /// Function
 /// Sets the pasteboard to the contents of the data and assigns its type to the specified UTI. The data will be encoded as an archive conforming to NSKeyedArchiver.
 ///
@@ -455,6 +455,7 @@ static int readArchivedDataForType(lua_State *L) {
 ///  * name - an optional string indicating the pasteboard name.  If nil or not present, defaults to the system pasteboard.
 ///  * uti  - a string specifying the UTI of the pasteboard item to set.
 ///  * data - any type representable in Lua which will be converted into the appropriate NSObject types and archived with NSKeyedArchiver.  All Lua basic types are supported as well as those NSObject types handled by Hammerspoon modules (NSColor, NSStyledText, NSImage, etc.)
+///  * add  - an optional boolean value specifying if data with other UTI values should retain.  This value must be strictly either true or false if given, to avoid ambiguity with preceding parameters.
 ///
 /// Returns:
 ///  * True if the operation succeeded, otherwise false
@@ -467,8 +468,17 @@ static int readArchivedDataForType(lua_State *L) {
 static int writeArchivedDataForType(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     NSPasteboard *pb ;
+    BOOL          add = NO ;
     NSString     *type ;
     id           data ;
+    if (lua_gettop(L) >= 3) {
+        if (lua_isboolean(L, -1)) {
+            add = (BOOL)lua_toboolean(L, -1) ;
+            lua_settop(L, -2) ;
+        } else if (lua_isnil(L, -1)) {
+            lua_settop(L, -2) ;
+        }
+    }
     if (lua_gettop(L) == 2) {
         [skin checkArgs:LS_TSTRING, LS_TANY, LS_TBREAK] ;
         pb   = [NSPasteboard generalPasteboard] ;
@@ -484,7 +494,9 @@ static int writeArchivedDataForType(lua_State *L) {
         // uses setData:forType: which is documented to throw exceptions for errors
         @try {
             NSData *encoded = [NSKeyedArchiver archivedDataWithRootObject:data];
-            [pb clearContents];
+            if (!add) {
+                [pb clearContents] ;
+            }
             lua_pushboolean(L, [pb setData:encoded forType:type]) ;
         } @catch (NSException *exception) {
             return luaL_error(L, [[exception reason] UTF8String]) ;
@@ -558,7 +570,7 @@ static int writeItemForType(lua_State *L) {
     return 1 ;
 }
 
-/// hs.pasteboard.writePListForUTI([name], uti, data) -> string
+/// hs.pasteboard.writePListForUTI([name], uti, data, [add]) -> boolean
 /// Function
 /// Sets the pasteboard to the contents of the data and assigns its type to the specified UTI.
 ///
@@ -566,6 +578,7 @@ static int writeItemForType(lua_State *L) {
 ///  * name - an optional string indicating the pasteboard name.  If nil or not present, defaults to the system pasteboard.
 ///  * uti  - a string specifying the UTI of the pasteboard item to set.
 ///  * data - a lua type which can be represented as a property list value.
+///  * add  - an optional boolean value specifying if data with other UTI values should retain.  This value must be strictly either true or false if given, to avoid ambiguity with preceding parameters.
 ///
 /// Returns:
 ///  * True if the operation succeeded, otherwise false
@@ -576,8 +589,17 @@ static int writeItemForType(lua_State *L) {
 static int writePropertyListForType(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     NSPasteboard *pb ;
+    BOOL          add = NO ;
     NSString     *type ;
     id           data ;
+    if (lua_gettop(L) >= 3) {
+        if (lua_isboolean(L, -1)) {
+            add = (BOOL)lua_toboolean(L, -1) ;
+            lua_settop(L, -2) ;
+        } else if (lua_isnil(L, -1)) {
+            lua_settop(L, -2) ;
+        }
+    }
     if (lua_gettop(L) == 2) {
         [skin checkArgs:LS_TSTRING, LS_TANY, LS_TBREAK] ;
         pb   = [NSPasteboard generalPasteboard] ;
@@ -592,7 +614,9 @@ static int writePropertyListForType(lua_State *L) {
     if (pb && type && data) {
         // uses setData:forType: which is documented to throw exceptions for errors
         @try {
-            [pb clearContents];
+            if (!add) {
+                [pb clearContents] ;
+            }
             lua_pushboolean(L, [pb setPropertyList:data forType:type]) ;
         } @catch (NSException *exception) {
             return luaL_error(L, [[exception reason] UTF8String]) ;
