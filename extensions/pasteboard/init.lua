@@ -40,7 +40,7 @@ end
 ---  * a mapping from a UTI value to the raw data
 ---
 --- Returns:
---   * True if the operation succeeded, otherwise false (in which case only some of the data might have been stored)
+--   * True if the operation succeeded, otherwise false (which most likely means ownership of the pasteboard has changed)
 module.writeAllData = function (...)
   local name, contents
   if #{...} == 1 then
