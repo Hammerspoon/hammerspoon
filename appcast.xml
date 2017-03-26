@@ -1,21 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
     <channel>
-        <title>FCPX Hacks's Changelog</title>
-        <link>https://raw.githubusercontent.com/fcpxhacks/hammerspoon/master/appcast.xml</link>
+        <title>CommandPost Changelog</title>
+        <link>https://raw.githubusercontent.com/CommandPost/CommandPost-App/master/appcast.xml</link>
         <description>Most recent changes with links to updates.</description>
         <language>en</language>
 		<item>
-			<title>Version 0.80</title>
+			<title>Version 1.0.0-beta.2</title>
 			<description><![CDATA[
         		<h2>New Features</h2>
         		<p>- This is just a test upload to see if CommandPost Updates actually work.</p>
+        		<p>- The AppCast will report it as 1.0.0-beta.2 but it's actually 1.0.0-beta.1.</p>
     		]]>
 		    </description>
 			<pubDate>Thu, 29 Dec 2016 20:54:43 +0100</pubDate>
-			<enclosure url="https://latenitefilms.com/cp/CommandPost_v0-80.dmg"
-				sparkle:version="0.80"
-				sparkle:dsaSignature="MC0CFQD2nZp5wkyUmIkLN5YrRINm9MbqUgIUfyOcxDYUkmx5SAq5S3AfhUO/Nf8="
+			<enclosure url="https://latenitefilms.com/cp/CommandPost_1.0.0-beta.1.dmg"
+				sparkle:version="1.0.0-beta.2"
+				sparkle:dsaSignature="MC0CFFbTkpGIoeN3/OC6a9lWNs6pl4OUAhUAsdlH/r44bJzjCB+c80GqH/bxMs0="
 				type="application/octet-stream"
 			/>
 			<sparkle:minimumSystemVersion>10.10</sparkle:minimumSystemVersion>
