@@ -517,6 +517,7 @@ return {setup=function(...)
   --------------------------------------------------------------------------------
   -- USED FOR TESTING:
   --------------------------------------------------------------------------------
+  --[[
   local function printBasic(value)
     local console = require("hs.console")
     console.printStyledtext(value)
@@ -543,6 +544,7 @@ return {setup=function(...)
     printBasic("                     "..part)
   end
   printBasic("")
+  --]]
   --------------------------------------------------------------------------------
 
   local customPath = require("hs.fs").pathToAbsolute(configdir .. "/cp/init.lua")
