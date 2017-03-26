@@ -458,7 +458,7 @@ static int readArchivedDataForType(lua_State *L) {
 ///  * add  - an optional boolean value specifying if data with other UTI values should retain.  This value must be strictly either true or false if given, to avoid ambiguity with preceding parameters.
 ///
 /// Returns:
-///  * True if the operation succeeded, otherwise false
+///  * True if the operation succeeded, otherwise false (which most likely means ownership of the pasteboard has changed)
 ///
 /// Notes:
 ///  * NSKeyedArchiver specifies an architecture-independent format that is often used in OS X applications to store and transmit objects between applications and when storing data to a file. It works by recording information about the object types and key-value pairs which make up the objects being stored.
@@ -522,7 +522,7 @@ static int writeArchivedDataForType(lua_State *L) {
 ///  * add  - an optional boolean value specifying if data with other UTI values should retain.  This value must be strictly either true or false if given, to avoid ambiguity with preceding parameters.
 ///
 /// Returns:
-///  * True if the operation succeeded, otherwise false
+///  * True if the operation succeeded, otherwise false (which most likely means ownership of the pasteboard has changed)
 ///
 /// Notes:
 ///  * The UTI's of the items on the pasteboard can be determined with the [hs.pasteboard.allContentTypes](#allContentTypes) and [hs.pasteboard.contentTypes](#contentTypes) functions.
@@ -581,7 +581,7 @@ static int writeItemForType(lua_State *L) {
 ///  * add  - an optional boolean value specifying if data with other UTI values should retain.  This value must be strictly either true or false if given, to avoid ambiguity with preceding parameters.
 ///
 /// Returns:
-///  * True if the operation succeeded, otherwise false
+///  * True if the operation succeeded, otherwise false (which most likely means ownership of the pasteboard has changed)
 ///
 /// Notes:
 ///  * The UTI's of the items on the pasteboard can be determined with the [hs.pasteboard.allContentTypes](#allContentTypes) and [hs.pasteboard.contentTypes](#contentTypes) functions.
