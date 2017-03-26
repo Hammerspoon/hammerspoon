@@ -12,6 +12,6 @@ rm -fr `xcodebuild -workspace Hammerspoon.xcworkspace -scheme Hammerspoon -confi
 #
 # Sign App with self-signed certificate:
 #
-codesign --verbose --sign "Internal Code Signing" "$DIR/../build/CommandPost.app/Contents/Frameworks/Sparkle.framework/Versions/A"
-codesign --verbose --sign "Internal Code Signing" "$DIR/../build/CommandPost.app/Contents/Frameworks/LuaSkin.framework/Versions/A"
-codesign --verbose --sign "Internal Code Signing" "$DIR/../build/CommandPost.app"
+codesign --verbose --sign "Internal Code Signing" "build/CommandPost.app/Contents/Frameworks/Sparkle.framework/Versions/A"
+codesign --verbose --sign "Internal Code Signing" "build/CommandPost.app/Contents/Frameworks/LuaSkin.framework/Versions/A"
+codesign --verbose --sign "Internal Code Signing" "build/CommandPost.app"
