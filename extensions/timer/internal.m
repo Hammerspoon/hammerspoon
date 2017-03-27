@@ -23,7 +23,7 @@ static int refTable;
 - (BOOL)isRunning;
 - (void)start;
 - (void)stop;
-- (int)nextTrigger;
+- (double)nextTrigger;
 - (void)setNextTrigger:(NSTimeInterval)interval;
 - (void)trigger;
 @end
@@ -80,7 +80,7 @@ static int refTable;
     }
 }
 
-- (int)nextTrigger {
+- (double)nextTrigger {
     CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
     CFAbsoluteTime next = CFRunLoopTimerGetNextFireDate((__bridge CFRunLoopTimerRef)self.t);
 
