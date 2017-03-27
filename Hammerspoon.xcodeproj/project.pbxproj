@@ -114,7 +114,6 @@
 		4F9797BE1BED0AC800719F3F /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4F9797C41BED0ADC00719F3F /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F9797B61BECD9AD00719F3F /* internal.m */; };
 		4F9F02BB1B3D9591009C32E5 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9F02B91B3D9568009C32E5 /* LuaSkin.framework */; };
-		4FB602EF1DDBB0A900FA751B /* layout.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FB602EE1DDBB0A900FA751B /* layout.lua */; };
 		4FBE2CF41B7261A200407788 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4FBE2CFE1B7261E500407788 /* application.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FBE2CFB1B7261E500407788 /* application.h */; };
 		4FBE2CFF1B7261E500407788 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FBE2CFD1B7261E500407788 /* internal.m */; };
@@ -5194,7 +5193,6 @@
 			files = (
 				E29DDE461E85524F00313995 /* dsa_pub.pem in Resources */,
 				4FC09F7C19F99ECE007542A6 /* docs.json in Resources */,
-				4FB602EF1DDBB0A900FA751B /* layout.lua in Resources */,
 				4F8E84311B90EDBF00C25955 /* statusicon.pdf in Resources */,
 				944A2D451989737E00D8DC90 /* Images.xcassets in Resources */,
 				944A2D431989737E00D8DC90 /* Credits.rtf in Resources */,
