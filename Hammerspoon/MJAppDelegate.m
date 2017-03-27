@@ -98,6 +98,24 @@ static BOOL MJFirstRunForCurrentVersion(void) {
         // No test environment detected, this is a live user run
         NSString* userMJConfigFile = [[NSUserDefaults standardUserDefaults] stringForKey:@"MJConfigFile"];
         if (userMJConfigFile) MJConfigFile = userMJConfigFile ;
+
+        // Ensure we have a Spoons directory
+        NSString *spoonsPath = [MJConfigDir() stringByAppendingPathComponent:@"Spoons"];
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        BOOL spoonsPathIsDir;
+        BOOL spoonsPathExists = [fileManager fileExistsAtPath:spoonsPath isDirectory:&spoonsPathIsDir];
+
+        NSLog(@"Determined Spoons path will be: %@ (exists: %@, isDir: %@)", spoonsPath, spoonsPathExists ? @"YES" : @"NO", spoonsPathIsDir ? @"YES" : @"NO");
+
+        if (spoonsPathExists && !spoonsPathIsDir) {
+            NSLog(@"ERROR: %@ exists, but is a file", spoonsPath);
+            abort();
+        }
+
+        if (!spoonsPathExists) {
+            NSLog(@"Creating Spoons directory at: %@", spoonsPath);
+            [[NSFileManager defaultManager] createDirectoryAtPath:spoonsPath withIntermediateDirectories:YES attributes:nil error:nil];
+        }
     }
 
     MJEnsureDirectoryExists(MJConfigDir());
