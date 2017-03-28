@@ -185,7 +185,7 @@ return {setup=function(...)
 ---
 --- Parameters:
 ---  * name - The name of a Spoon (without the trailing `.spoon`)
----  * global - An optional boolean. If true, this will insert the spoon into Lua's global namespace as `name`
+---  * global - An optional boolean. If true, this function will insert the spoon into Lua's global namespace as `name`. Defaults to false.
 ---
 --- Returns:
 ---  * The object provided by the Spoon (which can be ignored if you chose to make the Spoon global)
