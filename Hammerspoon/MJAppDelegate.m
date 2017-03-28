@@ -48,12 +48,38 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     self.startupEvent = event;
 }
 
-- (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)filename {
+- (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)fileAndPath {
+    NSString *typeOfFile = [[NSWorkspace sharedWorkspace] typeOfFile:fileAndPath error:nil];
+
+    if ([typeOfFile isEqualToString:@"org.hammerspoon.hammerspoon.spoon"]) {
+        // This is a Spoon, so we will attempt to copy it to the Spoons directory
+        NSError *moveError;
+        BOOL success = NO;
+        NSString *spoonPath = [MJConfigDir() stringByAppendingPathComponent:@"Spoons"];
+        NSString *spoonName = [fileAndPath lastPathComponent];
+        success = [[NSFileManager defaultManager] moveItemAtPath:fileAndPath toPath:[spoonPath stringByAppendingPathComponent:spoonName] error:&moveError];
+        if (!success) {
+            NSLog(@"Unable to move %@ to %@: %@", fileAndPath, spoonPath, moveError);
+            NSAlert *alert = [[NSAlert alloc] init];
+            [alert addButtonWithTitle:@"OK"];
+            [alert setMessageText:@"Error importing Spoon"];
+            [alert setInformativeText:[NSString stringWithFormat:@"%@\n\nSource: %@\nDest: %@", moveError.localizedDescription, fileAndPath, spoonPath]];
+            [alert setAlertStyle:NSCriticalAlertStyle];
+            [alert runModal];
+        } else {
+            NSUserNotification *notification = [[NSUserNotification alloc] init];
+            notification.title = @"Spoon imported";
+            notification.informativeText = [NSString stringWithFormat:@"%@ is now available", spoonName];
+            notification.soundName = NSUserNotificationDefaultSoundName;
+            [[NSUserNotificationCenter defaultUserNotificationCenter] deliverNotification:notification];
+        }
+        return YES; // Note that we always return YES here because otherwise macOS tells the user that we can't open Spoons, which is ludicrous
+    }
     if (!self.openFileDelegate) {
-        self.startupFile = filename;
+        self.startupFile = fileAndPath;
     } else {
         if ([self.openFileDelegate respondsToSelector:@selector(callbackWithURL:)]) {
-            [self.openFileDelegate callbackWithURL:filename];
+            [self.openFileDelegate callbackWithURL:fileAndPath];
         }
     }
 
