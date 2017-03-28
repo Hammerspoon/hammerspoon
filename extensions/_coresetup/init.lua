@@ -179,6 +179,52 @@ return {setup=function(...)
     return hsdi.visible()
   end
 
+--- hs.loadSpoon(name[, global]) -> Spoon object
+--- Function
+--- Loads a Spoon
+---
+--- Parameters:
+---  * name - The name of a Spoon (without the trailing `.spoon`)
+---  * global - An optional boolean. If true, this will insert the spoon into Lua's global namespace as `name`
+---
+--- Returns:
+---  * The object provided by the Spoon (which can be ignored if you chose to make the Spoon global)
+---
+--- Notes:
+---  * Spoons are a way of distributing self-contained units of Lua functionality, for Hammerspoon. See http://FIXME for more information
+---  * This function will load the Spoon and call its `:init()` method if it has one. If you do not wish this to happen, or wish to use a Spoon that somehow doesn't fit with the behaviours of this function, you can also simply `require('name')` to load the Spoon
+---  * If the Spoon provides documentation, it will be loaded by made available in hs.docs
+---  * To learn how to distribute your own code as a Spoon, see http://FIXME
+  hs.loadSpoon = function (name, global)
+    -- Load the Spoon code
+    local obj = require(name)
+
+    if obj then
+      -- If the Spoon has an init method, call it
+      if obj.init then
+        obj:init()
+      end
+
+      -- If the Spoon is desired to be global, make it so
+      if global then
+        _G[name] = obj
+      end
+
+      -- If the Spoon has docs, load them
+      if obj.spoonPath then
+        require("hs.fs")
+        local docsPath = obj.spoonPath.."/docs.json"
+        if hs.fs.attributes(docsPath) then
+          -- FIXME: Not sure quite what to do here to load this
+          print("loading docs would happen here")
+        end
+      end
+    end
+
+    -- Return the Spoon object
+    return obj
+  end
+
 --- hs.help(identifier)
 --- Function
 --- Prints the documentation for some part of Hammerspoon's API and Lua 5.3.  This function is actually sourced from hs.doc.help.
