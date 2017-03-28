@@ -11,6 +11,9 @@
 --- -- allow manual control of inverted colors
 --- hs.hotkey.bind(HYPER,'f1','Invert',hs.redshift.toggleInvert)
 --- ```
+---
+--- Note:
+---  * As of macOS 10.12.4, Apple provides "Night Shift", which implements a simple red-shift effect, as part of the OS. It seems unlikely that `hs.redshift` will see significant future development.
 
 local screen=require'hs.screen'
 local timer=require'hs.timer'
