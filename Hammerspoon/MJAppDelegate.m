@@ -159,7 +159,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
                          MJShowDockIconKey: @NO,
                          MJShowMenuIconKey: @NO,
                          HSAutoLoadExtensions: @YES,
-                         HSUploadCrashDataKey: @NO,
+                         HSUploadCrashDataKey: @YES,
                          }];
 }
 
