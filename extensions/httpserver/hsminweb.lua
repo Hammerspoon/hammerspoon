@@ -12,10 +12,10 @@
 ---
 --- While some of these limitations may be mitigated to an extent in the future with additional modules and additions to `hs.httpserver`, Hammerspoon's web serving capabilities will never replace a dedicated web server when volume or speed is required.
 ---
---- An example web site is provided in the `hsdocs` folder.  This web site can serve documentation for Hammerspoon dynamically generated from the json file included with the Hammerspoon application for internal documentation.  It serves as a basic example of what is possible with this module.
+--- An example web site is provided in the `hsdocs` folder of the `hs.doc` module.  This web site can serve documentation for Hammerspoon dynamically generated from the json file included with the Hammerspoon application for internal documentation.  It serves as a basic example of what is possible with this module.
 ---
 --- You can start this web server by typing the following into your Hammerspoon console:
---- `require("hs.httpserver.hsminweb.hsdocs").start()` and then visiting `http://localhost:12345/` with your web browser.
+--- `require("hs.doc.hsdocs").start()` and then visiting `http://localhost:12345/` with your web browser.
 
 --   [ ] Wiki docs
 --   [ ] Add browser with hs.webview to hsdocs
