@@ -224,22 +224,44 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  *
  *  Called when a Crashlytics instance has determined that the last execution of the
- *  application ended in a crash.  This is called synchronously on Crashlytics
+ *  application resulted in a saved report.  This is called synchronously on Crashlytics
  *  initialization. Your delegate must invoke the completionHandler, but does not need to do so
  *  synchronously, or even on the main thread. Invoking completionHandler with NO will cause the
  *  detected report to be deleted and not submitted to Crashlytics. This is useful for
  *  implementing permission prompts, or other more-complex forms of logic around submitting crashes.
+ *
+ *  Instead of using this method, you should try to make use of -crashlyticsDidDetectReportForLastExecution: 
+ *  if you can.
  *
  *  @warning Failure to invoke the completionHandler will prevent submissions from being reported. Watch out.
  *
  *  @warning Just implementing this delegate method will disable all forms of synchronous report submission. This can
  *           impact the reliability of reporting crashes very early in application launch.
  *
- *  @param report            The CLSReport object representing the last detected crash
+ *  @param report            The CLSReport object representing the last detected report
  *  @param completionHandler The completion handler to call when your logic has completed.
  *
  */
 - (void)crashlyticsDidDetectReportForLastExecution:(CLSReport *)report completionHandler:(void (^)(BOOL submit))completionHandler;
+
+/**
+ *
+ *  Called when a Crashlytics instance has determined that the last execution of the
+ *  application resulted in a saved report. This method differs from
+ *  -crashlyticsDidDetectReportForLastExecution:completionHandler: in three important ways:
+ *
+ *    - it is not called synchronously during initialization
+ *    - it does not give you the ability to prevent the report from being submitted
+ *    - the report object itself is immutable
+ *
+ *  Thanks to these limitations, making use of this method does not impact reporting 
+ *  reliabilty in any way.
+ *
+ *  @param report The read-only CLSReport object representing the last detected report
+ *
+ */
+
+- (void)crashlyticsDidDetectReportForLastExecution:(CLSReport *)report;
 
 /**
  *  If your app is running on an OS that supports it (OS X 10.9+, iOS 7.0+), Crashlytics will submit
