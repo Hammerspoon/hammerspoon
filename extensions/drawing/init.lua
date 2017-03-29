@@ -14,7 +14,7 @@ local imagemod = require("hs.image")
 
 local drawingObject = hs.getObjectMetatable("hs.drawing")
 
-module.fontTraits      = ls.makeConstantsTable(module.fontTraits)
+--module.fontTraits      = ls.makeConstantsTable(module.fontTraits) -- inherited below
 module.windowBehaviors = ls.makeConstantsTable(module.windowBehaviors)
 module.windowLevels    = ls.makeConstantsTable(module.windowLevels)
 
