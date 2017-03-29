@@ -19,7 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, readonly) NSDictionary *customKeys;
 @property (nonatomic, copy, readonly) NSString *bundleVersion;
 @property (nonatomic, copy, readonly) NSString *bundleShortVersionString;
-@property (nonatomic, copy, readonly) NSDate *crashedOnDate;
+@property (nonatomic, readonly, nullable) NSDate *crashedOnDate;
 @property (nonatomic, copy, readonly) NSString *OSVersion;
 @property (nonatomic, copy, readonly) NSString *OSBuildVersion;
 
