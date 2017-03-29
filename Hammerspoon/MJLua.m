@@ -63,6 +63,21 @@ void MJLuaSetupLogHandler(void(^blk)(NSString* str)) {
 
 @end
 
+/// hs.uploadCrashData([state]) -> bool
+/// Function
+/// Set or display the "Upload Crash Data" status for Hammerspoon.
+///
+/// Parameters:
+///  * state - an optional boolean which will set whether or not Hammerspoon should be upload crash data via Crashlytics.
+///
+/// Returns:
+///  * True if Hammerspoon is currently (or has just been) set to upload crash data or False if Hammerspoon is not.
+static int core_uploadCrashData(lua_State* L) {
+    if (lua_isboolean(L, -1)) { HSSetUploadCrashData(lua_toboolean(L, -1)); }
+    lua_pushboolean(L, HSUploadCrashData()) ;
+    return 1;
+}
+
 /// hs.autoLaunch([state]) -> bool
 /// Function
 /// Set or display the "Launch on Login" status for Hammerspoon.
@@ -436,6 +451,7 @@ static luaL_Reg corelib[] = {
     {"focus", core_focus},
     {"accessibilityState", core_accessibilityState},
     {"getObjectMetatable", core_getObjectMetatable},
+    {"uploadCrashData", core_uploadCrashData},
     {"cleanUTF8forConsole", core_cleanUTF8},
     {"_exit", core_exit},
     {"_logmessage", core_logmessage},
