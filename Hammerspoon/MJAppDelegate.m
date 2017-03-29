@@ -215,6 +215,8 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     [alert runModal];
 }
 
+// Commented out by Chris Hocking:
+/*
 - (void)crashlyticsDidDetectReportForLastExecution:(CLSReport *)report completionHandler:(void (^)(BOOL submit))completionHandler {
     BOOL showMjolnirMigrationDialog = NO;
 
@@ -227,6 +229,23 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     if (showMjolnirMigrationDialog) {
         [self showMjolnirMigrationNotification];
     }
+}
+*/
+
+// Added by Chris Hocking:
+- (void)crashlyticsDidDetectReportForLastExecution:(CLSReport *)report completionHandler:(void (^)(BOOL))completionHandler {
+    // Use this opportunity to take synchronous action on a crash. See Crashlytics.h for
+    // details and implications.
+    
+    // Maybe consult NSUserDefaults or show a UI prompt.
+    
+    // But, make ABSOLUTELY SURE you invoke completionHandler, as the SDK
+    // will not submit the report until you do. You can do this from any
+    // thread, but that's optional. If you want, you can just call the
+    // completionHandler and return.
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        completionHandler(YES);
+    }];
 }
 
 #pragma mark - Sparkle delegate methods
