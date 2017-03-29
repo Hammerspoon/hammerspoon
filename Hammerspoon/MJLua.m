@@ -65,13 +65,17 @@ void MJLuaSetupLogHandler(void(^blk)(NSString* str)) {
 
 /// hs.uploadCrashData([state]) -> bool
 /// Function
-/// Set or display the "Upload Crash Data" status for Hammerspoon.
+/// Get or set the "Upload Crash Data" preference for Hammerspoon
 ///
 /// Parameters:
-///  * state - an optional boolean which will set whether or not Hammerspoon should be upload crash data via Crashlytics.
+///  * state - An optional boolean, true to upload crash reports, false to not
 ///
 /// Returns:
-///  * True if Hammerspoon is currently (or has just been) set to upload crash data or False if Hammerspoon is not.
+///  * True if Hammerspoon is currently (or has just been) set to upload crash data or False otherwise
+///
+/// Notes:
+///  * If at all possible, please do allow Hammerspoon to upload crash reports to us, it helps a great deal in keeping Hammerspoon stable
+///  * Our Privacy Policy can be found here: [http://www.hammerspoon.org/privacy.html](https://github.com/Hammerspoon/hammerspoon/pull/1286/files)
 static int core_uploadCrashData(lua_State* L) {
     if (lua_isboolean(L, -1)) { HSSetUploadCrashData(lua_toboolean(L, -1)); }
     lua_pushboolean(L, HSUploadCrashData()) ;
