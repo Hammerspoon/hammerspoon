@@ -2310,9 +2310,9 @@ static luaL_Reg moduleLib[] = {
     //     {"luaToObjCMap"         , luaToObjCMap},
 
     {"convertFont", font_convertFont},
-    {"fontInfo", fontInformation},
-    {"fontNames", fontNames},
-    {"fontNamesWithTraits", fontNamesWithTraits},
+    {"_fontInfo", fontInformation},
+    {"_fontNames", fontNames},
+    {"_fontNamesWithTraits", fontNamesWithTraits},
 
     {"_defaultFonts", defineDefaultFonts},
 
