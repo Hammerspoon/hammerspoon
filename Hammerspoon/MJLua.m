@@ -552,6 +552,20 @@ void MJLuaInit(void) {
     }
 }
 
+// Accessibility State Callback:
+void callAccessibilityStateCallback(void) {
+    
+    lua_State* L = MJLuaState.L;
+    
+    lua_getglobal(L, "hs");
+    lua_getfield(L, -1, "accessibilityStateCallback");
+    
+    if (lua_type(L, -1) == LUA_TFUNCTION) {
+        [MJLuaState protectedCallAndTraceback:0 nresults:0];
+    }
+    
+}
+
 static int callShutdownCallback(lua_State *L) {
     lua_getglobal(L, "hs");
     lua_getfield(L, -1, "shutdownCallback");
@@ -568,6 +582,7 @@ void MJLuaDeinit(void) {
     LuaSkin *skin = MJLuaState;
 
     callShutdownCallback(skin.L);
+    
     if (MJLuaLogDelegate) {
         [MJLuaState setDelegate:nil] ;
         MJLuaLogDelegate = nil ;
