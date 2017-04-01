@@ -359,6 +359,48 @@ end
 
 -- Public interface ------------------------------------------------------
 
+--- hs.doc.hsdocs.interface([interface]) -> currentValue
+--- Function
+--- Get or set the network interface that the Hammerspoon documentation web server will be served on
+---
+--- Paramaters:
+---  * interface - an optional string, or nil, specifying the network interface the Hammerspoon documentation web server will be served on.  An explicit nil specifies that the web server should listen on all active interfaces for the machine.  Defaults to "localhost".
+---
+--- Returns:
+---  * the current, possibly new, value
+---
+--- Notes:
+---  * See `hs.httpserver.setInterface` for a description of valid values that can be specified as the `interface` argument to this function.
+---  * A change to the interface can only occur when the documentation server is not running. If the server is currently active when you call this function with an argument, the server will be temporarily stopped and then restarted after the interface has been changed.
+module.interface = function(...)
+    local args = table.pack(...)
+    if args.n > 0 then
+        local newValue, needRestart = args[1], false
+        if newValue == nil or type(newValue) == "string" then
+            if module._server then
+                needRestart = true
+                module.stop()
+            end
+            if newValue == nil then
+                settings.set("_documentationServer.interface", true)
+            else
+                settings.set("_documentationServer.interface", newValue)
+            end
+            if needRestart then
+                module.start()
+            end
+        else
+            error("interface must be nil or a string", 2)
+        end
+    end
+    local current = settings.get("_documentationServer.interface") or "localhost"
+    if current == true then
+        return nil -- since nil has no meaning to settings, we use this boolean value as a placeholder
+    else
+        return current
+    end
+end
+
 --- hs.doc.hsdocs.port([value]) -> currentValue
 --- Function
 --- Get or set the Hammerspoon documentation server HTTP port.
@@ -407,6 +449,7 @@ module.start = function()
                      :name("Hammerspoon Documentation")
                      :bonjour(true)
                      :luaTemplateExtension("lp")
+                     :interface(module.interface())
                      :directoryIndex{
                          "index.html", "index.lp",
                      }:start()
