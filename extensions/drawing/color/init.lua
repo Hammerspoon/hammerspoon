@@ -74,7 +74,9 @@ _kMetaTable.__tostring = function(obj)
     end
 _kMetaTable.__metatable = _kMetaTable -- go ahead and look, but don't unset this
 
-local _makeConstantsTable = function(theTable)
+-- we don't use the one in LuaSkin because it recurses through subtables and we want to leave those editable so users
+-- can apply local overrides if desired
+local _singleLevelConstantsTable = function(theTable)
     local results = setmetatable({}, _kMetaTable)
     _kMetaTable._k[results] = theTable
     return results
@@ -362,7 +364,7 @@ end
 ---
 --- Notes:
 ---  * This list is a constant, but the members it refers to are not.
-module.definedCollections = _makeConstantsTable({
+module.definedCollections = _singleLevelConstantsTable({
 
 -- NOTE: to allow hs.drawing.color.lists, hs.drawing.color.colorsFor, and the
 -- LuaSkin convertor for NSColor to support collections, keep this up to date

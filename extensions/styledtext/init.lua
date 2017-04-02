@@ -75,80 +75,6 @@ require("hs.drawing.color") -- make sure that the conversion helpers required to
 
 -- private variables and methods -----------------------------------------
 
-local _kMetaTable = {}
-_kMetaTable._k = {}
-_kMetaTable.__index = function(obj, key)
-        if _kMetaTable._k[obj] then
-            if _kMetaTable._k[obj][key] then
-                return _kMetaTable._k[obj][key]
-            else
-                for k,v in pairs(_kMetaTable._k[obj]) do
-                    if v == key then return k end
-                end
-            end
-        end
-        return nil
-    end
-_kMetaTable.__newindex = function(obj, key, value)
-        error("attempt to modify a table of constants",2)
-        return nil
-    end
-_kMetaTable.__pairs = function(obj) return pairs(_kMetaTable._k[obj]) end
-_kMetaTable.__tostring = function(obj)
-        local result = ""
-        if _kMetaTable._k[obj] then
-            local width = 0
-            for k,v in pairs(_kMetaTable._k[obj]) do width = width < #k and #k or width end
-            for k,v in require("hs.fnutils").sortByKeys(_kMetaTable._k[obj]) do
-                result = result..string.format("%-"..tostring(width).."s %s\n", k, tostring(v))
-            end
-        else
-            result = "constants table missing"
-        end
-        return result
-    end
-_kMetaTable.__metatable = _kMetaTable -- go ahead and look, but don't unset this
-
-local _makeConstantsTable = function(theTable)
-    local results = setmetatable({}, _kMetaTable)
-    _kMetaTable._k[results] = theTable
-    return results
-end
-
-local _arrayWrapper = function(results)
-    return setmetatable(results, { __tostring=function(_)
-        local results = ""
-        for i,v in ipairs(_) do results = results..v.."\n" end
-        return results
-    end})
-end
-
-local _tableWrapper = function(results)
-    local __tableWrapperFunction
-    __tableWrapperFunction = function(_)
-        local result = ""
-        local width = 0
-        for k,v in pairs(_) do width = width < #k and #k or width end
-        for k,v in require("hs.fnutils").sortByKeys(_) do
-            result = result..string.format("%-"..tostring(width).."s ", k)
-            if type(v) == "table" then
-                result = result..__tableWrapperFunction(v):gsub("[ \n]", {[" "] = "=", ["\n"] = " "}).."\n"
-            else
-                result = result..tostring(v).."\n"
-            end
-        end
-        return result
-    end
-
-    return setmetatable(results, { __tostring=__tableWrapperFunction })
-end
-
-local internalFontFunctions = {
-    fontNames           = module.fontNames,
-    fontNamesWithTraits = module.fontNamesWithTraits,
-    fontInfo            = module.fontInfo,
-}
-
 -- Public interface ------------------------------------------------------
 
 -- tweak the hs.styledtext object metatable with things easier to do in lua...
@@ -246,21 +172,41 @@ end
 -- string.unpack   makes no sense in the context of styled strings
 
 -- font stuff documented in internal.m
-module.fontTraits    = _makeConstantsTable(module.fontTraits)
-module.linePatterns  = _makeConstantsTable(module.linePatterns)
-module.lineStyles    = _makeConstantsTable(module.lineStyles)
-module.lineAppliesTo = _makeConstantsTable(module.lineAppliesTo)
+module.fontTraits    = ls.makeConstantsTable(module.fontTraits)
+module.linePatterns  = ls.makeConstantsTable(module.linePatterns)
+module.lineStyles    = ls.makeConstantsTable(module.lineStyles)
+module.lineAppliesTo = ls.makeConstantsTable(module.lineAppliesTo)
 
 module.fontNames = function(...)
-    return _arrayWrapper(internalFontFunctions.fontNames(...))
+    return ls.makeConstantsTable(module._fontNames(...))
 end
 
 module.fontNamesWithTraits = function(...)
-    return _arrayWrapper(internalFontFunctions.fontNamesWithTraits(...))
+    return ls.makeConstantsTable(module._fontNamesWithTraits(...))
 end
 
 module.fontInfo = function(...)
-    return _tableWrapper(internalFontFunctions.fontInfo(...))
+    local _tableWrapper = function(results)
+        local __tableWrapperFunction
+        __tableWrapperFunction = function(_)
+            local result = ""
+            local width = 0
+            for k,v in pairs(_) do width = width < #k and #k or width end
+            for k,v in require("hs.fnutils").sortByKeys(_) do
+                result = result..string.format("%-"..tostring(width).."s ", k)
+                if type(v) == "table" then
+                    result = result..__tableWrapperFunction(v):gsub("[ \n]", {[" "] = "=", ["\n"] = " "}).."\n"
+                else
+                    result = result..tostring(v).."\n"
+                end
+            end
+            return result
+        end
+
+        return setmetatable(results, { __tostring=__tableWrapperFunction })
+    end
+
+    return _tableWrapper(module._fontInfo(...))
 end
 
 --- hs.styledtext.ansi(string, [attributes]) -> styledText object
@@ -462,7 +408,7 @@ end
 
 -- Return Module Object --------------------------------------------------
 
-return setmetatable(module, {
+module = setmetatable(module, {
     __index = function(self, _)
         if _ == "defaultFonts" then
             local results = self._defaultFonts()
@@ -484,7 +430,9 @@ return setmetatable(module, {
             })
 
         else
-            return self[_]
+            return rawget(self, _)
         end
     end
 })
+
+return module
