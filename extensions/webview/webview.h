@@ -35,6 +35,11 @@
 @property BOOL         allowNewWindows ;
 @property BOOL         examineInvalidCertificates ;
 @property WKNavigation *trackingID ;
+
+- (BOOL)navigationCallbackFor:(const char *)action forView:(WKWebView *)theView
+                                            withNavigation:(WKNavigation *)navigation
+                                                 withError:(NSError *)error ;
+
 @end
 
 @interface HSUserContentController : WKUserContentController <WKScriptMessageHandler>

@@ -95,6 +95,15 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
     }
 }
 
+- (void)windowWillClose:(__unused NSNotification *)notification {
+    HSWebViewView *view = self.contentView ;
+    if (view && view.navigationCallback != LUA_NOREF) {
+        [view navigationCallbackFor:"willClose" forView:view
+                                         withNavigation:view.trackingID
+                                              withError:nil] ;
+    }
+}
+
 - (void)cancelOperation:(id)sender {
     if (self.closeOnEscape)
         [super cancelOperation:sender] ;
@@ -1314,6 +1323,7 @@ static int webview_html(lua_State *L) {
 ///      * `didFinishNavigation`                              - the webview's main frame has completed loading.
 ///      * `didFailNavigation`                                - an error has occurred after content started arriving
 ///      * `didFailProvisionalNavigation`                     - an error has occurred as or before content has started arriving
+///      * `willClose`                                        - the window containing this webview is closing
 ///    * `webView` - the webview object the navigation is occurring for.
 ///    * `navID`   - a navigation identifier which can be used to link this event back to a specific request made by a `hs.webview:url`, `hs.webview:html`, or `hs.webview:reload` method.
 ///    * `error`   - a table which will only be provided when `action` is equal to `didFailNavigation` or `didFailProvisionalNavigation`.  If provided, it will contain at leas some of the following keys, possibly others as well:
