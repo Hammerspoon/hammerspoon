@@ -28,6 +28,9 @@ return {setup=function(...)
 --- hs.accessibilityStateCallback
 --- Variable
 --- An optional function that will be called when the Accessibility State is changed.
+---
+--- Notes:
+--- * The function will not receive any arguments when called.  To check what the accessibility state has been changed to, you should call [hs.accessibilityState](#accessibilityState) from within your function.
 hs.accessibilityStateCallback = nil
 
 --- hs.docstrings_json_file
