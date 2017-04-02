@@ -336,6 +336,7 @@ typedef struct _httpserver_t {
 ///
 /// Notes:
 ///  * By default, the server will start on a random TCP port and advertise itself with Bonjour. You can check the port with `hs.httpserver:getPort()`
+///  * By default, the server will listen on all network interfaces. You can override this with `hs.httpserver:setInterface()` before starting the server
 ///  * Currently, in HTTPS mode, the server will use a self-signed certificate, which most browsers will warn about. If you want/need to be able to use `hs.httpserver` with a certificate signed by a trusted Certificate Authority, please file an bug on Hammerspoon requesting support for this.
 static int httpserver_new(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
@@ -581,7 +582,7 @@ static int httpserver_getPort(lua_State *L) {
 
 /// hs.httpserver:setPort(port) -> object
 /// Method
-/// sets the TCP port the server is configured to listen on
+/// Sets the TCP port the server is configured to listen on
 ///
 /// Parameters:
 ///  * port - An integer containing a TCP port to listen on
@@ -591,6 +592,48 @@ static int httpserver_getPort(lua_State *L) {
 static int httpserver_setPort(lua_State *L) {
     HSHTTPServer *server = getUserData(L, 1);
     [server setPort:(UInt16)luaL_checkinteger(L, 2)];
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
+/// hs.httpserver:getInterface() -> string or nil
+/// Method
+/// Gets the network interface the server is configured to listen on
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A string containing the network interface name, or nil if the server will listen on all interfaces
+static int httpserver_getInterface(lua_State *L) {
+    HSHTTPServer *server = getUserData(L, 1);
+    lua_pushstring(L, [[server interface] UTF8String]);
+    return 1;
+}
+
+/// hs.httpserver:setInterface(interface) -> object
+/// Method
+/// Sets the network interface the server is configured to listen on
+///
+/// Parameters:
+///  * interface - A string containing an interface name
+///
+/// Returns:
+///  * The `hs.httpserver` object
+///
+/// Notes:
+///  * As well as real interface names (e.g. `en0`) the following values are valid:
+///   * An IP address of one of your interfaces
+///   * localhost
+///   * loopback
+///   * nil (which means all interfaces, and is the default)
+static int httpserver_setInterface(lua_State *L) {
+    HSHTTPServer *server = getUserData(L, 1);
+    if (lua_isnoneornil(L, 2)) {
+        [server setInterface:nil];
+    } else {
+        [server setInterface:[NSString stringWithUTF8String:luaL_checkstring(L, 2)]];
+    }
     lua_pushvalue(L, 1);
     return 1;
 }
@@ -669,6 +712,8 @@ static const luaL_Reg httpserverObjectLib[] = {
     {"stop",        httpserver_stop},
     {"getPort",     httpserver_getPort},
     {"setPort",     httpserver_setPort},
+    {"getInterface", httpserver_getInterface},
+    {"setInterface", httpserver_setInterface},
     {"getName",     httpserver_getName},
     {"setName",     httpserver_setName},
     {"setCallback", httpserver_setCallback},
