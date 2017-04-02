@@ -103,7 +103,7 @@ void AudioInputCallback(void * inUserData,  // Custom audio metadata
   status = AudioQueueNewInput(&recordState.dataFormat,
                               AudioInputCallback,
                               (__bridge void *)self,
-                              CFRunLoopGetCurrent(),
+                              NULL, // seems more responsive than CFRunLoopGetCurrent(),
                               kCFRunLoopCommonModes,
                               0,
                               &recordState.queue);

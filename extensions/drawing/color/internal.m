@@ -161,6 +161,38 @@ static id table_toNSColorHelper(lua_State *L, int idx, int level) {
                     colorName = [skin toNSObjectAtIndex:-1] ;
                 lua_pop(L, 1) ;
 
+                if (lua_getfield(L, idx, "hex") == LUA_TSTRING) {
+                    NSString *hexString = [skin toNSObjectAtIndex:-1] ;
+                    if ([hexString hasPrefix:@"#"])  hexString = [hexString substringFromIndex:1] ;
+                    if ([hexString hasPrefix:@"0x"]) hexString = [hexString substringFromIndex:2] ;
+                    BOOL isBadHex = YES ;
+                    unsigned int rHex = 0, gHex = 0, bHex = 0 ;
+                    if ([[NSScanner scannerWithString:hexString] scanHexInt:NULL]) {
+                        if ([hexString length] == 3) {
+                            [[NSScanner scannerWithString:[hexString substringWithRange:NSMakeRange(0, 1)]] scanHexInt:&rHex] ;
+                            [[NSScanner scannerWithString:[hexString substringWithRange:NSMakeRange(1, 1)]] scanHexInt:&gHex] ;
+                            [[NSScanner scannerWithString:[hexString substringWithRange:NSMakeRange(2, 1)]] scanHexInt:&bHex] ;
+                            rHex = rHex * 0x11 ;
+                            gHex = gHex * 0x11 ;
+                            bHex = bHex * 0x11 ;
+                            isBadHex = NO ;
+                        } else if ([hexString length] == 6) {
+                            [[NSScanner scannerWithString:[hexString substringWithRange:NSMakeRange(0, 2)]] scanHexInt:&rHex] ;
+                            [[NSScanner scannerWithString:[hexString substringWithRange:NSMakeRange(2, 2)]] scanHexInt:&gHex] ;
+                            [[NSScanner scannerWithString:[hexString substringWithRange:NSMakeRange(4, 2)]] scanHexInt:&bHex] ;
+                            isBadHex = NO ;
+                        }
+                    }
+                    if (isBadHex) {
+                        [skin logWarn:[NSString stringWithFormat:@"invalid hexadecimal string #%@ specified for color, ignoring", hexString]] ;
+                    } else {
+                        red   = rHex / 255.0 ;
+                        green = gHex / 255.0 ;
+                        blue  = bHex / 255.0 ;
+                    }
+                }
+                lua_pop(L, 1) ;
+
                 if (lua_getfield(L, idx, "red") == LUA_TNUMBER)
                     red = lua_tonumber(L, -1);
                 lua_pop(L, 1);
@@ -198,9 +230,7 @@ static id table_toNSColorHelper(lua_State *L, int idx, int level) {
 
                 break;
             default:
-                [skin logAtLevel:LS_LOG_ERROR
-                     withMessage:[NSString stringWithFormat:@"returning BLACK, unexpected type passed as a color: %s", lua_typename(L, lua_type(L, idx))]
-                    fromStackPos:1] ;
+                [skin logError:[NSString stringWithFormat:@"returning BLACK, unexpected type passed as a color: %s", lua_typename(L, lua_type(L, idx))]] ;
         }
 
         if (colorList && colorName && !image) {
@@ -219,9 +249,7 @@ static id table_toNSColorHelper(lua_State *L, int idx, int level) {
             if (holding) return holding ;
         }
     } else {
-        [skin logAtLevel:LS_LOG_ERROR
-             withMessage:[NSString stringWithFormat:@"returning BLACK, color list/name dereference depth > %d: loop?", COLOR_LOOP_LEVEL]
-            fromStackPos:1] ;
+        [skin logError:[NSString stringWithFormat:@"returning BLACK, color list/name dereference depth > %d: loop?", COLOR_LOOP_LEVEL]] ;
     }
 
     if (image) {
