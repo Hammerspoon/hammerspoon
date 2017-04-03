@@ -1428,7 +1428,7 @@ end
 ---
 --- Notes:
 ---  * See `hs.httpserver.setInterface` for a description of valid values that can be specified as the `interface` argument to this method.
----  * the interface can only be specified before the hsminweb web server has been started.  If you wish to change the listening interface for a running web server, you must stop it with [hs.httpserver.hsminweb:stop()](#stop) before invoking this method and then restart it with [hs.httpserver.hsminweb:start](#start).
+---  * the interface can only be specified before the hsminweb web server has been started.  If you wish to change the listening interface for a running web server, you must stop it with [hs.httpserver.hsminweb:stop](#stop) before invoking this method and then restart it with [hs.httpserver.hsminweb:start](#start).
 objectMethods.interface = function(self, ...)
     local args = table.pack(...)
     if args.n == 0 then

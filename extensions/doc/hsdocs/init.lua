@@ -372,6 +372,8 @@ end
 --- Notes:
 ---  * See `hs.httpserver.setInterface` for a description of valid values that can be specified as the `interface` argument to this function.
 ---  * A change to the interface can only occur when the documentation server is not running. If the server is currently active when you call this function with an argument, the server will be temporarily stopped and then restarted after the interface has been changed.
+---
+---  * Changes made with this function are saved with `hs.settings` with the label "_documentationServer.interface" and will persist through a reload or restart of Hammerspoon.
 module.interface = function(...)
     local args = table.pack(...)
     if args.n > 0 then
@@ -414,7 +416,7 @@ end
 --- Notes:
 ---  * The default port number is 12345.
 ---
----  * This value is stored in the Hammerspoon application defaults with the label "_documentationServer.serverPort".
+---  * Changes made with this function are saved with `hs.settings` with the label "_documentationServer.serverPort" and will persist through a reload or restart of Hammerspoon.
 module.port = function(...)
     local args = table.pack(...)
     local value = args[1]
@@ -438,8 +440,8 @@ end
 ---  * the table representing the `hs.doc.hsdocs` module
 ---
 --- Notes:
----  * This function is automatically called, if necessary, when `hs.doc.hsdocs.help` is invoked.
----  * The documentation web server can be viewed from a web browser by visiting "http://localhost:port" where `port` is the port the server is running on, 12345 by default -- see `hs.doc.hsdocs.port`.
+---  * This function is automatically called, if necessary, when [hs.doc.hsdocs.help](#help) is invoked.
+---  * The documentation web server can be viewed from a web browser by visiting "http://localhost:port" where `port` is the port the server is running on, 12345 by default -- see [hs.doc.hsdocs.port](#port).
 module.start = function()
     if module._server then
         error("documentation server already running")
@@ -530,10 +532,10 @@ end
 ---  * the current, possibly new, value
 ---
 --- Notes:
----  * If `hs.doc.hsdocs.trackBrowserFrame` is false or nil (the default), then you can use this function to specify the initial position of the documentation browser.
----  * If `hs.doc.hsdocs.trackBrowserFrame` is true, then this any value set with this function will be overwritten whenever the browser window is moved or resized.
+---  * If [hs.doc.hsdocs.trackBrowserFrame](#trackBrowserFrame) is false or nil (the default), then you can use this function to specify the initial position of the documentation browser.
+---  * If [hs.doc.hsdocs.trackBrowserFrame](#trackBrowserFrame) is true, then this any value set with this function will be overwritten whenever the browser window is moved or resized.
 ---
----  * This value is stored in the Hammerspoon application defaults with the label "_documentationServer.browserFrame".
+---  * Changes made with this function are saved with `hs.settings` with the label "_documentationServer.browserFrame" and will persist through a reload or restart of Hammerspoon.
 module.browserFrame = function(...)
     local args = table.pack(...)
     local value = args[1]
@@ -556,7 +558,7 @@ end
 ---  * the current, possibly new, value
 ---
 --- Notes:
----  * This value is stored in the Hammerspoon application defaults with the label "_documentationServer.trackBrowserFrameChanges".
+---  * Changes made with this function are saved with `hs.settings` with the label "_documentationServer.trackBrowserFrameChanges" and will persist through a reload or restart of Hammerspoon.
 module.trackBrowserFrame = function(...)
     local args = table.pack(...)
     if args.n == 1 and (type(args[1]) == "boolean" or type(args[1]) == "nil") then
@@ -582,7 +584,7 @@ end
 --- Notes:
 ---  * Inversion is applied through the use of CSS filtering, so while numeric values other than 0 (false) and 100 (true) are allowed, the result is generally not what is desired.
 ---
----  * This value is stored in the Hammerspoon application defaults with the label "_documentationServer.invertDocs".
+---  * Changes made with this function are saved with `hs.settings` with the label "_documentationServer.invertDocs" and will persist through a reload or restart of Hammerspoon.
 module.browserDarkMode = function(...)
     local args = table.pack(...)
     local value = args[1]
@@ -609,7 +611,7 @@ end
 ---
 ---  * This behavior is triggered automatically, regardless of this setting, if you are running with a version of OS X prior to 10.10, since `hs.webview` requires OS X 10.10 or later.
 ---
----  * This value is stored in the Hammerspoon application defaults with the label "_documentationServer.forceExternalBrowser".
+---  * Changes made with this function are saved with `hs.settings` with the label "_documentationServer.forceExternalBrowser" and will persist through a reload or restart of Hammerspoon.
 module.forceExternalBrowser = function(...)
     local args = table.pack(...)
     local value = args[1]
