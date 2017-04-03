@@ -222,6 +222,7 @@ def process_module(modulename, raw_module):
     dbg("Header: %s" % raw_module["header"][CHUNK_DESC])
     module = {}
     module["name"] = modulename
+    module["type"] = "Module"
     module["desc"] = raw_module["header"][CHUNK_DESC]
     module["doc"] = '\n'.join(raw_module["header"][CHUNK_DESC:])
     module["stripped_doc"] = '\n'.join(raw_module["header"][CHUNK_DESC+1:])
@@ -380,6 +381,29 @@ def write_json(filepath, data):
                                   ensure_ascii=False).encode('utf-8'))
 
 
+def write_json_index(filepath, data):
+    """Write out a JSON index of the docs"""
+    index = []
+    for item in data:
+        entry = {}
+        entry["name"] = item["name"]
+        entry["desc"] = item["desc"]
+        entry["type"] = item["type"]
+        index.append(entry)
+        for subtype in TYPE_NAMES:
+            for subitem in item[subtype]:
+                entry = {}
+                entry["name"] = subitem["name"]
+                entry["module"] = item["name"]
+                entry["desc"] = subitem["desc"]
+                entry["type"] = subitem["type"]
+                index.append(entry)
+    with open(filepath, "wb") as jsonfile:
+        jsonfile.write(json.dumps(index, sort_keys=True, indent=2,
+                                  separators=(',', ': '),
+                                  ensure_ascii=False).encode('utf-8'))
+
+
 def write_sql(filepath, data):
     """Write out an SQLite DB of docs metadata, for Dash"""
     db = sqlite3.connect(filepath)
@@ -520,6 +544,7 @@ def main():
         pass
     if arguments.json:
         write_json(arguments.output_dir + "/docs.json", results)
+        write_json_index(arguments.output_dir + "/docs_index.json", results)
     if arguments.sql:
         write_sql(arguments.output_dir + "/docs.sqlite", results)
     if arguments.html:

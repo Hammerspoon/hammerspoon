@@ -8,11 +8,18 @@
       th, td { border: 1px solid #ccc; padding: 5px 10px; text-align: left; vertical-align: top; }
     </style>
     <link rel="stylesheet" href="docs.css" type="text/css" media="screen" />
+    <script src="jquery.js"></script>
   </head>
   <body>
     <header>
       <h1>Hammerspoon.app</h1>
     </header>
+    <section>
+        <input type="text" id="search" />
+        <input type="checkbox" id="search_desc" />Search descriptions
+        <div class="searchresults">
+        </div>
+    </section>
     <section>
       <h3>Project links</h3>
         <table>
@@ -62,5 +69,93 @@
 {% endfor %}
     </table>
     </section>
-  </body
+  </body>
+<script type="text/javascript">
+  console.log("Loading search engine");
+  var sections = ["Module", "Command", "Constant", "Constructor", "Field", "Function", "Method", "Variable", "Deprecated"];
+  $(document).ready(function () {
+      'use strict';
+      var index, store;
+      $.getJSON('docs_index.json')
+          .done(function (response) {
+              console.log("docs_index.json fetched");
+              store = response;
+              // Retrigger search when the description checkbox changes state
+              $('input#search_desc').click(function () {
+                  var searchbox = $('input#search');
+                  searchbox.keyup();
+              });
+              // Handle search
+              $('input#search').on('keyup', function () {
+                  // Get query
+                  var query = $(this).val();
+                  var search_desc = $('input#search_desc').prop('checked');
+                  //console.log("Query updated: " + query);
+
+                  var results = {};
+                  results["Module"] = [];
+                  for (var i = 0; i < sections.length; i++) {
+                      var section = sections[i];
+                      results[section] = [];
+                  }
+
+                  // Clear out any previous results
+                  var resultdiv = $('div.searchresults');
+                  resultdiv.empty();
+
+                  // Search for the query
+                  for (var i = 0; i < store.length; i++) {
+                      var chunk = store[i];
+                      if (chunk["name"].includes(query) || (search_desc && chunk["desc"].includes(query))) {
+                        results[chunk["type"]].push(chunk);
+                      }
+                  }
+
+                  // Display the results
+
+                  // Check if we found any results at all
+                  var foundResults = false;
+                  for (var i = 0; i < sections.length; i++) {
+                      var section = sections[i];
+                      if (results[section].length > 0) {
+                          foundResults = true;
+                          break;
+                      }
+                  }
+                  if (foundResults == false) {
+                      resultdiv.append('No results found');
+                      return;
+                  }
+
+                  // We found some results. Display them
+                  resultdiv.append("<h2>Search results</h2>");
+                  for (var i = 0; i < sections.length; i++) {
+                      var section = sections[i];
+                      var items = results[section];
+                      if (results[section].length > 0) {
+                          resultdiv.append("<h3>" + section + "s</h3>\n");
+                          resultdiv.append('<ul class="results" id="' + section + '">');
+                          for (var j = 0; j < results[section].length; j++) {
+                              var chunk = results[section][j];
+                              if (section == chunk["type"]) {
+                                  if ("module" in chunk) {
+                                    var name = chunk["module"] + "." + chunk["name"];
+                                    var urlname = chunk["module"] + ".html#" + chunk["name"];
+                                  } else {
+                                    var name = chunk["name"];
+                                    var urlname = name + ".html";
+                                  }
+                                  resultdiv.append('  <li><a href="' + urlname + '">' + name + '</a></li>\n');
+                              }
+                          }
+                          resultdiv.append('</ul>');
+                      }
+                  }
+                  console.log("Done searching.");
+                  resultdiv.show();
+              });
+      });
+  });
+</script>
+
 </html>
