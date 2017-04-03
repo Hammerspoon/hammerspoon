@@ -82,7 +82,7 @@ OSStatus audiodevicewatcher_callback(AudioDeviceID deviceID, UInt32 numAddresses
 ///  * This watcher will call the callback when various audio device related events occur (e.g. an audio device appears/disappears, a system default audio device setting changes, etc)
 ///  * To watch for changes within an audio device, see `hs.audiodevice:newWatcher()`
 ///  * The callback function argument is a string which may be one of the following strings, but might also be a different string entirely:
-///   * dIn - Default audio input device setting changed
+///   * dIn  - Default audio input device setting changed (Note that there is a space character after `dIn`, because these values always have to be four characters long)
 ///   * dOut - Default audio output device setting changed
 ///   * sOut - Default system audio output setting changed (i.e. the device that system sound effects use. This may also be triggered by dOut, depending on the user's settings)
 ///   * dev# - An audio device appeared or disappeared
