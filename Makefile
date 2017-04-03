@@ -33,6 +33,9 @@ build/html: build/docs.json
 	mkdir -p $@
 	rm -rf $@/*
 	cp scripts/docs/templates/docs.css $@
+	cp scripts/docs/templates/jquery.js $@
+	cp build/docs.json $@
+	cp build/docs_index.json $@
 	scripts/docs/bin/build_docs.py -o build/ --html $(DOCS_SEARCH_DIRS)
 
 build/html/LuaSkin:
