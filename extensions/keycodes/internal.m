@@ -169,6 +169,18 @@ int keycodes_cachemap(lua_State* L) {
     pushkeycode(L, kVK_DownArrow, "down");
     pushkeycode(L, kVK_UpArrow, "up");
 
+    pushkeycode(L, kVK_Command, "cmd");
+    // kVK_RightCommand first appeared in 10.12
+    pushkeycode(L, /* kVK_RightCommand */ 0x36, "rcmd");
+    pushkeycode(L, kVK_Shift, "shift");
+    pushkeycode(L, kVK_CapsLock, "capslock");
+    pushkeycode(L, kVK_Option, "alt");
+    pushkeycode(L, kVK_Control, "ctrl");
+    pushkeycode(L, kVK_RightShift, "rshift");
+    pushkeycode(L, kVK_RightOption, "ralt");
+    pushkeycode(L, kVK_RightControl, "rctrl");
+    pushkeycode(L, kVK_Function, "fn");
+
     pushkeycode(L, kVK_JIS_Yen, "yen");
     pushkeycode(L, kVK_JIS_Underscore, "underscore");
     pushkeycode(L, kVK_JIS_KeypadComma, "pad,");
