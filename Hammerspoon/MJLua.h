@@ -22,3 +22,5 @@ void MJLuaSetupLogHandler(void(^blk)(NSString* str));
 NSString* MJLuaRunString(NSString* command);
 NSString* MJFindInitFile(void);
 NSArray *MJLuaCompletionsForWord(NSString *completionWord);
+
+void callAccessibilityStateCallback(void);

@@ -62,6 +62,8 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
 
+        [[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(accessibilityChanged:) name:@"com.apple.accessibility.api" object:nil];
+    
     // Remove our early event manager handler so hs.urlevent can register for it later, if the user has it configured to
     [[NSAppleEventManager sharedAppleEventManager] removeEventHandlerForEventClass:kInternetEventClass andEventID:kAEGetURL];
 
@@ -141,6 +143,12 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     // FIXME: Do we care about showing the prefs on the first run of each new version? (Ng does not care)
     if (MJFirstRunForCurrentVersion() || !MJAccessibilityIsEnabled())
         [[MJPreferencesWindowController singleton] showWindow: nil];
+}
+
+- (void) accessibilityChanged:(NSNotification*)note {
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.15 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        callAccessibilityStateCallback();
+    });
 }
 
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender {

@@ -25,6 +25,14 @@ return {setup=function(...)
 ---  * You do not need to fastidiously destroy objects you have created, this callback exists purely for utility reasons (e.g. serialising state, destroying system resources that will not be released by normal Lua garbage collection processes, etc)
   hs.shutdownCallback = nil
 
+--- hs.accessibilityStateCallback
+--- Variable
+--- An optional function that will be called when the Accessibility State is changed.
+---
+--- Notes:
+--- * The function will not receive any arguments when called.  To check what the accessibility state has been changed to, you should call [hs.accessibilityState](#accessibilityState) from within your function.
+hs.accessibilityStateCallback = nil
+
 --- hs.docstrings_json_file
 --- Constant
 --- A string containing the full path to the `docs.json` file inside Hammerspoon's app bundle. This contains the full Hammerspoon API documentation and can be accessed in the Console using `help("someAPI")`. It can also be loaded and processed by the `hs.doc` extension
