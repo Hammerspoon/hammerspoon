@@ -63,6 +63,25 @@ void MJLuaSetupLogHandler(void(^blk)(NSString* str)) {
 
 @end
 
+/// hs.uploadCrashData([state]) -> bool
+/// Function
+/// Get or set the "Upload Crash Data" preference for Hammerspoon
+///
+/// Parameters:
+///  * state - An optional boolean, true to upload crash reports, false to not
+///
+/// Returns:
+///  * True if Hammerspoon is currently (or has just been) set to upload crash data or False otherwise
+///
+/// Notes:
+///  * If at all possible, please do allow Hammerspoon to upload crash reports to us, it helps a great deal in keeping Hammerspoon stable
+///  * Our Privacy Policy can be found here: [http://www.hammerspoon.org/privacy.html](https://github.com/Hammerspoon/hammerspoon/pull/1286/files)
+static int core_uploadCrashData(lua_State* L) {
+    if (lua_isboolean(L, -1)) { HSSetUploadCrashData(lua_toboolean(L, -1)); }
+    lua_pushboolean(L, HSUploadCrashData()) ;
+    return 1;
+}
+
 /// hs.autoLaunch([state]) -> bool
 /// Function
 /// Set or display the "Launch on Login" status for Hammerspoon.
@@ -436,6 +455,7 @@ static luaL_Reg corelib[] = {
     {"focus", core_focus},
     {"accessibilityState", core_accessibilityState},
     {"getObjectMetatable", core_getObjectMetatable},
+    {"uploadCrashData", core_uploadCrashData},
     {"cleanUTF8forConsole", core_cleanUTF8},
     {"_exit", core_exit},
     {"_logmessage", core_logmessage},
@@ -532,6 +552,20 @@ void MJLuaInit(void) {
     }
 }
 
+// Accessibility State Callback:
+void callAccessibilityStateCallback(void) {
+    
+    lua_State* L = MJLuaState.L;
+    
+    lua_getglobal(L, "hs");
+    lua_getfield(L, -1, "accessibilityStateCallback");
+    
+    if (lua_type(L, -1) == LUA_TFUNCTION) {
+        [MJLuaState protectedCallAndTraceback:0 nresults:0];
+    }
+    
+}
+
 static int callShutdownCallback(lua_State *L) {
     lua_getglobal(L, "hs");
     lua_getfield(L, -1, "shutdownCallback");
@@ -548,6 +582,7 @@ void MJLuaDeinit(void) {
     LuaSkin *skin = MJLuaState;
 
     callShutdownCallback(skin.L);
+    
     if (MJLuaLogDelegate) {
         [MJLuaState setDelegate:nil] ;
         MJLuaLogDelegate = nil ;
