@@ -18,15 +18,10 @@
 --- `require("hs.doc.hsdocs").start()` and then visiting `http://localhost:12345/` with your web browser.
 
 --   [ ] Wiki docs
---   [ ] Add browser with hs.webview to hsdocs
 --   [ ] Add way to render template (and cgi?) to file
 --
 --   [ ] document headers._ support table for error functions
 --   [ ] document _allowRenderTranslations, _logBadTranslations, and _logPageErrorTranslations
---
--- Review to determine if basic support is sufficiently "correct"
---   [ ] additional response headers?
---   [ ] Additional errors to add?
 --
 -- May see how hard these would be... maybe only for Hammerspoon/Lua Template pages
 --   [ ] basic/digest auth via lua only?
@@ -1421,6 +1416,37 @@ objectMethods.accessList = function(self, ...)
     end
 end
 
+--- hs.httpserver.hsminweb:interface([interface]) -> hsminwebTable | current-value
+--- Method
+--- Get or set the network interface that the hsminweb web server will listen on
+---
+--- Paramaters:
+---  * interface - an optional string, or nil, specifying the network interface the web server will listen on.  An explicit nil specifies that the web server should listen on all active interfaces for the machine.  Defaults to nil.
+---
+--- Returns:
+---  * the hsminwebTable object if a parameter is provided, or the current value if no parameter is specified.
+---
+--- Notes:
+---  * See `hs.httpserver.setInterface` for a description of valid values that can be specified as the `interface` argument to this method.
+---  * the interface can only be specified before the hsminweb web server has been started.  If you wish to change the listening interface for a running web server, you must stop it with [hs.httpserver.hsminweb:stop](#stop) before invoking this method and then restart it with [hs.httpserver.hsminweb:start](#start).
+objectMethods.interface = function(self, ...)
+    local args = table.pack(...)
+    if args.n == 0 then
+        return self._interface
+    else
+        if not self._server then
+            if args[1] == nil or type(args[1]) == "string" then
+                self._interface = args[1]
+            else
+                error("interface must be nil or a string", 2)
+            end
+        else
+            error("cannot set the interface on a running hsminweb web server", 2)
+        end
+        return self
+    end
+end
+
 --- hs.httpserver.hsminweb:start() -> hsminwebTable
 --- Method
 --- Start serving pages for the hsminweb web server.
@@ -1441,6 +1467,7 @@ objectMethods.start = function(self)
         if self._port                 then self._server:setPort(self._port) end
         if self._name                 then self._server:setName(self._name) end
         if self._maxBodySize          then self._server:maxBodySize(self._maxBodySize) end
+        if self._interface            then self._server:setInterface(self._interface) end
         if mt_table.__passwords[self] then self._server:setPassword(mt_table.__passwords[self]) end
 
         self._server:start()
