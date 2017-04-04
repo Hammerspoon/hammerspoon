@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dictionary SYSTEM "file://localhost/System/Library/DTDs/sdef.dtd">
+
+<dictionary title="Hammerspoon">
+
+	<suite name="Standard Suite" code="????" description="Common classes and commands for all applications.">
+
+		<command name="quit" code="aevtquit" description="Quit the application.">
+			<cocoa class="NSQuitCommand"/>
+		</command>
+
+		<class name="application" code="capp" description="The application's top-level scripting object.">
+			<cocoa class="NSApplication"/>
+			<property name="name" code="pnam" type="text" access="r" description="The name of the application."/>
+			<property name="frontmost" code="pisf" type="boolean" access="r" description="Is this the active application?">
+				<cocoa key="isActive"/>
+			</property>
+			<property name="version" code="vers" type="text" access="r" description="The version number of the application."/>
+			<responds-to command="quit">
+				<cocoa method="handleQuitScriptCommand:"/>
+			</responds-to>
+		</class>
+
+	</suite>
+
+	<suite name="Hammerspoon Suite" code="Hammerspoon" description="Hammerspoon-specific classes.">
+		<class name="application" code="capp" description="Hammerspoon’s top level scripting object." plural="applications" inherits="application">
+    		<cocoa class="NLApplication"/>
+    	</class>
+	</suite>
+
+</dictionary>
