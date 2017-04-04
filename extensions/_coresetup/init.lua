@@ -193,7 +193,7 @@ hs.accessibilityStateCallback = nil
 ---
 --- Parameters:
 ---  * name - The name of a Spoon (without the trailing `.spoon`)
----  * global - An optional boolean. If true, this function will insert the spoon into Lua's global namespace as `name`. Defaults to false.
+---  * global - An optional boolean. If true, this function will insert the spoon into Lua's global namespace as `name`. Defaults to true.
 ---
 --- Returns:
 ---  * The object provided by the Spoon (which can be ignored if you chose to make the Spoon global)
@@ -214,7 +214,7 @@ hs.accessibilityStateCallback = nil
       end
 
       -- If the Spoon is desired to be global, make it so
-      if global then
+      if global ~= false then
         _G[name] = obj
       end
 
