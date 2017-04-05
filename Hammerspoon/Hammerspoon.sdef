@@ -23,10 +23,19 @@
 
 	</suite>
 
-	<suite name="Hammerspoon Suite" code="Hammerspoon" description="Hammerspoon-specific classes.">
+	<suite name="Hammerspoon Suite" code="HmSp" description="Hammerspoon-specific classes.">
+
 		<class name="application" code="capp" description="Hammerspoon’s top level scripting object." plural="applications" inherits="application">
     		<cocoa class="NLApplication"/>
     	</class>
+
+    	 <command name="execute" code="lkpstrng" description="Execute Lua Code.">
+            <cocoa class="executeAppleScript"/>
+            <direct-parameter description="The string to execute">
+                <type type="text"/>
+            </direct-parameter>
+        </command>
+
 	</suite>
 
 </dictionary>
