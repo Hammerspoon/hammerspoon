@@ -193,16 +193,16 @@ hs.accessibilityStateCallback = nil
 ---
 --- Parameters:
 ---  * name - The name of a Spoon (without the trailing `.spoon`)
----  * global - An optional boolean. If true, this function will insert the spoon into Lua's global namespace as `name`. Defaults to true.
+---  * global - An optional boolean. If true, this function will insert the spoon into Lua's global namespace as `spoon.name`. Defaults to true.
 ---
 --- Returns:
 ---  * The object provided by the Spoon (which can be ignored if you chose to make the Spoon global)
 ---
 --- Notes:
----  * Spoons are a way of distributing self-contained units of Lua functionality, for Hammerspoon. See http://FIXME for more information
+---  * Spoons are a way of distributing self-contained units of Lua functionality, for Hammerspoon. For more information, see https://github.com/Hammerspoon/hammerspoon/blob/master/SPOON.md
 ---  * This function will load the Spoon and call its `:init()` method if it has one. If you do not wish this to happen, or wish to use a Spoon that somehow doesn't fit with the behaviours of this function, you can also simply `require('name')` to load the Spoon
 ---  * If the Spoon provides documentation, it will be loaded by made available in hs.docs
----  * To learn how to distribute your own code as a Spoon, see http://FIXME
+---  * To learn how to distribute your own code as a Spoon, see https://github.com/Hammerspoon/hammerspoon/blob/master/SPOON.md
   hs.loadSpoon = function (name, global)
     -- Load the Spoon code
     local obj = require(name)
@@ -215,7 +215,10 @@ hs.accessibilityStateCallback = nil
 
       -- If the Spoon is desired to be global, make it so
       if global ~= false then
-        _G[name] = obj
+        if _G["spoon"] == nil then
+          _G["spoon"] = {}
+        end
+        _G["spoon"][name] = obj
       end
 
       -- If the Spoon has docs, load them
