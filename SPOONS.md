@@ -36,7 +36,7 @@ In most cases, the API should take roughly this form:
  * `NAME:init()` - this is called automatically by `hs.loadSpoon()` and will do any initial setup work required, but should generally not start taking any actions
  * `NAME:start()` - if any kind of background work is necessary, this method will start it
  * `NAME:stop()` - if any kind of background work is running, this method will stop it
- * `NAME:bindHotkeys(mapping)` - this method is used to tell the Spoon how to bind hotkeys for its various functions. It should accept a single argument, a table in the form:
+ * `NAME:bindHotkeys(mapping)` - this method is used to tell the Spoon how to bind hotkeys for its various functions. Depending on the Spoon, these hotkeys may be bound immediately, or when `:start()` is called. This method should accept a single argument, a table in the form:
 
 ```lua
   { someFeature: {{"cmd", "alt"}, "f"},
