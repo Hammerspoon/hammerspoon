@@ -263,11 +263,11 @@ static int automaticallyChecksForUpdates(lua_State *L) {
             lua_pushboolean(L, (BOOL)[sharedUpdater performSelector:@selector(automaticallyChecksForUpdates)]) ;
 #pragma clang diagnostic pop
         } else {
-            [skin logWarn:@"Sparkle Update framework not available for the running instance of Hammerspoon."] ;
+            //[skin logWarn:@"Sparkle Update framework not available for the running instance of CommandPost."] ;
             lua_pushboolean(L, NO) ;
         }
     } else {
-        [skin logWarn:@"Sparkle Update framework not available for the running instance of Hammerspoon."] ;
+        //[skin logWarn:@"Sparkle Update framework not available for the running instance of CommandPost."] ;
         lua_pushboolean(L, NO) ;
     }
     return 1 ;
@@ -304,10 +304,10 @@ static int checkForUpdates(lua_State *L) {
             [sharedUpdater performSelector:checkMethod withObject:nil] ;
 #pragma clang diagnostic pop
         } else {
-            [skin logWarn:@"Sparkle Update framework not available for the running instance of Hammerspoon."] ;
+            [skin logWarn:@"Sparkle Update framework not available for the running instance of CommandPost."] ;
         }
     } else {
-        [skin logWarn:@"Sparkle Update framework not available for the running instance of Hammerspoon."] ;
+        [skin logWarn:@"Sparkle Update framework not available for the running instance of CommandPost."] ;
     }
     return 0 ;
 }
@@ -520,8 +520,8 @@ void MJLuaInit(void) {
         HSNSLOG(@"Unable to load setup.lua from bundle. Terminating");
         NSAlert *alert = [[NSAlert alloc] init];
         [alert addButtonWithTitle:@"OK"];
-        [alert setMessageText:@"Hammerspoon installation is corrupted"];
-        [alert setInformativeText:@"Please re-install Hammerspoon"];
+        [alert setMessageText:@"CommandPost installation is corrupted"];
+        [alert setInformativeText:@"Please re-install CommandPost"];
         [alert setAlertStyle:NSCriticalAlertStyle];
         [alert runModal];
         [[NSApplication sharedApplication] terminate: nil];
@@ -540,7 +540,7 @@ void MJLuaInit(void) {
         HSNSLOG(@"Error running setup.lua:%@", errorMessage);
         NSAlert *alert = [[NSAlert alloc] init];
         [alert addButtonWithTitle:@"OK"];
-        [alert setMessageText:@"Hammerspoon initialization failed"];
+        [alert setMessageText:@"CommandPost initialization failed"];
         [alert setInformativeText:errorMessage];
         [alert setAlertStyle:NSCriticalAlertStyle];
         [alert runModal];
