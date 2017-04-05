@@ -16,6 +16,11 @@ return {setup=function(...)
 --- A string containing Hammerspoon's configuration directory. Typically `~/.hammerspoon/`
   hs.configdir = configdir
 
+--- hs.hasinitfile
+--- Constant
+--- A boolean that returns true if loading local file or false
+  hs.hasinitfile = hasinitfile
+
 --- hs.shutdownCallback
 --- Variable
 --- An optional function that will be called when the Lua environment is being destroyed (either because Hammerspoon is exiting or reloading its config)
@@ -54,18 +59,54 @@ hs.accessibilityStateCallback = nil
 ---  * You can override this function if you wish to route errors differently (e.g. for remote systems)
 
   function hs.showError(err)
-    hs._notify("Hammerspoon error") -- undecided on this line
-    --  print(debug.traceback())
-    print("*** ERROR: "..err)
-    hs.focus()
-    hs.openConsole()
-    hs._TERMINATED=true
+
+	local config = require("cp.config")
+	local debugMode = config.get("debugMode")
+
+	if debugMode then
+
+	    hs._notify("CommandPost Error")
+    	-- print(debug.traceback())
+    	print("*** ERROR: "..err)
+    	hs.focus()
+    	hs.openConsole()
+    	hs._TERMINATED=true
+
+	else
+		print("*** ERROR: "..err)
+
+		if not i18n then
+			i18n = require("i18n")
+			i18n.loadFile(hs.processInfo["resourcePath"] .. "/extensions/" .. "/cp/resources/languages/en.lua")
+		end
+
+		local osascript	= require("hs.osascript")
+		local appleScript = [[
+			set whatError to "]] .. tostring(err) .. [["
+			set iconPath to ("]] .. hs.processInfo["resourcePath"] .. "/extensions/cp/resources/assets/CommandPost.icns" .. [[" as POSIX file)
+
+			display dialog "]] .. i18n("unexpectedError") .. [[" buttons {"]] .. i18n("sendBugReport") .. [[", "]] .. i18n("quit") .. " " .. i18n("scriptName") .. [["} with icon iconPath
+			if the button returned of the result is equal to "]] .. i18n("sendBugReport") .. [[" then
+				return true
+			else
+				return false
+			end if
+		]]
+		local _, result = osascript.applescript(appleScript)
+
+		if result then
+			local feedback = require("cp.feedback")
+			feedback.showFeedback(true)
+		else
+			hs.application.applicationForPID(hs.processInfo["processID"]):kill()
+		end
+	end
+
   end
 
   function hs.assert(pred,desc,data)
     if not pred then error([[
-  Internal error: please open an issue at
-  https://github.com/Hammerspoon/hammerspoon/issues/new   and paste the following stack trace:
+  Internal Error. Please open an issue (https://github.com/CommandPost/CommandPost/issues/new) and paste the following stack trace:
 
   Assertion failed: ]]..desc..'\n'..(data and hs.inspect(data) or ''),2)
     end
@@ -85,7 +126,7 @@ hs.accessibilityStateCallback = nil
 ---  * If the console is not currently open, it will be opened. If it is open and not the focused window, it will be brought forward and focused.
 ---  * If the console is focused, it will be closed.
   function hs.toggleConsole()
-    local console = hs.appfinder.windowFromWindowTitle("Hammerspoon Console")
+    local console = hs.appfinder.windowFromWindowTitle("CommandPost Console")
     if console and (console ~= hs.window.focusedWindow()) then
       console:focus()
     elseif console then
@@ -253,7 +294,7 @@ hs.accessibilityStateCallback = nil
 
   --setup lazy loading
   if autoload_extensions then
-    print("-- Lazy extension loading enabled")
+    --print("-- Lazy extension loading enabled")
     hs._extensions = {}
 
     -- Discover extensions in our .app bundle
@@ -441,12 +482,14 @@ hs.accessibilityStateCallback = nil
     return hs.fnutils.map(completions, function(item) return mod..mapJoiner..item..mapEnder end)
   end
 
+--[[
   if not hasinitfile then
     hs.notify.register("__noinitfile", function() os.execute("open http://www.hammerspoon.org/go/") end)
     hs.notify.show("Hammerspoon", "No config file found", "Click here for the Getting Started Guide", "__noinitfile")
     hs.printf("-- Can't find %s; create it and reload your config.", prettypath)
     return hs.completionsForInputString, runstring
   end
+--]]
 
   local hscrash = require("hs.crash")
   rawrequire = require
@@ -479,14 +522,64 @@ hs.accessibilityStateCallback = nil
   end
   hscrash.crashLog("Loaded from: "..modpath)
 
-  print("-- Loading " .. prettypath)
-  local fn, err = loadfile(fullpath)
-  if not fn then hs.showError(err) return hs.completionsForInputString, runstring end
+  --------------------------------------------------------------------------------
+  -- USED FOR TESTING:
+  --------------------------------------------------------------------------------
+  --[[
+  local function printBasic(value)
+    local console = require("hs.console")
+    console.printStyledtext(value)
+  end
+  printBasic("")
+  printBasic("")
+  printBasic("CORE SETUP VARIABLES:")
+  printBasic("")
+  printBasic("modpath:             " .. tostring(modpath))
+  printBasic("prettypath:          " .. tostring(prettypath))
+  printBasic("fullpath:            " .. tostring(fullpath))
+  printBasic("configdir:           " .. tostring(configdir))
+  printBasic("docstringspath:      " .. tostring(docstringspath))
+  printBasic("hasinitfile:         " .. tostring(hasinitfile))
+  printBasic("autoload_extensions: " .. tostring(autoload_extensions))
+  printBasic("")
+  printBasic("-- package.path:")
+  for part in string.gmatch(package.path, "([^;]+)") do
+    printBasic("                     "..part)
+  end
+  printBasic("")
+  printBasic("-- package.cpath:")
+  for part in string.gmatch(package.cpath, "([^;]+)") do
+    printBasic("                     "..part)
+  end
+  printBasic("")
+  --]]
+  --------------------------------------------------------------------------------
 
-  local ok, err = xpcall(fn, debug.traceback)
-  if not ok then hs.showError(err) return hs.completionsForInputString, runstring end
+  local customPath = require("hs.fs").pathToAbsolute(configdir .. "/cp/init.lua")
+  if customPath then
+	  print("-- Loading " .. customPath)
+	  local fn, err = loadfile(customPath)
+	  if not fn then hs.showError(err) return hs.completionsForInputString, runstring end
 
-  print "-- Done."
+	  local ok, err = xpcall(fn, debug.traceback)
+	  if not ok then hs.showError(err) return hs.completionsForInputString, runstring end
+
+	  print "-- Done."
+
+	  return hs.completionsForInputString, runstring
+  else
+      local bundleCommandPostPath = modpath .. "/cp/init.lua"
+  	  print("-- Loading " .. bundleCommandPostPath)
+	  local fn, err = loadfile(bundleCommandPostPath)
+	  if not fn then hs.showError(err) return hs.completionsForInputString, runstring end
+
+	  local ok, err = xpcall(fn, debug.traceback)
+	  if not ok then hs.showError(err) return hs.completionsForInputString, runstring end
+
+	  print "-- Done."
+
+	  return hs.completionsForInputString, runstring
+  end
 
   return hs.completionsForInputString, runstring
 end}
