@@ -27,13 +27,12 @@
     
     if (HSAppleScriptEnabled()) {
         // Execute Lua Code:
-        MJLuaRunString(stringToExecute);
-        return @"Executed Successfully";
+        return MJLuaRunString(stringToExecute); // TODO: Work out how to actually return results back to AppleScript.
     } else {
         // Raise error:
         [self setScriptErrorNumber:-50];
         [self setScriptErrorString:@"Hammerspoon's AppleScript support is currently disabled. Please enable it in Hammerspoon by using the hs.appleScript(true) command."];
-        return @"Execution Failed";
+        return false; // TODO: Work out how to actually return results back to AppleScript.
     }
 }
 
