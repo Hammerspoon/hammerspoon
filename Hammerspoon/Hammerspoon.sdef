@@ -32,7 +32,7 @@
             </property>
     	</class>
 
-    	 <command name="execute" code="lkpstrng" description="Execute Lua Code.">
+    	 <command name="executeLua" code="lkpstrng" description="Execute Lua Code.">
             <cocoa class="executeLua"/>
             <direct-parameter description="The string to execute">
                 <type type="text"/>
