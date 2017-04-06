@@ -129,7 +129,7 @@ static int core_menuicon(lua_State* L) {
 ///
 ///    ````tell application "Hammerspoon"
 ///         display dialog "Hammerspoon version is " & version
-///         execute "print [[Hammerspoon will close in 5 seconds]]"
+///         executeLua "print [[Hammerspoon will close in 5 seconds]]"
 ///         delay 5
 ///         quit
 ///     end tell````

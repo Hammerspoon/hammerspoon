@@ -1,5 +1,5 @@
 //
-//  executeAppleScript.h
+//  HSAppleScript.h
 //  Hammerspoon
 //
 //  Created by Chris Hocking on 5/4/17.
@@ -12,6 +12,6 @@ void HSAppleScriptSetup(void);
 BOOL HSAppleScriptEnabled(void);
 void HSAppleScriptSetEnabled(BOOL enabled);
 
-@interface executeAppleScript : NSScriptCommand
+@interface executeLua : NSScriptCommand
 
 @end

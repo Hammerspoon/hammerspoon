@@ -27,10 +27,13 @@
 
 		<class name="application" code="capp" description="Hammerspoon’s top level scripting object." plural="applications" inherits="application">
     		<cocoa class="NLApplication"/>
+            <property name="dockIcon" code="HsDi" type="boolean" access="r" description="True or False indicating whether or not the Hammerspoon dock icon should be visible.">
+                <cocoa key="MJShowDockIconKey"/>
+            </property>
     	</class>
 
     	 <command name="execute" code="lkpstrng" description="Execute Lua Code.">
-            <cocoa class="executeAppleScript"/>
+            <cocoa class="executeLua"/>
             <direct-parameter description="The string to execute">
                 <type type="text"/>
             </direct-parameter>

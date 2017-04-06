@@ -1,5 +1,5 @@
 //
-//  executeAppleScript.m
+//  HSAppleScript.m
 //  Hammerspoon
 //
 //  Created by Chris Hocking on 5/4/17.
@@ -10,7 +10,7 @@
 #import "MJLua.h"
 #import "variables.h"
 
-@implementation executeAppleScript
+@implementation executeLua
 
 -(id)performDefaultImplementation {
     
