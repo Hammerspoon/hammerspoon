@@ -158,6 +158,32 @@ static int application_pathForBundleID(lua_State* L) {
     return 1;
 }
 
+/// hs.application.infoForBundleID(bundleID) -> table or nil
+/// Function
+/// Gets the metadata of an application from its bundle identifier
+///
+/// Parameters:
+///  * bundleID - A string containing an application bundle identifier (e.g. "com.apple.Safari")
+///
+/// Returns:
+///  * A table containing information about the application, or nil if the bundle identifier could not be located
+static int application_infoForBundleID(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TBREAK];
+
+    NSWorkspace *ws = [NSWorkspace sharedWorkspace];
+    NSString *appPath = [ws absolutePathForAppBundleWithIdentifier:[skin toNSObjectAtIndex:1]];
+    NSBundle *app = [NSBundle bundleWithPath:appPath];
+
+    if (app) {
+        [skin pushNSObject:app.infoDictionary];
+    } else {
+        lua_pushnil(L);
+    }
+
+    return 1;
+}
+
 /// hs.application:allWindows() -> list of hs.window objects
 /// Method
 /// Returns all open windows owned by the given app.
@@ -1082,6 +1108,7 @@ static const luaL_Reg applicationlib[] = {
     {"applicationsForBundleID", application_applicationsForBundleID},
     {"nameForBundleID", application_nameForBundleID},
     {"pathForBundleID", application_pathForBundleID},
+    {"infoForBundleID", application_infoForBundleID},
 
     {"allWindows", application_allWindows},
     {"mainWindow", application_mainWindow},
