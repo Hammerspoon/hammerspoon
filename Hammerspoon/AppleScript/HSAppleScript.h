@@ -8,6 +8,10 @@
 
 #import <Foundation/Foundation.h>
 
+void HSAppleScriptSetup(void);
+BOOL HSAppleScriptEnabled(void);
+void HSAppleScriptSetEnabled(BOOL enabled);
+
 @interface executeAppleScript : NSScriptCommand
 
 @end

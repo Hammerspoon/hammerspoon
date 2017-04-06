@@ -274,7 +274,7 @@
 		D6F310F01BDF113900045CCD /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = D6F310D11BDF0E0000045CCD /* internal.m */; };
 		D6FD568A1C0422B400BAE238 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		D6FD56901C0422DE00BAE238 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = D6FD56821C04228800BAE238 /* internal.m */; };
-		E2A344091E946A4500F6F0A9 /* executeAppleScript.m in Sources */ = {isa = PBXBuildFile; fileRef = E2A344081E946A4500F6F0A9 /* executeAppleScript.m */; };
+		E2A344091E946A4500F6F0A9 /* HSAppleScript.m in Sources */ = {isa = PBXBuildFile; fileRef = E2A344081E946A4500F6F0A9 /* HSAppleScript.m */; };
 		E2F368501E94563300BC8024 /* Hammerspoon.sdef in Resources */ = {isa = PBXBuildFile; fileRef = E2F3684F1E94563300BC8024 /* Hammerspoon.sdef */; };
 /* End PBXBuildFile section */
 
@@ -1212,8 +1212,8 @@
 		D6FD56821C04228800BAE238 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/console/internal.m; sourceTree = "<group>"; };
 		D6FD568F1C0422B400BAE238 /* libconsole.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libconsole.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE2547C1592A3EDD90D9815D /* Pods-Hammerspoon.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hammerspoon.release.xcconfig"; path = "Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon.release.xcconfig"; sourceTree = "<group>"; };
-		E2A344071E9469EC00F6F0A9 /* executeAppleScript.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = executeAppleScript.h; path = AppleScript/executeAppleScript.h; sourceTree = "<group>"; };
-		E2A344081E946A4500F6F0A9 /* executeAppleScript.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = executeAppleScript.m; path = AppleScript/executeAppleScript.m; sourceTree = "<group>"; };
+		E2A344071E9469EC00F6F0A9 /* HSAppleScript.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = HSAppleScript.h; path = AppleScript/HSAppleScript.h; sourceTree = "<group>"; };
+		E2A344081E946A4500F6F0A9 /* HSAppleScript.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSAppleScript.m; path = AppleScript/HSAppleScript.m; sourceTree = "<group>"; };
 		E2F3684F1E94563300BC8024 /* Hammerspoon.sdef */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = Hammerspoon.sdef; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -2853,7 +2853,6 @@
 		9445CA1419083251002568BB /* Hammerspoon */ = {
 			isa = PBXGroup;
 			children = (
-				E2A344061E9469BD00F6F0A9 /* AppleScript */,
 				944A2D49198973A400D8DC90 /* Main */,
 				944A2D481989739B00D8DC90 /* Extras */,
 			);
@@ -2894,6 +2893,7 @@
 		945B65B0198D304F002D2E30 /* Auxiliary */ = {
 			isa = PBXGroup;
 			children = (
+				E2A344061E9469BD00F6F0A9 /* AppleScript */,
 				9422ACBB19B6163800F06A90 /* MJConfigUtils.h */,
 				9422ACBC19B6163800F06A90 /* MJConfigUtils.m */,
 				94A1E5461993AC5C003AEB26 /* MJFileUtils.h */,
@@ -3105,8 +3105,8 @@
 		E2A344061E9469BD00F6F0A9 /* AppleScript */ = {
 			isa = PBXGroup;
 			children = (
-				E2A344071E9469EC00F6F0A9 /* executeAppleScript.h */,
-				E2A344081E946A4500F6F0A9 /* executeAppleScript.m */,
+				E2A344071E9469EC00F6F0A9 /* HSAppleScript.h */,
+				E2A344081E946A4500F6F0A9 /* HSAppleScript.m */,
 			);
 			name = AppleScript;
 			sourceTree = "<group>";
@@ -5869,7 +5869,7 @@
 				949B520319A5576E00ED4F02 /* MJDockIcon.m in Sources */,
 				945B65AC198D2DDB002D2E30 /* MJLua.m in Sources */,
 				D077B5BF1A001B5300369B30 /* variables.m in Sources */,
-				E2A344091E946A4500F6F0A9 /* executeAppleScript.m in Sources */,
+				E2A344091E946A4500F6F0A9 /* HSAppleScript.m in Sources */,
 				942E71AA19B11176001BA156 /* MJAccessibilityUtils.m in Sources */,
 				949B520619A55BF400ED4F02 /* MJMenuIcon.m in Sources */,
 				943BF0F219A4B43E0017F79D /* MJUserNotificationManager.m in Sources */,

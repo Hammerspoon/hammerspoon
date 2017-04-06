@@ -9,6 +9,7 @@
 #import "MJPreferencesWindowController.h"
 #import "MJConsoleWindowController.h"
 #import "MJAutoLaunch.h"
+#import "HSAppleScript.h"
 #import <Crashlytics/Crashlytics.h>
 
 static LuaSkin* MJLuaState;
@@ -112,6 +113,31 @@ static int core_menuicon(lua_State* L) {
     return 1;
 }
 
+/// hs.appleScript([state]) -> bool
+/// Function
+/// Set or display whether or not Hammerspoon's AppleScript interface is enabled.
+///
+/// Parameters:
+///  * state - an optional boolean which will set whether or not Hammerspoon's AppleScript interface is enabled.
+///
+/// Returns:
+///  * True if Hammerspoon's AppleScript interface is (or has just been) enabled or False if it is not.
+///
+/// Notes:
+///  * Due to the way AppleScript support works, Hammerspoon will always accept AppleScript commands that are part of the "Standard Suite", such as `name, `quit`, `version`, etc. However, Hammerspoon will only permit commands from the "Hammerspoon Suite" if `hs.appleScript()` is set to `true` - otherwise an error will be returned.
+///  * Here's an example AppleScript that can be used in Apple's Script Editor to control Hammerspoon:
+///
+///    ````tell application "Hammerspoon"
+///         display dialog "Hammerspoon version is " & version
+///         execute "print [[Hammerspoon will close in 5 seconds]]"
+///         delay 5
+///         quit
+///     end tell````
+static int core_appleScript(lua_State* L) {
+    if (lua_isboolean(L, -1)) { HSAppleScriptSetEnabled(lua_toboolean(L, -1)); }
+    lua_pushboolean(L, HSAppleScriptEnabled()) ;
+    return 1;
+}
 
 // hs.dockIcon -- for historical reasons, this is actually handled by the hs.dockicon module, but a wrapper
 // in the lua portion of this (setup.lua) provides an interface to this module which follows the syntax
@@ -445,6 +471,7 @@ static luaL_Reg corelib[] = {
     {"consoleOnTop", core_consoleontop},
     {"openAbout", core_openabout},
     {"menuIcon", core_menuicon},
+    {"appleScript", core_appleScript},
     {"openPreferences", core_openpreferences},
     {"autoLaunch", core_autolaunch},
     {"automaticallyCheckForUpdates", automaticallyChecksForUpdates},
