@@ -9,7 +9,22 @@
 #import "HSAppleScript.h"
 #import "MJLua.h"
 #import "variables.h"
+#import "MJConsoleWindowController.h"
 
+//
+// Enable & Disable AppleScript Support:
+//
+BOOL HSAppleScriptEnabled(void) {
+    return [[NSUserDefaults standardUserDefaults] boolForKey:HSAppleScriptEnabledKey];
+}
+void HSAppleScriptSetEnabled(BOOL enabled) {
+    [[NSUserDefaults standardUserDefaults] setBool:enabled
+                                            forKey:HSAppleScriptEnabledKey];
+}
+
+//
+// Execute Lua Code:
+//
 @implementation executeLua
 
 -(id)performDefaultImplementation {
@@ -20,47 +35,53 @@
     if(args.count) {
         stringToExecute = [args valueForKey:@""];    // Get the direct argument
     } else {
-        // Raise error:
+        // Raise Error:
         [self setScriptErrorNumber:-50];
         [self setScriptErrorString:@"A Parameter is expected for the verb 'execute'. You need to tell Hammerspoon what Lua code you want to execute."];
+        return @"Error";
     }
     
     if (HSAppleScriptEnabled()) {
         // Execute Lua Code:
-        return MJLuaRunString(stringToExecute); // TODO: Work out how to actually return results back to AppleScript.
+        return MJLuaRunString(stringToExecute);
     } else {
-        // Raise error:
+        // Raise Error:
         [self setScriptErrorNumber:-50];
         [self setScriptErrorString:@"Hammerspoon's AppleScript support is currently disabled. Please enable it in Hammerspoon by using the hs.appleScript(true) command."];
-        return false; // TODO: Work out how to actually return results back to AppleScript.
+        return @"Error";
     }
 }
 
 @end
 
-static void reflect_defaults(void);
 
-void HSAppleScriptSetup(void) {
-    reflect_defaults();
+//
+// Open Hammerspoon Console:
+//
+@implementation openHammerspoonConsole
+-(id)performDefaultImplementation {
+    
+    NSDictionary * theArguments = [self evaluatedArguments];
+    
+    if (HSAppleScriptEnabled()) {
+        if ([theArguments objectForKey:@"openHammerspoonConsoleBringToFront"]) {
+            if ([[theArguments objectForKey:@"openHammerspoonConsoleBringToFront"]  isEqual: @YES]) {
+                [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
+                [[MJConsoleWindowController singleton] showWindow: nil];
+            }
+            else {
+                [[MJConsoleWindowController singleton] showWindow: nil];
+            }
+        } else {
+            [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
+            [[MJConsoleWindowController singleton] showWindow: nil];
+        }
+    }
+    else {
+        // Raise Error:
+        [self setScriptErrorNumber:-50];
+        [self setScriptErrorString:@"Hammerspoon's AppleScript support is currently disabled. Please enable it in Hammerspoon by using the hs.appleScript(true) command."];
+    }
+    return @"Done";
 }
-
-BOOL HSAppleScriptEnabled(void) {
-    return [[NSUserDefaults standardUserDefaults] boolForKey:HSAppleScriptEnabledKey];
-}
-
-void HSAppleScriptSetEnabled(BOOL visible) {
-    [[NSUserDefaults standardUserDefaults] setBool:visible
-                                            forKey:HSAppleScriptEnabledKey];
-    reflect_defaults();
-}
-
-static void reflect_defaults(void) {
-    NSApplication* app = [NSApplication sharedApplication]; // NSApp is typed to 'id'; lame
-    NSDisableScreenUpdates();
-    [app setActivationPolicy: HSAppleScriptEnabled() ? NSApplicationActivationPolicyRegular : NSApplicationActivationPolicyAccessory];
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [app unhide: nil];
-        [app activateIgnoringOtherApps:YES];
-        NSEnableScreenUpdates();
-    });
-}
+@end

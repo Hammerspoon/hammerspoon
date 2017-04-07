@@ -128,8 +128,11 @@ static int core_menuicon(lua_State* L) {
 ///  * Here's an example AppleScript that can be used in Apple's Script Editor to control Hammerspoon:
 ///
 ///    ````tell application "Hammerspoon"
+///         open console with bring to front
 ///         display dialog "Hammerspoon version is " & version
-///         executeLua "print [[Hammerspoon will close in 5 seconds]]"
+///         set result to (execute lua code "1+1")
+///         display dialog "According to Lua 1 + 1 is " & result
+///         execute lua code "require([[hs.logger]]).new([[AS]]).wf([[Hammerspoon will close in 5 seconds]])"
 ///         delay 5
 ///         quit
 ///     end tell````

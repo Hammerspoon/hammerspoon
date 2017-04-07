@@ -8,10 +8,24 @@
 
 #import <Foundation/Foundation.h>
 
-void HSAppleScriptSetup(void);
+//
+// Enable & Disable AppleScript Support:
+//
 BOOL HSAppleScriptEnabled(void);
 void HSAppleScriptSetEnabled(BOOL enabled);
 
-@interface executeLua : NSScriptCommand
+//
+// Execute Lua Code:
+//
+@interface executeLua : NSScriptCommand {
+}
+- (id)performDefaultImplementation;
+@end
 
+//
+// Open Hammerspoon Console:
+//
+@interface openHammerspoonConsole : NSScriptCommand {
+}
+- (id)performDefaultImplementation;
 @end
