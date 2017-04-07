@@ -2,8 +2,13 @@ local modpath, prettypath, fullpath, configdir, docstringspath, hasinitfile, aut
 
 print("-- Augmenting require paths")
 
+-- CommandPost Paths:
 package.path=configdir.."/?.lua"..";"..configdir.."/?/init.lua"..";"..modpath.."/?.lua"..";"..modpath.."/?/init.lua"
 package.cpath=configdir.."/?.so"..";"..modpath.."/?.so"
+
+-- Original Hammerspoon Paths:
+-- package.path=configdir.."/?.lua"..";"..configdir.."/?/init.lua"..";"..configdir.."/Spoons/?.spoon/init.lua"..";"..package.path..";"..modpath.."/?.lua"..";"..modpath.."/?/init.lua"
+-- package.cpath=configdir.."/?.so"..";"..package.cpath..";"..modpath.."/?.so"
 
 print("-- package.path:")
 for part in string.gmatch(package.path, "([^;]+)") do
