@@ -21,7 +21,7 @@
 @property HSWebViewWindow *parent ;
 @property NSMutableArray  *children ;
 @property int             udRef ;
-@property int             hsDrawingUDRef ;
+@property int             windowCallback ;
 @property BOOL            allowKeyboardEntry ;
 @property BOOL            titleFollow ;
 @property BOOL            deleteOnClose ;
@@ -35,11 +35,6 @@
 @property BOOL         allowNewWindows ;
 @property BOOL         examineInvalidCertificates ;
 @property WKNavigation *trackingID ;
-
-- (BOOL)navigationCallbackFor:(const char *)action forView:(WKWebView *)theView
-                                            withNavigation:(WKNavigation *)navigation
-                                                 withError:(NSError *)error ;
-
 @end
 
 @interface HSUserContentController : WKUserContentController <WKScriptMessageHandler>
