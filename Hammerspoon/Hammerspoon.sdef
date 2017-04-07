@@ -29,10 +29,13 @@
         
         <!-- APPLICATION -->
 		<class name="application" code="capp" description="Hammerspoon’s top level scripting object." plural="applications" inherits="application">
-    		<cocoa class="NLApplication"/>
-            <property name="dockIcon" code="HsDi" type="boolean" access="r" description="True or False indicating whether or not the Hammerspoon dock icon should be visible.">
-                <cocoa key="dockIconValue"/>
+    		<cocoa class="NSApplication"/>
+            
+            <!-- DOCK ICON VISIBLE -->
+            <property name="dock icon visible" code="HsDi" type="boolean" access="r" description="True or False indicating whether or not the Hammerspoon dock icon is visible.">
+                <cocoa key="dockIconVisible"/>
             </property>
+            
     	</class>
 
         <!-- EXECUTE LUA CODE -->
@@ -51,6 +54,11 @@
                 description="Do you want the console to be focused as well as opened?">
                 <cocoa key="openHammerspoonConsoleBringToFront"/>
             </parameter>
+        </command>
+        
+        <!-- OPEN HAMMERSPOON PREFERENCES -->
+        <command name="open preferences" code="HmCsPRFS" description="Opens the Hammerspoon Preferences window.">
+            <cocoa class="openHammerspoonPreferences"/>
         </command>
 
 	</suite>

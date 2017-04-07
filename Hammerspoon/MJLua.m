@@ -113,27 +113,33 @@ static int core_menuicon(lua_State* L) {
     return 1;
 }
 
-/// hs.appleScript([state]) -> bool
+/// hs.allowAppleScript([state]) -> bool
 /// Function
-/// Set or display whether or not Hammerspoon's AppleScript interface is enabled.
+/// Set or display whether or not external Hammerspoon AppleScript commands are allowed.
 ///
 /// Parameters:
-///  * state - an optional boolean which will set whether or not Hammerspoon's AppleScript interface is enabled.
+///  * state - an optional boolean which will set whether or not external Hammerspoon's AppleScript commands are allowed.
 ///
 /// Returns:
-///  * True if Hammerspoon's AppleScript interface is (or has just been) enabled or False if it is not.
+///  * True if Hammerspoon's AppleScript commands are (or has just been) allowed or False if it is not.
 ///
 /// Notes:
-///  * Due to the way AppleScript support works, Hammerspoon will always accept AppleScript commands that are part of the "Standard Suite", such as `name, `quit`, `version`, etc. However, Hammerspoon will only permit commands from the "Hammerspoon Suite" if `hs.appleScript()` is set to `true` - otherwise an error will be returned.
+///  * Due to the way AppleScript support works, Hammerspoon will always allow AppleScript commands that are part of the "Standard Suite", such as `name, `quit`, `version`, etc. However, Hammerspoon will only allow commands from the "Hammerspoon Suite", such as `execute lua code`, if `hs.allowAppleScript()` is set to `true` - otherwise an AppleScript error will be triggered.
+///  * For a full list of AppleScript Commands:
+///      - Open the macOS Script Editor
+///      - Click `File > Open Dictionary...`
+///      - Select Hammerspoon from the list of Applications
+///      - This will now open a Dictionary containing all of the availible Hammerspoon AppleScript commands.
 ///  * Here's an example AppleScript that can be used in Apple's Script Editor to control Hammerspoon:
 ///
 ///    ````tell application "Hammerspoon"
+///         open preferences
 ///         open console with bring to front
 ///         display dialog "Hammerspoon version is " & version
-///         set result to (execute lua code "1+1")
-///         display dialog "According to Lua 1 + 1 is " & result
-///         execute lua code "require([[hs.logger]]).new([[AS]]).wf([[Hammerspoon will close in 5 seconds]])"
-///         delay 5
+///         display dialog "Dock Icon Visibility: " & (dock icon visible)
+///         display dialog "According to Lua 1 + 1 is " & (execute lua code "1+1")
+///         execute lua code "require([[hs.logger]]).new([[AS]]).wf([[Hammerspoon will close in 3 seconds]])"
+///         delay 3
 ///         quit
 ///     end tell````
 static int core_appleScript(lua_State* L) {
@@ -474,7 +480,7 @@ static luaL_Reg corelib[] = {
     {"consoleOnTop", core_consoleontop},
     {"openAbout", core_openabout},
     {"menuIcon", core_menuicon},
-    {"appleScript", core_appleScript},
+    {"allowAppleScript", core_appleScript},
     {"openPreferences", core_openpreferences},
     {"autoLaunch", core_autolaunch},
     {"automaticallyCheckForUpdates", automaticallyChecksForUpdates},

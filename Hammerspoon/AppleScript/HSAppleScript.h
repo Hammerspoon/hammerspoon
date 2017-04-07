@@ -29,3 +29,20 @@ void HSAppleScriptSetEnabled(BOOL enabled);
 }
 - (id)performDefaultImplementation;
 @end
+
+//
+// Open Hammerspoon Preferences:
+//
+@interface openHammerspoonPreferences : NSScriptCommand {
+}
+- (id)performDefaultImplementation;
+@end
+
+//
+// Dock Icon Value:
+//
+@interface NSApplication (ScriptingPlugin)
+
+- (NSNumber *)dockIconVisible;
+    
+@end

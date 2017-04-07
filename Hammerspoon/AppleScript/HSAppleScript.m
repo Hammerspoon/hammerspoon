@@ -10,6 +10,13 @@
 #import "MJLua.h"
 #import "variables.h"
 #import "MJConsoleWindowController.h"
+#import "MJPreferencesWindowController.h"
+#import "MJDockIcon.h"
+
+//
+// Error Message:
+//
+NSString *appleScriptErrorMessage = @"Hammerspoon's AppleScript support is currently disabled. Please enable it in Hammerspoon by using the hs.allowAppleScript(true) command.";
 
 //
 // Enable & Disable AppleScript Support:
@@ -47,13 +54,12 @@ void HSAppleScriptSetEnabled(BOOL enabled) {
     } else {
         // Raise Error:
         [self setScriptErrorNumber:-50];
-        [self setScriptErrorString:@"Hammerspoon's AppleScript support is currently disabled. Please enable it in Hammerspoon by using the hs.appleScript(true) command."];
+        [self setScriptErrorString:appleScriptErrorMessage];
         return @"Error";
     }
 }
 
 @end
-
 
 //
 // Open Hammerspoon Console:
@@ -80,8 +86,42 @@ void HSAppleScriptSetEnabled(BOOL enabled) {
     else {
         // Raise Error:
         [self setScriptErrorNumber:-50];
-        [self setScriptErrorString:@"Hammerspoon's AppleScript support is currently disabled. Please enable it in Hammerspoon by using the hs.appleScript(true) command."];
+        [self setScriptErrorString:appleScriptErrorMessage];
     }
     return @"Done";
 }
+@end
+
+//
+// Open Hammerspoon Preferences:
+//
+@implementation openHammerspoonPreferences
+-(id)performDefaultImplementation {
+    if (HSAppleScriptEnabled()) {
+        [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
+        [[MJPreferencesWindowController singleton] showWindow: nil];
+    }
+    else {
+        // Raise Error:
+        [self setScriptErrorNumber:-50];
+        [self setScriptErrorString:appleScriptErrorMessage];
+    }
+    return @"Done";
+}
+@end
+
+//
+// Dock Icon Visible:
+//
+@implementation NSApplication (ScriptingPlugin)
+
+- (NSNumber *)dockIconVisible {
+    if (MJDockIconVisible()) {
+        return @1;
+    }
+    else {
+        return @0;
+    }
+}
+
 @end
