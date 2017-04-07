@@ -35,6 +35,8 @@ TYPE_DESC = {
         "Deprecated": "API features which will be removed in an future "
                       "release"}
 
+ARGUMENTS = None
+
 
 def dbg(msg):
     """Print a debug message"""
@@ -102,7 +104,7 @@ def find_module_for_item(modules, item):
     module = None
 
     # We need a shortcut here for root level items
-    if string.count(item, '.') == 1:
+    if not ARGUMENTS.standalone and string.count(item, '.') == 1:
         dbg("find_module_for_item: Using root-level shortcut")
         module = "hs"
 
@@ -494,6 +496,7 @@ def write_html(output_dir, template_dir, data):
 def main():
     """Main entrypoint"""
     global DEBUG
+    global ARGUMENTS
 
     parser = argparse.ArgumentParser()
     commands = parser.add_argument_group("Commands")
@@ -509,6 +512,10 @@ def main():
     commands.add_argument("-t", "--html", action="store_true",
                           dest="html", default=False,
                           help="Output HTML docs")
+    parser.add_argument("-n", "--standalone",
+                        help="Process a single module only",
+                        action="store_true", default=False,
+                        dest="standalone")
     parser.add_argument("-d", "--debug", help="Enable debugging output",
                         action="store_true", default=False,
                         dest="debug")
@@ -536,6 +543,9 @@ def main():
     if len(arguments.DIRS) == 0:
         parser.print_help()
         err("At least one directory is required. See DIRS")
+
+    # Store global copy of our arguments
+    ARGUMENTS = arguments
 
     results = do_processing(arguments.DIRS)
 
