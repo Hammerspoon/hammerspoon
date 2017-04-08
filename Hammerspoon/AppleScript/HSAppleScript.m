@@ -16,7 +16,7 @@
 //
 // Error Message:
 //
-NSString *appleScriptErrorMessage = @"Hammerspoon's AppleScript support is currently disabled. Please enable it in Hammerspoon by using the hs.allowAppleScript(true) command.";
+NSString *appleScriptErrorMessage = @"CommandPost's AppleScript support is currently disabled. Please enable it in CommandPost by using the hs.allowAppleScript(true) command.";
 
 //
 // Enable & Disable AppleScript Support:
@@ -44,7 +44,7 @@ void HSAppleScriptSetEnabled(BOOL enabled) {
     } else {
         // Raise Error:
         [self setScriptErrorNumber:-50];
-        [self setScriptErrorString:@"A Parameter is expected for the verb 'execute'. You need to tell Hammerspoon what Lua code you want to execute."];
+        [self setScriptErrorString:@"A Parameter is expected for the verb 'execute'. You need to tell CommandPost what Lua code you want to execute."];
         return @"Error";
     }
     

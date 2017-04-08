@@ -15,6 +15,7 @@
 
 @implementation MJAppDelegate
 
+/*
 static BOOL MJFirstRunForCurrentVersion(void) {
     NSString* key = [NSString stringWithFormat:@"%@_%d", MJHasRunAlreadyKey, MJVersionFromThisApp()];
 
@@ -25,6 +26,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 
     return firstRun;
 }
+*/
 
 - (BOOL) applicationShouldHandleReopen:(NSApplication*)theApplication hasVisibleWindows:(BOOL)hasVisibleWindows {
     [[MJConsoleWindowController singleton] showWindow: nil];
@@ -212,7 +214,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
                          MJShowMenuIconKey: @NO,
                          HSAutoLoadExtensions: @YES,
                          HSUploadCrashDataKey: @YES,
-                         HSAppleScriptEnabledKey: @NO,
+                         HSAppleScriptEnabledKey: @YES,
                          }];
 }
 
