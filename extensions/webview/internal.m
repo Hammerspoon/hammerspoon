@@ -11,6 +11,13 @@
 static int           refTable ;
 static WKProcessPool *HSWebViewProcessPool ;
 
+static inline NSRect RectWithFlippedYCoordinate(NSRect theRect) {
+    return NSMakeRect(theRect.origin.x,
+                      [[NSScreen screens][0] frame].size.height - theRect.origin.y - theRect.size.height,
+                      theRect.size.width,
+                      theRect.size.height) ;
+}
+
 #pragma mark - Classes and Delegates
 
 // forward declare so we can use in class definitions
@@ -41,8 +48,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
                                 defer:deferCreation];
 
     if (self) {
-        self.delegate           = self;
-        contentRect.origin.y=[[NSScreen screens][0] frame].size.height - contentRect.origin.y - contentRect.size.height;
+        contentRect = RectWithFlippedYCoordinate(contentRect) ;
         [self setFrameOrigin:contentRect.origin];
 
         // Configure the window
@@ -51,29 +57,33 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
         self.opaque             = YES;
         self.hasShadow          = NO;
         self.ignoresMouseEvents = NO;
-        self.allowKeyboardEntry = NO;
         self.restorable         = NO;
         self.hidesOnDeactivate  = NO;
-        self.closeOnEscape      = NO;
         self.animationBehavior  = NSWindowAnimationBehaviorNone;
         self.level              = NSNormalWindowLevel;
 
-        self.parent             = nil ;
-        self.children           = [[NSMutableArray alloc] init] ;
-        self.udRef              = LUA_NOREF ;
-        self.titleFollow        = YES ;
-        self.deleteOnClose      = NO ;
+        _parent             = nil ;
+        _children           = [[NSMutableArray alloc] init] ;
+        _udRef              = LUA_NOREF ;
+        _windowCallback     = LUA_NOREF ;
+        _titleFollow        = YES ;
+        _deleteOnClose      = NO ;
+        _allowKeyboardEntry = NO;
+        _closeOnEscape      = NO;
+
+        // can't be set before the callback which acts on delegate methods is defined
+        self.delegate       = self;
     }
     return self;
 }
 
 - (BOOL)canBecomeKeyWindow {
-    return self.allowKeyboardEntry ;
+    return _allowKeyboardEntry ;
 }
 
 - (BOOL)windowShouldClose:(id __unused)sender {
     if ((self.styleMask & NSClosableWindowMask) != 0) {
-        if (self.deleteOnClose) {
+        if (_deleteOnClose) {
             LuaSkin *skin = [LuaSkin shared] ;
             lua_pushcfunction([skin L], userdata_gc) ;
             [skin pushNSObject:self] ;
@@ -95,8 +105,77 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
     }
 }
 
+- (void)windowWillClose:(__unused NSNotification *)notification {
+    if (_windowCallback != LUA_NOREF) {
+        LuaSkin *skin = [LuaSkin shared] ;
+        [skin pushLuaRef:refTable ref:_windowCallback] ;
+        [skin pushNSObject:@"closing"] ;
+        [skin pushNSObject:self] ;
+        if (![skin  protectedCallAndTraceback:2 nresults:0]) {
+            [skin logError:[NSString stringWithFormat:@"hs.webview:windowCallback callback error: %s", lua_tostring(skin.L, -1)]];
+            lua_pop(skin.L, 1) ;
+        }
+    }
+}
+
+- (void)windowDidBecomeKey:(__unused NSNotification *)notification {
+    if (_windowCallback != LUA_NOREF) {
+        LuaSkin *skin = [LuaSkin shared] ;
+        [skin pushLuaRef:refTable ref:_windowCallback] ;
+        [skin pushNSObject:@"focusChange"] ;
+        [skin pushNSObject:self] ;
+        lua_pushboolean(skin.L, YES) ;
+        if (![skin  protectedCallAndTraceback:3 nresults:0]) {
+            [skin logError:[NSString stringWithFormat:@"hs.webview:windowCallback callback error: %s", lua_tostring(skin.L, -1)]];
+            lua_pop(skin.L, 1) ;
+        }
+    }
+}
+
+- (void)windowDidResignKey:(__unused NSNotification *)notification {
+    if (_windowCallback != LUA_NOREF) {
+        LuaSkin *skin = [LuaSkin shared] ;
+        [skin pushLuaRef:refTable ref:_windowCallback] ;
+        [skin pushNSObject:@"focusChange"] ;
+        [skin pushNSObject:self] ;
+        lua_pushboolean(skin.L, NO) ;
+        if (![skin  protectedCallAndTraceback:3 nresults:0]) {
+            [skin logError:[NSString stringWithFormat:@"hs.webview:windowCallback callback error: %s", lua_tostring(skin.L, -1)]];
+            lua_pop(skin.L, 1) ;
+        }
+    }
+}
+
+- (void)windowDidResize:(__unused NSNotification *)notification {
+    if (_windowCallback != LUA_NOREF) {
+        LuaSkin *skin = [LuaSkin shared] ;
+        [skin pushLuaRef:refTable ref:_windowCallback] ;
+        [skin pushNSObject:@"frameChange"] ;
+        [skin pushNSObject:self] ;
+        [skin pushNSRect:RectWithFlippedYCoordinate(self.frame)] ;
+        if (![skin  protectedCallAndTraceback:3 nresults:0]) {
+            [skin logError:[NSString stringWithFormat:@"hs.webview:windowCallback callback error: %s", lua_tostring(skin.L, -1)]];
+            lua_pop(skin.L, 1) ;
+        }
+    }
+}
+
+- (void)windowDidMove:(__unused NSNotification *)notification {
+    if (_windowCallback != LUA_NOREF) {
+        LuaSkin *skin = [LuaSkin shared] ;
+        [skin pushLuaRef:refTable ref:_windowCallback] ;
+        [skin pushNSObject:@"frameChange"] ;
+        [skin pushNSObject:self] ;
+        [skin pushNSRect:RectWithFlippedYCoordinate(self.frame)] ;
+        if (![skin  protectedCallAndTraceback:3 nresults:0]) {
+            [skin logError:[NSString stringWithFormat:@"hs.webview:windowCallback callback error: %s", lua_tostring(skin.L, -1)]];
+            lua_pop(skin.L, 1) ;
+        }
+    }
+}
+
 - (void)cancelOperation:(id)sender {
-    if (self.closeOnEscape)
+    if (_closeOnEscape)
         [super cancelOperation:sender] ;
 }
 
@@ -428,9 +507,9 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
         HSWebViewWindow *parent = (HSWebViewWindow *)theView.window ;
         NSRect theRect = [parent contentRectForFrameRect:parent.frame] ;
 
-        theRect.origin.x = theRect.origin.x + 20 ;
         // correct for flipped origin in HS
-        theRect.origin.y = [[NSScreen screens][0] frame].size.height - theRect.origin.y - theRect.size.height ;
+        theRect = RectWithFlippedYCoordinate(theRect) ;
+        theRect.origin.x = theRect.origin.x + 20 ;
         theRect.origin.y = theRect.origin.y + 20 ;
 
         HSWebViewWindow *newWindow = [[HSWebViewWindow alloc] initWithContentRect:theRect
@@ -443,6 +522,11 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
         newWindow.parent             = parent ;
         newWindow.deleteOnClose      = YES ;
         newWindow.opaque             = parent.opaque ;
+
+        if (((HSWebViewWindow *)theView.window).windowCallback != LUA_NOREF) {
+            [skin pushLuaRef:refTable ref:((HSWebViewWindow *)theView.window).windowCallback];
+            newWindow.windowCallback = [skin luaRef:refTable] ;
+        }
 
         HSWebViewView *newView = [[HSWebViewView alloc] initWithFrame:((NSView *)newWindow.contentView).bounds
                                                         configuration:configuration];
@@ -2177,6 +2261,49 @@ static int webview_behavior(lua_State *L) {
     return 1 ;
 }
 
+/// hs.webview:windowCallback(fn) -> webviewObject
+/// Method
+/// Set or clear a callback for updates to the webview window
+///
+/// Parameters:
+///  * `fn` - the function to be called when the webview window is moved or closed. Specify an explicit nil to clear the current callback.  The function should expect 2 or 3 arguments and return none.  The arguments will be one of the following:
+///
+///    * "closing", webview - specifies that the webview window is being closed, either by the user or with the [hs.webview:hide](#hide) method.
+///      * `action`  - in this case "closing", specifying that the webview window is being closed
+///      * `webview` - the webview that is being closed
+///
+///    * "focusChange", webview, state - indicates that the webview window has either become or stopped being the focused window
+///      * `action`  - in this case "focusChange", specifying that the webview window is being closed
+///      * `webview` - the webview that is being closed
+///      * `state`   - a boolean, true if the webview has become the focused window, or false if it has lost focus
+///
+///    * "frameChange", webview, frame - indicates that the webview window has been moved or resized
+///      * `action`  - in this case "focusChange", specifying that the webview window is being closed
+///      * `webview` - the webview that is being closed
+///      * `frame`   - a rect-table containing the new co-ordinates and size of the webview window
+///
+/// Returns:
+///  * The webview object
+static int webview_windowCallback(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG,
+                    LS_TFUNCTION | LS_TNIL,
+                    LS_TBREAK] ;
+
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
+
+    // We're either removing a callback, or setting a new one. Either way, we want to clear out any callback that exists
+    theWindow.windowCallback = [skin luaUnref:refTable ref:theWindow.windowCallback] ;
+
+    if (lua_type(L, 2) == LUA_TFUNCTION) {
+        lua_pushvalue(L, 2);
+        theWindow.windowCallback = [skin luaRef:refTable] ;
+    }
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
 #pragma mark - Module Constants
 
 /// hs.webview.windowMasks[]
@@ -2783,6 +2910,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {"orderAbove",                 webview_orderAbove},
     {"orderBelow",                 webview_orderBelow},
     {"behavior",                   webview_behavior},
+    {"windowCallback",             webview_windowCallback},
 
     {"_delete",                    webview_delete},
     {"_windowStyle",               webview_windowStyle},
