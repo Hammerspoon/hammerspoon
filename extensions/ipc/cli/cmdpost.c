@@ -27,9 +27,9 @@ static void setupcolors(void) {
     COLOR_OUTPUT = "\033[36m";
     COLOR_RESET = "\033[0m";
 
-    CFStringRef initial = CFPreferencesCopyAppValue(CFSTR("ipc.cli.color_initial"), CFSTR("org.hammerspoon.Hammerspoon")) ;
-    CFStringRef input = CFPreferencesCopyAppValue(CFSTR("ipc.cli.color_input"), CFSTR("org.hammerspoon.Hammerspoon")) ;
-    CFStringRef output = CFPreferencesCopyAppValue(CFSTR("ipc.cli.color_output"), CFSTR("org.hammerspoon.Hammerspoon")) ;
+    CFStringRef initial = CFPreferencesCopyAppValue(CFSTR("ipc.cli.color_initial"), CFSTR("org.latenitefilms.CommandPost")) ;
+    CFStringRef input = CFPreferencesCopyAppValue(CFSTR("ipc.cli.color_input"), CFSTR("org.latenitefilms.CommandPost")) ;
+    CFStringRef output = CFPreferencesCopyAppValue(CFSTR("ipc.cli.color_output"), CFSTR("org.latenitefilms.CommandPost")) ;
 
     if (initial) { COLOR_INITIAL = CFStringCopyUTF8String(initial) ; }
     if (input) { COLOR_INPUT = CFStringCopyUTF8String(input) ; }
@@ -120,10 +120,10 @@ int main(int argc, char * argv[]) {
     argc -= optind;
     argv += optind;
 
-    CFMessagePortRef port = CFMessagePortCreateRemote(NULL, CFSTR("Hammerspoon"));
+    CFMessagePortRef port = CFMessagePortCreateRemote(NULL, CFSTR("CommandPost"));
 
     if (!port) {
-        fprintf(stderr, "error: can't access Hammerspoon; is it running with the ipc module loaded?\n");
+        fprintf(stderr, "error: can't access CommandPost; is it running with the ipc module loaded?\n");
         return 1;
     }
 
@@ -152,7 +152,7 @@ int main(int argc, char * argv[]) {
         if (usecolors)
             setupcolors();
 
-        printf("%sHammerspoon interactive prompt.%s\n", COLOR_INITIAL, COLOR_RESET);
+        printf("%sCommandPost interactive prompt.%s\n", COLOR_INITIAL, COLOR_RESET);
 
         while (1) {
             printf("\n%s", COLOR_INPUT);
@@ -163,9 +163,9 @@ int main(int argc, char * argv[]) {
 
             if (!CFMessagePortIsValid(port)) {
                 fprintf(stderr, "%sMessage port has become invalid.  Attempting to re-establish.%s\n", COLOR_INITIAL, COLOR_RESET);
-                port = CFMessagePortCreateRemote(NULL, CFSTR("Hammerspoon"));
+                port = CFMessagePortCreateRemote(NULL, CFSTR("CommandPost"));
                 if (!port) {
-                    fprintf(stderr, "error: can't access Hammerspoon; is it running?\n");
+                    fprintf(stderr, "error: can't access CommandPost; is it running?\n");
                     exit(1);
                 }
 

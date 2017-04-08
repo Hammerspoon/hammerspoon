@@ -70,7 +70,7 @@ CFDataRef ipc_callback(CFMessagePortRef __unused local, SInt32 __unused msgid, C
 
 CFMessagePortRef setup_ipc() {
     CFMessagePortContext ctx = {0, NULL, NULL, NULL, NULL};
-    CFMessagePortRef messagePort = CFMessagePortCreateLocal(NULL, CFSTR("Hammerspoon"), ipc_callback, &ctx, false);
+    CFMessagePortRef messagePort = CFMessagePortCreateLocal(NULL, CFSTR("CommandPost"), ipc_callback, &ctx, false);
     if (messagePort) {
         runloopSource = CFMessagePortCreateRunLoopSource(NULL, messagePort, 0);
         CFRunLoopAddSource(CFRunLoopGetMain(), runloopSource, kCFRunLoopCommonModes);
@@ -110,7 +110,7 @@ int luaopen_hs_ipc_internal(lua_State* __unused L) {
     if (messagePort) {
         lua_pushboolean(skin.L, YES) ;
     } else {
-        [skin logError:@"Unable to create IPC message port: Hammerspoon may already be running"];
+        [skin logError:@"Unable to create IPC message port: CommandPost may already be running"];
         lua_pushboolean(skin.L, NO) ;
     }
     lua_setfield(skin.L, -2, "messagePortDefined") ;

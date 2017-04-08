@@ -154,7 +154,7 @@
 		4FD0ABEC1B74B36000A82496 /* eventtap_event.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD0ABEA1B74B36000A82496 /* eventtap_event.h */; };
 		4FD0ABF91B74B9DE00A82496 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4FD0AC021B74BA1600A82496 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FD0AC011B74BA1600A82496 /* internal.m */; };
-		4FD0AC131B74BB2300A82496 /* hs.c in Sources */ = {isa = PBXBuildFile; fileRef = 4FD0AC111B74BB2300A82496 /* hs.c */; };
+		4FD0AC131B74BB2300A82496 /* cmdpost.c in Sources */ = {isa = PBXBuildFile; fileRef = 4FD0AC111B74BB2300A82496 /* cmdpost.c */; };
 		4FD0AC1C1B74C58800A82496 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4FD0AC291B74C62200A82496 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FD0AC241B74C62200A82496 /* internal.m */; };
 		4FD0AC2A1B74C62200A82496 /* MYAnonymousIdentity.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD0AC261B74C62200A82496 /* MYAnonymousIdentity.h */; };
@@ -1045,9 +1045,9 @@
 		4FD0ABFE1B74B9DE00A82496 /* libipc.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libipc.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FD0AC001B74BA1600A82496 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/ipc/init.lua; sourceTree = "<group>"; };
 		4FD0AC011B74BA1600A82496 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/ipc/internal.m; sourceTree = "<group>"; };
-		4FD0AC091B74BACD00A82496 /* hs */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = hs; sourceTree = BUILT_PRODUCTS_DIR; };
-		4FD0AC111B74BB2300A82496 /* hs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = hs.c; path = extensions/ipc/cli/hs.c; sourceTree = "<group>"; };
-		4FD0AC121B74BB2300A82496 /* hs.man */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = hs.man; path = extensions/ipc/cli/hs.man; sourceTree = "<group>"; };
+		4FD0AC091B74BACD00A82496 /* hs */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = hs; path = cmdpost; sourceTree = BUILT_PRODUCTS_DIR; };
+		4FD0AC111B74BB2300A82496 /* cmdpost.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmdpost.c; path = extensions/ipc/cli/cmdpost.c; sourceTree = "<group>"; };
+		4FD0AC121B74BB2300A82496 /* cmdpost.man */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = cmdpost.man; path = extensions/ipc/cli/cmdpost.man; sourceTree = "<group>"; };
 		4FD0AC211B74C58800A82496 /* libhttpserver.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libhttpserver.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FD0AC231B74C62200A82496 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/httpserver/init.lua; sourceTree = "<group>"; };
 		4FD0AC241B74C62200A82496 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/httpserver/internal.m; sourceTree = "<group>"; };
@@ -2629,8 +2629,8 @@
 		4FD0AC101B74BB0600A82496 /* hs */ = {
 			isa = PBXGroup;
 			children = (
-				4FD0AC111B74BB2300A82496 /* hs.c */,
-				4FD0AC121B74BB2300A82496 /* hs.man */,
+				4FD0AC111B74BB2300A82496 /* cmdpost.c */,
+				4FD0AC121B74BB2300A82496 /* cmdpost.man */,
 			);
 			name = hs;
 			sourceTree = "<group>";
@@ -4518,9 +4518,9 @@
 			productReference = 4FD0ABFE1B74B9DE00A82496 /* libipc.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
-		4FD0AC081B74BACD00A82496 /* hs */ = {
+		4FD0AC081B74BACD00A82496 /* cmdpost */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4FD0AC0D1B74BACD00A82496 /* Build configuration list for PBXNativeTarget "hs" */;
+			buildConfigurationList = 4FD0AC0D1B74BACD00A82496 /* Build configuration list for PBXNativeTarget "cmdpost" */;
 			buildPhases = (
 				4FD0AC051B74BACD00A82496 /* Sources */,
 				4FD0AC061B74BACD00A82496 /* Frameworks */,
@@ -4530,7 +4530,7 @@
 			);
 			dependencies = (
 			);
-			name = hs;
+			name = cmdpost;
 			productName = hs;
 			productReference = 4FD0AC091B74BACD00A82496 /* hs */;
 			productType = "com.apple.product-type.tool";
@@ -4666,8 +4666,8 @@
 				9445CA0819083251002568BB /* Frameworks */,
 				4FA81F271B3F2A52000B5537 /* Copy LuaSkin.framework to build/bundle */,
 				4FBE2D161B7268DF00407788 /* Copy extensions to bundle */,
-				E2887C971E4B5BD200468A07 /* Copy CommandPost Files */,
 				9445CA0919083251002568BB /* Resources */,
+				E2887C971E4B5BD200468A07 /* Copy CommandPost Files */,
 				E849AEC367EA9502A25B9A7C /* [CP] Embed Pods Frameworks */,
 				87D84F4E858960C510223FC4 /* [CP] Copy Pods Resources */,
 				4F1CF8D91A47F583001C8AE7 /* Upload binary to Crashlytics */,
@@ -5155,7 +5155,7 @@
 				4FD0AC171B74C58800A82496 /* httpserver */,
 				4F4CB4461B73B09C000EA9B6 /* image */,
 				4FD0ABF41B74B9DE00A82496 /* ipc */,
-				4FD0AC081B74BACD00A82496 /* hs */,
+				4FD0AC081B74BACD00A82496 /* cmdpost */,
 				4F6B3E9E1B73D6D300B2A4DE /* json */,
 				4F76944A1B74C96800536DE4 /* keycodes */,
 				4F6B3EB11B73DC4500B2A4DE /* location */,
@@ -5835,7 +5835,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FD0AC131B74BB2300A82496 /* hs.c in Sources */,
+				4FD0AC131B74BB2300A82496 /* cmdpost.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6349,7 +6349,7 @@
 		};
 		4FD0AC161B74BD1300A82496 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 4FD0AC081B74BACD00A82496 /* hs */;
+			target = 4FD0AC081B74BACD00A82496 /* cmdpost */;
 			targetProxy = 4FD0AC151B74BD1300A82496 /* PBXContainerItemProxy */;
 		};
 		4FD0AC301B74C6BC00A82496 /* PBXTargetDependency */ = {
@@ -17252,7 +17252,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		4FD0AC0D1B74BACD00A82496 /* Build configuration list for PBXNativeTarget "hs" */ = {
+		4FD0AC0D1B74BACD00A82496 /* Build configuration list for PBXNativeTarget "cmdpost" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4FD0AC0E1B74BACD00A82496 /* Debug */,
