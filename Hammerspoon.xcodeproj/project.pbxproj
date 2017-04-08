@@ -1117,7 +1117,7 @@
 		944A2D351989735300D8DC90 /* MainMenu.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainMenu.xib; sourceTree = "<group>"; };
 		944A2D3D1989737E00D8DC90 /* Credits.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
 		944A2D3F1989737E00D8DC90 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		944A2D401989737E00D8DC90 /* Hammerspoon-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Hammerspoon-Info.plist"; sourceTree = "<group>"; };
+		944A2D401989737E00D8DC90 /* CommandPost-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "CommandPost-Info.plist"; sourceTree = "<group>"; };
 		944A2D411989737E00D8DC90 /* Hammerspoon-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Hammerspoon-Prefix.pch"; sourceTree = "<group>"; };
 		944A2DA81989760400D8DC90 /* MJConsoleWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJConsoleWindowController.m; sourceTree = "<group>"; };
 		945B65AB198D2DDB002D2E30 /* MJLua.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJLua.m; sourceTree = "<group>"; };
@@ -2875,7 +2875,7 @@
 				4F8E84301B90EDBF00C25955 /* statusicon.pdf */,
 				944A2D3D1989737E00D8DC90 /* Credits.rtf */,
 				944A2D3F1989737E00D8DC90 /* Images.xcassets */,
-				944A2D401989737E00D8DC90 /* Hammerspoon-Info.plist */,
+				944A2D401989737E00D8DC90 /* CommandPost-Info.plist */,
 				944A2D411989737E00D8DC90 /* Hammerspoon-Prefix.pch */,
 			);
 			name = Extras;
@@ -5409,7 +5409,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -eux\necho Copying CommandPost Extensions from Source to App Bundle...\ncp -R \"${SRCROOT}/../CommandPost/src/extensions/\"* \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/extensions/\"\necho Creating plugins folder within App Bundle...\nmkdir -p \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/plugins/\"\necho Copying CommandPost Plugins from Source to App Bundle...\ncp -R \"${SRCROOT}/../CommandPost/src/plugins/\"* \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/plugins/\"\nxattr -cr ${BUILT_PRODUCTS_DIR}";
+			shellScript = "set -eux\necho Copying CommandPost Setup from Source to App Bundle...\ncp -R \"${SRCROOT}/../CommandPost/src/setup/\"* \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/\"\necho Copying CommandPost Extensions from Source to App Bundle...\ncp -R \"${SRCROOT}/../CommandPost/src/extensions/\"* \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/extensions/\"\necho Creating plugins folder within App Bundle...\nmkdir -p \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/plugins/\"\necho Copying CommandPost Plugins from Source to App Bundle...\ncp -R \"${SRCROOT}/../CommandPost/src/plugins/\"* \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/plugins/\"\nxattr -cr ${BUILT_PRODUCTS_DIR}";
 		};
 		E849AEC367EA9502A25B9A7C /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -14289,7 +14289,7 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Hammerspoon/Hammerspoon-Prefix.pch";
-				INFOPLIST_FILE = "Hammerspoon/Hammerspoon-Info.plist";
+				INFOPLIST_FILE = "Hammerspoon/CommandPost-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.latenitefilms.CommandPost;
 				PRODUCT_NAME = CommandPost;
@@ -14318,7 +14318,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Hammerspoon/Hammerspoon-Prefix.pch";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INFOPLIST_FILE = "Hammerspoon/Hammerspoon-Info.plist";
+				INFOPLIST_FILE = "Hammerspoon/CommandPost-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks @executable_path/../Frameworks";
 				OTHER_CODE_SIGN_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = org.latenitefilms.CommandPost;
