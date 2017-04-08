@@ -57,27 +57,30 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 - (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)fileAndPath {
     NSString *typeOfFile = [[NSWorkspace sharedWorkspace] typeOfFile:fileAndPath error:nil];
 
-    if ([typeOfFile isEqualToString:@"org.hammerspoon.hammerspoon.spoon"]) {
-        // This is a Spoon, so we will attempt to copy it to the Spoons directory
+    if ([typeOfFile isEqualToString:@"org.latenitefilms.commandpost.plugin"]) {
+        // This is a Plugin, so we will attempt to copy it to the Plugin directory
         NSError *moveError;
         BOOL success = NO;
-        NSString *spoonPath = [MJConfigDir() stringByAppendingPathComponent:@"Spoons"];
+        NSString *spoonPath = [@"~/Library/Application Support/CommandPost/Plugins/" stringByExpandingTildeInPath]; // [MJConfigDir() stringByAppendingPathComponent:@"Spoons"];
         NSString *spoonName = [fileAndPath lastPathComponent];
+        NSString *spoonNameWithoutExtension = [[fileAndPath lastPathComponent] stringByDeletingPathExtension];
+        
         success = [[NSFileManager defaultManager] moveItemAtPath:fileAndPath toPath:[spoonPath stringByAppendingPathComponent:spoonName] error:&moveError];
         if (!success) {
             NSLog(@"Unable to move %@ to %@: %@", fileAndPath, spoonPath, moveError);
             NSAlert *alert = [[NSAlert alloc] init];
             [alert addButtonWithTitle:@"OK"];
-            [alert setMessageText:@"Error importing Spoon"];
+            [alert setMessageText:@"Error importing Plugin"];
             [alert setInformativeText:[NSString stringWithFormat:@"%@\n\nSource: %@\nDest: %@", moveError.localizedDescription, fileAndPath, spoonPath]];
             [alert setAlertStyle:NSCriticalAlertStyle];
             [alert runModal];
         } else {
             NSUserNotification *notification = [[NSUserNotification alloc] init];
-            notification.title = @"Spoon imported";
-            notification.informativeText = [NSString stringWithFormat:@"%@ is now available", spoonName];
+            notification.title = @"Plugin Imported";
+            notification.informativeText = [NSString stringWithFormat:@"%@ is now available. CommandPost will now restart.", spoonNameWithoutExtension];
             notification.soundName = NSUserNotificationDefaultSoundName;
             [[NSUserNotificationCenter defaultUserNotificationCenter] deliverNotification:notification];
+            MJLuaReplace(); // Reload CommandPost
         }
         return YES; // Note that we always return YES here because otherwise macOS tells the user that we can't open Spoons, which is ludicrous
     }
@@ -133,13 +136,13 @@ static BOOL MJFirstRunForCurrentVersion(void) {
         NSString* userMJConfigFile = [[NSUserDefaults standardUserDefaults] stringForKey:@"MJConfigFile"];
         if (userMJConfigFile) MJConfigFile = userMJConfigFile ;
 
-        // Ensure we have a Spoons directory
-        NSString *spoonsPath = [MJConfigDir() stringByAppendingPathComponent:@"Spoons"];
+        // Ensure we have a Plugin directory
+        NSString *spoonsPath = [@"~/Library/Application Support/CommandPost/Plugins/" stringByExpandingTildeInPath]; //[MJConfigDir() stringByAppendingPathComponent:@"Spoons"];
         NSFileManager *fileManager = [NSFileManager defaultManager];
         BOOL spoonsPathIsDir;
         BOOL spoonsPathExists = [fileManager fileExistsAtPath:spoonsPath isDirectory:&spoonsPathIsDir];
 
-        NSLog(@"Determined Spoons path will be: %@ (exists: %@, isDir: %@)", spoonsPath, spoonsPathExists ? @"YES" : @"NO", spoonsPathIsDir ? @"YES" : @"NO");
+        NSLog(@"Determined Plugins path will be: %@ (exists: %@, isDir: %@)", spoonsPath, spoonsPathExists ? @"YES" : @"NO", spoonsPathIsDir ? @"YES" : @"NO");
 
         if (spoonsPathExists && !spoonsPathIsDir) {
             NSLog(@"ERROR: %@ exists, but is a file", spoonsPath);
@@ -147,7 +150,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
         }
 
         if (!spoonsPathExists) {
-            NSLog(@"Creating Spoons directory at: %@", spoonsPath);
+            NSLog(@"Creating Plugins directory at: %@", spoonsPath);
             [[NSFileManager defaultManager] createDirectoryAtPath:spoonsPath withIntermediateDirectories:YES attributes:nil error:nil];
         }
     }

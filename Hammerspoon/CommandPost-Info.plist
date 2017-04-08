@@ -106,19 +106,19 @@
 		<dict>
 			<key>CFBundleTypeExtensions</key>
 			<array>
-				<string>spoon</string>
+				<string>cpPlugin</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
-			<string>Spoon</string>
+			<string>cpPlugin</string>
 			<key>CFBundleTypeMIMETypes</key>
 			<array/>
 			<key>CFBundleTypeName</key>
-			<string>Hammerspoon Module</string>
+			<string>CommandPost Plugin</string>
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
 			<key>LSItemContentTypes</key>
 			<array>
-				<string>org.hammerspoon.Hammerspoon.Spoon</string>
+				<string>org.latenitefilms.CommandPost.Plugin</string>
 			</array>
 			<key>LSTypeIsPackage</key>
 			<integer>1</integer>
@@ -229,16 +229,16 @@
 				<string>com.apple.package</string>
 			</array>
 			<key>UTTypeIconFile</key>
-			<string>Spoon</string>
+			<string>cpPlugin</string>
 			<key>UTTypeIdentifier</key>
-			<string>org.hammerspoon.Hammerspoon.Spoon</string>
+			<string>org.latenitefilms.CommandPost.Plugin</string>
 			<key>UTTypeReferenceURL</key>
-			<string>http://www.hammerspoon.org/</string>
+			<string>http://commandpost.io</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>
 				<array>
-					<string>spoon</string>
+					<string>cpPlugin</string>
 				</array>
 			</dict>
 		</dict>
