@@ -270,7 +270,7 @@ static int core_accessibilityState(lua_State* L) {
 /// Notes:
 ///  * If you are running a non-release or locally compiled version of Hammerspoon then the results of this function are unspecified.
 static int automaticallyChecksForUpdates(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    //LuaSkin *skin = [LuaSkin shared];
     if (NSClassFromString(@"SUUpdater")) {
         NSString *frameworkPath = [[[NSBundle mainBundle] privateFrameworksPath] stringByAppendingPathComponent:@"Sparkle.framework"];
         if ([[NSBundle bundleWithPath:frameworkPath] load]) {
@@ -298,11 +298,11 @@ static int automaticallyChecksForUpdates(lua_State *L) {
             lua_pushboolean(L, (BOOL)[sharedUpdater performSelector:@selector(automaticallyChecksForUpdates)]) ;
 #pragma clang diagnostic pop
         } else {
-            [skin logWarn:@"Sparkle Update framework not available for the running instance of Hammerspoon."] ;
+            //[skin logWarn:@"Sparkle Update framework not available for the running instance of CommandPost."] ;
             lua_pushboolean(L, NO) ;
         }
     } else {
-        [skin logWarn:@"Sparkle Update framework not available for the running instance of Hammerspoon."] ;
+        //[skin logWarn:@"Sparkle Update framework not available for the running instance of CommandPost."] ;
         lua_pushboolean(L, NO) ;
     }
     return 1 ;
@@ -339,10 +339,10 @@ static int checkForUpdates(lua_State *L) {
             [sharedUpdater performSelector:checkMethod withObject:nil] ;
 #pragma clang diagnostic pop
         } else {
-            [skin logWarn:@"Sparkle Update framework not available for the running instance of Hammerspoon."] ;
+            [skin logWarn:@"Sparkle Update framework not available for the running instance of CommandPost."] ;
         }
     } else {
-        [skin logWarn:@"Sparkle Update framework not available for the running instance of Hammerspoon."] ;
+        [skin logWarn:@"Sparkle Update framework not available for the running instance of CommandPost."] ;
     }
     return 0 ;
 }
@@ -556,8 +556,8 @@ void MJLuaInit(void) {
         HSNSLOG(@"Unable to load setup.lua from bundle. Terminating");
         NSAlert *alert = [[NSAlert alloc] init];
         [alert addButtonWithTitle:@"OK"];
-        [alert setMessageText:@"Hammerspoon installation is corrupted"];
-        [alert setInformativeText:@"Please re-install Hammerspoon"];
+        [alert setMessageText:@"CommandPost installation is corrupted"];
+        [alert setInformativeText:@"Please re-install CommandPost"];
         [alert setAlertStyle:NSCriticalAlertStyle];
         [alert runModal];
         [[NSApplication sharedApplication] terminate: nil];
@@ -576,7 +576,7 @@ void MJLuaInit(void) {
         HSNSLOG(@"Error running setup.lua:%@", errorMessage);
         NSAlert *alert = [[NSAlert alloc] init];
         [alert addButtonWithTitle:@"OK"];
-        [alert setMessageText:@"Hammerspoon initialization failed"];
+        [alert setMessageText:@"CommandPost initialization failed"];
         [alert setInformativeText:errorMessage];
         [alert setAlertStyle:NSCriticalAlertStyle];
         [alert runModal];
@@ -590,16 +590,16 @@ void MJLuaInit(void) {
 
 // Accessibility State Callback:
 void callAccessibilityStateCallback(void) {
-    
+
     lua_State* L = MJLuaState.L;
-    
+
     lua_getglobal(L, "hs");
     lua_getfield(L, -1, "accessibilityStateCallback");
-    
+
     if (lua_type(L, -1) == LUA_TFUNCTION) {
         [MJLuaState protectedCallAndTraceback:0 nresults:0];
     }
-    
+
 }
 
 static int callShutdownCallback(lua_State *L) {
@@ -618,7 +618,7 @@ void MJLuaDeinit(void) {
     LuaSkin *skin = MJLuaState;
 
     callShutdownCallback(skin.L);
-    
+
     if (MJLuaLogDelegate) {
         [MJLuaState setDelegate:nil] ;
         MJLuaLogDelegate = nil ;
