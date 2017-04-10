@@ -1,4 +1,5 @@
-# Hammerspoon docs: {{ module.name }}
+# [docs](../hammerspoon/index.md) » {{ module.name }}
+---
 
 {{ module.doc }}
 {% if module["submodules"]|length > 0 %}
@@ -13,45 +14,32 @@
 {% for type in type_order %}
 {# Considering: {{ type }} ({{ module[type]|length }}) #}
 {% if module[type]|length > 0 %}
-* {{ type }}s - {{ type_desc[type] }}</li>
+* {{ type }}s - {{ type_desc[type] }}
 {% for item in module[type] %}
-  * {{ item.name }}
+ * [{{ item.name }}](#{{ item.name }})
 {% endfor %}
 {% endif %}
 {% endfor %}
 
 ## API Documentation
-{% for type in type_order %}
-{% if module[type]|length > 0 %}
 
+{% for type in type_order %}{% if module[type]|length > 0 %}
 ### {{ type}}s
-{% for item in module[type] %}
 
-#### {{ item.name }}
-  * Signature: {{ item.def }}
-  * Type: {{ item.type }}
-  * Description: {{ item.desc }}
-{% if item.stripped_doc|length > 0 %}
-  {{ item.stripped_doc|indent(4) }}
-{% endif %}
+{% for item in module[type] %}
+| [{{ item.name }}](#{{ item.name }})         |                                                                                     |
+| --------------------------------------------|-------------------------------------------------------------------------------------|
+| **Signature**                               | `{{ item.def }}`                                                                    |
+| **Type**                                    | {{ item.type }}                                                                     |
+| **Description**                             | {{ item.desc }}                                                                     |
 {% if "parameters" in item %}
-  * Parameters:
-  {% for parameter in item.parameters %}
-    {{ parameter }}
-  {% endfor %}
+| **Parameters**                              | <ul>{% for parameter in item.parameters %}<li>{{ parameter | replace(" * ","") }}</li>{% endfor %}</ul> |
 {% endif %}
 {% if "returns" in item %}
-  * Returns:
-  {% for return in item.returns %}
-    {{ return }}
-  {% endfor %}
+| **Returns**                                 | <ul>{% for return in item.returns %}<li>{{ return | replace(" * ","") }}</li>{% endfor %}</ul>          |
 {% endif %}
 {% if "notes" in item %}
-  * Notes:
-  {% for note in item.notes %}
-    {{ note }}
-  {% endfor %}
+| **Notes**                                   | <ul>{% for note in item.notes %}<li>{{ note | replace(" * ","") }}</li>{% endfor %}</ul>                |
 {% endif %}
-{% endfor %}
-{% endif %}
-{% endfor %}
+
+{% endfor %}{% endif %}{% endfor %}
