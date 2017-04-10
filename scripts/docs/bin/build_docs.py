@@ -34,6 +34,19 @@ TYPE_DESC = {
                  "by a constructor",
         "Deprecated": "API features which will be removed in an future "
                       "release"}
+LINKS = [
+        {"name": "Website", "url": "http://www.hammerspoon.org/"},
+        {"name":  "GitHub page",
+         "url": "https://github.com/Hammerspoon/hammerspoon"},
+        {"name":  "Getting Started Guide",
+         "url": "http://www.hammerspoon.org/go/"},
+        {"name":  "IRC channel",
+         "url": "irc://chat.freenode.net/#hammerspoon"},
+        {"name":  "Mailing list",
+         "url": "https://groups.google.com/forum/#!forum/hammerspoon/"},
+        {"name":  "LuaSkin API docs",
+         "url": "http://www.hammerspoon.org/docs/LuaSkin/"}
+        ]
 
 ARGUMENTS = None
 
@@ -436,8 +449,8 @@ def write_sql(filepath, data):
     db.commit()
 
 
-def write_html(output_dir, template_dir, data):
-    """Write out an HTML version of the docs"""
+def write_templated_output(output_dir, template_dir, data, extension):
+    """Write out a templated version of the docs"""
     from jinja2 import Environment
 
     jinja = Environment(trim_blocks=True, lstrip_blocks=True)
@@ -450,47 +463,59 @@ def write_html(output_dir, template_dir, data):
             err("Output directory is not a directory, "
                 "and/or can't be created: %s" % error)
 
-    # Prepare for writing index.html
+    # Prepare for writing index.<extensions>
     try:
-        outfile = open(output_dir + "/index.html", "wb")
+        outfile = open(output_dir + "/index." + extension, "wb")
     except Exception as error:
-        err("Unable to create %s: %s" % (output_dir + "/index.html",
+        err("Unable to create %s: %s" % (output_dir + "/index." + extension,
             error))
 
-    # Prepare for reading index.j2.html
+    # Prepare for reading index.j2.<extension>
     try:
-        tmplfile = open(template_dir + "/index.j2.html", "r")
+        tmplfile = open(template_dir + "/index.j2." + extension, "r")
     except Exception as error:
-        err("Unable to open index.j2.html: %s" % error)
+        err("Unable to open index.j2.%s: %s" % (extension, error))
 
-    # Re-process the doc data to convert Markdown to HTML
-    data = process_markdown(data)
+    if extension == "html":
+        # Re-process the doc data to convert Markdown to HTML
+        data = process_markdown(data)
 
-    # Render and write index.html
+    # Render and write index.<extension>
     template = jinja.from_string(tmplfile.read().decode('utf-8'))
-    render = template.render(data=data)
+    render = template.render(data=data, links=LINKS)
     outfile.write(render.encode("utf-8"))
     outfile.close()
     tmplfile.close()
-    dbg("Wrote index.html.")
+    dbg("Wrote index." + extension)
 
     # Render and write module docs
     try:
-        tmplfile = open(template_dir + "/module.j2.html", "r")
+        tmplfile = open(template_dir + "/module.j2." + extension, "r")
         template = jinja.from_string(tmplfile.read().decode('utf-8'))
     except Exception as error:
-        err("Unable to open module.j2.html: %s" % error)
+        err("Unable to open module.j2.%s: %s" % (extension, error))
 
     for module in data:
-        with open("%s/%s.html" % (output_dir,
-                                  module["name"]), "wb") as docfile:
+        with open("%s/%s.%s" % (output_dir,
+                                module["name"],
+                                extension), "wb") as docfile:
             render = template.render(module=module,
                                      type_order=TYPE_NAMES,
                                      type_desc=TYPE_DESC)
             docfile.write(render.encode("utf-8"))
-            dbg("Wrote %s.html" % module["name"])
+            dbg("Wrote %s.%s" % (module["name"], extension))
 
     tmplfile.close()
+
+
+def write_html(output_dir, template_dir, data):
+    """Write out an HTML version of the docs"""
+    write_templated_output(output_dir, template_dir, data, "html")
+
+
+def write_markdown(output_dir, template_dir, data):
+    """Write out a Markdown version of the docs"""
+    write_templated_output(output_dir, template_dir, data, "md")
 
 
 def main():
@@ -512,6 +537,9 @@ def main():
     commands.add_argument("-t", "--html", action="store_true",
                           dest="html", default=False,
                           help="Output HTML docs")
+    commands.add_argument("-m", "--markdown", action="store_true",
+                          dest="markdown", default=False,
+                          help="Output Markdown docs")
     parser.add_argument("-n", "--standalone",
                         help="Process a single module only",
                         action="store_true", default=False,
@@ -536,9 +564,10 @@ def main():
     if not arguments.validate and \
        not arguments.json and \
        not arguments.sql and \
-       not arguments.html:
+       not arguments.html and \
+       not arguments.markdown:
         parser.print_help()
-        err("At least one of validate/json/sql/html is required.")
+        err("At least one of validate/json/sql/html/markdown is required.")
 
     if len(arguments.DIRS) == 0:
         parser.print_help()
@@ -560,6 +589,9 @@ def main():
     if arguments.html:
         write_html(arguments.output_dir + "/html/",
                    arguments.template_dir, results)
+    if arguments.markdown:
+        write_markdown(arguments.output_dir + "/markdown/",
+                       arguments.template_dir, results)
 
 
 if __name__ == "__main__":

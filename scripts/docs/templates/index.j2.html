@@ -30,30 +30,12 @@
             </tr>
           </thead>
           <tbody>
+{% for link in links %}
             <tr>
-              <td>Website</td>
-              <td><a href="http://www.hammerspoon.org/">http://www.hammerspoon.org/</a></td>
+                <td>{{ link.name }}</td>
+                <td><a href="{{ link.url }}">{{ link.url }}</a></td>
             </tr>
-            <tr>
-              <td>GitHub page</td>
-              <td><a href="https://github.com/Hammerspoon/hammerspoon/">https://github.com/Hammerspoon/hammerspoon/</a></td>
-            </tr>
-            <tr>
-              <td>Getting Started Guide</td>
-              <td><a href="http://www.hammerspoon.org/go/">http://www.hammerspoon.org/go/</a></td>
-            </tr>
-            <tr>
-              <td>IRC channel</td>
-              <td>#hammerspoon on freenode</td>
-            </tr>
-            <tr>
-              <td>Mailing list</td>
-              <td><a href="https://groups.google.com/forum/#!forum/hammerspoon/">https://groups.google.com/forum/#!forum/hammerspoon/</a></td>
-            </tr>
-            <tr>
-              <td>LuaSkin API docs</td>
-              <td><a href="http://www.hammerspoon.org/docs/LuaSkin/">http://www.hammerspoon.org/docs/LuaSkin/</a></td>
-            </tr>
+{% endfor %}
           </tbody>
         </table>
       </section>
