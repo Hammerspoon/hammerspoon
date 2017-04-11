@@ -1,0 +1,10 @@
+exclude:
+- /Hammerspoon Tests/.*
+- /HammerspoonUITests/Hammerspoon_UITests.m
+- /Pods/.*
+component_depth: 1
+languages:
+- objectivec
+- python
+- ruby
+- script
