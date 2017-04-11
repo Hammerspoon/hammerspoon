@@ -9,6 +9,8 @@ local host = require "hs.host.internal"
 local fnutils = require "hs.fnutils"
 local timer   = require "hs.timer"
 
+host.locale = require "hs.host.locale"
+
 local __tostring_for_tables = function(self)
     local result = ""
     local width = 0
