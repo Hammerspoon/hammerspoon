@@ -12,5 +12,5 @@
 | Module                                                             | Description           |
 | ------------------------------------------------------------------ | --------------------- |
 {% for module in data %}
-| [{{ module.name }}](../hammerspoon/{{ module.name }}.md)             | {{ module.desc_gfm }} |
+| [{{ module.name }}]({{ module.name }}.md)                          | {{ module.desc }}     |
 {% endfor %}

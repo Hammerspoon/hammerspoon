@@ -1,4 +1,4 @@
-# [docs](../hammerspoon/index.md) » {{ module.name }}
+# [docs](index.md) » {{ module.name }}
 ---
 
 {{ module.doc }}
