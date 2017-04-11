@@ -14,6 +14,7 @@
 --- NOTE: Any event which is received, for which no callback has been bound, will be logged to the Hammerspoon Console
 --- NOTE: When you trigger a URL from another application, it is usually best to have the URL open in the background, if that option is available. Otherwise, OS X will activate Hammerspoon (i.e. give it focus), which makes URL events difficult to use for things like window management.
 
+local log = require'hs.logger'.new('urlevent')
 local urlevent = require "hs.urlevent.internal"
 local callbacks = {}
 
@@ -31,22 +32,24 @@ urlevent.httpCallback = nil
 
 -- Set up our top-level callback and register it with the Objective C part of the extension
 local function urlEventCallback(scheme, event, params, fullURL)
+	local bundleID = hs.processInfo["bundleID"]
+	local hsScheme = string.lower(string.sub(bundleID, (string.find(bundleID, "%.[^%.]*$")) + 1))
     if (scheme == "http" or scheme == "https" or scheme == "file") then
         if not urlevent.httpCallback then
-            hs.showError("Hammerspoon is configured for http(s):// URLs, but no http callback has been set")
+            log.ef("Hammerspoon is configured for http(s):// URLs, but no http callback has been set")
         else
             local ok, err = xpcall(function() return urlevent.httpCallback(scheme, event, params, fullURL) end, debug.traceback)
             if not ok then
                 hs.showError(err)
             end
         end
-    elseif (scheme == "hammerspoon") then
+    elseif (scheme == hsScheme) then
         if not event then
-            print("Something called a hammerspoon:// URL without an action")
+            log.wf("Something called a " .. hsScheme .. ":// URL without an action")
             return
         end
         if not callbacks[event] then
-            print("Received hs.urlevent event with no registered callback:"..event)
+            log.wf("Received hs.urlevent event with no registered callback:"..event)
         else
             local ok, err = xpcall(function() return callbacks[event](event, params) end, debug.traceback)
             if not ok then
@@ -54,7 +57,7 @@ local function urlEventCallback(scheme, event, params, fullURL)
             end
         end
     else
-        hs.showError(string.format("ERROR: Hammerspoon has been passed a %s URL, but does not know how to handle it", scheme))
+        log.ef("Hammerspoon has been passed a %s URL, but does not know how to handle it", scheme)
     end
 end
 urlevent.setCallback(urlEventCallback)

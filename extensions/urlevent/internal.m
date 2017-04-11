@@ -193,8 +193,8 @@ static int urleventsetDefaultHandler(lua_State *L) {
 
     OSStatus status;
     NSString *scheme = [[NSString stringWithUTF8String:lua_tostring(L, 1)] lowercaseString];
-    NSString *bundleID = @"org.hammerspoon.Hammerspoon";
-
+    NSString *bundleID = [[NSBundle mainBundle] bundleIdentifier];
+    
     if (lua_type(L, 2) == LUA_TSTRING) {
         bundleID = [NSString stringWithUTF8String:lua_tostring(L, 2)];
     }
