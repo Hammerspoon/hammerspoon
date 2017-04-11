@@ -85,6 +85,9 @@ def extract_docstrings(filename):
         for raw_line in filedata.readlines():
             i += 1
             line = raw_line.decode('utf-8').strip('\n')
+            if line.startswith("----") or line.startswith("////"):
+                dbg("Skipping %s:%d for having too many comment chars" % (filename, i))
+                continue
             if line.startswith("---") or line.startswith("///"):
                 # We're in a chunk of docstrings
                 if not is_in_chunk:

@@ -68,8 +68,10 @@ local function enable(self,force,isModal)
   end
   self.enabled = true
   local returnVal = self._hk:enable() --objc
-  log[isModal and 'df' or 'f']('Enabled hotkey %s%s',self.msg,isModal and ' (in modal)' or '')
-  tinsert(hotkeys[idx],self) -- bring to the top of the stack
+  if returnVal ~= nil then
+    log[isModal and 'df' or 'f']('Enabled hotkey %s%s',self.msg,isModal and ' (in modal)' or '')
+  end
+    tinsert(hotkeys[idx],self) -- bring to the top of the stack
 --   return returnVal
     return self
 end

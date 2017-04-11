@@ -202,6 +202,9 @@ static int hotkey_enable(lua_State* L) {
         lua_pushvalue(L, 1);
     } else {
         [skin logError:[NSString stringWithFormat:@"%s:enable() keycode: %d, mods: 0x%04x, RegisterEventHotKey failed: %d", USERDATA_TAG, hotkey->keycode, hotkey->mods, (int)result]];
+        if (result == eventHotKeyExistsErr) {
+            [skin logError:@"This hotkey is already registered. It may be a duplicate in your Hammerspoon config, or it may be registered by macOS. See System Preferences->Keyboard->Shortcuts"];
+        }
 
         hotkey->uid = remove_hotkey(L, hotkey->uid);
 
