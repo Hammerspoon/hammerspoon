@@ -5,6 +5,7 @@
 [![Downloads all releases](https://img.shields.io/github/downloads/Hammerspoon/hammerspoon/total.svg?maxAge=2592000)](https://github.com/Hammerspoon/hammerspoon/releases)
 [![Latest tag](https://img.shields.io/github/tag/Hammerspoon/hammerspoon.svg)](https://github.com/Hammerspoon/hammerspoon/tags)
 [![Latest release](https://img.shields.io/github/release/Hammerspoon/hammerspoon.svg)](https://github.com/Hammerspoon/hammerspoon/releases/latest)
+[![Dependency Status](https://www.versioneye.com/user/projects/58ecbecbd6c98d0043fec94d/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/58ecbecbd6c98d0043fec94d)
 
 ## What is Hammerspoon?
 
