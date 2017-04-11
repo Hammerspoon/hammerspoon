@@ -99,7 +99,7 @@ static HSURLEventHandler *eventHandler;
 
     if ([openUrl hasPrefix:@"/"]) {
         openUrl = [NSString stringWithFormat:@"file://%@", openUrl];
-        openUrl = [openUrl stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];        
+        openUrl = [openUrl stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
     }
 
     // Split the URL into its components
@@ -193,7 +193,7 @@ static int urleventsetDefaultHandler(lua_State *L) {
 
     OSStatus status;
     NSString *scheme = [[NSString stringWithUTF8String:lua_tostring(L, 1)] lowercaseString];
-    NSString *bundleID = @"org.latenitefilms.CommandPost";
+    NSString *bundleID = [[NSBundle mainBundle] bundleIdentifier];
 
     if (lua_type(L, 2) == LUA_TSTRING) {
         bundleID = [NSString stringWithUTF8String:lua_tostring(L, 2)];

@@ -84,12 +84,24 @@ static BOOL MJFirstRunForCurrentVersion(void) {
         }
         return YES; // Note that we always return YES here because otherwise macOS tells the user that we can't open Spoons, which is ludicrous
     }
-    if (!self.openFileDelegate) {
-        self.startupFile = fileAndPath;
-    } else {
-        if ([self.openFileDelegate respondsToSelector:@selector(callbackWithURL:)]) {
-            [self.openFileDelegate callbackWithURL:fileAndPath];
+
+    NSString *fileExtension = [fileAndPath pathExtension];
+    NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
+    NSArray *supportedExtensions = [infoDict valueForKeyPath:@"CFBundleDocumentTypes.CFBundleTypeExtensions"];
+    NSArray *flatSupportedExtensions = [supportedExtensions valueForKeyPath:@"@unionOfArrays.self"];
+
+    // Files to be processed by hs.urlevent
+    if ([flatSupportedExtensions containsObject:fileExtension]) {
+        if (!self.openFileDelegate) {
+            self.startupFile = fileAndPath;
+        } else {
+            if ([self.openFileDelegate respondsToSelector:@selector(callbackWithURL:)]) {
+                [self.openFileDelegate callbackWithURL:fileAndPath];
+            }
         }
+    } else {
+        // Trigger File Dropped to Dock Icon Callback
+        fileDroppedToDockIcon(fileAndPath);
     }
 
     return YES;
@@ -97,8 +109,8 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
 
-        [[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(accessibilityChanged:) name:@"com.apple.accessibility.api" object:nil];
-    
+    [[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(accessibilityChanged:) name:@"com.apple.accessibility.api" object:nil];
+
     // Remove our early event manager handler so hs.urlevent can register for it later, if the user has it configured to
     [[NSAppleEventManager sharedAppleEventManager] removeEventHandlerForEventClass:kInternetEventClass andEventID:kAEGetURL];
 
@@ -155,6 +167,9 @@ static BOOL MJFirstRunForCurrentVersion(void) {
         }
     }
 
+    // Become the handler for events from macOS Services
+    [NSApp setServicesProvider:self];
+
     MJEnsureDirectoryExists(MJConfigDir());
     [[NSFileManager defaultManager] changeCurrentDirectoryPath:MJConfigDir()];
 
@@ -198,6 +213,20 @@ static BOOL MJFirstRunForCurrentVersion(void) {
         //[[MJPreferencesWindowController singleton] showWindow: nil];
 }
      
+
+// Dragging & Dropping of Text to Dock Item
+-(void) processDockIconDraggedText:(NSPasteboard *)pboard userData:(NSString *)userData error:(NSString **)error {
+    NSString *pboardString = [pboard stringForType:NSStringPboardType];
+    textDroppedToDockIcon(pboardString);
+}
+
+// Dragging & Dropping of File to Dock Item
+-(void) processDockIconDraggedFile:(NSPasteboard *)pboard userData:(NSString *)userData error:(NSString **)error {
+    NSArray *filePaths = [pboard propertyListForType:NSFilenamesPboardType];
+    for (NSString *filePath in filePaths) {
+        fileDroppedToDockIcon(filePath);
+    }
+}
 
 - (void) accessibilityChanged:(NSNotification*)note {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.15 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{

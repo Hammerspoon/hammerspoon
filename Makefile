@@ -37,6 +37,7 @@ build/html: build/docs.json
 	cp build/docs.json $@
 	cp build/docs_index.json $@
 	scripts/docs/bin/build_docs.py -o build/ --html $(DOCS_SEARCH_DIRS)
+	scripts/docs/bin/build_docs.py -o build/ --markdown $(DOCS_SEARCH_DIRS)
 
 build/html/LuaSkin:
 	headerdoc2html -u -o $@ LuaSkin/LuaSkin/Skin.h
