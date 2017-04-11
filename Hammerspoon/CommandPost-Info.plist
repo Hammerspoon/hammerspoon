@@ -220,6 +220,8 @@
 	<string>dsa_pub.pem</string>
 	<key>SUScheduledCheckInterval</key>
 	<integer>900</integer>
+	<key>NSUserNotificationAlertStyle</key>
+	<string>alert</string>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>
