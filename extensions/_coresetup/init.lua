@@ -33,31 +33,22 @@ return {setup=function(...)
 ---  * The function will not receive any arguments when called.  To check what the accessibility state has been changed to, you should call [hs.accessibilityState](#accessibilityState) from within your function.
 hs.accessibilityStateCallback = nil
 
---- hs.textDroppedToDockIconCallback(value)
---- Function
---- An optional function that will be called when text is dragged to the Hammerspoon Dock Icon.
----
---- Parameters:
----  * None
----
---- Returns:
----  * Example Usage: `hs.textDroppedToDockIconCallback = function(value) print("String: " .. tostring(value)) end`
----  * value - A string containing the text that was dragged to the Dock Icon.
-hs.textDroppedToDockIconCallback = nil
-
---- hs.fileDroppedToDockIconCallback(value)
---- Function
---- An optional function that will be called when a file is dragged to the Hammerspoon Dock Icon.
----
---- Parameters:
----  * None
----
---- Returns:
----  * value - A string containing the path and filename of the file dragged to the Hammerspoon Dock Icon.
+--- hs.textDroppedToDockIconCallback
+--- Variable
+--- An optional function that will be called when text is dragged to the Hammerspoon Dock Icon or sent via the Services menu
 ---
 --- Notes:
----  * Example Usage: `hs.fileDroppedToDockIconCallback = function(value) print("File Path: " .. tostring(value)) end`
----  * This callback will be triggered when ANY file type is dragged onto the Hammerspoon Dock Icon, however certain filetypes are also processed seperately by Hammerspoon. For example, `hs.urlevent` will be triggered when the following filetypes are dropped onto the Dock Icon: HTML Documents (.html, .htm, .shtml, .jhtml), Plain text documents (.txt, .text), Web site locations (.url), XHTML documents (.xhtml, .xht, .xhtm, .xht). Hammerspoon also supports Hammerspoon Modules (.spoon) files being dropped onto the Dock Icon, which triggers their installation.
+---  * The function should accept a single parameter, which will be a string containing the text that was dragged to the dock icon
+hs.textDroppedToDockIconCallback = nil
+
+--- hs.fileDroppedToDockIconCallback
+--- Variable
+--- An optional function that will be called when a files are dragged to the Hammerspoon Dock Icon or sent via the Services menu
+---
+--- Notes:
+---  * The function should accept a single parameter, which will be a string containing the full path to the file that was dragged to the dock icon
+---  * If multiple files are sent, this callback will be called once for each file
+---  * This callback will be triggered when ANY file type is dragged onto the Hammerspoon Dock Icon, however certain filetypes are also processed seperately by Hammerspoon. For example, `hs.urlevent` will be triggered when the following filetypes are dropped onto the Dock Icon: HTML Documents (.html, .htm, .shtml, .jhtml), Plain text documents (.txt, .text), Web site locations (.url), XHTML documents (.xhtml, .xht, .xhtm, .xht).
 hs.fileDroppedToDockIconCallback = nil
 
 --- hs.docstrings_json_file

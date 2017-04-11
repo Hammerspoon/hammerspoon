@@ -228,9 +228,26 @@
 			</dict>
 			<key>NSMessage</key>
 			<string>processDockIconDraggedText</string>
+			<key>NSRequiredContext</key>
+			<dict/>
 			<key>NSSendTypes</key>
 			<array>
 				<string>NSStringPboardType</string>
+			</array>
+		</dict>
+		<dict>
+			<key>NSMenuItem</key>
+			<dict>
+				<key>default</key>
+				<string>Send to Hammerspoon</string>
+			</dict>
+			<key>NSMessage</key>
+			<string>processDockIconDraggedFile</string>
+			<key>NSRequiredContext</key>
+			<dict/>
+			<key>NSSendFileTypes</key>
+			<array>
+				<string>public.item</string>
 			</array>
 		</dict>
 	</array>
