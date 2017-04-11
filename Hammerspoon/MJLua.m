@@ -554,16 +554,47 @@ void MJLuaInit(void) {
 
 // Accessibility State Callback:
 void callAccessibilityStateCallback(void) {
-    
-    lua_State* L = MJLuaState.L;
-    
+    LuaSkin *skin = MJLuaState;
+    lua_State *L = MJLuaState.L;
+
     lua_getglobal(L, "hs");
     lua_getfield(L, -1, "accessibilityStateCallback");
-    
+
     if (lua_type(L, -1) == LUA_TFUNCTION) {
-        [MJLuaState protectedCallAndTraceback:0 nresults:0];
+        [skin protectedCallAndTraceback:0 nresults:0];
     }
-    
+}
+
+// Text Dropped to Dock Icon Callback:
+void textDroppedToDockIcon(NSString *pboardString) {
+    LuaSkin *skin = MJLuaState;
+    lua_State *L = skin.L;
+
+    lua_getglobal(L, "hs");
+    lua_getfield(L, -1, "textDroppedToDockIconCallback");
+
+    if (lua_type(L, -1) == LUA_TFUNCTION) {
+        [skin pushNSObject:pboardString];
+        [skin protectedCallAndTraceback:1 nresults:0];
+    } else {
+        [skin logError:@"Text was dropped on our dock icon, but no callback handler is set in hs.textDroppedToDockIconCallback"];
+    }
+}
+
+// File Dropped to Dock Icon Callback:
+void fileDroppedToDockIcon(NSString *filePath) {
+    LuaSkin *skin = MJLuaState;
+    lua_State *L = skin.L;
+
+    lua_getglobal(L, "hs");
+    lua_getfield(L, -1, "fileDroppedToDockIconCallback");
+
+    if (lua_type(L, -1) == LUA_TFUNCTION) {
+        [skin pushNSObject:filePath];
+        [skin protectedCallAndTraceback:1 nresults:0];
+    } else {
+        [skin logError:@"File was dropped on our dock icon, but no callback handler is set in hs.fileDroppedToDockIconCallback"];
+    }
 }
 
 static int callShutdownCallback(lua_State *L) {
@@ -582,7 +613,7 @@ void MJLuaDeinit(void) {
     LuaSkin *skin = MJLuaState;
 
     callShutdownCallback(skin.L);
-    
+
     if (MJLuaLogDelegate) {
         [MJLuaState setDelegate:nil] ;
         MJLuaLogDelegate = nil ;

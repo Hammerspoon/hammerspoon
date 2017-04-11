@@ -24,3 +24,5 @@ NSString* MJFindInitFile(void);
 NSArray *MJLuaCompletionsForWord(NSString *completionWord);
 
 void callAccessibilityStateCallback(void);
+void textDroppedToDockIcon(NSString *pboardString);
+void fileDroppedToDockIcon(NSString *filePath);
