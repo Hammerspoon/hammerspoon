@@ -566,10 +566,44 @@ void callAccessibilityStateCallback(void) {
     
 }
 
+// Text Dropped to Dock Icon Callback:
+void textDroppedToDockIcon(NSString *pboardString) {
+    
+    LuaSkin *skin = [LuaSkin shared];
+    
+    lua_State* L = MJLuaState.L;
+    
+    lua_getglobal(L, "hs");
+    lua_getfield(L, -1, "textDroppedToDockIconCallback");
+    [skin pushNSObject:pboardString];
+    
+    if (lua_type(L, -2) == LUA_TFUNCTION) {
+        [MJLuaState protectedCallAndTraceback:1 nresults:0];
+    }
+    
+}
+
+// File Dropped to Dock Icon Callback:
+void fileDroppedToDockIcon(NSString *filePath) {
+    
+    LuaSkin *skin = [LuaSkin shared];
+    
+    lua_State* L = MJLuaState.L;
+    
+    lua_getglobal(L, "hs");
+    lua_getfield(L, -1, "fileDroppedToDockIconCallback");
+    [skin pushNSObject:filePath];
+    
+    if (lua_type(L, -2) == LUA_TFUNCTION) {
+        [MJLuaState protectedCallAndTraceback:1 nresults:0];
+    }
+    
+}
+
 static int callShutdownCallback(lua_State *L) {
     lua_getglobal(L, "hs");
     lua_getfield(L, -1, "shutdownCallback");
-
+    
     if (lua_type(L, -1) == LUA_TFUNCTION) {
         [MJLuaState protectedCallAndTraceback:0 nresults:0];
     }
