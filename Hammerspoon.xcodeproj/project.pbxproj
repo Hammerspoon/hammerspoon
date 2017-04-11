@@ -26,7 +26,7 @@
 		4CD203B21C6D77750089706D /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CD203A21C6D75950089706D /* internal.m */; };
 		4CD64AA91C6F15F400EB6E39 /* HSsocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CD64AA81C6F15F400EB6E39 /* HSsocket.m */; };
 		4CD64AAB1C6F168700EB6E39 /* test_socket.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4CD64AAA1C6F168700EB6E39 /* test_socket.lua */; };
-		4CD96BD61C73ABD2009FF648 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
+		4CD96BD61C73ABD2009FF648 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		4CD96BD71C73ABD2009FF648 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4CD96BDE1C73AC1C009FF648 /* udp.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CD96BDD1C73AC1C009FF648 /* udp.m */; };
 		4CE6390F1C76C7F500BB7CD2 /* socket.h in Headers */ = {isa = PBXBuildFile; fileRef = 4CE6390E1C76C7F500BB7CD2 /* socket.h */; };
@@ -275,6 +275,10 @@
 		D6F310F01BDF113900045CCD /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = D6F310D11BDF0E0000045CCD /* internal.m */; };
 		D6FD568A1C0422B400BAE238 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		D6FD56901C0422DE00BAE238 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = D6FD56821C04228800BAE238 /* internal.m */; };
+		E2A344091E946A4500F6F0A9 /* HSAppleScript.m in Sources */ = {isa = PBXBuildFile; fileRef = E2A344081E946A4500F6F0A9 /* HSAppleScript.m */; };
+		E2F368501E94563300BC8024 /* Hammerspoon.sdef in Resources */ = {isa = PBXBuildFile; fileRef = E2F3684F1E94563300BC8024 /* Hammerspoon.sdef */; };
+		E29DDE461E85524F00313995 /* dsa_pub.pem in Resources */ = {isa = PBXBuildFile; fileRef = E29DDE451E85524F00313995 /* dsa_pub.pem */; };
+		E2E2B1FE1E8546FE009AEAD6 /* PFMoveApplication.m in Sources */ = {isa = PBXBuildFile; fileRef = E2E2B1FD1E8546FE009AEAD6 /* PFMoveApplication.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1108,7 +1112,7 @@
 		942E71A919B11176001BA156 /* MJAccessibilityUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJAccessibilityUtils.m; sourceTree = "<group>"; };
 		943BF0F019A4B43E0017F79D /* MJUserNotificationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJUserNotificationManager.h; sourceTree = "<group>"; };
 		943BF0F119A4B43E0017F79D /* MJUserNotificationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJUserNotificationManager.m; sourceTree = "<group>"; };
-		9445CA0B19083251002568BB /* Hammerspoon.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hammerspoon.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9445CA0B19083251002568BB /* CommandPost.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CommandPost.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		944A2D341989735300D8DC90 /* MJAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJAppDelegate.m; sourceTree = "<group>"; };
 		944A2D351989735300D8DC90 /* MainMenu.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainMenu.xib; sourceTree = "<group>"; };
 		944A2D3D1989737E00D8DC90 /* Credits.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
@@ -1212,6 +1216,12 @@
 		D6FD56821C04228800BAE238 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/console/internal.m; sourceTree = "<group>"; };
 		D6FD568F1C0422B400BAE238 /* libconsole.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libconsole.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE2547C1592A3EDD90D9815D /* Pods-Hammerspoon.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hammerspoon.release.xcconfig"; path = "Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon.release.xcconfig"; sourceTree = "<group>"; };
+		E2A344071E9469EC00F6F0A9 /* HSAppleScript.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = HSAppleScript.h; path = AppleScript/HSAppleScript.h; sourceTree = "<group>"; };
+		E2A344081E946A4500F6F0A9 /* HSAppleScript.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSAppleScript.m; path = AppleScript/HSAppleScript.m; sourceTree = "<group>"; };
+		E2F3684F1E94563300BC8024 /* Hammerspoon.sdef */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = Hammerspoon.sdef; sourceTree = "<group>"; };
+		E29DDE451E85524F00313995 /* dsa_pub.pem */ = {isa = PBXFileReference; lastKnownFileType = text; name = dsa_pub.pem; path = Hammerspoon/dsa_pub.pem; sourceTree = "<group>"; };
+		E2E2B1FC1E8546FE009AEAD6 /* PFMoveApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PFMoveApplication.h; sourceTree = "<group>"; };
+		E2E2B1FD1E8546FE009AEAD6 /* PFMoveApplication.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PFMoveApplication.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1235,7 +1245,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4CD96BD61C73ABD2009FF648 /* BuildFile in Frameworks */,
+				4CD96BD61C73ABD2009FF648 /* (null) in Frameworks */,
 				4CD96BD71C73ABD2009FF648 /* LuaSkin.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2737,6 +2747,8 @@
 		9445CA0219083251002568BB = {
 			isa = PBXGroup;
 			children = (
+				E29DDE451E85524F00313995 /* dsa_pub.pem */,
+				E2E2B1FB1E8545F9009AEAD6 /* LetsMove */,
 				4FC09F7B19F99ECE007542A6 /* docs.json */,
 				9445CA1419083251002568BB /* Hammerspoon */,
 				4F98506D1B722C4100F7E909 /* extensions */,
@@ -2752,7 +2764,7 @@
 		9445CA0C19083251002568BB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				9445CA0B19083251002568BB /* Hammerspoon.app */,
+				9445CA0B19083251002568BB /* CommandPost.app */,
 				D02F95241A00221C00E28BB2 /* Hammerspoon Tests.xctest */,
 				4FBE2CF91B7261A200407788 /* libapplication.dylib */,
 				4FBE2D101B72631600407788 /* libapplicationwatcher.dylib */,
@@ -2859,6 +2871,7 @@
 		944A2D481989739B00D8DC90 /* Extras */ = {
 			isa = PBXGroup;
 			children = (
+				E2F3684F1E94563300BC8024 /* Hammerspoon.sdef */,
 				4F3978831E89AE7200F30F05 /* Spoon.icns */,
 				4F8E84301B90EDBF00C25955 /* statusicon.pdf */,
 				944A2D3D1989737E00D8DC90 /* Credits.rtf */,
@@ -2890,6 +2903,7 @@
 		945B65B0198D304F002D2E30 /* Auxiliary */ = {
 			isa = PBXGroup;
 			children = (
+				E2A344061E9469BD00F6F0A9 /* AppleScript */,
 				9422ACBB19B6163800F06A90 /* MJConfigUtils.h */,
 				9422ACBC19B6163800F06A90 /* MJConfigUtils.m */,
 				94A1E5461993AC5C003AEB26 /* MJFileUtils.h */,
@@ -3096,6 +3110,22 @@
 				D6FD56821C04228800BAE238 /* internal.m */,
 			);
 			name = console;
+			sourceTree = "<group>";
+		};
+		E2A344061E9469BD00F6F0A9 /* AppleScript */ = {
+			isa = PBXGroup;
+			children = (
+				E2A344071E9469EC00F6F0A9 /* HSAppleScript.h */,
+				E2A344081E946A4500F6F0A9 /* HSAppleScript.m */,
+			);
+			name = AppleScript;
+		E2E2B1FB1E8545F9009AEAD6 /* LetsMove */ = {
+			isa = PBXGroup;
+			children = (
+				E2E2B1FC1E8546FE009AEAD6 /* PFMoveApplication.h */,
+				E2E2B1FD1E8546FE009AEAD6 /* PFMoveApplication.m */,
+			);
+			name = LetsMove;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -4630,6 +4660,7 @@
 				9445CA0819083251002568BB /* Frameworks */,
 				4FA81F271B3F2A52000B5537 /* Copy LuaSkin.framework to build/bundle */,
 				4FBE2D161B7268DF00407788 /* Copy extensions to bundle */,
+				E2887C971E4B5BD200468A07 /* Copy CommandPost Files */,
 				9445CA0919083251002568BB /* Resources */,
 				E849AEC367EA9502A25B9A7C /* [CP] Embed Pods Frameworks */,
 				87D84F4E858960C510223FC4 /* [CP] Copy Pods Resources */,
@@ -4717,7 +4748,7 @@
 			);
 			name = Hammerspoon;
 			productName = Hammerspoon;
-			productReference = 9445CA0B19083251002568BB /* Hammerspoon.app */;
+			productReference = 9445CA0B19083251002568BB /* CommandPost.app */;
 			productType = "com.apple.product-type.application";
 		};
 		D02F95231A00221C00E28BB2 /* Hammerspoon Tests */ = {
@@ -5052,7 +5083,7 @@
 			attributes = {
 				CLASSPREFIX = HS;
 				LastUpgradeCheck = 0800;
-				ORGANIZATIONNAME = Hammerspoon;
+				ORGANIZATIONNAME = FCPXHacks;
 				TargetAttributes = {
 					4F20B5281C1F1C5B00F52437 = {
 						CreatedOnToolsVersion = 7.2;
@@ -5177,8 +5208,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E29DDE461E85524F00313995 /* dsa_pub.pem in Resources */,
 				4F3978841E89AE7200F30F05 /* Spoon.icns in Resources */,
 				4FC09F7C19F99ECE007542A6 /* docs.json in Resources */,
+				E2F368501E94563300BC8024 /* Hammerspoon.sdef in Resources */,
 				4F8E84311B90EDBF00C25955 /* statusicon.pdf in Resources */,
 				944A2D451989737E00D8DC90 /* Images.xcassets in Resources */,
 				944A2D431989737E00D8DC90 /* Credits.rtf in Resources */,
@@ -5360,6 +5393,20 @@
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
+		};
+		E2887C971E4B5BD200468A07 /* Copy CommandPost Files */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy CommandPost Files";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -eux\necho Copying CommandPost Extensions from Source to App Bundle...\ncp -R \"${SRCROOT}/../CommandPost/src/extensions/\"* \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/extensions/\"\necho Creating plugins folder within App Bundle...\nmkdir -p \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/plugins/\"\necho Copying CommandPost Plugins from Source to App Bundle...\ncp -R \"${SRCROOT}/../CommandPost/src/plugins/\"* \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/plugins/\"\nxattr -cr ${BUILT_PRODUCTS_DIR}";
 		};
 		E849AEC367EA9502A25B9A7C /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -5856,12 +5903,14 @@
 				949B520319A5576E00ED4F02 /* MJDockIcon.m in Sources */,
 				945B65AC198D2DDB002D2E30 /* MJLua.m in Sources */,
 				D077B5BF1A001B5300369B30 /* variables.m in Sources */,
+				E2A344091E946A4500F6F0A9 /* HSAppleScript.m in Sources */,
 				942E71AA19B11176001BA156 /* MJAccessibilityUtils.m in Sources */,
 				949B520619A55BF400ED4F02 /* MJMenuIcon.m in Sources */,
 				943BF0F219A4B43E0017F79D /* MJUserNotificationManager.m in Sources */,
 				9422ACBD19B6163800F06A90 /* MJConfigUtils.m in Sources */,
 				943BF0F319A4BC730017F79D /* Images.xcassets in Sources */,
 				942E71A619B1112F001BA156 /* MJPreferencesWindowController.m in Sources */,
+				E2E2B1FE1E8546FE009AEAD6 /* PFMoveApplication.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -14231,12 +14280,16 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Hammerspoon/Hammerspoon-Prefix.pch";
 				INFOPLIST_FILE = "Hammerspoon/Hammerspoon-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks @executable_path/../Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.${PRODUCT_NAME:rfc1034identifier}";
-				PRODUCT_NAME = Hammerspoon;
+				PRODUCT_BUNDLE_IDENTIFIER = org.latenitefilms.CommandPost;
+				PRODUCT_NAME = CommandPost;
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
 				STRIP_STYLE = all;
@@ -14255,14 +14308,18 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Hammerspoon/Hammerspoon-Prefix.pch";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				INFOPLIST_FILE = "Hammerspoon/Hammerspoon-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks @executable_path/../Frameworks";
 				OTHER_CODE_SIGN_FLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.${PRODUCT_NAME:rfc1034identifier}";
-				PRODUCT_NAME = Hammerspoon;
+				PRODUCT_BUNDLE_IDENTIFIER = org.latenitefilms.CommandPost;
+				PRODUCT_NAME = CommandPost;
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
 				STRIP_STYLE = all;

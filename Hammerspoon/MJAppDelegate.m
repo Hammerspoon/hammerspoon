@@ -11,6 +11,7 @@
 #import "MJAccessibilityUtils.h"
 #import "variables.h"
 #import "secrets.h"
+#import "PFMoveApplication.h"
 
 @implementation MJAppDelegate
 
@@ -32,6 +33,9 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 
 -(void)applicationWillFinishLaunching:(NSNotification *)aNotification
 {
+    // LetsWatch:
+    PFMoveToApplicationsFolderIfNecessary();
+    
     // Set up an early event manager handler so we can catch URLs used to launch us
     NSAppleEventManager *appleEventManager = [NSAppleEventManager sharedAppleEventManager];
     [appleEventManager setEventHandler:self
@@ -185,9 +189,10 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     MJLuaCreate();
 
     // FIXME: Do we care about showing the prefs on the first run of each new version? (Ng does not care)
-    if (MJFirstRunForCurrentVersion() || !MJAccessibilityIsEnabled())
-        [[MJPreferencesWindowController singleton] showWindow: nil];
+    //if (MJFirstRunForCurrentVersion() || !MJAccessibilityIsEnabled())
+        //[[MJPreferencesWindowController singleton] showWindow: nil];
 }
+     
 
 - (void) accessibilityChanged:(NSNotification*)note {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.15 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -203,10 +208,11 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 - (void) registerDefaultDefaults {
     [[NSUserDefaults standardUserDefaults]
      registerDefaults: @{@"NSApplicationCrashOnExceptions": @YES,
-                         MJShowDockIconKey: @YES,
-                         MJShowMenuIconKey: @YES,
+                         MJShowDockIconKey: @NO,
+                         MJShowMenuIconKey: @NO,
                          HSAutoLoadExtensions: @YES,
                          HSUploadCrashDataKey: @YES,
+                         HSAppleScriptEnabledKey: @NO,
                          }];
 }
 
@@ -229,7 +235,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     @try {
         [[NSApplication sharedApplication] orderFrontStandardAboutPanel: nil];
     } @catch (NSException *exception) {
-        [[LuaSkin shared] logError:@"Unable to open About dialog. This may mean your Hammerspoon installation is corrupt. Please re-install it!"];
+        [[LuaSkin shared] logError:@"Unable to open About dialog. This may mean your CommandPost installation is corrupt. Please re-install it!"];
     }
 }
 
@@ -256,12 +262,14 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 - (void)showMjolnirMigrationNotification {
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:@"OK"];
-    [alert setMessageText:@"Hammerspoon crash detected"];
-    [alert setInformativeText:@"Your init.lua is loading Mjolnir modules and a previous launch crashed.\n\nHammerspoon ships with updated versions of many of the Mjolnir modules, with both new features and many bug fixes.\n\nPlease consult our API documentation and migrate your config."];
+    [alert setMessageText:@"CommandPost crash detected"];
+    [alert setInformativeText:@"Your init.lua is loading Mjolnir modules and a previous launch crashed.\n\nCommandPost ships with updated versions of many of the Mjolnir modules, with both new features and many bug fixes.\n\nPlease consult our API documentation and migrate your config."];
     [alert setAlertStyle:NSCriticalAlertStyle];
     [alert runModal];
 }
 
+// Commented out by Chris Hocking:
+/*
 - (void)crashlyticsDidDetectReportForLastExecution:(CLSReport *)report completionHandler:(void (^)(BOOL submit))completionHandler {
     BOOL showMjolnirMigrationDialog = NO;
 
@@ -274,6 +282,23 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     if (showMjolnirMigrationDialog) {
         [self showMjolnirMigrationNotification];
     }
+}
+*/
+
+// Added by Chris Hocking:
+- (void)crashlyticsDidDetectReportForLastExecution:(CLSReport *)report completionHandler:(void (^)(BOOL))completionHandler {
+    // Use this opportunity to take synchronous action on a crash. See Crashlytics.h for
+    // details and implications.
+    
+    // Maybe consult NSUserDefaults or show a UI prompt.
+    
+    // But, make ABSOLUTELY SURE you invoke completionHandler, as the SDK
+    // will not submit the report until you do. You can do this from any
+    // thread, but that's optional. If you want, you can just call the
+    // completionHandler and return.
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        completionHandler(YES);
+    }];
 }
 
 #pragma mark - Sparkle delegate methods

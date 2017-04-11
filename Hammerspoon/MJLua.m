@@ -9,6 +9,7 @@
 #import "MJPreferencesWindowController.h"
 #import "MJConsoleWindowController.h"
 #import "MJAutoLaunch.h"
+#import "HSAppleScript.h"
 #import <Crashlytics/Crashlytics.h>
 
 static LuaSkin* MJLuaState;
@@ -112,6 +113,40 @@ static int core_menuicon(lua_State* L) {
     return 1;
 }
 
+/// hs.allowAppleScript([state]) -> bool
+/// Function
+/// Set or display whether or not external Hammerspoon AppleScript commands are allowed.
+///
+/// Parameters:
+///  * state - an optional boolean which will set whether or not external Hammerspoon's AppleScript commands are allowed.
+///
+/// Returns:
+///  * True if Hammerspoon's AppleScript commands are (or has just been) allowed or False if it is not.
+///
+/// Notes:
+///  * Due to the way AppleScript support works, Hammerspoon will always allow AppleScript commands that are part of the "Standard Suite", such as `name, `quit`, `version`, etc. However, Hammerspoon will only allow commands from the "Hammerspoon Suite", such as `execute lua code`, if `hs.allowAppleScript()` is set to `true` - otherwise an AppleScript error will be triggered.
+///  * For a full list of AppleScript Commands:
+///      - Open the macOS Script Editor
+///      - Click `File > Open Dictionary...`
+///      - Select Hammerspoon from the list of Applications
+///      - This will now open a Dictionary containing all of the availible Hammerspoon AppleScript commands.
+///  * Here's an example AppleScript that can be used in Apple's Script Editor to control Hammerspoon:
+///
+///    ````tell application "Hammerspoon"
+///         open preferences
+///         open console with bring to front
+///         display dialog "Hammerspoon version is " & version
+///         display dialog "Dock Icon Visibility: " & (dock icon visible)
+///         display dialog "According to Lua 1 + 1 is " & (execute lua code "1+1")
+///         execute lua code "require([[hs.logger]]).new([[AS]]).wf([[Hammerspoon will close in 3 seconds]])"
+///         delay 3
+///         quit
+///     end tell````
+static int core_appleScript(lua_State* L) {
+    if (lua_isboolean(L, -1)) { HSAppleScriptSetEnabled(lua_toboolean(L, -1)); }
+    lua_pushboolean(L, HSAppleScriptEnabled()) ;
+    return 1;
+}
 
 // hs.dockIcon -- for historical reasons, this is actually handled by the hs.dockicon module, but a wrapper
 // in the lua portion of this (setup.lua) provides an interface to this module which follows the syntax
@@ -235,7 +270,7 @@ static int core_accessibilityState(lua_State* L) {
 /// Notes:
 ///  * If you are running a non-release or locally compiled version of Hammerspoon then the results of this function are unspecified.
 static int automaticallyChecksForUpdates(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    //LuaSkin *skin = [LuaSkin shared];
     if (NSClassFromString(@"SUUpdater")) {
         NSString *frameworkPath = [[[NSBundle mainBundle] privateFrameworksPath] stringByAppendingPathComponent:@"Sparkle.framework"];
         if ([[NSBundle bundleWithPath:frameworkPath] load]) {
@@ -263,11 +298,11 @@ static int automaticallyChecksForUpdates(lua_State *L) {
             lua_pushboolean(L, (BOOL)[sharedUpdater performSelector:@selector(automaticallyChecksForUpdates)]) ;
 #pragma clang diagnostic pop
         } else {
-            [skin logWarn:@"Sparkle Update framework not available for the running instance of Hammerspoon."] ;
+            //[skin logWarn:@"Sparkle Update framework not available for the running instance of CommandPost."] ;
             lua_pushboolean(L, NO) ;
         }
     } else {
-        [skin logWarn:@"Sparkle Update framework not available for the running instance of Hammerspoon."] ;
+        //[skin logWarn:@"Sparkle Update framework not available for the running instance of CommandPost."] ;
         lua_pushboolean(L, NO) ;
     }
     return 1 ;
@@ -304,10 +339,10 @@ static int checkForUpdates(lua_State *L) {
             [sharedUpdater performSelector:checkMethod withObject:nil] ;
 #pragma clang diagnostic pop
         } else {
-            [skin logWarn:@"Sparkle Update framework not available for the running instance of Hammerspoon."] ;
+            [skin logWarn:@"Sparkle Update framework not available for the running instance of CommandPost."] ;
         }
     } else {
-        [skin logWarn:@"Sparkle Update framework not available for the running instance of Hammerspoon."] ;
+        [skin logWarn:@"Sparkle Update framework not available for the running instance of CommandPost."] ;
     }
     return 0 ;
 }
@@ -445,6 +480,7 @@ static luaL_Reg corelib[] = {
     {"consoleOnTop", core_consoleontop},
     {"openAbout", core_openabout},
     {"menuIcon", core_menuicon},
+    {"allowAppleScript", core_appleScript},
     {"openPreferences", core_openpreferences},
     {"autoLaunch", core_autolaunch},
     {"automaticallyCheckForUpdates", automaticallyChecksForUpdates},
@@ -520,8 +556,8 @@ void MJLuaInit(void) {
         HSNSLOG(@"Unable to load setup.lua from bundle. Terminating");
         NSAlert *alert = [[NSAlert alloc] init];
         [alert addButtonWithTitle:@"OK"];
-        [alert setMessageText:@"Hammerspoon installation is corrupted"];
-        [alert setInformativeText:@"Please re-install Hammerspoon"];
+        [alert setMessageText:@"CommandPost installation is corrupted"];
+        [alert setInformativeText:@"Please re-install CommandPost"];
         [alert setAlertStyle:NSCriticalAlertStyle];
         [alert runModal];
         [[NSApplication sharedApplication] terminate: nil];
@@ -540,7 +576,7 @@ void MJLuaInit(void) {
         HSNSLOG(@"Error running setup.lua:%@", errorMessage);
         NSAlert *alert = [[NSAlert alloc] init];
         [alert addButtonWithTitle:@"OK"];
-        [alert setMessageText:@"Hammerspoon initialization failed"];
+        [alert setMessageText:@"CommandPost initialization failed"];
         [alert setInformativeText:errorMessage];
         [alert setAlertStyle:NSCriticalAlertStyle];
         [alert runModal];
@@ -554,16 +590,16 @@ void MJLuaInit(void) {
 
 // Accessibility State Callback:
 void callAccessibilityStateCallback(void) {
-    
+
     lua_State* L = MJLuaState.L;
-    
+
     lua_getglobal(L, "hs");
     lua_getfield(L, -1, "accessibilityStateCallback");
-    
+
     if (lua_type(L, -1) == LUA_TFUNCTION) {
         [MJLuaState protectedCallAndTraceback:0 nresults:0];
     }
-    
+
 }
 
 static int callShutdownCallback(lua_State *L) {
@@ -582,7 +618,7 @@ void MJLuaDeinit(void) {
     LuaSkin *skin = MJLuaState;
 
     callShutdownCallback(skin.L);
-    
+
     if (MJLuaLogDelegate) {
         [MJLuaState setDelegate:nil] ;
         MJLuaLogDelegate = nil ;
