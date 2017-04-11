@@ -2268,7 +2268,7 @@ static int webview_behavior(lua_State *L) {
 /// Parameters:
 ///  * `fn` - the function to be called when the webview window is moved or closed. Specify an explicit nil to clear the current callback.  The function should expect 2 or 3 arguments and return none.  The arguments will be one of the following:
 ///
-///    * "closing", webview - specifies that the webview window is being closed, either by the user or with the [hs.webview:hide](#hide) method.
+///    * "closing", webview - specifies that the webview window is being closed, either by the user or with the [hs.webview:delete](#delete) method.
 ///      * `action`  - in this case "closing", specifying that the webview window is being closed
 ///      * `webview` - the webview that is being closed
 ///
@@ -2823,6 +2823,7 @@ static int userdata_gc(lua_State* L) {
         [theWindow close] ;
 
         theWindow.udRef            = [skin luaUnref:refTable ref:theWindow.udRef] ;
+        theWindow.windowCallback   = [skin luaUnref:refTable ref:theWindow.windowCallback] ;
         theView.navigationCallback = [skin luaUnref:refTable ref:theView.navigationCallback] ;
         theView.policyCallback     = [skin luaUnref:refTable ref:theView.policyCallback] ;
 
