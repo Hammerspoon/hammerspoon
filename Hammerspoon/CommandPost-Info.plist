@@ -222,15 +222,13 @@
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
-	<key>OSAScriptingDefinition</key>
-	<string>CommandPost.sdef</string>
 	<key>NSServices</key>
 	<array>
 		<dict>
 			<key>NSMenuItem</key>
 			<dict>
 				<key>default</key>
-				<string>Send to Hammerspoon</string>
+				<string>Send to CommandPost</string>
 			</dict>
 			<key>NSMessage</key>
 			<string>processDockIconDraggedText</string>
@@ -245,7 +243,7 @@
 			<key>NSMenuItem</key>
 			<dict>
 				<key>default</key>
-				<string>Send to Hammerspoon</string>
+				<string>Send to CommandPost</string>
 			</dict>
 			<key>NSMessage</key>
 			<string>processDockIconDraggedFile</string>
@@ -257,6 +255,10 @@
 			</array>
 		</dict>
 	</array>
+	<key>NSUserNotificationAlertStyle</key>
+	<string>alert</string>
+	<key>OSAScriptingDefinition</key>
+	<string>CommandPost.sdef</string>
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
 	<key>SUFeedURL</key>
@@ -265,8 +267,6 @@
 	<string>dsa_pub.pem</string>
 	<key>SUScheduledCheckInterval</key>
 	<integer>900</integer>
-	<key>NSUserNotificationAlertStyle</key>
-	<string>alert</string>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>
