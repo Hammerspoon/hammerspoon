@@ -50,7 +50,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 
 - (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)fileAndPath {
     NSString *typeOfFile = [[NSWorkspace sharedWorkspace] typeOfFile:fileAndPath error:nil];
-
+    
     if ([typeOfFile isEqualToString:@"org.hammerspoon.hammerspoon.spoon"]) {
         // This is a Spoon, so we will attempt to copy it to the Spoons directory
         NSError *moveError;
@@ -75,14 +75,26 @@ static BOOL MJFirstRunForCurrentVersion(void) {
         }
         return YES; // Note that we always return YES here because otherwise macOS tells the user that we can't open Spoons, which is ludicrous
     }
-    if (!self.openFileDelegate) {
-        self.startupFile = fileAndPath;
-    } else {
-        if ([self.openFileDelegate respondsToSelector:@selector(callbackWithURL:)]) {
-            [self.openFileDelegate callbackWithURL:fileAndPath];
+    
+    NSString *fileExtension = [fileAndPath pathExtension];
+    NSDictionary *infoDict=[[NSBundle mainBundle] infoDictionary];
+    NSArray *supportedExtensions=[infoDict valueForKeyPath:@"CFBundleDocumentTypes.CFBundleTypeExtensions"];
+    NSArray *flatSupportedExtensions = [supportedExtensions valueForKeyPath: @"@unionOfArrays.self"];
+    
+    // Files to be processed by hs.urlevent:
+    if([flatSupportedExtensions containsObject:fileExtension]){
+        if (!self.openFileDelegate) {
+            self.startupFile = fileAndPath;
+        } else {
+            if ([self.openFileDelegate respondsToSelector:@selector(callbackWithURL:)]) {
+                [self.openFileDelegate callbackWithURL:fileAndPath];
+            }
         }
     }
-
+    
+    // Trigger File Dropped to Dock Icon Callback:
+    fileDroppedToDockIcon(fileAndPath);
+    
     return YES;
 }
 
@@ -146,6 +158,9 @@ static BOOL MJFirstRunForCurrentVersion(void) {
         }
     }
 
+    // Dragging & Dropping of Text to Dock Item:
+    [NSApp setServicesProvider:self];
+    
     MJEnsureDirectoryExists(MJConfigDir());
     [[NSFileManager defaultManager] changeCurrentDirectoryPath:MJConfigDir()];
 
@@ -187,6 +202,12 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     // FIXME: Do we care about showing the prefs on the first run of each new version? (Ng does not care)
     if (MJFirstRunForCurrentVersion() || !MJAccessibilityIsEnabled())
         [[MJPreferencesWindowController singleton] showWindow: nil];
+}
+
+// Dragging & Dropping of Text to Dock Item:
+-(void)processDockIconDraggedText:(NSPasteboard *)pboard userData:(NSString *)userData error:(NSString **)error {
+    NSString * pboardString = [pboard stringForType:NSStringPboardType];
+    textDroppedToDockIcon(pboardString);
 }
 
 - (void) accessibilityChanged:(NSNotification*)note {
