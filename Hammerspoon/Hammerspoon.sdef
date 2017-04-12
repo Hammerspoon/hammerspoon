@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dictionary SYSTEM "file://localhost/System/Library/DTDs/sdef.dtd">
+
+<dictionary title="Hammerspoon">
+
+    <!-- STANDARD SUIE -->
+    <suite name="Standard Suite" code="????" description="Common classes and commands for all applications.">
+
+        <command name="quit" code="aevtquit" description="Quit the application.">
+            <cocoa class="NSQuitCommand"/>
+        </command>
+
+        <class name="application" code="capp" description="The application's top-level scripting object.">
+            <cocoa class="NSApplication"/>
+            <property name="name" code="pnam" type="text" access="r" description="The name of the application."/>
+            <property name="frontmost" code="pisf" type="boolean" access="r" description="Is this the active application?">
+                <cocoa key="isActive"/>
+            </property>
+            <property name="version" code="vers" type="text" access="r" description="The version number of the application."/>
+            <responds-to command="quit">
+                <cocoa method="handleQuitScriptCommand:"/>
+            </responds-to>
+        </class>
+
+    </suite>
+
+    <!-- HAMMERSPOON SUITE -->
+    <suite name="Hammerspoon Suite" code="HmSp" description="Hammerspoon-specific classes.">
+
+        <!-- EXECUTE LUA CODE -->
+        <command name="execute lua code" code="HmSpEXEC" description="Execute Lua Code.">
+            <cocoa class="executeLua"/>
+            <direct-parameter description="The string to execute">
+                <type type="text"/>
+            </direct-parameter>
+            <result type="text" description="Returns the Lua Code Execution Result."/>
+        </command>
+    </suite>
+
+</dictionary>
