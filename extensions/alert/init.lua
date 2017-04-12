@@ -91,17 +91,24 @@ local showAlert = function(message, style, screenObj, duration)
 
     local screenFrame = screenObj:fullFrame()
 
-    local absoluteTop = screenFrame.h * (1 - 1 / 1.55) + 55 -- mimic module behavior for inverted rect
+    local absoluteTop = screenFrame.y + (screenFrame.h * (1 - 1 / 1.55) + 55) -- mimic module behavior for inverted rect
     if #module._visibleAlerts > 0 then
-        absoluteTop = module._visibleAlerts[#module._visibleAlerts].frame.y + module._visibleAlerts[#module._visibleAlerts].frame.h + 3
+        -- we're looking for the latest on the same screen
+        for i = #module._visibleAlerts, 1, -1 do
+            if screenObj == module._visibleAlerts[i].screen then
+                absoluteTop = module._visibleAlerts[i].frame.y + module._visibleAlerts[i].frame.h + 3
+                break
+            end
+        end
     end
 
-    if absoluteTop > screenFrame.h then
-        absoluteTop = screen.mainScreen():frame().y
+    if absoluteTop > (screenFrame.y + screenFrame.h) then
+        absoluteTop = screenFrame.y
     end
 
     local alertEntry = {
         drawings = {},
+        screen = screenObj,
     }
     local UUID = uuid()
     alertEntry.UUID = UUID
