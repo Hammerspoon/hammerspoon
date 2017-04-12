@@ -313,15 +313,15 @@ static int checkForUpdates(lua_State *L) {
     return 0 ;
 }
 
-/// hs.updateAvailable() -> boolean
+/// hs.updateAvailable() -> string or false
 /// Function
-/// Returns a boolean indicating whether or not the Sparkle framework has found a Hammerspoon update.
+/// Gets the version number of an available update
 ///
 /// Parameters:
 ///  * None
 ///
 /// Returns:
-///  * A boolean, true if an update is available, otherwise false
+///  * A string containing the version number of the latest release, or a boolean false if no update is available
 ///
 /// Notes:
 ///  * This is not a live check, it is a cached result of whatever the previous update check found. By default Hammerspoon checks for updates every few hours, but you can also add your own timer to check for updates more frequently with `hs.checkForUpdates()`
@@ -334,8 +334,12 @@ static int updateAvailable(lua_State *L) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
 
-    NSNumber *updateAvailable = [appDelegate performSelector:@selector(updateAvailable)];
-    lua_pushboolean(L, [updateAvailable boolValue]);
+    NSString *updateAvailable = [appDelegate performSelector:@selector(updateAvailable)];
+    if (updateAvailable == nil) {
+        lua_pushboolean(L, 0);
+    } else {
+        [skin pushNSObject:updateAvailable];
+    }
 
 #pragma clang diagnostic pop
     return 1;
