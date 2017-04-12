@@ -83,22 +83,6 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
 
 - (BOOL)windowShouldClose:(id __unused)sender {
     if ((self.styleMask & NSClosableWindowMask) != 0) {
-        if (_deleteOnClose) {
-            LuaSkin *skin = [LuaSkin shared] ;
-            lua_pushcfunction([skin L], userdata_gc) ;
-            [skin pushNSObject:self] ;
-            if (![skin protectedCallAndTraceback:1 nresults:0]) {
-                // error message is argument to next call, so no pop needed
-                lua_getglobal([skin L], "print") ;
-                lua_insert([skin L], -2) ;
-                lua_pushstring([skin L], "deleteOnClose:") ;
-                lua_insert([skin L], -2) ;
-                if (![skin protectedCallAndTraceback:2 nresults:0]) {
-                    lua_pop(skin.L, 1) ; // remove error message
-                }
-                NSLog(@"webview deleteOnClose: %s", lua_tostring([skin L], -1)) ;
-            }
-        }
         return YES ;
     } else {
         return NO ;
@@ -106,14 +90,23 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
 }
 
 - (void)windowWillClose:(__unused NSNotification *)notification {
+    LuaSkin *skin = [LuaSkin shared] ;
+    lua_State *L = [skin L] ;
     if (_windowCallback != LUA_NOREF) {
-        LuaSkin *skin = [LuaSkin shared] ;
         [skin pushLuaRef:refTable ref:_windowCallback] ;
         [skin pushNSObject:@"closing"] ;
         [skin pushNSObject:self] ;
         if (![skin  protectedCallAndTraceback:2 nresults:0]) {
-            [skin logError:[NSString stringWithFormat:@"hs.webview:windowCallback callback error: %s", lua_tostring(skin.L, -1)]];
-            lua_pop(skin.L, 1) ;
+            [skin logError:[NSString stringWithFormat:@"%s:windowCallback callback error: %s", USERDATA_TAG, lua_tostring(L, -1)]];
+            lua_pop(L, 1) ;
+        }
+    }
+    if (_deleteOnClose) {
+        lua_pushcfunction(L, userdata_gc) ;
+        [skin pushNSObject:self] ;
+        if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
+            [skin logError:[NSString stringWithFormat:@"%s:error invoking _gc for deleteOnClose:%s", USERDATA_TAG, lua_tostring(L, -1)]] ;
+            lua_pop(L, 1) ;
         }
     }
 }
@@ -2815,8 +2808,14 @@ static int userdata_eq(lua_State* L) {
 }
 
 static int userdata_gc(lua_State* L) {
+    if (!luaL_testudata(L, 1, USERDATA_TAG)) return 0 ;
+
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge_transfer HSWebViewWindow, L, 1, USERDATA_TAG) ;
     HSWebViewView   *theView   = theWindow.contentView ;
+
+// Remove the Metatable so future use of the variable in Lua won't think its valid
+    lua_pushnil(L) ;
+    lua_setmetatable(L, 1) ;
 
     if (theWindow) {
         LuaSkin *skin = [LuaSkin shared];
@@ -2845,10 +2844,6 @@ static int userdata_gc(lua_State* L) {
         theWindow.delegate         = nil ;
         theWindow                  = nil;
     }
-
-// Remove the Metatable so future use of the variable in Lua won't think its valid
-    lua_pushnil(L) ;
-    lua_setmetatable(L, 1) ;
 
     return 0;
 }
