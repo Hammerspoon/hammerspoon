@@ -337,11 +337,12 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 
 #pragma mark - Sparkle delegate methods
 - (void)updater:(id)updater didFindValidUpdate:(id)update {
-    self.updateAvailable = @YES;
+    NSLog(@"Update found: %@", [update valueForKey:@"versionString"]);
+    self.updateAvailable = [update valueForKey:@"versionString"];
 }
 
 - (void)updaterDidNotFindUpdate:(id)update {
-    self.updateAvailable = @NO;
+    self.updateAvailable = nil;
 }
 
 @end
