@@ -2808,8 +2808,14 @@ static int userdata_eq(lua_State* L) {
 }
 
 static int userdata_gc(lua_State* L) {
+    if (!luaL_testudata(L, 1, USERDATA_TAG)) return 0 ;
+
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge_transfer HSWebViewWindow, L, 1, USERDATA_TAG) ;
     HSWebViewView   *theView   = theWindow.contentView ;
+
+// Remove the Metatable so future use of the variable in Lua won't think its valid
+    lua_pushnil(L) ;
+    lua_setmetatable(L, 1) ;
 
     if (theWindow) {
         LuaSkin *skin = [LuaSkin shared];
@@ -2838,10 +2844,6 @@ static int userdata_gc(lua_State* L) {
         theWindow.delegate         = nil ;
         theWindow                  = nil;
     }
-
-// Remove the Metatable so future use of the variable in Lua won't think its valid
-    lua_pushnil(L) ;
-    lua_setmetatable(L, 1) ;
 
     return 0;
 }
