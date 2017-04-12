@@ -113,41 +113,6 @@ static int core_menuicon(lua_State* L) {
     return 1;
 }
 
-/// hs.allowAppleScript([state]) -> bool
-/// Function
-/// Set or display whether or not external Hammerspoon AppleScript commands are allowed.
-///
-/// Parameters:
-///  * state - an optional boolean which will set whether or not external Hammerspoon's AppleScript commands are allowed.
-///
-/// Returns:
-///  * True if Hammerspoon's AppleScript commands are (or has just been) allowed or False if it is not.
-///
-/// Notes:
-///  * Due to the way AppleScript support works, Hammerspoon will always allow AppleScript commands that are part of the "Standard Suite", such as `name, `quit`, `version`, etc. However, Hammerspoon will only allow commands from the "Hammerspoon Suite", such as `execute lua code`, if `hs.allowAppleScript()` is set to `true` - otherwise an AppleScript error will be triggered.
-///  * For a full list of AppleScript Commands:
-///      - Open the macOS Script Editor
-///      - Click `File > Open Dictionary...`
-///      - Select Hammerspoon from the list of Applications
-///      - This will now open a Dictionary containing all of the availible Hammerspoon AppleScript commands.
-///  * Here's an example AppleScript that can be used in Apple's Script Editor to control Hammerspoon:
-///
-///    ````tell application "Hammerspoon"
-///         open preferences
-///         open console with bring to front
-///         display dialog "Hammerspoon version is " & version
-///         display dialog "Dock Icon Visibility: " & (dock icon visible)
-///         display dialog "According to Lua 1 + 1 is " & (execute lua code "1+1")
-///         execute lua code "require([[hs.logger]]).new([[AS]]).wf([[Hammerspoon will close in 3 seconds]])"
-///         delay 3
-///         quit
-///     end tell````
-static int core_appleScript(lua_State* L) {
-    if (lua_isboolean(L, -1)) { HSAppleScriptSetEnabled(lua_toboolean(L, -1)); }
-    lua_pushboolean(L, HSAppleScriptEnabled()) ;
-    return 1;
-}
-
 // hs.dockIcon -- for historical reasons, this is actually handled by the hs.dockicon module, but a wrapper
 // in the lua portion of this (setup.lua) provides an interface to this module which follows the syntax
 // conventions used here.
