@@ -40,7 +40,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     self.startupEvent = nil;
     self.startupFile = nil;
     self.openFileDelegate = nil;
-    self.updateAvailable = @NO;
+    self.updateAvailable = nil;
 }
 
 - (void)handleGetURLEvent:(NSAppleEventDescriptor *)event withReplyEvent:(NSAppleEventDescriptor *)replyEvent
