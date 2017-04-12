@@ -76,7 +76,9 @@ end
 ---     f16, f17, f18, f19, f20, pad, pad*, pad+, pad/, pad-, pad=,
 ---     pad0, pad1, pad2, pad3, pad4, pad5, pad6, pad7, pad8, pad9,
 ---     padclear, padenter, return, tab, space, delete, escape, help,
----     home, pageup, forwarddelete, end, pagedown, left, right, down, up
+---     home, pageup, forwarddelete, end, pagedown, left, right, down, up,
+---     shift, rightshift, cmd, rightcmd, alt, rightalt, ctrl, rightctrl,
+---     capslock, fn
 
 local keycodes = require "hs.keycodes.internal"
 keycodes.map = attachFallbackTable(keycodes._cachemap())

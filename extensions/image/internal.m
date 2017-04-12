@@ -20,66 +20,309 @@
 ///  * Image names pulled from NSImage.h
 ///  * This table has a __tostring() metamethod which allows listing it's contents in the Hammerspoon console by typing `hs.image.systemImageNames`.
 static int pushNSImageNameTable(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
     lua_newtable(L) ;
-        lua_pushstring(L, [NSImageNameQuickLookTemplate UTF8String]) ;                lua_setfield(L, -2, "QuickLookTemplate") ;
-        lua_pushstring(L, [NSImageNameBluetoothTemplate UTF8String]) ;                lua_setfield(L, -2, "BluetoothTemplate") ;
-        lua_pushstring(L, [NSImageNameIChatTheaterTemplate UTF8String]) ;             lua_setfield(L, -2, "IChatTheaterTemplate") ;
-        lua_pushstring(L, [NSImageNameSlideshowTemplate UTF8String]) ;                lua_setfield(L, -2, "SlideshowTemplate") ;
-        lua_pushstring(L, [NSImageNameActionTemplate UTF8String]) ;                   lua_setfield(L, -2, "ActionTemplate") ;
-        lua_pushstring(L, [NSImageNameSmartBadgeTemplate UTF8String]) ;               lua_setfield(L, -2, "SmartBadgeTemplate") ;
-        lua_pushstring(L, [NSImageNameIconViewTemplate UTF8String]) ;                 lua_setfield(L, -2, "IconViewTemplate") ;
-        lua_pushstring(L, [NSImageNameListViewTemplate UTF8String]) ;                 lua_setfield(L, -2, "ListViewTemplate") ;
-        lua_pushstring(L, [NSImageNameColumnViewTemplate UTF8String]) ;               lua_setfield(L, -2, "ColumnViewTemplate") ;
-        lua_pushstring(L, [NSImageNameFlowViewTemplate UTF8String]) ;                 lua_setfield(L, -2, "FlowViewTemplate") ;
-        lua_pushstring(L, [NSImageNamePathTemplate UTF8String]) ;                     lua_setfield(L, -2, "PathTemplate") ;
-        lua_pushstring(L, [NSImageNameInvalidDataFreestandingTemplate UTF8String]) ;  lua_setfield(L, -2, "InvalidDataFreestandingTemplate") ;
-        lua_pushstring(L, [NSImageNameLockLockedTemplate UTF8String]) ;               lua_setfield(L, -2, "LockLockedTemplate") ;
-        lua_pushstring(L, [NSImageNameLockUnlockedTemplate UTF8String]) ;             lua_setfield(L, -2, "LockUnlockedTemplate") ;
-        lua_pushstring(L, [NSImageNameGoRightTemplate UTF8String]) ;                  lua_setfield(L, -2, "GoRightTemplate") ;
-        lua_pushstring(L, [NSImageNameGoLeftTemplate UTF8String]) ;                   lua_setfield(L, -2, "GoLeftTemplate") ;
-        lua_pushstring(L, [NSImageNameRightFacingTriangleTemplate UTF8String]) ;      lua_setfield(L, -2, "RightFacingTriangleTemplate") ;
-        lua_pushstring(L, [NSImageNameLeftFacingTriangleTemplate UTF8String]) ;       lua_setfield(L, -2, "LeftFacingTriangleTemplate") ;
-        lua_pushstring(L, [NSImageNameAddTemplate UTF8String]) ;                      lua_setfield(L, -2, "AddTemplate") ;
-        lua_pushstring(L, [NSImageNameRemoveTemplate UTF8String]) ;                   lua_setfield(L, -2, "RemoveTemplate") ;
-        lua_pushstring(L, [NSImageNameRevealFreestandingTemplate UTF8String]) ;       lua_setfield(L, -2, "RevealFreestandingTemplate") ;
-        lua_pushstring(L, [NSImageNameFollowLinkFreestandingTemplate UTF8String]) ;   lua_setfield(L, -2, "FollowLinkFreestandingTemplate") ;
-        lua_pushstring(L, [NSImageNameEnterFullScreenTemplate UTF8String]) ;          lua_setfield(L, -2, "EnterFullScreenTemplate") ;
-        lua_pushstring(L, [NSImageNameExitFullScreenTemplate UTF8String]) ;           lua_setfield(L, -2, "ExitFullScreenTemplate") ;
-        lua_pushstring(L, [NSImageNameStopProgressTemplate UTF8String]) ;             lua_setfield(L, -2, "StopProgressTemplate") ;
-        lua_pushstring(L, [NSImageNameStopProgressFreestandingTemplate UTF8String]) ; lua_setfield(L, -2, "StopProgressFreestandingTemplate") ;
-        lua_pushstring(L, [NSImageNameRefreshTemplate UTF8String]) ;                  lua_setfield(L, -2, "RefreshTemplate") ;
-        lua_pushstring(L, [NSImageNameRefreshFreestandingTemplate UTF8String]) ;      lua_setfield(L, -2, "RefreshFreestandingTemplate") ;
-        lua_pushstring(L, [NSImageNameBonjour UTF8String]) ;                          lua_setfield(L, -2, "Bonjour") ;
-        lua_pushstring(L, [NSImageNameComputer UTF8String]) ;                         lua_setfield(L, -2, "Computer") ;
-        lua_pushstring(L, [NSImageNameFolderBurnable UTF8String]) ;                   lua_setfield(L, -2, "FolderBurnable") ;
-        lua_pushstring(L, [NSImageNameFolderSmart UTF8String]) ;                      lua_setfield(L, -2, "FolderSmart") ;
-        lua_pushstring(L, [NSImageNameFolder UTF8String]) ;                           lua_setfield(L, -2, "Folder") ;
-        lua_pushstring(L, [NSImageNameNetwork UTF8String]) ;                          lua_setfield(L, -2, "Network") ;
-        lua_pushstring(L, [NSImageNameMobileMe UTF8String]) ;                         lua_setfield(L, -2, "MobileMe") ;
-        lua_pushstring(L, [NSImageNameMultipleDocuments UTF8String]) ;                lua_setfield(L, -2, "MultipleDocuments") ;
-        lua_pushstring(L, [NSImageNameUserAccounts UTF8String]) ;                     lua_setfield(L, -2, "UserAccounts") ;
-        lua_pushstring(L, [NSImageNamePreferencesGeneral UTF8String]) ;               lua_setfield(L, -2, "PreferencesGeneral") ;
-        lua_pushstring(L, [NSImageNameAdvanced UTF8String]) ;                         lua_setfield(L, -2, "Advanced") ;
-        lua_pushstring(L, [NSImageNameInfo UTF8String]) ;                             lua_setfield(L, -2, "Info") ;
-        lua_pushstring(L, [NSImageNameFontPanel UTF8String]) ;                        lua_setfield(L, -2, "FontPanel") ;
-        lua_pushstring(L, [NSImageNameColorPanel UTF8String]) ;                       lua_setfield(L, -2, "ColorPanel") ;
-        lua_pushstring(L, [NSImageNameUser UTF8String]) ;                             lua_setfield(L, -2, "User") ;
-        lua_pushstring(L, [NSImageNameUserGroup UTF8String]) ;                        lua_setfield(L, -2, "UserGroup") ;
-        lua_pushstring(L, [NSImageNameEveryone UTF8String]) ;                         lua_setfield(L, -2, "Everyone") ;
-        lua_pushstring(L, [NSImageNameUserGuest UTF8String]) ;                        lua_setfield(L, -2, "UserGuest") ;
-        lua_pushstring(L, [NSImageNameMenuOnStateTemplate UTF8String]) ;              lua_setfield(L, -2, "MenuOnStateTemplate") ;
-        lua_pushstring(L, [NSImageNameMenuMixedStateTemplate UTF8String]) ;           lua_setfield(L, -2, "MenuMixedStateTemplate") ;
-        lua_pushstring(L, [NSImageNameApplicationIcon UTF8String]) ;                  lua_setfield(L, -2, "ApplicationIcon") ;
-        lua_pushstring(L, [NSImageNameTrashEmpty UTF8String]) ;                       lua_setfield(L, -2, "TrashEmpty") ;
-        lua_pushstring(L, [NSImageNameTrashFull UTF8String]) ;                        lua_setfield(L, -2, "TrashFull") ;
-        lua_pushstring(L, [NSImageNameHomeTemplate UTF8String]) ;                     lua_setfield(L, -2, "HomeTemplate") ;
-        lua_pushstring(L, [NSImageNameBookmarksTemplate UTF8String]) ;                lua_setfield(L, -2, "BookmarksTemplate") ;
-        lua_pushstring(L, [NSImageNameCaution UTF8String]) ;                          lua_setfield(L, -2, "Caution") ;
-        lua_pushstring(L, [NSImageNameStatusAvailable UTF8String]) ;                  lua_setfield(L, -2, "StatusAvailable") ;
-        lua_pushstring(L, [NSImageNameStatusPartiallyAvailable UTF8String]) ;         lua_setfield(L, -2, "StatusPartiallyAvailable") ;
-        lua_pushstring(L, [NSImageNameStatusUnavailable UTF8String]) ;                lua_setfield(L, -2, "StatusUnavailable") ;
-        lua_pushstring(L, [NSImageNameStatusNone UTF8String]) ;                       lua_setfield(L, -2, "StatusNone") ;
-        lua_pushstring(L, [NSImageNameShareTemplate UTF8String]) ;                    lua_setfield(L, -2, "ShareTemplate") ;
+        [skin pushNSObject:NSImageNameQuickLookTemplate] ;                       lua_setfield(L, -2, "QuickLookTemplate") ;
+        [skin pushNSObject:NSImageNameBluetoothTemplate] ;                       lua_setfield(L, -2, "BluetoothTemplate") ;
+        [skin pushNSObject:NSImageNameIChatTheaterTemplate] ;                    lua_setfield(L, -2, "IChatTheaterTemplate") ;
+        [skin pushNSObject:NSImageNameSlideshowTemplate] ;                       lua_setfield(L, -2, "SlideshowTemplate") ;
+        [skin pushNSObject:NSImageNameActionTemplate] ;                          lua_setfield(L, -2, "ActionTemplate") ;
+        [skin pushNSObject:NSImageNameSmartBadgeTemplate] ;                      lua_setfield(L, -2, "SmartBadgeTemplate") ;
+        [skin pushNSObject:NSImageNameIconViewTemplate] ;                        lua_setfield(L, -2, "IconViewTemplate") ;
+        [skin pushNSObject:NSImageNameListViewTemplate] ;                        lua_setfield(L, -2, "ListViewTemplate") ;
+        [skin pushNSObject:NSImageNameColumnViewTemplate] ;                      lua_setfield(L, -2, "ColumnViewTemplate") ;
+        [skin pushNSObject:NSImageNameFlowViewTemplate] ;                        lua_setfield(L, -2, "FlowViewTemplate") ;
+        [skin pushNSObject:NSImageNamePathTemplate] ;                            lua_setfield(L, -2, "PathTemplate") ;
+        [skin pushNSObject:NSImageNameInvalidDataFreestandingTemplate] ;         lua_setfield(L, -2, "InvalidDataFreestandingTemplate") ;
+        [skin pushNSObject:NSImageNameLockLockedTemplate] ;                      lua_setfield(L, -2, "LockLockedTemplate") ;
+        [skin pushNSObject:NSImageNameLockUnlockedTemplate] ;                    lua_setfield(L, -2, "LockUnlockedTemplate") ;
+// added in 10.12
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpartial-availability"
+    if (&NSImageNameGoForwardTemplate != NULL) {
+        [skin pushNSObject:NSImageNameGoForwardTemplate] ;                       lua_setfield(L, -2, "GoForwardTemplate") ;
+    }
+    if (&NSImageNameGoBackTemplate != NULL) {
+        [skin pushNSObject:NSImageNameGoBackTemplate] ;                          lua_setfield(L, -2, "GoBackTemplate") ;
+    }
+#pragma clang diagnostic pop
+        [skin pushNSObject:NSImageNameGoRightTemplate] ;                         lua_setfield(L, -2, "GoRightTemplate") ;
+        [skin pushNSObject:NSImageNameGoLeftTemplate] ;                          lua_setfield(L, -2, "GoLeftTemplate") ;
+        [skin pushNSObject:NSImageNameRightFacingTriangleTemplate] ;             lua_setfield(L, -2, "RightFacingTriangleTemplate") ;
+        [skin pushNSObject:NSImageNameLeftFacingTriangleTemplate] ;              lua_setfield(L, -2, "LeftFacingTriangleTemplate") ;
+        [skin pushNSObject:NSImageNameAddTemplate] ;                             lua_setfield(L, -2, "AddTemplate") ;
+        [skin pushNSObject:NSImageNameRemoveTemplate] ;                          lua_setfield(L, -2, "RemoveTemplate") ;
+        [skin pushNSObject:NSImageNameRevealFreestandingTemplate] ;              lua_setfield(L, -2, "RevealFreestandingTemplate") ;
+        [skin pushNSObject:NSImageNameFollowLinkFreestandingTemplate] ;          lua_setfield(L, -2, "FollowLinkFreestandingTemplate") ;
+        [skin pushNSObject:NSImageNameEnterFullScreenTemplate] ;                 lua_setfield(L, -2, "EnterFullScreenTemplate") ;
+        [skin pushNSObject:NSImageNameExitFullScreenTemplate] ;                  lua_setfield(L, -2, "ExitFullScreenTemplate") ;
+        [skin pushNSObject:NSImageNameStopProgressTemplate] ;                    lua_setfield(L, -2, "StopProgressTemplate") ;
+        [skin pushNSObject:NSImageNameStopProgressFreestandingTemplate] ;        lua_setfield(L, -2, "StopProgressFreestandingTemplate") ;
+        [skin pushNSObject:NSImageNameRefreshTemplate] ;                         lua_setfield(L, -2, "RefreshTemplate") ;
+        [skin pushNSObject:NSImageNameRefreshFreestandingTemplate] ;             lua_setfield(L, -2, "RefreshFreestandingTemplate") ;
+        [skin pushNSObject:NSImageNameBonjour] ;                                 lua_setfield(L, -2, "Bonjour") ;
+        [skin pushNSObject:NSImageNameComputer] ;                                lua_setfield(L, -2, "Computer") ;
+        [skin pushNSObject:NSImageNameFolderBurnable] ;                          lua_setfield(L, -2, "FolderBurnable") ;
+        [skin pushNSObject:NSImageNameFolderSmart] ;                             lua_setfield(L, -2, "FolderSmart") ;
+        [skin pushNSObject:NSImageNameFolder] ;                                  lua_setfield(L, -2, "Folder") ;
+        [skin pushNSObject:NSImageNameNetwork] ;                                 lua_setfield(L, -2, "Network") ;
+        [skin pushNSObject:NSImageNameMobileMe] ;                                lua_setfield(L, -2, "MobileMe") ;
+        [skin pushNSObject:NSImageNameMultipleDocuments] ;                       lua_setfield(L, -2, "MultipleDocuments") ;
+        [skin pushNSObject:NSImageNameUserAccounts] ;                            lua_setfield(L, -2, "UserAccounts") ;
+        [skin pushNSObject:NSImageNamePreferencesGeneral] ;                      lua_setfield(L, -2, "PreferencesGeneral") ;
+        [skin pushNSObject:NSImageNameAdvanced] ;                                lua_setfield(L, -2, "Advanced") ;
+        [skin pushNSObject:NSImageNameInfo] ;                                    lua_setfield(L, -2, "Info") ;
+        [skin pushNSObject:NSImageNameFontPanel] ;                               lua_setfield(L, -2, "FontPanel") ;
+        [skin pushNSObject:NSImageNameColorPanel] ;                              lua_setfield(L, -2, "ColorPanel") ;
+        [skin pushNSObject:NSImageNameUser] ;                                    lua_setfield(L, -2, "User") ;
+        [skin pushNSObject:NSImageNameUserGroup] ;                               lua_setfield(L, -2, "UserGroup") ;
+        [skin pushNSObject:NSImageNameEveryone] ;                                lua_setfield(L, -2, "Everyone") ;
+        [skin pushNSObject:NSImageNameUserGuest] ;                               lua_setfield(L, -2, "UserGuest") ;
+        [skin pushNSObject:NSImageNameMenuOnStateTemplate] ;                     lua_setfield(L, -2, "MenuOnStateTemplate") ;
+        [skin pushNSObject:NSImageNameMenuMixedStateTemplate] ;                  lua_setfield(L, -2, "MenuMixedStateTemplate") ;
+        [skin pushNSObject:NSImageNameApplicationIcon] ;                         lua_setfield(L, -2, "ApplicationIcon") ;
+        [skin pushNSObject:NSImageNameTrashEmpty] ;                              lua_setfield(L, -2, "TrashEmpty") ;
+        [skin pushNSObject:NSImageNameTrashFull] ;                               lua_setfield(L, -2, "TrashFull") ;
+        [skin pushNSObject:NSImageNameHomeTemplate] ;                            lua_setfield(L, -2, "HomeTemplate") ;
+        [skin pushNSObject:NSImageNameBookmarksTemplate] ;                       lua_setfield(L, -2, "BookmarksTemplate") ;
+        [skin pushNSObject:NSImageNameCaution] ;                                 lua_setfield(L, -2, "Caution") ;
+        [skin pushNSObject:NSImageNameStatusAvailable] ;                         lua_setfield(L, -2, "StatusAvailable") ;
+        [skin pushNSObject:NSImageNameStatusPartiallyAvailable] ;                lua_setfield(L, -2, "StatusPartiallyAvailable") ;
+        [skin pushNSObject:NSImageNameStatusUnavailable] ;                       lua_setfield(L, -2, "StatusUnavailable") ;
+        [skin pushNSObject:NSImageNameStatusNone] ;                              lua_setfield(L, -2, "StatusNone") ;
+        [skin pushNSObject:NSImageNameShareTemplate] ;                           lua_setfield(L, -2, "ShareTemplate") ;
+// added in 10.12.2
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpartial-availability"
+    if (&NSImageNameTouchBarAddDetailTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarAddDetailTemplate] ;               lua_setfield(L, -2, "TouchBarAddDetailTemplate") ;
+    }
+    if (&NSImageNameTouchBarAddTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarAddTemplate] ;                     lua_setfield(L, -2, "TouchBarAddTemplate") ;
+    }
+    if (&NSImageNameTouchBarAlarmTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarAlarmTemplate] ;                   lua_setfield(L, -2, "TouchBarAlarmTemplate") ;
+    }
+    if (&NSImageNameTouchBarAudioInputMuteTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarAudioInputMuteTemplate] ;          lua_setfield(L, -2, "TouchBarAudioInputMuteTemplate") ;
+    }
+    if (&NSImageNameTouchBarAudioInputTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarAudioInputTemplate] ;              lua_setfield(L, -2, "TouchBarAudioInputTemplate") ;
+    }
+    if (&NSImageNameTouchBarAudioOutputMuteTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarAudioOutputMuteTemplate] ;         lua_setfield(L, -2, "TouchBarAudioOutputMuteTemplate") ;
+    }
+    if (&NSImageNameTouchBarAudioOutputVolumeHighTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarAudioOutputVolumeHighTemplate] ;   lua_setfield(L, -2, "TouchBarAudioOutputVolumeHighTemplate") ;
+    }
+    if (&NSImageNameTouchBarAudioOutputVolumeLowTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarAudioOutputVolumeLowTemplate] ;    lua_setfield(L, -2, "TouchBarAudioOutputVolumeLowTemplate") ;
+    }
+    if (&NSImageNameTouchBarAudioOutputVolumeMediumTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarAudioOutputVolumeMediumTemplate] ; lua_setfield(L, -2, "TouchBarAudioOutputVolumeMediumTemplate") ;
+    }
+    if (&NSImageNameTouchBarAudioOutputVolumeOffTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarAudioOutputVolumeOffTemplate] ;    lua_setfield(L, -2, "TouchBarAudioOutputVolumeOffTemplate") ;
+    }
+    if (&NSImageNameTouchBarBookmarksTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarBookmarksTemplate] ;               lua_setfield(L, -2, "TouchBarBookmarksTemplate") ;
+    }
+    if (&NSImageNameTouchBarColorPickerFill != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarColorPickerFill] ;                 lua_setfield(L, -2, "TouchBarColorPickerFill") ;
+    }
+    if (&NSImageNameTouchBarColorPickerFont != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarColorPickerFont] ;                 lua_setfield(L, -2, "TouchBarColorPickerFont") ;
+    }
+    if (&NSImageNameTouchBarColorPickerStroke != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarColorPickerStroke] ;               lua_setfield(L, -2, "TouchBarColorPickerStroke") ;
+    }
+    if (&NSImageNameTouchBarCommunicationAudioTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarCommunicationAudioTemplate] ;      lua_setfield(L, -2, "TouchBarCommunicationAudioTemplate") ;
+    }
+    if (&NSImageNameTouchBarCommunicationVideoTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarCommunicationVideoTemplate] ;      lua_setfield(L, -2, "TouchBarCommunicationVideoTemplate") ;
+    }
+    if (&NSImageNameTouchBarComposeTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarComposeTemplate] ;                 lua_setfield(L, -2, "TouchBarComposeTemplate") ;
+    }
+    if (&NSImageNameTouchBarDeleteTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarDeleteTemplate] ;                  lua_setfield(L, -2, "TouchBarDeleteTemplate") ;
+    }
+    if (&NSImageNameTouchBarDownloadTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarDownloadTemplate] ;                lua_setfield(L, -2, "TouchBarDownloadTemplate") ;
+    }
+    if (&NSImageNameTouchBarEnterFullScreenTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarEnterFullScreenTemplate] ;         lua_setfield(L, -2, "TouchBarEnterFullScreenTemplate") ;
+    }
+    if (&NSImageNameTouchBarExitFullScreenTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarExitFullScreenTemplate] ;          lua_setfield(L, -2, "TouchBarExitFullScreenTemplate") ;
+    }
+    if (&NSImageNameTouchBarFastForwardTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarFastForwardTemplate] ;             lua_setfield(L, -2, "TouchBarFastForwardTemplate") ;
+    }
+    if (&NSImageNameTouchBarFolderCopyToTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarFolderCopyToTemplate] ;            lua_setfield(L, -2, "TouchBarFolderCopyToTemplate") ;
+    }
+    if (&NSImageNameTouchBarFolderMoveToTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarFolderMoveToTemplate] ;            lua_setfield(L, -2, "TouchBarFolderMoveToTemplate") ;
+    }
+    if (&NSImageNameTouchBarFolderTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarFolderTemplate] ;                  lua_setfield(L, -2, "TouchBarFolderTemplate") ;
+    }
+    if (&NSImageNameTouchBarGetInfoTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarGetInfoTemplate] ;                 lua_setfield(L, -2, "TouchBarGetInfoTemplate") ;
+    }
+    if (&NSImageNameTouchBarGoBackTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarGoBackTemplate] ;                  lua_setfield(L, -2, "TouchBarGoBackTemplate") ;
+    }
+    if (&NSImageNameTouchBarGoDownTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarGoDownTemplate] ;                  lua_setfield(L, -2, "TouchBarGoDownTemplate") ;
+    }
+    if (&NSImageNameTouchBarGoForwardTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarGoForwardTemplate] ;               lua_setfield(L, -2, "TouchBarGoForwardTemplate") ;
+    }
+    if (&NSImageNameTouchBarGoUpTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarGoUpTemplate] ;                    lua_setfield(L, -2, "TouchBarGoUpTemplate") ;
+    }
+    if (&NSImageNameTouchBarHistoryTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarHistoryTemplate] ;                 lua_setfield(L, -2, "TouchBarHistoryTemplate") ;
+    }
+    if (&NSImageNameTouchBarIconViewTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarIconViewTemplate] ;                lua_setfield(L, -2, "TouchBarIconViewTemplate") ;
+    }
+    if (&NSImageNameTouchBarListViewTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarListViewTemplate] ;                lua_setfield(L, -2, "TouchBarListViewTemplate") ;
+    }
+    if (&NSImageNameTouchBarMailTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarMailTemplate] ;                    lua_setfield(L, -2, "TouchBarMailTemplate") ;
+    }
+    if (&NSImageNameTouchBarNewFolderTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarNewFolderTemplate] ;               lua_setfield(L, -2, "TouchBarNewFolderTemplate") ;
+    }
+    if (&NSImageNameTouchBarNewMessageTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarNewMessageTemplate] ;              lua_setfield(L, -2, "TouchBarNewMessageTemplate") ;
+    }
+    if (&NSImageNameTouchBarOpenInBrowserTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarOpenInBrowserTemplate] ;           lua_setfield(L, -2, "TouchBarOpenInBrowserTemplate") ;
+    }
+    if (&NSImageNameTouchBarPauseTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarPauseTemplate] ;                   lua_setfield(L, -2, "TouchBarPauseTemplate") ;
+    }
+    if (&NSImageNameTouchBarPlayheadTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarPlayheadTemplate] ;                lua_setfield(L, -2, "TouchBarPlayheadTemplate") ;
+    }
+    if (&NSImageNameTouchBarPlayPauseTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarPlayPauseTemplate] ;               lua_setfield(L, -2, "TouchBarPlayPauseTemplate") ;
+    }
+    if (&NSImageNameTouchBarPlayTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarPlayTemplate] ;                    lua_setfield(L, -2, "TouchBarPlayTemplate") ;
+    }
+    if (&NSImageNameTouchBarQuickLookTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarQuickLookTemplate] ;               lua_setfield(L, -2, "TouchBarQuickLookTemplate") ;
+    }
+    if (&NSImageNameTouchBarRecordStartTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarRecordStartTemplate] ;             lua_setfield(L, -2, "TouchBarRecordStartTemplate") ;
+    }
+    if (&NSImageNameTouchBarRecordStopTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarRecordStopTemplate] ;              lua_setfield(L, -2, "TouchBarRecordStopTemplate") ;
+    }
+    if (&NSImageNameTouchBarRefreshTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarRefreshTemplate] ;                 lua_setfield(L, -2, "TouchBarRefreshTemplate") ;
+    }
+    if (&NSImageNameTouchBarRewindTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarRewindTemplate] ;                  lua_setfield(L, -2, "TouchBarRewindTemplate") ;
+    }
+    if (&NSImageNameTouchBarRotateLeftTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarRotateLeftTemplate] ;              lua_setfield(L, -2, "TouchBarRotateLeftTemplate") ;
+    }
+    if (&NSImageNameTouchBarRotateRightTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarRotateRightTemplate] ;             lua_setfield(L, -2, "TouchBarRotateRightTemplate") ;
+    }
+    if (&NSImageNameTouchBarSearchTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarSearchTemplate] ;                  lua_setfield(L, -2, "TouchBarSearchTemplate") ;
+    }
+    if (&NSImageNameTouchBarShareTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarShareTemplate] ;                   lua_setfield(L, -2, "TouchBarShareTemplate") ;
+    }
+    if (&NSImageNameTouchBarSidebarTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarSidebarTemplate] ;                 lua_setfield(L, -2, "TouchBarSidebarTemplate") ;
+    }
+    if (&NSImageNameTouchBarSkipAhead15SecondsTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarSkipAhead15SecondsTemplate] ;      lua_setfield(L, -2, "TouchBarSkipAhead15SecondsTemplate") ;
+    }
+    if (&NSImageNameTouchBarSkipAhead30SecondsTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarSkipAhead30SecondsTemplate] ;      lua_setfield(L, -2, "TouchBarSkipAhead30SecondsTemplate") ;
+    }
+    if (&NSImageNameTouchBarSkipAheadTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarSkipAheadTemplate] ;               lua_setfield(L, -2, "TouchBarSkipAheadTemplate") ;
+    }
+    if (&NSImageNameTouchBarSkipBack15SecondsTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarSkipBack15SecondsTemplate] ;       lua_setfield(L, -2, "TouchBarSkipBack15SecondsTemplate") ;
+    }
+    if (&NSImageNameTouchBarSkipBack30SecondsTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarSkipBack30SecondsTemplate] ;       lua_setfield(L, -2, "TouchBarSkipBack30SecondsTemplate") ;
+    }
+    if (&NSImageNameTouchBarSkipBackTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarSkipBackTemplate] ;                lua_setfield(L, -2, "TouchBarSkipBackTemplate") ;
+    }
+    if (&NSImageNameTouchBarSkipToEndTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarSkipToEndTemplate] ;               lua_setfield(L, -2, "TouchBarSkipToEndTemplate") ;
+    }
+    if (&NSImageNameTouchBarSkipToStartTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarSkipToStartTemplate] ;             lua_setfield(L, -2, "TouchBarSkipToStartTemplate") ;
+    }
+    if (&NSImageNameTouchBarSlideshowTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarSlideshowTemplate] ;               lua_setfield(L, -2, "TouchBarSlideshowTemplate") ;
+    }
+    if (&NSImageNameTouchBarTagIconTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarTagIconTemplate] ;                 lua_setfield(L, -2, "TouchBarTagIconTemplate") ;
+    }
+    if (&NSImageNameTouchBarTextBoldTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarTextBoldTemplate] ;                lua_setfield(L, -2, "TouchBarTextBoldTemplate") ;
+    }
+    if (&NSImageNameTouchBarTextBoxTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarTextBoxTemplate] ;                 lua_setfield(L, -2, "TouchBarTextBoxTemplate") ;
+    }
+    if (&NSImageNameTouchBarTextCenterAlignTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarTextCenterAlignTemplate] ;         lua_setfield(L, -2, "TouchBarTextCenterAlignTemplate") ;
+    }
+    if (&NSImageNameTouchBarTextItalicTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarTextItalicTemplate] ;              lua_setfield(L, -2, "TouchBarTextItalicTemplate") ;
+    }
+    if (&NSImageNameTouchBarTextJustifiedAlignTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarTextJustifiedAlignTemplate] ;      lua_setfield(L, -2, "TouchBarTextJustifiedAlignTemplate") ;
+    }
+    if (&NSImageNameTouchBarTextLeftAlignTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarTextLeftAlignTemplate] ;           lua_setfield(L, -2, "TouchBarTextLeftAlignTemplate") ;
+    }
+    if (&NSImageNameTouchBarTextListTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarTextListTemplate] ;                lua_setfield(L, -2, "TouchBarTextListTemplate") ;
+    }
+    if (&NSImageNameTouchBarTextRightAlignTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarTextRightAlignTemplate] ;          lua_setfield(L, -2, "TouchBarTextRightAlignTemplate") ;
+    }
+    if (&NSImageNameTouchBarTextStrikethroughTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarTextStrikethroughTemplate] ;       lua_setfield(L, -2, "TouchBarTextStrikethroughTemplate") ;
+    }
+    if (&NSImageNameTouchBarTextUnderlineTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarTextUnderlineTemplate] ;           lua_setfield(L, -2, "TouchBarTextUnderlineTemplate") ;
+    }
+    if (&NSImageNameTouchBarUserAddTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarUserAddTemplate] ;                 lua_setfield(L, -2, "TouchBarUserAddTemplate") ;
+    }
+    if (&NSImageNameTouchBarUserGroupTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarUserGroupTemplate] ;               lua_setfield(L, -2, "TouchBarUserGroupTemplate") ;
+    }
+    if (&NSImageNameTouchBarUserTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarUserTemplate] ;                    lua_setfield(L, -2, "TouchBarUserTemplate") ;
+    }
+    if (&NSImageNameTouchBarVolumeDownTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarVolumeDownTemplate] ;              lua_setfield(L, -2, "TouchBarVolumeDownTemplate") ;
+    }
+    if (&NSImageNameTouchBarVolumeUpTemplate != NULL) {
+        [skin pushNSObject:NSImageNameTouchBarVolumeUpTemplate] ;                lua_setfield(L, -2, "TouchBarVolumeUpTemplate") ;
+    }
+#pragma clang diagnostic pop
     return 1;
 }
 
