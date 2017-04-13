@@ -231,7 +231,7 @@ static int eventtap_isEnabled(lua_State* L) {
 /// Returns a table containing the current key modifiers being pressed or in effect *at this instant* for the keyboard most recently used.
 ///
 /// Parameters:
-///  * raw - an optional boolean value which, if true, includes the _raw key contining the numeric representation of all of the keyboard/modifier flags.
+///  * raw - an optional boolean value which, if true, includes the _raw key containing the numeric representation of all of the keyboard/modifier flags.
 ///
 /// Returns:
 ///  * Returns a table containing boolean values indicating which keyboard modifiers were held down when the function was invoked; The possible keys are:
