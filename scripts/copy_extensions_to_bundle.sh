@@ -131,6 +131,11 @@ mkdir -pv "${HS_DST}/ipc/share/man/man1"
 cp -av "${SRCROOT}/extensions/ipc/cli/hs.man" "${HS_DST}/ipc/share/man/man1/hs.1"
 cp -av "${BUILT_PRODUCTS_DIR}/hs" "${HS_DST}/ipc/bin/hs"
 
+# Special copier for hs.host.locale
+mkdir -pv "${HS_DST}/host/locale"
+cp -av "${SRCROOT}/extensions/host/locale/init.lua" "${HS_DST}/host/locale/init.lua"
+cp -av "${BUILT_PRODUCTS_DIR}/libhost_locale.dylib" "${HS_DST}/host/locale/internal.so"
+
 # Special copier for hs.httpserver.hsminweb support
 cp -av "${SRCROOT}/extensions/httpserver/hsminweb.lua" "${HS_DST}/httpserver/hsminweb.lua"
 cp -av "${SRCROOT}/extensions/httpserver/timeout3" "${HS_DST}/httpserver/timeout3"
