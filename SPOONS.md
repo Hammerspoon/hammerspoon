@@ -1,5 +1,26 @@
 # A guide for creating and distributing Hammerspoon Spoons
 
+* [What is a Spoon?](#what-is-a-spoon)
+* [Where do I get Spoons from?](#where-do-i-get-spoons-from)
+* [How do I install a Spoon?](#how-do-i-install-a-spoon)
+* [How do I use a Spoon?](#how-do-i-use-a-spoon)
+    * [Loading a Spoon](#loading-a-spoon)
+    * [Integrating into your configuration](#integrating-into-your-configuration)
+* [How do I create a Spoon?](#how-do-i-create-a-spoon)
+    * [API Conventions](#api-conventions)
+        * [Naming](#naming)
+        * [Initialisation](#initialisation)
+        * [Metadata](#metadata)
+        * [Starting/Stopping](#startingstopping)
+        * [Hotkeys](#hotkeys)
+        * [Other](#other)
+    * [Documentation](#documentation)
+        * [Writing](#writing)
+        * [Generating](#generating)
+    * [Loading files](#loading-files)
+        * [Code](#code)
+        * [Assets](#assets)
+
 ## What is a Spoon?
 
 Spoons are intended to be pure-Lua plugins for users to use in their Hammerspoon configs.
@@ -48,6 +69,7 @@ The Spoon should also provide some standard metadata:
  * `NAME.name` - A string containing the name of the Spoon
  * `NAME.version` - A string containing the version number of the Spoon
  * `NAME.author` - A string containing the name/email of the spoon's author
+ * `NAME.license` - A string containing some information about the license that applies to the Spoon, ideally including a URL to the license
 
 and optionally:
 
@@ -55,3 +77,141 @@ and optionally:
 
 Many Spoons will offer additional API points on top of these, and you should consult their documentation to learn more.
 
+## How do I create a Spoon?
+
+Ultimately a Spoon can be as little as a directory whose name ends `.spoon`, with an `init.lua` inside it.
+
+However, Spoons offer the most value to users of Hammerspoon when they conform to an API convention, allowing users to interact with all of their Spoons in very similar ways.
+
+### API Conventions
+
+#### Naming
+
+ * Spoon names should use TitleCase
+ * Spoon methods/variables/constants/etc. should use camelCase
+
+#### Initialisation
+
+When a user calls `hs.loadSpoon()`, Hammerspoon will load and execute `init.lua` from the relevant Spoon.
+
+You should generally not perform any work, map any hotkeys, start any timers/watchers/etc. in the main scope of your `init.lua`. Instead, it should simply prepare an object with methods to be used later, then return the object.
+
+If the object you return has an `:init()` method, Hammerspoon will call it automatically (although users can override this behaviour, so be sure to document your `:init()` method).
+
+In the `:init()` method, you should do any work that is necessary to prepare resources for later use, although generally you should not be starting any timers/watchers/etc. or mapping any hotkeys here.
+
+#### Metadata
+
+You should include at least the following properties on your object:
+
+ * `.name` - The name of your Spoon
+ * `.version` - The version of your Spoon
+ * `.author` - Your name and optionally your email address
+ * `.license` - The software license that applies to your Spoon, ideally with a link to the text of the license (e.g. on [https://opensource.org/](https://opensource.org/))
+
+and optionally:
+
+ * `.homepage` - A URL for the home of your Spoon, e.g. its GitHub repo
+
+#### Starting/Stopping
+
+If your Spoon provides some kind of background activity, e.g. timers, watchers, spotlight searches, etc. you should generally activate them in a `:start()` method, and de-activate them in a `:stop()` method
+
+#### Hotkeys
+
+If your Spoon provides actions that a user can map to hotkeys, you should expose a `:bindHotKeys()` method. The method should accept a single parameter, which is a table.
+The keys of the table should be strings that describe the action performed by the hotkeys, and the values of the table should be tables containing modifiers and keynames/keycodes.
+
+For example, if the user wants to map two of your actions, `show` and `hide`, they would pass in:
+
+```lua
+  {
+    show={{"cmd", "alt"}, "s"},
+    hide={{"cmd", "alt"}, "h"}
+  }
+```
+
+Your `:bindHotkeys()` method now has all of the information it needs to bind hotkeys to its methods.
+
+While you might want to verify the contents of the table, it seems reasonable to be fairly limited in the extent, so long as you have documented the method well.
+
+#### Other
+
+You can present any other methods you want, and while they are all technically accessible to the user, you should only document the ones you actually intend to be public API.
+
+### Documentation
+
+#### Writing
+
+Spoon methods/variables/etc. should be documented using the same docstring format that Hammerspoon uses for its own API. An example of a method for adding a USB device to a Spoon that takes actions when USB devices are connected, might look like this:
+
+```lua
+--- USBObserver:addDevice(vendorID, productID[, name])
+--- Method
+--- Adds a device to USBObserver's watch list
+---
+--- Parameters:
+---  * vendorID - A number containing the vendor ID of a USB device
+---  * productID - A number containing the vendor ID of a USB device
+---  * name - An optional string containing the name of a USB device
+---
+--- Returns:
+---  * A boolean, true if the device was added, otherwise false
+```
+
+By convention in Hammerspoon, methods tend to return the object they belong to (so methods can be chained, e.g. `foo:bar():baz()`), but this isn't always appropriate.
+
+#### Generating
+
+While it is useful to have these docstrings inline with your code, it is not the most friendly way for users to browse documentation.
+
+Hammerspoon itself is extensively documented using these docstrings, but we also generate JSON, HTML and Dash output, and the same script used for Hammerspoon, can be used for Spoons.
+
+You should include the JSON version of the documentation, in the Spoon, named `docs.json`. It is generally not appropriate to include the HTML version, but you can choose to host this on the Spoon's homepage (if your Spoons live on GitHub, it is relatively simple to host static HTML on a GitHub Pages site). If you submit your Spoon for hosting in the official Spoon repository, we will take care of generating the HTML documentation and hosting it for you.
+
+To generate documentation for your Spoon, you can use the same script that Hammerspoon uses to generate its documentation:
+
+ * Clone [https://github.com/Hamerspoon/hammerspoon](https://github.com/Hammerspoon/hammerspoon)
+ * Install the required Python dependencies (e.g. `pip install --user -r requirements.txt` in the Hammerspoon repo)
+ * Then in your Spoon's directory, run:
+
+```bash
+/path/to/hammerspoon_repo/scripts/docs/bin/build_docs.py -e /path/to/hammerspoon_repo/scripts/docs/templates/ -o . -j -t -n .
+```
+
+This will search the current working director for any `.lua` files, extract docstrings from them, and write `docs.json` to the current directory. A similar command can be run with `-t` instead of `-j` and a different output directory (`-o`) will generate the HTML documentation. See `build_docs.py --help` for more options (e.g. Markdown output).
+
+### Loading files
+
+If your Spoon grows more complex than just an `init.lua`, a problem you will quickly run into is how you can load extra `.lua` files, or other types of resources (e.g. images).
+
+There is, however, a simple way to discover the true path of your Spoon on the filesystem. Simply include this code in your Spoon:
+
+```lua
+-- Internal function used to find our location, so we know where to load files from
+local function script_path()
+    local str = debug.getinfo(2, "S").source:sub(2)
+    return str:match("(.*/)")
+end
+obj.spoonPath = script_path()
+```
+
+Assuming you have been building your Spoon object as `obj`, you can now reference `obj.spoonPath` anywhere in your methods, and know where you should load files from.
+
+#### Code
+
+You cannot use `require()` to load `.lua` files in a Spoon, instead you should use:
+
+```lua
+dofile(obj.spoonPath.."/someCode.lua")
+```
+
+and the `someCode.lua` file will be loaded and executed (and if it returns anything, you can capture those values from `dofile()`)
+
+#### Assets
+
+Once you have `spoonPath` available in your object, any normal Lua/Hammerspoon/etc. methods for loading files, should work, e.g.:
+
+```lua
+hs.image.imageFromPath(self.spoonPath.."/someImage.png")
+```

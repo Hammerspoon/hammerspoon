@@ -40,7 +40,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     self.startupEvent = nil;
     self.startupFile = nil;
     self.openFileDelegate = nil;
-    self.updateAvailable = @NO;
+    self.updateAvailable = nil;
 }
 
 - (void)handleGetURLEvent:(NSAppleEventDescriptor *)event withReplyEvent:(NSAppleEventDescriptor *)replyEvent
@@ -236,6 +236,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
                          MJShowMenuIconKey: @YES,
                          HSAutoLoadExtensions: @YES,
                          HSUploadCrashDataKey: @YES,
+                         HSAppleScriptEnabledKey: @NO,
                          }];
 }
 
@@ -307,11 +308,12 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 
 #pragma mark - Sparkle delegate methods
 - (void)updater:(id)updater didFindValidUpdate:(id)update {
-    self.updateAvailable = @YES;
+    NSLog(@"Update found: %@", [update valueForKey:@"versionString"]);
+    self.updateAvailable = [update valueForKey:@"versionString"];
 }
 
 - (void)updaterDidNotFindUpdate:(id)update {
-    self.updateAvailable = @NO;
+    self.updateAvailable = nil;
 }
 
 @end

@@ -18,5 +18,5 @@
 @property (nonatomic, copy) NSAppleEventDescriptor *startupEvent;
 @property (nonatomic, copy) NSString *startupFile;
 @property (nonatomic, weak) id<HSOpenFileDelegate> openFileDelegate;
-@property (nonatomic, strong) NSNumber* updateAvailable;
+@property (nonatomic, strong) NSString* updateAvailable;
 @end

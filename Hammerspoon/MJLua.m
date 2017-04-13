@@ -9,6 +9,7 @@
 #import "MJPreferencesWindowController.h"
 #import "MJConsoleWindowController.h"
 #import "MJAutoLaunch.h"
+#import "HSAppleScript.h"
 #import <Crashlytics/Crashlytics.h>
 
 static LuaSkin* MJLuaState;
@@ -312,15 +313,15 @@ static int checkForUpdates(lua_State *L) {
     return 0 ;
 }
 
-/// hs.updateAvailable() -> boolean
+/// hs.updateAvailable() -> string or false
 /// Function
-/// Returns a boolean indicating whether or not the Sparkle framework has found a Hammerspoon update.
+/// Gets the version number of an available update
 ///
 /// Parameters:
 ///  * None
 ///
 /// Returns:
-///  * A boolean, true if an update is available, otherwise false
+///  * A string containing the version number of the latest release, or a boolean false if no update is available
 ///
 /// Notes:
 ///  * This is not a live check, it is a cached result of whatever the previous update check found. By default Hammerspoon checks for updates every few hours, but you can also add your own timer to check for updates more frequently with `hs.checkForUpdates()`
@@ -333,8 +334,12 @@ static int updateAvailable(lua_State *L) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
 
-    NSNumber *updateAvailable = [appDelegate performSelector:@selector(updateAvailable)];
-    lua_pushboolean(L, [updateAvailable boolValue]);
+    NSString *updateAvailable = [appDelegate performSelector:@selector(updateAvailable)];
+    if (updateAvailable == nil) {
+        lua_pushboolean(L, 0);
+    } else {
+        [skin pushNSObject:updateAvailable];
+    }
 
 #pragma clang diagnostic pop
     return 1;
@@ -365,6 +370,42 @@ static int canCheckForUpdates(lua_State *L) {
     }
     lua_pushboolean(L, canUpdate) ;
     return 1 ;
+}
+
+/// hs.allowAppleScript([state]) -> bool
+/// Function
+/// Set or display whether or not external Hammerspoon AppleScript commands are allowed
+///
+/// Parameters:
+///  * state - an optional boolean which will set whether or not external Hammerspoon's AppleScript commands are allowed
+///
+/// Returns:
+///  * A boolean, true if Hammerspoon's AppleScript commands are (or has just been) allowed otherwise false
+///
+/// Notes:
+///  * AppleScript access is disallowed by default
+///  * Due to the way AppleScript support works, Hammerspoon will always allow AppleScript commands that are part of the "Standard Suite", such as `name, `quit`, `version`, etc. However, Hammerspoon will only allow commands from the "Hammerspoon Suite" if `hs.allowAppleScript()` is set to `true`
+///  * For a full list of AppleScript Commands:
+///      - Open `/Applications/Utilities/Script Editor.app`
+///      - Click `File > Open Dictionary...`
+///      - Select Hammerspoon from the list of Applications
+///      - This will now open a Dictionary containing all of the availible Hammerspoon AppleScript commands.
+///  * Here's an example AppleScript that can be used in Apple's Script Editor to control Hammerspoon:
+///
+///    ````tell application "Hammerspoon"
+///         execute lua code "hs.alert([[Hello from AppleScript]])"
+///     end tell````
+///  * Note in the above example that stings within the Lua code are delimited by `[[` and `]]` rather than normal quotes
+static int core_appleScript(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
+
+    if (lua_isboolean(L, -1)) {
+        HSAppleScriptSetEnabled(lua_toboolean(L, -1));
+    }
+
+    lua_pushboolean(L, HSAppleScriptEnabled()) ;
+    return 1;
 }
 
 /// hs.focus()
@@ -451,6 +492,7 @@ static luaL_Reg corelib[] = {
     {"checkForUpdates", checkForUpdates},
     {"updateAvailable", updateAvailable},
     {"canCheckForUpdates", canCheckForUpdates},
+    {"allowAppleScript", core_appleScript},
     {"reload", core_reload},
     {"focus", core_focus},
     {"accessibilityState", core_accessibilityState},
