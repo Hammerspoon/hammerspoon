@@ -169,9 +169,13 @@ Hammerspoon itself is extensively documented using these docstrings, but we also
 
 You should include the JSON version of the documentation, in the Spoon, named `docs.json`. It is generally not appropriate to include the HTML version, but you can choose to host this on the Spoon's homepage (if your Spoons live on GitHub, it is relatively simple to host static HTML on a GitHub Pages site). If you submit your Spoon for hosting in the official Spoon repository, we will take care of generating the HTML documentation and hosting it for you.
 
-To generate documentation, you will need to clone the main Hammerspoon repository ([https://github.com/Hamerspoon/hammerspoon](https://github.com/Hammerspoon/hammerspoon)) and then run:
+To generate documentation for your Spoon, you can use the same script that Hammerspoon uses to generate its documentation:
 
-```
+ * Clone [https://github.com/Hamerspoon/hammerspoon](https://github.com/Hammerspoon/hammerspoon)
+ * Install the required Python dependencies (e.g. `pip install --user -r requirements.txt` in the Hammerspoon repo)
+ * Then in your Spoon's directory, run:
+
+```bash
 /path/to/hammerspoon_repo/scripts/docs/bin/build_docs.py -e /path/to/hammerspoon_repo/scripts/docs/templates/ -o . -j -t -n .
 ```
 
