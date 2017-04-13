@@ -162,7 +162,7 @@ function assert_docs_bundle_complete() {
 
 function assert_cocoapods_state() {
   echo "Checking Cocoapods state..."
-  pushd "${HAMERSPOON_HOME}" >/dev/null
+  pushd "${HAMMERSPOON_HOME}" >/dev/null
   if ! pod outdated >/dev/null 2>&1 ; then
     fail "cocoapods installation does not seem sane"
   fi

@@ -118,6 +118,7 @@ end
 ---  * one or more hs.application objects for running applications that match the supplied search criterion, or `nil` if none found
 ---
 --- Notes:
+---  * If multiple results are found, this function will return multiple values. See [https://www.lua.org/pil/5.1.html](https://www.lua.org/pil/5.1.html) for more information on how to work with this
 ---  * for convenience you can call this as `hs.application(hint)`
 ---  * use this function when you don't know the exact name of an application you're interested in, i.e.
 ---    from the console: `hs.application'term' --> hs.application: iTerm2 (0x61000025fb88)  hs.application: Terminal (0x618000447588)`.
