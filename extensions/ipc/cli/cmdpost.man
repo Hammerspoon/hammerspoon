@@ -3,7 +3,7 @@
 .Os Darwin
 .Sh NAME
 .Nm hs
-.Nd Command line interface to Hammerspoon.app
+.Nd Command line interface to CommandPost.app
 .Sh SYNOPSIS
 .Nm
 .Op Fl i | Fl s | Fl c Ar code | Fl t Ar timeout
@@ -12,7 +12,7 @@
 .Sh DESCRIPTION
 Runs
 .Ar code
-from within Hammerspoon, and prints the results. The given
+from within CommandPost, and prints the results. The given
 .Ar code
 is passed to "hs.ipc.handler" which normally executes it as plain Lua code, but may be overridden to do some custom evaluation.
 .Pp
@@ -36,7 +36,7 @@ as the receive timeout, instead of the default of 4 seconds.
 Uses stdin as
 .Ar code
 .It Fl r
-Forces Hammerspoon to interpret
+Forces CommandPost to interpret
 .Ar code
 as raw Lua code; the function "hs.ipc.handler" is not called.
 .It Fl n
