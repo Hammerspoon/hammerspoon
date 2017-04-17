@@ -11,9 +11,11 @@
 #import "MJAccessibilityUtils.h"
 #import "variables.h"
 #import "secrets.h"
+#import "PFMoveApplication.h"
 
 @implementation MJAppDelegate
 
+/*
 static BOOL MJFirstRunForCurrentVersion(void) {
     NSString* key = [NSString stringWithFormat:@"%@_%d", MJHasRunAlreadyKey, MJVersionFromThisApp()];
 
@@ -24,6 +26,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 
     return firstRun;
 }
+*/
 
 - (BOOL) applicationShouldHandleReopen:(NSApplication*)theApplication hasVisibleWindows:(BOOL)hasVisibleWindows {
     [[MJConsoleWindowController singleton] showWindow: nil];
@@ -32,6 +35,9 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 
 -(void)applicationWillFinishLaunching:(NSNotification *)aNotification
 {
+    // LetsWatch:
+    PFMoveToApplicationsFolderIfNecessary();
+    
     // Set up an early event manager handler so we can catch URLs used to launch us
     NSAppleEventManager *appleEventManager = [NSAppleEventManager sharedAppleEventManager];
     [appleEventManager setEventHandler:self
@@ -51,27 +57,30 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 - (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)fileAndPath {
     NSString *typeOfFile = [[NSWorkspace sharedWorkspace] typeOfFile:fileAndPath error:nil];
 
-    if ([typeOfFile isEqualToString:@"org.hammerspoon.hammerspoon.spoon"]) {
-        // This is a Spoon, so we will attempt to copy it to the Spoons directory
+    if ([typeOfFile isEqualToString:@"org.latenitefilms.commandpost.plugin"]) {
+        // This is a Plugin, so we will attempt to copy it to the Plugin directory
         NSError *moveError;
         BOOL success = NO;
-        NSString *spoonPath = [MJConfigDir() stringByAppendingPathComponent:@"Spoons"];
+        NSString *spoonPath = [@"~/Library/Application Support/CommandPost/Plugins/" stringByExpandingTildeInPath]; // [MJConfigDir() stringByAppendingPathComponent:@"Spoons"];
         NSString *spoonName = [fileAndPath lastPathComponent];
+        NSString *spoonNameWithoutExtension = [[fileAndPath lastPathComponent] stringByDeletingPathExtension];
+        
         success = [[NSFileManager defaultManager] moveItemAtPath:fileAndPath toPath:[spoonPath stringByAppendingPathComponent:spoonName] error:&moveError];
         if (!success) {
             NSLog(@"Unable to move %@ to %@: %@", fileAndPath, spoonPath, moveError);
             NSAlert *alert = [[NSAlert alloc] init];
             [alert addButtonWithTitle:@"OK"];
-            [alert setMessageText:@"Error importing Spoon"];
+            [alert setMessageText:@"Error importing Plugin"];
             [alert setInformativeText:[NSString stringWithFormat:@"%@\n\nSource: %@\nDest: %@", moveError.localizedDescription, fileAndPath, spoonPath]];
             [alert setAlertStyle:NSCriticalAlertStyle];
             [alert runModal];
         } else {
             NSUserNotification *notification = [[NSUserNotification alloc] init];
-            notification.title = @"Spoon imported";
-            notification.informativeText = [NSString stringWithFormat:@"%@ is now available", spoonName];
+            notification.title = @"Plugin Imported";
+            notification.informativeText = [NSString stringWithFormat:@"%@ is now available. CommandPost will now restart.", spoonNameWithoutExtension];
             notification.soundName = NSUserNotificationDefaultSoundName;
             [[NSUserNotificationCenter defaultUserNotificationCenter] deliverNotification:notification];
+            MJLuaReplace(); // Reload CommandPost
         }
         return YES; // Note that we always return YES here because otherwise macOS tells the user that we can't open Spoons, which is ludicrous
     }
@@ -139,13 +148,13 @@ static BOOL MJFirstRunForCurrentVersion(void) {
         NSString* userMJConfigFile = [[NSUserDefaults standardUserDefaults] stringForKey:@"MJConfigFile"];
         if (userMJConfigFile) MJConfigFile = userMJConfigFile ;
 
-        // Ensure we have a Spoons directory
-        NSString *spoonsPath = [MJConfigDir() stringByAppendingPathComponent:@"Spoons"];
+        // Ensure we have a Plugin directory
+        NSString *spoonsPath = [@"~/Library/Application Support/CommandPost/Plugins/" stringByExpandingTildeInPath]; //[MJConfigDir() stringByAppendingPathComponent:@"Spoons"];
         NSFileManager *fileManager = [NSFileManager defaultManager];
         BOOL spoonsPathIsDir;
         BOOL spoonsPathExists = [fileManager fileExistsAtPath:spoonsPath isDirectory:&spoonsPathIsDir];
 
-        NSLog(@"Determined Spoons path will be: %@ (exists: %@, isDir: %@)", spoonsPath, spoonsPathExists ? @"YES" : @"NO", spoonsPathIsDir ? @"YES" : @"NO");
+        NSLog(@"Determined Plugins path will be: %@ (exists: %@, isDir: %@)", spoonsPath, spoonsPathExists ? @"YES" : @"NO", spoonsPathIsDir ? @"YES" : @"NO");
 
         if (spoonsPathExists && !spoonsPathIsDir) {
             NSLog(@"ERROR: %@ exists, but is a file", spoonsPath);
@@ -153,7 +162,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
         }
 
         if (!spoonsPathExists) {
-            NSLog(@"Creating Spoons directory at: %@", spoonsPath);
+            NSLog(@"Creating Plugins directory at: %@", spoonsPath);
             [[NSFileManager defaultManager] createDirectoryAtPath:spoonsPath withIntermediateDirectories:YES attributes:nil error:nil];
         }
     }
@@ -200,9 +209,10 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     MJLuaCreate();
 
     // FIXME: Do we care about showing the prefs on the first run of each new version? (Ng does not care)
-    if (MJFirstRunForCurrentVersion() || !MJAccessibilityIsEnabled())
-        [[MJPreferencesWindowController singleton] showWindow: nil];
+    //if (MJFirstRunForCurrentVersion() || !MJAccessibilityIsEnabled())
+        //[[MJPreferencesWindowController singleton] showWindow: nil];
 }
+     
 
 // Dragging & Dropping of Text to Dock Item
 -(void) processDockIconDraggedText:(NSPasteboard *)pboard userData:(NSString *)userData error:(NSString **)error {
@@ -232,11 +242,11 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 - (void) registerDefaultDefaults {
     [[NSUserDefaults standardUserDefaults]
      registerDefaults: @{@"NSApplicationCrashOnExceptions": @YES,
-                         MJShowDockIconKey: @YES,
-                         MJShowMenuIconKey: @YES,
+                         MJShowDockIconKey: @NO,
+                         MJShowMenuIconKey: @NO,
                          HSAutoLoadExtensions: @YES,
                          HSUploadCrashDataKey: @YES,
-                         HSAppleScriptEnabledKey: @NO,
+                         HSAppleScriptEnabledKey: @YES,
                          }];
 }
 
@@ -259,7 +269,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     @try {
         [[NSApplication sharedApplication] orderFrontStandardAboutPanel: nil];
     } @catch (NSException *exception) {
-        [[LuaSkin shared] logError:@"Unable to open About dialog. This may mean your Hammerspoon installation is corrupt. Please re-install it!"];
+        [[LuaSkin shared] logError:@"Unable to open About dialog. This may mean your CommandPost installation is corrupt. Please re-install it!"];
     }
 }
 
@@ -286,12 +296,14 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 - (void)showMjolnirMigrationNotification {
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:@"OK"];
-    [alert setMessageText:@"Hammerspoon crash detected"];
-    [alert setInformativeText:@"Your init.lua is loading Mjolnir modules and a previous launch crashed.\n\nHammerspoon ships with updated versions of many of the Mjolnir modules, with both new features and many bug fixes.\n\nPlease consult our API documentation and migrate your config."];
+    [alert setMessageText:@"CommandPost crash detected"];
+    [alert setInformativeText:@"Your init.lua is loading Mjolnir modules and a previous launch crashed.\n\nCommandPost ships with updated versions of many of the Mjolnir modules, with both new features and many bug fixes.\n\nPlease consult our API documentation and migrate your config."];
     [alert setAlertStyle:NSCriticalAlertStyle];
     [alert runModal];
 }
 
+// Commented out by Chris Hocking:
+/*
 - (void)crashlyticsDidDetectReportForLastExecution:(CLSReport *)report completionHandler:(void (^)(BOOL submit))completionHandler {
     BOOL showMjolnirMigrationDialog = NO;
 
@@ -304,6 +316,23 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     if (showMjolnirMigrationDialog) {
         [self showMjolnirMigrationNotification];
     }
+}
+*/
+
+// Added by Chris Hocking:
+- (void)crashlyticsDidDetectReportForLastExecution:(CLSReport *)report completionHandler:(void (^)(BOOL))completionHandler {
+    // Use this opportunity to take synchronous action on a crash. See Crashlytics.h for
+    // details and implications.
+    
+    // Maybe consult NSUserDefaults or show a UI prompt.
+    
+    // But, make ABSOLUTELY SURE you invoke completionHandler, as the SDK
+    // will not submit the report until you do. You can do this from any
+    // thread, but that's optional. If you want, you can just call the
+    // completionHandler and return.
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        completionHandler(YES);
+    }];
 }
 
 #pragma mark - Sparkle delegate methods
