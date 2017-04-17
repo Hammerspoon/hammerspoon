@@ -66,8 +66,11 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
 }
 
 - (void) windowDidLoad {
-    [[self window] center];
 
+    // Save & Restore Last Window Location to Preferences:
+    [self setShouldCascadeWindows:NO];
+    [self setWindowFrameAutosaveName:@"console"];
+    
     self.history = [NSMutableArray array];
     [self.outputView setEditable:NO];
     [self.outputView setSelectable:YES];
