@@ -1283,7 +1283,7 @@ static int item_userdata_tostring(lua_State* L) {
     NSMetadataItem *obj = [skin luaObjectAtIndex:1 toClass:"NSMetadataItem"] ;
     NSString *title = [obj valueForAttribute:NSMetadataItemFSNameKey] ;
     if (!title) title = @"<undefined>" ;
-    [skin pushNSObject:[NSString stringWithFormat:@"%s: %@ (%p)", GROUP_UD_TAG, title, lua_topointer(L, 1)]] ;
+    [skin pushNSObject:[NSString stringWithFormat:@"%s: %@ (%p)", ITEM_UD_TAG, title, lua_topointer(L, 1)]] ;
     return 1 ;
 }
 
