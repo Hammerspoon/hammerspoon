@@ -53,23 +53,44 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 
     if ([typeOfFile isEqualToString:@"org.hammerspoon.hammerspoon.spoon"]) {
         // This is a Spoon, so we will attempt to copy it to the Spoons directory
-        NSError *moveError;
+        NSError *fileError;
         BOOL success = NO;
+        BOOL upgrade = NO;
         NSString *spoonPath = [MJConfigDir() stringByAppendingPathComponent:@"Spoons"];
         NSString *spoonName = [fileAndPath lastPathComponent];
-        success = [[NSFileManager defaultManager] moveItemAtPath:fileAndPath toPath:[spoonPath stringByAppendingPathComponent:spoonName] error:&moveError];
+        NSString *dstSpoonFullPath = [spoonPath stringByAppendingPathComponent:spoonName];
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+
+        // Remove any pre-existing copy of the Spoon
+        if ([fileManager fileExistsAtPath:dstSpoonFullPath]) {
+            NSLog(@"Spoon already exists at %@, removing the old version", dstSpoonFullPath);
+            upgrade = YES;
+            success = [fileManager removeItemAtPath:dstSpoonFullPath error:&fileError];
+            if (!success) {
+                NSLog(@"Unable to remove existing Spoon (%@):%@", dstSpoonFullPath, fileError);
+                NSAlert *alert = [[NSAlert alloc] init];
+                [alert addButtonWithTitle:@"OK"];
+                [alert setMessageText:@"Error upgrading Spoon"];
+                [alert setInformativeText:[NSString stringWithFormat:@"%@\n\nSource: %@\nDest: %@", fileError.localizedDescription, fileAndPath, spoonPath]];
+                [alert setAlertStyle:NSCriticalAlertStyle];
+                [alert runModal];
+                return YES;
+            }
+        }
+
+        success = [[NSFileManager defaultManager] moveItemAtPath:fileAndPath toPath:dstSpoonFullPath error:&fileError];
         if (!success) {
-            NSLog(@"Unable to move %@ to %@: %@", fileAndPath, spoonPath, moveError);
+            NSLog(@"Unable to move %@ to %@: %@", fileAndPath, spoonPath, fileError);
             NSAlert *alert = [[NSAlert alloc] init];
             [alert addButtonWithTitle:@"OK"];
-            [alert setMessageText:@"Error importing Spoon"];
-            [alert setInformativeText:[NSString stringWithFormat:@"%@\n\nSource: %@\nDest: %@", moveError.localizedDescription, fileAndPath, spoonPath]];
+            [alert setMessageText:@"Error installing Spoon"];
+            [alert setInformativeText:[NSString stringWithFormat:@"%@\n\nSource: %@\nDest: %@", fileError.localizedDescription, fileAndPath, spoonPath]];
             [alert setAlertStyle:NSCriticalAlertStyle];
             [alert runModal];
         } else {
             NSUserNotification *notification = [[NSUserNotification alloc] init];
-            notification.title = @"Spoon imported";
-            notification.informativeText = [NSString stringWithFormat:@"%@ is now available", spoonName];
+            notification.title = [NSString stringWithFormat:@"Spoon %@", upgrade ? @"upgraded" : @"installed"];
+            notification.informativeText = [NSString stringWithFormat:@"%@ is now available%@", spoonName, upgrade ? @", reload your config" : @""];
             notification.soundName = NSUserNotificationDefaultSoundName;
             [[NSUserNotificationCenter defaultUserNotificationCenter] deliverNotification:notification];
         }
