@@ -66,16 +66,21 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
 }
 
 - (void) windowDidLoad {
-    [[self window] center];
 
+    // Save & Restore Last Window Location to Preferences:
+    [self setShouldCascadeWindows:NO];
+    [self setWindowFrameAutosaveName:@"console"];
+    
     self.history = [NSMutableArray array];
     [self.outputView setEditable:NO];
     [self.outputView setSelectable:YES];
 
+    /*
     [self appendString:@""
      "Welcome to the Hammerspoon Console!\n"
      "You can run any Lua code in here.\n\n"
                   type:MJReplLineTypeStdout];
+     */
 
     for (NSString* str in self.preshownStdouts)
         [self appendString:str type:MJReplLineTypeStdout];

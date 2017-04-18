@@ -99,7 +99,7 @@ static HSURLEventHandler *eventHandler;
 
     if ([openUrl hasPrefix:@"/"]) {
         openUrl = [NSString stringWithFormat:@"file://%@", openUrl];
-        openUrl = [openUrl stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];        
+        openUrl = [openUrl stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
     }
 
     // Split the URL into its components
@@ -153,17 +153,17 @@ static int urleventSetCallback(lua_State *L) {
 
 /// hs.urlevent.setRestoreHandler(scheme, bundleID)
 /// Function
-/// Stores a URL handler that will be restored when Hammerspoon or reloads its config
+/// Stores a URL handler that will be restored when CommandPost or reloads its config
 ///
 /// Parameters:
 ///  * scheme - A string containing the URL scheme to change. This must be 'http' (although both http:// and https:// URLs will be affected)
-///  * bundleID - A string containing an application bundle identifier (e.g. 'com.apple.Safari') for the application to set as the default handler when Hammerspoon exits or reloads its config
+///  * bundleID - A string containing an application bundle identifier (e.g. 'com.apple.Safari') for the application to set as the default handler when CommandPost exits or reloads its config
 ///
 /// Returns:
 ///  * None
 ///
 /// Notes:
-///  * You don't have to call this function if you want Hammerspoon to permanently be your default handler. Only use this if you want the handler to be automatically reverted to something else when Hammerspoon exits/reloads.
+///  * You don't have to call this function if you want CommandPost to permanently be your default handler. Only use this if you want the handler to be automatically reverted to something else when CommandPost exits/reloads.
 static int urleventsetRestoreHandler(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TBREAK];
@@ -180,7 +180,7 @@ static int urleventsetRestoreHandler(lua_State *L) {
 ///
 /// Parameters:
 ///  * scheme - A string containing the URL scheme to change. This must be 'http' or 'https' (although entering either will change the handler for both)
-///  * bundleID - An optional string containing an application bundle identifier for the application to set as the default handler. Defaults to `org.hammerspoon.Hammerspoon`.
+///  * bundleID - An optional string containing an application bundle identifier for the application to set as the default handler. Defaults to `org.latenitefilms.CommandPost`.
 ///
 /// Returns:
 ///  * None
@@ -194,7 +194,7 @@ static int urleventsetDefaultHandler(lua_State *L) {
     OSStatus status;
     NSString *scheme = [[NSString stringWithUTF8String:lua_tostring(L, 1)] lowercaseString];
     NSString *bundleID = [[NSBundle mainBundle] bundleIdentifier];
-    
+
     if (lua_type(L, 2) == LUA_TSTRING) {
         bundleID = [NSString stringWithUTF8String:lua_tostring(L, 2)];
     }
