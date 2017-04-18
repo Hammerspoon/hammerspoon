@@ -163,13 +163,17 @@ By convention in Hammerspoon, methods tend to return the object they belong to (
 
 #### Generating
 
-While it is useful to have these docstrings inline with your code, it is not the most friendly way for users to browse documentation.
+Several tools are able to operate on the docstrings used by Hammerspoon and Spoons. In the simplest case, each Spoon should include a `docs.json` file which is little more than the various docstrings collected together.
+This file can be generated using the Hammerspoon command line tool (see [http://www.hammerspoon.org/docs/hs.ipc.html#cliInstall](http://www.hammerspoon.org/docs/hs.ipc.html#cliInstall)):
 
-Hammerspoon itself is extensively documented using these docstrings, but we also generate JSON, HTML and Dash output, and the same script used for Hammerspoon, can be used for Spoons.
+```bash
+cd /path/too/your/Spoon
+hs -c "hs.doc.builder.genJSON(\"$(pwd)\")" > docs.json
+```
 
-You should include the JSON version of the documentation, in the Spoon, named `docs.json`. It is generally not appropriate to include the HTML version, but you can choose to host this on the Spoon's homepage (if your Spoons live on GitHub, it is relatively simple to host static HTML on a GitHub Pages site). If you submit your Spoon for hosting in the official Spoon repository, we will take care of generating the HTML documentation and hosting it for you.
+Any Spoons that are submitted to the official Spoons repository will have their HTML documentation generated and hosted by GitHub.
 
-To generate documentation for your Spoon, you can use the same script that Hammerspoon uses to generate its documentation:
+If you also want to generate HTML/Markdown/Dash versions of your documentation for your own purposes:
 
  * Clone [https://github.com/Hamerspoon/hammerspoon](https://github.com/Hammerspoon/hammerspoon)
  * Install the required Python dependencies (e.g. `pip install --user -r requirements.txt` in the Hammerspoon repo)
