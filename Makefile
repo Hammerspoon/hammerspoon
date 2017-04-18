@@ -1,4 +1,4 @@
-VERSION = $(shell defaults read `pwd`/Hammerspoon/Hammerspoon-Info CFBundleVersion)
+VERSION = $(shell defaults read `pwd`/Hammerspoon/CommandPost-Info CFBundleVersion)
 APPFILE = build/CommandPost.app
 ZIPFILE = build/CommandPost-$(VERSION).zip
 SCHEME = Hammerspoon
