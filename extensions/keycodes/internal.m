@@ -100,7 +100,7 @@ int keycodes_cachemap(lua_State* L) {
         pushkeycode(L, kVK_ANSI_Minus, "-");
         pushkeycode(L, kVK_ANSI_RightBracket, "]");
         pushkeycode(L, kVK_ANSI_LeftBracket, "[");
-        pushkeycode(L, kVK_ANSI_Quote, "\"");
+        pushkeycode(L, kVK_ANSI_Quote, "'");
         pushkeycode(L, kVK_ANSI_Semicolon, ";");
         pushkeycode(L, kVK_ANSI_Backslash, "\\");
         pushkeycode(L, kVK_ANSI_Comma, ",");
