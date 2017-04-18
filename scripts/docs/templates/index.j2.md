@@ -1,4 +1,4 @@
-# Hammerspoon.app
+# {{ title }}
 ---
 
 ## Project Links

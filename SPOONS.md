@@ -168,7 +168,7 @@ This file can be generated using the Hammerspoon command line tool (see [http://
 
 ```bash
 cd /path/too/your/Spoon
-hs -c "hs.doc.builder.genJSON(\"$(pwd)\")" > docs.json
+hs -c "hs.doc.builder.genJSON(\"$(pwd)\")" | grep -v "^--" > docs.json
 ```
 
 Any Spoons that are submitted to the official Spoons repository will have their HTML documentation generated and hosted by GitHub.

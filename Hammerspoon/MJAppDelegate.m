@@ -37,7 +37,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 {
     // LetsWatch:
     PFMoveToApplicationsFolderIfNecessary();
-    
+
     // Set up an early event manager handler so we can catch URLs used to launch us
     NSAppleEventManager *appleEventManager = [NSAppleEventManager sharedAppleEventManager];
     [appleEventManager setEventHandler:self
@@ -59,15 +59,34 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 
     if ([typeOfFile isEqualToString:@"org.latenitefilms.commandpost.plugin"]) {
         // This is a Plugin, so we will attempt to copy it to the Plugin directory
-        NSError *moveError;
+        NSError *fileError;
         BOOL success = NO;
-        NSString *spoonPath = [@"~/Library/Application Support/CommandPost/Plugins/" stringByExpandingTildeInPath]; // [MJConfigDir() stringByAppendingPathComponent:@"Spoons"];
+        BOOL upgrade = NO;
+        NSString *spoonPath = @"~/Library/Application Support/CommandPost/Plugins/" stringByExpandingTildeInPath //[MJConfigDir() stringByAppendingPathComponent:@"Spoons"];
         NSString *spoonName = [fileAndPath lastPathComponent];
-        NSString *spoonNameWithoutExtension = [[fileAndPath lastPathComponent] stringByDeletingPathExtension];
-        
-        success = [[NSFileManager defaultManager] moveItemAtPath:fileAndPath toPath:[spoonPath stringByAppendingPathComponent:spoonName] error:&moveError];
+        NSString *dstSpoonFullPath = [spoonPath stringByAppendingPathComponent:spoonName];
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+
+        // Remove any pre-existing copy of the Spoon
+        if ([fileManager fileExistsAtPath:dstSpoonFullPath]) {
+            NSLog(@"Plugin already exists at %@, removing the old version", dstSpoonFullPath);
+            upgrade = YES;
+            success = [fileManager removeItemAtPath:dstSpoonFullPath error:&fileError];
+            if (!success) {
+                NSLog(@"Unable to remove existing Plugin (%@):%@", dstSpoonFullPath, fileError);
+                NSAlert *alert = [[NSAlert alloc] init];
+                [alert addButtonWithTitle:@"OK"];
+                [alert setMessageText:@"Error upgrading Plugin"];
+                [alert setInformativeText:[NSString stringWithFormat:@"%@\n\nSource: %@\nDest: %@", fileError.localizedDescription, fileAndPath, spoonPath]];
+                [alert setAlertStyle:NSCriticalAlertStyle];
+                [alert runModal];
+                return YES;
+            }
+        }
+
+        success = [[NSFileManager defaultManager] moveItemAtPath:fileAndPath toPath:dstSpoonFullPath error:&fileError];
         if (!success) {
-            NSLog(@"Unable to move %@ to %@: %@", fileAndPath, spoonPath, moveError);
+            NSLog(@"Unable to move %@ to %@: %@", fileAndPath, spoonPath, fileError);
             NSAlert *alert = [[NSAlert alloc] init];
             [alert addButtonWithTitle:@"OK"];
             [alert setMessageText:@"Error importing Plugin"];
@@ -76,8 +95,8 @@ static BOOL MJFirstRunForCurrentVersion(void) {
             [alert runModal];
         } else {
             NSUserNotification *notification = [[NSUserNotification alloc] init];
-            notification.title = @"Plugin Imported";
-            notification.informativeText = [NSString stringWithFormat:@"%@ is now available. CommandPost will now restart.", spoonNameWithoutExtension];
+            notification.title = [NSString stringWithFormat:@"Plugin %@", upgrade ? @"upgraded" : @"installed"];
+            notification.informativeText = [NSString stringWithFormat:@"%@ is now available%@", spoonName, upgrade ? @", reload your config" : @""];
             notification.soundName = NSUserNotificationDefaultSoundName;
             [[NSUserNotificationCenter defaultUserNotificationCenter] deliverNotification:notification];
             MJLuaReplace(); // Reload CommandPost
@@ -212,7 +231,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     //if (MJFirstRunForCurrentVersion() || !MJAccessibilityIsEnabled())
         //[[MJPreferencesWindowController singleton] showWindow: nil];
 }
-     
+
 
 // Dragging & Dropping of Text to Dock Item
 -(void) processDockIconDraggedText:(NSPasteboard *)pboard userData:(NSString *)userData error:(NSString **)error {
@@ -323,9 +342,9 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 - (void)crashlyticsDidDetectReportForLastExecution:(CLSReport *)report completionHandler:(void (^)(BOOL))completionHandler {
     // Use this opportunity to take synchronous action on a crash. See Crashlytics.h for
     // details and implications.
-    
+
     // Maybe consult NSUserDefaults or show a UI prompt.
-    
+
     // But, make ABSOLUTELY SURE you invoke completionHandler, as the SDK
     // will not submit the report until you do. You can do this from any
     // thread, but that's optional. If you want, you can just call the

@@ -66,11 +66,10 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
 }
 
 - (void) windowDidLoad {
-
     // Save & Restore Last Window Location to Preferences:
     [self setShouldCascadeWindows:NO];
     [self setWindowFrameAutosaveName:@"console"];
-    
+
     self.history = [NSMutableArray array];
     [self.outputView setEditable:NO];
     [self.outputView setSelectable:YES];
@@ -103,7 +102,7 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
 
     NSDictionary* attrs = @{NSFontAttributeName: [NSFont fontWithName:@"Menlo" size:12.0], NSForegroundColorAttributeName: color};
     NSAttributedString* attrstr = [[NSAttributedString alloc] initWithString:str attributes:attrs];
-    [[self.outputView textStorage] performSelectorOnMainThread:@selector(appendAttributedString:) 
+    [[self.outputView textStorage] performSelectorOnMainThread:@selector(appendAttributedString:)
                                        withObject:attrstr
                                     waitUntilDone:YES];
 }
@@ -121,7 +120,7 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
 
     [sender setStringValue:@""];
     [(HSGrowingTextField *)sender resetGrowth];
-    
+
     [self saveToHistory:command];
     [self.outputView scrollToEndOfDocument:self];
 }

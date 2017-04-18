@@ -245,8 +245,7 @@ hs.fileDroppedToDockIconCallback = nil
         require("hs.fs")
         local docsPath = obj.spoonPath.."/docs.json"
         if hs.fs.attributes(docsPath) then
-          -- FIXME: Not sure quite what to do here to load this
-          print("loading docs would happen here")
+          require("hs.doc").registerJSONFile(docsPath)
         end
       end
     end

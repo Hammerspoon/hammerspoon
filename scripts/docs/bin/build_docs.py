@@ -36,15 +36,17 @@ TYPE_DESC = {
                       "release"}
 LINKS = [
         {"name": "Website", "url": "http://www.hammerspoon.org/"},
-        {"name":  "GitHub page",
+        {"name": "GitHub page",
          "url": "https://github.com/Hammerspoon/hammerspoon"},
-        {"name":  "Getting Started Guide",
+        {"name": "Getting Started Guide",
          "url": "http://www.hammerspoon.org/go/"},
-        {"name":  "IRC channel",
+        {"name": "Official Spoon repository",
+         "url": "http://www.hammerspoon.org/Spoons"},
+        {"name": "IRC channel",
          "url": "irc://chat.freenode.net/#hammerspoon"},
-        {"name":  "Mailing list",
+        {"name": "Mailing list",
          "url": "https://groups.google.com/forum/#!forum/hammerspoon/"},
-        {"name":  "LuaSkin API docs",
+        {"name": "LuaSkin API docs",
          "url": "http://www.hammerspoon.org/docs/LuaSkin/"}
         ]
 
@@ -452,7 +454,7 @@ def write_sql(filepath, data):
     db.commit()
 
 
-def write_templated_output(output_dir, template_dir, data, extension):
+def write_templated_output(output_dir, template_dir, title, data, extension):
     """Write out a templated version of the docs"""
     from jinja2 import Environment
 
@@ -485,7 +487,7 @@ def write_templated_output(output_dir, template_dir, data, extension):
 
     # Render and write index.<extension>
     template = jinja.from_string(tmplfile.read().decode('utf-8'))
-    render = template.render(data=data, links=LINKS)
+    render = template.render(data=data, links=LINKS, title=title)
     outfile.write(render.encode("utf-8"))
     outfile.close()
     tmplfile.close()
@@ -511,14 +513,14 @@ def write_templated_output(output_dir, template_dir, data, extension):
     tmplfile.close()
 
 
-def write_html(output_dir, template_dir, data):
+def write_html(output_dir, template_dir, title, data):
     """Write out an HTML version of the docs"""
-    write_templated_output(output_dir, template_dir, data, "html")
+    write_templated_output(output_dir, template_dir, title, data, "html")
 
 
-def write_markdown(output_dir, template_dir, data):
+def write_markdown(output_dir, template_dir, title, data):
     """Write out a Markdown version of the docs"""
-    write_templated_output(output_dir, template_dir, data, "md")
+    write_templated_output(output_dir, template_dir, title, data, "md")
 
 
 def main():
@@ -556,6 +558,9 @@ def main():
     parser.add_argument("-o", "--output_dir", action="store",
                         dest="output_dir", default="build/",
                         help="Directory to write outputs to")
+    parser.add_argument("-i", "--title", action="store",
+                        dest="title", default="Hammerspoon",
+                        help="Title for the index page")
     parser.add_argument("DIRS", nargs=argparse.REMAINDER,
                         help="Directories to search")
     arguments, leftovers = parser.parse_known_args()
@@ -591,10 +596,12 @@ def main():
         write_sql(arguments.output_dir + "/docs.sqlite", results)
     if arguments.html:
         write_html(arguments.output_dir + "/html/",
-                   arguments.template_dir, results)
+                   arguments.template_dir,
+                   arguments.title, results)
     if arguments.markdown:
         write_markdown(arguments.output_dir + "/markdown/",
-                       arguments.template_dir, results)
+                       arguments.template_dir,
+                       arguments.title, results)
 
 
 if __name__ == "__main__":
