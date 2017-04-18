@@ -7,20 +7,20 @@
 
 --- hs.ipc.cli
 --- Command
---- This documents the external shell command `hs` provided by the hs.ipc module for external access to and control of your `Hammerspoon` environment.
+--- This documents the external shell command `cmdpost` provided by the hs.ipc module for external access to and control of your `CommandPost` environment.
 ---
 --- See the `hs.ipc.cli_*` functions for information on how to install this tool so you can access it from your terminal.
 ---
 --- The man page of the command line tool is provided here:
 ---
 ---     NAME
----          hs -- Command line interface to Hammerspoon.app
+---          cmdpost -- Command line interface to CommandPost.app
 ---
 ---     SYNOPSIS
----          hs [-i | -s | -c code] [-r] [-n]
+---          cmdpost [-i | -s | -c code] [-r] [-n]
 ---
 ---     DESCRIPTION
----          Runs code from within Hammerspoon, and prints the results. The given code is passed to "hs.ipc.
+---          Runs code from within CommandPost, and prints the results. The given code is passed to "hs.ipc.
 ---          handler" which normally executes it as plain Lua code, but may be overridden to do some custom
 ---          evaluation.
 ---
@@ -30,7 +30,7 @@
 ---                   fied.
 ---          -c       Uses the given argument as code
 ---          -s       Uses stdin as code
----          -r       Forces Hammerspoon to interpret code as raw Lua code; the function "hs.ipc.handler" is not
+---          -r       Forces CommandPost to interpret code as raw Lua code; the function "hs.ipc.handler" is not
 ---                   called.
 ---          -n       When specified, interactive-mode does not use colors.
 ---
@@ -154,55 +154,55 @@ module.cliStatus = function(path, silent)
 
     local silent = silent or false
 
-    local bin_file = os.execute("[ -f \""..path.."/bin/hs\" ]")
-    local man_file = os.execute("[ -f \""..path.."/share/man/man1/hs.1\" ]")
-    local bin_link = os.execute("[ -L \""..path.."/bin/hs\" ]")
-    local man_link = os.execute("[ -L \""..path.."/share/man/man1/hs.1\" ]")
-    local bin_ours = os.execute("[ \""..path.."/bin/hs\" -ef \""..mod_path.."/bin/hs\" ]")
-    local man_ours = os.execute("[ \""..path.."/share/man/man1/hs.1\" -ef \""..mod_path.."/share/man/man1/hs.1\" ]")
+    local bin_file = os.execute("[ -f \""..path.."/bin/cmdpost\" ]")
+    local man_file = os.execute("[ -f \""..path.."/share/man/man1/cmdpost.1\" ]")
+    local bin_link = os.execute("[ -L \""..path.."/bin/cmdpost\" ]")
+    local man_link = os.execute("[ -L \""..path.."/share/man/man1/cmdpost.1\" ]")
+    local bin_ours = os.execute("[ \""..path.."/bin/cmdpost\" -ef \""..mod_path.."/bin/cmdpost\" ]")
+    local man_ours = os.execute("[ \""..path.."/share/man/man1/cmdpost.1\" -ef \""..mod_path.."/share/man/man1/cmdpost.1\" ]")
 
     local result = bin_file and man_file and bin_link and man_link and bin_ours and man_ours or false
     local broken = false
 
     if not bin_ours and bin_file then
         if not silent then
-            print([[cli installation problem: 'hs' is not ours.]])
+            print([[cli installation problem: 'cmdpost' is not ours.]])
         end
         broken = true
     end
     if not man_ours and man_file then
         if not silent then
-            print([[cli installation problem: 'hs.1' is not ours.]])
+            print([[cli installation problem: 'cmdpost.1' is not ours.]])
         end
         broken = true
     end
     if bin_file and not bin_link then
         if not silent then
-            print([[cli installation problem: 'hs' is an independant file won't be updated when Hammerspoon is.]])
+            print([[cli installation problem: 'cmdpost' is an independant file won't be updated when CommandPost is.]])
         end
         broken = true
     end
     if not bin_file and bin_link then
         if not silent then
-            print([[cli installation problem: 'hs' is a dangling link.]])
+            print([[cli installation problem: 'cmdpost' is a dangling link.]])
         end
         broken = true
     end
     if man_file and not man_link then
         if not silent then
-            print([[cli installation problem: man page for 'hs.1' is an independant file and won't be updated when Hammerspoon is.]])
+            print([[cli installation problem: man page for 'cmdpost.1' is an independant file and won't be updated when CommandPost is.]])
         end
         broken = true
     end
     if not man_file and man_link then
         if not silent then
-            print([[cli installation problem: man page for 'hs.1' is a dangling link.]])
+            print([[cli installation problem: man page for 'cmdpost.1' is a dangling link.]])
         end
         broken = true
     end
     if ((bin_file and bin_link) and not (man_file and man_link)) or ((man_file and man_link) and not (bin_file and bin_link)) then
         if not silent then
-            print([[cli installation problem: incomplete installation of 'hs' and 'hs.1'.]])
+            print([[cli installation problem: incomplete installation of 'cmdpost' and 'cmdpost.1'.]])
         end
         broken = true
     end
@@ -225,8 +225,8 @@ module.cliInstall = function(path, silent)
     local silent = silent or false
     if module.cliStatus(path, true) == false then
         local mod_path = string.match(package.searchpath("hs.ipc",package.path), "^(.*)/init%.lua$")
-        os.execute("ln -s \""..mod_path.."/bin/hs\" \""..path.."/bin/\"")
-        os.execute("ln -s \""..mod_path.."/share/man/man1/hs.1\" \""..path.."/share/man/man1/\"")
+        os.execute("ln -s \""..mod_path.."/bin/cmdpost\" \""..path.."/bin/\"")
+        os.execute("ln -s \""..mod_path.."/share/man/man1/cmdpost.1\" \""..path.."/share/man/man1/\"")
     end
     return module.cliStatus(path, silent)
 end
@@ -248,8 +248,8 @@ module.cliUninstall = function(path, silent)
     local path = path or "/usr/local"
     local silent = silent or false
     if module.cliStatus(path, silent) == true then
-        os.execute("rm \""..path.."/bin/hs\"")
-        os.execute("rm \""..path.."/share/man/man1/hs.1\"")
+        os.execute("rm \""..path.."/bin/cmdpost\"")
+        os.execute("rm \""..path.."/share/man/man1/cmdpost.1\"")
     else
         return false
     end
