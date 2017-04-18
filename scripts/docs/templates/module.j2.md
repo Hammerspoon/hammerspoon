@@ -16,7 +16,7 @@
 {% if module[type]|length > 0 %}
 * {{ type }}s - {{ type_desc[type] }}
 {% for item in module[type] %}
- * [{{ item.name }}](#{{ item.name }})
+ * [{{ item.name }}](#{% filter lower %}{{ item.name }}{% endfilter %})
 {% endfor %}
 {% endif %}
 {% endfor %}
@@ -27,19 +27,19 @@
 ### {{ type}}s
 
 {% for item in module[type] %}
-| [{{ item.name }}](#{{ item.name }})         |                                                                                     |
-| --------------------------------------------|-------------------------------------------------------------------------------------|
-| **Signature**                               | `{{ item.def }}`                                                                    |
-| **Type**                                    | {{ item.type }}                                                                     |
-| **Description**                             | {{ item.desc }}                                                                     |
+#### [{{ item.name }}](#{% filter lower %}{{ item.name }}{% endfilter %})
+| <span style="float: left;">**Signature**</span> | <span style="float: left;">`{{ item.def }}` </span>                                                          |
+| -----------------------------------------------------|---------------------------------------------------------------------------------------------------------|
+| **Type**                                             | {{ item.type }}                                                                                         |
+| **Description**                                      | {{ item.desc }}                                                                                         |
 {% if "parameters" in item %}
-| **Parameters**                              | <ul>{% for parameter in item.parameters %}<li>{{ parameter | replace(" * ","") }}</li>{% endfor %}</ul> |
+| **Parameters**                                       | <ul>{% for parameter in item.parameters %}<li>{{ parameter | replace(" * ","") }}</li>{% endfor %}</ul> |
 {% endif %}
 {% if "returns" in item %}
-| **Returns**                                 | <ul>{% for return in item.returns %}<li>{{ return | replace(" * ","") }}</li>{% endfor %}</ul>          |
+| **Returns**                                          | <ul>{% for return in item.returns %}<li>{{ return | replace(" * ","") }}</li>{% endfor %}</ul>          |
 {% endif %}
 {% if "notes" in item %}
-| **Notes**                                   | <ul>{% for note in item.notes %}<li>{{ note | replace(" * ","") }}</li>{% endfor %}</ul>                |
+| **Notes**                                            | <ul>{% for note in item.notes %}<li>{{ note | replace(" * ","") }}</li>{% endfor %}</ul>                |
 {% endif %}
 
 {% endfor %}{% endif %}{% endfor %}
