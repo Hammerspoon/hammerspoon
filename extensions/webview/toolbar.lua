@@ -31,7 +31,9 @@
 --- t.attachToolbar(a)
 --- ~~~
 ---
---- Note: This module is supported in OS X versions prior to 10.10 (for the Hammerspoon console only), even though its parent `hs.webview` is not. To load this module directly, use `require("hs.webview.toolbar")` instead of relying on module auto-loading.
+--- Notes:
+---  * This module is supported in OS X versions prior to 10.10 (for the Hammerspoon console only), even though its parent `hs.webview` is not. To load this module directly, use `require("hs.webview.toolbar")` instead of relying on module auto-loading.
+---  * Toolbar items are rendered in the order they are supplied, although if the toolbar is marked as customizable, the user may have changed the order.
 
 local USERDATA_TAG = "hs.webview.toolbar"
 local module       = require(USERDATA_TAG.."_internal")
