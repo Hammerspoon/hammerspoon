@@ -27,3 +27,15 @@ static void reflect_defaults(void) {
         NSEnableScreenUpdates();
     });
 }
+
+//
+// Open Console on Dock Icon Click:
+//
+BOOL HSOpenConsoleOnDockClickEnabled(void) {
+    return [[NSUserDefaults standardUserDefaults] boolForKey:HSOpenConsoleOnDockClickKey];
+}
+
+void HSOpenConsoleOnDockClickSetEnabled(BOOL enabled) {
+    [[NSUserDefaults standardUserDefaults] setBool:enabled
+                                            forKey:HSOpenConsoleOnDockClickKey];
+}
