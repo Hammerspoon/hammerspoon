@@ -16,6 +16,14 @@ return {setup=function(...)
 --- A string containing Hammerspoon's configuration directory. Typically `~/.hammerspoon/`
   hs.configdir = configdir
 
+--- hs.dockIconClickCallback
+--- Variable
+--- An optional function that will be called when the Hammerspoon Dock Icon is clicked while the app is running
+---
+--- Notes:
+---  * If set, this callback will be called regardless of whether or not Hammerspoon shows its console window in response to a click (which can be enabled/disabled via `hs.openConsoleOnDockClick()`
+hs.dockIconClickCallback = nil
+
 --- hs.shutdownCallback
 --- Variable
 --- An optional function that will be called when the Lua environment is being destroyed (either because Hammerspoon is exiting or reloading its config)

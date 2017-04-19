@@ -23,6 +23,7 @@ NSString* MJLuaRunString(NSString* command);
 NSString* MJFindInitFile(void);
 NSArray *MJLuaCompletionsForWord(NSString *completionWord);
 
+void callDockIconCallback(void);
 void callAccessibilityStateCallback(void);
 void textDroppedToDockIcon(NSString *pboardString);
 void fileDroppedToDockIcon(NSString *filePath);
