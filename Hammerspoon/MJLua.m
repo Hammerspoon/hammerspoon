@@ -9,6 +9,7 @@
 #import "MJPreferencesWindowController.h"
 #import "MJConsoleWindowController.h"
 #import "MJAutoLaunch.h"
+#import "MJDockIcon.h"
 #import "HSAppleScript.h"
 #import <Crashlytics/Crashlytics.h>
 
@@ -408,6 +409,27 @@ static int core_appleScript(lua_State* L) {
     return 1;
 }
 
+/// hs.openConsoleOnDockClick([state]) -> bool
+/// Function
+/// Set or display whether or not the Hammerspoon Console will open when you press the Dock Icon with Hammerspoon already running.
+///
+/// Parameters:
+///  * state - an optional boolean which will set whether or not the Hammerspoon Console will open when you press the Dock Icon with Hammerspoon already running.
+///
+/// Returns:
+///  * A boolean, true if Hammerspoon will open the Console when the dock icon is pressed with Hammerspoon already running otherwise false
+static int core_openConsoleOnDockClick(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
+    
+    if (lua_isboolean(L, -1)) {
+        HSOpenConsoleOnDockClickSetEnabled(lua_toboolean(L, -1));
+    }
+    
+    lua_pushboolean(L, HSOpenConsoleOnDockClickEnabled()) ;
+    return 1;
+}
+
 /// hs.focus()
 /// Function
 /// Makes Hammerspoon the foreground app.
@@ -482,6 +504,7 @@ static int core_notify(lua_State* L) {
 }
 
 static luaL_Reg corelib[] = {
+    {"openConsoleOnDockClick", core_openConsoleOnDockClick},
     {"openConsole", core_openconsole},
     {"consoleOnTop", core_consoleontop},
     {"openAbout", core_openabout},
@@ -636,6 +659,19 @@ void fileDroppedToDockIcon(NSString *filePath) {
         [skin protectedCallAndTraceback:1 nresults:0];
     } else {
         [skin logError:@"File was dropped on our dock icon, but no callback handler is set in hs.fileDroppedToDockIconCallback"];
+    }
+}
+
+// Accessibility State Callback:
+void callDockIconCallback(void) {
+    LuaSkin *skin = MJLuaState;
+    lua_State *L = MJLuaState.L;
+    
+    lua_getglobal(L, "hs");
+    lua_getfield(L, -1, "dockIconClickCallback");
+    
+    if (lua_type(L, -1) == LUA_TFUNCTION) {
+        [skin protectedCallAndTraceback:0 nresults:0];
     }
 }
 
