@@ -29,7 +29,10 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 */
 
 - (BOOL) applicationShouldHandleReopen:(NSApplication*)theApplication hasVisibleWindows:(BOOL)hasVisibleWindows {
-    [[MJConsoleWindowController singleton] showWindow: nil];
+    callDockIconCallback();
+    if (HSOpenConsoleOnDockClickEnabled()) {
+        [[MJConsoleWindowController singleton] showWindow: nil];
+    };
     return NO;
 }
 
@@ -266,6 +269,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
                          HSAutoLoadExtensions: @YES,
                          HSUploadCrashDataKey: @YES,
                          HSAppleScriptEnabledKey: @YES,
+                         HSOpenConsoleOnDockClickKey: @YES,
                          }];
 }
 
