@@ -5,5 +5,6 @@
 #define HSAutoLoadExtensions         @"HSAutoLoadExtensions"
 #define HSUploadCrashDataKey         @"HSUploadCrashData"
 #define HSAppleScriptEnabledKey      @"HSAppleScriptEnabledKey"
+#define HSOpenConsoleOnDockClickKey  @"HSOpenConsoleOnDockClickKey"
 
 extern NSString* MJConfigFile;
