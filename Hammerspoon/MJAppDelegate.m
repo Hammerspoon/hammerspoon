@@ -59,18 +59,18 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 
 - (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)fileAndPath {
     NSString *typeOfFile = [[NSWorkspace sharedWorkspace] typeOfFile:fileAndPath error:nil];
-
+    
     if ([typeOfFile isEqualToString:@"org.latenitefilms.commandpost.plugin"]) {
         // This is a Plugin, so we will attempt to copy it to the Plugin directory
         NSError *fileError;
         BOOL success = NO;
         BOOL upgrade = NO;
-        NSString *spoonPath = @"~/Library/Application Support/CommandPost/Plugins/" stringByExpandingTildeInPath //[MJConfigDir() stringByAppendingPathComponent:@"Spoons"];
+        NSString *spoonPath = [@"~/Library/Application Support/CommandPost/Plugins/" stringByExpandingTildeInPath];
         NSString *spoonName = [fileAndPath lastPathComponent];
         NSString *dstSpoonFullPath = [spoonPath stringByAppendingPathComponent:spoonName];
         NSFileManager *fileManager = [NSFileManager defaultManager];
-
-        // Remove any pre-existing copy of the Spoon
+        
+        // Remove any pre-existing copy of the Plugin
         if ([fileManager fileExistsAtPath:dstSpoonFullPath]) {
             NSLog(@"Plugin already exists at %@, removing the old version", dstSpoonFullPath);
             upgrade = YES;
@@ -86,32 +86,32 @@ static BOOL MJFirstRunForCurrentVersion(void) {
                 return YES;
             }
         }
-
+        
         success = [[NSFileManager defaultManager] moveItemAtPath:fileAndPath toPath:dstSpoonFullPath error:&fileError];
         if (!success) {
             NSLog(@"Unable to move %@ to %@: %@", fileAndPath, spoonPath, fileError);
             NSAlert *alert = [[NSAlert alloc] init];
             [alert addButtonWithTitle:@"OK"];
-            [alert setMessageText:@"Error importing Plugin"];
-            [alert setInformativeText:[NSString stringWithFormat:@"%@\n\nSource: %@\nDest: %@", moveError.localizedDescription, fileAndPath, spoonPath]];
+            [alert setMessageText:@"Error installing Plugin"];
+            [alert setInformativeText:[NSString stringWithFormat:@"%@\n\nSource: %@\nDest: %@", fileError.localizedDescription, fileAndPath, spoonPath]];
             [alert setAlertStyle:NSCriticalAlertStyle];
             [alert runModal];
         } else {
             NSUserNotification *notification = [[NSUserNotification alloc] init];
             notification.title = [NSString stringWithFormat:@"Plugin %@", upgrade ? @"upgraded" : @"installed"];
-            notification.informativeText = [NSString stringWithFormat:@"%@ is now available%@", spoonName, upgrade ? @", reload your config" : @""];
+            notification.informativeText = [NSString stringWithFormat:@"%@ is now available%@", spoonName, upgrade ? @", " : @""];
             notification.soundName = NSUserNotificationDefaultSoundName;
             [[NSUserNotificationCenter defaultUserNotificationCenter] deliverNotification:notification];
             MJLuaReplace(); // Reload CommandPost
         }
         return YES; // Note that we always return YES here because otherwise macOS tells the user that we can't open Spoons, which is ludicrous
     }
-
+    
     NSString *fileExtension = [fileAndPath pathExtension];
     NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
     NSArray *supportedExtensions = [infoDict valueForKeyPath:@"CFBundleDocumentTypes.CFBundleTypeExtensions"];
     NSArray *flatSupportedExtensions = [supportedExtensions valueForKeyPath:@"@unionOfArrays.self"];
-
+    
     // Files to be processed by hs.urlevent
     if ([flatSupportedExtensions containsObject:fileExtension]) {
         if (!self.openFileDelegate) {
@@ -125,7 +125,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
         // Trigger File Dropped to Dock Icon Callback
         fileDroppedToDockIcon(fileAndPath);
     }
-
+    
     return YES;
 }
 
