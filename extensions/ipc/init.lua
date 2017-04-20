@@ -237,8 +237,8 @@ end
 ---
 --- Parameters:
 ---  * path - An optional string containing a path to remove the tool from. Defaults to `/usr/local`
----  * silent - An optional boolean indicating whether or not to print errors to the Hammerspoon Console
----  * force - An optional boolean that forces the tool to be uninstalled
+---  * silent - An optional boolean indicating whether or not to print errors to the Hammerspoon Console (the path parameter is also required)
+---  * force - An optional boolean that forces the tool to be uninstalled (the path and silent parameters are also required)
 ---
 --- Returns:
 ---  * A boolean, true if the tool was successfully removed, otherwise false
@@ -249,7 +249,7 @@ end
 module.cliUninstall = function(path, silent, force)
     local path = path or "/usr/local"
     local silent = silent or false
-    if module.cliStatus(path, silent) == true or force then
+    if force or module.cliStatus(path, silent) == true then
         os.execute("rm \""..path.."/bin/hs\"")
         os.execute("rm \""..path.."/share/man/man1/hs.1\"")
     else
