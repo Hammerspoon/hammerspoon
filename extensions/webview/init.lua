@@ -104,7 +104,7 @@ module.newBrowser = function(...)
                           :allowGestures(true)
 end
 
---- hs.webview:toolbar([toolbar | nil]) -> webviewObject | currentValue
+--- hs.webview:attachedToolbar([toolbar | nil]) -> webviewObject | currentValue
 --- Method
 --- Get or attach/detach a toolbar to/from the webview.
 ---
@@ -118,7 +118,7 @@ end
 ---  * this method is a convenience wrapper for the `hs.webview.toolbar.attachToolbar` function.
 ---
 ---  * If the toolbarObject is currently attached to another window when this method is called, it will be detached from the original window and attached to the webview.  If you wish to attach the same toolbar to multiple webviews, see `hs.webview.toolbar:copy`.
-objectMT.toolbar = module.toolbar.attachToolbar
+objectMT.attachedToolbar = module.toolbar.attachToolbar
 
 --- hs.webview:windowStyle(mask) -> webviewObject | currentMask
 --- Method

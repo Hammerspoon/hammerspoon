@@ -350,10 +350,10 @@ local makeBrowser = function()
               hs.luaSkinLog.ef("%s browser navigation for %s error:%s", USERDATA_TAG, a, e.localizedDescription)
               return true
           end
-          if a == "didFinishNavigation" then updateToolbarIcons(w:toolbar(), w) end
+          if a == "didFinishNavigation" then updateToolbarIcons(w:attachedToolbar(), w) end
       end)
 
-    browser:toolbar(makeToolbar(browser))
+    browser:attachedToolbar(makeToolbar(browser))
     return browser
 end
 
