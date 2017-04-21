@@ -816,7 +816,7 @@ static int newHSToolbar(lua_State *L) {
 ///  * if the function is used to attach/detach a toolbar, then the first object provided will be returned ; if this function is used to get the current toolbar object for a webview or the console, then the toolbarObject or nil will be returned.
 ///
 /// Notes:
-///  * This function is not expected to be used directly (though it can be) -- it is added to the `hs.webview` object metatable so that it may be invoked as `hs.webview:toolbar([toolbarObject | nil])` and to the `hs.console` module so that it may be invoked as `hs.console.toolbar([toolbarObject | nil])`.
+///  * This function is not expected to be used directly (though it can be) -- it is added to the `hs.webview` object metatable so that it may be invoked as `hs.webview:attachedToolbar([toolbarObject | nil])` and to the `hs.console` module so that it may be invoked as `hs.console.toolbar([toolbarObject | nil])`.
 ///
 ///  * If the toolbar is currently attached to another window when this function is called, it will be detached from the original window and attached to the new one specified by this function.
 static int attachToolbar(lua_State *L) {
