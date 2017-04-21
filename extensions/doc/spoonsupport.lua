@@ -33,18 +33,21 @@ local findSpoons = function()
         table.insert(spoonPaths, path)
     end
     for i, v in ipairs(spoonPaths) do
-        for file in fs.dir(v:match("^(.+)/%?%.spoon/init%.lua$")) do
-            local name = file:match("^(.+)%.spoon$")
-            local spoonInit = name and package.searchpath(name, package.path)
-            if name and spoonInit then
-                spoonDetails = {}
-                spoonDetails.path     = spoonInit:match("^(.+)/init%.lua$")
-                spoonDetails.docPath  = spoonDetails.path .. "/" .. documentationFileName
-                spoonDetails.hasDocs  = fs.attributes(spoonDetails.docPath) and true or false
-                installedSpoons[name] = spoonDetails
-            else
-                if not file:match("^%.%.?$") then
-                    log.df("skipping %s -- missing init.lua", file)
+        local dirPath = v:match("^(.+)/%?%.spoon/init%.lua$")
+        if dirPath and fs.dir(dirPath) then
+            for file in fs.dir(dirPath) do
+                local name = file:match("^(.+)%.spoon$")
+                local spoonInit = name and package.searchpath(name, package.path)
+                if name and spoonInit then
+                    spoonDetails = {}
+                    spoonDetails.path     = spoonInit:match("^(.+)/init%.lua$")
+                    spoonDetails.docPath  = spoonDetails.path .. "/" .. documentationFileName
+                    spoonDetails.hasDocs  = fs.attributes(spoonDetails.docPath) and true or false
+                    installedSpoons[name] = spoonDetails
+                else
+                    if not file:match("^%.%.?$") then
+                        log.df("skipping %s -- missing init.lua", file)
+                    end
                 end
             end
         end
