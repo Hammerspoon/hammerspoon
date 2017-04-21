@@ -66,7 +66,7 @@ local fixLinks = function(text)
 end
 
 local coredocs = {}
-local rawdocs = { spoons = {} }
+local rawdocs = { spoon = {} }
 
 local docMT
 docMT = {
@@ -88,16 +88,19 @@ docMT = {
             for k,v in fnutils.sortByKeys(rawdocs) do
                 result = result .. k .. "\n"
             end
-        elseif path == "spoons" then
+        elseif path == "spoon" then
             result = "[spoons]\n"
             for k,v in fnutils.sortByKeys(pos) do
                 result = result .. k .. "\n"
             end
-        elseif not pos.__.json.items then
+        elseif pos.__ and not pos.__.json.items then
             result = pos.__.json.type .. ": " .. (pos.__.json.signature or pos.__.json.def) .. "\n\n" .. pos.__.json.doc .. "\n"
         else
-            result = pos.__.json.doc .. "\n\n"
-
+            if pos.__ then
+                result = pos.__.json.doc .. "\n\n"
+            else
+                result = "** DOCUMENTATION MISSING **\n\n"
+            end
             local submodules, items = "", ""
             for k, v in fnutils.sortByKeys(pos, sortFunction) do
                 if k ~= "__" then
@@ -190,7 +193,7 @@ module.registerJSONFile = function(docFile, isSpoon)
         }
 
         for i, entry in ipairs(message) do
-            local current = coredocs[docFile].spoon and rawdocs.spoons or rawdocs
+            local current = coredocs[docFile].spoon and rawdocs.spoon or rawdocs
             for s in string.gmatch(entry.name, "[%w_]+") do
                 current[s] = current[s] or {}
                 current = current[s]
