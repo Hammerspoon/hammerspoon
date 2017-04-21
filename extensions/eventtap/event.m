@@ -1,6 +1,8 @@
 #import "eventtap_event.h"
 #import <IOKit/hidsystem/ev_keymap.h>
 
+#define FLAGS_TAG "hs.eventtap.event.flags"
+
 CGEventSourceRef eventSource;
 
 static int eventtap_event_gc(lua_State* L) {
@@ -42,6 +44,17 @@ static int eventtap_event_copy(lua_State* L) {
 ///   * shift
 ///   * ctrl
 ///   * fn
+///  * The table responds to the following methods:
+///   * contain(mods) -> boolean
+///    * Returns true if the modifiers contain all of given modifiers
+///   * containExactly(mods) -> boolean
+///    * Returns true if the modifiers contain all of given modifiers exactly and nothing else
+///  * Parameter mods is a table containing zero or more of the following:
+///   * cmd or ⌘
+///   * alt or ⌥
+///   * shift or ⇧
+///   * ctrl or ⌃
+///   * fn
 static int eventtap_event_getFlags(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
 
@@ -52,6 +65,9 @@ static int eventtap_event_getFlags(lua_State* L) {
     if (curAltkey & kCGEventFlagMaskControl) { lua_pushboolean(L, YES); lua_setfield(L, -2, "ctrl"); }
     if (curAltkey & kCGEventFlagMaskCommand) { lua_pushboolean(L, YES); lua_setfield(L, -2, "cmd"); }
     if (curAltkey & kCGEventFlagMaskSecondaryFn) { lua_pushboolean(L, YES); lua_setfield(L, -2, "fn"); }
+
+    luaL_getmetatable(L, FLAGS_TAG);
+    lua_setmetatable(L, -2);
     return 1;
 }
 
@@ -1067,6 +1083,63 @@ static const luaL_Reg meta_gcLib[] = {
     {NULL,      NULL}
 };
 
+static CGEventFlags flagsFromTable(lua_State* L, int arg) {
+    luaL_checktype(L, arg, LUA_TTABLE);
+
+    CGEventFlags flags = 0;
+    if (lua_getfield(L, arg, "cmd"),   lua_toboolean(L, -1)) flags |= kCGEventFlagMaskCommand;
+    if (lua_getfield(L, arg, "alt"),   lua_toboolean(L, -1)) flags |= kCGEventFlagMaskAlternate;
+    if (lua_getfield(L, arg, "ctrl"),  lua_toboolean(L, -1)) flags |= kCGEventFlagMaskControl;
+    if (lua_getfield(L, arg, "shift"), lua_toboolean(L, -1)) flags |= kCGEventFlagMaskShift;
+    if (lua_getfield(L, arg, "fn"),    lua_toboolean(L, -1)) flags |= kCGEventFlagMaskSecondaryFn;
+
+    return flags;
+}
+
+static CGEventFlags flagsFromArray(lua_State* L, int arg) {
+    luaL_checktype(L, arg, LUA_TTABLE);
+
+    CGEventFlags flags = 0;
+    const char *modifier;
+    lua_pushnil(L);
+    while (lua_next(L, arg) != 0) {
+        modifier = lua_tostring(L, -1);
+        if (!modifier) {
+            LuaSkin *skin = [LuaSkin shared];
+            [skin logBreadcrumb:[NSString stringWithFormat:@"hs.eventtap.event.flags: unexpected entry in modifiers table: %d", lua_type(L, -1)]];
+            lua_pop(L, 1);
+            continue;
+        }
+
+        if (strcmp(modifier, "cmd") == 0 || strcmp(modifier, "⌘") == 0) flags |= kCGEventFlagMaskCommand;
+        else if (strcmp(modifier, "ctrl") == 0 || strcmp(modifier, "⌃") == 0) flags |= kCGEventFlagMaskControl;
+        else if (strcmp(modifier, "alt") == 0 || strcmp(modifier, "⌥") == 0) flags |= kCGEventFlagMaskAlternate;
+        else if (strcmp(modifier, "shift") == 0 || strcmp(modifier, "⇧") == 0) flags |= kCGEventFlagMaskShift;
+        else if (strcmp(modifier, "fn") == 0) flags |= kCGEventFlagMaskSecondaryFn;
+        lua_pop(L, 1);
+    }
+
+    return flags;
+}
+
+static int flags_contain(lua_State* L) {
+    CGEventFlags eventFlags = flagsFromTable(L, 1);
+    CGEventFlags flags = flagsFromArray(L, 2);
+
+    lua_pushboolean(L, (eventFlags & flags) == flags);
+
+    return 1;
+}
+
+static int flags_containExactly(lua_State* L) {
+    CGEventFlags eventFlags = flagsFromTable(L, 1);
+    CGEventFlags flags = flagsFromArray(L, 2);
+
+    lua_pushboolean(L, eventFlags == flags);
+
+    return 1;
+}
+
 int luaopen_hs_eventtap_event(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin registerLibraryWithObject:EVENT_USERDATA_TAG functions:eventtapeventlib metaFunctions:meta_gcLib objectFunctions:eventtapevent_metalib];
@@ -1078,6 +1151,17 @@ int luaopen_hs_eventtap_event(lua_State* L) {
     lua_setfield(L, -2, "properties");
 
     eventSource = nil;
+
+    luaL_newmetatable(L, FLAGS_TAG);
+
+    lua_newtable(L);
+    lua_pushcfunction(L, flags_contain);
+    lua_setfield(L, -2, "contain");
+    lua_pushcfunction(L, flags_containExactly);
+    lua_setfield(L, -2, "containExactly");
+
+    lua_setfield(L, -2, "__index");
+    lua_pop(L, 1);
 
     return 1;
 }
