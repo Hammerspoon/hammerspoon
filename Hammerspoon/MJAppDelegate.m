@@ -269,7 +269,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
                          HSAutoLoadExtensions: @YES,
                          HSUploadCrashDataKey: @YES,
                          HSAppleScriptEnabledKey: @YES,
-                         HSOpenConsoleOnDockClickKey: @YES,
+                         HSOpenConsoleOnDockClickKey: @NO,
                          }];
 }
 
