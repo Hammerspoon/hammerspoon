@@ -220,6 +220,10 @@ module.registerJSONFile = function(docFile, isSpoon)
         return false, "Provided path is not a string."
     end
 
+    -- clean up path so it's consistent no matter how/where formed
+    --  * do we need to worry about ./ and ../ ?
+    docFile = docFile:gsub("//", "/")
+
     local status, message = module.validateJSONFile(docFile)
     if status then
         if coredocs[docFile] then
