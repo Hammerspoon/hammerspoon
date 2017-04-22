@@ -359,9 +359,9 @@ def do_processing(directories):
     for module in docs:
         dbg("Processing: %s" % module)
         module_docs = process_module(module, docs[module])
-        module_docs["items"].sort(key=lambda item: item["name"])
+        module_docs["items"].sort(key=lambda item: item["name"].lower())
         for item_type in TYPE_NAMES:
-            module_docs[item_type].sort(key=lambda item: item["name"])
+            module_docs[item_type].sort(key=lambda item: item["name"].lower())
         processed_docstrings.append(module_docs)
 
         # Add this module to our module tree
@@ -389,7 +389,7 @@ def do_processing(directories):
         processed_docstrings[i]["submodules"].sort()
         i += 1
 
-    processed_docstrings.sort(key=lambda module: module["name"])
+    processed_docstrings.sort(key=lambda module: module["name"].lower())
     return processed_docstrings
 
 
