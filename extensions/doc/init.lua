@@ -71,18 +71,18 @@ local rawdocs = { spoon = {} }
 local docMT
 docMT = {
     __index = function(self, key)
-        local path, pos = rawget(self, "path"), rawget(self, "pos")
+        local path, pos = rawget(self, "__path"), rawget(self, "__pos")
         local result
         if not path then
-            result = rawdocs[key] and setmetatable({ path = key, pos = rawdocs[key] }, docMT) or nil
+            result = rawdocs[key] and setmetatable({ __path = key, __pos = rawdocs[key] }, docMT) or nil
         else
-            result = pos[key] and setmetatable({ path = path .. "." .. key, pos = pos[key] }, docMT) or nil
+            result = pos[key] and setmetatable({ __path = path .. "." .. key, __pos = pos[key] }, docMT) or nil
         end
         return result
     end,
     __tostring = function(self)
         local result = ""
-        local path, pos = rawget(self, "path"), rawget(self, "pos")
+        local path, pos = rawget(self, "__path"), rawget(self, "__pos")
         if not pos then
             result = "[modules]\n"
             for k,v in fnutils.sortByKeys(rawdocs) do
@@ -119,7 +119,7 @@ docMT = {
         return fixLinks(result)
     end,
     __pairs = function(self)
-        local path, pos = rawget(self, "path"), rawget(self, "pos")
+        local path, pos = rawget(self, "__path"), rawget(self, "__pos")
         local source = {}
         if not pos then
             source = rawdocs
@@ -204,11 +204,12 @@ module.registerJSONFile = function(docFile, isSpoon)
                 current.__ = { json = entry, file = docFile }
             end
             for i2, subitem in ipairs(entry.items or {}) do
-                current[subitem.name] = current[subitem.name] or {}
-                if current[subitem.name].__ then
+                local itemDocName = subitem.name:gsub("[^%w_]", "")
+                current[itemDocName] = current[itemDocName] or {}
+                if current[itemDocName].__ then
                     print("** hs.doc - duplicate item entry at " .. entry.name .. "." .. subitem.name .. " -> " .. inspect(subitem, { depth = 1 }))
                 else
-                    current[subitem.name].__ = { json = subitem, file = docFile }
+                    current[itemDocName].__ = { json = subitem, file = docFile }
                 end
             end
         end

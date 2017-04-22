@@ -208,22 +208,23 @@ local makeToolbar = function(browser)
     local examineDocumentation
     examineDocumentation = function(tblName)
         local myTable = {}
-        for i, v in pairs(tblName) do
-            if type(v) == "table" then
-                if v.__name == v.__path then
-                    table.insert(myTable, v.__name)
-                    local more = examineDocumentation(v)
-                    if #more > 0 then
-                        for i2,v2 in ipairs(more) do table.insert(myTable, v2) end
-                    end
+        for k, v in pairs(tblName) do
+          local isMod = false
+          for k2, v2 in pairs(tblName[k]) do isMod = true ; break end
+          if isMod then
+                table.insert(myTable, tblName[k].__path)
+                local more = examineDocumentation(tblName[k])
+                if #more > 0 then
+                    for i2,v2 in ipairs(more) do table.insert(myTable, v2) end
                 end
             end
         end
+        table.sort(myTable)
         return myTable
     end
     local searchList = examineDocumentation(hs.help.hs)
-    table.insert(searchList, "hs")
-    table.sort(searchList)
+--    for i,v in ipairs(examineDocumentation(hs.help.spoon)) do table.insert(searchList, v) end
+    table.insert(searchList, 1, "hs")
 
     local toolbar = webview.toolbar.new("hsBrowserToolbar", {
         {
