@@ -1339,7 +1339,7 @@ static int addToolbarItems(lua_State *L) {
 /// Method
 /// Deletes the toolbar item specified completely from the toolbar, removing it first, if the toolbar item is currently active.
 ///
-/// Paramters:
+/// Parameters:
 ///  * `identifier` - the toolbar item's identifier
 ///
 /// Returns:

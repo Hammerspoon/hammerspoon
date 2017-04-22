@@ -393,7 +393,7 @@ static int fontTraits(lua_State *L) {
 /// Function
 /// Get information about the font Specified in the attributes table.
 ///
-/// Paramters:
+/// Parameters:
 ///  * font - a string or a table which specifies a font.  If a string is given, the default system font size is assumed.  If a table is provided, it should contain the following keys:
 ///    * name - the name of the font (defaults to the system font)
 ///    * size - the point size of the font (defaults to the default system font size)
