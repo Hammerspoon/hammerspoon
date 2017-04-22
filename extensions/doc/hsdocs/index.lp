@@ -67,6 +67,9 @@
 
     </style>
     <link rel="stylesheet" href="<%= cgilua.mkurlpath("docs.css") %>" type="text/css" media="screen" />
+    <style type="text/css">
+      h1 { margin:0; }
+    </style>
 
     <script type="text/javascript">
       function openTab(evt, cityName) {
