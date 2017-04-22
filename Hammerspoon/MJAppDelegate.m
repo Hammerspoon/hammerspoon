@@ -132,7 +132,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
         [alert addButtonWithTitle:@"Continue"];
         [alert addButtonWithTitle:@"Delete Preferences"];
         [alert setMessageText:@"Do you want to delete the preferences?"];
-        [alert setInformativeText:@"Deleting the preferences will reset all application settings to their defaults."];
+        [alert setInformativeText:@"Deleting the preferences will reset all Hammerspoon settings (including everything that uses hs.settings) to their defaults."];
         [alert setAlertStyle:NSWarningAlertStyle];
         
         if ([alert runModal] == NSAlertSecondButtonReturn) {
