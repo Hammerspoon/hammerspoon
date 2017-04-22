@@ -85,12 +85,12 @@ docMT = {
         local path, pos = rawget(self, "__path"), rawget(self, "__pos")
         if not pos then
             result = "[modules]\n"
-            for k,v in fnutils.sortByKeys(rawdocs) do
+            for k,v in fnutils.sortByKeys(rawdocs, function(a,b) return a:lower() < b:lower() end) do
                 result = result .. k .. "\n"
             end
         elseif path == "spoon" then
             result = "[spoons]\n"
-            for k,v in fnutils.sortByKeys(pos) do
+            for k,v in fnutils.sortByKeys(pos, function(a,b) return a:lower() < b:lower() end) do
                 result = result .. k .. "\n"
             end
         elseif pos.__ and not pos.__.json.items then
@@ -152,7 +152,7 @@ local buildHoldingTable = function(self)
             end
         end
     end
-    table.sort(holder, function(a,b) return sortFunction(a.name, b.name) end)
+    table.sort(holder, function(a,b) return sortFunction(a.name:lower(), b.name:lower()) end)
     return holder
 end
 
