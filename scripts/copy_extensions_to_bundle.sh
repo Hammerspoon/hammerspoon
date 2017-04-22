@@ -107,10 +107,11 @@ done
 
 # Special copier for hs.doc
 cp -av "${SRCROOT}/extensions/doc/lua.json" "${HS_DST}/doc/lua.json"
-cp -av "${SRCROOT}/extensions/doc/hsdocs" "${HS_DST}/doc"
 cp -av "${BUILT_PRODUCTS_DIR}/libdoc.dylib" "${HS_DST}/doc/markdown.so"
 cp -av "${SRCROOT}/extensions/doc/builder.lua" "${HS_DST}/doc"
 cp -av "${SRCROOT}/extensions/doc/spoonsupport.lua" "${HS_DST}/doc"
+cp -av "${SRCROOT}/extensions/doc/hsdocs" "${HS_DST}/doc"
+cp -av "${SRCROOT}/scripts/docs/templates/docs.css" "${HS_DST}/doc/hsdocs"
 
 # Special copier for hs.eventtap.event
 cp -av "${BUILT_PRODUCTS_DIR}/libeventtapevent.dylib" "${HS_DST}/eventtap/event.so"

@@ -8,6 +8,9 @@
       for i, v in ipairs(documentation) do
           modNames[v.name] = true
       end
+      for i,v in ipairs(spoonDocumentation) do
+          modNames["spoon." .. v.name] = true
+      end
 
       -- the following code looks for the module to display as either part of URL PATH_INFO or as a
       -- query item.  The following URLs are supported:
@@ -39,6 +42,7 @@
           end
       end
 
+      local isSpoon = false
       local mod = {
           desc = "Module documentation not found",
           doc = "Module documentation not found\n\nThe requested module does not appear to have any documentation in the set available to this web site.",
@@ -46,10 +50,21 @@
           name = lookingFor or "** no module specified **"
       }
       if lookingFor then
-          for i, v in ipairs(documentation) do
-              if v.name == lookingFor then
-                  mod = v
-                  break
+          if lookingFor:match("^spoon%.") then
+              isSpoon = true
+              local target = lookingFor:match("^spoon%.(.+)$")
+              for i, v in ipairs(spoonDocumentation) do
+                  if v.name == target then
+                      mod = v
+                      break
+                  end
+              end
+          else
+              for i, v in ipairs(documentation) do
+                  if v.name == lookingFor then
+                      mod = v
+                      break
+                  end
               end
           end
       end
@@ -61,10 +76,7 @@
             window.scrollTo(0, top);
           });
         </script>
-  <%  end
-
-    -- what follows is from ../scripts/docs/templates/ext.html.erb
-%>
+  <%  end %>
 
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -83,7 +95,7 @@
 
   <body>
     <header>
-      <h1><a href="<%= cgilua.mkurlpath("index.lp") %>">docs</a> &raquo; <%= mod.name %></h1>
+      <h1><a href="<%= cgilua.mkurlpath("index.lp") .. (isSpoon and "#spoons" or "") %>"><%= (isSpoon and "spoon" or "docs") %></a> &raquo; <%= mod.name %></h1>
       <%= gfmConvert(mod.doc) %>
     </header>
     <h3>API Overview</h3>

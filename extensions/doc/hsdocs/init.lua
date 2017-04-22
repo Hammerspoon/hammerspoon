@@ -21,6 +21,7 @@ local USERDATA_TAG = "hs.doc.hsdocs"
 local settings = require"hs.settings"
 local image    = require"hs.image"
 local webview  = require"hs.webview"
+local doc      = require"hs.doc"
 
 local documentRoot = package.searchpath("hs.doc.hsdocs", package.path):match("^(/.*/).*%.lua$")
 
@@ -205,26 +206,15 @@ local updateToolbarIcons = function(toolbar, browser)
 end
 
 local makeToolbar = function(browser)
-    local examineDocumentation
-    examineDocumentation = function(tblName)
-        local myTable = {}
-        for k, v in pairs(tblName) do
-          local isMod = false
-          for k2, v2 in pairs(tblName[k]) do isMod = true ; break end
-          if isMod then
-                table.insert(myTable, tblName[k].__path)
-                local more = examineDocumentation(tblName[k])
-                if #more > 0 then
-                    for i2,v2 in ipairs(more) do table.insert(myTable, v2) end
-                end
-            end
-        end
-        table.sort(myTable)
-        return myTable
+    -- get list of hammerspoon modules and spoons
+    local searchList = {}
+    for i,v in ipairs(doc._jsonForModules) do
+        table.insert(searchList, v.name)
     end
-    local searchList = examineDocumentation(hs.help.hs)
---    for i,v in ipairs(examineDocumentation(hs.help.spoon)) do table.insert(searchList, v) end
-    table.insert(searchList, 1, "hs")
+    for i,v in ipairs(doc._jsonForSpoons) do
+        table.insert(searchList, "spoon." .. v.name)
+    end
+    table.sort(searchList)
 
     local toolbar = webview.toolbar.new("hsBrowserToolbar", {
         {
