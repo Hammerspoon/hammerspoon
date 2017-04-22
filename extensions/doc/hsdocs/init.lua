@@ -137,33 +137,9 @@ local toolbarImages = {
     index = image.imageFromName("statusicon"),
 }
 
-local makeWatcher = function(browser)
-    if not module._browserWatcher and settings.get("_documentationServer.trackBrowserFrameChanges") then
-        require"hs.timer".waitUntil(
-            function() return module._browser:hswindow() ~= nil end,
-            function(...)
-                module._browserWatcher = browser:hswindow()
-                                                :newWatcher(function(element, event, watcher, userData)
-                                                    if event == "AXUIElementDestroyed" then
-                                                        module._browserWatcher:stop()
-                                                        module._browserWatcher = nil
-                                                    else
-                                                      -- ^%$#$@#&%^*$ hs.geometry means element:frame() isn't really a rect, and there is no direct function to coerce it...
-                                                        local notFrame = element:frame()
-                                                        local frame = {
-                                                            x = notFrame._x,
-                                                            y = notFrame._y,
-                                                            h = notFrame._h,
-                                                            w = notFrame._w,
-                                                        }
-                                                        settings.set("_documentationServer.browserFrame", frame)
-                                                    end
-                                                end, module._browser):start({
-                                                    "AXWindowMoved",
-                                                    "AXWindowResized",
-                                                    "AXUIElementDestroyed"
-                                                })
-          end)
+local frameTracker = function(cmd, wv, opt)
+    if cmd == "frameChange" and settings.get("_documentationServer.trackBrowserFrameChanges") then
+        settings.set("_documentationServer.browserFrame", opt)
     end
 end
 
@@ -192,17 +168,6 @@ local updateToolbarIcons = function(toolbar, browser)
     end
 
     toolbar:modifyItem{ id = "track", image = module.trackBrowserFrame() and toolbarImages.trackWindow or toolbarImages.noTrackWindow }
-
-    if settings.get("_documentationServer.trackBrowserFrameChanges") then
-        if not module._browserWatcher then
-            makeWatcher(browser)
-        end
-    else
-        if module._browserWatcher then
-            module._browserWatcher:stop()
-            module._browserWatcher = nil
-        end
-    end
 end
 
 local makeToolbar = function(browser)
@@ -336,6 +301,7 @@ local makeBrowser = function()
       :allowTextEntry(true)
       :allowGestures(true)
       :closeOnEscape(true)
+      :windowCallback(frameTracker)
       :navigationCallback(function(a, w, n, e)
           if e then
               hs.luaSkinLog.ef("%s browser navigation for %s error:%s", USERDATA_TAG, a, e.localizedDescription)
@@ -495,10 +461,6 @@ module.help = function(target)
     if webview and not settings.get("_documentationServer.forceExternalBrowser") then
         module._browser = module._browser or makeBrowser()
         module._browser:url(targetURL):show()
-
-        if not module._browserWatcher and settings.get("_documentationServer.trackBrowserFrameChanges") then
-            makeWatcher(module._browser)
-        end
     else
         local targetApp = settings.get("_documentationServer.forceExternalBrowser")
         local urlevent = require"hs.urlevent"
