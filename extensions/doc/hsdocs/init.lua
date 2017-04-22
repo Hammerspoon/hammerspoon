@@ -179,7 +179,7 @@ local makeToolbar = function(browser)
     for i,v in ipairs(doc._jsonForSpoons) do
         table.insert(searchList, "spoon." .. v.name)
     end
-    table.sort(searchList)
+    table.sort(searchList, function(a, b) return a:lower() < b:lower() end)
 
     local toolbar = webview.toolbar.new("hsBrowserToolbar", {
         {
@@ -320,7 +320,7 @@ end
 --- Function
 --- Get or set the network interface that the Hammerspoon documentation web server will be served on
 ---
---- Paramaters:
+--- Parameters:
 ---  * interface - an optional string, or nil, specifying the network interface the Hammerspoon documentation web server will be served on.  An explicit nil specifies that the web server should listen on all active interfaces for the machine.  Defaults to "localhost".
 ---
 --- Returns:
@@ -364,7 +364,7 @@ end
 --- Function
 --- Get or set the Hammerspoon documentation server HTTP port.
 ---
---- Paramters:
+--- Parameters:
 ---  * value - an optional number specifying the port for the Hammerspoon documentation web server
 ---
 --- Returns:
@@ -520,11 +520,33 @@ module.trackBrowserFrame = function(...)
     return settings.get("_documentationServer.trackBrowserFrameChanges")
 end
 
+--- hs.doc.hsdocs.moduleEntitiesInSidebar([value]) -> currentValue
+--- Function
+--- Get or set whether or not a module's entity list is displayed as a column on the left of the rendered page.
+---
+--- Parameters:
+---  * value - an optional boolean specifying whether or not a module's entity list is displayed inline in the documentation (false) or in a sidebar on the left (true).
+---
+--- Returns:
+---  * the current, possibly new, value
+---
+--- Notes:
+---  * This is experimental and is disabled by default. It was inspired by a Userscript written by krasnovpro.  The original can be found at https://openuserjs.org/scripts/krasnovpro/hammerspoon.org_Documentation/source.
+---
+---  * Changes made with this function are saved with `hs.settings` with the label "_documentationServer.entitiesInSidebar" and will persist through a reload or restart of Hammerspoon.
+module.moduleEntitiesInSidebar = function(...)
+    local args = table.pack(...)
+    if args.n == 1 and (type(args[1]) == "boolean" or type(args[1]) == "nil") then
+        settings.set("_documentationServer.entitiesInSidebar", args[1])
+    end
+    return settings.get("_documentationServer.entitiesInSidebar")
+end
+
 --- hs.doc.hsdocs.browserDarkMode([value]) -> currentValue
 --- Function
 --- Get or set whether or not the Hammerspoon browser renders output in Dark mode.
 ---
---- Paramters:
+--- Parameters:
 ---  * value - an optional boolean, number, or nil specifying whether or not the documentation browser renders in Dark mode.
 ---    * if value is `true`, then the HTML output will always be inverted
 ---    * if value is `false`, then the HTML output will never be inverted
@@ -552,7 +574,7 @@ end
 --- Function
 --- Get or set whether or not [hs.doc.hsdocs.help](#help) uses an external browser.
 ---
---- Paramters:
+--- Parameters:
 ---  * value - an optional boolean or string, default false, specifying whether or not documentation requests will be displayed in an external browser or the internal one handled by `hs.webview`.
 ---
 --- Returns:

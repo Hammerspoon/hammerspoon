@@ -91,6 +91,48 @@
       section > table table td { width: 0; }
     </style>
     <link rel="stylesheet" href="<%= cgilua.mkurlpath("docs.css") %>" type="text/css" media="screen" />
+
+    <style type="text/css">
+      h1 { margin:0; }
+
+<% if settings.get("_documentationServer.entitiesInSidebar") then %>
+/* Inspired by https://openuserjs.org/scripts/krasnovpro/hammerspoon.org_Documentation/source */
+      header+h3 {
+        display: none;
+      }
+      header+h3+ul {
+        height: 100%;
+        left: 0;
+        list-style: none;
+        overflow-y: scroll;
+        padding: 10px 15px;
+        position: fixed;
+        top: 10px;
+        width: 20vw;
+      }
+
+      header+h3+ul * {
+        font-size: .8rem;
+      }
+
+      header+h3+ul ul {
+        list-style: none;
+        margin: .2rem 0 1rem 0;
+        padding: 0;
+      }
+
+      header+h3+ul ul li {
+        font-size: .8rem;
+        line-height: 1.5;
+        padding: 0;
+      }
+      body {
+        margin-left: 20vw;
+        width: 70vw;
+      }
+<% end %>
+    </style>
+
   </head>
 
   <body>
@@ -120,7 +162,7 @@
           for _, moditem in ipairs(mod.items) do
             if moditem["type"] == section then table.insert(items, moditem) end
           end
-          table.sort(items, function(a, b) return a.name < b.name end)
+          table.sort(items, function(a, b) return a.name:lower() < b.name:lower() end)
           if #items > 0 then
             table.insert(activeSections, { name = section, items = items }) %>
             <li><%= section %>s - <%= sectiondetails[section] %></li>

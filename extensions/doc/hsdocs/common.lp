@@ -1,10 +1,12 @@
 <%
 
-    -- gfmConvert and documentation are "global" because this template is included by
-    -- both index.lp and module.lp; new "global" variables are actually stored in the
-    -- template's _ENV, rather than in _G
-
     local doc = require("hs.doc")
+
+    -- the following are defined as global because new "global" variables are actually stored in
+    -- the template's _ENV, rather than in _G, so it's still local to the building of the page
+    -- which includes this template.
+
+    settings = require("hs.settings")
     documentation      = doc._jsonForModules
     spoonDocumentation = doc._jsonForSpoons
 
@@ -15,7 +17,7 @@
 
     -- inversion mode option for night time, dark mode, etc. similar to Dash.  By default, follows
     -- system interface mode
-    local invertLevel = require"hs.settings".get("_documentationServer.invertDocs")
+    local invertLevel = settings.get("_documentationServer.invertDocs")
     if not ({ ["number"] = 1, ["boolean"] = 1 })[type(invertLevel)] then
         invertLevel = (require"hs.host".interfaceStyle() == "Dark")
     end
