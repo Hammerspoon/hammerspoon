@@ -1,21 +1,12 @@
 <%
 
-    -- gfmConvert, documentationSourceTag, and documentation are "global" because this template is
-    -- included by both index.lp and module.lp; new "global" variables are actually stored in the
+    -- gfmConvert and documentation are "global" because this template is included by
+    -- both index.lp and module.lp; new "global" variables are actually stored in the
     -- template's _ENV, rather than in _G
 
-    -- only read and convert the json data once
-    if not hs._docsAsArray then
-        local input = io.open(hs.docstrings_json_file, "rb")
-        -- we may add support for inserting third party docs in the future, so add a label
-        -- specifying the documentation source
-        hs._docsAsArray = {
-            from = "Core JSON",
-            docs = require"hs.json".decode(input:read("a")),
-        }
-        input:close()
-    end
-    documentationSourceTag, documentation = hs._docsAsArray.from, hs._docsAsArray.docs
+    local doc = require("hs.doc")
+    documentation      = doc._jsonForModules
+    spoonDocumentation = doc._jsonForSpoons
 
     -- used to apply markdown to html conversion for text
     gfmConvert = function(theText)

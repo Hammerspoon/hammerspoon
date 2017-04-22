@@ -141,9 +141,47 @@ local helpHolder = setmetatable({}, docMT)
 
 -- Public interface ------------------------------------------------------
 
-module._coredocs = coredocs
-module._help     = helpHolder
-module._rawdocs  = rawdocs
+local buildHoldingTable = function(self)
+    local holder = {}
+    for k,v in pairs(coredocs) do
+        if v.spoon == self.__spoon then
+            for i, v2 in ipairs(v.json) do
+                if not (self.__ignore and (v2.name:match("^" .. self.__ignore .. "$") or v2.name:match("^" .. self.__ignore .. "[%.:]"))) then
+                    table.insert(holder, v2)
+                end
+            end
+        end
+    end
+    table.sort(holder, function(a,b) return sortFunction(a.name, b.name) end)
+    return holder
+end
+
+local jsonMT = {
+    __index = function(self, key)
+        local holder = buildHoldingTable(self)
+        return holder[key]
+    end,
+    __pairs = function(self)
+        local holder = buildHoldingTable(self)
+        return function(_, k)
+            local v
+            k, v = next(holder, k)
+            return k, v
+        end, self, nil
+    end,
+    __len = function(self)
+        local holder = buildHoldingTable(self)
+        return #holder
+    end,
+}
+
+module._jsonForSpoons    = setmetatable({ __spoon = true,  __ignore = false }, jsonMT)
+module._jsonForNonSpoons = setmetatable({ __spoon = false, __ignore = false }, jsonMT)
+module._jsonForModules   = setmetatable({ __spoon = false, __ignore = "lua" }, jsonMT)
+
+--module._coredocs = coredocs
+--module._help     = helpHolder
+--module._rawdocs  = rawdocs
 
 --- hs.doc.validateJSONFile(jsonfile) -> status, message|table
 --- Function

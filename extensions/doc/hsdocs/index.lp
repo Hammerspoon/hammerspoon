@@ -17,8 +17,6 @@
           f:close()
       end
 
-    -- what follows is from ../scripts/docs/templates/index.html.erb
-
   %>
 
   <head>
@@ -36,7 +34,6 @@
   <body>
     <header>
       <h1>Hammerspoon.app</h1>
-      <i>Documentation Source: <%= documentationSourceTag %></i>
     </header>
     <section><%= gfmConvert(indexMD) %></section>
     <section>
@@ -45,6 +42,18 @@
         <% for i, mod in ipairs(documentation) do %>
           <tr>
             <td><a href="<%= cgilua.mkurlpath("module.lp/" .. mod.name) %>"><%= mod.name %></a></td>
+            <td><%= gfmConvert(mod.desc) %></td>
+          </tr>
+        <% end %>
+      </table>
+    </section>
+    <a name="spoons"></a>
+    <section>
+      <h3>Spoon documentation</h3>
+      <table class="api-documentation-overview">
+        <% for i, mod in ipairs(spoonDocumentation) do %>
+          <tr>
+            <td><a href="<%= cgilua.mkurlpath("module.lp/spoon." .. mod.name) %>"><%= mod.name %></a></td>
             <td><%= gfmConvert(mod.desc) %></td>
           </tr>
         <% end %>
