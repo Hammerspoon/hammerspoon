@@ -211,7 +211,7 @@ end
 --- Function
 --- Gets the Spotify volume setting
 ---
---- Paramters:
+--- Parameters:
 ---  * None
 ---
 --- Returns:

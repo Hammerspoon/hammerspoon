@@ -35,7 +35,7 @@ static dispatch_queue_t notificationQueue;
 /// Method
 /// Returns a screen's unique ID
 ///
-/// Paramters:
+/// Parameters:
 ///  * None
 ///
 /// Returns:
