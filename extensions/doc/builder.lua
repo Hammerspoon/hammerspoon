@@ -1,7 +1,15 @@
 
 --- === hs.doc.builder ===
 ---
---- Builds documentation support files.  Still experimental
+--- Builds documentation support files.  Still experimental.
+---
+--- This submodule provides functions for mimicking the documentation generation processes used when generating the official Hammerspoon documentation.  The long term goal is to provide a mechanism for generating complete Hammerspoon documentation in all of its formats with only the Hammerspoon application and source files without any additional software required.
+---
+--- This submodule can be used to generate and maintain the documentation for Spoon bundles and can also be used to generate documentation for third-party modules as well.
+---
+--- Documentation for modules and spoons is expected to be embedded in the source code for the relevant object in specially formatted comment strings.  A very brief example of how to format documentation can be found at https://github.com/Hammerspoon/hammerspoon/blob/master/SPOONS.md#documentation, but a better treatment is planned.
+---
+--- Most of this submodule should be considered at the "Proof of Concept" stage and will require some additional work on your part to generate useful documentation in HTML, Markdown, or Docset formats.  This is expected to change in the future.
 
 local module = {}
 local json    = require("hs.json")
@@ -26,6 +34,18 @@ local sections = {
     Method      = 8,
 }
 
+--- hs.doc.builder.genComments(path) -> table
+--- Function
+--- Generates a documentation table for Hammerspoon modules or Spoon bundles from the source files located in the path(s) provided.
+---
+--- Parameters:
+---  * where - a string specifying a single path, or a table containing multiple strings specifying paths where source files should be examined to generate the documentation table.
+---
+--- Returns:
+---  * table - a table containing the documentation broken out into the key-value pairs used to generate documentation displayed by `hs.doc` and `hs.doc.hsdocs`.
+---
+--- Notes:
+---  * Because Hammerspoon and all known currently available modules are coded in Objective-C and/or Lua, only files with the .m or .lua extension are examined in the provided path(s).  Please submit an issue (or pull request, if you modify this submodule yourself) at https://github.com/Hammerspoon if you need this to be changed for your addition.
 module.genComments = function(where)
     -- get the comments from the specified path(s)
     local text = {}
@@ -53,51 +73,49 @@ module.genComments = function(where)
     for _, v in ipairs(text) do
         if v[1]:match("===") then
 
---  stripped_doc = "",
+--  stripped_doc = "", -- still need to figure out how its filled for modules, then test all of the new fields
 
- -- a module definition block
+             -- a module definition block
             local newMod = {
-                name       = v[1]:gsub("=", ""):match("^%s*(.-)%s*$"),
-                desc       = (v[3] or "UNKNOWN DESC"):match("^%s*(.-)%s*$"),
-                doc        = table.concat(v, "\n", 2, #v):match("^%s*(.-)%s*$"),
-                items      = {},
-                submodules = {},
-                ["type"]   = "Module",
+                name         = v[1]:gsub("=", ""):match("^%s*(.-)%s*$"),
+                desc         = (v[3] or "UNKNOWN DESC"):match("^%s*(.-)%s*$"),
+                doc          = table.concat(v, "\n", 2, #v):match("^%s*(.-)%s*$"),
+                items        = {},
+                submodules   = {},
+                stripped_doc = {},
+                ["type"]     = "Module",
             }
             for k,v in pairs(sections) do newMod[k] = {} end
             table.insert(mods, newMod)
         else
 
---  notes = {...},
---  parameters = {...},
---  returns = {...},
---  stripped_doc = "",
-
             -- an item block
             local newItem = {
-                ["type"]   = v[2],
-                name       = nil,
-                def        = v[1],
-                signature  = v[1],
-                desc       = (v[3] or "UNKNOWN DESC"):match("^%s*(.-)%s*$"),
-                doc        = (table.concat(v, "\n", 3, #v) or "UNKNOWN DOC"):match("^%s*(.-)%s*$"),
-                notes      = {},
-                parameters = {},
-                returns    = {},
+                ["type"]     = v[2],
+                name         = nil,
+                def          = v[1],
+                signature    = v[1],
+                desc         = (v[3] or "UNKNOWN DESC"):match("^%s*(.-)%s*$"),
+                doc          = (table.concat(v, "\n", 3, #v) or "UNKNOWN DOC"):match("^%s*(.-)%s*$"),
+                notes        = {},
+                parameters   = {},
+                returns      = {},
+                stripped_doc = {},
             }
             local currentTarget = nil
-            for theLine in ipairs(fnutils.split(newItem.doc, "\n")) do
-                if theLine:match("^^%s*Parameters:%s*$") then
+            for i, theLine in ipairs(fnutils.split(newItem.doc, "\n")) do
+                if theLine:match("^%s*Parameters:%s*$") then
                     currentTarget = "parameters"
-                elseif theLine:match("^^%s*Returns:%s*$") then
+                elseif theLine:match("^%s*Returns:%s*$") then
                     currentTarget = "returns"
-                elseif theLine:match("^^%s*Notes:%s*$") then
+                elseif theLine:match("^%s*Notes:%s*$") then
                     currentTarget = "notes"
                 else
                     if currentTarget then
                         table.insert(newItem[currentTarget], theLine)
                     else
-                        hs.printf("~~ extraneous line in %s: %s", newItem.signature, theLine)
+                        table.insert(newItem.stripped_doc, theLine)
+--                        hs.printf("~~ extraneous line in %s: %s", newItem.signature, theLine)
                     end
                 end
             end
@@ -115,7 +133,7 @@ module.genComments = function(where)
                 mod = m
                 i.name = i.def:match("^"..m.name.."[%.:]([%w%d_]+)")
                 if not sections[i["type"]] then
-                    error("error: unknown type "..i["type"].." in "..m.name.."."..i.name)
+                    error("unknown type "..i["type"].." in "..m.name.."."..i.name)
                 end
                 table.insert(m.items, i)
                 table.insert(m[i["type"]], i)
@@ -123,7 +141,7 @@ module.genComments = function(where)
             end
         end
         if not mod then
-            error("error: couldn't find module for "..i.def.." ("..i["type"]..") ("..i.doc..")")
+            error("couldn't find module for "..i.def.." ("..i["type"]..") ("..i.doc..")")
         end
     end
     table.sort(mods, function(a, b) return a.name < b.name end)
@@ -147,6 +165,15 @@ module.genComments = function(where)
     return mods
 end
 
+--- hs.doc.builder.genSQL(source) -> string
+--- Function
+--- Generates the SQL commands required for creating the search index when creating a docset of the documentation.
+---
+--- Parameters:
+---  * source - the source to generate the SQL commands for.  If this is provided as a string, it is passed to [hs.doc.builder.genComments](#genComments) and the result is used.  If it is a table, then it is assumed to have already been generated by a call to [hs.doc.builder.genComments](#genComments).
+---
+--- Returns:
+---  * string - the relevant SQL commands as a string
 module.genSQL = function(mods)
     if type(mods) == "string" then mods = module.genComments(mods) end
     local results = [[
@@ -162,11 +189,27 @@ CREATE UNIQUE INDEX anchor ON searchIndex (name, type, path);
     return results
 end
 
+--- hs.doc.builder.genJSON(source) -> string
+--- Function
+--- Generates a JSON string representation of the documentation source specified. This is the format expected by `hs.doc` and `hs.doc.hsdoc` and is used to provide the built in documentation for Hammerspoon.
+---
+--- Parameters:
+---  * source - the source to generate the JSON string for.  If this is provided as a string, it is passed to [hs.doc.builder.genComments](#genComments) and the result is used.  If it is a table, then it is assumed to have already been generated by a call to [hs.doc.builder.genComments](#genComments).
+---
+--- Returns:
+---  * string - the JSON string representation of the documentation
+---
+--- Notes:
+---  * If you have installed the `hs` command line tool (see `hs.ipc`), you can use the following to generate the `docs.json` file that is used to provide documentation for Hammerspoon Spoon bundles: `hs -c "hs.doc.builder.genJSON(\"$(pwd)\")" > docs.json`
+---  * You can also use this to generate documentation for any third-party-modules you build, but you will have to register the documentation with `hs.doc.registerJSONFile` yourself -- it is not automatically loaded for you like it is for Spoons.
 module.genJSON = function(mods)
     if type(mods) == "string" then mods = module.genComments(mods) end
     return json.encode(mods, true)
 end
 
-module.commentsFromSource = function(src)
+-- eventually this will be the starting point for generating your own local copy of the Hammerspoon documentation
+module.commentsFromHammerspoonSource = function(src)
     return module.genComments{ src.."/extensions", src.."/Hammerspoon" }
 end
+
+return module
