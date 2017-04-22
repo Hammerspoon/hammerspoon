@@ -95,7 +95,7 @@
 
   <body>
     <header>
-      <h1><a href="<%= cgilua.mkurlpath("index.lp") .. (isSpoon and "#spoons" or "") %>"><%= (isSpoon and "spoon" or "docs") %></a> &raquo; <%= mod.name %></h1>
+      <h1><a href="<%= cgilua.mkurlpath("index.lp") .. (isSpoon and "?q=Spoons" or "") %>"><%= (isSpoon and "spoon" or "docs") %></a> &raquo; <%= mod.name %></h1>
       <%= gfmConvert(mod.doc) %>
     </header>
     <h3>API Overview</h3>
