@@ -231,23 +231,25 @@ module.cliInstall = function(path, silent)
     return module.cliStatus(path, silent)
 end
 
---- hs.ipc.cliUninstall([path][,silent]) -> bool
+--- hs.ipc.cliUninstall([path][,silent][,force]) -> bool
 --- Function
 --- Uninstalls the `hs` command line tool
 ---
 --- Parameters:
 ---  * path - An optional string containing a path to remove the tool from. Defaults to `/usr/local`
----  * silent - An optional boolean indicating whether or not to print errors to the Hammerspoon Console
+---  * silent - An optional boolean indicating whether or not to print errors to the Hammerspoon Console (the path parameter is also required)
+---  * force - An optional boolean that forces the tool to be uninstalled (the path and silent parameters are also required)
 ---
 --- Returns:
 ---  * A boolean, true if the tool was successfully removed, otherwise false
 ---
 --- Notes:
 ---  * This function is very conservative and will only remove the tool if it was installed by this instance of Hammerspoon. If you have more than one copy of Hammerspoon, this will be detected and they will not remove each others' tools.
-module.cliUninstall = function(path, silent)
+---  * If the optional force parameter is used, the remove tool will run without any checks.
+module.cliUninstall = function(path, silent, force)
     local path = path or "/usr/local"
     local silent = silent or false
-    if module.cliStatus(path, silent) == true then
+    if force or module.cliStatus(path, silent) == true then
         os.execute("rm \""..path.."/bin/hs\"")
         os.execute("rm \""..path.."/share/man/man1/hs.1\"")
     else
