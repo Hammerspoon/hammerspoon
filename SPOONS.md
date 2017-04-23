@@ -44,7 +44,7 @@ Spoons should be distributed as `.zip` files. Simply download one, uncompress it
 ## How do I use a Spoon?
 
 There are two parts to this, loading the spoon, and integrating it into your configuration.
-Hopefully the Spoon came with some documentation, so look in `~/.hammerspoon/Spoons/NAME.spoon`. There you should find some documentation of the API offered by the Spoon, and any special requirements it has.
+Hopefully the Spoon came with some documentation, either on its homepage or in `~/.hammerspoon/Spoons/NAME.spoon`. There you should find some documentation of the API offered by the Spoon, and any special requirements it has.
 
 ### Loading a Spoon
 
@@ -173,17 +173,17 @@ hs -c "hs.doc.builder.genJSON(\"$(pwd)\")" | grep -v "^--" > docs.json
 
 Any Spoons that are submitted to the official Spoons repository will have their HTML documentation generated and hosted by GitHub.
 
-If you also want to generate HTML/Markdown/Dash versions of your documentation for your own purposes:
+If you also want to generate HTML/Markdown versions of your documentation for your own purposes:
 
  * Clone [https://github.com/Hamerspoon/hammerspoon](https://github.com/Hammerspoon/hammerspoon)
  * Install the required Python dependencies (e.g. `pip install --user -r requirements.txt` in the Hammerspoon repo)
  * Then in your Spoon's directory, run:
 
 ```bash
-/path/to/hammerspoon_repo/scripts/docs/bin/build_docs.py -e /path/to/hammerspoon_repo/scripts/docs/templates/ -o . -j -t -n .
+/path/to/hammerspoon_repo/scripts/docs/bin/build_docs.py --templates /path/to/hammerspoon_repo/scripts/docs/templates/ --output_dir . --json --html --markdown --standalone .
 ```
 
-This will search the current working director for any `.lua` files, extract docstrings from them, and write `docs.json` to the current directory. A similar command can be run with `-t` instead of `-j` and a different output directory (`-o`) will generate the HTML documentation. See `build_docs.py --help` for more options (e.g. Markdown output).
+This will search the current working director for any `.lua` files, extract docstrings from them, and write `docs.json` to the current directory, along with HTML and Markdown outputs. See `build_docs.py --help` for more options.
 
 ### Loading files
 
