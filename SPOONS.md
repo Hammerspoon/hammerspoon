@@ -1,4 +1,4 @@
-# A guide for creating and distributing Hammerspoon Spoons
+# Hammerspoon Spoon Plugins Documentation
 
 * [What is a Spoon?](#what-is-a-spoon)
 * [Where do I get Spoons from?](#where-do-i-get-spoons-from)
