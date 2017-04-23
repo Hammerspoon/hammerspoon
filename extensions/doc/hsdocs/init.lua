@@ -18,10 +18,11 @@ local module  = {}
 
 local USERDATA_TAG = "hs.doc.hsdocs"
 
-local settings = require"hs.settings"
-local image    = require"hs.image"
-local webview  = require"hs.webview"
-local doc      = require"hs.doc"
+local settings  = require"hs.settings"
+local image     = require"hs.image"
+local webview   = require"hs.webview"
+local doc       = require"hs.doc"
+local watchable = require("hs.watchable")
 
 local documentRoot = package.searchpath("hs.doc.hsdocs", package.path):match("^(/.*/).*%.lua$")
 
@@ -170,8 +171,7 @@ local updateToolbarIcons = function(toolbar, browser)
     toolbar:modifyItem{ id = "track", image = module.trackBrowserFrame() and toolbarImages.trackWindow or toolbarImages.noTrackWindow }
 end
 
-local makeToolbar = function(browser)
-    -- get list of hammerspoon modules and spoons
+local makeModuleListForMenu = function()
     local searchList = {}
     for i,v in ipairs(doc._jsonForModules) do
         table.insert(searchList, v.name)
@@ -180,7 +180,10 @@ local makeToolbar = function(browser)
         table.insert(searchList, "spoon." .. v.name)
     end
     table.sort(searchList, function(a, b) return a:lower() < b:lower() end)
+    return searchList
+end
 
+local makeToolbar = function(browser)
     local toolbar = webview.toolbar.new("hsBrowserToolbar", {
         {
             id = "index",
@@ -212,7 +215,7 @@ local makeToolbar = function(browser)
             tooltip = "Search for a HS function or method",
             searchfield = true,
             searchWidth = 250,
-            searchPredefinedSearches = searchList,
+            searchPredefinedSearches = makeModuleListForMenu(),
             searchPredefinedMenuTitle = false,
             fn = function(t, w, i, text)
                 if text ~= "" then w:url("http://localhost:" .. tostring(module._server:port()) .. "/module.lp/" .. text) end
@@ -315,6 +318,15 @@ local makeBrowser = function()
 end
 
 -- Public interface ------------------------------------------------------
+
+module._moduleListChanges = watchable.watch("hs.doc", "changeCount", function(w, p, k, o, n)
+    if module._browser then
+        module._browser:attachedToolbar():modifyItem{
+            id = "search",
+            searchPredefinedSearches = makeModuleListForMenu(),
+        }
+    end
+end)
 
 --- hs.doc.hsdocs.interface([interface]) -> currentValue
 --- Function

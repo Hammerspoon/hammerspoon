@@ -30,10 +30,11 @@ module.spoonsupport  = require("hs.doc.spoonsupport")
 
 -- private variables and methods -----------------------------------------
 
-local json    = require("hs.json")
-local fs      = require("hs.fs")
-local fnutils = require("hs.fnutils")
-local inspect = require("hs.inspect")
+local json      = require("hs.json")
+local fs        = require("hs.fs")
+local fnutils   = require("hs.fnutils")
+local inspect   = require("hs.inspect")
+local watchable = require("hs.watchable")
 
 local sortFunction = function(m,n) -- sort function so lua manual toc sorts correctly
     if m:match("^_%d") and n:match("^_%d") then
@@ -175,6 +176,9 @@ local jsonMT = {
     end,
 }
 
+local changeCount = watchable.new("hs.doc")
+changeCount.changeCount = 0
+
 module._jsonForSpoons    = setmetatable({ __spoon = true,  __ignore = false }, jsonMT)
 module._jsonForNonSpoons = setmetatable({ __spoon = false, __ignore = false }, jsonMT)
 module._jsonForModules   = setmetatable({ __spoon = false, __ignore = "lua" }, jsonMT)
@@ -253,7 +257,7 @@ module.registerJSONFile = function(docFile, isSpoon)
                 end
             end
         end
-
+        changeCount.changeCount = changeCount.changeCount + 1
         return status
     end
     return status, message
@@ -290,6 +294,7 @@ module.unregisterJSONFile = function(docFile)
             end
         end
         purgeFromInside(rawdocs)
+        changeCount.changeCount = changeCount.changeCount + 1
         return true
     end
     return false, "File '"..docFile.."' was not registered"
