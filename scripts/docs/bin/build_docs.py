@@ -40,6 +40,8 @@ LINKS = [
          "url": "https://github.com/Hammerspoon/hammerspoon"},
         {"name": "Getting Started Guide",
          "url": "http://www.hammerspoon.org/go/"},
+        {"name": "Spoon Plugin Documentation",
+         "url": "https://github.com/Hammerspoon/hammerspoon/blob/master/SPOONS.md"},
         {"name": "Official Spoon repository",
          "url": "http://www.hammerspoon.org/Spoons"},
         {"name": "IRC channel",
