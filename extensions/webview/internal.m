@@ -1610,7 +1610,7 @@ static int webview_historyList(lua_State *L) {
 ///
 /// Parameters:
 ///  * `script` - the JavaScript to execute within the context of the current webview's display
-///  * `callback` - an optional function which should accept two parameters as the result of the executed JavaScript.  The function Parameters are as follows:
+///  * `callback` - an optional function which should accept two parameters as the result of the executed JavaScript.  The function parameters are as follows:
 ///    * `result` - the result of the executed JavaScript code or nil if there was no result or an error occurred.
 ///    * `error`  - an NSError table describing any error that occurred during the JavaScript execution or nil if no error occurred.
 ///
