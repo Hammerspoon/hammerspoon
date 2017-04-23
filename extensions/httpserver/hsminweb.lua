@@ -1420,7 +1420,7 @@ end
 --- Method
 --- Get or set the network interface that the hsminweb web server will listen on
 ---
---- Paramaters:
+--- Parameters:
 ---  * interface - an optional string, or nil, specifying the network interface the web server will listen on.  An explicit nil specifies that the web server should listen on all active interfaces for the machine.  Defaults to nil.
 ---
 --- Returns:

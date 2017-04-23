@@ -859,7 +859,7 @@ static int phoneticSymbols(lua_State *L) {
 /// Method
 /// Gets or sets the base pitch for the synthesizer's voice.
 ///
-/// Paramters:
+/// Parameters:
 ///  * pitch - an optional number indicating the pitch base for the synthesizer.
 ///
 /// Returns:
@@ -901,7 +901,7 @@ static int pitchBase(lua_State *L) {
 /// Method
 /// Gets or sets the pitch modulation for the synthesizer's voice.
 ///
-/// Paramters:
+/// Parameters:
 ///  * modulation - an optional number indicating the pitch modulation for the synthesizer.
 ///
 /// Returns:
@@ -943,7 +943,7 @@ static int pitchMod(lua_State *L) {
 /// Method
 /// Reset a synthesizer back to its default state.
 ///
-/// Paramters:
+/// Parameters:
 ///  * None
 ///
 /// Returns:

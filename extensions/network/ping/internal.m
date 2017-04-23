@@ -464,7 +464,7 @@ static int echoRequest_start(lua_State *L) {
 
 /// hs.network.ping.echoRequest:stop() -> echoRequestObject
 /// Method
-/// Start listening for ICMP Echo Reply packets with this object.
+/// Stop listening for ICMP Echo Reply packets with this object.
 ///
 /// Parameters:
 ///  * None

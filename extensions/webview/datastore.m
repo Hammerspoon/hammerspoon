@@ -378,7 +378,7 @@ static int datastore_removeDataFrom(lua_State *L) {
 /// Method
 /// Returns whether or not the datastore is persistent.
 ///
-/// Paramters:
+/// Parameters:
 ///  * None
 ///
 /// Returns:
