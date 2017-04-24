@@ -207,6 +207,8 @@
 	<string>public.app-category.video</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>${MACOSX_DEPLOYMENT_TARGET}</string>
+	<key>LSMultipleInstancesProhibited</key>
+	<true/>
 	<key>NSAppSleepDisabled</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
