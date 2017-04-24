@@ -188,7 +188,11 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
+<<<<<<< HEAD:Hammerspoon/CommandPost-Info.plist
 	<string>1.0.0-beta.4</string>
+=======
+	<string>0.9.53</string>
+>>>>>>> Hammerspoon/master:Hammerspoon/Hammerspoon-Info.plist
 	<key>Fabric</key>
 	<dict>
 		<key>APIKey</key>

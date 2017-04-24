@@ -390,7 +390,7 @@ static int application_bundleID(lua_State* L) {
 ///  * A string containing the filesystem path of the application
 static int application_path(lua_State* L) {
     NSRunningApplication* app = nsobject_for_app(L, 1);
-    NSString *appPath = [[NSWorkspace sharedWorkspace] absolutePathForAppBundleWithIdentifier:[app bundleIdentifier]];
+    NSString *appPath = [NSBundle bundleWithURL:[app bundleURL]].bundlePath;
     [[LuaSkin shared] pushNSObject:appPath];
     return 1;
 }

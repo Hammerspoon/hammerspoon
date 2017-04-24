@@ -219,7 +219,7 @@ hs.fileDroppedToDockIconCallback = nil
 ---
 --- Parameters:
 ---  * name - The name of a Spoon (without the trailing `.spoon`)
----  * global - An optional boolean. If true, this function will insert the spoon into Lua's global namespace as `spoon.name`. Defaults to true.
+---  * global - An optional boolean. If true, this function will insert the spoon into Lua's global namespace as `spoon.NAME`. Defaults to true.
 ---
 --- Returns:
 ---  * The object provided by the Spoon (which can be ignored if you chose to make the Spoon global)
