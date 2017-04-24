@@ -1657,6 +1657,71 @@ static int webview_evaluateJavaScript(lua_State *L) {
 
 #pragma mark - Window Related Methods
 
+/// hs.webview:topLeft([point]) -> webviewObject | currentValue
+/// Method
+/// Get or set the top-left coordinate of the webview window
+///
+/// Parameters:
+///  * `point` - An optional point-table specifying the new coordinate the top-left of the webview window should be moved to
+///
+/// Returns:
+///  * If an argument is provided, the webview object; otherwise the current value.
+///
+/// Notes:
+///  * a point-table is a table with key-value pairs specifying the new top-left coordinate on the screen of the webview (keys `x`  and `y`). The table may be crafted by any method which includes these keys, including the use of an `hs.geometry` object.
+static int webview_topLeft(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG,
+                    LS_TTABLE | LS_TOPTIONAL,
+                    LS_TBREAK] ;
+
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
+    NSRect oldFrame = RectWithFlippedYCoordinate(theWindow.frame);
+
+    if (lua_gettop(L) == 1) {
+        [skin pushNSPoint:oldFrame.origin] ;
+    } else {
+        NSPoint newCoord = [skin tableToPointAtIndex:2] ;
+        NSRect  newFrame = RectWithFlippedYCoordinate(NSMakeRect(newCoord.x, newCoord.y, oldFrame.size.width, oldFrame.size.height)) ;
+        [theWindow setFrame:newFrame display:YES animate:NO];
+        lua_pushvalue(L, 1);
+    }
+    return 1;
+}
+
+/// hs.webview:size([size]) -> webviewObject | currentValue
+/// Method
+/// Get or set the size of a webview window
+///
+/// Parameters:
+///  * `size` - An optional size-table specifying the width and height the webview window should be resized to
+///
+/// Returns:
+///  * If an argument is provided, the webview object; otherwise the current value.
+///
+/// Notes:
+///  * a size-table is a table with key-value pairs specifying the size (keys `h` and `w`) the webview should be resized to. The table may be crafted by any method which includes these keys, including the use of an `hs.geometry` object.
+static int webview_size(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG,
+                    LS_TTABLE | LS_TOPTIONAL,
+                    LS_TBREAK] ;
+
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
+
+    NSRect oldFrame = theWindow.frame;
+
+    if (lua_gettop(L) == 1) {
+        [skin pushNSSize:oldFrame.size] ;
+    } else {
+        NSSize newSize  = [skin tableToSizeAtIndex:2] ;
+        NSRect newFrame = NSMakeRect(oldFrame.origin.x, oldFrame.origin.y + oldFrame.size.height - newSize.height, newSize.width, newSize.height);
+        [theWindow setFrame:newFrame display:YES animate:NO];
+        lua_pushvalue(L, 1);
+    }
+    return 1;
+}
+
 /// hs.webview.new(rect, [preferencesTable], [userContentController]) -> webviewObject
 /// Constructor
 /// Create a webviewObject and optionally modify its preferences.
@@ -2885,7 +2950,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {"userAgent",                  webview_userAgent},
     {"certificateChain",           webview_certificateChain},
 
-    {"examineInvalidCertificates",   webview_examineInvalidCertificates},
+    {"examineInvalidCertificates", webview_examineInvalidCertificates},
 #ifdef _WK_DEBUG
     {"preferences",                webview_preferences},
 #endif
@@ -2906,6 +2971,8 @@ static const luaL_Reg userdata_metaLib[] = {
     {"orderBelow",                 webview_orderBelow},
     {"behavior",                   webview_behavior},
     {"windowCallback",             webview_windowCallback},
+    {"topLeft",                    webview_topLeft},
+    {"size",                       webview_size},
 
     {"_delete",                    webview_delete},
     {"_windowStyle",               webview_windowStyle},

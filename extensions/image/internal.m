@@ -10,6 +10,13 @@
 
 #define USERDATA_TAG "hs.image"
 
+// NSWorkspace iconForFile: logs a warning every time you try to query when the path is nil.  Since
+// this happens a lot when trying to query based on a file bundle it means anything using spotlight
+// to gather file info and then uses this to get an icon can spam the system logs.  let's get it once
+// and be done with it. (and while there is a NSImageNameMultipleDocuments, I can't seem to find one
+// for a single document image...
+static NSImage *missingIconForFile ;
+
 #pragma mark - Module Constants
 
 /// hs.image.systemImageNames[]
@@ -1041,7 +1048,7 @@ static int imageFromApp(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TBREAK];
     NSString *imagePath = [[NSWorkspace sharedWorkspace] absolutePathForAppBundleWithIdentifier:[skin toNSObjectAtIndex:1]];
-    NSImage *iconImage = [[NSWorkspace sharedWorkspace] iconForFile:imagePath];
+    NSImage *iconImage = imagePath ? [[NSWorkspace sharedWorkspace] iconForFile:imagePath] : missingIconForFile ;
 
     if (iconImage) {
         [skin pushNSObject:iconImage];
@@ -1507,6 +1514,8 @@ int luaopen_hs_image_internal(lua_State* L) {
 
     [skin registerPushNSHelper:NSImage_tolua        forClass:"NSImage"] ;
     [skin registerLuaObjectHelper:HSImage_toNSImage forClass:"NSImage" withUserdataMapping:USERDATA_TAG] ;
+
+    if (!missingIconForFile) missingIconForFile = [[NSWorkspace sharedWorkspace] iconForFile:@""] ; // see comment at top
     return 1;
 }
 
