@@ -1190,6 +1190,7 @@
 		D64B03381BA954660006C468 /* usercontent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = usercontent.m; path = extensions/webview/usercontent.m; sourceTree = "<group>"; };
 		D64B03461BA954780006C468 /* libwebviewusercontent.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libwebviewusercontent.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		D66B763A1DD6FD1400CA12E6 /* geocoder.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = geocoder.lua; path = extensions/location/geocoder.lua; sourceTree = "<group>"; };
+		D67F1B3C1EA9D65E00FEB411 /* builder.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = builder.lua; path = extensions/doc/builder.lua; sourceTree = "<group>"; };
 		D684BBFB1DFB72BD00B4D0B8 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/watchable/init.lua; sourceTree = "<group>"; };
 		D68615F31E04D5990058A4F2 /* Canvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Canvas.h; path = extensions/canvas/Canvas.h; sourceTree = "<group>"; };
 		D68615F41E04D5990058A4F2 /* imageAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = imageAdditions.m; path = extensions/canvas/imageAdditions.m; sourceTree = "<group>"; };
@@ -1220,6 +1221,7 @@
 		D6BB4FA91C169539000DC0A2 /* listener.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = listener.m; path = extensions/speech/listener.m; sourceTree = "<group>"; };
 		D6BB4FB91C16959C000DC0A2 /* libspeech.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libspeech.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		D6BB4FC71C1695EC000DC0A2 /* libspeechlistener.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libspeechlistener.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		D6BCFD1E1EA9E23B00F6D731 /* spoonsupport.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = spoonsupport.lua; path = extensions/doc/spoonsupport.lua; sourceTree = "<group>"; };
 		D6E071681E04D9FC00C1046A /* canvasWrapper.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = canvasWrapper.lua; path = extensions/drawing/canvasWrapper.lua; sourceTree = "<group>"; };
 		D6F310CC1BDF0DCC00045CCD /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/drawing/color/init.lua; sourceTree = "<group>"; };
 		D6F310CD1BDF0DCC00045CCD /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/drawing/color/internal.m; sourceTree = "<group>"; };
@@ -2595,6 +2597,8 @@
 		4FD0ABC91B74B1B000A82496 /* doc */ = {
 			isa = PBXGroup;
 			children = (
+				D6BCFD1E1EA9E23B00F6D731 /* spoonsupport.lua */,
+				D67F1B3C1EA9D65E00FEB411 /* builder.lua */,
 				D64964601CCB32AE0074540B /* autolink.c */,
 				D64964611CCB32AE0074540B /* autolink.h */,
 				D64964621CCB32AE0074540B /* buffer.c */,

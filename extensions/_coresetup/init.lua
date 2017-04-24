@@ -253,7 +253,7 @@ hs.fileDroppedToDockIconCallback = nil
         require("hs.fs")
         local docsPath = obj.spoonPath.."/docs.json"
         if hs.fs.attributes(docsPath) then
-          require("hs.doc").registerJSONFile(docsPath)
+          require("hs.doc").registerJSONFile(docsPath, true)
         end
       end
     end

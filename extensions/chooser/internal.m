@@ -324,7 +324,7 @@ static int chooserQueryCallback(lua_State *L) {
 /// Method
 /// Sets/clears a callback for right clicking on choices
 ///
-/// Paramters:
+/// Parameters:
 ///  * fn - An optional function taht will be called whenever the user right clicks on a choice. If this parameter is omitted, the existing callback will be removed.
 ///
 /// Returns:

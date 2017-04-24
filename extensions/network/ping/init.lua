@@ -252,7 +252,7 @@ pingObjectMT = {
 --- Method
 --- Cancels an in progress ping process, terminating it immediately
 ---
---- Paramters:
+--- Parameters:
 ---  * None
 ---
 --- Returns:
@@ -266,7 +266,7 @@ pingObjectMT = {
 --- Method
 --- Set or remoce the callback function for the pingObject.
 ---
---- Paramters:
+--- Parameters:
 ---  * `fn` - the function to set as the callback, or nil if you wish use the default callback.
 ---
 --- Returns:

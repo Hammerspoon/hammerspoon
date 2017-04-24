@@ -3080,7 +3080,7 @@ static int canvas_isOccluded(lua_State *L) {
 /// Method
 /// Get or set the element default specified by keyName.
 ///
-/// Paramters:
+/// Parameters:
 ///  * `keyName` - the element default to examine or modify
 ///  * `value`   - an optional new value to set as the default fot his canvas when not specified explicitly in an element declaration.
 ///

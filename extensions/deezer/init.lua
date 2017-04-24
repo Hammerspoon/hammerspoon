@@ -207,7 +207,7 @@ end
 --- Function
 --- Gets the deezer volume setting
 ---
---- Paramters:
+--- Parameters:
 ---  * None
 ---
 --- Returns:
