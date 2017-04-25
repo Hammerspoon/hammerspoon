@@ -94,6 +94,36 @@
 
     <style type="text/css">
       h1 { margin:0; }
+      div.searchbar {
+        display: none;
+        top: 0;
+        left: 0;
+        width: 100%;
+        text-align: right;
+        position: fixed;
+        padding: 5px;
+      }
+      span.searchcontrols {
+        background-color: #ccc;
+        padding: 10px;
+        border-radius: 10px;
+      }
+      span.searchcontrols a {
+        font-size: .8rem;
+        font-style: italic;
+      }
+      ::-webkit-input-placeholder {
+         font-style: italic;
+      }
+      :-moz-placeholder {
+         font-style: italic;
+      }
+      ::-moz-placeholder {
+         font-style: italic;
+      }
+      :-ms-input-placeholder {
+         font-style: italic;
+      }
 
 <% if settings.get("_documentationServer.entitiesInSidebar") then %>
 /* Inspired by https://openuserjs.org/scripts/krasnovpro/hammerspoon.org_Documentation/source */
@@ -131,37 +161,6 @@
         width: 70vw;
       }
 <% end %>
-
-      div.searchbar {
-        display: none;
-        top: 0;
-        left: 0;
-        width: 100%;
-        text-align: right;
-        position: fixed;
-        padding: 5px;
-      }
-      span.searchcontrols {
-        background-color: #ccc;
-        padding: 10px;
-        border-radius: 10px;
-      }
-      span.searchcontrols a {
-        font-size: .8rem;
-        font-style: italic;
-      }
-      ::-webkit-input-placeholder {
-         font-style: italic;
-      }
-      :-moz-placeholder {
-         font-style: italic;
-      }
-      ::-moz-placeholder {
-         font-style: italic;
-      }
-      :-ms-input-placeholder {
-         font-style: italic;
-      }
     </style>
   </head>
 
