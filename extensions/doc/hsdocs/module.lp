@@ -131,11 +131,37 @@
         width: 70vw;
       }
 <% end %>
-    </style>
 
+      div.searchbar {
+        display: none;
+        top: 0;
+        left: 0;
+        width: 100%;
+        text-align: right;
+        position: fixed;
+        padding: 5px;
+      }
+      span.searchcontrols {
+        background-color: #ccc;
+        padding: 10px;
+        border-radius: 10px;
+      }
+      span.searchcontrols a {
+        font-size: .8rem;
+        font-style: italic;
+      }
+    </style>
   </head>
 
   <body>
+    <div class="searchbar" id="searcher">
+        <span class="searchcontrols">
+            <a href="javascript:searchForText(1)">⌘⇧-G prev</a>
+            <input type="text" id="query">
+            <a href="javascript:searchForText(0)">⌘-G next</a>
+        </span>
+    </div>
+
     <header>
       <h1><a href="<%= cgilua.mkurlpath("index.lp") .. (isSpoon and "?q=Spoons" or "") %>"><%= (isSpoon and "spoon" or "docs") %></a> &raquo; <%= mod.name %></h1>
       <%= gfmConvert(mod.doc) %>
@@ -204,6 +230,37 @@
       end
     %>
   </body>
+
+  <script type="text/javascript">
+    function searchForText(direction) {
+        return window.find(document.getElementById('query').value, 0, direction, 1) ;
+    }
+
+    function KeyPressHappened(e) {
+//       console.log(e) ;
+      code = e.keyCode ;
+      if ((code == 102) && e.metaKey) { // Cmd-F
+          if (document.getElementById("searcher").style.display == "block") {
+              document.getElementById("searcher").style.display = "none" ;
+          } else {
+              document.getElementById("searcher").style.display = "block" ;
+              document.getElementById('query').focus()
+          }
+      } else if (document.getElementById("searcher").style.display == "block") {
+          if ((code == 13 || (code == 103 && e.metaKey)) && e.shiftKey) {         // Shift-enter or Cmd-Shift-G
+            searchForText(1) ;
+          } else if ((code == 13 || (code == 103 && e.metaKey)) && !e.shiftKey) { // enter or Cmd-G
+             searchForText(0) ;
+          } else {
+            return true ;
+          }
+      } else {
+          return true ;
+      }
+      return false ;
+    }
+    document.onkeypress = KeyPressHappened;
+  </script>
 
 <%= "<","!--" %> -->
 </html>
