@@ -39,7 +39,7 @@ local findSpoons = function()
                 local name = file:match("^(.+)%.spoon$")
                 local spoonInit = name and package.searchpath(name, package.path)
                 if name and spoonInit then
-                    spoonDetails = {}
+                    local spoonDetails = {}
                     spoonDetails.path     = spoonInit:match("^(.+)/init%.lua$")
                     spoonDetails.docPath  = spoonDetails.path .. "/" .. documentationFileName
                     spoonDetails.hasDocs  = fs.attributes(spoonDetails.docPath) and true or false
