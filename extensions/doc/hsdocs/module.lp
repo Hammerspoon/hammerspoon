@@ -150,6 +150,18 @@
         font-size: .8rem;
         font-style: italic;
       }
+      ::-webkit-input-placeholder {
+         font-style: italic;
+      }
+      :-moz-placeholder {
+         font-style: italic;
+      }
+      ::-moz-placeholder {
+         font-style: italic;
+      }
+      :-ms-input-placeholder {
+         font-style: italic;
+      }
     </style>
   </head>
 
@@ -157,7 +169,7 @@
     <div class="searchbar" id="searcher">
         <span class="searchcontrols">
             <a href="javascript:searchForText(1)">⌘⇧-G prev</a>
-            <input type="text" id="query">
+            &nbsp;<input type="text" id="query" placeholder="enter search term"/>&nbsp;
             <a href="javascript:searchForText(0)">⌘-G next</a>
         </span>
     </div>
