@@ -1,0 +1,13 @@
+root = true
+
+[*.h]
+indent_style = space
+indent_size = 4
+
+[*.m]
+indent_style = space
+indent_size = 4
+
+[*.lua]
+indent_style = space
+indent_size = 2
