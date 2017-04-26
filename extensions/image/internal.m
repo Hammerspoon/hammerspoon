@@ -1304,6 +1304,57 @@ static int croppedImage(__unused lua_State* L) {
     return 1 ;
 }
 
+/// hs.image:encodeAsURLString([type]) -> string
+/// Method
+/// Returns a bitmap representation of the image as a base64 encoded URL string
+///
+/// Parameters:
+///  * type - optional case-insensitive string paramater specifying the bitmap image type for the encoded string (default PNG)
+///    * PNG  - save in Portable Network Graphics (PNG) format
+///    * TIFF - save in Tagged Image File Format (TIFF) format
+///    * BMP  - save in Windows bitmap image (BMP) format
+///    * GIF  - save in Graphics Image Format (GIF) format
+///    * JPEG - save in Joint Photographic Experts Group (JPEG) format
+///
+/// Returns:
+///  * the bitmap image representation as a Base64 encoded string
+///
+/// Notes:
+///  * You can convert the string back into an image object with [hs.image.imageFromURL](#URL), e.g. `hs.image.imageFromURL(string)`
+static int encodeAsString(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
+    NSImage*  theImage = [skin luaObjectAtIndex:1 toClass:"NSImage"] ;
+    NSBitmapImageFileType fileType = NSPNGFileType ;
+    NSString* typeLabel = @"png" ;
+
+    if (lua_isstring(L, 2)) {
+        typeLabel = [skin toNSObjectAtIndex:2] ;
+        if      ([typeLabel compare:@"PNG"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSPNGFileType  ; }
+        else if ([typeLabel compare:@"TIFF" options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSTIFFFileType ; }
+        else if ([typeLabel compare:@"BMP"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSBMPFileType  ; }
+        else if ([typeLabel compare:@"GIF"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSGIFFileType  ; }
+        else if ([typeLabel compare:@"JPEG" options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSJPEGFileType ; }
+        else if ([typeLabel compare:@"JPG"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSJPEGFileType ; }
+        else {
+            return luaL_error(L, "invalid image type specified") ;
+        }
+    }
+
+    NSData *tiffRep = [theImage TIFFRepresentation];
+    if (!tiffRep)  return luaL_error(L, "Unable to write image file: Can't create internal representation");
+
+    NSBitmapImageRep *rep = [NSBitmapImageRep imageRepWithData:tiffRep];
+    if (!rep)  return luaL_error(L, "Unable to write image file: Can't wrap internal representation");
+
+    NSData* fileData = [rep representationUsingType:fileType properties:@{}];
+    if (!fileData) return luaL_error(L, "Unable to write image file: Can't convert internal representation");
+
+    NSString *result = [fileData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithLineFeed] ;
+    [skin pushNSObject:[NSString stringWithFormat:@"data:image/%@;base64,%@", typeLabel.lowercaseString, result]] ;
+    return 1 ;
+}
+
 /// hs.image:saveToFile(filename[, filetype]) -> boolean
 /// Method
 /// Save the hs.image object as an image of type `filetype` to the specified filename.
@@ -1468,17 +1519,18 @@ static int userdata_gc(lua_State* L) {
 
 // Metatable for userdata objects
 static const luaL_Reg userdata_metaLib[] = {
-    {"name",             getImageName},
-    {"size",             getImageSize},
-    {"template",         imageTemplate},
-    {"copy",             copyImage},
-    {"croppedCopy",      croppedImage},
-    {"saveToFile",       saveToFile},
+    {"name",              getImageName},
+    {"size",              getImageSize},
+    {"template",          imageTemplate},
+    {"copy",              copyImage},
+    {"croppedCopy",       croppedImage},
+    {"saveToFile",        saveToFile},
+    {"encodeAsURLString", encodeAsString},
 
-    {"__tostring",       userdata_tostring},
-    {"__eq",             userdata_eq},
-    {"__gc",             userdata_gc},
-    {NULL,               NULL}
+    {"__tostring",        userdata_tostring},
+    {"__eq",              userdata_eq},
+    {"__gc",              userdata_gc},
+    {NULL,                NULL}
 };
 
 // Functions for returned object when module loads
