@@ -4,6 +4,7 @@
 
   <%
       cgilua.lp.include("common.lp")
+
       local modNames = {}
       for i, v in ipairs(documentation) do
           modNames[v.name] = true
@@ -89,41 +90,6 @@
       td { width: 100%; background-color: #EEEEEE; vertical-align: top; padding: 3px; }
       table { width: 100% ; border: 1px solid #0; text-align: left; }
       section > table table td { width: 0; }
-    </style>
-    <link rel="stylesheet" href="<%= cgilua.mkurlpath("docs.css") %>" type="text/css" media="screen" />
-
-    <style type="text/css">
-      h1 { margin:0; }
-      div.searchbar {
-        display: none;
-        top: 0;
-        left: 0;
-        width: 100%;
-        text-align: right;
-        position: fixed;
-        padding: 5px;
-      }
-      span.searchcontrols {
-        background-color: #ccc;
-        padding: 10px;
-        border-radius: 10px;
-      }
-      span.searchcontrols a {
-        font-size: .8rem;
-        font-style: italic;
-      }
-      ::-webkit-input-placeholder {
-         font-style: italic;
-      }
-      :-moz-placeholder {
-         font-style: italic;
-      }
-      ::-moz-placeholder {
-         font-style: italic;
-      }
-      :-ms-input-placeholder {
-         font-style: italic;
-      }
 
 <% if settings.get("_documentationServer.entitiesInSidebar") then %>
 /* Inspired by https://openuserjs.org/scripts/krasnovpro/hammerspoon.org_Documentation/source */
@@ -165,14 +131,6 @@
   </head>
 
   <body>
-    <div class="searchbar" id="searcher">
-        <span class="searchcontrols">
-            <a href="javascript:searchForText(1)">⌘⇧-G prev</a>
-            &nbsp;<input type="text" id="query" placeholder="enter search term"/>&nbsp;
-            <a href="javascript:searchForText(0)">⌘-G next</a>
-        </span>
-    </div>
-
     <header>
       <h1><a href="<%= cgilua.mkurlpath("index.lp") .. (isSpoon and "?q=Spoons" or "") %>"><%= (isSpoon and "spoon" or "docs") %></a> &raquo; <%= mod.name %></h1>
       <%= gfmConvert(mod.doc) %>
@@ -240,38 +198,8 @@
         <% end
       end
     %>
+  <% cgilua.lp.include("search.lp") %>
   </body>
-
-  <script type="text/javascript">
-    function searchForText(direction) {
-        return window.find(document.getElementById('query').value, 0, direction, 1) ;
-    }
-
-    function KeyPressHappened(e) {
-//       console.log(e) ;
-      code = e.keyCode ;
-      if ((code == 102) && e.metaKey) { // Cmd-F
-          if (document.getElementById("searcher").style.display == "block") {
-              document.getElementById("searcher").style.display = "none" ;
-          } else {
-              document.getElementById("searcher").style.display = "block" ;
-              document.getElementById('query').focus()
-          }
-      } else if (document.getElementById("searcher").style.display == "block") {
-          if ((code == 13 || (code == 103 && e.metaKey)) && e.shiftKey) {         // Shift-enter or Cmd-Shift-G
-            searchForText(1) ;
-          } else if ((code == 13 || (code == 103 && e.metaKey)) && !e.shiftKey) { // enter or Cmd-G
-             searchForText(0) ;
-          } else {
-            return true ;
-          }
-      } else {
-          return true ;
-      }
-      return false ;
-    }
-    document.onkeypress = KeyPressHappened;
-  </script>
 
 <%= "<","!--" %> -->
 </html>
