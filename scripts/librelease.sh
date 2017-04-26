@@ -303,7 +303,7 @@ function release_upload_docs() {
   pushd "${HAMMERSPOON_HOME}/../" >/dev/null
   mv "${HAMMERSPOON_HOME}/build/html" "website/docs/${VERSION}"
   rm website/docs/*.html
-  cp website/docs/"${VERSION}"/*.html website/docs/
+  cp website/docs/"${VERSION}"/*.{html,css,json} website/docs/
   cp -r website/docs/"${VERSION}"/LuaSkin website/docs/
   pushd website >/dev/null
   git add --all "docs/"

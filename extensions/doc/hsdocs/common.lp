@@ -1,21 +1,14 @@
 <%
 
-    -- gfmConvert, documentationSourceTag, and documentation are "global" because this template is
-    -- included by both index.lp and module.lp; new "global" variables are actually stored in the
-    -- template's _ENV, rather than in _G
+    local doc = require("hs.doc")
 
-    -- only read and convert the json data once
-    if not hs._docsAsArray then
-        local input = io.open(hs.docstrings_json_file, "rb")
-        -- we may add support for inserting third party docs in the future, so add a label
-        -- specifying the documentation source
-        hs._docsAsArray = {
-            from = "Core JSON",
-            docs = require"hs.json".decode(input:read("a")),
-        }
-        input:close()
-    end
-    documentationSourceTag, documentation = hs._docsAsArray.from, hs._docsAsArray.docs
+    -- the following are defined as global because new "global" variables are actually stored in
+    -- the template's _ENV, rather than in _G, so it's still local to the building of the page
+    -- which includes this template.
+
+    settings = require("hs.settings")
+    documentation      = doc._jsonForModules
+    spoonDocumentation = doc._jsonForSpoons
 
     -- used to apply markdown to html conversion for text
     gfmConvert = function(theText)
@@ -24,7 +17,7 @@
 
     -- inversion mode option for night time, dark mode, etc. similar to Dash.  By default, follows
     -- system interface mode
-    local invertLevel = require"hs.settings".get("_documentationServer.invertDocs")
+    local invertLevel = settings.get("_documentationServer.invertDocs")
     if not ({ ["number"] = 1, ["boolean"] = 1 })[type(invertLevel)] then
         invertLevel = (require"hs.host".interfaceStyle() == "Dark")
     end

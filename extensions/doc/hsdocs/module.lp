@@ -8,6 +8,9 @@
       for i, v in ipairs(documentation) do
           modNames[v.name] = true
       end
+      for i,v in ipairs(spoonDocumentation) do
+          modNames["spoon." .. v.name] = true
+      end
 
       -- the following code looks for the module to display as either part of URL PATH_INFO or as a
       -- query item.  The following URLs are supported:
@@ -39,6 +42,7 @@
           end
       end
 
+      local isSpoon = false
       local mod = {
           desc = "Module documentation not found",
           doc = "Module documentation not found\n\nThe requested module does not appear to have any documentation in the set available to this web site.",
@@ -46,10 +50,21 @@
           name = lookingFor or "** no module specified **"
       }
       if lookingFor then
-          for i, v in ipairs(documentation) do
-              if v.name == lookingFor then
-                  mod = v
-                  break
+          if lookingFor:match("^spoon%.") then
+              isSpoon = true
+              local target = lookingFor:match("^spoon%.(.+)$")
+              for i, v in ipairs(spoonDocumentation) do
+                  if v.name == target then
+                      mod = v
+                      break
+                  end
+              end
+          else
+              for i, v in ipairs(documentation) do
+                  if v.name == lookingFor then
+                      mod = v
+                      break
+                  end
               end
           end
       end
@@ -61,10 +76,7 @@
             window.scrollTo(0, top);
           });
         </script>
-  <%  end
-
-    -- what follows is from ../scripts/docs/templates/ext.html.erb
-%>
+  <%  end %>
 
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -79,11 +91,53 @@
       section > table table td { width: 0; }
     </style>
     <link rel="stylesheet" href="<%= cgilua.mkurlpath("docs.css") %>" type="text/css" media="screen" />
+
+    <style type="text/css">
+      h1 { margin:0; }
+
+<% if settings.get("_documentationServer.entitiesInSidebar") then %>
+/* Inspired by https://openuserjs.org/scripts/krasnovpro/hammerspoon.org_Documentation/source */
+      header+h3 {
+        display: none;
+      }
+      header+h3+ul {
+        height: 100%;
+        left: 0;
+        list-style: none;
+        overflow-y: scroll;
+        padding: 10px 15px;
+        position: fixed;
+        top: 10px;
+        width: 20vw;
+      }
+
+      header+h3+ul * {
+        font-size: .8rem;
+      }
+
+      header+h3+ul ul {
+        list-style: none;
+        margin: .2rem 0 1rem 0;
+        padding: 0;
+      }
+
+      header+h3+ul ul li {
+        font-size: .8rem;
+        line-height: 1.5;
+        padding: 0;
+      }
+      body {
+        margin-left: 20vw;
+        width: 70vw;
+      }
+<% end %>
+    </style>
+
   </head>
 
   <body>
     <header>
-      <h1><a href="<%= cgilua.mkurlpath("index.lp") %>">docs</a> &raquo; <%= mod.name %></h1>
+      <h1><a href="<%= cgilua.mkurlpath("index.lp") .. (isSpoon and "?q=Spoons" or "") %>"><%= (isSpoon and "spoon" or "docs") %></a> &raquo; <%= mod.name %></h1>
       <%= gfmConvert(mod.doc) %>
     </header>
     <h3>API Overview</h3>
@@ -108,7 +162,7 @@
           for _, moditem in ipairs(mod.items) do
             if moditem["type"] == section then table.insert(items, moditem) end
           end
-          table.sort(items, function(a, b) return a.name < b.name end)
+          table.sort(items, function(a, b) return a.name:lower() < b.name:lower() end)
           if #items > 0 then
             table.insert(activeSections, { name = section, items = items }) %>
             <li><%= section %>s - <%= sectiondetails[section] %></li>

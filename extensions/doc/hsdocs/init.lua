@@ -18,9 +18,11 @@ local module  = {}
 
 local USERDATA_TAG = "hs.doc.hsdocs"
 
-local settings = require"hs.settings"
-local image    = require"hs.image"
-local webview  = require"hs.webview"
+local settings  = require"hs.settings"
+local image     = require"hs.image"
+local webview   = require"hs.webview"
+local doc       = require"hs.doc"
+local watchable = require("hs.watchable")
 
 local documentRoot = package.searchpath("hs.doc.hsdocs", package.path):match("^(/.*/).*%.lua$")
 
@@ -136,33 +138,9 @@ local toolbarImages = {
     index = image.imageFromName("statusicon"),
 }
 
-local makeWatcher = function(browser)
-    if not module._browserWatcher and settings.get("_documentationServer.trackBrowserFrameChanges") then
-        require"hs.timer".waitUntil(
-            function() return module._browser:hswindow() ~= nil end,
-            function(...)
-                module._browserWatcher = browser:hswindow()
-                                                :newWatcher(function(element, event, watcher, userData)
-                                                    if event == "AXUIElementDestroyed" then
-                                                        module._browserWatcher:stop()
-                                                        module._browserWatcher = nil
-                                                    else
-                                                      -- ^%$#$@#&%^*$ hs.geometry means element:frame() isn't really a rect, and there is no direct function to coerce it...
-                                                        local notFrame = element:frame()
-                                                        local frame = {
-                                                            x = notFrame._x,
-                                                            y = notFrame._y,
-                                                            h = notFrame._h,
-                                                            w = notFrame._w,
-                                                        }
-                                                        settings.set("_documentationServer.browserFrame", frame)
-                                                    end
-                                                end, module._browser):start({
-                                                    "AXWindowMoved",
-                                                    "AXWindowResized",
-                                                    "AXUIElementDestroyed"
-                                                })
-          end)
+local frameTracker = function(cmd, wv, opt)
+    if cmd == "frameChange" and settings.get("_documentationServer.trackBrowserFrameChanges") then
+        settings.set("_documentationServer.browserFrame", opt)
     end
 end
 
@@ -191,40 +169,21 @@ local updateToolbarIcons = function(toolbar, browser)
     end
 
     toolbar:modifyItem{ id = "track", image = module.trackBrowserFrame() and toolbarImages.trackWindow or toolbarImages.noTrackWindow }
+end
 
-    if settings.get("_documentationServer.trackBrowserFrameChanges") then
-        if not module._browserWatcher then
-            makeWatcher(browser)
-        end
-    else
-        if module._browserWatcher then
-            module._browserWatcher:stop()
-            module._browserWatcher = nil
-        end
+local makeModuleListForMenu = function()
+    local searchList = {}
+    for i,v in ipairs(doc._jsonForModules) do
+        table.insert(searchList, v.name)
     end
+    for i,v in ipairs(doc._jsonForSpoons) do
+        table.insert(searchList, "spoon." .. v.name)
+    end
+    table.sort(searchList, function(a, b) return a:lower() < b:lower() end)
+    return searchList
 end
 
 local makeToolbar = function(browser)
-    local examineDocumentation
-    examineDocumentation = function(tblName)
-        local myTable = {}
-        for i, v in pairs(tblName) do
-            if type(v) == "table" then
-                if v.__name == v.__path then
-                    table.insert(myTable, v.__name)
-                    local more = examineDocumentation(v)
-                    if #more > 0 then
-                        for i2,v2 in ipairs(more) do table.insert(myTable, v2) end
-                    end
-                end
-            end
-        end
-        return myTable
-    end
-    local searchList = examineDocumentation(hs.help.hs)
-    table.insert(searchList, "hs")
-    table.sort(searchList)
-
     local toolbar = webview.toolbar.new("hsBrowserToolbar", {
         {
             id = "index",
@@ -256,7 +215,7 @@ local makeToolbar = function(browser)
             tooltip = "Search for a HS function or method",
             searchfield = true,
             searchWidth = 250,
-            searchPredefinedSearches = searchList,
+            searchPredefinedSearches = makeModuleListForMenu(),
             searchPredefinedMenuTitle = false,
             fn = function(t, w, i, text)
                 if text ~= "" then w:url("http://localhost:" .. tostring(module._server:port()) .. "/module.lp/" .. text) end
@@ -345,25 +304,35 @@ local makeBrowser = function()
       :allowTextEntry(true)
       :allowGestures(true)
       :closeOnEscape(true)
+      :windowCallback(frameTracker)
       :navigationCallback(function(a, w, n, e)
           if e then
               hs.luaSkinLog.ef("%s browser navigation for %s error:%s", USERDATA_TAG, a, e.localizedDescription)
               return true
           end
-          if a == "didFinishNavigation" then updateToolbarIcons(w:toolbar(), w) end
+          if a == "didFinishNavigation" then updateToolbarIcons(w:attachedToolbar(), w) end
       end)
 
-    browser:toolbar(makeToolbar(browser))
+    browser:attachedToolbar(makeToolbar(browser))
     return browser
 end
 
 -- Public interface ------------------------------------------------------
 
+module._moduleListChanges = watchable.watch("hs.doc", "changeCount", function(w, p, k, o, n)
+    if module._browser then
+        module._browser:attachedToolbar():modifyItem{
+            id = "search",
+            searchPredefinedSearches = makeModuleListForMenu(),
+        }
+    end
+end)
+
 --- hs.doc.hsdocs.interface([interface]) -> currentValue
 --- Function
 --- Get or set the network interface that the Hammerspoon documentation web server will be served on
 ---
---- Paramaters:
+--- Parameters:
 ---  * interface - an optional string, or nil, specifying the network interface the Hammerspoon documentation web server will be served on.  An explicit nil specifies that the web server should listen on all active interfaces for the machine.  Defaults to "localhost".
 ---
 --- Returns:
@@ -407,7 +376,7 @@ end
 --- Function
 --- Get or set the Hammerspoon documentation server HTTP port.
 ---
---- Paramters:
+--- Parameters:
 ---  * value - an optional number specifying the port for the Hammerspoon documentation web server
 ---
 --- Returns:
@@ -504,10 +473,6 @@ module.help = function(target)
     if webview and not settings.get("_documentationServer.forceExternalBrowser") then
         module._browser = module._browser or makeBrowser()
         module._browser:url(targetURL):show()
-
-        if not module._browserWatcher and settings.get("_documentationServer.trackBrowserFrameChanges") then
-            makeWatcher(module._browser)
-        end
     else
         local targetApp = settings.get("_documentationServer.forceExternalBrowser")
         local urlevent = require"hs.urlevent"
@@ -567,11 +532,33 @@ module.trackBrowserFrame = function(...)
     return settings.get("_documentationServer.trackBrowserFrameChanges")
 end
 
+--- hs.doc.hsdocs.moduleEntitiesInSidebar([value]) -> currentValue
+--- Function
+--- Get or set whether or not a module's entity list is displayed as a column on the left of the rendered page.
+---
+--- Parameters:
+---  * value - an optional boolean specifying whether or not a module's entity list is displayed inline in the documentation (false) or in a sidebar on the left (true).
+---
+--- Returns:
+---  * the current, possibly new, value
+---
+--- Notes:
+---  * This is experimental and is disabled by default. It was inspired by a Userscript written by krasnovpro.  The original can be found at https://openuserjs.org/scripts/krasnovpro/hammerspoon.org_Documentation/source.
+---
+---  * Changes made with this function are saved with `hs.settings` with the label "_documentationServer.entitiesInSidebar" and will persist through a reload or restart of Hammerspoon.
+module.moduleEntitiesInSidebar = function(...)
+    local args = table.pack(...)
+    if args.n == 1 and (type(args[1]) == "boolean" or type(args[1]) == "nil") then
+        settings.set("_documentationServer.entitiesInSidebar", args[1])
+    end
+    return settings.get("_documentationServer.entitiesInSidebar")
+end
+
 --- hs.doc.hsdocs.browserDarkMode([value]) -> currentValue
 --- Function
 --- Get or set whether or not the Hammerspoon browser renders output in Dark mode.
 ---
---- Paramters:
+--- Parameters:
 ---  * value - an optional boolean, number, or nil specifying whether or not the documentation browser renders in Dark mode.
 ---    * if value is `true`, then the HTML output will always be inverted
 ---    * if value is `false`, then the HTML output will never be inverted
@@ -599,7 +586,7 @@ end
 --- Function
 --- Get or set whether or not [hs.doc.hsdocs.help](#help) uses an external browser.
 ---
---- Paramters:
+--- Parameters:
 ---  * value - an optional boolean or string, default false, specifying whether or not documentation requests will be displayed in an external browser or the internal one handled by `hs.webview`.
 ---
 --- Returns:

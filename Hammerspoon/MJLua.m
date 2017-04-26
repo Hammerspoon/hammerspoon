@@ -391,12 +391,14 @@ static int canCheckForUpdates(lua_State *L) {
 ///      - Click `File > Open Dictionary...`
 ///      - Select Hammerspoon from the list of Applications
 ///      - This will now open a Dictionary containing all of the availible Hammerspoon AppleScript commands.
-///  * Here's an example AppleScript that can be used in Apple's Script Editor to control Hammerspoon:
+///  * Note that strings within the Lua code you pass from AppleScript can be delimited by `[[` and `]]` rather than normal quotes
 ///
-///    ````tell application "Hammerspoon"
-///         execute lua code "hs.alert([[Hello from AppleScript]])"
-///     end tell````
-///  * Note in the above example that stings within the Lua code are delimited by `[[` and `]]` rather than normal quotes
+/// Example:
+///
+///  ```lua
+///  tell application "Hammerspoon"
+///    execute lua code "hs.alert([[Hello from AppleScript]])"
+///  end tell```
 static int core_appleScript(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];

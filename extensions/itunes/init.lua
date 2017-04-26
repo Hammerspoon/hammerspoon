@@ -310,7 +310,7 @@ function itunes.ff() return itunes.setPosition(itunes.getPosition()+5) end
 --- Function
 --- Skips the current playback backwards by 5 seconds
 ---
---- Paramters:
+--- Parameters:
 ---  * None
 ---
 --- Returns:

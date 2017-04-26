@@ -220,6 +220,9 @@ end
 ---
 --- Returns:
 ---  * A boolean, true if the tool was successfully installed, otherwise false
+---
+--- Notes:
+---  * If this function fails, it is likely that you have some old/broken symlinks. You can use `hs.ipc.cliUninstall()` to forcibly tidy them up
 module.cliInstall = function(path, silent)
     local path = path or "/usr/local"
     local silent = silent or false
@@ -243,16 +246,12 @@ end
 ---  * A boolean, true if the tool was successfully removed, otherwise false
 ---
 --- Notes:
----  * This function is very conservative and will only remove the tool if it was installed by this instance of Hammerspoon. If you have more than one copy of Hammerspoon, this will be detected and they will not remove each others' tools.
+---  * This function used to be very conservative and refuse to remove symlinks it wasn't sure about, but now it will unconditionally remove whatever it finds at `path/bin/hs` and `path/share/man/man1/hs.1`. This is more likely to be useful in situations where this command is actually needed (please open an Issue on GitHub if you disagree!)
 module.cliUninstall = function(path, silent)
     local path = path or "/usr/local"
     local silent = silent or false
-    if module.cliStatus(path, silent) == true then
-        os.execute("rm \""..path.."/bin/hs\"")
-        os.execute("rm \""..path.."/share/man/man1/hs.1\"")
-    else
-        return false
-    end
+    os.execute("rm \""..path.."/bin/hs\"")
+    os.execute("rm \""..path.."/share/man/man1/hs.1\"")
     return not module.cliStatus(path, silent)
 end
 

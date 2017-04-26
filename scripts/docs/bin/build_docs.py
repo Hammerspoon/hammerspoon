@@ -40,6 +40,8 @@ LINKS = [
          "url": "https://github.com/Hammerspoon/hammerspoon"},
         {"name": "Getting Started Guide",
          "url": "http://www.hammerspoon.org/go/"},
+        {"name": "Spoon Plugin Documentation",
+         "url": "https://github.com/Hammerspoon/hammerspoon/blob/master/SPOONS.md"},
         {"name": "Official Spoon repository",
          "url": "http://www.hammerspoon.org/Spoons"},
         {"name": "IRC channel",
@@ -88,7 +90,7 @@ def extract_docstrings(filename):
             i += 1
             line = raw_line.decode('utf-8').strip('\n')
             if line.startswith("----") or line.startswith("////"):
-                dbg("Skipping %s:%d for having too many comment chars" % (filename, i))
+                dbg("Skipping %s:%d - too many comment chars" % (filename, i))
                 continue
             if line.startswith("---") or line.startswith("///"):
                 # We're in a chunk of docstrings
@@ -359,9 +361,9 @@ def do_processing(directories):
     for module in docs:
         dbg("Processing: %s" % module)
         module_docs = process_module(module, docs[module])
-        module_docs["items"].sort(key=lambda item: item["name"])
+        module_docs["items"].sort(key=lambda item: item["name"].lower())
         for item_type in TYPE_NAMES:
-            module_docs[item_type].sort(key=lambda item: item["name"])
+            module_docs[item_type].sort(key=lambda item: item["name"].lower())
         processed_docstrings.append(module_docs)
 
         # Add this module to our module tree
@@ -389,7 +391,7 @@ def do_processing(directories):
         processed_docstrings[i]["submodules"].sort()
         i += 1
 
-    processed_docstrings.sort(key=lambda module: module["name"])
+    processed_docstrings.sort(key=lambda module: module["name"].lower())
     return processed_docstrings
 
 

@@ -54,7 +54,7 @@ module.itemPriorities     = ls.makeConstantsTable(module.itemPriorities)
 --- Method
 --- Add one or more toolbar items to the toolbar
 ---
---- Paramters:
+--- Parameters:
 ---  * `toolbarTable` - a table describing a single toolbar item, or an array of tables, each describing a separate toolbar item, to be added to the toolbar.
 ---
 --- Returns:

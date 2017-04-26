@@ -104,7 +104,7 @@ module.newBrowser = function(...)
                           :allowGestures(true)
 end
 
---- hs.webview:toolbar([toolbar | nil]) -> webviewObject | currentValue
+--- hs.webview:attachedToolbar([toolbar | nil]) -> webviewObject | currentValue
 --- Method
 --- Get or attach/detach a toolbar to/from the webview.
 ---
@@ -118,7 +118,7 @@ end
 ---  * this method is a convenience wrapper for the `hs.webview.toolbar.attachToolbar` function.
 ---
 ---  * If the toolbarObject is currently attached to another window when this method is called, it will be detached from the original window and attached to the webview.  If you wish to attach the same toolbar to multiple webviews, see `hs.webview.toolbar:copy`.
-objectMT.toolbar = module.toolbar.attachToolbar
+objectMT.attachedToolbar = module.toolbar.attachToolbar
 
 --- hs.webview:windowStyle(mask) -> webviewObject | currentMask
 --- Method
@@ -211,6 +211,42 @@ objectMT.delete = function(self, propagate, delay)
     end
 
     return objectMT._delete(self, delay)
+end
+
+--- hs.webview:frame([rect]) -> webviewObject | currentValue
+--- Method
+--- Get or set the frame of the webview window.
+---
+--- Parameters:
+---  * rect - An optional rect-table containing the co-ordinates and size the webview window should be moved and set to
+---
+--- Returns:
+---  * If an argument is provided, the webview object; otherwise the current value.
+---
+--- Notes:
+---  * a rect-table is a table with key-value pairs specifying the new top-left coordinate on the screen of the webview window (keys `x`  and `y`) and the new size (keys `h` and `w`).  The table may be crafted by any method which includes these keys, including the use of an `hs.geometry` object.
+objectMT.frame = function(obj, ...)
+    local args = table.pack(...)
+
+    if args.n == 0 then
+        local topLeft = obj:topLeft()
+        local size    = obj:size()
+        return {
+            __luaSkinType = "NSRect",
+            x = topLeft.x,
+            y = topLeft.y,
+            h = size.h,
+            w = size.w,
+        }
+    elseif args.n == 1 and type(args[1]) == "table" then
+        obj:size(args[1])
+        obj:topLeft(args[1])
+        return obj
+    elseif args.n > 1 then
+        error("frame method expects 0 or 1 arguments", 2)
+    else
+        error("frame method argument must be a table", 2)
+    end
 end
 
 --- hs.webview:urlParts() -> table
