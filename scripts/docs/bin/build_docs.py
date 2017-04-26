@@ -31,7 +31,7 @@ TYPE_DESC = {
         "Constructor": "API calls which return an object, typically one "
                        "that offers API methods",
         "Command": "External shell commands",
-        "Field": "Variables which can only be access from an object returned "
+        "Field": "Variables which can only be accessed from an object returned "
                  "by a constructor",
         "Deprecated": "API features which will be removed in an future "
                       "release"}
