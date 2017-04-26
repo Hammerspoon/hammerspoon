@@ -42,20 +42,20 @@ int keycodes_cachemap(lua_State* L) {
         UniCharCount realLength;
 
         for (int i = 0 ; i < (int)(sizeof(relocatableKeyCodes)/sizeof(relocatableKeyCodes[0])) ; i++) {
-            UCKeyTranslate(keyboardLayout,
-                           relocatableKeyCodes[i],
-                           kUCKeyActionDown,
-                           0,
-                           LMGetKbdType(),
-                           kUCKeyTranslateNoDeadKeysMask,
-                           &keysDown,
-                           sizeof(chars) / sizeof(chars[0]),
-                           &realLength,
-                           chars);
+            if (UCKeyTranslate(keyboardLayout,
+                               relocatableKeyCodes[i],
+                               kUCKeyActionDown,
+                               0,
+                               LMGetKbdType(),
+                               kUCKeyTranslateNoDeadKeysMask,
+                               &keysDown,
+                               sizeof(chars) / sizeof(chars[0]),
+                               &realLength,
+                               chars) == noErr && realLength > 0) {
+                const char* name = [[NSString stringWithCharacters:chars length:1] UTF8String];
 
-            const char* name = [[NSString stringWithCharacters:chars length:1] UTF8String];
-
-            pushkeycode(L, relocatableKeyCodes[i], name);
+                pushkeycode(L, relocatableKeyCodes[i], name);
+            }
         }
     }
     else {

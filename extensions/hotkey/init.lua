@@ -346,6 +346,25 @@ function hotkey.bind(...)
   return hotkey.new(...):enable()
 end
 
+--- hs.hotkey.bindSpec(keyspec, ...) -> hs.hotkey object
+--- Constructor
+--- Creates a hotkey and enables it immediately
+---
+--- Parameters:
+---  * keyspec - A table containing two items:
+---   * first, a table containing keyboard modifiers, as specified in `hs.hotkey.bind()`
+---   * second, a string containing the name of a keyboard key, as specified in `hs.hotkey.bind()`
+---  * ... - All remaining arguments are as specified in `hs.hotkey.bind()`
+---
+--- Returns:
+---  * A new `hs.hotkey` object for method chaining
+---
+--- Notes:
+---  * This function is just a wrapper that performs `hs.hotkey.bind(keyspec[1], keyspec[2], ...)`
+function hotkey.bindSpec(keyspec, ...)
+  return hotkey.bind(keyspec[1], keyspec[2], ...)
+end
+
 --- === hs.hotkey.modal ===
 ---
 --- Create/manage modal keyboard shortcut environments
