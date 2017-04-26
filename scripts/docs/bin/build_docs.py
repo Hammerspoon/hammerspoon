@@ -150,7 +150,7 @@ def find_module_for_item(modules, item):
 
 def find_itemname_from_signature(signature):
     """Find the name of an item, from a full signature"""
-    return ''.join(re.split(r"[^\w\.\:_]", signature)[0])
+    return ''.join(re.split(r"[\(\[\s]", signature)[0])
 
 
 def remove_method_from_itemname(itemname):
