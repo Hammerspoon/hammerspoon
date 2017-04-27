@@ -20,6 +20,7 @@ static NSArray *keysToKeepFromDefinitionDictionary ;
 
 @interface HSToolbarSearchField : NSSearchField
 @property (weak) NSToolbarItem *toolbarItem ;
+@property        BOOL          releaseOnCallback ;
 
 - (void)searchCallback:(NSMenuItem *)sender ;
 @end
@@ -165,13 +166,14 @@ static NSMenu *createCoreSearchFieldMenu() {
     if ([sender isKindOfClass:[NSToolbarItem class]]) {
         item = sender ;
     } else if ([sender isKindOfClass:[HSToolbarSearchField class]]) {
-        // http://www.simonsapps.com/simonsapps/devcenter/14/remove-focus-from-nstextfield
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [((HSToolbarSearchField *)sender).window makeFirstResponder:((HSToolbarSearchField *)sender).window.contentView] ;
-        }) ;
         searchText = [sender stringValue] ;
         item       = [sender toolbarItem] ;
         argCount++ ;
+        if (((HSToolbarSearchField *)sender).releaseOnCallback) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [((HSToolbarSearchField *)sender).window makeFirstResponder:((HSToolbarSearchField *)sender).window.contentView] ;
+            }) ;
+        }
     } else {
         [LuaSkin logError:[NSString stringWithFormat:@"%s:Unknown object sent to callback:%@", USERDATA_TB_TAG, [sender debugDescription]]] ;
         return ;
@@ -535,6 +537,13 @@ static NSMenu *createCoreSearchFieldMenu() {
                 [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be a number", USERDATA_TB_TAG, keyName, identifier]] ;
                 [itemDefinition removeObjectForKey:keyName] ;
             }
+        } else if ([keyName isEqualToString:@"searchReleaseFocusOnCallback"] && [itemView isKindOfClass:[HSToolbarSearchField class]]) {
+            if ([keyValue isKindOfClass:[NSNumber class]] && !strcmp(@encode(BOOL), [keyValue objCType])) {
+                itemView.releaseOnCallback = [keyValue boolValue] ;
+            } else {
+                [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be a boolean", USERDATA_TB_TAG, keyName, identifier]] ;
+                [itemDefinition removeObjectForKey:keyName] ;
+            }
         } else if ([keyName isEqualToString:@"searchText"] && [itemView isKindOfClass:[HSToolbarSearchField class]]) {
             if ([keyValue isKindOfClass:[NSString class]]) {
                 itemView.stringValue = keyValue ;
@@ -755,6 +764,7 @@ static NSMenu *createCoreSearchFieldMenu() {
         [self sizeToFit];
 
         _toolbarItem = nil ;
+        _releaseOnCallback = NO ;
 
         ((NSSearchFieldCell *)self.cell).searchMenuTemplate = createCoreSearchFieldMenu();
     }
@@ -1802,6 +1812,8 @@ static int pushNSToolbarItem(lua_State *L, id obj) {
             lua_pushnumber(L, [value maxSize].width) ; lua_setfield(L, -2, "searchWidth") ;
             [skin pushNSObject:[((HSToolbarSearchField *)value.view) stringValue]] ;
             lua_setfield(L, -2, "searchText") ;
+            lua_pushboolean(L, ((HSToolbarSearchField *)value.view).releaseOnCallback) ;
+            lua_setfield(L, -2, "searchReleaseFocusOnCallback") ;
             lua_pushinteger(L, [[((HSToolbarSearchField *)value.view) cell] maximumRecents]) ;
             lua_setfield(L, -2, "searchHistoryLimit") ;
             [skin pushNSObject:[[((HSToolbarSearchField *)value.view) cell] recentSearches]] ;
