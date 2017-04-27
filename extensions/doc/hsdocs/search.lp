@@ -35,13 +35,20 @@
      font-style: italic;
   }
 
+<%
+  local translation = "translateY(-50%)"
+  if settings.get("_documentationServer.entitiesInSidebar") and cgilua.script_file == "module.lp" then
+      translation = translation .. " translateX(-10vw)"
+  end
+%>
+
   div.helpScreen {
     display: none;
     position: fixed;
     top: 50%;
-    -webkit-transform: translateY(-50%);
-    -ms-transform: translateY(-50%);
-    transform: translateY(-50%);
+    -webkit-transform: <%= translation .. ";" %>
+    -ms-transform: <%= translation .. ";" %>
+    transform: <%= translation .. ";" %>
     margin-left: auto ;
     margin-right: auto ;
     width: 80%;
@@ -77,9 +84,9 @@
         if v == "search" then %>
           <tr><th><i>🔍 Search</i></th><td><%= tbdt.tooltip %></td></tr>
         <% elseif v == "navigation" then %>
-          <tr><th><img height="20" width="20" src="<%= tbdt.subitems[1].image:size{ h = 20, w = 20 }:encodeAsURLString() %>">&nbsp;<img height="20" width="20" src="<%= tbdt.subitems[2].image:size{ h = 20, w = 20 }:encodeAsURLString() %>"></th><td><%= tbdt.subitems[1].tooltip .. "/" .. tbdt.subitems[2].tooltip %></td></tr>
+          <tr><th><img height="20" width="20" src="<%= tbdt.subitems[1].image:setSize{ h = 20, w = 20 }:encodeAsURLString() %>">&nbsp;<img height="20" width="20" src="<%= tbdt.subitems[2].image:setSize{ h = 20, w = 20 }:encodeAsURLString() %>"></th><td><%= tbdt.subitems[1].tooltip .. "/" .. tbdt.subitems[2].tooltip %></td></tr>
         <% else %>
-          <tr><th><img height="20" width="20" src="<%= tbdt.image:size{ h = 20, w = 20 }:encodeAsURLString() %>"></th><td><%= tbdt.tooltip %></td></tr>
+          <tr><th><img height="20" width="20" src="<%= tbdt.image:setSize{ h = 20, w = 20 }:encodeAsURLString() %>"></th><td><%= tbdt.tooltip %></td></tr>
       <% end
       end
     end
