@@ -200,21 +200,21 @@ local makeToolbar = function(browser)
         },
         {
             id = "prev",
-            tooltip = "Display previous page",
+            tooltip = "Display previously viewed page in history",
             image = toolbarImages.prevArrow,
             enable = false,
             allowedAlone = false,
         },
         {
             id = "next",
-            tooltip = "Display next page",
+            tooltip = "Display next viewed page in history",
             image = toolbarImages.nextArrow,
             enable = false,
             allowedAlone = false,
         },
         {
             id = "search",
-            tooltip = "Search for a HS function or method",
+            tooltip = "Search for a Hammerspoon function or method by name",
             searchfield = true,
             searchWidth = 250,
             searchPredefinedSearches = makeModuleListForMenu(),
@@ -227,7 +227,7 @@ local makeToolbar = function(browser)
         { id = "NSToolbarFlexibleSpaceItem" },
         {
             id = "mode",
-            tooltip = "Toggle display mode",
+            tooltip = "Toggle display mode between System/Dark/Light",
             image = toolbarImages.followMode,
         },
         {
