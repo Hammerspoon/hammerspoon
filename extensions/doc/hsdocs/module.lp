@@ -124,7 +124,7 @@
       }
       body {
         margin-left: 20vw;
-        width: 70vw;
+        width: 75vw;
       }
 <% end %>
     </style>
@@ -138,6 +138,23 @@
     <h3>API Overview</h3>
     <ul>
       <%
+        if mod.name ~= "hs" then
+            local submodules = {}
+            local relevantJson = isSpoon and spoonDocumentation or documentation
+            for _, v in ipairs(relevantJson) do
+                if v.name:match("^" .. mod.name .. "%.") then table.insert(submodules, v.name) end
+            end
+
+            if #submodules > 0 then %>
+                <li>Submodules</li>
+                <ul>
+                  <% for _, item in ipairs(submodules) do %>
+                      <li><a href="<%= cgilua.mkurlpath("module.lp/" .. (isSpoon and "spoon." or "") .. item) %>"><%= item %></a></li>
+                  <% end %>
+                </ul>
+          <% end
+        end
+
         local sectionorder = { "Deprecated", "Command", "Constant", "Variable", "Function", "Constructor", "Field", "Method" }
         local sectiondetails = {
           ["Deprecated"]  = "API features which will be removed in an upcoming release",

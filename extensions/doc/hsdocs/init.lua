@@ -22,7 +22,8 @@ local settings  = require"hs.settings"
 local image     = require"hs.image"
 local webview   = require"hs.webview"
 local doc       = require"hs.doc"
-local watchable = require("hs.watchable")
+local watchable = require"hs.watchable"
+local timer     = require"hs.timer"
 
 local documentRoot = package.searchpath("hs.doc.hsdocs", package.path):match("^(/.*/).*%.lua$")
 
@@ -136,6 +137,7 @@ local toolbarImages = {
         {}
     }),
     index = image.imageFromName("statusicon"),
+    help = image.imageFromName(image.systemImageNames.RevealFreestandingTemplate),
 }
 
 local frameTracker = function(cmd, wv, opt)
@@ -217,6 +219,7 @@ local makeToolbar = function(browser)
             searchWidth = 250,
             searchPredefinedSearches = makeModuleListForMenu(),
             searchPredefinedMenuTitle = false,
+            searchReleaseFocusOnCallback = true,
             fn = function(t, w, i, text)
                 if text ~= "" then w:url("http://localhost:" .. tostring(module._server:port()) .. "/module.lp/" .. text) end
             end,
@@ -232,6 +235,13 @@ local makeToolbar = function(browser)
             tooltip = "Toggle window frame tracking",
             image = toolbarImages.noTrackWindow,
         },
+        { id = "NSToolbarSpaceItem" },
+        {
+            id = "help",
+            tooltip = "Display Browser Help",
+            image = toolbarImages.help,
+            fn = function(t, w, i) w:evaluateJavaScript("toggleHelp()") end,
+        }
     }):canCustomize(true)
       :displayMode("icon")
       :sizeMode("small")
@@ -300,7 +310,21 @@ local makeBrowser = function()
         options.applicationName = "Hammerspoon/" .. hs.processInfo.version
     end
 
-    local browser = webview.new(browserFrame, options):windowStyle(1+2+4+8)
+    local ucc = webview.usercontent.new("hsdocs"):setCallback(function(obj)
+        if obj.body == "enableCloseOnEscape" then
+            timer.doAfter(.1, function() module._browser:closeOnEscape(true) end)
+        elseif obj.body == "disableCloseOnEscape" then
+            module._browser:closeOnEscape(false)
+        elseif obj.body == "focusInSearchField" then
+            if module._browser:attachedToolbar() then
+                module._browser:attachedToolbar():selectSearchField()
+            end
+        else
+            print("~~ hsdocs unexpected ucc callback: ", require("hs.inspect")(obj))
+        end
+    end)
+
+    local browser = webview.new(browserFrame, options, ucc):windowStyle(1+2+4+8)
       :allowTextEntry(true)
       :allowGestures(true)
       :closeOnEscape(true)
@@ -310,7 +334,10 @@ local makeBrowser = function()
               hs.luaSkinLog.ef("%s browser navigation for %s error:%s", USERDATA_TAG, a, e.localizedDescription)
               return true
           end
-          if a == "didFinishNavigation" then updateToolbarIcons(w:attachedToolbar(), w) end
+          if a == "didFinishNavigation" then
+              updateToolbarIcons(w:attachedToolbar(), w)
+              w:closeOnEscape(true) -- in case find was open
+          end
       end)
 
     browser:attachedToolbar(makeToolbar(browser))
