@@ -151,7 +151,7 @@
           ["Variable"]    = "Configurable values",
           ["Function"]    = "API calls offered directly by the extension",
           ["Constructor"] = "API calls which return an object, typically one that offers API methods",
-          ["Field"]       = "Variables which can only be access from an object returned by a constructor",
+          ["Field"]       = "Variables which can only be accessed from an object returned by a constructor",
           ["Method"]      = "API calls which can only be made on an object returned by a constructor",
         }
 

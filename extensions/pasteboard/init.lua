@@ -11,6 +11,7 @@ require("hs.image")
 require("hs.sound")
 require("hs.styledtext")
 require("hs.drawing.color")
+require("hs.sharing")
 
 -- Public interface ------------------------------------------------------
 
