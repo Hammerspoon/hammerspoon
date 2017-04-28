@@ -11,17 +11,17 @@ local app = require "hs.application"
 --- hs.spotify.state_paused
 --- Constant
 --- Returned by `hs.spotify.getPlaybackState()` to indicates Spotify is paused
-spotify.state_paused = "kPSp"
+spotify.state_paused = "'kPSp'"
 
 --- hs.spotify.state_playing
 --- Constant
 --- Returned by `hs.spotify.getPlaybackState()` to indicates Spotify is playing
-spotify.state_playing = "kPSP"
+spotify.state_playing = "'kPSP'"
 
 --- hs.spotify.state_stopped
 --- Constant
 --- Returned by `hs.spotify.getPlaybackState()` to indicates Spotify is stopped
-spotify.state_stopped = "kPSS"
+spotify.state_stopped = "'kPSS'"
 
 -- Internal function to pass a command to Applescript.
 local function tell(cmd)
