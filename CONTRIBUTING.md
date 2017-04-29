@@ -1,5 +1,19 @@
 # Contributing to Hammerspoon
 
+* [How is everything built?](#how-is-everything-built)
+    * [Making frequent local rebuilds more convenient](#making-frequent-local-rebuilds-more-convenient)
+* [Contributing to the core app or LuaSkin](#contributing-to-the-core-app-or-luaskin)
+* [Contributing to the extensions](#contributing-to-the-extensions)
+    * [Writing a new, pure-Lua extension](#writing-a-new-pure-lua-extension)
+    * [Writing a new mixed Lua/Objective-C extension](#writing-a-new-mixed-luaobjective-c-extension)
+    * [Documenting your extension](#documenting-your-extension)
+        * [Constants](#constants)
+        * [Variables](#variables)
+        * [Functions](#functions)
+        * [Methods](#methods)
+    * [Testing](#testing)
+    * [Third party extension distribution](#third-party-extension-distribution)
+
 Hammerspoon is composed of three separate logical areas - a Lua runtime wrapper framework called [LuaSkin](http://www.hammerspoon.org/docs/LuaSkin/Classes/LuaSkin/index.html#), the core Hammerspoon app which houses the LuaSkin/Lua runtime and provides the ability to load extensions, and [various extension modules](https://github.com/Hammerspoon/hammerspoon/tree/master/extensions) that [expose system APIs](http://www.hammerspoon.org/docs/) to the user's Lua code.
 
 ## How is everything built?
@@ -8,7 +22,7 @@ The app itself is built using Xcode. You must open `Hammerspoon.xcworkspace` rat
 
 The extension modules are built before the core Hammerspoon binary as target dependencies. Each extension is defined as an Xcode target in its own right, although there is usually no reason to build these targets manually. During the late stages of the build process, a script ([`scripts/copy_extensions_to_bundle.sh`](https://github.com/Hammerspoon/hammerspoon/blob/master/scripts/copy_extensions_to_bundle.sh)) collects all of the compiled extension libraries and their associated Lua components, and inserts them into the final `Hammerspoon.app` bundle.
 
-#### Making frequent local rebuilds more convenient
+### Making frequent local rebuilds more convenient
 [Self-signing your builds](https://github.com/Hammerspoon/hammerspoon/issues/643#issuecomment-158291705) will keep you from having to re-enable permissions for your locally built copy.
 
 Create a self-signed Code Signing certificate named 'Internal Code Signing' or similar as described [here](http://bd808.com/blog/2013/10/21/creating-a-self-signed-code-certificate-for-xcode/).
