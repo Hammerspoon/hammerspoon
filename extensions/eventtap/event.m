@@ -816,6 +816,12 @@ static void pushtypestable(lua_State* L) {
     lua_pushstring(L, "tabletPointer") ;            lua_rawseti(L, -2, kCGEventTabletPointer);
     lua_pushinteger(L, kCGEventTabletProximity);    lua_setfield(L, -2, "tabletProximity");
     lua_pushstring(L, "tabletProximity") ;          lua_rawseti(L, -2, kCGEventTabletProximity);
+    lua_pushinteger(L, kCGEventOtherMouseDown);     lua_setfield(L, -2, "otherMouseDown");
+    lua_pushstring(L, "otherMouseDown") ;           lua_rawseti(L, -2, kCGEventOtherMouseDown);
+    lua_pushinteger(L, kCGEventOtherMouseUp);       lua_setfield(L, -2, "otherMouseUp");
+    lua_pushstring(L, "otherMouseUp") ;             lua_rawseti(L, -2, kCGEventOtherMouseUp);
+    lua_pushinteger(L, kCGEventOtherMouseDragged);  lua_setfield(L, -2, "otherMouseDragged");
+    lua_pushstring(L, "otherMouseDragged") ;        lua_rawseti(L, -2, kCGEventOtherMouseDragged);
     lua_pushinteger(L, kCGEventNull);               lua_setfield(L, -2, "nullEvent");
     lua_pushstring(L, "nullEvent") ;                lua_rawseti(L, -2, kCGEventNull);
     lua_pushinteger(L, NSMouseEntered);             lua_setfield(L, -2, "NSMouseEntered");
