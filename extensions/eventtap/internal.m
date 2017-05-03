@@ -1,7 +1,7 @@
 #import "eventtap_event.h"
 
 #define USERDATA_TAG        "hs.eventtap"
-int refTable;
+static int refTable;
 
 typedef struct _eventtap_t {
     int fn;
@@ -43,8 +43,8 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef
     if (lua_istable(L, -1)) {
         lua_pushnil(L);
         while (lua_next(L, -2) != 0) {
-            CGEventRef event = hs_to_eventtap_event(L, -1);
-            CGEventTapPostEvent(proxy, event);
+            CGEventRef newEvent = hs_to_eventtap_event(L, -1);
+            CGEventTapPostEvent(proxy, newEvent);
             lua_pop(L, 1);
         }
     }
@@ -78,16 +78,16 @@ static int eventtap_keyStrokes(lua_State* L) {
 
     // This superb implementation was lifted shamelessly from http://www.mail-archive.com/cocoa-dev@lists.apple.com/msg23343.html
     UniChar buffer;
-    for (int i = 0; i < (int)[theString length]; i++) {
+    for (NSUInteger i = 0; i < [theString length]; i++) {
         [theString getCharacters:&buffer range:NSMakeRange(i, 1)];
 
         // Send the keydown
-        CGEventSetFlags(keyDownEvent, 0);
+        CGEventSetFlags(keyDownEvent, (CGEventFlags)0);
         CGEventKeyboardSetUnicodeString(keyDownEvent, 1, &buffer);
         CGEventPost(kCGHIDEventTap, keyDownEvent);
 
         // Send the keyup
-        CGEventSetFlags(keyUpEvent, 0);
+        CGEventSetFlags(keyUpEvent, (CGEventFlags)0);
         CGEventKeyboardSetUnicodeString(keyUpEvent, 1, &buffer);
         CGEventPost(kCGHIDEventTap, keyUpEvent);
     }
@@ -124,7 +124,7 @@ static int eventtap_new(lua_State* L) {
     lua_pushnil(L);
     while (lua_next(L, 1) != 0) {
         if (lua_isinteger(L, -1)) {
-            CGEventType type = (CGEventType)lua_tointeger(L, -1);
+            CGEventType type = (CGEventType)(lua_tointeger(L, -1));
             eventtap->mask ^= CGEventMaskBit(type);
         } else if (lua_isstring(L, -1)) {
             const char *label = lua_tostring(L, -1);
@@ -254,7 +254,7 @@ static int checkKeyboardModifiers(lua_State* L) {
 
     lua_newtable(L);
 
-    if (lua_isboolean(L, 1) && lua_toboolean(L, 1)) { lua_pushinteger(L, theFlags); lua_setfield(L, -2, "_raw"); }
+    if (lua_isboolean(L, 1) && lua_toboolean(L, 1)) { lua_pushinteger(L, (lua_Integer)theFlags); lua_setfield(L, -2, "_raw"); }
 
     if (theFlags & NSCommandKeyMask)    { lua_pushboolean(L, YES); lua_setfield(L, -2, "cmd"); lua_pushboolean(L, YES); lua_setfield(L, -2, "⌘"); }
     if (theFlags & NSShiftKeyMask)      { lua_pushboolean(L, YES); lua_setfield(L, -2, "shift"); lua_pushboolean(L, YES); lua_setfield(L, -2, "⇧"); }
@@ -281,7 +281,7 @@ static int checkKeyboardModifiers(lua_State* L) {
 ///  * This is an instantaneous poll of the current mouse buttons, not a callback.  This is useful primarily in conjuction with other modules, such as `hs.menubar`, when a callback is already in progress or waiting for an event callback is not practical or possible.
 static int checkMouseButtons(lua_State* L) {
     NSUInteger theButtons = [NSEvent pressedMouseButtons] ;
-    NSUInteger i = 0 ;
+    NSInteger i = 0 ;
 
     lua_newtable(L);
 

@@ -11,11 +11,11 @@
 ---
 --- This module is based primarily on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
 
-local module = require("hs.eventtap.internal")
-module.event = require("hs.eventtap.event")
-local fnutils = require("hs.fnutils")
+local module   = require("hs.eventtap.internal")
+module.event   = require("hs.eventtap.event")
+local fnutils  = require("hs.fnutils")
 local keycodes = require("hs.keycodes")
-require("hs.timer")
+local timer    = require("hs.timer")
 
 -- private variables and methods -----------------------------------------
 
@@ -85,17 +85,26 @@ local function getMods(mods)
   return r
 end
 
+-- note the tables backing these constants should be modified to only include the string -> number
+-- assignments before they can be safely wrapped with ls.makeConstantsTable, but as there is a pull
+-- outstanding which modifies these tables, this is being delayed to simplify merging.
 module.event.types      = setmetatable(module.event.types,      { __index    = __index_for_types,
                                                                   __tostring = __tostring_for_tables })
 module.event.properties = setmetatable(module.event.properties, { __index    = __index_for_props,
                                                                   __tostring = __tostring_for_tables })
 
+module.event.rawFlagMasks = ls.makeConstantsTable(module.event.rawFlagMasks)
+
 -- Public interface ------------------------------------------------------
 
 local originalNewKeyEvent = module.event.newKeyEvent
 module.event.newKeyEvent = function(mods, key, isDown)
+    if (type(mods) == "number" or type(mods) == "string") and type(key) == "boolean" then
+        mods, key, isDown = nil, mods, key
+    end
     local keycode = getKeycode(key)
-    local modifiers = getMods(mods)
+    local modifiers = mods and getMods(mods) or nil
+--    print(finspect(table.pack(modifiers, keycode, isDown)))
     return originalNewKeyEvent(modifiers, keycode, isDown)
 end
 
@@ -150,7 +159,7 @@ function module.leftClick(point, delay)
     end
 
     module.event.newMouseEvent(module.event.types["leftMouseDown"], point):post()
-    hs.timer.usleep(delay)
+    timer.usleep(delay)
     module.event.newMouseEvent(module.event.types["leftMouseUp"], point):post()
 end
 
@@ -173,7 +182,7 @@ function module.rightClick(point, delay)
     end
 
     module.event.newMouseEvent(module.event.types["rightMouseDown"], point):post()
-    hs.timer.usleep(delay)
+    timer.usleep(delay)
     module.event.newMouseEvent(module.event.types["rightMouseUp"], point):post()
 end
 
@@ -196,7 +205,7 @@ function module.middleClick(point, delay)
     end
 
     module.event.newMouseEvent(module.event.types["middleMouseDown"], point):post()
-    hs.timer.usleep(delay)
+    timer.usleep(delay)
     module.event.newMouseEvent(module.event.types["middleMouseUp"], point):post()
 end
 
@@ -214,13 +223,15 @@ end
 ---
 --- Notes:
 ---  * This function is ideal for sending single keystrokes with a modifier applied (e.g. sending ⌘-v to paste, with `hs.eventtap.keyStroke({"cmd"}, "v")`). If you want to emit multiple keystrokes for typing strings of text, see `hs.eventtap.keyStrokes()`
+---
+---  * Note that invoking this function with a table (empty or otherwise) for the `modifiers` argument will force the release of any modifier keys which have been explicitly created by [hs.eventtap.event.newKeyEvent](#newKeyEvent) and posted that are still in the "down" state. An explicit `nil` for this argument will not (i.e. the keystroke will inherit any currently "down" modifiers)
 function module.keyStroke(modifiers, character, delay)
     if delay==nil then
         delay=200000
     end
 
     module.event.newKeyEvent(modifiers, character, true):post()
-    hs.timer.usleep(delay)
+    timer.usleep(delay)
     module.event.newKeyEvent(modifiers, character, false):post()
 end
 
