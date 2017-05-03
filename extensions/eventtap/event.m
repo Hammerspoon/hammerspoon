@@ -125,6 +125,33 @@ static int eventtap_event_location(lua_State* L) {
     return 1 ;
 }
 
+/// hs.eventtap.event:timestamp([absolutetime]) -> event | integer
+/// Method
+/// Get or set the timestamp of the event.
+///
+/// Parameters:
+///  * absolutetime - an optional integer specifying the timestamp for the event.
+///
+/// Returns:
+///  * if absolutetime is provided, returns the `hs.eventtap.event` object; otherwise returns the current timestamp for the event.
+///
+/// Notes:
+///  * Synthesized events have a timestamp of 0 by default.
+///  * The timestamp, if specified, is expressed as an integer representing the number of nanoseconds since the system was last booted.  See `hs.timer.absoluteTime`.
+///  * This field appears to be informational only and is not required when crafting your own events with this module.
+static int eventtap_event_timestamp(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, EVENT_USERDATA_TAG, LS_TNUMBER | LS_TINTEGER | LS_TOPTIONAL, LS_TBREAK] ;
+    CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
+    if (lua_gettop(L) == 1) {
+        lua_pushinteger(L, (lua_Integer)CGEventGetTimestamp(event)) ;
+    } else {
+        CGEventSetTimestamp(event, (CGEventTimestamp)lua_tointeger(L, 2)) ;
+        lua_pushvalue(L, 1) ;
+    }
+    return 1 ;
+}
+
 /// hs.eventtap.event:setType(type) -> event
 /// Method
 /// Set the type for this event.
@@ -1258,6 +1285,7 @@ static const luaL_Reg eventtapevent_metalib[] = {
     {"asData",          eventtap_event_asData},
     {"location",        eventtap_event_location},
     {"rawFlags",        eventtap_event_rawFlags},
+    {"timestamp",       eventtap_event_timestamp},
     {"setType",         eventtap_event_setType},
     {"copy",            eventtap_event_copy},
     {"getFlags",        eventtap_event_getFlags},
