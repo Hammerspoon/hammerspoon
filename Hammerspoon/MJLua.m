@@ -551,6 +551,8 @@ void MJLuaDestroy(void) {
 void MJLuaReplace(void) {
     MJLuaDeinit();
     MJLuaDealloc();
+    [[MJConsoleWindowController singleton] initializeConsoleColorsAndFont] ;
+
     MJLuaAlloc();
     MJLuaInit();
 }
@@ -671,10 +673,10 @@ void fileDroppedToDockIcon(NSString *filePath) {
 void callDockIconCallback(void) {
     LuaSkin *skin = MJLuaState;
     lua_State *L = MJLuaState.L;
-    
+
     lua_getglobal(L, "hs");
     lua_getfield(L, -1, "dockIconClickCallback");
-    
+
     if (lua_type(L, -1) == LUA_TFUNCTION) {
         [skin protectedCallAndTraceback:0 nresults:0];
     }

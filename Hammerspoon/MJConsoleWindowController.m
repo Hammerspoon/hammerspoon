@@ -2,10 +2,6 @@
 #import "MJLua.h"
 #import "variables.h"
 
-#define MJColorForStdout [NSColor colorWithCalibratedHue:0.88 saturation:1.0 brightness:0.6 alpha:1.0]
-#define MJColorForCommand [NSColor blackColor]
-#define MJColorForResult [NSColor colorWithCalibratedHue:0.54 saturation:1.0 brightness:0.7 alpha:1.0]
-
 @interface MJConsoleWindowController ()
 
 @property NSMutableArray* history;
@@ -30,8 +26,17 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
     if (self) {
         self.dateFormatter = [[NSDateFormatter alloc] init];
         [self.dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+
+        [self initializeConsoleColorsAndFont] ;
     }
     return self;
+}
+
+- (void)initializeConsoleColorsAndFont {
+    self.MJColorForStdout  = [NSColor colorWithCalibratedHue:0.88 saturation:1.0 brightness:0.6 alpha:1.0] ;
+    self.MJColorForCommand = [NSColor blackColor] ;
+    self.MJColorForResult  = [NSColor colorWithCalibratedHue:0.54 saturation:1.0 brightness:0.7 alpha:1.0] ;
+    self.consoleFont       = [NSFont fontWithName:@"Menlo" size:12.0] ;
 }
 
 - (NSString*) windowNibName {
@@ -91,16 +96,16 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
 - (void) appendString:(NSString*)str type:(MJReplLineType)type {
     NSColor* color = nil;
     switch (type) {
-        case MJReplLineTypeStdout:  color = MJColorForStdout; break;
-        case MJReplLineTypeCommand: color = MJColorForCommand; break;
-        case MJReplLineTypeResult:  color = MJColorForResult; break;
+        case MJReplLineTypeStdout:  color = self.MJColorForStdout; break;
+        case MJReplLineTypeCommand: color = self.MJColorForCommand; break;
+        case MJReplLineTypeResult:  color = self.MJColorForResult; break;
     }
 
     if (type == MJReplLineTypeStdout) {
         str = [NSString stringWithFormat:@"%@: %@", [self.dateFormatter stringFromDate:[NSDate date]], str];
     }
 
-    NSDictionary* attrs = @{NSFontAttributeName: [NSFont fontWithName:@"Menlo" size:12.0], NSForegroundColorAttributeName: color};
+    NSDictionary* attrs = @{NSFontAttributeName: self.consoleFont, NSForegroundColorAttributeName: color};
     NSAttributedString* attrstr = [[NSAttributedString alloc] initWithString:str attributes:attrs];
     [[self.outputView textStorage] performSelectorOnMainThread:@selector(appendAttributedString:)
                                        withObject:attrstr
