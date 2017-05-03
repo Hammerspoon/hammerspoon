@@ -1,14 +1,16 @@
 @import Cocoa ;
 @import LuaSkin ;
 
-// NOTE: This is from MJConsoleWindowController
-
-#define MJColorForStdout [NSColor colorWithCalibratedHue:0.88 saturation:1.0 brightness:0.6 alpha:1.0]
+// NOTE: This is all we need from MJConsoleWindowController.h and MJConsoleWindowController.m
 
 @interface MJConsoleWindowController : NSWindowController
 
+@property NSColor *MJColorForStdout ;
+@property NSColor *MJColorForCommand ;
+@property NSColor *MJColorForResult ;
+@property NSFont  *consoleFont ;
+
 + (instancetype)singleton;
-- (void)setup;
 
 @end
 
@@ -18,11 +20,114 @@
 @property NSInteger historyIndex;
 @property IBOutlet NSTextView *outputView;
 @property (weak) IBOutlet NSTextField *inputField;
-@property NSMutableArray *preshownStdouts;
 
 @end
 
 static int refTable = LUA_NOREF;
+
+/// hs.console.consolePrintColor([color]) -> color
+/// Function
+/// Get or set the color that regular output displayed in the Hammerspoon console is displayed with.
+///
+/// Parameters:
+/// * color - an optional table containing color keys as described in `hs.drawing.color`
+///
+/// Returns:
+/// * the current color setting as a table
+///
+/// Notes:
+///  * See the `hs.drawing.color` entry in the Dash documentation, or type `help.hs.drawing.color` in the Hammerspoon console to get more information on how to specify a color.
+///  * Note this only affects future output -- anything already in the console will remain its current color.
+static int console_consolePrintColor(lua_State *L) {
+    LuaSkin *skin      = [LuaSkin shared];
+    NSTextView *output = [MJConsoleWindowController singleton].outputView;
+
+    if (lua_type(L, 1) != LUA_TNONE) {
+        luaL_checktype(L, 1, LUA_TTABLE);
+        [MJConsoleWindowController singleton].MJColorForStdout = [skin luaObjectAtIndex:1 toClass:"NSColor"];
+    }
+
+    [skin pushNSObject:[MJConsoleWindowController singleton].MJColorForStdout];
+    return 1;
+}
+
+/// hs.console.consoleFont([font]) -> fontTable
+/// Function
+/// Get or set the font used in the Hammerspoon console.
+///
+/// Parameters:
+/// * font - an optional string or table describing the font to use in the console. If a string is specified, then the default system font size will be used.  If a table is specified, it should contain a `name` key-value pair and a `size` key-value pair describing the font to be used.
+///
+/// Returns:
+/// * the current font setting as a table containing a `name` key and a `size` key.
+///
+/// Notes:
+///  * See the `hs.drawing.color` entry in the Dash documentation, or type `help.hs.drawing.color` in the Hammerspoon console to get more information on how to specify a color.
+///  * Note this only affects future output -- anything already in the console will remain its current font.
+static int console_consoleFont(lua_State *L) {
+    LuaSkin *skin      = [LuaSkin shared];
+    NSTextView *output = [MJConsoleWindowController singleton].outputView;
+
+    if (lua_type(L, 1) != LUA_TNONE) {
+        NSFont *newFont = [skin luaObjectAtIndex:1 toClass:"NSFont"] ;
+        if (newFont) [MJConsoleWindowController singleton].consoleFont = newFont ;
+    }
+
+    [skin pushNSObject:[MJConsoleWindowController singleton].consoleFont];
+    return 1;
+}
+
+/// hs.console.consoleCommandColor([color]) -> color
+/// Function
+/// Get or set the color that commands displayed in the Hammerspoon console are displayed with.
+///
+/// Parameters:
+/// * color - an optional table containing color keys as described in `hs.drawing.color`
+///
+/// Returns:
+/// * the current color setting as a table
+///
+/// Notes:
+///  * See the `hs.drawing.color` entry in the Dash documentation, or type `help.hs.drawing.color` in the Hammerspoon console to get more information on how to specify a color.
+///  * Note this only affects future output -- anything already in the console will remain its current color.
+static int console_consoleCommandColor(lua_State *L) {
+    LuaSkin *skin      = [LuaSkin shared];
+    NSTextView *output = [MJConsoleWindowController singleton].outputView;
+
+    if (lua_type(L, 1) != LUA_TNONE) {
+        luaL_checktype(L, 1, LUA_TTABLE);
+        [MJConsoleWindowController singleton].MJColorForCommand = [skin luaObjectAtIndex:1 toClass:"NSColor"];
+    }
+
+    [skin pushNSObject:[MJConsoleWindowController singleton].MJColorForCommand];
+    return 1;
+}
+
+/// hs.console.consoleResultColor([color]) -> color
+/// Function
+/// Get or set the color that function results displayed in the Hammerspoon console are displayed with.
+///
+/// Parameters:
+/// * color - an optional table containing color keys as described in `hs.drawing.color`
+///
+/// Returns:
+/// * the current color setting as a table
+///
+/// Notes:
+///  * See the `hs.drawing.color` entry in the Dash documentation, or type `help.hs.drawing.color` in the Hammerspoon console to get more information on how to specify a color.
+///  * Note this only affects future output -- anything already in the console will remain its current color.
+static int console_consoleResultColor(lua_State *L) {
+    LuaSkin *skin      = [LuaSkin shared];
+    NSTextView *output = [MJConsoleWindowController singleton].outputView;
+
+    if (lua_type(L, 1) != LUA_TNONE) {
+        luaL_checktype(L, 1, LUA_TTABLE);
+        [MJConsoleWindowController singleton].MJColorForResult = [skin luaObjectAtIndex:1 toClass:"NSColor"];
+    }
+
+    [skin pushNSObject:[MJConsoleWindowController singleton].MJColorForResult];
+    return 1;
+}
 
 /// hs.console.hswindow() -> hs.window object
 /// Function
@@ -187,8 +292,8 @@ static int console_setConsole(lua_State *L) {
         if (lua_type(L, 1) == LUA_TUSERDATA && luaL_testudata(L, 1, "hs.styledtext")) {
             theStr = [skin luaObjectAtIndex:1 toClass:"NSAttributedString"];
         } else {
-            NSDictionary *consoleAttrs = @{ NSFontAttributeName: [NSFont fontWithName:@"Menlo" size:12.0],
-                                            NSForegroundColorAttributeName: MJColorForStdout };
+            NSDictionary *consoleAttrs = @{ NSFontAttributeName: [MJConsoleWindowController singleton].consoleFont,
+                                            NSForegroundColorAttributeName: [MJConsoleWindowController singleton].MJColorForStdout };
             luaL_tolstring(L, 1, NULL);
             theStr = [[NSAttributedString alloc] initWithString:[skin toNSObjectAtIndex:-1]
                                                      attributes:consoleAttrs];
@@ -274,8 +379,8 @@ static int console_setHistory(lua_State *L) {
 static int console_printStyledText(lua_State *L) {
     LuaSkin *skin                      = [LuaSkin shared];
     MJConsoleWindowController *console = [MJConsoleWindowController singleton];
-    NSDictionary *consoleAttrs         = @{ NSFontAttributeName: [NSFont fontWithName:@"Menlo" size:12.0],
-                                    NSForegroundColorAttributeName: MJColorForStdout };
+    NSDictionary *consoleAttrs         = @{ NSFontAttributeName: [MJConsoleWindowController singleton].consoleFont,
+                                    NSForegroundColorAttributeName: [MJConsoleWindowController singleton].MJColorForStdout };
 
     NSMutableAttributedString *theStr = [[NSMutableAttributedString alloc] init];
     for (int i = 1; i <= lua_gettop(L); i++) {
@@ -451,6 +556,11 @@ static const luaL_Reg extrasLib[] = {
 
     {"getConsole", console_getConsole},
     {"setConsole", console_setConsole},
+
+    {"consoleCommandColor", console_consoleCommandColor},
+    {"consoleResultColor",  console_consoleResultColor},
+    {"consolePrintColor",   console_consolePrintColor},
+    {"consoleFont",         console_consoleFont},
 
     {"titleVisibility", console_titleVisibility},
 

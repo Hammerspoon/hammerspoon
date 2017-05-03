@@ -848,7 +848,7 @@ static int application_findmenuitem(lua_State* L) {
     return 1;
 }
 
-/// hs.application:selectMenuItem(menuitem) -> true or nil
+/// hs.application:selectMenuItem(menuitem[, isRegex]) -> true or nil
 /// Method
 /// Selects a menu item (i.e. simulates clicking on the menu item)
 ///
