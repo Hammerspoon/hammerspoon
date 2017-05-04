@@ -1312,12 +1312,13 @@ static int croppedImage(__unused lua_State* L) {
     return 1 ;
 }
 
-/// hs.image:encodeAsURLString([type]) -> string
+/// hs.image:encodeAsURLString([scale], [type]) -> string
 /// Method
 /// Returns a bitmap representation of the image as a base64 encoded URL string
 ///
 /// Parameters:
-///  * type - optional case-insensitive string paramater specifying the bitmap image type for the encoded string (default PNG)
+///  * scale - an optional boolean, default false, which indicates that the image size (which macOS represents as points) should be scaled to pixels.  For images that have Retina scale representations, this may result in an encoded image which is scaled down from the original source.
+///  * type  - optional case-insensitive string paramater specifying the bitmap image type for the encoded string (default PNG)
 ///    * PNG  - save in Portable Network Graphics (PNG) format
 ///    * TIFF - save in Tagged Image File Format (TIFF) format
 ///    * BMP  - save in Windows bitmap image (BMP) format
@@ -1331,37 +1332,67 @@ static int croppedImage(__unused lua_State* L) {
 ///  * You can convert the string back into an image object with [hs.image.imageFromURL](#URL), e.g. `hs.image.imageFromURL(string)`
 static int encodeAsString(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK | LS_TVARARG] ;
     NSImage*  theImage = [skin luaObjectAtIndex:1 toClass:"NSImage"] ;
-    NSBitmapImageFileType fileType = NSPNGFileType ;
-    NSString* typeLabel = @"png" ;
 
-    if (lua_isstring(L, 2)) {
-        typeLabel = [skin toNSObjectAtIndex:2] ;
-        if      ([typeLabel compare:@"PNG"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSPNGFileType  ; }
-        else if ([typeLabel compare:@"TIFF" options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSTIFFFileType ; }
-        else if ([typeLabel compare:@"BMP"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSBMPFileType  ; }
-        else if ([typeLabel compare:@"GIF"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSGIFFileType  ; }
-        else if ([typeLabel compare:@"JPEG" options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSJPEGFileType ; }
-        else if ([typeLabel compare:@"JPG"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSJPEGFileType ; }
-        else {
-            return luaL_error(L, "invalid image type specified") ;
+    BOOL     scaleToPixels = lua_isboolean(L, 2) ? (BOOL)lua_toboolean(L, 2) : NO ;
+    NSString *typeLabel    = @"png" ;
+    if (lua_gettop(L) == 2) {
+        [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TSTRING, LS_TBREAK] ;
+        if (lua_type(L, 2) == LUA_TSTRING) {
+            typeLabel = [skin toNSObjectAtIndex:2] ;
         }
+    } else {
+        [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN, LS_TSTRING, LS_TBREAK] ;
+        typeLabel = [skin toNSObjectAtIndex:3] ;
+    }
+
+    NSBitmapImageFileType fileType = NSPNGFileType ;
+
+    if      ([typeLabel compare:@"PNG"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSPNGFileType  ; }
+    else if ([typeLabel compare:@"TIFF" options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSTIFFFileType ; }
+    else if ([typeLabel compare:@"BMP"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSBMPFileType  ; }
+    else if ([typeLabel compare:@"GIF"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSGIFFileType  ; }
+    else if ([typeLabel compare:@"JPEG" options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSJPEGFileType ; }
+    else if ([typeLabel compare:@"JPG"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSJPEGFileType ; }
+    else {
+        return luaL_error(L, "invalid image type specified") ;
     }
 
     // size changes may not actually affect representations until the image is composited, so...
-    // http://stackoverflow.com/a/36451307
+    // http://stackoverflow.com/a/36451307,
     NSRect targetRect = NSMakeRect(0.0, 0.0, theImage.size.width, theImage.size.height);
     NSImage *newImage = [[NSImage alloc] initWithSize:targetRect.size];
     [newImage lockFocus];
     [theImage drawInRect:targetRect fromRect:targetRect operation:NSCompositeCopy fraction:1.0];
     [newImage unlockFocus];
 
-    NSData *tiffRep = [newImage TIFFRepresentation];
-    if (!tiffRep)  return luaL_error(L, "Unable to write image file: Can't create internal representation");
+    NSBitmapImageRep *rep ;
+    if (scaleToPixels) {
+        // https://gist.github.com/mattstevens/4400775
+        rep = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:NULL
+                                                      pixelsWide:targetRect.size.width
+                                                      pixelsHigh:targetRect.size.height
+                                                   bitsPerSample:8
+                                                 samplesPerPixel:4
+                                                        hasAlpha:YES
+                                                        isPlanar:NO
+                                                  colorSpaceName:NSCalibratedRGBColorSpace
+                                                     bytesPerRow:0
+                                                    bitsPerPixel:0];
+        [rep setSize:targetRect.size];
 
-    NSBitmapImageRep *rep = [NSBitmapImageRep imageRepWithData:tiffRep];
-    if (!rep)  return luaL_error(L, "Unable to write image file: Can't wrap internal representation");
+        [NSGraphicsContext saveGraphicsState];
+        [NSGraphicsContext setCurrentContext:[NSGraphicsContext graphicsContextWithBitmapImageRep:rep]];
+        [newImage drawInRect:targetRect fromRect:NSZeroRect operation:NSCompositeCopy fraction:1.0];
+        [NSGraphicsContext restoreGraphicsState];
+    } else {
+        NSData *tiffRep = [newImage TIFFRepresentation];
+        if (!tiffRep)  return luaL_error(L, "Unable to write image file: Can't create internal representation");
+
+        rep = [NSBitmapImageRep imageRepWithData:tiffRep];
+        if (!rep)  return luaL_error(L, "Unable to write image file: Can't wrap internal representation");
+    }
 
     NSData* fileData = [rep representationUsingType:fileType properties:@{}];
     if (!fileData) return luaL_error(L, "Unable to write image file: Can't convert internal representation");
@@ -1371,12 +1402,13 @@ static int encodeAsString(lua_State* L) {
     return 1 ;
 }
 
-/// hs.image:saveToFile(filename[, filetype]) -> boolean
+/// hs.image:saveToFile(filename, [scale], [filetype]) -> boolean
 /// Method
 /// Save the hs.image object as an image of type `filetype` to the specified filename.
 ///
 /// Parameters:
 ///  * filename - the path and name of the file to save.
+///  * scale    - an optional boolean, default false, which indicates that the image size (which macOS represents as points) should be scaled to pixels.  For images that have Retina scale representations, this may result in a saved image which is scaled down from the original source.
 ///  * filetype - optional case-insensitive string paramater specifying the file type to save (default PNG)
 ///    * PNG  - save in Portable Network Graphics (PNG) format
 ///    * TIFF - save in Tagged Image File Format (TIFF) format
@@ -1388,25 +1420,36 @@ static int encodeAsString(lua_State* L) {
 ///  * Status - a boolean value indicating success (true) or failure (false)
 ///
 /// Notes:
-///  * Saves image at its original size.
+///  * Saves image at the size in points (or pixels, if `scale` is true) as reported by [hs.image:size()](#size) for the image object
 static int saveToFile(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TBREAK | LS_TVARARG] ;
+
     NSImage*  theImage = [skin luaObjectAtIndex:1 toClass:"NSImage"] ;
     NSString* filePath = [skin toNSObjectAtIndex:2] ;
+
+    BOOL     scaleToPixels = lua_isboolean(L, 3) ? (BOOL)lua_toboolean(L, 3) : NO ;
+    NSString *typeLabel    = @"png" ;
+    if (lua_gettop(L) == 3) {
+        [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TBOOLEAN | LS_TSTRING, LS_TBREAK] ;
+        if (lua_type(L, 3) == LUA_TSTRING) {
+            typeLabel = [skin toNSObjectAtIndex:3] ;
+        }
+    } else {
+        [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TBOOLEAN, LS_TSTRING, LS_TBREAK] ;
+        typeLabel = [skin toNSObjectAtIndex:4] ;
+    }
+
     NSBitmapImageFileType fileType = NSPNGFileType ;
 
-    if (lua_isstring(L, 3)) {
-        NSString* typeLabel = [skin toNSObjectAtIndex:3] ;
-        if      ([typeLabel compare:@"PNG"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSPNGFileType  ; }
-        else if ([typeLabel compare:@"TIFF" options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSTIFFFileType ; }
-        else if ([typeLabel compare:@"BMP"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSBMPFileType  ; }
-        else if ([typeLabel compare:@"GIF"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSGIFFileType  ; }
-        else if ([typeLabel compare:@"JPEG" options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSJPEGFileType ; }
-        else if ([typeLabel compare:@"JPG"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSJPEGFileType ; }
-        else {
-            return luaL_error(L, "hs.image:saveToFile:: invalid file type specified") ;
-        }
+    if      ([typeLabel compare:@"PNG"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSPNGFileType  ; }
+    else if ([typeLabel compare:@"TIFF" options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSTIFFFileType ; }
+    else if ([typeLabel compare:@"BMP"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSBMPFileType  ; }
+    else if ([typeLabel compare:@"GIF"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSGIFFileType  ; }
+    else if ([typeLabel compare:@"JPEG" options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSJPEGFileType ; }
+    else if ([typeLabel compare:@"JPG"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSJPEGFileType ; }
+    else {
+        return luaL_error(L, "hs.image:saveToFile:: invalid file type specified") ;
     }
 
     BOOL result = false;
@@ -1419,11 +1462,32 @@ static int saveToFile(lua_State* L) {
     [theImage drawInRect:targetRect fromRect:targetRect operation:NSCompositeCopy fraction:1.0];
     [newImage unlockFocus];
 
-    NSData *tiffRep = [newImage TIFFRepresentation];
-    if (!tiffRep)  return luaL_error(L, "Unable to write image file: Can't create internal representation");
+    NSBitmapImageRep *rep ;
+    if (scaleToPixels) {
+        // https://gist.github.com/mattstevens/4400775
+        rep = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:NULL
+                                                      pixelsWide:targetRect.size.width
+                                                      pixelsHigh:targetRect.size.height
+                                                   bitsPerSample:8
+                                                 samplesPerPixel:4
+                                                        hasAlpha:YES
+                                                        isPlanar:NO
+                                                  colorSpaceName:NSCalibratedRGBColorSpace
+                                                     bytesPerRow:0
+                                                    bitsPerPixel:0];
+        [rep setSize:targetRect.size];
 
-    NSBitmapImageRep *rep = [NSBitmapImageRep imageRepWithData:tiffRep];
-    if (!rep)  return luaL_error(L, "Unable to write image file: Can't wrap internal representation");
+        [NSGraphicsContext saveGraphicsState];
+        [NSGraphicsContext setCurrentContext:[NSGraphicsContext graphicsContextWithBitmapImageRep:rep]];
+        [newImage drawInRect:targetRect fromRect:NSZeroRect operation:NSCompositeCopy fraction:1.0];
+        [NSGraphicsContext restoreGraphicsState];
+    } else {
+        NSData *tiffRep = [newImage TIFFRepresentation];
+        if (!tiffRep)  return luaL_error(L, "Unable to write image file: Can't create internal representation");
+
+        rep = [NSBitmapImageRep imageRepWithData:tiffRep];
+        if (!rep)  return luaL_error(L, "Unable to write image file: Can't wrap internal representation");
+    }
 
     NSData* fileData = [rep representationUsingType:fileType properties:@{}];
     if (!fileData) return luaL_error(L, "Unable to write image file: Can't convert internal representation");
