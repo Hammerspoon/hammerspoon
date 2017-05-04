@@ -1284,14 +1284,22 @@ static int getImageSize(lua_State* L) {
 static int croppedImage(__unused lua_State* L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBREAK] ;
-    NSImage *image = [skin luaObjectAtIndex:1 toClass:"NSImage"] ;
+    NSImage *theImage = [skin luaObjectAtIndex:1 toClass:"NSImage"] ;
     NSRect  frame  = [skin tableToRectAtIndex:2] ;
+
+    // size changes may not actually affect representations until the image is composited, so...
+    // http://stackoverflow.com/a/36451307
+    NSRect targetRect = NSMakeRect(0.0, 0.0, theImage.size.width, theImage.size.height);
+    NSImage *newImage = [[NSImage alloc] initWithSize:targetRect.size];
+    [newImage lockFocus];
+    [theImage drawInRect:targetRect fromRect:targetRect operation:NSCompositeCopy fraction:1.0];
+    [newImage unlockFocus];
 
 // http://stackoverflow.com/questions/35643020/nsimage-drawinrect-and-nsview-cachedisplayinrect-memory-retained
     const void *keys[]   = { kCGImageSourceShouldCache } ;
     const void *values[] = { kCFBooleanFalse } ;
     CFDictionaryRef options = CFDictionaryCreate(NULL, keys, values, 1, NULL, NULL);
-    CGImageSourceRef source = CGImageSourceCreateWithData((__bridge CFDataRef)[image TIFFRepresentation], options);
+    CGImageSourceRef source = CGImageSourceCreateWithData((__bridge CFDataRef)[newImage TIFFRepresentation], options);
     CGImageRef maskRef = CGImageSourceCreateImageAtIndex(source, 0, NULL);
     CGImageRef imageRef = CGImageCreateWithImageInRect(maskRef, frame);
     NSImage *cropped = [[NSImage alloc] initWithCGImage:imageRef size:frame.size];
@@ -1341,7 +1349,15 @@ static int encodeAsString(lua_State* L) {
         }
     }
 
-    NSData *tiffRep = [theImage TIFFRepresentation];
+    // size changes may not actually affect representations until the image is composited, so...
+    // http://stackoverflow.com/a/36451307
+    NSRect targetRect = NSMakeRect(0.0, 0.0, theImage.size.width, theImage.size.height);
+    NSImage *newImage = [[NSImage alloc] initWithSize:targetRect.size];
+    [newImage lockFocus];
+    [theImage drawInRect:targetRect fromRect:targetRect operation:NSCompositeCopy fraction:1.0];
+    [newImage unlockFocus];
+
+    NSData *tiffRep = [newImage TIFFRepresentation];
     if (!tiffRep)  return luaL_error(L, "Unable to write image file: Can't create internal representation");
 
     NSBitmapImageRep *rep = [NSBitmapImageRep imageRepWithData:tiffRep];
@@ -1395,7 +1411,15 @@ static int saveToFile(lua_State* L) {
 
     BOOL result = false;
 
-    NSData *tiffRep = [theImage TIFFRepresentation];
+    // size changes may not actually affect representations until the image is composited, so...
+    // http://stackoverflow.com/a/36451307
+    NSRect targetRect = NSMakeRect(0.0, 0.0, theImage.size.width, theImage.size.height);
+    NSImage *newImage = [[NSImage alloc] initWithSize:targetRect.size];
+    [newImage lockFocus];
+    [theImage drawInRect:targetRect fromRect:targetRect operation:NSCompositeCopy fraction:1.0];
+    [newImage unlockFocus];
+
+    NSData *tiffRep = [newImage TIFFRepresentation];
     if (!tiffRep)  return luaL_error(L, "Unable to write image file: Can't create internal representation");
 
     NSBitmapImageRep *rep = [NSBitmapImageRep imageRepWithData:tiffRep];
