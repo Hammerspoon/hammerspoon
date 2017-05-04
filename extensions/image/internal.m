@@ -1342,10 +1342,10 @@ static int encodeAsString(lua_State* L) {
         if (lua_type(L, 2) == LUA_TSTRING) {
             typeLabel = [skin toNSObjectAtIndex:2] ;
         }
-    } else {
+    } else if (lua_gettop(L) > 2) {
         [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN, LS_TSTRING, LS_TBREAK] ;
         typeLabel = [skin toNSObjectAtIndex:3] ;
-    }
+    } // else it's 1 and we no longer need to check
 
     NSBitmapImageFileType fileType = NSPNGFileType ;
 
@@ -1435,10 +1435,10 @@ static int saveToFile(lua_State* L) {
         if (lua_type(L, 3) == LUA_TSTRING) {
             typeLabel = [skin toNSObjectAtIndex:3] ;
         }
-    } else {
+    } else if (lua_gettop(L) > 3) {
         [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TBOOLEAN, LS_TSTRING, LS_TBREAK] ;
         typeLabel = [skin toNSObjectAtIndex:4] ;
-    }
+    } // else it's 2 and we no longer need to check
 
     NSBitmapImageFileType fileType = NSPNGFileType ;
 
