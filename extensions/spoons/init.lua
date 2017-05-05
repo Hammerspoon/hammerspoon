@@ -6,6 +6,8 @@ local module={}
 
 module._keys = {}
 
+local log = hs.logger.new("spoons")
+
 -- Interpolate table values into a string
 -- From http://lua-users.org/wiki/StringInterpolation
 local function interp(s, tab)
@@ -42,8 +44,13 @@ end
 --- Returns:
 ---  * The full directory path where the template was created, or `nil` if there was an error.
 function module.newSpoon(name, basedir, metadata, template)
+   -- Default value for basedir
    if basedir == nil or basedir == "" then
-      basedir = hs.configdir .. "/Spoons"
+      basedir = hs.configdir .. "/Spoons/"
+   end
+   -- Ensure basedir ends with a slash
+   if not string.find(basedir, "/$") then
+      basedir = basedir .. "/"
    end
    local meta={
       version = "0.1",
@@ -58,8 +65,8 @@ function module.newSpoon(name, basedir, metadata, template)
    end
    meta["name"]=name
 
-   local dirname = basedir .. "/" .. name .. ".spoon"
-   if hs.fs.mkdir(dirname) and hs.fs.chdir(dirname) then
+   local dirname = basedir .. name .. ".spoon"
+   if hs.fs.mkdir(dirname) then
       local f=assert(io.open(dirname .. "/init.lua", "w"))
       local template_file = template or module.resource_path("templates/init.tpl")
       local text=slurp(template_file)
@@ -118,7 +125,7 @@ function module.bindHotkeysToSpec(def,map)
          end
          module._keys[keypath]=hs.hotkey.bindSpec(key, def[name])
       else
-         module.logger.ef("Error: Hotkey requested for undefined action '%s'", name)
+         log.ef("Error: Hotkey requested for undefined action '%s'", name)
       end
    end
 end
