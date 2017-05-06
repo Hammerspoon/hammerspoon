@@ -63,7 +63,7 @@
 <div class="searchbar" id="searcher">
     <span class="searchcontrols">
         <a href="javascript:searchForText(1)">⌘⇧-G prev</a>
-        &nbsp;<input type="text" id="query" placeholder="enter search term"/>&nbsp;
+        &nbsp;<input type="text" id="query" placeholder="enter search term" onfocusin="editingSearcher = true;" onfocusout="editingSearcher = false;"/>&nbsp;
         <a href="javascript:searchForText(0)">⌘-G next</a>
     </span>
 </div>
@@ -96,10 +96,11 @@
   <section>
     <h5>Keyboard Shortcuts</h5>
     <table>
-      <tr><th>⌘-F</th><td>Toggle the "Find in page" search box.  Close by typing ⌘-F or typing the Escape key.</td></tr>
-      <tr><th>⌘⇧-G</th><td>When the "Find in page" search box is visible, will search for the previous occurrence of the search term in the current page. You may also use ⇧-Enter.</td></tr>
-      <tr><th>⌘-G</th><td>When the "Find in page" search box is visible, will search for the next occurrence of the search term in the current page. You may also use Enter.</td></tr>
-      <tr><th>⌘-L</th><td>Focus the search field at the top of the page so you can type in a module to jump to</td></tr>
+      <tr><th>⌘F</th><td>Toggle the "Find in page" search box.  Close by typing ⌘-F or typing the Escape key.</td></tr>
+      <tr><th>⌘⇧G</th><td>When the "Find in page" search box is visible, will search for the previous occurrence of the search term in the current page. You may also use ⇧-Enter.</td></tr>
+      <tr><th>⌘G</th><td>When the "Find in page" search box is visible, will search for the next occurrence of the search term in the current page. You may also use Enter.</td></tr>
+      <tr><th>⌘L</th><td>Focus the search field at the top of the page so you can type in a module to jump to</td></tr>
+      <tr><th>⌘R</th><td>Reload the current page.</tr>
       <tr><td colspan="2">When neither the "Find in page" search box or this help are visible, the Escape key will close this documentation viewer.</td></tr>
     </table>
   </section>
@@ -112,62 +113,64 @@
       }
       if (state) {
         document.getElementById("helpStuff").style.display = "block";
-        sendToHammerspoon("disableCloseOnEscape");
       } else {
         document.getElementById("helpStuff").style.display = "none";
-        sendToHammerspoon("enableCloseOnEscape");
       }
   }
 
   function searchForText(direction) {
-      return window.find(document.getElementById('query').value, 0, direction, 1) ;
+      var ele = document.getElementById('query') ;
+      var result = window.find(ele.value, 0, direction, 1) ;
+      editingSearcher = (ele.selectionEnd != 0) ;
+      return result ;
   }
 
-  function sendToHammerspoon(msg) {
-      try {
-          webkit.messageHandlers.hsdocs.postMessage(msg);
-      } catch(err) {
-          console.log('The controller does not exist yet');
+  function toggleFind(state) {
+      if (state == null) {
+          state = !(document.getElementById("searcher").style.display == "block");
+      }
+      if (state) {
+        document.getElementById("searcher").style.display = "block";
+        var ele = document.getElementById('query') ;
+        ele.focus();
+        ele.selectionStart = 0;
+        ele.selectionEnd = ele.value.length;
+        editingSearcher = true ;
+      } else {
+        if (editingSearcher) {
+          document.getElementById("searcher").style.display = "none";
+        } else {
+          var ele = document.getElementById('query') ;
+          ele.focus();
+          ele.selectionStart = 0;
+          ele.selectionEnd = ele.value.length;
+          editingSearcher = true ;
+        }
       }
   }
 
+// not used anymore, but just in case, I'm leaving the skeleton here...
+//   function sendToHammerspoon(msg) {
+//       try {
+//           webkit.messageHandlers.hsdocs.postMessage(msg);
+//       } catch(err) {
+//           console.log('The controller does not exist yet');
+//       }
+//   }
+
+// most keys are handled by Hammerspoon with hs.hotkey.modal; allowing enter to find next/prev there would
+// prevent its use elsewhere (i.e. search field in toolbar, forms if we ever add them, etc.
+
   function KeyPressHappened(e) {
 //     console.log(e) ;
-    code = e.keyCode ;
-    if ((code == 102) && e.metaKey && !e.shiftKey) { // Cmd-F
-        if (document.getElementById("searcher").style.display == "block") {
-            document.getElementById("searcher").style.display = "none" ;
-            sendToHammerspoon("enableCloseOnEscape");
-        } else {
-            document.getElementById("searcher").style.display = "block" ;
-            sendToHammerspoon("disableCloseOnEscape");
-            document.getElementById('query').focus()
-        }
-    } else if (code == 108 && e.metaKey && !e.shiftKey) { // Cmd-L
-        sendToHammerspoon("focusInSearchField");
-    } else if (code == 114 && e.metaKey && !e.shiftKey) { // Cmd-R; also causes console to appear... must ponder
-        window.location.reload(true);
-    } else if (document.getElementById("helpStuff").style.display == "block") {
-        if (code == 27) { // Esc
-            toggleHelp();
-        } else {
-            return true;
-        }
-    } else if (document.getElementById("searcher").style.display == "block") {
-        if (code == 27) { // Esc
-            document.getElementById("searcher").style.display = "none" ;
-            sendToHammerspoon("enableCloseOnEscape");
-        } else if ((code == 13 || (code == 103 && e.metaKey)) && e.shiftKey) { // Shift-enter or Cmd-Shift-G
-          searchForText(1) ;
-        } else if ((code == 13 || (code == 103 && e.metaKey)) && !e.shiftKey) { // enter or Cmd-G
-           searchForText(0) ;
-        } else {
-          return true ;
-        }
-    } else {
-        return true ;
+    if (document.getElementById("searcher").style.display == "block") {
+      if (e.keyCode == 13 && !e.altKey && !e.ctrlKey) { // allow [shift] enter to find prev/next
+        searchForText(e.shiftKey ? 1 : 0) ;
+        return false ;
+      }
+      return true ;
     }
-    return false ;
+    return true ;
   }
 
   // see common.lp for "good enough" version of addEvent
