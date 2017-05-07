@@ -299,13 +299,21 @@ static int readStringObjects(lua_State *L) {
     [skin checkArgs:LS_TNUMBER | LS_TSTRING | LS_TNIL | LS_TBOOLEAN | LS_TOPTIONAL,
                     LS_TBOOLEAN | LS_TOPTIONAL,
                     LS_TBREAK] ;
-    if ((lua_type(L, 1) == LUA_TBOOLEAN) && (lua_gettop(L) != 1))
-        return luaL_argerror(L, 1, "string or nil expected") ;
 
-    NSPasteboard* pb = (lua_type(L, 1) == LUA_TBOOLEAN) ?
-                          [NSPasteboard generalPasteboard] : lua_to_pasteboard(L, 1);
-    BOOL getAll = (lua_type(L, lua_gettop(L)) == LUA_TBOOLEAN) ?
-                          (BOOL)lua_toboolean(L, lua_gettop(L)) : NO ;
+    NSPasteboard* pb ;
+    BOOL getAll = NO ;
+
+    if (lua_gettop(L) >= 1 && lua_isboolean(L, -1)) {
+        getAll = (BOOL)lua_toboolean(L, -1) ;
+        lua_pop(L, 1) ;
+    }
+    if (lua_gettop(L) >= 1) {
+        if (lua_isboolean(L, 1))
+            return luaL_argerror(L, 1, "string or nil expected") ;
+        pb = lua_to_pasteboard(L, 1) ;
+    } else {
+        pb = [NSPasteboard generalPasteboard] ;
+    }
 
     NSArray *results = [pb readObjectsForClasses:@[[NSString class]] options:@{}] ;
     if (results && ([results count] != 0)) {
