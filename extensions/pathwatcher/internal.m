@@ -14,7 +14,7 @@ typedef struct _watcher_path_t {
     bool started;
 } watcher_path_t;
 
-void event_callback(ConstFSEventStreamRef __unused streamRef, void *clientCallBackInfo, size_t numEvents, void *eventPaths, const FSEventStreamEventFlags __unused eventFlags[], const FSEventStreamEventId __unused eventIds[]) {
+void event_callback(ConstFSEventStreamRef __unused streamRef, void *clientCallBackInfo, size_t numEvents, void *eventPaths, const FSEventStreamEventFlags eventFlags[], const FSEventStreamEventId __unused eventIds[]) {
     LuaSkin *skin = [LuaSkin shared];
 
     watcher_path_t* pw = clientCallBackInfo;
@@ -30,11 +30,87 @@ void event_callback(ConstFSEventStreamRef __unused streamRef, void *clientCallBa
         lua_pushstring(L, changedFiles[i]);
         lua_rawseti(L, -2, i + 1);
     }
+    lua_newtable(L);
+    for(size_t i = 0 ; i < numEvents; i++) {
+        lua_pushinteger(L, eventFlags[i]);
+        lua_rawseti(L, -2, i + 1);
+    }
 
-    if (![skin protectedCallAndTraceback:1 nresults:0]) {
+    if (![skin protectedCallAndTraceback:2 nresults:0]) {
         const char *errorMsg = lua_tostring(L, -1);
         [skin logError:[NSString stringWithFormat:@"hs.pathwatcher callback error: %s", errorMsg]];
         lua_pop(L, 1) ; // remove error message
+    }
+}
+
+/// hs.pathwatcher.eventFlags -> table
+/// Constant
+/// A table containing event flags for use in a callback function.
+///
+/// The constants defined in this table are as follows:
+///
+///   * none
+///   * mustScanSubDirs
+///   * userDropped
+///   * kernelDropped
+///   * eventIdsWrapped
+///   * historyDone
+///   * rootChanged
+///   * mount
+///   * unmount
+///   * itemCreated
+///   * itemRemoved
+///   * itemInodeMetaMod
+///   * itemRenamed
+///   * itemModified
+///   * itemFinderInfoMod
+///   * itemChangeOwner
+///   * itemXattrMod
+///   * itemIsFile
+///   * itemIsDir
+///   * itemIsSymlink
+///   * ownEvent (OS X 10.9+)
+///   * itemIsHardlink (OS X 10.10+)
+///   * itemIsLastHardlink (OS X 10.10+)
+
+static void pusheventflags(lua_State* L) {
+    const double OSV = NSAppKitVersionNumber;
+
+#ifndef NSAppKitVersionNumber10_9
+#define NSAppKitVersionNumber10_9 1265
+#endif
+
+#ifndef NSAppKitVersionNumber10_10
+#define NSAppKitVersionNumber10_10 1343
+#endif
+
+    lua_newtable(L);
+    lua_pushinteger(L, kFSEventStreamEventFlagNone);                lua_setfield(L, -2, "none");
+    lua_pushinteger(L, kFSEventStreamEventFlagMustScanSubDirs);     lua_setfield(L, -2, "mustScanSubDirs");
+    lua_pushinteger(L, kFSEventStreamEventFlagUserDropped);         lua_setfield(L, -2, "userDropped");
+    lua_pushinteger(L, kFSEventStreamEventFlagKernelDropped);       lua_setfield(L, -2, "kernelDropped");
+    lua_pushinteger(L, kFSEventStreamEventFlagEventIdsWrapped);     lua_setfield(L, -2, "eventIdsWrapped");
+    lua_pushinteger(L, kFSEventStreamEventFlagHistoryDone);         lua_setfield(L, -2, "historyDone");
+    lua_pushinteger(L, kFSEventStreamEventFlagRootChanged);         lua_setfield(L, -2, "rootChanged");
+    lua_pushinteger(L, kFSEventStreamEventFlagMount);               lua_setfield(L, -2, "mount");
+    lua_pushinteger(L, kFSEventStreamEventFlagUnmount);             lua_setfield(L, -2, "unmount");
+    lua_pushinteger(L, kFSEventStreamEventFlagItemCreated);         lua_setfield(L, -2, "itemCreated");
+    lua_pushinteger(L, kFSEventStreamEventFlagItemRemoved);         lua_setfield(L, -2, "itemRemoved");
+    lua_pushinteger(L, kFSEventStreamEventFlagItemInodeMetaMod);    lua_setfield(L, -2, "itemInodeMetaMod");
+    lua_pushinteger(L, kFSEventStreamEventFlagItemRenamed);         lua_setfield(L, -2, "itemRenamed");
+    lua_pushinteger(L, kFSEventStreamEventFlagItemModified);        lua_setfield(L, -2, "itemModified");
+    lua_pushinteger(L, kFSEventStreamEventFlagItemFinderInfoMod);   lua_setfield(L, -2, "itemFinderInfoMod");
+    lua_pushinteger(L, kFSEventStreamEventFlagItemChangeOwner);     lua_setfield(L, -2, "itemChangeOwner");
+    lua_pushinteger(L, kFSEventStreamEventFlagItemXattrMod);        lua_setfield(L, -2, "itemXattrMod");
+    lua_pushinteger(L, kFSEventStreamEventFlagItemIsFile);          lua_setfield(L, -2, "itemIsFile");
+    lua_pushinteger(L, kFSEventStreamEventFlagItemIsDir);           lua_setfield(L, -2, "itemIsDir");
+    lua_pushinteger(L, kFSEventStreamEventFlagItemIsSymlink);       lua_setfield(L, -2, "itemIsSymlink");
+    if (OSV >= NSAppKitVersionNumber10_9) {
+        lua_pushinteger(L, kFSEventStreamEventFlagOwnEvent);            lua_setfield(L, -2, "ownEvent");
+    }
+    if (OSV >= NSAppKitVersionNumber10_10) {
+        lua_pushinteger(L, kFSEventStreamEventFlagItemIsHardlink);      lua_setfield(L, -2, "itemIsHardlink");
+        lua_pushinteger(L, kFSEventStreamEventFlagItemIsLastHardlink);  lua_setfield(L, -2, "itemIsLastHardlink");
     }
 }
 
@@ -44,7 +120,7 @@ void event_callback(ConstFSEventStreamRef __unused streamRef, void *clientCallBa
 ///
 /// Parameters:
 ///  * path - A string containing the path to be watched
-///  * fn - A function to be called when changes are detected. It should accept a single argument, a table containing a list of files that have changed
+///  * fn - A function to be called when changes are detected. It should accept two arguments, a table containing a list of files that have changed and a table containing a list of flags denoting how each corresponding file has changed
 ///
 /// Returns:
 ///  * An `hs.pathwatcher` object
@@ -177,6 +253,9 @@ static const luaL_Reg meta_gcLib[] = {
 int luaopen_hs_pathwatcher_internal(lua_State* L __unused) {
     LuaSkin *skin = [LuaSkin shared];
     refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:pathLib metaFunctions:meta_gcLib objectFunctions:path_metalib];
+
+    pusheventflags(L);
+    lua_setfield(L, -2, "eventFlags");
 
     return 1;
 }
