@@ -72,6 +72,8 @@ void event_callback(ConstFSEventStreamRef __unused streamRef, void *clientCallBa
 ///   * ownEvent (OS X 10.9+)
 ///   * itemIsHardlink (OS X 10.10+)
 ///   * itemIsLastHardlink (OS X 10.10+)
+///
+/// See [the official documentation](https://developer.apple.com/reference/coreservices/1455361-fseventstreameventflags/) for details.
 
 static void pusheventflags(lua_State* L) {
     const double OSV = NSAppKitVersionNumber;
@@ -120,7 +122,7 @@ static void pusheventflags(lua_State* L) {
 ///
 /// Parameters:
 ///  * path - A string containing the path to be watched
-///  * fn - A function to be called when changes are detected. It should accept two arguments, a table containing a list of files that have changed and a table containing a list of flags denoting how each corresponding file has changed
+///  * fn - A function to be called when changes are detected. It should accept two arguments, a table containing a list of files that have changed and a table containing a list of flags denoting how each corresponding file has changed (see [hs.pathwatcher.eventFlags](#eventFlags) for the list of flag bits)
 ///
 /// Returns:
 ///  * An `hs.pathwatcher` object
