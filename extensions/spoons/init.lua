@@ -182,4 +182,59 @@ function module.printList(only_loaded)
    end
 end
 
+function execute_or_error(cmd, errfmt, ...)
+   log.df("Executing command: %s", cmd)
+   local output, status = hs.execute(cmd, true)
+   if status then
+      local trimstr = string.gsub(output, "\n*$", "")
+      log.df("Success, returning output '%s'", trimstr)
+      return trimstr
+   else
+      log.df("Command failed, output: %s", output)
+      log.ef(errfmt, ...)
+      return nil
+   end
+end
+
+--- hs.spoons.installSpoonFromZipURL(url)
+--- Method
+--- Download a Spoon zip file and install it.
+---
+--- Parameters:
+---  * url - URL of the zip file to install.
+---
+--- Returns:
+---  * `true` if the installation was successful, `nil` otherwise.
+function module.installSpoonFromZipURL(url)
+   local urlparts = hs.http.urlParts(url)
+   local dlfile = urlparts.lastPathComponent
+   if dlfile and dlfile ~= "" and urlparts.pathExtension == "zip" then
+      local tmpdir=execute_or_error("/usr/bin/mktemp -d", "Error creating temporary directory to download new spoon.")
+      if not tmpdir then return nil end 
+      local outfile = string.format("%s/%s", tmpdir, dlfile) 
+      if execute_or_error(string.format("/usr/bin/curl -L -s -o %s '%s' 2>&1", outfile, url), "Error downloading URL %s", url) then
+         output = execute_or_error(string.format("/usr/bin/unzip -l %s '*.spoon/' | /usr/bin/awk '$NF ~ /\\.spoon\\/$/ { print $NF }' | /usr/bin/wc -l", outfile),
+                                   "Error examining downloaded zip file %s, leaving it in place for your examination.", outfile)
+         if output then
+            local n = tonumber(output) or 0
+            if n == 1 then
+               if execute_or_error(string.format("/usr/bin/unzip %s -d %s 2>&1", outfile, tmpdir),
+                                   "Error uncompressing file %s, leaving it in place for your examination.", outfile) then
+                  if execute_or_error(string.format("/usr/bin/open %s/*.spoon", tmpdir), "Error installing the spoon file %s/*.spoon", tmpdir) then
+                     log.f("Downloaded and installed %s", url)
+                     execute_or_error(string.format("/bin/rm -rf '%s'", outdir), "Error removing directory %s", outdir)
+                     return true
+                  end
+               end
+            else
+               log.ef("The downloaded zip file %s is invalid - it should contain exactly one spoon. Leaving it in place for your examination.", outfile) 
+            end
+         end
+      end
+   else
+      log.ef("Invalid URL %s, must point to a zip file", url)
+   end
+   return nil
+end
+
 return module
