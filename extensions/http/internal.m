@@ -11,6 +11,12 @@ typedef struct _webSocketUserData {
     void *ws;
 } webSocketUserData;
 
+// Lua response body struct
+typedef struct _luaResponseBody {
+    void *data;
+    unsigned long len;
+} luaResponseBody;
+
 #define getWsUserData(L, idx) (__bridge HSWebSocketDelegate *)((webSocketUserData *)lua_touserdata(L, idx))->ws;
 static const char *WS_USERDATA_TAG = "hs.http.websocket";
 
@@ -26,6 +32,25 @@ static void createResponseHeaderTable(lua_State* L, NSHTTPURLResponse* httpRespo
         lua_pushstring(L, [value UTF8String]);
         lua_setfield(L, -2, [key UTF8String]);
     }
+}
+
+// Convert a response body to data we can send to Lua
+static luaResponseBody responseBodyToLua(NSHTTPURLResponse *httpResponse, NSData *bodyData) {
+    NSString *contentType = [httpResponse.allHeaderFields objectForKey:@"Content-Type"];
+
+    luaResponseBody luaBody;
+
+    if ([contentType hasPrefix:@"text/"]) {
+        // The response is something we can convert to a string
+        NSString *bodyString = [[NSString alloc] initWithData:bodyData encoding:NSUTF8StringEncoding];
+        luaBody.len = bodyString.length;
+        luaBody.data = (void *)bodyString.UTF8String;
+    } else {
+        // The response is not something we can convert to a string, so we'll send it as-is
+        luaBody.data = (void *)bodyData.bytes;
+        luaBody.len = bodyData.length;
+    }
+    return luaBody;
 }
 
 // Definition of the collection delegate to receive callbacks from NSUrlConnection
@@ -84,12 +109,13 @@ static void remove_delegate(__unused lua_State* L, connectionDelegate* delegate)
     LuaSkin *skin = [LuaSkin shared];
     lua_State *L = skin.L;
 
-    NSString* stringReply = (NSString *)[[NSString alloc] initWithData:self.receivedData encoding:NSUTF8StringEncoding];
+    luaResponseBody luaBody = responseBodyToLua(self.httpResponse, self.receivedData);
+
     int statusCode = (int)[self.httpResponse statusCode];
 
     [skin pushLuaRef:refTable ref:self.fn];
     lua_pushinteger(L, statusCode);
-    lua_pushstring(L, [stringReply UTF8String]);
+    lua_pushlstring(L, luaBody.data, luaBody.len);
     createResponseHeaderTable(L, self.httpResponse);
 
     if (![skin protectedCallAndTraceback:3 nresults:0]) {
@@ -221,6 +247,7 @@ static void extractHeadersFromStack(lua_State* L, int index, NSMutableURLRequest
 ///
 /// Notes:
 ///  * If authentication is required in order to download the request, the required credentials must be specified as part of the URL (e.g. "http://user:password@host.com/"). If authentication fails, or credentials are missing, the connection will attempt to continue without credentials.
+///  * If the Content-Type response header begins `text/` then the response body return value is a UTF8 string. Any other content type passes the response body, unaltered, as a stream of bytes.
 static int http_doAsyncRequest(lua_State* L){
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TSTRING|LS_TNIL, LS_TTABLE|LS_TNIL, LS_TFUNCTION, LS_TBREAK];
@@ -269,6 +296,7 @@ static int http_doAsyncRequest(lua_State* L){
 ///
 ///  * This function is synchronous and will therefore block all Lua execution until it completes. You are encouraged to use the asynchronous functions.
 ///  * If you attempt to connect to a local Hammerspoon server created with `hs.httpserver`, then Hammerspoon will block until the connection times out (60 seconds), return a failed result due to the timeout, and then the `hs.httpserver` callback function will be invoked (so any side effects of the function will occur, but it's results will be lost).  Use [hs.http.doAsyncRequest](#doAsyncRequest) to avoid this.
+///  * If the Content-Type response header begins `text/` then the response body return value is a UTF8 string. Any other content type passes the response body, unaltered, as a stream of bytes.
 static int http_doRequest(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TSTRING|LS_TNIL|LS_TOPTIONAL, LS_TTABLE|LS_TNIL|LS_TOPTIONAL, LS_TBREAK];
@@ -286,14 +314,14 @@ static int http_doRequest(lua_State* L) {
     dataReply = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
 #pragma clang diagnostic pop
 
-    NSString* stringReply = (NSString *)[[NSString alloc] initWithData:dataReply encoding:NSUTF8StringEncoding];
-
     NSHTTPURLResponse *httpResponse;
     httpResponse = (NSHTTPURLResponse *)response;
+
+    luaResponseBody luaBody = responseBodyToLua(httpResponse, dataReply);
     int statusCode = (int)[httpResponse statusCode];
 
     lua_pushinteger(L, statusCode);
-    lua_pushstring(L, [stringReply UTF8String]);
+    lua_pushlstring(L, luaBody.data, luaBody.len);
 
     createResponseHeaderTable(L, httpResponse);
 
