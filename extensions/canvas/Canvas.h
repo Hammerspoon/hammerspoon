@@ -5,10 +5,11 @@
 @property NSString            *subroleOverride ;
 @end
 
-@interface HSCanvasView : NSView
+@interface HSCanvasView : NSView <NSDraggingDestination>
 @property int                 selfRef ;
 @property HSCanvasWindow     *wrapperWindow ;
 @property int                 mouseCallbackRef ;
+@property int                 draggingCallbackRef ;
 @property BOOL                mouseTracking ;
 @property BOOL                canvasMouseDown ;
 @property BOOL                canvasMouseUp ;

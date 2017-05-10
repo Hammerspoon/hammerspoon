@@ -163,6 +163,7 @@ static int sharing_servicesForItems(lua_State *L) {
 ///  * Because macOS requires URLs to be represented as a specific object type which has no exact equivalent in Lua, Hammerspoon uses a table with specific keys to allow proper identification of a URL when included as an argument or result type.  Use this function or the [hs.sharing.fileURL](#fileURL) wrapper function when specifying a URL to ensure that the proper keys are defined.
 ///  * At present, the following keys are defined for a URL table (additional keys may be added in the future if future Hammerspoon modules require them to more completely utilize the macOS NSURL class, but these will not change):
 ///    * url           - a string containing the URL with a proper schema and resource locator
+///    * filePath      = a string specifying the actual path to the file in case the url is a file reference URL.  Note that setting this field with this method will be silently ignored; the field is automatically inserted if appropriate when returning an NSURL object to lua.
 ///    * __luaSkinType - a string specifying the macOS type this table represents when converted into an Objective-C type
 static int sharing_makeURL(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
@@ -562,6 +563,10 @@ static int pushNSURL(lua_State *L, id obj) {
     lua_newtable(L) ;
     [skin pushNSObject:[url absoluteString]] ;
     lua_setfield(L, -2, "url") ;
+    if (url.fileURL) {
+        [skin pushNSObject:[url path]] ;
+        lua_setfield(L, -2, "filePath") ;
+    }
     lua_pushstring(L, "NSURL") ; lua_setfield(L, -2, "__luaSkinType") ;
     return 1 ;
 }
