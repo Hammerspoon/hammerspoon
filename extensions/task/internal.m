@@ -188,6 +188,9 @@ void create_task(task_userdata_t *userData) {
 ///
 /// Returns:
 ///  * An `hs.task` object
+///
+/// Notes:
+///  * As NSTask accepts arguments as an array of strings, so you don't need to wrap strings in quotations in the arguments table to prevent spaces from breaking up arguments.
 static int task_new(lua_State *L) {
     // Check our arguments
     LuaSkin *skin = [LuaSkin shared];
