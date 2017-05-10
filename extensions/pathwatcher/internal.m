@@ -84,38 +84,36 @@ void event_callback(ConstFSEventStreamRef __unused streamRef, void *clientCallBa
 /// Parameters:
 ///  * path - A string containing the path to be watched
 ///  * fn - A function to be called when changes are detected. It should accept two arguments:
-///
-///    1. `paths`: a table containing a list of file paths that have changed
-///
-///    2. `flagTables`: a table containing a list of tables denoting how each corresponding file in `paths` has changed, each containing boolean values indicating which types of events occurred; The possible keys are:
-///
-///       * mustScanSubDirs
-///       * userDropped
-///       * kernelDropped
-///       * eventIdsWrapped
-///       * historyDone
-///       * rootChanged
-///       * mount
-///       * unmount
-///       * itemCreated
-///       * itemRemoved
-///       * itemInodeMetaMod
-///       * itemRenamed
-///       * itemModified
-///       * itemFinderInfoMod
-///       * itemChangeOwner
-///       * itemXattrMod
-///       * itemIsFile
-///       * itemIsDir
-///       * itemIsSymlink
-///       * ownEvent (OS X 10.9+)
-///       * itemIsHardlink (OS X 10.10+)
-///       * itemIsLastHardlink (OS X 10.10+)
-///
-///       See [the official documentation](https://developer.apple.com/reference/coreservices/1455361-fseventstreameventflags/) for details.
+///    * `paths`: a table containing a list of file paths that have changed
+///    * `flagTables`: a table containing a list of tables denoting how each corresponding file in `paths` has changed, each containing boolean values indicating which types of events occurred; The possible keys are:
+///      * mustScanSubDirs
+///      * userDropped
+///      * kernelDropped
+///      * eventIdsWrapped
+///      * historyDone
+///      * rootChanged
+///      * mount
+///      * unmount
+///      * itemCreated
+///      * itemRemoved
+///      * itemInodeMetaMod
+///      * itemRenamed
+///      * itemModified
+///      * itemFinderInfoMod
+///      * itemChangeOwner
+///      * itemXattrMod
+///      * itemIsFile
+///      * itemIsDir
+///      * itemIsSymlink
+///      * ownEvent (OS X 10.9+)
+///      * itemIsHardlink (OS X 10.10+)
+///      * itemIsLastHardlink (OS X 10.10+)
 ///
 /// Returns:
 ///  * An `hs.pathwatcher` object
+///
+/// Notes:
+///  * For more information about the event flags, see [the official documentation](https://developer.apple.com/reference/coreservices/1455361-fseventstreameventflags/)
 static int watcher_path_new(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TFUNCTION, LS_TBREAK];
