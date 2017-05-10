@@ -11,12 +11,6 @@ typedef struct _webSocketUserData {
     void *ws;
 } webSocketUserData;
 
-// Lua response body struct
-typedef struct _luaResponseBody {
-    void *data;
-    unsigned long len;
-} luaResponseBody;
-
 #define getWsUserData(L, idx) (__bridge HSWebSocketDelegate *)((webSocketUserData *)lua_touserdata(L, idx))->ws;
 static const char *WS_USERDATA_TAG = "hs.http.websocket";
 
@@ -35,22 +29,16 @@ static void createResponseHeaderTable(lua_State* L, NSHTTPURLResponse* httpRespo
 }
 
 // Convert a response body to data we can send to Lua
-static luaResponseBody responseBodyToLua(NSHTTPURLResponse *httpResponse, NSData *bodyData) {
+static id responseBodyToId(NSHTTPURLResponse *httpResponse, NSData *bodyData) {
     NSString *contentType = [httpResponse.allHeaderFields objectForKey:@"Content-Type"];
 
-    luaResponseBody luaBody;
-
+    // If the response falls in the text/* content type, convert it to a string, otherwise
+    // leave it as raw data
     if ([contentType hasPrefix:@"text/"]) {
-        // The response is something we can convert to a string
-        NSString *bodyString = [[NSString alloc] initWithData:bodyData encoding:NSUTF8StringEncoding];
-        luaBody.len = bodyString.length;
-        luaBody.data = (void *)bodyString.UTF8String;
-    } else {
-        // The response is not something we can convert to a string, so we'll send it as-is
-        luaBody.data = (void *)bodyData.bytes;
-        luaBody.len = bodyData.length;
+        return [[NSString alloc] initWithData:bodyData encoding:NSUTF8StringEncoding];
     }
-    return luaBody;
+
+    return bodyData;
 }
 
 // Definition of the collection delegate to receive callbacks from NSUrlConnection
@@ -109,13 +97,9 @@ static void remove_delegate(__unused lua_State* L, connectionDelegate* delegate)
     LuaSkin *skin = [LuaSkin shared];
     lua_State *L = skin.L;
 
-    luaResponseBody luaBody = responseBodyToLua(self.httpResponse, self.receivedData);
-
-    int statusCode = (int)[self.httpResponse statusCode];
-
     [skin pushLuaRef:refTable ref:self.fn];
-    lua_pushinteger(L, statusCode);
-    lua_pushlstring(L, luaBody.data, luaBody.len);
+    lua_pushinteger(L, (int)self.httpResponse.statusCode);
+    [skin pushNSObject:responseBodyToId(self.httpResponse, self.receivedData)];
     createResponseHeaderTable(L, self.httpResponse);
 
     if (![skin protectedCallAndTraceback:3 nresults:0]) {
@@ -317,12 +301,8 @@ static int http_doRequest(lua_State* L) {
     NSHTTPURLResponse *httpResponse;
     httpResponse = (NSHTTPURLResponse *)response;
 
-    luaResponseBody luaBody = responseBodyToLua(httpResponse, dataReply);
-    int statusCode = (int)[httpResponse statusCode];
-
-    lua_pushinteger(L, statusCode);
-    lua_pushlstring(L, luaBody.data, luaBody.len);
-
+    lua_pushinteger(L, (int)httpResponse.statusCode);
+    [skin pushNSObject:responseBodyToId(httpResponse, dataReply)];
     createResponseHeaderTable(L, httpResponse);
 
     return 3;
