@@ -66,10 +66,6 @@
       }
 
     </style>
-    <link rel="stylesheet" href="<%= cgilua.mkurlpath("docs.css") %>" type="text/css" media="screen" />
-    <style type="text/css">
-      h1 { margin:0; }
-    </style>
 
     <script type="text/javascript">
       function openTab(evt, cityName) {
@@ -136,12 +132,12 @@
         <% end %>
       </table>
     </div>
-
+  <% cgilua.lp.include("search.lp") %>
   </body>
 
   <script type="text/javascript">
-  // Get the element with id="defaultOpen" and click on it
-  document.getElementById("defaultOpen").click();
+    // Get the element with id="defaultOpen" and click on it
+    document.getElementById("defaultOpen").click();
   </script>
 
 <%= "<","!--" %> -->
