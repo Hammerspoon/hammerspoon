@@ -2,7 +2,9 @@ local module={}
 
 --- === hs.spoons ===
 ---
---- Utility and management functions for spoons
+--- Utility and management functions for Spoons
+--- Spoons are Lua plugins for Hammerspoon.
+--- See http://www.hammerspoon.org/Spoons/ for more information
 
 module._keys = {}
 
@@ -160,26 +162,6 @@ function module.list(only_loaded)
       end
    until f == nil
    return res
-end
-
---- hs.spoons.printList()
---- Method
---- Print a list of installed/loaded Spoons. Has the same interface as `list()` but prints the list instead of returning it.
----
---- Parameters:
----  * only_loaded - only return loaded Spoons (skips those that are installed but not loaded). Defaults to `false`
----
---- Returns:
----  * None
-function module.printList(only_loaded)
-   local list = module.list(only_loaded)
-   for i,s in ipairs(list) do
-      local lstr = " - installed"
-      if s.loaded then
-         lstr = " " .. s.version .. " loaded"
-      end
-      print(s.name .. lstr)
-   end
 end
 
 return module
