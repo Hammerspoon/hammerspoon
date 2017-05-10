@@ -6,6 +6,30 @@ local module={}
 --- Spoons are Lua plugins for Hammerspoon.
 --- See http://www.hammerspoon.org/Spoons/ for more information
 
+--- hs.spoons.repos
+--- Variable
+--- Table containing the list of available Spoon repositories. The key
+--- of each entry is an identifier for the repository, and its value
+--- is a table with the following entries:
+---  * desc - Human-readable description for the repository
+---  * url - Base URL for the repository. For now the repository is assumed to be hosted in GitHub, and the URL should be the main base URL of the repository. Repository metadata needs to be stored under `docs/docs.json`, and the Spoon zip files need to be stored under `Spoons/`.
+---
+--- Default value:
+--- ```
+--- {
+---    default = {
+---       url = "https://github.com/Hammerspoon/Spoons",
+---       desc = "Main Hammerspoon Spoons repo",
+---    }
+--- }
+--- ```
+module.repos = {
+   default = {
+      url = "https://github.com/Hammerspoon/Spoons",
+      desc = "Main Hammerspoon Spoons repo",
+   }
+}
+
 module._keys = {}
 
 local log = hs.logger.new("spoons")
@@ -162,6 +186,161 @@ function module.list(only_loaded)
       end
    until f == nil
    return res
+end
+
+-- Internal function to execute a command and return its output with trailing EOLs trimmed. If the command fails, an error message is logged.
+function _x(cmd, errfmt, ...)
+   log.df("Executing command: %s", cmd)
+   local output, status = hs.execute(cmd)
+   if status then
+      local trimstr = string.gsub(output, "\n*$", "")
+      log.df("Success, returning output '%s'", trimstr)
+      return trimstr
+   else
+      log.df("Command failed, output: %s", output)
+      log.ef(errfmt, ...)
+      return nil
+   end
+end
+
+--- hs.spoons.installSpoonFromZipURL(url)
+--- Method
+--- Download a Spoon zip file and install it.
+---
+--- Parameters:
+---  * url - URL of the zip file to install.
+---
+--- Returns:
+---  * `true` if the installation was correctly initiated (not necessarily completed), `false` otherwise
+function module.installSpoonFromZipURL(url)
+   local urlparts = hs.http.urlParts(url)
+   local dlfile = urlparts.lastPathComponent
+   if dlfile and dlfile ~= "" and urlparts.pathExtension == "zip" then
+      hs.http.asyncGet(url, nil, hs.fnutils.partial(_installSpoonFromZipURLgetCallback, urlparts))
+      return true
+   else
+      log.ef("Invalid URL %s, must point to a zip file", url)
+      return nil
+   end
+end
+
+-- Internal callback function to finalize the installation of a spoon after the zip file has been downloaded.
+function _installSpoonFromZipURLgetCallback(urlparts, status, body, headers)
+   if status < 0 then
+      log.ef("Error downloading %s, error: %s", urlparts.absoluteURL, body)
+      return nil
+   else
+      -- Write the zip file to disk
+      local tmpdir=_x("/usr/bin/mktemp -d", "Error creating temporary directory to download new spoon.")
+      if not tmpdir then return nil end
+      local outfile = string.format("%s/%s", tmpdir, urlparts.lastPathComponent)
+      local f=assert(io.open(outfile, "w"))
+      f:write(body)
+      f:close()
+
+      -- Check its contents - only one *.spoon directory should be in there
+      output = _x(string.format("/usr/bin/unzip -l %s '*.spoon/' | /usr/bin/awk '$NF ~ /\\.spoon\\/$/ { print $NF }' | /usr/bin/wc -l", outfile),
+                  "Error examining downloaded zip file %s, leaving it in place for your examination.", outfile)
+      if output then
+         if (tonumber(output) or 0) == 1 then
+            -- Uncompress it
+            if _x(string.format("/usr/bin/unzip %s -d %s 2>&1", outfile, tmpdir),
+                  "Error uncompressing file %s, leaving it in place for your examination.", outfile) then
+               -- And finally, install it using Hammerspoon itself
+               if _x(string.format("/usr/bin/open %s/*.spoon", tmpdir), "Error installing the spoon file %s/*.spoon", tmpdir) then
+                  log.f("Downloaded and installed %s", urlparts.absoluteURL)
+                  _x(string.format("/bin/rm -rf '%s'", outdir), "Error removing directory %s", outdir)
+                  return true
+               end
+            end
+         else
+            log.ef("The downloaded zip file %s is invalid - it should contain exactly one spoon. Leaving it in place for your examination.", outfile) 
+         end
+      end
+   end
+   return nil
+end
+
+-- Internal callback to process and store the data from docs.json about a repository
+function _storeRepoJSON(repo, status, body, hdrs)
+   if status < 0 then
+      log.ef("Error fetching JSON data for repository '%s'. Error: %s", repo, body)
+   else
+      local json = hs.json.decode(body)
+      if json then
+         module.repos[repo].data = {}
+         for i,v in ipairs(json) do
+            v.download_url = module.repos[repo].download_base_url .. "/" .. v.name .. ".spoon.zip"
+            module.repos[repo].data[v.name] = v
+         end
+         log.df("Updated JSON data for repository '%s'", repo)
+      else
+         log.ef("Invalid JSON received for repository '%s': %s", repo, body)
+      end
+   end
+end
+
+--- hs.spoons.updateRepo(repo)
+--- Method
+--- Fetch and store locally the information about the contents of a Spoons repository
+---
+--- Parameters:
+---  * repo - name of the repository to update. Defaults to `"default"`.
+---
+--- Returns:
+---  * None
+function module.updateRepo(repo)
+   if not repo then repo = 'default' end
+   if module.repos[repo] and module.repos[repo].url then
+      module.repos[repo].json_url = string.gsub(module.repos[repo].url, "/$", "") .. "/raw/master/docs/docs.json"
+      module.repos[repo].download_base_url = string.gsub(module.repos[repo].url, "/$", "") .. "/raw/master/Spoons/"
+      hs.http.asyncGet(module.repos[repo].json_url, nil, hs.fnutils.partial(_storeRepoJSON, repo))
+   else
+      log.ef("Invalid or unknown repository '%s'", repo)
+   end
+end
+
+--- hs.spoons.updateAllRepos()
+--- Method
+--- Fetch and store locally the information about the contents of all registered Spoons repositories
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+function module.updateAllRepos()
+   for k,v in pairs(module.repos) do
+      module.updateRepo(k)
+   end
+end
+
+--- hs.spoons.installSpoonFromRepo(name, repo)
+--- Method
+--- Install a Spoon from a registered repository
+---
+--- Parameters:
+---  * name = Name of the Spoon to install.
+---  * repo - Name of the repository to use. Defaults to `"default"`
+---
+--- Returns:
+---  * `true` if the installation was correctly initiated, `false` otherwise.
+function module.installSpoonFromRepo(name, repo)
+   if not repo then repo = 'default' end
+   if module.repos[repo] then
+      if module.repos[repo].data then
+         if module.repos[repo].data[name] then
+            return module.installSpoonFromZipURL(module.repos[repo].data[name].download_url)
+         else
+            log.ef("Spoon '%s' does not exist in repository '%s'. Please check and try again.", name, repo)
+         end
+      else
+         log.ef("Repository data not available - call hs.spoons.updateRepo('%s'), then try again.", repo)
+      end
+   else
+      log.ef("Invalid or unknown repository '%s'", repo)
+   end
+   return nil
 end
 
 return module
