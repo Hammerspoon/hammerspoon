@@ -1272,7 +1272,7 @@ static int getImageSize(lua_State* L) {
     return 1 ;
 }
 
-/// hs.image:croppedImage(rectangle) -> object
+/// hs.image:croppedCopy(rectangle) -> object
 /// Method
 /// Returns a copy of the portion of the image specified by the rectangle specified.
 ///
@@ -1281,7 +1281,7 @@ static int getImageSize(lua_State* L) {
 ///
 /// Returns:
 ///  * a copy of the portion of the image specified
-static int croppedImage(__unused lua_State* L) {
+static int croppedCopy(__unused lua_State* L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBREAK] ;
     NSImage *theImage = [skin luaObjectAtIndex:1 toClass:"NSImage"] ;
@@ -1301,7 +1301,17 @@ static int croppedImage(__unused lua_State* L) {
     CFDictionaryRef options = CFDictionaryCreate(NULL, keys, values, 1, NULL, NULL);
     CGImageSourceRef source = CGImageSourceCreateWithData((__bridge CFDataRef)[newImage TIFFRepresentation], options);
     CGImageRef maskRef = CGImageSourceCreateImageAtIndex(source, 0, NULL);
-    CGImageRef imageRef = CGImageCreateWithImageInRect(maskRef, frame);
+    // correct for retina displays
+    NSSize actualSize = NSMakeSize(CGImageGetWidth(maskRef), CGImageGetHeight(maskRef)) ;
+    CGFloat xFactor = actualSize.width / newImage.size.width ;
+    CGFloat yFactor = actualSize.height / newImage.size.height ;
+    NSRect correctedFrame = NSMakeRect(
+        frame.origin.x * xFactor,
+        frame.origin.y * yFactor,
+        frame.size.width * xFactor,
+        frame.size.height * yFactor
+    ) ;
+    CGImageRef imageRef = CGImageCreateWithImageInRect(maskRef, correctedFrame);
     NSImage *cropped = [[NSImage alloc] initWithCGImage:imageRef size:frame.size];
     CGImageRelease(maskRef);
     CGImageRelease(imageRef);
@@ -1611,7 +1621,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {"size",              getImageSize},
     {"template",          imageTemplate},
     {"copy",              copyImage},
-    {"croppedCopy",       croppedImage},
+    {"croppedCopy",       croppedCopy},
     {"saveToFile",        saveToFile},
     {"encodeAsURLString", encodeAsString},
 
