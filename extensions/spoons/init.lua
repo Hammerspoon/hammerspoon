@@ -34,6 +34,9 @@ module._keys = {}
 
 local log = hs.logger.new("spoons")
 
+-- --------------------------------------------------------------------
+-- Some internal utility functions
+
 -- Interpolate table values into a string
 -- From http://lua-users.org/wiki/StringInterpolation
 local function interp(s, tab)
@@ -46,6 +49,21 @@ local function slurp(path)
    local s = f:read("*a")
    f:close()
    return s
+end
+
+-- Execute a command and return its output with trailing EOLs trimmed. If the command fails, an error message is logged.
+local function _x(cmd, errfmt, ...)
+   log.df("Executing command: %s", cmd)
+   local output, status = hs.execute(cmd)
+   if status then
+      local trimstr = string.gsub(output, "\n*$", "")
+      log.df("Success, returning output '%s'", trimstr)
+      return trimstr
+   else
+      log.df("Command failed, output: %s", output)
+      log.ef(errfmt, ...)
+      return nil
+   end
 end
 
 --- hs.spoons.newSpoon(name, basedir, metadata)
@@ -188,78 +206,8 @@ function module.list(only_loaded)
    return res
 end
 
--- Internal function to execute a command and return its output with trailing EOLs trimmed. If the command fails, an error message is logged.
-function _x(cmd, errfmt, ...)
-   log.df("Executing command: %s", cmd)
-   local output, status = hs.execute(cmd)
-   if status then
-      local trimstr = string.gsub(output, "\n*$", "")
-      log.df("Success, returning output '%s'", trimstr)
-      return trimstr
-   else
-      log.df("Command failed, output: %s", output)
-      log.ef(errfmt, ...)
-      return nil
-   end
-end
-
---- hs.spoons.installSpoonFromZipURL(url)
---- Method
---- Download a Spoon zip file and install it.
----
---- Parameters:
----  * url - URL of the zip file to install.
----
---- Returns:
----  * `true` if the installation was correctly initiated (not necessarily completed), `false` otherwise
-function module.installSpoonFromZipURL(url)
-   local urlparts = hs.http.urlParts(url)
-   local dlfile = urlparts.lastPathComponent
-   if dlfile and dlfile ~= "" and urlparts.pathExtension == "zip" then
-      hs.http.asyncGet(url, nil, hs.fnutils.partial(_installSpoonFromZipURLgetCallback, urlparts))
-      return true
-   else
-      log.ef("Invalid URL %s, must point to a zip file", url)
-      return nil
-   end
-end
-
--- Internal callback function to finalize the installation of a spoon after the zip file has been downloaded.
-function _installSpoonFromZipURLgetCallback(urlparts, status, body, headers)
-   if status < 0 then
-      log.ef("Error downloading %s, error: %s", urlparts.absoluteURL, body)
-      return nil
-   else
-      -- Write the zip file to disk
-      local tmpdir=_x("/usr/bin/mktemp -d", "Error creating temporary directory to download new spoon.")
-      if not tmpdir then return nil end
-      local outfile = string.format("%s/%s", tmpdir, urlparts.lastPathComponent)
-      local f=assert(io.open(outfile, "w"))
-      f:write(body)
-      f:close()
-
-      -- Check its contents - only one *.spoon directory should be in there
-      output = _x(string.format("/usr/bin/unzip -l %s '*.spoon/' | /usr/bin/awk '$NF ~ /\\.spoon\\/$/ { print $NF }' | /usr/bin/wc -l", outfile),
-                  "Error examining downloaded zip file %s, leaving it in place for your examination.", outfile)
-      if output then
-         if (tonumber(output) or 0) == 1 then
-            -- Uncompress it
-            if _x(string.format("/usr/bin/unzip %s -d %s 2>&1", outfile, tmpdir),
-                  "Error uncompressing file %s, leaving it in place for your examination.", outfile) then
-               -- And finally, install it using Hammerspoon itself
-               if _x(string.format("/usr/bin/open %s/*.spoon", tmpdir), "Error installing the spoon file %s/*.spoon", tmpdir) then
-                  log.f("Downloaded and installed %s", urlparts.absoluteURL)
-                  _x(string.format("/bin/rm -rf '%s'", outdir), "Error removing directory %s", outdir)
-                  return true
-               end
-            end
-         else
-            log.ef("The downloaded zip file %s is invalid - it should contain exactly one spoon. Leaving it in place for your examination.", outfile) 
-         end
-      end
-   end
-   return nil
-end
+-- --------------------------------------------------------------------
+-- Spoon repository management
 
 -- Internal callback to process and store the data from docs.json about a repository
 function _storeRepoJSON(repo, status, body, hdrs)
@@ -312,6 +260,69 @@ end
 function module.updateAllRepos()
    for k,v in pairs(module.repos) do
       module.updateRepo(k)
+   end
+end
+
+-- --------------------------------------------------------------------
+-- Spoon installation
+
+-- Internal callback function to finalize the installation of a spoon after the zip file has been downloaded.
+-- This is used by hs.spoons.installSpoonFromZipURL
+function _installSpoonFromZipURLgetCallback(urlparts, status, body, headers)
+   if status < 0 then
+      log.ef("Error downloading %s, error: %s", urlparts.absoluteURL, body)
+      return nil
+   else
+      -- Write the zip file to disk in a temporary directory
+      local tmpdir=_x("/usr/bin/mktemp -d", "Error creating temporary directory to download new spoon.")
+      if tmpdir then
+         local outfile = string.format("%s/%s", tmpdir, urlparts.lastPathComponent)
+         local f=assert(io.open(outfile, "w"))
+         f:write(body)
+         f:close()
+
+         -- Check its contents - only one *.spoon directory should be in there
+         output = _x(string.format("/usr/bin/unzip -l %s '*.spoon/' | /usr/bin/awk '$NF ~ /\\.spoon\\/$/ { print $NF }' | /usr/bin/wc -l", outfile),
+                     "Error examining downloaded zip file %s, leaving it in place for your examination.", outfile)
+         if output then
+            if (tonumber(output) or 0) == 1 then
+               -- Uncompress the zip file
+               if _x(string.format("/usr/bin/unzip %s -d %s 2>&1", outfile, tmpdir),
+                     "Error uncompressing file %s, leaving it in place for your examination.", outfile) then
+                  -- And finally, install it using Hammerspoon itself
+                  if _x(string.format("/usr/bin/open %s/*.spoon", tmpdir), "Error installing the spoon file %s/*.spoon", tmpdir) then
+                     log.f("Downloaded and installed %s", urlparts.absoluteURL)
+                     _x(string.format("/bin/rm -rf '%s'", outdir), "Error removing directory %s", outdir)
+                     return true
+                  end
+               end
+            else
+               log.ef("The downloaded zip file %s is invalid - it should contain exactly one spoon. Leaving it in place for your examination.", outfile) 
+            end
+         end
+      end
+   end
+   return nil
+end
+
+--- hs.spoons.installSpoonFromZipURL(url)
+--- Method
+--- Download a Spoon zip file and install it.
+---
+--- Parameters:
+---  * url - URL of the zip file to install.
+---
+--- Returns:
+---  * `true` if the installation was correctly initiated (not necessarily completed), `false` otherwise
+function module.installSpoonFromZipURL(url)
+   local urlparts = hs.http.urlParts(url)
+   local dlfile = urlparts.lastPathComponent
+   if dlfile and dlfile ~= "" and urlparts.pathExtension == "zip" then
+      hs.http.asyncGet(url, nil, hs.fnutils.partial(_installSpoonFromZipURLgetCallback, urlparts))
+      return true
+   else
+      log.ef("Invalid URL %s, must point to a zip file", url)
+      return nil
    end
 end
 
