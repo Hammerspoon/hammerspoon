@@ -274,6 +274,7 @@ function _storeRepoJSON(repo, callback, status, body, hdrs)
    return success
 end
 
+-- Internal function to return the URL of the docs.json file based on the URL of a GitHub repo
 function _build_repo_json_url(repo)
    if module.repos[repo] and module.repos[repo].url then
       module.repos[repo].json_url = string.gsub(module.repos[repo].url, "/$", "") .. "/raw/master/docs/docs.json"
@@ -345,6 +346,51 @@ function module.updateAllRepos()
    for k,v in pairs(module.repos) do
       module.asyncUpdateRepo(k)
    end
+end
+
+--- hs.spoons.repolist()
+--- Method
+--- Return a sorted list of registered Spoon repositories
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * Table containing a list of strings with the repository identifiers
+function module.repolist()
+   local keys={}
+   -- Create sorted list of keys
+   for k,v in pairs(module.repos) do table.insert(keys, k) end
+   table.sort(keys)
+   return keys
+end
+
+--- hs.spoons.search(pat)
+--- Method
+--- Search repositories for a pattern
+---
+--- Parameters:
+---  * pat - Lua pattern that will be matched against the name and description of each spoon in the registered repositories. All text is converted to lowercase before searching it, so you can use all-lowercase in your pattern.
+---
+--- Returns:
+---  * Table containing a list of matching entries. Each entry is a table with the following keys:
+---    * name - Spoon name
+---    * desc - description of the spoon
+---    * repo - identifier in the repository where the match was found
+function module.search(pat)
+   local res={}
+   for repo,v in pairs(module.repos) do
+      if v.data then
+         for spoon,rec in pairs(v.data) do
+            if string.find(string.lower(rec.name .. "\n" .. rec.desc), pat) then
+               table.insert(res, { name = rec.name, desc = rec.desc, repo = repo })
+            end
+         end
+      else
+         log.ef("Repository data for '%s' not available - call hs.spoons.updateRepo('%s'), then try again.", repo, repo)
+      end
+   end
+   return res
 end
 
 -- --------------------------------------------------------------------
@@ -446,7 +492,7 @@ function _is_valid_spoon(name, repo)
             log.ef("Spoon '%s' does not exist in repository '%s'. Please check and try again.", name, repo)
          end
       else
-         log.ef("Repository data not available - call hs.spoons.updateRepo('%s'), then try again.", repo)
+         log.ef("Repository data for '%s' not available - call hs.spoons.updateRepo('%s'), then try again.", repo, repo)
       end
    else
       log.ef("Invalid or unknown repository '%s'", repo)
