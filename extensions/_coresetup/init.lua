@@ -499,7 +499,7 @@ hs.fileDroppedToDockIconCallback = nil
       mapJoiner = ":"
       src = src[mod]
       if type(src) == "userdata" then
-        src = getmetatable(src).__index
+        src = hs.getObjectMetatable(getmetatable(src).__name or "") or hs.getObjectMetatable(getmetatable(src).__type or "") or getmetatable(src).__index
       end
       completions = findCompletions(src, remnant)
     elseif mod and #parents > 0 then
