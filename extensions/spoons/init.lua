@@ -10,6 +10,9 @@ module._keys = {}
 
 local log = hs.logger.new("spoons")
 
+-- --------------------------------------------------------------------
+-- Some internal utility functions
+
 -- Interpolate table values into a string
 -- From http://lua-users.org/wiki/StringInterpolation
 local function interp(s, tab)
@@ -162,6 +165,106 @@ function module.list(only_loaded)
       end
    until f == nil
    return res
+end
+
+--- hs.spoons.isInstalled(name)
+--- Method
+--- Check if a given Spoon is installed.
+---
+--- Parameters:
+---  * name - Name of the Spoon to check.
+---
+--- Returns:
+---  * If the Spoon is installed, it returns a table with the Spoon information as returned by `list()`. Returns `nil` if the Spoon is not installed.
+function module.isInstalled(name)
+   local list = module.list()
+   for i,v in ipairs(list) do
+      if v.name == name then
+         return v
+      end
+   end
+   return nil
+end
+
+--- hs.spoons.isLoaded(name)
+--- Method
+--- Check if a given Spoon is loaded.
+---
+--- Parameters:
+---  * name - Name of the Spoon to check.
+---
+--- Returns:
+---  * `true` if the Spoon is loaded, `nil` otherwise.
+function module.isLoaded(name)
+   local list = module.list()
+   for i,v in ipairs(list) do
+      if v.name == name then
+         return v.loaded
+      end
+   end
+   return nil
+end
+
+--- hs.spoons.use(name, arg)
+--- Method
+--- Declaratively load and configure a Spoon
+---
+--- Parameters:
+---  * name - the name of the Spoon to load (without the `.spoon` extension).
+---  * arg - if provided, can be used to specify the configuration of the Spoon. The following keys are recognized (all are optional):
+---    * config - a table containing variables to be stored in the Spoon object to configure it. For example, `config = { answer = 42 }` will result in `spoon.<LoadedSpoon>.answer` being set to 42.
+---    * hotkeys - a table containing hotkey bindings. If provided, will be passed as-is to the Spoon's `bindHotkeys()` method. The special string `"default"` can be given to use the Spoons `defaultHotkeys` variable, if it exists.
+---    * fn - a function which will be called with the freshly-loaded Spoon object as its first argument.
+---    * loglevel - if the Spoon has a variable called `logger`, its `setLogLevel()` method will be called with this value.
+---    * start - if `true`, call the Spoon's `start()` method after configuring everything else.
+---
+--- Returns:
+---  * `true` if the spoon was loaded, `nil` otherwise
+function module.use(name, arg)
+   log.df("hs.spoons.use(%s, %s)", name, hs.inspect(arg))
+   if not arg then arg = {} end
+   if hs.spoons.isInstalled(name) then
+      local spn=hs.loadSpoon(name)
+      if spn then
+         if arg.loglevel and spn.logger then
+            spn.logger.setLogLevel(arg.loglevel)
+         end
+         if arg.config then
+            for k,v in pairs(arg.config) do
+               log.df("Setting config: spoon.%s.%s = %s", name, k, hs.inspect(v))
+               spn[k] = v
+            end
+         end
+         if arg.hotkeys then
+            local mapping = arg.hotkeys
+            if mapping == 'default' then
+               if spn.defaultHotkeys then
+                  mapping = spn.defaultHotkeys
+               else
+                  log.ef("Default bindings requested, but spoon %s does not have a defaultHotkeys definition", name)
+               end
+            end
+            if type(mapping) == 'table' then
+               log.df("Binding hotkeys: spoon.%s:bindHotkeys(%s)", name, hs.inspect(arg.hotkeys))
+               spn:bindHotkeys(mapping)
+            end
+         end
+         if arg.fn then
+            log.df("Calling configuration function %s", hs.inspect(arg.fn))
+            arg.fn(spn)
+         end
+         if arg.start then
+            log.df("Calling spoon.%s:start()", name)
+            spn:start()
+         end
+         return true
+      else
+         log.ef("I could not load spoon %s\n", name)
+      end
+   else
+      log.ef("Spoon %s is not installed - please install it and try again.")
+   end
+   return nil
 end
 
 return module
