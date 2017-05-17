@@ -217,10 +217,11 @@ end
 ---    * fn - a function which will be called with the freshly-loaded Spoon object as its first argument.
 ---    * loglevel - if the Spoon has a variable called `logger`, its `setLogLevel()` method will be called with this value.
 ---    * start - if `true`, call the Spoon's `start()` method after configuring everything else.
+---  * noerror - if `true`, don't log an error if the Spoon is not installed, simply return `nil`.
 ---
 --- Returns:
 ---  * `true` if the spoon was loaded, `nil` otherwise
-function module.use(name, arg)
+function module.use(name, arg, noerror)
    log.df("hs.spoons.use(%s, %s)", name, hs.inspect(arg))
    if not arg then arg = {} end
    if hs.spoons.isInstalled(name) then
@@ -262,7 +263,9 @@ function module.use(name, arg)
          log.ef("I could not load spoon %s\n", name)
       end
    else
-      log.ef("Spoon %s is not installed - please install it and try again.")
+      if not noerror then
+         log.ef("Spoon %s is not installed - please install it and try again.", name)
+      end
    end
    return nil
 end
