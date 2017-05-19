@@ -1,4 +1,6 @@
 # Hammerspoon
+
+[![Join the chat at https://gitter.im/Hammerspoon/hammerspoon](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Hammerspoon/hammerspoon?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.org/Hammerspoon/hammerspoon.svg?branch=master)](https://travis-ci.org/Hammerspoon/hammerspoon)
 [![codecov.io](https://codecov.io/github/Hammerspoon/hammerspoon/coverage.svg?branch=master)](https://codecov.io/github/Hammerspoon/hammerspoon?branch=master)
 [![Downloads current release](https://img.shields.io/github/downloads/Hammerspoon/hammerspoon/latest/total.svg)](https://github.com/Hammerspoon/hammerspoon/releases)
