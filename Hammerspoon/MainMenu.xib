@@ -23,7 +23,7 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="CommandPost" systemMenu="apple" id="uQy-DD-JDr">
                         <items>
-                            <menuItem title="About CommandPost" hidden="YES" id="5kV-Vb-QxS">
+                            <menuItem title="About Hammerspoon" hidden="YES" id="5kV-Vb-QxS">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="showAboutPanel:" target="Voe-Tx-rLC" id="bG4-ba-EWj"/>
@@ -47,15 +47,14 @@
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="Services" systemMenu="services" id="hz9-B4-Xy5"/>
                             </menuItem>
-                            <menuItem isSeparatorItem="YES" hidden="YES" id="4je-JR-u6R"/>
-                            <menuItem title="Hide CommandPost" hidden="YES" id="Olw-nP-bQN">
-                                <modifierMask key="keyEquivalentModifierMask"/>
+                            <menuItem isSeparatorItem="YES" id="4je-JR-u6R"/>
+                            <menuItem title="Hide Hammerspoon" hidden="YES" keyEquivalent="h" id="Olw-nP-bQN">
                                 <connections>
                                     <action selector="hide:" target="-1" id="PnN-Uc-m68"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Hide Others" hidden="YES" id="Vdr-fp-XzO">
-                                <modifierMask key="keyEquivalentModifierMask"/>
+                            <menuItem title="Hide Others" hidden="YES" keyEquivalent="h" id="Vdr-fp-XzO">
+                                <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
                                 <connections>
                                     <action selector="hideOtherApplications:" target="-1" id="VT4-aY-XCT"/>
                                 </connections>
@@ -66,8 +65,7 @@
                                     <action selector="unhideAllApplications:" target="-1" id="Dhg-Le-xox"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Quit CommandPost" id="4sb-4s-VLi">
-                                <modifierMask key="keyEquivalentModifierMask"/>
+                            <menuItem title="Quit CommandPost" keyEquivalent="q" id="4sb-4s-VLi">
                                 <connections>
                                     <action selector="quitHammerspoon:" target="Voe-Tx-rLC" id="gjE-dV-WIu"/>
                                 </connections>
@@ -79,33 +77,33 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="File" id="bib-Uj-vzu">
                         <items>
-                            <menuItem title="Force Reload" id="Was-JA-tGl">
+                            <menuItem title="Reload Config" id="Was-JA-tGl">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="reloadConfig:" target="Voe-Tx-rLC" id="9tp-b3-puT"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Open Config" hidden="YES" id="gTe-IJ-37j">
+                            <menuItem title="Open Config" id="gTe-IJ-37j">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="openConfig:" target="Voe-Tx-rLC" id="BnO-mw-Wbz"/>
                                 </connections>
                             </menuItem>
-                            <menuItem isSeparatorItem="YES" hidden="YES" id="m54-Is-iLE"/>
+                            <menuItem isSeparatorItem="YES" id="m54-Is-iLE"/>
                             <menuItem title="Console..." id="8rK-CR-NrT">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="showConsoleWindow:" target="Voe-Tx-rLC" id="crn-jm-3G0"/>
                                 </connections>
                             </menuItem>
-                            <menuItem isSeparatorItem="YES" hidden="YES" id="aJh-i4-bef"/>
-                            <menuItem title="Page Setup…" hidden="YES" id="qIS-W8-SiK">
+                            <menuItem isSeparatorItem="YES" id="aJh-i4-bef"/>
+                            <menuItem title="Page Setup…" id="qIS-W8-SiK">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="runPageLayout:" target="-1" id="Din-rz-gC5"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Print…" hidden="YES" id="aTl-1u-JFS">
+                            <menuItem title="Print…" id="aTl-1u-JFS">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="print:" target="-1" id="qaZ-4w-aoO"/>
@@ -118,39 +116,34 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Edit" id="W48-6f-4Dl">
                         <items>
-                            <menuItem title="Undo" id="dRJ-4n-Yzg">
-                                <modifierMask key="keyEquivalentModifierMask"/>
+                            <menuItem title="Undo" keyEquivalent="z" id="dRJ-4n-Yzg">
                                 <connections>
                                     <action selector="undo:" target="-1" id="M6e-cu-g7V"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Redo" id="6dh-zS-Vam">
-                                <modifierMask key="keyEquivalentModifierMask"/>
+                            <menuItem title="Redo" keyEquivalent="Z" id="6dh-zS-Vam">
                                 <connections>
                                     <action selector="redo:" target="-1" id="oIA-Rs-6OD"/>
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="WRV-NI-Exz"/>
-                            <menuItem title="Cut" id="uRl-iY-unG">
-                                <modifierMask key="keyEquivalentModifierMask"/>
+                            <menuItem title="Cut" keyEquivalent="x" id="uRl-iY-unG">
                                 <connections>
                                     <action selector="cut:" target="-1" id="YJe-68-I9s"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Copy" id="x3v-GG-iWU">
-                                <modifierMask key="keyEquivalentModifierMask"/>
+                            <menuItem title="Copy" keyEquivalent="c" id="x3v-GG-iWU">
                                 <connections>
                                     <action selector="copy:" target="-1" id="G1f-GL-Joy"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Paste" id="gVA-U4-sdL">
-                                <modifierMask key="keyEquivalentModifierMask"/>
+                            <menuItem title="Paste" keyEquivalent="v" id="gVA-U4-sdL">
                                 <connections>
                                     <action selector="paste:" target="-1" id="UvS-8e-Qdg"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Paste and Match Style" id="WeT-3V-zwk">
-                                <modifierMask key="keyEquivalentModifierMask"/>
+                            <menuItem title="Paste and Match Style" keyEquivalent="V" id="WeT-3V-zwk">
+                                <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
                                 <connections>
                                     <action selector="pasteAsPlainText:" target="-1" id="cEh-KX-wJQ"/>
                                 </connections>
@@ -161,8 +154,7 @@
                                     <action selector="delete:" target="-1" id="0Mk-Ml-PaM"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Select All" id="Ruw-6m-B2m">
-                                <modifierMask key="keyEquivalentModifierMask"/>
+                            <menuItem title="Select All" keyEquivalent="a" id="Ruw-6m-B2m">
                                 <connections>
                                     <action selector="selectAll:" target="-1" id="VNm-Mi-diN"/>
                                 </connections>
@@ -172,38 +164,33 @@
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="Find" id="1b7-l0-nxx">
                                     <items>
-                                        <menuItem title="Find…" tag="1" id="Xz5-n4-O0W">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                        <menuItem title="Find…" tag="1" keyEquivalent="f" id="Xz5-n4-O0W">
                                             <connections>
                                                 <action selector="performFindPanelAction:" target="-1" id="cD7-Qs-BN4"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="Find and Replace…" tag="12" id="YEy-JH-Tfz">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                        <menuItem title="Find and Replace…" tag="12" keyEquivalent="f" id="YEy-JH-Tfz">
+                                            <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
                                             <connections>
                                                 <action selector="performFindPanelAction:" target="-1" id="WD3-Gg-5AJ"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="Find Next" tag="2" id="q09-fT-Sye">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                        <menuItem title="Find Next" tag="2" keyEquivalent="g" id="q09-fT-Sye">
                                             <connections>
                                                 <action selector="performFindPanelAction:" target="-1" id="NDo-RZ-v9R"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="Find Previous" tag="3" id="OwM-mh-QMV">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                        <menuItem title="Find Previous" tag="3" keyEquivalent="G" id="OwM-mh-QMV">
                                             <connections>
                                                 <action selector="performFindPanelAction:" target="-1" id="HOh-sY-3ay"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="Use Selection for Find" tag="7" id="buJ-ug-pKt">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                        <menuItem title="Use Selection for Find" tag="7" keyEquivalent="e" id="buJ-ug-pKt">
                                             <connections>
                                                 <action selector="performFindPanelAction:" target="-1" id="U76-nv-p5D"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="Jump to Selection" id="S0p-oC-mLd">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                        <menuItem title="Jump to Selection" keyEquivalent="j" id="S0p-oC-mLd">
                                             <connections>
                                                 <action selector="centerSelectionInVisibleArea:" target="-1" id="IOG-6D-g5B"/>
                                             </connections>
@@ -215,14 +202,12 @@
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="Spelling" id="3IN-sU-3Bg">
                                     <items>
-                                        <menuItem title="Show Spelling and Grammar" id="HFo-cy-zxI">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                        <menuItem title="Show Spelling and Grammar" keyEquivalent=":" id="HFo-cy-zxI">
                                             <connections>
                                                 <action selector="showGuessPanel:" target="-1" id="vFj-Ks-hy3"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="Check Document Now" id="hz2-CU-CR7">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                        <menuItem title="Check Document Now" keyEquivalent=";" id="hz2-CU-CR7">
                                             <connections>
                                                 <action selector="checkSpelling:" target="-1" id="fz7-VC-reM"/>
                                             </connections>
@@ -350,8 +335,7 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Window" systemMenu="window" id="Td7-aD-5lo">
                         <items>
-                            <menuItem title="Minimize" id="OY7-WF-poV">
-                                <modifierMask key="keyEquivalentModifierMask"/>
+                            <menuItem title="Minimize" keyEquivalent="m" id="OY7-WF-poV">
                                 <connections>
                                     <action selector="performMiniaturize:" target="-1" id="VwT-WD-YPe"/>
                                 </connections>
@@ -363,8 +347,7 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="q7Q-ls-0p4"/>
-                            <menuItem title="Close" id="DVo-aG-piG">
-                                <modifierMask key="keyEquivalentModifierMask"/>
+                            <menuItem title="Close" keyEquivalent="w" id="DVo-aG-piG">
                                 <connections>
                                     <action selector="performClose:" target="-1" id="HmO-Ls-i7Q"/>
                                 </connections>
@@ -383,7 +366,7 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Help" systemMenu="help" id="F2S-fz-NVQ">
                         <items>
-                            <menuItem title="CommandPost Help" id="FKE-Sm-Kum">
+                            <menuItem title="Hammerspoon Help" hidden="YES" id="FKE-Sm-Kum">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="showHelp:" target="-1" id="y7X-2Q-9no"/>
@@ -422,7 +405,7 @@
                     </connections>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="47L-wL-Aut"/>
-                <menuItem title="About CommandPost" id="2LS-Fs-g1y">
+                <menuItem title="About Hammerspoon" id="2LS-Fs-g1y">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
                         <action selector="showAboutPanel:" target="Voe-Tx-rLC" id="Vu4-C4-kcK"/>
@@ -435,7 +418,7 @@
                     </connections>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="tOT-wg-m6d"/>
-                <menuItem title="Quit CommandPost" id="MPd-JN-QB1">
+                <menuItem title="Quit Hammerspoon" id="MPd-JN-QB1">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
                         <action selector="quitHammerspoon:" target="Voe-Tx-rLC" id="5Aw-nP-mqa"/>
