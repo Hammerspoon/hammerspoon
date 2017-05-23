@@ -172,6 +172,9 @@ cp -av "${SRCROOT}/extensions/window/layout.lua" "${HS_DST}/window/layout.lua"
 cp -av "${SRCROOT}/extensions/window/switcher.lua" "${HS_DST}/window/switcher.lua"
 cp -av "${SRCROOT}/extensions/window/highlight.lua" "${HS_DST}/window/highlight.lua"
 
+# Special copier for hs.webview.usercontent submodule
+cp -av "${BUILT_PRODUCTS_DIR}/libwebviewusercontent.dylib" "${HS_DST}/webview/usercontent.so"
+
 # Special copier for hs.webview.toolbar submodule
 cp -av "${SRCROOT}/extensions/webview/toolbar.lua" "${HS_DST}/webview/toolbar.lua"
 cp -av "${BUILT_PRODUCTS_DIR}/libwebviewtoolbar.dylib" "${HS_DST}/webview/toolbar_internal.so"
