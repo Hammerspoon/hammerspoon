@@ -167,6 +167,25 @@ static int core_openconsole(lua_State* L) {
     return 0;
 }
 
+/// hs.open(filePath)
+/// Function
+/// Opens a file as if it were opened with /usr/bin/open
+///
+/// Parameters:
+///  * filePath - A string containing the path to a file/bundle to open
+///
+/// Returns:
+///  * A boolean, true if the file was opened successfully, otherwise false
+static int core_open(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TBREAK];
+
+    BOOL result = [[NSWorkspace sharedWorkspace] openFile:[skin toNSObjectAtIndex:1]];
+
+    lua_pushboolean(L, result);
+    return 1;
+}
+
 /// hs.reload()
 /// Function
 /// Reloads your init-file in a fresh Lua environment.
@@ -515,6 +534,7 @@ static luaL_Reg corelib[] = {
     {"openAbout", core_openabout},
     {"menuIcon", core_menuicon},
     {"openPreferences", core_openpreferences},
+    {"open", core_open},
     {"autoLaunch", core_autolaunch},
     {"automaticallyCheckForUpdates", automaticallyChecksForUpdates},
     {"checkForUpdates", checkForUpdates},
