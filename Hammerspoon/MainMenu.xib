@@ -19,11 +19,11 @@
         <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
         <menu title="Main Menu" systemMenu="main" id="AYu-sK-qS6">
             <items>
-                <menuItem title="CommandPost" hidden="YES" id="1Xt-HY-uBw">
+                <menuItem title="CommandPost" id="1Xt-HY-uBw">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="CommandPost" systemMenu="apple" id="uQy-DD-JDr">
                         <items>
-                            <menuItem title="About Hammerspoon" hidden="YES" id="5kV-Vb-QxS">
+                            <menuItem title="About CommandPost" hidden="YES" id="5kV-Vb-QxS">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="showAboutPanel:" target="Voe-Tx-rLC" id="bG4-ba-EWj"/>
@@ -42,24 +42,24 @@
                                     <action selector="showPreferencesWindow:" target="Voe-Tx-rLC" id="AdW-ZP-V8p"/>
                                 </connections>
                             </menuItem>
-                            <menuItem isSeparatorItem="YES" hidden="YES" id="wFC-TO-SCJ"/>
-                            <menuItem title="Services" hidden="YES" id="NMo-om-nkz">
+                            <menuItem isSeparatorItem="YES" id="wFC-TO-SCJ"/>
+                            <menuItem title="Services" id="NMo-om-nkz">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="Services" systemMenu="services" id="hz9-B4-Xy5"/>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="4je-JR-u6R"/>
-                            <menuItem title="Hide Hammerspoon" hidden="YES" keyEquivalent="h" id="Olw-nP-bQN">
+                            <menuItem title="Hide CommandPost" keyEquivalent="h" id="Olw-nP-bQN">
                                 <connections>
                                     <action selector="hide:" target="-1" id="PnN-Uc-m68"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Hide Others" hidden="YES" keyEquivalent="h" id="Vdr-fp-XzO">
+                            <menuItem title="Hide Others" keyEquivalent="h" id="Vdr-fp-XzO">
                                 <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
                                 <connections>
                                     <action selector="hideOtherApplications:" target="-1" id="VT4-aY-XCT"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Show All" hidden="YES" id="Kd2-mp-pUS">
+                            <menuItem title="Show All" id="Kd2-mp-pUS">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="unhideAllApplications:" target="-1" id="Dhg-Le-xox"/>
@@ -73,38 +73,37 @@
                         </items>
                     </menu>
                 </menuItem>
-                <menuItem title="File" hidden="YES" id="dMs-cI-mzQ">
+                <menuItem title="File" id="dMs-cI-mzQ">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="File" id="bib-Uj-vzu">
                         <items>
-                            <menuItem title="Reload Config" id="Was-JA-tGl">
+                            <menuItem title="Reload CommandPost" id="Was-JA-tGl">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="reloadConfig:" target="Voe-Tx-rLC" id="9tp-b3-puT"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Open Config" id="gTe-IJ-37j">
+                            <menuItem title="Open Config" hidden="YES" id="gTe-IJ-37j">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="openConfig:" target="Voe-Tx-rLC" id="BnO-mw-Wbz"/>
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="m54-Is-iLE"/>
-                            <menuItem title="Console..." id="8rK-CR-NrT">
+                            <menuItem title="Error Log..." id="8rK-CR-NrT">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="showConsoleWindow:" target="Voe-Tx-rLC" id="crn-jm-3G0"/>
                                 </connections>
                             </menuItem>
-                            <menuItem isSeparatorItem="YES" id="aJh-i4-bef"/>
-                            <menuItem title="Page Setup…" id="qIS-W8-SiK">
-                                <modifierMask key="keyEquivalentModifierMask"/>
+                            <menuItem isSeparatorItem="YES" hidden="YES" id="aJh-i4-bef"/>
+                            <menuItem title="Page Setup…" hidden="YES" keyEquivalent="P" id="qIS-W8-SiK">
+                                <modifierMask key="keyEquivalentModifierMask" shift="YES" command="YES"/>
                                 <connections>
                                     <action selector="runPageLayout:" target="-1" id="Din-rz-gC5"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Print…" id="aTl-1u-JFS">
-                                <modifierMask key="keyEquivalentModifierMask"/>
+                            <menuItem title="Print…" hidden="YES" keyEquivalent="p" id="aTl-1u-JFS">
                                 <connections>
                                     <action selector="print:" target="-1" id="qaZ-4w-aoO"/>
                                 </connections>
@@ -112,7 +111,7 @@
                         </items>
                     </menu>
                 </menuItem>
-                <menuItem title="Edit" hidden="YES" id="5QF-Oa-p0T">
+                <menuItem title="Edit" id="5QF-Oa-p0T">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Edit" id="W48-6f-4Dl">
                         <items>
@@ -331,7 +330,7 @@
                         </items>
                     </menu>
                 </menuItem>
-                <menuItem title="Window" hidden="YES" id="aUF-d1-5bR">
+                <menuItem title="Window" id="aUF-d1-5bR">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Window" systemMenu="window" id="Td7-aD-5lo">
                         <items>
@@ -366,7 +365,7 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Help" systemMenu="help" id="F2S-fz-NVQ">
                         <items>
-                            <menuItem title="Hammerspoon Help" hidden="YES" id="FKE-Sm-Kum">
+                            <menuItem title="CommandPost Help" id="FKE-Sm-Kum">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="showHelp:" target="-1" id="y7X-2Q-9no"/>
