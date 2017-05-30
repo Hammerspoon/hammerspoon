@@ -2296,6 +2296,8 @@ static int pushCollectionTypeTable(lua_State *L) {
 ///  * These key names map to the constants used in CoreGraphics to specify window levels and may not actually be used for what the name might suggest. For example, tests suggest that an active screen saver actually runs at a level of 2002, rather than at 1000, which is the window level corresponding to kCGScreenSaverWindowLevelKey.
 ///  * Each drawing level is sorted separately and `hs.drawing:orderAbove(...)` and hs.drawing:orderBelow(...)` only arrange windows within the same level.
 ///  * If you use Dock hiding (or in 10.11, Menubar hiding) please note that when the Dock (or Menubar) is popped up, it is done so with an implicit orderAbove, which will place it above any items you may also draw at the Dock (or MainMenu) level.
+///
+///  * A drawing object with a [hs.drawing:setClickCallback](#setClickCallback) function can only reliably receive mouse click events when its window level is at `hs.drawing.windowLevels.desktopIcon` + 1 or higher.
 static int cg_windowLevels(lua_State *L) {
     lua_newtable(L) ;
 //       lua_pushinteger(L, CGWindowLevelForKey(kCGBaseWindowLevelKey)) ;              lua_setfield(L, -2, "kCGBaseWindowLevelKey") ;
