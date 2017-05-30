@@ -219,6 +219,13 @@ function hotkey.new(mods, key, message, pressedfn, releasedfn, repeatfn)
   return hk
 end
 
+local originalAssigned = hotkey.assigned
+function hotkey.assigned(mods, key)
+  local keycode = getKeycode(key)
+  mods = getMods(mods)
+  return originalAssigned(mods, keycode)
+end
+
 --- hs.hotkey.disableAll(mods, key)
 --- Function
 --- Disables all previously set callbacks for a given keyboard combination
