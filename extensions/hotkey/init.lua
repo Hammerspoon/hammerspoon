@@ -219,6 +219,28 @@ function hotkey.new(mods, key, message, pressedfn, releasedfn, repeatfn)
   return hk
 end
 
+--- hs.hotkey.assigned(mods, key) -> table | false
+--- Function
+--- Examine whether a potential hotkey is in use by the macOS system such as the Screen Capture, Universal Access, and Keyboard Navigation keys.
+---
+--- Parameters:
+---  * mods - A table or a string containing (as elements, or as substrings with any separator) the keyboard modifiers required,
+---    which should be zero or more of the following:
+---    * "cmd", "command" or "⌘"
+---    * "ctrl", "control" or "⌃"
+---    * "alt", "option" or "⌥"
+---    * "shift" or "⇧"
+---  * key - A string containing the name of a keyboard key (as found in [hs.keycodes.map](hs.keycodes.html#map) ), or a raw keycode number
+---
+--- Returns:
+---  * if the hotkey combination is in use by a system function, returns a table containing the following keys:
+---    * keycode - the numberic keycode for the hotkey
+---    * mods    - a numeric representation of the modifier flags for the htokey
+---    * enabled - a boolean indicating whether or not the key is currently enabled
+---  * if the hotkey combination is not in use by the operating system, returns the boolean value `false`
+---
+--- Notes:
+---  * this is provided for informational purposes and does not provide a reliable test as to whether or not Hammerspoon can use the combination to create a custom hotkey -- some combinations which return a table can be over-ridden by Hammerspoon while others cannot.  At this time there is no known reliable test except to assign the hotkey with `hs.hotkey.enable` and see if it works.
 local originalAssigned = hotkey.assigned
 function hotkey.assigned(mods, key)
   local keycode = getKeycode(key)
