@@ -55,7 +55,7 @@ build:
 	mkdir -p build
 
 clean:
-	rm -rf build
+	rm -rf build/
 	rm -rf LuaSkin.framework
 
 clean-docs:
