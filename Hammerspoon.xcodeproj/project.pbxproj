@@ -1041,7 +1041,7 @@
 		4FD0ABBD1B74AF9900A82496 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/window/init.lua; sourceTree = "<group>"; };
 		4FD0ABBE1B74AF9900A82496 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/window/internal.m; sourceTree = "<group>"; };
 		4FD0ABBF1B74AF9900A82496 /* window.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = window.h; path = extensions/window/window.h; sourceTree = "<group>"; };
-		4FD0ABC81B74B0EC00A82496 /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/windowfilter/init.lua; sourceTree = "<group>"; };
+		4FD0ABC81B74B0EC00A82496 /* filter.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = filter.lua; path = extensions/window/filter.lua; sourceTree = "<group>"; };
 		4FD0ABCA1B74B1C500A82496 /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/doc/init.lua; sourceTree = "<group>"; };
 		4FD0ABCC1B74B1C500A82496 /* makeLuaDocs.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = makeLuaDocs.lua; path = extensions/doc/makeLuaDocs.lua; sourceTree = "<group>"; };
 		4FD0ABD71B74B2C500A82496 /* libeventtap.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libeventtap.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -2582,7 +2582,7 @@
 		4FD0ABC71B74B0E200A82496 /* windowfilter */ = {
 			isa = PBXGroup;
 			children = (
-				4FD0ABC81B74B0EC00A82496 /* init.lua */,
+				4FD0ABC81B74B0EC00A82496 /* filter.lua */,
 			);
 			name = windowfilter;
 			sourceTree = "<group>";
