@@ -297,7 +297,7 @@ static int hs_operatingSystemVersionString(lua_State *L) {
     return 1 ;
 }
 
-/// hs.host.thermalInfo() -> string
+/// hs.host.thermalState() -> string
 /// Function
 /// The current thermal state of the computer, as a human readable string
 ///
