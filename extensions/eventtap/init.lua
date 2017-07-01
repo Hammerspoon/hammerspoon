@@ -108,6 +108,32 @@ module.event.newKeyEvent = function(mods, key, isDown)
     return originalNewKeyEvent(modifiers, keycode, isDown)
 end
 
+--- hs.eventtap.event.newKeyEventSequence(modifiers, character) -> table
+--- Function
+--- Generates a table containing the keydown and keyup events to generate the keystroke with the specified modifiers.
+---
+--- Parameters:
+---  * modifiers - A table containing the keyboard modifiers to apply ("cmd", "alt", "shift", "ctrl", "rightCmd", "rightAlt", "rightShift", "rightCtrl", or "fn")
+---  * character - A string containing a character to be emitted
+---
+--- Returns:
+---  * a table with events which contains the individual events that Apple recommends for building up a keystroke combination (see [hs.eventtap.event.newKeyEvent](#newKeyEvents)) in the order that they should be posted (i.e. the first half will contain keyDown events and the second half will contain keyUp events)
+---
+--- Notes:
+---  * The `modifiers` table must contain the full name of the modifiers you wish used for the keystroke as defined in `hs.keycodes.map` -- the Unicode equivalents are not supported by this function.
+---  * The returned table will always contain an even number of events -- the first half will be the keyDown events and the second half will be the keyUp events.
+---  * The events have not been posted; the table can be used without change as the return value for a callback to a watcher defined with [hs.eventtap.new](#new).
+function module.event.newKeyEventSequence(modifiers, character)
+  local codes = fnutils.map({table.unpack(modifiers), character}, getKeycode)
+  local n = #codes
+  local events = {}
+  for i, code in ipairs(codes) do
+    events[i] = module.event.newKeyEvent(code, true)
+    events[2*n+1-i] = module.event.newKeyEvent(code, false)
+  end
+  return events
+end
+
 --- hs.eventtap.event.newMouseEvent(eventtype, point[, modifiers) -> event
 --- Constructor
 --- Creates a new mouse event
@@ -214,7 +240,7 @@ end
 --- Generates and emits a single keystroke event pair for the supplied keyboard modifiers and character
 ---
 --- Parameters:
----  * modifiers - A table containing the keyboard modifiers to apply ("fn", "ctrl", "alt", "cmd", "shift", "fn", or their Unicode equivalents)
+---  * modifiers - A table containing the keyboard modifiers to apply ("fn", "ctrl", "alt", "cmd", "shift", or their Unicode equivalents)
 ---  * character - A string containing a character to be emitted
 ---  * delay - An optional delay (in microseconds) between mouse down and up event. Defaults to 200000 (i.e. 200ms)
 ---
