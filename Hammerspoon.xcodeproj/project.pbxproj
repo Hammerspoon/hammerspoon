@@ -184,7 +184,6 @@
 		4FDE05E01B734ECC00E9E8EE /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDE05DF1B734ECC00E9E8EE /* internal.m */; };
 		4FDE05EA1B734EE600E9E8EE /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4FDE05F21B734F0100E9E8EE /* watcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDE05F11B734F0100E9E8EE /* watcher.m */; };
-		4FEA61511F06546200D71839 /* init.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FEA61501F06546200D71839 /* init.lua */; };
 		4FEF4D4F1C5FA01100E3B939 /* HSaudiodevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FEF4D4E1C5FA01000E3B939 /* HSaudiodevice.m */; };
 		4FEF4D551C5FBC0F00E3B939 /* test_audiodevice.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FEF4D531C5FBA9800E3B939 /* test_audiodevice.lua */; };
 		4FEF59431B29A352002344A7 /* HSGrowingTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FEF59421B29A352002344A7 /* HSGrowingTextField.m */; };
@@ -5266,7 +5265,6 @@
 				949CDC001990759B00906CCE /* ConsoleWindow.xib in Resources */,
 				949CDBFE1990747B00906CCE /* PreferencesWindow.xib in Resources */,
 				945B65B2198D31FC002D2E30 /* setup.lua in Resources */,
-				4FEA61511F06546200D71839 /* init.lua in Resources */,
 				4F5B6E6B1E9E86BB003FC580 /* Hammerspoon.sdef in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
