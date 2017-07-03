@@ -52,7 +52,7 @@ void MJAutoLaunchSet(BOOL opensAtLogin) {
                                                                        (__bridge CFURLRef)appURL,
                                                                        NULL,
                                                                        NULL);
-        CFRelease(result);
+        if (result) CFRelease(result);
     }
     else {
         UInt32 seed;
