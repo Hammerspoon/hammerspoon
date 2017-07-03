@@ -11,6 +11,8 @@ export OP=$1
 touch $BUILD_OUTPUT
 touch $TEST_OUTPUT
 
+echo "Build/test logs will be uploaded to: https://s3-eu-west-1.amazonaws.com/hammerspoontravisartifacts/index.html?prefix=logs/${TRAVIS_BUILD_NUMBER}/"
+
 if [ "${OP}" == "build" ]; then
     export OUTPUT_FILE="${BUILD_OUTPUT}"
     export XCODE_ARGS="build build-for-testing GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES"
@@ -47,8 +49,6 @@ xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release ${XCODE_ARGS} | te
 
 echo "Log file: "
 ls -l $OUTPUT_FILE
-
-echo "Will be uploaded to: https://s3-eu-west-1.amazonaws.com/hammerspoontravisartifacts/index.html?prefix=logs/${TRAVIS_BUILD_NUMBER}/"
 
 # nicely terminate the ping output loop
 kill $PING_LOOP_PID
