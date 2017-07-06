@@ -7,7 +7,8 @@ CGEventSourceRef eventSource;
 
 static int eventtap_event_gc(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
-    CFRelease(event);
+    if (event)
+      CFRelease(event);
     return 0;
 }
 
