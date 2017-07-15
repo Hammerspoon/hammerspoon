@@ -41,6 +41,7 @@ function testUdpListenerSocketAttributes()
 end
 
 function testUdpConnect()
+  local server = hs.socket.udp.server(port)
   local client1 = hs.socket.udp.new():connect("localhost", port)
   local client2 = hs.socket.udp.new():connect("localhost", 0)
 

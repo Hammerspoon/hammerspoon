@@ -37,6 +37,7 @@ export HS_MODULES="application \
     osascript \
     pasteboard \
     pathwatcher \
+    plist \
     screen \
     settings \
     sharing \

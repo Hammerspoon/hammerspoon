@@ -7,7 +7,8 @@ CGEventSourceRef eventSource;
 
 static int eventtap_event_gc(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
-    CFRelease(event);
+    if (event)
+      CFRelease(event);
     return 0;
 }
 
@@ -796,7 +797,7 @@ static void pushtypestable(lua_State* L) {
     lua_pushstring(L, "rightMouseUp") ;             lua_rawseti(L, -2, kCGEventRightMouseUp);
     lua_pushinteger(L, kCGEventRightMouseDragged);  lua_setfield(L, -2, "rightMouseDragged");
     lua_pushstring(L, "rightMouseDragged") ;        lua_rawseti(L, -2, kCGEventRightMouseDragged);
-/
+
     // The middleMouse* mappings here are for backwards compatibility (likely for nearly zero users)
     lua_pushstring(L, "middleMouseDown") ;          lua_rawseti(L, -2, kCGEventOtherMouseDown);
     lua_pushstring(L, "middleMouseUp") ;            lua_rawseti(L, -2, kCGEventOtherMouseUp);

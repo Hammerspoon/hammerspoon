@@ -785,12 +785,22 @@ static attributeValidity isValueValidForAttribute(NSString *keyName, id keyValue
 static NSNumber *convertPercentageStringToNumber(NSString *stringValue) {
     NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
     formatter.locale = [NSLocale currentLocale] ;
-    formatter.numberStyle = NSNumberFormatterDecimalStyle ;
 
+    formatter.numberStyle = NSNumberFormatterDecimalStyle ;
     NSNumber *tmpValue = [formatter numberFromString:stringValue] ;
     if (!tmpValue) {
         formatter.numberStyle = NSNumberFormatterPercentStyle ;
         tmpValue = [formatter numberFromString:stringValue] ;
+    }
+    // just to be sure, let's also check with the en_US locale
+    if (!tmpValue) {
+        formatter.locale = [NSLocale localeWithLocaleIdentifier:@"en_US"] ;
+        formatter.numberStyle = NSNumberFormatterDecimalStyle ;
+        tmpValue = [formatter numberFromString:stringValue] ;
+        if (!tmpValue) {
+            formatter.numberStyle = NSNumberFormatterPercentStyle ;
+            tmpValue = [formatter numberFromString:stringValue] ;
+        }
     }
     return tmpValue ;
 }
