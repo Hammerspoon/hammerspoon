@@ -159,6 +159,20 @@
     return YES;
 }
 
+- (BOOL)control: (NSControl *)control textView:(NSTextView *)textView doCommandBySelector:(SEL)commandSelector {
+    if (commandSelector == @selector(insertNewlineIgnoringFieldEditor:)) {
+        // User hit cmd-enter
+        [self queryDidPressEnter:self];
+        return true;
+    } else if (commandSelector == @selector(insertLineBreak:)) {
+        // User hit option-enter
+        [self queryDidPressEnter:self];
+        return true;
+    }
+
+    return false;
+}
+
 - (void)resizeWindow {
     NSRect screenFrame = [[NSScreen mainScreen] visibleFrame];
 

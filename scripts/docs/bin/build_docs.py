@@ -10,6 +10,7 @@ import pprint
 import sqlite3
 import string
 import sys
+import re
 
 DEBUG = False
 
@@ -30,7 +31,7 @@ TYPE_DESC = {
         "Constructor": "API calls which return an object, typically one "
                        "that offers API methods",
         "Command": "External shell commands",
-        "Field": "Variables which can only be access from an object returned "
+        "Field": "Variables which can only be accessed from an object returned "
                  "by a constructor",
         "Deprecated": "API features which will be removed in an future "
                       "release"}
@@ -149,7 +150,7 @@ def find_module_for_item(modules, item):
 
 def find_itemname_from_signature(signature):
     """Find the name of an item, from a full signature"""
-    return ''.join(signature.split('(')[0])
+    return ''.join(re.split(r"[\(\[\s]", signature)[0])
 
 
 def remove_method_from_itemname(itemname):

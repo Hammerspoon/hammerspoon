@@ -7,7 +7,8 @@ CGEventSourceRef eventSource;
 
 static int eventtap_event_gc(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
-    CFRelease(event);
+    if (event)
+      CFRelease(event);
     return 0;
 }
 
@@ -796,12 +797,12 @@ static void pushtypestable(lua_State* L) {
     lua_pushstring(L, "rightMouseUp") ;             lua_rawseti(L, -2, kCGEventRightMouseUp);
     lua_pushinteger(L, kCGEventRightMouseDragged);  lua_setfield(L, -2, "rightMouseDragged");
     lua_pushstring(L, "rightMouseDragged") ;        lua_rawseti(L, -2, kCGEventRightMouseDragged);
-    lua_pushinteger(L, kCGEventOtherMouseDown);     lua_setfield(L, -2, "middleMouseDown");
+
+    // The middleMouse* mappings here are for backwards compatibility (likely for nearly zero users)
     lua_pushstring(L, "middleMouseDown") ;          lua_rawseti(L, -2, kCGEventOtherMouseDown);
-    lua_pushinteger(L, kCGEventOtherMouseUp);       lua_setfield(L, -2, "middleMouseUp");
     lua_pushstring(L, "middleMouseUp") ;            lua_rawseti(L, -2, kCGEventOtherMouseUp);
-    lua_pushinteger(L, kCGEventOtherMouseDragged);  lua_setfield(L, -2, "middleMouseDragged");
     lua_pushstring(L, "middleMouseDragged") ;       lua_rawseti(L, -2, kCGEventOtherMouseDragged);
+
     lua_pushinteger(L, kCGEventMouseMoved);         lua_setfield(L, -2, "mouseMoved");
     lua_pushstring(L, "mouseMoved") ;               lua_rawseti(L, -2, kCGEventMouseMoved);
     lua_pushinteger(L, kCGEventFlagsChanged);       lua_setfield(L, -2, "flagsChanged");
@@ -816,6 +817,12 @@ static void pushtypestable(lua_State* L) {
     lua_pushstring(L, "tabletPointer") ;            lua_rawseti(L, -2, kCGEventTabletPointer);
     lua_pushinteger(L, kCGEventTabletProximity);    lua_setfield(L, -2, "tabletProximity");
     lua_pushstring(L, "tabletProximity") ;          lua_rawseti(L, -2, kCGEventTabletProximity);
+    lua_pushinteger(L, kCGEventOtherMouseDown);     lua_setfield(L, -2, "otherMouseDown");
+    lua_pushstring(L, "otherMouseDown") ;           lua_rawseti(L, -2, kCGEventOtherMouseDown);
+    lua_pushinteger(L, kCGEventOtherMouseUp);       lua_setfield(L, -2, "otherMouseUp");
+    lua_pushstring(L, "otherMouseUp") ;             lua_rawseti(L, -2, kCGEventOtherMouseUp);
+    lua_pushinteger(L, kCGEventOtherMouseDragged);  lua_setfield(L, -2, "otherMouseDragged");
+    lua_pushstring(L, "otherMouseDragged") ;        lua_rawseti(L, -2, kCGEventOtherMouseDragged);
     lua_pushinteger(L, kCGEventNull);               lua_setfield(L, -2, "nullEvent");
     lua_pushstring(L, "nullEvent") ;                lua_rawseti(L, -2, kCGEventNull);
     lua_pushinteger(L, NSMouseEntered);             lua_setfield(L, -2, "NSMouseEntered");

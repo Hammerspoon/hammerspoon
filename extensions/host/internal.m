@@ -297,6 +297,48 @@ static int hs_operatingSystemVersionString(lua_State *L) {
     return 1 ;
 }
 
+/// hs.host.thermalState() -> string
+/// Function
+/// The current thermal state of the computer, as a human readable string
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The system's thermal state as a human readable string
+static int hs_thermalStateString(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TBREAK];
+
+    NSProcessInfoThermalState state = [NSProcessInfo processInfo].thermalState;
+    NSString *returnState = nil;
+
+    switch (state) {
+        case NSProcessInfoThermalStateNominal:
+            returnState = @"nominal";
+            break;
+
+        case NSProcessInfoThermalStateFair:
+            returnState = @"fair";
+            break;
+
+        case NSProcessInfoThermalStateSerious:
+            returnState = @"serious";
+            break;
+
+        case NSProcessInfoThermalStateCritical:
+            returnState = @"critical";
+            break;
+
+        default:
+            returnState = @"unknown";
+            break;
+    }
+
+    [skin pushNSObject:returnState];
+    return 1;
+}
+
 /// hs.host.operatingSystemVersion() -> table
 /// Function
 /// The operating system version as a table containing the major, minor, and patch numbers.
@@ -607,6 +649,7 @@ static const luaL_Reg hostlib[] = {
     {"cpuUsageTicks",                hs_cpuUsageTicks},
     {"operatingSystemVersion",       hs_operatingSystemVersion},
     {"operatingSystemVersionString", hs_operatingSystemVersionString},
+    {"thermalState",                 hs_thermalStateString},
     {"interfaceStyle",               hs_interfaceStyle},
     {"uuid",                         hs_uuid},
     {"globallyUniqueString",         hs_globallyUniqueString},

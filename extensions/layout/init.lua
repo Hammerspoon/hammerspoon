@@ -196,7 +196,7 @@ function layout.apply(layout, windowTitleComparator)
                 local screenrect = nil
 
                 -- Move window to destination display, if wanted
-                if display and displaypoint then
+                if display and displaypoint and display ~= _win:screen() then
                     _win:setTopLeft(displaypoint)
                 end
 
