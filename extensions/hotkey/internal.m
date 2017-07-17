@@ -179,7 +179,7 @@ static int hotkey_new(lua_State* L) {
     return 1;
 }
 
-static int hotkey_assigned(lua_State* L) {
+static int hotkey_systemAssigned(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
 
     luaL_checktype(L, 1, LUA_TTABLE);
@@ -395,7 +395,7 @@ static int userdata_tostring(lua_State* L) {
 
 static const luaL_Reg hotkeylib[] = {
     {"_new", hotkey_new},
-    {"assigned", hotkey_assigned},
+    {"systemAssigned", hotkey_systemAssigned},
 
     {NULL, NULL}
 };
