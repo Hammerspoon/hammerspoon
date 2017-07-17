@@ -19,7 +19,7 @@ end
 
 local timer    = require("hs.timer")
 local settings = require("hs.settings")
-local log      = require("hs.logger").new(USERDATA_TAG, (settings.get(USERDATA_TAG .. ".logLevel") or "debug"))
+local log      = require("hs.logger").new(USERDATA_TAG, (settings.get(USERDATA_TAG .. ".logLevel") or "warning"))
 local json     = require("hs.json")
 local fnutils  = require("hs.fnutils")
 
@@ -368,7 +368,7 @@ module.__defaultHandler = function(self, msgID, msg)
                 for i = 2, things.n do
                     stdout = stdout .. "\t" .. tostring(things[i])
                 end
-                module.__registeredCLIInstances[instanceID]._cli.remote:sendMessage(stdout, MSG_ID.OUTPUT)
+                module.__registeredCLIInstances[instanceID]._cli.remote:sendMessage(stdout .. "\n", MSG_ID.OUTPUT)
                 if type(parent.console) == "nil" then
                     originalPrint(...)
                 end
@@ -411,6 +411,7 @@ module.__defaultHandler = function(self, msgID, msg)
                 str = str .. "\t" .. tostring(results[i])
             end
 
+            if #str > 0 then str = str .. "\n" end
             if msgID == MSG_ID.COMMAND then
                 fnEnv._cli.remote:sendMessage(str, results[1] and MSG_ID.RETURN or MSG_ID.ERROR)
                 return results[1] and "ok" or "error"
