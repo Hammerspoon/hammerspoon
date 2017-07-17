@@ -985,7 +985,7 @@ static int screen_snapshot(lua_State *L) {
     return 1;
 }
 
-/// hs.screen:screen_desktopImageURL([imageURL])
+/// hs.screen:desktopImageURL([imageURL])
 /// Method
 /// Gets/Sets the desktop background image for a screen
 ///

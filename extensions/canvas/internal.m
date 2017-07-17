@@ -785,12 +785,22 @@ static attributeValidity isValueValidForAttribute(NSString *keyName, id keyValue
 static NSNumber *convertPercentageStringToNumber(NSString *stringValue) {
     NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
     formatter.locale = [NSLocale currentLocale] ;
-    formatter.numberStyle = NSNumberFormatterDecimalStyle ;
 
+    formatter.numberStyle = NSNumberFormatterDecimalStyle ;
     NSNumber *tmpValue = [formatter numberFromString:stringValue] ;
     if (!tmpValue) {
         formatter.numberStyle = NSNumberFormatterPercentStyle ;
         tmpValue = [formatter numberFromString:stringValue] ;
+    }
+    // just to be sure, let's also check with the en_US locale
+    if (!tmpValue) {
+        formatter.locale = [NSLocale localeWithLocaleIdentifier:@"en_US"] ;
+        formatter.numberStyle = NSNumberFormatterDecimalStyle ;
+        tmpValue = [formatter numberFromString:stringValue] ;
+        if (!tmpValue) {
+            formatter.numberStyle = NSNumberFormatterPercentStyle ;
+            tmpValue = [formatter numberFromString:stringValue] ;
+        }
     }
     return tmpValue ;
 }
@@ -968,6 +978,7 @@ static int userdata_gc(lua_State* L) ;
         _wrapperWindow         = nil ;
 
         _mouseCallbackRef      = LUA_NOREF;
+        _draggingCallbackRef   = LUA_NOREF;
         _canvasDefaults        = [[NSMutableDictionary alloc] init] ;
         _elementList           = [[NSMutableArray alloc] init] ;
         _elementBounds         = [[NSMutableArray alloc] init] ;
@@ -2176,6 +2187,87 @@ static int userdata_gc(lua_State* L) ;
     [NSAnimationContext endGrouping];
 }
 
+#pragma mark - NSDraggingDestination protocol methods
+
+- (BOOL)draggingCallback:(NSString *)message with:(id<NSDraggingInfo>)sender {
+    BOOL isAllGood = NO ;
+    if (_draggingCallbackRef != LUA_NOREF) {
+        LuaSkin *skin = [LuaSkin shared] ;
+        lua_State *L = skin.L ;
+        int argCount = 2 ;
+        [skin pushLuaRef:refTable ref:_draggingCallbackRef] ;
+        [skin pushNSObject:self] ;
+        [skin pushNSObject:message] ;
+        if (sender) {
+            lua_newtable(L) ;
+            NSPasteboard *pasteboard = [sender draggingPasteboard] ;
+            if (pasteboard) {
+                [skin pushNSObject:pasteboard.name] ; lua_setfield(L, -2, "pasteboard") ;
+            }
+            lua_pushinteger(L, [sender draggingSequenceNumber]) ; lua_setfield(L, -2, "sequence") ;
+            [skin pushNSPoint:[sender draggingLocation]] ; lua_setfield(L, -2, "mouse") ;
+            NSDragOperation operation = [sender draggingSourceOperationMask] ;
+            lua_newtable(L) ;
+            if (operation == NSDragOperationNone) {
+                lua_pushstring(L, "none") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1)  ;
+            } else {
+                if ((operation & NSDragOperationCopy) == NSDragOperationCopy) {
+                    lua_pushstring(L, "copy") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1)  ;
+                }
+                if ((operation & NSDragOperationLink) == NSDragOperationLink) {
+                    lua_pushstring(L, "link") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1)  ;
+                }
+                if ((operation & NSDragOperationGeneric) == NSDragOperationGeneric) {
+                    lua_pushstring(L, "generic") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1)  ;
+                }
+                if ((operation & NSDragOperationPrivate) == NSDragOperationPrivate) {
+                    lua_pushstring(L, "private") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1)  ;
+                }
+                if ((operation & NSDragOperationMove) == NSDragOperationMove) {
+                    lua_pushstring(L, "move") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1)  ;
+                }
+                if ((operation & NSDragOperationDelete) == NSDragOperationDelete) {
+                    lua_pushstring(L, "delete") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1)  ;
+                }
+            }
+            lua_setfield(L, -2, "operation") ;
+            argCount += 1 ;
+        }
+        if ([skin protectedCallAndTraceback:argCount nresults:1]) {
+            isAllGood = lua_isnoneornil(L, -1) ? YES : (BOOL)lua_toboolean(skin.L, -1) ;
+        } else {
+            [skin logError:[NSString stringWithFormat:@"%s:draggingCallback error: %@", USERDATA_TAG, [skin toNSObjectAtIndex:-1]]] ;
+        }
+        lua_pop(L, 1) ;
+    }
+    return isAllGood ;
+}
+
+- (BOOL)wantsPeriodicDraggingUpdates {
+    return NO ;
+}
+
+- (BOOL)prepareForDragOperation:(__unused id<NSDraggingInfo>)sender {
+    return YES ;
+}
+
+- (NSDragOperation)draggingEntered:(id<NSDraggingInfo>)sender {
+    return [self draggingCallback:@"enter" with:sender] ? NSDragOperationGeneric : NSDragOperationNone ;
+}
+
+- (void)draggingExited:(id<NSDraggingInfo>)sender {
+    [self draggingCallback:@"exit" with:sender] ;
+}
+
+- (BOOL)performDragOperation:(id<NSDraggingInfo>)sender {
+    return [self draggingCallback:@"receive" with:sender] ;
+}
+
+// - (NSDragOperation)draggingUpdated:(id<NSDraggingInfo>)sender ;
+// - (void)concludeDragOperation:(id<NSDraggingInfo>)sender ;
+// - (void)draggingEnded:(id<NSDraggingInfo>)sender ;
+// - (void)updateDraggingItemsForDrag:(id<NSDraggingInfo>)sender
+
 @end
 
 #pragma mark - Module Functions
@@ -2306,6 +2398,52 @@ static int default_textAttributes(lua_State *L) {
 }
 
 #pragma mark - Module Methods
+
+/// hs.canvas:draggingCallback(fn | nil) -> canvasObject
+/// Method
+/// Sets or remove a callback for accepting dragging and dropping items onto the canvas.
+///
+/// Parameters:
+///  * `fn`   - A function, can be nil, that will be called when an item is dragged onto the canvas.  An explicit nil, the default, disables drag-and-drop for this canvas.
+///
+/// Returns:
+///  * The canvas object
+///
+/// Notes:
+///  * The callback function should expect 3 arguments and optionally return 1: the canvas object itself, a message specifying the type of dragging event, and a table containing details about the item(s) being dragged.  The key-value pairs of the details table will be the following:
+///    * `pasteboard` - the name of the pasteboard that contains the items being dragged
+///    * `sequence`   - an integer that uniquely identifies the dragging session.
+///    * `mouse`      - a point table containing the location of the mouse pointer within the canvas corresponding to when the callback occurred.
+///    * `operation`  - a table containing string descriptions of the type of dragging the source application supports. Potentially useful for determining if your callback function should accept the dragged item or not.
+///
+/// * The possible messages the callback function may receive are as follows:
+///    * "enter"   - the user has dragged an item into the canvas.  When your callback receives this message, you can optionally return false to indicate that you do not wish to accept the item being dragged.
+///    * "exit"    - the user has moved the item out of the canvas; if the previous "enter" callback returned false, this message will also occur when the user finally releases the items being dragged.
+///    * "receive" - indicates that the user has released the dragged object while it is still within the canvas frame.  When your callback receives this message, you can optionally return false to indicate to the sending application that you do not want to accept the dragged item -- this may affect the animations provided by the sending application.
+///
+///  * You can use the sequence number in the details table to match up an "enter" with an "exit" or "receive" message.
+///
+///  * You should capture the details you require from the drag-and-drop operation during the callback for "receive" by using the pasteboard field of the details table and the `hs.pasteboard` module.  Because of the nature of "promised items", it is not guaranteed that the items will still be on the pasteboard after your callback completes handling this message.
+///
+///  * A canvas object can only accept drag-and-drop items when its window level is at [hs.canvas.windowLevels.dragging](#windowLevels) or lower.
+///  * a canvas object can only accept drag-and-drop items when it accepts mouse events.  You must define a [hs.canvas:mouseCallback](#mouseCallback) function, even if it is only a placeholder, e.g. `hs.canvas:mouseCallback(function() end)`
+static int canvas_draggingCallback(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION | LS_TNIL, LS_TBREAK] ;
+    HSCanvasView   *canvasView   = [skin luaObjectAtIndex:1 toClass:"HSCanvasView"] ;
+
+    // We're either removing callback(s), or setting new one(s). Either way, remove existing.
+    canvasView.draggingCallbackRef = [skin luaUnref:refTable ref:canvasView.mouseCallbackRef];
+    [canvasView unregisterDraggedTypes] ;
+    if ([skin luaTypeAtIndex:2] == LUA_TFUNCTION) {
+        lua_pushvalue(L, 2);
+        canvasView.draggingCallbackRef = [skin luaRef:refTable] ;
+        [canvasView registerForDraggedTypes:@[ (__bridge NSString *)kUTTypeItem ]] ;
+    }
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
 
 static int canvas_accessibilitySubrole(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
@@ -3649,6 +3787,9 @@ static int pushCollectionTypeTable(lua_State *L) {
 ///  * These key names map to the constants used in CoreGraphics to specify window levels and may not actually be used for what the name might suggest. For example, tests suggest that an active screen saver actually runs at a level of 2002, rather than at 1000, which is the window level corresponding to kCGScreenSaverWindowLevelKey.
 ///  * Each window level is sorted separately and [hs.canvas:orderAbove](#orderAbove) and [hs.canvas:orderBelow](#orderBelow) only arrange windows within the same level.
 ///  * If you use Dock hiding (or in 10.11, Menubar hiding) please note that when the Dock (or Menubar) is popped up, it is done so with an implicit orderAbove, which will place it above any items you may also draw at the Dock (or MainMenu) level.
+///
+///  * A canvas object with a [hs.canvas:draggingCallback](#draggingCallback) function can only accept drag-and-drop items when its window level is at `hs.canvas.windowLevels.dragging` or lower.
+///  * A canvas object with a [hs.canvas:mouseCallback](#mouseCallback) function can only reliably receive mouse click events when its window level is at `hs.canvas.windowLevels.desktopIcon` + 1 or higher.
 static int cg_windowLevels(lua_State *L) {
     lua_newtable(L) ;
 //       lua_pushinteger(L, CGWindowLevelForKey(kCGBaseWindowLevelKey)) ;              lua_setfield(L, -2, "kCGBaseWindowLevelKey") ;
@@ -3792,6 +3933,8 @@ static const luaL_Reg userdata_metaLib[] = {
     {"topLeft",               canvas_topLeft},
     {"transformation",        canvas_canvasTransformation},
     {"wantsLayer",            canvas_wantsLayer},
+    {"draggingCallback",      canvas_draggingCallback},
+
     {"_accessibilitySubrole", canvas_accessibilitySubrole},
 
     {"__tostring",            userdata_tostring},

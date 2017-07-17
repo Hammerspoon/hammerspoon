@@ -297,6 +297,48 @@ static int hs_operatingSystemVersionString(lua_State *L) {
     return 1 ;
 }
 
+/// hs.host.thermalState() -> string
+/// Function
+/// The current thermal state of the computer, as a human readable string
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The system's thermal state as a human readable string
+static int hs_thermalStateString(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TBREAK];
+
+    NSProcessInfoThermalState state = [NSProcessInfo processInfo].thermalState;
+    NSString *returnState = nil;
+
+    switch (state) {
+        case NSProcessInfoThermalStateNominal:
+            returnState = @"nominal";
+            break;
+
+        case NSProcessInfoThermalStateFair:
+            returnState = @"fair";
+            break;
+
+        case NSProcessInfoThermalStateSerious:
+            returnState = @"serious";
+            break;
+
+        case NSProcessInfoThermalStateCritical:
+            returnState = @"critical";
+            break;
+
+        default:
+            returnState = @"unknown";
+            break;
+    }
+
+    [skin pushNSObject:returnState];
+    return 1;
+}
+
 /// hs.host.operatingSystemVersion() -> table
 /// Function
 /// The operating system version as a table containing the major, minor, and patch numbers.
@@ -464,6 +506,70 @@ static int hs_globallyUniqueString(lua_State* L) {
     return 1;
 }
 
+/// hs.host.idleTime() -> seconds
+/// Function
+/// Returns the number of seconds the computer has been idle.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * the idle time in seconds
+///
+/// Notes:
+///  * Idle time is defined as no mouse move nor keyboard entry, etc. and is determined by querying the HID (Human Interface Device) subsystem.
+///  * This code is directly inspired by code found at http://www.xs-labs.com/en/archives/articles/iokit-idle-time/
+static int hs_idleTime(lua_State *L) {
+    mach_port_t            ioPort ;
+    io_iterator_t          ioIterator;
+    CFMutableDictionaryRef properties ;
+    uint64_t               time;
+
+    kern_return_t status = IOMasterPort(MACH_PORT_NULL, &ioPort) ;
+    if (status != KERN_SUCCESS) return luaL_error(L, "Error communicating with IOKit: %d", status) ;
+
+    status = IOServiceGetMatchingServices(ioPort, IOServiceMatching( "IOHIDSystem" ), &ioIterator);
+    if (status != KERN_SUCCESS) return luaL_error(L, "Error accessing IOHIDSystem: %d", status) ;
+
+    io_object_t ioObject = IOIteratorNext(ioIterator);
+    if (ioObject == 0) {
+        IOObjectRelease(ioIterator);
+        return luaL_error(L, "Invalid iterator returned for IOHIDSystem") ;
+    }
+
+    status = IORegistryEntryCreateCFProperties(ioObject, &properties, kCFAllocatorDefault, 0);
+    if (status != KERN_SUCCESS || properties == NULL) {
+        IOObjectRelease(ioIterator);
+        return luaL_error(L, "Cannot get system properties for IOHIDSystem: %d", status) ;
+    }
+
+    CFTypeRef idle = CFDictionaryGetValue(properties, CFSTR("HIDIdleTime")) ;
+    if (!idle) {
+        IOObjectRelease(ioIterator) ;
+        CFRelease(properties) ;
+        return luaL_error(L, "Cannot get system idle time from system properties for IOHIDSystem: %d", status) ;
+    }
+
+    CFTypeID type = CFGetTypeID( idle ); // could be data type or number type
+    if (type == CFDataGetTypeID()) {
+        CFDataGetBytes((CFDataRef)idle, CFRangeMake(0, sizeof(time)), (UInt8 *)&time) ;
+    } else if (type == CFNumberGetTypeID()) {
+        CFNumberGetValue((CFNumberRef)idle, kCFNumberSInt64Type, &time) ;
+    } else {
+        IOObjectRelease(ioIterator) ;
+        CFRelease(idle) ;
+        CFRelease(properties) ;
+        return luaL_error(L, "Unsupported type %d for HIDIdleTime", type) ;
+    }
+
+    IOObjectRelease(ioIterator) ;
+    CFRelease(idle) ;
+    CFRelease(properties) ;
+
+    lua_pushinteger(L, (lua_Integer)(time >> 30)) ;
+    return 1 ;
+}
+
 /// hs.host.volumeInformation([showHidden]) -> table
 /// Function
 /// Returns a table of information about disk volumes attached to the system
@@ -543,10 +649,12 @@ static const luaL_Reg hostlib[] = {
     {"cpuUsageTicks",                hs_cpuUsageTicks},
     {"operatingSystemVersion",       hs_operatingSystemVersion},
     {"operatingSystemVersionString", hs_operatingSystemVersionString},
+    {"thermalState",                 hs_thermalStateString},
     {"interfaceStyle",               hs_interfaceStyle},
     {"uuid",                         hs_uuid},
     {"globallyUniqueString",         hs_globallyUniqueString},
     {"volumeInformation",            hs_volumeInformation},
+    {"idleTime",                     hs_idleTime},
 
     {NULL, NULL}
 };

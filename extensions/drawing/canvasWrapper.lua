@@ -701,9 +701,9 @@ drawingMT.rotateImage = function(self, ...)
     if ({ image = 1 })[self.canvas[#self.canvas].type] then
         if args.n == 1 then
             local size = self.canvas:size()
-            self.canvas:transformation(canvas.matrix:translate(size.w / 2, size.h / 2)
-                                                    :rotate(args[1])
-                                                    :translate(size.w / -2, size.h / -2))
+            self.canvas[#self.canvas].transformation = canvas.matrix.translate(size.w / 2, size.h / 2)
+                                                                    :rotate(args[1])
+                                                                    :translate(size.w / -2, size.h / -2)
         else
             error(string.format("ERROR: incorrect number of arguments. Expected 2, got %d", args.n), 2)
         end

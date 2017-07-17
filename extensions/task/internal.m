@@ -188,6 +188,9 @@ void create_task(task_userdata_t *userData) {
 ///
 /// Returns:
 ///  * An `hs.task` object
+///
+/// Notes:
+///  * The arguments are not processed via a shell, so you do not need to do any quoting or escaping. They are passed to the executable exactly as provided.
 static int task_new(lua_State *L) {
     // Check our arguments
     LuaSkin *skin = [LuaSkin shared];

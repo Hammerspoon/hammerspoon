@@ -37,6 +37,7 @@ export HS_MODULES="application \
     osascript \
     pasteboard \
     pathwatcher \
+    plist \
     screen \
     settings \
     sharing \
@@ -80,6 +81,7 @@ export HS_LUAONLY="_coresetup \
     network \
     redshift \
     spotify \
+    spoons \
     spaces \
     tabs \
     utf8 \
@@ -174,7 +176,7 @@ cp -av "${SRCROOT}/extensions/window/highlight.lua" "${HS_DST}/window/highlight.
 # Special copier for hs.webview.usercontent submodule
 cp -av "${BUILT_PRODUCTS_DIR}/libwebviewusercontent.dylib" "${HS_DST}/webview/usercontent.so"
 
-# Special copier for hs.webview.toolbar submodule
+# Special copier for hs.webview.toolbar submodule		
 cp -av "${SRCROOT}/extensions/webview/toolbar.lua" "${HS_DST}/webview/toolbar.lua"
 cp -av "${BUILT_PRODUCTS_DIR}/libwebviewtoolbar.dylib" "${HS_DST}/webview/toolbar_internal.so"
 
@@ -191,3 +193,6 @@ ibtool --compile "${HS_RESOURCES}/HSChooserWindow.nib" "${SRCROOT}/extensions/ch
 mkdir -pv "${HS_DST}/sqlite3"
 cp -av "${SRCROOT}/extensions/sqlite3/init.lua" "${HS_DST}/sqlite3/init.lua"
 cp -av "${BUILT_PRODUCTS_DIR}/liblsqlite3.dylib" "${HS_DST}/sqlite3/lsqlite3.so"
+
+# Special copier for hs.spoons templates directory
+cp -av "${SRCROOT}/extensions/spoons/templates" "${HS_DST}/spoons"

@@ -4,6 +4,7 @@
 
   <%
       cgilua.lp.include("common.lp")
+
       local modNames = {}
       for i, v in ipairs(documentation) do
           modNames[v.name] = true
@@ -89,11 +90,6 @@
       td { width: 100%; background-color: #EEEEEE; vertical-align: top; padding: 3px; }
       table { width: 100% ; border: 1px solid #0; text-align: left; }
       section > table table td { width: 0; }
-    </style>
-    <link rel="stylesheet" href="<%= cgilua.mkurlpath("docs.css") %>" type="text/css" media="screen" />
-
-    <style type="text/css">
-      h1 { margin:0; }
 
 <% if settings.get("_documentationServer.entitiesInSidebar") then %>
 /* Inspired by https://openuserjs.org/scripts/krasnovpro/hammerspoon.org_Documentation/source */
@@ -128,11 +124,10 @@
       }
       body {
         margin-left: 20vw;
-        width: 70vw;
+        width: 75vw;
       }
 <% end %>
     </style>
-
   </head>
 
   <body>
@@ -143,6 +138,23 @@
     <h3>API Overview</h3>
     <ul>
       <%
+        if mod.name ~= "hs" then
+            local submodules = {}
+            local relevantJson = isSpoon and spoonDocumentation or documentation
+            for _, v in ipairs(relevantJson) do
+                if v.name:match("^" .. mod.name .. "%.") then table.insert(submodules, v.name) end
+            end
+
+            if #submodules > 0 then %>
+                <li>Submodules</li>
+                <ul>
+                  <% for _, item in ipairs(submodules) do %>
+                      <li><a href="<%= cgilua.mkurlpath("module.lp/" .. (isSpoon and "spoon." or "") .. item) %>"><%= item %></a></li>
+                  <% end %>
+                </ul>
+          <% end
+        end
+
         local sectionorder = { "Deprecated", "Command", "Constant", "Variable", "Function", "Constructor", "Field", "Method" }
         local sectiondetails = {
           ["Deprecated"]  = "API features which will be removed in an upcoming release",
@@ -151,7 +163,7 @@
           ["Variable"]    = "Configurable values",
           ["Function"]    = "API calls offered directly by the extension",
           ["Constructor"] = "API calls which return an object, typically one that offers API methods",
-          ["Field"]       = "Variables which can only be access from an object returned by a constructor",
+          ["Field"]       = "Variables which can only be accessed from an object returned by a constructor",
           ["Method"]      = "API calls which can only be made on an object returned by a constructor",
         }
 
@@ -203,6 +215,7 @@
         <% end
       end
     %>
+  <% cgilua.lp.include("search.lp") %>
   </body>
 
 <%= "<","!--" %> -->

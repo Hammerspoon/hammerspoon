@@ -122,8 +122,34 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     return YES;
 }
 
-- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
 
+- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+    
+    // User is holding down Command (0x37) & Option (0x3A) keys:
+    if (CGEventSourceKeyState(kCGEventSourceStateCombinedSessionState,0x3A) && CGEventSourceKeyState(kCGEventSourceStateCombinedSessionState,0x37)) {
+        
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert addButtonWithTitle:@"Continue"];
+        [alert addButtonWithTitle:@"Delete Preferences"];
+        [alert setMessageText:@"Do you want to delete the preferences?"];
+        [alert setInformativeText:@"Deleting the preferences will reset all Hammerspoon settings (including everything that uses hs.settings) to their defaults."];
+        [alert setAlertStyle:NSWarningAlertStyle];
+        
+        if ([alert runModal] == NSAlertSecondButtonReturn) {
+            
+            // Reset Preferences:
+            NSDictionary * allObjects;
+            NSString     * key;
+            allObjects = [[NSUserDefaults standardUserDefaults] dictionaryRepresentation];
+            for(key in allObjects)
+            {
+                [[NSUserDefaults standardUserDefaults] removeObjectForKey: key];
+            }
+            [[NSUserDefaults standardUserDefaults] synchronize];
+            
+        }
+    }
+    
     [[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(accessibilityChanged:) name:@"com.apple.accessibility.api" object:nil];
 
     // Remove our early event manager handler so hs.urlevent can register for it later, if the user has it configured to

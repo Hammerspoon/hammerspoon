@@ -11,6 +11,7 @@ require("hs.image")
 require("hs.sound")
 require("hs.styledtext")
 require("hs.drawing.color")
+require("hs.sharing")
 
 -- Public interface ------------------------------------------------------
 
@@ -22,7 +23,7 @@ require("hs.drawing.color")
 ---  * name - an optional string indicating the pasteboard name.  If nil or not present, defaults to the system pasteboard.
 ---
 --- Returns:
---   a mapping from a UTI value to the raw data
+---   a mapping from a UTI value to the raw data
 module.readAllData = function (name)
   local contents = {}
   for _, uti in ipairs(module.contentTypes(name)) do
@@ -40,7 +41,7 @@ end
 ---  * a mapping from a UTI value to the raw data
 ---
 --- Returns:
---   * True if the operation succeeded, otherwise false (which most likely means ownership of the pasteboard has changed)
+---   * True if the operation succeeded, otherwise false (which most likely means ownership of the pasteboard has changed)
 module.writeAllData = function (...)
   local name, contents
   if #{...} == 1 then

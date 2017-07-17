@@ -34,24 +34,27 @@ local sections = {
     Method      = 8,
 }
 
---- hs.doc.builder.genComments(path) -> table
+--- hs.doc.builder.genComments(path, [recurse]) -> table
 --- Function
 --- Generates a documentation table for Hammerspoon modules or Spoon bundles from the source files located in the path(s) provided.
 ---
 --- Parameters:
 ---  * where - a string specifying a single path, or a table containing multiple strings specifying paths where source files should be examined to generate the documentation table.
+---  * recurse - an optional boolean, default true, specifying whether or not files in sub-directories of the specified path should be examined for comment strings as well.
 ---
 --- Returns:
 ---  * table - a table containing the documentation broken out into the key-value pairs used to generate documentation displayed by `hs.doc` and `hs.doc.hsdocs`.
 ---
 --- Notes:
 ---  * Because Hammerspoon and all known currently available modules are coded in Objective-C and/or Lua, only files with the .m or .lua extension are examined in the provided path(s).  Please submit an issue (or pull request, if you modify this submodule yourself) at https://github.com/Hammerspoon if you need this to be changed for your addition.
-module.genComments = function(where)
+module.genComments = function(where, recurse)
     -- get the comments from the specified path(s)
     local text = {}
     if type(where) == "string" then where = { where } end
+    if type(recurse) == "nil" then recurse = true end
+    local maxDepth = recurse and " -maxdepth 1" or ""
     for _, path in ipairs(where) do
-        for _, file in ipairs(fnutils.split(hs.execute("find "..path.." -name \\*.lua -print -o -name \\*.m -print"), "[\r\n]")) do
+        for _, file in ipairs(fnutils.split(hs.execute("find "..path..maxDepth.." -name \\*.lua -print -o -name \\*.m -print"), "[\r\n]")) do
             if file ~= "" then
                 local comment, incomment = {}, false
                 for line in io.lines(file) do

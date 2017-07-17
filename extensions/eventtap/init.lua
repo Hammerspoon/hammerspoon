@@ -140,7 +140,7 @@ end
 ---
 --- Parameters:
 ---  * eventtype - One of the values from `hs.eventtap.event.types`
----  * point - A table with keys `{x, y}` indicating the location where the mouse event should occur
+---  * point - An hs.geometry point table (i.e. of the form `{x=123, y=456}`) indicating the location where the mouse event should occur
 ---  * modifiers - An optional table containing zero or more of the following keys:
 ---   * cmd
 ---   * alt

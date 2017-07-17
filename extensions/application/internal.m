@@ -387,11 +387,16 @@ static int application_bundleID(lua_State* L) {
 ///  * None
 ///
 /// Returns:
-///  * A string containing the filesystem path of the application
+///  * A string containing the filesystem path of the application or nil if the path could not be determined (e.g. if the application has terminated).
 static int application_path(lua_State* L) {
     NSRunningApplication* app = nsobject_for_app(L, 1);
-    NSString *appPath = [NSBundle bundleWithURL:[app bundleURL]].bundlePath;
-    [[LuaSkin shared] pushNSObject:appPath];
+    NSURL *appURL = [app bundleURL] ;
+    if (appURL) {
+        NSString *appPath = [NSBundle bundleWithURL:appURL].bundlePath;
+        [[LuaSkin shared] pushNSObject:appPath];
+    } else {
+        lua_pushnil(L) ;
+    }
     return 1;
 }
 
