@@ -1,6 +1,6 @@
 ![Crashlytics Header](https://docs.fabric.io/ios/cocoapod-readmes/cocoapods-crashlytics-header.png)
 
-Part of [Twitter Fabric](https://www.fabric.io), [Crashlytics](http://try.crashlytics.com/) offers the most powerful, yet lightest weight crash reporting solution for iOS. Crashlytics also provides real-time analytics through [Answers](https://answers.io/) and app distributions to testers using [Beta](http://try.crashlytics.com/beta/).
+Part of [Google Fabric](https://get.fabric.io), [Crashlytics](http://try.crashlytics.com/) offers the most powerful, yet lightest weight crash reporting solution for iOS. Crashlytics also provides real-time analytics through [Answers](https://answers.io/) and app distributions to testers using [Beta](http://try.crashlytics.com/beta/).
 
 ## Setup
 
@@ -33,8 +33,7 @@ Part of [Twitter Fabric](https://www.fabric.io), [Crashlytics](http://try.crashl
 
 ## Resources
 
-* [Documentation](https://docs.fabric.io/ios/crashlytics/index.html)
-* [Forums](https://twittercommunity.com/c/fabric/crashlytics)
+* [Documentation](https://docs.fabric.io/apple/crashlytics/overview.html)
+* [Forums](https://stackoverflow.com/questions/tagged/google-fabric)
 * [Website](http://try.crashlytics.com/)
 * Follow us on Twitter: [@fabric](https://twitter.com/fabric) and [@crashlytics](https://twitter.com/crashlytics)
-* Follow us on Periscope: [Fabric](https://periscope.tv/fabric) and [TwitterDev](https://periscope.tv/twitterdev)
