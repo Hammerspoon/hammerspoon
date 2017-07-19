@@ -185,6 +185,7 @@ end
 ---  * point  - A table with keys `{x, y}` indicating the location where the mouse event should occur
 ---  * delay  - An optional delay (in microseconds) between mouse down and up event. Defaults to 200000 (i.e. 200ms)
 ---  * button - An optional integer, default 2, between 2 and 31 specifying the button number to be pressed.  If this parameter is specified then `delay` must also be specified, though you may specify it as `nil` to use the default.
+---
 --- Returns:
 ---  * None
 ---
