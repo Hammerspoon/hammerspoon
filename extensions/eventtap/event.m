@@ -609,7 +609,7 @@ static int eventtap_event_newMouseEvent(lua_State* L) {
 
     if (strcmp(buttonString, "right") == 0)
         button = kCGMouseButtonRight;
-    else if (strcmp(buttonString, "middle") == 0)
+    else if (strcmp(buttonString, "other") == 0)
         button = kCGMouseButtonCenter;
 
     if (!lua_isnoneornil(L, 4) && (lua_type(L, 4) == LUA_TTABLE)) {
@@ -799,9 +799,9 @@ static void pushtypestable(lua_State* L) {
     lua_pushstring(L, "rightMouseDragged") ;        lua_rawseti(L, -2, kCGEventRightMouseDragged);
 
     // The middleMouse* mappings here are for backwards compatibility (likely for nearly zero users)
-    lua_pushstring(L, "middleMouseDown") ;          lua_rawseti(L, -2, kCGEventOtherMouseDown);
-    lua_pushstring(L, "middleMouseUp") ;            lua_rawseti(L, -2, kCGEventOtherMouseUp);
-    lua_pushstring(L, "middleMouseDragged") ;       lua_rawseti(L, -2, kCGEventOtherMouseDragged);
+    lua_pushinteger(L, kCGEventOtherMouseDown);     lua_setfield(L, -2, "middleMouseDown");
+    lua_pushinteger(L, kCGEventOtherMouseUp);       lua_setfield(L, -2, "middleMouseUp");
+    lua_pushinteger(L, kCGEventOtherMouseDragged);  lua_setfield(L, -2, "middleMouseDragged");
 
     lua_pushinteger(L, kCGEventMouseMoved);         lua_setfield(L, -2, "mouseMoved");
     lua_pushstring(L, "mouseMoved") ;               lua_rawseti(L, -2, kCGEventMouseMoved);
