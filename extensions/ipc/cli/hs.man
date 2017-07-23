@@ -1,0 +1,156 @@
+.Dd May 28, 2017
+.Dt HS 1
+.Os Darwin
+.Sh NAME
+.Nm hs
+.Nd Command line interface to Hammerspoon.app
+.Sh SYNOPSIS
+.Nm
+.Op Fl A
+.Op Fl c Ar code Op Fl c Ar ...
+.Op Fl C | Fl P
+.Op Fl i | Fl s
+.Op Fl m Ar name
+.Op Fl n | Fl N
+.Op Fl q
+.Op Fl t Ar sec
+.Op Fl - | Pa /path/file
+.Nm
+.Oo Fl h | Fl ?
+.Oc
+.Sh DESCRIPTION
+Runs
+.Ar code
+from within Hammerspoon, and returns the results.
+.Pp
+When no arguments are given
+.Fl i
+and
+.Fl N
+are implied unless stdin or stdout are redirected (i.e. not a tty).
+.Bl -tag -width -indent
+.It Fl A
+Autolaunch Hammerspoon if it is not already running. By default,
+.Nm
+prompts the user for confirmation.
+.It Fl c Ar code
+Executes the specified code. May be specified more than once and the commands will be executed in the order given. Disables
+.Fl i
+and
+.Fl N
+unless they are also explicitely specified in the argument list.
+.It Fl C
+Enable print cloning from the Hammerspoon Console to this instance. Disables
+.Fl P.
+.It Fl P
+Enable print mirroring from this instance to the Hammerspoon Console. Disables
+.Fl C.
+.It Fl i
+Run in interactive mode. This is the default unless
+.Fl c Ar code
+is specified, stdin or stdout are redirected (i.e. not a tty),
+.Pa /path/file
+is specified, or
+.Fl s
+is specified.
+.It Fl s
+Read stdin for the contents to execute and exit.  Included for backwards compatibility as
+.Nm
+can now detect when stdin is a pipe automatically. Disables colorized output unless
+.Fl N
+is present. Disables interactive mode. May be removed in a future release.
+.It Fl m Ar name
+Specify the name of the remote port to connect to. Defaults to Hammerspoon. Without first creating a custom receiving port with
+.Pa hs.ipc.localPort
+changing this will result in an error.
+.It Fl n
+Disables colorized output. Automatic when
+.Fl c Ar code
+is specified, stdin or stdout are redirected (i.e. not a tty),
+.Pa /path/file
+is specified, or
+.Fl s
+is specified.
+.It Fl N
+Force colorized output even when it would normally not be enabled.
+.It Fl q
+Enable quiet mode.  In quiet mode, the only output to the instance will be errors and the final result of any command executed.
+.It Fl t Ar sec
+Specifies the send and receive timeouts in seconds.  Defaults to 4.0 seconds.
+.It Fl -
+Ignore any additional arguments, allowing custom arguments to be passed into the cli instance.
+.It Pa /path/file
+Specifies a file containing Hammerspoon code to load and execute. Must start with  "~", "./", or "/" and be a file readable by the user.  Disables colorized output and interactive mode unless
+.Fl N
+or
+.Fl i
+are also explicitely specified in the argument list. Any arguments which follow this are passed into the cli instance as custom arguments.
+.It Fl h | Fl ?
+Displays a brief summary of the available command line arguments and exits.
+.El
+.Sh IMPLEMENTATION NOTES
+.Nm
+can also be used as a shell script interpreter if the first line of the script uses traditional she-bang notation, e.g.
+.Dl #! /path/to/hs [arguments]
+.Pp
+When running in interactive mode,
+.Nm
+supports tab completion and checks the status of the remote connection to Hammerspoon periodically, re-connecting automatically when the port is invalidated (usually because you reloaded your Hammerspoon configuration). Unlike the previous version of this tool, this now happens in real time rather than when you enter the next command to the instance.
+.Pp
+Each instance of
+.Nm
+uses both the remote message port named
+.Ar Hammerspoon
+and a uniquely named local message port for asynchronous communication with Hammerspoon. This allows for console cloning and a proper separation of stdout and stderr for
+.Ar code
+output and errors.
+.Pp
+If you specify your own message port with
+.Fl m Ar name
+and the callback applied when you created the message port in Hammerspoon with
+.Ar hs.ipc.localPort
+does not respond with the proper string to an initial query with message id 900,
+.Nm
+will enter legacy mode. In legacy mode, output is collected until your code is completed rather then sent as generated and code errors cannot be programtically distinguished from code output. Documentating how to implement a fully bidirectional callback is beyond the scope of this man page. For now, refer to the built in handler defined in
+.Pa /Applications/Hammerspoon.app/Contents/Resources/extensions/hs/ipc/init.lua
+if you require this for your custom handler.
+.Sh FILES
+.Pa ~/.hammerspoon/.cli.history
+.Dl Command history is saved here if hs.ipc.cliSaveHistory is set to true. (The initial path may differ if your Hammerspoon prefix has been changed, but the file will be named .cli.history in your Hammerspoon configuration directory.)
+.Sh DIAGNOSTICS
+.Ex -std
+The most common error codes are as follows:
+.Bl -tag -width indent
+.It EX_DATAERR (65)
+A Hammerspoon or Lua error occured when attempting to execute code in a non-interactive mode.
+.It EX_NOINPUT (66)
+There was an error reading from stdin or
+.Pa /path/file
+\&.
+.It EX_UNAVAILABLE (69)
+Hammerspoon is not running, the
+.Pa hs.ipc
+module is not loaded, or there was a problem with connecting to the specified message port.
+.It EX_USAGE (64)
+An invalid argument or combination of arguments was specified.
+.El
+.Sh HISTORY
+.Nm
+was first released with Hammerspoon version 0.9.5.  It was synchronous in nature and allowed for no way to distinguish between success or failure of the Hammerspoon
+.Ar code
+being executed from the command line. Because the
+.Pa hs.ipc
+module at the time supported only one CFMessage port, an optional custom handler and raw mode was supported by the command line tool.
+.Pp
+This version of
+.Nm
+leverages functionality added to
+.Pa hs.ipc
+in Hammerspoon version 0.9.55 to allow the creation of additional message ports. As such raw mode and custom handlers have been removed; use
+.Fl m Ar name
+and your own callback with
+.Pa hs.ipc.localPort
+if you require a custom handler.
+.Sh AUTHORS
+.An Hammerspoon Project Authors
+.An https://github.com/Hammerspoon/hammerspoon

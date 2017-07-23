@@ -156,7 +156,6 @@
 		4FD0ABEC1B74B36000A82496 /* eventtap_event.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD0ABEA1B74B36000A82496 /* eventtap_event.h */; };
 		4FD0ABF91B74B9DE00A82496 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4FD0AC021B74BA1600A82496 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FD0AC011B74BA1600A82496 /* internal.m */; };
-		4FD0AC131B74BB2300A82496 /* cmdpost.c in Sources */ = {isa = PBXBuildFile; fileRef = 4FD0AC111B74BB2300A82496 /* cmdpost.c */; };
 		4FD0AC1C1B74C58800A82496 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4FD0AC291B74C62200A82496 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FD0AC241B74C62200A82496 /* internal.m */; };
 		4FD0AC2A1B74C62200A82496 /* MYAnonymousIdentity.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD0AC261B74C62200A82496 /* MYAnonymousIdentity.h */; };
