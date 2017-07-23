@@ -259,7 +259,7 @@
 		D68616171E04D6BA0058A4F2 /* matrix_internal.m in Sources */ = {isa = PBXBuildFile; fileRef = D68615F71E04D5990058A4F2 /* matrix_internal.m */; };
 		D68CE6231E9C450E00912154 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		D68CE6291E9C457400912154 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = D68CE61C1E9C44E200912154 /* internal.m */; };
-		D6943FE01EDBF1F50057BB26 /* hs.m in Sources */ = {isa = PBXBuildFile; fileRef = D6943FDE1EDBF1DE0057BB26 /* hs.m */; };
+		D6943FE01EDBF1F50057BB26 /* cmdpost.m in Sources */ = {isa = PBXBuildFile; fileRef = D6943FDE1EDBF1DE0057BB26 /* cmdpost.m */; };
 		D6943FE31EDBF2510057BB26 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6943FE11EDBF2510057BB26 /* CoreFoundation.framework */; };
 		D6943FE41EDBF2510057BB26 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6943FE21EDBF2510057BB26 /* Foundation.framework */; };
 		D6A212EE1DE38F5F00998C0B /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
@@ -1217,7 +1217,7 @@
 		D68CE61B1E9C44E200912154 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/host/locale/init.lua; sourceTree = "<group>"; };
 		D68CE61C1E9C44E200912154 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/host/locale/internal.m; sourceTree = "<group>"; };
 		D68CE6281E9C450E00912154 /* libhost_locale.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libhost_locale.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		D6943FDE1EDBF1DE0057BB26 /* hs.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = hs.m; path = extensions/ipc/cli/hs.m; sourceTree = "<group>"; };
+		D6943FDE1EDBF1DE0057BB26 /* cmdpost.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = cmdpost.m; path = extensions/ipc/cli/cmdpost.m; sourceTree = "<group>"; };
 		D6943FE11EDBF2510057BB26 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		D6943FE21EDBF2510057BB26 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D6A212E61DE38F3B00998C0B /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/spotlight/init.lua; sourceTree = "<group>"; };
