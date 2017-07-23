@@ -135,6 +135,7 @@ mkdir -pv "${HS_DST}/ipc/bin"
 mkdir -pv "${HS_DST}/ipc/share/man/man1"
 cp -av "${SRCROOT}/extensions/ipc/cli/cmdpost.man" "${HS_DST}/ipc/share/man/man1/cmdpost.1"
 cp -av "${BUILT_PRODUCTS_DIR}/cmdpost" "${HS_DST}/ipc/bin/cmdpost"
+cp -av "${BUILT_PRODUCTS_DIR}/cmdpost.dSYM" "${HS_DST}/ipc/bin/cmdpost.dSYM"
 
 # Special copier for hs.host.locale
 mkdir -pv "${HS_DST}/host/locale"

@@ -24,8 +24,9 @@ NSData *TransformDataWithFunction(NSData *inputData, SecTransformRef (*function)
 // Function
 // Returns the base64 encoding of the string provided.
 static int base64_encode(lua_State* L) {
-    const char* data = lua_tostring(L,1) ;
-    NSUInteger sz = lua_rawlen(L, 1) ;
+    [[LuaSkin shared] checkArgs:LS_TNUMBER | LS_TSTRING, LS_TBREAK] ;
+    NSUInteger sz ;
+    const char* data = luaL_tolstring(L, 1, &sz) ;
     NSData* decodedStr = [[NSData alloc] initWithBytes:data length:sz] ;
 
     NSData* encodedStr = TransformDataWithFunction(decodedStr, SecEncodeTransformCreate);
@@ -37,8 +38,9 @@ static int base64_encode(lua_State* L) {
 // Function
 // Returns a Lua string representing the given base64 string.
 static int base64_decode(lua_State* L) {
-    const char* data = lua_tostring(L,1) ;
-    NSUInteger sz = lua_rawlen(L, 1) ;
+    [[LuaSkin shared] checkArgs:LS_TNUMBER | LS_TSTRING, LS_TBREAK] ;
+    NSUInteger sz ;
+    const char* data = luaL_tolstring(L, 1, &sz) ;
     NSData* encodedStr = [[NSData alloc] initWithBytes:data length:sz] ;
 
     NSData* decodedStr = TransformDataWithFunction(encodedStr, SecDecodeTransformCreate);
