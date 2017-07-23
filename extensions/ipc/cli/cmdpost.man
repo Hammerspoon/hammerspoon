@@ -3,7 +3,7 @@
 .Os Darwin
 .Sh NAME
 .Nm hs
-.Nd Command line interface to Hammerspoon.app
+.Nd Command line interface to CommandPost.app
 .Sh SYNOPSIS
 .Nm
 .Op Fl A
