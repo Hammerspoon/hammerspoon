@@ -47,7 +47,7 @@ end
 --- Returns:
 ---  * A string containing the decoded data
 module.decode = function(data)
-    return module._decode(data:gsub("[\r\n]+",""))
+    return module._decode((data:gsub("[\r\n]+","")))
 end
 
 -- Return Module Object --------------------------------------------------
