@@ -45,7 +45,7 @@ local originalPrint = print
 local printReplacement = function(...)
     originalPrint(...)
     for k,v in pairs(module.__registeredCLIInstances) do
-        if v._cli.console and v.print then
+        if v._cli.console and v.print and not v._cli.quietMode then
 --            v.print(...)
 -- make it more obvious what is console output versus the command line's
             local things = table.pack(...)
@@ -53,7 +53,7 @@ local printReplacement = function(...)
             for i = 2, things.n do
                 stdout = stdout .. "\t" .. tostring(things[i])
             end
-            v._cli.remote:sendMessage(stdout, MSG_ID.CONSOLE)
+            v._cli.remote:sendMessage(stdout .. "\n", MSG_ID.CONSOLE)
         end
     end
 end
