@@ -13,6 +13,7 @@ export HS_MODULES="application \
     chooser \
     console \
     crash \
+    dialog \
     distributednotifications \
     dockicon \
     drawing \
