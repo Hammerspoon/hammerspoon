@@ -1,14 +1,17 @@
 #import "eventtap_event.h"
-#import <IOKit/hidsystem/ev_keymap.h>
+@import IOKit.hidsystem ;
 
 #define FLAGS_TAG "hs.eventtap.event.flags"
 
-CGEventSourceRef eventSource;
+static CGEventSourceRef eventSource = NULL;
 
 static int eventtap_event_gc(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
     if (event)
       CFRelease(event);
+    // Remove the Metatable so future use of the variable in Lua won't think its valid
+    lua_pushnil(L) ;
+    lua_setmetatable(L, 1) ;
     return 0;
 }
 
@@ -29,6 +32,169 @@ static int eventtap_event_copy(lua_State* L) {
     CFRelease(copy);
 
     return 1;
+}
+
+/// hs.eventtap.event.newEvent() -> event
+/// Constructor
+/// Creates a blank event.  You will need to set its type with [hs.eventtap.event:setType](#setType)
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * a new `hs.eventtap.event` object
+///
+/// Notes:
+///  * this is an empty event that you should set a type for and whatever other properties may be appropriate before posting.
+static int eventtap_event_newEvent(lua_State* L) {
+    CGEventRef event = CGEventCreate(eventSource);
+    new_eventtap_event(L, event);
+    CFRelease(event);
+    return 1;
+}
+
+/// hs.eventtap.event.newEventFromData(data) -> event
+/// Constructor
+/// Creates an event from the data encoded in the string provided.
+///
+/// Parameters:
+///  * data - a string containing binary data provided by [hs.eventtap.event:asData](#asData) representing an event.
+///
+/// Returns:
+///  * a new `hs.eventtap.event` object or nil if the string did not represent a valid event
+static int eventtap_event_newEventFromData(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
+    NSData *data = [skin toNSObjectAtIndex:1 withOptions:LS_NSLuaStringAsDataOnly] ;
+
+    CGEventRef event = CGEventCreateFromData(NULL, (__bridge CFDataRef)data);
+    if (event) {
+        new_eventtap_event(L, event);
+        CFRelease(event);
+    } else {
+        lua_pushnil(L) ;
+    }
+    return 1;
+}
+
+/// hs.eventtap.event:asData() -> string
+/// Method
+/// Returns a string containing binary data representing the event.  This can be used to record events for later use.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * a string representing the event or nil if the event cannot be represented as a string
+///
+/// Notes:
+///  * You can recreate the event for later posting with [hs.eventtap.event.newnEventFromData](#newEventFromData)
+static int eventtap_event_asData(lua_State* L) {
+    CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
+    CFDataRef data = CGEventCreateData(NULL, event) ;
+    if (data) {
+        [[LuaSkin shared] pushNSObject:(__bridge_transfer NSData *)data] ;
+    } else {
+        lua_pushnil(L) ;
+    }
+    return 1 ;
+}
+
+/// hs.eventtap.event:location([pointTable]) -> event | table
+/// Method
+/// Get or set the current mouse pointer location as defined for the event.
+///
+/// Parameters:
+///  * pointTable - an optional point table specifying the x and y coordinates of the mouse pointer location for the event
+///
+/// Returns:
+///  * if pointTable is provided, returns the `hs.eventtap.event` object; otherwise returns a point table containing x and y key-value pairs specifying the mouse pointer location as specified for this event.
+///
+/// Notes:
+///  * the use or effect of this method is undefined if the event is not a mouse type event.
+static int eventtap_event_location(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, EVENT_USERDATA_TAG, LS_TTABLE | LS_TOPTIONAL, LS_TBREAK] ;
+    CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
+    if (lua_gettop(L) == 1) {
+        [skin pushNSPoint:NSPointFromCGPoint(CGEventGetLocation(event))] ;
+    } else {
+        NSPoint theLocation = [skin tableToPointAtIndex:2] ;
+        CGEventSetLocation(event, NSPointToCGPoint(theLocation)) ;
+        lua_pushvalue(L, 1) ;
+    }
+    return 1 ;
+}
+
+/// hs.eventtap.event:timestamp([absolutetime]) -> event | integer
+/// Method
+/// Get or set the timestamp of the event.
+///
+/// Parameters:
+///  * absolutetime - an optional integer specifying the timestamp for the event.
+///
+/// Returns:
+///  * if absolutetime is provided, returns the `hs.eventtap.event` object; otherwise returns the current timestamp for the event.
+///
+/// Notes:
+///  * Synthesized events have a timestamp of 0 by default.
+///  * The timestamp, if specified, is expressed as an integer representing the number of nanoseconds since the system was last booted.  See `hs.timer.absoluteTime`.
+///  * This field appears to be informational only and is not required when crafting your own events with this module.
+static int eventtap_event_timestamp(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, EVENT_USERDATA_TAG, LS_TNUMBER | LS_TINTEGER | LS_TOPTIONAL, LS_TBREAK] ;
+    CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
+    if (lua_gettop(L) == 1) {
+        lua_pushinteger(L, (lua_Integer)CGEventGetTimestamp(event)) ;
+    } else {
+        CGEventSetTimestamp(event, (CGEventTimestamp)lua_tointeger(L, 2)) ;
+        lua_pushvalue(L, 1) ;
+    }
+    return 1 ;
+}
+
+/// hs.eventtap.event:setType(type) -> event
+/// Method
+/// Set the type for this event.
+///
+/// Parameters:
+///  * type - an integer matching one of the event types described in [hs.eventtap.event.types](#types)
+///
+/// Returns:
+///  * the `hs.eventtap.event` object
+static int eventtap_event_setType(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, EVENT_USERDATA_TAG, LS_TNUMBER | LS_TINTEGER, LS_TBREAK] ;
+    CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
+    CGEventSetType(event, (CGEventType)lua_tointeger(L, 2)) ;
+    lua_pushvalue(L, 1) ;
+    return 1 ;
+}
+
+/// hs.eventtap.event:rawFlags([flags]) -> event | integer
+/// Method
+/// Experimental method to get or set the modifier flags for an event directly.
+///
+/// Parameters:
+///  * flags - an optional integer, made by logically combining values from [hs.eventtap.event.rawFlagMasks](#rawFlagMasks) specifying the modifier keys which should be set for this event
+///
+/// Returns:
+///  * if flags is provided, returns the `hs.eventtap.event` object; otherwise returns the current flags set as an integer
+///
+/// Notes:
+///  * This method is experimental and may undergo changes or even removal in the future
+///  * See [hs.eventtap.event.rawFlagMasks](#rawFlagMasks) for more information
+static int eventtap_event_rawFlags(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, EVENT_USERDATA_TAG, LS_TNUMBER | LS_TINTEGER | LS_TOPTIONAL, LS_TBREAK] ;
+    CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
+    if (lua_gettop(L) == 1) {
+        lua_pushinteger(L, (lua_Integer)CGEventGetFlags(event)) ;
+    } else {
+        CGEventSetFlags(event, (CGEventFlags)lua_tointeger(L, 2)) ;
+        lua_pushvalue(L, 1) ;
+    }
+    return 1 ;
 }
 
 /// hs.eventtap.event:getFlags() -> table
@@ -72,7 +238,7 @@ static int eventtap_event_getFlags(lua_State* L) {
     return 1;
 }
 
-/// hs.eventtap.event:setFlags(table)
+/// hs.eventtap.event:setFlags(table) -> event
 /// Method
 /// Sets the keyboard modifiers of an event
 ///
@@ -90,13 +256,13 @@ static int eventtap_event_setFlags(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
     luaL_checktype(L, 2, LUA_TTABLE);
 
-    CGEventFlags flags = 0;
+    CGEventFlags flags = (CGEventFlags)0;
 
-    if (lua_getfield(L, 2, "cmd"), lua_toboolean(L, -1)) flags |= kCGEventFlagMaskCommand;
-    if (lua_getfield(L, 2, "alt"), lua_toboolean(L, -1)) flags |= kCGEventFlagMaskAlternate;
-    if (lua_getfield(L, 2, "ctrl"), lua_toboolean(L, -1)) flags |= kCGEventFlagMaskControl;
-    if (lua_getfield(L, 2, "shift"), lua_toboolean(L, -1)) flags |= kCGEventFlagMaskShift;
-    if (lua_getfield(L, 2, "fn"), lua_toboolean(L, -1)) flags |= kCGEventFlagMaskSecondaryFn;
+    if ((void)lua_getfield(L, 2, "cmd"), lua_toboolean(L, -1)) flags |= kCGEventFlagMaskCommand;
+    if ((void)lua_getfield(L, 2, "alt"), lua_toboolean(L, -1)) flags |= kCGEventFlagMaskAlternate;
+    if ((void)lua_getfield(L, 2, "ctrl"), lua_toboolean(L, -1)) flags |= kCGEventFlagMaskControl;
+    if ((void)lua_getfield(L, 2, "shift"), lua_toboolean(L, -1)) flags |= kCGEventFlagMaskShift;
+    if ((void)lua_getfield(L, 2, "fn"), lua_toboolean(L, -1)) flags |= kCGEventFlagMaskSecondaryFn;
 
     CGEventSetFlags(event, flags);
 
@@ -145,7 +311,7 @@ static int eventtap_event_getRawEventData(lua_State* L) {
             if ((type == NSLeftMouseDown) || (type == NSLeftMouseUp) || (type == NSRightMouseDown) || (type == NSRightMouseUp) || (type == NSOtherMouseDown) || (type == NSOtherMouseUp)) {
                 lua_pushinteger(L, [sysEvent buttonNumber]) ;                                 lua_setfield(L, -2, "buttonNumber") ;
                 lua_pushinteger(L, [sysEvent clickCount]) ;                                   lua_setfield(L, -2, "clickCount") ;
-                lua_pushnumber(L, [sysEvent pressure]) ;                                      lua_setfield(L, -2, "pressure") ;
+                lua_pushnumber(L, (lua_Number)[sysEvent pressure]) ;                          lua_setfield(L, -2, "pressure") ;
             }
             if ((type == NSAppKitDefined) || (type == NSSystemDefined) || (type == NSApplicationDefined) || (type == NSPeriodic)) {
                 lua_pushinteger(L, [sysEvent data1]) ;                                        lua_setfield(L, -2, "data1") ;
@@ -173,7 +339,7 @@ static int eventtap_event_getRawEventData(lua_State* L) {
 ///  * If the keypress does not correspond to a valid Unicode character, an empty string is returned (e.g. if `clean` is false, then Opt-E will return an empty string, while Opt-Shift-E will return an accent mark).
 static int eventtap_event_getCharacters(lua_State* L) {
     CGEventRef  event    = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
-    BOOL        clean    = lua_isnone(L, 2) ? NO : lua_toboolean(L, 2) ;
+    BOOL        clean    = lua_isnone(L, 2) ? NO : (BOOL)lua_toboolean(L, 2) ;
     CGEventType cgType   = CGEventGetType(event) ;
 
     if ((cgType == kCGEventKeyDown) || (cgType == kCGEventKeyUp)) {
@@ -219,7 +385,7 @@ static int eventtap_event_getKeyCode(lua_State* L) {
 ///  * This method should only be used on keyboard events
 static int eventtap_event_setKeyCode(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
-    CGKeyCode keycode = luaL_checkinteger(L, 2);
+    CGKeyCode keycode = (CGKeyCode)luaL_checkinteger(L, 2);
     CGEventSetIntegerValueField(event, kCGKeyboardEventKeycode, (int64_t)keycode);
 
     lua_settop(L,1) ;
@@ -297,7 +463,7 @@ static int eventtap_event_getType(lua_State* L) {
 ///  * The properties are `CGEventField` values, as documented at https://developer.apple.com/library/mac/documentation/Carbon/Reference/QuartzEventServicesRef/index.html#//apple_ref/c/tdef/CGEventField
 static int eventtap_event_getProperty(lua_State* L) {
     CGEventRef   event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
-    CGEventField field = (CGEventField)luaL_checkinteger(L, 2);
+    CGEventField field = (CGEventField)(luaL_checkinteger(L, 2));
 
     if ((field == kCGMouseEventPressure)                ||   // These fields use a double (floating point number)
         (field == kCGScrollWheelEventFixedPtDeltaAxis1) ||
@@ -329,9 +495,9 @@ static int eventtap_event_getProperty(lua_State* L) {
 ///  * This method should only be called on mouse events
 static int eventtap_event_getButtonState(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
-    CGMouseButton whichButton = (CGMouseButton)luaL_checkinteger(L, 2);
+    CGMouseButton whichButton = (CGMouseButton)(luaL_checkinteger(L, 2));
 
-    if (CGEventSourceButtonState((CGEventSourceStateID)CGEventGetIntegerValueField(event, kCGEventSourceStateID), whichButton))
+    if (CGEventSourceButtonState((CGEventSourceStateID)(CGEventGetIntegerValueField(event, kCGEventSourceStateID)), whichButton))
         lua_pushboolean(L, YES) ;
     else
         lua_pushboolean(L, NO) ;
@@ -353,7 +519,7 @@ static int eventtap_event_getButtonState(lua_State* L) {
 ///  * The properties are `CGEventField` values, as documented at https://developer.apple.com/library/mac/documentation/Carbon/Reference/QuartzEventServicesRef/index.html#//apple_ref/c/tdef/CGEventField
 static int eventtap_event_setProperty(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
-    CGEventField field = (CGEventField)luaL_checkinteger(L, 2);
+    CGEventField field = (CGEventField)(luaL_checkinteger(L, 2));
     if ((field == kCGMouseEventPressure)                ||   // These fields use a double (floating point number)
         (field == kCGScrollWheelEventFixedPtDeltaAxis1) ||
         (field == kCGScrollWheelEventFixedPtDeltaAxis2) ||
@@ -374,63 +540,79 @@ static int eventtap_event_setProperty(lua_State* L) {
     return 1;
 }
 
-/// hs.eventtap.event.newKeyEvent(mods, key, isdown) -> event
+/// hs.eventtap.event.newKeyEvent([mods], key, isdown) -> event
 /// Constructor
 /// Creates a keyboard event
 ///
 /// Parameters:
-///  * mods - A table containing zero or more of the following:
+///  * mods - An optional table containing zero or more of the following:
 ///   * cmd
 ///   * alt
 ///   * shift
 ///   * ctrl
 ///   * fn
-///  * key - A string containing the name of a key (see `hs.hotkey` for more information)
+///  * key - A string containing the name of a key (see `hs.hotkey` for more information) or an integer specifying the virtual keycode for the key.
 ///  * isdown - A boolean, true if the event should be a key-down, false if it should be a key-up
 ///
 /// Returns:
 ///  * An `hs.eventtap.event` object
+///
+/// Notes:
+///  * The original version of this constructor utilized a shortcut which merged `flagsChanged` and `keyUp`/`keyDown` events into one.  This approach is still supported for backwards compatibility and because it *does* work in most cases.
+///  * According to Apple Documentation, the proper way to perform a keypress with modifiers is through multiple key events; for example to generate 'Å', you should do the following:
+/// ~~~lua
+///     hs.eventtap.event.newKeyEvent(hs.keycodes.map.shift, true):post()
+///     hs.eventtap.event.newKeyEvent(hs.keycodes.map.alt, true):post()
+///     hs.eventtap.event.newKeyEvent("a", true):post()
+///     hs.eventtap.event.newKeyEvent("a", false):post()
+///     hs.eventtap.event.newKeyEvent(hs.keycodes.map.alt, false):post()
+///     hs.eventtap.event.newKeyEvent(hs.keycodes.map.shift, false):post()
+/// ~~~
+///  * The shortcut method is still supported, though if you run into odd behavior or need to generate `flagsChanged` events without a corresponding `keyUp` or `keyDown`, please check out the syntax demonstrated above.
+/// ~~~lua
+///     hs.eventtap.event.newKeyEvent({"shift", "alt"}, "a", true):post()
+///     hs.eventtap.event.newKeyEvent({"shift", "alt"}, "a", false):post()
+/// ~~~
+///
+/// * The shortcut approach is still limited to generating only the left version of modifiers.
 static int eventtap_event_newKeyEvent(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
-    luaL_checktype(L, 1, LUA_TTABLE);
-//     const char* key = luaL_checkstring(L, 2);
-    bool isdown = lua_toboolean(L, 3);
-    const char *modifier;
+    LuaSkin      *skin = [LuaSkin shared];
+    BOOL         hasModTable = NO ;
+    int          keyCodePos = 2 ;
+    CGEventFlags flags = (CGEventFlags)0;
 
-// wrapped in init.lua
-//     [skin requireModule:"hs.keycodes"] ;
-//     lua_getfield(L, -1, "map");
-//     lua_pushstring(L, key);
-//     lua_gettable(L, -2);
-//     CGKeyCode keycode = lua_tointeger(L, -1);
-//     lua_pop(L, 3);
+    if (lua_type(L, 1) == LUA_TTABLE) {
+        [skin checkArgs:LS_TTABLE, LS_TNUMBER | LS_TINTEGER, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
+        const char *modifier;
 
-    CGKeyCode keycode = lua_tointeger(L, 2);
+        lua_pushnil(L);
+        while (lua_next(L, 1) != 0) {
+            modifier = lua_tostring(L, -1);
+            if (!modifier) {
+                [skin logBreadcrumb:[NSString stringWithFormat:@"hs.eventtap.event.newKeyEvent() unexpected entry in modifiers table: %d", lua_type(L, -1)]];
+                lua_pop(L, 1);
+                continue;
+            }
 
-    CGEventFlags flags = 0;
-    lua_pushnil(L);
-    while (lua_next(L, 1) != 0) {
-        modifier = lua_tostring(L, -1);
-        if (!modifier) {
-            [skin logBreadcrumb:[NSString stringWithFormat:@"hs.eventtap.event.newKeyEvent() unexpected entry in modifiers table: %d", lua_type(L, -1)]];
+            if (strcmp(modifier, "cmd") == 0 || strcmp(modifier, "⌘") == 0) flags |= kCGEventFlagMaskCommand;
+            else if (strcmp(modifier, "ctrl") == 0 || strcmp(modifier, "⌃") == 0) flags |= kCGEventFlagMaskControl;
+            else if (strcmp(modifier, "alt") == 0 || strcmp(modifier, "⌥") == 0) flags |= kCGEventFlagMaskAlternate;
+            else if (strcmp(modifier, "shift") == 0 || strcmp(modifier, "⇧") == 0) flags |= kCGEventFlagMaskShift;
+            else if (strcmp(modifier, "fn") == 0) flags |= kCGEventFlagMaskSecondaryFn;
             lua_pop(L, 1);
-            continue;
         }
-
-        if (strcmp(modifier, "cmd") == 0 || strcmp(modifier, "⌘") == 0) flags |= kCGEventFlagMaskCommand;
-        else if (strcmp(modifier, "ctrl") == 0 || strcmp(modifier, "⌃") == 0) flags |= kCGEventFlagMaskControl;
-        else if (strcmp(modifier, "alt") == 0 || strcmp(modifier, "⌥") == 0) flags |= kCGEventFlagMaskAlternate;
-        else if (strcmp(modifier, "shift") == 0 || strcmp(modifier, "⇧") == 0) flags |= kCGEventFlagMaskShift;
-        else if (strcmp(modifier, "fn") == 0) flags |= kCGEventFlagMaskSecondaryFn;
-        lua_pop(L, 1);
+        hasModTable = YES ;
+    } else if (lua_type(L, 1) == LUA_TNIL) {
+        [skin checkArgs:LS_TNIL, LS_TNUMBER | LS_TINTEGER, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
+    } else {
+        [skin checkArgs:LS_TNUMBER | LS_TINTEGER, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
+        keyCodePos  = 1 ;
     }
+    BOOL         isDown  = (BOOL)lua_toboolean(L, keyCodePos + 1) ;
+    CGKeyCode    keyCode = (CGKeyCode)lua_tointeger(L, keyCodePos) ;
 
-    if (!eventSource) {
-        eventSource = CGEventSourceCreate(kCGEventSourceStatePrivate);
-    }
-
-    CGEventRef keyevent = CGEventCreateKeyboardEvent(eventSource, keycode, isdown);
-    CGEventSetFlags(keyevent, flags);
+    CGEventRef keyevent = CGEventCreateKeyboardEvent(eventSource, keyCode, isDown);
+    if (hasModTable) CGEventSetFlags(keyevent, flags);
     new_eventtap_event(L, keyevent);
     CFRelease(keyevent);
 
@@ -478,7 +660,7 @@ static int eventtap_event_newSystemKeyEvent(lua_State* L) {
     [skin checkArgs:LS_TSTRING, LS_TBOOLEAN, LS_TBREAK];
 
     NSString *keyName = [skin toNSObjectAtIndex:1];
-    BOOL isDown = lua_toboolean(L, 2);
+    BOOL isDown = (BOOL)lua_toboolean(L, 2);
     int keyVal = -1;
 
     if ([keyName isEqualToString:@"SOUND_UP"]) {
@@ -556,12 +738,12 @@ static int eventtap_event_newSystemKeyEvent(lua_State* L) {
 static int eventtap_event_newScrollWheelEvent(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     luaL_checktype(L, 1, LUA_TTABLE);
-    lua_pushnumber(L, 1); lua_gettable(L, 1); uint32_t offset_y = (uint32_t)lua_tointeger(L, -1) ; lua_pop(L, 1);
-    lua_pushnumber(L, 2); lua_gettable(L, 1); uint32_t offset_x = (uint32_t)lua_tointeger(L, -1) ; lua_pop(L, 1);
+    lua_pushnumber(L, 1); lua_gettable(L, 1); int32_t offset_y = (int32_t)lua_tointeger(L, -1) ; lua_pop(L, 1);
+    lua_pushnumber(L, 2); lua_gettable(L, 1); int32_t offset_x = (int32_t)lua_tointeger(L, -1) ; lua_pop(L, 1);
 
     const char *modifier;
     const char *unit;
-    CGEventFlags flags = 0;
+    CGEventFlags flags = (CGEventFlags)0;
     CGScrollEventUnit type;
 
     luaL_checktype(L, 2, LUA_TTABLE);
@@ -584,10 +766,6 @@ static int eventtap_event_newScrollWheelEvent(lua_State* L) {
     unit = lua_tostring(L, 3);
     if (unit && strcmp(unit, "pixel") == 0) type = kCGScrollEventUnitPixel; else type = kCGScrollEventUnitLine;
 
-    if (!eventSource) {
-        eventSource = CGEventSourceCreate(kCGEventSourceStatePrivate);
-    }
-
     CGEventRef scrollEvent = CGEventCreateScrollWheelEvent(eventSource, type, 2, offset_x, offset_y);
     CGEventSetFlags(scrollEvent, flags);
     new_eventtap_event(L, scrollEvent);
@@ -598,11 +776,11 @@ static int eventtap_event_newScrollWheelEvent(lua_State* L) {
 
 static int eventtap_event_newMouseEvent(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
-    CGEventType type = (CGEventType)luaL_checkinteger(L, 1);
+    CGEventType type = (CGEventType)(luaL_checkinteger(L, 1));
     CGPoint point = hs_topoint(L, 2);
     const char* buttonString = luaL_checkstring(L, 3);
 
-    CGEventFlags flags = 0;
+    CGEventFlags flags = (CGEventFlags)0;
     const char *modifier;
 
     CGMouseButton button = kCGMouseButtonLeft;
@@ -628,10 +806,6 @@ static int eventtap_event_newMouseEvent(lua_State* L) {
             else if (strcmp(modifier, "fn") == 0) flags |= kCGEventFlagMaskSecondaryFn;
             lua_pop(L, 1);
         }
-    }
-
-    if (!eventSource) {
-        eventSource = CGEventSourceCreate(kCGEventSourceStatePrivate);
     }
 
     CGEventRef event = CGEventCreateMouseEvent(eventSource, type, point, button);
@@ -1039,9 +1213,67 @@ static void pushpropertiestable(lua_State* L) {
     lua_pushstring(L, "scrollWheelEventIsContinuous") ;                     lua_rawseti(L, -2, kCGScrollWheelEventIsContinuous);
 }
 
+/// hs.eventtap.event.rawFlagMasks[]
+/// Constant
+/// A table containing key-value pairs describing the raw modifier flags which can be manipulated with [hs.eventtap.event:rawFlags](#rawFlags).
+///
+/// This table and [hs.eventtap.event:rawFlags](#rawFlags) are both considered experimental as the full meanings behind some of these flags and what combinations are likely to be observed is still being determined.  It is possible that some of these key names may change in the future.
+///
+/// At present, what is known about the flags is presented here:
+///  * alternate                 - Corresponds to the left (or only) alt key on the keyboard
+///  * command                   - Corresponds to the left (or only) cmd key on the keyboard
+///  * control                   - Corresponds to the left (or only) ctrl key on the keyboard
+///  * shift                     - Corresponds to the left (or only) shift key on the keyboard
+///  * numericPad                - Indicates that the key corresponds to one defined as belonging to the numeric keypad, if present
+///  * secondaryFn               - Indicates the fn key found on most modern Macintosh laptops.  May also be observed with function and other special keys (arrows, page-up/down, etc.)
+///  * deviceRightAlternate      - Corresponds to the right alt key on the keyboard (if present)
+///  * deviceRightCommand        - Corresponds to the right cmd key on the keyboard (if present)
+///  * deviceRightControl        - Corresponds to the right ctrl key on the keyboard (if present)
+///  * deviceRightShift          - Corresponds to the right alt key on the keyboard (if present)
+///  * nonCoalesced              - Indicates that multiple mouse movements are not being coalesced into one event if delivery of the event has been delayed
+///
+/// The following are also defined in IOLLEvent.h, but the description is a guess since I have not observed them myself
+///  * alphaShift                - related to the caps-lock in some way?
+///  * alphaShiftStateless       - related to the caps-lock in some way?
+///  * deviceAlphaShiftStateless - related to the caps-lock in some way?
+///  * deviceLeftAlternate       -
+///  * deviceLeftCommand         -
+///  * deviceLeftControl         -
+///  * deviceLeftShift           -
+///  * help                      - related to a modifier found on old NeXT keyboards but not on modern keyboards?
+///
+/// It has also been observed that synthetic events that have been posted also have the bit represented by 0x20000000 set.  This constant does not appear in IOLLEvent.h or CGEventTypes.h, which defines most of the constants used in this module, so it is not included within this table at present, but may be added in the future if any corroborating information can be found.
+///
+/// For what it may be worth, I have found it most useful to filter out `nonCoalesced` and 0x20000000 before examining the flags in my own code, like this: `hs.eventtap.event:rawFlags() & 0xdffffeff` where 0xdffffeff = ~(0x20000000 | 0x100) (limited to the 32 bits since that is what is returned by `rawFlags`).
+///
+/// Any documentation or references that can be found which can further expand on the information here is welcome -- Please submit any information you may have through the Hammerspoon GitHub site or Google group.
+static int push_flagMasks(lua_State *L) {
+    lua_newtable(L) ;
+    lua_pushinteger(L, NX_ALPHASHIFTMASK) ;                   lua_setfield(L, -2, "alphaShift") ;
+    lua_pushinteger(L, NX_SHIFTMASK) ;                        lua_setfield(L, -2, "shift") ;
+    lua_pushinteger(L, NX_CONTROLMASK) ;                      lua_setfield(L, -2, "control") ;
+    lua_pushinteger(L, NX_ALTERNATEMASK) ;                    lua_setfield(L, -2, "alternate") ;
+    lua_pushinteger(L, NX_COMMANDMASK) ;                      lua_setfield(L, -2, "command") ;
+    lua_pushinteger(L, NX_NUMERICPADMASK) ;                   lua_setfield(L, -2, "numericPad") ;
+    lua_pushinteger(L, NX_HELPMASK) ;                         lua_setfield(L, -2, "help") ;
+    lua_pushinteger(L, NX_SECONDARYFNMASK) ;                  lua_setfield(L, -2, "secondaryFn") ;
+    lua_pushinteger(L, NX_DEVICELCTLKEYMASK) ;                lua_setfield(L, -2, "deviceLeftControl") ;
+    lua_pushinteger(L, NX_DEVICERCTLKEYMASK) ;                lua_setfield(L, -2, "deviceRightControl") ;
+    lua_pushinteger(L, NX_DEVICELSHIFTKEYMASK) ;              lua_setfield(L, -2, "deviceLeftShift") ;
+    lua_pushinteger(L, NX_DEVICERSHIFTKEYMASK) ;              lua_setfield(L, -2, "deviceRightShift") ;
+    lua_pushinteger(L, NX_DEVICELCMDKEYMASK) ;                lua_setfield(L, -2, "deviceLeftCommand") ;
+    lua_pushinteger(L, NX_DEVICERCMDKEYMASK) ;                lua_setfield(L, -2, "deviceRightCommand") ;
+    lua_pushinteger(L, NX_DEVICELALTKEYMASK) ;                lua_setfield(L, -2, "deviceLeftAlternate") ;
+    lua_pushinteger(L, NX_DEVICERALTKEYMASK) ;                lua_setfield(L, -2, "deviceRightAlternate") ;
+    lua_pushinteger(L, NX_ALPHASHIFT_STATELESS_MASK) ;        lua_setfield(L, -2, "alphaShiftStateless") ;
+    lua_pushinteger(L, NX_DEVICE_ALPHASHIFT_STATELESS_MASK) ; lua_setfield(L, -2, "deviceAlphaShiftStateless") ;
+    lua_pushinteger(L, NX_NONCOALSESCEDMASK) ;                lua_setfield(L, -2, "nonCoalesced") ;
+    return 1 ;
+}
+
 static int userdata_tostring(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
-    int eventType = CGEventGetType(event) ;
+    CGEventType eventType = CGEventGetType(event) ;
 
     lua_pushstring(L, [[NSString stringWithFormat:@"%s: Event type: %d (%p)", EVENT_USERDATA_TAG, eventType, lua_topointer(L, 1)] UTF8String]) ;
     return 1 ;
@@ -1050,13 +1282,18 @@ static int userdata_tostring(lua_State* L) {
 static int meta_gc(lua_State* __unused L) {
     if (eventSource) {
         CFRelease(eventSource);
-        eventSource = nil;
+        eventSource = NULL;
     }
     return 0;
 }
 
 // Metatable for created objects when _new invoked
 static const luaL_Reg eventtapevent_metalib[] = {
+    {"asData",          eventtap_event_asData},
+    {"location",        eventtap_event_location},
+    {"rawFlags",        eventtap_event_rawFlags},
+    {"timestamp",       eventtap_event_timestamp},
+    {"setType",         eventtap_event_setType},
     {"copy",            eventtap_event_copy},
     {"getFlags",        eventtap_event_getFlags},
     {"setFlags",        eventtap_event_setFlags},
@@ -1077,6 +1314,8 @@ static const luaL_Reg eventtapevent_metalib[] = {
 
 // Functions for returned object when module loads
 static luaL_Reg eventtapeventlib[] = {
+    {"newEvent",          eventtap_event_newEvent},
+    {"newEventFromData",  eventtap_event_newEventFromData},
     {"newKeyEvent",       eventtap_event_newKeyEvent},
     {"newSystemKeyEvent", eventtap_event_newSystemKeyEvent},
     {"_newMouseEvent",    eventtap_event_newMouseEvent},
@@ -1157,6 +1396,8 @@ int luaopen_hs_eventtap_event(lua_State* L) {
     pushpropertiestable(L);
     lua_setfield(L, -2, "properties");
 
+    push_flagMasks(L) ; lua_setfield(L, -2, "rawFlagMasks") ;
+
     eventSource = nil;
 
     luaL_newmetatable(L, FLAGS_TAG);
@@ -1170,5 +1411,7 @@ int luaopen_hs_eventtap_event(lua_State* L) {
     lua_setfield(L, -2, "__index");
     lua_pop(L, 1);
 
+    eventSource = CGEventSourceCreate(kCGEventSourceStatePrivate);
+//     eventSource = CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
     return 1;
 }
