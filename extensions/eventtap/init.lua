@@ -193,7 +193,7 @@ end
 ---  * This is a wrapper around `hs.eventtap.event.newMouseEvent` that sends `otherMouseDown` and `otherMouseUp` events)
 ---  * For backwards compatibility, `hs.eventtap.middleClick` can also be used to invoke this function.
 ---
----  * OS X recognizes up to 32 distinct mouse buttons, though few mouse devices have more than 3.  The left mouse button corresponds to button number 0 and the right mouse button corresponds to 1;  distinct events are used for these mouse buttons, so you should use `hs.eventtap.leftClick` and `hs.eventtap.rightClick` respectively.  All other mouse buttons are coalesced into the `otherMouse` events and are distinguished by specifying the specific button with the `mouseEventButtonNumber` property, which this function does for you.
+---  * macOS recognizes up to 32 distinct mouse buttons, though few mouse devices have more than 3.  The left mouse button corresponds to button number 0 and the right mouse button corresponds to 1;  distinct events are used for these mouse buttons, so you should use `hs.eventtap.leftClick` and `hs.eventtap.rightClick` respectively.  All other mouse buttons are coalesced into the `otherMouse` events and are distinguished by specifying the specific button with the `mouseEventButtonNumber` property, which this function does for you.
 ---  * The specific purpose of mouse buttons greater than 2 varies by hardware and application (typically they are not present on a mouse and have no effect in an application)
 function module.otherClick(point, delay, button)
     if delay==nil then
@@ -203,7 +203,7 @@ function module.otherClick(point, delay, button)
         button = 2
     end
     if button < 2 or button > 31 then
-        error("button number must be between 0 and 31 inclusive", 2)
+        error("button number must be between 2 and 31 inclusive", 2)
     end
     module.event.newMouseEvent(module.event.types["otherMouseDown"], point):setProperty(module.event.properties["mouseEventButtonNumber"], button):post()
     hs.timer.usleep(delay)
