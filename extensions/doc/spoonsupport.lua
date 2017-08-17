@@ -37,7 +37,7 @@ local findSpoons = function()
         if dirPath and fs.dir(dirPath) then
             for file in fs.dir(dirPath) do
                 local name = file:match("^(.+)%.spoon$")
-                local spoonInit = name and package.searchpath(name, package.path)
+                local spoonInit = name and package.searchpath(name, table.concat(spoonPaths, ";"))
                 if name and spoonInit then
                     local spoonDetails = {}
                     spoonDetails.path     = spoonInit:match("^(.+)/init%.lua$")

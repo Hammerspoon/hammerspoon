@@ -4,7 +4,7 @@
 
 ## Overview
 
-[Fabric](https://www.fabric.io) provides developers with the tools they need to build the best apps. Developed and maintained by Twitter and the team that built Crashlytics, Fabric provides an easy way to manage all your SDKs so that you’ll never have to worry about tedious configurations or juggling different accounts. We let you get right into coding and building the next big app.
+[Fabric](https://get.fabric.io) provides developers with the tools they need to build the best apps. Developed and maintained by Google and the team that built Crashlytics, Fabric provides an easy way to manage all your SDKs so that you’ll never have to worry about tedious configurations or juggling different accounts. We let you get right into coding and building the next big app.
 
 For a full list of SDK provided through Fabric visit [https://fabric.io/kits](https://fabric.io/kits).
 
@@ -37,7 +37,6 @@ The Fabric Pod is a dependency for all Fabric SDKs and is included when installi
 ## Resources
 
 * [Documentation](https://docs.fabric.io/)
-* [Forums](https://twittercommunity.com/c/fabric)
-* [Website](https://www.fabric.io)
+* [Forums](https://stackoverflow.com/questions/tagged/google-fabric)
+* [Website](https://get.fabric.io)
 * Follow us on Twitter: [@fabric](https://twitter.com/fabric)
-* Follow us on Periscope: [Fabric](https://periscope.tv/fabric) and [TwitterDev](https://periscope.tv/twitterdev)
