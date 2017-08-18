@@ -6,5 +6,7 @@
 #define HSUploadCrashDataKey         @"HSUploadCrashData"
 #define HSAppleScriptEnabledKey      @"HSAppleScriptEnabledKey"
 #define HSOpenConsoleOnDockClickKey  @"HSOpenConsoleOnDockClickKey"
+#define HSConsoleDarkModeKey         @"HSConsoleDarkModeKey"
+#define HSPreferencesDarkModeKey     @"HSPreferencesDarkModeKey"
 
 extern NSString* MJConfigFile;

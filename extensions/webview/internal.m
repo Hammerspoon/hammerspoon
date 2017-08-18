@@ -1973,6 +1973,35 @@ static int webview_deleteOnClose(lua_State *L) {
     return 1 ;
 }
 
+/// hs.webview:darkMode([state]) -> bool
+/// Method
+/// Set or display whether or not the `hs.webview` window should display in dark mode.
+///
+/// Parameters:
+///  * `state` - an optional boolean which will set whether or not the `hs.webview` window should display in dark mode.
+///
+/// Returns:
+///  * A boolean, `true` if dark mode is enabled otherwise `false`.
+static int webview_darkMode(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
+    
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
+    
+    if (lua_isboolean(L, -1)) {
+        //ConsoleDarkModeSetEnabled(lua_toboolean(L, -1));
+        if (lua_toboolean(L, -1)) {
+            theWindow.appearance = [NSAppearance appearanceNamed: NSAppearanceNameVibrantDark] ;
+        }
+        else {
+            theWindow.appearance = [NSAppearance appearanceNamed: NSAppearanceNameVibrantLight] ;
+        }
+    }
+    
+    //lua_pushboolean(L, ConsoleDarkModeEnabled()) ;
+    return 1;
+}
+
 /// hs.webview:closeOnEscape([flag]) -> webviewObject | current value
 /// Method
 /// If the webview is closable, this will get or set whether or not the Escape key is allowed to close the webview window.
@@ -2956,6 +2985,8 @@ static const luaL_Reg userdata_metaLib[] = {
 #endif
 
     // Window related
+    {"darkMode",                   webview_darkMode},
+    
     {"show",                       webview_show},
     {"hide",                       webview_hide},
     {"closeOnEscape",              webview_closeOnEscape},

@@ -1,8 +1,11 @@
 @import Cocoa ;
 @import LuaSkin ;
 
+#import "MJConsoleWindowController.h"
+
 // NOTE: This is all we need from MJConsoleWindowController.h and MJConsoleWindowController.m
 
+/*
 @interface MJConsoleWindowController : NSWindowController
 
 @property NSColor *MJColorForStdout ;
@@ -13,6 +16,7 @@
 + (instancetype)singleton;
 
 @end
+*/
 
 @interface MJConsoleWindowController ()
 
@@ -24,6 +28,27 @@
 @end
 
 static int refTable = LUA_NOREF;
+
+/// hs.console.darkMode([state]) -> bool
+/// Function
+/// Set or display whether or not the Console window should display in dark mode.
+///
+/// Parameters:
+///  * state - an optional boolean which will set whether or not the Console window should display in dark mode.
+///
+/// Returns:
+///  * A boolean, true if dark mode is enabled otherwise false.
+static int consoleDarkMode(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
+    
+    if (lua_isboolean(L, -1)) {
+        ConsoleDarkModeSetEnabled(lua_toboolean(L, -1));
+    }
+    
+    lua_pushboolean(L, ConsoleDarkModeEnabled()) ;
+    return 1;
+}
 
 /// hs.console.consolePrintColor([color]) -> color
 /// Function
@@ -544,6 +569,9 @@ static int console_titleVisibility(lua_State *L) {
 
 static const luaL_Reg extrasLib[] = {
 //     {"asHSDrawing", console_asDrawing},
+    
+    {"darkMode", consoleDarkMode},
+    
     {"hswindow", console_asWindow},
 
     {"windowBackgroundColor", console_backgroundColor},

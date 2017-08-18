@@ -392,6 +392,27 @@ static int canCheckForUpdates(lua_State *L) {
     return 1 ;
 }
 
+/// hs.preferencesDarkMode([state]) -> bool
+/// Function
+/// Set or display whether or not the Preferences panel should display in dark mode.
+///
+/// Parameters:
+///  * state - an optional boolean which will set whether or not the Preferences panel should display in dark mode.
+///
+/// Returns:
+///  * A boolean, true if dark mode is enabled otherwise false.
+static int preferencesDarkMode(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
+    
+    if (lua_isboolean(L, -1)) {
+        PreferencesDarkModeSetEnabled(lua_toboolean(L, -1));
+    }
+    
+    lua_pushboolean(L, PreferencesDarkModeEnabled()) ;
+    return 1;
+}
+
 /// hs.allowAppleScript([state]) -> bool
 /// Function
 /// Set or display whether or not external Hammerspoon AppleScript commands are allowed
@@ -528,6 +549,7 @@ static int core_notify(lua_State* L) {
 }
 
 static luaL_Reg corelib[] = {
+    {"preferencesDarkMode", preferencesDarkMode},
     {"openConsoleOnDockClick", core_openConsoleOnDockClick},
     {"openConsole", core_openconsole},
     {"consoleOnTop", core_consoleontop},
