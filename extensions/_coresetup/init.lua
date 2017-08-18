@@ -136,7 +136,7 @@ hs.fileDroppedToDockIconCallback = nil
   local rawprint,logmessage = print,hs._logmessage
   hs.rawprint = rawprint
   function print(...)
-    rawprint(...)
+--    rawprint(...)
     local vals = pack(...)
 
     for k = 1, vals.n do
