@@ -23,6 +23,7 @@
 @property int             udRef ;
 @property int             windowCallback ;
 @property BOOL            allowKeyboardEntry ;
+@property BOOL            darkMode ;
 @property BOOL            titleFollow ;
 @property BOOL            deleteOnClose ;
 @property BOOL            closeOnEscape ;

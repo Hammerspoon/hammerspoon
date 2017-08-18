@@ -70,11 +70,16 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
         _deleteOnClose      = NO ;
         _allowKeyboardEntry = NO;
         _closeOnEscape      = NO;
+        _darkMode           = NO;
 
         // can't be set before the callback which acts on delegate methods is defined
         self.delegate       = self;
     }
     return self;
+}
+
+- (BOOL)darkModeEnabled {
+    return _darkMode ;
 }
 
 - (BOOL)canBecomeKeyWindow {
@@ -1984,21 +1989,23 @@ static int webview_deleteOnClose(lua_State *L) {
 ///  * A boolean, `true` if dark mode is enabled otherwise `false`.
 static int webview_darkMode(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
     
-    if (lua_isboolean(L, -1)) {
-        //ConsoleDarkModeSetEnabled(lua_toboolean(L, -1));
-        if (lua_toboolean(L, -1)) {
+    if (lua_type(L, 2) == LUA_TNONE) {
+        lua_pushboolean(L, theWindow.darkMode) ;
+    } else {
+        theWindow.darkMode = (BOOL) lua_toboolean(L, 2) ;
+        if (theWindow.darkMode) {
             theWindow.appearance = [NSAppearance appearanceNamed: NSAppearanceNameVibrantDark] ;
         }
-        else {
+        else
+        {
             theWindow.appearance = [NSAppearance appearanceNamed: NSAppearanceNameVibrantLight] ;
         }
+        lua_settop(L, 1) ;
     }
-    
-    //lua_pushboolean(L, ConsoleDarkModeEnabled()) ;
     return 1;
 }
 
