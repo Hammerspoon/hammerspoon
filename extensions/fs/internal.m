@@ -954,7 +954,7 @@ static int hs_fileUTIalternate(lua_State *L) {
 /// Gets the absolute path of a given path
 ///
 /// Parameters:
-///  * filepath - Any kind of file or directory path, be it relative or not; or nil if an error occured
+///  * filepath - Any kind of file or directory path, be it relative or not
 ///
 /// Returns:
 ///  * A string containing the absolute path of `filepath` (i.e. one that doesn't intolve `.`, `..` or symlinks)
@@ -974,6 +974,27 @@ static int hs_pathToAbsolute(lua_State *L) {
     lua_pushstring(L, absolutePath);
     free(absolutePath);
     return 1;
+}
+
+/// hs.fs.displayName(filepath) -> string
+/// Function
+/// Returns the display name of the file or directory at a specified path.
+///
+/// Parameters:
+///  * filepath - The path to the file or directory
+///
+/// Returns:
+///  * a string containing the display name of the file or directory at a specified path; returns nil if no file with the specified path exists.
+static int fs_displayName(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
+    NSString *filePath = [skin toNSObjectAtIndex:1];
+    if ([[NSFileManager defaultManager] fileExistsAtPath:filePath.stringByExpandingTildeInPath]) {
+        [skin pushNSObject:[[NSFileManager defaultManager] displayNameAtPath:filePath.stringByExpandingTildeInPath]] ;
+    } else {
+        lua_pushnil(L) ;
+    }
+    return 1 ;
 }
 
 static const struct luaL_Reg fslib[] = {
@@ -997,6 +1018,7 @@ static const struct luaL_Reg fslib[] = {
     {"fileUTI", hs_fileuti},
     {"fileUTIalternate", hs_fileUTIalternate},
     {"pathToAbsolute", hs_pathToAbsolute},
+    {"displayName", fs_displayName},
     {NULL, NULL},
 };
 
