@@ -3,6 +3,13 @@
 
 <% if hsminweb.request.headers["User-Agent"]:match("Hammerspoon/[%d%.]+$") then %>
 
+<%
+    local invertLevel = settings.get("_documentationServer.invertDocs")
+    if type(invertLevel) == "nil" then invertLevel = (require"hs.host".interfaceStyle() == "Dark") end
+    if type(invertLevel) == "boolean" then invertLevel = invertLevel and 100 or 0 end
+    require("hs.doc").hsdocs._browser:darkMode(invertLevel > 50)
+%>
+
 <style type="text/css">
   div.searchbar {
     display: none;
