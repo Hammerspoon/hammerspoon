@@ -82,9 +82,7 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
     
     //
     // Dark Mode:
-    //
-    
-    // NOTE: This isn't the right place to put this, but not sure where is?
+    //        
     if (ConsoleDarkModeEnabled()) {
         self.window.appearance = [NSAppearance appearanceNamed: NSAppearanceNameVibrantDark] ;
         self.window.titlebarAppearsTransparent = YES ;

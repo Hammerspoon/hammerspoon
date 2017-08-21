@@ -13,6 +13,10 @@
 #import "HSAppleScript.h"
 #import <Crashlytics/Crashlytics.h>
 
+@interface MJPreferencesWindowController ()
+- (void) reflectDefaults ;
+@end
+
 static LuaSkin* MJLuaState;
 static MJLuaLogger* MJLuaLogDelegate;
 static int evalfn;
@@ -407,6 +411,7 @@ static int preferencesDarkMode(lua_State* L) {
     
     if (lua_isboolean(L, -1)) {
         PreferencesDarkModeSetEnabled(lua_toboolean(L, -1));
+        [[MJPreferencesWindowController singleton] reflectDefaults] ;
     }
     
     lua_pushboolean(L, PreferencesDarkModeEnabled()) ;

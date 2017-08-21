@@ -47,6 +47,25 @@ void PreferencesDarkModeSetEnabled(BOOL enabled) {
     return s;
 }
 
+- (void) setup {
+    [self reflectDefaults];
+}
+
+- (void) reflectDefaults {
+    
+    //
+    // Dark Mode:
+    //
+    if (PreferencesDarkModeEnabled()) {
+        self.window.appearance = [NSAppearance appearanceNamed: NSAppearanceNameVibrantDark] ;
+        self.window.titlebarAppearsTransparent = YES ;
+    } else {
+        self.window.appearance = [NSAppearance appearanceNamed: NSAppearanceNameVibrantLight] ;
+        self.window.titlebarAppearsTransparent = NO ;
+    }
+    
+}
+
 - (void)updateFeedbackDisplay:(NSNotification __unused *)notification {
     [self.openAtLoginCheckbox setState:MJAutoLaunchGet() ? NSOnState : NSOffState];
     [self.showDockIconCheckbox setState: MJDockIconVisible() ? NSOnState : NSOffState];
@@ -61,21 +80,10 @@ void PreferencesDarkModeSetEnabled(BOOL enabled) {
 }
 
 - (void) showWindow:(id)sender {
-    
-    //
-    // Dark Mode:
-    //
-    if (PreferencesDarkModeEnabled()) {
-        self.window.appearance = [NSAppearance appearanceNamed: NSAppearanceNameVibrantDark] ;
-        self.window.titlebarAppearsTransparent = YES ;
-    } else {
-        self.window.appearance = [NSAppearance appearanceNamed: NSAppearanceNameVibrantLight] ;
-        self.window.titlebarAppearsTransparent = NO ;
-    }
-    
     if (![[self window] isVisible])
         [[self window] center];
     [super showWindow: sender];
+    [self reflectDefaults];
 }
 
 - (NSString*) windowNibName {

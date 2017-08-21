@@ -3,6 +3,7 @@
 @interface MJPreferencesWindowController : NSWindowController
 
 + (instancetype) singleton;
+- (void) setup;
 
 @end
 
