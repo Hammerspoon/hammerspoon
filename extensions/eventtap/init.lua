@@ -214,7 +214,7 @@ end
 
 --- hs.eventtap.otherClick(point[, delay][, button])
 --- Function
---- Generates a middle mouse click event at the specified point
+--- Generates an "other" mouse click event at the specified point
 ---
 --- Parameters:
 ---  * point  - A table with keys `{x, y}` indicating the location where the mouse event should occur
@@ -226,7 +226,6 @@ end
 ---
 --- Notes:
 ---  * This is a wrapper around `hs.eventtap.event.newMouseEvent` that sends `otherMouseDown` and `otherMouseUp` events)
----  * For backwards compatibility, `hs.eventtap.middleClick` can also be used to invoke this function.
 ---
 ---  * macOS recognizes up to 32 distinct mouse buttons, though few mouse devices have more than 3.  The left mouse button corresponds to button number 0 and the right mouse button corresponds to 1;  distinct events are used for these mouse buttons, so you should use `hs.eventtap.leftClick` and `hs.eventtap.rightClick` respectively.  All other mouse buttons are coalesced into the `otherMouse` events and are distinguished by specifying the specific button with the `mouseEventButtonNumber` property, which this function does for you.
 ---  * The specific purpose of mouse buttons greater than 2 varies by hardware and application (typically they are not present on a mouse and have no effect in an application)
@@ -245,7 +244,23 @@ function module.otherClick(point, delay, button)
     module.event.newMouseEvent(module.event.types["otherMouseUp"], point):setProperty(module.event.properties["mouseEventButtonNumber"], button):post()
 end
 
-module.middleClick = module.otherClick
+
+--- hs.eventtap.middleClick(point[, delay])
+--- Function
+--- Generates a middle mouse click event at the specified point
+---
+--- Parameters:
+---  * point  - A table with keys `{x, y}` indicating the location where the mouse event should occur
+---  * delay  - An optional delay (in microseconds) between mouse down and up event. Defaults to 200000 (i.e. 200ms)
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * This function is just a wrapper which calls `hs.eventtap.otherClick(point, delay, 2)` and is included solely for backwards compatibility.
+module.middleClick = function(point, delay)
+    module.otherClick(point, delay, 2)
+end
 
 --- hs.eventtap.keyStroke(modifiers, character[, delay])
 --- Function
