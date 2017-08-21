@@ -41,4 +41,60 @@ module.volume = require("hs.fs.volume")
 local host = require("hs.host")
 module.volume.allVolumes = host.volumeInformation
 
+--- hs.fs.getFinderComments(path) -> string
+--- Function
+--- Get the Finder comments for the file or directory at the specified path
+---
+--- Parameters:
+---  * path - the path to the file or directory you wish to get the comments of
+---
+--- Returns:
+---  * a string containing the Finder comments for the file or directory specified.  If no comments have been set for the file, returns an empty string.  If an error occurs, most commonly an invalid path, this function will throw a Lua error.
+---
+--- Notes:
+---  * This function uses `hs.osascript` to access the file comments through AppleScript
+module.getFinderComments = function(path)
+    local script = [[
+tell application "Finder"
+  set filePath to "]] .. tostring(path) .. [[" as posix file
+  get comment of (filePath as alias)
+end tell
+]]
+    local state, result, raw = require("hs.osascript").applescript(script)
+    if state then
+        return result
+    else
+        error(raw.NSLocalizedDescription, 2)
+    end
+end
+
+--- hs.fs.setFinderComments(path, comment) -> boolean
+--- Function
+--- Set the Finder comments for the file or directory at the specified path to the comment specified
+---
+--- Parameters:
+---  * path    - the path to the file or directory you wish to set the comments of
+---  * comment - a string specifying the comment to set.  If this parameter is missing or is an explicit nil, the existing comment is cleared.
+---
+--- Returns:
+---  * true on success; on error, most commonly an invalid path, this function will throw a Lua error.
+---
+--- Notes:
+---  * This function uses `hs.osascript` to access the file comments through AppleScript
+module.setFinderComments = function(path, comment)
+    if comment == nil then comment = "" end
+    local script = [[
+tell application "Finder"
+  set filePath to "]] .. tostring(path) .. [[" as posix file
+  set comment of (filePath as alias) to "]] .. comment .. [["
+end tell
+]]
+    local state, result, raw = require("hs.osascript").applescript(script)
+    if state then
+        return state
+    else
+        error(raw.NSLocalizedDescription, 2)
+    end
+end
+
 return module
