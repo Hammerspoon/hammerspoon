@@ -25,6 +25,7 @@
 @property IBOutlet NSTextView *outputView;
 @property (weak) IBOutlet NSTextField *inputField;
 
+- (void) reflectDefaults ;
 @end
 
 static int refTable = LUA_NOREF;
@@ -41,11 +42,12 @@ static int refTable = LUA_NOREF;
 static int consoleDarkMode(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
-    
+
     if (lua_isboolean(L, -1)) {
         ConsoleDarkModeSetEnabled(lua_toboolean(L, -1));
+        [[MJConsoleWindowController singleton] reflectDefaults] ;
     }
-    
+
     lua_pushboolean(L, ConsoleDarkModeEnabled()) ;
     return 1;
 }
@@ -569,9 +571,9 @@ static int console_titleVisibility(lua_State *L) {
 
 static const luaL_Reg extrasLib[] = {
 //     {"asHSDrawing", console_asDrawing},
-    
+
     {"darkMode", consoleDarkMode},
-    
+
     {"hswindow", console_asWindow},
 
     {"windowBackgroundColor", console_backgroundColor},
