@@ -168,6 +168,7 @@ static AXUIElementRef get_window_tabs(AXUIElementRef win) {
     return tabs;
 }
 
+// tabIndex is a 0-based index of the tab to select
 static BOOL window_presstab(AXUIElementRef win, CFIndex tabIndex) {
     BOOL worked = NO;
     CFArrayRef children = NULL;
@@ -467,7 +468,7 @@ static int window__close(lua_State* L) {
 /// Works with document tab groups and some app tabs, like Chrome and Safari.
 ///
 /// Parameters:
-///  * index - A number, a 0-based index of a tab to focus
+///  * index - A number, a 1-based index of a tab to focus
 ///
 /// Returns:
 ///  * true if the tab was successfully pressed, or false if there was a problem
@@ -475,7 +476,7 @@ static int window_focustab(lua_State* L) {
     AXUIElementRef win = get_window_arg(L, 1);
     CFIndex tabIndex = luaL_checkinteger(L, 2);
 
-    BOOL worked = window_presstab(win, tabIndex);
+    BOOL worked = window_presstab(win, tabIndex - 1);
     lua_pushboolean(L, worked);
     return 1;
 }
