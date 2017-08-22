@@ -8,6 +8,28 @@
 
 local module = require("hs.fs.internal")
 module.volume = require("hs.fs.volume")
+module.xattr  = require("hs.fs.xattr")
+
+--- hs.fs.xattr.getHumanReadable(path, attribute, [options], [position]) -> string | true | nil
+--- Function
+--- A wrapper to [hs.fs.xattr.get](#get) which returns non UTF-8 data as a hexadecimal dump provided by `hs.utf8.hexDump`.
+---
+--- Parameters:
+---  * see [hs.fs.xattr.get](#get)
+---
+--- Returns:
+---  * if the returned data does not conform to proper UTF-8 byte sequences, passes the string through `hs.utf8.hexDump` first.  Otherwise the return values follow the description for [hs.fs.xattr.get](#get) .
+---
+--- Notes:
+---  * This is provided for testing and debugging purposes; in general you probably want [hs.fs.xattr.get](#get) once you know how to properly understand the data returned for the attribute.
+---  * This is similar to the long format option in the command line `xattr` command.
+module.xattr.getHumanReadable = function(...)
+    local val = module.xattr.get(...)
+    if type(val) == "string" and val ~= hs.cleanUTF8forConsole(val) then
+        val = require("hs.utf8").hexDump(val)
+    end
+    return val
+end
 
 --- hs.fs.volume.allVolumes([showHidden]) -> table
 --- Function
