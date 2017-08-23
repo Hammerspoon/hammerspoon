@@ -93,7 +93,7 @@ static CFDataRef localPortCallback(__unused CFMessagePortRef local, SInt32 msgid
     fprintf((isStdOut ? stdout : stderr), "%s", outputColor.UTF8String) ;
     fwrite(responseCString, 1, (size_t)maxSize, (isStdOut ? stdout : stderr)) ;
     fprintf((isStdOut ? stdout : stderr), "%s", self.colorReset.UTF8String) ;
-    fprintf((isStdOut ? stdout : stderr), "\n") ;
+//     fprintf((isStdOut ? stdout : stderr), "\n") ;
 
     // if the main thread is stuck waiting for readline to complete, the active display color
     // should be the input color; any other output will set it's color before showing text, so
