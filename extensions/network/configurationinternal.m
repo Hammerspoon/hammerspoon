@@ -316,10 +316,10 @@ SCPreferencesCreateWithOptions      (
 /// Switches to a new location
 ///
 /// Parameters:
-///  * location - string containing UUID or name of new location
+///  * location - string containing name of new location
 ///
 /// Returns:
-///  * bool
+///  * bool - true if the location was successfully changed, false if there was an error
 static int dynamicStoreSetLocation(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TBREAK];
