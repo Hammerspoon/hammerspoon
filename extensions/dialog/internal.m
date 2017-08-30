@@ -112,8 +112,9 @@ static int chooseFileOrFolder(lua_State *L) {
 ///  * [style] can be "NSWarningAlertStyle", "NSInformationalAlertStyle" or "NSCriticalAlertStyle". If something other than these string values is given, it will use "NSWarningAlertStyle".
 /*
  EXAMPLE:
- test = hs.webview.newBrowser(hs.geometry.rect(250, 250, 250, 250)):show()
- hs.dialog.webviewAlert(test, function(result) print("Callback Result: " .. result) end, "Message", "Informative Text", "Button One", "Button Two", "NSCriticalAlertStyle")
+ testWebview = hs.webview.newBrowser(hs.geometry.rect(250, 250, 250, 250)):show()
+ testCallbackFn = function(result) print("Callback Result: " .. result) end
+ hs.dialog.webviewAlert(testWebview, testCallbackFn, "Message", "Informative Text", "Button One", "Button Two", "NSCriticalAlertStyle")
  */
 static int webviewAlert(lua_State *L) {
     
@@ -167,38 +168,33 @@ static int webviewAlert(lua_State *L) {
     }
     
     [alert beginSheetModalForWindow:webview completionHandler:^(NSModalResponse result){
-        if (result == NSAlertFirstButtonReturn) {
-            if (buttonOne == nil) {
-                [LuaSkin logInfo:@"hs.dialog.webviewAlert() - Default button pressed during callback."];
-                
-                // @asmagill - what do I need to put here to trigger the callback?
-                [skin pushNSObject:defaultButton];
-                [skin protectedCallAndTraceback:1 nresults:0];
-            }
-            else
-            {
-                [LuaSkin logInfo:@"hs.dialog.webviewAlert() - First button pressed during callback."];
         
-                // @asmagill - what do I need to put here to trigger the callback?
-                [skin pushNSObject:buttonOne];
-                [skin protectedCallAndTraceback:1 nresults:0];
+        NSString *button = defaultButton;
+        
+        if (result == NSAlertFirstButtonReturn) {
+            if (buttonOne != nil) {
+                button = buttonOne;
             }
         }
         else if (result == NSAlertSecondButtonReturn) {
-            [LuaSkin logInfo:@"hs.dialog.webviewAlert() - Second button pressed during callback."];
-            
-            // @asmagill - what do I need to put here to trigger the callback?
-            [skin pushNSObject:buttonTwo];
-            [skin protectedCallAndTraceback:1 nresults:0];
+            button = buttonTwo;
         }
         else
         {
             [LuaSkin logError:@"hs.dialog.webviewAlert() - Failed to detect which button was pressed."];
             lua_pushnil(L) ;
         }
+        
+        lua_pushvalue(L, 2) ; // push the function passed in as an argument to the top of the stack
+        [skin pushNSObject:button]; // or whatever arguments you want passed to the callback
+        if (![skin protectedCallAndTraceback:1 nresults:0]) { // returns NO on error, so we check if the result is !YES
+            [skin logError:[NSString stringWithFormat:@"hs.dialog:callback error - %s", lua_tostring(L, -1)]]; // -1 indicates the top item of the stack, which will be an error message string in this case
+            lua_pop(L, 1) ; // remove the error from the stack to keep it clean
+        }
     }] ;
     
     return 1 ;
+    
 }
 
 /// hs.dialog.alert(message, informativeText, [buttonOne], [buttonTwo], [style]) -> string
