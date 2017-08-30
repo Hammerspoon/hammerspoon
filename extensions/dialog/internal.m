@@ -4,17 +4,40 @@
 //
 // TO-DO LIST:
 //
-//  * Fix `hs.dialog.webviewAlert` callback
-//  * `hs.dialog.file()` should probably return a table of the file paths?
-//  * Add `setAllowedFileTypes`, `resolvesAliases` to `hs.dialog.file()`
+//  * Finish `hs.dialog.colorPicker()`
+//  * Add `setAllowedFileTypes`, `resolvesAliases` to `hs.dialog.chooseFileOrFolder()`
 //  * Add `hs.dialog.chooseFromList()`
-//  * Add `hs.dialog.colorPicker()`
 //  * Investigate doing a non-blocking version of all the scripts using NSWindow & callbacks.
 //
 
 static int refTable = LUA_NOREF ;
 
-/// hs.dialog.chooseFileOrFolder([canChooseFiles], [canChooseDirectories], [allowsMultipleSelection]) -> string
+/*
+-(void)colorUpdate:(NSColorPanel*)colorPanel{
+    NSColor* theColor = colorPanel.color;
+}
+*/
+
+/// hs.dialog.colorPanel([defaultColor]) -> string
+/// Function
+/// Displays a System Colour Picker.
+///
+/// Parameters:
+///  * [defaultColor] - An RGB Table to use as the default value
+///
+/// Returns:
+///  * An RGB table with the selected colour or `nil`
+static int colorPanel(lua_State *L) {
+    
+    NSColorPanel *colorPanel = [NSColorPanel sharedColorPanel];
+    [colorPanel setTarget:nil];
+    [colorPanel setAction:nil];
+    [colorPanel orderFront:nil];
+    return 1;
+    
+}
+
+/// hs.dialog.chooseFileOrFolder([message], [defaultPath], [canChooseFiles], [canChooseDirectories], [allowsMultipleSelection]) -> string
 /// Function
 /// Displays a file and/or folder selection dialog box using NSOpenPanel.
 ///
@@ -26,10 +49,12 @@ static int refTable = LUA_NOREF ;
 ///  * [allowsMultipleSelection] - Allow multiple selections of files and/or folders. Defaults to `false`.
 ///
 /// Returns:
-///  * The selected files or `nil` if cancel was pressed.
+///  * The selected files in a table or `nil` if cancel was pressed.
 ///
 /// Notes:
 ///  * The optional values must be entered in order (i.e. you can't supply `allowsMultipleSelection` without also supplying `canChooseFiles` and `canChooseDirectories`).
+///  * Example:
+///      hs.inspect(hs.dialog.chooseFileOrFolder("Please select a file:", "~/Desktop", true, false, true))
 static int chooseFileOrFolder(lua_State *L) {
 
     LuaSkin *skin = [LuaSkin shared];
@@ -76,23 +101,23 @@ static int chooseFileOrFolder(lua_State *L) {
     int count = 1;
     
     if (clicked == NSFileHandlingPanelOKButton) {
+        lua_newtable(L);
         for (NSURL *url in [panel URLs]) {
+            lua_pushstring(L,[[url absoluteString] UTF8String]); lua_setfield(L, -2, [[NSString stringWithFormat:@"%i", count] UTF8String]);
             count = count + 1;
-            lua_pushstring(L,[[url absoluteString] UTF8String]);
         }
-        count = count - 1;
     }
     else
     {
-        lua_pushnil(L) ;
+        lua_pushnil(L);
     }
     
-    return count ;
+    return 1;
 }
 
 /// hs.dialog.webviewAlert(webview, callbackFn, message, informativeText, [buttonOne], [buttonTwo], [style]) -> string
 /// Function
-/// Displays a simple blocking dialog box using `NSAlert` in a `hs.webview`.
+/// Displays a simple dialog box using `NSAlert` in a `hs.webview`.
 ///
 /// Parameters:
 ///  * webview - The `hs.webview` to display the alert on.
@@ -104,18 +129,18 @@ static int chooseFileOrFolder(lua_State *L) {
 ///  * [style] - An optional style of the dialog box as a string. Defaults to "NSWarningAlertStyle".
 ///
 /// Returns:
-///  * The value of the button as a string.
+///  * nil
 ///
 /// Notes:
-///  * This alert is blocking (i.e. no other Lua code will be processed until the alert is closed).
+///  * This alert is will prevent the user from interacting with the `hs.webview` until a button is pressed on the alert.
 ///  * The optional values must be entered in order (i.e. you can't supply `style` without also supplying `buttonOne` and `buttonTwo`).
 ///  * [style] can be "NSWarningAlertStyle", "NSInformationalAlertStyle" or "NSCriticalAlertStyle". If something other than these string values is given, it will use "NSWarningAlertStyle".
-/*
- EXAMPLE:
- testWebview = hs.webview.newBrowser(hs.geometry.rect(250, 250, 250, 250)):show()
- testCallbackFn = function(result) print("Callback Result: " .. result) end
- hs.dialog.webviewAlert(testWebview, testCallbackFn, "Message", "Informative Text", "Button One", "Button Two", "NSCriticalAlertStyle")
- */
+///  * Example:
+///      testCallbackFn = function(result) print("Callback Result: " .. result) end
+///      testWebviewA = hs.webview.newBrowser(hs.geometry.rect(250, 250, 250, 250)):show()
+///      testWebviewB = hs.webview.newBrowser(hs.geometry.rect(450, 450, 450, 450)):show()
+///      hs.dialog.webviewAlert(testWebviewA, testCallbackFn, "Message", "Informative Text", "Button One", "Button Two", "NSCriticalAlertStyle")
+///      hs.dialog.webviewAlert(testWebviewB, testCallbackFn, "Message", "Informative Text", "Single Button")
 static int webviewAlert(lua_State *L) {
     
     NSString* defaultButton = @"OK";
@@ -124,7 +149,10 @@ static int webviewAlert(lua_State *L) {
     [skin checkArgs:LS_TUSERDATA, "hs.webview", LS_TFUNCTION, LS_TSTRING, LS_TSTRING, LS_TSTRING | LS_TOPTIONAL, LS_TSTRING | LS_TOPTIONAL, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
     
     NSWindow *webview = [skin toNSObjectAtIndex:1];
-    //NSObject *callback = [skin toNSObjectAtIndex:2];
+    
+    lua_pushvalue(L, 2) ; // Copy the callback function to the top of the stack
+    int callbackRef = [skin luaRef:refTable] ; // Store what's at the top of the stack in the registry and save it's reference number. "luaRef" will pull off the top value of the stack, so the net effect of these two lines is to leave the stack of arguments as-is.
+    
     NSString *message = [skin toNSObjectAtIndex:3];
     NSString *informativeText = [skin toNSObjectAtIndex:4];
     NSString *buttonOne = [skin toNSObjectAtIndex:5];
@@ -185,14 +213,17 @@ static int webviewAlert(lua_State *L) {
             lua_pushnil(L) ;
         }
         
-        lua_pushvalue(L, 2) ; // push the function passed in as an argument to the top of the stack
-        [skin pushNSObject:button]; // or whatever arguments you want passed to the callback
-        if (![skin protectedCallAndTraceback:1 nresults:0]) { // returns NO on error, so we check if the result is !YES
+        
+        [skin pushLuaRef:refTable ref:callbackRef] ; // Put the saved function back on the stack.
+        [skin luaUnref:refTable ref:callbackRef] ; // Remove the stored function from the registry.
+        [skin pushNSObject:button];
+        if (![skin protectedCallAndTraceback:1 nresults:0]) { // Returns NO on error, so we check if the result is !YES
             [skin logError:[NSString stringWithFormat:@"hs.dialog:callback error - %s", lua_tostring(L, -1)]]; // -1 indicates the top item of the stack, which will be an error message string in this case
-            lua_pop(L, 1) ; // remove the error from the stack to keep it clean
+            lua_pop(L, 1) ; // Remove the error from the stack to keep it clean
         }
     }] ;
     
+    lua_pushnil(L) ;
     return 1 ;
     
 }
@@ -215,9 +246,9 @@ static int webviewAlert(lua_State *L) {
 ///  * This alert is blocking (i.e. no other Lua code will be processed until the alert is closed).
 ///  * The optional values must be entered in order (i.e. you can't supply `style` without also supplying `buttonOne` and `buttonTwo`).
 ///  * [style] can be "NSWarningAlertStyle", "NSInformationalAlertStyle" or "NSCriticalAlertStyle". If something other than these string values is given, it will use "NSWarningAlertStyle".
+///  * Example:
+///      hs.dialog.alert("Message", "Informative Text", "Button One", "Button Two", "NSCriticalAlertStyle")
 static int alert(lua_State *L) {
-	
-    // hs.dialog.alert("Message", "Informative Text", "Button One", "Button Two", "NSCriticalAlertStyle")
     
 	NSString* defaultButton = @"OK";
 	
@@ -289,7 +320,7 @@ static int alert(lua_State *L) {
 	return 1 ;
 }
 
-/// hs.dialog.textPrompt(message, [defaultText], [buttonOne], [buttonTwo]) -> string, string
+/// hs.dialog.textPrompt(message, informativeText, [defaultText], [buttonOne], [buttonTwo]) -> string, string
 /// Function
 /// Displays a simple text input dialog box.
 ///
@@ -306,6 +337,8 @@ static int alert(lua_State *L) {
 ///
 /// Notes:
 ///  * [buttonOne] defaults to "OK" if no value is supplied.
+///  * Example:
+///      hs.dialog.textPrompt("Main message.", "Please enter something:", "Default Value", "Button One", "Button Two")
 static int textPrompt(lua_State *L) {
     NSString* defaultButton = @"OK";
     
@@ -373,6 +406,7 @@ static int textPrompt(lua_State *L) {
 
 // Functions for returned object when module loads:
 static luaL_Reg moduleLib[] = {
+    {"colorPanel", colorPanel},
     {"webviewAlert", webviewAlert},
     {"alert", alert},
     {"textPrompt", textPrompt},
