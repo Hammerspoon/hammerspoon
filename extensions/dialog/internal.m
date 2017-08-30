@@ -1,12 +1,16 @@
 @import Cocoa ;
 @import LuaSkin ;
 
+//
 // TO-DO LIST:
-//  * hs.dialog.displayChooseFromList()
-//  * hs.dialog.displayColorPicker()
-//  * Investigate doing a non-blocking version of all the scripts using NSWindow & callbacks. hs.dialog.displayMessage?
-//  * Add setAllowedFileTypes, resolvesAliases to hs.dialog.file()
-//  * hs.dialog.file() should probably return a table of the file paths?
+//
+//  * Fix `hs.dialog.webviewAlert` callback
+//  * `hs.dialog.file()` should probably return a table of the file paths?
+//  * Add `setAllowedFileTypes`, `resolvesAliases` to `hs.dialog.file()`
+//  * Add `hs.dialog.chooseFromList()`
+//  * Add `hs.dialog.colorPicker()`
+//  * Investigate doing a non-blocking version of all the scripts using NSWindow & callbacks.
+//
 
 static int refTable = LUA_NOREF ;
 
