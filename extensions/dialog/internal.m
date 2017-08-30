@@ -10,7 +10,7 @@
 
 static int refTable = LUA_NOREF ;
 
-/// hs.dialog.displayChooseFileOrFolder([canChooseFiles], [canChooseDirectories], [allowsMultipleSelection]) -> string
+/// hs.dialog.chooseFileOrFolder([canChooseFiles], [canChooseDirectories], [allowsMultipleSelection]) -> string
 /// Function
 /// Displays a file and/or folder selection dialog box using NSOpenPanel.
 ///
@@ -26,7 +26,7 @@ static int refTable = LUA_NOREF ;
 ///
 /// Notes:
 ///  * The optional values must be entered in order (i.e. you can't supply `allowsMultipleSelection` without also supplying `canChooseFiles` and `canChooseDirectories`).
-static int displayChooseFileOrFolder(lua_State *L) {
+static int chooseFileOrFolder(lua_State *L) {
 
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TOPTIONAL | LS_TSTRING, LS_TOPTIONAL | LS_TSTRING, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
@@ -86,7 +86,118 @@ static int displayChooseFileOrFolder(lua_State *L) {
     return count ;
 }
 
-/// hs.dialog.displayAlertMessage(message, informativeText, [buttonOne], [buttonTwo], [style], [window]) -> string
+/// hs.dialog.webviewAlert(webview, callbackFn, message, informativeText, [buttonOne], [buttonTwo], [style]) -> string
+/// Function
+/// Displays a simple blocking dialog box using `NSAlert` in a `hs.webview`.
+///
+/// Parameters:
+///  * webview - The `hs.webview` to display the alert on.
+///  * callbackFn - The callback function that's called when a button is pressed.
+///  * message - The message text to display.
+///  * informativeText - The informative text to display.
+///  * [buttonOne] - An optional value for the first button as a string. Defaults to "OK".
+///  * [buttonTwo] - An optional value for the second button as a string. By default there is no second button.
+///  * [style] - An optional style of the dialog box as a string. Defaults to "NSWarningAlertStyle".
+///
+/// Returns:
+///  * The value of the button as a string.
+///
+/// Notes:
+///  * This alert is blocking (i.e. no other Lua code will be processed until the alert is closed).
+///  * The optional values must be entered in order (i.e. you can't supply `style` without also supplying `buttonOne` and `buttonTwo`).
+///  * [style] can be "NSWarningAlertStyle", "NSInformationalAlertStyle" or "NSCriticalAlertStyle". If something other than these string values is given, it will use "NSWarningAlertStyle".
+/*
+ EXAMPLE:
+ test = hs.webview.newBrowser(hs.geometry.rect(250, 250, 250, 250)):show()
+ hs.dialog.webviewAlert(test, function(result) print("Callback Result: " .. result) end, "Message", "Informative Text", "Button One", "Button Two", "NSCriticalAlertStyle")
+ */
+static int webviewAlert(lua_State *L) {
+    
+    NSString* defaultButton = @"OK";
+    
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, "hs.webview", LS_TFUNCTION, LS_TSTRING, LS_TSTRING, LS_TSTRING | LS_TOPTIONAL, LS_TSTRING | LS_TOPTIONAL, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
+    
+    NSWindow *webview = [skin toNSObjectAtIndex:1];
+    //NSObject *callback = [skin toNSObjectAtIndex:2];
+    NSString *message = [skin toNSObjectAtIndex:3];
+    NSString *informativeText = [skin toNSObjectAtIndex:4];
+    NSString *buttonOne = [skin toNSObjectAtIndex:5];
+    NSString *buttonTwo = [skin toNSObjectAtIndex:6];
+    NSString *style = [skin toNSObjectAtIndex:7];
+    
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert setMessageText:message];
+    [alert setInformativeText:informativeText];
+    
+    if( buttonOne == nil ){
+        [alert addButtonWithTitle:defaultButton];
+    }
+    else
+    {
+        [alert addButtonWithTitle:buttonOne];
+    }
+    
+    if (buttonTwo != nil ) {
+        [alert addButtonWithTitle:buttonTwo];
+    }
+    
+    if (style == nil){
+        [alert setAlertStyle:NSWarningAlertStyle];
+    }
+    else
+    {
+        if ([style isEqualToString:@"NSWarningAlertStyle"]) {
+            [alert setAlertStyle:NSWarningAlertStyle];
+        }
+        else if ([style isEqualToString:@"NSInformationalAlertStyle"]) {
+            [alert setAlertStyle:NSInformationalAlertStyle];
+        }
+        else if ([style isEqualToString:@"NSCriticalAlertStyle"]) {
+            [alert setAlertStyle:NSCriticalAlertStyle];
+        }
+        else
+        {
+            [alert setAlertStyle:NSWarningAlertStyle];
+        }
+    }
+    
+    [alert beginSheetModalForWindow:webview completionHandler:^(NSModalResponse result){
+        if (result == NSAlertFirstButtonReturn) {
+            if (buttonOne == nil) {
+                [LuaSkin logInfo:@"hs.dialog.webviewAlert() - Default button pressed during callback."];
+                
+                // @asmagill - what do I need to put here to trigger the callback?
+                [skin pushNSObject:defaultButton];
+                [skin protectedCallAndTraceback:1 nresults:0];
+            }
+            else
+            {
+                [LuaSkin logInfo:@"hs.dialog.webviewAlert() - First button pressed during callback."];
+        
+                // @asmagill - what do I need to put here to trigger the callback?
+                [skin pushNSObject:buttonOne];
+                [skin protectedCallAndTraceback:1 nresults:0];
+            }
+        }
+        else if (result == NSAlertSecondButtonReturn) {
+            [LuaSkin logInfo:@"hs.dialog.webviewAlert() - Second button pressed during callback."];
+            
+            // @asmagill - what do I need to put here to trigger the callback?
+            [skin pushNSObject:buttonTwo];
+            [skin protectedCallAndTraceback:1 nresults:0];
+        }
+        else
+        {
+            [LuaSkin logError:@"hs.dialog.webviewAlert() - Failed to detect which button was pressed."];
+            lua_pushnil(L) ;
+        }
+    }] ;
+    
+    return 1 ;
+}
+
+/// hs.dialog.alert(message, informativeText, [buttonOne], [buttonTwo], [style]) -> string
 /// Function
 /// Displays a simple dialog box using `NSAlert`.
 ///
@@ -96,7 +207,6 @@ static int displayChooseFileOrFolder(lua_State *L) {
 ///  * [buttonOne] - An optional value for the first button as a string. Defaults to "OK".
 ///  * [buttonTwo] - An optional value for the second button as a string. By default there is no second button.
 ///  * [style] - An optional style of the dialog box as a string. Defaults to "NSWarningAlertStyle".
-///  * [window] - An optional `hs.window` to display the alert on.
 ///
 /// Returns:
 ///  * The value of the button as a string.
@@ -105,23 +215,20 @@ static int displayChooseFileOrFolder(lua_State *L) {
 ///  * This alert is blocking (i.e. no other Lua code will be processed until the alert is closed).
 ///  * The optional values must be entered in order (i.e. you can't supply `style` without also supplying `buttonOne` and `buttonTwo`).
 ///  * [style] can be "NSWarningAlertStyle", "NSInformationalAlertStyle" or "NSCriticalAlertStyle". If something other than these string values is given, it will use "NSWarningAlertStyle".
-static int displayAlertMessage(lua_State *L) {
+static int alert(lua_State *L) {
 	
-    // hs.dialog.alert("Message", "Informative Text", "Button One", "Button Two", "NSCriticalAlertStyle", hs.console.hswindow())
+    // hs.dialog.alert("Message", "Informative Text", "Button One", "Button Two", "NSCriticalAlertStyle")
     
 	NSString* defaultButton = @"OK";
 	
  	LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TSTRING | LS_TOPTIONAL, LS_TSTRING | LS_TOPTIONAL, LS_TSTRING | LS_TOPTIONAL, LS_TANY | LS_TOPTIONAL, LS_TBREAK];
+    [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TSTRING | LS_TOPTIONAL, LS_TSTRING | LS_TOPTIONAL, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
 
     NSString* message = [skin toNSObjectAtIndex:1];
     NSString* informativeText = [skin toNSObjectAtIndex:2];    
     NSString* buttonOne = [skin toNSObjectAtIndex:3];
     NSString* buttonTwo = [skin toNSObjectAtIndex:4];
     NSString* style = [skin toNSObjectAtIndex:5];
-    
-    // TO-DO: Work out how to get the hs.window user data and process it acccordingly.
-    // window = [skin toNSObjectAtIndex:6];
     
 	NSAlert *alert = [[NSAlert alloc] init];
     [alert setMessageText:message];
@@ -182,7 +289,7 @@ static int displayAlertMessage(lua_State *L) {
 	return 1 ;
 }
 
-/// hs.dialog.displayTextPrompt(message, [defaultText], [buttonOne], [buttonTwo]) -> string, string
+/// hs.dialog.textPrompt(message, [defaultText], [buttonOne], [buttonTwo]) -> string, string
 /// Function
 /// Displays a simple text input dialog box.
 ///
@@ -199,7 +306,7 @@ static int displayAlertMessage(lua_State *L) {
 ///
 /// Notes:
 ///  * [buttonOne] defaults to "OK" if no value is supplied.
-static int displayTextPrompt(lua_State *L) {
+static int textPrompt(lua_State *L) {
     NSString* defaultButton = @"OK";
     
     LuaSkin *skin = [LuaSkin shared];
@@ -257,7 +364,7 @@ static int displayTextPrompt(lua_State *L) {
     }
     else
     {
-        [LuaSkin logError:@"hs.dialog.alert() - Failed to detect which button was pressed."];
+        [LuaSkin logError:@"hs.dialog.textPrompt() - Failed to detect which button was pressed."];
         lua_pushnil(L) ;
     }
     
@@ -266,9 +373,10 @@ static int displayTextPrompt(lua_State *L) {
 
 // Functions for returned object when module loads:
 static luaL_Reg moduleLib[] = {
-    {"displayAlertMessage", displayAlertMessage},
-    {"displayTextPrompt", displayTextPrompt},
-    {"displayChooseFileOrFolder", displayChooseFileOrFolder},
+    {"webviewAlert", webviewAlert},
+    {"alert", alert},
+    {"textPrompt", textPrompt},
+    {"chooseFileOrFolder", chooseFileOrFolder},
     {NULL,  NULL}
 };
 
