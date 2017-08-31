@@ -346,7 +346,7 @@ static int task_closeInput(lua_State *L) {
     return 1;
 }
 
-/// hs.task:setStreamCallback(fn) -> hs.task object
+/// hs.task:setStreamingCallback(fn) -> hs.task object
 /// Method
 /// Set a stream callback function for a task
 ///
@@ -923,7 +923,7 @@ int luaopen_hs_task_internal(lua_State* L) {
             } else if (fh == stdErrFH) {
                 stdErrArg = dataString;
             } else {
-                [skin logError:@"hs.task:setStreamCallback() Received data from an unknown file handle"];
+                [skin logError:@"hs.task:setStreamingCallback() Received data from an unknown file handle"];
                 return;
             }
 
@@ -934,11 +934,11 @@ int luaopen_hs_task_internal(lua_State* L) {
 
             if (![skin protectedCallAndTraceback:3 nresults:1]) {
                 const char *errorMsg = lua_tostring([skin L], -1);
-                [skin logError:[NSString stringWithFormat:@"hs.task:setStreamCallback() callback error: %s", errorMsg]];
+                [skin logError:[NSString stringWithFormat:@"hs.task:setStreamingCallback() callback error: %s", errorMsg]];
             }
 
             if (lua_type(L, -1) != LUA_TBOOLEAN) {
-                [skin logError:@"hs.task:setStreamCallback() callback did not return a boolean"];
+                [skin logError:@"hs.task:setStreamingCallback() callback did not return a boolean"];
             } else {
                 BOOL continueStreaming = lua_toboolean(L, -1);
 
@@ -946,7 +946,7 @@ int luaopen_hs_task_internal(lua_State* L) {
                     @try {
                         [fh readInBackgroundAndNotify];
                     } @catch (NSException *exception) {
-                        [skin logError:[NSString stringWithFormat:@"hs.task:setStreamCallback() post-callback background reading threw an exception. Please file a bug saying: %@", exception.description]];
+                        [skin logError:[NSString stringWithFormat:@"hs.task:setStreamingCallback() post-callback background reading threw an exception. Please file a bug saying: %@", exception.description]];
                     } @finally {
                         ;
                     }
