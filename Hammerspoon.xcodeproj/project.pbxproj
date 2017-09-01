@@ -5494,7 +5494,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -eux\n\"${SRCROOT}/scripts/copy_extensions_to_bundle.sh\"";
+			shellScript = "set -eux\n\"${SRCROOT}/scripts/copy_extensions_to_bundle.sh\"\nxattr -cr ${BUILT_PRODUCTS_DIR}";
 		};
 		4FC09F7A19F99E48007542A6 /* Compile docs.json */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -6728,10 +6728,6 @@
 				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
 				SDKROOT = "$(inherited)";
 				STRIP_INSTALLED_PRODUCT = NO;
-				WARNING_CFLAGS = (
-					"-Weverything",
-					"$(inherited)",
-				);
 			};
 			name = Debug;
 		};
@@ -6798,10 +6794,6 @@
 				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
 				SDKROOT = "$(inherited)";
 				STRIP_INSTALLED_PRODUCT = NO;
-				WARNING_CFLAGS = (
-					"-Weverything",
-					"$(inherited)",
-				);
 			};
 			name = Release;
 		};

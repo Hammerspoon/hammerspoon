@@ -4,37 +4,522 @@
 //
 // TO-DO LIST:
 //
-//  * Finish `hs.dialog.colorPicker()`
-//  * Add `setAllowedFileTypes`, `resolvesAliases` to `hs.dialog.chooseFileOrFolder()`
-//  * Add `hs.dialog.chooseFromList()`
-//  * Investigate doing a non-blocking version of all the scripts using NSWindow & callbacks.
+//  * Don't allow empty strings for button labels as discussed here: https://github.com/Hammerspoon/hammerspoon/pull/1504#issuecomment-326192036
+//  * Add a wrapper webview alert as dicussed here: https://github.com/Hammerspoon/hammerspoon/pull/1504#issuecomment-326191315
+//  * @asmagill - The `hs.dialog.font` callback doesn't seem to work properly?
+//  * Add a `hs.dialog.font.continious` option like with color panel.
+//  * @asmagill - I have no idea what `hs.dialog.font.mode` actually does?
+//  * @asmagill - Any ideas how I'd impliment `hs.dialog.chooseFromList()`?
+//  * @asmagill - Is it possible to do a non-blocking version of all the alerts using NSWindow & callbacks?
+//  * @latenitefilms - Add `setAllowedFileTypes`, `resolvesAliases` to `hs.dialog.chooseFileOrFolder()`
 //
 
+#define USERDATA_TAG  "hs.dialog"
 static int refTable = LUA_NOREF ;
 
-/*
--(void)colorUpdate:(NSColorPanel*)colorPanel{
-    NSColor* theColor = colorPanel.color;
-}
-*/
+#pragma mark - Support Functions and Classes
 
-/// hs.dialog.colorPanel([defaultColor]) -> string
+@interface HSColorPanel : NSObject
+@property int callbackRef ;
+@end
+
+@implementation HSColorPanel
+- (instancetype)init {
+    self = [super init] ;
+    if (self) {
+        _callbackRef = LUA_NOREF ;
+        NSColorPanel *cp = [NSColorPanel sharedColorPanel];
+        [cp setTarget:self];
+        [cp setAction:@selector(colorCallback:)];
+
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(colorClose:)
+                                                     name:NSWindowWillCloseNotification
+                                                   object:cp] ;
+    }
+    return self ;
+}
+
+// Second argument to callback is true indicating this is a close color panel event
+- (void)colorClose:(__unused NSNotification*)note {
+    if (_callbackRef != LUA_NOREF) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            LuaSkin   *skin = [LuaSkin shared] ;
+            lua_State *L    = [skin L] ;
+            NSColorPanel *cp = [NSColorPanel sharedColorPanel];
+            [skin pushLuaRef:refTable ref:self->_callbackRef] ;
+            [skin pushNSObject:cp.color] ;
+            lua_pushboolean(L, YES) ;
+            if (![skin protectedCallAndTraceback:2 nresults:0]) {
+                [skin logError:[NSString stringWithFormat:@"%s: color callback error, %s",
+                                                          USERDATA_TAG,
+                                                          lua_tostring(L, -1)]] ;
+                lua_pop(L, 1) ;
+            }
+        }) ;
+    }
+}
+
+// Second argument to callback is false indicating that the color panel is still open (i.e. they may change color again)
+- (void)colorCallback:(NSColorPanel*)colorPanel {
+    if (_callbackRef != LUA_NOREF) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            LuaSkin   *skin = [LuaSkin shared] ;
+            lua_State *L    = [skin L] ;
+            [skin pushLuaRef:refTable ref:self->_callbackRef] ;
+            [skin pushNSObject:colorPanel.color] ;
+            lua_pushboolean(L, NO) ;
+            if (![skin protectedCallAndTraceback:2 nresults:0]) {
+                [skin logError:[NSString stringWithFormat:@"%s: color callback error, %s",
+                                                          USERDATA_TAG,
+                                                          lua_tostring(L, -1)]] ;
+                lua_pop(L, 1) ;
+            }
+        }) ;
+    }
+}
+@end
+
+@interface HSFontPanel : NSObject
+@property int          callbackRef ;
+@property NSUInteger   fontPanelModes ;
+@property NSDictionary *attributesDictionary ;
+@end
+
+@implementation HSFontPanel
+- (instancetype)init {
+    self = [super init] ;
+    if (self) {
+        _callbackRef = LUA_NOREF ;
+        _attributesDictionary = @{} ;
+        _fontPanelModes = NSFontPanelFaceModeMask | NSFontPanelSizeModeMask | NSFontPanelCollectionModeMask ;
+        NSFontPanel *fp = [NSFontPanel sharedFontPanel];
+        NSFontManager *fm = [NSFontManager sharedFontManager];
+        [fm setTarget:self];
+        [fm setSelectedFont:[NSFont systemFontOfSize: 27] isMultiple:NO] ;
+        [fm setSelectedAttributes:_attributesDictionary isMultiple:NO] ;
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(fontClose:)
+                                                     name:NSWindowWillCloseNotification
+                                                   object:fp] ;
+    }
+    return self ;
+}
+
+- (void)fontClose:(__unused NSNotification*)note {
+    if (_callbackRef != LUA_NOREF) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            LuaSkin   *skin = [LuaSkin shared] ;
+            lua_State *L    = [skin L] ;
+            [skin pushLuaRef:refTable ref:self->_callbackRef] ;
+            [skin pushNSObject:[[NSFontManager sharedFontManager] selectedFont]] ;
+            lua_pushboolean(L, YES) ;
+            if (![skin protectedCallAndTraceback:2 nresults:0]) {
+                [skin logError:[NSString stringWithFormat:@"%s: font callback error, %s",
+                                                          USERDATA_TAG,
+                                                          lua_tostring(L, -1)]] ;
+                lua_pop(L, 1) ;
+            }
+        }) ;
+    }
+}
+
+- (NSUInteger)validModesForFontPanel:(__unused NSFontPanel *)fontPanel {
+    return _fontPanelModes ;
+}
+
+- (void)changeFont:(id)obj {
+    if (_callbackRef != LUA_NOREF) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            LuaSkin   *skin = [LuaSkin shared] ;
+            lua_State *L    = [skin L] ;
+            [skin pushLuaRef:refTable ref:self->_callbackRef] ;
+            [skin pushNSObject:[obj selectedFont]] ;
+            lua_pushboolean(L, NO) ;
+            if (![skin protectedCallAndTraceback:2 nresults:0]) {
+                [skin logError:[NSString stringWithFormat:@"%s: font callback error, %s",
+                                                          USERDATA_TAG,
+                                                          lua_tostring(L, -1)]] ;
+                lua_pop(L, 1) ;
+            }
+        }) ;
+    }
+}
+
+- (void)changeAttributes:(id)obj {
+    if (_callbackRef != LUA_NOREF) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            LuaSkin   *skin = [LuaSkin shared] ;
+            lua_State *L    = [skin L] ;
+            [skin pushLuaRef:refTable ref:self->_callbackRef] ;
+            self->_attributesDictionary = [obj convertAttributes:self->_attributesDictionary] ;
+            [[NSFontManager sharedFontManager] setSelectedAttributes:self->_attributesDictionary isMultiple:NO] ;
+            [skin pushNSObject:self->_attributesDictionary] ;
+            lua_pushboolean(L, NO) ;
+            if (![skin protectedCallAndTraceback:2 nresults:0]) {
+                [skin logError:[NSString stringWithFormat:@"%s: font callback error, %s",
+                                                          USERDATA_TAG,
+                                                          lua_tostring(L, -1)]] ;
+                lua_pop(L, 1) ;
+            }
+        }) ;
+    }
+}
+
+@end
+
+#pragma mark - Color Panel Functions
+
+static HSColorPanel *cpReceiverObject ;
+
+/// hs.dialog.color.callback([callbackFn]) -> function or nil
 /// Function
-/// Displays a System Colour Picker.
+/// Sets or removes the callback function for the color panel.
 ///
 /// Parameters:
-///  * [defaultColor] - An RGB Table to use as the default value
+///  * a function, or `nil` to remove the current function, which will be invoked as a callback for messages generated by this color panel. The callback function should expect 2 arguments as follows:
+///    ** A table containing the color values from the color panel.
+///    ** A boolean which returns `true` if the color panel has been closed otherwise `false` indicating that the color panel is still open (i.e. it may change color again).
 ///
 /// Returns:
-///  * An RGB table with the selected colour or `nil`
-static int colorPanel(lua_State *L) {
-    
-    NSColorPanel *colorPanel = [NSColorPanel sharedColorPanel];
-    [colorPanel setTarget:nil];
-    [colorPanel setAction:nil];
-    [colorPanel orderFront:nil];
+///  * The last callbackFn or `nil` so you can save it and re-attach it if something needs to temporarily take the callbacks.
+///
+/// Notes:
+///  * Example:
+///      `hs.dialog.color.callback(function(a,b) print(hs.inspect(a)); print(hs.inspect(b)) end)`
+static int colorPanelCallback(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TFUNCTION | LS_TNIL | LS_TOPTIONAL, LS_TBREAK] ;
+
+    if (cpReceiverObject.callbackRef != LUA_NOREF) {
+        [skin pushLuaRef:refTable ref:cpReceiverObject.callbackRef] ;
+    } else {
+        lua_pushnil(L) ;
+    }
+    if (lua_gettop(L) == 2) { // we just added to it...
+        // in either case, we need to remove an existing callback, so...
+        cpReceiverObject.callbackRef = [skin luaUnref:refTable ref:cpReceiverObject.callbackRef] ;
+        if (lua_type(L, 1) == LUA_TFUNCTION) {
+            lua_pushvalue(L, 1) ;
+            cpReceiverObject.callbackRef = [skin luaRef:refTable] ;
+        }
+    }
+    // return the *last* fn (or nil) so you can save it and re-attach it if something needs to
+    // temporarily take the callbacks
+    return 1 ;
+}
+
+/// hs.dialog.color.continuous([value]) -> boolean
+/// Function
+/// Set or display whether or not the callback should be continiously updated when a user drags a color slider or control.
+///
+/// Parameters:
+///  * [value] - `true` if you want to continiously trigger the callback, otherwise `false`.
+///
+/// Returns:
+///  * `true` if continuous is enabled otherwise `false`
+///
+/// Notes:
+///  * Example:
+///      `hs.dialog.color.continuous(true)`
+static int colorPanelContinuous(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
+    NSColorPanel *cp = [NSColorPanel sharedColorPanel];
+    if (lua_gettop(L) == 1) {
+        [cp setContinuous:(BOOL)lua_toboolean(L, 1)] ;
+    }
+    lua_pushboolean(L, cp.continuous) ;
+    return 1 ;
+}
+
+/// hs.dialog.color.showsAlpha([value]) -> boolean
+/// Function
+/// Set or display whether or not the color panel should display an opacity slider.
+///
+/// Parameters:
+///  * [value] - `true` if you want to display an opacity slider, otherwise `false`.
+///
+/// Returns:
+///  * `true` if the opacity slider is displayed otherwise `false`
+///
+/// Notes:
+///  * Example:
+///      `hs.dialog.color.showsAlpha(true)`
+static int colorPanelShowsAlpha(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
+    NSColorPanel *cp = [NSColorPanel sharedColorPanel];
+    if (lua_gettop(L) == 1) {
+        [cp setShowsAlpha:(BOOL)lua_toboolean(L, 1)] ;
+    }
+    lua_pushboolean(L, cp.showsAlpha) ;
+    return 1 ;
+}
+
+/// hs.dialog.color.color([value]) -> table
+/// Function
+/// Set or display the currently selected color in a color wheel.
+///
+/// Parameters:
+///  * [value] - The color values in a table (as described in `hs.drawing.color`).
+///
+/// Returns:
+///  * A table of the currently selected color in the form of `hs.drawing.color`.
+///
+/// Notes:
+///  * Example:
+///      `hs.dialog.color.color(hs.drawing.color.blue)`
+static int colorPanelColor(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TTABLE | LS_TOPTIONAL, LS_TBREAK] ;
+    NSColorPanel *cp = [NSColorPanel sharedColorPanel];
+    if (lua_gettop(L) == 1) {
+        NSColor *theColor = [[LuaSkin shared] luaObjectAtIndex:1 toClass:"NSColor"] ;
+        [cp setColor:theColor] ;
+    }
+    [skin pushNSObject:[cp color]] ;
+    return 1 ;
+}
+
+/// hs.dialog.color.mode([value]) -> table
+/// Function
+/// Set or display the currently selected color panel mode.
+///
+/// Parameters:
+///  * [value] - The mode you wish to use as a string from the following options:
+///    ** "wheel" - Color Wheel
+///    ** "gray" - Gray Scale Slider
+///    ** "RGB" - RGB Sliders
+///    ** "CMYK" - CMYK Sliders
+///    ** "HSB" - HSB Sliders
+///    ** "list" - Color Palettes
+///    ** "custom" - Image Palettes
+///    ** "crayon" - Pencils
+///    ** "none"
+///
+/// Returns:
+///  * The current mode as a string.
+///
+/// Notes:
+///  * Example:
+///      `hs.dialog.color.mode("RGB")`
+static int colorPanelMode(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
+    NSColorPanel *cp = [NSColorPanel sharedColorPanel];
+    if (lua_gettop(L) == 1) {
+        NSString *theMode = [skin toNSObjectAtIndex:1] ;
+        if ([theMode isEqualToString:@"none"]) {
+            [cp setMode:NSColorPanelModeNone];
+        } else if ([theMode isEqualToString:@"gray"]) {
+            [cp setMode:NSColorPanelModeGray];
+        } else if ([theMode isEqualToString:@"RGB"]) {
+            [cp setMode:NSColorPanelModeRGB];
+        } else if ([theMode isEqualToString:@"CMYK"]) {
+            [cp setMode:NSColorPanelModeCMYK];
+        } else if ([theMode isEqualToString:@"HSB"]) {
+            [cp setMode:NSColorPanelModeHSB];
+        } else if ([theMode isEqualToString:@"custom"]) {
+            [cp setMode:NSColorPanelModeCustomPalette];
+        } else if ([theMode isEqualToString:@"list"]) {
+            [cp setMode:NSColorPanelModeColorList];
+        } else if ([theMode isEqualToString:@"wheel"]) {
+            [cp setMode:NSColorPanelModeWheel];
+        } else if ([theMode isEqualToString:@"crayon"]) {
+            [cp setMode:NSColorPanelModeCrayon];
+        } else {
+            return luaL_error(L, "unknown color panel mode") ;
+        }
+    }
+
+    switch(cp.mode) {
+        case NSColorPanelModeNone:          [skin pushNSObject:@"none"] ; break ;
+        case NSColorPanelModeGray:          [skin pushNSObject:@"gray"] ; break ;
+        case NSColorPanelModeRGB:           [skin pushNSObject:@"RGB"] ; break ;
+        case NSColorPanelModeCMYK:          [skin pushNSObject:@"CMYK"] ; break ;
+        case NSColorPanelModeHSB:           [skin pushNSObject:@"HSB"] ; break ;
+        case NSColorPanelModeCustomPalette: [skin pushNSObject:@"custom"] ; break ;
+        case NSColorPanelModeColorList:     [skin pushNSObject:@"list"] ; break ;
+        case NSColorPanelModeWheel:         [skin pushNSObject:@"wheel"] ; break ;
+        case NSColorPanelModeCrayon:        [skin pushNSObject:@"crayon"] ; break ;
+        default:
+            [skin pushNSObject:[NSString stringWithFormat:@"** unrecognized mode:%ld", [cp mode]]] ;
+            break ;
+    }
     return 1;
+}
+
+/// hs.dialog.color.alpha([value]) -> number
+/// Function
+/// Set or display the selected opacity.
+///
+/// Parameters:
+///  * [value] - A opacity value as a number between 0 and 1, where 0 is 100% transparent/see-through.
+///
+/// Returns:
+///  * The current alpha value as a number.
+///
+/// Notes:
+///  * Example:
+///      `hs.dialog.color.alpha(0.5)`
+static int colorPanelAlpha(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK] ;
     
+    NSColorPanel *cp = [NSColorPanel sharedColorPanel];
+    if (lua_gettop(L) == 1) {
+        NSNumber *alpha = [skin toNSObjectAtIndex:1];
+        NSColor *color = [[cp color] colorWithAlphaComponent:[alpha doubleValue]];
+        [cp setColor:color] ;
+    }
+    
+    lua_pushnumber(L, [[NSColorPanel sharedColorPanel] alpha]) ;
+    return 1 ;
+}
+
+/// hs.dialog.color.show() -> none
+/// Function
+/// Shows the Color Panel.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
+///
+/// Notes:
+///  * Example:
+///      `hs.dialog.color.show()`
+static int colorPanelShow(__unused lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TBREAK] ;
+    [NSApp orderFrontColorPanel:nil] ;
+    return 0 ;
+}
+
+/// hs.dialog.color.hide() -> none
+/// Function
+/// Hides the Color Panel.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
+///
+/// Notes:
+///  * Example:
+///      `hs.dialog.color.hide()`
+static int colorPanelHide(__unused lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TBREAK] ;
+    [[NSColorPanel sharedColorPanel] close] ;
+    return 0 ;
+}
+
+#pragma mark - Font Panel Functions
+
+static HSFontPanel *fpReceiverObject ;
+
+/// hs.dialog.font.callback([callbackFn]) -> function or nil
+/// Function
+/// Sets or removes the callback function for the font panel.
+///
+/// Parameters:
+///  * a function, or `nil` to remove the current function, which will be invoked as a callback for messages generated by this font panel. The callback function should expect 2 arguments as follows:
+///    ** A table containing the font values from the font panel.
+///    ** A boolean which returns `true` if the color panel has been closed otherwise `false` indicating that the color panel is still open (i.e. it may change font again).
+///
+/// Returns:
+///  * The last callbackFn or `nil` so you can save it and re-attach it if something needs to temporarily take the callbacks.
+///
+/// Notes:
+///  * Example:
+///      `hs.dialog.font.callback(function(a,b) print(hs.inspect(a)); print(hs.inspect(b)) end)`
+static int fontPanelCallback(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TFUNCTION | LS_TNIL | LS_TOPTIONAL, LS_TBREAK] ;
+
+    if (fpReceiverObject.callbackRef != LUA_NOREF) {
+        [skin pushLuaRef:refTable ref:fpReceiverObject.callbackRef] ;
+    } else {
+        lua_pushnil(L) ;
+    }
+    if (lua_gettop(L) == 2) { // we just added to it...
+        // in either case, we need to remove an existing callback, so...
+        fpReceiverObject.callbackRef = [skin luaUnref:refTable ref:fpReceiverObject.callbackRef] ;
+        if (lua_type(L, 1) == LUA_TFUNCTION) {
+            lua_pushvalue(L, 1) ;
+            fpReceiverObject.callbackRef = [skin luaRef:refTable] ;
+        }
+    }
+    // return the *last* fn (or nil) so you can save it and re-attach it if something needs to
+    // temporarily take the callbacks
+    return 1 ;
+}
+
+/// hs.dialog.font.show() -> none
+/// Function
+/// Shows the Font Panel.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
+///
+/// Notes:
+///  * Example:
+///      `hs.dialog.font.show()`
+static int fontPanelShow(__unused lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TBREAK] ;
+    [[NSFontPanel sharedFontPanel] orderFront:nil] ;
+    return 0 ;
+}
+
+/// hs.dialog.font.hide() -> none
+/// Function
+/// Hides the Font Panel.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
+///
+/// Notes:
+///  * Example:
+///      `hs.dialog.font.hide()`
+static int fontPanelHide(__unused lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TBREAK] ;
+    [[NSFontPanel sharedFontPanel] close] ;
+    return 0 ;
+}
+
+/// hs.dialog.font.mode([value]) -> number
+/// Function
+/// Set or display the font panel mode.
+///
+/// Parameters:
+///  * [value] - A number value, as defined in `hs.dialog.font.panelModes`.
+///
+/// Returns:
+///  * The current mode value as a number.
+///
+/// Notes:
+///  * Example:
+///      `hs.dialog.color.mode(hs.dialog.font.panelModes.face)`
+static int fontPanelMode(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK] ;
+    if (lua_gettop(L) == 1) {
+        fpReceiverObject.fontPanelModes = (NSUInteger)luaL_checkinteger(L, 1) ;
+    }
+    lua_pushinteger(L, (lua_Integer)fpReceiverObject.fontPanelModes) ;
+    return 1 ;
 }
 
 /// hs.dialog.chooseFileOrFolder([message], [defaultPath], [canChooseFiles], [canChooseDirectories], [allowsMultipleSelection]) -> string
@@ -115,7 +600,7 @@ static int chooseFileOrFolder(lua_State *L) {
     return 1;
 }
 
-/// hs.dialog.webviewAlert(webview, callbackFn, message, informativeText, [buttonOne], [buttonTwo], [style]) -> string
+/// hs.dialog.webviewAlert(webview, callbackFn, message, [informativeText], [buttonOne], [buttonTwo], [style]) -> string
 /// Function
 /// Displays a simple dialog box using `NSAlert` in a `hs.webview`.
 ///
@@ -123,10 +608,10 @@ static int chooseFileOrFolder(lua_State *L) {
 ///  * webview - The `hs.webview` to display the alert on.
 ///  * callbackFn - The callback function that's called when a button is pressed.
 ///  * message - The message text to display.
-///  * informativeText - The informative text to display.
+///  * [informativeText] - Optional informative text to display.
 ///  * [buttonOne] - An optional value for the first button as a string. Defaults to "OK".
-///  * [buttonTwo] - An optional value for the second button as a string. By default there is no second button.
-///  * [style] - An optional style of the dialog box as a string. Defaults to "NSWarningAlertStyle".
+///  * [buttonTwo] - An optional value for the second button as a string. If `nil` is used, no second button will be displayed.
+///  * [style] - An optional style of the dialog box as a string. Defaults to "warning".
 ///
 /// Returns:
 ///  * nil
@@ -134,19 +619,20 @@ static int chooseFileOrFolder(lua_State *L) {
 /// Notes:
 ///  * This alert is will prevent the user from interacting with the `hs.webview` until a button is pressed on the alert.
 ///  * The optional values must be entered in order (i.e. you can't supply `style` without also supplying `buttonOne` and `buttonTwo`).
-///  * [style] can be "NSWarningAlertStyle", "NSInformationalAlertStyle" or "NSCriticalAlertStyle". If something other than these string values is given, it will use "NSWarningAlertStyle".
+///  * [style] can be "warning", "informational" or "critical". If something other than these string values is given, it will use "informational".
 ///  * Example:
-///      testCallbackFn = function(result) print("Callback Result: " .. result) end
+///      ```testCallbackFn = function(result) print("Callback Result: " .. result) end
 ///      testWebviewA = hs.webview.newBrowser(hs.geometry.rect(250, 250, 250, 250)):show()
 ///      testWebviewB = hs.webview.newBrowser(hs.geometry.rect(450, 450, 450, 450)):show()
 ///      hs.dialog.webviewAlert(testWebviewA, testCallbackFn, "Message", "Informative Text", "Button One", "Button Two", "NSCriticalAlertStyle")
-///      hs.dialog.webviewAlert(testWebviewB, testCallbackFn, "Message", "Informative Text", "Single Button")
+///      hs.dialog.webviewAlert(testWebviewB, testCallbackFn, "Message", "Informative Text", "Single Button")```
 static int webviewAlert(lua_State *L) {
     
     NSString* defaultButton = @"OK";
+    const NSAlertStyle defaultAlertStyle = NSInformationalAlertStyle;
     
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TUSERDATA, "hs.webview", LS_TFUNCTION, LS_TSTRING, LS_TSTRING, LS_TSTRING | LS_TOPTIONAL, LS_TSTRING | LS_TOPTIONAL, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, "hs.webview", LS_TFUNCTION, LS_TSTRING, LS_TSTRING, LS_TSTRING | LS_TOPTIONAL, LS_TSTRING | LS_TNIL | LS_TOPTIONAL, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
     
     NSWindow *webview = [skin toNSObjectAtIndex:1];
     
@@ -161,7 +647,10 @@ static int webviewAlert(lua_State *L) {
     
     NSAlert *alert = [[NSAlert alloc] init];
     [alert setMessageText:message];
-    [alert setInformativeText:informativeText];
+    
+    if (informativeText) {
+        [alert setInformativeText:informativeText];
+    }
     
     if( buttonOne == nil ){
         [alert addButtonWithTitle:defaultButton];
@@ -176,22 +665,22 @@ static int webviewAlert(lua_State *L) {
     }
     
     if (style == nil){
-        [alert setAlertStyle:NSWarningAlertStyle];
+        [alert setAlertStyle:defaultAlertStyle];
     }
     else
     {
-        if ([style isEqualToString:@"NSWarningAlertStyle"]) {
+        if ([style isEqualToString:@"warning"]) {
             [alert setAlertStyle:NSWarningAlertStyle];
         }
-        else if ([style isEqualToString:@"NSInformationalAlertStyle"]) {
+        else if ([style isEqualToString:@"informational"]) {
             [alert setAlertStyle:NSInformationalAlertStyle];
         }
-        else if ([style isEqualToString:@"NSCriticalAlertStyle"]) {
+        else if ([style isEqualToString:@"critical"]) {
             [alert setAlertStyle:NSCriticalAlertStyle];
         }
         else
         {
-            [alert setAlertStyle:NSWarningAlertStyle];
+            [alert setAlertStyle:defaultAlertStyle];
         }
     }
     
@@ -247,7 +736,7 @@ static int webviewAlert(lua_State *L) {
 ///  * The optional values must be entered in order (i.e. you can't supply `style` without also supplying `buttonOne` and `buttonTwo`).
 ///  * [style] can be "NSWarningAlertStyle", "NSInformationalAlertStyle" or "NSCriticalAlertStyle". If something other than these string values is given, it will use "NSWarningAlertStyle".
 ///  * Example:
-///      hs.dialog.alert("Message", "Informative Text", "Button One", "Button Two", "NSCriticalAlertStyle")
+///      `hs.dialog.alert("Message", "Informative Text", "Button One", "Button Two", "NSCriticalAlertStyle")`
 static int alert(lua_State *L) {
     
 	NSString* defaultButton = @"OK";
@@ -338,7 +827,7 @@ static int alert(lua_State *L) {
 /// Notes:
 ///  * [buttonOne] defaults to "OK" if no value is supplied.
 ///  * Example:
-///      hs.dialog.textPrompt("Main message.", "Please enter something:", "Default Value", "Button One", "Button Two")
+///      `hs.dialog.textPrompt("Main message.", "Please enter something:", "Default Value", "Button One", "Button Two")`
 static int textPrompt(lua_State *L) {
     NSString* defaultButton = @"OK";
     
@@ -404,9 +893,54 @@ static int textPrompt(lua_State *L) {
     return 2 ;
 }
 
+#pragma mark - Module Constants
+
+/// hs.dialog.font.panelModes
+/// Constant
+/// This table contains this list of defined modes for the font panel.
+static int pushFontPanelTypes(lua_State *L) {
+    lua_newtable(L) ;
+    lua_pushinteger(L, NSFontPanelFaceModeMask) ;                lua_setfield(L, -2, "face") ;
+    lua_pushinteger(L, NSFontPanelSizeModeMask) ;                lua_setfield(L, -2, "size") ;
+    lua_pushinteger(L, NSFontPanelCollectionModeMask) ;          lua_setfield(L, -2, "collection") ;
+    lua_pushinteger(L, NSFontPanelUnderlineEffectModeMask) ;     lua_setfield(L, -2, "underlineEffect") ;
+    lua_pushinteger(L, NSFontPanelStrikethroughEffectModeMask) ; lua_setfield(L, -2, "strikethroughEffect") ;
+    lua_pushinteger(L, NSFontPanelTextColorEffectModeMask) ;     lua_setfield(L, -2, "textColorEffect") ;
+    lua_pushinteger(L, NSFontPanelDocumentColorEffectModeMask) ; lua_setfield(L, -2, "documentColorEffect") ;
+    lua_pushinteger(L, NSFontPanelShadowEffectModeMask) ;        lua_setfield(L, -2, "shadowEffect") ;
+    lua_pushinteger(L, NSFontPanelAllEffectsModeMask) ;          lua_setfield(L, -2, "allEffects") ;
+    lua_pushinteger(L, NSFontPanelStandardModesMask) ;           lua_setfield(L, -2, "standard") ;
+    lua_pushinteger(L, NSFontPanelAllModesMask) ;                lua_setfield(L, -2, "allModes") ;
+    return 1 ;
+}
+
+#pragma mark - Hammerspoon/Lua Infrastructure
+
+static int releaseReceivers(__unused lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    NSColorPanel *cp = [NSColorPanel sharedColorPanel];
+    [[NSNotificationCenter defaultCenter] removeObserver:cpReceiverObject
+                                                    name:NSWindowWillCloseNotification
+                                                  object:cp] ;
+    [cp setTarget:nil];
+    [cp setAction:nil];
+    if (cpReceiverObject.callbackRef != LUA_NOREF) [skin luaUnref:refTable ref:cpReceiverObject.callbackRef] ;
+    [cp close];
+    cpReceiverObject = nil ;
+
+    NSFontPanel *fp = [NSFontPanel sharedFontPanel];
+    NSFontManager *fm = [NSFontManager sharedFontManager];
+    [[NSNotificationCenter defaultCenter] removeObserver:fpReceiverObject
+                                                    name:NSWindowWillCloseNotification
+                                                  object:fp] ;
+    if (fpReceiverObject.callbackRef != LUA_NOREF) [skin luaUnref:refTable ref:fpReceiverObject.callbackRef] ;
+    [fm setTarget:nil] ;
+    fpReceiverObject = nil ;
+    return 0 ;
+}
+
 // Functions for returned object when module loads:
 static luaL_Reg moduleLib[] = {
-    {"colorPanel", colorPanel},
     {"webviewAlert", webviewAlert},
     {"alert", alert},
     {"textPrompt", textPrompt},
@@ -414,9 +948,42 @@ static luaL_Reg moduleLib[] = {
     {NULL,  NULL}
 };
 
-int luaopen_hs_dialog_internal(lua_State* __unused L) {
+static luaL_Reg colorPanelLib[] = {
+    {"alpha",      colorPanelAlpha},
+    {"callback",   colorPanelCallback},
+    {"color",      colorPanelColor},
+    {"continuous", colorPanelContinuous},
+    {"mode",       colorPanelMode},
+    {"showsAlpha", colorPanelShowsAlpha},
+    {"show",       colorPanelShow},
+    {"hide",       colorPanelHide},
+    {NULL,         NULL}
+};
+
+static luaL_Reg fontPanelLib[] = {
+    {"show",     fontPanelShow},
+    {"hide",     fontPanelHide},
+    {"callback", fontPanelCallback},
+    {"mode",     fontPanelMode},
+    {NULL,   NULL}
+};
+
+static luaL_Reg module_metaLib[] = {
+    {"__gc", releaseReceivers},
+    {NULL,   NULL}
+};
+
+int luaopen_hs_dialog_internal(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
-	refTable = [skin registerLibrary:moduleLib metaFunctions:nil] ;
+	refTable = [skin registerLibrary:moduleLib metaFunctions:module_metaLib] ;
+
+    luaL_newlib(L, colorPanelLib) ; lua_setfield(L, -2, "color") ;
+    [NSColorPanel setPickerMask:NSColorPanelAllModesMask] ;
+    cpReceiverObject = [[HSColorPanel alloc] init] ;
+    fpReceiverObject = [[HSFontPanel alloc] init] ;
+    luaL_newlib(L, fontPanelLib) ;
+    pushFontPanelTypes(L) ; lua_setfield(L, -2, "panelModes") ;
+    lua_setfield(L, -2, "font") ;
 	
     return 1;
 }
