@@ -39,6 +39,14 @@ static int refTable = LUA_NOREF;
 ///
 /// Returns:
 ///  * A boolean, true if dark mode is enabled otherwise false.
+///
+/// Notes:
+///  * Enabling Dark Mode for the Console only affects the window background, and doesn't automatically change the Console's Background Color, so you will need to add something similar to:
+///    ```if hs.console.darkMode() then
+///        hs.console.outputBackgroundColor{ white = 0 }
+///        hs.console.consoleCommandColor{ white = 1 }
+///        hs.console.alpha(.8)
+///    end```
 static int consoleDarkMode(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];

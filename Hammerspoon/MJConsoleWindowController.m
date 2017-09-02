@@ -86,9 +86,11 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
     if (ConsoleDarkModeEnabled()) {
         self.window.appearance = [NSAppearance appearanceNamed: NSAppearanceNameVibrantDark] ;
         self.window.titlebarAppearsTransparent = YES ;
+        self.outputView.enclosingScrollView.drawsBackground = NO ;
     } else {
         self.window.appearance = [NSAppearance appearanceNamed: NSAppearanceNameVibrantLight] ;
         self.window.titlebarAppearsTransparent = NO ;
+        self.outputView.enclosingScrollView.drawsBackground = YES ;
     }
 
     [[self window] setLevel: MJConsoleWindowAlwaysOnTop() ? NSFloatingWindowLevel : NSNormalWindowLevel];
