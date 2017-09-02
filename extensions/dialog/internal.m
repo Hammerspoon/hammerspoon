@@ -1,6 +1,8 @@
 @import Cocoa ;
 @import LuaSkin ;
 
+#import "MJAppDelegate.h"
+
 //
 // TO-DO LIST:
 //
@@ -95,6 +97,7 @@ static int refTable = LUA_NOREF ;
         _attributesDictionary = @{} ;
         _fontPanelModes = NSFontPanelFaceModeMask | NSFontPanelSizeModeMask | NSFontPanelCollectionModeMask ;
         NSFontPanel *fp = [NSFontPanel sharedFontPanel];
+        fp.delegate = self ;
         NSFontManager *fm = [NSFontManager sharedFontManager];
         [fm setTarget:self];
         [fm setSelectedFont:[NSFont systemFontOfSize: 27] isMultiple:NO] ;
@@ -123,10 +126,6 @@ static int refTable = LUA_NOREF ;
             }
         }) ;
     }
-}
-
-- (NSUInteger)validModesForFontPanel:(__unused NSFontPanel *)fontPanel {
-    return _fontPanelModes ;
 }
 
 - (void)changeFont:(id)obj {
@@ -169,9 +168,28 @@ static int refTable = LUA_NOREF ;
 
 @end
 
-#pragma mark - Color Panel Functions
-
 static HSColorPanel *cpReceiverObject ;
+static HSFontPanel *fpReceiverObject ;
+
+// This must be in the responder chain for the application; we'll stick it into the Hammerspoon application delegate
+// which is at the base of the responder chain.
+@interface MJAppDelegate (dialogFontPanelAdditions)
+- (NSUInteger)validModesForFontPanel:(NSFontPanel *)fontPanel ;
+@end
+
+@implementation MJAppDelegate (dialogFontPanelAdditions)
+
+- (NSUInteger)validModesForFontPanel:(__unused NSFontPanel *)fontPanel {
+    if (fpReceiverObject) {
+        return fpReceiverObject.fontPanelModes ;
+    } else {
+        return NSFontPanelFaceModeMask | NSFontPanelSizeModeMask | NSFontPanelCollectionModeMask ;
+    }
+}
+
+@end
+
+#pragma mark - Color Panel Functions
 
 /// hs.dialog.color.callback([callbackFn]) -> function or nil
 /// Function
@@ -367,14 +385,14 @@ static int colorPanelMode(lua_State *L) {
 static int colorPanelAlpha(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK] ;
-    
+
     NSColorPanel *cp = [NSColorPanel sharedColorPanel];
     if (lua_gettop(L) == 1) {
         NSNumber *alpha = [skin toNSObjectAtIndex:1];
         NSColor *color = [[cp color] colorWithAlphaComponent:[alpha doubleValue]];
         [cp setColor:color] ;
     }
-    
+
     lua_pushnumber(L, [[NSColorPanel sharedColorPanel] alpha]) ;
     return 1 ;
 }
@@ -420,8 +438,6 @@ static int colorPanelHide(__unused lua_State *L) {
 }
 
 #pragma mark - Font Panel Functions
-
-static HSFontPanel *fpReceiverObject ;
 
 /// hs.dialog.font.callback([callbackFn]) -> function or nil
 /// Function
@@ -550,10 +566,10 @@ static int chooseFileOrFolder(lua_State *L) {
     // Check the Parameters:
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TOPTIONAL | LS_TSTRING, LS_TOPTIONAL | LS_TSTRING, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBOOLEAN | LS_TOPTIONAL, LS_TTABLE | LS_TOPTIONAL, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
-    
+
     // Create new NSOpenPanel:
     NSOpenPanel *panel = [NSOpenPanel openPanel];
-    
+
     // Allowed File Types:
     NSMutableArray *allowedFileTypes;
     if (lua_istable(L, 6)) {
@@ -566,20 +582,20 @@ static int chooseFileOrFolder(lua_State *L) {
         }
         [panel setAllowedFileTypes:allowedFileTypes];
     }
-    
+
     // Message:
     NSString* message = [skin toNSObjectAtIndex:1];
     if(message != nil) {
         [panel setMessage:message];
     }
-    
+
     // Default Path:
     NSString* path = [skin toNSObjectAtIndex:2];
     if(path != nil) {
         NSURL *url = [[NSURL alloc] initWithString:path];
         [panel setDirectoryURL:url];
     }
-    
+
     // Can Choose Files:
     if (lua_isboolean(L, 3) && !lua_toboolean(L, 3)) {
         [panel setCanChooseFiles:NO];
@@ -587,9 +603,9 @@ static int chooseFileOrFolder(lua_State *L) {
     else
     {
         [panel setCanChooseFiles:YES];
-        
+
     }
-    
+
     // Can Choose Directories:
     if (lua_isboolean(L, 4) && lua_toboolean(L, 4)) {
         [panel setCanChooseDirectories:YES];
@@ -597,7 +613,7 @@ static int chooseFileOrFolder(lua_State *L) {
     else {
         [panel setCanChooseDirectories:NO];
     }
-    
+
     // Resolve Aliases:
     if (lua_isboolean(L, 7) && lua_toboolean(L, 7)) {
         [panel setResolvesAliases:YES];
@@ -605,7 +621,7 @@ static int chooseFileOrFolder(lua_State *L) {
     else {
         [panel setResolvesAliases:NO];
     }
-    
+
     // Allows Multiple Selections:
     if (lua_isboolean(L, 5) && !lua_toboolean(L, 5)) {
         [panel setAllowsMultipleSelection:NO];
@@ -619,7 +635,7 @@ static int chooseFileOrFolder(lua_State *L) {
 
     // Counter used when multiple files can be selected:
     int count = 1;
-    
+
     if (clicked == NSFileHandlingPanelOKButton) {
         lua_newtable(L);
         for (NSURL *url in [panel URLs]) {
@@ -631,7 +647,7 @@ static int chooseFileOrFolder(lua_State *L) {
     {
         lua_pushnil(L);
     }
-    
+
     return 1;
 }
 
@@ -664,31 +680,31 @@ static int chooseFileOrFolder(lua_State *L) {
 ///      hs.dialog.webviewAlert(testWebviewA, testCallbackFn, "Message", "Informative Text", "Button One", "Button Two", "NSCriticalAlertStyle")
 ///      hs.dialog.webviewAlert(testWebviewB, testCallbackFn, "Message", "Informative Text", "Single Button")```
 static int webviewAlert(lua_State *L) {
-    
+
     NSString* defaultButton = @"OK";
     const NSAlertStyle defaultAlertStyle = NSInformationalAlertStyle;
-    
+
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, "hs.webview", LS_TFUNCTION, LS_TSTRING, LS_TSTRING, LS_TSTRING | LS_TOPTIONAL, LS_TSTRING | LS_TNIL | LS_TOPTIONAL, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
-    
+
     NSWindow *webview = [skin toNSObjectAtIndex:1];
-    
+
     lua_pushvalue(L, 2) ; // Copy the callback function to the top of the stack
     int callbackRef = [skin luaRef:refTable] ; // Store what's at the top of the stack in the registry and save it's reference number. "luaRef" will pull off the top value of the stack, so the net effect of these two lines is to leave the stack of arguments as-is.
-    
+
     NSString *message = [skin toNSObjectAtIndex:3];
     NSString *informativeText = [skin toNSObjectAtIndex:4];
     NSString *buttonOne = [skin toNSObjectAtIndex:5];
     NSString *buttonTwo = [skin toNSObjectAtIndex:6];
     NSString *style = [skin toNSObjectAtIndex:7];
-    
+
     NSAlert *alert = [[NSAlert alloc] init];
     [alert setMessageText:message];
-    
+
     if (informativeText) {
         [alert setInformativeText:informativeText];
     }
-    
+
     if( buttonOne == nil ){
         [alert addButtonWithTitle:defaultButton];
     }
@@ -702,11 +718,11 @@ static int webviewAlert(lua_State *L) {
             [alert addButtonWithTitle:buttonOne];
         }
     }
-    
+
     if (buttonTwo != nil && ![buttonTwo isEqualToString:@""]) {
         [alert addButtonWithTitle:buttonTwo];
     }
-    
+
     if (style == nil){
         [alert setAlertStyle:defaultAlertStyle];
     }
@@ -726,11 +742,11 @@ static int webviewAlert(lua_State *L) {
             [alert setAlertStyle:defaultAlertStyle];
         }
     }
-    
+
     [alert beginSheetModalForWindow:webview completionHandler:^(NSModalResponse result){
-        
+
         NSString *button = defaultButton;
-        
+
         if (result == NSAlertFirstButtonReturn) {
             if (buttonOne != nil) {
                 button = buttonOne;
@@ -744,8 +760,8 @@ static int webviewAlert(lua_State *L) {
             [LuaSkin logError:@"hs.dialog.webviewAlert() - Failed to detect which button was pressed."];
             lua_pushnil(L) ;
         }
-        
-        
+
+
         [skin pushLuaRef:refTable ref:callbackRef] ; // Put the saved function back on the stack.
         [skin luaUnref:refTable ref:callbackRef] ; // Remove the stored function from the registry.
         [skin pushNSObject:button];
@@ -754,10 +770,10 @@ static int webviewAlert(lua_State *L) {
             lua_pop(L, 1) ; // Remove the error from the stack to keep it clean
         }
     }] ;
-    
+
     lua_pushnil(L) ;
     return 1 ;
-    
+
 }
 
 #pragma mark - Blocking Alert
@@ -782,22 +798,22 @@ static int webviewAlert(lua_State *L) {
 ///  * Example:
 ///      `hs.dialog.blockAlert("Message", "Informative Text", "Button One", "Button Two", "NSCriticalAlertStyle")`
 static int blockAlert(lua_State *L) {
-    
+
 	NSString* defaultButton = @"OK";
-	
+
  	LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TSTRING | LS_TOPTIONAL, LS_TSTRING | LS_TOPTIONAL, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
 
     NSString* message = [skin toNSObjectAtIndex:1];
-    NSString* informativeText = [skin toNSObjectAtIndex:2];    
+    NSString* informativeText = [skin toNSObjectAtIndex:2];
     NSString* buttonOne = [skin toNSObjectAtIndex:3];
     NSString* buttonTwo = [skin toNSObjectAtIndex:4];
     NSString* style = [skin toNSObjectAtIndex:5];
-    
+
 	NSAlert *alert = [[NSAlert alloc] init];
     [alert setMessageText:message];
     [alert setInformativeText:informativeText];
-    
+
     if( buttonOne == nil ){
         [alert addButtonWithTitle:defaultButton];
     }
@@ -811,11 +827,11 @@ static int blockAlert(lua_State *L) {
             [alert addButtonWithTitle:buttonOne];
         }
     }
-    
+
     if (buttonTwo != nil && ![buttonTwo isEqualToString:@""]) {
         [alert addButtonWithTitle:buttonTwo];
     }
-		
+
 	if (style == nil){
 		[alert setAlertStyle:NSWarningAlertStyle];
 	}
@@ -855,7 +871,7 @@ static int blockAlert(lua_State *L) {
         [LuaSkin logError:@"hs.dialog.alert() - Failed to detect which button was pressed."];
         lua_pushnil(L) ;
 	}
-    
+
 	return 1 ;
 }
 
@@ -882,20 +898,20 @@ static int blockAlert(lua_State *L) {
 ///      `hs.dialog.textPrompt("Main message.", "Please enter something:", "Default Value", "Button One", "Button Two")`
 static int textPrompt(lua_State *L) {
     NSString* defaultButton = @"OK";
-    
+
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TSTRING | LS_TOPTIONAL, LS_TSTRING | LS_TOPTIONAL, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
-    
+
     NSString* message = [skin toNSObjectAtIndex:1];
     NSString* informativeText = [skin toNSObjectAtIndex:2];
     NSString* defaultText = [skin toNSObjectAtIndex:3];
     NSString* buttonOne = [skin toNSObjectAtIndex:4];
     NSString* buttonTwo = [skin toNSObjectAtIndex:5];
-    
+
     NSAlert *alert = [[NSAlert alloc] init];
     [alert setMessageText:message];
     [alert setInformativeText:informativeText];
-    
+
     if( buttonOne == nil ){
         [alert addButtonWithTitle:defaultButton];
     }
@@ -909,11 +925,11 @@ static int textPrompt(lua_State *L) {
             [alert addButtonWithTitle:buttonOne];
         }
     }
-    
+
     if (buttonTwo != nil && ![buttonTwo isEqualToString:@""]) {
         [alert addButtonWithTitle:buttonTwo];
     }
-    
+
     NSTextField *input = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 200, 24)];
     if (defaultText == nil) {
         [input setStringValue:@""];
@@ -922,11 +938,11 @@ static int textPrompt(lua_State *L) {
     {
         [input setStringValue:defaultText];
     }
-    
+
     [alert setAccessoryView:input];
-    
+
     NSInteger result = [alert runModal];
-    
+
     if (result == NSAlertFirstButtonReturn) {
         if (buttonOne == nil) {
             lua_pushstring(L,[defaultButton UTF8String]);
@@ -947,7 +963,7 @@ static int textPrompt(lua_State *L) {
         [LuaSkin logError:@"hs.dialog.textPrompt() - Failed to detect which button was pressed."];
         lua_pushnil(L) ;
     }
-    
+
     return 2 ;
 }
 
@@ -1042,6 +1058,6 @@ int luaopen_hs_dialog_internal(lua_State* L) {
     luaL_newlib(L, fontPanelLib) ;
     pushFontPanelTypes(L) ; lua_setfield(L, -2, "panelModes") ;
     lua_setfield(L, -2, "font") ;
-	
+
     return 1;
 }
