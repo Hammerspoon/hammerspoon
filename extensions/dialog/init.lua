@@ -2,6 +2,14 @@
 ---
 --- A collection of useful dialog boxes, alerts and panels for user interaction.
 
+--- === hs.dialog.font ===
+---
+--- A panel that allows users to select font styles.
+
+--- === hs.dialog.color ===
+---
+--- A panel that allows users to select a color.
+
 local USERDATA_TAG = "hs.dialog"
 local module       = require(USERDATA_TAG..".internal")
 
@@ -9,85 +17,48 @@ local color = require("hs.drawing.color")
 
 -- Private Variables & Methods -----------------------------------------
 
-local _kMetaTable = {}
-_kMetaTable._k = setmetatable({}, {__mode = "k"})
-_kMetaTable._t = setmetatable({}, {__mode = "k"})
-_kMetaTable.__index = function(obj, key)
-        if _kMetaTable._k[obj] then
-            if _kMetaTable._k[obj][key] then
-                return _kMetaTable._k[obj][key]
-            else
-                for k,v in pairs(_kMetaTable._k[obj]) do
-                    if v == key then return k end
-                end
-            end
-        end
-        return nil
-    end
-_kMetaTable.__newindex = function(obj, key, value)
-        error("attempt to modify a table of constants",2)
-        return nil
-    end
-_kMetaTable.__pairs = function(obj) return pairs(_kMetaTable._k[obj]) end
-_kMetaTable.__len = function(obj) return #_kMetaTable._k[obj] end
-_kMetaTable.__tostring = function(obj)
-        local result = ""
-        if _kMetaTable._k[obj] then
-            local width = 0
-            for k,v in pairs(_kMetaTable._k[obj]) do width = width < #tostring(k) and #tostring(k) or width end
-            for k,v in require("hs.fnutils").sortByKeys(_kMetaTable._k[obj]) do
-                if _kMetaTable._t[obj] == "table" then
-                    result = result..string.format("%-"..tostring(width).."s %s\n", tostring(k),
-                        ((type(v) == "table") and "{ table }" or tostring(v)))
-                else
-                    result = result..((type(v) == "table") and "{ table }" or tostring(v)).."\n"
-                end
-            end
-        else
-            result = "constants table missing"
-        end
-        return result
-    end
-_kMetaTable.__metatable = _kMetaTable -- go ahead and look, but don't unset this
-
-local _makeConstantsTable
-_makeConstantsTable = function(theTable)
-    if type(theTable) ~= "table" then
-        local dbg = debug.getinfo(2)
-        local msg = dbg.short_src..":"..dbg.currentline..": attempting to make a '"..type(theTable).."' into a constant table"
-        if module.log then module.log.ef(msg) else print(msg) end
-        return theTable
-    end
-    for k,v in pairs(theTable) do
-        if type(v) == "table" then
-            local count = 0
-            for a,b in pairs(v) do count = count + 1 end
-            local results = _makeConstantsTable(v)
-            if #v > 0 and #v == count then
-                _kMetaTable._t[results] = "array"
-            else
-                _kMetaTable._t[results] = "table"
-            end
-            theTable[k] = results
-        end
-    end
-    local results = setmetatable({}, _kMetaTable)
-    _kMetaTable._k[results] = theTable
-    local count = 0
-    for a,b in pairs(theTable) do count = count + 1 end
-    if #theTable > 0 and #theTable == count then
-        _kMetaTable._t[results] = "array"
-    else
-        _kMetaTable._t[results] = "table"
-    end
-    return results
-end
 
 -- Public Interface ------------------------------------------------------
 
-module.font.panelModes = _makeConstantsTable(module.font.panelModes)
+module.font.panelModes = ls.makeConstantsTable(module.font.panelModes)
 
 color.panel = module.color
+
+--- hs.dialog.alert(rect, callbackFn, message, [informativeText], [buttonOne], [buttonTwo], [style]) -> string
+--- Function
+--- Displays a simple non-blocking dialog box using `NSAlert` and a hidden `hs.webview` that's automatically destroyed when the alert is closed.
+---
+--- Parameters:
+---  * x - A number containing the horizontal co-ordinate of the top-left point of the dialog box.
+---  * y - A number containing the vertical co-ordinate of the top-left point of the dialog box.
+---  * callbackFn - The callback function that's called when a button is pressed.
+---  * message - The message text to display.
+---  * [informativeText] - Optional informative text to display.
+---  * [buttonOne] - An optional value for the first button as a string. Defaults to "OK".
+---  * [buttonTwo] - An optional value for the second button as a string. If `nil` is used, no second button will be displayed.
+---  * [style] - An optional style of the dialog box as a string. Defaults to "warning".
+---
+--- Returns:
+---  * nil
+---
+--- Notes:
+---  * The optional values must be entered in order (i.e. you can't supply `style` without also supplying `buttonOne` and `buttonTwo`).
+---  * [style] can be "warning", "informational" or "critical". If something other than these string values is given, it will use "informational".
+---  * Example:
+---      ```testCallbackFn = function(result) print("Callback Result: " .. result) end
+---      hs.dialog.alert(100, 100, testCallbackFn, "Message", "Informative Text", "Button One", "Button Two", "NSCriticalAlertStyle")
+---      hs.dialog.alert(200, 200, testCallbackFn, "Message", "Informative Text", "Single Button")```
+function module.alert(x, y, callback, ...)
+	local rect = {}	
+	if type(x) == "number" then rect.x = x end
+	if type(y) == "number" then rect.y = y end
+    rect.h, rect.w = 10, 10 -- Small enough to be hidden by the alert panel    
+    local wv = hs.webview.new(rect):show()
+    hs.dialog.webviewAlert(wv, function(...)
+	    wv:delete()
+    	callback(...)
+    end, ...)
+end
 
 -- Return Module Object --------------------------------------------------
 

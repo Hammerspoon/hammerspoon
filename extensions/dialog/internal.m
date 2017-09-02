@@ -4,14 +4,9 @@
 //
 // TO-DO LIST:
 //
-//  * Don't allow empty strings for button labels as discussed here: https://github.com/Hammerspoon/hammerspoon/pull/1504#issuecomment-326192036
-//  * Add a wrapper webview alert as dicussed here: https://github.com/Hammerspoon/hammerspoon/pull/1504#issuecomment-326191315
-//  * @asmagill - The `hs.dialog.font` callback doesn't seem to work properly?
+//  * Fix `hs.dialog.font` so that it actually works.
 //  * Add a `hs.dialog.font.continious` option like with color panel.
-//  * @asmagill - I have no idea what `hs.dialog.font.mode` actually does?
-//  * @asmagill - Any ideas how I'd impliment `hs.dialog.chooseFromList()`?
-//  * @asmagill - Is it possible to do a non-blocking version of all the alerts using NSWindow & callbacks?
-//  * @latenitefilms - Add `setAllowedFileTypes`, `resolvesAliases` to `hs.dialog.chooseFileOrFolder()`
+//  * Add `hs.dialog.chooseFromList()` as discussed here: https://github.com/Hammerspoon/hammerspoon/issues/1227#issuecomment-278972348
 //
 
 #define USERDATA_TAG  "hs.dialog"
@@ -19,6 +14,9 @@ static int refTable = LUA_NOREF ;
 
 #pragma mark - Support Functions and Classes
 
+//
+// COLOR PANEL:
+//
 @interface HSColorPanel : NSObject
 @property int callbackRef ;
 @end
@@ -80,6 +78,9 @@ static int refTable = LUA_NOREF ;
 }
 @end
 
+//
+// FONT PANEL:
+//
 @interface HSFontPanel : NSObject
 @property int          callbackRef ;
 @property NSUInteger   fontPanelModes ;
@@ -522,6 +523,8 @@ static int fontPanelMode(lua_State *L) {
     return 1 ;
 }
 
+#pragma mark - Choose File or Folder
+
 /// hs.dialog.chooseFileOrFolder([message], [defaultPath], [canChooseFiles], [canChooseDirectories], [allowsMultipleSelection]) -> string
 /// Function
 /// Displays a file and/or folder selection dialog box using NSOpenPanel.
@@ -532,6 +535,8 @@ static int fontPanelMode(lua_State *L) {
 ///  * [canChooseFiles] - Whether or not the user can select files. Defaults to `true`.
 ///  * [canChooseDirectories] - Whether or not the user can select folders. Default to `false`.
 ///  * [allowsMultipleSelection] - Allow multiple selections of files and/or folders. Defaults to `false`.
+///  * [allowedFileTypes] - An optional table of allowed file types. Defaults to `true`.
+///  * [resolvesAliases] - An optional boolean that indicates whether the panel resolves aliases.
 ///
 /// Returns:
 ///  * The selected files in a table or `nil` if cancel was pressed.
@@ -539,25 +544,43 @@ static int fontPanelMode(lua_State *L) {
 /// Notes:
 ///  * The optional values must be entered in order (i.e. you can't supply `allowsMultipleSelection` without also supplying `canChooseFiles` and `canChooseDirectories`).
 ///  * Example:
-///      hs.inspect(hs.dialog.chooseFileOrFolder("Please select a file:", "~/Desktop", true, false, true))
+///      `hs.inspect(hs.dialog.chooseFileOrFolder("Please select a file:", "~/Desktop", true, false, true, {"jpeg", "pdf"}, true))`
 static int chooseFileOrFolder(lua_State *L) {
 
+    // Check the Parameters:
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TOPTIONAL | LS_TSTRING, LS_TOPTIONAL | LS_TSTRING, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
+    [skin checkArgs:LS_TOPTIONAL | LS_TSTRING, LS_TOPTIONAL | LS_TSTRING, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBOOLEAN | LS_TOPTIONAL, LS_TTABLE | LS_TOPTIONAL, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
     
+    // Create new NSOpenPanel:
     NSOpenPanel *panel = [NSOpenPanel openPanel];
     
+    // Allowed File Types:
+    NSMutableArray *allowedFileTypes;
+    if (lua_istable(L, 6)) {
+        allowedFileTypes = [[NSMutableArray alloc] init];
+        lua_pushnil(L);
+        while (lua_next(L, 6) != 0) {
+            NSString *item = [NSString stringWithUTF8String:luaL_checkstring(L, -1)];
+            [allowedFileTypes addObject:item];
+            lua_pop(L, 1);
+        }
+        [panel setAllowedFileTypes:allowedFileTypes];
+    }
+    
+    // Message:
     NSString* message = [skin toNSObjectAtIndex:1];
     if(message != nil) {
         [panel setMessage:message];
     }
-
+    
+    // Default Path:
     NSString* path = [skin toNSObjectAtIndex:2];
     if(path != nil) {
         NSURL *url = [[NSURL alloc] initWithString:path];
         [panel setDirectoryURL:url];
     }
     
+    // Can Choose Files:
     if (lua_isboolean(L, 3) && !lua_toboolean(L, 3)) {
         [panel setCanChooseFiles:NO];
     }
@@ -567,6 +590,7 @@ static int chooseFileOrFolder(lua_State *L) {
         
     }
     
+    // Can Choose Directories:
     if (lua_isboolean(L, 4) && lua_toboolean(L, 4)) {
         [panel setCanChooseDirectories:YES];
     }
@@ -574,15 +598,26 @@ static int chooseFileOrFolder(lua_State *L) {
         [panel setCanChooseDirectories:NO];
     }
     
-    if (lua_isboolean(L, 5) && lua_toboolean(L, 5)) {
-        [panel setAllowsMultipleSelection:YES];
+    // Resolve Aliases:
+    if (lua_isboolean(L, 7) && lua_toboolean(L, 7)) {
+        [panel setResolvesAliases:YES];
     }
     else {
+        [panel setResolvesAliases:NO];
+    }
+    
+    // Allows Multiple Selections:
+    if (lua_isboolean(L, 5) && !lua_toboolean(L, 5)) {
         [panel setAllowsMultipleSelection:NO];
     }
+    else {
+        [panel setAllowsMultipleSelection:YES];
+    }
 
+    // Load the window and check to see when a button is clicked:
     NSInteger clicked = [panel runModal];
 
+    // Counter used when multiple files can be selected:
     int count = 1;
     
     if (clicked == NSFileHandlingPanelOKButton) {
@@ -599,6 +634,8 @@ static int chooseFileOrFolder(lua_State *L) {
     
     return 1;
 }
+
+#pragma mark - Webview Alert
 
 /// hs.dialog.webviewAlert(webview, callbackFn, message, [informativeText], [buttonOne], [buttonTwo], [style]) -> string
 /// Function
@@ -657,10 +694,16 @@ static int webviewAlert(lua_State *L) {
     }
     else
     {
-        [alert addButtonWithTitle:buttonOne];
+        if ([buttonOne isEqualToString:@""]) {
+            [alert addButtonWithTitle:defaultButton];
+        }
+        else
+        {
+            [alert addButtonWithTitle:buttonOne];
+        }
     }
     
-    if (buttonTwo != nil ) {
+    if (buttonTwo != nil && ![buttonTwo isEqualToString:@""]) {
         [alert addButtonWithTitle:buttonTwo];
     }
     
@@ -717,27 +760,28 @@ static int webviewAlert(lua_State *L) {
     
 }
 
-/// hs.dialog.alert(message, informativeText, [buttonOne], [buttonTwo], [style]) -> string
+#pragma mark - Blocking Alert
+
+/// hs.dialog.blockAlert(message, informativeText, [buttonOne], [buttonTwo], [style]) -> string
 /// Function
-/// Displays a simple dialog box using `NSAlert`.
+/// Displays a simple dialog box using `NSAlert` that will halt Lua code processing until the alert is closed.
 ///
 /// Parameters:
 ///  * message - The message text to display.
 ///  * informativeText - The informative text to display.
 ///  * [buttonOne] - An optional value for the first button as a string. Defaults to "OK".
-///  * [buttonTwo] - An optional value for the second button as a string. By default there is no second button.
+///  * [buttonTwo] - An optional value for the second button as a string. If `nil` is used, no second button will be displayed.
 ///  * [style] - An optional style of the dialog box as a string. Defaults to "NSWarningAlertStyle".
 ///
 /// Returns:
 ///  * The value of the button as a string.
 ///
 /// Notes:
-///  * This alert is blocking (i.e. no other Lua code will be processed until the alert is closed).
 ///  * The optional values must be entered in order (i.e. you can't supply `style` without also supplying `buttonOne` and `buttonTwo`).
 ///  * [style] can be "NSWarningAlertStyle", "NSInformationalAlertStyle" or "NSCriticalAlertStyle". If something other than these string values is given, it will use "NSWarningAlertStyle".
 ///  * Example:
-///      `hs.dialog.alert("Message", "Informative Text", "Button One", "Button Two", "NSCriticalAlertStyle")`
-static int alert(lua_State *L) {
+///      `hs.dialog.blockAlert("Message", "Informative Text", "Button One", "Button Two", "NSCriticalAlertStyle")`
+static int blockAlert(lua_State *L) {
     
 	NSString* defaultButton = @"OK";
 	
@@ -754,15 +798,21 @@ static int alert(lua_State *L) {
     [alert setMessageText:message];
     [alert setInformativeText:informativeText];
     
-	if( buttonOne == nil ){
-		[alert addButtonWithTitle:defaultButton];
-	}
-	else
-	{
-		[alert addButtonWithTitle:buttonOne];
-	}
-   
-    if (buttonTwo != nil ) {
+    if( buttonOne == nil ){
+        [alert addButtonWithTitle:defaultButton];
+    }
+    else
+    {
+        if ([buttonOne isEqualToString:@""]) {
+            [alert addButtonWithTitle:defaultButton];
+        }
+        else
+        {
+            [alert addButtonWithTitle:buttonOne];
+        }
+    }
+    
+    if (buttonTwo != nil && ![buttonTwo isEqualToString:@""]) {
         [alert addButtonWithTitle:buttonTwo];
     }
 		
@@ -809,6 +859,8 @@ static int alert(lua_State *L) {
 	return 1 ;
 }
 
+#pragma mark - Text Prompt
+
 /// hs.dialog.textPrompt(message, informativeText, [defaultText], [buttonOne], [buttonTwo]) -> string, string
 /// Function
 /// Displays a simple text input dialog box.
@@ -849,10 +901,16 @@ static int textPrompt(lua_State *L) {
     }
     else
     {
-        [alert addButtonWithTitle:buttonOne];
+        if ([buttonOne isEqualToString:@""]) {
+            [alert addButtonWithTitle:defaultButton];
+        }
+        else
+        {
+            [alert addButtonWithTitle:buttonOne];
+        }
     }
     
-    if (buttonTwo != nil ) {
+    if (buttonTwo != nil && ![buttonTwo isEqualToString:@""]) {
         [alert addButtonWithTitle:buttonTwo];
     }
     
@@ -942,7 +1000,7 @@ static int releaseReceivers(__unused lua_State *L) {
 // Functions for returned object when module loads:
 static luaL_Reg moduleLib[] = {
     {"webviewAlert", webviewAlert},
-    {"alert", alert},
+    {"blockAlert", blockAlert},
     {"textPrompt", textPrompt},
     {"chooseFileOrFolder", chooseFileOrFolder},
     {NULL,  NULL}
