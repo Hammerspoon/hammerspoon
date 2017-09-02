@@ -187,7 +187,7 @@ static HSColorPanel *cpReceiverObject ;
 ///
 /// Notes:
 ///  * Example:
-///      `hs.dialog.color.callback(function(a,b) print(hs.inspect(a)); print(hs.inspect(b)) end)`
+///      `hs.dialog.color.callback(function(a,b) print("COLOR CALLBACK:\nSelected Color: " .. hs.inspect(a) .. "\nPanel Closed: " .. hs.inspect(b)) end)`
 static int colorPanelCallback(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TFUNCTION | LS_TNIL | LS_TOPTIONAL, LS_TBREAK] ;
@@ -437,7 +437,7 @@ static HSFontPanel *fpReceiverObject ;
 ///
 /// Notes:
 ///  * Example:
-///      `hs.dialog.font.callback(function(a,b) print(hs.inspect(a)); print(hs.inspect(b)) end)`
+///      `hs.dialog.font.callback(function(a,b) print("FONT CALLBACK:\nSelected Font: " .. hs.inspect(a) .. "\nPanel Closed: " .. hs.inspect(b)) end)`
 static int fontPanelCallback(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TFUNCTION | LS_TNIL | LS_TOPTIONAL, LS_TBREAK] ;
