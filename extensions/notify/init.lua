@@ -39,7 +39,11 @@ module.activationTypes = ls.makeConstantsTable(module.activationTypes)
 
 --- hs.notify.warnAboutMissingFunctionTag
 --- Variable
---- A boolean value indicating whether or not a missing notification function tag should cause a warning to be printed to the console during activation callback. Defaults to true.
+--- A value indicating whether or not a missing notification function tag should cause a warning.  Defaults to `true`.
+---
+--- If this variable is set to a function, the function will be called with two parameters `tag`, which will match the tag specified if you used [hs.notify.show](#show) or a UUID if you used [hs.notify.new](#new) to define the notification, and `notification` which will be the notificationObject representing the notification.  No return value is expected.
+---
+--- If this variable is not set to a function, it will be evaluated as a lua boolean (i.e. any value except `false` and `nil` is considered true).  If it evaluates to true, a warning will be displayed to the console indicating that the callback function is missing; if it is false, the notification will be silently discarded.
 
 module.warnAboutMissingFunctionTag = true
 
@@ -109,7 +113,13 @@ module._tag_handler = function(tag, notification)
       end
     end
   end
-  if not found and module.warnAboutMissingFunctionTag then print("-- hs.notify: function tag '"..tag.."' not found") end
+  if not found and module.warnAboutMissingFunctionTag then
+      if type(module.warnAboutMissingFunctionTag) == "function" or (getmetatable(module.warnAboutMissingFunctionTag) or {}).__call then
+          module.warnAboutMissingFunctionTag(tag, notification)
+      else
+          print("-- hs.notify: function tag '"..tag.."' not found")
+      end
+  end
 end
 
 --- hs.notify.show(title, subTitle, information[, tag]) -> notfication
@@ -230,7 +240,7 @@ module.unregisterall = function()
 --- Notes:
 ---  * This table should not be modified directly. Use the `hs.notify.register(tag, fn)` and `hs.notify.unregister(id)` functions.
 ---  * This table has a __tostring metamethod so you can see the list of registered function tags in the console by typing `hs.notify.registry`
----  * If a notification attempts to perform a callback to a function tag which is not present in this table, a warning will be printed in the console.
+---  * See [hs.notify.warnAboutMissingFunctionTag](#warnAboutMissingFunctionTag) for determining the behavior when a notification attempts to perform a callback to a function tag which is not present in this table. This occurrence is most common with notifications which are acted upon by the user after Hammerspoon has been reloaded.
 module.registry = setmetatable({ { emptyFunctionPlaceholder, function(_) end } }, {
     __tostring = function(_)
       local result = ""

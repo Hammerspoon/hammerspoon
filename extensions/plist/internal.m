@@ -14,7 +14,7 @@ static int plist_read(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TBREAK];
 
-    NSDictionary *plist = [NSDictionary dictionaryWithContentsOfFile:[skin toNSObjectAtIndex:1]];
+    NSDictionary *plist = [NSDictionary dictionaryWithContentsOfFile:[[skin toNSObjectAtIndex:1] stringByExpandingTildeInPath]];
     [skin pushNSObject:plist];
 
     return 1;
@@ -43,7 +43,7 @@ static int plist_write(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TTABLE, LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
 
-    NSString *filePath = [skin toNSObjectAtIndex:1];
+    NSString *filePath = [[skin toNSObjectAtIndex:1] stringByExpandingTildeInPath];
     id data = [skin toNSObjectAtIndex:2];
     BOOL binary = NO;
 
