@@ -651,6 +651,9 @@ static int hs_volumeInformation(lua_State* L) {
 ///
 /// Returns:
 ///  * A table whose key-value pairs represent the GPUs for the current system.  Each key is a string contining the name for an installed GPU and its value is the GPU's VRAM size in MB.  If the VRAM size cannot be determined for a specific GPU, its value will be -1.0.
+///
+/// Notes:
+///  * If your GPU reports -1.0 as the memory size, please submit an issue to the Hammerspoon github repository and include any information that you can which may be relevant, such as: Macintosh model, macOS version, is the GPU built in or a third party expansion card, the GPU model and VRAM as best you can determine (see the System Information application in the Utilities folder and look at the Graphics/Display section) and anything else that you think might be important.
 static int hs_vramSize(lua_State *L) {
     io_iterator_t Iterator;
     kern_return_t err = IOServiceGetMatchingServices(kIOMasterPortDefault, IOServiceMatching("IOPCIDevice"), &Iterator);
