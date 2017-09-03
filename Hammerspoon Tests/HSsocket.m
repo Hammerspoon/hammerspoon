@@ -55,6 +55,7 @@
 }
 
 - (void)testUdpConnect {
+    SKIP_IN_TRAVIS()
     RUN_LUA_TEST()
 }
 

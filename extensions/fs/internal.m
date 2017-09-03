@@ -89,8 +89,9 @@ NSArray *tags_from_file(lua_State *L, NSString *filePath) {
 #pragma clang diagnostic ignored "-Wpartial-availability"
     if (![url getResourceValue:&tags forKey:NSURLTagNamesKey error:&error]) {
 #pragma clang diagnostic pop
-        [[LuaSkin shared] logError:[NSString stringWithFormat:@"hs.fs tags_from_file() Unable to get tags for %@: %@", url, [error localizedDescription]]];
-        return nil;
+//         [[LuaSkin shared] logError:[NSString stringWithFormat:@"hs.fs tags_from_file() Unable to get tags for %@: %@", url, [error localizedDescription]]];
+//         return nil;
+        luaL_error(L, error.localizedDescription.UTF8String) ;
     }
     return tags;
 }
@@ -103,8 +104,9 @@ BOOL tags_to_file(lua_State *L, NSString *filePath, NSArray *tags) {
 #pragma clang diagnostic ignored "-Wpartial-availability"
     if (![url setResourceValue:tags forKey:NSURLTagNamesKey error:&error]) {
 #pragma clang diagnostic pop
-        [[LuaSkin shared] logError:[NSString stringWithFormat:@"hs.fs tags_to_file() Unable to set tags for %@: %@", url, [error localizedDescription]]];
-        return false;
+//         [[LuaSkin shared] logError:[NSString stringWithFormat:@"hs.fs tags_to_file() Unable to set tags for %@: %@", url, [error localizedDescription]]];
+//         return false;
+        luaL_error(L, error.localizedDescription.UTF8String) ;
     }
     return true;
 }
@@ -781,7 +783,7 @@ static int link_info (lua_State *L) {
 ///  * filepath - A string containing the path of a file
 ///
 /// Returns:
-///  * A table containing the list of the file's tags, or nil if an error occurred
+///  * A table containing the list of the file's tags, or nil if the file has no tags assigned; throws a lua error if an error accessing the file occurs
 static int tagsGet(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TBREAK];
@@ -814,7 +816,7 @@ static int tagsGet(lua_State *L) {
 ///  * tags - A table containing one or more strings, each containing a tag name
 ///
 /// Returns:
-///  * None
+///  * true if the tags were updated; throws a lua error if an error occurs updating the tags
 static int tagsAdd(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TTABLE, LS_TBREAK];
@@ -823,9 +825,9 @@ static int tagsAdd(lua_State *L) {
     NSMutableSet *oldTags = [NSMutableSet setWithArray:tags_from_file(L, path)];
     NSMutableSet *newTags = [NSMutableSet setWithArray:tags_from_lua_stack(L)];
     [newTags unionSet:oldTags];
-    tags_to_file(L, path, [newTags allObjects]);
+    lua_pushboolean(L, tags_to_file(L, path, [newTags allObjects]));
 
-    return 0;
+    return 1;
 }
 
 /// hs.fs.tagsSet(filepath, tags)
@@ -837,16 +839,16 @@ static int tagsAdd(lua_State *L) {
 ///  * tags - A table containing zero or more strings, each containing a tag name
 ///
 /// Returns:
-///  * None
+///  * true if the tags were set; throws a lua error if an error occurs setting the new tags
 static int tagsSet(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TTABLE, LS_TBREAK];
     NSString *path = [skin toNSObjectAtIndex:1];
 
     NSArray *tags = tags_from_lua_stack(L);
-    tags_to_file(L, path, tags);
+    lua_pushboolean(L, tags_to_file(L, path, tags));
 
-    return 0;
+    return 1;
 }
 
 /// hs.fs.tagsRemove(filepath, tags)
@@ -858,7 +860,7 @@ static int tagsSet(lua_State *L) {
 ///  * tags - A table containing one or more strings, each containing a tag name
 ///
 /// Returns:
-///  * None
+///  * true if the tags were updated; throws a lua error if an error occurs updating the tags
 static int tagsRemove(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TTABLE, LS_TBREAK];
@@ -867,9 +869,9 @@ static int tagsRemove(lua_State *L) {
 
     NSMutableSet *tags = [NSMutableSet setWithArray:tags_from_file(L, path)];
     [tags minusSet:removeTags];
-    tags_to_file(L, path, [tags allObjects]);
+    lua_pushboolean(L, tags_to_file(L, path, [tags allObjects]));
 
-    return 0;
+    return 1;
 }
 
 /// hs.fs.temporaryDirectory() -> string
@@ -952,7 +954,7 @@ static int hs_fileUTIalternate(lua_State *L) {
 /// Gets the absolute path of a given path
 ///
 /// Parameters:
-///  * filepath - Any kind of file or directory path, be it relative or not; or nil if an error occured
+///  * filepath - Any kind of file or directory path, be it relative or not
 ///
 /// Returns:
 ///  * A string containing the absolute path of `filepath` (i.e. one that doesn't intolve `.`, `..` or symlinks)
@@ -972,6 +974,27 @@ static int hs_pathToAbsolute(lua_State *L) {
     lua_pushstring(L, absolutePath);
     free(absolutePath);
     return 1;
+}
+
+/// hs.fs.displayName(filepath) -> string
+/// Function
+/// Returns the display name of the file or directory at a specified path.
+///
+/// Parameters:
+///  * filepath - The path to the file or directory
+///
+/// Returns:
+///  * a string containing the display name of the file or directory at a specified path; returns nil if no file with the specified path exists.
+static int fs_displayName(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
+    NSString *filePath = [skin toNSObjectAtIndex:1];
+    if ([[NSFileManager defaultManager] fileExistsAtPath:filePath.stringByExpandingTildeInPath]) {
+        [skin pushNSObject:[[NSFileManager defaultManager] displayNameAtPath:filePath.stringByExpandingTildeInPath]] ;
+    } else {
+        lua_pushnil(L) ;
+    }
+    return 1 ;
 }
 
 static const struct luaL_Reg fslib[] = {
@@ -995,6 +1018,7 @@ static const struct luaL_Reg fslib[] = {
     {"fileUTI", hs_fileuti},
     {"fileUTIalternate", hs_fileUTIalternate},
     {"pathToAbsolute", hs_pathToAbsolute},
+    {"displayName", fs_displayName},
     {NULL, NULL},
 };
 

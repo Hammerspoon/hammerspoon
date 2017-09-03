@@ -319,6 +319,30 @@ function grid.set(win, cell, scr)
     w = cell.w * cellw - (margins.w * 2),
     h = cell.h * cellh - (margins.h * 2),
   }
+
+  -- ensure windows are not spaced by a double margin
+  if cell.h < screengrid.h and cell.h % 1 == 0 then
+    if cell.y ~= 0 then
+      newframe.h = newframe.h + margins.h / 2
+      newframe.y = newframe.y - margins.h / 2
+    end
+
+    if cell.y + cell.h ~= screengrid.h then
+      newframe.h = newframe.h + margins.h / 2
+    end
+  end
+
+  if cell.w < screengrid.w and cell.w % 1 == 0 then
+    if cell.x ~= 0 then
+      newframe.w = newframe.w + margins.w / 2
+      newframe.x = newframe.x - margins.w / 2
+    end
+
+    if cell.x + cell.w ~= screengrid.w then
+      newframe.w = newframe.w + margins.w / 2
+    end
+  end
+
   win:setFrameInScreenBounds(newframe) --TODO check this (against screen bottom stickiness)
   return grid
 end

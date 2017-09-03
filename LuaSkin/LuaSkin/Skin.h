@@ -757,18 +757,5 @@ NSString *specMaskToString(int spec);
  */
 - (NSString *)tracebackWithTag:(NSString *)theTag fromStackPos:(int)level ;
 
-/*!
- @abstract Log the specified message with at the specified level with the traceback position prepended.
-
- @discussion Logs the specified message, prepended with the lua chunk name and line number at the specified traceback level, for the specified level.  The log level and combined message is logged with @link logAtLevel:withMessage: @/link.
-
- @warning This method is primarily for testing and may be removed in a future release.
-
- @param level The message log level as an integer.  Predefined levels are defined and used within LuaSkin itself as (in decreasing level of severity) @link LS_LOG_ERROR @/link, @link LS_LOG_WARN @/link, @link LS_LOG_INFO @/link, @link LS_LOG_DEBUG @/link, and @link LS_LOG_VERBOSE @/link.
- @param theMessage the message to log
- @param pos the lua traceback level to attempt to retrieve the chunk name and line number from
- */
-- (void)logAtLevel:(int)level withMessage:(NSString *)theMessage fromStackPos:(int)pos ;
-
 @end
 

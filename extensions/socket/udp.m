@@ -75,7 +75,7 @@ static void readCallback(HSAsyncUdpSocket *asyncUdpSocket, NSData *data, NSData 
 }
 
 - (void)udpSocket:(GCDAsyncUdpSocket *)sock didConnectToAddress:(NSData *)address {
-    [LuaSkin logInfo:@"UDP socket connected"];
+    [LuaSkin logDebug:@"UDP socket connected"];
     self.userData = DEFAULT;
     if (self.connectCallback != LUA_NOREF)
         connectCallback(self);
@@ -87,12 +87,12 @@ static void readCallback(HSAsyncUdpSocket *asyncUdpSocket, NSData *data, NSData 
 }
 
 - (void)udpSocketDidClose:(GCDAsyncUdpSocket *)sock withError:(NSError *)error {
-    [LuaSkin logInfo:[NSString stringWithFormat:@"UDP socket closed: %@", [error localizedDescription]]];
+    [LuaSkin logDebug:[NSString stringWithFormat:@"UDP socket closed: %@", [error localizedDescription]]];
     sock.userData = nil;
 }
 
 - (void)udpSocket:(GCDAsyncUdpSocket *)sock didSendDataWithTag:(long)tag {
-    [LuaSkin logInfo:@"Data written to UDP socket"];
+    [LuaSkin logDebug:@"Data written to UDP socket"];
     if (self.writeCallback != LUA_NOREF)
         writeCallback(self, tag);
 }
@@ -103,7 +103,7 @@ static void readCallback(HSAsyncUdpSocket *asyncUdpSocket, NSData *data, NSData 
 }
 
 - (void)udpSocket:(GCDAsyncUdpSocket *)sock didReceiveData:(NSData *)data fromAddress:(NSData *)address withFilterContext:(id)filterContext {
-    [LuaSkin logInfo:@"Data read from UDP socket"];
+    [LuaSkin logDebug:@"Data read from UDP socket"];
     if (self.readCallback != LUA_NOREF)
         readCallback(self, data, address);
 }

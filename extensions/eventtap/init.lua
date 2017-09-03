@@ -11,11 +11,11 @@
 ---
 --- This module is based primarily on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
 
-local module = require("hs.eventtap.internal")
-module.event = require("hs.eventtap.event")
-local fnutils = require("hs.fnutils")
+local module   = require("hs.eventtap.internal")
+module.event   = require("hs.eventtap.event")
+local fnutils  = require("hs.fnutils")
 local keycodes = require("hs.keycodes")
-require("hs.timer")
+local timer    = require("hs.timer")
 
 -- private variables and methods -----------------------------------------
 
@@ -85,18 +85,53 @@ local function getMods(mods)
   return r
 end
 
+-- note the tables backing these constants should be modified to only include the string -> number
+-- assignments before they can be safely wrapped with ls.makeConstantsTable, but as there is a pull
+-- outstanding which modifies these tables, this is being delayed to simplify merging.
 module.event.types      = setmetatable(module.event.types,      { __index    = __index_for_types,
                                                                   __tostring = __tostring_for_tables })
 module.event.properties = setmetatable(module.event.properties, { __index    = __index_for_props,
                                                                   __tostring = __tostring_for_tables })
 
+module.event.rawFlagMasks = ls.makeConstantsTable(module.event.rawFlagMasks)
+
 -- Public interface ------------------------------------------------------
 
 local originalNewKeyEvent = module.event.newKeyEvent
 module.event.newKeyEvent = function(mods, key, isDown)
+    if (type(mods) == "number" or type(mods) == "string") and type(key) == "boolean" then
+        mods, key, isDown = nil, mods, key
+    end
     local keycode = getKeycode(key)
-    local modifiers = getMods(mods)
+    local modifiers = mods and getMods(mods) or nil
+--    print(finspect(table.pack(modifiers, keycode, isDown)))
     return originalNewKeyEvent(modifiers, keycode, isDown)
+end
+
+--- hs.eventtap.event.newKeyEventSequence(modifiers, character) -> table
+--- Function
+--- Generates a table containing the keydown and keyup events to generate the keystroke with the specified modifiers.
+---
+--- Parameters:
+---  * modifiers - A table containing the keyboard modifiers to apply ("cmd", "alt", "shift", "ctrl", "rightCmd", "rightAlt", "rightShift", "rightCtrl", or "fn")
+---  * character - A string containing a character to be emitted
+---
+--- Returns:
+---  * a table with events which contains the individual events that Apple recommends for building up a keystroke combination (see [hs.eventtap.event.newKeyEvent](#newKeyEvents)) in the order that they should be posted (i.e. the first half will contain keyDown events and the second half will contain keyUp events)
+---
+--- Notes:
+---  * The `modifiers` table must contain the full name of the modifiers you wish used for the keystroke as defined in `hs.keycodes.map` -- the Unicode equivalents are not supported by this function.
+---  * The returned table will always contain an even number of events -- the first half will be the keyDown events and the second half will be the keyUp events.
+---  * The events have not been posted; the table can be used without change as the return value for a callback to a watcher defined with [hs.eventtap.new](#new).
+function module.event.newKeyEventSequence(modifiers, character)
+  local codes = fnutils.map({table.unpack(modifiers), character}, getKeycode)
+  local n = #codes
+  local events = {}
+  for i, code in ipairs(codes) do
+    events[i] = module.event.newKeyEvent(code, true)
+    events[2*n+1-i] = module.event.newKeyEvent(code, false)
+  end
+  return events
 end
 
 --- hs.eventtap.event.newMouseEvent(eventtype, point[, modifiers) -> event
@@ -122,8 +157,8 @@ function module.event.newMouseEvent(eventtype, point, modifiers)
         button = "left"
     elseif eventtype == types["rightMouseDown"] or eventtype == types["rightMouseUp"] or eventtype == types["rightMouseDragged"] then
         button = "right"
-    elseif eventtype == types["middleMouseDown"] or eventtype == types["middleMouseUp"] or eventtype == types["middleMouseDragged"] then
-        button = "middle"
+    elseif eventtype == types["otherMouseDown"] or eventtype == types["otherMouseUp"] or eventtype == types["otherMouseDragged"] then
+        button = "other"
     else
         print("Error: unrecognised mouse button eventtype: " .. tostring(eventtype))
         return nil
@@ -150,7 +185,7 @@ function module.leftClick(point, delay)
     end
 
     module.event.newMouseEvent(module.event.types["leftMouseDown"], point):post()
-    hs.timer.usleep(delay)
+    timer.usleep(delay)
     module.event.newMouseEvent(module.event.types["leftMouseUp"], point):post()
 end
 
@@ -173,31 +208,58 @@ function module.rightClick(point, delay)
     end
 
     module.event.newMouseEvent(module.event.types["rightMouseDown"], point):post()
-    hs.timer.usleep(delay)
+    timer.usleep(delay)
     module.event.newMouseEvent(module.event.types["rightMouseUp"], point):post()
 end
+
+--- hs.eventtap.otherClick(point[, delay][, button])
+--- Function
+--- Generates an "other" mouse click event at the specified point
+---
+--- Parameters:
+---  * point  - A table with keys `{x, y}` indicating the location where the mouse event should occur
+---  * delay  - An optional delay (in microseconds) between mouse down and up event. Defaults to 200000 (i.e. 200ms)
+---  * button - An optional integer, default 2, between 2 and 31 specifying the button number to be pressed.  If this parameter is specified then `delay` must also be specified, though you may specify it as `nil` to use the default.
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * This is a wrapper around `hs.eventtap.event.newMouseEvent` that sends `otherMouseDown` and `otherMouseUp` events)
+---
+---  * macOS recognizes up to 32 distinct mouse buttons, though few mouse devices have more than 3.  The left mouse button corresponds to button number 0 and the right mouse button corresponds to 1;  distinct events are used for these mouse buttons, so you should use `hs.eventtap.leftClick` and `hs.eventtap.rightClick` respectively.  All other mouse buttons are coalesced into the `otherMouse` events and are distinguished by specifying the specific button with the `mouseEventButtonNumber` property, which this function does for you.
+---  * The specific purpose of mouse buttons greater than 2 varies by hardware and application (typically they are not present on a mouse and have no effect in an application)
+function module.otherClick(point, delay, button)
+    if delay==nil then
+        delay=200000
+    end
+    if button==nil then
+        button = 2
+    end
+    if button < 2 or button > 31 then
+        error("button number must be between 2 and 31 inclusive", 2)
+    end
+    module.event.newMouseEvent(module.event.types["otherMouseDown"], point):setProperty(module.event.properties["mouseEventButtonNumber"], button):post()
+    hs.timer.usleep(delay)
+    module.event.newMouseEvent(module.event.types["otherMouseUp"], point):setProperty(module.event.properties["mouseEventButtonNumber"], button):post()
+end
+
 
 --- hs.eventtap.middleClick(point[, delay])
 --- Function
 --- Generates a middle mouse click event at the specified point
 ---
 --- Parameters:
----  * point - A table with keys `{x, y}` indicating the location where the mouse event should occur
----  * delay - An optional delay (in microseconds) between mouse down and up event. Defaults to 200000 (i.e. 200ms)
+---  * point  - A table with keys `{x, y}` indicating the location where the mouse event should occur
+---  * delay  - An optional delay (in microseconds) between mouse down and up event. Defaults to 200000 (i.e. 200ms)
 ---
 --- Returns:
 ---  * None
 ---
 --- Notes:
----  * This is a wrapper around `hs.eventtap.event.newMouseEvent` that sends `middlemousedown` and `middlemouseup` events)
-function module.middleClick(point, delay)
-    if delay==nil then
-        delay=200000
-    end
-
-    module.event.newMouseEvent(module.event.types["middleMouseDown"], point):post()
-    hs.timer.usleep(delay)
-    module.event.newMouseEvent(module.event.types["middleMouseUp"], point):post()
+---  * This function is just a wrapper which calls `hs.eventtap.otherClick(point, delay, 2)` and is included solely for backwards compatibility.
+module.middleClick = function(point, delay)
+    module.otherClick(point, delay, 2)
 end
 
 --- hs.eventtap.keyStroke(modifiers, character[, delay])
@@ -205,7 +267,7 @@ end
 --- Generates and emits a single keystroke event pair for the supplied keyboard modifiers and character
 ---
 --- Parameters:
----  * modifiers - A table containing the keyboard modifiers to apply ("fn", "ctrl", "alt", "cmd", "shift", "fn", or their Unicode equivalents)
+---  * modifiers - A table containing the keyboard modifiers to apply ("fn", "ctrl", "alt", "cmd", "shift", or their Unicode equivalents)
 ---  * character - A string containing a character to be emitted
 ---  * delay - An optional delay (in microseconds) between mouse down and up event. Defaults to 200000 (i.e. 200ms)
 ---
@@ -214,13 +276,15 @@ end
 ---
 --- Notes:
 ---  * This function is ideal for sending single keystrokes with a modifier applied (e.g. sending ⌘-v to paste, with `hs.eventtap.keyStroke({"cmd"}, "v")`). If you want to emit multiple keystrokes for typing strings of text, see `hs.eventtap.keyStrokes()`
+---
+---  * Note that invoking this function with a table (empty or otherwise) for the `modifiers` argument will force the release of any modifier keys which have been explicitly created by [hs.eventtap.event.newKeyEvent](#newKeyEvent) and posted that are still in the "down" state. An explicit `nil` for this argument will not (i.e. the keystroke will inherit any currently "down" modifiers)
 function module.keyStroke(modifiers, character, delay)
     if delay==nil then
         delay=200000
     end
 
     module.event.newKeyEvent(modifiers, character, true):post()
-    hs.timer.usleep(delay)
+    timer.usleep(delay)
     module.event.newKeyEvent(modifiers, character, false):post()
 end
 

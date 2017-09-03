@@ -490,8 +490,7 @@ nextarg:
             [self logAtLevel:LS_LOG_WARN
                  withMessage:[NSString stringWithFormat:@"registerPushNSHelper:forClass:%s already defined at %@",
                                                         className,
-                                                        self.registeredNSHelperLocations[@(className)]]
-                fromStackPos:level] ;
+                                                        self.registeredNSHelperLocations[@(className)]]] ;
         } else {
             luaL_where(self.L, level) ;
             NSString *locationString = @(lua_tostring(self.L, -1)) ;
@@ -502,8 +501,7 @@ nextarg:
         }
     } else {
         [self logAtLevel:LS_LOG_WARN
-             withMessage:@"registerPushNSHelper:forClass: requires both helperFN and className"
-             fromStackPos:level] ;
+             withMessage:@"registerPushNSHelper:forClass: requires both helperFN and className"] ;
     }
     return allGood ;
 }
@@ -572,8 +570,7 @@ nextarg:
             [self logAtLevel:LS_LOG_WARN
                  withMessage:[NSString stringWithFormat:@"registerLuaObjectHelper:forClass:%s already defined at %@",
                                                         className,
-                                                        self.registeredLuaObjectHelperFunctions[@(className)]]
-                fromStackPos:level] ;
+                                                        self.registeredLuaObjectHelperFunctions[@(className)]]] ;
         } else {
             luaL_where(self.L, level) ;
             NSString *locationString = @(lua_tostring(self.L, -1)) ;
@@ -584,8 +581,7 @@ nextarg:
         }
     } else {
         [self logAtLevel:LS_LOG_WARN
-             withMessage:@"registerLuaObjectHelper:forClass: requires both helperFN and className"
-            fromStackPos:level] ;
+             withMessage:@"registerLuaObjectHelper:forClass: requires both helperFN and className"] ;
     }
     return allGood ;
 }
@@ -624,8 +620,7 @@ nextarg:
         return  NSMakeRect(x, y, w, h) ;
     } else {
         [self logAtLevel:LS_LOG_WARN
-             withMessage:[NSString stringWithFormat:@"returning NSZeroRect: can't make NSRect from %s.", lua_typename(self.L, lua_type(self.L, idx))]
-            fromStackPos:1] ;
+             withMessage:[NSString stringWithFormat:@"returning NSZeroRect: can't make NSRect from %s.", lua_typename(self.L, lua_type(self.L, idx))]] ;
         return NSZeroRect ;
     }
 }
@@ -639,8 +634,7 @@ nextarg:
         return NSMakePoint(x, y);
     } else {
         [self logAtLevel:LS_LOG_WARN
-             withMessage:[NSString stringWithFormat:@"returning NSZeroPoint: can't make NSPoint from %s.", lua_typename(self.L, lua_type(self.L, idx))]
-            fromStackPos:1] ;
+             withMessage:[NSString stringWithFormat:@"returning NSZeroPoint: can't make NSPoint from %s.", lua_typename(self.L, lua_type(self.L, idx))]] ;
         return NSZeroPoint ;
     }
 }
@@ -654,8 +648,7 @@ nextarg:
         return NSMakeSize(w, h);
     } else {
         [self logAtLevel:LS_LOG_WARN
-             withMessage:[NSString stringWithFormat:@"returning NSZeroSize: can't make NSSize from %s.", lua_typename(self.L, lua_type(self.L, idx))]
-            fromStackPos:1] ;
+             withMessage:[NSString stringWithFormat:@"returning NSZeroSize: can't make NSSize from %s.", lua_typename(self.L, lua_type(self.L, idx))]] ;
         return NSZeroSize ;
     }
 }
@@ -677,8 +670,7 @@ nextarg:
         }
     } else {
         [self logAtLevel:LS_LOG_ERROR
-             withMessage:[NSString stringWithFormat:@"table expected (found %s)", lua_typename(self.L, lua_type(self.L, idx))]
-            fromStackPos:0] ;
+             withMessage:[NSString stringWithFormat:@"table expected (found %s)", lua_typename(self.L, lua_type(self.L, idx))]] ;
     }
     return max ;
 }
@@ -695,8 +687,7 @@ nextarg:
         }
     } else {
         [self logAtLevel:LS_LOG_ERROR
-             withMessage:[NSString stringWithFormat:@"table expected (found %s)", lua_typename(self.L, lua_type(self.L, idx))]
-            fromStackPos:0] ;
+             withMessage:[NSString stringWithFormat:@"table expected (found %s)", lua_typename(self.L, lua_type(self.L, idx))]] ;
     }
     return max ;
 }
@@ -1026,8 +1017,7 @@ nextarg:
     if (seenObject) {
         if ([[seenObject lastObject] isEqualToNumber:@(NO)] && ((options & LS_NSAllowsSelfReference) != LS_NSAllowsSelfReference)) {
             [self logAtLevel:LS_LOG_WARN
-                 withMessage:@"lua table cannot contain self-references"
-                fromStackPos:1] ;
+                 withMessage:@"lua table cannot contain self-references"] ;
 //             return [NSNull null] ;
             return nil ;
         } else {
@@ -1060,8 +1050,7 @@ nextarg:
                 } else {
                     if (stringOptions != LS_NSNone) {
                         [self logAtLevel:LS_LOG_DEBUG
-                             withMessage:@"only one of LS_NSPreserveLuaStringExactly or LS_NSLuaStringAsDataOnly can be specified: using default behavior"
-                            fromStackPos:0] ;
+                             withMessage:@"only one of LS_NSPreserveLuaStringExactly or LS_NSLuaStringAsDataOnly can be specified: using default behavior"] ;
                     }
                     return [self getValidUTF8AtIndex:idx] ;
                 }
@@ -1190,8 +1179,7 @@ nextarg:
                 } else {
                     [self logAtLevel:LS_LOG_ERROR
                          withMessage:[NSString stringWithFormat:@"array element (%s) cannot be converted into a proper NSObject",
-                                                                 luaL_tolstring(self.L, -1, NULL)]
-                        fromStackPos:1] ;
+                                                                 luaL_tolstring(self.L, -1, NULL)]] ;
                     result = nil ;
                     lua_pop(self.L, 2) ; // luaL_tolstring result and lua_geti result
                     return nil ;
@@ -1209,8 +1197,7 @@ nextarg:
                     [self logAtLevel:LS_LOG_ERROR
                          withMessage:[NSString stringWithFormat:@"dictionary %@ (%s) cannot be converted into a proper NSObject",
                                                                  (key) ? @"key" : @"value",
-                                                                 luaL_tolstring(self.L, (key) ? -2 : lua_gettop(self.L), NULL)]
-                        fromStackPos:1] ;
+                                                                 luaL_tolstring(self.L, (key) ? -2 : lua_gettop(self.L), NULL)]] ;
                     result = nil ;
                     lua_pop(self.L, 3) ; // luaL_tolstring result, lua_next value, and lua_next key
                     return nil ;
@@ -1234,17 +1221,6 @@ nextarg:
     } else {
         HSNSLOG(@"(missing delegate):log level %d: %@", level, theMessage) ;
     }
-}
-
-// Testing for: chunkname:currentline:theMessage
-- (void) logAtLevel:(int)level withMessage:(NSString *)theMessage fromStackPos:(int)pos {
-    luaL_where(self.L, pos) ;
-    NSString *locationInfo = @(lua_tostring(self.L, -1)) ;
-    lua_pop(self.L, 1) ;
-    if (!locationInfo || [locationInfo isEqualToString:@""])
-        locationInfo = [NSString stringWithFormat:@"(no lua location info at depth %d)", pos] ;
-
-    [self logAtLevel:level withMessage:[NSString stringWithFormat:@"%@:%@", locationInfo, theMessage]] ;
 }
 
 // shorthand
