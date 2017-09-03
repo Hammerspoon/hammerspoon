@@ -9,6 +9,11 @@
 #import <Foundation/Foundation.h>
 
 //
+// Run String:
+//
+//NSString* HSAppleScriptRunString(NSString* command);
+
+//
 // Enable & Disable AppleScript Support:
 //
 BOOL HSAppleScriptEnabled(void);
