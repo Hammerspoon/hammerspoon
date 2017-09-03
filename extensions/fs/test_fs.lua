@@ -118,8 +118,8 @@ function testTags()
 
   hs.fs.chdir(dirname)
 
-  assertIsNil(hs.fs.tagsGet("non_existent_file"))
-  assertIsNil(hs.fs.tagsSet("non_existent_file", tags))
+  assertFalse(pcall(hs.fs.tagsGet, "non_existent_file"))
+  assertFalse(pcall(hs.fs.tagsSet, "non_existent_file", tags))
 
   assertIsNil(hs.fs.tagsGet(filename))
   assertIsNil(hs.fs.tagsGet(filename2))
