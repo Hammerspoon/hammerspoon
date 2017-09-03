@@ -187,6 +187,7 @@ cp -av "${BUILT_PRODUCTS_DIR}/libwebviewdatastore.dylib" "${HS_DST}/webview/data
 
 # Special copier for hs.fs submodule
 cp -av "${BUILT_PRODUCTS_DIR}/libfsvolume.dylib" "${HS_DST}/fs/volume.so"
+cp -av "${BUILT_PRODUCTS_DIR}/libfsxattr.dylib" "${HS_DST}/fs/xattr.so"
 
 # Special (compiling) copier for hs.chooser
 ibtool --compile "${HS_RESOURCES}/HSChooserWindow.nib" "${SRCROOT}/extensions/chooser/HSChooserWindow.xib"

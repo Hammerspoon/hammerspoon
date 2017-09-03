@@ -316,10 +316,10 @@ SCPreferencesCreateWithOptions      (
 /// Switches to a new location
 ///
 /// Parameters:
-///  * location - string containing UUID or name of new location
+///  * location - string containing name or UUID of new location
 ///
 /// Returns:
-///  * bool
+///  * bool - true if the location was successfully changed, false if there was an error
 static int dynamicStoreSetLocation(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TBREAK];
@@ -374,7 +374,8 @@ static int dynamicStoreSetLocation(lua_State *L) {
         SCNetworkSetRef item = CFArrayGetValueAtIndex(locations, i);
         
         CFStringRef name = SCNetworkSetGetName((SCNetworkSetRef)item);
-        if (CFStringCompare(name, (CFStringRef)target, 0) == kCFCompareEqualTo) {
+        CFStringRef uuid = SCNetworkSetGetSetID((SCNetworkSetRef)item);
+        if ((CFStringCompare(name, (CFStringRef)target, 0) == kCFCompareEqualTo) || (CFStringCompare(uuid,(CFStringRef)target, 0) == kCFCompareEqualTo)) {
             bool res = SCNetworkSetSetCurrent((SCNetworkSetRef)item);
             bool res2 = SCPreferencesCommitChanges(prefs);
             bool res3 = SCPreferencesApplyChanges(prefs);

@@ -70,10 +70,13 @@ local function enable(self,force,isModal)
   local returnVal = self._hk:enable() --objc
   if returnVal ~= nil then
     log[isModal and 'df' or 'f']('Enabled hotkey %s%s',self.msg,isModal and ' (in modal)' or '')
-  end
     tinsert(hotkeys[idx],self) -- bring to the top of the stack
 --   return returnVal
     return self
+  else
+    self.enabled = false
+    return nil
+  end
 end
 
 --- hs.hotkey:disable() -> hs.hotkey object
@@ -178,7 +181,7 @@ end
 ---  * repeatfn - A function that will be called when a pressed hotkey is repeating, or nil
 ---
 --- Returns:
----  * A new `hs.hotkey` object
+---  * A new `hs.hotkey` object or nil if the hotkey could not be enabled
 ---
 --- Notes:
 ---  * You can create multiple `hs.hotkey` objects for the same keyboard combination, but only one can be active
@@ -217,6 +220,65 @@ function hotkey.new(mods, key, message, pressedfn, releasedfn, repeatfn)
   h[#h+1] = hk -- go on top of the stack
   hotkeys[idx] = h
   return hk
+end
+
+--- hs.hotkey.systemAssigned(mods, key) -> table | false
+--- Function
+--- Examine whether a potential hotkey is in use by the macOS system such as the Screen Capture, Universal Access, and Keyboard Navigation keys.
+---
+--- Parameters:
+---  * mods - A table or a string containing (as elements, or as substrings with any separator) the keyboard modifiers required,
+---    which should be zero or more of the following:
+---    * "cmd", "command" or "⌘"
+---    * "ctrl", "control" or "⌃"
+---    * "alt", "option" or "⌥"
+---    * "shift" or "⇧"
+---  * key - A string containing the name of a keyboard key (as found in [hs.keycodes.map](hs.keycodes.html#map) ), or a raw keycode number
+---
+--- Returns:
+---  * if the hotkey combination is in use by a system function, returns a table containing the following keys:
+---    * keycode - the numberic keycode for the hotkey
+---    * mods    - a numeric representation of the modifier flags for the htokey
+---    * enabled - a boolean indicating whether or not the key is currently enabled
+---  * if the hotkey combination is not in use by the operating system, returns the boolean value `false`
+---
+--- Notes:
+---  * this is provided for informational purposes and does not provide a reliable test as to whether or not Hammerspoon can use the combination to create a custom hotkey -- some combinations which return a table can be over-ridden by Hammerspoon while others cannot.  See also [hs.hotkey.assignable](#assignable).
+local originalSystemAssigned = hotkey.systemAssigned
+function hotkey.systemAssigned(mods, key)
+  local keycode = getKeycode(key)
+  mods = getMods(mods)
+  return originalSystemAssigned(mods, keycode)
+end
+
+--- hs.hotkey.assignable(mods, key) -> boolean
+--- Function
+--- Determines whether the hotkey combination can be assigned a callback through Hammerspoon.
+---
+--- Parameters:
+---  * mods - A table or a string containing (as elements, or as substrings with any separator) the keyboard modifiers required,
+---    which should be zero or more of the following:
+---    * "cmd", "command" or "⌘"
+---    * "ctrl", "control" or "⌃"
+---    * "alt", "option" or "⌥"
+---    * "shift" or "⇧"
+---  * key - A string containing the name of a keyboard key (as found in [hs.keycodes.map](hs.keycodes.html#map) ), or a raw keycode number
+---
+--- Returns:
+---  * a boolean value, true if the hotkey combination can be given an assignment by Hammerspoon or false if it cannot.
+---
+--- Notes:
+---  * The most common reason a hotkey combination cannot be given an assignment by Hammerspoon is because it is in use by the Mac operating system -- see the Shortcuts tab of Keyboard in the System Preferences application or [hs.hotkey.systemAssigned](#systemAssigned).
+function hotkey.assignable(mods, key)
+    local k = hotkey.new(mods, key, function() end)
+    local prevLevel = hs.luaSkinLog.level
+    -- supress luaSkinLog error if binding fails
+    hs.luaSkinLog.level = 0
+    local status = k._hk:enable()
+    if status then k._hk:disable() end
+    k.enabled = false
+    hs.luaSkinLog.level = prevLevel
+    return status and true or false
 end
 
 --- hs.hotkey.disableAll(mods, key)

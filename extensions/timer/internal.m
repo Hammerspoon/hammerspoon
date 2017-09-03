@@ -35,16 +35,16 @@ static int refTable;
 
 - (void)callback:(NSTimer *)timer {
     LuaSkin *skin = [LuaSkin shared];
-    
+
     if (!timer.isValid) {
         [skin logBreadcrumb:@"hs.timer callback fired on an invalid hs.timer object. This is a bug"];
         return;
     }
-    
+
     if (timer != self.t) {
         [skin logBreadcrumb:@"hs.timer callback fired with inconsistencies about which NSTimer object it owns. This is a bug"];
     }
-    
+
     [skin pushLuaRef:refTable ref:self.fnRef];
     if (![skin protectedCallAndTraceback:0 nresults:0]) {
         const char *errorMsg = lua_tostring(skin.L, -1);
@@ -420,6 +420,27 @@ static int timer_getSecondsSinceEpoch(lua_State *L) {
     return 1;
 }
 
+/// hs.timer.absolutetime() -> nanoseconds
+/// Function
+/// Returns the absolute time in nanoseconds since the last system boot.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * the time since the last system boot in nanoseconds
+///
+/// Notes:
+///  * this value does not include time that the system has spent asleep
+///  * this value is used for the timestamps in system generated events.
+static int timer_absoluteTime(lua_State *L) {
+    // timebase on systems I've seen has always been 1/1, but just in case that changes:
+    mach_timebase_info_data_t timebase ;
+    mach_timebase_info(&timebase) ;
+    uint64_t absTime = mach_absolute_time() ;
+    lua_pushinteger(L, (lua_Integer)((absTime * timebase.numer) / timebase.denom)) ;
+    return 1 ;
+}
 
 // Metatable for created objects when _new invoked
 static const luaL_Reg timer_metalib[] = {
@@ -440,6 +461,7 @@ static const luaL_Reg timerLib[] = {
     {"new",        timer_new},
     {"usleep",     timer_usleep},
     {"secondsSinceEpoch",       timer_getSecondsSinceEpoch},
+    {"absoluteTime", timer_absoluteTime},
     {NULL,          NULL}
 };
 

@@ -140,6 +140,77 @@ static BOOL set_window_prop(AXUIElementRef win, NSString* propType, id value) {
     return NO;
 }
 
+
+static AXUIElementRef get_window_tabs(AXUIElementRef win) {
+    AXUIElementRef tabs = NULL;
+
+    CFArrayRef children = NULL;
+    if(AXUIElementCopyAttributeValues(win, kAXChildrenAttribute, 0, 100, &children) != noErr) goto cleanup;
+    CFIndex count = CFArrayGetCount(children);
+
+    CFTypeRef typeRef;
+    for (CFIndex i = 0; i < count; ++i) {
+        AXUIElementRef child = CFArrayGetValueAtIndex(children, i);
+        if(AXUIElementCopyAttributeValue(child, kAXRoleAttribute, &typeRef) != noErr) goto cleanup;
+        CFStringRef role = (CFStringRef)typeRef;
+        BOOL correctRole = kCFCompareEqualTo == CFStringCompare(role, kAXTabGroupRole, 0);
+        CFRelease(role);
+        if (correctRole) {
+            tabs = child;
+            CFRetain(tabs);
+            break;
+        }
+    }
+
+    cleanup:
+    if(children) CFRelease(children);
+
+    return tabs;
+}
+
+// tabIndex is a 0-based index of the tab to select
+static BOOL window_presstab(AXUIElementRef win, CFIndex tabIndex) {
+    BOOL worked = NO;
+    CFArrayRef children = NULL;
+    AXUIElementRef tab = NULL;
+
+    AXUIElementRef tabs = get_window_tabs(win);
+    if(tabs == NULL) goto cleanup;
+
+    if(AXUIElementCopyAttributeValues(tabs, kAXTabsAttribute, 0, 100, &children) != noErr) goto cleanup;
+    CFIndex count = CFArrayGetCount(children);
+
+    CFIndex i = tabIndex;
+    if(i >= count || i < 0) i = count - 1;
+    tab = CFArrayGetValueAtIndex(children, i);
+
+    if (AXUIElementPerformAction(tab, kAXPressAction) != noErr) goto cleanup;
+
+    worked = YES;
+cleanup:
+    if (tab) CFRelease(tab);
+    if (tabs) CFRelease(tabs);
+
+    return worked;
+}
+
+static CFIndex window_counttabs(AXUIElementRef win) {
+  CFIndex count = -1;
+  
+  AXUIElementRef tabs = get_window_tabs(win);
+  if(tabs == NULL) goto cleanup;
+  
+  if(AXUIElementGetAttributeValueCount(tabs, kAXTabsAttribute, &count) != noErr) {
+    count = -1; // it's probably still -1, but just to be safe
+    goto cleanup;
+  }
+  
+cleanup:
+  if (tabs) CFRelease(tabs);
+  
+  return count;
+}
+
 /// hs.window:title() -> string
 /// Method
 /// Gets the title of the window
@@ -388,6 +459,50 @@ cleanup:
 ///  * True if the operation succeeded, false if not
 static int window__close(lua_State* L) {
     return window_pressbutton(L, kAXCloseButtonAttribute);
+}
+
+/// hs.window:focusTab(index) -> bool
+/// Method
+/// Focuses the tab in the window's tab group at index, or the last tab if
+/// index is out of bounds. Returns true if a tab was pressed.
+/// Works with document tab groups and some app tabs, like Chrome and Safari.
+///
+/// Parameters:
+///  * index - A number, a 1-based index of a tab to focus
+///
+/// Returns:
+///  * true if the tab was successfully pressed, or false if there was a problem
+static int window_focustab(lua_State* L) {
+    AXUIElementRef win = get_window_arg(L, 1);
+    CFIndex tabIndex = luaL_checkinteger(L, 2);
+
+    BOOL worked = window_presstab(win, tabIndex - 1);
+    lua_pushboolean(L, worked);
+    return 1;
+}
+
+/// hs.window:tabCount() -> number or nil
+/// Method
+/// Gets the number of tabs in the window has, or nil if the window doesn't have tabs.
+/// Intended for use with the focusTab method, if this returns a number, then focusTab
+/// can switch between that many tabs.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A number containing the number of tabs, or nil if an error occurred
+static int window_tabcount(lua_State* L) {
+  AXUIElementRef win = get_window_arg(L, 1);
+  
+  CFIndex count = window_counttabs(win);
+  
+  if(count == -1) {
+    return 0;
+  } else {
+    lua_pushinteger(L, count);
+    return 1;
+  }
 }
 
 /// hs.window:setFullScreen(fullscreen) -> window
@@ -756,6 +871,8 @@ static const luaL_Reg windowlib[] = {
     {"isMinimized", window_isminimized},
     {"pid", window_pid},
     {"application", window_application},
+    {"focusTab", window_focustab},
+    {"tabCount", window_tabcount},
     {"becomeMain", window_becomemain},
     {"raise", window_raise},
     {"id", window_id},

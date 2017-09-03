@@ -179,6 +179,59 @@ static int hotkey_new(lua_State* L) {
     return 1;
 }
 
+static int hotkey_systemAssigned(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+
+    luaL_checktype(L, 1, LUA_TTABLE);
+    UInt32 keycode = (UInt32)luaL_checkinteger(L, 2);
+    UInt32 mods    = 0 ;
+
+    // save mods
+    lua_pushnil(L);
+    while (lua_next(L, 1) != 0) {
+        NSString* mod = [[NSString stringWithUTF8String:luaL_checkstring(L, -1)] lowercaseString];
+        if ([mod isEqualToString: @"cmd"] || [mod isEqualToString: @"⌘"])        mods |= cmdKey;
+        else if ([mod isEqualToString: @"ctrl"] || [mod isEqualToString: @"⌃"])  mods |= controlKey;
+        else if ([mod isEqualToString: @"alt"] || [mod isEqualToString: @"⌥"])   mods |= optionKey;
+        else if ([mod isEqualToString: @"shift"] || [mod isEqualToString: @"⇧"]) mods |= shiftKey;
+        lua_pop(L, 1);
+    }
+
+    BOOL assigned = NO ;
+    CFArrayRef registeredHotKeys = NULL ;
+    OSStatus status = CopySymbolicHotKeys(&registeredHotKeys) ;
+    if (status == noErr && registeredHotKeys) {
+
+        CFIndex count = CFArrayGetCount(registeredHotKeys);
+        for(CFIndex i = 0; i < count; i++)
+        {
+            CFDictionaryRef hotKeyInfo      = CFArrayGetValueAtIndex(registeredHotKeys, i);
+            CFNumberRef     hotKeyCode      = CFDictionaryGetValue(hotKeyInfo, kHISymbolicHotKeyCode);
+            CFNumberRef     hotKeyModifiers = CFDictionaryGetValue(hotKeyInfo, kHISymbolicHotKeyModifiers);
+            CFBooleanRef    hotKeyEnabled   = CFDictionaryGetValue(hotKeyInfo, kHISymbolicHotKeyEnabled);
+            // I *think* 1<< 17 represents the Fn key on laptops; at any rate, it's automatically added for
+            // some keys, notably Function keys, arrow keys, etc... since we can't actually set it, remove
+            // it from the dictionary if present.
+            UInt32 modifierFlags = [(__bridge NSNumber *)hotKeyModifiers unsignedIntValue] & ~(1 << 17) ;
+            if (([(__bridge NSNumber *)hotKeyCode unsignedIntValue] == keycode) && (modifierFlags == mods)) {
+                lua_newtable(L) ;
+                [skin pushNSObject:(__bridge NSNumber *)hotKeyCode]    ; lua_setfield(L, -2, "keycode") ;
+                lua_pushinteger(L, modifierFlags) ;                      lua_setfield(L, -2, "mods") ;
+                [skin pushNSObject:(__bridge NSNumber *)hotKeyEnabled] ; lua_setfield(L, -2, "enabled") ;
+                assigned = YES ;
+                break ;
+            }
+        }
+        CFRelease(registeredHotKeys) ;
+        if (!assigned) lua_pushboolean(L, false) ;
+    } else {
+        [skin logWarn:[NSString stringWithFormat:@"%s.assigned - unable to retrieve SymbolicHotKeys (%d)", USERDATA_TAG, status]] ;
+        lua_pushnil(L) ;
+    }
+
+    return 1;
+}
+
 static int hotkey_enable(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
@@ -342,6 +395,7 @@ static int userdata_tostring(lua_State* L) {
 
 static const luaL_Reg hotkeylib[] = {
     {"_new", hotkey_new},
+    {"systemAssigned", hotkey_systemAssigned},
 
     {NULL, NULL}
 };

@@ -2433,7 +2433,7 @@ static int canvas_draggingCallback(lua_State *L) {
     HSCanvasView   *canvasView   = [skin luaObjectAtIndex:1 toClass:"HSCanvasView"] ;
 
     // We're either removing callback(s), or setting new one(s). Either way, remove existing.
-    canvasView.draggingCallbackRef = [skin luaUnref:refTable ref:canvasView.mouseCallbackRef];
+    canvasView.draggingCallbackRef = [skin luaUnref:refTable ref:canvasView.draggingCallbackRef];
     [canvasView unregisterDraggedTypes] ;
     if ([skin luaTypeAtIndex:2] == LUA_TFUNCTION) {
         lua_pushvalue(L, 2);
@@ -3881,7 +3881,9 @@ static int userdata_gc(lua_State* L) {
     HSCanvasView *theView = get_objectFromUserdata(__bridge_transfer HSCanvasView, L, 1, USERDATA_TAG) ;
     if (theView) {
         if (!parentIsWindow(theView)) [theView removeFromSuperview] ;
-        theView.mouseCallbackRef = [skin luaUnref:refTable ref:theView.mouseCallbackRef] ;
+        theView.mouseCallbackRef    = [skin luaUnref:refTable ref:theView.mouseCallbackRef] ;
+        theView.draggingCallbackRef = [skin luaUnref:refTable ref:theView.draggingCallbackRef] ;
+        
         theView.selfRef          = [skin luaUnref:refTable ref:theView.selfRef] ;
 
         HSCanvasWindow *theWindow = theView.wrapperWindow ;
