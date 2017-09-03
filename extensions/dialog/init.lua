@@ -14,6 +14,7 @@ local USERDATA_TAG = "hs.dialog"
 local module       = require(USERDATA_TAG..".internal")
 
 local color = require("hs.drawing.color")
+local styledtext = require("hs.styledtext")
 
 -- Private Variables & Methods -----------------------------------------
 
