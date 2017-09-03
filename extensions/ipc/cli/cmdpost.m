@@ -30,7 +30,7 @@
 // static NSString          *defaultPortName = @"hsCommandLine" ;
 static NSString          *defaultPortName = @"CommandPost" ;
 static CFTimeInterval    defaultTimeout   = 4.0 ;
-static const CFStringRef hammerspoonBundle = CFSTR("org.latenite.CommandPost") ;
+static const CFStringRef hammerspoonBundle = CFSTR("org.latenitefilms.CommandPost") ;
 
 @class HSClient ;
 

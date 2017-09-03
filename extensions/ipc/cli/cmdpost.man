@@ -2,7 +2,7 @@
 .Dt HS 1
 .Os Darwin
 .Sh NAME
-.Nm hs
+.Nm cmdpost
 .Nd Command line interface to CommandPost.app
 .Sh SYNOPSIS
 .Nm
