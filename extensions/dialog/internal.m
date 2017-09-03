@@ -6,8 +6,6 @@
 //
 // TO-DO LIST:
 //
-//  * Fix `hs.dialog.font` so that it actually works.
-//  * Add a `hs.dialog.font.continious` option like with color panel.
 //  * Add `hs.dialog.chooseFromList()` as discussed here: https://github.com/Hammerspoon/hammerspoon/issues/1227#issuecomment-278972348
 //
 
