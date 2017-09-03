@@ -6,6 +6,7 @@
 //
 // TO-DO LIST:
 //
+//  * Changing Font Colors is broken in `hs.dialog.font`
 //  * Add `hs.dialog.chooseFromList()` as discussed here: https://github.com/Hammerspoon/hammerspoon/issues/1227#issuecomment-278972348
 //
 

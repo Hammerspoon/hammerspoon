@@ -50,10 +50,14 @@ color.panel = module.color
 ---      hs.dialog.alert(100, 100, testCallbackFn, "Message", "Informative Text", "Button One", "Button Two", "NSCriticalAlertStyle")
 ---      hs.dialog.alert(200, 200, testCallbackFn, "Message", "Informative Text", "Single Button")```
 function module.alert(x, y, callback, ...)
-	local rect = {}	
+	local rect = {
+        h = 10, -- Small enough to be hidden by the alert panel
+        w = 10,
+        x = 1,
+        y = 1,
+    }
 	if type(x) == "number" then rect.x = x end
 	if type(y) == "number" then rect.y = y end
-    rect.h, rect.w = 10, 10 -- Small enough to be hidden by the alert panel    
     local wv = hs.webview.new(rect):show()
     hs.dialog.webviewAlert(wv, function(...)
 	    wv:delete()
