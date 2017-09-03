@@ -83,7 +83,7 @@ static int refTable = LUA_NOREF ;
 //
 // FONT PANEL:
 //
-@interface HSFontPanel : NSObject
+@interface HSFontPanel : NSObject <NSWindowDelegate>
 @property int          callbackRef ;
 @property NSUInteger   fontPanelModes ;
 @property NSDictionary *attributesDictionary ;
