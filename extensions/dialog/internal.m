@@ -998,7 +998,7 @@ static int releaseReceivers(__unused lua_State *L) {
     [cp setTarget:nil];
     [cp setAction:nil];
     if (cpReceiverObject.callbackRef != LUA_NOREF) [skin luaUnref:refTable ref:cpReceiverObject.callbackRef] ;
-    [cp close];
+    [cp close]; // Close the Color Panel
     cpReceiverObject = nil ;
 
     NSFontPanel *fp = [NSFontPanel sharedFontPanel];
@@ -1008,7 +1008,9 @@ static int releaseReceivers(__unused lua_State *L) {
                                                   object:fp] ;
     if (fpReceiverObject.callbackRef != LUA_NOREF) [skin luaUnref:refTable ref:fpReceiverObject.callbackRef] ;
     [fm setTarget:nil] ;
+    [fp close]; // Close the Font Panel
     fpReceiverObject = nil ;
+    
     return 0 ;
 }
 
