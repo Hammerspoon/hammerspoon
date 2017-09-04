@@ -2,10 +2,6 @@
 ---
 --- A collection of useful dialog boxes, alerts and panels for user interaction.
 
---- === hs.dialog.font ===
----
---- A panel that allows users to select font styles.
-
 --- === hs.dialog.color ===
 ---
 --- A panel that allows users to select a color.
@@ -14,14 +10,10 @@ local USERDATA_TAG = "hs.dialog"
 local module       = require(USERDATA_TAG..".internal")
 
 local color = require("hs.drawing.color")
-local styledtext = require("hs.styledtext")
 
 -- Private Variables & Methods -----------------------------------------
 
-
 -- Public Interface ------------------------------------------------------
-
-module.font.panelModes = ls.makeConstantsTable(module.font.panelModes)
 
 color.panel = module.color
 
