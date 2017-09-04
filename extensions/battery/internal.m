@@ -388,6 +388,64 @@ static int battery_psuSerial(lua_State* L) {
     return 1;
 }
 
+/// hs.battery.otherBatteryInfo() -> table
+/// Function
+/// Returns information about non-PSU batteries (e.g. bluetooth accessories)
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A table containing information about other batteries known to the system, or an empty table if no devices were found
+static int battery_others(lua_State*L) {
+    LuaSkin *skin = [LuaSkin shared];
+
+    mach_port_t     masterPort;
+    kern_return_t   kr;
+    io_iterator_t   ite;
+    io_object_t     obj = 0;
+    CFMutableDictionaryRef  properties;
+    NSMutableArray *batteryInfo = [NSMutableArray arrayWithCapacity:5];
+
+    kr = IOMasterPort(bootstrap_port, &masterPort);
+    if (kr != KERN_SUCCESS) {
+        NSLog(@"IOMasterPort() failed: %x\n", kr);
+        goto lua_return;
+    }
+
+    kr = IORegistryCreateIterator(masterPort,
+                                  kIOServicePlane,
+                                  true,
+                                  &ite);
+
+    while ((obj = IOIteratorNext(ite))) {
+        kr = IORegistryEntryCreateCFProperties(obj,
+                                               &properties,
+                                               kCFAllocatorDefault,
+                                               kNilOptions);
+
+        if ((kr != KERN_SUCCESS) || !properties) {
+            NSLog(@"IORegistryEntryCreateCFProperties error %x\n", kr);
+            goto lua_return;
+        } else {
+            CFNumberRef percent = (CFNumberRef) CFDictionaryGetValue(properties, CFSTR("BatteryPercent"));
+            if (percent) {
+                SInt32 s;
+                if(CFNumberGetValue(percent, kCFNumberSInt32Type, &s)) {
+                    NSDictionary *deviceProperties = (__bridge NSDictionary *)properties;
+                    [batteryInfo addObject:deviceProperties];
+                }
+            }
+        }
+
+        IOObjectRelease(obj);
+    }
+
+lua_return:
+    [skin pushNSObject:batteryInfo];
+    return 1;
+}
+
 static const luaL_Reg battery_lib[] = {
     {"cycles", battery_cycles},
     {"name", battery_name},
@@ -407,6 +465,7 @@ static const luaL_Reg battery_lib[] = {
     {"isFinishingCharge", battery_isfinishingcharge},
     {"powerSource", battery_powersource},
     {"psuSerial", battery_psuSerial},
+    {"otherBatteryInfo", battery_others},
     {NULL, NULL}
 };
 
