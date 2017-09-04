@@ -16,52 +16,40 @@
 //
 // Run String:
 //
-static LuaSkin* MJLuaState;
-static int evalfn;
-int asRefTable;
 
-static int applescript_cleanUTF8(lua_State *L) {
+NSString* HSAppleScriptRunString(executeLua *self, NSString* command) {
     LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TANY, LS_TBREAK] ;
-    [skin pushNSObject:[skin getValidUTF8AtIndex:1]] ;
-    return 1 ;
-}
+    lua_State* L = skin.L;
 
-NSString* HSAppleScriptRunString(NSString* command) {
-    lua_State* L = MJLuaState.L;
-    
-    [MJLuaState pushLuaRef:asRefTable ref:evalfn];
-    if (!lua_isfunction(L, -1)) {
-        HSNSLOG(@"ERROR: MJLuaRunString doesn't seem to have an evalfn");
-        if (lua_isstring(L, -1)) {
-            HSNSLOG(@"evalfn appears to be a string: %s", lua_tostring(L, -1));
-        }
-        return @"";
+    lua_getglobal(L, "hs") ;
+    if (lua_getfield(L, -1, "__appleScriptRunString") != LUA_TFUNCTION) {
+        [skin logError:[NSString stringWithFormat:@"hs.__appleScriptRunString is not a function; found %s", lua_typename(L, lua_type(L, -1))]] ;
+        [self setScriptErrorNumber:-50];
+        [self setScriptErrorString:@"hs.__appleScriptRunString is not a function"];
+        lua_pop(L, 2) ; // "hs", and whatever "hs.__appleScriptRunString" is (could be nil)
+        return @"Error";
     }
+
     lua_pushstring(L, [command UTF8String]);
-    if ([MJLuaState protectedCallAndTraceback:1 nresults:1] == NO) {
-        const char *errorMsg = lua_tostring(L, -1);
-        [MJLuaState logError:[NSString stringWithUTF8String:errorMsg]];
+    if ([skin protectedCallAndTraceback:1 nresults:2] == NO) {
+        NSString *errMsg = [NSString stringWithFormat:@"hs.__apleScriptRunString callback error:%s", lua_tostring(L, -1)] ;
+        [skin logError:errMsg];
+        [self setScriptErrorNumber:-50];
+        [self setScriptErrorString:errMsg];
+        lua_pop(L, 2) ; // "hs", and error message
+        return @"Error";
     }
-    
-    size_t len;
-    const char* s = lua_tolstring(L, -1, &len);
-    NSString* str = [[NSString alloc] initWithData:[NSData dataWithBytes:s length:len] encoding:NSUTF8StringEncoding];
-    if (str == nil) {
-        lua_pushcfunction(L, applescript_cleanUTF8) ;
-        lua_pushvalue(L, -2) ;
-        if (lua_pcall(L, 1, 1, 0) == LUA_OK) {
-            s = lua_tolstring(L, -1, &len);
-            str = [[NSString alloc] initWithData:[NSData dataWithBytes:s length:len] encoding:NSUTF8StringEncoding];
-            lua_pop(L, 1) ;
-        } else {
-            str = [[NSString alloc] initWithFormat:@"-- unable to clean for utf8 output: %s", lua_tostring(L, -1)] ;
-            lua_pop(L, 1) ;
-        }
+
+    NSString *str = [skin toNSObjectAtIndex:-1] ; // modern LuaSkin forces a string to be UTF8 clean if we don't give it options
+    BOOL     good = lua_toboolean(L, -2) ;
+    lua_pop(L, 3) ; // "hs" and two results from hs.__apleScriptRunString: boolean, string
+    if (good) {
+        return str;
+    } else {
+        [self setScriptErrorNumber:-50];
+        [self setScriptErrorString:str];
+        return @"Error";
     }
-    lua_pop(L, 1);
-    
-    return str;
 }
 
 //
@@ -102,7 +90,7 @@ void HSAppleScriptSetEnabled(BOOL enabled) {
 
     if (HSAppleScriptEnabled()) {
         // Execute Lua Code:
-        return HSAppleScriptRunString(stringToExecute);
+        return HSAppleScriptRunString(self, stringToExecute);
     } else {
         // Raise Error:
         [self setScriptErrorNumber:-50];
