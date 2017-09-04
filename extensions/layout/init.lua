@@ -73,7 +73,7 @@ layout.maximized = geometry.rect(0, 0, 1, 1)
 --- Parameters:
 ---  * table - A table describing your desired layout. Each element in the table should be another table describing a set of windows to match, and their desired size/position. The fields in each of these tables are:
 ---   * A string containing an application name, or an `hs.application` object, or nil
----   * A string containing a window title or nil
+---   * A string containing a window title, or an `hs.window` object, or a function, or nil
 ---   * A string containing a screen name, or an `hs.screen` object, or a function that accepts no parameters and returns an `hs.screen` object, or nil to select the first available screen
 ---   * A Unit rect, or a function which is called for each window and returns a unit rect (see `hs.window.moveToUnit()`). The function should accept one parameter, which is the window object.
 ---   * A Frame rect, or a function which is called for each window and returns a frame rect (see `hs.screen:frame()`). The function should accept one parameter, which is the window object.
@@ -88,6 +88,7 @@ layout.maximized = geometry.rect(0, 0, 1, 1)
 --- Notes:
 ---  * If the application name argument is nil, window titles will be matched regardless of which app they belong to
 ---  * If the window title argument is nil, all windows of the specified application will be matched
+---  * If the window title argument is a function, the function will be called with the application name argument (which may be nil), and should return a table of `hs.window` objects (even if there is only one window it must be in a table)
 ---  * You can specify both application name and window title if you want to match only one window of a particular application
 ---  * If you specify neither application name or window title, no windows will be matched :)
 ---  * Monitor name is a string, as found in `hs.screen:name()`. You can also pass an `hs.screen` object, or a function that returns an `hs.screen` object. If you pass nil, the first screen will be selected
@@ -176,7 +177,15 @@ function layout.apply(layout, windowTitleComparator)
         end
 
         -- Find the matching windows, if any
-        if _row[2] then
+        if type(_row[2]) == "userdata" then
+            wins = {_row[2]}
+        elseif type(_row[2]) == "function" then
+            if app then
+                wins = _row[2](app:name())
+            else
+                wins = _row[2](nil)
+            end
+        elseif type(_row[2]) == "string" then
             if app then
                 wins = fnutils.filter(app:allWindows(), function(win) return windowTitleComparator(win:title(), _row[2]) end)
             else
