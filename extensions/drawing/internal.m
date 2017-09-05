@@ -2096,6 +2096,9 @@ static int drawing_delete(lua_State *L) {
 ///
 /// Returns:
 ///  * The drawing object
+///
+/// Notes:
+///  * This may not be able to move a drawing above all full-screen windows. More recent versions of macOS have made significant changes to the way full-screen apps work, moving them outside our ability to interact with.
 static int drawing_bringToFront(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
@@ -2337,6 +2340,7 @@ static int cg_windowLevels(lua_State *L) {
 ///
 /// Notes:
 ///  * see the notes for `hs.drawing.windowLevels`
+///  * These levels may be unable to explicitly place drawing objects around full-screen macOS windows
 static int drawing_setLevel(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
