@@ -296,6 +296,8 @@ static BOOL MJFirstRunForCurrentVersion(void) {
                          HSUploadCrashDataKey: @YES,
                          HSAppleScriptEnabledKey: @YES,
                          HSOpenConsoleOnDockClickKey: @NO,
+                         HSPreferencesDarkModeKey: @YES,
+                         HSConsoleDarkModeKey: @YES,
                          }];
 }
 
