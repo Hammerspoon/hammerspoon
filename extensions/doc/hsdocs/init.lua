@@ -282,6 +282,7 @@ local makeToolbar = function(browser)
               local current = module.browserDarkMode()
               if type(current) == "nil" then current = (host.interfaceStyle() == "Dark") end
               w:evaluateJavaScript("setInvertLevel(" .. (current and "100" or "0") .. ")")
+              module._browser:darkMode(current)
           elseif i == "track" then
               local track = module.trackBrowserFrame()
               if track then
