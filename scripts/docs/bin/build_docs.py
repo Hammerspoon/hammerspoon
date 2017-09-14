@@ -145,7 +145,10 @@ def find_module_for_item(modules, item):
 
         matches.sort()
         dbg("find_module_for_item: Found options: %s" % matches)
-        module = matches[-1]
+        try:
+            module = matches[-1]
+        except IndexError:
+            err("Unable to find module for: %s" % item)
 
     dbg("find_module_for_item: Found: %s" % module)
     return module
