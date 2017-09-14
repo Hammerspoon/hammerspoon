@@ -89,7 +89,10 @@ def extract_docstrings(filename):
     with open(filename, "r") as filedata:
         for raw_line in filedata.readlines():
             i += 1
-            line = raw_line.decode('utf-8').strip('\n')
+            try:
+                line = raw_line.decode('utf-8').strip('\n')
+            except UnicodeDecodeError:
+                err("Unable to decode: %s" % raw_line)
             if line.startswith("----") or line.startswith("////"):
                 dbg("Skipping %s:%d - too many comment chars" % (filename, i))
                 continue
