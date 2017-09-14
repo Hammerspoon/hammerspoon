@@ -380,7 +380,7 @@ NSString *specMaskToString(int spec);
 
  @param refTable - An integer reference to a table, (e.g. the result of a previous luaRef on a table object or the result of the module's registration through registerLibrary:metaFunctions: or registerLibraryWithObject:functions:metaFunctions:objectFunctions:)
 
- @param obj an NSObject
+ @param object an NSObject
 
  @return YES or NO indicating whether or not the object was retained in the specified reference table.
  */
@@ -393,7 +393,7 @@ NSString *specMaskToString(int spec);
 
  @param refTable - An integer reference to a table, (e.g. the result of a previous luaRef on a table object or the result of the module's registration through registerLibrary:metaFunctions: or registerLibraryWithObject:functions:metaFunctions:objectFunctions:)
 
- @param obj an NSObject
+ @param object an NSObject
  */
 - (void)luaRelease:(int)refTable forNSObject:(id)object ;
 
@@ -404,9 +404,11 @@ NSString *specMaskToString(int spec);
 
  @param refTable - An integer reference to a table, (e.g. the result of a previous luaRef on a table object or the result of the module's registration through registerLibrary:metaFunctions: or registerLibraryWithObject:functions:metaFunctions:objectFunctions:)
 
+ @param object an NSObject
+
  @return An integer reference to the object that was at the top of the stack
  */
-- (int)luaRef:refTable forNSObject:(id)object ;
+- (int)luaRef:(int)refTable forNSObject:(id)object ;
 
 #pragma mark - Conversion from NSObjects into Lua objects
 
@@ -417,7 +419,7 @@ NSString *specMaskToString(int spec);
 
  @discussion This method takes an NSObject and checks its class against registered classes to determine if the object can be represented in lua as a userdata.
 
- @param obj an NSObject
+ @param object an NSObject
 
  @return YES or NO indicating whether or not the LuaSkin instance can push the object onto the Lua stack.
  */

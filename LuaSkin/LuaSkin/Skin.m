@@ -164,10 +164,10 @@ NSString *specMaskToString(int spec) {
     HSNSLOG(@"destroyLuaState");
     NSAssert((self.L != NULL), @"destroyLuaState called with no Lua environment", nil);
     if (self.L) {
-        [self.retainedObjectsRefTableMappings enumerateKeysAndObjectsUsingBlock:^(NSNumber refTableN, NSMutableDictionary *objectMappings, __unused BOOL *stop) {
+        [self.retainedObjectsRefTableMappings enumerateKeysAndObjectsUsingBlock:^(NSNumber *refTableN, NSMutableDictionary *objectMappings, __unused BOOL *stop) {
             if ([refTableN isKindOfClass:[NSNumber class]] && [objectMappings isKindOfClass:[NSDictionary class]]) {
                 int refTable = refTableN.intValue ;
-                for (id object in objectMappings.allValues) [self luaRelease:refTable forObject:object] ;
+                for (id object in objectMappings.allValues) [self luaRelease:refTable forNSObject:object] ;
 
             } else {
                 NSLog(@"destroyLuaState - invalid retainedObject reference table entry:%@ = %@", refTableN, objectMappings) ;
@@ -502,7 +502,7 @@ nextarg:
     }
 }
 
-- (int)luaRef:refTable forNSObject:(id)object {
+- (int)luaRef:(int)refTable forNSObject:(id)object {
     if (![self canPushNSObject:object]) return LUA_NOREF ;
     [self pushNSObject:object] ;
     return [self luaRef:refTable] ;
@@ -577,7 +577,7 @@ nextarg:
     return 1;
 }
 
-- (int)canPushNSObject:(id)obj {
+- (BOOL)canPushNSObject:(id)obj {
     if (obj) {
         for (id key in self.registeredNSHelperFunctions) {
             if ([obj isKindOfClass: NSClassFromString(key)]) return YES ;
