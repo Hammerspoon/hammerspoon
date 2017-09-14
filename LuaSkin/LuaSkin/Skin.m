@@ -234,7 +234,10 @@ NSString *specMaskToString(int spec) {
         lua_setmetatable(self.L, -2);
     }
     lua_newtable(self.L);
-    return luaL_ref(self.L, LUA_REGISTRYINDEX);
+    int refTable = luaL_ref(self.L, LUA_REGISTRYINDEX);
+    lua_pushinteger(self.L, refTable) ;
+    lua_setfield(self.L, -2, "__refTable") ;
+    return refTable;
 }
 
 - (int)registerLibraryWithObject:(const char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions objectFunctions:(const luaL_Reg *)objectFunctions {
