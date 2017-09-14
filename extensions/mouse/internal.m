@@ -111,6 +111,24 @@ static int mouse_mouseAcceleration(lua_State *L) {
     return mouseTrackpadAcceleration(L, CFSTR(kIOHIDMouseAccelerationType));
 }
 
+/// hs.mouse.scrollDirection() -> string
+/// Function
+/// Gets the system-wide direction of scolling
+///
+/// Paramters:
+///  * None
+///
+/// Returns:
+///  * A string, either "natural" or "normal"
+static int mouse_scrollDirection(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TBREAK];
+
+    NSString *scrollDirection = [[[NSUserDefaults standardUserDefaults] objectForKey:@"com.apple.swipescrolldirection"] boolValue]? @"natural" : @"normal";
+    [skin pushNSObject:scrollDirection];
+    return 1;
+}
+
 //Note to future authors, there is no function to use kIOHIDTrackpadAccelerationType because it doesn't appear to do anything on modern systems.
 
 static const luaL_Reg mouseLib[] = {
@@ -118,6 +136,7 @@ static const luaL_Reg mouseLib[] = {
     {"getAbsolutePosition", mouse_get},
     {"setAbsolutePosition", mouse_set},
     {"trackingSpeed", mouse_mouseAcceleration},
+    {"scrollingDirection", mouse_scrollDirection},
     {NULL, NULL}
 };
 
