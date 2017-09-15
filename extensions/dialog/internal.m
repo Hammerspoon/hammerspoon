@@ -3,6 +3,13 @@
 
 #import "MJAppDelegate.h"
 
+//
+// TO-DO LIST:
+//
+//  * Changing Font Colors is broken in `hs.dialog.font`
+//  * Add `hs.dialog.chooseFromList()` as discussed here: https://github.com/Hammerspoon/hammerspoon/issues/1227#issuecomment-278972348
+//
+
 #define USERDATA_TAG  "hs.dialog"
 static int refTable = LUA_NOREF ;
 
@@ -72,7 +79,114 @@ static int refTable = LUA_NOREF ;
 }
 @end
 
+//
+// FONT PANEL:
+//
+@interface HSFontPanel : NSObject <NSWindowDelegate>
+@property int          callbackRef ;
+@property NSUInteger   fontPanelModes ;
+@property NSDictionary *attributesDictionary ;
+@end
+
+@implementation HSFontPanel
+- (instancetype)init {
+    self = [super init] ;
+    if (self) {
+        _callbackRef = LUA_NOREF ;
+        _attributesDictionary = @{} ;
+        _fontPanelModes = NSFontPanelFaceModeMask | NSFontPanelSizeModeMask | NSFontPanelCollectionModeMask ;
+        NSFontPanel *fp = [NSFontPanel sharedFontPanel];
+        fp.delegate = self ;
+        NSFontManager *fm = [NSFontManager sharedFontManager];
+        [fm setTarget:self];
+        [fm setSelectedFont:[NSFont systemFontOfSize: 27] isMultiple:NO] ;
+        [fm setSelectedAttributes:_attributesDictionary isMultiple:NO] ;
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(fontClose:)
+                                                     name:NSWindowWillCloseNotification
+                                                   object:fp] ;
+    }
+    return self ;
+}
+
+- (void)fontClose:(__unused NSNotification*)note {
+    if (_callbackRef != LUA_NOREF) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            LuaSkin   *skin = [LuaSkin shared] ;
+            lua_State *L    = [skin L] ;
+            [skin pushLuaRef:refTable ref:self->_callbackRef] ;
+            [skin pushNSObject:[[NSFontManager sharedFontManager] selectedFont]] ;
+            lua_pushboolean(L, YES) ;
+            if (![skin protectedCallAndTraceback:2 nresults:0]) {
+                [skin logError:[NSString stringWithFormat:@"%s: font callback error, %s",
+                                                          USERDATA_TAG,
+                                                          lua_tostring(L, -1)]] ;
+                lua_pop(L, 1) ;
+            }
+        }) ;
+    }
+}
+
+- (void)changeFont:(id)obj {
+    if (_callbackRef != LUA_NOREF) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            LuaSkin   *skin = [LuaSkin shared] ;
+            lua_State *L    = [skin L] ;
+            [skin pushLuaRef:refTable ref:self->_callbackRef] ;
+            [skin pushNSObject:[obj selectedFont]] ;
+            lua_pushboolean(L, NO) ;
+            if (![skin protectedCallAndTraceback:2 nresults:0]) {
+                [skin logError:[NSString stringWithFormat:@"%s: font callback error, %s",
+                                                          USERDATA_TAG,
+                                                          lua_tostring(L, -1)]] ;
+                lua_pop(L, 1) ;
+            }
+        }) ;
+    }
+}
+
+- (void)changeAttributes:(id)obj {
+    if (_callbackRef != LUA_NOREF) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            LuaSkin   *skin = [LuaSkin shared] ;
+            lua_State *L    = [skin L] ;
+            [skin pushLuaRef:refTable ref:self->_callbackRef] ;
+            self->_attributesDictionary = [obj convertAttributes:self->_attributesDictionary] ;
+            [[NSFontManager sharedFontManager] setSelectedAttributes:self->_attributesDictionary isMultiple:NO] ;
+            [skin pushNSObject:self->_attributesDictionary] ;
+            lua_pushboolean(L, NO) ;
+            if (![skin protectedCallAndTraceback:2 nresults:0]) {
+                [skin logError:[NSString stringWithFormat:@"%s: font callback error, %s",
+                                                          USERDATA_TAG,
+                                                          lua_tostring(L, -1)]] ;
+                lua_pop(L, 1) ;
+            }
+        }) ;
+    }
+}
+
+@end
+
 static HSColorPanel *cpReceiverObject ;
+static HSFontPanel *fpReceiverObject ;
+
+// This must be in the responder chain for the application; we'll stick it into the Hammerspoon application delegate
+// which is at the base of the responder chain.
+@interface MJAppDelegate (dialogFontPanelAdditions)
+- (NSUInteger)validModesForFontPanel:(NSFontPanel *)fontPanel ;
+@end
+
+@implementation MJAppDelegate (dialogFontPanelAdditions)
+
+- (NSUInteger)validModesForFontPanel:(__unused NSFontPanel *)fontPanel {
+    if (fpReceiverObject) {
+        return fpReceiverObject.fontPanelModes ;
+    } else {
+        return NSFontPanelFaceModeMask | NSFontPanelSizeModeMask | NSFontPanelCollectionModeMask ;
+    }
+}
+
+@end
 
 #pragma mark - Color Panel Functions
 
@@ -320,6 +434,108 @@ static int colorPanelHide(__unused lua_State *L) {
     [skin checkArgs:LS_TBREAK] ;
     [[NSColorPanel sharedColorPanel] close] ;
     return 0 ;
+}
+
+#pragma mark - Font Panel Functions
+
+/// hs.dialog.font.callback([callbackFn]) -> function or nil
+/// Function
+/// Sets or removes the callback function for the font panel.
+///
+/// Parameters:
+///  * a function, or `nil` to remove the current function, which will be invoked as a callback for messages generated by this font panel. The callback function should expect 2 arguments as follows:
+///    ** A table containing the font values from the font panel.
+///    ** A boolean which returns `true` if the color panel has been closed otherwise `false` indicating that the color panel is still open (i.e. it may change font again).
+///
+/// Returns:
+///  * The last callbackFn or `nil` so you can save it and re-attach it if something needs to temporarily take the callbacks.
+///
+/// Notes:
+///  * Example:
+///      `hs.dialog.font.callback(function(a,b) print("FONT CALLBACK:\nSelected Font: " .. hs.inspect(a) .. "\nPanel Closed: " .. hs.inspect(b)) end)`
+static int fontPanelCallback(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TFUNCTION | LS_TNIL | LS_TOPTIONAL, LS_TBREAK] ;
+
+    if (fpReceiverObject.callbackRef != LUA_NOREF) {
+        [skin pushLuaRef:refTable ref:fpReceiverObject.callbackRef] ;
+    } else {
+        lua_pushnil(L) ;
+    }
+    if (lua_gettop(L) == 2) { // we just added to it...
+        // in either case, we need to remove an existing callback, so...
+        fpReceiverObject.callbackRef = [skin luaUnref:refTable ref:fpReceiverObject.callbackRef] ;
+        if (lua_type(L, 1) == LUA_TFUNCTION) {
+            lua_pushvalue(L, 1) ;
+            fpReceiverObject.callbackRef = [skin luaRef:refTable] ;
+        }
+    }
+    // return the *last* fn (or nil) so you can save it and re-attach it if something needs to
+    // temporarily take the callbacks
+    return 1 ;
+}
+
+/// hs.dialog.font.show() -> none
+/// Function
+/// Shows the Font Panel.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
+///
+/// Notes:
+///  * Example:
+///      `hs.dialog.font.show()`
+static int fontPanelShow(__unused lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TBREAK] ;
+    [[NSFontPanel sharedFontPanel] orderFront:nil] ;
+    return 0 ;
+}
+
+/// hs.dialog.font.hide() -> none
+/// Function
+/// Hides the Font Panel.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
+///
+/// Notes:
+///  * Example:
+///      `hs.dialog.font.hide()`
+static int fontPanelHide(__unused lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TBREAK] ;
+    [[NSFontPanel sharedFontPanel] close] ;
+    return 0 ;
+}
+
+/// hs.dialog.font.mode([value]) -> number
+/// Function
+/// Set or display the font panel mode.
+///
+/// Parameters:
+///  * [value] - A number value, as defined in `hs.dialog.font.panelModes`.
+///
+/// Returns:
+///  * The current mode value as a number.
+///
+/// Notes:
+///  * Example:
+///      `hs.dialog.color.mode(hs.dialog.font.panelModes.face)`
+static int fontPanelMode(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK] ;
+    if (lua_gettop(L) == 1) {
+        fpReceiverObject.fontPanelModes = (NSUInteger)luaL_checkinteger(L, 1) ;
+    }
+    lua_pushinteger(L, (lua_Integer)fpReceiverObject.fontPanelModes) ;
+    return 1 ;
 }
 
 #pragma mark - Choose File or Folder
@@ -752,6 +968,25 @@ static int textPrompt(lua_State *L) {
 
 #pragma mark - Module Constants
 
+/// hs.dialog.font.panelModes
+/// Constant
+/// This table contains this list of defined modes for the font panel.
+static int pushFontPanelTypes(lua_State *L) {
+    lua_newtable(L) ;
+    lua_pushinteger(L, NSFontPanelFaceModeMask) ;                lua_setfield(L, -2, "face") ;
+    lua_pushinteger(L, NSFontPanelSizeModeMask) ;                lua_setfield(L, -2, "size") ;
+    lua_pushinteger(L, NSFontPanelCollectionModeMask) ;          lua_setfield(L, -2, "collection") ;
+    lua_pushinteger(L, NSFontPanelUnderlineEffectModeMask) ;     lua_setfield(L, -2, "underlineEffect") ;
+    lua_pushinteger(L, NSFontPanelStrikethroughEffectModeMask) ; lua_setfield(L, -2, "strikethroughEffect") ;
+    lua_pushinteger(L, NSFontPanelTextColorEffectModeMask) ;     lua_setfield(L, -2, "textColorEffect") ;
+    lua_pushinteger(L, NSFontPanelDocumentColorEffectModeMask) ; lua_setfield(L, -2, "documentColorEffect") ;
+    lua_pushinteger(L, NSFontPanelShadowEffectModeMask) ;        lua_setfield(L, -2, "shadowEffect") ;
+    lua_pushinteger(L, NSFontPanelAllEffectsModeMask) ;          lua_setfield(L, -2, "allEffects") ;
+    lua_pushinteger(L, NSFontPanelStandardModesMask) ;           lua_setfield(L, -2, "standard") ;
+    lua_pushinteger(L, NSFontPanelAllModesMask) ;                lua_setfield(L, -2, "allModes") ;
+    return 1 ;
+}
+
 #pragma mark - Hammerspoon/Lua Infrastructure
 
 static int releaseReceivers(__unused lua_State *L) {
@@ -765,6 +1000,16 @@ static int releaseReceivers(__unused lua_State *L) {
     if (cpReceiverObject.callbackRef != LUA_NOREF) [skin luaUnref:refTable ref:cpReceiverObject.callbackRef] ;
     [cp close]; // Close the Color Panel
     cpReceiverObject = nil ;
+
+    NSFontPanel *fp = [NSFontPanel sharedFontPanel];
+    NSFontManager *fm = [NSFontManager sharedFontManager];
+    [[NSNotificationCenter defaultCenter] removeObserver:fpReceiverObject
+                                                    name:NSWindowWillCloseNotification
+                                                  object:fp] ;
+    if (fpReceiverObject.callbackRef != LUA_NOREF) [skin luaUnref:refTable ref:fpReceiverObject.callbackRef] ;
+    [fm setTarget:nil] ;
+    [fp close]; // Close the Font Panel
+    fpReceiverObject = nil ;
     
     return 0 ;
 }
@@ -790,6 +1035,14 @@ static luaL_Reg colorPanelLib[] = {
     {NULL,         NULL}
 };
 
+static luaL_Reg fontPanelLib[] = {
+    {"show",     fontPanelShow},
+    {"hide",     fontPanelHide},
+    {"callback", fontPanelCallback},
+    {"mode",     fontPanelMode},
+    {NULL,   NULL}
+};
+
 static luaL_Reg module_metaLib[] = {
     {"__gc", releaseReceivers},
     {NULL,   NULL}
@@ -802,6 +1055,10 @@ int luaopen_hs_dialog_internal(lua_State* L) {
     luaL_newlib(L, colorPanelLib) ; lua_setfield(L, -2, "color") ;
     [NSColorPanel setPickerMask:NSColorPanelAllModesMask] ;
     cpReceiverObject = [[HSColorPanel alloc] init] ;
+    fpReceiverObject = [[HSFontPanel alloc] init] ;
+    luaL_newlib(L, fontPanelLib) ;
+    pushFontPanelTypes(L) ; lua_setfield(L, -2, "panelModes") ;
+    lua_setfield(L, -2, "font") ;
 
     return 1;
 }
