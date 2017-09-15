@@ -1,5 +1,47 @@
-#import <Cocoa/Cocoa.h>
-#import <LuaSkin/LuaSkin.h>
+@import Cocoa ;
+@import LuaSkin ;
+
+// establish a unique context for identifying our observers
+static const char * const USERDATA_TAG = "hs.settings" ;
+static void *myKVOContext = &myKVOContext ; // See http://nshipster.com/key-value-observing/
+static int refTable = LUA_NOREF ;
+
+@interface HSUserDefaultKVOWatcher : NSObject ;
+@property NSMutableDictionary *watchedKeys ;
+@end
+
+@implementation HSUserDefaultKVOWatcher
+- (instancetype)init {
+    self = [super init] ;
+    if (self) {
+        _watchedKeys = [[NSMutableDictionary alloc] init] ;
+    }
+    return self ;
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+//     [LuaSkin logWarn:[NSString stringWithFormat:@"in observeValueForKeyPath for %@ with %@", keyPath, change]] ;
+    if (context == myKVOContext && _watchedKeys && _watchedKeys[keyPath]) {
+        NSMutableDictionary *fnCallbacks = _watchedKeys[keyPath] ;
+//         [LuaSkin logWarn:[NSString stringWithFormat:@"in callback for %@ with %@", keyPath, fnCallbacks]] ;
+        LuaSkin   *skin = [LuaSkin shared] ;
+        lua_State *L    = skin.L ;
+        [fnCallbacks enumerateKeysAndObjectsUsingBlock:^(NSString *watcherID, NSNumber *refN, __unused BOOL *stop) {
+            [skin pushLuaRef:refTable ref:refN.intValue] ;
+            [skin pushNSObject:keyPath] ;
+            if (![skin protectedCallAndTraceback:1 nresults:0]) {
+                [skin logError:[NSString stringWithFormat:@"%s:watcher %@ callback error:%s", USERDATA_TAG, watcherID, lua_tostring(L, -1)]] ;
+                lua_pop(L, 1) ;
+            }
+        }] ;
+    } else {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context] ;
+    }
+}
+
+@end
+
+static HSUserDefaultKVOWatcher *watcherManager ;
 
 /// hs.settings.set(key[, val])
 /// Function
@@ -168,7 +210,8 @@ static int target_clear(lua_State* L) {
 static int target_getKeys(lua_State* L) {
     LuaSkin * skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TBREAK] ;
-    NSArray *keys = [[[NSUserDefaults standardUserDefaults] persistentDomainForName: [[NSBundle mainBundle] bundleIdentifier]] allKeys];
+    NSString *mainID = [[NSBundle mainBundle] bundleIdentifier] ;
+    NSArray *keys = [[[NSUserDefaults standardUserDefaults] persistentDomainForName:mainID] allKeys];
     lua_newtable(L);
     for (unsigned long i = 0; i < keys.count; i++) {
         lua_pushinteger(L, (lua_Integer)i+1) ;
@@ -181,20 +224,96 @@ static int target_getKeys(lua_State* L) {
     return 1;
 }
 
+/// hs.settings.watchKey(identifier, key, [fn | nil]) -> identifier | current value
+/// Function
+/// Get or set a watcher to invoke a callback when the specified settings key changes
+///
+/// Parameters:
+///  * identifier - a required string used as an identifier for this callback
+///  * key        - the settings key to watch for changes to
+///  * fn         - the callback function to be invoked when the specified key changes.  If this is an explicit nil, removes the existing callback.
+///
+/// Returns:
+///  * if a callback is set or removed, returns the identifier; otherwise returns the current callback function or nil if no callback function is currently defined.
+///
+/// Notes:
+///  * the identifier is required so that multiple callbacks for the same key can be registered by separate modules; it's value doesn't affect what is being watched but does need to be unique between multiple watchers of the same key.
+///
+///  * Does not work with keys that include a period (.) in the key name because KVO uses dot notation to specify a sequence of properties.  If you know of a way to escape periods so that they are watchable as NSUSerDefault key names, please file an issue and share!
+static int target_watchKey(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TFUNCTION | LS_TNIL | LS_TOPTIONAL, LS_TBREAK] ;
+    NSString *watcherID = [skin toNSObjectAtIndex:1] ;
+    NSString *keyPath   = [skin toNSObjectAtIndex:2] ;
+
+    if (!watcherManager.watchedKeys[keyPath]) {
+        watcherManager.watchedKeys[keyPath] = [[NSMutableDictionary alloc] init] ;
+        [[NSUserDefaults standardUserDefaults] addObserver:watcherManager forKeyPath:keyPath options:NSKeyValueObservingOptionNew context:myKVOContext] ;
+    }
+    NSMutableDictionary *keyWatchers = watcherManager.watchedKeys[keyPath] ;
+    NSNumber *refN = keyWatchers[watcherID] ;
+
+    if (lua_gettop(L) == 2) {
+        if (refN) {
+            [skin pushLuaRef:refTable ref:refN.intValue] ;
+        } else {
+            lua_pushnil(L) ;
+        }
+    } else {
+        if (refN) [skin luaUnref:refTable ref:refN.intValue] ;
+        keyWatchers[watcherID] = nil ;
+        if (lua_type(L, 3) != LUA_TNIL) {
+            lua_pushvalue(L, 3) ;
+            keyWatchers[watcherID] = @([skin luaRef:refTable]) ;
+        }
+        lua_pushvalue(L, 1) ;
+    }
+    return 1 ;
+}
+
+// for debugging, should probably be removed at some point
+static int output_watchers(__unused lua_State *L) {
+    [[LuaSkin shared] pushNSObject:watcherManager.watchedKeys] ;
+    return 1 ;
+}
+
+static int meta_gc(lua_State* __unused L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [watcherManager.watchedKeys enumerateKeysAndObjectsUsingBlock:^(NSString *keyPath, NSMutableDictionary *watchers, __unused BOOL *outterStop) {
+        [[NSUserDefaults standardUserDefaults] removeObserver:watcherManager forKeyPath:keyPath context:myKVOContext] ;
+        [watchers enumerateKeysAndObjectsUsingBlock:^(__unused NSString *watcherID, NSNumber *refN, __unused BOOL *innerStop) {
+            [skin luaUnref:refTable ref:refN.intValue] ;
+        }] ;
+    }] ;
+    watcherManager.watchedKeys = nil ;
+    watcherManager = nil ;
+    return 0 ;
+}
+
 // Functions for returned object when module loads
 static const luaL_Reg settingslib[] = {
     {"set",         target_set},
-    {"setData",    target_setData},
-    {"setDate",    target_setDate},
+    {"setData",     target_setData},
+    {"setDate",     target_setDate},
     {"get",         target_get},
     {"clear",       target_clear},
     {"getKeys",     target_getKeys},
+    {"watchKey",    target_watchKey},
+    {"_watchers",   output_watchers},
     {NULL, NULL}
+};
+
+// Metatable for module, if needed
+static const luaL_Reg module_metaLib[] = {
+    {"__gc", meta_gc},
+    {NULL,   NULL}
 };
 
 int luaopen_hs_settings_internal(lua_State* L __unused) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin registerLibrary:settingslib metaFunctions:nil];
+    refTable = [skin registerLibrary:settingslib metaFunctions:module_metaLib];
+
+    watcherManager = [[HSUserDefaultKVOWatcher alloc] init] ;
 
 /// hs.settings.dateFormat
 /// Constant
