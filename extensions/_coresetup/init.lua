@@ -376,6 +376,22 @@ hs.fileDroppedToDockIconCallback = nil
       end
   end
 
+  hs.__appleScriptRunString = function(s)
+
+    --print("runstring")
+    local fn, err = load("return " .. s)
+    if not fn then fn, err = load(s) end
+    if not fn then return false, tostring(err) end
+
+    local str = ""
+    local results = pack(xpcall(fn,debug.traceback))
+    for i = 2,results.n do
+      if i > 2 then str = str .. "\t" end
+      str = str .. tostring(results[i])
+    end
+    return results[1], str
+  end
+
   -- load init.lua
 
   local function runstring(s)
