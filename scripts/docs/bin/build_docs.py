@@ -89,7 +89,10 @@ def extract_docstrings(filename):
     with open(filename, "r") as filedata:
         for raw_line in filedata.readlines():
             i += 1
-            line = raw_line.decode('utf-8').strip('\n')
+            try:
+                line = raw_line.decode('utf-8').strip('\n')
+            except UnicodeDecodeError:
+                err("Unable to decode: %s" % raw_line)
             if line.startswith("----") or line.startswith("////"):
                 dbg("Skipping %s:%d - too many comment chars" % (filename, i))
                 continue
@@ -142,7 +145,10 @@ def find_module_for_item(modules, item):
 
         matches.sort()
         dbg("find_module_for_item: Found options: %s" % matches)
-        module = matches[-1]
+        try:
+            module = matches[-1]
+        except IndexError:
+            err("Unable to find module for: %s" % item)
 
     dbg("find_module_for_item: Found: %s" % module)
     return module

@@ -303,7 +303,7 @@ NSString *specMaskToString(int spec);
  @abstract Stores a reference to the object at the top of the Lua stack, in the supplied table, and pops the object off the stack
  @remark This method is functionally analogous to luaL_ref(), it just takes care of pushing the supplied table ref onto the stack, and removes it afterwards
 
- @param refTable - An integer reference to a table (e.g. the result of a previous luaRef on a table object)
+ @param refTable - An integer reference to a table, (e.g. the result of a previous luaRef on a table object or the result of the module's registration through registerLibrary:metaFunctions: or registerLibraryWithObject:functions:metaFunctions:objectFunctions:)
  @return An integer reference to the object that was at the top of the stack
  */
 - (int)luaRef:(int)refTable;
@@ -311,7 +311,7 @@ NSString *specMaskToString(int spec);
 /*!
  @abstract Stores a reference to the object at the specified position of the Lua stack, in the supplied table, without removing the object from the stack
 
- @param refTable - An integer reference to a table (e.h. the result of a previous luaRef on a table object)
+ @param refTable - An integer reference to a table, (e.g. the result of a previous luaRef on a table object or the result of the module's registration through registerLibrary:metaFunctions: or registerLibraryWithObject:functions:metaFunctions:objectFunctions:)
  @param idx - An integer stack position
  @return An integer reference to the object at the specified stack position
  */
@@ -322,7 +322,7 @@ NSString *specMaskToString(int spec);
 
  @remark This method is functionally analogous to luaL_unref(), it just takes care of pushing the supplied table ref onto the Lua stack, and removes it afterwards
 
- @param refTable - An integer reference to a table (e.g the result of a previous luaRef on a table object)
+ @param refTable - An integer reference to a table, (e.g. the result of a previous luaRef on a table object or the result of the module's registration through registerLibrary:metaFunctions: or registerLibraryWithObject:functions:metaFunctions:objectFunctions:)
  @param ref - An integer reference for an object that should be removed from the refTable table
  @return An integer, always LUA_NOREF (you are advised to store this value in the variable containing the ref parameter, so it does not become a stale reference)
  */
@@ -333,7 +333,7 @@ NSString *specMaskToString(int spec);
 
  @remark This method is functionally analogous to lua_rawgeti(), it just takes care of pushing the supplied table ref onto the Lua stack, and removes it afterwards
 
- @param refTable - An integer reference to a table (e.h. the result of a previous luaRef on a table object)
+ @param refTable - An integer reference to a table, (e.g. the result of a previous luaRef on a table object or the result of the module's registration through registerLibrary:metaFunctions: or registerLibraryWithObject:functions:metaFunctions:objectFunctions:)
  @param ref - An integer reference for an object that should be pushed onto the stack
  @return An integer containing the Lua type of the object pushed onto the stack
  */
@@ -371,9 +371,59 @@ NSString *specMaskToString(int spec);
  */
 - (int)luaTypeAtIndex:(int)idx ;
 
+/*!
+ @abstract Adds a lua reference to an NSObject to prevent garbage collection
+
+ @discussion This method stores a reference to the object in the supplied table if it is able to.
+
+ @remark This can be used to prevent garbage collection of an object's userdata when the object must be retained whether or not the user has done so in lua. An object retained by this method can only be released through the use of luaRelease:forNSObject: or destroyLuaState:. Returns NO if canPushNSObject: returns NO.
+
+ @param refTable - An integer reference to a table, (e.g. the result of a previous luaRef on a table object or the result of the module's registration through registerLibrary:metaFunctions: or registerLibraryWithObject:functions:metaFunctions:objectFunctions:)
+
+ @param object an NSObject
+
+ @return YES or NO indicating whether or not the object was retained in the specified reference table.
+ */
+- (BOOL)luaRetain:(int)refTable forNSObject:(id)object ;
+
+/*!
+ @abstract Release a lua reference for an NSObject
+
+ @discussion This method releases a reference to the object in the supplied table previously retained with luaRetain:forNSObject:. If the object has not previously been retained, this method has no effect.
+
+ @param refTable - An integer reference to a table, (e.g. the result of a previous luaRef on a table object or the result of the module's registration through registerLibrary:metaFunctions: or registerLibraryWithObject:functions:metaFunctions:objectFunctions:)
+
+ @param object an NSObject
+ */
+- (void)luaRelease:(int)refTable forNSObject:(id)object ;
+
+/*!
+ @abstract Stores a reference for an NSObject in the supplied table.
+
+ @remark Use luaUnref:ref: to release an object retained by this method. Returns LUA_NOREF if canPushNSObject: returns NO.
+
+ @param refTable - An integer reference to a table, (e.g. the result of a previous luaRef on a table object or the result of the module's registration through registerLibrary:metaFunctions: or registerLibraryWithObject:functions:metaFunctions:objectFunctions:)
+
+ @param object an NSObject
+
+ @return An integer reference to the object that was at the top of the stack
+ */
+- (int)luaRef:(int)refTable forNSObject:(id)object ;
+
 #pragma mark - Conversion from NSObjects into Lua objects
 
 /*! @methodgroup Converting NSObject objects into Lua variables */
+
+/*!
+ @abstract Pushes an NSObject to the lua stack
+
+ @discussion This method takes an NSObject and checks its class against registered classes to determine if the object can be represented in lua as a userdata.
+
+ @param object an NSObject
+
+ @return YES or NO indicating whether or not the LuaSkin instance can push the object onto the Lua stack.
+ */
+- (BOOL)canPushNSObject:(id)object ;
 
 /*!
  @abstract Pushes an NSObject to the lua stack

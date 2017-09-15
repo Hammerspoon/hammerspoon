@@ -74,6 +74,7 @@ NSString *specMaskToString(int spec) {
 @property (readonly, atomic)  NSMutableDictionary *registeredLuaObjectHelperLocations ;
 @property (readonly, atomic)  NSMutableDictionary *registeredLuaObjectHelperUserdataMappings;
 @property (readonly, atomic)  NSMutableDictionary *registeredLuaObjectHelperTableMappings;
+@property (readonly, atomic)  NSMutableDictionary *retainedObjectsRefTableMappings ;
 
 @end
 
@@ -129,6 +130,7 @@ NSString *specMaskToString(int spec) {
         _registeredLuaObjectHelperLocations        = [[NSMutableDictionary alloc] init] ;
         _registeredLuaObjectHelperUserdataMappings = [[NSMutableDictionary alloc] init];
         _registeredLuaObjectHelperTableMappings    = [[NSMutableDictionary alloc] init];
+        _retainedObjectsRefTableMappings           = [[NSMutableDictionary alloc] init];
         [self createLuaState];
     }
     return self;
@@ -162,6 +164,17 @@ NSString *specMaskToString(int spec) {
     HSNSLOG(@"destroyLuaState");
     NSAssert((self.L != NULL), @"destroyLuaState called with no Lua environment", nil);
     if (self.L) {
+        [self.retainedObjectsRefTableMappings enumerateKeysAndObjectsUsingBlock:^(NSNumber *refTableN, NSMutableDictionary *objectMappings, __unused BOOL *stop) {
+            if ([refTableN isKindOfClass:[NSNumber class]] && [objectMappings isKindOfClass:[NSDictionary class]]) {
+                int refTable = refTableN.intValue ;
+                for (id object in objectMappings.allValues) [self luaRelease:refTable forNSObject:object] ;
+
+            } else {
+                NSLog(@"destroyLuaState - invalid retainedObject reference table entry:%@ = %@", refTableN, objectMappings) ;
+            }
+        }] ;
+        [self.retainedObjectsRefTableMappings           removeAllObjects] ;
+
         lua_close(self.L);
         [self.registeredNSHelperFunctions               removeAllObjects] ;
         [self.registeredNSHelperLocations               removeAllObjects] ;
@@ -234,7 +247,10 @@ NSString *specMaskToString(int spec) {
         lua_setmetatable(self.L, -2);
     }
     lua_newtable(self.L);
-    return luaL_ref(self.L, LUA_REGISTRYINDEX);
+    int refTable = luaL_ref(self.L, LUA_REGISTRYINDEX);
+    lua_pushinteger(self.L, refTable) ;
+    lua_setfield(self.L, -2, "__refTable") ;
+    return refTable;
 }
 
 - (int)registerLibraryWithObject:(const char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions objectFunctions:(const luaL_Reg *)objectFunctions {
@@ -463,6 +479,35 @@ nextarg:
     return foundType ;
 }
 
+- (BOOL)luaRetain:(int)refTable forNSObject:(id)object {
+    if (![self canPushNSObject:object]) return NO ;
+    if (!self.retainedObjectsRefTableMappings[@(refTable)])
+            self.retainedObjectsRefTableMappings[@(refTable)] = [[NSMutableDictionary alloc] init] ;
+    NSMutableDictionary *holding = self.retainedObjectsRefTableMappings[@(refTable)] ;
+    [self pushNSObject:object] ;
+    int newRef = [self luaRef:refTable] ;
+    holding[@(newRef)] = object ;
+    return YES ;
+}
+
+- (void)luaRelease:(int)refTable forNSObject:(id)object {
+    if (![self canPushNSObject:object]) return ;
+    if (!self.retainedObjectsRefTableMappings[@(refTable)]) return ;
+    NSMutableDictionary *holding = self.retainedObjectsRefTableMappings[@(refTable)] ;
+    NSArray             *refs    = [holding allKeysForObject:object] ;
+    if (refs.count > 0) {
+        NSNumber *refN = refs.firstObject ;
+        [self luaUnref:refTable ref:refN.intValue] ;
+        holding[refN] = nil ;
+    }
+}
+
+- (int)luaRef:(int)refTable forNSObject:(id)object {
+    if (![self canPushNSObject:object]) return LUA_NOREF ;
+    [self pushNSObject:object] ;
+    return [self luaRef:refTable] ;
+}
+
 #pragma mark - Conversion from NSObjects into Lua objects
 
 - (int)pushNSObject:(id)obj { return [self pushNSObject:obj withOptions:LS_NSNone] ; }
@@ -530,6 +575,15 @@ nextarg:
     lua_pushnumber(self.L, theSize.height) ; lua_setfield(self.L, -2, "h") ;
     lua_pushstring(self.L, "NSSize") ; lua_setfield(self.L, -2, "__luaSkinType") ;
     return 1;
+}
+
+- (BOOL)canPushNSObject:(id)obj {
+    if (obj) {
+        for (id key in self.registeredNSHelperFunctions) {
+            if ([obj isKindOfClass: NSClassFromString(key)]) return YES ;
+        }
+    }
+    return NO ;
 }
 
 #pragma mark - Conversion from lua objects into NSObjects
