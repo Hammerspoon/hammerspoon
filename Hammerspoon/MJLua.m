@@ -13,6 +13,10 @@
 #import "HSAppleScript.h"
 #import <Crashlytics/Crashlytics.h>
 
+@interface MJPreferencesWindowController ()
+- (void) reflectDefaults ;
+@end
+
 static LuaSkin* MJLuaState;
 static MJLuaLogger* MJLuaLogDelegate;
 static int evalfn;
@@ -392,32 +396,53 @@ static int canCheckForUpdates(lua_State *L) {
     return 1 ;
 }
 
-/// hs.allowAppleScript([state]) -> bool
+/// hs.preferencesDarkMode([state]) -> bool
 /// Function
-/// Set or display whether or not external Hammerspoon AppleScript commands are allowed
+/// Set or display whether or not the Preferences panel should display in dark mode.
 ///
 /// Parameters:
-///  * state - an optional boolean which will set whether or not external Hammerspoon's AppleScript commands are allowed
+///  * state - an optional boolean which will set whether or not the Preferences panel should display in dark mode.
 ///
 /// Returns:
-///  * A boolean, true if Hammerspoon's AppleScript commands are (or has just been) allowed otherwise false
+///  * A boolean, true if dark mode is enabled otherwise false.
+static int preferencesDarkMode(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
+    
+    if (lua_isboolean(L, -1)) {
+        PreferencesDarkModeSetEnabled(lua_toboolean(L, -1));
+        [[MJPreferencesWindowController singleton] reflectDefaults] ;
+    }
+    
+    lua_pushboolean(L, PreferencesDarkModeEnabled()) ;
+    return 1;
+}
+
+/// hs.allowAppleScript([state]) -> bool
+/// Function
+/// Set or display whether or not external Hammerspoon AppleScript commands are allowed.
+///
+/// Parameters:
+///  * state - an optional boolean which will set whether or not external Hammerspoon's AppleScript commands are allowed.
+///
+/// Returns:
+///  * A boolean, `true` if Hammerspoon's AppleScript commands are (or has just been) allowed, otherwise `false`.
 ///
 /// Notes:
-///  * AppleScript access is disallowed by default
-///  * Due to the way AppleScript support works, Hammerspoon will always allow AppleScript commands that are part of the "Standard Suite", such as `name, `quit`, `version`, etc. However, Hammerspoon will only allow commands from the "Hammerspoon Suite" if `hs.allowAppleScript()` is set to `true`
+///  * AppleScript access is disallowed by default.
+///  * However due to the way AppleScript support works, Hammerspoon will always allow AppleScript commands that are part of the "Standard Suite", such as `name`, `quit`, `version`, etc. However, Hammerspoon will only allow commands from the "Hammerspoon Suite" if `hs.allowAppleScript()` is set to `true`.
 ///  * For a full list of AppleScript Commands:
 ///      - Open `/Applications/Utilities/Script Editor.app`
 ///      - Click `File > Open Dictionary...`
 ///      - Select Hammerspoon from the list of Applications
 ///      - This will now open a Dictionary containing all of the availible Hammerspoon AppleScript commands.
 ///  * Note that strings within the Lua code you pass from AppleScript can be delimited by `[[` and `]]` rather than normal quotes
+///  * Example:
 ///
-/// Example:
-///
-///  ```lua
-///  tell application "Hammerspoon"
-///    execute lua code "hs.alert([[Hello from AppleScript]])"
-///  end tell```
+///    ```lua
+///    tell application "Hammerspoon"
+///      execute lua code "hs.alert([[Hello from AppleScript]])"
+///    end tell```
 static int core_appleScript(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
@@ -528,6 +553,7 @@ static int core_notify(lua_State* L) {
 }
 
 static luaL_Reg corelib[] = {
+    {"preferencesDarkMode", preferencesDarkMode},
     {"openConsoleOnDockClick", core_openConsoleOnDockClick},
     {"openConsole", core_openconsole},
     {"consoleOnTop", core_consoleontop},

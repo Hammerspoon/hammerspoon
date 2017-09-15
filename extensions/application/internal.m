@@ -1021,18 +1021,19 @@ id _getMenuStructure(AXUIElementRef menuItem) {
     }
 }
 
-/// hs.application:getMenuItems() -> table or nil
+/// hs.application:getMenuItems([fn]) -> table or nil | hs.application object
 /// Method
 /// Gets the menu structure of the application
 ///
 /// Parameters:
-///  * None
+///  * fn - an optional callback function.  If provided, the function will receive a single argument and return none.
 ///
 /// Returns:
-///  * A table containing the menu structure of the application, or nil if an error occurred
+///  * If no argument is provided, returns a table containing the menu structure of the application, or nil if an error occurred. If a callback function is provided, the callback function will receive this table (or nil) and this method will return the application object this method was invoked on.
 ///
 /// Notes:
-///  * In some applications, this can take a little while to complete, because quite a large number of round trips are required to the source application, to get the information. Take care!
+///  * In some applications, this can take a little while to complete, because quite a large number of round trips are required to the source application, to get the information. When this method is invoked without a callback function, Hammerspoon will block while creating the menu structure table.  When invoked with a callback function, the menu structure is built in a background thread.
+///
 ///  * The table is nested with the same structure as the menus of the application. Each item has several keys containing information about the menu item. Not all keys will appear for all items. The possible keys are:
 ///   * AXTitle - A string containing the text of the menu item (entries which have no title are menu separators)
 ///   * AXEnabled - A boolean, 1 if the menu item is clickable, 0 if not
@@ -1044,16 +1045,42 @@ id _getMenuStructure(AXUIElementRef menuItem) {
 ///  * Using `hs.inspect()` on these tables, while useful for exploration, can be extremely slow, taking several minutes to correctly render very complex menus
 static int application_getMenus(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, "hs.application", LS_TFUNCTION | LS_TOPTIONAL, LS_TBREAK] ;
     AXUIElementRef app = get_app(L, 1);
-    NSMutableDictionary *menus = nil;
-    AXUIElementRef menuBar;
+    if (lua_gettop(L) == 1) {
+        NSMutableDictionary *menus = nil;
+        AXUIElementRef menuBar;
 
-    if (AXUIElementCopyAttributeValue(app, kAXMenuBarAttribute, (CFTypeRef *)&menuBar) == kAXErrorSuccess) {
-        menus = _getMenuStructure(menuBar);
-        CFRelease(menuBar);
+        if (AXUIElementCopyAttributeValue(app, kAXMenuBarAttribute, (CFTypeRef *)&menuBar) == kAXErrorSuccess) {
+            menus = _getMenuStructure(menuBar);
+            CFRelease(menuBar);
+        }
+
+        [skin pushNSObject:menus];
+    } else {
+        lua_pushvalue(L, 2) ;
+        int fnRef = luaL_ref(L, LUA_REGISTRYINDEX) ;
+        dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+            NSMutableDictionary *menus = nil;
+            AXUIElementRef menuBar;
+
+            if (AXUIElementCopyAttributeValue(app, kAXMenuBarAttribute, (CFTypeRef *)&menuBar) == kAXErrorSuccess) {
+                menus = _getMenuStructure(menuBar);
+                CFRelease(menuBar);
+            }
+
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                lua_rawgeti(L, LUA_REGISTRYINDEX, fnRef) ;
+                [skin pushNSObject:menus] ;
+                if (![skin protectedCallAndTraceback:1 nresults:0]) {
+                    [skin logError:[NSString stringWithFormat:@"hs.application:getMenus callback error:%s", lua_tostring(L, -1)]] ;
+                    lua_pop(L, 1) ;
+                }
+                luaL_unref(L, LUA_REGISTRYINDEX, fnRef) ;
+            }) ;
+        }) ;
+        lua_pushvalue(L, 1) ;
     }
-
-    [skin pushNSObject:menus];
 
     return 1;
 }

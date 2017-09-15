@@ -2,6 +2,18 @@
 #import "MJLua.h"
 #import "variables.h"
 
+//
+// Enable & Disable Console Dark Mode:
+//
+BOOL ConsoleDarkModeEnabled(void) {
+    return [[NSUserDefaults standardUserDefaults] boolForKey:HSConsoleDarkModeKey];
+}
+
+void ConsoleDarkModeSetEnabled(BOOL enabled) {
+    [[NSUserDefaults standardUserDefaults] setBool:enabled
+                                            forKey:HSConsoleDarkModeKey];
+}
+
 @interface MJConsoleWindowController ()
 
 @property NSMutableArray* history;
@@ -67,10 +79,25 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
 }
 
 - (void) reflectDefaults {
+    
+    //
+    // Dark Mode:
+    //        
+    if (ConsoleDarkModeEnabled()) {
+        self.window.appearance = [NSAppearance appearanceNamed: NSAppearanceNameVibrantDark] ;
+        self.window.titlebarAppearsTransparent = YES ;
+        self.outputView.enclosingScrollView.drawsBackground = NO ;
+    } else {
+        self.window.appearance = [NSAppearance appearanceNamed: NSAppearanceNameVibrantLight] ;
+        self.window.titlebarAppearsTransparent = NO ;
+        self.outputView.enclosingScrollView.drawsBackground = YES ;
+    }
+
     [[self window] setLevel: MJConsoleWindowAlwaysOnTop() ? NSFloatingWindowLevel : NSNormalWindowLevel];
 }
 
 - (void) windowDidLoad {
+    
     // Save & Restore Last Window Location to Preferences:
     [self setShouldCascadeWindows:NO];
     [self setWindowFrameAutosaveName:@"console"];

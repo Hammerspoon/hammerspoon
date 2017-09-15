@@ -82,4 +82,25 @@ function urlevent.bind(eventName, callback)
     callbacks[eventName] = callback
 end
 
+--- hs.urlevent.openURL(url)
+--- Function
+--- Opens a URL with the default application
+---
+--- Parameters:
+---  * url - A string containing a URL, which must contain a scheme and '://'
+---
+--- Returns:
+---  * A boolean, true if the URL was opened successfully, otherwise false
+function urlevent.openURL(url)
+  local c = string.find(url, "://")
+  if not c then
+    log.ef("hs.urlevent.openURL() called for a URL that lacks '://'")
+    return false
+  end
+
+  local scheme = string.sub(url, 0, c - 1)
+  local handler = urlevent.getDefaultHandler(scheme)
+  return urlevent.openURLWithBundle(url, handler)
+end
+
 return urlevent

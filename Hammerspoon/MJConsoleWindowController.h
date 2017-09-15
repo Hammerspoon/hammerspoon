@@ -19,3 +19,9 @@ void MJConsoleWindowSetAlwaysOnTop(BOOL alwaysOnTop);
 #pragma mark - NSTextFieldDelegate
 - (BOOL)control:(NSControl *)control textView:(NSTextView *)textView doCommandBySelector:(SEL)command;
 @end
+
+//
+// Enable & Disable Console Dark Mode:
+//
+BOOL ConsoleDarkModeEnabled(void);
+void ConsoleDarkModeSetEnabled(BOOL enabled);

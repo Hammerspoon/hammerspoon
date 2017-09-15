@@ -8,6 +8,19 @@
 #import "variables.h"
 #import "secrets.h"
 
+//
+// Enable & Disable Preferences Dark Mode:
+//
+BOOL PreferencesDarkModeEnabled(void) {
+    return [[NSUserDefaults standardUserDefaults] boolForKey:HSPreferencesDarkModeKey];
+}
+
+void PreferencesDarkModeSetEnabled(BOOL enabled) {
+    [[NSUserDefaults standardUserDefaults] setBool:enabled
+                                            forKey:HSPreferencesDarkModeKey];
+}
+
+
 #define MJSkipDockMenuIconProblemAlertKey @"MJSkipDockMenuIconProblemAlertKey"
 
 @interface MJPreferencesWindowController ()
@@ -34,6 +47,25 @@
     return s;
 }
 
+- (void) setup {
+    [self reflectDefaults];
+}
+
+- (void) reflectDefaults {
+    
+    //
+    // Dark Mode:
+    //
+    if (PreferencesDarkModeEnabled()) {
+        self.window.appearance = [NSAppearance appearanceNamed: NSAppearanceNameVibrantDark] ;
+        self.window.titlebarAppearsTransparent = YES ;
+    } else {
+        self.window.appearance = [NSAppearance appearanceNamed: NSAppearanceNameVibrantLight] ;
+        self.window.titlebarAppearsTransparent = NO ;
+    }
+    
+}
+
 - (void)updateFeedbackDisplay:(NSNotification __unused *)notification {
     [self.openAtLoginCheckbox setState:MJAutoLaunchGet() ? NSOnState : NSOffState];
     [self.showDockIconCheckbox setState: MJDockIconVisible() ? NSOnState : NSOffState];
@@ -51,6 +83,7 @@
     if (![[self window] isVisible])
         [[self window] center];
     [super showWindow: sender];
+    [self reflectDefaults];
 }
 
 - (NSString*) windowNibName {

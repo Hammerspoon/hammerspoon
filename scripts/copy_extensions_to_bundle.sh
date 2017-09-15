@@ -13,6 +13,7 @@ export HS_MODULES="application \
     chooser \
     console \
     crash \
+    dialog \
     distributednotifications \
     dockicon \
     drawing \
@@ -45,6 +46,7 @@ export HS_MODULES="application \
     sound \
     speech \
     spotlight \
+    streamdeck \
     styledtext \
     task \
     timer \
