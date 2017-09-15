@@ -136,7 +136,7 @@ static const luaL_Reg mouseLib[] = {
     {"getAbsolutePosition", mouse_get},
     {"setAbsolutePosition", mouse_set},
     {"trackingSpeed", mouse_mouseAcceleration},
-    {"scrollingDirection", mouse_scrollDirection},
+    {"scrollDirection", mouse_scrollDirection},
     {NULL, NULL}
 };
 
