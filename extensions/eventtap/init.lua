@@ -99,6 +99,7 @@ module.event.rawFlagMasks = ls.makeConstantsTable(module.event.rawFlagMasks)
 
 local originalNewKeyEvent = module.event.newKeyEvent
 module.event.newKeyEvent = function(mods, key, isDown)
+    if type(mods) == "nil" then mods = {} end
     if (type(mods) == "number" or type(mods) == "string") and type(key) == "boolean" then
         mods, key, isDown = nil, mods, key
     end
