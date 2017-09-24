@@ -12,7 +12,11 @@ local fnutils = require("hs.fnutils")
 -- private variables and methods -----------------------------------------
 
 local check_list = {}
-for i,v in pairs(module) do check_list[#check_list + 1] = i end
+for i,v in pairs(module) do
+    if type(v) == "function" then
+        check_list[#check_list + 1] = i
+    end
+end
 
 local __tostring_for_tables = function(self)
     local result = ""
