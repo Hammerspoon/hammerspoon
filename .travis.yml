@@ -1,9 +1,9 @@
 language: objective-c
-osx_image: xcode8.2
+osx_image: xcode9
 before_install:
   - gem install xcpretty
   - gem install xcpretty-travis-profiler-formatter
-  - pip install -r requirements.txt
+  - pip install --user -r requirements.txt
 before_script:
   - make docs
 script:
