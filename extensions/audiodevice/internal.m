@@ -842,7 +842,7 @@ static int audiodevice_setInputVolume(lua_State *L) {
     return 1;
 }
 
-/// hs.audiodevice:setOutputtVolume(level) -> bool
+/// hs.audiodevice:setOutputVolume(level) -> bool
 /// Method
 /// Set the output volume of this audio device
 ///
