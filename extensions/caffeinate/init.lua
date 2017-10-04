@@ -128,7 +128,7 @@ end
 --- Returns:
 ---  * None
 function caffeinate.startScreensaver()
-    os.execute("open /System/Library/Frameworks/ScreenSaver.framework/Versions/A/Resources/ScreenSaverEngine.app")
+    os.execute("open -a ScreenSaverEngine")
 end
 
 --- hs.caffeinate.logOut()
