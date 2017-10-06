@@ -680,9 +680,12 @@ static int blockAlert(lua_State *L) {
 ///  * The value of the text input as a string
 ///
 /// Notes:
-///  * [buttonOne] defaults to "OK" if no value is supplied.
-///  * Example:
-///      `hs.dialog.textPrompt("Main message.", "Please enter something:", "Default Value", "Button One", "Button Two")`
+///  * `buttonOne` defaults to "OK" if no value is supplied.
+///  * `buttonOne` will also be triggered by pressing `ENTER`, whereas `buttonTwo` will be triggered by pressing `ESC`.
+///  * Examples:
+///      `hs.dialog.textPrompt("Main message.", "Please enter something:")`
+///      `hs.dialog.textPrompt("Main message.", "Please enter something:", "Default Value", "OK")`
+///      `hs.dialog.textPrompt("Main message.", "Please enter something:", "Default Value", "OK", "Cancel")`
 static int textPrompt(lua_State *L) {
     NSString* defaultButton = @"OK";
 
@@ -717,6 +720,12 @@ static int textPrompt(lua_State *L) {
 
     if (buttonTwo != nil && ![buttonTwo isEqualToString:@""]) {
         [alert addButtonWithTitle:buttonTwo];
+        [[alert.buttons objectAtIndex:1] setKeyEquivalent:@"\033"]; // Escape
+        [[alert.buttons objectAtIndex:0] setKeyEquivalent:@"\r"]; // Return
+    }
+    else
+    {
+        [[alert.buttons objectAtIndex:0] setKeyEquivalent:@"\r"]; // Return
     }
 
     NSTextField *input = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 200, 24)];
