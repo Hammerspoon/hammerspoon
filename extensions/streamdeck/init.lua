@@ -2,6 +2,8 @@
 ---
 --- Configure/control an Elgato Stream Deck
 ---
+--- Please note that in order for this module to work, the official Elgato Stream Deck app should not be running
+---
 --- This module would not have been possible without standing on the shoulders of others:
 ---  * https://github.com/OpenStreamDeck/StreamDeckSharp
 ---  * https://github.com/Lange/node-elgato-stream-deck

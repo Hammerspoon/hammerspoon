@@ -28,6 +28,9 @@ static int streamdeck_gc(lua_State *L __unused) {
 ///
 /// Returns:
 ///  * None
+///
+/// Notes:
+///  * This function must be called before any other parts of this module are used
 static int streamdeck_init(lua_State *L __unused) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TFUNCTION, LS_TBREAK];
