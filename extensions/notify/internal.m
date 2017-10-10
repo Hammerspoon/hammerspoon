@@ -226,7 +226,7 @@ static int notification_withdraw_allScheduled(lua_State* __unused L) {
     return 0;
 }
 
-/// hs.notify.delivered() -> table
+/// hs.notify.deliveredNotifications() -> table
 /// Function
 /// Returns a table containing notifications which have been delivered.
 ///
@@ -245,7 +245,7 @@ static int notification_withdraw_allScheduled(lua_State* __unused L) {
 /// ~~~lua
 /// myNotification = hs.notify.new():send()
 /// clearCheck = hs.timer.doEvery(10, function()
-///     if not hs.fnutils.contains(hs.notify.delivered(), myNotification) then
+///     if not hs.fnutils.contains(hs.notify.deliveredNotifications(), myNotification) then
 ///         if myNotification:activationType() == hs.notify.activationTypes.none then
 ///             print("You dismissed me!")
 ///         else
@@ -263,7 +263,7 @@ static int notification_deliveredNotifications(__unused lua_State *L) {
     return 1 ;
 }
 
-/// hs.notify.scheduled() -> table
+/// hs.notify.scheduledNotifications() -> table
 /// Function
 /// Returns a table containing notifications which are scheduled but have not yet been delivered.
 ///
@@ -274,7 +274,7 @@ static int notification_deliveredNotifications(__unused lua_State *L) {
 ///  * a table containing the notification userdata objects for all Hammerspoon notifications currently scheduled to be delivered.
 ///
 /// Notes:
-///  * Once a notification has been delivered, it is moved to [hs.notify.delivered](#delivered) or removed, depending upon the users action.
+///  * Once a notification has been delivered, it is moved to [hs.notify.deliveredNotifications](#deliveredNotifications) or removed, depending upon the users action.
 ///
 ///  * You can use this function along with [hs.notify:getFunctionTag](#getFunctionTag) to re=register necessary callback functions with [hs.notify.register](#register) when Hammerspoon is restarted.
 static int notification_scheduledNotifications(__unused lua_State *L) {
@@ -1227,12 +1227,12 @@ static const luaL_Reg userdata_metaLib[] = {
 
 // Functions for returned object when module loads
 static luaL_Reg moduleLib[] = {
-    {"_new",                  notification_new},
-    {"withdrawAll",           notification_withdraw_all},
-    {"withdrawAllScheduled",  notification_withdraw_allScheduled},
-    {"delivered",             notification_deliveredNotifications},
-    {"scheduled",             notification_scheduledNotifications},
-    {NULL,                    NULL}
+    {"_new",                   notification_new},
+    {"withdrawAll",            notification_withdraw_all},
+    {"withdrawAllScheduled",   notification_withdraw_allScheduled},
+    {"deliveredNotifications", notification_deliveredNotifications},
+    {"scheduledNotifications", notification_scheduledNotifications},
+    {NULL,                     NULL}
 };
 
 // Metatable for module, if needed
