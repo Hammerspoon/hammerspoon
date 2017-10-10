@@ -77,9 +77,9 @@ module.warnAboutMissingFunctionTag = true
 ---   * actionButtonTitle   - see [hs.notify:actionButtonTitle](#actionButtonTitle)
 ---   * hasActionButton     - see [hs.notify:hasActionButton](#hasActionButton)
 ---   * otherButtonTitle    - see [hs.notify:otherButtonTitle](#otherButtonTitle)
----   * additionalActions   - see [hs.notify:otherButtonTitle](#additionalActions)
----   * hasReplyButton      - see [hs.notify:otherButtonTitle](#hasReplyButton)
----   * responsePlaceholder - see [hs.notify:otherButtonTitle](#responsePlaceholder)
+---   * additionalActions   - see [hs.notify:additionalActions](#additionalActions)
+---   * hasReplyButton      - see [hs.notify:hasReplyButton](#hasReplyButton)
+---   * responsePlaceholder - see [hs.notify:responsePlaceholder](#responsePlaceholder)
 ---
 --- Returns:
 ---  * A notification object
