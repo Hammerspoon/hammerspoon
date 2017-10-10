@@ -1,10 +1,10 @@
-#import <Cocoa/Cocoa.h>
-// #import <Carbon/Carbon.h>
-#import <LuaSkin/LuaSkin.h>
-// #import "objectconversion.h"
+@import Cocoa ;
+@import LuaSkin ;
+
+// #define DEBUGGING
 
 #define USERDATA_TAG    "hs.notify"
-int refTable;
+static int refTable = LUA_NOREF ;
 
 // NOTE: Hammerspoon's internal notification delegate (from MJUserNotificationManager.h and MJUserNotificationUser.m)
 
@@ -33,7 +33,6 @@ int refTable;
 @end
 
 static id <NSUserNotificationCenterDelegate>    old_delegate ;
-// static ourNotificationManager*                  sharedManager;
 
 typedef struct _notification_t {
     BOOL    locked ;      // flag to indicate if changes should no longer be allowed (it's been sent)
@@ -41,9 +40,6 @@ typedef struct _notification_t {
     void*   note ;        // user notification object itself
     void*   gus ;         // globally unique identifier for use when verifying/recreating userdata
 } notification_t ;
-
-// #define USERDATA_TAG        "hs.module"
-int refTable ;
 
 @implementation ourNotificationManager
 
@@ -112,14 +108,6 @@ int refTable ;
     thisNote->note = (__bridge_retained void *) notification;
     return thisNote ;
 }
-
-// + (ourNotificationManager*) sharedManager {
-//         if (!sharedManager) {
-//             sharedManager = [[ourNotificationManager alloc] init];
-//             [[NSUserNotificationCenter defaultUserNotificationCenter] setDelegate:sharedManager];
-//         }
-//         return sharedManager;
-//     }
 
 // Notification delivered to Notification Center
 - (void)userNotificationCenter:(NSUserNotificationCenter __unused *)center
@@ -236,6 +224,64 @@ static int notification_withdraw_allScheduled(lua_State* __unused L) {
 ///  * None
     ([NSUserNotificationCenter defaultUserNotificationCenter]).scheduledNotifications = @[];
     return 0;
+}
+
+/// hs.notify.delivered() -> table
+/// Function
+/// Returns a table containing notifications which have been delivered.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * a table containing the notification userdata objects for all Hammerspoon notifications currently in the notification center
+///
+/// Notes:
+///  * Only notifications which have been presented but not cleared, either by the user clicking on the [hs.notify:otherButtonTitle](#otherButtonTitle) or through auto-withdrawal (see [hs.notify:autoWithdraw](#autoWithdraw) for more details), will be in the array returned.
+///
+///  * You can use this function along with [hs.notify:getFunctionTag](#getFunctionTag) to re=register necessary callback functions with [hs.notify.register](#register) when Hammerspoon is restarted.
+///
+///  * Since notifications which the user has closed (or cancelled) do not trigger a callback, you can check this table with a timer to see if the user has cleared a notification, e.g.
+/// ~~~lua
+/// myNotification = hs.notify.new():send()
+/// clearCheck = hs.timer.doEvery(10, function()
+///     if not hs.fnutils.contains(hs.notify.delivered(), myNotification) then
+///         if myNotification:activationType() == hs.notify.activationTypes.none then
+///             print("You dismissed me!")
+///         else
+///             print("A regular action occurred, so callback (if any) was invoked")
+///         end
+///         clearCheck:stop() -- either way, no need to keep polling
+///         clearCheck = nil
+///     end
+/// end)
+/// ~~~
+static int notification_deliveredNotifications(__unused lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TBREAK] ;
+    [skin pushNSObject:[[NSUserNotificationCenter defaultUserNotificationCenter] deliveredNotifications]] ;
+    return 1 ;
+}
+
+/// hs.notify.scheduled() -> table
+/// Function
+/// Returns a table containing notifications which are scheduled but have not yet been delivered.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * a table containing the notification userdata objects for all Hammerspoon notifications currently scheduled to be delivered.
+///
+/// Notes:
+///  * Once a notification has been delivered, it is moved to [hs.notify.delivered](#delivered) or removed, depending upon the users action.
+///
+///  * You can use this function along with [hs.notify:getFunctionTag](#getFunctionTag) to re=register necessary callback functions with [hs.notify.register](#register) when Hammerspoon is restarted.
+static int notification_scheduledNotifications(__unused lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TBREAK] ;
+    [skin pushNSObject:[[NSUserNotificationCenter defaultUserNotificationCenter] scheduledNotifications]] ;
+    return 1 ;
 }
 
 static int notification_new(lua_State* L) {
@@ -500,14 +546,18 @@ static int notification_actionButtonTitle(lua_State* L) {
 ///
 /// Notes:
 ///  * The affects of this method only apply if the user has set Hammerspoon notifications to `Alert` in the Notification Center pane of System Preferences
+///  * This value is ignored if [hs.notify:hasReplyButton](#hasReplyButton) is true.
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TNIL | LS_TOPTIONAL, LS_TBREAK] ;
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     if (lua_isnone(L, 2)) {
         lua_pushstring(L, [((__bridge NSUserNotification *) notification->note).actionButtonTitle UTF8String]);
     } else if (!notification->locked) {
-        if (lua_isnil(L,2)) {
+        NSString *title = lua_isnil(L, 2) ? nil : [skin toNSObjectAtIndex:2] ;
+        if (!title) {
             ((__bridge NSUserNotification *) notification->note).actionButtonTitle = @"";
         } else {
-            ((__bridge NSUserNotification *) notification->note).actionButtonTitle = [NSString stringWithUTF8String: luaL_checkstring(L, 2)];
+            ((__bridge NSUserNotification *) notification->note).actionButtonTitle = title ;
         }
         notification->delivered = NO ; // modifying a notification means that it is considered new by the User Notification Center
         lua_settop(L, 1) ;
@@ -531,14 +581,17 @@ static int notification_otherButtonTitle(lua_State* L) {
 /// Notes:
 ///  * The affects of this method only apply if the user has set Hammerspoon notifications to `Alert` in the Notification Center pane of System Preferences
 ///  * Due to OSX limitations, it is NOT possible to get a callback for this button.
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TNIL | LS_TOPTIONAL, LS_TBREAK] ;
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     if (lua_isnone(L, 2)) {
         lua_pushstring(L, [((__bridge NSUserNotification *) notification->note).otherButtonTitle UTF8String]);
     } else if (!notification->locked) {
-        if (lua_isnil(L,2)) {
+        NSString *title = lua_isnil(L, 2) ? nil : [skin toNSObjectAtIndex:2] ;
+        if (!title) {
             ((__bridge NSUserNotification *) notification->note).otherButtonTitle = @"";
         } else {
-            ((__bridge NSUserNotification *) notification->note).otherButtonTitle = [NSString stringWithUTF8String: luaL_checkstring(L, 2)];
+            ((__bridge NSUserNotification *) notification->note).otherButtonTitle = title;
         }
         notification->delivered = NO ; // modifying a notification means that it is considered new by the User Notification Center
         lua_settop(L, 1) ;
@@ -617,7 +670,7 @@ static int notification_release(lua_State* L) {
 ///
 /// Notes:
 ///  * This is no longer required during garbage collection as function tags can be re-established after a reload.
-///  * The proper way to release a notifications callback is to remove its tag from the `hs.notify.registry` with `hs.notify.unregister`.
+///  * The proper way to release a notifications callback is to remove its tag from the [hs.notify.registry](#registry) with [hs.notify.unregister](#unregister).
 ///  * This is included for backwards compatibility.
 
     [[LuaSkin shared] logInfo:@"hs.notify:release() is a no-op. If you want to remove a notification's callback, see hs.notify:getFunctionTag()."] ;
@@ -637,7 +690,7 @@ static int notification_getFunctionTag(lua_State* L) {
 ///  * The function tag for this notification as a string.
 ///
 /// Notes:
-///  * This tag should correspond to a function in `hs.notify.registry` and can be used to either add a replacement with `hs.notify.register(...)` or remove it with `hs.notify.unregister(...)`
+///  * This tag should correspond to a function in [hs.notify.registry](#registry) and can be used to either add a replacement with `hs.notify.register(...)` or remove it with `hs.notify.unregister(...)`
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
 
     NSString *fnTag = [((__bridge NSUserNotification *) notification->note).userInfo valueForKey:@"tag"] ;
@@ -747,7 +800,7 @@ static int notification_setIdImage(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TUSERDATA, "hs.image", LS_TBOOLEAN, LS_TBREAK];
     notification_t *notificationUserdata = luaL_checkudata(L, 1, USERDATA_TAG);
-    BOOL hasBorder = lua_toboolean(L, 3);
+    BOOL hasBorder = (BOOL)lua_toboolean(L, 3);
 
     NSUserNotification *notification = ((__bridge NSUserNotification *) notificationUserdata->note);
     if (!([notification respondsToSelector:@selector(set_identityImage:)] &&
@@ -771,6 +824,174 @@ static int notification_setIdImage(lua_State *L) {
     }
 
     return 1;
+}
+
+/// hs.notify:hasReplyButton([state]) -> notificationObject | boolean
+/// Method
+/// Get or set whether an alert notification has a "Reply" button for additional user input.
+///
+/// Parameters:
+///  * state - An optional boolean, default false, indicating whether the notification should include a reply button for additional user input.
+///
+/// Returns:
+///  * The notification object, if an argument is present; otherwise the current value
+///
+/// Note:
+///  * This method has no effect unless the user has set Hammerspoon notifications to `Alert` in the Notification Center pane of System Preferences.
+///  * [hs.notify:hasActionButton](#hasActionButton) must also be true or the "Reply" button will not be displayed.
+///  * If this is set to true, the action button will be "Reply" even if you have set another one with [hs.notify:actionButtonTitle](#actionButtonTitle).
+static int notification_hasReplyButton(lua_State *L) {
+    [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
+    notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
+    if (lua_isnone(L, 2)) {
+        lua_pushboolean(L, ((__bridge NSUserNotification *) notification->note).hasReplyButton);
+    } else if (!notification->locked) {
+        ((__bridge NSUserNotification *) notification->note).hasReplyButton = (BOOL) lua_toboolean(L, 2);
+        notification->delivered = NO ; // modifying a notification means that it is considered new by the User Notification Center
+        lua_settop(L, 1) ;
+    } else {
+        return luaL_error(L, "notification has been dispatched and can no longer be modified") ;
+    }
+    return 1;
+}
+
+/// hs.notify:responsePlaceholder([string]) -> notificationObject | string
+/// Method
+/// Set a placeholder string for alert type notifications with a reply button.
+///
+/// Parameters:
+///  * `string` - an optional string specifying placeholder text to display in the reply box before the user has types anything in an alert type notification with a reply button.
+///
+/// Returns:
+///  * The notification object, if an argument is present; otherwise the current value
+///
+/// Notes:
+///  * In macOS 10.13, this text appears so light that it is almost unreadable; so far no workaround has been found.
+///  * See also [hs.notify:hasReplyButton](#hasReplyButton)
+static int notification_responsePlaceholder(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TNIL | LS_TOPTIONAL, LS_TBREAK] ;
+    notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
+    if (lua_isnone(L, 2)) {
+        [skin pushNSObject:((__bridge NSUserNotification *) notification->note).responsePlaceholder] ;
+    } else if (!notification->locked) {
+        NSString *placeholder = lua_isnil(L, 2) ? nil : [skin toNSObjectAtIndex:2] ;
+        if (!placeholder) {
+            ((__bridge NSUserNotification *) notification->note).responsePlaceholder = @"";
+        } else {
+            ((__bridge NSUserNotification *) notification->note).responsePlaceholder = placeholder;
+        }
+        notification->delivered = NO ; // modifying a notification means that it is considered new by the User Notification Center
+        lua_settop(L, 1) ;
+    } else {
+        return luaL_error(L, "notification has been dispatched and can no longer be modified") ;
+    }
+    return 1;
+}
+
+/// hs.notify:response() -> string | nil
+/// Method
+/// Get the users input from an alert type notification with a reply button.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * If the notification has a reply button and the user clicks on it, returns a string containing the user input (may be an empty string); otherwise returns nil.
+///
+/// Notes:
+///  * [hs.notify:activationType](#activationType) will equal `hs.notify.activationTypes.replied` if the user clicked on the Reply button and then clicks on Send.
+///  * See also [hs.notify:hasReplyButton](#hasReplyButton)
+static int notification_response(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
+    notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
+    NSAttributedString *response = ((__bridge NSUserNotification *) notification->note).response ;
+    if (response) {
+        // since placeholder is a string, and there are no tools to edit within the reply, let's leave it as a string unless someone cares. Remember to local `hs.styledtext` in init.lua if this changes
+        [skin pushNSObject:response.string] ;
+    } else {
+        lua_pushnil(L) ;
+    }
+    return 1;
+}
+
+/// hs.notify:additionalActions([actionsTable]) -> notificationObject | table
+/// Method
+/// Get or set additional actions which will be displayed for an alert type notification when the user clicks and holds down the action button of the alert.
+///
+/// Parameters:
+///  * an optional table containing an array of strings specifying the additional options to list for the user to select from the notification.
+///
+/// Returns:
+///  * The notification object, if an argument is present; otherwise the current value
+///
+/// Notes:
+///  * The additional items will be listed in a pop-up menu when the user clicks and holds down the mouse button in the action button of the alert.
+///  * If the user selects one of the additional actions, [hs.notify:activationType](#activationType) will equal `hs.notify.activationTypes.additionalActionClicked`
+///  * See also [hs.notify:additionalActivationAction](#additionalActivationAction)
+static int notification_additionalActions(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE | LS_TOPTIONAL, LS_TBREAK] ;
+    notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
+    if (lua_gettop(L) == 1) {
+        NSArray *actions = ((__bridge NSUserNotification *) notification->note).additionalActions ;
+        lua_newtable(L) ;
+        if (actions) {
+            for (NSUserNotificationAction *action in actions) {
+                [skin pushNSObject:action.title] ;
+                lua_rawseti(L, -2, luaL_len(L, -2) + 1 ) ;
+            }
+        }
+    } else if (!notification->locked) {
+        NSArray *actions = [skin toNSObjectAtIndex:2] ;
+        NSMutableArray *newActions = [[NSMutableArray alloc] init] ;
+        __block NSString *errorMsg = nil ;
+        if ([actions isKindOfClass:[NSArray class]]) {
+            [actions enumerateObjectsUsingBlock:^(NSString *item, NSUInteger idx, BOOL *stop) {
+                if (![item isKindOfClass:[NSString class]]) {
+                    errorMsg = [NSString stringWithFormat:@"expected string at index %lu", idx + 1] ;
+                    *stop = YES ;
+                } else {
+                    [newActions addObject:[NSUserNotificationAction actionWithIdentifier:item title:item]] ;
+                }
+            }] ;
+        } else {
+            errorMsg = @"expected a table containing an array of strings" ;
+        }
+        if (errorMsg) return luaL_argerror(L, 2, errorMsg.UTF8String) ;
+        ((__bridge NSUserNotification *) notification->note).additionalActions = newActions ;
+        lua_pushvalue(L, 1) ;
+    } else {
+        return luaL_error(L, "notification has been dispatched and can no longer be modified") ;
+    }
+    return 1 ;
+}
+
+/// hs.notify:additionalActivationAction() -> string | nil
+/// Method
+/// Return the additional action that the user selected from an alert type notification that has additional actions available.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * If the notification has additional actions assigned with [hs.notify:additionalActions](#additionalActions) and the user selects one, returns a string containing the selected action; otherwise returns nil.
+///
+/// Notes:
+///  * If the user selects one of the additional actions, [hs.notify:activationType](#activationType) will equal `hs.notify.activationTypes.additionalActionClicked`
+///  * See also [hs.notify:additionalActions](#additionalActions)
+static int notification_additionalActivationAction(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
+    notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
+    NSUserNotificationAction *action = ((__bridge NSUserNotification *) notification->note).additionalActivationAction ;
+    if (action) {
+        [skin pushNSObject:action.title] ;
+    } else {
+        lua_pushnil(L) ;
+    }
+    return 1 ;
 }
 
 // Get status of a notification
@@ -863,16 +1084,14 @@ static int notification_activationTypesTable(lua_State *L) {
 /// hs.notify.activationTypes[]
 /// Constant
 /// Convenience array of the possible activation types for a notification, and their reverse for reference.
-/// * None - The user has not interacted with the notification.
-/// * ContentsClicked - User clicked on notification
-/// * ActionButtonClicked - User clicked on Action button
+/// * None                    - The user has not interacted with the notification.
+/// * ContentsClicked         - User clicked on notification
+/// * ActionButtonClicked     - User clicked on Action button
+/// * Replied                 - User used Reply button
+/// * AdditionalActionClicked - Additional Action selected
 ///
 /// Notes:
 ///  * Count starts at zero. (implemented in Objective-C)
-
-// Not implemented activationTypes:
-// /// * Replied - User used Reply button (10.9) (not implemented yet)
-// /// * AdditionalActionClicked - Additional Action selected (10.10) (not implemented yet)
     lua_newtable(L) ;
     lua_pushinteger(L, NSUserNotificationActivationTypeNone);
         lua_setfield(L, -2, "none") ;
@@ -880,10 +1099,10 @@ static int notification_activationTypesTable(lua_State *L) {
         lua_setfield(L, -2, "contentsClicked") ;
     lua_pushinteger(L, NSUserNotificationActivationTypeActionButtonClicked);
         lua_setfield(L, -2, "actionButtonClicked") ;
-//     lua_pushinteger(L, NSUserNotificationActivationTypeReplied);
-//         lua_setfield(L, -2, "replied") ;
-//     lua_pushinteger(L, NSUserNotificationActivationTypeAdditionalActionClicked);
-//         lua_setfield(L, -2, "additionalActionClicked") ;
+    lua_pushinteger(L, NSUserNotificationActivationTypeReplied);
+        lua_setfield(L, -2, "replied") ;
+    lua_pushinteger(L, NSUserNotificationActivationTypeAdditionalActionClicked);
+        lua_setfield(L, -2, "additionalActionClicked") ;
 
     return 1 ;
 }
@@ -899,15 +1118,40 @@ static int notification_delegate_setup(lua_State* __unused L) {
     }
     // Create our delegate
     [[NSUserNotificationCenter defaultUserNotificationCenter] setDelegate:[ourNotificationManager sharedManager]];
-//     [ourNotificationManager sharedManager];
     return 0;
 }
 
-// static int showMyDict(lua_State* L) {
-//     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
-//     lua_pushNSObject(L, [((__bridge NSUserNotification *) notification->note) userInfo]) ;
-//     return 1 ;
-// }
+#ifdef DEBUGGING
+static int showMyDict(lua_State* L) {
+    notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
+    [[LuaSkin shared] pushNSObject:((__bridge NSUserNotification *) notification->note).userInfo withOptions:LS_NSDescribeUnknownTypes] ;
+    return 1 ;
+}
+#endif
+
+static int pushNSUserNotification(__unused lua_State *L, id obj) {
+    NSUserNotification *value = obj;
+    LuaSkin *skin = [LuaSkin shared] ;
+
+    notification_t *notification = [[ourNotificationManager sharedManager] getOrCreateUserdata:value] ;
+    [skin pushLuaRef:refTable ref:[[((__bridge NSUserNotification *) notification->note).userInfo valueForKey:@"userdata"] intValue]];
+    return 1;
+}
+
+static int userdata_eq(lua_State *L) {
+// can't get here if at least one of us isn't a userdata type, and we only care if both types are ours,
+// so use luaL_testudata before the macro causes a lua error
+    if (luaL_testudata(L, 1, USERDATA_TAG) && luaL_testudata(L, 2, USERDATA_TAG)) {
+        notification_t* notification1 = luaL_checkudata(L, 1, USERDATA_TAG);
+        notification_t* notification2 = luaL_checkudata(L, 2, USERDATA_TAG);
+        NSString *gus1 = (__bridge NSString *)notification1->gus ;
+        NSString *gus2 = (__bridge NSString *)notification2->gus ;
+        lua_pushboolean(L, [gus1 isEqualToString:gus2]) ;
+    } else {
+        lua_pushboolean(L, NO) ;
+    }
+    return 1 ;
+}
 
 static int userdata_tostring(lua_State* L) {
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
@@ -938,42 +1182,45 @@ static int meta_gc(lua_State* __unused L) {
 
 // Metatable for userdata objects
 static const luaL_Reg userdata_metaLib[] = {
-    {"send",                notification_send},
-    {"schedule",            notification_scheduleNotification},
-    {"withdraw",            notification_withdraw},
-    {"title",               notification_title},
-    {"subTitle",            notification_subtitle},
-    {"informativeText",     notification_informativeText},
-    {"actionButtonTitle",   notification_actionButtonTitle},
-    {"otherButtonTitle",    notification_otherButtonTitle},
-    {"hasActionButton",     notification_hasActionButton},
-    {"soundName",           notification_soundName},
-    {"alwaysPresent",       notification_alwaysPresent},
-    {"autoWithdraw",        notification_autoWithdraw},
-    {"_contentImage",       notification_contentImage},
-    {"_setIdImage",         notification_setIdImage},
-    {"release",             notification_release},
-    {"getFunctionTag",      notification_getFunctionTag},
-    {"presented",           notification_presented},
-    {"delivered",           notification_delivered},
-    {"activationType",      notification_activationType},
-    {"actualDeliveryDate",  notification_actualDeliveryDate},
+    {"send",                        notification_send},
+    {"schedule",                    notification_scheduleNotification},
+    {"withdraw",                    notification_withdraw},
+    {"title",                       notification_title},
+    {"subTitle",                    notification_subtitle},
+    {"informativeText",             notification_informativeText},
+    {"actionButtonTitle",           notification_actionButtonTitle},
+    {"otherButtonTitle",            notification_otherButtonTitle},
+    {"hasActionButton",             notification_hasActionButton},
+    {"soundName",                   notification_soundName},
+    {"alwaysPresent",               notification_alwaysPresent},
+    {"autoWithdraw",                notification_autoWithdraw},
+    {"_contentImage",               notification_contentImage},
+    {"_setIdImage",                 notification_setIdImage},
+    {"release",                     notification_release},
+    {"getFunctionTag",              notification_getFunctionTag},
+    {"presented",                   notification_presented},
+    {"delivered",                   notification_delivered},
+    {"activationType",              notification_activationType},
+    {"actualDeliveryDate",          notification_actualDeliveryDate},
+
+    {"responsePlaceholder",         notification_responsePlaceholder},
+    {"hasReplyButton",              notification_hasReplyButton},
+    {"additionalActions",           notification_additionalActions},
+    {"response",                    notification_response},
+    {"additionalActivationAction",  notification_additionalActivationAction},
 
 // Maybe add in the future, if there is interest...
 //
 //     {"repeatInterval",              notification_deliveryRepeatInterval},
-//     {"responsePlaceholder",         NULL},                                  // 10.9
-//     {"hasReplyButton",              NULL},                                  // 10.9
-//     {"additionalActions",           NULL},                                  // 10.10
 
 //     {"remote",                      notification_remote},
-//     {"response",                    NULL},                                  // 10.9
-//     {"additionalActivationAction",  NULL},                                  // 10.10
 
-// debugging
-//     {"showMyDict", showMyDict},
+#ifdef DEBUGGING
+    {"showMyDict", showMyDict},
+#endif
 
     {"__tostring",          userdata_tostring},
+    {"__eq",                userdata_eq},
     {"__gc",                userdata_gc},
     {NULL,                  NULL}
 };
@@ -983,6 +1230,8 @@ static luaL_Reg moduleLib[] = {
     {"_new",                  notification_new},
     {"withdrawAll",           notification_withdraw_all},
     {"withdrawAllScheduled",  notification_withdraw_allScheduled},
+    {"delivered",             notification_deliveredNotifications},
+    {"scheduled",             notification_scheduledNotifications},
     {NULL,                    NULL}
 };
 
@@ -1010,6 +1259,8 @@ int luaopen_hs_notify_internal(lua_State* L) {
 /// The string representation of the default notification sound. Use `hs.notify:soundName()` or set the `soundName` attribute in `hs:notify.new()`, to this constant, if you want to use the default sound
     lua_pushstring(L, [NSUserNotificationDefaultSoundName UTF8String]) ;
     lua_setfield(L, -2, "defaultNotificationSound") ;
+
+    [skin registerPushNSHelper:pushNSUserNotification forClass:"NSUserNotification"];
 
     return 1;
 }
