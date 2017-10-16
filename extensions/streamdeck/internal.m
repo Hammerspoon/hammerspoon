@@ -306,11 +306,9 @@ static int streamdeck_object_gc(lua_State* L) {
     if (theDevice) {
         theDevice.selfRefCount-- ;
         if (theDevice.selfRefCount == 0) {
-            LuaSkin *skin = [LuaSkin shared] ;
             theDevice.buttonCallbackRef = [skin luaUnref:streamDeckRefTable ref:theDevice.buttonCallbackRef] ;
             theDevice = nil ;
         }
-        theDevice.buttonCallbackRef = [skin luaUnref:streamDeckRefTable ref:theDevice.buttonCallbackRef] ;
     }
 
     // Remove the Metatable so future use of the variable in Lua won't think its valid
