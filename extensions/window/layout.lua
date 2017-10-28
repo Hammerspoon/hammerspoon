@@ -20,6 +20,7 @@
 ---   - `tile`, `fit`: tiles the windows onto a specified rect, using `hs.window.tiling.tileWindows()`; for `fit`, the
 ---     `preserveRelativeArea` parameter will be set to true
 ---   - `hide`, `unhide`: hides or unhides the window's application (like when using cmd-h)
+---   - `noaction`: skip action on the window(s)
 --- * a **maxn** number, indicating how many windows from this rule's window pool will be affected (at most) by this command;
 ---   if omitted (or if explicitly the string `all`) all the remaining windows will be processed by this command; processed
 ---   windows are "consumed" and are excluded from the window pool for subsequent commands in this rule, and from subsequent rules
@@ -99,7 +100,7 @@ local function strip(s) return type(s)=='string' and s:gsub('%s+','') or s end
 local MOVE,TILE,FIT,HIDE,UNHIDE,MINIMIZE,MAXIMIZE,FULLSCREEN,RESTORE='move','tile','fit','hide','unhide','minimize','maximize','fullscreen','restore'
 local NOACTION='noaction'
 local CREATEDLAST,CREATEDFIRST,FOCUSEDLAST,CLOSEST='createdLast','created','focusedLast','closest'
-local ACTIONS={mov=MOVE,fra=MOVE,til=TILE,fit=FIT,hid=HIDE,unh=UNHIDE,sho=UNHIDE,max=MAXIMIZE,ful=FULLSCREEN,fs=FULLSCREEN,min=MINIMIZE,res=RESTORE}
+local ACTIONS={mov=MOVE,fra=MOVE,til=TILE,fit=FIT,hid=HIDE,unh=UNHIDE,sho=UNHIDE,max=MAXIMIZE,ful=FULLSCREEN,fs=FULLSCREEN,min=MINIMIZE,res=RESTORE,noa=NOACTION}
 local SELECTORS={cre=CREATEDLAST,new=CREATEDLAST,old=CREATEDFIRST,foc=FOCUSEDLAST,clo=CLOSEST,pos=CLOSEST}
 
 local function getaction(s,i)
@@ -171,7 +172,7 @@ local function validateCommand(command,ielem,icmd,irule,log)
     if not getselector(command.select,0) then error'selector'
     else logs=logs..' '..command.select end
   end
-  if action==MAXIMIZE or action==FULLSCREEN then
+  if action==MAXIMIZE or action==FULLSCREEN or action==NOACTION then
     if command.screen then
       if not validatescreen(command.screen,ielem) then error'screen'end
       logs=logs..' screen='..screenstr(command.screen)
