@@ -224,6 +224,7 @@ local function checkWindowAllowed(filter,win)
     if filter.allowScreens and not filter._allowedScreens[win.screen] then return false,'allowScreens' end
     if filter.rejectScreens and filter._rejectedScreens[win.screen] then return false,'rejectScreens' end
   end
+  if filter.hasTitlebar~=nil and win.hasTitlebar~=filter.hasTitlebar then return false,'hasTitlebar' end
   local approles = filter.allowRoles or windowfilter.allowedWindowRoles
   if approles~='*' and not approles[win.role] then return false,'allowRoles' end
   return true,''
@@ -442,6 +443,7 @@ end
 ---    * visible - if `true`, only allow visible windows (in any Space); if `false`, reject visible windows; if omitted, this rule is ignored
 ---    * currentSpace - if `true`, only allow windows in the current Mission Control Space (minimized and hidden windows are included, as they're considered to belong to all Spaces); if `false`, reject windows in the current Space (including all minimized and hidden windows); if omitted, this rule is ignored
 ---    * fullscreen - if `true`, only allow fullscreen windows; if `false`, reject fullscreen windows; if omitted, this rule is ignored
+---    * hasTitlebar - if `true`, only allow windows with titlebar; if `false`, reject window with titlebar; if omitted, this rule is ignored
 ---    * focused - if `true`, only allow a window while focused; if `false`, reject the focused window; if omitted, this rule is ignored
 ---    * activeApplication - only allow any of this app's windows while it is (if `true`) or it's not (if `false`) the active application; if omitted, this rule is ignored
 ---    * allowTitles
@@ -562,7 +564,7 @@ function WF:setAppFilter(appname,ft,batch)
           logs=sformat('%s%s={%s}, ',logs,k,first)
         else logs=sformat('%s%s=%s, ',logs,k,v) end
         filter.allowRoles=r
-      elseif k=='visible' or k=='fullscreen' or k=='focused' or k=='currentSpace' or k=='activeApplication' then
+      elseif k=='visible' or k=='fullscreen' or k=='focused' or k=='currentSpace' or k=='activeApplication' or 'hasTitlebar' then
         if type(v)~='boolean' then error(k..' must be a boolean',2) end
         filter[k]=v logs=sformat('%s%s=%s, ',logs,k,ft[k])
       elseif k=='allowRegions' or k=='rejectRegions' then
@@ -1009,7 +1011,7 @@ function Window.new(win,id,app,watcher)
   --  local w = setmetatable({id=function()return id end},{__index=function(_,k)return function(self,...)return win[k](win,...)end end})
   -- hackity hack removed, turns out it was just for :snapshot (see gh#413)
   local o = setmetatable({app=app,window=win,id=id,watcher=watcher,frame=win:frame(),screen=win:screen():id(),
-    isMinimized=win:isMinimized(),isVisible=win:isVisible(),isFullscreen=win:isFullScreen(),
+    isMinimized=win:isMinimized(),isVisible=win:isVisible(),isFullscreen=win:isFullScreen(),hasTitlebar=(nil~=win:zoomButtonRect()),
     role=win:subrole(),title=win:title()}
   ,{__index=Window})
   o.isHidden = not o.isVisible and not o.isMinimized
