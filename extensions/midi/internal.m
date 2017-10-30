@@ -18,10 +18,12 @@ static int refTable = LUA_NOREF;
 static int getDevices(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     NSArray *availableMIDIDevices = [[MIKMIDIDeviceManager sharedDeviceManager] availableDevices];
-    NSLog(@"%@", availableMIDIDevices);
-    
-    //FIXME: This just pushes a blank table, even though the above array contains data.
-    [skin pushNSObject:availableMIDIDevices];
+    NSMutableArray *deviceNames = [NSMutableArray array];
+    for (MIKMIDIDevice * device in availableMIDIDevices)
+    {
+        [deviceNames addObject:[device name]];
+    }
+    [skin pushNSObject:deviceNames];
     return 1 ;
 }
 
