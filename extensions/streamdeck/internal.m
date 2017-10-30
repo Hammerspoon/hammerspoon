@@ -28,6 +28,9 @@ static int streamdeck_gc(lua_State *L __unused) {
 ///
 /// Returns:
 ///  * None
+///
+/// Notes:
+///  * This function must be called before any other parts of this module are used
 static int streamdeck_init(lua_State *L __unused) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TFUNCTION, LS_TBREAK];
@@ -303,11 +306,9 @@ static int streamdeck_object_gc(lua_State* L) {
     if (theDevice) {
         theDevice.selfRefCount-- ;
         if (theDevice.selfRefCount == 0) {
-            LuaSkin *skin = [LuaSkin shared] ;
             theDevice.buttonCallbackRef = [skin luaUnref:streamDeckRefTable ref:theDevice.buttonCallbackRef] ;
             theDevice = nil ;
         }
-        theDevice.buttonCallbackRef = [skin luaUnref:streamDeckRefTable ref:theDevice.buttonCallbackRef] ;
     }
 
     // Remove the Metatable so future use of the variable in Lua won't think its valid

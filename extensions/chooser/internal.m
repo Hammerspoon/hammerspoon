@@ -325,10 +325,10 @@ static int chooserQueryCallback(lua_State *L) {
 /// Sets/clears a callback for right clicking on choices
 ///
 /// Parameters:
-///  * fn - An optional function taht will be called whenever the user right clicks on a choice. If this parameter is omitted, the existing callback will be removed.
+///  * fn - An optional function that will be called whenever the user right clicks on a choice. If this parameter is omitted, the existing callback will be removed.
 ///
 /// Returns:
-///  * The hs.chosoer object
+///  * The `hs.chooser` object
 ///
 /// Notes:
 ///   * The callback may accept one argument, the row the right click occurred in or 0 if there is currently no selectable row where the right click occurred. To determine the location of the mouse pointer at the right click, see `hs.mouse`.
