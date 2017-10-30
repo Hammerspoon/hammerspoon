@@ -1,0 +1,1 @@
+../../../MIKMIDI/Source/MIKMIDIMetaCopyrightEvent.h
