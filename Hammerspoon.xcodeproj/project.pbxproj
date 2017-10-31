@@ -893,7 +893,7 @@
 
 /* Begin PBXFileReference section */
 		22613FE41F297B9B00E05E11 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/dialog/internal.m; sourceTree = "<group>"; };
-		22613FE51F297B9B00E05E11 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/dialog/init.lua; sourceTree = "<group>"; };
+		22613FE51F297B9B00E05E11 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/dialog/init.lua; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.lua; };
 		22613FF11F297E0D00E05E11 /* libdialog.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libdialog.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		22E4D7F71FA7485A00C8CF5C /* internal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/midi/internal.m; sourceTree = SOURCE_ROOT; };
 		22E4D7F81FA7485A00C8CF5C /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/midi/init.lua; sourceTree = SOURCE_ROOT; };
@@ -1015,7 +1015,7 @@
 		4F6B3ED91B73E29300B2A4DE /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/menubar/internal.m; sourceTree = "<group>"; };
 		4F6B3EDC1B73E56600B2A4DE /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/messages/init.lua; sourceTree = "<group>"; };
 		4F6B3EE71B73E5AC00B2A4DE /* libmilight.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libmilight.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		4F6B3EEC1B73E65800B2A4DE /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/milight/init.lua; sourceTree = "<group>"; };
+		4F6B3EEC1B73E65800B2A4DE /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/milight/init.lua; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.lua; };
 		4F6B3EED1B73E65800B2A4DE /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/milight/internal.m; sourceTree = "<group>"; };
 		4F6B3EF01B73E78900B2A4DE /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/mjomatic/init.lua; sourceTree = "<group>"; };
 		4F6B3EFB1B73E7C200B2A4DE /* libmouse.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libmouse.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -7110,6 +7110,7 @@
 				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
 				SDKROOT = "$(inherited)";
 				STRIP_INSTALLED_PRODUCT = NO;
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/Headers/Public/**";
 			};
 			name = Debug;
 		};
@@ -7176,6 +7177,7 @@
 				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
 				SDKROOT = "$(inherited)";
 				STRIP_INSTALLED_PRODUCT = NO;
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/Headers/Public/**";
 			};
 			name = Release;
 		};
