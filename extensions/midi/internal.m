@@ -10,10 +10,6 @@ static int refTable = LUA_NOREF;
 
 #pragma mark - Support Functions and Classes
 
-//@class MIKMIDIDeviceManager;
-//@class MIKMIDIDevice;
-//@class MIKMIDISourceEndpoint;
-
 #pragma mark - Module Functions
 
 /// hs.midi.getDevices() -> table
@@ -158,7 +154,7 @@ static int midi_manufacturer(lua_State *L) {
     return 1;
 }
 
-/// hs.midi:entities() -> string
+/// hs.midi:entities() -> table
 /// Method
 /// Returns the entities of a `hs.midi` object
 ///
@@ -166,7 +162,7 @@ static int midi_manufacturer(lua_State *L) {
 ///  * None
 ///
 /// Returns:
-///  * The manufacturer name as a string.
+///  * The entities of a `hs.midi` object in a table.
 static int midi_entities(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
@@ -176,7 +172,7 @@ static int midi_entities(lua_State *L) {
     return 1;
 }
 
-/// hs.midi:isOnline()
+/// hs.midi:isOnline() -> boolean
 /// Method
 /// Returns the online status of a `hs.midi` object.
 ///
@@ -237,7 +233,6 @@ static int midi_callback(lua_State *L) {
     
     return 1;
 }
-
 
 #pragma mark - Module Constants
 
