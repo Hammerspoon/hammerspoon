@@ -3,8 +3,10 @@
 
 #import "MIKMIDI/MIKMIDI.h"
 
-static const char * const USERDATA_TAG = "hs.midi" ;
+static const char * const USERDATA_TAG = "hs.midi";
 static int refTable = LUA_NOREF;
+
+static int deviceCallbackFn;
 
 #pragma mark - Support Functions and Classes
 
@@ -39,9 +41,37 @@ static int getDevices(lua_State *L) {
     return 1 ;
 }
 
-/// hs.midi.new(deviceName) -> object
+/// hs.midi.deviceCallback(callbackFn) -> none
+/// Function
+/// A callback that's triggered when a MIDI device is added or removed from the system.
+///
+/// Parameters:
+///  * callbackFn - the callback function to trigger.
+///
+/// Returns:
+///  * None
+static int deviceCallback(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    
+    [skin checkArgs:LS_TFUNCTION, LS_TBREAK];
+    
+    deviceCallbackFn = [skin luaUnref:refTable ref:deviceCallbackFn];
+    
+    if (lua_type(skin.L, 1) == LUA_TFUNCTION) {
+        deviceCallbackFn = [skin luaRef:refTable atIndex:1];
+        
+        //NSArray *availableMIDIDevices = [[MIKMIDIDeviceManager sharedDeviceManager] availableDevices];
+        
+        // TO-DO: Work out how KVO's work and finish off this callback function.
+        
+    }
+    
+    return 0;
+}
+
+/// hs.midi.new(deviceName) -> `hs.midi` object
 /// Constructor
-/// Creates a new mididevice object.
+/// Creates a new `hs.midi` object.
 ///
 /// Parameters:
 ///  * deviceName - A string containing the device name of the MIDI device. A valid device name can be found by checking `hs.midi.getDevices()`.
@@ -435,6 +465,7 @@ static int userdata_gc(lua_State* L) {
 static luaL_Reg moduleLib[] = {
     {"new", midi_new},
     {"devices", getDevices},
+    {"deviceCallback", deviceCallback},
     {NULL, NULL},
 };
 
