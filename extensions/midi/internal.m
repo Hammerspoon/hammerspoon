@@ -104,27 +104,25 @@ static int midi_new(lua_State *L) {
 ///
 /// Notes:
 ///  * The callback function should expect 8 arguments and should not return anything:
-///    * `object` - the `hs.midi` object.
-///    * `deviceName` - the device name as a string.
-///    * `description` - description of the event as a string.
-///    * `timestamp` - timestamp value as a string
-///    * `command` - command value as a string
-///    * `channel` - channel value as a string
-///    * `note` - note value as a string
-///    * `velocity` - velocity value as a string
-///    * `value` - value as a string
+///    * `object` - The `hs.midi` object.
+///    * `deviceName` - The device name as a string.
+///    * `description` - Description of the event as a string. This is useful for debugging.
+///    * `timestamp` - The MIDITimestamp for the command.
+///    * `commandType` - Type of MIDI message. These values correspond directly to the MIDI command type values found in MIDI message data.
+///    * `channel` - The channel for the command, between 0 and 15.
+///    * `note/controllerNumber` - The note number for the command, between 0 and 127.
+///    * `value/velocity/controllerValue` - The velocity for the command, between 0 and 127.
 ///  * Example:
 ///      ```test = hs.midi.new("USB O2")
-///      test:callback(function(object, deviceName, description, timestamp, command, channel, note, velocity, value)
+///      test:callback(function(object, deviceName, description, timestamp, commandType, channel, note, value)
 ///                    print("object: " .. tostring(object))
 ///                    print("deviceName: " .. tostring(deviceName))
 ///                    print("description: " .. tostring(description))
 ///                    print("timestamp: " .. tostring(timestamp))
-///                    print("command: " .. tostring(command))
+///                    print("commandType: " .. tostring(commandType))
 ///                    print("channel: " .. tostring(channel))
-///                    print("note: " .. tostring(note))
-///                    print("velocity: " .. tostring(velocity))
-///                    print("value: " .. tostring(value))
+///                    print("note/controllerNumber: " .. tostring(note))
+///                    print("value/velocity/controllerValue: " .. tostring(value))
 ///                    end)```
 static int midi_callback(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
@@ -132,86 +130,190 @@ static int midi_callback(lua_State *L) {
     
     HSMIKMIDIDevice* midiDevice = (__bridge HSMIKMIDIDevice*)(*(void**)luaL_checkudata(L, 1, USERDATA_TAG));
     
+    //
     // In either case, we need to remove an existing callback, so...
+    //
     midiDevice.callbackRef = [skin luaUnref:refTable ref:midiDevice.callbackRef];
     if (lua_type(L, 2) == LUA_TFUNCTION) {
         lua_pushvalue(L, 2);
         midiDevice.callbackRef = [skin luaRef:refTable];
-    }
-    
-    // Setup MIDI Device:
-    MIKMIDIDevice *device = midiDevice.device;
-    NSArray *source = [device.entities valueForKeyPath:@"@unionOfArrays.sources"];
-    MIKMIDISourceEndpoint *endpoint = [source objectAtIndex:0];
-    
-    // Setup MIDI Device Manager:
-    MIKMIDIDeviceManager *manager = [MIKMIDIDeviceManager sharedDeviceManager];
-    NSError *error = nil;
-    
-    // Setup Event:
-    [manager connectInput:endpoint error:&error eventHandler:^(MIKMIDISourceEndpoint *source, NSArray<MIKMIDICommand *> *commands) {
-        for (MIKMIDIChannelVoiceCommand *command in commands) {
-            
-            LuaSkin *skin = [LuaSkin shared] ;
-            if (midiDevice.callbackRef != LUA_NOREF) {
-                lua_State *_L = [skin L];
-                [skin pushLuaRef:refTable ref:midiDevice.callbackRef];
-                
-                // Device Name:
-                NSString *deviceName = [device name];
-                
-                // Description:
-                NSString *description = [command description];
-                
-                // Time Stamp:
-                NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-                dateFormatter.dateFormat = @"HH:mm:ss.SSS";
-                NSString *timestamp =[dateFormatter stringFromDate:[command timestamp]];
-                
-                // Command:
-                // FIXME: This should return a string like "MIKMIDICommandTypeNoteOff" instead of a number value.
-                MIKMIDICommandType commandType = [command commandType];
-                NSString *command = [NSString stringWithFormat:@"%lu", (unsigned long)commandType];
-                
-                // Channel:
-                // FIXME: No idea how to get the channel data:
-                NSString *channel = @"Unsure";
-                
-                // Note:
-                // FIXME: No idea how to get the note data:
-                NSString *note = @"Unsure";
-                
-                // Velocity:
-                // FIXME: No idea how to get the velocity data:
-                //NSString *velocity = [NSString stringWithFormat:@"%lu", (unsigned long)self.velocity];
-                NSString *velocity = @"Unsure";
-                
-                 // Value:
-                 // FIXME: No idea how to get the value data:
-                 NSString *value = @"Unsure";
-                 
-                // Push Values:
-                lua_pushvalue(L, 1);
-                [skin pushNSObject:deviceName];
-                [skin pushNSObject:description];
-                [skin pushNSObject:timestamp];
-                [skin pushNSObject:command];
-                [skin pushNSObject:channel];
-                [skin pushNSObject:note];
-                [skin pushNSObject:velocity];
-                [skin pushNSObject:value];
-                
-                if (![skin protectedCallAndTraceback:9 nresults:0]) {
-                    const char *errorMsg = lua_tostring(_L, -1);
-                    [skin logError:[NSString stringWithFormat:@"%s: %s", USERDATA_TAG, errorMsg]];
-                    lua_pop(_L, 1) ; // remove error message from stack
+        
+        //
+        // Setup MIDI Device:
+        //
+        MIKMIDIDevice *device = midiDevice.device;
+        NSArray *source = [device.entities valueForKeyPath:@"@unionOfArrays.sources"];
+        MIKMIDISourceEndpoint *endpoint = [source objectAtIndex:0];
+        
+        //
+        // Setup MIDI Device Manager:
+        //
+        MIKMIDIDeviceManager *manager = [MIKMIDIDeviceManager sharedDeviceManager];
+        NSError *error = nil;
+        
+        //
+        // Setup Event:
+        //
+        [manager connectInput:endpoint error:&error eventHandler:^(MIKMIDISourceEndpoint *source, NSArray<MIKMIDICommand *> *commands) {
+            for (MIKMIDICommand *command in commands) {
+                LuaSkin *skin = [LuaSkin shared] ;
+                if (midiDevice.callbackRef != LUA_NOREF) {
+                    lua_State *_L = [skin L];
+                    [skin pushLuaRef:refTable ref:midiDevice.callbackRef];
+                    
+                    //
+                    // Default Values:
+                    //
+                    NSString *unknown = @"Unknown";
+                    NSString *deviceName = unknown;
+                    NSString *description = unknown;
+                    NSString *timestamp = unknown;
+                    NSString *commandTypeString = unknown;
+                    NSString *channel = unknown;
+                    NSString *note = unknown;
+                    NSString *velocity = unknown;
+                    
+                    //
+                    // Device Name:
+                    //
+                    deviceName = [device name];
+                    
+                    //
+                    // Description:
+                    //
+                    description = [command description];
+                    
+                    //
+                    // Time Stamp:
+                    //
+                    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+                    dateFormatter.dateFormat = @"HH:mm:ss.SSS";
+                    timestamp =[dateFormatter stringFromDate:[command timestamp]];
+                    
+                    //
+                    // Command Type:
+                    //
+                    MIKMIDICommandType commandType = [command commandType];
+                    switch (commandType)
+                    {
+                        case MIKMIDICommandTypeNoteOff:
+                            commandTypeString = @"NoteOff";
+                            break;
+                        case MIKMIDICommandTypeNoteOn:
+                            commandTypeString = @"NoteOn";
+                            break;
+                        case MIKMIDICommandTypePolyphonicKeyPressure:
+                            commandTypeString = @"PolyphonicKeyPressure";
+                            break;
+                        case MIKMIDICommandTypeControlChange:
+                            commandTypeString = @"ControlChange";
+                            break;
+                        case MIKMIDICommandTypeProgramChange:
+                            commandTypeString = @"ProgramChange";
+                            break;
+                        case MIKMIDICommandTypeChannelPressure:
+                            commandTypeString = @"ChannelPressure";
+                            break;
+                        case MIKMIDICommandTypePitchWheelChange:
+                            commandTypeString = @"PitchWheelChange";
+                            break;
+                        case MIKMIDICommandTypeSystemMessage:
+                            commandTypeString = @"SystemMessage";
+                            break;
+                        case MIKMIDICommandTypeSystemExclusive:
+                            commandTypeString = @"SystemExclusive";
+                            break;
+                        case MIKMIDICommandTypeSystemTimecodeQuarterFrame:
+                            commandTypeString = @"SystemTimecodeQuarterFrame";
+                            break;
+                        case MIKMIDICommandTypeSystemSongPositionPointer:
+                            commandTypeString = @"SystemSongPositionPointer";
+                            break;
+                        case MIKMIDICommandTypeSystemSongSelect:
+                            commandTypeString = @"SystemSongSelect";
+                            break;
+                        case MIKMIDICommandTypeSystemTuneRequest:
+                            commandTypeString = @"SystemTuneRequest";
+                            break;
+                        case MIKMIDICommandTypeSystemTimingClock:
+                            commandTypeString = @"SystemTimingClock";
+                            break;
+                        case MIKMIDICommandTypeSystemStartSequence:
+                            commandTypeString = @"SystemStartSequence";
+                            break;
+                        case MIKMIDICommandTypeSystemContinueSequence:
+                            commandTypeString = @"SystemContinueSequence";
+                            break;
+                        case MIKMIDICommandTypeSystemStopSequence:
+                            commandTypeString = @"SystemStopSequence";
+                            break;
+                        case MIKMIDICommandTypeSystemKeepAlive:
+                            commandTypeString = @"SystemKeepAlive";
+                            break;
+                    };
+                    
+                    //
+                    // Note On:
+                    //
+                    if (command.commandType == MIKMIDICommandTypeNoteOn) {
+                        MIKMIDINoteOnCommand *noteCommand = (MIKMIDINoteOnCommand *)command;
+                        channel = [NSString stringWithFormat:@"%lu", (unsigned long)noteCommand.channel];
+                        note = [NSString stringWithFormat:@"%lu", (unsigned long)noteCommand.note];
+                        velocity = [NSString stringWithFormat:@"%lu", (unsigned long)noteCommand.velocity];
+                    }
+                    
+                    //
+                    // Note Off:
+                    //
+                    if (command.commandType == MIKMIDICommandTypeNoteOff) {
+                        MIKMIDINoteOffCommand *noteCommand = (MIKMIDINoteOffCommand *)command;
+                        channel = [NSString stringWithFormat:@"%lu", (unsigned long)noteCommand.channel];
+                        note = [NSString stringWithFormat:@"%lu", (unsigned long)noteCommand.note];
+                        velocity = [NSString stringWithFormat:@"%lu", (unsigned long)noteCommand.velocity];
+                    }
+                    
+                    //
+                    // Control Change:
+                    //
+                    if (command.commandType == MIKMIDICommandTypeControlChange) {
+                        MIKMIDIControlChangeCommand *controlChange = (MIKMIDIControlChangeCommand *)command;
+                        channel = [NSString stringWithFormat:@"%lu", (unsigned long)controlChange.channel];
+                        note = [NSString stringWithFormat:@"%lu", (unsigned long)controlChange.controllerNumber];
+                        velocity = [NSString stringWithFormat:@"%lu", (unsigned long)controlChange.controllerValue];
+                    }
+
+                    //
+                    // Pitch Bend Change Command:
+                    //
+                    if (command.commandType == MIKMIDICommandTypePitchWheelChange) {
+                        MIKMIDIPitchBendChangeCommand *controlChange = (MIKMIDIPitchBendChangeCommand *)command;
+                        channel = [NSString stringWithFormat:@"%lu", (unsigned long)controlChange.channel];
+                        note = [NSString stringWithFormat:@"%lu", (unsigned long)controlChange.pitchChange];
+                        velocity = [NSString stringWithFormat:@"%lu", (unsigned long)controlChange.value];
+                    }
+                    
+                    //
+                    // Push Values:
+                    //
+                    lua_pushvalue(L, 1);
+                    [skin pushNSObject:deviceName];
+                    [skin pushNSObject:description];
+                    [skin pushNSObject:timestamp];
+                    [skin pushNSObject:commandTypeString];
+                    [skin pushNSObject:channel];
+                    [skin pushNSObject:note];
+                    [skin pushNSObject:velocity];
+                    
+                    if (![skin protectedCallAndTraceback:8 nresults:0]) {
+                        const char *errorMsg = lua_tostring(_L, -1);
+                        [skin logError:[NSString stringWithFormat:@"%s: %s", USERDATA_TAG, errorMsg]];
+                        lua_pop(_L, 1) ; // Remove error message from stack
+                    }
                 }
             }
-            
-            NSLog(@"%@", command);
-        }
-    }];
-    
+        }];
+    }
+   
     lua_pushvalue(L, 1);
     return 1;
 }
@@ -292,39 +394,6 @@ static int midi_manufacturer(lua_State *L) {
     return 1;
 }
 
-/// hs.midi:entities() -> table
-/// Method
-/// Returns the entities of a `hs.midi` object
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * The entities of a `hs.midi` object in a table.
-static int midi_entities(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
-    HSMIKMIDIDevice* midiDevice = (__bridge HSMIKMIDIDevice*)(*(void**)luaL_checkudata(L, 1, USERDATA_TAG));
-    MIKMIDIDevice *device = midiDevice.device;
-    NSArray *entities = [device entities];
-    
-    /*
-     FIXME: This currently just returns a blank table, whereas it should return:
-     
-     <MIKMIDIEntity: 0x60c000475480> USB O2:
-     Sources: {
-     <MIKMIDISourceEndpoint: 0x600000c5b690> USB O2,
-     }
-     Destinations: {
-     <MIKMIDIDestinationEndpoint: 0x604000447f50> USB O2,
-     }
-     */
-    
-    //NSLog(@"%@", entities);
-    [skin pushNSObject:entities];
-    return 1;
-}
-
 /// hs.midi:isOnline() -> boolean
 /// Method
 /// Returns the online status of a `hs.midi` object.
@@ -355,7 +424,6 @@ static int userdata_tostring(lua_State* L) {
 #pragma mark - Hammerspoon/Lua Infrastructure
 
 static int userdata_gc(lua_State* L) {
-    // FIXME: I'm not sure this actually works?
     HSMIKMIDIDevice* midiDevice = (__bridge_transfer HSMIKMIDIDevice*)(*(void**)luaL_checkudata(L, 1, USERDATA_TAG));
     midiDevice.callbackRef = [[LuaSkin shared] luaUnref:refTable ref:midiDevice.callbackRef];
     midiDevice.device = nil;
@@ -363,7 +431,7 @@ static int userdata_gc(lua_State* L) {
     return 0 ;
 }
 
-// Functions for returned object when module loads
+// Functions for returned object when module loads:
 static luaL_Reg moduleLib[] = {
     {"new", midi_new},
     {"devices", getDevices},
@@ -377,7 +445,6 @@ static const luaL_Reg userdata_metaLib[] = {
     {"callback", midi_callback},
     {"manufacturer", midi_manufacturer},
     {"model", midi_model},
-    {"entities", midi_entities},
     {"__tostring", userdata_tostring},
     {"__gc",       userdata_gc},
     {NULL,   NULL}
