@@ -134,26 +134,78 @@ static int midi_new(lua_State *L) {
 ///
 /// Notes:
 ///  * The callback function should expect 8 arguments and should not return anything:
-///    * `object` - The `hs.midi` object.
-///    * `deviceName` - The device name as a string.
-///    * `description` - Description of the event as a string. This is useful for debugging.
-///    * `timestamp` - The MIDITimestamp for the command.
-///    * `commandType` - Type of MIDI message. These values correspond directly to the MIDI command type values found in MIDI message data.
-///    * `channel` - The channel for the command, between 0 and 15.
-///    * `note/controllerNumber` - The note number for the command, between 0 and 127.
-///    * `value/velocity/controllerValue` - The velocity for the command, between 0 and 127.
-///  * Example:
-///      ```test = hs.midi.new("USB O2")
-///      test:callback(function(object, deviceName, description, timestamp, commandType, channel, note, value)
-///                    print("object: " .. tostring(object))
-///                    print("deviceName: " .. tostring(deviceName))
-///                    print("description: " .. tostring(description))
-///                    print("timestamp: " .. tostring(timestamp))
-///                    print("commandType: " .. tostring(commandType))
-///                    print("channel: " .. tostring(channel))
-///                    print("note/controllerNumber: " .. tostring(note))
-///                    print("value/velocity/controllerValue: " .. tostring(value))
-///                    end)```
+///    * `object`       - The `hs.midi` object.
+///    * `deviceName`   - The device name as a string.
+///    * `commandType`  - Type of MIDI message as defined as a string. See `hs.midi.commandTypes[]` for a list of possibilities.
+///    * `description`  - Description of the event as a string. This is only really useful for debugging.
+///    * `metadata`     - A table of data for the MIDI command (see below).
+///
+///  * The `metadata` table will return the following, depending on the `commandType` for the callback:
+///
+///    * `noteOff` - Note off command:
+///      * note                - The note number for the command. Must be between 0 and 127.
+///      * velocity            - The velocity for the command. Must be between 0 and 127.
+///      * channel             - The channel for the command. Must be between 0 and 15.
+///      * timestamp           - The timestamp for the command as a string.
+///
+///    * `noteOn` - Note on command:
+///      * note                - The note number for the command. Must be between 0 and 127.
+///      * velocity            - The velocity for the command. Must be between 0 and 127.
+///      * channel             - The channel for the command. Must be between 0 and 15.
+///      * timestamp           - The timestamp for the command as a string.
+///
+///    * `polyphonicKeyPressure` - Polyphonic key pressure command:
+///      * note                - The note number for the command. Must be between 0 and 127.
+///      * pressure            - Key pressure of the polyphonic key pressure message. In the range 0-127.
+///      * channel             - The channel for the command. Must be between 0 and 15.
+///      * timestamp           - The timestamp for the command as a string.
+///
+///    * `controlChange` - Control change command. This is the most common command sent by MIDI controllers:
+///      * controllerNumber    - The MIDI control number for the command.
+///      * controlValue        - The controlValue of the command. Only the lower 7-bits of this are used.
+///      * channel             - The channel for the command. Must be between 0 and 15.
+///      * timestamp           - The timestamp for the command as a string.
+///
+///    * `programChange` - Program change command:
+///      * programNumber       - The program (aka patch) number. From 0-127.
+///      * channel             - The channel for the command. Must be between 0 and 15.
+///      * timestamp           - The timestamp for the command as a string.
+///
+///    * `channelPressure` - Channel pressure command:
+///      * pressure            - Key pressure of the channel pressure message. In the range 0-127.
+///      * channel             - The channel for the command. Must be between 0 and 15.
+///      * timestamp           - The timestamp for the command as a string.
+///
+///    * `pitchWheelChange` - Pitch wheel change command:
+///      * pitchChange         -  A 14-bit value indicating the pitch bend. Center is 0x2000 (8192). Valid range is from 0-16383.
+///      * channel             - The channel for the command. Must be between 0 and 15.
+///      * timestamp           - The timestamp for the command as a string.
+///
+///    * `systemMessage` - System message command:
+///      * dataByte1           - Data
+///      * dataByte2           - Data
+///      * timestamp           - The timestamp for the command as a string.
+///
+///    * `systemExclusive` - System message command:
+///
+///    * `systemTimecodeQuarterFrame` - System exclusive (SysEx) command:
+///
+///    * `systemSongPositionPointer` - System song position pointer command:
+///
+///    * `systemSongSelect` - System song select command:
+///
+///    * `systemTuneRequest` - System tune request command:
+///
+///    * `systemTimingClock` - System timing clock command:
+///
+///    * `systemStartSequence` - System timing clock command:
+///
+///    * `systemContinueSequence` - System start sequence command:
+///
+///    * `systemStopSequence` -  System continue sequence command:
+///
+///    * `systemKeepAlive` - System keep alive message:
+///
 static int midi_callback(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION | LS_TNIL, LS_TBREAK];
@@ -192,149 +244,248 @@ static int midi_callback(lua_State *L) {
                     [skin pushLuaRef:refTable ref:midiDevice.callbackRef];
                     
                     //
-                    // Default Values:
-                    //
-                    NSString *unknown = @"Unknown";
-                    NSString *deviceName = unknown;
-                    NSString *description = unknown;
-                    NSString *timestamp = unknown;
-                    NSString *commandTypeString = unknown;
-                    NSString *channel = unknown;
-                    NSString *note = unknown;
-                    NSString *velocity = unknown;
-                    
-                    //
                     // Device Name:
                     //
+                    NSString *deviceName;
                     deviceName = [device name];
                     
                     //
                     // Description:
                     //
+                    NSString *description;
                     description = [command description];
-                    
-                    //
-                    // Time Stamp:
-                    //
-                    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-                    dateFormatter.dateFormat = @"HH:mm:ss.SSS";
-                    timestamp =[dateFormatter stringFromDate:[command timestamp]];
                     
                     //
                     // Command Type:
                     //
+                    NSString *commandTypeString;
                     MIKMIDICommandType commandType = [command commandType];
                     switch (commandType)
                     {
-                        case MIKMIDICommandTypeNoteOff:
+                        case MIKMIDICommandTypeNoteOff:{
                             commandTypeString = @"NoteOff";
                             break;
-                        case MIKMIDICommandTypeNoteOn:
+                        }
+                        case MIKMIDICommandTypeNoteOn:{
                             commandTypeString = @"NoteOn";
                             break;
-                        case MIKMIDICommandTypePolyphonicKeyPressure:
+                        }
+                        case MIKMIDICommandTypePolyphonicKeyPressure:{
                             commandTypeString = @"PolyphonicKeyPressure";
                             break;
-                        case MIKMIDICommandTypeControlChange:
+                        }
+                        case MIKMIDICommandTypeControlChange:{
                             commandTypeString = @"ControlChange";
                             break;
-                        case MIKMIDICommandTypeProgramChange:
+                        }
+                        case MIKMIDICommandTypeProgramChange:{
                             commandTypeString = @"ProgramChange";
                             break;
-                        case MIKMIDICommandTypeChannelPressure:
+                        }
+                        case MIKMIDICommandTypeChannelPressure:{
                             commandTypeString = @"ChannelPressure";
                             break;
-                        case MIKMIDICommandTypePitchWheelChange:
+                        }
+                        case MIKMIDICommandTypePitchWheelChange:{
                             commandTypeString = @"PitchWheelChange";
                             break;
-                        case MIKMIDICommandTypeSystemMessage:
+                        }
+                        case MIKMIDICommandTypeSystemMessage:{
                             commandTypeString = @"SystemMessage";
                             break;
-                        case MIKMIDICommandTypeSystemExclusive:
+                        }
+                        case MIKMIDICommandTypeSystemExclusive:{
                             commandTypeString = @"SystemExclusive";
                             break;
-                        case MIKMIDICommandTypeSystemTimecodeQuarterFrame:
+                        }
+                        case MIKMIDICommandTypeSystemTimecodeQuarterFrame:{
                             commandTypeString = @"SystemTimecodeQuarterFrame";
                             break;
-                        case MIKMIDICommandTypeSystemSongPositionPointer:
+                        }
+                        case MIKMIDICommandTypeSystemSongPositionPointer:{
                             commandTypeString = @"SystemSongPositionPointer";
                             break;
-                        case MIKMIDICommandTypeSystemSongSelect:
+                        }
+                        case MIKMIDICommandTypeSystemSongSelect:{
                             commandTypeString = @"SystemSongSelect";
                             break;
-                        case MIKMIDICommandTypeSystemTuneRequest:
+                        }
+                        case MIKMIDICommandTypeSystemTuneRequest:{
                             commandTypeString = @"SystemTuneRequest";
                             break;
-                        case MIKMIDICommandTypeSystemTimingClock:
+                        }
+                        case MIKMIDICommandTypeSystemTimingClock:{
                             commandTypeString = @"SystemTimingClock";
                             break;
-                        case MIKMIDICommandTypeSystemStartSequence:
+                        }
+                        case MIKMIDICommandTypeSystemStartSequence:{
                             commandTypeString = @"SystemStartSequence";
                             break;
-                        case MIKMIDICommandTypeSystemContinueSequence:
+                        }
+                        case MIKMIDICommandTypeSystemContinueSequence:{
                             commandTypeString = @"SystemContinueSequence";
                             break;
-                        case MIKMIDICommandTypeSystemStopSequence:
+                        }
+                        case MIKMIDICommandTypeSystemStopSequence:{
                             commandTypeString = @"SystemStopSequence";
                             break;
-                        case MIKMIDICommandTypeSystemKeepAlive:
+                        }
+                        case MIKMIDICommandTypeSystemKeepAlive:{
                             commandTypeString = @"SystemKeepAlive";
                             break;
+                        }
                     };
-                    
-                    //
-                    // Note On:
-                    //
-                    if (command.commandType == MIKMIDICommandTypeNoteOn) {
-                        MIKMIDINoteOnCommand *noteCommand = (MIKMIDINoteOnCommand *)command;
-                        channel = [NSString stringWithFormat:@"%lu", (unsigned long)noteCommand.channel];
-                        note = [NSString stringWithFormat:@"%lu", (unsigned long)noteCommand.note];
-                        velocity = [NSString stringWithFormat:@"%lu", (unsigned long)noteCommand.velocity];
-                    }
-                    
-                    //
-                    // Note Off:
-                    //
-                    if (command.commandType == MIKMIDICommandTypeNoteOff) {
-                        MIKMIDINoteOffCommand *noteCommand = (MIKMIDINoteOffCommand *)command;
-                        channel = [NSString stringWithFormat:@"%lu", (unsigned long)noteCommand.channel];
-                        note = [NSString stringWithFormat:@"%lu", (unsigned long)noteCommand.note];
-                        velocity = [NSString stringWithFormat:@"%lu", (unsigned long)noteCommand.velocity];
-                    }
-                    
-                    //
-                    // Control Change:
-                    //
-                    if (command.commandType == MIKMIDICommandTypeControlChange) {
-                        MIKMIDIControlChangeCommand *controlChange = (MIKMIDIControlChangeCommand *)command;
-                        channel = [NSString stringWithFormat:@"%lu", (unsigned long)controlChange.channel];
-                        note = [NSString stringWithFormat:@"%lu", (unsigned long)controlChange.controllerNumber];
-                        velocity = [NSString stringWithFormat:@"%lu", (unsigned long)controlChange.controllerValue];
-                    }
-
-                    //
-                    // Pitch Bend Change Command:
-                    //
-                    if (command.commandType == MIKMIDICommandTypePitchWheelChange) {
-                        MIKMIDIPitchBendChangeCommand *controlChange = (MIKMIDIPitchBendChangeCommand *)command;
-                        channel = [NSString stringWithFormat:@"%lu", (unsigned long)controlChange.channel];
-                        note = [NSString stringWithFormat:@"%lu", (unsigned long)controlChange.pitchChange];
-                        velocity = [NSString stringWithFormat:@"%lu", (unsigned long)controlChange.value];
-                    }
-                    
+                   
                     //
                     // Push Values:
                     //
-                    lua_pushvalue(L, 1);
-                    [skin pushNSObject:deviceName];
-                    [skin pushNSObject:description];
-                    [skin pushNSObject:timestamp];
-                    [skin pushNSObject:commandTypeString];
-                    [skin pushNSObject:channel];
-                    [skin pushNSObject:note];
-                    [skin pushNSObject:velocity];
+                    lua_pushvalue(L, 1);                        ///    * `object`       - The `hs.midi` object.
+                    [skin pushNSObject:deviceName];             ///    * `deviceName`   - The device name as a string.
+                    [skin pushNSObject:commandTypeString];      ///    * `commandType`  - Type of MIDI message as a string.
+                    [skin pushNSObject:description];            ///    * `description`  - Description of the event as a string. This is useful for debugging.
                     
-                    if (![skin protectedCallAndTraceback:8 nresults:0]) {
+                    //
+                    // Time Stamp:
+                    //
+                    NSString *timestamp;
+                    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+                    dateFormatter.dateFormat = @"HH:mm:ss.SSS";
+                    timestamp = [dateFormatter stringFromDate:[command timestamp]];
+                    
+                    //
+                    // Push Metadata:
+                    //
+                    switch (commandType)
+                    {
+                        case MIKMIDICommandTypeNoteOff: {
+                            ///      * note                - The note number for the command. Must be between 0 and 127.
+                            ///      * velocity            - The velocity for the command. Must be between 0 and 127.
+                            ///      * channel             - The channel for the command. Must be between 0 and 15.
+                            ///      * timestamp           - The timestamp for the command.
+                            MIKMIDINoteOffCommand *noteCommand = (MIKMIDINoteOffCommand *)command;
+                            lua_newtable(L) ;
+                            lua_pushnumber(L, noteCommand.note);             lua_setfield(L, -2, "note");
+                            lua_pushnumber(L, noteCommand.velocity);         lua_setfield(L, -2, "velocity");
+                            lua_pushnumber(L, noteCommand.channel);          lua_setfield(L, -2, "channel");
+                            lua_pushstring(L, [timestamp UTF8String]);       lua_setfield(L, -2, "timestamp");
+                            break;
+                        }
+                        case MIKMIDICommandTypeNoteOn: {
+                            ///      * note                - The note number for the command. Must be between 0 and 127.
+                            ///      * velocity            - The velocity for the command. Must be between 0 and 127.
+                            ///      * channel             - The channel for the command. Must be between 0 and 15.
+                            ///      * timestamp           - The timestamp for the command.
+                            MIKMIDINoteOnCommand *noteCommand = (MIKMIDINoteOnCommand *)command;
+                            lua_newtable(L) ;
+                            lua_pushnumber(L, noteCommand.note);             lua_setfield(L, -2, "note");
+                            lua_pushnumber(L, noteCommand.velocity);         lua_setfield(L, -2, "velocity");
+                            lua_pushnumber(L, noteCommand.channel);          lua_setfield(L, -2, "channel");
+                            lua_pushstring(L, [timestamp UTF8String]);       lua_setfield(L, -2, "timestamp");
+                            break;
+                        }
+                        case MIKMIDICommandTypePolyphonicKeyPressure: {
+                            ///      * note                - The note number for the command. Must be between 0 and 127.
+                            ///      * pressure            - Key pressure of the polyphonic key pressure message. In the range 0-127.
+                            ///      * channel             - The channel for the command. Must be between 0 and 15.
+                            ///      * timestamp           - The timestamp for the command.
+                            MIKMIDIPolyphonicKeyPressureCommand *noteCommand = (MIKMIDIPolyphonicKeyPressureCommand *)command;
+                            lua_newtable(L) ;
+                            lua_pushnumber(L, noteCommand.note);             lua_setfield(L, -2, "note");
+                            lua_pushnumber(L, noteCommand.pressure);         lua_setfield(L, -2, "pressure");
+                            lua_pushnumber(L, noteCommand.channel);          lua_setfield(L, -2, "channel");
+                            lua_pushstring(L, [timestamp UTF8String]);       lua_setfield(L, -2, "timestamp");
+                            break;
+                        }
+                        case MIKMIDICommandTypeControlChange: {
+                            ///      * controllerNumber    - The MIDI control number for the command.
+                            ///      * controlValue        - The controlValue of the command. Only the lower 7-bits of this are used.
+                            ///      * channel             - The channel for the command. Must be between 0 and 15.
+                            ///      * timestamp           - The timestamp for the command.
+                            MIKMIDIControlChangeCommand *result = (MIKMIDIControlChangeCommand *)command;
+                            lua_newtable(L) ;
+                            lua_pushnumber(L, result.controllerNumber);             lua_setfield(L, -2, "controllerNumber");
+                            lua_pushnumber(L, result.value);                        lua_setfield(L, -2, "controlValue");
+                            lua_pushnumber(L, result.channel);                      lua_setfield(L, -2, "channel");
+                            lua_pushstring(L, [timestamp UTF8String]);              lua_setfield(L, -2, "timestamp");
+                            break;
+                        }
+                        case MIKMIDICommandTypeProgramChange: {
+                            ///      * programNumber       - The program (aka patch) number. From 0-127.
+                            ///      * channel             - The channel for the command. Must be between 0 and 15.
+                            ///      * timestamp           - The timestamp for the command as a string.
+                            MIKMIDIProgramChangeCommand *result = (MIKMIDIProgramChangeCommand *)command;
+                            lua_newtable(L) ;
+                            lua_pushnumber(L, result.programNumber);                lua_setfield(L, -2, "programNumber");
+                            lua_pushnumber(L, result.channel);                      lua_setfield(L, -2, "channel");
+                            lua_pushstring(L, [timestamp UTF8String]);              lua_setfield(L, -2, "timestamp");
+                            break;
+                        }
+                        case MIKMIDICommandTypeChannelPressure: {
+                            ///      * pressure            - Key pressure of the channel pressure message. In the range 0-127.
+                            ///      * channel             - The channel for the command. Must be between 0 and 15.
+                            ///      * timestamp           - The timestamp for the command as a string.
+                            MIKMIDIChannelPressureCommand *result = (MIKMIDIChannelPressureCommand *)command;
+                            lua_newtable(L) ;
+                            lua_pushnumber(L, result.pressure);                     lua_setfield(L, -2, "pressure");
+                            lua_pushnumber(L, result.channel);                      lua_setfield(L, -2, "channel");
+                            lua_pushstring(L, [timestamp UTF8String]);              lua_setfield(L, -2, "timestamp");
+                            break;
+                        }
+                        case MIKMIDICommandTypePitchWheelChange: {
+                            ///      * pitchChange         -  A 14-bit value indicating the pitch bend. Center is 0x2000 (8192). Valid range is from 0-16383.
+                            ///      * channel             - The channel for the command. Must be between 0 and 15.
+                            ///      * timestamp           - The timestamp for the command as a string.
+                            MIKMIDIPitchBendChangeCommand *result = (MIKMIDIPitchBendChangeCommand *)command;
+                            lua_newtable(L) ;
+                            lua_pushnumber(L, result.pitchChange);                  lua_setfield(L, -2, "pitchChange");
+                            lua_pushnumber(L, result.channel);                      lua_setfield(L, -2, "channel");
+                            lua_pushstring(L, [timestamp UTF8String]);              lua_setfield(L, -2, "timestamp");
+                            break;
+                        }
+                        case MIKMIDICommandTypeSystemMessage: {
+                            ///      * dataByte1           - Data
+                            ///      * dataByte2           - Data
+                            ///      * timestamp           - The timestamp for the command as a string.
+                            MIKMIDISystemMessageCommand *result = (MIKMIDISystemMessageCommand *)command;
+                            lua_newtable(L) ;
+                            lua_pushnumber(L, result.dataByte1);                  lua_setfield(L, -2, "dataByte1");
+                            lua_pushnumber(L, result.dataByte2);                  lua_setfield(L, -2, "dataByte2");
+                            lua_pushstring(L, [timestamp UTF8String]);              lua_setfield(L, -2, "timestamp");
+                            break;
+                        }
+                        case MIKMIDICommandTypeSystemExclusive: {
+                            break;
+                        }
+                        case MIKMIDICommandTypeSystemTimecodeQuarterFrame: {
+                            break;
+                        }
+                        case MIKMIDICommandTypeSystemSongPositionPointer: {
+                            break;
+                        }
+                        case MIKMIDICommandTypeSystemSongSelect: {
+                            break;
+                        }
+                        case MIKMIDICommandTypeSystemTuneRequest: {
+                            break;
+                        }
+                        case MIKMIDICommandTypeSystemTimingClock: {
+                            break;
+                        }
+                        case MIKMIDICommandTypeSystemStartSequence: {
+                            break;
+                        }
+                        case MIKMIDICommandTypeSystemContinueSequence: {
+                            break;
+                        }
+                        case MIKMIDICommandTypeSystemStopSequence: {
+                            break;
+                        }
+                        case MIKMIDICommandTypeSystemKeepAlive: {
+                            break;
+                        }
+                    };
+                
+                    if (![skin protectedCallAndTraceback:5 nresults:0]) {
                         const char *errorMsg = lua_tostring(_L, -1);
                         [skin logError:[NSString stringWithFormat:@"%s: %s", USERDATA_TAG, errorMsg]];
                         lua_pop(_L, 1) ; // Remove error message from stack
@@ -444,6 +595,53 @@ static int midi_isOnline(lua_State *L) {
 
 #pragma mark - Module Constants
 
+/// hs.midi.commandTypes[]
+/// Constant
+///
+/// A table containing the numeric value for the possible flags returned by the `commandType` parameter of the callback function.
+////
+/// Defined keys are:
+///   * noteOff                       - Note off command.
+///   * noteOn                        - Note on command.
+///   * polyphonicKeyPressure         - Polyphonic key pressure command.
+///   * controlChange                 - Control change command. This is the most common command sent by MIDI controllers.
+///   * programChange                 - Program change command.
+///   * channelPressure               - Channel pressure command.
+///   * pitchWheelChange              - Pitch wheel change command.
+///   * systemMessage                 - System message command.
+///   * systemExclusive               - System message command.
+///   * SystemTimecodeQuarterFrame    - System exclusive (SysEx) command.
+///   * systemSongPositionPointer     - System song position pointer command.
+///   * systemSongSelect              - System song select command.
+///   * systemTuneRequest             - System tune request command.
+///   * systemTimingClock             - System timing clock command.
+///   * systemStartSequence           - System timing clock command.
+///   * systemContinueSequence        - System start sequence command.
+///   * systemStopSequence            - System continue sequence command.
+///   * systemKeepAlive               - System keep alive message.
+static int pushCommandTypes(lua_State *L) {
+    lua_newtable(L) ;
+    lua_pushinteger(L, MIKMIDICommandTypeNoteOff) ;                     lua_setfield(L, -2, "noteOff") ;
+    lua_pushinteger(L, MIKMIDICommandTypeNoteOn) ;                      lua_setfield(L, -2, "noteOn") ;
+    lua_pushinteger(L, MIKMIDICommandTypePolyphonicKeyPressure) ;       lua_setfield(L, -2, "polyphonicKeyPressure") ;
+    lua_pushinteger(L, MIKMIDICommandTypeControlChange) ;               lua_setfield(L, -2, "controlChange") ;
+    lua_pushinteger(L, MIKMIDICommandTypeProgramChange) ;               lua_setfield(L, -2, "programChange") ;
+    lua_pushinteger(L, MIKMIDICommandTypeChannelPressure) ;             lua_setfield(L, -2, "channelPressure") ;
+    lua_pushinteger(L, MIKMIDICommandTypePitchWheelChange) ;            lua_setfield(L, -2, "pitchWheelChange") ;
+    lua_pushinteger(L, MIKMIDICommandTypeSystemMessage) ;               lua_setfield(L, -2, "systemMessage") ;
+    lua_pushinteger(L, MIKMIDICommandTypeSystemExclusive) ;             lua_setfield(L, -2, "systemExclusive") ;
+    lua_pushinteger(L, MIKMIDICommandTypeSystemTimecodeQuarterFrame) ;  lua_setfield(L, -2, "systemTimecodeQuarterFrame") ;
+    lua_pushinteger(L, MIKMIDICommandTypeSystemSongPositionPointer) ;   lua_setfield(L, -2, "systemSongPositionPointer") ;
+    lua_pushinteger(L, MIKMIDICommandTypeSystemSongSelect) ;            lua_setfield(L, -2, "systemSongSelect") ;
+    lua_pushinteger(L, MIKMIDICommandTypeSystemTuneRequest) ;           lua_setfield(L, -2, "systemTuneRequest") ;
+    lua_pushinteger(L, MIKMIDICommandTypeSystemTimingClock) ;           lua_setfield(L, -2, "systemTimingClock") ;
+    lua_pushinteger(L, MIKMIDICommandTypeSystemStartSequence) ;         lua_setfield(L, -2, "systemStartSequence") ;
+    lua_pushinteger(L, MIKMIDICommandTypeSystemContinueSequence) ;      lua_setfield(L, -2, "systemContinueSequence") ;
+    lua_pushinteger(L, MIKMIDICommandTypeSystemStopSequence) ;          lua_setfield(L, -2, "systemStopSequence") ;
+    lua_pushinteger(L, MIKMIDICommandTypeSystemKeepAlive) ;             lua_setfield(L, -2, "systemKeepAlive") ;
+    return 1 ;
+}
+
 #pragma mark - Lua<->NSObject Conversion Functions
 
 static int userdata_tostring(lua_State* L) {
@@ -487,5 +685,7 @@ int luaopen_hs_midi_internal(lua_State* __unused L) {
                                       functions:moduleLib
                                   metaFunctions:nil
                                 objectFunctions:userdata_metaLib];
+    // Constants:
+    pushCommandTypes(L) ; lua_setfield(L, -2, "commandTypes") ;
     return 1;
 }
