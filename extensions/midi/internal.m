@@ -3,24 +3,116 @@
 
 #import "MIKMIDI/MIKMIDI.h"
 
+//
+// Establish a unique context for identifying our observers:
+//
 static const char * const USERDATA_TAG = "hs.midi";
+static void *midiKVOContext = &midiKVOContext ;                 // See: http://nshipster.com/key-value-observing/
 static int refTable = LUA_NOREF;
 
-static int deviceCallbackFn;
+#define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 
 #pragma mark - Support Functions and Classes
 
-@interface HSMIKMIDIDevice : NSObject
-@property int callbackRef;
-@property MIKMIDIDevice *device;
+//
+// Device Callback Function:
+//
+static int deviceCallbackFn;
+
+//
+// MIDI Device:
+//
+@interface HSMidiDevice : NSObject
+@property MIKMIDIDeviceManager      *midiDeviceManager ;
+@property MIKMIDIDevice             *midiDevice ;
+@property int                       callbackRef ;
+@property int                       selfRefCount ;
 @end
 
-@implementation HSMIKMIDIDevice
+@implementation HSMidiDevice
+
+- (instancetype)initWithDeviceName:(NSString *)deviceName {
+    self = [super init] ;
+    if (self) {
+        _midiDeviceManager = [MIKMIDIDeviceManager sharedDeviceManager];
+        NSArray *availableMIDIDevices = [_midiDeviceManager availableDevices];
+        for (MIKMIDIDevice * device in availableMIDIDevices)
+        {
+            NSString *currentDevice = [device name];
+            if ([deviceName isEqualToString:currentDevice]) {                
+                _midiDevice = device;
+            }
+        }
+        if (_midiDevice) {
+            _callbackRef             = LUA_NOREF ;
+            _selfRefCount            = 0 ;
+        }
+    }
+    return self ;
+}
+
+@end
+
+//
+// MIDI Device Watcher:
+//
+@interface HSMidiDeviceWatcher : NSObject
+@property MIKMIDIDeviceManager      *midiDeviceManager ;
+@end
+
+@implementation HSMidiDeviceWatcher
+
+- (void)dealloc
+{
+    NSLog(@"HSMidiDeviceWatcher dealloc triggered");
+    self.midiDeviceManager = nil; // Break KVO
+}
+
+- (instancetype)initWithCallbackFn:(int *)callbackFn {
+    self = [super init] ;
+    if (self) {
+        //
+        // Setup Device Manager:
+        //
+        _midiDeviceManager = [MIKMIDIDeviceManager sharedDeviceManager];
+        
+        //
+        // Add Observer:
+        //
+        NSLog(@"Adding Observer");
+        [_midiDeviceManager addObserver:self forKeyPath:@"availableDevices" options:NSKeyValueObservingOptionInitial context:midiKVOContext];
+    }
+    return self ;
+}
+
+#pragma mark - KVO
+
+- (void)observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary *)change
+                       context:(void *)context
+{
+    if (context == midiKVOContext) {
+        
+        NSLog(@"DEVICE STUFF HAPPENING:");
+        NSLog(@"keyPath: %@", keyPath);
+        NSLog(@"object: %@", object);
+        NSLog(@"change: %@", change);
+        NSLog(@"------------");
+        
+        //if ([keyPath isEqualToString:@"availableDevices"]) {
+        //}
+    }
+    else {
+        NSLog(@"Outside of context?");
+    }
+}
+
 @end
 
 #pragma mark - Module Functions
 
-/// hs.midi.getDevices() -> table
+/// hs.midi.devices() -> table
 /// Function
 /// Returns a table of currently connected MIDI devices.
 ///
@@ -28,8 +120,8 @@ static int deviceCallbackFn;
 ///  * None
 ///
 /// Returns:
-///  * A table containing the names of any connected MIDI devices.
-static int getDevices(lua_State *L) {
+///  * A table containing the names of any connected MIDI devices as strings.
+static int devices(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     NSArray *availableMIDIDevices = [[MIKMIDIDeviceManager sharedDeviceManager] availableDevices];
     NSMutableArray *deviceNames = [NSMutableArray array];
@@ -51,22 +143,25 @@ static int getDevices(lua_State *L) {
 /// Returns:
 ///  * None
 static int deviceCallback(lua_State *L) {
+
+    //
+    // Check Arguments:
+    //
     LuaSkin *skin = [LuaSkin shared] ;
-    
     [skin checkArgs:LS_TFUNCTION, LS_TBREAK];
     
+    //
+    // Setup or Remove Callback Function:
+    //
     deviceCallbackFn = [skin luaUnref:refTable ref:deviceCallbackFn];
-    
     if (lua_type(skin.L, 1) == LUA_TFUNCTION) {
         deviceCallbackFn = [skin luaRef:refTable atIndex:1];
-        
-        //NSArray *availableMIDIDevices = [[MIKMIDIDeviceManager sharedDeviceManager] availableDevices];
-        
-        // TO-DO: Work out how KVO's work and finish off this callback function.
-        
+        HSMidiDeviceWatcher *watcher = [[HSMidiDeviceWatcher alloc] initWithCallbackFn:&deviceCallbackFn];
+        NSLog(@"Watcher: %@", watcher);
     }
     
-    return 0;
+    lua_pushnil(L) ;
+    return 1;
 }
 
 /// hs.midi.new(deviceName) -> `hs.midi` object
@@ -79,45 +174,16 @@ static int deviceCallback(lua_State *L) {
 /// Returns:
 ///  * An `hs.midi` object
 static int midi_new(lua_State *L) {
-    
-    LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TSTRING, LS_TBREAK];
-    
-    const char *deviceName = luaL_checkstring(L, 1);
-    
-    NSNumber *foundMatch = @NO;
-    
-    NSArray *availableMIDIDevices = [[MIKMIDIDeviceManager sharedDeviceManager] availableDevices];
-    
-    MIKMIDIDevice *selectedDevice;
-    
-    for (MIKMIDIDevice * device in availableMIDIDevices)
-    {
-        NSString *newDevice = [NSString stringWithUTF8String:deviceName];
-        NSString *currentDevice = [device name];
-         if ([newDevice isEqualToString:currentDevice]) {
-             foundMatch = @YES;
-             selectedDevice = device;
-         }
-    }
-    
-    if ([foundMatch isEqual: @NO]) {
-        [LuaSkin logError:@"hs.midi.new() - Device does not exist."];
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
+    HSMidiDevice *wrapper = [[HSMidiDevice alloc] initWithDeviceName:[skin toNSObjectAtIndex:1]] ;
+    if (wrapper && wrapper.midiDevice) {
+        [skin pushNSObject:wrapper] ;
+    } else {
+        wrapper = nil ;
         lua_pushnil(L) ;
     }
-    else
-    {
-        HSMIKMIDIDevice* midiDevice = [[HSMIKMIDIDevice alloc] init];
-        
-        midiDevice.device = selectedDevice;
-        
-        void** ud = lua_newuserdata(L, sizeof(id*)) ;
-        *ud = (__bridge_retained void*)midiDevice ;
-        
-        luaL_getmetatable(L, USERDATA_TAG) ;
-        lua_setmetatable(L, -2) ;
-    }
-    return 1;
+    return 1 ;
 }
 
 #pragma mark - Module Methods
@@ -133,6 +199,16 @@ static int midi_new(lua_State *L) {
 ///  * The `hs.midi` object
 ///
 /// Notes:
+///  * Example Usage:
+///    ```midiDevice = hs.midi.new(hs.midi.devices()[3])
+///    midiDevice:callback(function(object, deviceName, commandType, description, metadata)
+///               print("object: " .. tostring(object))
+///               print("deviceName: " .. deviceName)
+///               print("commandType: " .. commandType)
+///               print("description: " .. description)
+///               print("metadata: " .. hs.inspect(metadata))
+///               end)```
+///
 ///  * The callback function should expect 8 arguments and should not return anything:
 ///    * `object`       - The `hs.midi` object.
 ///    * `deviceName`   - The device name as a string.
@@ -187,76 +263,118 @@ static int midi_new(lua_State *L) {
 ///      * timestamp           - The timestamp for the command as a string.
 ///
 ///    * `systemExclusive` - System message command:
+///      * manufacturerID      - The manufacturer ID for the command. This is used by devices to determine if the message is one they support.
+///      * sysexChannel        - The channel of the message. Only valid for universal exclusive messages, will always be 0 for non-universal messages.
+///      * sysexData           - The system exclusive data for the message. For universal messages subID's are included in sysexData, for non-universal messages, any device specific information (such as modelID, versionID or whatever manufactures decide to include) will be included in sysexData.
+///      * timestamp           - The timestamp for the command as a string.
 ///
 ///    * `systemTimecodeQuarterFrame` - System exclusive (SysEx) command:
+///      * dataByte1           - Data
+///      * dataByte2           - Data
+///      * timestamp           - The timestamp for the command as a string.
 ///
 ///    * `systemSongPositionPointer` - System song position pointer command:
+///      * dataByte1           - Data
+///      * dataByte2           - Data
+///      * timestamp           - The timestamp for the command as a string.
 ///
 ///    * `systemSongSelect` - System song select command:
+///      * dataByte1           - Data
+///      * dataByte2           - Data
+///      * timestamp           - The timestamp for the command as a string.
 ///
 ///    * `systemTuneRequest` - System tune request command:
+///      * dataByte1           - Data
+///      * dataByte2           - Data
+///      * timestamp           - The timestamp for the command as a string.
 ///
 ///    * `systemTimingClock` - System timing clock command:
+///      * dataByte1           - Data
+///      * dataByte2           - Data
+///      * timestamp           - The timestamp for the command as a string.
 ///
 ///    * `systemStartSequence` - System timing clock command:
+///      * dataByte1           - Data
+///      * dataByte2           - Data
+///      * timestamp           - The timestamp for the command as a string.
 ///
 ///    * `systemContinueSequence` - System start sequence command:
+///      * dataByte1           - Data
+///      * dataByte2           - Data
+///      * timestamp           - The timestamp for the command as a string.
 ///
 ///    * `systemStopSequence` -  System continue sequence command:
+///      * dataByte1           - Data
+///      * dataByte2           - Data
+///      * timestamp           - The timestamp for the command as a string.
 ///
 ///    * `systemKeepAlive` - System keep alive message:
+///      * dataByte1           - Data
+///      * dataByte2           - Data
+///      * timestamp           - The timestamp for the command as a string.
 ///
 static int midi_callback(lua_State *L) {
+    
+    //
+    // Check Arguments:
+    //
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION | LS_TNIL, LS_TBREAK];
     
-    HSMIKMIDIDevice* midiDevice = (__bridge HSMIKMIDIDevice*)(*(void**)luaL_checkudata(L, 1, USERDATA_TAG));
+    //
+    // Get Midi Device:
+    //
+    HSMidiDevice            *wrapper   = [skin toNSObjectAtIndex:1] ;
+    MIKMIDIDevice           *device    = wrapper.midiDevice;
+    MIKMIDIDeviceManager    *manager   = wrapper.midiDeviceManager;
     
     //
-    // In either case, we need to remove an existing callback, so...
+    // Remove the existing callback:
     //
-    midiDevice.callbackRef = [skin luaUnref:refTable ref:midiDevice.callbackRef];
+    wrapper.callbackRef = [skin luaUnref:refTable ref:wrapper.callbackRef];
+    
+    //
+    // Setup the new callback:
+    //
     if (lua_type(L, 2) == LUA_TFUNCTION) {
         lua_pushvalue(L, 2);
-        midiDevice.callbackRef = [skin luaRef:refTable];
+        wrapper.callbackRef = [skin luaRef:refTable];
         
         //
-        // Setup MIDI Device:
+        // Setup MIDI Device End Point:
         //
-        MIKMIDIDevice *device = midiDevice.device;
         NSArray *source = [device.entities valueForKeyPath:@"@unionOfArrays.sources"];
         MIKMIDISourceEndpoint *endpoint = [source objectAtIndex:0];
         
         //
-        // Setup MIDI Device Manager:
-        //
-        MIKMIDIDeviceManager *manager = [MIKMIDIDeviceManager sharedDeviceManager];
-        NSError *error = nil;
-        
-        //
         // Setup Event:
         //
+        NSError *error = nil;
         [manager connectInput:endpoint error:&error eventHandler:^(MIKMIDISourceEndpoint *source, NSArray<MIKMIDICommand *> *commands) {
             for (MIKMIDICommand *command in commands) {
                 LuaSkin *skin = [LuaSkin shared] ;
-                if (midiDevice.callbackRef != LUA_NOREF) {
-                    lua_State *_L = [skin L];
-                    [skin pushLuaRef:refTable ref:midiDevice.callbackRef];
+                if (wrapper.callbackRef != LUA_NOREF) {
                     
                     //
-                    // Device Name:
+                    // Update Callback Function:
+                    //
+                    lua_State *_L = [skin L];
+                    [skin pushLuaRef:refTable ref:wrapper.callbackRef];
+                    
+                    //
+                    // Get Device Name:
                     //
                     NSString *deviceName;
                     deviceName = [device name];
                     
                     //
-                    // Description:
+                    // Get Description:
                     //
                     NSString *description;
                     description = [command description];
                     
                     //
-                    // Command Type:
+                    // Get Command Type:
                     //
                     NSString *commandTypeString;
                     MIKMIDICommandType commandType = [command commandType];
@@ -345,7 +463,7 @@ static int midi_callback(lua_State *L) {
                     [skin pushNSObject:description];            ///    * `description`  - Description of the event as a string. This is useful for debugging.
                     
                     //
-                    // Time Stamp:
+                    // Get Time Stamp:
                     //
                     NSString *timestamp;
                     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
@@ -448,39 +566,42 @@ static int midi_callback(lua_State *L) {
                             ///      * timestamp           - The timestamp for the command as a string.
                             MIKMIDISystemMessageCommand *result = (MIKMIDISystemMessageCommand *)command;
                             lua_newtable(L) ;
-                            lua_pushnumber(L, result.dataByte1);                  lua_setfield(L, -2, "dataByte1");
-                            lua_pushnumber(L, result.dataByte2);                  lua_setfield(L, -2, "dataByte2");
+                            lua_pushinteger(L, result.dataByte1);                  lua_setfield(L, -2, "dataByte1");
+                            lua_pushinteger(L, result.dataByte2);                  lua_setfield(L, -2, "dataByte2");
                             lua_pushstring(L, [timestamp UTF8String]);              lua_setfield(L, -2, "timestamp");
                             break;
                         }
                         case MIKMIDICommandTypeSystemExclusive: {
+                            ///      * manufacturerID      - The manufacturer ID for the command. This is used by devices to determine if the message is one they support.
+                            ///      * sysexChannel        - The channel of the message. Only valid for universal exclusive messages, will always be 0 for non-universal messages.
+                            ///      * sysexData           - The system exclusive data for the message. For universal messages subID's are included in sysexData, for non-universal messages, any device specific information (such as modelID, versionID or whatever manufactures decide to include) will be included in sysexData.
+                            ///      * timestamp           - The timestamp for the command as a string.
+                            MIKMIDISystemExclusiveCommand *result = (MIKMIDISystemExclusiveCommand *)command;
+                            lua_newtable(L) ;
+                            lua_pushinteger(L, result.manufacturerID);             lua_setfield(L, -2, "manufacturerID");
+                            lua_pushinteger(L, result.sysexChannel);               lua_setfield(L, -2, "sysexChannel");
+                            NSString *sysexData = [[NSString alloc] initWithData:result.sysexData encoding:NSUTF8StringEncoding];
+                            lua_pushstring(L, [sysexData UTF8String]);             lua_setfield(L, -2, "sysexData");
+                            lua_pushstring(L, [timestamp UTF8String]);             lua_setfield(L, -2, "timestamp");
                             break;
                         }
-                        case MIKMIDICommandTypeSystemTimecodeQuarterFrame: {
-                            break;
-                        }
-                        case MIKMIDICommandTypeSystemSongPositionPointer: {
-                            break;
-                        }
-                        case MIKMIDICommandTypeSystemSongSelect: {
-                            break;
-                        }
-                        case MIKMIDICommandTypeSystemTuneRequest: {
-                            break;
-                        }
-                        case MIKMIDICommandTypeSystemTimingClock: {
-                            break;
-                        }
-                        case MIKMIDICommandTypeSystemStartSequence: {
-                            break;
-                        }
-                        case MIKMIDICommandTypeSystemContinueSequence: {
-                            break;
-                        }
-                        case MIKMIDICommandTypeSystemStopSequence: {
-                            break;
-                        }
+                        case MIKMIDICommandTypeSystemTimecodeQuarterFrame:
+                        case MIKMIDICommandTypeSystemSongPositionPointer:
+                        case MIKMIDICommandTypeSystemSongSelect:
+                        case MIKMIDICommandTypeSystemTuneRequest:
+                        case MIKMIDICommandTypeSystemTimingClock:
+                        case MIKMIDICommandTypeSystemStartSequence:
+                        case MIKMIDICommandTypeSystemContinueSequence:
+                        case MIKMIDICommandTypeSystemStopSequence:
                         case MIKMIDICommandTypeSystemKeepAlive: {
+                            ///      * dataByte1           - Data
+                            ///      * dataByte2           - Data
+                            ///      * timestamp           - The timestamp for the command as a string.
+                            MIKMIDICommand *result = (MIKMIDICommand *)command;
+                            lua_newtable(L) ;
+                            lua_pushinteger(L, result.dataByte1);                  lua_setfield(L, -2, "dataByte1");
+                            lua_pushinteger(L, result.dataByte2);                  lua_setfield(L, -2, "dataByte2");
+                            lua_pushstring(L, [timestamp UTF8String]);              lua_setfield(L, -2, "timestamp");
                             break;
                         }
                     };
@@ -501,7 +622,7 @@ static int midi_callback(lua_State *L) {
 
 /// hs.midi:name() -> string
 /// Method
-/// Returns the name of a `hs.midi` object
+/// Returns the name of a `hs.midi` object.
 ///
 /// Parameters:
 ///  * None
@@ -511,16 +632,15 @@ static int midi_callback(lua_State *L) {
 static int midi_name(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
-    HSMIKMIDIDevice* midiDevice = (__bridge HSMIKMIDIDevice*)(*(void**)luaL_checkudata(L, 1, USERDATA_TAG));
-    MIKMIDIDevice *device = midiDevice.device;
-    NSString *deviceName = [device name];
+    HSMidiDevice *wrapper = [skin toNSObjectAtIndex:1] ;
+    NSString *deviceName = [wrapper.midiDevice name];
     [skin pushNSObject:deviceName];
     return 1;
 }
 
 /// hs.midi:displayName() -> string
 /// Method
-/// Returns the display name of a `hs.midi` object
+/// Returns the display name of a `hs.midi` object.
 ///
 /// Parameters:
 ///  * None
@@ -530,16 +650,15 @@ static int midi_name(lua_State *L) {
 static int midi_displayName(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
-    HSMIKMIDIDevice* midiDevice = (__bridge HSMIKMIDIDevice*)(*(void**)luaL_checkudata(L, 1, USERDATA_TAG));
-    MIKMIDIDevice *device = midiDevice.device;
-    NSString *displayName = [device displayName];
+    HSMidiDevice *wrapper = [skin toNSObjectAtIndex:1] ;
+    NSString *displayName = [wrapper.midiDevice displayName];
     [skin pushNSObject:displayName];
     return 1;
 }
 
 /// hs.midi:model() -> string
 /// Method
-/// Returns the model name of a `hs.midi` object
+/// Returns the model name of a `hs.midi` object.
 ///
 /// Parameters:
 ///  * None
@@ -549,16 +668,15 @@ static int midi_displayName(lua_State *L) {
 static int midi_model(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
-    HSMIKMIDIDevice* midiDevice = (__bridge HSMIKMIDIDevice*)(*(void**)luaL_checkudata(L, 1, USERDATA_TAG));
-    MIKMIDIDevice *device = midiDevice.device;
-    NSString *model = [device model];
+    HSMidiDevice *wrapper = [skin toNSObjectAtIndex:1] ;
+    NSString *model = [wrapper.midiDevice model];
     [skin pushNSObject:model];
     return 1;
 }
 
 /// hs.midi:manufacturer() -> string
 /// Method
-/// Returns the manufacturer name of a `hs.midi` object
+/// Returns the manufacturer name of a `hs.midi` object.
 ///
 /// Parameters:
 ///  * None
@@ -568,9 +686,8 @@ static int midi_model(lua_State *L) {
 static int midi_manufacturer(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
-    HSMIKMIDIDevice* midiDevice = (__bridge HSMIKMIDIDevice*)(*(void**)luaL_checkudata(L, 1, USERDATA_TAG));
-    MIKMIDIDevice *device = midiDevice.device;
-    NSString *manufacturer = [device manufacturer];
+    HSMidiDevice *wrapper = [skin toNSObjectAtIndex:1] ;
+    NSString *manufacturer = [wrapper.midiDevice manufacturer];
     [skin pushNSObject:manufacturer];
     return 1;
 }
@@ -587,9 +704,8 @@ static int midi_manufacturer(lua_State *L) {
 static int midi_isOnline(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
-    HSMIKMIDIDevice* midiDevice = (__bridge HSMIKMIDIDevice*)(*(void**)luaL_checkudata(L, 1, USERDATA_TAG));
-    MIKMIDIDevice *device = midiDevice.device;
-    lua_pushboolean(L, [device isOnline]);
+    HSMidiDevice *wrapper = [skin toNSObjectAtIndex:1] ;
+    lua_pushboolean(L, [wrapper.midiDevice isOnline]);
     return 1;
 }
 
@@ -644,29 +760,89 @@ static int pushCommandTypes(lua_State *L) {
 
 #pragma mark - Lua<->NSObject Conversion Functions
 
-static int userdata_tostring(lua_State* L) {
-    lua_pushstring(L, [[NSString stringWithFormat:@"%s: (%p)", USERDATA_TAG, lua_topointer(L, 1)] UTF8String]) ;
-    return 1 ;
+//
+// NOTE: These must not throw a Lua error to ensure LuaSkin can safely be used from Objective-C delegates and blocks:
+//
+
+//
+// Setup MIDI Device:
+//
+static int pushHSMidiDevice(lua_State *L, id obj) {
+     HSMidiDevice *value = obj;
+     value.selfRefCount++ ;
+     void** valuePtr = lua_newuserdata(L, sizeof(HSMidiDevice *));
+     *valuePtr = (__bridge_retained void *)value;
+     luaL_getmetatable(L, USERDATA_TAG);
+     lua_setmetatable(L, -2);
+     return 1;
+}
+
+id toHSMidiDeviceFromLua(lua_State *L, int idx) {
+     LuaSkin *skin = [LuaSkin shared] ;
+     HSMidiDevice *value ;
+     if (luaL_testudata(L, idx, USERDATA_TAG)) {
+         value = get_objectFromUserdata(__bridge HSMidiDevice, L, idx, USERDATA_TAG) ;
+     } else {
+         [skin logError:[NSString stringWithFormat:@"expected %s object, found %s", USERDATA_TAG,
+                                                    lua_typename(L, lua_type(L, idx))]] ;
+     }
+     return value ;
 }
 
 #pragma mark - Hammerspoon/Lua Infrastructure
 
+static int userdata_tostring(lua_State* L) {
+     LuaSkin *skin = [LuaSkin shared] ;
+     HSMidiDevice *obj = [skin luaObjectAtIndex:1 toClass:"HSMidiDevice"] ;
+     NSString *title = obj.midiDevice.displayName ;
+     [skin pushNSObject:[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, title, lua_topointer(L, 1)]] ;
+     return 1 ;
+}
+
+static int userdata_eq(lua_State* L) {
+    //
+    // Can't get here if at least one of us isn't a userdata type, and we only care if both types are ours, so use luaL_testudata before the macro causes a Lua error:
+    //
+    if (luaL_testudata(L, 1, USERDATA_TAG) && luaL_testudata(L, 2, USERDATA_TAG)) {
+        LuaSkin *skin = [LuaSkin shared] ;
+        HSMidiDevice *obj1 = [skin luaObjectAtIndex:1 toClass:"HSMidiDevice"] ;
+        HSMidiDevice *obj2 = [skin luaObjectAtIndex:2 toClass:"HSMidiDevice"] ;
+        lua_pushboolean(L, [obj1 isEqualTo:obj2]) ;
+    } else {
+        lua_pushboolean(L, NO) ;
+    }
+    return 1 ;
+}
+
+//
+// User Data Garbage Collection:
+//
 static int userdata_gc(lua_State* L) {
-    HSMIKMIDIDevice* midiDevice = (__bridge_transfer HSMIKMIDIDevice*)(*(void**)luaL_checkudata(L, 1, USERDATA_TAG));
-    midiDevice.callbackRef = [[LuaSkin shared] luaUnref:refTable ref:midiDevice.callbackRef];
-    midiDevice.device = nil;
-    midiDevice = nil ;
+    HSMidiDevice *obj = get_objectFromUserdata(__bridge_transfer HSMidiDevice, L, 1, USERDATA_TAG) ;
+    if (obj) {
+        obj.selfRefCount-- ;
+        if (obj.selfRefCount == 0) {
+            obj = nil ;
+        }
+    }
+    //
+    // Remove the Metatable so future use of the variable in Lua won't think its valid
+    //
+    lua_pushnil(L) ;
+    lua_setmetatable(L, 1) ;
     return 0 ;
 }
 
-// Functions for returned object when module loads:
-static luaL_Reg moduleLib[] = {
-    {"new", midi_new},
-    {"devices", getDevices},
-    {"deviceCallback", deviceCallback},
-    {NULL, NULL},
-};
+//
+// Metatable Garbage Collection:
+//
+static int meta_gc(lua_State* __unused L) {
+    return 0 ;
+}
 
+//
+// Metatable for userdata objects:
+//
 static const luaL_Reg userdata_metaLib[] = {
     {"name", midi_name},
     {"displayName", midi_displayName},
@@ -675,17 +851,51 @@ static const luaL_Reg userdata_metaLib[] = {
     {"manufacturer", midi_manufacturer},
     {"model", midi_model},
     {"__tostring", userdata_tostring},
+    {"__eq",       userdata_eq},
     {"__gc",       userdata_gc},
     {NULL,   NULL}
 };
 
+//
+// Functions for returned object when module loads:
+//
+static luaL_Reg moduleLib[] = {
+    {"new", midi_new},
+    {"devices", devices},
+    {"deviceCallback", deviceCallback},
+    {NULL, NULL},
+};
+
+//
+// Metatable for module:
+//
+static const luaL_Reg module_metaLib[] = {
+    {"__gc", meta_gc},
+    {NULL,   NULL}
+};
+
+//
+// Initalise Module:
+//
 int luaopen_hs_midi_internal(lua_State* __unused L) {
+    
+    //
+    // Register Module:
+    //
     LuaSkin *skin = [LuaSkin shared] ;
-     refTable = [skin registerLibraryWithObject:USERDATA_TAG
-                                      functions:moduleLib
-                                  metaFunctions:nil
-                                objectFunctions:userdata_metaLib];
-    // Constants:
+    refTable = [skin registerLibraryWithObject:USERDATA_TAG
+                                     functions:moduleLib
+                                 metaFunctions:module_metaLib
+                               objectFunctions:userdata_metaLib];
+    
+    //
+    // Register MIDI Device:
+    //
+    [skin registerPushNSHelper:pushHSMidiDevice         forClass:"HSMidiDevice"];
+    [skin registerLuaObjectHelper:toHSMidiDeviceFromLua forClass:"HSMidiDevice"
+              withUserdataMapping:USERDATA_TAG];
+    
+    // Push Constants:
     pushCommandTypes(L) ; lua_setfield(L, -2, "commandTypes") ;
     return 1;
 }
