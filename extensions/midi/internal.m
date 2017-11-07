@@ -3,6 +3,23 @@
 
 #import "MIKMIDI/MIKMIDI.h"
 
+/*
+ TEST CODE:
+ 
+ hs.midi.deviceCallback(function(devices)
+     print(hs.inspect(devices))
+ end)
+ midiDevice = hs.midi.new(hs.midi.devices()[3])
+ midiDevice:callback(function(object, deviceName, commandType, description, metadata)
+     print("object: " .. tostring(object))
+     print("deviceName: " .. deviceName)
+     print("commandType: " .. commandType)
+     print("description: " .. description)
+     print("metadata: " .. hs.inspect(metadata))
+ end)
+ 
+ */
+
 //
 // Establish a unique context for identifying our observers:
 //
@@ -15,35 +32,24 @@ static int refTable = LUA_NOREF;
 #pragma mark - Support Functions and Classes
 
 //
-// Device Callback Function:
-//
-static int deviceCallbackFn;
-
-//
 // MIDI Device:
 //
-@interface HSMidiDevice : NSObject
+@interface HSMIDIDeviceManager : NSObject
 @property MIKMIDIDeviceManager      *midiDeviceManager ;
 @property MIKMIDIDevice             *midiDevice ;
 @property int                       callbackRef ;
+@property int                       deviceCallbackRef ;
 @property int                       selfRefCount ;
 @end
 
-@implementation HSMidiDevice
+@implementation HSMIDIDeviceManager
 
-- (instancetype)initWithDeviceName:(NSString *)deviceName {
+- (id)init
+{
     self = [super init] ;
     if (self) {
         _midiDeviceManager = [MIKMIDIDeviceManager sharedDeviceManager];
-        NSArray *availableMIDIDevices = [_midiDeviceManager availableDevices];
-        for (MIKMIDIDevice * device in availableMIDIDevices)
-        {
-            NSString *currentDevice = [device name];
-            if ([deviceName isEqualToString:currentDevice]) {                
-                _midiDevice = device;
-            }
-        }
-        if (_midiDevice) {
+        if (_midiDeviceManager) {
             _callbackRef             = LUA_NOREF ;
             _selfRefCount            = 0 ;
         }
@@ -51,38 +57,25 @@ static int deviceCallbackFn;
     return self ;
 }
 
-@end
+- (NSArray *)availableDevices { return self.midiDeviceManager.availableDevices; }
 
-//
-// MIDI Device Watcher:
-//
-@interface HSMidiDeviceWatcher : NSObject
-@property MIKMIDIDeviceManager      *midiDeviceManager ;
-@end
-
-@implementation HSMidiDeviceWatcher
-
-- (void)dealloc
+- (bool)setDevice:(NSString *)deviceName
 {
-    NSLog(@"HSMidiDeviceWatcher dealloc triggered");
-    self.midiDeviceManager = nil; // Break KVO
+    NSArray *availableMIDIDevices = [_midiDeviceManager availableDevices];
+    for (MIKMIDIDevice * device in availableMIDIDevices)
+    {
+        NSString *currentDevice = [device name];
+        if ([deviceName isEqualToString:currentDevice]) {
+            _midiDevice = device;
+            return YES;
+        }
+    }
+    return NO;
 }
 
-- (instancetype)initWithCallbackFn:(int *)callbackFn {
-    self = [super init] ;
-    if (self) {
-        //
-        // Setup Device Manager:
-        //
-        _midiDeviceManager = [MIKMIDIDeviceManager sharedDeviceManager];
-        
-        //
-        // Add Observer:
-        //
-        NSLog(@"Adding Observer");
-        [_midiDeviceManager addObserver:self forKeyPath:@"availableDevices" options:NSKeyValueObservingOptionInitial context:midiKVOContext];
-    }
-    return self ;
+- (void)watchDevices
+{
+    [_midiDeviceManager addObserver:self forKeyPath:@"availableDevices" options:NSKeyValueObservingOptionInitial context:midiKVOContext];
 }
 
 #pragma mark - KVO
@@ -93,22 +86,33 @@ static int deviceCallbackFn;
                        context:(void *)context
 {
     if (context == midiKVOContext) {
-        
-        NSLog(@"DEVICE STUFF HAPPENING:");
-        NSLog(@"keyPath: %@", keyPath);
-        NSLog(@"object: %@", object);
-        NSLog(@"change: %@", change);
-        NSLog(@"------------");
-        
-        //if ([keyPath isEqualToString:@"availableDevices"]) {
-        //}
-    }
-    else {
-        NSLog(@"Outside of context?");
+        if ([keyPath isEqualToString:@"availableDevices"]) {
+            if (_deviceCallbackRef != LUA_NOREF) {
+                LuaSkin *skin = [LuaSkin shared] ;
+                lua_State *L  = [skin L] ;
+                [skin pushLuaRef:refTable ref:_deviceCallbackRef] ;
+                
+                NSMutableArray *deviceNames = [NSMutableArray array];
+                for (MIKMIDIDevice * device in self.availableDevices)
+                {
+                    [deviceNames addObject:[device name]];
+                }
+                [skin pushNSObject:deviceNames];
+                
+                if (![skin protectedCallAndTraceback:1 nresults:0]) {
+                    NSString *errorMessage = [skin toNSObjectAtIndex:-1] ;
+                    lua_pop(L, 1) ;
+                    [skin logError:[NSString stringWithFormat:@"%s:deviceCallback callback error:%@", USERDATA_TAG, errorMessage]] ;
+                }
+            }
+            
+        }
     }
 }
 
 @end
+
+HSMIDIDeviceManager *watcherDeviceManager;
 
 #pragma mark - Module Functions
 
@@ -142,6 +146,14 @@ static int devices(lua_State *L) {
 ///
 /// Returns:
 ///  * None
+///
+/// Notes:
+///  * The callback function should expect 1 argument and should not return anything:
+///    * `devices` - A table containing the names of any connected MIDI devices as strings.
+///  * Example:
+///    ```hs.midi.deviceCallback(function(devices)
+///         print(hs.inspect(devices))
+///    end)```
 static int deviceCallback(lua_State *L) {
 
     //
@@ -153,14 +165,16 @@ static int deviceCallback(lua_State *L) {
     //
     // Setup or Remove Callback Function:
     //
-    deviceCallbackFn = [skin luaUnref:refTable ref:deviceCallbackFn];
+    watcherDeviceManager = [[HSMIDIDeviceManager alloc] init] ;
     if (lua_type(skin.L, 1) == LUA_TFUNCTION) {
-        deviceCallbackFn = [skin luaRef:refTable atIndex:1];
-        HSMidiDeviceWatcher *watcher = [[HSMidiDeviceWatcher alloc] initWithCallbackFn:&deviceCallbackFn];
-        NSLog(@"Watcher: %@", watcher);
+        watcherDeviceManager.deviceCallbackRef = [skin luaRef:refTable atIndex:1];
+        [watcherDeviceManager watchDevices];
     }
-    
-    lua_pushnil(L) ;
+    else {
+        watcherDeviceManager = nil ;
+        lua_pushnil(L) ;
+    }
+
     return 1;
 }
 
@@ -176,11 +190,12 @@ static int deviceCallback(lua_State *L) {
 static int midi_new(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
-    HSMidiDevice *wrapper = [[HSMidiDevice alloc] initWithDeviceName:[skin toNSObjectAtIndex:1]] ;
-    if (wrapper && wrapper.midiDevice) {
-        [skin pushNSObject:wrapper] ;
+    HSMIDIDeviceManager *manager = [[HSMIDIDeviceManager alloc] init] ;
+    bool result = [manager setDevice:[skin toNSObjectAtIndex:1]];
+    if (manager && result) {
+        [skin pushNSObject:manager] ;
     } else {
-        wrapper = nil ;
+        manager = nil ;
         lua_pushnil(L) ;
     }
     return 1 ;
@@ -324,7 +339,7 @@ static int midi_callback(lua_State *L) {
     //
     // Get Midi Device:
     //
-    HSMidiDevice            *wrapper   = [skin toNSObjectAtIndex:1] ;
+    HSMIDIDeviceManager            *wrapper   = [skin toNSObjectAtIndex:1] ;
     MIKMIDIDevice           *device    = wrapper.midiDevice;
     MIKMIDIDeviceManager    *manager   = wrapper.midiDeviceManager;
     
@@ -632,7 +647,7 @@ static int midi_callback(lua_State *L) {
 static int midi_name(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
-    HSMidiDevice *wrapper = [skin toNSObjectAtIndex:1] ;
+    HSMIDIDeviceManager *wrapper = [skin toNSObjectAtIndex:1] ;
     NSString *deviceName = [wrapper.midiDevice name];
     [skin pushNSObject:deviceName];
     return 1;
@@ -650,7 +665,7 @@ static int midi_name(lua_State *L) {
 static int midi_displayName(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
-    HSMidiDevice *wrapper = [skin toNSObjectAtIndex:1] ;
+    HSMIDIDeviceManager *wrapper = [skin toNSObjectAtIndex:1] ;
     NSString *displayName = [wrapper.midiDevice displayName];
     [skin pushNSObject:displayName];
     return 1;
@@ -668,7 +683,7 @@ static int midi_displayName(lua_State *L) {
 static int midi_model(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
-    HSMidiDevice *wrapper = [skin toNSObjectAtIndex:1] ;
+    HSMIDIDeviceManager *wrapper = [skin toNSObjectAtIndex:1] ;
     NSString *model = [wrapper.midiDevice model];
     [skin pushNSObject:model];
     return 1;
@@ -686,7 +701,7 @@ static int midi_model(lua_State *L) {
 static int midi_manufacturer(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
-    HSMidiDevice *wrapper = [skin toNSObjectAtIndex:1] ;
+    HSMIDIDeviceManager *wrapper = [skin toNSObjectAtIndex:1] ;
     NSString *manufacturer = [wrapper.midiDevice manufacturer];
     [skin pushNSObject:manufacturer];
     return 1;
@@ -704,7 +719,7 @@ static int midi_manufacturer(lua_State *L) {
 static int midi_isOnline(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
-    HSMidiDevice *wrapper = [skin toNSObjectAtIndex:1] ;
+    HSMIDIDeviceManager *wrapper = [skin toNSObjectAtIndex:1] ;
     lua_pushboolean(L, [wrapper.midiDevice isOnline]);
     return 1;
 }
@@ -767,21 +782,21 @@ static int pushCommandTypes(lua_State *L) {
 //
 // Setup MIDI Device:
 //
-static int pushHSMidiDevice(lua_State *L, id obj) {
-     HSMidiDevice *value = obj;
+static int pushHSMIDIDeviceManager(lua_State *L, id obj) {
+     HSMIDIDeviceManager *value = obj;
      value.selfRefCount++ ;
-     void** valuePtr = lua_newuserdata(L, sizeof(HSMidiDevice *));
+     void** valuePtr = lua_newuserdata(L, sizeof(HSMIDIDeviceManager *));
      *valuePtr = (__bridge_retained void *)value;
      luaL_getmetatable(L, USERDATA_TAG);
      lua_setmetatable(L, -2);
      return 1;
 }
 
-id toHSMidiDeviceFromLua(lua_State *L, int idx) {
+id toHSMIDIDeviceManagerFromLua(lua_State *L, int idx) {
      LuaSkin *skin = [LuaSkin shared] ;
-     HSMidiDevice *value ;
+     HSMIDIDeviceManager *value ;
      if (luaL_testudata(L, idx, USERDATA_TAG)) {
-         value = get_objectFromUserdata(__bridge HSMidiDevice, L, idx, USERDATA_TAG) ;
+         value = get_objectFromUserdata(__bridge HSMIDIDeviceManager, L, idx, USERDATA_TAG) ;
      } else {
          [skin logError:[NSString stringWithFormat:@"expected %s object, found %s", USERDATA_TAG,
                                                     lua_typename(L, lua_type(L, idx))]] ;
@@ -793,7 +808,7 @@ id toHSMidiDeviceFromLua(lua_State *L, int idx) {
 
 static int userdata_tostring(lua_State* L) {
      LuaSkin *skin = [LuaSkin shared] ;
-     HSMidiDevice *obj = [skin luaObjectAtIndex:1 toClass:"HSMidiDevice"] ;
+     HSMIDIDeviceManager *obj = [skin luaObjectAtIndex:1 toClass:"HSMIDIDeviceManager"] ;
      NSString *title = obj.midiDevice.displayName ;
      [skin pushNSObject:[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, title, lua_topointer(L, 1)]] ;
      return 1 ;
@@ -805,8 +820,8 @@ static int userdata_eq(lua_State* L) {
     //
     if (luaL_testudata(L, 1, USERDATA_TAG) && luaL_testudata(L, 2, USERDATA_TAG)) {
         LuaSkin *skin = [LuaSkin shared] ;
-        HSMidiDevice *obj1 = [skin luaObjectAtIndex:1 toClass:"HSMidiDevice"] ;
-        HSMidiDevice *obj2 = [skin luaObjectAtIndex:2 toClass:"HSMidiDevice"] ;
+        HSMIDIDeviceManager *obj1 = [skin luaObjectAtIndex:1 toClass:"HSMIDIDeviceManager"] ;
+        HSMIDIDeviceManager *obj2 = [skin luaObjectAtIndex:2 toClass:"HSMIDIDeviceManager"] ;
         lua_pushboolean(L, [obj1 isEqualTo:obj2]) ;
     } else {
         lua_pushboolean(L, NO) ;
@@ -818,7 +833,7 @@ static int userdata_eq(lua_State* L) {
 // User Data Garbage Collection:
 //
 static int userdata_gc(lua_State* L) {
-    HSMidiDevice *obj = get_objectFromUserdata(__bridge_transfer HSMidiDevice, L, 1, USERDATA_TAG) ;
+    HSMIDIDeviceManager *obj = get_objectFromUserdata(__bridge_transfer HSMIDIDeviceManager, L, 1, USERDATA_TAG) ;
     if (obj) {
         obj.selfRefCount-- ;
         if (obj.selfRefCount == 0) {
@@ -891,8 +906,8 @@ int luaopen_hs_midi_internal(lua_State* __unused L) {
     //
     // Register MIDI Device:
     //
-    [skin registerPushNSHelper:pushHSMidiDevice         forClass:"HSMidiDevice"];
-    [skin registerLuaObjectHelper:toHSMidiDeviceFromLua forClass:"HSMidiDevice"
+    [skin registerPushNSHelper:pushHSMIDIDeviceManager         forClass:"HSMIDIDeviceManager"];
+    [skin registerLuaObjectHelper:toHSMIDIDeviceManagerFromLua forClass:"HSMIDIDeviceManager"
               withUserdataMapping:USERDATA_TAG];
     
     // Push Constants:
