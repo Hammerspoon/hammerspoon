@@ -4,7 +4,18 @@
 #import "MIKMIDI/MIKMIDI.h"
 
 /*
+ 
+ TO-DO LIST:
+ ===========
+ 
+  - Finish hs.midi:sendCommand() - this should probably use same "metadata" table as the callback?
+  - Add MIDI Synthesis support
+  - Add MIDI Sequencing support
+  - Add MIDI Files support
+  - Add MIDI Mapping support
+ 
  TEST CODE:
+ ==========
  
  hs.midi.deviceCallback(function(devices)
      print(hs.inspect(devices))
@@ -35,8 +46,9 @@ static int refTable = LUA_NOREF;
 // MIDI Device:
 //
 @interface HSMIDIDeviceManager : NSObject
-@property MIKMIDIDeviceManager      *midiDeviceManager ;
-@property MIKMIDIDevice             *midiDevice ;
+@property                           MIKMIDIDeviceManager *midiDeviceManager ;
+@property                           MIKMIDIDevice *midiDevice ;
+@property (nonatomic, readonly)     NSArray *availableCommands;
 @property int                       callbackRef ;
 @property int                       deviceCallbackRef ;
 @property int                       selfRefCount ;
@@ -46,7 +58,14 @@ static int refTable = LUA_NOREF;
 
 - (id)init
 {
-    self = [super init] ;
+    @try {
+        self = [super init] ;
+    }
+    @catch (NSException *exception) {
+        [LuaSkin logError:[NSString stringWithFormat:@"%s:new - %@", USERDATA_TAG, exception.reason]] ;
+        self = nil ;
+    }
+    
     if (self) {
         _midiDeviceManager = [MIKMIDIDeviceManager sharedDeviceManager];
         if (_midiDeviceManager) {
@@ -73,9 +92,71 @@ static int refTable = LUA_NOREF;
     return NO;
 }
 
+#pragma mark - hs.midi.deviceCallback Functions
+
 - (void)watchDevices
 {
-    [_midiDeviceManager addObserver:self forKeyPath:@"availableDevices" options:NSKeyValueObservingOptionInitial context:midiKVOContext];
+    @try {
+        [_midiDeviceManager addObserver:self forKeyPath:@"availableDevices" options:NSKeyValueObservingOptionInitial context:midiKVOContext];
+    }
+    @catch (NSException *exception) {
+        [LuaSkin logError:[NSString stringWithFormat:@"%s:deviceCallback - %@", USERDATA_TAG, exception.reason]] ;
+    }
+}
+- (void)unwatchDevices
+{
+    @try {
+        [_midiDeviceManager removeObserver:self forKeyPath:@"availableDevices" context:midiKVOContext] ;
+    }
+    @catch (NSException *exception) {
+        [LuaSkin logError:[NSString stringWithFormat:@"%s:deviceCallback - %@", USERDATA_TAG, exception.reason]] ;
+    }
+}
+
+#pragma mark - MIDI Functions
+
+- (void)sendSysex:(NSString *)commandString
+{
+
+    if (!commandString || commandString.length == 0) {
+        return;
+    }
+    
+    struct MIDIPacket packet;
+    packet.timeStamp = mach_absolute_time();
+    packet.length = commandString.length / 2;
+    
+    char byte_chars[3] = {'\0','\0','\0'};
+    for (int i = 0; i < packet.length; i++) {
+        byte_chars[0] = [commandString characterAtIndex:i*2];
+        byte_chars[1] = [commandString characterAtIndex:i*2+1];
+        packet.data[i] = strtol(byte_chars, NULL, 16);;
+    }
+    
+    MIKMIDICommand *command = [MIKMIDICommand commandWithMIDIPacket:&packet];
+    NSLog(@"Sending idenity request command: %@", command);
+    
+    NSArray *destinations = [self.midiDevice.entities valueForKeyPath:@"@unionOfArrays.destinations"];
+    if (![destinations count]) return;
+    for (MIKMIDIDestinationEndpoint *destination in destinations) {
+        NSError *error = nil;
+        if (![self.midiDeviceManager sendCommands:@[command] toEndpoint:destination error:&error]) {
+            NSLog(@"Unable to send command %@ to endpoint %@: %@", command, destination, error);
+        }
+    }
+}
+
+@synthesize availableCommands = _availableCommands;
+- (NSArray *)availableCommands
+{
+    if (_availableCommands == nil) {
+        MIKMIDISystemExclusiveCommand *identityRequest = [MIKMIDISystemExclusiveCommand identityRequestCommand];
+        NSString *identityRequestString = [NSString stringWithFormat:@"%@", identityRequest.data];
+        identityRequestString = [identityRequestString substringWithRange:NSMakeRange(1, identityRequestString.length-2)];
+        _availableCommands = @[@{@"name": @"Identity Request",
+                                 @"value": identityRequestString}];
+    }
+    return _availableCommands;
 }
 
 #pragma mark - KVO
@@ -112,6 +193,9 @@ static int refTable = LUA_NOREF;
 
 @end
 
+//
+// hs.midi.deviceCallback Manager:
+//
 HSMIDIDeviceManager *watcherDeviceManager;
 
 #pragma mark - Module Functions
@@ -171,10 +255,11 @@ static int deviceCallback(lua_State *L) {
         [watcherDeviceManager watchDevices];
     }
     else {
+        [watcherDeviceManager unwatchDevices];
         watcherDeviceManager = nil ;
-        lua_pushnil(L) ;
     }
-
+    lua_pushnil(L) ;
+    
     return 1;
 }
 
@@ -337,9 +422,9 @@ static int midi_callback(lua_State *L) {
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION | LS_TNIL, LS_TBREAK];
     
     //
-    // Get Midi Device:
+    // Get MIDI Device:
     //
-    HSMIDIDeviceManager            *wrapper   = [skin toNSObjectAtIndex:1] ;
+    HSMIDIDeviceManager     *wrapper   = [skin toNSObjectAtIndex:1] ;
     MIKMIDIDevice           *device    = wrapper.midiDevice;
     MIKMIDIDeviceManager    *manager   = wrapper.midiDeviceManager;
     
@@ -396,75 +481,75 @@ static int midi_callback(lua_State *L) {
                     switch (commandType)
                     {
                         case MIKMIDICommandTypeNoteOff:{
-                            commandTypeString = @"NoteOff";
+                            commandTypeString = @"noteOff";
                             break;
                         }
                         case MIKMIDICommandTypeNoteOn:{
-                            commandTypeString = @"NoteOn";
+                            commandTypeString = @"noteOn";
                             break;
                         }
                         case MIKMIDICommandTypePolyphonicKeyPressure:{
-                            commandTypeString = @"PolyphonicKeyPressure";
+                            commandTypeString = @"polyphonicKeyPressure";
                             break;
                         }
                         case MIKMIDICommandTypeControlChange:{
-                            commandTypeString = @"ControlChange";
+                            commandTypeString = @"controlChange";
                             break;
                         }
                         case MIKMIDICommandTypeProgramChange:{
-                            commandTypeString = @"ProgramChange";
+                            commandTypeString = @"programChange";
                             break;
                         }
                         case MIKMIDICommandTypeChannelPressure:{
-                            commandTypeString = @"ChannelPressure";
+                            commandTypeString = @"channelPressure";
                             break;
                         }
                         case MIKMIDICommandTypePitchWheelChange:{
-                            commandTypeString = @"PitchWheelChange";
+                            commandTypeString = @"pitchWheelChange";
                             break;
                         }
                         case MIKMIDICommandTypeSystemMessage:{
-                            commandTypeString = @"SystemMessage";
+                            commandTypeString = @"systemMessage";
                             break;
                         }
                         case MIKMIDICommandTypeSystemExclusive:{
-                            commandTypeString = @"SystemExclusive";
+                            commandTypeString = @"systemExclusive";
                             break;
                         }
                         case MIKMIDICommandTypeSystemTimecodeQuarterFrame:{
-                            commandTypeString = @"SystemTimecodeQuarterFrame";
+                            commandTypeString = @"systemTimecodeQuarterFrame";
                             break;
                         }
                         case MIKMIDICommandTypeSystemSongPositionPointer:{
-                            commandTypeString = @"SystemSongPositionPointer";
+                            commandTypeString = @"systemSongPositionPointer";
                             break;
                         }
                         case MIKMIDICommandTypeSystemSongSelect:{
-                            commandTypeString = @"SystemSongSelect";
+                            commandTypeString = @"systemSongSelect";
                             break;
                         }
                         case MIKMIDICommandTypeSystemTuneRequest:{
-                            commandTypeString = @"SystemTuneRequest";
+                            commandTypeString = @"systemTuneRequest";
                             break;
                         }
                         case MIKMIDICommandTypeSystemTimingClock:{
-                            commandTypeString = @"SystemTimingClock";
+                            commandTypeString = @"systemTimingClock";
                             break;
                         }
                         case MIKMIDICommandTypeSystemStartSequence:{
-                            commandTypeString = @"SystemStartSequence";
+                            commandTypeString = @"systemStartSequence";
                             break;
                         }
                         case MIKMIDICommandTypeSystemContinueSequence:{
-                            commandTypeString = @"SystemContinueSequence";
+                            commandTypeString = @"systemContinueSequence";
                             break;
                         }
                         case MIKMIDICommandTypeSystemStopSequence:{
-                            commandTypeString = @"SystemStopSequence";
+                            commandTypeString = @"systemStopSequence";
                             break;
                         }
                         case MIKMIDICommandTypeSystemKeepAlive:{
-                            commandTypeString = @"SystemKeepAlive";
+                            commandTypeString = @"systemKeepAlive";
                             break;
                         }
                     };
@@ -632,6 +717,165 @@ static int midi_callback(lua_State *L) {
     }
    
     lua_pushvalue(L, 1);
+    return 1;
+}
+
+/// hs.midi:sendSysex(command) -> none
+/// Method
+/// Sends a System Command to the `hs.midi` object.
+///
+/// Parameters:
+///  * command - The command you wish to send as a string.
+///
+/// Returns:
+///  * None
+///
+/// Notes:
+///  * You can use `hs.midi:availableCommands()` to determine what commands are supported by the MIDI device.
+///  * Example:
+///    * `midiDevice:sendSysex("f07e7f06 01f7")`
+static int midi_sendSysex(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TBREAK];
+    HSMIDIDeviceManager *wrapper = [skin toNSObjectAtIndex:1] ;
+    [wrapper sendSysex:[skin toNSObjectAtIndex:2]];
+    lua_pushnil(L) ;
+    return 1;
+}
+
+/// hs.midi:sendCommand() -> none
+/// Method
+/// Sends a command to the `hs.midi` object.
+///
+/// Parameters:
+///  * commandType - The type of command you want to send as a string. See `hs.midi.commandTypes[]`.
+///  * note - The note number for the command. Must be between 0 and 127.
+///  * velocity - The velocity for the command. Must be between 0 and 127.
+///  * channel - The channel for the command. Must be between 0 and 15.
+///
+/// Returns:
+///  * None
+static int midi_sendCommand(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TNUMBER, LS_TNUMBER, LS_TNUMBER, LS_TBREAK];
+    
+    //
+    // Get Parameters:
+    //
+    NSString *commandType = [skin toNSObjectAtIndex:2];
+    NSNumber *note = [skin toNSObjectAtIndex:3];
+    NSNumber *velocity = [skin toNSObjectAtIndex:4];
+    NSNumber *channel = [skin toNSObjectAtIndex:5];
+    NSDate *date = [NSDate date];
+    NSError *error = nil;
+    
+    //
+    // Setup Device Manager:
+    //
+    HSMIDIDeviceManager *wrapper = [skin toNSObjectAtIndex:1] ;
+    
+    //
+    // Setup Destination Endpoint:
+    //
+    NSArray *destinations = [wrapper.midiDevice.entities valueForKeyPath:@"@unionOfArrays.destinations"];
+    MIKMIDIDestinationEndpoint *destinationEndpoint = [destinations objectAtIndex:0];
+
+    //
+    // Types of Commands:
+    //
+    if ([commandType isEqualToString:@"noteOff"])
+    {
+        MIKMIDINoteOffCommand *noteOff = [MIKMIDINoteOffCommand noteOffCommandWithNote:[note integerValue] velocity:[velocity integerValue] channel:[channel integerValue] timestamp:date];
+        [wrapper.midiDeviceManager sendCommands:@[noteOff] toEndpoint:destinationEndpoint error:&error];
+    }
+    if ([commandType isEqualToString:@"noteOn"])
+    {
+        MIKMIDINoteOnCommand *noteOn = [MIKMIDINoteOnCommand noteOnCommandWithNote:[note integerValue] velocity:[velocity integerValue] channel:[channel integerValue] timestamp:date];
+        [wrapper.midiDeviceManager sendCommands:@[noteOn] toEndpoint:destinationEndpoint error:&error];
+    }
+    if ([commandType isEqualToString:@"polyphonicKeyPressure"])
+    {
+        //MIKMIDICommandTypePolyphonicKeyPressure
+    }
+    if ([commandType isEqualToString:@"controlChange"])
+    {
+        //MIKMIDICommandTypeControlChange
+    }
+    if ([commandType isEqualToString:@"programChange"])
+    {
+        //MIKMIDICommandTypeProgramChange
+    }
+    if ([commandType isEqualToString:@"channelPressure"])
+    {
+        //MIKMIDICommandTypeChannelPressure
+    }
+    if ([commandType isEqualToString:@"pitchWheelChange"])
+    {
+        //MIKMIDICommandTypePitchWheelChange
+    }
+    if ([commandType isEqualToString:@"systemMessage"])
+    {
+        //MIKMIDICommandTypeSystemMessage
+    }
+    if ([commandType isEqualToString:@"systemExclusive"])
+    {
+        //MIKMIDICommandTypeSystemExclusive
+    }
+    if ([commandType isEqualToString:@"systemTimecodeQuarterFrame"])
+    {
+        //MIKMIDICommandTypeSystemTimecodeQuarterFrame
+    }
+    if ([commandType isEqualToString:@"systemSongPositionPointer"])
+    {
+        //MIKMIDICommandTypeSystemSongPositionPointer
+    }
+    if ([commandType isEqualToString:@"systemSongSelect"])
+    {
+        //MIKMIDICommandTypeSystemSongSelect
+    }
+    if ([commandType isEqualToString:@"systemTuneRequest"])
+    {
+        //MIKMIDICommandTypeSystemTuneRequest
+    }
+    if ([commandType isEqualToString:@"systemTimingClock"])
+    {
+        //MIKMIDICommandTypeSystemTimingClock
+    }
+    if ([commandType isEqualToString:@"systemStartSequence"])
+    {
+        //MIKMIDICommandTypeSystemStartSequence
+    }
+    if ([commandType isEqualToString:@"systemContinueSequence"])
+    {
+        //MIKMIDICommandTypeSystemContinueSequence
+    }
+    if ([commandType isEqualToString:@"systemStopSequence"])
+    {
+        //MIKMIDICommandTypeSystemStopSequence
+    }
+    if ([commandType isEqualToString:@"systemKeepAlive"])
+    {
+        //MIKMIDICommandTypeSystemKeepAlive
+    }
+    lua_pushnil(L) ;
+    return 1;
+}
+
+/// hs.midi:availableCommands() -> table
+/// Method
+/// Returns a table of available commands for the `hs.midi` object.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A table of commands as strings.
+static int midi_availableCommands(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    HSMIDIDeviceManager *wrapper = [skin toNSObjectAtIndex:1] ;
+    NSArray *availableCommands = [wrapper availableCommands];
+    [skin pushNSObject:availableCommands];
     return 1;
 }
 
@@ -859,6 +1103,9 @@ static int meta_gc(lua_State* __unused L) {
 // Metatable for userdata objects:
 //
 static const luaL_Reg userdata_metaLib[] = {
+    {"sendCommand", midi_sendCommand},
+    {"sendSysex", midi_sendSysex},
+    {"availableCommands", midi_availableCommands},
     {"name", midi_name},
     {"displayName", midi_displayName},
     {"isOnline", midi_isOnline},
