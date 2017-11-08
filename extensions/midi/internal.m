@@ -52,6 +52,7 @@ static int refTable = LUA_NOREF;
 @property int                       callbackRef ;
 @property int                       deviceCallbackRef ;
 @property int                       selfRefCount ;
+@property id                        callbackToken;
 @end
 
 @implementation HSMIDIDeviceManager
@@ -71,6 +72,7 @@ static int refTable = LUA_NOREF;
         if (_midiDeviceManager) {
             _callbackRef             = LUA_NOREF ;
             _deviceCallbackRef       = LUA_NOREF ;
+            _callbackToken           = nil ;
             _selfRefCount            = 0 ;
         }
     }
@@ -438,8 +440,11 @@ static int midi_callback(lua_State *L) {
     // Remove the existing callback:
     //
     wrapper.callbackRef = [skin luaUnref:refTable ref:wrapper.callbackRef];
-// FIXME: do we need to remove an existing block if one already is attached to the end point? Simple testing suggests not, but what does the library docs say?
-
+    if (wrapper.callbackToken != nil) {
+        [manager disconnectConnectionForToken:wrapper.callbackToken];
+        wrapper.callbackToken = nil;
+    }
+    
     //
     // Setup the new callback:
     //
@@ -452,12 +457,13 @@ static int midi_callback(lua_State *L) {
         //
         NSArray *source = [device.entities valueForKeyPath:@"@unionOfArrays.sources"];
         MIKMIDISourceEndpoint *endpoint = [source objectAtIndex:0];
-
+        
         //
         // Setup Event:
         //
         NSError *error = nil;
-        [manager connectInput:endpoint error:&error eventHandler:^(MIKMIDISourceEndpoint *source, NSArray<MIKMIDICommand *> *commands) {
+        id result;
+        result = [manager connectInput:endpoint error:&error eventHandler:^(MIKMIDISourceEndpoint *source, NSArray<MIKMIDICommand *> *commands) {
             for (MIKMIDICommand *command in commands) {
                 LuaSkin *skin = [LuaSkin shared] ;
                 if (wrapper.callbackRef != LUA_NOREF) {
@@ -721,6 +727,16 @@ static int midi_callback(lua_State *L) {
                 }
             }
         }];
+        
+        if (result == nil) {
+            [skin logError:[NSString stringWithFormat:@"%s:callback error:%@", USERDATA_TAG, error]] ;
+            wrapper.callbackToken = nil;
+        }
+        else
+        {
+            wrapper.callbackToken = result;
+        }
+        
     }
 
     lua_pushvalue(L, 1);
@@ -1093,7 +1109,12 @@ static int userdata_gc(lua_State* L) {
         if (obj.selfRefCount == 0) {
             LuaSkin *skin = [LuaSkin shared] ;
             obj.callbackRef = [skin luaUnref:refTable ref:obj.callbackRef] ;
-// FIXME: do we need to remove an existing block if one already is attached to the end point? Simple testing suggests not, but what does the library docs say?
+            
+            if (obj.callbackToken != nil) {
+                [obj.midiDeviceManager disconnectConnectionForToken:obj.callbackToken];
+                obj.callbackToken = nil;
+            }
+            
             obj = nil ;
         }
     }
