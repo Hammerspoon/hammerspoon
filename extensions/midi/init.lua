@@ -19,4 +19,6 @@
 local USERDATA_TAG = "hs.midi"
 local module       = require(USERDATA_TAG..".internal")
 
+module.commandTypes = ls.makeConstantsTable(module.commandTypes)
+
 return module
