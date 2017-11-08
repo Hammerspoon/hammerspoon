@@ -4,19 +4,19 @@
 #import "MIKMIDI/MIKMIDI.h"
 
 /*
- 
+
  TO-DO LIST:
  ===========
- 
+
   - Finish hs.midi:sendCommand() - this should probably use same "metadata" table as the callback?
   - Add MIDI Synthesis support
   - Add MIDI Sequencing support
   - Add MIDI Files support
   - Add MIDI Mapping support
- 
+
  TEST CODE:
  ==========
- 
+
  hs.midi.deviceCallback(function(devices)
      print(hs.inspect(devices))
  end)
@@ -28,7 +28,7 @@
      print("description: " .. description)
      print("metadata: " .. hs.inspect(metadata))
  end)
- 
+
  */
 
 //
@@ -65,11 +65,12 @@ static int refTable = LUA_NOREF;
         [LuaSkin logError:[NSString stringWithFormat:@"%s:new - %@", USERDATA_TAG, exception.reason]] ;
         self = nil ;
     }
-    
+
     if (self) {
         _midiDeviceManager = [MIKMIDIDeviceManager sharedDeviceManager];
         if (_midiDeviceManager) {
             _callbackRef             = LUA_NOREF ;
+            _deviceCallbackRef       = LUA_NOREF ;
             _selfRefCount            = 0 ;
         }
     }
@@ -121,21 +122,21 @@ static int refTable = LUA_NOREF;
     if (!commandString || commandString.length == 0) {
         return;
     }
-    
+
     struct MIDIPacket packet;
     packet.timeStamp = mach_absolute_time();
     packet.length = commandString.length / 2;
-    
+
     char byte_chars[3] = {'\0','\0','\0'};
     for (int i = 0; i < packet.length; i++) {
         byte_chars[0] = [commandString characterAtIndex:i*2];
         byte_chars[1] = [commandString characterAtIndex:i*2+1];
         packet.data[i] = strtol(byte_chars, NULL, 16);;
     }
-    
+
     MIKMIDICommand *command = [MIKMIDICommand commandWithMIDIPacket:&packet];
     NSLog(@"Sending idenity request command: %@", command);
-    
+
     NSArray *destinations = [self.midiDevice.entities valueForKeyPath:@"@unionOfArrays.destinations"];
     if (![destinations count]) return;
     for (MIKMIDIDestinationEndpoint *destination in destinations) {
@@ -172,21 +173,21 @@ static int refTable = LUA_NOREF;
                 LuaSkin *skin = [LuaSkin shared] ;
                 lua_State *L  = [skin L] ;
                 [skin pushLuaRef:refTable ref:_deviceCallbackRef] ;
-                
+
                 NSMutableArray *deviceNames = [NSMutableArray array];
                 for (MIKMIDIDevice * device in self.availableDevices)
                 {
                     [deviceNames addObject:[device name]];
                 }
                 [skin pushNSObject:deviceNames];
-                
+
                 if (![skin protectedCallAndTraceback:1 nresults:0]) {
                     NSString *errorMessage = [skin toNSObjectAtIndex:-1] ;
                     lua_pop(L, 1) ;
                     [skin logError:[NSString stringWithFormat:@"%s:deviceCallback callback error:%@", USERDATA_TAG, errorMessage]] ;
                 }
             }
-            
+
         }
     }
 }
@@ -244,22 +245,27 @@ static int deviceCallback(lua_State *L) {
     // Check Arguments:
     //
     LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TFUNCTION, LS_TBREAK];
-    
+    [skin checkArgs:LS_TFUNCTION | LS_TNIL, LS_TBREAK];
+
     //
     // Setup or Remove Callback Function:
     //
-    watcherDeviceManager = [[HSMIDIDeviceManager alloc] init] ;
-    if (lua_type(skin.L, 1) == LUA_TFUNCTION) {
+    if (!watcherDeviceManager) {
+        watcherDeviceManager = [[HSMIDIDeviceManager alloc] init] ;
+    } else {
+        if (watcherDeviceManager.deviceCallbackRef != LUA_NOREF) [watcherDeviceManager unwatchDevices] ;
+    }
+    watcherDeviceManager.deviceCallbackRef = [skin luaUnref:refTable ref:watcherDeviceManager.deviceCallbackRef] ;
+    if (lua_type(skin.L, 1) != LUA_TNIL) { // may be table with __call metamethod
         watcherDeviceManager.deviceCallbackRef = [skin luaRef:refTable atIndex:1];
         [watcherDeviceManager watchDevices];
     }
     else {
-        [watcherDeviceManager unwatchDevices];
+//         [watcherDeviceManager unwatchDevices];
         watcherDeviceManager = nil ;
     }
     lua_pushnil(L) ;
-    
+
     return 1;
 }
 
@@ -414,38 +420,39 @@ static int midi_new(lua_State *L) {
 ///      * timestamp           - The timestamp for the command as a string.
 ///
 static int midi_callback(lua_State *L) {
-    
+
     //
     // Check Arguments:
     //
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION | LS_TNIL, LS_TBREAK];
-    
+
     //
     // Get MIDI Device:
     //
     HSMIDIDeviceManager     *wrapper   = [skin toNSObjectAtIndex:1] ;
     MIKMIDIDevice           *device    = wrapper.midiDevice;
     MIKMIDIDeviceManager    *manager   = wrapper.midiDeviceManager;
-    
+
     //
     // Remove the existing callback:
     //
     wrapper.callbackRef = [skin luaUnref:refTable ref:wrapper.callbackRef];
-    
+// FIXME: do we need to remove an existing block if one already is attached to the end point? Simple testing suggests not, but what does the library docs say?
+
     //
     // Setup the new callback:
     //
-    if (lua_type(L, 2) == LUA_TFUNCTION) {
+    if (lua_type(L, 2) != LUA_TNIL) { // may be table with __call metamethod
         lua_pushvalue(L, 2);
         wrapper.callbackRef = [skin luaRef:refTable];
-        
+
         //
         // Setup MIDI Device End Point:
         //
         NSArray *source = [device.entities valueForKeyPath:@"@unionOfArrays.sources"];
         MIKMIDISourceEndpoint *endpoint = [source objectAtIndex:0];
-        
+
         //
         // Setup Event:
         //
@@ -454,25 +461,25 @@ static int midi_callback(lua_State *L) {
             for (MIKMIDICommand *command in commands) {
                 LuaSkin *skin = [LuaSkin shared] ;
                 if (wrapper.callbackRef != LUA_NOREF) {
-                    
+
                     //
                     // Update Callback Function:
                     //
                     lua_State *_L = [skin L];
                     [skin pushLuaRef:refTable ref:wrapper.callbackRef];
-                    
+
                     //
                     // Get Device Name:
                     //
                     NSString *deviceName;
                     deviceName = [device name];
-                    
+
                     //
                     // Get Description:
                     //
                     NSString *description;
                     description = [command description];
-                    
+
                     //
                     // Get Command Type:
                     //
@@ -553,7 +560,7 @@ static int midi_callback(lua_State *L) {
                             break;
                         }
                     };
-                   
+
                     //
                     // Push Values:
                     //
@@ -561,7 +568,7 @@ static int midi_callback(lua_State *L) {
                     [skin pushNSObject:deviceName];             ///    * `deviceName`   - The device name as a string.
                     [skin pushNSObject:commandTypeString];      ///    * `commandType`  - Type of MIDI message as a string.
                     [skin pushNSObject:description];            ///    * `description`  - Description of the event as a string. This is useful for debugging.
-                    
+
                     //
                     // Get Time Stamp:
                     //
@@ -569,17 +576,17 @@ static int midi_callback(lua_State *L) {
                     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
                     dateFormatter.dateFormat = @"HH:mm:ss.SSS";
                     timestamp = [dateFormatter stringFromDate:[command timestamp]];
-                    
+
                     //
                     // Push Metadata:
                     //
                     switch (commandType)
                     {
                         case MIKMIDICommandTypeNoteOff: {
-                            ///      * note                - The note number for the command. Must be between 0 and 127.
-                            ///      * velocity            - The velocity for the command. Must be between 0 and 127.
-                            ///      * channel             - The channel for the command. Must be between 0 and 15.
-                            ///      * timestamp           - The timestamp for the command.
+                            //      * note                - The note number for the command. Must be between 0 and 127.
+                            //      * velocity            - The velocity for the command. Must be between 0 and 127.
+                            //      * channel             - The channel for the command. Must be between 0 and 15.
+                            //      * timestamp           - The timestamp for the command.
                             MIKMIDINoteOffCommand *noteCommand = (MIKMIDINoteOffCommand *)command;
                             lua_newtable(L) ;
                             lua_pushnumber(L, noteCommand.note);             lua_setfield(L, -2, "note");
@@ -589,10 +596,10 @@ static int midi_callback(lua_State *L) {
                             break;
                         }
                         case MIKMIDICommandTypeNoteOn: {
-                            ///      * note                - The note number for the command. Must be between 0 and 127.
-                            ///      * velocity            - The velocity for the command. Must be between 0 and 127.
-                            ///      * channel             - The channel for the command. Must be between 0 and 15.
-                            ///      * timestamp           - The timestamp for the command.
+                            //      * note                - The note number for the command. Must be between 0 and 127.
+                            //      * velocity            - The velocity for the command. Must be between 0 and 127.
+                            //      * channel             - The channel for the command. Must be between 0 and 15.
+                            //      * timestamp           - The timestamp for the command.
                             MIKMIDINoteOnCommand *noteCommand = (MIKMIDINoteOnCommand *)command;
                             lua_newtable(L) ;
                             lua_pushnumber(L, noteCommand.note);             lua_setfield(L, -2, "note");
@@ -602,10 +609,10 @@ static int midi_callback(lua_State *L) {
                             break;
                         }
                         case MIKMIDICommandTypePolyphonicKeyPressure: {
-                            ///      * note                - The note number for the command. Must be between 0 and 127.
-                            ///      * pressure            - Key pressure of the polyphonic key pressure message. In the range 0-127.
-                            ///      * channel             - The channel for the command. Must be between 0 and 15.
-                            ///      * timestamp           - The timestamp for the command.
+                            //      * note                - The note number for the command. Must be between 0 and 127.
+                            //      * pressure            - Key pressure of the polyphonic key pressure message. In the range 0-127.
+                            //      * channel             - The channel for the command. Must be between 0 and 15.
+                            //      * timestamp           - The timestamp for the command.
                             MIKMIDIPolyphonicKeyPressureCommand *noteCommand = (MIKMIDIPolyphonicKeyPressureCommand *)command;
                             lua_newtable(L) ;
                             lua_pushnumber(L, noteCommand.note);             lua_setfield(L, -2, "note");
@@ -615,10 +622,10 @@ static int midi_callback(lua_State *L) {
                             break;
                         }
                         case MIKMIDICommandTypeControlChange: {
-                            ///      * controllerNumber    - The MIDI control number for the command.
-                            ///      * controlValue        - The controlValue of the command. Only the lower 7-bits of this are used.
-                            ///      * channel             - The channel for the command. Must be between 0 and 15.
-                            ///      * timestamp           - The timestamp for the command.
+                            //      * controllerNumber    - The MIDI control number for the command.
+                            //      * controlValue        - The controlValue of the command. Only the lower 7-bits of this are used.
+                            //      * channel             - The channel for the command. Must be between 0 and 15.
+                            //      * timestamp           - The timestamp for the command.
                             MIKMIDIControlChangeCommand *result = (MIKMIDIControlChangeCommand *)command;
                             lua_newtable(L) ;
                             lua_pushnumber(L, result.controllerNumber);             lua_setfield(L, -2, "controllerNumber");
@@ -628,9 +635,9 @@ static int midi_callback(lua_State *L) {
                             break;
                         }
                         case MIKMIDICommandTypeProgramChange: {
-                            ///      * programNumber       - The program (aka patch) number. From 0-127.
-                            ///      * channel             - The channel for the command. Must be between 0 and 15.
-                            ///      * timestamp           - The timestamp for the command as a string.
+                            //      * programNumber       - The program (aka patch) number. From 0-127.
+                            //      * channel             - The channel for the command. Must be between 0 and 15.
+                            //      * timestamp           - The timestamp for the command as a string.
                             MIKMIDIProgramChangeCommand *result = (MIKMIDIProgramChangeCommand *)command;
                             lua_newtable(L) ;
                             lua_pushnumber(L, result.programNumber);                lua_setfield(L, -2, "programNumber");
@@ -639,9 +646,9 @@ static int midi_callback(lua_State *L) {
                             break;
                         }
                         case MIKMIDICommandTypeChannelPressure: {
-                            ///      * pressure            - Key pressure of the channel pressure message. In the range 0-127.
-                            ///      * channel             - The channel for the command. Must be between 0 and 15.
-                            ///      * timestamp           - The timestamp for the command as a string.
+                            //      * pressure            - Key pressure of the channel pressure message. In the range 0-127.
+                            //      * channel             - The channel for the command. Must be between 0 and 15.
+                            //      * timestamp           - The timestamp for the command as a string.
                             MIKMIDIChannelPressureCommand *result = (MIKMIDIChannelPressureCommand *)command;
                             lua_newtable(L) ;
                             lua_pushnumber(L, result.pressure);                     lua_setfield(L, -2, "pressure");
@@ -650,9 +657,9 @@ static int midi_callback(lua_State *L) {
                             break;
                         }
                         case MIKMIDICommandTypePitchWheelChange: {
-                            ///      * pitchChange         -  A 14-bit value indicating the pitch bend. Center is 0x2000 (8192). Valid range is from 0-16383.
-                            ///      * channel             - The channel for the command. Must be between 0 and 15.
-                            ///      * timestamp           - The timestamp for the command as a string.
+                            //      * pitchChange         -  A 14-bit value indicating the pitch bend. Center is 0x2000 (8192). Valid range is from 0-16383.
+                            //      * channel             - The channel for the command. Must be between 0 and 15.
+                            //      * timestamp           - The timestamp for the command as a string.
                             MIKMIDIPitchBendChangeCommand *result = (MIKMIDIPitchBendChangeCommand *)command;
                             lua_newtable(L) ;
                             lua_pushnumber(L, result.pitchChange);                  lua_setfield(L, -2, "pitchChange");
@@ -661,9 +668,9 @@ static int midi_callback(lua_State *L) {
                             break;
                         }
                         case MIKMIDICommandTypeSystemMessage: {
-                            ///      * dataByte1           - Data
-                            ///      * dataByte2           - Data
-                            ///      * timestamp           - The timestamp for the command as a string.
+                            //      * dataByte1           - Data
+                            //      * dataByte2           - Data
+                            //      * timestamp           - The timestamp for the command as a string.
                             MIKMIDISystemMessageCommand *result = (MIKMIDISystemMessageCommand *)command;
                             lua_newtable(L) ;
                             lua_pushinteger(L, result.dataByte1);                  lua_setfield(L, -2, "dataByte1");
@@ -672,10 +679,10 @@ static int midi_callback(lua_State *L) {
                             break;
                         }
                         case MIKMIDICommandTypeSystemExclusive: {
-                            ///      * manufacturerID      - The manufacturer ID for the command. This is used by devices to determine if the message is one they support.
-                            ///      * sysexChannel        - The channel of the message. Only valid for universal exclusive messages, will always be 0 for non-universal messages.
-                            ///      * sysexData           - The system exclusive data for the message. For universal messages subID's are included in sysexData, for non-universal messages, any device specific information (such as modelID, versionID or whatever manufactures decide to include) will be included in sysexData.
-                            ///      * timestamp           - The timestamp for the command as a string.
+                            //      * manufacturerID      - The manufacturer ID for the command. This is used by devices to determine if the message is one they support.
+                            //      * sysexChannel        - The channel of the message. Only valid for universal exclusive messages, will always be 0 for non-universal messages.
+                            //      * sysexData           - The system exclusive data for the message. For universal messages subID's are included in sysexData, for non-universal messages, any device specific information (such as modelID, versionID or whatever manufactures decide to include) will be included in sysexData.
+                            //      * timestamp           - The timestamp for the command as a string.
                             MIKMIDISystemExclusiveCommand *result = (MIKMIDISystemExclusiveCommand *)command;
                             lua_newtable(L) ;
                             lua_pushinteger(L, result.manufacturerID);             lua_setfield(L, -2, "manufacturerID");
@@ -694,9 +701,9 @@ static int midi_callback(lua_State *L) {
                         case MIKMIDICommandTypeSystemContinueSequence:
                         case MIKMIDICommandTypeSystemStopSequence:
                         case MIKMIDICommandTypeSystemKeepAlive: {
-                            ///      * dataByte1           - Data
-                            ///      * dataByte2           - Data
-                            ///      * timestamp           - The timestamp for the command as a string.
+                            //      * dataByte1           - Data
+                            //      * dataByte2           - Data
+                            //      * timestamp           - The timestamp for the command as a string.
                             MIKMIDICommand *result = (MIKMIDICommand *)command;
                             lua_newtable(L) ;
                             lua_pushinteger(L, result.dataByte1);                  lua_setfield(L, -2, "dataByte1");
@@ -705,7 +712,7 @@ static int midi_callback(lua_State *L) {
                             break;
                         }
                     };
-                
+
                     if (![skin protectedCallAndTraceback:5 nresults:0]) {
                         const char *errorMsg = lua_tostring(_L, -1);
                         [skin logError:[NSString stringWithFormat:@"%s: %s", USERDATA_TAG, errorMsg]];
@@ -715,7 +722,7 @@ static int midi_callback(lua_State *L) {
             }
         }];
     }
-   
+
     lua_pushvalue(L, 1);
     return 1;
 }
@@ -756,12 +763,12 @@ static int midi_sendSysex(lua_State *L) {
 /// Returns:
 ///  * None
 static int midi_sendCommand(lua_State *L) {
-    
+
     // TO-DO: maybe rather than having individual note, velocity and channel parameters, I should just have a single "metatable" table as the paramater to match the callback?
-    
+
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TNUMBER, LS_TNUMBER, LS_TNUMBER, LS_TBREAK];
-    
+
     //
     // Get Parameters:
     //
@@ -771,12 +778,12 @@ static int midi_sendCommand(lua_State *L) {
     NSNumber *channel = [skin toNSObjectAtIndex:5];
     NSDate *date = [NSDate date];
     NSError *error = nil;
-    
+
     //
     // Setup Device Manager:
     //
     HSMIDIDeviceManager *wrapper = [skin toNSObjectAtIndex:1] ;
-    
+
     //
     // Setup Destination Endpoint:
     //
@@ -977,7 +984,7 @@ static int midi_isOnline(lua_State *L) {
 /// Constant
 ///
 /// A table containing the numeric value for the possible flags returned by the `commandType` parameter of the callback function.
-////
+///
 /// Defined keys are:
 ///   * noteOff                       - Note off command.
 ///   * noteOn                        - Note on command.
@@ -1084,6 +1091,9 @@ static int userdata_gc(lua_State* L) {
     if (obj) {
         obj.selfRefCount-- ;
         if (obj.selfRefCount == 0) {
+            LuaSkin *skin = [LuaSkin shared] ;
+            obj.callbackRef = [skin luaUnref:refTable ref:obj.callbackRef] ;
+// FIXME: do we need to remove an existing block if one already is attached to the end point? Simple testing suggests not, but what does the library docs say?
             obj = nil ;
         }
     }
@@ -1099,6 +1109,11 @@ static int userdata_gc(lua_State* L) {
 // Metatable Garbage Collection:
 //
 static int meta_gc(lua_State* __unused L) {
+    if (watcherDeviceManager) {
+        watcherDeviceManager.deviceCallbackRef = [[LuaSkin shared] luaUnref:refTable ref:watcherDeviceManager.deviceCallbackRef] ;
+        [watcherDeviceManager unwatchDevices] ;
+        watcherDeviceManager = nil ;
+    }
     return 0 ;
 }
 
@@ -1143,7 +1158,7 @@ static const luaL_Reg module_metaLib[] = {
 // Initalise Module:
 //
 int luaopen_hs_midi_internal(lua_State* __unused L) {
-    
+
     //
     // Register Module:
     //
@@ -1152,14 +1167,14 @@ int luaopen_hs_midi_internal(lua_State* __unused L) {
                                      functions:moduleLib
                                  metaFunctions:module_metaLib
                                objectFunctions:userdata_metaLib];
-    
+
     //
     // Register MIDI Device:
     //
     [skin registerPushNSHelper:pushHSMIDIDeviceManager         forClass:"HSMIDIDeviceManager"];
     [skin registerLuaObjectHelper:toHSMIDIDeviceManagerFromLua forClass:"HSMIDIDeviceManager"
               withUserdataMapping:USERDATA_TAG];
-    
+
     // Push Constants:
     pushCommandTypes(L) ; lua_setfield(L, -2, "commandTypes") ;
     return 1;
