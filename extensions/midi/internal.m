@@ -743,7 +743,7 @@ static int midi_sendSysex(lua_State *L) {
     return 1;
 }
 
-/// hs.midi:sendCommand() -> none
+/// hs.midi:sendCommand(commandType, note, velocity, channel) -> none
 /// Method
 /// Sends a command to the `hs.midi` object.
 ///
@@ -756,6 +756,9 @@ static int midi_sendSysex(lua_State *L) {
 /// Returns:
 ///  * None
 static int midi_sendCommand(lua_State *L) {
+    
+    // TO-DO: maybe rather than having individual note, velocity and channel parameters, I should just have a single "metatable" table as the paramater to match the callback?
+    
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TNUMBER, LS_TNUMBER, LS_TNUMBER, LS_TBREAK];
     
