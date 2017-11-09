@@ -2008,7 +2008,7 @@
 				22E4D7F81FA7485A00C8CF5C /* init.lua */,
 				22E4D7F71FA7485A00C8CF5C /* internal.m */,
 			);
-			path = midi;
+			name = midi;
 			sourceTree = "<group>";
 		};
 		4C3D55A81C7F05D00023B633 /* osascript */ = {
