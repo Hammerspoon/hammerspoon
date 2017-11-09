@@ -224,9 +224,11 @@ static int devices(lua_State *L) {
 ///  * The callback function should expect 1 argument and should not return anything:
 ///    * `devices` - A table containing the names of any connected MIDI devices as strings.
 ///  * Example Usage:
-///    ```hs.midi.deviceCallback(function(devices)
+///    ```
+///    hs.midi.deviceCallback(function(devices)
 ///         print(hs.inspect(devices))
-///    end)```
+///    end)
+///    ```
 static int deviceCallback(lua_State *L) {
 
     //
