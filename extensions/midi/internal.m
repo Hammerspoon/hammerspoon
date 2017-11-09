@@ -606,10 +606,10 @@ static int midi_callback(lua_State *L) {
                             //      * timestamp           - The timestamp for the command.
                             MIKMIDINoteOffCommand *noteCommand = (MIKMIDINoteOffCommand *)command;
                             lua_newtable(L) ;
-                            lua_pushnumber(L, noteCommand.note);             lua_setfield(L, -2, "note");
-                            lua_pushnumber(L, noteCommand.velocity);         lua_setfield(L, -2, "velocity");
-                            lua_pushnumber(L, noteCommand.channel);          lua_setfield(L, -2, "channel");
-                            lua_pushstring(L, [timestamp UTF8String]);       lua_setfield(L, -2, "timestamp");
+                            lua_pushinteger(L, noteCommand.note);             lua_setfield(L, -2, "note");
+                            lua_pushinteger(L, noteCommand.velocity);         lua_setfield(L, -2, "velocity");
+                            lua_pushinteger(L, noteCommand.channel);          lua_setfield(L, -2, "channel");
+                            lua_pushstring(L, [timestamp UTF8String]);        lua_setfield(L, -2, "timestamp");
                             break;
                         }
                         case MIKMIDICommandTypeNoteOn: {
@@ -619,10 +619,10 @@ static int midi_callback(lua_State *L) {
                             //      * timestamp           - The timestamp for the command.
                             MIKMIDINoteOnCommand *noteCommand = (MIKMIDINoteOnCommand *)command;
                             lua_newtable(L) ;
-                            lua_pushnumber(L, noteCommand.note);             lua_setfield(L, -2, "note");
-                            lua_pushnumber(L, noteCommand.velocity);         lua_setfield(L, -2, "velocity");
-                            lua_pushnumber(L, noteCommand.channel);          lua_setfield(L, -2, "channel");
-                            lua_pushstring(L, [timestamp UTF8String]);       lua_setfield(L, -2, "timestamp");
+                            lua_pushinteger(L, noteCommand.note);             lua_setfield(L, -2, "note");
+                            lua_pushinteger(L, noteCommand.velocity);         lua_setfield(L, -2, "velocity");
+                            lua_pushinteger(L, noteCommand.channel);          lua_setfield(L, -2, "channel");
+                            lua_pushstring(L, [timestamp UTF8String]);        lua_setfield(L, -2, "timestamp");
                             break;
                         }
                         case MIKMIDICommandTypePolyphonicKeyPressure: {
@@ -632,10 +632,10 @@ static int midi_callback(lua_State *L) {
                             //      * timestamp           - The timestamp for the command.
                             MIKMIDIPolyphonicKeyPressureCommand *noteCommand = (MIKMIDIPolyphonicKeyPressureCommand *)command;
                             lua_newtable(L) ;
-                            lua_pushnumber(L, noteCommand.note);             lua_setfield(L, -2, "note");
-                            lua_pushnumber(L, noteCommand.pressure);         lua_setfield(L, -2, "pressure");
-                            lua_pushnumber(L, noteCommand.channel);          lua_setfield(L, -2, "channel");
-                            lua_pushstring(L, [timestamp UTF8String]);       lua_setfield(L, -2, "timestamp");
+                            lua_pushinteger(L, noteCommand.note);             lua_setfield(L, -2, "note");
+                            lua_pushinteger(L, noteCommand.pressure);         lua_setfield(L, -2, "pressure");
+                            lua_pushinteger(L, noteCommand.channel);          lua_setfield(L, -2, "channel");
+                            lua_pushstring(L, [timestamp UTF8String]);        lua_setfield(L, -2, "timestamp");
                             break;
                         }
                         case MIKMIDICommandTypeControlChange: {
@@ -645,10 +645,10 @@ static int midi_callback(lua_State *L) {
                             //      * timestamp           - The timestamp for the command.
                             MIKMIDIControlChangeCommand *result = (MIKMIDIControlChangeCommand *)command;
                             lua_newtable(L) ;
-                            lua_pushnumber(L, result.controllerNumber);             lua_setfield(L, -2, "controllerNumber");
-                            lua_pushnumber(L, result.value);                        lua_setfield(L, -2, "controlValue");
-                            lua_pushnumber(L, result.channel);                      lua_setfield(L, -2, "channel");
-                            lua_pushstring(L, [timestamp UTF8String]);              lua_setfield(L, -2, "timestamp");
+                            lua_pushinteger(L, result.controllerNumber);             lua_setfield(L, -2, "controllerNumber");
+                            lua_pushinteger(L, result.value);                        lua_setfield(L, -2, "controlValue");
+                            lua_pushinteger(L, result.channel);                      lua_setfield(L, -2, "channel");
+                            lua_pushstring(L, [timestamp UTF8String]);               lua_setfield(L, -2, "timestamp");
                             break;
                         }
                         case MIKMIDICommandTypeProgramChange: {
@@ -657,9 +657,9 @@ static int midi_callback(lua_State *L) {
                             //      * timestamp           - The timestamp for the command as a string.
                             MIKMIDIProgramChangeCommand *result = (MIKMIDIProgramChangeCommand *)command;
                             lua_newtable(L) ;
-                            lua_pushnumber(L, result.programNumber);                lua_setfield(L, -2, "programNumber");
-                            lua_pushnumber(L, result.channel);                      lua_setfield(L, -2, "channel");
-                            lua_pushstring(L, [timestamp UTF8String]);              lua_setfield(L, -2, "timestamp");
+                            lua_pushinteger(L, result.programNumber);                lua_setfield(L, -2, "programNumber");
+                            lua_pushinteger(L, result.channel);                      lua_setfield(L, -2, "channel");
+                            lua_pushstring(L, [timestamp UTF8String]);               lua_setfield(L, -2, "timestamp");
                             break;
                         }
                         case MIKMIDICommandTypeChannelPressure: {
@@ -668,9 +668,9 @@ static int midi_callback(lua_State *L) {
                             //      * timestamp           - The timestamp for the command as a string.
                             MIKMIDIChannelPressureCommand *result = (MIKMIDIChannelPressureCommand *)command;
                             lua_newtable(L) ;
-                            lua_pushnumber(L, result.pressure);                     lua_setfield(L, -2, "pressure");
-                            lua_pushnumber(L, result.channel);                      lua_setfield(L, -2, "channel");
-                            lua_pushstring(L, [timestamp UTF8String]);              lua_setfield(L, -2, "timestamp");
+                            lua_pushinteger(L, result.pressure);                     lua_setfield(L, -2, "pressure");
+                            lua_pushinteger(L, result.channel);                      lua_setfield(L, -2, "channel");
+                            lua_pushstring(L, [timestamp UTF8String]);               lua_setfield(L, -2, "timestamp");
                             break;
                         }
                         case MIKMIDICommandTypePitchWheelChange: {
@@ -679,8 +679,8 @@ static int midi_callback(lua_State *L) {
                             //      * timestamp           - The timestamp for the command as a string.
                             MIKMIDIPitchBendChangeCommand *result = (MIKMIDIPitchBendChangeCommand *)command;
                             lua_newtable(L) ;
-                            lua_pushnumber(L, result.pitchChange);                  lua_setfield(L, -2, "pitchChange");
-                            lua_pushnumber(L, result.channel);                      lua_setfield(L, -2, "channel");
+                            lua_pushinteger(L, result.pitchChange);                 lua_setfield(L, -2, "pitchChange");
+                            lua_pushinteger(L, result.channel);                     lua_setfield(L, -2, "channel");
                             lua_pushstring(L, [timestamp UTF8String]);              lua_setfield(L, -2, "timestamp");
                             break;
                         }
@@ -692,7 +692,7 @@ static int midi_callback(lua_State *L) {
                             lua_newtable(L) ;
                             lua_pushinteger(L, result.dataByte1);                  lua_setfield(L, -2, "dataByte1");
                             lua_pushinteger(L, result.dataByte2);                  lua_setfield(L, -2, "dataByte2");
-                            lua_pushstring(L, [timestamp UTF8String]);              lua_setfield(L, -2, "timestamp");
+                            lua_pushstring(L, [timestamp UTF8String]);             lua_setfield(L, -2, "timestamp");
                             break;
                         }
                         case MIKMIDICommandTypeSystemExclusive: {
