@@ -3,31 +3,6 @@
 
 #import "MIKMIDI/MIKMIDI.h"
 
-/*
-
- TO-DO LIST:
- ===========
-
-  - Finish hs.midi:sendCommand()
- 
- 
- TEST CODE:
- ==========
-
- hs.midi.deviceCallback(function(devices)
-     print(hs.inspect(devices))
- end)
- midiDevice = hs.midi.new(hs.midi.devices()[3])
- midiDevice:callback(function(object, deviceName, commandType, description, metadata)
-     print("object: " .. tostring(object))
-     print("deviceName: " .. deviceName)
-     print("commandType: " .. commandType)
-     print("description: " .. description)
-     print("metadata: " .. hs.inspect(metadata))
- end)
-
- */
-
 //
 // Establish a unique context for identifying our observers:
 //
@@ -148,14 +123,14 @@ static int refTable = LUA_NOREF;
     }
 
     MIKMIDICommand *command = [MIKMIDICommand commandWithMIDIPacket:&packet];
-    NSLog(@"Sending idenity request command: %@", command);
-
+    
     NSArray *destinations = [self.midiDevice.entities valueForKeyPath:@"@unionOfArrays.destinations"];
     if (![destinations count]) return;
     for (MIKMIDIDestinationEndpoint *destination in destinations) {
         NSError *error = nil;
         if (![self.midiDeviceManager sendCommands:@[command] toEndpoint:destination error:&error]) {
-            NSLog(@"Unable to send command %@ to endpoint %@: %@", command, destination, error);
+            LuaSkin *skin = [LuaSkin shared] ;
+            [skin logError:[NSString stringWithFormat:@"Unable to send command %@ to endpoint %@: %@", command, destination, error]] ;
         }
     }
 }
@@ -248,7 +223,7 @@ static int devices(lua_State *L) {
 /// Notes:
 ///  * The callback function should expect 1 argument and should not return anything:
 ///    * `devices` - A table containing the names of any connected MIDI devices as strings.
-///  * Example:
+///  * Example Usage:
 ///    ```hs.midi.deviceCallback(function(devices)
 ///         print(hs.inspect(devices))
 ///    end)```
@@ -291,6 +266,10 @@ static int deviceCallback(lua_State *L) {
 ///
 /// Returns:
 ///  * An `hs.midi` object
+///
+/// Notes:
+///  * Example Usage:
+///    `hs.midi.new(hs.midi.devices()[1])`
 static int midi_new(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
@@ -318,16 +297,6 @@ static int midi_new(lua_State *L) {
 ///  * The `hs.midi` object
 ///
 /// Notes:
-///  * Example Usage:
-///    ```midiDevice = hs.midi.new(hs.midi.devices()[3])
-///    midiDevice:callback(function(object, deviceName, commandType, description, metadata)
-///               print("object: " .. tostring(object))
-///               print("deviceName: " .. deviceName)
-///               print("commandType: " .. commandType)
-///               print("description: " .. description)
-///               print("metadata: " .. hs.inspect(metadata))
-///               end)```
-///
 ///  * The callback function should expect 8 arguments and should not return anything:
 ///    * `object`       - The `hs.midi` object.
 ///    * `deviceName`   - The device name as a string.
@@ -357,7 +326,7 @@ static int midi_new(lua_State *L) {
 ///
 ///    * `controlChange` - Control change command. This is the most common command sent by MIDI controllers:
 ///      * controllerNumber    - The MIDI control number for the command.
-///      * controlValue        - The controlValue of the command. Only the lower 7-bits of this are used.
+///      * controllerValue     - The controllerValue of the command. Only the lower 7-bits of this are used.
 ///      * channel             - The channel for the command. Must be between 0 and 15.
 ///      * timestamp           - The timestamp for the command as a string.
 ///
@@ -432,6 +401,15 @@ static int midi_new(lua_State *L) {
 ///      * dataByte2           - Data
 ///      * timestamp           - The timestamp for the command as a string.
 ///
+///  * Example Usage:
+///    ```midiDevice = hs.midi.new(hs.midi.devices()[3])
+///    midiDevice:callback(function(object, deviceName, commandType, description, metadata)
+///               print("object: " .. tostring(object))
+///               print("deviceName: " .. deviceName)
+///               print("commandType: " .. commandType)
+///               print("description: " .. description)
+///               print("metadata: " .. hs.inspect(metadata))
+///               end)```
 static int midi_callback(lua_State *L) {
 
     //
@@ -640,13 +618,13 @@ static int midi_callback(lua_State *L) {
                         }
                         case MIKMIDICommandTypeControlChange: {
                             //      * controllerNumber    - The MIDI control number for the command.
-                            //      * controlValue        - The controlValue of the command. Only the lower 7-bits of this are used.
+                            //      * controllerValue     - The controllerValue of the command. Only the lower 7-bits of this are used.
                             //      * channel             - The channel for the command. Must be between 0 and 15.
                             //      * timestamp           - The timestamp for the command.
                             MIKMIDIControlChangeCommand *result = (MIKMIDIControlChangeCommand *)command;
                             lua_newtable(L) ;
                             lua_pushinteger(L, result.controllerNumber);             lua_setfield(L, -2, "controllerNumber");
-                            lua_pushinteger(L, result.value);                        lua_setfield(L, -2, "controlValue");
+                            lua_pushinteger(L, result.value);                        lua_setfield(L, -2, "controllerValue");
                             lua_pushinteger(L, result.channel);                      lua_setfield(L, -2, "channel");
                             lua_pushstring(L, [timestamp UTF8String]);               lua_setfield(L, -2, "timestamp");
                             break;
@@ -766,8 +744,8 @@ static int midi_callback(lua_State *L) {
 ///
 /// Notes:
 ///  * You can use `hs.midi:availableCommands()` to determine what commands are supported by the MIDI device.
-///  * Example:
-///    * `midiDevice:sendSysex("f07e7f06 01f7")`
+///  * Example Usage:
+///    ```midiDevice:sendSysex(midiDevice:availableCommands()[1]["value"])```
 static int midi_sendSysex(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TBREAK];
@@ -792,42 +770,74 @@ static int midi_sendSysex(lua_State *L) {
 ///  * The `metadata` table can accept following, depending on the `commandType` supplied:
 ///
 ///    * `noteOff` - Note off command:
-///      * note                - The note number for the command. Must be between 0 and 127.
-///      * velocity            - The velocity for the command. Must be between 0 and 127.
-///      * channel             - The channel for the command. Must be between 0 and 15.
+///      * note                - The note number for the command. Must be between 0 and 127. Defaults to 0.
+///      * velocity            - The velocity for the command. Must be between 0 and 127. Defaults to 0.
+///      * channel             - The channel for the command. Must be between 0 and 15. Defaults to 0.
 ///
 ///    * `noteOn` - Note on command:
-///      * note                - The note number for the command. Must be between 0 and 127.
-///      * velocity            - The velocity for the command. Must be between 0 and 127.
-///      * channel             - The channel for the command. Must be between 0 and 15.
+///      * note                - The note number for the command. Must be between 0 and 127. Defaults to 0.
+///      * velocity            - The velocity for the command. Must be between 0 and 127. Defaults to 0.
+///      * channel             - The channel for the command. Must be between 0 and 15. Defaults to 0.
 ///
 ///    * `polyphonicKeyPressure` - Polyphonic key pressure command:
-///      * note                - The note number for the command. Must be between 0 and 127.
-///      * pressure            - Key pressure of the polyphonic key pressure message. In the range 0-127.
-///      * channel             - The channel for the command. Must be between 0 and 15.
+///      * note                - The note number for the command. Must be between 0 and 127. Defaults to 0.
+///      * pressure            - Key pressure of the polyphonic key pressure message. In the range 0-127. Defaults to 0.
+///      * channel             - The channel for the command. Must be between 0 and 15. Defaults to 0.
 ///
 ///    * `controlChange` - Control change command. This is the most common command sent by MIDI controllers:
-///      * controllerNumber    - The MIDI control number for the command.
-///      * controlValue        - The controlValue of the command. Only the lower 7-bits of this are used.
-///      * channel             - The channel for the command. Must be between 0 and 15.
+///      * controllerNumber    - The MIDI control number for the command. Defaults to 0.
+///      * controllerValue     - The controllerValue of the command. Only the lower 7-bits of this are used. Defaults to 0.
+///      * channel             - The channel for the command. Must be between 0 and 15. Defaults to 0.
 ///
 ///    * `programChange` - Program change command:
-///      * programNumber       - The program (aka patch) number. From 0-127.
-///      * channel             - The channel for the command. Must be between 0 and 15.
+///      * programNumber       - The program (aka patch) number. From 0-127. Defaults to 0.
+///      * channel             - The channel for the command. Must be between 0 and 15. Defaults to 0.
 ///
 ///    * `channelPressure` - Channel pressure command:
-///      * pressure            - Key pressure of the channel pressure message. In the range 0-127.
-///      * channel             - The channel for the command. Must be between 0 and 15.
+///      * pressure            - Key pressure of the channel pressure message. In the range 0-127. Defaults to 0.
+///      * channel             - The channel for the command. Must be between 0 and 15. Defaults to 0.
 ///
 ///    * `pitchWheelChange` - Pitch wheel change command:
-///      * pitchChange         -  A 14-bit value indicating the pitch bend. Center is 0x2000 (8192). Valid range is from 0-16383.
-///      * channel             - The channel for the command. Must be between 0 and 15.
+///      * pitchChange         -  A 14-bit value indicating the pitch bend. Center is 0x2000 (8192). Valid range is from 0-16383. Defaults to 0.
+///      * channel             - The channel for the command. Must be between 0 and 15. Defaults to 0.
+///
+///  * Example Usage:
+///     ```midiDevice = hs.midi.new(hs.midi.devices()[1])
+///     midiDevice:sendCommand("noteOn", {
+///         ["note"] = 72,
+///         ["velocity"] = 50,
+///         ["channel"] = 0,
+///     })
+///     hs.timer.usleep(500000)
+///     midiDevice:sendCommand("noteOn", {
+///         ["note"] = 74,
+///         ["velocity"] = 50,
+///         ["channel"] = 0,
+///     })
+///     hs.timer.usleep(500000)
+///     midiDevice:sendCommand("noteOn", {
+///         ["note"] = 76,
+///         ["velocity"] = 50,
+///         ["channel"] = 0,
+///     })
+///     midiDevice:sendCommand("pitchWheelChange", {
+///         ["pitchChange"] = 1000,
+///         ["channel"] = 0,
+///     })
+///     hs.timer.usleep(100000)
+///     midiDevice:sendCommand("pitchWheelChange", {
+///         ["pitchChange"] = 2000,
+///         ["channel"] = 0,
+///     })
+///     hs.timer.usleep(100000)
+///     midiDevice:sendCommand("pitchWheelChange", {
+///         ["pitchChange"] = 3000,
+///         ["channel"] = 0,
+///     })```
 static int midi_sendCommand(lua_State *L) {
     
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TTABLE, LS_TBREAK];
-    
-    bool result = true;
     
     //
     // Get Parameters:
@@ -836,11 +846,22 @@ static int midi_sendCommand(lua_State *L) {
     NSDate *date = [NSDate date];
     NSError *error = nil;
     
+    //
+    // Default Values:
+    //
+    bool result = true;
     lua_Integer note = 0;
     lua_Integer velocity = 0;
     lua_Integer channel = 0;
     lua_Integer pressure = 0;
+    lua_Integer controllerNumber = 0;
+    lua_Integer controllerValue = 0;
+    lua_Integer programNumber = 0;
+    lua_Integer pitchChange = 0;
     
+    //
+    // Get Values from metadata table:
+    //
     if (lua_istable(L, 3)) {
         if (lua_getfield(L, -1, "note") == LUA_TNUMBER) {
             note = lua_tointeger(L, -1);
@@ -856,6 +877,22 @@ static int midi_sendCommand(lua_State *L) {
         lua_pop(L, 1);
         if (lua_getfield(L, -1, "pressure") == LUA_TNUMBER) {
             pressure = lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        if (lua_getfield(L, -1, "controllerNumber") == LUA_TNUMBER) {
+            controllerNumber = lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        if (lua_getfield(L, -1, "controllerValue") == LUA_TNUMBER) {
+            controllerValue = lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        if (lua_getfield(L, -1, "programNumber") == LUA_TNUMBER) {
+            programNumber = lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        if (lua_getfield(L, -1, "pitchChange") == LUA_TNUMBER) {
+            pitchChange = lua_tointeger(L, -1);
         }
         lua_pop(L, 1);
     }
@@ -876,53 +913,95 @@ static int midi_sendCommand(lua_State *L) {
     //
     if ([commandType isEqualToString:@"noteOff"])
     {
+        //      * note                - The note number for the command. Must be between 0 and 127.
+        //      * velocity            - The velocity for the command. Must be between 0 and 127.
+        //      * channel             - The channel for the command. Must be between 0 and 15.
         MIKMIDINoteOffCommand *noteOff = [MIKMIDINoteOffCommand noteOffCommandWithNote:note velocity:velocity channel:channel timestamp:date];
         if (![wrapper.midiDeviceManager sendCommands:@[noteOff] toEndpoint:destinationEndpoint error:&error])
         {
-            NSLog(@"Unable to send command %@ to endpoint %@: %@", @"noteOff", destinationEndpoint, error);
             [skin logError:[NSString stringWithFormat:@"%s: %@", USERDATA_TAG, error]];
             result = false;
         }
     }
     else if ([commandType isEqualToString:@"noteOn"])
     {
+        //      * note                - The note number for the command. Must be between 0 and 127.
+        //      * velocity            - The velocity for the command. Must be between 0 and 127.
+        //      * channel             - The channel for the command. Must be between 0 and 15.
         MIKMIDINoteOnCommand *noteOn = [MIKMIDINoteOnCommand noteOnCommandWithNote:note velocity:velocity channel:channel timestamp:date];
         if (![wrapper.midiDeviceManager sendCommands:@[noteOn] toEndpoint:destinationEndpoint error:&error])
         {
-            NSLog(@"Unable to send command %@ to endpoint %@: %@", @"noteOn", destinationEndpoint, error);
             [skin logError:[NSString stringWithFormat:@"%s: %@", USERDATA_TAG, error]];
             result = false;
         }
     }
     else if ([commandType isEqualToString:@"polyphonicKeyPressure"])
     {
-        //MIKMIDICommandTypePolyphonicKeyPressure
-        [skin logError:[NSString stringWithFormat:@"%s: %@", USERDATA_TAG, @"commandType not yet supported."]];
-        result = false;
+        //      * note                - The note number for the command. Must be between 0 and 127.
+        //      * pressure            - Key pressure of the polyphonic key pressure message. In the range 0-127.
+        //      * channel             - The channel for the command. Must be between 0 and 15.
+        MIKMutableMIDIPolyphonicKeyPressureCommand *polyphonicKeyPressure = [[MIKMutableMIDIPolyphonicKeyPressureCommand alloc] init];
+        polyphonicKeyPressure.note = note;
+        polyphonicKeyPressure.pressure = pressure;
+        if (![wrapper.midiDeviceManager sendCommands:@[polyphonicKeyPressure] toEndpoint:destinationEndpoint error:&error])
+        {
+            [skin logError:[NSString stringWithFormat:@"%s: %@", USERDATA_TAG, error]];
+            result = false;
+        }
     }
     else if ([commandType isEqualToString:@"controlChange"])
     {
-        //MIKMIDICommandTypeControlChange
-        [skin logError:[NSString stringWithFormat:@"%s: %@", USERDATA_TAG, @"commandType not yet supported."]];
-        result = false;
+        //      * controllerNumber    - The MIDI control number for the command.
+        //      * controllerValue     - The controllerValue of the command. Only the lower 7-bits of this are used.
+        //      * channel             - The channel for the command. Must be between 0 and 15.
+        MIKMutableMIDIControlChangeCommand *controlChange = [[MIKMutableMIDIControlChangeCommand alloc] init];
+        controlChange.controllerNumber = controllerNumber;
+        controlChange.controllerValue = controllerValue;
+        controlChange.channel = channel;
+        if (![wrapper.midiDeviceManager sendCommands:@[controlChange] toEndpoint:destinationEndpoint error:&error])
+        {
+            [skin logError:[NSString stringWithFormat:@"%s: %@", USERDATA_TAG, error]];
+            result = false;
+        }
     }
     else if ([commandType isEqualToString:@"programChange"])
     {
-        //MIKMIDICommandTypeProgramChange
-        [skin logError:[NSString stringWithFormat:@"%s: %@", USERDATA_TAG, @"commandType not yet supported."]];
-        result = false;
+        //      * programNumber       - The program (aka patch) number. From 0-127.
+        //      * channel             - The channel for the command. Must be between 0 and 15.
+        MIKMutableMIDIProgramChangeCommand *programChange = [[MIKMutableMIDIProgramChangeCommand alloc] init];
+        programChange.programNumber = programNumber;
+        programChange.channel = channel;
+        if (![wrapper.midiDeviceManager sendCommands:@[programChange] toEndpoint:destinationEndpoint error:&error])
+        {
+            [skin logError:[NSString stringWithFormat:@"%s: %@", USERDATA_TAG, error]];
+            result = false;
+        }
     }
     else if ([commandType isEqualToString:@"channelPressure"])
     {
-        //MIKMIDICommandTypeChannelPressure
-        [skin logError:[NSString stringWithFormat:@"%s: %@", USERDATA_TAG, @"commandType not yet supported."]];
-        result = false;
+        //      * pressure            - Key pressure of the channel pressure message. In the range 0-127.
+        //      * channel             - The channel for the command. Must be between 0 and 15.
+        MIKMutableMIDIChannelPressureCommand *channelPressure = [[MIKMutableMIDIChannelPressureCommand alloc] init];
+        channelPressure.pressure = pressure;
+        channelPressure.channel = channel;
+        if (![wrapper.midiDeviceManager sendCommands:@[channelPressure] toEndpoint:destinationEndpoint error:&error])
+        {
+            [skin logError:[NSString stringWithFormat:@"%s: %@", USERDATA_TAG, error]];
+            result = false;
+        }
     }
     else if ([commandType isEqualToString:@"pitchWheelChange"])
     {
-        //MIKMIDICommandTypePitchWheelChange
-        [skin logError:[NSString stringWithFormat:@"%s: %@", USERDATA_TAG, @"commandType not yet supported."]];
-        result = false;
+        //      * pitchChange         -  A 14-bit value indicating the pitch bend. Center is 0x2000 (8192). Valid range is from 0-16383.
+        //      * channel             - The channel for the command. Must be between 0 and 15.
+        MIKMutableMIDIPitchBendChangeCommand *pitchWheelChange = [[MIKMutableMIDIPitchBendChangeCommand alloc] init];
+        pitchWheelChange.pitchChange = pitchChange;
+        pitchWheelChange.channel = channel;
+        if (![wrapper.midiDeviceManager sendCommands:@[pitchWheelChange] toEndpoint:destinationEndpoint error:&error])
+        {
+            [skin logError:[NSString stringWithFormat:@"%s: %@", USERDATA_TAG, error]];
+            result = false;
+        }
     }
     else {
         [skin logError:[NSString stringWithFormat:@"%s: %@", USERDATA_TAG, @"Unrecognised commandType."]];
