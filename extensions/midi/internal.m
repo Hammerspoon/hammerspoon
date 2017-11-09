@@ -8,12 +8,9 @@
  TO-DO LIST:
  ===========
 
-  - Finish hs.midi:sendCommand() - this should probably use same "metadata" table as the callback?
-  - Add MIDI Synthesis support
-  - Add MIDI Sequencing support
-  - Add MIDI Files support
-  - Add MIDI Mapping support
-
+  - Finish hs.midi:sendCommand()
+ 
+ 
  TEST CODE:
  ==========
 
@@ -48,6 +45,7 @@ static int refTable = LUA_NOREF;
 @interface HSMIDIDeviceManager : NSObject
 @property                           MIKMIDIDeviceManager *midiDeviceManager ;
 @property                           MIKMIDIDevice *midiDevice ;
+@property                           MIKMIDISynthesizer *synth ;
 @property (nonatomic, readonly)     NSArray *availableCommands;
 @property int                       callbackRef ;
 @property int                       deviceCallbackRef ;
@@ -114,6 +112,19 @@ static int refTable = LUA_NOREF;
     @catch (NSException *exception) {
         [LuaSkin logError:[NSString stringWithFormat:@"%s:deviceCallback - %@", USERDATA_TAG, exception.reason]] ;
     }
+}
+
+#pragma mark - MIDI Synthesis
+
+- (void)startSynthesize
+{
+    MIKMIDISourceEndpoint *endpoint = self.midiDevice.entities.firstObject.sources.firstObject;
+    _synth = [[MIKMIDIEndpointSynthesizer alloc] initWithMIDISource:endpoint];
+}
+
+- (void)stopSynthesize
+{
+    _synth = nil;
 }
 
 #pragma mark - MIDI Functions
@@ -748,7 +759,7 @@ static int midi_callback(lua_State *L) {
 /// Sends a System Command to the `hs.midi` object.
 ///
 /// Parameters:
-///  * command - The command you wish to send as a string.
+///  * `command` - The command you wish to send as a string.
 ///
 /// Returns:
 ///  * None
@@ -766,124 +777,159 @@ static int midi_sendSysex(lua_State *L) {
     return 1;
 }
 
-/// hs.midi:sendCommand(commandType, note, velocity, channel) -> none
+/// hs.midi:sendCommand(commandType, metadata) -> boolean
 /// Method
 /// Sends a command to the `hs.midi` object.
 ///
 /// Parameters:
-///  * commandType - The type of command you want to send as a string. See `hs.midi.commandTypes[]`.
-///  * note - The note number for the command. Must be between 0 and 127.
-///  * velocity - The velocity for the command. Must be between 0 and 127.
-///  * channel - The channel for the command. Must be between 0 and 15.
+///  * `commandType`    - The type of command you want to send as a string. See `hs.midi.commandTypes[]`.
+///  * `metadata`       - A table of data for the MIDI command (see notes below).
 ///
 /// Returns:
-///  * None
+///  * `true` if successful, otherwise `false`
+///
+/// Notes:
+///  * The `metadata` table can accept following, depending on the `commandType` supplied:
+///
+///    * `noteOff` - Note off command:
+///      * note                - The note number for the command. Must be between 0 and 127.
+///      * velocity            - The velocity for the command. Must be between 0 and 127.
+///      * channel             - The channel for the command. Must be between 0 and 15.
+///
+///    * `noteOn` - Note on command:
+///      * note                - The note number for the command. Must be between 0 and 127.
+///      * velocity            - The velocity for the command. Must be between 0 and 127.
+///      * channel             - The channel for the command. Must be between 0 and 15.
+///
+///    * `polyphonicKeyPressure` - Polyphonic key pressure command:
+///      * note                - The note number for the command. Must be between 0 and 127.
+///      * pressure            - Key pressure of the polyphonic key pressure message. In the range 0-127.
+///      * channel             - The channel for the command. Must be between 0 and 15.
+///
+///    * `controlChange` - Control change command. This is the most common command sent by MIDI controllers:
+///      * controllerNumber    - The MIDI control number for the command.
+///      * controlValue        - The controlValue of the command. Only the lower 7-bits of this are used.
+///      * channel             - The channel for the command. Must be between 0 and 15.
+///
+///    * `programChange` - Program change command:
+///      * programNumber       - The program (aka patch) number. From 0-127.
+///      * channel             - The channel for the command. Must be between 0 and 15.
+///
+///    * `channelPressure` - Channel pressure command:
+///      * pressure            - Key pressure of the channel pressure message. In the range 0-127.
+///      * channel             - The channel for the command. Must be between 0 and 15.
+///
+///    * `pitchWheelChange` - Pitch wheel change command:
+///      * pitchChange         -  A 14-bit value indicating the pitch bend. Center is 0x2000 (8192). Valid range is from 0-16383.
+///      * channel             - The channel for the command. Must be between 0 and 15.
 static int midi_sendCommand(lua_State *L) {
-
-    // TO-DO: maybe rather than having individual note, velocity and channel parameters, I should just have a single "metatable" table as the paramater to match the callback?
-
+    
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TNUMBER, LS_TNUMBER, LS_TNUMBER, LS_TBREAK];
-
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TTABLE, LS_TBREAK];
+    
+    bool result = true;
+    
     //
     // Get Parameters:
     //
     NSString *commandType = [skin toNSObjectAtIndex:2];
-    NSNumber *note = [skin toNSObjectAtIndex:3];
-    NSNumber *velocity = [skin toNSObjectAtIndex:4];
-    NSNumber *channel = [skin toNSObjectAtIndex:5];
     NSDate *date = [NSDate date];
     NSError *error = nil;
-
+    
+    lua_Integer note = 0;
+    lua_Integer velocity = 0;
+    lua_Integer channel = 0;
+    lua_Integer pressure = 0;
+    
+    if (lua_istable(L, 3)) {
+        if (lua_getfield(L, -1, "note") == LUA_TNUMBER) {
+            note = lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        if (lua_getfield(L, -1, "velocity") == LUA_TNUMBER) {
+            velocity = lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        if (lua_getfield(L, -1, "channel") == LUA_TNUMBER) {
+            channel = lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        if (lua_getfield(L, -1, "pressure") == LUA_TNUMBER) {
+            pressure = lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+    }
+    
     //
     // Setup Device Manager:
     //
     HSMIDIDeviceManager *wrapper = [skin toNSObjectAtIndex:1] ;
-
+    
     //
     // Setup Destination Endpoint:
     //
     NSArray *destinations = [wrapper.midiDevice.entities valueForKeyPath:@"@unionOfArrays.destinations"];
     MIKMIDIDestinationEndpoint *destinationEndpoint = [destinations objectAtIndex:0];
-
+    
     //
-    // Types of Commands:
+    // Send Commands:
     //
     if ([commandType isEqualToString:@"noteOff"])
     {
-        MIKMIDINoteOffCommand *noteOff = [MIKMIDINoteOffCommand noteOffCommandWithNote:[note integerValue] velocity:[velocity integerValue] channel:[channel integerValue] timestamp:date];
-        [wrapper.midiDeviceManager sendCommands:@[noteOff] toEndpoint:destinationEndpoint error:&error];
+        MIKMIDINoteOffCommand *noteOff = [MIKMIDINoteOffCommand noteOffCommandWithNote:note velocity:velocity channel:channel timestamp:date];
+        if (![wrapper.midiDeviceManager sendCommands:@[noteOff] toEndpoint:destinationEndpoint error:&error])
+        {
+            NSLog(@"Unable to send command %@ to endpoint %@: %@", @"noteOff", destinationEndpoint, error);
+            [skin logError:[NSString stringWithFormat:@"%s: %@", USERDATA_TAG, error]];
+            result = false;
+        }
     }
-    if ([commandType isEqualToString:@"noteOn"])
+    else if ([commandType isEqualToString:@"noteOn"])
     {
-        MIKMIDINoteOnCommand *noteOn = [MIKMIDINoteOnCommand noteOnCommandWithNote:[note integerValue] velocity:[velocity integerValue] channel:[channel integerValue] timestamp:date];
-        [wrapper.midiDeviceManager sendCommands:@[noteOn] toEndpoint:destinationEndpoint error:&error];
+        MIKMIDINoteOnCommand *noteOn = [MIKMIDINoteOnCommand noteOnCommandWithNote:note velocity:velocity channel:channel timestamp:date];
+        if (![wrapper.midiDeviceManager sendCommands:@[noteOn] toEndpoint:destinationEndpoint error:&error])
+        {
+            NSLog(@"Unable to send command %@ to endpoint %@: %@", @"noteOn", destinationEndpoint, error);
+            [skin logError:[NSString stringWithFormat:@"%s: %@", USERDATA_TAG, error]];
+            result = false;
+        }
     }
-    if ([commandType isEqualToString:@"polyphonicKeyPressure"])
+    else if ([commandType isEqualToString:@"polyphonicKeyPressure"])
     {
         //MIKMIDICommandTypePolyphonicKeyPressure
+        [skin logError:[NSString stringWithFormat:@"%s: %@", USERDATA_TAG, @"commandType not yet supported."]];
+        result = false;
     }
-    if ([commandType isEqualToString:@"controlChange"])
+    else if ([commandType isEqualToString:@"controlChange"])
     {
         //MIKMIDICommandTypeControlChange
+        [skin logError:[NSString stringWithFormat:@"%s: %@", USERDATA_TAG, @"commandType not yet supported."]];
+        result = false;
     }
-    if ([commandType isEqualToString:@"programChange"])
+    else if ([commandType isEqualToString:@"programChange"])
     {
         //MIKMIDICommandTypeProgramChange
+        [skin logError:[NSString stringWithFormat:@"%s: %@", USERDATA_TAG, @"commandType not yet supported."]];
+        result = false;
     }
-    if ([commandType isEqualToString:@"channelPressure"])
+    else if ([commandType isEqualToString:@"channelPressure"])
     {
         //MIKMIDICommandTypeChannelPressure
+        [skin logError:[NSString stringWithFormat:@"%s: %@", USERDATA_TAG, @"commandType not yet supported."]];
+        result = false;
     }
-    if ([commandType isEqualToString:@"pitchWheelChange"])
+    else if ([commandType isEqualToString:@"pitchWheelChange"])
     {
         //MIKMIDICommandTypePitchWheelChange
+        [skin logError:[NSString stringWithFormat:@"%s: %@", USERDATA_TAG, @"commandType not yet supported."]];
+        result = false;
     }
-    if ([commandType isEqualToString:@"systemMessage"])
-    {
-        //MIKMIDICommandTypeSystemMessage
+    else {
+        [skin logError:[NSString stringWithFormat:@"%s: %@", USERDATA_TAG, @"Unrecognised commandType."]];
+        result = false;
     }
-    if ([commandType isEqualToString:@"systemExclusive"])
-    {
-        //MIKMIDICommandTypeSystemExclusive
-    }
-    if ([commandType isEqualToString:@"systemTimecodeQuarterFrame"])
-    {
-        //MIKMIDICommandTypeSystemTimecodeQuarterFrame
-    }
-    if ([commandType isEqualToString:@"systemSongPositionPointer"])
-    {
-        //MIKMIDICommandTypeSystemSongPositionPointer
-    }
-    if ([commandType isEqualToString:@"systemSongSelect"])
-    {
-        //MIKMIDICommandTypeSystemSongSelect
-    }
-    if ([commandType isEqualToString:@"systemTuneRequest"])
-    {
-        //MIKMIDICommandTypeSystemTuneRequest
-    }
-    if ([commandType isEqualToString:@"systemTimingClock"])
-    {
-        //MIKMIDICommandTypeSystemTimingClock
-    }
-    if ([commandType isEqualToString:@"systemStartSequence"])
-    {
-        //MIKMIDICommandTypeSystemStartSequence
-    }
-    if ([commandType isEqualToString:@"systemContinueSequence"])
-    {
-        //MIKMIDICommandTypeSystemContinueSequence
-    }
-    if ([commandType isEqualToString:@"systemStopSequence"])
-    {
-        //MIKMIDICommandTypeSystemStopSequence
-    }
-    if ([commandType isEqualToString:@"systemKeepAlive"])
-    {
-        //MIKMIDICommandTypeSystemKeepAlive
-    }
-    lua_pushnil(L) ;
+        
+    lua_pushboolean(L, result) ;
     return 1;
 }
 
@@ -902,6 +948,34 @@ static int midi_availableCommands(lua_State *L) {
     HSMIDIDeviceManager *wrapper = [skin toNSObjectAtIndex:1] ;
     NSArray *availableCommands = [wrapper availableCommands];
     [skin pushNSObject:availableCommands];
+    return 1;
+}
+
+/// hs.midi:synthesize([value]) -> boolean
+/// Method
+/// Set or display whether or not the MIDI device should synthesize audio on your computer.
+///
+/// Parameters:
+///  * [value] - `true` if you want to synthesize audio, otherwise `false`.
+///
+/// Returns:
+///  * `true` if enabled otherwise `false`
+static int midi_synthesize(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
+    
+    HSMIDIDeviceManager *wrapper = [skin toNSObjectAtIndex:1] ;
+    
+    BOOL enabled = lua_toboolean(L, 2);
+    if (enabled == 1) {
+        [wrapper startSynthesize];
+    }
+    else
+    {
+        [wrapper stopSynthesize];
+    }
+    
+    lua_pushboolean(L, enabled) ;
     return 1;
 }
 
@@ -1110,10 +1184,18 @@ static int userdata_gc(lua_State* L) {
             LuaSkin *skin = [LuaSkin shared] ;
             obj.callbackRef = [skin luaUnref:refTable ref:obj.callbackRef] ;
             
+            //
+            // Disconnect Callback:
+            //
             if (obj.callbackToken != nil) {
                 [obj.midiDeviceManager disconnectConnectionForToken:obj.callbackToken];
                 obj.callbackToken = nil;
             }
+            
+            //
+            // Stop Synthesis:
+            //
+            [obj stopSynthesize];
             
             obj = nil ;
         }
@@ -1142,6 +1224,7 @@ static int meta_gc(lua_State* __unused L) {
 // Metatable for userdata objects:
 //
 static const luaL_Reg userdata_metaLib[] = {
+    {"synthesize", midi_synthesize},
     {"sendCommand", midi_sendCommand},
     {"sendSysex", midi_sendSysex},
     {"availableCommands", midi_availableCommands},
