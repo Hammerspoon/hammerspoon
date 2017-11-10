@@ -14,18 +14,14 @@ If you have any questions about, or suggestions for MIKMIDI, please [contact the
 How To Use MIKMIDI
 ------------------
 
-MIKMIDI is provided as a source library for both OS X and iOS. Additionally, for OS X, a project to build a Framework is included. To use MIKMIDI in your project, add its source to your project by dragging the contents of the 'Source' folder into your Xcode project.
-
-MIKMIDI relies on CoreMIDI.framework, as well as on libxml2 (on iOS). Make sure Objective-C module support is turned on in your target/project's build settings (see [here](http://stackoverflow.com/a/18947634/344733)). 
-
-On OS X, you can also use MIKMIDI.framework instead of including the MIKMIDI source in your project. To do so, open MIKMIDI.xcodeproj in the 'Framework' folder, build then copy the resultant MIKMIDI.framework into your project. In your project's settings, select your application's target, then click on the "Build Phases" tab. Expand the "Link Binary With Libraries" section, then click the "+" button in the lower left corner to add a new Framework. In the list that appears, find and select MIKMIDI.framework.
+MIKMIDI ships with a project to build frameworks for iOS and macOS. You can also install it using CocoaPods or Carthage. See [this page](https://github.com/mixedinkey-opensource/MIKMIDI/wiki/Installing-MIKMIDI) on the MIKMIDI wiki for detailed instructions for adding MIKMIDI to your project.
 
 MIKMIDI Overview
 ----------------
 
-MIKMIDI has an Objective-C interface -- as opposed to CoreMIDI's pure C API -- in order to make adding MIDI support to a Cocoa/Cocoa Touch app easier. At it’s core, MIKMIDI consists of relatively thin Objective-C wrappers around underlying CoreMIDI APIs. Much of MIKMIDI's design is informed and driven by CoreMIDI's design. For this reason, familiarity with the high level pieces of [CoreMIDI](https://developer.apple.com/library/iOS/documentation/CoreMidi/Reference/MIDIServices_Reference/Reference/reference.html) can be helpful in understanding and using MIKMIDI.
+MIKMIDI has an Objective-C interface -- as opposed to CoreMIDI's pure C API -- in order to make adding MIDI support to a Cocoa/Cocoa Touch app easier. At its core, MIKMIDI consists of relatively thin Objective-C wrappers around underlying CoreMIDI APIs. Much of MIKMIDI's design is informed and driven by CoreMIDI's design. For this reason, familiarity with the high level pieces of [CoreMIDI](https://developer.apple.com/library/iOS/documentation/CoreMidi/Reference/MIDIServices_Reference/Reference/reference.html) can be helpful in understanding and using MIKMIDI.
 
-MIKMIDI is not limited to Objective-C interfaces for existing CoreMIDI functionality. MIKMIDI provides a number of higher level features. This includes an easy way to receive and route MIDI messages to appropriate parts of your application. Also included is functionality intended to facilitate implementing a MIDI learning UI so that users may create custom MIDI mapping files. These MIDI mapping files associate physical controls on a particular piece of MIDI hardware with corresponding receivers (e.g. on-screen buttons, knobs, musical instruments, etc.) in your application.
+MIKMIDI is not limited to Objective-C interfaces for existing CoreMIDI functionality. MIKMIDI provides a number of higher level features. These include: message routing, sequencing, recording, etc.. Also included is functionality intended to facilitate implementing a MIDI learning UI so that users may create custom MIDI mapping files. These MIDI mapping files associate physical controls on a particular piece of MIDI hardware with corresponding receivers (e.g. on-screen buttons, knobs, musical instruments, etc.) in your application.
 
 To understand MIKMIDI, it's helpful to break it down into its major subsystems:
 
@@ -99,7 +95,7 @@ MIKMIDI includes features to make it easy to read and write MIDI files. This sup
 MIDI Synthesis
 --------------
 
-MIDI synthesis is the process by which MIDI events/messages are turned into audio that you can hear. This is accomplished using `MIKMIDISynthesizer`. Also included is a subclass of `MIKMIDISynthesizer`, `MIKMIDIEndpointSynthesizer` which can very easily be hooked up to a MIDI enpoint to synthesize incoming MIDI messages:
+MIDI synthesis is the process by which MIDI events/messages are turned into audio that you can hear. This is accomplished using `MIKMIDISynthesizer`. Also included is a subclass of `MIKMIDISynthesizer`, `MIKMIDIEndpointSynthesizer` which can very easily be hooked up to a MIDI endpoint to synthesize incoming MIDI messages:
 
 ```objective-c
 MIKMIDISourceEndpoint *endpoint = midiDevice.entities.firstObject.sources.firstObject;

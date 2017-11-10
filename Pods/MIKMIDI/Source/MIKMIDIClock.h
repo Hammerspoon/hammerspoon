@@ -24,7 +24,7 @@ Float64 MIKMIDIClockMIDITimeStampsPerTimeInterval(NSTimeInterval timeInterval);
  *
  *  @return Then number of seconds per each MIDITimeStamp.
  */
-Float64 MIKMIDIClockSecondsPerMIDITimeStamp();
+Float64 MIKMIDIClockSecondsPerMIDITimeStamp(void);
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -269,6 +269,10 @@ BOOL MIKMIDINoteOffCommandCorrespondsWithNoteOnCommand(MIKMIDINoteOffCommand *no
 			   withSetMutation:NSKeyValueUnionSetMutation
 				  usingObjects:[NSSet setWithObject:device]];
 	
+	if ([self.delegate respondsToSelector:@selector(connectionManager:deviceWasConnected:)]) {
+		[self.delegate connectionManager:self deviceWasConnected:device];
+	}
+	
 	return YES;
 }
 

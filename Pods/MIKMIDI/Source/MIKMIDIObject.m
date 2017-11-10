@@ -95,7 +95,10 @@ static NSMutableSet *registeredMIKMIDIObjectSubclasses;
 	return self.uniqueID == [(MIKMIDIObject *)object uniqueID];
 }
 
-- (NSUInteger)hash { return self.uniqueID; }
+- (NSUInteger)hash
+{
+	return @(self.uniqueID).hash;
+}
 
 - (NSString *)description
 {
@@ -117,6 +120,8 @@ static NSMutableSet *registeredMIKMIDIObjectSubclasses;
 #pragma mark - Private
 
 #pragma mark - Properties
+
+@synthesize uniqueID = _uniqueID;
 
 - (MIDIUniqueID)uniqueID
 {

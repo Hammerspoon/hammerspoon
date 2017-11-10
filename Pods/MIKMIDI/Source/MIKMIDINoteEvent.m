@@ -202,7 +202,7 @@
 + (MIKMIDINoteOffCommand *)noteOffCommandFromNoteEvent:(MIKMIDINoteEvent *)noteEvent clock:(MIKMIDIClock *)clock
 {
 	MIKMutableMIDINoteOffCommand *noteOff = [[MIKMutableMIDINoteOffCommand alloc] init];
-	MIDITimeStamp timestamp = clock ? [clock midiTimeStampForMusicTimeStamp:noteEvent.timeStamp] : MIKMIDIGetCurrentTimeStamp();
+	MIDITimeStamp timestamp = clock ? [clock midiTimeStampForMusicTimeStamp:noteEvent.endTimeStamp] : MIKMIDIGetCurrentTimeStamp();
 	noteOff.midiTimestamp = timestamp;
 	noteOff.channel = noteEvent.channel;
 	noteOff.note = noteEvent.note;

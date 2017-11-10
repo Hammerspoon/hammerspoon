@@ -13,9 +13,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MIKMIDISequence (MIKMIDIPrivate)
+@interface MIKMIDISequence ()
 
-@property (weak, nonatomic, nullable) MIKMIDISequencer *sequencer;
+@property (nonatomic, weak, readwrite, nullable) MIKMIDISequencer *sequencer;
 
 @end
 

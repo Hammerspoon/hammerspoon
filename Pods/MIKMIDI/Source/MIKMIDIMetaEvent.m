@@ -23,6 +23,19 @@
 + (BOOL)isMutable { return NO; }
 + (NSData *)initialData { return [NSData dataWithBytes:&(MIDIMetaEvent){0} length:sizeof(MIDIMetaEvent)]; }
 
+- (nullable instancetype)initWithTimeStamp:(MusicTimeStamp)timeStamp midiEventType:(MIKMIDIEventType)eventType data:(nullable NSData *)data
+{
+	self = [super initWithTimeStamp:timeStamp midiEventType:eventType data:data];
+	if (self) {
+		MIKMIDIMetaEventType metadataType = [[self class] metaSubtypeForEventType:eventType];
+		if (self.metadataType != metadataType) {
+			MIDIMetaEvent *metaEvent = (MIDIMetaEvent*)[self.internalData bytes];
+			metaEvent->metaEventType = metadataType;
+		}
+	}
+	return self;
+}
+
 - (instancetype)initWithMetaData:(NSData *)metaData metadataType:(MIKMIDIMetaEventType)type timeStamp:(MusicTimeStamp)timeStamp
 {
 	MIKMIDIEventType eventType = [MIKMIDIMetaEvent eventTypeForMetaSubtype:type];

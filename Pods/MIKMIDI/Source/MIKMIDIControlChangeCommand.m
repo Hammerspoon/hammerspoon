@@ -31,6 +31,14 @@
 + (Class)immutableCounterpartClass; { return [MIKMIDIControlChangeCommand class]; }
 + (Class)mutableCounterpartClass; { return [MIKMutableMIDIControlChangeCommand class]; }
 
++ (instancetype)controlChangeCommandWithControllerNumber:(NSUInteger)controllerNumber value:(NSUInteger)sevenBitValue
+{
+	MIKMutableMIDIControlChangeCommand *command = [[[self mutableCounterpartClass] alloc] init];
+	command.controllerNumber = controllerNumber;
+	command.controllerValue = sevenBitValue;
+	return [command copy];
+}
+
 + (instancetype)commandByCoalescingMSBCommand:(MIKMIDIControlChangeCommand *)msbCommand andLSBCommand:(MIKMIDIControlChangeCommand *)lsbCommand;
 {
 	if (!msbCommand || !lsbCommand) return nil;

@@ -276,7 +276,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  *	The sequencer this sequence is assigned to for playback.
  */
-@property (nonatomic, readonly, nullable) MIKMIDISequencer *sequencer;
+@property (nonatomic, weak, readonly, nullable) MIKMIDISequencer *sequencer;
 
 /**
  *  The tempo track for the sequence. Even in a new, empty sequence,

@@ -17,7 +17,16 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MIKMIDIControlChangeCommand : MIKMIDIChannelVoiceCommand
 
 /**
- *  Convience method for creating a single, 14-bit control change command from its component
+ Convenience method for creating a control change command instance. Can only be used to create a standard 7-bit command.
+
+ @param controllerNumber The MIDI control number for the command.
+ @param sevenBitValue  The controlValue of the command. Only the lower 7-bits of this are used.
+ @return An initialized MIKMIDIControlChangeCommand instance.
+ */
++ (instancetype)controlChangeCommandWithControllerNumber:(NSUInteger)controllerNumber value:(NSUInteger)sevenBitValue;
+
+/**
+ *  Convenience method for creating a single, 14-bit control change command from its component
  *  messages. The two commands passed into this method must comply with the MIDI specification
  *  for 14-bit control change messages.
  *

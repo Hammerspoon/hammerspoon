@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MIKMIDISequencer (MIKMIDIPrivate)
 
-- (void)dispatchSyncToProcessingQueueAsNeeded:(void (^)())block;
+- (void)dispatchSyncToProcessingQueueAsNeeded:(void (^)(void))block;
 
 @end
 

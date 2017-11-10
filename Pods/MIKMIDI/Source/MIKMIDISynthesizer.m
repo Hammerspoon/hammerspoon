@@ -364,7 +364,7 @@
 
 #if defined (__MAC_10_10) || defined (__IPHONE_8_0)
 		if (&dispatch_queue_attr_make_with_qos_class != NULL) {
-			attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, DISPATCH_QUEUE_PRIORITY_HIGH);
+			attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, 0);
 		}
 #endif
 		
