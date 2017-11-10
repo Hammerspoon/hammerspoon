@@ -689,6 +689,17 @@ static int midi_callback(lua_State *L) {
                             lua_pushstring(L, [timestamp UTF8String]);             lua_setfield(L, -2, "timestamp");
                             break;
                         }
+                        case MIKMIDICommandTypeSystemKeepAlive: {
+                            //      * dataByte1           - Data
+                            //      * dataByte2           - Data
+                            //      * timestamp           - The timestamp for the command as a string.
+                            MIKMIDISystemKeepAliveCommand *result = (MIKMIDISystemKeepAliveCommand *)command;
+                            lua_newtable(L) ;
+                            lua_pushinteger(L, result.dataByte1);                  lua_setfield(L, -2, "dataByte1");
+                            lua_pushinteger(L, result.dataByte2);                  lua_setfield(L, -2, "dataByte2");
+                            lua_pushstring(L, [timestamp UTF8String]);              lua_setfield(L, -2, "timestamp");
+                            break;
+                        }
                         case MIKMIDICommandTypeSystemTimecodeQuarterFrame:
                         case MIKMIDICommandTypeSystemSongPositionPointer:
                         case MIKMIDICommandTypeSystemSongSelect:
@@ -696,12 +707,11 @@ static int midi_callback(lua_State *L) {
                         case MIKMIDICommandTypeSystemTimingClock:
                         case MIKMIDICommandTypeSystemStartSequence:
                         case MIKMIDICommandTypeSystemContinueSequence:
-                        case MIKMIDICommandTypeSystemStopSequence:
-                        case MIKMIDICommandTypeSystemKeepAlive: {
+                        case MIKMIDICommandTypeSystemStopSequence: {
                             //      * dataByte1           - Data
                             //      * dataByte2           - Data
                             //      * timestamp           - The timestamp for the command as a string.
-                            MIKMIDICommand *result = (MIKMIDICommand *)command;
+                            MIKMIDISystemMessageCommand *result = (MIKMIDISystemMessageCommand *)command;
                             lua_newtable(L) ;
                             lua_pushinteger(L, result.dataByte1);                  lua_setfield(L, -2, "dataByte1");
                             lua_pushinteger(L, result.dataByte2);                  lua_setfield(L, -2, "dataByte2");
