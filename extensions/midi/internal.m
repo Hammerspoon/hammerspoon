@@ -21,7 +21,6 @@ static int refTable = LUA_NOREF;
 @property                           MIKMIDIDeviceManager *midiDeviceManager ;
 @property                           MIKMIDIDevice *midiDevice ;
 @property                           MIKMIDISynthesizer *synth ;
-@property (nonatomic, readonly)     NSArray *availableCommands;
 @property int                       callbackRef ;
 @property int                       deviceCallbackRef ;
 @property int                       selfRefCount ;
@@ -140,19 +139,6 @@ static int refTable = LUA_NOREF;
     }
 }
 
-@synthesize availableCommands = _availableCommands;
-- (NSArray *)availableCommands
-{
-    if (_availableCommands == nil) {
-        MIKMIDISystemExclusiveCommand *identityRequest = [MIKMIDISystemExclusiveCommand identityRequestCommand];
-        NSString *identityRequestString = [NSString stringWithFormat:@"%@", identityRequest.data];
-        identityRequestString = [identityRequestString substringWithRange:NSMakeRange(1, identityRequestString.length-2)];
-        _availableCommands = @[@{@"name": @"Identity Request",
-                                 @"value": identityRequestString}];
-    }
-    return _availableCommands;
-}
-
 #pragma mark - KVO
 
 - (void)observeValueForKeyPath:(NSString *)keyPath
@@ -259,9 +245,8 @@ static int deviceCallback(lua_State *L) {
 //         [watcherDeviceManager unwatchDevices];
         watcherDeviceManager = nil ;
     }
-    lua_pushnil(L) ;
 
-    return 1;
+    return 0;
 }
 
 /// hs.midi.new(deviceName) -> `hs.midi` object
@@ -272,7 +257,7 @@ static int deviceCallback(lua_State *L) {
 ///  * deviceName - A string containing the device name of the MIDI device. A valid device name can be found by checking `hs.midi.getDevices()`.
 ///
 /// Returns:
-///  * An `hs.midi` object
+///  * An `hs.midi` object or `nil` if an error occured.
 ///
 /// Notes:
 ///  * Example Usage:
@@ -720,7 +705,7 @@ static int midi_callback(lua_State *L) {
                             lua_newtable(L) ;
                             lua_pushinteger(L, result.dataByte1);                  lua_setfield(L, -2, "dataByte1");
                             lua_pushinteger(L, result.dataByte2);                  lua_setfield(L, -2, "dataByte2");
-                            lua_pushstring(L, [timestamp UTF8String]);              lua_setfield(L, -2, "timestamp");
+                            lua_pushstring(L, [timestamp UTF8String]);             lua_setfield(L, -2, "timestamp");
                             break;
                         }
                     };
@@ -751,25 +736,23 @@ static int midi_callback(lua_State *L) {
 
 /// hs.midi:sendSysex(command) -> none
 /// Method
-/// Sends a System Command to the `hs.midi` object.
+/// Sends a System Exclusive Command to the `hs.midi` object.
 ///
 /// Parameters:
-///  * `command` - The command you wish to send as a string.
+///  * `command` - The system exclusive command you wish to send as a string. White spaces in the string will be ignored.
 ///
 /// Returns:
 ///  * None
 ///
 /// Notes:
-///  * You can use `hs.midi:availableCommands()` to determine what commands are supported by the MIDI device.
 ///  * Example Usage:
-///    ```midiDevice:sendSysex(midiDevice:availableCommands()[1]["value"])```
+///    ```midiDevice:sendSysex("f07e7f06 01f7")```
 static int midi_sendSysex(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TBREAK];
     HSMIDIDeviceManager *wrapper = [skin toNSObjectAtIndex:1] ;
     [wrapper sendSysex:[skin toNSObjectAtIndex:2]];
-    lua_pushnil(L) ;
-    return 1;
+    return 0;
 }
 
 /// hs.midi:sendCommand(commandType, metadata) -> boolean
@@ -1029,22 +1012,39 @@ static int midi_sendCommand(lua_State *L) {
     return 1;
 }
 
-/// hs.midi:availableCommands() -> table
+/// hs.midi:identityRequest() -> none
 /// Method
-/// Returns a table of available commands for the `hs.midi` object.
+/// Sends an Identity Request message to the `hs.midi` device. You can use `hs.midi:callback()` to receive the `systemExclusive` response.
 ///
 /// Parameters:
 ///  * None
 ///
 /// Returns:
-///  * A table of commands as strings.
-static int midi_availableCommands(lua_State *L) {
+///  * None
+///
+/// Notes:
+///  * Example Usage:
+///   ```
+///   midiDevice = hs.midi.new(hs.midi.devices()[3])
+///   midiDevice:callback(function(object, deviceName, commandType, description, metadata)
+///                         print("object: " .. tostring(object))
+///                         print("deviceName: " .. deviceName)
+///                         print("commandType: " .. commandType)
+///                         print("description: " .. description)
+///                         print("metadata: " .. hs.inspect(metadata))
+///                       end)
+///   midiDevice:identityRequest()
+///   ```
+static int midi_identityRequest(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSMIDIDeviceManager *wrapper = [skin toNSObjectAtIndex:1] ;
-    NSArray *availableCommands = [wrapper availableCommands];
-    [skin pushNSObject:availableCommands];
-    return 1;
+    MIKMIDISystemExclusiveCommand *identityRequest = [MIKMIDISystemExclusiveCommand identityRequestCommand];
+    NSString *identityRequestString = [NSString stringWithFormat:@"%@", identityRequest.data];
+    identityRequestString = [identityRequestString stringByReplacingOccurrencesOfString:@"<" withString:@""];
+    identityRequestString = [identityRequestString stringByReplacingOccurrencesOfString:@">" withString:@""];
+    [wrapper sendSysex:identityRequestString];
+    return 0;
 }
 
 /// hs.midi:synthesize([value]) -> boolean
@@ -1323,7 +1323,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {"synthesize", midi_synthesize},
     {"sendCommand", midi_sendCommand},
     {"sendSysex", midi_sendSysex},
-    {"availableCommands", midi_availableCommands},
+    {"identityRequest", midi_identityRequest},
     {"name", midi_name},
     {"displayName", midi_displayName},
     {"isOnline", midi_isOnline},
