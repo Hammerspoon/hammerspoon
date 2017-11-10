@@ -80,7 +80,9 @@
 
 - (NSUInteger)hash
 {
-	if (!self.isVirtual) return (NSUInteger)self.uniqueID;
+	if (!self.isVirtual) {
+		return [super hash];
+	}
 	return [self.entities hash];
 }
 

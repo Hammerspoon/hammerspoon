@@ -72,7 +72,7 @@
 
 #if defined (__MAC_10_10) || defined (__IPHONE_8_0)
 			if (&dispatch_queue_attr_make_with_qos_class != NULL) {
-				attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, DISPATCH_QUEUE_PRIORITY_HIGH);
+				attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, 0);
 			}
 #endif
 
@@ -89,7 +89,7 @@
 
 #pragma mark - Queue
 
-static void dispatchToClockQueue(MIKMIDIClock *self, void(^block)())
+static void dispatchToClockQueue(MIKMIDIClock *self, void(^block)(void))
 {
 	if (!block) return;
 
@@ -364,7 +364,7 @@ Float64 MIKMIDIClockSecondsPerMIDITimeStamp()
 	dispatch_once(&onceToken, ^{
 		mach_timebase_info_data_t timeBaseInfoData;
 		mach_timebase_info(&timeBaseInfoData);
-		secondsPerMIDITimeStamp = (timeBaseInfoData.numer / timeBaseInfoData.denom) / 1.0e9;
+		secondsPerMIDITimeStamp = ((Float64)timeBaseInfoData.numer / (Float64)timeBaseInfoData.denom) / 1.0e9;
 	});
 	return secondsPerMIDITimeStamp;
 

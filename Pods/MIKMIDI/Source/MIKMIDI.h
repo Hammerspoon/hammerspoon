@@ -42,6 +42,7 @@
 #import "MIKMIDIPolyphonicKeyPressureCommand.h"
 #import "MIKMIDISystemExclusiveCommand.h"
 #import "MIKMIDISystemMessageCommand.h"
+#import "MIKMIDISystemKeepAliveCommand.h"
 
 // MIDI Sequence/File support
 #import "MIKMIDISequence.h"

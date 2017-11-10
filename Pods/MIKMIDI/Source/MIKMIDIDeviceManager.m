@@ -16,6 +16,10 @@
 #import "MIKMIDIClientSourceEndpoint.h"
 #import "MIKMIDIErrors.h"
 
+#if TARGET_OS_IPHONE
+#import <UIKit/UIApplication.h>
+#endif
+
 #if !__has_feature(objc_arc)
 #error MIKMIDIDeviceManager.m must be compiled with ARC. Either turn on ARC for the project or set the -fobjc-arc flag for MIKMIDIDeviceManager.m in the Build Phases for this target
 #endif
@@ -73,6 +77,12 @@ static MIKMIDIDeviceManager *sharedDeviceManager;
 		[self createClient];
         [self retrieveAvailableDevices];
 		[self retrieveVirtualEndpoints];
+        
+#if TARGET_OS_IPHONE
+        NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+        [nc addObserver:self selector:@selector(appDidBecomeActiveNotification:) name:UIApplicationDidBecomeActiveNotification object:nil];
+#endif
+        
     }
     return self;
 }
@@ -85,6 +95,11 @@ static MIKMIDIDeviceManager *sharedDeviceManager;
 - (id)copyWithZone:(NSZone *)zone
 {
 	return self;
+}
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 #pragma mark - Public
@@ -182,6 +197,13 @@ static MIKMIDIDeviceManager *sharedDeviceManager;
 		[destinations addObject:destination];
 	}
 	self.internalVirtualDestinations = destinations;
+}
+
+#pragma mark - Notifications
+
+- (void)appDidBecomeActiveNotification:(NSNotification *)notification
+{
+    [self retrieveAvailableDevices];
 }
 
 #pragma mark - Callbacks
@@ -426,6 +448,27 @@ void MIKMIDIDeviceManagerNotifyCallback(const MIDINotification *message, void *r
 {
 	NSArray *result = self.inputPort.connectedSources;
 	if (!result) result = @[];
+	return result;
+}
+
++ (NSSet *)keyPathsForValuesAffectingConnectedDevices
+{
+	return [NSSet setWithObjects:@"connectedInputSources", @"availableDevices", nil];
+}
+
+- (NSArray<MIKMIDIDevice *> *)connectedDevices
+{
+	NSSet *connectedSources = [NSSet setWithArray:self.connectedInputSources];
+	NSMutableArray *result = [NSMutableArray array];
+	for (MIKMIDIDevice *device in self.availableDevices) {
+		NSMutableArray *sources = [device.entities valueForKeyPath:@"@unionOfArrays.sources"];
+		for (MIKMIDISourceEndpoint *source in sources) {
+			if ([connectedSources containsObject:source]) {
+				[result addObject:device];
+				break;
+			}
+		}
+	}
 	return result;
 }
 

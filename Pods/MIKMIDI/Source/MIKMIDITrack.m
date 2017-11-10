@@ -74,7 +74,7 @@
 
 #pragma mark - Sequencer Synchronization
 
-- (void)dispatchSyncToSequencerProcessingQueueAsNeeded:(void (^)())block
+- (void)dispatchSyncToSequencerProcessingQueueAsNeeded:(void (^)(void))block
 {
 	if (!block) return;
 

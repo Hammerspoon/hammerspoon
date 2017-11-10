@@ -85,7 +85,7 @@ static MIKMIDIMappingManager *sharedManager = nil;
 
 - (NSSet *)mappingsForControllerName:(NSString *)name;
 {
-	if (![name length]) return nil;
+	if (![name length]) return [NSSet set];
 	NSSet *bundledMappings = [self bundledMappingsForControllerName:name];
 	NSSet *userMappings = [self userMappingsForControllerName:name];
 	return [bundledMappings setByAddingObjectsFromSet:userMappings];

@@ -175,7 +175,7 @@ const MusicTimeStamp MIKMIDISequencerEndOfSequenceLoopEndTimeStamp = -1;
 
 #if defined (__MAC_10_10) || defined (__IPHONE_8_0)
 	if (&dispatch_queue_attr_make_with_qos_class != NULL) {
-		attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, DISPATCH_QUEUE_PRIORITY_HIGH);
+		attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, 0);
 	}
 #endif
 
@@ -253,7 +253,7 @@ const MusicTimeStamp MIKMIDISequencerEndOfSequenceLoopEndTimeStamp = -1;
 	MIDITimeStamp stopTimeStamp = MIKMIDIGetCurrentTimeStamp();
 	if (!self.isPlaying) return;
 
-	void (^stopPlayback)() = ^{
+	void (^stopPlayback)(void) = ^{
 		self.processingTimer = NULL;
 
 		MIKMIDIClock *clock = self.clock;
@@ -848,7 +848,7 @@ const MusicTimeStamp MIKMIDISequencerEndOfSequenceLoopEndTimeStamp = -1;
 #pragma mark -
 @implementation MIKMIDISequencer (MIKMIDIPrivate)
 
-- (void)dispatchSyncToProcessingQueueAsNeeded:(void (^)())block
+- (void)dispatchSyncToProcessingQueueAsNeeded:(void (^)(void))block
 {
 	if (!block) return;
 

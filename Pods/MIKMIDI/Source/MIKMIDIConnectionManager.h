@@ -209,6 +209,16 @@ typedef NS_ENUM(NSInteger, MIKMIDIAutoConnectBehavior) {
 - (MIKMIDIAutoConnectBehavior)connectionManager:(MIKMIDIConnectionManager *)manager shouldConnectToNewlyAddedDevice:(MIKMIDIDevice *)device;
 
 /**
+ *	A connection manager's delegate can implement this method to be notified when a device is connected,
+ *	either because -connectToDevice:error: was called, or because the device was plugged, and the manager
+ *  automatically connected to it. You can for example use this method to update UI in response to a device being connected.
+ *
+ *  @param manager  An instance of MIKMIDIConnectionManager.
+ *  @param device   The MIKMIDIDevice that was disconnected.
+ */
+- (void)connectionManager:(MIKMIDIConnectionManager *)manager deviceWasConnected:(MIKMIDIDevice *)device;
+
+/**
  *  A connection manager's delegate can implement this method to be notified when a connected device is disconnected,
  *  either because -disconnectFromDevice: was called, or because the device was unplugged.
  *

@@ -22,14 +22,22 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface MIKMIDIInputPort : MIKMIDIPort
 
-- (id)connectToSource:(MIKMIDISourceEndpoint *)source
-				error:(NSError **)error
-		 eventHandler:(MIKMIDIEventHandlerBlock)eventHandler;
+- (id _Nullable)connectToSource:(MIKMIDISourceEndpoint *)source
+						  error:(NSError **)error
+				   eventHandler:(MIKMIDIEventHandlerBlock)eventHandler;
 - (void)disconnectConnectionForToken:(id)token;
 
 @property (nonatomic, strong, readonly) MIKArrayOf(MIKMIDIEndpoint *) *connectedSources;
 
 @property (nonatomic) BOOL coalesces14BitControlChangeCommands; // Default is YES
+
+/**
+ * Time before sysex transmissions are considered over.
+ *
+ * This takes care of interruption in the data (devices being turned off or unplugged) as well as
+ * ill-behaved devices which don't terminate their sysex messages with 0xF7.
+ */
+@property (assign) NSTimeInterval sysexTimeOut;
 
 @end
 
