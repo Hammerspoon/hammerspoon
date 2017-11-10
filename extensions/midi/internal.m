@@ -110,7 +110,12 @@ static int refTable = LUA_NOREF;
     if (!commandString || commandString.length == 0) {
         return;
     }
-
+    
+    //
+    // Remove Any Spaces in commandString:
+    //
+    commandString = [commandString stringByReplacingOccurrencesOfString:@" " withString:@""];
+    
     struct MIDIPacket packet;
     packet.timeStamp = mach_absolute_time();
     packet.length = commandString.length / 2;
