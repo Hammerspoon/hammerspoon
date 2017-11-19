@@ -59,6 +59,13 @@ local printReplacement = function(...)
 end
 print = printReplacement
 
+local originalReload = hs.reload
+local reloadReplacement = function(...)
+    hs._reloadTriggered = true
+    return originalReload(...)
+end
+hs.reload = reloadReplacement
+
 -- Public interface ------------------------------------------------------
 
 --- hs.ipc.cliColors([colors]) -> table
@@ -413,7 +420,9 @@ module.__defaultHandler = function(self, msgID, msg)
 
             if #str > 0 then str = str .. "\n" end
             if msgID == MSG_ID.COMMAND then
-                fnEnv._cli.remote:sendMessage(str, results[1] and MSG_ID.RETURN or MSG_ID.ERROR)
+                if not hs._reloadTriggered  then
+                    fnEnv._cli.remote:sendMessage(str, results[1] and MSG_ID.RETURN or MSG_ID.ERROR)
+                end
                 return results[1] and "ok" or "error"
             else
                 return str
