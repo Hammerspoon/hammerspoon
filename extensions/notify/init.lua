@@ -21,14 +21,22 @@ local imagemod = require("hs.image")
 
 -- private variables and methods -----------------------------------------
 
--- functions provide by the C library which should not be treated as attributes when
--- creating a new notification (see hs.notify.new below)
-local protected_functions = {
-  show = true,
-  release = true,
-  withdraw = true,
-  __index = true,
-  __gc = true,
+-- functions allowed to be attributes when creating a new notification (see hs.notify.new below)
+local attribute_functions = {
+    actionButtonTitle   = true,
+    additionalActions   = true,
+    alwaysPresent       = true,
+    autoWithdraw        = true,
+    contentImage        = true,
+    hasActionButton     = true,
+    hasReplyButton      = true,
+    informativeText     = true,
+    otherButtonTitle    = true,
+    responsePlaceholder = true,
+    soundName           = true,
+    subTitle            = true,
+    title               = true,
+    setIdImage          = true,
 }
 
 local emptyFunctionPlaceholder = "__emptyFunctionPlaceHolder"
@@ -55,25 +63,29 @@ module.warnAboutMissingFunctionTag = true
 ---  * fn - An optional function or function-tag, which will be called when the user interacts with notifications. The notification object will be passed as an argument to the function. If you leave this parameter out or specify nil, then no callback will be attached to the notification.
 ---  * attributes - An optional table for applying attributes to the notification. Possible keys are:
 ---
----   * alwaysPresent   - see `hs.notify:alwaysPresent`
----   * autoWithdraw    - see `hs.notify:autoWithdraw`
----   * contentImage    - see `hs.notify:contentImage` (only supported in 10.9 and later)
----   * informativeText - see `hs.notify:informativeText`
----   * soundName       - see `hs.notify:soundName`
----   * subTitle        - see `hs.notify:subTitle`
----   * title           - see `hs.notify:title`
+---   * alwaysPresent   - see [hs.notify:alwaysPresent](#alwaysPresent)
+---   * autoWithdraw    - see [hs.notify:autoWithdraw](#autoWithdraw)
+---   * contentImage    - see [hs.notify:contentImage](#contentImage)
+---   * informativeText - see [hs.notify:informativeText](#informativeText)
+---   * soundName       - see [hs.notify:soundName](#soundName)
+---   * subTitle        - see [hs.notify:subTitle](#subTitle)
+---   * title           - see [hs.notify:title](#title)
+---   * setIdImage      - see [hs.notify:setIdImage](#setIdImage) -- note the border will automatically be set to false if assigned as an attribute in this table.
 ---
 ---  The following can also be set, but will only have an apparent effect on the notification when the user has set Hammerspoon's notification style to "Alert" in the Notification Center panel of System Preferences:
 ---
----   * actionButtonTitle - see `hs.notify:actionButtonTitle`
----   * hasActionButton   - see `hs.notify:hasActionButton`
----   * otherButtonTitle  - see `hs.notify:otherButtonTitle`
+---   * actionButtonTitle   - see [hs.notify:actionButtonTitle](#actionButtonTitle)
+---   * hasActionButton     - see [hs.notify:hasActionButton](#hasActionButton)
+---   * otherButtonTitle    - see [hs.notify:otherButtonTitle](#otherButtonTitle)
+---   * additionalActions   - see [hs.notify:additionalActions](#additionalActions)
+---   * hasReplyButton      - see [hs.notify:hasReplyButton](#hasReplyButton)
+---   * responsePlaceholder - see [hs.notify:responsePlaceholder](#responsePlaceholder)
 ---
 --- Returns:
 ---  * A notification object
 ---
 --- Notes:
----  * A function-tag is a string key which corresponds to a function stored in the `hs.notify.registry` table with the `hs.notify.register()` function.
+---  * A function-tag is a string key which corresponds to a function stored in the [hs.notify.registry](#registry) table with the `hs.notify.register()` function.
 ---  * If a notification does not have a `title` attribute set, OS X will not display it, so by default it will be set to "Notification". You can use the `title` key in the attributes table, or call `hs.notify:title()` before displaying the notification to change this.
 module.new = function(fn, attributes)
   if type(fn) == "table" then
@@ -93,9 +105,9 @@ module.new = function(fn, attributes)
   if not attributes.title then attributes.title = "Notification" end
 
   local note = module._new(fn)
-  for i,v in pairs(attributes) do
-    if note[i] and not protected_functions[i] then
-      note[i](note, v)
+  for k,v in pairs(attributes) do
+    if note[k] and attribute_functions[k] then
+      note[k](note, v)
     end
   end
   return note
@@ -130,7 +142,7 @@ end
 ---  * title       - the title for the notification
 ---  * subTitle    - the subtitle, or second line, of the notification
 ---  * information - the main textual body of the notification
----  * tag         - a function tag corresponding to a function registered with `hs.notify.register`
+---  * tag         - a function tag corresponding to a function registered with [hs.notify.register](#register)
 ---
 --- Returns:
 ---  * a notification object
@@ -164,11 +176,11 @@ end
 --- Registers a function callback with the specified tag for a notification. The callback function will be invoked when the user clicks on or interacts with a notification.
 ---
 --- Parameters:
----  * tag - a string tag to identify the registered callback function. Use this as the function tag in `hs.notify.new` and `hs.notify.show`
+---  * tag - a string tag to identify the registered callback function. Use this as the function tag in [hs.notify.new](#new) and [hs.notify.show](#show)
 ---  * fn  - the function which should be invoked when a notification with this tag is interacted with.
 ---
 --- Returns:
----  * a numerical id representing the entry in `hs.notify.registry` for this function. This number can be used with `hs.notify.unregister` to unregister a function later if you wish.
+---  * a numerical id representing the entry in [hs.notify.registry](#registry) for this function. This number can be used with [hs.notify.unregister](#unregister) to unregister a function later if you wish.
 ---
 --- Notes:
 ---  * If a function is already registered with the specified tag, it is replaced by with the new one.
@@ -198,7 +210,7 @@ end
 --- Unregisters a function callback so that it is no longer available as a callback when notifications corresponding to the specified entry are interacted with.
 ---
 --- Parameters:
----  * id or tag - the numerical id provided by `hs.notify.register` or string tag representing the callback function to be removed
+---  * id or tag - the numerical id provided by [hs.notify.register](#register) or string tag representing the callback function to be removed
 ---
 --- Returns:
 ---  * None
@@ -230,7 +242,7 @@ end
 ---  * None
 ---
 --- Notes:
----  * This does not remove the notifications from the User Notification Center, it just removes their callback function for when the user interacts with them. To remove all notifications, see `hs.notify.withdrawAll` and `hs.notify.withdrawAllScheduled`
+---  * This does not remove the notifications from the User Notification Center, it just removes their callback function for when the user interacts with them. To remove all notifications, see [hs.notify.withdrawAll](#withdrawAll) and [hs.notify.withdrawAllScheduled](#withdrawAllScheduled)
 module.unregisterall = function()
 
 --- hs.notify.registry[]
