@@ -564,7 +564,7 @@ function WF:setAppFilter(appname,ft,batch)
           logs=sformat('%s%s={%s}, ',logs,k,first)
         else logs=sformat('%s%s=%s, ',logs,k,v) end
         filter.allowRoles=r
-      elseif k=='visible' or k=='fullscreen' or k=='focused' or k=='currentSpace' or k=='activeApplication' or 'hasTitlebar' then
+      elseif k=='visible' or k=='fullscreen' or k=='focused' or k=='currentSpace' or k=='activeApplication' or k=='hasTitlebar' then
         if type(v)~='boolean' then error(k..' must be a boolean',2) end
         filter[k]=v logs=sformat('%s%s=%s, ',logs,k,ft[k])
       elseif k=='allowRegions' or k=='rejectRegions' then
