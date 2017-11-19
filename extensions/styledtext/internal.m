@@ -1744,11 +1744,10 @@ static int NSParagraphStyle_toLua(lua_State *L, id obj) {
     lua_setfield(L, -2, "hyphenationFactor");
     lua_pushnumber(L, [thePS tighteningFactorForTruncation]);
     lua_setfield(L, -2, "tighteningFactorForTruncation");
-    // Doesn't seem to actually be in the API yet...
-    //     if ([thePS respondsToSelector:@selector(allowsDefaultTighteningForTruncation)]) {
-    //         lua_pushboolean(L, [thePS allowsDefaultTighteningForTruncation]);
-    //         lua_setfield(L, -2, "allowsDefaultTighteningForTruncation");
-    //     }
+    if ([thePS respondsToSelector:@selector(allowsDefaultTighteningForTruncation)]) {
+        lua_pushboolean(L, [thePS allowsDefaultTighteningForTruncation]);
+        lua_setfield(L, -2, "allowsTighteningForTruncation");
+    }
     LuaSkin *skin = [LuaSkin shared];
 
     [skin pushNSObject:[thePS tabStops]];
@@ -1935,13 +1934,12 @@ static id table_toNSParagraphStyle(lua_State *L, int idx) {
             thePS.tighteningFactorForTruncation = (float)lua_tonumber(L, -1);
         }
         lua_pop(L, 1);
-        // Doesn't seem to actually be in the API yet...
-        //     if ([thePS respondsToSelector:@selector(allowsDefaultTighteningForTruncation)]) {
-        //         if(lua_getfield(L, -1, "allowsDefaultTighteningForTruncation") == LUA_TBOOLEAN) {
-        //             thePS.allowsDefaultTighteningForTruncation = lua_toboolean(L, -1);
-        //         }
-        //         lua_pop(L, 1);
-        //     }
+        if ([thePS respondsToSelector:@selector(allowsDefaultTighteningForTruncation)]) {
+            if(lua_getfield(L, -1, "allowsTighteningForTruncation") == LUA_TBOOLEAN) {
+                thePS.allowsDefaultTighteningForTruncation = lua_toboolean(L, -1);
+            }
+            lua_pop(L, 1);
+        }
 
         if (lua_getfield(L, idx, "headerLevel") == LUA_TNUMBER) {
             lua_Integer theNumber = lua_tointeger(L, -1);
