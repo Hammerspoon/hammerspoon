@@ -35,7 +35,7 @@ This is possible because of two things:
 
 ## Where do I get Spoons from?
 
-The official repository of Spoons is [https://github.com/Hammerspoon/Spoons](https://github.com/Hammerspoon/Spoons), but authors may choose to distribute them separately from their own sites.
+The official repository of Spoons is [http://www.hammerspoon.org/Spoons](http://www.hammerspoon.org/Spoons) (the source for which can be found at [https://github.com/Hammerspoon/Spoons](https://github.com/Hammerspoon/Spoons)), but authors may choose to distribute them separately from their own sites.
 
 ## How do I install a Spoon?
 
