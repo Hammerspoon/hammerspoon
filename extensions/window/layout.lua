@@ -20,11 +20,13 @@
 ---   - `tile`, `fit`: tiles the windows onto a specified rect, using `hs.window.tiling.tileWindows()`; for `fit`, the
 ---     `preserveRelativeArea` parameter will be set to true
 ---   - `hide`, `unhide`: hides or unhides the window's application (like when using cmd-h)
+---   - `noaction`: skip action on the window(s)
 --- * a **maxn** number, indicating how many windows from this rule's window pool will be affected (at most) by this command;
 ---   if omitted (or if explicitly the string `all`) all the remaining windows will be processed by this command; processed
 ---   windows are "consumed" and are excluded from the window pool for subsequent commands in this rule, and from subsequent rules
 --- * a **selector**, describing the sort order used to pick the first *maxn* windows from the window pool for this command;
----   it can be one of `focused` (pick *maxn* most recently focused windows), `newest` (most recently created), `oldest`
+---   it can be one of `focused` (pick *maxn* most recently focused windows), `frontmost` (pick the recent focused window if its  
+---   application is frontmost applicaion, otherwise the command will be skipped), `newest` (most recently created), `oldest`
 ---   (least recently created), or `closest` (pick the *maxn* windows that are closest to the destination rect); if omitted,
 ---   defaults to `closest` for move, tile and fit, and `newest` for everything else
 --- * an `hs.geometry` *size* (only valid for tile and fit) indicating the desired optimal aspect ratio for the tiled windows;
@@ -98,9 +100,9 @@ local function strip(s) return type(s)=='string' and s:gsub('%s+','') or s end
 
 local MOVE,TILE,FIT,HIDE,UNHIDE,MINIMIZE,MAXIMIZE,FULLSCREEN,RESTORE='move','tile','fit','hide','unhide','minimize','maximize','fullscreen','restore'
 local NOACTION='noaction'
-local CREATEDLAST,CREATEDFIRST,FOCUSEDLAST,CLOSEST='createdLast','created','focusedLast','closest'
-local ACTIONS={mov=MOVE,fra=MOVE,til=TILE,fit=FIT,hid=HIDE,unh=UNHIDE,sho=UNHIDE,max=MAXIMIZE,ful=FULLSCREEN,fs=FULLSCREEN,min=MINIMIZE,res=RESTORE}
-local SELECTORS={cre=CREATEDLAST,new=CREATEDLAST,old=CREATEDFIRST,foc=FOCUSEDLAST,clo=CLOSEST,pos=CLOSEST}
+local CREATEDLAST,CREATEDFIRST,FOCUSEDLAST,CLOSEST,FRONTMOST='createdLast','created','focusedLast','closest','frontmost'
+local ACTIONS={mov=MOVE,fra=MOVE,til=TILE,fit=FIT,hid=HIDE,unh=UNHIDE,sho=UNHIDE,max=MAXIMIZE,ful=FULLSCREEN,fs=FULLSCREEN,min=MINIMIZE,res=RESTORE,noa=NOACTION}
+local SELECTORS={cre=CREATEDLAST,new=CREATEDLAST,old=CREATEDFIRST,foc=FOCUSEDLAST,clo=CLOSEST,pos=CLOSEST,fro=FRONTMOST}
 
 local function getaction(s,i)
   if type(s)~='string' then return nil,i end
@@ -171,7 +173,7 @@ local function validateCommand(command,ielem,icmd,irule,log)
     if not getselector(command.select,0) then error'selector'
     else logs=logs..' '..command.select end
   end
-  if action==MAXIMIZE or action==FULLSCREEN then
+  if action==MAXIMIZE or action==FULLSCREEN or action==NOACTION then
     if command.screen then
       if not validatescreen(command.screen,ielem) then error'screen'end
       logs=logs..' screen='..screenstr(command.screen)
@@ -514,6 +516,14 @@ local function applyRule(rule)
       win=windowsCreated[1]
     elseif selector==CREATEDFIRST then
       win=windowsCreated[#windowsCreated]
+    elseif selector==FRONTMOST then
+      if windows[1]:application() == hs.application.frontmostApplication() then
+        win=windows[1]
+        nprocessed = 999
+      else 
+        icmd=icmd+1 nprocessed=0
+        goto _next_
+      end
     end
     --    hs.assert(win,'no window to apply rule',rule)
 
@@ -550,6 +560,7 @@ local function applyRule(rule)
       --          local w=readdUnhiddenWindows[i] tinsert(windows,w,1) tinsert(windowsCreated,w,1)
       --        end
     end
+    ::_next_::
   end
 end
 
@@ -653,7 +664,7 @@ function layout:resume()
     --timers and upvalues galore
     local hasFocusedSelector--,hasPositionSelector
     for _,cmd in ipairs(rule) do
-      if cmd.select==FOCUSEDLAST then hasFocusedSelector=true end
+      if cmd.select==FOCUSEDLAST or cmd.select==FRONTMOST then hasFocusedSelector=true end
       --      elseif cmd.select==CLOSEST then hasPositionSelector=true end
     end
     rule.callback=function()
