@@ -60,8 +60,8 @@ In most cases, the API should take roughly this form:
  * `NAME:bindHotkeys(mapping)` - this method is used to tell the Spoon how to bind hotkeys for its various functions. Depending on the Spoon, these hotkeys may be bound immediately, or when `:start()` is called. This method should accept a single argument, a table in the form:
 
 ```lua
-  { someFeature: {{"cmd", "alt"}, "f"},
-    otherFeature: {{"shift", "ctrl"}, "b"}}
+  { someFeature = {{"cmd", "alt"}, "f"},
+    otherFeature = {{"shift", "ctrl"}, "b"}}
 ```
 
 The Spoon should also provide some standard metadata:
