@@ -12,4 +12,5 @@ pod 'PocketSocket/Client', '1.0.1'
 pod 'Crashlytics', '3.8.6'
 pod 'Fabric', '1.6.13'
 pod 'Sparkle', '1.18.1', :configurations => ['Release']
+pod 'MIKMIDI'
 end

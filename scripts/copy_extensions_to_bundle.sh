@@ -31,6 +31,7 @@ export HS_MODULES="application \
     keycodes \
     location \
     menubar \
+    midi \
     milight \
     mouse \
     noises \
