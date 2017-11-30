@@ -134,7 +134,7 @@ static int timer_new(lua_State* L) {
     // Fetch the timer configuration from Lua arguments
     NSTimeInterval sec = lua_tonumber(L, 1);
     if (sec > 0 && sec < 0.00001) {
-        [skin logWarn:@"Minimum non-zero hs.timer interval is 0.00001s. Forcing to 0.00001"];
+        [skin logInfo:@"Minimum non-zero hs.timer interval is 0.00001s. Forcing to 0.00001"];
         sec = 0.00001;
     }
     lua_pushvalue(L, 2);
