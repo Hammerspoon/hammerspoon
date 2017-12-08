@@ -455,6 +455,15 @@ static int midi_callback(lua_State *L) {
         // Setup MIDI Device End Point:
         //
         NSArray *source = [device.entities valueForKeyPath:@"@unionOfArrays.sources"];
+        if (source.count == 0) {
+            //
+            // This shouldn't happen, but if it does, catch the error:
+            //
+            [skin logError:[NSString stringWithFormat:@"%s:callback error:%@", USERDATA_TAG, @"No MIDI Device End Points detected."]] ;
+            wrapper.callbackToken = nil;
+            lua_pushvalue(L, 1);
+            return 1;
+        }
         MIKMIDISourceEndpoint *endpoint = [source objectAtIndex:0];
         
         //
