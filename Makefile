@@ -1,6 +1,6 @@
-VERSION = $(shell defaults read `pwd`/Hammerspoon/Hammerspoon-Info CFBundleVersion)
-APPFILE = build/Hammerspoon.app
-ZIPFILE = build/Hammerspoon-$(VERSION).zip
+VERSION = $(shell defaults read `pwd`/Hammerspoon/CommandPost-Info CFBundleVersion)
+APPFILE = build/CommandPost.app
+ZIPFILE = build/CommandPost-$(VERSION).zip
 SCHEME = Hammerspoon
 CONFIGURATION = Debug
 DOCS_SEARCH_DIRS = Hammerspoon/ extensions/
@@ -13,11 +13,11 @@ release: all
 
 $(APPFILE): PRODUCT_DIR = $(shell xcodebuild -workspace Hammerspoon.xcworkspace -scheme $(SCHEME) -configuration $(CONFIGURATION) -showBuildSettings | sort | uniq | grep " BUILT_PRODUCTS_DIR =" | awk '{ print $$3 }')
 $(APPFILE): build $(shell find Hammerspoon -type f)
-	echo "Building Hammerspoon in $(CONFIGURATION) configuration"
+	echo "Building CommandPost in $(CONFIGURATION) configuration"
 	rm -rf $@
 	xcodebuild -workspace Hammerspoon.xcworkspace -scheme $(SCHEME) -configuration $(CONFIGURATION) clean build > build/$(CONFIGURATION)-build.log
-	cp -R ${PRODUCT_DIR}/Hammerspoon.app $@
-	cp -R ${PRODUCT_DIR}/Hammerspoon.app.dSYM build/
+	cp -R ${PRODUCT_DIR}/CommandPost.app $@
+	cp -R ${PRODUCT_DIR}/CommandPost.app.dSYM build/
 	cp -R ${PRODUCT_DIR}/LuaSkin.framework.dSYM build/
 
 docs: build/Hammerspoon.docset
@@ -55,7 +55,7 @@ build:
 	mkdir -p build
 
 clean:
-	rm -rf build
+	rm -rf build/
 	rm -rf LuaSkin.framework
 
 clean-docs:
