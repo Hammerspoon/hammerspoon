@@ -199,14 +199,27 @@
     [self.choicesTableView setFrameSize:NSMakeSize(winRect.size.width, self.choicesTableView.frame.size.height)];
 }
 
+- (void)showAtPoint:(NSPoint)topLeft {
+    [self showWithHints:NO atPoint:topLeft];
+}
+
 - (void)show {
+    [self showWithHints:YES atPoint:NSMakePoint(0,0)];
+}
+
+- (void)showWithHints:(BOOL)center atPoint:(NSPoint)topLeft {
     self.hasChosen = NO;
 
     [self resizeWindow];
 
     [self showWindow:self];
     self.window.isVisible = YES;
-    [self.window center];
+
+    if (center) {
+        [self.window center];
+    } else {
+        [self.window setFrameTopLeftPoint:topLeft];
+    }
     [self.window makeKeyAndOrderFront:self];
     [self.window makeFirstResponder:self.queryField];
 

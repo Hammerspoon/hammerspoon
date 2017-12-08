@@ -68,6 +68,8 @@
 
 - (void)resizeWindow;
 - (void)show;
+- (void)showAtPoint:(NSPoint)topLeft;
+- (void)showWithHints:(BOOL)center atPoint:(NSPoint)topLeft;
 - (void)hide;
 - (BOOL)isVisible;
 

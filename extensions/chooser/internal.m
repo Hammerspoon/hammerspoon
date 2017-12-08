@@ -39,23 +39,29 @@ static int chooserNew(lua_State *L) {
 
 #pragma mark - Lua API - Methods
 
-/// hs.chooser:show() -> hs.chooser object
+/// hs.chooser:show([topLeftPoint]) -> hs.chooser object
 /// Method
 /// Displays the chooser
 ///
 /// Parameters:
-///  * None
+///  * An optional `hs.geometry` point object describing the absolute screen co-ordinates for the top left point of the chooser window. Defaults to centering the window on the primary screen
 ///
 /// Returns:
 ///  * The hs.chooser object
 static int chooserShow(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE | LS_TOPTIONAL, LS_TBREAK];
 
     chooser_userdata_t *userData = lua_touserdata(L, 1);
     HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
 
-    [chooser show];
+    if (lua_type(L, 2) == LUA_TTABLE) {
+        NSPoint userTopLeft = [skin tableToPointAtIndex:2];
+        NSPoint topLeft = NSMakePoint(userTopLeft.x, [NSScreen screens][0].frame.size.height - userTopLeft.y);
+        [chooser showAtPoint:topLeft];
+    } else {
+        [chooser show];
+    }
 
     lua_pushvalue(L, 1);
     return 1;
