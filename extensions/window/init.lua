@@ -139,8 +139,8 @@ end
 ---  * A list containing `hs.window` objects representing all windows that are minimized as per `hs.window:isMinimized()`
 function window.minimizedWindows()
   local r = {}
-  for _, window in ipairs(window.allWindows()) do
-    if window:isMinimized() then r[#r + 1] = window end
+  for _, win in ipairs(window.allWindows()) do
+    if win:isMinimized() then r[#r + 1] = win end
   end
   return r
 end
