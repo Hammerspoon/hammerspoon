@@ -128,6 +128,23 @@ function window.visibleWindows()
   return r
 end
 
+--- hs.window.minimizedWindows() -> list of hs.window objects
+--- Function
+--- Gets all minimized windows
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * A list containing `hs.window` objects representing all windows that are minimized as per `hs.window:isMinimized()`
+function window.minimizedWindows()
+  local r = {}
+  for _, window in ipairs(allWindows()) do
+    if window:isMinimized() then r[#r + 1] = window end
+  end
+  return r
+end
+
 --- hs.window.orderedWindows() -> list of hs.window objects
 --- Function
 --- Returns all visible windows, ordered from front to back
