@@ -128,6 +128,23 @@ function window.visibleWindows()
   return r
 end
 
+--- hs.window.invisibleWindows() -> list of hs.window objects
+--- Function
+--- Gets all invisible windows
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * A list containing `hs.window` objects representing all windows that are not visible as per `hs.window:isVisible()`
+function window.invisibleWindows()
+  local r = {}
+  for _, win in ipairs(window.allWindows()) do
+    if not win:isVisible() then r[#r + 1] = win end
+  end
+  return r
+end
+
 --- hs.window.minimizedWindows() -> list of hs.window objects
 --- Function
 --- Gets all minimized windows
