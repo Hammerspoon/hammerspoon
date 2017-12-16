@@ -3,3 +3,4 @@ linters:
     shellcheck:
         shell: bash
     luacheck:
+        config: '.luacheckrc'
