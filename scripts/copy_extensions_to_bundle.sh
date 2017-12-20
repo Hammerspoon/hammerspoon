@@ -31,6 +31,7 @@ export HS_MODULES="application \
     keycodes \
     location \
     menubar \
+    midi \
     milight \
     mouse \
     noises \
@@ -135,9 +136,9 @@ cp -av "${BUILT_PRODUCTS_DIR}/libcanvasmatrix.dylib" "${HS_DST}/canvas/matrix_in
 # Special copier for hs.ipc
 mkdir -pv "${HS_DST}/ipc/bin"
 mkdir -pv "${HS_DST}/ipc/share/man/man1"
-cp -av "${SRCROOT}/extensions/ipc/cli/hs.man" "${HS_DST}/ipc/share/man/man1/hs.1"
-cp -av "${BUILT_PRODUCTS_DIR}/hs" "${HS_DST}/ipc/bin/hs"
-cp -av "${BUILT_PRODUCTS_DIR}/hs.dSYM" "${HS_DST}/ipc/bin/hs.dSYM"
+cp -av "${SRCROOT}/extensions/ipc/cli/cmdpost.man" "${HS_DST}/ipc/share/man/man1/cmdpost.1"
+cp -av "${BUILT_PRODUCTS_DIR}/cmdpost" "${HS_DST}/ipc/bin/cmdpost"
+cp -av "${BUILT_PRODUCTS_DIR}/cmdpost.dSYM" "${HS_DST}/ipc/bin/cmdpost.dSYM"
 
 # Special copier for hs.host.locale
 mkdir -pv "${HS_DST}/host/locale"
@@ -179,7 +180,7 @@ cp -av "${SRCROOT}/extensions/window/highlight.lua" "${HS_DST}/window/highlight.
 # Special copier for hs.webview.usercontent submodule
 cp -av "${BUILT_PRODUCTS_DIR}/libwebviewusercontent.dylib" "${HS_DST}/webview/usercontent.so"
 
-# Special copier for hs.webview.toolbar submodule		
+# Special copier for hs.webview.toolbar submodule
 cp -av "${SRCROOT}/extensions/webview/toolbar.lua" "${HS_DST}/webview/toolbar.lua"
 cp -av "${BUILT_PRODUCTS_DIR}/libwebviewtoolbar.dylib" "${HS_DST}/webview/toolbar_internal.so"
 
