@@ -202,6 +202,8 @@ end
 ---  * Pressing `tab` or `shift-tab` in the modal interface will cycle to the next or previous window; if `multipleWindows`
 ---    is false or omitted, the first press will just enable the multiple windows behaviour
 ---  * The keyboard hints assume a QWERTY layout; if you use a different layout, change `hs.grid.HINTS` accordingly
+---  * If grid dimensions are greater than 10x10 then you may have to change `hs.grid.HINTS` depending on your
+---    requirements. See note in `HINTS`.
 
 --- hs.grid.hide()
 --- Function
@@ -600,9 +602,32 @@ end
 --- A bidimensional array (table of tables of strings) holding the keyboard hints (as per `hs.keycodes.map`) to be used for the interactive resizing interface.
 --- Change this if you don't use a QWERTY layout; you need to provide 5 valid rows of hints (even if you're not going to use all 5 rows)
 ---
+--- Default `HINTS` is an array to 5 rows and 10 columns.
+---
 --- Notes:
 ---  * `hs.inspect(hs.grid.HINTS)` from the console will show you how the table is built
-
+---  * `hs.grid.show()`
+---     When displaying interactive grid, if gird dimensions (`hs.grid.setGrid()`) are greater than `HINTS` dimensions,
+---     then Hammerspoon merges few cells such that interactive grid dimensions do not exceed `HINTS` dimensions.
+---     This is done to make sure interactive grid cells do not run out of hints. The interactive grid ends up with
+---     cells of varying height and width.
+---     The actual grid is not affected. If you use API methods like `hs.grid.pushWindowDown()`, you will not face this
+---     issue at all.
+---     If you have a grid of higher dimensions and require an interactive gird that accurately models underlying grid
+---     then set `HINTS` variable to a table that has same dimensions as your grid.
+---     Following is an example of grid that has 16 columns
+---
+--- ```
+--- hs.grid.setGrid('16x4')
+--- hs.grid.HINTS={
+---     {'f1', 'f2' , 'f3' , 'f4' , 'f5', 'f6', 'f7', 'f8', 'f9', 'f10', 'f11', 'f12', 'f13', 'f14', 'f15', 'f16'},
+---     {'1' , 'f11', 'f15', 'f19', 'f3', '=' , ']' , '2' , '3' , '4'  , '5'  , '6'  , '7'  , '8'  , '9'  , '0'  },
+---     {'Q' , 'f12', 'f16', 'f20', 'f4', '-' , '[' , 'W' , 'E' , 'R'  , 'T'  , 'Y'  , 'U'  , 'I'  , 'O'  , 'P'  },
+---     {'A' , 'f13', 'f17', 'f1' , 'f5', 'f7', '\\', 'S' , 'D' , 'F'  , 'G'  , 'H'  , 'J'  , 'K'  , 'L'  , ','  },
+---     {'X' , 'f14', 'f18', 'f2' , 'f6', 'f8', ';' , '/' , '.' , 'Z'  , 'X'  , 'C'  , 'V'  , 'B'  , 'N'  , 'M'  }
+--- }
+--- ```
+---
 
 -- modal grid stuff below
 

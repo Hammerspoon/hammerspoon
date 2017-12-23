@@ -126,12 +126,17 @@ HSTimer *createHSTimer(NSTimeInterval interval, int callbackRef, BOOL continueOn
 /// Notes:
 ///  * The returned object does not start its timer until its `:start()` method is called
 ///  * If `interval` is 0, the timer will not repeat (because if it did, it would be repeating as fast as your machine can manage, which seems generally unwise)
+///  * For non-zero intervals, the lowest acceptable value for the interval is 0.00001s. Values >0 and <0.00001 will be coerced to 0.00001
 static int timer_new(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TNUMBER, LS_TFUNCTION, LS_TBOOLEAN | LS_TNIL | LS_TOPTIONAL, LS_TBREAK];
 
     // Fetch the timer configuration from Lua arguments
     NSTimeInterval sec = lua_tonumber(L, 1);
+    if (sec > 0 && sec < 0.00001) {
+        [skin logInfo:@"Minimum non-zero hs.timer interval is 0.00001s. Forcing to 0.00001"];
+        sec = 0.00001;
+    }
     lua_pushvalue(L, 2);
     int callbackRef = [skin luaRef:refTable];
 

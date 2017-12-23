@@ -94,7 +94,7 @@ host.cpuUsage = function(period, callback)
         period, callback = 1, period
     end
 
-    period = period or 100000
+    period = period or (callback and 1 or 100000)
     local result1 = host.cpuUsageTicks()
     if callback then
         local callbackPlaceHolder = {}
