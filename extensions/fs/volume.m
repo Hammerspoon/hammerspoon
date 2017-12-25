@@ -113,7 +113,7 @@ typedef enum _event_t {
 
 @end
 
-/// hs.fs.volume.eject(path) -> boolean
+/// hs.fs.volume.eject(path) -> boolean,string
 /// Function
 /// Unmounts and ejects a volume
 ///
@@ -122,15 +122,23 @@ typedef enum _event_t {
 ///
 /// Returns:
 ///  * A boolean, true if the volume was ejected, otherwise false
+///  * A string, empty if the volume was ejected, otherwise it will contain the error message
 static int volume_eject(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TBREAK];
 
     NSWorkspace *workspace = [NSWorkspace sharedWorkspace];
-    BOOL result = [workspace unmountAndEjectDeviceAtPath:[skin toNSObjectAtIndex:1]];
+    NSError *error;
+    NSString *resultText = @"";
+
+    BOOL result = [workspace unmountAndEjectDeviceAtURL:[NSURL fileURLWithPath:[skin toNSObjectAtIndex:1]] error:&error];
+    if (!result) {
+        resultText = error.localizedDescription;
+    }
 
     lua_pushboolean(L, result);
-    return 1;
+    [skin pushNSObject:resultText];
+    return 2;
 }
 
 /// hs.fs.volume.new(fn) -> watcher
