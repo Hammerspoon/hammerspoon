@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		22613FEC1F297E0D00E05E11 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		22613FF51F2A127E00E05E11 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 22613FE41F297B9B00E05E11 /* internal.m */; };
+		22E4D7FD1FA7488900C8CF5C /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
+		22E4D8031FA748AC00C8CF5C /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 22E4D7F71FA7485A00C8CF5C /* internal.m */; };
 		394FD223913AE68B92126D37 /* libPods-Hammerspoon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BC78AF8FE9DA0BD317A7528 /* libPods-Hammerspoon.a */; };
 		4C3D55B51C7F0A880023B633 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4C3D55BC1C7F0AA90023B633 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C3D55AA1C7F05D00023B633 /* internal.m */; };
@@ -307,6 +309,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 22613FE81F297E0D00E05E11;
 			remoteInfo = dialog;
+		};
+		22E4D8041FA748E500C8CF5C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9445CA0319083251002568BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 22E4D7F91FA7488900C8CF5C;
+			remoteInfo = midi;
 		};
 		4C1CA6B01C6D9D5E00379CCE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -884,8 +893,12 @@
 
 /* Begin PBXFileReference section */
 		22613FE41F297B9B00E05E11 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/dialog/internal.m; sourceTree = "<group>"; };
-		22613FE51F297B9B00E05E11 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/dialog/init.lua; sourceTree = "<group>"; };
+		22613FE51F297B9B00E05E11 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/dialog/init.lua; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.lua; };
 		22613FF11F297E0D00E05E11 /* libdialog.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libdialog.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		22E4D7F71FA7485A00C8CF5C /* internal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/midi/internal.m; sourceTree = SOURCE_ROOT; };
+		22E4D7F81FA7485A00C8CF5C /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/midi/init.lua; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.lua; };
+		22E4D8021FA7488900C8CF5C /* libmidi.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libmidi.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		22E4D8071FA74BDA00C8CF5C /* libMIKMIDI.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libMIKMIDI.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C3D55A91C7F05D00023B633 /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; path = init.lua; sourceTree = "<group>"; };
 		4C3D55AA1C7F05D00023B633 /* internal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = internal.m; sourceTree = "<group>"; };
 		4C3D55AD1C7F05D00023B633 /* test_javascript.lua */ = {isa = PBXFileReference; lastKnownFileType = text; path = test_javascript.lua; sourceTree = "<group>"; };
@@ -1002,7 +1015,7 @@
 		4F6B3ED91B73E29300B2A4DE /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/menubar/internal.m; sourceTree = "<group>"; };
 		4F6B3EDC1B73E56600B2A4DE /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/messages/init.lua; sourceTree = "<group>"; };
 		4F6B3EE71B73E5AC00B2A4DE /* libmilight.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libmilight.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		4F6B3EEC1B73E65800B2A4DE /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/milight/init.lua; sourceTree = "<group>"; };
+		4F6B3EEC1B73E65800B2A4DE /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/milight/init.lua; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.lua; };
 		4F6B3EED1B73E65800B2A4DE /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/milight/internal.m; sourceTree = "<group>"; };
 		4F6B3EF01B73E78900B2A4DE /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/mjomatic/init.lua; sourceTree = "<group>"; };
 		4F6B3EFB1B73E7C200B2A4DE /* libmouse.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libmouse.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1306,6 +1319,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				22613FEC1F297E0D00E05E11 /* LuaSkin.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		22E4D7FC1FA7488900C8CF5C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				22E4D7FD1FA7488900C8CF5C /* LuaSkin.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1983,6 +2004,15 @@
 			name = dialog;
 			sourceTree = "<group>";
 		};
+		22E4D7F61FA747FA00C8CF5C /* midi */ = {
+			isa = PBXGroup;
+			children = (
+				22E4D7F81FA7485A00C8CF5C /* init.lua */,
+				22E4D7F71FA7485A00C8CF5C /* internal.m */,
+			);
+			name = midi;
+			sourceTree = "<group>";
+		};
 		4C3D55A81C7F05D00023B633 /* osascript */ = {
 			isa = PBXGroup;
 			children = (
@@ -2507,6 +2537,7 @@
 				4F6B3EC61B73E14200B2A4DE /* logger */,
 				4F6B3ED71B73E27D00B2A4DE /* menubar */,
 				4F6B3EDB1B73E55300B2A4DE /* messages */,
+				22E4D7F61FA747FA00C8CF5C /* midi */,
 				4F6B3EEB1B73E64A00B2A4DE /* milight */,
 				4F6B3EEF1B73E77D00B2A4DE /* mjomatic */,
 				4F6B3EFC1B73E7E200B2A4DE /* mouse */,
@@ -3010,6 +3041,7 @@
 				22613FF11F297E0D00E05E11 /* libdialog.dylib */,
 				D6E164DC1F4C262300B85D8A /* libfsxattr.dylib */,
 				4F2DF3EA1F6046F300742D08 /* libstreamdeck.dylib */,
+				22E4D8021FA7488900C8CF5C /* libmidi.dylib */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -3017,6 +3049,7 @@
 		9445CA0D19083251002568BB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				22E4D8071FA74BDA00C8CF5C /* libMIKMIDI.a */,
 				D6943FE11EDBF2510057BB26 /* CoreFoundation.framework */,
 				D6943FE21EDBF2510057BB26 /* Foundation.framework */,
 				4F9618AE1E24ED650048F71D /* libsqlite3.tbd */,
@@ -3298,6 +3331,13 @@
 
 /* Begin PBXHeadersBuildPhase section */
 		22613FED1F297E0D00E05E11 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		22E4D7FE1FA7488900C8CF5C /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -3897,6 +3937,23 @@
 			name = dialog;
 			productName = alert;
 			productReference = 22613FF11F297E0D00E05E11 /* libdialog.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+		22E4D7F91FA7488900C8CF5C /* midi */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 22E4D7FF1FA7488900C8CF5C /* Build configuration list for PBXNativeTarget "midi" */;
+			buildPhases = (
+				22E4D7FA1FA7488900C8CF5C /* Sources */,
+				22E4D7FC1FA7488900C8CF5C /* Frameworks */,
+				22E4D7FE1FA7488900C8CF5C /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = midi;
+			productName = alert;
+			productReference = 22E4D8021FA7488900C8CF5C /* libmidi.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 		4C3D55B01C7F0A880023B633 /* osascript */ = {
@@ -4925,6 +4982,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				22E4D8051FA748E500C8CF5C /* PBXTargetDependency */,
 				4FCC42A71F6B800900485268 /* PBXTargetDependency */,
 				22613FF41F297E7F00E05E11 /* PBXTargetDependency */,
 				D64C85C81F4C272A004DFA1F /* PBXTargetDependency */,
@@ -5450,6 +5508,7 @@
 				4F76944A1B74C96800536DE4 /* keycodes */,
 				4F6B3EB11B73DC4500B2A4DE /* location */,
 				4F6B3EC81B73E23800B2A4DE /* menubar */,
+				22E4D7F91FA7488900C8CF5C /* midi */,
 				4F6B3EDD1B73E5AC00B2A4DE /* milight */,
 				4F6B3EF11B73E7C200B2A4DE /* mouse */,
 				D6477C0A1C5ED5D000F67BBC /* networkconfiguration */,
@@ -5724,6 +5783,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				22613FF51F2A127E00E05E11 /* internal.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		22E4D7FA1FA7488900C8CF5C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				22E4D8031FA748AC00C8CF5C /* internal.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6436,6 +6503,11 @@
 			target = 22613FE81F297E0D00E05E11 /* dialog */;
 			targetProxy = 22613FF31F297E7F00E05E11 /* PBXContainerItemProxy */;
 		};
+		22E4D8051FA748E500C8CF5C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 22E4D7F91FA7488900C8CF5C /* midi */;
+			targetProxy = 22E4D8041FA748E500C8CF5C /* PBXContainerItemProxy */;
+		};
 		4C1CA6B11C6D9D5E00379CCE /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 4CD203A31C6D76E20089706D /* socket */;
@@ -6970,6 +7042,142 @@
 				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
 				SDKROOT = "$(inherited)";
 				STRIP_INSTALLED_PRODUCT = NO;
+			};
+			name = Release;
+		};
+		22E4D8001FA7488900C8CF5C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
+				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
+				CLANG_WARN_ASSIGN_ENUM = "$(inherited)";
+				CLANG_WARN_BOOL_CONVERSION = "$(inherited)";
+				CLANG_WARN_CONSTANT_CONVERSION = "$(inherited)";
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = "$(inherited)";
+				CLANG_WARN_EMPTY_BODY = "$(inherited)";
+				CLANG_WARN_ENUM_CONVERSION = "$(inherited)";
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = "$(inherited)";
+				CLANG_WARN_INT_CONVERSION = "$(inherited)";
+				CLANG_WARN_OBJC_EXPLICIT_OWNERSHIP_TYPE = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = "$(inherited)";
+				CLANG_WARN_OBJC_MISSING_PROPERTY_SYNTHESIS = "$(inherited)";
+				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = "$(inherited)";
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = "$(inherited)";
+				CLANG_WARN_UNREACHABLE_CODE = YES_AGGRESSIVE;
+				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = "$(inherited)";
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = "$(inherited)";
+				COMBINE_HIDPI_IMAGES = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_STRICT_OBJC_MSGSEND = "$(inherited)";
+				ENABLE_TESTABILITY = YES;
+				EXECUTABLE_PREFIX = lib;
+				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = "$(inherited)";
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_NEWLINE = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = "$(inherited)";
+				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = "$(inherited)";
+				GCC_WARN_ALLOW_INCOMPLETE_PROTOCOL = "$(inherited)";
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = "$(inherited)";
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = "$(inherited)";
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = "$(inherited)";
+				GCC_WARN_MISSING_PARENTHESES = "$(inherited)";
+				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = "$(inherited)";
+				GCC_WARN_PEDANTIC = "$(inherited)";
+				GCC_WARN_SHADOW = "$(inherited)";
+				GCC_WARN_SIGN_COMPARE = "$(inherited)";
+				GCC_WARN_STRICT_SELECTOR_MATCH = "$(inherited)";
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = "$(inherited)";
+				GCC_WARN_UNDECLARED_SELECTOR = "$(inherited)";
+				GCC_WARN_UNKNOWN_PRAGMAS = "$(inherited)";
+				GCC_WARN_UNUSED_FUNCTION = "$(inherited)";
+				GCC_WARN_UNUSED_LABEL = "$(inherited)";
+				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
+				GCC_WARN_UNUSED_VALUE = "$(inherited)";
+				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				OTHER_LDFLAGS = "$(inherited)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
+				SDKROOT = "$(inherited)";
+				STRIP_INSTALLED_PRODUCT = NO;
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/Headers/Public/**";
+			};
+			name = Debug;
+		};
+		22E4D8011FA7488900C8CF5C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
+				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
+				CLANG_WARN_ASSIGN_ENUM = "$(inherited)";
+				CLANG_WARN_BOOL_CONVERSION = "$(inherited)";
+				CLANG_WARN_CONSTANT_CONVERSION = "$(inherited)";
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = "$(inherited)";
+				CLANG_WARN_EMPTY_BODY = "$(inherited)";
+				CLANG_WARN_ENUM_CONVERSION = "$(inherited)";
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = "$(inherited)";
+				CLANG_WARN_INT_CONVERSION = "$(inherited)";
+				CLANG_WARN_OBJC_EXPLICIT_OWNERSHIP_TYPE = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = "$(inherited)";
+				CLANG_WARN_OBJC_MISSING_PROPERTY_SYNTHESIS = "$(inherited)";
+				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = "$(inherited)";
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = "$(inherited)";
+				CLANG_WARN_UNREACHABLE_CODE = YES_AGGRESSIVE;
+				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = "$(inherited)";
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = "$(inherited)";
+				COMBINE_HIDPI_IMAGES = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_STRICT_OBJC_MSGSEND = "$(inherited)";
+				EXECUTABLE_PREFIX = lib;
+				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = "$(inherited)";
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_NEWLINE = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = "$(inherited)";
+				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = "$(inherited)";
+				GCC_WARN_ALLOW_INCOMPLETE_PROTOCOL = "$(inherited)";
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = "$(inherited)";
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = "$(inherited)";
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = "$(inherited)";
+				GCC_WARN_MISSING_PARENTHESES = "$(inherited)";
+				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = "$(inherited)";
+				GCC_WARN_PEDANTIC = "$(inherited)";
+				GCC_WARN_SHADOW = "$(inherited)";
+				GCC_WARN_SIGN_COMPARE = "$(inherited)";
+				GCC_WARN_STRICT_SELECTOR_MATCH = "$(inherited)";
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = "$(inherited)";
+				GCC_WARN_UNDECLARED_SELECTOR = "$(inherited)";
+				GCC_WARN_UNKNOWN_PRAGMAS = "$(inherited)";
+				GCC_WARN_UNUSED_FUNCTION = "$(inherited)";
+				GCC_WARN_UNUSED_LABEL = "$(inherited)";
+				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
+				GCC_WARN_UNUSED_VALUE = "$(inherited)";
+				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = "$(inherited)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
+				SDKROOT = "$(inherited)";
+				STRIP_INSTALLED_PRODUCT = NO;
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/Headers/Public/**";
 			};
 			name = Release;
 		};
@@ -17856,6 +18064,15 @@
 			buildConfigurations = (
 				22613FEF1F297E0D00E05E11 /* Debug */,
 				22613FF01F297E0D00E05E11 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		22E4D7FF1FA7488900C8CF5C /* Build configuration list for PBXNativeTarget "midi" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				22E4D8001FA7488900C8CF5C /* Debug */,
+				22E4D8011FA7488900C8CF5C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

@@ -31,6 +31,7 @@ export HS_MODULES="application \
     keycodes \
     location \
     menubar \
+    midi \
     milight \
     mouse \
     noises \
@@ -179,7 +180,7 @@ cp -av "${SRCROOT}/extensions/window/highlight.lua" "${HS_DST}/window/highlight.
 # Special copier for hs.webview.usercontent submodule
 cp -av "${BUILT_PRODUCTS_DIR}/libwebviewusercontent.dylib" "${HS_DST}/webview/usercontent.so"
 
-# Special copier for hs.webview.toolbar submodule		
+# Special copier for hs.webview.toolbar submodule
 cp -av "${SRCROOT}/extensions/webview/toolbar.lua" "${HS_DST}/webview/toolbar.lua"
 cp -av "${BUILT_PRODUCTS_DIR}/libwebviewtoolbar.dylib" "${HS_DST}/webview/toolbar_internal.so"
 
