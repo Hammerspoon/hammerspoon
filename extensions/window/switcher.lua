@@ -113,7 +113,7 @@ local function setFrames(nwindows,drawings,ui)
   local haveThumbs,haveTitles=ui.showThumbnails,ui.showTitles
   local titleHeight=ui.titleHeight
   local screenFrame=drawings.screenFrame
-  if not drawings.screenFrame then drawings.screenFrame=screen.primaryScreen():frame() screenFrame=drawings.screenFrame end
+  if not drawings.screenFrame then drawings.screenFrame=screen.mainScreen():frame() screenFrame=drawings.screenFrame end
   local padding=ui.thumbnailSize*0.1
   local size=min(ui.thumbnailSize,(screenFrame.w-padding*(nwindows+1))/nwindows)
   padding=size*0.1

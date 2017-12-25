@@ -568,6 +568,25 @@ hs.fileDroppedToDockIconCallback = nil
     end)
     return result
   end
+
+  -- Set up the default Console toolbar
+--- hs.console.defaultToolbar
+--- Constant
+--- Default toolbar for the Console window
+---
+--- Notes:
+---  * This is an `hs.toolbar` object that is shown by default in the Hammerspoon Console
+---  * You can remove this toolbar by adding `hs.console.toolbar(nil)` to your config, or you can replace it with your own `hs.toolbar` object
+  local toolbar = require("hs.webview.toolbar")
+  local console = require("hs.console")
+  local image = require("hs.image")
+  console.defaultToolbar = toolbar.new("Console Default", {
+    { id="prefs", label="Preferences", image=image.imageFromName("NSPreferencesGeneral"), tooltip="Open Preferences", fn=function() hs.openPreferences() end },
+    { id="reload", label="Reload config", image=image.imageFromName("NSRefreshTemplate"), tooltip="Reload configuration", fn=function() hs.reload() end },
+    { id="help", label="Help", image=image.imageFromName("NSInfo"), tooltip="Open API docs browser", fn=function() hs.doc.hsdocs.help() end }
+  }):canCustomize(true):autosaves(true)
+  console.toolbar(console.defaultToolbar)
+
   hscrash.crashLog("Loaded from: "..modpath)
 
   print("-- Loading " .. prettypath)
