@@ -21,6 +21,7 @@ PODS:
   - Crashlytics (3.8.6):
     - Fabric (~> 1.6.3)
   - Fabric (1.6.13)
+  - MIKMIDI (1.6.2)
   - PocketSocket/Client (1.0.1):
     - PocketSocket/Core
   - PocketSocket/Core (1.0.1)
@@ -33,6 +34,7 @@ DEPENDENCIES:
   - CocoaLumberjack (= 2.2.0)
   - Crashlytics (= 3.8.6)
   - Fabric (= 1.6.13)
+  - MIKMIDI
   - PocketSocket/Client (= 1.0.1)
   - Sparkle (= 1.18.1)
 
@@ -43,9 +45,10 @@ SPEC CHECKSUMS:
   CocoaLumberjack: 17fe8581f84914d5d7e6360f7c70022b173c3ae0
   Crashlytics: 95d05f4e4c19a771250c4bd9ce344d996de32bbf
   Fabric: 2fb5676bc811af011a04513451f463dac6803206
+  MIKMIDI: fa6df0bfa8427a0dc9e179bcf068b2b4b6747e6c
   PocketSocket: 9c6867d66fb4f962af96b9b07f4b45bb561b2c2a
   Sparkle: 06ea33170007c5937ee54da481b4481af98fac79
 
-PODFILE CHECKSUM: 110363b0504b26a0a1df1f9301cfbf30594d9bc7
+PODFILE CHECKSUM: bf2c648cc6fd03bd9144b679a5fe0af84a089740
 
 COCOAPODS: 1.3.1
