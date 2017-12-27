@@ -52,7 +52,7 @@ static void readCallback(HSAsyncTcpSocket *asyncSocket, NSData *data, long tag) 
     mainThreadDispatch(
         LuaSkin *skin = [LuaSkin shared];
         [skin pushLuaRef:refTable ref:asyncSocket.readCallback];
-        [skin pushNSObject: [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]];
+        [skin pushNSObject:data withOptions:LS_NSLuaStringAsDataOnly];
         [skin pushNSObject: @(tag)];
 
         if (![skin protectedCallAndTraceback:2 nresults:0]) {
@@ -174,9 +174,8 @@ static int socket_new(lua_State *L) {
         asyncSocket.readCallback = [skin luaRef:refTable];
     }
 
-    lua_getglobal(skin.L, "hs");
-    for (NSString *field in @[@"socket", @"timeout"])
-        lua_getfield(skin.L, -1, [field UTF8String]);
+    [skin requireModule:"hs.socket"];
+    lua_getfield(skin.L, -1, "timeout");
     asyncSocket.timeout = lua_tonumber(skin.L, -1);
 
     asyncSocketUserData *userData = lua_newuserdata(L, sizeof(asyncSocketUserData));
@@ -442,7 +441,7 @@ static int socket_write(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TNUMBER|LS_TINTEGER|LS_TFUNCTION|LS_TNIL|LS_TOPTIONAL, LS_TFUNCTION|LS_TOPTIONAL, LS_TBREAK];
     HSAsyncTcpSocket* asyncSocket = getUserData(L, 1);
-    NSString *message = [skin toNSObjectAtIndex:2];
+    NSData *message = [skin toNSObjectAtIndex:2 withOptions:LS_NSLuaStringAsDataOnly];
     long tag = (lua_type(L, 3) == LUA_TNUMBER) ? lua_tointeger(L, 3) : -1;
 
     if (lua_type(L, 3) == LUA_TFUNCTION) {
@@ -457,10 +456,10 @@ static int socket_write(lua_State *L) {
     if (asyncSocket.userData == SERVER) {
         @synchronized(asyncSocket.connectedSockets) {
             for (HSAsyncTcpSocket *client in asyncSocket.connectedSockets)
-                [client writeData:[message dataUsingEncoding:NSUTF8StringEncoding]
+                [client writeData:message
                       withTimeout:asyncSocket.timeout tag:tag];
         }
-    } else [asyncSocket writeData:[message dataUsingEncoding:NSUTF8StringEncoding]
+    } else [asyncSocket writeData:message
                       withTimeout:asyncSocket.timeout tag:tag];
 
     lua_pushvalue(L, 1);
