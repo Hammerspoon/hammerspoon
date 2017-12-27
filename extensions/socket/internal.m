@@ -174,9 +174,8 @@ static int socket_new(lua_State *L) {
         asyncSocket.readCallback = [skin luaRef:refTable];
     }
 
-    lua_getglobal(skin.L, "hs");
-    for (NSString *field in @[@"socket", @"timeout"])
-        lua_getfield(skin.L, -1, [field UTF8String]);
+    [skin requireModule:"hs.socket"];
+    lua_getfield(skin.L, -1, "timeout");
     asyncSocket.timeout = lua_tonumber(skin.L, -1);
 
     asyncSocketUserData *userData = lua_newuserdata(L, sizeof(asyncSocketUserData));
