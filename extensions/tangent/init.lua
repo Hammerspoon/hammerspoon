@@ -25,6 +25,8 @@ local fs                                        = require("hs.fs")
 local socket                                    = require("hs.socket")
 local timer                                     = require("hs.timer")
 
+local unpack, pack 								= string.unpack, string.pack
+
 --------------------------------------------------------------------------------
 --
 -- THE MODULE:
@@ -165,11 +167,11 @@ end
 -- Returns:
 --  * A number value
 local function byteStringToNumber(str, offset, numberOfBytes, signed)
-	local format = ">I" .. tostring(numberOfBytes)
-	if signed then
-		format = ">i" .. tostring(numberOfBytes)
-	end
-  return string.unpack(format, str:sub(offset, offset + numberOfBytes - 1))
+    local format = ">I" .. tostring(numberOfBytes)
+    if signed then
+        format = ">i" .. tostring(numberOfBytes)
+    end
+  return unpack(format, str:sub(offset, offset + numberOfBytes - 1))
 end
 
 -- byteStringToFloat(str, offset, numberOfBytes) -> number
@@ -184,7 +186,7 @@ end
 -- Returns:
 --  * A number value
 local function byteStringToFloat(str, offset, numberOfBytes)
-	return string.unpack(">f", str:sub(offset, offset + numberOfBytes - 1))
+    return unpack(">f", str:sub(offset, offset + numberOfBytes - 1))
 end
 
 -- byteStringToBoolean(str, offset, numberOfBytes) -> boolean
@@ -213,11 +215,11 @@ end
 -- Returns:
 --  * A string
 local function numberToByteString(n)
-	if not type(n) == "number" then
-		log.ef("numberToByteString() was fed something other than a number")
-		return nil
-	end
-    return string.pack(">I4", n)
+    if not type(n) == "number" then
+        log.ef("numberToByteString() was fed something other than a number")
+        return nil
+    end
+    return pack(">I4", n)
 end
 
 -- floatToByteString(n) -> string
@@ -230,11 +232,11 @@ end
 -- Returns:
 --  * A string
 local function floatToByteString(n)
-	if not type(n) == "number" then
-		log.ef("floatToByteString() was fed something other than a number")
-		return nil
-	end
-    return string.pack(">f", n)
+    if not type(n) == "number" then
+        log.ef("floatToByteString() was fed something other than a number")
+        return nil
+    end
+    return pack(">f", n)
 end
 
 -- booleanToByteString(value) -> string
@@ -628,7 +630,7 @@ local function processHubCommand(data)
         --
         -- Format: 0x32, <panelID>, <buttonID>
         --
-    	-- panelID: The ID of the panel as reported in the InitiateComms command (Unsigned Int)
+        -- panelID: The ID of the panel as reported in the InitiateComms command (Unsigned Int)
         -- buttonID: The hardware ID of the button (Unsigned Int)
         --------------------------------------------------------------------------------
         local panelID = byteStringToNumber(data, 5, 4)
@@ -994,24 +996,24 @@ function mod.send(id, metadata)
         -- Command Processing:
         --------------------------------------------------------------------------------
         if id == "APPLICATION_DEFINITION" or id == mod.APP_MESSAGE["APPLICATION_DEFINITION"] then
-        	--------------------------------------------------------------------------------
-        	-- ApplicationDefinition (0x81)
-        	--  * This is sent in response to the InitiateComms (0x01) command and
-        	--    establishes communication between the application and the hub.
-        	--  * Sends the application type and some file directory details to the hub.
-        	--  * If your application manages multiple user settings internally then this
-        	--    command should also be sent each time the user changes. This will notify
-        	--    the Hub to reload the preference files for the new user.
-        	--
-        	-- Format: 0x81, <appStrLen>, < appStr>, <sysDirStrLen>, <sysDirStr>, <userDirStrLen>, <userDirStr>
-        	--
-        	-- appStrLen: The length of appStr (Unsigned Int)
-        	-- appStr: A string containing the name of the application (Character String)
-        	-- sysDirStrLen: The length of sysDirStr (Unsigned Int)
-        	-- sysDirStr: A string containing the absolute path of the directory that contains the Controls and Default Map XML files (Path String)
-        	-- usrDirStrLen: The length of usrDirStr (Unsigned Int)
-        	-- usrDirStr: A string containing the absolute path of the directory that contains the User’s Default Map XML files (Path String)
-        	--------------------------------------------------------------------------------
+            --------------------------------------------------------------------------------
+            -- ApplicationDefinition (0x81)
+            --  * This is sent in response to the InitiateComms (0x01) command and
+            --    establishes communication between the application and the hub.
+            --  * Sends the application type and some file directory details to the hub.
+            --  * If your application manages multiple user settings internally then this
+            --    command should also be sent each time the user changes. This will notify
+            --    the Hub to reload the preference files for the new user.
+            --
+            -- Format: 0x81, <appStrLen>, < appStr>, <sysDirStrLen>, <sysDirStr>, <userDirStrLen>, <userDirStr>
+            --
+            -- appStrLen: The length of appStr (Unsigned Int)
+            -- appStr: A string containing the name of the application (Character String)
+            -- sysDirStrLen: The length of sysDirStr (Unsigned Int)
+            -- sysDirStr: A string containing the absolute path of the directory that contains the Controls and Default Map XML files (Path String)
+            -- usrDirStrLen: The length of usrDirStr (Unsigned Int)
+            -- usrDirStr: A string containing the absolute path of the directory that contains the User’s Default Map XML files (Path String)
+            --------------------------------------------------------------------------------
             if not metadata then
                 --------------------------------------------------------------------------------
                 -- If no metadata is supplied, then use the values stored from
@@ -1079,9 +1081,9 @@ function mod.send(id, metadata)
                 return false, "Missing or invalid paramater: atDefault."
             end
             local byteString = numberToByteString(mod.APP_MESSAGE["PARAMETER_VALUE"]) ..
-            				numberToByteString(metadata.paramID) ..
-            				floatToByteString(metadata.value) ..
-            				booleanToByteString(metadata.atDefault)
+                            numberToByteString(metadata.paramID) ..
+                            floatToByteString(metadata.value) ..
+                            booleanToByteString(metadata.atDefault)
             mod._socket:send(numberToByteString(#byteString)..byteString)
         elseif id == "MENU_STRING" or id == mod.APP_MESSAGE["MENU_STRING"] then
             --------------------------------------------------------------------------------
@@ -1096,9 +1098,9 @@ function mod.send(id, metadata)
             -- Format: 0x83, <menuID>, <valueStrLen>, <valueStr>, <atDefault>
             --
             -- menuID: The ID value of the menu (Unsigned Int)
-			-- valueStrLen: The length of valueStr (Unsigned Int)
-			-- valueStr: The current ‘value’ of the parameter represented as a string (Character String)
-			-- atDefault: True if the value represents the default. Otherwise false (Bool)
+            -- valueStrLen: The length of valueStr (Unsigned Int)
+            -- valueStr: The current ‘value’ of the parameter represented as a string (Character String)
+            -- atDefault: True if the value represents the default. Otherwise false (Bool)
             --------------------------------------------------------------------------------
             if not metadata or type(metadata) ~= "table" then
                 return false, "The 'metadata' table is required."
@@ -1113,7 +1115,7 @@ function mod.send(id, metadata)
                 return false, "Missing or invalid paramater: atDefault."
             end
             local byteString = numberToByteString(mod.APP_MESSAGE["MENU_STRING"]) ..
-              				   numberToByteString(metadata.menuID) ..
+                               numberToByteString(metadata.menuID) ..
                                numberToByteString(#metadata.valueStr) ..
                                metadata.valueStr ..
                                booleanToByteString(metadata.atDefault)
