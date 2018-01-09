@@ -179,7 +179,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  Crashlytics.
  *
  *  @param name       The name of the custom exception
- *  @param reason     The reason this exception occured
+ *  @param reason     The reason this exception occurred
  *  @param frameArray An array of CLSStackFrame objects
  */
 - (void)recordCustomExceptionName:(NSString *)name reason:(nullable NSString *)reason frameArray:(CLS_GENERIC_NSARRAY(CLSStackFrame *) *)frameArray;
