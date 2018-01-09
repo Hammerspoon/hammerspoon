@@ -72,7 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *  @param itemPriceOrNil         The purchased item's price.
  *  @param currencyOrNil          The ISO4217 currency code. Example: USD
- *  @param purchaseSucceededOrNil Was the purchase succesful or unsuccesful
+ *  @param purchaseSucceededOrNil Was the purchase successful or unsuccessful
  *  @param itemNameOrNil          The human-readable form of the item's name. Example:
  *  @param itemTypeOrNil          The type, or genre of the item. Example: Song
  *  @param itemIdOrNil            The machine-readable, unique item identifier Example: SKU
@@ -100,7 +100,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *  @param levelNameOrNil                 The name of the level completed, E.G. "1" or "Training"
  *  @param scoreOrNil                     The score the user completed the level with.
- *  @param levelCompletedSuccesfullyOrNil A boolean representing whether or not the level was completed succesfully.
+ *  @param levelCompletedSuccesfullyOrNil A boolean representing whether or not the level was completed successfully.
  *  @param customAttributesOrNil          A dictionary of custom attributes to associate with this event.
  */
 + (void)logLevelEnd:(nullable NSString *)levelNameOrNil
@@ -189,7 +189,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *  @param eventName             The human-readable name for the event.
  *  @param customAttributesOrNil A dictionary of custom attributes to associate with this event. Attribute keys
- *                               must be <code>NSString</code> and and values must be <code>NSNumber</code> or <code>NSString</code>.
+ *                               must be <code>NSString</code> and values must be <code>NSNumber</code> or <code>NSString</code>.
  *  @discussion                  How we treat <code>NSNumbers</code>:
  *                               We will provide information about the distribution of values over time.
  *
