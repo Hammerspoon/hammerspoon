@@ -51,10 +51,24 @@ static int refTable = LUA_NOREF;
     return self ;
 }
 
+//
+// Availible Devices:
+//
 - (NSArray *)availableDevices { return self.midiDeviceManager.availableDevices; }
 
+//
+// Virtual Sources:
+//
+- (NSArray *)virtualSources { return self.midiDeviceManager.virtualSources; }
+
+//
+// Set Device:
+//
 - (bool)setDevice:(NSString *)deviceName
 {
+    //
+    // Availible Devices:
+    //
     NSArray *availableMIDIDevices = [_midiDeviceManager availableDevices];
     for (MIKMIDIDevice * device in availableMIDIDevices)
     {
@@ -64,24 +78,69 @@ static int refTable = LUA_NOREF;
             return YES;
         }
     }
+    //
+    // Virtual Sources:
+    //
+    NSArray *virtualSources = [_midiDeviceManager virtualSources];
+    NSLog(@"%@", virtualSources);
+    for (MIKMIDISourceEndpoint * endpoint in virtualSources)
+    {
+        NSString *currentDevice = [endpoint name];
+        if ([deviceName isEqualToString:currentDevice]) {
+            _midiDevice = [MIKMIDIDevice deviceWithVirtualEndpoints:@[endpoint]];
+            return YES;
+        }
+    }
+    
     return NO;
 }
 
 #pragma mark - hs.midi.deviceCallback Functions
 
+//
+// Watch Devices:
+//
 - (void)watchDevices
 {
+    //
+    // Availible Devices:
+    //
     @try {
         [_midiDeviceManager addObserver:self forKeyPath:@"availableDevices" options:NSKeyValueObservingOptionInitial context:midiKVOContext];
     }
     @catch (NSException *exception) {
         [LuaSkin logError:[NSString stringWithFormat:@"%s:deviceCallback - %@", USERDATA_TAG, exception.reason]] ;
     }
+    //
+    // Virtual Sources:
+    //
+    @try {
+        [_midiDeviceManager addObserver:self forKeyPath:@"virtualSources" options:NSKeyValueObservingOptionInitial context:midiKVOContext];
+    }
+    @catch (NSException *exception) {
+        [LuaSkin logError:[NSString stringWithFormat:@"%s:deviceCallback - %@", USERDATA_TAG, exception.reason]] ;
+    }
 }
+
+//
+// Unwatch Devices:
+//
 - (void)unwatchDevices
 {
+    //
+    // Availible Devices:
+    //
     @try {
         [_midiDeviceManager removeObserver:self forKeyPath:@"availableDevices" context:midiKVOContext] ;
+    }
+    @catch (NSException *exception) {
+        [LuaSkin logError:[NSString stringWithFormat:@"%s:deviceCallback - %@", USERDATA_TAG, exception.reason]] ;
+    }
+    //
+    // Virtual Sources:
+    //
+    @try {
+        [_midiDeviceManager removeObserver:self forKeyPath:@"virtualSources" context:midiKVOContext] ;
     }
     @catch (NSException *exception) {
         [LuaSkin logError:[NSString stringWithFormat:@"%s:deviceCallback - %@", USERDATA_TAG, exception.reason]] ;
@@ -90,12 +149,18 @@ static int refTable = LUA_NOREF;
 
 #pragma mark - MIDI Synthesis
 
+//
+// Start Synthesize:
+//
 - (void)startSynthesize
 {
     MIKMIDISourceEndpoint *endpoint = self.midiDevice.entities.firstObject.sources.firstObject;
     _synth = [[MIKMIDIEndpointSynthesizer alloc] initWithMIDISource:endpoint];
 }
 
+//
+// Stop Synthesize:
+//
 - (void)stopSynthesize
 {
     _synth = nil;
@@ -103,6 +168,9 @@ static int refTable = LUA_NOREF;
 
 #pragma mark - MIDI Functions
 
+//
+// Send Sysex:
+//
 - (void)sendSysex:(NSString *)commandString
 {
 
@@ -141,32 +209,52 @@ static int refTable = LUA_NOREF;
 
 #pragma mark - KVO
 
+//
+// Observer:
+//
 - (void)observeValueForKeyPath:(NSString *)keyPath
                       ofObject:(id)object
                         change:(NSDictionary *)change
                        context:(void *)context
 {
     if (context == midiKVOContext) {
-        if ([keyPath isEqualToString:@"availableDevices"]) {
+        if (([keyPath isEqualToString:@"availableDevices"]) || ([keyPath isEqualToString:@"virtualSources"])) {
             if (_deviceCallbackRef != LUA_NOREF) {
                 LuaSkin *skin = [LuaSkin shared] ;
                 lua_State *L  = [skin L] ;
                 [skin pushLuaRef:refTable ref:_deviceCallbackRef] ;
 
-                NSMutableArray *deviceNames = [NSMutableArray array];
+                //
+                // Availible Devices:
+                //
+                NSMutableArray *deviceNames = [[NSMutableArray alloc]init];
                 for (MIKMIDIDevice * device in self.availableDevices)
                 {
-                    [deviceNames addObject:[device name]];
+                    if ([device name]) {
+                        [deviceNames addObject:[device name]];
+                    }
                 }
+                //
+                // Virtual Sources:
+                //
+                NSArray *virtualSources = [[MIKMIDIDeviceManager sharedDeviceManager] virtualSources];
+                NSMutableArray *virtualDeviceNames = [[NSMutableArray alloc]init];
+                for (MIKMIDIDevice * device in virtualSources)
+                {
+                    if ([device name]) {
+                        [virtualDeviceNames addObject:[device name]];
+                    }
+                }
+                
                 [skin pushNSObject:deviceNames];
+                [skin pushNSObject:virtualDeviceNames];
 
-                if (![skin protectedCallAndTraceback:1 nresults:0]) {
+                if (![skin protectedCallAndTraceback:2 nresults:0]) {
                     NSString *errorMessage = [skin toNSObjectAtIndex:-1] ;
                     lua_pop(L, 1) ;
                     [skin logError:[NSString stringWithFormat:@"%s:deviceCallback callback error:%@", USERDATA_TAG, errorMessage]] ;
                 }
             }
-
         }
     }
 }
@@ -182,13 +270,13 @@ HSMIDIDeviceManager *watcherDeviceManager;
 
 /// hs.midi.devices() -> table
 /// Function
-/// Returns a table of currently connected MIDI devices.
+/// Returns a table of currently connected physical MIDI devices.
 ///
 /// Parameters:
 ///  * None
 ///
 /// Returns:
-///  * A table containing the names of any connected MIDI devices as strings.
+///  * A table containing the names of any physically connected MIDI devices as strings.
 static int devices(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     NSArray *availableMIDIDevices = [[MIKMIDIDeviceManager sharedDeviceManager] availableDevices];
@@ -201,9 +289,30 @@ static int devices(lua_State *L) {
     return 1 ;
 }
 
+/// hs.midi.virtualSources() -> table
+/// Function
+/// Returns a table of currently available Virtual MIDI sources. This includes devices, such as Native Instruments controllers which present as virtual endpoints rather than physical devices.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A table containing the names of any virtual MIDI sources as strings.
+static int virtualSources(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    NSArray *virtualSources = [[MIKMIDIDeviceManager sharedDeviceManager] virtualSources];
+    NSMutableArray *deviceNames = [NSMutableArray array];
+    for (MIKMIDIDevice * device in virtualSources)
+    {
+        [deviceNames addObject:[device name]];
+    }
+    [skin pushNSObject:deviceNames];
+    return 1 ;
+}
+
 /// hs.midi.deviceCallback(callbackFn) -> none
 /// Function
-/// A callback that's triggered when a MIDI device is added or removed from the system.
+/// A callback that's triggered when a physical or virtual MIDI device is added or removed from the system.
 ///
 /// Parameters:
 ///  * callbackFn - the callback function to trigger.
@@ -212,12 +321,14 @@ static int devices(lua_State *L) {
 ///  * None
 ///
 /// Notes:
-///  * The callback function should expect 1 argument and should not return anything:
-///    * `devices` - A table containing the names of any connected MIDI devices as strings.
+///  * The callback function should expect 2 argument and should not return anything:
+///    * `devices` - A table containing the names of any physically connected MIDI devices as strings.
+///    * `virtualDevices` - A table containing the names of any virtual MIDI devices as strings.
 ///  * Example Usage:
 ///    ```
-///    hs.midi.deviceCallback(function(devices)
+///    hs.midi.deviceCallback(function(devices, virtualDevices)
 ///         print(hs.inspect(devices))
+///         print(hs.inspect(virtualDevices))
 ///    end)
 ///    ```
 static int deviceCallback(lua_State *L) {
@@ -254,7 +365,7 @@ static int deviceCallback(lua_State *L) {
 /// Creates a new `hs.midi` object.
 ///
 /// Parameters:
-///  * deviceName - A string containing the device name of the MIDI device. A valid device name can be found by checking `hs.midi.getDevices()`.
+///  * deviceName - A string containing the device name of the MIDI device. A valid device name can be found by checking `hs.midi.getDevices()` and/or `hs.midi.virtualSources()`.
 ///
 /// Returns:
 ///  * An `hs.midi` object or `nil` if an error occured.
@@ -1215,12 +1326,29 @@ static int midi_manufacturer(lua_State *L) {
 ///  * None
 ///
 /// Returns:
-///  * `true` if online, otherwise `false
+///  * `true` if online, otherwise `false`
 static int midi_isOnline(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSMIDIDeviceManager *wrapper = [skin toNSObjectAtIndex:1] ;
     lua_pushboolean(L, [wrapper.midiDevice isOnline]);
+    return 1;
+}
+
+/// hs.midi:isVirtual() -> boolean
+/// Method
+/// Returns `true` if an `hs.midi` object is virtual, otherwise `false`.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * `true` if virtual, otherwise `false`
+static int midi_isVirtual(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    HSMIDIDeviceManager *wrapper = [skin toNSObjectAtIndex:1] ;
+    lua_pushboolean(L, [wrapper.midiDevice isVirtual]);
     return 1;
 }
 
@@ -1387,6 +1515,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {"name", midi_name},
     {"displayName", midi_displayName},
     {"isOnline", midi_isOnline},
+    {"isVirtual", midi_isVirtual},
     {"callback", midi_callback},
     {"manufacturer", midi_manufacturer},
     {"model", midi_model},
@@ -1402,6 +1531,7 @@ static const luaL_Reg userdata_metaLib[] = {
 static luaL_Reg moduleLib[] = {
     {"new", midi_new},
     {"devices", devices},
+    {"virtualSources", virtualSources},
     {"deviceCallback", deviceCallback},
     {NULL, NULL},
 };
