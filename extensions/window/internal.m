@@ -9,10 +9,89 @@ static const char *USERDATA_TAG = "hs.window";
 static int refTable = LUA_NOREF;
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 
+#pragma mark - Helper functions
+
+static AXUIElementRef system_wide_element() {
+    static AXUIElementRef element;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        element = AXUIElementCreateSystemWide();
+    });
+    return element;
+}
+
 #pragma mark - HSwindow implementation
+
 @implementation HSwindow
 
 #pragma mark - Class methods
++(NSArray<NSNumber *>*)orderedWindowIDs {
+    NSMutableArray *windowIDs = nil;
+    CFArrayRef wins = CGWindowListCreate(kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements, kCGNullWindowID);
+
+    if (wins) {
+        windowIDs = [[NSMutableArray alloc] initWithCapacity:CFArrayGetCount(wins)];
+        for (int i = 0; i < CFArrayGetCount(wins); i++) {
+            int winid = (int)CFArrayGetValueAtIndex(wins, i);
+            [windowIDs addObject:[NSNumber numberWithInt:winid]];
+        }
+        CFRelease(wins);
+    } else {
+        [LuaSkin logBreadcrumb:@"hs.window._orderedwinids CGWindowListCreate returned NULL"] ;
+    }
+    return windowIDs;
+}
+
++(NSImage *)snapshotForID:(int)windowID keepTransparency:(BOOL)keepTransparency {
+    NSImage *image = nil;
+    // FIXME: Implement this
+    return image;
+}
+
++(HSwindow *)focusedWindow {
+    HSwindow *window = nil;
+    CFTypeRef app;
+    AXUIElementCopyAttributeValue(system_wide_element(), kAXFocusedApplicationAttribute, &app);
+
+    if (app) {
+        CFTypeRef win;
+        AXError result = AXUIElementCopyAttributeValue(app, (CFStringRef)NSAccessibilityFocusedWindowAttribute, &win);
+
+        CFRelease(app);
+
+        if (result == kAXErrorSuccess) {
+            window = [[HSwindow alloc] initWithAXUIElementRef:win];
+        }
+    }
+    return window;
+
+}
+
+#pragma mark - Initialiser
+-(HSwindow *)initWithAXUIElementRef:(AXUIElementRef)winRef {
+    self = [super init];
+    if (self) {
+        _winRef = winRef;
+        _selfRef = LUA_NOREF;
+
+        pid_t pid;
+        if (AXUIElementGetPid(winRef, &pid) == kAXErrorSuccess) {
+            _pid = pid;
+        }
+
+        CGWindowID winID;
+        AXError err = _AXUIElementGetWindow(winRef, &winID);
+        if (!err) {
+            _winID = winID;
+        }
+    }
+    return self;
+}
+
+#pragma mark - Destructor
+-(void)dealloc {
+    CFRelease(self.winRef);
+}
 
 #pragma mark - Instance methods
 @end
@@ -68,15 +147,6 @@ static int window_gc(lua_State* L) {
     return 0;
 }
 
-static AXUIElementRef system_wide_element() {
-    static AXUIElementRef element;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        element = AXUIElementCreateSystemWide();
-    });
-    return element;
-}
-
 /// hs.window.timeout(value) -> boolean
 /// Function
 /// Sets the timeout value used in the accessibility API.
@@ -116,22 +186,9 @@ static int window_timeout(lua_State* L) {
 /// Returns:
 ///  * An `hs.window` object representing the currently focused window
 static int window_focusedwindow(lua_State* L) {
-    CFTypeRef app;
-    AXUIElementCopyAttributeValue(system_wide_element(), kAXFocusedApplicationAttribute, &app);
-
-    if (app) {
-        CFTypeRef win;
-        AXError result = AXUIElementCopyAttributeValue(app, (CFStringRef)NSAccessibilityFocusedWindowAttribute, &win);
-
-        CFRelease(app);
-
-        if (result == kAXErrorSuccess) {
-            new_window(L, win);
-            return 1;
-        }
-    }
-
-    lua_pushnil(L);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TBREAK];
+    [skin pushNSObject:[HSwindow focusedWindow]];
     return 1;
 }
 
@@ -725,22 +782,9 @@ static int window_raise(lua_State* L) {
 }
 
 static int window__orderedwinids(lua_State* L) {
-    lua_newtable(L);
-
-    CFArrayRef wins = NULL ;
-    wins = CGWindowListCreate(kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements, kCGNullWindowID);
-    if (wins) {
-        for (int i = 0; i < CFArrayGetCount(wins); i++) {
-            int winid = (int)CFArrayGetValueAtIndex(wins, i);
-
-            lua_pushinteger(L, winid);
-            lua_rawseti(L, -2, i+1);
-        }
-
-        CFRelease(wins);
-    } else {
-        [LuaSkin logBreadcrumb:@"hs.window._orderedwinids CGWindowListCreate returned NULL"] ;
-    }
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TBREAK];
+    [skin pushNSObject:[HSwindow orderedWindowIDs]];
     return 1;
 }
 

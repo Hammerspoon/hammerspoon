@@ -16,7 +16,7 @@
 @property (nonatomic, getter=getSize, setter=setSize:) CGSize size;
 @property (nonatomic, getter=isFullscreen, setter=setFullscreen:) BOOL fullscreen;
 @property (nonatomic, getter=isMinimized, setter=setMinimized:) BOOL minimized;
-@property (nonatomic, getter=getApplication) HSapplication *application;
+@property (nonatomic, getter=getApplication) id application;
 
 // Class methods
 +(NSArray<NSNumber *>*)orderedWindowIDs;
@@ -48,7 +48,7 @@
 -(void)setFullscreen:(BOOL)fullscreen;
 -(BOOL)isMinimized;
 -(void)setMinimized:(BOOL)minimize;
--(HSapplication *)getApplication;
+-(id)getApplication;
 -(void)becomeMain;
 -(void)raise;
 -(NSImage *)snapshot;
@@ -56,6 +56,7 @@
 
 extern AXError _AXUIElementGetWindow(AXUIElementRef, CGWindowID* out);
 
+// FIXME: This needs to be removed.
 static void new_window(lua_State* L, AXUIElementRef win) {
     AXUIElementRef* winptr = lua_newuserdata(L, sizeof(AXUIElementRef));
     *winptr = win;

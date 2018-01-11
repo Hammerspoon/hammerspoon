@@ -40,9 +40,9 @@
 -(void)dealloc;
 
 // Instance methods
--(NSArray<HSwindow *>*)allWindows;
--(HSwindow *)mainWindow;
--(HSwindow *)focusedWindow;
+-(NSArray<id>*)allWindows;
+-(id)mainWindow;
+-(id)focusedWindow;
 -(BOOL)activate:(BOOL)allWindows;
 -(BOOL)isResponsive;
 -(BOOL)isRunning;

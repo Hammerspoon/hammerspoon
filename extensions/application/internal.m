@@ -9,6 +9,7 @@ static int refTable = LUA_NOREF;
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 
 #pragma mark - HSapplication implementation
+
 @implementation HSapplication
 
 #pragma mark - Class methods
