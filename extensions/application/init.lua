@@ -72,7 +72,7 @@ end
 function application:activate(allWindows)
   allWindows=allWindows and true or false
   if self:isUnresponsive() then return false end
-  local win = self:_focusedwindow()
+  local win = self:focusedWindow()
   if win then
     return win:becomeMain() and self:_bringtofront(allWindows)
   else

@@ -1,23 +1,58 @@
-#ifndef Application_application_h
-#define Application_application_h
+#import <Foundation/Foundation.h>
+#import <LuaSkin/LuaSkin.h>
+#import "../window/window.h"
 
-static BOOL new_application(lua_State* L, pid_t pid) {
-    luaL_checkstack(L, 4, "new_application");
-    AXUIElementRef* appptr = lua_newuserdata(L, sizeof(AXUIElementRef));
-    AXUIElementRef app = AXUIElementCreateApplication(pid);
-    *appptr = app;
+@interface HSapplication : NSObject
+@property (nonatomic, readonly) pid_t pid;
+@property (nonatomic, readonly) AXUIElementRef appRef;
+@property (nonatomic, readonly) NSRunningApplication *runningApp;
+@property (nonatomic) int selfRef;
+@property (nonatomic, getter=isHidden, setter=setHidden:) BOOL hidden;
 
-    if (!app) return false;
+// Simplest class methods that just return an application
++(HSapplication *)frontmostApplication;
 
-    luaL_getmetatable(L, "hs.application");
-    lua_setmetatable(L, -2);
+// Class methods that return an application matching a criteria
++(HSapplication *)applicationForPID:(pid_t)pid;
 
-    lua_newtable(L);
-    lua_pushinteger(L, pid);
-    lua_setfield(L, -2, "pid");
-    lua_setuservalue(L, -2);
+// Class methods that return application metadata based on an argument
++(NSString *)nameForBundleID:(NSString *)bundleID;
++(NSString *)pathForBundleID:(NSString *)bundleID;
++(NSDictionary *)infoForBundleID:(NSString *)bundleID;
++(NSDictionary *)infoForBundlePath:(NSString *)bundlePath;
 
-    return true;
-}
+// Class methods that return arrays of applications
++(NSArray<HSapplication *>*)runningApplications;
++(NSArray<HSapplication *>*)applicationsForBundleID:(NSString *)bundleID;
 
-#endif
+// Class methods that launch applications
++(BOOL)launchByName:(NSString *)name;
++(BOOL)launchByBundleID:(NSString *)bundleID;
+
+// Custom getter/setter methods
+-(void)setHidden:(BOOL)shouldHide;
+-(BOOL)isHidden;
+
+// Initialiser
+-(HSapplication *)initWithPid:(pid_t)pid;
+
+// Destructor
+-(void)dealloc;
+
+// Instance methods
+-(NSArray<HSwindow *>*)allWindows;
+-(HSwindow *)mainWindow;
+-(HSwindow *)focusedWindow;
+-(BOOL)activate:(BOOL)allWindows;
+-(BOOL)isResponsive;
+-(BOOL)isRunning;
+-(BOOL)setFrontmost:(BOOL)allWindows;
+-(BOOL)isFrontmost;
+-(NSString *)title;
+-(NSString *)bundleID;
+-(NSString *)path;
+-(void)kill;
+-(void)kill9;
+-(int)kind;
+
+@end

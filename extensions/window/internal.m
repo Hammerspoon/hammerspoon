@@ -5,6 +5,18 @@
 #import "../application/application.h"
 #import "../uielement/uielement.h"
 
+static const char *USERDATA_TAG = "hs.window";
+static int refTable = LUA_NOREF;
+#define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
+
+#pragma mark - HSwindow implementation
+@implementation HSwindow
+
+#pragma mark - Class methods
+
+#pragma mark - Instance methods
+@end
+
 #define get_window_arg(L, idx) *((AXUIElementRef*)luaL_checkudata(L, idx, "hs.window"))
 
 // CoreGraphics private API for window shadows
@@ -23,7 +35,7 @@ static NSPoint get_window_topleft(AXUIElementRef win) {
         }
     }
     else {
-            topLeft = CGPointZero;
+        topLeft = CGPointZero;
     }
 
     if (positionStorage) CFRelease(positionStorage);
@@ -38,7 +50,7 @@ static NSSize get_window_size(AXUIElementRef win) {
     CGSize size;
     if (result == kAXErrorSuccess) {
         if (!AXValueGetValue(sizeStorage, kAXValueCGSizeType, (void *)&size)) {
-                size = CGSizeZero;
+            size = CGSizeZero;
         }
     }
     else {
@@ -162,7 +174,7 @@ static AXUIElementRef get_window_tabs(AXUIElementRef win) {
         }
     }
 
-    cleanup:
+cleanup:
     if(children) CFRelease(children);
 
     return tabs;
@@ -195,20 +207,20 @@ cleanup:
 }
 
 static CFIndex window_counttabs(AXUIElementRef win) {
-  CFIndex count = -1;
+    CFIndex count = -1;
 
-  AXUIElementRef tabs = get_window_tabs(win);
-  if(tabs == NULL) goto cleanup;
+    AXUIElementRef tabs = get_window_tabs(win);
+    if(tabs == NULL) goto cleanup;
 
-  if(AXUIElementGetAttributeValueCount(tabs, kAXTabsAttribute, &count) != noErr) {
-    count = -1; // it's probably still -1, but just to be safe
-    goto cleanup;
-  }
+    if(AXUIElementGetAttributeValueCount(tabs, kAXTabsAttribute, &count) != noErr) {
+        count = -1; // it's probably still -1, but just to be safe
+        goto cleanup;
+    }
 
 cleanup:
-  if (tabs) CFRelease(tabs);
+    if (tabs) CFRelease(tabs);
 
-  return count;
+    return count;
 }
 
 /// hs.window:title() -> string
@@ -528,16 +540,16 @@ static int window_focustab(lua_State* L) {
 /// Returns:
 ///  * A number containing the number of tabs, or nil if an error occurred
 static int window_tabcount(lua_State* L) {
-  AXUIElementRef win = get_window_arg(L, 1);
+    AXUIElementRef win = get_window_arg(L, 1);
 
-  CFIndex count = window_counttabs(win);
+    CFIndex count = window_counttabs(win);
 
-  if(count == -1) {
-    return 0;
-  } else {
-    lua_pushinteger(L, count);
-    return 1;
-  }
+    if(count == -1) {
+        return 0;
+    } else {
+        lua_pushinteger(L, count);
+        return 1;
+    }
 }
 
 /// hs.window:setFullScreen(fullscreen) -> window
@@ -775,28 +787,28 @@ static int window_setShadows(lua_State* L) {
 // used by hs.window.snapshotForID and hs.window:snapshot
 
 static int snapshot_common_code(lua_State* L, CGWindowID windowID, CGWindowImageOption makeOpaque) {
-        LuaSkin *skin = [LuaSkin shared];
-//         CGRect windowRect = { get_window_topleft(win), get_window_size(win) };
-        CGRect windowRect = CGRectNull ;
+    LuaSkin *skin = [LuaSkin shared];
+    //         CGRect windowRect = { get_window_topleft(win), get_window_size(win) };
+    CGRect windowRect = CGRectNull ;
 
-        CFArrayRef targetWindow = CFArrayCreate(NULL, (const void **)(&windowID), 1, NULL);
-        CGImageRef windowImage = CGWindowListCreateImageFromArray(
-              windowRect,
-              targetWindow,
-              kCGWindowImageBoundsIgnoreFraming | makeOpaque);
-        CFRelease(targetWindow);
+    CFArrayRef targetWindow = CFArrayCreate(NULL, (const void **)(&windowID), 1, NULL);
+    CGImageRef windowImage = CGWindowListCreateImageFromArray(
+                                                              windowRect,
+                                                              targetWindow,
+                                                              kCGWindowImageBoundsIgnoreFraming | makeOpaque);
+    CFRelease(targetWindow);
 
-        if (!windowImage) {
-            [skin logBreadcrumb:[NSString stringWithFormat:@"hs.window::snapshot: ERROR: CGWindowListCreateImageFromArray failed for windowID: %ld", (long) windowID]];
-            return 0;
-        }
+    if (!windowImage) {
+        [skin logBreadcrumb:[NSString stringWithFormat:@"hs.window::snapshot: ERROR: CGWindowListCreateImageFromArray failed for windowID: %ld", (long) windowID]];
+        return 0;
+    }
 
-        NSImage *newImage = [[NSImage alloc] initWithCGImage:windowImage size:windowRect.size] ;
+    NSImage *newImage = [[NSImage alloc] initWithCGImage:windowImage size:windowRect.size] ;
 
-        CGImageRelease(windowImage) ;
+    CGImageRelease(windowImage) ;
 
-        [[LuaSkin shared] pushNSObject:newImage] ;
-        return 1 ;
+    [[LuaSkin shared] pushNSObject:newImage] ;
+    return 1 ;
 }
 
 // I could have overloaded snapshot, but if we ever do split the module functions and the window object methods, it would be... problematic to document since syntax and function/method designations would differ and our current documentation processor can't handle that.
@@ -857,36 +869,37 @@ static int window_snapshot(lua_State* L) {
 
 static int userdata_tostring(lua_State* L) {
 
-// For older modules that don't use this macro, Change this:
+    // For older modules that don't use this macro, Change this:
 #ifndef USERDATA_TAG
 #define USERDATA_TAG "hs.window"
 #endif
 
-// can't assume, since some older modules and userdata share __index
+    // can't assume, since some older modules and userdata share __index
     void *self = lua_touserdata(L, 1) ;
     if (self) {
-// Change these to get the desired title, if available, for your module:
+        // Change these to get the desired title, if available, for your module:
         AXUIElementRef win ;
         win = get_window_arg(L, 1) ;
         NSString* title = get_window_prop(win, NSAccessibilityTitleAttribute, @"");
-// Use this instead, if you always want the title portion empty for your module
-//        NSString* title = @"" ;
+        // Use this instead, if you always want the title portion empty for your module
+        //        NSString* title = @"" ;
 
-// Common code begins here:
+        // Common code begins here:
 
-       lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, title, lua_topointer(L, 1)] UTF8String]) ;
+        lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, title, lua_topointer(L, 1)] UTF8String]) ;
     } else {
-// For modules which share the same __index for the module table and the userdata objects, this replicates
-// current default, which treats the module as a table when checking for __tostring.  You could also put a fancier
-// string here for your module and set userdata_tostring as the module's __tostring as well...
-//
-// See lauxlib.c -- luaL_tolstring would invoke __tostring and loop, so let's
-// use its output for tables (the "default:" case in luaL_tolstring's switch)
+        // For modules which share the same __index for the module table and the userdata objects, this replicates
+        // current default, which treats the module as a table when checking for __tostring.  You could also put a fancier
+        // string here for your module and set userdata_tostring as the module's __tostring as well...
+        //
+        // See lauxlib.c -- luaL_tolstring would invoke __tostring and loop, so let's
+        // use its output for tables (the "default:" case in luaL_tolstring's switch)
         lua_pushfstring(L, "%s: %p", luaL_typename(L, 1), lua_topointer(L, 1));
     }
     return 1 ;
 }
 
+// FIXME: This needs to be split into functions and methods
 static const luaL_Reg windowlib[] = {
     {"focusedWindow", window_focusedwindow},
     {"_orderedwinids", window__orderedwinids},

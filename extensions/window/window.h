@@ -1,8 +1,58 @@
-#ifndef Window_application_h
-#define Window_application_h
-
 #import <Foundation/Foundation.h>
 #import <LuaSkin/LuaSkin.h>
+#import "../application/application.h"
+
+@interface HSwindow : NSObject
+@property (nonatomic, readonly) pid_t pid;
+@property (nonatomic, readonly) AXUIElementRef winRef;
+@property (nonatomic, readonly) CGWindowID winID;
+@property (nonatomic) int selfRef;
+
+@property (nonatomic, readonly, getter=title) NSString *title;
+@property (nonatomic, readonly, getter=role) NSString *role;
+@property (nonatomic, readonly, getter=subRole) NSString *subRole;
+@property (nonatomic, readonly, getter=isStandard) BOOL isStandard;
+@property (nonatomic, getter=getTopLeft, setter=setTopLeft:) CGPoint topLeft;
+@property (nonatomic, getter=getSize, setter=setSize:) CGSize size;
+@property (nonatomic, getter=isFullscreen, setter=setFullscreen:) BOOL fullscreen;
+@property (nonatomic, getter=isMinimized, setter=setMinimized:) BOOL minimized;
+@property (nonatomic, getter=getApplication) HSapplication *application;
+
+// Class methods
++(NSArray<NSNumber *>*)orderedWindowIDs;
++(NSImage *)snapshotForID:(int)windowID keepTransparency:(BOOL)keepTransparency;
++(HSwindow *)focusedWindow;
+
+// Initialiser
+-(HSwindow *)initWithAXUIElementRef:(AXUIElementRef)winRef;
+
+// Destructor
+-(void)dealloc;
+
+// Instance methods
+-(NSString *)title;
+-(NSString *)subRole;
+-(NSString *)role;
+-(BOOL)isStandard;
+-(CGPoint)getTopLeft;
+-(void)setTopLeft:(CGPoint)topLeft;
+-(CGSize)getSize;
+-(void)setSize:(CGSize)size;
+-(BOOL)pushButton:(CFStringRef)buttonId;
+-(void)toggleZoom;
+-(CGRect)zoomButtonRect;
+-(void)close;
+-(BOOL)focusTab:(int)index;
+-(int)tabCount;
+-(BOOL)isFullscreen;
+-(void)setFullscreen:(BOOL)fullscreen;
+-(BOOL)isMinimized;
+-(void)setMinimized:(BOOL)minimize;
+-(HSapplication *)getApplication;
+-(void)becomeMain;
+-(void)raise;
+-(NSImage *)snapshot;
+@end
 
 extern AXError _AXUIElementGetWindow(AXUIElementRef, CGWindowID* out);
 
@@ -30,5 +80,3 @@ static void new_window(lua_State* L, AXUIElementRef win) {
 
     lua_setuservalue(L, -2);
 }
-
-#endif
