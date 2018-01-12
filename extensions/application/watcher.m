@@ -103,9 +103,8 @@ typedef enum _event_t {
 
     lua_pushinteger(L, event); // Parameter 2: the event type
 
-    if (!new_application(L, [app processIdentifier])) { // Paremeter 3: application object
-        lua_pushnil(L);
-    }
+    HSapplication *application = [[HSapplication alloc] initWithPid:app.processIdentifier];
+    [skin pushNSObject:application];
 
     [skin protectedCallAndError:@"hs.application.watcher callback" nargs:3 nresults:0];
     _lua_stackguard_exit(L);

@@ -4,9 +4,9 @@
 
 @interface HSapplication : NSObject
 @property (nonatomic, readonly) pid_t pid;
-@property (nonatomic, readonly) AXUIElementRef appRef;
+@property (nonatomic, readonly) AXUIElementRef elementRef;
 @property (nonatomic, readonly) NSRunningApplication *runningApp;
-@property (nonatomic) int selfRef;
+@property (nonatomic) int selfRefCount;
 @property (nonatomic, getter=isHidden, setter=setHidden:) BOOL hidden;
 
 // Simplest class methods that just return an application

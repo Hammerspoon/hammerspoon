@@ -53,7 +53,7 @@ static int refTable = LUA_NOREF;
 }
 
 +(NSArray<HSapplication *>*)runningApplications {
-    NSMutableArray<HSapplication *> *apps = nil;
+    NSMutableArray<HSapplication *> *apps = [[NSMutableArray alloc] init];
 
     for (NSRunningApplication* runningApp in [[NSWorkspace sharedWorkspace] runningApplications]) {
         HSapplication *app = [[HSapplication alloc] initWithPid:runningApp.processIdentifier];
@@ -62,11 +62,11 @@ static int refTable = LUA_NOREF;
         }
     }
 
-    return apps;
+    return (NSArray *)[apps copy];
 }
 
 +(NSArray<HSapplication *>*)applicationsForBundleID:(NSString *)bundleID {
-    NSMutableArray<HSapplication *> *apps = nil;
+    NSMutableArray<HSapplication *> *apps = [[NSMutableArray alloc] init];
 
     for (NSRunningApplication* runningApp in [NSRunningApplication runningApplicationsWithBundleIdentifier:bundleID]) {
         HSapplication *app = [[HSapplication alloc] initWithPid:runningApp.processIdentifier];
@@ -91,13 +91,13 @@ static int refTable = LUA_NOREF;
 
 #pragma mark - Custom getter/setter methods
 -(void)setHidden:(BOOL)shouldHide {
-    AXUIElementSetAttributeValue(self.appRef, (CFStringRef)NSAccessibilityHiddenAttribute, shouldHide ? kCFBooleanTrue : kCFBooleanFalse);
+    AXUIElementSetAttributeValue(self.elementRef, (CFStringRef)NSAccessibilityHiddenAttribute, shouldHide ? kCFBooleanTrue : kCFBooleanFalse);
 }
 
 -(BOOL)isHidden {
     CFBooleanRef _isHidden;
     NSNumber* isHidden = @NO;
-    if (AXUIElementCopyAttributeValue(self.appRef, (CFStringRef)NSAccessibilityHiddenAttribute, (CFTypeRef *)&_isHidden) == kAXErrorSuccess) {
+    if (AXUIElementCopyAttributeValue(self.elementRef, (CFStringRef)NSAccessibilityHiddenAttribute, (CFTypeRef *)&_isHidden) == kAXErrorSuccess) {
         isHidden = (__bridge_transfer NSNumber*)_isHidden;
     }
     return isHidden.boolValue;
@@ -112,76 +112,54 @@ static int refTable = LUA_NOREF;
     self = [super init];
     if (self) {
         _pid = pid;
-        _appRef = appRef;
+        _elementRef = appRef;
         _runningApp = [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
-        _selfRef = LUA_NOREF;
+        _selfRefCount = 0;
+    } else {
+        CFRelease(appRef);
     }
     return self;
 }
 
 #pragma mark - Instance destructor
 -(void)dealloc {
-    CFRelease(self.appRef);
+    CFRelease(self.elementRef);
 }
 
 #pragma mark - Instance methods
 -(NSArray<HSwindow *>*)allWindows {
-    NSMutableArray<HSwindow *> *windows;
-    // FIXME: Implement this method
-    /*
-     AXUIElementRef app = get_app(L, 1);
-
-     lua_newtable(L);
-
-     if (!app) return 1;
-
-     CFArrayRef windows;
-     AXError result = AXUIElementCopyAttributeValues(app, kAXWindowsAttribute, 0, 100, &windows);
-     if (result == kAXErrorSuccess) {
-     for (NSInteger i = 0; i < CFArrayGetCount(windows); i++) {
-     AXUIElementRef win = CFArrayGetValueAtIndex(windows, i);
-     CFRetain(win);
-
-     new_window(L, win);
-     lua_rawseti(L, -2, (int)(i + 1));
-     }
-     CFRelease(windows);
-     }
-*/
-    return windows;
+    NSMutableArray<HSwindow *> *allWindows = [[NSMutableArray alloc] init];
+    CFArrayRef windows;
+    AXError result = AXUIElementCopyAttributeValues(self.elementRef, kAXWindowsAttribute, 0, 100, &windows);
+    if (result == kAXErrorSuccess) {
+        CFIndex windowCount = CFArrayGetCount(windows);
+        allWindows = [[NSMutableArray alloc] initWithCapacity:windowCount];
+        for (NSInteger i = 0; i < windowCount; i++) {
+            AXUIElementRef win = CFArrayGetValueAtIndex(windows, i);
+            CFRetain(win);
+            HSwindow *window = [[HSwindow alloc] initWithAXUIElementRef:win];
+            [allWindows addObject:window];
+        }
+        CFRelease(windows);
+    }
+    return allWindows;
 }
 
 -(HSwindow *)mainWindow {
     HSwindow *mainWindow = nil;
-    // FIXME: Implement this method
-    /*
-     AXUIElementRef app = get_app(L, 1);
-
-     CFTypeRef window;
-     if (AXUIElementCopyAttributeValue(app, kAXMainWindowAttribute, &window) == kAXErrorSuccess) {
-     new_window(L, window);
-     } else {
-     lua_pushnil(L);
-     }
-
-*/
+    CFTypeRef window;
+    if (AXUIElementCopyAttributeValue(self.elementRef, kAXMainWindowAttribute, &window) == kAXErrorSuccess) {
+        mainWindow = [[HSwindow alloc] initWithAXUIElementRef:window];
+    }
     return mainWindow;
 }
 
 -(HSwindow *)focusedWindow {
     HSwindow *focusedWindow = nil;
-    // FIXME: Implement this method
-    /*
-     AXUIElementRef app = get_app(L, 1);
-
-     CFTypeRef window;
-     if (AXUIElementCopyAttributeValue(app, kAXFocusedWindowAttribute, &window) == kAXErrorSuccess) {
-     new_window(L, window);
-     } else {
-     lua_pushnil(L);
-     }
-
-*/
+    CFTypeRef window;
+    if (AXUIElementCopyAttributeValue(self.elementRef, kAXFocusedWindowAttribute, &window) == kAXErrorSuccess) {
+        focusedWindow = [[HSwindow alloc] initWithAXUIElementRef:window];
+    }
     return focusedWindow;
 }
 
@@ -223,7 +201,7 @@ static int refTable = LUA_NOREF;
 -(BOOL)isFrontmost {
     CFBooleanRef _isFrontmost;
     NSNumber* isFrontmost = @NO;
-    if (AXUIElementCopyAttributeValue(self.appRef, (CFStringRef)NSAccessibilityFrontmostAttribute, (CFTypeRef *)&_isFrontmost) == kAXErrorSuccess) {
+    if (AXUIElementCopyAttributeValue(self.elementRef, (CFStringRef)NSAccessibilityFrontmostAttribute, (CFTypeRef *)&_isFrontmost) == kAXErrorSuccess) {
         isFrontmost = (__bridge_transfer NSNumber*)_isFrontmost;
     }
     return [isFrontmost boolValue];
@@ -295,7 +273,8 @@ static int application_frontmostapplication(lua_State* L) {
 static int application_runningapplications(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TBREAK];
-    [skin pushNSObject:[HSapplication runningApplications]];
+    NSArray *apps = [HSapplication runningApplications];
+    [skin pushNSObject:apps];
     return 1;
 }
 
@@ -951,7 +930,7 @@ static int application_findmenuitem(lua_State* L) {
             nameIsRegex = lua_toboolean(L, 3);
         }
         name = [NSString stringWithUTF8String: luaL_checkstring(L, 2)];
-        foundItem = _findmenuitembyname(L, app.appRef, name, nameIsRegex);
+        foundItem = _findmenuitembyname(L, app.elementRef, name, nameIsRegex);
     } else if (lua_istable(L, 2)) {
         path = [[NSMutableArray alloc] init];
         lua_pushnil(L);
@@ -960,7 +939,7 @@ static int application_findmenuitem(lua_State* L) {
             [path addObject:item];
             lua_pop(L, 1);
         }
-        foundItem = _findmenuitembypath(L, app.appRef, path);
+        foundItem = _findmenuitembypath(L, app.elementRef, path);
     } else {
         [skin logWarn:@"hs.application:findMenuItem() Unrecognised type for menuItem argument. Expecting string or table"];
         lua_pushnil(L);
@@ -1041,7 +1020,7 @@ static int application_selectmenuitem(lua_State* L) {
             nameIsRegex = lua_toboolean(L, 3);
         }
         name = [NSString stringWithUTF8String: luaL_checkstring(L, 2)];
-        foundItem = _findmenuitembyname(L, app.appRef, name, nameIsRegex);
+        foundItem = _findmenuitembyname(L, app.elementRef, name, nameIsRegex);
     } else if (lua_istable(L, 2)) {
         path = [[NSMutableArray alloc] init];
         lua_pushnil(L);
@@ -1050,7 +1029,7 @@ static int application_selectmenuitem(lua_State* L) {
             [path addObject:item];
             lua_pop(L, 1);
         }
-        foundItem = _findmenuitembypath(L, app.appRef, path);
+        foundItem = _findmenuitembypath(L, app.elementRef, path);
     } else {
         [skin logWarn:@"hs.application:selectMenuItem(): Unrecognised type for menuItem argument, expecting string or table"];
         lua_pushnil(L);
@@ -1214,7 +1193,7 @@ static int application_getMenus(lua_State* L) {
         NSMutableDictionary *menus = nil;
         AXUIElementRef menuBar;
 
-        if (AXUIElementCopyAttributeValue(app.appRef, kAXMenuBarAttribute, (CFTypeRef *)&menuBar) == kAXErrorSuccess) {
+        if (AXUIElementCopyAttributeValue(app.elementRef, kAXMenuBarAttribute, (CFTypeRef *)&menuBar) == kAXErrorSuccess) {
             menus = _getMenuStructure(menuBar);
             CFRelease(menuBar);
         }
@@ -1227,7 +1206,7 @@ static int application_getMenus(lua_State* L) {
             NSMutableDictionary *menus = nil;
             AXUIElementRef menuBar;
 
-            if (AXUIElementCopyAttributeValue(app.appRef, kAXMenuBarAttribute, (CFTypeRef *)&menuBar) == kAXErrorSuccess) {
+            if (AXUIElementCopyAttributeValue(app.elementRef, kAXMenuBarAttribute, (CFTypeRef *)&menuBar) == kAXErrorSuccess) {
                 menus = _getMenuStructure(menuBar);
                 CFRelease(menuBar);
             }
@@ -1287,16 +1266,12 @@ static int application_launchorfocusbybundleID(lua_State* L) {
 // delegates and blocks.
 
 static int pushHSapplication(lua_State *L, id obj) {
-    LuaSkin *skin = [LuaSkin shared];
     HSapplication *value = obj;
-    if (value.selfRef == LUA_NOREF) {
-        void** valuePtr = lua_newuserdata(L, sizeof(HSapplication *));
-        *valuePtr = (__bridge_retained void *)value;
-        luaL_getmetatable(L, USERDATA_TAG);
-        lua_setmetatable(L, -2);
-        value.selfRef = [skin luaRef:refTable];
-    }
-    [skin pushLuaRef:refTable ref:value.selfRef];
+    value.selfRefCount++;
+    void** valuePtr = lua_newuserdata(L, sizeof(HSapplication *));
+    *valuePtr = (__bridge_retained void *)value;
+    luaL_getmetatable(L, USERDATA_TAG);
+    lua_setmetatable(L, -2);
     return 1;
 }
 
@@ -1318,7 +1293,7 @@ static int userdata_tostring(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSapplication *app = [skin toNSObjectAtIndex:1];
-    lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, [app title], lua_topointer(L, 1)] UTF8String]);
+    lua_pushstring(L, [NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, [app title], lua_topointer(L, 1)].UTF8String);
     return 1;
 }
 
@@ -1328,7 +1303,7 @@ static int userdata_eq(lua_State *L) {
         LuaSkin *skin = [LuaSkin shared];
         HSapplication *app1 = [skin toNSObjectAtIndex:1];
         HSapplication *app2 = [skin toNSObjectAtIndex:2];
-        isEqual = CFEqual(app1.appRef, app2.appRef);
+        isEqual = CFEqual(app1.elementRef, app2.elementRef);
     }
     lua_pushboolean(L, isEqual);
     return 1;
@@ -1339,7 +1314,10 @@ static int userdata_gc(lua_State *L) {
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSapplication *app = get_objectFromUserdata(__bridge_transfer HSapplication, L, 1, USERDATA_TAG);
     if (app) {
-        app = nil;
+        app.selfRefCount--;
+        if (app.selfRefCount == 0) {
+            app = nil;
+        }
     }
 
     // Remove the Metatable so future use of the variable in Lua won't think it's valid
@@ -1360,6 +1338,11 @@ static const luaL_Reg moduleLib[] = {
     {"infoForBundlePath", application_infoForBundlePath},
     {"defaultAppForUTI", application_bundleForUTI},
 
+    {NULL, NULL}
+};
+
+// Module metatable
+static const luaL_Reg module_metaLib[] = {
     {NULL, NULL}
 };
 
@@ -1399,7 +1382,7 @@ static const luaL_Reg userdata_metaLib[] = {
 
 int luaopen_hs_application_internal(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
-    refTable = [skin registerLibrary:moduleLib metaFunctions:NULL];
+    refTable = [skin registerLibrary:moduleLib metaFunctions:module_metaLib];
     [skin registerObject:USERDATA_TAG objectFunctions:userdata_metaLib];
 
     [skin registerPushNSHelper:pushHSapplication         forClass:"HSapplication"];

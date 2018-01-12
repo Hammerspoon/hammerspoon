@@ -2,12 +2,8 @@
 ---
 --- Manipulate running applications
 
--- Make sure parent module loads:
-local uielement = hs.uielement -- luacheck: ignore
-local application = require "hs.application.internal"
-application.watcher = require "hs.application.watcher"
-package.loaded['hs.application']=application --preload application so it can be fully required by window
-local window = require "hs.window"
+local application = require("hs.application.internal")
+application.watcher = require("hs.application.watcher")
 local timer = require "hs.timer"
 local settings = require "hs.settings"
 
@@ -165,7 +161,7 @@ function application.find(hint,exact)
   tsort(r,function(a,b)return a:kind()>b:kind()end) -- gui apps first
   if exact or #r>0 then return tunpack(r) end
 
-  r=tpack(window.find(hint))
+  r=tpack(hs.window.find(hint))
   local rs={} for _,w in ipairs(r) do rs[w:application()]=true end -- :toSet
   for a in pairs(rs) do r[#r+1]=a end -- and back, no dupes
   if #r>0 then return tunpack(r) end
@@ -182,7 +178,7 @@ end
 ---  * one or more hs.window objects belonging to this application that match the supplied search criterion, or `nil` if none found
 
 function application:findWindow(hint)
-  return window.find(hint,false,self:allWindows())
+  return hs.window.find(hint,false,self:allWindows())
 end
 
 --- hs.application:getWindow(title) -> hs.window object
@@ -195,7 +191,7 @@ end
 --- Returns:
 ---  * the desired hs.window object belonging to this application, or `nil` if not found
 function application:getWindow(hint)
-  return tpack(window.find(hint,true,self:allWindows()),nil)[1]
+  return tpack(hs.window.find(hint,true,self:allWindows()),nil)[1]
 end
 
 --- hs.application.open(app[, wait, [waitForFirstWindow]]) -> hs.application object

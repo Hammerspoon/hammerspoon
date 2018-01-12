@@ -2,9 +2,8 @@
 ---
 --- A generalized framework for working with OSX UI elements
 
-local uielement = require "hs.uielement.internal"
-local application = {}
-application.watcher = require "hs.application.watcher"
+local uielement = require("hs.uielement.internal")
+uielement.watcher = require("hs.uielement.watcher")
 local fnutils = require "hs.fnutils"
 
 
@@ -81,7 +80,7 @@ local function appCallback(_, event, app)
     end
 end
 
-local globalAppWatcher = application.watcher.new(appCallback)
+local globalAppWatcher = hs.application.watcher.new(appCallback)
 globalAppWatcher:start()
 
 -- Keep track of all other UI elements to automatically stop their watchers.
@@ -127,7 +126,7 @@ function uielement:newWatcher(callback, ...)
         hs.showError("hs.uielement:newWatcher() called with incorrect arguments. The first argument must be a function")
         return
     end
-    local obj = self:_newWatcher(function(...) handleEvent(callback, ...) end, ...)
+    local obj = hs.uielement.watcher.new(self, function(...) handleEvent(callback, ...) end, ...)
 
     if obj then
         obj._pid = self:pid()
