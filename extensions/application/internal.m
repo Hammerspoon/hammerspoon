@@ -1337,6 +1337,8 @@ static const luaL_Reg moduleLib[] = {
     {"infoForBundleID", application_infoForBundleID},
     {"infoForBundlePath", application_infoForBundlePath},
     {"defaultAppForUTI", application_bundleForUTI},
+    {"launchOrFocus", application_launchorfocus},
+    {"launchOrFocusByBundleID", application_launchorfocusbybundleID},
 
     {NULL, NULL}
 };
@@ -1370,8 +1372,6 @@ static const luaL_Reg userdata_metaLib[] = {
     {"findMenuItem", application_findmenuitem},
     {"selectMenuItem", application_selectmenuitem},
     {"getMenuItems", application_getMenus},
-    {"launchOrFocus", application_launchorfocus},
-    {"launchOrFocusByBundleID", application_launchorfocusbybundleID},
 
     {"__tostring", userdata_tostring},
     {"__eq", userdata_eq},
