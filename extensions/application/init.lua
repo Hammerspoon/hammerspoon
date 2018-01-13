@@ -7,6 +7,9 @@ application.watcher = require("hs.application.watcher")
 local timer = require "hs.timer"
 local settings = require "hs.settings"
 
+local USERDATA_TAG = "hs.application"
+local objectMT     = hs.getObjectMetatable(USERDATA_TAG)
+
 local alternateNameMap = {}
 local spotlightEnabled = settings.get("HSenableSpotlightForNameSearches")
 
@@ -49,7 +52,7 @@ local tunpack,tpack,tsort=table.unpack,table.pack,table.sort
 ---
 --- Returns:
 ---  * A table containing zero or more hs.window objects
-function application:visibleWindows()
+function objectMT.visibleWindows(self)
   local r={}
   if self:isHidden() then return r -- do not check :isHidden for every window
   else for _,w in ipairs(self:allWindows()) do if not w:isMinimized() then r[#r+1]=w end end end
@@ -65,7 +68,7 @@ end
 ---
 --- Returns:
 ---  * A boolean value indicating whether or not the application could be activated
-function application:activate(allWindows)
+function objectMT.activate(self, allWindows)
   allWindows=allWindows and true or false
   if self:isUnresponsive() then return false end
   local win = self:focusedWindow()
@@ -79,7 +82,7 @@ end
 --- hs.application:name()
 --- Method
 --- Alias for `hs.application:title()`
-application.name=application.title
+objectMT.name=objectMT.title
 
 --- hs.application.get(hint) -> hs.application object
 --- Constructor
@@ -177,7 +180,7 @@ end
 --- Returns:
 ---  * one or more hs.window objects belonging to this application that match the supplied search criterion, or `nil` if none found
 
-function application:findWindow(hint)
+function objectMT.findWindow(self, hint)
   return hs.window.find(hint,false,self:allWindows())
 end
 
@@ -190,7 +193,7 @@ end
 ---
 --- Returns:
 ---  * the desired hs.window object belonging to this application, or `nil` if not found
-function application:getWindow(hint)
+function objectMT.getWindow(self, hint)
   return tpack(hs.window.find(hint,true,self:allWindows()),nil)[1]
 end
 
