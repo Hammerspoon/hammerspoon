@@ -15,6 +15,9 @@ function testAttributesFromBundleID()
   assertIsEqual(appName, hs.application.nameForBundleID(bundleID))
   assertIsEqual(appPath, hs.application.pathForBundleID(bundleID))
 
+  assertIsEqual("Safari", hs.application.infoForBundleID("com.apple.Safari")["CFBundleExecutable"])
+  assertIsEqual("Safari", hs.application.infoForBundlePath("/Applications/Safari.app")["CFBundleExecutable"])
+
   return success()
 end
 
@@ -73,6 +76,37 @@ function testMetaTable()
   -- this test should pass but can wait for rewrite
   local app = launchAndReturnAppFromBundleID("com.apple.Safari")
   assertIsUserdataOfType("hs.application", app)
+
+  return success()
+end
+
+function testFrontmostApplication()
+  local app = hs.application.frontmostApplication()
+  assertTrue(app:isFrontmost())
+
+  return success()
+end
+
+function testRunningApplications()
+  local apps = hs.application.runningApplications()
+  assertIsEqual("table", type(apps))
+  assertGreaterThan(1, #apps)
+
+  return success()
+end
+
+function testHiding()
+  local app = hs.application.open("Safari", 5, true)
+  assertIsNotNil(app)
+  assertTrue(app:running())
+
+  assertFalse(app:isHidden())
+  app:hide()
+  hs.timer.usleep(500000)
+  assertTrue(app:isHidden())
+  app:unhide()
+  hs.timer.usleep(500000)
+  assertFalse(app:isHidden())
 
   return success()
 end

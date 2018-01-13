@@ -3169,27 +3169,27 @@
 			isa = PBXGroup;
 			children = (
 				4FDD8E511C83612C00085D7A /* HSalert.m */,
-				4FEE39D81F0A697400935F90 /* HScrash.m */,
-				6AE181311D39C8F10097211C /* HSnoises.m */,
 				4FDD8E8E1C8DED1C00085D7A /* HSappfinder.m */,
 				4C403D631CBE5B9F00EE20ED /* HSapplication.m */,
 				4FEF4D4E1C5FA01000E3B939 /* HSaudiodevice.m */,
 				4FDD8E4D1C834C8100085D7A /* HSbase64.m */,
 				4FCC52CD1E1527EF007F93D0 /* HSbrightness.m */,
 				4FDD8E8C1C8C8BF200085D7A /* HScoresetup.m */,
+				4FEE39D81F0A697400935F90 /* HScrash.m */,
 				4F40EC3F1CCD0FE3006342D7 /* HSdistributednotifications.m */,
 				4C5BA6B41C85EAEB00E68CA9 /* HSfs.m */,
+				6AE181311D39C8F10097211C /* HSnoises.m */,
 				4CEDEE1B1C640D11005CBF97 /* HSosascript.m */,
 				D02F95281A00221C00E28BB2 /* HSrequire_all.m */,
 				4FDD8E4B1C6E4FBB00085D7A /* HSscreen.m */,
 				4CD64AA81C6F15F400EB6E39 /* HSsocket.m */,
-				4C8F8CB21CC38B7E00F72CE5 /* HSuielement.m */,
 				4FDD8E871C8AE3ED00085D7A /* HSTestCase.h */,
 				4FDD8E881C8AE3ED00085D7A /* HSTestCase.m */,
 				4F6CE1331C6B93E10016668E /* HStimer.m */,
+				4C8F8CB21CC38B7E00F72CE5 /* HSuielement.m */,
 				4FDD8E7B1C85A05700085D7A /* lsunit.lua */,
-				4FDD8E7D1C85A06800085D7A /* testinit.lua */,
 				D02F95261A00221C00E28BB2 /* Supporting Files */,
+				4FDD8E7D1C85A06800085D7A /* testinit.lua */,
 			);
 			path = "Hammerspoon Tests";
 			sourceTree = "<group>";
