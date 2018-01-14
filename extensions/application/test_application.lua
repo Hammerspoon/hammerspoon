@@ -96,9 +96,9 @@ function testRunningApplications()
 end
 
 function testHiding()
-  local app = hs.application.open("Safari", 5, true)
+  local app = hs.application.open("Stickies", 5, true)
   assertIsNotNil(app)
-  assertTrue(app:running())
+  assertTrue(app:isRunning())
 
   assertFalse(app:isHidden())
   app:hide()
@@ -108,5 +108,42 @@ function testHiding()
   hs.timer.usleep(500000)
   assertFalse(app:isHidden())
 
+  app:kill()
+  return success()
+end
+
+function testKilling()
+  local app = hs.application.open("Stickies", 5, true)
+  assertIsNotNil(app)
+  assertTrue(app:isRunning())
+
+  app:kill()
+  hs.timer.usleep(500000)
+  assertFalse(app:isRunning())
+
+  return success()
+end
+
+function testForceKilling()
+  app = hs.application.open("Calculator", 5, true)
+  assertIsNotNil(app)
+  assertTrue(app:isRunning())
+
+  app:kill9()
+  hs.timer.usleep(500000)
+  assertFalse(app:isRunning())
+
+  return success()
+end
+
+function testWindows()
+  local app = hs.application.open("Stickies", 5, true)
+  assertIsNotNil(app)
+
+  local wins = app:allWindows()
+  assertIsEqual("table", type(wins))
+  assertGreaterThan(1, #wins)
+
+  app:kill()
   return success()
 end
