@@ -1564,7 +1564,7 @@ static const luaL_Reg userdata_metaLib[] = {
 //
 static luaL_Reg moduleLib[] = {
     {"new", midi_new},
-    {"newVirtual", midi_newVirtualSource},
+    {"newVirtualSource", midi_newVirtualSource},
     {"devices", devices},
     {"virtualSources", virtualSources},
     {"deviceCallback", deviceCallback},
