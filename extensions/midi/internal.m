@@ -62,9 +62,9 @@ static int refTable = LUA_NOREF;
 - (NSArray *)virtualSources { return self.midiDeviceManager.virtualSources; }
 
 //
-// Set Device:
+// Set Physical Device:
 //
-- (bool)setDevice:(NSString *)deviceName
+- (bool)setPhysicalDevice:(NSString *)deviceName
 {
     //
     // Availible Devices:
@@ -78,6 +78,14 @@ static int refTable = LUA_NOREF;
             return YES;
         }
     }
+    return NO;
+}
+
+//
+// Set Virtual Device:
+//
+- (bool)setVirtualDevice:(NSString *)deviceName
+{
     //
     // Virtual Sources:
     //
@@ -91,7 +99,6 @@ static int refTable = LUA_NOREF;
             return YES;
         }
     }
-    
     return NO;
 }
 
@@ -377,7 +384,34 @@ static int midi_new(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
     HSMIDIDeviceManager *manager = [[HSMIDIDeviceManager alloc] init] ;
-    bool result = [manager setDevice:[skin toNSObjectAtIndex:1]];
+    bool result = [manager setPhysicalDevice:[skin toNSObjectAtIndex:1]];
+    if (manager && result) {
+        [skin pushNSObject:manager] ;
+    } else {
+        manager = nil ;
+        lua_pushnil(L) ;
+    }
+    return 1 ;
+}
+
+/// hs.midi.newVirtualSource(virtualSource) -> `hs.midi` object
+/// Constructor
+/// Creates a new `hs.midi` object.
+///
+/// Parameters:
+///  * virtualSource - A string containing the virtual source name of the MIDI device. A valid virtual source name can be found by checking `hs.midi.virtualSources()`.
+///
+/// Returns:
+///  * An `hs.midi` object or `nil` if an error occured.
+///
+/// Notes:
+///  * Example Usage:
+///    `hs.midi.new(hs.midi.virtualSources()[1])`
+static int midi_newVirtualSource(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
+    HSMIDIDeviceManager *manager = [[HSMIDIDeviceManager alloc] init] ;
+    bool result = [manager setVirtualDevice:[skin toNSObjectAtIndex:1]];
     if (manager && result) {
         [skin pushNSObject:manager] ;
     } else {
@@ -1530,6 +1564,7 @@ static const luaL_Reg userdata_metaLib[] = {
 //
 static luaL_Reg moduleLib[] = {
     {"new", midi_new},
+    {"newVirtualSource", midi_newVirtualSource},
     {"devices", devices},
     {"virtualSources", virtualSources},
     {"deviceCallback", deviceCallback},
