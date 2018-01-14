@@ -879,7 +879,7 @@ static int webview_url(lua_State *L) {
         NSURLRequest *theNSURL = [skin luaObjectAtIndex:2 toClass:"NSURLRequest"] ;
         if (theNSURL) {
             if (theView.loading) [theView stopLoading] ;
-            dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+            dispatch_async(dispatch_get_main_queue(), ^{
                 while (theView.loading) {}
                 WKNavigation *navID = [theView loadRequest:theNSURL] ;
                 theView.trackingID = navID ;
@@ -1158,7 +1158,7 @@ static int webview_reload(lua_State *L) {
     HSWebViewView   *theView = theWindow.contentView ;
 
     if (theView.loading) [theView stopLoading] ;
-    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+    dispatch_async(dispatch_get_main_queue(), ^{
         while (theView.loading) {}
         WKNavigation *navID ;
         if (lua_type(L, 2) == LUA_TBOOLEAN && lua_toboolean(L, 2))
@@ -1374,7 +1374,7 @@ static int webview_html(lua_State *L) {
     NSString *theBaseURL = (lua_type(L, 3) == LUA_TSTRING) ? [skin toNSObjectAtIndex:3] : nil ;
 
     if (theView.loading) [theView stopLoading] ;
-    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+    dispatch_async(dispatch_get_main_queue(), ^{
         while (theView.loading) {}
         WKNavigation *navID = [theView loadHTMLString:theHTML baseURL:[NSURL URLWithString:theBaseURL]] ;
         theView.trackingID = navID ;
@@ -1990,9 +1990,9 @@ static int webview_deleteOnClose(lua_State *L) {
 static int webview_darkMode(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
-    
+
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
-    
+
     if (lua_type(L, 2) == LUA_TNONE) {
         lua_pushboolean(L, theWindow.darkMode) ;
     } else {
@@ -2993,7 +2993,7 @@ static const luaL_Reg userdata_metaLib[] = {
 
     // Window related
     {"darkMode",                   webview_darkMode},
-    
+
     {"show",                       webview_show},
     {"hide",                       webview_hide},
     {"closeOnEscape",              webview_closeOnEscape},
