@@ -448,7 +448,8 @@ static int midi_newVirtualSource(lua_State *L) {
 ///      * velocity            - The velocity for the command. Must be between 0 and 127.
 ///      * channel             - The channel for the command. Must be between 0 and 15.
 ///      * timestamp           - The timestamp for the command as a string.
-///      * data                - Raw MIDI Data as string
+///      * data                - Raw MIDI Data as string.
+///      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
 ///
 ///    * `noteOn` - Note on command:
 ///      * note                - The note number for the command. Must be between 0 and 127.
@@ -456,105 +457,122 @@ static int midi_newVirtualSource(lua_State *L) {
 ///      * channel             - The channel for the command. Must be between 0 and 15.
 ///      * timestamp           - The timestamp for the command as a string.
 ///      * data                - Raw MIDI Data as string
+///      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
 ///
 ///    * `polyphonicKeyPressure` - Polyphonic key pressure command:
 ///      * note                - The note number for the command. Must be between 0 and 127.
 ///      * pressure            - Key pressure of the polyphonic key pressure message. In the range 0-127.
 ///      * channel             - The channel for the command. Must be between 0 and 15.
 ///      * timestamp           - The timestamp for the command as a string.
-///      * data                - Raw MIDI Data as string
+///      * data                - Raw MIDI Data as string.
+///      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
 ///
 ///    * `controlChange` - Control change command. This is the most common command sent by MIDI controllers:
 ///      * controllerNumber    - The MIDI control number for the command.
 ///      * controllerValue     - The controllerValue of the command. Only the lower 7-bits of this are used.
 ///      * channel             - The channel for the command. Must be between 0 and 15.
 ///      * timestamp           - The timestamp for the command as a string.
-///      * data                - Raw MIDI Data as string
+///      * data                - Raw MIDI Data as string.
+///      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
 ///
 ///    * `programChange` - Program change command:
 ///      * programNumber       - The program (aka patch) number. From 0-127.
 ///      * channel             - The channel for the command. Must be between 0 and 15.
 ///      * timestamp           - The timestamp for the command as a string.
-///      * data                - Raw MIDI Data as string
+///      * data                - Raw MIDI Data as string.
+///      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
 ///
 ///    * `channelPressure` - Channel pressure command:
 ///      * pressure            - Key pressure of the channel pressure message. In the range 0-127.
 ///      * channel             - The channel for the command. Must be between 0 and 15.
 ///      * timestamp           - The timestamp for the command as a string.
-///      * data                - Raw MIDI Data as string
+///      * data                - Raw MIDI Data as string.
+///      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
 ///
 ///    * `pitchWheelChange` - Pitch wheel change command:
 ///      * pitchChange         -  A 14-bit value indicating the pitch bend. Center is 0x2000 (8192). Valid range is from 0-16383.
 ///      * channel             - The channel for the command. Must be between 0 and 15.
 ///      * timestamp           - The timestamp for the command as a string.
-///      * data                - Raw MIDI Data as string
+///      * data                - Raw MIDI Data as string.
+///      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
 ///
 ///    * `systemMessage` - System message command:
 ///      * dataByte1           - Data
 ///      * dataByte2           - Data
 ///      * timestamp           - The timestamp for the command as a string.
-///      * data                - Raw MIDI Data as string
+///      * data                - Raw MIDI Data as string.
+///      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
 ///
 ///    * `systemExclusive` - System message command:
 ///      * manufacturerID      - The manufacturer ID for the command. This is used by devices to determine if the message is one they support.
 ///      * sysexChannel        - The channel of the message. Only valid for universal exclusive messages, will always be 0 for non-universal messages.
 ///      * sysexData           - The system exclusive data for the message. For universal messages subID's are included in sysexData, for non-universal messages, any device specific information (such as modelID, versionID or whatever manufactures decide to include) will be included in sysexData.
 ///      * timestamp           - The timestamp for the command as a string.
-///      * data                - Raw MIDI Data as string
+///      * data                - Raw MIDI Data as string.
+///      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
 ///
 ///    * `systemTimecodeQuarterFrame` - System exclusive (SysEx) command:
 ///      * dataByte1           - Data
 ///      * dataByte2           - Data
 ///      * timestamp           - The timestamp for the command as a string.
-///      * data                - Raw MIDI Data as string
+///      * data                - Raw MIDI Data as string.
+///      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
 ///
 ///    * `systemSongPositionPointer` - System song position pointer command:
 ///      * dataByte1           - Data
 ///      * dataByte2           - Data
 ///      * timestamp           - The timestamp for the command as a string.
-///      * data                - Raw MIDI Data as string
+///      * data                - Raw MIDI Data as string.
+///      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
 ///
 ///    * `systemSongSelect` - System song select command:
 ///      * dataByte1           - Data
 ///      * dataByte2           - Data
 ///      * timestamp           - The timestamp for the command as a string.
-///      * data                - Raw MIDI Data as string
+///      * data                - Raw MIDI Data as string.
+///      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
 ///
 ///    * `systemTuneRequest` - System tune request command:
 ///      * dataByte1           - Data
 ///      * dataByte2           - Data
 ///      * timestamp           - The timestamp for the command as a string.
-///      * data                - Raw MIDI Data as string
+///      * data                - Raw MIDI Data as string.
+///      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
 ///
 ///    * `systemTimingClock` - System timing clock command:
 ///      * dataByte1           - Data
 ///      * dataByte2           - Data
 ///      * timestamp           - The timestamp for the command as a string.
-///      * data                - Raw MIDI Data as string
+///      * data                - Raw MIDI Data as string.
+///      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
 ///
 ///    * `systemStartSequence` - System timing clock command:
 ///      * dataByte1           - Data
 ///      * dataByte2           - Data
 ///      * timestamp           - The timestamp for the command as a string.
-///      * data                - Raw MIDI Data as string
+///      * data                - Raw MIDI Data as string.
+///      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
 ///
 ///    * `systemContinueSequence` - System start sequence command:
 ///      * dataByte1           - Data
 ///      * dataByte2           - Data
 ///      * timestamp           - The timestamp for the command as a string.
-///      * data                - Raw MIDI Data as string
+///      * data                - Raw MIDI Data as string.
+///      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
 ///
 ///    * `systemStopSequence` -  System continue sequence command:
 ///      * dataByte1           - Data
 ///      * dataByte2           - Data
 ///      * timestamp           - The timestamp for the command as a string.
-///      * data                - Raw MIDI Data as string
+///      * data                - Raw MIDI Data as string.
+///      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
 ///
 ///    * `systemKeepAlive` - System keep alive message:
 ///      * dataByte1           - Data
 ///      * dataByte2           - Data
 ///      * timestamp           - The timestamp for the command as a string.
-///      * data                - Raw MIDI Data as string
+///      * data                - Raw MIDI Data as string.
+///      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
 ///
 ///  * Example Usage:
 ///    ```midiDevice = hs.midi.new(hs.midi.devices()[3])
@@ -632,7 +650,12 @@ static int midi_callback(lua_State *L) {
                     //
                     NSString *deviceName;
                     deviceName = [device name];
-
+                    
+                    //
+                    // Get Virtual Status:
+                    //
+                    BOOL isVirtual = [device isVirtual];
+                    
                     //
                     // Get Description:
                     //
@@ -755,6 +778,7 @@ static int midi_callback(lua_State *L) {
                             lua_pushinteger(L, noteCommand.channel);          lua_setfield(L, -2, "channel");
                             lua_pushstring(L, [timestamp UTF8String]);        lua_setfield(L, -2, "timestamp");
                             lua_pushstring(L, [data UTF8String]);             lua_setfield(L, -2, "data");
+                            lua_pushboolean(L, isVirtual);                    lua_setfield(L, -2, "isVirtual");
                             break;
                         }
                         case MIKMIDICommandTypeNoteOn: {
@@ -771,6 +795,7 @@ static int midi_callback(lua_State *L) {
                             lua_pushinteger(L, noteCommand.channel);          lua_setfield(L, -2, "channel");
                             lua_pushstring(L, [timestamp UTF8String]);        lua_setfield(L, -2, "timestamp");
                             lua_pushstring(L, [data UTF8String]);             lua_setfield(L, -2, "data");
+                            lua_pushboolean(L, isVirtual);                    lua_setfield(L, -2, "isVirtual");
                             break;
                         }
                         case MIKMIDICommandTypePolyphonicKeyPressure: {
@@ -787,6 +812,7 @@ static int midi_callback(lua_State *L) {
                             lua_pushinteger(L, noteCommand.channel);          lua_setfield(L, -2, "channel");
                             lua_pushstring(L, [timestamp UTF8String]);        lua_setfield(L, -2, "timestamp");
                             lua_pushstring(L, [data UTF8String]);             lua_setfield(L, -2, "data");
+                            lua_pushboolean(L, isVirtual);                    lua_setfield(L, -2, "isVirtual");
                             break;
                         }
                         case MIKMIDICommandTypeControlChange: {
@@ -803,6 +829,7 @@ static int midi_callback(lua_State *L) {
                             lua_pushinteger(L, result.channel);                      lua_setfield(L, -2, "channel");
                             lua_pushstring(L, [timestamp UTF8String]);               lua_setfield(L, -2, "timestamp");
                             lua_pushstring(L, [data UTF8String]);                    lua_setfield(L, -2, "data");
+                            lua_pushboolean(L, isVirtual);                           lua_setfield(L, -2, "isVirtual");
                             break;
                         }
                         case MIKMIDICommandTypeProgramChange: {
@@ -817,6 +844,7 @@ static int midi_callback(lua_State *L) {
                             lua_pushinteger(L, result.channel);                      lua_setfield(L, -2, "channel");
                             lua_pushstring(L, [timestamp UTF8String]);               lua_setfield(L, -2, "timestamp");
                             lua_pushstring(L, [data UTF8String]);                    lua_setfield(L, -2, "data");
+                            lua_pushboolean(L, isVirtual);                           lua_setfield(L, -2, "isVirtual");
                             break;
                         }
                         case MIKMIDICommandTypeChannelPressure: {
@@ -831,6 +859,7 @@ static int midi_callback(lua_State *L) {
                             lua_pushinteger(L, result.channel);                      lua_setfield(L, -2, "channel");
                             lua_pushstring(L, [timestamp UTF8String]);               lua_setfield(L, -2, "timestamp");
                             lua_pushstring(L, [data UTF8String]);                    lua_setfield(L, -2, "data");
+                            lua_pushboolean(L, isVirtual);                           lua_setfield(L, -2, "isVirtual");
                             break;
                         }
                         case MIKMIDICommandTypePitchWheelChange: {
@@ -845,6 +874,7 @@ static int midi_callback(lua_State *L) {
                             lua_pushinteger(L, result.channel);                     lua_setfield(L, -2, "channel");
                             lua_pushstring(L, [timestamp UTF8String]);              lua_setfield(L, -2, "timestamp");
                             lua_pushstring(L, [data UTF8String]);                   lua_setfield(L, -2, "data");
+                            lua_pushboolean(L, isVirtual);                           lua_setfield(L, -2, "isVirtual");
                             break;
                         }
                         case MIKMIDICommandTypeSystemMessage: {
@@ -859,6 +889,7 @@ static int midi_callback(lua_State *L) {
                             lua_pushinteger(L, result.dataByte2);                  lua_setfield(L, -2, "dataByte2");
                             lua_pushstring(L, [timestamp UTF8String]);             lua_setfield(L, -2, "timestamp");
                             lua_pushstring(L, [data UTF8String]);                  lua_setfield(L, -2, "data");
+                            lua_pushboolean(L, isVirtual);                         lua_setfield(L, -2, "isVirtual");
                             break;
                         }
                         case MIKMIDICommandTypeSystemExclusive: {
@@ -876,6 +907,7 @@ static int midi_callback(lua_State *L) {
                             lua_pushstring(L, [sysexData UTF8String]);             lua_setfield(L, -2, "sysexData");
                             lua_pushstring(L, [timestamp UTF8String]);             lua_setfield(L, -2, "timestamp");
                             lua_pushstring(L, [data UTF8String]);                  lua_setfield(L, -2, "data");
+                            lua_pushboolean(L, isVirtual);                         lua_setfield(L, -2, "isVirtual");
                             break;
                         }
                         case MIKMIDICommandTypeSystemKeepAlive: {
@@ -890,6 +922,7 @@ static int midi_callback(lua_State *L) {
                             lua_pushinteger(L, result.dataByte2);                  lua_setfield(L, -2, "dataByte2");
                             lua_pushstring(L, [timestamp UTF8String]);             lua_setfield(L, -2, "timestamp");
                             lua_pushstring(L, [data UTF8String]);                  lua_setfield(L, -2, "data");
+                            lua_pushboolean(L, isVirtual);                         lua_setfield(L, -2, "isVirtual");
                             break;
                         }
                         case MIKMIDICommandTypeSystemTimecodeQuarterFrame:
@@ -911,6 +944,7 @@ static int midi_callback(lua_State *L) {
                             lua_pushinteger(L, result.dataByte2);                  lua_setfield(L, -2, "dataByte2");
                             lua_pushstring(L, [timestamp UTF8String]);             lua_setfield(L, -2, "timestamp");
                             lua_pushstring(L, [data UTF8String]);                  lua_setfield(L, -2, "data");
+                            lua_pushboolean(L, isVirtual);                         lua_setfield(L, -2, "isVirtual");
                             break;
                         }
                     };
