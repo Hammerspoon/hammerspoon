@@ -475,6 +475,8 @@ static int midi_newVirtualSource(lua_State *L) {
 ///      * channel             - The channel for the command. Must be between 0 and 15.
 ///      * timestamp           - The timestamp for the command as a string.
 ///      * data                - Raw MIDI Data as string.
+///      * fourteenBitValue    - The 14-bit value of the command.
+///      * fourteenBitCommand  - `true` if the command contains 14-bit value data otherwise, `false`.
 ///      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
 ///
 ///    * `programChange` - Program change command:
@@ -774,6 +776,7 @@ static int midi_callback(lua_State *L) {
                             //      * channel             - The channel for the command. Must be between 0 and 15.
                             //      * timestamp           - The timestamp for the command.
                             //      * data                - Raw MIDI Data as string
+                            //      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
                             MIKMIDINoteOffCommand *noteCommand = (MIKMIDINoteOffCommand *)command;
                             NSString *data = [[NSString alloc] initWithData:noteCommand.data encoding:NSUTF8StringEncoding];
                             lua_newtable(L) ;
@@ -791,6 +794,7 @@ static int midi_callback(lua_State *L) {
                             //      * channel             - The channel for the command. Must be between 0 and 15.
                             //      * timestamp           - The timestamp for the command.
                             //      * data                - Raw MIDI Data as string
+                            //      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
                             MIKMIDINoteOnCommand *noteCommand = (MIKMIDINoteOnCommand *)command;
                             NSString *data = [[NSString alloc] initWithData:noteCommand.data encoding:NSUTF8StringEncoding];
                             lua_newtable(L) ;
@@ -808,6 +812,7 @@ static int midi_callback(lua_State *L) {
                             //      * channel             - The channel for the command. Must be between 0 and 15.
                             //      * timestamp           - The timestamp for the command.
                             //      * data                - Raw MIDI Data as string
+                            //      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
                             MIKMIDIPolyphonicKeyPressureCommand *noteCommand = (MIKMIDIPolyphonicKeyPressureCommand *)command;
                             NSString *data = [[NSString alloc] initWithData:noteCommand.data encoding:NSUTF8StringEncoding];
                             lua_newtable(L) ;
@@ -825,6 +830,9 @@ static int midi_callback(lua_State *L) {
                             //      * channel             - The channel for the command. Must be between 0 and 15.
                             //      * timestamp           - The timestamp for the command.
                             //      * data                - Raw MIDI Data as string
+                            //      * fourteenBitValue    - The 14-bit value of the command.
+                            //      * fourteenBitCommand  - `true` if the command contains 14-bit value data.
+                            //      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
                             MIKMIDIControlChangeCommand *result = (MIKMIDIControlChangeCommand *)command;
                             NSString *data = [[NSString alloc] initWithData:result.data encoding:NSUTF8StringEncoding];
                             lua_newtable(L) ;
@@ -833,7 +841,10 @@ static int midi_callback(lua_State *L) {
                             lua_pushinteger(L, result.channel);                      lua_setfield(L, -2, "channel");
                             lua_pushstring(L, [timestamp UTF8String]);               lua_setfield(L, -2, "timestamp");
                             lua_pushstring(L, [data UTF8String]);                    lua_setfield(L, -2, "data");
+                            lua_pushinteger(L, result.fourteenBitValue);             lua_setfield(L, -2, "fourteenBitValue");
+                            lua_pushboolean(L, result.fourteenBitCommand);           lua_setfield(L, -2, "fourteenBitCommand");
                             lua_pushboolean(L, isVirtual);                           lua_setfield(L, -2, "isVirtual");
+                            NSLog(@"%hhd", result.fourteenBitCommand);
                             break;
                         }
                         case MIKMIDICommandTypeProgramChange: {
@@ -841,6 +852,7 @@ static int midi_callback(lua_State *L) {
                             //      * channel             - The channel for the command. Must be between 0 and 15.
                             //      * timestamp           - The timestamp for the command as a string.
                             //      * data                - Raw MIDI Data as string
+                            //      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
                             MIKMIDIProgramChangeCommand *result = (MIKMIDIProgramChangeCommand *)command;
                             NSString *data = [[NSString alloc] initWithData:result.data encoding:NSUTF8StringEncoding];
                             lua_newtable(L) ;
@@ -856,6 +868,7 @@ static int midi_callback(lua_State *L) {
                             //      * channel             - The channel for the command. Must be between 0 and 15.
                             //      * timestamp           - The timestamp for the command as a string.
                             //      * data                - Raw MIDI Data as string
+                            //      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
                             MIKMIDIChannelPressureCommand *result = (MIKMIDIChannelPressureCommand *)command;
                             NSString *data = [[NSString alloc] initWithData:result.data encoding:NSUTF8StringEncoding];
                             lua_newtable(L) ;
@@ -871,6 +884,7 @@ static int midi_callback(lua_State *L) {
                             //      * channel             - The channel for the command. Must be between 0 and 15.
                             //      * timestamp           - The timestamp for the command as a string.
                             //      * data                - Raw MIDI Data as string
+                            //      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
                             MIKMIDIPitchBendChangeCommand *result = (MIKMIDIPitchBendChangeCommand *)command;
                             NSString *data = [[NSString alloc] initWithData:result.data encoding:NSUTF8StringEncoding];
                             lua_newtable(L) ;
@@ -886,6 +900,7 @@ static int midi_callback(lua_State *L) {
                             //      * dataByte2           - Data
                             //      * timestamp           - The timestamp for the command as a string.
                             //      * data                - Raw MIDI Data as string
+                            //      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
                             MIKMIDISystemMessageCommand *result = (MIKMIDISystemMessageCommand *)command;
                             NSString *data = [[NSString alloc] initWithData:result.data encoding:NSUTF8StringEncoding];
                             lua_newtable(L) ;
@@ -902,6 +917,7 @@ static int midi_callback(lua_State *L) {
                             //      * sysexData           - The system exclusive data for the message. For universal messages subID's are included in sysexData, for non-universal messages, any device specific information (such as modelID, versionID or whatever manufactures decide to include) will be included in sysexData.
                             //      * timestamp           - The timestamp for the command as a string.
                             //      * data                - Raw MIDI Data as string
+                            //      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
                             MIKMIDISystemExclusiveCommand *result = (MIKMIDISystemExclusiveCommand *)command;
                             NSString *sysexData = [[NSString alloc] initWithData:result.sysexData encoding:NSUTF8StringEncoding];
                             NSString *data = [[NSString alloc] initWithData:result.data encoding:NSUTF8StringEncoding];
@@ -919,6 +935,7 @@ static int midi_callback(lua_State *L) {
                             //      * dataByte2           - Data
                             //      * timestamp           - The timestamp for the command as a string.
                             //      * data                - Raw MIDI Data as string
+                            //      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
                             MIKMIDISystemKeepAliveCommand *result = (MIKMIDISystemKeepAliveCommand *)command;
                             NSString *data = [[NSString alloc] initWithData:result.data encoding:NSUTF8StringEncoding];
                             lua_newtable(L) ;
@@ -941,6 +958,7 @@ static int midi_callback(lua_State *L) {
                             //      * dataByte2           - Data
                             //      * timestamp           - The timestamp for the command as a string.
                             //      * data                - Raw MIDI Data as string
+                            //      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
                             MIKMIDISystemMessageCommand *result = (MIKMIDISystemMessageCommand *)command;
                             NSString *data = [[NSString alloc] initWithData:result.data encoding:NSUTF8StringEncoding];
                             lua_newtable(L) ;
