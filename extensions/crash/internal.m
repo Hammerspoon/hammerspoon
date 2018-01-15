@@ -5,6 +5,24 @@
 
 // ----------------------- API Implementation ---------------------
 
+/// hs.crash.crashlyticsCrash()
+/// Function
+/// Causes Crashlytics to immediately crash
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
+///
+/// Notes:
+///  * This is for testing purposes only, you are extremely unlikely to need this in normal Hammerspoon usage
+static int crashlyticsCrash(lua_State *L __unused) {
+    [CrashlyticsKit crash];
+    return 0;
+}
+
+
 /// hs.crash.crash()
 /// Function
 /// Causes Hammerspoon to immediately crash
@@ -120,6 +138,7 @@ static int residentSize(lua_State *L) {
 
 static const luaL_Reg crashlib[] = {
     {"crash", burnTheWorld},
+    {"crashlyticsCrash", crashlyticsCrash},
     {"throwObjCException", throwTheWorld},
     {"_crashLog", crashLog},
     {"crashKV", crashKV},
