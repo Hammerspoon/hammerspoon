@@ -241,6 +241,7 @@ static int refTable = LUA_NOREF;
                         [deviceNames addObject:[device name]];
                     }
                 }
+              
                 //
                 // Virtual Sources:
                 //
