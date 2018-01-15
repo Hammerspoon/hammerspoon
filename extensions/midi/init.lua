@@ -4,6 +4,8 @@
 ---
 --- This extension supports listening, transmitting and synthesizing MIDI commands.
 ---
+--- This extension was thrown together by [Chris Hocking](http://latenitefilms.com) for [CommandPost](http://commandpost.io).
+---
 --- This extension uses [MIKMIDI](https://github.com/mixedinkey-opensource/MIKMIDI), an easy-to-use Objective-C MIDI library created by Andrew Madsen and developed by him and Chris Flesner of [Mixed In Key](http://www.mixedinkey.com/).
 ---
 --- MIKMIDI LICENSE:
