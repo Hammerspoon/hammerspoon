@@ -289,6 +289,7 @@ static int midi_new(lua_State *L) {
 ///  * The `hs.midi` object
 ///
 /// Notes:
+///  * Most MIDI keyboards produce a `noteOn` when you press a key, then `noteOff` when you release. However, some MIDI keyboards will return a `noteOn` with 0 `velocity` instead of `noteOff`, so you will recieve two `noteOn` commands for every key press/release.
 ///  * The callback function should expect 8 arguments and should not return anything:
 ///    * `object`       - The `hs.midi` object.
 ///    * `deviceName`   - The device name as a string.
@@ -412,14 +413,16 @@ static int midi_new(lua_State *L) {
 ///      * data                - Raw MIDI Data as string
 ///
 ///  * Example Usage:
-///    ```midiDevice = hs.midi.new(hs.midi.devices()[3])
+///    ```
+///    midiDevice = hs.midi.new(hs.midi.devices()[3])
 ///    midiDevice:callback(function(object, deviceName, commandType, description, metadata)
 ///               print("object: " .. tostring(object))
 ///               print("deviceName: " .. deviceName)
 ///               print("commandType: " .. commandType)
 ///               print("description: " .. description)
 ///               print("metadata: " .. hs.inspect(metadata))
-///               end)```
+///               end)
+///    ```
 static int midi_callback(lua_State *L) {
 
     //
@@ -862,7 +865,8 @@ static int midi_sendSysex(lua_State *L) {
 ///      * channel             - The channel for the command. Must be between 0 and 15. Defaults to 0.
 ///
 ///  * Example Usage:
-///     ```midiDevice = hs.midi.new(hs.midi.devices()[1])
+///     ```
+///     midiDevice = hs.midi.new(hs.midi.devices()[1])
 ///     midiDevice:sendCommand("noteOn", {
 ///         ["note"] = 72,
 ///         ["velocity"] = 50,
@@ -893,7 +897,8 @@ static int midi_sendSysex(lua_State *L) {
 ///     midiDevice:sendCommand("pitchWheelChange", {
 ///         ["pitchChange"] = 3000,
 ///         ["channel"] = 0,
-///     })```
+///     })
+///     ```
 static int midi_sendCommand(lua_State *L) {
     
     LuaSkin *skin = [LuaSkin shared];
