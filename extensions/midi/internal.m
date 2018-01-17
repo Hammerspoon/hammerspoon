@@ -843,8 +843,7 @@ static int midi_callback(lua_State *L) {
                             lua_pushstring(L, [data UTF8String]);                    lua_setfield(L, -2, "data");
                             lua_pushinteger(L, result.fourteenBitValue);             lua_setfield(L, -2, "fourteenBitValue");
                             lua_pushboolean(L, result.fourteenBitCommand);           lua_setfield(L, -2, "fourteenBitCommand");
-                            lua_pushboolean(L, isVirtual);                           lua_setfield(L, -2, "isVirtual");
-                            NSLog(@"%hhd", result.fourteenBitCommand);
+                            lua_pushboolean(L, isVirtual);                           lua_setfield(L, -2, "isVirtual");                            
                             break;
                         }
                         case MIKMIDICommandTypeProgramChange: {
