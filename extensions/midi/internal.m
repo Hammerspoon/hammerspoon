@@ -90,7 +90,6 @@ static int refTable = LUA_NOREF;
     // Virtual Sources:
     //
     NSArray *virtualSources = [_midiDeviceManager virtualSources];
-    NSLog(@"%@", virtualSources);
     for (MIKMIDISourceEndpoint * endpoint in virtualSources)
     {
         NSString *currentDevice = [endpoint name];
@@ -1163,21 +1162,43 @@ static int midi_sendCommand(lua_State *L) {
     // Setup Device Manager:
     //
     HSMIDIDeviceManager *wrapper = [skin toNSObjectAtIndex:1] ;
+    MIKMIDIDestinationEndpoint *destinationEndpoint;
     
     //
     // Setup Destination Endpoint:
     //
-    NSArray *destinations = [wrapper.midiDevice.entities valueForKeyPath:@"@unionOfArrays.destinations"];
-    if (destinations.count == 0) {
-        //
-        // This shouldn't happen, but if it does, catch the error:
-        //
-        [skin logError:[NSString stringWithFormat:@"%s:callback error:%@", USERDATA_TAG, @"No MIDI Device Destinations detected."]] ;
-        wrapper.callbackToken = nil;
-        lua_pushvalue(L, 1);
-        return 1;
+    if (wrapper.midiDevice.isVirtual == YES) {
+        NSArray *virtualDestinations = [wrapper.midiDeviceManager virtualDestinations];
+        for (MIKMIDIDestinationEndpoint * endpoint in virtualDestinations)
+        {
+            NSString *currentDevice = [endpoint name];
+            if ([wrapper.midiDevice.name isEqualToString:currentDevice]) {
+                destinationEndpoint = endpoint;
+            }
+        }
+        if (!destinationEndpoint) {
+            //
+            // This shouldn't happen, but if it does, catch the error:
+            //
+            [skin logError:[NSString stringWithFormat:@"%s:callback error:%@", USERDATA_TAG, @"No MIDI Device Virtual Destinations detected."]] ;
+            wrapper.callbackToken = nil;
+            lua_pushvalue(L, 1);
+            return 1;
+        }
     }
-    MIKMIDIDestinationEndpoint *destinationEndpoint = [destinations objectAtIndex:0];
+    else {
+        NSArray *destinations = [wrapper.midiDevice.entities valueForKeyPath:@"@unionOfArrays.destinations"];
+        if (destinations.count == 0) {
+            //
+            // This shouldn't happen, but if it does, catch the error:
+            //
+            [skin logError:[NSString stringWithFormat:@"%s:callback error:%@", USERDATA_TAG, @"No MIDI Device Destinations detected."]] ;
+            wrapper.callbackToken = nil;
+            lua_pushvalue(L, 1);
+            return 1;
+        }
+        destinationEndpoint = [destinations objectAtIndex:0];
+    }
     
     //
     // Send Commands:
