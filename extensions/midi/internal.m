@@ -1168,6 +1168,15 @@ static int midi_sendCommand(lua_State *L) {
     // Setup Destination Endpoint:
     //
     NSArray *destinations = [wrapper.midiDevice.entities valueForKeyPath:@"@unionOfArrays.destinations"];
+    if (destinations.count == 0) {
+        //
+        // This shouldn't happen, but if it does, catch the error:
+        //
+        [skin logError:[NSString stringWithFormat:@"%s:callback error:%@", USERDATA_TAG, @"No MIDI Device Destinations detected."]] ;
+        wrapper.callbackToken = nil;
+        lua_pushvalue(L, 1);
+        return 1;
+    }
     MIKMIDIDestinationEndpoint *destinationEndpoint = [destinations objectAtIndex:0];
     
     //
