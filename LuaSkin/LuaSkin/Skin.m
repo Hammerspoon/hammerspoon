@@ -107,9 +107,9 @@ NSString *specMaskToString(int spec) {
         sharedLuaSkin = [[self alloc] init];
     });
     if (![NSThread isMainThread]) {
-        HSNSLOG(@"GRAVE BUG: LUA EXECUTION ON NON-MAIN THREAD");
+        NSLog(@"GRAVE BUG: LUA EXECUTION ON NON_MAIN THREAD");
         for (NSString *stackSymbol in [NSThread callStackSymbols]) {
-            HSNSLOG(@"Previous stack symbol: %@", stackSymbol);
+            NSLog(@"Previous stack symbol: %@", stackSymbol);
         }
         NSException* myException = [NSException
                                     exceptionWithName:@"LuaOnNonMainThread"
@@ -139,7 +139,7 @@ NSString *specMaskToString(int spec) {
 #pragma mark - lua_State lifecycle
 
 - (void)createLuaState {
-    HSNSLOG(@"createLuaState");
+    NSLog(@"createLuaState");
     NSAssert((self.L == NULL), @"createLuaState called on a live Lua environment", nil);
     self.L = luaL_newstate();
     luaL_openlibs(self.L);
@@ -161,7 +161,7 @@ NSString *specMaskToString(int spec) {
 }
 
 - (void)destroyLuaState {
-    HSNSLOG(@"destroyLuaState");
+    NSLog(@"destroyLuaState");
     NSAssert((self.L != NULL), @"destroyLuaState called with no Lua environment", nil);
     if (self.L) {
         [self.retainedObjectsRefTableMappings enumerateKeysAndObjectsUsingBlock:^(NSNumber *refTableN, NSMutableDictionary *objectMappings, __unused BOOL *stop) {
@@ -187,7 +187,7 @@ NSString *specMaskToString(int spec) {
 }
 
 - (void)resetLuaState {
-    HSNSLOG(@"resetLuaState");
+    NSLog(@"resetLuaState");
     NSAssert((self.L != NULL), @"resetLuaState called with no Lua environment", nil);
     [self destroyLuaState];
     [self createLuaState];
@@ -1273,7 +1273,7 @@ nextarg:
     if (theDelegate &&  [theDelegate respondsToSelector:@selector(logForLuaSkinAtLevel:withMessage:)]) {
         [theDelegate logForLuaSkinAtLevel:level withMessage:theMessage] ;
     } else {
-        HSNSLOG(@"(missing delegate):log level %d: %@", level, theMessage) ;
+        NSLog(@"(missing delegate):log level %d: %@", level, theMessage) ;
     }
 }
 
