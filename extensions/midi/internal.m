@@ -1047,6 +1047,8 @@ static int midi_sendSysex(lua_State *L) {
 ///      * controllerNumber    - The MIDI control number for the command. Defaults to 0.
 ///      * controllerValue     - The controllerValue of the command. Only the lower 7-bits of this are used. Defaults to 0.
 ///      * channel             - The channel for the command. Must be between 0 and 15. Defaults to 0.
+///      * fourteenBitValue    - The 14-bit value of the command. Must be between 0 and 16383. Defaults to 0. `fourteenBitCommand` must be `true`.
+///      * fourteenBitCommand  - `true` if the command contains 14-bit value data otherwise, `false`. `controllerValue` will be ignored if this is set to `true`.
 ///
 ///    * `programChange` - Program change command:
 ///      * programNumber       - The program (aka patch) number. From 0-127. Defaults to 0.
@@ -1119,6 +1121,8 @@ static int midi_sendCommand(lua_State *L) {
     lua_Integer controllerValue = 0;
     lua_Integer programNumber = 0;
     lua_Integer pitchChange = 0;
+    lua_Integer fourteenBitValue = 0;
+    bool fourteenBitCommand = false;
     
     //
     // Get Values from metadata table:
@@ -1154,6 +1158,14 @@ static int midi_sendCommand(lua_State *L) {
         lua_pop(L, 1);
         if (lua_getfield(L, -1, "pitchChange") == LUA_TNUMBER) {
             pitchChange = lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        if (lua_getfield(L, -1, "fourteenBitValue") == LUA_TNUMBER) {
+            fourteenBitValue = lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        if (lua_getfield(L, -1, "fourteenBitCommand") == LUA_TBOOLEAN) {
+            fourteenBitCommand = lua_toboolean(L, -1);
         }
         lua_pop(L, 1);
     }
@@ -1246,10 +1258,19 @@ static int midi_sendCommand(lua_State *L) {
         //      * controllerNumber    - The MIDI control number for the command.
         //      * controllerValue     - The controllerValue of the command. Only the lower 7-bits of this are used.
         //      * channel             - The channel for the command. Must be between 0 and 15.
+        //      * fourteenBitValue    - The 14-bit value of the command. Must be between 0 and 16383. Defaults to 0.
+        //      * fourteenBitCommand  - `true` if the command contains 14-bit value data otherwise, `false`.
         MIKMutableMIDIControlChangeCommand *controlChange = [[MIKMutableMIDIControlChangeCommand alloc] init];
         controlChange.controllerNumber = controllerNumber;
-        controlChange.controllerValue = controllerValue;
         controlChange.channel = channel;
+        if (fourteenBitCommand) {
+            controlChange.fourteenBitCommand = YES;
+            controlChange.fourteenBitValue = fourteenBitValue;
+        } else
+        {
+            controlChange.fourteenBitCommand = NO;
+            controlChange.controllerValue = controllerValue;
+        }
         if (![wrapper.midiDeviceManager sendCommands:@[controlChange] toEndpoint:destinationEndpoint error:&error])
         {
             [skin logError:[NSString stringWithFormat:@"%s: %@", USERDATA_TAG, error]];
