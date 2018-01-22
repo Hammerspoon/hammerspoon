@@ -544,16 +544,16 @@ hs.fileDroppedToDockIconCallback = nil
   require = function(modulename)
     local result = rawrequire(modulename)
     pcall(function()
-      hscrash.crashLog("require('"..modulename.."')")
-      if string.sub(modulename, 1, 3) == "hs." then
-        -- Reasonably certain that we're dealing with a Hammerspoon extension
-        local extname = string.sub(modulename, 4, -1)
-        for k,v in ipairs(hscrash.dumpCLIBS()) do
-          if string.find(v, extname) then
-            hscrash.crashLog("  Candidate CLIBS match: "..v)
-          end
-        end
-      end
+    hscrash.crashLog("require: "..modulename)
+      --if string.sub(modulename, 1, 3) == "hs." then
+      --  -- Reasonably certain that we're dealing with a Hammerspoon extension
+      --  local extname = string.sub(modulename, 4, -1)
+      --  for k,v in ipairs(hscrash.dumpCLIBS()) do
+      --    if string.find(v, extname) then
+      --      hscrash.crashLog("  Candidate CLIBS match: "..v)
+      --    end
+      --  end
+      --end
       if string.sub(modulename, 1, 8) == "mjolnir." then
         -- Reasonably certain that we're dealing with a Mjolnir module
         local mjolnirmod = string.sub(modulename, 9, -1)

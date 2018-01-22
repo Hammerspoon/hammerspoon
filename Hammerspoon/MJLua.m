@@ -12,13 +12,14 @@
 #import "MJDockIcon.h"
 #import "HSAppleScript.h"
 #import <Crashlytics/Crashlytics.h>
+#import "HSLogger.h" // This should come after Crashlytics
 
 @interface MJPreferencesWindowController ()
 - (void) reflectDefaults ;
 @end
 
 static LuaSkin* MJLuaState;
-static MJLuaLogger* MJLuaLogDelegate;
+static HSLogger* MJLuaLogDelegate;
 static int evalfn;
 static int completionsForWordFn;
 
@@ -30,44 +31,6 @@ static void(^loghandler)(NSString* str);
 void MJLuaSetupLogHandler(void(^blk)(NSString* str)) {
     loghandler = blk;
 }
-
-@implementation MJLuaLogger
-
-@synthesize L = _L ;
-
-- (instancetype)initWithLua:(lua_State *)L {
-    self = [super init] ;
-    if (self) {
-        _L = L ;
-    }
-    return self ;
-}
-
-- (void) logForLuaSkinAtLevel:(int)level withMessage:(NSString *)theMessage {
-    // Send logs to the appropriate location, depending on their level
-    // Note that hs.handleLogMessage also does this kind of filtering. We are special casing here for LS_LOG_BREADCRUMB to entirely bypass calling into Lua
-    // (because such logs don't need to be shown to the user, just stored in our crashlog in case we crash)
-    switch (level) {
-        case LS_LOG_BREADCRUMB:
-            HSNSLOG(@"%@", theMessage);
-            break;
-
-        default:
-            lua_getglobal(_L, "hs") ; lua_getfield(_L, -1, "handleLogMessage") ; lua_remove(_L, -2) ;
-            lua_pushinteger(_L, level) ;
-            lua_pushstring(_L, [theMessage UTF8String]) ;
-            int errState = lua_pcall(_L, 2, 0, 0) ;
-            if (errState != LUA_OK) {
-                NSArray *stateLabels = @[ @"OK", @"YIELD", @"ERRRUN", @"ERRSYNTAX", @"ERRMEM", @"ERRGCMM", @"ERRERR" ] ;
-                HSNSLOG(@"logForLuaSkin: error, state %@: %s", [stateLabels objectAtIndex:(NSUInteger)errState],
-                          luaL_tolstring(_L, -1, NULL)) ;
-                lua_pop(_L, 2) ; // lua_pcall result + converted version from luaL_tolstring
-            }
-            break;
-    }
-}
-
-@end
 
 /// hs.uploadCrashData([state]) -> bool
 /// Function
@@ -81,7 +44,7 @@ void MJLuaSetupLogHandler(void(^blk)(NSString* str)) {
 ///
 /// Notes:
 ///  * If at all possible, please do allow Hammerspoon to upload crash reports to us, it helps a great deal in keeping Hammerspoon stable
-///  * Our Privacy Policy can be found here: [http://www.hammerspoon.org/privacy.html](https://github.com/Hammerspoon/hammerspoon/pull/1286/files)
+///  * Our Privacy Policy can be found here: [http://www.hammerspoon.org/privacy.html](http://www.hammerspoon.org/privacy.html)
 static int core_uploadCrashData(lua_State* L) {
     if (lua_isboolean(L, -1)) { HSSetUploadCrashData(lua_toboolean(L, -1)); }
     lua_pushboolean(L, HSUploadCrashData()) ;
@@ -585,10 +548,12 @@ static luaL_Reg corelib[] = {
 void MJLuaCreate(void) {
     MJLuaAlloc();
     MJLuaInit();
+    HSNSLOG(@"Created Lua instance");
 }
 
 // Deconfigure and destroy a Lua environment
 void MJLuaDestroy(void) {
+    HSNSLOG(@"Destroying Lua instance");
     MJLuaDeinit();
     MJLuaDealloc();
 }
@@ -621,6 +586,8 @@ void MJLuaAlloc(void) {
     }
     MJLuaState = skin;
     oldPanicFunction = lua_atpanic([skin L], &MJLuaAtPanic) ;
+    MJLuaLogDelegate = [[HSLogger alloc] initWithLua:MJLuaState.L] ;
+    if (MJLuaLogDelegate) [MJLuaState setDelegate:MJLuaLogDelegate] ;
 }
 
 // Configure a Lua environment that has already been created by LuaSkin
@@ -665,8 +632,6 @@ void MJLuaInit(void) {
     } else {
         evalfn = [MJLuaState luaRef:refTable];
         completionsForWordFn = [MJLuaState luaRef:refTable];
-        MJLuaLogDelegate = [[MJLuaLogger alloc] initWithLua:L] ;
-        if (MJLuaLogDelegate) [MJLuaState setDelegate:MJLuaLogDelegate] ;
     }
 }
 

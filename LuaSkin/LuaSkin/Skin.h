@@ -20,20 +20,6 @@
 #import "lualib.h"
 #import "lua.h"
 
-// Abstract Crashlytics logging because it keeps hurting us, but in a way that doesn't force a dependency on Crashlytics
-#ifdef CLS_LOG
-#   ifdef DEBUG
-#       define HSLOG(__FORMAT__, ...)
-#   else
-#       define HSLOG(__FORMAT__, ...) CLS_LOG(__FORMAT__, ##__VA_ARGS__)
-#   endif
-#   define HSNSLOG(__FORMAT__, ...) CLSNSLog((@"%s line %d $ " __FORMAT__), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
-#endif
-#ifndef HSLOG
-#   define HSLOG(__FORMAT__, ...)
-#   define HSNSLOG(__FORMAT__, ...) NSLog(__FORMAT__, ##__VA_ARGS__)
-#endif
-
 // Define some bits for masking operations in the argument checker
 /*!
   @definedblock Bit masks for Lua type checking with LuaSkin:checkArgs:
