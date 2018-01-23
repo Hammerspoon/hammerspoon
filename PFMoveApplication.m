@@ -1,5 +1,5 @@
 //
-//  PFMoveApplication.m, version 1.22
+//  PFMoveApplication.m, version 1.24
 //  LetsMove
 //
 //  Created by Andy Kim at Potion Factory LLC on 9/17/09
@@ -9,15 +9,22 @@
 #import "PFMoveApplication.h"
 
 #import <AppKit/AppKit.h>
-#import <Foundation/Foundation.h>
 #import <Security/Security.h>
 #import <dlfcn.h>
-#import <sys/param.h>
 #import <sys/mount.h>
+
+@interface LetsMove : NSObject
+@end
+
+@implementation LetsMove
++ (NSBundle *)bundle {
+	return [NSBundle bundleForClass:self];
+}
+@end
 
 // Strings
 // These are macros to be able to use custom i18n tools
-#define _I10NS(nsstr) NSLocalizedStringFromTable(nsstr, @"MoveApplication", nil)
+#define _I10NS(nsstr) NSLocalizedStringFromTableInBundle(nsstr, @"MoveApplication", [LetsMove bundle], nil)
 #define kStrMoveApplicationCouldNotMove _I10NS(@"Could not move to Applications folder")
 #define kStrMoveApplicationQuestionTitle  _I10NS(@"Move to Applications folder?")
 #define kStrMoveApplicationQuestionTitleHome _I10NS(@"Move to Applications folder in your Home folder?")
@@ -39,7 +46,7 @@
 
 
 static NSString *AlertSuppressKey = @"moveToApplicationsFolderAlertSuppress";
-
+static BOOL MoveInProgress = NO;
 
 // Helper functions
 static NSString *PreferredInstallLocation(BOOL *isUserDirectory);
@@ -57,6 +64,16 @@ static void Relaunch(NSString *destinationPath);
 
 // Main worker function
 void PFMoveToApplicationsFolderIfNecessary(void) {
+
+	// Make sure to do our work on the main thread.
+	// Apparently Electron apps need this for things to work properly.
+	if (![NSThread isMainThread]) {
+		dispatch_async(dispatch_get_main_queue(), ^{
+			PFMoveToApplicationsFolderIfNecessary();
+		});
+		return;
+	}
+	
 	// Skip if user suppressed the alert before
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:AlertSuppressKey]) return;
 
@@ -70,6 +87,9 @@ void PFMoveToApplicationsFolderIfNecessary(void) {
 	// unless it's inside another app's bundle.
 	if (IsInApplicationsFolder(bundlePath) && !isNestedApplication) return;
 
+	// OK, looks like we'll need to do a move - set the status variable appropriately
+	MoveInProgress = YES;
+	
 	// File Manager
 	NSFileManager *fm = [NSFileManager defaultManager];
 
@@ -141,6 +161,7 @@ void PFMoveToApplicationsFolderIfNecessary(void) {
 			if (!AuthorizedInstall(bundlePath, destinationPath, &authorizationCanceled)) {
 				if (authorizationCanceled) {
 					NSLog(@"INFO -- Not moving because user canceled authorization");
+					MoveInProgress = NO;
 					return;
 				}
 				else {
@@ -157,6 +178,7 @@ void PFMoveToApplicationsFolderIfNecessary(void) {
 					// Give the running app focus and terminate myself
 					NSLog(@"INFO -- Switching to an already running version");
 					[[NSTask launchedTaskWithLaunchPath:@"/usr/bin/open" arguments:[NSArray arrayWithObject:destinationPath]] waitUntilExit];
+					MoveInProgress = NO;
 					exit(0);
 				}
 				else {
@@ -189,6 +211,7 @@ void PFMoveToApplicationsFolderIfNecessary(void) {
 			[NSTask launchedTaskWithLaunchPath:@"/bin/sh" arguments:[NSArray arrayWithObjects:@"-c", script, nil]];
 		}
 
+		MoveInProgress = NO;
 		exit(0);
 	}
 	// Save the alert suppress preference if checked
@@ -196,6 +219,7 @@ void PFMoveToApplicationsFolderIfNecessary(void) {
 		[[NSUserDefaults standardUserDefaults] setBool:YES forKey:AlertSuppressKey];
 	}
 
+	MoveInProgress = NO;
 	return;
 
 fail:
@@ -204,7 +228,12 @@ fail:
 		alert = [[[NSAlert alloc] init] autorelease];
 		[alert setMessageText:kStrMoveApplicationCouldNotMove];
 		[alert runModal];
+		MoveInProgress = NO;
 	}
+}
+
+BOOL PFMoveIsInProgress() {
+    return MoveInProgress;
 }
 
 #pragma mark -
@@ -409,7 +438,7 @@ static BOOL DeleteOrTrash(NSString *path) {
 	}
 	else {
 		// Don't log warning if on Sierra and running inside App Translocation path
-		if (![path containsString:@"/AppTranslocation/"])
+		if ([path rangeOfString:@"/AppTranslocation/"].location == NSNotFound)
 			NSLog(@"WARNING -- Could not delete '%@': %@", path, [error localizedDescription]);
 		
 		return Trash(path);
