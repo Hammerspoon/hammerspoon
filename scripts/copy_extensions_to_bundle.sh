@@ -20,6 +20,7 @@ export HS_MODULES="application \
     eventtap \
     fs \
     hash \
+    hid \
     hints \
     host \
     hotkey \
