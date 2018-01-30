@@ -139,9 +139,8 @@ static BOOL MJFirstRunForCurrentVersion(void) {
             
             // Reset Preferences:
             NSDictionary * allObjects;
-            NSString     * key;
             allObjects = [[NSUserDefaults standardUserDefaults] dictionaryRepresentation];
-            for(key in allObjects)
+            for(NSString *key in allObjects)
             {
                 [[NSUserDefaults standardUserDefaults] removeObjectForKey: key];
             }
