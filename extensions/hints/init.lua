@@ -60,7 +60,7 @@ local invalidWindowRoles = {
    AXUnknown = true
 }
 
-function isValidWindow(win, allowNonStandard)
+local function isValidWindow(win, allowNonStandard)
    if not allowNonStandard then
       return win:isStandard()
    else
