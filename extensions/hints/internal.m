@@ -6,6 +6,7 @@
 
 #define get_screen_arg(L, idx) (__bridge NSScreen*)*((void**)luaL_checkudata(L, idx, "hs.screen"))
 #define get_hint_arg(L, idx) (__bridge HintWindow*)*((void**)luaL_checkudata(L, idx, USERDATA_TAG))
+#define get_objectFromUserdata(objType, L, idx) (objType*)*((void**)luaL_checkudata(L, idx, USERDATA_TAG))
 
 @interface HintView : NSView {
 @private
@@ -152,7 +153,7 @@ static NSDictionary *hintTextAttributes;
 @end
 
 static int hint_close(lua_State* L) {
-    HintWindow* hint = get_hint_arg(L, 1);
+    HintWindow* hint = get_objectFromUserdata(__bridge_transfer HintWindow, L, 1);
     [hint close];
     hint = nil;
     lua_pushnil(L);
