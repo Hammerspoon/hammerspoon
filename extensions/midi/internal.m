@@ -663,11 +663,6 @@ static int midi_callback(lua_State *L) {
                     BOOL isVirtual = [device isVirtual];
 
                     //
-                    // Get Virtual Status:
-                    //
-                    BOOL isVirtual = [device isVirtual];
-
-                    //
                     // Get Description:
                     //
                     NSString *description;
