@@ -7,6 +7,7 @@
 //
 
 #import <LuaSkin/LuaSkin.h>
+#import <Crashlytics/Crashlytics.h>
 
 #ifdef CLS_LOG
 #   define HSNSLOG(__FORMAT__, ...) CLSNSLog(__FORMAT__, ##__VA_ARGS__)
