@@ -50,6 +50,7 @@ OSStatus audiodevicewatcher_callback(AudioDeviceID deviceID, UInt32 numAddresses
             [skin logWarn:@"hs.audiodevice.watcher callback fired, but theWatcher is nil. This is a bug"];
             return;
         }
+        // FIXME: I (cmsj) have previously seen Address Sanitizer complain about a heap-use-after-free when accessing theWatcher->callback, but I don't understand what it meant. The memory was shown to have been previously allocated/freed in hs.application.runningApplications() which has nothing to do with this block. I wonder if it has something to do with the way C structs are captured for blocks?
         if (theWatcher->callback == LUA_NOREF) {
             [skin logWarn:@"hs.audiodevice.watcher callback fired, but there is no callback. This is a bug"];
         } else {
