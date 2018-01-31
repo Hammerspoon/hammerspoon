@@ -341,9 +341,9 @@ static int make_link(lua_State *L) {
     BOOL error;
 
     if (lua_toboolean (L, 3)) {
-        error = symlink(oldpath, newpath);
+        error = (symlink(oldpath, newpath) != 0);
     } else {
-        error = link(oldpath, newpath);
+        error = (link(oldpath, newpath) != 0);
     }
 
     if (error) {
