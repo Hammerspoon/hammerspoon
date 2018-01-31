@@ -582,7 +582,7 @@ hs.fileDroppedToDockIconCallback = nil
   local image = require("hs.image")
   console.defaultToolbar = toolbar.new("Console Default", {
     { id="prefs", label="Preferences", image=image.imageFromName("NSPreferencesGeneral"), tooltip="Open Preferences", fn=function() hs.openPreferences() end },
-    { id="reload", label="Reload config", image=image.imageFromName("NSRefreshTemplate"), tooltip="Reload configuration", fn=function() hs.reload() end },
+    { id="reload", label="Reload config", image=image.imageFromName("NSSynchronize"), tooltip="Reload configuration", fn=function() hs.reload() end },
     { id="help", label="Help", image=image.imageFromName("NSInfo"), tooltip="Open API docs browser", fn=function() hs.doc.hsdocs.help() end }
   }):canCustomize(true):autosaves(true)
   console.toolbar(console.defaultToolbar)
