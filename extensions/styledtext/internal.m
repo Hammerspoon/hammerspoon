@@ -2,7 +2,7 @@
 #import <LuaSkin/LuaSkin.h>
 
 #define USERDATA_TAG "hs.styledtext"
-int refTable;
+static int refTable;
 
 #define get_objectFromUserdata(objType, L, idx) (objType *) * ((void **)luaL_checkudata(L, idx, USERDATA_TAG))
 

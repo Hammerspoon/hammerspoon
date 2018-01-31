@@ -13,29 +13,25 @@
 //   to endorse or promote products derived from this software without specific
 //   prior written permission of Deusty, LLC.
 
-#import "DDASLLogger.h"
+#import <Foundation/Foundation.h>
 
-@protocol DDLogger;
+// Disable legacy macros
+#ifndef DD_LEGACY_MACROS
+    #define DD_LEGACY_MACROS 0
+#endif
 
-/**
- *  This class provides the ability to capture the ASL (Apple System Logs)
- */
-@interface DDASLLogCapture : NSObject
-
-/**
- *  Start capturing logs
- */
-+ (void)start;
+#import "DDLog.h"
 
 /**
- *  Stop capturing logs
- */
-+ (void)stop;
+ * This class provides a logger for the Apple os_log facility.
+ **/
+@interface DDOSLogger : DDAbstractLogger <DDLogger>
 
 /**
- *  The current capture level.
- *  @note Default log level: DDLogLevelVerbose (i.e. capture all ASL messages).
+ *  Singleton method
+ *
+ *  @return the shared instance
  */
-@property (class) DDLogLevel captureLevel;
+@property (class, readonly, strong) DDOSLogger *sharedInstance;
 
 @end

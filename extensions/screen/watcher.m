@@ -15,7 +15,7 @@
 // Common Code
 
 #define USERDATA_TAG    "hs.screen.watcher"
-int refTable;
+static int refTable;
 
 // Not so common code
 

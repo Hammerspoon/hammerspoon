@@ -166,8 +166,8 @@ NSString *specMaskToString(int spec) {
     if (self.L) {
         [self.retainedObjectsRefTableMappings enumerateKeysAndObjectsUsingBlock:^(NSNumber *refTableN, NSMutableDictionary *objectMappings, __unused BOOL *stop) {
             if ([refTableN isKindOfClass:[NSNumber class]] && [objectMappings isKindOfClass:[NSDictionary class]]) {
-                int refTable = refTableN.intValue ;
-                for (id object in objectMappings.allValues) [self luaRelease:refTable forNSObject:object] ;
+                int tmpRefTable = refTableN.intValue ;
+                for (id object in objectMappings.allValues) [self luaRelease:tmpRefTable forNSObject:object] ;
 
             } else {
                 NSLog(@"destroyLuaState - invalid retainedObject reference table entry:%@ = %@", refTableN, objectMappings) ;
@@ -247,10 +247,10 @@ NSString *specMaskToString(int spec) {
         lua_setmetatable(self.L, -2);
     }
     lua_newtable(self.L);
-    int refTable = luaL_ref(self.L, LUA_REGISTRYINDEX);
-    lua_pushinteger(self.L, refTable) ;
+    int tmpRefTable = luaL_ref(self.L, LUA_REGISTRYINDEX);
+    lua_pushinteger(self.L, tmpRefTable) ;
     lua_setfield(self.L, -2, "__refTable") ;
-    return refTable;
+    return tmpRefTable;
 }
 
 - (int)registerLibraryWithObject:(const char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions objectFunctions:(const luaL_Reg *)objectFunctions {

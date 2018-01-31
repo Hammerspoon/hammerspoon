@@ -18,7 +18,7 @@
 #define get_item_arg(L, idx) ((httpserver_t *)luaL_checkudata(L, idx, USERDATA_TAG))
 #define getUserData(L, idx) (__bridge HSHTTPServer *)((httpserver_t *)get_item_arg(L, idx))->server
 
-int refTable;
+static int refTable;
 
 // ObjC Class definitions
 @interface HSWebSocket : WebSocket

@@ -8,7 +8,7 @@
 #define USERDATA_TAG "hs.drawing"
 #define get_item_arg(L, idx) ((drawing_t *)luaL_checkudata(L, idx, USERDATA_TAG))
 
-int refTable;
+static int refTable;
 
 NSMutableArray *drawingWindows;
 

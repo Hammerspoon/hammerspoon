@@ -5,7 +5,7 @@
 // ----------------------- Definitions ---------------------
 
 #define USERDATA_TAG "hs.menubar"
-int refTable;
+static int refTable;
 #define get_item_arg(L, idx) ((menubaritem_t *)luaL_checkudata(L, idx, USERDATA_TAG))
 
 // modified from https://github.com/shergin/NSStatusBar-MISSINGOrder

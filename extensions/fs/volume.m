@@ -28,7 +28,7 @@
 // Common Code
 
 #define USERDATA_TAG "hs.fs.volume"
-int refTable;
+static int refTable;
 
 // Not so common code
 
