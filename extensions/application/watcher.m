@@ -41,7 +41,7 @@
 // Common Code
 
 #define USERDATA_TAG "hs.application.watcher"
-int refTable;
+static int refTable;
 
 // Not so common code
 

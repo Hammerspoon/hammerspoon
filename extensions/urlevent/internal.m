@@ -4,7 +4,7 @@
 #import <LuaSkin/LuaSkin.h>
 #import "../../Hammerspoon/MJAppDelegate.h"
 
-int refTable;
+static int refTable;
 NSArray *defaultContentTypes = nil;
 
 // ----------------------- Objective C ---------------------

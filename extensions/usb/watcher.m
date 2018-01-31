@@ -13,7 +13,7 @@
 // Common Code
 
 #define USERDATA_TAG    "hs.usb.watcher"
-int refTable;
+static int refTable;
 
 // Not so common code
 

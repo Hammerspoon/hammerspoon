@@ -25,7 +25,7 @@ const AudioObjectPropertySelector watchSelectors[] = {
     kAudioHardwarePropertyDefaultSystemOutputDevice,
 };
 
-int refTable;
+static int refTable;
 audiodevice_watcher *theWatcher = nil;
 
 #pragma mark - Function definitions
