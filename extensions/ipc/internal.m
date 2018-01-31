@@ -129,11 +129,7 @@ static int ipc_remotePort(lua_State *L) {
     NSString *portName = [skin toNSObjectAtIndex:1] ;
 
     HSIPCMessagePort *port = [[HSIPCMessagePort alloc] init] ;
-    if (port) {
-        CFMessagePortRef portRef = CFMessagePortCreateRemote(NULL, (__bridge CFStringRef)portName) ;
-        port.messagePort = portRef;
-        CFRelease(portRef);
-    }
+    if (port) port.messagePort = CFMessagePortCreateRemote(NULL, (__bridge CFStringRef)portName) ;
     if (!(port && port.messagePort)) {
         return luaL_error(L, "failed to create new remote port") ;
     }
@@ -339,9 +335,8 @@ static int userdata_gc(lua_State* L) {
             obj.callbackRef = [skin luaUnref:refTable ref:obj.callbackRef] ;
             if (obj.messagePort) {
                 CFMessagePortInvalidate(obj.messagePort) ;
-                CFMessagePortRef portRef = (__bridge CFMessagePortRef)CFBridgingRelease(obj.messagePort);
+                CFRelease(obj.messagePort) ;
                 obj.messagePort = NULL ;
-                portRef = NULL;
             }
             obj = nil ;
         }

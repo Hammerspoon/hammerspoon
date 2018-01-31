@@ -46,9 +46,7 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
         self.discoveryCallbackRef = LUA_NOREF;
 
         // Create a HID device manager
-        IOHIDManagerRef managerRef = IOHIDManagerCreate(kCFAllocatorDefault, kIOHIDManagerOptionNone);
-        self.ioHIDManager = managerRef;
-        CFRelease(managerRef);
+        self.ioHIDManager = IOHIDManagerCreate(kCFAllocatorDefault, kIOHIDManagerOptionNone);
         //NSLog(@"Created HID Manager: %p", (void *)self.ioHIDManager);
 
         // Configure the HID manager to match against Stream Deck devices
