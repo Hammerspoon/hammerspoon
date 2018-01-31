@@ -37,7 +37,7 @@ int refTable;
 
 @interface HSHTTPDataResponse : HTTPDataResponse
 @property int hsStatus;
-@property (nonatomic, copy) NSMutableDictionary *hsHeaders;
+@property (nonatomic, copy) NSDictionary *hsHeaders;
 @end
 
 @interface HSHTTPConnection : HTTPConnection

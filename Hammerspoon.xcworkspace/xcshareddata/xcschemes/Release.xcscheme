@@ -96,6 +96,7 @@
       buildConfiguration = "Release"
       selectedDebuggerIdentifier = ""
       selectedLauncherIdentifier = "Xcode.IDEFoundation.Launcher.PosixSpawn"
+      disableMainThreadChecker = "YES"
       language = ""
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"

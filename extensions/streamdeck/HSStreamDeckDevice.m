@@ -72,7 +72,7 @@
     IOHIDDeviceGetReport(self.device, kIOHIDReportTypeFeature, 0x3, serial, &serialLen);
     char *serialNum = (char *)&serial + 5;
     NSData *serialData = [NSData dataWithBytes:serialNum length:12];
-    return [NSString stringWithUTF8String:serialData.bytes];
+    return [[NSString alloc] initWithData:serialData encoding:NSUTF8StringEncoding];
 }
 
 - (NSString*)firmwareVersion {
@@ -81,7 +81,7 @@
     IOHIDDeviceGetReport(self.device, kIOHIDReportTypeFeature, 0x4, fwver, &fwverLen);
     char *fwverNum = (char *)&fwver + 5;
     NSData *fwVerData = [NSData dataWithBytes:fwverNum length:12];
-    return [NSString stringWithUTF8String:fwVerData.bytes];
+    return [[NSString alloc] initWithData:fwVerData encoding:NSUTF8StringEncoding];
 }
 
 - (void)setColor:(NSColor *)color forButton:(int)button {

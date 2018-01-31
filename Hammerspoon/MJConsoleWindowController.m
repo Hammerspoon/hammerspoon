@@ -37,6 +37,8 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
     self = [super init];
     if (self) {
         self.dateFormatter = [[NSDateFormatter alloc] init];
+        NSLocale *enUSPOSIXLocale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
+        [self.dateFormatter setLocale:enUSPOSIXLocale];
         [self.dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
 
         [self initializeConsoleColorsAndFont] ;

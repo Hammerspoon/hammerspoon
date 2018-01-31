@@ -20,6 +20,7 @@ export HS_MODULES="application \
     eventtap \
     fs \
     hash \
+    hid \
     hints \
     host \
     hotkey \
@@ -87,6 +88,7 @@ export HS_LUAONLY="_coresetup \
     spoons \
     spaces \
     tabs \
+    tangent \
     utf8 \
     vox \
     watchable \
