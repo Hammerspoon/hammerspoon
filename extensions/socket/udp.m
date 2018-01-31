@@ -367,6 +367,7 @@ static int socketudp_send(lua_State *L) {
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TANY|LS_TOPTIONAL, LS_TANY|LS_TOPTIONAL, LS_TANY|LS_TOPTIONAL, LS_TANY|LS_TOPTIONAL, LS_TBREAK];
     HSAsyncUdpSocket* asyncUdpSocket = getUserData(L, 1);
     NSString *message = [skin toNSObjectAtIndex:2];
+    NSData *sendData;
 
     if (asyncUdpSocket.isConnected) {
         [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TNUMBER|LS_TINTEGER|LS_TFUNCTION|LS_TNIL|LS_TOPTIONAL, LS_TFUNCTION|LS_TOPTIONAL, LS_TBREAK];
@@ -380,9 +381,12 @@ static int socketudp_send(lua_State *L) {
             asyncUdpSocket.writeCallback = [skin luaRef:refTable];
         }
 
-        [asyncUdpSocket sendData:[message dataUsingEncoding:NSUTF8StringEncoding]
-                     withTimeout:asyncUdpSocket.timeout
-                             tag:tag];
+        sendData = [message dataUsingEncoding:NSUTF8StringEncoding];
+        if (sendData) {
+            [asyncUdpSocket sendData:sendData
+                         withTimeout:asyncUdpSocket.timeout
+                                 tag:tag];
+        }
     } else {
         [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TSTRING, LS_TNUMBER|LS_TINTEGER, LS_TNUMBER|LS_TINTEGER|LS_TFUNCTION|LS_TNIL|LS_TOPTIONAL, LS_TFUNCTION|LS_TOPTIONAL, LS_TBREAK];
         NSString *theHost = [skin toNSObjectAtIndex:3];
@@ -397,11 +401,14 @@ static int socketudp_send(lua_State *L) {
             asyncUdpSocket.writeCallback = [skin luaRef:refTable];
         }
 
-        [asyncUdpSocket sendData:[message dataUsingEncoding:NSUTF8StringEncoding]
-                          toHost:theHost
-                            port:thePort
-                     withTimeout:asyncUdpSocket.timeout
-                             tag:tag];
+        sendData = [message dataUsingEncoding:NSUTF8StringEncoding];
+        if (sendData) {
+            [asyncUdpSocket sendData:sendData
+                              toHost:theHost
+                                port:thePort
+                         withTimeout:asyncUdpSocket.timeout
+                                 tag:tag];
+        }
     }
 
     lua_pushvalue(L, 1);

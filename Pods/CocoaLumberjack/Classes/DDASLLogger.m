@@ -1,6 +1,6 @@
 // Software License Agreement (BSD License)
 //
-// Copyright (c) 2010-2015, Deusty, LLC
+// Copyright (c) 2010-2016, Deusty, LLC
 // All rights reserved.
 //
 // Redistribution and use of this software in source and binary forms,
@@ -68,7 +68,7 @@ static DDASLLogger *sharedInstance;
 
     NSString * message = _logFormatter ? [_logFormatter formatLogMessage:logMessage] : logMessage->_message;
 
-    if (logMessage) {
+    if (message) {
         const char *msg = [message UTF8String];
 
         size_t aslLogLevel;
@@ -90,7 +90,7 @@ static DDASLLogger *sharedInstance;
 
         char readUIDString[16];
 #ifndef NS_BLOCK_ASSERTIONS
-        int l = snprintf(readUIDString, sizeof(readUIDString), "%d", readUID);
+        size_t l = snprintf(readUIDString, sizeof(readUIDString), "%d", readUID);
 #else
         snprintf(readUIDString, sizeof(readUIDString), "%d", readUID);
 #endif

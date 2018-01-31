@@ -1,6 +1,6 @@
 // Software License Agreement (BSD License)
 //
-// Copyright (c) 2010-2015, Deusty, LLC
+// Copyright (c) 2010-2016, Deusty, LLC
 // All rights reserved.
 //
 // Redistribution and use of this software in source and binary forms,
@@ -97,47 +97,47 @@ extern unsigned long long const kDDDefaultLogFilesDiskQuota;
 /**
  *  Returns the logs directory (path)
  */
-- (NSString *)logsDirectory;
+@property (nonatomic, readonly, copy) NSString *logsDirectory;
 
 /**
  * Returns an array of `NSString` objects,
  * each of which is the filePath to an existing log file on disk.
  **/
-- (NSArray *)unsortedLogFilePaths;
+@property (nonatomic, readonly, strong) NSArray<NSString *> *unsortedLogFilePaths;
 
 /**
  * Returns an array of `NSString` objects,
  * each of which is the fileName of an existing log file on disk.
  **/
-- (NSArray *)unsortedLogFileNames;
+@property (nonatomic, readonly, strong) NSArray<NSString *> *unsortedLogFileNames;
 
 /**
  * Returns an array of `DDLogFileInfo` objects,
  * each representing an existing log file on disk,
  * and containing important information about the log file such as it's modification date and size.
  **/
-- (NSArray *)unsortedLogFileInfos;
+@property (nonatomic, readonly, strong) NSArray<DDLogFileInfo *> *unsortedLogFileInfos;
 
 /**
  * Just like the `unsortedLogFilePaths` method, but sorts the array.
  * The items in the array are sorted by creation date.
  * The first item in the array will be the most recently created log file.
  **/
-- (NSArray *)sortedLogFilePaths;
+@property (nonatomic, readonly, strong) NSArray<NSString *> *sortedLogFilePaths;
 
 /**
  * Just like the `unsortedLogFileNames` method, but sorts the array.
  * The items in the array are sorted by creation date.
  * The first item in the array will be the most recently created log file.
  **/
-- (NSArray *)sortedLogFileNames;
+@property (nonatomic, readonly, strong) NSArray<NSString *> *sortedLogFileNames;
 
 /**
  * Just like the `unsortedLogFileInfos` method, but sorts the array.
  * The items in the array are sorted by creation date.
  * The first item in the array will be the most recently created log file.
  **/
-- (NSArray *)sortedLogFileInfos;
+@property (nonatomic, readonly, strong) NSArray<DDLogFileInfo *> *sortedLogFileInfos;
 
 // Private methods (only to be used by DDFileLogger)
 
@@ -153,12 +153,12 @@ extern unsigned long long const kDDDefaultLogFilesDiskQuota;
 /**
  *  Called when a log file was archieved
  */
-- (void)didArchiveLogFile:(NSString *)logFilePath;
+- (void)didArchiveLogFile:(NSString *)logFilePath NS_SWIFT_NAME(didArchiveLogFile(atPath:));
 
 /**
  *  Called when the roll action was executed and the log was archieved
  */
-- (void)didRollAndArchiveLogFile:(NSString *)logFilePath;
+- (void)didRollAndArchiveLogFile:(NSString *)logFilePath NS_SWIFT_NAME(didRollAndArchiveLogFile(atPath:));
 
 @end
 
@@ -203,7 +203,7 @@ extern unsigned long long const kDDDefaultLogFilesDiskQuota;
  *    null
  *    cy#
  **/
-- (instancetype)initWithLogsDirectory:(NSString *)logsDirectory defaultFileProtectionLevel:(NSString *)fileProtectionLevel;
+- (instancetype)initWithLogsDirectory:(NSString *)logsDirectory defaultFileProtectionLevel:(NSFileProtectionType)fileProtectionLevel;
 #endif
 
 /*
@@ -246,7 +246,7 @@ extern unsigned long long const kDDDefaultLogFilesDiskQuota;
  *
  * You can change it by overriding `newLogFileName` and `isLogFile:` methods.
  **/
-- (BOOL)isLogFile:(NSString *)fileName;
+- (BOOL)isLogFile:(NSString *)fileName NS_SWIFT_NAME(isLogFile(withName:));
 
 /* Inherited from DDLogFileManager protocol:
 
@@ -302,7 +302,9 @@ extern unsigned long long const kDDDefaultLogFilesDiskQuota;
 /**
  *  The standard implementation for a file logger
  */
-@interface DDFileLogger : DDAbstractLogger <DDLogger>
+@interface DDFileLogger : DDAbstractLogger <DDLogger> {
+	DDLogFileInfo *_currentLogFileInfo;
+}
 
 /**
  *  Default initializer
@@ -315,10 +317,26 @@ extern unsigned long long const kDDDefaultLogFilesDiskQuota;
 - (instancetype)initWithLogFileManager:(id <DDLogFileManager>)logFileManager NS_DESIGNATED_INITIALIZER;
 
 /**
+ *  Called when the logger is about to write message. Call super before your implementation.
+ */
+- (void)willLogMessage NS_REQUIRES_SUPER;
+
+/**
+ *  Called when the logger wrote message. Call super after your implementation.
+ */
+- (void)didLogMessage NS_REQUIRES_SUPER;
+
+/**
+ *  Called when the logger checks archive or not current log file. 
+ *  Override this method to exdend standart behavior. By default returns NO.
+ */
+- (BOOL)shouldArchiveRecentLogFileInfo:(DDLogFileInfo *)recentLogFileInfo;
+
+/**
  * Log File Rolling:
  *
  * `maximumFileSize`:
- *   The approximate maximum size to allow log files to grow.
+ *   The approximate maximum size (in bytes) to allow log files to grow.
  *   If a log file is larger than this value after a log statement is appended,
  *   then the log file is rolled.
  *
@@ -326,6 +344,9 @@ extern unsigned long long const kDDDefaultLogFilesDiskQuota;
  *   How often to roll the log file.
  *   The frequency is given as an `NSTimeInterval`, which is a double that specifies the interval in seconds.
  *   Once the log file gets to be this old, it is rolled.
+ *
+ * `doNotReuseLogFiles`
+ *   When set, will always create a new log file at application launch.
  *
  * Both the `maximumFileSize` and the `rollingFrequency` are used to manage rolling.
  * Whichever occurs first will cause the log file to be rolled.
@@ -376,7 +397,7 @@ extern unsigned long long const kDDDefaultLogFilesDiskQuota;
  *  You can optionally force the current log file to be rolled with this method.
  *  CompletionBlock will be called on main queue.
  */
-- (void)rollLogFileWithCompletionBlock:(void (^)())completionBlock;
+- (void)rollLogFileWithCompletionBlock:(void (^)(void))completionBlock NS_SWIFT_NAME(rollLogFile(withCompletion:));
 
 /**
  *  Method is deprecated.
@@ -396,7 +417,7 @@ extern unsigned long long const kDDDefaultLogFilesDiskQuota;
  *
  * Otherwise a new file is created and returned.
  **/
-- (DDLogFileInfo *)currentLogFileInfo;
+@property (nonatomic, readonly, strong) DDLogFileInfo *currentLogFileInfo;
 
 @end
 
@@ -423,7 +444,11 @@ extern unsigned long long const kDDDefaultLogFilesDiskQuota;
 @property (strong, nonatomic, readonly) NSString *filePath;
 @property (strong, nonatomic, readonly) NSString *fileName;
 
-@property (strong, nonatomic, readonly) NSDictionary *fileAttributes;
+#if FOUNDATION_SWIFT_SDK_EPOCH_AT_LEAST(8)
+@property (strong, nonatomic, readonly) NSDictionary<NSFileAttributeKey, id> *fileAttributes;
+#else
+@property (strong, nonatomic, readonly) NSDictionary<NSString *, id> *fileAttributes;
+#endif
 
 @property (strong, nonatomic, readonly) NSDate *creationDate;
 @property (strong, nonatomic, readonly) NSDate *modificationDate;
@@ -434,13 +459,13 @@ extern unsigned long long const kDDDefaultLogFilesDiskQuota;
 
 @property (nonatomic, readwrite) BOOL isArchived;
 
-+ (instancetype)logFileWithPath:(NSString *)filePath;
++ (instancetype)logFileWithPath:(NSString *)filePath NS_SWIFT_UNAVAILABLE("Use init(filePath:)");
 
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithFilePath:(NSString *)filePath NS_DESIGNATED_INITIALIZER;
 
 - (void)reset;
-- (void)renameFile:(NSString *)newFileName;
+- (void)renameFile:(NSString *)newFileName NS_SWIFT_NAME(renameFile(to:));
 
 #if TARGET_IPHONE_SIMULATOR
 
