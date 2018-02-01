@@ -40,6 +40,12 @@
             HSNSLOG(@"%@", theMessage);
             break;
 
+        // Capture anything that isn't verbose/debug logging, in Crashlytics
+        // These intentionally fall through to default.
+        case LS_LOG_ERROR:
+        case LS_LOG_WARN:
+        case LS_LOG_INFO:
+            HSNSLOG(@"%@", theMessage);
         default:
             lua_getglobal(_L, "hs") ; lua_getfield(_L, -1, "handleLogMessage") ; lua_remove(_L, -2) ;
             lua_pushinteger(_L, level) ;
