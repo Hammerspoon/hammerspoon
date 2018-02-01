@@ -21,7 +21,17 @@
     return self ;
 }
 
+- (void)setLuaState:(lua_State *)L {
+    _L = L;
+}
+
 - (void) logForLuaSkinAtLevel:(int)level withMessage:(NSString *)theMessage {
+    // If we haven't been given a lua_State object yet, log locally
+    if (!_L) {
+        HSNSLOG(@"%@", theMessage);
+        return;
+    }
+
     // Send logs to the appropriate location, depending on their level
     // Note that hs.handleLogMessage also does this kind of filtering. We are special casing here for LS_LOG_BREADCRUMB to entirely bypass calling into Lua
     // (because such logs don't need to be shown to the user, just stored in our crashlog in case we crash)
