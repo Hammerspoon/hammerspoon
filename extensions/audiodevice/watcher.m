@@ -25,8 +25,8 @@ const AudioObjectPropertySelector watchSelectors[] = {
     kAudioHardwarePropertyDefaultSystemOutputDevice,
 };
 
-int refTable;
-audiodevice_watcher *theWatcher = nil;
+static int refTable;
+static audiodevice_watcher *theWatcher = nil;
 
 #pragma mark - Function definitions
 
@@ -93,7 +93,8 @@ static int audiodevicewatcher_setCallback(lua_State *L) {
     [skin checkArgs:LS_TFUNCTION|LS_TNIL, LS_TBREAK];
 
     if (!theWatcher) {
-        theWatcher = lua_newuserdata(L, sizeof(audiodevice_watcher));
+        theWatcher = malloc(sizeof(audiodevice_watcher));
+        memset(theWatcher, 0, sizeof(audiodevice_watcher));
         theWatcher->running = NO;
         theWatcher->callback = LUA_NOREF;
     }

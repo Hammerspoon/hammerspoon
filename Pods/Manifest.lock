@@ -1,22 +1,14 @@
 PODS:
   - ASCIImage (1.0.0)
-  - CocoaAsyncSocket (7.4.3):
-    - CocoaAsyncSocket/All (= 7.4.3)
-  - CocoaAsyncSocket/All (7.4.3):
-    - CocoaAsyncSocket/GCD
-    - CocoaAsyncSocket/RunLoop
-  - CocoaAsyncSocket/GCD (7.4.3)
-  - CocoaAsyncSocket/RunLoop (7.4.3)
+  - CocoaAsyncSocket (7.6.2)
   - CocoaHTTPServer (2.3):
     - CocoaAsyncSocket
     - CocoaLumberjack
-  - CocoaLumberjack (2.2.0):
-    - CocoaLumberjack/Default (= 2.2.0)
-    - CocoaLumberjack/Extensions (= 2.2.0)
-  - CocoaLumberjack/Core (2.2.0)
-  - CocoaLumberjack/Default (2.2.0):
-    - CocoaLumberjack/Core
-  - CocoaLumberjack/Extensions (2.2.0):
+  - CocoaLumberjack (3.4.1):
+    - CocoaLumberjack/Default (= 3.4.1)
+    - CocoaLumberjack/Extensions (= 3.4.1)
+  - CocoaLumberjack/Default (3.4.1)
+  - CocoaLumberjack/Extensions (3.4.1):
     - CocoaLumberjack/Default
   - Crashlytics (3.9.3):
     - Fabric (~> 1.7.2)
@@ -29,9 +21,9 @@ PODS:
 
 DEPENDENCIES:
   - ASCIImage (= 1.0.0)
-  - CocoaAsyncSocket (= 7.4.3)
+  - CocoaAsyncSocket (= 7.6.2)
   - CocoaHTTPServer (= 2.3)
-  - CocoaLumberjack (= 2.2.0)
+  - CocoaLumberjack (= 3.4.1)
   - Crashlytics (= 3.9.3)
   - Fabric (= 1.7.2)
   - MIKMIDI
@@ -40,15 +32,15 @@ DEPENDENCIES:
 
 SPEC CHECKSUMS:
   ASCIImage: bcff9650deae86e0e0ac310145cc628948201ab8
-  CocoaAsyncSocket: a18c75dca4b08723628a0bacca6e94803d90be91
+  CocoaAsyncSocket: 3541e024f48c54b251638ef72d51dd42808de932
   CocoaHTTPServer: 5624681fc3473d43b18202f635f9b3abb013b530
-  CocoaLumberjack: 17fe8581f84914d5d7e6360f7c70022b173c3ae0
+  CocoaLumberjack: 2e258a064cacc8eb9a2aca318e24d02a0a7fd56d
   Crashlytics: dbb07d01876c171c5ccbdf7826410380189e452c
   Fabric: 9cd6a848efcf1b8b07497e0b6a2e7d336353ba15
   MIKMIDI: fa6df0bfa8427a0dc9e179bcf068b2b4b6747e6c
   PocketSocket: 9c6867d66fb4f962af96b9b07f4b45bb561b2c2a
   Sparkle: 06ea33170007c5937ee54da481b4481af98fac79
 
-PODFILE CHECKSUM: 888325aa67d6d4e4349f0cd0edc02479192f8f0d
+PODFILE CHECKSUM: 0190c25c88bfb32f1c33c6b475ba535918ceb6f4
 
-COCOAPODS: 1.3.1
+COCOAPODS: 1.4.0

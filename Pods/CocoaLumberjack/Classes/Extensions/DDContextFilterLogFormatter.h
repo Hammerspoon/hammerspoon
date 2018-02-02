@@ -1,6 +1,6 @@
 // Software License Agreement (BSD License)
 //
-// Copyright (c) 2010-2015, Deusty, LLC
+// Copyright (c) 2010-2016, Deusty, LLC
 // All rights reserved.
 //
 // Redistribution and use of this software in source and binary forms,
@@ -65,7 +65,7 @@
 /**
  *  Return the whitelist
  */
-@property (readonly, copy) NSArray *whitelist;
+@property (readonly, copy) NSArray<NSNumber *> *whitelist;
 
 /**
  *  Check if a context is on the whitelist
@@ -104,7 +104,7 @@
 /**
  *  Return the blacklist
  */
-@property (readonly, copy) NSArray *blacklist;
+@property (readonly, copy) NSArray<NSNumber *> *blacklist;
 
 
 /**

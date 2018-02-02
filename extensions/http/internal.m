@@ -14,7 +14,7 @@ typedef struct _webSocketUserData {
 #define getWsUserData(L, idx) (__bridge HSWebSocketDelegate *)((webSocketUserData *)lua_touserdata(L, idx))->ws;
 static const char *WS_USERDATA_TAG = "hs.http.websocket";
 
-int refTable;
+static int refTable;
 static NSMutableArray* delegates;
 
 // Create a new Lua table and add all response header keys and values from the response

@@ -166,6 +166,8 @@ enum GCDAsyncUdpSocketConfig
 	
 	uint16_t max4ReceiveSize;
 	uint32_t max6ReceiveSize;
+    
+    uint16_t maxSendSize;
 	
 	int socket4FD;
 	int socket6FD;
@@ -373,9 +375,11 @@ enum GCDAsyncUdpSocketConfig
 			#endif
 		}
 		
-		max4ReceiveSize = 9216;
-		max6ReceiveSize = 9216;
+		max4ReceiveSize = 65535;
+		max6ReceiveSize = 65535;
 		
+        maxSendSize = 65535;
+        
 		socket4FD = SOCKET_NULL;
 		socket6FD = SOCKET_NULL;
 		
@@ -864,6 +868,37 @@ enum GCDAsyncUdpSocketConfig
 		dispatch_async(socketQueue, block);
 }
 
+- (void)setMaxSendBufferSize:(uint16_t)max
+{
+    dispatch_block_t block = ^{
+        
+        LogVerbose(@"%@ %u", THIS_METHOD, (unsigned)max);
+        
+        maxSendSize = max;
+    };
+    
+    if (dispatch_get_specific(IsOnSocketQueueOrTargetQueueKey))
+        block();
+    else
+        dispatch_async(socketQueue, block);
+}
+
+- (uint16_t)maxSendBufferSize
+{
+    __block uint16_t result = 0;
+    
+    dispatch_block_t block = ^{
+        
+        result = maxSendSize;
+    };
+    
+    if (dispatch_get_specific(IsOnSocketQueueOrTargetQueueKey))
+        block();
+    else
+        dispatch_sync(socketQueue, block);
+    
+    return result;
+}
 
 - (id)userData
 {
@@ -1199,9 +1234,17 @@ enum GCDAsyncUdpSocketConfig
 					}
 					else if (res->ai_family == AF_INET6)
 					{
-						// Found IPv6 address
-						// Wrap the native address structure and add to list
-						
+
+                        // Fixes connection issues with IPv6, it is the same solution for udp socket.
+                        // https://github.com/robbiehanson/CocoaAsyncSocket/issues/429#issuecomment-222477158
+                        struct sockaddr_in6 *sockaddr = (struct sockaddr_in6 *)res->ai_addr;
+                        in_port_t *portPtr = &sockaddr->sin6_port;
+                        if ((portPtr != NULL) && (*portPtr == 0)) {
+                            *portPtr = htons(port);
+                        }
+
+                        // Found IPv6 address
+                        // Wrap the native address structure and add to list
 						[addresses addObject:[NSData dataWithBytes:res->ai_addr length:res->ai_addrlen]];
 					}
 				}
@@ -1920,7 +1963,7 @@ enum GCDAsyncUdpSocketConfig
 	flags |= kReceive6SourceSuspended;
 }
 
-- (BOOL)createSocket4:(BOOL)useIPv4 socket6:(BOOL)useIPv6 error:(NSError **)errPtr
+- (BOOL)createSocket4:(BOOL)useIPv4 socket6:(BOOL)useIPv6 error:(NSError * __autoreleasing *)errPtr
 {
 	LogTrace();
 	
@@ -1977,6 +2020,39 @@ enum GCDAsyncUdpSocketConfig
 			close(socketFD);
 			return SOCKET_NULL;
 		}
+        
+        /**
+         * The theoretical maximum size of any IPv4 UDP packet is UINT16_MAX = 65535.
+         * The theoretical maximum size of any IPv6 UDP packet is UINT32_MAX = 4294967295.
+         *
+         * The default maximum size of the UDP buffer in iOS is 9216 bytes.
+         *
+         * This is the reason of #222(GCD does not necessarily return the size of an entire UDP packet) and
+         *  #535(GCDAsyncUDPSocket can not send data when data is greater than 9K)
+         *
+         *
+         * Enlarge the maximum size of UDP packet.
+         * I can not ensure the protocol type now so that the max size is set to 65535 :)
+         **/
+      
+        status = setsockopt(socketFD, SOL_SOCKET, SO_SNDBUF, (const char*)&maxSendSize, sizeof(int));
+        if (status == -1)
+        {
+            if (errPtr)
+                *errPtr = [self errnoErrorWithReason:@"Error setting send buffer size (setsockopt)"];
+            close(socketFD);
+            return SOCKET_NULL;
+        }
+        
+        status = setsockopt(socketFD, SOL_SOCKET, SO_RCVBUF, (const char*)&maxSendSize, sizeof(int));
+        if (status == -1)
+        {
+            if (errPtr)
+                *errPtr = [self errnoErrorWithReason:@"Error setting receive buffer size (setsockopt)"];
+            close(socketFD);
+            return SOCKET_NULL;
+        }
+
 		
 		return socketFD;
 	};
@@ -3584,6 +3660,8 @@ enum GCDAsyncUdpSocketConfig
 		LogWarn(@"Ignoring attempt to send nil/empty data.");
 		return;
 	}
+    
+    
 	
 	GCDAsyncUdpSendPacket *packet = [[GCDAsyncUdpSendPacket alloc] initWithData:data timeout:timeout tag:tag];
 	

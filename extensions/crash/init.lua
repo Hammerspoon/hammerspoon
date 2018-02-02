@@ -5,15 +5,6 @@
 local crash = require "hs.crash.internal"
 local fnutils = require "hs.fnutils"
 
---- hs.crash.crashLogToNSLog
---- Variable
---- A boolean value of true will log Hammerspoon's crash log with NSLog, false will silently capture messages in case of a crash. Defaults to false.
-crash.crashLogToNSLog = false
-
-crash.crashLog = function(message)
-    crash._crashLog(message, crash.crashLogToNSLog)
-end
-
 --- hs.crash.dumpCLIBS() -> table
 --- Function
 --- Dumps the contents of Lua's CLIBS registry

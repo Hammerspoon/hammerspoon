@@ -544,16 +544,16 @@ hs.fileDroppedToDockIconCallback = nil
   require = function(modulename)
     local result = rawrequire(modulename)
     pcall(function()
-      hscrash.crashLog("require('"..modulename.."')")
-      if string.sub(modulename, 1, 3) == "hs." then
-        -- Reasonably certain that we're dealing with a Hammerspoon extension
-        local extname = string.sub(modulename, 4, -1)
-        for k,v in ipairs(hscrash.dumpCLIBS()) do
-          if string.find(v, extname) then
-            hscrash.crashLog("  Candidate CLIBS match: "..v)
-          end
-        end
-      end
+    hscrash.crashLog("require: "..modulename)
+      --if string.sub(modulename, 1, 3) == "hs." then
+      --  -- Reasonably certain that we're dealing with a Hammerspoon extension
+      --  local extname = string.sub(modulename, 4, -1)
+      --  for k,v in ipairs(hscrash.dumpCLIBS()) do
+      --    if string.find(v, extname) then
+      --      hscrash.crashLog("  Candidate CLIBS match: "..v)
+      --    end
+      --  end
+      --end
       if string.sub(modulename, 1, 8) == "mjolnir." then
         -- Reasonably certain that we're dealing with a Mjolnir module
         local mjolnirmod = string.sub(modulename, 9, -1)
@@ -582,7 +582,7 @@ hs.fileDroppedToDockIconCallback = nil
   local image = require("hs.image")
   console.defaultToolbar = toolbar.new("Console Default", {
     { id="prefs", label="Preferences", image=image.imageFromName("NSPreferencesGeneral"), tooltip="Open Preferences", fn=function() hs.openPreferences() end },
-    { id="reload", label="Reload config", image=image.imageFromName("NSRefreshTemplate"), tooltip="Reload configuration", fn=function() hs.reload() end },
+    { id="reload", label="Reload config", image=image.imageFromName("NSSynchronize"), tooltip="Reload configuration", fn=function() hs.reload() end },
     { id="help", label="Help", image=image.imageFromName("NSInfo"), tooltip="Open API docs browser", fn=function() hs.doc.hsdocs.help() end }
   }):canCustomize(true):autosaves(true)
   console.toolbar(console.defaultToolbar)

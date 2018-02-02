@@ -281,12 +281,15 @@ static int socket_connect(lua_State *L) {
             asyncSocket.connectCallback = [skin luaRef:refTable];
         }
 
-        if (![asyncSocket connectToUrl:[NSURL URLWithString:thePath] withTimeout:asyncSocket.timeout error:&err]) {
-            asyncSocket.connectCallback = [skin luaUnref:refTable ref:asyncSocket.connectCallback];
-            [LuaSkin logError:[NSString stringWithFormat:@"Unable to connect to Unix domain socket: %@",
-                               [err localizedDescription]]];
-            lua_pushnil(L);
-            return 1;
+        NSURL *connectURL = [NSURL URLWithString:thePath];
+        if (connectURL) {
+            if (![asyncSocket connectToUrl:connectURL withTimeout:asyncSocket.timeout error:&err]) {
+                asyncSocket.connectCallback = [skin luaUnref:refTable ref:asyncSocket.connectCallback];
+                [LuaSkin logError:[NSString stringWithFormat:@"Unable to connect to Unix domain socket: %@",
+                                   [err localizedDescription]]];
+                lua_pushnil(L);
+                return 1;
+            }
         }
     }
 
@@ -324,14 +327,17 @@ static int socket_listen(lua_State *L) {
     } else {
         NSString *thePath = [skin toNSObjectAtIndex:2];
         thePath = [thePath stringByExpandingTildeInPath];
-        if ([asyncSocket acceptOnUrl:[NSURL URLWithString:thePath] error:&err]) {
-            asyncSocket.unixSocketPath = thePath;
-            asyncSocket.userData = SERVER;
-        } else {
-            [LuaSkin logError:[NSString stringWithFormat:@"Unable to bind Unix domain path: %@",
-                               [err localizedDescription]]];
-            lua_pushnil(L);
-            return 1;
+        NSURL *acceptURL = [NSURL URLWithString:thePath];
+        if (acceptURL) {
+            if ([asyncSocket acceptOnUrl:acceptURL error:&err]) {
+                asyncSocket.unixSocketPath = thePath;
+                asyncSocket.userData = SERVER;
+            } else {
+                [LuaSkin logError:[NSString stringWithFormat:@"Unable to bind Unix domain path: %@",
+                                   [err localizedDescription]]];
+                lua_pushnil(L);
+                return 1;
+            }
         }
     }
 

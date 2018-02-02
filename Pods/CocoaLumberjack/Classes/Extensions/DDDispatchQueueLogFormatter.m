@@ -1,6 +1,6 @@
 // Software License Agreement (BSD License)
 //
-// Copyright (c) 2010-2015, Deusty, LLC
+// Copyright (c) 2010-2016, Deusty, LLC
 // All rights reserved.
 //
 // Redistribution and use of this software in source and binary forms,
@@ -14,9 +14,8 @@
 //   prior written permission of Deusty, LLC.
 
 #import "DDDispatchQueueLogFormatter.h"
-#import <libkern/OSAtomic.h>
+#import <pthread/pthread.h>
 #import <objc/runtime.h>
-
 
 #if !__has_feature(objc_arc)
 #error This file must be compiled with ARC. Use -fobjc-arc flag (or convert project to ARC).
@@ -29,7 +28,7 @@
     int32_t _atomicLoggerCount;
     NSDateFormatter *_threadUnsafeDateFormatter; // Use [self stringFromDate]
     
-    OSSpinLock _lock;
+    pthread_mutex_t _mutex;
     
     NSUInteger _minQueueLength;           // _prefix == Only access via atomic property
     NSUInteger _maxQueueLength;           // _prefix == Only access via atomic property
@@ -63,6 +62,7 @@
 
         _minQueueLength = 0;
         _maxQueueLength = 0;
+        pthread_mutex_init(&_mutex, NULL);
         _replacements = [[NSMutableDictionary alloc] init];
 
         // Set default replacements:
@@ -80,6 +80,10 @@
     return self;
 }
 
+- (void)dealloc {
+    pthread_mutex_destroy(&_mutex);
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark Configuration
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -90,17 +94,17 @@
 - (NSString *)replacementStringForQueueLabel:(NSString *)longLabel {
     NSString *result = nil;
 
-    OSSpinLockLock(&_lock);
+    pthread_mutex_lock(&_mutex);
     {
         result = _replacements[longLabel];
     }
-    OSSpinLockUnlock(&_lock);
+    pthread_mutex_unlock(&_mutex);
 
     return result;
 }
 
 - (void)setReplacementString:(NSString *)shortLabel forQueueLabel:(NSString *)longLabel {
-    OSSpinLockLock(&_lock);
+    pthread_mutex_lock(&_mutex);
     {
         if (shortLabel) {
             _replacements[longLabel] = shortLabel;
@@ -108,7 +112,7 @@
             [_replacements removeObjectForKey:longLabel];
         }
     }
-    OSSpinLockUnlock(&_lock);
+    pthread_mutex_unlock(&_mutex);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -213,11 +217,11 @@
             fullLabel = logMessage->_threadName;
         }
 
-        OSSpinLockLock(&_lock);
+        pthread_mutex_lock(&_mutex);
         {
             abrvLabel = _replacements[fullLabel];
         }
-        OSSpinLockUnlock(&_lock);
+        pthread_mutex_unlock(&_mutex);
 
         if (abrvLabel) {
             queueThreadLabel = abrvLabel;

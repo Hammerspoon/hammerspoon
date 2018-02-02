@@ -1,6 +1,6 @@
 // Software License Agreement (BSD License)
 //
-// Copyright (c) 2010-2015, Deusty, LLC
+// Copyright (c) 2010-2016, Deusty, LLC
 // All rights reserved.
 //
 // Redistribution and use of this software in source and binary forms,
@@ -118,8 +118,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @interface DDTTYLogger () {
-    NSUInteger _calendarUnitFlags;
-    
     NSString *_appName;
     char *_app;
     size_t _appLen;
@@ -821,13 +819,6 @@ static DDTTYLogger *sharedInstance;
     }
 
     if ((self = [super init])) {
-        _calendarUnitFlags = (NSCalendarUnitYear     |
-                             NSCalendarUnitMonth    |
-                             NSCalendarUnitDay      |
-                             NSCalendarUnitHour     |
-                             NSCalendarUnitMinute   |
-                             NSCalendarUnitSecond);
-
         // Initialze 'app' variable (char *)
 
         _appName = [[NSProcessInfo processInfo] processName];
@@ -1268,18 +1259,19 @@ static DDTTYLogger *sharedInstance;
             // Calculate timestamp.
             // The technique below is faster than using NSDateFormatter.
             if (logMessage->_timestamp) {
-                NSDateComponents *components = [[NSCalendar autoupdatingCurrentCalendar] components:_calendarUnitFlags fromDate:logMessage->_timestamp];
+                NSTimeInterval epoch = [logMessage->_timestamp timeIntervalSince1970];
+                struct tm tm;
+                time_t time = (time_t)epoch;
+                (void)localtime_r(&time, &tm);
+                int milliseconds = (int)((epoch - floor(epoch)) * 1000.0);
 
-                NSTimeInterval epoch = [logMessage->_timestamp timeIntervalSinceReferenceDate];
-                int milliseconds = (int)((epoch - floor(epoch)) * 1000);
-
-                len = snprintf(ts, 24, "%04ld-%02ld-%02ld %02ld:%02ld:%02ld:%03d", // yyyy-MM-dd HH:mm:ss:SSS
-                               (long)components.year,
-                               (long)components.month,
-                               (long)components.day,
-                               (long)components.hour,
-                               (long)components.minute,
-                               (long)components.second, milliseconds);
+                len = snprintf(ts, 24, "%04d-%02d-%02d %02d:%02d:%02d:%03d", // yyyy-MM-dd HH:mm:ss:SSS
+                               tm.tm_year + 1900,
+                               tm.tm_mon + 1,
+                               tm.tm_mday,
+                               tm.tm_hour,
+                               tm.tm_min,
+                               tm.tm_sec, milliseconds);
 
                 tsLen = (NSUInteger)MAX(MIN(24 - 1, len), 0);
             }

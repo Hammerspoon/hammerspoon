@@ -1,6 +1,6 @@
 // Software License Agreement (BSD License)
 //
-// Copyright (c) 2010-2015, Deusty, LLC
+// Copyright (c) 2010-2016, Deusty, LLC
 // All rights reserved.
 //
 // Redistribution and use of this software in source and binary forms,
@@ -60,7 +60,7 @@ unsigned long long const kDDDefaultLogFilesDiskQuota   = 20 * 1024 * 1024; // 20
     unsigned long long _logFilesDiskQuota;
     NSString *_logsDirectory;
 #if TARGET_OS_IPHONE
-    NSString *_defaultFileProtectionLevel;
+    NSFileProtectionType _defaultFileProtectionLevel;
 #endif
 }
 
@@ -115,7 +115,7 @@ unsigned long long const kDDDefaultLogFilesDiskQuota   = 20 * 1024 * 1024; // 20
 }
 
 #if TARGET_OS_IPHONE
-- (instancetype)initWithLogsDirectory:(NSString *)logsDirectory defaultFileProtectionLevel:(NSString *)fileProtectionLevel {
+- (instancetype)initWithLogsDirectory:(NSString *)logsDirectory defaultFileProtectionLevel:(NSFileProtectionType)fileProtectionLevel {
     if ((self = [self initWithLogsDirectory:logsDirectory])) {
         if ([fileProtectionLevel isEqualToString:NSFileProtectionNone] ||
             [fileProtectionLevel isEqualToString:NSFileProtectionComplete] ||
@@ -279,47 +279,18 @@ unsigned long long const kDDDefaultLogFilesDiskQuota   = 20 * 1024 * 1024; // 20
 - (BOOL)isLogFile:(NSString *)fileName {
     NSString *appName = [self applicationName];
 
-    BOOL hasProperPrefix = [fileName hasPrefix:appName];
+    // We need to add a space to the name as otherwise we could match applications that have the name prefix.
+    BOOL hasProperPrefix = [fileName hasPrefix:[appName stringByAppendingString:@" "]];
     BOOL hasProperSuffix = [fileName hasSuffix:@".log"];
-    BOOL hasProperDate = NO;
-
-    if (hasProperPrefix && hasProperSuffix) {
-        NSUInteger lengthOfMiddle = fileName.length - appName.length - @".log".length;
-
-        // Date string should have at least 16 characters - " 2013-12-03 17-14"
-        if (lengthOfMiddle >= 17) {
-            NSRange range = NSMakeRange(appName.length, lengthOfMiddle);
-
-            NSString *middle = [fileName substringWithRange:range];
-            NSArray *components = [middle componentsSeparatedByString:@" "];
-
-            // When creating logfile if there is existing file with the same name, we append attemp number at the end.
-            // Thats why here we can have three or four components. For details see createNewLogFile method.
-            //
-            // Components:
-            //     "", "2013-12-03", "17-14"
-            // or
-            //     "", "2013-12-03", "17-14", "1"
-            if (components.count == 3 || components.count == 4) {
-                NSString *dateString = [NSString stringWithFormat:@"%@ %@", components[1], components[2]];
-                NSDateFormatter *dateFormatter = [self logFileDateFormatter];
-
-                NSDate *date = [dateFormatter dateFromString:dateString];
-
-                if (date) {
-                    hasProperDate = YES;
-                }
-            }
-        }
-    }
-
-    return (hasProperPrefix && hasProperDate && hasProperSuffix);
+    
+    return (hasProperPrefix && hasProperSuffix);
 }
 
+// if you change formatter, then change sortedLogFileInfos method also accordingly
 - (NSDateFormatter *)logFileDateFormatter {
     NSMutableDictionary *dictionary = [[NSThread currentThread]
                                        threadDictionary];
-    NSString *dateFormat = @"yyyy'-'MM'-'dd' 'HH'-'mm'";
+    NSString *dateFormat = @"yyyy'-'MM'-'dd'--'HH'-'mm'-'ss'-'SSS'";
     NSString *key = [NSString stringWithFormat:@"logFileDateFormatter.%@", dateFormat];
     NSDateFormatter *dateFormatter = dictionary[key];
 
@@ -417,13 +388,35 @@ unsigned long long const kDDDefaultLogFilesDiskQuota   = 20 * 1024 * 1024; // 20
 }
 
 - (NSArray *)sortedLogFileInfos {
-    return [[self unsortedLogFileInfos] sortedArrayUsingSelector:@selector(reverseCompareByCreationDate:)];
+    return  [[self unsortedLogFileInfos] sortedArrayUsingComparator:^NSComparisonResult(DDLogFileInfo   * _Nonnull obj1, DDLogFileInfo   * _Nonnull obj2) {
+        NSDate *date1 = [NSDate new];
+        NSDate *date2 = [NSDate new];
+
+        NSArray<NSString *> *arrayComponent = [[obj1 fileName] componentsSeparatedByString:@" "];
+        if (arrayComponent.count > 0) {
+            NSString *stringDate = arrayComponent.lastObject;
+            stringDate = [stringDate stringByReplacingOccurrencesOfString:@".log" withString:@""];
+            stringDate = [stringDate stringByReplacingOccurrencesOfString:@".archived" withString:@""];
+            date1 = [[self logFileDateFormatter] dateFromString:stringDate] ?: [obj1 creationDate];
+        }
+        
+        arrayComponent = [[obj2 fileName] componentsSeparatedByString:@" "];
+        if (arrayComponent.count > 0) {
+            NSString *stringDate = arrayComponent.lastObject;
+            stringDate = [stringDate stringByReplacingOccurrencesOfString:@".log" withString:@""];
+            stringDate = [stringDate stringByReplacingOccurrencesOfString:@".archived" withString:@""];
+            date2 = [[self logFileDateFormatter] dateFromString:stringDate] ?: [obj2 creationDate];
+        }
+        
+        return [date2 compare:date1 ?: [NSDate new]];
+    }];
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark Creation
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+//if you change newLogFileName , then  change isLogFile method also accordingly
 - (NSString *)newLogFileName {
     NSString *appName = [self applicationName];
 
@@ -467,7 +460,7 @@ unsigned long long const kDDDefaultLogFilesDiskQuota   = 20 * 1024 * 1024; // 20
             // want (even if device is locked). Thats why that attribute have to be changed to
             // NSFileProtectionCompleteUntilFirstUserAuthentication.
 
-            NSString *key = _defaultFileProtectionLevel ? :
+            NSFileProtectionType key = _defaultFileProtectionLevel ? :
                 (doesAppRunInBackground() ? NSFileProtectionCompleteUntilFirstUserAuthentication : NSFileProtectionCompleteUnlessOpen);
 
             attributes = @{
@@ -557,7 +550,6 @@ unsigned long long const kDDDefaultLogFilesDiskQuota   = 20 * 1024 * 1024; // 20
 @interface DDFileLogger () {
     __strong id <DDLogFileManager> _logFileManager;
     
-    DDLogFileInfo *_currentLogFileInfo;
     NSFileHandle *_currentLogFileHandle;
     
     dispatch_source_t _currentLogFileVnode;
@@ -769,10 +761,10 @@ unsigned long long const kDDDefaultLogFilesDiskQuota   = 20 * 1024 * 1024; // 20
     });
     #endif
 
-    uint64_t delay = (uint64_t)([logFileRollingDate timeIntervalSinceNow] * NSEC_PER_SEC);
+    uint64_t delay = (uint64_t)([logFileRollingDate timeIntervalSinceNow] * (NSTimeInterval) NSEC_PER_SEC);
     dispatch_time_t fireTime = dispatch_time(DISPATCH_TIME_NOW, delay);
 
-    dispatch_source_set_timer(_rollingTimer, fireTime, DISPATCH_TIME_FOREVER, 1.0);
+    dispatch_source_set_timer(_rollingTimer, fireTime, DISPATCH_TIME_FOREVER, 1ull * NSEC_PER_SEC);
     dispatch_resume(_rollingTimer);
 }
 
@@ -780,7 +772,7 @@ unsigned long long const kDDDefaultLogFilesDiskQuota   = 20 * 1024 * 1024; // 20
     [self rollLogFileWithCompletionBlock:nil];
 }
 
-- (void)rollLogFileWithCompletionBlock:(void (^)())completionBlock {
+- (void)rollLogFileWithCompletionBlock:(void (^)(void))completionBlock {
     // This method is public.
     // We need to execute the rolling on our logging thread/queue.
 
@@ -891,7 +883,9 @@ unsigned long long const kDDDefaultLogFilesDiskQuota   = 20 * 1024 * 1024; // 20
 
             if (mostRecentLogFileInfo.isArchived) {
                 shouldArchiveMostRecent = NO;
-            } else if (_maximumFileSize > 0 && mostRecentLogFileInfo.fileSize >= _maximumFileSize) {
+			} else if ([self shouldArchiveRecentLogFileInfo:mostRecentLogFileInfo]) {
+				shouldArchiveMostRecent = YES;
+			} else if (_maximumFileSize > 0 && mostRecentLogFileInfo.fileSize >= _maximumFileSize) {
                 shouldArchiveMostRecent = YES;
             } else if (_rollingFrequency > 0.0 && mostRecentLogFileInfo.age >= _rollingFrequency) {
                 shouldArchiveMostRecent = YES;
@@ -907,10 +901,10 @@ unsigned long long const kDDDefaultLogFilesDiskQuota   = 20 * 1024 * 1024; // 20
             // If previous log was created when app wasn't running in background, but now it is - we archive it and create
             // a new one.
             //
-            // If user has owerwritten to NSFileProtectionNone there is no neeed to create a new one.
+            // If user has overwritten to NSFileProtectionNone there is no neeed to create a new one.
 
             if (!_doNotReuseLogFiles && doesAppRunInBackground()) {
-                NSString *key = mostRecentLogFileInfo.fileAttributes[NSFileProtectionKey];
+                NSFileProtectionType key = mostRecentLogFileInfo.fileAttributes[NSFileProtectionKey];
 
                 if ([key length] > 0 && !([key isEqualToString:NSFileProtectionCompleteUntilFirstUserAuthentication] || [key isEqualToString:NSFileProtectionNone])) {
                     shouldArchiveMostRecent = YES;
@@ -1005,9 +999,11 @@ static int exception_count = 0;
         NSData *logData = [message dataUsingEncoding:NSUTF8StringEncoding];
 
         @try {
+            [self willLogMessage];
+			
             [[self currentLogFileHandle] writeData:logData];
 
-            [self maybeRollLogFileDueToSize];
+            [self didLogMessage];
         } @catch (NSException *exception) {
             exception_count++;
 
@@ -1020,6 +1016,18 @@ static int exception_count = 0;
             }
         }
     }
+}
+
+- (void)willLogMessage {
+	
+}
+
+- (void)didLogMessage {
+    [self maybeRollLogFileDueToSize];
+}
+
+- (BOOL)shouldArchiveRecentLogFileInfo:(DDLogFileInfo *)recentLogFileInfo {
+    return NO;
 }
 
 - (void)willRemoveLogger {
@@ -1092,7 +1100,7 @@ static int exception_count = 0;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 - (NSDictionary *)fileAttributes {
-    if (_fileAttributes == nil) {
+    if (_fileAttributes == nil && filePath != nil) {
         _fileAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:nil];
     }
 
@@ -1420,6 +1428,10 @@ static int exception_count = 0;
     }
 
     return NO;
+}
+
+-(NSUInteger)hash {
+    return [filePath hash];
 }
 
 - (NSComparisonResult)reverseCompareByCreationDate:(DDLogFileInfo *)another {

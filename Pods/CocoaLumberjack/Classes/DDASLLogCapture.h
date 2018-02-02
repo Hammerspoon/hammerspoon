@@ -1,6 +1,6 @@
 // Software License Agreement (BSD License)
 //
-// Copyright (c) 2010-2015, Deusty, LLC
+// Copyright (c) 2010-2016, Deusty, LLC
 // All rights reserved.
 //
 // Redistribution and use of this software in source and binary forms,
@@ -33,16 +33,9 @@
 + (void)stop;
 
 /**
- *  Returns the current capture level.
+ *  The current capture level.
  *  @note Default log level: DDLogLevelVerbose (i.e. capture all ASL messages).
  */
-+ (DDLogLevel)captureLevel;
-
-/**
- *  Set the capture level
- *
- *  @param level new level
- */
-+ (void)setCaptureLevel:(DDLogLevel)level;
+@property (class) DDLogLevel captureLevel;
 
 @end

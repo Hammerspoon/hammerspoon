@@ -4,7 +4,7 @@
 // Common Code
 
 #define USERDATA_TAG    "hs.pathwatcher"
-int refTable;
+static int refTable;
 
 // Not so common code
 

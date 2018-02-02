@@ -557,13 +557,11 @@ static int hs_idleTime(lua_State *L) {
         CFNumberGetValue((CFNumberRef)idle, kCFNumberSInt64Type, &time) ;
     } else {
         IOObjectRelease(ioIterator) ;
-        CFRelease(idle) ;
         CFRelease(properties) ;
         return luaL_error(L, "Unsupported type %d for HIDIdleTime", type) ;
     }
 
     IOObjectRelease(ioIterator) ;
-    CFRelease(idle) ;
     CFRelease(properties) ;
 
     lua_pushinteger(L, (lua_Integer)(time >> 30)) ;
@@ -692,6 +690,7 @@ static int hs_vramSize(lua_State *L) {
                         if (ValueInBytes) Size >>= 20;
 
                         lua_pushnumber(L, Size) ;
+                        CFRelease(VRAMSize);
                     } else {
                         lua_pushnumber(L, -1) ;
                     }
