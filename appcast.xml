@@ -5,6 +5,7 @@
         <link>https://raw.githubusercontent.com/Hammerspoon/hammerspoon/master/appcast.xml</link>
         <description>Most recent changes with links to updates.</description>
         <language>en</language>
+<!-- __UPDATE_MARKER__ -->
          <item>
             <title>Version 0.9.59</title>
             <sparkle:releaseNotesLink>
