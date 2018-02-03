@@ -6,6 +6,7 @@ before_install:
   - pip install --user -r requirements.txt
 before_script:
   - make docs
+  - echo "none" >../token-crashlytics
 script:
   - scripts/travis-build.sh build
   - scripts/travis-build.sh test
