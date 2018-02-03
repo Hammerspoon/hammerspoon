@@ -580,14 +580,11 @@ static int MJLuaAtPanic(lua_State *L) {
 
 // Create a Lua environment with LuaSkin
 void MJLuaAlloc(void) {
-    LuaSkin *skin = [LuaSkin shared];
-    if (!skin.L) {
-        [skin createLuaState];
-    }
+    MJLuaLogDelegate = [[HSLogger alloc] initWithLua:nil];
+    LuaSkin *skin = [LuaSkin sharedWithDelegate:MJLuaLogDelegate];
     MJLuaState = skin;
+    [MJLuaLogDelegate setLuaState:skin.L];
     oldPanicFunction = lua_atpanic([skin L], &MJLuaAtPanic) ;
-    MJLuaLogDelegate = [[HSLogger alloc] initWithLua:MJLuaState.L] ;
-    if (MJLuaLogDelegate) [MJLuaState setDelegate:MJLuaLogDelegate] ;
 }
 
 // Configure a Lua environment that has already been created by LuaSkin

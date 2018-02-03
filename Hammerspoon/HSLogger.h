@@ -22,5 +22,7 @@
 
 @property (atomic, readonly) lua_State *L;
 
-- (instancetype)initWithLua:(lua_State *)L  ;
+- (instancetype)initWithLua:(lua_State *)L;
+- (void)setLuaState:(lua_State *)L;
+- (void) logForLuaSkinAtLevel:(int)level withMessage:(NSString *)theMessage;
 @end
