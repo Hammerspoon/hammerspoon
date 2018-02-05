@@ -15,6 +15,7 @@ function assert() {
 
   export GITHUB_TOKEN
   export CODESIGN_AUTHORITY_TOKEN
+  assert_gawk
   assert_github_hub
   assert_github_release_token && GITHUB_TOKEN="$(cat "${GITHUB_TOKEN_FILE}")"
   assert_codesign_authority_token && CODESIGN_AUTHORITY_TOKEN="$(cat "${CODESIGN_AUTHORITY_TOKEN_FILE}")"
@@ -88,6 +89,12 @@ function announce() {
 }
 
 ############################### SANITY CHECKERS ###############################
+
+function assert_gawk() {
+  if [ "$(which gawk)" == "" ]; then
+    fail "gawk doesn't seem to be in your PATH. brew install gawk"
+  fi
+}
 
 function assert_github_hub() {
   echo "Checking hub(1) works..."
@@ -346,22 +353,25 @@ EOF
 
 function release_update_appcast() {
   echo "Updating appcast.xml..."
-  echo "Add this manually, for now:"
-  cat <<EOF
-         <item>
+  local NEWCHUNK="<!-- __UPDATE_MARKER__ -->
+        <item>
             <title>Version ${VERSION}</title>
             <sparkle:releaseNotesLink>
                 http://www.hammerspoon.org/releasenotes/${VERSION}.html
             </sparkle:releaseNotesLink>
             <pubDate>$(date +"%a, %e %b %Y %H:%M:%S %z")</pubDate>
-            <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/${VERSION}/Hammerspoon-${VERSION}.zip"
-                sparkle:version="${VERSION}"
-                length="${ZIPLEN}"
-                type="application/octet-stream"
+            <enclosure url=\"https://github.com/Hammerspoon/hammerspoon/releases/download/${VERSION}/Hammerspoon-${VERSION}.zip\"
+                sparkle:version=\"${VERSION}\"
+                length=\"${ZIPLEN}\"
+                type=\"application/octet-stream\"
             />
             <sparkle:minimumSystemVersion>10.10</sparkle:minimumSystemVersion>
         </item>
-EOF
+"
+  gawk -i inplace -v s="<!-- __UPDATE_MARKER__ -->" -v r="${NEWCHUNK}" '{gsub(s,r)}1' appcast.xml
+  git add appcast.xml
+  git commit -qam "Update appcast.xml for ${VERSION}"
+  git push
 }
 
 function release_tweet() {
