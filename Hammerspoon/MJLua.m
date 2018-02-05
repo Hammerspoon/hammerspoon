@@ -582,6 +582,10 @@ static int MJLuaAtPanic(lua_State *L) {
 void MJLuaAlloc(void) {
     MJLuaLogDelegate = [[HSLogger alloc] initWithLua:nil];
     LuaSkin *skin = [LuaSkin sharedWithDelegate:MJLuaLogDelegate];
+    // on a reload, this won't get created in sharedWithDelegate:, so do it manually here
+    if (!skin.L) {
+        [skin createLuaState];
+    }
     MJLuaState = skin;
     [MJLuaLogDelegate setLuaState:skin.L];
     oldPanicFunction = lua_atpanic([skin L], &MJLuaAtPanic) ;
