@@ -101,10 +101,14 @@ NSString *specMaskToString(int spec) {
 #pragma mark - Class lifecycle
 
 + (id)shared {
+    return [LuaSkin sharedWithDelegate:nil];
+}
+
++ (id)sharedWithDelegate:(id)delegate {
     static LuaSkin *sharedLuaSkin = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        sharedLuaSkin = [[self alloc] init];
+        sharedLuaSkin = [[self alloc] initWithDelegate:delegate];
     });
     if (![NSThread isMainThread]) {
         NSLog(@"GRAVE BUG: LUA EXECUTION ON NON_MAIN THREAD");
@@ -121,6 +125,10 @@ NSString *specMaskToString(int spec) {
 }
 
 - (id)init {
+    return [self initWithDelegate:nil];
+}
+
+- (id)initWithDelegate:(id)delegate {
     self = [super init];
     if (self) {
         _L = NULL;
@@ -131,6 +139,12 @@ NSString *specMaskToString(int spec) {
         _registeredLuaObjectHelperUserdataMappings = [[NSMutableDictionary alloc] init];
         _registeredLuaObjectHelperTableMappings    = [[NSMutableDictionary alloc] init];
         _retainedObjectsRefTableMappings           = [[NSMutableDictionary alloc] init];
+
+        // Set the delegate before even instantiating Lua so we capture all logging attempts.
+        if (delegate) {
+            self.delegate = delegate;
+        }
+
         [self createLuaState];
     }
     return self;
