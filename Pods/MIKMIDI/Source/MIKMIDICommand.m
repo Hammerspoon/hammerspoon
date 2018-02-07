@@ -41,9 +41,12 @@ static NSMutableSet *registeredMIKMIDICommandSubclasses;
 
 + (instancetype)commandWithMIDIPacket:(MIDIPacket *)packet;
 {
-	MIKMIDICommandType commandType = packet->data[0];
-	
-	Class subclass = [[self class] subclassForCommandType:commandType];
+	Class subclass;
+  if(packet) {
+  	MIKMIDICommandType commandType = packet->data[0];
+    subclass = [[self class] subclassForCommandType:commandType];
+  }
+
 	if (!subclass) subclass = self;
 	if ([self isMutable]) subclass = [subclass mutableCounterpartClass];
 	return [[subclass alloc] initWithMIDIPacket:packet];
@@ -189,22 +192,22 @@ static NSMutableSet *registeredMIKMIDICommandSubclasses;
 + (NSSet *)keyPathsForValuesAffectingValueForKey:(NSString *)key
 {
 	NSSet *keyPaths = [super keyPathsForValuesAffectingValueForKey:key];
-	
+
 	if ([key isEqualToString:@"data"]) {
 		keyPaths = [keyPaths setByAddingObject:@"internalData"];
 	}
-	
+
 	if ([key isEqualToString:@"commandType"] ||
 		[key isEqualToString:@"channel"] ||
 		[key isEqualToString:@"dataByte1"] ||
 		[key isEqualToString:@"dataByte2"]) {
 		keyPaths = [keyPaths setByAddingObject:@"data"];
 	}
-	
+
 	if ([key isEqualToString:@"timestamp"]) {
 		keyPaths = [keyPaths setByAddingObject:@"midiTimestamp"];
 	}
-	
+
 	return keyPaths;
 }
 
@@ -222,14 +225,14 @@ static NSMutableSet *registeredMIKMIDICommandSubclasses;
 - (void)setTimestamp:(NSDate *)date
 {
 	if (![[self class] isMutable]) return MIKMIDI_RAISE_MUTATION_ATTEMPT_EXCEPTION;
-	
+
 	NSTimeInterval elapsedInSeconds = [date timeIntervalSinceNow];
 	int64_t elapsedInNanoseconds = (int64_t)(elapsedInSeconds * (double)NSEC_PER_SEC);
-	
+
 	mach_timebase_info_data_t timebaseInfo;
 	mach_timebase_info(&timebaseInfo);
 	int64_t elapsed = elapsedInNanoseconds * timebaseInfo.denom / timebaseInfo.numer;
-	
+
 	self.midiTimestamp = MIKMIDIGetCurrentTimeStamp() + elapsed;
 }
 
@@ -249,9 +252,9 @@ static NSMutableSet *registeredMIKMIDICommandSubclasses;
 - (void)setCommandType:(MIKMIDICommandType)commandType
 {
 	if (![[self class] isMutable]) return MIKMIDI_RAISE_MUTATION_ATTEMPT_EXCEPTION;
-	
+
 	if ([self.internalData length] < 2) [self.internalData increaseLengthBy:1-[self.internalData length]];
-	
+
 	UInt8 *data = (UInt8 *)[self.internalData mutableBytes];
 	data[0] = commandType;
 }
@@ -272,7 +275,7 @@ static NSMutableSet *registeredMIKMIDICommandSubclasses;
 - (void)setDataByte1:(UInt8)byte
 {
 	if (![[self class] isMutable]) return MIKMIDI_RAISE_MUTATION_ATTEMPT_EXCEPTION;
-	
+
 	byte &= 0x7F;
 	if ([self.internalData length] < 2) [self.internalData increaseLengthBy:2-[self.internalData length]];
 	[self.internalData replaceBytesInRange:NSMakeRange(1, 1) withBytes:&byte length:1];
@@ -288,7 +291,7 @@ static NSMutableSet *registeredMIKMIDICommandSubclasses;
 - (void)setDataByte2:(UInt8)byte
 {
 	if (![[self class] isMutable]) return MIKMIDI_RAISE_MUTATION_ATTEMPT_EXCEPTION;
-	
+
 	byte &= 0x7F;
 	if ([self.internalData length] < 3) [self.internalData increaseLengthBy:3-[self.internalData length]];
 	[self.internalData replaceBytesInRange:NSMakeRange(2, 1) withBytes:&byte length:1];
@@ -299,7 +302,7 @@ static NSMutableSet *registeredMIKMIDICommandSubclasses;
 - (void)setData:(NSData *)data
 {
 	if (![[self class] isMutable]) return MIKMIDI_RAISE_MUTATION_ATTEMPT_EXCEPTION;
-	
+
 	self.internalData = data ? [data mutableCopy] : [NSMutableData data];
 }
 
