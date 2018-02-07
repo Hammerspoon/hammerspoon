@@ -10,6 +10,6 @@
 #define MIKMIDI_GCD_RELEASE(x)
 #define MIKMIDI_GCD_RETAIN(x)
 #else
-#define MIKMIDI_GCD_RELEASE(x) dispatch_release(x)
-#define MIKMIDI_GCD_RETAIN(x) dispatch_retain(x)
+#define MIKMIDI_GCD_RELEASE(x) if (x) { dispatch_release(x); }
+#define MIKMIDI_GCD_RETAIN(x) if (x) { dispatch_retain(x); }
 #endif

@@ -239,6 +239,7 @@ static int refTable = LUA_NOREF;
                     if ([device name]) {
                         [deviceNames addObject:[device name]];
                     }
+
                 }
 
                 //

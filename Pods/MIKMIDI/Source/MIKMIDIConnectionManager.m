@@ -54,33 +54,33 @@ BOOL MIKMIDINoteOffCommandCorrespondsWithNoteOnCommand(MIKMIDINoteOffCommand *no
 		_name = [name copy];
 		_delegate = delegate;
 		_eventHandler = eventHandler;
-		
+
 		_automaticallySavesConfiguration = YES;
 		_includesVirtualDevices = YES;
-		
+
 		_internalConnectedDevices = [[NSMutableSet alloc] init];
-		
+
 		_connectionTokensByDevice = [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsStrongMemory valueOptions:NSPointerFunctionsStrongMemory];
 		_pendingNoteOnsByDevice = [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsStrongMemory valueOptions:NSPointerFunctionsStrongMemory];
-		
+
 		NSKeyValueObservingOptions options = NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld;
 		[self.deviceManager addObserver:self forKeyPath:@"availableDevices" options:options context:MIKMIDIConnectionManagerKVOContext];
 		[self.deviceManager addObserver:self forKeyPath:@"virtualSources" options:options context:MIKMIDIConnectionManagerKVOContext];
 		[self.deviceManager addObserver:self forKeyPath:@"virtualDestinations" options:options context:MIKMIDIConnectionManagerKVOContext];
-		
+
 		NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
 		[nc addObserver:self selector:@selector(deviceWasPluggedIn:) name:MIKMIDIDeviceWasAddedNotification object:nil];
 		[nc addObserver:self selector:@selector(deviceWasUnplugged:) name:MIKMIDIDeviceWasRemovedNotification object:nil];
 		[nc addObserver:self selector:@selector(endpointWasPluggedIn:) name:MIKMIDIVirtualEndpointWasAddedNotification object:nil];
 		[nc addObserver:self selector:@selector(endpointWasUnplugged:) name:MIKMIDIVirtualEndpointWasRemovedNotification object:nil];
-		
+
 #if TARGET_OS_IPHONE
 		[nc addObserver:self selector:@selector(saveConfigurationOnApplicationLifecycleEvent:) name:UIApplicationDidEnterBackgroundNotification object:nil];
 		[nc addObserver:self selector:@selector(saveConfigurationOnApplicationLifecycleEvent:) name:UIApplicationWillTerminateNotification object:nil];
 #else
 		[nc addObserver:self selector:@selector(saveConfigurationOnApplicationLifecycleEvent:) name:NSApplicationWillTerminateNotification object:nil];
 #endif
-		
+
 		[self updateAvailableDevices];
 		[self scanAndConnectToInitialAvailableDevices];
 	}
@@ -97,7 +97,7 @@ BOOL MIKMIDINoteOffCommandCorrespondsWithNoteOnCommand(MIKMIDINoteOffCommand *no
 	[self.deviceManager removeObserver:self forKeyPath:@"availableDevices" context:MIKMIDIConnectionManagerKVOContext];
 	[self.deviceManager removeObserver:self forKeyPath:@"virtualSources" context:MIKMIDIConnectionManagerKVOContext];
 	[self.deviceManager removeObserver:self forKeyPath:@"virtualDestinations" context:MIKMIDIConnectionManagerKVOContext];
-	
+
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -128,23 +128,23 @@ BOOL MIKMIDINoteOffCommandCorrespondsWithNoteOnCommand(MIKMIDINoteOffCommand *no
 - (void)saveConfiguration
 {
 	NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-	
+
 	NSMutableDictionary *configuration = [NSMutableDictionary dictionaryWithDictionary:[self savedConfiguration]];
-	
+
 	// Save connected device names
 	NSMutableArray *connectedDeviceNames = [configuration[MIKMIDIConnectionManagerConnectedDevicesKey] mutableCopy];
 	if (!connectedDeviceNames) {
 		connectedDeviceNames = [NSMutableArray array];
 		configuration[MIKMIDIConnectionManagerConnectedDevicesKey] = connectedDeviceNames;
 	}
-	
+
 	// And explicitly unconnected device names
 	NSMutableArray *unconnectedDeviceNames = [configuration[MIKMIDIConnectionManagerUnconnectedDevicesKey] mutableCopy];
 	if (!unconnectedDeviceNames) {
 		unconnectedDeviceNames = [NSMutableArray array];
 		configuration[MIKMIDIConnectionManagerUnconnectedDevicesKey] = unconnectedDeviceNames;
 	}
-	
+
 	// For devices that were connected in saved configuration but are now unavailable, leave them
 	// connected in the configuration so they'll reconnect automatically.
 	for (MIKMIDIDevice *device in self.availableDevices) {
@@ -158,10 +158,10 @@ BOOL MIKMIDINoteOffCommandCorrespondsWithNoteOnCommand(MIKMIDINoteOffCommand *no
 			if (![unconnectedDeviceNames containsObject:name]) { [unconnectedDeviceNames addObject:name]; }
 		}
 	}
-	
+
 	configuration[MIKMIDIConnectionManagerConnectedDevicesKey] = connectedDeviceNames;
 	configuration[MIKMIDIConnectionManagerUnconnectedDevicesKey] = unconnectedDeviceNames;
-	
+
 	[userDefaults setObject:configuration forKey:[self userDefaultsConfigurationKey]];
 }
 
@@ -186,7 +186,7 @@ BOOL MIKMIDINoteOffCommandCorrespondsWithNoteOnCommand(MIKMIDINoteOffCommand *no
 {
 	NSArray *regularDevices = self.deviceManager.availableDevices;
 	NSMutableArray *result = [NSMutableArray arrayWithArray:regularDevices];
-	
+
 	if (self.includesVirtualDevices) {
 		NSMutableSet *endpointsInDevices = [NSMutableSet set];
 		for (MIKMIDIDevice *device in regularDevices) {
@@ -195,16 +195,16 @@ BOOL MIKMIDINoteOffCommandCorrespondsWithNoteOnCommand(MIKMIDINoteOffCommand *no
 			[endpointsInDevices unionSet:sources];
 			[endpointsInDevices unionSet:destinations];
 		}
-		
+
 		NSMutableSet *devicelessSources = [NSMutableSet setWithArray:self.deviceManager.virtualSources];
 		NSMutableSet *devicelessDestinations = [NSMutableSet setWithArray:self.deviceManager.virtualDestinations];
 		[devicelessSources minusSet:endpointsInDevices];
 		[devicelessDestinations minusSet:endpointsInDevices];
-		
+
 		// Now we need to try to associate each source with its corresponding destination on the same device
 		NSMapTable *destinationToSourceMap = [NSMapTable mapTableWithKeyOptions:NSMapTableStrongMemory valueOptions:NSMapTableStrongMemory];
 		NSMapTable *deviceNamesBySource = [NSMapTable mapTableWithKeyOptions:NSMapTableStrongMemory valueOptions:NSMapTableStrongMemory];
-		
+
 		for (MIKMIDIEndpoint *source in devicelessSources) {
 			NSString *sourceName = [self deviceNameFromVirtualEndpoint:source];
 			for (MIKMIDIEndpoint *destination in devicelessDestinations) {
@@ -216,12 +216,12 @@ BOOL MIKMIDINoteOffCommandCorrespondsWithNoteOnCommand(MIKMIDINoteOffCommand *no
 				}
 			}
 		}
-		
+
 		for (MIKMIDIEndpoint *source in destinationToSourceMap) {
 			MIKMIDIEndpoint *destination = [destinationToSourceMap objectForKey:source];
 			[devicelessSources removeObject:source];
 			[devicelessDestinations removeObject:destination];
-			
+
 			MIKMIDIDevice *device = [MIKMIDIDevice deviceWithVirtualEndpoints:@[source, destination]];
 			device.name = [deviceNamesBySource objectForKey:source];
 			if (device) [result addObject:device];
@@ -230,12 +230,8 @@ BOOL MIKMIDINoteOffCommandCorrespondsWithNoteOnCommand(MIKMIDINoteOffCommand *no
 			MIKMIDIDevice *device = [MIKMIDIDevice deviceWithVirtualEndpoints:@[endpoint]];
 			if (device) [result addObject:device];
 		}
-		for (MIKMIDIEndpoint *endpoint in devicelessSources) {
-			MIKMIDIDevice *device = [MIKMIDIDevice deviceWithVirtualEndpoints:@[endpoint]];
-			if (device) [result addObject:device];
-		}
 	}
-	
+
 	self.availableDevices = [result copy];
 }
 
@@ -251,7 +247,7 @@ BOOL MIKMIDINoteOffCommandCorrespondsWithNoteOnCommand(MIKMIDINoteOffCommand *no
 {
 	if ([self isConnectedToDevice:device]) return YES;
 	error = error ?: &(NSError *__autoreleasing){ nil };
-	
+
 	__weak typeof(self) weakSelf = self;
 	id token = [self.deviceManager connectDevice:device error:error eventHandler:^(MIKMIDISourceEndpoint *endpoint, NSArray *commands) {
 		[weakSelf recordPendingNoteOnCommands:commands fromDevice:device];
@@ -259,7 +255,7 @@ BOOL MIKMIDINoteOffCommandCorrespondsWithNoteOnCommand(MIKMIDINoteOffCommand *no
 		weakSelf.eventHandler(endpoint, commands);
 	}];
 	if (!token) return NO;
-	
+
 	[self.connectionTokensByDevice setObject:token forKey:device];
 	[self willChangeValueForKey:@"connectedDevices"
 				withSetMutation:NSKeyValueUnionSetMutation
@@ -268,23 +264,23 @@ BOOL MIKMIDINoteOffCommandCorrespondsWithNoteOnCommand(MIKMIDINoteOffCommand *no
 	[self didChangeValueForKey:@"connectedDevices"
 			   withSetMutation:NSKeyValueUnionSetMutation
 				  usingObjects:[NSSet setWithObject:device]];
-	
+
 	if ([self.delegate respondsToSelector:@selector(connectionManager:deviceWasConnected:)]) {
 		[self.delegate connectionManager:self deviceWasConnected:device];
 	}
-	
+
 	return YES;
 }
 
 - (void)internalDisconnectFromDevice:(MIKMIDIDevice *)device
 {
 	if (![self isConnectedToDevice:device]) return;
-	
+
 	id token = [self.connectionTokensByDevice objectForKey:device];
 	if (!token) return;
-	
+
 	[self.deviceManager disconnectConnectionForToken:token];
-	
+
 	[self.connectionTokensByDevice removeObjectForKey:device];
 	[self willChangeValueForKey:@"connectedDevices"
 				withSetMutation:NSKeyValueMinusSetMutation
@@ -293,12 +289,12 @@ BOOL MIKMIDINoteOffCommandCorrespondsWithNoteOnCommand(MIKMIDINoteOffCommand *no
 	[self didChangeValueForKey:@"connectedDevices"
 			   withSetMutation:NSKeyValueMinusSetMutation
 				  usingObjects:[NSSet setWithObject:device]];
-	
+
 	if ([self.delegate respondsToSelector:@selector(connectionManager:deviceWasDisconnected:withUnterminatedNoteOnCommands:)]) {
 		NSArray *pendingNoteOns = [self pendingNoteOnCommandsForDevice:device];
 		[self.delegate connectionManager:self deviceWasDisconnected:device withUnterminatedNoteOnCommands:pendingNoteOns];
 	}
-	
+
 	if (self.automaticallySavesConfiguration) [self saveConfiguration];
 }
 
@@ -312,13 +308,13 @@ BOOL MIKMIDINoteOffCommandCorrespondsWithNoteOnCommand(MIKMIDINoteOffCommand *no
 - (void)connectToNewlyAddedDeviceIfAppropriate:(MIKMIDIDevice *)device
 {
 	if (!device) return;
-	
+
 	MIKMIDIAutoConnectBehavior behavior = MIKMIDIAutoConnectBehaviorConnectIfPreviouslyConnectedOrNew;
-	
+
 	if ([self.delegate respondsToSelector:@selector(connectionManager:shouldConnectToNewlyAddedDevice:)]) {
 		behavior = [self.delegate connectionManager:self shouldConnectToNewlyAddedDevice:device];
 	}
-	
+
 	BOOL shouldConnect = NO;
 	switch (behavior) {
 		case MIKMIDIAutoConnectBehaviorDoNotConnect:
@@ -334,7 +330,7 @@ BOOL MIKMIDINoteOffCommandCorrespondsWithNoteOnCommand(MIKMIDINoteOffCommand *no
 			shouldConnect = ![self deviceIsUnconnectedInSavedConfiguration:device];
 			break;
 	}
-	
+
 	if (shouldConnect) {
 		NSError *error = nil;
 		if (![self internalConnectToDevice:device error:&error]) {
@@ -363,7 +359,7 @@ BOOL MIKMIDINoteOffCommandCorrespondsWithNoteOnCommand(MIKMIDINoteOffCommand *no
 {
 	NSString *deviceName = device.name;
 	if (![deviceName length]) return NO;
-	
+
 	NSDictionary *configuration = [self savedConfiguration];
 	NSArray *connectedDeviceNames = configuration[MIKMIDIConnectionManagerConnectedDevicesKey];
 	return [connectedDeviceNames containsObject:deviceName];
@@ -373,7 +369,7 @@ BOOL MIKMIDINoteOffCommandCorrespondsWithNoteOnCommand(MIKMIDINoteOffCommand *no
 {
 	NSString *deviceName = device.name;
 	if (![deviceName length]) return NO;
-	
+
 	NSDictionary *configuration = [self savedConfiguration];
 	NSArray *unconnectedDeviceNames = configuration[MIKMIDIConnectionManagerUnconnectedDevicesKey];
 	return [unconnectedDeviceNames containsObject:deviceName];
@@ -422,7 +418,7 @@ BOOL MIKMIDINoteOffCommandCorrespondsWithNoteOnCommand(MIKMIDINoteOffCommand *no
 		return [obj isKindOfClass:[MIKMIDINoteOnCommand class]];
 	}]];
 	if (![commands count]) return;
-	
+
 	NSMutableArray *pendingNoteOns = [self pendingNoteOnCommandsForDevice:device];
 	[pendingNoteOns addObjectsFromArray:commands];
 }
@@ -437,10 +433,10 @@ BOOL MIKMIDINoteOffCommandCorrespondsWithNoteOnCommand(MIKMIDINoteOffCommand *no
 		return [obj isKindOfClass:[MIKMIDINoteOffCommand class]];
 	}]];
 	if (![commands count]) return;
-	
+
 	NSMutableArray *pendingNoteOns = [self pendingNoteOnCommandsForDevice:device];
 	if (![pendingNoteOns count]) return;
-	
+
 	for (MIKMIDINoteOffCommand *noteOff in commands) {
 		for (MIKMIDINoteOnCommand *noteOn in [pendingNoteOns copy]) {
 			if (MIKMIDINoteOffCommandCorrespondsWithNoteOnCommand(noteOff, noteOn)) {
@@ -494,13 +490,13 @@ BOOL MIKMIDINoteOffCommandCorrespondsWithNoteOnCommand(MIKMIDINoteOffCommand *no
 		[super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
 		return;
 	}
-	
+
 	if (object != self.deviceManager) return;
-	
+
 	if ([keyPath isEqualToString:@"availableDevices"]) {
 		[self updateAvailableDevices];
 	}
-	
+
 	if (self.includesVirtualDevices &&
 		([keyPath isEqualToString:@"virtualSources"] || [keyPath isEqualToString:@"virtualDestinations"])) {
 		[self updateAvailableDevices];
@@ -527,7 +523,7 @@ BOOL MIKMIDINoteOffCommandCorrespondsWithNoteOnCommand(MIKMIDINoteOffCommand *no
 - (void)setAvailableDevices:(NSArray *)availableDevices
 {
 	if (availableDevices != _availableDevices) {
-		
+
 		// Disconnect from newly unavailable devices.
 		// This will include "partial" virtual devices that are now complete
 		// by virtue of having been notified of other sources for them.
@@ -536,7 +532,7 @@ BOOL MIKMIDINoteOffCommandCorrespondsWithNoteOnCommand(MIKMIDINoteOffCommand *no
 				[self internalDisconnectFromDevice:device];
 			}
 		}
-		
+
 		_availableDevices = availableDevices;
 	}
 }
@@ -554,6 +550,6 @@ BOOL MIKMIDINoteOffCommandCorrespondsWithNoteOnCommand(MIKMIDINoteOffCommand *no
 	if (noteOff.channel != noteOn.channel) return NO;
 	if (noteOff.note != noteOn.note) return NO;
 	if ([noteOff.timestamp compare:noteOn.timestamp] != NSOrderedAscending) return NO;
-	
+
 	return YES;
 }
