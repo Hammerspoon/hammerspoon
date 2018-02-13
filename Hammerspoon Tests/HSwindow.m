@@ -29,10 +29,12 @@
 }
 
 - (void)testDesktop {
+    SKIP_IN_TRAVIS()
     RUN_LUA_TEST()
 }
 
 - (void)testOrderedWindows {
+    SKIP_IN_TRAVIS()
     RUN_LUA_TEST()
 }
 @end
