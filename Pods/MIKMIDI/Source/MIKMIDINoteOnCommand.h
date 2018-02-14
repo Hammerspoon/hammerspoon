@@ -6,15 +6,14 @@
 //  Copyright (c) 2013 Mixed In Key. All rights reserved.
 //
 
-#import "MIKMIDIChannelVoiceCommand.h"
-#import "MIKMIDICompilerCompatibility.h"
+#import "MIKMIDINoteCommand.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 /**
  *  A MIDI note on message.
  */
-@interface MIKMIDINoteOnCommand : MIKMIDIChannelVoiceCommand
+@interface MIKMIDINoteOnCommand : MIKMIDINoteCommand
 
 /**
  *  Convenience method for creating a note on command.
@@ -47,17 +46,6 @@ NS_ASSUME_NONNULL_BEGIN
 							  channel:(UInt8)channel
 						midiTimeStamp:(MIDITimeStamp)timestamp;
 
-
-/**
- *  The note number for the message. In the range 0-127.
- */
-@property (nonatomic, readonly) NSUInteger note;
-
-/**
- *  Velocity of the note on message. In the range 0-127.
- */
-@property (nonatomic, readonly) NSUInteger velocity;
-
 @end
 
 /**
@@ -72,6 +60,24 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readwrite) MIDITimeStamp midiTimestamp;
 @property (nonatomic, readwrite) UInt8 channel;
 @property (nonatomic, readwrite) NSUInteger value;
+
+@end
+
+#pragma mark - Unavailable
+
+@interface MIKMIDINoteOnCommand ()
+
++ (instancetype)noteCommandWithNote:(NSUInteger)note
+						   velocity:(NSUInteger)velocity
+							channel:(UInt8)channel
+						   isNoteOn:(BOOL)isNoteOn
+						  timestamp:(nullable NSDate *)timestamp NS_UNAVAILABLE;
+
++ (instancetype)noteCommandWithNote:(NSUInteger)note
+						   velocity:(NSUInteger)velocity
+							channel:(UInt8)channel
+						   isNoteOn:(BOOL)isNoteOn
+					  midiTimeStamp:(MIDITimeStamp)timestamp NS_UNAVAILABLE;
 
 @end
 

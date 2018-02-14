@@ -7,19 +7,13 @@
 //
 
 #import "MIKMIDINoteOffCommand.h"
-#import "MIKMIDIChannelVoiceCommand_SubclassMethods.h"
+#import "MIKMIDINoteCommand_SubclassMethods.h"
+#import "MIKMIDINoteOnCommand.h"
 #import "MIKMIDIUtilities.h"
 
 #if !__has_feature(objc_arc)
 #error MIKMIDINoteOffCommand.m must be compiled with ARC. Either turn on ARC for the project or set the -fobjc-arc flag for MIKMIDINoteOffCommand.m in the Build Phases for this target
 #endif
-
-@interface MIKMIDINoteOffCommand ()
-
-@property (nonatomic, readwrite) NSUInteger note;
-@property (nonatomic, readwrite) NSUInteger velocity;
-
-@end
 
 @implementation MIKMIDINoteOffCommand
 
@@ -33,13 +27,7 @@
 							   channel:(UInt8)channel
 							 timestamp:(NSDate *)timestamp
 {
-	MIKMutableMIDINoteOffCommand *result = [[MIKMutableMIDINoteOffCommand alloc] init];
-	result.note = note;
-	result.velocity = velocity;
-	result.channel = channel;
-	result.timestamp = timestamp ?: [NSDate date];
-	
-	return [self isMutable] ? result : [result copy];
+	return [super noteCommandWithNote:note velocity:velocity channel:channel isNoteOn:NO timestamp:timestamp];
 }
 
 + (instancetype)noteOffCommandWithNote:(NSUInteger)note
@@ -47,35 +35,27 @@
 							   channel:(UInt8)channel
 						 midiTimeStamp:(MIDITimeStamp)timestamp
 {
-	MIKMutableMIDINoteOffCommand *result = [[MIKMutableMIDINoteOffCommand alloc] init];
-	result.note = note;
-	result.velocity = velocity;
-	result.channel = channel;
-	result.midiTimestamp = timestamp;
-
-	return [self isMutable] ? result : [result copy];
+	return [super noteCommandWithNote:note velocity:velocity channel:channel isNoteOn:NO midiTimeStamp:timestamp];
 }
 
-
-- (NSString *)additionalCommandDescription
++ (instancetype _Nullable)noteOffCommandWithNoteCommand:(MIKMIDINoteCommand *)note
 {
-	return [NSString stringWithFormat:@"%@ note: %lu velocity: %lu", [super additionalCommandDescription], (unsigned long)self.note, (unsigned long)self.velocity];
+	if (note.isNoteOn && note.velocity > 0) { return nil; }
+	
+	return [MIKMIDINoteOffCommand noteOffCommandWithNote:note.note velocity:0 channel:note.channel timestamp:note.timestamp];
 }
 
 #pragma mark - Properties
 
-- (NSUInteger)note { return self.dataByte1; }
-- (void)setNote:(NSUInteger)value
-{
-	if (![[self class] isMutable]) return MIKMIDI_RAISE_MUTATION_ATTEMPT_EXCEPTION;
-	self.dataByte1 = (UInt8)value;
-}
+- (BOOL)isNoteOn { return NO; }
 
-- (NSUInteger)velocity { return self.value; }
-- (void)setVelocity:(NSUInteger)value
+- (void)setNoteOn:(BOOL)noteOn
 {
-	if (![[self class] isMutable]) return MIKMIDI_RAISE_MUTATION_ATTEMPT_EXCEPTION;
-	self.value = value;
+	if (![[self class] isMutable]) { return MIKMIDI_RAISE_MUTATION_ATTEMPT_EXCEPTION; }
+	
+	if (noteOn) {
+		[NSException raise:NSInvalidArgumentException format:@"Instances of MIKMIDINoteOffCommmand must always have a noteOn property value of NO"];
+	}
 }
 
 @end

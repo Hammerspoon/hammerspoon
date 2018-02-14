@@ -41,10 +41,13 @@ static NSMutableSet *registeredMIKMIDICommandSubclasses;
 
 + (instancetype)commandWithMIDIPacket:(MIDIPacket *)packet;
 {
-	MIKMIDICommandType commandType = packet->data[0];
-	
-	Class subclass = [[self class] subclassForCommandType:commandType];
-	if (!subclass) subclass = self;
+    Class subclass = Nil;
+    if (packet) {
+        MIKMIDICommandType commandType = packet->data[0];
+        subclass = [[self class] subclassForCommandType:commandType];
+    }
+    
+	if (!subclass) { subclass = self; }
 	if ([self isMutable]) subclass = [subclass mutableCounterpartClass];
 	return [[subclass alloc] initWithMIDIPacket:packet];
 }
@@ -53,9 +56,9 @@ static NSMutableSet *registeredMIKMIDICommandSubclasses;
 {
 	NSMutableArray *result = [NSMutableArray array];
 	NSInteger dataOffset = 0;
-	while (1) {
+	while (dataOffset < inputPacket->length) {
 		const Byte *packetData = inputPacket->data + dataOffset;
-		NSInteger commandType = (NSInteger) packetData[0];
+		MIKMIDICommandType commandType = (MIKMIDICommandType)packetData[0];
 		NSInteger standardLength = MIKMIDIStandardLengthOfMessageForCommandType(commandType);
 		if (dataOffset > (inputPacket->length - standardLength)) break;
 
@@ -69,6 +72,7 @@ static NSMutableSet *registeredMIKMIDICommandSubclasses;
 										  inputPacket->timeStamp,
 										  standardLength,
 										  packetData);
+        
 		MIKMIDICommand *command = [MIKMIDICommand commandWithMIDIPacket:midiPacket];
 		if (command) [result addObject:command];
 		dataOffset += standardLength;
