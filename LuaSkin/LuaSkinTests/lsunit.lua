@@ -77,7 +77,7 @@ end
 
 function assertIsNotNil(a)
   if a == nil then
-    failure("expected: nil, actual: "..tostring(a))
+    failure("expected: not-nil, actual: "..tostring(a))
   end
 end
 

@@ -1,17 +1,22 @@
 #import "MJAccessibilityUtils.h"
+#import "HSLogger.h"
 
 extern Boolean AXIsProcessTrustedWithOptions(CFDictionaryRef options) __attribute__((weak_import));
 extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 
 
 BOOL MJAccessibilityIsEnabled(void) {
+    BOOL isEnabled = NO;
     if (AXIsProcessTrustedWithOptions != NULL)
-        return AXIsProcessTrustedWithOptions(NULL);
+        isEnabled = AXIsProcessTrustedWithOptions(NULL);
     else
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        return AXAPIEnabled();
+        isEnabled = AXAPIEnabled();
 #pragma clang diagnostic pop
+
+    HSNSLOG(@"Accessibility is: %@", isEnabled ? @"ENABLED" : @"DISABLED");
+    return isEnabled;
 }
 
 void MJAccessibilityOpenPanel(void) {

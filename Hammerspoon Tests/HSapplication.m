@@ -36,4 +36,32 @@
 //     RUN_LUA_TEST()
 // }
 
+- (void)testFrontmostApplication {
+    SKIP_IN_TRAVIS()
+    RUN_LUA_TEST()
+}
+
+- (void)testRunningApplications {
+    RUN_LUA_TEST()
+}
+
+- (void)testHiding {
+    SKIP_IN_TRAVIS()
+    RUN_LUA_TEST()
+}
+
+- (void)testKilling {
+    SKIP_IN_TRAVIS()
+    RUN_LUA_TEST()
+}
+
+- (void)testForceKilling {
+    SKIP_IN_TRAVIS()
+    RUN_LUA_TEST()
+}
+
+- (void)testWindows {
+    SKIP_IN_TRAVIS()
+    RUN_LUA_TEST()
+}
 @end
