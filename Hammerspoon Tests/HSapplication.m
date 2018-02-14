@@ -36,4 +36,27 @@
 //     RUN_LUA_TEST()
 // }
 
+- (void)testFrontmostApplication {
+    RUN_LUA_TEST()
+}
+
+- (void)testRunningApplications {
+    RUN_LUA_TEST()
+}
+
+- (void)testHiding {
+    RUN_LUA_TEST()
+}
+
+- (void)testKilling {
+    RUN_LUA_TEST()
+}
+
+- (void)testForceKilling {
+    RUN_LUA_TEST()
+}
+
+- (void)testWindows {
+    RUN_LUA_TEST()
+}
 @end

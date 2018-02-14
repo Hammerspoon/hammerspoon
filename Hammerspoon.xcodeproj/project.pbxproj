@@ -123,6 +123,8 @@
 		4F76945A1B74C9CA00536DE4 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F7694591B74C9CA00536DE4 /* internal.m */; };
 		4F85FED31CCA918D00FBBAD7 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4F85FED91CCA91AC00FBBAD7 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F85FECC1CCA8A2F00FBBAD7 /* internal.m */; };
+		4F8779D1200CD51200E9DB42 /* HSwindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F8779D0200CD51200E9DB42 /* HSwindow.m */; };
+		4F8779D3200CD63F00E9DB42 /* test_window.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4F8779D2200CD56F00E9DB42 /* test_window.lua */; };
 		4F8E84311B90EDBF00C25955 /* statusicon.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 4F8E84301B90EDBF00C25955 /* statusicon.pdf */; };
 		4F9618A41E24E60C0048F71D /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4F9618AB1E24E62B0048F71D /* lsqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F96189C1E24E5F70048F71D /* lsqlite3.c */; };
@@ -1072,6 +1074,8 @@
 		4F85FECB1CCA8A2F00FBBAD7 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/distributednotifications/init.lua; sourceTree = "<group>"; };
 		4F85FECC1CCA8A2F00FBBAD7 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/distributednotifications/internal.m; sourceTree = "<group>"; };
 		4F85FED81CCA918D00FBBAD7 /* libdistributednotifications.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libdistributednotifications.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		4F8779D0200CD51200E9DB42 /* HSwindow.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HSwindow.m; sourceTree = "<group>"; };
+		4F8779D2200CD56F00E9DB42 /* test_window.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = test_window.lua; path = extensions/window/test_window.lua; sourceTree = "<group>"; };
 		4F8E84301B90EDBF00C25955 /* statusicon.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = statusicon.pdf; sourceTree = "<group>"; };
 		4F9618991E24E5F70048F71D /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/sqlite3/init.lua; sourceTree = "<group>"; };
 		4F96189C1E24E5F70048F71D /* lsqlite3.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; name = lsqlite3.c; path = extensions/sqlite3/lsqlite3.c; sourceTree = "<group>"; };
@@ -2766,6 +2770,7 @@
 				4FD0ABBD1B74AF9900A82496 /* init.lua */,
 				4FD0ABBE1B74AF9900A82496 /* internal.m */,
 				4FD0ABBF1B74AF9900A82496 /* window.h */,
+				4F8779D2200CD56F00E9DB42 /* test_window.lua */,
 			);
 			name = window;
 			sourceTree = "<group>";
@@ -3179,27 +3184,28 @@
 			isa = PBXGroup;
 			children = (
 				4FDD8E511C83612C00085D7A /* HSalert.m */,
-				4FEE39D81F0A697400935F90 /* HScrash.m */,
-				6AE181311D39C8F10097211C /* HSnoises.m */,
 				4FDD8E8E1C8DED1C00085D7A /* HSappfinder.m */,
 				4C403D631CBE5B9F00EE20ED /* HSapplication.m */,
 				4FEF4D4E1C5FA01000E3B939 /* HSaudiodevice.m */,
 				4FDD8E4D1C834C8100085D7A /* HSbase64.m */,
 				4FCC52CD1E1527EF007F93D0 /* HSbrightness.m */,
 				4FDD8E8C1C8C8BF200085D7A /* HScoresetup.m */,
+				4FEE39D81F0A697400935F90 /* HScrash.m */,
 				4F40EC3F1CCD0FE3006342D7 /* HSdistributednotifications.m */,
 				4C5BA6B41C85EAEB00E68CA9 /* HSfs.m */,
+				6AE181311D39C8F10097211C /* HSnoises.m */,
 				4CEDEE1B1C640D11005CBF97 /* HSosascript.m */,
 				D02F95281A00221C00E28BB2 /* HSrequire_all.m */,
 				4FDD8E4B1C6E4FBB00085D7A /* HSscreen.m */,
 				4CD64AA81C6F15F400EB6E39 /* HSsocket.m */,
-				4C8F8CB21CC38B7E00F72CE5 /* HSuielement.m */,
 				4FDD8E871C8AE3ED00085D7A /* HSTestCase.h */,
 				4FDD8E881C8AE3ED00085D7A /* HSTestCase.m */,
 				4F6CE1331C6B93E10016668E /* HStimer.m */,
+				4C8F8CB21CC38B7E00F72CE5 /* HSuielement.m */,
 				4FDD8E7B1C85A05700085D7A /* lsunit.lua */,
-				4FDD8E7D1C85A06800085D7A /* testinit.lua */,
 				D02F95261A00221C00E28BB2 /* Supporting Files */,
+				4FDD8E7D1C85A06800085D7A /* testinit.lua */,
+				4F8779D0200CD51200E9DB42 /* HSwindow.m */,
 			);
 			path = "Hammerspoon Tests";
 			sourceTree = "<group>";
@@ -5674,6 +5680,7 @@
 				4CD64AAB1C6F168700EB6E39 /* test_socket.lua in Resources */,
 				4FDD8E911C8DEE3700085D7A /* test_appfinder.lua in Resources */,
 				4F40EC441CCD126F006342D7 /* test_distributednotifications.lua in Resources */,
+				4F8779D3200CD63F00E9DB42 /* test_window.lua in Resources */,
 				4CE639141C772DC700BB7CD2 /* test_udpsocket.lua in Resources */,
 				4FCC52CF1E1528D4007F93D0 /* test_brightness.lua in Resources */,
 				4FEF4D551C5FBC0F00E3B939 /* test_audiodevice.lua in Resources */,
@@ -6417,6 +6424,7 @@
 				6AE181321D39C8F10097211C /* HSnoises.m in Sources */,
 				4FCC52CE1E1527EF007F93D0 /* HSbrightness.m in Sources */,
 				4FDD8E4E1C834C8100085D7A /* HSbase64.m in Sources */,
+				4F8779D1200CD51200E9DB42 /* HSwindow.m in Sources */,
 				4FDD8E8D1C8C8BF200085D7A /* HScoresetup.m in Sources */,
 				4FDD8E4C1C6E4FBB00085D7A /* HSscreen.m in Sources */,
 				4FEE39D91F0A697400935F90 /* HScrash.m in Sources */,

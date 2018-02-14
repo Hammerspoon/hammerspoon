@@ -15,6 +15,9 @@ function testAttributesFromBundleID()
   assertIsEqual(appName, hs.application.nameForBundleID(bundleID))
   assertIsEqual(appPath, hs.application.pathForBundleID(bundleID))
 
+  assertIsEqual("Safari", hs.application.infoForBundleID("com.apple.Safari")["CFBundleExecutable"])
+  assertIsEqual("Safari", hs.application.infoForBundlePath("/Applications/Safari.app")["CFBundleExecutable"])
+
   return success()
 end
 
@@ -74,5 +77,73 @@ function testMetaTable()
   local app = launchAndReturnAppFromBundleID("com.apple.Safari")
   assertIsUserdataOfType("hs.application", app)
 
+  return success()
+end
+
+function testFrontmostApplication()
+  local app = hs.application.frontmostApplication()
+  assertTrue(app:isFrontmost())
+
+  return success()
+end
+
+function testRunningApplications()
+  local apps = hs.application.runningApplications()
+  assertIsEqual("table", type(apps))
+  assertGreaterThan(1, #apps)
+
+  return success()
+end
+
+function testHiding()
+  local app = hs.application.open("Stickies", 5, true)
+  assertIsNotNil(app)
+  assertTrue(app:isRunning())
+
+  assertFalse(app:isHidden())
+  app:hide()
+  hs.timer.usleep(500000)
+  assertTrue(app:isHidden())
+  app:unhide()
+  hs.timer.usleep(500000)
+  assertFalse(app:isHidden())
+
+  app:kill()
+  return success()
+end
+
+function testKilling()
+  local app = hs.application.open("Stickies", 5, true)
+  assertIsNotNil(app)
+  assertTrue(app:isRunning())
+
+  app:kill()
+  hs.timer.usleep(500000)
+  assertFalse(app:isRunning())
+
+  return success()
+end
+
+function testForceKilling()
+  app = hs.application.open("Calculator", 5, true)
+  assertIsNotNil(app)
+  assertTrue(app:isRunning())
+
+  app:kill9()
+  hs.timer.usleep(500000)
+  assertFalse(app:isRunning())
+
+  return success()
+end
+
+function testWindows()
+  local app = hs.application.open("Stickies", 5, true)
+  assertIsNotNil(app)
+
+  local wins = app:allWindows()
+  assertIsEqual("table", type(wins))
+  assertGreaterThan(1, #wins)
+
+  app:kill()
   return success()
 end
