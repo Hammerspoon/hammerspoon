@@ -60,18 +60,18 @@
 											 &port);
 		if (error != noErr) { self = nil; return nil; }
 		self.portRef = port; // MIKMIDIPort will take care of disposing of the port when needed
-
+		
 		_handlerTokenQueue = dispatch_queue_create("com.mixedinkey.MIKMIDI.com.mixedinkey.MIKMIDI.MIKMIDIInputPort.handlerTokenQueue", DISPATCH_QUEUE_SERIAL);
 		dispatch_sync(_handlerTokenQueue, ^{
 			_handlerTokenPairsByEndpoint = [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsStrongMemory valueOptions:NSPointerFunctionsStrongMemory];
 		});
-
+		
 		_internalSources = [[NSMutableArray alloc] init];
 		_coalesces14BitControlChangeCommands = YES;
-
+		
 		_bufferedCommandQueue = dispatch_queue_create("com.mixedinkey.MIKMIDI.MIKMIDIInputPort.bufferedCommandQueue", DISPATCH_QUEUE_SERIAL);
 		dispatch_sync(_bufferedCommandQueue, ^{ self.bufferedMSBCommands = [[NSMutableArray alloc] init]; });
-
+		
 		_sysexTimeOut = 1.0; // seconds
 	}
 	return self;
@@ -94,7 +94,7 @@
 		![self connectToSource:source error:error]) {
 		return nil;
 	}
-
+	
 	NSString *uuidString = [self createNewConnectionToken];
 	[self addConnectionToken:uuidString andEventHandler:eventHandler forSource:source];
 	return uuidString;
@@ -104,9 +104,9 @@
 {
 	MIKMIDISourceEndpoint *source = [self sourceEndpointForConnectionToken:token];
 	if (!source) return; // Already disconnected?
-
+	
 	[self removeEventHandlerForConnectionToken:token source:source];
-
+	
 	__block NSArray *handlerPairs = nil;
 	dispatch_sync(self.handlerTokenQueue, ^{
 		handlerPairs = [self.handlerTokenPairsByEndpoint objectForKey:source];
@@ -123,7 +123,7 @@
 - (BOOL)connectToSource:(MIKMIDISourceEndpoint *)source error:(NSError **)error;
 {
 	if ([self.connectedSources containsObject:source]) return YES;
-
+	
 	error = error ? error : &(NSError *__autoreleasing){ nil };
 	OSStatus err = MIDIPortConnectSource(self.portRef, source.objectRef, (__bridge void *)source);
 	if (err != noErr) {
@@ -214,9 +214,9 @@
 - (BOOL)commandIsPossibleMSBOf14BitCommand:(MIKMIDICommand *)command
 {
 	if (command.commandType != MIKMIDICommandTypeControlChange) return NO;
-
+	
 	MIKMIDIControlChangeCommand *controlChange = (MIKMIDIControlChangeCommand *)command;
-
+	
 	if (controlChange.isFourteenBitCommand) return NO; // Already coalesced
 	return controlChange.controllerNumber < 32;
 }
@@ -240,17 +240,17 @@
 }
 
 - (BOOL)coalesceSysexFromMIDIPacket:(const MIDIPacket *)packet toCommandInArray:(NSMutableArray **)commandsArray
-{
+{	
 	const Byte *data = packet->data;
-
+	
 	Byte firstByte = data[0];
-
+	
 	if (self.sysexData == nil) {
 		// Check for Sysex Begin
 		if (firstByte != kMIKMIDISysexBeginDelimiter) {
 			return NO;
 		}
-
+		
 		self.sysexData = [NSMutableData new];
 		self.sysexStartTimeStamp = packet->timeStamp;
 	} else if (firstByte > 0x7F && firstByte != kMIKMIDISysexEndDelimiter) {
@@ -259,37 +259,37 @@
 		// Parse current packet normally
 		return NO;
 	}
-
+	
 	for (UInt16 idx = 0; idx < packet->length; idx++) {
 		Byte byte = data[idx];
-
+		
 		// Append byte
 		[self.sysexData appendBytes:&byte length:1];
-
+		
 		// Check for Sysex End
 		if (byte == kMIKMIDISysexEndDelimiter) {
 			[*commandsArray addObject:[self commandByCoalescingSysexData]];
 			break;
 		}
 	}
-
+	
 	return YES;
 }
 
 - (MIKMIDISystemExclusiveCommand *)commandByCoalescingSysexData
 {
 	NSParameterAssert(self.sysexData);
-
+	
 	MIKMIDISystemExclusiveCommand *command = [[MIKMIDISystemExclusiveCommand alloc] initWithRawData:self.sysexData timeStamp:self.sysexStartTimeStamp];
-
+	
 	// Clear Sysex Buffer & Timestamp
 	self.sysexData = nil;
 	self.sysexStartTimeStamp = 0;
-
+	
 	// Clear Sysex Timer
 	[self.sysexTimeOutTimer invalidate];
 	self.sysexTimeOutTimer = nil;
-
+	
 	return command;
 }
 
@@ -316,7 +316,7 @@ void MIKMIDIPortReadCallback(const MIDIPacketList *pktList, void *readProcRefCon
 	@autoreleasepool {
 		MIKMIDIInputPort *self = (__bridge MIKMIDIInputPort *)readProcRefCon;
 		MIKMIDISourceEndpoint *source = (__bridge MIKMIDISourceEndpoint *)srcConnRefCon;
-
+		
 		[self interpretPacketList:pktList handleResultingCommands:^(NSArray <MIKMIDICommand*> *receivedCommands) {
 			[self sendCommands:receivedCommands toEventHandlersFromSource:source];
 		}];
@@ -326,10 +326,10 @@ void MIKMIDIPortReadCallback(const MIDIPacketList *pktList, void *readProcRefCon
 - (void)interpretPacketList:(const MIDIPacketList *)pktList handleResultingCommands:(void (^_Nonnull)(NSArray <MIKMIDICommand*> *receivedCommands))completionBlock
 {
 	NSMutableArray *receivedCommands = [NSMutableArray array];
-
+	
 	// Get the first packet
 	MIDIPacket *packet = (MIDIPacket *)pktList->packet;
-
+	
 	for (int i = 0; i < pktList->numPackets; i++)
 	{
 		// Ignore empty packets
@@ -337,52 +337,52 @@ void MIKMIDIPortReadCallback(const MIDIPacketList *pktList, void *readProcRefCon
 			packet = MIDIPacketNext(packet);
 			continue;
 		}
-
+		
 		// Try Sysex Coalescing, otherwise parse MIDI commands
 		if (![self coalesceSysexFromMIDIPacket:packet toCommandInArray:&receivedCommands]) {
 			[receivedCommands addObjectsFromArray:[MIKMIDICommand commandsWithMIDIPacket:packet]];
 		}
-
+		
 		packet = MIDIPacketNext(packet);
 	}
-
+	
 	// Safeguard against sysex time-out
 	if (self.isCoalescingSysex) {
 		// Create or extend time-out timer
 		if (!self.sysexTimeOutTimer) {
 			// Weakify Self
 			__weak typeof(self) weakSelf = self;
-
+			
 			self.sysexTimeOutTimer = [NSTimer timerWithTimeInterval:self.sysexTimeOut target:[NSBlockOperation blockOperationWithBlock:^{
 				// Strongify Self
 				__strong typeof(self) self = weakSelf;
-
+				
 				// Force-End Sysex, if necessary
 				if (self.isCoalescingSysex) {
 					completionBlock(@[[self commandByCoalescingSysexData]]);
 				}
 			}] selector:@selector(main) userInfo:nil repeats:NO];
-
+			
 			// Run Timer
 			NSRunLoop *currentRunLoop = [NSRunLoop currentRunLoop];
 			NSRunLoopMode mode = currentRunLoop.currentMode ?: NSDefaultRunLoopMode;
-
+			
 			[currentRunLoop addTimer:self.sysexTimeOutTimer forMode:mode];
 		} else {
 			self.sysexTimeOutTimer.fireDate = [NSDate dateWithTimeIntervalSinceNow:self.sysexTimeOut];
 		}
 		return;
 	}
-
+	
 	// Clear Sysex Timer
 	[self.sysexTimeOutTimer invalidate];
 	self.sysexTimeOutTimer = nil;
-
+	
 	// Handle Commands
 	if (receivedCommands.count == 0) {
 		return;
 	}
-
+	
 	if (self.coalesces14BitControlChangeCommands) {
 		dispatch_sync(self.bufferedCommandQueue, ^{
 			if ([self.bufferedMSBCommands count]) {
@@ -396,7 +396,7 @@ void MIKMIDIPortReadCallback(const MIDIPacketList *pktList, void *readProcRefCon
 			// Hold back and wait for a possible LSB command to come in.
 			dispatch_sync(self.bufferedCommandQueue, ^{ [self.bufferedMSBCommands addObject:finalCommand]; });
 			[receivedCommands removeLastObject];
-
+			
 			// Wait 4ms, then send the buffered command if it hasn't been coalesced (and therefore set to nil)
 			dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(4 * NSEC_PER_MSEC));
 			dispatch_after(popTime, self.bufferedCommandQueue, ^(void){
@@ -406,11 +406,11 @@ void MIKMIDIPortReadCallback(const MIDIPacketList *pktList, void *readProcRefCon
 			});
 		}
 	}
-
+	
 	if ([receivedCommands count] == 0) {
 		return;
 	}
-
+	
 	completionBlock(receivedCommands);
 }
 

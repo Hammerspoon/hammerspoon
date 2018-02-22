@@ -94,6 +94,15 @@ BOOL MIKMIDINoteOffCommandCorrespondsWithNoteOnCommand(MIKMIDINoteOffCommand *no
 
 - (void)dealloc
 {
+	for (MIKMIDIDevice *device in self.connectionTokensByDevice) {
+		id token = [self.connectionTokensByDevice objectForKey:device];
+		[self.deviceManager disconnectConnectionForToken:token];
+		if ([self.delegate respondsToSelector:@selector(connectionManager:deviceWasDisconnected:withUnterminatedNoteOnCommands:)]) {
+			NSArray *pendingNoteOns = [self pendingNoteOnCommandsForDevice:device];
+			[self.delegate connectionManager:self deviceWasDisconnected:device withUnterminatedNoteOnCommands:pendingNoteOns];
+		}
+	}
+	
 	[self.deviceManager removeObserver:self forKeyPath:@"availableDevices" context:MIKMIDIConnectionManagerKVOContext];
 	[self.deviceManager removeObserver:self forKeyPath:@"virtualSources" context:MIKMIDIConnectionManagerKVOContext];
 	[self.deviceManager removeObserver:self forKeyPath:@"virtualDestinations" context:MIKMIDIConnectionManagerKVOContext];
@@ -230,10 +239,6 @@ BOOL MIKMIDINoteOffCommandCorrespondsWithNoteOnCommand(MIKMIDINoteOffCommand *no
 			MIKMIDIDevice *device = [MIKMIDIDevice deviceWithVirtualEndpoints:@[endpoint]];
 			if (device) [result addObject:device];
 		}
-		for (MIKMIDIEndpoint *endpoint in devicelessSources) {
-			MIKMIDIDevice *device = [MIKMIDIDevice deviceWithVirtualEndpoints:@[endpoint]];
-			if (device) [result addObject:device];
-		}
 	}
 	
 	self.availableDevices = [result copy];
@@ -254,9 +259,13 @@ BOOL MIKMIDINoteOffCommandCorrespondsWithNoteOnCommand(MIKMIDINoteOffCommand *no
 	
 	__weak typeof(self) weakSelf = self;
 	id token = [self.deviceManager connectDevice:device error:error eventHandler:^(MIKMIDISourceEndpoint *endpoint, NSArray *commands) {
-		[weakSelf recordPendingNoteOnCommands:commands fromDevice:device];
-		[weakSelf removePendingNoteOnCommandsTerminatedByNoteOffCommands:commands fromDevice:device];
-		weakSelf.eventHandler(endpoint, commands);
+		__strong typeof(self) strongSelf = weakSelf;
+		if (!strongSelf) { return; } // shouldn't actually happen
+		[strongSelf recordPendingNoteOnCommands:commands fromDevice:device];
+		[strongSelf removePendingNoteOnCommandsTerminatedByNoteOffCommands:commands fromDevice:device];
+		
+		MIKMIDIEventHandlerBlock eventHandler = [strongSelf eventHandler];
+		if (eventHandler) { eventHandler(endpoint, commands); }
 	}];
 	if (!token) return NO;
 	

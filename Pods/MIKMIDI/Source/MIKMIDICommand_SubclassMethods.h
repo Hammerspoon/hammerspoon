@@ -7,13 +7,14 @@
 //
 
 #import "MIKMIDICommand.h"
+#import "MIKMIDITransmittable.h"
 
 /**
  *  These methods can be called and/or overridden by subclasses of MIKMIDICommand, but are not
  *  otherwise part of the public interface to MIKMIDICommand. They should not be called directly
  *  except by subclasses of MIKMIDICommand.
  */
-@interface MIKMIDICommand ()
+@interface MIKMIDICommand () <MIKMIDITransmittable>
 
 /**
  *  Registers a subclass of MIKMIDICommand. Registered subclasses will be instantiated and returned
