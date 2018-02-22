@@ -26,6 +26,16 @@
 
 + (BOOL)isMutable { return NO; }
 
++ (instancetype)channelPressureCommandWithPressure:(NSUInteger)pressure channel:(UInt8)channel timestamp:(nullable NSDate *)timestamp
+{
+	MIKMutableMIDIChannelPressureCommand *result = [[MIKMutableMIDIChannelPressureCommand alloc] init];
+	result.pressure = pressure;
+	result.channel = channel;
+	result.timestamp = timestamp ?: [NSDate date];
+	
+	return [self isMutable] ? result : [result copy];
+}
+
 #pragma mark - Properties
 
 - (NSUInteger)pressure { return self.dataByte1; }

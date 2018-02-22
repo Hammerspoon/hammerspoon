@@ -29,6 +29,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface MIKMIDISynthesizer : NSObject <MIKMIDICommandScheduler>
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullability" // See https://github.com/mixedinkey-opensource/MIKMIDI/issues/216
 /**
  *  Initializes an MIKMIDISynthesizer instance which uses the default 
  *  MIDI instrument audio unit.
@@ -39,6 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  @return An initialized MIKMIDIEndpointSynthesizer or nil if an error occurs.
  */
 - (nullable instancetype)init;
+#pragma clang diagnostic pop
 
 /**
  *  Initializes an MIKMIDISynthesizer instance which uses an audio unit matching

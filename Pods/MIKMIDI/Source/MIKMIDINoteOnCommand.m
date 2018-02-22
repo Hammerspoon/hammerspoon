@@ -7,19 +7,13 @@
 //
 
 #import "MIKMIDINoteOnCommand.h"
-#import "MIKMIDIChannelVoiceCommand_SubclassMethods.h"
+#import "MIKMIDINoteCommand_SubclassMethods.h"
 #import "MIKMIDIUtilities.h"
 
 #if !__has_feature(objc_arc)
 #error MIKMIDINoteOnCommand.m must be compiled with ARC. Either turn on ARC for the project or set the -fobjc-arc flag for MIKMIDINoteOnCommand.m in the Build Phases for this target
 #endif
 
-@interface MIKMIDINoteOnCommand ()
-
-@property (nonatomic, readwrite) NSUInteger note;
-@property (nonatomic, readwrite) NSUInteger velocity;
-
-@end
 
 @implementation MIKMIDINoteOnCommand
 
@@ -33,13 +27,7 @@
 							  channel:(UInt8)channel
 							timestamp:(NSDate *)timestamp
 {
-	MIKMutableMIDINoteOnCommand *result = [[MIKMutableMIDINoteOnCommand alloc] init];
-	result.note = note;
-	result.velocity = velocity;
-	result.channel = channel;
-	result.timestamp = timestamp ?: [NSDate date];
-	
-	return [self isMutable] ? result : [result copy];
+	return [super noteCommandWithNote:note velocity:velocity channel:channel isNoteOn:YES timestamp:timestamp];
 }
 
 + (instancetype)noteOnCommandWithNote:(NSUInteger)note
@@ -47,34 +35,20 @@
 							  channel:(UInt8)channel
 						midiTimeStamp:(MIDITimeStamp)timestamp
 {
-	MIKMutableMIDINoteOnCommand *result = [[MIKMutableMIDINoteOnCommand alloc] init];
-	result.note = note;
-	result.velocity = velocity;
-	result.channel = channel;
-	result.midiTimestamp = timestamp;
-
-	return [self isMutable] ? result : [result copy];
+	return [super noteCommandWithNote:note velocity:velocity channel:channel isNoteOn:YES midiTimeStamp:timestamp];
 }
 
 #pragma mark - Properties
 
-- (NSUInteger)note { return self.dataByte1; }
-- (void)setNote:(NSUInteger)value
-{
-	if (![[self class] isMutable]) return MIKMIDI_RAISE_MUTATION_ATTEMPT_EXCEPTION;
-	self.dataByte1 = (UInt8)value;
-}
+- (BOOL)isNoteOn { return YES; }
 
-- (NSUInteger)velocity { return self.value; }
-- (void)setVelocity:(NSUInteger)value
+- (void)setNoteOn:(BOOL)noteOn
 {
-	if (![[self class] isMutable]) return MIKMIDI_RAISE_MUTATION_ATTEMPT_EXCEPTION;
-	self.value = value;
-}
-
-- (NSString *)additionalCommandDescription
-{
-	return [NSString stringWithFormat:@"%@ note: %lu velocity: %lu", [super additionalCommandDescription], (unsigned long)self.note, (unsigned long)self.velocity];
+	if (![[self class] isMutable]) { return MIKMIDI_RAISE_MUTATION_ATTEMPT_EXCEPTION; }
+	
+	if (!noteOn) {
+		[NSException raise:NSInvalidArgumentException format:@"Instances of MIKMIDINoteOnCommmand must always have a noteOn property value of YES"];
+	}
 }
 
 @end
@@ -92,5 +66,6 @@
 @dynamic value;
 @dynamic note;
 @dynamic velocity;
+@dynamic noteOn;
 
 @end

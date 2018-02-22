@@ -124,7 +124,7 @@
 			|| firstByte == kMIKMIDISysexNonRealtimeManufacturerID);
 }
 
-- (NSUInteger)sysesChannelLocation
+- (NSUInteger)sysexChannelLocation
 {
 	return _has3ByteManufacturerID ? 4 : 2;
 }
@@ -133,7 +133,7 @@
 {
 	if ([self.internalData length] < 3 || !self.isUniversal) return 0;
 	
-	NSRange sysexChannelRange = NSMakeRange([self sysesChannelLocation], 1);
+	NSRange sysexChannelRange = NSMakeRange([self sysexChannelLocation], 1);
 	NSData *sysexChannelData = [self.internalData subdataWithRange:sysexChannelRange];
 	return *(UInt8 *)[sysexChannelData bytes];
 }
@@ -143,8 +143,8 @@
 	if (![[self class] isMutable]) return MIKMIDI_RAISE_MUTATION_ATTEMPT_EXCEPTION;
 	if (!self.isUniversal) { return; }
 	
-	NSUInteger sysexChannelLocation = [self sysesChannelLocation];
-	NSUInteger requiredLength = sysexChannelLocation+1;
+	NSUInteger sysexChannelLocation = [self sysexChannelLocation];
+	NSUInteger requiredLength = MAX(sysexChannelLocation + 1, self.internalData.length);
 	[self.internalData setLength:requiredLength];
 	
 	[self.internalData replaceBytesInRange:NSMakeRange(sysexChannelLocation, 1) withBytes:&sysexChannel length:1];
@@ -162,7 +162,8 @@
 - (NSData *)sysexData
 {
 	NSUInteger sysexStartLocation = [self sysexDataStartLocation];
-	return [self.internalData subdataWithRange:NSMakeRange(sysexStartLocation, [self.internalData length]-sysexStartLocation-1)];
+	NSInteger length = MAX(0, [self.data length]-sysexStartLocation-1);
+	return [self.data subdataWithRange:NSMakeRange(sysexStartLocation, length)];
 }
 
 - (void)setSysexData:(NSData *)sysexData

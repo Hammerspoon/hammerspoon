@@ -36,7 +36,18 @@
 	MIKMutableMIDIControlChangeCommand *command = [[[self mutableCounterpartClass] alloc] init];
 	command.controllerNumber = controllerNumber;
 	command.controllerValue = sevenBitValue;
-	return [command copy];
+	if (![[self class] isMutable]) { command = [command copy]; }
+	return command;
+}
+
++ (instancetype)fourteenBitControlChangeCommandWithControllerNumber:(NSUInteger)controllerNumber value:(NSUInteger)fourteenBitValue
+{
+	MIKMutableMIDIControlChangeCommand *command = [[[self mutableCounterpartClass] alloc] init];
+	command.fourteenBitCommand = YES;
+	command.controllerNumber = controllerNumber;
+	command.fourteenBitValue = fourteenBitValue;
+	if (![[self class] isMutable]) { command = [command copy]; }
+	return command;
 }
 
 + (instancetype)commandByCoalescingMSBCommand:(MIKMIDIControlChangeCommand *)msbCommand andLSBCommand:(MIKMIDIControlChangeCommand *)lsbCommand;
@@ -54,7 +65,7 @@
 	MIKMIDIControlChangeCommand *result = [[MIKMIDIControlChangeCommand alloc] init];
 	result.midiTimestamp = lsbCommand.midiTimestamp;
 	result.internalData = [msbCommand.data mutableCopy];
-	result.fourteenBitCommand = YES;
+	result->_fourteenBitCommand = YES;
 	[result.internalData appendData:[lsbCommand.data subdataWithRange:NSMakeRange(2, 1)]];
 	
 	return result;
@@ -72,15 +83,49 @@
 - (id)copyWithZone:(NSZone *)zone
 {
 	MIKMIDIControlChangeCommand *result = [super copyWithZone:zone];
-	result.fourteenBitCommand = self.isFourteenBitCommand;
+	result->_fourteenBitCommand = self.isFourteenBitCommand;
 	return result;
 }
 
 - (id)mutableCopy
 {
 	MIKMIDIControlChangeCommand *result = [super mutableCopy];
-	result.fourteenBitCommand = self.isFourteenBitCommand;
+	result->_fourteenBitCommand = self.isFourteenBitCommand;
 	return result;
+}
+
+- (MIKMIDIControlChangeCommand *)commandForMostSignificantBits
+{
+	MIKMutableMIDIControlChangeCommand *result = [self mutableCopy];
+	result.fourteenBitCommand = NO;
+	return [result copy];
+}
+
+- (MIKMIDIControlChangeCommand *)commandForLeastSignificantBits
+{
+	if (self.controllerNumber > 31) { return nil; }
+	if ([self.data length] <= 3) { return nil; }
+	UInt8 *data = (UInt8 *)[self.data bytes];
+	NSUInteger LSB = data[3] & 0x7F;
+	
+	MIKMutableMIDIControlChangeCommand *result = [self mutableCopy];
+	result.fourteenBitCommand = NO;
+	result.controllerNumber += 32;
+	result.controllerValue = LSB;
+	
+	return [result copy];
+}
+
+- (NSArray *)commandsForTransmission
+{
+	if (!self.isFourteenBitCommand) { return @[self]; }
+	
+	// Split 14-bit CC command
+	MIKMIDIControlChangeCommand *msb = [self commandForMostSignificantBits];
+	MIKMIDIControlChangeCommand *lsb = [self commandForLeastSignificantBits];
+	if (msb && lsb) { return @[msb, lsb]; }
+	
+	return @[self];
 }
 
 #pragma mark - Private
@@ -102,6 +147,23 @@
 	if (![[self class] isMutable]) return MIKMIDI_RAISE_MUTATION_ATTEMPT_EXCEPTION;
 	
 	self.value = value;
+}
+
+- (void)setFourteenBitCommand:(BOOL)fourteenBitCommand
+{
+	if (![[self class] isMutable]) return MIKMIDI_RAISE_MUTATION_ATTEMPT_EXCEPTION;
+	
+	if (fourteenBitCommand != _fourteenBitCommand) {
+		_fourteenBitCommand = fourteenBitCommand;
+		if (_fourteenBitCommand) {
+			[self setFourteenBitValue:(self.controllerValue << 7) & 0x7F];
+		} else {
+			// Shrink internal data
+			if ([self.internalData length] >= 4) {
+				[self.internalData replaceBytesInRange:NSMakeRange(3, [self.internalData length] - 3) withBytes:NULL length:0];
+			}
+		}
+	}
 }
 
 - (NSUInteger)fourteenBitValue
