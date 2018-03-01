@@ -530,6 +530,9 @@ static int pushTestUserData(lua_State *L, id object) {
     LSTestDelegate *testDelegate = [[LSTestDelegate alloc] init];
     self.skin.delegate = testDelegate;
 
+    // This function needs quite a lot of stack otherwise it overflows, so let's allocate a bunch more
+    lua_checkstack(self.skin.L, 500);
+
     // Test pushing an NSString (note that in this case we test the return value. There are only two return points in pushNSObject, so subsequent tests only re-test the return value if they are expecting something other than 1
     NSString *pushString = @"Test push string";
     XCTAssertEqual(1, [self.skin pushNSObject:pushString]);
