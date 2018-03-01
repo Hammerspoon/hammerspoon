@@ -32,7 +32,8 @@
 @interface MIKMIDIInputPort ()
 
 @property (nonatomic, strong) NSMutableArray *internalSources;
-@property (nonatomic, strong, readwrite) MIKMapTableOf(MIKMIDIEndpoint *, NSMutableArray *) *handlerTokenPairsByEndpoint;
+@property (nonatomic, strong) MIKMapTableOf(MIKMIDIEndpoint *, NSMutableArray *) *handlerTokenPairsByEndpoint;
+@property (nonatomic) dispatch_queue_t handlerTokenQueue;
 
 @property (nonatomic, strong) NSMutableArray *bufferedMSBCommands;
 @property (nonatomic) dispatch_queue_t bufferedCommandQueue;
@@ -59,12 +60,17 @@
 											 &port);
 		if (error != noErr) { self = nil; return nil; }
 		self.portRef = port; // MIKMIDIPort will take care of disposing of the port when needed
-		_handlerTokenPairsByEndpoint = [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsStrongMemory valueOptions:NSPointerFunctionsStrongMemory];
+		
+		_handlerTokenQueue = dispatch_queue_create("com.mixedinkey.MIKMIDI.com.mixedinkey.MIKMIDI.MIKMIDIInputPort.handlerTokenQueue", DISPATCH_QUEUE_SERIAL);
+		dispatch_sync(_handlerTokenQueue, ^{
+			_handlerTokenPairsByEndpoint = [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsStrongMemory valueOptions:NSPointerFunctionsStrongMemory];
+		});
+		
 		_internalSources = [[NSMutableArray alloc] init];
 		_coalesces14BitControlChangeCommands = YES;
 		
 		_bufferedCommandQueue = dispatch_queue_create("com.mixedinkey.MIKMIDI.MIKMIDIInputPort.bufferedCommandQueue", DISPATCH_QUEUE_SERIAL);
-		dispatch_async(self.bufferedCommandQueue, ^{ self.bufferedMSBCommands = [[NSMutableArray alloc] init]; });
+		dispatch_sync(_bufferedCommandQueue, ^{ self.bufferedMSBCommands = [[NSMutableArray alloc] init]; });
 		
 		_sysexTimeOut = 1.0; // seconds
 	}
@@ -73,10 +79,8 @@
 
 - (void)dealloc
 {
-	if (_bufferedCommandQueue) {
-		MIKMIDI_GCD_RELEASE(_bufferedCommandQueue);
-		_bufferedCommandQueue = NULL;
-	}
+	MIKMIDI_GCD_RELEASE(_bufferedCommandQueue);
+	MIKMIDI_GCD_RELEASE(_handlerTokenQueue);
 }
 
 #pragma mark - Public
@@ -103,7 +107,10 @@
 	
 	[self removeEventHandlerForConnectionToken:token source:source];
 	
-	NSArray *handlerPairs = [self.handlerTokenPairsByEndpoint objectForKey:source];
+	__block NSArray *handlerPairs = nil;
+	dispatch_sync(self.handlerTokenQueue, ^{
+		handlerPairs = [self.handlerTokenPairsByEndpoint objectForKey:source];
+	});
 	if (![handlerPairs count]) {
 		[self disconnectFromSource:source];
 	}
@@ -138,22 +145,24 @@
 
 - (NSString *)createNewConnectionToken
 {
-	NSString *uuidString = nil;
-	do { // Very unlikely, but just to be safe
-		CFUUIDRef uuid = CFUUIDCreate(kCFAllocatorDefault);
-		uuidString = CFBridgingRelease(CFUUIDCreateString(kCFAllocatorDefault, uuid));
-		CFRelease(uuid);
-		MIKMIDIConnectionTokenAndEventHandler *existingPair = nil;
-		for (NSArray *handlerPairs in self.handlerTokenPairsByEndpoint.objectEnumerator) {
-			for (MIKMIDIConnectionTokenAndEventHandler *pair in handlerPairs) {
-				if ([pair.connectionToken isEqualToString:uuidString]) {
-					existingPair = pair;
-					break;
+	__block NSString *uuidString = nil;
+	dispatch_sync(self.handlerTokenQueue, ^{
+		do { // Very unlikely, but just to be safe
+			CFUUIDRef uuid = CFUUIDCreate(kCFAllocatorDefault);
+			uuidString = CFBridgingRelease(CFUUIDCreateString(kCFAllocatorDefault, uuid));
+			CFRelease(uuid);
+			MIKMIDIConnectionTokenAndEventHandler *existingPair = nil;
+			for (NSArray *handlerPairs in self.handlerTokenPairsByEndpoint.objectEnumerator) {
+				for (MIKMIDIConnectionTokenAndEventHandler *pair in handlerPairs) {
+					if ([pair.connectionToken isEqualToString:uuidString]) {
+						existingPair = pair;
+						break;
+					}
 				}
 			}
-		}
-		if (!existingPair) break;
-	} while (1);
+			if (!existingPair) break;
+		} while (1);
+	});
 	return uuidString;
 }
 
@@ -161,34 +170,42 @@
 {
 	MIKMIDIConnectionTokenAndEventHandler *tokenHandlerPair =
 	[[MIKMIDIConnectionTokenAndEventHandler alloc] initWithConnectionToken:connectionToken eventHandler:eventHandler];
-	NSMutableArray *tokenPairs = [self.handlerTokenPairsByEndpoint objectForKey:source];
-	if (!tokenPairs) {
-		tokenPairs = [NSMutableArray array];
-		[self.handlerTokenPairsByEndpoint setObject:tokenPairs forKey:source];
-	}
-	[tokenPairs addObject:tokenHandlerPair];
+	dispatch_async(self.handlerTokenQueue, ^{
+		NSMutableArray *tokenPairs = [self.handlerTokenPairsByEndpoint objectForKey:source];
+		if (!tokenPairs) {
+			tokenPairs = [NSMutableArray array];
+			[self.handlerTokenPairsByEndpoint setObject:tokenPairs forKey:source];
+		}
+		[tokenPairs addObject:tokenHandlerPair];
+	});
 }
 
 - (void)removeEventHandlerForConnectionToken:(NSString *)connectionToken source:(MIKMIDISourceEndpoint *)source
 {
-	NSMutableArray *handlerPairs = [self.handlerTokenPairsByEndpoint objectForKey:source];
-	for (MIKMIDIConnectionTokenAndEventHandler *pair in [handlerPairs copy]) {
-		if ([pair.connectionToken isEqual:connectionToken]) {
-			[handlerPairs removeObject:pair];
+	dispatch_async(self.handlerTokenQueue, ^{
+		NSMutableArray *handlerPairs = [self.handlerTokenPairsByEndpoint objectForKey:source];
+		for (MIKMIDIConnectionTokenAndEventHandler *pair in [handlerPairs copy]) {
+			if ([pair.connectionToken isEqual:connectionToken]) {
+				[handlerPairs removeObject:pair];
+			}
 		}
-	}
+	});
 }
 
 - (MIKMIDISourceEndpoint *)sourceEndpointForConnectionToken:(NSString *)token
 {
-	for (MIKMIDISourceEndpoint *source in self.handlerTokenPairsByEndpoint) {
-		NSArray *handlerPairs = [self.handlerTokenPairsByEndpoint objectForKey:source];
-		for (MIKMIDIConnectionTokenAndEventHandler *handlerPair in handlerPairs) {
-			if ([handlerPair.connectionToken isEqual:token]) {
-				return source;
+	__block MIKMIDISourceEndpoint *result = nil;
+	dispatch_sync(self.handlerTokenQueue, ^{
+		for (MIKMIDISourceEndpoint *source in self.handlerTokenPairsByEndpoint) {
+			NSArray *handlerPairs = [self.handlerTokenPairsByEndpoint objectForKey:source];
+			for (MIKMIDIConnectionTokenAndEventHandler *handlerPair in handlerPairs) {
+				if ([handlerPair.connectionToken isEqual:token]) {
+					result = source;
+					return; // Return from block
+				}
 			}
 		}
-	}
+	});
 	return nil;
 }
 
@@ -255,7 +272,7 @@
 			break;
 		}
 	}
-
+	
 	return YES;
 }
 
@@ -280,10 +297,13 @@
 
 - (void)sendCommands:(NSArray *)commands toEventHandlersFromSource:(MIKMIDISourceEndpoint *)source
 {
-	dispatch_async(dispatch_get_main_queue(), ^{
+	dispatch_async(self.handlerTokenQueue, ^{
 		NSArray *handlerPairs = [self.handlerTokenPairsByEndpoint objectForKey:source];
 		for (MIKMIDIConnectionTokenAndEventHandler *handlerTokenPair in handlerPairs) {
-			handlerTokenPair.eventHandler(source, commands);
+			MIKMIDIEventHandlerBlock eventHandler = handlerTokenPair.eventHandler;
+			dispatch_async(dispatch_get_main_queue(), ^{
+				eventHandler(source, commands);
+			});
 		}
 	});
 }
@@ -417,6 +437,15 @@ void MIKMIDIPortReadCallback(const MIDIPacketList *pktList, void *readProcRefCon
 	MIKMIDI_GCD_RETAIN(commandsBufferQueue);
 	MIKMIDI_GCD_RELEASE(_bufferedCommandQueue);
 	_bufferedCommandQueue = commandsBufferQueue;
+}
+
+@synthesize handlerTokenQueue = _handlerTokenQueue;
+
+- (void)setHandlerTokenQueue:(dispatch_queue_t)handlerTokenQueue
+{
+	MIKMIDI_GCD_RETAIN(handlerTokenQueue);
+	MIKMIDI_GCD_RELEASE(_handlerTokenQueue);
+	_handlerTokenQueue = handlerTokenQueue;
 }
 
 - (BOOL)isCoalescingSysex

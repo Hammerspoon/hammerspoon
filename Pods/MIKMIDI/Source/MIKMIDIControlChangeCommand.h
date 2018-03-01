@@ -17,13 +17,22 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MIKMIDIControlChangeCommand : MIKMIDIChannelVoiceCommand
 
 /**
- Convenience method for creating a control change command instance. Can only be used to create a standard 7-bit command.
+ Convenience method for creating a standard control change command instance. Can only be used to create a standard 7-bit command.
 
  @param controllerNumber The MIDI control number for the command.
- @param sevenBitValue  The controlValue of the command. Only the lower 7-bits of this are used.
+ @param sevenBitValue  The controlValue of the command. Only the lower 7 bits of this are used.
  @return An initialized MIKMIDIControlChangeCommand instance.
  */
 + (instancetype)controlChangeCommandWithControllerNumber:(NSUInteger)controllerNumber value:(NSUInteger)sevenBitValue;
+
+/**
+ Convenience method for creating a 14-bit control change command instance.
+ 
+ @param controllerNumber The MIDI control number for the command.
+ @param fourteenBitValue  The controlValue of the command. Only the lower 14 bits of this are used.
+ @return An initialized MIKMIDIControlChangeCommand instance.
+ */
++ (instancetype)fourteenBitControlChangeCommandWithControllerNumber:(NSUInteger)controllerNumber value:(NSUInteger)fourteenBitValue;
 
 /**
  *  Convenience method for creating a single, 14-bit control change command from its component
@@ -46,6 +55,30 @@ NS_ASSUME_NONNULL_BEGIN
  *  fourteenBitCommand property is set to YES.
  */
 + (nullable instancetype)commandByCoalescingMSBCommand:(MIKMIDIControlChangeCommand *)msbCommand andLSBCommand:(MIKMIDIControlChangeCommand *)lsbCommand;
+
+
+/**
+ Returns a new instance of MIKMIDIControlChangeCommand containing only the most significant 7 bits of the
+ receiver's controllerValue.
+ 
+ If the receiver is a standard 7-bit control change command, this method returns the same result as calling -copy.
+
+ @return An instance of MIKMIDIControlChangeCommand whose controllerValue is made up of the most significant
+ 7 bits of the receiver's controllerValue.
+ */
+- (MIKMIDIControlChangeCommand *)commandForMostSignificantBits;
+
+/**
+ Returns a new instance of MIKMIDIControlChangeCommand containing only the least significant 7 bits of the
+ receiver's fourteenBitValue. This is only meant to be called on 14-bit control change commands
+ (ie. -isFourteenBitCommand returns true)
+ 
+ If the receiver is a standard 7-bit control change command, this method returns nil.
+ 
+ @return An instance of MIKMIDIControlChangeCommand whose controllerValue is made up of the least significant
+ 7 bits of the receiver's controllerValue.
+ */
+- (MIKMIDIControlChangeCommand * _Nullable)commandForLeastSignificantBits;
 
 /**
  *  The MIDI control number for the command.
