@@ -46,7 +46,7 @@ void MJLuaSetupLogHandler(void(^blk)(NSString* str)) {
 ///  * If at all possible, please do allow Hammerspoon to upload crash reports to us, it helps a great deal in keeping Hammerspoon stable
 ///  * Our Privacy Policy can be found here: [http://www.hammerspoon.org/privacy.html](http://www.hammerspoon.org/privacy.html)
 static int core_uploadCrashData(lua_State* L) {
-    if (lua_isboolean(L, -1)) { HSSetUploadCrashData(lua_toboolean(L, -1)); }
+    if (lua_isboolean(L, 1)) { HSSetUploadCrashData(lua_toboolean(L, 1)); }
     lua_pushboolean(L, HSUploadCrashData()) ;
     return 1;
 }
@@ -61,7 +61,7 @@ static int core_uploadCrashData(lua_State* L) {
 /// Returns:
 ///  * True if Hammerspoon is currently (or has just been) set to launch on login or False if Hammerspoon is not.
 static int core_autolaunch(lua_State* L) {
-    if (lua_isboolean(L, -1)) { MJAutoLaunchSet(lua_toboolean(L, -1)); }
+    if (lua_isboolean(L, 1)) { MJAutoLaunchSet(lua_toboolean(L, 1)); }
     lua_pushboolean(L, MJAutoLaunchGet()) ;
     return 1;
 }
@@ -76,7 +76,7 @@ static int core_autolaunch(lua_State* L) {
 /// Returns:
 ///  * True if the icon is currently set (or has just been) to be visible or False if it is not.
 static int core_menuicon(lua_State* L) {
-    if (lua_isboolean(L, -1)) { MJMenuIconSetVisible(lua_toboolean(L, -1)); }
+    if (lua_isboolean(L, 1)) { MJMenuIconSetVisible(lua_toboolean(L, 1)); }
     lua_pushboolean(L, MJMenuIconVisible()) ;
     return 1;
 }
@@ -96,7 +96,7 @@ static int core_menuicon(lua_State* L) {
 /// Returns:
 ///  * True if the console is currently set (or has just been) to be always on top when visible or False if it is not.
 static int core_consoleontop(lua_State* L) {
-    if (lua_isboolean(L, -1)) { MJConsoleWindowSetAlwaysOnTop(lua_toboolean(L, -1)); }
+    if (lua_isboolean(L, 1)) { MJConsoleWindowSetAlwaysOnTop(lua_toboolean(L, 1)); }
     lua_pushboolean(L, MJConsoleWindowAlwaysOnTop()) ;
     return 1;
 }
@@ -371,8 +371,8 @@ static int preferencesDarkMode(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
     
-    if (lua_isboolean(L, -1)) {
-        PreferencesDarkModeSetEnabled(lua_toboolean(L, -1));
+    if (lua_isboolean(L, 1)) {
+        PreferencesDarkModeSetEnabled(lua_toboolean(L, 1));
         [[MJPreferencesWindowController singleton] reflectDefaults] ;
     }
     
@@ -409,8 +409,8 @@ static int core_appleScript(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
 
-    if (lua_isboolean(L, -1)) {
-        HSAppleScriptSetEnabled(lua_toboolean(L, -1));
+    if (lua_isboolean(L, 1)) {
+        HSAppleScriptSetEnabled(lua_toboolean(L, 1));
     }
 
     lua_pushboolean(L, HSAppleScriptEnabled()) ;
@@ -433,8 +433,8 @@ static int core_openConsoleOnDockClick(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
 
-    if (lua_isboolean(L, -1)) {
-        HSOpenConsoleOnDockClickSetEnabled(lua_toboolean(L, -1));
+    if (lua_isboolean(L, 1)) {
+        HSOpenConsoleOnDockClickSetEnabled(lua_toboolean(L, 1));
     }
 
     lua_pushboolean(L, HSOpenConsoleOnDockClickEnabled()) ;

@@ -12,5 +12,5 @@ pod 'PocketSocket/Client', '1.0.1'
 pod 'Crashlytics', '3.10'
 pod 'Fabric', '1.7.3'
 pod 'Sparkle', '1.18.1', :configurations => ['Release']
-pod 'MIKMIDI', :git => 'https://github.com/mixedinkey-opensource/MIKMIDI.git', :branch => 'master'
+pod 'MIKMIDI', :git => 'https://github.com/mixedinkey-opensource/MIKMIDI.git', :commit => 'cb21421'
 end

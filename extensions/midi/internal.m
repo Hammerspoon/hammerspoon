@@ -18,22 +18,22 @@ static int refTable = LUA_NOREF;
 - (NSString *)hexadecimalString
 {
     /* Returns hexadecimal string of NSData. Empty string if data is empty.   */
-    
+
     const unsigned char *dataBuffer = (const unsigned char *)[self bytes];
-    
+
     if (!dataBuffer)
     {
         return [NSString string];
     }
-    
+
     NSUInteger          dataLength  = [self length];
     NSMutableString     *hexString  = [NSMutableString stringWithCapacity:(dataLength * 2)];
-    
+
     for (int i = 0; i < dataLength; ++i)
     {
         [hexString appendFormat:@"%02x", (unsigned int)dataBuffer[i]];
     }
-    
+
     return [NSString stringWithString:hexString];
 }
 @end
@@ -265,7 +265,6 @@ static int refTable = LUA_NOREF;
                     if ([device name]) {
                         [deviceNames addObject:[device name]];
                     }
-
                 }
 
                 //
@@ -387,7 +386,7 @@ static int deviceCallback(lua_State *L) {
         [watcherDeviceManager watchDevices];
     }
     else {
-//         [watcherDeviceManager unwatchDevices];
+        //         [watcherDeviceManager unwatchDevices];
         watcherDeviceManager = nil ;
     }
 
@@ -1580,35 +1579,35 @@ static int pushCommandTypes(lua_State *L) {
 // Setup MIDI Device:
 //
 static int pushHSMIDIDeviceManager(lua_State *L, id obj) {
-     HSMIDIDeviceManager *value = obj;
-     value.selfRefCount++ ;
-     void** valuePtr = lua_newuserdata(L, sizeof(HSMIDIDeviceManager *));
-     *valuePtr = (__bridge_retained void *)value;
-     luaL_getmetatable(L, USERDATA_TAG);
-     lua_setmetatable(L, -2);
-     return 1;
+    HSMIDIDeviceManager *value = obj;
+    value.selfRefCount++ ;
+    void** valuePtr = lua_newuserdata(L, sizeof(HSMIDIDeviceManager *));
+    *valuePtr = (__bridge_retained void *)value;
+    luaL_getmetatable(L, USERDATA_TAG);
+    lua_setmetatable(L, -2);
+    return 1;
 }
 
 id toHSMIDIDeviceManagerFromLua(lua_State *L, int idx) {
-     LuaSkin *skin = [LuaSkin shared] ;
-     HSMIDIDeviceManager *value ;
-     if (luaL_testudata(L, idx, USERDATA_TAG)) {
-         value = get_objectFromUserdata(__bridge HSMIDIDeviceManager, L, idx, USERDATA_TAG) ;
-     } else {
-         [skin logError:[NSString stringWithFormat:@"expected %s object, found %s", USERDATA_TAG,
-                                                    lua_typename(L, lua_type(L, idx))]] ;
-     }
-     return value ;
+    LuaSkin *skin = [LuaSkin shared] ;
+    HSMIDIDeviceManager *value ;
+    if (luaL_testudata(L, idx, USERDATA_TAG)) {
+        value = get_objectFromUserdata(__bridge HSMIDIDeviceManager, L, idx, USERDATA_TAG) ;
+    } else {
+        [skin logError:[NSString stringWithFormat:@"expected %s object, found %s", USERDATA_TAG,
+                        lua_typename(L, lua_type(L, idx))]] ;
+    }
+    return value ;
 }
 
 #pragma mark - Hammerspoon/Lua Infrastructure
 
 static int userdata_tostring(lua_State* L) {
-     LuaSkin *skin = [LuaSkin shared] ;
-     HSMIDIDeviceManager *obj = [skin luaObjectAtIndex:1 toClass:"HSMIDIDeviceManager"] ;
-     NSString *title = obj.midiDevice.displayName ;
-     [skin pushNSObject:[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, title, lua_topointer(L, 1)]] ;
-     return 1 ;
+    LuaSkin *skin = [LuaSkin shared] ;
+    HSMIDIDeviceManager *obj = [skin luaObjectAtIndex:1 toClass:"HSMIDIDeviceManager"] ;
+    NSString *title = obj.midiDevice.displayName ;
+    [skin pushNSObject:[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, title, lua_topointer(L, 1)]] ;
+    return 1 ;
 }
 
 static int userdata_eq(lua_State* L) {
