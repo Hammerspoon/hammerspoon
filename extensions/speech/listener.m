@@ -122,7 +122,7 @@ static int commands(lua_State *L) {
                 luaL_checkstring(L, -1) ; // force number to be a string
                 NSString *theCommand = [skin toNSObjectAtIndex: -1] ;
                 if (theCommand) {
-                    [theCommands addObject:[skin toNSObjectAtIndex:-1]] ;
+                    [theCommands addObject:theCommand] ;
                 } else {
                     [skin logWarn:@"invalid string evaluates to nil, skipping"] ;
                 }

@@ -10,6 +10,7 @@
 #import "MIKMIDIOutputPort.h"
 #import "MIKMIDIDestinationEndpoint.h"
 #import "MIKMIDICommand.h"
+#import "MIKMIDICommand_SubclassMethods.h"
 
 #if !__has_feature(objc_arc)
 #error MIKMIDIOutputPort.m must be compiled with ARC. Either turn on ARC for the project or set the -fobjc-arc flag for MIKMIDIOutputPort.m in the Build Phases for this target
@@ -34,10 +35,11 @@
 
 - (BOOL)sendCommands:(NSArray *)commands toDestination:(MIKMIDIDestinationEndpoint *)destination error:(NSError **)error;
 {
+	commands = [self commandsByTransformingForTransmissionCommands:commands];
 	if (![commands count] || !destination) return NO;
 	
 	error = error ? error : &(NSError *__autoreleasing){ nil };
-
+	
 	MIDIPacketList *packetList;
 	if (!MIKCreateMIDIPacketListFromCommands(&packetList, commands)) return NO;
 	
@@ -49,6 +51,22 @@
 	}
 	
 	return YES;
+}
+
+#pragma mark - Private
+
+
+- (NSArray *)commandsByTransformingForTransmissionCommands:(NSArray *)commands
+{
+	NSMutableArray *transformedCommands = [NSMutableArray array];
+	for (MIKMIDICommand *command in commands) {
+		if ([command respondsToSelector:@selector(commandsForTransmission)]) {
+			[transformedCommands addObjectsFromArray:[command commandsForTransmission]];
+		} else {
+			[transformedCommands addObject:command];
+		}
+	}
+	return transformedCommands;
 }
 
 @end

@@ -28,6 +28,7 @@ end
 
 -- Reads the contents of a file found at fileName and returns the contents as a string.
 -- Will throw an error if the specified file can not be read.
+-- Filters out a shebang if it's present
 local importScriptFile = function(fileName)
     local f = io.open(fileName, "rb")
     if not f then
@@ -35,6 +36,7 @@ local importScriptFile = function(fileName)
     end
     local content = f:read("*all")
     f:close()
+    content = string.gsub(content, "^#![^\n]*\n", "")
     return content
 end
 
