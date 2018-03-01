@@ -854,6 +854,7 @@
 				OTHER_CFLAGS = (
 					"-DLUA_COMPAT_ALL",
 					"-DLUA_USE_MACOSX",
+					"-DLUA_USE_APICHECK",
 				);
 				OTHER_LDFLAGS = "-lreadline";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -870,6 +871,7 @@
 				OTHER_CFLAGS = (
 					"-DLUA_COMPAT_ALL",
 					"-DLUA_USE_MACOSX",
+					"-DLUA_USE_APICHECK",
 				);
 				OTHER_LDFLAGS = "-lreadline";
 				PRODUCT_NAME = "$(TARGET_NAME)";
