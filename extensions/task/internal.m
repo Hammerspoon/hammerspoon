@@ -184,7 +184,7 @@ void create_task(task_userdata_t *userData) {
 ///   * task - The hs.task object
 ///   * stdOut - A string containing the standard output received since the last call to this callback
 ///   * stdErr - A string containing the standard error output received since the last call to this callback
-///  * arguments - An optional table containing command line arguments for the executable
+///  * arguments - An optional table of command line argument strings for the executable
 ///
 /// Returns:
 ///  * An `hs.task` object
@@ -265,8 +265,6 @@ static int task_setCallback(lua_State *L) {
     if (lua_type(L, 2) == LUA_TFUNCTION) {
         lua_pushvalue(L, 2);
         userData->luaCallback = [skin luaRef:refTable];
-    } else {
-        userData->luaCallback = LUA_REFNIL;
     }
 
     lua_pushvalue(L, 1) ;
@@ -368,8 +366,6 @@ static int task_setStreamingCallback(lua_State *L) {
     if (lua_type(L, 2) == LUA_TFUNCTION) {
         lua_pushvalue(L, 2);
         userData->luaStreamCallback = [skin luaRef:refTable];
-    } else {
-        userData->luaStreamCallback = LUA_REFNIL;
     }
 
     lua_pushvalue(L, 1);

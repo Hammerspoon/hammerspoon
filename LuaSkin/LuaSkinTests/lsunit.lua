@@ -32,7 +32,7 @@ function success()
 end
 
 function errorMsgEquality(expected, actual)
-  return string.format("expected: %s, actual: %s", expected, actual)
+  return string.format("expected: '%s', actual: '%s'", expected, actual)
 end
 
 -- Assertions
