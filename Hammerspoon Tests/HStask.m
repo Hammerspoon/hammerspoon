@@ -37,6 +37,7 @@
 }
 
 - (void)testStreamingTask {
+        SKIP_IN_TRAVIS()
         XCTAssertTrue([self luaTestWithCheckAndTimeOut:10 setupCode:@"testStreamingTask()" checkCode:@"testStreamingTaskValueCheck()"], @"hs.task streaming test failed");
 }
 
