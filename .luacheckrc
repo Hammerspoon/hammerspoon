@@ -1,2 +1,2 @@
-globals = {"hs", "rawrequire"}
+globals = {"hs", "rawrequire", "ls"}
 ignore = {"631"}
