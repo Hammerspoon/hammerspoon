@@ -1343,7 +1343,7 @@ static id lua_toNSAttributedString(lua_State *L, int idx) {
         luaL_tolstring(L, idx, NULL) ;
         theString = [[NSMutableAttributedString alloc] initWithString:[skin toNSObjectAtIndex:-1]];
         lua_pop(L, 1);
-    } else if (lua_type(L, idx == LUA_TUSERDATA) && luaL_testudata(L, idx, USERDATA_TAG)) {
+    } else if (lua_type(L, idx) == LUA_TUSERDATA && luaL_testudata(L, idx, USERDATA_TAG)) {
         theString = [get_objectFromUserdata(__bridge NSAttributedString, L, idx) mutableCopy];
     } else if (lua_type(L, idx) == LUA_TTABLE) {
         lua_rawgeti(L, idx, 1);
