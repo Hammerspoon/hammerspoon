@@ -299,11 +299,19 @@ void pushSourceIcon(TISInputSourceRef source) {
 }
 
 CFArrayRef getAllLayouts() {
-    return TISCreateInputSourceList((__bridge CFDictionaryRef)@{(__bridge NSString *)kTISPropertyInputSourceType : (__bridge NSString *)kTISTypeKeyboardLayout}, false);
+    NSDictionary *properties = @{
+                                 (__bridge NSString *)kTISPropertyInputSourceType : (__bridge NSString *)kTISTypeKeyboardLayout,
+                                 (__bridge NSString *)kTISPropertyInputSourceIsSelectCapable: @true
+                                 };
+    return TISCreateInputSourceList((__bridge CFDictionaryRef)properties, false);
 }
 
 CFArrayRef getAllInputMethods() {
-    return TISCreateInputSourceList((__bridge CFDictionaryRef)@{(__bridge NSString *)kTISPropertyInputSourceType : (__bridge NSString *)kTISTypeKeyboardInputMode}, false);
+    NSDictionary *properties = @{
+                                 (__bridge NSString *)kTISPropertyInputSourceType : (__bridge NSString *)kTISTypeKeyboardInputMode,
+                                 (__bridge NSString *)kTISPropertyInputSourceIsSelectCapable: @true
+                                 };
+    return TISCreateInputSourceList((__bridge CFDictionaryRef)properties, false);
 }
 
 /// hs.keycodes.currentSourceID([sourceID]) -> string | boolean
@@ -326,7 +334,10 @@ static int keycodes_sourceID(lua_State* L) {
     } else {
         BOOL found = NO ;
         NSString     *sourceID = [skin toNSObjectAtIndex:1] ;
-        NSDictionary *prop     = @{ (__bridge NSString *)kTISPropertyInputSourceID : sourceID } ;
+        NSDictionary *prop     = @{
+                                   (__bridge NSString *)kTISPropertyInputSourceID : sourceID,
+                                   (__bridge NSString *)kTISPropertyInputSourceIsSelectCapable: @true
+                                   } ;
         CFArrayRef   sources   = TISCreateInputSourceList((__bridge CFDictionaryRef)prop, false);
         if (sources) {
             if (CFArrayGetCount(sources) > 0) {
