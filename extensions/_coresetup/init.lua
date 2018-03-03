@@ -9,7 +9,7 @@ return {setup=function(...)
 
   -- setup core functions
 
-  os.exit = hs._exit
+  os.exit = hs._exit -- luacheck: ignore
 
 --- hs.configdir
 --- Constant
@@ -135,7 +135,7 @@ hs.fileDroppedToDockIconCallback = nil
 ---  * Hammerspoon overrides Lua's print() function, but this is a reference we retain to is, should you need it for any reason
   local rawprint,logmessage = print,hs._logmessage
   hs.rawprint = rawprint
-  function print(...)
+  function print(...) -- luacheck: ignore
 --    rawprint(...)
     local vals = pack(...)
 
@@ -282,7 +282,7 @@ hs.fileDroppedToDockIconCallback = nil
 ---    * the identifier `lua._C` will provide information specifically about the Lua C API for use when developing modules which require external libraries.
 
   hs.help = require("hs.doc")
-  help = hs.help
+  help = hs.help -- luacheck: ignore
 
 
 --- hs.hsdocs([identifier])
@@ -343,7 +343,7 @@ hs.fileDroppedToDockIconCallback = nil
 
     -- Inject a lazy extension loader into the main HS table
     setmetatable(hs, {
-      __index = function(t, key)
+      __index = function(_, key)
         if hs._extensions[key] ~= nil then
           print("-- Loading extension: "..key)
           hs[key] = require("hs."..key)
@@ -444,7 +444,7 @@ hs.fileDroppedToDockIconCallback = nil
   local function tableKeys(t)
     local keyset={}
     local n=0
-    for k,v in pairs(t) do
+    for k,_ in pairs(t) do
       n=n+1
       keyset[n]=k
     end
@@ -541,7 +541,7 @@ hs.fileDroppedToDockIconCallback = nil
 
   local hscrash = require("hs.crash")
   rawrequire = require
-  require = function(modulename)
+  require = function(modulename) -- luacheck: ignore
     local result = rawrequire(modulename)
     pcall(function()
     hscrash.crashLog("require: "..modulename)
@@ -593,8 +593,8 @@ hs.fileDroppedToDockIconCallback = nil
   local fn, err = loadfile(fullpath)
   if not fn then hs.showError(err) return hs.completionsForInputString, runstring end
 
-  local ok, err = xpcall(fn, debug.traceback)
-  if not ok then hs.showError(err) return hs.completionsForInputString, runstring end
+  local ok, errorMessage = xpcall(fn, debug.traceback)
+  if not ok then hs.showError(errorMessage) return hs.completionsForInputString, runstring end
 
   print "-- Done."
 

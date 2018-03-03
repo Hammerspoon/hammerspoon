@@ -15,6 +15,3 @@ local module = require("hs.brightness.internal")
 -- Return Module Object --------------------------------------------------
 
 return module
-
-
-

@@ -33,7 +33,7 @@ local newmodal = require'hs.hotkey'.modal.new
 local log = require'hs.logger'.new('grid')
 
 local ipairs,pairs,min,max,floor,fmod = ipairs,pairs,math.min,math.max,math.floor,math.fmod
-local sformat,smatch,ssub,ulen,type,tonumber,tostring = string.format,string.match,string.sub,utf8.len,type,tonumber,tostring
+local sformat,ssub,ulen,type,tostring = string.format,string.sub,utf8.len,type,tostring
 local tinsert,tpack=table.insert,table.pack
 local setmetatable,rawget,rawset=setmetatable,rawget,rawset
 
@@ -228,10 +228,10 @@ end
 --- Returns:
 ---  * None
 
-local function getCellSize(screen)
-  local grid=getGrid(screen)
-  local screenframe=getGridFrame(screen)
-  return geom.size(screenframe.w/grid.w,screenframe.h/grid.h)
+local function getCellSize(theScreen)
+  local theGrid=getGrid(theScreen)
+  local screenframe=getGridFrame(theScreen)
+  return geom.size(screenframe.w/theGrid.w,screenframe.h/theGrid.h)
 end
 
 local function round(num, idp)
@@ -709,14 +709,14 @@ deleteUI=function()
   _HINTS=nil
 end
 
-grid.ui=setmetatable({},{__newindex=function(t,k,v) ui[k]=v deleteUI()end,__index=ui})
+grid.ui=setmetatable({},{__newindex=function(_,k,v) ui[k]=v deleteUI()end,__index=ui})
 local function makeHints() -- quick hack to double up rows (for portrait screens mostly)
   if _HINTS then return end
   _HINTS={}
   local rows=#grid.HINTS
   for i,v in ipairs(grid.HINTS) do _HINTS[i]=v _HINTS[i+rows]={} end -- double up the hints
   for y=1,rows do
-    for x,h in ipairs(_HINTS[y]) do
+    for x,_ in ipairs(_HINTS[y]) do
       _HINTS[y+rows][x] = '⇧'.._HINTS[y][x] -- add shift
     end
   end
@@ -729,11 +729,11 @@ local function makeUI()
   uielements = {}
   local screens = screen.allScreens()
   local function dist(i,w1,w2) return round((i-1)/w1*w2)+1 end
-  for i,screen in ipairs(screens) do
-    local sgr = getGrid(screen)
-    local cell = getCellSize(screen)
-    local frame = getGridFrame(screen)
-    log.f('Screen #%d %s (%s) -> grid %s (%s cells)',i,screen:name(),frame.size.string,sgr.string,cell:floor().string)
+  for i,theScreen in ipairs(screens) do
+    local sgr = getGrid(theScreen)
+    local cell = getCellSize(theScreen)
+    local frame = getGridFrame(theScreen)
+    log.f('Screen #%d %s (%s) -> grid %s (%s cells)',i,theScreen:name(),frame.size.string,sgr.string,cell:floor().string)
     local htf = {w=550,h=150}
     htf.x = frame.x+frame.w/2-htf.w/2  htf.y = frame.y+frame.h/2-htf.h/3*2
     if fmod(sgr.h,2)==1 then htf.y=htf.y-cell.h/2 end
@@ -742,12 +742,12 @@ local function makeUI()
     local howtotext=drawing.text(htf,'    ←→↑↓:select screen\n ⇥:next win  ⇧⇥:prev win\n  space:fullscreen esc:exit')
     howtotext:setTextSize(40) howtotext:setTextColor(getColor(ui.textColor))
     howtotext:setTextFont(ui.fontName)
-    local sid=screen:id()
-    uielements[sid] = {left=(screen:toWest() or screen):id(),
-      up=(screen:toNorth() or screen):id(),
-      right=(screen:toEast() or screen):id(),
-      down=(screen:toSouth() or screen):id(),
-      screen=screen, frame=frame,
+    local sid=theScreen:id()
+    uielements[sid] = {left=(theScreen:toWest() or theScreen):id(),
+      up=(theScreen:toNorth() or theScreen):id(),
+      right=(theScreen:toEast() or theScreen):id(),
+      down=(theScreen:toSouth() or theScreen):id(),
+      screen=theScreen, frame=frame,
       howto={rect=howtorect,text=howtotext},
       hints={}}
     -- create the ui for cells
@@ -821,7 +821,8 @@ local function _start()
     highlight:setStrokeColor(getColor(cycling and ui.cyclingHighlightStrokeColor or ui.highlightStrokeColor)) highlight:setStrokeWidth(ui.highlightStrokeWidth)
     highlight:show()
   end
-  function resizing:entered()
+  -- This should probably be a function not a method:
+  function resizing:entered() -- luacheck: ignore
     if showing then return end
     if window.layout._hasActiveInstances then window.layout.pauseAllInstances() end
     --    currentWindow = window.frontmostWindow()
@@ -859,7 +860,8 @@ local function _start()
     dim = {1,1}
   end
 
-  function resizing:exited()
+  -- This should probably be a function not a method?
+  function resizing:exited() -- luacheck: ignore
     if not showing then return true end
     if highlight then highlight:delete() highlight=nil end
     clearSelection()

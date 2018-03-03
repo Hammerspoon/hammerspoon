@@ -53,7 +53,7 @@ function module.alert(x, y, callback, ...)
     local wv = hs.webview.new(rect):show()
     hs.dialog.webviewAlert(wv, function(...)
 	    wv:delete()
-    	callback(...)
+	    callback(...)
     end, ...)
 end
 

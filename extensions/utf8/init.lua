@@ -19,7 +19,7 @@
 -- version. -- edit: OK, so it's really only charPattern.. still, this is more portable
 -- in case it's needed as a template for elsewhere.
 local module = setmetatable({}, {
-        __index = function(object, key)
+        __index = function(_, key)
             for i,v in pairs(package.loaded["utf8"]) do
                 if string.lower(key) == i then return v end
             end
@@ -308,8 +308,8 @@ module.registerCodepoint("concaveDiamond",   0x27E1)
 ---  * Because Unicode characters outside of the basic ascii alphabet are multi-byte characters, any UTF8 or other Unicode encoded character will be broken up into their individual bytes and likely escaped by this function.
 ---  * This function is useful for displaying binary data in a human readable way that might otherwise be inexpressible in the Hammerspoon console or other destination.  For example:
 ---    * `utf8.charpattern`, which contains the regular expression for matching valid UTF8 encoded sequences, results in `(null)` in the Hammerspoon console, but `hs.utf8.asciiOnly(utf8.charpattern)` will display `[\x00-\x7F\xC2-\xF4][\x80-\xBF]*`.
-module.asciiOnly = function(theString, all)
-    local all = all or false
+module.asciiOnly = function(theString, theAll)
+    local all = theAll or false
     if type(theString) == "string" then
         if all then
             return (theString:gsub("[\x00-\x1f\x7f-\xff]",function(a)
@@ -341,10 +341,10 @@ end
 ---  * As an example:
 ---      `hs.utf8.hexDump(utf8.charpattern)` will return
 ---      `00 : 5B 00 2D 7F C2 2D F4 5D 5B 80 2D BF 5D 2A        : [.-..-.][.-.]*`
-module.hexDump = function(stuff, linemax)
+module.hexDump = function(stuff, theLinemax)
     local ascii = ""
     local count = 0
-    local linemax = tonumber(linemax) or 16
+    local linemax = tonumber(theLinemax) or 16
     local buffer = ""
     local rb = ""
     local offset = math.floor(math.log(#stuff,16)) + 1
@@ -377,6 +377,3 @@ end
 -- Return Module Object --------------------------------------------------
 
 return module
-
-
-

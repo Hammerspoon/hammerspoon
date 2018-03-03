@@ -3,14 +3,12 @@ if require"hs.settings".get("useCanvasWrappedDrawing") then
     return require("hs.drawing.canvasWrapper")
 end
 
-local imagemod    = require("hs.image") -- make sure we know about hsimage userdata for image functions
+-- make sure we know about hsimage userdata for image functions:
+local imagemod    = require("hs.image") -- luacheck: ignore
 
 local module      = require("hs.drawing.internal")
 module.color      = require("hs.drawing.color")
 local styledtext  = require("hs.styledtext")
-
-local fnutils = require("hs.fnutils")
-local imagemod = require("hs.image")
 
 local drawingObject = hs.getObjectMetatable("hs.drawing")
 
@@ -33,7 +31,7 @@ module.windowLevels    = ls.makeConstantsTable(module.windowLevels)
 ---  * Paths relative to the PWD of Hammerspoon (typically ~/.hammerspoon/) will work, but paths relative to the UNIX homedir character, `~` will not
 ---  * Animated GIFs are supported. They're not super friendly on your CPU, but they work
 drawingObject.setImageFromPath = function(self, path)
-    local image = nil
+    local image
     -- Legacy support for ASCII here. Really people should use :setImageFromASCII()
     if string.sub(path, 1, 6) == "ASCII:" then
         image = imagemod.imageFromASCII(string.sub(path, 7, -1))
@@ -126,7 +124,7 @@ end
 ---  * The `hs.drawing` object
 drawingObject.setBehaviorByLabels = function(obj, stringTable)
     local newBehavior = 0
-    for i,v in ipairs(stringTable) do
+    for _,v in ipairs(stringTable) do
         local flag = tonumber(v) or module.windowBehaviors[v]
         if flag then newBehavior = newBehavior | flag end
     end

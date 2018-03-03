@@ -30,7 +30,6 @@
 ---    * `notifyOnExit`  - a boolean specifying whether or not a callback with the "didExitRegion" message should be generated when the machine exits the region. When not specified in a table being used as an argument, this defaults to true.
 
 local USERDATA_TAG   = "hs.location"
-local GEOCODE_UD_TAG = USERDATA_TAG .. ".geocode"
 
 local module       = require(USERDATA_TAG..".internal")
 local host         = require("hs.host")
@@ -58,7 +57,7 @@ local __dispatch = function(msg, ...)
             if id == "legacy" then
             -- handle legacy callbacks
                 local locationNow = module.get()
-                for tag, callback in pairs(legacyCallbacks) do
+                for _, callback in pairs(legacyCallbacks) do
                     if not(callback.distance and module.distance(locationNow, callback.last) < callback.distance) then
                         callback.last = {
                             latitude = locationNow.latitude,
@@ -71,7 +70,7 @@ local __dispatch = function(msg, ...)
             else
                 local _self = objectInternals[id]
                 if _self and _self.callback then
-                    _self.callback(self, msg, ...)
+                    _self.callback(_self, msg, ...)
                 end
             end
         end
@@ -97,10 +96,10 @@ local __dispatch = function(msg, ...)
                             args[1].notifyOnExit  = _self.regions[originalID].notifyOnExit
                             -- return the objects name for the region, not the internal one
                             args[1].identifier = _self.regions[originalID].identifier
-                            _self.callback(self, msg, table.unpack(args))
+                            _self.callback(_self, msg, table.unpack(args))
                         end
                     else
-                        _self.callback(self, msg, ...)
+                        _self.callback(_self, msg, ...)
                     end
                 end
             end
@@ -207,7 +206,7 @@ end
 ---
 --- Returns:
 ---  * None
-module.stop = function(...)
+module.stop = function()
     -- if startedFor is not empty, then clear for legacy
     if next(startedFor) then
         startedFor.legacy = nil
@@ -400,7 +399,7 @@ end
 objectMT.__gc = function(self)
     self.callback = nil
     self:stopTracking()
-    for i,v in ipairs(self:monitoredRegions()) do self:removeMonitoredRegion(v.identifier) end
+    for _,v in ipairs(self:monitoredRegions()) do self:removeMonitoredRegion(v.identifier) end
     -- yeah, internal gc will get these, but it takes two passes to get both, so lets just kill both at once
     objectInternals[self.id] = nil
     objectInternals[self] = nil
@@ -490,7 +489,7 @@ objectMT.monitoredRegions = function(self)
     local regions = monitoredRegions()
     if regions then
         local results = {}
-        for i, v in ipairs(regions) do
+        for _, v in ipairs(regions) do
             if self.regions[v.identifier] then
                 table.insert(results, v)
                 -- [CLLocationManager monitoredRegions] returns a copy of the region data being
@@ -604,7 +603,7 @@ objectMT.currentRegion = function(self)
     local location, regions = self:location(), self:monitoredRegions()
     local currentRegion, currentRadius = nil, math.huge
     if location then
-        for i,v in ipairs(regions) do
+        for _,v in ipairs(regions) do
             if module.distance(location, v) < v.radius and v.radius < currentRadius then
                 currentRadius, currentRegion = v.radius, v.identifier
             end
@@ -661,7 +660,7 @@ end
 ---  * This function activates Location Services for Hammerspoon, so the first time you call this, you may be prompted to authorise Hammerspoon to use Location Services.
 ---  * If access to Location Services is enabled for Hammerspoon, this function will return the most recent cached data for the computer's location.
 ---    * Internally, the Location Services cache is updated whenever additional WiFi networks are detected or lost (not necessarily joined). When update tracking is enabled with the [hs.location.start](#start) function, calculations based upon the RSSI of all currently seen networks are preformed more often to provide a more precise fix, but it's still based on the WiFi networks near you.
-objectMT.location = function(self)
+objectMT.location = function()
     return module.get()
 end
 
@@ -687,7 +686,7 @@ internal._stop                  = locationStop          -- actual module stop fu
 internal._debugHelp = function()
     local results = "Debugging keys for " .. USERDATA_TAG .. " are:\n"
     local size = 0
-    for k, v in pairs(internal) do if #k > size then size = #k end end
+    for k, _ in pairs(internal) do if #k > size then size = #k end end
     for k, v in require("hs.fnutils").sortByKeys(internal) do
         results = results .. string.format("    %-" .. tostring(size) .. "s %s\n", k, tostring(v))
     end

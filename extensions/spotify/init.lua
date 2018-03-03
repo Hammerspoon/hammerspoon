@@ -197,7 +197,7 @@ function spotify.isPlaying()
   if not hs.spotify.isRunning() then
     return false
   end
-  state = hs.spotify.getPlaybackState()
+  local state = hs.spotify.getPlaybackState()
   if state == hs.spotify.state_playing then
     return true
   elseif state == hs.spotify.state_paused or state == hs.spotify.state_stopped then

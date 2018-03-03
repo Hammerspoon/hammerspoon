@@ -17,7 +17,6 @@
 local geom=require'hs.geometry'
 local pairs,ipairs,next,type=pairs,ipairs,next,type
 local max,min=math.max,math.min
-local tsort=table.sort
 local log=require'hs.logger'.new'wtiling'
 
 --TODO rewrite this whole thing.
@@ -154,7 +153,7 @@ local function tileWindows(windows,rect,desiredAspect,processInOrder,preserveRel
         for _,win in ipairs(testWindows) do
           testFrame.h=win.area/testFrame.w
           local winAspectRatio=(testFrame.w/testFrame.h) * adjustAspect / desiredRowAspect
-          local __=geom(testFrame)
+          --local __=geom(testFrame)
           if winAspectRatio>1 then winAspectRatio=1/winAspectRatio end
           testAspectRatio=min(testAspectRatio,winAspectRatio) --accumulate worst ratio aspect:desiredAspect (optimality)
           win.testFrame=geom.copy(testFrame)
@@ -203,7 +202,7 @@ local function tileWindows(windows,rect,desiredAspect,processInOrder,preserveRel
       wins[win]=nil
     end
 
-    local rowFrame=geom(rectToFill.y,rectToFill.y,wasVertical and tempWindowFrame.w or rectToFill.w,wasVertical and rectToFill.h or tempWindowFrame.h)
+    --local rowFrame=geom(rectToFill.y,rectToFill.y,wasVertical and tempWindowFrame.w or rectToFill.w,wasVertical and rectToFill.h or tempWindowFrame.h)
     --get the remaining rect to fill
     local temp=rectToFill.x2y2
     rectToFill:move(wasVertical and switchedRowFrame.w or 0,wasVertical and 0 or switchedRowFrame.w)

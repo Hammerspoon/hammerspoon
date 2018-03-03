@@ -44,7 +44,7 @@ local MSG_ID = {
 local originalPrint = print
 local printReplacement = function(...)
     originalPrint(...)
-    for k,v in pairs(module.__registeredCLIInstances) do
+    for _,v in pairs(module.__registeredCLIInstances) do
         if v._cli.console and v.print and not v._cli.quietMode then
 --            v.print(...)
 -- make it more obvious what is console output versus the command line's
@@ -57,7 +57,7 @@ local printReplacement = function(...)
         end
     end
 end
-print = printReplacement
+print = printReplacement -- luacheck: ignore
 
 local originalReload = hs.reload
 local reloadReplacement = function(...)
@@ -209,11 +209,11 @@ end
 ---
 --- Returns:
 ---  * A boolean, true if the `hs` command line tool is correctly installed, otherwise false
-module.cliStatus = function(path, silent)
-    local path = path or "/usr/local"
+module.cliStatus = function(apath, asilent)
+    local path = apath or "/usr/local"
     local mod_path = string.match(package.searchpath("hs.ipc",package.path), "^(.*)/init%.lua$")
 
-    local silent = silent or false
+    local silent = asilent or false
 
     local bin_file = os.execute("[ -f \""..path.."/bin/hs\" ]")
     local man_file = os.execute("[ -f \""..path.."/share/man/man1/hs.1\" ]")
@@ -284,9 +284,9 @@ end
 ---
 --- Notes:
 ---  * If this function fails, it is likely that you have some old/broken symlinks. You can use `hs.ipc.cliUninstall()` to forcibly tidy them up
-module.cliInstall = function(path, silent)
-    local path = path or "/usr/local"
-    local silent = silent or false
+module.cliInstall = function(apath, asilent)
+    local path = apath or "/usr/local"
+    local silent = asilent or false
     if module.cliStatus(path, true) == false then
         local mod_path = string.match(package.searchpath("hs.ipc",package.path), "^(.*)/init%.lua$")
         os.execute("ln -s \""..mod_path.."/bin/hs\" \""..path.."/bin/\"")
@@ -308,9 +308,9 @@ end
 ---
 --- Notes:
 ---  * This function used to be very conservative and refuse to remove symlinks it wasn't sure about, but now it will unconditionally remove whatever it finds at `path/bin/hs` and `path/share/man/man1/hs.1`. This is more likely to be useful in situations where this command is actually needed (please open an Issue on GitHub if you disagree!)
-module.cliUninstall = function(path, silent)
-    local path = path or "/usr/local"
-    local silent = silent or false
+module.cliUninstall = function(apath, asilent)
+    local path = apath or "/usr/local"
+    local silent = asilent or false
     os.execute("rm \""..path.."/bin/hs\"")
     os.execute("rm \""..path.."/share/man/man1/hs.1\"")
     return not module.cliStatus(path, silent)
@@ -330,7 +330,7 @@ module.__registeredInstanceCleanup = timer.doEvery(60, function()
     end
 end)
 
-module.__defaultHandler = function(self, msgID, msg)
+module.__defaultHandler = function(_, msgID, msg)
     if msgID == MSG_ID.LEGACYCHK then
         -- the message sent will be a mathematical equation; the original ipc will evaluate it because it ignored
         -- the msgid.  We send back a version string instead
@@ -382,7 +382,7 @@ module.__defaultHandler = function(self, msgID, msg)
             end,
         }, {
             __index    = _G,
-           __newindex = function(self, key, value)
+           __newindex = function(_, key, value)
                _G[key] = value
            end,
         })
@@ -432,7 +432,7 @@ module.__defaultHandler = function(self, msgID, msg)
         end
     elseif msgID == MSG_ID.LEGACY then
         log.df("in legacy handler")
-        local raw, str = (msg:sub(1,1) == "r"), msg:sub(2)
+        local _, str = (msg:sub(1,1) == "r"), msg:sub(2)
 
         if hs._consoleInputPreparser then
           if type(hs._consoleInputPreparser) == "function" then
@@ -449,7 +449,7 @@ module.__defaultHandler = function(self, msgID, msg)
 
         local originalprint = print
         local fakestdout = ""
-        print = function(...)
+        print = function(...) -- luacheck: ignore
             originalprint(...)
             local things = table.pack(...)
             for i = 1, things.n do
@@ -460,21 +460,21 @@ module.__defaultHandler = function(self, msgID, msg)
         end
 
 --        local fn = raw and rawhandler or module.handler
-        local fn = function(str)
-            local fn, err = load("return " .. str)
-            if not fn then fn, err = load(str) end
+        local fn = function(astr)
+            local fn, err = load("return " .. astr)
+            if not fn then fn, err = load(astr) end
             if fn then return fn() else return err end
         end
 
         local results = table.pack(pcall(function() return fn(str) end))
 
-        local str = ""
+        str = ""
         for i = 2, results.n do
             if i > 2 then str = str .. "\t" end
             str = str .. tostring(results[i])
         end
 
-        print = originalprint
+        print = originalprint -- luacheck: ignore
         return fakestdout .. str
     else
         log.ef("unexpected message id received: %d, %s", msgID, msg)

@@ -111,7 +111,7 @@ tell application "Finder"
   set comment of (filePath as alias) to "]] .. comment .. [["
 end tell
 ]]
-    local state, result, raw = require("hs.osascript").applescript(script)
+    local state, _, raw = require("hs.osascript").applescript(script)
     if state then
         return state
     else
