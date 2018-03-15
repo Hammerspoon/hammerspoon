@@ -89,6 +89,7 @@ export HS_LUAONLY="_coresetup \
     messages \
     mjomatic \
     network \
+    notdisturbmode \
     redshift \
     spotify \
     spoons \
