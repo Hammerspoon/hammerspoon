@@ -56,6 +56,7 @@ export HS_MODULES="application \
     timer \
     uielement \
     urlevent \
+    userpreference \
     usb \
     webview \
     wifi \
