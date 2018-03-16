@@ -258,7 +258,7 @@ end
 
 -- processHubCommand(data) -> none
 -- Function
--- Processes a HUB Command.
+-- Processes a single HUB Command.
 --
 -- Parameters:
 --  * data - The raw data from the socket.
@@ -726,14 +726,311 @@ local function processHubCommand(data)
                 ["data"] = data
             })
         end
-    else
-        --------------------------------------------------------------------------------
-        -- Unknown Message:
-        --------------------------------------------------------------------------------
-        if mod._callback then
-            mod._callback("UNKNOWN", {
-                ["data"] = data
-            })
+    end
+end
+
+-- separateHubCommands(data) -> none
+-- Function
+-- Separates multiple Hub Commands for processing.
+--
+-- Parameters:
+--  * data - The raw data from the socket.
+--
+-- Returns:
+--  * None
+local function separateHubCommands(rawData)
+    local numberOfBytesLeft = string.len(rawData)
+    while numberOfBytesLeft ~= 0 do
+        local currentPosition = (string.len(rawData) - numberOfBytesLeft) + 1
+        local data = string.sub(rawData, currentPosition)
+        local id = byteStringToNumber(data, 1, 4)
+        if id == mod.HUB_MESSAGE["INITIATE_COMMS"] then
+            --------------------------------------------------------------------------------
+            -- InitiateComms (0x01)
+            --  * Initiates communication between the Hub and the application.
+            --  * Communicates the quantity, type and IDs of the panels which are
+            --    configured to be connected in the panel-list.xml file. Note that this is
+            --    not the same as the panels which are actually connected – just those
+            --    which are expected to be connected.
+            --  * The length is dictated by the number of panels connected as the details
+            --    of each panel occupies 5 bytes.
+            --  * On receipt the application should respond with the
+            --    ApplicationDefinition (0x81) command.
+            --
+            -- Format: 0x01, <protocolRev>, <numPanels>, (<mod.PANEL_TYPE>, <panelID>)...
+            --
+            -- protocolRev: The revision number of the protocol (Unsigned Int)
+            -- numPanels: The number of panels connected (Unsigned Int)
+            -- panelType: The code for the type of panel connected (Unsigned Int)
+            -- panelID: The ID of the panel (Unsigned Int)
+            --------------------------------------------------------------------------------
+            local numberOfPanels = byteStringToNumber(data, 9, 4)
+            local length = (1 + 1 + 1 + (numberOfPanels * 1) + (numberOfPanels * 1)) * 4
+            local commandData = string.sub(data, 1, length)
+            processHubCommand(commandData)
+            numberOfBytesLeft = numberOfBytesLeft - length
+        elseif id == mod.HUB_MESSAGE["PARAMETER_CHANGE"] then
+            --------------------------------------------------------------------------------
+            -- ParameterChange (0x02)
+            --  * Requests that the application increment a parameter. The application needs
+            --    to constrain the value to remain within its maximum and minimum values.
+            --  * On receipt the application should respond to the Hub with the new
+            --    absolute parameter value using the ParameterValue (0x82) command,
+            --    if the value has changed.
+            --
+            -- Format: 0x02, <paramID>, <increment>
+            --
+            -- paramID: The ID value of the parameter (Unsigned Int)
+            -- increment: The incremental value which should be applied to the parameter (Float)
+            --------------------------------------------------------------------------------
+            local length = (1 + 1 + 1) * 4
+            local commandData = string.sub(data, 1, length)
+            processHubCommand(commandData)
+            numberOfBytesLeft = numberOfBytesLeft - length
+        elseif id == mod.HUB_MESSAGE["PARAMETER_RESET"] then
+            --------------------------------------------------------------------------------
+            -- ParameterReset (0x03)
+            --  * Requests that the application changes a parameter to its reset value.
+            --  * On receipt the application should respond to the Hub with the new absolute
+            --    parameter value using the ParameterValue (0x82) command, if the value
+            --    has changed.
+            --
+            -- Format: 0x03, <paramID>
+            --
+            -- paramID: The ID value of the parameter (Unsigned Int)
+            --------------------------------------------------------------------------------
+            local length = (1 + 1) * 4
+            local commandData = string.sub(data, 1, length)
+            processHubCommand(commandData)
+            numberOfBytesLeft = numberOfBytesLeft - length
+        elseif id == mod.HUB_MESSAGE["PARAMETER_VALUE_REQUEST"] then
+            --------------------------------------------------------------------------------
+            -- ParameterValueRequest (0x04)
+            --  * Requests that the application sends a ParameterValue (0x82) command
+            --    to the Hub.
+            --
+            -- Format: 0x04, <paramID>
+            --
+            -- paramID: The ID value of the parameter (Unsigned Int)
+            --------------------------------------------------------------------------------
+            local length = (1 + 1) * 4
+            local commandData = string.sub(data, 1, length)
+            processHubCommand(commandData)
+            numberOfBytesLeft = numberOfBytesLeft - length
+        elseif id == mod.HUB_MESSAGE["MENU_CHANGE"] then
+            --------------------------------------------------------------------------------
+            -- MenuChange (0x05)
+            --  * Requests the application change a menu index by +1 or -1.
+            --  * We recommend that menus that only have two values (e.g. on/off) should
+            --    toggle their state on receipt of either a +1 or -1 increment value.
+            --    This will allow a single button to toggle the state of such an item
+            --    without the need for separate ‘up’ and ‘down’ buttons.
+            --
+            -- Format: 0x05, <menuID>, < increment >
+            --
+            -- menuID: The ID value of the menu (Unsigned Int)
+            -- increment: The incremental amount by which the menu index should be changed which will always be an integer value of +1 or -1 (Signed Int)
+            --------------------------------------------------------------------------------
+            local length = (1 + 1 + 1) * 4
+            local commandData = string.sub(data, 1, length)
+            processHubCommand(commandData)
+            numberOfBytesLeft = numberOfBytesLeft - length
+        elseif id == mod.HUB_MESSAGE["MENU_RESET"] then
+            --------------------------------------------------------------------------------
+            -- MenuReset (0x06)
+            --  * Requests that the application sends a MenuString (0x83) command to the Hub.
+            --
+            -- Format: 0x06, <menuID>
+            --
+            -- menuID: The ID value of the menu (Unsigned Int)
+            --------------------------------------------------------------------------------
+            local length = (1 + 1) * 4
+            local commandData = string.sub(data, 1, length)
+            processHubCommand(commandData)
+            numberOfBytesLeft = numberOfBytesLeft - length
+        elseif id == mod.HUB_MESSAGE["MENU_STRING_REQUEST"] then
+            --------------------------------------------------------------------------------
+            -- MenuStringRequest (0x07)
+            --  * Requests that the application sends a MenuString (0x83) command to the Hub.
+            --  * On receipt, the application should respond to the Hub with the new menu
+            --    value using the MenuString (0x83) command, if the menu has changed.
+            --
+            -- Format: 0x07, <menuID>
+            --
+            -- menuID: The ID value of the menu (Unsigned Int)
+            --------------------------------------------------------------------------------
+            local length = (1 + 1) * 4
+            local commandData = string.sub(data, 1, length)
+            processHubCommand(commandData)
+            numberOfBytesLeft = numberOfBytesLeft - length
+        elseif id == mod.HUB_MESSAGE["ACTION_ON"] then
+            --------------------------------------------------------------------------------
+            -- Action On (0x08)
+            --  * Requests that the application performs the specified action.
+            --
+            -- Format: 0x08, <actionID>
+            --
+            -- actionID: The ID value of the action (Unsigned Int)
+            --------------------------------------------------------------------------------
+            local length = (1 + 1) * 4
+            local commandData = string.sub(data, 1, length)
+            processHubCommand(commandData)
+            numberOfBytesLeft = numberOfBytesLeft - length
+        elseif id == mod.HUB_MESSAGE["MODE_CHANGE"] then
+            --------------------------------------------------------------------------------
+            -- ModeChange (0x09)
+            --  * Requests that the application changes to the specified mode.
+            --
+            -- Format: 0x09, <modeID>
+            --
+            -- modeID: The ID value of the mode (Unsigned Int)
+            --------------------------------------------------------------------------------
+            local length = (1 + 1) * 4
+            local commandData = string.sub(data, 1, length)
+            processHubCommand(commandData)
+            numberOfBytesLeft = numberOfBytesLeft - length
+        elseif id == mod.HUB_MESSAGE["TRANSPORT"] then
+            --------------------------------------------------------------------------------
+            -- Transport (0x0A)
+            --  * Requests the application to move the currently active transport.
+            --  * jogValue or shuttleValue will never both be set simultaneously
+            --  * One revolution of the control represents 32 counts by default.
+            --    The user will be able to adjust the sensitivity of Jog & Shuttle
+            --    independently in the TUBE Mapper tool to send more or less than
+            --    32 counts per revolution.
+            --
+            -- Format: 0x0A, <jogValue>, <shuttleValue>
+            --
+            -- jogValue: The number of jog steps to move the transport (Signed Int)
+            -- shuttleValue: An incremental value to add to the shuttle speed (Signed Int)
+            --------------------------------------------------------------------------------
+            local length = (1 + 1 + 1) * 4
+            local commandData = string.sub(data, 1, length)
+            processHubCommand(commandData)
+            numberOfBytesLeft = numberOfBytesLeft - length
+        elseif id == mod.HUB_MESSAGE["ACTION_OFF"] then
+            --------------------------------------------------------------------------------
+            -- ActionOff (0x0B)
+            --  * Requests that the application cancels the specified action.
+            --  * This is typically sent when a button is released.
+            --
+            -- Format: 0x0B, <actionID>
+            --
+            -- actionID: The ID value of the action (Unsigned Int)
+            --------------------------------------------------------------------------------
+            local length = (1 + 1) * 4
+            local commandData = string.sub(data, 1, length)
+            processHubCommand(commandData)
+            numberOfBytesLeft = numberOfBytesLeft - length
+        elseif id == mod.HUB_MESSAGE["UNMANAGED_PANEL_CAPABILITIES"] then
+            --------------------------------------------------------------------------------
+            -- UnmanagedPanelCapabilities (0x30)
+            --  * Only used when working in Unmanaged panel mode.
+            --  * Sent in response to a UnmanagedPanelCapabilitiesRequest (0xA0) command.
+            --  * The values returned are those given in the table in Section 18.
+            --    Panel Data for Unmanaged Mode.
+            --
+            -- Format: 0x30, <panelID>, <numButtons>, <numEncoders>, <numDisplays>, <numDisplayLines>, <numDisplayChars>
+            --
+            -- panelID: The ID of the panel as reported in the InitiateComms command (Unsigned Int)
+            -- numButtons: The number of buttons on the panel (Unsigned Int)
+            -- numEncoders: The number of encoders on the panel (Unsigned Int)
+            -- numDisplays: The number of displays on the panel (Unsigned Int)
+            -- numDisplayLines: The number of lines for each display on the panel (Unsigned Int)
+            -- numDisplayChars: The number of characters on each line of each display on the panel (Unsigned Int)
+            --------------------------------------------------------------------------------
+            local length = 7 * 4
+            local commandData = string.sub(data, 1, length)
+            processHubCommand(commandData)
+            numberOfBytesLeft = numberOfBytesLeft - length
+        elseif id == mod.HUB_MESSAGE["UNMANAGED_BUTTON_DOWN"] then
+            --------------------------------------------------------------------------------
+            -- UnmanagedButtonDown (0x31)
+            --  * Only used when working in Unmanaged panel mode
+            --  * Issued when a button has been pressed
+            --
+            -- Format: 0x31, <panelID>, <buttonID>
+            --
+            -- panelID: The ID of the panel as reported in the InitiateComms command (Unsigned Int)
+            -- buttonID: The hardware ID of the button (Unsigned Int)
+            --------------------------------------------------------------------------------
+            local length = (1 + 1 + 1) * 4
+            local commandData = string.sub(data, 1, length)
+            processHubCommand(commandData)
+            numberOfBytesLeft = numberOfBytesLeft - length
+        elseif id == mod.HUB_MESSAGE["UNMANAGED_BUTTON_UP"] then
+            --------------------------------------------------------------------------------
+            -- UnmanagedButtonUp (0x32)
+            --  * Only used when working in Unmanaged panel mode.
+            --  * Issued when a button has been released
+            --
+            -- Format: 0x32, <panelID>, <buttonID>
+            --
+            -- panelID: The ID of the panel as reported in the InitiateComms command (Unsigned Int)
+            -- buttonID: The hardware ID of the button (Unsigned Int)
+            --------------------------------------------------------------------------------
+            local length = (1 + 1 + 1) * 4
+            local commandData = string.sub(data, 1, length)
+            processHubCommand(commandData)
+            numberOfBytesLeft = numberOfBytesLeft - length
+        elseif id == mod.HUB_MESSAGE["UNMANAGED_ENCODER_CHANGE"] then
+            --------------------------------------------------------------------------------
+            -- UnmanagedEncoderChange (0x33)
+            --  * Only used when working in Unmanaged panel mode.
+            --  * Issued when an encoder has been moved.
+            --
+            -- Format: 0x33, <panelID>, <encoderID>, <increment>
+            --
+            -- panelID: The ID of the panel as reported in the InitiateComms command (Unsigned Int)
+            -- paramID: The hardware ID of the encoder (Unsigned Int)
+            -- increment: The incremental value (Float)
+            --------------------------------------------------------------------------------
+            local length = (1 + 1 + 1 + 1) * 4
+            local commandData = string.sub(data, 1, length)
+            processHubCommand(commandData)
+            numberOfBytesLeft = numberOfBytesLeft - length
+        elseif id == mod.HUB_MESSAGE["UNMANAGED_DISPLAY_REFRESH"] then
+            --------------------------------------------------------------------------------
+            -- UnmanagedDisplayRefresh (0x34)
+            --  * Only used when working in Unmanaged panel mode
+            --  * Issued when a panel has been connected or the focus of the panel has
+            --    been returned to your application.
+            --  * On receipt your application should send all the current information to
+            --    each display on the panel in question.
+            --
+            -- Format: 0x34, <panelID>
+            --
+            -- panelID: The ID of the panel as reported in the InitiateComms command (Unsigned Int)
+            --------------------------------------------------------------------------------
+            local length = (1 + 1) * 4
+            local commandData = string.sub(data, 1, length)
+            processHubCommand(commandData)
+            numberOfBytesLeft = numberOfBytesLeft - length
+        elseif id == mod.HUB_MESSAGE["PANEL_CONNECTION_STATE"] then
+            --------------------------------------------------------------------------------
+            -- PanelConnectionState (0x35)
+            --  * Sent in response to a PanelConnectionStatesRequest (0xA5) command to
+            --    report the current connected/disconnected status of a configured panel.
+            --
+            -- Format: 0x35, <panelID>, <state>
+            --
+            -- panelID: The ID of the panel as reported in the InitiateComms command (Unsigned Int)
+            -- state: The connected state of the panel: 1 if connected, 0 if disconnected (Bool)
+            --------------------------------------------------------------------------------
+            local length = (1 + 1 + 1) * 4
+            local commandData = string.sub(data, 1, length)
+            processHubCommand(commandData)
+            numberOfBytesLeft = numberOfBytesLeft - length
+        else
+            --------------------------------------------------------------------------------
+            -- Unknown Command:
+            --------------------------------------------------------------------------------
+            if mod._callback then
+                mod._callback("UNKNOWN", {
+                    ["data"] = rawData
+                })
+            end
+            return
         end
     end
 end
@@ -1469,13 +1766,13 @@ function mod.connect(applicationName, systemPath, userPath)
                 timer.doAfter(mod.interval, function() mod._socket:read(mod._readBytesRemaining) end)
             else
                 --------------------------------------------------------------------------------
-                -- We've read the rest of a command:
+                -- We've read the rest of series of commands:
                 --------------------------------------------------------------------------------
                 mod._readBytesRemaining = 0
-                processHubCommand(data)
+                separateHubCommands(data)
 
                 --------------------------------------------------------------------------------
-                -- Get set up for the next command:
+                -- Get set up for the next series of commands:
                 --------------------------------------------------------------------------------
                 timer.doAfter(mod.interval, function() mod._socket:read(4) end)
             end
