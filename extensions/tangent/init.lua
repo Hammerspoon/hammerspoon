@@ -1102,11 +1102,10 @@ end
 --- Checks to see whether or not the Tangent Hub software is installed.
 ---
 --- Parameters:
----  * applicationName - Your application name as a string
----  * xmlPath - Path to the Tangent XML configuration files as a string
+---  * None
 ---
 --- Returns:
----  * `true` on successful connection, `false` on failed connection or `nil` on error.
+---  * `true` if Tangent Hub is installed otherwise `false`.
 function mod.isTangentHubInstalled()
     if doesFileExist("/Library/Application Support/Tangent/Hub/TangentHub") then
         return true
@@ -1709,7 +1708,7 @@ function mod.disconnect()
     end
 end
 
---- hs.tangent.connect() -> boolean, errorMessage
+--- hs.tangent.connect(applicationName, systemPath[, userPath]) -> boolean, errorMessage
 --- Function
 --- Connects to the Tangent Hub.
 ---
@@ -1720,7 +1719,7 @@ end
 ---
 --- Returns:
 ---  * success - `true` on success, otherwise `nil`
----  * errorMessage - Any error messages as a string
+---  * errorMessage - The error messages as a string or `nil` if `success` is `true`.
 function mod.connect(applicationName, systemPath, userPath)
 
     --------------------------------------------------------------------------------
