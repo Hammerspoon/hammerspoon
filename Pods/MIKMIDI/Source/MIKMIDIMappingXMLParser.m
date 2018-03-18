@@ -128,7 +128,12 @@
 		[self.currentItemInfo removeObjectForKey:@"commandIdentifier"];
 		MIKMIDIMappingItem *item = [[MIKMIDIMappingItem alloc] initWithMIDIResponderIdentifier:responderID andCommandIdentifier:commandID];
 		
-		[item setValuesForKeysWithDictionary:self.currentItemInfo];
+		item.additionalAttributes = self.currentItemInfo[@"additionalAttributes"];
+		item.channel = [self.currentItemInfo[@"channel"] integerValue];
+		item.commandType = [self.currentItemInfo[@"commandType"] integerValue];
+		item.controlNumber = [self.currentItemInfo[@"controlNumber"] unsignedIntegerValue];
+		item.flipped = [self.currentItemInfo[@"flipped"] boolValue];
+		item.interactionType = [self.currentItemInfo[@"interactionType"] integerValue];
 		
 		[self.currentMapping addMappingItemsObject:item];
 		
@@ -138,7 +143,12 @@
 	}
 	
 	if ([elementName isEqualToString:self.currentElementName]) {
-		self.currentItemInfo[[elementName mik_uncapitalizedString]] = [self.currentElementValueBuffer copy];
+		// Current element is stored as a string which may need to be converted to an NSNumber.
+		// Using NSScanner here, as detailed in https://stackoverflow.com/a/572312/8653957
+		NSString* currentElement = [self.currentElementValueBuffer copy];
+		NSScanner* scanner = [NSScanner scannerWithString:currentElement];
+		self.currentItemInfo[[elementName mik_uncapitalizedString]] = ([scanner scanInt:nil] && [scanner isAtEnd]) ? @(currentElement.integerValue) : currentElement;
+		
 		self.currentElementName = nil;
 		self.currentElementValueBuffer = nil;
 		
