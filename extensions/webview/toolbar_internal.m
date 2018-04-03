@@ -122,7 +122,7 @@ static NSMenu *createCoreSearchFieldMenu() {
 
 - (instancetype)initWithCopy:(HSToolbar *)original {
     LuaSkin *skin = [LuaSkin shared] ;
-    if (original) self = [super initWithIdentifier:original.identifier] ;
+    self = [super initWithIdentifier:original.identifier] ;
     if (self) {
         _selfRef               = LUA_NOREF;
         _callbackRef           = LUA_NOREF ;
