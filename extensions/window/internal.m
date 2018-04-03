@@ -269,7 +269,7 @@ static int window_isstandard(lua_State* L) {
 ///  * A point-table containing the absolute co-ordinates of the top left corner of the window
 static int window__topleft(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, "hs.window", LS_TBREAK];
 
     AXUIElementRef win = get_window_arg(L, 1);
     [skin pushNSPoint:get_window_topleft(win)];
@@ -287,7 +287,7 @@ static int window__topleft(lua_State* L) {
 ///  * A size-table containing the width and height of the window
 static int window__size(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, "hs.window", LS_TBREAK];
 
     AXUIElementRef win = get_window_arg(L, 1);
     [skin pushNSSize:get_window_size(win)];
@@ -305,7 +305,7 @@ static int window__size(lua_State* L) {
 ///  * The `hs.window` object
 static int window__settopleft(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TTABLE, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, "hs.window", LS_TTABLE, LS_TBREAK];
 
     AXUIElementRef win = get_window_arg(L, 1);
     NSPoint thePoint = [skin tableToPointAtIndex:2];
@@ -333,7 +333,7 @@ static int window__settopleft(lua_State* L) {
 ///  * The `hs.window` object
 static int window__setsize(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TTABLE, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, "hs.window", LS_TTABLE, LS_TBREAK];
 
     AXUIElementRef win = get_window_arg(L, 1);
     NSSize theSize = [skin tableToSizeAtIndex:2];
