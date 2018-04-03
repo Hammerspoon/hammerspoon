@@ -108,12 +108,12 @@ function testHiding()
   hs.timer.usleep(500000)
   assertFalse(app:isHidden())
 
-  app:kill()
+  app:kill9()
   return success()
 end
 
 function testKilling()
-  local app = hs.application.open("Stickies", 5, true)
+  local app = hs.application.open("Chess", 5, true)
   assertIsNotNil(app)
   assertTrue(app:isRunning())
 
@@ -137,12 +137,12 @@ function testForceKilling()
 end
 
 function testWindows()
-  local app = hs.application.open("Stickies", 5, true)
+  local app = hs.application.open("Grapher", 5, true)
   assertIsNotNil(app)
 
   local wins = app:allWindows()
   assertIsEqual("table", type(wins))
-  assertGreaterThan(1, #wins)
+  assertIsEqual(1, #wins)
 
   app:kill()
   return success()
