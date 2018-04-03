@@ -168,17 +168,17 @@ static int refTable;
         lua_State *L = skin.L;
 
         // add some headers for callback function to access
-        [request setHeaderField:@"X-Remote-Addr" value:asyncSocket.connectedHost];
-        [request setHeaderField:@"X-Remote-Port" value:[NSString stringWithFormat:@"%hu", asyncSocket.connectedPort]];
-        [request setHeaderField:@"X-Server-Addr" value:asyncSocket.localHost];
-        [request setHeaderField:@"X-Server-Port" value:[NSString stringWithFormat:@"%hu", asyncSocket.localPort]];
+        [self->request setHeaderField:@"X-Remote-Addr" value:self->asyncSocket.connectedHost];
+        [self->request setHeaderField:@"X-Remote-Port" value:[NSString stringWithFormat:@"%hu", self->asyncSocket.connectedPort]];
+        [self->request setHeaderField:@"X-Server-Addr" value:self->asyncSocket.localHost];
+        [self->request setHeaderField:@"X-Server-Port" value:[NSString stringWithFormat:@"%hu", self->asyncSocket.localPort]];
 
 
-        [skin pushLuaRef:refTable ref:((HSHTTPServer *)config.server).fn];
+        [skin pushLuaRef:refTable ref:((HSHTTPServer *)self->config.server).fn];
         lua_pushstring(L, [method UTF8String]);
         lua_pushstring(L, [path UTF8String]);
-        [skin pushNSObject:[request allHeaderFields]];
-        [skin pushNSObject:[request body] withOptions:LS_NSLuaStringAsDataOnly];
+        [skin pushNSObject:[self->request allHeaderFields]];
+        [skin pushNSObject:[self->request body] withOptions:LS_NSLuaStringAsDataOnly];
 
         if (![skin protectedCallAndTraceback:4 nresults:3]) {
             const char *errorMsg = lua_tostring(L, -1);
