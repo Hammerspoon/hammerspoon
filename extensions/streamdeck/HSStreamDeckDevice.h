@@ -20,8 +20,10 @@
 @property (nonatomic) id manager;
 @property (nonatomic) int selfRefCount;
 @property (nonatomic) int buttonCallbackRef;
+@property (nonatomic) BOOL isValid;
 
 - (id)initWithDevice:(IOHIDDeviceRef)device manager:(id)manager;
+- (void)invalidate;
 - (void)deviceDidSendInput:(NSNumber*)button isDown:(NSNumber*)isDown;
 - (BOOL)setBrightness:(int)brightness;
 - (void)reset;

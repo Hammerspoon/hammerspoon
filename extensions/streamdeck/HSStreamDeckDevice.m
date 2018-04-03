@@ -13,6 +13,7 @@
     self = [super init];
     if (self) {
         self.device = device;
+        self.isValid = YES;
         self.manager = manager;
         self.buttonCallbackRef = LUA_NOREF;
         self.selfRefCount = 0;
@@ -21,8 +22,16 @@
     return self;
 }
 
+- (void)invalidate {
+    self.isValid = NO;
+}
+
 - (void)deviceDidSendInput:(NSNumber*)button isDown:(NSNumber*)isDown {
     //NSLog(@"Got an input event from device: %p: button:%@ isDown:%@", (__bridge void*)self, button, isDown);
+
+    if (!self.isValid) {
+        return;
+    }
 
     LuaSkin *skin = [LuaSkin shared];
     if (self.buttonCallbackRef == LUA_NOREF || self.buttonCallbackRef == LUA_REFNIL) {
@@ -43,6 +52,10 @@
 }
 
 - (BOOL)setBrightness:(int)brightness {
+    if (!self.isValid) {
+        return NO;
+    }
+
     uint8_t brightnessHeader[] = {0x05, 0x55, 0xAA, 0xD1, 0x01, brightness};
     int brightnessLength = 17;
 
@@ -60,6 +73,10 @@
 }
 
 - (void)reset {
+    if (!self.isValid) {
+        return;
+    }
+
     uint8_t resetHeader[] = {0x0B, 0x63};
     NSData *reportData = [NSData dataWithBytes:resetHeader length:2];
     const uint8_t *rawBytes = (const uint8_t*)reportData.bytes;
@@ -67,6 +84,10 @@
 }
 
 - (NSString*)serialNumber {
+    if (!self.isValid) {
+        return @"INVALID DEVICE";
+    }
+
     uint8_t serial[17];
     CFIndex serialLen = sizeof(serial);
     IOHIDDeviceGetReport(self.device, kIOHIDReportTypeFeature, 0x3, serial, &serialLen);
@@ -76,6 +97,10 @@
 }
 
 - (NSString*)firmwareVersion {
+    if (!self.isValid) {
+        return @"INVALID DEVICE";
+    }
+
     uint8_t fwver[17];
     CFIndex fwverLen = sizeof(fwver);
     IOHIDDeviceGetReport(self.device, kIOHIDReportTypeFeature, 0x4, fwver, &fwverLen);
@@ -85,6 +110,10 @@
 }
 
 - (void)setColor:(NSColor *)color forButton:(int)button {
+    if (!self.isValid) {
+        return;
+    }
+
     NSImage *image = [[NSImage alloc] initWithSize:NSMakeSize(buttonImageSideLength, buttonImageSideLength)];
     [image lockFocus];
     [color drawSwatchInRect:NSMakeRect(0, 0, buttonImageSideLength, buttonImageSideLength)];
@@ -93,6 +122,10 @@
 }
 
 - (void)setImage:(NSImage *)image forButton:(int)button {
+    if (!self.isValid) {
+        return;
+    }
+
     NSImage *renderImage;
 
     // Unconditionally resize the image
