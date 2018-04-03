@@ -94,7 +94,7 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
 
     LuaSkin *skin = [LuaSkin shared];
     if (self.discoveryCallbackRef == LUA_NOREF || self.discoveryCallbackRef == LUA_REFNIL) {
-        [skin logWarn:@"hs.streamdeck detected a device, but no callback has been set. See hs.streamdeck.discoveryCallback()"];
+        [skin logWarn:@"hs.streamdeck detected a device connecting, but no callback has been set. See hs.streamdeck.discoveryCallback()"];
     } else {
         [skin pushLuaRef:streamDeckRefTable ref:self.discoveryCallbackRef];
         lua_pushboolean(skin.L, 1);
@@ -114,6 +114,20 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
 - (void)deviceDidDisconnect:(IOHIDDeviceRef)device {
     for (HSStreamDeckDevice *deckDevice in self.devices) {
         if (deckDevice.device == device) {
+            LuaSkin *skin = [LuaSkin shared];
+            if (self.discoveryCallbackRef == LUA_NOREF || self.discoveryCallbackRef == LUA_REFNIL) {
+                [skin logWarn:@"hs.streamdeck detected a device disconnecting, but no callback has been set. See hs.streamdeck.discoveryCallback()"];
+            } else {
+                [skin pushLuaRef:streamDeckRefTable ref:self.discoveryCallbackRef];
+                lua_pushboolean(skin.L, 0);
+                [skin pushNSObject:deckDevice];
+
+                if (![skin protectedCallAndTraceback:2 nresults:0]) {
+                    [skin logError:[NSString stringWithFormat:@"hs.streamdeck:discoveryCallback error:%s", lua_tostring(skin.L, -1)]];
+                    lua_pop(skin.L, 1);
+                }
+            }
+
             [self.devices removeObject:deckDevice];
             return;
         }
