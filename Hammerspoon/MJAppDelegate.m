@@ -16,19 +16,6 @@
 
 @implementation MJAppDelegate
 
-/*
-static BOOL MJFirstRunForCurrentVersion(void) {
-    NSString* key = [NSString stringWithFormat:@"%@_%d", MJHasRunAlreadyKey, MJVersionFromThisApp()];
-
-    BOOL firstRun = ![[NSUserDefaults standardUserDefaults] boolForKey:key];
-
-    if (firstRun)
-        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:key];
-
-    return firstRun;
-}
-*/
-
 - (BOOL) applicationShouldHandleReopen:(NSApplication*)theApplication hasVisibleWindows:(BOOL)hasVisibleWindows {
     callDockIconCallback();
     if (HSOpenConsoleOnDockClickEnabled()) {
@@ -60,7 +47,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 
 - (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)fileAndPath {
     NSString *typeOfFile = [[NSWorkspace sharedWorkspace] typeOfFile:fileAndPath error:nil];
-    
+
     if ([typeOfFile isEqualToString:@"org.latenitefilms.commandpost.plugin"]) {
         // This is a Plugin, so we will attempt to copy it to the Plugin directory
         NSError *fileError;
@@ -70,7 +57,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
         NSString *spoonName = [fileAndPath lastPathComponent];
         NSString *dstSpoonFullPath = [spoonPath stringByAppendingPathComponent:spoonName];
         NSFileManager *fileManager = [NSFileManager defaultManager];
-        
+
         // Remove any pre-existing copy of the Plugin
         if ([fileManager fileExistsAtPath:dstSpoonFullPath]) {
             NSLog(@"Plugin already exists at %@, removing the old version", dstSpoonFullPath);
@@ -87,7 +74,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
                 return YES;
             }
         }
-        
+
         success = [[NSFileManager defaultManager] moveItemAtPath:fileAndPath toPath:dstSpoonFullPath error:&fileError];
         if (!success) {
             NSLog(@"Unable to move %@ to %@: %@", fileAndPath, spoonPath, fileError);
@@ -107,12 +94,12 @@ static BOOL MJFirstRunForCurrentVersion(void) {
         }
         return YES; // Note that we always return YES here because otherwise macOS tells the user that we can't open Spoons, which is ludicrous
     }
-    
+
     NSString *fileExtension = [fileAndPath pathExtension];
     NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
     NSArray *supportedExtensions = [infoDict valueForKeyPath:@"CFBundleDocumentTypes.CFBundleTypeExtensions"];
     NSArray *flatSupportedExtensions = [supportedExtensions valueForKeyPath:@"@unionOfArrays.self"];
-    
+
     // Files to be processed by hs.urlevent
     if ([flatSupportedExtensions containsObject:fileExtension]) {
         if (!self.openFileDelegate) {
@@ -126,25 +113,25 @@ static BOOL MJFirstRunForCurrentVersion(void) {
         // Trigger File Dropped to Dock Icon Callback
         fileDroppedToDockIcon(fileAndPath);
     }
-    
+
     return YES;
 }
 
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-    
+
     // User is holding down Command (0x37) & Option (0x3A) keys:
     if (CGEventSourceKeyState(kCGEventSourceStateCombinedSessionState,0x3A) && CGEventSourceKeyState(kCGEventSourceStateCombinedSessionState,0x37)) {
-        
+
         NSAlert *alert = [[NSAlert alloc] init];
         [alert addButtonWithTitle:@"Continue"];
         [alert addButtonWithTitle:@"Delete Preferences"];
         [alert setMessageText:@"Do you want to delete the preferences?"];
         [alert setInformativeText:@"Deleting the preferences will reset all application settings to their defaults."];
         [alert setAlertStyle:NSWarningAlertStyle];
-        
+
         if ([alert runModal] == NSAlertSecondButtonReturn) {
-            
+
             // Reset Preferences:
             NSDictionary * allObjects;
             allObjects = [[NSUserDefaults standardUserDefaults] dictionaryRepresentation];
@@ -153,10 +140,10 @@ static BOOL MJFirstRunForCurrentVersion(void) {
                 [[NSUserDefaults standardUserDefaults] removeObjectForKey: key];
             }
             [[NSUserDefaults standardUserDefaults] synchronize];
-            
+
         }
     }
-    
+
     [[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(accessibilityChanged:) name:@"com.apple.accessibility.api" object:nil];
 
     // Remove our early event manager handler so hs.urlevent can register for it later, if the user has it configured to
@@ -256,8 +243,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     [[MJConsoleWindowController singleton] setup];
     MJLuaCreate();
 
-    // FIXME: Do we care about showing the prefs on the first run of each new version? (Ng does not care)
-    //if (MJFirstRunForCurrentVersion() || !MJAccessibilityIsEnabled())
+    //if (!MJAccessibilityIsEnabled())
         //[[MJPreferencesWindowController singleton] showWindow: nil];
 }
 

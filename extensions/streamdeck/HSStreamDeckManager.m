@@ -114,6 +114,7 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
 - (void)deviceDidDisconnect:(IOHIDDeviceRef)device {
     for (HSStreamDeckDevice *deckDevice in self.devices) {
         if (deckDevice.device == device) {
+            [deckDevice invalidate];
             LuaSkin *skin = [LuaSkin shared];
             if (self.discoveryCallbackRef == LUA_NOREF || self.discoveryCallbackRef == LUA_REFNIL) {
                 [skin logWarn:@"hs.streamdeck detected a device disconnecting, but no callback has been set. See hs.streamdeck.discoveryCallback()"];

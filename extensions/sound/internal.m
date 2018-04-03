@@ -37,10 +37,10 @@ static int refTable = LUA_NOREF;
     dispatch_async(dispatch_get_main_queue(), ^{
         LuaSkin *skin = [LuaSkin shared];
 //         [skin logVerbose:[NSString stringWithFormat:@"%s:in delegate", USERDATA_TAG]] ;
-        if (_callbackRef != LUA_NOREF) {
+        if (self->_callbackRef != LUA_NOREF) {
             lua_State *L = skin.L;
 
-            [skin pushLuaRef:refTable ref:_callbackRef];
+            [skin pushLuaRef:refTable ref:self->_callbackRef];
             lua_pushboolean(L, playbackSuccessful);
             [skin pushNSObject:self];
             if (![skin protectedCallAndTraceback:2 nresults:0]) {
@@ -51,7 +51,7 @@ static int refTable = LUA_NOREF;
         // a completed song should rely solely on user saved userdata values to prevent __gc
         // since there will be no other way to access it once this point is reached if it hasn't
         // been saved in a variable somewhere.
-        _selfRef = [skin luaUnref:refTable ref:_selfRef] ;
+        self->_selfRef = [skin luaUnref:refTable ref:self->_selfRef] ;
     }) ;
 }
 
