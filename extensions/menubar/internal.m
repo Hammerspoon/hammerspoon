@@ -99,6 +99,8 @@ typedef NS_ENUM(NSInteger, NSStatusBarItemPriority) {
 @property lua_State *L;
 @property int fn;
 @property int item;
+
+- (void)callback_runner;
 @end
 @implementation HSMenubarCallbackObject
 // Generic callback runner that will execute a Lua function stored in self.fn
