@@ -1031,6 +1031,11 @@ nextarg:
 
 - (int)pushNSArray:(id)obj withOptions:(NSUInteger)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
     NSArray* list = obj;
+    // Ensure our Lua stack is large enough for the number of items being pushed
+    if (!lua_checkstack(self.L, (int)list.count * 2)) {
+        lua_pushnil(self.L);
+        return 1;
+    }
     lua_newtable(self.L);
     alreadySeen[obj] = @(luaL_ref(self.L, LUA_REGISTRYINDEX)) ;
     lua_rawgeti(self.L, LUA_REGISTRYINDEX, [alreadySeen[obj] intValue]) ; // put it back on the stack
@@ -1046,6 +1051,11 @@ nextarg:
 
 - (int)pushNSSet:(id)obj withOptions:(NSUInteger)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
     NSSet* list = obj;
+    // Ensure our Lua stack is large enough for the number of items being pushed
+    if (!lua_checkstack(self.L, (int)list.count * 2)) {
+        lua_pushnil(self.L);
+        return 1;
+    }
     lua_newtable(self.L);
     alreadySeen[obj] = @(luaL_ref(self.L, LUA_REGISTRYINDEX)) ;
     lua_rawgeti(self.L, LUA_REGISTRYINDEX, [alreadySeen[obj] intValue]) ; // put it back on the stack
@@ -1061,6 +1071,11 @@ nextarg:
 - (int)pushNSDictionary:(id)obj withOptions:(NSUInteger)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
     NSArray *keys   = [obj allKeys];
     NSArray *values = [obj allValues];
+    // Ensure our Lua stack is large enough for the number of items being pushed
+    if (!lua_checkstack(self.L, (int)keys.count * 2)) {
+        lua_pushnil(self.L);
+        return 1;
+    }
     lua_newtable(self.L);
     alreadySeen[obj] = @(luaL_ref(self.L, LUA_REGISTRYINDEX)) ;
     lua_rawgeti(self.L, LUA_REGISTRYINDEX, [alreadySeen[obj] intValue]) ; // put it back on the stack
