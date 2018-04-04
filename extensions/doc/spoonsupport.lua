@@ -32,7 +32,7 @@ local findSpoons = function()
     for path in package.path:gmatch("([^;]+Spoons/%?%.spoon/init%.lua)") do
         table.insert(spoonPaths, path)
     end
-    for i, v in ipairs(spoonPaths) do
+    for _, v in ipairs(spoonPaths) do
         local dirPath = v:match("^(.+)/%?%.spoon/init%.lua$")
         if dirPath and fs.dir(dirPath) then
             for file in fs.dir(dirPath) do
@@ -78,7 +78,7 @@ local makeDocsFile = function(path, overwrite)
 end
 
 local updateDocsFiles = function()
-    local spoonPaths, installedSpoons = findSpoons()
+    local _, installedSpoons = findSpoons()
     for k, v in pairs(installedSpoons) do
         if not v.hasDocs then
             log.df("creating docs file for %s", k)
@@ -140,4 +140,3 @@ module.updateDocsFiles = updateDocsFiles
 module.makeDocsFile    = makeDocsFile
 
 return module
-

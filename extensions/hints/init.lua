@@ -3,7 +3,7 @@
 --- Switch focus with a transient per-application keyboard shortcut
 
 local hints = require "hs.hints.internal"
-local screen = require "hs.screen"
+local screen = require "hs.screen" -- luacheck: ignore
 local window = require "hs.window"
 local hotkey = require "hs.hotkey"
 local modal_hotkey = hotkey.modal
@@ -69,7 +69,7 @@ local function isValidWindow(win, allowNonStandard)
 end
 
 function hints.bumpPos(x,y)
-  for i, pos in ipairs(takenPositions) do
+  for _, pos in ipairs(takenPositions) do
     if ((pos.x-x)^2 + (pos.y-y)^2) < bumpThresh then
       return hints.bumpPos(x,y+bumpMove)
     end
@@ -185,7 +185,7 @@ function hints.processChar(char)
 end
 
 function hints.setupModal()
-  k = modal_hotkey.new(nil, nil)
+  local k = modal_hotkey.new(nil, nil)
   k:bind({}, 'escape', function() hints.closeHints(); k:exit() end)
 
   for _, c in ipairs(hintChars) do
@@ -227,7 +227,7 @@ function hints.windowHints(windows, callback, allowNonStandard)
   end
   hints.closeHints()
   hintDict = {}
-  for i, win in ipairs(windows) do
+  for _, win in ipairs(windows) do
     local app = win:application()
     if app and app:bundleID() and isValidWindow(win, allowNonStandard) then
       if hints.style == "vimperator" then

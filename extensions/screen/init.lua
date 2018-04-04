@@ -8,11 +8,11 @@
 
 local screen = require "hs.screen.internal"
 local geometry = require "hs.geometry"
-local imagemod = require "hs.image"
+local imagemod = require "hs.image" -- luacheck: ignore
 
 screen.watcher = require "hs.screen.watcher"
 
-local type,pairs,ipairs,min,max,cos,atan,huge=type,pairs,ipairs,math.min,math.max,math.cos,math.atan,math.huge
+local type,pairs,ipairs,cos,huge=type,pairs,ipairs,math.cos,math.huge
 local tinsert,tremove,tsort,tunpack=table.insert,table.remove,table.sort,table.unpack
 local getmetatable,pcall=getmetatable,pcall
 
@@ -133,7 +133,7 @@ function screen.screenPositions()
         f = f['to'..dir](f,nil,true,screens)
         if res[f] then f=nil end
         if f then -- found a screen
-          for i,s in ipairs(screens) do if s==f then tremove(screens,i) break end end
+          for i,ss in ipairs(screens) do if ss==f then tremove(screens,i) break end end
           local nx,ny=x+co[1],y+co[2]
           res[f]={x=nx,y=ny}--geometry(nx,ny)--
           findNeighbors(nx,ny,f,-co[1],-co[2])

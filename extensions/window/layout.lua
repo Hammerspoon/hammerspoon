@@ -25,7 +25,7 @@
 ---   if omitted (or if explicitly the string `all`) all the remaining windows will be processed by this command; processed
 ---   windows are "consumed" and are excluded from the window pool for subsequent commands in this rule, and from subsequent rules
 --- * a **selector**, describing the sort order used to pick the first *maxn* windows from the window pool for this command;
----   it can be one of `focused` (pick *maxn* most recently focused windows), `frontmost` (pick the recent focused window if its  
+---   it can be one of `focused` (pick *maxn* most recently focused windows), `frontmost` (pick the recent focused window if its
 ---   application is frontmost applicaion, otherwise the command will be skipped), `newest` (most recently created), `oldest`
 ---   (least recently created), or `closest` (pick the *maxn* windows that are closest to the destination rect); if omitted,
 ---   defaults to `closest` for move, tile and fit, and `newest` for everything else
@@ -73,7 +73,7 @@ local pairs,ipairs,next,type,pcall=pairs,ipairs,next,type,pcall
 local floor=math.floor
 local sformat,ssub,gmatch,gsub=string.format,string.sub,string.gmatch,string.gsub
 local tonumber,tostring=tonumber,tostring
-local tpack,tunpack,tremove,tinsert,tconcat=table.pack, table.unpack,table.remove,table.insert,table.concat
+local tpack,tremove,tconcat=table.pack,table.remove,table.concat
 
 local window=hs.window
 local windowfilter=require'hs.window.filter'
@@ -156,7 +156,7 @@ local function screenstr(s)
   end
 end
 
-local function validateCommand(command,ielem,icmd,irule,log)
+local function validateCommand(command,ielem,icmd,irule,theLog)
   local idx=irule..'.'..icmd
   if command.irule~=irule or command.icmd~=icmd then errorf('invalid indices %d.%d, %s expected',command.irule,command.icmd,idx,6) end
   local function error(s) return errorf('invalid %s, token %d in rule %s',s,ielem,idx,7) end
@@ -201,11 +201,11 @@ local function validateCommand(command,ielem,icmd,irule,log)
     if getselector(command.select,0)==CLOSEST then error'selector' end
   else error'action' end
 
-  log.i(logs)
+  theLog.i(logs)
   return command,ielem,icmd+1
 end
 
-local function parseCommand(rule,ielem,icmd,irule,log)
+local function parseCommand(rule,ielem,icmd,irule)
   if type(rule[ielem])=='table' and rule[ielem].action then
     return validateCommand(rule[ielem],ielem,icmd,irule,log),ielem+1,icmd+1
   end
@@ -258,7 +258,7 @@ local function parseRule(self,rule,irule)
     if not ok then wferror(wfkey,irule,res,4)
     else r.windowfilter=res end
   else
-    for k,v in pairs(rule) do
+    for k,_ in pairs(rule) do
       if type(k)=='string' then wfkey,ok,res=k,pcall(getwf,{[k]=rule[k]},irule,logname,loglevel) break end
     end
     if ok then r.windowfilter=res
@@ -349,10 +349,10 @@ end
 ---    after performing valid manipulations) to `hs.window.layout.new()`
 function layout:getRules()
   local r={}
-  for irule,rule in ipairs(self.rules) do
+  for _,rule in ipairs(self.rules) do
     local nrule={}
     nrule.windowfilter=rule.windowfilter:getFilters()
-    for icmd,command in ipairs(rule) do
+    for _,command in ipairs(rule) do
       nrule[#nrule+1]={
         action=command.action,max=command.max,select=command.select,aspect=command.aspect,
         rect=command.rect and geom.new(command.rect).table,
@@ -424,8 +424,8 @@ local function performPendingActions()
             win:setFrame(frame)
             command.log.f('rule %s: %s (%d) moved to %s',idx,appname,id,frame.string)
           end
-        elseif action==NOACTION then
-        else --hs.assert(false,'(422) wrong action: '..action,command)
+        --elseif action==NOACTION then
+        --else --hs.assert(false,'(422) wrong action: '..action,command)
         end
       end
     end
@@ -467,14 +467,14 @@ end
 local function removeFromList(win,winlist)
   local id=win:id() for i,w in ipairs(winlist) do if w:id()==id then tremove(winlist,i) return end end
 end
-local function findDestinationFrame(screen,unitrect,candidateWindow)
-  local toscreen=findScreen(screen) or (candidateWindow and candidateWindow:screen() or findScreen'0,0')
+local function findDestinationFrame(theScreen,unitrect,candidateWindow)
+  local toscreen=findScreen(theScreen) or (candidateWindow and candidateWindow:screen() or findScreen'0,0')
   return unitrect and toscreen:fromUnitRect(unitrect) or toscreen:frame()
 end
 local function findClosestWindow(winlist,destFrame) --winlist must be sorted by focusedLast
   --  hs.assert(#winlist>0,'no candidates for closest window')
   local center,rd,rwin=destFrame.center,999999
-  for i,w in ipairs(winlist) do -- first, try the "smallest" of all windows already fully inside frame
+  for _,w in ipairs(winlist) do -- first, try the "smallest" of all windows already fully inside frame
     local frame=w:frame()
     -- TODO?   if w:isVisible() then
     if frame:inside(destFrame) then
@@ -483,7 +483,7 @@ local function findClosestWindow(winlist,destFrame) --winlist must be sorted by 
     end
   end
   if rwin then return rwin end
-  for i,w in ipairs(winlist) do -- otherwise, just get the closest
+  for _,w in ipairs(winlist) do -- otherwise, just get the closest
     local frame=w:frame()
     local distance=frame:distance(center)
     if distance<rd then rd=distance rwin=w end
@@ -495,12 +495,12 @@ end
 -- applies a layout rule onto the action buffers
 local function applyRule(rule)
   local irule=rule.irule
-  local log=rule.windowlayout.log
+  local ruleLog=rule.windowlayout.log
   --  local rule=self.rules[irule]
   local windows,windowsCreated=rule.windowfilter:getWindows(FOCUSEDLAST),rule.windowfilter:getWindows(CREATEDLAST)
-  log.vf('applying rule %d to %d windows',irule,#windows)
+  ruleLog.vf('applying rule %d to %d windows',irule,#windows)
   local icmd,nprocessed=1,0
-  local ASSERT_ITER=1
+  --local ASSERT_ITER=1
   --  local readdUnhiddenWindows={}
   while icmd<=#rule and windows[1] do
     --    ASSERT_ITER=ASSERT_ITER+1 hs.assert(ASSERT_ITER<100,'applyRule looping',rule.irule)
@@ -509,7 +509,7 @@ local function applyRule(rule)
     if selector==CLOSEST then
       local destFrame=command.rect or findDestinationFrame(command.screen,command.unitrect)
       win=findClosestWindow(windows,destFrame)
-      log.vf('found closest window %d to %s',win:id(),destFrame.string)
+      ruleLog.vf('found closest window %d to %s',win:id(),destFrame.string)
     elseif selector==FOCUSEDLAST then
       win=windows[1]
     elseif selector==CREATEDLAST then
@@ -520,7 +520,7 @@ local function applyRule(rule)
       if windows[1]:application() == hs.application.frontmostApplication() then
         win=windows[1]
         nprocessed = 999
-      else 
+      else
         icmd=icmd+1 nprocessed=0
         goto _next_
       end
@@ -532,7 +532,7 @@ local function applyRule(rule)
 
     local buffered=winbuf[win]
     if buffered and buffered.windowlayout~=rule.windowlayout then
-      log.ef('multiple active windowlayout instances for %s (%s)!',win:application():name(),win:id())
+      ruleLog.ef('multiple active windowlayout instances for %s (%s)!',win:application():name(),win:id())
     end
 
 
@@ -660,7 +660,7 @@ function layout:resume()
   if self.autolayout then self.log.d('windowlayout instance already running, ignoring resume') return self end
   if screenInstances[self] and not self._screenConfigurationAllowed then
     self.log.d('current screen configuration not allowed, ignoring resume') return self end
-  for irule,rule in ipairs(self.rules) do
+  for _,rule in ipairs(self.rules) do
     --timers and upvalues galore
     local hasFocusedSelector--,hasPositionSelector
     for _,cmd in ipairs(rule) do
@@ -697,7 +697,7 @@ end
 function layout:pause()
   if not activeInstances[self] then self.log.i('windowlayout instance not started, ignoring pause') return self end
   if not self.autolayout then self.log.d('windowlayout instance already paused, ignoring') return self end
-  for idx,rule in ipairs(self.rules) do
+  for _,rule in ipairs(self.rules) do
     if rule.callback then rule.windowfilter:unsubscribe(rule.callback) rule.callback=nil end
     if rule.resubTimer then rule.resubTimer:setNextTrigger(DISTANT_FUTURE) end
   end
@@ -902,7 +902,7 @@ function layout.applyLayout(rules) layout.new(rules):apply():delete() end
 
 
 --TODO...
-function layout.getLayout(layout,includeScreen)
+function layout.getLayout()
 --layout is optional
 -- to detect tiling: no intersections, union area = sum of areas
 end

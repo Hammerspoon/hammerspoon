@@ -147,7 +147,6 @@ module.rectangle = function(frame)
 end
 
 module.text = function(frame, message)
-    local styledtext = require("hs.styledtext")
     if type(message) == "table" then
         message = styledtext.new(message)
     elseif type(message) ~= "string" and getmetatable(message) ~= hs.getObjectMetatable("hs.styledtext") then
@@ -296,7 +295,7 @@ drawingMT.setClickCallback = function(self, ...)
 
     self.canvas:canvasMouseEvents(mouseDnFn and true or false, mouseUpFn and true or false)
     if mouseDnFn or mouseUpFn then
-        self.canvas:mouseCallback(function(c, m, i, x, y)
+        self.canvas:mouseCallback(function(_, m)
             if     m == "mouseUp"   and mouseUpFn then mouseUpFn()
             elseif m == "mouseDown" and mouseDnFn then mouseDnFn()
             end
@@ -729,15 +728,15 @@ drawingMT.setFrame = function(self, ...)
     return self
 end
 
-drawingMT.alpha                   = function(self, ...) return self.canvas:alpha() end
+drawingMT.alpha                   = function(self) return self.canvas:alpha() end
 drawingMT.setAlpha                = function(self, ...) self.canvas:alpha(...) ; return self end
-drawingMT.behavior                = function(self, ...) return self.canvas:behavior() end
+drawingMT.behavior                = function(self) return self.canvas:behavior() end
 drawingMT.setBehavior             = function(self, ...) self.canvas:behavior(...) ; return self end
-drawingMT.behaviorAsLabels        = function(self, ...) return self.canvas:behaviorAsLabels() end
+drawingMT.behaviorAsLabels        = function(self) return self.canvas:behaviorAsLabels() end
 drawingMT.setBehaviorByLabels     = function(self, ...) self.canvas:behaviorAsLabels(...) ; return self end
 drawingMT.bringToFront            = function(self, ...) self.canvas:bringToFront(...) ; return self end
 drawingMT.clickCallbackActivating = function(self, ...) self.canvas:clickActivating(...) ; return self end
-drawingMT.frame                   = function(self, ...) return self.canvas:frame() end
+drawingMT.frame                   = function(self) return self.canvas:frame() end
 drawingMT.hide                    = function(self, ...) self.canvas:hide(...) ; return self end
 drawingMT.sendToBack              = function(self, ...) self.canvas:sendToBack(...) ; return self end
 drawingMT.setLevel                = function(self, ...) self.canvas:level(...) ; return self end

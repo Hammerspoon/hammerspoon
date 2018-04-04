@@ -12,9 +12,11 @@ local geometry = require "hs.geometry"
 local gtype=geometry.type
 local screen = require "hs.screen"
 local timer = require "hs.timer"
-local image=require "hs.image" -- make sure we know about HSImage userdata type
+
+-- make sure we know about HSImage userdata type:
+local image=require "hs.image" -- luacheck: ignore
 local pairs,ipairs,next,min,max,abs,cos,type = pairs,ipairs,next,math.min,math.max,math.abs,math.cos,type
-local tinsert,tremove,tsort,tunpack,tpack = table.insert,table.remove,table.sort,table.unpack,table.pack
+local tremove,tsort,tunpack,tpack = table.remove,table.sort,table.unpack,table.pack
 --- hs.window.animationDuration (number)
 --- Variable
 --- The default duration for animations, in seconds. Initial value is 0.2; set to 0 to disable animations.
@@ -635,7 +637,9 @@ local function windowsInDirection(fromWindow, numRotations, candidateWindows, fr
   local fromFrame=geometry(fromWindow:frame())
   local winset,fromz,fromid={},99999,fromWindow:id() or -1
   for z,w in ipairs(candidateWindows or window.orderedWindows()) do
-    if fromid==(w:id() or -2) then fromWindow=w fromz=z --workaround the fact that userdata keep changing
+    if fromid==(w:id() or -2) then
+      --fromWindow=w -- TODO: This doesn't actually seem to be used?
+      fromz=z --workaround the fact that userdata keep changing
     elseif not candidateWindows or w:isVisible() then winset[w]=z end --make a set, avoid inner loop (if using .orderedWindows skip the visible check as it's done upstream)
   end
   if frontmost then for w,z in pairs(winset) do if z>fromz and isFullyBehind(fromFrame,w) then winset[w]=nil end end end
@@ -727,9 +731,9 @@ end
 function window.frontmostWindow()
   local w=window.focusedWindow()
   if w then return w end
-  for _,w in ipairs(window.orderedWindows()) do
-    local app=w:application()
-    if (app and app:title()~='Hammerspoon') or w:subrole()~='AXUnknown' then return w end
+  for _,ww in ipairs(window.orderedWindows()) do
+    local app=ww:application()
+    if (app and app:title()~='Hammerspoon') or ww:subrole()~='AXUnknown' then return ww end
   end
 end
 

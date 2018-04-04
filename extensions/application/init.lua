@@ -2,7 +2,9 @@
 ---
 --- Manipulate running applications
 
-local uielement = hs.uielement  -- Make sure parent module loads
+-- Make sure parent module loads:
+local uielement = hs.uielement -- luacheck: ignore
+
 local application = require "hs.application.internal"
 application.watcher = require "hs.application.watcher"
 package.loaded['hs.application']=application --preload application so it can be fully required by window
@@ -28,7 +30,7 @@ local realNameFor = function(value, exact)
             end
         end
         local returnedResults = {}
-        for k,v in pairs(results) do
+        for k,_ in pairs(results) do
             table.insert(returnedResults, k:match("^(.*)%.app$") or k)
         end
         return table.unpack(returnedResults)
@@ -388,7 +390,7 @@ application.menuGlyphs = setmetatable({
 local modifyNameMap = function(info, add)
     for _, item in ipairs(info) do
         local applicationName = item.kMDItemFSName
-        for __, alt in ipairs(item.kMDItemAlternateNames or {}) do
+        for _, alt in ipairs(item.kMDItemAlternateNames or {}) do
             alternateNameMap[alt:match("^(.*)%.app$") or alt] = add and applicationName or nil
         end
     end
@@ -408,7 +410,7 @@ local buildAlternateNameMap = function()
     spotlightWatcher = require"hs.spotlight".new()
     spotlightWatcher:queryString([[ kMDItemContentType = "com.apple.application-bundle" ]])
                     :callbackMessages("didUpdate", "inProgress")
-                    :setCallback(function(obj, msg, info)
+                    :setCallback(function(_, _, info)
                         if info then -- shouldn't be nil for didUpdate and inProgress, but check anyways
                             -- all three can occur in either message, so check them all!
                             if info.kMDQueryUpdateAddedItems   then
@@ -471,4 +473,3 @@ end
 application._alternateNameMap = alternateNameMap
 
 return application
-

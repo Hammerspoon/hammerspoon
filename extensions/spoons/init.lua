@@ -148,17 +148,17 @@ end
 ---    * `loaded` - boolean indication of whether the Spoon is loaded (`true`) or only installed (`false`)
 ---    * `version` - Spoon version number. Available only for loaded Spoons.
 function module.list(only_loaded)
-   local iterfn, dirobj = hs.fs.dir(hs.configdir .. "/Spoons")
+   local _, dirobj = hs.fs.dir(hs.configdir .. "/Spoons")
    local res = {}
    repeat
       local f = dirobj:next()
       if f then
          if string.match(f, ".spoon$") then
             local s = f:gsub(".spoon$", "")
-            local l = (spoon[s] ~= nil)
+            local l = (spoon[s] ~= nil) -- luacheck: ignore
             if (not only_loaded) or l then
                local new = { name = s, loaded = l }
-               if l then new.version = spoon[s].version end
+               if l then new.version = spoon[s].version end -- luacheck: ignore
                table.insert(res, new)
             end
          end
@@ -178,7 +178,7 @@ end
 ---  * If the Spoon is installed, it returns a table with the Spoon information as returned by `list()`. Returns `nil` if the Spoon is not installed.
 function module.isInstalled(name)
    local list = module.list()
-   for i,v in ipairs(list) do
+   for _,v in ipairs(list) do
       if v.name == name then
          return v
       end
@@ -197,7 +197,7 @@ end
 ---  * `true` if the Spoon is loaded, `nil` otherwise.
 function module.isLoaded(name)
    local list = module.list()
-   for i,v in ipairs(list) do
+   for _,v in ipairs(list) do
       if v.name == name then
          return v.loaded
       end
