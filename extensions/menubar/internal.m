@@ -664,12 +664,12 @@ static int menubarSetTooltip(lua_State *L) {
     return 1 ;
 }
 
-/// hs.menubar:setClickCallback(fn) -> menubaritem
+/// hs.menubar:setClickCallback([fn]) -> menubaritem
 /// Method
 /// Registers a function to be called when the menubar item is clicked
 ///
 /// Parameters:
-///  * `fn` - A function to be called when the menubar item is clicked. If the argument is `nil`, any existing function will be removed. The function can optionally accept a single argument, which will be a table containing boolean values indicating which keyboard modifiers were held down when the menubar item was clicked; The possible keys are:
+///  * `fn` - An optional function to be called when the menubar item is clicked. If this argument is not provided, any existing function will be removed. The function can optionally accept a single argument, which will be a table containing boolean values indicating which keyboard modifiers were held down when the menubar item was clicked; The possible keys are:
 ///   * cmd
 ///   * alt
 ///   * shift
@@ -684,20 +684,22 @@ static int menubarSetTooltip(lua_State *L) {
 ///  * Has no affect on the display of a pop-up menu, but changes will be be in effect if hs.menubar:returnToMenuBar() is called on the menubaritem.
 static int menubarSetClickCallback(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION|LS_TNIL|LS_TOPTIONAL, LS_TBREAK];
 
     menubaritem_t *menuBarItem = get_item_arg(L, 1);
     NSStatusItem *statusItem = (__bridge NSStatusItem*)menuBarItem->menuBarItemObject;
-    if (lua_isnil(L, 2)) {
-        menuBarItem->click_fn = [skin luaUnref:refTable ref:menuBarItem->click_fn];
-        if (menuBarItem->click_callback) {
-            [statusItem setTarget:nil];
-            [statusItem setAction:nil];
-            HSMenubarItemClickDelegate *object = (__bridge_transfer HSMenubarItemClickDelegate *)menuBarItem->click_callback;
-            menuBarItem->click_callback = nil;
-            object = nil;
-        }
-    } else {
-        luaL_checktype(L, 2, LUA_TFUNCTION);
+
+    // Remove any existing click callback
+    menuBarItem->click_fn = [skin luaUnref:refTable ref:menuBarItem->click_fn];
+    if (menuBarItem->click_callback) {
+        [statusItem setTarget:nil];
+        [statusItem setAction:nil];
+        HSMenubarItemClickDelegate *object = (__bridge_transfer HSMenubarItemClickDelegate *)menuBarItem->click_callback;
+        menuBarItem->click_callback = nil;
+        object = nil;
+    }
+
+    if (lua_isfunction(L, 2)) {
         lua_pushvalue(L, 2);
         menuBarItem->click_fn = [skin luaRef:refTable];
         HSMenubarItemClickDelegate *object = [[HSMenubarItemClickDelegate alloc] init];

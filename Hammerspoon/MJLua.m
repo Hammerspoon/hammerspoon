@@ -166,24 +166,21 @@ static int core_reload(lua_State* L) {
 /// Constant
 /// A table containing read-only information about the Hammerspoon application instance currently running.
 static int push_hammerAppInfo(lua_State* L) {
-    lua_newtable(L) ;
-        lua_pushstring(L, [[[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"] UTF8String]) ;
-        lua_setfield(L, -2, "version") ;
-        lua_pushstring(L, [[[NSBundle mainBundle] resourcePath] fileSystemRepresentation]);
-        lua_setfield(L, -2, "resourcePath");
-        lua_pushstring(L, [[[NSBundle mainBundle] bundlePath] fileSystemRepresentation]);
-        lua_setfield(L, -2, "bundlePath");
-        lua_pushstring(L, [[[NSBundle mainBundle] executablePath] fileSystemRepresentation]);
-        lua_setfield(L, -2, "executablePath");
-        lua_pushinteger(L, getpid()) ;
-        lua_setfield(L, -2, "processID") ;
-// Take this out of hs.settings?
-        lua_pushstring(L, [[[NSBundle mainBundle] bundleIdentifier] UTF8String]) ;
-        lua_setfield(L, -2, "bundleID") ;
+    LuaSkin *skin = [LuaSkin shared];
+    NSDictionary *appInfo = @{
+                              @"version": [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"],
+                              @"resourcePath": @([[[NSBundle mainBundle] resourcePath] fileSystemRepresentation]),
+                              @"bundlePath": @([[[NSBundle mainBundle] bundlePath] fileSystemRepresentation]),
+                              @"executablePath": @([[[NSBundle mainBundle] executablePath] fileSystemRepresentation]),
+                              @"processID": @(getpid()),
+                              @"bundleID": [[NSBundle mainBundle] bundleIdentifier],
 #ifdef DEBUG
-        lua_pushstring(L, __DATE__ ", " __TIME__) ; lua_setfield(L, -2, "buildTime") ;
-        lua_pushboolean(L, YES) ; lua_setfield(L, -2, "debugBuild") ;
+                              @"buildTime": @(__DATE__ ", " __TIME__),
+                              @"debugBuild": @(YES),
 #endif
+                              };
+
+    [skin pushNSObject:appInfo];
     return 1;
 }
 
