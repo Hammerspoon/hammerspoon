@@ -219,7 +219,7 @@
 	<key>NSAppleScriptEnabled</key>
 	<true/>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright Chris Hocking &amp; David Peterson 2017. Released under MIT license.</string>
+	<string>Copyright Chris Hocking &amp; David Peterson 2017-2018. Released under MIT license.</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
