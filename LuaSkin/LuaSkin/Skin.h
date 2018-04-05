@@ -695,6 +695,15 @@ NSString *specMaskToString(int spec);
  */
 - (BOOL)requireModule:(const char *)moduleName ;
 
+/*!
+ @abstract Increases the size of Lua's stack
+
+ @discussion This should be used before pushing items onto the stack. Each Lua->C transition is guaranteed to provide only 20 stack slots. It therefore seems wise to request more slots if we're going to be pushing things.
+ @warning If the stack size cannot be increased, a luaL_error() will be thrown
+ @param slots The number of additional slots to add to the stack
+ */
+- (void)growStack:(int)slots withMessage:(const char *)message;
+
 #pragma mark - Logging methods
 
 /*! @methodgroup Logging methods */
