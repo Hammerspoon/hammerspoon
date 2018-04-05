@@ -174,9 +174,11 @@ static int push_hammerAppInfo(lua_State* L) {
                               @"executablePath": @([[[NSBundle mainBundle] executablePath] fileSystemRepresentation]),
                               @"processID": @(getpid()),
                               @"bundleID": [[NSBundle mainBundle] bundleIdentifier],
-#ifdef DEBUG
                               @"buildTime": @(__DATE__ ", " __TIME__),
+#ifdef DEBUG
                               @"debugBuild": @(YES),
+#else
+                              @"debugBuild": @(NO),
 #endif
                               };
 
