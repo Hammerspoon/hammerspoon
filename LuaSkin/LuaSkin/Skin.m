@@ -931,7 +931,7 @@ nextarg:
 }
 
 - (void)growStack:(int)slots withMessage:(const char *)message {
-#ifdef 0
+#if 0
     NSLog(@"growStack: %03d:%s", slots, message);
 #endif
     luaL_checkstack(self.L, slots, message);
