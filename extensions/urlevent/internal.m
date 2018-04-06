@@ -129,12 +129,7 @@ static HSURLEventHandler *eventHandler;
     [skin pushNSObject:[url host]];
     [skin pushNSObject:pairs];
     [skin pushNSObject:[url absoluteString]];
-
-    if (![skin protectedCallAndTraceback:4 nresults:0]) {
-        const char *errorMsg = lua_tostring(skin.L, -1);
-        [skin logError:[NSString stringWithFormat:@"hs.urlevent callback error: %s for URL %@", errorMsg, [url absoluteString]]];
-        lua_pop(skin.L, 1) ; // remove error message
-    }
+    [skin protectedCallAndError:[NSString stringWithFormat:@"hs.urlevent callback for %@", url.absoluteString] nargs:4 nresults:0];
 }
 @end
 

@@ -1072,10 +1072,7 @@ static int application_getMenus(lua_State* L) {
             dispatch_sync(dispatch_get_main_queue(), ^{
                 lua_rawgeti(L, LUA_REGISTRYINDEX, fnRef) ;
                 [skin pushNSObject:menus] ;
-                if (![skin protectedCallAndTraceback:1 nresults:0]) {
-                    [skin logError:[NSString stringWithFormat:@"hs.application:getMenus callback error:%s", lua_tostring(L, -1)]] ;
-                    lua_pop(L, 1) ;
-                }
+                [skin protectedCallAndError:@"hs.application:getMenus()" nargs:1 nresults:0];
                 luaL_unref(L, LUA_REGISTRYINDEX, fnRef) ;
             }) ;
         }) ;

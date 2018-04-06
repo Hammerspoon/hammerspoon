@@ -200,11 +200,22 @@ NSString *specMaskToString(int spec);
  if (!result) handleSomeError();
  @/textblock</pre>
 
+ @warning You are strongly advised to check the return code of this method - if it returns NO there will be an error message left on the Lua stack, which you should pop
  @return NO if the Lua code threw an exception, otherwise YES
  @param nargs An integer specifying how many function arguments you have pushed onto the stack
  @param nresults An integer specifying how many return values the Lua function will push onto the stack
  */
 - (BOOL)protectedCallAndTraceback:(int)nargs nresults:(int)nresults;
+
+/*!]
+ @abstract Calls protectedCallAndTraceback and will logError any failures
+ @discussion See the docs for protectedCallAndTraceback for all of the details of this method. The one difference is that this method will check for failure, log the error with logError, and leave nothing on the stack (although in the case of success, nresults elements will remain on the stack)
+ @return NO if the Lua code threw an exception, otherwise YES
+ @param nargs An integer specifying how many function arguments you have pushed onto the stack
+ @param nresults An integer specifying how many return values the Lua function will push onto the stack
+ @param message An NSString message to include in the error log
+ */
+- (BOOL)protectedCallAndError:(NSString*)message nargs:(int)nargs nresults:(int)nresults;
 
 #pragma mark - Methods for registering libraries with Lua
 

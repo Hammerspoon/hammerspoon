@@ -165,11 +165,7 @@ void AudioInputCallback(void * inUserData,  // Custom audio metadata
   lua_State* L = self.L;
   [skin pushLuaRef:refTable ref:self.fn];
   lua_pushinteger(L, [evNumber intValue]);
-  if (![skin protectedCallAndTraceback:1 nresults:0]) {
-    const char *errorMsg = lua_tostring(L, -1);
-    [skin logError:[NSString stringWithFormat:@"hs.noises callback error: %s", errorMsg]];
-    lua_pop(L, 1) ; // remove error message
-  }
+  [skin protectedCallAndError:@"hs.noises callback" nargs:1 nresults:0];
 }
 @end
 

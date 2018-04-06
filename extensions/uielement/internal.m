@@ -272,12 +272,7 @@ static void watcher_observer_callback(AXObserverRef observer __unused, AXUIEleme
     lua_pushstring(L, CFStringGetCStringPtr(notificationName, kCFStringEncodingASCII)); // Parameter 2: event
     lua_rawgeti(L, LUA_REGISTRYINDEX, watcher->watcher_ref); // Parameter 3: watcher
     lua_rawgeti(L, LUA_REGISTRYINDEX, watcher->user_data_ref); // Parameter 4: userData
-
-    if (![skin protectedCallAndTraceback:4 nresults:0]) {
-        const char *errorMsg = lua_tostring(L, -1);
-        [skin logError:[NSString stringWithUTF8String:errorMsg]];
-        lua_pop(L, 1) ; // remove error message
-    }
+    [skin protectedCallAndError:@"hs.uielement watcher callback" nargs:4 nresults:0];
 }
 
 static int watcher_start(lua_State* L) {

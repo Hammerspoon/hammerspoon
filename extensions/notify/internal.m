@@ -155,12 +155,11 @@ typedef struct _notification_t {
 
     // NSLog(@"invoking callback handler") ;
 
-            if(![skin protectedCallAndTraceback:2 nresults:0]) {
-                const char *errorMsg = lua_tostring(skin.L, -1);
-                [skin logError:[NSString stringWithFormat:@"hs.notify callback error: %s", errorMsg]];
-                lua_pop(skin.L, 1) ; // remove error message
+            if ([skin protectedCallAndError:@"hs.notify callback" nargs:2 nresults:0] == NO) {
                 return;
             }
+
+            // FIXME: Things have been pushed onto the Lua stack, we probably need some lua_pop()s here
 
             BOOL shouldWithdraw = [[notification.userInfo valueForKey:@"autoWithdraw"] boolValue] ;
             if (notification.deliveryRepeatInterval != nil) shouldWithdraw = YES ;

@@ -151,6 +151,8 @@ typedef NS_ENUM(NSInteger, NSStatusBarItemPriority) {
         [skin logError:[NSString stringWithFormat:@"hs.menubar:setClickCallback() callback error: %s", errorMsg]];
         return;
     }
+
+    // There are no lua_pop()s on errors here, they are handled by the functions that call this one
 }
 
 @end

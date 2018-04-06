@@ -121,6 +121,9 @@ NSString *specMaskToString(int spec) {
                                     userInfo:nil];
         @throw myException;
     }
+#if 0
+    NSLog(@"LuaSkin:shared stack size: %d", lua_gettop(sharedLuaSkin.L));
+#endif
     return sharedLuaSkin;
 }
 
@@ -240,11 +243,21 @@ NSString *specMaskToString(int spec) {
 
     if (lua_pcall(self.L, nargs, nresults, tracebackPosition) != LUA_OK) {
         lua_remove(self.L, -2) ; // remove the message handler
+        // At this point the error message from lua_pcall() is on the stack. Our caller is required to deal with this.
         return NO;
     }
 
     lua_remove(self.L, -nresults - 1) ; // remove the message handler
     return YES;
+}
+
+- (BOOL)protectedCallAndError:(NSString*)message nargs:(int)nargs nresults:(int)nresults {
+    BOOL result = [self protectedCallAndTraceback:nargs nresults:nresults];
+    if (result == NO) {
+        [self logError:[NSString stringWithFormat:@"%@: %s", message, lua_tostring(self.L, -1)]];
+        lua_pop(self.L, 1);
+    }
+    return result;
 }
 
 #pragma mark - Methods for registering libraries with Lua

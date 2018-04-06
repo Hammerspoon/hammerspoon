@@ -156,12 +156,7 @@ void create_task(task_userdata_t *userData) {
                 lua_pushinteger(skin.L, task.terminationStatus);
                 [skin pushNSObject:stdOut];
                 [skin pushNSObject:stdErr];
-
-                if (![skin protectedCallAndTraceback:3 nresults:0]) {
-                    const char *errorMsg = lua_tostring([skin L], -1);
-                    [skin logError:[NSString stringWithFormat:@"hs.task callback error: %s", errorMsg]];
-                    lua_pop([skin L], 1);
-                }
+                [skin protectedCallAndError:@"hs.task callback" nargs:3 nresults:0];
             }
             userData->selfRef = [skin luaUnref:refTable ref:userData->selfRef];
         });
@@ -931,6 +926,7 @@ int luaopen_hs_task_internal(lua_State* L) {
             if (![skin protectedCallAndTraceback:3 nresults:1]) {
                 const char *errorMsg = lua_tostring([skin L], -1);
                 [skin logError:[NSString stringWithFormat:@"hs.task:setStreamingCallback() callback error: %s", errorMsg]];
+                // No lua_pop() here, it's handled below
             }
 
             if (lua_type(L, -1) != LUA_TBOOLEAN) {

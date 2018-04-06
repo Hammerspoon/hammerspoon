@@ -99,11 +99,7 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
         [skin pushLuaRef:streamDeckRefTable ref:self.discoveryCallbackRef];
         lua_pushboolean(skin.L, 1);
         [skin pushNSObject:deviceId];
-
-        if (![skin protectedCallAndTraceback:2 nresults:0]) {
-            [skin logError:[NSString stringWithFormat:@"hs.streamdeck:discoveryCallback error:%s", lua_tostring(skin.L, -1)]];
-            lua_pop(skin.L, 1);
-        }
+        [skin protectedCallAndError:@"hs.streamdeck:deviceDidConnect" nargs:2 nresults:0];
     }
 
     //NSLog(@"Created deck device: %p", (__bridge void*)deviceId);
@@ -122,11 +118,7 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
                 [skin pushLuaRef:streamDeckRefTable ref:self.discoveryCallbackRef];
                 lua_pushboolean(skin.L, 0);
                 [skin pushNSObject:deckDevice];
-
-                if (![skin protectedCallAndTraceback:2 nresults:0]) {
-                    [skin logError:[NSString stringWithFormat:@"hs.streamdeck:discoveryCallback error:%s", lua_tostring(skin.L, -1)]];
-                    lua_pop(skin.L, 1);
-                }
+                [skin protectedCallAndError:@"hs.streamdeck:deviceDidDisconnect" nargs:2 nresults:0];
             }
 
             [self.devices removeObject:deckDevice];

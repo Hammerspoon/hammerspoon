@@ -107,11 +107,7 @@ typedef enum _event_t {
         lua_pushnil(L);
     }
 
-    if (![skin protectedCallAndTraceback:3 nresults:0]) {
-        const char *errorMsg = lua_tostring(L, -1);
-        [skin logError:[NSString stringWithFormat:@"hs.application.watcher callback error: %s", errorMsg]];
-        lua_pop(L, 1) ; // remove error message
-    }
+    [skin protectedCallAndError:@"hs.application.watcher callback" nargs:3 nresults:0];
 }
 
 - (void)applicationWillLaunch:(NSNotification*)notification {

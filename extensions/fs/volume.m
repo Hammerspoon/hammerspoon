@@ -88,11 +88,7 @@ typedef enum _event_t {
 
     [skin pushNSObject:tableArg];
 
-    if (![skin protectedCallAndTraceback:2 nresults:0]) {
-        const char *errorMsg = lua_tostring(L, -1);
-        [skin logError:[NSString stringWithFormat:@"hs.fs.volume callback error: %s", errorMsg]];
-        lua_pop(L, 1) ; // remove error message
-    }
+    [skin protectedCallAndError:@"hs.fs.volume callback" nargs:2 nresults:0];
 }
 
 - (void)volumeDidMount:(NSNotification*)notification {

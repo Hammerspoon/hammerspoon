@@ -41,10 +41,7 @@ static id toNSURLFromLua(lua_State *L, int idx) ;
         [skin pushNSObject:@"didFail"] ;
         [skin pushNSObject:items withOptions:LS_NSDescribeUnknownTypes] ;
         [skin pushNSObject:error.localizedDescription] ;
-        if (![skin protectedCallAndTraceback:4 nresults:0]) {
-            [skin logError:[NSString stringWithFormat:@"%s:callback error:%@", USERDATA_TAG, [skin toNSObjectAtIndex:-1]]] ;
-            lua_pop([skin L], 1) ;
-        }
+        [skin protectedCallAndError:@"hs.sharing:didFail callback" nargs:4 nresults:0];
     }
 }
 
@@ -55,10 +52,7 @@ static id toNSURLFromLua(lua_State *L, int idx) ;
         [skin pushNSObject:self] ;
         [skin pushNSObject:@"didShare"] ;
         [skin pushNSObject:items withOptions:LS_NSDescribeUnknownTypes] ;
-        if (![skin protectedCallAndTraceback:3 nresults:0]) {
-            [skin logError:[NSString stringWithFormat:@"%s:callback error:%@", USERDATA_TAG, [skin toNSObjectAtIndex:-1]]] ;
-            lua_pop([skin L], 1) ;
-        }
+        [skin protectedCallAndError:@"hs.sharing:didShare callback" nargs:3 nresults:0];
     }
 }
 
@@ -69,10 +63,7 @@ static id toNSURLFromLua(lua_State *L, int idx) ;
         [skin pushNSObject:self] ;
         [skin pushNSObject:@"willShare"] ;
         [skin pushNSObject:items withOptions:LS_NSDescribeUnknownTypes] ;
-        if (![skin protectedCallAndTraceback:3 nresults:0]) {
-            [skin logError:[NSString stringWithFormat:@"%s:callback error:%@", USERDATA_TAG, [skin toNSObjectAtIndex:-1]]] ;
-            lua_pop([skin L], 1) ;
-        }
+        [skin protectedCallAndError:@"hs.sharing:willShare callback" nargs:3 nresults:0];
     }
 }
 

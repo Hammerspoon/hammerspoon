@@ -361,14 +361,14 @@ static int pushTestUserData(lua_State *L, id object) {
 - (void)testProtectedCall {
     int loadResult = luaL_loadstring(self.skin.L, "print('Lua protected execution works')");
     XCTAssertFalse(loadResult);
-    BOOL pcallResult = [self.skin protectedCallAndTraceback:0 nresults:0];
+    BOOL pcallResult = [self.skin protectedCallAndError:@"testProtectedCall" nargs:0 nresults:0];
     XCTAssertTrue(pcallResult);
 }
 
 - (void)testProtectedCallWithFailure {
     int loadResult = luaL_loadstring(self.skin.L, "require('impossible_module')");
     XCTAssertFalse(loadResult);
-    BOOL pcallResult = [self.skin protectedCallAndTraceback:0 nresults:0];
+    BOOL pcallResult = [self.skin protectedCallAndError:@"testProtectedCallWithFailure" nargs:0 nresults:0];
     XCTAssertFalse(pcallResult);
 }
 

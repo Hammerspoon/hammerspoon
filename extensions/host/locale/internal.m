@@ -33,10 +33,7 @@ static HSLocaleChangeObserver *observerOfChanges = nil ;
         dispatch_async(dispatch_get_main_queue(), ^{
             LuaSkin *skin = [LuaSkin shared];
             [skin pushLuaRef:refTable ref:callbackRef];
-            if (![skin protectedCallAndTraceback:0 nresults:0]) {
-                [skin logError:[NSString stringWithFormat:@"%s: callback error: %s", USERDATA_TAG, lua_tostring(skin.L, -1)]];
-                lua_pop(skin.L, 1) ; // remove error message
-            }
+            [skin protectedCallAndError:@"hs.host.locale callback" nargs:0 nresults:0];
         }) ;
     }
 }

@@ -56,9 +56,7 @@ OSStatus audiodevicewatcher_callback(AudioDeviceID deviceID, UInt32 numAddresses
             for (NSString *event in events) {
                 [skin pushLuaRef:refTable ref:theWatcher->callback];
                 [skin pushNSObject:event];
-                if (![skin protectedCallAndTraceback:1 nresults:0]) {
-                    lua_pop(skin.L, 1); //remove error message
-                }
+                [skin protectedCallAndError:@"hs.audiodevice.watcher callback" nargs:1 nresults:0];
             }
         }
 

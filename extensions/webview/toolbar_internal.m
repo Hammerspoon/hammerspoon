@@ -201,10 +201,7 @@ static NSMenu *createCoreSearchFieldMenu() {
             }
             [skin pushNSObject:[item itemIdentifier]] ;
             if (argCount == 4) [skin pushNSObject:searchText] ;
-            if (![skin protectedCallAndTraceback:argCount nresults:0]) {
-                [skin logError:[NSString stringWithFormat:@"%s: item callback error, %s, for toolbar item %@", USERDATA_TB_TAG, lua_tostring(L, -1), [item itemIdentifier]]] ;
-                lua_pop(L, 1) ;
-            }
+            [skin protectedCallAndError:[NSString stringWithFormat:@"hs.webview.toolbar item callback (%@)", item.itemIdentifier] nargs:argCount nresults:0];
         }) ;
     }
 }
@@ -717,10 +714,7 @@ static NSMenu *createCoreSearchFieldMenu() {
             }
             [skin pushNSObject:[notification.userInfo[@"item"] itemIdentifier]] ;
             lua_pushstring(L, "add") ;
-            if (![skin protectedCallAndTraceback:4 nresults:0]) {
-                [skin logError:[NSString stringWithFormat:@"%s: toolbar callback error, %s, when notifying addition of toolbar item %@", USERDATA_TB_TAG, lua_tostring(L, -1), [notification.userInfo[@"item"] itemIdentifier]]] ;
-                lua_pop(L, 1) ;
-            }
+            [skin protectedCallAndError:[NSString stringWithFormat:@"hs.webview.toolbar toolbar item addition callback (%@)", [notification.userInfo[@"item"] itemIdentifier]] nargs:4 nresults:0];
         }) ;
     }
 }
@@ -745,10 +739,7 @@ static NSMenu *createCoreSearchFieldMenu() {
             }
             [skin pushNSObject:[notification.userInfo[@"item"] itemIdentifier]] ;
             lua_pushstring(L, "remove") ;
-            if (![skin protectedCallAndTraceback:4 nresults:0]) {
-                [skin logError:[NSString stringWithFormat:@"%s: toolbar callback error, %s, when notifying removal of toolbar item %@", USERDATA_TB_TAG, lua_tostring(L, -1), [notification.userInfo[@"item"] itemIdentifier]]] ;
-                lua_pop(L, 1) ;
-            }
+            [skin protectedCallAndError:[NSString stringWithFormat:@"hs.webview.toolbar toolbar item removal callback (%@)", [notification.userInfo[@"item"] itemIdentifier]] nargs:4 nresults:0];
         }) ;
     }
 }

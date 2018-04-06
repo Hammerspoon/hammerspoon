@@ -204,14 +204,8 @@ int keycodes_cachemap(lua_State* L) {
 
 - (void) inputSourceChanged:(NSNotification*)__unused note {
     LuaSkin *skin = [LuaSkin shared];
-    lua_State *L = skin.L;
     [skin pushLuaRef:refTable ref:self.ref];
-
-    if (![skin protectedCallAndTraceback:0 nresults:0]) {
-        const char *errorMsg = lua_tostring(L, -1);
-        [skin logError:[NSString stringWithFormat:@"hs.keycodes.inputSourceChanged() callback error: %s", errorMsg]];
-        lua_pop(L, 1) ; // remove error message
-    }
+    [skin protectedCallAndError:@"hs.keycodes.inputSourceChanged" nargs:0 nresults:0];
 }
 
 - (void) start {

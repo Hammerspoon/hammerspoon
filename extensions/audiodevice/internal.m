@@ -97,9 +97,7 @@ OSStatus audiodevice_callback(AudioDeviceID deviceID, UInt32 numAddresses, const
                 [skin pushNSObject:event[@"mScope"]];
                 [skin pushNSObject:event[@"mElement"]];
 
-                if (![skin protectedCallAndTraceback:4 nresults:0]) {
-                    lua_pop(skin.L, 1); // remove error message
-                }
+                [skin protectedCallAndError:@"hs.audiodevice:watcherCallback" nargs:4 nresults:0];
             }
         }
 

@@ -128,11 +128,7 @@ static int pushParsedICMPPayload(NSData *payloadData) {
         [skin pushNSObject:pinger] ;
         [skin pushNSObject:@"didStart"] ;
         pushParsedAddress(address) ;
-        if (![skin protectedCallAndTraceback:3 nresults:0]) {
-            NSString *errorMessage = [skin toNSObjectAtIndex:-1] ;
-            lua_pop(skin.L, 1) ;
-            [skin logError:[NSString stringWithFormat:@"%s:didStartWithAddress callback error:%@", USERDATA_TAG, errorMessage]] ;
-        }
+        [skin protectedCallAndError:@"hs.network.ping.echoRequest:didStartWithAddress callback" nargs:3 nresults:0];
     }
 }
 
@@ -145,11 +141,7 @@ static int pushParsedICMPPayload(NSData *payloadData) {
         [skin pushNSObject:pinger] ;
         [skin pushNSObject:@"didFail"] ;
         [skin pushNSObject:errorReason] ;
-        if (![skin protectedCallAndTraceback:3 nresults:0]) {
-            NSString *errorMessage = [skin toNSObjectAtIndex:-1] ;
-            lua_pop(skin.L, 1) ;
-            [skin logError:[NSString stringWithFormat:@"%s:didFailWithError callback error:%@", USERDATA_TAG, errorMessage]] ;
-        }
+        [skin protectedCallAndError:@"hs.network.ping.echoRequest:didFailWithError callback" nargs:3 nresults:0];
     }
 
     // by the time this method is invoked, SimplePing has already stopped us, so let's make sure
@@ -166,11 +158,7 @@ static int pushParsedICMPPayload(NSData *payloadData) {
         [skin pushNSObject:@"sendPacket"] ;
         pushParsedICMPPayload(packet) ;
         lua_pushinteger([skin L], sequenceNumber) ;
-        if (![skin protectedCallAndTraceback:4 nresults:0]) {
-            NSString *errorMessage = [skin toNSObjectAtIndex:-1] ;
-            lua_pop(skin.L, 1) ;
-            [skin logError:[NSString stringWithFormat:@"%s:didSendPacket callback error:%@", USERDATA_TAG, errorMessage]] ;
-        }
+        [skin protectedCallAndError:@"hs.network.ping.echoRequest:didSendPacket callback" nargs:4 nresults:0];
     }
 }
 
@@ -185,11 +173,7 @@ static int pushParsedICMPPayload(NSData *payloadData) {
         pushParsedICMPPayload(packet) ;
         lua_pushinteger([skin L], sequenceNumber) ;
         [skin pushNSObject:[error localizedDescription]] ;
-        if (![skin protectedCallAndTraceback:5 nresults:0]) {
-            NSString *errorMessage = [skin toNSObjectAtIndex:-1] ;
-            lua_pop(skin.L, 1) ;
-            [skin logError:[NSString stringWithFormat:@"%s:didFailToSendPacket callback error:%@", USERDATA_TAG, errorMessage]] ;
-        }
+        [skin protectedCallAndError:@"hs.network.ping.echoRequest:didFailToSendPacket callback" nargs:5 nresults:0];
     }
 }
 
@@ -202,11 +186,7 @@ static int pushParsedICMPPayload(NSData *payloadData) {
         [skin pushNSObject:@"receivedPacket"] ;
         pushParsedICMPPayload(packet) ;
         lua_pushinteger([skin L], sequenceNumber) ;
-        if (![skin protectedCallAndTraceback:4 nresults:0]) {
-            NSString *errorMessage = [skin toNSObjectAtIndex:-1] ;
-            lua_pop(skin.L, 1) ;
-            [skin logError:[NSString stringWithFormat:@"%s:didReceivePingResponsePacket callback error:%@", USERDATA_TAG, errorMessage]] ;
-        }
+        [skin protectedCallAndError:@"hs.network.ping.echoRequest:didReceivePingResponsePacket" nargs:4 nresults:0];
     }
 }
 
@@ -227,11 +207,7 @@ static int pushParsedICMPPayload(NSData *payloadData) {
         [skin pushNSObject:pinger] ;
         [skin pushNSObject:@"receivedUnexpectedPacket"] ;
         pushParsedICMPPayload(packet) ;
-        if (![skin protectedCallAndTraceback:3 nresults:0]) {
-            NSString *errorMessage = [skin toNSObjectAtIndex:-1] ;
-            lua_pop(skin.L, 1) ;
-            [skin logError:[NSString stringWithFormat:@"%s:didReceiveUnexpectedPacket callback error:%@", USERDATA_TAG, errorMessage]] ;
-        }
+        [skin protectedCallAndError:@"hs.network.ping.echoRequest:didReceiveUnexpectedPacket callback" nargs:3 nresults:0];
     }
 }
 

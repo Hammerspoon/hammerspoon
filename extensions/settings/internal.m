@@ -25,14 +25,10 @@ static int refTable = LUA_NOREF ;
         NSMutableDictionary *fnCallbacks = _watchedKeys[keyPath] ;
 //         [LuaSkin logWarn:[NSString stringWithFormat:@"in callback for %@ with %@", keyPath, fnCallbacks]] ;
         LuaSkin   *skin = [LuaSkin shared] ;
-        lua_State *L    = skin.L ;
         [fnCallbacks enumerateKeysAndObjectsUsingBlock:^(NSString *watcherID, NSNumber *refN, __unused BOOL *stop) {
             [skin pushLuaRef:refTable ref:refN.intValue] ;
             [skin pushNSObject:keyPath] ;
-            if (![skin protectedCallAndTraceback:1 nresults:0]) {
-                [skin logError:[NSString stringWithFormat:@"%s:watcher %@ callback error:%s", USERDATA_TAG, watcherID, lua_tostring(L, -1)]] ;
-                lua_pop(L, 1) ;
-            }
+            [skin protectedCallAndError:[NSString stringWithFormat:@"hs.settings:watcher %@ callback", watcherID] nargs:1 nresults:0];
         }] ;
     } else {
         [super observeValueForKeyPath:keyPath ofObject:object change:change context:context] ;

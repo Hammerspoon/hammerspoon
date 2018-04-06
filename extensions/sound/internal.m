@@ -43,10 +43,7 @@ static int refTable = LUA_NOREF;
             [skin pushLuaRef:refTable ref:self->_callbackRef];
             lua_pushboolean(L, playbackSuccessful);
             [skin pushNSObject:self];
-            if (![skin protectedCallAndTraceback:2 nresults:0]) {
-                [skin logError:[skin toNSObjectAtIndex:-1]] ;
-                lua_pop(L, 1) ;
-            }
+            [skin protectedCallAndError:@"hs.sound:didFinishPlaying callback" nargs:2 nresults:0];
         }
         // a completed song should rely solely on user saved userdata values to prevent __gc
         // since there will be no other way to access it once this point is reached if it hasn't

@@ -24,12 +24,7 @@ static void connectCallback(HSAsyncTcpSocket *asyncSocket) {
         LuaSkin *skin = [LuaSkin shared];
         [skin pushLuaRef:refTable ref:asyncSocket.connectCallback];
         asyncSocket.connectCallback = [skin luaUnref:refTable ref:asyncSocket.connectCallback];
-
-        if (![skin protectedCallAndTraceback:0 nresults:0]) {
-            const char *errorMsg = lua_tostring(skin.L, -1);
-            [LuaSkin logError:[NSString stringWithFormat:@"%s connect callback error: %s", USERDATA_TAG, errorMsg]];
-            lua_pop(skin.L, 1) ; // remove error message
-        }
+        [skin protectedCallAndError:@"hs.socket:connect callback" nargs:0 nresults:0];
     );
 }
 
@@ -39,12 +34,7 @@ static void writeCallback(HSAsyncTcpSocket *asyncSocket, long tag) {
         [skin pushLuaRef:refTable ref:asyncSocket.writeCallback];
         [skin pushNSObject: @(tag)];
         asyncSocket.writeCallback = [skin luaUnref:refTable ref:asyncSocket.writeCallback];
-
-        if (![skin protectedCallAndTraceback:1 nresults:0]) {
-            const char *errorMsg = lua_tostring(skin.L, -1);
-            [LuaSkin logError:[NSString stringWithFormat:@"%s write callback error: %s", USERDATA_TAG, errorMsg]];
-            lua_pop(skin.L, 1) ; // remove error message
-        }
+        [skin protectedCallAndError:@"hs.socket:write callback" nargs:1 nresults:0];
     );
 }
 
@@ -54,12 +44,7 @@ static void readCallback(HSAsyncTcpSocket *asyncSocket, NSData *data, long tag) 
         [skin pushLuaRef:refTable ref:asyncSocket.readCallback];
         [skin pushNSObject:data withOptions:LS_NSLuaStringAsDataOnly];
         [skin pushNSObject: @(tag)];
-
-        if (![skin protectedCallAndTraceback:2 nresults:0]) {
-            const char *errorMsg = lua_tostring(skin.L, -1);
-            [LuaSkin logError:[NSString stringWithFormat:@"%s read callback error: %s", USERDATA_TAG, errorMsg]];
-            lua_pop(skin.L, 1) ; // remove error message
-        }
+        [skin protectedCallAndError:@"hs.socket:read callback" nargs:2 nresults:0];
     );
 }
 

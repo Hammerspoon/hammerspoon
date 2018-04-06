@@ -147,13 +147,8 @@ NSMutableArray *drawingWindows;
 - (void)mouseUp:(NSEvent * __unused)theEvent {
     if (self.mouseUpCallbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin shared];
-        lua_State *_L = skin.L;
         [skin pushLuaRef:refTable ref:self.mouseUpCallbackRef];
-        if (![skin protectedCallAndTraceback:0 nresults:0]) {
-            const char *errorMsg = lua_tostring(_L, -1);
-            [skin logError:[NSString stringWithFormat:@"hs.drawing:setClickCallback() mouseUp callback error: %s", errorMsg]];
-            lua_pop(_L, 1) ; // remove error message
-        }
+        [skin protectedCallAndError:@"hs.drawing mouseUp click callback" nargs:0 nresults:0];
     }
 }
 
@@ -169,13 +164,8 @@ NSMutableArray *drawingWindows;
     [NSApp preventWindowOrdering];
     if (self.mouseDownCallbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin shared];
-        lua_State *_L = skin.L;
         [skin pushLuaRef:refTable ref:self.mouseDownCallbackRef];
-        if (![skin protectedCallAndTraceback:0 nresults:0]) {
-            const char *errorMsg = lua_tostring(_L, -1);
-            [skin logError:[NSString stringWithFormat:@"hs.drawing:setClickCallback() mouseDown callback error: %s", errorMsg]];
-            lua_pop(_L, 1) ; // remove error message
-        }
+        [skin protectedCallAndError:@"hs.drawing mouseDown click callback" nargs:0 nresults:0];
     }
 }
 

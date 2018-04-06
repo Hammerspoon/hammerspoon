@@ -42,12 +42,7 @@ static int refTable = LUA_NOREF ;
             [skin pushLuaRef:refTable ref:self->_callbackRef] ;
             [skin pushNSObject:cp.color] ;
             lua_pushboolean(L, YES) ;
-            if (![skin protectedCallAndTraceback:2 nresults:0]) {
-                [skin logError:[NSString stringWithFormat:@"%s: color callback error, %s",
-                                                          USERDATA_TAG,
-                                                          lua_tostring(L, -1)]] ;
-                lua_pop(L, 1) ;
-            }
+            [skin protectedCallAndError:@"hs.dialog color close callback" nargs:2 nresults:0];
         }) ;
     }
 }
@@ -61,12 +56,7 @@ static int refTable = LUA_NOREF ;
             [skin pushLuaRef:refTable ref:self->_callbackRef] ;
             [skin pushNSObject:colorPanel.color] ;
             lua_pushboolean(L, NO) ;
-            if (![skin protectedCallAndTraceback:2 nresults:0]) {
-                [skin logError:[NSString stringWithFormat:@"%s: color callback error, %s",
-                                                          USERDATA_TAG,
-                                                          lua_tostring(L, -1)]] ;
-                lua_pop(L, 1) ;
-            }
+            [skin protectedCallAndError:@"hs.dialog color callback" nargs:2 nresults:0];
         }) ;
     }
 }
@@ -550,10 +540,7 @@ static int webviewAlert(lua_State *L) {
         [skin pushLuaRef:refTable ref:callbackRef] ; // Put the saved function back on the stack.
         [skin luaUnref:refTable ref:callbackRef] ; // Remove the stored function from the registry.
         [skin pushNSObject:button];
-        if (![skin protectedCallAndTraceback:1 nresults:0]) { // Returns NO on error, so we check if the result is !YES
-            [skin logError:[NSString stringWithFormat:@"hs.dialog:callback error - %s", lua_tostring(L, -1)]]; // -1 indicates the top item of the stack, which will be an error message string in this case
-            lua_pop(L, 1) ; // Remove the error from the stack to keep it clean
-        }
+        [skin protectedCallAndError:@"hs.dialog:callback" nargs:1 nresults:0];
     }] ;
 
     lua_pushnil(L) ;

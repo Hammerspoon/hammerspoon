@@ -82,11 +82,7 @@ static id toNSSortDescriptorFromLua(lua_State *L, int idx) ;
             [skin pushNSObject:self] ;
             [skin pushNSObject:message] ;
             [skin pushNSObject:notification.userInfo withOptions:LS_NSDescribeUnknownTypes] ;
-            if (![skin protectedCallAndTraceback:3 nresults:0]) {
-                lua_State *L = [skin L] ;
-                [skin logError:[NSString stringWithFormat:@"%s:callback error: %s", USERDATA_TAG, lua_tostring(L, -1)]] ;
-                lua_pop(L, 1) ;
-            }
+            [skin protectedCallAndError:@"hs.spotlight" nargs:3 nresults:0];
         }
     }) ;
 }
