@@ -84,6 +84,7 @@ typedef enum _event_t {
 
     LuaSkin *skin = [LuaSkin shared];
     lua_State *L = skin.L;
+    [skin growStack:4 withMessage:"hs.application.watcher:callback"];
 
     // Depending on the event the name of the NSRunningApplication object may not be available
     // anymore. Fallback to the application name which is provided directly in the notification
