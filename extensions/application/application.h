@@ -2,6 +2,7 @@
 #define Application_application_h
 
 static BOOL new_application(lua_State* L, pid_t pid) {
+    luaL_checkstack(L, 4, "new_application");
     AXUIElementRef* appptr = lua_newuserdata(L, sizeof(AXUIElementRef));
     AXUIElementRef app = AXUIElementCreateApplication(pid);
     *appptr = app;
