@@ -85,6 +85,7 @@ static void remove_delegate(__unused lua_State* L, connectionDelegate* delegate)
     }
     LuaSkin *skin = [LuaSkin shared];
     lua_State *L = skin.L;
+    _lua_stackguard_entry(L);
 
     [skin pushLuaRef:refTable ref:self.fn];
     lua_pushinteger(L, (int)self.httpResponse.statusCode);
@@ -93,6 +94,7 @@ static void remove_delegate(__unused lua_State* L, connectionDelegate* delegate)
     [skin protectedCallAndError:@"hs.http connectionDelefate:didFinishLoading" nargs:3 nresults:0];
 
     remove_delegate(L, self);
+    _lua_stackguard_exit(L);
 }
 
 - (void)connection:(NSURLConnection * __unused)connection didFailWithError:(NSError *)error {
@@ -100,6 +102,7 @@ static void remove_delegate(__unused lua_State* L, connectionDelegate* delegate)
         return;
     }
     LuaSkin *skin = [LuaSkin shared];
+    _lua_stackguard_entry(skin.L);
 
     [skin growStack:4 withMessage:"hs.http connectionDelegate:didFailWithError"];
 
@@ -109,6 +112,7 @@ static void remove_delegate(__unused lua_State* L, connectionDelegate* delegate)
     [skin pushNSObject:errorMessage];
     [skin protectedCallAndError:@"hs.http connectionDelegate:didFailWithError" nargs:2 nresults:0];
     remove_delegate(self.L, self);
+    _lua_stackguard_exit(skin.L);
 }
 
 @end
@@ -136,11 +140,13 @@ static void remove_delegate(__unused lua_State* L, connectionDelegate* delegate)
 
     dispatch_async(dispatch_get_main_queue(), ^{
         LuaSkin *skin = [LuaSkin shared];
+        _lua_stackguard_entry(skin.L);
 
         [skin pushLuaRef:refTable ref:self.fn];
         [skin pushNSObject:message];
 
         [skin protectedCallAndError:@"hs.http.websocket callback" nargs:1 nresults:0];
+        _lua_stackguard_exit(skin.L);
     });
 }
 

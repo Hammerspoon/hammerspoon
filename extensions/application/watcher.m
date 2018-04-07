@@ -84,6 +84,7 @@ typedef enum _event_t {
 
     LuaSkin *skin = [LuaSkin shared];
     lua_State *L = skin.L;
+    _lua_stackguard_entry(L);
     [skin growStack:4 withMessage:"hs.application.watcher:callback"];
 
     // Depending on the event the name of the NSRunningApplication object may not be available
@@ -108,6 +109,7 @@ typedef enum _event_t {
     }
 
     [skin protectedCallAndError:@"hs.application.watcher callback" nargs:3 nresults:0];
+    _lua_stackguard_exit(L);
 }
 
 - (void)applicationWillLaunch:(NSNotification*)notification {

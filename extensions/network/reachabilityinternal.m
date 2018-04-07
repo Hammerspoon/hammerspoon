@@ -41,10 +41,12 @@ static void doReachabilityCallback(__unused SCNetworkReachabilityRef target, SCN
         dispatch_async(dispatch_get_main_queue(), ^{
             LuaSkin   *skin = [LuaSkin shared] ;
             lua_State *L    = [skin L] ;
+            _lua_stackguard_entry(L);
             [skin pushLuaRef:refTable ref:theRef->callbackRef] ;
             [skin pushLuaRef:refTable ref:theRef->selfRef] ;
             lua_pushinteger(L, (lua_Integer)flags) ;
             [skin protectedCallAndError:@"hs.network.reachability" nargs:2 nresults:0];
+            _lua_stackguard_exit(L);
         }) ;
     }
 }

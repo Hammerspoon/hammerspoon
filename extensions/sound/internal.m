@@ -36,6 +36,7 @@ static int refTable = LUA_NOREF;
 - (void) sound:(NSSound __unused *)sound didFinishPlaying:(BOOL)playbackSuccessful {
     dispatch_async(dispatch_get_main_queue(), ^{
         LuaSkin *skin = [LuaSkin shared];
+        _lua_stackguard_entry(skin.L);
 //         [skin logVerbose:[NSString stringWithFormat:@"%s:in delegate", USERDATA_TAG]] ;
         if (self->_callbackRef != LUA_NOREF) {
             lua_State *L = skin.L;
@@ -49,6 +50,7 @@ static int refTable = LUA_NOREF;
         // since there will be no other way to access it once this point is reached if it hasn't
         // been saved in a variable somewhere.
         self->_selfRef = [skin luaUnref:refTable ref:self->_selfRef] ;
+        _lua_stackguard_exit(skin.L);
     }) ;
 }
 

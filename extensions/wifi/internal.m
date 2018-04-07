@@ -55,6 +55,7 @@ CWInterface *get_wifi_interface(NSString *theInterface) {
 - (void)invokeCallback:(id)object {
     if (_fnRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin shared] ;
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_fnRef];
         if ([object isKindOfClass:[NSError class]]) {
             [skin logInfo:[(NSError *)object localizedDescription]] ;
@@ -63,6 +64,7 @@ CWInterface *get_wifi_interface(NSString *theInterface) {
             [skin pushNSObject:(NSSet *)object] ;
         }
         [skin protectedCallAndError:@"hs.wifi callback" nargs:1 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 

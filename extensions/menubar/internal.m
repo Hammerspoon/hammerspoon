@@ -178,12 +178,14 @@ NSMutableArray *dynamicMenuDelegates;
 @end
 @implementation HSMenubarItemClickDelegate
 - (void) click:(id)sender {
+    _lua_stackguard_entry(self.L);
     // Issue #909 -- if the callback causes the menu to be replaced, we crash if this delegate disappears from beneath us... this keeps it from being collected before the callback is done.
     NSObject *myDelegate = [sender representedObject] ;
     [self callback_runner];
     // error or return value (ignored in this case), we gotta cleanup
     lua_pop(self.L, 1) ;
     myDelegate = nil ;
+    _lua_stackguard_exit(self.L);
 }
 @end
 
@@ -194,6 +196,7 @@ NSMutableArray *dynamicMenuDelegates;
 @implementation HSMenubarItemMenuDelegate
 - (void) menuNeedsUpdate:(NSMenu *)menu {
     LuaSkin *skin = [LuaSkin shared];
+    _lua_stackguard_entry(skin.L);
     [self callback_runner];
 
     // Ensure the callback pushed a table onto the stack, then remove any existing menu structure and parse the table into a new menu
@@ -205,6 +208,7 @@ NSMutableArray *dynamicMenuDelegates;
     }
     // error or return value, we gotta cleanup
     lua_pop(self.L, 1) ;
+    _lua_stackguard_exit(skin.L);
 }
 @end
 

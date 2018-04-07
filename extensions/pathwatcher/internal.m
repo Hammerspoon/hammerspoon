@@ -50,6 +50,7 @@ static void pusheventflagstable(lua_State* L, FSEventStreamEventFlags flags) {
 
 void event_callback(ConstFSEventStreamRef __unused streamRef, void *clientCallBackInfo, size_t numEvents, void *eventPaths, const FSEventStreamEventFlags eventFlags[], const FSEventStreamEventId __unused eventIds[]) {
     LuaSkin *skin = [LuaSkin shared];
+    _lua_stackguard_entry(skin.L);
 
     watcher_path_t* pw = clientCallBackInfo;
 
@@ -71,6 +72,7 @@ void event_callback(ConstFSEventStreamRef __unused streamRef, void *clientCallBa
     }
 
     [skin protectedCallAndError:@"hs.pathwatcher callback" nargs:2 nresults:0];
+    _lua_stackguard_exit(skin.L);
 }
 
 /// hs.pathwatcher.new(path, fn) -> watcher

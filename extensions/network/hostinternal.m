@@ -149,6 +149,7 @@ void handleCallback(__unused CFHostRef theHost, __unused CFHostInfoType typeInfo
         if (theRef->callbackRef != LUA_NOREF) {
             LuaSkin   *skin    = [LuaSkin shared] ;
             lua_State *L       = [skin L] ;
+            _lua_stackguard_entry(L);
             int       argCount ;
             [skin pushLuaRef:refTable ref:theRef->callbackRef] ;
             if ((domain == 0) && (errorNum == 0)) {
@@ -158,6 +159,7 @@ void handleCallback(__unused CFHostRef theHost, __unused CFHostInfoType typeInfo
                 argCount = 1 ;
             }
             [skin protectedCallAndError:@"hs.network.host callback" nargs:argCount nresults:0];
+            _lua_stackguard_exit(L);
         }
         CFHostSetClient(theRef->theHostObj, NULL, NULL );
         CFHostUnscheduleFromRunLoop(theRef->theHostObj, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);

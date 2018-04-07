@@ -19,6 +19,11 @@
 #import "lauxlib.h"
 #import "lualib.h"
 #import "lua.h"
+#import <assert.h>
+
+// Defines for Lua stack guard macros
+#define _lua_stackguard_entry(L) int __lua_stackguard_entry=lua_gettop(L);
+#define _lua_stackguard_exit(L) assert(__lua_stackguard_entry == lua_gettop(L));
 
 // Define some bits for masking operations in the argument checker
 /*!

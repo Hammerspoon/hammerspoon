@@ -93,6 +93,7 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
     [self.devices addObject:deviceId];
 
     LuaSkin *skin = [LuaSkin shared];
+    _lua_stackguard_entry(skin.L);
     if (self.discoveryCallbackRef == LUA_NOREF || self.discoveryCallbackRef == LUA_REFNIL) {
         [skin logWarn:@"hs.streamdeck detected a device connecting, but no callback has been set. See hs.streamdeck.discoveryCallback()"];
     } else {
@@ -104,6 +105,7 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
 
     //NSLog(@"Created deck device: %p", (__bridge void*)deviceId);
     //NSLog(@"Now have %lu devices", self.devices.count);
+    _lua_stackguard_exit(skin.L);
     return deviceId;
 }
 
@@ -112,6 +114,7 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
         if (deckDevice.device == device) {
             [deckDevice invalidate];
             LuaSkin *skin = [LuaSkin shared];
+            _lua_stackguard_entry(skin.L);
             if (self.discoveryCallbackRef == LUA_NOREF || self.discoveryCallbackRef == LUA_REFNIL) {
                 [skin logWarn:@"hs.streamdeck detected a device disconnecting, but no callback has been set. See hs.streamdeck.discoveryCallback()"];
             } else {
@@ -122,6 +125,7 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
             }
 
             [self.devices removeObject:deckDevice];
+            _lua_stackguard_exit(skin.L);
             return;
         }
     }

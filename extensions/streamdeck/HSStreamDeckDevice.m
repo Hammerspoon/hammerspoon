@@ -34,6 +34,7 @@
     }
 
     LuaSkin *skin = [LuaSkin shared];
+    _lua_stackguard_entry(skin.L);
     if (self.buttonCallbackRef == LUA_NOREF || self.buttonCallbackRef == LUA_REFNIL) {
         [skin logError:@"hs.streamdeck received a button input, but no callback has been set. See hs.streamdeck:buttonCallback()"];
         return;
@@ -44,6 +45,7 @@
     lua_pushinteger(skin.L, button.intValue);
     lua_pushboolean(skin.L, isDown.boolValue);
     [skin protectedCallAndError:@"hs.streamdeck:buttonCallback" nargs:3 nresults:0];
+    _lua_stackguard_exit(skin.L);
 }
 
 - (BOOL)setBrightness:(int)brightness {

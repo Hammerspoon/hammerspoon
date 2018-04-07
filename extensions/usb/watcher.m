@@ -45,6 +45,7 @@ void DeviceNotification(void *refCon, io_service_t service __unused, natural_t m
     if (messageType == kIOMessageServiceIsTerminated) {
         LuaSkin *skin = [LuaSkin shared];
         lua_State *L = skin.L;
+        _lua_stackguard_entry(L);
 
         [skin pushLuaRef:refTable ref:watcher->fn];
 
@@ -74,12 +75,15 @@ void DeviceNotification(void *refCon, io_service_t service __unused, natural_t m
         free(privateDataRef->productName);
         free(privateDataRef->vendorName);
         free(privateDataRef);
+        _lua_stackguard_exit(L);
     }
 }
 
 // Iterate over new devices
 void DeviceAdded(void *refCon, io_iterator_t iterator) {
     LuaSkin *skin = [LuaSkin shared];
+    lua_State *L = skin.L;
+    _lua_stackguard_entry(L);
     usbwatcher_t *watcher = (usbwatcher_t *)refCon;
     kern_return_t kr;
     io_service_t usbDevice;
@@ -130,9 +134,6 @@ void DeviceAdded(void *refCon, io_iterator_t iterator) {
 
         // We don't want to trigger callbacks for every device attached before the watcher starts, but we needed to enumerate them to get private device data cached
         if (!watcher->isFirstRun) {
-            LuaSkin *skin = [LuaSkin shared];
-            lua_State *L = skin.L;
-
             [skin pushLuaRef:refTable ref:watcher->fn];
 
             lua_newtable(L);
@@ -155,6 +156,7 @@ void DeviceAdded(void *refCon, io_iterator_t iterator) {
             [skin protectedCallAndError:@"hs.usb.watcher:added callback" nargs:1 nresults:0];
         }
     }
+    _lua_stackguard_exit(L);
 }
 
 /// hs.usb.watcher.new(fn) -> watcher

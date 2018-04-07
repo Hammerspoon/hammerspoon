@@ -119,6 +119,7 @@ void create_task(task_userdata_t *userData) {
         dispatch_sync(dispatch_get_main_queue(), ^{
             task_userdata_t *userData = NULL;
             LuaSkin *skin = [LuaSkin shared];
+            _lua_stackguard_entry(skin.L);
 
             NSFileHandle *stdOutFH = [task.standardOutput fileHandleForReading];
             NSFileHandle *stdErrFH = [task.standardError fileHandleForReading];
@@ -141,6 +142,7 @@ void create_task(task_userdata_t *userData) {
 
             if (!userData) {
                 NSLog(@"NSTask terminationHandler called on a task we don't recognise. This was likely a stuck process, or one that didn't respond to SIGTERM, and we have already GC'd its objects. Ignoring");
+                _lua_stackguard_exit(skin.L);
                 return;
             }
 
@@ -159,6 +161,7 @@ void create_task(task_userdata_t *userData) {
                 [skin protectedCallAndError:@"hs.task callback" nargs:3 nresults:0];
             }
             userData->selfRef = [skin luaUnref:refTable ref:userData->selfRef];
+            _lua_stackguard_exit(skin.L);
         });
     };
 
@@ -903,6 +906,9 @@ int luaopen_hs_task_internal(lua_State* L) {
         }
 
         if (userData->luaStreamCallback != LUA_NOREF && userData->luaStreamCallback != LUA_REFNIL) {
+            LuaSkin *_skin = [LuaSkin shared];
+            lua_State *_L = _skin.L;
+            _lua_stackguard_entry(_L);
             NSFileHandle *stdOutFH = [((__bridge NSTask *)userData->nsTask).standardOutput fileHandleForReading];
             NSFileHandle *stdErrFH = [((__bridge NSTask *)userData->nsTask).standardError fileHandleForReading];
 
@@ -914,37 +920,38 @@ int luaopen_hs_task_internal(lua_State* L) {
             } else if (fh == stdErrFH) {
                 stdErrArg = dataString;
             } else {
-                [skin logError:@"hs.task:setStreamingCallback() Received data from an unknown file handle"];
+                [_skin logError:@"hs.task:setStreamingCallback() Received data from an unknown file handle"];
                 return;
             }
 
-            [skin pushLuaRef:refTable ref:userData->luaStreamCallback];
-            [skin pushLuaRef:refTable ref:userData->selfRef];
-            [skin pushNSObject:stdOutArg];
-            [skin pushNSObject:stdErrArg];
+            [_skin pushLuaRef:refTable ref:userData->luaStreamCallback];
+            [_skin pushLuaRef:refTable ref:userData->selfRef];
+            [_skin pushNSObject:stdOutArg];
+            [_skin pushNSObject:stdErrArg];
 
-            if (![skin protectedCallAndTraceback:3 nresults:1]) {
-                const char *errorMsg = lua_tostring([skin L], -1);
-                [skin logError:[NSString stringWithFormat:@"hs.task:setStreamingCallback() callback error: %s", errorMsg]];
+            if (![_skin protectedCallAndTraceback:3 nresults:1]) {
+                const char *errorMsg = lua_tostring([_skin L], -1);
+                [_skin logError:[NSString stringWithFormat:@"hs.task:setStreamingCallback() callback error: %s", errorMsg]];
                 // No lua_pop() here, it's handled below
             }
 
-            if (lua_type(L, -1) != LUA_TBOOLEAN) {
-                [skin logError:@"hs.task:setStreamingCallback() callback did not return a boolean"];
+            if (lua_type(_L, -1) != LUA_TBOOLEAN) {
+                [_skin logError:@"hs.task:setStreamingCallback() callback did not return a boolean"];
             } else {
-                BOOL continueStreaming = lua_toboolean(L, -1);
+                BOOL continueStreaming = lua_toboolean(_L, -1);
 
                 if (continueStreaming) {
                     @try {
                         [fh readInBackgroundAndNotify];
                     } @catch (NSException *exception) {
-                        [skin logError:[NSString stringWithFormat:@"hs.task:setStreamingCallback() post-callback background reading threw an exception. Please file a bug saying: %@", exception.description]];
+                        [_skin logError:[NSString stringWithFormat:@"hs.task:setStreamingCallback() post-callback background reading threw an exception. Please file a bug saying: %@", exception.description]];
                     } @finally {
                         ;
                     }
                 }
             }
-            lua_pop(L, 1); // result or error
+            lua_pop(_L, 1); // result or error
+            _lua_stackguard_exit(_L);
         }
 
     }];

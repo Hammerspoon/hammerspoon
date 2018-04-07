@@ -1139,6 +1139,7 @@ static int userdata_gc(lua_State* L) ;
 - (void)doMouseCallback:(NSString *)message for:(id)elementIdentifier at:(NSPoint)location {
     if (elementIdentifier && _mouseCallbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin shared];
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_mouseCallbackRef];
         [skin pushLuaRef:refTable ref:_selfRef] ;
         [skin pushNSObject:message] ;
@@ -1146,6 +1147,7 @@ static int userdata_gc(lua_State* L) ;
         lua_pushnumber(skin.L, location.x) ;
         lua_pushnumber(skin.L, location.y) ;
         [skin protectedCallAndError:[NSString stringWithFormat:@"hs.canvas:clickCallback for %@", message] nargs:5 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 
@@ -1153,11 +1155,13 @@ static int userdata_gc(lua_State* L) ;
 - (void)subviewCallback:(id)sender {
     if (_mouseCallbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin shared];
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_mouseCallbackRef];
         [skin pushLuaRef:refTable ref:_selfRef] ;
         [skin pushNSObject:@"_subview_"] ;
         [skin pushNSObject:sender] ;
         [skin protectedCallAndError:@"hs.canvas:buttonCallback" nargs:3 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 
@@ -2185,6 +2189,7 @@ static int userdata_gc(lua_State* L) ;
     if (_draggingCallbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin shared] ;
         lua_State *L = skin.L ;
+        _lua_stackguard_entry(L);
         int argCount = 2 ;
         [skin pushLuaRef:refTable ref:_draggingCallbackRef] ;
         [skin pushNSObject:self] ;
@@ -2231,6 +2236,7 @@ static int userdata_gc(lua_State* L) ;
             // No need to lua_pop() the error because nresults is 1, so the call below gets it whether it's a successful result or an error message
         }
         lua_pop(L, 1) ;
+        _lua_stackguard_exit(L);
     }
     return isAllGood ;
 }

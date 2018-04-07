@@ -90,10 +90,12 @@ static HSURLEventHandler *eventHandler;
 
 - (void)callbackWithURL:(NSString *)openUrl {
     LuaSkin *skin = [LuaSkin shared];
+    _lua_stackguard_entry(skin.L);
 
     if (self.fnCallback == LUA_NOREF || self.fnCallback == LUA_REFNIL) {
         // Lua hasn't registered a callback. This possibly means we have been require()'d as hs.urlevent.internal and not set up properly. Weird. Refuse to do anything
         [skin logWarn:[NSString stringWithFormat:@"hs.urlevent callbackWithURL received a URL with no callback set: %@", openUrl]];
+        _lua_stackguard_exit(skin.L);
         return;
     }
 
@@ -107,6 +109,7 @@ static HSURLEventHandler *eventHandler;
 
     if (!url) {
         NSLog(@"ERROR: Unable to parse '%@' as a URL", openUrl);
+        _lua_stackguard_exit(skin.L);
         return;
     }
 
@@ -130,6 +133,7 @@ static HSURLEventHandler *eventHandler;
     [skin pushNSObject:pairs];
     [skin pushNSObject:[url absoluteString]];
     [skin protectedCallAndError:[NSString stringWithFormat:@"hs.urlevent callback for %@", url.absoluteString] nargs:4 nresults:0];
+    _lua_stackguard_exit(skin.L);
 }
 @end
 
