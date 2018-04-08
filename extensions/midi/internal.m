@@ -253,7 +253,6 @@ static int refTable = LUA_NOREF;
         if (([keyPath isEqualToString:@"availableDevices"]) || ([keyPath isEqualToString:@"virtualSources"])) {
             if (_deviceCallbackRef != LUA_NOREF) {
                 LuaSkin *skin = [LuaSkin shared] ;
-                lua_State *L  = [skin L] ;
                 [skin pushLuaRef:refTable ref:_deviceCallbackRef] ;
 
                 //
@@ -281,12 +280,7 @@ static int refTable = LUA_NOREF;
 
                 [skin pushNSObject:deviceNames];
                 [skin pushNSObject:virtualDeviceNames];
-
-                if (![skin protectedCallAndTraceback:2 nresults:0]) {
-                    NSString *errorMessage = [skin toNSObjectAtIndex:-1] ;
-                    lua_pop(L, 1) ;
-                    [skin logError:[NSString stringWithFormat:@"%s:deviceCallback callback error:%@", USERDATA_TAG, errorMessage]] ;
-                }
+                [skin protectedCallAndError:@"hs.midi:deviceCallback" nargs:2 nresults:0];
             }
         }
     }
@@ -673,7 +667,6 @@ static int midi_callback(lua_State *L) {
                     //
                     // Update Callback Function:
                     //
-                    lua_State *_L = [skin L];
                     [skin pushLuaRef:refTable ref:wrapper.callbackRef];
 
                     //
@@ -994,12 +987,7 @@ static int midi_callback(lua_State *L) {
                             break;
                         }
                     };
-
-                    if (![skin protectedCallAndTraceback:5 nresults:0]) {
-                        const char *errorMsg = lua_tostring(_L, -1);
-                        [skin logError:[NSString stringWithFormat:@"%s: %s", USERDATA_TAG, errorMsg]];
-                        lua_pop(_L, 1) ; // Remove error message from stack
-                    }
+                    [skin protectedCallAndError:@"hs.midi callback" nargs:5 nresults:0];
                 }
             }
         }];

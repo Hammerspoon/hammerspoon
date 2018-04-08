@@ -45,11 +45,7 @@ static int refTable;
             lua_pushnil(L);
         }
     }
-    if (![skin protectedCallAndTraceback:argCount nresults:0]) {
-        const char *errorMsg = lua_tostring(L, -1);
-        [skin logError:[NSString stringWithFormat:@"hs.screen.watcher callback error: %s", errorMsg]];
-        lua_pop(L, 1); // clean up error message
-    }
+    [skin protectedCallAndError:@"hs.screen.watcher callback" nargs:argCount nresults:0];
 }
 @end
 

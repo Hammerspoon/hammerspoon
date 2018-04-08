@@ -70,11 +70,7 @@ void event_callback(ConstFSEventStreamRef __unused streamRef, void *clientCallBa
         lua_rawseti(L, -2, i + 1);
     }
 
-    if (![skin protectedCallAndTraceback:2 nresults:0]) {
-        const char *errorMsg = lua_tostring(L, -1);
-        [skin logError:[NSString stringWithFormat:@"hs.pathwatcher callback error: %s", errorMsg]];
-        lua_pop(L, 1) ; // remove error message
-    }
+    [skin protectedCallAndError:@"hs.pathwatcher callback" nargs:2 nresults:0];
 }
 
 /// hs.pathwatcher.new(path, fn) -> watcher

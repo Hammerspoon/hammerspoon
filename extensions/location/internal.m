@@ -53,11 +53,7 @@ static HSLocation *location ;
             [skin pushLuaRef:refTable ref:callbackRef] ;
             [skin pushNSObject:@"didUpdateLocations"] ;
             [skin pushNSObject:locations] ;
-            if (![skin protectedCallAndTraceback:2 nresults:0]) {
-                NSString *errMsg = [skin toNSObjectAtIndex:-1] ;
-                [skin logError:[NSString stringWithFormat:@"%s:didUpdateLocations callback error:%@", USERDATA_TAG, errMsg]] ;
-                lua_pop(skin.L, 1) ;
-            }
+            [skin protectedCallAndError:@"hs.location:didUpdateLocations callback" nargs:2 nresults:0];
         }) ;
     }
 }
@@ -69,11 +65,7 @@ static HSLocation *location ;
             [skin pushLuaRef:refTable ref:callbackRef] ;
             [skin pushNSObject:@"didEnterRegion"] ;
             [skin pushNSObject:region] ;
-            if (![skin protectedCallAndTraceback:2 nresults:0]) {
-                NSString *errMsg = [skin toNSObjectAtIndex:-1] ;
-                [skin logError:[NSString stringWithFormat:@"%s:didEnterRegion callback error:%@", USERDATA_TAG, errMsg]] ;
-                lua_pop(skin.L, 1) ;
-            }
+            [skin protectedCallAndError:@"hs.location:didEnterRegion callback" nargs:2 nresults:0];
         }) ;
     }
 }
@@ -85,11 +77,7 @@ static HSLocation *location ;
             [skin pushLuaRef:refTable ref:callbackRef] ;
             [skin pushNSObject:@"didExitRegion"] ;
             [skin pushNSObject:region] ;
-            if (![skin protectedCallAndTraceback:2 nresults:0]) {
-                NSString *errMsg = [skin toNSObjectAtIndex:-1] ;
-                [skin logError:[NSString stringWithFormat:@"%s:didExitRegion callback error:%@", USERDATA_TAG, errMsg]] ;
-                lua_pop(skin.L, 1) ;
-            }
+            [skin protectedCallAndError:@"hs.location:didExitRegion callback" nargs:2 nresults:0];
         }) ;
     }
 }
@@ -101,11 +89,7 @@ static HSLocation *location ;
             [skin pushLuaRef:refTable ref:callbackRef] ;
             [skin pushNSObject:@"didFailWithError"] ;
             [skin pushNSObject:error.localizedDescription] ;
-            if (![skin protectedCallAndTraceback:2 nresults:0]) {
-                NSString *errMsg = [skin toNSObjectAtIndex:-1] ;
-                [skin logError:[NSString stringWithFormat:@"%s:didExitRegion callback error:%@", USERDATA_TAG, errMsg]] ;
-                lua_pop(skin.L, 1) ;
-            }
+            [skin protectedCallAndError:@"hs.location:didFailWithError callback" nargs:2 nresults:0];
         }) ;
     }
 }
@@ -120,11 +104,7 @@ static HSLocation *location ;
             [skin pushNSObject:@"monitoringDidFailForRegion"] ;
             [skin pushNSObject:region] ;
             [skin pushNSObject:error.localizedDescription] ;
-            if (![skin protectedCallAndTraceback:3 nresults:0]) {
-                NSString *errMsg = [skin toNSObjectAtIndex:-1] ;
-                [skin logError:[NSString stringWithFormat:@"%s:didExitRegion callback error:%@", USERDATA_TAG, errMsg]] ;
-                lua_pop(skin.L, 1) ;
-            }
+            [skin protectedCallAndError:@"hs.location:monitoringDidFailForRegion callback" nargs:3 nresults:0];
         }) ;
     }
 }
@@ -151,11 +131,7 @@ static HSLocation *location ;
             }
 #pragma clang diagnostic pop
 
-            if (![skin protectedCallAndTraceback:2 nresults:0]) {
-                NSString *errMsg = [skin toNSObjectAtIndex:-1] ;
-                [skin logError:[NSString stringWithFormat:@"%s:didChangeAuthorizationStatus callback error:%@", USERDATA_TAG, errMsg]] ;
-                lua_pop(skin.L, 1) ;
-            }
+            [skin protectedCallAndError:@"hs.location:didChangeAuthorizationStatus callback" nargs:2 nresults:0];
         }) ;
     }
 }
@@ -167,11 +143,7 @@ static HSLocation *location ;
             [skin pushLuaRef:refTable ref:callbackRef] ;
             [skin pushNSObject:@"didStartMonitoringForRegion"] ;
             [skin pushNSObject:region] ;
-            if (![skin protectedCallAndTraceback:2 nresults:0]) {
-                NSString *errMsg = [skin toNSObjectAtIndex:-1] ;
-                [skin logError:[NSString stringWithFormat:@"%s:didStartMonitoringForRegion callback error:%@", USERDATA_TAG, errMsg]] ;
-                lua_pop(skin.L, 1) ;
-            }
+            [skin protectedCallAndError:@"hs.location:didStartMonitoringForRegion" nargs:2 nresults:0];
         }) ;
     }
 }
@@ -466,12 +438,8 @@ static int clgeocoder_lookupLocation(lua_State *L) {
         lua_State *_L    = [_skin L] ;
         [_skin pushLuaRef:refTable ref:fnRef] ;
         lua_pushboolean(_L, (error == NULL)) ;
-        [skin pushNSObject:(error ? error.localizedDescription : placemark)] ;
-        if (![_skin protectedCallAndTraceback:2 nresults:0]) {
-            NSString *errMsg = [_skin toNSObjectAtIndex:-1] ;
-            lua_pop(_L, 1) ;
-            [_skin logError:[NSString stringWithFormat:@"%s:lookupLocation callback error: %@", GEOCODE_UD_TAG, errMsg]];
-        }
+        [_skin pushNSObject:(error ? error.localizedDescription : placemark)] ;
+        [_skin protectedCallAndError:@"hs.location.geocode:lookupLocation callback" nargs:2 nresults:0];
         [_skin luaUnref:refTable ref:fnRef] ;
     }] ;
     [skin pushNSObject:geoItem] ;
@@ -509,11 +477,7 @@ static int clgeocoder_lookupAddress(lua_State *L) {
         [_skin pushLuaRef:refTable ref:fnRef] ;
         lua_pushboolean(_L, (error == NULL)) ;
         [_skin pushNSObject:(error ? error.localizedDescription : placemark)] ;
-        if (![_skin protectedCallAndTraceback:2 nresults:0]) {
-            NSString *errMsg = [_skin toNSObjectAtIndex:-1] ;
-            lua_pop(_L, 1) ;
-            [_skin logError:[NSString stringWithFormat:@"%s:lookupAddress callback error: %@", GEOCODE_UD_TAG, errMsg]];
-        }
+        [_skin protectedCallAndError:@"hs.location.geocode:lookupAddress callback" nargs:2 nresults:0];
         [_skin luaUnref:refTable ref:fnRef] ;
     }] ;
     [skin pushNSObject:geoItem] ;
@@ -561,11 +525,7 @@ static int clgeocoder_lookupAddressNear(lua_State *L) {
         [_skin pushLuaRef:refTable ref:fnRef] ;
         lua_pushboolean(_L, (error == NULL)) ;
         [_skin pushNSObject:(error ? error.localizedDescription : placemark)] ;
-        if (![_skin protectedCallAndTraceback:2 nresults:0]) {
-            NSString *errMsg = [_skin toNSObjectAtIndex:-1] ;
-            lua_pop(_L, 1) ;
-            [_skin logError:[NSString stringWithFormat:@"%s:lookupAddressNear callback error: %@", GEOCODE_UD_TAG, errMsg]];
-        }
+        [_skin protectedCallAndError:@"hs.location.geocode:lookupAddressNear callback" nargs:2 nresults:0];
         [_skin luaUnref:refTable ref:fnRef] ;
     }] ;
     [skin pushNSObject:geoItem] ;

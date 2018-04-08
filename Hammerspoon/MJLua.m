@@ -622,6 +622,7 @@ void MJLuaInit(void) {
 
     if (lua_pcall(L, 7, 2, 0) != LUA_OK) {
         NSString *errorMessage = [NSString stringWithFormat:@"%s", lua_tostring(L, -1)] ;
+        lua_pop(L, 1); // Pop the error message off the stack
         HSNSLOG(@"Error running setup.lua:%@", errorMessage);
         NSAlert *alert = [[NSAlert alloc] init];
         [alert addButtonWithTitle:@"OK"];
@@ -640,12 +641,15 @@ void callAccessibilityStateCallback(void) {
     LuaSkin *skin = MJLuaState;
     lua_State *L = MJLuaState.L;
 
+    [skin growStack:2 withMessage:"callAccessibilityStateCallback"];
+
     lua_getglobal(L, "hs");
     lua_getfield(L, -1, "accessibilityStateCallback");
 
-    if (lua_type(L, -1) == LUA_TFUNCTION) {
-        [skin protectedCallAndTraceback:0 nresults:0];
-    }
+    [skin protectedCallAndError:@"hs.callAccessibilityStateCallback" nargs:0 nresults:0];
+
+    // Pop the hs global off the stack
+    lua_pop(L, 1);
 }
 
 // Text Dropped to Dock Icon Callback:
@@ -656,12 +660,11 @@ void textDroppedToDockIcon(NSString *pboardString) {
     lua_getglobal(L, "hs");
     lua_getfield(L, -1, "textDroppedToDockIconCallback");
 
-    if (lua_type(L, -1) == LUA_TFUNCTION) {
-        [skin pushNSObject:pboardString];
-        [skin protectedCallAndTraceback:1 nresults:0];
-    } else {
-        [skin logError:@"Text was dropped on our dock icon, but no callback handler is set in hs.textDroppedToDockIconCallback"];
-    }
+    [skin pushNSObject:pboardString];
+    [skin protectedCallAndError:@"hs.textDroppedToDockIconCallback" nargs:1 nresults:0];
+
+    // Pop the hs global off the stack
+    lua_pop(L, 1);
 }
 
 // File Dropped to Dock Icon Callback:
@@ -672,15 +675,14 @@ void fileDroppedToDockIcon(NSString *filePath) {
     lua_getglobal(L, "hs");
     lua_getfield(L, -1, "fileDroppedToDockIconCallback");
 
-    if (lua_type(L, -1) == LUA_TFUNCTION) {
-        [skin pushNSObject:filePath];
-        [skin protectedCallAndTraceback:1 nresults:0];
-    } else {
-        [skin logError:@"File was dropped on our dock icon, but no callback handler is set in hs.fileDroppedToDockIconCallback"];
-    }
+    [skin pushNSObject:filePath];
+    [skin protectedCallAndError:@"hs.fileDroppedToDockIconCallback" nargs:1 nresults:0];
+
+    // Pop the hs global off the stack
+    lua_pop(L, 1);
 }
 
-// Accessibility State Callback:
+// Dock Icon Click Callback:
 void callDockIconCallback(void) {
     LuaSkin *skin = MJLuaState;
     lua_State *L = MJLuaState.L;
@@ -688,19 +690,23 @@ void callDockIconCallback(void) {
     lua_getglobal(L, "hs");
     lua_getfield(L, -1, "dockIconClickCallback");
 
-    if (lua_type(L, -1) == LUA_TFUNCTION) {
-        [skin protectedCallAndTraceback:0 nresults:0];
-    }
+    [skin protectedCallAndError:@"hs.dockIconClickCallback" nargs:0 nresults:0];
+
+    // Pop the hs global off the stack
+    lua_pop(L, 1);
 }
 
+// Shutdown Callback
 static int callShutdownCallback(lua_State *L) {
+    LuaSkin *skin = MJLuaState;
+
     lua_getglobal(L, "hs");
     lua_getfield(L, -1, "shutdownCallback");
 
-    if (lua_type(L, -1) == LUA_TFUNCTION) {
-        [MJLuaState protectedCallAndTraceback:0 nresults:0];
-    }
+    [skin protectedCallAndError:@"hs.shutdownCallback" nargs:0 nresults:0];
 
+    // Pop the hs global off the stack
+    lua_pop(L, 1);
     return 0;
 }
 
@@ -731,6 +737,8 @@ NSString* MJLuaRunString(NSString* command) {
         if (lua_isstring(L, -1)) {
             HSNSLOG(@"evalfn appears to be a string: %s", lua_tostring(L, -1));
         }
+        // Whatever evalfn was, it wasn't a function, so pop it
+        lua_pop(L, 1);
         return @"";
     }
     lua_pushstring(L, [command UTF8String]);
@@ -769,9 +777,7 @@ NSArray *MJLuaCompletionsForWord(NSString *completionWord) {
         return @[];
     }
     [skin pushNSObject:completionWord];
-    if ([skin protectedCallAndTraceback:1 nresults:1] == NO) {
-        const char *errorMsg = lua_tostring(skin.L, -1);
-        [skin logError:[NSString stringWithFormat:@"MJLuaCompletionsForWord: %s", errorMsg]];
+    if ([skin protectedCallAndError:@"MJLuaCompletionsForWord" nargs:1 nresults:1] == NO) {
         return @[];
     }
 

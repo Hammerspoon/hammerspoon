@@ -236,10 +236,7 @@
 
     if (self.showCallbackRef != LUA_NOREF && self.showCallbackRef != LUA_REFNIL) {
         [skin pushLuaRef:*(self.refTable) ref:self.showCallbackRef];
-        if (![skin protectedCallAndTraceback:0 nresults:0]) {
-            [skin logError:[NSString stringWithFormat:@"%s:showCallback error - %@", USERDATA_TAG, [skin toNSObjectAtIndex:-1]]] ;
-            lua_pop(skin.L, 1) ; // remove error message
-        }
+        [skin protectedCallAndError:@"hs.chooser:showCallback" nargs:0 nresults:0];
     }
 }
 
@@ -316,10 +313,7 @@
 
         [skin pushLuaRef:*(self.refTable) ref:self.completionCallbackRef];
         [skin pushNSObject:choice];
-        if (![skin protectedCallAndTraceback:1 nresults:0]) {
-            [skin logError:[NSString stringWithFormat:@"%s:completionCallback error - %@", USERDATA_TAG, [skin toNSObjectAtIndex:-1]]] ;
-            lua_pop(skin.L, 1) ; // remove error message
-        }
+        [skin protectedCallAndError:@"hs.chooser:completionCallback" nargs:1 nresults:0];
     }
 }
 
@@ -328,11 +322,8 @@
         // We have a right click callback set
         LuaSkin *skin = [LuaSkin shared];
         [skin pushLuaRef:*(self.refTable) ref:self.rightClickCallbackRef];
-        lua_pushinteger(skin.L, row + 1) ;
-        if (![skin protectedCallAndTraceback:1 nresults:0]) {
-            [skin logError:[NSString stringWithFormat:@"%s:rightClickCallback error - %@", USERDATA_TAG, [skin toNSObjectAtIndex:-1]]] ;
-            lua_pop(skin.L, 1) ; // remove error message
-        }
+        lua_pushinteger(skin.L, row + 1);
+        [skin protectedCallAndError:@"hs.chooser:rightClickCallback" nargs:1 nresults:0];
     }
 }
 
@@ -344,10 +335,7 @@
     LuaSkin *skin = [LuaSkin shared];
     [skin pushLuaRef:*(self.refTable) ref:self.completionCallbackRef];
     lua_pushnil(skin.L);
-    if (![skin protectedCallAndTraceback:1 nresults:0]) {
-        [skin logError:[NSString stringWithFormat:@"%s:completionCallback error - %@", USERDATA_TAG, [skin toNSObjectAtIndex:-1]]] ;
-        lua_pop(skin.L, 1) ; // remove error message
-    }
+    [skin protectedCallAndError:@"hs.chooser:completionCallback" nargs:1 nresults:0];
 }
 
 - (IBAction)queryDidPressEnter:(id)sender {
@@ -364,10 +352,7 @@
         LuaSkin *skin = [LuaSkin shared];
         [skin pushLuaRef:*(self.refTable) ref:self.queryChangedCallbackRef];
         [skin pushNSObject:queryString];
-        if (![skin protectedCallAndTraceback:1 nresults:0]) {
-            [skin logError:[NSString stringWithFormat:@"%s:queryChangedCallback error - %@", USERDATA_TAG, [skin toNSObjectAtIndex:-1]]] ;
-            lua_pop(skin.L, 1) ; // remove error message
-        }
+        [skin protectedCallAndError:@"hs.chooser:queryChangedCallback" nargs:1 nresults:0];
     } else {
         // We do not have a query callback set, so we are doing the filtering
         if (queryString.length > 0) {
@@ -508,6 +493,7 @@
                 }
             } else {
                 [skin logError:[NSString stringWithFormat:@"%s:choices error - %@", USERDATA_TAG, [skin toNSObjectAtIndex:-1]]] ;
+                // No need to lua_pop() here, see below
             }
             lua_pop(skin.L, 1) ; // remove result or error message
         }

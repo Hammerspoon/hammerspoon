@@ -32,12 +32,7 @@ static void doDynamicStoreCallback(__unused SCDynamicStoreRef store, CFArrayRef 
             } else {
                 lua_pushnil(L) ;
             }
-            if (![skin protectedCallAndTraceback:2 nresults:0]) {
-                [skin logError:[NSString stringWithFormat:@"%s:error in Lua callback:%@",
-                                                            USERDATA_TAG,
-                                                            [skin toNSObjectAtIndex:-1]]] ;
-                lua_pop(L, 1) ; // error string from pcall
-            }
+            [skin protectedCallAndError:@"hs.network.configuration callback" nargs:2 nresults:0];
         }) ;
     }
 }

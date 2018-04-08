@@ -79,6 +79,7 @@ static int refTable;
         if (![skin protectedCallAndTraceback:1 nresults:1]) {
             const char *errorMsg = lua_tostring(skin.L, -1);
             [skin logError:[NSString stringWithFormat:@"hs.httpserver:websocket callback error: %s", errorMsg]];
+            // No need to lua_pop() here, nresults is 1 so the lua_pop() below catches successful results and error messages
         } else {
             response = [skin toNSObjectAtIndex:-1];
         }

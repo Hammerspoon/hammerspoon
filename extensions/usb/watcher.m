@@ -67,11 +67,7 @@ void DeviceNotification(void *refCon, io_service_t service __unused, natural_t m
         lua_settable(L, -3);
 
         // Call the callback
-        if (![skin protectedCallAndTraceback:1 nresults:0]) {
-            const char *errorMsg = lua_tostring(L, -1);
-            [skin logError:[NSString stringWithFormat:@"hs.usb.watcher 'removed' callback error: %s", errorMsg]];
-            lua_pop(L, 1) ; // remove error message
-        }
+        [skin protectedCallAndError:@"hs.usb.watcher:removed callback" nargs:1 nresults:0];
 
         // Free the USB private data
         IOObjectRelease(privateDataRef->notification);
@@ -156,11 +152,7 @@ void DeviceAdded(void *refCon, io_iterator_t iterator) {
             lua_pushstring(L, "added");
             lua_settable(L, -3);
 
-            if (![skin protectedCallAndTraceback:1 nresults:0]) {
-                const char *errorMsg = lua_tostring(L, -1);
-                [skin logError:[NSString stringWithFormat:@"hs.usb.watcher 'added' callback error: %s", errorMsg]];
-                lua_pop(L, 1) ; // remove error message
-            }
+            [skin protectedCallAndError:@"hs.usb.watcher:added callback" nargs:1 nresults:0];
         }
     }
 }

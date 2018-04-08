@@ -43,12 +43,7 @@
     [skin pushNSObject:self];
     lua_pushinteger(skin.L, button.intValue);
     lua_pushboolean(skin.L, isDown.boolValue);
-
-    if (![skin protectedCallAndTraceback:3 nresults:0]) {
-        [skin logError:[NSString stringWithFormat:@"hs.streamdeck:buttonCallback error:%s", lua_tostring(skin.L, -1)]];
-        lua_pop(skin.L, 1);
-    }
-
+    [skin protectedCallAndError:@"hs.streamdeck:buttonCallback" nargs:3 nresults:0];
 }
 
 - (BOOL)setBrightness:(int)brightness {

@@ -36,7 +36,7 @@ static CFDataRef ipc_callback(__unused CFMessagePortRef local, SInt32 msgid, CFD
         if (!status) {
             [skin logError:[NSString stringWithFormat:@"%s:callback - error during callback for %@: %s", USERDATA_TAG, (__bridge NSString *)CFMessagePortGetName(port.messagePort), lua_tostring(L, -2)]] ;
         }
-        lua_pop(L, 2) ;                                 // remove the result and the tostring version
+        lua_pop(L, 2) ;                                 // remove the result and the luaL_tostring() version
 
         if (result) outdata = (__bridge_retained CFDataRef)result ;
     } else {

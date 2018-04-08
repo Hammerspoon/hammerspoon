@@ -179,15 +179,13 @@ static HSWifiWatcherManager *manager ;
                     [skin pushNSObject:aWatcher] ;
                     [skin pushNSObject:message] ;
                     NSUInteger count = (details) ? [details count] : 0 ;
+                    if (count > 0) [skin growStack:(int)count withMessage:"hs.wifi.watcher:invokeCallbacksFor"];
                     if (details) {
                         for (id argument in details) {
                             [skin pushNSObject:argument withOptions:LS_NSDescribeUnknownTypes] ;
                         }
                     }
-                    if (![skin protectedCallAndTraceback:(2 + (int)count) nresults:0]) {
-                        [skin logError:[NSString stringWithFormat:@"%s:callback for %@ error:%s", USERDATA_TAG, message, lua_tostring(skin.L, -1)]] ;
-                        lua_pop(skin.L, 1) ;
-                    }
+                    [skin protectedCallAndError:[NSString stringWithFormat:@"hs.wifi.watcher callback for %@", message] nargs:(2 + (int)count) nresults:0];
                 }) ;
             }
         }

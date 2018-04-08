@@ -25,16 +25,11 @@ typedef struct _battery_watcher_t {
 
 static void callback(void *info) {
     LuaSkin *skin = [LuaSkin shared];
-    lua_State *L = skin.L;
 
     battery_watcher_t* t = info;
 
     [skin pushLuaRef:refTable ref:t->fn];
-    if (![skin protectedCallAndTraceback:0 nresults:0]) {
-        const char *errorMsg = lua_tostring(L, -1);
-        [skin logError:[NSString stringWithFormat:@"hs.battery.watcher callback error: %s", errorMsg]];
-        lua_pop(L, 1) ; // remove error message
-    }
+    [skin protectedCallAndError:@"hs.battery.watcher callback" nargs:0 nresults:0];
 }
 
 /// hs.battery.watcher.new(fn) -> watcher

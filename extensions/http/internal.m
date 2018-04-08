@@ -90,12 +90,8 @@ static void remove_delegate(__unused lua_State* L, connectionDelegate* delegate)
     lua_pushinteger(L, (int)self.httpResponse.statusCode);
     [skin pushNSObject:responseBodyToId(self.httpResponse, self.receivedData)];
     [skin pushNSObject:self.httpResponse.allHeaderFields];
+    [skin protectedCallAndError:@"hs.http connectionDelefate:didFinishLoading" nargs:3 nresults:0];
 
-    if (![skin protectedCallAndTraceback:3 nresults:0]) {
-        const char *errorMsg = lua_tostring(L, -1);
-        [skin logError:[NSString stringWithFormat:@"hs.http callback error: %s", errorMsg]];
-        lua_pop(L, 1) ; // remove error message
-    }
     remove_delegate(L, self);
 }
 
@@ -111,7 +107,7 @@ static void remove_delegate(__unused lua_State* L, connectionDelegate* delegate)
     [skin pushLuaRef:refTable ref:self.fn];
     lua_pushinteger(self.L, -1);
     [skin pushNSObject:errorMessage];
-    lua_pcall(self.L, 2, 0, 0);
+    [skin protectedCallAndError:@"hs.http connectionDelegate:didFailWithError" nargs:2 nresults:0];
     remove_delegate(self.L, self);
 }
 
@@ -144,11 +140,7 @@ static void remove_delegate(__unused lua_State* L, connectionDelegate* delegate)
         [skin pushLuaRef:refTable ref:self.fn];
         [skin pushNSObject:message];
 
-        if (![skin protectedCallAndTraceback:1 nresults:0]) {
-            const char *errorMsg = lua_tostring(skin.L, -1);
-            [skin logError:[NSString stringWithFormat:@"hs.http.websocket callback error: %s", errorMsg]];
-            lua_pop(skin.L, 1) ; // remove error message from stack
-        }
+        [skin protectedCallAndError:@"hs.http.websocket callback" nargs:1 nresults:0];
     });
 }
 

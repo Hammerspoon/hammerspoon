@@ -22,11 +22,7 @@ static int refTable ;
         LuaSkin *skin = [LuaSkin shared] ;
         [skin pushLuaRef:refTable ref:self.userContentCallback];
         [skin pushNSObject:message] ;
-        if (![skin protectedCallAndTraceback:1 nresults:0]) {
-            const char *errorMsg = lua_tostring([skin L], -1);
-            [skin logError:[NSString stringWithFormat:@"hs.webview.usercontent callback error: %s", errorMsg]];
-            lua_pop([skin L], 1) ;
-        }
+        [skin protectedCallAndError:@"hs.webview.usercontent callback" nargs:1 nresults:0];
     }
 }
 @end

@@ -360,12 +360,9 @@ static OSStatus trigger_hotkey_callback(int eventUID, int eventKind, BOOL isRepe
         if (ref != LUA_NOREF) {
             [skin pushLuaRef:refTable ref:ref];
 
-            if (![skin protectedCallAndTraceback:0 nresults:0]) {
+            if (![skin protectedCallAndError:@"hs.hotkey callback" nargs:0 nresults:0]) {
                 // For the sake of safety, we'll invalidate any repeat timer that's running, so we don't ruin the user's day by spamming them with errors
                 [keyRepeatManager stopTimer];
-                const char *errorMsg = lua_tostring(L, -1);
-                [skin logError:[NSString stringWithFormat:@"hs.hotkey callback error: %s", errorMsg]];
-                lua_pop(L, 1) ; // remove error message
                 return noErr;
             }
         }

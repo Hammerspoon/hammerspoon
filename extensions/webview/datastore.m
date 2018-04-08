@@ -167,10 +167,7 @@ static int datastore_fetchRecords(lua_State *L) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [skin pushLuaRef:refTable ref:fnRef] ;
             [skin pushNSObject:records] ;
-            if (![skin  protectedCallAndTraceback:1 nresults:0]) {
-                [skin logError:[NSString stringWithFormat:@"%s:fetchRecords callback error: %@", USERDATA_DS_TAG, [skin toNSObjectAtIndex:-1]]] ;
-                lua_pop(L, 1) ;
-            }
+            [skin protectedCallAndError:@"hs.webview.datastore:fetchRecords callback" nargs:1 nresults:0];
             [skin luaUnref:refTable ref:fnRef] ;
         }) ;
     }] ;
@@ -266,10 +263,7 @@ static int datastore_removeRecords(lua_State *L) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 if (fnRef != LUA_NOREF) {
                     [skin pushLuaRef:refTable ref:fnRef] ;
-                    if (![skin  protectedCallAndTraceback:0 nresults:0]) {
-                        [skin logError:[NSString stringWithFormat:@"%s:removeRecordsFor callback error: %@", USERDATA_DS_TAG, [skin toNSObjectAtIndex:-1]]] ;
-                        lua_pop(L, 1) ;
-                    }
+                    [skin protectedCallAndError:@"hs.webview.datastore:removeRecordsFor callback" nargs:0 nresults:0];
                     [skin luaUnref:refTable ref:fnRef] ;
                 }
             }) ;
@@ -361,10 +355,7 @@ static int datastore_removeDataFrom(lua_State *L) {
         dispatch_async(dispatch_get_main_queue(), ^{
             if (fnRef != LUA_NOREF) {
                 [skin pushLuaRef:refTable ref:fnRef] ;
-                if (![skin  protectedCallAndTraceback:0 nresults:0]) {
-                    [skin logError:[NSString stringWithFormat:@"%s:removeRecordsAfter callback error: %@", USERDATA_DS_TAG, [skin toNSObjectAtIndex:-1]]] ;
-                    lua_pop(L, 1) ;
-                }
+                [skin protectedCallAndError:@"hs.webview.datastore:removeRecordsAfter callback" nargs:0 nresults:0];
                 [skin luaUnref:refTable ref:fnRef] ;
             }
         }) ;
