@@ -164,6 +164,14 @@ function layout.apply(theLayout, windowTitleComparator)
                         display = displays[1]
 		    end
                 end
+		-- check if it matches a UUID instead
+		if display == nil then
+                    for _, screen in pairs(hs.screen.allScreens()) do
+	               if _row[3] == spi.UUIDforScreen(screen) then
+		           display = screen
+		       end
+		    end
+		end
             elseif type(_row[3]) == "function" then
                 display = _row[3]()
             elseif fnutils.contains(screen.allScreens(), _row[3]) then
