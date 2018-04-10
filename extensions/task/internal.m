@@ -921,6 +921,7 @@ int luaopen_hs_task_internal(lua_State* L) {
                 stdErrArg = dataString;
             } else {
                 [_skin logError:@"hs.task:setStreamingCallback() Received data from an unknown file handle"];
+                _lua_stackguard_exit(_L);
                 return;
             }
 
