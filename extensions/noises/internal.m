@@ -163,9 +163,11 @@ void AudioInputCallback(void * inUserData,  // Custom audio metadata
 - (void)runCallbackWithEvent: (NSNumber*)evNumber {
   LuaSkin *skin = [LuaSkin shared];
   lua_State* L = self.L;
+  _lua_stackguard_entry(L);
   [skin pushLuaRef:refTable ref:self.fn];
   lua_pushinteger(L, [evNumber intValue]);
   [skin protectedCallAndError:@"hs.noises callback" nargs:1 nresults:0];
+  _lua_stackguard_exit(L);
 }
 @end
 

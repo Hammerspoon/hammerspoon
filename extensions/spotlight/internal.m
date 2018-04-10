@@ -78,11 +78,13 @@ static id toNSSortDescriptorFromLua(lua_State *L, int idx) ;
     dispatch_async(dispatch_get_main_queue(), ^{
         if (self->_callbackRef != LUA_NOREF) {
             LuaSkin *skin = [LuaSkin shared] ;
+            _lua_stackguard_entry(skin.L);
             [skin pushLuaRef:refTable ref:self->_callbackRef] ;
             [skin pushNSObject:self] ;
             [skin pushNSObject:message] ;
             [skin pushNSObject:notification.userInfo withOptions:LS_NSDescribeUnknownTypes] ;
             [skin protectedCallAndError:@"hs.spotlight" nargs:3 nresults:0];
+            _lua_stackguard_exit(skin.L);
         }
     }) ;
 }

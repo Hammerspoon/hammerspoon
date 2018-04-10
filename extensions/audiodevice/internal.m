@@ -81,6 +81,7 @@ OSStatus audiodevice_callback(AudioDeviceID deviceID, UInt32 numAddresses, const
 
         audioDeviceUserData *userData = (audioDeviceUserData *)clientData;
         LuaSkin *skin = [LuaSkin shared];
+        _lua_stackguard_entry(skin.L);
         if (userData->callback == LUA_NOREF) {
             [skin logError:@"hs.audiodevice.watcher callback fired, but no function has been set with hs.audiodevice.watcher.setCallback()"];
         } else {
@@ -100,7 +101,7 @@ OSStatus audiodevice_callback(AudioDeviceID deviceID, UInt32 numAddresses, const
                 [skin protectedCallAndError:@"hs.audiodevice:watcherCallback" nargs:4 nresults:0];
             }
         }
-
+        _lua_stackguard_exit(skin.L);
     });
     return noErr;
 }

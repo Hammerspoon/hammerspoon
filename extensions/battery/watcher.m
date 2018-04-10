@@ -25,11 +25,13 @@ typedef struct _battery_watcher_t {
 
 static void callback(void *info) {
     LuaSkin *skin = [LuaSkin shared];
+    _lua_stackguard_entry(skin.L);
 
     battery_watcher_t* t = info;
 
     [skin pushLuaRef:refTable ref:t->fn];
     [skin protectedCallAndError:@"hs.battery.watcher callback" nargs:0 nresults:0];
+    _lua_stackguard_exit(skin.L);
 }
 
 /// hs.battery.watcher.new(fn) -> watcher

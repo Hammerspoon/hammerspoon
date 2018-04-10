@@ -584,6 +584,7 @@ void MJLuaAlloc(void) {
     // on a reload, this won't get created in sharedWithDelegate:, so do it manually here
     if (!skin.L) {
         [skin createLuaState];
+        skin.delegate = MJLuaLogDelegate; // FIXME: Is this needed?
     }
     MJLuaState = skin;
     [MJLuaLogDelegate setLuaState:skin.L];
@@ -640,8 +641,7 @@ void MJLuaInit(void) {
 void callAccessibilityStateCallback(void) {
     LuaSkin *skin = MJLuaState;
     lua_State *L = MJLuaState.L;
-
-    [skin growStack:2 withMessage:"callAccessibilityStateCallback"];
+    _lua_stackguard_entry(L);
 
     lua_getglobal(L, "hs");
     lua_getfield(L, -1, "accessibilityStateCallback");
@@ -650,12 +650,14 @@ void callAccessibilityStateCallback(void) {
 
     // Pop the hs global off the stack
     lua_pop(L, 1);
+    _lua_stackguard_exit(L);
 }
 
 // Text Dropped to Dock Icon Callback:
 void textDroppedToDockIcon(NSString *pboardString) {
     LuaSkin *skin = MJLuaState;
     lua_State *L = skin.L;
+    _lua_stackguard_entry(L);
 
     lua_getglobal(L, "hs");
     lua_getfield(L, -1, "textDroppedToDockIconCallback");
@@ -665,12 +667,14 @@ void textDroppedToDockIcon(NSString *pboardString) {
 
     // Pop the hs global off the stack
     lua_pop(L, 1);
+    _lua_stackguard_exit(L);
 }
 
 // File Dropped to Dock Icon Callback:
 void fileDroppedToDockIcon(NSString *filePath) {
     LuaSkin *skin = MJLuaState;
     lua_State *L = skin.L;
+    _lua_stackguard_entry(L);
 
     lua_getglobal(L, "hs");
     lua_getfield(L, -1, "fileDroppedToDockIconCallback");
@@ -680,12 +684,14 @@ void fileDroppedToDockIcon(NSString *filePath) {
 
     // Pop the hs global off the stack
     lua_pop(L, 1);
+    _lua_stackguard_exit(L);
 }
 
 // Dock Icon Click Callback:
 void callDockIconCallback(void) {
     LuaSkin *skin = MJLuaState;
     lua_State *L = MJLuaState.L;
+    _lua_stackguard_entry(L);
 
     lua_getglobal(L, "hs");
     lua_getfield(L, -1, "dockIconClickCallback");
@@ -694,11 +700,13 @@ void callDockIconCallback(void) {
 
     // Pop the hs global off the stack
     lua_pop(L, 1);
+    _lua_stackguard_exit(L);
 }
 
 // Shutdown Callback
 static int callShutdownCallback(lua_State *L) {
     LuaSkin *skin = MJLuaState;
+    _lua_stackguard_entry(skin.L);
 
     lua_getglobal(L, "hs");
     lua_getfield(L, -1, "shutdownCallback");
@@ -707,6 +715,7 @@ static int callShutdownCallback(lua_State *L) {
 
     // Pop the hs global off the stack
     lua_pop(L, 1);
+    _lua_stackguard_exit(skin.L);
     return 0;
 }
 
@@ -730,6 +739,7 @@ void MJLuaDealloc(void) {
 
 NSString* MJLuaRunString(NSString* command) {
     lua_State* L = MJLuaState.L;
+    _lua_stackguard_entry(L);
 
     [MJLuaState pushLuaRef:refTable ref:evalfn];
     if (!lua_isfunction(L, -1)) {
@@ -739,6 +749,7 @@ NSString* MJLuaRunString(NSString* command) {
         }
         // Whatever evalfn was, it wasn't a function, so pop it
         lua_pop(L, 1);
+        _lua_stackguard_exit(L);
         return @"";
     }
     lua_pushstring(L, [command UTF8String]);
@@ -764,24 +775,26 @@ NSString* MJLuaRunString(NSString* command) {
     }
     lua_pop(L, 1);
 
+    _lua_stackguard_exit(L);
     return str;
 }
 
 NSArray *MJLuaCompletionsForWord(NSString *completionWord) {
     //NSLog(@"Fetching completions for %@", completionWord);
     LuaSkin *skin = MJLuaState;
+    _lua_stackguard_entry(skin.L);
 
     [skin pushLuaRef:refTable ref:completionsForWordFn];
-    if (!lua_isfunction(skin.L, -1)) {
-        HSNSLOG(@"ERROR: MJLuaCompletionsForWord doesn't seem to have a completionsForWordFn");
-        return @[];
-    }
     [skin pushNSObject:completionWord];
     if ([skin protectedCallAndError:@"MJLuaCompletionsForWord" nargs:1 nresults:1] == NO) {
+        _lua_stackguard_exit(skin.L);
         return @[];
     }
 
-    return [skin toNSObjectAtIndex:-1];
+    NSArray *completions = [skin toNSObjectAtIndex:-1];
+    lua_pop(skin.L, 1);
+    _lua_stackguard_exit(skin.L);
+    return completions;
 }
 
 // C-Code helper to return current active LuaState. Useful for callbacks to

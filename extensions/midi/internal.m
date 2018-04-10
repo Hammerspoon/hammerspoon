@@ -253,6 +253,7 @@ static int refTable = LUA_NOREF;
         if (([keyPath isEqualToString:@"availableDevices"]) || ([keyPath isEqualToString:@"virtualSources"])) {
             if (_deviceCallbackRef != LUA_NOREF) {
                 LuaSkin *skin = [LuaSkin shared] ;
+                _lua_stackguard_entry(skin.L);
                 [skin pushLuaRef:refTable ref:_deviceCallbackRef] ;
 
                 //
@@ -281,6 +282,7 @@ static int refTable = LUA_NOREF;
                 [skin pushNSObject:deviceNames];
                 [skin pushNSObject:virtualDeviceNames];
                 [skin protectedCallAndError:@"hs.midi:deviceCallback" nargs:2 nresults:0];
+                _lua_stackguard_exit(skin.L);
             }
         }
     }

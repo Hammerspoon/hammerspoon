@@ -124,16 +124,19 @@ static int pushParsedICMPPayload(NSData *payloadData) {
 
     if (_callbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin shared] ;
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_callbackRef] ;
         [skin pushNSObject:pinger] ;
         [skin pushNSObject:@"didStart"] ;
         pushParsedAddress(address) ;
         [skin protectedCallAndError:@"hs.network.ping.echoRequest:didStartWithAddress callback" nargs:3 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 
 - (void)simplePing:(SimplePing *)pinger didFailWithError:(NSError *)error {
     LuaSkin *skin = [LuaSkin shared] ;
+    _lua_stackguard_entry(skin.L);
     NSString *errorReason = [error localizedDescription] ;
     [skin logDebug:[NSString stringWithFormat:@"%s:didFailWithError:%@ - ping stopped.", USERDATA_TAG, errorReason]] ;
     if (_callbackRef != LUA_NOREF) {
@@ -147,18 +150,21 @@ static int pushParsedICMPPayload(NSData *payloadData) {
     // by the time this method is invoked, SimplePing has already stopped us, so let's make sure
     // we reflect that.
     _selfRef = [skin luaUnref:refTable ref:_selfRef] ;
+    _lua_stackguard_exit(skin.L);
 }
 
 - (void)simplePing:(SimplePing *)pinger didSendPacket:(NSData *)packet
                                        sequenceNumber:(uint16_t)sequenceNumber {
     if (_callbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin shared] ;
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_callbackRef] ;
         [skin pushNSObject:pinger] ;
         [skin pushNSObject:@"sendPacket"] ;
         pushParsedICMPPayload(packet) ;
         lua_pushinteger([skin L], sequenceNumber) ;
         [skin protectedCallAndError:@"hs.network.ping.echoRequest:didSendPacket callback" nargs:4 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 
@@ -167,6 +173,7 @@ static int pushParsedICMPPayload(NSData *payloadData) {
                                                       error:(NSError *)error {
     if (_callbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin shared] ;
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_callbackRef] ;
         [skin pushNSObject:pinger] ;
         [skin pushNSObject:@"sendPacketFailed"] ;
@@ -174,6 +181,7 @@ static int pushParsedICMPPayload(NSData *payloadData) {
         lua_pushinteger([skin L], sequenceNumber) ;
         [skin pushNSObject:[error localizedDescription]] ;
         [skin protectedCallAndError:@"hs.network.ping.echoRequest:didFailToSendPacket callback" nargs:5 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 
@@ -181,12 +189,14 @@ static int pushParsedICMPPayload(NSData *payloadData) {
                                                       sequenceNumber:(uint16_t)sequenceNumber {
     if (_callbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin shared] ;
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_callbackRef] ;
         [skin pushNSObject:pinger] ;
         [skin pushNSObject:@"receivedPacket"] ;
         pushParsedICMPPayload(packet) ;
         lua_pushinteger([skin L], sequenceNumber) ;
         [skin protectedCallAndError:@"hs.network.ping.echoRequest:didReceivePingResponsePacket" nargs:4 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 
@@ -203,11 +213,13 @@ static int pushParsedICMPPayload(NSData *payloadData) {
     }
     if (notifyCallback && _callbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin shared] ;
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_callbackRef] ;
         [skin pushNSObject:pinger] ;
         [skin pushNSObject:@"receivedUnexpectedPacket"] ;
         pushParsedICMPPayload(packet) ;
         [skin protectedCallAndError:@"hs.network.ping.echoRequest:didReceiveUnexpectedPacket callback" nargs:3 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 
