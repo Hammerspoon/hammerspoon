@@ -643,8 +643,6 @@ void callAccessibilityStateCallback(void) {
     lua_State *L = MJLuaState.L;
     _lua_stackguard_entry(L);
 
-    [skin growStack:2 withMessage:"callAccessibilityStateCallback"];
-
     lua_getglobal(L, "hs");
     lua_getfield(L, -1, "accessibilityStateCallback");
 

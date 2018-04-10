@@ -104,8 +104,6 @@ static void remove_delegate(__unused lua_State* L, connectionDelegate* delegate)
     LuaSkin *skin = [LuaSkin shared];
     _lua_stackguard_entry(skin.L);
 
-    [skin growStack:4 withMessage:"hs.http connectionDelegate:didFailWithError"];
-
     NSString* errorMessage = [NSString stringWithFormat:@"Connection failed: %@ - %@", [error localizedDescription], [[error userInfo] objectForKey:NSURLErrorFailingURLStringErrorKey]];
     [skin pushLuaRef:refTable ref:self.fn];
     lua_pushinteger(self.L, -1);
