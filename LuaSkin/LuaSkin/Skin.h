@@ -22,13 +22,17 @@
 #import <assert.h>
 
 // Defines for Lua stack guard macros
+/*
 #ifdef DEBUG
 #   define _lua_stackguard_entry(L) int __lua_stackguard_entry=lua_gettop(L); NSLog(@"lua stack is %d at %s:%s:%d", __lua_stackguard_entry, __FILE__, __FUNCTION__, __LINE__);
 #   define _lua_stackguard_exit(L) NSLog(@"lua stack is %d at %s:ss%s:%d", lua_gettop(L), __FILE__, __FUNCTION__, __LINE__); assert(__lua_stackguard_entry == lua_gettop(L));
 #else
+ */
 #   define _lua_stackguard_entry(L) int __lua_stackguard_entry=lua_gettop(L);
 #   define _lua_stackguard_exit(L) assert(__lua_stackguard_entry == lua_gettop(L));
+/*
 #endif
+ */
 
 // Define some bits for masking operations in the argument checker
 /*!
