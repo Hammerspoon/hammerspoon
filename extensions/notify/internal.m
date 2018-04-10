@@ -158,11 +158,11 @@ typedef struct _notification_t {
     // NSLog(@"invoking callback handler") ;
 
             if ([skin protectedCallAndError:@"hs.notify callback" nargs:2 nresults:0] == NO) {
+                lua_pop(skin.L, 1); // pop the hs.notify module
                 _lua_stackguard_exit(skin.L);
                 return;
             }
-
-            // FIXME: Things have been pushed onto the Lua stack, we probably need some lua_pop()s here
+            lua_pop(skin.L, 1); // pop the hs.notify module
 
             BOOL shouldWithdraw = [[notification.userInfo valueForKey:@"autoWithdraw"] boolValue] ;
             if (notification.deliveryRepeatInterval != nil) shouldWithdraw = YES ;
