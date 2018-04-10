@@ -787,19 +787,16 @@ NSArray *MJLuaCompletionsForWord(NSString *completionWord) {
     _lua_stackguard_entry(skin.L);
 
     [skin pushLuaRef:refTable ref:completionsForWordFn];
-    if (!lua_isfunction(skin.L, -1)) {
-        HSNSLOG(@"ERROR: MJLuaCompletionsForWord doesn't seem to have a completionsForWordFn");
-        _lua_stackguard_exit(skin.L);
-        return @[];
-    }
     [skin pushNSObject:completionWord];
     if ([skin protectedCallAndError:@"MJLuaCompletionsForWord" nargs:1 nresults:1] == NO) {
         _lua_stackguard_exit(skin.L);
         return @[];
     }
 
+    NSArray *completions = [skin toNSObjectAtIndex:-1];
+    lua_pop(skin.L, 1);
     _lua_stackguard_exit(skin.L);
-    return [skin toNSObjectAtIndex:-1];
+    return completions;
 }
 
 // C-Code helper to return current active LuaState. Useful for callbacks to
