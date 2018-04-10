@@ -323,6 +323,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
             if (![skin  protectedCallAndTraceback:3 nresults:1]) {
                 const char *errorMsg = lua_tostring([skin L], -1);
                 [skin logError:[NSString stringWithFormat:@"hs.webview:policyCallback() authenticationChallenge callback error: %s", errorMsg]];
+                // No lua_pop() here, it's handled below
                 // allow prompting if error -- fall through
             } else {
                 if (lua_type([skin L], -1) == LUA_TTABLE) { // if it's a table, we'll get the username and password from it
@@ -419,6 +420,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
             if (![skin  protectedCallAndTraceback:2 nresults:1]) {
                 const char *errorMsg = lua_tostring([skin L], -1);
                 [skin logError:[NSString stringWithFormat:@"hs.webview:sslCallback callback error: %s", errorMsg]];
+                // No lua_pop() here, it's handled below
                 completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
             } else {
                 if ((lua_type([skin L], -1) == LUA_TBOOLEAN) && lua_toboolean([skin L], -1) && _examineInvalidCertificates) {
@@ -454,6 +456,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
         if (![skin  protectedCallAndTraceback:3 nresults:1]) {
             const char *errorMsg = lua_tostring([skin L], -1);
             [skin logError:[NSString stringWithFormat:@"hs.webview:policyCallback() navigationAction callback error: %s", errorMsg]];
+            // No lua_pop() here, it's handled below
             decisionHandler(WKNavigationActionPolicyCancel) ;
         } else {
             if (lua_toboolean([skin L], -1)) {
@@ -482,6 +485,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
         if (![skin  protectedCallAndTraceback:3 nresults:1]) {
             const char *errorMsg = lua_tostring([skin L], -1);
             [skin logError:[NSString stringWithFormat:@"hs.webview:policyCallback() navigationResponse callback error: %s", errorMsg]];
+            // No lua_pop() here, it's handled below
             decisionHandler(WKNavigationResponsePolicyCancel) ;
         } else {
             if (lua_toboolean([skin L], -1)) {
@@ -700,6 +704,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
         if (![skin  protectedCallAndTraceback:numberOfArguments nresults:1]) {
             const char *errorMsg = lua_tostring([skin L], -1);
             [skin logError:[NSString stringWithFormat:@"hs.webview:navigationCallback() %s callback error: %s", action, errorMsg]];
+            // No lua_pop() here, it's handled below
         } else {
             if (error) {
                 if (lua_type([skin L], -1) == LUA_TSTRING) {
