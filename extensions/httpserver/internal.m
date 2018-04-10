@@ -73,6 +73,7 @@ static int refTable;
 
     void (^responseCallbackBlock)(void) = ^{
         LuaSkin *skin = [LuaSkin shared];
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:self.callback];
         lua_pushstring(skin.L, [msg UTF8String]);
 
@@ -85,6 +86,7 @@ static int refTable;
         }
 
         lua_pop(skin.L, 1);
+        _lua_stackguard_exit(skin.L);
     };
 
     // Make sure we do all the above Lua work on the main thread
@@ -167,6 +169,7 @@ static int refTable;
     void (^responseCallbackBlock)(void) = ^{
         LuaSkin *skin = [LuaSkin shared];
         lua_State *L = skin.L;
+        _lua_stackguard_entry(L);
 
         // add some headers for callback function to access
         [self->request setHeaderField:@"X-Remote-Addr" value:self->asyncSocket.connectedHost];
@@ -216,6 +219,7 @@ static int refTable;
             }
             lua_pop(L, 3) ; // our results... don't leave them on the stack
         }
+        _lua_stackguard_exit(L);
     };
 
     // Make sure we do all the above Lua work on the main thread

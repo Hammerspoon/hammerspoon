@@ -50,10 +50,13 @@ static HSLocation *location ;
     if (callbackRef != LUA_NOREF) {
         dispatch_async(dispatch_get_main_queue(), ^{
             LuaSkin *skin = [LuaSkin shared] ;
+            _lua_stackguard_entry(skin.L);
             [skin pushLuaRef:refTable ref:callbackRef] ;
+            [skin pushNSObject:self] ;
             [skin pushNSObject:@"didUpdateLocations"] ;
             [skin pushNSObject:locations] ;
-            [skin protectedCallAndError:@"hs.location:didUpdateLocations callback" nargs:2 nresults:0];
+            [skin protectedCallAndError:@"hs.location:didUpdateLocations callback" nargs:3 nresults:0];
+            _lua_stackguard_exit(skin.L);
         }) ;
     }
 }
@@ -62,10 +65,13 @@ static HSLocation *location ;
     if (callbackRef != LUA_NOREF) {
         dispatch_async(dispatch_get_main_queue(), ^{
             LuaSkin *skin = [LuaSkin shared] ;
+            _lua_stackguard_entry(skin.L);
             [skin pushLuaRef:refTable ref:callbackRef] ;
+            [skin pushNSObject:self] ;
             [skin pushNSObject:@"didEnterRegion"] ;
             [skin pushNSObject:region] ;
-            [skin protectedCallAndError:@"hs.location:didEnterRegion callback" nargs:2 nresults:0];
+            [skin protectedCallAndError:@"hs.location:didEnterRegion callback" nargs:3 nresults:0];
+            _lua_stackguard_exit(skin.L);
         }) ;
     }
 }
@@ -74,10 +80,13 @@ static HSLocation *location ;
     if (callbackRef != LUA_NOREF) {
         dispatch_async(dispatch_get_main_queue(), ^{
             LuaSkin *skin = [LuaSkin shared] ;
+            _lua_stackguard_entry(skin.L);
             [skin pushLuaRef:refTable ref:callbackRef] ;
+            [skin pushNSObject:self] ;
             [skin pushNSObject:@"didExitRegion"] ;
             [skin pushNSObject:region] ;
-            [skin protectedCallAndError:@"hs.location:didExitRegion callback" nargs:2 nresults:0];
+            [skin protectedCallAndError:@"hs.location:didExitRegion callback" nargs:3 nresults:0];
+            _lua_stackguard_exit(skin.L);
         }) ;
     }
 }
@@ -86,10 +95,13 @@ static HSLocation *location ;
     if (callbackRef != LUA_NOREF) {
         dispatch_async(dispatch_get_main_queue(), ^{
             LuaSkin *skin = [LuaSkin shared] ;
+            _lua_stackguard_entry(skin.L);
             [skin pushLuaRef:refTable ref:callbackRef] ;
+            [skin pushNSObject:self] ;
             [skin pushNSObject:@"didFailWithError"] ;
             [skin pushNSObject:error.localizedDescription] ;
-            [skin protectedCallAndError:@"hs.location:didFailWithError callback" nargs:2 nresults:0];
+            [skin protectedCallAndError:@"hs.location:didFailWithError callback" nargs:3 nresults:0];
+            _lua_stackguard_exit(skin.L);
         }) ;
     }
 }
@@ -99,12 +111,14 @@ static HSLocation *location ;
     if (callbackRef != LUA_NOREF) {
         dispatch_async(dispatch_get_main_queue(), ^{
             LuaSkin *skin = [LuaSkin shared] ;
+            _lua_stackguard_entry(skin.L);
             [skin pushLuaRef:refTable ref:callbackRef] ;
             [skin pushNSObject:self] ;
             [skin pushNSObject:@"monitoringDidFailForRegion"] ;
             [skin pushNSObject:region] ;
             [skin pushNSObject:error.localizedDescription] ;
-            [skin protectedCallAndError:@"hs.location:monitoringDidFailForRegion callback" nargs:3 nresults:0];
+            [skin protectedCallAndError:@"hs.location:monitoringDidFailForRegion callback" nargs:4 nresults:0];
+            _lua_stackguard_exit(skin.L);
         }) ;
     }
 }
@@ -113,7 +127,9 @@ static HSLocation *location ;
     if (callbackRef != LUA_NOREF) {
         dispatch_async(dispatch_get_main_queue(), ^{
             LuaSkin *skin = [LuaSkin shared] ;
+            _lua_stackguard_entry(skin.L);
             [skin pushLuaRef:refTable ref:callbackRef] ;
+            [skin pushNSObject:self] ;
             [skin pushNSObject:@"didChangeAuthorizationStatus"] ;
 
 // according to the CLLocationManager.h file, kCLAuthorizationStatusAuthorizedWhenInUse is
@@ -131,7 +147,8 @@ static HSLocation *location ;
             }
 #pragma clang diagnostic pop
 
-            [skin protectedCallAndError:@"hs.location:didChangeAuthorizationStatus callback" nargs:2 nresults:0];
+            [skin protectedCallAndError:@"hs.location:didChangeAuthorizationStatus callback" nargs:3 nresults:0];
+            _lua_stackguard_exit(skin.L);
         }) ;
     }
 }
@@ -140,10 +157,13 @@ static HSLocation *location ;
     if (callbackRef != LUA_NOREF) {
         dispatch_async(dispatch_get_main_queue(), ^{
             LuaSkin *skin = [LuaSkin shared] ;
+            _lua_stackguard_entry(skin.L);
             [skin pushLuaRef:refTable ref:callbackRef] ;
+            [skin pushNSObject:self] ;
             [skin pushNSObject:@"didStartMonitoringForRegion"] ;
             [skin pushNSObject:region] ;
-            [skin protectedCallAndError:@"hs.location:didStartMonitoringForRegion" nargs:2 nresults:0];
+            [skin protectedCallAndError:@"hs.location:didStartMonitoringForRegion" nargs:3 nresults:0];
+            _lua_stackguard_exit(skin.L);
         }) ;
     }
 }

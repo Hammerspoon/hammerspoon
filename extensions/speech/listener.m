@@ -45,11 +45,13 @@ static int refTable = LUA_NOREF ;
 - (void)speechRecognizer:(NSSpeechRecognizer *)sender didRecognizeCommand:(NSString *)command {
     if (((HSSpeechRecognizer *)sender).callbackRef != LUA_NOREF) {
         LuaSkin      *skin    = [LuaSkin shared] ;
+        _lua_stackguard_entry(skin.L);
 
         [skin pushLuaRef:refTable ref:((HSSpeechRecognizer *)sender).callbackRef] ;
         [skin pushNSObject:(HSSpeechRecognizer *)sender] ;
         [skin pushNSObject:command] ;
         [skin protectedCallAndError:@"hs.speech.listener callback" nargs:2 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 

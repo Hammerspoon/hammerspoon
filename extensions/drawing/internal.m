@@ -147,8 +147,10 @@ NSMutableArray *drawingWindows;
 - (void)mouseUp:(NSEvent * __unused)theEvent {
     if (self.mouseUpCallbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin shared];
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:self.mouseUpCallbackRef];
         [skin protectedCallAndError:@"hs.drawing mouseUp click callback" nargs:0 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 
@@ -164,8 +166,10 @@ NSMutableArray *drawingWindows;
     [NSApp preventWindowOrdering];
     if (self.mouseDownCallbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin shared];
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:self.mouseDownCallbackRef];
         [skin protectedCallAndError:@"hs.drawing mouseDown click callback" nargs:0 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 

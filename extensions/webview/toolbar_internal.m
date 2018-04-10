@@ -187,6 +187,7 @@ static NSMenu *createCoreSearchFieldMenu() {
             NSWindow  *ourWindow = self.windowUsingToolbar ;
             LuaSkin   *skin      = [LuaSkin shared] ;
             lua_State *L         = [skin L] ;
+            _lua_stackguard_entry(L);
             [skin pushLuaRef:refTable ref:fnRef] ;
             [skin pushNSObject:self] ;
             if (ourWindow) {
@@ -202,6 +203,7 @@ static NSMenu *createCoreSearchFieldMenu() {
             [skin pushNSObject:[item itemIdentifier]] ;
             if (argCount == 4) [skin pushNSObject:searchText] ;
             [skin protectedCallAndError:[NSString stringWithFormat:@"hs.webview.toolbar item callback (%@)", item.itemIdentifier] nargs:argCount nresults:0];
+            _lua_stackguard_exit(L);
         }) ;
     }
 }
@@ -700,6 +702,7 @@ static NSMenu *createCoreSearchFieldMenu() {
             NSWindow  *ourWindow = self.windowUsingToolbar ;
             LuaSkin   *skin      = [LuaSkin shared] ;
             lua_State *L         = [skin L] ;
+            _lua_stackguard_entry(L);
             [skin pushLuaRef:refTable ref:self.callbackRef] ;
             [skin pushNSObject:self] ;
             if (ourWindow) {
@@ -715,6 +718,7 @@ static NSMenu *createCoreSearchFieldMenu() {
             [skin pushNSObject:[notification.userInfo[@"item"] itemIdentifier]] ;
             lua_pushstring(L, "add") ;
             [skin protectedCallAndError:[NSString stringWithFormat:@"hs.webview.toolbar toolbar item addition callback (%@)", [notification.userInfo[@"item"] itemIdentifier]] nargs:4 nresults:0];
+            _lua_stackguard_exit(L);
         }) ;
     }
 }
@@ -725,6 +729,7 @@ static NSMenu *createCoreSearchFieldMenu() {
             NSWindow  *ourWindow = self.windowUsingToolbar ;
             LuaSkin   *skin      = [LuaSkin shared] ;
             lua_State *L         = [skin L] ;
+            _lua_stackguard_entry(L);
             [skin pushLuaRef:refTable ref:self.callbackRef] ;
             [skin pushNSObject:self] ;
             if (ourWindow) {
@@ -740,6 +745,7 @@ static NSMenu *createCoreSearchFieldMenu() {
             [skin pushNSObject:[notification.userInfo[@"item"] itemIdentifier]] ;
             lua_pushstring(L, "remove") ;
             [skin protectedCallAndError:[NSString stringWithFormat:@"hs.webview.toolbar toolbar item removal callback (%@)", [notification.userInfo[@"item"] itemIdentifier]] nargs:4 nresults:0];
+            _lua_stackguard_exit(L);
         }) ;
     }
 }

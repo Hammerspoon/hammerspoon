@@ -37,12 +37,14 @@ static int refTable = LUA_NOREF ;
     if (_callbackRef != LUA_NOREF) {
         dispatch_async(dispatch_get_main_queue(), ^{
             LuaSkin   *skin = [LuaSkin shared] ;
+            _lua_stackguard_entry(skin.L);
             lua_State *L    = [skin L] ;
             NSColorPanel *cp = [NSColorPanel sharedColorPanel];
             [skin pushLuaRef:refTable ref:self->_callbackRef] ;
             [skin pushNSObject:cp.color] ;
             lua_pushboolean(L, YES) ;
             [skin protectedCallAndError:@"hs.dialog color close callback" nargs:2 nresults:0];
+            _lua_stackguard_exit(skin.L);
         }) ;
     }
 }
@@ -52,11 +54,13 @@ static int refTable = LUA_NOREF ;
     if (_callbackRef != LUA_NOREF) {
         dispatch_async(dispatch_get_main_queue(), ^{
             LuaSkin   *skin = [LuaSkin shared] ;
+            _lua_stackguard_entry(skin.L);
             lua_State *L    = [skin L] ;
             [skin pushLuaRef:refTable ref:self->_callbackRef] ;
             [skin pushNSObject:colorPanel.color] ;
             lua_pushboolean(L, NO) ;
             [skin protectedCallAndError:@"hs.dialog color callback" nargs:2 nresults:0];
+            _lua_stackguard_exit(skin.L);
         }) ;
     }
 }

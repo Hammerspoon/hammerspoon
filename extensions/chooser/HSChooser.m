@@ -233,11 +233,13 @@
     [self controlTextDidChange:[NSNotification notificationWithName:@"Unused" object:nil]];
 
     LuaSkin *skin = [LuaSkin shared];
+    _lua_stackguard_entry(skin.L);
 
     if (self.showCallbackRef != LUA_NOREF && self.showCallbackRef != LUA_REFNIL) {
         [skin pushLuaRef:*(self.refTable) ref:self.showCallbackRef];
         [skin protectedCallAndError:@"hs.chooser:showCallback" nargs:0 nresults:0];
     }
+    _lua_stackguard_exit(skin.L);
 }
 
 - (void)hide {
@@ -309,11 +311,13 @@
         self.hasChosen = YES;
         [self hide];
         LuaSkin *skin = [LuaSkin shared];
+        _lua_stackguard_entry(skin.L);
         NSDictionary *choice = [[self getChoices] objectAtIndex:row];
 
         [skin pushLuaRef:*(self.refTable) ref:self.completionCallbackRef];
         [skin pushNSObject:choice];
         [skin protectedCallAndError:@"hs.chooser:completionCallback" nargs:1 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 
@@ -321,9 +325,11 @@
     if (self.rightClickCallbackRef != LUA_NOREF && self.rightClickCallbackRef != LUA_REFNIL) {
         // We have a right click callback set
         LuaSkin *skin = [LuaSkin shared];
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:*(self.refTable) ref:self.rightClickCallbackRef];
         lua_pushinteger(skin.L, row + 1);
         [skin protectedCallAndError:@"hs.chooser:rightClickCallback" nargs:1 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 
@@ -333,9 +339,11 @@
     //NSLog(@"HSChooser::cancel:");
     [self hide];
     LuaSkin *skin = [LuaSkin shared];
+    _lua_stackguard_entry(skin.L);
     [skin pushLuaRef:*(self.refTable) ref:self.completionCallbackRef];
     lua_pushnil(skin.L);
     [skin protectedCallAndError:@"hs.chooser:completionCallback" nargs:1 nresults:0];
+    _lua_stackguard_exit(skin.L);
 }
 
 - (IBAction)queryDidPressEnter:(id)sender {
@@ -350,9 +358,11 @@
     if (self.queryChangedCallbackRef != LUA_NOREF && self.queryChangedCallbackRef != LUA_REFNIL) {
         // We have a query callback set, we are passing on responsibility for displaying/filtering results, to Lua
         LuaSkin *skin = [LuaSkin shared];
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:*(self.refTable) ref:self.queryChangedCallbackRef];
         [skin pushNSObject:queryString];
         [skin protectedCallAndError:@"hs.chooser:queryChangedCallback" nargs:1 nresults:0];
+        _lua_stackguard_exit(skin.L);
     } else {
         // We do not have a query callback set, so we are doing the filtering
         if (queryString.length > 0) {
@@ -472,6 +482,7 @@
         if (self.currentCallbackChoices == nil) {
             // We have previously cached the callback choices
             LuaSkin *skin = [LuaSkin shared];
+            _lua_stackguard_entry(skin.L);
             [skin pushLuaRef:*(self.refTable) ref:self.choicesCallbackRef];
             if ([skin protectedCallAndTraceback:0 nresults:1]) {
                 self.currentCallbackChoices = [skin toNSObjectAtIndex:-1];
@@ -496,6 +507,7 @@
                 // No need to lua_pop() here, see below
             }
             lua_pop(skin.L, 1) ; // remove result or error message
+            _lua_stackguard_exit(skin.L);
         }
 
         if (self.currentCallbackChoices != nil) {

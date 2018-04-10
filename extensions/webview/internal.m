@@ -97,6 +97,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
 - (void)windowWillClose:(__unused NSNotification *)notification {
     LuaSkin *skin = [LuaSkin shared] ;
     lua_State *L = [skin L] ;
+    _lua_stackguard_entry(L);
     if (_windowCallback != LUA_NOREF) {
         [skin pushLuaRef:refTable ref:_windowCallback] ;
         [skin pushNSObject:@"closing"] ;
@@ -112,49 +113,58 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
             lua_pop(L, 1) ;
         }
     }
+    _lua_stackguard_exit(L);
 }
 
 - (void)windowDidBecomeKey:(__unused NSNotification *)notification {
     if (_windowCallback != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin shared] ;
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_windowCallback] ;
         [skin pushNSObject:@"focusChange"] ;
         [skin pushNSObject:self] ;
         lua_pushboolean(skin.L, YES) ;
         [skin protectedCallAndError:@"hs.webview:windowCallback:focusChange" nargs:3 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 
 - (void)windowDidResignKey:(__unused NSNotification *)notification {
     if (_windowCallback != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin shared] ;
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_windowCallback] ;
         [skin pushNSObject:@"focusChange"] ;
         [skin pushNSObject:self] ;
         lua_pushboolean(skin.L, NO) ;
         [skin protectedCallAndError:@"hs.webview:windowCallback:focusChange" nargs:3 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 
 - (void)windowDidResize:(__unused NSNotification *)notification {
     if (_windowCallback != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin shared] ;
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_windowCallback] ;
         [skin pushNSObject:@"frameChange"] ;
         [skin pushNSObject:self] ;
         [skin pushNSRect:RectWithFlippedYCoordinate(self.frame)] ;
         [skin protectedCallAndError:@"hs.webview:windowCallback:frameChange:resize" nargs:3 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 
 - (void)windowDidMove:(__unused NSNotification *)notification {
     if (_windowCallback != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin shared] ;
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_windowCallback] ;
         [skin pushNSObject:@"frameChange"] ;
         [skin pushNSObject:self] ;
         [skin pushNSRect:RectWithFlippedYCoordinate(self.frame)] ;
         [skin protectedCallAndError:@"hs.webview:windowCallback:frameChange:move" nargs:3 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 
@@ -304,6 +314,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
 
         if (self.policyCallback != LUA_NOREF && [challenge previousFailureCount] < 3) { // don't get in a loop if the callback isn't working
             LuaSkin *skin = [LuaSkin shared] ;
+            _lua_stackguard_entry(skin.L);
             [skin pushLuaRef:refTable ref:self.policyCallback];
             lua_pushstring([skin L], "authenticationChallenge") ;
             [skin pushNSObject:(HSWebViewWindow *)theView.window] ;
@@ -312,6 +323,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
             if (![skin  protectedCallAndTraceback:3 nresults:1]) {
                 const char *errorMsg = lua_tostring([skin L], -1);
                 [skin logError:[NSString stringWithFormat:@"hs.webview:policyCallback() authenticationChallenge callback error: %s", errorMsg]];
+                // No lua_pop() here, it's handled below
                 // allow prompting if error -- fall through
             } else {
                 if (lua_type([skin L], -1) == LUA_TTABLE) { // if it's a table, we'll get the username and password from it
@@ -328,14 +340,17 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
                                                                             persistence:NSURLCredentialPersistenceForSession];
                     completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
                     lua_pop([skin L], 1) ; // pop return value
+                    _lua_stackguard_exit(skin.L);
                     return ;
                 } else if (!lua_toboolean([skin L], -1)) { // if false, don't go forward
                     completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
                     lua_pop([skin L], 1) ; // pop return value
+                    _lua_stackguard_exit(skin.L);
                     return ;
                 } // fall through
             }
             lua_pop([skin L], 1) ; // pop return value if fall through
+            _lua_stackguard_exit(skin.L);
         }
 
         NSWindow *targetWindow = self.window ;
@@ -397,6 +412,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
 
         if (status == kSecTrustResultRecoverableTrustFailure && self.sslCallback != LUA_NOREF) {
             LuaSkin *skin = [LuaSkin shared] ;
+            _lua_stackguard_entry(skin.L);
             [skin pushLuaRef:refTable ref:self.sslCallback];
             [skin pushNSObject:(HSWebViewWindow *)theView.window] ;
             [skin pushNSObject:challenge.protectionSpace] ;
@@ -404,6 +420,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
             if (![skin  protectedCallAndTraceback:2 nresults:1]) {
                 const char *errorMsg = lua_tostring([skin L], -1);
                 [skin logError:[NSString stringWithFormat:@"hs.webview:sslCallback callback error: %s", errorMsg]];
+                // No lua_pop() here, it's handled below
                 completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
             } else {
                 if ((lua_type([skin L], -1) == LUA_TBOOLEAN) && lua_toboolean([skin L], -1) && _examineInvalidCertificates) {
@@ -416,6 +433,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
                 }
             }
             lua_pop([skin L], 1) ;
+            _lua_stackguard_exit(skin.L);
         } else {
             completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
         }
@@ -429,6 +447,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
                                                      decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
     if (self.policyCallback != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin shared] ;
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:self.policyCallback];
         lua_pushstring([skin L], "navigationAction") ;
         [skin pushNSObject:(HSWebViewWindow *)theView.window] ;
@@ -437,6 +456,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
         if (![skin  protectedCallAndTraceback:3 nresults:1]) {
             const char *errorMsg = lua_tostring([skin L], -1);
             [skin logError:[NSString stringWithFormat:@"hs.webview:policyCallback() navigationAction callback error: %s", errorMsg]];
+            // No lua_pop() here, it's handled below
             decisionHandler(WKNavigationActionPolicyCancel) ;
         } else {
             if (lua_toboolean([skin L], -1)) {
@@ -446,6 +466,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
             }
         }
         lua_pop([skin L], 1) ; // clean up after ourselves
+        _lua_stackguard_exit(skin.L);
     } else {
         decisionHandler(WKNavigationActionPolicyAllow) ;
     }
@@ -455,6 +476,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
                                                        decisionHandler:(void (^)(WKNavigationResponsePolicy))decisionHandler {
     if (self.policyCallback != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin shared] ;
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:self.policyCallback];
         lua_pushstring([skin L], "navigationResponse") ;
         [skin pushNSObject:(HSWebViewWindow *)theView.window] ;
@@ -463,6 +485,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
         if (![skin  protectedCallAndTraceback:3 nresults:1]) {
             const char *errorMsg = lua_tostring([skin L], -1);
             [skin logError:[NSString stringWithFormat:@"hs.webview:policyCallback() navigationResponse callback error: %s", errorMsg]];
+            // No lua_pop() here, it's handled below
             decisionHandler(WKNavigationResponsePolicyCancel) ;
         } else {
             if (lua_toboolean([skin L], -1)) {
@@ -472,6 +495,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
             }
         }
         lua_pop([skin L], 1) ; // clean up after ourselves
+        _lua_stackguard_exit(skin.L);
     } else {
         decisionHandler(WKNavigationResponsePolicyAllow) ;
     }
@@ -488,6 +512,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
 // copy window settings... what else?
     if (((HSWebViewView *)theView).allowNewWindows) {
         LuaSkin *skin = [LuaSkin shared] ;
+        _lua_stackguard_entry(skin.L); // FIXME: Are we 100% sure this method is called from C and not Lua?
 
         HSWebViewWindow *parent = (HSWebViewWindow *)theView.window ;
         NSRect theRect = [parent contentRectForFrameRect:parent.frame] ;
@@ -546,6 +571,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
                 lua_pushcfunction([skin L], userdata_gc) ;
                 [skin pushNSObject:newWindow] ;
                 [skin protectedCallAndError:@"hs.webview:policyCallback() newWindow removal" nargs:1 nresults:0];
+                _lua_stackguard_exit(skin.L);
                 return nil ;
             } else {
                 if (!lua_toboolean([skin L], -1)) {
@@ -553,6 +579,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
                     lua_pushcfunction([skin L], userdata_gc) ;
                     [skin pushNSObject:newWindow] ;
                     [skin protectedCallAndError:@"hs.webview:policyCallback() newWindow removal rejection" nargs:1 nresults:0];
+                    _lua_stackguard_exit(skin.L);
                     return nil ;
                 }
             }
@@ -562,6 +589,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
         [parent.children addObject:newWindow] ;
         [newWindow makeKeyAndOrderFront:nil];
 
+        _lua_stackguard_exit(skin.L);
         return newView ;
     } else {
         return nil ;
@@ -661,6 +689,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
 
     if (self.navigationCallback != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin shared] ;
+        _lua_stackguard_entry(skin.L);
         int numberOfArguments = 3 ;
         [skin pushLuaRef:refTable ref:self.navigationCallback];
         lua_pushstring([skin L], action) ;
@@ -675,6 +704,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
         if (![skin  protectedCallAndTraceback:numberOfArguments nresults:1]) {
             const char *errorMsg = lua_tostring([skin L], -1);
             [skin logError:[NSString stringWithFormat:@"hs.webview:navigationCallback() %s callback error: %s", action, errorMsg]];
+            // No lua_pop() here, it's handled below
         } else {
             if (error) {
                 if (lua_type([skin L], -1) == LUA_TSTRING) {
@@ -691,6 +721,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
             }
         }
         lua_pop([skin L], 1) ; // clean up after ourselves
+        _lua_stackguard_exit(skin.L);
     }
 
     return actionRequiredAfterReturn ;

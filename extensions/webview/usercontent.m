@@ -20,9 +20,11 @@ static int refTable ;
       didReceiveScriptMessage:(WKScriptMessage *)message {
     if ([message.name isEqualToString:self.name] && self.userContentCallback != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin shared] ;
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:self.userContentCallback];
         [skin pushNSObject:message] ;
         [skin protectedCallAndError:@"hs.webview.usercontent callback" nargs:1 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 @end
