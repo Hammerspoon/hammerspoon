@@ -584,11 +584,11 @@ static int hs_idleTime(lua_State *L) {
 ///   * NSURLVolumeAvailableCapacityKey - Available space on the volume in bytes
 ///   * NSURLVolumeIsAutomountedKey - Boolean indicating if the volume was automounted
 ///   * NSURLVolumeIsBrowsableKey - Boolean indicating if the volume can be browsed
-///   * NSURLVolumeIsEjectableKey - Boolean indicating if the volume can be ejected
+///   * NSURLVolumeIsEjectableKey - Boolean indicating if the volume should be ejected before its media is removed
 ///   * NSURLVolumeIsInternalKey - Boolean indicating if the volume is an internal drive or an external drive
 ///   * NSURLVolumeIsLocalKey - Boolean indicating if the volume is a local or remote drive
 ///   * NSURLVolumeIsReadOnlyKey - Boolean indicating if the volume is read only
-///   * NSURLVolumeIsRemovableKey - Boolean indicating if the volume is removable
+///   * NSURLVolumeIsRemovableKey - Boolean indicating if the volume's media can be physically ejected from the drive (e.g. a DVD)
 ///   * NSURLVolumeMaximumFileSizeKey - Maximum file size the volume can support, in bytes
 ///   * NSURLVolumeUUIDStringKey - The UUID of volume's filesystem
 ///   * NSURLVolumeURLForRemountingKey - For remote volumes, the network URL of the volume
@@ -596,6 +596,7 @@ static int hs_idleTime(lua_State *L) {
 ///   * NSURLVolumeNameKey - The volume's name
 ///   * NSURLVolumeLocalizedFormatDescriptionKey - Localized description of the volume
 /// * Not all keys will be present for all volumes
+/// * The meanings of NSURLVolumeIsEjectableKey and NSURLVolumeIsRemovableKey are not generally what they sound like. If you want a simple test as to whether or not a volume is a removable drive (e.g. a USB hard disk), check for NSURLVolumeIsInternalKey being false (this is what Finder does)
 static int hs_volumeInformation(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
