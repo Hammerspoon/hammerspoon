@@ -184,8 +184,8 @@ NSMutableArray *dynamicMenuDelegates;
     [self callback_runner];
     // error or return value (ignored in this case), we gotta cleanup
     lua_pop(self.L, 1) ;
-    myDelegate = nil ;
     _lua_stackguard_exit(self.L);
+    myDelegate = nil ; // NOTE: DO NOT USE `self` AFTER THIS POINT, IT WILL HAVE BEEN DEALLOCATED.
 }
 @end
 
