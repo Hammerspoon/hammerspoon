@@ -22,6 +22,7 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef
     if ((type == kCGEventTapDisabledByTimeout) || (type == kCGEventTapDisabledByUserInput)) {
         [skin logBreadcrumb:[NSString stringWithFormat:@"eventtap restarted: (%d)", type]] ;
         CGEventTapEnable(e->tap, true);
+        _lua_stackguard_exit(L);
         return event ;
     }
 
@@ -36,6 +37,7 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef
             [skin logError:[NSString stringWithFormat:@"hs.eventtap callback error: %s", errorMsg]];
         }
         lua_pop(L, 1) ; // remove error message
+        _lua_stackguard_exit(L);
         return NULL;
     }
 
