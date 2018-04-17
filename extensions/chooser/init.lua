@@ -30,7 +30,7 @@ chooser._defaultGlobalCallback = function(whichChooser, state)
     chooser._lastFocused[whichChooser] = hs.window.frontmostWindow()
   elseif state == "didClose" then
     local initialChooserUserdata = nil
-    for k, v in pairs(chooser._lastFocused) do
+    for k,_ in pairs(chooser._lastFocused) do
       if k == whichChooser then -- assumes userdata implements __eq method
         initialChooserUserdata = k
         break
