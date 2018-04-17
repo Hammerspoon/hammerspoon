@@ -157,12 +157,12 @@ NSString *specMaskToString(int spec) {
 
 - (void)createLuaState {
     NSLog(@"createLuaState");
-    NSAssert((self.L == NULL), @"createLuaState called on a live Lua environment", nil);
+    assert(self.L == NULL);
     self.L = luaL_newstate();
     luaL_openlibs(self.L);
 
     NSString *luaSkinLua = [[NSBundle bundleForClass:[self class]] pathForResource:@"luaskin" ofType:@"lua"];
-    NSAssert((luaSkinLua != nil), @"createLuaState was unable to find luaskin.lua. Your installation may be damaged");
+    assert(luaSkinLua != nil);
 
     int loadresult = luaL_loadfile(self.L, luaSkinLua.fileSystemRepresentation);
     if (loadresult != 0) {
@@ -179,7 +179,7 @@ NSString *specMaskToString(int spec) {
 
 - (void)destroyLuaState {
     NSLog(@"destroyLuaState");
-    NSAssert((self.L != NULL), @"destroyLuaState called with no Lua environment", nil);
+    assert(self.L != NULL);
     if (self.L) {
         [self.retainedObjectsRefTableMappings enumerateKeysAndObjectsUsingBlock:^(NSNumber *refTableN, NSMutableDictionary *objectMappings, __unused BOOL *stop) {
             if ([refTableN isKindOfClass:[NSNumber class]] && [objectMappings isKindOfClass:[NSDictionary class]]) {
@@ -205,7 +205,7 @@ NSString *specMaskToString(int spec) {
 
 - (void)resetLuaState {
     NSLog(@"resetLuaState");
-    NSAssert((self.L != NULL), @"resetLuaState called with no Lua environment", nil);
+    assert(self.L != NULL);
     [self destroyLuaState];
     [self createLuaState];
 }
@@ -263,7 +263,14 @@ NSString *specMaskToString(int spec) {
 #pragma mark - Methods for registering libraries with Lua
 
 - (int)registerLibrary:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions {
-    NSAssert(functions != NULL, @"functions can not be NULL", nil);
+    // Ensure we're not given a null function table
+    assert(functions != NULL);
+
+    // Ensure that none of the functions we've been given are null
+    const luaL_Reg *l = functions;
+    for (; l->name != NULL; l++) {
+        assert(l->func);
+    }
 
     // Ensure our Lua stack is large enough for the number of items being pushed
     [self growStack:3 withMessage:"registerLibrary"];
@@ -285,9 +292,9 @@ NSString *specMaskToString(int spec) {
 
 - (int)registerLibraryWithObject:(const char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions objectFunctions:(const luaL_Reg *)objectFunctions {
 
-    NSAssert(libraryName != NULL, @"libraryName can not be NULL", nil);
-    NSAssert(functions != NULL, @"functions can not be NULL (%s)", libraryName);
-    NSAssert(objectFunctions != NULL, @"objectFunctions can not be NULL (%s)", libraryName);
+    assert(libraryName);
+    assert(functions);
+    assert(objectFunctions);
 
     [self registerObject:libraryName objectFunctions:objectFunctions];
 
@@ -297,8 +304,17 @@ NSString *specMaskToString(int spec) {
 }
 
 - (void)registerObject:(const char *)objectName objectFunctions:(const luaL_Reg *)objectFunctions {
-    NSAssert(objectName != NULL, @"objectName can not be NULL", nil);
-    NSAssert(objectFunctions != NULL, @"objectFunctions can not be NULL (%s)", objectName);
+    assert(objectName);
+    assert(objectFunctions);
+
+    // Ensure that none of the functions we've been given are null
+    const luaL_Reg *l = objectFunctions;
+    for (; l->name != NULL; l++) {
+        if (!l->func) {
+            [self logError:[NSString stringWithFormat:@"%s:%s is a NULL pointer", objectName, l->name]];
+            abort();
+        }
+    }
 
     // Ensure our Lua stack is large enough for the number of items being pushed
     [self growStack:2 withMessage:"registerObject"];
@@ -318,7 +334,7 @@ NSString *specMaskToString(int spec) {
 }
 
 - (int)luaRef:(int)refTable {
-    NSAssert((refTable != LUA_NOREF && refTable != LUA_REFNIL), @"ERROR: LuaSkin::luaRef was passed a NOREF/REFNIL refTable", nil);
+    assert(refTable != LUA_NOREF && refTable != LUA_REFNIL);
 
     if (lua_isnil(self.L, -1)) {
         return LUA_REFNIL;
@@ -350,7 +366,7 @@ NSString *specMaskToString(int spec) {
 }
 
 - (int)luaUnref:(int)refTable ref:(int)ref {
-    NSAssert((refTable != LUA_NOREF && refTable != LUA_REFNIL), @"ERROR: LuaSkin::luaUnref was passed a NOREF/REFNIL refTable", nil);
+    assert(refTable != LUA_NOREF && refTable != LUA_REFNIL);
 
     // Ensure our Lua stack is large enough for the number of items being pushed
     [self growStack:1 withMessage:"luaUnref"];
@@ -369,8 +385,8 @@ NSString *specMaskToString(int spec) {
 }
 
 - (int)pushLuaRef:(int)refTable ref:(int)ref {
-    NSAssert((refTable != LUA_NOREF && refTable != LUA_REFNIL), @"ERROR: LuaSkin::pushLuaRef was passed a NOREF/REFNIL refTable", nil);
-    NSAssert((ref != LUA_NOREF && ref != LUA_REFNIL), @"ERROR: LuaSkin::pushLuaRef was passed a NOREF/REFNIL ref", nil);
+    assert(refTable != LUA_NOREF && refTable != LUA_REFNIL);
+    assert(ref != LUA_NOREF && ref != LUA_REFNIL);
 
     // Ensure our Lua stack is large enough for the number of items being pushed
     [self growStack:2 withMessage:"pushLuaRef"];
