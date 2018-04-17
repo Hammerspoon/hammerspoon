@@ -696,7 +696,12 @@ void callDockIconCallback(void) {
     lua_getglobal(L, "hs");
     lua_getfield(L, -1, "dockIconClickCallback");
 
-    [skin protectedCallAndError:@"hs.dockIconClickCallback" nargs:0 nresults:0];
+    if (lua_type(L, -1) == LUA_TNIL) {
+        // There is no callback set, so just pop the callback and carry on
+        lua_pop(L, 1);
+    } else {
+        [skin protectedCallAndError:@"hs.dockIconClickCallback" nargs:0 nresults:0];
+    }
 
     // Pop the hs global off the stack
     lua_pop(L, 1);
@@ -711,7 +716,12 @@ static int callShutdownCallback(lua_State *L) {
     lua_getglobal(L, "hs");
     lua_getfield(L, -1, "shutdownCallback");
 
-    [skin protectedCallAndError:@"hs.shutdownCallback" nargs:0 nresults:0];
+    if (lua_type(L, -1) == LUA_TNIL) {
+        // There is no callback set, so just pop the callback and carry on
+        lua_pop(L, 1);
+    } else {
+        [skin protectedCallAndError:@"hs.shutdownCallback" nargs:0 nresults:0];
+    }
 
     // Pop the hs global off the stack
     lua_pop(L, 1);
