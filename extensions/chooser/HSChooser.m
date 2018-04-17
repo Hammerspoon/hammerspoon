@@ -290,7 +290,7 @@
     HSChooserCell *cellView = [tableView makeViewWithIdentifier:chooserCellIdentifier owner:self];
 
     if ([text isKindOfClass:[NSAttributedString class]]) {
-        [cellView.text setAttributedStringValue:(NSAttributedString *)text];
+        cellView.text.attributedStringValue = (NSAttributedString *)text;
     } else {
         cellView.text.stringValue = text ? (NSString *)text : @"";
     }
