@@ -1,7 +1,8 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11542" systemVersion="15G1108" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14109" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11542"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14109"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="HSChooser">
@@ -18,7 +19,7 @@
             <windowStyleMask key="styleMask" fullSizeContentView="YES"/>
             <windowCollectionBehavior key="collectionBehavior" ignoresCycle="YES"/>
             <rect key="contentRect" x="574" y="449" width="480" height="270"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="3200" height="1778"/>
             <view key="contentView" id="EiT-Mj-1SZ" customClass="HSChooserRootView">
                 <rect key="frame" x="0.0" y="0.0" width="480" height="270"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -50,10 +51,10 @@
                                             <rect key="frame" x="0.0" y="0.0" width="440" height="170"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <size key="intercellSpacing" width="3" height="2"/>
-                                            <color key="backgroundColor" name="_sourceListBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                            <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="backgroundColor" red="0.0" green="0.41176470588235292" blue="0.85098039215686272" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
+                                            <color key="gridColor" white="0.80000000000000004" alpha="0.0" colorSpace="deviceWhite"/>
                                             <tableColumns>
-                                                <tableColumn editable="NO" width="437" minWidth="40" maxWidth="1000" id="U09-Ar-y6G">
+                                                <tableColumn identifier="" editable="NO" width="437" minWidth="40" maxWidth="1000" id="U09-Ar-y6G">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -72,7 +73,7 @@
                                                             <subviews>
                                                                 <textField verticalHuggingPriority="750" tag="-1" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Vxv-8H-Klg">
                                                                     <rect key="frame" x="33" y="3" width="360" height="16"/>
-                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" state="on" title="Subtext" id="iZj-kL-a0l">
+                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" state="on" title="Subtext" allowsEditingTextAttributes="YES" id="iZj-kL-a0l">
                                                                         <font key="font" metaFont="cellTitle"/>
                                                                         <color key="textColor" name="tertiaryLabelColor" catalog="System" colorSpace="catalog"/>
                                                                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -80,7 +81,7 @@
                                                                 </textField>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" tag="1" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="9TD-du-Knb">
                                                                     <rect key="frame" x="33" y="17" width="360" height="19"/>
-                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Text" id="Lfj-Li-dTT">
+                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Text" allowsEditingTextAttributes="YES" id="Lfj-Li-dTT">
                                                                         <font key="font" metaFont="system" size="15"/>
                                                                         <color key="textColor" name="secondaryLabelColor" catalog="System" colorSpace="catalog"/>
                                                                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -123,7 +124,6 @@
                                                                 <outlet property="shortcutText" destination="zEx-Pv-NaM" id="hYq-iM-CXR"/>
                                                                 <outlet property="subText" destination="Vxv-8H-Klg" id="iEm-pp-RWj"/>
                                                                 <outlet property="text" destination="9TD-du-Knb" id="Ywr-iW-fEd"/>
-                                                                <outlet property="textField" destination="9TD-du-Knb" id="QLR-PE-ELR"/>
                                                             </connections>
                                                         </tableCellView>
                                                         <tableCellView identifier="HSChooserCell" misplaced="YES" id="M9u-t4-ygl" customClass="HSChooserCell">
@@ -132,7 +132,7 @@
                                                             <subviews>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" tag="1" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="XAU-Vc-N92">
                                                                     <rect key="frame" x="33" y="5" width="360" height="24"/>
-                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Text" id="zFk-77-baS">
+                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Text" allowsEditingTextAttributes="YES" id="zFk-77-baS">
                                                                         <font key="font" metaFont="system" size="20"/>
                                                                         <color key="textColor" name="secondaryLabelColor" catalog="System" colorSpace="catalog"/>
                                                                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
