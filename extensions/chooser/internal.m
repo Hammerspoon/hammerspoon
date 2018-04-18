@@ -121,9 +121,9 @@ static int chooserIsVisible(lua_State *L) {
 ///
 /// Notes:
 ///  * The table of choices (be it provided statically, or returned by the callback) must contain at least the following keys for each choice:
-///   * text - A string that will be shown as the main text of the choice
+///   * text - A string or hs.styledtext object that will be shown as the main text of the choice
 ///  * Each choice may also optionally contain the following keys:
-///   * subText - A string that will be shown underneath the main text of the choice
+///   * subText - A string or hs.styledtext object that will be shown underneath the main text of the choice
 ///   * image - An `hs.image` image object that will be displayed next to the choice
 ///  * Any other keys/values in each choice table will be retained by the chooser and returned to the completion callback when a choice is made. This is useful for storing UUIDs or other non-user-facing information, however, it is important to note that you should not store userdata objects in the table - it is run through internal conversion functions, so only basic Lua types should be stored.
 ///  * If a function is given, it will be called once, when the chooser window is displayed. The results are then cached until this method is called again, or `hs.chooser:refreshChoicesCallback()` is called.
