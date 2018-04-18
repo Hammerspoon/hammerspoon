@@ -267,14 +267,18 @@
     NSArray *choices = [self getChoices];
     NSDictionary *choice = [choices objectAtIndex:row];
 
-    NSString *text         = [choice objectForKey:@"text"];
-    NSString *subText      = [choice objectForKey:@"subText"];
+    id text                = [choice objectForKey:@"text"];
+    id subText             = [choice objectForKey:@"subText"];
     NSString *shortcutText = @"";
     NSImage  *image        = [choice objectForKey:@"image"];
 
-    if (text    && ![text isKindOfClass:[NSString class]])    text    = [NSString stringWithFormat:@"%@", text] ;
-    if (subText && ![subText isKindOfClass:[NSString class]]) subText = [NSString stringWithFormat:@"%@", subText] ;
-    if (image   && ![image isKindOfClass:[NSImage class]])    image   = nil ;
+    if (text && ![text isKindOfClass:[NSString class]] && ![text isKindOfClass:[NSAttributedString class]]) {
+        text = [NSString stringWithFormat:@"%@", text];
+    }
+    if (subText && ![subText isKindOfClass:[NSString class]] && ![subText isKindOfClass:[NSAttributedString class]]) {
+        subText = [NSString stringWithFormat:@"%@", subText];
+    }
+    if (image && ![image isKindOfClass:[NSImage class]]) image = nil;
 
     if (row >= 0 && row < 9) {
         shortcutText = [NSString stringWithFormat:@"⌘%ld", (long)row + 1];
@@ -285,9 +289,20 @@
     NSString *chooserCellIdentifier = subText ?  @"HSChooserCellSubtext" : @"HSChooserCell";
     HSChooserCell *cellView = [tableView makeViewWithIdentifier:chooserCellIdentifier owner:self];
 
+    if ([text isKindOfClass:[NSAttributedString class]]) {
+        cellView.text.attributedStringValue = (NSAttributedString *)text;
+    } else {
+        cellView.text.stringValue = text ? (NSString *)text : @"";
+    }
 
-    cellView.text.stringValue = text ? text : @"";
-    if (subText != nil) cellView.subText.stringValue = subText ? subText : @"";
+    if (subText) {
+        if ([subText isKindOfClass:[NSAttributedString class]]) {
+            [cellView.subText setAttributedStringValue:(NSAttributedString *)subText];
+        } else {
+            cellView.subText.stringValue = subText ? (NSString *)subText : @"";
+        }
+    }
+
     cellView.shortcutText.stringValue = shortcutText ? shortcutText : @"??";
     cellView.image.image = image ? image : [NSImage imageNamed:NSImageNameFollowLinkFreestandingTemplate];
 
