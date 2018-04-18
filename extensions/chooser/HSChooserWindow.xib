@@ -124,7 +124,6 @@
                                                                 <outlet property="shortcutText" destination="zEx-Pv-NaM" id="hYq-iM-CXR"/>
                                                                 <outlet property="subText" destination="Vxv-8H-Klg" id="iEm-pp-RWj"/>
                                                                 <outlet property="text" destination="9TD-du-Knb" id="Ywr-iW-fEd"/>
-                                                                <outlet property="textField" destination="9TD-du-Knb" id="QLR-PE-ELR"/>
                                                             </connections>
                                                         </tableCellView>
                                                         <tableCellView identifier="HSChooserCell" misplaced="YES" id="M9u-t4-ygl" customClass="HSChooserCell">
