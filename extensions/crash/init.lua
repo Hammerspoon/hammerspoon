@@ -3,7 +3,6 @@
 --- Various features/facilities for developers who are working on Hammerspoon itself, or writing extensions for it. It is extremely unlikely that you should need any part of this extension, in a normal user configuration.
 
 local crash = require "hs.crash.internal"
-local fnutils = require "hs.fnutils"
 
 --- hs.crash.dumpCLIBS() -> table
 --- Function
@@ -28,7 +27,7 @@ crash.dumpCLIBS = function()
     end
 
     if tmpclibs then
-        for k,v in pairs(tmpclibs) do
+        for k,_ in pairs(tmpclibs) do
             if type(k) == "string" then
                 table.insert(CLIBS, k)
             end
