@@ -262,6 +262,7 @@ static watcher_t* get_watcher(lua_State* L, int elem) {
 static void watcher_observer_callback(AXObserverRef observer __unused, AXUIElementRef element,
                                       CFStringRef notificationName, void* contextData) {
     LuaSkin *skin = [LuaSkin shared];
+    _lua_stackguard_entry(skin.L);
 
     watcher_t* watcher = (watcher_t*) contextData;
 
@@ -272,12 +273,8 @@ static void watcher_observer_callback(AXObserverRef observer __unused, AXUIEleme
     lua_pushstring(L, CFStringGetCStringPtr(notificationName, kCFStringEncodingASCII)); // Parameter 2: event
     lua_rawgeti(L, LUA_REGISTRYINDEX, watcher->watcher_ref); // Parameter 3: watcher
     lua_rawgeti(L, LUA_REGISTRYINDEX, watcher->user_data_ref); // Parameter 4: userData
-
-    if (![skin protectedCallAndTraceback:4 nresults:0]) {
-        const char *errorMsg = lua_tostring(L, -1);
-        [skin logError:[NSString stringWithUTF8String:errorMsg]];
-        lua_pop(L, 1) ; // remove error message
-    }
+    [skin protectedCallAndError:@"hs.uielement watcher callback" nargs:4 nresults:0];
+    _lua_stackguard_exit(skin.L);
 }
 
 static int watcher_start(lua_State* L) {

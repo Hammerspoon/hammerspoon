@@ -55,7 +55,7 @@
                 NSArray *stateLabels = @[ @"OK", @"YIELD", @"ERRRUN", @"ERRSYNTAX", @"ERRMEM", @"ERRGCMM", @"ERRERR" ] ;
                 HSNSLOG(@"logForLuaSkin: error, state %@: %s", [stateLabels objectAtIndex:(NSUInteger)errState],
                         luaL_tolstring(_L, -1, NULL)) ;
-                lua_pop(_L, 2) ; // lua_pcall result + converted version from luaL_tolstring
+                lua_pop(_L, 2) ; // lua_pcall error + converted string from luaL_tolstring
             }
             break;
     }

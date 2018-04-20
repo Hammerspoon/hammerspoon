@@ -361,14 +361,14 @@ static int pushTestUserData(lua_State *L, id object) {
 - (void)testProtectedCall {
     int loadResult = luaL_loadstring(self.skin.L, "print('Lua protected execution works')");
     XCTAssertFalse(loadResult);
-    BOOL pcallResult = [self.skin protectedCallAndTraceback:0 nresults:0];
+    BOOL pcallResult = [self.skin protectedCallAndError:@"testProtectedCall" nargs:0 nresults:0];
     XCTAssertTrue(pcallResult);
 }
 
 - (void)testProtectedCallWithFailure {
     int loadResult = luaL_loadstring(self.skin.L, "require('impossible_module')");
     XCTAssertFalse(loadResult);
-    BOOL pcallResult = [self.skin protectedCallAndTraceback:0 nresults:0];
+    BOOL pcallResult = [self.skin protectedCallAndError:@"testProtectedCallWithFailure" nargs:0 nresults:0];
     XCTAssertFalse(pcallResult);
 }
 
@@ -529,9 +529,6 @@ static int pushTestUserData(lua_State *L, id object) {
 - (void)testPushNSObject {
     LSTestDelegate *testDelegate = [[LSTestDelegate alloc] init];
     self.skin.delegate = testDelegate;
-
-    // This function needs quite a lot of stack otherwise it overflows, so let's allocate a bunch more
-    lua_checkstack(self.skin.L, 500);
 
     // Test pushing an NSString (note that in this case we test the return value. There are only two return points in pushNSObject, so subsequent tests only re-test the return value if they are expecting something other than 1
     NSString *pushString = @"Test push string";

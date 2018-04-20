@@ -335,6 +335,7 @@ static OSStatus trigger_hotkey_callback(int eventUID, int eventKind, BOOL isRepe
     //NSLog(@"trigger_hotkey_callback: isDown: %s, isUp: %s, isRepeat: %s", (eventKind == kEventHotKeyPressed) ? "YES" : "NO", (eventKind == kEventHotKeyReleased) ? "YES" : "NO", isRepeat ? "YES" : "NO");
     LuaSkin *skin = [LuaSkin shared];
     lua_State *L = skin.L;
+    _lua_stackguard_entry(L);
 
     hotkey_t* hotkey = push_hotkey(L, eventUID);
     lua_pop(L, 1);
@@ -360,12 +361,9 @@ static OSStatus trigger_hotkey_callback(int eventUID, int eventKind, BOOL isRepe
         if (ref != LUA_NOREF) {
             [skin pushLuaRef:refTable ref:ref];
 
-            if (![skin protectedCallAndTraceback:0 nresults:0]) {
+            if (![skin protectedCallAndError:@"hs.hotkey callback" nargs:0 nresults:0]) {
                 // For the sake of safety, we'll invalidate any repeat timer that's running, so we don't ruin the user's day by spamming them with errors
                 [keyRepeatManager stopTimer];
-                const char *errorMsg = lua_tostring(L, -1);
-                [skin logError:[NSString stringWithFormat:@"hs.hotkey callback error: %s", errorMsg]];
-                lua_pop(L, 1) ; // remove error message
                 return noErr;
             }
         }
@@ -374,7 +372,7 @@ static OSStatus trigger_hotkey_callback(int eventUID, int eventKind, BOOL isRepe
             [keyRepeatManager startTimer:eventUID eventKind:eventKind];
         }
     }
-
+    _lua_stackguard_exit(L);
     return noErr;
 }
 

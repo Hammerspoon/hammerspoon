@@ -4,7 +4,7 @@
 //
 //  Created by Michael Bujol on 02/12/2016.
 
-#import "HSTestcase.h"
+#import "HSTestCase.h"
 
 #define RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(timeout) XCTAssertTrue([self twoPartTestName:_cmd withTimeout:timeout], @"Test failed: %@", NSStringFromSelector(_cmd));
 

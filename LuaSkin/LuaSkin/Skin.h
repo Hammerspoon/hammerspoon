@@ -19,6 +19,20 @@
 #import "lauxlib.h"
 #import "lualib.h"
 #import "lua.h"
+#import <assert.h>
+
+// Defines for Lua stack guard macros
+/*
+#ifdef DEBUG
+#   define _lua_stackguard_entry(L) int __lua_stackguard_entry=lua_gettop(L); NSLog(@"lua stack is %d at %s:%s:%d", __lua_stackguard_entry, __FILE__, __FUNCTION__, __LINE__);
+#   define _lua_stackguard_exit(L) NSLog(@"lua stack is %d at %s:ss%s:%d", lua_gettop(L), __FILE__, __FUNCTION__, __LINE__); assert(__lua_stackguard_entry == lua_gettop(L));
+#else
+ */
+#   define _lua_stackguard_entry(L) int __lua_stackguard_entry=lua_gettop(L);
+#   define _lua_stackguard_exit(L) assert(__lua_stackguard_entry == lua_gettop(L));
+/*
+#endif
+ */
 
 // Define some bits for masking operations in the argument checker
 /*!
@@ -200,11 +214,22 @@ NSString *specMaskToString(int spec);
  if (!result) handleSomeError();
  @/textblock</pre>
 
+ @warning You are strongly advised to check the return code of this method - if it returns NO there will be an error message left on the Lua stack, which you should pop
  @return NO if the Lua code threw an exception, otherwise YES
  @param nargs An integer specifying how many function arguments you have pushed onto the stack
  @param nresults An integer specifying how many return values the Lua function will push onto the stack
  */
 - (BOOL)protectedCallAndTraceback:(int)nargs nresults:(int)nresults;
+
+/*!]
+ @abstract Calls protectedCallAndTraceback and will logError any failures
+ @discussion See the docs for protectedCallAndTraceback for all of the details of this method. The one difference is that this method will check for failure, log the error with logError, and leave nothing on the stack (although in the case of success, nresults elements will remain on the stack)
+ @return NO if the Lua code threw an exception, otherwise YES
+ @param nargs An integer specifying how many function arguments you have pushed onto the stack
+ @param nresults An integer specifying how many return values the Lua function will push onto the stack
+ @param message An NSString message to include in the error log
+ */
+- (BOOL)protectedCallAndError:(NSString*)message nargs:(int)nargs nresults:(int)nresults;
 
 #pragma mark - Methods for registering libraries with Lua
 
@@ -694,6 +719,15 @@ NSString *specMaskToString(int spec);
  @returns YES if the module loaded successfully or NO if it does not
  */
 - (BOOL)requireModule:(const char *)moduleName ;
+
+/*!
+ @abstract Increases the size of Lua's stack
+
+ @discussion This should be used before pushing items onto the stack. Each Lua->C transition is guaranteed to provide only 20 stack slots. It therefore seems wise to request more slots if we're going to be pushing things.
+ @warning If the stack size cannot be increased, a luaL_error() will be thrown
+ @param slots The number of additional slots to add to the stack
+ */
+- (void)growStack:(int)slots withMessage:(const char *)message;
 
 #pragma mark - Logging methods
 

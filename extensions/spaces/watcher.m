@@ -35,15 +35,12 @@ typedef struct _spacewatcher_t {
 - (void)callback:(NSDictionary* __unused)dict withSpace:(int)space {
     LuaSkin *skin = [LuaSkin shared];
     lua_State *L = skin.L;
+    _lua_stackguard_entry(L);
 
     [skin pushLuaRef:refTable ref:self.object->fn];
     lua_pushinteger(L, space);
-
-    if (![skin protectedCallAndTraceback:1 nresults:0]) {
-        const char *errorMsg = lua_tostring(L, -1);
-        [skin logError:[NSString stringWithFormat:@"hs.spaces.watcher callback error: %s", errorMsg]];
-        lua_pop(L, 1) ; // remove error message
-    }
+    [skin protectedCallAndError:@"hs.spaces.watcher callback" nargs:1 nresults:0];
+    _lua_stackguard_exit(L);
 }
 
 - (void)spaceChanged:(NSNotification*)notification {

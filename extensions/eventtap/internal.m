@@ -13,6 +13,7 @@ typedef struct _eventtap_t {
 CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon) {
     LuaSkin *skin = [LuaSkin shared];
     lua_State *L = skin.L;
+    _lua_stackguard_entry(L);
 
     eventtap_t* e = refcon;
 
@@ -21,6 +22,7 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef
     if ((type == kCGEventTapDisabledByTimeout) || (type == kCGEventTapDisabledByUserInput)) {
         [skin logBreadcrumb:[NSString stringWithFormat:@"eventtap restarted: (%d)", type]] ;
         CGEventTapEnable(e->tap, true);
+        _lua_stackguard_exit(L);
         return event ;
     }
 
@@ -35,6 +37,7 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef
             [skin logError:[NSString stringWithFormat:@"hs.eventtap callback error: %s", errorMsg]];
         }
         lua_pop(L, 1) ; // remove error message
+        _lua_stackguard_exit(L);
         return NULL;
     }
 
@@ -50,6 +53,7 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef
     }
 
     lua_pop(L, 2);
+    _lua_stackguard_exit(L);
 
     if (ignoreevent)
         return NULL;

@@ -46,6 +46,7 @@ OSStatus audiodevicewatcher_callback(AudioDeviceID deviceID, UInt32 numAddresses
 
         //NSLog(@"%i addresses to check", numAddresses);
         LuaSkin *skin = [LuaSkin shared];
+        _lua_stackguard_entry(skin.L);
         if (!theWatcher) {
             [skin logWarn:@"hs.audiodevice.watcher callback fired, but theWatcher is nil. This is a bug"];
             return;
@@ -56,12 +57,10 @@ OSStatus audiodevicewatcher_callback(AudioDeviceID deviceID, UInt32 numAddresses
             for (NSString *event in events) {
                 [skin pushLuaRef:refTable ref:theWatcher->callback];
                 [skin pushNSObject:event];
-                if (![skin protectedCallAndTraceback:1 nresults:0]) {
-                    lua_pop(skin.L, 1); //remove error message
-                }
+                [skin protectedCallAndError:@"hs.audiodevice.watcher callback" nargs:1 nresults:0];
             }
         }
-
+        _lua_stackguard_exit(skin.L);
     });
     return noErr;
 }

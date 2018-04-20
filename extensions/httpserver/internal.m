@@ -73,17 +73,20 @@ static int refTable;
 
     void (^responseCallbackBlock)(void) = ^{
         LuaSkin *skin = [LuaSkin shared];
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:self.callback];
         lua_pushstring(skin.L, [msg UTF8String]);
 
         if (![skin protectedCallAndTraceback:1 nresults:1]) {
             const char *errorMsg = lua_tostring(skin.L, -1);
             [skin logError:[NSString stringWithFormat:@"hs.httpserver:websocket callback error: %s", errorMsg]];
+            // No need to lua_pop() here, nresults is 1 so the lua_pop() below catches successful results and error messages
         } else {
             response = [skin toNSObjectAtIndex:-1];
         }
 
         lua_pop(skin.L, 1);
+        _lua_stackguard_exit(skin.L);
     };
 
     // Make sure we do all the above Lua work on the main thread
@@ -166,19 +169,20 @@ static int refTable;
     void (^responseCallbackBlock)(void) = ^{
         LuaSkin *skin = [LuaSkin shared];
         lua_State *L = skin.L;
+        _lua_stackguard_entry(L);
 
         // add some headers for callback function to access
-        [request setHeaderField:@"X-Remote-Addr" value:asyncSocket.connectedHost];
-        [request setHeaderField:@"X-Remote-Port" value:[NSString stringWithFormat:@"%hu", asyncSocket.connectedPort]];
-        [request setHeaderField:@"X-Server-Addr" value:asyncSocket.localHost];
-        [request setHeaderField:@"X-Server-Port" value:[NSString stringWithFormat:@"%hu", asyncSocket.localPort]];
+        [self->request setHeaderField:@"X-Remote-Addr" value:self->asyncSocket.connectedHost];
+        [self->request setHeaderField:@"X-Remote-Port" value:[NSString stringWithFormat:@"%hu", self->asyncSocket.connectedPort]];
+        [self->request setHeaderField:@"X-Server-Addr" value:self->asyncSocket.localHost];
+        [self->request setHeaderField:@"X-Server-Port" value:[NSString stringWithFormat:@"%hu", self->asyncSocket.localPort]];
 
 
-        [skin pushLuaRef:refTable ref:((HSHTTPServer *)config.server).fn];
+        [skin pushLuaRef:refTable ref:((HSHTTPServer *)self->config.server).fn];
         lua_pushstring(L, [method UTF8String]);
         lua_pushstring(L, [path UTF8String]);
-        [skin pushNSObject:[request allHeaderFields]];
-        [skin pushNSObject:[request body] withOptions:LS_NSLuaStringAsDataOnly];
+        [skin pushNSObject:[self->request allHeaderFields]];
+        [skin pushNSObject:[self->request body] withOptions:LS_NSLuaStringAsDataOnly];
 
         if (![skin protectedCallAndTraceback:4 nresults:3]) {
             const char *errorMsg = lua_tostring(L, -1);
@@ -215,6 +219,7 @@ static int refTable;
             }
             lua_pop(L, 3) ; // our results... don't leave them on the stack
         }
+        _lua_stackguard_exit(L);
     };
 
     // Make sure we do all the above Lua work on the main thread

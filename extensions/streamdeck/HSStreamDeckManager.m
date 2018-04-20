@@ -46,7 +46,7 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
         self.discoveryCallbackRef = LUA_NOREF;
 
         // Create a HID device manager
-        self.ioHIDManager = IOHIDManagerCreate(kCFAllocatorDefault, kIOHIDManagerOptionNone);
+        self.ioHIDManager = CFBridgingRelease(IOHIDManagerCreate(kCFAllocatorDefault, kIOHIDManagerOptionNone));
         //NSLog(@"Created HID Manager: %p", (void *)self.ioHIDManager);
 
         // Configure the HID manager to match against Stream Deck devices
@@ -54,37 +54,37 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
                                 @(kIOHIDVendorIDKey): @0x0fd9,
                                 @(kIOHIDProductIDKey): @0x0060,
                                 };
-        IOHIDManagerSetDeviceMatching (self.ioHIDManager, (__bridge CFDictionaryRef)match);
+        IOHIDManagerSetDeviceMatching ((__bridge IOHIDManagerRef)self.ioHIDManager, (__bridge CFDictionaryRef)match);
 
         // Add our callbacks for relevant events
-        IOHIDManagerRegisterDeviceMatchingCallback(self.ioHIDManager, HIDconnect, (__bridge void*)self);
-        IOHIDManagerRegisterDeviceRemovalCallback(self.ioHIDManager, HIDdisconnect, (__bridge void*)self);
+        IOHIDManagerRegisterDeviceMatchingCallback((__bridge IOHIDManagerRef)self.ioHIDManager, HIDconnect, (__bridge void*)self);
+        IOHIDManagerRegisterDeviceRemovalCallback((__bridge IOHIDManagerRef)self.ioHIDManager, HIDdisconnect, (__bridge void*)self);
 
         // Start our HID manager
-        IOHIDManagerScheduleWithRunLoop(self.ioHIDManager, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
+        IOHIDManagerScheduleWithRunLoop((__bridge IOHIDManagerRef)self.ioHIDManager, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
     }
     return self;
 }
 
 - (void)doGC {
     // Remove our callbacks
-    IOHIDManagerRegisterDeviceMatchingCallback(self.ioHIDManager, NULL, (__bridge void*)self);
-    IOHIDManagerRegisterDeviceRemovalCallback(self.ioHIDManager, NULL, (__bridge void*)self);
+    IOHIDManagerRegisterDeviceMatchingCallback((__bridge IOHIDManagerRef)self.ioHIDManager, NULL, (__bridge void*)self);
+    IOHIDManagerRegisterDeviceRemovalCallback((__bridge IOHIDManagerRef)self.ioHIDManager, NULL, (__bridge void*)self);
 
     // Remove our HID manager from the runloop
-    IOHIDManagerUnscheduleFromRunLoop(self.ioHIDManager, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
+    IOHIDManagerUnscheduleFromRunLoop((__bridge IOHIDManagerRef)self.ioHIDManager, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
 
     // Deallocate the HID manager
-    CFRelease(self.ioHIDManager);
+    self.ioHIDManager = nil;
 }
 
 - (BOOL)startHIDManager {
-    IOReturn tIOReturn = IOHIDManagerOpen(self.ioHIDManager, kIOHIDOptionsTypeNone);
+    IOReturn tIOReturn = IOHIDManagerOpen((__bridge IOHIDManagerRef)self.ioHIDManager, kIOHIDOptionsTypeNone);
     return tIOReturn == kIOReturnSuccess;
 }
 
 - (BOOL)stopHIDManager {
-    IOReturn tIOReturn = IOHIDManagerClose(self.ioHIDManager, kIOHIDOptionsTypeNone);
+    IOReturn tIOReturn = IOHIDManagerClose((__bridge IOHIDManagerRef)self.ioHIDManager, kIOHIDOptionsTypeNone);
     return tIOReturn == kIOReturnSuccess;
 }
 
@@ -93,28 +93,39 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
     [self.devices addObject:deviceId];
 
     LuaSkin *skin = [LuaSkin shared];
+    _lua_stackguard_entry(skin.L);
     if (self.discoveryCallbackRef == LUA_NOREF || self.discoveryCallbackRef == LUA_REFNIL) {
-        [skin logWarn:@"hs.streamdeck detected a device, but no callback has been set. See hs.streamdeck.discoveryCallback()"];
+        [skin logWarn:@"hs.streamdeck detected a device connecting, but no callback has been set. See hs.streamdeck.discoveryCallback()"];
     } else {
         [skin pushLuaRef:streamDeckRefTable ref:self.discoveryCallbackRef];
         lua_pushboolean(skin.L, 1);
         [skin pushNSObject:deviceId];
-
-        if (![skin protectedCallAndTraceback:2 nresults:0]) {
-            [skin logError:[NSString stringWithFormat:@"hs.streamdeck:discoveryCallback error:%s", lua_tostring(skin.L, -1)]];
-            lua_pop(skin.L, 1);
-        }
+        [skin protectedCallAndError:@"hs.streamdeck:deviceDidConnect" nargs:2 nresults:0];
     }
 
     //NSLog(@"Created deck device: %p", (__bridge void*)deviceId);
     //NSLog(@"Now have %lu devices", self.devices.count);
+    _lua_stackguard_exit(skin.L);
     return deviceId;
 }
 
 - (void)deviceDidDisconnect:(IOHIDDeviceRef)device {
     for (HSStreamDeckDevice *deckDevice in self.devices) {
         if (deckDevice.device == device) {
+            [deckDevice invalidate];
+            LuaSkin *skin = [LuaSkin shared];
+            _lua_stackguard_entry(skin.L);
+            if (self.discoveryCallbackRef == LUA_NOREF || self.discoveryCallbackRef == LUA_REFNIL) {
+                [skin logWarn:@"hs.streamdeck detected a device disconnecting, but no callback has been set. See hs.streamdeck.discoveryCallback()"];
+            } else {
+                [skin pushLuaRef:streamDeckRefTable ref:self.discoveryCallbackRef];
+                lua_pushboolean(skin.L, 0);
+                [skin pushNSObject:deckDevice];
+                [skin protectedCallAndError:@"hs.streamdeck:deviceDidDisconnect" nargs:2 nresults:0];
+            }
+
             [self.devices removeObject:deckDevice];
+            _lua_stackguard_exit(skin.L);
             return;
         }
     }

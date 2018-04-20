@@ -53,8 +53,8 @@ static int consoleDarkMode(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
 
-    if (lua_isboolean(L, -1)) {
-        ConsoleDarkModeSetEnabled(lua_toboolean(L, -1));
+    if (lua_isboolean(L, 1)) {
+        ConsoleDarkModeSetEnabled(lua_toboolean(L, 1));
         [[MJConsoleWindowController singleton] reflectDefaults] ;
     }
 

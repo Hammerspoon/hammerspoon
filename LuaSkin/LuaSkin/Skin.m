@@ -121,6 +121,9 @@ NSString *specMaskToString(int spec) {
                                     userInfo:nil];
         @throw myException;
     }
+#if 0
+    NSLog(@"LuaSkin:shared stack size: %d", lua_gettop(sharedLuaSkin.L));
+#endif
     return sharedLuaSkin;
 }
 
@@ -154,12 +157,12 @@ NSString *specMaskToString(int spec) {
 
 - (void)createLuaState {
     NSLog(@"createLuaState");
-    NSAssert((self.L == NULL), @"createLuaState called on a live Lua environment", nil);
+    assert(self.L == NULL);
     self.L = luaL_newstate();
     luaL_openlibs(self.L);
 
     NSString *luaSkinLua = [[NSBundle bundleForClass:[self class]] pathForResource:@"luaskin" ofType:@"lua"];
-    NSAssert((luaSkinLua != nil), @"createLuaState was unable to find luaskin.lua. Your installation may be damaged");
+    assert(luaSkinLua != nil);
 
     int loadresult = luaL_loadfile(self.L, luaSkinLua.fileSystemRepresentation);
     if (loadresult != 0) {
@@ -176,7 +179,7 @@ NSString *specMaskToString(int spec) {
 
 - (void)destroyLuaState {
     NSLog(@"destroyLuaState");
-    NSAssert((self.L != NULL), @"destroyLuaState called with no Lua environment", nil);
+    assert(self.L != NULL);
     if (self.L) {
         [self.retainedObjectsRefTableMappings enumerateKeysAndObjectsUsingBlock:^(NSNumber *refTableN, NSMutableDictionary *objectMappings, __unused BOOL *stop) {
             if ([refTableN isKindOfClass:[NSNumber class]] && [objectMappings isKindOfClass:[NSDictionary class]]) {
@@ -202,7 +205,7 @@ NSString *specMaskToString(int spec) {
 
 - (void)resetLuaState {
     NSLog(@"resetLuaState");
-    NSAssert((self.L != NULL), @"resetLuaState called with no Lua environment", nil);
+    assert(self.L != NULL);
     [self destroyLuaState];
     [self createLuaState];
 }
@@ -240,6 +243,7 @@ NSString *specMaskToString(int spec) {
 
     if (lua_pcall(self.L, nargs, nresults, tracebackPosition) != LUA_OK) {
         lua_remove(self.L, -2) ; // remove the message handler
+        // At this point the error message from lua_pcall() is on the stack. Our caller is required to deal with this.
         return NO;
     }
 
@@ -247,10 +251,29 @@ NSString *specMaskToString(int spec) {
     return YES;
 }
 
+- (BOOL)protectedCallAndError:(NSString*)message nargs:(int)nargs nresults:(int)nresults {
+    BOOL result = [self protectedCallAndTraceback:nargs nresults:nresults];
+    if (result == NO) {
+        [self logError:[NSString stringWithFormat:@"%@: %s", message, lua_tostring(self.L, -1)]];
+        lua_pop(self.L, 1);
+    }
+    return result;
+}
+
 #pragma mark - Methods for registering libraries with Lua
 
 - (int)registerLibrary:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions {
-    NSAssert(functions != NULL, @"functions can not be NULL", nil);
+    // Ensure we're not given a null function table
+    assert(functions != NULL);
+
+    // Ensure that none of the functions we've been given are null
+    const luaL_Reg *l = functions;
+    for (; l->name != NULL; l++) {
+        assert(l->func);
+    }
+
+    // Ensure our Lua stack is large enough for the number of items being pushed
+    [self growStack:3 withMessage:"registerLibrary"];
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconstant-conversion"
@@ -269,9 +292,9 @@ NSString *specMaskToString(int spec) {
 
 - (int)registerLibraryWithObject:(const char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions objectFunctions:(const luaL_Reg *)objectFunctions {
 
-    NSAssert(libraryName != NULL, @"libraryName can not be NULL", nil);
-    NSAssert(functions != NULL, @"functions can not be NULL (%s)", libraryName);
-    NSAssert(objectFunctions != NULL, @"objectFunctions can not be NULL (%s)", libraryName);
+    assert(libraryName);
+    assert(functions);
+    assert(objectFunctions);
 
     [self registerObject:libraryName objectFunctions:objectFunctions];
 
@@ -281,8 +304,20 @@ NSString *specMaskToString(int spec) {
 }
 
 - (void)registerObject:(const char *)objectName objectFunctions:(const luaL_Reg *)objectFunctions {
-    NSAssert(objectName != NULL, @"objectName can not be NULL", nil);
-    NSAssert(objectFunctions != NULL, @"objectFunctions can not be NULL (%s)", objectName);
+    assert(objectName);
+    assert(objectFunctions);
+
+    // Ensure that none of the functions we've been given are null
+    const luaL_Reg *l = objectFunctions;
+    for (; l->name != NULL; l++) {
+        if (!l->func) {
+            [self logError:[NSString stringWithFormat:@"%s:%s is a NULL pointer", objectName, l->name]];
+            abort();
+        }
+    }
+
+    // Ensure our Lua stack is large enough for the number of items being pushed
+    [self growStack:2 withMessage:"registerObject"];
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconstant-conversion"
@@ -299,11 +334,14 @@ NSString *specMaskToString(int spec) {
 }
 
 - (int)luaRef:(int)refTable {
-    NSAssert((refTable != LUA_NOREF && refTable != LUA_REFNIL), @"ERROR: LuaSkin::luaRef was passed a NOREF/REFNIL refTable", nil);
+    assert(refTable != LUA_NOREF && refTable != LUA_REFNIL);
 
     if (lua_isnil(self.L, -1)) {
         return LUA_REFNIL;
     }
+
+    // Ensure our Lua stack is large enough for the number of items being pushed
+    [self growStack:1 withMessage:"luaRef:"];
 
     // Push refTable onto the stack
     lua_rawgeti(self.L, LUA_REGISTRYINDEX, refTable);
@@ -321,12 +359,17 @@ NSString *specMaskToString(int spec) {
 }
 
 - (int)luaRef:(int)refTable atIndex:(int)idx {
+    // Ensure our Lua stack is large enough for the number of items being pushed
+    [self growStack:1 withMessage:"luaRef:atIndex"];
     lua_pushvalue(self.L, idx);
     return [self luaRef:refTable];
 }
 
 - (int)luaUnref:(int)refTable ref:(int)ref {
-    NSAssert((refTable != LUA_NOREF && refTable != LUA_REFNIL), @"ERROR: LuaSkin::luaUnref was passed a NOREF/REFNIL refTable", nil);
+    assert(refTable != LUA_NOREF && refTable != LUA_REFNIL);
+
+    // Ensure our Lua stack is large enough for the number of items being pushed
+    [self growStack:1 withMessage:"luaUnref"];
 
     if (ref != LUA_NOREF && ref != LUA_REFNIL) {
         // Push refTable onto the stack
@@ -342,8 +385,11 @@ NSString *specMaskToString(int spec) {
 }
 
 - (int)pushLuaRef:(int)refTable ref:(int)ref {
-    NSAssert((refTable != LUA_NOREF && refTable != LUA_REFNIL), @"ERROR: LuaSkin::pushLuaRef was passed a NOREF/REFNIL refTable", nil);
-    NSAssert((ref != LUA_NOREF && ref != LUA_REFNIL), @"ERROR: LuaSkin::pushLuaRef was passed a NOREF/REFNIL ref", nil);
+    assert(refTable != LUA_NOREF && refTable != LUA_REFNIL);
+    assert(ref != LUA_NOREF && ref != LUA_REFNIL);
+
+    // Ensure our Lua stack is large enough for the number of items being pushed
+    [self growStack:2 withMessage:"pushLuaRef"];
 
     // Push refTable onto the stack
     lua_rawgeti(self.L, LUA_REGISTRYINDEX, refTable);
@@ -365,6 +411,9 @@ NSString *specMaskToString(int spec) {
 
     va_list args;
     va_start(args, firstArg);
+
+    // Ensure our Lua stack is large enough for the number of items being pushed
+    [self growStack:2 withMessage:"checkArgs"];
 
     while (true) {
         if (spec & LS_TBREAK) {
@@ -483,6 +532,9 @@ nextarg:
 }
 
 - (int)luaTypeAtIndex:(int)idx {
+    // Ensure our Lua stack is large enough for the number of items being pushed
+    [self growStack:1 withMessage:"luaTypeAtIndex"];
+
     int foundType = lua_type(self.L, idx) ;
     if (foundType == LUA_TTABLE) {
         if (luaL_getmetafield(self.L, idx, "__call") != LUA_TNIL) {
@@ -566,6 +618,9 @@ nextarg:
 }
 
 - (int)pushNSRect:(NSRect)theRect {
+    // Ensure our Lua stack is large enough for the number of items being pushed
+    [self growStack:2 withMessage:"pushNSRect"];
+
     lua_newtable(self.L) ;
     lua_pushnumber(self.L, theRect.origin.x) ; lua_setfield(self.L, -2, "x") ;
     lua_pushnumber(self.L, theRect.origin.y) ; lua_setfield(self.L, -2, "y") ;
@@ -576,6 +631,9 @@ nextarg:
 }
 
 - (int)pushNSPoint:(NSPoint)thePoint {
+    // Ensure our Lua stack is large enough for the number of items being pushed
+    [self growStack:2 withMessage:"pushNSPoint"];
+
     lua_newtable(self.L) ;
     lua_pushnumber(self.L, thePoint.x) ; lua_setfield(self.L, -2, "x") ;
     lua_pushnumber(self.L, thePoint.y) ; lua_setfield(self.L, -2, "y") ;
@@ -584,6 +642,9 @@ nextarg:
 }
 
 - (int)pushNSSize:(NSSize)theSize {
+    // Ensure our Lua stack is large enough for the number of items being pushed
+    [self growStack:2 withMessage:"pushNSSize"];
+
     lua_newtable(self.L) ;
     lua_pushnumber(self.L, theSize.width) ; lua_setfield(self.L, -2, "w") ;
     lua_pushnumber(self.L, theSize.height) ; lua_setfield(self.L, -2, "h") ;
@@ -678,6 +739,9 @@ nextarg:
 }
 
 - (NSRect)tableToRectAtIndex:(int)idx {
+    // Ensure our Lua stack is large enough for the number of items being pushed
+    [self growStack:4 withMessage:"tableToRectAtIndex"];
+
     idx = lua_absindex(self.L, idx) ;
     if (lua_type(self.L, idx) == LUA_TTABLE) {
         CGFloat x = (lua_getfield(self.L, idx, "x") == LUA_TNUMBER) ? lua_tonumber(self.L, -1) : 0.0 ;
@@ -694,6 +758,9 @@ nextarg:
 }
 
 - (NSPoint)tableToPointAtIndex:(int)idx {
+    // Ensure our Lua stack is large enough for the number of items being pushed
+    [self growStack:2 withMessage:"tableToPointAtIndex"];
+
     idx = lua_absindex(self.L, idx) ;
     if (lua_type(self.L, idx) == LUA_TTABLE) {
         CGFloat x = (lua_getfield(self.L, idx, "x") == LUA_TNUMBER) ? lua_tonumber(self.L, -1) : 0.0 ;
@@ -708,6 +775,9 @@ nextarg:
 }
 
 - (NSSize)tableToSizeAtIndex:(int)idx {
+    // Ensure our Lua stack is large enough for the number of items being pushed
+    [self growStack:2 withMessage:"tableToSizeAtIndex"];
+
     idx = lua_absindex(self.L, idx) ;
     if (lua_type(self.L, idx) == LUA_TTABLE) {
         CGFloat w = (lua_getfield(self.L, idx, "w") == LUA_TNUMBER) ? lua_tonumber(self.L, -1) : 0.0 ;
@@ -725,6 +795,9 @@ nextarg:
 
 // maxn   returns the largest integer key in the table
 - (lua_Integer)maxNatIndex:(int)idx {
+    // Ensure our Lua stack is large enough for the number of items being pushed
+    [self growStack:3 withMessage:"maxNatIndex"];
+
     idx = lua_absindex(self.L, idx) ;
     lua_Integer max = 0;
     if (lua_type(self.L, idx) == LUA_TTABLE) {
@@ -745,6 +818,9 @@ nextarg:
 
 // countn returns the number of items of any key type in the table
 - (lua_Integer)countNatIndex:(int)idx {
+    // Ensure our Lua stack is large enough for the number of items being pushed
+    [self growStack:3 withMessage:"countNatIndex"];
+
     idx = lua_absindex(self.L, idx) ;
     lua_Integer max = 0;
     if (lua_type(self.L, idx) == LUA_TTABLE) {
@@ -876,13 +952,26 @@ nextarg:
 }
 
 - (BOOL)requireModule:(const char *)moduleName {
+    // Ensure our Lua stack is large enough for the number of items being pushed
+    [self growStack:2 withMessage:"requireModule"];
+
     lua_getglobal(self.L, "require"); lua_pushstring(self.L, moduleName) ;
     return [self protectedCallAndTraceback:1 nresults:1] ;
+}
+
+- (void)growStack:(int)slots withMessage:(const char *)message {
+#if 0
+    NSLog(@"growStack: %03d:%s", slots, message);
+#endif
+    luaL_checkstack(self.L, slots, message);
 }
 
 #pragma mark - conversionSupport extensions to LuaSkin class
 
 - (int)pushNSObject:(id)obj withOptions:(NSUInteger)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
+    // Ensure our Lua stack is large enough for the number of items being pushed
+    [self growStack:2 withMessage:"pushNSObject"];
+
     if (obj) {
 // NOTE: We catch self-referential loops, do we also need a recursive depth?  Will crash at depth of 512...
         if (alreadySeen[obj]) {
@@ -949,6 +1038,10 @@ nextarg:
 
 - (int)pushNSNumber:(id)obj withOptions:(NSUInteger)options {
     NSNumber    *number = obj ;
+
+    // Ensure our Lua stack is large enough for the number of items being pushed
+    [self growStack:2 withMessage:"pushNSNumber"];
+
     if (number == (id)kCFBooleanTrue)
         lua_pushboolean(self.L, YES);
     else if (number == (id)kCFBooleanFalse)
@@ -998,6 +1091,9 @@ nextarg:
     NSValue    *value    = obj;
     const char *objCType = [value objCType];
 
+    // Ensure our Lua stack is large enough for the number of items being pushed
+    [self growStack:3 withMessage:"pushNSValue"];
+
     if (strcmp(objCType, @encode(NSPoint))==0) {
         [self pushNSPoint:[value pointValue]] ;
     } else if (strcmp(objCType, @encode(NSSize))==0) {
@@ -1031,6 +1127,10 @@ nextarg:
 
 - (int)pushNSArray:(id)obj withOptions:(NSUInteger)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
     NSArray* list = obj;
+
+    // Ensure our Lua stack is large enough for the number of items being pushed
+    [self growStack:2 withMessage:"pushNSArray"];
+
     lua_newtable(self.L);
     alreadySeen[obj] = @(luaL_ref(self.L, LUA_REGISTRYINDEX)) ;
     lua_rawgeti(self.L, LUA_REGISTRYINDEX, [alreadySeen[obj] intValue]) ; // put it back on the stack
@@ -1046,6 +1146,10 @@ nextarg:
 
 - (int)pushNSSet:(id)obj withOptions:(NSUInteger)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
     NSSet* list = obj;
+
+    // Ensure our Lua stack is large enough for the number of items being pushed
+    [self growStack:2 withMessage:"pushNSSet"];
+
     lua_newtable(self.L);
     alreadySeen[obj] = @(luaL_ref(self.L, LUA_REGISTRYINDEX)) ;
     lua_rawgeti(self.L, LUA_REGISTRYINDEX, [alreadySeen[obj] intValue]) ; // put it back on the stack
@@ -1061,6 +1165,10 @@ nextarg:
 - (int)pushNSDictionary:(id)obj withOptions:(NSUInteger)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
     NSArray *keys   = [obj allKeys];
     NSArray *values = [obj allValues];
+
+    // Ensure our Lua stack is large enough for the number of items being pushed
+    [self growStack:2 withMessage:"pushNSDictionary"];
+
     lua_newtable(self.L);
     alreadySeen[obj] = @(luaL_ref(self.L, LUA_REGISTRYINDEX)) ;
     lua_rawgeti(self.L, LUA_REGISTRYINDEX, [alreadySeen[obj] intValue]) ; // put it back on the stack
@@ -1080,6 +1188,10 @@ nextarg:
 
 - (id)toNSObjectAtIndex:(int)idx withOptions:(NSUInteger)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
     const char *userdataTag = nil;
+
+    // Ensure our Lua stack is large enough for the number of items being pushed
+    [self growStack:2 withMessage:"toNSObjectAtIndex"];
+
     idx = lua_absindex(self.L, idx) ;
     NSMutableArray *seenObject = alreadySeen[[NSValue valueWithPointer:lua_topointer(self.L, idx)]] ;
     if (seenObject) {
@@ -1173,6 +1285,10 @@ nextarg:
 // reason for an NSValue related option comes up
 - (id)tableAtIndex:(int)idx withLabel:(const char *)tableTag withOptions:(__unused NSUInteger)options {
     id result ;
+
+    // Ensure our Lua stack is large enough for the number of items being pushed
+    [self growStack:2 withMessage:"tableAtIndex"];
+
     idx = lua_absindex(self.L, idx) ;
     NSString *classMapping = self.registeredLuaObjectHelperTableMappings[@(tableTag)];
     if ((classMapping) && self.registeredLuaObjectHelperFunctions[classMapping]) {
@@ -1220,6 +1336,10 @@ nextarg:
 
 - (id)tableAtIndex:(int)idx withOptions:(NSUInteger)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
     id result ;
+
+    // Ensure our Lua stack is large enough for the number of items being pushed
+    [self growStack:3 withMessage:"tableAtIndex"];
+
     idx = lua_absindex(self.L, idx) ;
 
     if ((lua_getfield(self.L, idx, "__luaSkinType") == LUA_TSTRING) && ((options & LS_NSRawTables) != LS_NSRawTables)) {
@@ -1238,6 +1358,8 @@ nextarg:
 
         if ([result isKindOfClass: [NSArray class]]) {
             lua_Integer tableLength = [self countNatIndex:idx] ;
+            // Ensure our Lua stack is large enough for the number of items being pushed
+            [self growStack:(int)tableLength withMessage:"tableAtIndex->NSArray"];
             for (lua_Integer i = 0; i < tableLength ; i++) {
                 lua_geti(self.L, idx, i + 1) ;
                 id val = [self toNSObjectAtIndex:-1 withOptions:options alreadySeenObjects:alreadySeen] ;

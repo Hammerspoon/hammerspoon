@@ -15,7 +15,7 @@ extern "C" {
 #define POP_CODE 4
   
   typedef void detectors_t; // just an opaque wrapper for the C++ type
-  detectors_t *detectors_new();
+  detectors_t *detectors_new(void);
   void detectors_free(detectors_t *detectors);
   int detectors_process(detectors_t *detectors, const float *buffer);
   

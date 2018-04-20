@@ -21,6 +21,7 @@ static CFDataRef ipc_callback(__unused CFMessagePortRef local, SInt32 msgid, CFD
     HSIPCMessagePort *port   = (__bridge HSIPCMessagePort *)info ;
     CFDataRef        outdata = NULL ;
 
+    _lua_stackguard_entry(skin.L);
     if (port.callbackRef != LUA_NOREF) {
         lua_State *L = skin.L ;
         [skin pushLuaRef:refTable ref:port.callbackRef] ;
@@ -36,12 +37,13 @@ static CFDataRef ipc_callback(__unused CFMessagePortRef local, SInt32 msgid, CFD
         if (!status) {
             [skin logError:[NSString stringWithFormat:@"%s:callback - error during callback for %@: %s", USERDATA_TAG, (__bridge NSString *)CFMessagePortGetName(port.messagePort), lua_tostring(L, -2)]] ;
         }
-        lua_pop(L, 2) ;                                 // remove the result and the tostring version
+        lua_pop(L, 2) ;                                 // remove the result and the luaL_tostring() version
 
         if (result) outdata = (__bridge_retained CFDataRef)result ;
     } else {
         [skin logWarn:[NSString stringWithFormat:@"%s:callback - no callback function defined for %@", USERDATA_TAG, (__bridge NSString *)CFMessagePortGetName(port.messagePort)]] ;
     }
+    _lua_stackguard_exit(skin.L);
     return outdata ;
 }
 

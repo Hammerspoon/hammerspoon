@@ -233,14 +233,13 @@
     [self controlTextDidChange:[NSNotification notificationWithName:@"Unused" object:nil]];
 
     LuaSkin *skin = [LuaSkin shared];
+    _lua_stackguard_entry(skin.L);
 
     if (self.showCallbackRef != LUA_NOREF && self.showCallbackRef != LUA_REFNIL) {
         [skin pushLuaRef:*(self.refTable) ref:self.showCallbackRef];
-        if (![skin protectedCallAndTraceback:0 nresults:0]) {
-            [skin logError:[NSString stringWithFormat:@"%s:showCallback error - %@", USERDATA_TAG, [skin toNSObjectAtIndex:-1]]] ;
-            lua_pop(skin.L, 1) ; // remove error message
-        }
+        [skin protectedCallAndError:@"hs.chooser:showCallback" nargs:0 nresults:0];
     }
+    _lua_stackguard_exit(skin.L);
 }
 
 - (void)hide {
@@ -268,14 +267,18 @@
     NSArray *choices = [self getChoices];
     NSDictionary *choice = [choices objectAtIndex:row];
 
-    NSString *text         = [choice objectForKey:@"text"];
-    NSString *subText      = [choice objectForKey:@"subText"];
+    id text                = [choice objectForKey:@"text"];
+    id subText             = [choice objectForKey:@"subText"];
     NSString *shortcutText = @"";
     NSImage  *image        = [choice objectForKey:@"image"];
 
-    if (text    && ![text isKindOfClass:[NSString class]])    text    = [NSString stringWithFormat:@"%@", text] ;
-    if (subText && ![subText isKindOfClass:[NSString class]]) subText = [NSString stringWithFormat:@"%@", subText] ;
-    if (image   && ![image isKindOfClass:[NSImage class]])    image   = nil ;
+    if (text && ![text isKindOfClass:[NSString class]] && ![text isKindOfClass:[NSAttributedString class]]) {
+        text = [NSString stringWithFormat:@"%@", text];
+    }
+    if (subText && ![subText isKindOfClass:[NSString class]] && ![subText isKindOfClass:[NSAttributedString class]]) {
+        subText = [NSString stringWithFormat:@"%@", subText];
+    }
+    if (image && ![image isKindOfClass:[NSImage class]]) image = nil;
 
     if (row >= 0 && row < 9) {
         shortcutText = [NSString stringWithFormat:@"⌘%ld", (long)row + 1];
@@ -286,9 +289,20 @@
     NSString *chooserCellIdentifier = subText ?  @"HSChooserCellSubtext" : @"HSChooserCell";
     HSChooserCell *cellView = [tableView makeViewWithIdentifier:chooserCellIdentifier owner:self];
 
+    if ([text isKindOfClass:[NSAttributedString class]]) {
+        cellView.text.attributedStringValue = (NSAttributedString *)text;
+    } else {
+        cellView.text.stringValue = text ? (NSString *)text : @"";
+    }
 
-    cellView.text.stringValue = text ? text : @"";
-    if (subText != nil) cellView.subText.stringValue = subText ? subText : @"";
+    if (subText) {
+        if ([subText isKindOfClass:[NSAttributedString class]]) {
+            [cellView.subText setAttributedStringValue:(NSAttributedString *)subText];
+        } else {
+            cellView.subText.stringValue = subText ? (NSString *)subText : @"";
+        }
+    }
+
     cellView.shortcutText.stringValue = shortcutText ? shortcutText : @"??";
     cellView.image.image = image ? image : [NSImage imageNamed:NSImageNameFollowLinkFreestandingTemplate];
 
@@ -312,14 +326,13 @@
         self.hasChosen = YES;
         [self hide];
         LuaSkin *skin = [LuaSkin shared];
+        _lua_stackguard_entry(skin.L);
         NSDictionary *choice = [[self getChoices] objectAtIndex:row];
 
         [skin pushLuaRef:*(self.refTable) ref:self.completionCallbackRef];
         [skin pushNSObject:choice];
-        if (![skin protectedCallAndTraceback:1 nresults:0]) {
-            [skin logError:[NSString stringWithFormat:@"%s:completionCallback error - %@", USERDATA_TAG, [skin toNSObjectAtIndex:-1]]] ;
-            lua_pop(skin.L, 1) ; // remove error message
-        }
+        [skin protectedCallAndError:@"hs.chooser:completionCallback" nargs:1 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 
@@ -327,12 +340,11 @@
     if (self.rightClickCallbackRef != LUA_NOREF && self.rightClickCallbackRef != LUA_REFNIL) {
         // We have a right click callback set
         LuaSkin *skin = [LuaSkin shared];
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:*(self.refTable) ref:self.rightClickCallbackRef];
-        lua_pushinteger(skin.L, row + 1) ;
-        if (![skin protectedCallAndTraceback:1 nresults:0]) {
-            [skin logError:[NSString stringWithFormat:@"%s:rightClickCallback error - %@", USERDATA_TAG, [skin toNSObjectAtIndex:-1]]] ;
-            lua_pop(skin.L, 1) ; // remove error message
-        }
+        lua_pushinteger(skin.L, row + 1);
+        [skin protectedCallAndError:@"hs.chooser:rightClickCallback" nargs:1 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 
@@ -342,12 +354,11 @@
     //NSLog(@"HSChooser::cancel:");
     [self hide];
     LuaSkin *skin = [LuaSkin shared];
+    _lua_stackguard_entry(skin.L);
     [skin pushLuaRef:*(self.refTable) ref:self.completionCallbackRef];
     lua_pushnil(skin.L);
-    if (![skin protectedCallAndTraceback:1 nresults:0]) {
-        [skin logError:[NSString stringWithFormat:@"%s:completionCallback error - %@", USERDATA_TAG, [skin toNSObjectAtIndex:-1]]] ;
-        lua_pop(skin.L, 1) ; // remove error message
-    }
+    [skin protectedCallAndError:@"hs.chooser:completionCallback" nargs:1 nresults:0];
+    _lua_stackguard_exit(skin.L);
 }
 
 - (IBAction)queryDidPressEnter:(id)sender {
@@ -362,12 +373,11 @@
     if (self.queryChangedCallbackRef != LUA_NOREF && self.queryChangedCallbackRef != LUA_REFNIL) {
         // We have a query callback set, we are passing on responsibility for displaying/filtering results, to Lua
         LuaSkin *skin = [LuaSkin shared];
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:*(self.refTable) ref:self.queryChangedCallbackRef];
         [skin pushNSObject:queryString];
-        if (![skin protectedCallAndTraceback:1 nresults:0]) {
-            [skin logError:[NSString stringWithFormat:@"%s:queryChangedCallback error - %@", USERDATA_TAG, [skin toNSObjectAtIndex:-1]]] ;
-            lua_pop(skin.L, 1) ; // remove error message
-        }
+        [skin protectedCallAndError:@"hs.chooser:queryChangedCallback" nargs:1 nresults:0];
+        _lua_stackguard_exit(skin.L);
     } else {
         // We do not have a query callback set, so we are doing the filtering
         if (queryString.length > 0) {
@@ -487,6 +497,7 @@
         if (self.currentCallbackChoices == nil) {
             // We have previously cached the callback choices
             LuaSkin *skin = [LuaSkin shared];
+            _lua_stackguard_entry(skin.L);
             [skin pushLuaRef:*(self.refTable) ref:self.choicesCallbackRef];
             if ([skin protectedCallAndTraceback:0 nresults:1]) {
                 self.currentCallbackChoices = [skin toNSObjectAtIndex:-1];
@@ -508,8 +519,10 @@
                 }
             } else {
                 [skin logError:[NSString stringWithFormat:@"%s:choices error - %@", USERDATA_TAG, [skin toNSObjectAtIndex:-1]]] ;
+                // No need to lua_pop() here, see below
             }
             lua_pop(skin.L, 1) ; // remove result or error message
+            _lua_stackguard_exit(skin.L);
         }
 
         if (self.currentCallbackChoices != nil) {

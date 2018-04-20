@@ -35,6 +35,7 @@ static int refTable;
 - (void) screensChanged:(NSNotification*)note {
     LuaSkin *skin = [LuaSkin shared];
     lua_State *L = skin.L;
+    _lua_stackguard_entry(skin.L);
     int argCount = _includeActive ? 1 : 0;
 
     [skin pushLuaRef:refTable ref:self.fn];
@@ -45,11 +46,8 @@ static int refTable;
             lua_pushnil(L);
         }
     }
-    if (![skin protectedCallAndTraceback:argCount nresults:0]) {
-        const char *errorMsg = lua_tostring(L, -1);
-        [skin logError:[NSString stringWithFormat:@"hs.screen.watcher callback error: %s", errorMsg]];
-        lua_pop(L, 1); // clean up error message
-    }
+    [skin protectedCallAndError:@"hs.screen.watcher callback" nargs:argCount nresults:0];
+    _lua_stackguard_exit(skin.L);
 }
 @end
 

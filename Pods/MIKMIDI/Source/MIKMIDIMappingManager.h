@@ -77,7 +77,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (MIKArrayOf(MIKMIDIMapping *) *)mappingsWithName:(NSString *)mappingName;
 
-#if !TARGET_OS_IPHONE
 /**
  *  Import and load a user-supplied MIDI mapping XML file. This method loads the MIDI mapping
  *  file specified by URL and adds it to the set returned by -userMappings. The newly imported mapping
@@ -87,8 +86,6 @@ NS_ASSUME_NONNULL_BEGIN
  *  If shouldOverwrite is YES, and an existing file with the same URL as would be used
  *  to save the imported mapping already exists, the existing file is deleted. Otherwise,
  *  a unique name is used for the newly imported mapping, preserving both mapping files.
- * 
- *  @note This method is currently only available on OS X. See https://github.com/mixedinkey-opensource/MIKMIDI/issues/2
  *
  *  @param URL             The fileURL for the mapping file to be imported. Should not be nil.
  *  @param shouldOverwrite YES if an existing mapping with the same file name should be overwitten, NO to use a unique file name for the newly imported mapping.
@@ -104,11 +101,8 @@ NS_ASSUME_NONNULL_BEGIN
  * 
  *  This method can be called manually to initiate a save, but is also called automatically anytime a new user mapping is added (via
  *  -importMappingFromFileAtURL:overwritingExistingMapping:error: or -addUserMappingsObject:) as well as upon application termination.
- *
- *  @note This method is currently only available on OS X. See https://github.com/mixedinkey-opensource/MIKMIDI/issues/2 
  */
 - (void)saveMappingsToDisk;
-#endif
 
 // Properties
 

@@ -17,17 +17,6 @@ static const char *WS_USERDATA_TAG = "hs.http.websocket";
 static int refTable;
 static NSMutableArray* delegates;
 
-// Create a new Lua table and add all response header keys and values from the response
-static void createResponseHeaderTable(lua_State* L, NSHTTPURLResponse* httpResponse){
-    NSDictionary *responseHeaders = [httpResponse allHeaderFields];
-    lua_newtable(L);
-    for (id key in responseHeaders) {
-        NSString *value = [responseHeaders objectForKey:key];
-        lua_pushstring(L, [value UTF8String]);
-        lua_setfield(L, -2, [key UTF8String]);
-    }
-}
-
 // Convert a response body to data we can send to Lua
 static id responseBodyToId(NSHTTPURLResponse *httpResponse, NSData *bodyData) {
     NSString *contentType = [httpResponse.allHeaderFields objectForKey:@"Content-Type"];
@@ -96,18 +85,16 @@ static void remove_delegate(__unused lua_State* L, connectionDelegate* delegate)
     }
     LuaSkin *skin = [LuaSkin shared];
     lua_State *L = skin.L;
+    _lua_stackguard_entry(L);
 
     [skin pushLuaRef:refTable ref:self.fn];
     lua_pushinteger(L, (int)self.httpResponse.statusCode);
     [skin pushNSObject:responseBodyToId(self.httpResponse, self.receivedData)];
-    createResponseHeaderTable(L, self.httpResponse);
+    [skin pushNSObject:self.httpResponse.allHeaderFields];
+    [skin protectedCallAndError:@"hs.http connectionDelefate:didFinishLoading" nargs:3 nresults:0];
 
-    if (![skin protectedCallAndTraceback:3 nresults:0]) {
-        const char *errorMsg = lua_tostring(L, -1);
-        [skin logError:[NSString stringWithFormat:@"hs.http callback error: %s", errorMsg]];
-        lua_pop(L, 1) ; // remove error message
-    }
     remove_delegate(L, self);
+    _lua_stackguard_exit(L);
 }
 
 - (void)connection:(NSURLConnection * __unused)connection didFailWithError:(NSError *)error {
@@ -115,13 +102,15 @@ static void remove_delegate(__unused lua_State* L, connectionDelegate* delegate)
         return;
     }
     LuaSkin *skin = [LuaSkin shared];
+    _lua_stackguard_entry(skin.L);
 
     NSString* errorMessage = [NSString stringWithFormat:@"Connection failed: %@ - %@", [error localizedDescription], [[error userInfo] objectForKey:NSURLErrorFailingURLStringErrorKey]];
     [skin pushLuaRef:refTable ref:self.fn];
     lua_pushinteger(self.L, -1);
-    lua_pushstring(self.L, [errorMessage UTF8String]);
-    lua_pcall(self.L, 2, 0, 0);
+    [skin pushNSObject:errorMessage];
+    [skin protectedCallAndError:@"hs.http connectionDelegate:didFailWithError" nargs:2 nresults:0];
     remove_delegate(self.L, self);
+    _lua_stackguard_exit(skin.L);
 }
 
 @end
@@ -149,15 +138,13 @@ static void remove_delegate(__unused lua_State* L, connectionDelegate* delegate)
 
     dispatch_async(dispatch_get_main_queue(), ^{
         LuaSkin *skin = [LuaSkin shared];
+        _lua_stackguard_entry(skin.L);
 
         [skin pushLuaRef:refTable ref:self.fn];
-        lua_pushstring(skin.L, [message UTF8String]);
+        [skin pushNSObject:message];
 
-        if (![skin protectedCallAndTraceback:1 nresults:0]) {
-            const char *errorMsg = lua_tostring(skin.L, -1);
-            [skin logError:[NSString stringWithFormat:@"hs.http.websocket callback error: %s", errorMsg]];
-            lua_pop(skin.L, 1) ; // remove error message from stack
-        }
+        [skin protectedCallAndError:@"hs.http.websocket callback" nargs:1 nresults:0];
+        _lua_stackguard_exit(skin.L);
     });
 }
 
@@ -303,7 +290,7 @@ static int http_doRequest(lua_State* L) {
 
     lua_pushinteger(L, (int)httpResponse.statusCode);
     [skin pushNSObject:responseBodyToId(httpResponse, dataReply)];
-    createResponseHeaderTable(L, httpResponse);
+    [skin pushNSObject:httpResponse.allHeaderFields];
 
     return 3;
 }

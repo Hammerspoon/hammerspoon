@@ -60,6 +60,10 @@ static NSMutableSet *registeredMIKMIDICommandSubclasses;
 		const Byte *packetData = inputPacket->data + dataOffset;
 		MIKMIDICommandType commandType = (MIKMIDICommandType)packetData[0];
 		NSInteger standardLength = MIKMIDIStandardLengthOfMessageForCommandType(commandType);
+		if (commandType == MIKMIDICommandTypeSystemExclusive) {
+			// For sysex, the packet can only contain a single MIDI message (as per documentation for MIDIPacket)
+			standardLength = inputPacket->length;
+		}
 		if (dataOffset > (inputPacket->length - standardLength)) break;
 
 		// This is gross, but it's the only way I can find to reliably create a

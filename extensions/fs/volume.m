@@ -62,6 +62,7 @@ typedef enum _event_t {
 - (void)callback:(NSDictionary *)dict withEvent:(event_t)event {
     LuaSkin *skin = [LuaSkin shared];
     lua_State *L = skin.L;
+    _lua_stackguard_entry(L);
 
     [skin pushLuaRef:refTable ref:self.object->fn];
     lua_pushinteger(L, event); // Parameter 1: the event type
@@ -87,12 +88,8 @@ typedef enum _event_t {
     }
 
     [skin pushNSObject:tableArg];
-
-    if (![skin protectedCallAndTraceback:2 nresults:0]) {
-        const char *errorMsg = lua_tostring(L, -1);
-        [skin logError:[NSString stringWithFormat:@"hs.fs.volume callback error: %s", errorMsg]];
-        lua_pop(L, 1) ; // remove error message
-    }
+    [skin protectedCallAndError:@"hs.fs.volume callback" nargs:2 nresults:0];
+    _lua_stackguard_exit(L);
 }
 
 - (void)volumeDidMount:(NSNotification*)notification {
