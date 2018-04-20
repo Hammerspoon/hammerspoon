@@ -6,7 +6,6 @@
 
 local USERDATA_TAG = "hs.host.locale"
 local module       = require(USERDATA_TAG..".internal")
-local objectMT     = hs.getObjectMetatable(USERDATA_TAG)
 
 -- private variables and methods -----------------------------------------
 
