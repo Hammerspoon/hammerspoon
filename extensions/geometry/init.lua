@@ -705,7 +705,7 @@ function geometry.rotateCCW(p, ap, ntimes)
   p,ap=new(p),new(ap)
   if gettype(p)=='size' or gettype(ap)=='size' then error('cannot rotate sizes',2) end
   local r=new(p.x,p.y)
-  for i=1, ntimes or 1 do
+  for _=1, ntimes or 1 do
     local rx = r.x
     r.x = (ap.x - (r.y - ap.y))
     r.y = (ap.y + (rx - ap.x))
@@ -755,4 +755,3 @@ function geometry.size(w, h)
 end
 
 return setmetatable(geometry,{__call=function(_,...)return new(...) end})
-
