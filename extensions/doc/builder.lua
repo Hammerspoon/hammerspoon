@@ -88,7 +88,7 @@ module.genComments = function(where, recurse)
                 stripped_doc = {},
                 ["type"]     = "Module",
             }
-            for k,v in pairs(sections) do newMod[k] = {} end
+            for k,_ in pairs(sections) do newMod[k] = {} end
             table.insert(mods, newMod)
         else
 
@@ -106,7 +106,7 @@ module.genComments = function(where, recurse)
                 stripped_doc = {},
             }
             local currentTarget = nil
-            for i, theLine in ipairs(fnutils.split(newItem.doc, "\n")) do
+            for _, theLine in ipairs(fnutils.split(newItem.doc, "\n")) do
                 if theLine:match("^%s*Parameters:%s*$") then
                     currentTarget = "parameters"
                 elseif theLine:match("^%s*Returns:%s*$") then
@@ -128,7 +128,6 @@ module.genComments = function(where, recurse)
     -- by reversing the order of the module names, sub-modules come before modules, allowing items to
     -- be properly assigned; otherwise, a.b.c might get put into a instead of a.b
     table.sort(mods, function(a, b) return b.name < a.name end)
-    local seen = {}
     for _, i in ipairs(items) do
         local mod = nil
         for _, m in ipairs(mods) do
