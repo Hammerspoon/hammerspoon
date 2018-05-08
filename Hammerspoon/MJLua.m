@@ -691,6 +691,12 @@ void fileDroppedToDockIcon(NSString *filePath) {
 void callDockIconCallback(void) {
     LuaSkin *skin = MJLuaState;
     lua_State *L = MJLuaState.L;
+
+    if (L == NULL) {
+        // It seems to be possible that NSApplicationDelegate:applicationShouldHandleReopen can be called before a Lua state has been created. We need to bail out immediately or we'll cause a crash.
+        return;
+    }
+
     _lua_stackguard_entry(L);
 
     lua_getglobal(L, "hs");
