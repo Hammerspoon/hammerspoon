@@ -1,4 +1,5 @@
 # Hammerspoon
+
 [![Build Status](https://travis-ci.org/Hammerspoon/hammerspoon.svg?branch=master)](https://travis-ci.org/Hammerspoon/hammerspoon)
 [![codecov.io](https://codecov.io/github/Hammerspoon/hammerspoon/coverage.svg?branch=master)](https://codecov.io/github/Hammerspoon/hammerspoon?branch=master)
 [![Downloads current release](https://img.shields.io/github/downloads/Hammerspoon/hammerspoon/latest/total.svg)](https://github.com/Hammerspoon/hammerspoon/releases)
@@ -18,9 +19,38 @@ What gives Hammerspoon its power is a set of extensions that expose specific pie
  * Download the [latest release](https://github.com/Hammerspoon/hammerspoon/releases/latest)
  * Drag `Hammerspoon.app` from your `Downloads` folder to `Applications`
 
-## What next?
 
-We have a [Getting Started Guide](http://www.hammerspoon.org/go/), extensive [API docs](http://www.hammerspoon.org/docs/), a [FAQ](http://www.hammerspoon.org/faq/), a [Contribution Guide](https://github.com/Hammerspoon/hammerspoon/blob/master/CONTRIBUTING.md) for developers looking to get involved, and an IRC channel for general chat/support/development (#hammerspoon on Freenode).
+## Quickstart
+
+Out of the box, Hammerspoon does nothing.
+You will need to create a Lua script in `~/.hammerspoon/init.lua` using our APIs and standard Lua APIs.
+You can learn more about the Lua scripting language at [Lua website](https://lua.org).
+
+Good first step is to make `Hello world` program for yourself as explained
+here: https://www.hammerspoon.org/go/#helloworld
+
+For practical examples, see our Wiki: https://github.com/Hammerspoon/hammerspoon/wiki
+Section "Sample-Configurations" shows some real-world scenarios.
+
+## Resources
+
+We have:
+
+- [Getting Started Guide](http://www.hammerspoon.org/go/)
+- extensive [API docs](http://www.hammerspoon.org/docs/)
+- [FAQ](http://www.hammerspoon.org/faq/)
+- [Contribution Guide](https://github.com/Hammerspoon/hammerspoon/blob/master/CONTRIBUTING.md) for developers looking to get involved
+
+## Community
+
+**IRC**
+
+- General chat/support/development happen on `#hammerspoon` channel on Freenode
+- Searchable archive for the channel: https://botbot.me/freenode/hammerspoon/
+
+**Google Groups**
+
+- https://groups.google.com/forum/#!forum/hammerspoon/
 
 ## What is the history of the project?
 
