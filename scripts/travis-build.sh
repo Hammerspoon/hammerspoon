@@ -17,6 +17,8 @@ if [ "${OP}" == "build" ]; then
     export OUTPUT_FILE="${BUILD_OUTPUT}"
     export XCODE_ARGS="build build-for-testing GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES"
 elif [ "${OP}" == "test" ]; then
+    ASAN_LIB_PATH=$(find /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/ -name libclang_rt.asan_osx_dynamic.dylib)
+    export DYLD_INSERT_LIBRARIES="${ASAN_LIB_PATH}"
     export OUTPUT_FILE="${TEST_OUTPUT}"
     export XCODE_ARGS="test-without-building"
 else
