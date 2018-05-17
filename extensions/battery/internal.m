@@ -465,8 +465,11 @@ static int battery_others(lua_State*L) {
             }
         }
 
+        CFRelease(properties);
         IOObjectRelease(obj);
     }
+
+    IOObjectRelease(ite);
 
 lua_return:
     [skin pushNSObject:batteryInfo];
