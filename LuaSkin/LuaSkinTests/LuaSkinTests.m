@@ -451,7 +451,6 @@ static int pushTestUserData(lua_State *L, id object) {
 
     XCTAssertEqual(LUA_NOREF, ref, @"luaUnref did not return LUA_NOREF");
 
-    /* This is disabled for now because we're using assert() instead of NSAssert(), so pushing the LUA_NOREF is fatal
     @try {
         // This should throw an NSInternalInconsistencyException
         [self.skin pushLuaRef:tableRef ref:ref];
@@ -461,7 +460,6 @@ static int pushTestUserData(lua_State *L, id object) {
             XCTFail(@"Double Destruction raised the wrong kind of exception: %@", exception.name);
         }
     }
-     */
 
     int refType = [self.skin pushLuaRef:tableRef ref:99999];
     XCTAssertEqual(LUA_TNIL, refType);
