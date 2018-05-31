@@ -48,11 +48,11 @@ DDLog.add(fileLogger)
 
 ...
 
-DDLogVerbose("Verbose");
-DDLogDebug("Debug");
-DDLogInfo("Info");
-DDLogWarn("Warn");
-DDLogError("Error");
+DDLogVerbose("Verbose")
+DDLogDebug("Debug")
+DDLogInfo("Info")
+DDLogWarn("Warn")
+DDLogError("Error")
 ```
 
 ##### Obj-C version via CocoaPods
