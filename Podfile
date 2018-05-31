@@ -14,3 +14,12 @@ pod 'Fabric', '1.7.7'
 pod 'Sparkle', '1.19.0', :configurations => ['Release']
 pod 'MIKMIDI', :git => 'https://github.com/mixedinkey-opensource/MIKMIDI.git', :commit => 'bc623e9'
 end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+   puts "Enabling assertions in #{target.name}"
+   target.build_configurations.each do |config|
+     config.build_settings['ENABLE_NS_ASSERTIONS'] = 'YES'
+   end
+  end
+end
