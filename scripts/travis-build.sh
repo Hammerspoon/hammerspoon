@@ -10,6 +10,7 @@ export OP=$1
 
 touch $BUILD_OUTPUT
 touch $TEST_OUTPUT
+touch $HOME/codecov.log
 
 echo "Build/test logs will be uploaded to: https://s3-eu-west-1.amazonaws.com/hammerspoontravisartifacts/index.html?prefix=logs/${TRAVIS_BUILD_NUMBER}/"
 
