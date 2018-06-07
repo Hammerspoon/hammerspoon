@@ -830,7 +830,7 @@ static int imageFromPath(lua_State *L) {
     if (newImage && newImage.valid) {
         [skin pushNSObject:newImage];
     } else {
-        return luaL_error(L, "Unable to load image: %s", [imagePath UTF8String]);
+        lua_pushnil(L);
     }
 
     return 1;
