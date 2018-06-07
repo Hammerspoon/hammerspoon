@@ -48,7 +48,7 @@ local function ilerp(v,s,e,a,b)
 end
 local function getGamma(temp)
   local R,lb,ub=redshift.COLORRAMP
-  for k,v in pairs(R) do
+  for k,_ in pairs(R) do
     if k<=temp then lb=max(lb or 0,k) else ub=min(ub or 10000,k) end
   end
   if lb==nil or ub==nil then local t=R[ub or lb] return {red=t[1],green=t[2],blue=t[3]} end
