@@ -9,7 +9,7 @@ return {setup=function(...)
 
   -- setup core functions
 
-  os.exit = hs._exit
+  os.exit = hs._exit -- luacheck: ignore
 
 --- hs.configdir
 --- Constant
@@ -135,7 +135,7 @@ hs.fileDroppedToDockIconCallback = nil
 ---  * Hammerspoon overrides Lua's print() function, but this is a reference we retain to is, should you need it for any reason
   local rawprint,logmessage = print,hs._logmessage
   hs.rawprint = rawprint
-  function print(...)
+  function print(...) -- luacheck: ignore
 --    rawprint(...)
     local vals = pack(...)
 
@@ -181,6 +181,7 @@ hs.fileDroppedToDockIconCallback = nil
 ---  * Setting `with_user_env` to true does incur noticeable overhead, so it should only be used if necessary (to set the path or other environment variables).
 ---  * Because this function returns the stdout as it's first return value, it is not quite a drop-in replacement for `os.execute`.  In most cases, it is probable that `stdout` will be the empty string when `status` is nil, but this is not guaranteed, so this trade off of shifting os.execute's results was deemed acceptable.
 ---  * This particular function is most useful when you're more interested in the command's output then a simple check for completion and result codes.  If you only require the result codes or verification of command completion, then `os.execute` will be slightly more efficient.
+---  * If you need to execute commands that have spaces in their paths, use a form like: `hs.execute [["/Some/Path To/An/Executable" "--first-arg" "second-arg"]]`
   hs.execute = function(command, user_env)
     local f
     if user_env then
@@ -282,7 +283,7 @@ hs.fileDroppedToDockIconCallback = nil
 ---    * the identifier `lua._C` will provide information specifically about the Lua C API for use when developing modules which require external libraries.
 
   hs.help = require("hs.doc")
-  help = hs.help
+  help = hs.help -- luacheck: ignore
 
 
 --- hs.hsdocs([identifier])
@@ -343,7 +344,7 @@ hs.fileDroppedToDockIconCallback = nil
 
     -- Inject a lazy extension loader into the main HS table
     setmetatable(hs, {
-      __index = function(t, key)
+      __index = function(_, key)
         if hs._extensions[key] ~= nil then
           print("-- Loading extension: "..key)
           hs[key] = require("hs."..key)
@@ -444,7 +445,7 @@ hs.fileDroppedToDockIconCallback = nil
   local function tableKeys(t)
     local keyset={}
     local n=0
-    for k,v in pairs(t) do
+    for k,_ in pairs(t) do
       n=n+1
       keyset[n]=k
     end
@@ -541,7 +542,7 @@ hs.fileDroppedToDockIconCallback = nil
 
   local hscrash = require("hs.crash")
   rawrequire = require
-  require = function(modulename)
+  require = function(modulename) -- luacheck: ignore
     local result = rawrequire(modulename)
     pcall(function()
     hscrash.crashLog("require: "..modulename)
@@ -593,8 +594,8 @@ hs.fileDroppedToDockIconCallback = nil
   local fn, err = loadfile(fullpath)
   if not fn then hs.showError(err) return hs.completionsForInputString, runstring end
 
-  local ok, err = xpcall(fn, debug.traceback)
-  if not ok then hs.showError(err) return hs.completionsForInputString, runstring end
+  local ok, errorMessage = xpcall(fn, debug.traceback)
+  if not ok then hs.showError(errorMessage) return hs.completionsForInputString, runstring end
 
   print "-- Done."
 

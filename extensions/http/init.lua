@@ -107,7 +107,7 @@ end
 ---      for i,v in hs.fnutils.sortByKeys(hs.http.htmlEntities) do print(string.format("%-10s %-10s %s\n", i, "&#"..tostring(hs.utf8.codepoint(v))..";", v)) end
 ---
 ---    * Note that this list will not include the numeric conversion of entities (e.g. &#65;), as this is handled by an __index metamethod to allow for all possible numeric values.
-http.htmlEntities = setmetatable({}, { __index = function(object, key)
+http.htmlEntities = setmetatable({}, { __index = function(_, key)
           if type(key) == "string" then
               local num = key:match("^&#(%d+);$")
               if num and tonumber(num) then

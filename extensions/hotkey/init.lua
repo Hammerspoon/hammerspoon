@@ -142,8 +142,8 @@ local function getMods(mods)
 end
 
 local CONCAVE_DIAMOND='✧' -- used for HYPER
-local function getIndex(mods,keycode) -- key for hotkeys table
-  local mods = getMods(mods)
+local function getIndex(modsID,keycode) -- key for hotkeys table
+  local mods = getMods(modsID)
   mods = #mods>=4 and CONCAVE_DIAMOND or tconcat(mods)
   local key=keycodes.map[keycode]
   key=key and supper(key) or '[#'..keycode..']'
@@ -357,7 +357,7 @@ end
 local helpHotkey
 function hotkey.getHotkeys()
   local t={}
-  for idx,hks in pairs(hotkeys) do
+  for _,hks in pairs(hotkeys) do
     for i=#hks,1,-1 do
       if hks[i].enabled and hks[i]~=helpHotkey then
         t[#t+1] = hks[i]
@@ -453,7 +453,7 @@ hotkey.modal.__index = hotkey.modal
 ---
 --- Notes:
 ---  * This is a pre-existing function that you should override if you need to use it; the default implementation does nothing.
-function hotkey.modal:entered()
+function hotkey.modal:entered() -- luacheck: ignore
 end
 
 --- hs.hotkey.modal:exited()
@@ -468,7 +468,7 @@ end
 ---
 --- Notes:
 ---  * This is a pre-existing function that you should override if you need to use it; the default implementation does nothing.
-function hotkey.modal:exited()
+function hotkey.modal:exited() -- luacheck: ignore
 end
 
 --- hs.hotkey.modal:bind(mods, key, message, pressedfn, releasedfn, repeatfn) -> hs.hotkey.modal object
