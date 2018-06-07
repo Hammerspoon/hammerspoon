@@ -21,7 +21,7 @@ end
 local __tostring_for_tables = function(self)
     local result = ""
     local width = 0
-    for i,v in fnutils.sortByKeys(self) do
+    for i,_ in fnutils.sortByKeys(self) do
         if type(i) == "string" and width < i:len() then width = i:len() end
     end
     for i,v in fnutils.sortByKeys(self) do
@@ -51,7 +51,7 @@ module.watcher = require("hs.battery.watcher")
 module.getAll = function()
     local t = {}
 
-    for i, v in ipairs(check_list) do
+    for _, v in ipairs(check_list) do
         t[v] = module[v]()
         if t[v] == nil then t[v] = "n/a" end
     end
@@ -62,6 +62,3 @@ end
 -- Return Module Object --------------------------------------------------
 
 return module
-
-
-
