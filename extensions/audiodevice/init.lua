@@ -31,7 +31,7 @@ local fnutils = require("hs.fnutils")
 ---     }
 --- ```
 module.current = function(input)
-
+    local func
     if input then
         func = module.defaultInputDevice
     else
@@ -160,6 +160,3 @@ end
 -- Return Module Object --------------------------------------------------
 
 return module
-
-
-
