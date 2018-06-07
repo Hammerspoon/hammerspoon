@@ -20,7 +20,14 @@ What gives Hammerspoon its power is a set of extensions that expose specific pie
 
 ## What next?
 
-We have a [Getting Started Guide](http://www.hammerspoon.org/go/), extensive [API docs](http://www.hammerspoon.org/docs/), a [FAQ](http://www.hammerspoon.org/faq/), a [Contribution Guide](https://github.com/Hammerspoon/hammerspoon/blob/master/CONTRIBUTING.md) for developers looking to get involved, and an IRC channel for general chat/support/development (#hammerspoon on Freenode).
+Out of the box, Hammerspoon does nothing - you will need to create `~/.hammerspoon/init.lua` and fill it with useful code. There are several resources which can help you:
+ * [Getting Started Guide](http://www.hammerspoon.org/go/)
+ * [API docs](http://www.hammerspoon.org/docs/)
+ * [FAQ](http://www.hammerspoon.org/faq/)
+ * [Sample Configurations](https://github.com/Hammerspoon/hammerspoon/wiki/Sample-Configurations) supplied by various users
+ * [Contribution Guide](https://github.com/Hammerspoon/hammerspoon/blob/master/CONTRIBUTING.md) for developers looking to get involved
+ * An IRC channel for general chat/support/development (#hammerspoon on Freenode) with [searchable archives](https://botbot.me/freenode/hammerspoon/)
+ * [Google Group](https://groups.google.com/forum/#!forum/hammerspoon/) for support
 
 ## What is the history of the project?
 
