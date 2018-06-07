@@ -105,7 +105,7 @@ end
 ---    use `hs.fnutils.map()` if your table has holes
 function fnutils.ifilter(t, fn)
   local nt = {}
-  for k, v in ipairs(t) do if fn(v) then nt[#nt+1] = v end end
+  for _, v in ipairs(t) do if fn(v) then nt[#nt+1] = v end end
   return nt
 end
 
@@ -160,7 +160,7 @@ end
 --- Returns:
 ---  * A boolean, true if the element could be found in the table, otherwise false
 function fnutils.contains(t, el)
-  for k, v in pairs(t) do
+  for _, v in pairs(t) do
     if v == el then
       return true
     end
@@ -219,7 +219,7 @@ end
 ---  * A table containing the concatenated results of calling fn(element) for every element in the supplied table
 function fnutils.mapCat(t, fn)
   local nt = {}
-  for k, v in pairs(t) do
+  for _, v in pairs(t) do
     fnutils.concat(nt, fn(v))
   end
   return nt
@@ -495,7 +495,7 @@ function fnutils.split(sString, sSeparator, nMax, bPlain)
   if type(bPlain) ~= "boolean" and type(bPlain) ~= "nil" then
     error("bPlain parameter to hs.fnutils.split must be a boolean, if it is provided", 2) end
 
-  if sSeparator == "" or maxSubStrings == 0 then return { sString } end -- degenerate cases
+  if sSeparator == "" or nMax == 0 then return { sString } end -- degenerate cases
 
   local aRecord = {}
 
