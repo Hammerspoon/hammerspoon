@@ -230,7 +230,7 @@ local errorHandlers = {
         elseif rawget(_, "default") then
             return function(...) return  rawget(_, "default")(key, ...) end
         else
-            return function(method, path, h)
+            return function(_, _, h)
                 local code = key
                 if type(code) == "number" then code = tostring(code) end
                 local intendedCode = code
@@ -396,7 +396,7 @@ local verifyAccess = function(aclTable, headers)
     -- the dash and the underline get changed so friggen often depending upon context... just make
     -- the access-list comparisons agnostic about them as well as case.
 
-    for k, v in pairs(headers) do headerMap[k:upper():gsub("-","_")] = k end
+    for k, _ in pairs(headers) do headerMap[k:upper():gsub("-","_")] = k end
 
     for i, v in ipairs(aclTable) do
         local headerToCheck = v[1]:upper():gsub("-","_")
@@ -488,7 +488,7 @@ local webServerHandler = function(self, method, path, headers, body)
                         local testExtension = pathParts.pathComponents[i]:match("^.*%.([^%.]+)/$") or ""
                         local testIsCGI = false
                         if self._cgiEnabled then
-                            for i, v in ipairs(self._cgiExtensions) do
+                            for _, v in ipairs(self._cgiExtensions) do
                                 if v == testExtension then
                                     testIsCGI = true
                                     break
@@ -539,7 +539,7 @@ local webServerHandler = function(self, method, path, headers, body)
 
     -- check if an index file for the directory exists
     if attributes.mode == "directory" and self._directoryIndex then
-        for i, v in ipairs(self._directoryIndex) do
+        for _, v in ipairs(self._directoryIndex) do
             local attr = fs.attributes(targetFile .. v)
             if attr and attr.mode == "file" then
                 targetFile = targetFile .. v
@@ -559,7 +559,7 @@ local webServerHandler = function(self, method, path, headers, body)
     -- check extension and see if it's an executable CGI
     local itBeCGI = false
     if pathParts.pathExtension and self._cgiEnabled then
-        for i, v in ipairs(self._cgiExtensions) do
+        for _, v in ipairs(self._cgiExtensions) do
             if v == pathParts.pathExtension then
                 itBeCGI = true
                 break
@@ -656,18 +656,16 @@ local webServerHandler = function(self, method, path, headers, body)
             tmpInputFile:write(body)
             tmpInputFile:close()
 
-            local out, stat, typ, rc = "** no output **", false, "** unknown **", -1
-
             local targetWD = self._documentRoot .. "/" .. table.concat(pathParts.pathComponents, "", 2, #pathParts.pathComponents - 1)
             local oldWD = fs.currentDir()
             fs.chdir(targetWD)
 
-            out, stat, typ, rc = hs.execute("/bin/cat " .. tempFileName .. "input | /usr/bin/env -i PATH=\"/usr/bin:/bin:/usr/sbin:/sbin\" " .. scriptWrapper .. " -t " .. tostring(scriptTimeout) .. " " .. tempFileName .. " 2> " .. tempFileName .. "err")
+            local out, stat, typ, rc = hs.execute("/bin/cat " .. tempFileName .. "input | /usr/bin/env -i PATH=\"/usr/bin:/bin:/usr/sbin:/sbin\" " .. scriptWrapper .. " -t " .. tostring(scriptTimeout) .. " " .. tempFileName .. " 2> " .. tempFileName .. "err")
 
             fs.chdir(oldWD)
 
             if stat then
-                responseStatus = 200
+                responseCode = 200
                 local headerText, bodyText = out:match("^(.-)\r?\n\r?\n(.*)$")
                 if headerText then
                     for line in (headerText .. "\n"):gmatch("(.-)\r?\n") do
@@ -678,7 +676,7 @@ local webServerHandler = function(self, method, path, headers, body)
                             break
                         end
                         if newKey:upper() == "STATUS" then
-                            responseStatus = newValue:match("(%d+)[^%d]")
+                            responseCode = newValue:match("(%d+)[^%d]")
                         else
                             responseHeaders[newKey] = newValue
                         end
@@ -689,7 +687,7 @@ local webServerHandler = function(self, method, path, headers, body)
                     responseHeaders["Content-Type"] = "text/plain"
                 end
             else
-                local errOutput = "** no stderr **"
+                local errOut = "** no stderr **"
                 local errf = io.open(tempFileName .. "err", "rb")
                 if errf then
                     errOut = errf:read("a")
@@ -792,7 +790,7 @@ local webServerHandler = function(self, method, path, headers, body)
                     for chunk in body:gmatch("(.-)"..boundary) do repeat
                         if #chunk == 0 then break end -- "continue"
 
-                        local sPos, ePos, headerdata = chunk:find("^(.-)\r\n\r\n")
+                        local _, ePos, headerdata = chunk:find("^(.-)\r\n\r\n")
                         local chunkHeaders = {}
                         headerdata:gsub('([^%c%s:]+):%s+([^\n]+)', function(label, value)
                           label = label:lower()
@@ -886,11 +884,11 @@ local webServerHandler = function(self, method, path, headers, body)
 
                 local oldWD = fs.currentDir()
                 fs.chdir(M.script_pdir)
-                local ok, err = xpcall(f, debug.traceback)
+                local ok, errorMessage = xpcall(f, debug.traceback)
                 fs.chdir(oldWD)
 
                 if not ok then
-                    log.ef("HTML-Templated-Lua execution error: %s", err)
+                    log.ef("HTML-Templated-Lua execution error: %s", errorMessage)
                     if self._logPageErrorTranslations then
                         log.vf("\n%s", textWithLineNumbers(_parent.__luaCached_translations[workingBody]))
                     end
