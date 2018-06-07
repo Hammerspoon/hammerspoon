@@ -22,7 +22,7 @@ local timer    = require("hs.timer")
 local __tostring_for_tables = function(self)
     local result = ""
     local width = 0
-    for i,v in fnutils.sortByKeys(self) do
+    for i,_ in fnutils.sortByKeys(self) do
         if type(i) == "string" and width < i:len() then width = i:len() end
     end
     for i,v in fnutils.sortByKeys(self) do
@@ -34,7 +34,7 @@ local __tostring_for_tables = function(self)
 end
 
 local __index_for_types = function(object, key)
-    for i,v in pairs(object) do
+    for i,_ in pairs(object) do
         if type(i) == "string" then -- ignore numbered keys
             if i:lower() == key then
                 print(debug.getinfo(2).short_src..":"..debug.getinfo(2).currentline..": type '"..key.."' is deprecated, use '"..i.."'")
@@ -46,7 +46,7 @@ local __index_for_types = function(object, key)
 end
 
 local __index_for_props = function(object, key)
-    for i,v in pairs(object) do
+    for i,_ in pairs(object) do
         if type(i) == "string" then -- ignore numbered keys
             if i:sub(1,1):upper()..i:sub(2,-1) == key then
                 print(debug.getinfo(2).short_src..":"..debug.getinfo(2).currentline..": property '"..key.."' is deprecated, use '"..i.."'")
@@ -153,7 +153,7 @@ end
 ---  * An `hs.eventtap` object
 function module.event.newMouseEvent(eventtype, point, modifiers)
     local types = module.event.types
-    local button = nil
+    local button
     if eventtype == types["leftMouseDown"] or eventtype == types["leftMouseUp"] or eventtype == types["leftMouseDragged"] then
         button = "left"
     elseif eventtype == types["rightMouseDown"] or eventtype == types["rightMouseUp"] or eventtype == types["rightMouseDragged"] then
