@@ -1,6 +1,6 @@
 --- === hs.tangent ===
 ---
---- **Tangent Control Surface Extension**
+--- Tangent Control Surface Extension
 ---
 --- **API Version:** TUBE Version 3.2 - TIPC Rev 4 (22nd February 2017)
 ---
@@ -12,93 +12,228 @@
 ---
 --- You can download the Tangent Developer Support Pack & Tangent Hub Installer for Mac [here](http://www.tangentwave.co.uk/developer-support/).
 ---
---- This extension was thrown together by [Chris Hocking](http://latenitefilms.com) for [CommandPost](http://commandpost.io).
+--- This extension was thrown together by [Chris Hocking](https://github.com/latenitefilms), then dramatically improved by [David Peterson](https://github.com/randomeizer) for [CommandPost](http://commandpost.io).
 
 --------------------------------------------------------------------------------
 --
 -- EXTENSIONS:
 --
 --------------------------------------------------------------------------------
-
 local log                                       = require("hs.logger").new("tangent")
+local inspect                                   = require("hs.inspect")
+
 local fs                                        = require("hs.fs")
 local socket                                    = require("hs.socket")
 local timer                                     = require("hs.timer")
 
-local unpack, pack 								= string.unpack, string.pack
+local unpack, pack, format                      = string.unpack, string.pack, string.format
 
 --------------------------------------------------------------------------------
 --
 -- THE MODULE:
 --
 --------------------------------------------------------------------------------
-
 local mod = {}
 
 --------------------------------------------------------------------------------
 -- MODULE CONSTANTS:
 --------------------------------------------------------------------------------
 
---- hs.tangent.HUB_MESSAGE -> table
+--- hs.tangent.fromHub -> table
 --- Constant
 --- Definitions for IPC Commands from the HUB to Hammerspoon.
-mod.HUB_MESSAGE = {
-    ["INITIATE_COMMS"]                          = 0x01,
-    ["PARAMETER_CHANGE"]                        = 0x02,
-    ["PARAMETER_RESET"]                         = 0x03,
-    ["PARAMETER_VALUE_REQUEST"]                 = 0x04,
-    ["MENU_CHANGE"]                             = 0x05,
-    ["MENU_RESET"]                              = 0x06,
-    ["MENU_STRING_REQUEST"]                     = 0x07,
-    ["ACTION_ON"]                               = 0x08,
-    ["MODE_CHANGE"]                             = 0x09,
-    ["TRANSPORT"]                               = 0x0A,
-    ["ACTION_OFF"]                              = 0x0B,
-    ["UNMANAGED_PANEL_CAPABILITIES"]            = 0x30,
-    ["UNMANAGED_BUTTON_DOWN"]                   = 0x31,
-    ["UNMANAGED_BUTTON_UP"]                     = 0x32,
-    ["UNMANAGED_ENCODER_CHANGE"]                = 0x33,
-    ["UNMANAGED_DISPLAY_REFRESH"]               = 0x34,
-    ["PANEL_CONNECTION_STATE"]                  = 0x35,
+---
+--- Notes:
+---  * `connected`                       - a connection is established with the Hub.
+---  * `disconnected`                    - the connection is dropped with the Hub.
+---  * `initiateComms`                   - sent when the Hub wants to initiate communications.
+---  * `parameterChange`                 - a parameter was incremented.
+---  * `parameterReset`                  - a parameter was reset.
+---  * `parameterValueRequest`           - the Hub wants the current value of the parameter.
+---  * `menuChange`                      - The menu was changed, `+1` or `-1`.
+---  * `menuReset`                       - The menu was reset.
+---  * `menuStringRequest`               - The application should send a `menuString` with the current value.
+---  * `actionOn`                        - An action button was pressed.
+---  * `actionOff`                       - An action button was released.
+---  * `modeChange`                      - The current mode was changed.
+---  * `transport`                       - The transport.
+---  * `unmanagedPanelCapabilities`      - Send by the Hub to advertise an unmanaged panel.
+---  * `unmanagedButtonDown`             - A button on an unmanaged panel was pressed.
+---  * `unmanagedButtonUp`               - A button on an unmanaged panel was released.
+---  * `unmanagedEncoderChange`          - An encoder (dial/wheel) on an unmanaged panel changed.
+---  * `unmanagedDisplayRefresh`         - Triggered when an unmanaged panel's display needs to update.
+---  * `panelConnectionState`            - A panel's connection state changed.
+mod.fromHub = {
+    --------------------------------------------------------------------------------
+    -- Custom Notifications:
+    --------------------------------------------------------------------------------
+    connected                                   = 0xFF01,
+    disconnected                                = 0xFF02,
+
+    --------------------------------------------------------------------------------
+    -- Official Definitions:
+    --------------------------------------------------------------------------------
+    initiateComms                               = 0x01,
+    parameterChange                             = 0x02,
+    parameterReset                              = 0x03,
+    parameterValueRequest                       = 0x04,
+    menuChange                                  = 0x05,
+    menuReset                                   = 0x06,
+    menuStringRequest                           = 0x07,
+    actionOn                                    = 0x08,
+    modeChange                                  = 0x09,
+    transport                                   = 0x0A,
+    actionOff                                   = 0x0B,
+    unmanagedPanelCapabilities                  = 0x30,
+    unmanagedButtonDown                         = 0x31,
+    unmanagedButtonUp                           = 0x32,
+    unmanagedEncoderChange                      = 0x33,
+    unmanagedDisplayRefresh                     = 0x34,
+    panelConnectionState                        = 0x35,
 }
 
---- hs.tangent.APP_MESSAGE -> table
+--- hs.tangent.toHub -> table
 --- Constant
 --- Definitions for IPC Commands from Hammerspoon to the HUB.
-mod.APP_MESSAGE = {
-    ["APPLICATION_DEFINITION"]                  = 0x81,
-    ["PARAMETER_VALUE"]                         = 0x82,
-    ["MENU_STRING"]                             = 0x83,
-    ["ALL_CHANGE"]                              = 0x84,
-    ["MODE_VALUE"]                              = 0x85,
-    ["DISPLAY_TEXT"]                            = 0x86,
-    ["UNMANAGED_PANEL_CAPABILITIES_REQUEST"]    = 0xA0,
-    ["UNMANAGED_DISPLAY_WRITE"]                 = 0xA1,
-    ["RENAME_CONTROL"]                          = 0xA2,
-    ["HIGHLIGHT_CONTROL"]                       = 0xA3,
-    ["INDICATE_CONTROL"]                        = 0xA4,
-    ["REQUEST_PANEL_CONNECTION_STATES"]         = 0xA5,
+mod.toHub = {
+    applicationDefinition                       = 0x81,
+    parameterValue                              = 0x82,
+    menuString                                  = 0x83,
+    allChange                                   = 0x84,
+    modeValue                                   = 0x85,
+    displayText                                 = 0x86,
+    unmanagedPanelCapabilitiesRequest           = 0xA0,
+    unmanagedDisplayWrite                       = 0xA1,
+    renameControl                               = 0xA2,
+    highlightControl                            = 0xA3,
+    indicateControl                             = 0xA4,
+    panelConnectionStatesRequest                = 0xA5,
 }
 
---- hs.tangent.PANEL_TYPE -> table
+mod.reserved = {
+--- hs.tangent.reserved.action -> table
+--- Constant
+--- Definitions for reserved action IDs.
+---
+--- Notes:
+---  * `alt`                     - toggles the 'ALT' function.
+---  * `nextKnobBank`            - switches to the next knob bank.
+---  * `prevKnobBank`            - switches to the previous knob bank.
+---  * `nextButtonBank`          - switches to the next button bank.
+---  * `prevBasketBank`          - switches to the previous button bank.
+---  * `nextTrackerballBank`     - switches to the next trackerball bank.
+---  * `prevTrackerballBank`     - switches to the previous trackerball bank.
+---  * `nextMode`                - switches to the next mode.
+---  * `prevMode`                - switches to the previous mode.
+---  * `goToMode`                - switches to the specified mode, requiring a Argument with the mode ID.
+---  * `toggleJogShuttle`        - toggles jog/shuttle mode.
+---  * `toggleMouseEmulation`    - toggles mouse emulation.
+---  * `fakeKeypress`            - generates a keypress, requiring an Argument with the key code.
+---  * `showHUD`                 - shows the HUD on screen.
+---  * `goToKnobBank`            - goes to the specific knob bank, requiring an Argument with the bank number.
+---  * `goToButtonBank`          - goes to the specific button bank, requiring an Argument with the bank number.
+---  * `goToTrackerballBank`     - goes to the specific trackerball bank, requiring an Argument with the bank number.
+    action = {
+        _                                       = 0x80000000,
+        alt                                     = 0x80000001,
+        nextKnobBank                            = 0x80000002,
+        prevKnobBank                            = 0x80000003,
+        nextButtonBank                          = 0x80000004,
+        prevButtonBank                          = 0x80000005,
+        nextTrackerballBank                     = 0x80000006,
+        prevTrackerballBank                     = 0x80000007,
+        nextMode                                = 0x80000009,
+        prevMode                                = 0x8000000A,
+        goToMode                                = 0x8000000B,
+        toggleJogShuttle                        = 0x8000000C,
+        toggleMouseEmulation                    = 0x8000000D,
+        fakeKeypress                            = 0x8000000E,
+        showHUD                                 = 0x8000000F,
+        goToKnobBank                            = 0x80000010,
+        goToButtonBank                          = 0x80000011,
+        goToTrackerballBank                     = 0x80000012,
+    },
+
+--- hs.tangent.reserved.parameter -> table
+--- Constant
+--- A table of reserved parameter IDs.
+---
+--- Notes:
+---  * `transportRing`           - transport ring.
+---  * `fakeKeypress`            - sends a fake keypress.
+    parameter = {
+        _                                       = 0x81000000,
+        transportRing                           = 0x81000001,
+        fakeKeypress                            = 0x81000002,
+    },
+    menu = {
+        _                                       = 0x82000000,
+    }
+}
+
+--- hs.tangent.panelType -> table
 --- Constant
 --- Tangent Panel Types.
-mod.PANEL_TYPE = {
-    ["CP200-BK"]                                = 0x03,
-    ["CP200-K"]                                 = 0x04,
-    ["CP200-TS"]                                = 0x05,
-    ["CP200-S"]                                 = 0x09,
-    ["Wave"]                                    = 0x0A,
-    ["Element-Tk"]                              = 0x0C,
-    ["Element-Mf"]                              = 0x0D,
-    ["Element-Kb"]                              = 0x0E,
-    ["Element-Bt"]                              = 0x0F,
-    ["Ripple"]                                  = 0x11,
+mod.panelType = {
+    [0x03]  = "CP200-BK",
+    [0x04]  = "CP200-K",
+    [0x05]  = "CP200-TS",
+    [0x09]  = "CP200-S",
+    [0x0A]  = "Wave",
+    [0x0C]  = "Element-Tk",
+    [0x0D]  = "Element-Mf",
+    [0x0E]  = "Element-Kb",
+    [0x0F]  = "Element-Bt",
+    [0x11]  = "Ripple",
 }
+
+-- ERROR_OFFSET -> number
+-- Constant
+-- Error Offset.
+local ERROR_OFFSET = -1
 
 --------------------------------------------------------------------------------
 -- HELPER FUNCTIONS:
 --------------------------------------------------------------------------------
+
+-- isNumber(value) -> boolean
+-- Function
+-- Checks to see whether or not `value` is a number.
+--
+-- Parameters:
+--  * value - The value to check.
+--
+-- Returns:
+--  * A boolean.
+local function isNumber(value)
+    return type(value) == "number"
+end
+
+-- isNotTable(value) -> boolean
+-- Function
+-- Checks to see whether or not `value` is not a table.
+--
+-- Parameters:
+--  * value - The value to check.
+--
+-- Returns:
+--  * A boolean.
+local function isNotTable(value)
+    return type(value) ~= "table"
+end
+
+-- isNotList(value) -> boolean
+-- Function
+-- Checks to see whether or not `value` is not a list.
+--
+-- Parameters:
+--  * value - The value to check.
+--
+-- Returns:
+--  * A boolean.
+local function isNotList(value)
+    return isNotTable(value) or #value == 0
+end
 
 -- doesDirectoryExist(path) -> string
 -- Function
@@ -147,14 +282,10 @@ end
 -- Returns:
 --  * Panel Type as string
 local function getPanelType(id)
-    for i,v in pairs(mod.PANEL_TYPE) do
-        if id == v then
-            return i
-        end
-    end
+    return mod.panelType[id]
 end
 
--- byteStringToNumber(str, offset, numberOfBytes) -> number
+-- byteStringToNumber(str, offset, numberOfBytes[, signed]) -> number, number
 -- Function
 -- Translates a Byte String into a Number
 --
@@ -162,34 +293,32 @@ end
 --  * str - The string you want to translate
 --  * offset - An offset
 --  * numberOfBytes - Number of bytes
---  * signed - `true` if it's a signed integer otherwise `false`
+--  * signed - `true` if it's a signed integer otherwise `false`. Defaults to `false`.
 --
 -- Returns:
 --  * A number value
+--  * The new offset
 local function byteStringToNumber(str, offset, numberOfBytes, signed)
-    local format = ">I" .. tostring(numberOfBytes)
-    if signed then
-        format = ">i" .. tostring(numberOfBytes)
-    end
-  return unpack(format, str:sub(offset, offset + numberOfBytes - 1))
+    local fmt = (signed and ">i" or ">I") .. tostring(numberOfBytes)
+    return unpack(fmt, str, offset)
 end
 
--- byteStringToFloat(str, offset, numberOfBytes) -> number
+-- byteStringToFloat(str, offset) -> number, number
 -- Function
 -- Translates a Byte String into a Float Number
 --
 -- Parameters:
 --  * str - The string you want to translate
 --  * offset - An offset
---  * numberOfBytes - Number of bytes
 --
 -- Returns:
 --  * A number value
-local function byteStringToFloat(str, offset, numberOfBytes)
-    return unpack(">f", str:sub(offset, offset + numberOfBytes - 1))
+--  * The new offset
+local function byteStringToFloat(str, offset)
+    return unpack(">f", str, offset)
 end
 
--- byteStringToBoolean(str, offset, numberOfBytes) -> boolean
+-- byteStringToBoolean(str, offset, numberOfBytes) -> boolean, number
 -- Function
 -- Translates a Byte String into a Boolean
 --
@@ -200,9 +329,10 @@ end
 --
 -- Returns:
 --  * A boolean value
+--  * The new offset
 local function byteStringToBoolean(str, offset, numberOfBytes)
   local x = byteStringToNumber(str, offset, numberOfBytes)
-  return x == 1 or false
+  return x == 1 or false, offset + numberOfBytes
 end
 
 -- numberToByteString(n) -> string
@@ -215,7 +345,7 @@ end
 -- Returns:
 --  * A string
 local function numberToByteString(n)
-    if not type(n) == "number" then
+    if type(n) ~= "number" then
         log.ef("numberToByteString() was fed something other than a number")
         return nil
     end
@@ -232,7 +362,7 @@ end
 -- Returns:
 --  * A string
 local function floatToByteString(n)
-    if not type(n) == "number" then
+    if type(n) ~= "number" then
         log.ef("floatToByteString() was fed something other than a number")
         return nil
     end
@@ -256,6 +386,503 @@ local function booleanToByteString(value)
     end
 end
 
+-- validCallback() -> boolean
+-- Function
+-- Checks to see if the callback is valid.
+--
+-- Parameters:
+--  * None
+--
+-- Returns:
+--  * `true` if valid otherwise `false`.
+local function validCallback()
+    return type(mod._callback) == "function"
+end
+
+-- processCommands(commands) -> none
+-- Function
+-- Triggers the callback using the contents of the buffer.
+--
+-- Parameters:
+--  * None
+--
+-- Returns:
+--  * None
+local function processCommands(commands)
+    --------------------------------------------------------------------------------
+    -- Trigger the callback:
+    --------------------------------------------------------------------------------
+    if mod._callback then
+        mod._callback(commands)
+    end
+end
+
+-- errorResponse(message) -> nil, number
+-- Function
+-- Writes an error message to the Hammerspoon Console.
+--
+-- Parameters:
+--  * message - The error message.
+--
+-- Returns:
+--  * `nil`
+--  * The error offset number.
+local function errorResponse(message)
+    log.ef(message)
+    return nil, ERROR_OFFSET
+end
+
+-- receiveHandler -> table
+-- Variable
+-- Collection of handlers for messages received from the Hub.
+local receiveHandler = {
+    --------------------------------------------------------------------------------
+    -- InitiateComms (0x01)
+    --  * Initiates communication between the Hub and the application.
+    --  * Communicates the quantity, type and IDs of the panels which are
+    --    configured to be connected in the panel-list.xml file. Note that this is
+    --    not the same as the panels which are actually connected – just those
+    --    which are expected to be connected.
+    --  * The length is dictated by the number of panels connected as the details
+    --    of each panel occupies 5 bytes.
+    --  * On receipt the application should respond with the
+    --    ApplicationDefinition (0x81) command.
+    --
+    -- Format: 0x01, <protocolRev>, <numPanels>, (<mod.panelType>, <panelID>)...
+    --
+    -- protocolRev: The revision number of the protocol (Unsigned Int)
+    -- numPanels: The number of panels connected (Unsigned Int)
+    -- panelType: The code for the type of panel connected (Unsigned Int)
+    -- panelID: The ID of the panel (Unsigned Int)
+    --------------------------------------------------------------------------------
+    [mod.fromHub.initiateComms] = function(data, offset)
+        --------------------------------------------------------------------------------
+        -- Send Application Definition?
+        --------------------------------------------------------------------------------
+        if mod.automaticallySendApplicationDefinition == true then
+            mod.sendApplicationDefinition()
+        end
+
+        local protocolRev, numberOfPanels
+        protocolRev, offset = byteStringToNumber(data, offset, 4)
+        numberOfPanels, offset = byteStringToNumber(data, offset, 4)
+
+        --------------------------------------------------------------------------------
+        -- Trigger callback:
+        --------------------------------------------------------------------------------
+        if protocolRev and numberOfPanels and validCallback() then
+            local panels = {}
+            for _ = 1,numberOfPanels do
+                local currentPanelID, currentPanelType
+                currentPanelType, offset = byteStringToNumber(data, offset, 4)
+                currentPanelID, offset = byteStringToNumber(data, offset, 4)
+                table.insert(panels, {
+                    panelID = currentPanelID,
+                    panelType = getPanelType(currentPanelType),
+                })
+            end
+
+            return {
+                protocolRev = protocolRev,
+                numberOfPanels = numberOfPanels,
+                panels = panels,
+            }, offset
+        else
+            return nil, ERROR_OFFSET
+        end
+    end,
+
+    --------------------------------------------------------------------------------
+    -- ParameterChange (0x02)
+    --  * Requests that the application increment a parameter. The application needs
+    --    to constrain the value to remain within its maximum and minimum values.
+    --  * On receipt the application should respond to the Hub with the new
+    --    absolute parameter value using the ParameterValue (0x82) command,
+    --    if the value has changed.
+    --
+    -- Format: 0x02, <paramID>, <increment>
+    --
+    -- paramID: The ID value of the parameter (Unsigned Int)
+    -- increment: The incremental value which should be applied to the parameter (Float)
+    --------------------------------------------------------------------------------
+    [mod.fromHub.parameterChange] = function(data, offset)
+        local paramID, increment
+        paramID, offset = byteStringToNumber(data, offset, 4)
+        increment, offset = byteStringToFloat(data, offset)
+        if paramID and increment and validCallback() then
+            return {
+                paramID = paramID,
+                increment = increment,
+            }, offset
+        else
+            return errorResponse("Error translating parameterChange.")
+        end
+    end,
+
+    --------------------------------------------------------------------------------
+    -- ParameterReset (0x03)
+    --  * Requests that the application changes a parameter to its reset value.
+    --  * On receipt the application should respond to the Hub with the new absolute
+    --    parameter value using the ParameterValue (0x82) command, if the value
+    --    has changed.
+    --
+    -- Format: 0x03, <paramID>
+    --
+    -- paramID: The ID value of the parameter (Unsigned Int)
+    --------------------------------------------------------------------------------
+    [mod.fromHub.parameterReset] = function(data, offset)
+        local paramID
+        paramID, offset = byteStringToNumber(data, offset, 4)
+        if paramID then
+            return {
+                paramID = paramID,
+            }, offset
+        else
+            return errorResponse("Error translating parameterReset.")
+        end
+    end,
+
+    --------------------------------------------------------------------------------
+    -- ParameterValueRequest (0x04)
+    --  * Requests that the application sends a ParameterValue (0x82) command
+    --    to the Hub.
+    --
+    -- Format: 0x04, <paramID>
+    --
+    -- paramID: The ID value of the parameter (Unsigned Int)
+    --------------------------------------------------------------------------------
+    [mod.fromHub.parameterValueRequest] = function(data, offset)
+        local paramID
+        paramID, offset = byteStringToNumber(data, offset, 4)
+        if paramID then
+            return {
+                paramID = paramID,
+            }, offset
+        else
+            return errorResponse("Error translating parameterValueRequest.")
+        end
+    end,
+
+    --------------------------------------------------------------------------------
+    -- MenuChange (0x05)
+    --  * Requests the application change a menu index by +1 or -1.
+    --  * We recommend that menus that only have two values (e.g. on/off) should
+    --    toggle their state on receipt of either a +1 or -1 increment value.
+    --    This will allow a single button to toggle the state of such an item
+    --    without the need for separate ‘up’ and ‘down’ buttons.
+    --
+    -- Format: 0x05, <menuID>, <increment>
+    --
+    -- menuID: The ID value of the menu (Unsigned Int)
+    -- increment: The incremental amount by which the menu index should be changed which will always be an integer value of +1 or -1 (Signed Int)
+    --------------------------------------------------------------------------------
+    [mod.fromHub.menuChange] = function(data, offset)
+        local menuID, increment
+        menuID, offset = byteStringToNumber(data, offset, 4)
+        increment, offset = byteStringToNumber(data, offset, 4)
+        if menuID and increment then
+            return {
+                menuID = menuID,
+                increment = increment,
+            }, offset
+        else
+            return errorResponse("Error translating menuChange.")
+        end
+    end,
+
+    --------------------------------------------------------------------------------
+    -- MenuReset (0x06)
+    --  * Requests that the application sends a MenuString (0x83) command to the Hub.
+    --
+    -- Format: 0x06, <menuID>
+    --
+    -- menuID: The ID value of the menu (Unsigned Int)
+    --------------------------------------------------------------------------------
+    [mod.fromHub.menuReset] = function(data, offset)
+        local menuID
+        menuID, offset = byteStringToNumber(data, offset, 4)
+        if menuID then
+            return {
+                menuID = menuID,
+            }, offset
+        else
+            return errorResponse("Error translating menuReset.")
+        end
+    end,
+
+    --------------------------------------------------------------------------------
+    -- MenuStringRequest (0x07)
+    --  * Requests that the application sends a MenuString (0x83) command to the Hub.
+    --  * On receipt, the application should respond to the Hub with the new menu
+    --    value using the MenuString (0x83) command, if the menu has changed.
+    --
+    -- Format: 0x07, <menuID>
+    --
+    -- menuID: The ID value of the menu (Unsigned Int)
+    --------------------------------------------------------------------------------
+    [mod.fromHub.menuStringRequest] = function(data, offset)
+        local menuID
+        menuID, offset = byteStringToNumber(data, offset, 4)
+        if menuID then
+            return {
+                menuID = menuID,
+            }, offset
+        else
+            return errorResponse("Error translating menuStringRequest.")
+        end
+    end,
+
+    --------------------------------------------------------------------------------
+    -- Action On (0x08)
+    --  * Requests that the application performs the specified action.
+    --
+    -- Format: 0x08, <actionID>
+    --
+    -- actionID: The ID value of the action (Unsigned Int)
+    --------------------------------------------------------------------------------
+    [mod.fromHub.actionOn] = function(data, offset)
+        local actionID
+        actionID, offset = byteStringToNumber(data, offset, 4)
+        if actionID then
+            return {
+                actionID = actionID,
+            }, offset
+        else
+            return errorResponse("Error translating actionOn.")
+        end
+    end,
+
+    --------------------------------------------------------------------------------
+    -- ModeChange (0x09)
+    --  * Requests that the application changes to the specified mode.
+    --
+    -- Format: 0x09, <modeID>
+    --
+    -- modeID: The ID value of the mode (Unsigned Int)
+    --------------------------------------------------------------------------------
+    [mod.fromHub.modeChange] = function(data, offset)
+        local modeID
+        modeID, offset = byteStringToNumber(data, offset, 4)
+        if modeID then
+            return {
+                modeID = modeID,
+            }, offset
+        else
+            return errorResponse("Error translating modeChange.")
+        end
+    end,
+
+    --------------------------------------------------------------------------------
+    -- Transport (0x0A)
+    --  * Requests the application to move the currently active transport.
+    --  * jogValue or shuttleValue will never both be set simultaneously
+    --  * One revolution of the control represents 32 counts by default.
+    --    The user will be able to adjust the sensitivity of Jog & Shuttle
+    --    independently in the TUBE Mapper tool to send more or less than
+    --    32 counts per revolution.
+    --
+    -- Format: 0x0A, <jogValue>, <shuttleValue>
+    --
+    -- jogValue: The number of jog steps to move the transport (Signed Int)
+    -- shuttleValue: An incremental value to add to the shuttle speed (Signed Int)
+    --------------------------------------------------------------------------------
+    [mod.fromHub.transport] = function(data, offset)
+        local jogValue, shuttleValue
+        jogValue, offset = byteStringToNumber(data, offset, 4, true)
+        shuttleValue, offset = byteStringToNumber(data, offset, 4, true)
+        if jogValue and shuttleValue then
+            return {
+                jogValue = jogValue,
+                shuttleValue = shuttleValue,
+            }, offset
+        else
+            return errorResponse("Error translating transport.")
+        end
+    end,
+
+    --------------------------------------------------------------------------------
+    -- ActionOff (0x0B)
+    --  * Requests that the application cancels the specified action.
+    --  * This is typically sent when a button is released.
+    --
+    -- Format: 0x0B, <actionID>
+    --
+    -- actionID: The ID value of the action (Unsigned Int)
+    --------------------------------------------------------------------------------
+    [mod.fromHub.actionOff] = function(data, offset)
+        local actionID
+        actionID, offset = byteStringToNumber(data, offset, 4)
+        if actionID then
+            return {
+                actionID = actionID,
+            }, offset
+        else
+            return errorResponse("Error translating actionOff.")
+        end
+    end,
+
+    --------------------------------------------------------------------------------
+    -- UnmanagedPanelCapabilities (0x30)
+    --  * Only used when working in Unmanaged panel mode.
+    --  * Sent in response to a UnmanagedPanelCapabilitiesRequest (0xA0) command.
+    --  * The values returned are those given in the table in Section 18.
+    --    Panel Data for Unmanaged Mode.
+    --
+    -- Format: 0x30, <panelID>, <numButtons>, <numEncoders>, <numDisplays>, <numDisplayLines>, <numDisplayChars>
+    --
+    -- panelID: The ID of the panel as reported in the InitiateComms command (Unsigned Int)
+    -- numButtons: The number of buttons on the panel (Unsigned Int)
+    -- numEncoders: The number of encoders on the panel (Unsigned Int)
+    -- numDisplays: The number of displays on the panel (Unsigned Int)
+    -- numDisplayLines: The number of lines for each display on the panel (Unsigned Int)
+    -- numDisplayChars: The number of characters on each line of each display on the panel (Unsigned Int)
+    --------------------------------------------------------------------------------
+    [mod.fromHub.unmanagedPanelCapabilities] = function(data, offset)
+        local panelID, numButtons, numEncoders, numDisplays, numDisplayLines, numDisplayChars
+        panelID, offset             = byteStringToNumber(data, offset, 4)
+        numButtons, offset          = byteStringToNumber(data, offset, 4)
+        numEncoders, offset         = byteStringToNumber(data, offset, 4)
+        numDisplays, offset         = byteStringToNumber(data, offset, 4)
+        numDisplayLines, offset     = byteStringToNumber(data, offset, 4)
+        numDisplayChars, offset     = byteStringToNumber(data, offset, 4)
+        if panelID and numButtons and numEncoders and numDisplays and numDisplayLines and numDisplayChars then
+            return {
+                panelID             = panelID,
+                numButtons          = numButtons,
+                numEncoders         = numEncoders,
+                numDisplays         = numDisplays,
+                numDisplayLines     = numDisplayLines,
+                numDisplayChars     = numDisplayChars,
+            }, offset
+        else
+            return errorResponse("Error translating unmanagedPanelCapabilities.")
+        end
+    end,
+
+    --------------------------------------------------------------------------------
+    -- UnmanagedButtonDown (0x31)
+    --  * Only used when working in Unmanaged panel mode
+    --  * Issued when a button has been pressed
+    --
+    -- Format: 0x31, <panelID>, <buttonID>
+    --
+    -- panelID: The ID of the panel as reported in the InitiateComms command (Unsigned Int)
+    -- buttonID: The hardware ID of the button (Unsigned Int)
+    --------------------------------------------------------------------------------
+    [mod.fromHub.unmanagedButtonDown] = function(data, offset)
+        local panelID, buttonID
+        panelID, offset = byteStringToNumber(data, offset, 4)
+        buttonID, offset = byteStringToNumber(data, offset, 4)
+        if panelID and buttonID then
+            return {
+                panelID = panelID,
+                buttonID = buttonID,
+            }, offset
+        else
+            return errorResponse("Error translating unmanagedButtonDown.")
+        end
+    end,
+
+    --------------------------------------------------------------------------------
+    -- UnmanagedButtonUp (0x32)
+    --  * Only used when working in Unmanaged panel mode.
+    --  * Issued when a button has been released
+    --
+    -- Format: 0x32, <panelID>, <buttonID>
+    --
+    -- panelID: The ID of the panel as reported in the InitiateComms command (Unsigned Int)
+    -- buttonID: The hardware ID of the button (Unsigned Int)
+    --------------------------------------------------------------------------------
+    [mod.fromHub.unmanagedButtonUp] = function(data, offset)
+        local panelID, buttonID
+        panelID, offset = byteStringToNumber(data, offset, 4)
+        buttonID, offset = byteStringToNumber(data, offset, 4)
+        if panelID and buttonID then
+            return {
+                panelID = panelID,
+                buttonID = buttonID,
+            }, offset
+        else
+            return errorResponse("Error translating unmanagedButtonUp.")
+        end
+    end,
+
+    --------------------------------------------------------------------------------
+    -- UnmanagedEncoderChange (0x33)
+    --  * Only used when working in Unmanaged panel mode.
+    --  * Issued when an encoder has been moved.
+    --
+    -- Format: 0x33, <panelID>, <encoderID>, <increment>
+    --
+    -- panelID: The ID of the panel as reported in the InitiateComms command (Unsigned Int)
+    -- paramID: The hardware ID of the encoder (Unsigned Int)
+    -- increment: The incremental value (Float)
+    --------------------------------------------------------------------------------
+    [mod.fromHub.unmanagedEncoderChange] = function(data, offset)
+        local panelID, encoderID, increment
+        panelID, offset = byteStringToNumber(data, offset, 4)
+        encoderID, offset = byteStringToNumber(data, offset, 4)
+        increment, offset = byteStringToFloat(data, offset)
+        if panelID and encoderID and increment then
+            return {
+                panelID = panelID,
+                encoderID = encoderID,
+                increment = increment,
+            }, offset
+        else
+            return errorResponse("Error translating unmanagedEncoderChange.")
+        end
+    end,
+
+    --------------------------------------------------------------------------------
+    -- UnmanagedDisplayRefresh (0x34)
+    --  * Only used when working in Unmanaged panel mode
+    --  * Issued when a panel has been connected or the focus of the panel has
+    --    been returned to your application.
+    --  * On receipt your application should send all the current information to
+    --    each display on the panel in question.
+    --
+    -- Format: 0x34, <panelID>
+    --
+    -- panelID: The ID of the panel as reported in the InitiateComms command (Unsigned Int)
+    --------------------------------------------------------------------------------
+    [mod.fromHub.unmanagedDisplayRefresh] = function(data, offset)
+        local panelID
+        panelID, offset = byteStringToNumber(data, offset, 4)
+        if panelID then
+            return {
+                panelID = panelID,
+            }, offset
+        else
+            return errorResponse("Error translating unmanagedDisplayRefresh.")
+        end
+    end,
+
+    --------------------------------------------------------------------------------
+    -- PanelConnectionState (0x35)
+    --  * Sent in response to a PanelConnectionStatesRequest (0xA5) command to
+    --    report the current connected/disconnected status of a configured panel.
+    --
+    -- Format: 0x35, <panelID>, <state>
+    --
+    -- panelID: The ID of the panel as reported in the InitiateComms command (Unsigned Int)
+    -- state: The connected state of the panel: 1 if connected, 0 if disconnected (Bool)
+    --------------------------------------------------------------------------------
+    [mod.fromHub.panelConnectionState] = function(data, offset)
+        local panelID, state
+        panelID, offset = byteStringToNumber(data, offset, 4)
+        state, offset = byteStringToBoolean(data, offset, 4)
+        if panelID and state then
+            return {
+                panelID = panelID,
+                state = state,
+            }, offset
+        else
+            return errorResponse("Error translating panelConnectionState.")
+        end
+    end,
+}
+
 -- processHubCommand(data) -> none
 -- Function
 -- Processes a single HUB Command.
@@ -265,471 +892,46 @@ end
 --
 -- Returns:
 --  * None
-local function processHubCommand(data)
-    local id = byteStringToNumber(data, 1, 4)
-    if id == mod.HUB_MESSAGE["INITIATE_COMMS"] then
-        --------------------------------------------------------------------------------
-        -- InitiateComms (0x01)
-        --  * Initiates communication between the Hub and the application.
-        --  * Communicates the quantity, type and IDs of the panels which are
-        --    configured to be connected in the panel-list.xml file. Note that this is
-        --    not the same as the panels which are actually connected – just those
-        --    which are expected to be connected.
-        --  * The length is dictated by the number of panels connected as the details
-        --    of each panel occupies 5 bytes.
-        --  * On receipt the application should respond with the
-        --    ApplicationDefinition (0x81) command.
-        --
-        -- Format: 0x01, <protocolRev>, <numPanels>, (<mod.PANEL_TYPE>, <panelID>)...
-        --
-        -- protocolRev: The revision number of the protocol (Unsigned Int)
-        -- numPanels: The number of panels connected (Unsigned Int)
-        -- panelType: The code for the type of panel connected (Unsigned Int)
-        -- panelID: The ID of the panel (Unsigned Int)
-        --------------------------------------------------------------------------------
-        local protocolRev = byteStringToNumber(data, 5, 4)
-        local numberOfPanels = byteStringToNumber(data, 9, 4)
-        local panels = {}
-        local startNumber = 13
-        for _=1, numberOfPanels do
-            local currentPanelType = byteStringToNumber(data, startNumber, 4)
-            startNumber = startNumber + 4
-            local currentPanelID = byteStringToNumber(data, startNumber, 4)
-            startNumber = startNumber + 4
-            table.insert(panels, {
-                ["panelID"] = currentPanelID,
-                ["panelType"] = getPanelType(currentPanelType),
-                ["data"] = data,
-            })
-        end
-        --------------------------------------------------------------------------------
-        -- Trigger callback:
-        --------------------------------------------------------------------------------
-        if protocolRev and numberOfPanels and mod._callback then
-            mod._callback("INITIATE_COMMS", {
-                ["protocolRev"] = protocolRev,
-                ["numberOfPanels"] = numberOfPanels,
-                ["panels"] = panels,
-                ["data"] = data,
-            })
-        end
-        --------------------------------------------------------------------------------
-        -- Send Application Definition:
-        --------------------------------------------------------------------------------
-        if mod.automaticallySendApplicationDefinition == true then
-            mod.send("APPLICATION_DEFINITION")
-        end
-    elseif id == mod.HUB_MESSAGE["PARAMETER_CHANGE"] then
-        --------------------------------------------------------------------------------
-        -- ParameterChange (0x02)
-        --  * Requests that the application increment a parameter. The application needs
-        --    to constrain the value to remain within its maximum and minimum values.
-        --  * On receipt the application should respond to the Hub with the new
-        --    absolute parameter value using the ParameterValue (0x82) command,
-        --    if the value has changed.
-        --
-        -- Format: 0x02, <paramID>, <increment>
-        --
-        -- paramID: The ID value of the parameter (Unsigned Int)
-        -- increment: The incremental value which should be applied to the parameter (Float)
-        --------------------------------------------------------------------------------
-        local paramID = byteStringToNumber(data, 5, 4)
-        local increment = byteStringToFloat(data, 9, 4)
-        if paramID and increment and mod._callback then
-            mod._callback("PARAMETER_CHANGE", {
-                ["paramID"] = paramID,
-                ["increment"] = increment,
-                ["data"] = data,
-            })
-        else
-            log.ef("Error translating PARAMETER_CHANGE.")
-            mod._callback("ERROR", {
-                ["data"] = data
-            })
-        end
-    elseif id == mod.HUB_MESSAGE["PARAMETER_RESET"] then
-        --------------------------------------------------------------------------------
-        -- ParameterReset (0x03)
-        --  * Requests that the application changes a parameter to its reset value.
-        --  * On receipt the application should respond to the Hub with the new absolute
-        --    parameter value using the ParameterValue (0x82) command, if the value
-        --    has changed.
-        --
-        -- Format: 0x03, <paramID>
-        --
-        -- paramID: The ID value of the parameter (Unsigned Int)
-        --------------------------------------------------------------------------------
-        local paramID = byteStringToNumber(data, 5, 4)
-        if paramID and mod._callback then
-            mod._callback("PARAMETER_RESET", {
-                ["paramID"] = paramID,
-                ["data"] = data,
-            })
-        else
-            log.ef("Error translating PARAMETER_RESET.")
-            mod._callback("ERROR", {
-                ["data"] = data
-            })
-        end
-    elseif id == mod.HUB_MESSAGE["PARAMETER_VALUE_REQUEST"] then
-        --------------------------------------------------------------------------------
-        -- ParameterValueRequest (0x04)
-        --  * Requests that the application sends a ParameterValue (0x82) command
-        --    to the Hub.
-        --
-        -- Format: 0x04, <paramID>
-        --
-        -- paramID: The ID value of the parameter (Unsigned Int)
-        --------------------------------------------------------------------------------
-        local paramID = byteStringToNumber(data, 5, 4)
-        if paramID and mod._callback then
-            mod._callback("PARAMETER_VALUE_REQUEST", {
-                ["paramID"] = paramID,
-                ["data"] = data,
-            })
-        else
-            log.ef("Error translating PARAMETER_VALUE_REQUEST.")
-            mod._callback("ERROR", {
-                ["data"] = data
-            })
-        end
-    elseif id == mod.HUB_MESSAGE["MENU_CHANGE"] then
-        --------------------------------------------------------------------------------
-        -- MenuChange (0x05)
-        --  * Requests the application change a menu index by +1 or -1.
-        --  * We recommend that menus that only have two values (e.g. on/off) should
-        --    toggle their state on receipt of either a +1 or -1 increment value.
-        --    This will allow a single button to toggle the state of such an item
-        --    without the need for separate ‘up’ and ‘down’ buttons.
-        --
-        -- Format: 0x05, <menuID>, < increment >
-        --
-        -- menuID: The ID value of the menu (Unsigned Int)
-        -- increment: The incremental amount by which the menu index should be changed which will always be an integer value of +1 or -1 (Signed Int)
-        --------------------------------------------------------------------------------
-        local menuID = byteStringToNumber(data, 5, 4)
-        local increment = byteStringToNumber(data, 9, 4, true)
-        if menuID and increment and mod._callback then
-            mod._callback("MENU_CHANGE", {
-                ["menuID"] = menuID,
-                ["increment"] = increment,
-                ["data"] = data,
-            })
-        else
-            log.ef("Error translating MENU_CHANGE.")
-            mod._callback("ERROR", {
-                ["data"] = data
-            })
-        end
-    elseif id == mod.HUB_MESSAGE["MENU_RESET"] then
-        --------------------------------------------------------------------------------
-        -- MenuReset (0x06)
-        --  * Requests that the application sends a MenuString (0x83) command to the Hub.
-        --
-        -- Format: 0x06, <menuID>
-        --
-        -- menuID: The ID value of the menu (Unsigned Int)
-        --------------------------------------------------------------------------------
-        local menuID = byteStringToNumber(data, 5, 4)
-        if menuID and mod._callback then
-            mod._callback("MENU_RESET", {
-                ["menuID"] = menuID,
-                ["data"] = data,
-            })
-        else
-            log.ef("Error translating MENU_RESET.")
-            mod._callback("ERROR", {
-                ["data"] = data
-            })
-        end
-    elseif id == mod.HUB_MESSAGE["MENU_STRING_REQUEST"] then
-        --------------------------------------------------------------------------------
-        -- MenuStringRequest (0x07)
-        --  * Requests that the application sends a MenuString (0x83) command to the Hub.
-        --  * On receipt, the application should respond to the Hub with the new menu
-        --    value using the MenuString (0x83) command, if the menu has changed.
-        --
-        -- Format: 0x07, <menuID>
-        --
-        -- menuID: The ID value of the menu (Unsigned Int)
-        --------------------------------------------------------------------------------
-        local menuID = byteStringToNumber(data, 5, 4)
-        if menuID and mod._callback then
-            mod._callback("MENU_STRING_REQUEST", {
-                ["menuID"] = menuID,
-                ["data"] = data,
-            })
-        else
-            log.ef("Error translating MENU_STRING_REQUEST.")
-            mod._callback("ERROR", {
-                ["data"] = data
-            })
-        end
-    elseif id == mod.HUB_MESSAGE["ACTION_ON"] then
-        --------------------------------------------------------------------------------
-        -- Action On (0x08)
-        --  * Requests that the application performs the specified action.
-        --
-        -- Format: 0x08, <actionID>
-        --
-        -- actionID: The ID value of the action (Unsigned Int)
-        --------------------------------------------------------------------------------
-        local actionID = byteStringToNumber(data, 5, 4)
-        if actionID and mod._callback then
-            mod._callback("ACTION_ON", {
-                ["actionID"] = actionID,
-                ["data"] = data,
-            })
-        else
-            log.ef("Error translating ACTION_ON.")
-            mod._callback("ERROR", {
-                ["data"] = data
-            })
-        end
-    elseif id == mod.HUB_MESSAGE["MODE_CHANGE"] then
-        --------------------------------------------------------------------------------
-        -- ModeChange (0x09)
-        --  * Requests that the application changes to the specified mode.
-        --
-        -- Format: 0x09, <modeID>
-        --
-        -- modeID: The ID value of the mode (Unsigned Int)
-        --------------------------------------------------------------------------------
-        local modeID = byteStringToNumber(data, 5, 4)
-        if modeID and mod._callback then
-            mod._callback("MODE_CHANGE", {
-                ["modeID"] = modeID,
-                ["data"] = data,
-            })
-        else
-            log.ef("Error translating MODE_CHANGE.")
-            mod._callback("ERROR", {
-                ["data"] = data
-            })
-        end
-    elseif id == mod.HUB_MESSAGE["TRANSPORT"] then
-        --------------------------------------------------------------------------------
-        -- Transport (0x0A)
-        --  * Requests the application to move the currently active transport.
-        --  * jogValue or shuttleValue will never both be set simultaneously
-        --  * One revolution of the control represents 32 counts by default.
-        --    The user will be able to adjust the sensitivity of Jog & Shuttle
-        --    independently in the TUBE Mapper tool to send more or less than
-        --    32 counts per revolution.
-        --
-        -- Format: 0x0A, <jogValue>, <shuttleValue>
-        --
-        -- jogValue: The number of jog steps to move the transport (Signed Int)
-        -- shuttleValue: An incremental value to add to the shuttle speed (Signed Int)
-        --------------------------------------------------------------------------------
-        local jogValue = byteStringToNumber(data, 5, 4, true)
-        local shuttleValue = byteStringToNumber(data, 9, 4, true)
-        if jogValue and shuttleValue and mod._callback then
-            mod._callback("TRANSPORT", {
-                ["jogValue"] = jogValue,
-                ["shuttleValue"] = shuttleValue,
-                ["data"] = data,
-            })
-        else
-            log.ef("Error translating TRANSPORT.")
-            mod._callback("ERROR", {
-                ["data"] = data
-            })
-        end
-    elseif id == mod.HUB_MESSAGE["ACTION_OFF"] then
-        --------------------------------------------------------------------------------
-        -- ActionOff (0x0B)
-        --  * Requests that the application cancels the specified action.
-        --  * This is typically sent when a button is released.
-        --
-        -- Format: 0x0B, <actionID>
-        --
-        -- actionID: The ID value of the action (Unsigned Int)
-        --------------------------------------------------------------------------------
-        local actionID = byteStringToNumber(data, 5, 4)
-        if actionID and mod._callback then
-            mod._callback("ACTION_OFF", {
-                ["actionID"] = actionID,
-                ["data"] = data,
-            })
-        else
-            log.ef("Error translating ACTION_OFF.")
-            mod._callback("ERROR", {
-                ["data"] = data
-            })
-        end
-    elseif id == mod.HUB_MESSAGE["UNMANAGED_PANEL_CAPABILITIES"] then
-        --------------------------------------------------------------------------------
-        -- UnmanagedPanelCapabilities (0x30)
-        --  * Only used when working in Unmanaged panel mode.
-        --  * Sent in response to a UnmanagedPanelCapabilitiesRequest (0xA0) command.
-        --  * The values returned are those given in the table in Section 18.
-        --    Panel Data for Unmanaged Mode.
-        --
-        -- Format: 0x30, <panelID>, <numButtons>, <numEncoders>, <numDisplays>, <numDisplayLines>, <numDisplayChars>
-        --
-        -- panelID: The ID of the panel as reported in the InitiateComms command (Unsigned Int)
-        -- numButtons: The number of buttons on the panel (Unsigned Int)
-        -- numEncoders: The number of encoders on the panel (Unsigned Int)
-        -- numDisplays: The number of displays on the panel (Unsigned Int)
-        -- numDisplayLines: The number of lines for each display on the panel (Unsigned Int)
-        -- numDisplayChars: The number of characters on each line of each display on the panel (Unsigned Int)
-        --------------------------------------------------------------------------------
-        local panelID           = byteStringToNumber(data, 5, 4)
-        local numButtons        = byteStringToNumber(data, 9, 4)
-        local numEncoders       = byteStringToNumber(data, 13, 4)
-        local numDisplays       = byteStringToNumber(data, 17, 4)
-        local numDisplayLines   = byteStringToNumber(data, 21, 4)
-        local numDisplayChars   = byteStringToNumber(data, 25, 4)
-        if panelID and numButtons and numEncoders and numDisplays and numDisplayLines and numDisplayChars and mod._callback then
-            mod._callback("UNMANAGED_PANEL_CAPABILITIES", {
-                ["panelID"]             = panelID,
-                ["numButtons"]          = numButtons,
-                ["numEncoders"]         = numEncoders,
-                ["numDisplays"]         = numDisplays,
-                ["numDisplayLines"]     = numDisplayLines,
-                ["numDisplayChars"]     = numDisplayChars,
-                ["data"] = data,
-            })
-        else
-            log.ef("Error translating UNMANAGED_PANEL_CAPABILITIES.")
-            mod._callback("ERROR", {
-                ["data"] = data
-            })
-        end
-    elseif id == mod.HUB_MESSAGE["UNMANAGED_BUTTON_DOWN"] then
-        --------------------------------------------------------------------------------
-        -- UnmanagedButtonDown (0x31)
-        --  * Only used when working in Unmanaged panel mode
-        --  * Issued when a button has been pressed
-        --
-        -- Format: 0x31, <panelID>, <buttonID>
-        --
-        -- panelID: The ID of the panel as reported in the InitiateComms command (Unsigned Int)
-        -- buttonID: The hardware ID of the button (Unsigned Int)
-        --------------------------------------------------------------------------------
-        local panelID = byteStringToNumber(data, 5, 4)
-        local buttonID = byteStringToNumber(data, 9, 4)
-        if panelID and buttonID and mod._callback then
-            mod._callback("UNMANAGED_BUTTON_DOWN", {
-                ["panelID"] = panelID,
-                ["buttonID"] = buttonID,
-                ["data"] = data,
-            })
-        else
-            log.ef("Error translating UNMANAGED_BUTTON_DOWN.")
-            mod._callback("ERROR", {
-                ["data"] = data
-            })
-        end
-    elseif id == mod.HUB_MESSAGE["UNMANAGED_BUTTON_UP"] then
-        --------------------------------------------------------------------------------
-        -- UnmanagedButtonUp (0x32)
-        --  * Only used when working in Unmanaged panel mode.
-        --  * Issued when a button has been released
-        --
-        -- Format: 0x32, <panelID>, <buttonID>
-        --
-        -- panelID: The ID of the panel as reported in the InitiateComms command (Unsigned Int)
-        -- buttonID: The hardware ID of the button (Unsigned Int)
-        --------------------------------------------------------------------------------
-        local panelID = byteStringToNumber(data, 5, 4)
-        local buttonID = byteStringToNumber(data, 9, 4)
-        if panelID and buttonID and mod._callback then
-            mod._callback("UNMANAGED_BUTTON_UP", {
-                ["panelID"] = panelID,
-                ["buttonID"] = buttonID,
-                ["data"] = data,
-            })
-        else
-            log.ef("Error translating UNMANAGED_BUTTON_UP.")
-            mod._callback("ERROR", {
-                ["data"] = data
-            })
-        end
-    elseif id == mod.HUB_MESSAGE["UNMANAGED_ENCODER_CHANGE"] then
-        --------------------------------------------------------------------------------
-        -- UnmanagedEncoderChange (0x33)
-        --  * Only used when working in Unmanaged panel mode.
-        --  * Issued when an encoder has been moved.
-        --
-        -- Format: 0x33, <panelID>, <encoderID>, <increment>
-        --
-        -- panelID: The ID of the panel as reported in the InitiateComms command (Unsigned Int)
-        -- paramID: The hardware ID of the encoder (Unsigned Int)
-        -- increment: The incremental value (Float)
-        --------------------------------------------------------------------------------
-        local panelID = byteStringToNumber(data, 5, 4)
-        local encoderID = byteStringToNumber(data, 9, 4)
-        local increment = byteStringToFloat(data, 13, 4)
-        if panelID and encoderID and increment and mod._callback then
-            mod._callback("UNMANAGED_ENCODER_CHANGE", {
-                ["panelID"] = panelID,
-                ["encoderID"] = encoderID,
-                ["increment"] = increment,
-                ["data"] = data,
-            })
-        else
-            log.ef("Error translating UNMANAGED_ENCODER_CHANGE.")
-            mod._callback("ERROR", {
-                ["data"] = data
-            })
-        end
-    elseif id == mod.HUB_MESSAGE["UNMANAGED_DISPLAY_REFRESH"] then
-        --------------------------------------------------------------------------------
-        -- UnmanagedDisplayRefresh (0x34)
-        --  * Only used when working in Unmanaged panel mode
-        --  * Issued when a panel has been connected or the focus of the panel has
-        --    been returned to your application.
-        --  * On receipt your application should send all the current information to
-        --    each display on the panel in question.
-        --
-        -- Format: 0x34, <panelID>
-        --
-        -- panelID: The ID of the panel as reported in the InitiateComms command (Unsigned Int)
-        --------------------------------------------------------------------------------
-        local panelID = byteStringToNumber(data, 5, 4)
-        if panelID and mod._callback then
-            mod._callback("UNMANAGED_DISPLAY_REFRESH", {
-                ["panelID"] = panelID,
-                ["data"] = data,
-            })
-        else
-            log.ef("Error translating UNMANAGED_DISPLAY_REFRESH.")
-            mod._callback("ERROR", {
-                ["data"] = data
-            })
-        end
+local function processHubCommand(data, offset)
+    local id, command
 
-    elseif id == mod.HUB_MESSAGE["PANEL_CONNECTION_STATE"] then
-        --------------------------------------------------------------------------------
-        -- PanelConnectionState (0x35)
-        --  * Sent in response to a PanelConnectionStatesRequest (0xA5) command to
-        --    report the current connected/disconnected status of a configured panel.
-        --
-        -- Format: 0x35, <panelID>, <state>
-        --
-        -- panelID: The ID of the panel as reported in the InitiateComms command (Unsigned Int)
-        -- state: The connected state of the panel: 1 if connected, 0 if disconnected (Bool)
-        --------------------------------------------------------------------------------
-        local panelID = byteStringToNumber(data, 5, 4)
-        local state = byteStringToBoolean(data, 9, 4)
-        if panelID and state and mod._callback then
-            mod._callback("PANEL_CONNECTION_STATE", {
-                ["panelID"] = panelID,
-                ["state"] = state,
-                ["data"] = data,
-            })
+    id, offset = byteStringToNumber(data, offset, 4)
+    -- log.df("Processing command %#010x, offset: %d", id, offset)
+
+    local fn = receiveHandler[id]
+    if fn then
+        local result
+        result, offset = fn(data, offset)
+        if offset == ERROR_OFFSET then
+            command = {
+                id = ERROR_OFFSET,
+                metadata = {
+                    details = format("Error while processing command ID: %#010x", id),
+                    data = data,
+                    offset = offset,
+                }
+            }
         else
-            log.ef("Error translating PANEL_CONNECTION_STATE.")
-            mod._callback("ERROR", {
-                ["data"] = data
-            })
+            command = {
+                id = id,
+                metadata = result
+            }
         end
+    else
+        command = {
+            id = ERROR_OFFSET,
+            metadata = {
+                details = format("Unrecognised command ID: %#010x", id),
+                data = data,
+                offset = offset,
+            }
+        }
     end
+
+    return command, offset
 end
 
--- separateHubCommands(data) -> none
+-- processDataFromHub(data) -> none
 -- Function
 -- Separates multiple Hub Commands for processing.
 --
@@ -738,306 +940,38 @@ end
 --
 -- Returns:
 --  * None
-local function separateHubCommands(rawData)
-    local numberOfBytesLeft = string.len(rawData)
-    while numberOfBytesLeft ~= 0 do
-        local currentPosition = (string.len(rawData) - numberOfBytesLeft) + 1
-        local data = string.sub(rawData, currentPosition)
-        local id = byteStringToNumber(data, 1, 4)
-        if id == mod.HUB_MESSAGE["INITIATE_COMMS"] then
-            --------------------------------------------------------------------------------
-            -- InitiateComms (0x01)
-            --  * Initiates communication between the Hub and the application.
-            --  * Communicates the quantity, type and IDs of the panels which are
-            --    configured to be connected in the panel-list.xml file. Note that this is
-            --    not the same as the panels which are actually connected – just those
-            --    which are expected to be connected.
-            --  * The length is dictated by the number of panels connected as the details
-            --    of each panel occupies 5 bytes.
-            --  * On receipt the application should respond with the
-            --    ApplicationDefinition (0x81) command.
-            --
-            -- Format: 0x01, <protocolRev>, <numPanels>, (<mod.PANEL_TYPE>, <panelID>)...
-            --
-            -- protocolRev: The revision number of the protocol (Unsigned Int)
-            -- numPanels: The number of panels connected (Unsigned Int)
-            -- panelType: The code for the type of panel connected (Unsigned Int)
-            -- panelID: The ID of the panel (Unsigned Int)
-            --------------------------------------------------------------------------------
-            local numberOfPanels = byteStringToNumber(data, 9, 4)
-            local length = (1 + 1 + 1 + (numberOfPanels * 1) + (numberOfPanels * 1)) * 4
-            local commandData = string.sub(data, 1, length)
-            processHubCommand(commandData)
-            numberOfBytesLeft = numberOfBytesLeft - length
-        elseif id == mod.HUB_MESSAGE["PARAMETER_CHANGE"] then
-            --------------------------------------------------------------------------------
-            -- ParameterChange (0x02)
-            --  * Requests that the application increment a parameter. The application needs
-            --    to constrain the value to remain within its maximum and minimum values.
-            --  * On receipt the application should respond to the Hub with the new
-            --    absolute parameter value using the ParameterValue (0x82) command,
-            --    if the value has changed.
-            --
-            -- Format: 0x02, <paramID>, <increment>
-            --
-            -- paramID: The ID value of the parameter (Unsigned Int)
-            -- increment: The incremental value which should be applied to the parameter (Float)
-            --------------------------------------------------------------------------------
-            local length = (1 + 1 + 1) * 4
-            local commandData = string.sub(data, 1, length)
-            processHubCommand(commandData)
-            numberOfBytesLeft = numberOfBytesLeft - length
-        elseif id == mod.HUB_MESSAGE["PARAMETER_RESET"] then
-            --------------------------------------------------------------------------------
-            -- ParameterReset (0x03)
-            --  * Requests that the application changes a parameter to its reset value.
-            --  * On receipt the application should respond to the Hub with the new absolute
-            --    parameter value using the ParameterValue (0x82) command, if the value
-            --    has changed.
-            --
-            -- Format: 0x03, <paramID>
-            --
-            -- paramID: The ID value of the parameter (Unsigned Int)
-            --------------------------------------------------------------------------------
-            local length = (1 + 1) * 4
-            local commandData = string.sub(data, 1, length)
-            processHubCommand(commandData)
-            numberOfBytesLeft = numberOfBytesLeft - length
-        elseif id == mod.HUB_MESSAGE["PARAMETER_VALUE_REQUEST"] then
-            --------------------------------------------------------------------------------
-            -- ParameterValueRequest (0x04)
-            --  * Requests that the application sends a ParameterValue (0x82) command
-            --    to the Hub.
-            --
-            -- Format: 0x04, <paramID>
-            --
-            -- paramID: The ID value of the parameter (Unsigned Int)
-            --------------------------------------------------------------------------------
-            local length = (1 + 1) * 4
-            local commandData = string.sub(data, 1, length)
-            processHubCommand(commandData)
-            numberOfBytesLeft = numberOfBytesLeft - length
-        elseif id == mod.HUB_MESSAGE["MENU_CHANGE"] then
-            --------------------------------------------------------------------------------
-            -- MenuChange (0x05)
-            --  * Requests the application change a menu index by +1 or -1.
-            --  * We recommend that menus that only have two values (e.g. on/off) should
-            --    toggle their state on receipt of either a +1 or -1 increment value.
-            --    This will allow a single button to toggle the state of such an item
-            --    without the need for separate ‘up’ and ‘down’ buttons.
-            --
-            -- Format: 0x05, <menuID>, < increment >
-            --
-            -- menuID: The ID value of the menu (Unsigned Int)
-            -- increment: The incremental amount by which the menu index should be changed which will always be an integer value of +1 or -1 (Signed Int)
-            --------------------------------------------------------------------------------
-            local length = (1 + 1 + 1) * 4
-            local commandData = string.sub(data, 1, length)
-            processHubCommand(commandData)
-            numberOfBytesLeft = numberOfBytesLeft - length
-        elseif id == mod.HUB_MESSAGE["MENU_RESET"] then
-            --------------------------------------------------------------------------------
-            -- MenuReset (0x06)
-            --  * Requests that the application sends a MenuString (0x83) command to the Hub.
-            --
-            -- Format: 0x06, <menuID>
-            --
-            -- menuID: The ID value of the menu (Unsigned Int)
-            --------------------------------------------------------------------------------
-            local length = (1 + 1) * 4
-            local commandData = string.sub(data, 1, length)
-            processHubCommand(commandData)
-            numberOfBytesLeft = numberOfBytesLeft - length
-        elseif id == mod.HUB_MESSAGE["MENU_STRING_REQUEST"] then
-            --------------------------------------------------------------------------------
-            -- MenuStringRequest (0x07)
-            --  * Requests that the application sends a MenuString (0x83) command to the Hub.
-            --  * On receipt, the application should respond to the Hub with the new menu
-            --    value using the MenuString (0x83) command, if the menu has changed.
-            --
-            -- Format: 0x07, <menuID>
-            --
-            -- menuID: The ID value of the menu (Unsigned Int)
-            --------------------------------------------------------------------------------
-            local length = (1 + 1) * 4
-            local commandData = string.sub(data, 1, length)
-            processHubCommand(commandData)
-            numberOfBytesLeft = numberOfBytesLeft - length
-        elseif id == mod.HUB_MESSAGE["ACTION_ON"] then
-            --------------------------------------------------------------------------------
-            -- Action On (0x08)
-            --  * Requests that the application performs the specified action.
-            --
-            -- Format: 0x08, <actionID>
-            --
-            -- actionID: The ID value of the action (Unsigned Int)
-            --------------------------------------------------------------------------------
-            local length = (1 + 1) * 4
-            local commandData = string.sub(data, 1, length)
-            processHubCommand(commandData)
-            numberOfBytesLeft = numberOfBytesLeft - length
-        elseif id == mod.HUB_MESSAGE["MODE_CHANGE"] then
-            --------------------------------------------------------------------------------
-            -- ModeChange (0x09)
-            --  * Requests that the application changes to the specified mode.
-            --
-            -- Format: 0x09, <modeID>
-            --
-            -- modeID: The ID value of the mode (Unsigned Int)
-            --------------------------------------------------------------------------------
-            local length = (1 + 1) * 4
-            local commandData = string.sub(data, 1, length)
-            processHubCommand(commandData)
-            numberOfBytesLeft = numberOfBytesLeft - length
-        elseif id == mod.HUB_MESSAGE["TRANSPORT"] then
-            --------------------------------------------------------------------------------
-            -- Transport (0x0A)
-            --  * Requests the application to move the currently active transport.
-            --  * jogValue or shuttleValue will never both be set simultaneously
-            --  * One revolution of the control represents 32 counts by default.
-            --    The user will be able to adjust the sensitivity of Jog & Shuttle
-            --    independently in the TUBE Mapper tool to send more or less than
-            --    32 counts per revolution.
-            --
-            -- Format: 0x0A, <jogValue>, <shuttleValue>
-            --
-            -- jogValue: The number of jog steps to move the transport (Signed Int)
-            -- shuttleValue: An incremental value to add to the shuttle speed (Signed Int)
-            --------------------------------------------------------------------------------
-            local length = (1 + 1 + 1) * 4
-            local commandData = string.sub(data, 1, length)
-            processHubCommand(commandData)
-            numberOfBytesLeft = numberOfBytesLeft - length
-        elseif id == mod.HUB_MESSAGE["ACTION_OFF"] then
-            --------------------------------------------------------------------------------
-            -- ActionOff (0x0B)
-            --  * Requests that the application cancels the specified action.
-            --  * This is typically sent when a button is released.
-            --
-            -- Format: 0x0B, <actionID>
-            --
-            -- actionID: The ID value of the action (Unsigned Int)
-            --------------------------------------------------------------------------------
-            local length = (1 + 1) * 4
-            local commandData = string.sub(data, 1, length)
-            processHubCommand(commandData)
-            numberOfBytesLeft = numberOfBytesLeft - length
-        elseif id == mod.HUB_MESSAGE["UNMANAGED_PANEL_CAPABILITIES"] then
-            --------------------------------------------------------------------------------
-            -- UnmanagedPanelCapabilities (0x30)
-            --  * Only used when working in Unmanaged panel mode.
-            --  * Sent in response to a UnmanagedPanelCapabilitiesRequest (0xA0) command.
-            --  * The values returned are those given in the table in Section 18.
-            --    Panel Data for Unmanaged Mode.
-            --
-            -- Format: 0x30, <panelID>, <numButtons>, <numEncoders>, <numDisplays>, <numDisplayLines>, <numDisplayChars>
-            --
-            -- panelID: The ID of the panel as reported in the InitiateComms command (Unsigned Int)
-            -- numButtons: The number of buttons on the panel (Unsigned Int)
-            -- numEncoders: The number of encoders on the panel (Unsigned Int)
-            -- numDisplays: The number of displays on the panel (Unsigned Int)
-            -- numDisplayLines: The number of lines for each display on the panel (Unsigned Int)
-            -- numDisplayChars: The number of characters on each line of each display on the panel (Unsigned Int)
-            --------------------------------------------------------------------------------
-            local length = 7 * 4
-            local commandData = string.sub(data, 1, length)
-            processHubCommand(commandData)
-            numberOfBytesLeft = numberOfBytesLeft - length
-        elseif id == mod.HUB_MESSAGE["UNMANAGED_BUTTON_DOWN"] then
-            --------------------------------------------------------------------------------
-            -- UnmanagedButtonDown (0x31)
-            --  * Only used when working in Unmanaged panel mode
-            --  * Issued when a button has been pressed
-            --
-            -- Format: 0x31, <panelID>, <buttonID>
-            --
-            -- panelID: The ID of the panel as reported in the InitiateComms command (Unsigned Int)
-            -- buttonID: The hardware ID of the button (Unsigned Int)
-            --------------------------------------------------------------------------------
-            local length = (1 + 1 + 1) * 4
-            local commandData = string.sub(data, 1, length)
-            processHubCommand(commandData)
-            numberOfBytesLeft = numberOfBytesLeft - length
-        elseif id == mod.HUB_MESSAGE["UNMANAGED_BUTTON_UP"] then
-            --------------------------------------------------------------------------------
-            -- UnmanagedButtonUp (0x32)
-            --  * Only used when working in Unmanaged panel mode.
-            --  * Issued when a button has been released
-            --
-            -- Format: 0x32, <panelID>, <buttonID>
-            --
-            -- panelID: The ID of the panel as reported in the InitiateComms command (Unsigned Int)
-            -- buttonID: The hardware ID of the button (Unsigned Int)
-            --------------------------------------------------------------------------------
-            local length = (1 + 1 + 1) * 4
-            local commandData = string.sub(data, 1, length)
-            processHubCommand(commandData)
-            numberOfBytesLeft = numberOfBytesLeft - length
-        elseif id == mod.HUB_MESSAGE["UNMANAGED_ENCODER_CHANGE"] then
-            --------------------------------------------------------------------------------
-            -- UnmanagedEncoderChange (0x33)
-            --  * Only used when working in Unmanaged panel mode.
-            --  * Issued when an encoder has been moved.
-            --
-            -- Format: 0x33, <panelID>, <encoderID>, <increment>
-            --
-            -- panelID: The ID of the panel as reported in the InitiateComms command (Unsigned Int)
-            -- paramID: The hardware ID of the encoder (Unsigned Int)
-            -- increment: The incremental value (Float)
-            --------------------------------------------------------------------------------
-            local length = (1 + 1 + 1 + 1) * 4
-            local commandData = string.sub(data, 1, length)
-            processHubCommand(commandData)
-            numberOfBytesLeft = numberOfBytesLeft - length
-        elseif id == mod.HUB_MESSAGE["UNMANAGED_DISPLAY_REFRESH"] then
-            --------------------------------------------------------------------------------
-            -- UnmanagedDisplayRefresh (0x34)
-            --  * Only used when working in Unmanaged panel mode
-            --  * Issued when a panel has been connected or the focus of the panel has
-            --    been returned to your application.
-            --  * On receipt your application should send all the current information to
-            --    each display on the panel in question.
-            --
-            -- Format: 0x34, <panelID>
-            --
-            -- panelID: The ID of the panel as reported in the InitiateComms command (Unsigned Int)
-            --------------------------------------------------------------------------------
-            local length = (1 + 1) * 4
-            local commandData = string.sub(data, 1, length)
-            processHubCommand(commandData)
-            numberOfBytesLeft = numberOfBytesLeft - length
-        elseif id == mod.HUB_MESSAGE["PANEL_CONNECTION_STATE"] then
-            --------------------------------------------------------------------------------
-            -- PanelConnectionState (0x35)
-            --  * Sent in response to a PanelConnectionStatesRequest (0xA5) command to
-            --    report the current connected/disconnected status of a configured panel.
-            --
-            -- Format: 0x35, <panelID>, <state>
-            --
-            -- panelID: The ID of the panel as reported in the InitiateComms command (Unsigned Int)
-            -- state: The connected state of the panel: 1 if connected, 0 if disconnected (Bool)
-            --------------------------------------------------------------------------------
-            local length = (1 + 1 + 1) * 4
-            local commandData = string.sub(data, 1, length)
-            processHubCommand(commandData)
-            numberOfBytesLeft = numberOfBytesLeft - length
-        else
-            --------------------------------------------------------------------------------
-            -- Unknown Command:
-            --------------------------------------------------------------------------------
-            if mod._callback then
-                mod._callback("UNKNOWN", {
-                    ["data"] = rawData
-                })
-            end
-            return
+local function processDataFromHub(data)
+    if not validCallback() then
+        --------------------------------------------------------------------------------
+        -- There's no callback setup, so abort:
+        --------------------------------------------------------------------------------
+        return
+    end
+    local commands = {}
+    local len = string.len(data)
+    local offset = 1
+    while offset > 0 and offset < len do
+        local command
+        command, offset = processHubCommand(data, offset)
+        if command then
+            commands[#commands + 1] = command
         end
     end
+
+    --------------------------------------------------------------------------------
+    -- Process the buffer:
+    --------------------------------------------------------------------------------
+    processCommands(commands)
 end
 
 --------------------------------------------------------------------------------
 -- PRIVATE VARIABLES:
 --------------------------------------------------------------------------------
+
+-- hs.tangent._buffer -> table
+-- Variable
+-- The commands buffer.
+mod._buffer = {}
 
 -- hs.tangent._readBytesRemaining -> number
 -- Variable
@@ -1126,79 +1060,65 @@ end
 ---
 --- Notes:
 ---  * Full documentation for the Tangent API can be downloaded [here](http://www.tangentwave.co.uk/download/developer-support-pack/).
----  * The callback function should expect 2 arguments and should not return anything:
+---  * The callback function should expect 1 argument and should not return anything.
+--   * The 1 argument will be a table, which can contain one or many commands. Each command is it's own table with the following contents:
 ---    * id - the message ID of the incoming message
 ---    * metadata - A table of data for the Tangent command (see below).
 ---  * The metadata table will return the following, depending on the `id` for the callback:
----    * `CONNECTED` - Connection To Tangent Hub successfully established.
----    * `INITIATE_COMMS` - Initiates communication between the Hub and the application.
+---    * `connected` - Connection to Tangent Hub successfully established.
+---    * `disconnected` - The connection to Tangent Hub was dropped.
+---    * `initiateComms` - Initiates communication between the Hub and the application.
 ---      * `protocolRev` - The revision number of the protocol.
 ---      * `numPanels` - The number of panels connected.
 ---      * `panels`
 ---        * `panelID` - The ID of the panel.
 ---        * `panelType` - The type of panel connected.
 ---      * `data` - The raw data from the Tangent Hub
----    * `PARAMETER_CHANGE` - Requests that the application increment a parameter.
+---    * `parameterChange` - Requests that the application increment a parameter.
 ---      * `paramID` - The ID value of the parameter.
 ---      * `increment` - The incremental value which should be applied to the parameter.
----      * `data` - The raw data from the Tangent Hub
----    * `PARAMETER_RESET` - Requests that the application changes a parameter to its reset value.
+---    * `parameterReset` - Requests that the application changes a parameter to its reset value.
 ---      * `paramID` - The ID value of the parameter.
----      * `data` - The raw data from the Tangent Hub
----    * `PARAMETER_VALUE_REQUEST` - Requests that the application sends a `ParameterValue (0x82)` command to the Hub.
+---    * `parameterValueRequest` - Requests that the application sends a `ParameterValue (0x82)` command to the Hub.
 ---      * `paramID` - The ID value of the parameter.
----      * `data` - The raw data from the Tangent Hub
----    * `MENU_CHANGE` - Requests the application change a menu index by +1 or -1.
+---    * `menuChange` - Requests the application change a menu index by +1 or -1.
 ---      * `menuID` - The ID value of the menu.
 ---      * `increment` - The incremental amount by which the menu index should be changed which will always be an integer value of +1 or -1.
----      * `data` - The raw data from the Tangent Hub
----    * `MENU_RESET` - Requests that the application changes a menu to its reset value.
+---    * `menuReset` - Requests that the application changes a menu to its reset value.
 ---      * `menuID` - The ID value of the menu.
----      * `data` - The raw data from the Tangent Hub
----    * `MENU_STRING_REQUEST` - Requests that the application sends a `MenuString (0x83)` command to the Hub.
+---    * `menuStringRequest` - Requests that the application sends a `MenuString (0x83)` command to the Hub.
 ---      * `menuID` - The ID value of the menu.
----      * `data` - The raw data from the Tangent Hub
----    * `ACTION_ON` - Requests that the application performs the specified action.
+---    * `actionOn` - Requests that the application performs the specified action.
 ---      * `actionID` - The ID value of the action.
----      * `data` - The raw data from the Tangent Hub
----    * `MODE_CHANGE` - Requests that the application changes to the specified mode.
+---    * `modeChange` - Requests that the application changes to the specified mode.
 ---      * `modeID` - The ID value of the mode.
----      * `data` - The raw data from the Tangent Hub
----    * `TRANSPORT` - Requests the application to move the currently active transport.
+---    * `transport` - Requests the application to move the currently active transport.
 ---      * `jogValue` - The number of jog steps to move the transport.
 ---      * `shuttleValue` - An incremental value to add to the shuttle speed.
----      * `data` - The raw data from the Tangent Hub
----    * `ACTION_OFF` - Requests that the application cancels the specified action.
+---    * `actionOff` - Requests that the application cancels the specified action.
 ---      * `actionID` - The ID value of the action.
----      * `data` - The raw data from the Tangent Hub
----    * `UNMANAGED_PANEL_CAPABILITIES` - Only used when working in Unmanaged panel mode. Sent in response to a `UnmanagedPanelCapabilitiesRequest (0xA0)` command.
+---    * `unmanagedPanelCapabilities` - Only used when working in Unmanaged panel mode. Sent in response to a `UnmanagedPanelCapabilitiesRequest (0xA0)` command.
 ---      * `panelID` - The ID of the panel as reported in the `InitiateComms` command.
 ---      * `numButtons` - The number of buttons on the panel.
 ---      * `numEncoders` - The number of encoders on the panel.
 ---      * `numDisplays` - The number of displays on the panel.
 ---      * `numDisplayLines` - The number of lines for each display on the panel.
 ---      * `numDisplayChars` - The number of characters on each line of each display on the panel.
----      * `data` - The raw data from the Tangent Hub
----    * `UNMANAGED_BUTTON_DOWN` - Only used when working in Unmanaged panel mode. Issued when a button has been pressed.
+---    * `unmanagedButtonDown` - Only used when working in Unmanaged panel mode. Issued when a button has been pressed.
 ---      * `panelID` - The ID of the panel as reported in the `InitiateComms` command.
 ---      * `buttonID` - The hardware ID of the button
----      * `data` - The raw data from the Tangent Hub.
----    * `UNMANAGED_BUTTON_UP` - Only used when working in Unmanaged panel mode. Issued when a button has been released.
+---    * `unmanagedButtonUp` - Only used when working in Unmanaged panel mode. Issued when a button has been released.
 ---      * `panelID` - The ID of the panel as reported in the `InitiateComms` command.
 ---      * `buttonID` - The hardware ID of the button.
----      * `data` - The raw data from the Tangent Hub
----    * `UNMANAGED_ENCODER_CHANGE` - Only used when working in Unmanaged panel mode. Issued when an encoder has been moved.
+---    * `unmanagedEncoderChange` - Only used when working in Unmanaged panel mode. Issued when an encoder has been moved.
 ---      * `panelID` - The ID of the panel as reported in the `InitiateComms` command.
 ---      * `paramID` - The hardware ID of the encoder.
 ---      * `increment` - The incremental value.
----      * `data` - The raw data from the Tangent Hub
----    * `UNMANAGED_DISPLAY_REFRESH` - Only used when working in Unmanaged panel mode. Issued when a panel has been connected or the focus of the panel has been returned to your application.
+---    * `unmanagedDisplayRefresh` - Only used when working in Unmanaged panel mode. Issued when a panel has been connected or the focus of the panel has been returned to your application.
 ---      * `panelID` - The ID of the panel as reported in the `InitiateComms` command.
----      * `data` - The raw data from the Tangent Hub
----    * `PANEL_CONNECTION_STATE`
+---    * `panelConnectionState`
 ---      * `panelID` - The ID of the panel as reported in the `InitiateComms` command.
 ---      * `state` - The connected state of the panel, `true` if connected, `false` if disconnected.
----      * `data` - The raw data from the Tangent Hub
 function mod.callback(callbackFn)
     if type(callbackFn) == "function" then
         mod._callback = callbackFn
@@ -1222,16 +1142,21 @@ end
 --- Returns:
 ---  * `true` if connected, otherwise `false`
 function mod.connected()
-    return mod._socket and mod._socket:connected()
+    return mod._socket ~= nil and mod._socket:connected()
 end
 
---- hs.tangent.send(id, metadata) -> boolean, string
+--- hs.tangent.send(byteString) -> boolean, string
 --- Function
---- Sends a message to the Tangent Hub.
+--- Sends a "bytestring" message to the Tangent Hub. This should be a full
+--- encoded string for the command you want to send, withouth the leading 'size' section,
+--- which the function will calculate automatically.
+---
+--- In general, you should use the more specific functions that package the command for you,
+--- such as `sendParameterValue(...)`. This function can be used to send a message that
+--- this API doesn't yet support.
 ---
 --- Parameters:
----  * id - The ID of the message you want to send as defined in `hs.tangent.APP_MESSAGE`
----  * metadata - A table of values as explained below.
+---  * byteString   - The string of bytes to send to tangent.
 ---
 --- Returns:
 ---  * success - `true` if connected, otherwise `false`
@@ -1239,458 +1164,508 @@ end
 ---
 --- Notes:
 ---  * Full documentation for the Tangent API can be downloaded [here](http://www.tangentwave.co.uk/download/developer-support-pack/).
----  * The metadata table will accept the following, depending on the `id` provided:
----    * `APPLICATION_DEFINITION` - This is sent in response to the `InitiateComms (0x01)` command and establishes communication between the application and the hub.
----      * `applicationName` - An string containing the name of the application.
----      * `systemPath` - A string containing the absolute path of the directory that contains the Controls and Default Map XML files.
----      * `userPath` - A string containing the absolute path of the directory that contains the User’s Default Map XML files.
----    * `PARAMETER_VALUE` - Updates the Hub with a parameter value.
----      * `paramID` - The ID value of the parameter.
----      * `value` - The current value of the parameter.
----      * `atDefault` - `true` if the value represents the default, otherwise `false`.
----    * `MENU_STRING` - Updates the Hub with a menu value.
----      * `menuID` - The ID value of the menu.
----      * `valueStr` - The current ‘value’ of the parameter represented as a string.
----      * `atDefault` - `true` if the value represents the default, otherwise `false`.
----    * `ALL_CHANGE` - Tells the Hub that a large number of software-controls have changed.
----    * `MODE_VALUE`
----      * `modeID` - The ID value of the mode.
----    * `DISPLAY_TEXT`
----      * `stringOne` - A line of status text.
----      * `stringOneDoubleHeight` - `true` if the string is to be printed double height, otherwise `false`.
----      * [`stringTwo`] - An optional line of status text.
----      * [`stringTwoDoubleHeight`] - `true` if the string is to be printed double height, otherwise `false` (required if `stringTwo` is supplied).
----      * [`stringThree`] - An optional line of status text.
----      * [`stringThreeDoubleHeight`] - `true` if the string is to be printed double height, otherwise `false` (required if `stringThree` is supplied).
----    * `UNMANAGED_PANEL_CAPABILITIES_REQUEST`
----      * `panelID` - The ID of the panel as reported in the `InitiateComms` command.
----    * `UNMANAGED_DISPLAY_WRITE`
----      * `panelID` - The ID of the panel as reported in the `InitiateComms` command.
----      * `displayID` - The ID of the display to be written to.
----      * `lineNum` - The line number of the display to be written to with 0 as the top line.
----      * `pos` - The position on the line to start writing from with 0 as the first column.
----      * `dispStr` - A line of text.
----    * `RENAME_CONTROL`
----      * `targetID` - The id of any application defined Parameter, Menu, Action or Mode.
----      * `nameStr` - The new name string.
----    * `HIGHLIGHT_CONTROL`
----      * `targetID` - The id of any application defined Parameter, Menu, Action or Mode.
----      * `state` - The state to set, `true` for highlighted, `false` for clear.
----    * `INDICATE_CONTROL`
----      * `targetID` - The id of any application defined Action or Mode.
----      * `state` - The state to set, `true` for indicated, `false` for clear.
----    * `REQUEST_PANEL_CONNECTION_STATES` - Requests the Hub to respond with a sequence of PanelConnectionState (0x35) commands to report the connected/disconnected status of each configured panel.
-function mod.send(id, metadata)
-    if mod._socket and mod.connected() == true then
-        --------------------------------------------------------------------------------
-        -- Error Checking:
-        --------------------------------------------------------------------------------
-        if not id then
-            return false, "The 'id' parameter is required."
+function mod.send(byteString)
+    if mod.connected() then
+        if byteString == nil or #byteString == 0 then
+            return false, "No byte string provided"
         end
-        --------------------------------------------------------------------------------
-        -- Command Processing:
-        --------------------------------------------------------------------------------
-        if id == "APPLICATION_DEFINITION" or id == mod.APP_MESSAGE["APPLICATION_DEFINITION"] then
-            --------------------------------------------------------------------------------
-            -- ApplicationDefinition (0x81)
-            --  * This is sent in response to the InitiateComms (0x01) command and
-            --    establishes communication between the application and the hub.
-            --  * Sends the application type and some file directory details to the hub.
-            --  * If your application manages multiple user settings internally then this
-            --    command should also be sent each time the user changes. This will notify
-            --    the Hub to reload the preference files for the new user.
-            --
-            -- Format: 0x81, <appStrLen>, < appStr>, <sysDirStrLen>, <sysDirStr>, <userDirStrLen>, <userDirStr>
-            --
-            -- appStrLen: The length of appStr (Unsigned Int)
-            -- appStr: A string containing the name of the application (Character String)
-            -- sysDirStrLen: The length of sysDirStr (Unsigned Int)
-            -- sysDirStr: A string containing the absolute path of the directory that contains the Controls and Default Map XML files (Path String)
-            -- usrDirStrLen: The length of usrDirStr (Unsigned Int)
-            -- usrDirStr: A string containing the absolute path of the directory that contains the User’s Default Map XML files (Path String)
-            --------------------------------------------------------------------------------
-            if not metadata then
-                --------------------------------------------------------------------------------
-                -- If no metadata is supplied, then use the values stored from
-                -- hs.tangent.connect():
-                --------------------------------------------------------------------------------
-                local byteString =  numberToByteString(mod.APP_MESSAGE["APPLICATION_DEFINITION"]) ..
-                                    numberToByteString(#mod._applicationName) ..
-                                    mod._applicationName ..
-                                    numberToByteString(#mod._systemPath) ..
-                                    mod._systemPath
-                if mod._userPath then
-                    byteString = byteString .. numberToByteString(#mod._userPath) .. mod._userPath
-                else
-                    byteString = byteString .. numberToByteString(0)
-                end
-                mod._socket:send(numberToByteString(#byteString)..byteString)
-            else
-                if not metadata or type(metadata) ~= "table" then
-                    return false, "The 'metadata' table is required."
-                end
-                if not metadata.applicationName then
-                    return false, "Missing or invalid paramater: applicationName."
-                end
-                if not metadata.systemPath or doesDirectoryExist(metadata.systemPath) == false then
-                    return false, "Missing or invalid paramater: systemPath."
-                end
-                if metadata.userPath and doesDirectoryExist(metadata.userPath) == false then
-                    return false, "Missing or invalid paramater: userPath."
-                end
-                local byteString =  numberToByteString(mod.APP_MESSAGE["APPLICATION_DEFINITION"]) ..
-                                    numberToByteString(#metadata.applicationName) ..
-                                    metadata.applicationName ..
-                                    numberToByteString(#metadata.systemPath) ..
-                                    metadata.systemPath
-                if metadata.userPath then
-                    byteString = byteString .. numberToByteString(#metadata.userPath) .. metadata.userPath
-                else
-                    byteString = byteString .. numberToByteString(0)
-                end
-                mod._socket:send(numberToByteString(#byteString)..byteString)
-            end
-        elseif id == "PARAMETER_VALUE" or id == mod.APP_MESSAGE["PARAMETER_VALUE"] then
-            --------------------------------------------------------------------------------
-            -- ParameterValue (0x82)
-            --  * Updates the Hub with a parameter value.
-            --  * The Hub then updates the displays of any panels which are currently
-            --    showing the parameter value.
-            --
-            -- Format: 0x82, <paramID>, <value>, <atDefault>
-            --
-            -- paramID: The ID value of the parameter (Unsigned Int)
-            -- value: The current value of the parameter (Float)
-            -- atDefault: True if the value represents the default. Otherwise false (Bool)
-            --------------------------------------------------------------------------------
-            if not metadata or type(metadata) ~= "table" then
-                return false, "The 'metadata' table is required."
-            end
-            if not metadata.paramID then
-                return false, "Missing or invalid paramater: paramID."
-            end
-            if not metadata.value then
-                return false, "Missing or invalid paramater: value."
-            end
-            if type(metadata.atDefault) ~= "boolean" then
-                return false, "Missing or invalid paramater: atDefault."
-            end
-            local byteString = numberToByteString(mod.APP_MESSAGE["PARAMETER_VALUE"]) ..
-                            numberToByteString(metadata.paramID) ..
-                            floatToByteString(metadata.value) ..
-                            booleanToByteString(metadata.atDefault)
-            mod._socket:send(numberToByteString(#byteString)..byteString)
-        elseif id == "MENU_STRING" or id == mod.APP_MESSAGE["MENU_STRING"] then
-            --------------------------------------------------------------------------------
-            -- MenuString (0x83)
-            --  * Updates the Hub with a menu value.
-            --  * The Hub then updates the displays of any panels which are currently
-            --    showing the menu.
-            --  * If a valueStrLen of 0 is sent then no valueStr data will follow and the
-            --    Hub will not attempt to display a value for the menu. However the
-            --    atDefault flag will still be recognised.
-            --
-            -- Format: 0x83, <menuID>, <valueStrLen>, <valueStr>, <atDefault>
-            --
-            -- menuID: The ID value of the menu (Unsigned Int)
-            -- valueStrLen: The length of valueStr (Unsigned Int)
-            -- valueStr: The current ‘value’ of the parameter represented as a string (Character String)
-            -- atDefault: True if the value represents the default. Otherwise false (Bool)
-            --------------------------------------------------------------------------------
-            if not metadata or type(metadata) ~= "table" then
-                return false, "The 'metadata' table is required."
-            end
-            if not metadata.menuID then
-                return false, "Missing or invalid paramater: menuID."
-            end
-            if not metadata.valueStr then
-                return false, "Missing or invalid paramater: valueStr."
-            end
-            if type(metadata.atDefault) ~= "boolean" then
-                return false, "Missing or invalid paramater: atDefault."
-            end
-            local byteString = numberToByteString(mod.APP_MESSAGE["MENU_STRING"]) ..
-                               numberToByteString(metadata.menuID) ..
-                               numberToByteString(#metadata.valueStr) ..
-                               metadata.valueStr ..
-                               booleanToByteString(metadata.atDefault)
-            mod._socket:send(numberToByteString(#byteString)..byteString)
-        elseif id == "ALL_CHANGE" or id == mod.APP_MESSAGE["ALL_CHANGE"] then
-            --------------------------------------------------------------------------------
-            -- AllChange (0x84)
-            --  * Tells the Hub that a large number of software-controls have changed.
-            --  * The Hub responds by requesting all the current values of
-            --    software-controls it is currently controlling.
-            --
-            -- Format: 0x84
-            --------------------------------------------------------------------------------
-            local byteString = numberToByteString(mod.APP_MESSAGE["ALL_CHANGE"])
-            mod._socket:send(numberToByteString(#byteString)..byteString)
-        elseif id == "MODE_VALUE" or id == mod.APP_MESSAGE["MODE_VALUE"] then
-            --------------------------------------------------------------------------------
-            -- ModeValue (0x85)
-            --  * Updates the Hub with a mode value.
-            --  * The Hub then changes mode and requests all the current values of
-            --    software-controls it is controlling.
-            --
-            -- Format: 0x85, <modeID>
-            --
-            -- modeID: The ID value of the mode (Unsigned Int)
-            --------------------------------------------------------------------------------
-            if not metadata or type(metadata) ~= "table" then
-                return false, "The 'metadata' table is required."
-            end
-            if not metadata.modeID then
-                return false, "Missing or invalid paramater: modeID."
-            end
-            local byteString = numberToByteString(mod.APP_MESSAGE["MODE_VALUE"]) ..
-                               numberToByteString(metadata.modeID)
-            mod._socket:send(numberToByteString(#byteString)..byteString)
-        elseif id == "DISPLAY_TEXT" or id == mod.APP_MESSAGE["DISPLAY_TEXT"] then
-            --------------------------------------------------------------------------------
-            -- DisplayText (0x86)
-            --  * Updates the Hub with a number of character strings that will be displayed
-            --    on connected panels if there is space.
-            --  * Strings may either be 32 character, single height or 16 character
-            --    double-height. They will be displayed in the order received; the first
-            --    string displayed at the top of the display.
-            --  * If a string is not defined as double-height then it will occupy the
-            --    next line.
-            --  * If a string is defined as double-height then it will occupy the next
-            --    2 lines.
-            --  * The maximum number of lines which will be used by the application
-            --    must be indicated in the Controls XML file.
-            --  * If a stateStrLen value of 0 is passed then the line will not be
-            --    overwritten with any information. In this circumstance no data should be
-            --    passed for stateStr and doubleHeight. The next byte will be the
-            --    stateStrLen for the next string.
-            --
-            -- Format: 0x86, <numStrings>, (<stateStrLen>, <stateStr>, <doubleHeight>)...
-            --
-            -- numStrings: The number of strings to follow (Unsigned Int)
-            -- stateStrLen: The length of stateStr (Unsigned Int)
-            -- stateStr: A line of status text (Character String)
-            -- doubleHeight: True if the string is to be printed double height. Otherwise false (Bool)
-            --------------------------------------------------------------------------------
-            if not metadata or type(metadata) ~= "table" then
-                return false, "The 'metadata' table is required."
-            end
-            if not metadata.stringOne or type(metadata.stringOne) ~= "string" then
-                return false, "Missing or invalid paramater: stringOne."
-            end
-            if type(metadata.stringOneDoubleHeight) ~= "boolean" then
-                return false, "Missing or invalid paramater: stringOneDoubleHeight."
-            end
-            if metadata.stringTwo and type(metadata.stringTwo) ~= "string" then
-                return false, "Missing or invalid paramater: stringTwo."
-            end
-            if metadata.stringTwo and type(metadata.stringTwoDoubleHeight) ~= "boolean" then
-                return false, "Missing or invalid paramater: stringTwoDoubleHeight."
-            end
-            if metadata.stringThree and type(metadata.stringThree) ~= "string" then
-                return false, "Missing or invalid paramater: stringThree."
-            end
-            if metadata.stringThree and type(metadata.stringThreeDoubleHeight) ~= "boolean" then
-                return false, "Missing or invalid paramater: stringThreeDoubleHeight."
-            end
-            local numStrings = 1
-            if metadata.stringTwo then numStrings = 2 end
-            if metadata.stringThree then numStrings = 3 end
-            local byteString =  numberToByteString(mod.APP_MESSAGE["DISPLAY_TEXT"]) ..
-                                numberToByteString(numStrings) ..
-                                numberToByteString(#metadata.stringOne) ..
-                                metadata.stringOne ..
-                                booleanToByteString(metadata.stringOneDoubleHeight)
-            if numStrings == 2 then
-                byteString =    byteString ..
-                                numberToByteString(#metadata.stringTwo) ..
-                                metadata.stringTwo ..
-                                booleanToByteString(metadata.stringTwoDoubleHeight)
-            end
-            if numStrings == 3 then
-                byteString =    byteString ..
-                                numberToByteString(#metadata.stringThree) ..
-                                metadata.stringThree ..
-                                booleanToByteString(metadata.stringThreeDoubleHeight)
-            end
-            mod._socket:send(numberToByteString(#byteString)..byteString)
-        elseif id == "UNMANAGED_PANEL_CAPABILITIES_REQUEST" or id == mod.APP_MESSAGE["UNMANAGED_PANEL_CAPABILITIES_REQUEST"] then
-            --------------------------------------------------------------------------------
-            -- UnmanagedPanelCapabilitiesRequest (0xA0)
-            --  * Only used when working in Unmanaged panel mode
-            --  * Requests the Hub to respond with an UnmanagedPanelCapabilities (0x30)
-            --    command.
-            --
-            -- Format: 0xA0, <panelID>
-            --
-            -- panelID: The ID of the panel as reported in the InitiateComms command (Unsigned Int)
-            --------------------------------------------------------------------------------
-            if not metadata or type(metadata) ~= "table" then
-                return false, "The 'metadata' table is required."
-            end
-            if not metadata.panelID then
-                return false, "Missing or invalid paramater: panelID."
-            end
-            local byteString = numberToByteString(mod.APP_MESSAGE["UNMANAGED_PANEL_CAPABILITIES_REQUEST"]) ..
-                               numberToByteString(metadata.panelID)
-            mod._socket:send(numberToByteString(#byteString)..byteString)
-        elseif id == "UNMANAGED_DISPLAY_WRITE" or id == mod.APP_MESSAGE["UNMANAGED_DISPLAY_WRITE"] then
-            --------------------------------------------------------------------------------
-            -- UnmanagedDisplayWrite (0xA1)
-            --  * Only used when working in Unmanaged panel mode.
-            --  * Updates the Hub with text that will be displayed on a specific panel at
-            --    the given line and starting position where supported by the panel
-            --    capabilities.
-            --   * If the most significant bit of any individual text character in dispStr
-            --     is set it will be displayed as inversed with dark text on a light
-            --     background.
-            --
-            -- Format: 0xA1, <panelID>, <displayID>, <lineNum>, <pos>, <dispStrLen>, <dispStr>
-            --
-            -- panelID: The ID of the panel as reported in the InitiateComms command (Unsigned Int)
-            -- displayID: The ID of the display to be written to (Unsigned Int)
-            -- lineNum: The line number of the display to be written to with 0 as the top line (Unsigned Int)
-            -- pos: The position on the line to start writing from with 0 as the first column (Unsigned Int)
-            -- dispStrLen: The length of dispStr (Unsigned Int)
-            -- dispStr: A line of text (Character String)
-            --------------------------------------------------------------------------------
-            if not metadata or type(metadata) ~= "table" then
-                return false, "The 'metadata' table is required."
-            end
-            if not metadata.panelID then
-                return false, "Missing or invalid paramater: panelID."
-            end
-            if not metadata.displayID then
-                return false, "Missing or invalid paramater: displayID."
-            end
-            if not metadata.lineNum then
-                return false, "Missing or invalid paramater: lineNum."
-            end
-            if not metadata.pos then
-                return false, "Missing or invalid paramater: pos."
-            end
-            if not metadata.dispStr then
-                return false, "Missing or invalid paramater: dispStr."
-            end
-            local byteString =  numberToByteString(mod.APP_MESSAGE["UNMANAGED_DISPLAY_WRITE"]) ..
-                                numberToByteString(metadata.panelID) ..
-                                numberToByteString(metadata.displayID) ..
-                                numberToByteString(metadata.lineNum) ..
-                                numberToByteString(metadata.pos) ..
-                                numberToByteString(#metadata.dispStr) ..
-                                metadata.dispStr
-            mod._socket:send(numberToByteString(#byteString)..byteString)
-        elseif id == "RENAME_CONTROL" or id == mod.APP_MESSAGE["RENAME_CONTROL"] then
-            --------------------------------------------------------------------------------
-            -- RenameControl (0xA2)
-            --  * Renames a control dynamically.
-            --  * The string supplied will replace the normal text which has been
-            --    derived from the Controls XML file.
-            --  * To remove any existing replacement name set nameStrLen to zero,
-            --    this will remove any renaming and return the system to the normal
-            --    display text
-            --  * When applied to Modes, the string displayed on buttons which mapped to
-            --    the reserved Go To Mode action for this particular mode will also change.
-            --
-            -- Format: 0xA2, <targetID>, <nameStrLen>, <nameStr>
-            --
-            -- targetID: The id of any application defined Parameter, Menu, Action or Mode (Unsigned Int)
-            -- nameStrLen: The length of nameStr (Unsigned Int)
-            --------------------------------------------------------------------------------
-            if not metadata or type(metadata) ~= "table" then
-                return false, "The 'metadata' table is required."
-            end
-            if not metadata.targetID then
-                return false, "Missing or invalid paramater: targetID."
-            end
-            if not metadata.nameStr then
-                return false, "Missing or invalid paramater: nameStr."
-            end
-            local byteString =  numberToByteString(mod.APP_MESSAGE["RENAME_CONTROL"]) ..
-                                numberToByteString(#metadata.nameStr) ..
-                                numberToByteString(metadata.nameStr)
-            mod._socket:send(numberToByteString(#byteString) .. byteString)
-        elseif id == "HIGHLIGHT_CONTROL" or id == mod.APP_MESSAGE["HIGHLIGHT_CONTROL"] then
-            --------------------------------------------------------------------------------
-            -- HighlightControl (0xA3)
-            --  * Highlights the control on any panel where this feature is available.
-            --  * When applied to Modes, buttons which are mapped to the reserved Go To
-            --    Mode action for this particular mode will highlight.
-            --
-            -- Format: 0xA3, <targetID>, <state>
-            --
-            -- targetID: The id of any application defined Parameter, Menu, Action or Mode (Unsigned Int)
-            -- state: The state to set. 1 for highlighted, 0 for clear (Unsigned Int)
-            --------------------------------------------------------------------------------
-            if not metadata or type(metadata) ~= "table" then
-                return false, "The 'metadata' table is required."
-            end
-            if not metadata.targetID then
-                return false, "Missing or invalid paramater: targetID."
-            end
-            if type(metadata.state) ~= "boolean" then
-                return false, "Missing or invalid paramater: state."
-            end
-            local byteString = numberToByteString(mod.APP_MESSAGE["HIGHLIGHT_CONTROL"]) ..
-                               numberToByteString(metadata.targetID) ..
-                               booleanToByteString(metadata.state)
-            mod._socket:send(numberToByteString(#byteString)..byteString)
-        elseif id == "INDICATE_CONTROL" or id == mod.APP_MESSAGE["INDICATE_CONTROL"] then
-            --------------------------------------------------------------------------------
-            -- IndicateControl (0xA4)
-            --  * Sets the Indicator of the control on any panel where this feature is
-            --    available.
-            --  * This indicator is driven by the atDefault argument for Parameters and
-            --    Menus. This command therefore only applies to controls mapped to Actions
-            --    and Modes.
-            --  * When applied to Modes, buttons which are mapped to the reserved Go To
-            --    Mode action for this particular mode will have their indicator set.
-            --
-            -- Format: 0xA4, <targetID>, <state>
-            --
-            -- targetID: The id of any application defined Action or Mode (Unsigned Int)
-            -- state: The state to set. 1 for indicated, 0 for clear (Unsigned Int)
-            --------------------------------------------------------------------------------
-            if not metadata or type(metadata) ~= "table" then
-                return false, "The 'metadata' table is required."
-            end
-            if not metadata.targetID then
-                return false, "Missing or invalid paramater: targetID."
-            end
-            if type(metadata.state) ~= "boolean" then
-                return false, "Missing or invalid paramater: state."
-            end
-            local byteString = numberToByteString(mod.APP_MESSAGE["INDICATE_CONTROL"]) ..
-                               numberToByteString(metadata.targetID) ..
-                               booleanToByteString(metadata.state)
-            mod._socket:send(numberToByteString(#byteString)..byteString)
-        elseif id == "REQUEST_PANEL_CONNECTION_STATES" or id == mod.APP_MESSAGE["REQUEST_PANEL_CONNECTION_STATES"] then
-            --------------------------------------------------------------------------------
-            -- PanelConnectionStatesRequest (0xA5)
-            --  * Requests the Hub to respond with a sequence of PanelConnectionState
-            --    (0x35) commands to report the connected/disconnected status of each
-            --    configured panel.
-            --  * A single request may result in multiple state responses.
-            --
-            -- Format: 0xA5
-            --------------------------------------------------------------------------------
-            local byteString = numberToByteString(mod.APP_MESSAGE["REQUEST_PANEL_CONNECTION_STATES"])
-            mod._socket:send(numberToByteString(#byteString)..byteString)
-        else
-            --------------------------------------------------------------------------------
-            -- Unknown Command:
-            --------------------------------------------------------------------------------
-            return false, "Unrecognised ID. Please refer to extension documentation for a list of possible IDs."
-        end
-    else
-        return false, "Not connected to Tangent Hub."
+
+        mod._socket:send(numberToByteString(#byteString)..byteString)
+        return true
     end
-    --------------------------------------------------------------------------------
-    -- Success!
-    --------------------------------------------------------------------------------
-    return true, ""
+    return false, "Not connected"
 end
+
+--- hs.tangent.sendApplicationDefinition([appName, systemPath, userPath]) -> boolean, string
+--- Function
+--- Sends the application details to the Tangent Hub.
+--- If no details are provided the ones stored in the module are used.
+---
+--- Parameters:
+---  * appName       - The human-readable name of the application.
+---  * systemPath    - A string containing the absolute path of the directory that contains the Controls and Default Map XML files (Path String)
+---  * userPath      - A string containing the absolute path of the directory that contains the User’s Default Map XML files (Path String)
+---
+--- Returns:
+---  * `true` if successful, `false` and an error message if there was a problem.
+function mod.sendApplicationDefinition(appName, systemPath, userPath)
+    appName = appName or mod._applicationName
+    systemPath = systemPath or mod._systemPath
+    userPath = userPath or mod._userPath
+
+    if not appName then
+        return false, format("Missing or invalid application name: %s", inspect(appName))
+    end
+    if not systemPath or doesDirectoryExist(systemPath) == false then
+        return false, format("Missing or invalid system path: %s", inspect(systemPath))
+    end
+    if userPath and doesDirectoryExist(userPath) == false then
+        return false, format("Missing or invalid userPath: %s", inspect(userPath))
+    end
+
+    --------------------------------------------------------------------------------
+    -- Format: 0x81, <appStrLen>, < appStr>, <sysDirStrLen>, <sysDirStr>, <userDirStrLen>, <userDirStr>
+    --
+    -- appStrLen: The length of appStr (Unsigned Int)
+    -- appStr: A string containing the name of the application (Character String)
+    -- sysDirStrLen: The length of sysDirStr (Unsigned Int)
+    -- sysDirStr: A string containing the absolute path of the directory that contains the Controls and Default Map XML files (Path String)
+    -- usrDirStrLen: The length of usrDirStr (Unsigned Int)
+    -- usrDirStr: A string containing the absolute path of the directory that contains the User’s Default Map XML files (Path String)
+    --------------------------------------------------------------------------------
+    local byteString =  numberToByteString(mod.toHub.applicationDefinition) ..
+                        numberToByteString(#appName) ..
+                        appName ..
+                        numberToByteString(#systemPath) ..
+                        systemPath ..
+                        numberToByteString(userPath and #userPath or 0) ..
+                        (userPath ~= nil and userPath or "")
+
+    return mod.send(byteString)
+end
+
+--- hs.tangent.setParameterValue(paramID, value[, atDefault]) -> boolean, string
+--- Function
+--- Updates the Hub with a parameter value.
+--- The Hub then updates the displays of any panels which are currently
+--- showing the parameter value.
+---
+--- Parameters:
+---  * paramID - The ID value of the parameter (Unsigned Int)
+---  * value - The current value of the parameter (Float)
+---  * atDefault - if `true` the value represents the default. Defaults to `false`.
+---
+--- Returns:
+---  * `true` if successful, or `false` and an error message if not.
+function mod.sendParameterValue(paramID, value, atDefault)
+    --------------------------------------------------------------------------------
+    -- Format: 0x82, <paramID>, <value>, <atDefault>
+    --
+    -- paramID: The ID value of the parameter (Unsigned Int)
+    -- value: The current value of the parameter (Float)
+    -- atDefault: True if the value represents the default. Otherwise false (Bool)
+    --------------------------------------------------------------------------------
+    if not paramID then
+        return false, format("Missing or invalid parameter ID: %s", inspect(paramID))
+    end
+    if not value or type(value) ~= "number" then
+        return false, format("Missing or invalid value: %s", inspect(value))
+    end
+    atDefault = atDefault == true
+
+    local byteString = numberToByteString(mod.toHub.parameterValue) ..
+                    numberToByteString(paramID) ..
+                    floatToByteString(value) ..
+                    booleanToByteString(atDefault)
+
+    return mod.send(byteString)
+end
+
+--- hs.tangent.sendMenuString(menuID, value[, atDefault]) -> boolean, string
+--- Function
+--- Updates the Hub with a menu value.
+--- The Hub then updates the displays of any panels which are currently
+--    showing the menu.
+--- If a value of `nil` is sent then the Hub will not attempt to display a
+--- value for the menu. However the `atDefault` flag will still be recognised.
+---
+--- Parameters:
+---  * menuID - The ID value of the menu (Unsigned Int)
+---  * value - The current ‘value’ of the parameter represented as a string
+---  * atDefault - if `true` the value represents the default. Otherwise `false`.
+---
+--- Returns:
+---  * `true` if successful, or `false` and an error message if not.
+function mod.sendMenuString(menuID, value, atDefault)
+    --------------------------------------------------------------------------------
+    -- Format: 0x83, <menuID>, <valueStrLen>, <valueStr>, <atDefault>
+    --
+    -- menuID: The ID value of the menu (Unsigned Int)
+    -- valueStrLen: The length of valueStr (Unsigned Int)
+    -- valueStr: The current ‘value’ of the parameter represented as a string (Character String)
+    -- atDefault: True if the value represents the default. Otherwise false (Bool)
+    --------------------------------------------------------------------------------
+    if not type(menuID) == "number" then
+        return false, format("Missing or invalid menuID: %s", inspect(menuID))
+    end
+    value = value or ""
+    atDefault = atDefault == true
+
+    local byteString = numberToByteString(mod.toHub.menuString) ..
+                        numberToByteString(menuID) ..
+                        numberToByteString(#value) ..
+                        value  ..
+                        booleanToByteString(atDefault)
+
+    return mod.send(byteString)
+end
+
+--- hs.tangent.sendAllChange() -> boolean, string
+--- Function
+--- Tells the Hub that a large number of software-controls have changed.
+--- The Hub responds by requesting all the current values of
+--- software-controls it is currently controlling.
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * `true` if successful, or `false` and an error message if not.
+function mod.sendAllChange()
+    --------------------------------------------------------------------------------
+    -- Format: 0x84
+    --------------------------------------------------------------------------------
+    local byteString = numberToByteString(mod.toHub.allChange)
+    return mod.send(byteString)
+end
+
+--- hs.tangent.sendModeValue(modeID) -> boolean, string
+--- Function
+--- Updates the Hub with a mode value.
+--- The Hub then changes mode and requests all the current values of
+--- software-controls it is controlling.
+---
+--- Parameters:
+---  * modeID - The ID value of the mode (Unsigned Int)
+---
+--- Returns:
+---  * `true` if successful, or `false` and an error message if not.
+function mod.sendModeValue(modeID)
+    --------------------------------------------------------------------------------
+    -- Format: 0x85, <modeID>
+    --
+    -- modeID: The ID value of the mode (Unsigned Int)
+    --------------------------------------------------------------------------------
+    if not isNumber(modeID) then
+        return false, format("Missing or invalid `modeID`: %s", inspect(modeID))
+    end
+    local byteString = numberToByteString(mod.toHub.modeValue) ..
+                        numberToByteString(modeID)
+
+    return mod.send(byteString)
+end
+
+--- hs.tangent.sendDisplayText(messages[, doubleHeight]) -> boolean, string
+--- Function
+---  * Updates the Hub with a number of character strings that will be displayed
+---   on connected panels if there is space.
+---  * Strings may either be 32 character, single height or 16 character
+---   double-height. They will be displayed in the order received; the first
+---   string displayed at the top of the display.
+---  * If a string is not defined as double-height then it will occupy the
+---   next line.
+---  * If a string is defined as double-height then it will occupy the next
+---   2 lines.
+---  * The maximum number of lines which will be used by the application
+---   must be indicated in the Controls XML file.
+---  * Text which exceeds 32 (single-height) or 16 (double-height) characters will be truncated.
+---
+--- Example:
+---
+--- ```lua
+--- hs.tangent.sendDisplayText(
+---     { "Single Height", "Double Height" }, {false, true}
+--- )
+--- ```
+---
+--- If all text is single-height, the `doubleHeight` table can be omitted.
+---
+--- Parameters:
+---  * messages      - A list of messages to send.
+---  * doubleHeight  - An optional list of `boolean`s indicating if the corresponding message is double-height.
+---
+--- Returns:
+---  * `true` if successful, or `false` and an error message if not.
+function mod.sendDisplayText(messages, doubleHeight)
+    --------------------------------------------------------------------------------
+    -- DisplayText (0x86)
+    --  * Updates the Hub with a number of character strings that will be displayed
+    --    on connected panels if there is space.
+    --  * Strings may either be 32 character, single height or 16 character
+    --    double-height. They will be displayed in the order received; the first
+    --    string displayed at the top of the display.
+    --  * If a string is not defined as double-height then it will occupy the
+    --    next line.
+    --  * If a string is defined as double-height then it will occupy the next
+    --    2 lines.
+    --  * The maximum number of lines which will be used by the application
+    --    must be indicated in the Controls XML file.
+    --  * If a stateStrLen value of 0 is passed then the line will not be
+    --    overwritten with any information. In this circumstance no data should be
+    --    passed for stateStr and doubleHeight. The next byte will be the
+    --    stateStrLen for the next string.
+    --
+    -- Format: 0x86, <numStrings>, (<stateStrLen>, <stateStr>, <doubleHeight>)...
+    --
+    -- numStrings: The number of strings to follow (Unsigned Int)
+    -- stateStrLen: The length of stateStr (Unsigned Int)
+    -- stateStr: A line of status text (Character String)
+    -- doubleHeight: True if the string is to be printed double height. Otherwise false (Bool)
+    --------------------------------------------------------------------------------
+    if isNotList(messages) then
+        return false, format("The `messages` must be a list of strings: %s", inspect(messages))
+    end
+    doubleHeight = doubleHeight or {}
+    if isNotTable(doubleHeight) then
+        return false, format("Invalid `doubleHeight` parameter: %s", inspect(doubleHeight))
+    end
+
+    local byteString = numberToByteString(mod.toHub.displayText) ..
+                        numberToByteString(#messages)
+
+    for i,value in ipairs(messages) do
+        --------------------------------------------------------------------------------
+        -- Trim to size:
+        --------------------------------------------------------------------------------
+        if not type(value) == "string" then
+            return false, format("Invalid message #%s: %s", i, inspect(value))
+        end
+        local isDouble = doubleHeight[i]
+        local maxLength = isDouble and 16 or 32
+        value = #value > maxLength and value:sub(0, maxLength) or value
+
+        byteString = byteString .. numberToByteString(#value)
+
+        if #value > 0 then
+            byteString = byteString .. value .. booleanToByteString(isDouble)
+        end
+    end
+
+    return mod.send(byteString)
+end
+
+--- hs.tangent.sendUnmanagedPanelCapabilitiesRequest(panelID) -> boolean, string
+--- Function
+---  * Only used when working in Unmanaged panel mode
+---  * Requests the Hub to respond with an UnmanagedPanelCapabilities (0x30) command.
+---
+--- Parameters:
+---  * panelID - The ID of the panel as reported in the InitiateComms command (Unsigned Int)
+---
+--- Returns:
+---  * `true` if successful, or `false` and an error message if not.
+function mod.sendUnmanagedPanelCapabilitiesRequest(panelID)
+    --------------------------------------------------------------------------------
+    -- Format: 0xA0, <panelID>
+    --
+    -- panelID: The ID of the panel as reported in the InitiateComms command (Unsigned Int)
+    --------------------------------------------------------------------------------
+    if not isNumber(panelID) then
+        return false, format("Missing or invalid panel ID: %s", inspect(panelID))
+    end
+    local byteString = numberToByteString(mod.toHub.unmanagedPanelCapabilitiesRequest) ..
+                        numberToByteString(panelID)
+
+    return mod.send(byteString)
+end
+
+--- hs.tangent.sendUnmanagedDisplayWrite(panelID, displayID, lineNum, pos, message) -> boolean, string
+--- Function
+---  * Only used when working in Unmanaged panel mode.
+---  * Updates the Hub with text that will be displayed on a specific panel at
+---   the given line and starting position where supported by the panel capabilities.
+---  * If the most significant bit of any individual text character in `message`
+---   is set it will be displayed as inversed with dark text on a light background.
+---
+--- Parameters:
+---  * panelID       - The ID of the panel as reported in the InitiateComms command (Unsigned Int)
+---  * displayID     - The ID of the display to be written to (Unsigned Int)
+---  * lineNum       - The line number of the display to be written to with `1` as the top line (Unsigned Int)
+---  * pos           - The position on the line to start writing from with `1` as the first column (Unsigned Int)
+---  * message       - A line of text (Character String)
+---
+--- Returns:
+---  * `true` if successful, or `false` and an error message if not.
+function mod.sendUnmanagedDisplayWrite(panelID, displayID, lineNum, pos, message)
+    --------------------------------------------------------------------------------
+    -- Format: 0xA1, <panelID>, <displayID>, <lineNum>, <pos>, <dispStrLen>, <dispStr>
+    --
+    -- panelID: The ID of the panel as reported in the InitiateComms command (Unsigned Int)
+    -- displayID: The ID of the display to be written to (Unsigned Int)
+    -- lineNum: The line number of the display to be written to with 0 as the top line (Unsigned Int)
+    -- pos: The position on the line to start writing from with 0 as the first column (Unsigned Int)
+    -- dispStrLen: The length of dispStr (Unsigned Int)
+    -- dispStr: A line of text (Character String)
+    --------------------------------------------------------------------------------
+    if not isNumber(panelID) then
+        return false, format("Missing or invalid panelID: %s", inspect(panelID))
+    end
+    if not isNumber(displayID) then
+        return false, format("Missing or invalid displayID: %s", inspect(displayID))
+    end
+    if not isNumber(lineNum) or lineNum < 1 then
+        return false, format("Missing or invalid lineNum: %s", inspect(lineNum))
+    end
+    if not isNumber(pos) or pos < 1 then
+        return false, format("Missing or invalid pos: %s", inspect(pos))
+    end
+    if not type(message) == "string" then
+        return false, format("Missing or invalid message: %s", inspect(message))
+    end
+
+    local byteString =  numberToByteString(mod.toHub.unmanagedDisplayWrite) ..
+                        numberToByteString(panelID) ..
+                        numberToByteString(displayID) ..
+                        numberToByteString(lineNum-1) ..
+                        numberToByteString(pos-1) ..
+                        numberToByteString(#message) ..
+                        message
+
+    return mod.send(byteString)
+end
+
+--- hs.tangent.sendRenameControl(targetID, newName) -> boolean, string
+--- Function
+---  * Renames a control dynamically.
+---  * The string supplied will replace the normal text which has been
+---   derived from the Controls XML file.
+---  * To remove any existing replacement name set `newName` to `""`,
+---   this will remove any renaming and return the system to the normal
+---   display text
+---  * When applied to Modes, the string displayed on buttons which mapped to
+---   the reserved "Go To Mode" action for this particular mode will also change.
+---
+--- Parameters:
+---  * targetID  - The id of any application defined Parameter, Menu, Action or Mode (Unsigned Int)
+---  * newName   - The new name to apply.
+---
+--- Returns:
+---  * `true` if successful, `false` and an error message if not.
+function mod.sendRenameControl(targetID, newName)
+    --------------------------------------------------------------------------------
+    -- Format: 0xA2, <targetID>, <nameStrLen>, <nameStr>
+    --
+    -- targetID: The id of any application defined Parameter, Menu, Action or Mode (Unsigned Int)
+    -- nameStrLen: The length of nameStr (Unsigned Int)
+    --------------------------------------------------------------------------------
+    if not isNumber(targetID) then
+        return false, format("Missing or invalid targetID: %s", inspect(targetID))
+    end
+    if not type(newName) == "string" then
+        return false, format("Missing or invalid name: %s", inspect(newName))
+    end
+
+    local byteString =  numberToByteString(mod.toHub.renameControl) ..
+                        numberToByteString(targetID) ..
+                        numberToByteString(#newName) ..
+                        newName
+
+    return mod.send(byteString)
+end
+
+--- hs.tangent.sendHighlightControl(targetID, active) -> boolean, string
+--- Function
+---  * Highlights the control on any panel where this feature is available.
+---  * When applied to Modes, buttons which are mapped to the reserved "Go To
+---   Mode" action for this particular mode will highlight.
+---
+--- Parameters:
+---  * targetID      - The id of any application defined Parameter, Menu, Action or Mode (Unsigned Int)
+---  * active        - If `true`, the control is highlighted, otherwise it is not.
+---
+--- Returns:
+---  * `true` if sent successfully, `false` and an error message if no.
+function mod.sendHighlightControl(targetID, active)
+    --------------------------------------------------------------------------------
+    -- targetID: The id of any application defined Parameter, Menu, Action or Mode (Unsigned Int)
+    -- state: The state to set. 1 for highlighted, 0 for clear (Unsigned Int)
+    --------------------------------------------------------------------------------
+    if not isNumber(targetID) then
+        return false, "Missing or invalid paramater: targetID."
+    end
+    local state = active == true and 1 or 0
+
+    local byteString = numberToByteString(mod.toHub.highlightControl) ..
+                        numberToByteString(targetID) ..
+                        numberToByteString(state)
+
+    return mod.send(byteString)
+end
+
+--- hs.tangent.sendIndicateControl(targetID, indicated) -> boolean, string
+--- Function
+---  * Sets the Indicator of the control on any panel where this feature is
+---   available.
+---  * This indicator is driven by the `atDefault` argument for Parameters and
+---   Menus. This command therefore only applies to controls mapped to Actions
+---   and Modes.
+---  * When applied to Modes, buttons which are mapped to the reserved "Go To
+---   Mode" action for this particular mode will have their indicator set.
+---
+--- Parameters:
+---  * targetID      - The id of any application defined Parameter, Menu, Action or Mode
+---  * active        - If `true`, the control is indicated, otherwise it is not.
+---
+--- Returns:
+---  * `true` if sent successfully, `false` and an error message if no.
+function mod.sendIndicateControl(targetID, active)
+    --------------------------------------------------------------------------------
+    -- Format: 0xA4, <targetID>, <state>
+    --
+    -- targetID: The id of any application defined Action or Mode (Unsigned Int)
+    -- state: The state to set. 1 for indicated, 0 for clear (Unsigned Int)
+    --------------------------------------------------------------------------------
+    if not isNumber(targetID) then
+        return false, "Missing or invalid paramater: targetID."
+    end
+    local state = active == true and 1 or 0
+
+    local byteString = numberToByteString(mod.toHub.indicateControl) ..
+                        numberToByteString(targetID) ..
+                        numberToByteString(state)
+
+    return mod.send(byteString)
+end
+
+--- hs.tangent.sendPanelConnectionStatesRequest())
+--- Function
+---  * Requests the Hub to respond with a sequence of PanelConnectionState
+---   (0x35) commands to report the connected/disconnected status of each
+---   configured panel.
+---  * A single request may result in multiple state responses.
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * `true` if sent successfully, `false` and an error message if not.
+function mod.sendPanelConnectionStatesRequest()
+    --------------------------------------------------------------------------------
+    -- Format: 0xA5
+    --------------------------------------------------------------------------------
+    local byteString = numberToByteString(mod.toHub.panelConnectionStatesRequest)
+
+    return mod.send(byteString)
+end
+
+-- notifyDisconnected() -> none
+-- Function
+-- Triggers the disconnection notification callback and stops the Connection Watcher.
+--
+-- Parameters:
+--  * None
+--
+-- Returns:
+--  * None
+local function notifyDisconnected()
+    if mod._callback then
+        mod._callback({{id=mod.fromHub.disconnected, metadata={
+            ipAddress = mod.ipAddress,
+            port = mod.port,
+        }}})
+    end
+    if mod._connectionWatcher then mod._connectionWatcher:stop() end
+end
+
+-- hs.tangent._connectionWatcher -> timer
+-- Variable
+-- Tracks the Tangent socket connection.
+mod._connectionWatcher = timer.new(1.0, function()
+    if not mod.connected() then
+        mod._socket = nil
+        notifyDisconnected()
+    end
+end)
 
 --- hs.tangent.disconnect() -> none
 --- Function
@@ -1705,8 +1680,20 @@ function mod.disconnect()
     if mod._socket then
         mod._socket:disconnect()
         mod._socket = nil
+        notifyDisconnected()
+        mod._connectionWatcher:stop()
     end
 end
+
+-- MESSAGE_SIZE -> number
+-- Constant
+-- Message Size.
+local MESSAGE_SIZE = 1
+
+-- MESSAGE_BODY -> number
+-- Constant
+-- Message Body.
+local MESSAGE_BODY = 2
 
 --- hs.tangent.connect(applicationName, systemPath[, userPath]) -> boolean, errorMessage
 --- Function
@@ -1754,26 +1741,33 @@ function mod.connect(applicationName, systemPath, userPath)
     -- Connect to Tangent Hub:
     --------------------------------------------------------------------------------
     mod._socket = socket.new()
-        :setCallback(function(data)
-            if mod._readBytesRemaining == 0 then
+    if mod._socket then
+        mod._socket:setCallback(function(data, tag)
+            -- log.df("Received data: size=%s; tag=%s", #data, inspect(tag))
+            if tag == MESSAGE_SIZE then
                 --------------------------------------------------------------------------------
-                -- Each message starts with an integer value indicating the number of bytes
-                -- to follow. We don't have any bytes left to read of a previous message,
-                -- so this must be the first 4 bytes:
+                -- Each message starts with an integer value indicating the number of bytes.
                 --------------------------------------------------------------------------------
-                mod._readBytesRemaining = byteStringToNumber(data, 1, 4)
-                timer.doAfter(mod.interval, function() mod._socket:read(mod._readBytesRemaining) end)
-            else
+                local messageSize = byteStringToNumber(data, 1, 4)
+                timer.doAfter(mod.interval, function()
+                    if mod._socket then
+                        mod._socket:read(messageSize, MESSAGE_BODY)
+                    end
+                end)
+            elseif tag == MESSAGE_BODY then
                 --------------------------------------------------------------------------------
                 -- We've read the rest of series of commands:
                 --------------------------------------------------------------------------------
-                mod._readBytesRemaining = 0
-                separateHubCommands(data)
+                processDataFromHub(data)
 
                 --------------------------------------------------------------------------------
                 -- Get set up for the next series of commands:
                 --------------------------------------------------------------------------------
-                timer.doAfter(mod.interval, function() mod._socket:read(4) end)
+                timer.doAfter(mod.interval, function()
+                    if mod._socket then
+                        mod._socket:read(4, MESSAGE_SIZE)
+                    end
+                end)
             end
         end)
         :connect(mod.ipAddress, mod.port, function()
@@ -1781,15 +1775,23 @@ function mod.connect(applicationName, systemPath, userPath)
             -- Trigger Callback when connected:
             --------------------------------------------------------------------------------
             if mod._callback then
-                mod._callback("CONNECTED", {})
+                mod._callback({{id=mod.fromHub.connected, metadata={
+                    ipAddress = mod.ipAddress,
+                    port = mod.port,
+                }}})
             end
+
+            --------------------------------------------------------------------------------
+            -- Watch for disconnections:
+            --------------------------------------------------------------------------------
+            mod._connectionWatcher:start()
 
             --------------------------------------------------------------------------------
             -- Read the first 4 bytes, which will trigger the callback:
             --------------------------------------------------------------------------------
-            mod._socket:read(4)
+            mod._socket:read(4, MESSAGE_SIZE)
         end)
-
+    end
     return mod._socket ~= nil or nil
 
 end
