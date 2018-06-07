@@ -25,7 +25,7 @@ local function brightnessHelper(bridge, zonecmd, value)
             value = milight.maxBrightness
         end
         value = value + 2 -- bridge accepts values between 2 and 27
-        result = bridge:send(milight.cmd["brightness"], value)
+        local result = bridge:send(milight.cmd["brightness"], value)
         if (result) then
             return value - 2
         else
