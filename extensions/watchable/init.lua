@@ -30,14 +30,14 @@ mt_object = {
             local objectPath = mt_object.__objects[self]
             if mt_object.__watchers[objectPath] then
                 if mt_object.__watchers[objectPath][index] then
-                    for k, v in pairs(mt_object.__watchers[objectPath][index]) do
+                    for _, v in pairs(mt_object.__watchers[objectPath][index]) do
                         if v._active and v._callback then
                             v._callback(v, objectPath, index, oldValue, value)
                         end
                     end
                 end
                 if mt_object.__watchers[objectPath]["*"] then
-                    for k, v in pairs(mt_object.__watchers[objectPath]["*"]) do
+                    for _, v in pairs(mt_object.__watchers[objectPath]["*"]) do
                         if v._active and v._callback then
                             v._callback(v, objectPath, index, oldValue, value)
                         end
@@ -45,13 +45,6 @@ mt_object = {
                 end
             end
         end
-    end,
-    __pairs = function(self)
-        return function(_, k)
-            local v
-            k, v = next(mt_object.__values[self], k)
-            return k, v
-        end, self, nil
     end,
     __len = function(self)
         return #mt_object.__values[self]
@@ -96,7 +89,7 @@ mt_watcher = {
 ---  * nil
         release = function(self)
             self._active = false
-            for k,v in pairs(mt_object.__watchers[self._objPath][self._objKey]) do
+            for _,v in pairs(mt_object.__watchers[self._objPath][self._objKey]) do
                 if v == self then mt_object.__watchers[self._objPath][self._objKey] = nil end
             end
             setmetatable(self, nil)
@@ -278,7 +271,7 @@ end
 
 -- for debugging, may remove in the future
 setmetatable(module, {
-    __index = function(self, key)
+    __index = function(_, key)
         return ({
             mt_object  = mt_object,
             mt_watcher = mt_watcher,
