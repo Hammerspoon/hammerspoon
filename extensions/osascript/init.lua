@@ -4,6 +4,7 @@
 ---
 
 local module = require("hs.osascript.internal")
+local fnutils = require("hs.fnutils")
 
 -- private variables and methods -----------------------------------------
 
@@ -13,8 +14,8 @@ local processResults = function(ok, object, rawDescriptor)
     if not ok then
         rawDescriptor = rawDescriptor:match("^{\n(.*)}$")
         descriptor = {}
-        local lines = hs.fnutils.split(rawDescriptor, ";\n")
-        lines = hs.fnutils.ifilter(lines, function(line) return line ~= "" end)
+        local lines = fnutils.split(rawDescriptor, ";\n")
+        lines = fnutils.ifilter(lines, function(line) return line ~= "" end)
         for _, line in ipairs(lines) do
             local k, v = line:match('^%s*(%w+)%s=%s(.*)$')
             v = v:match('^"(.*)"$') or v:match("^'(.*)'$") or v
