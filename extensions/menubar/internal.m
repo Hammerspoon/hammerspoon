@@ -982,7 +982,7 @@ static int menubar_returnToMenuBar(lua_State *L) {
     return 1 ;
 }
 
-/// hs.menubar:isInMenuBar() -> boolean
+/// hs.menubar:isInMenubar() -> boolean
 /// Method
 /// Returns a boolean indicating whether or not the specified menu is currently in the OS X menubar.
 ///
