@@ -114,14 +114,17 @@ bool hidled_set(uint32 usage, long target_value) {
         }
         CFRelease(elements);
     }
-    CFRelease(mgr);
-    
+
 Oops:
+    if (mgr) {
+        IOHIDManagerClose(mgr, kIOHIDOptionsTypeNone);
+        CFRelease(mgr);
+    }
     if (deviceCFSetRef)
         CFRelease(deviceCFSetRef);
     if (refs)
         free(refs);
-    
+
     return success;
 }
 
