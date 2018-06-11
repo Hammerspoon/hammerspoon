@@ -14,7 +14,7 @@ host.locale = require "hs.host.locale"
 local __tostring_for_tables = function(self)
     local result = ""
     local width = 0
-    for i,v in fnutils.sortByKeys(self) do
+    for i,_ in fnutils.sortByKeys(self) do
         if type(i) == "string" and width < i:len() then width = i:len() end
     end
     for i,v in fnutils.sortByKeys(self) do
@@ -73,7 +73,7 @@ local convertToPercentages = function(result1, result2)
                 result[k][k2] = v2 - result1[k][k2]
             end
             local total = result[k].active + result[k].idle
-            for k2, v2 in pairs(result[k]) do
+            for k2, _ in pairs(result[k]) do
                 result[k][k2] = (result[k][k2] / total) * 100.0
             end
         end

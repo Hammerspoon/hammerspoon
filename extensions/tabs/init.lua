@@ -7,7 +7,6 @@ local drawing = require "hs.drawing"
 local uielement = require "hs.uielement"
 local watcher = uielement.watcher
 local fnutils = require "hs.fnutils"
-local timer = require "hs.timer"
 local application = require "hs.application"
 local appwatcher = application.watcher
 
@@ -53,7 +52,7 @@ local drawTable = {}
 local function trashTabs(pid)
   local tab = drawTable[pid]
   if not tab then return end
-  for i,obj in ipairs(tab) do
+  for _,obj in ipairs(tab) do
     obj:delete()
   end
 end
@@ -101,7 +100,7 @@ local function reshuffle(app)
   local proto = app:focusedWindow()
   if not proto then return end
   local geom = app:focusedWindow():frame()
-  for i,win in ipairs(app:allWindows()) do
+  for _,win in ipairs(app:allWindows()) do
     if win:isStandard() then
       win:setFrame(geom)
     end
@@ -112,9 +111,9 @@ end
 local function manageWindow(win, app)
   if not win:isStandard() then return end
   -- only trigger on focused window movements otherwise the reshuffling triggers itself
-  local newWatch = win:newWatcher(function(el,ev,wat,ud) if el == app:focusedWindow() then reshuffle(app) end end)
+  local newWatch = win:newWatcher(function(el) if el == app:focusedWindow() then reshuffle(app) end end)
   newWatch:start({watcher.windowMoved, watcher.windowResized, watcher.elementDestroyed})
-  local redrawWatch = win:newWatcher(function (el,ev,wat,ud) drawTabs(app) end)
+  local redrawWatch = win:newWatcher(function () drawTabs(app) end)
   redrawWatch:start({watcher.elementDestroyed, watcher.titleChanged})
 
   -- resize this window to match possible others
@@ -128,12 +127,12 @@ end
 
 local function watchApp(app)
   -- print("Enabling tabs for " .. app:title())
-  for i,win in ipairs(app:allWindows()) do
+  for _,win in ipairs(app:allWindows()) do
     manageWindow(win,app)
   end
-  local winWatch = app:newWatcher(function(el,ev,wat,appl) manageWindow(el,appl) end,app)
+  local winWatch = app:newWatcher(function(el,_,_,appl) manageWindow(el,appl) end,app)
   winWatch:start({watcher.windowCreated})
-  local redrawWatch = app:newWatcher(function (el,ev,wat,ud) drawTabs(app) end)
+  local redrawWatch = app:newWatcher(function () drawTabs(app) end)
   redrawWatch:start({watcher.applicationActivated, watcher.applicationDeactivated,
                      watcher.applicationHidden, watcher.focusedWindowChanged})
 
@@ -166,12 +165,12 @@ function tabs.enableForApp(app)
   -- set up a watcher to catch any watched app launching or terminating
   if appWatcherStarted then return end
   appWatcherStarted = true
-  local watch = appwatcher.new(function(name,event,app)
+  local watch = appwatcher.new(function(name,event,theApp)
       -- print("Event from " .. name)
       if event == appwatcher.launched and appWatches[name] then
-        watchApp(app)
+        watchApp(theApp)
       elseif event == appwatcher.terminated then
-        trashTabs(app:pid())
+        trashTabs(theApp:pid())
       end
   end)
   watch:start()
@@ -192,13 +191,13 @@ end
 ---  * If num is higher than the number of tabs, the last tab will be focussed
 function tabs.focusTab(app,num)
   if not app or not appWatches[app:title()] then return end
-  local tabs = tabs.tabWindows(app)
+  local theTabs = tabs.tabWindows(app)
   local bounded = num
   --print(hs.inspect(tabs))
-  if num > #tabs then
-    bounded = #tabs
+  if num > #theTabs then
+    bounded = #theTabs
   end
-  tabs[bounded]:focus()
+  theTabs[bounded]:focus()
 end
 
 return tabs

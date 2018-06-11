@@ -1,11 +1,7 @@
-local module    = {
 --- === hs.image ===
 ---
 --- A module for capturing and manipulating image objects from other modules for use with hs.drawing.
 ---
-}
-
-local fnutils = require("hs.fnutils")
 
 local module = require("hs.image.internal")
 local objectMT = hs.getObjectMetatable("hs.image")

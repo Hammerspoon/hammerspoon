@@ -19,7 +19,7 @@
 -- version. -- edit: OK, so it's really only charPattern.. still, this is more portable
 -- in case it's needed as a template for elsewhere.
 local module = setmetatable({}, {
-        __index = function(object, key)
+        __index = function(_, key)
             for i,v in pairs(package.loaded["utf8"]) do
                 if string.lower(key) == i then return v end
             end
@@ -309,7 +309,7 @@ module.registerCodepoint("concaveDiamond",   0x27E1)
 ---  * This function is useful for displaying binary data in a human readable way that might otherwise be inexpressible in the Hammerspoon console or other destination.  For example:
 ---    * `utf8.charpattern`, which contains the regular expression for matching valid UTF8 encoded sequences, results in `(null)` in the Hammerspoon console, but `hs.utf8.asciiOnly(utf8.charpattern)` will display `[\x00-\x7F\xC2-\xF4][\x80-\xBF]*`.
 module.asciiOnly = function(theString, all)
-    local all = all or false
+    all = all or false
     if type(theString) == "string" then
         if all then
             return (theString:gsub("[\x00-\x1f\x7f-\xff]",function(a)
@@ -344,7 +344,7 @@ end
 module.hexDump = function(stuff, linemax)
     local ascii = ""
     local count = 0
-    local linemax = tonumber(linemax) or 16
+    linemax = tonumber(linemax) or 16
     local buffer = ""
     local rb = ""
     local offset = math.floor(math.log(#stuff,16)) + 1
@@ -377,6 +377,3 @@ end
 -- Return Module Object --------------------------------------------------
 
 return module
-
-
-
