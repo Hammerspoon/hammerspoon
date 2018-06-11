@@ -240,8 +240,8 @@ end
 
 itemObjMT.__pairs = function(self)
     local keys = self:attributes()
-    return function(_, k)
-              k = table.remove(keys)
+    return function()
+              local k = table.remove(keys)
               if k then
                   return k, self:valueForAttribute(k)
               else

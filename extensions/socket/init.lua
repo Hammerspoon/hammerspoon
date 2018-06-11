@@ -112,14 +112,14 @@
 ---   end
 ---   return fun
 --- end
---- 
+---
 --- local listeners = {}
 --- local port = 9001
---- 
+---
 --- for i=1,3 do
 ---   table.insert(listeners, hs.socket.udp.new(callbackMaker("listener "..i)):reusePort():listen(port):receive())
 --- end
---- 
+---
 --- broadcaster = hs.socket.udp.new():broadcast()
 --- broadcaster:send("hello!", "255.255.255.255", port)
 --- </pre>

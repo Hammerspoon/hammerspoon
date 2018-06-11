@@ -80,6 +80,7 @@ end
 --- Notes:
 ---  * When determining the primary interface, the `favorIPv6` flag only determines interface search order.  If you specify true for this flag, but no primary IPv6 interface exists (i.e. your DHCP server only provides an IPv4 address an IPv6 is limited to local only traffic), then the primary IPv4 interface will be used instead.
 module.interfaceDetails = function(interface)
+    local favorIPv6
     if type(interface) == "boolean" then interface, favorIPv6 = nil, interface end
 
     local store = module.configuration.open()
@@ -178,7 +179,7 @@ module.addresses = function(...)
         local intf, prot = k:match("^State:/Network/Interface/([^/]+)/(IPv[46])$")
         if fnutils.contains(interfaces, intf) then
             local suffix = (prot == "IPv6") and ("%" .. intf) or ""
-            for i2, v2 in ipairs(v.Addresses) do
+            for _, v2 in ipairs(v.Addresses) do
                 table.insert(results, v2 .. suffix)
             end
         end
@@ -222,8 +223,7 @@ module.interfaceName = function(interface, favorIPv6)
         return nil
     end
 
-    local results = {}
-    for k, v in pairs(queryResult) do
+    for _, v in pairs(queryResult) do
         if v.DeviceName == interface then return v.UserDefinedName end
     end
     return false
