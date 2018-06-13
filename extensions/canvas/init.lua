@@ -295,6 +295,9 @@ end
 ---
 --- Returns:
 ---  * The canvas object
+---
+--- Notes:
+---  * As of macOS Sierra and later, if you want a `hs.canvas` object to appear above full-screen windows you must hide the Hammerspoon Dock icon first using: `hs.dockicon.hide()`
 canvasMT.bringToFront = function(obj, ...)
     local args = table.pack(...)
 

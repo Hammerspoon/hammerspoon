@@ -16,6 +16,9 @@ static int userdata_gc(lua_State *L);
 ///
 /// Returns:
 ///  * An `hs.chooser` object
+///
+/// Notes:
+///  * As of macOS Sierra and later, if you want a `hs.chooser` object to appear above full-screen windows you must hide the Hammerspoon Dock icon first using: `hs.dockicon.hide()`
 static int chooserNew(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TFUNCTION, LS_TBREAK];
