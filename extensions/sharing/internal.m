@@ -36,43 +36,40 @@ static id toNSURLFromLua(lua_State *L, int idx) ;
 - (void)sharingService:(__unused NSSharingService *)sharingService didFailToShareItems:(NSArray *)items error:(NSError *)error {
     if (_callbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin shared] ;
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_callbackRef] ;
         [skin pushNSObject:self] ;
         [skin pushNSObject:@"didFail"] ;
         [skin pushNSObject:items withOptions:LS_NSDescribeUnknownTypes] ;
         [skin pushNSObject:error.localizedDescription] ;
-        if (![skin protectedCallAndTraceback:4 nresults:0]) {
-            [skin logError:[NSString stringWithFormat:@"%s:callback error:%@", USERDATA_TAG, [skin toNSObjectAtIndex:-1]]] ;
-            lua_pop([skin L], 1) ;
-        }
+        [skin protectedCallAndError:@"hs.sharing:didFail callback" nargs:4 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 
 - (void)sharingService:(__unused NSSharingService *)sharingService didShareItems:(NSArray *)items {
     if (_callbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin shared] ;
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_callbackRef] ;
         [skin pushNSObject:self] ;
         [skin pushNSObject:@"didShare"] ;
         [skin pushNSObject:items withOptions:LS_NSDescribeUnknownTypes] ;
-        if (![skin protectedCallAndTraceback:3 nresults:0]) {
-            [skin logError:[NSString stringWithFormat:@"%s:callback error:%@", USERDATA_TAG, [skin toNSObjectAtIndex:-1]]] ;
-            lua_pop([skin L], 1) ;
-        }
+        [skin protectedCallAndError:@"hs.sharing:didShare callback" nargs:3 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 
 - (void)sharingService:(__unused NSSharingService *)sharingService willShareItems:(NSArray *)items {
     if (_callbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin shared] ;
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_callbackRef] ;
         [skin pushNSObject:self] ;
         [skin pushNSObject:@"willShare"] ;
         [skin pushNSObject:items withOptions:LS_NSDescribeUnknownTypes] ;
-        if (![skin protectedCallAndTraceback:3 nresults:0]) {
-            [skin logError:[NSString stringWithFormat:@"%s:callback error:%@", USERDATA_TAG, [skin toNSObjectAtIndex:-1]]] ;
-            lua_pop([skin L], 1) ;
-        }
+        [skin protectedCallAndError:@"hs.sharing:willShare callback" nargs:3 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 

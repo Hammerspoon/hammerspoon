@@ -122,7 +122,7 @@ static NSMenu *createCoreSearchFieldMenu() {
 
 - (instancetype)initWithCopy:(HSToolbar *)original {
     LuaSkin *skin = [LuaSkin shared] ;
-    if (original) self = [super initWithIdentifier:original.identifier] ;
+    self = [super initWithIdentifier:original.identifier] ;
     if (self) {
         _selfRef               = LUA_NOREF;
         _callbackRef           = LUA_NOREF ;
@@ -187,6 +187,7 @@ static NSMenu *createCoreSearchFieldMenu() {
             NSWindow  *ourWindow = self.windowUsingToolbar ;
             LuaSkin   *skin      = [LuaSkin shared] ;
             lua_State *L         = [skin L] ;
+            _lua_stackguard_entry(L);
             [skin pushLuaRef:refTable ref:fnRef] ;
             [skin pushNSObject:self] ;
             if (ourWindow) {
@@ -201,10 +202,8 @@ static NSMenu *createCoreSearchFieldMenu() {
             }
             [skin pushNSObject:[item itemIdentifier]] ;
             if (argCount == 4) [skin pushNSObject:searchText] ;
-            if (![skin protectedCallAndTraceback:argCount nresults:0]) {
-                [skin logError:[NSString stringWithFormat:@"%s: item callback error, %s, for toolbar item %@", USERDATA_TB_TAG, lua_tostring(L, -1), [item itemIdentifier]]] ;
-                lua_pop(L, 1) ;
-            }
+            [skin protectedCallAndError:[NSString stringWithFormat:@"hs.webview.toolbar item callback (%@)", item.itemIdentifier] nargs:argCount nresults:0];
+            _lua_stackguard_exit(L);
         }) ;
     }
 }
@@ -703,6 +702,7 @@ static NSMenu *createCoreSearchFieldMenu() {
             NSWindow  *ourWindow = self.windowUsingToolbar ;
             LuaSkin   *skin      = [LuaSkin shared] ;
             lua_State *L         = [skin L] ;
+            _lua_stackguard_entry(L);
             [skin pushLuaRef:refTable ref:self.callbackRef] ;
             [skin pushNSObject:self] ;
             if (ourWindow) {
@@ -717,10 +717,8 @@ static NSMenu *createCoreSearchFieldMenu() {
             }
             [skin pushNSObject:[notification.userInfo[@"item"] itemIdentifier]] ;
             lua_pushstring(L, "add") ;
-            if (![skin protectedCallAndTraceback:4 nresults:0]) {
-                [skin logError:[NSString stringWithFormat:@"%s: toolbar callback error, %s, when notifying addition of toolbar item %@", USERDATA_TB_TAG, lua_tostring(L, -1), [notification.userInfo[@"item"] itemIdentifier]]] ;
-                lua_pop(L, 1) ;
-            }
+            [skin protectedCallAndError:[NSString stringWithFormat:@"hs.webview.toolbar toolbar item addition callback (%@)", [notification.userInfo[@"item"] itemIdentifier]] nargs:4 nresults:0];
+            _lua_stackguard_exit(L);
         }) ;
     }
 }
@@ -731,6 +729,7 @@ static NSMenu *createCoreSearchFieldMenu() {
             NSWindow  *ourWindow = self.windowUsingToolbar ;
             LuaSkin   *skin      = [LuaSkin shared] ;
             lua_State *L         = [skin L] ;
+            _lua_stackguard_entry(L);
             [skin pushLuaRef:refTable ref:self.callbackRef] ;
             [skin pushNSObject:self] ;
             if (ourWindow) {
@@ -745,10 +744,8 @@ static NSMenu *createCoreSearchFieldMenu() {
             }
             [skin pushNSObject:[notification.userInfo[@"item"] itemIdentifier]] ;
             lua_pushstring(L, "remove") ;
-            if (![skin protectedCallAndTraceback:4 nresults:0]) {
-                [skin logError:[NSString stringWithFormat:@"%s: toolbar callback error, %s, when notifying removal of toolbar item %@", USERDATA_TB_TAG, lua_tostring(L, -1), [notification.userInfo[@"item"] itemIdentifier]]] ;
-                lua_pop(L, 1) ;
-            }
+            [skin protectedCallAndError:[NSString stringWithFormat:@"hs.webview.toolbar toolbar item removal callback (%@)", [notification.userInfo[@"item"] itemIdentifier]] nargs:4 nresults:0];
+            _lua_stackguard_exit(L);
         }) ;
     }
 }

@@ -149,6 +149,7 @@ void handleCallback(__unused CFHostRef theHost, __unused CFHostInfoType typeInfo
         if (theRef->callbackRef != LUA_NOREF) {
             LuaSkin   *skin    = [LuaSkin shared] ;
             lua_State *L       = [skin L] ;
+            _lua_stackguard_entry(L);
             int       argCount ;
             [skin pushLuaRef:refTable ref:theRef->callbackRef] ;
             if ((domain == 0) && (errorNum == 0)) {
@@ -157,12 +158,8 @@ void handleCallback(__unused CFHostRef theHost, __unused CFHostInfoType typeInfo
                 [skin pushNSObject:[NSString stringWithFormat:@"resolution error:%@", expandCFStreamError(domain, errorNum)]] ;
                 argCount = 1 ;
             }
-            if (![skin protectedCallAndTraceback:argCount nresults:0]) {
-                [skin logError:[NSString stringWithFormat:@"%s:error in Lua callback:%@",
-                                                            USERDATA_TAG,
-                                                            [skin toNSObjectAtIndex:-1]]] ;
-                lua_pop(L, 1) ; // error string from pcall
-            }
+            [skin protectedCallAndError:@"hs.network.host callback" nargs:argCount nresults:0];
+            _lua_stackguard_exit(L);
         }
         CFHostSetClient(theRef->theHostObj, NULL, NULL );
         CFHostUnscheduleFromRunLoop(theRef->theHostObj, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);

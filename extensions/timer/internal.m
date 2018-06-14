@@ -35,9 +35,11 @@ static int refTable;
 
 - (void)callback:(NSTimer *)timer {
     LuaSkin *skin = [LuaSkin shared];
+    _lua_stackguard_entry(skin.L);
 
     if (!timer.isValid) {
         [skin logBreadcrumb:@"hs.timer callback fired on an invalid hs.timer object. This is a bug"];
+        _lua_stackguard_exit(skin.L);
         return;
     }
 
@@ -58,6 +60,7 @@ static int refTable;
             [self.t invalidate];
         }
     }
+    _lua_stackguard_exit(skin.L);
 }
 
 - (BOOL)isRunning {

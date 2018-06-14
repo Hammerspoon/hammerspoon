@@ -133,6 +133,7 @@ typedef struct _notification_t {
 
         if (fnTag) {
             LuaSkin *skin = [LuaSkin shared];
+            _lua_stackguard_entry(skin.L);
 
         // maybe a little more overhead than just assuming its there and putting logic in init.lua to
         // make sure hs.notify is in the right place, but this is more portable and doesn't rely on
@@ -143,6 +144,7 @@ typedef struct _notification_t {
                 const char *errorMsg = lua_tostring(skin.L, -1);
                 [skin logError:[NSString stringWithFormat:@"Unable to require('hs.notify'): %s", errorMsg]];
                 lua_pop(skin.L, 1) ; // remove error message
+                _lua_stackguard_exit(skin.L);
                 return;
             }
             lua_getfield(skin.L, -1, "_tag_handler") ;
@@ -155,12 +157,12 @@ typedef struct _notification_t {
 
     // NSLog(@"invoking callback handler") ;
 
-            if(![skin protectedCallAndTraceback:2 nresults:0]) {
-                const char *errorMsg = lua_tostring(skin.L, -1);
-                [skin logError:[NSString stringWithFormat:@"hs.notify callback error: %s", errorMsg]];
-                lua_pop(skin.L, 1) ; // remove error message
+            if ([skin protectedCallAndError:@"hs.notify callback" nargs:2 nresults:0] == NO) {
+                lua_pop(skin.L, 1); // pop the hs.notify module
+                _lua_stackguard_exit(skin.L);
                 return;
             }
+            lua_pop(skin.L, 1); // pop the hs.notify module
 
             BOOL shouldWithdraw = [[notification.userInfo valueForKey:@"autoWithdraw"] boolValue] ;
             if (notification.deliveryRepeatInterval != nil) shouldWithdraw = YES ;
@@ -169,6 +171,7 @@ typedef struct _notification_t {
                 [[NSUserNotificationCenter defaultUserNotificationCenter] removeDeliveredNotification:notification];
                 [[NSUserNotificationCenter defaultUserNotificationCenter] removeScheduledNotification:notification];
             }
+            _lua_stackguard_exit(skin.L);
         } else {
     // NSLog(@"hs.notify passing off to original handler") ;
             if ([old_delegate respondsToSelector:@selector(userNotificationCenter:didActivateNotification:)]) {

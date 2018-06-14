@@ -186,7 +186,7 @@ canvasMT.behavior = function(self, ...) -- add nice wrapper version
             end
         elseif type(arg[1]) == "table" then
             theBehavior = 0
-            for i,v in ipairs(arg[1]) do
+            for _,v in ipairs(arg[1]) do
                 if module.windowBehaviors[v] then
                     theBehavior = theBehavior | ((type(v) == "string") and module.windowBehaviors[v] or v)
                 else
@@ -233,7 +233,7 @@ canvasMT.behaviorAsLabels = function(self, ...)
         end})
     elseif args.n == 1 and type(args[1]) == "table" then
         local newBehavior = 0
-        for i,v in ipairs(args[1]) do
+        for _,v in ipairs(args[1]) do
             local flag = tonumber(v) or module.windowBehaviors[v]
             if flag then newBehavior = newBehavior | flag end
         end
@@ -358,7 +358,7 @@ canvasMT.isVisible = function(obj, ...) return not obj:isOccluded(...) end
 canvasMT.appendElements = function(obj, ...)
     local elementsArray = table.pack(...)
     if elementsArray.n == 1 and #elementsArray[1] ~= 0 then elementsArray = elementsArray[1] end
-    for i,v in ipairs(elementsArray) do obj:insertElement(v) end
+    for _,v in ipairs(elementsArray) do obj:insertElement(v) end
     return obj
 end
 
@@ -378,7 +378,7 @@ canvasMT.replaceElements = function(obj,  ...)
     local elementsArray = table.pack(...)
     if elementsArray.n == 1 and #elementsArray[1] ~= 0 then elementsArray = elementsArray[1] end
     for i,v in ipairs(elementsArray) do obj:assignElement(v, i) end
-    while (#obj > #elementArray) do obj:removeElement() end
+    while (#obj > #elementsArray) do obj:removeElement() end
     return obj
 end
 
@@ -413,7 +413,8 @@ canvasMT.rotateElement = function(obj, index, angle, point, append)
         }
     end
 
-    local currentTransform = obj:elementAttribute(index, "transformation")
+    -- TODO: currentTransform doesn't actually look like it's being used?
+    -- local currentTransform = obj:elementAttribute(index, "transformation")
     if append then
         obj[index].transformation = obj[index].transformation:translate(point.x, point.y)
                                                              :rotate(angle)
@@ -450,12 +451,12 @@ canvasMT.copy = function(obj)
                                  :level(obj:level())
                                  :transformation(obj:transformation())
                                  :wantsLayer(obj:wantsLayer())
-    for i, v in ipairs(obj:canvasDefaultKeys()) do
+    for _, v in ipairs(obj:canvasDefaultKeys()) do
       newObj:canvasDefaultFor(v, obj:canvasDefaultFor(v))
     end
 
     for i = 1, #obj, 1 do
-      for i2, v2 in ipairs(obj:elementKeys(i)) do
+      for _, v2 in ipairs(obj:elementKeys(i)) do
           local value = obj:elementAttribute(i, v2)
           if v2 ~= "canvas" then
               newObj:elementAttribute(i, v2, value)
@@ -535,9 +536,9 @@ elementMT.__pairs = function(_)
         keys = obj.value
     else
         if obj.index == "_default" then
-            for i, k in ipairs(obj.self:canvasDefaultKeys()) do keys[k] = _[k] end
+            for _, k in ipairs(obj.self:canvasDefaultKeys()) do keys[k] = _[k] end
         else
-            for i, k in ipairs(obj.self:elementKeys(obj.index)) do keys[k] = _[k] end
+            for _, k in ipairs(obj.self:elementKeys(obj.index)) do keys[k] = _[k] end
         end
     end
     return function(_, k)
@@ -643,7 +644,7 @@ canvasMT.__index = function(self, key)
                 return canvasMT[key]
             else
                 local answer
-                for i,v in ipairs(self) do
+                for _,v in ipairs(self) do
                     if v.id == key then
                         answer = v
                         break

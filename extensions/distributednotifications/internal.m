@@ -23,14 +23,13 @@ typedef struct _distnot_t {
 - (void)callback:(NSNotification *)note {
     if (self.fnRef != LUA_NOREF && self.fnRef != LUA_REFNIL) {
         LuaSkin *skin = [LuaSkin shared];
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:self.fnRef];
         [skin pushNSObject:note.name];
         [skin pushNSObject:note.object];
         [skin pushNSObject:note.userInfo];
-        if (![skin protectedCallAndTraceback:3 nresults:0]) {
-            [skin logError:[NSString stringWithFormat:@"hs.distributednotification callback failed: %@", [skin toNSObjectAtIndex:-1]]];
-            lua_pop([skin L], 1); // remove error message
-        }
+        [skin protectedCallAndError:@"hs.distributednotification callback" nargs:3 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 

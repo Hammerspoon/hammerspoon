@@ -41,15 +41,12 @@ static void doReachabilityCallback(__unused SCNetworkReachabilityRef target, SCN
         dispatch_async(dispatch_get_main_queue(), ^{
             LuaSkin   *skin = [LuaSkin shared] ;
             lua_State *L    = [skin L] ;
+            _lua_stackguard_entry(L);
             [skin pushLuaRef:refTable ref:theRef->callbackRef] ;
             [skin pushLuaRef:refTable ref:theRef->selfRef] ;
             lua_pushinteger(L, (lua_Integer)flags) ;
-            if (![skin protectedCallAndTraceback:2 nresults:0]) {
-                [skin logError:[NSString stringWithFormat:@"%s:error in Lua callback:%@",
-                                                            USERDATA_TAG,
-                                                            [skin toNSObjectAtIndex:-1]]] ;
-                lua_pop(L, 1) ; // error string from pcall
-            }
+            [skin protectedCallAndError:@"hs.network.reachability" nargs:2 nresults:0];
+            _lua_stackguard_exit(L);
         }) ;
     }
 }

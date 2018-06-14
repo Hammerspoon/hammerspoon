@@ -36,22 +36,21 @@ static int refTable = LUA_NOREF;
 - (void) sound:(NSSound __unused *)sound didFinishPlaying:(BOOL)playbackSuccessful {
     dispatch_async(dispatch_get_main_queue(), ^{
         LuaSkin *skin = [LuaSkin shared];
+        _lua_stackguard_entry(skin.L);
 //         [skin logVerbose:[NSString stringWithFormat:@"%s:in delegate", USERDATA_TAG]] ;
-        if (_callbackRef != LUA_NOREF) {
+        if (self->_callbackRef != LUA_NOREF) {
             lua_State *L = skin.L;
 
-            [skin pushLuaRef:refTable ref:_callbackRef];
+            [skin pushLuaRef:refTable ref:self->_callbackRef];
             lua_pushboolean(L, playbackSuccessful);
             [skin pushNSObject:self];
-            if (![skin protectedCallAndTraceback:2 nresults:0]) {
-                [skin logError:[skin toNSObjectAtIndex:-1]] ;
-                lua_pop(L, 1) ;
-            }
+            [skin protectedCallAndError:@"hs.sound:didFinishPlaying callback" nargs:2 nresults:0];
         }
         // a completed song should rely solely on user saved userdata values to prevent __gc
         // since there will be no other way to access it once this point is reached if it hasn't
         // been saved in a variable somewhere.
-        _selfRef = [skin luaUnref:refTable ref:_selfRef] ;
+        self->_selfRef = [skin luaUnref:refTable ref:self->_selfRef] ;
+        _lua_stackguard_exit(skin.L);
     }) ;
 }
 

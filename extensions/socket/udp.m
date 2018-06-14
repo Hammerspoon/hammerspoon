@@ -20,44 +20,35 @@ static const char *USERDATA_TAG = "hs.socket.udp";
 static void connectCallback(HSAsyncUdpSocket *asyncUdpSocket) {
     mainThreadDispatch(
         LuaSkin *skin = [LuaSkin shared];
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:asyncUdpSocket.connectCallback];
         asyncUdpSocket.connectCallback = [skin luaUnref:refTable ref:asyncUdpSocket.connectCallback];
-
-        if (![skin protectedCallAndTraceback:0 nresults:0]) {
-            const char *errorMsg = lua_tostring(skin.L, -1);
-            [LuaSkin logError:[NSString stringWithFormat:@"%s connect callback error: %s", USERDATA_TAG, errorMsg]];
-            lua_pop(skin.L, 1) ; // remove error message
-        }
+        [skin protectedCallAndError:@"hs.socket.udp:connect" nargs:0 nresults:0];
+        _lua_stackguard_exit(skin.L);
     );
 }
 
 static void writeCallback(HSAsyncUdpSocket *asyncUdpSocket, long tag) {
     mainThreadDispatch(
         LuaSkin *skin = [LuaSkin shared];
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:asyncUdpSocket.writeCallback];
         [skin pushNSObject: @(tag)];
         asyncUdpSocket.writeCallback = [skin luaUnref:refTable ref:asyncUdpSocket.writeCallback];
-
-        if (![skin protectedCallAndTraceback:1 nresults:0]) {
-            const char *errorMsg = lua_tostring(skin.L, -1);
-            [LuaSkin logError:[NSString stringWithFormat:@"%s write callback error: %s", USERDATA_TAG, errorMsg]];
-            lua_pop(skin.L, 1) ; // remove error message
-        }
+        [skin protectedCallAndError:@"hs.socket.udp:write callback" nargs:1 nresults:0];
+        _lua_stackguard_exit(skin.L);
     );
 }
 
 static void readCallback(HSAsyncUdpSocket *asyncUdpSocket, NSData *data, NSData *address) {
     mainThreadDispatch(
         LuaSkin *skin = [LuaSkin shared];
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:asyncUdpSocket.readCallback];
         [skin pushNSObject: [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]];
         [skin pushNSObject: address];
-
-        if (![skin protectedCallAndTraceback:2 nresults:0]) {
-            const char *errorMsg = lua_tostring(skin.L, -1);
-            [LuaSkin logError:[NSString stringWithFormat:@"%s read callback error: %s", USERDATA_TAG, errorMsg]];
-            lua_pop(skin.L, 1) ; // remove error message
-        }
+        [skin protectedCallAndError:@"hs.socket.udp:read callback" nargs:2 nresults:0];
+        _lua_stackguard_exit(skin.L);
     );
 }
 

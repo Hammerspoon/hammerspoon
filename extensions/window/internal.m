@@ -12,35 +12,6 @@
 #define kCGSDebugOptionNoShadows 16384
 void CGSSetDebugOptions(int);
 
-
-static NSSize geom_tosize(lua_State* L, int idx) {
-    luaL_checktype(L, idx, LUA_TTABLE);
-    CGFloat w = (lua_getfield(L, idx, "w"), luaL_checknumber(L, -1));
-    CGFloat h = (lua_getfield(L, idx, "h"), luaL_checknumber(L, -1));
-    lua_pop(L, 2);
-    return NSMakeSize(w, h);
-}
-
-static NSPoint geom_topoint(lua_State* L, int idx) {
-    luaL_checktype(L, idx, LUA_TTABLE);
-    CGFloat x = (lua_getfield(L, idx, "x"), luaL_checknumber(L, -1));
-    CGFloat y = (lua_getfield(L, idx, "y"), luaL_checknumber(L, -1));
-    lua_pop(L, 2);
-    return NSMakePoint(x, y);
-}
-
-static void geom_pushsize(lua_State* L, NSSize size) {
-    lua_newtable(L);
-    lua_pushnumber(L, size.width);  lua_setfield(L, -2, "w");
-    lua_pushnumber(L, size.height); lua_setfield(L, -2, "h");
-}
-
-static void geom_pushpoint(lua_State* L, NSPoint point) {
-    lua_newtable(L);
-    lua_pushnumber(L, point.x); lua_setfield(L, -2, "x");
-    lua_pushnumber(L, point.y); lua_setfield(L, -2, "y");
-}
-
 static NSPoint get_window_topleft(AXUIElementRef win) {
     CFTypeRef positionStorage;
     AXError result = AXUIElementCopyAttributeValue(win, (CFStringRef)NSAccessibilityPositionAttribute, &positionStorage);
@@ -297,9 +268,11 @@ static int window_isstandard(lua_State* L) {
 /// Returns:
 ///  * A point-table containing the absolute co-ordinates of the top left corner of the window
 static int window__topleft(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, "hs.window", LS_TBREAK];
+
     AXUIElementRef win = get_window_arg(L, 1);
-    CGPoint topLeft = get_window_topleft(win);
-    geom_pushpoint(L, topLeft);
+    [skin pushNSPoint:get_window_topleft(win)];
     return 1;
 }
 
@@ -313,9 +286,11 @@ static int window__topleft(lua_State* L) {
 /// Returns:
 ///  * A size-table containing the width and height of the window
 static int window__size(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, "hs.window", LS_TBREAK];
+
     AXUIElementRef win = get_window_arg(L, 1);
-    CGSize size = get_window_size(win);
-    geom_pushsize(L, size);
+    [skin pushNSSize:get_window_size(win)];
     return 1;
 }
 
@@ -329,8 +304,11 @@ static int window__size(lua_State* L) {
 /// Returns:
 ///  * The `hs.window` object
 static int window__settopleft(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, "hs.window", LS_TTABLE, LS_TBREAK];
+
     AXUIElementRef win = get_window_arg(L, 1);
-    NSPoint thePoint = geom_topoint(L, 2);
+    NSPoint thePoint = [skin tableToPointAtIndex:2];
 
     CFTypeRef positionStorage = (CFTypeRef)(AXValueCreate(kAXValueCGPointType, (const void *)&thePoint));
     AXUIElementSetAttributeValue(win, (CFStringRef)NSAccessibilityPositionAttribute, positionStorage);
@@ -354,8 +332,11 @@ static int window__settopleft(lua_State* L) {
 /// Returns:
 ///  * The `hs.window` object
 static int window__setsize(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, "hs.window", LS_TTABLE, LS_TBREAK];
+
     AXUIElementRef win = get_window_arg(L, 1);
-    NSSize theSize = geom_tosize(L, 2);
+    NSSize theSize = [skin tableToSizeAtIndex:2];
 
     CFTypeRef sizeStorage = (CFTypeRef)(AXValueCreate(kAXValueCGSizeType, (const void *)&theSize));
     AXUIElementSetAttributeValue(win, (CFStringRef)NSAccessibilitySizeAttribute, sizeStorage);

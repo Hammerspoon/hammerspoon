@@ -50,13 +50,13 @@ end
 --- Returns:
 ---  * a placeholder object
 module.asHSDrawing = setmetatable({}, {
-    __call = function(self, obj, ...)
+    __call = function()
         if not deprecatedWarningsGiven["asHSDrawing"] then
             deprecatedWarningsGiven["asHSDrawing"] = true
             hs.luaSkinLog.wf("%s.asHSDrawing() is deprecated and should not be used.", USERDATA_TAG)
         end
         return setmetatable({}, {
-            __index = function(self, func)
+            __index = function(_, func)
                 if module[func] then
                     deprecatedWarningCheck("asHSDrawing():" .. func, func)
                     return function (_, ...) return module[func](...) end
@@ -120,7 +120,7 @@ module.behaviorAsLabels = function(...)
         end})
     elseif args.n == 1 and type(args[1]) == "table" then
         local newBehavior = 0
-        for i,v in ipairs(args[1]) do
+        for _,v in ipairs(args[1]) do
             local flag = tonumber(v) or drawing.windowBehaviors[v]
             if flag then newBehavior = newBehavior | flag end
         end

@@ -953,6 +953,7 @@ static int userdata_gc(lua_State* L) ;
                   lua_State *L = [skin L] ;
                   lua_pushcfunction(L, userdata_gc) ;
                   [skin pushLuaRef:refTable ref:((HSCanvasView *)mySelf.contentView).selfRef] ;
+                  // FIXME: Can we switch this lua_pcall() to a LuaSkin protectedCallAndError?
                   if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
                       [skin logBreadcrumb:[NSString stringWithFormat:@"%s:error invoking _gc for delete (with fade) method:%s", USERDATA_TAG, lua_tostring(L, -1)]] ;
                       lua_pop(L, 1) ;
@@ -1138,19 +1139,15 @@ static int userdata_gc(lua_State* L) ;
 - (void)doMouseCallback:(NSString *)message for:(id)elementIdentifier at:(NSPoint)location {
     if (elementIdentifier && _mouseCallbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin shared];
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_mouseCallbackRef];
         [skin pushLuaRef:refTable ref:_selfRef] ;
         [skin pushNSObject:message] ;
         [skin pushNSObject:elementIdentifier] ;
         lua_pushnumber(skin.L, location.x) ;
         lua_pushnumber(skin.L, location.y) ;
-        if (![skin protectedCallAndTraceback:5 nresults:0]) {
-            [skin logError:[NSString stringWithFormat:@"%s:clickCallback for %@ callback error: %s",
-                                                      USERDATA_TAG,
-                                                      message,
-                                                      lua_tostring(skin.L, -1)]];
-            lua_pop(skin.L, 1) ;
-        }
+        [skin protectedCallAndError:[NSString stringWithFormat:@"hs.canvas:clickCallback for %@", message] nargs:5 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 
@@ -1158,15 +1155,13 @@ static int userdata_gc(lua_State* L) ;
 - (void)subviewCallback:(id)sender {
     if (_mouseCallbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin shared];
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_mouseCallbackRef];
         [skin pushLuaRef:refTable ref:_selfRef] ;
         [skin pushNSObject:@"_subview_"] ;
         [skin pushNSObject:sender] ;
-        if (![skin protectedCallAndTraceback:3 nresults:0]) {
-            NSString *errorMessage = [skin toNSObjectAtIndex:-1] ;
-            lua_pop(skin.L, 1) ;
-            [skin logError:[NSString stringWithFormat:@"%s:buttonCallback error:%@", USERDATA_TAG, errorMessage]] ;
-        }
+        [skin protectedCallAndError:@"hs.canvas:buttonCallback" nargs:3 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 
@@ -2194,6 +2189,7 @@ static int userdata_gc(lua_State* L) ;
     if (_draggingCallbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin shared] ;
         lua_State *L = skin.L ;
+        _lua_stackguard_entry(L);
         int argCount = 2 ;
         [skin pushLuaRef:refTable ref:_draggingCallbackRef] ;
         [skin pushNSObject:self] ;
@@ -2237,8 +2233,10 @@ static int userdata_gc(lua_State* L) ;
             isAllGood = lua_isnoneornil(L, -1) ? YES : (BOOL)lua_toboolean(skin.L, -1) ;
         } else {
             [skin logError:[NSString stringWithFormat:@"%s:draggingCallback error: %@", USERDATA_TAG, [skin toNSObjectAtIndex:-1]]] ;
+            // No need to lua_pop() the error because nresults is 1, so the call below gets it whether it's a successful result or an error message
         }
         lua_pop(L, 1) ;
+        _lua_stackguard_exit(L);
     }
     return isAllGood ;
 }
@@ -3143,6 +3141,7 @@ static int canvas_delete(lua_State *L) {
     if ((lua_gettop(L) == 1) || (![canvasWindow isVisible])) {
         lua_pushcfunction(L, userdata_gc) ;
         lua_pushvalue(L, 1) ;
+        // FIXME: Can we convert this lua_pcall() to a LuaSkin protectedCallAndError?
         if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
             [skin logBreadcrumb:[NSString stringWithFormat:@"%s:error invoking _gc for delete method:%s", USERDATA_TAG, lua_tostring(L, -1)]] ;
             lua_pop(L, 1) ;

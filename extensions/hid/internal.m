@@ -24,8 +24,6 @@ static int access_capslock(int op){
 	ios = IOServiceGetMatchingService(kIOMasterPortDefault, (CFDictionaryRef) mdict);
 	if (!ios)
 	{
-		if (mdict)
-			CFRelease(mdict);
 		// fprintf(stderr, "IOServiceGetMatchingService() failed: %x\n", kr);
 		return (int) kr;
 	}

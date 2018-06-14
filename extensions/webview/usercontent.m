@@ -20,13 +20,11 @@ static int refTable ;
       didReceiveScriptMessage:(WKScriptMessage *)message {
     if ([message.name isEqualToString:self.name] && self.userContentCallback != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin shared] ;
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:self.userContentCallback];
         [skin pushNSObject:message] ;
-        if (![skin protectedCallAndTraceback:1 nresults:0]) {
-            const char *errorMsg = lua_tostring([skin L], -1);
-            [skin logError:[NSString stringWithFormat:@"hs.webview.usercontent callback error: %s", errorMsg]];
-            lua_pop([skin L], 1) ;
-        }
+        [skin protectedCallAndError:@"hs.webview.usercontent callback" nargs:1 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 @end

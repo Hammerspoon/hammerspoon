@@ -104,15 +104,13 @@ typedef enum _event_t {
 - (void)callback:(NSDictionary* __unused)dict withEvent:(event_t)event {
     LuaSkin *skin = [LuaSkin shared];
     lua_State *L = skin.L;
+    _lua_stackguard_entry(L);
 
     [skin pushLuaRef:refTable ref:self.object->fn];
     lua_pushinteger(L, event); // Parameter 1: the event type
 
-    if (![skin protectedCallAndTraceback:1 nresults:0]) {
-        const char *errorMsg = lua_tostring(L, -1);
-        [skin logError:[NSString stringWithFormat:@"hs.caffeinate.watcher callback error: %s", errorMsg]];
-        lua_pop(L, 1) ; // remove error message
-    }
+    [skin protectedCallAndError:@"hs.caffeinate.watcher callback" nargs:1 nresults:0];
+    _lua_stackguard_exit(L);
 }
 
 - (void)caffeinateDidWake:(NSNotification*)notification {

@@ -15,17 +15,6 @@
 
 @implementation MJAppDelegate
 
-static BOOL MJFirstRunForCurrentVersion(void) {
-    NSString* key = [NSString stringWithFormat:@"%@_%d", MJHasRunAlreadyKey, MJVersionFromThisApp()];
-
-    BOOL firstRun = ![[NSUserDefaults standardUserDefaults] boolForKey:key];
-
-    if (firstRun)
-        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:key];
-
-    return firstRun;
-}
-
 - (BOOL) applicationShouldHandleReopen:(NSApplication*)theApplication hasVisibleWindows:(BOOL)hasVisibleWindows {
     callDockIconCallback();
     if (HSOpenConsoleOnDockClickEnabled()) {
@@ -249,8 +238,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     [[MJConsoleWindowController singleton] setup];
     MJLuaCreate();
 
-    // FIXME: Do we care about showing the prefs on the first run of each new version? (Ng does not care)
-    if (MJFirstRunForCurrentVersion() || !MJAccessibilityIsEnabled())
+    if (!MJAccessibilityIsEnabled())
         [[MJPreferencesWindowController singleton] showWindow: nil];
 }
 

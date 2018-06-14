@@ -102,6 +102,7 @@ static NSString *getVoiceShortCut(NSString *theVoice) {
     if (((HSSpeechSynthesizer *)sender).callbackRef != LUA_NOREF) {
         LuaSkin      *skin    = [LuaSkin shared];
         lua_State    *_L      = [skin L];
+        _lua_stackguard_entry(_L);
         NSDictionary *charMap = luaByteToObjCharMap(text);
 
         [skin pushLuaRef:refTable ref:((HSSpeechSynthesizer *)sender).callbackRef];
@@ -116,11 +117,8 @@ static NSString *getVoiceShortCut(NSString *theVoice) {
         lua_pushinteger(_L, (lua_Integer)[[luaEnd lastObject] unsignedIntegerValue] - 1);
 
         [skin pushNSObject:text];
-        if (![skin protectedCallAndTraceback:5 nresults:0]) {
-            NSString *theError = [skin toNSObjectAtIndex:-1];
-            lua_pop(_L, 1);
-            [skin logError:[NSString stringWithFormat:@"hs.speech.setCallback() willSpeakWord callback error: %@", theError]];
-        }
+        [skin protectedCallAndError:@"hs.speech:willSpeakWord callback" nargs:5 nresults:0];
+        _lua_stackguard_exit(_L);
     }
 }
 
@@ -128,16 +126,14 @@ static NSString *getVoiceShortCut(NSString *theVoice) {
     if (((HSSpeechSynthesizer *)sender).callbackRef != LUA_NOREF) {
         LuaSkin      *skin    = [LuaSkin shared];
         lua_State    *_L      = [skin L];
+        _lua_stackguard_entry(_L);
 
         [skin pushLuaRef:refTable ref:((HSSpeechSynthesizer *)sender).callbackRef];
         [skin pushNSObject:(HSSpeechSynthesizer *)sender];
         lua_pushstring(_L, "willSpeakPhoneme");
         lua_pushinteger(_L, phonemeOpcode);
-        if (![skin protectedCallAndTraceback:3 nresults:0]) {
-            NSString *theError = [skin toNSObjectAtIndex:-1];
-            lua_pop(_L, 1);
-            [skin logError:[NSString stringWithFormat:@"hs.speech.setCallback() willSpeakPhoneme callback error: %@", theError]];
-        }
+        [skin protectedCallAndError:@"hs.speech:willSpeakPhoneme callback" nargs:3 nresults:0];
+        _lua_stackguard_exit(_L);
     }
 }
 
@@ -148,6 +144,7 @@ static NSString *getVoiceShortCut(NSString *theVoice) {
     if (((HSSpeechSynthesizer *)sender).callbackRef != LUA_NOREF) {
         LuaSkin      *skin    = [LuaSkin shared];
         lua_State    *_L      = [skin L];
+        _lua_stackguard_entry(_L);
         NSDictionary *charMap = luaByteToObjCharMap(text);
 
         [skin pushLuaRef:refTable ref:((HSSpeechSynthesizer *)sender).callbackRef];
@@ -160,11 +157,8 @@ static NSString *getVoiceShortCut(NSString *theVoice) {
 
         [skin pushNSObject:text];
         [skin pushNSObject:errorMessage];
-        if (![skin protectedCallAndTraceback:5 nresults:0]) {
-            NSString *theError = [skin toNSObjectAtIndex:-1];
-            lua_pop(_L, 1);
-            [skin logError:[NSString stringWithFormat:@"hs.speech.setCallback() didEncounterError callback error: %@", theError]];
-        }
+        [skin protectedCallAndError:@"hs.speech:didEncounterError callback" nargs:5 nresults:0];
+        _lua_stackguard_exit(_L);
     }
 }
 
@@ -172,6 +166,7 @@ static NSString *getVoiceShortCut(NSString *theVoice) {
     if (((HSSpeechSynthesizer *)sender).callbackRef != LUA_NOREF) {
         LuaSkin      *skin    = [LuaSkin shared];
         lua_State    *_L      = [skin L];
+        _lua_stackguard_entry(_L);
         NSError      *getError = nil ;
         [skin pushLuaRef:refTable ref:((HSSpeechSynthesizer *)sender).callbackRef];
         [skin pushNSObject:(HSSpeechSynthesizer *)sender];
@@ -184,16 +179,14 @@ static NSString *getVoiceShortCut(NSString *theVoice) {
         if (getError) {
             [skin logWarn:[NSString stringWithFormat:@"Error getting sync # for callback -> %@", [getError localizedDescription]]];
        }
-        if (![skin protectedCallAndTraceback:3 nresults:0]) {
-            NSString *theError = [skin toNSObjectAtIndex:-1];
-            lua_pop(_L, 1);
-            [skin logError:[NSString stringWithFormat:@"hs.speech.setCallback() didEncounterSync callback error: %@", theError]];
-        }
+        [skin protectedCallAndError:@"hs.speech:didEncounterSync callback" nargs:3 nresults:0];
+        _lua_stackguard_exit(_L);
     }
 }
 
 - (void)speechSynthesizer:(NSSpeechSynthesizer *)sender didFinishSpeaking:(BOOL)success {
     LuaSkin             *skin  = [LuaSkin shared];
+    _lua_stackguard_entry(skin.L);
     HSSpeechSynthesizer *synth = (HSSpeechSynthesizer *)sender ;
 
     if (synth.callbackRef != LUA_NOREF) {
@@ -203,16 +196,13 @@ static NSString *getVoiceShortCut(NSString *theVoice) {
         [skin pushNSObject:synth];
         lua_pushstring(_L, "didFinish");
         lua_pushboolean(_L, success);
-        if (![skin protectedCallAndTraceback:3 nresults:0]) {
-            NSString *theError = [skin toNSObjectAtIndex:-1];
-            lua_pop(_L, 1);
-            [skin logError:[NSString stringWithFormat:@"hs.speech.setCallback() didFinish callback error: %@", theError]];
-        }
+        [skin protectedCallAndError:@"hs.speech:didFinish callback" nargs:3 nresults:0];
     }
     if (synth.selfRef != LUA_NOREF) {
         synth.UDreferenceCount-- ;
         synth.selfRef = [skin luaUnref:refTable ref:synth.selfRef] ;
     }
+    _lua_stackguard_exit(skin.L);
 }
 
 @end

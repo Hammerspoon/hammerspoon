@@ -20,6 +20,7 @@
 NSString* HSAppleScriptRunString(executeLua *self, NSString* command) {
     LuaSkin *skin = [LuaSkin shared] ;
     lua_State* L = skin.L;
+    _lua_stackguard_entry(L);
 
     lua_getglobal(L, "hs") ;
     if (lua_getfield(L, -1, "__appleScriptRunString") != LUA_TFUNCTION) {
@@ -27,6 +28,7 @@ NSString* HSAppleScriptRunString(executeLua *self, NSString* command) {
         [self setScriptErrorNumber:-50];
         [self setScriptErrorString:@"hs.__appleScriptRunString is not a function"];
         lua_pop(L, 2) ; // "hs", and whatever "hs.__appleScriptRunString" is (could be nil)
+        _lua_stackguard_exit(L);
         return @"Error";
     }
 
@@ -37,6 +39,7 @@ NSString* HSAppleScriptRunString(executeLua *self, NSString* command) {
         [self setScriptErrorNumber:-50];
         [self setScriptErrorString:errMsg];
         lua_pop(L, 2) ; // "hs", and error message
+        _lua_stackguard_exit(L);
         return @"Error";
     }
 
@@ -44,12 +47,15 @@ NSString* HSAppleScriptRunString(executeLua *self, NSString* command) {
     BOOL     good = lua_toboolean(L, -2) ;
     lua_pop(L, 3) ; // "hs" and two results from hs.__apleScriptRunString: boolean, string
     if (good) {
+        _lua_stackguard_exit(L);
         return str;
     } else {
         [self setScriptErrorNumber:-50];
         [self setScriptErrorString:str];
+        _lua_stackguard_exit(L);
         return @"Error";
     }
+    _lua_stackguard_exit(L);
 }
 
 //

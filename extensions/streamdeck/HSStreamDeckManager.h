@@ -16,7 +16,7 @@
 #import "streamdeck.h"
 
 @interface HSStreamDeckManager : NSObject
-@property (nonatomic) IOHIDManagerRef ioHIDManager;
+@property (nonatomic, strong) id ioHIDManager;
 @property (nonatomic, strong) NSMutableArray *devices;
 @property (nonatomic) int discoveryCallbackRef;
 

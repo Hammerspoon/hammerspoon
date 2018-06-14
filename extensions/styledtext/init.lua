@@ -192,7 +192,7 @@ module.fontInfo = function(...)
         __tableWrapperFunction = function(_)
             local result = ""
             local width = 0
-            for k,v in pairs(_) do width = width < #k and #k or width end
+            for k,_ in pairs(_) do width = width < #k and #k or width end
             for k,v in require("hs.fnutils").sortByKeys(_) do
                 result = result..string.format("%-"..tostring(width).."s ", k)
                 if type(v) == "table" then
@@ -233,7 +233,7 @@ end
 ---  * This function was modeled after the ANSIEscapeHelper.m file at https://github.com/balthamos/geektool-3 in the /NerdTool/classes directory.
 module.ansi = function(rawText, attr)
     local drawing    = require("hs.drawing")
-    local color      = require("hs.drawing.color")
+    require("hs.drawing.color")
 
     local sgrCodeToAttributes = {
         [  0] = { adjustFontStyle    = "remove",
@@ -311,7 +311,7 @@ module.ansi = function(rawText, attr)
 --    if a table w/out font is specified, assume the NSAttributedString default (Helvetica at 12.0)
     local baseFont
     if type(attr) == "nil" then baseFont = drawing.defaultTextStyle().font end
-    local baseFont = baseFont or (attr and attr.font) or { name = "Helvetica", size = 12.0 }
+    baseFont = baseFont or (attr and attr.font) or { name = "Helvetica", size = 12.0 }
 
 -- generate clean string and locate ANSI codes
     local cleanString = ""
@@ -422,7 +422,7 @@ module = setmetatable(module, {
             return setmetatable(results, { __tostring = function(_)
                     local result = ""
                     local width = 0
-                    for k,v in pairs(_) do width = width < #k and #k or width end
+                    for k,_ in pairs(_) do width = width < #k and #k or width end
                     for k,v in require("hs.fnutils").sortByKeys(_) do
                         result = result..string.format("%-"..tostring(width).."s %s\n", k, tostring(v))
                     end

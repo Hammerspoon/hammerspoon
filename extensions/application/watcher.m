@@ -84,6 +84,7 @@ typedef enum _event_t {
 
     LuaSkin *skin = [LuaSkin shared];
     lua_State *L = skin.L;
+    _lua_stackguard_entry(L);
 
     // Depending on the event the name of the NSRunningApplication object may not be available
     // anymore. Fallback to the application name which is provided directly in the notification
@@ -106,11 +107,8 @@ typedef enum _event_t {
         lua_pushnil(L);
     }
 
-    if (![skin protectedCallAndTraceback:3 nresults:0]) {
-        const char *errorMsg = lua_tostring(L, -1);
-        [skin logError:[NSString stringWithFormat:@"hs.application.watcher callback error: %s", errorMsg]];
-        lua_pop(L, 1) ; // remove error message
-    }
+    [skin protectedCallAndError:@"hs.application.watcher callback" nargs:3 nresults:0];
+    _lua_stackguard_exit(L);
 }
 
 - (void)applicationWillLaunch:(NSNotification*)notification {
