@@ -47,21 +47,21 @@
 
 - (void)testHiding {
     SKIP_IN_TRAVIS()
-    RUN_LUA_TEST()
+    [self luaTestWithCheckAndTimeOut:5 setupCode:@"testHiding()" checkCode:@"testHidingValues()"];
 }
 
 - (void)testKilling {
     SKIP_IN_TRAVIS()
-    RUN_LUA_TEST()
+    [self luaTestWithCheckAndTimeOut:5 setupCode:@"testKilling()" checkCode:@"testKillingValues()"];
 }
 
 - (void)testForceKilling {
     SKIP_IN_TRAVIS()
-    RUN_LUA_TEST()
+    [self luaTestWithCheckAndTimeOut:5 setupCode:@"testForceKilling()" checkCode:@"testForceKillingValues()"];
 }
 
 - (void)testWindows {
     SKIP_IN_TRAVIS()
-    RUN_LUA_TEST()
+    [self luaTestWithCheckAndTimeOut:5 setupCode:@"testWindows()" checkCode:@"testWindowsValues()"];
 }
 @end

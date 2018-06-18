@@ -96,7 +96,12 @@ function testRunningApplications()
 end
 
 function testHiding()
-  local app = hs.application.open("Stickies", 5, true)
+  hs.application.open("Stickies", 5, true)
+  return success()
+end
+
+function testHidingValues()
+  local app = hs.application.get("Stickies")
   assertIsNotNil(app)
   assertTrue(app:isRunning())
 
@@ -114,6 +119,11 @@ end
 
 function testKilling()
   local app = hs.application.open("Chess", 5, true)
+  return success()
+end
+
+function testKillingValues()
+  local app = hs.application.get("Chess")
   assertIsNotNil(app)
   assertTrue(app:isRunning())
 
@@ -125,7 +135,12 @@ function testKilling()
 end
 
 function testForceKilling()
-  app = hs.application.open("Calculator", 5, true)
+  hs.application.open("Calculator", 5, true)
+  return success()
+end
+
+function testForceKillingValues()
+  local app = hs.application.get("Calculator")
   assertIsNotNil(app)
   assertTrue(app:isRunning())
 
@@ -137,7 +152,12 @@ function testForceKilling()
 end
 
 function testWindows()
-  local app = hs.application.open("Grapher", 5, true)
+  hs.application.open("Grapher", 5, true)
+  return success()
+end
+
+function testWindowsValues()
+  local app = hs.application.get("Grapher")
   assertIsNotNil(app)
 
   local wins = app:allWindows()
