@@ -115,7 +115,7 @@ function testDoEveryStart()
   testTimer = hs.timer.doEvery(1, function()
                                     assertIsEqual("number", type(testTimerValue))
                                     if type(testTimerValue) == "number" then
-                                      if testTimerValue > 3 then
+                                      if testTimerValue > 2 then
                                         print("..reached testTimerValue threshold")
                                         testTimerValue = true
                                       else
@@ -190,7 +190,7 @@ function testWaitWhileStart()
   testTimerValue = 0
 
   testTimer = hs.timer.waitWhile(function()
-                                   if testTimerValue < 4 then
+                                   if testTimerValue < 2 then
                                      testTimerValue = testTimerValue + 1
                                      return true
                                    else
