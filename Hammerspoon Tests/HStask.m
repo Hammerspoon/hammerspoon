@@ -29,16 +29,16 @@
 }
 
 - (void)testSimpleTask {
-        XCTAssertTrue([self luaTestWithCheckAndTimeOut:5 setupCode:@"testSimpleTask()" checkCode:@"testSimpleTaskValueCheck()"], @"hs.task simple task test failed");
+    [self luaTestWithCheckAndTimeOut:5 setupCode:@"testSimpleTask()" checkCode:@"testSimpleTaskValueCheck()"];
 }
 
 - (void)testSimpleTaskFail {
-    XCTAssertTrue([self luaTestWithCheckAndTimeOut:5 setupCode:@"testSimpleTaskFail()" checkCode:@"testSimpleTaskFailValueCheck()"], @"hs.task simple fail task test failed");
+    [self luaTestWithCheckAndTimeOut:5 setupCode:@"testSimpleTaskFail()" checkCode:@"testSimpleTaskFailValueCheck()"];
 }
 
 - (void)testStreamingTask {
-        SKIP_IN_TRAVIS()
-        XCTAssertTrue([self luaTestWithCheckAndTimeOut:10 setupCode:@"testStreamingTask()" checkCode:@"testStreamingTaskValueCheck()"], @"hs.task streaming test failed");
+    SKIP_IN_TRAVIS()
+    [self luaTestWithCheckAndTimeOut:10 setupCode:@"testStreamingTask()" checkCode:@"testStreamingTaskValueCheck()"];
 }
 
 - (void)testTaskLifecycle {

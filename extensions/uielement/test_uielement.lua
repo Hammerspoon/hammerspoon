@@ -70,7 +70,6 @@ end
 
 function testWatcher()
   app = hs.application.open("com.apple.systempreferences", 5, true)
-  assertIsNotNil(app)
 
   hs.timer.doAfter(1, function()
       hs.window.find("System Preferences"):focus()
