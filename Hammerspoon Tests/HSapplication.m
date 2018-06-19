@@ -64,4 +64,12 @@
     SKIP_IN_TRAVIS()
     [self luaTestWithCheckAndTimeOut:5 setupCode:@"testWindows()" checkCode:@"testWindowsValues()"];
 }
+
+- (void)testMenus {
+    RUN_LUA_TEST()
+}
+
+- (void)testMenusAsync {
+    [self luaTestWithCheckAndTimeOut:5 setupCode:@"testMenusAsync()" checkCode:@"testMenusAsyncValues()"];
+}
 @end

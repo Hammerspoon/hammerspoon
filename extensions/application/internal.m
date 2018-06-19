@@ -1070,10 +1070,11 @@ static int application_getMenus(lua_State* L) {
             }
 
             dispatch_sync(dispatch_get_main_queue(), ^{
-                lua_rawgeti(L, LUA_REGISTRYINDEX, fnRef) ;
-                [skin pushNSObject:menus] ;
-                [skin protectedCallAndError:@"hs.application:getMenus()" nargs:1 nresults:0];
-                luaL_unref(L, LUA_REGISTRYINDEX, fnRef) ;
+                LuaSkin *_skin = [LuaSkin shared];
+                lua_rawgeti(_skin.L, LUA_REGISTRYINDEX, fnRef) ;
+                [_skin pushNSObject:menus] ;
+                [_skin protectedCallAndError:@"hs.application:getMenus()" nargs:1 nresults:0];
+                luaL_unref(_skin.L, LUA_REGISTRYINDEX, fnRef) ;
             }) ;
         }) ;
         lua_pushvalue(L, 1) ;
