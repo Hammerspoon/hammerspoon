@@ -398,12 +398,15 @@ static int fontTraits(lua_State *L) {
 ///
 /// Returns:
 ///  * `true` if valid, otherwise `false`.
+///
+/// Notes:
+///  * Please note that the font name is different to the display name and family name.
 static int validFontName(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs: LS_TSTRING, LS_TBREAK];
 
 	NSString* fontName = [skin toNSObjectAtIndex:1];
-	NSArray *fonts = [[NSFontManager sharedFontManager] availableFontFamilies];
+	NSArray *fonts = [[NSFontManager sharedFontManager] availableFonts];
     BOOL result = [fonts containsObject:fontName];
 
 	lua_pushboolean(L,result);
