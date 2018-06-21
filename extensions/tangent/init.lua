@@ -1265,7 +1265,7 @@ end
 --- Function
 --- Updates the Hub with a menu value.
 --- The Hub then updates the displays of any panels which are currently
---    showing the menu.
+---   showing the menu.
 --- If a value of `nil` is sent then the Hub will not attempt to display a
 --- value for the menu. However the `atDefault` flag will still be recognised.
 ---
