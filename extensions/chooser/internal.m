@@ -2,6 +2,10 @@
 #import <LuaSkin/LuaSkin.h>
 #import "chooser.h"
 
+#define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
+
+static int refTable = LUA_NOREF;
+
 #pragma mark - Lua API defines
 static int userdata_gc(lua_State *L);
 
@@ -20,19 +24,13 @@ static int chooserNew(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TFUNCTION, LS_TBREAK];
 
-    // Create the userdata object
-    chooser_userdata_t *userData = lua_newuserdata(L, sizeof(chooser_userdata_t));
-    memset(userData, 0, sizeof(chooser_userdata_t));
-    luaL_getmetatable(L, USERDATA_TAG);
-    lua_setmetatable(L, -2);
-
     // Parse function arguents
     lua_pushvalue(L, 1);
     int completionCallbackRef = [skin luaRef:refTable];
 
     // Create the HSChooser object with our arguments
     HSChooser *chooser = [[HSChooser alloc] initWithRefTable:&refTable completionCallbackRef:completionCallbackRef];
-    userData->chooser = (__bridge_retained void*)chooser;
+    [skin pushNSObject:chooser];
 
     return 1;
 }
@@ -52,8 +50,7 @@ static int chooserShow(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE | LS_TOPTIONAL, LS_TBREAK];
 
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+    HSChooser *chooser = [skin toNSObjectAtIndex:1];
 
     if (lua_type(L, 2) == LUA_TTABLE) {
         NSPoint userTopLeft = [skin tableToPointAtIndex:2];
@@ -80,8 +77,7 @@ static int chooserHide(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+    HSChooser *chooser = [skin toNSObjectAtIndex:1];
 
     [chooser hide];
 
@@ -102,8 +98,7 @@ static int chooserIsVisible(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+    HSChooser *chooser = [skin toNSObjectAtIndex:1];
 
     lua_pushboolean(L, [chooser isVisible]);
     return 1;
@@ -152,8 +147,7 @@ static int chooserSetChoices(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION | LS_TTABLE | LS_TNIL, LS_TBREAK];
 
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+    HSChooser *chooser = [skin toNSObjectAtIndex:1];
 
     chooser.choicesCallbackRef = [skin luaUnref:refTable ref:chooser.choicesCallbackRef];
     [chooser clearChoices];
@@ -207,12 +201,14 @@ static int chooserSetChoices(lua_State *L) {
 ///
 /// Returns:
 ///  * The hs.chooser object
+///
+/// Notes:
+///  * This callback is called *after* the chooser is shown. To execute code just before it's shown (and/or after it's removed) see `hs.chooser.globalCallback`
 static int chooserShowCallback(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION|LS_TOPTIONAL, LS_TBREAK];
 
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+    HSChooser *chooser = [skin toNSObjectAtIndex:1];
 
     chooser.showCallbackRef = [skin luaUnref:refTable ref:chooser.showCallbackRef];
 
@@ -240,8 +236,7 @@ static int chooserRefreshChoicesCallback(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+    HSChooser *chooser = [skin toNSObjectAtIndex:1];
 
     if (chooser.choicesCallbackRef != LUA_NOREF && chooser.choicesCallbackRef != LUA_REFNIL) {
         [chooser clearChoices];
@@ -269,8 +264,7 @@ static int chooserSetQuery(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TNIL | LS_TOPTIONAL, LS_TBREAK];
 
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+    HSChooser *chooser = [skin toNSObjectAtIndex:1];
 
     if (lua_gettop(L) == 1) {
         [skin pushNSObject:chooser.queryField.stringValue];
@@ -313,8 +307,7 @@ static int chooserQueryCallback(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION|LS_TOPTIONAL, LS_TBREAK];
 
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+    HSChooser *chooser = [skin toNSObjectAtIndex:1];
 
     chooser.queryChangedCallbackRef = [skin luaUnref:refTable ref:chooser.queryChangedCallbackRef];
 
@@ -343,8 +336,7 @@ static int chooserRightClickCallback(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION|LS_TOPTIONAL, LS_TBREAK];
 
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+    HSChooser *chooser = [skin toNSObjectAtIndex:1];
 
     chooser.rightClickCallbackRef = [skin luaUnref:refTable ref:chooser.rightClickCallbackRef];
 
@@ -369,6 +361,7 @@ static int chooserDelete(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
+    // FIXME: Should we force the selfRefCount to 1 here, so the _gc call definitely deletes the ObjC object?
     return userdata_gc(L);
 }
 
@@ -385,8 +378,7 @@ static int chooserSetFgColor(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE | LS_TNIL | LS_TOPTIONAL, LS_TBREAK];
 
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+    HSChooser *chooser = [skin toNSObjectAtIndex:1];
 
     switch (lua_type(L, 2)) {
         case LUA_TTABLE:
@@ -425,8 +417,7 @@ static int chooserSetSubTextColor(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE | LS_TNIL | LS_TOPTIONAL, LS_TBREAK];
 
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+    HSChooser *chooser = [skin toNSObjectAtIndex:1];
 
     switch (lua_type(L, 2)) {
         case LUA_TTABLE:
@@ -468,8 +459,7 @@ static int chooserSetBgDark(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNIL | LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
 
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+    HSChooser *chooser = [skin toNSObjectAtIndex:1];
 
     BOOL beDark;
 
@@ -514,8 +504,7 @@ static int chooserSetSearchSubText(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
 
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+    HSChooser *chooser = [skin toNSObjectAtIndex:1];
 
     switch (lua_type(L, 2)) {
         case LUA_TBOOLEAN:
@@ -552,8 +541,7 @@ static int chooserSetWidth(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK];
 
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+    HSChooser *chooser = [skin toNSObjectAtIndex:1];
 
     switch (lua_type(L, 2)) {
         case LUA_TNUMBER:
@@ -587,8 +575,7 @@ static int chooserSetNumRows(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK];
 
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+    HSChooser *chooser = [skin toNSObjectAtIndex:1];
 
     switch (lua_type(L, 2)) {
         case LUA_TNUMBER:
@@ -622,8 +609,7 @@ static int chooserSelectedRow(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TINTEGER | LS_TOPTIONAL, LS_TBREAK];
 
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+    HSChooser *chooser = [skin toNSObjectAtIndex:1];
 
     if (lua_gettop(L) == 1) {
         NSInteger selectedRow = chooser.choicesTableView.selectedRow;
@@ -651,8 +637,7 @@ static int chooserSelectedRow(lua_State *L) {
 static int chooserSelectedRowContents(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK];
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+    HSChooser *chooser = [skin toNSObjectAtIndex:1];
 
     NSInteger selectedRow = (lua_gettop(L) == 1) ? chooser.choicesTableView.selectedRow : (lua_tointeger(L, 2) - 1) ;
     if (selectedRow >= 0 && selectedRow < chooser.choicesTableView.numberOfRows) {
@@ -673,8 +658,10 @@ static int chooserSelectedRowContents(lua_State *L) {
 /// Returns:
 ///  * The `hs.chooser` object
 static int chooserSelect(lua_State *L) {
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK];
+
+    HSChooser *chooser = [skin toNSObjectAtIndex:1];
 
     chooserSelectedRow(L);
     lua_pop(L, 1);
@@ -695,8 +682,9 @@ static int chooserSelect(lua_State *L) {
 /// Returns:
 ///  * The `hs.chooser` object
 static int chooserCancel(lua_State *L) {
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    HSChooser *chooser = [skin toNSObjectAtIndex:1];
 
     [chooser cancel:nil];
 
@@ -704,34 +692,74 @@ static int chooserCancel(lua_State *L) {
     return 1;
 }
 
+#pragma mark - Lua<->NSObject Conversion Functions
+// These must not throw a lua error to ensure LuaSkin can safely be used from Objective-C
+// delegates and blocks.
+
+static int pushHSChooser(lua_State *L, id obj) {
+    HSChooser *value = obj;
+    value.selfRefCount++;
+    void** valuePtr = lua_newuserdata(L, sizeof(HSChooser *));
+    *valuePtr = (__bridge_retained void *)value;
+    luaL_getmetatable(L, USERDATA_TAG);
+    lua_setmetatable(L, -2);
+    return 1;
+}
+
+static id toHSChooserFromLua(lua_State *L, int idx) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    HSChooser *value ;
+    if (luaL_testudata(L, idx, USERDATA_TAG)) {
+        value = get_objectFromUserdata(__bridge HSChooser, L, idx, USERDATA_TAG) ;
+    } else {
+        [skin logError:[NSString stringWithFormat:@"expected %s object, found %s", USERDATA_TAG,
+                        lua_typename(L, lua_type(L, idx))]] ;
+    }
+    return value ;
+}
+
 #pragma mark - Hammerspoon Infrastructure
 
 static int userdata_tostring(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    [skin pushNSObject:[NSString stringWithFormat:@"%s: (%p)", USERDATA_TAG, (void *)userData]];
+    HSChooser *chooser = [skin toNSObjectAtIndex:1];
+    [skin pushNSObject:[NSString stringWithFormat:@"%s: (%@)", USERDATA_TAG, chooser]];
     return 1;
 }
 
-static int userdata_gc(lua_State* L) {
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    HSChooser *chooser = (__bridge_transfer HSChooser *)userData->chooser;
-    if (chooser) {
+static int userdata_eq(lua_State* L) {
+    // can't get here if at least one of us isn't a userdata type, and we only care if both types are ours,
+    // so use luaL_testudata before the macro causes a lua error
+    if (luaL_testudata(L, 1, USERDATA_TAG) && luaL_testudata(L, 2, USERDATA_TAG)) {
         LuaSkin *skin = [LuaSkin shared] ;
-        chooser.showCallbackRef = [skin luaUnref:refTable ref:chooser.showCallbackRef];
-        chooser.choicesCallbackRef = [skin luaUnref:refTable ref:chooser.choicesCallbackRef];
-        chooser.queryChangedCallbackRef = [skin luaUnref:refTable ref:chooser.queryChangedCallbackRef];
-        chooser.completionCallbackRef = [skin luaUnref:refTable ref:chooser.completionCallbackRef];
-        chooser.rightClickCallbackRef = [skin luaUnref:refTable ref:chooser.rightClickCallbackRef];
-        chooser.isObservingThemeChanges = NO;  // Stop observing for interface theme changes.
+        HSChooser *obj1 = [skin luaObjectAtIndex:1 toClass:"HSChooser"] ;
+        HSChooser *obj2 = [skin luaObjectAtIndex:2 toClass:"HSChooser"] ;
+        lua_pushboolean(L, [obj1 isEqualTo:obj2]) ;
+    } else {
+        lua_pushboolean(L, NO) ;
     }
-    userData->chooser = nil;
-    chooser = nil;
+    return 1 ;
+}
+static int userdata_gc(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    HSChooser *chooser = get_objectFromUserdata(__bridge_transfer HSChooser, L, 1, USERDATA_TAG);
+    if (chooser) {
+        chooser.selfRefCount--;
+        if (chooser.selfRefCount == 0) {
+            chooser.showCallbackRef = [skin luaUnref:refTable ref:chooser.showCallbackRef];
+            chooser.choicesCallbackRef = [skin luaUnref:refTable ref:chooser.choicesCallbackRef];
+            chooser.queryChangedCallbackRef = [skin luaUnref:refTable ref:chooser.queryChangedCallbackRef];
+            chooser.completionCallbackRef = [skin luaUnref:refTable ref:chooser.completionCallbackRef];
+            chooser.rightClickCallbackRef = [skin luaUnref:refTable ref:chooser.rightClickCallbackRef];
+            chooser.isObservingThemeChanges = NO;  // Stop observing for interface theme changes.
+            chooser = nil;
+        }
+    }
 
     // Remove the Metatable so future use of the variable in Lua won't think its valid
     lua_pushnil(L) ;
     lua_setmetatable(L, 1) ;
-
     return 0;
 }
 
@@ -765,6 +793,7 @@ static const luaL_Reg userdataLib[] = {
     {"rows", chooserSetNumRows},
 
     {"__tostring", userdata_tostring},
+    {"__eq", userdata_eq},
     {"__gc", userdata_gc},
     {NULL, NULL}
 };
@@ -775,6 +804,9 @@ int luaopen_hs_chooser_internal(__unused lua_State* L) {
                                      functions:chooserLib
                                  metaFunctions:nil
                                objectFunctions:userdataLib];
+
+    [skin registerPushNSHelper:pushHSChooser         forClass:"HSChooser"];
+    [skin registerLuaObjectHelper:toHSChooserFromLua forClass:"HSChooser" withUserdataMapping:USERDATA_TAG];
 
     return 1;
 }
