@@ -1225,10 +1225,6 @@ int luaopen_hs_application_internal(lua_State* L) {
 
     if (luaL_newmetatable(L, "hs.application")) {
         lua_pushvalue(L, -2); // 'application' table
-
-        lua_pushstring(L, "hs.application") ;
-        lua_setfield(L, -2, "__type") ;
-
         lua_setfield(L, -2, "__index");
 
         // Use hs.uilement's equality
@@ -1242,6 +1238,9 @@ int luaopen_hs_application_internal(lua_State* L) {
 
         lua_pushcfunction(L, application_gc);
         lua_setfield(L, -2, "__gc");
+
+        lua_pushstring(L, "hs.application") ;
+        lua_setfield(L, -2, "__type") ;
     }
     lua_pop(L, 1);
 
