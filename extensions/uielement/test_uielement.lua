@@ -70,10 +70,11 @@ end
 
 function testWatcher()
   app = hs.application.open("com.apple.systempreferences", 5, true)
+  assertIsUserdataOfType("hs.application", app)
 
   hs.timer.doAfter(1, function()
       hs.window.find("System Preferences"):focus()
-      local elem = hs.uielement.focusedElement()
+      local elem = hs.window.focusedWindow()
       assertIsNotNil(elem)
 
       watcher = elem:newWatcher(function(element, event, thisWatcher, userdata)
