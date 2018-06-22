@@ -76,6 +76,7 @@
 }
 
 - (void)testTabs {
+    SKIP_IN_TRAVIS()
     RUN_LUA_TEST()
 }
 
