@@ -1060,7 +1060,7 @@ static int application_getMenus(lua_State* L) {
     } else {
         lua_pushvalue(L, 2) ;
         int fnRef = luaL_ref(L, LUA_REGISTRYINDEX) ;
-        dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+        dispatch_async(dispatch_get_main_queue(), ^{
             NSMutableDictionary *menus = nil;
             AXUIElementRef menuBar;
 
@@ -1069,13 +1069,11 @@ static int application_getMenus(lua_State* L) {
                 CFRelease(menuBar);
             }
 
-            dispatch_sync(dispatch_get_main_queue(), ^{
-                LuaSkin *_skin = [LuaSkin shared];
-                lua_rawgeti(_skin.L, LUA_REGISTRYINDEX, fnRef) ;
-                [_skin pushNSObject:menus] ;
-                [_skin protectedCallAndError:@"hs.application:getMenus()" nargs:1 nresults:0];
-                luaL_unref(_skin.L, LUA_REGISTRYINDEX, fnRef) ;
-            }) ;
+            LuaSkin *_skin = [LuaSkin shared];
+            lua_rawgeti(_skin.L, LUA_REGISTRYINDEX, fnRef) ;
+            [_skin pushNSObject:menus] ;
+            [_skin protectedCallAndError:@"hs.application:getMenus()" nargs:1 nresults:0];
+            luaL_unref(_skin.L, LUA_REGISTRYINDEX, fnRef) ;
         }) ;
         lua_pushvalue(L, 1) ;
     }
@@ -1225,10 +1223,6 @@ int luaopen_hs_application_internal(lua_State* L) {
 
     if (luaL_newmetatable(L, "hs.application")) {
         lua_pushvalue(L, -2); // 'application' table
-
-        lua_pushstring(L, "hs.application") ;
-        lua_setfield(L, -2, "__type") ;
-
         lua_setfield(L, -2, "__index");
 
         // Use hs.uilement's equality
@@ -1242,6 +1236,9 @@ int luaopen_hs_application_internal(lua_State* L) {
 
         lua_pushcfunction(L, application_gc);
         lua_setfield(L, -2, "__gc");
+
+        lua_pushstring(L, "hs.application") ;
+        lua_setfield(L, -2, "__type") ;
     }
     lua_pop(L, 1);
 
