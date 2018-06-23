@@ -508,6 +508,9 @@
 - (void)updateChoices {
     if (self.window.visible) {
         [self.choicesTableView reloadData];
+        
+        // This updates the choices based on the current query string:
+        [self controlTextDidChange:[NSNotification notificationWithName:@"Unused" object:nil]];
     } else {
         self.reloadWhenVisible = YES;
     }
