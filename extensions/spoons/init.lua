@@ -233,7 +233,7 @@ function module.use(name, arg, noerror)
    log.df("hs.spoons.use(%s, %s)", name, inspect(arg))
    if not arg then arg = {} end
    if module.isInstalled(name) then
-      local spn=module.loadSpoon(name)
+      local spn=hs.loadSpoon(name)
       if spn then
          if arg.loglevel and spn.logger then
             spn.logger.setLogLevel(arg.loglevel)

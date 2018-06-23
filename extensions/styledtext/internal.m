@@ -389,6 +389,31 @@ static int fontTraits(lua_State *L) {
     return 1;
 }
 
+/// hs.styledtext.validFont(font) -> boolean
+/// Function
+/// Checks to see if a font is valid.
+///
+/// Parameters:
+///  * font - a string containing the name of the font you want to check.
+///
+/// Returns:
+///  * `true` if valid, otherwise `false`.
+static int validFont(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs: LS_TSTRING, LS_TBREAK];
+
+	NSString* fontName = [skin toNSObjectAtIndex:1];
+
+    NSFont *theFont = [NSFont fontWithName:fontName size:1];
+    if (theFont) {
+        lua_pushboolean(L,TRUE);
+    } else {
+        lua_pushboolean(L,FALSE);
+	}
+
+    return 1;
+}
+
 /// hs.styledtext.fontInfo(font) -> table
 /// Function
 /// Get information about the font Specified in the attributes table.
@@ -2255,6 +2280,7 @@ static luaL_Reg moduleLib[] = {
     //     {"luaToObjCMap"         , luaToObjCMap},
 
     {"convertFont", font_convertFont},
+    {"validFont", validFont},
     {"_fontInfo", fontInformation},
     {"_fontNames", fontNames},
     {"_fontNamesWithTraits", fontNamesWithTraits},

@@ -24,12 +24,10 @@
     [super tearDown];
 }
 
-/* FIXME: This is too fragile to run well in XCTestCase expectations at the moment
 - (void)testWatcher {
     SKIP_IN_TRAVIS()
     [self luaTestWithCheckAndTimeOut:5 setupCode:@"testWatcher()" checkCode:@"testWatcherValues()"];
 }
- */
 
 - (void)testHammerspoonElements {
     SKIP_IN_TRAVIS()
