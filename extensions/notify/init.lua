@@ -23,20 +23,21 @@ local imagemod = require("hs.image")
 
 -- functions allowed to be attributes when creating a new notification (see hs.notify.new below)
 local attribute_functions = {
-    actionButtonTitle   = true,
-    additionalActions   = true,
-    alwaysPresent       = true,
-    autoWithdraw        = true,
-    contentImage        = true,
-    hasActionButton     = true,
-    hasReplyButton      = true,
-    informativeText     = true,
-    otherButtonTitle    = true,
-    responsePlaceholder = true,
-    soundName           = true,
-    subTitle            = true,
-    title               = true,
-    setIdImage          = true,
+    actionButtonTitle           = true,
+    additionalActions           = true,
+    alwaysPresent               = true,
+    autoWithdraw                = true,
+    contentImage                = true,
+    hasActionButton             = true,
+    hasReplyButton              = true,
+    informativeText             = true,
+    otherButtonTitle            = true,
+    responsePlaceholder         = true,
+    soundName                   = true,
+    subTitle                    = true,
+    title                       = true,
+    setIdImage                  = true,
+    alwaysShowAdditionalActions = true,
 }
 
 local emptyFunctionPlaceholder = "__emptyFunctionPlaceHolder"
@@ -74,12 +75,13 @@ module.warnAboutMissingFunctionTag = true
 ---
 ---  The following can also be set, but will only have an apparent effect on the notification when the user has set Hammerspoon's notification style to "Alert" in the Notification Center panel of System Preferences:
 ---
----   * actionButtonTitle   - see [hs.notify:actionButtonTitle](#actionButtonTitle)
----   * hasActionButton     - see [hs.notify:hasActionButton](#hasActionButton)
----   * otherButtonTitle    - see [hs.notify:otherButtonTitle](#otherButtonTitle)
----   * additionalActions   - see [hs.notify:additionalActions](#additionalActions)
----   * hasReplyButton      - see [hs.notify:hasReplyButton](#hasReplyButton)
----   * responsePlaceholder - see [hs.notify:responsePlaceholder](#responsePlaceholder)
+---   * actionButtonTitle           - see [hs.notify:actionButtonTitle](#actionButtonTitle)
+---   * hasActionButton             - see [hs.notify:hasActionButton](#hasActionButton)
+---   * otherButtonTitle            - see [hs.notify:otherButtonTitle](#otherButtonTitle)
+---   * additionalActions           - see [hs.notify:additionalActions](#additionalActions)
+---   * hasReplyButton              - see [hs.notify:hasReplyButton](#hasReplyButton)
+---   * responsePlaceholder         - see [hs.notify:responsePlaceholder](#responsePlaceholder)
+---   * alwaysShowAdditionalActions - see [hs.notify:alwaysShowAdditionalActions](#alwaysShowAdditionalActions)
 ---
 --- Returns:
 ---  * A notification object
