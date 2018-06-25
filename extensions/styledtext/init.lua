@@ -239,7 +239,7 @@ module.fontsForFamily = function(...)
             { "ultra", "ultrablack", "fat" },
             { "extrablack", "obese", "nord" }
         }
-        for i,v in ipairs(results) do
+        for _,v in ipairs(results) do
             v[3] = fontWeights[v[3]] or string.format("** unrecognized font weight: %d", v[3])
             local style, styleTable = v[4], { _numeric = v[4] }
             for k, v2 in pairs(module.fontTraits) do
