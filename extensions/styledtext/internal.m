@@ -1216,6 +1216,50 @@ static int string_convert(lua_State *L) {
     return 1;
 }
 
+/// hs.styledtext.loadFont(path) -> string
+/// Function
+/// Loads a font from a file at the specified path.
+///
+/// Paramaters:
+///  * `path` - the path and filename of the font file to attempt to load
+///
+/// Returns:
+///  * if the font can be registered, returns a string specifying the name of the font to use with `hs.canvas` and `hs.styledtext` to use the registered font. If the file does not exist or does not define a macOS compatible font, this function will return a lua error.
+///
+/// Notes:
+///  * if a font with the same name is already registered, this function does nothing but still returns the font name.
+static int registerFontByPath(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
+
+    NSString *path = [skin toNSObjectAtIndex:1] ;
+    path = path.stringByExpandingTildeInPath ;
+    NSData *data = [NSData dataWithContentsOfFile:path];
+    if (!data) {
+        return luaL_error(L, "unable to load file at %s", path.UTF8String) ;
+    }
+    CGDataProviderRef provider = CGDataProviderCreateWithCFData((__bridge CFDataRef)data);
+    CGFontRef font = CGFontCreateWithDataProvider(provider);
+    if (!font) {
+        if (provider) CFRelease(provider) ;
+        return luaL_error(L, "invalid font data for file at %s", path.UTF8String) ;
+    }
+    CFErrorRef errorRef;
+    if (!CTFontManagerRegisterGraphicsFont(font, &errorRef)) {
+        NSError *error = (__bridge_transfer NSError *)errorRef;
+        if (error.code != kCTFontManagerErrorAlreadyRegistered) {
+            if (provider) CFRelease(provider) ;
+            if (font) CFRelease(font) ;
+            return luaL_error(L, "error registering font:%s", error.localizedDescription.UTF8String) ;
+       }
+    }
+    NSString *realFontName = (__bridge_transfer NSString *)CGFontCopyPostScriptName(font) ;
+    if (provider) CFRelease(provider) ;
+    if (font) CFRelease(font) ;
+    lua_pushstring(L, realFontName.UTF8String) ;
+    return 1 ;
+}
+
 #pragma mark - Methods to mimic Lua's string type as closely as possible
 
 /// hs.styledtext:len() -> integer
@@ -2279,6 +2323,7 @@ static luaL_Reg moduleLib[] = {
     {"getStyledTextFromData", getStyledTextFromData},
     //     {"luaToObjCMap"         , luaToObjCMap},
 
+    {"loadFont", registerFontByPath},
     {"convertFont", font_convertFont},
     {"validFont", validFont},
     {"_fontInfo", fontInformation},
