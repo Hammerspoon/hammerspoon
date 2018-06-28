@@ -26,7 +26,7 @@
 
 - (void)testWatcher {
     SKIP_IN_TRAVIS()
-    XCTAssertTrue([self luaTestWithCheckAndTimeOut:4 setupCode:@"testWatcher()" checkCode:@"testWatcherValues()"], @"testWatcher test failed");
+    [self luaTestWithCheckAndTimeOut:5 setupCode:@"testWatcher()" checkCode:@"testWatcherValues()"];
 }
 
 - (void)testHammerspoonElements {

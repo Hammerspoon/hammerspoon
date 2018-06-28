@@ -59,37 +59,38 @@
 }
 
 - (void)testDoAfter {
-    XCTAssertTrue([self luaTestWithCheckAndTimeOut:5 setupCode:@"testDoAfterStart()" checkCode:@"testTimerValueCheck()"], @"hs.timer.doAfter test failed");
+    [self luaTestWithCheckAndTimeOut:5 setupCode:@"testDoAfterStart()" checkCode:@"testTimerValueCheck()"];
 }
 
 - (void)testDoAt {
-    XCTAssertTrue([self luaTestWithCheckAndTimeOut:5 setupCode:@"testDoAtStart()" checkCode:@"testTimerValueCheck()"], @"hs.timer.doAt test failed");
+    [self luaTestWithCheckAndTimeOut:5 setupCode:@"testDoAtStart()" checkCode:@"testTimerValueCheck()"];
 }
 
 - (void)testDoEvery {
-    XCTAssertTrue([self luaTestWithCheckAndTimeOut:5 setupCode:@"testDoEveryStart()" checkCode:@"testTimerValueCheck()"], @"hs.timer.doEvery test failed");
+    [self luaTestWithCheckAndTimeOut:5 setupCode:@"testDoEveryStart()" checkCode:@"testTimerValueCheck()"];
 }
 
 - (void)testDoUntil {
-    XCTAssertTrue([self luaTestWithCheckAndTimeOut:5 setupCode:@"testDoUntilStart()" checkCode:@"testTimerValueCheck()"], @"hs.timer.doUntil test failed");
+    [self luaTestWithCheckAndTimeOut:5 setupCode:@"testDoUntilStart()" checkCode:@"testTimerValueCheck()"];
 }
 
 - (void)testDoWhile {
-    XCTAssertTrue([self luaTestWithCheckAndTimeOut:5 setupCode:@"testDoWhileStart()" checkCode:@"testTimerValueCheck()"], @"hs.timer.doWhile test failed");
+    [self luaTestWithCheckAndTimeOut:5 setupCode:@"testDoWhileStart()" checkCode:@"testTimerValueCheck()"];
 }
 
 - (void)testWaitUntil {
-    XCTAssertTrue([self luaTestWithCheckAndTimeOut:5 setupCode:@"testWaitUntilStart()" checkCode:@"testTimerValueCheck()"], @"hs.timer.waitUntil test failed");
+    [self luaTestWithCheckAndTimeOut:5 setupCode:@"testWaitUntilStart()" checkCode:@"testTimerValueCheck()"];
 }
 
 - (void)testWaitWhile {
-    XCTAssertTrue([self luaTestWithCheckAndTimeOut:5 setupCode:@"testWaitWhileStart()" checkCode:@"testTimerValueCheck()"], @"hs.timer.waitWhile test failed");
+    [self luaTestWithCheckAndTimeOut:5 setupCode:@"testWaitWhileStart()" checkCode:@"testTimerValueCheck()"];
 }
 
+/* This test isn't possible with the current XCTestCase Expectations API - there's no way to set an expectation of failure
 - (void)testNonRunning {
-    XCTAssertFalse([self luaTestWithCheckAndTimeOut:5 setupCode:@"testNeverStart()" checkCode:@"testTimerValueCheck()"],
-        @"hs.timer non-running test failed");
+    [self luaTestWithCheckAndTimeOut:5 setupCode:@"testNeverStart()" checkCode:@"testTimerValueCheck()"];
 }
+ */
 
 - (void)testNew {
     RUN_LUA_TEST()
@@ -108,7 +109,7 @@
 }
 
 - (void)testImmediateFire {
-    XCTAssertTrue([self luaTestWithCheckAndTimeOut:5 setupCode:@"testImmediateFireStart()" checkCode:@"testTimerValueCheck()"], @"hs.timer:fire test failed");
+    [self luaTestWithCheckAndTimeOut:5 setupCode:@"testImmediateFireStart()" checkCode:@"testTimerValueCheck()"];
 }
 
 @end

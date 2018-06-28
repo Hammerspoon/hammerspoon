@@ -32,19 +32,35 @@
     return [result isEqualToString:@"Success"];
 }
 
-- (BOOL)luaTestWithCheckAndTimeOut:(NSTimeInterval)timeOut setupCode:(NSString *)setupCode checkCode:(NSString *)checkCode {
-    NSDate *timeoutDate = [NSDate dateWithTimeIntervalSinceNow:timeOut];
-    BOOL result = NO;
-
+- (void)luaTestWithCheckAndTimeOut:(NSTimeInterval)timeOut setupCode:(NSString *)setupCode checkCode:(NSString *)checkCode {
+    XCTestExpectation *expectation = [self expectationWithDescription:setupCode];
+    NSLog(@"Calling setup code: %@", setupCode);
     [self runLua:setupCode];
 
-    while (result == NO && ([timeoutDate timeIntervalSinceNow] > 0)) {
-        CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.5, NO);
-        result = [self luaTest:checkCode];
-    }
-
-    return result;
+    [NSTimer scheduledTimerWithTimeInterval:0.5 repeats:YES block:^(NSTimer *timer) {
+        NSLog(@"Calling check code: %@", checkCode);
+        BOOL result = [self luaTest:checkCode];
+        if (result) {
+            [expectation fulfill];
+            [timer invalidate];
+        }
+    }];
+/*    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        NSLog(@"Calling check code: %@", checkCode);
+        BOOL result = [self luaTest:checkCode];
+        if (result) {
+            [expectation fulfill];
+        }
+    });*/
+    [self waitForExpectationsWithTimeout:timeOut handler:^(NSError *error) {
+        if (error) {
+            NSLog(@"%@ failed", setupCode);
+        } else {
+            NSLog(@"%@ succeeded", setupCode);
+        }
+    }];
 }
+
 - (BOOL)luaTestFromSelector:(SEL)selector {
     NSString *funcName = NSStringFromSelector(selector);
     NSLog(@"Calling Lua function from selector: %@()", funcName);

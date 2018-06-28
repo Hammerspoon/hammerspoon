@@ -62,7 +62,7 @@ end
 local fixLinks = function(text)
     -- replace internal link references which work well in html and dash with something
     -- more appropriate to inline textual help
-    local content, count = text:gsub("%[([^%]\r\n]+)%]%(#([^%)\r\n]+)%)", "`%1`")
+    local content = text:gsub("%[([^%]\r\n]+)%]%(#([^%)\r\n]+)%)", "`%1`")
     return content
 end
 
@@ -82,16 +82,16 @@ docMT = {
         return result
     end,
     __tostring = function(self)
-        local result = ""
+        local result
         local path, pos = rawget(self, "__path"), rawget(self, "__pos")
         if not pos then
             result = "[modules]\n"
-            for k,v in fnutils.sortByKeys(rawdocs, function(a,b) return a:lower() < b:lower() end) do
+            for k,_ in fnutils.sortByKeys(rawdocs, function(a,b) return a:lower() < b:lower() end) do
                 result = result .. k .. "\n"
             end
         elseif path == "spoon" then
             result = "[spoons]\n"
-            for k,v in fnutils.sortByKeys(pos, function(a,b) return a:lower() < b:lower() end) do
+            for k,_ in fnutils.sortByKeys(pos, function(a,b) return a:lower() < b:lower() end) do
                 result = result .. k .. "\n"
             end
         elseif pos.__ and not pos.__.json.items then
@@ -120,8 +120,8 @@ docMT = {
         return fixLinks(result)
     end,
     __pairs = function(self)
-        local path, pos = rawget(self, "__path"), rawget(self, "__pos")
-        local source = {}
+        local _, pos = rawget(self, "__path"), rawget(self, "__pos")
+        local source
         if not pos then
             source = rawdocs
         else
@@ -144,9 +144,9 @@ local helpHolder = setmetatable({}, docMT)
 
 local buildHoldingTable = function(self)
     local holder = {}
-    for k,v in pairs(coredocs) do
+    for _,v in pairs(coredocs) do
         if v.spoon == self.__spoon then
-            for i, v2 in ipairs(v.json) do
+            for _, v2 in ipairs(v.json) do
                 if not (self.__ignore and (v2.name:match("^" .. self.__ignore .. "$") or v2.name:match("^" .. self.__ignore .. "[%.:]"))) then
                     table.insert(holder, v2)
                 end
@@ -236,7 +236,7 @@ module.registerJSONFile = function(docFile, isSpoon)
             json  = message
         }
 
-        for i, entry in ipairs(message) do
+        for _, entry in ipairs(message) do
             local current = coredocs[docFile].spoon and rawdocs.spoon or rawdocs
             for s in string.gmatch(entry.name, "[%w_]+") do
                 current[s] = current[s] or {}
@@ -247,7 +247,7 @@ module.registerJSONFile = function(docFile, isSpoon)
             else
                 current.__ = { json = entry, file = docFile }
             end
-            for i2, subitem in ipairs(entry.items or {}) do
+            for _, subitem in ipairs(entry.items or {}) do
                 local itemDocName = subitem.name:gsub("[^%w_]", "")
                 current[itemDocName] = current[itemDocName] or {}
                 if current[itemDocName].__ then
@@ -318,18 +318,18 @@ end
 ---  * You can unregister these defaults if you wish to start with a clean slate with the following commands:
 ---    * `hs.doc.unregisterJSONFile(hs.docstrings_json_file)` -- to unregister the Hammerspoon API docs
 ---    * `hs.doc.unregisterJSONFile((hs.docstrings_json_file:gsub("/docs.json$","/extensions/hs/doc/lua.json")))` -- to unregister the Lua 5.3 Documentation.
-module.registeredFiles = function(docFile)
+module.registeredFiles = function()
     local registeredJSONFiles = setmetatable({}, {
         __tostring = function(self)
             local result = ""
-            for i,v in fnutils.sortByKeyValues(self) do
+            for _,v in fnutils.sortByKeyValues(self) do
                 result = result..v.."\n"
             end
             return result
         end,
     })
 
-    for k,v in pairs(coredocs) do table.insert(registeredJSONFiles, k) end
+    for k,_ in pairs(coredocs) do table.insert(registeredJSONFiles, k) end
     return registeredJSONFiles
 end
 
@@ -415,8 +415,8 @@ module.registerJSONFile(hs.docstrings_json_file)
 module.registerJSONFile((hs.docstrings_json_file:gsub("/docs.json$","/extensions/hs/doc/lua.json")))
 
 module.spoonsupport.updateDocsFiles()
-local paths, details = module.spoonsupport.findSpoons()
-for k,v in pairs(details) do if v.hasDocs then module.registerJSONFile(v.docPath, true) end end
+local _, details = module.spoonsupport.findSpoons()
+for _,v in pairs(details) do if v.hasDocs then module.registerJSONFile(v.docPath, true) end end
 
 -- don't load submodules until needed -- makes it easier to troubleshoot when testing
 -- upgrades since hs.doc is loaded by _coresetup, but the others don't have to be, and
@@ -431,7 +431,7 @@ local submodules = {
 
 return setmetatable(module, {
     __call = function(_, ...) return module.help(...) end,
-    __tostring = function(obj) return tostring(helpHolder) end,
+    __tostring = function() return tostring(helpHolder) end,
     __index = function(self, key)
         if submodules[key] then
             self[key] = require(submodules[key])

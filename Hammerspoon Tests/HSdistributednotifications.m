@@ -25,7 +25,7 @@
 }
 
 - (void)testdistributednotifications {
-    XCTAssertTrue([self luaTestWithCheckAndTimeOut:5 setupCode:@"testDistributedNotifications()" checkCode:@"testDistNotValueCheck()"], @"hs.distributednotifications test failed");
+    [self luaTestWithCheckAndTimeOut:5 setupCode:@"testDistributedNotifications()" checkCode:@"testDistNotValueCheck()"];
 }
 
 @end

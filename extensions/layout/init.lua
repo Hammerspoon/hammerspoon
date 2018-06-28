@@ -107,7 +107,7 @@ layout.maximized = geometry.rect(0, 0, 1, 1)
 ---         {"iTunes", "MiniPlayer", "Color LCD", nil, nil, hs.geometry.rect(0, -48, 400, 48)},
 ---       }```
 ---  * An example of a function that works well as a `windowTitleComparator` is the Lua built-in `string.match`, which uses Lua Patterns to match strings
-function layout.apply(layout, windowTitleComparator)
+function layout.apply(theLayout, windowTitleComparator)
 -- Layout parameter should be a table where each row takes the form of:
 --  {"App name", "Window name","Display Name"/"hs.screen object", "unitrect", "framerect", "fullframerect"},
 --  First three items in each row are strings (although the display name can also be an hs.screen object, or nil)
@@ -126,7 +126,7 @@ function layout.apply(layout, windowTitleComparator)
             return windowTitle == layoutWindowTitle
         end
     end
-    for n,_row in pairs(layout) do
+    for _,_row in pairs(theLayout) do
         local app = nil
         local wins = nil
         local display = nil
@@ -134,7 +134,6 @@ function layout.apply(layout, windowTitleComparator)
         local unit = _row[4]
         local frame = _row[5]
         local fullframe = _row[6]
-        local windows = nil
 
         -- Find the application's object, if wanted
         if _row[1] then
@@ -200,7 +199,7 @@ function layout.apply(layout, windowTitleComparator)
             print(_row[1],_row[2])
             print("No windows matched, skipping.")
         else
-            for m,_win in pairs(wins) do
+            for _,_win in pairs(wins) do
                 local winframe = nil
                 local screenrect = nil
 
