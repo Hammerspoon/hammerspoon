@@ -1,5 +1,5 @@
-#import <Cocoa/Cocoa.h>
-#import <LuaSkin/LuaSkin.h>
+@import Cocoa ;
+@import LuaSkin ;
 
 #define USERDATA_TAG "hs.styledtext"
 static int refTable;
@@ -79,7 +79,7 @@ NSDictionary *luaByteToObjCharMap(NSString *theString) {
 ///  * See the module description documentation (`help.hs.styledtext`) for a description of the attributes table format which can be provided for the optional second argument.
 ///
 ///  * Passing an `hs.styledtext` object as the first parameter without specifying an `attributes` table is the equivalent of invoking `hs.styledtext:copy`.
-static int string_new(__unused lua_State *L) {
+static int string_new(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING | LS_TNUMBER | LS_TTABLE,
                     LS_TTABLE | LS_TOPTIONAL,
@@ -261,11 +261,47 @@ static int fontNames(lua_State *L) {
     [skin checkArgs:LS_TBREAK];
 
     NSArray *fontNames = [[NSFontManager sharedFontManager] availableFonts];
+    if (fontNames) {
+        [skin pushNSObject:[fontNames sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]] ;
+    } else {
+        lua_pushnil(L) ;
+    }
+    return 1;
+}
 
-    lua_newtable(L);
-    for (unsigned long indFont = 0; indFont < [fontNames count]; ++indFont) {
-        lua_pushstring(L, [[fontNames objectAtIndex:indFont] UTF8String]);
-        lua_rawseti(L, -2, (lua_Integer)indFont + 1);
+/// hs.styledtext.fontFamilies() -> table
+/// Function
+/// Returns the names of all font families installed for the system.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * a table containing the names of every font family installed for the system.
+static int fontFamilies(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TBREAK];
+
+    NSArray *familyNames = [[NSFontManager sharedFontManager] availableFontFamilies];
+    if (familyNames) {
+        [skin pushNSObject:[familyNames sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]] ;
+    } else {
+        lua_pushnil(L) ;
+    }
+    return 1;
+}
+
+static int fontsForFamily(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TBREAK];
+
+    NSString *fontFamily = [skin toNSObjectAtIndex:1] ;
+    if (fontFamily) {
+        NSArray *details = [[NSFontManager sharedFontManager] availableMembersOfFontFamily:fontFamily] ;
+        [skin pushNSObject:details] ;
+    } else {
+        lua_pushboolean(L, NO) ;
+//         lua_pushnil(L) ;
     }
     return 1;
 }
@@ -292,7 +328,7 @@ static int font_convertFont(lua_State *L) {
     }
     if (lua_type(L, 2) == LUA_TNUMBER) {
         [skin pushNSObject:[[NSFontManager sharedFontManager] convertFont:theFont
-                                                              toHaveTrait:(NSFontTraitMask)luaL_checkinteger(L, 2)]];
+                                                              toHaveTrait:(NSFontTraitMask)(luaL_checkinteger(L, 2))]];
     } else {
         [skin pushNSObject:[[NSFontManager sharedFontManager] convertWeight:(BOOL)lua_toboolean(L, 2)
                                                                      ofFont:theFont]];
@@ -323,11 +359,11 @@ static int fontNamesWithTraits(lua_State *L) {
         case LUA_TNONE:
             break;
         case LUA_TNUMBER:
-            theTraits = (enum NSFontTraitMask)luaL_checkinteger(L, 1);
+            theTraits = (enum NSFontTraitMask)(luaL_checkinteger(L, 1));
             break;
         case LUA_TTABLE:
             for (lua_pushnil(L); lua_next(L, 1); lua_pop(L, 1)) {
-                theTraits |= (enum NSFontTraitMask)lua_tointeger(L, -1);
+                theTraits |= (enum NSFontTraitMask)(lua_tointeger(L, -1));
             }
             break;
         default: // shouldn't happen with the checkArgs above...
@@ -402,14 +438,14 @@ static int validFont(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs: LS_TSTRING, LS_TBREAK];
 
-	NSString* fontName = [skin toNSObjectAtIndex:1];
+    NSString* fontName = [skin toNSObjectAtIndex:1];
 
     NSFont *theFont = [NSFont fontWithName:fontName size:1];
     if (theFont) {
         lua_pushboolean(L,TRUE);
     } else {
         lua_pushboolean(L,FALSE);
-	}
+    }
 
     return 1;
 }
@@ -1765,9 +1801,9 @@ static int NSParagraphStyle_toLua(lua_State *L, id obj) {
     lua_setfield(L, -2, "paragraphSpacingBefore");
     lua_pushnumber(L, [thePS lineHeightMultiple]);
     lua_setfield(L, -2, "lineHeightMultiple");
-    lua_pushnumber(L, [thePS hyphenationFactor]);
+    lua_pushnumber(L, (lua_Number)[thePS hyphenationFactor]);
     lua_setfield(L, -2, "hyphenationFactor");
-    lua_pushnumber(L, [thePS tighteningFactorForTruncation]);
+    lua_pushnumber(L, (lua_Number)[thePS tighteningFactorForTruncation]);
     lua_setfield(L, -2, "tighteningFactorForTruncation");
     if ([thePS respondsToSelector:@selector(allowsDefaultTighteningForTruncation)]) {
         lua_pushboolean(L, [thePS allowsDefaultTighteningForTruncation]);
@@ -1961,7 +1997,7 @@ static id table_toNSParagraphStyle(lua_State *L, int idx) {
         lua_pop(L, 1);
         if ([thePS respondsToSelector:@selector(allowsDefaultTighteningForTruncation)]) {
             if(lua_getfield(L, -1, "allowsTighteningForTruncation") == LUA_TBOOLEAN) {
-                thePS.allowsDefaultTighteningForTruncation = lua_toboolean(L, -1);
+                thePS.allowsDefaultTighteningForTruncation = (BOOL)lua_toboolean(L, -1);
             }
             lua_pop(L, 1);
         }
@@ -2171,8 +2207,9 @@ static int userdata_concat(lua_State *L) {
         NSMutableAttributedString *newString = [theString1 mutableCopy];
         if ((lua_type(L, 2) == LUA_TSTRING) || (lua_type(L, 2) == LUA_TNUMBER)) {
             // it's a string, so extend the given attributes
-            [newString replaceCharactersInRange:NSMakeRange([newString length], 0)
-                                     withString:[NSString stringWithUTF8String:lua_tostring(L, 2)]];
+            NSString *addition = [NSString stringWithUTF8String:lua_tostring(L, 2)] ;
+            if (addition) [newString replaceCharactersInRange:NSMakeRange([newString length], 0)
+                                                   withString:addition];
         } else {
             // it's an attributed string, so assume it includes its own attributes
             [newString appendAttributedString:get_objectFromUserdata(__bridge NSAttributedString, L, 2)];
@@ -2283,6 +2320,8 @@ static luaL_Reg moduleLib[] = {
     {"validFont", validFont},
     {"_fontInfo", fontInformation},
     {"_fontNames", fontNames},
+    {"_fontFamilies", fontFamilies},
+    {"_fontsForFamily", fontsForFamily},
     {"_fontNamesWithTraits", fontNamesWithTraits},
 
     {"_defaultFonts", defineDefaultFonts},
@@ -2295,7 +2334,7 @@ static luaL_Reg moduleLib[] = {
 //     {NULL,   NULL}
 // };
 
-int luaopen_hs_styledtext_internal(lua_State *__unused L) {
+int luaopen_hs_styledtext_internal(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     refTable      = [skin registerLibraryWithObject:USERDATA_TAG
                                      functions:moduleLib
