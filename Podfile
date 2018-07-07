@@ -3,6 +3,8 @@ platform :osx, '10.10'
 
 source 'https://github.com/CocoaPods/Specs.git'
 
+project 'Hammerspoon', 'Profile' => :debug
+
 target 'Hammerspoon' do
 pod 'ASCIImage', '1.0.0'
 pod 'CocoaLumberjack', '3.4.2'
