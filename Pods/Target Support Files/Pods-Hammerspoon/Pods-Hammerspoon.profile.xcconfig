@@ -1,0 +1,10 @@
+FRAMEWORK_SEARCH_PATHS = $(inherited) "${PODS_ROOT}/Crashlytics/OSX" "${PODS_ROOT}/Fabric/OSX"
+GCC_PREPROCESSOR_DEFINITIONS = $(inherited) COCOAPODS=1
+HEADER_SEARCH_PATHS = $(inherited) "$(SDKROOT)/usr/include/libxml2" "$(SDK_DIR)"/usr/include/libxml2 "${PODS_ROOT}/Headers/Public" "${PODS_ROOT}/Headers/Public/ASCIImage" "${PODS_ROOT}/Headers/Public/CocoaAsyncSocket" "${PODS_ROOT}/Headers/Public/CocoaHTTPServer" "${PODS_ROOT}/Headers/Public/CocoaLumberjack" "${PODS_ROOT}/Headers/Public/Crashlytics" "${PODS_ROOT}/Headers/Public/Fabric" "${PODS_ROOT}/Headers/Public/MIKMIDI" "${PODS_ROOT}/Headers/Public/PocketSocket" "${PODS_ROOT}/Headers/Public/Sparkle"
+LIBRARY_SEARCH_PATHS = $(inherited) "${PODS_CONFIGURATION_BUILD_DIR}/ASCIImage" "${PODS_CONFIGURATION_BUILD_DIR}/CocoaAsyncSocket" "${PODS_CONFIGURATION_BUILD_DIR}/CocoaHTTPServer" "${PODS_CONFIGURATION_BUILD_DIR}/CocoaLumberjack" "${PODS_CONFIGURATION_BUILD_DIR}/MIKMIDI" "${PODS_CONFIGURATION_BUILD_DIR}/PocketSocket"
+OTHER_CFLAGS = $(inherited) -isystem "${PODS_ROOT}/Headers/Public" -isystem "${PODS_ROOT}/Headers/Public/ASCIImage" -isystem "${PODS_ROOT}/Headers/Public/CocoaAsyncSocket" -isystem "${PODS_ROOT}/Headers/Public/CocoaHTTPServer" -isystem "${PODS_ROOT}/Headers/Public/CocoaLumberjack" -isystem "${PODS_ROOT}/Headers/Public/Crashlytics" -isystem "${PODS_ROOT}/Headers/Public/Fabric" -isystem "${PODS_ROOT}/Headers/Public/MIKMIDI" -isystem "${PODS_ROOT}/Headers/Public/PocketSocket" -isystem "${PODS_ROOT}/Headers/Public/Sparkle"
+OTHER_LDFLAGS = $(inherited) -ObjC -l"ASCIImage" -l"CocoaAsyncSocket" -l"CocoaHTTPServer" -l"CocoaLumberjack" -l"MIKMIDI" -l"PocketSocket" -l"c++" -l"system" -l"xml2" -l"z" -framework "AudioToolbox" -framework "AudioUnit" -framework "CFNetwork" -framework "CoreMIDI" -framework "CoreServices" -framework "Crashlytics" -framework "Fabric" -framework "Foundation" -framework "Security" -framework "SystemConfiguration"
+PODS_BUILD_DIR = ${BUILD_DIR}
+PODS_CONFIGURATION_BUILD_DIR = ${PODS_BUILD_DIR}/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)
+PODS_PODFILE_DIR_PATH = ${SRCROOT}/.
+PODS_ROOT = ${SRCROOT}/Pods

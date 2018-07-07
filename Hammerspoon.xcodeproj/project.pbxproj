@@ -30,7 +30,7 @@
 		4CD203B21C6D77750089706D /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CD203A21C6D75950089706D /* internal.m */; };
 		4CD64AA91C6F15F400EB6E39 /* HSsocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CD64AA81C6F15F400EB6E39 /* HSsocket.m */; };
 		4CD64AAB1C6F168700EB6E39 /* test_socket.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4CD64AAA1C6F168700EB6E39 /* test_socket.lua */; };
-		4CD96BD61C73ABD2009FF648 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
+		4CD96BD61C73ABD2009FF648 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
 		4CD96BD71C73ABD2009FF648 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4CD96BDE1C73AC1C009FF648 /* udp.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CD96BDD1C73AC1C009FF648 /* udp.m */; };
 		4CE6390F1C76C7F500BB7CD2 /* socket.h in Headers */ = {isa = PBXBuildFile; fileRef = 4CE6390E1C76C7F500BB7CD2 /* socket.h */; };
@@ -1203,6 +1203,7 @@
 		6AE1812D1D36E96A0097211C /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
 		6AE181311D39C8F10097211C /* HSnoises.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSnoises.m; sourceTree = "<group>"; };
 		6AE181331D39C9570097211C /* test_noises.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_noises.lua; path = extensions/noises/test_noises.lua; sourceTree = "<group>"; };
+		75E2C8065BA22C7EA133713A /* Pods-Hammerspoon.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hammerspoon.profile.xcconfig"; path = "Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon.profile.xcconfig"; sourceTree = "<group>"; };
 		867B086413FD65986CB40932 /* Pods-Hammerspoon.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hammerspoon.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon.debug.xcconfig"; sourceTree = "<group>"; };
 		9409202F19A5940600B9964E /* MJVersionUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJVersionUtils.h; sourceTree = "<group>"; };
 		9409203019A5940600B9964E /* MJVersionUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJVersionUtils.m; sourceTree = "<group>"; };
@@ -1373,7 +1374,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4CD96BD61C73ABD2009FF648 /* (null) in Frameworks */,
+				4CD96BD61C73ABD2009FF648 /* BuildFile in Frameworks */,
 				4CD96BD71C73ABD2009FF648 /* LuaSkin.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2022,6 +2023,7 @@
 			children = (
 				867B086413FD65986CB40932 /* Pods-Hammerspoon.debug.xcconfig */,
 				DE2547C1592A3EDD90D9815D /* Pods-Hammerspoon.release.xcconfig */,
+				75E2C8065BA22C7EA133713A /* Pods-Hammerspoon.profile.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -7757,7 +7759,7 @@
 		};
 		4F04548D20F0EE7D00699F29 /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 867B086413FD65986CB40932 /* Pods-Hammerspoon.debug.xcconfig */;
+			baseConfigurationReference = 75E2C8065BA22C7EA133713A /* Pods-Hammerspoon.profile.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
