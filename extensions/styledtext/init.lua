@@ -74,9 +74,6 @@
 local module = require("hs.styledtext.internal")
 require("hs.drawing.color") -- make sure that the conversion helpers required to support color are loaded
 
-local fnutils = require("hs.fnutils")
-local drawing = require("hs.drawing")
-
 -- private variables and methods -----------------------------------------
 
 -- Public interface ------------------------------------------------------
@@ -268,6 +265,7 @@ module.fontInfo = function(...)
         __tableWrapperFunction = function(_)
             local result = ""
             local width = 0
+            local fnutils = require("hs.fnutils")
             for k,_ in pairs(_) do width = width < #k and #k or width end
             for k,v in fnutils.sortByKeys(_) do
                 result = result..string.format("%-"..tostring(width).."s ", k)
@@ -308,6 +306,8 @@ end
 ---
 ---  * This function was modeled after the ANSIEscapeHelper.m file at https://github.com/balthamos/geektool-3 in the /NerdTool/classes directory.
 module.ansi = function(rawText, attr)
+    local drawing    = require("hs.drawing")
+    require("hs.drawing.color")
 
     local sgrCodeToAttributes = {
         [  0] = { adjustFontStyle    = "remove",
@@ -496,6 +496,7 @@ module = setmetatable(module, {
             return setmetatable(results, { __tostring = function(_)
                     local result = ""
                     local width = 0
+                    local fnutils = require("hs.fnutils")
                     for k,_ in pairs(_) do width = width < #k and #k or width end
                     for k,v in fnutils.sortByKeys(_) do
                         result = result..string.format("%-"..tostring(width).."s %s\n", k, tostring(v))
