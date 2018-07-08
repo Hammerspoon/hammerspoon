@@ -1008,7 +1008,7 @@ static int menubar_returnToMenuBar(lua_State *L) {
     return 1 ;
 }
 
-/// hs.menubar:isInMenubar() -> boolean
+/// hs.menubar:isInMenuBar() -> boolean
 /// Method
 /// Returns a boolean indicating whether or not the specified menu is currently in the OS X menubar.
 ///
@@ -1217,6 +1217,7 @@ static const luaL_Reg menubar_metalib[] = {
     {"_frame",            menubarFrame},
     {"priority",          menubarPriority},
     {"isInMenubar",       menubar_isInMenubar},
+    {"isInMenuBar",       menubar_isInMenubar},
 
     {"__tostring",        userdata_tostring},
     {"__gc",              menubaritem_gc},

@@ -209,6 +209,8 @@
 	<string>${MACOSX_DEPLOYMENT_TARGET}</string>
 	<key>LSMultipleInstancesProhibited</key>
 	<true/>
+	<key>NSUserNotificationAlertStyle</key>
+	<string>alert</string>
 	<key>NSAppSleepDisabled</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -257,8 +259,6 @@
 			</array>
 		</dict>
 	</array>
-	<key>NSUserNotificationAlertStyle</key>
-	<string>alert</string>
 	<key>OSAScriptingDefinition</key>
 	<string>CommandPost.sdef</string>
 	<key>SUEnableAutomaticChecks</key>
