@@ -265,8 +265,9 @@ module.fontInfo = function(...)
         __tableWrapperFunction = function(_)
             local result = ""
             local width = 0
+            local fnutils = require("hs.fnutils")
             for k,_ in pairs(_) do width = width < #k and #k or width end
-            for k,v in require("hs.fnutils").sortByKeys(_) do
+            for k,v in fnutils.sortByKeys(_) do
                 result = result..string.format("%-"..tostring(width).."s ", k)
                 if type(v) == "table" then
                     result = result..__tableWrapperFunction(v):gsub("[ \n]", {[" "] = "=", ["\n"] = " "}).."\n"
@@ -495,8 +496,9 @@ module = setmetatable(module, {
             return setmetatable(results, { __tostring = function(_)
                     local result = ""
                     local width = 0
+                    local fnutils = require("hs.fnutils")
                     for k,_ in pairs(_) do width = width < #k and #k or width end
-                    for k,v in require("hs.fnutils").sortByKeys(_) do
+                    for k,v in fnutils.sortByKeys(_) do
                         result = result..string.format("%-"..tostring(width).."s %s\n", k, tostring(v))
                     end
                     return result
