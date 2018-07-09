@@ -7808,7 +7808,7 @@
 				DEVELOPMENT_TEAM = "";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Hammerspoon/Hammerspoon-Prefix.pch";
-				INFOPLIST_FILE = "Hammerspoon/Hammerspoon-Info.plist";
+				INFOPLIST_FILE = "Hammerspoon/CommandPost-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = Hammerspoon;
