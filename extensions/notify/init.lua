@@ -38,6 +38,7 @@ local attribute_functions = {
     title                       = true,
     setIdImage                  = true,
     alwaysShowAdditionalActions = true,
+    withdrawAfter               = true
 }
 
 local emptyFunctionPlaceholder = "__emptyFunctionPlaceHolder"
@@ -82,6 +83,7 @@ module.warnAboutMissingFunctionTag = true
 ---   * hasReplyButton              - see [hs.notify:hasReplyButton](#hasReplyButton)
 ---   * responsePlaceholder         - see [hs.notify:responsePlaceholder](#responsePlaceholder)
 ---   * alwaysShowAdditionalActions - see [hs.notify:alwaysShowAdditionalActions](#alwaysShowAdditionalActions)
+---   * withdrawAfter               - see [hs.notify:withdrawAfter](#withdrawAfter)
 ---
 --- Returns:
 ---  * A notification object
@@ -105,6 +107,7 @@ module.new = function(fn, attributes)
 
   attributes = attributes or { }
   if not attributes.title then attributes.title = "Notification" end
+  if not attributes.withdrawAfter then attributes.withdrawAfter = 5 end
 
   local note = module._new(fn)
   for k,v in pairs(attributes) do
@@ -152,6 +155,7 @@ end
 --- Notes:
 ---  * All three textual parameters are required, though they can be empty strings
 ---  * This function is really a shorthand for `hs.notify.new(...):send()`
+---  * Notifications created using this function will inherit the default `withdrawAfter` value, which is 5 seconds. To produce persistent notifications you should use `hs.notify.new()` with a `withdrawAfter` attribute of 0.
 module.show = function(title, subTitle, informativeText, tag)
   if not hs.fnutils.contains({"function", "string", "number", "nil"}, type(tag)) or
   (type(tag) == "number" and not module.registry[tag]) or
