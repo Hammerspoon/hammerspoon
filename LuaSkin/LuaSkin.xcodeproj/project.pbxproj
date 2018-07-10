@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		4F04557E20F509EC00699F29 /* lobjectivec_exceptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F478F0A1DE6251400E0DC38 /* lobjectivec_exceptions.h */; };
-		4F04557F20F509FE00699F29 /* lobjectivec_exceptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F478F0A1DE6251400E0DC38 /* lobjectivec_exceptions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4F0455BE20F50C7500699F29 /* lapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F0455A720F50C5000699F29 /* lapi.c */; };
 		4F0455BF20F50C7500699F29 /* lauxlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F0455B920F50C5200699F29 /* lauxlib.c */; };
 		4F0455C020F50C7500699F29 /* lbaselib.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F04558620F50C4D00699F29 /* lbaselib.c */; };
@@ -366,7 +365,6 @@
 				4F0455FE20F50C9300699F29 /* ldo.h in Headers */,
 				4F04560720F50C9300699F29 /* lprefix.h in Headers */,
 				4F04560A20F50C9300699F29 /* ltable.h in Headers */,
-				4F04557F20F509FE00699F29 /* lobjectivec_exceptions.h in Headers */,
 				4F04560420F50C9300699F29 /* lobject.h in Headers */,
 				4F0455FC20F50C9300699F29 /* lctype.h in Headers */,
 				4F04561020F50C9300699F29 /* lvm.h in Headers */,

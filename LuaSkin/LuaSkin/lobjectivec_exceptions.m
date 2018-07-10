@@ -172,7 +172,7 @@ void luai_objcttry(lua_State* L, struct lua_longjmp* c_lua_longjmp, Pfunc a_func
 	}
 }
 
-void luai_objcthrow(__unused struct lua_longjmp* errorJmp) __attribute__((noreturn))
+void luai_objcthrow(__unused struct lua_longjmp* errorJmp)
 {
 	// This must not be autoreleased because Lua doesn't have its own autorelease pool. (See Optimization Notes at the top).
 	// To be nice to ARC, I moved to a static NSString away from a custom NSObject that I made sure never got autoreleased.
