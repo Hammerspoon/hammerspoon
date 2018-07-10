@@ -23,20 +23,22 @@ local imagemod = require("hs.image")
 
 -- functions allowed to be attributes when creating a new notification (see hs.notify.new below)
 local attribute_functions = {
-    actionButtonTitle   = true,
-    additionalActions   = true,
-    alwaysPresent       = true,
-    autoWithdraw        = true,
-    contentImage        = true,
-    hasActionButton     = true,
-    hasReplyButton      = true,
-    informativeText     = true,
-    otherButtonTitle    = true,
-    responsePlaceholder = true,
-    soundName           = true,
-    subTitle            = true,
-    title               = true,
-    setIdImage          = true,
+    actionButtonTitle           = true,
+    additionalActions           = true,
+    alwaysPresent               = true,
+    autoWithdraw                = true,
+    contentImage                = true,
+    hasActionButton             = true,
+    hasReplyButton              = true,
+    informativeText             = true,
+    otherButtonTitle            = true,
+    responsePlaceholder         = true,
+    soundName                   = true,
+    subTitle                    = true,
+    title                       = true,
+    setIdImage                  = true,
+    alwaysShowAdditionalActions = true,
+    withdrawAfter               = true
 }
 
 local emptyFunctionPlaceholder = "__emptyFunctionPlaceHolder"
@@ -74,12 +76,14 @@ module.warnAboutMissingFunctionTag = true
 ---
 ---  The following can also be set, but will only have an apparent effect on the notification when the user has set Hammerspoon's notification style to "Alert" in the Notification Center panel of System Preferences:
 ---
----   * actionButtonTitle   - see [hs.notify:actionButtonTitle](#actionButtonTitle)
----   * hasActionButton     - see [hs.notify:hasActionButton](#hasActionButton)
----   * otherButtonTitle    - see [hs.notify:otherButtonTitle](#otherButtonTitle)
----   * additionalActions   - see [hs.notify:additionalActions](#additionalActions)
----   * hasReplyButton      - see [hs.notify:hasReplyButton](#hasReplyButton)
----   * responsePlaceholder - see [hs.notify:responsePlaceholder](#responsePlaceholder)
+---   * actionButtonTitle           - see [hs.notify:actionButtonTitle](#actionButtonTitle)
+---   * hasActionButton             - see [hs.notify:hasActionButton](#hasActionButton)
+---   * otherButtonTitle            - see [hs.notify:otherButtonTitle](#otherButtonTitle)
+---   * additionalActions           - see [hs.notify:additionalActions](#additionalActions)
+---   * hasReplyButton              - see [hs.notify:hasReplyButton](#hasReplyButton)
+---   * responsePlaceholder         - see [hs.notify:responsePlaceholder](#responsePlaceholder)
+---   * alwaysShowAdditionalActions - see [hs.notify:alwaysShowAdditionalActions](#alwaysShowAdditionalActions)
+---   * withdrawAfter               - see [hs.notify:withdrawAfter](#withdrawAfter)
 ---
 --- Returns:
 ---  * A notification object
@@ -103,6 +107,7 @@ module.new = function(fn, attributes)
 
   attributes = attributes or { }
   if not attributes.title then attributes.title = "Notification" end
+  if not attributes.withdrawAfter then attributes.withdrawAfter = 5 end
 
   local note = module._new(fn)
   for k,v in pairs(attributes) do
@@ -150,6 +155,7 @@ end
 --- Notes:
 ---  * All three textual parameters are required, though they can be empty strings
 ---  * This function is really a shorthand for `hs.notify.new(...):send()`
+---  * Notifications created using this function will inherit the default `withdrawAfter` value, which is 5 seconds. To produce persistent notifications you should use `hs.notify.new()` with a `withdrawAfter` attribute of 0.
 module.show = function(title, subTitle, informativeText, tag)
   if not hs.fnutils.contains({"function", "string", "number", "nil"}, type(tag)) or
   (type(tag) == "number" and not module.registry[tag]) or
