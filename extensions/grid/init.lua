@@ -173,7 +173,7 @@ local function getGridFrame(screenObject)
         error(sformat('invalid grid frame %s defined for "%s" (screen %s has frame %s)',gridframe.string,tostring(k),screenObject:name(),screenFrame.string),2)
       end
       return f
-    end end
+     end end
   end
   return screenObject:frame()
 end
