@@ -125,7 +125,7 @@ void luai_objcttry(lua_State* L, struct lua_longjmp* c_lua_longjmp, Pfunc a_func
 			c_lua_longjmp->status = LUA_ERR_EXCEPTION_OBJC;
 		}
 	}
-	@catch(id exception)
+	@catch(__unused id exception)
 	{
 		// Not sure what this object is. I don't know what methods it actually implements so I can't easily/safely extract any info.
 		lua_pushliteral(L, "Unknown Objective-C exception");
@@ -172,7 +172,7 @@ void luai_objcttry(lua_State* L, struct lua_longjmp* c_lua_longjmp, Pfunc a_func
 	}
 }
 
-void luai_objcthrow(struct lua_longjmp* errorJmp)
+void luai_objcthrow(__unused struct lua_longjmp* errorJmp) __attribute__((noreturn))
 {
 	// This must not be autoreleased because Lua doesn't have its own autorelease pool. (See Optimization Notes at the top).
 	// To be nice to ARC, I moved to a static NSString away from a custom NSObject that I made sure never got autoreleased.

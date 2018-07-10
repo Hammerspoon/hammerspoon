@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4F04557D20F5099600699F29 /* lobjectivec_exceptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F478F0B1DE6251400E0DC38 /* lobjectivec_exceptions.m */; };
 		4F04557E20F509EC00699F29 /* lobjectivec_exceptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F478F0A1DE6251400E0DC38 /* lobjectivec_exceptions.h */; };
 		4F04557F20F509FE00699F29 /* lobjectivec_exceptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F478F0A1DE6251400E0DC38 /* lobjectivec_exceptions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4F0455BE20F50C7500699F29 /* lapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F0455A720F50C5000699F29 /* lapi.c */; };
@@ -95,6 +94,7 @@
 		4F04561020F50C9300699F29 /* lvm.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F04558520F50C4D00699F29 /* lvm.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4F04561120F50C9300699F29 /* lzio.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F04559920F50C4F00699F29 /* lzio.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4F04561220F50C9C00699F29 /* lua.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4F04559420F50C4F00699F29 /* lua.hpp */; };
+		4F04561320F5128800699F29 /* lobjectivec_exceptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F478F0B1DE6251400E0DC38 /* lobjectivec_exceptions.m */; };
 		4FDC203D1E117F7500EDA72E /* luaskin.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FDC203C1E117F7500EDA72E /* luaskin.lua */; };
 		4FDD8E781C850AC800085D7A /* lsunit.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FDD8E771C850AC800085D7A /* lsunit.lua */; };
 		4FDD8E801C85A09600085D7A /* testinit.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FDD8E7F1C85A09600085D7A /* testinit.lua */; };
@@ -540,7 +540,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F04557D20F5099600699F29 /* lobjectivec_exceptions.m in Sources */,
 				4FEF59721B29D0FB002344A7 /* Skin.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -557,6 +556,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F04561320F5128800699F29 /* lobjectivec_exceptions.m in Sources */,
 				4F0455C920F50C7500699F29 /* lfunc.c in Sources */,
 				4F0455DD20F50C7500699F29 /* lutf8lib.c in Sources */,
 				4F0455D020F50C7500699F29 /* loadlib.c in Sources */,
