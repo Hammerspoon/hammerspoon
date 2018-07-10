@@ -229,8 +229,7 @@ end
 ---  * None
 
 local function getCellSize(theScreen)
-  -- TODO: `grid` doesn't actually look like it's used?
-  --local grid=getGrid(theScreen)
+  getGrid(theScreen)
   local screenframe=getGridFrame(theScreen)
   return geom.size(screenframe.w/grid.w,screenframe.h/grid.h)
 end
