@@ -623,7 +623,7 @@ AXUIElementRef _findmenuitembyname(lua_State* L, AXUIElementRef app, NSString *n
                 [skin logBreadcrumb:[NSString stringWithFormat:@"Got an error (%d) fetching menu children, skipping", (int)error]];
                 continue;
             }
-            [toCheck addObjectsFromArray:(__bridge_transfer NSArray *)cf_menuchildren];
+            [toCheck addObjectsFromArray:(__bridge NSArray *)cf_menuchildren];
         } else if (childcount == 0) {
             // This doesn't seem to be a submenu, so see if it's a match
             if (!nameIsRegex && [name isEqualToString:title]) {
