@@ -149,7 +149,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.9.66</string>
+	<string>0.9.67</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -188,7 +188,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>0.9.66</string>
+	<string>0.9.67</string>
 	<key>Fabric</key>
 	<dict>
 		<key>APIKey</key>
@@ -205,8 +205,6 @@
 	</dict>
 	<key>LSMinimumSystemVersion</key>
 	<string>${MACOSX_DEPLOYMENT_TARGET}</string>
-	<key>NSUserNotificationAlertStyle</key>
-	<string>alert</string>
 	<key>NSAppSleepDisabled</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -255,6 +253,8 @@
 			</array>
 		</dict>
 	</array>
+	<key>NSUserNotificationAlertStyle</key>
+	<string>alert</string>
 	<key>OSAScriptingDefinition</key>
 	<string>Hammerspoon.sdef</string>
 	<key>SUEnableAutomaticChecks</key>
