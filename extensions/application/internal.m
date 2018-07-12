@@ -623,7 +623,7 @@ AXUIElementRef _findmenuitembyname(lua_State* L, AXUIElementRef app, NSString *n
                 [skin logBreadcrumb:[NSString stringWithFormat:@"Got an error (%d) fetching menu children, skipping", (int)error]];
                 continue;
             }
-            [toCheck addObjectsFromArray:(__bridge NSArray *)cf_menuchildren];
+            [toCheck addObjectsFromArray:(__bridge_transfer NSArray *)cf_menuchildren];
         } else if (childcount == 0) {
             // This doesn't seem to be a submenu, so see if it's a match
             if (!nameIsRegex && [name isEqualToString:title]) {
@@ -668,6 +668,7 @@ AXUIElementRef _findmenuitembypath(lua_State* L __unused, AXUIElementRef app, NS
     // searchItem will be the generic variable we search in our loop
     searchItem = menuBar;
 
+    CFArrayRef cf_children = NULL;
     // Loop over cf_children for first element in path, then descend down path
     int i = 5000; // Guard ourself against infinite loops
     while (!foundItem && i > 0) {
@@ -680,7 +681,6 @@ AXUIElementRef _findmenuitembypath(lua_State* L __unused, AXUIElementRef app, NS
             break;
         }
 
-        CFArrayRef cf_children;
         error = AXUIElementCopyAttributeValues(searchItem, kAXChildrenAttribute, 0, count, &cf_children);
         if (error) {
             [skin logBreadcrumb:@"Failed to get children"];

@@ -7,6 +7,34 @@
         <language>en</language>
 <!-- __UPDATE_MARKER__ -->
         <item>
+            <title>Version 0.9.68</title>
+            <sparkle:releaseNotesLink>
+                http://www.hammerspoon.org/releasenotes/0.9.68.html
+            </sparkle:releaseNotesLink>
+            <pubDate>Thu, 12 Jul 2018 22:42:25 +0100</pubDate>
+            <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.68/Hammerspoon-0.9.68.zip"
+                sparkle:version="0.9.68"
+                length="8250475"
+                type="application/octet-stream"
+            />
+            <sparkle:minimumSystemVersion>10.10</sparkle:minimumSystemVersion>
+        </item>
+
+        <item>
+            <title>Version 0.9.67</title>
+            <sparkle:releaseNotesLink>
+                http://www.hammerspoon.org/releasenotes/0.9.67.html
+            </sparkle:releaseNotesLink>
+            <pubDate>Thu, 12 Jul 2018 21:11:51 +0100</pubDate>
+            <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.67/Hammerspoon-0.9.67.zip"
+                sparkle:version="0.9.67"
+                length="8250526"
+                type="application/octet-stream"
+            />
+            <sparkle:minimumSystemVersion>10.10</sparkle:minimumSystemVersion>
+        </item>
+
+        <item>
             <title>Version 0.9.66</title>
             <sparkle:releaseNotesLink>
                 http://www.hammerspoon.org/releasenotes/0.9.66.html
