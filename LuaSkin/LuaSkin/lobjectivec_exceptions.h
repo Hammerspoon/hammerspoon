@@ -14,7 +14,7 @@ struct lua_longjmp {
   volatile int status;  /* error code */
 };
 
-LUAI_FUNC void luai_objcthrow(struct lua_longjmp* errorJmp);
+LUAI_FUNC void luai_objcthrow(struct lua_longjmp* errorJmp) __attribute__((noreturn));
 
 /* Throw is moved into a real function instead of a macro because NSException is needed
  * which brings in #imports from Foundation which polutes the namespace 

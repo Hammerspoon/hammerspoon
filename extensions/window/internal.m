@@ -160,6 +160,7 @@ static BOOL window_presstab(AXUIElementRef win, CFIndex tabIndex) {
     worked = YES;
 cleanup:
     if (tabs) CFRelease(tabs);
+    if (children) CFRelease(children);
 
     return worked;
 }
