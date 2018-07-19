@@ -12,10 +12,3 @@
 #pragma mark - Module metadata
 
 #define USERDATA_TAG "hs.chooser"
-
-static int refTable = LUA_NOREF;
-
-typedef struct _chooser_userdata_t {
-    int selfRef;
-    void *chooser;
-} chooser_userdata_t;

@@ -10,9 +10,9 @@ PODS:
   - CocoaLumberjack/Default (3.4.2)
   - CocoaLumberjack/Extensions (3.4.2):
     - CocoaLumberjack/Default
-  - Crashlytics (3.10.2):
-    - Fabric (~> 1.7.7)
-  - Fabric (1.7.7)
+  - Crashlytics (3.10.5):
+    - Fabric (~> 1.7.9)
+  - Fabric (1.7.9)
   - MIKMIDI (1.6.3)
   - PocketSocket/Client (1.0.1):
     - PocketSocket/Core
@@ -24,8 +24,8 @@ DEPENDENCIES:
   - CocoaAsyncSocket (= 7.6.3)
   - CocoaHTTPServer (= 2.3)
   - CocoaLumberjack (= 3.4.2)
-  - Crashlytics (= 3.10.2)
-  - Fabric (= 1.7.7)
+  - Crashlytics (= 3.10.5)
+  - Fabric (= 1.7.9)
   - MIKMIDI (from `https://github.com/mixedinkey-opensource/MIKMIDI.git`, commit `bc623e9`)
   - PocketSocket/Client (= 1.0.1)
   - Sparkle (= 1.19.0)
@@ -56,12 +56,12 @@ SPEC CHECKSUMS:
   CocoaAsyncSocket: eafaa68a7e0ec99ead0a7b35015e0bf25d2c8987
   CocoaHTTPServer: 5624681fc3473d43b18202f635f9b3abb013b530
   CocoaLumberjack: db7cc9e464771f12054c22ff6947c5a58d43a0fd
-  Crashlytics: 0360624eea1c978a743feddb2fb1ef8b37fb7a0d
-  Fabric: bda89e242bce1b7b8ab264248cf3407774ce0095
+  Crashlytics: 7f2e38d302d9da96475b3d64d86fb29e31a542b7
+  Fabric: a2917d3895e4c1569b9c3170de7320ea1b1e6661
   MIKMIDI: 62b879ef4cd43cf9673851d7cb2ab5002f9bb069
   PocketSocket: 9c6867d66fb4f962af96b9b07f4b45bb561b2c2a
   Sparkle: 8486d2493599665e466b5076e72b28849776e32f
 
-PODFILE CHECKSUM: 462c63cc09cbbe132242de94e707cc2633988b8d
+PODFILE CHECKSUM: 91e5e938851b7fd17315732c51e04cee1d626c15
 
 COCOAPODS: 1.5.3

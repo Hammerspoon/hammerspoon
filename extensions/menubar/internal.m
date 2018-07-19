@@ -178,13 +178,14 @@ NSMutableArray *dynamicMenuDelegates;
 @end
 @implementation HSMenubarItemClickDelegate
 - (void) click:(id)sender {
-    _lua_stackguard_entry(self.L);
+    LuaSkin *skin = [LuaSkin shared];
+    _lua_stackguard_entry(skin.L);
     // Issue #909 -- if the callback causes the menu to be replaced, we crash if this delegate disappears from beneath us... this keeps it from being collected before the callback is done.
     NSObject *myDelegate = [sender representedObject] ;
     [self callback_runner];
     // error or return value (ignored in this case), we gotta cleanup
-    lua_pop(self.L, 1) ;
-    _lua_stackguard_exit(self.L);
+    lua_pop(skin.L, 1) ;
+    _lua_stackguard_exit(skin.L);
     myDelegate = nil ; // NOTE: DO NOT USE `self` AFTER THIS POINT, IT WILL HAVE BEEN DEALLOCATED.
 }
 @end
@@ -200,14 +201,14 @@ NSMutableArray *dynamicMenuDelegates;
     [self callback_runner];
 
     // Ensure the callback pushed a table onto the stack, then remove any existing menu structure and parse the table into a new menu
-    if (lua_type(self.L, lua_gettop(self.L)) == LUA_TTABLE) {
-        erase_menu_items(self.L, menu);
-        parse_table(self.L, lua_gettop(self.L), menu, self.stateBoxImageSize);
+    if (lua_type(skin.L, lua_gettop(skin.L)) == LUA_TTABLE) {
+        erase_menu_items(skin.L, menu);
+        parse_table(skin.L, lua_gettop(skin.L), menu, self.stateBoxImageSize);
     } else {
         [skin logError:@"hs.menubar:setMenu() callback must return a valid table"];
     }
     // error or return value, we gotta cleanup
-    lua_pop(self.L, 1) ;
+    lua_pop(skin.L, 1) ;
     _lua_stackguard_exit(skin.L);
 }
 @end
@@ -982,7 +983,7 @@ static int menubar_returnToMenuBar(lua_State *L) {
     return 1 ;
 }
 
-/// hs.menubar:isInMenubar() -> boolean
+/// hs.menubar:isInMenuBar() -> boolean
 /// Method
 /// Returns a boolean indicating whether or not the specified menu is currently in the OS X menubar.
 ///
@@ -1191,6 +1192,7 @@ static const luaL_Reg menubar_metalib[] = {
     {"_frame",            menubarFrame},
     {"priority",          menubarPriority},
     {"isInMenubar",       menubar_isInMenubar},
+    {"isInMenuBar",       menubar_isInMenubar},
 
     {"__tostring",        userdata_tostring},
     {"__gc",              menubaritem_gc},
