@@ -1,9 +1,10 @@
+-- hs.inspect tests
 hs.inspect = require("hs.inspect")
 
 -- tests the case where a custom __init always returns a new table instance as a key/value
 function testInspectAlwaysNewTableKeyValue()
   local t = setmetatable({}, {
-    __init = function(_, key)
+    __init = function(_, _)
       return {}
     end,
     __pairs = function(self)
