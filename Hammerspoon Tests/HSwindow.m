@@ -21,6 +21,7 @@
 
 - (void)tearDown {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
+    [self runLua:@"hs.closeConsole()"];
     [super tearDown];
 }
 
@@ -37,4 +38,54 @@
     SKIP_IN_TRAVIS()
     RUN_LUA_TEST()
 }
+
+- (void)testFocusedWindow {
+    RUN_LUA_TEST()
+}
+
+- (void)testSnapshots {
+    RUN_LUA_TEST()
+}
+
+- (void)testTitle {
+    RUN_LUA_TEST()
+}
+
+- (void)testRoles {
+    RUN_LUA_TEST()
+}
+
+- (void)testTopLeft {
+    RUN_LUA_TEST()
+}
+
+- (void)testSize {
+    RUN_LUA_TEST()
+}
+
+- (void)testMinimize {
+    RUN_LUA_TEST()
+}
+
+- (void)testPID {
+    RUN_LUA_TEST()
+}
+
+- (void)testApplication {
+    RUN_LUA_TEST()
+}
+
+- (void)testTabs {
+    SKIP_IN_TRAVIS()
+    RUN_LUA_TEST()
+}
+
+- (void)testClose {
+    RUN_LUA_TEST()
+}
+
+- (void)testFullscreen {
+    RUN_LUA_TEST()
+}
+
 @end

@@ -160,6 +160,7 @@ static BOOL window_presstab(AXUIElementRef win, CFIndex tabIndex) {
     worked = YES;
 cleanup:
     if (tabs) CFRelease(tabs);
+    if (children) CFRelease(children);
 
     return worked;
 }
@@ -888,6 +889,9 @@ int luaopen_hs_window_internal(lua_State* L) {
 
         lua_pushcfunction(L, window_gc);
         lua_setfield(L, -2, "__gc");
+
+        lua_pushstring(L, "hs.window");
+        lua_setfield(L, -2, "__type");
     }
     lua_pop(L, 1);
 
