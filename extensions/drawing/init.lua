@@ -103,7 +103,7 @@ end
 ---  * bundleID - A string containing the bundle identifier of an app (e.g. "com.apple.Safari")
 ---
 --- Returns:
----  * An `hs.drawing` image object, or nil if an error occurs
+---  * An `hs.drawing` object, or nil if an error occurs
 module.appImage = function(sizeRect, bundleID)
     local tmpImage = imagemod.imageFromAppBundle(bundleID)
     if tmpImage then
@@ -170,7 +170,7 @@ end
 ---  * endAngle    - The ending angle of the arc, measured in degrees clockwise from the y-axis.
 ---
 --- Returns:
----  * An `hs.drawing` arc object, or nil if an error occurs
+---  * An `hs.drawing` object, or nil if an error occurs
 ---
 --- Notes:
 ---  * This constructor is actually a wrapper for the `hs.drawing.ellipticalArc` constructor.
