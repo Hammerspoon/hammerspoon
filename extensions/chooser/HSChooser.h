@@ -93,6 +93,7 @@
 - (void)updateChoices;
 - (void)clearChoices;
 - (void)clearChoicesAndUpdate;
+- (void)refreshChoicesCallback;
 - (NSArray *)getChoices;
 - (NSArray *)getChoicesWithOptions:(BOOL)includeFiltered;
 
