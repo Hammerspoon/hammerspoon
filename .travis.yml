@@ -22,8 +22,6 @@ notifications:
       - secure: "SpW6b7TF42r7kMiPFqnyX+gNdQSNAN/S38cezjwuu0bolIRE2it97TU8xJ0uhmLPyGI/YjUBM5OJNG5xcqXJhrBPCfN8TBqwyvWJ6/rfoDGT0WDHs69mLoIvCuUAXSxYWYQf560El6VX9oclkSReiZEGYdUMcUzwupCpMmcjUi4="
     template:
       - "%{author} @ %{repository} / %{branch} - Build:#%{build_number} : %{message} - Changes: %{compare_url} - Build details: %{build_url}"
-    use_notice: true
-    skip_join: true
 addons:
   artifacts:
     s3_region: "eu-west-1"
