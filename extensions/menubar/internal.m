@@ -8,6 +8,11 @@
 static int refTable;
 #define get_item_arg(L, idx) ((menubaritem_t *)luaL_checkudata(L, idx, USERDATA_TAG))
 
+// Adds undocumented "appearance" argument to "popUpMenuPositioningItem":
+@interface NSMenu (MISSINGOrder)
+- (BOOL)popUpMenuPositioningItem:(id)arg1 atLocation:(struct CGPoint)arg2 inView:(id)arg3 appearance:(id)arg4;
+@end
+
 // modified from https://github.com/shergin/NSStatusBar-MISSINGOrder
 
 typedef NS_ENUM(NSInteger, NSStatusBarItemPriority) {
@@ -875,6 +880,7 @@ static int menubar_delete(lua_State *L) {
 /// Notes:
 ///  * Items which trigger hs.menubar:setClickCallback() will invoke the callback function, but we cannot control the positioning of any visual elements the function may create -- calling this method on such an object is the equivalent of invoking its callback function directly.
 ///  * This method is blocking. Hammerspoon will be unable to respond to any other activity while the pop-up menu is being displayed.
+///  * `darkMode` uses an undocumented macOS API call, so may break in a future release.
 static int menubar_render(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     menubaritem_t *menuBarItem = get_item_arg(L, 1);
@@ -896,6 +902,7 @@ static int menubar_render(lua_State *L) {
             lua_remove(L, 3) ;
         }
     }
+    NSAppearance *appearance = [NSAppearance appearanceNamed:(darkMode ? NSAppearanceNameVibrantDark : NSAppearanceNameVibrantLight)] ;
 
     switch (lua_type(L, 2)) {
         case LUA_TTABLE:
@@ -936,17 +943,7 @@ static int menubar_render(lua_State *L) {
 
     menuPoint.y = [[NSScreen screens][0] frame].size.height - menuPoint.y ;
 
-	// Support darkMode for popup menus:
-    NSRect contentRect = NSMakeRect(menuPoint.x, menuPoint.y, 0, 0) ;
-    NSWindow *tmpWindow = [[NSWindow alloc] initWithContentRect:contentRect
-                                                      styleMask:0
-                                                        backing:NSBackingStoreBuffered
-                                                          defer:NO] ;
-    tmpWindow.releasedWhenClosed = NO ;
-    tmpWindow.appearance = [NSAppearance appearanceNamed:(darkMode ? NSAppearanceNameVibrantDark : NSAppearanceNameVibrantLight)] ;
-    [tmpWindow orderFront:nil] ;
-    [menu popUpMenuPositioningItem:nil atLocation:NSMakePoint(0, 0) inView:tmpWindow.contentView] ;
-    [tmpWindow close] ;
+    [menu popUpMenuPositioningItem:nil atLocation:menuPoint inView:nil appearance:appearance ] ;
 
     lua_settop(L, 1) ;
     return 1 ;
