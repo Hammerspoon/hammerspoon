@@ -188,6 +188,7 @@ def get_section_from_chunk(chunk, sectionname):
                 break
             else:
                 section.append(line)
+                section.append("\n")
     return section
 
 
