@@ -41,7 +41,6 @@
 		4F0676081C32C0B30088C57C /* HSChooserCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F0676061C32C0B30088C57C /* HSChooserCell.m */; };
 		4F0F08091DC0DAAA00082B73 /* HSChooserRootView.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F0F08071DC0DAAA00082B73 /* HSChooserRootView.h */; };
 		4F0F080A1DC0DAAA00082B73 /* HSChooserRootView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F0F08081DC0DAAA00082B73 /* HSChooserRootView.m */; };
-		4F11989F1FF0412600D279D8 /* switcher.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4F11989E1FF0412600D279D8 /* switcher.lua */; };
 		4F20B52C1C1F1C5B00F52437 /* Hammerspoon_UITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F20B52B1C1F1C5B00F52437 /* Hammerspoon_UITests.m */; };
 		4F20B5341C1F225300F52437 /* init.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4F20B5331C1F225300F52437 /* init.lua */; };
 		4F29C2381C29E0A300B8A69D /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
@@ -5640,7 +5639,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F11989F1FF0412600D279D8 /* switcher.lua in Resources */,
 				4F3978841E89AE7200F30F05 /* Spoon.icns in Resources */,
 				4FC09F7C19F99ECE007542A6 /* docs.json in Resources */,
 				4F8E84311B90EDBF00C25955 /* statusicon.pdf in Resources */,
