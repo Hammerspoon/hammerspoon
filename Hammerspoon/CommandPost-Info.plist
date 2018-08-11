@@ -135,6 +135,46 @@
 			<key>NSDocumentClass</key>
 			<string>NSDocument</string>
 		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>cpCache</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>cpCache</string>
+			<key>CFBundleTypeName</key>
+			<string>CommandPost Cache</string>
+			<key>CFBundleTypeRole</key>
+			<string>None</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>org.latenitefilms.CommandPost.Cache</string>
+			</array>
+			<key>LSTypeIsPackage</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>cpMIDI</string>
+				<string>cpShortcuts</string>
+				<string>cpStreamDeck</string>
+				<string>cpTangent</string>
+				<string>cpTouchBar</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>cpPrefs</string>
+			<key>CFBundleTypeName</key>
+			<string>CommandPost Preferences</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>org.latenitefilms.CommandPost.Preferences</string>
+			</array>
+			<key>LSTypeIsPackage</key>
+			<integer>0</integer>
+		</dict>
 	</array>
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
@@ -209,8 +249,6 @@
 	<string>${MACOSX_DEPLOYMENT_TARGET}</string>
 	<key>LSMultipleInstancesProhibited</key>
 	<true/>
-	<key>NSUserNotificationAlertStyle</key>
-	<string>alert</string>
 	<key>NSAppSleepDisabled</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
