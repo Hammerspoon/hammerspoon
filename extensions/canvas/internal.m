@@ -2140,13 +2140,17 @@ static int userdata_gc(lua_State* L) ;
 
 // see https://www.stairways.com/blog/2009-04-21-nsimage-from-nsview
 - (NSImage *)imageWithSubviews {
-    NSBitmapImageRep *bir = [self bitmapImageRepForCachingDisplayInRect:self.bounds];
-    [bir setSize:self.bounds.size];
-    [self cacheDisplayInRect:self.bounds toBitmapImageRep:bir];
+    // Source: https://stackoverflow.com/questions/1733509/huge-memory-leak-in-nsbitmapimagerep/2189699
+    @autoreleasepool {
+        NSBitmapImageRep *bir = [self bitmapImageRepForCachingDisplayInRect:self.bounds];
+        [bir setSize:self.bounds.size];
+        [self cacheDisplayInRect:self.bounds toBitmapImageRep:bir];
 
-    NSImage* image = [[NSImage alloc]initWithSize:self.bounds.size] ;
-    [image addRepresentation:bir];
-    return image;
+        NSImage* image = [[NSImage alloc]initWithSize:self.bounds.size] ;
+        [image addRepresentation:bir];
+        
+        return image;
+    }
 }
 
 #pragma mark - View Animation Methods
