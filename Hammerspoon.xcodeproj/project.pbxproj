@@ -13,6 +13,7 @@
 		223A9694211F0EFF00596A79 /* cpPrefs.icns in Resources */ = {isa = PBXBuildFile; fileRef = 223A9692211F0EFE00596A79 /* cpPrefs.icns */; };
 		22613FEC1F297E0D00E05E11 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		22613FF51F2A127E00E05E11 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 22613FE41F297B9B00E05E11 /* internal.m */; };
+		22D0C33F2132713800B19D83 /* cpPaste.icns in Resources */ = {isa = PBXBuildFile; fileRef = 22D0C33E2132713700B19D83 /* cpPaste.icns */; };
 		22E4D7FD1FA7488900C8CF5C /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		22E4D8031FA748AC00C8CF5C /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 22E4D7F71FA7485A00C8CF5C /* internal.m */; };
 		394FD223913AE68B92126D37 /* libPods-Hammerspoon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BC78AF8FE9DA0BD317A7528 /* libPods-Hammerspoon.a */; };
@@ -927,6 +928,7 @@
 		22613FE41F297B9B00E05E11 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/dialog/internal.m; sourceTree = "<group>"; };
 		22613FE51F297B9B00E05E11 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/dialog/init.lua; sourceTree = "<group>"; };
 		22613FF11F297E0D00E05E11 /* libdialog.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libdialog.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		22D0C33E2132713700B19D83 /* cpPaste.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpPaste.icns; sourceTree = "<group>"; };
 		22E4D7F71FA7485A00C8CF5C /* internal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/midi/internal.m; sourceTree = SOURCE_ROOT; };
 		22E4D7F81FA7485A00C8CF5C /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/midi/init.lua; sourceTree = SOURCE_ROOT; };
 		22E4D8021FA7488900C8CF5C /* libmidi.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libmidi.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -3153,6 +3155,7 @@
 		944A2D481989739B00D8DC90 /* Extras */ = {
 			isa = PBXGroup;
 			children = (
+				22D0C33E2132713700B19D83 /* cpPaste.icns */,
 				223A9691211F0EFE00596A79 /* cpCache.icns */,
 				223A9692211F0EFE00596A79 /* cpPrefs.icns */,
 				E2491A2D1E98CAD80005A439 /* cpPlugin.icns */,
@@ -5725,6 +5728,7 @@
 			files = (
 				E29DDE461E85524F00313995 /* dsa_pub.pem in Resources */,
 				4F3978841E89AE7200F30F05 /* Spoon.icns in Resources */,
+				22D0C33F2132713800B19D83 /* cpPaste.icns in Resources */,
 				4FC09F7C19F99ECE007542A6 /* docs.json in Resources */,
 				223A9694211F0EFF00596A79 /* cpPrefs.icns in Resources */,
 				4F8E84311B90EDBF00C25955 /* statusicon.pdf in Resources */,
