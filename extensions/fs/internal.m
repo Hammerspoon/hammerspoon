@@ -458,13 +458,24 @@ static int dir_close (lua_State *L) {
 ///  * path - A string containing a directory to iterate
 ///
 /// Returns:
-///  * An iterator function
-///  * A data object to pass to the iterator function
+///  * An iterator function or `nil` if the supplied path cannot be iterated
+///  * A data object to pass to the iterator function or an error message as a string
 ///
 /// Notes:
-///  * The data object should be passed to the iterator function. Each call will return either a string containing the name of an entry in the directory, or nil if there are no more entries.
-///  * Iteration can also be performed by calling `:next()` on the data object. Note that if you do this, you must call `:close()` on the object when you have finished
-///  * This function will raise a Lua error if it cannot iterate the supplied path
+///  * The data object should be passed to the iterator function. Each call will return either a string containing the name of an entry in the directory, or `nil` if there are no more entries.
+///  * Iteration can also be performed by calling `:next()` on the data object. Note that if you do this, you must call `:close()` on the object when you have finished.
+///  * The iterator function will return `nil` if the supplied path cannot be iterated, as well as the error message as a string.
+///  * Example Usage:
+///    ```
+///       local iterFn, dirObj = hs.fs.dir("/Users/Guest/Documents")
+///       if iterFn then
+///          for file in iterFn, dirObj do
+///             print(file)
+///          end
+///       else
+///          print(string.format("The following error occurred: %s", dirObj))
+///       end
+///    ```
 static int dir_iter_factory (lua_State *L) {
     [[LuaSkin shared] checkArgs:LS_TSTRING, LS_TBREAK];
     const char *path = path_at_index(L, 1);
