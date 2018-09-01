@@ -10,45 +10,34 @@ PODS:
   - CocoaLumberjack/Default (3.4.2)
   - CocoaLumberjack/Extensions (3.4.2):
     - CocoaLumberjack/Default
-  - Crashlytics (3.10.5):
-    - Fabric (~> 1.7.9)
-  - Fabric (1.7.9)
+  - Crashlytics (3.10.7):
+    - Fabric (~> 1.7.11)
+  - Fabric (1.7.11)
   - MIKMIDI (1.6.3)
   - PocketSocket/Client (1.0.1):
     - PocketSocket/Core
   - PocketSocket/Core (1.0.1)
-  - Sparkle (1.19.0)
+  - Sparkle (1.20.0)
 
 DEPENDENCIES:
   - ASCIImage (= 1.0.0)
   - CocoaAsyncSocket (= 7.6.3)
   - CocoaHTTPServer (= 2.3)
   - CocoaLumberjack (= 3.4.2)
-  - Crashlytics (= 3.10.5)
-  - Fabric (= 1.7.9)
-  - MIKMIDI (from `https://github.com/mixedinkey-opensource/MIKMIDI.git`, commit `bc623e9`)
+  - Crashlytics (= 3.10.7)
+  - Fabric (= 1.7.11)
+  - MIKMIDI (from `https://github.com/mixedinkey-opensource/MIKMIDI.git`, commit `a674024`)
   - PocketSocket/Client (= 1.0.1)
-  - Sparkle (= 1.19.0)
-
-SPEC REPOS:
-  https://github.com/cocoapods/specs.git:
-    - ASCIImage
-    - CocoaAsyncSocket
-    - CocoaHTTPServer
-    - CocoaLumberjack
-    - Crashlytics
-    - Fabric
-    - PocketSocket
-    - Sparkle
+  - Sparkle (= 1.20.0)
 
 EXTERNAL SOURCES:
   MIKMIDI:
-    :commit: bc623e9
+    :commit: a674024
     :git: https://github.com/mixedinkey-opensource/MIKMIDI.git
 
 CHECKOUT OPTIONS:
   MIKMIDI:
-    :commit: bc623e9
+    :commit: a674024
     :git: https://github.com/mixedinkey-opensource/MIKMIDI.git
 
 SPEC CHECKSUMS:
@@ -56,12 +45,12 @@ SPEC CHECKSUMS:
   CocoaAsyncSocket: eafaa68a7e0ec99ead0a7b35015e0bf25d2c8987
   CocoaHTTPServer: 5624681fc3473d43b18202f635f9b3abb013b530
   CocoaLumberjack: db7cc9e464771f12054c22ff6947c5a58d43a0fd
-  Crashlytics: 7f2e38d302d9da96475b3d64d86fb29e31a542b7
-  Fabric: a2917d3895e4c1569b9c3170de7320ea1b1e6661
+  Crashlytics: ccaac42660eb9351b9960c0d66106b0bcf99f4fa
+  Fabric: f233c9492b3bbc1f04e3882986740f7988a58edb
   MIKMIDI: 62b879ef4cd43cf9673851d7cb2ab5002f9bb069
   PocketSocket: 9c6867d66fb4f962af96b9b07f4b45bb561b2c2a
-  Sparkle: 8486d2493599665e466b5076e72b28849776e32f
+  Sparkle: 48999e7ee032f05ca05e28451eadf4af8ede6b44
 
-PODFILE CHECKSUM: 91e5e938851b7fd17315732c51e04cee1d626c15
+PODFILE CHECKSUM: c61640aaff2db9cbee05908159cc4163fe33163d
 
-COCOAPODS: 1.5.3
+COCOAPODS: 1.4.0
