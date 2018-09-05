@@ -79,7 +79,7 @@ function module.newSpoon(name, basedir, metadata, template)
    local dirname = basedir .. name .. ".spoon"
    if fs.mkdir(dirname) then
       local f=assert(io.open(dirname .. "/init.lua", "w"))
-      local templateFile = template or module.resource_path("templates/init.tpl")
+      local templateFile = template or module.resourcePath("templates/init.tpl")
       local text=slurp(templateFile)
       f:write(interp(text, meta))
       f:close()
