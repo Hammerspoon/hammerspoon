@@ -1056,7 +1056,7 @@ end
 --- Notes:
 ---  * Full documentation for the Tangent API can be downloaded [here](http://www.tangentwave.co.uk/download/developer-support-pack/).
 ---  * The callback function should expect 1 argument and should not return anything.
----   * The 1 argument will be a table, which can contain one or many commands. Each command is it's own table with the following contents:
+---  * The 1 argument will be a table, which can contain one or many commands. Each command is it's own table with the following contents:
 ---    * id - the message ID of the incoming message
 ---    * metadata - A table of data for the Tangent command (see below).
 ---  * The metadata table will return the following, depending on the `id` for the callback:
