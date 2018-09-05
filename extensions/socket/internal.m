@@ -120,13 +120,13 @@ static void readCallback(HSAsyncTcpSocket *asyncSocket, NSData *data, long tag) 
 }
 
 - (void)socket:(GCDAsyncSocket *)sock didWriteDataWithTag:(long)tag {
-    [LuaSkin logDebug:@"Data written to TCP socket"];
+    //[LuaSkin logDebug:@"Data written to TCP socket"];
     if (self.writeCallback != LUA_NOREF)
         writeCallback(self, tag);
 }
 
 - (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag  {
-    [LuaSkin logDebug:@"Data read from TCP socket"];
+    //[LuaSkin logDebug:@"Data read from TCP socket"];
     if (self.readCallback != LUA_NOREF)
         readCallback(self, data, tag);
 }
