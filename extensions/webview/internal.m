@@ -118,53 +118,61 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
 
 - (void)windowDidBecomeKey:(__unused NSNotification *)notification {
     if (_windowCallback != LUA_NOREF) {
-        LuaSkin *skin = [LuaSkin shared] ;
-        _lua_stackguard_entry(skin.L);
-        [skin pushLuaRef:refTable ref:_windowCallback] ;
-        [skin pushNSObject:@"focusChange"] ;
-        [skin pushNSObject:self] ;
-        lua_pushboolean(skin.L, YES) ;
-        [skin protectedCallAndError:@"hs.webview:windowCallback:focusChange" nargs:3 nresults:0];
-        _lua_stackguard_exit(skin.L);
+    	dispatch_async(dispatch_get_main_queue(), ^{
+			LuaSkin *skin = [LuaSkin shared] ;
+			_lua_stackguard_entry(skin.L);
+			[skin pushLuaRef:refTable ref:_windowCallback] ;
+			[skin pushNSObject:@"focusChange"] ;
+			[skin pushNSObject:self] ;
+			lua_pushboolean(skin.L, YES) ;
+			[skin protectedCallAndError:@"hs.webview:windowCallback:focusChange" nargs:3 nresults:0];
+			_lua_stackguard_exit(skin.L);
+		} ;
     }
 }
 
 - (void)windowDidResignKey:(__unused NSNotification *)notification {
     if (_windowCallback != LUA_NOREF) {
-        LuaSkin *skin = [LuaSkin shared] ;
-        _lua_stackguard_entry(skin.L);
-        [skin pushLuaRef:refTable ref:_windowCallback] ;
-        [skin pushNSObject:@"focusChange"] ;
-        [skin pushNSObject:self] ;
-        lua_pushboolean(skin.L, NO) ;
-        [skin protectedCallAndError:@"hs.webview:windowCallback:focusChange" nargs:3 nresults:0];
-        _lua_stackguard_exit(skin.L);
+    	dispatch_async(dispatch_get_main_queue(), ^{
+			LuaSkin *skin = [LuaSkin shared] ;
+			_lua_stackguard_entry(skin.L);
+			[skin pushLuaRef:refTable ref:_windowCallback] ;
+			[skin pushNSObject:@"focusChange"] ;
+			[skin pushNSObject:self] ;
+			lua_pushboolean(skin.L, NO) ;
+			[skin protectedCallAndError:@"hs.webview:windowCallback:focusChange" nargs:3 nresults:0];
+			_lua_stackguard_exit(skin.L);
+		} ;
     }
 }
 
 - (void)windowDidResize:(__unused NSNotification *)notification {
     if (_windowCallback != LUA_NOREF) {
-        LuaSkin *skin = [LuaSkin shared] ;
-        _lua_stackguard_entry(skin.L);
-        [skin pushLuaRef:refTable ref:_windowCallback] ;
-        [skin pushNSObject:@"frameChange"] ;
-        [skin pushNSObject:self] ;
-        [skin pushNSRect:RectWithFlippedYCoordinate(self.frame)] ;
-        [skin protectedCallAndError:@"hs.webview:windowCallback:frameChange:resize" nargs:3 nresults:0];
-        _lua_stackguard_exit(skin.L);
+    	dispatch_async(dispatch_get_main_queue(), ^{
+			LuaSkin *skin = [LuaSkin shared] ;
+			_lua_stackguard_entry(skin.L);
+			[skin pushLuaRef:refTable ref:_windowCallback] ;
+			[skin pushNSObject:@"frameChange"] ;
+			[skin pushNSObject:self] ;
+			[skin pushNSRect:RectWithFlippedYCoordinate(self.frame)] ;
+			[skin protectedCallAndError:@"hs.webview:windowCallback:frameChange:resize" nargs:3 nresults:0];
+			_lua_stackguard_exit(skin.L);
+		} ;
     }
 }
 
 - (void)windowDidMove:(__unused NSNotification *)notification {
     if (_windowCallback != LUA_NOREF) {
-        LuaSkin *skin = [LuaSkin shared] ;
-        _lua_stackguard_entry(skin.L);
-        [skin pushLuaRef:refTable ref:_windowCallback] ;
-        [skin pushNSObject:@"frameChange"] ;
-        [skin pushNSObject:self] ;
-        [skin pushNSRect:RectWithFlippedYCoordinate(self.frame)] ;
-        [skin protectedCallAndError:@"hs.webview:windowCallback:frameChange:move" nargs:3 nresults:0];
-        _lua_stackguard_exit(skin.L);
+    	dispatch_async(dispatch_get_main_queue(), ^{
+			LuaSkin *skin = [LuaSkin shared] ;
+			_lua_stackguard_entry(skin.L);
+			[skin pushLuaRef:refTable ref:_windowCallback] ;
+			[skin pushNSObject:@"frameChange"] ;
+			[skin pushNSObject:self] ;
+			[skin pushNSRect:RectWithFlippedYCoordinate(self.frame)] ;
+			[skin protectedCallAndError:@"hs.webview:windowCallback:frameChange:move" nargs:3 nresults:0];
+			_lua_stackguard_exit(skin.L);
+		} ;
     }
 }
 
@@ -197,13 +205,13 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
               if (deleteWindow) {
               LuaSkin *skin = [LuaSkin shared] ;
                   lua_State *L = [skin L] ;
-                  [mySelf close] ; // trigger callback, if set, then cleanup
                   lua_pushcfunction(L, userdata_gc) ;
                   [skin pushLuaRef:refTable ref:mySelf.udRef] ;
                   // FIXME: Can we convert this lua_pcall() to a LuaSkin protectedCallAndError?
                   if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
                       [skin logBreadcrumb:[NSString stringWithFormat:@"%s:error invoking _gc for delete (with fade) method:%s", USERDATA_TAG, lua_tostring(L, -1)]] ;
                       lua_pop(L, 1) ;
+                      [mySelf close] ;  // the least we can do is close the webview if an error occurs with __gc
                   }
               } else {
                   [mySelf orderOut:nil];
@@ -2305,13 +2313,13 @@ static int webview_delete(lua_State *L) {
 
     HSWebViewWindow *theWindow = [skin luaObjectAtIndex:1 toClass:"HSWebViewWindow"] ;
     if ((lua_gettop(L) == 1) || (![theWindow isVisible])) {
-        [theWindow close] ; // trigger callback, if set, then cleanup
         lua_pushcfunction(L, userdata_gc) ;
         lua_pushvalue(L, 1) ;
         // FIXME: Can we convert this lua_pcall() to a LuaSkin protectedCallAndError?
         if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
             [skin logBreadcrumb:[NSString stringWithFormat:@"%s:error invoking _gc for delete method:%s", USERDATA_TAG, lua_tostring(L, -1)]] ;
             lua_pop(L, 1) ;
+            [theWindow close] ; // the least we can do is close the webview if an error occurs with __gc
         }
     } else {
         [theWindow fadeOut:lua_tonumber(L, 2) andDelete:YES];
@@ -2369,7 +2377,7 @@ static int webview_behavior(lua_State *L) {
 /// Parameters:
 ///  * `fn` - the function to be called when the webview window is moved or closed. Specify an explicit nil to clear the current callback.  The function should expect 2 or 3 arguments and return none.  The arguments will be one of the following:
 ///
-///    * "closing", webview - specifies that the webview window is being closed, either by the user or with the [hs.webview:delete](#delete) method.
+///    * "closing", webview - specifies that the webview window is being closed, either by the user or with the [hs.webview:hide](#hide) method.
 ///      * `action`  - in this case "closing", specifying that the webview window is being closed
 ///      * `webview` - the webview that is being closed
 ///
@@ -2927,11 +2935,11 @@ static int userdata_gc(lua_State* L) {
 
     if (theWindow) {
         LuaSkin *skin = [LuaSkin shared];
+        [theWindow close] ;
+
         theWindow.udRef            = [skin luaUnref:refTable ref:theWindow.udRef] ;
-        theWindow.windowCallback   = [skin luaUnref:refTable ref:theWindow.windowCallback] ;
         theView.navigationCallback = [skin luaUnref:refTable ref:theView.navigationCallback] ;
         theView.policyCallback     = [skin luaUnref:refTable ref:theView.policyCallback] ;
-        [theWindow close] ; // ensure a proper close when gc invoked during reload; nop if hs.webview:delete() is used
 
         // emancipate us from our parent
         if (theWindow.parent) {
