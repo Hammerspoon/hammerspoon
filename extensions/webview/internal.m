@@ -118,53 +118,61 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
 
 - (void)windowDidBecomeKey:(__unused NSNotification *)notification {
     if (_windowCallback != LUA_NOREF) {
-        LuaSkin *skin = [LuaSkin shared] ;
-        _lua_stackguard_entry(skin.L);
-        [skin pushLuaRef:refTable ref:_windowCallback] ;
-        [skin pushNSObject:@"focusChange"] ;
-        [skin pushNSObject:self] ;
-        lua_pushboolean(skin.L, YES) ;
-        [skin protectedCallAndError:@"hs.webview:windowCallback:focusChange" nargs:3 nresults:0];
-        _lua_stackguard_exit(skin.L);
+		dispatch_async(dispatch_get_main_queue(), ^{
+			LuaSkin *skin = [LuaSkin shared] ;
+			_lua_stackguard_entry(skin.L);
+            [skin pushLuaRef:refTable ref:self->_windowCallback] ;
+			[skin pushNSObject:@"focusChange"] ;
+			[skin pushNSObject:self] ;
+			lua_pushboolean(skin.L, YES) ;
+			[skin protectedCallAndError:@"hs.webview:windowCallback:focusChange" nargs:3 nresults:0];
+			_lua_stackguard_exit(skin.L);
+		});
     }
 }
 
 - (void)windowDidResignKey:(__unused NSNotification *)notification {
     if (_windowCallback != LUA_NOREF) {
-        LuaSkin *skin = [LuaSkin shared] ;
-        _lua_stackguard_entry(skin.L);
-        [skin pushLuaRef:refTable ref:_windowCallback] ;
-        [skin pushNSObject:@"focusChange"] ;
-        [skin pushNSObject:self] ;
-        lua_pushboolean(skin.L, NO) ;
-        [skin protectedCallAndError:@"hs.webview:windowCallback:focusChange" nargs:3 nresults:0];
-        _lua_stackguard_exit(skin.L);
+    	dispatch_async(dispatch_get_main_queue(), ^{
+			LuaSkin *skin = [LuaSkin shared] ;
+			_lua_stackguard_entry(skin.L);
+            [skin pushLuaRef:refTable ref:self->_windowCallback] ;
+			[skin pushNSObject:@"focusChange"] ;
+			[skin pushNSObject:self] ;
+			lua_pushboolean(skin.L, NO) ;
+			[skin protectedCallAndError:@"hs.webview:windowCallback:focusChange" nargs:3 nresults:0];
+			_lua_stackguard_exit(skin.L);
+		});
     }
 }
 
 - (void)windowDidResize:(__unused NSNotification *)notification {
     if (_windowCallback != LUA_NOREF) {
-        LuaSkin *skin = [LuaSkin shared] ;
-        _lua_stackguard_entry(skin.L);
-        [skin pushLuaRef:refTable ref:_windowCallback] ;
-        [skin pushNSObject:@"frameChange"] ;
-        [skin pushNSObject:self] ;
-        [skin pushNSRect:RectWithFlippedYCoordinate(self.frame)] ;
-        [skin protectedCallAndError:@"hs.webview:windowCallback:frameChange:resize" nargs:3 nresults:0];
-        _lua_stackguard_exit(skin.L);
+    	dispatch_async(dispatch_get_main_queue(), ^{
+			LuaSkin *skin = [LuaSkin shared] ;
+			_lua_stackguard_entry(skin.L);
+            [skin pushLuaRef:refTable ref:self->_windowCallback] ;
+			[skin pushNSObject:@"frameChange"] ;
+			[skin pushNSObject:self] ;
+			[skin pushNSRect:RectWithFlippedYCoordinate(self.frame)] ;
+			[skin protectedCallAndError:@"hs.webview:windowCallback:frameChange:resize" nargs:3 nresults:0];
+			_lua_stackguard_exit(skin.L);
+		});
     }
 }
 
 - (void)windowDidMove:(__unused NSNotification *)notification {
     if (_windowCallback != LUA_NOREF) {
-        LuaSkin *skin = [LuaSkin shared] ;
-        _lua_stackguard_entry(skin.L);
-        [skin pushLuaRef:refTable ref:_windowCallback] ;
-        [skin pushNSObject:@"frameChange"] ;
-        [skin pushNSObject:self] ;
-        [skin pushNSRect:RectWithFlippedYCoordinate(self.frame)] ;
-        [skin protectedCallAndError:@"hs.webview:windowCallback:frameChange:move" nargs:3 nresults:0];
-        _lua_stackguard_exit(skin.L);
+    	dispatch_async(dispatch_get_main_queue(), ^{
+			LuaSkin *skin = [LuaSkin shared] ;
+			_lua_stackguard_entry(skin.L);
+            [skin pushLuaRef:refTable ref:self->_windowCallback] ;
+			[skin pushNSObject:@"frameChange"] ;
+			[skin pushNSObject:self] ;
+			[skin pushNSRect:RectWithFlippedYCoordinate(self.frame)] ;
+			[skin protectedCallAndError:@"hs.webview:windowCallback:frameChange:move" nargs:3 nresults:0];
+			_lua_stackguard_exit(skin.L);
+		});
     }
 }
 
