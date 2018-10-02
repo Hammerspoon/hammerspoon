@@ -48,11 +48,17 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
         // Create a HID device manager
         self.ioHIDManager = CFBridgingRelease(IOHIDManagerCreate(kCFAllocatorDefault, kIOHIDManagerOptionNone));
         //NSLog(@"Created HID Manager: %p", (void *)self.ioHIDManager);
-
+        NSString *vendorKey  = @(kIOHIDVendorIDKey) ;
+        NSString *productKey = @(kIOHIDProductIDKey) ;
+        if (!vendorKey || !productKey) {
+            [LuaSkin logError:[NSString stringWithFormat:@"%s:init - vendorKey %s or productKey %s are not defined", USERDATA_TAG, kIOHIDVendorIDKey, kIOHIDProductIDKey]] ;
+            self.ioHIDManager = nil ;
+            return nil ;
+        }
         // Configure the HID manager to match against Stream Deck devices
         NSDictionary *match = @{
-                                @(kIOHIDVendorIDKey): @0x0fd9,
-                                @(kIOHIDProductIDKey): @0x0060,
+                                vendorKey: @0x0fd9,
+                                productKey: @0x0060,
                                 };
         IOHIDManagerSetDeviceMatching ((__bridge IOHIDManagerRef)self.ioHIDManager, (__bridge CFDictionaryRef)match);
 
