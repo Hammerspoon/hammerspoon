@@ -594,18 +594,24 @@ nextarg:
     if (level == 0) level = 3 ;
 
     if (className && helperFN) {
-        if (self.registeredNSHelperFunctions[@(className)]) {
-            [self logAtLevel:LS_LOG_WARN
-                 withMessage:[NSString stringWithFormat:@"registerPushNSHelper:forClass:%s already defined at %@",
-                                                        className,
-                                                        self.registeredNSHelperLocations[@(className)]]] ;
+        NSString *classNameObj = @(className) ;
+        if (classNameObj) {
+            if (self.registeredNSHelperFunctions[classNameObj]) {
+                [self logAtLevel:LS_LOG_WARN
+                     withMessage:[NSString stringWithFormat:@"registerPushNSHelper:forClass:%s already defined at %@",
+                                                            className,
+                                                            self.registeredNSHelperLocations[classNameObj]]] ;
+            } else {
+                luaL_where(self.L, level) ;
+                NSString *locationString = @(lua_tostring(self.L, -1)) ;
+                self.registeredNSHelperLocations[classNameObj] = locationString;
+                self.registeredNSHelperFunctions[classNameObj] = [NSValue valueWithPointer:(void *)helperFN];
+                lua_pop(self.L, 1) ;
+                allGood = YES ;
+            }
         } else {
-            luaL_where(self.L, level) ;
-            NSString *locationString = @(lua_tostring(self.L, -1)) ;
-            self.registeredNSHelperLocations[@(className)] = locationString;
-            self.registeredNSHelperFunctions[@(className)] = [NSValue valueWithPointer:(void *)helperFN];
-            lua_pop(self.L, 1) ;
-            allGood = YES ;
+            [self logAtLevel:LS_LOG_WARN
+                 withMessage:[NSString stringWithFormat:@"registerPushNSHelper:forClass: class %s is not a valid dictionary key", className]] ;
         }
     } else {
         [self logAtLevel:LS_LOG_WARN
@@ -692,18 +698,24 @@ nextarg:
     if (level == 0) level = 3 ;
 
     if (className && helperFN) {
-        if (self.registeredLuaObjectHelperFunctions[@(className)]) {
-            [self logAtLevel:LS_LOG_WARN
-                 withMessage:[NSString stringWithFormat:@"registerLuaObjectHelper:forClass:%s already defined at %@",
-                                                        className,
-                                                        self.registeredLuaObjectHelperFunctions[@(className)]]] ;
+        NSString *classNameObj = @(className) ;
+        if (classNameObj) {
+            if (self.registeredLuaObjectHelperFunctions[classNameObj]) {
+                [self logAtLevel:LS_LOG_WARN
+                     withMessage:[NSString stringWithFormat:@"registerLuaObjectHelper:forClass:%s already defined at %@",
+                                                            className,
+                                                            self.registeredLuaObjectHelperFunctions[classNameObj]]] ;
+            } else {
+                luaL_where(self.L, level) ;
+                NSString *locationString = @(lua_tostring(self.L, -1)) ;
+                self.registeredLuaObjectHelperLocations[classNameObj] = locationString;
+                self.registeredLuaObjectHelperFunctions[classNameObj] = [NSValue valueWithPointer:(void *)helperFN];
+                lua_pop(self.L, 1) ;
+                allGood = YES ;
+            }
         } else {
-            luaL_where(self.L, level) ;
-            NSString *locationString = @(lua_tostring(self.L, -1)) ;
-            self.registeredLuaObjectHelperLocations[@(className)] = locationString;
-            self.registeredLuaObjectHelperFunctions[@(className)] = [NSValue valueWithPointer:(void *)helperFN];
-            lua_pop(self.L, 1) ;
-            allGood = YES ;
+            [self logAtLevel:LS_LOG_WARN
+                 withMessage:[NSString stringWithFormat:@"registerLuaObjectHelper:forClass: class %s is not a valid dictionary key", className]] ;
         }
     } else {
         [self logAtLevel:LS_LOG_WARN
@@ -713,25 +725,53 @@ nextarg:
 }
 
 - (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(const char *)className withUserdataMapping:(const char *)userdataTag {
+    NSString *userdataTagObject = @(userdataTag) ;
+    if (!userdataTagObject) {
+        [self logAtLevel:LS_LOG_WARN
+             withMessage:[NSString stringWithFormat:@"registerLuaObjectHelper:forClass:withUserdataMapping: the userdata tag %s is not a valid dictionary key", userdataTag]] ;
+        
+        return NO ;
+    }
     BOOL allGood = [self registerLuaObjectHelper:helperFN forClass:className];
     if (allGood)
-        self.registeredLuaObjectHelperUserdataMappings[@(userdataTag)] = @(className);
+        self.registeredLuaObjectHelperUserdataMappings[userdataTagObject] = @(className);
     return allGood ;
 }
 
 - (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(const char *)className withUserdataMapping:(const char *)userdataTag andTableMapping:(const char *)tableTag {
+    NSString *userdataTagObject = @(userdataTag) ;
+    if (!userdataTagObject) {
+        [self logAtLevel:LS_LOG_WARN
+             withMessage:[NSString stringWithFormat:@"registerLuaObjectHelper:forClass:withUserdataMapping:andTableMapping: the userdata tag %s is not a valid dictionary key", userdataTag]] ;
+        
+        return NO ;
+    }
+    NSString *tableTagObject = @(tableTag) ;
+    if (!tableTagObject) {
+        [self logAtLevel:LS_LOG_WARN
+             withMessage:[NSString stringWithFormat:@"registerLuaObjectHelper:forClass:withUserdataMapping:andTableMapping: the table tag %s is not a valid dictionary key", tableTag]] ;
+        
+        return NO ;
+    }
     BOOL allGood = [self registerLuaObjectHelper:helperFN forClass:className];
     if (allGood) {
-        self.registeredLuaObjectHelperUserdataMappings[@(userdataTag)] = @(className);
-        self.registeredLuaObjectHelperTableMappings[@(tableTag)] = @(className);
+        self.registeredLuaObjectHelperUserdataMappings[userdataTagObject] = @(className);
+        self.registeredLuaObjectHelperTableMappings[tableTagObject] = @(className);
     }
     return allGood ;
 }
 
 - (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(const char *)className withTableMapping:(const char *)tableTag {
+    NSString *tableTagObject = @(tableTag) ;
+    if (!tableTagObject) {
+        [self logAtLevel:LS_LOG_WARN
+             withMessage:[NSString stringWithFormat:@"registerLuaObjectHelper:forClass:withTableMapping: the table tag %s is not a valid dictionary key", tableTag]] ;
+        
+        return NO ;
+    }
     BOOL allGood = [self registerLuaObjectHelper:helperFN forClass:className];
     if (allGood)
-        self.registeredLuaObjectHelperTableMappings[@(tableTag)] = @(className);
+        self.registeredLuaObjectHelperTableMappings[tableTagObject] = @(className);
     return allGood ;
 }
 
@@ -1254,7 +1294,14 @@ nextarg:
             lua_pop(self.L, 1) ;
 
             if (userdataTag) {
-                NSString *classMapping = self.registeredLuaObjectHelperUserdataMappings[@(userdataTag)];
+                NSString *userdataTagObject = @(userdataTag) ;
+                if (!userdataTagObject) {
+                    [self logAtLevel:LS_LOG_WARN
+                         withMessage:[NSString stringWithFormat:@"toNSObjectAtIndex:withOptions:alreadySeenObjects: the userdata tag %s is not a valid dictionary key", userdataTag]] ;
+                    
+                    return nil ;
+                }
+                NSString *classMapping = self.registeredLuaObjectHelperUserdataMappings[userdataTagObject];
                 if (classMapping) {
                     return [self luaObjectAtIndex:idx toClass:(const char *)[classMapping UTF8String]];
                 } else {
@@ -1287,7 +1334,14 @@ nextarg:
     [self growStack:2 withMessage:"tableAtIndex"];
 
     idx = lua_absindex(self.L, idx) ;
-    NSString *classMapping = self.registeredLuaObjectHelperTableMappings[@(tableTag)];
+    NSString *tableTagObject = @(tableTag) ;
+    if (!tableTagObject) {
+        [self logAtLevel:LS_LOG_WARN
+             withMessage:[NSString stringWithFormat:@"tableAtIndex:withLabel:withOptions: the table tag %s is not a valid dictionary key", tableTag]] ;
+        
+        return nil ;
+    }
+    NSString *classMapping = self.registeredLuaObjectHelperTableMappings[tableTagObject];
     if ((classMapping) && self.registeredLuaObjectHelperFunctions[classMapping]) {
         luaObjectHelperFunction theFunc = (luaObjectHelperFunction)[self.registeredLuaObjectHelperFunctions[classMapping] pointerValue] ;
         result = theFunc(self.L, idx) ;
