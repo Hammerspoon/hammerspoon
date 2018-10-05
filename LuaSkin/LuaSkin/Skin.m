@@ -586,24 +586,26 @@ nextarg:
     return results ;
 }
 
-- (BOOL)registerPushNSHelper:(pushNSHelperFunction)helperFN forClass:(const char *)className {
+- (BOOL)registerPushNSHelper:(pushNSHelperFunction)helperFN forClass:(const char *)cClassName {
     BOOL allGood = NO ;
 // this hackery assumes that this method is only called from within the luaopen_* function of a module and
 // attempts to compensate for a wrapper to "require"... I doubt anyone is actually using it anymore.
     int level = (int)[[NSUserDefaults standardUserDefaults] integerForKey:@"HSLuaSkinRegisterRequireLevel"];
     if (level == 0) level = 3 ;
 
+    NSString *className = @(cClassName);
+
     if (className && helperFN) {
-        if (self.registeredNSHelperFunctions[@(className)]) {
+        if (self.registeredNSHelperFunctions[className]) {
             [self logAtLevel:LS_LOG_WARN
                  withMessage:[NSString stringWithFormat:@"registerPushNSHelper:forClass:%s already defined at %@",
-                                                        className,
-                                                        self.registeredNSHelperLocations[@(className)]]] ;
+                                                        cClassName,
+                                                        self.registeredNSHelperLocations[className]]] ;
         } else {
             luaL_where(self.L, level) ;
             NSString *locationString = @(lua_tostring(self.L, -1)) ;
-            self.registeredNSHelperLocations[@(className)] = locationString;
-            self.registeredNSHelperFunctions[@(className)] = [NSValue valueWithPointer:(void *)helperFN];
+            self.registeredNSHelperLocations[className] = locationString;
+            self.registeredNSHelperFunctions[className] = [NSValue valueWithPointer:(void *)helperFN];
             lua_pop(self.L, 1) ;
             allGood = YES ;
         }
@@ -684,24 +686,26 @@ nextarg:
     return nil ;
 }
 
-- (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(const char *)className {
+- (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(const char *)cClassName {
     BOOL allGood = NO ;
 // this hackery assumes that this method is only called from within the luaopen_* function of a module and
 // attempts to compensate for a wrapper to "require"... I doubt anyone is actually using it anymore.
     int level = (int)[[NSUserDefaults standardUserDefaults] integerForKey:@"HSLuaSkinRegisterRequireLevel"];
     if (level == 0) level = 3 ;
 
+    NSString *className = @(cClassName);
+
     if (className && helperFN) {
-        if (self.registeredLuaObjectHelperFunctions[@(className)]) {
+        if (self.registeredLuaObjectHelperFunctions[className]) {
             [self logAtLevel:LS_LOG_WARN
                  withMessage:[NSString stringWithFormat:@"registerLuaObjectHelper:forClass:%s already defined at %@",
-                                                        className,
-                                                        self.registeredLuaObjectHelperFunctions[@(className)]]] ;
+                                                        cClassName,
+                                                        self.registeredLuaObjectHelperFunctions[className]]] ;
         } else {
             luaL_where(self.L, level) ;
             NSString *locationString = @(lua_tostring(self.L, -1)) ;
-            self.registeredLuaObjectHelperLocations[@(className)] = locationString;
-            self.registeredLuaObjectHelperFunctions[@(className)] = [NSValue valueWithPointer:(void *)helperFN];
+            self.registeredLuaObjectHelperLocations[className] = locationString;
+            self.registeredLuaObjectHelperFunctions[className] = [NSValue valueWithPointer:(void *)helperFN];
             lua_pop(self.L, 1) ;
             allGood = YES ;
         }
@@ -712,26 +716,33 @@ nextarg:
     return allGood ;
 }
 
-- (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(const char *)className withUserdataMapping:(const char *)userdataTag {
+- (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(const char *)className withUserdataMapping:(const char *)cUserdataTag {
     BOOL allGood = [self registerLuaObjectHelper:helperFN forClass:className];
+    NSString *userdataTag = @(cUserdataTag);
+
     if (allGood)
-        self.registeredLuaObjectHelperUserdataMappings[@(userdataTag)] = @(className);
+        self.registeredLuaObjectHelperUserdataMappings[userdataTag] = @(className);
     return allGood ;
 }
 
-- (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(const char *)className withUserdataMapping:(const char *)userdataTag andTableMapping:(const char *)tableTag {
+- (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(const char *)className withUserdataMapping:(const char *)cUserdataTag andTableMapping:(const char *)cTableTag {
     BOOL allGood = [self registerLuaObjectHelper:helperFN forClass:className];
+    NSString *userdataTag = @(cUserdataTag);
+    NSString *tableTag = @(cTableTag);
+
     if (allGood) {
-        self.registeredLuaObjectHelperUserdataMappings[@(userdataTag)] = @(className);
-        self.registeredLuaObjectHelperTableMappings[@(tableTag)] = @(className);
+        self.registeredLuaObjectHelperUserdataMappings[userdataTag] = @(className);
+        self.registeredLuaObjectHelperTableMappings[tableTag] = @(className);
     }
     return allGood ;
 }
 
-- (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(const char *)className withTableMapping:(const char *)tableTag {
+- (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(const char *)className withTableMapping:(const char *)cTableTag {
     BOOL allGood = [self registerLuaObjectHelper:helperFN forClass:className];
+    NSString *tableTag = @(cTableTag);
+
     if (allGood)
-        self.registeredLuaObjectHelperTableMappings[@(tableTag)] = @(className);
+        self.registeredLuaObjectHelperTableMappings[tableTag] = @(className);
     return allGood ;
 }
 
@@ -1184,7 +1195,8 @@ nextarg:
 }
 
 - (id)toNSObjectAtIndex:(int)idx withOptions:(NSUInteger)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
-    const char *userdataTag = nil;
+    const char *cUserdataTag = nil;
+    NSString *userdataTag = nil;
 
     // Ensure our Lua stack is large enough for the number of items being pushed
     [self growStack:2 withMessage:"toNSObjectAtIndex"];
@@ -1247,18 +1259,19 @@ nextarg:
             lua_pushcfunction(self.L, pushUserdataType) ;
             lua_pushvalue(self.L, idx) ;
             if ((lua_pcall(self.L, 1, 1, 0) == LUA_OK) && (lua_type(self.L, -1) == LUA_TSTRING)) {
-               userdataTag = lua_tostring(self.L, -1);
+               cUserdataTag = lua_tostring(self.L, -1);
             }
             // if the call errors b/c of missing __init in userdata, the error is on the stack, otherwise our result is.
             // In either case clean up after ourself.
             lua_pop(self.L, 1) ;
 
-            if (userdataTag) {
-                NSString *classMapping = self.registeredLuaObjectHelperUserdataMappings[@(userdataTag)];
+            userdataTag = @(cUserdataTag);
+            if (cUserdataTag) {
+                NSString *classMapping = self.registeredLuaObjectHelperUserdataMappings[userdataTag];
                 if (classMapping) {
                     return [self luaObjectAtIndex:idx toClass:(const char *)[classMapping UTF8String]];
                 } else {
-                    [self logBreadcrumb:[NSString stringWithFormat:@"unrecognized userdata type %s", userdataTag]] ;
+                    [self logBreadcrumb:[NSString stringWithFormat:@"unrecognized userdata type %s", cUserdataTag]] ;
                 }
             }
             // we didn't handle the userdata, so fall through
@@ -1280,31 +1293,32 @@ nextarg:
 
 // Note, options is currently unused in this category method, but it's included here in case a
 // reason for an NSValue related option comes up
-- (id)tableAtIndex:(int)idx withLabel:(const char *)tableTag withOptions:(__unused NSUInteger)options {
+- (id)tableAtIndex:(int)idx withLabel:(const char *)cTableTag withOptions:(__unused NSUInteger)options {
     id result ;
+    NSString *tableTag = @(cTableTag);
 
     // Ensure our Lua stack is large enough for the number of items being pushed
     [self growStack:2 withMessage:"tableAtIndex"];
 
     idx = lua_absindex(self.L, idx) ;
-    NSString *classMapping = self.registeredLuaObjectHelperTableMappings[@(tableTag)];
+    NSString *classMapping = self.registeredLuaObjectHelperTableMappings[tableTag];
     if ((classMapping) && self.registeredLuaObjectHelperFunctions[classMapping]) {
         luaObjectHelperFunction theFunc = (luaObjectHelperFunction)[self.registeredLuaObjectHelperFunctions[classMapping] pointerValue] ;
         result = theFunc(self.L, idx) ;
     } else { // check builtins (NSValue)
-        if (strcmp(tableTag, "NSPoint")==0) {
+        if (strcmp(cTableTag, "NSPoint")==0) {
             result = [NSValue valueWithPoint:[self tableToPointAtIndex:idx]] ;
-        } else if (strcmp(tableTag, "NSSize")==0) {
+        } else if (strcmp(cTableTag, "NSSize")==0) {
             result = [NSValue valueWithSize:[self tableToSizeAtIndex:idx]] ;
-        } else if (strcmp(tableTag, "NSRect")==0) {
+        } else if (strcmp(cTableTag, "NSRect")==0) {
             result = [NSValue valueWithRect:[self tableToRectAtIndex:idx]] ;
-        } else if (strcmp(tableTag, "NSRange")==0) {
+        } else if (strcmp(cTableTag, "NSRange")==0) {
             NSRange holder ;
             holder.location = (lua_getfield(self.L, idx, "location") == LUA_TNUMBER) ? (NSUInteger)lua_tointeger(self.L, -1) : 0 ;
             holder.length   = (lua_getfield(self.L, idx, "length")   == LUA_TNUMBER) ? (NSUInteger)lua_tointeger(self.L, -1) : 0 ;
             lua_pop(self.L, 2) ;
             result = [NSValue valueWithRange:holder] ;
-        } else if (strcmp(tableTag, "NSValue")==0) {
+        } else if (strcmp(cTableTag, "NSValue")==0) {
             NSData   *rawData ;
             NSString *objCType ;
             if (lua_getfield(self.L, idx, "data") == LUA_TSTRING) {
