@@ -68,7 +68,7 @@
 {
 	if (![[self class] isMutable]) return MIKMIDI_RAISE_MUTATION_ATTEMPT_EXCEPTION;
 	
-	self.dataByte1 = MIN(controllerNumber, 127);
+	self.dataByte1 = MIN(controllerNumber, 127u);
 }
 
 + (NSSet *)keyPathsForValuesAffectingControllerValue
@@ -85,7 +85,7 @@
 {
 	if (![[self class] isMutable]) return MIKMIDI_RAISE_MUTATION_ATTEMPT_EXCEPTION;
 	
-	self.dataByte2 = MIN(controllerValue, 127);
+	self.dataByte2 = MIN(controllerValue, 127u);
 }
 
 @end
