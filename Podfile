@@ -16,7 +16,7 @@ pod 'PocketSocket/Client', '1.0.1'
 pod 'Crashlytics', '3.10.9'
 pod 'Fabric', '1.7.13'
 pod 'Sparkle', '1.20.0', :configurations => ['Release']
-pod 'MIKMIDI', :git => 'https://github.com/mixedinkey-opensource/MIKMIDI.git', :commit => 'bc623e9'
+pod 'MIKMIDI', :git => 'https://github.com/mixedinkey-opensource/MIKMIDI.git', :commit => 'a674024'
 end
 
 post_install do |installer|
