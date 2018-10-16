@@ -56,7 +56,7 @@ To create such an extension:
 * Clone the Hammerspoon git repository
 * cd into the `extensions` directory
 * Make a directory for your extension
-* Create an `init.lua` to contain your code. It should behave like any normal Lua library - that is to say, your job is to return a table containing functions/methods/constants/etc
+* Create an `init.lua` to contain your code. It should behave like any normal Lua library - that is to say, your job is to return a table containing functions/methods/constants/etc. You can find a blank Lua template [here](https://github.com/asmagill/hammerspoon_asm/blob/master/init.lua_template).
 * Ensure you document your API in our preferred format (see the code for almost any existing module for reference)
 * Edit `scripts/copy_extensions_to_bundle.sh` and add your module name to the `HS_LUAONLY` section
 * Build Hammerspoon and test your extension
@@ -74,8 +74,8 @@ To create such an extension:
 * Create the directories/files for your extension:
   * cd into the `extensions` directory
   * Make a directory for your extension
-  * Create an `init.lua` to load your Objective-C code and contain any additional Lua code. You might find it easier to provide much of your API in Lua and just provide undocumented API from Objective C that does the minimum work possible. The choice is ultimately down to you, depending on the nature of the work the extension is doing.
-  * Create an `internal.m` to contain your Objective-C code. Please use the LuaSkin methods to do as much work as possible, they are well tested and in most extensions can reduce the amount of Lua C API calls to almost zero. Not all of our extensions have been fully converted to LuaSkin yet (a good example is [`hs.chooser`](https://github.com/Hammerspoon/hammerspoon/blob/master/extensions/chooser/internal.m))
+  * Create an `init.lua` to load your Objective-C code and contain any additional Lua code. You might find it easier to provide much of your API in Lua and just provide undocumented API from Objective C that does the minimum work possible. The choice is ultimately down to you, depending on the nature of the work the extension is doing. You can find a blank Lua template [here](https://github.com/asmagill/hammerspoon_asm/blob/master/init.lua_template).
+  * Create an `internal.m` to contain your Objective-C code. Please use the LuaSkin methods to do as much work as possible, they are well tested and in most extensions can reduce the amount of Lua C API calls to almost zero. Not all of our extensions have been fully converted to LuaSkin yet (a good example is [`hs.chooser`](https://github.com/Hammerspoon/hammerspoon/blob/master/extensions/chooser/internal.m)). You can find a blank Objective-C template [here](https://github.com/asmagill/hammerspoon_asm/blob/master/internal.m_template).
   * Right click on the `extensions` group in Xcode's Project Browser and add a new sub-group for your extension, then right click on the sub-group and add your `init.lua` and `internal.m` files (and any supporting `.h`/`.c`/`.m`/etc files)
   * The files you've added will probably be made members of the Hammerspoon target. You do not want this; Select each file in the Project Browser and using the File Inspector in the Utilities pane on the right of Xcode's window, deselect them from the maim Hammerspoon target.
 * Configure Xcode to build your extension and include it in the `Hammerspoon.app` bundle:
