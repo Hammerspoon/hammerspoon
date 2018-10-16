@@ -593,7 +593,12 @@ nextarg:
     int level = (int)[[NSUserDefaults standardUserDefaults] integerForKey:@"HSLuaSkinRegisterRequireLevel"];
     if (level == 0) level = 3 ;
 
-    NSString *className = @(cClassName);
+    NSString *className = nil;
+    @try {
+        className = @(cClassName);
+    } @catch (NSException __unused *exception) {
+        className = nil;
+    }
 
     if (className && helperFN) {
         if (self.registeredNSHelperFunctions[className]) {
@@ -693,7 +698,12 @@ nextarg:
     int level = (int)[[NSUserDefaults standardUserDefaults] integerForKey:@"HSLuaSkinRegisterRequireLevel"];
     if (level == 0) level = 3 ;
 
-    NSString *className = @(cClassName);
+    NSString *className = nil;
+    @try {
+        className = @(cClassName);
+    } @catch (NSException __unused *exception) {
+        className = nil;
+    }
 
     if (className && helperFN) {
         if (self.registeredLuaObjectHelperFunctions[className]) {
