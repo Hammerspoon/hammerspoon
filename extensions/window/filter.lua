@@ -115,6 +115,7 @@ do
     'universalaccessd','sharingd','Safari Networking', 'Spotlight Networking', 'iTunes Helper','Safari Web Content',
     'App Store Web Content', 'Safari Database Storage',
     'Google Chrome Helper','Spotify Helper',
+    'Todoist Networking', 'Safari Storage', 'Todoist Database Storage', 'AAM Updates Notifier', 'Slack Helper',
   --  'Little Snitch Agent','Little Snitch Network Monitor', -- depends on security settings in Little Snitch
   }
 
