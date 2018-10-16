@@ -154,8 +154,11 @@ end
 
 
 local function draw(windows,drawings,ui)
-  drawings.selRect:show()
-  if ui.showSelectedThumbnail then drawings.selThumb:show() drawings.selIcon:show() end
+  if ui.showSelectedThumbnail then
+    drawings.selRect:show()
+    drawings.selThumb:show()
+    drawings.selIcon:show()
+  end
   if ui.showSelectedTitle then
     drawings.selTitleRect:show() drawings.selTitleText:show()
   end
