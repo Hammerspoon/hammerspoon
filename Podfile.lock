@@ -26,7 +26,7 @@ DEPENDENCIES:
   - CocoaLumberjack (= 3.4.2)
   - Crashlytics (= 3.10.9)
   - Fabric (= 1.7.13)
-  - MIKMIDI (from `https://github.com/mixedinkey-opensource/MIKMIDI.git`, commit `bc623e9`)
+  - MIKMIDI (from `https://github.com/mixedinkey-opensource/MIKMIDI.git`, commit `a674024`)
   - PocketSocket/Client (= 1.0.1)
   - Sparkle (= 1.20.0)
 
@@ -43,12 +43,12 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   MIKMIDI:
-    :commit: bc623e9
+    :commit: a674024
     :git: https://github.com/mixedinkey-opensource/MIKMIDI.git
 
 CHECKOUT OPTIONS:
   MIKMIDI:
-    :commit: bc623e9
+    :commit: a674024
     :git: https://github.com/mixedinkey-opensource/MIKMIDI.git
 
 SPEC CHECKSUMS:
@@ -62,6 +62,6 @@ SPEC CHECKSUMS:
   PocketSocket: 9c6867d66fb4f962af96b9b07f4b45bb561b2c2a
   Sparkle: 48999e7ee032f05ca05e28451eadf4af8ede6b44
 
-PODFILE CHECKSUM: 6c0ce39ae4ec434eaede06f3932b80cca001858a
+PODFILE CHECKSUM: 3ed4a69e2d5a5e15f9a64201f3ec47518ad9dbd0
 
 COCOAPODS: 1.5.3

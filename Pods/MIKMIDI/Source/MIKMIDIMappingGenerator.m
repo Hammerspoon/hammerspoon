@@ -540,12 +540,15 @@ FINALIZE_RESULT_AND_RETURN:
 	MIKMIDIDeviceManager *manager = [MIKMIDIDeviceManager sharedDeviceManager];
 	__weak MIKMIDIMappingGenerator *weakSelf = self;
 	id connectionToken = [manager connectInput:source error:error eventHandler:^(MIKMIDISourceEndpoint *source, NSArray *commands) {
+        
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        
 		for (MIKMIDICommand *command in commands) {
 			if (![command isKindOfClass:[MIKMIDIChannelVoiceCommand class]]) continue;
 			
 			MIKMIDICommand *processedCommand = command;
-			if ([weakSelf.delegate respondsToSelector:@selector(mappingGenerator:commandByProcessingIncomingCommand:)]) {
-				processedCommand = [weakSelf.delegate mappingGenerator:self
+			if ([strongSelf.delegate respondsToSelector:@selector(mappingGenerator:commandByProcessingIncomingCommand:)]) {
+				processedCommand = [strongSelf.delegate mappingGenerator:self
 									commandByProcessingIncomingCommand:(MIKMIDIChannelVoiceCommand *)command];
 				if (!processedCommand) continue;
 				if (![processedCommand isKindOfClass:[MIKMIDIChannelVoiceCommand class]]) {
@@ -554,7 +557,7 @@ FINALIZE_RESULT_AND_RETURN:
 				}
 			}
 			
-			[weakSelf handleMIDICommand:(MIKMIDIChannelVoiceCommand *)processedCommand];
+			[strongSelf handleMIDICommand:(MIKMIDIChannelVoiceCommand *)processedCommand];
 		}
 	}];
 	self.connectionToken = connectionToken;

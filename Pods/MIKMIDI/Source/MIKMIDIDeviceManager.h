@@ -15,6 +15,7 @@
 @class MIKMIDIClientSourceEndpoint;
 @class MIKMIDIDestinationEndpoint;
 @class MIKMIDICommand;
+@class MIKMIDIOutputPort;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -68,11 +69,11 @@ extern NSString * const MIKMIDIEndpointKey;
 /**
  *  Used to obtain the shared MIKMIDIDeviceManager instance.
  *  MIKMIDIDeviceManager should not be created directly using +alloc/-init or +new.
- *  Rather, the singleton shared instance should always be obtained by calling this method.
+ *  Rather, the singleton shared instance should always be obtained using this property.
  *
  *  @return The shared MIKMIDIDeviceManager instance.
  */
-+ (instancetype)sharedDeviceManager;
+@property (class, readonly) MIKMIDIDeviceManager *sharedDeviceManager;
 
 /**
  *  Used to connect to a MIDI device. Returns a token that must be kept and passed into the
@@ -137,6 +138,13 @@ extern NSString * const MIKMIDIEndpointKey;
  */
 - (BOOL)sendCommands:(MIKArrayOf(MIKMIDICommand *) *)commands toVirtualEndpoint:(MIKMIDIClientSourceEndpoint *)endpoint error:(NSError **)error;
 
+
+/**
+ *  The current MIDI output port.
+ *  Typically this should only be required for custom Core MIDI implementations in C/C++ where MIKMIDI has already been implemented to handle endpoint setup.
+ *  Creates a new MIDI output port if one does not already exist.
+ */
+@property (nonatomic, readonly) MIKMIDIOutputPort *outputPort;
 
 
 /**
