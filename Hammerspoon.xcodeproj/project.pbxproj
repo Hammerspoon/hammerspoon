@@ -7749,6 +7749,7 @@
 					"-Wno-gnu-statement-expression",
 					"-Wno-reserved-id-macro",
 					"-Wno-gnu-zero-variadic-macro-arguments",
+					"-Wno-objc-messaging-id",
 				);
 			};
 			name = Profile;
@@ -21030,6 +21031,7 @@
 					"-Wno-gnu-statement-expression",
 					"-Wno-reserved-id-macro",
 					"-Wno-gnu-zero-variadic-macro-arguments",
+					"-Wno-objc-messaging-id",
 				);
 			};
 			name = Debug;
@@ -21089,6 +21091,7 @@
 					"-Wno-gnu-statement-expression",
 					"-Wno-reserved-id-macro",
 					"-Wno-gnu-zero-variadic-macro-arguments",
+					"-Wno-objc-messaging-id",
 				);
 			};
 			name = Release;

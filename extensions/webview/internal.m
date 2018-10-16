@@ -2841,7 +2841,8 @@ static int NSURLProtectionSpace_toLua(lua_State *L, id obj) {
         SecTrustRef serverTrust = [theSpace serverTrust] ;
         if (serverTrust) {
             lua_newtable(L) ;
-            SecTrustEvaluate(serverTrust, NULL);
+            SecTrustResultType secResult;
+            SecTrustEvaluate(serverTrust, &secResult);
             CFIndex count = SecTrustGetCertificateCount(serverTrust);
             for (CFIndex idx = 0 ; idx < count ; idx++) {
                 SecCertificateRef_toLua(L, SecTrustGetCertificateAtIndex(serverTrust, idx)) ;
