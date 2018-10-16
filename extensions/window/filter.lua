@@ -1349,10 +1349,10 @@ local function windowEvent(win,event,_,appname)
     end
   end
   log.vf('%s (%s) <= %s (window event)',appname,id or '?',event)
-  if not id then return log.ef('%s: %s cannot be processed',appname,event) end
-  if not app then return log.ef('app %s is not registered!',appname) end
+  if not id then return log.df('%s: %s cannot be processed',appname,event) end
+  if not app then return log.df('app %s is not registered!',appname) end
   local w = app.windows[id]
-  if not w then return log.ef('%s (&d) is not registered!',appname,id) end
+  if not w then return log.df('%s (&d) is not registered!',appname,id) end
   if event==uiwatcher.elementDestroyed then
     w:destroyed()
   elseif event==uiwatcher.windowMoved or event==uiwatcher.windowResized then
@@ -1388,7 +1388,7 @@ appWindowEvent=function(win,event,_,appname,retry)
     local watcher=win:newWatcher(windowEvent,appname)
     if not watcher._element.pid then
       log.wf('%s: %s has no watcher pid',appname,role or (win.role and win:role()))
-      if retry>MAX_RETRIES then log.ef('%s: %s has no watcher pid',appname,win.subrole and win:subrole() or (win.role and win:role()) or 'window')
+      if retry>MAX_RETRIES then log.df('%s: %s has no watcher pid',appname,win.subrole and win:subrole() or (win.role and win:role()) or 'window')
       else
         windowWatcherDelayed[win]=timer.doAfter(retry*RETRY_DELAY,function()appWindowEvent(win,event,_,appname,retry)end) end
       return
@@ -1398,7 +1398,7 @@ appWindowEvent=function(win,event,_,appname,retry)
       ,uiwatcher.windowMinimized,uiwatcher.windowUnminimized,uiwatcher.titleChanged})
   elseif event==uiwatcher.focusedWindowChanged then
     local app=apps[appname]
-    if not app then return log.ef('app %s is not registered!',appname) end
+    if not app then return log.df('app %s is not registered!',appname) end
     app:focusChanged(id,win)
   end
 end
@@ -1463,7 +1463,7 @@ local function appEvent(appname,event,app)
     return
     --]]
   elseif event==appwatcher.terminated then pendingApps[appname]=nil end
-  if not appo then return log.ef('app %s is not registered!',appname) end
+  if not appo then return log.df('app %s is not registered!',appname) end
   if event==appwatcher.terminated then return appo:destroyed()
   elseif event==appwatcher.deactivated then return appo:deactivated()
   elseif event==appwatcher.hidden then return appo:hidden()

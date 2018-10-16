@@ -569,4 +569,22 @@ function hotkey.modal.new(mods, key, message)
   return m
 end
 
+--- hs.hotkey.modal:delete()
+--- Method
+--- Deletes a modal hotkey object without calling :exited()
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+function hotkey.modal:delete()
+  for _,hk in ipairs(self.keys) do
+    delete(hk)
+  end
+  if (self.k) then
+    self.k:delete()
+  end
+end
+
 return hotkey

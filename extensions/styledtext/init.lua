@@ -179,11 +179,84 @@ module.lineStyles    = ls.makeConstantsTable(module.lineStyles)
 module.lineAppliesTo = ls.makeConstantsTable(module.lineAppliesTo)
 
 module.fontNames = function(...)
-    return ls.makeConstantsTable(module._fontNames(...))
+    local results = module._fontNames(...)
+    return results and ls.makeConstantsTable(results) or nil
+end
+
+module.fontFamilies = function(...)
+    local results = module._fontFamilies(...)
+    return results and ls.makeConstantsTable(results) or nil
 end
 
 module.fontNamesWithTraits = function(...)
-    return ls.makeConstantsTable(module._fontNamesWithTraits(...))
+    local results = module._fontNamesWithTraits(...)
+    return results and ls.makeConstantsTable(results) or nil
+end
+
+--- hs.styledtext.fontsForFamily(familyName) -> table
+--- Function
+--- Returns an array containing fonts available for the specified font family or nil if no fonts for the specified family are present.
+---
+--- Parameters:
+---  * `familyName` - a string specifying the font family to return available fonts for. The strings should be one of the values returned by the [hs.styledtext.fontFamiles](#fontFamilies) function.
+---
+--- Returns:
+---  * a table containing an array of available fonts for the specified family. Each array entry will be a table, also as an array, in the following order:
+---    * a string specifying the font name which can be used in the `hs.drawing:setTextFont(fontname)` method.
+---    * a string specifying the basic style of the font (e.g. Bold, Italic, Roman, etc.)
+---    * a table containing one or more strings specifying common names for the weight of the font. ISO equivalent names are preceded with "ISO:". Possible values are:
+---             `{ "ultralight" }`
+---             `{ "thin", "ISO:ultralight" }`
+---             `{ "light", "extralight", "ISO:extralight" }`
+---             `{ "book", "ISO:light" }`
+---             `{ "regular", "plain", "display", "roman", "ISO:semilight" }`
+---             `{ "medium", "ISO:medium" }`
+---             `{ "demi", "demibold" }`
+---             `{ "semi", "semibold", "ISO:semibold" }`
+---             `{ "bold", "ISO:bold" }`
+---             `{ "extra", "extrabold", "ISO:extrabold" }`
+---             `{ "heavy", "heavyface" }`
+---             `{ "black", "super", "ISO:ultrabold" }`
+---             `{ "ultra", "ultrablack", "fat" }`
+---             `{ "extrablack", "obese", "nord" }`
+---    * a table specifying zero or more traits for the font as defined in the [hs.styledtext.fontTraits](#fontTraits) table. A field with the key `_numeric` is also set which specified the numeric value corresponding to the traits for easy use with the [hs.styledtext.convertFont](#convertFont) function.
+module.fontsForFamily = function(...)
+    local results = module._fontsForFamily(...)
+    if results then
+        local fontWeights = {
+            { "ultralight" },
+            { "thin", "ISO:ultralight" },
+            { "light", "extralight", "ISO:extralight" },
+            { "book", "ISO:light" },
+            { "regular", "plain", "display", "roman", "ISO:semilight" },
+            { "medium", "ISO:medium" },
+            { "demi", "demibold" },
+            { "semi", "semibold", "ISO:semibold" },
+            { "bold", "ISO:bold" },
+            { "extra", "extrabold", "ISO:extrabold" },
+            { "heavy", "heavyface" },
+            { "black", "super", "ISO:ultrabold" },
+            { "ultra", "ultrablack", "fat" },
+            { "extrablack", "obese", "nord" }
+        }
+        for _,v in ipairs(results) do
+            v[3] = fontWeights[v[3]] or string.format("** unrecognized font weight: %d", v[3])
+            local style, styleTable = v[4], { _numeric = v[4] }
+            for k, v2 in pairs(module.fontTraits) do
+                if style & v2 == v2 then
+                    table.insert(styleTable, k)
+                    style = style - v2
+                end
+            end
+            if style ~= 0 then
+                table.insert(styleTable, string.format("** unrcognized font trait flags: %d", style))
+            end
+            v[4] = styleTable
+        end
+        return ls.makeConstantsTable(results)
+    else
+        return nil
+    end
 end
 
 module.fontInfo = function(...)
@@ -192,8 +265,9 @@ module.fontInfo = function(...)
         __tableWrapperFunction = function(_)
             local result = ""
             local width = 0
-            for k,v in pairs(_) do width = width < #k and #k or width end
-            for k,v in require("hs.fnutils").sortByKeys(_) do
+            local fnutils = require("hs.fnutils")
+            for k,_ in pairs(_) do width = width < #k and #k or width end
+            for k,v in fnutils.sortByKeys(_) do
                 result = result..string.format("%-"..tostring(width).."s ", k)
                 if type(v) == "table" then
                     result = result..__tableWrapperFunction(v):gsub("[ \n]", {[" "] = "=", ["\n"] = " "}).."\n"
@@ -233,7 +307,7 @@ end
 ---  * This function was modeled after the ANSIEscapeHelper.m file at https://github.com/balthamos/geektool-3 in the /NerdTool/classes directory.
 module.ansi = function(rawText, attr)
     local drawing    = require("hs.drawing")
-    local color      = require("hs.drawing.color")
+    require("hs.drawing.color")
 
     local sgrCodeToAttributes = {
         [  0] = { adjustFontStyle    = "remove",
@@ -311,7 +385,7 @@ module.ansi = function(rawText, attr)
 --    if a table w/out font is specified, assume the NSAttributedString default (Helvetica at 12.0)
     local baseFont
     if type(attr) == "nil" then baseFont = drawing.defaultTextStyle().font end
-    local baseFont = baseFont or (attr and attr.font) or { name = "Helvetica", size = 12.0 }
+    baseFont = baseFont or (attr and attr.font) or { name = "Helvetica", size = 12.0 }
 
 -- generate clean string and locate ANSI codes
     local cleanString = ""
@@ -422,8 +496,9 @@ module = setmetatable(module, {
             return setmetatable(results, { __tostring = function(_)
                     local result = ""
                     local width = 0
-                    for k,v in pairs(_) do width = width < #k and #k or width end
-                    for k,v in require("hs.fnutils").sortByKeys(_) do
+                    local fnutils = require("hs.fnutils")
+                    for k,_ in pairs(_) do width = width < #k and #k or width end
+                    for k,v in fnutils.sortByKeys(_) do
                         result = result..string.format("%-"..tostring(width).."s %s\n", k, tostring(v))
                     end
                     return result

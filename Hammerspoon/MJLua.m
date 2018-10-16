@@ -127,10 +127,27 @@ static int core_openpreferences(lua_State* __unused L) {
 ///
 /// Parameters:
 ///  * bringToFront - if true (default), the console will be focused as well as opened.
+///
+/// Returns:
+///  * None
 static int core_openconsole(lua_State* L) {
     if (!(lua_isboolean(L,1) && !lua_toboolean(L, 1)))
         [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
     [[MJConsoleWindowController singleton] showWindow: nil];
+    return 0;
+}
+
+/// hs.closeConsole()
+/// Function
+/// Closes the Hammerspoon Console window
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
+static int core_closeconsole(lua_State* L) {
+    [[MJConsoleWindowController singleton].window orderOut:nil];
     return 0;
 }
 
@@ -518,6 +535,7 @@ static luaL_Reg corelib[] = {
     {"preferencesDarkMode", preferencesDarkMode},
     {"openConsoleOnDockClick", core_openConsoleOnDockClick},
     {"openConsole", core_openconsole},
+    {"closeConsole", core_closeconsole},
     {"consoleOnTop", core_consoleontop},
     {"openAbout", core_openabout},
     {"menuIcon", core_menuicon},

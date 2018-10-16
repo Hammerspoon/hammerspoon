@@ -195,7 +195,8 @@ print("++ Parsing manual...")
 
 -- Get manual version first -- first pass we ignore keys that aren't numbers
 
-    local a, b, k = 1, 0, ""
+    local a = 1
+    local b, k
     local text, posTable = nil, nil
 
     while a < LuaManual:len() do
@@ -213,7 +214,7 @@ print("++ Parsing manual...")
                 text             = {}
                 Keys[k].manpos   = posTable
                 Keys[k].mantext  = text
-            else
+            --else
 --                if not SkipThese[k] then print("++ No key found for '"..k.."', skipping...") end
             end
             a = b + 1
@@ -230,8 +231,8 @@ print("++ Parsing manual...")
 -- ignorable, as they're likely links within the manual itself to lists already included in a manual section,
 -- but post them just in case I need to look for them later if the format changes.
 
-    local a, b, k = 1, 0, ""
-    local text, posTable = nil, nil
+    a = 1
+    text, posTable = nil, nil
 
     while a < LuaManual:len() do
         a, b, k = LuaManual:find("[\r\n][^\r\n]*<[aA][^\r\n>]*%s+[nN][aA][mM][eE]%s*=%s*\"([^\r\n\">]+)\"[^\r\n>]*>", a)
@@ -288,35 +289,35 @@ The text for this documentation is originally from ]]..luaDocsBaseURL..[[ but ha
         },
     }
     for i,v in pairs(Keys) do
-        for _,b in ipairs(v.labels) do
+        for _,bb in ipairs(v.labels) do
             local destItems, itemDef, theText
-            if b:match("^%d+") then                                         -- part of the manual
+            if bb:match("^%d+") then                                         -- part of the manual
                 destItems = docRoots.manual.items
                 itemDef = {
                     type="manual",
                     name = "_"..i:gsub("%.","_"),
-                    def = b,
+                    def = bb,
                 }
                 if v.mantext then theText = v.mantext[1] end
             else
-                if b:match("^_") then                                       -- builtin variable
+                if bb:match("^_") then                                       -- builtin variable
                     destItems = docRoots.builtin.items
                     itemDef = {
                         type="builtin",
-                        name = b,
-                        def = b,
+                        name = bb,
+                        def = bb,
                     }
                     if v.functext then theText = v.functext[1] end
-                elseif b:match("_") then                                    -- part of the capi
+                elseif bb:match("_") then                                    -- part of the capi
                     destItems = docRoots.capi.items
                     itemDef = {
                         type="c-api",
-                        name = b,
-                        def = b,
+                        name = bb,
+                        def = bb,
                     }
                     if v.functext then theText = v.functext[1] end
-                elseif b:match("[%.:]") then                                   -- builtin two part function
-                    local myRoot, myLabel = b:match("^([^%.:]+)[%.:]([^%.:]+)$")
+                elseif bb:match("[%.:]") then                                   -- builtin two part function
+                    local myRoot, myLabel = bb:match("^([^%.:]+)[%.:]([^%.:]+)$")
                     if not docRoots[myRoot] then
                         docRoots[myRoot] = {
                             name  = functionPrefix.."."..myRoot,
@@ -329,15 +330,15 @@ The text for this documentation is originally from ]]..luaDocsBaseURL..[[ but ha
                     itemDef = {
                         type="builtin",
                         name = myLabel,
-                        def = b,
+                        def = bb,
                     }
                     if v.functext then theText = v.functext[1] end
                 else                                                        -- builtin single part function
                     destItems = docRoots.builtin.items
                     itemDef = {
                         type="builtin",
-                        name = b,
-                        def = b,
+                        name = bb,
+                        def = bb,
                     }
                     if v.functext then theText = v.functext[1] end
                 end
@@ -348,7 +349,7 @@ The text for this documentation is originally from ]]..luaDocsBaseURL..[[ but ha
                                      :gsub("^[\r\n]+",""):gsub("[\r\n]+$","")         -- string beginning and ending newlines
                 table.insert(destItems, itemDef)
             else
-                print("++ No text found for '"..b.."', probably an error")
+                print("++ No text found for '"..bb.."', probably an error")
             end
         end
     end
@@ -366,7 +367,7 @@ The text for this documentation is originally from ]]..luaDocsBaseURL..[[ but ha
 -- flatten so it matches the expected doc format.
     local documentFormatArray -- comment out for debugging purposes
     documentFormatArray = {}
-    for i,v in pairs(docRoots) do
+    for _,v in pairs(docRoots) do
         table.insert(documentFormatArray, v)
     end
 

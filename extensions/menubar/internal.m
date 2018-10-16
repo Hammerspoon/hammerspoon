@@ -8,6 +8,11 @@
 static int refTable;
 #define get_item_arg(L, idx) ((menubaritem_t *)luaL_checkudata(L, idx, USERDATA_TAG))
 
+// Adds undocumented "appearance" argument to "popUpMenuPositioningItem":
+@interface NSMenu (MISSINGOrder)
+- (BOOL)popUpMenuPositioningItem:(id)arg1 atLocation:(struct CGPoint)arg2 inView:(id)arg3 appearance:(id)arg4;
+@end
+
 // modified from https://github.com/shergin/NSStatusBar-MISSINGOrder
 
 typedef NS_ENUM(NSInteger, NSStatusBarItemPriority) {
@@ -178,13 +183,14 @@ NSMutableArray *dynamicMenuDelegates;
 @end
 @implementation HSMenubarItemClickDelegate
 - (void) click:(id)sender {
-    _lua_stackguard_entry(self.L);
+    LuaSkin *skin = [LuaSkin shared];
+    _lua_stackguard_entry(skin.L);
     // Issue #909 -- if the callback causes the menu to be replaced, we crash if this delegate disappears from beneath us... this keeps it from being collected before the callback is done.
     NSObject *myDelegate = [sender representedObject] ;
     [self callback_runner];
     // error or return value (ignored in this case), we gotta cleanup
-    lua_pop(self.L, 1) ;
-    _lua_stackguard_exit(self.L);
+    lua_pop(skin.L, 1) ;
+    _lua_stackguard_exit(skin.L);
     myDelegate = nil ; // NOTE: DO NOT USE `self` AFTER THIS POINT, IT WILL HAVE BEEN DEALLOCATED.
 }
 @end
@@ -200,14 +206,14 @@ NSMutableArray *dynamicMenuDelegates;
     [self callback_runner];
 
     // Ensure the callback pushed a table onto the stack, then remove any existing menu structure and parse the table into a new menu
-    if (lua_type(self.L, lua_gettop(self.L)) == LUA_TTABLE) {
-        erase_menu_items(self.L, menu);
-        parse_table(self.L, lua_gettop(self.L), menu, self.stateBoxImageSize);
+    if (lua_type(skin.L, lua_gettop(skin.L)) == LUA_TTABLE) {
+        erase_menu_items(skin.L, menu);
+        parse_table(skin.L, lua_gettop(skin.L), menu, self.stateBoxImageSize);
     } else {
         [skin logError:@"hs.menubar:setMenu() callback must return a valid table"];
     }
     // error or return value, we gotta cleanup
-    lua_pop(self.L, 1) ;
+    lua_pop(skin.L, 1) ;
     _lua_stackguard_exit(skin.L);
 }
 @end
@@ -860,20 +866,21 @@ static int menubar_delete(lua_State *L) {
     return 0;
 }
 
-/// hs.menubar:popupMenu(point) -> menubaritem
+/// hs.menubar:popupMenu(point[, darkMode]) -> menubaritem
 /// Method
 /// Display a menubaritem as a pop up menu at the specified screen point.
 ///
 /// Parameters:
-///  * point -- the location of the upper left corner of the pop-up menu to be displayed.
+///  * point - the location of the upper left corner of the pop-up menu to be displayed.
+///  * darkMode - (optional) `true` to force the menubar dark (defaults to your macOS General Appearance settings)
 ///
 /// Returns:
 ///  * The menubaritem
 ///
 /// Notes:
 ///  * Items which trigger hs.menubar:setClickCallback() will invoke the callback function, but we cannot control the positioning of any visual elements the function may create -- calling this method on such an object is the equivalent of invoking its callback function directly.
-///
-///  * This method is blocking -- Hammerspoon will be unable to respond to any other activity while the pop-up menu is being displayed.
+///  * This method is blocking. Hammerspoon will be unable to respond to any other activity while the pop-up menu is being displayed.
+///  * `darkMode` uses an undocumented macOS API call, so may break in a future release.
 static int menubar_render(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     menubaritem_t *menuBarItem = get_item_arg(L, 1);
@@ -881,6 +888,21 @@ static int menubar_render(lua_State *L) {
     NSMenu        *menu        = [statusItem menu];
 
     NSPoint menuPoint ;
+
+	// Support darkMode for popup menus:
+	BOOL darkMode = false ;
+    if (lua_gettop(L) > 2) {
+        if ((lua_type(L, 3) == LUA_TBOOLEAN) || (lua_type(L, 3) == LUA_TNIL)) {
+            if (lua_type(L, 3) == LUA_TBOOLEAN) {
+                darkMode = (BOOL)lua_toboolean(L, 3) ;
+            } else {
+                NSString *ifStyle = [[NSUserDefaults standardUserDefaults] stringForKey:@"AppleInterfaceStyle"] ;
+                darkMode = (ifStyle && [ifStyle isEqualToString:@"Dark"]) ;
+            }
+            lua_remove(L, 3) ;
+        }
+    }
+    NSAppearance *appearance = [NSAppearance appearanceNamed:(darkMode ? NSAppearanceNameVibrantDark : NSAppearanceNameVibrantLight)] ;
 
     switch (lua_type(L, 2)) {
         case LUA_TTABLE:
@@ -920,7 +942,8 @@ static int menubar_render(lua_State *L) {
     }
 
     menuPoint.y = [[NSScreen screens][0] frame].size.height - menuPoint.y ;
-    [menu popUpMenuPositioningItem:nil atLocation:menuPoint inView:nil] ;
+
+    [menu popUpMenuPositioningItem:nil atLocation:menuPoint inView:nil appearance:appearance ] ;
 
     lua_settop(L, 1) ;
     return 1 ;
@@ -982,7 +1005,7 @@ static int menubar_returnToMenuBar(lua_State *L) {
     return 1 ;
 }
 
-/// hs.menubar:isInMenubar() -> boolean
+/// hs.menubar:isInMenuBar() -> boolean
 /// Method
 /// Returns a boolean indicating whether or not the specified menu is currently in the OS X menubar.
 ///
@@ -1191,6 +1214,7 @@ static const luaL_Reg menubar_metalib[] = {
     {"_frame",            menubarFrame},
     {"priority",          menubarPriority},
     {"isInMenubar",       menubar_isInMenubar},
+    {"isInMenuBar",       menubar_isInMenubar},
 
     {"__tostring",        userdata_tostring},
     {"__gc",              menubaritem_gc},

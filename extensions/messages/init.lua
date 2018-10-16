@@ -11,7 +11,7 @@ local as = require "hs.applescript"
 -- Internal function to pass a command to Applescript.
 local function tell(cmd)
   local _cmd = 'tell application "Messages" to ' .. cmd
-  local _ok, result = as.applescript(_cmd)
+  local _, result = as.applescript(_cmd)
   return result
 end
 

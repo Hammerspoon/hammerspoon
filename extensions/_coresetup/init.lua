@@ -85,7 +85,6 @@ hs.fileDroppedToDockIconCallback = nil
     print("*** ERROR: "..err)
     hs.focus()
     hs.openConsole()
-    hs._TERMINATED=true
   end
 
   function hs.assert(pred,desc,data)

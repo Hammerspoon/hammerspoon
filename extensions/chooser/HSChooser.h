@@ -56,6 +56,9 @@
 // A pointer to the hs.chooser module's references table
 @property(nonatomic) int *refTable;
 
+// Our self-ref count
+@property(nonatomic) int selfRefCount;
+
 // Keep track of whether we are observing macOS interface theme (light/dark)
 @property(nonatomic) BOOL isObservingThemeChanges;
 
@@ -90,6 +93,7 @@
 - (void)updateChoices;
 - (void)clearChoices;
 - (void)clearChoicesAndUpdate;
+- (void)refreshChoicesCallback;
 - (NSArray *)getChoices;
 - (NSArray *)getChoicesWithOptions:(BOOL)includeFiltered;
 

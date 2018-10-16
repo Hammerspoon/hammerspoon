@@ -545,7 +545,7 @@ static int enableUpdates(__unused lua_State *L) {
 ///  * sizeRect - A rect-table containing the location/size of the circle
 ///
 /// Returns:
-///  * An `hs.drawing` circle object, or nil if an error occurs
+///  * An `hs.drawing` object, or nil if an error occurs
 static int drawing_newCircle(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TTABLE, LS_TBREAK];
@@ -587,7 +587,7 @@ static int drawing_newCircle(lua_State *L) {
 ///  * endAngle    - The ending angle of the arc, measured in degrees clockwise from the y-axis.
 ///
 /// Returns:
-///  * An `hs.drawing` arc object, or nil if an error occurs
+///  * An `hs.drawing` object, or nil if an error occurs
 static int drawing_newEllipticalArc(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TTABLE,
@@ -637,7 +637,7 @@ static int drawing_newEllipticalArc(lua_State *L) {
 ///  * sizeRect - A rect-table containing the location/size of the rectangle
 ///
 /// Returns:
-///  * An `hs.drawing` rectangle object, or nil if an error occurs
+///  * An `hs.drawing` object, or nil if an error occurs
 static int drawing_newRect(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TTABLE, LS_TBREAK];
@@ -679,7 +679,7 @@ static int drawing_newRect(lua_State *L) {
 ///  * endPoint - A point-table containing the co-ordinates of the end point of the line
 ///
 /// Returns:
-///  * An `hs.drawing` line object, or nil if an error occurs
+///  * An `hs.drawing` object, or nil if an error occurs
 static int drawing_newLine(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TTABLE, LS_TTABLE, LS_TBREAK];
@@ -744,7 +744,7 @@ static int drawing_newLine(lua_State *L) {
 ///  * message - A string containing the text to be displayed.   May also be any of the types supported by `hs.styledtext`.  See `hs.styledtext` for more details.
 ///
 /// Returns:
-///  * An `hs.drawing` text object, or nil if an error occurs
+///  * An `hs.drawing` object, or nil if an error occurs
 static int drawing_newText(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TTABLE, LS_TANY, LS_TBREAK];
@@ -793,7 +793,7 @@ static int drawing_newText(lua_State *L) {
 ///   * A string beginning with `ASCII:` which signifies that the rest of the string is interpreted as a special form of ASCII diagram, which will be rendered to an image. See the notes below for information about the special format of ASCII diagram.
 ///
 /// Returns:
-///  * An `hs.drawing` image object, or nil if an error occurs
+///  * An `hs.drawing` object, or nil if an error occurs
 ///  * Paths relative to the PWD of Hammerspoon (typically ~/.hammerspoon/) will work, but paths relative to the UNIX homedir character, `~` will not
 ///  * Animated GIFs are supported. They're not super friendly on your CPU, but they work
 ///
@@ -2086,13 +2086,13 @@ static int drawing_delete(lua_State *L) {
 /// Places the drawing object on top of normal windows
 ///
 /// Parameters:
-///  * aboveEverything - An optional boolean value that controls how far to the front the drawing should be placed. True to place the drawing on top of all windows (including the dock and menubar and fullscreen windows), false to place the drawing above normal windows, but below the dock, menubar and fullscreen windows. Defaults to false.
+///  * aboveEverything - An optional boolean value that controls how far to the front the drawing should be placed. `true` to place the drawing on top of all windows (including the dock and menubar), `false` to place the drawing above normal windows, but below the dock and menubar. Defaults to `false`.
 ///
 /// Returns:
 ///  * The drawing object
 ///
 /// Notes:
-///  * This may not be able to move a drawing above all full-screen windows. More recent versions of macOS have made significant changes to the way full-screen apps work, moving them outside our ability to interact with.
+///  * As of macOS Sierra and later, if you want a `hs.drawing` object to appear above full-screen windows you must hide the Hammerspoon Dock icon first using: `hs.dockicon.hide()`
 static int drawing_bringToFront(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;

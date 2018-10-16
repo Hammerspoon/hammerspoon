@@ -48,12 +48,12 @@ end
 --- Notes:
 ---  * The co-ordinates returned by this function are relative to the top left pixel of the screen the mouse is on (see `hs.mouse.getAbsolutePosition` if you need the location in the full desktop space)
 function module.getRelativePosition()
-    local screen = module.getCurrentScreen()
-    if screen == nil then
+    local currentScreen = module.getCurrentScreen()
+    if currentScreen == nil then
         return nil
     end
 
-    local frame = screen:fullFrame()
+    local frame = currentScreen:fullFrame()
     local point = module.getAbsolutePosition()
     local rel = {}
 
@@ -73,16 +73,16 @@ end
 ---
 --- Returns:
 ---  * None
-function module.setRelativePosition(point, screen)
-    if screen == nil then
-        screen = module.getCurrentScreen()
-        if screen == nil then
+function module.setRelativePosition(point, currentScreen)
+    if currentScreen == nil then
+        currentScreen = module.getCurrentScreen()
+        if currentScreen == nil then
             print("ERROR: Unable to find the current screen")
             return nil
         end
     end
 
-    local frame = screen:fullFrame()
+    local frame = currentScreen:fullFrame()
     local abs = {}
 
     abs["x"] = frame["x"] + point["x"]
@@ -126,6 +126,3 @@ end
 -- Return Module Object --------------------------------------------------
 
 return module
-
-
-

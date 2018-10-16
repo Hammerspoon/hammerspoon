@@ -19,6 +19,7 @@
     self = [super initWithWindowNibName:@"HSChooserWindow" owner:self];
     if (self) {
         self.refTable = refTable;
+        self.selfRefCount = 0;
 
         self.eventMonitors = [[NSMutableArray alloc] init];
 
@@ -210,6 +211,29 @@
 - (void)showWithHints:(BOOL)center atPoint:(NSPoint)topLeft {
     self.hasChosen = NO;
 
+    // Call hs.chooser.globalCallback("willShow")
+    LuaSkin *skin = [LuaSkin shared];
+    lua_State *L = skin.L;
+    _lua_stackguard_entry(L);
+    lua_getglobal(L, "hs");
+    lua_getfield(L, -1, "chooser");
+    lua_getfield(L, -1, "globalCallback");
+
+    // Remove `chooser` and `hs` from the stack
+    lua_remove(L, -3);
+    lua_remove(L, -2);
+
+    // Check the type of `globalCallback`
+    if (lua_type(L, -1) != LUA_TFUNCTION) {
+        [skin logError:[NSString stringWithFormat:@"hs.chooser.globalCallback is expected to be a function, but is a %s", lua_typename(L, lua_type(L, -1))]];
+        // Remove whatever `globalCallback` is, from the stack
+        lua_remove(L, -1);
+    } else {
+        [skin pushNSObject:self];
+        lua_pushstring(L, "willOpen");
+        [skin protectedCallAndError:@"hs.chooser.globalCallback willOpen" nargs:2 nresults:0];
+    }
+
     [self resizeWindow];
 
     [self showWindow:self];
@@ -232,9 +256,6 @@
 
     [self controlTextDidChange:[NSNotification notificationWithName:@"Unused" object:nil]];
 
-    LuaSkin *skin = [LuaSkin shared];
-    _lua_stackguard_entry(skin.L);
-
     if (self.showCallbackRef != LUA_NOREF && self.showCallbackRef != LUA_REFNIL) {
         [skin pushLuaRef:*(self.refTable) ref:self.showCallbackRef];
         [skin protectedCallAndError:@"hs.chooser:showCallback" nargs:0 nresults:0];
@@ -244,6 +265,30 @@
 
 - (void)hide {
     self.window.isVisible = NO;
+
+    // Call hs.chooser.globalCallback("didClose")
+    LuaSkin *skin = [LuaSkin shared];
+    lua_State *L = skin.L;
+    _lua_stackguard_entry(L);
+    lua_getglobal(L, "hs");
+    lua_getfield(L, -1, "chooser");
+    lua_getfield(L, -1, "globalCallback");
+
+    // Remove `chooser` and `hs` from the stack
+    lua_remove(L, -3);
+    lua_remove(L, -2);
+
+    // Check the type of `globalCallback`
+    if (lua_type(L, -1) != LUA_TFUNCTION) {
+        [skin logError:[NSString stringWithFormat:@"hs.chooser.globalCallback is expected to be a function, but is a %s", lua_typename(L, lua_type(L, -1))]];
+        // Remove whatever `globalCallback` is, from the stack
+        lua_remove(L, -1);
+    } else {
+        [skin pushNSObject:self];
+        lua_pushstring(L, "didClose");
+        [skin protectedCallAndError:@"hs.chooser.globalCallback willOpen" nargs:2 nresults:0];
+    }
+    _lua_stackguard_exit(L);
 }
 
 - (BOOL)isVisible {
@@ -532,6 +577,13 @@
 
     //NSLog(@"HSChooser::getChoicesWithOptions: returning: %@", choices);
     return choices;
+}
+
+- (void)refreshChoicesCallback {
+    [self clearChoices];
+    [self getChoices];
+    [self updateChoices];
+    [self controlTextDidChange:[NSNotification notificationWithName:@"Unused" object:nil]];
 }
 
 #pragma mark - UI customisation methods
