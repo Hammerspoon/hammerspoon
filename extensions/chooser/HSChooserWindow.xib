@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14113" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14109" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14113"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14109"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -19,7 +19,7 @@
             <windowStyleMask key="styleMask" fullSizeContentView="YES"/>
             <windowCollectionBehavior key="collectionBehavior" ignoresCycle="YES"/>
             <rect key="contentRect" x="574" y="449" width="480" height="270"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1177"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="3200" height="1778"/>
             <view key="contentView" id="EiT-Mj-1SZ" customClass="HSChooserRootView">
                 <rect key="frame" x="0.0" y="0.0" width="480" height="270"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -172,6 +172,7 @@
                                                                 <outlet property="imageView" destination="lLt-6S-nmH" id="k8Y-TS-jph"/>
                                                                 <outlet property="shortcutText" destination="leM-dV-1AW" id="cDn-3d-HOj"/>
                                                                 <outlet property="text" destination="XAU-Vc-N92" id="r4I-2f-zHg"/>
+                                                                <outlet property="textField" destination="XAU-Vc-N92" id="WuR-rx-B39"/>
                                                             </connections>
                                                         </tableCellView>
                                                     </prototypeCellViews>
