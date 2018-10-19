@@ -263,6 +263,8 @@
 	<string>https://raw.githubusercontent.com/Hammerspoon/hammerspoon/master/appcast.xml</string>
 	<key>SUScheduledCheckInterval</key>
 	<integer>21600</integer>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>Hammerspoon needs to send events to automate applications.</string>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>
