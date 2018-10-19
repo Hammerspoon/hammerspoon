@@ -424,7 +424,7 @@ static luaL_Reg eventtaplib[] = {
     {"keyRepeatDelay",          eventtap_keyRepeatDelay},
     {"keyRepeatInterval",       eventtap_keyRepeatInterval},
     {"doubleClickInterval",     eventtap_doubleClickInterval},
-    {"isSecureEventInputEnabled", secureInputEnabled},
+    {"isSecureInputEnabled", secureInputEnabled},
     {NULL,      NULL}
 };
 
