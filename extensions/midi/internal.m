@@ -395,7 +395,7 @@ static int deviceCallback(lua_State *L) {
 /// Creates a new `hs.midi` object.
 ///
 /// Parameters:
-///  * deviceName - A string containing the device name of the MIDI device. A valid device name can be found by checking `hs.midi.getDevices()` and/or `hs.midi.virtualSources()`.
+///  * deviceName - A string containing the device name of the MIDI device. A valid device name can be found by checking `hs.midi.devices()` and/or `hs.midi.virtualSources()`.
 ///
 /// Returns:
 ///  * An `hs.midi` object or `nil` if an error occured.
@@ -458,7 +458,7 @@ static int midi_newVirtualSource(lua_State *L) {
 ///
 /// Notes:
 ///  * Most MIDI keyboards produce a `noteOn` when you press a key, then `noteOff` when you release. However, some MIDI keyboards will return a `noteOn` with 0 `velocity` instead of `noteOff`, so you will recieve two `noteOn` commands for every key press/release.
-///  * The callback function should expect 8 arguments and should not return anything:
+///  * The callback function should expect 5 arguments and should not return anything:
 ///    * `object`       - The `hs.midi` object.
 ///    * `deviceName`   - The device name as a string.
 ///    * `commandType`  - Type of MIDI message as defined as a string. See `hs.midi.commandTypes[]` for a list of possibilities.

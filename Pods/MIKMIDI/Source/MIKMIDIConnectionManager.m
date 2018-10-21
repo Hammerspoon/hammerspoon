@@ -94,12 +94,13 @@ BOOL MIKMIDINoteOffCommandCorrespondsWithNoteOnCommand(MIKMIDINoteOffCommand *no
 
 - (void)dealloc
 {
+    __strong typeof(_delegate) delegate = self.delegate;
 	for (MIKMIDIDevice *device in self.connectionTokensByDevice) {
 		id token = [self.connectionTokensByDevice objectForKey:device];
 		[self.deviceManager disconnectConnectionForToken:token];
-		if ([self.delegate respondsToSelector:@selector(connectionManager:deviceWasDisconnected:withUnterminatedNoteOnCommands:)]) {
+		if ([delegate respondsToSelector:@selector(connectionManager:deviceWasDisconnected:withUnterminatedNoteOnCommands:)]) {
 			NSArray *pendingNoteOns = [self pendingNoteOnCommandsForDevice:device];
-			[self.delegate connectionManager:self deviceWasDisconnected:device withUnterminatedNoteOnCommands:pendingNoteOns];
+			[delegate connectionManager:self deviceWasDisconnected:device withUnterminatedNoteOnCommands:pendingNoteOns];
 		}
 	}
 	
@@ -278,8 +279,9 @@ BOOL MIKMIDINoteOffCommandCorrespondsWithNoteOnCommand(MIKMIDINoteOffCommand *no
 			   withSetMutation:NSKeyValueUnionSetMutation
 				  usingObjects:[NSSet setWithObject:device]];
 	
-	if ([self.delegate respondsToSelector:@selector(connectionManager:deviceWasConnected:)]) {
-		[self.delegate connectionManager:self deviceWasConnected:device];
+    __strong typeof(_delegate) delegate = self.delegate;
+	if ([delegate respondsToSelector:@selector(connectionManager:deviceWasConnected:)]) {
+		[delegate connectionManager:self deviceWasConnected:device];
 	}
 	
 	return YES;
@@ -303,9 +305,10 @@ BOOL MIKMIDINoteOffCommandCorrespondsWithNoteOnCommand(MIKMIDINoteOffCommand *no
 			   withSetMutation:NSKeyValueMinusSetMutation
 				  usingObjects:[NSSet setWithObject:device]];
 	
-	if ([self.delegate respondsToSelector:@selector(connectionManager:deviceWasDisconnected:withUnterminatedNoteOnCommands:)]) {
+    __strong typeof(_delegate) delegate = self.delegate;
+	if ([delegate respondsToSelector:@selector(connectionManager:deviceWasDisconnected:withUnterminatedNoteOnCommands:)]) {
 		NSArray *pendingNoteOns = [self pendingNoteOnCommandsForDevice:device];
-		[self.delegate connectionManager:self deviceWasDisconnected:device withUnterminatedNoteOnCommands:pendingNoteOns];
+		[delegate connectionManager:self deviceWasDisconnected:device withUnterminatedNoteOnCommands:pendingNoteOns];
 	}
 	
 	if (self.automaticallySavesConfiguration) [self saveConfiguration];
@@ -324,8 +327,9 @@ BOOL MIKMIDINoteOffCommandCorrespondsWithNoteOnCommand(MIKMIDINoteOffCommand *no
 	
 	MIKMIDIAutoConnectBehavior behavior = MIKMIDIAutoConnectBehaviorConnectIfPreviouslyConnectedOrNew;
 	
-	if ([self.delegate respondsToSelector:@selector(connectionManager:shouldConnectToNewlyAddedDevice:)]) {
-		behavior = [self.delegate connectionManager:self shouldConnectToNewlyAddedDevice:device];
+    __strong typeof(_delegate) delegate = self.delegate;
+	if ([delegate respondsToSelector:@selector(connectionManager:shouldConnectToNewlyAddedDevice:)]) {
+		behavior = [delegate connectionManager:self shouldConnectToNewlyAddedDevice:device];
 	}
 	
 	BOOL shouldConnect = NO;

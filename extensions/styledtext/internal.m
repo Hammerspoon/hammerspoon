@@ -533,6 +533,37 @@ static int fontInformation(lua_State *L) {
     return 1;
 }
 
+/// hs.styledtext.fontPath(font) -> table
+/// Function
+/// Get the path of a font.
+///
+/// Parameters:
+///  * font - a string containing the name of the font you want to check.
+///
+/// Returns:
+///  * The path to the font or `nil` if the font name is not valid.
+static int fontPath(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs: LS_TSTRING, LS_TBREAK];
+    
+    NSString* fontName = [skin toNSObjectAtIndex:1];
+    
+    NSFont *theFont = [NSFont fontWithName:fontName size:1];
+    if (theFont) {
+        NSFont *theFont = [skin luaObjectAtIndex:-1 toClass:"NSFont"];
+        
+        CTFontDescriptorRef fontRef = CTFontDescriptorCreateWithNameAndSize ((CFStringRef)[theFont fontName], [theFont pointSize]);
+        CFURLRef url = (CFURLRef)CTFontDescriptorCopyAttribute(fontRef, kCTFontURLAttribute);
+        NSString *fontPath = [NSString stringWithString:[(NSURL *)CFBridgingRelease(url) path]];
+        
+        [skin pushNSObject:[NSString stringWithFormat:@"%@", fontPath]] ;
+    } else {
+        lua_pushnil(L);
+    }
+    
+    return 1;
+}
+
 /// hs.styledtext.lineStyles
 /// Constant
 /// A table of styles which apply to the line for underlining or strike-through.
@@ -2368,6 +2399,7 @@ static luaL_Reg moduleLib[] = {
     {"_fontFamilies", fontFamilies},
     {"_fontsForFamily", fontsForFamily},
     {"_fontNamesWithTraits", fontNamesWithTraits},
+    {"fontPath", fontPath},
 
     {"_defaultFonts", defineDefaultFonts},
 

@@ -668,6 +668,7 @@ AXUIElementRef _findmenuitembypath(lua_State* L __unused, AXUIElementRef app, NS
     // searchItem will be the generic variable we search in our loop
     searchItem = menuBar;
 
+    CFArrayRef cf_children = NULL;
     // Loop over cf_children for first element in path, then descend down path
     int i = 5000; // Guard ourself against infinite loops
     while (!foundItem && i > 0) {
@@ -680,7 +681,6 @@ AXUIElementRef _findmenuitembypath(lua_State* L __unused, AXUIElementRef app, NS
             break;
         }
 
-        CFArrayRef cf_children;
         error = AXUIElementCopyAttributeValues(searchItem, kAXChildrenAttribute, 0, count, &cf_children);
         if (error) {
             [skin logBreadcrumb:@"Failed to get children"];

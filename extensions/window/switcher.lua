@@ -19,7 +19,7 @@
 --- hs.hotkey.bind('alt-shift','tab','Prev window',hs.window.switcher.previousWindow,nil,hs.window.switcher.previousWindow)
 --- ```
 
-local next,type,ipairs,pairs=next,type,ipairs,pairs
+local type,pairs=type,pairs
 local min,max=math.min,math.max
 local geom=require'hs.geometry'
 local drawing,image=require'hs.drawing',require'hs.image'
@@ -104,8 +104,8 @@ local uiGlobal = {
 local function getColor(t) if type(t)~='table' or t.red or not t[1] then return t else return {red=t[1] or 0,green=t[2] or 0,blue=t[3] or 0,alpha=t[4] or 1} end end
 
 switcher.ui=setmetatable({},{
-  __newindex=function(t,k,v) uiGlobal[k]=getColor(v) end,
-  __index=function(t,k)return getColor(uiGlobal[k])end,
+  __newindex=function(_,k,v) uiGlobal[k]=getColor(v) end,
+  __index=function(_,k)return getColor(uiGlobal[k])end,
 })
 
 
@@ -154,8 +154,11 @@ end
 
 
 local function draw(windows,drawings,ui)
-  drawings.selRect:show()
-  if ui.showSelectedThumbnail then drawings.selThumb:show() drawings.selIcon:show() end
+  if ui.showSelectedThumbnail then
+    drawings.selRect:show()
+    drawings.selThumb:show()
+    drawings.selIcon:show()
+  end
   if ui.showSelectedTitle then
     drawings.selTitleRect:show() drawings.selTitleText:show()
   end
@@ -237,7 +240,6 @@ local function show(self,dir)
   if nwindows==0 then self.log.i('no windows') return end
   local selected=self.selected
   if not selected then -- fresh invocation, prep everything
-    local _ --silly LDT indent
     if nwindows>#drawings then -- need new drawings
       self.log.vf('found %d new windows',nwindows-#drawings)
       local tempframe=geom(0,0,1,1)
@@ -411,8 +413,8 @@ function switcher.new(wf,uiPrefs,logname,loglevel)
   else self.log.i('new windowswitcher instance using windowfilter instance') self.wf=windowfilter.new(wf) end
   --uiPrefs
   self.ui=setmetatable({},{
-    __newindex=function(t,k,v)rawset(self.ui,k,getColor(v)) return not inUiPrefs and setUiPrefs(self)end,
-    __index=function(t,k)return getColor(uiGlobal[k]) end,
+    __newindex=function(_,k,v)rawset(self.ui,k,getColor(v)) return not inUiPrefs and setUiPrefs(self)end,
+    __index=function(_,k)return getColor(uiGlobal[k]) end,
   })
   for k,v in pairs(uiPrefs) do rawset(self.ui,k,getColor(v)) end setUiPrefs(self)
   self.screenWatcher=screen.watcher.new(function() self.drawings.lastn=-1 self.drawings.screenFrame=nil end):start()
@@ -420,4 +422,3 @@ function switcher.new(wf,uiPrefs,logname,loglevel)
 end
 
 return switcher
-  

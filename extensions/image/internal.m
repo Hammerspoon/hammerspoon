@@ -1284,16 +1284,19 @@ static int getImageSize(lua_State* L) {
 static int colorAt(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBREAK] ;
-    NSImage *theImage = [skin luaObjectAtIndex:1 toClass:"NSImage"] ;
 
-    NSPoint point  = [skin tableToPointAtIndex:2] ;
+    // Source: https://stackoverflow.com/a/33485218/6925202
+    @autoreleasepool {
+    	NSImage *theImage = [skin luaObjectAtIndex:1 toClass:"NSImage"] ;
+    	NSPoint point  = [skin tableToPointAtIndex:2] ;
 
-	// Source: https://stackoverflow.com/a/48400410
-    [theImage lockFocus];
-	NSColor *pixelColor = NSReadPixel(point);
-	[theImage unlockFocus];
-
-    [skin pushNSObject:pixelColor];
+		// Source: https://stackoverflow.com/a/48400410
+		[theImage lockFocus];
+		NSColor *pixelColor = NSReadPixel(point);
+		[theImage unlockFocus];
+        [skin pushNSObject:pixelColor];
+	}
+    
     return 1;
 }
 

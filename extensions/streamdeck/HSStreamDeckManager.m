@@ -50,9 +50,11 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
         //NSLog(@"Created HID Manager: %p", (void *)self.ioHIDManager);
 
         // Configure the HID manager to match against Stream Deck devices
+        NSString *vendorIDKey = @(kIOHIDVendorIDKey);
+        NSString *productIDKey = @(kIOHIDProductIDKey);
         NSDictionary *match = @{
-                                @(kIOHIDVendorIDKey): @0x0fd9,
-                                @(kIOHIDProductIDKey): @0x0060,
+                                vendorIDKey: @0x0fd9,
+                                productIDKey: @0x0060,
                                 };
         IOHIDManagerSetDeviceMatching ((__bridge IOHIDManagerRef)self.ioHIDManager, (__bridge CFDictionaryRef)match);
 

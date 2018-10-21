@@ -307,6 +307,32 @@ static int location_getLocation(lua_State* L) {
     return 1 ;
 }
 
+/// hs.location.dstOffset() -> number
+/// Function
+/// Returns a number giving the current daylight savings time offset
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The number of minutes of daylight savings offset, zero if there is no offset
+///
+/// Notes:
+///  * This value is derived from the currently configured system timezone, it does not use Location Services
+static int location_dstOffset(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TBREAK];
+
+    NSTimeZone *tz = [NSTimeZone localTimeZone];
+    NSTimeInterval interval = 0;
+    if (tz.daylightSavingTime) {
+        interval = tz.daylightSavingTimeOffset;
+    }
+
+    lua_pushnumber(skin.L, interval);
+    return 1;
+}
+
 // internally used function
 static int location_monitoredRegions(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
@@ -819,6 +845,7 @@ static luaL_Reg moduleLib[] = {
     {"start",                  location_startWatching},
     {"stop",                   location_stopWatching},
     {"get",                    location_getLocation},
+    {"dstOffset",              location_dstOffset},
 
     {"_registerCallback",      location_registerCallback},
     {"_monitoredRegions",      location_monitoredRegions},

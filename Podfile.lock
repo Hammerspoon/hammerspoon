@@ -10,25 +10,25 @@ PODS:
   - CocoaLumberjack/Default (3.4.2)
   - CocoaLumberjack/Extensions (3.4.2):
     - CocoaLumberjack/Default
-  - Crashlytics (3.10.2):
-    - Fabric (~> 1.7.7)
-  - Fabric (1.7.7)
+  - Crashlytics (3.10.9):
+    - Fabric (~> 1.7.13)
+  - Fabric (1.7.13)
   - MIKMIDI (1.6.3)
   - PocketSocket/Client (1.0.1):
     - PocketSocket/Core
   - PocketSocket/Core (1.0.1)
-  - Sparkle (1.19.0)
+  - Sparkle (1.20.0)
 
 DEPENDENCIES:
   - ASCIImage (= 1.0.0)
   - CocoaAsyncSocket (= 7.6.3)
   - CocoaHTTPServer (= 2.3)
   - CocoaLumberjack (= 3.4.2)
-  - Crashlytics (= 3.10.2)
-  - Fabric (= 1.7.7)
-  - MIKMIDI (from `https://github.com/mixedinkey-opensource/MIKMIDI.git`, commit `bc623e9`)
+  - Crashlytics (= 3.10.9)
+  - Fabric (= 1.7.13)
+  - MIKMIDI (from `https://github.com/mixedinkey-opensource/MIKMIDI.git`, commit `a674024`)
   - PocketSocket/Client (= 1.0.1)
-  - Sparkle (= 1.19.0)
+  - Sparkle (= 1.20.0)
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
@@ -43,12 +43,12 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   MIKMIDI:
-    :commit: bc623e9
+    :commit: a674024
     :git: https://github.com/mixedinkey-opensource/MIKMIDI.git
 
 CHECKOUT OPTIONS:
   MIKMIDI:
-    :commit: bc623e9
+    :commit: a674024
     :git: https://github.com/mixedinkey-opensource/MIKMIDI.git
 
 SPEC CHECKSUMS:
@@ -56,12 +56,12 @@ SPEC CHECKSUMS:
   CocoaAsyncSocket: eafaa68a7e0ec99ead0a7b35015e0bf25d2c8987
   CocoaHTTPServer: 5624681fc3473d43b18202f635f9b3abb013b530
   CocoaLumberjack: db7cc9e464771f12054c22ff6947c5a58d43a0fd
-  Crashlytics: 0360624eea1c978a743feddb2fb1ef8b37fb7a0d
-  Fabric: bda89e242bce1b7b8ab264248cf3407774ce0095
+  Crashlytics: 55e24fc23989680285a21cb1146578d9d18e432c
+  Fabric: 25d0963b691fc97be566392243ff0ecef5a68338
   MIKMIDI: 62b879ef4cd43cf9673851d7cb2ab5002f9bb069
   PocketSocket: 9c6867d66fb4f962af96b9b07f4b45bb561b2c2a
-  Sparkle: 8486d2493599665e466b5076e72b28849776e32f
+  Sparkle: 48999e7ee032f05ca05e28451eadf4af8ede6b44
 
-PODFILE CHECKSUM: a9a10cbb9fa8a6a0f81bab76f80feecf477b94df
+PODFILE CHECKSUM: 3ed4a69e2d5a5e15f9a64201f3ec47518ad9dbd0
 
 COCOAPODS: 1.5.3
