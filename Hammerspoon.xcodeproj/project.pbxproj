@@ -225,7 +225,6 @@
 		942E71A619B1112F001BA156 /* MJPreferencesWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 942E71A419B1112F001BA156 /* MJPreferencesWindowController.m */; };
 		942E71AA19B11176001BA156 /* MJAccessibilityUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 942E71A919B11176001BA156 /* MJAccessibilityUtils.m */; };
 		943BF0F219A4B43E0017F79D /* MJUserNotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 943BF0F119A4B43E0017F79D /* MJUserNotificationManager.m */; };
-		943BF0F319A4BC730017F79D /* Images.xcassets in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D3F1989737E00D8DC90 /* Images.xcassets */; };
 		944A2D391989735300D8DC90 /* MJAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D341989735300D8DC90 /* MJAppDelegate.m */; };
 		944A2D3A1989735300D8DC90 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 944A2D351989735300D8DC90 /* MainMenu.xib */; };
 		944A2D431989737E00D8DC90 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 944A2D3D1989737E00D8DC90 /* Credits.rtf */; };
@@ -5831,7 +5830,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -eux\n\n# Some Instruments profiles are broken with the code signing stuff we currently do, so let's just skip signing entirely when we're Profiling\n\nif [ \"${CONFIGURATION}\" == \"Profile\" ]; then\n    exit 0\nfi\n\nif [ -f ../token-codesign ] ; then\n    echo \"SIGNING CODE\"\n    source ../token-codesign\n\n    if [ \"${CONFIGURATION}\" == \"Debug\" ]; then\n        CODESIGN_OPTS=\"--timestamp=none\"\n    else\n        CODESIGN_OPTS=\"\"\n    fi\n\n    LOCATION=\"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n\n    # sign Sparkle.framework if this is a release build\n    if [ -e \"${LOCATION}/Sparkle.framework/Versions/A\" ] ; then\n        codesign ${CODESIGN_OPTS} --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/Sparkle.framework/Versions/A\"\n    fi\n\n    # sign Hammerspoon Tests.xctest if this is a test build\n    if [ -e \"${BUILT_PRODUCTS_DIR}/${CONTENTS_FOLDER_PATH}/PlugIns/Hammerspoon Tests.xctest\" ] ; then\n        codesign ${CODESIGN_OPTS} --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${BUILT_PRODUCTS_DIR}/${CONTENTS_FOLDER_PATH}/PlugIns/Hammerspoon Tests.xctest\"\n    fi\n\n    # sign LuaSkin.framework\n    codesign ${CODESIGN_OPTS} --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/LuaSkin.framework/Versions/A\"\n    # sign the Hammerspoon binary\n    codesign ${CODESIGN_OPTS} --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${CODESIGNING_FOLDER_PATH}\"\nelse\n    echo \"SKIPPING CODE SIGNING\"\nfi";
+			shellScript = "set -eux\n\n# Some Instruments profiles are broken with the code signing stuff we currently do, so let's just skip signing entirely when we're Profiling\n\nif [ \"${CONFIGURATION}\" == \"Profile\" ]; then\n    exit 0\nfi\n\nif [ -f ../token-codesign ] ; then\n    echo \"SIGNING CODE\"\n    source ../token-codesign\n\n    if [ \"${CONFIGURATION}\" == \"Debug\" ]; then\n        CODESIGN_OPTS=\"--timestamp=none\"\n    else\n        CODESIGN_OPTS=\"\"\n    fi\n\n    LOCATION=\"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n\n    # sign Sparkle.framework if this is a release build\n    if [ -e \"${LOCATION}/Sparkle.framework/Versions/A\" ] ; then\n        codesign ${CODESIGN_OPTS} --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/Sparkle.framework/Versions/A\"\n    fi\n\n    # sign Hammerspoon Tests.xctest if this is a test build\n    if [ -e \"${BUILT_PRODUCTS_DIR}/${CONTENTS_FOLDER_PATH}/PlugIns/Hammerspoon Tests.xctest\" ] ; then\n        codesign ${CODESIGN_OPTS} --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${BUILT_PRODUCTS_DIR}/${CONTENTS_FOLDER_PATH}/PlugIns/Hammerspoon Tests.xctest\"\n    fi\n\n    # sign LuaSkin.framework\n    codesign ${CODESIGN_OPTS} --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/LuaSkin.framework/Versions/A\"\n    # sign the Hammerspoon binary\n    codesign ${CODESIGN_OPTS} --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${CODESIGNING_FOLDER_PATH}\"\nelse\n    echo \"SKIPPING CODE SIGNING\"\nfi\n";
 		};
 		4FA81F271B3F2A52000B5537 /* Copy LuaSkin.framework to build/bundle */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -5929,12 +5928,10 @@
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon-frameworks.sh",
 				"${PODS_ROOT}/Sparkle/Sparkle.framework",
-				"${PODS_ROOT}/Sparkle/Sparkle.framework.dSYM",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Sparkle.framework",
-				"${DWARF_DSYM_FOLDER_PATH}/Sparkle.framework.dSYM",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -6469,7 +6466,6 @@
 				943BF0F219A4B43E0017F79D /* MJUserNotificationManager.m in Sources */,
 				4F5B6E6E1E9E87CE003FC580 /* HSAppleScript.m in Sources */,
 				9422ACBD19B6163800F06A90 /* MJConfigUtils.m in Sources */,
-				943BF0F319A4BC730017F79D /* Images.xcassets in Sources */,
 				942E71A619B1112F001BA156 /* MJPreferencesWindowController.m in Sources */,
 				E2E2B1FE1E8546FE009AEAD6 /* PFMoveApplication.m in Sources */,
 				4FA125882016739500F02FDF /* HSLogger.m in Sources */,
@@ -8073,6 +8069,7 @@
 					"-Wno-gnu-statement-expression",
 					"-Wno-reserved-id-macro",
 					"-Wno-gnu-zero-variadic-macro-arguments",
+					"-Wno-objc-messaging-id",
 				);
 			};
 			name = Profile;
@@ -8097,6 +8094,16 @@
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
 				STRIP_STYLE = all;
+				WARNING_CFLAGS = (
+					"-Wno-cstring-format-directive",
+					"-Wno-padded",
+					"-Wno-objc-missing-property-synthesis",
+					"-Wno-auto-import",
+					"-Wno-gnu-statement-expression",
+					"-Wno-reserved-id-macro",
+					"-Wno-gnu-zero-variadic-macro-arguments",
+					"-Wno-objc-messaging-id",
+				);
 				WRAPPER_EXTENSION = app;
 			};
 			name = Profile;
@@ -21344,6 +21351,7 @@
 					"-Wno-gnu-statement-expression",
 					"-Wno-reserved-id-macro",
 					"-Wno-gnu-zero-variadic-macro-arguments",
+					"-Wno-objc-messaging-id",
 				);
 			};
 			name = Debug;
@@ -21403,6 +21411,7 @@
 					"-Wno-gnu-statement-expression",
 					"-Wno-reserved-id-macro",
 					"-Wno-gnu-zero-variadic-macro-arguments",
+					"-Wno-objc-messaging-id",
 				);
 			};
 			name = Release;
@@ -21431,6 +21440,16 @@
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
 				STRIP_STYLE = all;
+				WARNING_CFLAGS = (
+					"-Wno-cstring-format-directive",
+					"-Wno-padded",
+					"-Wno-objc-missing-property-synthesis",
+					"-Wno-auto-import",
+					"-Wno-gnu-statement-expression",
+					"-Wno-reserved-id-macro",
+					"-Wno-gnu-zero-variadic-macro-arguments",
+					"-Wno-objc-messaging-id",
+				);
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -21461,6 +21480,16 @@
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
 				STRIP_STYLE = all;
+				WARNING_CFLAGS = (
+					"-Wno-cstring-format-directive",
+					"-Wno-padded",
+					"-Wno-objc-missing-property-synthesis",
+					"-Wno-auto-import",
+					"-Wno-gnu-statement-expression",
+					"-Wno-reserved-id-macro",
+					"-Wno-gnu-zero-variadic-macro-arguments",
+					"-Wno-objc-messaging-id",
+				);
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

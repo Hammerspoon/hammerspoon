@@ -77,7 +77,7 @@ static int consoleDarkMode(lua_State* L) {
 ///  * Note this only affects future output -- anything already in the console will remain its current color.
 static int console_consolePrintColor(lua_State *L) {
     LuaSkin *skin      = [LuaSkin shared];
-    NSTextView *output = [MJConsoleWindowController singleton].outputView;
+    //NSTextView *output = [MJConsoleWindowController singleton].outputView;
 
     if (lua_type(L, 1) != LUA_TNONE) {
         luaL_checktype(L, 1, LUA_TTABLE);
@@ -103,7 +103,7 @@ static int console_consolePrintColor(lua_State *L) {
 ///  * Note this only affects future output -- anything already in the console will remain its current font.
 static int console_consoleFont(lua_State *L) {
     LuaSkin *skin      = [LuaSkin shared];
-    NSTextView *output = [MJConsoleWindowController singleton].outputView;
+    //NSTextView *output = [MJConsoleWindowController singleton].outputView;
 
     if (lua_type(L, 1) != LUA_TNONE) {
         NSFont *newFont = [skin luaObjectAtIndex:1 toClass:"NSFont"] ;
@@ -129,7 +129,7 @@ static int console_consoleFont(lua_State *L) {
 ///  * Note this only affects future output -- anything already in the console will remain its current color.
 static int console_consoleCommandColor(lua_State *L) {
     LuaSkin *skin      = [LuaSkin shared];
-    NSTextView *output = [MJConsoleWindowController singleton].outputView;
+    //NSTextView *output = [MJConsoleWindowController singleton].outputView;
 
     if (lua_type(L, 1) != LUA_TNONE) {
         luaL_checktype(L, 1, LUA_TTABLE);
@@ -155,7 +155,7 @@ static int console_consoleCommandColor(lua_State *L) {
 ///  * Note this only affects future output -- anything already in the console will remain its current color.
 static int console_consoleResultColor(lua_State *L) {
     LuaSkin *skin      = [LuaSkin shared];
-    NSTextView *output = [MJConsoleWindowController singleton].outputView;
+    //NSTextView *output = [MJConsoleWindowController singleton].outputView;
 
     if (lua_type(L, 1) != LUA_TNONE) {
         luaL_checktype(L, 1, LUA_TTABLE);

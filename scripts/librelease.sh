@@ -273,7 +273,7 @@ function upload_dSYMs() {
   if [ ! -d "archive/${VERSION}/dSYM" ]; then
     echo "ERROR: dSYM archive does not exist yet, can't upload it to Fabric. You need to fix this"
   else
-    /Applications/Fabric.app/Contents/MacOS/upload-symbols -p mac -a "${CRASHLYTICS_API_KEY}" "archive/${VERSION}/dSYM/" >"archive/${VERSION}/dSYM-upload.log" 2>&1
+    "${HAMMERSPOON_HOME}/Pods/Fabric/upload-symbols" -p mac -a "${CRASHLYTICS_API_KEY}" "archive/${VERSION}/dSYM/" >"archive/${VERSION}/dSYM-upload.log" 2>&1
   fi
   popd >/dev/null
 }

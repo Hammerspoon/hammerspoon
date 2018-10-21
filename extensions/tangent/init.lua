@@ -1007,11 +1007,6 @@ mod.ipAddress = "127.0.0.1"
 --- The port that Tangent Hub monitors. Defaults to 64246.
 mod.port = 64246
 
---- hs.tangent.interval -> number
---- Variable
---- How often we check for new socket messages. Defaults to 0.001.
-mod.interval = 0.001
-
 --- hs.tangent.automaticallySendApplicationDefinition -> boolean
 --- Variable
 --- Automatically send the "Application Definition" response. Defaults to `true`.
@@ -1265,7 +1260,7 @@ end
 --- Function
 --- Updates the Hub with a menu value.
 --- The Hub then updates the displays of any panels which are currently
----   showing the menu.
+--- showing the menu.
 --- If a value of `nil` is sent then the Hub will not attempt to display a
 --- value for the menu. However the `atDefault` flag will still be recognised.
 ---
@@ -1695,6 +1690,47 @@ local MESSAGE_SIZE = 1
 -- Message Body.
 local MESSAGE_BODY = 2
 
+-- socketCallback(data, tag) -> none
+-- Function
+-- Tangent Socket Callback Function.
+--
+-- Parameters:
+--  * data - The data read from the socket as a string
+--  * tag - The integer tag associated with the read call, which defaults to -1
+--
+-- Returns:
+--  * None
+local function socketCallback(data, tag)
+    --log.df("Received data: size=%s; tag=%s", #data, inspect(tag))
+    if tag == MESSAGE_SIZE then
+        --------------------------------------------------------------------------------
+        -- Each message starts with an integer value indicating the number of bytes.
+        --------------------------------------------------------------------------------
+        local messageSize = byteStringToNumber(data, 1, 4)
+        if mod._socket then
+            mod._socket:read(messageSize, MESSAGE_BODY)
+        else
+            log.ef("Tangent: The Socket doesn't exist anymore.")
+        end
+    elseif tag == MESSAGE_BODY then
+        --------------------------------------------------------------------------------
+        -- We've read the rest of series of commands:
+        --------------------------------------------------------------------------------
+        processDataFromHub(data)
+
+        --------------------------------------------------------------------------------
+        -- Get set up for the next series of commands:
+        --------------------------------------------------------------------------------
+        if mod._socket then
+            mod._socket:read(4, MESSAGE_SIZE)
+        else
+            log.ef("Tangent: The Socket doesn't exist anymore.")
+        end
+    else
+        log.ef("Tangent: Unknown Tag or Data from Socket.")
+    end
+end
+
 --- hs.tangent.connect(applicationName, systemPath[, userPath]) -> boolean, errorMessage
 --- Function
 --- Connects to the Tangent Hub.
@@ -1742,34 +1778,7 @@ function mod.connect(applicationName, systemPath, userPath)
     --------------------------------------------------------------------------------
     mod._socket = socket.new()
     if mod._socket then
-        mod._socket:setCallback(function(data, tag)
-            -- log.df("Received data: size=%s; tag=%s", #data, inspect(tag))
-            if tag == MESSAGE_SIZE then
-                --------------------------------------------------------------------------------
-                -- Each message starts with an integer value indicating the number of bytes.
-                --------------------------------------------------------------------------------
-                local messageSize = byteStringToNumber(data, 1, 4)
-                timer.doAfter(mod.interval, function()
-                    if mod._socket then
-                        mod._socket:read(messageSize, MESSAGE_BODY)
-                    end
-                end)
-            elseif tag == MESSAGE_BODY then
-                --------------------------------------------------------------------------------
-                -- We've read the rest of series of commands:
-                --------------------------------------------------------------------------------
-                processDataFromHub(data)
-
-                --------------------------------------------------------------------------------
-                -- Get set up for the next series of commands:
-                --------------------------------------------------------------------------------
-                timer.doAfter(mod.interval, function()
-                    if mod._socket then
-                        mod._socket:read(4, MESSAGE_SIZE)
-                    end
-                end)
-            end
-        end)
+        mod._socket:setCallback(socketCallback)
         :connect(mod.ipAddress, mod.port, function()
             --------------------------------------------------------------------------------
             -- Trigger Callback when connected:
