@@ -330,7 +330,7 @@ void MIKMIDIPortReadCallback(const MIDIPacketList *pktList, void *readProcRefCon
 	// Get the first packet
 	MIDIPacket *packet = (MIDIPacket *)pktList->packet;
 	
-	for (int i = 0; i < pktList->numPackets; i++)
+	for (UInt32 i = 0; i < pktList->numPackets; i++)
 	{
 		// Ignore empty packets
 		if (packet->length == 0) {

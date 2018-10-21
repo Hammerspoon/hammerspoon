@@ -35,7 +35,7 @@ local basicPingCompletionFunction = function(self)
         internals[self].pingObject:setCallback(nil):stop()
         internals[self].pingObject = nil
         -- use pairs just in case we're missing a sequence number...
-        for k, v in pairs(internals[self].timeouts) do
+        for _, v in pairs(internals[self].timeouts) do
             if getmetatable(v) then v:stop() end
         end
         internals[self].timeouts = {}
@@ -45,7 +45,7 @@ end
 local basicPingSummary = function(self)
     local packets, results, transmitted, received = self:packets(), "", 0, 0
     local min, max, avg = math.huge, -math.huge, 0
-    for i, v in pairs(packets) do
+    for _, v in pairs(packets) do
         transmitted = transmitted + 1
         if v.recv then
             received = received + 1
@@ -297,7 +297,7 @@ pingObjectMT = {
 -- mimic traditional userdata metatable fields so this can be used from C if a need arises
     __name = USERDATA_TAG,
     __type = USERDATA_TAG,
-    __index = function(self, key)
+    __index = function(_, key)
         return pingObjectMT[key] or nil
     end,
     __tostring = function(self)
@@ -423,7 +423,7 @@ module.ping = function(server, ...)
         elseif (getmetatable(this) or {}).__call or type(this) == "function" then
             if not seenFn then
                 fn = this
-                seenfn = true
+                seenFn = true
             else
                 error("unexpected function argument", 2)
             end
@@ -518,7 +518,7 @@ debug.getregistry()[USERDATA_TAG] = pingObjectMT
 -- overriding it  with a new one if we need to for debugging purposes since the lack of a
 -- __newindex does not prevent assigning one to the module directly.
 setmetatable(module, {
-    __index = function(self, key)
+    __index = function(_, key)
         if key == "_defaultCallback" then
             return _defaultCallback
         elseif key == "_internals" then

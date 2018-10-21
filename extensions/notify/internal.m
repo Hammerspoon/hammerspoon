@@ -30,6 +30,7 @@ static int refTable = LUA_NOREF ;
 @interface NSUserNotification (NSUserNotificationPrivate)
 - (void)set_identityImage:(NSImage *)image;
 @property BOOL _identityImageHasBorder;
+@property BOOL _alwaysShowAlternateActionMenu; // See: https://stackoverflow.com/questions/33631218/show-nsusernotification-additionalactions-on-click
 @end
 
 static id <NSUserNotificationCenterDelegate>    old_delegate ;
@@ -39,6 +40,7 @@ typedef struct _notification_t {
     BOOL    delivered ;   // flag to indicate if notification has been delivered to the User Notification Center
     void*   note ;        // user notification object itself
     void*   gus ;         // globally unique identifier for use when verifying/recreating userdata
+    int     withdrawAfter; // Number of seconds after which to auto-withdraw the notification
 } notification_t ;
 
 @implementation ourNotificationManager
@@ -110,18 +112,23 @@ typedef struct _notification_t {
 }
 
 // Notification delivered to Notification Center
-- (void)userNotificationCenter:(NSUserNotificationCenter __unused *)center
+- (void)userNotificationCenter:(NSUserNotificationCenter *)center
         didDeliverNotification:(NSUserNotification *)notification {
 
     // NSlog(@"in didDeliverNotification") ;
 
-        NSString *fnTag = [notification.userInfo valueForKey:@"tag"] ;
+    NSString *fnTag = [notification.userInfo valueForKey:@"tag"] ;
 
-        if (fnTag) {
-            notification_t *thisNote = [self getOrCreateUserdata:notification] ;  // necessary in case of reload
-            thisNote->delivered = YES ;
-        } // not one of ours, and MJUserNotificationManager doesn't use this, so do nothing else
+    notification_t *thisNote = [self getOrCreateUserdata:notification] ;  // necessary in case of reload
+
+    if (fnTag) {
+        thisNote->delivered = YES ;
+    } // not one of ours, and MJUserNotificationManager doesn't use this, so do nothing else
+
+    if (thisNote->withdrawAfter > 0) {
+        [center performSelector:@selector(removeDeliveredNotification:) withObject:notification afterDelay:(NSTimeInterval)thisNote->withdrawAfter];
     }
+}
 
 // User clicked on notification...
 - (void)userNotificationCenter:(NSUserNotificationCenter *)center
@@ -314,6 +321,7 @@ static int notification_new(lua_State* L) {
 
     NSUserNotification* note = [[NSUserNotification alloc] init];
     note.userInfo            = noteInfoDict ;
+    note.hasActionButton     = NO;
 
     notification->delivered = NO ;
     notification->locked    = NO ;
@@ -858,6 +866,62 @@ static int notification_hasReplyButton(lua_State *L) {
     return 1;
 }
 
+/// hs.notify:alwaysShowAdditionalActions([state]) -> notificationObject | boolean
+/// Method
+/// Get or set whether an alert notification should always show an alternate action menu.
+///
+/// Parameters:
+///  * state - An optional boolean, default false, indicating whether the notification should always show an alternate action menu.
+///
+/// Returns:
+///  * The notification object, if an argument is present; otherwise the current value.
+///
+/// Note:
+///  * This method has no effect unless the user has set Hammerspoon notifications to `Alert` in the Notification Center pane of System Preferences.
+///  * [hs.notify:additionalActions](#additionalActions) must also be used for this method to have any effect.
+///  * **WARNING:** This method uses a private API. It could break at any time. Please file an issue if it does.
+static int notification_alwaysShowAdditionalActions(lua_State *L) {
+    [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
+    notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
+    if (lua_isnone(L, 2)) {
+        lua_pushboolean(L, ((__bridge NSUserNotification *) notification->note)._alwaysShowAlternateActionMenu);
+    } else if (!notification->locked) {
+        ((__bridge NSUserNotification *) notification->note)._alwaysShowAlternateActionMenu = (BOOL) lua_toboolean(L, 2);
+        lua_settop(L, 1) ;
+    } else {
+        return luaL_error(L, "notification has been dispatched and can no longer be modified") ;
+    }
+    return 1;
+}
+
+/// hs.notify:withdrawAfter([seconds]) -> notificationObject | number
+/// Method
+/// Get or set the number of seconds after which to automatically withdraw a notification
+///
+/// Paramters:
+///  * seconds - An optional number, default 5, of seconds after which to withdraw a notification. A value of 0 will not withdraw a notification automatically
+///
+/// Returns:
+///  * The notification object, if an argument is present; otherwise the current value.
+///
+/// Note:
+///  * While this setting applies to both Banner and Alert styles of notifications, it is functionally meaningless for Banner styles
+///  * A value of 0 will disable auto-withdrawal
+static int notification_withdrawAfter(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK];
+    notification_t *notification = luaL_checkudata(L, 1, USERDATA_TAG);
+    if (lua_isnone(L, 2)) {
+        lua_pushnumber(L, notification->withdrawAfter);
+    } else if (!notification->locked){
+        notification->withdrawAfter = lua_tonumber(L, 2);
+        lua_settop(L, 1);
+    } else {
+        return luaL_error(L, "notification has been dispatched and can no longer be modified");
+    }
+    return 1;
+}
+
 /// hs.notify:responsePlaceholder([string]) -> notificationObject | string
 /// Method
 /// Set a placeholder string for alert type notifications with a reply button.
@@ -1211,6 +1275,8 @@ static const luaL_Reg userdata_metaLib[] = {
     {"additionalActions",           notification_additionalActions},
     {"response",                    notification_response},
     {"additionalActivationAction",  notification_additionalActivationAction},
+    {"alwaysShowAdditionalActions", notification_alwaysShowAdditionalActions},
+    {"withdrawAfter",               notification_withdrawAfter},
 
 // Maybe add in the future, if there is interest...
 //

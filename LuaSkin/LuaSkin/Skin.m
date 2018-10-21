@@ -157,12 +157,12 @@ NSString *specMaskToString(int spec) {
 
 - (void)createLuaState {
     NSLog(@"createLuaState");
-    assert(self.L == NULL);
+    NSAssert((self.L == NULL), @"createLuaState called on a live Lua environment", nil);
     self.L = luaL_newstate();
     luaL_openlibs(self.L);
 
     NSString *luaSkinLua = [[NSBundle bundleForClass:[self class]] pathForResource:@"luaskin" ofType:@"lua"];
-    assert(luaSkinLua != nil);
+    NSAssert((luaSkinLua != nil), @"createLuaState was unable to find luaskin.lua. Your installation may be damaged");
 
     int loadresult = luaL_loadfile(self.L, luaSkinLua.fileSystemRepresentation);
     if (loadresult != 0) {
@@ -179,7 +179,7 @@ NSString *specMaskToString(int spec) {
 
 - (void)destroyLuaState {
     NSLog(@"destroyLuaState");
-    assert(self.L != NULL);
+    NSAssert((self.L != NULL), @"destroyLuaState called with no Lua environment", nil);
     if (self.L) {
         [self.retainedObjectsRefTableMappings enumerateKeysAndObjectsUsingBlock:^(NSNumber *refTableN, NSMutableDictionary *objectMappings, __unused BOOL *stop) {
             if ([refTableN isKindOfClass:[NSNumber class]] && [objectMappings isKindOfClass:[NSDictionary class]]) {
@@ -205,7 +205,7 @@ NSString *specMaskToString(int spec) {
 
 - (void)resetLuaState {
     NSLog(@"resetLuaState");
-    assert(self.L != NULL);
+    NSAssert((self.L != NULL), @"resetLuaState called with no Lua environment", nil);
     [self destroyLuaState];
     [self createLuaState];
 }
@@ -264,12 +264,12 @@ NSString *specMaskToString(int spec) {
 
 - (int)registerLibrary:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions {
     // Ensure we're not given a null function table
-    assert(functions != NULL);
+    NSAssert(functions != NULL, @"functions can not be NULL", nil);
 
     // Ensure that none of the functions we've been given are null
     const luaL_Reg *l = functions;
     for (; l->name != NULL; l++) {
-        assert(l->func);
+        NSAssert(l->func != NULL, @"registerLibrary given a null function pointer for %s", l->name);
     }
 
     // Ensure our Lua stack is large enough for the number of items being pushed
@@ -292,9 +292,9 @@ NSString *specMaskToString(int spec) {
 
 - (int)registerLibraryWithObject:(const char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions objectFunctions:(const luaL_Reg *)objectFunctions {
 
-    assert(libraryName);
-    assert(functions);
-    assert(objectFunctions);
+    NSAssert(libraryName != NULL, @"libraryName can not be NULL", nil);
+    NSAssert(functions != NULL, @"functions can not be NULL (%s)", libraryName);
+    NSAssert(objectFunctions != NULL, @"objectFunctions can not be NULL (%s)", libraryName);
 
     [self registerObject:libraryName objectFunctions:objectFunctions];
 
@@ -304,16 +304,13 @@ NSString *specMaskToString(int spec) {
 }
 
 - (void)registerObject:(const char *)objectName objectFunctions:(const luaL_Reg *)objectFunctions {
-    assert(objectName);
-    assert(objectFunctions);
+    NSAssert(objectName != NULL, @"objectName can not be NULL", nil);
+    NSAssert(objectFunctions != NULL, @"objectFunctions can not be NULL (%s)", objectName);
 
     // Ensure that none of the functions we've been given are null
     const luaL_Reg *l = objectFunctions;
     for (; l->name != NULL; l++) {
-        if (!l->func) {
-            [self logError:[NSString stringWithFormat:@"%s:%s is a NULL pointer", objectName, l->name]];
-            abort();
-        }
+        NSAssert(l->func != NULL, @"registerObject given a null function pointer for %s:%s", objectName, l->name);
     }
 
     // Ensure our Lua stack is large enough for the number of items being pushed
@@ -334,7 +331,7 @@ NSString *specMaskToString(int spec) {
 }
 
 - (int)luaRef:(int)refTable {
-    assert(refTable != LUA_NOREF && refTable != LUA_REFNIL);
+    NSAssert((refTable != LUA_NOREF && refTable != LUA_REFNIL), @"ERROR: LuaSkin::luaRef was passed a NOREF/REFNIL refTable", nil);
 
     if (lua_isnil(self.L, -1)) {
         return LUA_REFNIL;
@@ -366,7 +363,7 @@ NSString *specMaskToString(int spec) {
 }
 
 - (int)luaUnref:(int)refTable ref:(int)ref {
-    assert(refTable != LUA_NOREF && refTable != LUA_REFNIL);
+    NSAssert((refTable != LUA_NOREF && refTable != LUA_REFNIL), @"ERROR: LuaSkin::luaUnref was passed a NOREF/REFNIL refTable", nil);
 
     // Ensure our Lua stack is large enough for the number of items being pushed
     [self growStack:1 withMessage:"luaUnref"];
@@ -385,8 +382,8 @@ NSString *specMaskToString(int spec) {
 }
 
 - (int)pushLuaRef:(int)refTable ref:(int)ref {
-    assert(refTable != LUA_NOREF && refTable != LUA_REFNIL);
-    assert(ref != LUA_NOREF && ref != LUA_REFNIL);
+    NSAssert((refTable != LUA_NOREF && refTable != LUA_REFNIL), @"ERROR: LuaSkin::pushLuaRef was passed a NOREF/REFNIL refTable", nil);
+    NSAssert((ref != LUA_NOREF && ref != LUA_REFNIL), @"ERROR: LuaSkin::pushLuaRef was passed a NOREF/REFNIL ref", nil);
 
     // Ensure our Lua stack is large enough for the number of items being pushed
     [self growStack:2 withMessage:"pushLuaRef"];
@@ -589,24 +586,31 @@ nextarg:
     return results ;
 }
 
-- (BOOL)registerPushNSHelper:(pushNSHelperFunction)helperFN forClass:(const char *)className {
+- (BOOL)registerPushNSHelper:(pushNSHelperFunction)helperFN forClass:(const char *)cClassName {
     BOOL allGood = NO ;
 // this hackery assumes that this method is only called from within the luaopen_* function of a module and
 // attempts to compensate for a wrapper to "require"... I doubt anyone is actually using it anymore.
     int level = (int)[[NSUserDefaults standardUserDefaults] integerForKey:@"HSLuaSkinRegisterRequireLevel"];
     if (level == 0) level = 3 ;
 
+    NSString *className = nil;
+    @try {
+        className = @(cClassName);
+    } @catch (NSException __unused *exception) {
+        className = nil;
+    }
+
     if (className && helperFN) {
-        if (self.registeredNSHelperFunctions[@(className)]) {
+        if (self.registeredNSHelperFunctions[className]) {
             [self logAtLevel:LS_LOG_WARN
                  withMessage:[NSString stringWithFormat:@"registerPushNSHelper:forClass:%s already defined at %@",
-                                                        className,
-                                                        self.registeredNSHelperLocations[@(className)]]] ;
+                                                        cClassName,
+                                                        self.registeredNSHelperLocations[className]]] ;
         } else {
             luaL_where(self.L, level) ;
             NSString *locationString = @(lua_tostring(self.L, -1)) ;
-            self.registeredNSHelperLocations[@(className)] = locationString;
-            self.registeredNSHelperFunctions[@(className)] = [NSValue valueWithPointer:(void *)helperFN];
+            self.registeredNSHelperLocations[className] = locationString;
+            self.registeredNSHelperFunctions[className] = [NSValue valueWithPointer:(void *)helperFN];
             lua_pop(self.L, 1) ;
             allGood = YES ;
         }
@@ -687,24 +691,31 @@ nextarg:
     return nil ;
 }
 
-- (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(const char *)className {
+- (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(const char *)cClassName {
     BOOL allGood = NO ;
 // this hackery assumes that this method is only called from within the luaopen_* function of a module and
 // attempts to compensate for a wrapper to "require"... I doubt anyone is actually using it anymore.
     int level = (int)[[NSUserDefaults standardUserDefaults] integerForKey:@"HSLuaSkinRegisterRequireLevel"];
     if (level == 0) level = 3 ;
 
+    NSString *className = nil;
+    @try {
+        className = @(cClassName);
+    } @catch (NSException __unused *exception) {
+        className = nil;
+    }
+
     if (className && helperFN) {
-        if (self.registeredLuaObjectHelperFunctions[@(className)]) {
+        if (self.registeredLuaObjectHelperFunctions[className]) {
             [self logAtLevel:LS_LOG_WARN
                  withMessage:[NSString stringWithFormat:@"registerLuaObjectHelper:forClass:%s already defined at %@",
-                                                        className,
-                                                        self.registeredLuaObjectHelperFunctions[@(className)]]] ;
+                                                        cClassName,
+                                                        self.registeredLuaObjectHelperFunctions[className]]] ;
         } else {
             luaL_where(self.L, level) ;
             NSString *locationString = @(lua_tostring(self.L, -1)) ;
-            self.registeredLuaObjectHelperLocations[@(className)] = locationString;
-            self.registeredLuaObjectHelperFunctions[@(className)] = [NSValue valueWithPointer:(void *)helperFN];
+            self.registeredLuaObjectHelperLocations[className] = locationString;
+            self.registeredLuaObjectHelperFunctions[className] = [NSValue valueWithPointer:(void *)helperFN];
             lua_pop(self.L, 1) ;
             allGood = YES ;
         }
@@ -715,26 +726,33 @@ nextarg:
     return allGood ;
 }
 
-- (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(const char *)className withUserdataMapping:(const char *)userdataTag {
+- (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(const char *)className withUserdataMapping:(const char *)cUserdataTag {
     BOOL allGood = [self registerLuaObjectHelper:helperFN forClass:className];
+    NSString *userdataTag = @(cUserdataTag);
+
     if (allGood)
-        self.registeredLuaObjectHelperUserdataMappings[@(userdataTag)] = @(className);
+        self.registeredLuaObjectHelperUserdataMappings[userdataTag] = @(className);
     return allGood ;
 }
 
-- (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(const char *)className withUserdataMapping:(const char *)userdataTag andTableMapping:(const char *)tableTag {
+- (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(const char *)className withUserdataMapping:(const char *)cUserdataTag andTableMapping:(const char *)cTableTag {
     BOOL allGood = [self registerLuaObjectHelper:helperFN forClass:className];
+    NSString *userdataTag = @(cUserdataTag);
+    NSString *tableTag = @(cTableTag);
+
     if (allGood) {
-        self.registeredLuaObjectHelperUserdataMappings[@(userdataTag)] = @(className);
-        self.registeredLuaObjectHelperTableMappings[@(tableTag)] = @(className);
+        self.registeredLuaObjectHelperUserdataMappings[userdataTag] = @(className);
+        self.registeredLuaObjectHelperTableMappings[tableTag] = @(className);
     }
     return allGood ;
 }
 
-- (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(const char *)className withTableMapping:(const char *)tableTag {
+- (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(const char *)className withTableMapping:(const char *)cTableTag {
     BOOL allGood = [self registerLuaObjectHelper:helperFN forClass:className];
+    NSString *tableTag = @(cTableTag);
+
     if (allGood)
-        self.registeredLuaObjectHelperTableMappings[@(tableTag)] = @(className);
+        self.registeredLuaObjectHelperTableMappings[tableTag] = @(className);
     return allGood ;
 }
 
@@ -1187,7 +1205,8 @@ nextarg:
 }
 
 - (id)toNSObjectAtIndex:(int)idx withOptions:(NSUInteger)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
-    const char *userdataTag = nil;
+    const char *cUserdataTag = nil;
+    NSString *userdataTag = nil;
 
     // Ensure our Lua stack is large enough for the number of items being pushed
     [self growStack:2 withMessage:"toNSObjectAtIndex"];
@@ -1250,18 +1269,19 @@ nextarg:
             lua_pushcfunction(self.L, pushUserdataType) ;
             lua_pushvalue(self.L, idx) ;
             if ((lua_pcall(self.L, 1, 1, 0) == LUA_OK) && (lua_type(self.L, -1) == LUA_TSTRING)) {
-               userdataTag = lua_tostring(self.L, -1);
+               cUserdataTag = lua_tostring(self.L, -1);
             }
             // if the call errors b/c of missing __init in userdata, the error is on the stack, otherwise our result is.
             // In either case clean up after ourself.
             lua_pop(self.L, 1) ;
 
-            if (userdataTag) {
-                NSString *classMapping = self.registeredLuaObjectHelperUserdataMappings[@(userdataTag)];
+            userdataTag = @(cUserdataTag);
+            if (cUserdataTag) {
+                NSString *classMapping = self.registeredLuaObjectHelperUserdataMappings[userdataTag];
                 if (classMapping) {
                     return [self luaObjectAtIndex:idx toClass:(const char *)[classMapping UTF8String]];
                 } else {
-                    [self logBreadcrumb:[NSString stringWithFormat:@"unrecognized userdata type %s", userdataTag]] ;
+                    [self logBreadcrumb:[NSString stringWithFormat:@"unrecognized userdata type %s", cUserdataTag]] ;
                 }
             }
             // we didn't handle the userdata, so fall through
@@ -1283,31 +1303,32 @@ nextarg:
 
 // Note, options is currently unused in this category method, but it's included here in case a
 // reason for an NSValue related option comes up
-- (id)tableAtIndex:(int)idx withLabel:(const char *)tableTag withOptions:(__unused NSUInteger)options {
+- (id)tableAtIndex:(int)idx withLabel:(const char *)cTableTag withOptions:(__unused NSUInteger)options {
     id result ;
+    NSString *tableTag = @(cTableTag);
 
     // Ensure our Lua stack is large enough for the number of items being pushed
     [self growStack:2 withMessage:"tableAtIndex"];
 
     idx = lua_absindex(self.L, idx) ;
-    NSString *classMapping = self.registeredLuaObjectHelperTableMappings[@(tableTag)];
+    NSString *classMapping = self.registeredLuaObjectHelperTableMappings[tableTag];
     if ((classMapping) && self.registeredLuaObjectHelperFunctions[classMapping]) {
         luaObjectHelperFunction theFunc = (luaObjectHelperFunction)[self.registeredLuaObjectHelperFunctions[classMapping] pointerValue] ;
         result = theFunc(self.L, idx) ;
     } else { // check builtins (NSValue)
-        if (strcmp(tableTag, "NSPoint")==0) {
+        if (strcmp(cTableTag, "NSPoint")==0) {
             result = [NSValue valueWithPoint:[self tableToPointAtIndex:idx]] ;
-        } else if (strcmp(tableTag, "NSSize")==0) {
+        } else if (strcmp(cTableTag, "NSSize")==0) {
             result = [NSValue valueWithSize:[self tableToSizeAtIndex:idx]] ;
-        } else if (strcmp(tableTag, "NSRect")==0) {
+        } else if (strcmp(cTableTag, "NSRect")==0) {
             result = [NSValue valueWithRect:[self tableToRectAtIndex:idx]] ;
-        } else if (strcmp(tableTag, "NSRange")==0) {
+        } else if (strcmp(cTableTag, "NSRange")==0) {
             NSRange holder ;
             holder.location = (lua_getfield(self.L, idx, "location") == LUA_TNUMBER) ? (NSUInteger)lua_tointeger(self.L, -1) : 0 ;
             holder.length   = (lua_getfield(self.L, idx, "length")   == LUA_TNUMBER) ? (NSUInteger)lua_tointeger(self.L, -1) : 0 ;
             lua_pop(self.L, 2) ;
             result = [NSValue valueWithRange:holder] ;
-        } else if (strcmp(tableTag, "NSValue")==0) {
+        } else if (strcmp(cTableTag, "NSValue")==0) {
             NSData   *rawData ;
             NSString *objCType ;
             if (lua_getfield(self.L, idx, "data") == LUA_TSTRING) {

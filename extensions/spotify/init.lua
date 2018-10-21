@@ -194,13 +194,13 @@ end
 ---  * A boolean value indicating whether Spotify is currently playing a track, or nil if an error occurred (unknown player state). Also returns false if the application is not running
 function spotify.isPlaying()
   -- We check separately to avoid starting the application if it's not running
-  if not hs.spotify.isRunning() then
+  if not spotify.isRunning() then
     return false
   end
-  state = hs.spotify.getPlaybackState()
-  if state == hs.spotify.state_playing then
+  local state = spotify.getPlaybackState()
+  if state == spotify.state_playing then
     return true
-  elseif state == hs.spotify.state_paused or state == hs.spotify.state_stopped then
+  elseif state == spotify.state_paused or state == spotify.state_stopped then
     return false
   else  -- unknown state
     return nil

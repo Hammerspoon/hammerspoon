@@ -147,7 +147,7 @@ objectMT.windowStyle = function(self, ...)
             end
         elseif type(arg[1]) == "table" then
             theMask = 0
-            for i,v in ipairs(arg[1]) do
+            for _,v in ipairs(arg[1]) do
                 if module.windowMasks[v] then
                     theMask = theMask | module.windowMasks[v]
                 else
@@ -201,11 +201,11 @@ end
 ---  * This method is automatically called during garbage collection, notably during a Hammerspoon termination or reload, with a fade time of 0.
 objectMT.delete = function(self, propagate, delay)
     if type(propagate) == "number" then
-        propagte, delay = nil, propagate
+        propagate, delay = nil, propagate
     end
     delay = delay or 0
     if propagate then
-        for i,v in ipairs(self:children()) do
+        for _,v in ipairs(self:children()) do
             objectMT.delete(v, propagate, delay)
         end
     end
@@ -331,7 +331,7 @@ objectMT.behaviorAsLabels = function(obj, ...)
         end})
     elseif args.n == 1 and type(args[1]) == "table" then
         local newBehavior = 0
-        for i,v in ipairs(args[1]) do
+        for _,v in ipairs(args[1]) do
             local flag = tonumber(v) or drawing.windowBehaviors[v]
             if flag then newBehavior = newBehavior | flag end
         end
@@ -353,13 +353,13 @@ end
 --- Returns:
 ---  * a placeholder object
 objectMT.asHSDrawing = setmetatable({}, {
-    __call = function(self, obj, ...)
+    __call = function(_, obj)
         if not deprecatedWarningsGiven["asHSDrawing"] then
             deprecatedWarningsGiven["asHSDrawing"] = true
             hs.luaSkinLog.wf("%s:asHSDrawing() is deprecated and should not be used.", USERDATA_TAG)
         end
         return setmetatable({}, {
-            __index = function(self, func)
+            __index = function(_, func)
                 if objectMT[func] then
                     deprecatedWarningCheck("asHSDrawing():" .. func, func)
                     return function (_, ...) return objectMT[func](obj, ...) end

@@ -75,7 +75,7 @@ function mjomatic.go(cfg)
     -- FIXME move gsub stuff to separate function (iterator wrapper around io.lines?)
     --       then do parsing in two loops so we don't need to muck about with target
     --       and do some parsing inline
-    for i,l in ipairs(cfg) do
+    for _,l in ipairs(cfg) do
         l = l:gsub('#.*','')        -- strip comments
         l = l:gsub('%s*$','')       -- strip trailing whitespace
         -- alert.show(l)
@@ -101,7 +101,7 @@ function mjomatic.go(cfg)
     local windows = {}
     local titlemap = {}
 
-    for i, v in ipairs(map) do
+    for _, v in ipairs(map) do
         local key = v:sub(1,1)
         local title = v:sub(3)
         -- alert.show(string.format('%s=%s', key, title))
@@ -132,9 +132,9 @@ function mjomatic.go(cfg)
 
     -- alert.show('grid h='..gridh..' w='..gridw)
     -- alert.show('windows:')
-    for char, window in pairs(windows) do
+    --for char, window in pairs(windows) do
         -- alert.show(string.format('window %s: top left %d,%d bottom right %d,%d', char, window.r1, window.c1, window.r2, window.c2))
-    end
+    --end
 
     for title, key in pairs(titlemap) do
         -- alert.show(string.format("title %s key %s", title, key))

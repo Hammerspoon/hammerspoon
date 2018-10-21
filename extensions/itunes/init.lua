@@ -197,7 +197,7 @@ function itunes.isPlaying()
    if not hs.itunes.isRunning() then
       return false
    end
-   state = hs.itunes.getPlaybackState()
+   local state = hs.itunes.getPlaybackState()
    if state == hs.itunes.state_playing then
       return true
    elseif state == hs.itunes.state_paused or state == hs.itunes.state_stopped then

@@ -327,6 +327,11 @@ extern unsigned long long const kDDDefaultLogFilesDiskQuota;
 - (void)didLogMessage NS_REQUIRES_SUPER;
 
 /**
+ *  Writes all in-memory log data to the permanent storage. Call super before your implementation.
+ */
+- (void)flush NS_REQUIRES_SUPER;
+
+/**
  *  Called when the logger checks archive or not current log file. 
  *  Override this method to exdend standart behavior. By default returns NO.
  */

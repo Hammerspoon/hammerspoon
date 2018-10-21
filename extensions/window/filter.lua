@@ -69,7 +69,7 @@
 -- * window(un)maximized could be implemented, or merged into window(un)fullscreened (but currently isn't either)
 
 local pairs,ipairs,type,smatch,sformat,ssub = pairs,ipairs,type,string.match,string.format,string.sub
-local next,tsort,tinsert,tremove,setmetatable,pcall = next,table.sort,table.insert,table.remove,setmetatable,pcall
+local next,tsort,setmetatable,pcall = next,table.sort,setmetatable,pcall
 local timer,geometry,screen = require'hs.timer',require'hs.geometry',require'hs.screen'
 local application,window = require'hs.application',hs.window
 local appwatcher,uiwatcher = application.watcher,require'hs.uielement'.watcher
@@ -115,6 +115,7 @@ do
     'universalaccessd','sharingd','Safari Networking', 'Spotlight Networking', 'iTunes Helper','Safari Web Content',
     'App Store Web Content', 'Safari Database Storage',
     'Google Chrome Helper','Spotify Helper',
+    'Todoist Networking', 'Safari Storage', 'Todoist Database Storage', 'AAM Updates Notifier', 'Slack Helper',
   --  'Little Snitch Agent','Little Snitch Network Monitor', -- depends on security settings in Little Snitch
   }
 
@@ -266,14 +267,14 @@ local function isWindowAllowed(self,win)
   return true
 end
 
-function WF:isWindowAllowed(window)
-  if not window then return end
-  local id=window.id and window:id()
+function WF:isWindowAllowed(theWindow)
+  if not theWindow then return end
+  local id=theWindow.id and theWindow:id()
   --this filters out non-windows, as well as AXScrollArea from Finder (i.e. the desktop)
   --which allegedly is a window, but without id
   if not id then return end
   if activeInstances[self] then return self.windows[id] and true or false end
-  local appname,win=window:application():name()
+  local appname,win=theWindow:application():name()
   if apps[appname] then
     for wid,w in pairs(apps[appname].windows) do
       if wid==id then win=w break end
@@ -282,13 +283,13 @@ function WF:isWindowAllowed(window)
   if not win then
     --    hs.assert(not global.watcher,'window not being tracked')
     self.log.d('window is not being tracked')
-    win=Window.new(window,id) --fixme
+    win=Window.new(theWindow,id) --fixme
     win.app={} win.app.name=appname
     if self.trackSpacesFilters then
       win.isInCurrentSpace=false
       if not win.isVisible then win.isInCurrentSpace=true
       else
-        local allwins=window:application():visibleWindows()
+        local allwins=theWindow:application():visibleWindows()
         for _,w in ipairs(allwins) do
           if w:id()==id then win.isInCurrentSpace=true break end
         end
@@ -299,7 +300,7 @@ function WF:isWindowAllowed(window)
       local frontapp = application.frontmostApplication()
       local frontwin = frontapp and frontapp:focusedWindow()
       if frontwin and frontwin:id()==id then global.focused=win else global.focused=nil end
-      if frontapp:pid()==window:application():pid() then global.active=win.app else global.active=nil end
+      if frontapp:pid()==theWindow:application():pid() then global.active=win.app else global.active=nil end
     end
   end
   return isWindowAllowed(self,win)
@@ -489,7 +490,7 @@ local function getListOfRects(l)
   if type(l)~='table' then return end
   local r={}
   for _,v in ipairs(l) do
-    local ok,res=pcall(geometry.new,v)
+    ok,res=pcall(geometry.new,v)
     if ok and geometry.type(res)=='rect' then r[#r+1]=v else return end
   end
   return r
@@ -701,7 +702,7 @@ function windowfilter.new(fn,logname,loglevel,isCopy)
   if type(fn)=='function' then
     o.log.i('new',o,'- custom function')
     o.isAppAllowed = function()return true end
-    o.isWindowAllowed = function(self,w) return fn(w) end
+    o.isWindowAllowed = function(_,w) return fn(w) end
     o.customFilter=true
     return o
   elseif type(fn)=='string' then fn={fn}
@@ -945,7 +946,7 @@ local function emit(win,wf,event,logged)
   return logged
 end
 local noWindow={app={}} -- emit nil,nil to windowsChanged if no allowed windows
-function Window:filterEmitEvent(wf,event,inserted,logged,notified)
+function Window:filterEmitEvent(wf,event,_,logged,notified)
   local filteringStatusChanged=self:setFilter(wf,event==windowfilter.windowDestroyed)
   local isAllowed=wf.windows[self]
   if filteringStatusChanged then
@@ -1148,7 +1149,7 @@ function Window:doMoved()
   self.frame=self.window:frame() self.screen=self.window:screen():id()
   self.movedDelayed=nil
   local fs = self.window:isFullScreen()
-  local oldfs = self.isFullscreen or false
+  --local oldfs = self.isFullscreen or false
   if self.isFullscreen~=fs then
     self.isFullscreen=fs
     self:emitEvent(fs and windowfilter.windowFullscreened or windowfilter.windowUnfullscreened,true)
@@ -1270,7 +1271,7 @@ function App:activated()
   log.vf('app %s activated',self.name)
   global.active=self
   for wf in pairs(applicationActiveInstances) do
-    for id,win in pairs(self.windows) do
+    for _,win in pairs(self.windows) do
       win:filterEmitEvent(wf,nullEvent) -- force allowing all app's windows if filter's activeApplication=true
     end
   end
@@ -1285,7 +1286,7 @@ function App:deactivated(inserted) --as per comment above, only THIS app should 
   log.vf('app %s deactivated',self.name)
   global.active=nil
   for wf in pairs(applicationActiveInstances) do
-    for id,win in pairs(self.windows) do
+    for _,win in pairs(self.windows) do
       win:filterEmitEvent(wf,nullEvent) -- force rejecting all app's windows if filter's activeApplication=true
       win:emitEndChain()
     end
@@ -1316,16 +1317,16 @@ end
 function App:hidden()
   if self.isHidden then return log.df('app %s already hidden, skipping',self.name) end
   --  self:deactivated(true)
-  for id,window in pairs(self.windows) do
-    window:hidden()
+  for _,win in pairs(self.windows) do
+    win:hidden()
   end
   log.vf('app %s hidden',self.name)
   self.isHidden=true
 end
 function App:unhidden()
   if not self.isHidden then return log.df('app %s already unhidden, skipping',self.name) end
-  for id,window in pairs(self.windows) do
-    window:unhidden()
+  for _,win in pairs(self.windows) do
+    win:unhidden()
   end
   log.vf('app %s unhidden',self.name)
   self.isHidden=false
@@ -1334,35 +1335,35 @@ end
 function App:destroyed()
   log.f('app %s deregistered',self.name)
   self.watcher:stop()
-  for id,window in pairs(self.windows) do
-    window:destroyed()
+  for _,win in pairs(self.windows) do
+    win:destroyed()
   end
   apps[self.name]=nil
 end
 
-local function windowEvent(win,event,_,appname,retry)
+local function windowEvent(win,event,_,appname)
   local id=win and win.id and win:id()
   local app=apps[appname]
   if not id and app then
-    for _,window in pairs(app.windows) do
-      if window.window==win then id=window.id break end
+    for _,v in pairs(app.windows) do
+      if v.window==win then id=v.id break end
     end
   end
   log.vf('%s (%s) <= %s (window event)',appname,id or '?',event)
-  if not id then return log.ef('%s: %s cannot be processed',appname,event) end
-  if not app then return log.ef('app %s is not registered!',appname) end
-  local window = app.windows[id]
-  if not window then return log.ef('%s (&d) is not registered!',appname,id) end
+  if not id then return log.df('%s: %s cannot be processed',appname,event) end
+  if not app then return log.df('app %s is not registered!',appname) end
+  local w = app.windows[id]
+  if not w then return log.df('%s (&d) is not registered!',appname,id) end
   if event==uiwatcher.elementDestroyed then
-    window:destroyed()
+    w:destroyed()
   elseif event==uiwatcher.windowMoved or event==uiwatcher.windowResized then
-    window:moved()
+    w:moved()
   elseif event==uiwatcher.windowMinimized then
-    window:minimized()
+    w:minimized()
   elseif event==uiwatcher.windowUnminimized then
-    window:unminimized()
+    w:unminimized()
   elseif event==uiwatcher.titleChanged then
-    window:titleChanged()
+    w:titleChanged()
   end
 end
 
@@ -1388,7 +1389,7 @@ appWindowEvent=function(win,event,_,appname,retry)
     local watcher=win:newWatcher(windowEvent,appname)
     if not watcher._element.pid then
       log.wf('%s: %s has no watcher pid',appname,role or (win.role and win:role()))
-      if retry>MAX_RETRIES then log.ef('%s: %s has no watcher pid',appname,win.subrole and win:subrole() or (win.role and win:role()) or 'window')
+      if retry>MAX_RETRIES then log.df('%s: %s has no watcher pid',appname,win.subrole and win:subrole() or (win.role and win:role()) or 'window')
       else
         windowWatcherDelayed[win]=timer.doAfter(retry*RETRY_DELAY,function()appWindowEvent(win,event,_,appname,retry)end) end
       return
@@ -1398,7 +1399,7 @@ appWindowEvent=function(win,event,_,appname,retry)
       ,uiwatcher.windowMinimized,uiwatcher.windowUnminimized,uiwatcher.titleChanged})
   elseif event==uiwatcher.focusedWindowChanged then
     local app=apps[appname]
-    if not app then return log.ef('app %s is not registered!',appname) end
+    if not app then return log.df('app %s is not registered!',appname) end
     app:focusChanged(id,win)
   end
 end
@@ -1442,7 +1443,7 @@ local function startAppWatcher(app,appname,retry,nologging)
 end
 
 
-local function appEvent(appname,event,app,retry)
+local function appEvent(appname,event,app)
   local sevent={[0]='launching','launched','terminated','hidden','unhidden','activated','deactivated'}
   log.vf('%s <= %s (app event)',appname,sevent[event])
   if not appname then return end
@@ -1463,7 +1464,7 @@ local function appEvent(appname,event,app,retry)
     return
     --]]
   elseif event==appwatcher.terminated then pendingApps[appname]=nil end
-  if not appo then return log.ef('app %s is not registered!',appname) end
+  if not appo then return log.df('app %s is not registered!',appname) end
   if event==appwatcher.terminated then return appo:destroyed()
   elseif event==appwatcher.deactivated then return appo:deactivated()
   elseif event==appwatcher.hidden then return appo:hidden()
@@ -1566,8 +1567,8 @@ local function stopGlobalWatcher()
 
   local totalApps = 0
   for _,app in pairs(apps) do
-    for _,window in pairs(app.windows) do
-      window.watcher:stop()
+    for _,w in pairs(app.windows) do
+      w.watcher:stop()
     end
     app.watcher:stop()
     totalApps=totalApps+1
@@ -1697,10 +1698,6 @@ local function unsubscribe(self,event,fn)
   end
 end
 
-local function unsubscribeCallback(self,fn)
-  for event in pairs(events) do unsubscribe(self,event,fn) end
-end
-
 local function unsubscribeEvent(self,event)
   if not events[event] then error('invalid event: '..event,3) end
   if self.events[event] then self.log.df('removed all callbacks for event %s',event) end
@@ -1712,8 +1709,8 @@ refreshWindows=function(wf)
   -- whenever a wf is edited, refresh the windows to reflect the new filter
   wf.log.v('refreshing windows')
   for _,app in pairs(apps) do
-    for _,window in pairs(app.windows) do
-      window:setFilter(wf)
+    for _,w in pairs(app.windows) do
+      w:setFilter(wf)
     end
   end
   return wf
@@ -1905,7 +1902,7 @@ function WF:subscribe(event,fn,immediate)
   if fn and type(fn)~='table' then error('fn must be a function or list of functions',2) end
   local map,k,v={},next(event)
   if type(k)=='string' then
-    if type(v)=='function' then for ev,fn in pairs(event) do map[ev]={fn} end
+    if type(v)=='function' then for ev,f in pairs(event) do map[ev]={f} end
     elseif type(v)=='table' and type(v[1])=='function' then map=event
     else error('invalid map format, values must be functions or lists of functions',2) end
   else
@@ -1936,17 +1933,17 @@ function WF:subscribe(event,fn,immediate)
           or (ev==windowfilter.windowNotOnScreen and (not win.isVisible or not win.isInCurrentSpace))
           or (ev==windowfilter.windowFocused and global.focused==win)
           or (ev==windowfilter.windowUnfocused and global.focused~=win)
-        then for _,fn in ipairs(fns) do
-          fn(win.window,win.app.name,ev) end
+        then for _,f in ipairs(fns) do
+          f(win.window,win.app.name,ev) end
         end
       end
       local win=windows[1]
       if win then
         if ev==windowfilter.hasWindow then
-          for _,fn in ipairs(fns) do fn(win.window,win.app.name,ev) end
+          for _,f in ipairs(fns) do f(win.window,win.app.name,ev) end
         end
         if ev==windowfilter.windowsChanged then
-          for _,fn in ipairs(fns) do fn(win.window,win.app.name,ev) end
+          for _,f in ipairs(fns) do f(win.window,win.app.name,ev) end
         end
       end
     end
@@ -1972,24 +1969,24 @@ end
 ---  * If calling this on the default (or any other shared use) windowfilter, do not pass events, as that would remove
 ---    *all* the callbacks for the events including ones subscribed elsewhere that you might not be aware of. You should
 ---    instead keep references to your functions and pass in those.
-function WF:unsubscribe(events,fns)
-  if not events and not fns then error('you must pass at least one of event or fn',2) end
-  local tevents,tfns=type(events),type(fns)
-  if events==nil then tevents=nil end
+function WF:unsubscribe(e,fns)
+  if not e and not fns then error('you must pass at least one of event or fn',2) end
+  local tevents,tfns=type(e),type(fns)
+  if e==nil then tevents=nil end
   if fns==nil then tfns=nil end
   if tfns=='function' then fns={fns} tfns='lfn' end --?+fn
-  if tevents=='function' then fns={events} tfns='lfn' tevents=nil --omitted+fn
-  elseif tevents=='string' then events={events} tevents='ls' end --event+?
+  if tevents=='function' then fns={e} tfns='lfn' tevents=nil --omitted+fn
+  elseif tevents=='string' then e={e} tevents='ls' end --event+?
   if tevents=='table' then
-    local k,v=next(events)
-    if type(k)=='function' and v==true then fns=events tfns='sfn' tevents=nil --omitted+set of fns
+    local k,v=next(e)
+    if type(k)=='function' and v==true then fns=e tfns='sfn' tevents=nil --omitted+set of fns
     elseif type(k)=='string' then --set of events, or map
       if type(v)=='table' and type(v[1])=='functions' then tevents='mapl' tfns=nil --map of fnlist+ignored
       elseif type(v)=='function' then tevents='map' tfns=nil --map+ignored
       elseif v==true then tevents='ss' --set of events+?
       else error('invalid event parameter',2) end
     elseif type(k)=='number' then --list of events or functions
-      if type(v)=='function' then fns=events tfns='lfn' tevents=nil --omitted+list of fns
+      if type(v)=='function' then fns=e tfns='lfn' tevents=nil --omitted+list of fns
       elseif type(v)=='string' then tevents='ls' --list of events+?
       else error('invalid event parameter',2) end
     else error('invalid event parameter',2) end
@@ -2000,16 +1997,16 @@ function WF:unsubscribe(events,fns)
     elseif type(k)=='number' and type(v)=='function' then tfns='lfn' --?+list of fns
     else error('invalid fn parameter',2) end
   end
-  if tevents==nil then events=self.events tevents='ss' end --all events
-  if tevents=='ss' then local l={} for k in pairs(events) do l[#l+1]=k end events=l tevents='ls'  end --make list
+  if tevents==nil then e=self.events tevents='ss' end --all events
+  if tevents=='ss' then local l={} for k in pairs(e) do l[#l+1]=k end e=l tevents='ls'  end --make list
   if tfns=='sfn' then local l={} for k in pairs(fns) do l[#l+1]=k end fns=l tfns='lfn' end --make list
 
-  if tevents=='map' then for ev,fn in pairs(events) do unsubscribe(self,ev,fn) end
-  elseif tevents=='mapl' then for ev,fns in pairs(events) do for _,fn in ipairs(fns) do unsubscribe (self,ev,fn) end end
+  if tevents=='map' then for ev,fn in pairs(e) do unsubscribe(self,ev,fn) end
+elseif tevents=='mapl' then for ev,f in pairs(e) do for _,fn in ipairs(f) do unsubscribe (self,ev,fn) end end
   else
     if tevents~='ls' then error('invalid event parameter',2)
     elseif tfns~=nil and tfns~='lfn' then error('invalid fn parameter',2) end
-    for _,ev in ipairs(events) do
+    for _,ev in ipairs(e) do
       if not tfns then unsubscribeEvent(self,ev)
       else for _,fn in ipairs(fns) do unsubscribe(self,ev,fn) end end
     end
@@ -2322,6 +2319,5 @@ return setmetatable(windowfilter,{
     elseif k=='defaultCurrentSpace' then return makeDefaultCurrentSpace()
     else return rawget(t,k) end
   end,
-  __call=function(t,...) return windowfilter.new(...):getWindows() end
+  __call=function(_,...) return windowfilter.new(...):getWindows() end
 })
-

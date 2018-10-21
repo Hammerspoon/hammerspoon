@@ -830,7 +830,7 @@ static int imageFromPath(lua_State *L) {
     if (newImage && newImage.valid) {
         [skin pushNSObject:newImage];
     } else {
-        return luaL_error(L, "Unable to load image: %s", [imagePath UTF8String]);
+        lua_pushnil(L);
     }
 
     return 1;
@@ -1272,6 +1272,34 @@ static int getImageSize(lua_State* L) {
     return 1 ;
 }
 
+/// hs.image:colorAt(point) -> table
+/// Method
+/// Reads the color of the pixel at the specified location.
+///
+/// Parameters:
+///  * `point` - a `hs.geometry.point`
+///
+/// Returns:
+///  * A `hs.drawing.color` object
+static int colorAt(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBREAK] ;
+
+    // Source: https://stackoverflow.com/a/33485218/6925202
+    @autoreleasepool {
+    	NSImage *theImage = [skin luaObjectAtIndex:1 toClass:"NSImage"] ;
+    	NSPoint point  = [skin tableToPointAtIndex:2] ;
+
+		// Source: https://stackoverflow.com/a/48400410
+		[theImage lockFocus];
+		NSColor *pixelColor = NSReadPixel(point);
+		[theImage unlockFocus];
+        [skin pushNSObject:pixelColor];
+	}
+    
+    return 1;
+}
+
 /// hs.image:croppedCopy(rectangle) -> object
 /// Method
 /// Returns a copy of the portion of the image specified by the rectangle specified.
@@ -1624,6 +1652,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {"croppedCopy",       croppedCopy},
     {"saveToFile",        saveToFile},
     {"encodeAsURLString", encodeAsString},
+    {"colorAt",			  colorAt},
 
     {"__tostring",        userdata_tostring},
     {"__eq",              userdata_eq},

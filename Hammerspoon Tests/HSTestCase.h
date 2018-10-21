@@ -46,15 +46,13 @@
 /**
  Executes a two-part Lua test with a timeout.
 
- The provided setup code is executed immediately, and then the supplied check code will be tested every 0.5s until the test either returns "Success", or the timeout time is reached.
+ The provided setup code is executed immediately, and then the supplied check code will be tested every 0.5 seconds until it either passes, or `timeout` is reached
 
  @param timeOut        The amount of time to allow the test to run unsuccessfully, before failing it
  @param setupCode      An NSString containing some Lua code to instantiate the test
  @param checkCode      An NSString containing some Lua code to check if the test has passed
-
- @return A boolean, true if the test passed, otherwise false
  */
-- (BOOL)luaTestWithCheckAndTimeOut:(NSTimeInterval)timeOut setupCode:(NSString *)setupCode checkCode:(NSString *)checkCode;
+- (void)luaTestWithCheckAndTimeOut:(NSTimeInterval)timeOut setupCode:(NSString *)setupCode checkCode:(NSString *)checkCode;
 
 /**
  Executes a Lua function with the same name as an Objective C selector. This reduces the amount of typing required in the Objective C portions of your tests - if you name your Lua test functions correctly, all you need to do is call [self luaTestFromSelector:_cmd] in each method. This is also neatly abstracted to a #define called RUN_LUA_TEST()

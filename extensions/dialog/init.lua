@@ -17,13 +17,13 @@ local color = require("hs.drawing.color")
 
 color.panel = module.color
 
---- hs.dialog.alert(rect, callbackFn, message, [informativeText], [buttonOne], [buttonTwo], [style]) -> string
+--- hs.dialog.alert(x, y, callbackFn, message, [informativeText], [buttonOne], [buttonTwo], [style]) -> string
 --- Function
 --- Displays a simple non-blocking dialog box using `NSAlert` and a hidden `hs.webview` that's automatically destroyed when the alert is closed.
 ---
 --- Parameters:
----  * x - A number containing the horizontal co-ordinate of the top-left point of the dialog box.
----  * y - A number containing the vertical co-ordinate of the top-left point of the dialog box.
+---  * x - A number containing the horizontal co-ordinate of the top-left point of the dialog box. Defaults to 1.
+---  * y - A number containing the vertical co-ordinate of the top-left point of the dialog box. Defaults to 1.
 ---  * callbackFn - The callback function that's called when a button is pressed.
 ---  * message - The message text to display.
 ---  * [informativeText] - Optional informative text to display.
@@ -53,7 +53,7 @@ function module.alert(x, y, callback, ...)
     local wv = hs.webview.new(rect):show()
     hs.dialog.webviewAlert(wv, function(...)
 	    wv:delete()
-    	callback(...)
+      callback(...)
     end, ...)
 end
 

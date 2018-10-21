@@ -186,8 +186,8 @@ local function setUiPrefs()
   return setMode()
 end
 highlight.ui=setmetatable({},{
-  __newindex=function(t,k,v) uiGlobal[k]=getColor(v) setUiPrefs() end,
-  __index=function(t,k)return getColor(uiGlobal[k])end,
+  __newindex=function(_,k,v) uiGlobal[k]=getColor(v) setUiPrefs() end,
+  __index=function(_,k)return getColor(uiGlobal[k])end,
 })
 
 
@@ -297,5 +297,3 @@ function highlight.stop()
 end
 --return highlight
 return setmetatable(highlight,{__gc=highlight.stop})
-
-
