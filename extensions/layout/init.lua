@@ -152,26 +152,26 @@ function layout.apply(theLayout, windowTitleComparator)
         -- Find the destination display, if wanted
         if _row[3] then
             if type(_row[3]) == "string" then
-		-- first try match as UUID
-		local displays = fnutils.filter(screen.allScreens(), function(aScreen) return spi.UUIDforScreen(aScreen) == _row[3] end)
+            		-- first try match as UUID
+            		local displays = fnutils.filter(screen.allScreens(), function(aScreen) return spi.UUIDforScreen(aScreen) == _row[3] end)
                 if displays then
-		    display = displays[1]
-		else
-		    -- then try match as screen name
+            		    display = displays[1]
+    		        else
+    		            -- then try match as screen name
                     displays = fnutils.filter(screen.allScreens(), function(aScreen) return aScreen:name() == _row[3] end)
                     if displays then
                         -- TODO: This is bogus, multiple identical monitors will be impossible to lay out
                         display = displays[1]
-		    end
+                    end
                 end
-		-- check if it matches a UUID instead
-		if display == nil then
+            		-- check if it matches a UUID instead
+            		if display == nil then
                     for _, screen in pairs(hs.screen.allScreens()) do
-	               if _row[3] == spi.UUIDforScreen(screen) then
-		           display = screen
-		       end
-		    end
-		end
+                        if _row[3] == spi.UUIDforScreen(screen) then
+    	                       display = screen
+                        end
+            		    end
+            		end
             elseif type(_row[3]) == "function" then
                 display = _row[3]()
             elseif fnutils.contains(screen.allScreens(), _row[3]) then
