@@ -103,20 +103,20 @@
 
 #pragma mark - MIKMIDICommand+MIKMIDIChannelEventToCommands
 
-#import "MIKMIDIPolyphonicKeyPressureEvent.h"
+#import "MIKMIDIPolyphonicKeyPressureCommand.h"
 #import "MIKMIDIControlChangeCommand.h"
 #import "MIKMIDIProgramChangeCommand.h"
-#import "MIKMIDIChannelPressureEvent.h"
+#import "MIKMIDIChannelPressureCommand.h"
 #import "MIKMIDIPitchBendChangeCommand.h"
 
 @implementation MIKMIDICommand (MIKMIDIChannelEventToCommands)
 
 + (instancetype)commandFromChannelEvent:(MIKMIDIChannelEvent *)event clock:(MIKMIDIClock *)clock
 {
-	NSDictionary *classes = @{@(MIKMIDIEventTypeMIDIPolyphonicKeyPressureMessage) : [MIKMIDIPolyphonicKeyPressureEvent class],
+	NSDictionary *classes = @{@(MIKMIDIEventTypeMIDIPolyphonicKeyPressureMessage) : [MIKMIDIPolyphonicKeyPressureCommand class],
 							  @(MIKMIDIEventTypeMIDIControlChangeMessage) : [MIKMIDIControlChangeCommand class],
 							  @(MIKMIDIEventTypeMIDIProgramChangeMessage) : [MIKMIDIProgramChangeCommand class],
-							  @(MIKMIDIEventTypeMIDIChannelPressureMessage) : [MIKMIDIChannelPressureEvent class],
+							  @(MIKMIDIEventTypeMIDIChannelPressureMessage) : [MIKMIDIChannelPressureCommand class],
 							  @(MIKMIDIEventTypeMIDIPitchBendChangeMessage) : [MIKMIDIPitchBendChangeCommand class]};
 	Class commandClass = classes[@(event.eventType)];
 	if (!commandClass) return nil;

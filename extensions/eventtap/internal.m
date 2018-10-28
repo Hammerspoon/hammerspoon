@@ -270,6 +270,29 @@ static int checkKeyboardModifiers(lua_State* L) {
     return 1;
 }
 
+/// hs.eventtap.isSecureInputEnabled() -> boolean
+/// Function
+/// Checks if macOS is preventing keyboard events from being sent to event taps
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A boolean, true if secure input is enabled, otherwise false
+///
+/// Notes:
+///  * If secure input is enabled, Hammerspoon is not able to intercept keyboard events
+///  * Secure input is enabled generally only in situations where an password field is focused in a web browser, system dialog or terminal
+static int secureInputEnabled(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TBREAK];
+
+    BOOL isSecure = (BOOL)IsSecureEventInputEnabled();
+
+    lua_pushboolean(L, isSecure);
+    return 1;
+}
+
 /// hs.eventtap.checkMouseButtons() -> table
 /// Function
 /// Returns a table containing the current mouse buttons being pressed *at this instant*.
@@ -401,6 +424,7 @@ static luaL_Reg eventtaplib[] = {
     {"keyRepeatDelay",          eventtap_keyRepeatDelay},
     {"keyRepeatInterval",       eventtap_keyRepeatInterval},
     {"doubleClickInterval",     eventtap_doubleClickInterval},
+    {"isSecureInputEnabled", secureInputEnabled},
     {NULL,      NULL}
 };
 

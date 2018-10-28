@@ -8,6 +8,11 @@
 static int refTable;
 #define get_item_arg(L, idx) ((menubaritem_t *)luaL_checkudata(L, idx, USERDATA_TAG))
 
+// Adds undocumented "appearance" argument to "popUpMenuPositioningItem":
+@interface NSMenu (MISSINGOrder)
+- (BOOL)popUpMenuPositioningItem:(id)arg1 atLocation:(struct CGPoint)arg2 inView:(id)arg3 appearance:(id)arg4;
+@end
+
 // modified from https://github.com/shergin/NSStatusBar-MISSINGOrder
 
 typedef NS_ENUM(NSInteger, NSStatusBarItemPriority) {
@@ -861,20 +866,21 @@ static int menubar_delete(lua_State *L) {
     return 0;
 }
 
-/// hs.menubar:popupMenu(point) -> menubaritem
+/// hs.menubar:popupMenu(point[, darkMode]) -> menubaritem
 /// Method
 /// Display a menubaritem as a pop up menu at the specified screen point.
 ///
 /// Parameters:
-///  * point -- the location of the upper left corner of the pop-up menu to be displayed.
+///  * point - the location of the upper left corner of the pop-up menu to be displayed.
+///  * darkMode - (optional) `true` to force the menubar dark (defaults to your macOS General Appearance settings)
 ///
 /// Returns:
 ///  * The menubaritem
 ///
 /// Notes:
 ///  * Items which trigger hs.menubar:setClickCallback() will invoke the callback function, but we cannot control the positioning of any visual elements the function may create -- calling this method on such an object is the equivalent of invoking its callback function directly.
-///
-///  * This method is blocking -- Hammerspoon will be unable to respond to any other activity while the pop-up menu is being displayed.
+///  * This method is blocking. Hammerspoon will be unable to respond to any other activity while the pop-up menu is being displayed.
+///  * `darkMode` uses an undocumented macOS API call, so may break in a future release.
 static int menubar_render(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     menubaritem_t *menuBarItem = get_item_arg(L, 1);
@@ -882,6 +888,21 @@ static int menubar_render(lua_State *L) {
     NSMenu        *menu        = [statusItem menu];
 
     NSPoint menuPoint ;
+
+	// Support darkMode for popup menus:
+	BOOL darkMode = false ;
+    if (lua_gettop(L) > 2) {
+        if ((lua_type(L, 3) == LUA_TBOOLEAN) || (lua_type(L, 3) == LUA_TNIL)) {
+            if (lua_type(L, 3) == LUA_TBOOLEAN) {
+                darkMode = (BOOL)lua_toboolean(L, 3) ;
+            } else {
+                NSString *ifStyle = [[NSUserDefaults standardUserDefaults] stringForKey:@"AppleInterfaceStyle"] ;
+                darkMode = (ifStyle && [ifStyle isEqualToString:@"Dark"]) ;
+            }
+            lua_remove(L, 3) ;
+        }
+    }
+    NSAppearance *appearance = [NSAppearance appearanceNamed:(darkMode ? NSAppearanceNameVibrantDark : NSAppearanceNameVibrantLight)] ;
 
     switch (lua_type(L, 2)) {
         case LUA_TTABLE:
@@ -921,7 +942,8 @@ static int menubar_render(lua_State *L) {
     }
 
     menuPoint.y = [[NSScreen screens][0] frame].size.height - menuPoint.y ;
-    [menu popUpMenuPositioningItem:nil atLocation:menuPoint inView:nil] ;
+
+    [menu popUpMenuPositioningItem:nil atLocation:menuPoint inView:nil appearance:appearance ] ;
 
     lua_settop(L, 1) ;
     return 1 ;
