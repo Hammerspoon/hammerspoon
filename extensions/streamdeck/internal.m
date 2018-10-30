@@ -339,7 +339,7 @@ static const luaL_Reg streamdecklib[] = {
     {"discoveryCallback", streamdeck_discoveryCallback},
     {"numDevices", streamdeck_numDevices},
     {"getDevice", streamdeck_getDevice},
-    
+
     {NULL, NULL}
 };
 

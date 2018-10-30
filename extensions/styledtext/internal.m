@@ -545,22 +545,22 @@ static int fontInformation(lua_State *L) {
 static int fontPath(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs: LS_TSTRING, LS_TBREAK];
-    
+
     NSString* fontName = [skin toNSObjectAtIndex:1];
-    
+
     NSFont *theFont = [NSFont fontWithName:fontName size:1];
     if (theFont) {
         NSFont *theFont = [skin luaObjectAtIndex:-1 toClass:"NSFont"];
-        
+
         CTFontDescriptorRef fontRef = CTFontDescriptorCreateWithNameAndSize ((CFStringRef)[theFont fontName], [theFont pointSize]);
         CFURLRef url = (CFURLRef)CTFontDescriptorCopyAttribute(fontRef, kCTFontURLAttribute);
         NSString *fontPath = [NSString stringWithString:[(NSURL *)CFBridgingRelease(url) path]];
-        
+
         [skin pushNSObject:[NSString stringWithFormat:@"%@", fontPath]] ;
     } else {
         lua_pushnil(L);
     }
-    
+
     return 1;
 }
 

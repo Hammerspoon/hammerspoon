@@ -167,18 +167,18 @@ cleanup:
 
 static CFIndex window_counttabs(AXUIElementRef win) {
   CFIndex count = -1;
-  
+
   AXUIElementRef tabs = get_window_tabs(win);
   if(tabs == NULL) goto cleanup;
-  
+
   if(AXUIElementGetAttributeValueCount(tabs, kAXTabsAttribute, &count) != noErr) {
     count = -1; // it's probably still -1, but just to be safe
     goto cleanup;
   }
-  
+
 cleanup:
   if (tabs) CFRelease(tabs);
-  
+
   return count;
 }
 
@@ -475,9 +475,9 @@ static int window_focustab(lua_State* L) {
 ///  * A number containing the number of tabs, or nil if an error occurred
 static int window_tabcount(lua_State* L) {
   AXUIElementRef win = get_window_arg(L, 1);
-  
+
   CFIndex count = window_counttabs(win);
-  
+
   if(count == -1) {
     return 0;
   } else {

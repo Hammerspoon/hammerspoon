@@ -1296,7 +1296,7 @@ static int colorAt(lua_State* L) {
 		[theImage unlockFocus];
         [skin pushNSObject:pixelColor];
 	}
-    
+
     return 1;
 }
 
