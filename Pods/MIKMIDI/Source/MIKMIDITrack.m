@@ -606,9 +606,10 @@
 
 - (NSInteger)trackNumber
 {
-	if (!self.sequence) return -1;
+    __strong MIKMIDISequence *sequence = self.sequence;
+	if (!sequence) return -1;
 	UInt32 trackNumber = 0;
-	OSStatus err = MusicSequenceGetTrackIndex(self.sequence.musicSequence, self.musicTrack, &trackNumber);
+	OSStatus err = MusicSequenceGetTrackIndex(sequence.musicSequence, self.musicTrack, &trackNumber);
 	if (err) {
 		NSLog(@"MusicSequenceGetTrackIndex() failed with error %@ in %s.", @(err), __PRETTY_FUNCTION__);
 		return -1;

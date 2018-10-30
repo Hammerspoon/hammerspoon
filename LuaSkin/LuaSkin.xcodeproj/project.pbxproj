@@ -666,6 +666,7 @@
 					"-Wno-objc-missing-property-synthesis",
 					"-Wno-cast-qual",
 					"-Wno-gnu-zero-variadic-macro-arguments",
+					"-Wno-objc-messaging-id",
 				);
 			};
 			name = Profile;
@@ -823,6 +824,7 @@
 					"-Wno-objc-missing-property-synthesis",
 					"-Wno-cast-qual",
 					"-Wno-gnu-zero-variadic-macro-arguments",
+					"-Wno-objc-messaging-id",
 				);
 			};
 			name = Debug;
@@ -881,6 +883,7 @@
 					"-Wno-objc-missing-property-synthesis",
 					"-Wno-cast-qual",
 					"-Wno-gnu-zero-variadic-macro-arguments",
+					"-Wno-objc-messaging-id",
 				);
 			};
 			name = Release;

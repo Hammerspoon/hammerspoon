@@ -87,7 +87,7 @@ void MIKMIDIDestinationReadProc(const MIDIPacketList *pktList, void *readProcRef
 		
 		NSMutableArray *receivedCommands = [NSMutableArray array];
 		MIDIPacket *packet = (MIDIPacket *)pktList->packet;
-		for (int i=0; i<pktList->numPackets; i++) {
+		for (UInt32 i=0; i<pktList->numPackets; i++) {
             if (packet->length > 0) {
                 NSArray *commands = [MIKMIDICommand commandsWithMIDIPacket:packet];
                 if (commands) [receivedCommands addObjectsFromArray:commands];

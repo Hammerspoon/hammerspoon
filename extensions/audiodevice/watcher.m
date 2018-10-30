@@ -215,6 +215,7 @@ static int audiodevicewatcher_gc(lua_State *L) {
     if (theWatcher) {
         audiodevicewatcher_stop(L);
         theWatcher->callback = [skin luaUnref:refTable ref:theWatcher->callback];
+        free(theWatcher);
         theWatcher = nil;
     }
 

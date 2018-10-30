@@ -821,6 +821,7 @@ static int task_gc(lua_State *L) {
 
     userData->luaCallback = [skin luaUnref:refTable ref:userData->luaCallback];
     userData->selfRef = [skin luaUnref:refTable ref:userData->selfRef];
+    userData->luaStreamCallback = [skin luaUnref:refTable ref:userData->luaStreamCallback];
 
     NSString *launchPath = (__bridge_transfer NSString *)userData->launchPath;
     NSArray *arguments = (__bridge_transfer NSArray *)userData->arguments;
