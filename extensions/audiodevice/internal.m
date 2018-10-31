@@ -469,7 +469,7 @@ static int audiodevice_inputMuted(lua_State *L) {
     } else {
         lua_pushnil(L);
     }
-    
+
     return 1;
 }
 

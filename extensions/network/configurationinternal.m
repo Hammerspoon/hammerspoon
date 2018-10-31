@@ -320,7 +320,7 @@ SCPreferencesCreateWithOptions      (
 static int dynamicStoreSetLocation(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TBREAK];
-    
+
     NSString *target ;
     if (lua_gettop(L) == 2) {
         target = [skin toNSObjectAtIndex:2];
@@ -369,7 +369,7 @@ static int dynamicStoreSetLocation(lua_State *L) {
 
     for (i=0; i<c; i++) {
         SCNetworkSetRef item = CFArrayGetValueAtIndex(locations, i);
-        
+
         CFStringRef name = SCNetworkSetGetName((SCNetworkSetRef)item);
         CFStringRef uuid = SCNetworkSetGetSetID((SCNetworkSetRef)item);
         if ((CFStringCompare(name, (CFStringRef)target, 0) == kCFCompareEqualTo) || (CFStringCompare(uuid,(CFStringRef)target, 0) == kCFCompareEqualTo)) {

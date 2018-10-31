@@ -732,7 +732,7 @@ static int textPrompt(lua_State *L) {
 
     // Focus on text input:
     [[alert window] setInitialFirstResponder: input];
-    
+
     // Show alert:
     NSInteger result = [alert runModal];
 
@@ -775,7 +775,7 @@ static int releaseReceivers(__unused lua_State *L) {
     if (cpReceiverObject.callbackRef != LUA_NOREF) [skin luaUnref:refTable ref:cpReceiverObject.callbackRef] ;
     [cp close]; // Close the Color Panel
     cpReceiverObject = nil ;
-    
+
     return 0 ;
 }
 

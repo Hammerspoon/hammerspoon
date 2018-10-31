@@ -191,9 +191,9 @@
 
     /* Write bmp data */
     [mutableBMPData appendBytes:paddedImage length:bytesize];
-    
+
     free(paddedImage);
-    
+
     return mutableBMPData;
 }
 
