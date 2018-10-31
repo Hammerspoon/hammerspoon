@@ -89,10 +89,12 @@
 }
 
 - (void)testFullscreenOne {
+    SKIP_IN_TRAVIS()
     [self luaTestWithCheckAndTimeOut:5 setupCode:@"testFullscreenOneSetup()" checkCode:@"testFullscreenOneResult()"];
 }
 
 - (void)testFullscreenTwo {
+    SKIP_IN_TRAVIS()
     [self luaTestWithCheckAndTimeOut:5 setupCode:@"testFullscreenTwoSetup()" checkCode:@"testFullscreenTwoResult()"];
 }
 @end
