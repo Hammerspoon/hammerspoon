@@ -156,6 +156,42 @@ function testFullscreen()
   assertIsBoolean(fullscreenState)
   assertFalse(fullscreenState)
   win:setFullScreen(false)
-  -- We should test actually making the window fullscreen, but the timings seem to be very hard to test
+
+  return success()
+end
+
+function testFullscreenOneSetup()
+  hs.openConsole()
+  local win = hs.window.get("Hammerspoon Console")
+  assertIsEqual(win:title(), "Hammerspoon Console")
+  assertFalse(win:isFullScreen())
+
+  win:setFullScreen(true)
+
+  --return success()
+end
+
+function testFullscreenOneResult()
+  local win = hs.window.get("Hammerspoon Console")
+  assertIsEqual(win:title(), "Hammerspoon Console")
+  assertTrue(win:isFullScreen())
+  win:setFullScreen(false)
+
+  return success()
+end
+
+function testFullscreenTwoSetup()
+  hs.openConsole()
+  local win = hs.window.get("Hammerspoon Console")
+  win:toggleZoom()
+
+  return success()
+end
+
+function testFullscreenTwoResult()
+  local win = hs.window.get("Hammerspoon Console")
+  assertTrue(win:isFullScreen())
+  win:setFullScreen(false)
+
   return success()
 end

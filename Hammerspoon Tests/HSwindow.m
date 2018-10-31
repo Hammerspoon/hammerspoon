@@ -88,4 +88,11 @@
     RUN_LUA_TEST()
 }
 
+- (void)testFullscreenOne {
+    [self luaTestWithCheckAndTimeOut:5 setupCode:@"testFullscreenOneSetup()" checkCode:@"testFullscreenOneResult()"];
+}
+
+- (void)testFullscreenTwo {
+    [self luaTestWithCheckAndTimeOut:5 setupCode:@"testFullscreenTwoSetup()" checkCode:@"testFullscreenTwoResult()"];
+}
 @end
