@@ -1,7 +1,8 @@
 --- === hs.deezer ===
---- Heavily inspired by 'hs.spotify', credits to the original author.
 ---
---- Controls for Deezer music player
+--- Controls for Deezer music player.
+---
+--- Heavily inspired by 'hs.spotify', credits to the original author.
 
 local deezer = {}
 
