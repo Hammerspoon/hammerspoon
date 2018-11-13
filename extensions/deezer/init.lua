@@ -302,7 +302,7 @@ end
 ---  * None
 function deezer.ff() return deezer.setPosition(deezer.getPosition() + 5) end
 
---- hs.deezer.rw
+--- hs.deezer.rw()
 --- Function
 --- Skips the playback position backwards by 5 seconds
 ---
