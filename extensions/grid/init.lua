@@ -19,7 +19,7 @@
 --- Additionally, a modal keyboard driven interface for interactive resizing is provided via `hs.grid.show()`;
 --- The grid will be overlaid on the focused or frontmost window's screen with keyboard hints.
 --- To resize/move the window, you can select the corner cells of the desired position.
---- For a move-only, you can select a cell and confirm with 'return'. The celected cell will become the new upper-left of the window.
+--- For a move-only, you can select a cell and confirm with 'return'. The selected cell will become the new upper-left of the window.
 --- You can also use the arrow keys to move the window onto adjacent screens, and the tab/shift-tab keys to cycle to the next/previous window.
 --- Once you selected a cell, you can use the arrow keys to navigate through the grid. In this case, the grid will highlight the selected cells.
 --- After highlighting enough cells, press enter to move/resize the window to the highlighted area.
