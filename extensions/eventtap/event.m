@@ -1333,11 +1333,31 @@ static CGEventFlags flagsFromTable(lua_State* L, int arg) {
     luaL_checktype(L, arg, LUA_TTABLE);
 
     CGEventFlags flags = 0;
-    if (lua_getfield(L, arg, "cmd"),   lua_toboolean(L, -1)) flags |= kCGEventFlagMaskCommand;
-    if (lua_getfield(L, arg, "alt"),   lua_toboolean(L, -1)) flags |= kCGEventFlagMaskAlternate;
-    if (lua_getfield(L, arg, "ctrl"),  lua_toboolean(L, -1)) flags |= kCGEventFlagMaskControl;
-    if (lua_getfield(L, arg, "shift"), lua_toboolean(L, -1)) flags |= kCGEventFlagMaskShift;
-    if (lua_getfield(L, arg, "fn"),    lua_toboolean(L, -1)) flags |= kCGEventFlagMaskSecondaryFn;
+
+    lua_getfield(L, arg, "cmd");
+    if (lua_toboolean(L, -1)) {
+        flags |= kCGEventFlagMaskCommand;
+    }
+
+    lua_getfield(L, arg, "alt");
+    if (lua_toboolean(L, -1)) {
+        flags |= kCGEventFlagMaskAlternate;
+    }
+
+    lua_getfield(L, arg, "ctrl");
+    if (lua_toboolean(L, -1)) {
+        flags |= kCGEventFlagMaskControl;
+    }
+
+    lua_getfield(L, arg, "shift");
+    if (lua_toboolean(L, -1)) {
+        flags |= kCGEventFlagMaskShift;
+    }
+
+    lua_getfield(L, arg, "fn");
+    if (lua_toboolean(L, -1)) {
+        flags |= kCGEventFlagMaskSecondaryFn;
+    }
 
     return flags;
 }

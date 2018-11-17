@@ -325,7 +325,7 @@ local function setFrameWithWorkarounds(self,f,duration)
       if originalFrame.size==newSize -- terminal or minimum size
         or (testSize~=newSize and (abs(f.x2-originalFrame.x2)<100 or abs(f.y2-originalFrame.y2)<100)) then --sticky edge, and not going far enough
         duration=0 end -- don't animate troublesome windows
-  end
+    end
   end
   local safeFrame=geometry.new(originalFrame.xy,f.size) --apply the desired size
   safeBounds:move(30,30) -- offset

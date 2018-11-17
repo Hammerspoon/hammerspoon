@@ -742,6 +742,7 @@
 		4F0454E420F1480E00699F29 /* Profile */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_WARN_COMMA = NO;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				EXECUTABLE_PREFIX = lib;
@@ -749,6 +750,7 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
+				GCC_WARN_UNINITIALIZED_AUTOS = NO;
 				OTHER_CFLAGS = (
 					"-DLUA_COMPAT_ALL",
 					"-DLUA_USE_MACOSX",
@@ -1023,6 +1025,7 @@
 		4FEF5A9A1B29E006002344A7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_WARN_COMMA = NO;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				EXECUTABLE_PREFIX = lib;
@@ -1030,6 +1033,7 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
+				GCC_WARN_UNINITIALIZED_AUTOS = NO;
 				OTHER_CFLAGS = (
 					"-DLUA_COMPAT_ALL",
 					"-DLUA_USE_MACOSX",
@@ -1045,8 +1049,10 @@
 		4FEF5A9B1B29E006002344A7 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_WARN_COMMA = NO;
 				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_PREFIX = lib;
+				GCC_WARN_UNINITIALIZED_AUTOS = NO;
 				OTHER_CFLAGS = (
 					"-DLUA_COMPAT_ALL",
 					"-DLUA_USE_MACOSX",

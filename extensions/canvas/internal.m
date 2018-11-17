@@ -2148,7 +2148,7 @@ static int userdata_gc(lua_State* L) ;
 
         NSImage* image = [[NSImage alloc]initWithSize:self.bounds.size] ;
         [image addRepresentation:bir];
-        
+
         return image;
     }
 }
@@ -3886,7 +3886,7 @@ static int userdata_gc(lua_State* L) {
         if (!parentIsWindow(theView)) [theView removeFromSuperview] ;
         theView.mouseCallbackRef    = [skin luaUnref:refTable ref:theView.mouseCallbackRef] ;
         theView.draggingCallbackRef = [skin luaUnref:refTable ref:theView.draggingCallbackRef] ;
-        
+
         theView.selfRef          = [skin luaUnref:refTable ref:theView.selfRef] ;
 
         HSCanvasWindow *theWindow = theView.wrapperWindow ;
