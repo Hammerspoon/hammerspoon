@@ -1516,7 +1516,6 @@ static int midi_isVirtual(lua_State *L) {
 
 /// hs.midi.commandTypes[]
 /// Constant
-///
 /// A table containing the numeric value for the possible flags returned by the `commandType` parameter of the callback function.
 ///
 /// Defined keys are:

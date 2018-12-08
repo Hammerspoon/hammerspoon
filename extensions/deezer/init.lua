@@ -1,7 +1,8 @@
 --- === hs.deezer ===
---- Heavily inspired by 'hs.spotify', credits to the original author.
 ---
---- Controls for Deezer music player
+--- Controls for Deezer music player.
+---
+--- Heavily inspired by 'hs.spotify', credits to the original author.
 
 local deezer = {}
 
@@ -302,7 +303,7 @@ end
 ---  * None
 function deezer.ff() return deezer.setPosition(deezer.getPosition() + 5) end
 
---- hs.deezer.rw
+--- hs.deezer.rw()
 --- Function
 --- Skips the playback position backwards by 5 seconds
 ---

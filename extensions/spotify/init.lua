@@ -306,7 +306,7 @@ end
 ---  * None
 function spotify.ff() return spotify.setPosition(spotify.getPosition()+5) end
 
---- hs.spotify.rw
+--- hs.spotify.rw()
 --- Function
 --- Skips the playback position backwards by 5 seconds
 ---

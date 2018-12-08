@@ -321,7 +321,6 @@ static int reachabilityStopWatcher(lua_State *L) {
 
 /// hs.network.reachability.flags[]
 /// Constant
-///
 /// A table containing the numeric value for the possible flags returned by the [hs.network.reachability:status](#status) method or in the `flags` parameter of the callback function.
 ///
 /// * transientConnection  - indicates if the destination is reachable through a transient connection
