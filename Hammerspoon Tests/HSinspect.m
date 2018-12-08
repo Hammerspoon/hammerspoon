@@ -24,11 +24,7 @@
     [super tearDown];
 }
 
-- (void)testEncode {
-    RUN_LUA_TEST()
-}
-
-- (void)testDecode {
+- (void)testInspectAlwaysNewTableKeyValue {
     RUN_LUA_TEST()
 }
 
