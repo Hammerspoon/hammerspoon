@@ -1,3 +1,4 @@
+-- hs.inspect tests
 hs.inspect = require("hs.inspect")
 
 -- tests the case where a custom __init always returns a new table instance as a key/value

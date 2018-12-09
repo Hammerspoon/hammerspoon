@@ -50,6 +50,7 @@
 		4F20B5341C1F225300F52437 /* init.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4F20B5331C1F225300F52437 /* init.lua */; };
 		4F29C2381C29E0A300B8A69D /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4F29C23E1C29E0E700B8A69D /* volume.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F29C2311C29D8E400B8A69D /* volume.m */; };
+		4F2C0C7321BB4A04008F32C1 /* HSinspect.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F2C0C7221BB4A03008F32C1 /* HSinspect.m */; };
 		4F2DF3E51F6046F300742D08 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4F2DF3EB1F60471400742D08 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F2DF3DE1F6046AD00742D08 /* internal.m */; };
 		4F2DF3F01F605A4900742D08 /* HSStreamDeckManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F2DF3EE1F605A4900742D08 /* HSStreamDeckManager.h */; };
@@ -969,6 +970,8 @@
 		4F20B5331C1F225300F52437 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = init.lua; sourceTree = "<group>"; };
 		4F29C2311C29D8E400B8A69D /* volume.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = volume.m; path = extensions/fs/volume.m; sourceTree = "<group>"; };
 		4F29C23D1C29E0A300B8A69D /* libfsvolume.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libfsvolume.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		4F2C0C7121BB49E0008F32C1 /* test_inspect.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = test_inspect.lua; path = extensions/inspect/test_inspect.lua; sourceTree = "<group>"; };
+		4F2C0C7221BB4A03008F32C1 /* HSinspect.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSinspect.m; sourceTree = "<group>"; };
 		4F2DF3DD1F6046AD00742D08 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/streamdeck/init.lua; sourceTree = "<group>"; };
 		4F2DF3DE1F6046AD00742D08 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/streamdeck/internal.m; sourceTree = "<group>"; };
 		4F2DF3EA1F6046F300742D08 /* libstreamdeck.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libstreamdeck.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -2330,6 +2333,7 @@
 		4F6B3E9A1B73D5F300B2A4DE /* inspect */ = {
 			isa = PBXGroup;
 			children = (
+				4F2C0C7121BB49E0008F32C1 /* test_inspect.lua */,
 				4F6B3E9B1B73D60000B2A4DE /* init.lua */,
 			);
 			name = inspect;
@@ -3238,6 +3242,7 @@
 				4FEE39D81F0A697400935F90 /* HScrash.m */,
 				4F40EC3F1CCD0FE3006342D7 /* HSdistributednotifications.m */,
 				4C5BA6B41C85EAEB00E68CA9 /* HSfs.m */,
+				4F2C0C7221BB4A03008F32C1 /* HSinspect.m */,
 				6AE181311D39C8F10097211C /* HSnoises.m */,
 				4CEDEE1B1C640D11005CBF97 /* HSosascript.m */,
 				D02F95281A00221C00E28BB2 /* HSrequire_all.m */,
@@ -6491,6 +6496,7 @@
 				4F8779D1200CD51200E9DB42 /* HSwindow.m in Sources */,
 				4FDD8E8D1C8C8BF200085D7A /* HScoresetup.m in Sources */,
 				4FDD8E4C1C6E4FBB00085D7A /* HSscreen.m in Sources */,
+				4F2C0C7321BB4A04008F32C1 /* HSinspect.m in Sources */,
 				4FEE39D91F0A697400935F90 /* HScrash.m in Sources */,
 				4C403D641CBE5B9F00EE20ED /* HSapplication.m in Sources */,
 				4C8F8CB31CC38B7E00F72CE5 /* HSuielement.m in Sources */,
