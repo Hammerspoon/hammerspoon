@@ -771,7 +771,7 @@ end
 
 --- hs.window:focusWindowWest([candidateWindows[, frontmost[, strict]]]) -> boolean
 --- Method
---- Focuses the nearest possible window to the west (i.e. right)
+--- Focuses the nearest possible window to the west (i.e. left)
 ---
 --- (See `hs.window:focusWindowEast()`)
 
