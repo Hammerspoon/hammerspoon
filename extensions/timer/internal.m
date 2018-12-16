@@ -74,7 +74,7 @@ static int refTable;
     }
 
     [self setNextTrigger:self.interval];
-    [[NSRunLoop currentRunLoop] addTimer:self.t forMode:NSDefaultRunLoopMode];
+    [[NSRunLoop currentRunLoop] addTimer:self.t forMode:NSRunLoopCommonModes];
 }
 
 - (void)stop {
