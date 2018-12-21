@@ -1017,6 +1017,9 @@ static int fs_displayName(lua_State *L) {
 ///
 /// Returns:
 ///  * Bookmark data.
+///
+/// Notes:
+///  * This is primarily just intended for testing `hs.fs.getPathFromBookmark`.
 static int fs_getHomeDirectoryAsBookmark(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     NSData *bookmarkData = [[NSURL fileURLWithPath:NSHomeDirectory()]
@@ -1048,7 +1051,9 @@ static int fs_getPathFromBookmark(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
     
-    NSData *bookmarkData = [skin toNSObjectAtIndex:1];
+    const char *data = lua_tostring(L, 1);
+    NSUInteger dataLength = lua_rawlen(L, 1);
+    NSData *bookmarkData = [NSData dataWithBytes:data length:dataLength];
     
     NSError *error = nil;
     NSURL *url = [NSURL URLByResolvingBookmarkData:bookmarkData
