@@ -45,6 +45,7 @@ static int mouse_set(lua_State* L) {
     [skin checkArgs:LS_TTABLE, LS_TBREAK];
 
     CGWarpMouseCursorPosition([skin tableToPointAtIndex:1]);
+    CGAssociateMouseAndMouseCursorPosition(YES);
     return 0;
 }
 
