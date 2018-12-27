@@ -107,7 +107,7 @@ static int mouse_mouseAcceleration(lua_State *L) {
 /// Function
 /// Gets the system-wide direction of scolling
 ///
-/// Paramters:
+/// Parameters:
 ///  * None
 ///
 /// Returns:

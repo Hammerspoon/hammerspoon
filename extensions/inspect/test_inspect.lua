@@ -1,6 +1,14 @@
 -- hs.inspect tests
 hs.inspect = require("hs.inspect")
 
+function testSimpleInspect()
+    local t = {a='b'}
+    assertIsEqual([[{
+  a = "b"
+}]], hs.inspect(t))
+    return success()
+end
+
 -- tests the case where a custom __init always returns a new table instance as a key/value
 function testInspectAlwaysNewTableKeyValue()
   local t = setmetatable({}, {
