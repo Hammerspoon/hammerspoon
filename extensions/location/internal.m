@@ -2,6 +2,8 @@
 @import LuaSkin ;
 @import CoreLocation ;
 
+#import "EDSunriseSet.h"
+
 @class HSLocation ;
 
 static const char *USERDATA_TAG   = "hs.location" ;
@@ -452,6 +454,103 @@ static int location_fakeLocationChange(lua_State *L) {
     return 1 ;
 }
 
+#pragma mark - Sunrise/Sunset Functions
+
+EDSunriseSet* sunturns(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+
+    NSDate *date = nil;
+    NSTimeZone *tz = nil;
+    double latitude = 0;
+    double longitude = 0;
+    double offset = 0;
+
+    // This is unconventional, but is the easiest way to cope with the older Lua implementation's API
+    int idx = 2;
+    if (lua_type(L, 1) == LUA_TTABLE) {
+        [skin checkArgs:LS_TTABLE, LS_TNUMBER, LS_TTABLE|LS_TOPTIONAL, LS_TBREAK];
+        CLLocation *location = [skin toNSObjectAtIndex:1];
+        latitude = (double)location.coordinate.latitude;
+        longitude = (double)location.coordinate.longitude;
+    } else {
+        [skin checkArgs:LS_TNUMBER, LS_TNUMBER, LS_TNUMBER, LS_TTABLE|LS_TOPTIONAL, LS_TBREAK];
+        latitude = lua_tonumber(L, 1);
+        longitude = lua_tonumber(L, 2);
+        idx++;
+    }
+
+    // We now need to be careful because we're using `idx` for relative arguments
+    offset = lua_tonumber(L, idx);
+    tz = [NSTimeZone timeZoneForSecondsFromGMT:(offset * 60 * 60)];
+    idx++;
+
+    if (lua_type(L, idx) == LUA_TTABLE) {
+        NSDictionary *dateTable = [skin toNSObjectAtIndex:idx];
+        NSDateComponents *dateParts = [[NSDateComponents alloc] init];
+        dateParts.year = [(NSNumber *)dateTable[@"year"] integerValue];
+        dateParts.month = [(NSNumber *)dateTable[@"month"] integerValue];
+        dateParts.day = [(NSNumber *)dateTable[@"day"] integerValue];
+        dateParts.hour = [(NSNumber *)dateTable[@"hour"] integerValue];
+        dateParts.minute = [(NSNumber *)dateTable[@"min"] integerValue];
+        dateParts.second = [(NSNumber *)dateTable[@"sec"] integerValue];
+        dateParts.timeZone = tz;
+        dateParts.calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
+
+        date = dateParts.date;
+    } else {
+        date = [NSDate date];
+    }
+
+    EDSunriseSet *suntimes = [EDSunriseSet sunrisesetWithDate:date timezone:tz latitude:latitude longitude:longitude];
+    return suntimes;
+}
+
+/// hs.location.sunrise(latitude, longitude, offset[, date]) -> number or string
+/// Function
+/// Returns the time of official sunrise for the supplied location
+///
+/// Parameters:
+///  * `latitude`  - A number containing a latitude
+///  * `longitude` - A number containing a longitude
+///  * `offset`    - A number containing the offset from UTC (in hours) for the given latitude/longitude.
+///  * `date`      - An optional table containing date information (equivalent to the output of ```os.date("*t")```). Defaults to the current date
+///
+/// Returns:
+///  * A number containing the time of sunrise (represented as seconds since the epoch) for the given date. If no date is given, the current date is used. If the sun doesn't rise on the given day, the string "N/R" is returned.
+///
+/// Notes:
+///  * You can turn the return value into a more useful structure, with ```os.date("*t", returnvalue)```
+///  * For compatibility with the locationTable object returned by [hs.location.get](#get), this function can also be invoked as `hs.location.sunrise(locationTable, offset[, date])`.
+static int location_sunrise(lua_State *L) {
+    EDSunriseSet *suntimes = sunturns(L);
+
+    lua_pushinteger(L, (lua_Integer)[suntimes.sunrise timeIntervalSince1970]);
+    return 1;
+}
+
+/// hs.location.sunset(latitude, longitude, offset[, date]) -> number or string
+/// Function
+/// Returns the time of official sunset for the supplied location
+///
+/// Parameters:
+///  * `latitude`  - A number containing a latitude
+///  * `longitude` - A number containing a longitude
+///  * `offset`    - A number containing the offset from UTC (in hours) for the given latitude/longitude.
+///  * `date`      - An optional table containing date information (equivalent to the output of ```os.date("*t")```). Defaults to the current date
+///
+/// Returns:
+///  * A number containing the time of sunset (represented as seconds since the epoch) for the given date. If no date is given, the current date is used. If the sun doesn't set on the given day, the string "N/S" is returned.
+///
+/// Notes:
+///  * You can turn the return value into a more useful structure, with ```os.date("*t", returnvalue)```
+///  * For compatibility with the locationTable object returned by [hs.location.get](#get), this function can also be invoked as `hs.location.sunset(locationTable, offset[, date])`.
+static int location_sunset(lua_State *L) {
+    EDSunriseSet *suntimes = sunturns(L);
+
+    lua_pushinteger(L, (lua_Integer)[suntimes.sunset timeIntervalSince1970]);
+    return 1;
+}
+
 #pragma mark - Geocoder Functions
 
 /// hs.location.geocoder.lookupLocation(locationTable, fn) -> geocoderObject
@@ -846,6 +945,8 @@ static luaL_Reg moduleLib[] = {
     {"stop",                   location_stopWatching},
     {"get",                    location_getLocation},
     {"dstOffset",              location_dstOffset},
+    {"sunrise",                location_sunrise},
+    {"sunset",                 location_sunset},
 
     {"_registerCallback",      location_registerCallback},
     {"_monitoredRegions",      location_monitoredRegions},
