@@ -54,6 +54,7 @@
 		4F2DF3F51F605A9B00742D08 /* HSStreamDeckDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F2DF3F31F605A9B00742D08 /* HSStreamDeckDevice.m */; };
 		4F2DF3F81F6170BE00742D08 /* NSImage+BMP.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F2DF3F61F6170BE00742D08 /* NSImage+BMP.h */; };
 		4F2DF3F91F6170BE00742D08 /* NSImage+BMP.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F2DF3F71F6170BE00742D08 /* NSImage+BMP.m */; };
+		4F3042FF21D4DEE300769310 /* test_inspect.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4F2C0C7121BB49E0008F32C1 /* test_inspect.lua */; };
 		4F3978841E89AE7200F30F05 /* Spoon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 4F3978831E89AE7200F30F05 /* Spoon.icns */; };
 		4F3D9D031C3302CB0082E864 /* HSChooser.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F3D9D011C3302CB0082E864 /* HSChooser.h */; };
 		4F3D9D041C3302CB0082E864 /* HSChooser.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F3D9D021C3302CB0082E864 /* HSChooser.m */; };
@@ -5665,6 +5666,7 @@
 				4CB349EF1C7F74AD006F0DE0 /* test_javascript.lua in Resources */,
 				4CD64AAB1C6F168700EB6E39 /* test_socket.lua in Resources */,
 				4FDD8E911C8DEE3700085D7A /* test_appfinder.lua in Resources */,
+				4F3042FF21D4DEE300769310 /* test_inspect.lua in Resources */,
 				4F40EC441CCD126F006342D7 /* test_distributednotifications.lua in Resources */,
 				4F8779D3200CD63F00E9DB42 /* test_window.lua in Resources */,
 				4CE639141C772DC700BB7CD2 /* test_udpsocket.lua in Resources */,
