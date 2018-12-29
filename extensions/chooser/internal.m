@@ -292,6 +292,30 @@ static int chooserSetQuery(lua_State *L) {
     return 1;
 }
 
+/// hs.chooser:placeholderText([placeholderText]) -> hs.chooser object or string
+/// Method
+/// Sets/gets placeholder text that is shown in the query text field when no other text is present
+///
+/// Parameters:
+///  * placeholderText - An optional string for placeholder text. If this parameter is omitted, the existing placeholder text will be returned.
+///
+/// Returns:
+///  * The hs.chooser object, or the existing placeholder text
+static int chooserPlaceholder(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs: LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TNIL | LS_TOPTIONAL, LS_TBREAK];
+
+    HSChooser *chooser = [skin toNSObjectAtIndex:1];
+
+    if (lua_type(L, 2) == LUA_TNIL) {
+        [skin pushNSObject:chooser.queryField.placeholderAttributedString];
+    } else {
+        chooser.queryField.placeholderAttributedString = [skin toNSObjectAtIndex:2];
+        lua_settop(L, 1);
+    }
+    return 1;
+}
+
 /// hs.chooser:queryChangedCallback([fn]) -> hs.chooser object
 /// Method
 /// Sets/clears a callback for when the search query changes
@@ -791,6 +815,7 @@ static const luaL_Reg userdataLib[] = {
     {"fgColor", chooserSetFgColor},
     {"subTextColor", chooserSetSubTextColor},
     {"bgDark", chooserSetBgDark},
+    {"placeholderText", chooserPlaceholder},
     {"searchSubText", chooserSetSearchSubText},
     {"width", chooserSetWidth},
     {"rows", chooserSetNumRows},

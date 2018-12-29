@@ -54,6 +54,9 @@
 		4F2DF3F51F605A9B00742D08 /* HSStreamDeckDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F2DF3F31F605A9B00742D08 /* HSStreamDeckDevice.m */; };
 		4F2DF3F81F6170BE00742D08 /* NSImage+BMP.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F2DF3F61F6170BE00742D08 /* NSImage+BMP.h */; };
 		4F2DF3F91F6170BE00742D08 /* NSImage+BMP.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F2DF3F71F6170BE00742D08 /* NSImage+BMP.m */; };
+		4F3042FF21D4DEE300769310 /* test_inspect.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4F2C0C7121BB49E0008F32C1 /* test_inspect.lua */; };
+		4F30430221D5673A00769310 /* EDSunriseSet.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F30430021D5673A00769310 /* EDSunriseSet.h */; };
+		4F30430321D5673A00769310 /* EDSunriseSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F30430121D5673A00769310 /* EDSunriseSet.m */; };
 		4F3978841E89AE7200F30F05 /* Spoon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 4F3978831E89AE7200F30F05 /* Spoon.icns */; };
 		4F3D9D031C3302CB0082E864 /* HSChooser.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F3D9D011C3302CB0082E864 /* HSChooser.h */; };
 		4F3D9D041C3302CB0082E864 /* HSChooser.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F3D9D021C3302CB0082E864 /* HSChooser.m */; };
@@ -961,6 +964,8 @@
 		4F2DF3F61F6170BE00742D08 /* NSImage+BMP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSImage+BMP.h"; path = "extensions/streamdeck/NSImage+BMP.h"; sourceTree = "<group>"; };
 		4F2DF3F71F6170BE00742D08 /* NSImage+BMP.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSImage+BMP.m"; path = "extensions/streamdeck/NSImage+BMP.m"; sourceTree = "<group>"; };
 		4F2DF3FA1F61AE6700742D08 /* streamdeck.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = streamdeck.h; path = extensions/streamdeck/streamdeck.h; sourceTree = "<group>"; };
+		4F30430021D5673A00769310 /* EDSunriseSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EDSunriseSet.h; path = extensions/location/EDSunriseSet.h; sourceTree = "<group>"; };
+		4F30430121D5673A00769310 /* EDSunriseSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = EDSunriseSet.m; path = extensions/location/EDSunriseSet.m; sourceTree = "<group>"; };
 		4F3978831E89AE7200F30F05 /* Spoon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Spoon.icns; sourceTree = "<group>"; };
 		4F3D9D011C3302CB0082E864 /* HSChooser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSChooser.h; path = extensions/chooser/HSChooser.h; sourceTree = "<group>"; };
 		4F3D9D021C3302CB0082E864 /* HSChooser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSChooser.m; path = extensions/chooser/HSChooser.m; sourceTree = "<group>"; };
@@ -2325,6 +2330,8 @@
 		4F6B3EBC1B73DC7000B2A4DE /* location */ = {
 			isa = PBXGroup;
 			children = (
+				4F30430021D5673A00769310 /* EDSunriseSet.h */,
+				4F30430121D5673A00769310 /* EDSunriseSet.m */,
 				D66B763A1DD6FD1400CA12E6 /* geocoder.lua */,
 				4F6B3EBD1B73DC8400B2A4DE /* init.lua */,
 				4F6B3EBE1B73DC8400B2A4DE /* internal.m */,
@@ -3534,6 +3541,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F30430221D5673A00769310 /* EDSunriseSet.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5665,6 +5673,7 @@
 				4CB349EF1C7F74AD006F0DE0 /* test_javascript.lua in Resources */,
 				4CD64AAB1C6F168700EB6E39 /* test_socket.lua in Resources */,
 				4FDD8E911C8DEE3700085D7A /* test_appfinder.lua in Resources */,
+				4F3042FF21D4DEE300769310 /* test_inspect.lua in Resources */,
 				4F40EC441CCD126F006342D7 /* test_distributednotifications.lua in Resources */,
 				4F8779D3200CD63F00E9DB42 /* test_window.lua in Resources */,
 				4CE639141C772DC700BB7CD2 /* test_udpsocket.lua in Resources */,
@@ -6014,6 +6023,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F6B3EBF1B73DC8400B2A4DE /* internal.m in Sources */,
+				4F30430321D5673A00769310 /* EDSunriseSet.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

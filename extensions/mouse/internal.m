@@ -45,6 +45,7 @@ static int mouse_set(lua_State* L) {
     [skin checkArgs:LS_TTABLE, LS_TBREAK];
 
     CGWarpMouseCursorPosition([skin tableToPointAtIndex:1]);
+    CGAssociateMouseAndMouseCursorPosition(YES);
     return 0;
 }
 
@@ -107,7 +108,7 @@ static int mouse_mouseAcceleration(lua_State *L) {
 /// Function
 /// Gets the system-wide direction of scolling
 ///
-/// Paramters:
+/// Parameters:
 ///  * None
 ///
 /// Returns:
