@@ -470,7 +470,7 @@ static int midi_newVirtualSource(lua_State *L) {
 ///    * `noteOff` - Note off command:
 ///      * note                - The note number for the command. Must be between 0 and 127.
 ///      * velocity            - The velocity for the command. Must be between 0 and 127.
-///      * channel             - The channel for the command. Must be a number between 0 and 16. 0 sends the command to All Channels.
+///      * channel             - The channel for the command. Must be a number between 0 and 15.
 ///      * timestamp           - The timestamp for the command as a string.
 ///      * data                - Raw MIDI Data as Hex String.
 ///      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
@@ -478,7 +478,7 @@ static int midi_newVirtualSource(lua_State *L) {
 ///    * `noteOn` - Note on command:
 ///      * note                - The note number for the command. Must be between 0 and 127.
 ///      * velocity            - The velocity for the command. Must be between 0 and 127.
-///      * channel             - The channel for the command. Must be a number between 0 and 16. 0 sends the command to All Channels.
+///      * channel             - The channel for the command. Must be a number between 0 and 15.
 ///      * timestamp           - The timestamp for the command as a string.
 ///      * data                - Raw MIDI Data as Hex String.
 ///      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
@@ -486,7 +486,7 @@ static int midi_newVirtualSource(lua_State *L) {
 ///    * `polyphonicKeyPressure` - Polyphonic key pressure command:
 ///      * note                - The note number for the command. Must be between 0 and 127.
 ///      * pressure            - Key pressure of the polyphonic key pressure message. In the range 0-127.
-///      * channel             - The channel for the command. Must be a number between 0 and 16. 0 sends the command to All Channels.
+///      * channel             - The channel for the command. Must be a number between 0 and 15.
 ///      * timestamp           - The timestamp for the command as a string.
 ///      * data                - Raw MIDI Data as Hex String.
 ///      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
@@ -494,7 +494,7 @@ static int midi_newVirtualSource(lua_State *L) {
 ///    * `controlChange` - Control change command. This is the most common command sent by MIDI controllers:
 ///      * controllerNumber    - The MIDI control number for the command.
 ///      * controllerValue     - The controllerValue of the command. Only the lower 7-bits of this are used.
-///      * channel             - The channel for the command. Must be a number between 0 and 16. 0 sends the command to All Channels.
+///      * channel             - The channel for the command. Must be a number between 0 and 15.
 ///      * timestamp           - The timestamp for the command as a string.
 ///      * data                - Raw MIDI Data as Hex String.
 ///      * fourteenBitValue    - The 14-bit value of the command.
@@ -503,21 +503,21 @@ static int midi_newVirtualSource(lua_State *L) {
 ///
 ///    * `programChange` - Program change command:
 ///      * programNumber       - The program (aka patch) number. From 0-127.
-///      * channel             - The channel for the command. Must be a number between 0 and 16. 0 sends the command to All Channels.
+///      * channel             - The channel for the command. Must be a number between 0 and 15.
 ///      * timestamp           - The timestamp for the command as a string.
 ///      * data                - Raw MIDI Data as Hex String.
 ///      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
 ///
 ///    * `channelPressure` - Channel pressure command:
 ///      * pressure            - Key pressure of the channel pressure message. In the range 0-127.
-///      * channel             - The channel for the command. Must be a number between 0 and 16. 0 sends the command to All Channels.
+///      * channel             - The channel for the command. Must be a number between 0 and 15.
 ///      * timestamp           - The timestamp for the command as a string.
 ///      * data                - Raw MIDI Data as Hex String.
 ///      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
 ///
 ///    * `pitchWheelChange` - Pitch wheel change command:
 ///      * pitchChange         -  A 14-bit value indicating the pitch bend. Center is 0x2000 (8192). Valid range is from 0-16383.
-///      * channel             - The channel for the command. Must be a number between 0 and 16. 0 sends the command to All Channels.
+///      * channel             - The channel for the command. Must be a number between 0 and 15.
 ///      * timestamp           - The timestamp for the command as a string.
 ///      * data                - Raw MIDI Data as Hex String.
 ///      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
@@ -794,7 +794,7 @@ static int midi_callback(lua_State *L) {
                         case MIKMIDICommandTypeNoteOff: {
                             //      * note                - The note number for the command. Must be between 0 and 127.
                             //      * velocity            - The velocity for the command. Must be between 0 and 127.
-                            //      * channel             - The channel for the command. Must be a number between 0 and 16. 0 sends the command to All Channels.
+                            //      * channel             - The channel for the command. Must be a number between 0 and 15.
                             //      * timestamp           - The timestamp for the command.
                             //      * data                - Raw MIDI Data as Hex String.
                             //      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
@@ -812,7 +812,7 @@ static int midi_callback(lua_State *L) {
                         case MIKMIDICommandTypeNoteOn: {
                             //      * note                - The note number for the command. Must be between 0 and 127.
                             //      * velocity            - The velocity for the command. Must be between 0 and 127.
-                            //      * channel             - The channel for the command. Must be a number between 0 and 16. 0 sends the command to All Channels.
+                            //      * channel             - The channel for the command. Must be a number between 0 and 15.
                             //      * timestamp           - The timestamp for the command.
                             //      * data                - Raw MIDI Data as Hex String.
                             //      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
@@ -830,7 +830,7 @@ static int midi_callback(lua_State *L) {
                         case MIKMIDICommandTypePolyphonicKeyPressure: {
                             //      * note                - The note number for the command. Must be between 0 and 127.
                             //      * pressure            - Key pressure of the polyphonic key pressure message. In the range 0-127.
-                            //      * channel             - The channel for the command. Must be a number between 0 and 16. 0 sends the command to All Channels.
+                            //      * channel             - The channel for the command. Must be a number between 0 and 15.
                             //      * timestamp           - The timestamp for the command.
                             //      * data                - Raw MIDI Data as Hex String.
                             //      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
@@ -848,7 +848,7 @@ static int midi_callback(lua_State *L) {
                         case MIKMIDICommandTypeControlChange: {
                             //      * controllerNumber    - The MIDI control number for the command.
                             //      * controllerValue     - The controllerValue of the command. Only the lower 7-bits of this are used.
-                            //      * channel             - The channel for the command. Must be a number between 0 and 16. 0 sends the command to All Channels.
+                            //      * channel             - The channel for the command. Must be a number between 0 and 15.
                             //      * timestamp           - The timestamp for the command.
                             //      * data                - Raw MIDI Data as Hex String.
                             //      * fourteenBitValue    - The 14-bit value of the command.
@@ -869,7 +869,7 @@ static int midi_callback(lua_State *L) {
                         }
                         case MIKMIDICommandTypeProgramChange: {
                             //      * programNumber       - The program (aka patch) number. From 0-127.
-                            //      * channel             - The channel for the command. Must be a number between 0 and 16. 0 sends the command to All Channels.
+                            //      * channel             - The channel for the command. Must be a number between 0 and 15.
                             //      * timestamp           - The timestamp for the command as a string.
                             //      * data                - Raw MIDI Data as Hex String.
                             //      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
@@ -885,7 +885,7 @@ static int midi_callback(lua_State *L) {
                         }
                         case MIKMIDICommandTypeChannelPressure: {
                             //      * pressure            - Key pressure of the channel pressure message. In the range 0-127.
-                            //      * channel             - The channel for the command. Must be a number between 0 and 16. 0 sends the command to All Channels.
+                            //      * channel             - The channel for the command. Must be a number between 0 and 15.
                             //      * timestamp           - The timestamp for the command as a string.
                             //      * data                - Raw MIDI Data as Hex String.
                             //      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
@@ -901,7 +901,7 @@ static int midi_callback(lua_State *L) {
                         }
                         case MIKMIDICommandTypePitchWheelChange: {
                             //      * pitchChange         -  A 14-bit value indicating the pitch bend. Center is 0x2000 (8192). Valid range is from 0-16383.
-                            //      * channel             - The channel for the command. Must be a number between 0 and 16. 0 sends the command to All Channels.
+                            //      * channel             - The channel for the command. Must be a number between 0 and 15.
                             //      * timestamp           - The timestamp for the command as a string.
                             //      * data                - Raw MIDI Data as Hex String.
                             //      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
@@ -1237,7 +1237,7 @@ static int midi_sendCommand(lua_State *L) {
     {
         //      * note                - The note number for the command. Must be between 0 and 127.
         //      * velocity            - The velocity for the command. Must be between 0 and 127.
-        //      * channel             - The channel for the command. Must be a number between 0 and 16. 0 sends the command to All Channels.
+        //      * channel             - The channel for the command. Must be a number between 0 and 15.
         MIKMIDINoteOffCommand *noteOff = [MIKMIDINoteOffCommand noteOffCommandWithNote:note velocity:velocity channel:channel timestamp:date];
         if (![wrapper.midiDeviceManager sendCommands:@[noteOff] toEndpoint:destinationEndpoint error:&error])
         {
@@ -1249,7 +1249,7 @@ static int midi_sendCommand(lua_State *L) {
     {
         //      * note                - The note number for the command. Must be between 0 and 127.
         //      * velocity            - The velocity for the command. Must be between 0 and 127.
-        //      * channel             - The channel for the command. Must be a number between 0 and 16. 0 sends the command to All Channels.
+        //      * channel             - The channel for the command. Must be a number between 0 and 15.
         MIKMIDINoteOnCommand *noteOn = [MIKMIDINoteOnCommand noteOnCommandWithNote:note velocity:velocity channel:channel timestamp:date];
         if (![wrapper.midiDeviceManager sendCommands:@[noteOn] toEndpoint:destinationEndpoint error:&error])
         {
@@ -1261,7 +1261,7 @@ static int midi_sendCommand(lua_State *L) {
     {
         //      * note                - The note number for the command. Must be between 0 and 127.
         //      * pressure            - Key pressure of the polyphonic key pressure message. In the range 0-127.
-        //      * channel             - The channel for the command. Must be a number between 0 and 16. 0 sends the command to All Channels.
+        //      * channel             - The channel for the command. Must be a number between 0 and 15.
         MIKMutableMIDIPolyphonicKeyPressureCommand *polyphonicKeyPressure = [[MIKMutableMIDIPolyphonicKeyPressureCommand alloc] init];
         polyphonicKeyPressure.note = note;
         polyphonicKeyPressure.pressure = pressure;
@@ -1275,7 +1275,7 @@ static int midi_sendCommand(lua_State *L) {
     {
         //      * controllerNumber    - The MIDI control number for the command.
         //      * controllerValue     - The controllerValue of the command. Only the lower 7-bits of this are used.
-        //      * channel             - The channel for the command. Must be a number between 0 and 16. 0 sends the command to All Channels.
+        //      * channel             - The channel for the command. Must be a number between 0 and 15.
         //      * fourteenBitValue    - The 14-bit value of the command. Must be between 0 and 16383. Defaults to 0.
         //      * fourteenBitCommand  - `true` if the command contains 14-bit value data otherwise, `false`.
         MIKMutableMIDIControlChangeCommand *controlChange = [[MIKMutableMIDIControlChangeCommand alloc] init];
@@ -1298,7 +1298,7 @@ static int midi_sendCommand(lua_State *L) {
     else if ([commandType isEqualToString:@"programChange"])
     {
         //      * programNumber       - The program (aka patch) number. From 0-127.
-        //      * channel             - The channel for the command. Must be a number between 0 and 16. 0 sends the command to All Channels.
+        //      * channel             - The channel for the command. Must be a number between 0 and 15.
         MIKMutableMIDIProgramChangeCommand *programChange = [[MIKMutableMIDIProgramChangeCommand alloc] init];
         programChange.programNumber = programNumber;
         programChange.channel = channel;
@@ -1311,7 +1311,7 @@ static int midi_sendCommand(lua_State *L) {
     else if ([commandType isEqualToString:@"channelPressure"])
     {
         //      * pressure            - Key pressure of the channel pressure message. In the range 0-127.
-        //      * channel             - The channel for the command. Must be a number between 0 and 16. 0 sends the command to All Channels.
+        //      * channel             - The channel for the command. Must be a number between 0 and 15.
         MIKMutableMIDIChannelPressureCommand *channelPressure = [[MIKMutableMIDIChannelPressureCommand alloc] init];
         channelPressure.pressure = pressure;
         channelPressure.channel = channel;
@@ -1324,7 +1324,7 @@ static int midi_sendCommand(lua_State *L) {
     else if ([commandType isEqualToString:@"pitchWheelChange"])
     {
         //      * pitchChange         -  A 14-bit value indicating the pitch bend. Center is 0x2000 (8192). Valid range is from 0-16383.
-        //      * channel             - The channel for the command. Must be a number between 0 and 16. 0 sends the command to All Channels.
+        //      * channel             - The channel for the command. Must be a number between 0 and 15.
         MIKMutableMIDIPitchBendChangeCommand *pitchWheelChange = [[MIKMutableMIDIPitchBendChangeCommand alloc] init];
         pitchWheelChange.pitchChange = pitchChange;
         pitchWheelChange.channel = channel;

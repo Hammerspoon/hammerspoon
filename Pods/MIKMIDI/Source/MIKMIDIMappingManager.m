@@ -285,18 +285,20 @@ static MIKMIDIMappingManager *sharedManager = nil;
 
 - (NSString *)fileNameForMapping:(MIKMIDIMapping *)mapping
 {
+    id<MIKMIDIMappingManagerDelegate> delegate = self.delegate;
 	NSString *result = nil;
-	if ([self.delegate respondsToSelector:@selector(mappingManager:fileNameForMapping:)]) {
-		result = [self.delegate mappingManager:self fileNameForMapping:mapping];
+	if ([delegate respondsToSelector:@selector(mappingManager:fileNameForMapping:)]) {
+		result = [delegate mappingManager:self fileNameForMapping:mapping];
 	}
 	return [result length] ? result : mapping.name;
 }
 
 - (NSArray *)legacyFileNamesForUserMappingsObject:(MIKMIDIMapping *)mapping
 {
-	if (![self.delegate respondsToSelector:@selector(mappingManager:legacyFileNamesForUserMapping:)]) return nil;
+    id<MIKMIDIMappingManagerDelegate> delegate = self.delegate;
+	if (![delegate respondsToSelector:@selector(mappingManager:legacyFileNamesForUserMapping:)]) return nil;
 	
-	return [self.delegate mappingManager:self legacyFileNamesForUserMapping:mapping];
+	return [delegate mappingManager:self legacyFileNamesForUserMapping:mapping];
 }
 
 #pragma mark - Properties

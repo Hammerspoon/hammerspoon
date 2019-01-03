@@ -14,6 +14,13 @@
 #error MIKMIDISystemExclusiveCommand.m must be compiled with ARC. Either turn on ARC for the project or set the -fobjc-arc flag for MIKMIDISystemExclusiveCommand.m in the Build Phases for this target
 #endif
 
+uint32_t const kMIKMIDISysexNonRealtimeManufacturerID = 0x7E;
+uint32_t const kMIKMIDISysexRealtimeManufacturerID = 0x7F;
+
+uint8_t const kMIKMIDISysexChannelDisregard = 0x7F;
+uint8_t const kMIKMIDISysexBeginDelimiter = 0xF0;
+uint8_t const kMIKMIDISysexEndDelimiter = 0xF7;
+
 @interface MIKMIDISystemExclusiveCommand ()
 
 @property (nonatomic, readwrite) UInt32 manufacturerID;
@@ -163,6 +170,7 @@
 {
 	NSUInteger sysexStartLocation = [self sysexDataStartLocation];
 	NSInteger length = MAX(0u, [self.data length]-sysexStartLocation-1);
+    if ([self.data length] < length + sysexStartLocation) { return [NSData data]; }
 	return [self.data subdataWithRange:NSMakeRange(sysexStartLocation, length)];
 }
 

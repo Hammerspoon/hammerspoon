@@ -13,7 +13,7 @@ PODS:
   - Crashlytics (3.10.9):
     - Fabric (~> 1.7.13)
   - Fabric (1.7.13)
-  - MIKMIDI (1.6.3)
+  - MIKMIDI (1.7.0)
   - PocketSocket/Client (1.0.1):
     - PocketSocket/Core
   - PocketSocket/Core (1.0.1)
@@ -26,30 +26,9 @@ DEPENDENCIES:
   - CocoaLumberjack (= 3.4.2)
   - Crashlytics (= 3.10.9)
   - Fabric (= 1.7.13)
-  - MIKMIDI (from `https://github.com/mixedinkey-opensource/MIKMIDI.git`, commit `a674024`)
+  - MIKMIDI (= 1.7.0)
   - PocketSocket/Client (= 1.0.1)
   - Sparkle (= 1.20.0)
-
-SPEC REPOS:
-  https://github.com/cocoapods/specs.git:
-    - ASCIImage
-    - CocoaAsyncSocket
-    - CocoaHTTPServer
-    - CocoaLumberjack
-    - Crashlytics
-    - Fabric
-    - PocketSocket
-    - Sparkle
-
-EXTERNAL SOURCES:
-  MIKMIDI:
-    :commit: a674024
-    :git: https://github.com/mixedinkey-opensource/MIKMIDI.git
-
-CHECKOUT OPTIONS:
-  MIKMIDI:
-    :commit: a674024
-    :git: https://github.com/mixedinkey-opensource/MIKMIDI.git
 
 SPEC CHECKSUMS:
   ASCIImage: bcff9650deae86e0e0ac310145cc628948201ab8
@@ -58,10 +37,10 @@ SPEC CHECKSUMS:
   CocoaLumberjack: db7cc9e464771f12054c22ff6947c5a58d43a0fd
   Crashlytics: 55e24fc23989680285a21cb1146578d9d18e432c
   Fabric: 25d0963b691fc97be566392243ff0ecef5a68338
-  MIKMIDI: 62b879ef4cd43cf9673851d7cb2ab5002f9bb069
+  MIKMIDI: a9192db16687fcf1d2c82b98492b999fa8ede7c6
   PocketSocket: 9c6867d66fb4f962af96b9b07f4b45bb561b2c2a
   Sparkle: 48999e7ee032f05ca05e28451eadf4af8ede6b44
 
-PODFILE CHECKSUM: 3ed4a69e2d5a5e15f9a64201f3ec47518ad9dbd0
+PODFILE CHECKSUM: 7cd83cb81c1df43a610a7c4d7930e92c7a7ae883
 
-COCOAPODS: 1.5.3
+COCOAPODS: 1.4.0

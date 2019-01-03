@@ -11,7 +11,7 @@
 #import "MIKMIDISynthesizer_SubclassMethods.h"
 #import "MIKMIDIErrors.h"
 #import "MIKMIDIClock.h"
-
+#import "MIKMIDIPrivate.h"
 
 @interface MIKMIDISynthesizer ()
 {
@@ -27,17 +27,17 @@
 
 @implementation MIKMIDISynthesizer
 
-- (instancetype)init
+- (instancetype)initWithError:(NSError **)error
 {
-	return [self initWithAudioUnitDescription:[[self class] appleSynthComponentDescription]];
+	return [self initWithAudioUnitDescription:[[self class] appleSynthComponentDescription] error:error];
 }
 
-- (instancetype)initWithAudioUnitDescription:(AudioComponentDescription)componentDescription
+- (instancetype)initWithAudioUnitDescription:(AudioComponentDescription)componentDescription error:(NSError ** _Nullable)error
 {
 	self = [super init];
 	if (self) {
 		_componentDescription = componentDescription;
-		if (![self setupAUGraph]) return nil;
+		if (![self setupAUGraphWithError:error]) { return nil; }
 
 		self.sendMIDICommand = ^(MIKMIDISynthesizer *synth, MusicDeviceComponent inUnit, UInt32 inStatus, UInt32 inData1, UInt32 inData2, UInt32 inOffsetSampleFrame) {
 			return MusicDeviceMIDIEvent(inUnit, inStatus, inData1, inData2, inOffsetSampleFrame);
@@ -165,7 +165,10 @@
 	}
 #else
 	FSRef fsRef;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 	err = FSPathMakeRef((const UInt8*)[[fileURL path] cStringUsingEncoding:NSUTF8StringEncoding], &fsRef, 0);
+#pragma clang diagnostic pop
 	if (err != noErr) {
 		*error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
 		return NO;
@@ -244,12 +247,14 @@
 
 #pragma mark Audio Graph
 
-- (BOOL)setupAUGraph
+- (BOOL)setupAUGraphWithError:(NSError **)error
 {
+	error = error ?: &(NSError *__autoreleasing){ nil };
 	AUGraph graph;
 	OSStatus err = 0;
 	if ((err = NewAUGraph(&graph))) {
 		NSLog(@"Unable to create AU graph: %@", @(err));
+		*error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
 		return NO;
 	}
 	
@@ -266,6 +271,7 @@
 	AUNode outputNode;
 	if ((err = AUGraphAddNode(graph, &outputcd, &outputNode))) {
 		NSLog(@"Unable to add ouptput node to graph: %@", @(err));
+		*error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
 		return NO;
 	}
 	
@@ -274,27 +280,32 @@
 	AUNode instrumentNode;
 	if ((err = AUGraphAddNode(graph, &instrumentcd, &instrumentNode))) {
 		NSLog(@"Unable to add instrument node to AU graph: %@", @(err));
+		*error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
 		return NO;
 	}
 	
 	if ((err = AUGraphOpen(graph))) {
 		NSLog(@"Unable to open AU graph: %@", @(err));
+		*error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
 		return NO;
 	}
 	
 	AudioUnit instrumentUnit;
 	if ((err = AUGraphNodeInfo(graph, instrumentNode, NULL, &instrumentUnit))) {
 		NSLog(@"Unable to get instrument AU unit: %@", @(err));
+		*error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
 		return NO;
 	}
 	
 	if ((err = AUGraphConnectNodeInput(graph, instrumentNode, 0, outputNode, 0))) {
 		NSLog(@"Unable to connect instrument to output: %@", @(err));
+		*error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
 		return NO;
 	}
 	
 	if ((err = AUGraphInitialize(graph))) {
 		NSLog(@"Unable to initialize AU graph: %@", @(err));
+		*error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
 		return NO;
 	}
 	
@@ -309,6 +320,7 @@
 	
 	if ((err = AUGraphStart(graph))) {
 		NSLog(@"Unable to start AU graph: %@", @(err));
+		*error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
 		return NO;
 	}
 	
@@ -363,8 +375,10 @@
 		dispatch_queue_attr_t attr = DISPATCH_QUEUE_SERIAL;
 
 #if defined (__MAC_10_10) || defined (__IPHONE_8_0)
-		if (&dispatch_queue_attr_make_with_qos_class != NULL) {
-			attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, 0);
+		if (@available(macOS 10.10, iOS 8, *)) {
+			if (&dispatch_queue_attr_make_with_qos_class != NULL) {
+				attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, 0);
+			}
 		}
 #endif
 		
@@ -375,27 +389,27 @@
 	for (MIKMIDICommand *command in commands) {
 		dispatch_sync(queue, ^{
 			NSUInteger count = commands.count;
-			if (!_scheduledCommandsByTimeStamp) {
-				_scheduledCommandsByTimeStamp = CFDictionaryCreateMutable(NULL, count, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+			if (!self->_scheduledCommandsByTimeStamp) {
+				self->_scheduledCommandsByTimeStamp = CFDictionaryCreateMutable(NULL, count, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 			}
-			if (!_scheduledCommandTimeStampsSet) {
-				_scheduledCommandTimeStampsSet = CFSetCreateMutable(NULL, count, &kCFTypeSetCallBacks);
+			if (!self->_scheduledCommandTimeStampsSet) {
+				self->_scheduledCommandTimeStampsSet = CFSetCreateMutable(NULL, count, &kCFTypeSetCallBacks);
 			}
-			if (!_scheduledCommandTimeStampsArray) {
-				_scheduledCommandTimeStampsArray = CFArrayCreateMutable(NULL, count, &kCFTypeArrayCallBacks);
+			if (!self->_scheduledCommandTimeStampsArray) {
+				self->_scheduledCommandTimeStampsArray = CFArrayCreateMutable(NULL, count, &kCFTypeArrayCallBacks);
 			}
 
 			MIDITimeStamp timeStamp = command.midiTimestamp;
 			void *timeStampNumber = (__bridge void*)@(timeStamp);
-			CFMutableArrayRef commandsAtTimeStamp = (CFMutableArrayRef)CFDictionaryGetValue(_scheduledCommandsByTimeStamp, timeStampNumber);
+			CFMutableArrayRef commandsAtTimeStamp = (CFMutableArrayRef)CFDictionaryGetValue(self->_scheduledCommandsByTimeStamp, timeStampNumber);
 			if (!commandsAtTimeStamp) {
 				commandsAtTimeStamp = CFArrayCreateMutable(NULL, 0, &kCFTypeArrayCallBacks);
-				CFDictionarySetValue(_scheduledCommandsByTimeStamp, timeStampNumber, (void *)commandsAtTimeStamp);
+				CFDictionarySetValue(self->_scheduledCommandsByTimeStamp, timeStampNumber, (void *)commandsAtTimeStamp);
 				CFRelease(commandsAtTimeStamp);
 
-				if (!CFSetContainsValue(_scheduledCommandTimeStampsSet, timeStampNumber)) {
-					CFSetAddValue(_scheduledCommandTimeStampsSet, timeStampNumber);
-					CFArrayAppendValue(_scheduledCommandTimeStampsArray, timeStampNumber);
+				if (!CFSetContainsValue(self->_scheduledCommandTimeStampsSet, timeStampNumber)) {
+					CFSetAddValue(self->_scheduledCommandTimeStampsSet, timeStampNumber);
+					CFArrayAppendValue(self->_scheduledCommandTimeStampsArray, timeStampNumber);
 				}
 			}
 
@@ -537,13 +551,45 @@ static OSStatus MIKMIDISynthesizerInstrumentUnitRenderCallback(void *						inRef
 
 #pragma mark - Deprecated
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-implementations"
+
+- (instancetype)init
+{
+	SHOW_STANDARD_DEPRECATION_WARNING;
+	return [self initWithError:NULL];
+}
+
+- (instancetype)initWithAudioUnitDescription:(AudioComponentDescription)componentDescription
+{
+	SHOW_STANDARD_DEPRECATION_WARNING;
+	return [self initWithAudioUnitDescription:componentDescription error:NULL];
+}
+
+- (BOOL)setupAUGraph
+{
+	SHOW_STANDARD_DEPRECATION_WARNING;
+	return [self setupAUGraphWithError:NULL];
+}
+
 + (NSSet *)keyPathsForValuesAffectingInstrument { return [NSSet setWithObjects:@"instrumentUnit", nil]; }
-- (AudioUnit)instrument { return self.instrumentUnit; }
-- (void)setInstrument:(AudioUnit)instrument { self.instrumentUnit = instrument; }
+- (AudioUnit)instrument
+{
+	SHOW_STANDARD_DEPRECATION_WARNING;
+	return self.instrumentUnit;
+}
+- (void)setInstrument:(AudioUnit)instrument
+{
+	SHOW_STANDARD_DEPRECATION_WARNING;
+	self.instrumentUnit = instrument;
+}
 
 - (BOOL)selectInstrument:(MIKMIDISynthesizerInstrument *)instrument
 {
+	SHOW_STANDARD_DEPRECATION_WARNING;
 	return [self selectInstrument:instrument error:NULL];
 }
+
+#pragma clang diagnostic pop
 
 @end
