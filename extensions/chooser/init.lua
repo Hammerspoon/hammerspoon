@@ -7,7 +7,8 @@
 
 require("hs.styledtext")
 require("hs.drawing.color")
-local chooser = require "hs.chooser.internal"
+local chooser = require("hs.chooser.internal")
+local window = require("hs.window")
 
 --- hs.chooser.globalCallback
 --- Variable
@@ -28,7 +29,7 @@ end
 
 chooser._defaultGlobalCallback = function(whichChooser, state)
   if state == "willOpen" then
-    chooser._lastFocused[whichChooser] = hs.window.frontmostWindow()
+    chooser._lastFocused[whichChooser] = window.frontmostWindow()
   elseif state == "didClose" then
     local initialChooserUserdata = nil
     for k,_ in pairs(chooser._lastFocused) do
