@@ -187,7 +187,7 @@ static int refTable = LUA_NOREF;
 - (void)startSynthesize
 {
     MIKMIDISourceEndpoint *endpoint = self.midiDevice.entities.firstObject.sources.firstObject;
-    _synth = [[MIKMIDIEndpointSynthesizer alloc] initWithMIDISource:endpoint];
+    _synth = [[MIKMIDIEndpointSynthesizer alloc] initWithMIDISource:endpoint error:NULL];
 }
 
 //
