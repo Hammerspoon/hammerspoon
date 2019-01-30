@@ -29,8 +29,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface MIKMIDISynthesizer : NSObject <MIKMIDICommandScheduler>
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnullability" // See https://github.com/mixedinkey-opensource/MIKMIDI/issues/216
 /**
  *  Initializes an MIKMIDISynthesizer instance which uses the default 
  *  MIDI instrument audio unit.
@@ -38,10 +36,11 @@ NS_ASSUME_NONNULL_BEGIN
  *  On OS X, the default unit is Apple's DLS Synth audio unit.
  *  On iOS, the default is Apple's AUSampler audio unit.
  *
+ *  @param error   If an error occurs, upon returns contains an NSError object that describes the problem. If you are not interested in possible errors, you may pass in NULL.
+ *
  *  @return An initialized MIKMIDIEndpointSynthesizer or nil if an error occurs.
  */
-- (nullable instancetype)init;
-#pragma clang diagnostic pop
+- (nullable instancetype)initWithError:(NSError **)error;
 
 /**
  *  Initializes an MIKMIDISynthesizer instance which uses an audio unit matching
@@ -49,10 +48,11 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *  @param componentDescription AudioComponentDescription describing the Audio Unit instrument
  *  you would like the synthesizer to use.
+ *  @param error   If an error occurs, upon returns contains an NSError object that describes the problem. If you are not interested in possible errors, you may pass in NULL.
  *
  *  @return An initialized MIKMIDIEndpointSynthesizer or nil if an error occurs.
  */
-- (nullable instancetype)initWithAudioUnitDescription:(AudioComponentDescription)componentDescription NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithAudioUnitDescription:(AudioComponentDescription)componentDescription error:(NSError **)error NS_DESIGNATED_INITIALIZER;
 
 /**
  *  This synthesizer's available instruments. An array of 
@@ -70,12 +70,13 @@ NS_ASSUME_NONNULL_BEGIN
  * Changes the instrument/voice used by the synthesizer.
  *
  *  @param instrument An MIKMIDISynthesizerInstrument instance.
+ *  @param error On failure, returns by reference an error object.
  *
  *  @return YES if the instrument was successfully changed, NO if the change failed.
  *
  *  @see +[MIKMIDISynthesizerInstrument availableInstruments]
  */
-- (BOOL)selectInstrument:(MIKMIDISynthesizerInstrument *)instrument;
+- (BOOL)selectInstrument:(MIKMIDISynthesizerInstrument *)instrument error:(NSError **)error;
 
 /**
  *  Loads the sound font (.dls or .sf2) file at fileURL.
@@ -101,11 +102,13 @@ NS_ASSUME_NONNULL_BEGIN
  *  that as well. DisposeAUGraph() is called on the previous graph when setting 
  *  the graph property, and in dealloc.
  *
+ *  @param error   If an error occurs, upon returns contains an NSError object that describes the problem. If you are not interested in possible errors, you may pass in NULL.
+ *
  *  @return YES is setting up the graph was succesful, and initialization
  *  should continue, NO if setting up the graph failed and initialization should
  *  return nil.
  */
-- (BOOL)setupAUGraph;
+- (BOOL)setupAUGraphWithError:(NSError **)error;
 
 /**
  *  Plays MIDI messages through the synthesizer.
@@ -146,12 +149,76 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, nullable) AUGraph graph;
 
-// Deprecated
+@end
+
+@interface MIKMIDISynthesizer (Deprecated)
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullability" // See https://github.com/mixedinkey-opensource/MIKMIDI/issues/216
+/**
+ *  Initializes an MIKMIDISynthesizer instance which uses the default
+ *  MIDI instrument audio unit.
+ *
+ *  @deprecated This method is deprecated. Use -initWithError: instead.
+ *
+ *  On OS X, the default unit is Apple's DLS Synth audio unit.
+ *  On iOS, the default is Apple's AUSampler audio unit.
+ *
+ *  @return An initialized MIKMIDIEndpointSynthesizer or nil if an error occurs.
+ */
+- (nullable instancetype)init DEPRECATED_MSG_ATTRIBUTE("Use -initWithError: instead");;
+#pragma clang diagnostic pop
+
+/**
+ *  Initializes an MIKMIDISynthesizer instance which uses an audio unit matching
+ *  the provided description.
+ *
+ *  @deprecated This method is deprecated. Use -initWithAudioUnitDescription:error: instead.
+ *
+ *  @param componentDescription AudioComponentDescription describing the Audio Unit instrument
+ *  you would like the synthesizer to use.
+ *
+ *  @return An initialized MIKMIDIEndpointSynthesizer or nil if an error occurs.
+ */
+- (nullable instancetype)initWithAudioUnitDescription:(AudioComponentDescription)componentDescription
+DEPRECATED_MSG_ATTRIBUTE("Use -initWithAudioUnitDescription:error: instead");
+
+/**
+ * Changes the instrument/voice used by the synthesizer.
+ *
+ *  @deprecated This method is deprecated. Use -selectInstrument:error: instead.
+ *
+ *  @param instrument An MIKMIDISynthesizerInstrument instance.
+ *
+ *  @return YES if the instrument was successfully changed, NO if the change failed.
+ *
+ *  @see +[MIKMIDISynthesizerInstrument availableInstruments]
+ */
+- (BOOL)selectInstrument:(MIKMIDISynthesizerInstrument *)instrument DEPRECATED_MSG_ATTRIBUTE("Use -selectInstrument:error: instead");
+
+/**
+ *  Sets up the AUGraph for the instrument. Do not call this method, as it is
+ *  called automatically during initialization.
+ *
+ *  The method is provided to give subclasses a chance to override
+ *  the AUGraph behavior for the instrument. If you do override it, you will need
+ *  to create an AudioUnit instrument and set it to the instrument property. Also,
+ *  if you intend to use the graph property, you will be responsible for setting
+ *  that as well. DisposeAUGraph() is called on the previous graph when setting
+ *  the graph property, and in dealloc.
+ *
+ *  @deprecated This method is deprecated. Use -setupAUGraphWithError: instead.
+ *
+ *  @return YES is setting up the graph was succesful, and initialization
+ *  should continue, NO if setting up the graph failed and initialization should
+ *  return nil.
+ */
+- (BOOL)setupAUGraph DEPRECATED_MSG_ATTRIBUTE("Use -setupAUGraphWithError: instead");
 
 /**
  *  @deprecated This has been (renamed to) instrumentUnit. Use that instead.
  */
-@property (nonatomic) AudioUnit instrument DEPRECATED_ATTRIBUTE;
+@property (nonatomic) AudioUnit instrument DEPRECATED_MSG_ATTRIBUTE("Use instrumentUnit instead");
 
 @end
 

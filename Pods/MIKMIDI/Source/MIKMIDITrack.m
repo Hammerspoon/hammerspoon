@@ -533,7 +533,7 @@
 	[self dispatchSyncToSequencerProcessingQueueAsNeeded:^{
 		if (!self.sortedEventsCache) {
 			NSSortDescriptor *sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"timeStamp" ascending:YES];
-			_sortedEventsCache = [self.internalEvents sortedArrayUsingDescriptors:@[sortDescriptor]];
+			self->_sortedEventsCache = [self.internalEvents sortedArrayUsingDescriptors:@[sortDescriptor]];
 		}
 		events = self.sortedEventsCache;
 	}];
