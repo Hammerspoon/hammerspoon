@@ -9,12 +9,12 @@
 #import "MIKMIDISystemMessageCommand.h"
 #import "MIKMIDICompilerCompatibility.h"
 
-#define kMIKMIDISysexNonRealtimeManufacturerID 0x7E
-#define kMIKMIDISysexRealtimeManufacturerID 0x7F
+extern uint32_t const kMIKMIDISysexNonRealtimeManufacturerID;
+extern uint32_t const kMIKMIDISysexRealtimeManufacturerID;
 
-#define kMIKMIDISysexChannelDisregard 0x7F
-#define kMIKMIDISysexBeginDelimiter 0xF0
-#define kMIKMIDISysexEndDelimiter 0xF7
+extern uint8_t const kMIKMIDISysexChannelDisregard;
+extern uint8_t const kMIKMIDISysexBeginDelimiter;
+extern uint8_t const kMIKMIDISysexEndDelimiter;
 
 NS_ASSUME_NONNULL_BEGIN
 

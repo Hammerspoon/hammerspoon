@@ -7,15 +7,20 @@
 
 #import "MIKMIDIClientSourceEndpoint.h"
 #import "MIKMIDICommand.h"
+#import "MIKMIDIErrors.h"
 
 @implementation MIKMIDIClientSourceEndpoint
 
 + (NSArray *)representedMIDIObjectTypes; { return @[@(kMIDIObjectType_Source)]; }
 
-- (instancetype)initWithName:(NSString*)name
+- (instancetype)initWithName:(NSString*)name error:(NSError **)error
 {
+	error = error ?: &(NSError *__autoreleasing){ nil };
+	
 	if (!name || name.length == 0) {
 		[NSException raise:@"Problem instantiating MIKMIDIClientSourceEndpoint" format:@"Virtual endpoint needs name"];
+		*error = [NSError MIKMIDIErrorWithCode:MIKMIDIInvalidArgumentError userInfo:nil];
+		return nil;
 	}
 	
 	MIDIClientRef midiClient;
@@ -31,13 +36,12 @@
 				  "Please see https://github.com/mixedinkey-opensource/MIKMIDI/wiki/Adding-Audio-to-UIBackgroundModes");
 		}
 #endif
+		*error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
 		return nil;
 	}
 	
 	self = [super initWithObjectRef:midiOut];
 	if (self) {
-		
-		
 	}
 	return self;
 }

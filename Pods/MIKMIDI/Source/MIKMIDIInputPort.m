@@ -63,7 +63,7 @@
 		
 		_handlerTokenQueue = dispatch_queue_create("com.mixedinkey.MIKMIDI.com.mixedinkey.MIKMIDI.MIKMIDIInputPort.handlerTokenQueue", DISPATCH_QUEUE_SERIAL);
 		dispatch_sync(_handlerTokenQueue, ^{
-			_handlerTokenPairsByEndpoint = [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsStrongMemory valueOptions:NSPointerFunctionsStrongMemory];
+			self->_handlerTokenPairsByEndpoint = [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsStrongMemory valueOptions:NSPointerFunctionsStrongMemory];
 		});
 		
 		_internalSources = [[NSMutableArray alloc] init];
