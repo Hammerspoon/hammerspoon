@@ -281,7 +281,7 @@
                          MJShowMenuIconKey: @NO,
                          HSAutoLoadExtensions: @YES,
                          HSUploadCrashDataKey: @YES,
-                         HSAppleScriptEnabledKey: @YES,
+                         HSAppleScriptEnabledKey: @NO,
                          HSOpenConsoleOnDockClickKey: @NO,
                          HSPreferencesDarkModeKey: @YES,
                          HSConsoleDarkModeKey: @YES,
