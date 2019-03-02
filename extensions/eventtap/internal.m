@@ -17,6 +17,12 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef
 
     eventtap_t* e = refcon;
 
+    // Guard against a crash where e->fn is a LUA_NOREF/LUA_REFNIL, which shouldn't be possible (maybe a subtle race condition?)
+    if (e->fn == LUA_NOREF || e->fn == LUA_REFNIL) {
+        [skin logBreadcrumb:@"eventtap_callback called with LUA_NOREF/LUA_REFNIL"];
+        return event;
+    }
+
 //  apparently OS X disables eventtaps if it thinks they are slow or odd or just because the moon
 //  is wrong in some way... but at least it's nice enough to tell us.
     if ((type == kCGEventTapDisabledByTimeout) || (type == kCGEventTapDisabledByUserInput)) {

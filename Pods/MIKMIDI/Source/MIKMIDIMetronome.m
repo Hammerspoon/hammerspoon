@@ -40,9 +40,9 @@
 	return YES;
 }
 
-- (instancetype)init
+- (instancetype)initWithError:(NSError **)error
 {
-	if (self = [super init]) {
+	if (self = [super initWithError:error]) {
 		if (![self setupMetronome]) return nil;
 	}
 	return self;

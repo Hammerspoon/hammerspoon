@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface MIKMIDIMetronome : MIKMIDIEndpointSynthesizer
 
-- (nullable instancetype)init;	// makes -init available to subclass in Swift while we're still a subclass of MIKMIDIEndpointSynthesizer
+- (nullable instancetype)initWithError:(NSError * _Nullable __autoreleasing *)error;	// makes -init available to subclass in Swift while we're still a subclass of MIKMIDIEndpointSynthesizer
 
 @property (nonatomic) MIDINoteMessage tickMessage;
 @property (nonatomic) MIDINoteMessage tockMessage;
