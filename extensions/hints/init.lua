@@ -44,6 +44,11 @@ hints.showTitleThresh = 4
 --- If the title is longer than maxSize, the string is truncated, -1 to disable, valid value is >= 6
 hints.titleMaxSize = -1
 
+--- hs.hints.iconAlpha
+--- Variable
+--- Opacity of the application icon. Default is 0.95.
+hints.iconAlpha = 0.95
+
 local openHints = {}
 local takenPositions = {}
 local hintDict = {}
@@ -143,7 +148,7 @@ function hints.displayHintsForDict(dict, prefixstring, showTitles, allowNonStand
             suffixString = ": "..win_title
           end
           -- print(win:title().." x:"..c.x.." y:"..c.y) -- debugging
-          local hint = hints.new(c.x, c.y, prefixstring .. key .. suffixString, app:bundleID(), win:screen(), hints.fontName, hints.fontSize)
+          local hint = hints.new(c.x, c.y, prefixstring .. key .. suffixString, app:bundleID(), win:screen(), hints.fontName, hints.fontSize, hints.iconAlpha)
           table.insert(takenPositions, c)
           table.insert(openHints, hint)
         end
