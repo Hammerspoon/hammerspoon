@@ -897,8 +897,8 @@ static int webview_url(lua_State *L) {
         NSURLRequest *theNSURL = [skin luaObjectAtIndex:2 toClass:"NSURLRequest"] ;
         if (theNSURL) {
             if (theView.loading) [theView stopLoading] ;
+            while (theView.loading) {}
             dispatch_async(dispatch_get_main_queue(), ^{
-                while (theView.loading) {}
                 WKNavigation *navID = [theView loadRequest:theNSURL] ;
                 theView.trackingID = navID ;
             }) ;
