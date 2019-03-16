@@ -1394,8 +1394,8 @@ static int webview_html(lua_State *L) {
     NSString *theBaseURL = (lua_type(L, 3) == LUA_TSTRING) ? [skin toNSObjectAtIndex:3] : nil ;
 
     if (theView.loading) [theView stopLoading] ;
+    while (theView.loading) {}
     dispatch_async(dispatch_get_main_queue(), ^{
-        while (theView.loading) {}
         WKNavigation *navID = [theView loadHTMLString:theHTML baseURL:[NSURL URLWithString:theBaseURL]] ;
         theView.trackingID = navID ;
     }) ;
