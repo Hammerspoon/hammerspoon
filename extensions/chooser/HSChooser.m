@@ -286,7 +286,7 @@
     } else {
         [skin pushNSObject:self];
         lua_pushstring(L, "didClose");
-        [skin protectedCallAndError:@"hs.chooser.globalCallback willOpen" nargs:2 nresults:0];
+        [skin protectedCallAndError:@"hs.chooser.globalCallback didClose" nargs:2 nresults:0];
     }
     _lua_stackguard_exit(L);
 }

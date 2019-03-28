@@ -14,11 +14,6 @@
 ---
 --- This extension was thrown together by [Chris Hocking](https://github.com/latenitefilms), then dramatically improved by [David Peterson](https://github.com/randomeizer) for [CommandPost](http://commandpost.io).
 
---------------------------------------------------------------------------------
---
--- EXTENSIONS:
---
---------------------------------------------------------------------------------
 local log                                       = require("hs.logger").new("tangent")
 local inspect                                   = require("hs.inspect")
 
@@ -413,7 +408,10 @@ local function processCommands(commands)
     -- Trigger the callback:
     --------------------------------------------------------------------------------
     if mod._callback then
-        mod._callback(commands)
+        local success, result = xpcall(function() mod._callback(commands) end, debug.traceback)
+        if not success then
+            log.ef("Error in Tangent Callback: %s", result)
+        end
     end
 end
 
@@ -1219,7 +1217,7 @@ function mod.sendApplicationDefinition(appName, systemPath, userPath)
     return mod.send(byteString)
 end
 
---- hs.tangent.setParameterValue(paramID, value[, atDefault]) -> boolean, string
+--- hs.tangent.sendParameterValue(paramID, value[, atDefault]) -> boolean, string
 --- Function
 --- Updates the Hub with a parameter value.
 --- The Hub then updates the displays of any panels which are currently
