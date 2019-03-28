@@ -123,7 +123,12 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
 }
 
 - (void) appendString:(NSString*)str type:(MJReplLineType)type {
-    NSColor* color = nil;
+    NSColor* color = self.MJColorForStdout;
+
+    if (!str) {
+        return;
+    }
+
     switch (type) {
         case MJReplLineTypeStdout:  color = self.MJColorForStdout; break;
         case MJReplLineTypeCommand: color = self.MJColorForCommand; break;
