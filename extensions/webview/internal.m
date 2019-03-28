@@ -899,8 +899,8 @@ static int webview_url(lua_State *L) {
         NSURLRequest *theNSURL = [skin luaObjectAtIndex:2 toClass:"NSURLRequest"] ;
         if (theNSURL) {
             if (theView.loading) [theView stopLoading] ;
+            while (theView.loading) {}
             dispatch_async(dispatch_get_main_queue(), ^{
-                while (theView.loading) {}
                 WKNavigation *navID = [theView loadRequest:theNSURL] ;
                 theView.trackingID = navID ;
             }) ;
@@ -1178,8 +1178,8 @@ static int webview_reload(lua_State *L) {
     HSWebViewView   *theView = theWindow.contentView ;
 
     if (theView.loading) [theView stopLoading] ;
+    while (theView.loading) {}
     dispatch_async(dispatch_get_main_queue(), ^{
-        while (theView.loading) {}
         WKNavigation *navID ;
         if (lua_type(L, 2) == LUA_TBOOLEAN && lua_toboolean(L, 2))
             navID = [theView reload] ;
