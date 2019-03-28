@@ -331,7 +331,7 @@ static const char *portError(SInt32 code) {
         NSError *error = nil ;
         [self sendToRemote:_localName msgID:MSGID_UNREGISTER wantResponse:NO error:&error] ;
         if (error) {
-            fprintf(stderr, "error unregistering CLI instance with Hammerspoon: %s\n", portError((SInt32)error.code)) ;
+            fprintf(stderr, "error unregistering CLI instance with Hammerspoon: %s (transport errors are normal if Hammerspoon is reloading)\n", portError((SInt32)error.code)) ;
             return NO ;
         }
     }
