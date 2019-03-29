@@ -30,16 +30,16 @@ static int json_encode(lua_State* L) {
             NSError* error;
             NSData* data = [NSJSONSerialization dataWithJSONObject:obj options:opts error:&error];
 
-            if (data) {
-                NSString* str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+			if (error) {
+				return luaL_error(L, "%s", [[error localizedDescription] UTF8String]);
+			} else if (data) {
+				NSString* str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
                 lua_pushstring(L, [str UTF8String]);
                 return 1;
-            }
-            else {
-                lua_pushstring(L, [[error localizedDescription] UTF8String]);
-                lua_error(L);
-                return 0; // unreachable
-            }
+			} else {
+				return luaL_error(L, "json output returned nil") ;
+			}
+
         } else {
             luaL_error(L, "object cannot be encoded as a json string") ;
             return 0;
@@ -71,14 +71,15 @@ static int json_decode(lua_State* L) {
         NSError* error;
         id obj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&error];
 
-        if (obj) {
-            [[LuaSkin shared] pushNSObject:obj] ;
-            return 1;
-        } else {
-            lua_pushstring(L, [[error localizedDescription] UTF8String]);
-            lua_error(L);
-            return 0; // unreachable
-        }
+		if (error) {
+			return luaL_error(L, "%s", [[error localizedDescription] UTF8String]);
+		} else if (obj) {
+			[[LuaSkin shared] pushNSObject:obj] ;
+			return 1;
+		} else {
+			return luaL_error(L, "json input returned nil") ;
+		}
+
     } else {
         return luaL_error(L, "Unable to convert json input into data structure.") ;
     }
