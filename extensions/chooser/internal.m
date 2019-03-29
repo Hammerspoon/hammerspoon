@@ -780,6 +780,13 @@ static int userdata_gc(lua_State* L) {
             chooser.completionCallbackRef = [skin luaUnref:refTable ref:chooser.completionCallbackRef];
             chooser.rightClickCallbackRef = [skin luaUnref:refTable ref:chooser.rightClickCallbackRef];
             chooser.isObservingThemeChanges = NO;  // Stop observing for interface theme changes.
+
+            NSWindow *theWindow = chooser.window ;
+            if (theWindow.toolbar) {
+                theWindow.toolbar.visible = NO ;
+                theWindow.toolbar = nil ;
+            }
+
             chooser = nil;
         }
     }
