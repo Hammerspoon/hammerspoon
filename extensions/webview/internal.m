@@ -2940,6 +2940,12 @@ static int userdata_gc(lua_State* L) {
         theWindow.windowCallback   = [skin luaUnref:refTable ref:theWindow.windowCallback] ;
         theView.navigationCallback = [skin luaUnref:refTable ref:theView.navigationCallback] ;
         theView.policyCallback     = [skin luaUnref:refTable ref:theView.policyCallback] ;
+
+        if (theWindow.toolbar) {
+            theWindow.toolbar.visible = NO ;
+            theWindow.toolbar = nil ;
+        }
+
         [theWindow close] ; // ensure a proper close when gc invoked during reload; nop if hs.webview:delete() is used
 
         // emancipate us from our parent
