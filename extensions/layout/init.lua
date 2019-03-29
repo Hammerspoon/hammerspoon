@@ -134,6 +134,10 @@ function layout.apply(theLayout, windowTitleComparator)
         local unit = _row[4]
         local frame = _row[5]
         local fullframe = _row[6]
+        local options = _row["options"]
+        if not options then
+            options = {}
+        end
 
         -- Find the application's object, if wanted
         if _row[1] then
@@ -233,10 +237,10 @@ function layout.apply(theLayout, windowTitleComparator)
 
                 if winframe then
                     if winframe.x < 0 or winframe.y < 0 then
-                        if winframe.x < 0 then
+                        if winframe.x < 0 and not options["absolute_x"] then
                             winframe.x = screenrect.w + winframe.x
                         end
-                        if winframe.y < 0 then
+                        if winframe.y < 0 and not options["absolute_y"] then
                             winframe.y = screenrect.h + winframe.y
                         end
                     end
