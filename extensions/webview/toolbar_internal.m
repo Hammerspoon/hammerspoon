@@ -903,13 +903,13 @@ static int attachToolbar(lua_State *L) {
         if (oldToolbar) {
             oldToolbar.visible = NO ;
             theWindow.toolbar = nil ;
-            if (isChooser) theWindow.styleMask &= ~NSWindowStyleMaskTitled  ; // chooser isn't normally titled
+            if (isChooser) theWindow.styleMask = NSWindowStyleMaskFullSizeContentView ;
             if ([oldToolbar isKindOfClass:[HSToolbar class]]) oldToolbar.windowUsingToolbar = nil ;
         }
         if (newToolbar) {
             NSWindow *newTBWindow = newToolbar.windowUsingToolbar ;
             if (newTBWindow) newTBWindow.toolbar = nil ;
-            if (isChooser) theWindow.styleMask |= NSWindowStyleMaskTitled  ; // only titled windows can have toolbars
+            if (isChooser) theWindow.styleMask = NSWindowStyleMaskTitled ; // only titled windows can have toolbars
             theWindow.toolbar             = newToolbar ;
             newToolbar.windowUsingToolbar = theWindow ;
             newToolbar.visible            = YES ;
