@@ -118,7 +118,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
 
 - (void)windowDidBecomeKey:(__unused NSNotification *)notification {
 	dispatch_async(dispatch_get_main_queue(), ^{
-		if (_windowCallback != LUA_NOREF) {
+        if (self->_windowCallback != LUA_NOREF) {
 			LuaSkin *skin = [LuaSkin shared] ;
 			_lua_stackguard_entry(skin.L);
 			[skin pushLuaRef:refTable ref:self->_windowCallback] ;
@@ -133,7 +133,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
 
 - (void)windowDidResignKey:(__unused NSNotification *)notification {
 	dispatch_async(dispatch_get_main_queue(), ^{
-		if (_windowCallback != LUA_NOREF) {
+        if (self->_windowCallback != LUA_NOREF) {
 			LuaSkin *skin = [LuaSkin shared] ;
 			_lua_stackguard_entry(skin.L);
 			[skin pushLuaRef:refTable ref:self->_windowCallback] ;
@@ -148,7 +148,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
 
 - (void)windowDidResize:(__unused NSNotification *)notification {
 	dispatch_async(dispatch_get_main_queue(), ^{
-		if (_windowCallback != LUA_NOREF) {
+        if (self->_windowCallback != LUA_NOREF) {
 			LuaSkin *skin = [LuaSkin shared] ;
 			_lua_stackguard_entry(skin.L);
 			[skin pushLuaRef:refTable ref:self->_windowCallback] ;
@@ -163,7 +163,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
 
 - (void)windowDidMove:(__unused NSNotification *)notification {
 	dispatch_async(dispatch_get_main_queue(), ^{
-		if (_windowCallback != LUA_NOREF) {
+        if (self->_windowCallback != LUA_NOREF) {
 			LuaSkin *skin = [LuaSkin shared] ;
 			_lua_stackguard_entry(skin.L);
 			[skin pushLuaRef:refTable ref:self->_windowCallback] ;
