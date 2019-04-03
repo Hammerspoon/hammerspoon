@@ -903,13 +903,19 @@ static int attachToolbar(lua_State *L) {
         if (oldToolbar) {
             oldToolbar.visible = NO ;
             theWindow.toolbar = nil ;
-            if (isChooser) theWindow.styleMask = NSWindowStyleMaskFullSizeContentView ;
+            if (isChooser) {
+                theWindow.styleMask = NSWindowStyleMaskFullSizeContentView ; // the default for chooser
+                [theWindow setMovable: YES]; // the default for chooser, even though the user can't move it without a titlebar
+            }
             if ([oldToolbar isKindOfClass:[HSToolbar class]]) oldToolbar.windowUsingToolbar = nil ;
         }
         if (newToolbar) {
             NSWindow *newTBWindow = newToolbar.windowUsingToolbar ;
             if (newTBWindow) newTBWindow.toolbar = nil ;
-            if (isChooser) theWindow.styleMask = NSWindowStyleMaskTitled ; // only titled windows can have toolbars
+            if (isChooser) {
+                theWindow.styleMask = NSWindowStyleMaskTitled ; // only titled windows can have toolbars
+                [theWindow setMovable: NO]; // chooser isn't user movable
+            }
             theWindow.toolbar             = newToolbar ;
             newToolbar.windowUsingToolbar = theWindow ;
             newToolbar.visible            = YES ;
@@ -927,6 +933,43 @@ static int attachToolbar(lua_State *L) {
 }
 
 #pragma mark - Module Methods
+
+/// hs.webview.toolbar:inTitleBar([state]) -> toolbarObject | boolean
+/// Function
+/// Get or set whether or not the toolbar appears in the containing window's titlebar, similar to Safari.
+///
+/// Parameters:
+///  * `state` - an optional boolean specifying whether or not the toolbar should appear in the window's titlebar.
+///
+/// Returns:
+///  * if a parameter is specified, returns the toolbar object, otherwise the current value.
+///
+/// Notes:
+///  * When this value is true, the toolbar, when visible, will appear in the window's title bar similar to the toolbar as seen in applications like Safari.  In this state, the toolbar will set the display of the toolbar items to small icons without labels, ignoring subsequent changes set with [hs.webview.toolbar:displayMode](#displayMode), though you can still change the icon size with [hs.webview.toolbar:sizeMode](#sizeMode).
+///
+/// * This method is only valid when the toolbar is attached to a webview, chooser, or the console.
+static int toolbar_inTitleBar(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
+    HSToolbar *toolbar   = [skin toNSObjectAtIndex:1] ;
+    NSWindow  *theWindow = toolbar.windowUsingToolbar ;
+    if (lua_gettop(L) == 1) {
+        if (theWindow) {
+            lua_pushboolean(L, theWindow.titleVisibility == NSWindowTitleHidden) ;
+        } else {
+            lua_pushboolean(L, NO) ;
+        }
+    } else {
+        if (theWindow) {
+            NSWindowTitleVisibility state = lua_toboolean(L, 2) ? NSWindowTitleHidden : NSWindowTitleVisible ;
+            theWindow.titleVisibility = state ;
+        } else {
+            [skin logWarn:[NSString stringWithFormat:@"%s:inTitleBar - requires the toolbar to be attached before using", USERDATA_TB_TAG]] ;
+        }
+        lua_pushvalue(L, 1) ;
+    }
+    return 1 ;
+}
 
 /// hs.webview.toolbar:isAttached() -> boolean
 /// Method
@@ -1940,6 +1983,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {"copyToolbar",        copyToolbar},
     {"isAttached",         isAttachedToWindow},
     {"savedSettings",      configurationDictionary},
+    {"inTitleBar",         toolbar_inTitleBar},
 
     {"identifier",         toolbarIdentifier},
     {"setCallback",        setCallback},
