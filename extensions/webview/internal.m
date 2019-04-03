@@ -2123,7 +2123,7 @@ static int webview_windowTitle(lua_State *L) {
 /// Notes:
 ///  * See also [hs.webview:windowStyle](#windowStyle) and [hs.webview.windowMasks](#windowMasks).
 ///
-///  * When a toolbar is attached to the webview, this function can be used to specify whether the Toolbar appears underneath the webview window's title ("visible") or in the window's title bar itself, as seen in applications like Safari ("hidden"). When the title is hidden, the toolbar will only display the buttons as small icons without labels, regardless of the toolbar settings.
+///  * When a toolbar is attached to the webview, this function can be used to specify whether the Toolbar appears underneath the webview window's title ("visible") or in the window's title bar itself, as seen in applications like Safari ("hidden"). When the title is hidden, the toolbar will only display the toolbar items as icons without labels, and ignores changes made with `hs.webview.toolbar:displayMode`.
 ///
 ///  * If a toolbar is attached to the webview, you can achieve the same effect as this method with `hs.webview:attachedToolbar():inTitleBar(boolean)`
 static int webview_titleVisibility(lua_State *L) {

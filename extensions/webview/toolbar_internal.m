@@ -945,7 +945,7 @@ static int attachToolbar(lua_State *L) {
 ///  * if a parameter is specified, returns the toolbar object, otherwise the current value.
 ///
 /// Notes:
-///  * When this value is true, the toolbar, when visible, will appear in the window's title bar similar to the toolbar as seen in applications like Safari.  In this state, the toolbar will set the display of the toolbar items to small icons without labels, ignoring subsequent changes set with [hs.webview.toolbar:displayMode](#displayMode), though you can still change the icon size with [hs.webview.toolbar:sizeMode](#sizeMode).
+///  * When this value is true, the toolbar, when visible, will appear in the window's title bar similar to the toolbar as seen in applications like Safari.  In this state, the toolbar will set the display of the toolbar items to icons without labels, ignoring changes made with [hs.webview.toolbar:displayMode](#displayMode).
 ///
 /// * This method is only valid when the toolbar is attached to a webview, chooser, or the console.
 static int toolbar_inTitleBar(lua_State *L) {
