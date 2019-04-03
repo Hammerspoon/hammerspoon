@@ -583,7 +583,7 @@ hs.fileDroppedToDockIconCallback = nil
 ---
 --- Notes:
 ---  * This is an `hs.toolbar` object that is shown by default in the Hammerspoon Console
----  * You can remove this toolbar by adding `hs.console.toolbar(nil)` to your config, or you can replace it with your own `hs.toolbar` object
+---  * You can remove this toolbar by adding `hs.console.toolbar(nil)` to your config, or you can replace it with your own `hs.webview.toolbar` object
   local toolbar = require("hs.webview.toolbar")
   local console = require("hs.console")
   local image = require("hs.image")
