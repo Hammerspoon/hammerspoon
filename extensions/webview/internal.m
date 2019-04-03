@@ -2110,6 +2110,53 @@ static int webview_windowTitle(lua_State *L) {
     return 1 ;
 }
 
+/// hs.webview:titleVisibility([state]) -> webviewObject | string
+/// Function
+/// Get or set whether or not the title text appears in the webview window.
+///
+/// Parameters:
+///  * `state` - an optional string containing the text "visible" or "hidden", specifying whether or not the webview's title text appears when webview's window style includes "titled".
+///
+/// Returns:
+///  * if a value is provided, returns the webview object; otherwise returns the current value.
+///
+/// Notes:
+///  * See also [hs.webview:windowStyle](#windowStyle) and [hs.webview.windowMasks](#windowMasks).
+///
+///  * When a toolbar is attached to the webview, this function can be used to specify whether the Toolbar appears underneath the webview window's title ("visible") or in the window's title bar itself, as seen in applications like Safari ("hidden"). When the title is hidden, the toolbar will only display the buttons as small icons without labels, regardless of the toolbar settings.
+///
+///  * If a toolbar is attached to the webview, you can achieve the same effect as this method with `hs.webview:attachedToolbar():inTitleBar(boolean)`
+static int webview_titleVisibility(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
+
+    NSDictionary *mapping = @{
+        @"visible" : @(NSWindowTitleVisible),
+        @"hidden"  : @(NSWindowTitleHidden),
+    } ;
+
+    if (lua_gettop(L) == 1) {
+        NSNumber *titleVisibility = @(theWindow.titleVisibility) ;
+        NSString *value = [[mapping allKeysForObject:titleVisibility] firstObject] ;
+        if (value) {
+            [skin pushNSObject:value] ;
+        } else {
+            [skin logWarn:[NSString stringWithFormat:@"unrecognized titleVisibility %@ -- notify developers", titleVisibility]] ;
+            lua_pushnil(L) ;
+        }
+    } else {
+        NSNumber *value = mapping[[skin toNSObjectAtIndex:2]] ;
+        if (value) {
+            theWindow.titleVisibility = [value intValue] ;
+            lua_pushvalue(L, 1) ;
+        } else {
+            return luaL_argerror(L, 2, [[NSString stringWithFormat:@"must be one of '%@'", [[mapping allKeys] componentsJoinedByString:@"', '"]] UTF8String]) ;
+        }
+    }
+    return 1 ;
+}
+
 static int webview_windowStyle(lua_State *L) {
 // NOTE:  This method is wrapped in init.lua
     LuaSkin *skin = [LuaSkin shared] ;
@@ -3016,6 +3063,7 @@ static const luaL_Reg userdata_metaLib[] = {
     // Window related
     {"darkMode",                   webview_darkMode},
 
+    {"titleVisibility",            webview_titleVisibility},
     {"show",                       webview_show},
     {"hide",                       webview_hide},
     {"closeOnEscape",              webview_closeOnEscape},
