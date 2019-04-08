@@ -530,8 +530,8 @@ elementMT.__newindex = function(_, k, v)
     end
 end
 
-elementMT.__pairs = function(_)
-    local obj = elementMT.__e[_]
+elementMT.__pairs = function(s)
+    local obj = elementMT.__e[s]
     local keys = {}
     if obj.field then
         keys = obj.value[obj.field]
@@ -539,9 +539,9 @@ elementMT.__pairs = function(_)
         keys = obj.value
     else
         if obj.index == "_default" then
-            for _, k in ipairs(obj.self:canvasDefaultKeys()) do keys[k] = _[k] end
+            for _, k in ipairs(obj.self:canvasDefaultKeys()) do keys[k] = s[k] end
         else
-            for _, k in ipairs(obj.self:elementKeys(obj.index)) do keys[k] = _[k] end
+            for _, k in ipairs(obj.self:elementKeys(obj.index)) do keys[k] = s[k] end
         end
     end
     return function(_, k)
