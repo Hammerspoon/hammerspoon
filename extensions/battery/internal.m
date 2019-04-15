@@ -415,6 +415,38 @@ static int battery_psuSerial(lua_State* L) {
     return 1;
 }
 
+/// hs.battery.psuSerialString() -> string
+/// Function
+/// Returns the serial string of the attached power supply, if present
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A string containing the power supply's serial, or an empty string if no serial can be found
+// This uses a private API definition
+#ifndef kIOPSPowerAdapterSerialStringKey
+#define kIOPSPowerAdapterSerialStringKey    "SerialString"
+#endif
+static int battery_psuSerialString(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TBREAK];
+
+    NSString *serial = @"";
+
+    CFDictionaryRef psuInfo = IOPSCopyExternalPowerAdapterDetails();
+    if (psuInfo) {
+        NSString *serialString = (__bridge NSString *)CFDictionaryGetValue(psuInfo, CFSTR(kIOPSPowerAdapterSerialStringKey));
+        if (serialString) {
+            serial = serialString;
+        }
+        CFRelease(psuInfo);
+    }
+
+    [skin pushNSObject:serial];
+    return 1;
+}
+
 /// hs.battery.otherBatteryInfo() -> table
 /// Function
 /// Returns information about non-PSU batteries (e.g. bluetooth accessories)
@@ -575,6 +607,7 @@ static const luaL_Reg battery_lib[] = {
     {"isFinishingCharge", battery_isfinishingcharge},
     {"powerSource", battery_powersource},
     {"psuSerial", battery_psuSerial},
+    {"psuSerialString", battery_psuSerialString},
     {"otherBatteryInfo", battery_others},
     {"privateBluetoothBatteryInfo", battery_private},
     {NULL, NULL}

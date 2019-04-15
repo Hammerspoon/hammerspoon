@@ -118,7 +118,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
 
 - (void)windowDidBecomeKey:(__unused NSNotification *)notification {
 	dispatch_async(dispatch_get_main_queue(), ^{
-		if (_windowCallback != LUA_NOREF) {
+        if (self->_windowCallback != LUA_NOREF) {
 			LuaSkin *skin = [LuaSkin shared] ;
 			_lua_stackguard_entry(skin.L);
 			[skin pushLuaRef:refTable ref:self->_windowCallback] ;
@@ -133,7 +133,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
 
 - (void)windowDidResignKey:(__unused NSNotification *)notification {
 	dispatch_async(dispatch_get_main_queue(), ^{
-		if (_windowCallback != LUA_NOREF) {
+        if (self->_windowCallback != LUA_NOREF) {
 			LuaSkin *skin = [LuaSkin shared] ;
 			_lua_stackguard_entry(skin.L);
 			[skin pushLuaRef:refTable ref:self->_windowCallback] ;
@@ -148,7 +148,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
 
 - (void)windowDidResize:(__unused NSNotification *)notification {
 	dispatch_async(dispatch_get_main_queue(), ^{
-		if (_windowCallback != LUA_NOREF) {
+        if (self->_windowCallback != LUA_NOREF) {
 			LuaSkin *skin = [LuaSkin shared] ;
 			_lua_stackguard_entry(skin.L);
 			[skin pushLuaRef:refTable ref:self->_windowCallback] ;
@@ -163,7 +163,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
 
 - (void)windowDidMove:(__unused NSNotification *)notification {
 	dispatch_async(dispatch_get_main_queue(), ^{
-		if (_windowCallback != LUA_NOREF) {
+        if (self->_windowCallback != LUA_NOREF) {
 			LuaSkin *skin = [LuaSkin shared] ;
 			_lua_stackguard_entry(skin.L);
 			[skin pushLuaRef:refTable ref:self->_windowCallback] ;
@@ -897,8 +897,8 @@ static int webview_url(lua_State *L) {
         NSURLRequest *theNSURL = [skin luaObjectAtIndex:2 toClass:"NSURLRequest"] ;
         if (theNSURL) {
             if (theView.loading) [theView stopLoading] ;
+            while (theView.loading) {}
             dispatch_async(dispatch_get_main_queue(), ^{
-                while (theView.loading) {}
                 WKNavigation *navID = [theView loadRequest:theNSURL] ;
                 theView.trackingID = navID ;
             }) ;
@@ -1176,8 +1176,8 @@ static int webview_reload(lua_State *L) {
     HSWebViewView   *theView = theWindow.contentView ;
 
     if (theView.loading) [theView stopLoading] ;
+    while (theView.loading) {}
     dispatch_async(dispatch_get_main_queue(), ^{
-        while (theView.loading) {}
         WKNavigation *navID ;
         if (lua_type(L, 2) == LUA_TBOOLEAN && lua_toboolean(L, 2))
             navID = [theView reload] ;
@@ -1392,8 +1392,8 @@ static int webview_html(lua_State *L) {
     NSString *theBaseURL = (lua_type(L, 3) == LUA_TSTRING) ? [skin toNSObjectAtIndex:3] : nil ;
 
     if (theView.loading) [theView stopLoading] ;
+    while (theView.loading) {}
     dispatch_async(dispatch_get_main_queue(), ^{
-        while (theView.loading) {}
         WKNavigation *navID = [theView loadHTMLString:theHTML baseURL:[NSURL URLWithString:theBaseURL]] ;
         theView.trackingID = navID ;
     }) ;

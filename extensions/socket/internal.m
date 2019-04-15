@@ -21,36 +21,42 @@ static const char *USERDATA_TAG = "hs.socket";
 // Lua callbacks
 static void connectCallback(HSAsyncTcpSocket *asyncSocket) {
     mainThreadDispatch(
-        LuaSkin *skin = [LuaSkin shared];
-        _lua_stackguard_entry(skin.L);
-        [skin pushLuaRef:refTable ref:asyncSocket.connectCallback];
-        asyncSocket.connectCallback = [skin luaUnref:refTable ref:asyncSocket.connectCallback];
-        [skin protectedCallAndError:@"hs.socket:connect callback" nargs:0 nresults:0];
-        _lua_stackguard_exit(skin.L);
+    	if (asyncSocket.connectCallback != LUA_NOREF) {
+			LuaSkin *skin = [LuaSkin shared];
+			_lua_stackguard_entry(skin.L);
+			[skin pushLuaRef:refTable ref:asyncSocket.connectCallback];
+			asyncSocket.connectCallback = [skin luaUnref:refTable ref:asyncSocket.connectCallback];
+			[skin protectedCallAndError:@"hs.socket:connect callback" nargs:0 nresults:0];
+			_lua_stackguard_exit(skin.L);
+		}
     );
 }
 
 static void writeCallback(HSAsyncTcpSocket *asyncSocket, long tag) {
     mainThreadDispatch(
-        LuaSkin *skin = [LuaSkin shared];
-        _lua_stackguard_entry(skin.L);
-        [skin pushLuaRef:refTable ref:asyncSocket.writeCallback];
-        [skin pushNSObject: @(tag)];
-        asyncSocket.writeCallback = [skin luaUnref:refTable ref:asyncSocket.writeCallback];
-        [skin protectedCallAndError:@"hs.socket:write callback" nargs:1 nresults:0];
-        _lua_stackguard_exit(skin.L);
+    	if (asyncSocket.writeCallback != LUA_NOREF) {
+			LuaSkin *skin = [LuaSkin shared];
+			_lua_stackguard_entry(skin.L);
+			[skin pushLuaRef:refTable ref:asyncSocket.writeCallback];
+			[skin pushNSObject: @(tag)];
+			asyncSocket.writeCallback = [skin luaUnref:refTable ref:asyncSocket.writeCallback];
+			[skin protectedCallAndError:@"hs.socket:write callback" nargs:1 nresults:0];
+			_lua_stackguard_exit(skin.L);
+		}
     );
 }
 
 static void readCallback(HSAsyncTcpSocket *asyncSocket, NSData *data, long tag) {
     mainThreadDispatch(
-        LuaSkin *skin = [LuaSkin shared];
-        _lua_stackguard_entry(skin.L);
-        [skin pushLuaRef:refTable ref:asyncSocket.readCallback];
-        [skin pushNSObject:data withOptions:LS_NSLuaStringAsDataOnly];
-        [skin pushNSObject: @(tag)];
-        [skin protectedCallAndError:@"hs.socket:read callback" nargs:2 nresults:0];
-        _lua_stackguard_exit(skin.L);
+    	if (asyncSocket.readCallback != LUA_NOREF) {
+			LuaSkin *skin = [LuaSkin shared];
+			_lua_stackguard_entry(skin.L);
+			[skin pushLuaRef:refTable ref:asyncSocket.readCallback];
+			[skin pushNSObject:data withOptions:LS_NSLuaStringAsDataOnly];
+			[skin pushNSObject: @(tag)];
+			[skin protectedCallAndError:@"hs.socket:read callback" nargs:2 nresults:0];
+			_lua_stackguard_exit(skin.L);
+		}
     );
 }
 

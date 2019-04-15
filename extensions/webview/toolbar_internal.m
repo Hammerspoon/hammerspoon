@@ -1642,7 +1642,7 @@ static int toolbarCanCustomize(lua_State *L) {
     return 1 ;
 }
 
-/// hs.webview.toolbar:autossaves([bool]) -> toolbarObject | bool
+/// hs.webview.toolbar:autosaves([bool]) -> toolbarObject | bool
 /// Method
 /// Get or set whether or not the toolbar autosaves changes made to the toolbar.
 ///
