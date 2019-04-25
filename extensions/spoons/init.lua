@@ -162,10 +162,13 @@ function module.list(onlyLoaded)
           if f then
              if string.match(f, ".spoon$") then
                 local s = f:gsub(".spoon$", "")
-                local l = (spoon[s] ~= nil)
+                local l = spoon and spoon[s] ~= nil
                 if (not onlyLoaded) or l then
                    local new = { name = s, loaded = l }
-                   if l then new.version = spoon[s].version end
+                   if l then
+                      if not spoon then spoon = {} end
+                      new.version = spoon[s].version
+                   end
                    table.insert(res, new)
                 end
              end
