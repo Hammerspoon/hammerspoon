@@ -8,6 +8,6 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface HSChooserWindow : NSWindow
+@interface HSChooserWindow : NSPanel
 
 @end
