@@ -87,27 +87,27 @@
         self.reloadWhenVisible = NO;
     }
 
-    [self addShortcut:@"1" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self tableView:_tableView didClickedRow:0]; }];
-    [self addShortcut:@"2" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self tableView:_tableView didClickedRow:1]; }];
-    [self addShortcut:@"3" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self tableView:_tableView didClickedRow:2]; }];
-    [self addShortcut:@"4" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self tableView:_tableView didClickedRow:3]; }];
-    [self addShortcut:@"5" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self tableView:_tableView didClickedRow:4]; }];
-    [self addShortcut:@"6" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self tableView:_tableView didClickedRow:5]; }];
-    [self addShortcut:@"7" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self tableView:_tableView didClickedRow:6]; }];
-    [self addShortcut:@"8" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self tableView:_tableView didClickedRow:7]; }];
-    [self addShortcut:@"9" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self tableView:_tableView didClickedRow:8]; }];
-    [self addShortcut:@"0" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self tableView:_tableView didClickedRow:9]; }];
+    [self addShortcut:@"1" keyCode:-1 mods:NSEventModifierFlagCommand handler:^{ [_self tableView:_tableView didClickedRow:0]; }];
+    [self addShortcut:@"2" keyCode:-1 mods:NSEventModifierFlagCommand handler:^{ [_self tableView:_tableView didClickedRow:1]; }];
+    [self addShortcut:@"3" keyCode:-1 mods:NSEventModifierFlagCommand handler:^{ [_self tableView:_tableView didClickedRow:2]; }];
+    [self addShortcut:@"4" keyCode:-1 mods:NSEventModifierFlagCommand handler:^{ [_self tableView:_tableView didClickedRow:3]; }];
+    [self addShortcut:@"5" keyCode:-1 mods:NSEventModifierFlagCommand handler:^{ [_self tableView:_tableView didClickedRow:4]; }];
+    [self addShortcut:@"6" keyCode:-1 mods:NSEventModifierFlagCommand handler:^{ [_self tableView:_tableView didClickedRow:5]; }];
+    [self addShortcut:@"7" keyCode:-1 mods:NSEventModifierFlagCommand handler:^{ [_self tableView:_tableView didClickedRow:6]; }];
+    [self addShortcut:@"8" keyCode:-1 mods:NSEventModifierFlagCommand handler:^{ [_self tableView:_tableView didClickedRow:7]; }];
+    [self addShortcut:@"9" keyCode:-1 mods:NSEventModifierFlagCommand handler:^{ [_self tableView:_tableView didClickedRow:8]; }];
+    [self addShortcut:@"0" keyCode:-1 mods:NSEventModifierFlagCommand handler:^{ [_self tableView:_tableView didClickedRow:9]; }];
 
     [self addShortcut:@"Escape" keyCode:27 mods:0 handler:^{ [_window resignKeyWindow]; }];
 
-    [self addShortcut:@"Up" keyCode:NSUpArrowFunctionKey mods:NSFunctionKeyMask|NSNumericPadKeyMask handler:^{ [_self selectPreviousChoice]; }];
-    [self addShortcut:@"Down" keyCode:NSDownArrowFunctionKey mods:NSFunctionKeyMask|NSNumericPadKeyMask handler:^{ [_self selectNextChoice]; }];
-    [self addShortcut:@"p" keyCode:-1 mods:NSControlKeyMask handler:^{ [_self selectPreviousChoice]; }];
-    [self addShortcut:@"n" keyCode:-1 mods:NSControlKeyMask handler:^{ [_self selectNextChoice]; }];
+    [self addShortcut:@"Up" keyCode:NSUpArrowFunctionKey mods:NSEventModifierFlagFunction|NSEventModifierFlagNumericPad handler:^{ [_self selectPreviousChoice]; }];
+    [self addShortcut:@"Down" keyCode:NSDownArrowFunctionKey mods:NSEventModifierFlagFunction|NSEventModifierFlagNumericPad handler:^{ [_self selectNextChoice]; }];
+    [self addShortcut:@"p" keyCode:-1 mods:NSEventModifierFlagControl handler:^{ [_self selectPreviousChoice]; }];
+    [self addShortcut:@"n" keyCode:-1 mods:NSEventModifierFlagControl handler:^{ [_self selectNextChoice]; }];
 
-    [self addShortcut:@"PageUp" keyCode:NSPageUpFunctionKey mods:NSFunctionKeyMask handler:^{ [_self selectPreviousPage]; }];
-    [self addShortcut:@"PageDown" keyCode:NSPageDownFunctionKey mods:NSFunctionKeyMask handler:^{ [_self selectNextPage]; }];
-    [self addShortcut:@"v" keyCode:-1 mods:NSControlKeyMask handler:^{ [_self selectNextPage]; }];
+    [self addShortcut:@"PageUp" keyCode:NSPageUpFunctionKey mods:NSEventModifierFlagFunction handler:^{ [_self selectPreviousPage]; }];
+    [self addShortcut:@"PageDown" keyCode:NSPageDownFunctionKey mods:NSEventModifierFlagFunction handler:^{ [_self selectNextPage]; }];
+    [self addShortcut:@"v" keyCode:-1 mods:NSEventModifierFlagControl handler:^{ [_self selectNextPage]; }];
 }
 
 - (void)windowDidResignKey:(NSNotification *)notification {
@@ -635,8 +635,8 @@
 
 - (void) addShortcut:(NSString*)key keyCode:(unsigned short)keyCode mods:(NSEventModifierFlags)mods handler:(dispatch_block_t)action {
     //NSLog(@"Adding shortcut for %lu %@:%i", mods, key, keyCode);
-    id x = [NSEvent addLocalMonitorForEventsMatchingMask:NSKeyDownMask handler:^ NSEvent*(NSEvent* event) {
-        NSEventModifierFlags flags = ([event modifierFlags] & NSDeviceIndependentModifierFlagsMask);
+    id x = [NSEvent addLocalMonitorForEventsMatchingMask:NSEventMaskKeyDown handler:^ NSEvent*(NSEvent* event) {
+        NSEventModifierFlags flags = ([event modifierFlags] & NSEventModifierFlagDeviceIndependentFlagsMask);
         //NSLog(@"Got an event: %lu %@:%i", (unsigned long)flags, [event charactersIgnoringModifiers], [[event charactersIgnoringModifiers] characterAtIndex:0]);
 
         if (flags == mods) {

@@ -87,7 +87,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
 }
 
 - (BOOL)windowShouldClose:(id __unused)sender {
-    if ((self.styleMask & NSClosableWindowMask) != 0) {
+    if ((self.styleMask & NSWindowStyleMaskClosable) != 0) {
         return YES ;
     } else {
         return NO ;
@@ -1777,7 +1777,7 @@ static int webview_new(lua_State *L) {
     NSRect windowRect = [skin tableToRectAtIndex:1] ;
 
     HSWebViewWindow *theWindow = [[HSWebViewWindow alloc] initWithContentRect:windowRect
-                                                                    styleMask:NSBorderlessWindowMask
+                                                                    styleMask:NSWindowStyleMaskBorderless
                                                                       backing:NSBackingStoreBuffered
                                                                         defer:YES];
 
@@ -2441,19 +2441,19 @@ static int webview_windowCallback(lua_State *L) {
 
 static int webview_windowMasksTable(lua_State *L) {
     lua_newtable(L) ;
-      lua_pushinteger(L, NSBorderlessWindowMask) ;             lua_setfield(L, -2, "borderless") ;
-      lua_pushinteger(L, NSTitledWindowMask) ;                 lua_setfield(L, -2, "titled") ;
-      lua_pushinteger(L, NSClosableWindowMask) ;               lua_setfield(L, -2, "closable") ;
-      lua_pushinteger(L, NSMiniaturizableWindowMask) ;         lua_setfield(L, -2, "miniaturizable") ;
-      lua_pushinteger(L, NSResizableWindowMask) ;              lua_setfield(L, -2, "resizable") ;
-      lua_pushinteger(L, NSTexturedBackgroundWindowMask) ;     lua_setfield(L, -2, "texturedBackground") ;
+    lua_pushinteger(L, NSWindowStyleMaskBorderless) ;             lua_setfield(L, -2, "borderless") ;
+    lua_pushinteger(L, NSWindowStyleMaskTitled) ;                 lua_setfield(L, -2, "titled") ;
+    lua_pushinteger(L, NSWindowStyleMaskClosable) ;               lua_setfield(L, -2, "closable") ;
+    lua_pushinteger(L, NSWindowStyleMaskMiniaturizable) ;         lua_setfield(L, -2, "miniaturizable") ;
+    lua_pushinteger(L, NSWindowStyleMaskResizable) ;              lua_setfield(L, -2, "resizable") ;
+    lua_pushinteger(L, NSWindowStyleMaskTexturedBackground) ;     lua_setfield(L, -2, "texturedBackground") ;
 //       lua_pushinteger(L, NSUnifiedTitleAndToolbarWindowMask) ; lua_setfield(L, -2, "unifiedTitleAndToolbar") ;
 //       lua_pushinteger(L, NSFullScreenWindowMask) ;             lua_setfield(L, -2, "fullScreen") ;
-      lua_pushinteger(L, NSFullSizeContentViewWindowMask) ;    lua_setfield(L, -2, "fullSizeContentView") ;
-      lua_pushinteger(L, NSUtilityWindowMask) ;                lua_setfield(L, -2, "utility") ;
+    lua_pushinteger(L, NSWindowStyleMaskFullSizeContentView) ;    lua_setfield(L, -2, "fullSizeContentView") ;
+    lua_pushinteger(L, NSWindowStyleMaskUtilityWindow) ;                lua_setfield(L, -2, "utility") ;
 //       lua_pushinteger(L, NSDocModalWindowMask) ;               lua_setfield(L, -2, "docModal") ;
-      lua_pushinteger(L, NSNonactivatingPanelMask) ;           lua_setfield(L, -2, "nonactivating") ;
-      lua_pushinteger(L, NSHUDWindowMask) ;                    lua_setfield(L, -2, "HUD") ;
+    lua_pushinteger(L, NSWindowStyleMaskNonactivatingPanel) ;           lua_setfield(L, -2, "nonactivating") ;
+    lua_pushinteger(L, NSWindowStyleMaskHUDWindow) ;                    lua_setfield(L, -2, "HUD") ;
     return 1 ;
 }
 
@@ -2631,12 +2631,12 @@ static int WKNavigationAction_toLua(lua_State *L, id obj) {
       lua_pushinteger(L, [navAction buttonNumber]) ; lua_setfield(L, -2, "buttonNumber") ;
       unsigned long theFlags = [navAction modifierFlags] ;
       lua_newtable(L) ;
-        if (theFlags & NSAlphaShiftKeyMask) { lua_pushboolean(L, YES) ; lua_setfield(L, -2, "capslock") ; }
-        if (theFlags & NSShiftKeyMask)      { lua_pushboolean(L, YES) ; lua_setfield(L, -2, "shift") ; }
-        if (theFlags & NSControlKeyMask)    { lua_pushboolean(L, YES) ; lua_setfield(L, -2, "ctrl") ; }
-        if (theFlags & NSAlternateKeyMask)  { lua_pushboolean(L, YES) ; lua_setfield(L, -2, "alt") ; }
-        if (theFlags & NSCommandKeyMask)    { lua_pushboolean(L, YES) ; lua_setfield(L, -2, "cmd") ; }
-        if (theFlags & NSFunctionKeyMask)   { lua_pushboolean(L, YES) ; lua_setfield(L, -2, "fn") ; }
+    if (theFlags & NSEventModifierFlagCapsLock) { lua_pushboolean(L, YES) ; lua_setfield(L, -2, "capslock") ; }
+    if (theFlags & NSEventModifierFlagShift)      { lua_pushboolean(L, YES) ; lua_setfield(L, -2, "shift") ; }
+    if (theFlags & NSEventModifierFlagControl)    { lua_pushboolean(L, YES) ; lua_setfield(L, -2, "ctrl") ; }
+    if (theFlags & NSEventModifierFlagOption)  { lua_pushboolean(L, YES) ; lua_setfield(L, -2, "alt") ; }
+    if (theFlags & NSEventModifierFlagCommand)    { lua_pushboolean(L, YES) ; lua_setfield(L, -2, "cmd") ; }
+    if (theFlags & NSEventModifierFlagFunction)   { lua_pushboolean(L, YES) ; lua_setfield(L, -2, "fn") ; }
         lua_pushinteger(L, (lua_Integer)theFlags); lua_setfield(L, -2, "_raw");
       lua_setfield(L, -2, "modifierFlags") ;
       switch([navAction navigationType]) {

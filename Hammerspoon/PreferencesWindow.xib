@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
-        <deployment identifier="macosx"/>
+        <deployment version="101200" identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14490.70"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -28,7 +28,7 @@
                 <rect key="frame" x="0.0" y="0.0" width="358" height="246"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <visualEffectView appearanceType="inheritedVibrantLight" blendingMode="behindWindow" material="underWindowBackground" state="followsWindowActiveState" translatesAutoresizingMaskIntoConstraints="NO" id="eNw-hu-Cry">
+                    <visualEffectView blendingMode="behindWindow" material="underWindowBackground" state="followsWindowActiveState" translatesAutoresizingMaskIntoConstraints="NO" id="eNw-hu-Cry">
                         <rect key="frame" x="0.0" y="0.0" width="358" height="246"/>
                         <subviews>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="VQb-h7-4Va">
@@ -196,7 +196,7 @@
                     <constraint firstAttribute="trailing" secondItem="eNw-hu-Cry" secondAttribute="trailing" id="cTN-jf-WD3"/>
                 </constraints>
             </view>
-            <point key="canvasLocation" x="220.5" y="37"/>
+            <point key="canvasLocation" x="-181" y="-66"/>
         </window>
         <userDefaultsController representsSharedInstance="YES" id="dqg-7Y-qrg"/>
     </objects>
