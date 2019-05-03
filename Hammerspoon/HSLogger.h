@@ -7,7 +7,7 @@
 //
 
 #import <LuaSkin/LuaSkin.h>
-#import <Crashlytics/Crashlytics.h>
+#import "Crashlytics.h"
 #import "secrets.h"
 
 #ifdef CRASHLYTICS_API_KEY

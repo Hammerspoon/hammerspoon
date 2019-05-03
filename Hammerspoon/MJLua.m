@@ -11,7 +11,7 @@
 #import "MJAutoLaunch.h"
 #import "MJDockIcon.h"
 #import "HSAppleScript.h"
-#import <Crashlytics/Crashlytics.h>
+#import "Crashlytics.h"
 #import "HSLogger.h" // This should come after Crashlytics
 
 @interface MJPreferencesWindowController ()
