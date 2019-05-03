@@ -208,6 +208,37 @@ static int application_infoForBundlePath(lua_State* L) {
     return 1;
 }
 
+/// hs.application.defaultAppForUTI(uti) -> string or nil
+/// Function
+/// Returns the bundle ID of the default application for a given UTI
+///
+/// Parameters:
+///  * uti - A string containing a UTI
+///
+/// Returns:
+///  * A string containing a bundle ID, or nil if none could be found
+static int application_bundleForUTI(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TBREAK];
+
+    NSString *uti = [skin toNSObjectAtIndex:1];
+
+    CFStringRef cfhandler;
+    if (( cfhandler = LSCopyDefaultRoleHandlerForContentType(
+                                                             (__bridge CFStringRef)uti, kLSRolesAll )) == NULL ) {
+        if (( cfhandler = LSCopyDefaultHandlerForURLScheme(
+                                                           (__bridge CFStringRef)uti )) == NULL ) {
+            lua_pushnil(L);
+            return 1;
+        }
+    }
+
+    [skin pushNSObject:(__bridge NSString *)cfhandler];
+    if (cfhandler) CFRelease(cfhandler);
+
+    return 1;
+}
+
 /// hs.application:allWindows() -> list of hs.window objects
 /// Method
 /// Returns all open windows owned by the given app.
@@ -1162,6 +1193,7 @@ static const luaL_Reg applicationlib[] = {
     {"pathForBundleID", application_pathForBundleID},
     {"infoForBundleID", application_infoForBundleID},
     {"infoForBundlePath", application_infoForBundlePath},
+    {"defaultAppForUTI", application_bundleForUTI},
 
     {"allWindows", application_allWindows},
     {"mainWindow", application_mainWindow},
