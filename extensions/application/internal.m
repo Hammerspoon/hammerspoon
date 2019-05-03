@@ -1078,6 +1078,11 @@ static int application_getMenus(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, "hs.application", LS_TFUNCTION | LS_TOPTIONAL, LS_TBREAK] ;
     AXUIElementRef app = get_app(L, 1);
+    if (!app) {
+        NSLog(@"hs.application:getMenus() called on a nil app object");
+        lua_pushnil(L);
+        return 1;
+    }
     if (lua_gettop(L) == 1) {
         NSMutableDictionary *menus = nil;
         AXUIElementRef menuBar;
