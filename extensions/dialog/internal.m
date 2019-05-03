@@ -460,7 +460,7 @@ static int chooseFileOrFolder(lua_State *L) {
 static int webviewAlert(lua_State *L) {
 
     NSString* defaultButton = @"OK";
-    const NSAlertStyle defaultAlertStyle = NSInformationalAlertStyle;
+    const NSAlertStyle defaultAlertStyle = NSAlertStyleInformational;
 
     LuaSkin *skin = [LuaSkin shared];
     //                            webview,      callbackFn,   message,    [informativeText],         [buttonOne],               [buttonTwo],                         [style]
@@ -508,13 +508,13 @@ static int webviewAlert(lua_State *L) {
     else
     {
         if ([style isEqualToString:@"warning"]) {
-            [alert setAlertStyle:NSWarningAlertStyle];
+            [alert setAlertStyle:NSAlertStyleWarning];
         }
         else if ([style isEqualToString:@"informational"]) {
-            [alert setAlertStyle:NSInformationalAlertStyle];
+            [alert setAlertStyle:NSAlertStyleInformational];
         }
         else if ([style isEqualToString:@"critical"]) {
-            [alert setAlertStyle:NSCriticalAlertStyle];
+            [alert setAlertStyle:NSAlertStyleCritical];
         }
         else
         {
@@ -611,22 +611,22 @@ static int blockAlert(lua_State *L) {
     }
 
 	if (style == nil){
-		[alert setAlertStyle:NSInformationalAlertStyle];
+        [alert setAlertStyle:NSAlertStyleInformational];
 	}
 	else
 	{
 		if ([style isEqualToString:@"warning"]) {
-			[alert setAlertStyle:NSWarningAlertStyle];
+            [alert setAlertStyle:NSAlertStyleWarning];
 		}
 		else if ([style isEqualToString:@"informational"]) {
-			[alert setAlertStyle:NSInformationalAlertStyle];
+            [alert setAlertStyle:NSAlertStyleInformational];
 		}
 		else if ([style isEqualToString:@"critical"]) {
-			[alert setAlertStyle:NSCriticalAlertStyle];
+            [alert setAlertStyle:NSAlertStyleCritical];
 		}
         else
         {
-            [alert setAlertStyle:NSWarningAlertStyle];
+            [alert setAlertStyle:NSAlertStyleWarning];
         }
 	}
 

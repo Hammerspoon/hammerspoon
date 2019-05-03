@@ -626,7 +626,7 @@ void MJLuaInit(void) {
         [alert addButtonWithTitle:@"OK"];
         [alert setMessageText:@"Hammerspoon installation is corrupted"];
         [alert setInformativeText:@"Please re-install Hammerspoon"];
-        [alert setAlertStyle:NSCriticalAlertStyle];
+        [alert setAlertStyle:NSAlertStyleCritical];
         [alert runModal];
         [[NSApplication sharedApplication] terminate: nil];
     }
@@ -647,7 +647,7 @@ void MJLuaInit(void) {
         [alert addButtonWithTitle:@"OK"];
         [alert setMessageText:@"Hammerspoon initialization failed"];
         [alert setInformativeText:errorMessage];
-        [alert setAlertStyle:NSCriticalAlertStyle];
+        [alert setAlertStyle:NSAlertStyleCritical];
         [alert runModal];
     } else {
         evalfn = [MJLuaState luaRef:refTable];

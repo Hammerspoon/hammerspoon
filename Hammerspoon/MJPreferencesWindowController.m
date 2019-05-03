@@ -216,7 +216,7 @@ void PreferencesDarkModeSetEnabled(BOOL enabled) {
         return;
 
     NSAlert* alert = [[NSAlert alloc] init];
-    [alert setAlertStyle:NSWarningAlertStyle];
+    [alert setAlertStyle:NSAlertStyleWarning];
     [alert setMessageText:@"How to get back to this window"];
     [alert setInformativeText:@"When both the dock icon and menu icon are disabled, you can get back to this Preferences window by activating Hammerspoon from Spotlight or by running `open -a Hammerspoon` from Terminal, and then pressing Command + Comma."];
     [alert setShowsSuppressionButton:YES];

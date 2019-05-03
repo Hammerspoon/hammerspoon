@@ -23,7 +23,7 @@ NSMutableArray *drawingWindows;
         return nil;
     }
 
-    self = [super initWithContentRect:contentRect styleMask:NSBorderlessWindowMask
+    self = [super initWithContentRect:contentRect styleMask:NSWindowStyleMaskBorderless
                                                     backing:NSBackingStoreBuffered defer:YES];
     if (self) {
         [self setDelegate:self];
@@ -551,7 +551,7 @@ static int drawing_newCircle(lua_State *L) {
     [skin checkArgs:LS_TTABLE, LS_TBREAK];
 
     NSRect windowRect = [skin tableToRectAtIndex:1];
-    HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
+    HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSWindowStyleMaskBorderless backing:NSBackingStoreBuffered defer:YES];
 
     if (theWindow) {
         drawing_t *drawingObject = lua_newuserdata(L, sizeof(drawing_t));
@@ -601,7 +601,7 @@ static int drawing_newEllipticalArc(lua_State *L) {
     if (!isfinite(startAngle)) return luaL_argerror(L, 2, "start angle must be a finite number");
     if (!isfinite(endAngle))   return luaL_argerror(L, 3, "end angle must be a finite number");
 
-    HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
+    HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSWindowStyleMaskBorderless backing:NSBackingStoreBuffered defer:YES];
 
     if (theWindow) {
         drawing_t *drawingObject = lua_newuserdata(L, sizeof(drawing_t));
@@ -644,7 +644,7 @@ static int drawing_newRect(lua_State *L) {
 
     NSRect windowRect = [skin tableToRectAtIndex:1];
 
-    HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
+    HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSWindowStyleMaskBorderless backing:NSBackingStoreBuffered defer:YES];
 
     if (theWindow) {
         drawing_t *drawingObject = lua_newuserdata(L, sizeof(drawing_t));
@@ -695,7 +695,7 @@ static int drawing_newLine(lua_State *L) {
     windowRect.size.height = windowRect.origin.y + MAX(origin.y, end.y) - MIN(origin.y, end.y);
     //NSLog(@"newLine: Calculated window rect to bound lines: (%.1f,%.1f) %.1fx%.1f", windowRect.origin.x, windowRect.origin.y, windowRect.size.width, windowRect.size.height);
 
-    HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
+    HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSWindowStyleMaskBorderless backing:NSBackingStoreBuffered defer:YES];
 
     if (theWindow) {
         drawing_t *drawingObject = lua_newuserdata(L, sizeof(drawing_t));
@@ -752,7 +752,7 @@ static int drawing_newText(lua_State *L) {
     NSRect windowRect = [skin tableToRectAtIndex:1];
 
     HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect
-                                                                    styleMask:NSBorderlessWindowMask
+                                                                    styleMask:NSWindowStyleMaskBorderless
                                                                       backing:NSBackingStoreBuffered
                                                                         defer:YES];
 
@@ -807,7 +807,7 @@ static int drawing_newImage(lua_State *L) {
 
     NSRect windowRect = [skin tableToRectAtIndex:1];
     NSImage *theImage = [[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSImage"];
-    HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
+    HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSWindowStyleMaskBorderless backing:NSBackingStoreBuffered defer:YES];
 
     if (theWindow) {
         drawing_t *drawingObject = lua_newuserdata(L, sizeof(drawing_t));
@@ -976,15 +976,15 @@ NSDictionary *modifyTextStyleFromStack(lua_State *L, int idx, NSDictionary *defa
             if (lua_getfield(L, -1, "alignment")) {
                 NSString *alignment = [NSString stringWithUTF8String:luaL_checkstring(L, -1)];
                 if ([alignment isEqualToString:@"left"]) {
-                    theStyle.alignment = NSLeftTextAlignment ;
+                    theStyle.alignment = NSTextAlignmentLeft ;
                 } else if ([alignment isEqualToString:@"right"]) {
-                    theStyle.alignment = NSRightTextAlignment ;
+                    theStyle.alignment = NSTextAlignmentRight ;
                 } else if ([alignment isEqualToString:@"center"]) {
-                    theStyle.alignment = NSCenterTextAlignment ;
+                    theStyle.alignment = NSTextAlignmentCenter ;
                 } else if ([alignment isEqualToString:@"justified"]) {
-                    theStyle.alignment = NSJustifiedTextAlignment ;
+                    theStyle.alignment = NSTextAlignmentJustified ;
                 } else if ([alignment isEqualToString:@"natural"]) {
-                    theStyle.alignment = NSNaturalTextAlignment ;
+                    theStyle.alignment = NSTextAlignmentNatural ;
                 } else {
                     luaL_error(L, [[NSString stringWithFormat:@"invalid alignment for textStyle specified: %@", alignment] UTF8String]) ;
                     return nil ;
@@ -1929,12 +1929,12 @@ static int drawing_clickCallbackActivating(lua_State *L) {
 
     if (lua_type(L, 2) != LUA_TNONE) {
         if (lua_toboolean(L, 2))
-            drawingWindow.styleMask &= (unsigned long)~NSNonactivatingPanelMask ;
+        drawingWindow.styleMask &= (unsigned long)~NSWindowStyleMaskNonactivatingPanel ;
         else
-            drawingWindow.styleMask |= NSNonactivatingPanelMask ;
+        drawingWindow.styleMask |= NSWindowStyleMaskNonactivatingPanel ;
         lua_settop(L, 1) ;
     } else {
-        lua_pushboolean(L, ((drawingWindow.styleMask & NSNonactivatingPanelMask) != NSNonactivatingPanelMask)) ;
+        lua_pushboolean(L, ((drawingWindow.styleMask & NSWindowStyleMaskNonactivatingPanel) != NSNonactivatingPanelMask)) ;
     }
 
     return 1;
