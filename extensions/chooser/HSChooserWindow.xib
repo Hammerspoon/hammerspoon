@@ -142,7 +142,7 @@
                                                                 </imageView>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" tag="1" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="XAU-Vc-N92">
                                                                     <rect key="frame" x="39" y="5" width="414" height="24"/>
-                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Text" allowsEditingTextAttributes="YES" id="zFk-77-baS">
+                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Text" allowsEditingTextAttributes="YES" id="zFk-77-baS" customClass="HSChooserVerticallyCenteringTextFieldCell">
                                                                         <font key="font" metaFont="system" size="20"/>
                                                                         <color key="textColor" name="secondaryLabelColor" catalog="System" colorSpace="catalog"/>
                                                                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -154,7 +154,7 @@
                                                                         <constraint firstAttribute="width" constant="40" id="VNm-oj-bKt"/>
                                                                         <constraint firstAttribute="height" constant="40" id="xiL-4g-ZWe"/>
                                                                     </constraints>
-                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" state="on" alignment="left" title="??" id="ZEM-Di-gXG">
+                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" state="on" alignment="left" title="??" id="ZEM-Di-gXG" customClass="HSChooserVerticallyCenteringTextFieldCell">
                                                                         <font key="font" metaFont="system" size="25"/>
                                                                         <color key="textColor" name="secondaryLabelColor" catalog="System" colorSpace="catalog"/>
                                                                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
