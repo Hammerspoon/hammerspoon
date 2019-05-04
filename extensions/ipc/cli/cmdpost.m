@@ -562,7 +562,7 @@ int main()
                 alert.informativeText = @"CommandPost is not running. Would you like to launch it now?" ;
                 NSString *imagePath = [[NSWorkspace sharedWorkspace] absolutePathForAppBundleWithIdentifier:(__bridge NSString *)hammerspoonBundle];
                 alert.icon = [[NSWorkspace sharedWorkspace] iconForFile:imagePath] ;
-                alert.alertStyle = NSCriticalAlertStyle ;
+                alert.alertStyle = NSAlertStyleCritical ;
                 NSModalResponse response = [alert runModal] ;
                 if (response != NSAlertFirstButtonReturn) exit(EX_UNAVAILABLE) ;
                 launchHS = YES ;

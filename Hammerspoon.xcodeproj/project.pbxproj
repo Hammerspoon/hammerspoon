@@ -97,6 +97,7 @@
 		4F5134641C30819000EFD6D4 /* chooser.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F5134631C30819000EFD6D4 /* chooser.h */; };
 		4F5B6E6B1E9E86BB003FC580 /* CommandPost.sdef in Resources */ = {isa = PBXBuildFile; fileRef = 4F5B6E6A1E9E86BB003FC580 /* CommandPost.sdef */; };
 		4F5B6E6E1E9E87CE003FC580 /* HSAppleScript.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F5B6E6D1E9E87CE003FC580 /* HSAppleScript.m */; };
+		4F68B532227CBD210076C4F8 /* libPods-Hammerspoon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BC78AF8FE9DA0BD317A7528 /* libPods-Hammerspoon.a */; };
 		4F6B3EA31B73D6D300B2A4DE /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4F6B3EAE1B73D79100B2A4DE /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F6B3EAD1B73D79100B2A4DE /* internal.m */; };
 		4F6B3EB61B73DC4500B2A4DE /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
@@ -1808,6 +1809,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F68B532227CBD210076C4F8 /* libPods-Hammerspoon.a in Frameworks */,
 				4FD0AC1C1B74C58800A82496 /* LuaSkin.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -5604,8 +5606,8 @@
 			isa = PBXProject;
 			attributes = {
 				CLASSPREFIX = HS;
-				LastUpgradeCheck = 0800;
-				ORGANIZATIONNAME = "LateNite Films";
+				LastUpgradeCheck = 1020;
+				ORGANIZATIONNAME = LateNite Films;
 				TargetAttributes = {
 					4F20B5281C1F1C5B00F52437 = {
 						CreatedOnToolsVersion = 7.2;
@@ -5625,10 +5627,9 @@
 			};
 			buildConfigurationList = 9445CA0619083251002568BB /* Build configuration list for PBXProject "Hammerspoon" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				English,
 				en,
 				Base,
 			);
@@ -5817,7 +5818,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -eux\n\nif [ -f ../token-crashlytics ] ; then\n  source ../token-crashlytics\n  > Hammerspoon/secrets.h\n  echo \"#define CRASHLYTICS_API_KEY \\\"${CRASHLYTICS_API_KEY}\\\"\" >>Hammerspoon/secrets.h\nelse\n  > Hammerspoon/secrets.h\nfi";
+			shellScript = "set -eux\n\nif [ -f ../token-crashlytics ] ; then\n  source ../token-crashlytics\n  > Hammerspoon/secrets.h\n  echo \"#define CRASHLYTICS_API_KEY \\\"${CRASHLYTICS_API_KEY}\\\"\" >>Hammerspoon/secrets.h\nelse\n  > Hammerspoon/secrets.h\nfi\n";
 		};
 		4F6689E61C288FF800E48AF1 /* Assert no stray init.lua's in app bundle */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -5941,16 +5942,18 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon-frameworks.sh",
 				"${PODS_ROOT}/Sparkle/Sparkle.framework",
+				"${PODS_ROOT}/Sparkle/Sparkle.framework.dSYM",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Sparkle.framework",
+				"${DWARF_DSYM_FOLDER_PATH}/Sparkle.framework.dSYM",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -8026,6 +8029,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -8071,13 +8075,18 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/Pods/**",
+					"$(SRCROOT)/Pods/Crashlytics/OSX/Crashlytics.framework/Versions/A/Headers/",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-undefined",
 					dynamic_lookup,
 				);
 				SDKROOT = macosx;
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/** $(SRCROOT)/Pods/Crashlytics/OSX/Crashlytics.framework/Versions/A/Headers/";
 				WARNING_CFLAGS = (
 					"-Wno-cstring-format-directive",
 					"-Wno-padded",
@@ -8104,13 +8113,18 @@
 				DEVELOPMENT_TEAM = "";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Hammerspoon/Hammerspoon-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)/**",
+					"\"$(SDKROOT)/usr/include/libxml2\"",
+					"\"$(SDK_DIR)\"/usr/include/libxml2",
+				);
 				INFOPLIST_FILE = "Hammerspoon/CommandPost-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = Hammerspoon;
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
 				STRIP_STYLE = all;
+				USER_HEADER_SEARCH_PATHS = "$(inherited)/**";
 				WARNING_CFLAGS = (
 					"-Wno-cstring-format-directive",
 					"-Wno-padded",
@@ -8238,7 +8252,6 @@
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
-				SDKROOT = "$(inherited)";
 				STRIP_INSTALLED_PRODUCT = NO;
 			};
 			name = Profile;
@@ -10480,7 +10493,6 @@
 		4F0454B120F0EE7D00699F29 /* Profile */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
 				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
@@ -10546,7 +10558,7 @@
 				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
 				SDKROOT = "$(inherited)";
 				STRIP_INSTALLED_PRODUCT = NO;
-				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/Headers/Public/**";
+				USER_HEADER_SEARCH_PATHS = "$(inherited)";
 			};
 			name = Profile;
 		};
@@ -18119,7 +18131,6 @@
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
-				SDKROOT = "$(inherited)";
 				STRIP_INSTALLED_PRODUCT = NO;
 			};
 			name = Debug;
@@ -18185,7 +18196,6 @@
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
-				SDKROOT = "$(inherited)";
 				STRIP_INSTALLED_PRODUCT = NO;
 			};
 			name = Release;
@@ -20201,7 +20211,6 @@
 		4FD0AC1F1B74C58800A82496 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
 				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
@@ -20267,14 +20276,13 @@
 				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
 				SDKROOT = "$(inherited)";
 				STRIP_INSTALLED_PRODUCT = NO;
-				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/Headers/Public/**";
+				USER_HEADER_SEARCH_PATHS = "$(inherited)";
 			};
 			name = Debug;
 		};
 		4FD0AC201B74C58800A82496 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
 				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
@@ -20338,7 +20346,7 @@
 				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
 				SDKROOT = "$(inherited)";
 				STRIP_INSTALLED_PRODUCT = NO;
-				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/Headers/Public/**";
+				USER_HEADER_SEARCH_PATHS = "$(inherited)";
 			};
 			name = Release;
 		};
@@ -21308,6 +21316,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -21353,13 +21362,18 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/Pods/**",
+					"$(SRCROOT)/Pods/Crashlytics/OSX/Crashlytics.framework/Versions/A/Headers/",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-undefined",
 					dynamic_lookup,
 				);
 				SDKROOT = macosx;
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/** $(SRCROOT)/Pods/Crashlytics/OSX/Crashlytics.framework/Versions/A/Headers/";
 				WARNING_CFLAGS = (
 					"-Wno-cstring-format-directive",
 					"-Wno-padded",
@@ -21377,6 +21391,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -21414,12 +21429,17 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/Pods/**",
+					"$(SRCROOT)/Pods/Crashlytics/OSX/Crashlytics.framework/Versions/A/Headers/",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				OTHER_LDFLAGS = (
 					"-undefined",
 					dynamic_lookup,
 				);
 				SDKROOT = macosx;
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/** $(SRCROOT)/Pods/Crashlytics/OSX/Crashlytics.framework/Versions/A/Headers/";
 				WARNING_CFLAGS = (
 					"-Wno-cstring-format-directive",
 					"-Wno-padded",
@@ -21450,13 +21470,18 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Hammerspoon/Hammerspoon-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)/**",
+					"\"$(SDKROOT)/usr/include/libxml2\"",
+					"\"$(SDK_DIR)\"/usr/include/libxml2",
+				);
 				INFOPLIST_FILE = "Hammerspoon/CommandPost-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks @executable_path/../Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = org.latenitefilms.CommandPost;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.latenitefilms.CommandPost";
 				PRODUCT_NAME = CommandPost;
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
 				STRIP_STYLE = all;
+				USER_HEADER_SEARCH_PATHS = "$(inherited)/**";
 				WARNING_CFLAGS = (
 					"-Wno-cstring-format-directive",
 					"-Wno-padded",
@@ -21489,14 +21514,19 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Hammerspoon/Hammerspoon-Prefix.pch";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)/**",
+					"\"$(SDKROOT)/usr/include/libxml2\"",
+					"\"$(SDK_DIR)\"/usr/include/libxml2",
+				);
 				INFOPLIST_FILE = "Hammerspoon/CommandPost-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks @executable_path/../Frameworks";
 				OTHER_CODE_SIGN_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = org.latenitefilms.CommandPost;
 				PRODUCT_NAME = CommandPost;
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
 				STRIP_STYLE = all;
+				USER_HEADER_SEARCH_PATHS = "$(inherited)/**";
 				WARNING_CFLAGS = (
 					"-Wno-cstring-format-directive",
 					"-Wno-padded",

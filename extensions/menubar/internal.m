@@ -120,11 +120,11 @@ typedef NS_ENUM(NSInteger, NSStatusBarItemPriority) {
 
     if (event != nil) {
         NSUInteger theFlags = [event modifierFlags];
-        BOOL isCommandKey = (theFlags & NSCommandKeyMask) != 0;
-        BOOL isShiftKey = (theFlags & NSShiftKeyMask) != 0;
-        BOOL isOptKey = (theFlags & NSAlternateKeyMask) != 0;
-        BOOL isCtrlKey = (theFlags & NSControlKeyMask) != 0;
-        BOOL isFnKey = (theFlags & NSFunctionKeyMask) != 0;
+        BOOL isCommandKey = (theFlags & NSEventModifierFlagCommand) != 0;
+        BOOL isShiftKey = (theFlags & NSEventModifierFlagShift) != 0;
+        BOOL isOptKey = (theFlags & NSEventModifierFlagOption) != 0;
+        BOOL isCtrlKey = (theFlags & NSEventModifierFlagControl) != 0;
+        BOOL isFnKey = (theFlags & NSEventModifierFlagFunction) != 0;
 
         lua_newtable(L);
 

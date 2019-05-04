@@ -264,14 +264,28 @@ static int checkKeyboardModifiers(lua_State* L) {
 
     lua_newtable(L);
 
-    if (lua_isboolean(L, 1) && lua_toboolean(L, 1)) { lua_pushinteger(L, (lua_Integer)theFlags); lua_setfield(L, -2, "_raw"); }
+    if (lua_isboolean(L, 1) && lua_toboolean(L, 1)) {
+        lua_pushinteger(L, (lua_Integer)theFlags); lua_setfield(L, -2, "_raw");
+    }
 
-    if (theFlags & NSCommandKeyMask)    { lua_pushboolean(L, YES); lua_setfield(L, -2, "cmd"); lua_pushboolean(L, YES); lua_setfield(L, -2, "⌘"); }
-    if (theFlags & NSShiftKeyMask)      { lua_pushboolean(L, YES); lua_setfield(L, -2, "shift"); lua_pushboolean(L, YES); lua_setfield(L, -2, "⇧"); }
-    if (theFlags & NSAlternateKeyMask)  { lua_pushboolean(L, YES); lua_setfield(L, -2, "alt"); lua_pushboolean(L, YES); lua_setfield(L, -2, "⌥"); }
-    if (theFlags & NSControlKeyMask)    { lua_pushboolean(L, YES); lua_setfield(L, -2, "ctrl"); lua_pushboolean(L, YES); lua_setfield(L, -2, "⌃"); }
-    if (theFlags & NSFunctionKeyMask)   { lua_pushboolean(L, YES); lua_setfield(L, -2, "fn"); }
-    if (theFlags & NSAlphaShiftKeyMask) { lua_pushboolean(L, YES); lua_setfield(L, -2, "capslock"); }
+    if (theFlags & NSEventModifierFlagCommand) {
+        lua_pushboolean(L, YES); lua_setfield(L, -2, "cmd"); lua_pushboolean(L, YES); lua_setfield(L, -2, "⌘");
+    }
+    if (theFlags & NSEventModifierFlagShift) {
+        lua_pushboolean(L, YES); lua_setfield(L, -2, "shift"); lua_pushboolean(L, YES); lua_setfield(L, -2, "⇧");
+    }
+    if (theFlags & NSEventModifierFlagOption) {
+        lua_pushboolean(L, YES); lua_setfield(L, -2, "alt"); lua_pushboolean(L, YES); lua_setfield(L, -2, "⌥");
+    }
+    if (theFlags & NSEventModifierFlagControl) {
+        lua_pushboolean(L, YES); lua_setfield(L, -2, "ctrl"); lua_pushboolean(L, YES); lua_setfield(L, -2, "⌃");
+    }
+    if (theFlags & NSEventModifierFlagFunction) {
+        lua_pushboolean(L, YES); lua_setfield(L, -2, "fn");
+    }
+    if (theFlags & NSEventModifierFlagCapsLock) {
+        lua_pushboolean(L, YES); lua_setfield(L, -2, "capslock");
+    }
 
     return 1;
 }

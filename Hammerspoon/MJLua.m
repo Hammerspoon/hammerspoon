@@ -11,7 +11,7 @@
 #import "MJAutoLaunch.h"
 #import "MJDockIcon.h"
 #import "HSAppleScript.h"
-#import <Crashlytics/Crashlytics.h>
+#import "Crashlytics.h"
 #import "HSLogger.h" // This should come after Crashlytics
 
 @interface MJPreferencesWindowController ()
@@ -386,12 +386,12 @@ static int canCheckForUpdates(lua_State *L) {
 static int preferencesDarkMode(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
-    
+
     if (lua_isboolean(L, 1)) {
         PreferencesDarkModeSetEnabled(lua_toboolean(L, 1));
         [[MJPreferencesWindowController singleton] reflectDefaults] ;
     }
-    
+
     lua_pushboolean(L, PreferencesDarkModeEnabled()) ;
     return 1;
 }
@@ -626,7 +626,7 @@ void MJLuaInit(void) {
         [alert addButtonWithTitle:@"OK"];
         [alert setMessageText:@"CommandPost installation is corrupted"];
         [alert setInformativeText:@"Please re-install CommandPost"];
-        [alert setAlertStyle:NSCriticalAlertStyle];
+        [alert setAlertStyle:NSAlertStyleCritical];
         [alert runModal];
         [[NSApplication sharedApplication] terminate: nil];
     }
@@ -647,7 +647,7 @@ void MJLuaInit(void) {
         [alert addButtonWithTitle:@"OK"];
         [alert setMessageText:@"CommandPost initialization failed"];
         [alert setInformativeText:errorMessage];
-        [alert setAlertStyle:NSCriticalAlertStyle];
+        [alert setAlertStyle:NSAlertStyleCritical];
         [alert runModal];
     } else {
         evalfn = [MJLuaState luaRef:refTable];

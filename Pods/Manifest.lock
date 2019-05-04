@@ -4,31 +4,28 @@ PODS:
   - CocoaHTTPServer (2.3):
     - CocoaAsyncSocket
     - CocoaLumberjack
-  - CocoaLumberjack (3.4.2):
-    - CocoaLumberjack/Default (= 3.4.2)
-    - CocoaLumberjack/Extensions (= 3.4.2)
-  - CocoaLumberjack/Default (3.4.2)
-  - CocoaLumberjack/Extensions (3.4.2):
-    - CocoaLumberjack/Default
-  - Crashlytics (3.10.9):
-    - Fabric (~> 1.7.13)
-  - Fabric (1.7.13)
+  - CocoaLumberjack (3.5.3):
+    - CocoaLumberjack/Core (= 3.5.3)
+  - CocoaLumberjack/Core (3.5.3)
+  - Crashlytics (3.12.0):
+    - Fabric (~> 1.9.0)
+  - Fabric (1.9.0)
   - MIKMIDI (1.7.0)
   - PocketSocket/Client (1.0.1):
     - PocketSocket/Core
   - PocketSocket/Core (1.0.1)
-  - Sparkle (1.20.0)
+  - Sparkle (1.21.3)
 
 DEPENDENCIES:
   - ASCIImage (= 1.0.0)
   - CocoaAsyncSocket (= 7.6.3)
   - CocoaHTTPServer (= 2.3)
-  - CocoaLumberjack (= 3.4.2)
-  - Crashlytics (= 3.10.9)
-  - Fabric (= 1.7.13)
+  - CocoaLumberjack (= 3.5.3)
+  - Crashlytics (= 3.12.0)
+  - Fabric (= 1.9.0)
   - MIKMIDI (= 1.7.0)
   - PocketSocket/Client (= 1.0.1)
-  - Sparkle (= 1.20.0)
+  - Sparkle (= 1.21.3)
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
@@ -46,13 +43,13 @@ SPEC CHECKSUMS:
   ASCIImage: bcff9650deae86e0e0ac310145cc628948201ab8
   CocoaAsyncSocket: eafaa68a7e0ec99ead0a7b35015e0bf25d2c8987
   CocoaHTTPServer: 5624681fc3473d43b18202f635f9b3abb013b530
-  CocoaLumberjack: db7cc9e464771f12054c22ff6947c5a58d43a0fd
-  Crashlytics: 55e24fc23989680285a21cb1146578d9d18e432c
-  Fabric: 25d0963b691fc97be566392243ff0ecef5a68338
+  CocoaLumberjack: 2f44e60eb91c176d471fdba43b9e3eae6a721947
+  Crashlytics: 07fb167b1694128c1c9a5a5cc319b0e9c3ca0933
+  Fabric: f988e33c97f08930a413e08123064d2e5f68d655
   MIKMIDI: a9192db16687fcf1d2c82b98492b999fa8ede7c6
   PocketSocket: 9c6867d66fb4f962af96b9b07f4b45bb561b2c2a
-  Sparkle: 48999e7ee032f05ca05e28451eadf4af8ede6b44
+  Sparkle: 3f75576db8b0265adef36c43249d747f22d0b708
 
-PODFILE CHECKSUM: 7cd83cb81c1df43a610a7c4d7930e92c7a7ae883
+PODFILE CHECKSUM: d0d87dae8ed529e1f1cf88fa6e475aa80d76d264
 
-COCOAPODS: 1.5.3
+COCOAPODS: 1.6.1

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11542" systemVersion="16C67" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11542"/>
+        <deployment version="101200" identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14490.70"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -18,146 +19,184 @@
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
-        <window title="CommandPost Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" frameAutosaveName="prefs" animationBehavior="default" id="1ae-mv-r5b" customClass="NSPanel">
+        <window title="CommandPost Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="prefs" animationBehavior="default" titlebarAppearsTransparent="YES" id="1ae-mv-r5b" customClass="NSPanel">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="957" y="580" width="406" height="174"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1418"/>
-            <view key="contentView" misplaced="YES" id="Akb-Ed-9u3">
-                <rect key="frame" x="0.0" y="0.0" width="406" height="174"/>
+            <rect key="contentRect" x="957" y="580" width="357" height="246"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
+            <view key="contentView" id="Akb-Ed-9u3">
+                <rect key="frame" x="0.0" y="0.0" width="358" height="246"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <button hidden="YES" misplaced="YES" id="LCE-lg-IdY">
-                        <rect key="frame" x="126" y="-131" width="121" height="18"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="check" title="Show dock icon" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="1Ay-Q1-93j">
-                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <action selector="toggleShowDockIcon:" target="-2" id="UvC-Pk-hFl"/>
-                        </connections>
-                    </button>
-                    <button hidden="YES" misplaced="YES" id="onk-bV-cOj">
-                        <rect key="frame" x="126" y="-151" width="126" height="18"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="check" title="Show menu icon" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="uNE-4I-dRd">
-                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <action selector="toggleMenuDockIcon:" target="-2" id="Y4S-Ys-VCZ"/>
-                        </connections>
-                    </button>
-                    <button id="e5P-fQ-lSS">
-                        <rect key="frame" x="127" y="116" width="241" height="18"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="check" title="Launch CommandPost at login" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="WYx-7x-qXj">
-                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <action selector="toggleOpensAtLogin:" target="-2" id="3mA-c3-HVf"/>
-                        </connections>
-                    </button>
-                    <button misplaced="YES" id="8hE-jn-yvO">
-                        <rect key="frame" x="127" y="96" width="137" height="18"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="check" title="Check for updates" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="eue-1N-zi1">
-                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                    </button>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="VQb-h7-4Va">
-                        <rect key="frame" x="50" y="117" width="73" height="17"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Behavior:" id="dha-iU-GWx">
-                            <font key="font" metaFont="system"/>
-                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                    </textField>
-                    <button hidden="YES" misplaced="YES" id="pYS-Wj-7iw">
-                        <rect key="frame" x="126" y="-171" width="205" height="18"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="check" title="Keep Console window on top" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="OSm-zw-Lk8">
-                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <action selector="toggleKeepConsoleOnTop:" target="-2" id="bCp-5r-duV"/>
-                        </connections>
-                    </button>
-                    <button hidden="YES" misplaced="YES" id="gOt-KN-83u">
-                        <rect key="frame" x="126" y="-191" width="227" height="18"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="check" title="Send crash data (requires restart)" bezelStyle="regularSquare" imagePosition="left" alignment="left" state="on" inset="2" id="YwH-Pc-MwX">
-                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <action selector="toggleUploadCrashData:" target="-2" id="8a1-bO-6qu"/>
-                        </connections>
-                    </button>
-                    <button hidden="YES" verticalHuggingPriority="750" misplaced="YES" id="Brc-yV-QuI">
-                        <rect key="frame" x="105" y="-223" width="195" height="32"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="push" title="Crash Data Privacy Policy" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="hjR-yP-MS1">
-                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <action selector="privacyPolicyClicked:" target="-2" id="wJg-Ny-X8G"/>
-                        </connections>
-                    </button>
-                    <button verticalHuggingPriority="750" misplaced="YES" id="4ho-hR-nJI">
-                        <rect key="frame" x="123" y="26" width="162" height="32"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="push" title="Enable Accessibility" bezelStyle="rounded" imagePosition="left" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="cuD-Tg-hc1">
-                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <action selector="openAccessibility:" target="-2" id="Yc7-5U-TyJ"/>
-                            <binding destination="-2" name="enabled" keyPath="self.isAccessibilityEnabled" id="e2f-kQ-zuS">
-                                <dictionary key="options">
-                                    <string key="NSValueTransformerName">NSNegateBoolean</string>
-                                </dictionary>
-                            </binding>
-                        </connections>
-                    </button>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" id="fRb-9A-PSe">
-                        <rect key="frame" x="127" y="62" width="241" height="17"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Accessibility is enabled. You're all set!" id="PqP-7R-CO6">
-                            <font key="font" metaFont="system"/>
-                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                        <connections>
-                            <binding destination="-2" name="value" keyPath="self.maybeEnableAccessibilityString" id="Vfi-fV-yoo"/>
-                        </connections>
-                    </textField>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" id="Ljs-s0-qtL">
-                        <rect key="frame" x="38" y="62" width="85" height="17"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Accessibility:" id="xX6-GD-rGt">
-                            <font key="font" metaFont="system"/>
-                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                    </textField>
-                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" id="fzK-vc-sjF">
-                        <rect key="frame" x="287" y="35" width="16" height="16"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="NSStatusAvailable" id="6r9-hh-evU"/>
-                        <connections>
-                            <binding destination="-2" name="value" keyPath="self.isAccessibilityEnabledImage" id="sOX-IP-ZMv"/>
-                        </connections>
-                    </imageView>
+                    <visualEffectView blendingMode="behindWindow" material="underWindowBackground" state="followsWindowActiveState" translatesAutoresizingMaskIntoConstraints="NO" id="eNw-hu-Cry">
+                        <rect key="frame" x="0.0" y="0.0" width="358" height="246"/>
+                        <subviews>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="VQb-h7-4Va">
+                                <rect key="frame" x="18" y="209" width="84" height="17"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Behavior:" id="dha-iU-GWx">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <button translatesAutoresizingMaskIntoConstraints="NO" id="e5P-fQ-lSS">
+                                <rect key="frame" x="106" y="208" width="207" height="18"/>
+                                <buttonCell key="cell" type="check" title="Launch CommandPost at login" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="WYx-7x-qXj">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="toggleOpensAtLogin:" target="-2" id="3mA-c3-HVf"/>
+                                </connections>
+                            </button>
+                            <button verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="gOt-KN-83u">
+                                <rect key="frame" x="106" y="105" width="228" height="18"/>
+                                <buttonCell key="cell" type="check" title="Send crash data (requires restart)" bezelStyle="regularSquare" imagePosition="left" alignment="left" state="on" inset="2" id="YwH-Pc-MwX">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="toggleUploadCrashData:" target="-2" id="8a1-bO-6qu"/>
+                                </connections>
+                            </button>
+                            <button verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="8hE-jn-yvO">
+                                <rect key="frame" x="106" y="188" width="134" height="18"/>
+                                <buttonCell key="cell" type="check" title="Check for updates" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="eue-1N-zi1">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                            </button>
+                            <button verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="LCE-lg-IdY">
+                                <rect key="frame" x="106" y="168" width="118" height="18"/>
+                                <buttonCell key="cell" type="check" title="Show dock icon" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="1Ay-Q1-93j">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="toggleShowDockIcon:" target="-2" id="UvC-Pk-hFl"/>
+                                </connections>
+                            </button>
+                            <button verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="onk-bV-cOj">
+                                <rect key="frame" x="106" y="148" width="122" height="18"/>
+                                <buttonCell key="cell" type="check" title="Show menu icon" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="uNE-4I-dRd">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="toggleMenuDockIcon:" target="-2" id="Y4S-Ys-VCZ"/>
+                                </connections>
+                            </button>
+                            <button translatesAutoresizingMaskIntoConstraints="NO" id="pYS-Wj-7iw">
+                                <rect key="frame" x="106" y="125" width="198" height="21"/>
+                                <buttonCell key="cell" type="check" title="Keep Console window on top" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="OSm-zw-Lk8">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="toggleKeepConsoleOnTop:" target="-2" id="bCp-5r-duV"/>
+                                </connections>
+                            </button>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="fRb-9A-PSe">
+                                <rect key="frame" x="106" y="82" width="234" height="17"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Accessibility is enabled. You're all set!" id="PqP-7R-CO6">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                                <connections>
+                                    <binding destination="-2" name="value" keyPath="self.maybeEnableAccessibilityString" id="Vfi-fV-yoo"/>
+                                </connections>
+                            </textField>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Ljs-s0-qtL">
+                                <rect key="frame" x="18" y="82" width="84" height="17"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Accessibility:" id="xX6-GD-rGt">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="4ho-hR-nJI">
+                                <rect key="frame" x="102" y="46" width="212" height="32"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="200" id="76R-TM-xrf"/>
+                                </constraints>
+                                <buttonCell key="cell" type="push" title="Enable Accessibility" bezelStyle="rounded" imagePosition="left" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="cuD-Tg-hc1">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="openAccessibility:" target="-2" id="Yc7-5U-TyJ"/>
+                                    <binding destination="-2" name="enabled" keyPath="self.isAccessibilityEnabled" id="e2f-kQ-zuS">
+                                        <dictionary key="options">
+                                            <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                        </dictionary>
+                                    </binding>
+                                </connections>
+                            </button>
+                            <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="fzK-vc-sjF">
+                                <rect key="frame" x="316" y="56" width="16" height="16"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="16" id="RvQ-ow-kGP"/>
+                                    <constraint firstAttribute="height" constant="16" id="yrp-C5-h6a"/>
+                                </constraints>
+                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="NSStatusAvailable" id="6r9-hh-evU"/>
+                                <connections>
+                                    <binding destination="-2" name="value" keyPath="self.isAccessibilityEnabledImage" id="sOX-IP-ZMv"/>
+                                </connections>
+                            </imageView>
+                            <button horizontalHuggingPriority="249" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Brc-yV-QuI">
+                                <rect key="frame" x="102" y="13" width="212" height="32"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" priority="250" constant="200" id="vs7-6D-JVd"/>
+                                </constraints>
+                                <buttonCell key="cell" type="push" title="Crash Data Privacy Policy" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="hjR-yP-MS1">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="privacyPolicyClicked:" target="-2" id="wJg-Ny-X8G"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="8hE-jn-yvO" firstAttribute="leading" secondItem="VQb-h7-4Va" secondAttribute="trailing" constant="8" symbolic="YES" id="1gi-gY-wwp"/>
+                            <constraint firstAttribute="bottom" secondItem="Brc-yV-QuI" secondAttribute="bottom" constant="20" symbolic="YES" id="4Ia-pq-hb4"/>
+                            <constraint firstItem="Brc-yV-QuI" firstAttribute="leading" secondItem="fRb-9A-PSe" secondAttribute="leading" id="4R4-cj-OZh"/>
+                            <constraint firstItem="onk-bV-cOj" firstAttribute="top" secondItem="LCE-lg-IdY" secondAttribute="bottom" constant="6" symbolic="YES" id="7cJ-UV-Ix2"/>
+                            <constraint firstItem="8hE-jn-yvO" firstAttribute="top" secondItem="e5P-fQ-lSS" secondAttribute="bottom" constant="6" symbolic="YES" id="Bgv-Vu-wV9"/>
+                            <constraint firstItem="onk-bV-cOj" firstAttribute="leading" secondItem="VQb-h7-4Va" secondAttribute="trailing" constant="8" symbolic="YES" id="Fee-Th-1Kw"/>
+                            <constraint firstItem="gOt-KN-83u" firstAttribute="leading" secondItem="VQb-h7-4Va" secondAttribute="trailing" constant="8" symbolic="YES" id="GLO-zb-nek"/>
+                            <constraint firstItem="Ljs-s0-qtL" firstAttribute="top" secondItem="gOt-KN-83u" secondAttribute="bottom" constant="8" symbolic="YES" id="KjY-cL-UmE"/>
+                            <constraint firstItem="pYS-Wj-7iw" firstAttribute="leading" secondItem="VQb-h7-4Va" secondAttribute="trailing" constant="8" symbolic="YES" id="LWl-EC-tRB"/>
+                            <constraint firstItem="fRb-9A-PSe" firstAttribute="centerY" secondItem="Ljs-s0-qtL" secondAttribute="centerY" id="NAP-P3-3fA"/>
+                            <constraint firstItem="Ljs-s0-qtL" firstAttribute="leading" secondItem="eNw-hu-Cry" secondAttribute="leading" constant="20" symbolic="YES" id="NZc-r0-DHJ"/>
+                            <constraint firstItem="LCE-lg-IdY" firstAttribute="leading" secondItem="VQb-h7-4Va" secondAttribute="trailing" constant="8" symbolic="YES" id="W7V-nA-8aX"/>
+                            <constraint firstItem="fzK-vc-sjF" firstAttribute="centerY" secondItem="4ho-hR-nJI" secondAttribute="centerY" id="YaO-t4-SyR"/>
+                            <constraint firstItem="4ho-hR-nJI" firstAttribute="leading" secondItem="fRb-9A-PSe" secondAttribute="leading" id="bJX-Rt-08s"/>
+                            <constraint firstItem="fzK-vc-sjF" firstAttribute="leading" secondItem="4ho-hR-nJI" secondAttribute="trailing" constant="8" symbolic="YES" id="bso-mQ-uLc"/>
+                            <constraint firstItem="4ho-hR-nJI" firstAttribute="top" secondItem="fRb-9A-PSe" secondAttribute="bottom" constant="8" symbolic="YES" id="cIB-L9-Qd6"/>
+                            <constraint firstItem="LCE-lg-IdY" firstAttribute="top" secondItem="8hE-jn-yvO" secondAttribute="bottom" constant="6" symbolic="YES" id="cm2-Kd-Fv1"/>
+                            <constraint firstItem="pYS-Wj-7iw" firstAttribute="top" secondItem="onk-bV-cOj" secondAttribute="bottom" constant="6" symbolic="YES" id="drt-sI-apm"/>
+                            <constraint firstItem="Brc-yV-QuI" firstAttribute="top" secondItem="4ho-hR-nJI" secondAttribute="bottom" constant="12" symbolic="YES" id="exn-c9-kQ4"/>
+                            <constraint firstItem="e5P-fQ-lSS" firstAttribute="leading" secondItem="VQb-h7-4Va" secondAttribute="trailing" constant="8" symbolic="YES" id="f62-5x-ln4"/>
+                            <constraint firstAttribute="trailing" secondItem="fRb-9A-PSe" secondAttribute="trailing" constant="20" symbolic="YES" id="fXh-3G-uDy"/>
+                            <constraint firstItem="gOt-KN-83u" firstAttribute="top" secondItem="pYS-Wj-7iw" secondAttribute="bottom" constant="6" symbolic="YES" id="lNL-90-rs8"/>
+                            <constraint firstItem="VQb-h7-4Va" firstAttribute="leading" secondItem="eNw-hu-Cry" secondAttribute="leading" constant="20" symbolic="YES" id="mH1-7c-T7R"/>
+                            <constraint firstItem="VQb-h7-4Va" firstAttribute="top" secondItem="eNw-hu-Cry" secondAttribute="top" constant="20" symbolic="YES" id="ofz-7y-fpb"/>
+                            <constraint firstItem="Ljs-s0-qtL" firstAttribute="trailing" secondItem="VQb-h7-4Va" secondAttribute="trailing" id="t2a-YM-4WY"/>
+                            <constraint firstItem="e5P-fQ-lSS" firstAttribute="bottom" secondItem="VQb-h7-4Va" secondAttribute="bottom" constant="-1" id="thz-A6-rox"/>
+                            <constraint firstItem="fRb-9A-PSe" firstAttribute="leading" secondItem="Ljs-s0-qtL" secondAttribute="trailing" constant="8" symbolic="YES" id="z6T-ym-pI9"/>
+                        </constraints>
+                    </visualEffectView>
                 </subviews>
+                <constraints>
+                    <constraint firstAttribute="bottom" secondItem="eNw-hu-Cry" secondAttribute="bottom" id="KxW-tM-xgQ"/>
+                    <constraint firstItem="eNw-hu-Cry" firstAttribute="top" secondItem="Akb-Ed-9u3" secondAttribute="top" id="Un3-1M-RYy"/>
+                    <constraint firstItem="eNw-hu-Cry" firstAttribute="leading" secondItem="Akb-Ed-9u3" secondAttribute="leading" id="bEV-aX-7nO"/>
+                    <constraint firstAttribute="trailing" secondItem="eNw-hu-Cry" secondAttribute="trailing" id="cTN-jf-WD3"/>
+                </constraints>
             </view>
-            <point key="canvasLocation" x="333" y="311"/>
+            <point key="canvasLocation" x="-181" y="-66"/>
         </window>
         <userDefaultsController representsSharedInstance="YES" id="dqg-7Y-qrg"/>
     </objects>
