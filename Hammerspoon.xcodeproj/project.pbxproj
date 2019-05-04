@@ -5607,7 +5607,7 @@
 			attributes = {
 				CLASSPREFIX = HS;
 				LastUpgradeCheck = 1020;
-				ORGANIZATIONNAME = LateNite Films;
+				ORGANIZATIONNAME = "LateNite Films";
 				TargetAttributes = {
 					4F20B5281C1F1C5B00F52437 = {
 						CreatedOnToolsVersion = 7.2;
@@ -8119,8 +8119,8 @@
 					"\"$(SDK_DIR)\"/usr/include/libxml2",
 				);
 				INFOPLIST_FILE = "Hammerspoon/CommandPost-Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.${PRODUCT_NAME:rfc1034identifier}";
-				PRODUCT_NAME = Hammerspoon;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.latenitefilms.CommandPost";
+				PRODUCT_NAME = CommandPost;
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
 				STRIP_STYLE = all;
