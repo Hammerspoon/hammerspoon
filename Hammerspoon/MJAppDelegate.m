@@ -65,7 +65,7 @@
                 [alert addButtonWithTitle:@"OK"];
                 [alert setMessageText:@"Error upgrading Spoon"];
                 [alert setInformativeText:[NSString stringWithFormat:@"%@\n\nSource: %@\nDest: %@", fileError.localizedDescription, fileAndPath, spoonPath]];
-                [alert setAlertStyle:NSCriticalAlertStyle];
+                [alert setAlertStyle:NSAlertStyleCritical];
                 [alert runModal];
                 return YES;
             }
@@ -78,7 +78,7 @@
             [alert addButtonWithTitle:@"OK"];
             [alert setMessageText:@"Error installing Spoon"];
             [alert setInformativeText:[NSString stringWithFormat:@"%@\n\nSource: %@\nDest: %@", fileError.localizedDescription, fileAndPath, spoonPath]];
-            [alert setAlertStyle:NSCriticalAlertStyle];
+            [alert setAlertStyle:NSAlertStyleCritical];
             [alert runModal];
         } else {
             NSUserNotification *notification = [[NSUserNotification alloc] init];
@@ -123,7 +123,7 @@
         [alert addButtonWithTitle:@"Delete Preferences"];
         [alert setMessageText:@"Do you want to delete the preferences?"];
         [alert setInformativeText:@"Deleting the preferences will reset all Hammerspoon settings (including everything that uses hs.settings) to their defaults."];
-        [alert setAlertStyle:NSWarningAlertStyle];
+        [alert setAlertStyle:NSAlertStyleWarning];
         
         if ([alert runModal] == NSAlertSecondButtonReturn) {
             
@@ -330,7 +330,7 @@
     [alert addButtonWithTitle:@"OK"];
     [alert setMessageText:@"Hammerspoon crash detected"];
     [alert setInformativeText:@"Your init.lua is loading Mjolnir modules and a previous launch crashed.\n\nHammerspoon ships with updated versions of many of the Mjolnir modules, with both new features and many bug fixes.\n\nPlease consult our API documentation and migrate your config."];
-    [alert setAlertStyle:NSCriticalAlertStyle];
+    [alert setAlertStyle:NSAlertStyleCritical];
     [alert runModal];
 }
 

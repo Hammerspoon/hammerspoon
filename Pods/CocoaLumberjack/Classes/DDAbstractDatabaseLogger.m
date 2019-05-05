@@ -1,6 +1,6 @@
 // Software License Agreement (BSD License)
 //
-// Copyright (c) 2010-2016, Deusty, LLC
+// Copyright (c) 2010-2019, Deusty, LLC
 // All rights reserved.
 //
 // Redistribution and use of this software in source and binary forms,
@@ -14,7 +14,6 @@
 //   prior written permission of Deusty, LLC.
 
 #import "DDAbstractDatabaseLogger.h"
-#import <math.h>
 
 
 #if !__has_feature(objc_arc)
@@ -52,7 +51,7 @@
 #pragma mark Override Me
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-- (BOOL)db_log:(DDLogMessage *)logMessage {
+- (BOOL)db_log:(__unused DDLogMessage *)logMessage {
     // Override me and add your implementation.
     //
     // Return YES if an item was added to the buffer.
@@ -127,7 +126,7 @@
 - (void)updateAndResumeSaveTimer {
     if ((_saveTimer != NULL) && (_saveInterval > 0.0) && (_unsavedTime > 0.0)) {
         uint64_t interval = (uint64_t)(_saveInterval * (NSTimeInterval) NSEC_PER_SEC);
-        dispatch_time_t startTime = dispatch_time(_unsavedTime, interval);
+        dispatch_time_t startTime = dispatch_time(_unsavedTime, (int64_t)interval);
 
         dispatch_source_set_timer(_saveTimer, startTime, interval, 1ull * NSEC_PER_SEC);
 
@@ -162,7 +161,7 @@
 
 - (void)updateDeleteTimer {
     if ((_deleteTimer != NULL) && (_deleteInterval > 0.0) && (_maxAge > 0.0)) {
-        uint64_t interval = (uint64_t)(_deleteInterval * (NSTimeInterval) NSEC_PER_SEC);
+        int64_t interval = (int64_t)(_deleteInterval * (NSTimeInterval) NSEC_PER_SEC);
         dispatch_time_t startTime;
 
         if (_lastDeleteTime > 0) {
@@ -171,7 +170,7 @@
             startTime = dispatch_time(DISPATCH_TIME_NOW, interval);
         }
 
-        dispatch_source_set_timer(_deleteTimer, startTime, interval, 1ull * NSEC_PER_SEC);
+        dispatch_source_set_timer(_deleteTimer, startTime, (uint64_t)interval, 1ull * NSEC_PER_SEC);
     }
 }
 

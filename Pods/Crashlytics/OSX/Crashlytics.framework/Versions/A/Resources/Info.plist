@@ -17,7 +17,7 @@
 	<key>CFBundlePackageType</key>
 	<string>FMWK</string>
 	<key>CFBundleShortVersionString</key>
-	<string>3.10.9</string>
+	<string>3.12.0</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleSupportedPlatforms</key>
@@ -25,21 +25,21 @@
 		<string>MacOSX</string>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>131</string>
+	<string>136</string>
 	<key>DTCompiler</key>
 	<string>com.apple.compilers.llvm.clang.1_0</string>
 	<key>DTPlatformBuild</key>
-	<string>9F2000</string>
+	<string>10O35n</string>
 	<key>DTPlatformVersion</key>
 	<string>GM</string>
 	<key>DTSDKBuild</key>
-	<string>17E189</string>
+	<string>18B50b</string>
 	<key>DTSDKName</key>
-	<string>macosx10.13</string>
+	<string>macosx10.14</string>
 	<key>DTXcode</key>
-	<string>0941</string>
+	<string>1010</string>
 	<key>DTXcodeBuild</key>
-	<string>9F2000</string>
+	<string>10O35n</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2016 Crashlytics, Inc. All rights reserved.</string>
 	<key>UIDeviceFamily</key>

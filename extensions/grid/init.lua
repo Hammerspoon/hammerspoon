@@ -229,9 +229,9 @@ end
 ---  * None
 
 local function getCellSize(theScreen)
-  getGrid(theScreen)
+  local g = getGrid(theScreen)
   local screenframe=getGridFrame(theScreen)
-  return geom.size(screenframe.w/grid.w,screenframe.h/grid.h)
+  return geom.size(screenframe.w / g.w, screenframe.h / g.h)
 end
 
 local function round(num, idp)

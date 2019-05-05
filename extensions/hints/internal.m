@@ -92,7 +92,7 @@ static float hintIconAlpha = 0.95;
     [[NSGraphicsContext currentContext] setShouldAntialias:YES];
 
     if (icon != nil) {
-        [icon drawInRect:iconFrame fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:hintIconAlpha];
+        [icon drawInRect:iconFrame fromRect:NSZeroRect operation:NSCompositingOperationSourceOver fraction:hintIconAlpha];
     }
 
     // get label info for sizing
@@ -129,7 +129,7 @@ static float hintIconAlpha = 0.95;
     CGRect frame = NSMakeRect(pt.x - (height/2.0),
                               screen.frame.size.height - pt.y - (height/2.0), 100, 75);
     self = [super initWithContentRect:frame
-                            styleMask:NSBorderlessWindowMask
+                            styleMask:NSWindowStyleMaskBorderless
                               backing:NSBackingStoreBuffered
                                 defer:NO
                                screen:screen];

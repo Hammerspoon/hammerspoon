@@ -429,6 +429,31 @@ cleanup:
     return 1;
 }
 
+/// hs.window:isMaximizable() -> bool or nil
+/// Method
+/// Determines if a window is maximizable
+///
+/// Paramters:
+///  * None
+///
+/// Returns:
+///  * True if the window is maximizable, False if it isn't, or nil if an error occurred
+static int window_isMaximizable(lua_State *L) {
+    AXUIElementRef win = get_window_arg(L, 1);
+    AXUIElementRef button = nil;
+    CFBooleanRef isEnabled;
+
+    if (AXUIElementCopyAttributeValue(win, kAXZoomButtonAttribute, (CFTypeRef*)&button) != noErr) goto cleanup;
+    if (AXUIElementCopyAttributeValue(button, kAXEnabledAttribute, (CFTypeRef*)&isEnabled) != noErr) goto cleanup;
+
+    lua_pushboolean(L, isEnabled == kCFBooleanTrue ? true : false);
+    return 1;
+
+cleanup:
+    lua_pushnil(L);
+    return 1;
+}
+
 /// hs.window:close() -> bool
 /// Method
 /// Closes the window
@@ -850,6 +875,7 @@ static const luaL_Reg windowlib[] = {
     {"_minimize", window__minimize},
     {"_unminimize", window__unminimize},
     {"isMinimized", window_isminimized},
+    {"isMaximizable", window_isMaximizable},
     {"pid", window_pid},
     {"application", window_application},
     {"focusTab", window_focustab},

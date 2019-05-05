@@ -115,7 +115,7 @@
     [transform concat];
 
     // Render our image into the bitmaprep
-    [self drawAtPoint:NSZeroPoint fromRect:NSZeroRect operation:NSCompositeCopy fraction:1.0];
+    [self drawAtPoint:NSZeroPoint fromRect:NSZeroRect operation:NSCompositingOperationCopy fraction:1.0];
     [ctx flushGraphics];
 
     [NSGraphicsContext restoreGraphicsState];

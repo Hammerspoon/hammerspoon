@@ -1772,24 +1772,24 @@ static int NSParagraphStyle_toLua(lua_State *L, id obj) {
     lua_newtable(L);
 
     switch ([thePS alignment]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wgnu-folding-constant"
-        case NSLeftTextAlignment:
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wgnu-folding-constant"
+        case NSTextAlignmentLeft:
             lua_pushstring(L, "left");
             break;
-        case NSRightTextAlignment:
+        case NSTextAlignmentRight:
             lua_pushstring(L, "right");
             break;
-        case NSCenterTextAlignment:
+        case NSTextAlignmentCenter:
             lua_pushstring(L, "center");
             break;
-        case NSJustifiedTextAlignment:
+        case NSTextAlignmentJustified:
             lua_pushstring(L, "justified");
             break;
-        case NSNaturalTextAlignment:
+        case NSTextAlignmentNatural:
             lua_pushstring(L, "natural");
             break;
-#pragma clang diagnostic pop
+    #pragma clang diagnostic pop
         default:
             lua_pushstring(L, "unknown");
             break;
@@ -1907,15 +1907,15 @@ static id table_toNSParagraphStyle(lua_State *L, int idx) {
         if (lua_getfield(L, idx, "alignment") == LUA_TSTRING) {
             NSString *theString = [skin toNSObjectAtIndex:-1];
             if ([theString isEqualToString:@"left"]) {
-                thePS.alignment = NSLeftTextAlignment;
+                thePS.alignment = NSTextAlignmentLeft;
             } else if ([theString isEqualToString:@"right"]) {
-                thePS.alignment = NSRightTextAlignment;
+                thePS.alignment = NSTextAlignmentRight;
             } else if ([theString isEqualToString:@"center"]) {
-                thePS.alignment = NSCenterTextAlignment;
+                thePS.alignment = NSTextAlignmentCenter;
             } else if ([theString isEqualToString:@"justified"]) {
-                thePS.alignment = NSJustifiedTextAlignment;
+                thePS.alignment = NSTextAlignmentJustified;
             } else if ([theString isEqualToString:@"natural"]) {
-                thePS.alignment = NSNaturalTextAlignment;
+                thePS.alignment = NSTextAlignmentNatural;
             } else {
                 [skin logWarn:[NSString stringWithFormat:@"invalid alignment specified: %@", theString]] ;
             }
