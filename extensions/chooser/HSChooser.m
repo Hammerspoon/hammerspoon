@@ -224,7 +224,9 @@
     lua_remove(L, -2);
 
     // Check the type of `globalCallback`
-    if (lua_type(L, -1) != LUA_TFUNCTION) {
+    if (lua_type(L, -1) == LUA_TNIL) {
+        lua_remove(L, -1);
+    } else if (lua_type(L, -1) != LUA_TFUNCTION) {
         [skin logError:[NSString stringWithFormat:@"hs.chooser.globalCallback is expected to be a function, but is a %s", lua_typename(L, lua_type(L, -1))]];
         // Remove whatever `globalCallback` is, from the stack
         lua_remove(L, -1);
@@ -279,7 +281,9 @@
     lua_remove(L, -2);
 
     // Check the type of `globalCallback`
-    if (lua_type(L, -1) != LUA_TFUNCTION) {
+    if (lua_type(L, -1) == LUA_TNIL) {
+        lua_remove(L, -1);
+    } else if (lua_type(L, -1) != LUA_TFUNCTION) {
         [skin logError:[NSString stringWithFormat:@"hs.chooser.globalCallback is expected to be a function, but is a %s", lua_typename(L, lua_type(L, -1))]];
         // Remove whatever `globalCallback` is, from the stack
         lua_remove(L, -1);
