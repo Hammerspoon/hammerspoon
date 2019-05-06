@@ -99,6 +99,19 @@ function spotify.previous()
   tell('previous track')
 end
 
+--- hs.spotify.playTrack(id)
+--- Function
+--- Plays the Spotify track with the given id
+---
+--- Parameters:
+---  * id - The Spotify id of the track to be played
+---
+--- Returns:
+---  * None
+function spotify.playTrack(i)
+  tell('play track "'..i..'"')
+end
+
 --- hs.spotify.displayCurrentTrack()
 --- Function
 --- Displays information for current track on screen
@@ -152,6 +165,18 @@ end
 ---  * A string containing the name of the current track, or nil if an error occurred
 function spotify.getCurrentTrack()
   return tell('name of the current track')
+end
+--- hs.spotify.getCurrentTrackId()
+--- Function
+--- Gets the id of the current track
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * A string containing the id of the current track, or nil if an error occurred
+function spotify.getCurrentTrackId()
+  return tell('id of current track')
 end
 
 --- hs.spotify.getPlaybackState()
@@ -306,7 +331,7 @@ end
 ---  * None
 function spotify.ff() return spotify.setPosition(spotify.getPosition()+5) end
 
---- hs.spotify.rw
+--- hs.spotify.rw()
 --- Function
 --- Skips the playback position backwards by 5 seconds
 ---

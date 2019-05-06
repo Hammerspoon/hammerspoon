@@ -1,6 +1,6 @@
 // Software License Agreement (BSD License)
 //
-// Copyright (c) 2010-2016, Deusty, LLC
+// Copyright (c) 2010-2019, Deusty, LLC
 // All rights reserved.
 //
 // Redistribution and use of this software in source and binary forms,
@@ -14,27 +14,6 @@
 //   prior written permission of Deusty, LLC.
 
 #import "DDMultiFormatter.h"
-
-
-#if TARGET_OS_IOS
-// Compiling for iOS
-#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 60000 // iOS 6.0 or later
-#define NEEDS_DISPATCH_RETAIN_RELEASE 0
-#else                                         // iOS 5.X or earlier
-#define NEEDS_DISPATCH_RETAIN_RELEASE 1
-#endif
-#elif TARGET_OS_WATCH || TARGET_OS_TV
-// Compiling for watchOS, tvOS
-#define NEEDS_DISPATCH_RETAIN_RELEASE 0
-#else
-// Compiling for Mac OS X
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1080     // Mac OS X 10.8 or later
-#define NEEDS_DISPATCH_RETAIN_RELEASE 0
-#else                                         // Mac OS X 10.7 or earlier
-#define NEEDS_DISPATCH_RETAIN_RELEASE 1
-#endif
-#endif
-
 
 #if !__has_feature(objc_arc)
 #error This file must be compiled with ARC. Use -fobjc-arc flag (or convert project to ARC).
@@ -57,23 +36,12 @@
     self = [super init];
 
     if (self) {
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
         _queue = dispatch_queue_create("cocoa.lumberjack.multiformatter", DISPATCH_QUEUE_CONCURRENT);
-#else
-        _queue = dispatch_queue_create("cocoa.lumberjack.multiformatter", NULL);
-#endif
         _formatters = [NSMutableArray new];
     }
 
     return self;
 }
-
-#if NEEDS_DISPATCH_RETAIN_RELEASE
-- (void)dealloc {
-    dispatch_release(_queue);
-}
-
-#endif
 
 #pragma mark Processing
 

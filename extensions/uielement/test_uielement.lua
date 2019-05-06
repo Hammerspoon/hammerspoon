@@ -44,7 +44,7 @@ end
 function testSelectedText()
   local text = "abc123"
   local textedit = hs.application.open("com.apple.TextEdit")
-  
+
   hs.timer.usleep(1000000)
   hs.eventtap.keyStroke({"cmd"}, "n")
   hs.timer.usleep(1000000)

@@ -1296,7 +1296,7 @@ static int colorAt(lua_State* L) {
 		[theImage unlockFocus];
         [skin pushNSObject:pixelColor];
 	}
-    
+
     return 1;
 }
 
@@ -1320,7 +1320,7 @@ static int croppedCopy(__unused lua_State* L) {
     NSRect targetRect = NSMakeRect(0.0, 0.0, theImage.size.width, theImage.size.height);
     NSImage *newImage = [[NSImage alloc] initWithSize:targetRect.size];
     [newImage lockFocus];
-    [theImage drawInRect:targetRect fromRect:targetRect operation:NSCompositeCopy fraction:1.0];
+    [theImage drawInRect:targetRect fromRect:targetRect operation:NSCompositingOperationCopy fraction:1.0];
     [newImage unlockFocus];
 
 // http://stackoverflow.com/questions/35643020/nsimage-drawinrect-and-nsview-cachedisplayinrect-memory-retained
@@ -1402,7 +1402,7 @@ static int encodeAsString(lua_State* L) {
     NSRect targetRect = NSMakeRect(0.0, 0.0, theImage.size.width, theImage.size.height);
     NSImage *newImage = [[NSImage alloc] initWithSize:targetRect.size];
     [newImage lockFocus];
-    [theImage drawInRect:targetRect fromRect:targetRect operation:NSCompositeCopy fraction:1.0];
+    [theImage drawInRect:targetRect fromRect:targetRect operation:NSCompositingOperationCopy fraction:1.0];
     [newImage unlockFocus];
 
     NSBitmapImageRep *rep ;
@@ -1422,7 +1422,7 @@ static int encodeAsString(lua_State* L) {
 
         [NSGraphicsContext saveGraphicsState];
         [NSGraphicsContext setCurrentContext:[NSGraphicsContext graphicsContextWithBitmapImageRep:rep]];
-        [newImage drawInRect:targetRect fromRect:NSZeroRect operation:NSCompositeCopy fraction:1.0];
+        [newImage drawInRect:targetRect fromRect:NSZeroRect operation:NSCompositingOperationCopy fraction:1.0];
         [NSGraphicsContext restoreGraphicsState];
     } else {
         NSData *tiffRep = [newImage TIFFRepresentation];
@@ -1497,7 +1497,7 @@ static int saveToFile(lua_State* L) {
     NSRect targetRect = NSMakeRect(0.0, 0.0, theImage.size.width, theImage.size.height);
     NSImage *newImage = [[NSImage alloc] initWithSize:targetRect.size];
     [newImage lockFocus];
-    [theImage drawInRect:targetRect fromRect:targetRect operation:NSCompositeCopy fraction:1.0];
+    [theImage drawInRect:targetRect fromRect:targetRect operation:NSCompositingOperationCopy fraction:1.0];
     [newImage unlockFocus];
 
     NSBitmapImageRep *rep ;
@@ -1517,7 +1517,7 @@ static int saveToFile(lua_State* L) {
 
         [NSGraphicsContext saveGraphicsState];
         [NSGraphicsContext setCurrentContext:[NSGraphicsContext graphicsContextWithBitmapImageRep:rep]];
-        [newImage drawInRect:targetRect fromRect:NSZeroRect operation:NSCompositeCopy fraction:1.0];
+        [newImage drawInRect:targetRect fromRect:NSZeroRect operation:NSCompositingOperationCopy fraction:1.0];
         [NSGraphicsContext restoreGraphicsState];
     } else {
         NSData *tiffRep = [newImage TIFFRepresentation];

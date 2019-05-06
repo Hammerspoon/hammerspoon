@@ -236,7 +236,8 @@ function Inspector:putTable(t)
   elseif self.level >= self.depth then
     self:puts('{...}')
   else
-    if self.tableAppearances[t] > 1 then self:puts('<', self:getId(t), '>') end
+    local appearances = self.tableAppearances[t] or 0
+    if appearances > 1 then self:puts('<', self:getId(t), '>') end
 
     local nonSequentialKeys = getNonSequentialKeys(t)
     local length            = #t

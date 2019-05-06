@@ -87,7 +87,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
 }
 
 - (BOOL)windowShouldClose:(id __unused)sender {
-    if ((self.styleMask & NSClosableWindowMask) != 0) {
+    if ((self.styleMask & NSWindowStyleMaskClosable) != 0) {
         return YES ;
     } else {
         return NO ;
@@ -117,63 +117,63 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
 }
 
 - (void)windowDidBecomeKey:(__unused NSNotification *)notification {
-    if (_windowCallback != LUA_NOREF) {
-		dispatch_async(dispatch_get_main_queue(), ^{
+	dispatch_async(dispatch_get_main_queue(), ^{
+        if (self->_windowCallback != LUA_NOREF) {
 			LuaSkin *skin = [LuaSkin shared] ;
 			_lua_stackguard_entry(skin.L);
-            [skin pushLuaRef:refTable ref:self->_windowCallback] ;
+			[skin pushLuaRef:refTable ref:self->_windowCallback] ;
 			[skin pushNSObject:@"focusChange"] ;
 			[skin pushNSObject:self] ;
 			lua_pushboolean(skin.L, YES) ;
 			[skin protectedCallAndError:@"hs.webview:windowCallback:focusChange" nargs:3 nresults:0];
 			_lua_stackguard_exit(skin.L);
-		});
-    }
+		};
+	});
 }
 
 - (void)windowDidResignKey:(__unused NSNotification *)notification {
-    if (_windowCallback != LUA_NOREF) {
-    	dispatch_async(dispatch_get_main_queue(), ^{
+	dispatch_async(dispatch_get_main_queue(), ^{
+        if (self->_windowCallback != LUA_NOREF) {
 			LuaSkin *skin = [LuaSkin shared] ;
 			_lua_stackguard_entry(skin.L);
-            [skin pushLuaRef:refTable ref:self->_windowCallback] ;
+			[skin pushLuaRef:refTable ref:self->_windowCallback] ;
 			[skin pushNSObject:@"focusChange"] ;
 			[skin pushNSObject:self] ;
 			lua_pushboolean(skin.L, NO) ;
 			[skin protectedCallAndError:@"hs.webview:windowCallback:focusChange" nargs:3 nresults:0];
 			_lua_stackguard_exit(skin.L);
-		});
-    }
+		};
+	});
 }
 
 - (void)windowDidResize:(__unused NSNotification *)notification {
-    if (_windowCallback != LUA_NOREF) {
-    	dispatch_async(dispatch_get_main_queue(), ^{
+	dispatch_async(dispatch_get_main_queue(), ^{
+        if (self->_windowCallback != LUA_NOREF) {
 			LuaSkin *skin = [LuaSkin shared] ;
 			_lua_stackguard_entry(skin.L);
-            [skin pushLuaRef:refTable ref:self->_windowCallback] ;
+			[skin pushLuaRef:refTable ref:self->_windowCallback] ;
 			[skin pushNSObject:@"frameChange"] ;
 			[skin pushNSObject:self] ;
 			[skin pushNSRect:RectWithFlippedYCoordinate(self.frame)] ;
 			[skin protectedCallAndError:@"hs.webview:windowCallback:frameChange:resize" nargs:3 nresults:0];
 			_lua_stackguard_exit(skin.L);
-		});
-    }
+		};
+	});
 }
 
 - (void)windowDidMove:(__unused NSNotification *)notification {
-    if (_windowCallback != LUA_NOREF) {
-    	dispatch_async(dispatch_get_main_queue(), ^{
+	dispatch_async(dispatch_get_main_queue(), ^{
+        if (self->_windowCallback != LUA_NOREF) {
 			LuaSkin *skin = [LuaSkin shared] ;
 			_lua_stackguard_entry(skin.L);
-            [skin pushLuaRef:refTable ref:self->_windowCallback] ;
+			[skin pushLuaRef:refTable ref:self->_windowCallback] ;
 			[skin pushNSObject:@"frameChange"] ;
 			[skin pushNSObject:self] ;
 			[skin pushNSRect:RectWithFlippedYCoordinate(self.frame)] ;
 			[skin protectedCallAndError:@"hs.webview:windowCallback:frameChange:move" nargs:3 nresults:0];
 			_lua_stackguard_exit(skin.L);
-		});
-    }
+		};
+	});
 }
 
 - (void)cancelOperation:(id)sender {
@@ -897,8 +897,8 @@ static int webview_url(lua_State *L) {
         NSURLRequest *theNSURL = [skin luaObjectAtIndex:2 toClass:"NSURLRequest"] ;
         if (theNSURL) {
             if (theView.loading) [theView stopLoading] ;
+            while (theView.loading) {}
             dispatch_async(dispatch_get_main_queue(), ^{
-                while (theView.loading) {}
                 WKNavigation *navID = [theView loadRequest:theNSURL] ;
                 theView.trackingID = navID ;
             }) ;
@@ -1176,8 +1176,8 @@ static int webview_reload(lua_State *L) {
     HSWebViewView   *theView = theWindow.contentView ;
 
     if (theView.loading) [theView stopLoading] ;
+    while (theView.loading) {}
     dispatch_async(dispatch_get_main_queue(), ^{
-        while (theView.loading) {}
         WKNavigation *navID ;
         if (lua_type(L, 2) == LUA_TBOOLEAN && lua_toboolean(L, 2))
             navID = [theView reload] ;
@@ -1392,8 +1392,8 @@ static int webview_html(lua_State *L) {
     NSString *theBaseURL = (lua_type(L, 3) == LUA_TSTRING) ? [skin toNSObjectAtIndex:3] : nil ;
 
     if (theView.loading) [theView stopLoading] ;
+    while (theView.loading) {}
     dispatch_async(dispatch_get_main_queue(), ^{
-        while (theView.loading) {}
         WKNavigation *navID = [theView loadHTMLString:theHTML baseURL:[NSURL URLWithString:theBaseURL]] ;
         theView.trackingID = navID ;
     }) ;
@@ -1777,7 +1777,7 @@ static int webview_new(lua_State *L) {
     NSRect windowRect = [skin tableToRectAtIndex:1] ;
 
     HSWebViewWindow *theWindow = [[HSWebViewWindow alloc] initWithContentRect:windowRect
-                                                                    styleMask:NSBorderlessWindowMask
+                                                                    styleMask:NSWindowStyleMaskBorderless
                                                                       backing:NSBackingStoreBuffered
                                                                         defer:YES];
 
@@ -2107,6 +2107,53 @@ static int webview_windowTitle(lua_State *L) {
     }
 
     lua_settop(L, 1) ;
+    return 1 ;
+}
+
+/// hs.webview:titleVisibility([state]) -> webviewObject | string
+/// Function
+/// Get or set whether or not the title text appears in the webview window.
+///
+/// Parameters:
+///  * `state` - an optional string containing the text "visible" or "hidden", specifying whether or not the webview's title text appears when webview's window style includes "titled".
+///
+/// Returns:
+///  * if a value is provided, returns the webview object; otherwise returns the current value.
+///
+/// Notes:
+///  * See also [hs.webview:windowStyle](#windowStyle) and [hs.webview.windowMasks](#windowMasks).
+///
+///  * When a toolbar is attached to the webview, this function can be used to specify whether the Toolbar appears underneath the webview window's title ("visible") or in the window's title bar itself, as seen in applications like Safari ("hidden"). When the title is hidden, the toolbar will only display the toolbar items as icons without labels, and ignores changes made with `hs.webview.toolbar:displayMode`.
+///
+///  * If a toolbar is attached to the webview, you can achieve the same effect as this method with `hs.webview:attachedToolbar():inTitleBar(boolean)`
+static int webview_titleVisibility(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
+
+    NSDictionary *mapping = @{
+        @"visible" : @(NSWindowTitleVisible),
+        @"hidden"  : @(NSWindowTitleHidden),
+    } ;
+
+    if (lua_gettop(L) == 1) {
+        NSNumber *titleVisibility = @(theWindow.titleVisibility) ;
+        NSString *value = [[mapping allKeysForObject:titleVisibility] firstObject] ;
+        if (value) {
+            [skin pushNSObject:value] ;
+        } else {
+            [skin logWarn:[NSString stringWithFormat:@"unrecognized titleVisibility %@ -- notify developers", titleVisibility]] ;
+            lua_pushnil(L) ;
+        }
+    } else {
+        NSNumber *value = mapping[[skin toNSObjectAtIndex:2]] ;
+        if (value) {
+            theWindow.titleVisibility = [value intValue] ;
+            lua_pushvalue(L, 1) ;
+        } else {
+            return luaL_argerror(L, 2, [[NSString stringWithFormat:@"must be one of '%@'", [[mapping allKeys] componentsJoinedByString:@"', '"]] UTF8String]) ;
+        }
+    }
     return 1 ;
 }
 
@@ -2441,19 +2488,19 @@ static int webview_windowCallback(lua_State *L) {
 
 static int webview_windowMasksTable(lua_State *L) {
     lua_newtable(L) ;
-      lua_pushinteger(L, NSBorderlessWindowMask) ;             lua_setfield(L, -2, "borderless") ;
-      lua_pushinteger(L, NSTitledWindowMask) ;                 lua_setfield(L, -2, "titled") ;
-      lua_pushinteger(L, NSClosableWindowMask) ;               lua_setfield(L, -2, "closable") ;
-      lua_pushinteger(L, NSMiniaturizableWindowMask) ;         lua_setfield(L, -2, "miniaturizable") ;
-      lua_pushinteger(L, NSResizableWindowMask) ;              lua_setfield(L, -2, "resizable") ;
-      lua_pushinteger(L, NSTexturedBackgroundWindowMask) ;     lua_setfield(L, -2, "texturedBackground") ;
+    lua_pushinteger(L, NSWindowStyleMaskBorderless) ;             lua_setfield(L, -2, "borderless") ;
+    lua_pushinteger(L, NSWindowStyleMaskTitled) ;                 lua_setfield(L, -2, "titled") ;
+    lua_pushinteger(L, NSWindowStyleMaskClosable) ;               lua_setfield(L, -2, "closable") ;
+    lua_pushinteger(L, NSWindowStyleMaskMiniaturizable) ;         lua_setfield(L, -2, "miniaturizable") ;
+    lua_pushinteger(L, NSWindowStyleMaskResizable) ;              lua_setfield(L, -2, "resizable") ;
+    lua_pushinteger(L, NSWindowStyleMaskTexturedBackground) ;     lua_setfield(L, -2, "texturedBackground") ;
 //       lua_pushinteger(L, NSUnifiedTitleAndToolbarWindowMask) ; lua_setfield(L, -2, "unifiedTitleAndToolbar") ;
 //       lua_pushinteger(L, NSFullScreenWindowMask) ;             lua_setfield(L, -2, "fullScreen") ;
-      lua_pushinteger(L, NSFullSizeContentViewWindowMask) ;    lua_setfield(L, -2, "fullSizeContentView") ;
-      lua_pushinteger(L, NSUtilityWindowMask) ;                lua_setfield(L, -2, "utility") ;
+    lua_pushinteger(L, NSWindowStyleMaskFullSizeContentView) ;    lua_setfield(L, -2, "fullSizeContentView") ;
+    lua_pushinteger(L, NSWindowStyleMaskUtilityWindow) ;                lua_setfield(L, -2, "utility") ;
 //       lua_pushinteger(L, NSDocModalWindowMask) ;               lua_setfield(L, -2, "docModal") ;
-      lua_pushinteger(L, NSNonactivatingPanelMask) ;           lua_setfield(L, -2, "nonactivating") ;
-      lua_pushinteger(L, NSHUDWindowMask) ;                    lua_setfield(L, -2, "HUD") ;
+    lua_pushinteger(L, NSWindowStyleMaskNonactivatingPanel) ;           lua_setfield(L, -2, "nonactivating") ;
+    lua_pushinteger(L, NSWindowStyleMaskHUDWindow) ;                    lua_setfield(L, -2, "HUD") ;
     return 1 ;
 }
 
@@ -2631,12 +2678,12 @@ static int WKNavigationAction_toLua(lua_State *L, id obj) {
       lua_pushinteger(L, [navAction buttonNumber]) ; lua_setfield(L, -2, "buttonNumber") ;
       unsigned long theFlags = [navAction modifierFlags] ;
       lua_newtable(L) ;
-        if (theFlags & NSAlphaShiftKeyMask) { lua_pushboolean(L, YES) ; lua_setfield(L, -2, "capslock") ; }
-        if (theFlags & NSShiftKeyMask)      { lua_pushboolean(L, YES) ; lua_setfield(L, -2, "shift") ; }
-        if (theFlags & NSControlKeyMask)    { lua_pushboolean(L, YES) ; lua_setfield(L, -2, "ctrl") ; }
-        if (theFlags & NSAlternateKeyMask)  { lua_pushboolean(L, YES) ; lua_setfield(L, -2, "alt") ; }
-        if (theFlags & NSCommandKeyMask)    { lua_pushboolean(L, YES) ; lua_setfield(L, -2, "cmd") ; }
-        if (theFlags & NSFunctionKeyMask)   { lua_pushboolean(L, YES) ; lua_setfield(L, -2, "fn") ; }
+    if (theFlags & NSEventModifierFlagCapsLock) { lua_pushboolean(L, YES) ; lua_setfield(L, -2, "capslock") ; }
+    if (theFlags & NSEventModifierFlagShift)      { lua_pushboolean(L, YES) ; lua_setfield(L, -2, "shift") ; }
+    if (theFlags & NSEventModifierFlagControl)    { lua_pushboolean(L, YES) ; lua_setfield(L, -2, "ctrl") ; }
+    if (theFlags & NSEventModifierFlagOption)  { lua_pushboolean(L, YES) ; lua_setfield(L, -2, "alt") ; }
+    if (theFlags & NSEventModifierFlagCommand)    { lua_pushboolean(L, YES) ; lua_setfield(L, -2, "cmd") ; }
+    if (theFlags & NSEventModifierFlagFunction)   { lua_pushboolean(L, YES) ; lua_setfield(L, -2, "fn") ; }
         lua_pushinteger(L, (lua_Integer)theFlags); lua_setfield(L, -2, "_raw");
       lua_setfield(L, -2, "modifierFlags") ;
       switch([navAction navigationType]) {
@@ -2940,6 +2987,12 @@ static int userdata_gc(lua_State* L) {
         theWindow.windowCallback   = [skin luaUnref:refTable ref:theWindow.windowCallback] ;
         theView.navigationCallback = [skin luaUnref:refTable ref:theView.navigationCallback] ;
         theView.policyCallback     = [skin luaUnref:refTable ref:theView.policyCallback] ;
+
+        if (theWindow.toolbar) {
+            theWindow.toolbar.visible = NO ;
+            theWindow.toolbar = nil ;
+        }
+
         [theWindow close] ; // ensure a proper close when gc invoked during reload; nop if hs.webview:delete() is used
 
         // emancipate us from our parent
@@ -3010,6 +3063,7 @@ static const luaL_Reg userdata_metaLib[] = {
     // Window related
     {"darkMode",                   webview_darkMode},
 
+    {"titleVisibility",            webview_titleVisibility},
     {"show",                       webview_show},
     {"hide",                       webview_hide},
     {"closeOnEscape",              webview_closeOnEscape},

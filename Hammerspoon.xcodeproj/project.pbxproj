@@ -45,6 +45,7 @@
 		4F20B5341C1F225300F52437 /* init.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4F20B5331C1F225300F52437 /* init.lua */; };
 		4F29C2381C29E0A300B8A69D /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4F29C23E1C29E0E700B8A69D /* volume.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F29C2311C29D8E400B8A69D /* volume.m */; };
+		4F2C0C7321BB4A04008F32C1 /* HSinspect.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F2C0C7221BB4A03008F32C1 /* HSinspect.m */; };
 		4F2DF3E51F6046F300742D08 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4F2DF3EB1F60471400742D08 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F2DF3DE1F6046AD00742D08 /* internal.m */; };
 		4F2DF3F01F605A4900742D08 /* HSStreamDeckManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F2DF3EE1F605A4900742D08 /* HSStreamDeckManager.h */; };
@@ -53,6 +54,9 @@
 		4F2DF3F51F605A9B00742D08 /* HSStreamDeckDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F2DF3F31F605A9B00742D08 /* HSStreamDeckDevice.m */; };
 		4F2DF3F81F6170BE00742D08 /* NSImage+BMP.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F2DF3F61F6170BE00742D08 /* NSImage+BMP.h */; };
 		4F2DF3F91F6170BE00742D08 /* NSImage+BMP.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F2DF3F71F6170BE00742D08 /* NSImage+BMP.m */; };
+		4F3042FF21D4DEE300769310 /* test_inspect.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4F2C0C7121BB49E0008F32C1 /* test_inspect.lua */; };
+		4F30430221D5673A00769310 /* EDSunriseSet.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F30430021D5673A00769310 /* EDSunriseSet.h */; };
+		4F30430321D5673A00769310 /* EDSunriseSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F30430121D5673A00769310 /* EDSunriseSet.m */; };
 		4F3978841E89AE7200F30F05 /* Spoon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 4F3978831E89AE7200F30F05 /* Spoon.icns */; };
 		4F3D9D031C3302CB0082E864 /* HSChooser.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F3D9D011C3302CB0082E864 /* HSChooser.h */; };
 		4F3D9D041C3302CB0082E864 /* HSChooser.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F3D9D021C3302CB0082E864 /* HSChooser.m */; };
@@ -88,6 +92,9 @@
 		4F5134641C30819000EFD6D4 /* chooser.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F5134631C30819000EFD6D4 /* chooser.h */; };
 		4F5B6E6B1E9E86BB003FC580 /* Hammerspoon.sdef in Resources */ = {isa = PBXBuildFile; fileRef = 4F5B6E6A1E9E86BB003FC580 /* Hammerspoon.sdef */; };
 		4F5B6E6E1E9E87CE003FC580 /* HSAppleScript.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F5B6E6D1E9E87CE003FC580 /* HSAppleScript.m */; };
+		4F68B532227CBD210076C4F8 /* libPods-Hammerspoon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BC78AF8FE9DA0BD317A7528 /* libPods-Hammerspoon.a */; };
+		4F68B530227C2DD70076C4F8 /* HSChooserVerticallyCenteringTextFieldCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F68B52E227C2DD70076C4F8 /* HSChooserVerticallyCenteringTextFieldCell.h */; };
+		4F68B531227C2DD70076C4F8 /* HSChooserVerticallyCenteringTextFieldCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F68B52F227C2DD70076C4F8 /* HSChooserVerticallyCenteringTextFieldCell.m */; };
 		4F6B3EA31B73D6D300B2A4DE /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4F6B3EAE1B73D79100B2A4DE /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F6B3EAD1B73D79100B2A4DE /* internal.m */; };
 		4F6B3EB61B73DC4500B2A4DE /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
@@ -948,6 +955,8 @@
 		4F20B5331C1F225300F52437 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = init.lua; sourceTree = "<group>"; };
 		4F29C2311C29D8E400B8A69D /* volume.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = volume.m; path = extensions/fs/volume.m; sourceTree = "<group>"; };
 		4F29C23D1C29E0A300B8A69D /* libfsvolume.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libfsvolume.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		4F2C0C7121BB49E0008F32C1 /* test_inspect.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = test_inspect.lua; path = extensions/inspect/test_inspect.lua; sourceTree = "<group>"; };
+		4F2C0C7221BB4A03008F32C1 /* HSinspect.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSinspect.m; sourceTree = "<group>"; };
 		4F2DF3DD1F6046AD00742D08 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/streamdeck/init.lua; sourceTree = "<group>"; };
 		4F2DF3DE1F6046AD00742D08 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/streamdeck/internal.m; sourceTree = "<group>"; };
 		4F2DF3EA1F6046F300742D08 /* libstreamdeck.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libstreamdeck.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -958,6 +967,8 @@
 		4F2DF3F61F6170BE00742D08 /* NSImage+BMP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSImage+BMP.h"; path = "extensions/streamdeck/NSImage+BMP.h"; sourceTree = "<group>"; };
 		4F2DF3F71F6170BE00742D08 /* NSImage+BMP.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSImage+BMP.m"; path = "extensions/streamdeck/NSImage+BMP.m"; sourceTree = "<group>"; };
 		4F2DF3FA1F61AE6700742D08 /* streamdeck.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = streamdeck.h; path = extensions/streamdeck/streamdeck.h; sourceTree = "<group>"; };
+		4F30430021D5673A00769310 /* EDSunriseSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EDSunriseSet.h; path = extensions/location/EDSunriseSet.h; sourceTree = "<group>"; };
+		4F30430121D5673A00769310 /* EDSunriseSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = EDSunriseSet.m; path = extensions/location/EDSunriseSet.m; sourceTree = "<group>"; };
 		4F3978831E89AE7200F30F05 /* Spoon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Spoon.icns; sourceTree = "<group>"; };
 		4F3D9D011C3302CB0082E864 /* HSChooser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSChooser.h; path = extensions/chooser/HSChooser.h; sourceTree = "<group>"; };
 		4F3D9D021C3302CB0082E864 /* HSChooser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSChooser.m; path = extensions/chooser/HSChooser.m; sourceTree = "<group>"; };
@@ -1012,6 +1023,8 @@
 		4F64D8BD1B724C4B00FC4C65 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/alert/init.lua; sourceTree = "<group>"; };
 		4F6689E01C2852B500E48AF1 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/_coresetup/init.lua; sourceTree = "<group>"; };
 		4F6689E31C288BAA00E48AF1 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/redshift/init.lua; sourceTree = "<group>"; };
+		4F68B52E227C2DD70076C4F8 /* HSChooserVerticallyCenteringTextFieldCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = HSChooserVerticallyCenteringTextFieldCell.h; path = extensions/chooser/HSChooserVerticallyCenteringTextFieldCell.h; sourceTree = "<group>"; };
+		4F68B52F227C2DD70076C4F8 /* HSChooserVerticallyCenteringTextFieldCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = HSChooserVerticallyCenteringTextFieldCell.m; path = extensions/chooser/HSChooserVerticallyCenteringTextFieldCell.m; sourceTree = "<group>"; };
 		4F6B3E9B1B73D60000B2A4DE /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/inspect/init.lua; sourceTree = "<group>"; };
 		4F6B3E9D1B73D6A500B2A4DE /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/itunes/init.lua; sourceTree = "<group>"; };
 		4F6B3EA81B73D6D300B2A4DE /* libjson.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libjson.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1767,6 +1780,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F68B532227CBD210076C4F8 /* libPods-Hammerspoon.a in Frameworks */,
 				4FD0AC1C1B74C58800A82496 /* LuaSkin.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2255,6 +2269,8 @@
 				4F3D9D0A1C34773E0082E864 /* HSChooserTableView.m */,
 				4F0F08071DC0DAAA00082B73 /* HSChooserRootView.h */,
 				4F0F08081DC0DAAA00082B73 /* HSChooserRootView.m */,
+				4F68B52E227C2DD70076C4F8 /* HSChooserVerticallyCenteringTextFieldCell.h */,
+				4F68B52F227C2DD70076C4F8 /* HSChooserVerticallyCenteringTextFieldCell.m */,
 			);
 			name = chooser;
 			sourceTree = "<group>";
@@ -2288,6 +2304,7 @@
 		4F6B3E9A1B73D5F300B2A4DE /* inspect */ = {
 			isa = PBXGroup;
 			children = (
+				4F2C0C7121BB49E0008F32C1 /* test_inspect.lua */,
 				4F6B3E9B1B73D60000B2A4DE /* init.lua */,
 			);
 			name = inspect;
@@ -2321,6 +2338,8 @@
 		4F6B3EBC1B73DC7000B2A4DE /* location */ = {
 			isa = PBXGroup;
 			children = (
+				4F30430021D5673A00769310 /* EDSunriseSet.h */,
+				4F30430121D5673A00769310 /* EDSunriseSet.m */,
 				D66B763A1DD6FD1400CA12E6 /* geocoder.lua */,
 				4F6B3EBD1B73DC8400B2A4DE /* init.lua */,
 				4F6B3EBE1B73DC8400B2A4DE /* internal.m */,
@@ -3188,6 +3207,7 @@
 				4FEE39D81F0A697400935F90 /* HScrash.m */,
 				4F40EC3F1CCD0FE3006342D7 /* HSdistributednotifications.m */,
 				4C5BA6B41C85EAEB00E68CA9 /* HSfs.m */,
+				4F2C0C7221BB4A03008F32C1 /* HSinspect.m */,
 				6AE181311D39C8F10097211C /* HSnoises.m */,
 				4CEDEE1B1C640D11005CBF97 /* HSosascript.m */,
 				D02F95281A00221C00E28BB2 /* HSrequire_all.m */,
@@ -3514,6 +3534,7 @@
 				4F5134641C30819000EFD6D4 /* chooser.h in Headers */,
 				4F0676071C32C0B30088C57C /* HSChooserCell.h in Headers */,
 				4F0F08091DC0DAAA00082B73 /* HSChooserRootView.h in Headers */,
+				4F68B530227C2DD70076C4F8 /* HSChooserVerticallyCenteringTextFieldCell.h in Headers */,
 				4F3D9D031C3302CB0082E864 /* HSChooser.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3529,6 +3550,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F30430221D5673A00769310 /* EDSunriseSet.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5505,7 +5527,7 @@
 			isa = PBXProject;
 			attributes = {
 				CLASSPREFIX = HS;
-				LastUpgradeCheck = 0930;
+				LastUpgradeCheck = 1020;
 				ORGANIZATIONNAME = Hammerspoon;
 				TargetAttributes = {
 					4F20B5281C1F1C5B00F52437 = {
@@ -5526,7 +5548,7 @@
 			};
 			buildConfigurationList = 9445CA0619083251002568BB /* Build configuration list for PBXProject "Hammerspoon" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
@@ -5660,6 +5682,7 @@
 				4CB349EF1C7F74AD006F0DE0 /* test_javascript.lua in Resources */,
 				4CD64AAB1C6F168700EB6E39 /* test_socket.lua in Resources */,
 				4FDD8E911C8DEE3700085D7A /* test_appfinder.lua in Resources */,
+				4F3042FF21D4DEE300769310 /* test_inspect.lua in Resources */,
 				4F40EC441CCD126F006342D7 /* test_distributednotifications.lua in Resources */,
 				4F8779D3200CD63F00E9DB42 /* test_window.lua in Resources */,
 				4CE639141C772DC700BB7CD2 /* test_udpsocket.lua in Resources */,
@@ -5710,7 +5733,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -eux\n\nif [ -f ../token-crashlytics ] ; then\n  source ../token-crashlytics\n  > Hammerspoon/secrets.h\n  echo \"#define CRASHLYTICS_API_KEY \\\"${CRASHLYTICS_API_KEY}\\\"\" >>Hammerspoon/secrets.h\nelse\n  > Hammerspoon/secrets.h\nfi";
+			shellScript = "set -eux\n\nif [ -f ../token-crashlytics ] ; then\n  source ../token-crashlytics\n  > Hammerspoon/secrets.h\n  echo \"#define CRASHLYTICS_API_KEY \\\"${CRASHLYTICS_API_KEY}\\\"\" >>Hammerspoon/secrets.h\nelse\n  > Hammerspoon/secrets.h\nfi\n";
 		};
 		4F6689E61C288FF800E48AF1 /* Assert no stray init.lua's in app bundle */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -5820,16 +5843,18 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon-frameworks.sh",
 				"${PODS_ROOT}/Sparkle/Sparkle.framework",
+				"${PODS_ROOT}/Sparkle/Sparkle.framework.dSYM",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Sparkle.framework",
+				"${DWARF_DSYM_FOLDER_PATH}/Sparkle.framework.dSYM",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -5989,6 +6014,7 @@
 			files = (
 				4F3D9D081C3314570082E864 /* HSChooserWindow.m in Sources */,
 				4F0F080A1DC0DAAA00082B73 /* HSChooserRootView.m in Sources */,
+				4F68B531227C2DD70076C4F8 /* HSChooserVerticallyCenteringTextFieldCell.m in Sources */,
 				4F3D9D041C3302CB0082E864 /* HSChooser.m in Sources */,
 				4F3D9D0C1C34773E0082E864 /* HSChooserTableView.m in Sources */,
 				4F0676081C32C0B30088C57C /* HSChooserCell.m in Sources */,
@@ -6009,6 +6035,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F6B3EBF1B73DC8400B2A4DE /* internal.m in Sources */,
+				4F30430321D5673A00769310 /* EDSunriseSet.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6376,6 +6403,7 @@
 				4F8779D1200CD51200E9DB42 /* HSwindow.m in Sources */,
 				4FDD8E8D1C8C8BF200085D7A /* HScoresetup.m in Sources */,
 				4FDD8E4C1C6E4FBB00085D7A /* HSscreen.m in Sources */,
+				4F2C0C7321BB4A04008F32C1 /* HSinspect.m in Sources */,
 				4FEE39D91F0A697400935F90 /* HScrash.m in Sources */,
 				4C403D641CBE5B9F00EE20ED /* HSapplication.m in Sources */,
 				4C8F8CB31CC38B7E00F72CE5 /* HSuielement.m in Sources */,
@@ -7687,6 +7715,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -7732,13 +7761,18 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/Pods/**",
+					"$(SRCROOT)/Pods/Crashlytics/OSX/Crashlytics.framework/Versions/A/Headers/",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-undefined",
 					dynamic_lookup,
 				);
 				SDKROOT = macosx;
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/** $(SRCROOT)/Pods/Crashlytics/OSX/Crashlytics.framework/Versions/A/Headers/";
 				WARNING_CFLAGS = (
 					"-Wno-cstring-format-directive",
 					"-Wno-padded",
@@ -7765,13 +7799,18 @@
 				DEVELOPMENT_TEAM = "";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Hammerspoon/Hammerspoon-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)/**",
+					"\"$(SDKROOT)/usr/include/libxml2\"",
+					"\"$(SDK_DIR)\"/usr/include/libxml2",
+				);
 				INFOPLIST_FILE = "Hammerspoon/Hammerspoon-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = Hammerspoon;
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
 				STRIP_STYLE = all;
+				USER_HEADER_SEARCH_PATHS = "$(inherited)/**";
 				WARNING_CFLAGS = (
 					"-Wno-cstring-format-directive",
 					"-Wno-padded",
@@ -7899,7 +7938,6 @@
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
-				SDKROOT = "$(inherited)";
 				STRIP_INSTALLED_PRODUCT = NO;
 			};
 			name = Profile;
@@ -10141,7 +10179,6 @@
 		4F0454B120F0EE7D00699F29 /* Profile */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
 				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
@@ -10207,7 +10244,7 @@
 				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
 				SDKROOT = "$(inherited)";
 				STRIP_INSTALLED_PRODUCT = NO;
-				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/Headers/Public/**";
+				USER_HEADER_SEARCH_PATHS = "$(inherited)";
 			};
 			name = Profile;
 		};
@@ -17780,7 +17817,6 @@
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
-				SDKROOT = "$(inherited)";
 				STRIP_INSTALLED_PRODUCT = NO;
 			};
 			name = Debug;
@@ -17846,7 +17882,6 @@
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
-				SDKROOT = "$(inherited)";
 				STRIP_INSTALLED_PRODUCT = NO;
 			};
 			name = Release;
@@ -19862,7 +19897,6 @@
 		4FD0AC1F1B74C58800A82496 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
 				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
@@ -19928,14 +19962,13 @@
 				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
 				SDKROOT = "$(inherited)";
 				STRIP_INSTALLED_PRODUCT = NO;
-				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/Headers/Public/**";
+				USER_HEADER_SEARCH_PATHS = "$(inherited)";
 			};
 			name = Debug;
 		};
 		4FD0AC201B74C58800A82496 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
 				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
@@ -19999,7 +20032,7 @@
 				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
 				SDKROOT = "$(inherited)";
 				STRIP_INSTALLED_PRODUCT = NO;
-				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/Headers/Public/**";
+				USER_HEADER_SEARCH_PATHS = "$(inherited)";
 			};
 			name = Release;
 		};
@@ -20969,6 +21002,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -21014,13 +21048,18 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/Pods/**",
+					"$(SRCROOT)/Pods/Crashlytics/OSX/Crashlytics.framework/Versions/A/Headers/",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-undefined",
 					dynamic_lookup,
 				);
 				SDKROOT = macosx;
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/** $(SRCROOT)/Pods/Crashlytics/OSX/Crashlytics.framework/Versions/A/Headers/";
 				WARNING_CFLAGS = (
 					"-Wno-cstring-format-directive",
 					"-Wno-padded",
@@ -21038,6 +21077,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -21075,12 +21115,17 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/Pods/**",
+					"$(SRCROOT)/Pods/Crashlytics/OSX/Crashlytics.framework/Versions/A/Headers/",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				OTHER_LDFLAGS = (
 					"-undefined",
 					dynamic_lookup,
 				);
 				SDKROOT = macosx;
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/** $(SRCROOT)/Pods/Crashlytics/OSX/Crashlytics.framework/Versions/A/Headers/";
 				WARNING_CFLAGS = (
 					"-Wno-cstring-format-directive",
 					"-Wno-padded",
@@ -21107,13 +21152,18 @@
 				DEVELOPMENT_TEAM = "";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Hammerspoon/Hammerspoon-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)/**",
+					"\"$(SDKROOT)/usr/include/libxml2\"",
+					"\"$(SDK_DIR)\"/usr/include/libxml2",
+				);
 				INFOPLIST_FILE = "Hammerspoon/Hammerspoon-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = Hammerspoon;
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
 				STRIP_STYLE = all;
+				USER_HEADER_SEARCH_PATHS = "$(inherited)/**";
 				WARNING_CFLAGS = (
 					"-Wno-cstring-format-directive",
 					"-Wno-padded",
@@ -21142,14 +21192,19 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Hammerspoon/Hammerspoon-Prefix.pch";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)/**",
+					"\"$(SDKROOT)/usr/include/libxml2\"",
+					"\"$(SDK_DIR)\"/usr/include/libxml2",
+				);
 				INFOPLIST_FILE = "Hammerspoon/Hammerspoon-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks @executable_path/../Frameworks";
 				OTHER_CODE_SIGN_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = Hammerspoon;
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
 				STRIP_STYLE = all;
+				USER_HEADER_SEARCH_PATHS = "$(inherited)/**";
 				WARNING_CFLAGS = (
 					"-Wno-cstring-format-directive",
 					"-Wno-padded",

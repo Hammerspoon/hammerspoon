@@ -7,7 +7,24 @@
 
 require("hs.styledtext")
 require("hs.drawing.color")
-local chooser = require "hs.chooser.internal"
+local chooser = require("hs.chooser.internal")
+local window = require("hs.window")
+
+--- hs.chooser:attachedToolbar([toolbar | nil]) -> hs.chooser object | currentValue
+--- Method
+--- Get or attach/detach a toolbar to/from the chooser.
+---
+--- Parameters:
+---  * `toolbar` - if an `hs.webview.toolbar` object is specified, it will be attached to the chooser.  If an explicit nil is specified, the current toolbar will be removed from the chooser.
+---
+--- Returns:
+---  * if a toolbarObject or explicit nil is specified, returns the hs.chooser object; otherwise returns the current toolbarObject or nil, if no toolbar is attached to the chooser.
+---
+--- Notes:
+---  * this method is a convenience wrapper for the `hs.webview.toolbar.attachToolbar` function.
+---
+---  * If the toolbarObject is currently attached to another window when this method is called, it will be detached from the original window and attached to the chooser.  If you wish to attach the same toolbar to multiple chooser objects, see `hs.webview.toolbar:copy`.
+hs.getObjectMetatable("hs.chooser").attachedToolbar = require"hs.webview.toolbar".attachToolbar
 
 --- hs.chooser.globalCallback
 --- Variable
@@ -28,7 +45,7 @@ end
 
 chooser._defaultGlobalCallback = function(whichChooser, state)
   if state == "willOpen" then
-    chooser._lastFocused[whichChooser] = hs.window.frontmostWindow()
+    chooser._lastFocused[whichChooser] = window.frontmostWindow()
   elseif state == "didClose" then
     local initialChooserUserdata = nil
     for k,_ in pairs(chooser._lastFocused) do

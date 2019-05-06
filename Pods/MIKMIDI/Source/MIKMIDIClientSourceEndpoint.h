@@ -29,10 +29,11 @@ NS_ASSUME_NONNULL_BEGIN
  *  it. They can be seen and connected to by other applications on the system.
  *
  *  @param name	A name for the new virtual endpoint.
+ *  @param error If an error occurs, upon returns contains an NSError object that describes the problem. If you are not interested in possible errors, you may pass in NULL.
  *
  *  @return An instance of MIKMIDIClientSourceEndpoint, or nil if an error occurs.
  */
-- (nullable instancetype)initWithName:(NSString *)name;
+- (instancetype)initWithName:(NSString *)name error:(NSError **)error;
 
 /**
  *  Used to send MIDI messages/commands from your application to a MIDI output endpoint.
@@ -44,6 +45,28 @@ NS_ASSUME_NONNULL_BEGIN
  *  @return YES if the commands were successfully sent, NO if an error occurred.
  */
 - (BOOL)sendCommands:(MIKArrayOf(MIKMIDICommand *) *)commands error:(NSError **)error;
+
+@end
+
+#pragma mark - Deprecated
+
+@interface MIKMIDIClientSourceEndpoint (Deprecated)
+
+/**
+ *  @deprecated Use -initWithName:error: instead.
+ *
+ *  Initializes a new virtual source endpoint.
+ *
+ *  This is essentially equivalent to creating a Core MIDI source endpoint
+ *  using MIDISourceCreate(). Source endpoints created using this
+ *  method can be used by your application to *send* MIDI rather than receive
+ *  it. They can be seen and connected to by other applications on the system.
+ *
+ *  @param name	A name for the new virtual endpoint.
+ *
+ *  @return An instance of MIKMIDIClientSourceEndpoint, or nil if an error occurs.
+ */
+- (nullable instancetype)initWithName:(NSString *)name DEPRECATED_ATTRIBUTE;
 
 @end
 

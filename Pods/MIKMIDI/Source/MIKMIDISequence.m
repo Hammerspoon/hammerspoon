@@ -460,7 +460,7 @@ static void MIKSequenceCallback(void *inClientData, MusicSequence inSequence, Mu
 	__block MusicTimeStamp length = 0;
 	
 	[self dispatchSyncToSequencerProcessingQueueAsNeeded:^{
-		length = (_length == MIKMIDISequenceLongestTrackLength) ? self.lengthDefinedByTracks : _length;
+		length = (self->_length == MIKMIDISequenceLongestTrackLength) ? self.lengthDefinedByTracks : self->_length;
 	}];
 	
 	return length;
@@ -469,7 +469,7 @@ static void MIKSequenceCallback(void *inClientData, MusicSequence inSequence, Mu
 - (void)setLength:(MusicTimeStamp)length
 {
 	[self dispatchSyncToSequencerProcessingQueueAsNeeded:^{
-		_length = length;
+		self->_length = length;
 	}];
 }
 

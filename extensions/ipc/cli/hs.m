@@ -331,7 +331,7 @@ static const char *portError(SInt32 code) {
         NSError *error = nil ;
         [self sendToRemote:_localName msgID:MSGID_UNREGISTER wantResponse:NO error:&error] ;
         if (error) {
-            fprintf(stderr, "error unregistering CLI instance with Hammerspoon: %s\n", portError((SInt32)error.code)) ;
+            fprintf(stderr, "error unregistering CLI instance with Hammerspoon: %s (transport errors are normal if Hammerspoon is reloading)\n", portError((SInt32)error.code)) ;
             return NO ;
         }
     }
@@ -562,7 +562,7 @@ int main()
                 alert.informativeText = @"Hammerspoon is not running. Would you like to launch it now?" ;
                 NSString *imagePath = [[NSWorkspace sharedWorkspace] absolutePathForAppBundleWithIdentifier:(__bridge NSString *)hammerspoonBundle];
                 alert.icon = [[NSWorkspace sharedWorkspace] iconForFile:imagePath] ;
-                alert.alertStyle = NSCriticalAlertStyle ;
+                alert.alertStyle = NSAlertStyleCritical ;
                 NSModalResponse response = [alert runModal] ;
                 if (response != NSAlertFirstButtonReturn) exit(EX_UNAVAILABLE) ;
                 launchHS = YES ;

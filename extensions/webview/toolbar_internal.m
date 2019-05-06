@@ -193,6 +193,8 @@ static NSMenu *createCoreSearchFieldMenu() {
             if (ourWindow) {
                 if ([ourWindow isEqualTo:[[MJConsoleWindowController singleton] window]]) {
                     lua_pushstring(L, "console") ;
+                } else if (ourWindow.windowController) { // hs.chooser
+                    [skin pushNSObject:ourWindow.windowController withOptions:LS_NSDescribeUnknownTypes] ;
                 } else {
                     [skin pushNSObject:ourWindow withOptions:LS_NSDescribeUnknownTypes] ;
                 }
@@ -708,6 +710,8 @@ static NSMenu *createCoreSearchFieldMenu() {
             if (ourWindow) {
                 if ([ourWindow isEqualTo:[[MJConsoleWindowController singleton] window]]) {
                     lua_pushstring(L, "console") ;
+                } else if (ourWindow.windowController) { // hs.chooser
+                    [skin pushNSObject:ourWindow.windowController withOptions:LS_NSDescribeUnknownTypes] ;
                 } else {
                     [skin pushNSObject:ourWindow withOptions:LS_NSDescribeUnknownTypes] ;
                 }
@@ -735,6 +739,8 @@ static NSMenu *createCoreSearchFieldMenu() {
             if (ourWindow) {
                 if ([ourWindow isEqualTo:[[MJConsoleWindowController singleton] window]]) {
                     lua_pushstring(L, "console") ;
+                } else if (ourWindow.windowController) { // hs.chooser
+                    [skin pushNSObject:ourWindow.windowController withOptions:LS_NSDescribeUnknownTypes] ;
                 } else {
                     [skin pushNSObject:ourWindow withOptions:LS_NSDescribeUnknownTypes] ;
                 }
@@ -779,7 +785,7 @@ static NSMenu *createCoreSearchFieldMenu() {
 
 /// hs.webview.toolbar.new(toolbarName, [toolbarTable]) -> toolbarObject
 /// Constructor
-/// Creates a new toolbar for a webview or the console.
+/// Creates a new toolbar for a webview, chooser, or the console.
 ///
 /// Parameters:
 ///  * toolbarName  - a string specifying the name for this toolbar
@@ -789,7 +795,7 @@ static NSMenu *createCoreSearchFieldMenu() {
 ///  * a toolbarObject
 ///
 /// Notes:
-///  * Toolbar names must be unique, but a toolbar may be copied with [hs.webview.toolbar:copy](#copy) if you wish to attach it to multiple windows (webview or console).
+///  * Toolbar names must be unique, but a toolbar may be copied with [hs.webview.toolbar:copy](#copy) if you wish to attach it to multiple windows (webview, chooser, or console).
 ///  * See [hs.webview.toolbar:addItems](#addItems) for a description of the format for `toolbarTable`
 
 static int newHSToolbar(lua_State *L) {
@@ -815,19 +821,19 @@ static int newHSToolbar(lua_State *L) {
 
 /// hs.webview.toolbar.attachToolbar([obj1], [obj2]) -> obj1
 /// Function
-/// Get or attach/detach a toolbar to the console or webview.
+/// Get or attach/detach a toolbar to the webview, chooser, or console.
 ///
 /// Parameters:
 ///  * if no arguments are present, this function returns the current toolbarObject for the Hammerspoon console, or nil if one is not attached.
 ///  * if one argument is provided and it is a toolbarObject or nil, this function will attach or detach a toolbarObject to/from the Hammerspoon console.
-///  * if one argument is provided and it is a webviewObject, this function will return the current toolbarObject for the webview, or nil if one is not attached.
-///  * if two arguments are provided and the first is a webviewObject and the second is a toolbarObject or nil, this function will attach or detach a toolbarObject to/from the webview.
+///  * if one argument is provided and it is an hs.webview or hs.chooser object, this function will return the current toolbarObject for the object, or nil if one is not attached.
+///  * if two arguments are provided and the first is an hs.webview or hs.chooser object and the second is a toolbarObject or nil, this function will attach or detach a toolbarObject to/from the object.
 ///
 /// Returns:
-///  * if the function is used to attach/detach a toolbar, then the first object provided will be returned ; if this function is used to get the current toolbar object for a webview or the console, then the toolbarObject or nil will be returned.
+///  * if the function is used to attach/detach a toolbar, then the first object provided (the target) will be returned ; if this function is used to get the current toolbar object for a webview, chooser, or console, then the toolbarObject or nil will be returned.
 ///
 /// Notes:
-///  * This function is not expected to be used directly (though it can be) -- it is added to the `hs.webview` object metatable so that it may be invoked as `hs.webview:attachedToolbar([toolbarObject | nil])` and to the `hs.console` module so that it may be invoked as `hs.console.toolbar([toolbarObject | nil])`.
+///  * This function is not expected to be used directly (though it can be) -- it is added to the `hs.webview` and `hs.chooser` object metatables so that it may be invoked as `hs.webview:attachedToolbar([toolbarObject | nil])`/`hs.chooser:attachedToolbar([toolbarObject | nil])` and to the `hs.console` module so that it may be invoked as `hs.console.toolbar([toolbarObject | nil])`.
 ///
 ///  * If the toolbar is currently attached to another window when this function is called, it will be detached from the original window and attached to the new one specified by this function.
 static int attachToolbar(lua_State *L) {
@@ -835,6 +841,9 @@ static int attachToolbar(lua_State *L) {
     NSWindow  *theWindow ;
     HSToolbar *newToolbar ;
     BOOL      setToolbar = YES ;
+    BOOL      isChooser  = NO ;
+
+// hs.console
 
     if (lua_gettop(L) == 0) {
         theWindow  = [[MJConsoleWindowController singleton] window];
@@ -848,6 +857,9 @@ static int attachToolbar(lua_State *L) {
         theWindow  = [[MJConsoleWindowController singleton] window];
         newToolbar = [skin toNSObjectAtIndex:1] ;
         setToolbar = YES ;
+
+// hs.webview
+
     } else if (lua_gettop(L) == 1 && (lua_type(L, 1) == LUA_TUSERDATA) && luaL_testudata(L, 1, "hs.webview")) {
         theWindow = get_objectFromUserdata(__bridge NSWindow, L, 1, "hs.webview") ;
         newToolbar = nil ;
@@ -860,8 +872,30 @@ static int attachToolbar(lua_State *L) {
         theWindow = get_objectFromUserdata(__bridge NSWindow, L, 1, "hs.webview") ;
         newToolbar = [skin toNSObjectAtIndex:2] ;
         setToolbar = YES ;
+
+// hs.chooser
+
+    } else if (lua_gettop(L) == 1 && (lua_type(L, 1) == LUA_TUSERDATA) && luaL_testudata(L, 1, "hs.chooser")) {
+        NSWindowController *theController = get_objectFromUserdata(__bridge NSWindowController, L, 1, "hs.chooser") ;
+        theWindow = theController.window ;
+        newToolbar = nil ;
+        setToolbar = NO ;
+        isChooser = YES ;
+    } else if (lua_gettop(L) == 2 && (lua_type(L, 1) == LUA_TUSERDATA) && luaL_testudata(L, 1, "hs.chooser") && (lua_type(L, 2) == LUA_TNIL)) {
+        NSWindowController *theController = get_objectFromUserdata(__bridge NSWindowController, L, 1, "hs.chooser") ;
+        theWindow = theController.window ;
+        newToolbar = nil ;
+        setToolbar = YES ;
+        isChooser = YES ;
+    } else if (lua_gettop(L) == 2 && lua_type(L, 1) == LUA_TUSERDATA && luaL_testudata(L, 1, "hs.chooser") && (lua_type(L, 2) == LUA_TUSERDATA) && luaL_testudata(L, 2, USERDATA_TB_TAG)) {
+        NSWindowController *theController = get_objectFromUserdata(__bridge NSWindowController, L, 1, "hs.chooser") ;
+        theWindow = theController.window ;
+        newToolbar = [skin toNSObjectAtIndex:2] ;
+        setToolbar = YES ;
+        isChooser = YES ;
+
     } else {
-        return luaL_error(L, "%s:attachToolbar requires an optional hs.webview object and an %s object or nil", USERDATA_TB_TAG, USERDATA_TB_TAG) ;
+        return luaL_error(L, "%s:attachToolbar requires an optional window target object and an %s object or nil", USERDATA_TB_TAG, USERDATA_TB_TAG) ;
     }
 
     HSToolbar *oldToolbar = (HSToolbar *)theWindow.toolbar ;
@@ -869,11 +903,19 @@ static int attachToolbar(lua_State *L) {
         if (oldToolbar) {
             oldToolbar.visible = NO ;
             theWindow.toolbar = nil ;
+            if (isChooser) {
+                theWindow.styleMask = NSWindowStyleMaskFullSizeContentView ; // the default for chooser
+                [theWindow setMovable: YES]; // the default for chooser, even though the user can't move it without a titlebar
+            }
             if ([oldToolbar isKindOfClass:[HSToolbar class]]) oldToolbar.windowUsingToolbar = nil ;
         }
         if (newToolbar) {
             NSWindow *newTBWindow = newToolbar.windowUsingToolbar ;
             if (newTBWindow) newTBWindow.toolbar = nil ;
+            if (isChooser) {
+                theWindow.styleMask = NSWindowStyleMaskTitled ; // only titled windows can have toolbars
+                [theWindow setMovable: NO]; // chooser isn't user movable
+            }
             theWindow.toolbar             = newToolbar ;
             newToolbar.windowUsingToolbar = theWindow ;
             newToolbar.visible            = YES ;
@@ -891,6 +933,43 @@ static int attachToolbar(lua_State *L) {
 }
 
 #pragma mark - Module Methods
+
+/// hs.webview.toolbar:inTitleBar([state]) -> toolbarObject | boolean
+/// Function
+/// Get or set whether or not the toolbar appears in the containing window's titlebar, similar to Safari.
+///
+/// Parameters:
+///  * `state` - an optional boolean specifying whether or not the toolbar should appear in the window's titlebar.
+///
+/// Returns:
+///  * if a parameter is specified, returns the toolbar object, otherwise the current value.
+///
+/// Notes:
+///  * When this value is true, the toolbar, when visible, will appear in the window's title bar similar to the toolbar as seen in applications like Safari.  In this state, the toolbar will set the display of the toolbar items to icons without labels, ignoring changes made with [hs.webview.toolbar:displayMode](#displayMode).
+///
+/// * This method is only valid when the toolbar is attached to a webview, chooser, or the console.
+static int toolbar_inTitleBar(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
+    HSToolbar *toolbar   = [skin toNSObjectAtIndex:1] ;
+    NSWindow  *theWindow = toolbar.windowUsingToolbar ;
+    if (lua_gettop(L) == 1) {
+        if (theWindow) {
+            lua_pushboolean(L, theWindow.titleVisibility == NSWindowTitleHidden) ;
+        } else {
+            lua_pushboolean(L, NO) ;
+        }
+    } else {
+        if (theWindow) {
+            NSWindowTitleVisibility state = lua_toboolean(L, 2) ? NSWindowTitleHidden : NSWindowTitleVisible ;
+            theWindow.titleVisibility = state ;
+        } else {
+            [skin logWarn:[NSString stringWithFormat:@"%s:inTitleBar - requires the toolbar to be attached before using", USERDATA_TB_TAG]] ;
+        }
+        lua_pushvalue(L, 1) ;
+    }
+    return 1 ;
+}
 
 /// hs.webview.toolbar:isAttached() -> boolean
 /// Method
@@ -917,7 +996,7 @@ static int isAttachedToWindow(lua_State *L) {
 ///  * None
 ///
 /// Returns:
-///  * a copy of the toolbar which can be attached to another window (webview or console).
+///  * a copy of the toolbar which can be attached to another window (webview, chooser, or console).
 static int copyToolbar(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TBREAK] ;
@@ -938,7 +1017,7 @@ static int copyToolbar(lua_State *L) {
 /// Parameters:
 ///  * fn - a function to set as the global callback for the toolbar, or nil to remove the global callback.
 ///
-///  The function should expect three (four, if the item is a `searchfield` or `notifyOnChange` is true) arguments and return none: the toolbar object, "console" or the webview object the toolbar is attached to, and the toolbar item identifier that was clicked.
+///  The function should expect three (four, if the item is a `searchfield` or `notifyOnChange` is true) arguments and return none: the toolbar object, "console" or the webview/chooser object the toolbar is attached to, and the toolbar item identifier that was clicked.
 /// Returns:
 ///  * the toolbar object.
 ///
@@ -1642,7 +1721,7 @@ static int toolbarCanCustomize(lua_State *L) {
     return 1 ;
 }
 
-/// hs.webview.toolbar:autossaves([bool]) -> toolbarObject | bool
+/// hs.webview.toolbar:autosaves([bool]) -> toolbarObject | bool
 /// Method
 /// Get or set whether or not the toolbar autosaves changes made to the toolbar.
 ///
@@ -1904,6 +1983,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {"copyToolbar",        copyToolbar},
     {"isAttached",         isAttachedToWindow},
     {"savedSettings",      configurationDictionary},
+    {"inTitleBar",         toolbar_inTitleBar},
 
     {"identifier",         toolbarIdentifier},
     {"setCallback",        setCallback},

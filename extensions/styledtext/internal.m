@@ -545,22 +545,22 @@ static int fontInformation(lua_State *L) {
 static int fontPath(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs: LS_TSTRING, LS_TBREAK];
-    
+
     NSString* fontName = [skin toNSObjectAtIndex:1];
-    
+
     NSFont *theFont = [NSFont fontWithName:fontName size:1];
     if (theFont) {
         NSFont *theFont = [skin luaObjectAtIndex:-1 toClass:"NSFont"];
-        
+
         CTFontDescriptorRef fontRef = CTFontDescriptorCreateWithNameAndSize ((CFStringRef)[theFont fontName], [theFont pointSize]);
         CFURLRef url = (CFURLRef)CTFontDescriptorCopyAttribute(fontRef, kCTFontURLAttribute);
         NSString *fontPath = [NSString stringWithString:[(NSURL *)CFBridgingRelease(url) path]];
-        
+
         [skin pushNSObject:[NSString stringWithFormat:@"%@", fontPath]] ;
     } else {
         lua_pushnil(L);
     }
-    
+
     return 1;
 }
 
@@ -1283,7 +1283,7 @@ static int string_convert(lua_State *L) {
     return 1;
 }
 
-/// hs.styledtext.loadFont(path) -> string
+/// hs.styledtext.loadFont(path) -> boolean[, string]
 /// Function
 /// Loads a font from a file at the specified path.
 ///
@@ -1291,40 +1291,22 @@ static int string_convert(lua_State *L) {
 ///  * `path` - the path and filename of the font file to attempt to load
 ///
 /// Returns:
-///  * if the font can be registered, returns a string specifying the name of the font to use with `hs.canvas` and `hs.styledtext` to use the registered font. If the file does not exist or does not define a macOS compatible font, this function will return a lua error.
-///
-/// Notes:
-///  * if a font with the same name is already registered, this function does nothing but still returns the font name.
+///  * If the font can be registered returns `true`, otherwise `false` and an error message as string.
 static int registerFontByPath(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
 
-    NSString *path = [skin toNSObjectAtIndex:1] ;
-    path = path.stringByExpandingTildeInPath ;
-    NSData *data = [NSData dataWithContentsOfFile:path];
-    if (!data) {
-        return luaL_error(L, "unable to load file at %s", path.UTF8String) ;
-    }
-    CGDataProviderRef provider = CGDataProviderCreateWithCFData((__bridge CFDataRef)data);
-    CGFontRef font = CGFontCreateWithDataProvider(provider);
-    if (!font) {
-        if (provider) CFRelease(provider) ;
-        return luaL_error(L, "invalid font data for file at %s", path.UTF8String) ;
-    }
-    CFErrorRef errorRef;
-    if (!CTFontManagerRegisterGraphicsFont(font, &errorRef)) {
+    CFErrorRef errorRef = NULL;
+    CTFontManagerRegisterFontsForURL((__bridge CFURLRef)[NSURL fileURLWithPath:[[skin toNSObjectAtIndex:1] stringByExpandingTildeInPath]], kCTFontManagerScopeProcess, &errorRef);
+	if (errorRef) {
         NSError *error = (__bridge_transfer NSError *)errorRef;
-        if (error.code != kCTFontManagerErrorAlreadyRegistered) {
-            if (provider) CFRelease(provider) ;
-            if (font) CFRelease(font) ;
-            return luaL_error(L, "error registering font:%s", error.localizedDescription.UTF8String) ;
-       }
-    }
-    NSString *realFontName = (__bridge_transfer NSString *)CGFontCopyPostScriptName(font) ;
-    if (provider) CFRelease(provider) ;
-    if (font) CFRelease(font) ;
-    lua_pushstring(L, realFontName.UTF8String) ;
-    return 1 ;
+        lua_pushboolean(L, false);
+        lua_pushstring(L, error.localizedDescription.UTF8String);
+        return 2;
+	}
+
+    lua_pushboolean(L, true);
+    return 1;
 }
 
 #pragma mark - Methods to mimic Lua's string type as closely as possible
@@ -1790,24 +1772,24 @@ static int NSParagraphStyle_toLua(lua_State *L, id obj) {
     lua_newtable(L);
 
     switch ([thePS alignment]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wgnu-folding-constant"
-        case NSLeftTextAlignment:
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wgnu-folding-constant"
+        case NSTextAlignmentLeft:
             lua_pushstring(L, "left");
             break;
-        case NSRightTextAlignment:
+        case NSTextAlignmentRight:
             lua_pushstring(L, "right");
             break;
-        case NSCenterTextAlignment:
+        case NSTextAlignmentCenter:
             lua_pushstring(L, "center");
             break;
-        case NSJustifiedTextAlignment:
+        case NSTextAlignmentJustified:
             lua_pushstring(L, "justified");
             break;
-        case NSNaturalTextAlignment:
+        case NSTextAlignmentNatural:
             lua_pushstring(L, "natural");
             break;
-#pragma clang diagnostic pop
+    #pragma clang diagnostic pop
         default:
             lua_pushstring(L, "unknown");
             break;
@@ -1925,15 +1907,15 @@ static id table_toNSParagraphStyle(lua_State *L, int idx) {
         if (lua_getfield(L, idx, "alignment") == LUA_TSTRING) {
             NSString *theString = [skin toNSObjectAtIndex:-1];
             if ([theString isEqualToString:@"left"]) {
-                thePS.alignment = NSLeftTextAlignment;
+                thePS.alignment = NSTextAlignmentLeft;
             } else if ([theString isEqualToString:@"right"]) {
-                thePS.alignment = NSRightTextAlignment;
+                thePS.alignment = NSTextAlignmentRight;
             } else if ([theString isEqualToString:@"center"]) {
-                thePS.alignment = NSCenterTextAlignment;
+                thePS.alignment = NSTextAlignmentCenter;
             } else if ([theString isEqualToString:@"justified"]) {
-                thePS.alignment = NSJustifiedTextAlignment;
+                thePS.alignment = NSTextAlignmentJustified;
             } else if ([theString isEqualToString:@"natural"]) {
-                thePS.alignment = NSNaturalTextAlignment;
+                thePS.alignment = NSTextAlignmentNatural;
             } else {
                 [skin logWarn:[NSString stringWithFormat:@"invalid alignment specified: %@", theString]] ;
             }

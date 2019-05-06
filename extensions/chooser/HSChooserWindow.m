@@ -12,5 +12,5 @@
 
 -(BOOL)canBecomeMainWindow { return YES; }
 -(BOOL)canBecomeKeyWindow { return YES; }
-
+-(BOOL)allowsVibrancy { return YES; }
 @end

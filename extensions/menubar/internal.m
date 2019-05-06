@@ -120,11 +120,11 @@ typedef NS_ENUM(NSInteger, NSStatusBarItemPriority) {
 
     if (event != nil) {
         NSUInteger theFlags = [event modifierFlags];
-        BOOL isCommandKey = (theFlags & NSCommandKeyMask) != 0;
-        BOOL isShiftKey = (theFlags & NSShiftKeyMask) != 0;
-        BOOL isOptKey = (theFlags & NSAlternateKeyMask) != 0;
-        BOOL isCtrlKey = (theFlags & NSControlKeyMask) != 0;
-        BOOL isFnKey = (theFlags & NSFunctionKeyMask) != 0;
+        BOOL isCommandKey = (theFlags & NSEventModifierFlagCommand) != 0;
+        BOOL isShiftKey = (theFlags & NSEventModifierFlagShift) != 0;
+        BOOL isOptKey = (theFlags & NSEventModifierFlagOption) != 0;
+        BOOL isCtrlKey = (theFlags & NSEventModifierFlagControl) != 0;
+        BOOL isFnKey = (theFlags & NSEventModifierFlagFunction) != 0;
 
         lua_newtable(L);
 
@@ -284,8 +284,13 @@ void parse_table(lua_State *L, int idx, NSMenu *menu, NSSize stateBoxImageSize) 
                 // Create the submenu, populate it and attach it to our current menu item
                 NSMenu *subMenu = [[NSMenu alloc] initWithTitle:@"HammerspoonSubMenu"];
                 [subMenu setAutoenablesItems:NO];
-                parse_table(L, lua_gettop(L), subMenu, stateBoxImageSize);
-                [menuItem setSubmenu:subMenu];
+                // We're about to recurse into ourselves. Each recursion to this point adds 3 items to the Lua stack, which defaults to 20 slots. Therefore at an 8th recursion we'll overflow the Lua stack. Since its theoretical limit is very high (typically 4096) we can make the risky assumption that nobody would recurse a menu over 200 times, and just grow the stack as we go.
+                if (lua_checkstack(L, 20)) {
+                    parse_table(L, lua_gettop(L), subMenu, stateBoxImageSize);
+                    [menuItem setSubmenu:subMenu];
+                } else {
+                    [skin logError:@"hs.menubar menu recursion depth exceeded."];
+                }
             }
             lua_pop(L, 1);
 

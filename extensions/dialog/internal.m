@@ -460,7 +460,7 @@ static int chooseFileOrFolder(lua_State *L) {
 static int webviewAlert(lua_State *L) {
 
     NSString* defaultButton = @"OK";
-    const NSAlertStyle defaultAlertStyle = NSInformationalAlertStyle;
+    const NSAlertStyle defaultAlertStyle = NSAlertStyleInformational;
 
     LuaSkin *skin = [LuaSkin shared];
     //                            webview,      callbackFn,   message,    [informativeText],         [buttonOne],               [buttonTwo],                         [style]
@@ -508,13 +508,13 @@ static int webviewAlert(lua_State *L) {
     else
     {
         if ([style isEqualToString:@"warning"]) {
-            [alert setAlertStyle:NSWarningAlertStyle];
+            [alert setAlertStyle:NSAlertStyleWarning];
         }
         else if ([style isEqualToString:@"informational"]) {
-            [alert setAlertStyle:NSInformationalAlertStyle];
+            [alert setAlertStyle:NSAlertStyleInformational];
         }
         else if ([style isEqualToString:@"critical"]) {
-            [alert setAlertStyle:NSCriticalAlertStyle];
+            [alert setAlertStyle:NSAlertStyleCritical];
         }
         else
         {
@@ -611,22 +611,22 @@ static int blockAlert(lua_State *L) {
     }
 
 	if (style == nil){
-		[alert setAlertStyle:NSInformationalAlertStyle];
+        [alert setAlertStyle:NSAlertStyleInformational];
 	}
 	else
 	{
 		if ([style isEqualToString:@"warning"]) {
-			[alert setAlertStyle:NSWarningAlertStyle];
+            [alert setAlertStyle:NSAlertStyleWarning];
 		}
 		else if ([style isEqualToString:@"informational"]) {
-			[alert setAlertStyle:NSInformationalAlertStyle];
+            [alert setAlertStyle:NSAlertStyleInformational];
 		}
 		else if ([style isEqualToString:@"critical"]) {
-			[alert setAlertStyle:NSCriticalAlertStyle];
+            [alert setAlertStyle:NSAlertStyleCritical];
 		}
         else
         {
-            [alert setAlertStyle:NSWarningAlertStyle];
+            [alert setAlertStyle:NSAlertStyleWarning];
         }
 	}
 
@@ -655,7 +655,7 @@ static int blockAlert(lua_State *L) {
 
 #pragma mark - Text Prompt
 
-/// hs.dialog.textPrompt(message, informativeText, [defaultText], [buttonOne], [buttonTwo]) -> string, string
+/// hs.dialog.textPrompt(message, informativeText, [defaultText], [buttonOne], [buttonTwo], [secureField]) -> string, string
 /// Function
 /// Displays a simple text input dialog box.
 ///
@@ -665,6 +665,7 @@ static int blockAlert(lua_State *L) {
 ///  * [defaultText] - The informative text to display
 ///  * [buttonOne] - An optional value for the first button as a string
 ///  * [buttonTwo] - An optional value for the second button as a string
+///  * [secureField] - An optional boolean. If true, PasswordField instead of TextField. Defaults to false.
 ///
 /// Returns:
 ///  * The value of the button as a string
@@ -677,19 +678,21 @@ static int blockAlert(lua_State *L) {
 ///      `hs.dialog.textPrompt("Main message.", "Please enter something:")`
 ///      `hs.dialog.textPrompt("Main message.", "Please enter something:", "Default Value", "OK")`
 ///      `hs.dialog.textPrompt("Main message.", "Please enter something:", "Default Value", "OK", "Cancel")`
+///      `hs.dialog.textPrompt("Main message.", "Please enter something:", "", "OK", "Cancel", true)`
 static int textPrompt(lua_State *L) {
     NSString* defaultButton = @"OK";
 
     LuaSkin *skin = [LuaSkin shared];
     //              message,    informativeText,
     //                                      [defaultText],             [buttonOne],               [buttonTwo]
-    [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TSTRING | LS_TOPTIONAL, LS_TSTRING | LS_TOPTIONAL, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
+    [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TSTRING | LS_TOPTIONAL, LS_TSTRING | LS_TOPTIONAL, LS_TSTRING | LS_TOPTIONAL, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
 
     NSString* message = [skin toNSObjectAtIndex:1];
     NSString* informativeText = [skin toNSObjectAtIndex:2];
     NSString* defaultText = [skin toNSObjectAtIndex:3];
     NSString* buttonOne = [skin toNSObjectAtIndex:4];
     NSString* buttonTwo = [skin toNSObjectAtIndex:5];
+    BOOL secureField = (lua_type(L, 6) == LUA_TBOOLEAN) ? (BOOL)lua_toboolean(L, 6) : false;
 
     NSAlert *alert = [[NSAlert alloc] init];
     [alert setMessageText:message];
@@ -719,7 +722,15 @@ static int textPrompt(lua_State *L) {
         [[alert.buttons objectAtIndex:0] setKeyEquivalent:@"\r"]; // Return
     }
 
-    NSTextField *input = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 200, 24)];
+    NSTextField *input;
+    if (secureField) {
+        input = [[NSSecureTextField alloc] initWithFrame:NSMakeRect(0, 0, 200, 24)];
+    }
+    else
+    {
+        input = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 200, 24)];
+    }
+
     if (defaultText == nil) {
         [input setStringValue:@""];
     }
@@ -732,7 +743,7 @@ static int textPrompt(lua_State *L) {
 
     // Focus on text input:
     [[alert window] setInitialFirstResponder: input];
-    
+
     // Show alert:
     NSInteger result = [alert runModal];
 
@@ -775,7 +786,7 @@ static int releaseReceivers(__unused lua_State *L) {
     if (cpReceiverObject.callbackRef != LUA_NOREF) [skin luaUnref:refTable ref:cpReceiverObject.callbackRef] ;
     [cp close]; // Close the Color Panel
     cpReceiverObject = nil ;
-    
+
     return 0 ;
 }
 

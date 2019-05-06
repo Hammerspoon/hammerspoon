@@ -17,6 +17,12 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef
 
     eventtap_t* e = refcon;
 
+    // Guard against a crash where e->fn is a LUA_NOREF/LUA_REFNIL, which shouldn't be possible (maybe a subtle race condition?)
+    if (e->fn == LUA_NOREF || e->fn == LUA_REFNIL) {
+        [skin logBreadcrumb:@"eventtap_callback called with LUA_NOREF/LUA_REFNIL"];
+        return event;
+    }
+
 //  apparently OS X disables eventtaps if it thinks they are slow or odd or just because the moon
 //  is wrong in some way... but at least it's nice enough to tell us.
     if ((type == kCGEventTapDisabledByTimeout) || (type == kCGEventTapDisabledByUserInput)) {
@@ -258,14 +264,28 @@ static int checkKeyboardModifiers(lua_State* L) {
 
     lua_newtable(L);
 
-    if (lua_isboolean(L, 1) && lua_toboolean(L, 1)) { lua_pushinteger(L, (lua_Integer)theFlags); lua_setfield(L, -2, "_raw"); }
+    if (lua_isboolean(L, 1) && lua_toboolean(L, 1)) {
+        lua_pushinteger(L, (lua_Integer)theFlags); lua_setfield(L, -2, "_raw");
+    }
 
-    if (theFlags & NSCommandKeyMask)    { lua_pushboolean(L, YES); lua_setfield(L, -2, "cmd"); lua_pushboolean(L, YES); lua_setfield(L, -2, "⌘"); }
-    if (theFlags & NSShiftKeyMask)      { lua_pushboolean(L, YES); lua_setfield(L, -2, "shift"); lua_pushboolean(L, YES); lua_setfield(L, -2, "⇧"); }
-    if (theFlags & NSAlternateKeyMask)  { lua_pushboolean(L, YES); lua_setfield(L, -2, "alt"); lua_pushboolean(L, YES); lua_setfield(L, -2, "⌥"); }
-    if (theFlags & NSControlKeyMask)    { lua_pushboolean(L, YES); lua_setfield(L, -2, "ctrl"); lua_pushboolean(L, YES); lua_setfield(L, -2, "⌃"); }
-    if (theFlags & NSFunctionKeyMask)   { lua_pushboolean(L, YES); lua_setfield(L, -2, "fn"); }
-    if (theFlags & NSAlphaShiftKeyMask) { lua_pushboolean(L, YES); lua_setfield(L, -2, "capslock"); }
+    if (theFlags & NSEventModifierFlagCommand) {
+        lua_pushboolean(L, YES); lua_setfield(L, -2, "cmd"); lua_pushboolean(L, YES); lua_setfield(L, -2, "⌘");
+    }
+    if (theFlags & NSEventModifierFlagShift) {
+        lua_pushboolean(L, YES); lua_setfield(L, -2, "shift"); lua_pushboolean(L, YES); lua_setfield(L, -2, "⇧");
+    }
+    if (theFlags & NSEventModifierFlagOption) {
+        lua_pushboolean(L, YES); lua_setfield(L, -2, "alt"); lua_pushboolean(L, YES); lua_setfield(L, -2, "⌥");
+    }
+    if (theFlags & NSEventModifierFlagControl) {
+        lua_pushboolean(L, YES); lua_setfield(L, -2, "ctrl"); lua_pushboolean(L, YES); lua_setfield(L, -2, "⌃");
+    }
+    if (theFlags & NSEventModifierFlagFunction) {
+        lua_pushboolean(L, YES); lua_setfield(L, -2, "fn");
+    }
+    if (theFlags & NSEventModifierFlagCapsLock) {
+        lua_pushboolean(L, YES); lua_setfield(L, -2, "capslock");
+    }
 
     return 1;
 }

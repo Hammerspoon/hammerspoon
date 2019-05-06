@@ -49,7 +49,7 @@ function testBasicAttributes()
   return success()
 end
 
-function testActiveAttributes() 
+function testActiveAttributes()
   -- need to use application.watcher for testing these async events
   local appName = "Stickies"
   local app = hs.application.open(appName, 0, true)

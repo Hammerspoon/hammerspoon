@@ -74,7 +74,7 @@ static int refTable;
     }
 
     [self setNextTrigger:self.interval];
-    [[NSRunLoop currentRunLoop] addTimer:self.t forMode:NSDefaultRunLoopMode];
+    [[NSRunLoop currentRunLoop] addTimer:self.t forMode:NSRunLoopCommonModes];
 }
 
 - (void)stop {
@@ -428,7 +428,7 @@ static int timer_getSecondsSinceEpoch(lua_State *L) {
     return 1;
 }
 
-/// hs.timer.absolutetime() -> nanoseconds
+/// hs.timer.absoluteTime() -> nanoseconds
 /// Function
 /// Returns the absolute time in nanoseconds since the last system boot.
 ///

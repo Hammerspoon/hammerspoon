@@ -469,7 +469,7 @@ static int audiodevice_inputMuted(lua_State *L) {
     } else {
         lua_pushnil(L);
     }
-    
+
     return 1;
 }
 
@@ -939,6 +939,104 @@ static int audiodevice_setvolume(lua_State* L) {
 
     return 1;
 
+}
+
+/// hs.audiodevice:balance() -> number or nil
+/// Method
+/// Get the current left/right balance of this audio device
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A number between 0.0 and 1.0, representing the balance (0.0 for full left, 1.0 for full right, 0.5 for center), or nil if the audio device does not support balance
+///
+/// Notes:
+///  * The return value will be a floating point number
+///  * This method will inspect the device to determine if it is an input or output device, and return the appropriate volume. For devices that are both input and output devices, see `:inputVolume()` and `:outputVolume()`
+static int audiodevice_balance(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    
+    audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
+    AudioDeviceID deviceId = audioDevice->deviceId;
+    unsigned int scope;
+    Float32 balance;
+    UInt32 balanceSize = sizeof(Float32);
+    
+    if (isOutputDevice(deviceId)) {
+        scope = kAudioObjectPropertyScopeOutput;
+    } else {
+        scope = kAudioObjectPropertyScopeInput;
+    }
+    
+    AudioObjectPropertyAddress propertyAddress = {
+        kAudioHardwareServiceDeviceProperty_VirtualMasterBalance,
+        scope,
+        kAudioObjectPropertyElementMaster
+    };
+    
+    if (AudioObjectHasProperty(deviceId, &propertyAddress) && (AudioObjectGetPropertyData(deviceId, &propertyAddress, 0, NULL, &balanceSize, &balance) == noErr)) {
+        lua_pushnumber(L, (lua_Number)balance);
+    } else {
+        lua_pushnil(L);
+    }
+    
+    return 1;
+    
+}
+
+/// hs.audiodevice:setBalance(level) -> bool
+/// Method
+/// Set the balance of this audio device
+///
+/// Parameters:
+///  * level - A number between 0.0 and 1.0, representing the balance (0.0 for full left, 1.0 for full right, 0.5 for center)
+///
+/// Returns:
+///  * True if the balance was set, false if the audio device does not support setting a balance.
+///
+/// Notes:
+///  * This method will inspect the device to determine if it is an input or output device, and set the appropriate volume. For devices that are both input and output devices, see `:setInputVolume()` and `:setOutputVolume()`
+static int audiodevice_setbalance(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TBREAK];
+    
+    audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
+    AudioDeviceID deviceId = audioDevice->deviceId;
+    unsigned int scope;
+    Float32 value = (Float32)lua_tonumber(L, 2);
+    
+    if (value < 0) {
+        value = 0;
+    }
+    if (value > 1) {
+        value = 1;
+    }
+    
+    Float32 balance = value;
+    UInt32 balanceSize = sizeof(Float32);
+    
+    if (isOutputDevice(deviceId)) {
+        scope = kAudioObjectPropertyScopeOutput;
+    } else {
+        scope = kAudioObjectPropertyScopeInput;
+    }
+    
+    AudioObjectPropertyAddress propertyAddress = {
+        kAudioHardwareServiceDeviceProperty_VirtualMasterBalance,
+        scope,
+        kAudioObjectPropertyElementMaster
+    };
+    
+    if (AudioObjectHasProperty(deviceId, &propertyAddress) && (AudioObjectSetPropertyData(deviceId, &propertyAddress, 0, NULL, balanceSize, &balance) == noErr)) {
+        lua_pushboolean(L, TRUE);
+    } else {
+        lua_pushboolean(L, FALSE);
+    }
+    
+    return 1;
+    
 }
 
 /// hs.audiodevice:isOutputDevice() -> boolean
@@ -1674,6 +1772,8 @@ static const luaL_Reg audiodevice_metalib[] = {
     {"inputVolume",             audiodevice_inputVolume},
     {"outputVolume",            audiodevice_outputVolume},
     {"setVolume",               audiodevice_setvolume},
+    {"balance",                 audiodevice_balance},
+    {"setBalance",              audiodevice_setbalance},
     {"setInputVolume",          audiodevice_setInputVolume},
     {"setOutputVolume",         audiodevice_setOutputVolume},
     {"muted",                   audiodevice_muted},

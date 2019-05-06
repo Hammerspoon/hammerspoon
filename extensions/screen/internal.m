@@ -645,6 +645,88 @@ static int screen_setBrightness(lua_State *L) {
     return 1;
 }
 
+// CoreGraphics private APIs
+CG_EXTERN bool CGDisplayUsesForceToGray(void);
+CG_EXTERN void CGDisplayForceToGray(bool forceToGray);
+CG_EXTERN bool CGDisplayUsesInvertedPolarity(void);
+CG_EXTERN void CGDisplaySetInvertedPolarity(bool invertedPolarity);
+
+/// hs.screen.getForceToGray() -> boolean
+/// Method
+/// Gets the screen's ForceToGray setting
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A boolean, true if the ForceToGray mode is set, otherwise false
+static int screen_getForceToGray(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TBREAK];
+
+    bool isGrayscale = CGDisplayUsesForceToGray();
+    lua_pushboolean(L, isGrayscale ? true : false);
+
+    return 1;
+}
+
+/// hs.screen.setForceToGray(ForceToGray) -> None
+/// Method
+/// Sets the screen's ForceToGray mode
+///
+/// Parameters:
+///  * ForceToGray - A boolean if ForceToGray mode should be enabled
+///
+/// Returns:
+///  * None
+static int screen_setForceToGray(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TBOOLEAN, LS_TBREAK];
+
+    int forceGrayscale = lua_toboolean(L, 1);
+    CGDisplayForceToGray(forceGrayscale ? true : false);
+
+    return 0;
+}
+
+/// hs.screen.getInvertedPolarity() -> boolean
+/// Method
+/// Gets the screen's InvertedPolarity setting
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A boolean, true if the InvertedPolarity mode is set, otherwise false
+static int screen_getInvertedPolarity(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TBREAK];
+
+    bool isInvertedPolarity = CGDisplayUsesInvertedPolarity();
+    lua_pushboolean(L, isInvertedPolarity ? true : false);
+
+    return 1;
+}
+
+/// hs.screen.setInvertedPolarity(InvertedPolarity) -> None
+/// Method
+/// Sets the screen's InvertedPolarity mode
+///
+/// Parameters:
+///  * InvertedPolarity - A boolean if InvertedPolarity mode should be enabled
+///
+/// Returns:
+///  * None
+static int screen_setInvertedPolarity(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TBOOLEAN, LS_TBREAK];
+
+    int forceInvertedPolarity = lua_toboolean(L, 1);
+    CGDisplaySetInvertedPolarity(forceInvertedPolarity ? true : false);
+
+    return 0;
+}
+
 void screen_gammaReapply(CGDirectDisplayID display) {
     LuaSkin *skin = [LuaSkin shared];
     NSDictionary *gammas = [currentGammas objectForKey:[NSNumber numberWithInt:display]];
@@ -1096,6 +1178,10 @@ static const luaL_Reg screenlib[] = {
     {"mainScreen", screen_mainScreen},
     {"restoreGamma", screen_gammaRestore},
     {"accessibilitySettings", screen_accessibilitySettings},
+    {"getForceToGray", screen_getForceToGray},
+    {"setForceToGray", screen_setForceToGray},
+    {"getInvertedPolarity", screen_getInvertedPolarity},
+    {"setInvertedPolarity", screen_setInvertedPolarity},
 
     {NULL, NULL}
 };
