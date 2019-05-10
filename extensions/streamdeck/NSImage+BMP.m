@@ -22,11 +22,11 @@
     return nil;
 }
 
-- (NSData *)bmpData {
-    return [self bmpDataWithBackgroundColor:nil];
+- (NSData *)bmpDataWithRotation:(int)degree  {
+    return [self bmpDataWithBackgroundColor:nil withRotation: degree];
 }
 
-- (NSData *)bmpDataWithBackgroundColor:(NSColor *)backgroundColor {
+- (NSData *)bmpDataWithBackgroundColor:(NSColor *)backgroundColor withRotation:(int)degree {
     /* 	This is a Unix port of the bitmap.c code that writes .bmp files to disk.
      It also runs on Win32, and should be easy to get to run on other platforms.
      Please visit my web page, http://www.ece.gatech.edu/~slabaugh and click on "c" and "Writing Windows Bitmaps" for a further explanation.  This code has been tested and works on HP-UX 11.00 using the cc compiler.  To compile, just type "cc -Ae bitmapUnix.c" at the command prompt.
@@ -92,10 +92,10 @@
     // Prepare the 180 degree rotation, being careful to apply a translation so we don't rotate around one of the corners.
     NSAffineTransform* transform = [NSAffineTransform transform];
     [transform translateXBy:+self.size.width/2 yBy:+self.size.height/2];
-    [transform rotateByDegrees:180];
+    [transform rotateByDegrees:degree];
     [transform translateXBy:-self.size.width/2 yBy:-self.size.height/2];
 
-    // Create an NSBitmapImageRep locked to 72x72
+    // Create an NSBitmapImageRep locked to the correct size
     NSBitmapImageRep *bitmapImageRep = [[NSBitmapImageRep alloc]
                                         initWithBitmapDataPlanes:NULL
                                         pixelsWide:self.size.width
@@ -150,7 +150,7 @@
     /* Fill the bitmap file header structure */
     BITMAPFILEHEADER bmpFileHeader;
     bmpFileHeader.bfType = NSSwapHostShortToLittle(BM);   /* Bitmap header */
-    bmpFileHeader.bfSize = NSSwapHostIntToLittle(0);      /* This can be 0 for BI_RGB bitmaps */
+    bmpFileHeader.bfSize = NSSwapHostIntToLittle(bytesize + sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER));
     bmpFileHeader.bfReserved1 = NSSwapHostShortToLittle(0);
     bmpFileHeader.bfReserved2 = NSSwapHostShortToLittle(0);
     bmpFileHeader.bfOffBits = NSSwapHostIntToLittle(sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER));

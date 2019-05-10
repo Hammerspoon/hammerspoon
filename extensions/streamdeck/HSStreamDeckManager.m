@@ -13,7 +13,7 @@ static void HIDevent(void *deviceRef, IOReturn result, void *sender, IOHIDValueR
     //NSLog(@"HIDevent: deviceRef:%p sender:%p", deviceRef, sender);
     HSStreamDeckDevice *device = (__bridge HSStreamDeckDevice*)deviceRef;
     IOHIDElementRef element = IOHIDValueGetElement(value);
-    int button = IOHIDElementGetCookie(element) - 84;
+    int button = IOHIDElementGetCookie(element) - [device buttonOffset];
     BOOL isDown = IOHIDValueGetIntegerValue(value) == 1 ? YES : NO;
     //NSLog(@"HIDevent: button pressed: %d, isDown: %@", button, isDown ? @"YES" : @"NO");
 
@@ -52,11 +52,17 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
         // Configure the HID manager to match against Stream Deck devices
         NSString *vendorIDKey = @(kIOHIDVendorIDKey);
         NSString *productIDKey = @(kIOHIDProductIDKey);
-        NSDictionary *match = @{
+        NSDictionary *streamDeckMini = @{
+                                     vendorIDKey: @0x0fd9,
+                                     productIDKey: @0x0063,
+                                     };
+        NSDictionary *streamDeck = @{
                                 vendorIDKey: @0x0fd9,
                                 productIDKey: @0x0060,
                                 };
-        IOHIDManagerSetDeviceMatching ((__bridge IOHIDManagerRef)self.ioHIDManager, (__bridge CFDictionaryRef)match);
+        NSArray *matches = @[streamDeckMini, streamDeck];
+
+        IOHIDManagerSetDeviceMatchingMultiple ((__bridge IOHIDManagerRef)self.ioHIDManager, (__bridge CFArrayRef)matches);
 
         // Add our callbacks for relevant events
         IOHIDManagerRegisterDeviceMatchingCallback((__bridge IOHIDManagerRef)self.ioHIDManager, HIDconnect, (__bridge void*)self);

@@ -12,6 +12,5 @@
 #pragma mark - Global variables
 extern int streamDeckRefTable;
 static const char *USERDATA_TAG = "hs.streamdeck";
-static int buttonImageSideLength = 72;
 
 #endif /* streamdeck_h */

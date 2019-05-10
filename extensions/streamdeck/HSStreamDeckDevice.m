@@ -17,6 +17,12 @@
         self.manager = manager;
         self.buttonCallbackRef = LUA_NOREF;
         self.selfRefCount = 0;
+        self.isMini = false;
+        
+        NSNumber * productID = (__bridge id)(IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductIDKey)));
+        if ( productID && [productID intValue] == 0x0063) {
+            self.isMini = true;
+        }
         //NSLog(@"Added new Stream Deck device %p with IOKit device %p from manager %p", (__bridge void *)self, (void*)self.device, (__bridge void *)self.manager);
     }
     return self;
@@ -46,6 +52,42 @@
     lua_pushboolean(skin.L, isDown.boolValue);
     [skin protectedCallAndError:@"hs.streamdeck:buttonCallback" nargs:3 nresults:0];
     _lua_stackguard_exit(skin.L);
+}
+
+- (int)targetSize {
+    if(self.isMini) {
+        return 80;
+    }
+    return 72;
+}
+
+- (int)rotateAngle {
+    if(self.isMini) {
+        return 90;
+    }
+    return 180;
+
+}
+
+- (int)packetSize {
+    if(self.isMini) {
+        return 1024;
+    }
+    return 8191;
+}
+
+- (int)buttonOffset {
+    if(self.isMini) {
+        return 145;
+    }
+    return 84;
+}
+
+- (int)reportFirstIndex {
+    if(self.isMini) {
+        return 0;
+    }
+    return 1;
 }
 
 - (BOOL)setBrightness:(int)brightness {
@@ -111,9 +153,10 @@
         return;
     }
 
-    NSImage *image = [[NSImage alloc] initWithSize:NSMakeSize(buttonImageSideLength, buttonImageSideLength)];
+    int targetSize = [self targetSize];
+    NSImage *image = [[NSImage alloc] initWithSize:NSMakeSize(targetSize, targetSize)];
     [image lockFocus];
-    [color drawSwatchInRect:NSMakeRect(0, 0, buttonImageSideLength, buttonImageSideLength)];
+    [color drawSwatchInRect:NSMakeRect(0, 0, targetSize, targetSize)];
     [image unlockFocus];
     [self setImage:image forButton:button];
 }
@@ -127,7 +170,8 @@
 
     // Unconditionally resize the image
     NSImage *sourceImage = [image copy];
-     NSSize newSize = NSMakeSize(buttonImageSideLength, buttonImageSideLength);
+    NSSize newSize = NSMakeSize([self targetSize], [self targetSize]);
+    
     renderImage = [[NSImage alloc] initWithSize: newSize];
     [renderImage lockFocus];
     [sourceImage setSize: newSize];
@@ -143,38 +187,46 @@
     //    return;
     }
 
-    NSData *data = [renderImage bmpData];
+    NSData *data = [renderImage bmpDataWithRotation:[self rotateAngle]];
 
-    int reportLength = 8191;
+    int reportLength = [self packetSize];
+    int sendableAmount = reportLength - 16;
+
+    // the reportMagic is 16 bytes long, but we only use 6
     uint8_t reportMagic[] = {0x02,  // Report ID
                              0x01,  // Unknown (always seems to be 1)
-                             0x01,  // Image Page
+                             0x00,  // Image Page
                              0x00,  // Padding
-                             0x00,  // Continuation Bool
+                             0x01,  // Continuation Bool
                              button // Deck button to set
                             };
 
-    int imageLen = (int)data.length;
-    int halfImageLen = imageLen / 2;
     const uint8_t *imageBuf = data.bytes;
+    int imageLen = (int)data.length;
 
-    // Prepare and send the first half of the image
-    NSMutableData *reportPage1 = [NSMutableData dataWithLength:reportLength];
-    [reportPage1 replaceBytesInRange:NSMakeRange(0, 6) withBytes:reportMagic];
-    [reportPage1 replaceBytesInRange:NSMakeRange(16, halfImageLen) withBytes:imageBuf];
-    const uint8_t *rawPage1 = (const uint8_t *)reportPage1.bytes;
+    int imagePosition = 0;
+    int reportIndex = [self reportFirstIndex];
+    while(imagePosition < imageLen) {
+        // Update page index
+        reportMagic[2] = reportIndex;
+        // Is this the last page?
+        if (imagePosition + sendableAmount >= imageLen) {
+            reportMagic[4] = 0;
+        }
 
-    IOHIDDeviceSetReport(self.device, kIOHIDReportTypeOutput, rawPage1[0], rawPage1, reportLength);
-
-    // Prepare and send the second half of the image
-    NSMutableData *reportPage2 = [NSMutableData dataWithLength:reportLength];
-    reportMagic[2] = 2;
-    reportMagic[4] = 1;
-    [reportPage2 replaceBytesInRange:NSMakeRange(0, 6) withBytes:reportMagic];
-    [reportPage2 replaceBytesInRange:NSMakeRange(16, halfImageLen) withBytes:imageBuf+halfImageLen];
-    const uint8_t *rawPage2 = (const uint8_t *)reportPage2.bytes;
-
-    IOHIDDeviceSetReport(self.device, kIOHIDReportTypeOutput, rawPage2[0], rawPage2, reportLength);
-
+        NSMutableData *reportPage = [NSMutableData dataWithLength:reportLength];
+        [reportPage replaceBytesInRange:NSMakeRange(0, 6) withBytes:reportMagic];
+        
+        if ((imagePosition + sendableAmount) > imageLen) {
+            sendableAmount = imageLen - imagePosition;
+        }
+        
+        [reportPage replaceBytesInRange:NSMakeRange(16, sendableAmount) withBytes:imageBuf+imagePosition];
+        
+        const uint8_t *rawPage = (const uint8_t *)reportPage.bytes;
+        IOHIDDeviceSetReport(self.device, kIOHIDReportTypeOutput, rawPage[0], rawPage, reportLength);
+        reportIndex++;
+        imagePosition = imagePosition + sendableAmount;
+    }
 }
 @end

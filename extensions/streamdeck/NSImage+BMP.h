@@ -11,6 +11,7 @@
 
 @interface NSImage (BMP)
 - (NSImageRep *)imageRepOfClass:(Class)imageRepClass;
-- (NSData *)bmpData;
-- (NSData *)bmpDataWithBackgroundColor:(NSColor *)backgroundColor;
+- (NSData *)bmpDataWithRotation:(int)degree;
+- (NSData *)bmpDataWithBackgroundColor:(NSColor *)backgroundColor withRotation:(int)degree;
 @end
+

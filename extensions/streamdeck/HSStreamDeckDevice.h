@@ -21,6 +21,7 @@
 @property (nonatomic) int selfRefCount;
 @property (nonatomic) int buttonCallbackRef;
 @property (nonatomic) BOOL isValid;
+@property (nonatomic) BOOL isMini;
 
 - (id)initWithDevice:(IOHIDDeviceRef)device manager:(id)manager;
 - (void)invalidate;
@@ -31,4 +32,9 @@
 - (NSString *)firmwareVersion;
 - (void)setColor:(NSColor*)color forButton:(int)button;
 - (void)setImage:(NSImage*)image forButton:(int)button;
+- (int)targetSize;
+- (int)rotateAngle;
+- (int)packetSize;
+- (int)buttonOffset;
+- (int)reportFirstIndex;
 @end
