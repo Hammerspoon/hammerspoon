@@ -251,10 +251,10 @@
 
     [self.window setLevel:(CGWindowLevelForKey(kCGMainMenuWindowLevelKey) + 3)];
 
-    if (!self.window.isKeyWindow) {
-        NSApplication *app = [NSApplication sharedApplication];
-        [app activateIgnoringOtherApps:YES];
-    }
+    //if (!self.window.isKeyWindow) {
+    //    NSApplication *app = [NSApplication sharedApplication];
+    //    [app activateIgnoringOtherApps:YES];
+    //}
 
     [self controlTextDidChange:[NSNotification notificationWithName:@"Unused" object:nil]];
 
