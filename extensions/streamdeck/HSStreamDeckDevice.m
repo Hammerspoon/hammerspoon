@@ -63,7 +63,7 @@
 
 - (int)rotateAngle {
     if(self.isMini) {
-        return 90;
+        return 270;
     }
     return 180;
 

@@ -92,6 +92,7 @@
     // Prepare the 180 degree rotation, being careful to apply a translation so we don't rotate around one of the corners.
     NSAffineTransform* transform = [NSAffineTransform transform];
     [transform translateXBy:+self.size.width/2 yBy:+self.size.height/2];
+    [transform scaleXBy:-1 yBy:1];
     [transform rotateByDegrees:degree];
     [transform translateXBy:-self.size.width/2 yBy:-self.size.height/2];
 
