@@ -36,6 +36,7 @@
 - (int)rotateAngle;
 - (int)scaleX;
 - (int)packetSize;
+- (int)buttonCount;
 - (int)buttonOffset;
 - (int)reportFirstIndex;
 @end

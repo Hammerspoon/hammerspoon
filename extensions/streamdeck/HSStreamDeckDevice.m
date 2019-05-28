@@ -83,6 +83,13 @@
     return 84;
 }
 
+- (int)buttonCount {
+    if(self.isMini) {
+        return 6;
+    }
+    return 15;
+}
+
 - (int)reportFirstIndex {
     if(self.isMini) {
         return 0;

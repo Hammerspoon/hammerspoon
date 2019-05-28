@@ -187,6 +187,25 @@ static int streamdeck_serialNumber(lua_State *L __unused) {
     return 1;
 }
 
+/// hs.streamdeck:buttonCount()
+/// Method
+/// Gets the number of buttons of a Deck
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * An int representing the number of buttons
+static int streamdeck_buttonCount(lua_State *L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    
+    HSStreamDeckDevice *device = [skin luaObjectAtIndex:1 toClass:"HSStreamDeckDevice"];
+    
+    lua_pushinteger(skin.L, [device buttonCount]);
+    return 1;
+}
+
 /// hs.streamdeck:firmwareVersion()
 /// Method
 /// Gets the firmware version of a deck
@@ -321,6 +340,7 @@ static int streamdeck_object_gc(lua_State* L) {
 static const luaL_Reg userdata_metaLib[] = {
     {"serialNumber", streamdeck_serialNumber},
     {"firmwareVersion", streamdeck_firmwareVersion},
+    {"buttonCount", streamdeck_buttonCount},
     {"buttonCallback", streamdeck_buttonCallback},
     {"setButtonImage", streamdeck_setButtonImage},
     {"setButtonColor", streamdeck_setButtonColor},
