@@ -22,11 +22,11 @@
     return nil;
 }
 
-- (NSData *)bmpDataWithRotation:(int)degree  {
-    return [self bmpDataWithBackgroundColor:nil withRotation: degree];
+- (NSData *)bmpDataWithRotation:(int)degree andScaleXBy:(int)scalex  {
+    return [self bmpDataWithBackgroundColor:nil withRotation: degree andScaleXBy:(int)scalex];
 }
 
-- (NSData *)bmpDataWithBackgroundColor:(NSColor *)backgroundColor withRotation:(int)degree {
+- (NSData *)bmpDataWithBackgroundColor:(NSColor *)backgroundColor withRotation:(int)degree andScaleXBy:(int)scalex {
     /* 	This is a Unix port of the bitmap.c code that writes .bmp files to disk.
      It also runs on Win32, and should be easy to get to run on other platforms.
      Please visit my web page, http://www.ece.gatech.edu/~slabaugh and click on "c" and "Writing Windows Bitmaps" for a further explanation.  This code has been tested and works on HP-UX 11.00 using the cc compiler.  To compile, just type "cc -Ae bitmapUnix.c" at the command prompt.
@@ -92,7 +92,7 @@
     // Prepare the 180 degree rotation, being careful to apply a translation so we don't rotate around one of the corners.
     NSAffineTransform* transform = [NSAffineTransform transform];
     [transform translateXBy:+self.size.width/2 yBy:+self.size.height/2];
-    [transform scaleXBy:-1 yBy:1];
+    [transform scaleXBy:scalex yBy:1];
     [transform rotateByDegrees:degree];
     [transform translateXBy:-self.size.width/2 yBy:-self.size.height/2];
 

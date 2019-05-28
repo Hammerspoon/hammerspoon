@@ -34,6 +34,7 @@
 - (void)setImage:(NSImage*)image forButton:(int)button;
 - (int)targetSize;
 - (int)rotateAngle;
+- (int)scaleX;
 - (int)packetSize;
 - (int)buttonOffset;
 - (int)reportFirstIndex;

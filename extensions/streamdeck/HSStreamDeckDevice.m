@@ -90,6 +90,13 @@
     return 1;
 }
 
+- (int)scaleX {
+    if(self.isMini) {
+        return -1;
+    }
+    return 1;
+}
+
 - (BOOL)setBrightness:(int)brightness {
     if (!self.isValid) {
         return NO;
@@ -187,7 +194,7 @@
     //    return;
     }
 
-    NSData *data = [renderImage bmpDataWithRotation:[self rotateAngle]];
+    NSData *data = [renderImage bmpDataWithRotation:[self rotateAngle] andScaleXBy:[self scaleX]];
 
     int reportLength = [self packetSize];
     int sendableAmount = reportLength - 16;
