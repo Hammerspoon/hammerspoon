@@ -204,7 +204,7 @@
                              0x01,  // Unknown (always seems to be 1)
                              0x00,  // Image Page
                              0x00,  // Padding
-                             0x01,  // Continuation Bool
+                             0x00,  // Continuation Bool
                              button // Deck button to set
                             };
 
@@ -218,7 +218,7 @@
         reportMagic[2] = reportIndex;
         // Is this the last page?
         if (imagePosition + sendableAmount >= imageLen) {
-            reportMagic[4] = 0;
+            reportMagic[4] = 1;
         }
 
         NSMutableData *reportPage = [NSMutableData dataWithLength:reportLength];
