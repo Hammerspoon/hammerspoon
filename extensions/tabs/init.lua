@@ -159,6 +159,7 @@ function tabs.enableForApp(app)
 
   -- might already be running
   if app then
+    appWatches[app:title()] = true
     watchApp(app)
   end
 
