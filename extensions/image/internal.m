@@ -43,16 +43,8 @@ static int pushNSImageNameTable(lua_State *L) {
         [skin pushNSObject:NSImageNameInvalidDataFreestandingTemplate] ;         lua_setfield(L, -2, "InvalidDataFreestandingTemplate") ;
         [skin pushNSObject:NSImageNameLockLockedTemplate] ;                      lua_setfield(L, -2, "LockLockedTemplate") ;
         [skin pushNSObject:NSImageNameLockUnlockedTemplate] ;                    lua_setfield(L, -2, "LockUnlockedTemplate") ;
-// added in 10.12
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wpartial-availability"
-    if (&NSImageNameGoForwardTemplate != NULL) {
         [skin pushNSObject:NSImageNameGoForwardTemplate] ;                       lua_setfield(L, -2, "GoForwardTemplate") ;
-    }
-    if (&NSImageNameGoBackTemplate != NULL) {
         [skin pushNSObject:NSImageNameGoBackTemplate] ;                          lua_setfield(L, -2, "GoBackTemplate") ;
-    }
-#pragma clang diagnostic pop
         [skin pushNSObject:NSImageNameGoRightTemplate] ;                         lua_setfield(L, -2, "GoRightTemplate") ;
         [skin pushNSObject:NSImageNameGoLeftTemplate] ;                          lua_setfield(L, -2, "GoLeftTemplate") ;
         [skin pushNSObject:NSImageNameRightFacingTriangleTemplate] ;             lua_setfield(L, -2, "RightFacingTriangleTemplate") ;
