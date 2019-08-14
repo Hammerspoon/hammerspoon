@@ -5,7 +5,10 @@
 #import "CocoaHTTPServer/HTTPDataResponse.h"
 #import "CocoaHTTPServer/WebSocket.h"
 #import "CocoaAsyncSocket/GCDAsyncSocket.h"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wexpansion-to-defined"
 #import "CocoaLumberjack/CocoaLumberjack.h"
+#pragma clang diagnostic pop
 #import "MYAnonymousIdentity.h"
 
 // From HTTPConnection.m
