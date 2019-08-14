@@ -327,11 +327,6 @@ static const int kSecondsInHour= 60.0*60.0;
     return dc;
 }
 
-- (instancetype) init {
-    [super doesNotRecognizeSelector:_cmd];
-    return nil;
-}
-
 -(NSString *)description
 {
     return [NSString stringWithFormat:
