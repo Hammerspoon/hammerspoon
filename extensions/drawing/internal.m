@@ -508,11 +508,14 @@ NSMutableArray *drawingWindows;
 /// Notes:
 ///  * This method can be used to allow multiple changes which are being made to the users display appear as if they all occur simultaneously by holding off on updating the screen on the regular schedule.
 ///  * This method should always be balanced with a call to [hs.drawing.enableScreenUpdates](#enableScreenUpdates) when your updates have been completed.  Failure to do so will be logged in the system logs.
-///
 ///  * The window server will only allow you to pause updates for up to 1 second.  This prevents a rogue or hung process from locking the systems display completely.  Updates will be resumed when [hs.drawing.enableScreenUpdates](#enableScreenUpdates) is encountered or after 1 second, whichever comes first.
+///  * The underlying OS function for disabling screen updates is deprecated.
 static int disableUpdates(__unused lua_State *L) {
     [[LuaSkin shared] checkArgs:LS_TBREAK] ;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     NSDisableScreenUpdates() ;
+#pragma clang diagnostic pop
     return 0 ;
 }
 
@@ -528,11 +531,14 @@ static int disableUpdates(__unused lua_State *L) {
 ///
 /// Notes:
 ///  * In conjunction with [hs.drawing.disableScreenUpdates](#disableScreenUpdates), this method can be used to allow multiple changes which are being made to the users display appear as if they all occur simultaneously by holding off on updating the screen on the regular schedule.
-///
 ///  * The window server will only allow you to pause updates for up to 1 second.  This prevents a rogue or hung process from locking the systems display completely.  Updates will be resumed when this function is encountered  or after 1 second, whichever comes first.
+///  * The underlying OS function for enabling screen updates is deprecated.
 static int enableUpdates(__unused lua_State *L) {
     [[LuaSkin shared] checkArgs:LS_TBREAK] ;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     NSEnableScreenUpdates() ;
+#pragma clang diagnostic pop
     return 0 ;
 }
 
