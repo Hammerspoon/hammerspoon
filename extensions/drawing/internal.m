@@ -1940,7 +1940,7 @@ static int drawing_clickCallbackActivating(lua_State *L) {
         drawingWindow.styleMask |= NSWindowStyleMaskNonactivatingPanel ;
         lua_settop(L, 1) ;
     } else {
-        lua_pushboolean(L, ((drawingWindow.styleMask & NSWindowStyleMaskNonactivatingPanel) != NSNonactivatingPanelMask)) ;
+        lua_pushboolean(L, ((drawingWindow.styleMask & NSWindowStyleMaskNonactivatingPanel) != NSWindowStyleMaskNonactivatingPanel)) ;
     }
 
     return 1;
