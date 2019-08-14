@@ -734,7 +734,7 @@ int luaopen_hs_httpserver_internal(lua_State *L __unused) {
     LuaSkin *skin = [LuaSkin shared];
     refTable = [skin registerLibraryWithObject:"hs.httpserver" functions:httpserverLib metaFunctions:nil objectFunctions:httpserverObjectLib];
 
-    [DDLog addLogger:[DDASLLogger sharedInstance]];
+    [DDLog addLogger:[DDOSLogger sharedInstance]];
 
     return 1;
 }
