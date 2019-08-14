@@ -476,7 +476,7 @@ function release_update_appcast() {
                 length=\"${ZIPLEN}\"
                 type=\"application/octet-stream\"
             />
-            <sparkle:minimumSystemVersion>10.10</sparkle:minimumSystemVersion>
+            <sparkle:minimumSystemVersion>10.12</sparkle:minimumSystemVersion>
         </item>
 "
   gawk -i inplace -v s="<!-- __UPDATE_MARKER__ -->" -v r="${NEWCHUNK}" '{gsub(s,r)}1' appcast.xml
