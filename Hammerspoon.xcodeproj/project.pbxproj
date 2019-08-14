@@ -92,9 +92,9 @@
 		4F5134641C30819000EFD6D4 /* chooser.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F5134631C30819000EFD6D4 /* chooser.h */; };
 		4F5B6E6B1E9E86BB003FC580 /* Hammerspoon.sdef in Resources */ = {isa = PBXBuildFile; fileRef = 4F5B6E6A1E9E86BB003FC580 /* Hammerspoon.sdef */; };
 		4F5B6E6E1E9E87CE003FC580 /* HSAppleScript.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F5B6E6D1E9E87CE003FC580 /* HSAppleScript.m */; };
-		4F68B532227CBD210076C4F8 /* libPods-Hammerspoon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BC78AF8FE9DA0BD317A7528 /* libPods-Hammerspoon.a */; };
 		4F68B530227C2DD70076C4F8 /* HSChooserVerticallyCenteringTextFieldCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F68B52E227C2DD70076C4F8 /* HSChooserVerticallyCenteringTextFieldCell.h */; };
 		4F68B531227C2DD70076C4F8 /* HSChooserVerticallyCenteringTextFieldCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F68B52F227C2DD70076C4F8 /* HSChooserVerticallyCenteringTextFieldCell.m */; };
+		4F68B532227CBD210076C4F8 /* libPods-Hammerspoon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BC78AF8FE9DA0BD317A7528 /* libPods-Hammerspoon.a */; };
 		4F6B3EA31B73D6D300B2A4DE /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4F6B3EAE1B73D79100B2A4DE /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F6B3EAD1B73D79100B2A4DE /* internal.m */; };
 		4F6B3EB61B73DC4500B2A4DE /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
@@ -947,6 +947,7 @@
 		4F0676041C32AED90088C57C /* HSChooserWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = HSChooserWindow.xib; path = extensions/chooser/HSChooserWindow.xib; sourceTree = "<group>"; };
 		4F0676051C32C0B30088C57C /* HSChooserCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSChooserCell.h; path = extensions/chooser/HSChooserCell.h; sourceTree = "<group>"; };
 		4F0676061C32C0B30088C57C /* HSChooserCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSChooserCell.m; path = extensions/chooser/HSChooserCell.m; sourceTree = "<group>"; };
+		4F081E7922D69D5600AB87C1 /* Hammerspoon.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Hammerspoon.entitlements; sourceTree = "<group>"; };
 		4F0F08071DC0DAAA00082B73 /* HSChooserRootView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSChooserRootView.h; path = extensions/chooser/HSChooserRootView.h; sourceTree = "<group>"; };
 		4F0F08081DC0DAAA00082B73 /* HSChooserRootView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSChooserRootView.m; path = extensions/chooser/HSChooserRootView.m; sourceTree = "<group>"; };
 		4F11989E1FF0412600D279D8 /* switcher.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = switcher.lua; path = extensions/window/switcher.lua; sourceTree = "<group>"; };
@@ -3122,6 +3123,7 @@
 		9445CA1419083251002568BB /* Hammerspoon */ = {
 			isa = PBXGroup;
 			children = (
+				4F081E7922D69D5600AB87C1 /* Hammerspoon.entitlements */,
 				944A2D49198973A400D8DC90 /* Main */,
 				944A2D481989739B00D8DC90 /* Extras */,
 			);
@@ -5542,6 +5544,11 @@
 					};
 					9445CA0A19083251002568BB = {
 						ProvisioningStyle = Manual;
+						SystemCapabilities = {
+							com.apple.HardenedRuntime = {
+								enabled = 1;
+							};
+						};
 					};
 					D02F95231A00221C00E28BB2 = {
 						CreatedOnToolsVersion = 6.1;
@@ -5764,7 +5771,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -eux\n\n# Some Instruments profiles are broken with the code signing stuff we currently do, so let's just skip signing entirely when we're Profiling\n\nif [ \"${CONFIGURATION}\" == \"Profile\" ]; then\n    exit 0\nfi\n\nif [ -f ../token-codesign ] ; then\n    echo \"SIGNING CODE\"\n    source ../token-codesign\n\n    if [ \"${CONFIGURATION}\" == \"Debug\" ]; then\n        CODESIGN_OPTS=\"--timestamp=none\"\n    else\n        CODESIGN_OPTS=\"\"\n    fi\n\n    LOCATION=\"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n\n    # sign Sparkle.framework if this is a release build\n    if [ -e \"${LOCATION}/Sparkle.framework/Versions/A\" ] ; then\n        codesign ${CODESIGN_OPTS} --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/Sparkle.framework/Versions/A\"\n    fi\n\n    # sign Hammerspoon Tests.xctest if this is a test build\n    if [ -e \"${BUILT_PRODUCTS_DIR}/${CONTENTS_FOLDER_PATH}/PlugIns/Hammerspoon Tests.xctest\" ] ; then\n        codesign ${CODESIGN_OPTS} --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${BUILT_PRODUCTS_DIR}/${CONTENTS_FOLDER_PATH}/PlugIns/Hammerspoon Tests.xctest\"\n    fi\n\n    # sign LuaSkin.framework\n    codesign ${CODESIGN_OPTS} --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/LuaSkin.framework/Versions/A\"\n    # sign the Hammerspoon binary\n    codesign ${CODESIGN_OPTS} --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${CODESIGNING_FOLDER_PATH}\"\nelse\n    echo \"SKIPPING CODE SIGNING\"\nfi\n";
+			shellScript = "set -eux\n\n# Some Instruments profiles are broken with the code signing stuff we currently do, so let's just skip signing entirely when we're Profiling\n\nif [ \"${CONFIGURATION}\" == \"Profile\" ]; then\n    exit 0\nfi\n\nif [ -f ../token-codesign ] ; then\n    echo \"SIGNING CODE\"\n    source ../token-codesign\n\n    if [ \"${CONFIGURATION}\" == \"Debug\" ]; then\n        CODESIGN_OPTS=\"--timestamp=none\"\n    elif [ \"${CONFIGURATION}\" == \"Release\" ]; then\n        CODESIGN_OPTS=\"--timestamp\"\n    else\n        CODESIGN_OPTS=\"\"\n    fi\n\n    LOCATION=\"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n\n    # sign Sparkle.framework if this is a release build\n    if [ -e \"${LOCATION}/Sparkle.framework/Versions/A\" ] ; then\n        codesign ${CODESIGN_OPTS} -o runtime --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/fileop\"\n        codesign ${CODESIGN_OPTS} -o runtime --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/Autoupdate\"\n        codesign ${CODESIGN_OPTS} --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/Sparkle.framework/Versions/A\"\n    fi\n\n    # sign Hammerspoon Tests.xctest if this is a test build\n    if [ -e \"${BUILT_PRODUCTS_DIR}/${CONTENTS_FOLDER_PATH}/PlugIns/Hammerspoon Tests.xctest\" ] ; then\n        codesign ${CODESIGN_OPTS} --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${BUILT_PRODUCTS_DIR}/${CONTENTS_FOLDER_PATH}/PlugIns/Hammerspoon Tests.xctest\"\n    fi\n\n    # sign LuaSkin.framework\n    codesign ${CODESIGN_OPTS} --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/LuaSkin.framework/Versions/A\"\n\n    # sign the modules\n    find \"${CODESIGNING_FOLDER_PATH}\" -type f -name '*.so' -exec codesign ${CODESIGN_OPTS} --verbose --force --sign \"$CODESIGN_IDENTITY\" {} \\;\n\n    # sign the CLI app\n    codesign ${CODESIGN_OPTS} -o runtime --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${CODESIGNING_FOLDER_PATH}/Contents/Resources/extensions/hs/ipc/bin/hs\"\n\n    # sign the Hammerspoon binary\n    codesign ${CODESIGN_OPTS} -o runtime --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${CODESIGNING_FOLDER_PATH}\"\nelse\n    echo \"SKIPPING CODE SIGNING\"\nfi\n";
 		};
 		4FA81F271B3F2A52000B5537 /* Copy LuaSkin.framework to build/bundle */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -7796,11 +7803,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
+				CODE_SIGN_ENTITLEMENTS = Hammerspoon/Hammerspoon.entitlements;
 				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Hammerspoon/Hammerspoon-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
@@ -10400,6 +10409,7 @@
 				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -19877,6 +19887,7 @@
 				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -19891,6 +19902,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -21149,11 +21161,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
+				CODE_SIGN_ENTITLEMENTS = Hammerspoon/Hammerspoon.entitlements;
 				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Hammerspoon/Hammerspoon-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
@@ -21188,11 +21202,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
+				CODE_SIGN_ENTITLEMENTS = Hammerspoon/Hammerspoon.entitlements;
 				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Hammerspoon/Hammerspoon-Prefix.pch";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
