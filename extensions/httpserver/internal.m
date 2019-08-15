@@ -5,7 +5,10 @@
 #import "CocoaHTTPServer/HTTPDataResponse.h"
 #import "CocoaHTTPServer/WebSocket.h"
 #import "CocoaAsyncSocket/GCDAsyncSocket.h"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wexpansion-to-defined"
 #import "CocoaLumberjack/CocoaLumberjack.h"
+#pragma clang diagnostic pop
 #import "MYAnonymousIdentity.h"
 
 // From HTTPConnection.m
@@ -734,7 +737,7 @@ int luaopen_hs_httpserver_internal(lua_State *L __unused) {
     LuaSkin *skin = [LuaSkin shared];
     refTable = [skin registerLibraryWithObject:"hs.httpserver" functions:httpserverLib metaFunctions:nil objectFunctions:httpserverObjectLib];
 
-    [DDLog addLogger:[DDASLLogger sharedInstance]];
+    [DDLog addLogger:[DDOSLogger sharedInstance]];
 
     return 1;
 }

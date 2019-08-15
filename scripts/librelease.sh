@@ -4,7 +4,7 @@
 ############################## UTILITY FUNCTIONS ##############################
 
 function fail() {
-  echo "ERROR: $*"
+  echo "ERROR: $*" >/dev/stderr
   exit 1
 }
 
@@ -19,6 +19,7 @@ function assert() {
   assert_github_hub
   assert_github_release_token && GITHUB_TOKEN="$(cat "${GITHUB_TOKEN_FILE}")"
   assert_codesign_authority_token && CODESIGN_AUTHORITY_TOKEN="$(cat "${CODESIGN_AUTHORITY_TOKEN_FILE}")"
+  assert_notarization_token && source "${NOTARIZATION_TOKEN_FILE}"
   # shellcheck source=../token-crashlytics disable=SC1091
   assert_fabric_token && source "${FABRIC_TOKEN_FILE}"
   assert_version_in_xcode
@@ -41,6 +42,16 @@ function validate() {
   assert_valid_code_signature
   assert_valid_code_signing_entity
   assert_gatekeeper_acceptance
+}
+
+function notarize() {
+  echo "******** NOTARIZING:"
+
+  compress_hammerspoon_app
+  upload_to_notary_service
+  wait_for_notarization
+  staple_notarization
+  assert_notarization_acceptance
 }
 
 function localtest() {
@@ -120,6 +131,13 @@ function assert_codesign_authority_token() {
   echo "Checking for codesign authority token..."
   if [ ! -f "${CODESIGN_AUTHORITY_TOKEN_FILE}" ]; then
     fail "You do not have a code signing authority token in ${CODESIGN_AUTHORITY_TOKEN_FILE} (hint, it should look like 'Authority=Developer ID Application: Foo Bar (ABC123)'"
+  fi
+}
+
+function assert_notarization_token() {
+  echo "Checking for notarization token..."
+  if [ ! -f "${NOTARIZATION_TOKEN_FILE}" ]; then
+    fail "You do not have a notarization token in ${NOTARIZATION_TOKEN_FILE}"
   fi
 }
 
@@ -237,6 +255,99 @@ function build_hammerspoon_app() {
   if [ ! -e "${HAMMERSPOON_HOME}"/build/Hammerspoon.app ]; then
       fail "Looks like the build failed. sorry!"
   fi
+}
+
+############################ NOTARIZATION FUNCTIONS ###########################
+
+function assert_notarization_acceptance() {
+    echo "Ensuring Notarization acceptance..."
+    if ! xcrun stapler validate "${HAMMERSPOON_HOME}/build/Hammerspoon.app" ; then
+        fail "Notarization rejection"
+        exit 1
+    fi
+}
+
+function upload_to_notary_service() {
+    echo "Uploading to Apple Notarization Service..."
+    pushd "${HAMMERSPOON_HOME}" >/dev/null
+    mkdir -p "../archive/${VERSION}"
+    local OUTPUT=""
+    OUTPUT=$(xcrun altool --notarize-app \
+                --primary-bundle-id "org.hammerspoon.Hammerspoon" \
+                --file "build/Hammerspoon-${VERSION}.zip" \
+                --username "${NOTARIZATION_USERNAME}" \
+                --password "${NOTARIZATION_PASSWORD}" \
+                2>&1 | tee "../archive/${VERSION}/notarization-upload.log" \
+    )
+    if [ "$?" != "0" ]; then
+        echo "$OUTPUT"
+        fail "Notarization upload failed."
+    fi
+    NOTARIZATION_REQUEST_UUID=$(echo ${OUTPUT} | sed -e 's/.*RequestUUID = //')
+    echo "Notarization request UUID: ${NOTARIZATION_REQUEST_UUID}"
+    popd >/dev/null
+}
+
+function wait_for_notarization() {
+    echo -n "Waiting for Notarization..."
+    while true ; do
+        local OUTPUT=""
+        OUTPUT=$(check_notarization_status)
+        if [ "${OUTPUT}" == "Success" ] ; then
+            echo ""
+            break
+        elif [ "${OUTPUT}" == "Working" ]; then
+            echo -n "."
+        else
+            echo ""
+            fail "Unknown output: ${OUTPUT}"
+        fi
+        sleep 60
+    done
+    echo ""
+}
+
+function check_notarization_status() {
+    local OUTPUT=""
+    OUTPUT=$(xcrun altool --notarization-info "${NOTARIZATION_REQUEST_UUID}" \
+                --username "${NOTARIZATION_USERNAME}" \
+                --password "${NOTARIZATION_PASSWORD}" \
+                2>&1 \
+    )
+    local RESULT=""
+    RESULT=$(echo "${OUTPUT}" | grep "Status: " | sed -e 's/.*Status: //')
+    if [ "${RESULT}" == "in progress" ]; then
+        echo "Working"
+        return
+    fi
+
+    local NOTARIZATION_LOG_URL=""
+    NOTARIZATION_LOG_URL=$(echo "${OUTPUT}" | grep "LogFileURL: " | awk '{ print $2 }')
+    echo "Fetching Notarization log: ${NOTARIZATION_LOG_URL}" >/dev/stderr
+    local STATUS=""
+    STATUS=$(curl "${NOTARIZATION_LOG_URL}")
+    RESULT=$(echo "${STATUS}" | jq -r .status)
+
+    case "${RESULT}" in
+        "Accepted")
+            echo "Success"
+            ;;
+        "in progress")
+            echo "Working"
+            ;;
+        *)
+            echo "${STATUS}" | tee "../archive/${VERSION}/notarization.log"
+            echo "Notarization failed: ${RESULT}"
+            ;;
+    esac
+}
+
+function staple_notarization() {
+    echo "Stapling notarization to app bundle..."
+    pushd "${HAMMERSPOON_HOME}/build" >/dev/null
+    rm "Hammerspoon-${VERSION}.zip"
+    xcrun stapler staple "Hammerspoon.app"
+    popd >/dev/null
 }
 
 ############################ POST-BUILD FUNCTIONS #############################
@@ -365,7 +476,7 @@ function release_update_appcast() {
                 length=\"${ZIPLEN}\"
                 type=\"application/octet-stream\"
             />
-            <sparkle:minimumSystemVersion>10.10</sparkle:minimumSystemVersion>
+            <sparkle:minimumSystemVersion>10.12</sparkle:minimumSystemVersion>
         </item>
 "
   gawk -i inplace -v s="<!-- __UPDATE_MARKER__ -->" -v r="${NEWCHUNK}" '{gsub(s,r)}1' appcast.xml

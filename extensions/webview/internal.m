@@ -986,13 +986,11 @@ static int webview_certificateChain(lua_State *L) {
 
     if ([theView respondsToSelector:NSSelectorFromString(@"certificateChain")]) {
         lua_newtable(L) ;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wpartial-availability"
-        for (id certificate in theView.certificateChain) {
-            SecCertificateRef_toLua(L, (__bridge SecCertificateRef)certificate) ;
-            lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+        SecTrustRef certificateChain = theView.serverTrust;
+        for (CFIndex i = 0; i < SecTrustGetCertificateCount(certificateChain); i++) {
+            SecCertificateRef_toLua(L, SecTrustGetCertificateAtIndex(certificateChain, i));
+            lua_rawseti(L, -2, luaL_len(L, -2) + 1);
         }
-#pragma clang diagnostic push
     } else {
         [skin logInfo:[NSString stringWithFormat:@"%s:certificateChain requires OS X 10.11 and newer", USERDATA_TAG]] ;
         lua_pushnil(L) ;

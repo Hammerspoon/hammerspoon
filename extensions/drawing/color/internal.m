@@ -1,4 +1,6 @@
-#import "../drawing.h"
+#import <Cocoa/Cocoa.h>
+#import <Carbon/Carbon.h>
+#import <LuaSkin/LuaSkin.h>
 
 static int refTable ;
 static int colorCollectionsTable ;
