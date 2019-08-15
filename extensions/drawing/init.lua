@@ -704,18 +704,6 @@ return require("hs.drawing.canvasWrapper")
 --- Notes:
 ---  * This table has a __tostring() metamethod which allows listing it's contents in the Hammerspoon console by typing `hs.drawing.windowBehaviors`.
 
-// the following don't apply to hs.drawing objects, but may become useful if we decide to add support for more traditional window creation in HS.
-//
-// --- Only one of these may be active at a time:
-// ---
-// --- * participatesInCycle -- The window participates in the window cycle for use with the Cycle Through Windows Window menu item.
-// --- * ignoresCycle        -- The window is not part of the window cycle for use with the Cycle Through Windows Window menu item.
-// ---
-// --- Only one of these may be active at a time:
-// ---
-// --- * fullScreenPrimary   -- A window with this collection behavior has a fullscreen button in the upper right of its titlebar.
-// --- * fullScreenAuxiliary -- Windows with this collection behavior can be shown on the same space as the fullscreen window.
-
 --- hs.drawing.windowLevels
 --- Constant
 --- A table of predefined window levels usable with `hs.drawing:setLevel(...)`
