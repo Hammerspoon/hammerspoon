@@ -221,6 +221,7 @@ static int ipc_sendMessage(lua_State *L) {
                     LS_TBREAK] ;
 
     HSIPCMessagePort *port = [skin toNSObjectAtIndex:1] ;
+    if (!CFMessagePortIsValid(port.messagePort)) { return luaL_error(L, "ipc port is no longer valid"); }
     if (!CFMessagePortIsRemote(port.messagePort)) { return luaL_error(L, "not a remote port") ; }
 
     luaL_tolstring(L, 2, NULL) ; // make sure it's a string
