@@ -16,6 +16,7 @@ after_success:
 after_failure:
   - tail -500 $HOME/build.log
   - tail -500 $HOME/test.log
+  - grep "^Test Case.*).$" $HOME/test.log  | grep -v "' passed ("
 notifications:
   irc:
     channels:
