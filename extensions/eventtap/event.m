@@ -392,6 +392,72 @@ static int eventtap_event_setKeyCode(lua_State* L) {
     return 1;
 }
 
+/// hs.eventtap.event:getUnicodeString()
+/// Method
+/// Gets the single unicode character of an event
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A string containing the unicode character
+static int eventtap_event_getUnicodeString(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, EVENT_USERDATA_TAG, LS_TBREAK];
+
+    CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
+    UniChar *buffer;
+    UniCharCount actual = 0;
+    // Get the length of the string
+    CGEventKeyboardGetUnicodeString(event, 0, &actual, NULL);
+    buffer = malloc(actual * sizeof(UniChar));
+    CGEventKeyboardGetUnicodeString(event, actual, &actual, buffer);
+
+    // Convert buffer -> NSString
+    NSString *theString = [NSString stringWithCharacters:buffer length:actual];
+    [skin pushNSObject:theString];
+
+    return 1;
+}
+
+/// hs.eventtap.event:setUnicodeString(string)
+/// Method
+/// Sets a unicode string as the output of the event
+///
+/// Parameters:
+///  * string - A string containing unicode characters, which will be applied to the event
+///
+/// Returns:
+///  * The `hs.eventtap.event` object
+///
+/// Notes:
+///  * Calling this method will reset any flags previously set on the event (because they don't make any sense, and you should not try to set flags again)
+///  * This is likely to only work with short unicode strings that resolve to a single character
+static int eventtap_event_setUnicodeString(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, EVENT_USERDATA_TAG, LS_TSTRING, LS_TBREAK];
+
+    CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
+    NSString *theString = [skin toNSObjectAtIndex:2];
+    NSUInteger stringLen = theString.length;
+    NSUInteger usedLen = 0;
+
+    UniChar buffer[stringLen];
+    [theString getBytes:(void*)&buffer
+              maxLength:stringLen
+             usedLength:&usedLen
+               encoding:NSUnicodeStringEncoding
+                options:NSStringEncodingConversionAllowLossy
+                  range:NSMakeRange(0, stringLen)
+         remainingRange:NULL];
+
+    CGEventSetFlags(event, (CGEventFlags)0);
+    CGEventKeyboardSetUnicodeString(event, usedLen, buffer);
+
+    lua_settop(L, 1);
+    return 1;
+}
+
 /// hs.eventtap.event:post([app])
 /// Method
 /// Posts the event to the OS - i.e. emits the keyboard/mouse input defined by the event
@@ -1299,6 +1365,8 @@ static const luaL_Reg eventtapevent_metalib[] = {
     {"setFlags",        eventtap_event_setFlags},
     {"getKeyCode",      eventtap_event_getKeyCode},
     {"setKeyCode",      eventtap_event_setKeyCode},
+    {"getUnicodeString", eventtap_event_getUnicodeString},
+    {"setUnicodeString", eventtap_event_setUnicodeString},
     {"getType",         eventtap_event_getType},
     {"post",            eventtap_event_post},
     {"getProperty",     eventtap_event_getProperty},
