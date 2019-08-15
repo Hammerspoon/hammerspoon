@@ -233,10 +233,37 @@ hs.fileDroppedToDockIconCallback = nil
 ---  * To learn how to distribute your own code as a Spoon, see https://github.com/Hammerspoon/hammerspoon/blob/master/SPOON.md
   hs.loadSpoon = function (name, global)
     print("-- Loading Spoon: "..name)
+
+    -- First, find the full path of the Spoon
+    local spoonFile = package.searchpath(name, package.path)
+    if spoonFile == nil then
+        hs.showError("Unable to load Spoon: "..name)
+        return
+    end
+    local spoonPath = spoonFile:match("(.*/)")
+
+    -- Check if the Spoon contains a meta.json
+    local metaData = {}
+    local mf = io.open(spoonPath.."meta.json", "r")
+    if mf then
+        local fileData = mf:read("*a")
+        mf:close()
+        local json = require("hs.json")
+        local metaDataTmp = json.decode(fileData)
+        if metaDataTmp then
+            metaData = metaDataTmp
+        end
+    end
+
     -- Load the Spoon code
     local obj = require(name)
 
     if obj then
+      -- Inject the full path of the Spoon
+      obj.spoonPath = spoonPath
+      -- Inject the Spoon's metadata
+      obj.spoonMeta = metaData
+
       -- If the Spoon has an init method, call it
       if obj.init then
         obj:init()
