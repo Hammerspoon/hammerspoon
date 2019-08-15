@@ -81,6 +81,9 @@ layout.maximized = geometry.rect(0, 0, 1, 1)
 ---  * windowTitleComparator - (optional) Function to use for window title comparison. It is called with two string arguments (below) and its return value is evaluated as a boolean. If no comparator is provided, the '==' operator is used
 ---   * windowTitle: The `:title()` of the window object being examined
 ---   * layoutWindowTitle: The window title string (second field) specified in each element of the layout table
+---   * Optionally a final element, the key "options" and a table value that can contain the following keys:
+---     * `absolute_x`: A boolean indicating that the x value in a frame rect above, is an absolute co-ordinate (ie useful for negative absolute co-ordinates)
+---     * `absolute_y`: A boolean indicating that the y value in a frame rect above, is an absolute co-ordinate (ie useful for negative absolute co-ordinates)
 ---
 --- Returns:
 ---  * None
