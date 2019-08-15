@@ -56,6 +56,12 @@
         NSString *spoonPath = [@"~/Library/Application Support/CommandPost/Plugins/" stringByExpandingTildeInPath];
         NSString *spoonName = [fileAndPath lastPathComponent];
         NSString *dstSpoonFullPath = [spoonPath stringByAppendingPathComponent:spoonName];
+
+        if ([dstSpoonFullPath isEqualToString:fileAndPath]) {
+            NSLog(@"User double clicked on a Spoon in %@, skipping", MJConfigDir());
+            return YES;
+        }
+
         NSFileManager *fileManager = [NSFileManager defaultManager];
 
         // Remove any pre-existing copy of the Plugin

@@ -3,7 +3,10 @@
 #import <IOKit/pwr_mgt/IOPMLib.h>
 #import <LuaSkin/LuaSkin.h>
 
+// Apple Private API items
 #define kIOPMAssertionAppliesToLimitedPowerKey  CFSTR("AppliesToLimitedPower")
+extern int SACLockScreenImmediate(void);
+NSBundle *loginFramework = nil;
 
 static IOPMAssertionID noIdleDisplaySleep = 0;
 static IOPMAssertionID noIdleSystemSleep = 0;
@@ -174,6 +177,33 @@ static int caffeinate_declareUserActivity(lua_State *L) {
     return 1;
 }
 
+/// hs.caffeinate.lockScreen()
+/// Function
+/// Locks the displays
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
+///
+/// Notes:
+///  * This function uses private Apple APIs and could therefore stop working in any given release of macOS without warning.
+static int caffeinate_lockScreen(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TBREAK];
+
+    // Load the private API we need to call SACLockScreenImmediate()
+    if (!loginFramework) {
+        loginFramework = [[NSBundle alloc] initWithPath:@"/System/Library/PrivateFrameworks/login.framework"];
+        [loginFramework load];
+    }
+
+    SACLockScreenImmediate();
+
+    return 0;
+}
+
 /// hs.caffeinate.sessionProperties()
 /// Function
 /// Fetches information from the display server about the current session
@@ -225,6 +255,7 @@ static const luaL_Reg caffeinatelib[] = {
     {"systemSleep", caffeinate_systemSleep},
 
     {"declareUserActivity", caffeinate_declareUserActivity},
+    {"lockScreen", caffeinate_lockScreen},
 
     {"sessionProperties", caffeinate_sessionProperties},
 
