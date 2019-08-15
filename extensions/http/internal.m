@@ -1,8 +1,8 @@
-#import <Foundation/Foundation.h>
-#import <Cocoa/Cocoa.h>
-#import <Carbon/Carbon.h>
-#import <LuaSkin/LuaSkin.h>
-#import <WebKit/WebKit.h>
+@import Foundation;
+@import Cocoa;
+@import Carbon;
+@import LuaSkin;
+@import WebKit;
 #import "PocketSocket/PSWebSocket.h"
 
 // Websocket userdata struct
@@ -161,12 +161,20 @@ static void remove_delegate(__unused lua_State* L, connectionDelegate* delegate)
 // add it to the request and add the content length header field
 static void getBodyFromStack(lua_State* L, int index, NSMutableURLRequest* request){
     if (!lua_isnoneornil(L, index)) {
-        NSString* body = [NSString stringWithCString:lua_tostring(L, 3) encoding:NSASCIIStringEncoding];
-        NSData *postData = [body dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
-        NSString *postLength = [NSString stringWithFormat:@"%lu", [postData length]];
-
-        [request setValue:postLength forHTTPHeaderField:@"Content-Length"];
-        [request setHTTPBody:postData];
+        NSData *postData ;
+        if (lua_type(L, index) == LUA_TSTRING) {
+            postData = [[LuaSkin shared] toNSObjectAtIndex:index withOptions:LS_NSLuaStringAsDataOnly] ;
+        } else {
+            NSString* body = [NSString stringWithCString:lua_tostring(L, index) encoding:NSASCIIStringEncoding];
+            postData = [body dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
+        }
+        if (postData) {
+            NSString *postLength = [NSString stringWithFormat:@"%lu", [postData length]];
+            [request setValue:postLength forHTTPHeaderField:@"Content-Length"];
+            [request setHTTPBody:postData];
+        } else {
+            [LuaSkin logError:[NSString stringWithFormat:@"%s - getBodyFromStack - non-nil entry at stack index %u but unable to convert to NSData", WS_USERDATA_TAG, index]] ;
+        }
     }
 }
 
