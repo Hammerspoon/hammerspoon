@@ -70,8 +70,6 @@
 		4F4CB3951B737A5B000EA9B6 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F4CB3941B737A5B000EA9B6 /* internal.m */; };
 		4F4CB3A11B7385C5000EA9B6 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4F4CB3AA1B7385FB000EA9B6 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F4CB3A91B7385FB000EA9B6 /* internal.m */; };
-		4F4CB3B21B738769000EA9B6 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
-		4F4CB3BD1B7387AA000EA9B6 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F4CB3BC1B7387AA000EA9B6 /* internal.m */; };
 		4F4CB3C71B738F1E000EA9B6 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4F4CB3D31B7391D3000EA9B6 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F4CB3D11B7391D3000EA9B6 /* internal.m */; };
 		4F4CB3D41B7391D3000EA9B6 /* lfs.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F4CB3D21B7391D3000EA9B6 /* lfs.h */; };
@@ -305,7 +303,6 @@
 		D6E164DD1F4C264D00B85D8A /* xattr.m in Sources */ = {isa = PBXBuildFile; fileRef = D6E164D11F4C25FD00B85D8A /* xattr.m */; };
 		D6F310DB1BDF0E1700045CCD /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		D6F310E11BDF0E5F00045CCD /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = D6F310CD1BDF0DCC00045CCD /* internal.m */; };
-		D6F310E31BDF108E00045CCD /* drawing.h in Headers */ = {isa = PBXBuildFile; fileRef = D6F310E21BDF107D00045CCD /* drawing.h */; };
 		D6F310E41BDF109900045CCD /* drawing.h in Headers */ = {isa = PBXBuildFile; fileRef = D6F310E21BDF107D00045CCD /* drawing.h */; };
 		D6F310EA1BDF110500045CCD /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		D6F310F01BDF113900045CCD /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = D6F310D11BDF0E0000045CCD /* internal.m */; };
@@ -377,13 +374,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = 4F4CB39C1B7385C5000EA9B6;
 			remoteInfo = dockicon;
-		};
-		4F4CB3B81B738785000EA9B6 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 9445CA0319083251002568BB /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 4F4CB3AD1B738769000EA9B6;
-			remoteInfo = drawing;
 		};
 		4F4CB3CD1B738FBC000EA9B6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -985,9 +975,7 @@
 		4F4CB3A61B7385C5000EA9B6 /* libdockicon.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libdockicon.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F4CB3A81B7385FB000EA9B6 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/dockicon/init.lua; sourceTree = "<group>"; };
 		4F4CB3A91B7385FB000EA9B6 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/dockicon/internal.m; sourceTree = "<group>"; };
-		4F4CB3B71B738769000EA9B6 /* libdrawing.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libdrawing.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F4CB3BB1B7387AA000EA9B6 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/drawing/init.lua; sourceTree = "<group>"; };
-		4F4CB3BC1B7387AA000EA9B6 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/drawing/internal.m; sourceTree = "<group>"; };
 		4F4CB3C11B7388C0000EA9B6 /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/fnutils/init.lua; sourceTree = "<group>"; };
 		4F4CB3CC1B738F1E000EA9B6 /* libfs.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libfs.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F4CB3D01B7391D3000EA9B6 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/fs/init.lua; sourceTree = "<group>"; };
@@ -1428,14 +1416,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F4CB3A11B7385C5000EA9B6 /* LuaSkin.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		4F4CB3B01B738769000EA9B6 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4F4CB3B21B738769000EA9B6 /* LuaSkin.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2156,7 +2136,6 @@
 				D6F310E21BDF107D00045CCD /* drawing.h */,
 				D6F310CA1BDF0D9600045CCD /* color */,
 				4F4CB3BB1B7387AA000EA9B6 /* init.lua */,
-				4F4CB3BC1B7387AA000EA9B6 /* internal.m */,
 			);
 			name = drawing;
 			sourceTree = "<group>";
@@ -3026,7 +3005,6 @@
 				4FDE05EF1B734EE600E9E8EE /* libcaffeinatewatcher.dylib */,
 				4F4CB3911B737953000EA9B6 /* libcrash.dylib */,
 				4F4CB3A61B7385C5000EA9B6 /* libdockicon.dylib */,
-				4F4CB3B71B738769000EA9B6 /* libdrawing.dylib */,
 				4F4CB3CC1B738F1E000EA9B6 /* libfs.dylib */,
 				4F4CB3F31B73A3A1000EA9B6 /* libhash.dylib */,
 				4F4CB4051B73A746000EA9B6 /* libhints.dylib */,
@@ -3467,14 +3445,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		4F4CB3B31B738769000EA9B6 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				D6F310E31BDF108E00045CCD /* drawing.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4171,23 +4141,6 @@
 			name = dockicon;
 			productName = alert;
 			productReference = 4F4CB3A61B7385C5000EA9B6 /* libdockicon.dylib */;
-			productType = "com.apple.product-type.library.dynamic";
-		};
-		4F4CB3AD1B738769000EA9B6 /* drawing */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 4F4CB3B41B738769000EA9B6 /* Build configuration list for PBXNativeTarget "drawing" */;
-			buildPhases = (
-				4F4CB3AE1B738769000EA9B6 /* Sources */,
-				4F4CB3B01B738769000EA9B6 /* Frameworks */,
-				4F4CB3B31B738769000EA9B6 /* Headers */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = drawing;
-			productName = alert;
-			productReference = 4F4CB3B71B738769000EA9B6 /* libdrawing.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 		4F4CB3C21B738F1E000EA9B6 /* fs */ = {
@@ -5127,7 +5080,6 @@
 				4FD0ABF11B74B3CE00A82496 /* PBXTargetDependency */,
 				4FD0ABF31B74B3CE00A82496 /* PBXTargetDependency */,
 				D675906D1BDF12DA00EE9F75 /* PBXTargetDependency */,
-				4F4CB3B91B738785000EA9B6 /* PBXTargetDependency */,
 				4F4CB3AC1B7386B5000EA9B6 /* PBXTargetDependency */,
 				4F4CB3981B737A7C000EA9B6 /* PBXTargetDependency */,
 				D6FD56921C04230200BAE238 /* PBXTargetDependency */,
@@ -5589,7 +5541,6 @@
 				22613FE81F297E0D00E05E11 /* dialog */,
 				4F85FECF1CCA918D00FBBAD7 /* distributednotifications */,
 				4F4CB39C1B7385C5000EA9B6 /* dockicon */,
-				4F4CB3AD1B738769000EA9B6 /* drawing */,
 				D6F310D41BDF0E1700045CCD /* drawing_color */,
 				4FD0ABCD1B74B2C500A82496 /* eventtap */,
 				4FD0ABD81B74B2FA00A82496 /* eventtapevent */,
@@ -5797,7 +5748,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -eux\n\"${SRCROOT}/scripts/copy_extensions_to_bundle.sh\"\nxattr -cr ${BUILT_PRODUCTS_DIR}";
+			shellScript = "set -eux\n\"${SRCROOT}/scripts/copy_extensions_to_bundle.sh\"\nxattr -cr ${BUILT_PRODUCTS_DIR}\n";
 		};
 		4FC09F7A19F99E48007542A6 /* Compile docs.json */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -5949,14 +5900,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F4CB3AA1B7385FB000EA9B6 /* internal.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		4F4CB3AE1B738769000EA9B6 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4F4CB3BD1B7387AA000EA9B6 /* internal.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6646,11 +6589,6 @@
 			isa = PBXTargetDependency;
 			target = 4F4CB39C1B7385C5000EA9B6 /* dockicon */;
 			targetProxy = 4F4CB3AB1B7386B5000EA9B6 /* PBXContainerItemProxy */;
-		};
-		4F4CB3B91B738785000EA9B6 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 4F4CB3AD1B738769000EA9B6 /* drawing */;
-			targetProxy = 4F4CB3B81B738785000EA9B6 /* PBXContainerItemProxy */;
 		};
 		4F4CB3CE1B738FBC000EA9B6 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -9142,74 +9080,6 @@
 			name = Profile;
 		};
 		4F0454A220F0EE7D00699F29 /* Profile */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
-				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
-				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
-				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
-				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
-				CLANG_WARN_ASSIGN_ENUM = "$(inherited)";
-				CLANG_WARN_BOOL_CONVERSION = "$(inherited)";
-				CLANG_WARN_CONSTANT_CONVERSION = "$(inherited)";
-				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = "$(inherited)";
-				CLANG_WARN_EMPTY_BODY = "$(inherited)";
-				CLANG_WARN_ENUM_CONVERSION = "$(inherited)";
-				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = "$(inherited)";
-				CLANG_WARN_INT_CONVERSION = "$(inherited)";
-				CLANG_WARN_OBJC_EXPLICIT_OWNERSHIP_TYPE = "$(inherited)";
-				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = "$(inherited)";
-				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = "$(inherited)";
-				CLANG_WARN_OBJC_MISSING_PROPERTY_SYNTHESIS = "$(inherited)";
-				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = "$(inherited)";
-				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = "$(inherited)";
-				CLANG_WARN_UNREACHABLE_CODE = YES_AGGRESSIVE;
-				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = "$(inherited)";
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = "$(inherited)";
-				COMBINE_HIDPI_IMAGES = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				ENABLE_STRICT_OBJC_MSGSEND = "$(inherited)";
-				ENABLE_TESTABILITY = YES;
-				EXECUTABLE_PREFIX = lib;
-				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
-				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
-				GCC_TREAT_WARNINGS_AS_ERRORS = "$(inherited)";
-				GCC_WARN_64_TO_32_BIT_CONVERSION = "$(inherited)";
-				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = "$(inherited)";
-				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = "$(inherited)";
-				GCC_WARN_ABOUT_MISSING_NEWLINE = "$(inherited)";
-				GCC_WARN_ABOUT_MISSING_PROTOTYPES = "$(inherited)";
-				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = "$(inherited)";
-				GCC_WARN_ALLOW_INCOMPLETE_PROTOCOL = "$(inherited)";
-				GCC_WARN_CHECK_SWITCH_STATEMENTS = "$(inherited)";
-				GCC_WARN_FOUR_CHARACTER_CONSTANTS = "$(inherited)";
-				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = "$(inherited)";
-				GCC_WARN_MISSING_PARENTHESES = "$(inherited)";
-				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = "$(inherited)";
-				GCC_WARN_PEDANTIC = "$(inherited)";
-				GCC_WARN_SHADOW = "$(inherited)";
-				GCC_WARN_SIGN_COMPARE = "$(inherited)";
-				GCC_WARN_STRICT_SELECTOR_MATCH = "$(inherited)";
-				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = "$(inherited)";
-				GCC_WARN_UNDECLARED_SELECTOR = "$(inherited)";
-				GCC_WARN_UNKNOWN_PRAGMAS = "$(inherited)";
-				GCC_WARN_UNUSED_FUNCTION = "$(inherited)";
-				GCC_WARN_UNUSED_LABEL = "$(inherited)";
-				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
-				GCC_WARN_UNUSED_VALUE = "$(inherited)";
-				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MTL_ENABLE_DEBUG_INFO = YES;
-				OTHER_LDFLAGS = "$(inherited)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
-				SDKROOT = "$(inherited)";
-				STRIP_INSTALLED_PRODUCT = NO;
-			};
-			name = Profile;
-		};
-		4F0454A320F0EE7D00699F29 /* Profile */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
@@ -14004,140 +13874,6 @@
 			name = Debug;
 		};
 		4F4CB3A51B7385C5000EA9B6 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
-				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
-				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
-				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
-				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
-				CLANG_WARN_ASSIGN_ENUM = "$(inherited)";
-				CLANG_WARN_BOOL_CONVERSION = "$(inherited)";
-				CLANG_WARN_CONSTANT_CONVERSION = "$(inherited)";
-				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = "$(inherited)";
-				CLANG_WARN_EMPTY_BODY = "$(inherited)";
-				CLANG_WARN_ENUM_CONVERSION = "$(inherited)";
-				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = "$(inherited)";
-				CLANG_WARN_INT_CONVERSION = "$(inherited)";
-				CLANG_WARN_OBJC_EXPLICIT_OWNERSHIP_TYPE = "$(inherited)";
-				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = "$(inherited)";
-				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = "$(inherited)";
-				CLANG_WARN_OBJC_MISSING_PROPERTY_SYNTHESIS = "$(inherited)";
-				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = "$(inherited)";
-				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = "$(inherited)";
-				CLANG_WARN_UNREACHABLE_CODE = YES_AGGRESSIVE;
-				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = "$(inherited)";
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = "$(inherited)";
-				COMBINE_HIDPI_IMAGES = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				ENABLE_STRICT_OBJC_MSGSEND = "$(inherited)";
-				EXECUTABLE_PREFIX = lib;
-				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
-				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
-				GCC_TREAT_WARNINGS_AS_ERRORS = "$(inherited)";
-				GCC_WARN_64_TO_32_BIT_CONVERSION = "$(inherited)";
-				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = "$(inherited)";
-				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = "$(inherited)";
-				GCC_WARN_ABOUT_MISSING_NEWLINE = "$(inherited)";
-				GCC_WARN_ABOUT_MISSING_PROTOTYPES = "$(inherited)";
-				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = "$(inherited)";
-				GCC_WARN_ALLOW_INCOMPLETE_PROTOCOL = "$(inherited)";
-				GCC_WARN_CHECK_SWITCH_STATEMENTS = "$(inherited)";
-				GCC_WARN_FOUR_CHARACTER_CONSTANTS = "$(inherited)";
-				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = "$(inherited)";
-				GCC_WARN_MISSING_PARENTHESES = "$(inherited)";
-				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = "$(inherited)";
-				GCC_WARN_PEDANTIC = "$(inherited)";
-				GCC_WARN_SHADOW = "$(inherited)";
-				GCC_WARN_SIGN_COMPARE = "$(inherited)";
-				GCC_WARN_STRICT_SELECTOR_MATCH = "$(inherited)";
-				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = "$(inherited)";
-				GCC_WARN_UNDECLARED_SELECTOR = "$(inherited)";
-				GCC_WARN_UNKNOWN_PRAGMAS = "$(inherited)";
-				GCC_WARN_UNUSED_FUNCTION = "$(inherited)";
-				GCC_WARN_UNUSED_LABEL = "$(inherited)";
-				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
-				GCC_WARN_UNUSED_VALUE = "$(inherited)";
-				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MTL_ENABLE_DEBUG_INFO = NO;
-				OTHER_LDFLAGS = "$(inherited)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
-				SDKROOT = "$(inherited)";
-				STRIP_INSTALLED_PRODUCT = NO;
-			};
-			name = Release;
-		};
-		4F4CB3B51B738769000EA9B6 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
-				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
-				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
-				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
-				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
-				CLANG_WARN_ASSIGN_ENUM = "$(inherited)";
-				CLANG_WARN_BOOL_CONVERSION = "$(inherited)";
-				CLANG_WARN_CONSTANT_CONVERSION = "$(inherited)";
-				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = "$(inherited)";
-				CLANG_WARN_EMPTY_BODY = "$(inherited)";
-				CLANG_WARN_ENUM_CONVERSION = "$(inherited)";
-				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = "$(inherited)";
-				CLANG_WARN_INT_CONVERSION = "$(inherited)";
-				CLANG_WARN_OBJC_EXPLICIT_OWNERSHIP_TYPE = "$(inherited)";
-				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = "$(inherited)";
-				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = "$(inherited)";
-				CLANG_WARN_OBJC_MISSING_PROPERTY_SYNTHESIS = "$(inherited)";
-				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = "$(inherited)";
-				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = "$(inherited)";
-				CLANG_WARN_UNREACHABLE_CODE = YES_AGGRESSIVE;
-				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = "$(inherited)";
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = "$(inherited)";
-				COMBINE_HIDPI_IMAGES = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				ENABLE_STRICT_OBJC_MSGSEND = "$(inherited)";
-				ENABLE_TESTABILITY = YES;
-				EXECUTABLE_PREFIX = lib;
-				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
-				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
-				GCC_TREAT_WARNINGS_AS_ERRORS = "$(inherited)";
-				GCC_WARN_64_TO_32_BIT_CONVERSION = "$(inherited)";
-				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = "$(inherited)";
-				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = "$(inherited)";
-				GCC_WARN_ABOUT_MISSING_NEWLINE = "$(inherited)";
-				GCC_WARN_ABOUT_MISSING_PROTOTYPES = "$(inherited)";
-				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = "$(inherited)";
-				GCC_WARN_ALLOW_INCOMPLETE_PROTOCOL = "$(inherited)";
-				GCC_WARN_CHECK_SWITCH_STATEMENTS = "$(inherited)";
-				GCC_WARN_FOUR_CHARACTER_CONSTANTS = "$(inherited)";
-				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = "$(inherited)";
-				GCC_WARN_MISSING_PARENTHESES = "$(inherited)";
-				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = "$(inherited)";
-				GCC_WARN_PEDANTIC = "$(inherited)";
-				GCC_WARN_SHADOW = "$(inherited)";
-				GCC_WARN_SIGN_COMPARE = "$(inherited)";
-				GCC_WARN_STRICT_SELECTOR_MATCH = "$(inherited)";
-				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = "$(inherited)";
-				GCC_WARN_UNDECLARED_SELECTOR = "$(inherited)";
-				GCC_WARN_UNKNOWN_PRAGMAS = "$(inherited)";
-				GCC_WARN_UNUSED_FUNCTION = "$(inherited)";
-				GCC_WARN_UNUSED_LABEL = "$(inherited)";
-				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
-				GCC_WARN_UNUSED_VALUE = "$(inherited)";
-				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MTL_ENABLE_DEBUG_INFO = YES;
-				OTHER_LDFLAGS = "$(inherited)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
-				SDKROOT = "$(inherited)";
-				STRIP_INSTALLED_PRODUCT = NO;
-			};
-			name = Debug;
-		};
-		4F4CB3B61B738769000EA9B6 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
@@ -24225,16 +23961,6 @@
 				4F4CB3A41B7385C5000EA9B6 /* Debug */,
 				4F0454A220F0EE7D00699F29 /* Profile */,
 				4F4CB3A51B7385C5000EA9B6 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
-		4F4CB3B41B738769000EA9B6 /* Build configuration list for PBXNativeTarget "drawing" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				4F4CB3B51B738769000EA9B6 /* Debug */,
-				4F0454A320F0EE7D00699F29 /* Profile */,
-				4F4CB3B61B738769000EA9B6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

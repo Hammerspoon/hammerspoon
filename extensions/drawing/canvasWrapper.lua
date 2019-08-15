@@ -1,16 +1,3 @@
---- === hs.canvas.drawing ===
----
---- An wrapper to replace `hs.drawing` with `hs.canvas`.
----
---- The intention is for this wrapper to provide all of the same functionality that `hs.drawing` does without requiring any additional changes to your currently existing code.
----
---- ### Known issues/differences between the wrapper and `hs.drawing`:
----
----  * images which are "template images" (i.e. some of the images with names in `hs.image.systemImageNames` and any image retrieved from an `hs.menubar` object) are displayed with an implicit `imageAlpha` of 0.5.  This closely mimics the NSImageView behavior observed with `hs.drawing`, but since Apple has not provided full details on how a template image is rendered when it is *not* used as a template, this is just a guess.
----
----  * image frames from `hs.drawing` are approximated with additional canvas elements inserted into the canvas; since this module now allows you to create as complex a frame as you like... consider these as "examples".
----
---- The wrapper is not enabled by default.  See the `hs.canvas.drawingWrapper` function for details on how to enable or disable this wrapper.
 
 local USERDATA_TAG = "hs.drawing"
 
