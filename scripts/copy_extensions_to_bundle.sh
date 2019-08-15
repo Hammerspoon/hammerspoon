@@ -16,7 +16,6 @@ export HS_MODULES="application \
     dialog \
     distributednotifications \
     dockicon \
-    drawing \
     eventtap \
     fs \
     hash \
@@ -71,6 +70,7 @@ export HS_LUAONLY="_coresetup \
     appfinder \
     applescript \
     deezer \
+    drawing \
     expose \
     fnutils \
     geometry \

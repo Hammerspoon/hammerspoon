@@ -11,8 +11,6 @@
 --- Attributes for canvas elements are defined in [hs.canvas.attributes](#attributes). All canvas elements require the `type` field; all other attributes have default values.  Fields required to properly define the element (for example, `frame` for the `rectangle` element type) will be copied into the element definition with their default values if they are not specified at the time of creation. Optional attributes will only be assigned in the element definition if they are specified.  When the module requires the value for an element's attribute it first checks the element definition itself, then the defaults are looked for in the canvas defaults, and then finally in the module's built in defaults (specified in the descriptions below).
 ---
 --- Some examples of how to use this module can be found at https://github.com/asmagill/hammerspoon/wiki/hs.canvas.examples
----
---- If you wish to test out the `hs.drawing` wrapper which may eventually replace the original `hs.drawing` module entirely, check out [hs.canvas.drawingWrapper](#drawingWrapper).
 
 --- hs.canvas.attributes
 --- Field
@@ -729,35 +727,6 @@ module.help = function(what)
         error("unrecognized argument `" .. tostring(what) .. "`", 2)
     end
     print(help_table(0, help))
-end
-
---- hs.canvas.drawingWrapper([state]) -> boolean
---- Function
---- Get or set whether or not `hs.drawing` is replaced by a wrapper which uses this module.
----
---- Parameters:
----  * `state` - an optional boolean specifying whether or not `hs.drawing` should be replaced with a wrapper using this module.
----
---- Returns:
----  * the current, possibly newly changed, state.
----
---- Notes:
----  * This module was designed to address some of the limitations found with the `hs.drawing` module.  It is expected that at some point this module may completely replace the existing `hs.drawing` as it provides more flexibility and will be easier to extend with future additions. This function allows you to choose whether or not you wish to migrate fully to this new drawing model now to facilitate the testing of the wrapper or not.
----  * This wrapper was designed to fully mimic the current `hs.drawing` functions and methods -- you should not need to change your existing code in any way once this wrapper is enabled.  If you find that you do need to make adjustments or that something in the wrapper does not work as expected, please log an issue at https://github.com/Hammerspoon/hammerspoon/issues.
----
----  * When you change the wrapper state with this function, you must reload or restart your Hammerspoon application for the changes to go into effect.  It is expected that you will run this command from the Hammerspoon console like `hs.canvas.drawingWrapper(true)` and then reload your Hammerspoon configuration.  You will not need to do this again unless you wish to change back to the original `hs.drawing` module.
-module.drawingWrapper = function(...)
-    local args = table.pack(...)
-    local settings = require("hs.settings")
-    local oldState = settings.get("useCanvasWrappedDrawing") and true or false -- force nil to be false
-    if args.n > 0 then
-        local state = args[1] and true or false
-        settings.set("useCanvasWrappedDrawing", state)
-        if state ~= oldState then
-            print("You will need to reload or restart Hammerspoon for the changes to take effect")
-        end
-    end
-    return settings.get("useCanvasWrappedDrawing") and true or false
 end
 
 --- hs.canvas.percentages

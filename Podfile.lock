@@ -7,9 +7,9 @@ PODS:
   - CocoaLumberjack (3.5.3):
     - CocoaLumberjack/Core (= 3.5.3)
   - CocoaLumberjack/Core (3.5.3)
-  - Crashlytics (3.12.0):
-    - Fabric (~> 1.9.0)
-  - Fabric (1.9.0)
+  - Crashlytics (3.13.4):
+    - Fabric (~> 1.10.2)
+  - Fabric (1.10.2)
   - MIKMIDI (1.7.0)
   - PocketSocket/Client (1.0.1):
     - PocketSocket/Core
@@ -21,8 +21,8 @@ DEPENDENCIES:
   - CocoaAsyncSocket (= 7.6.3)
   - CocoaHTTPServer (= 2.3)
   - CocoaLumberjack (= 3.5.3)
-  - Crashlytics (= 3.12.0)
-  - Fabric (= 1.9.0)
+  - Crashlytics (= 3.13.4)
+  - Fabric (= 1.10.2)
   - MIKMIDI (= 1.7.0)
   - PocketSocket/Client (= 1.0.1)
   - Sparkle (= 1.21.3)
@@ -44,12 +44,12 @@ SPEC CHECKSUMS:
   CocoaAsyncSocket: eafaa68a7e0ec99ead0a7b35015e0bf25d2c8987
   CocoaHTTPServer: 5624681fc3473d43b18202f635f9b3abb013b530
   CocoaLumberjack: 2f44e60eb91c176d471fdba43b9e3eae6a721947
-  Crashlytics: 07fb167b1694128c1c9a5a5cc319b0e9c3ca0933
-  Fabric: f988e33c97f08930a413e08123064d2e5f68d655
+  Crashlytics: 2dfd686bcb918dc10ee0e76f7f853fe42c7bd552
+  Fabric: 706c8b8098fff96c33c0db69cbf81f9c551d0d74
   MIKMIDI: a9192db16687fcf1d2c82b98492b999fa8ede7c6
   PocketSocket: 9c6867d66fb4f962af96b9b07f4b45bb561b2c2a
   Sparkle: 3f75576db8b0265adef36c43249d747f22d0b708
 
-PODFILE CHECKSUM: d0d87dae8ed529e1f1cf88fa6e475aa80d76d264
+PODFILE CHECKSUM: bd1860b7809c95bb33b4e88539062c7f80e2c77d
 
-COCOAPODS: 1.6.1
+COCOAPODS: 1.7.5

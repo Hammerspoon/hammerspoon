@@ -5,6 +5,7 @@
 #import <IOKit/hidsystem/IOHIDLib.h>
 #import <IOKit/hidsystem/IOHIDParameter.h>
 #import <CoreFoundation/CoreFoundation.h>
+#import <IOKit/hid/IOHIDUsageTables.h>
 
 #define CAPSLOCK_OFF    0
 #define CAPSLOCK_ON     1
@@ -117,12 +118,36 @@ static int hid_capslock_off(lua_State* L) {
 	return 1;
 }
 
+bool hidled_set(uint32 usage, long target_value);
+
+static int hid_led_set(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TBOOLEAN, LS_TBREAK];
+    
+    NSString *name = [skin toNSObjectAtIndex:1];
+    long target_value = (BOOL)lua_toboolean(L, 2) ? 1 : 0;
+    bool ret = false;
+    
+    if ([name isEqualToString:@"caps"]) {
+        ret = hidled_set(kHIDUsage_LED_CapsLock, target_value);
+    } else if ([name isEqualToString:@"scroll"]) {
+        ret = hidled_set(kHIDUsage_LED_ScrollLock, target_value);
+    } else if ([name isEqualToString:@"num"]) {
+        ret = hidled_set(kHIDUsage_LED_NumLock, target_value);
+    } else {
+        [skin logError:@"Unsupported LED name"];
+    }
+    
+    lua_pushboolean(L, ret);
+    return 1;
+}
 
 static const luaL_Reg hid_lib[] = {
     {"_capslock_query", hid_capslock_query},
     {"_capslock_toggle", hid_capslock_toggle},
     {"_capslock_on", hid_capslock_on},
     {"_capslock_off", hid_capslock_off},
+    {"_led_set", hid_led_set},
     {NULL,      NULL}
 };
 

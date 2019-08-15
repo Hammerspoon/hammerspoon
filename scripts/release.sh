@@ -32,6 +32,7 @@ export GITHUB_TOKEN_FILE="${HAMMERSPOON_HOME}/../token-github-release"
 export GITHUB_USER="hammerspoon"
 export GITHUB_REPO="hammerspoon"
 export FABRIC_TOKEN_FILE="${HAMMERSPOON_HOME}/../token-crashlytics"
+export NOTARIZATION_TOKEN_FILE="${HAMMERSPOON_HOME}/../token-notarization"
 
 # Import our function library
 # shellcheck source=scripts/librelease.sh disable=SC1091
@@ -40,6 +41,7 @@ source "${SCRIPT_HOME}/librelease.sh"
 assert
 build
 validate
+notarize
 localtest
 prepare_upload
 archive

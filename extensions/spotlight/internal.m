@@ -897,15 +897,7 @@ static int push_commonAttributeKeys(lua_State *L) {
     [skin pushNSObject:(__bridge NSString *)kMDItemFSNodeCount] ;                lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
     [skin pushNSObject:(__bridge NSString *)kMDItemFSOwnerGroupID] ;             lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
     [skin pushNSObject:(__bridge NSString *)kMDItemFSOwnerUserID] ;              lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-
-    // kMDItemHTMLContent doesn't exist in 10.10
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wpartial-availability"
-    if (&kMDItemHTMLContent != NULL) {
-        [skin pushNSObject:(__bridge NSString *)kMDItemHTMLContent] ;            lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-    }
-#pragma clang diagnostic pop
-
+    [skin pushNSObject:(__bridge NSString *)kMDItemHTMLContent] ;                lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
 
     [skin pushNSObject:NSMetadataItemAcquisitionMakeKey] ;                       lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
     [skin pushNSObject:NSMetadataItemAcquisitionModelKey] ;                      lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;

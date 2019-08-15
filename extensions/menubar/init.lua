@@ -41,7 +41,7 @@ end
 ---  * None
 ---
 --- Returns:
----  * an hs.geometry rect describing the menubar item's frame
+---  * an hs.geometry rect describing the menubar item's frame or nil if the menubar item is not currently in the menubar.
 ---
 --- Notes:
 ---  * This will return a frame even if no icon or title is set
@@ -49,8 +49,12 @@ end
 function menubarObject:frame()
     local sf = screen.mainScreen():fullFrame()
     local f = self:_frame()
-    f.y = sf.h - f.y - f.h
-    return geometry(f)
+    if f then
+        f.y = sf.h - f.y - f.h
+        return geometry(f)
+    else
+        return nil
+    end
 end
 
 return menubar

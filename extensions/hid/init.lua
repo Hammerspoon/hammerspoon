@@ -50,6 +50,29 @@ module.capslock.set = function(state)
 	end
 end
 
+
+--- === hs.hid.led ===
+---
+--- HID LED interface for Hammerspoon, controls the state of keyboard LEDs
+
+module.led = {}
+
+--- hs.hid.led.set(name, state) -> bool
+--- Function
+--- Assigns HID LED to the desired state
+--- Note that this function controls the LED state only,
+--- to modify capslock state, use hs.hid.capslock.set
+---
+--- Parameters:
+---  * name  - LED name: "caps", "scroll" or "num"
+---  * state - A boolean indicating desired state
+---
+--- Returns:
+---  * true if success, false if error
+module.led.set = function(name, state)
+    return module._led_set(name, state)
+end
+
 -- Return Module Object --------------------------------------------------
 
 return module

@@ -286,12 +286,15 @@ __sunriset__( year, month, day, lon, lat, -35.0/60.0, 1, rise, set )
         double cost;
         cost = ( sind(altit) - sind(lat) * sind(sdec) ) /
         ( cosd(lat) * cosd(sdec) );
-        if ( cost >= 1.0 )
-            rc = -1, t = 0.0;       /* Sun always below altit */
-        else if ( cost <= -1.0 )
-            rc = +1, t = 12.0;      /* Sun always above altit */
-        else
+        if ( cost >= 1.0 ) {
+            rc = -1;
+            t = 0.0;       /* Sun always below altit */
+        } else if ( cost <= -1.0 ) {
+            rc = +1;
+            t = 12.0;      /* Sun always above altit */
+        } else {
             t = acosd(cost)/15.0;   /* The diurnal arc, hours */
+        }
     }
     
     /* Store rise and set times - in hours UT */
@@ -325,11 +328,6 @@ static const int kSecondsInHour= 60.0*60.0;
     NSDateComponents *dc = [self.calendar components:( NSCalendarUnitHour  | NSCalendarUnitMinute | NSCalendarUnitSecond) fromDate:refDate] ;
     
     return dc;
-}
-
-- (instancetype) init {
-    [super doesNotRecognizeSelector:_cmd];
-    return nil;
 }
 
 -(NSString *)description

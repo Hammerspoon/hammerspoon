@@ -101,7 +101,7 @@ static HSURLEventHandler *eventHandler;
 
     if ([openUrl hasPrefix:@"/"]) {
         openUrl = [NSString stringWithFormat:@"file://%@", openUrl];
-        openUrl = [openUrl stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+        openUrl = [openUrl stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
     }
 
     // Split the URL into its components
@@ -121,8 +121,8 @@ static HSURLEventHandler *eventHandler;
         NSArray *bits = [queryPair componentsSeparatedByString:@"="];
         if ([bits count] != 2) { continue; }
 
-        NSString *key = [[bits objectAtIndex:0] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-        NSString *value = [[bits objectAtIndex:1] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+        NSString *key = [[bits objectAtIndex:0] stringByRemovingPercentEncoding];
+        NSString *value = [[bits objectAtIndex:1] stringByRemovingPercentEncoding];
 
         [pairs setObject:value forKey:key];
     }
