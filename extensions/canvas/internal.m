@@ -1168,9 +1168,9 @@ static int userdata_gc(lua_State* L) ;
 - (void)mouseDown:(NSEvent *)theEvent {
     [NSApp preventWindowOrdering];
     if (_mouseCallbackRef != LUA_NOREF) {
-        BOOL isDown = (theEvent.type == NSLeftMouseDown)  ||
-                      (theEvent.type == NSRightMouseDown) ||
-                      (theEvent.type == NSOtherMouseDown) ;
+        BOOL isDown = (theEvent.type == NSEventTypeLeftMouseDown)  ||
+                      (theEvent.type == NSEventTypeRightMouseDown) ||
+                      (theEvent.type == NSEventTypeOtherMouseDown) ;
 
         NSPoint event_location = theEvent.locationInWindow;
         NSPoint local_point = [self convertPoint:event_location fromView:nil];
@@ -2292,7 +2292,7 @@ static int canvas_new(lua_State *L) {
     [skin checkArgs:LS_TTABLE, LS_TBREAK] ;
 
     HSCanvasWindow *canvasWindow = [[HSCanvasWindow alloc] initWithContentRect:[skin tableToRectAtIndex:1]
-                                                                       styleMask:NSBorderlessWindowMask
+                                                                     styleMask:NSWindowStyleMaskBorderless
                                                                          backing:NSBackingStoreBuffered
                                                                            defer:YES] ;
     if (canvasWindow) {
@@ -2717,13 +2717,13 @@ static int canvas_clickActivating(lua_State *L) {
 
     if (lua_type(L, 2) != LUA_TNONE) {
         if (lua_toboolean(L, 2)) {
-            canvasWindow.styleMask &= (unsigned long)~NSNonactivatingPanelMask ;
+            canvasWindow.styleMask &= (unsigned long)~NSWindowStyleMaskNonactivatingPanel ;
         } else {
-            canvasWindow.styleMask |= NSNonactivatingPanelMask ;
+            canvasWindow.styleMask |= NSWindowStyleMaskNonactivatingPanel ;
         }
         lua_pushvalue(L, 1) ;
     } else {
-        lua_pushboolean(L, ((canvasWindow.styleMask & NSNonactivatingPanelMask) != NSNonactivatingPanelMask)) ;
+        lua_pushboolean(L, ((canvasWindow.styleMask & NSWindowStyleMaskNonactivatingPanel) != NSWindowStyleMaskNonactivatingPanel)) ;
     }
 
     return 1;
