@@ -105,16 +105,16 @@ function caffeinate.preventSystemSleep(acAndBattery)
     caffeinate._preventSystemSleep(acAndBattery)
 end
 
---- hs.caffeinate.lockScreen()
+--- hs.caffeinate.fastUserSwitch()
 --- Function
---- Request the system lock the displays
+--- Show the Fast User Switch screen (ie a login screen without logging out first)
 ---
 --- Parameters:
 ---  * None
 ---
 --- Returns:
 ---  * None
-function caffeinate.lockScreen()
+function caffeinate.fastUserSwitch()
     os.execute("/System/Library/CoreServices/Menu\\ Extras/User.menu/Contents/Resources/CGSession -suspend")
 end
 
