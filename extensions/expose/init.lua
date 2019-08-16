@@ -324,7 +324,8 @@ local function getHints(self,windows)
     while #t>0 and tlen(t.apps)>0 do
       if n>self.ui.maxHintLetters or (tlen(t.apps)==1 and n>1 and not hasSubHints(t))  then
         -- last app remaining for this hint; give it digits
-        next(t.apps)
+        -- TODO: It doesn't look like `app` is actually being used?
+        --local app=next(t.apps)
         t.apps={}
         if #t>1 then
           --fix so that accumulation is possible
