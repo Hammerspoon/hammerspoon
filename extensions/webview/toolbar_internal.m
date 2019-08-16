@@ -904,7 +904,7 @@ static int attachToolbar(lua_State *L) {
             oldToolbar.visible = NO ;
             theWindow.toolbar = nil ;
             if (isChooser) {
-                theWindow.styleMask = NSWindowStyleMaskFullSizeContentView | NSWindowStyleMaskNonactivatingPanel | NSWindowStyleMaskHUDWindow ; // the default for chooser
+                theWindow.styleMask = NSWindowStyleMaskFullSizeContentView | NSWindowStyleMaskNonactivatingPanel ; // the default for chooser
                 [theWindow setMovable: YES]; // the default for chooser, even though the user can't move it without a titlebar
             }
             if ([oldToolbar isKindOfClass:[HSToolbar class]]) oldToolbar.windowUsingToolbar = nil ;
@@ -913,7 +913,7 @@ static int attachToolbar(lua_State *L) {
             NSWindow *newTBWindow = newToolbar.windowUsingToolbar ;
             if (newTBWindow) newTBWindow.toolbar = nil ;
             if (isChooser) {
-                theWindow.styleMask = NSWindowStyleMaskTitled | NSWindowStyleMaskNonactivatingPanel | NSWindowStyleMaskHUDWindow ; // only titled windows can have toolbars
+                theWindow.styleMask = NSWindowStyleMaskTitled | NSWindowStyleMaskNonactivatingPanel ; // only titled windows can have toolbars
                 [theWindow setMovable: NO]; // chooser isn't user movable
             }
             theWindow.toolbar             = newToolbar ;
