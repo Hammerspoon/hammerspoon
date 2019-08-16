@@ -40,8 +40,8 @@
 
 --local print=function()end
 
-local min,max,floor,random=math.min,math.max,math.floor,math.random
-local next,type,ipairs,pairs,supper,ssub,tostring=next,type,ipairs,pairs,string.upper,string.sub,tostring
+local min,max,ceil,abs,fmod,floor,random=math.min,math.max,math.ceil,math.abs,math.fmod,math.floor,math.random
+local next,type,ipairs,pairs,sformat,supper,ssub,tostring=next,type,ipairs,pairs,string.format,string.upper,string.sub,tostring
 local tinsert,tremove,tsort,setmetatable,rawset=table.insert,table.remove,table.sort,setmetatable,rawset
 
 local geom=require'hs.geometry'
@@ -72,34 +72,31 @@ local function tlen(t)
   local l=0 for _ in pairs(t) do l=l+1 end return l
 end
 
---[[
 local function isAreaEmpty(rect,w,windows,screenFrame)
   if not rect:inside(screenFrame) then return end
   for _,w2 in pairs(windows) do if w2~=w and w2.frame:intersect(rect).area>0 then return end end
   return true
 end
---]]
-
 local function sortedWindows(t,comp)
   local r={} for _,w in pairs(t) do r[#r+1]=w end
   tsort(r,comp) return r
 end
 
-local function fitWindows(self,theScreen,maxIterations)
-  if not theScreen.dirty then return end
-  local screenFrame=theScreen.frame
-  local windows=theScreen.windows
+local function fitWindows(self,screen,maxIterations)
+  if not screen.dirty then return end
+  local screenFrame=screen.frame
+  local windows=screen.windows
   local nwindows=tlen(windows)
-  if nwindows==0 then theScreen.dirty=nil return end
-  local haveThumbs,isStrip=theScreen.thumbnails,theScreen.isStrip
-  local optimalRatio=min(1,screenFrame.area/theScreen.totalOriginalArea)
+  if nwindows==0 then screen.dirty=nil return end
+  local haveThumbs,isStrip=screen.thumbnails,screen.isStrip
+  local optimalRatio=min(1,screenFrame.area/screen.totalOriginalArea)
   local accRatio=0
 
   local minWidth,minHeight=self.ui.minWidth,self.ui.minHeight
   local longSide=max(screenFrame.w,screenFrame.h)
   local maxDisplace=longSide/20
   local VEC00=geom.new(0,0)
-  local edge=(isStrip and not haveThumbs) and theScreen.edge or VEC00
+  local edge=(isStrip and not haveThumbs) and screen.edge or VEC00
 
   if not haveThumbs then -- "fast" mode
     for _,w in pairs(windows) do
@@ -109,7 +106,7 @@ local function fitWindows(self,theScreen,maxIterations)
   accRatio=1
   maxDisplace=max(minWidth,minHeight)*0.5
   else
-    local isVertical=theScreen.pos=='left' or theScreen.pos=='right'
+    local isVertical=screen.pos=='left' or screen.pos=='right'
     local s=(longSide*0.7/nwindows)/(isVertical and minHeight or minWidth)
     if isStrip and s<1 then
       minWidth,minHeight=minWidth*s,minHeight*s
@@ -121,7 +118,7 @@ local function fitWindows(self,theScreen,maxIterations)
         --        if w.dirty then w.frame=geom.new(inc*(i-1)+screenFrame.x,inc*(i-1)+screenFrame.y,minWidth,minHeight) end
         if w.dirty then w.frame:setx(inc*(i-1)+screenFrame.x):sety(inc*(i-1)+screenFrame.y):fit(screenFrame) end
         w.ratio=w.frame.area/w.originalFrame.area
-        w.weight=w.originalFrame.area/theScreen.totalOriginalArea
+        w.weight=w.originalFrame.area/screen.totalOriginalArea
         accRatio=accRatio+w.ratio*w.weight
       end
       maxDisplace=max(minWidth,minHeight)*0.5
@@ -129,7 +126,7 @@ local function fitWindows(self,theScreen,maxIterations)
       for _,w in pairs(windows) do
         if w.dirty then w.frame=geom.copy(w.originalFrame):scale(min(1,optimalRatio*2)) w.ratio=min(1,optimalRatio*2)
         else w.ratio=w.frame.area/w.originalFrame.area end
-        w.weight=w.originalFrame.area/theScreen.totalOriginalArea
+        w.weight=w.originalFrame.area/screen.totalOriginalArea
         accRatio=accRatio+w.ratio*w.weight
       end
     end
@@ -198,12 +195,12 @@ local function fitWindows(self,theScreen,maxIterations)
       for _,win in pairs(windows) do
         totalArea=totalArea+win.frame.area
         totalRatio=totalRatio+win.ratio
-        win.frames[theScreen]=geom.copy(win.frame)
+        win.frames[screen]=geom.copy(win.frame)
         win.dirty=nil
       end
-      self.log.vf('%s: %s (%d iter), coverage %.2f%%, ratio %.2f%%/%.2f%%, %d overlaps',theScreen.name,
+      self.log.vf('%s: %s (%d iter), coverage %.2f%%, ratio %.2f%%/%.2f%%, %d overlaps',screen.name,
         didwork and 'halted' or 'optimal',iterations,totalArea/(screenFrame.area)*100,totalRatio/nwindows*100,optimalRatio*100,totalOverlaps)
-      if not didwork then theScreen.dirty=nil end
+      if not didwork then screen.dirty=nil end
     else avgRatio=accRatio end
   end
 end
@@ -294,20 +291,20 @@ local function getColor(t) if type(t)~='table' or t.red or not t[1] then return 
 -- TODO * `hs.expose.ui.showExtraKeys = true` -- show non-hint keybindings at the top of the screen
 
 expose.ui=setmetatable({},{
-  __newindex=function(_,k,v) uiGlobal[k]=getColor(v) end,
-  __index=function(_,k)return getColor(uiGlobal[k])end,
+  __newindex=function(t,k,v) uiGlobal[k]=getColor(v) end,
+  __index=function(t,k)return getColor(uiGlobal[k])end,
 })
 
 
 
 local function getHints(self,windows)
   local function hasSubHints(t)
-    for k,_ in pairs(t) do if type(k)=='string' and #k==1 then return true end end
+    for k,v in pairs(t) do if type(k)=='string' and #k==1 then return true end end
   end
   local hints={apps={}}
   local reservedHint=1
-  for _,theScreen in pairs(self.screens) do
-    for id,w in pairs(theScreen.windows) do
+  for _,screen in pairs(self.screens) do
+    for id,w in pairs(screen.windows) do
       if not windows or windows[id] then
         local appname=stripUnicode(w.appname or '')
         while #appname<self.ui.maxHintLetters do
@@ -321,10 +318,11 @@ local function getHints(self,windows)
     end
   end
   local function normalize(t,n) --change in place
+    local _
     while #t>0 and tlen(t.apps)>0 do
       if n>self.ui.maxHintLetters or (tlen(t.apps)==1 and n>1 and not hasSubHints(t))  then
         -- last app remaining for this hint; give it digits
-        next(t.apps)
+        local app=next(t.apps)
         t.apps={}
         if #t>1 then
           --fix so that accumulation is possible
@@ -404,15 +402,15 @@ end
 local function setMode(self,k,mode)
   if modes[k]==mode then return end
   modes[k]=mode
-  for s,theScreen in pairs(self.screens) do
+  for s,screen in pairs(self.screens) do
     if modes[k] then
-      theScreen.bg:setFillColor(k=='close' and self.ui.closeModeBackgroundColor or self.ui.minimizeModeBackgroundColor)
+      screen.bg:setFillColor(k=='close' and self.ui.closeModeBackgroundColor or self.ui.minimizeModeBackgroundColor)
     elseif s=='inv' then
-      theScreen.bg:setFillColor(self.ui.nonVisibleStripBackgroundColor)
+      screen.bg:setFillColor(self.ui.nonVisibleStripBackgroundColor)
     elseif type(s)=='string' then
-      theScreen.bg:setFillColor(self.ui.otherSpacesStripBackgroundColor)
+      screen.bg:setFillColor(self.ui.otherSpacesStripBackgroundColor)
     else
-      theScreen.bg:setFillColor(self.ui.backgroundColor)
+      screen.bg:setFillColor(self.ui.backgroundColor)
     end
   end
 end
@@ -531,10 +529,10 @@ local function setThumbnail(w,screenFrame,thumbnails,titles,ui,bg)
 
   if titles then
     local titleWidth=min(wframe.w,w.titleWidth)
-    local trr=geom.copy(wframe):seth(ui.titleHeight):setw(titleWidth+8)
+    local tr=geom.copy(wframe):seth(ui.titleHeight):setw(titleWidth+8)
       :setcenter(wframe.center):move(0,ui.hintHeight):fit(screenFrame)
-    w.titlerect:setFrame(trr):orderAbove(w.highlight or bg)
-    w.titletext:setFrame(trr):orderAbove(w.titlerect)
+    w.titlerect:setFrame(tr):orderAbove(w.highlight or bg)
+    w.titletext:setFrame(tr):orderAbove(w.titlerect)
   end
 end
 
@@ -549,7 +547,7 @@ local function showExpose(self,windows,animate,alt_algo)
   self.log.d('activated')
   local hints=getHints(self,windows)
   local ui=self.ui
-  for _,s in pairs(self.screens) do
+  for sid,s in pairs(self.screens) do
     if animate and ui.showThumbnails then
       s.bg:show():orderBelow()
       for _,w in pairs(s.windows) do
@@ -601,7 +599,7 @@ end
 ---
 --- Returns:
 ---  * None
-function expose:hide() -- luacheck: ignore
+function expose:hide()
   if activeInstance then return exitAll(activeInstance) end
 end
 --- hs.expose:show([activeApplication])
@@ -649,11 +647,11 @@ local function bgFitWindows()
     if DEBUG then DEBUG_TIME=timer.secondsSinceEpoch() end
     local iters=self.ui.fitWindowsInBackgroundMaxIterations --3--math.random(9)
     if self.dirty then
-      for _,theScreen in pairs(self.screens) do
-        if theScreen.dirty then fitWindows(self,theScreen,iters) rep=rep or theScreen.dirty end
+      for _,screen in pairs(self.screens) do
+        if screen.dirty then fitWindows(self,screen,iters) rep=rep or screen.dirty end
         if activeInstance==self or DEBUG then
-          for _,w in pairs(theScreen.windows) do
-            if w.visible then setThumbnail(w,theScreen.frame,theScreen.thumbnails,self.ui.showTitles,self.ui,theScreen.bg) end
+          for _,w in pairs(screen.windows) do
+            if w.visible then setThumbnail(w,screen.frame,screen.thumbnails,self.ui.showTitles,self.ui,screen.bg) end
           end
         end
       end
@@ -687,24 +685,24 @@ local function startBgFitWindows(ui)
   end
 end
 
-local function windowRejected(self,win,appname,theScreen)
+local function windowRejected(self,win,appname,screen)
   local id=win:id()
   local w=self.windows[id]
   if not w then return end
-  if theScreen.windows[id] then
-    self.log.vf('window %s (%d) <- %s',appname,id,theScreen.name)
-    theScreen.totalOriginalArea=screen.totalOriginalArea-w.originalFrame.area
-    theScreen.windows[id]=nil
-    theScreen.dirty=true
+  if screen.windows[id] then
+    self.log.vf('window %s (%d) <- %s',appname,id,screen.name)
+    screen.totalOriginalArea=screen.totalOriginalArea-w.originalFrame.area
+    screen.windows[id]=nil
+    screen.dirty=true
     return startBgFitWindows(self.ui)
   end
 end
 
-local function windowDestroyed(self,win,appname,theScreen)
+local function windowDestroyed(self,win,appname,screen)
   local id=win:id()
   local w=self.windows[id]
   if not w then return end
-  windowRejected(self,win,appname,theScreen)
+  windowRejected(self,win,appname,screen)
   if w.thumb then w.thumb:delete() w.highlight:delete() end
   if w.titletext then w.titletext:delete() w.titlerect:delete() end
   w.hintrect:delete() w.hinttext:delete() w.icon:delete()
@@ -717,21 +715,21 @@ local function getTitle(self,w)
   w.titleWidth=drawing.getTextDrawingSize(title,self.ui.titleTextStyle).w
   w.titletext:setText(title)
 end
-local function windowAllowed(self,win,appname,theScreen)
-  --  print('addwindow '..appname..' to '..theScreen.name)
+local function windowAllowed(self,win,appname,screen)
+  --  print('addwindow '..appname..' to '..screen.name)
   local id=win:id()
   local w=self.windows[id]
   if w then
     local prevScreen=w.screen
-    w.screen=theScreen -- set new screen
+    w.screen=screen -- set new screen
     windowRejected(self,win,appname,prevScreen) --remove from previous screen
     local cached=w.frames[screen]
-    self.log.vf('window %s (%d) -> %s%s',appname,id,theScreen.name,cached and ' [CACHED]' or '')
+    self.log.vf('window %s (%d) -> %s%s',appname,id,screen.name,cached and ' [CACHED]' or '')
     w.frame=geom.copy(cached or w.originalFrame)
     w.dirty=not cached
-    theScreen.windows[id]=w
-    theScreen.totalOriginalArea=theScreen.totalOriginalArea+w.originalFrame.area
-    theScreen.dirty=theScreen.dirty or not cached or true
+    screen.windows[id]=w
+    screen.totalOriginalArea=screen.totalOriginalArea+w.originalFrame.area
+    screen.dirty=screen.dirty or not cached or true
     return startBgFitWindows(self.ui)
   end
 
@@ -739,7 +737,7 @@ local function windowAllowed(self,win,appname,theScreen)
   local ui=self.ui
   local f=win:frame()
   --  if not screen.thumbnails then f.aspect=1 local side=ui.minWidth f.area=side*side end
-  w={window=win,appname=appname,originalFrame=geom.copy(f),frame=f,ratio=1,frames={},id=id,screen=theScreen}
+  local w={window=win,appname=appname,originalFrame=geom.copy(f),frame=f,ratio=1,frames={},id=id,screen=screen}
   if ui.showThumbnails then
     w.thumb=drawing.image(f,window.snapshotForID(id) or UNAVAILABLE):setAlpha(ui.highlightThumbnailAlpha)
       :setBehavior(BEHAVIOR)
@@ -764,34 +762,34 @@ local function windowAllowed(self,win,appname,theScreen)
   w.icon=drawing.image(f,icon):setBehavior(BEHAVIOR)--:orderAbove(w.hintrect)
   w.textratio=drawing.text(f,''):setTextColor{red=1,alpha=1,blue=0,green=0}
   w.dirty=true
-  theScreen.totalOriginalArea=theScreen.totalOriginalArea+f.area
-  theScreen.windows[id]=w
+  screen.totalOriginalArea=screen.totalOriginalArea+f.area
+  screen.windows[id]=w
   self.windows[id]=w
-  theScreen.dirty=true
+  screen.dirty=true
   self.dirty=true
   return startBgFitWindows(ui)
 end
 local function getSnapshot(w,id)
   if w.thumb then w.thumb:setImage(window.snapshotForID(id) or UNAVAILABLE) end
 end
-local function windowUnfocused(_,win)
+local function windowUnfocused(self,win,appname,screen)
   local id=win:id() local w=screen.windows[id]
   if w then return getSnapshot(w,id) end
 end
-local function windowMoved(self,win,_,theScreen)
-  local id=win:id() local w=theScreen.windows[id]
+local function windowMoved(self,win,appname,screen)
+  local id=win:id() local w=screen.windows[id]
   if not w then return end
   local frame=win:frame()
-  w.frame=frame w.originalFrame=frame w.frames={}--[theScreen]=nil
-  theScreen.dirty=true w.dirty=true
+  w.frame=frame w.originalFrame=frame w.frames={}--[screen]=nil
+  screen.dirty=true w.dirty=true
   getSnapshot(w,id)
   return startBgFitWindows(self.ui)
 end
 
 
-local function titleChanged(self,win,_,theScreen)
+local function titleChanged(self,win,appname,screen)
   if not self.ui.showTitles then return end
-  local id=win:id() local w=theScreen.windows[id]
+  local id=win:id() local w=screen.windows[id]
   if w then return getTitle(self,w) end
 end
 
@@ -846,12 +844,12 @@ local function pause(self)
 end
 
 local function deleteScreens(self)
-  for _,s in pairs(self.screens) do
+  for id,s in pairs(self.screens) do
     s.wf:delete() -- remove previous wfilters
     s.bg:delete()
   end
   self.screens={}
-  for _,w in pairs(self.windows) do
+  for id,w in pairs(self.windows) do
     if w.thumb then w.thumb:delete() w.highlight:delete() end
     if w.titletext then w.titletext:delete() w.titlerect:delete() end
     w.hintrect:delete() w.hinttext:delete() w.icon:delete()
@@ -903,9 +901,9 @@ local function makeScreens(self)
     end
   end
   if self.ui.includeOtherSpaces then
-    for sid,theScreen in pairs(screens) do -- other spaces strip
-      if not theScreen.isStrip then
-        local f=theScreen.frame
+    for sid,screen in pairs(screens) do -- other spaces strip
+      if not screen.isStrip then
+        local f=screen.frame
         local othf,edge=geom.copy(f),geom.new(0,0)
         local pos=self.ui.otherSpacesStripPosition
         local width=self.ui.otherSpacesStripWidth
@@ -918,16 +916,16 @@ local function makeScreens(self)
         else pos='top' f.h=f.h-width othf.y=f.y othf.h=width f.y=f.y+width edge:move(0,-200) end -- top
         local wf=windowfilter.copy(self.wf,'wf-'..self.__name..'-o'..sid):setDefaultFilter{}
           :setOverrideFilter{visible=true,currentSpace=false,allowScreens=sid,activeApplication=activeApplication}:keepActive()
-        local name='other/'..theScreen.name
+        local name='other/'..screen.name
         screens['o'..sid]={name=name,isStrip=true,wf=wf,windows={},totalOriginalArea=0,frame=othf,thumbnails=thumbnails,edge=edge,pos=pos,
           bg=drawing.rectangle(othf):setFill(true):setFillColor(self.ui.otherSpacesStripBackgroundColor):setBehavior(BEHAVIOR)}
-        theScreen.bg:setFrame(f)
+        screen.bg:setFrame(f)
         self.log.df('screen %s',name)
     end
     end
   end
-  for _,theScreen in pairs(screens) do
-    theScreen.frame:move(10,10):setw(theScreen.frame.w-20):seth(theScreen.frame.h-20) -- margin
+  for _,screen in pairs(screens) do
+    screen.frame:move(10,10):setw(screen.frame.w-20):seth(screen.frame.h-20) -- margin
   end
   self.screens=screens
   windowfilter.setLogLevel(wfLogLevel)
@@ -1032,8 +1030,8 @@ function expose.new(wf,uiPrefs,logname,loglevel)
   else self.log.i('new expose instance using windowfilter instance') wf=windowfilter.new(wf) end
   --uiPrefs
   self.ui=setmetatable({},{
-    __newindex=function(_,k,v)rawset(self.ui,k,getColor(v))if not inUiPrefs then return setUiPrefs(self)end end,
-    __index=function(_,k)return getColor(uiGlobal[k]) end,
+    __newindex=function(t,k,v)rawset(self.ui,k,getColor(v))if not inUiPrefs then return setUiPrefs(self)end end,
+    __index=function(t,k)return getColor(uiGlobal[k]) end,
   })
   for k,v in pairs(uiPrefs) do rawset(self.ui,k,getColor(v)) end setUiPrefs(self)
   --  local wfLogLevel=windowfilter.getLogLevel()

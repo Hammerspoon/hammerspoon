@@ -5091,6 +5091,7 @@
 				4FBE2D161B7268DF00407788 /* Copy extensions to bundle */,
 				9445CA0919083251002568BB /* Resources */,
 				E2887C971E4B5BD200468A07 /* Copy CommandPost Files */,
+				4F6D9E3523074BC6006CC3E4 /* Update build number (Release only) */,
 				E849AEC367EA9502A25B9A7C /* [CP] Embed Pods Frameworks */,
 				4F1CF8D91A47F583001C8AE7 /* Upload binary to Crashlytics */,
 				4F7DB3571A5C513F00C22B03 /* Sign app/frameworks */,
@@ -5799,6 +5800,24 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "if [ -f \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/init.lua\" ]; then\n  echo \"ERROR: At least one extension's init.lua has membership of the Hammerspoon.app target. While non-fatal, this should not be the case. Here is the first line of said init.lua file, which might help you find out which extension is at fault. Once you know, in Xcode, select View -> Utilities -> Show File Inspector and untick the file from the Hammerspoon target:\"\n  echo -n \"    \"\n  head -1 \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/init.lua\"\n  exit 1\nfi\n\nexit 0";
+		};
+		4F6D9E3523074BC6006CC3E4 /* Update build number (Release only) */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Update build number (Release only)";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "#Update build number with number of git commits if in release mode\nif [ ${CONFIGURATION} == \"Release\" ]; then\n  buildNumber=$(git rev-list HEAD | wc -l | tr -d ' ')\n  /usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\"\nfi\n";
 		};
 		4F7DB3571A5C513F00C22B03 /* Sign app/frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
