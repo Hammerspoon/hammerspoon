@@ -248,6 +248,8 @@ function build_hammerspoon_app() {
   pushd "${HAMMERSPOON_HOME}" >/dev/null
   make clean
   make release
+  git add Hammerspoon/Hammerspoon-Info.plist
+  git commit Hammerspoon/Hammerspoon-Info.plist -m "Update build number for ${VERSION}"
   rm build/docs.json
   make docs
   make build/html/LuaSkin
