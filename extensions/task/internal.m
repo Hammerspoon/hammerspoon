@@ -179,7 +179,7 @@ void create_task(task_userdata_t *userData) {
 ///   * stdOut - A string containing the standard output of the process
 ///   * stdErr - A string containing the standard error output of the process
 ///  * streamCallbackFn - A optional callback function to be called whenever the task outputs data to stdout or stderr. The function must return a boolean value - true to continue calling the streaming callback, false to stop calling it. The function should accept three arguments:
-///   * task - The hs.task object
+///   * task - The hs.task object or nil if this is the final output of the completed task.
 ///   * stdOut - A string containing the standard output received since the last call to this callback
 ///   * stdErr - A string containing the standard error output received since the last call to this callback
 ///  * arguments - An optional table of command line argument strings for the executable
@@ -189,6 +189,7 @@ void create_task(task_userdata_t *userData) {
 ///
 /// Notes:
 ///  * The arguments are not processed via a shell, so you do not need to do any quoting or escaping. They are passed to the executable exactly as provided.
+///  * When using a stream callback, the callback may be invoked one last time after the termination callback has already been invoked. In this case, the `task` argument to the stream callback will be `nil` rather than the task userdata object and the return value of the stream callback will be ignored.
 static int task_new(lua_State *L) {
     // Check our arguments
     LuaSkin *skin = [LuaSkin shared];
@@ -926,8 +927,13 @@ int luaopen_hs_task_internal(lua_State* L) {
                 return;
             }
 
+            BOOL notLastGasp = (userData->selfRef != LUA_NOREF && userData->selfRef != LUA_REFNIL) ;
             [_skin pushLuaRef:refTable ref:userData->luaStreamCallback];
-            [_skin pushLuaRef:refTable ref:userData->selfRef];
+            if (notLastGasp) {
+                [_skin pushLuaRef:refTable ref:userData->selfRef];
+            } else {
+                lua_pushnil(L) ;
+            }
             [_skin pushNSObject:stdOutArg];
             [_skin pushNSObject:stdErrArg];
 
@@ -942,7 +948,9 @@ int luaopen_hs_task_internal(lua_State* L) {
             } else {
                 BOOL continueStreaming = lua_toboolean(_L, -1);
 
-                if (continueStreaming) {
+                // there is nothing to stream further if this was invoked *after* the termination handler
+                // and an exception may be thrown, so let's just skip the readInBackgroundAndNotify instead...
+                if (continueStreaming && notLastGasp) {
                     @try {
                         [fh readInBackgroundAndNotify];
                     } @catch (NSException *exception) {
