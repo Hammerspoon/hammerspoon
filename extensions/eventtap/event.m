@@ -439,20 +439,25 @@ static int eventtap_event_setUnicodeString(lua_State *L) {
 
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
     NSString *theString = [skin toNSObjectAtIndex:2];
-    NSUInteger stringLen = theString.length;
+    NSUInteger stringLen = [theString lengthOfBytesUsingEncoding:NSUnicodeStringEncoding];
     NSUInteger usedLen = 0;
 
-    UniChar buffer[stringLen];
-    [theString getBytes:(void*)&buffer
-              maxLength:stringLen
-             usedLength:&usedLen
-               encoding:NSUnicodeStringEncoding
-                options:NSStringEncodingConversionAllowLossy
-                  range:NSMakeRange(0, stringLen)
-         remainingRange:NULL];
+    UniChar *buffer = malloc(stringLen);
+    BOOL result = [theString getBytes:(void*)buffer
+                            maxLength:stringLen
+                           usedLength:&usedLen
+                             encoding:NSUnicodeStringEncoding
+                              options:NSStringEncodingConversionAllowLossy
+                                range:NSMakeRange(0, theString.length)
+                       remainingRange:NULL];
+    if (!result) {
+        [skin logWarn:[NSString stringWithFormat:@"hs.eventtap.event:setUnicodeString() failed to convert: %@", theString]];
+    }
 
     CGEventSetFlags(event, (CGEventFlags)0);
-    CGEventKeyboardSetUnicodeString(event, usedLen, buffer);
+    CGEventKeyboardSetUnicodeString(event, theString.length, buffer);
+
+    free(buffer);
 
     lua_settop(L, 1);
     return 1;
