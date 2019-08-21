@@ -793,7 +793,7 @@ static int eventtap_event_newMouseEvent(lua_State* L) {
     if (!lua_isnoneornil(L, 4) && (lua_type(L, 4) == LUA_TTABLE)) {
         lua_pushnil(L);
         while (lua_next(L, 4) != 0) {
-            modifier = lua_tostring(L, -2);
+            modifier = lua_tostring(L, -1);
             if (!modifier) {
                 [skin logBreadcrumb:[NSString stringWithFormat:@"hs.eventtap.event.newMouseEvent() unexpected entry in modifiers table: %d", lua_type(L, -1)]];
                 lua_pop(L, 1);
