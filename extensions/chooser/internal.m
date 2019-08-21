@@ -242,7 +242,9 @@ static int chooserRefreshChoicesCallback(lua_State *L) {
     HSChooser *chooser = [skin toNSObjectAtIndex:1];
 
     if (chooser.choicesCallbackRef != LUA_NOREF && chooser.choicesCallbackRef != LUA_REFNIL) {
-        [chooser refreshChoicesCallback];        
+        [chooser clearChoices];
+        [chooser getChoices];
+        [chooser updateChoices];
     }
 
     lua_pushvalue(L, 1);
