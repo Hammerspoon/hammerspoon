@@ -583,6 +583,13 @@
     return choices;
 }
 
+- (void)refreshChoicesCallback {
+    [self clearChoices];
+    [self getChoices];
+    [self updateChoices];
+    [self controlTextDidChange:[NSNotification notificationWithName:@"Unused" object:nil]];
+}
+
 #pragma mark - UI customisation methods
 
 - (void)setFgColor:(NSColor *)fgColor {
