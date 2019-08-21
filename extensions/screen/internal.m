@@ -653,7 +653,7 @@ static int screen_setBrightness(lua_State *L) {
 ///  * None
 ///
 /// Returns:
-///  * A string containing the UUID
+///  * A string containing the UUID, or nil if an error occurred.
 static int screen_getUUID(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
@@ -662,6 +662,11 @@ static int screen_getUUID(lua_State *L) {
     CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
 
     CFUUIDRef cf_uuid = CGDisplayCreateUUIDFromDisplayID(screen_id);
+    if (!cf_uuid) {
+        lua_pushnil(L);
+        return 1;
+    }
+
     NSString *uuid = (__bridge_transfer NSString *)CFUUIDCreateString(NULL, cf_uuid);
     CFRelease(cf_uuid);
 
