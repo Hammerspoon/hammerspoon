@@ -645,6 +645,30 @@ static int screen_setBrightness(lua_State *L) {
     return 1;
 }
 
+/// hs.screen:getUUID() -> string
+/// Method
+/// Gets the UUID of an `hs.screen` object
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A string containing the UUID
+static int screen_getUUID(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
+    NSScreen *screen = get_screen_arg(L, 1);
+    CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
+
+    CFUUIDRef cf_uuid = CGDisplayCreateUUIDFromDisplayID(screen_id);
+    NSString *uuid = (__bridge_transfer NSString *)CFUUIDCreateString(NULL, cf_uuid);
+    CFRelease(cf_uuid);
+
+    [skin pushNSObject:uuid];
+    return 1;
+}
+
 // CoreGraphics private APIs
 CG_EXTERN bool CGDisplayUsesForceToGray(void);
 CG_EXTERN void CGDisplayForceToGray(bool forceToGray);
@@ -1199,6 +1223,7 @@ static const luaL_Reg screen_objectlib[] = {
     {"setGamma", screen_gammaSet},
     {"getBrightness", screen_getBrightness},
     {"setBrightness", screen_setBrightness},
+    {"getUUID", screen_getUUID},
     {"rotate", screen_rotate},
     {"setPrimary", screen_setPrimary},
     {"desktopImageURL", screen_desktopImageURL},
