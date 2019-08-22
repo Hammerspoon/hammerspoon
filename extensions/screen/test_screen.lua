@@ -30,6 +30,7 @@ function testFind()
   local point = hs.screen.find(primary:frame())
   local size = hs.screen.find(primary:fullFrame())
   local rect = hs.screen.find(primary:frame())
+  local uuid = hs.screen.find(primary:getUUID())
 
   assertIsUserdataOfType("hs.screen", primary)
   assertIsEqual(primary, id)
@@ -37,6 +38,7 @@ function testFind()
   assertIsEqual(primary, point)
   assertIsEqual(primary, size)
   assertIsEqual(primary, rect)
+  assertIsEqual(primary, uuid)
 
   return success()
 end
