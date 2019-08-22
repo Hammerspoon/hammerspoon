@@ -1008,19 +1008,19 @@ static int fs_displayName(lua_State *L) {
     return 1 ;
 }
 
-/// hs.fs.pathToBookmark() -> string | nil
+/// hs.fs.pathToBookmark(path) -> string | nil
 /// Function
 /// Returns the path as binary encoded bookmark data.
 ///
 /// Parameters:
-///  * None
+///  * path - The path to encode
 ///
 /// Returns:
 ///  * Bookmark data in a binary encoded string or `nil` if path is invalid.
 static int fs_pathToBookmark(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
-    
+
     NSString *filePath = [skin toNSObjectAtIndex:1];
     char *absolutePath = realpath([filePath stringByExpandingTildeInPath].UTF8String, NULL);
 
@@ -1028,7 +1028,7 @@ static int fs_pathToBookmark(lua_State *L) {
         lua_pushnil(L);
         return 1;
     }
-    
+
     NSData *bookmarkData = [[NSURL fileURLWithPath:filePath]
                     bookmarkDataWithOptions:0
                     includingResourceValuesForKeys:nil
