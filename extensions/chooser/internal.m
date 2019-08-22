@@ -248,7 +248,7 @@ static int chooserRefreshChoicesCallback(lua_State *L) {
         [chooser clearChoices];
         [chooser getChoices];
         [chooser updateChoices];
-        if (reload) {
+        if (reload == YES) {
             [chooser controlTextDidChange:[NSNotification notificationWithName:@"Unused" object:nil]];
         }
     }
