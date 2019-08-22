@@ -140,7 +140,7 @@ end
 --- Creates a new mouse event
 ---
 --- Parameters:
----  * eventtype - One of the values from `hs.eventtap.event.types`
+---  * eventtype - One of the mouse related values from `hs.eventtap.event.types`
 ---  * point - An hs.geometry point table (i.e. of the form `{x=123, y=456}`) indicating the location where the mouse event should occur
 ---  * modifiers - An optional table (e.g. {"cmd", "alt"}) containing zero or more of the following keys:
 ---   * cmd
@@ -160,6 +160,8 @@ function module.event.newMouseEvent(eventtype, point, modifiers)
         button = "right"
     elseif eventtype == types["otherMouseDown"] or eventtype == types["otherMouseUp"] or eventtype == types["otherMouseDragged"] then
         button = "other"
+    elseif eventtype == types["mouseMoved"] then
+        button = "none"
     else
         print("Error: unrecognised mouse button eventtype: " .. tostring(eventtype))
         return nil
