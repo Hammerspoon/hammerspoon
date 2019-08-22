@@ -860,6 +860,8 @@ static int eventtap_event_newMouseEvent(lua_State* L) {
         button = kCGMouseButtonRight;
     else if (strcmp(buttonString, "other") == 0)
         button = kCGMouseButtonCenter;
+    else if (strcmp(buttonString, "none") == 0)
+        button = 0;
 
     if (!lua_isnoneornil(L, 4) && (lua_type(L, 4) == LUA_TTABLE)) {
         lua_pushnil(L);
