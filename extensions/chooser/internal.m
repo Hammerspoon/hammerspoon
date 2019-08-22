@@ -223,12 +223,12 @@ static int chooserShowCallback(lua_State *L) {
     return 1;
 }
 
-/// hs.chooser:refreshChoicesCallback() -> hs.chooser object
+/// hs.chooser:refreshChoicesCallback([reload]) -> hs.chooser object
 /// Method
 /// Refreshes the choices data from a callback
 ///
 /// Parameters:
-///  * None
+///  * reload - An optional parameter that reloads the chooser results to take into account the current query string (defaults to `false`)
 ///
 /// Returns:
 ///  * The `hs.chooser` object
@@ -237,14 +237,20 @@ static int chooserShowCallback(lua_State *L) {
 ///  * This method will do nothing if you have not set a function with `hs.chooser:choices()`
 static int chooserRefreshChoicesCallback(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
 
     HSChooser *chooser = [skin toNSObjectAtIndex:1];
+
+    BOOL reload;
+    reload = lua_toboolean(L, 2);
 
     if (chooser.choicesCallbackRef != LUA_NOREF && chooser.choicesCallbackRef != LUA_REFNIL) {
         [chooser clearChoices];
         [chooser getChoices];
         [chooser updateChoices];
+        if (reload) {
+            [self controlTextDidChange:[NSNotification notificationWithName:@"Unused" object:nil]];
+        }
     }
 
     lua_pushvalue(L, 1);
