@@ -125,13 +125,15 @@ end
 function uielement:newWatcher(callback, ...)
     if type(callback) ~= "function" then
         hs.showError("hs.uielement:newWatcher() called with incorrect arguments. The first argument must be a function")
+        return
     end
     local obj = self:_newWatcher(function(...) handleEvent(callback, ...) end, ...)
 
-    obj._pid = self:pid()
-    if self.id then obj._id = self:id() end
-
-    return obj
+    if obj then
+        obj._pid = self:pid()
+        if self.id then obj._id = self:id() end
+        return obj
+    end
 end
 
 --- hs.uielement.watcher:start(events) -> hs.uielement.watcher
