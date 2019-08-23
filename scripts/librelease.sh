@@ -150,7 +150,7 @@ function assert_fabric_token() {
 
 function assert_version_in_xcode() {
   echo "Checking Xcode build version..."
-  XCODEVER="$(defaults read "${HAMMERSPOON_HOME}/Hammerspoon/Hammerspoon-Info" CFBundleVersion)"
+  XCODEVER="$(defaults read "${HAMMERSPOON_HOME}/Hammerspoon/Hammerspoon-Info" CFBundleShortVersionString)"
 
   if [ "$VERSION" != "$XCODEVER" ]; then
       fail "You asked for $VERSION to be released, but Xcode will build $XCODEVER"
