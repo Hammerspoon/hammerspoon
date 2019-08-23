@@ -819,6 +819,32 @@ static int newHSToolbar(lua_State *L) {
     return 1 ;
 }
 
+/// hs.webview.toolbar.uniqueName(toolbarName) -> boolean
+/// Function
+/// Checks to see is a toolbar name is already in use
+///
+/// Parameters:
+///  * toolbarName  - a string specifying the name of a toolbar
+///
+/// Returns:
+///  * `true` if the name is unique otherwise `false`
+static int uniqueName(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
+    NSString *identifier = [skin toNSObjectAtIndex:1] ;
+    
+    if (![identifiersInUse containsObject:identifier]) {
+        HSToolbar *toolbar = [[HSToolbar alloc] initWithIdentifier:identifier
+                                                    itemTableIndex:LUA_NOREF] ;
+        if (toolbar) {
+            lua_pushboolean(L, true) ;
+            return 1;
+        }
+    }
+    lua_pushboolean(L, false) ;
+    return 1 ;
+}
+
 /// hs.webview.toolbar.attachToolbar([obj1], [obj2]) -> obj1
 /// Function
 /// Get or attach/detach a toolbar to the webview, chooser, or console.
@@ -2022,6 +2048,7 @@ static const luaL_Reg userdata_metaLib[] = {
 static luaL_Reg moduleLib[] = {
     {"new",           newHSToolbar},
     {"attachToolbar", attachToolbar},
+    {"uniqueName",    uniqueName},
     {NULL,            NULL}
 };
 
