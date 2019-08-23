@@ -75,7 +75,7 @@ uielement.watcher.titleChanged     = "AXTitleChanged"
 local appWatchers = {}
 
 local function appCallback(_, event, app)
-    if appWatchers[app:pid()] and event == application.watcher.terminated then
+    if app and (appWatchers[app:pid()] and event == application.watcher.terminated) then
         fnutils.each(appWatchers[app:pid()], function(watcher) watcher:_stop() end)
         appWatchers[app:pid()] = nil
     end
