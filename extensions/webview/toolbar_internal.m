@@ -832,16 +832,7 @@ static int uniqueName(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
     NSString *identifier = [skin toNSObjectAtIndex:1] ;
-    
-    if (![identifiersInUse containsObject:identifier]) {
-        HSToolbar *toolbar = [[HSToolbar alloc] initWithIdentifier:identifier
-                                                    itemTableIndex:LUA_NOREF] ;
-        if (toolbar) {
-            lua_pushboolean(L, true) ;
-            return 1;
-        }
-    }
-    lua_pushboolean(L, false) ;
+    lua_pushboolean(L, ![identifiersInUse containsObject:identifier]);
     return 1 ;
 }
 
