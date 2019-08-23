@@ -9,6 +9,13 @@
 /* Begin PBXBuildFile section */
 		22613FEC1F297E0D00E05E11 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		22613FF51F2A127E00E05E11 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 22613FE41F297B9B00E05E11 /* internal.m */; };
+		22DDF436230FA8DD00099480 /* x11_xinput2.c in Sources */ = {isa = PBXBuildFile; fileRef = 22DDF42F230FA8DC00099480 /* x11_xinput2.c */; };
+		22DDF437230FA8DD00099480 /* linux_evdev.c in Sources */ = {isa = PBXBuildFile; fileRef = 22DDF430230FA8DC00099480 /* linux_evdev.c */; };
+		22DDF438230FA8DD00099480 /* macosx_hidmanager.c in Sources */ = {isa = PBXBuildFile; fileRef = 22DDF431230FA8DD00099480 /* macosx_hidmanager.c */; };
+		22DDF439230FA8DD00099480 /* windows_wminput.c in Sources */ = {isa = PBXBuildFile; fileRef = 22DDF432230FA8DD00099480 /* windows_wminput.c */; };
+		22DDF43A230FA8DD00099480 /* macosx_hidutilities.c in Sources */ = {isa = PBXBuildFile; fileRef = 22DDF433230FA8DD00099480 /* macosx_hidutilities.c */; };
+		22DDF43B230FA8DD00099480 /* manymouse.h in Headers */ = {isa = PBXBuildFile; fileRef = 22DDF434230FA8DD00099480 /* manymouse.h */; };
+		22DDF43C230FA8DD00099480 /* manymouse.c in Sources */ = {isa = PBXBuildFile; fileRef = 22DDF435230FA8DD00099480 /* manymouse.c */; };
 		22E4D7FD1FA7488900C8CF5C /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		22E4D8031FA748AC00C8CF5C /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 22E4D7F71FA7485A00C8CF5C /* internal.m */; };
 		394FD223913AE68B92126D37 /* libPods-Hammerspoon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BC78AF8FE9DA0BD317A7528 /* libPods-Hammerspoon.a */; };
@@ -904,6 +911,13 @@
 		22613FE41F297B9B00E05E11 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/dialog/internal.m; sourceTree = "<group>"; };
 		22613FE51F297B9B00E05E11 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/dialog/init.lua; sourceTree = "<group>"; };
 		22613FF11F297E0D00E05E11 /* libdialog.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libdialog.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		22DDF42F230FA8DC00099480 /* x11_xinput2.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = x11_xinput2.c; sourceTree = "<group>"; };
+		22DDF430230FA8DC00099480 /* linux_evdev.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = linux_evdev.c; sourceTree = "<group>"; };
+		22DDF431230FA8DD00099480 /* macosx_hidmanager.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = macosx_hidmanager.c; sourceTree = "<group>"; };
+		22DDF432230FA8DD00099480 /* windows_wminput.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = windows_wminput.c; sourceTree = "<group>"; };
+		22DDF433230FA8DD00099480 /* macosx_hidutilities.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = macosx_hidutilities.c; sourceTree = "<group>"; };
+		22DDF434230FA8DD00099480 /* manymouse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = manymouse.h; sourceTree = "<group>"; };
+		22DDF435230FA8DD00099480 /* manymouse.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = manymouse.c; sourceTree = "<group>"; };
 		22E4D7F71FA7485A00C8CF5C /* internal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/midi/internal.m; sourceTree = SOURCE_ROOT; };
 		22E4D7F81FA7485A00C8CF5C /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/midi/init.lua; sourceTree = SOURCE_ROOT; };
 		22E4D8021FA7488900C8CF5C /* libmidi.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libmidi.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -2373,6 +2387,13 @@
 		4F6B3EFC1B73E7E200B2A4DE /* mouse */ = {
 			isa = PBXGroup;
 			children = (
+				22DDF430230FA8DC00099480 /* linux_evdev.c */,
+				22DDF431230FA8DD00099480 /* macosx_hidmanager.c */,
+				22DDF433230FA8DD00099480 /* macosx_hidutilities.c */,
+				22DDF435230FA8DD00099480 /* manymouse.c */,
+				22DDF434230FA8DD00099480 /* manymouse.h */,
+				22DDF432230FA8DD00099480 /* windows_wminput.c */,
+				22DDF42F230FA8DC00099480 /* x11_xinput2.c */,
 				4F6B3EFD1B73E7F000B2A4DE /* init.lua */,
 				4F6B3EFE1B73E7F000B2A4DE /* internal.m */,
 			);
@@ -3547,6 +3568,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				22DDF43B230FA8DD00099480 /* manymouse.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6032,6 +6054,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F6B3EFF1B73E7F000B2A4DE /* internal.m in Sources */,
+				22DDF436230FA8DD00099480 /* x11_xinput2.c in Sources */,
+				22DDF43C230FA8DD00099480 /* manymouse.c in Sources */,
+				22DDF438230FA8DD00099480 /* macosx_hidmanager.c in Sources */,
+				22DDF437230FA8DD00099480 /* linux_evdev.c in Sources */,
+				22DDF439230FA8DD00099480 /* windows_wminput.c in Sources */,
+				22DDF43A230FA8DD00099480 /* macosx_hidutilities.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
