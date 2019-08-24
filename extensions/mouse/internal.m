@@ -16,6 +16,9 @@
 ///
 /// Returns:
 ///  * The number of mice connected to your system
+///
+/// Notes:
+///  * This function leverages code from [ManyMouse](http://icculus.org/manymouse/).
 static int mouse_count(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
