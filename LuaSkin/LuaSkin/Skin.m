@@ -277,6 +277,7 @@ NSString *specMaskToString(int spec) {
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconstant-conversion"
+#pragma GCC diagnostic ignored "-Wunknown-warning-option"
 #pragma GCC diagnostic ignored "-Wsizeof-pointer-div"
     luaL_newlib(self.L, functions);
     if (metaFunctions != nil) {
@@ -319,6 +320,7 @@ NSString *specMaskToString(int spec) {
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconstant-conversion"
+#pragma GCC diagnostic ignored "-Wunknown-warning-option"
 #pragma GCC diagnostic ignored "-Wsizeof-pointer-div"
     luaL_newlib(self.L, objectFunctions);
 #pragma GCC diagnostic pop
