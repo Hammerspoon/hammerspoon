@@ -2076,6 +2076,27 @@ static int webview_hswindow(lua_State *L) {
     return 1 ;
 }
 
+/// hs.webview:isVisible() -> boolean
+/// Method
+/// Checks to see if a webview window is visible or not.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * `true` if the webview window is visible, otherwise `false`
+static int webview_isVisible(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
+    if (theWindow.isVisible) {
+        lua_pushboolean(L, true);
+    } else {
+        lua_pushboolean(L, false);
+    }
+    return 1;
+}
+
 /// hs.webview:windowTitle([title]) -> webviewObject
 /// Method
 /// Sets the title for the webview window.
@@ -3079,6 +3100,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {"windowCallback",             webview_windowCallback},
     {"topLeft",                    webview_topLeft},
     {"size",                       webview_size},
+    {"isVisible",                  webview_isVisible},
 
     {"_delete",                    webview_delete},
     {"_windowStyle",               webview_windowStyle},

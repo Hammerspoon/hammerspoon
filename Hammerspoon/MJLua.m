@@ -186,7 +186,8 @@ static int core_reload(lua_State* L) {
 static int push_hammerAppInfo(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     NSDictionary *appInfo = @{
-                              @"version": [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"],
+                              @"version": [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"],
+                              @"build": [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"],
                               @"resourcePath": @([[[NSBundle mainBundle] resourcePath] fileSystemRepresentation]),
                               @"bundlePath": @([[[NSBundle mainBundle] bundlePath] fileSystemRepresentation]),
                               @"executablePath": @([[[NSBundle mainBundle] executablePath] fileSystemRepresentation]),
