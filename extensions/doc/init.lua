@@ -208,12 +208,13 @@ module.validateJSONFile = function(jsonFile)
     end
 end
 
---- hs.doc.registerJSONFile(jsonfile) -> status[, message]
+--- hs.doc.registerJSONFile(jsonfile, [isSpoon]) -> status[, message]
 --- Function
 --- Register a JSON file for inclusion when Hammerspoon generates internal documentation.
 ---
 --- Parameters:
 ---  * jsonfile - A string containing the location of a JSON file
+---  * isSpoon  - an optional boolean, default false, specifying that the documentation should be added to the `spoons` sub heading in the documentation hierarchy.
 ---
 --- Returns:
 ---  * status - Boolean flag indicating if the file was registered or not.  If the file was not registered, then a message indicating the error is also returned.
@@ -263,13 +264,12 @@ module.registerJSONFile = function(docFile, isSpoon)
     return status, message
 end
 
---- hs.doc.unregisterJSONFile(jsonfile, [isSpoon]) -> status[, message]
+--- hs.doc.unregisterJSONFile(jsonfile) -> status[, message]
 --- Function
 --- Remove a JSON file from the list of registered files.
 ---
 --- Parameters:
 ---  * jsonfile - A string containing the location of a JSON file
----  * isSpoon  - an optional boolean, default false, specifying that the documentation should be added to the `spoons` sub heading in the documentation hierarchy.
 ---
 --- Returns:
 ---  * status - Boolean flag indicating if the file was unregistered or not.  If the file was not unregistered, then a message indicating the error is also returned.
