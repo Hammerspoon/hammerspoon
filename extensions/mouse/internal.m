@@ -19,6 +19,7 @@
 ///
 /// Notes:
 ///  * This function leverages code from [ManyMouse](http://icculus.org/manymouse/).
+///  * This function considers any mouse labelled as "Apple Internal Keyboard / Trackpad" to be an internal mouse.
 static int mouse_count(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
@@ -44,6 +45,36 @@ static int mouse_count(lua_State* L) {
     }
     
     [skin pushNSObject:mouseCount];
+    ManyMouse_Quit();
+    return 1;
+}
+
+/// hs.mouse.names() -> table
+/// Function
+/// Gets the names of any mice connected to the system.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A table containing strings of all the mice connected to the system.
+///
+/// Notes:
+///  * This function leverages code from [ManyMouse](http://icculus.org/manymouse/).
+static int mouse_names(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs: LS_TBREAK];
+    
+    const int availableMice = ManyMouse_Init();
+    
+    NSMutableArray *mice = [[NSMutableArray alloc] init];
+    int i;
+    for (i = 0; i < availableMice; i++) {
+        NSString *currentDevice = [NSString stringWithCString:ManyMouse_DeviceName(i) encoding:NSUTF8StringEncoding];
+        [mice addObject:currentDevice];
+    }
+    
+    [skin pushNSObject:mice];
     ManyMouse_Quit();
     return 1;
 }
@@ -174,6 +205,7 @@ static const luaL_Reg mouseLib[] = {
     {"trackingSpeed", mouse_mouseAcceleration},
     {"scrollDirection", mouse_scrollDirection},
     {"count", mouse_count},
+    {"names", mouse_names},
     {NULL, NULL}
 };
 
