@@ -2,10 +2,14 @@
 @import LuaSkin ;
 
 static const char * const USERDATA_TAG = "hs.doc" ; // we're using it as a module tag for console messages
+static const char * const OBJ_UD_TAG   = "hs.doc.object" ; // experimental NSObject wrapper; may move to LuaSkin eventually
+
 static int refTable     = LUA_NOREF;
 static int refTriggerFn = LUA_NOREF ;
 
-static NSMutableDictionary *registeredFilesDictionary ;
+#define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
+
+static NSMutableDictionary *registeredFiles ;
 static NSMutableDictionary *documentationTree ;
 
 #pragma mark - Support Functions and Classes
@@ -71,9 +75,9 @@ static BOOL processRegisteredFile(lua_State *L, NSString *path) {
         return NO ;
     }
 
-    registeredFilesDictionary[path][@"json"]  = obj ;
+    registeredFiles[path][@"json"]  = obj ;
 
-    BOOL isSpoon = [(NSNumber *)registeredFilesDictionary[path][@"spoon"] boolValue] ;
+    BOOL isSpoon = [(NSNumber *)registeredFiles[path][@"spoon"] boolValue] ;
     NSMutableDictionary *root = isSpoon ? documentationTree[@"spoon"] : documentationTree ;
 
     if (![(NSObject *)obj isKindOfClass:[NSArray class]]) {
@@ -156,26 +160,11 @@ static BOOL processRegisteredFile(lua_State *L, NSString *path) {
 }
 
 static void findUnloadedDocumentationFiles(lua_State *L) {
-    NSArray *paths = [registeredFilesDictionary allKeys] ;
+    NSArray *paths = [registeredFiles allKeys] ;
     [paths enumerateObjectsUsingBlock:^(NSString *path, __unused NSUInteger idx, __unused BOOL *stop) {
-        NSMutableDictionary *entry = registeredFilesDictionary[path] ;
+        NSMutableDictionary *entry = registeredFiles[path] ;
         if (!entry[@"json"]) processRegisteredFile(L, path) ;
     }] ;
-}
-
-static NSMutableArray *arrayOf_hamster(NSMutableDictionary *root) {
-    NSMutableArray *answers = [[NSMutableArray alloc] init] ;
-    if (root[@"__type__"] && [(NSString *)root[@"__type__"] isEqualToString:@"module"]) {
-        NSMutableDictionary *json = root[@"__json__"] ;
-        if (json) [answers addObject:json] ;
-    }
-
-    for (NSMutableDictionary *node in [root allValues]) {
-        if ([node isKindOfClass:[NSDictionary class]]) {
-            if (node[@"__json__"]) [answers addObjectsFromArray:arrayOf_hamster(node)] ;
-        }
-    }
-    return answers ;
 }
 
 NSMutableDictionary *getPosInTreeFor(NSString *target) {
@@ -302,14 +291,14 @@ static int doc_registerJSONFile(lua_State *L) {
     // containing the same data and get a lot of duplicate entry warnings
     path = [path stringByStandardizingPath] ;
 
-    if (registeredFilesDictionary[path]) {
+    if (registeredFiles[path]) {
         lua_pushboolean(L, NO) ;
         [skin pushNSObject:[NSString stringWithFormat:@"File '%@' already registered", path]] ;
         return 2 ;
     }
 
-    registeredFilesDictionary[path] = [[NSMutableDictionary alloc] init] ;
-    registeredFilesDictionary[path][@"spoon"] = @(isSpoon) ;
+    registeredFiles[path] = [[NSMutableDictionary alloc] init] ;
+    registeredFiles[path][@"spoon"] = @(isSpoon) ;
 
     // changecount function will be triggered when json bult in findUnloadedDocumentationFiles for new path
 
@@ -334,22 +323,22 @@ static int doc_unregisterJSONFile(lua_State *L) {
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
     NSString *path   = [skin toNSObjectAtIndex:1] ;
 
-    if (!registeredFilesDictionary[path]) {
+    if (!registeredFiles[path]) {
         lua_pushboolean(L, NO) ;
         [skin pushNSObject:[NSString stringWithFormat:@"File '%@' was not registered", path]] ;
         return 2 ;
     }
 
-    registeredFilesDictionary[path] = nil ;
+    registeredFiles[path] = nil ;
     [documentationTree removeAllObjects] ;
     documentationTree         = [@{
         @"__type__" : @"root",
         @"spoon"    : [@{ @"__type__" : @"spoons" } mutableCopy],
     } mutableCopy] ;
 
-    NSArray *paths = [registeredFilesDictionary allKeys] ;
+    NSArray *paths = [registeredFiles allKeys] ;
     [paths enumerateObjectsUsingBlock:^(NSString *path2, __unused NSUInteger idx, __unused BOOL *stop) {
-        NSMutableDictionary *entry = registeredFilesDictionary[path2] ;
+        NSMutableDictionary *entry = registeredFiles[path2] ;
         if (entry[@"json"]) entry[@"json"] = nil ;
     }] ;
 
@@ -363,7 +352,7 @@ static int doc_unregisterJSONFile(lua_State *L) {
 static int doc_registeredFiles(__unused lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
 
-    NSMutableArray *sortedPaths = [[registeredFilesDictionary allKeys] mutableCopy] ;
+    NSMutableArray *sortedPaths = [[registeredFiles allKeys] mutableCopy] ;
     [sortedPaths sortUsingSelector:@selector(localizedCaseInsensitiveCompare:)] ;
     [skin pushNSObject:sortedPaths] ;
     return 1 ;
@@ -412,7 +401,7 @@ static int doc_registeredFiles(__unused lua_State *L) {
 
 #pragma mark - Internal Use Functions
 
-// returns list of children in documentTree for __init and __pairs of helper table for `help`
+// returns list of children in documentTree for __index and __pairs of helper table for `help`
 static int internal_arrayOfChildren(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TSTRING | LS_TNIL | LS_TOPTIONAL, LS_TBREAK] ;
@@ -434,18 +423,19 @@ static int internal_arrayOfChildren(lua_State *L) {
     return 1 ;
 }
 
-// returns __json__ from specified node and it's branches; used in __init for hsdocs
-static int internal_arrayOfModuleJsonSegments(lua_State *L) {
+// returns objectWrapper for registeredFiles
+static int internal_registeredFiles(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
-    NSString *target = [skin toNSObjectAtIndex:1] ;
 
-    NSMutableDictionary *pos = getPosInTreeFor(target) ;
+    NSObject *obj = registeredFiles ;
 
-    if (pos) {
-        [skin pushNSObject:arrayOf_hamster(pos)] ;
+    if ([obj isKindOfClass:[NSArray class]] || [obj isKindOfClass:[NSDictionary class]]) {
+        void** valuePtr = lua_newuserdata(L, sizeof(NSObject *)) ;
+        *valuePtr = (__bridge_retained void *)obj ;
+        luaL_getmetatable(L, OBJ_UD_TAG) ;
+        lua_setmetatable(L, -2) ;
     } else {
-        lua_pushnil(L) ;
+        [skin pushNSObject:obj withOptions:LS_NSDescribeUnknownTypes] ;
     }
 
     return 1 ;
@@ -479,10 +469,10 @@ static int internal_registerTriggerFunction(lua_State *L) {
 // They are *really* slow because invoking them replicates all of the json data collected thus far
 // in lua all at once.
 
-static int debug_registeredFilesDictionary(__unused lua_State *L) {
+static int debug_registeredFiles(__unused lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TBREAK] ;
-    [skin pushNSObject:registeredFilesDictionary] ;
+    [skin pushNSObject:registeredFiles] ;
     return 1 ;
 }
 
@@ -493,6 +483,152 @@ static int debug_documentationTree(__unused lua_State *L) {
     return 1 ;
 }
 
+#pragma mark - objectWrapper methods
+
+static int obj_children(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, OBJ_UD_TAG, LS_TBREAK] ;
+    NSObject *obj = get_objectFromUserdata(__bridge NSObject, L, 1, OBJ_UD_TAG) ;
+
+    if ([obj isKindOfClass:[NSArray class]]) {
+        lua_newtable(L) ;
+        for (NSUInteger i = 0 ; i < [(NSArray *)obj count] ; i++) {
+            lua_pushinteger(L, (lua_Integer)(i + 1)) ;
+            lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+        }
+    } else if ([obj isKindOfClass:[NSDictionary class]]) {
+        [skin pushNSObject:[(NSDictionary *)obj allKeys]] ;
+    } else {
+        lua_pushnil(L) ;
+    }
+
+    return 1 ;
+}
+
+static int obj_value(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, OBJ_UD_TAG, LS_TBREAK] ;
+    NSObject *obj = get_objectFromUserdata(__bridge NSObject, L, 1, OBJ_UD_TAG) ;
+
+    [skin pushNSObject:obj withOptions:LS_NSDescribeUnknownTypes] ;
+    return 1 ;
+}
+
+#pragma mark - objectWrapper metaFunctions
+
+static int obj_ud_index(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    NSObject *obj = get_objectFromUserdata(__bridge NSObject, L, 1, OBJ_UD_TAG) ;
+
+    if ([obj isKindOfClass:[NSArray class]] || [obj isKindOfClass:[NSDictionary class]]) {
+        int type = lua_type(L, 2) ;
+        if (type == LUA_TNUMBER && lua_isinteger(L, 2)) {
+            lua_Integer lIdx = lua_tointeger(L, 2) ;
+            if ([obj isKindOfClass:[NSArray class]]) {
+                if (lIdx < 1 || lIdx > (lua_Integer)[(NSArray *)obj count]) {
+                    obj = nil ;
+                } else {
+                    obj = [(NSArray *)obj objectAtIndex:(NSUInteger)(lIdx - 1)] ;
+                }
+            } else if ([obj isKindOfClass:[NSDictionary class]]) {
+                obj = [(NSDictionary *)obj objectForKey:@(lIdx)] ;
+            } else {
+                obj = nil ;
+            }
+        } else if (type == LUA_TSTRING) {
+            NSString *lKey = [skin toNSObjectAtIndex:2] ;
+            if ([obj isKindOfClass:[NSDictionary class]]) {
+                obj = [(NSDictionary *)obj objectForKey:lKey] ;
+            } else {
+                obj = nil ;
+            }
+        } else {
+            obj = nil ;
+        }
+    } else if ([obj isKindOfClass:[NSString class]]) {
+        // should be impossible for this implementation, but in case we copy this into something more
+        // generic, lets include it since strings can apparently be index in lua, but always return nil
+        obj = nil ;
+    } else {
+        return luaL_error(L, "attempt to index a %s value", [[obj className] UTF8String]) ;
+    }
+
+    if ([obj isKindOfClass:[NSArray class]] || [obj isKindOfClass:[NSDictionary class]]) {
+        void** valuePtr = lua_newuserdata(L, sizeof(NSObject *)) ;
+        *valuePtr = (__bridge_retained void *)obj ;
+        luaL_getmetatable(L, OBJ_UD_TAG) ;
+        lua_setmetatable(L, -2) ;
+    } else {
+        [skin pushNSObject:obj withOptions:LS_NSDescribeUnknownTypes] ;
+    }
+
+    return 1 ;
+}
+
+// TODO: Notes for generic implementation of objectWrapper
+//
+//  * will need a way to mark objectWrapper as read-only, in which case this should return an error
+//  * with NSArray, if idx outside of [1,count + 1] or not a number, need to convert to NSDictionary
+//  * with NSArray, if idx == count and value = nil, reduce size of array
+// More as I think of them...
+static int obj_ud_newindex(lua_State *L) {
+    return luaL_error(L, "read-only object") ;
+//     return 0 ;
+}
+
+static int obj_ud_len(lua_State *L) {
+    NSObject *obj = get_objectFromUserdata(__bridge NSObject, L, 1, OBJ_UD_TAG) ;
+    if ([obj isKindOfClass:[NSArray class]]) {
+        lua_pushinteger(L, (lua_Integer)[(NSArray *)obj count]) ;
+    } else if ([obj isKindOfClass:[NSDictionary class]]) {
+// TODO: Notes for generic implementation of objectWrapper
+//
+// Technically lua considers a key-value table to have a length representing how many
+// consecutive integer keys are present starting with 1. JSON doesn't allow mixing of
+// arrays and dictionarys (k-v tables) so we skip it for now.
+        lua_pushinteger(L, 0) ;
+    } else if ([obj isKindOfClass:[NSString class]]) {
+        // should be impossible for this implementation, but in case we copy this into something more
+        // generic, lets include it since strings can return a length in lua
+        lua_pushinteger(L, (lua_Integer)[(NSString *)obj lengthOfBytesUsingEncoding:NSUTF8StringEncoding]) ;
+    } else {
+        return luaL_error(L, "attempt to get length of a %s value", [[obj className] UTF8String]) ;
+    }
+    return 1 ;
+}
+
+static int obj_ud_tostring(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    NSObject *obj = get_objectFromUserdata(__bridge NSObject, L, 1, OBJ_UD_TAG) ;
+    NSString *title = [(NSObject *)obj className] ;
+    [skin pushNSObject:[NSString stringWithFormat:@"%s: %@ (%p)", OBJ_UD_TAG, title, lua_topointer(L, 1)]] ;
+    return 1 ;
+}
+
+static int obj_ud_eq(lua_State *L) {
+// can't get here if at least one of us isn't a userdata type, and we only care if both types are ours,
+// so use luaL_testudata before the macro causes a lua error
+    if (luaL_testudata(L, 1, OBJ_UD_TAG) && luaL_testudata(L, 2, OBJ_UD_TAG)) {
+        NSObject *obj1 = get_objectFromUserdata(__bridge NSObject, L, 1, OBJ_UD_TAG) ;
+        NSObject *obj2 = get_objectFromUserdata(__bridge NSObject, L, 2, OBJ_UD_TAG) ;
+        lua_pushboolean(L, [obj1 isEqualTo:obj2]) ;
+    } else {
+        lua_pushboolean(L, NO) ;
+    }
+    return 1 ;
+}
+
+static int obj_ud_gc(lua_State *L) {
+    NSObject *obj = get_objectFromUserdata(__bridge_transfer NSObject, L, 1, OBJ_UD_TAG) ;
+    obj = nil ;
+
+    // Remove the Metatable so future use of the variable in Lua won't think its valid
+    lua_pushnil(L) ;
+    lua_setmetatable(L, 1) ;
+
+    return 0 ;
+}
+
 #pragma mark - Hammerspoon/Lua Infrastructure
 
 static int meta_gc(lua_State* __unused L) {
@@ -500,12 +636,28 @@ static int meta_gc(lua_State* __unused L) {
     refTriggerFn = [skin luaUnref:refTable ref:refTriggerFn] ;
 
     // probably overkill, but lets just be official about it
-    [registeredFilesDictionary removeAllObjects] ;
-    registeredFilesDictionary = nil ;
+    [registeredFiles removeAllObjects] ;
+    registeredFiles = nil ;
     [documentationTree removeAllObjects] ;
     documentationTree = nil ;
     return 0 ;
 }
+
+// Metatable for jsonWrapper
+static const luaL_Reg obj_ud_metaLib[] = {
+    {"children",   obj_children},
+    {"value",      obj_value},
+// __index will be set in LuaSkin registration, so wrap we'll wrap it in init.lua to call this
+    {"__index2",   obj_ud_index},
+    {"__newindex", obj_ud_newindex},
+    {"__len",      obj_ud_len},
+// wrapped in init.lua
+//     {"__pairs",    obj_ud_pairs},
+    {"__tostring", obj_ud_tostring},
+    {"__eq",       obj_ud_eq},
+    {"__gc",       obj_ud_gc},
+    {NULL,         NULL}
+} ;
 
 // Functions for returned object when module loads
 static luaL_Reg moduleLib[] = {
@@ -520,24 +672,26 @@ static luaL_Reg moduleLib[] = {
 
 // Metatable for module, if needed
 static const luaL_Reg module_metaLib[] = {
-    {"_children",                  internal_arrayOfChildren},
-    {"_moduleJson",                internal_arrayOfModuleJsonSegments},
-    {"_loadRegisteredFiles",       internal_loadRegisteredFiles},
-    {"_registerTriggerFunction",   internal_registerTriggerFunction},
+    {"_children",                internal_arrayOfChildren},
+    {"_loadRegisteredFiles",     internal_loadRegisteredFiles},
+    {"_registerTriggerFunction", internal_registerTriggerFunction},
 
-    {"_registeredFilesDictionary", debug_registeredFilesDictionary},
-    {"_documentationTree",         debug_documentationTree},
+    {"_registeredFilesObject",   internal_registeredFiles},
 
-    {"__gc",                       meta_gc},
+    {"_registeredFiles",         debug_registeredFiles},
+    {"_documentationTree",       debug_documentationTree},
+
+    {"__gc",                     meta_gc},
 
     {NULL,   NULL}
 };
 
-int luaopen_hs_doc_internal(lua_State* __unused L) {
+int luaopen_hs_doc_internal(__unused lua_State* L) {
     LuaSkin *skin = [LuaSkin shared] ;
     refTable = [skin registerLibrary:moduleLib metaFunctions:module_metaLib] ;
+    [skin registerObject:OBJ_UD_TAG objectFunctions:obj_ud_metaLib] ;
 
-    registeredFilesDictionary = [[NSMutableDictionary alloc] init] ;
+    registeredFiles = [[NSMutableDictionary alloc] init] ;
     // if you change this, also change it in doc_unregisterJSONFile
     documentationTree         = [@{
         @"__type__" : @"root",
