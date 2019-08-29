@@ -28,8 +28,9 @@
 local USERDATA_TAG  = "hs.doc"
 local module        = require(USERDATA_TAG..".internal")
 local moduleMT      = getmetatable(module)
+local objectMT      = hs.getObjectMetatable(USERDATA_TAG..".object")
 
--- autoloaded by __init -- see end of file
+-- autoloaded by __index -- see end of file
 local submodules = {
     markdown = USERDATA_TAG .. ".markdown",
     hsdocs   = USERDATA_TAG .. ".hsdocs",
@@ -59,8 +60,8 @@ local _jsonForSpoons = nil
 local _jsonForModules = nil
 
 module._changeCountWatcher = watchable.watch("hs.doc", "changeCount", function(w, p, k, o, n)
-    _jsonForSpoons = nil
     _jsonForModules = nil
+    _jsonForSpoons  = nil
 end)
 
 -- forward declaration of things we're going to wrap
@@ -103,6 +104,20 @@ helperMT = {
         return #moduleMT._children(parent)
     end,
 }
+
+objectMT.__pairs = function(self)
+    local keys, values = self:children(), {}
+    for _, v in ipairs(keys) do values[v] = self[v] end
+    return function(_, k)
+            local v
+            k, v = next(values, k)
+            return k, v
+        end, self, nil
+end
+
+objectMT.__index = function(self, key)
+    return rawget(objectMT, key) or objectMT.__index2(self, key)
+end
 
 -- Public interface ------------------------------------------------------
 
@@ -253,7 +268,7 @@ module.registerJSONFile(hs.docstrings_json_file)
 module.registerJSONFile((hs.docstrings_json_file:gsub("/docs.json$","/extensions/hs/doc/lua.json")))
 
 -- we hide some debugging stuff in the metatable but we want to modify it here, and its considered bad style
--- to do so while it's attached, so...
+-- to do so while it's attached to something, so...
 
 local _mt = getmetatable(module) or {} -- in our case, it's not empty, but I cut and paste a lot
 setmetatable(module, nil)
@@ -268,8 +283,34 @@ _mt.__index = function(self, key)
 
     -- massage the result for hsdocs, which we should really rewrite at some point
     if key == "_jsonForSpoons" or key == "_jsonForModules" then
-        if not _jsonForSpoons then  _jsonForSpoons  = _mt._moduleJson("spoon") ; print ("reloading spoon json for hsdocs") end
-        if not _jsonForModules then _jsonForModules = _mt._moduleJson("hs") ; print ("reloading module json for hsdocs") end
+        if not _jsonForSpoons then
+            _jsonForSpoons = {}
+            for _, path in ipairs(module.registeredFiles()) do
+                local file = _mt._registeredFilesObject()[path]
+                if file.spoon then
+                    for _, v in ipairs(file.json) do
+                        if not (v.name:match("^lua$") or v.name:match("^lua[%.:]")) then
+                            table.insert(_jsonForSpoons, v)
+                        end
+                    end
+                end
+            end
+            table.sort(_jsonForSpoons, function(a,b) return a.name:lower() < b.name:lower() end)
+        end
+        if not _jsonForModules then
+            _jsonForModules = {}
+            for _, path in ipairs(module.registeredFiles()) do
+                local file = _mt._registeredFilesObject()[path]
+                if not file.spoon then
+                    for _, v in ipairs(file.json) do
+                        if not (v.name:match("^lua$") or v.name:match("^lua[%.:]")) then
+                            table.insert(_jsonForModules, v)
+                        end
+                    end
+                end
+            end
+            table.sort(_jsonForModules, function(a,b) return a.name:lower() < b.name:lower() end)
+        end
         return (key == "_jsonForModules") and _jsonForModules or _jsonForSpoons
     end
     local children = _mt._children()
