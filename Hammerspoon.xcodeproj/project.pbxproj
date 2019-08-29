@@ -298,6 +298,7 @@
 		D6B946531D139CB800177E0C /* datastore.m in Sources */ = {isa = PBXBuildFile; fileRef = D6B946431D139C4900177E0C /* datastore.m */; };
 		D6B946581D139CC500177E0C /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		D6B9465A1D139CC500177E0C /* webview.h in Headers */ = {isa = PBXBuildFile; fileRef = D64B03361BA9541E0006C468 /* webview.h */; };
+		D6BACEAA23178ECA00110E1E /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = D6BACEA923178EC900110E1E /* internal.m */; };
 		D6BB4FB41C16959C000DC0A2 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		D6BB4FBA1C1695BF000DC0A2 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = D6BB4FA81C169539000DC0A2 /* internal.m */; };
 		D6BB4FC21C1695EC000DC0A2 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
@@ -1322,12 +1323,12 @@
 		D6B946431D139C4900177E0C /* datastore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = datastore.m; path = extensions/webview/datastore.m; sourceTree = "<group>"; };
 		D6B946521D139C7D00177E0C /* libwebviewdatastore.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libwebviewdatastore.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		D6B9465E1D139CC500177E0C /* libwebviewtoolbar.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libwebviewtoolbar.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		D6BACEA923178EC900110E1E /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/doc/internal.m; sourceTree = "<group>"; };
 		D6BB4FA71C169539000DC0A2 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/speech/init.lua; sourceTree = "<group>"; };
 		D6BB4FA81C169539000DC0A2 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/speech/internal.m; sourceTree = "<group>"; };
 		D6BB4FA91C169539000DC0A2 /* listener.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = listener.m; path = extensions/speech/listener.m; sourceTree = "<group>"; };
 		D6BB4FB91C16959C000DC0A2 /* libspeech.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libspeech.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		D6BB4FC71C1695EC000DC0A2 /* libspeechlistener.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libspeechlistener.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		D6BCFD1E1EA9E23B00F6D731 /* spoonsupport.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = spoonsupport.lua; path = extensions/doc/spoonsupport.lua; sourceTree = "<group>"; };
 		D6E071681E04D9FC00C1046A /* canvasWrapper.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = canvasWrapper.lua; path = extensions/drawing/canvasWrapper.lua; sourceTree = "<group>"; };
 		D6E164D11F4C25FD00B85D8A /* xattr.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = xattr.m; path = extensions/fs/xattr.m; sourceTree = "<group>"; };
 		D6E164DC1F4C262300B85D8A /* libfsxattr.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libfsxattr.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -2801,7 +2802,7 @@
 		4FD0ABC91B74B1B000A82496 /* doc */ = {
 			isa = PBXGroup;
 			children = (
-				D6BCFD1E1EA9E23B00F6D731 /* spoonsupport.lua */,
+				D6BACEA923178EC900110E1E /* internal.m */,
 				D67F1B3C1EA9D65E00FEB411 /* builder.lua */,
 				D64964601CCB32AE0074540B /* autolink.c */,
 				D64964611CCB32AE0074540B /* autolink.h */,
@@ -6461,6 +6462,7 @@
 				D64964851CCB33120074540B /* buffer.c in Sources */,
 				D64964861CCB33120074540B /* houdini_href_e.c in Sources */,
 				D64964871CCB33120074540B /* houdini_html_e.c in Sources */,
+				D6BACEAA23178ECA00110E1E /* internal.m in Sources */,
 				D64964881CCB33120074540B /* html.c in Sources */,
 				D64964891CCB33120074540B /* markdown.c in Sources */,
 				D649648A1CCB33120074540B /* markdown.m in Sources */,
