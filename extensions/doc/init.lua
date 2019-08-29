@@ -59,7 +59,7 @@ moduleMT._registerTriggerFunction(triggerChangeCount)
 local _jsonForSpoons = nil
 local _jsonForModules = nil
 
-module._changeCountWatcher = watchable.watch("hs.doc", "changeCount", function(w, p, k, o, n)
+module._changeCountWatcher = watchable.watch("hs.doc", "changeCount", function(w, p, k, o, n) -- luacheck: ignore
     _jsonForModules = nil
     _jsonForSpoons  = nil
 end)
@@ -179,7 +179,7 @@ end
 module.help = function(...)
     local answer = _help(...)
     return setmetatable({}, {
-        __tostring = function(self) return answer end,
+        __tostring = function(self) return answer end, -- luacheck: ignore
     })
 end
 
