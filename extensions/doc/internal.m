@@ -423,24 +423,6 @@ static int internal_arrayOfChildren(lua_State *L) {
     return 1 ;
 }
 
-// returns objectWrapper for registeredFiles
-static int internal_registeredFiles(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
-
-    NSObject *obj = registeredFiles ;
-
-    if ([obj isKindOfClass:[NSArray class]] || [obj isKindOfClass:[NSDictionary class]]) {
-        void** valuePtr = lua_newuserdata(L, sizeof(NSObject *)) ;
-        *valuePtr = (__bridge_retained void *)obj ;
-        luaL_getmetatable(L, OBJ_UD_TAG) ;
-        lua_setmetatable(L, -2) ;
-    } else {
-        [skin pushNSObject:obj withOptions:LS_NSDescribeUnknownTypes] ;
-    }
-
-    return 1 ;
-}
-
 // used by doc_help and when json being rebuilt for hsdocs
 static int internal_loadRegisteredFiles(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
@@ -463,23 +445,41 @@ static int internal_registerTriggerFunction(lua_State *L) {
     return 0 ;
 }
 
-#pragma mark - Debugging Tools
+#pragma mark - objectWrapper Constructors
 
-// Shouldn't generally be necessary, so we hide them in the metatable to prevent accidental access
-// They are *really* slow because invoking them replicates all of the json data collected thus far
-// in lua all at once.
-
-static int debug_registeredFiles(__unused lua_State *L) {
+// returns objectWrapper for registeredFiles
+static int internal_registeredFiles(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TBREAK] ;
-    [skin pushNSObject:registeredFiles] ;
+
+    NSObject *obj = registeredFiles ;
+
+    if ([obj isKindOfClass:[NSArray class]] || [obj isKindOfClass:[NSDictionary class]]) {
+        void** valuePtr = lua_newuserdata(L, sizeof(NSObject *)) ;
+        *valuePtr = (__bridge_retained void *)obj ;
+        luaL_getmetatable(L, OBJ_UD_TAG) ;
+        lua_setmetatable(L, -2) ;
+    } else {
+        [skin pushNSObject:obj withOptions:LS_NSDescribeUnknownTypes] ;
+    }
+
     return 1 ;
 }
 
-static int debug_documentationTree(__unused lua_State *L) {
+// returns objectWrapper for documentationTree
+static int internal_documentationTree(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TBREAK] ;
-    [skin pushNSObject:documentationTree] ;
+
+    NSObject *obj = documentationTree ;
+
+    if ([obj isKindOfClass:[NSArray class]] || [obj isKindOfClass:[NSDictionary class]]) {
+        void** valuePtr = lua_newuserdata(L, sizeof(NSObject *)) ;
+        *valuePtr = (__bridge_retained void *)obj ;
+        luaL_getmetatable(L, OBJ_UD_TAG) ;
+        lua_setmetatable(L, -2) ;
+    } else {
+        [skin pushNSObject:obj withOptions:LS_NSDescribeUnknownTypes] ;
+    }
+
     return 1 ;
 }
 
@@ -677,9 +677,7 @@ static const luaL_Reg module_metaLib[] = {
     {"_registerTriggerFunction", internal_registerTriggerFunction},
 
     {"_registeredFilesObject",   internal_registeredFiles},
-
-    {"_registeredFiles",         debug_registeredFiles},
-    {"_documentationTree",       debug_documentationTree},
+    {"_documentationTreeObject", internal_documentationTree},
 
     {"__gc",                     meta_gc},
 
