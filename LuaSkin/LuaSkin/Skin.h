@@ -21,6 +21,8 @@
 #import "lua.h"
 #import <assert.h>
 
+extern const char * const LuaSkin_UD_TAG ;
+
 // Defines for Lua stack guard macros
 /*
 #ifdef DEBUG
@@ -80,6 +82,9 @@ typedef NS_OPTIONS(NSUInteger, LS_NSConversionOptions) {
     LS_NSAllowsSelfReference          = 1 << 4,
     LS_NSRawTables                    = 1 << 6,
 
+    LS_WithObjectWrapper              = 1 << 15,
+    LS_OW_ReadWrite                   = 1 << 16,
+    LS_OW_WithArrayConversion         = 1 << 17,
 } ;
 
 /*!

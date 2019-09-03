@@ -1,4 +1,8 @@
-local ls = {}
+local USERDATA_TAG = "luaskin.objectWrapper"
+local internalPath = debug.getinfo(1, "S").source:match("^@(.+/).+%.lua$")
+
+local ls   = package.loadlib(internalPath .. "luaskin.so", "luaopen_luaskin_internal")()
+local owMT = debug.getregistry()[USERDATA_TAG]
 
 -- private variables and methods -----------------------------------------
 
@@ -102,6 +106,20 @@ _makeConstantsTable = function(theTable)
 end
 
 -- Public interface ------------------------------------------------------
+
+owMT.__pairs = function(self)
+    local keys, values = self:children(), {}
+    for _, v in ipairs(keys) do values[v] = self[v] end
+    return function(_, k)
+            local v
+            k, v = next(values, k)
+            return k, v
+        end, self, nil
+end
+
+owMT.__index = function(self, key)
+    return rawget(owMT, key) or owMT.__index2(self, key)
+end
 
 ls.makeConstantsTable = _makeConstantsTable
 
