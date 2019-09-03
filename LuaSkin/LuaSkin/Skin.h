@@ -22,6 +22,7 @@
 #import <assert.h>
 
 extern const char * const LuaSkin_UD_TAG ;
+extern int luaopen_luaskin_internal(lua_State* L) ; // entry vector to luaskin.m objectWrapper additions
 
 // Defines for Lua stack guard macros
 /*

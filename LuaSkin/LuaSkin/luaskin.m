@@ -1,5 +1,7 @@
-@import Cocoa ;
-@import LuaSkin ;
+// @import Cocoa ;
+// @import LuaSkin ;
+
+#import "Skin.h"
 
 static int refTable = LUA_NOREF;
 
@@ -224,5 +226,7 @@ int luaopen_luaskin_internal(lua_State* L) {
     lua_setfield(L, -2, "__refTable") ;
     refTable = tmpRefTable ;
 
-    return 1;
+    lua_setglobal(L, "ls") ;
+
+    return 0 ;
 }

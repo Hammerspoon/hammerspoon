@@ -103,6 +103,7 @@
 		4FEF59711B29D0FB002344A7 /* Skin.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FEF596F1B29D0FB002344A7 /* Skin.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4FEF59721B29D0FB002344A7 /* Skin.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FEF59701B29D0FB002344A7 /* Skin.m */; };
 		4FEF5AD51B29E017002344A7 /* liblua.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FEF5A981B29E005002344A7 /* liblua.a */; };
+		D671D314231EDA6B0043822A /* luaskin.m in Sources */ = {isa = PBXBuildFile; fileRef = D671D313231EDA6B0043822A /* luaskin.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -190,6 +191,7 @@
 		4FEF596F1B29D0FB002344A7 /* Skin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = Skin.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		4FEF59701B29D0FB002344A7 /* Skin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = Skin.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		4FEF5A981B29E005002344A7 /* liblua.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblua.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		D671D313231EDA6B0043822A /* luaskin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = luaskin.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -309,6 +311,7 @@
 		4FEF59511B29CE06002344A7 /* LuaSkin */ = {
 			isa = PBXGroup;
 			children = (
+				D671D313231EDA6B0043822A /* luaskin.m */,
 				4F478F0A1DE6251400E0DC38 /* lobjectivec_exceptions.h */,
 				4F478F0B1DE6251400E0DC38 /* lobjectivec_exceptions.m */,
 				4FEF59541B29CE06002344A7 /* LuaSkin.h */,
@@ -540,6 +543,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FEF59721B29D0FB002344A7 /* Skin.m in Sources */,
+				D671D314231EDA6B0043822A /* luaskin.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
