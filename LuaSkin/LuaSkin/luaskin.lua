@@ -1,7 +1,6 @@
 local USERDATA_TAG = "luaskin.objectWrapper"
-local internalPath = debug.getinfo(1, "S").source:match("^@(.+/).+%.lua$")
 
-local ls   = package.loadlib(internalPath .. "luaskin.so", "luaopen_luaskin_internal")()
+local ls   = _G["ls"]
 local owMT = debug.getregistry()[USERDATA_TAG]
 
 -- private variables and methods -----------------------------------------
@@ -122,5 +121,3 @@ owMT.__index = function(self, key)
 end
 
 ls.makeConstantsTable = _makeConstantsTable
-
-_G["ls"] = ls

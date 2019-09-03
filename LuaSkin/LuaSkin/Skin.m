@@ -166,7 +166,9 @@ NSString *specMaskToString(int spec) {
     NSString *luaSkinLua = [[NSBundle bundleForClass:[self class]] pathForResource:@"luaskin" ofType:@"lua"];
     NSAssert((luaSkinLua != nil), @"createLuaState was unable to find luaskin.lua. Your installation may be damaged");
 
-    int loadresult = luaL_loadfile(self.L, luaSkinLua.fileSystemRepresentation);
+    luaopen_luaskin_internal(self.L) ; // load objectWrapper userdata methods and create _G["ls"]
+
+    int loadresult = luaL_loadfile(self.L, luaSkinLua.fileSystemRepresentation); // extend _G["ls"]
     if (loadresult != 0) {
         NSLog(@"createLuaState was unable to load luaskin.lua. Your installation may be damaged.");
         exit(1);
@@ -279,7 +281,6 @@ NSString *specMaskToString(int spec) {
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconstant-conversion"
-#pragma GCC diagnostic ignored "-Wunknown-warning-option"
 #pragma GCC diagnostic ignored "-Wsizeof-pointer-div"
     luaL_newlib(self.L, functions);
     if (metaFunctions != nil) {
@@ -322,7 +323,6 @@ NSString *specMaskToString(int spec) {
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconstant-conversion"
-#pragma GCC diagnostic ignored "-Wunknown-warning-option"
 #pragma GCC diagnostic ignored "-Wsizeof-pointer-div"
     luaL_newlib(self.L, objectFunctions);
 #pragma GCC diagnostic pop
