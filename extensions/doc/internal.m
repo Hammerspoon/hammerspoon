@@ -2,12 +2,9 @@
 @import LuaSkin ;
 
 static const char * const USERDATA_TAG = "hs.doc" ; // we're using it as a module tag for console messages
-static const char * const OBJ_UD_TAG   = "hs.doc.object" ; // experimental NSObject wrapper; may move to LuaSkin eventually
 
 static int refTable     = LUA_NOREF;
 static int refTriggerFn = LUA_NOREF ;
-
-#define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 
 static NSMutableDictionary *registeredFiles ;
 static NSMutableDictionary *documentationTree ;
@@ -448,185 +445,17 @@ static int internal_registerTriggerFunction(lua_State *L) {
 #pragma mark - objectWrapper Constructors
 
 // returns objectWrapper for registeredFiles
-static int internal_registeredFiles(lua_State *L) {
+static int internal_registeredFiles(__unused lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
-
-    NSObject *obj = registeredFiles ;
-
-    if ([obj isKindOfClass:[NSArray class]] || [obj isKindOfClass:[NSDictionary class]]) {
-        void** valuePtr = lua_newuserdata(L, sizeof(NSObject *)) ;
-        *valuePtr = (__bridge_retained void *)obj ;
-        luaL_getmetatable(L, OBJ_UD_TAG) ;
-        lua_setmetatable(L, -2) ;
-    } else {
-        [skin pushNSObject:obj withOptions:LS_NSDescribeUnknownTypes] ;
-    }
-
+    [skin pushNSObject:registeredFiles withOptions:LS_WithObjectWrapper | LS_NSDescribeUnknownTypes] ;
     return 1 ;
 }
 
 // returns objectWrapper for documentationTree
-static int internal_documentationTree(lua_State *L) {
+static int internal_documentationTree(__unused lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
-
-    NSObject *obj = documentationTree ;
-
-    if ([obj isKindOfClass:[NSArray class]] || [obj isKindOfClass:[NSDictionary class]]) {
-        void** valuePtr = lua_newuserdata(L, sizeof(NSObject *)) ;
-        *valuePtr = (__bridge_retained void *)obj ;
-        luaL_getmetatable(L, OBJ_UD_TAG) ;
-        lua_setmetatable(L, -2) ;
-    } else {
-        [skin pushNSObject:obj withOptions:LS_NSDescribeUnknownTypes] ;
-    }
-
+    [skin pushNSObject:documentationTree withOptions:LS_WithObjectWrapper | LS_NSDescribeUnknownTypes] ;
     return 1 ;
-}
-
-#pragma mark - objectWrapper methods
-
-static int obj_children(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TUSERDATA, OBJ_UD_TAG, LS_TBREAK] ;
-    NSObject *obj = get_objectFromUserdata(__bridge NSObject, L, 1, OBJ_UD_TAG) ;
-
-    if ([obj isKindOfClass:[NSArray class]]) {
-        lua_newtable(L) ;
-        for (NSUInteger i = 0 ; i < [(NSArray *)obj count] ; i++) {
-            lua_pushinteger(L, (lua_Integer)(i + 1)) ;
-            lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-        }
-    } else if ([obj isKindOfClass:[NSDictionary class]]) {
-        [skin pushNSObject:[(NSDictionary *)obj allKeys]] ;
-    } else {
-        lua_pushnil(L) ;
-    }
-
-    return 1 ;
-}
-
-static int obj_value(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TUSERDATA, OBJ_UD_TAG, LS_TBREAK] ;
-    NSObject *obj = get_objectFromUserdata(__bridge NSObject, L, 1, OBJ_UD_TAG) ;
-
-    [skin pushNSObject:obj withOptions:LS_NSDescribeUnknownTypes] ;
-    return 1 ;
-}
-
-#pragma mark - objectWrapper metaFunctions
-
-static int obj_ud_index(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
-    NSObject *obj = get_objectFromUserdata(__bridge NSObject, L, 1, OBJ_UD_TAG) ;
-
-    if ([obj isKindOfClass:[NSArray class]] || [obj isKindOfClass:[NSDictionary class]]) {
-        int type = lua_type(L, 2) ;
-        if (type == LUA_TNUMBER && lua_isinteger(L, 2)) {
-            lua_Integer lIdx = lua_tointeger(L, 2) ;
-            if ([obj isKindOfClass:[NSArray class]]) {
-                if (lIdx < 1 || lIdx > (lua_Integer)[(NSArray *)obj count]) {
-                    obj = nil ;
-                } else {
-                    obj = [(NSArray *)obj objectAtIndex:(NSUInteger)(lIdx - 1)] ;
-                }
-            } else if ([obj isKindOfClass:[NSDictionary class]]) {
-                obj = [(NSDictionary *)obj objectForKey:@(lIdx)] ;
-            } else {
-                obj = nil ;
-            }
-        } else if (type == LUA_TSTRING) {
-            NSString *lKey = [skin toNSObjectAtIndex:2] ;
-            if ([obj isKindOfClass:[NSDictionary class]]) {
-                obj = [(NSDictionary *)obj objectForKey:lKey] ;
-            } else {
-                obj = nil ;
-            }
-        } else {
-            obj = nil ;
-        }
-    } else if ([obj isKindOfClass:[NSString class]]) {
-        // should be impossible for this implementation, but in case we copy this into something more
-        // generic, lets include it since strings can apparently be index in lua, but always return nil
-        obj = nil ;
-    } else {
-        return luaL_error(L, "attempt to index a %s value", [[obj className] UTF8String]) ;
-    }
-
-    if ([obj isKindOfClass:[NSArray class]] || [obj isKindOfClass:[NSDictionary class]]) {
-        void** valuePtr = lua_newuserdata(L, sizeof(NSObject *)) ;
-        *valuePtr = (__bridge_retained void *)obj ;
-        luaL_getmetatable(L, OBJ_UD_TAG) ;
-        lua_setmetatable(L, -2) ;
-    } else {
-        [skin pushNSObject:obj withOptions:LS_NSDescribeUnknownTypes] ;
-    }
-
-    return 1 ;
-}
-
-// TODO: Notes for generic implementation of objectWrapper
-//
-//  * will need a way to mark objectWrapper as read-only, in which case this should return an error
-//  * with NSArray, if idx outside of [1,count + 1] or not a number, need to convert to NSDictionary
-//  * with NSArray, if idx == count and value = nil, reduce size of array
-// More as I think of them...
-static int obj_ud_newindex(lua_State *L) {
-    return luaL_error(L, "read-only object") ;
-//     return 0 ;
-}
-
-static int obj_ud_len(lua_State *L) {
-    NSObject *obj = get_objectFromUserdata(__bridge NSObject, L, 1, OBJ_UD_TAG) ;
-    if ([obj isKindOfClass:[NSArray class]]) {
-        lua_pushinteger(L, (lua_Integer)[(NSArray *)obj count]) ;
-    } else if ([obj isKindOfClass:[NSDictionary class]]) {
-// TODO: Notes for generic implementation of objectWrapper
-//
-// Technically lua considers a key-value table to have a length representing how many
-// consecutive integer keys are present starting with 1. JSON doesn't allow mixing of
-// arrays and dictionarys (k-v tables) so we skip it for now.
-        lua_pushinteger(L, 0) ;
-    } else if ([obj isKindOfClass:[NSString class]]) {
-        // should be impossible for this implementation, but in case we copy this into something more
-        // generic, lets include it since strings can return a length in lua
-        lua_pushinteger(L, (lua_Integer)[(NSString *)obj lengthOfBytesUsingEncoding:NSUTF8StringEncoding]) ;
-    } else {
-        return luaL_error(L, "attempt to get length of a %s value", [[obj className] UTF8String]) ;
-    }
-    return 1 ;
-}
-
-static int obj_ud_tostring(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
-    NSObject *obj = get_objectFromUserdata(__bridge NSObject, L, 1, OBJ_UD_TAG) ;
-    NSString *title = [(NSObject *)obj className] ;
-    [skin pushNSObject:[NSString stringWithFormat:@"%s: %@ (%p)", OBJ_UD_TAG, title, lua_topointer(L, 1)]] ;
-    return 1 ;
-}
-
-static int obj_ud_eq(lua_State *L) {
-// can't get here if at least one of us isn't a userdata type, and we only care if both types are ours,
-// so use luaL_testudata before the macro causes a lua error
-    if (luaL_testudata(L, 1, OBJ_UD_TAG) && luaL_testudata(L, 2, OBJ_UD_TAG)) {
-        NSObject *obj1 = get_objectFromUserdata(__bridge NSObject, L, 1, OBJ_UD_TAG) ;
-        NSObject *obj2 = get_objectFromUserdata(__bridge NSObject, L, 2, OBJ_UD_TAG) ;
-        lua_pushboolean(L, [obj1 isEqualTo:obj2]) ;
-    } else {
-        lua_pushboolean(L, NO) ;
-    }
-    return 1 ;
-}
-
-static int obj_ud_gc(lua_State *L) {
-    NSObject *obj = get_objectFromUserdata(__bridge_transfer NSObject, L, 1, OBJ_UD_TAG) ;
-    obj = nil ;
-
-    // Remove the Metatable so future use of the variable in Lua won't think its valid
-    lua_pushnil(L) ;
-    lua_setmetatable(L, 1) ;
-
-    return 0 ;
 }
 
 #pragma mark - Hammerspoon/Lua Infrastructure
@@ -642,22 +471,6 @@ static int meta_gc(lua_State* __unused L) {
     documentationTree = nil ;
     return 0 ;
 }
-
-// Metatable for jsonWrapper
-static const luaL_Reg obj_ud_metaLib[] = {
-    {"children",   obj_children},
-    {"value",      obj_value},
-// __index will be set in LuaSkin registration, so wrap we'll wrap it in init.lua to call this
-    {"__index2",   obj_ud_index},
-    {"__newindex", obj_ud_newindex},
-    {"__len",      obj_ud_len},
-// wrapped in init.lua
-//     {"__pairs",    obj_ud_pairs},
-    {"__tostring", obj_ud_tostring},
-    {"__eq",       obj_ud_eq},
-    {"__gc",       obj_ud_gc},
-    {NULL,         NULL}
-} ;
 
 // Functions for returned object when module loads
 static luaL_Reg moduleLib[] = {
@@ -687,7 +500,6 @@ static const luaL_Reg module_metaLib[] = {
 int luaopen_hs_doc_internal(__unused lua_State* L) {
     LuaSkin *skin = [LuaSkin shared] ;
     refTable = [skin registerLibrary:moduleLib metaFunctions:module_metaLib] ;
-    [skin registerObject:OBJ_UD_TAG objectFunctions:obj_ud_metaLib] ;
 
     registeredFiles = [[NSMutableDictionary alloc] init] ;
     // if you change this, also change it in doc_unregisterJSONFile

@@ -28,7 +28,6 @@
 local USERDATA_TAG  = "hs.doc"
 local module        = require(USERDATA_TAG..".internal")
 local moduleMT      = getmetatable(module)
-local objectMT      = hs.getObjectMetatable(USERDATA_TAG..".object")
 
 -- autoloaded by __index -- see end of file
 local submodules = {
@@ -104,20 +103,6 @@ helperMT = {
         return #moduleMT._children(parent)
     end,
 }
-
-objectMT.__pairs = function(self)
-    local keys, values = self:children(), {}
-    for _, v in ipairs(keys) do values[v] = self[v] end
-    return function(_, k)
-            local v
-            k, v = next(values, k)
-            return k, v
-        end, self, nil
-end
-
-objectMT.__index = function(self, key)
-    return rawget(objectMT, key) or objectMT.__index2(self, key)
-end
 
 -- Public interface ------------------------------------------------------
 
