@@ -66,8 +66,8 @@ static int obj_new(lua_State *L) {
 
 static int obj_isReadOnly(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TUSERDATA, LuaSkin_UD_TAG, LS_TBREAK] ;
-    NSObject *obj = get_objectFromUserdata(__bridge NSObject, L, 1, LuaSkin_UD_TAG) ;
+    [skin checkArgs:LS_TWRAPPEDOBJECT, LS_TBREAK] ;
+    NSObject *obj = [skin toNSObjectAtIndex:1] ;
 
     BOOL isMutable = [obj isKindOfClass:[NSMutableArray class]] ||
                      [obj isKindOfClass:[NSMutableDictionary class]] ;
@@ -83,8 +83,8 @@ static int obj_isReadOnly(lua_State *L) {
 
 static int obj_children(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TUSERDATA, LuaSkin_UD_TAG, LS_TBREAK] ;
-    NSObject *obj = get_objectFromUserdata(__bridge NSObject, L, 1, LuaSkin_UD_TAG) ;
+    [skin checkArgs:LS_TWRAPPEDOBJECT, LS_TBREAK] ;
+    NSObject *obj = [skin toNSObjectAtIndex:1] ;
 
     if ([obj isKindOfClass:[NSArray class]]) {
         lua_newtable(L) ;
@@ -101,10 +101,10 @@ static int obj_children(lua_State *L) {
     return 1 ;
 }
 
-static int obj_value(lua_State *L) {
+static int obj_value(__unused lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TUSERDATA, LuaSkin_UD_TAG, LS_TBREAK] ;
-    NSObject *obj = get_objectFromUserdata(__bridge NSObject, L, 1, LuaSkin_UD_TAG) ;
+    [skin checkArgs:LS_TWRAPPEDOBJECT, LS_TBREAK] ;
+    NSObject *obj = [skin toNSObjectAtIndex:1] ;
 
     [skin pushNSObject:obj withOptions:LS_NSDescribeUnknownTypes] ;
     return 1 ;
