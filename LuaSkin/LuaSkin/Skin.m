@@ -62,6 +62,9 @@ NSString *specMaskToString(int spec) {
     if (spec & LS_TBOOLEAN) {
         [parts addObject:@"boolean"];
     }
+    if (spec & LS_TWRAPPEDOBJECT) {
+        [parts addObject:@"wrappedObject"] ;
+    }
 
     return [parts componentsJoinedByString:@" or "];
 }
@@ -502,14 +505,20 @@ NSString *specMaskToString(int spec) {
             case LUA_TUSERDATA:
                 lsType = LS_TUSERDATA;
 
-                // We have to duplicate this check here, because if the user wasn't supposed to pass userdata, we won't have a valid userdataTag value available
-                if (!(spec & lsType)) {
-                    luaL_error(self.L, "ERROR:  incorrect type '%s' for argument %d (expected %s)", luaL_typename(self.L, idx), idx, specMaskToString(spec).UTF8String);
-                }
+                if (spec & LS_TWRAPPEDOBJECT) {
+                    if (!luaL_testudata(self.L, idx, LuaSkin_UD_TAG)) {
+                        luaL_error(self.L, "ERROR: incorrect userdata type for argument %d (expected %s)", idx, LuaSkin_UD_TAG);
+                    }
+                } else {
+                    // We have to duplicate this check here, because if the user wasn't supposed to pass userdata, we won't have a valid userdataTag value available
+                    if (!(spec & lsType)) {
+                        luaL_error(self.L, "ERROR:  incorrect type '%s' for argument %d (expected %s)", luaL_typename(self.L, idx), idx, specMaskToString(spec).UTF8String);
+                    }
 
-                userdataTag = va_arg(args, char*);
-                if (!userdataTag || strlen(userdataTag) == 0 || !luaL_testudata(self.L, idx, userdataTag)) {
-                    luaL_error(self.L, "ERROR: incorrect userdata type for argument %d (expected %s)", idx, userdataTag);
+                    userdataTag = va_arg(args, char*);
+                    if (!userdataTag || strlen(userdataTag) == 0 || !luaL_testudata(self.L, idx, userdataTag)) {
+                        luaL_error(self.L, "ERROR: incorrect userdata type for argument %d (expected %s)", idx, userdataTag);
+                    }
                 }
                 break;
 
@@ -518,7 +527,7 @@ NSString *specMaskToString(int spec) {
                 break;
         }
 
-        if (!(spec & LS_TANY) && !(spec & lsType)) {
+        if (!(spec & LS_TANY) && !(spec & lsType) && !(spec & LS_TWRAPPEDOBJECT)) {
             luaL_error(self.L, "ERROR: incorrect type '%s' for argument %d (expected %s)", luaL_typename(self.L, idx), idx, specMaskToString(spec).UTF8String);
         }
 nextarg:
@@ -1304,6 +1313,11 @@ nextarg:
 //                 userdataTag = (char *)lua_tostring(self.L, -1);
 //             }
 //             lua_pop(self.L, 1);
+
+            if (luaL_testudata(self.L, idx, LuaSkin_UD_TAG)) {
+                return (__bridge NSObject *)*((void**)luaL_checkudata(self.L, idx, LuaSkin_UD_TAG)) ;
+            }
+
             lua_pushcfunction(self.L, pushUserdataType) ;
             lua_pushvalue(self.L, idx) ;
             if ((lua_pcall(self.L, 1, 1, 0) == LUA_OK) && (lua_type(self.L, -1) == LUA_TSTRING)) {
