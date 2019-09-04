@@ -9,6 +9,43 @@ static int refTable = LUA_NOREF;
 
 #pragma mark - Support Functions and Classes
 
+static void swapOutObjectInUserdata(lua_State *L, int idx, NSObject *obj, NSObject *newObj) {
+    LuaSkin *skin = [LuaSkin shared] ;
+
+    // change existing userdata: release old object and retain new one
+    void** valuePtr = lua_touserdata(L, idx) ;
+    NSObject *holding = (__bridge_transfer NSObject *)(*valuePtr) ;
+    *valuePtr = (__bridge_retained void *)newObj ;
+    holding = nil ;
+
+    // get position in parent and change to newObj
+    lua_getuservalue(L, idx) ;
+    lua_getfield(L, -1, "_parent") ;
+    if (luaL_testudata(L, -1, LuaSkin_UD_TAG)) {
+        NSObject *parent = get_objectFromUserdata(__bridge NSObject, L, -1, LuaSkin_UD_TAG) ;
+        if ([parent isKindOfClass:[NSMutableArray class]]) {
+            NSUInteger arrayIndex = [(NSMutableArray *)parent indexOfObject:obj] ;
+            if (arrayIndex != NSNotFound) {
+                ((NSMutableArray *)parent)[arrayIndex] = newObj ;
+            } else {
+                [skin logWarn:[NSString stringWithFormat:@"%s.__newindex - original object '%@' not found in parent array", LuaSkin_UD_TAG, obj.description]] ;
+            }
+        } else if ([parent isKindOfClass:[NSMutableDictionary class]]) {
+            NSArray *keyList = [(NSMutableDictionary *)parent allKeysForObject:obj] ;
+            if (keyList.count > 0) {
+                [keyList enumerateObjectsUsingBlock:^(NSObject *key, __unused NSUInteger klIdx, __unused BOOL *stop) {
+                    ((NSMutableDictionary *)parent)[(id <NSCopying>)key] = newObj ;
+                }] ;
+            } else {
+                [skin logWarn:[NSString stringWithFormat:@"%s.__newindex - original object '%@' not found in parent dictionary", LuaSkin_UD_TAG, obj.description]] ;
+            }
+        } else {
+            [skin logWarn:[NSString stringWithFormat:@"%s.__newindex - expected array or dictionary for parent; found %@", LuaSkin_UD_TAG, parent.className]] ;
+        }
+    }
+    lua_pop(L, 2) ;
+}
+
 #pragma mark - Module Functions
 
 static int obj_new(lua_State *L) {
@@ -26,6 +63,23 @@ static int obj_new(lua_State *L) {
 }
 
 #pragma mark - Module Methods
+
+static int obj_isReadOnly(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, LuaSkin_UD_TAG, LS_TBREAK] ;
+    NSObject *obj = get_objectFromUserdata(__bridge NSObject, L, 1, LuaSkin_UD_TAG) ;
+
+    BOOL isMutable = [obj isKindOfClass:[NSMutableArray class]] ||
+                     [obj isKindOfClass:[NSMutableDictionary class]] ;
+
+    lua_getuservalue(L, 1) ;
+    lua_getfield(L, -1, "mutable") ;
+    isMutable = isMutable && lua_toboolean(L, -1) ;
+    lua_pop(L, 2) ;
+
+    lua_pushboolean(L, !isMutable) ;
+    return 1 ;
+}
 
 static int obj_children(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
@@ -95,19 +149,32 @@ static int obj_ud_index(lua_State *L) {
         // generic, lets include it since strings can apparently be index in lua, but always return nil
         ans = nil ;
     } else {
-        return luaL_error(L, "attempt to index a %s value", [[obj className] UTF8String]) ;
+        return luaL_error(L, "attempt to index a %s value", obj.className.UTF8String) ;
     }
 
     [skin pushNSObject:ans withOptions:LS_WithObjectWrapper | LS_NSDescribeUnknownTypes] ;
     if (luaL_testudata(L, -1, LuaSkin_UD_TAG)) {
-        lua_getuservalue(L, 1) ;    // link uservalue to uservalue of parent object so
-        lua_setuservalue(L, -2) ;   // new object inherits same rw/conversion properties
+        lua_getuservalue(L, -1) ;
+        lua_getuservalue(L, 1) ;
+        lua_pushnil(L) ;
+        while (lua_next(L, -2) != 0) {
+            const char *key = lua_tostring(L, -2) ;
+            if (strcmp("_parent", key)) { // i.e. does not equal
+                lua_setfield(L, -4, key) ;
+            } else {
+                lua_pop(L, 1) ;
+            }
+        }
+        lua_pop(L, 1) ;
+        lua_pushvalue(L, 1) ;
+        lua_setfield(L, -2, "_parent") ;
+        lua_setuservalue(L, -2) ;
     }
     return 1 ;
 }
 
 static int obj_ud_newindex(lua_State *L) {
-//     LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin shared] ;
     NSObject *obj = get_objectFromUserdata(__bridge NSObject, L, 1, LuaSkin_UD_TAG) ;
     BOOL isMutable = [obj isKindOfClass:[NSMutableArray class]] ||
                      [obj isKindOfClass:[NSMutableDictionary class]] ;
@@ -121,17 +188,75 @@ static int obj_ud_newindex(lua_State *L) {
     lua_pop(L, 3) ;
 
     if (isMutable) {
-// TODO: __newindex
-        // if arrayAutoConversion:
-        //     with NSArray, if idx outside of [1,count + 1] or not a number, need to convert to NSDictionary
-        //     with NSArray, if idx == count and value = nil, reduce size of array
-        //     with NSDictionary, if allKeys are consecutive integers from 1 to count, convert to array
-        // More as I think of them...
-        return luaL_error(L, "modification of mutable objects not supported yet") ;
+//         return luaL_error(L, "modification of mutable objects not supported yet") ;
+
+        if ([obj isKindOfClass:[NSMutableArray class]]) {
+            NSObject *value = [skin toNSObjectAtIndex:3 withOptions:LS_NSDescribeUnknownTypes] ;
+
+            if (lua_isinteger(L, 2)) {
+                NSUInteger count = [(NSMutableArray *)obj count] ;
+                lua_Integer idx = lua_tointeger(L, 2) ;
+                if (idx > 0) {
+                    if (value) {
+                        while ((NSUInteger)idx > count) {
+                            count++ ;
+                            [(NSMutableArray *)obj addObject:[NSNull null]] ;
+                        }
+                        ((NSMutableArray *)obj)[(NSUInteger)(idx - 1)] = value ;
+                    } else if ((NSUInteger)idx < count) {
+                        ((NSMutableArray *)obj)[(NSUInteger)(idx - 1)] = [NSNull null] ;
+                    } else if ((NSUInteger)idx == count) {
+                        [(NSMutableArray *)obj removeLastObject] ;
+                    }
+                    return 0 ;
+                } // if it's a float or < 1 then we fall through for conversion to dictionary, if allowed
+            }
+
+            if (value) {
+                if (arrayAutoConversion) {
+                    NSObject *key = [skin toNSObjectAtIndex:2] ;
+                    NSMutableDictionary *newObj = [NSMutableDictionary dictionaryWithCapacity:[(NSMutableArray *)obj count] + 1] ;
+                    newObj[(id <NSCopying>)key] = value ;
+                    [(NSArray *)obj enumerateObjectsUsingBlock:^(NSObject *item, NSUInteger idx, __unused BOOL *stop) {
+                        newObj[@(idx + 1)] = item ;
+                    }] ;
+
+                    swapOutObjectInUserdata(L, 1, obj, newObj) ;
+                } else {
+                    return luaL_error(L, "invalid key '%s'; expected integer equal to or greater than 1", obj.description.UTF8String) ;
+                }
+            } // else if value was nil, it doesn't really matter that the key type was invalid for an array
+        } else if ([obj isKindOfClass:[NSMutableDictionary class]]) {
+            NSObject *key = [skin toNSObjectAtIndex:2] ;
+            NSObject *value = [skin toNSObjectAtIndex:3 withOptions:LS_NSDescribeUnknownTypes] ;
+            if (key) {
+                [(NSMutableDictionary *)obj setObject:value forKey:(id <NSCopying>)key] ;
+                if (arrayAutoConversion) {
+                    NSUInteger totalKeys = [(NSMutableDictionary *)obj count] ;
+                    NSUInteger count     = 0 ;
+                    while (((NSDictionary *)obj)[@(count + 1)]) count++ ;
+                    if (totalKeys == count) {
+                        NSMutableArray *newObj = [NSMutableArray arrayWithCapacity:totalKeys] ;
+                        count = 0 ;
+                        while (((NSDictionary *)obj)[@(count + 1)]) {
+                            NSObject *item = ((NSDictionary *)obj)[@(count + 1)] ;
+                            [newObj addObject:item] ;
+                            count++ ;
+                        }
+
+                        swapOutObjectInUserdata(L, 1, obj, newObj) ;
+                    }
+                }
+            } else {
+                return luaL_error(L, "invalid key; %s is not a valid key type", lua_typename(L, lua_type(L, 2))) ;
+            }
+        } else {
+            return luaL_error(L, "expected array or dictionary; found %s", obj.className.UTF8String) ;
+        }
     } else {
         return luaL_error(L, "read-only object") ;
     }
-//     return 0 ;
+    return 0 ;
 }
 
 static int obj_ud_len(lua_State *L) {
@@ -140,14 +265,14 @@ static int obj_ud_len(lua_State *L) {
         lua_pushinteger(L, (lua_Integer)[(NSArray *)obj count]) ;
     } else if ([obj isKindOfClass:[NSDictionary class]]) {
         lua_Integer len = 0 ;
-        while (((NSDictionary *)obj)[@(len)]) len++ ;
+        while (((NSDictionary *)obj)[@(len + 1)]) len++ ;
         lua_pushinteger(L, len) ;
     } else if ([obj isKindOfClass:[NSString class]]) {
         // should be impossible for this implementation, but in case we copy this into something more
         // generic, lets include it since strings can return a length in lua
         lua_pushinteger(L, (lua_Integer)[(NSString *)obj lengthOfBytesUsingEncoding:NSUTF8StringEncoding]) ;
     } else {
-        return luaL_error(L, "attempt to get length of a %s value", [[obj className] UTF8String]) ;
+        return luaL_error(L, "attempt to get length of a %s value", obj.className.UTF8String) ;
     }
     return 1 ;
 }
@@ -190,6 +315,8 @@ static int obj_ud_gc(lua_State *L) {
 static const luaL_Reg userdata_metaLib[] = {
     {"children",   obj_children},
     {"value",      obj_value},
+    {"isReadonly", obj_isReadOnly},
+
 // __index will be set in LuaSkin registration, so wrap we'll wrap it in init.lua to call this
     {"__index2",   obj_ud_index},
     {"__newindex", obj_ud_newindex},
