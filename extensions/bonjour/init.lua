@@ -19,7 +19,7 @@ local module       = require(USERDATA_TAG .. ".internal")
 module.service     = require(USERDATA_TAG .. ".service")
 
 local browserMT = hs.getObjectMetatable(USERDATA_TAG)
-local serviceMT = hs.getObjectMetatable(USERDATA_TAG .. ".service")
+-- local serviceMT = hs.getObjectMetatable(USERDATA_TAG .. ".service")
 
 local basePath = package.searchpath(USERDATA_TAG, package.path)
 if basePath then
@@ -196,7 +196,7 @@ module.networkServices = function(callback, timeout)
     local uuid = host.uuid()
     local job = module.new()
     collectionPrevention[uuid] = { job = job, results = {} }
-    job:findServices("_services._dns-sd._udp.", "local", function(b, msg, state, obj, more)
+    job:findServices("_services._dns-sd._udp.", "local", function(b, msg, state, obj, more) -- luacheck: ignore
         local internals = collectionPrevention[uuid]
         if msg == "service" and state then
             table.insert(internals.results, obj:name() .. "." .. obj:type():match("^(.+)local%.$"))
@@ -239,7 +239,7 @@ module.machineServices = function(target, callback)
         local results
         if r == 0 then
             results = {}
-            for i, v in ipairs(fnutils.split(o, "[\r\n]+")) do
+            for _, v in ipairs(fnutils.split(o, "[\r\n]+")) do
                 table.insert(results, v:match("^(.+)local%.$"))
             end
         else
