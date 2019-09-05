@@ -7,6 +7,7 @@ export HS_MODULES="application \
     audiodevice \
     base64 \
     battery \
+    bonjour \
     brightness \
     caffeinate \
     canvas \
@@ -188,6 +189,9 @@ cp -av "${BUILT_PRODUCTS_DIR}/libwebviewtoolbar.dylib" "${HS_DST}/webview/toolba
 
 # Special copier for hs.webview.datastore submodule
 cp -av "${BUILT_PRODUCTS_DIR}/libwebviewdatastore.dylib" "${HS_DST}/webview/datastore.so"
+
+# Special copier for hs.bonjour.service submodule
+cp -av "${BUILT_PRODUCTS_DIR}/libbonjourservice.dylib" "${HS_DST}/bonjour/service.so"
 
 # Special copier for hs.fs submodule
 cp -av "${BUILT_PRODUCTS_DIR}/libfsvolume.dylib" "${HS_DST}/fs/volume.so"
