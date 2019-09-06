@@ -21,13 +21,14 @@
 @property (nonatomic) int selfRefCount;
 @property (nonatomic) int buttonCallbackRef;
 @property (nonatomic) BOOL isValid;
-@property (nonatomic) BOOL isMini;
+@property (nonatomic) int productID;
 
 - (id)initWithDevice:(IOHIDDeviceRef)device manager:(id)manager;
 - (void)invalidate;
 - (void)deviceDidSendInput:(NSNumber*)button isDown:(NSNumber*)isDown;
 - (BOOL)setBrightness:(int)brightness;
 - (void)reset;
+- (NSString *)modelName;
 - (NSString *)serialNumber;
 - (NSString *)firmwareVersion;
 - (void)setColor:(NSColor*)color forButton:(int)button;
@@ -36,7 +37,10 @@
 - (int)rotateAngle;
 - (int)scaleX;
 - (int)packetSize;
-- (int)buttonCount;
-- (int)buttonOffset;
+- (int)keyRows;
+- (int)keyColumns;
+- (int)numKeys;
+- (int)dataKeyOffset;
+- (int)transformKeyIndex:(int)sourceKey;
 - (int)reportFirstIndex;
 @end

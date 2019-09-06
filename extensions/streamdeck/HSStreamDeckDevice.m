@@ -9,6 +9,8 @@
 #import "HSStreamDeckDevice.h"
 
 @implementation HSStreamDeckDevice
+# pragma mark
+
 - (id)initWithDevice:(IOHIDDeviceRef)device manager:(id)manager {
     self = [super init];
     if (self) {
@@ -17,13 +19,9 @@
         self.manager = manager;
         self.buttonCallbackRef = LUA_NOREF;
         self.selfRefCount = 0;
-        self.isMini = false;
         
         NSNumber * productID = (__bridge id)(IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductIDKey)));
-        if ( productID && [productID intValue] == 0x0063) {
-            self.isMini = true;
-        }
-        //NSLog(@"Added new Stream Deck device %p with IOKit device %p from manager %p", (__bridge void *)self, (void*)self.device, (__bridge void *)self.manager);
+        self.productID = [productID intValue];
     }
     return self;
 }
@@ -54,112 +52,111 @@
     _lua_stackguard_exit(skin.L);
 }
 
-- (int)targetSize {
-    if(self.isMini) {
-        return 80;
+# pragma mark Basic Properties
+
+- (NSString*)modelName {
+    NSString *modelName = @"";
+    switch ([self productID]) {
+        case  0x0063: modelName=[modelName stringByAppendingString:@"Mini"];break;
+        case 0x006c: modelName=[modelName stringByAppendingString:@"XL"]; break;
+        default: modelName=[modelName stringByAppendingString:@"Original"]; break;
     }
-    return 72;
+    return modelName;
 }
 
-- (int)rotateAngle {
-    if(self.isMini) {
-        return 270;
-    }
-    return 180;
+#pragma mark - Key management
 
+// Number of bytes skipped at beginning of report
+- (int)dataKeyOffset {
+    switch (self.productID) {
+        case 0x0600: return 1;
+        case 0x0063: return 1;
+        case 0x006c: return 4;
+            
+        default: return 1;
+    }
 }
 
-- (int)packetSize {
-    if(self.isMini) {
-        return 1024;
+- (int)transformKeyIndex:(int)sourceKey {
+    int half;
+    int diff;
+    
+    switch (self.productID) {
+        case 0x0600:
+            // horizontal flip
+            half = ([self keyColumns] - 1) / 2;
+            diff = ((sourceKey % [self keyColumns]) - half) * -half;
+            return sourceKey + diff;
+        case 0x0063:
+        case 0x006c:
+        default: return sourceKey;
     }
-    return 8191;
 }
 
-- (int)buttonOffset {
-    if(self.isMini) {
-        return 145;
+# pragma mark Button count, Columns and Rows
+
+-(int)keyColumns {
+    switch (self.productID) {
+        case 0x0600: return 5;
+        case 0x0063: return 3;
+        case 0x006c: return 8;
+            
+        default: return 5;
     }
-    return 84;
 }
 
-- (int)buttonCount {
-    if(self.isMini) {
-        return 6;
+-(int)keyRows {
+    switch (self.productID) {
+        case 0x0600: return 3;
+        case 0x0063: return 2;
+        case 0x006c: return 4;
+            
+        default: return 3;
     }
-    return 15;
 }
+
+- (int)numKeys {
+    return [self keyRows] * [self keyColumns];
+}
+
+# pragma mark
 
 - (int)reportFirstIndex {
-    if(self.isMini) {
-        return 0;
+    return 0;
+}
+
+# pragma mark Image manipulation
+
+- (int)packetSize {
+    switch (self.productID) {
+        case 0x0600: return 8191;
+        case 0x0063: return 1024;
+        case 0x006c: return 1024;
+            
+        default: return 8191;
     }
-    return 1;
+}
+
+- (int)targetSize {
+    switch (self.productID) {
+        case 0x0600: return 72;
+        case 0x0063: return 80;
+        case 0x006c: return 96;
+            
+        default: return 72;
+    }
+}
+- (int)rotateAngle {
+    return 0;
 }
 
 - (int)scaleX {
-    if(self.isMini) {
-        return -1;
+    switch (self.productID) {
+        case 0x0063: return -1;
+        case 0x0600:
+        case 0x006c:
+        default: return 1;
     }
-    return 1;
-}
-
-- (BOOL)setBrightness:(int)brightness {
-    if (!self.isValid) {
-        return NO;
-    }
-
-    uint8_t brightnessHeader[] = {0x05, 0x55, 0xAA, 0xD1, 0x01, brightness};
-    int brightnessLength = 17;
-
-    NSMutableData *reportData = [NSMutableData dataWithLength:brightnessLength];
-    [reportData replaceBytesInRange:NSMakeRange(0, 6) withBytes:brightnessHeader];
-
-    const uint8_t *rawBytes = (const uint8_t *)reportData.bytes;
-
-    IOReturn res = IOHIDDeviceSetReport(self.device,
-                                        kIOHIDReportTypeFeature,
-                                        rawBytes[0], /* Report ID*/
-                                        rawBytes, reportData.length);
-
-    return res == kIOReturnSuccess;
-}
-
-- (void)reset {
-    if (!self.isValid) {
-        return;
-    }
-
-    uint8_t resetHeader[] = {0x0B, 0x63};
-    NSData *reportData = [NSData dataWithBytes:resetHeader length:2];
-    const uint8_t *rawBytes = (const uint8_t*)reportData.bytes;
-    IOHIDDeviceSetReport(self.device, kIOHIDReportTypeFeature, rawBytes[0], rawBytes, reportData.length);
-}
-
-- (NSString*)serialNumber {
-    if (!self.isValid) {
-        return @"INVALID DEVICE";
-    }
-
-    uint8_t serial[17];
-    CFIndex serialLen = sizeof(serial);
-    IOHIDDeviceGetReport(self.device, kIOHIDReportTypeFeature, 0x3, serial, &serialLen);
-    char *serialNum = (char *)&serial + 5;
-    NSData *serialData = [NSData dataWithBytes:serialNum length:12];
-    return [[NSString alloc] initWithData:serialData encoding:NSUTF8StringEncoding];
-}
-
-- (NSString*)firmwareVersion {
-    if (!self.isValid) {
-        return @"INVALID DEVICE";
-    }
-
-    uint8_t fwver[17];
-    CFIndex fwverLen = sizeof(fwver);
-    IOHIDDeviceGetReport(self.device, kIOHIDReportTypeFeature, 0x4, fwver, &fwverLen);
-    char *fwverNum = (char *)&fwver + 5;
-    NSData *fwVerData = [NSData dataWithBytes:fwverNum length:12];
-    return [[NSString alloc] initWithData:fwVerData encoding:NSUTF8StringEncoding];
 }
 
 - (void)setColor:(NSColor *)color forButton:(int)button {
@@ -243,4 +240,68 @@
         imagePosition = imagePosition + sendableAmount;
     }
 }
+# pragma mark Other Commands
+
+- (NSString*)serialNumber {
+    if (!self.isValid) {
+        return @"INVALID DEVICE";
+    }
+    
+    uint8_t serial[17];
+    CFIndex serialLen = sizeof(serial);
+    IOHIDDeviceGetReport(self.device, kIOHIDReportTypeFeature, 0x3, serial, &serialLen);
+    char *serialNum = (char *)&serial + 5;
+    NSData *serialData = [NSData dataWithBytes:serialNum length:12];
+    return [[NSString alloc] initWithData:serialData encoding:NSUTF8StringEncoding];
+}
+
+- (NSString*)firmwareVersion {
+    if (!self.isValid) {
+        return @"INVALID DEVICE";
+    }
+    
+    uint8_t fwver[17];
+    CFIndex fwverLen = sizeof(fwver);
+    IOHIDDeviceGetReport(self.device, kIOHIDReportTypeFeature, 0x4, fwver, &fwverLen);
+    char *fwverNum = (char *)&fwver + 5;
+    NSData *fwVerData = [NSData dataWithBytes:fwverNum length:12];
+    return [[NSString alloc] initWithData:fwVerData encoding:NSUTF8StringEncoding];
+}
+
+
+- (BOOL)setBrightness:(int)brightness {
+    if (!self.isValid) {
+        return NO;
+    }
+    
+    uint8_t brightnessHeader[] = {0x05, 0x55, 0xAA, 0xD1, 0x01, brightness};
+    int brightnessLength = 17;
+    
+    NSMutableData *reportData = [NSMutableData dataWithLength:brightnessLength];
+    [reportData replaceBytesInRange:NSMakeRange(0, 6) withBytes:brightnessHeader];
+    
+    const uint8_t *rawBytes = (const uint8_t *)reportData.bytes;
+    
+    IOReturn res = IOHIDDeviceSetReport(self.device,
+                                        kIOHIDReportTypeFeature,
+                                        rawBytes[0], /* Report ID*/
+                                        rawBytes, reportData.length);
+    
+    return res == kIOReturnSuccess;
+}
+
+- (void)reset {
+    if (!self.isValid) {
+        return;
+    }
+    
+    uint8_t resetHeader[] = {
+        0x0B, 0x63, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00};
+    NSData *reportData = [NSData dataWithBytes:resetHeader length: sizeof(resetHeader)];
+    const uint8_t *rawBytes = (const uint8_t*)reportData.bytes;
+    IOHIDDeviceSetReport(self.device, kIOHIDReportTypeFeature, rawBytes[0], rawBytes, reportData.length);
+}
+
 @end

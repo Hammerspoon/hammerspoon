@@ -202,7 +202,7 @@ static int streamdeck_buttonCount(lua_State *L __unused) {
     
     HSStreamDeckDevice *device = [skin luaObjectAtIndex:1 toClass:"HSStreamDeckDevice"];
     
-    lua_pushinteger(skin.L, [device buttonCount]);
+    lua_pushinteger(skin.L, [device numKeys]);
     return 1;
 }
 

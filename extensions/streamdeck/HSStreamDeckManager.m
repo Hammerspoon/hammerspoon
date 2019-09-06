@@ -9,23 +9,26 @@
 #import "HSStreamDeckManager.h"
 
 #pragma mark - IOKit C callbacks
-static void HIDevent(void *deviceRef, IOReturn result, void *sender, IOHIDValueRef value) {
-    //NSLog(@"HIDevent: deviceRef:%p sender:%p", deviceRef, sender);
-    HSStreamDeckDevice *device = (__bridge HSStreamDeckDevice*)deviceRef;
-    IOHIDElementRef element = IOHIDValueGetElement(value);
-    int button = IOHIDElementGetCookie(element) - [device buttonOffset];
-    BOOL isDown = IOHIDValueGetIntegerValue(value) == 1 ? YES : NO;
-    //NSLog(@"HIDevent: button pressed: %d, isDown: %@", button, isDown ? @"YES" : @"NO");
+static char *inputBuffer;
 
-    [device deviceDidSendInput:[NSNumber numberWithInt:button] isDown:[NSNumber numberWithBool:isDown]];
+static void HIDReport(void* deviceRef, IOReturn result, void* sender, IOHIDReportType type, uint32_t reportID, uint8_t *report,CFIndex reportLength) {
+    HSStreamDeckDevice *device = (__bridge HSStreamDeckDevice*)deviceRef;
+
+    uint8_t *start = report + [device dataKeyOffset];
+    for(int button=0; button < [device numKeys]; button ++) {
+        uint8_t val = start[button];
+        int translatedButton = [device transformKeyIndex: button];
+        NSLog(@"button %d: %d", translatedButton, val);
+    }
+//    [device deviceDidSendInput:[NSNumber numberWithInt:button] isDown:[NSNumber numberWithBool:isDown]];
 }
 
 static void HIDconnect(void *context, IOReturn result, void *sender, IOHIDDeviceRef device) {
     //NSLog(@"connect: %p:%p", context, (void *)device);
     HSStreamDeckManager *manager = (__bridge HSStreamDeckManager *)context;
     HSStreamDeckDevice *deviceId = [manager deviceDidConnect:device];
-    IOHIDDeviceRegisterInputValueCallback(device, HIDevent, (void*)deviceId);
-    //NSLog(@"Added value callback to new IOKit device %p for Deck Device %p", (void *)device, (__bridge void*)deviceId);
+    inputBuffer = malloc(64);
+    IOHIDDeviceRegisterInputReportCallback(device, (uint8_t*)inputBuffer, 64, HIDReport, (void*)deviceId);
 }
 
 static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDeviceRef device) {
