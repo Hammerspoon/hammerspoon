@@ -242,6 +242,26 @@
 }
 # pragma mark Other Commands
 
+- (int)serialRepordtId {
+        switch (self.productID) {
+            case 0x0600: return 0x3;
+            case 0x0063: return 0x3;
+            case 0x006c: return 0x5;
+                
+            default: return 0x3;
+        }
+    }
+
+- (int)firmwareRepordtId {
+    switch (self.productID) {
+        case 0x0600: return 0x4;
+        case 0x0063: return 0x4;
+        case 0x006c: return 0x6;
+            
+        default: return 0x4;
+    }
+}
+
 - (NSString*)serialNumber {
     if (!self.isValid) {
         return @"INVALID DEVICE";
@@ -249,7 +269,7 @@
     
     uint8_t serial[17];
     CFIndex serialLen = sizeof(serial);
-    IOHIDDeviceGetReport(self.device, kIOHIDReportTypeFeature, 0x3, serial, &serialLen);
+    IOHIDDeviceGetReport(self.device, kIOHIDReportTypeFeature, [self serialRepordtId], serial, &serialLen);
     char *serialNum = (char *)&serial + 5;
     NSData *serialData = [NSData dataWithBytes:serialNum length:12];
     return [[NSString alloc] initWithData:serialData encoding:NSUTF8StringEncoding];
@@ -262,24 +282,47 @@
     
     uint8_t fwver[17];
     CFIndex fwverLen = sizeof(fwver);
-    IOHIDDeviceGetReport(self.device, kIOHIDReportTypeFeature, 0x4, fwver, &fwverLen);
+    IOHIDDeviceGetReport(self.device, kIOHIDReportTypeFeature, [self firmwareRepordtId], fwver, &fwverLen);
     char *fwverNum = (char *)&fwver + 5;
     NSData *fwVerData = [NSData dataWithBytes:fwverNum length:12];
     return [[NSString alloc] initWithData:fwVerData encoding:NSUTF8StringEncoding];
 }
 
+- (NSMutableData*)brightnessReport:(int)brightness {
+    uint8_t header[] = {0x05, 0x55, 0xaa, 0xd1, 0x01, brightness, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00};
+    uint8_t xlHeader[] = {
+        0x03, 0x08, brightness, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+    };
+    int brightnessLength = 17;
+
+    uint8_t *selected;
+        switch (self.productID) {
+            case 0x0600: case 0x0063:
+                selected = header;
+                break;
+            case 0x006c:
+                selected = xlHeader;
+                break;
+            default:
+                selected = xlHeader;
+        }
+    
+    NSMutableData *reportData = [NSMutableData dataWithLength:brightnessLength];
+    [reportData replaceBytesInRange:NSMakeRange(0, 6) withBytes:selected];
+    return reportData;
+}
 
 - (BOOL)setBrightness:(int)brightness {
     if (!self.isValid) {
         return NO;
     }
     
-    uint8_t brightnessHeader[] = {0x05, 0x55, 0xAA, 0xD1, 0x01, brightness};
-    int brightnessLength = 17;
-    
-    NSMutableData *reportData = [NSMutableData dataWithLength:brightnessLength];
-    [reportData replaceBytesInRange:NSMakeRange(0, 6) withBytes:brightnessHeader];
-    
+    NSMutableData *reportData = [self brightnessReport:brightness];
     const uint8_t *rawBytes = (const uint8_t *)reportData.bytes;
     
     IOReturn res = IOHIDDeviceSetReport(self.device,
