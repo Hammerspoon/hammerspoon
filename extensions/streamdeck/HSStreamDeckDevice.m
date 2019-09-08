@@ -57,9 +57,9 @@
 - (NSString*)modelName {
     NSString *modelName = @"";
     switch ([self productID]) {
-        case  0x0063: modelName=[modelName stringByAppendingString:@"Mini"];break;
-        case 0x006c: modelName=[modelName stringByAppendingString:@"XL"]; break;
-        default: modelName=[modelName stringByAppendingString:@"Original"]; break;
+        case ORIGINAL: modelName=[modelName stringByAppendingString:@"Original"]; break;
+        case  MINI: modelName=[modelName stringByAppendingString:@"Mini"];break;
+        case XL: modelName=[modelName stringByAppendingString:@"XL"]; break;
     }
     return modelName;
 }
@@ -69,12 +69,11 @@
 // Number of bytes skipped at beginning of report
 - (int)dataKeyOffset {
     switch (self.productID) {
-        case 0x0060: return 1;
-        case 0x0063: return 1;
-        case 0x006c: return 4;
-            
-        default: return 1;
+        case ORIGINAL: return 1;
+        case MINI: return 1;
+        case XL: return 4;
     }
+    return 0;
 }
 
 - (int)transformKeyIndex:(int)sourceKey {
@@ -82,37 +81,36 @@
     int diff;
     
     switch (self.productID) {
-        case 0x0060:
+        case ORIGINAL:
             // horizontal flip
             half = ([self keyColumns] - 1) / 2;
             diff = ((sourceKey % [self keyColumns]) - half) * -half;
             return sourceKey + diff;
-        case 0x0063:
-        case 0x006c:
-        default: return sourceKey;
+        case MINI:
+        case XL:
+            return sourceKey;
     }
+    return 0;
 }
 
 # pragma mark Button count, Columns and Rows
 
 -(int)keyColumns {
     switch (self.productID) {
-        case 0x0060: return 5;
-        case 0x0063: return 3;
-        case 0x006c: return 8;
-            
-        default: return 5;
+        case ORIGINAL: return 5;
+        case MINI: return 3;
+        case XL: return 8;
     }
+    return 0;
 }
 
 -(int)keyRows {
     switch (self.productID) {
-        case 0x0060: return 3;
-        case 0x0063: return 2;
-        case 0x006c: return 4;
-            
-        default: return 3;
+        case ORIGINAL: return 3;
+        case MINI: return 2;
+        case XL: return 4;
     }
+    return 0;
 }
 
 - (int)numKeys {
@@ -123,39 +121,39 @@
 
 - (int)packetSize {
     switch (self.productID) {
-        case 0x0060: return 8191;
-        case 0x0063: return 1024;
-        case 0x006c: return 1024;
-            
-        default: return 8191;
+        case ORIGINAL: return 8191;
+        case MINI: return 1024;
+        case XL: return 1024;
     }
+    return 0;
 }
 
 - (int)targetSize {
     switch (self.productID) {
-        case 0x0060: return 72;
-        case 0x0063: return 80;
-        case 0x006c: return 96;
-            
-        default: return 72;
+        case ORIGINAL: return 72;
+        case MINI: return 80;
+        case XL: return 96;
     }
+    return 0;
 }
 - (int)rotateAngle {
     switch (self.productID) {
-        case 0x0063: return 270;
-        case 0x0060:
-        case 0x006c:
-        default: return 0;
+        case MINI: return 270;
+        case ORIGINAL:
+        case XL:
+            return 0;
     }
+    return 0;
 }
 
 - (int)scaleX {
     switch (self.productID) {
-        case 0x0063: return -1;
-        case 0x0060:
-        case 0x006c:
-        default: return 1;
+        case MINI: return -1;
+        case ORIGINAL:
+        case XL:
+            return 1;
     }
+    return 0;
 }
 
 - (void)setColor:(NSColor *)color forButton:(int)button {
@@ -205,27 +203,22 @@
     uint8_t realButton = [self transformKeyIndex:button];
     
     switch (self.productID) {
-        case 0x0060:
+        case ORIGINAL:
             [self sendImageInPackets:image forButton:realButton andStartAt:1];
             break;
-        case 0x0063:
+        case MINI:
+        case XL:
             [self sendImageInPackets:image forButton:realButton andStartAt:0];
-            break;
-        case 0x006c:
-            
-            break;
-        default:
-            [self sendImageInPackets:image forButton:realButton andStartAt:1];
     }
 
 }
 
 - (int)sendImageReportHeader {
     switch (self.productID) {
-        case 0x0060:
-        case 0x0063:
+        case ORIGINAL:
+        case MINI:
             return 16;
-        case 0x006c:
+        case XL:
             return 8;
     }
     return 0;
@@ -251,24 +244,23 @@
         int16_t sendableAmount = remainingBytes < maxPayloadSize ? remainingBytes : maxPayloadSize;
         NSMutableData *reportPage = [NSMutableData dataWithLength:reportLength];
 
-        // the reportMagic is 16 bytes long, but we only use 6
         uint8_t reportMagic[] = {
-            0x02, // 1
-            0x01, // 1
-            reportIndex,  // 1
-            0x00,  // 1
-            lastPage,  // 1
-            button, // 1
-            0x00, // 1
+            0x02,
+            0x01,
+            reportIndex,
+            0x00,
+            lastPage,
+            button,
+            0x00,
         };
         uint8_t xlReportMagic[] = {
-            0x02, // 1
-            0x07, // 1
-            button, // 1
-            lastPage, // 1
+            0x02,
+            0x07,
+            button,
+            lastPage,
             sendableAmount & 255,
             sendableAmount >> 8,
-            reportIndex, // 1
+            reportIndex,
         };
         
         uint8_t* report=reportMagic;
@@ -291,9 +283,9 @@
 
 - (int)serialRepordtId {
         switch (self.productID) {
-            case 0x0060: return 0x3;
-            case 0x0063: return 0x3;
-            case 0x006c: return 0x5;
+            case ORIGINAL: return 0x3;
+            case MINI: return 0x3;
+            case XL: return 0x5;
                 
             default: return 0x3;
         }
@@ -301,9 +293,9 @@
 
 - (int)firmwareRepordtId {
     switch (self.productID) {
-        case 0x0060: return 0x4;
-        case 0x0063: return 0x4;
-        case 0x006c: return 0x6;
+        case ORIGINAL: return 0x4;
+        case MINI: return 0x4;
+        case XL: return 0x6;
             
         default: return 0x4;
     }
@@ -343,10 +335,10 @@
 
     uint8_t *selected;
         switch (self.productID) {
-            case 0x0060: case 0x0063:
+            case ORIGINAL: case MINI:
                 selected = header;
                 break;
-            case 0x006c:
+            case XL:
                 selected = xlHeader;
                 break;
             default:
@@ -384,10 +376,10 @@
     
     uint8_t *selected;
     switch (self.productID) {
-        case 0x0060: case 0x0063:
+        case ORIGINAL: case MINI:
             selected = resetHeader;
             break;
-        case 0x006c:
+        case XL:
             selected = newResetHeader;
             break;
         default:

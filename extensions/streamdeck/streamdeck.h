@@ -12,5 +12,8 @@
 #pragma mark - Global variables
 extern int streamDeckRefTable;
 static const char *USERDATA_TAG = "hs.streamdeck";
+#define ORIGINAL 0x0060
+#define MINI 0x0063
+#define XL 0x006c
 
 #endif /* streamdeck_h */
