@@ -42,5 +42,4 @@
 - (int)numKeys;
 - (int)dataKeyOffset;
 - (int)transformKeyIndex:(int)sourceKey;
-- (int)reportFirstIndex;
 @end

@@ -119,12 +119,6 @@
     return [self keyRows] * [self keyColumns];
 }
 
-# pragma mark
-
-- (int)reportFirstIndex {
-    return 0;
-}
-
 # pragma mark Image manipulation
 
 - (int)packetSize {
@@ -147,7 +141,12 @@
     }
 }
 - (int)rotateAngle {
-    return 0;
+    switch (self.productID) {
+        case 0x0063: return 270;
+        case 0x0060:
+        case 0x006c:
+        default: return 0;
+    }
 }
 
 - (int)scaleX {
@@ -172,13 +171,9 @@
     [self setImage:image forButton:button];
 }
 
-- (void)setImage:(NSImage *)image forButton:(int)button {
-    if (!self.isValid) {
-        return;
-    }
-
+- (NSData*)imageToData:(NSImage *)image {
     NSImage *renderImage;
-
+    
     // Unconditionally resize the image
     NSImage *sourceImage = [image copy];
     NSSize newSize = NSMakeSize([self targetSize], [self targetSize]);
@@ -189,57 +184,84 @@
     [[NSGraphicsContext currentContext] setImageInterpolation:NSImageInterpolationHigh];
     [sourceImage drawAtPoint:NSZeroPoint fromRect:CGRectMake(0, 0, newSize.width, newSize.height) operation:NSCompositingOperationCopy fraction:1.0];
     [renderImage unlockFocus];
-
+    
     if (![image isValid]) {
         [[LuaSkin shared] logError:@"image is invalid"];
+        return nil;
     }
     if (![renderImage isValid]) {
         [[LuaSkin shared] logError:@"Invalid image passed to hs.streamdeck:setImage() (renderImage)"];
-    //    return;
+        return nil;
+        //    return;
+    }
+    NSData *data = [renderImage bmpDataWithRotation:[self rotateAngle] andScaleXBy:[self scaleX]];
+    return data;
+}
+
+- (void)setImage:(NSImage *)image forButton:(int)button {
+    if (!self.isValid) {
+        return;
+    }
+    uint8_t realButton = [self transformKeyIndex:button];
+    
+    switch (self.productID) {
+        case 0x0060:
+            [self sendImageInPackets:image forButton:realButton andStartAt:1];
+            break;
+        case 0x0063:
+            [self sendImageInPackets:image forButton:realButton andStartAt:0];
+            break;
+        case 0x006c:
+            
+            break;
+        default:
+            [self sendImageInPackets:image forButton:realButton andStartAt:1];
     }
 
-    NSData *data = [renderImage bmpDataWithRotation:[self rotateAngle] andScaleXBy:[self scaleX]];
+}
 
-    int reportLength = [self packetSize];
-    int sendableAmount = reportLength - 16;
-
-    // the reportMagic is 16 bytes long, but we only use 6
-    uint8_t reportMagic[] = {0x02,  // Report ID
-                             0x01,  // Unknown (always seems to be 1)
-                             0x00,  // Image Page
-                             0x00,  // Padding
-                             0x00,  // Continuation Bool
-                             button // Deck button to set
-                            };
-
-    const uint8_t *imageBuf = data.bytes;
-    int imageLen = (int)data.length;
-
-    int imagePosition = 0;
-    int reportIndex = [self reportFirstIndex];
-    while(imagePosition < imageLen) {
-        // Update page index
-        reportMagic[2] = reportIndex;
+- (void)sendImageInPackets:(NSImage*) sourceImage forButton:(uint8_t) button andStartAt:(uint8_t) initialIndex {
+    const NSData *preparedPayload = [self imageToData: sourceImage];
+    const int reportLength = [self packetSize];
+    // on the XL, the header size is only 8
+    const int maxPayloadSize = reportLength - 16;
+    const uint8_t *imageBuf = preparedPayload.bytes;
+    const int imageLen = (int)preparedPayload.length;
+    
+    int remainingBytes = imageLen;
+    
+    uint16_t reportIndex = initialIndex;
+    uint8_t lastPage = 0;
+    while(remainingBytes > 0) {
         // Is this the last page?
-        if (imagePosition + sendableAmount >= imageLen) {
-            reportMagic[4] = 1;
+        if (remainingBytes < maxPayloadSize) {
+            lastPage = 1;
         }
-
+        
+        // the reportMagic is 16 bytes long, but we only use 6
+        uint8_t reportMagic[] = {
+            0x02,  // Report ID
+            0x01,  // Unknown (always seems to be 1)
+            reportIndex,  // Image Page
+            0x00,  // Padding
+            lastPage,  // Continuation Bool
+            button // Deck button to set
+        };
+        
         NSMutableData *reportPage = [NSMutableData dataWithLength:reportLength];
         [reportPage replaceBytesInRange:NSMakeRange(0, 6) withBytes:reportMagic];
         
-        if ((imagePosition + sendableAmount) > imageLen) {
-            sendableAmount = imageLen - imagePosition;
-        }
-        
-        [reportPage replaceBytesInRange:NSMakeRange(16, sendableAmount) withBytes:imageBuf+imagePosition];
+        int sendableAmount = remainingBytes < maxPayloadSize ? remainingBytes:maxPayloadSize;
+        [reportPage replaceBytesInRange:NSMakeRange(16, sendableAmount) withBytes:imageBuf+imageLen-remainingBytes];
         
         const uint8_t *rawPage = (const uint8_t *)reportPage.bytes;
         IOHIDDeviceSetReport(self.device, kIOHIDReportTypeOutput, rawPage[0], rawPage, reportLength);
+        
         reportIndex++;
-        imagePosition = imagePosition + sendableAmount;
+        remainingBytes -= sendableAmount;
     }
 }
+
 # pragma mark Other Commands
 
 - (int)serialRepordtId {
