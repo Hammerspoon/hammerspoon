@@ -220,39 +220,64 @@
 
 }
 
+- (int)sendImageReportHeader {
+    switch (self.productID) {
+        case 0x0060:
+        case 0x0063:
+            return 16;
+        case 0x006c:
+            return 8;
+    }
+    return 0;
+}
+
+
 - (void)sendImageInPackets:(NSImage*) sourceImage forButton:(uint8_t) button andStartAt:(uint8_t) initialIndex {
     const NSData *preparedPayload = [self imageToData: sourceImage];
     const int reportLength = [self packetSize];
-    // on the XL, the header size is only 8
-    const int maxPayloadSize = reportLength - 16;
+    const int maxPayloadSize = reportLength - [self sendImageReportHeader];
     const uint8_t *imageBuf = preparedPayload.bytes;
     const int imageLen = (int)preparedPayload.length;
     
     int remainingBytes = imageLen;
     
-    uint16_t reportIndex = initialIndex;
+    uint8_t reportIndex = initialIndex;
     uint8_t lastPage = 0;
     while(remainingBytes > 0) {
         // Is this the last page?
         if (remainingBytes < maxPayloadSize) {
             lastPage = 1;
         }
-        
+        int16_t sendableAmount = remainingBytes < maxPayloadSize ? remainingBytes : maxPayloadSize;
+        NSMutableData *reportPage = [NSMutableData dataWithLength:reportLength];
+
         // the reportMagic is 16 bytes long, but we only use 6
         uint8_t reportMagic[] = {
-            0x02,  // Report ID
-            0x01,  // Unknown (always seems to be 1)
-            reportIndex,  // Image Page
-            0x00,  // Padding
-            lastPage,  // Continuation Bool
-            button // Deck button to set
+            0x02, // 1
+            0x01, // 1
+            reportIndex,  // 1
+            0x00,  // 1
+            lastPage,  // 1
+            button, // 1
+            0x00, // 1
+        };
+        uint8_t xlReportMagic[] = {
+            0x02, // 1
+            0x07, // 1
+            button, // 1
+            lastPage, // 1
+            sendableAmount & 255,
+            sendableAmount >> 8,
+            reportIndex, // 1
         };
         
-        NSMutableData *reportPage = [NSMutableData dataWithLength:reportLength];
-        [reportPage replaceBytesInRange:NSMakeRange(0, 6) withBytes:reportMagic];
+        uint8_t* report=reportMagic;
+        if (self.productID == 0x006c){
+            report = xlReportMagic;
+        }
         
-        int sendableAmount = remainingBytes < maxPayloadSize ? remainingBytes:maxPayloadSize;
-        [reportPage replaceBytesInRange:NSMakeRange(16, sendableAmount) withBytes:imageBuf+imageLen-remainingBytes];
+        [reportPage replaceBytesInRange:NSMakeRange(0, 7) withBytes:report];
+        [reportPage replaceBytesInRange:NSMakeRange([self sendImageReportHeader], sendableAmount) withBytes:imageBuf+imageLen-remainingBytes];
         
         const uint8_t *rawPage = (const uint8_t *)reportPage.bytes;
         IOHIDDeviceSetReport(self.device, kIOHIDReportTypeOutput, rawPage[0], rawPage, reportLength);
