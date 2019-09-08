@@ -22,10 +22,11 @@
 @property (nonatomic) int buttonCallbackRef;
 @property (nonatomic) BOOL isValid;
 @property (nonatomic) int productID;
+@property (nonatomic) NSMutableArray* buttons;
 
 - (id)initWithDevice:(IOHIDDeviceRef)device manager:(id)manager;
 - (void)invalidate;
-- (void)deviceDidSendInput:(NSNumber*)button isDown:(NSNumber*)isDown;
+- (void)deviceDidSendInput:(NSArray*)buttonReport;
 - (BOOL)setBrightness:(int)brightness;
 - (void)reset;
 - (NSString *)modelName;

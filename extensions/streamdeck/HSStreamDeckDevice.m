@@ -19,9 +19,15 @@
         self.manager = manager;
         self.buttonCallbackRef = LUA_NOREF;
         self.selfRefCount = 0;
-        
+
         NSNumber * productID = (__bridge id)(IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductIDKey)));
         self.productID = [productID intValue];
+        self.buttons = [NSMutableArray arrayWithCapacity:[self numKeys]];
+        for(int p=0; p<[self numKeys]; p++) {
+            [self.buttons addObject: @0];
+        }
+
+
     }
     return self;
 }
@@ -30,7 +36,7 @@
     self.isValid = NO;
 }
 
-- (void)deviceDidSendInput:(NSNumber*)button isDown:(NSNumber*)isDown {
+- (void)deviceDidSendInput:(NSArray*)buttonReport {
     //NSLog(@"Got an input event from device: %p: button:%@ isDown:%@", (__bridge void*)self, button, isDown);
 
     if (!self.isValid) {
@@ -43,12 +49,36 @@
         [skin logError:@"hs.streamdeck received a button input, but no callback has been set. See hs.streamdeck:buttonCallback()"];
         return;
     }
-
-    [skin pushLuaRef:streamDeckRefTable ref:self.buttonCallbackRef];
-    [skin pushNSObject:self];
-    lua_pushinteger(skin.L, button.intValue);
-    lua_pushboolean(skin.L, isDown.boolValue);
-    [skin protectedCallAndError:@"hs.streamdeck:buttonCallback" nargs:3 nresults:0];
+    NSMutableArray *downs = [[NSMutableArray alloc] init];
+    NSMutableArray *ups = [[NSMutableArray alloc] init];
+    for(int p=0; p<[self numKeys]; p++) {
+        NSNumber* now = [self.buttons objectAtIndex:p];
+        NSNumber* reported = [buttonReport objectAtIndex:p];
+        if(![now isEqual:reported]) {
+            if ([reported isNotEqualTo:@0]) {
+                [downs addObject:[NSNumber numberWithInt:p]];
+            } else {
+                [ups addObject:[NSNumber numberWithInt:p]];
+            }
+        }
+        [self.buttons setObject:reported atIndexedSubscript:p];
+    }
+    for(u_long p=0; p<[downs count]; p++) {
+        [skin pushLuaRef:streamDeckRefTable ref:self.buttonCallbackRef];
+        [skin pushNSObject:self];
+        NSNumber *button = [downs objectAtIndex:p];
+        lua_pushinteger(skin.L, button.intValue + 1);
+        lua_pushboolean(skin.L, true);
+        [skin protectedCallAndError:@"hs.streamdeck:buttonCallback" nargs:3 nresults:0];
+    }
+    for(u_long p=0; p<[ups count]; p++) {
+        [skin pushLuaRef:streamDeckRefTable ref:self.buttonCallbackRef];
+        [skin pushNSObject:self];
+        NSNumber *button = [ups objectAtIndex:p];
+        lua_pushinteger(skin.L, button.intValue + 1);
+        lua_pushboolean(skin.L, false);
+        [skin protectedCallAndError:@"hs.streamdeck:buttonCallback" nargs:3 nresults:0];
+    }
     _lua_stackguard_exit(skin.L);
 }
 

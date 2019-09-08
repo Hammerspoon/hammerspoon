@@ -13,14 +13,18 @@ static char *inputBuffer;
 
 static void HIDReport(void* deviceRef, IOReturn result, void* sender, IOHIDReportType type, uint32_t reportID, uint8_t *report,CFIndex reportLength) {
     HSStreamDeckDevice *device = (__bridge HSStreamDeckDevice*)deviceRef;
+    NSMutableArray* buttonReport = [NSMutableArray arrayWithCapacity:[device numKeys]];
+    for(int p=0; p<[device numKeys]; p++) {
+        [buttonReport addObject: @0];
+    }
 
     uint8_t *start = report + [device dataKeyOffset];
     for(int button=0; button < [device numKeys]; button ++) {
-        uint8_t val = start[button];
+        NSNumber* val = [NSNumber numberWithInt:start[button]];
         int translatedButton = [device transformKeyIndex: button];
-        NSLog(@"button %d: %d", translatedButton, val);
+        [buttonReport setObject:val atIndexedSubscript:translatedButton];
     }
-//    [device deviceDidSendInput:[NSNumber numberWithInt:button] isDown:[NSNumber numberWithBool:isDown]];
+    [device deviceDidSendInput:buttonReport];
 }
 
 static void HIDconnect(void *context, IOReturn result, void *sender, IOHIDDeviceRef device) {
