@@ -69,7 +69,7 @@
 // Number of bytes skipped at beginning of report
 - (int)dataKeyOffset {
     switch (self.productID) {
-        case 0x0600: return 1;
+        case 0x0060: return 1;
         case 0x0063: return 1;
         case 0x006c: return 4;
             
@@ -82,7 +82,7 @@
     int diff;
     
     switch (self.productID) {
-        case 0x0600:
+        case 0x0060:
             // horizontal flip
             half = ([self keyColumns] - 1) / 2;
             diff = ((sourceKey % [self keyColumns]) - half) * -half;
@@ -97,7 +97,7 @@
 
 -(int)keyColumns {
     switch (self.productID) {
-        case 0x0600: return 5;
+        case 0x0060: return 5;
         case 0x0063: return 3;
         case 0x006c: return 8;
             
@@ -107,7 +107,7 @@
 
 -(int)keyRows {
     switch (self.productID) {
-        case 0x0600: return 3;
+        case 0x0060: return 3;
         case 0x0063: return 2;
         case 0x006c: return 4;
             
@@ -129,7 +129,7 @@
 
 - (int)packetSize {
     switch (self.productID) {
-        case 0x0600: return 8191;
+        case 0x0060: return 8191;
         case 0x0063: return 1024;
         case 0x006c: return 1024;
             
@@ -139,7 +139,7 @@
 
 - (int)targetSize {
     switch (self.productID) {
-        case 0x0600: return 72;
+        case 0x0060: return 72;
         case 0x0063: return 80;
         case 0x006c: return 96;
             
@@ -153,7 +153,7 @@
 - (int)scaleX {
     switch (self.productID) {
         case 0x0063: return -1;
-        case 0x0600:
+        case 0x0060:
         case 0x006c:
         default: return 1;
     }
@@ -244,7 +244,7 @@
 
 - (int)serialRepordtId {
         switch (self.productID) {
-            case 0x0600: return 0x3;
+            case 0x0060: return 0x3;
             case 0x0063: return 0x3;
             case 0x006c: return 0x5;
                 
@@ -254,7 +254,7 @@
 
 - (int)firmwareRepordtId {
     switch (self.productID) {
-        case 0x0600: return 0x4;
+        case 0x0060: return 0x4;
         case 0x0063: return 0x4;
         case 0x006c: return 0x6;
             
@@ -302,7 +302,7 @@
 
     uint8_t *selected;
         switch (self.productID) {
-            case 0x0600: case 0x0063:
+            case 0x0060: case 0x0063:
                 selected = header;
                 break;
             case 0x006c:

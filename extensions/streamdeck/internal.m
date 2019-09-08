@@ -156,7 +156,7 @@ static int streamdeck_setBrightness(lua_State *L __unused) {
 ///  * None
 ///
 /// Returns:
-///  * The hs.streamdec object
+///  * The hs.streamdeck object
 static int streamdeck_reset(lua_State *L __unused) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
