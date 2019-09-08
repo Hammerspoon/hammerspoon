@@ -289,15 +289,9 @@
 }
 
 - (NSMutableData*)brightnessReport:(int)brightness {
-    uint8_t header[] = {0x05, 0x55, 0xaa, 0xd1, 0x01, brightness, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00};
-    uint8_t xlHeader[] = {
-        0x03, 0x08, brightness, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-    };
+    uint8 bg = brightness>100? 100 : brightness<0? 0: brightness;
+    uint8_t header[] = {0x05, 0x55, 0xaa, 0xd1, 0x01, bg};
+    uint8_t xlHeader[] = {0x03, 0x08, bg, 0x00, 0x00, 0x00};
     int brightnessLength = 17;
 
     uint8_t *selected;
@@ -338,11 +332,24 @@
         return;
     }
     
-    uint8_t resetHeader[] = {
-        0x0B, 0x63, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00};
-    NSData *reportData = [NSData dataWithBytes:resetHeader length: sizeof(resetHeader)];
+    uint8_t resetHeader[] = { 0x0B, 0x63};
+    uint8_t newResetHeader[] = { 0x03, 0x02 };
+    
+    uint8_t *selected;
+    switch (self.productID) {
+        case 0x0060: case 0x0063:
+            selected = resetHeader;
+            break;
+        case 0x006c:
+            selected = newResetHeader;
+            break;
+        default:
+            selected = resetHeader;
+    }
+    
+    NSMutableData *reportData = [NSMutableData dataWithLength:17];
+    [reportData replaceBytesInRange:NSMakeRange(0, 2) withBytes:selected];
+
     const uint8_t *rawBytes = (const uint8_t*)reportData.bytes;
     IOHIDDeviceSetReport(self.device, kIOHIDReportTypeFeature, rawBytes[0], rawBytes, reportData.length);
 }
