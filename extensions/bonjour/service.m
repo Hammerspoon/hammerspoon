@@ -146,8 +146,10 @@ static NSString *netServiceErrorToString(NSDictionary *error) {
 //                                                                 outputStream:(NSOutputStream *)outputStream;
 
 - (void)netService:(__unused NSNetService *)sender didUpdateTXTRecordData:(NSData *)data {
-    [self performCallbackWith:@[@"txtRecord", [NSNetService dictionaryFromTXTRecordData:data]]
-                usingCallback:_monitorCallbackRef] ;
+    NSDictionary *dataDictionary = [NSNetService dictionaryFromTXTRecordData:data] ;
+    if (!dataDictionary) dataDictionary = (NSDictionary *)[NSNull null] ;
+
+    [self performCallbackWith:@[@"txtRecord", dataDictionary] usingCallback:_monitorCallbackRef] ;
 }
 
 @end
