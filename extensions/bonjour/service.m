@@ -682,7 +682,8 @@ static int userdata_eq(lua_State* L) {
         LuaSkin *skin = [LuaSkin shared] ;
         HSNetServiceWrapper *obj1 = [skin luaObjectAtIndex:1 toClass:"HSNetServiceWrapper"] ;
         HSNetServiceWrapper *obj2 = [skin luaObjectAtIndex:2 toClass:"HSNetServiceWrapper"] ;
-        lua_pushboolean(L, [obj1 isEqualTo:obj2]) ;
+
+        lua_pushboolean(L, [obj1.service isEqualTo:obj2.service]) ;
     } else {
         lua_pushboolean(L, NO) ;
     }
