@@ -7,6 +7,8 @@
 static const char * const USERDATA_TAG = "hs.bonjour.service" ;
 static int refTable = LUA_NOREF;
 
+static NSMapTable *serviceUDRecords ;
+
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 
 #pragma mark - Support Functions and Classes
@@ -54,6 +56,8 @@ static NSString *netServiceErrorToString(NSDictionary *error) {
 @property int          callbackRef ;
 @property int          monitorCallbackRef ;
 @property int          selfRefCount ;
+@property int          selfRef ;
+
 // stupid macOS API will cause an exception if we try to publish a discovered service (or one created to
 // be resolved) but won't give us a method telling us which it is, so we'll have to track on our own and
 // assume that if this module didn't create it, we can't publish it.
@@ -68,6 +72,7 @@ static NSString *netServiceErrorToString(NSDictionary *error) {
         _service            = service ;
         _callbackRef        = LUA_NOREF ;
         _monitorCallbackRef = LUA_NOREF ;
+        _selfRef            = LUA_NOREF ;
         _selfRefCount       = 0 ;
         _canPublish         = NO ;
 
@@ -633,12 +638,18 @@ static int service_stopMonitoring(lua_State *L) {
 // delegates and blocks.
 
 static int pushHSNetServiceWrapper(lua_State *L, id obj) {
+    LuaSkin *skin  = [LuaSkin shared] ;
     HSNetServiceWrapper *value = obj;
+    if (value.selfRefCount == 0) {
+        void** valuePtr = lua_newuserdata(L, sizeof(HSNetServiceWrapper *));
+        *valuePtr = (__bridge_retained void *)value;
+        luaL_getmetatable(L, USERDATA_TAG);
+        lua_setmetatable(L, -2);
+        value.selfRef = [skin luaRef:refTable] ;
+        [serviceUDRecords setObject:@(value.selfRef) forKey:value] ;
+    }
     value.selfRefCount++ ;
-    void** valuePtr = lua_newuserdata(L, sizeof(HSNetServiceWrapper *));
-    *valuePtr = (__bridge_retained void *)value;
-    luaL_getmetatable(L, USERDATA_TAG);
-    lua_setmetatable(L, -2);
+    [skin pushLuaRef:refTable ref:value.selfRef] ;
     return 1;
 }
 
@@ -655,9 +666,29 @@ id toHSNetServiceWrapperFromLua(lua_State *L, int idx) {
 }
 
 static int pushNSNetService(lua_State *L, id obj) {
-    HSNetServiceWrapper *value = [[HSNetServiceWrapper alloc] initWithService:obj] ;
+    LuaSkin *skin = [LuaSkin shared] ;
+    NSNumber *valueRef         = nil ;
+    HSNetServiceWrapper *value = nil ;
+
+    NSEnumerator *enumerator = [serviceUDRecords keyEnumerator] ;
+    HSNetServiceWrapper *key = [enumerator nextObject] ;
+    while (key) {
+        if ([key.service isEqualTo:obj]) {
+            valueRef = [serviceUDRecords objectForKey:key] ;
+            break ;
+        }
+        key = [enumerator nextObject] ;
+    }
+
+    if (valueRef) {
+        [skin pushLuaRef:refTable ref:valueRef.integerValue] ;
+        value = [skin toNSObjectAtIndex:-1] ;
+        lua_pop(L, 1) ;
+    } else {
+        value = [[HSNetServiceWrapper alloc] initWithService:obj] ;
+    }
+
     if (value) {
-        LuaSkin *skin = [LuaSkin shared] ;
         [skin pushNSObject:value] ;
     } else {
         lua_pushnil(L) ;
@@ -683,7 +714,7 @@ static int userdata_eq(lua_State* L) {
         HSNetServiceWrapper *obj1 = [skin luaObjectAtIndex:1 toClass:"HSNetServiceWrapper"] ;
         HSNetServiceWrapper *obj2 = [skin luaObjectAtIndex:2 toClass:"HSNetServiceWrapper"] ;
 
-        lua_pushboolean(L, [obj1.service isEqualTo:obj2.service]) ;
+        lua_pushboolean(L, [obj1 isEqualTo:obj2]) ;
     } else {
         lua_pushboolean(L, NO) ;
     }
@@ -701,6 +732,10 @@ static int userdata_gc(lua_State* L) {
             obj.service.delegate = nil ;
             [obj.service stop] ;
             [obj.service stopMonitoring] ;
+
+            obj.selfRef = [skin luaUnref:refTable ref:obj.selfRef] ;
+            [serviceUDRecords removeObjectForKey:obj] ;
+
             obj.service = nil ;
             obj = nil ;
         }
@@ -711,9 +746,10 @@ static int userdata_gc(lua_State* L) {
     return 0 ;
 }
 
-// static int meta_gc(lua_State* __unused L) {
-//     return 0 ;
-// }
+static int meta_gc(lua_State* __unused L) {
+    [serviceUDRecords removeAllObjects] ;
+    return 0 ;
+}
 
 // Metatable for userdata objects
 static const luaL_Reg userdata_metaLib[] = {
@@ -744,18 +780,20 @@ static luaL_Reg moduleLib[] = {
     {NULL,     NULL}
 };
 
-// // Metatable for module, if needed
-// static const luaL_Reg module_metaLib[] = {
-//     {"__gc", meta_gc},
-//     {NULL,   NULL}
-// };
+// Metatable for module, if needed
+static const luaL_Reg module_metaLib[] = {
+    {"__gc", meta_gc},
+    {NULL,   NULL}
+};
 
 int luaopen_hs_bonjour_service(lua_State* __unused L) {
     LuaSkin *skin = [LuaSkin shared] ;
     refTable = [skin registerLibraryWithObject:USERDATA_TAG
                                      functions:moduleLib
-                                 metaFunctions:nil    // or module_metaLib
+                                 metaFunctions:module_metaLib
                                objectFunctions:userdata_metaLib];
+
+    serviceUDRecords = [NSMapTable strongToStrongObjectsMapTable] ;
 
     [skin registerPushNSHelper:pushHSNetServiceWrapper         forClass:"HSNetServiceWrapper"];
     [skin registerLuaObjectHelper:toHSNetServiceWrapperFromLua forClass:"HSNetServiceWrapper"
