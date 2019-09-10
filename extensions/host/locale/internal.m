@@ -240,7 +240,7 @@ static int locale_currenIdentifier(lua_State *L) {
 /// Returns a table containing information about the current or specified locale.
 ///
 /// Parameters:
-///  * `identifier` - an optional string, specifying the locale to display information about.  If you do not specify an identifier, information about eh user's currently selected locale is returned.
+///  * `identifier` - an optional string, specifying the locale to display information about.  If you do not specify an identifier, information about the user's currently selected locale is returned.
 ///
 /// Returns:
 ///  * a table containing one or more of the following key-value pairs:
@@ -290,9 +290,9 @@ static int locale_currenIdentifier(lua_State *L) {
 ///    * `variantCode`                         - A string containing the locale variant code.
 ///
 /// Notes:
-///  * If you specify a locale identifier as an argument, it should be based on one of the strings returned by [hs.host.locale.availableLocales](#availableLocales).  Use of an arbitrary string may produce unreliable or inconsistent results.
+///  * If you specify a locale identifier as an argument, it should be based on one of the strings returned by [hs.host.locale.availableLocales](#availableLocales). Use of an arbitrary string may produce unreliable or inconsistent results.
 ///
-///  * Apple does not provide a documented method for retrieving the users preferences with respect to `temperatureUnit` or `timeFormatIs24Hour`.  The methods used to determine these values are based on code from the following sources:
+///  * Apple does not provide a documented method for retrieving the users preferences with respect to `temperatureUnit` or `timeFormatIs24Hour`. The methods used to determine these values are based on code from the following sources:
 ///    * `temperatureUnit`    - http://stackoverflow.com/a/41263725
 ///    * `timeFormatIs24Hour` - http://stackoverflow.com/a/1972487
 ///  * If you are able to identify additional locale or regional settings that are not provided by this function and have a source which describes a reliable method to retrieve this information, please submit an issue at https://github.com/Hammerspoon/hammerspoon with the details.
@@ -312,6 +312,55 @@ static int locale_localeInformation(lua_State *L) {
         return luaL_error(L, "unrecognized locale") ;
     }
     return 1 ;
+}
+
+/// hs.host.locale.localizedStringForLanguageCode(localeCode[, baseLocaleCode]) -> string | nil
+/// Function
+/// Returns the localized string for a specific language code.
+///
+/// Parameters:
+///  * `localeCode` - The locale code for the locale you want to return the localized string of.
+///  * `baseLocaleCode` - An optional string, specifying the locale to use for the string. If you do not specify a `baseLocaleCode`, the user's currently selected locale is used.
+///
+/// Returns:
+///  * A string containing the localized string or `nil ` if either the `localeCode` or `baseLocaleCode` is invalid.
+///
+/// Notes:
+///  * The `localeCode` and optional `baseLocaleCode` should be based on one of the strings returned by [hs.host.locale.availableLocales](#availableLocales).
+static int locale_localizedStringForLanguageCode(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TSTRING, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
+    NSLocale *theLocale ;
+    NSArray *availableLocales = [NSLocale availableLocaleIdentifiers] ;
+    if (lua_gettop(L) == 1) {
+        theLocale = [NSLocale currentLocale] ;
+    } else {
+        NSString *baseLocaleCode = [skin toNSObjectAtIndex:2] ;
+        // Checks to see if the supplied `baseLocaleCode` exists in `availableLocaleIdentifiers`:
+        BOOL isbaseLocaleCodeValid = [availableLocales containsObject: baseLocaleCode];
+        if (!isbaseLocaleCodeValid) {
+            lua_pushnil(L) ;
+            return 1;
+        }
+        theLocale = [NSLocale localeWithLocaleIdentifier:baseLocaleCode] ;
+    }
+    if (!theLocale) {
+        lua_pushnil(L) ;
+        return 1;
+    }
+    
+    // Checks to see if the supplied `localeCode` exists in `availableLocaleIdentifiers`:
+    NSString* localeCode = [skin toNSObjectAtIndex:1] ;
+    BOOL islocaleCodeValid = [availableLocales containsObject: localeCode];
+    if (!islocaleCodeValid) {
+        lua_pushnil(L) ;
+        return 1;
+    }
+    
+    NSString* language = [theLocale localizedStringForLanguageCode:localeCode];
+    
+    [skin pushNSObject:language] ;
+    return 1;
 }
 
 static int locale_registerCallback(lua_State *L) {
@@ -335,11 +384,12 @@ static int meta_gc(lua_State* __unused L) {
 
 // Functions for returned object when module loads
 static luaL_Reg moduleLib[] = {
-    {"availableLocales",   locale_availableLocaleIdentifiers},
-    {"details",            locale_localeInformation},
-    {"current",            locale_currenIdentifier},
-    {"preferredLanguages", locale_preferredLanguages},
-    {"_registerCallback",  locale_registerCallback},
+    {"availableLocales",                locale_availableLocaleIdentifiers},
+    {"details",                         locale_localeInformation},
+    {"current",                         locale_currenIdentifier},
+    {"preferredLanguages",              locale_preferredLanguages},
+    {"localizedStringForLanguageCode",  locale_localizedStringForLanguageCode},
+    {"_registerCallback",               locale_registerCallback},
     {NULL, NULL}
 };
 
