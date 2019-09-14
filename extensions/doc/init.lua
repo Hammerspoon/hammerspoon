@@ -262,6 +262,7 @@ _mt.__tostring = function() return _help() end
 _mt.__index = function(self, key)
     if submodules[key] then
         self[key] = require(submodules[key])
+        return self[key]
     end
 
     _mt._loadRegisteredFiles() -- we have to assume they're accessing this for help or hsdocs, so load files
