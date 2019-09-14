@@ -333,6 +333,10 @@ module.serviceTypes = ls.makeConstantsTable({
     ["Thousand Parsec Server"]                      = "_tp._tcp.",
     ["FTP File Transfer"]                           = "_ftp._tcp.",
     ["SubEthaEdit Collaborative Text Editor"]       = "_see._tcp.",
+    ["Sleep Proxy Server"]                          = "_sleep-proxy._udp.",
+    ["Network Scanner"]                             = "_scanner._tcp.",
+    ["Remote Audio Output Protocol"]                = "_raop._tcp.",
+    ["Google/Chromecast"]                           = "_googlecast._tcp.",
 })
 
 -- Return Module Object --------------------------------------------------
