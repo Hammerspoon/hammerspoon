@@ -314,7 +314,7 @@ static int locale_localeInformation(lua_State *L) {
     return 1 ;
 }
 
-/// hs.host.locale.localizedStringForLanguageCode(localeCode[, baseLocaleCode]) -> string | nil
+/// hs.host.locale.localizedString(localeCode[, baseLocaleCode]) -> string | nil, string | nil
 /// Function
 /// Returns the localized string for a specific language code.
 ///
@@ -323,11 +323,12 @@ static int locale_localeInformation(lua_State *L) {
 ///  * `baseLocaleCode` - An optional string, specifying the locale to use for the string. If you do not specify a `baseLocaleCode`, the user's currently selected locale is used.
 ///
 /// Returns:
-///  * A string containing the localized string or `nil ` if either the `localeCode` or `baseLocaleCode` is invalid.
+///  * A string containing the localized string or `nil ` if either the `localeCode` or `baseLocaleCode` is invalid. For example, if the `localeCode` is "de_CH", this will return "German".
+///  * A string containing the localized string including the dialect or `nil ` if either the `localeCode` or `baseLocaleCode` is invalid. For example, if the `localeCode` is "de_CH", this will return "German (Switzerland)".
 ///
 /// Notes:
-///  * The `localeCode` and optional `baseLocaleCode` should be based on one of the strings returned by [hs.host.locale.availableLocales](#availableLocales).
-static int locale_localizedStringForLanguageCode(lua_State *L) {
+///  * The `localeCode` and optional `baseLocaleCode` must be one of the strings returned by [hs.host.locale.availableLocales](#availableLocales).
+static int locale_localizedString(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TSTRING, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
     NSLocale *theLocale ;
@@ -348,19 +349,21 @@ static int locale_localizedStringForLanguageCode(lua_State *L) {
         lua_pushnil(L) ;
         return 1;
     }
-    
+
     // Checks to see if the supplied `localeCode` exists in `availableLocaleIdentifiers`:
-    NSString* localeCode = [skin toNSObjectAtIndex:1] ;
+    NSString *localeCode = [skin toNSObjectAtIndex:1] ;
     BOOL islocaleCodeValid = [availableLocales containsObject: localeCode];
     if (!islocaleCodeValid) {
         lua_pushnil(L) ;
         return 1;
     }
-    
-    NSString* language = [theLocale localizedStringForLanguageCode:localeCode];
-    
-    [skin pushNSObject:language] ;
-    return 1;
+
+    NSString *localizedString = [theLocale localizedStringForLanguageCode:localeCode];
+    NSString *localizedStringWithDialect = [theLocale displayNameForKey:NSLocaleIdentifier value:localeCode];
+
+    [skin pushNSObject:localizedString] ;
+    [skin pushNSObject:localizedStringWithDialect] ;
+    return 2;
 }
 
 static int locale_registerCallback(lua_State *L) {
@@ -388,7 +391,7 @@ static luaL_Reg moduleLib[] = {
     {"details",                         locale_localeInformation},
     {"current",                         locale_currenIdentifier},
     {"preferredLanguages",              locale_preferredLanguages},
-    {"localizedStringForLanguageCode",  locale_localizedStringForLanguageCode},
+    {"localizedString",                 locale_localizedString},
     {"_registerCallback",               locale_registerCallback},
     {NULL, NULL}
 };
