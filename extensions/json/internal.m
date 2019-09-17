@@ -85,10 +85,121 @@ static int json_decode(lua_State* L) {
     }
 }
 
+/// hs.json.write(data, path, [prettyprint], [replace]) -> boolean
+/// Function
+/// Encodes a table as JSON to a file
+///
+/// Parameters:
+///  * data - A table containing data to be encoded as JSON
+///  * path - The path and filename of the JSON file to write to
+///  * prettyprint - An optional boolean, `true` to format the JSON for human readability, `false` to format the JSON for size efficiency. Defaults to `false`
+///  * replace - An optional boolean, `true` to replace an existing file at the same path if one exists. Defaults to `false`
+///
+/// Returns:
+///  * `true` if successful otherwise `false` if an error has occurred
+static int json_write(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TTABLE, LS_TSTRING, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
+    
+    if lua_istable(L, 1) {
+        id obj = [[LuaSkin shared] toNSObjectAtIndex:1] ;
+
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wassign-enum"
+        NSJSONWritingOptions opts = 0;
+        #pragma clang diagnostic pop
+
+        if (lua_toboolean(L, 3)) {
+            opts = NSJSONWritingPrettyPrinted;
+        }
+        
+        if ([NSJSONSerialization isValidJSONObject:obj]) {
+
+            NSError* error;
+            NSData* data = [NSJSONSerialization dataWithJSONObject:obj options:opts error:&error];
+
+            if (error) {
+                [skin logError:[NSString stringWithFormat:@"%s", [[error localizedDescription] UTF8String]]] ;
+                lua_pushboolean(L, false);
+                return 1;
+            } else if (data) {
+                NSString *path = [[skin toNSObjectAtIndex:2] stringByExpandingTildeInPath];
+                
+                BOOL writeStatus = [data writeToFile: path
+                                               options: NSDataWritingAtomic
+                                                 error: &error];
+                if (!writeStatus) {
+                    [skin logError:[NSString stringWithFormat:@"Error writing to file: %@", error]] ;
+                    lua_pushboolean(L, false);
+                    return 1;
+                }
+                
+                lua_pushboolean(L, true);
+                return 1;
+                
+            } else {
+                [skin logError:[NSString stringWithFormat:@"JSON output returned nil."]] ;
+                lua_pushboolean(L, false);
+                return 1;
+            }
+
+        } else {
+            [skin logError:[NSString stringWithFormat:@"Object cannot be encoded as a JSON string."]] ;
+            lua_pushboolean(L, false);
+            return 1;
+        }
+    } else {
+        [skin logError:[NSString stringWithFormat:@"Non-table object given to JSON encoder."]] ;
+        lua_pushboolean(L, false);
+        return 1;
+    }
+}
+
+/// hs.json.read(path) -> table | nil
+/// Function
+/// Decodes JSON file into a table.
+///
+/// Parameters:
+///  * path - The path and filename of the JSON file to read.
+///
+/// Returns:
+///  * A table representing the supplied JSON data, or `nil` if an error occurs.
+static int json_read(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
+    
+    NSString *path = [[skin toNSObjectAtIndex:1] stringByExpandingTildeInPath];
+    NSData *data = [NSData dataWithContentsOfFile:path];
+
+    if (data) {
+        NSError* error;
+        id obj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&error];
+
+        if (error) {
+            [skin logError:[NSString stringWithFormat:@"%s", [[error localizedDescription] UTF8String]]] ;
+            lua_pushnil(L);
+            return 1;
+        } else if (obj) {
+            [[LuaSkin shared] pushNSObject:obj] ;
+            return 1;
+        } else {
+            [skin logError:[NSString stringWithFormat:@"JSON input returned nil"]] ;
+            lua_pushnil(L);
+            return 1;
+        }
+    } else {
+        [skin logError:[NSString stringWithFormat:@"Unable to convert JSON input into data structure. Was the path valid?"]] ;
+        lua_pushnil(L);
+        return 1;
+    }
+}
+
 // Functions for returned object when module loads
 static const luaL_Reg jsonLib[] = {
     {"encode",  json_encode},
     {"decode",  json_decode},
+    {"read",    json_read},
+    {"write",   json_write},
     {NULL,      NULL}
 };
 
