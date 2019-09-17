@@ -125,8 +125,13 @@ static int json_write(lua_State* L) {
             } else if (data) {
                 NSString *path = [[skin toNSObjectAtIndex:2] stringByExpandingTildeInPath];
                 
+                BOOL replace = NO;
+                if (lua_type(L, 4) == LUA_TBOOLEAN) {
+                    replace = lua_toboolean(L, 4);
+                }
+                
                 BOOL writeStatus = [data writeToFile: path
-                                               options: NSDataWritingAtomic
+                                               options: (replace ? NSDataWritingAtomic : NSDataWritingWithoutOverwriting)
                                                  error: &error];
                 if (!writeStatus) {
                     [skin logError:[NSString stringWithFormat:@"Error writing to file: %@", error]] ;
