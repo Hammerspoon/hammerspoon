@@ -773,8 +773,11 @@ local function getSnapshot(w,id)
   if w.thumb then w.thumb:setImage(window.snapshotForID(id) or UNAVAILABLE) end
 end
 local function windowUnfocused(self,win,appname,screen)
-  local id=win:id() local w=screen.windows[id]
-  if w then return getSnapshot(w,id) end
+  local id=win:id()
+  if screen.windows then
+    local w=screen.windows[id]
+    if w then return getSnapshot(w,id) end
+  end
 end
 local function windowMoved(self,win,appname,screen)
   local id=win:id() local w=screen.windows[id]
