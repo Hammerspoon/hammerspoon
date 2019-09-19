@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="12120" systemVersion="16E195" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14868" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="12120"/>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14868"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -77,7 +78,7 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="File" id="bib-Uj-vzu">
                         <items>
-                            <menuItem title="Reload CommandPost" id="Was-JA-tGl">
+                            <menuItem title="Restart" id="Was-JA-tGl">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="reloadConfig:" target="Voe-Tx-rLC" id="9tp-b3-puT"/>
@@ -90,7 +91,7 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="m54-Is-iLE"/>
-                            <menuItem title="Error Log..." id="8rK-CR-NrT">
+                            <menuItem title="Open Debug Console" id="8rK-CR-NrT">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="showConsoleWindow:" target="Voe-Tx-rLC" id="crn-jm-3G0"/>
@@ -375,6 +376,7 @@
                     </menu>
                 </menuItem>
             </items>
+            <point key="canvasLocation" x="139" y="154"/>
         </menu>
         <menu id="QDI-lT-VMy" userLabel="Status Item Menu">
             <items>
@@ -424,6 +426,7 @@
                     </connections>
                 </menuItem>
             </items>
+            <point key="canvasLocation" x="139" y="152"/>
         </menu>
         <customObject id="9hz-Cm-Er1" customClass="SUUpdater"/>
         <userDefaultsController representsSharedInstance="YES" id="b8h-DN-29z"/>
