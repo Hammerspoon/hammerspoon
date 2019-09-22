@@ -69,6 +69,11 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
 }
 
 - (void)doGC {
+    if (!(__bridge IOHIDManagerRef)self.ioHIDManager) {
+        // Something is wrong and the manager doesn't exist, so just bail
+        return;
+    }
+
     // Remove our callbacks
     IOHIDManagerRegisterDeviceMatchingCallback((__bridge IOHIDManagerRef)self.ioHIDManager, NULL, (__bridge void*)self);
     IOHIDManagerRegisterDeviceRemovalCallback((__bridge IOHIDManagerRef)self.ioHIDManager, NULL, (__bridge void*)self);
