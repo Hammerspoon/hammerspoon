@@ -21,6 +21,9 @@
 #import "lua.h"
 #import <assert.h>
 
+extern const char * const LuaSkin_UD_TAG ;
+extern int luaopen_luaskin_internal(lua_State* L) ; // entry vector to luaskin.m objectWrapper additions
+
 // Defines for Lua stack guard macros
 /*
 #ifdef DEBUG
@@ -53,6 +56,7 @@
 #define LS_TINTEGER       1 << 11 /*! @define LS_TINTEGER Can be OR'd with LS_TNUMBER to specify that the number must be an integer.  This option is ignored if paired with other types. */
 #define LS_TVARARG        1 << 12 /*! @define LS_TVARARG Can be OR'd with LS_TBREAK to indicate that any additional arguments on the stack after this location are to be ignored by @link //apple_ref/occ/instm/LuaSkin/checkArgs: checkArgs @/link.  It is the responsibility of the module function to check and use or ignore any additional arguments. */
 #define LS_TTYPEDTABLE    1 << 13 /*! @define LS_TTYPEDTABLE maps to LUA_TTABLE, but like LS_TUSERDATA, expects a string argument following which specifies the specific value expected in the __luaSkinType field of the table. */
+#define LS_TWRAPPEDOBJECT 1 << 14 /*! @define LS_TWRAPPEDOBJECT mapes to a userdata which represents a raw Objective-C object. */
 
 /*! @/definedblock Bit masks for Lua type checking */
 
@@ -80,6 +84,9 @@ typedef NS_OPTIONS(NSUInteger, LS_NSConversionOptions) {
     LS_NSAllowsSelfReference          = 1 << 4,
     LS_NSRawTables                    = 1 << 6,
 
+    LS_WithObjectWrapper              = 1 << 15,
+    LS_OW_ReadWrite                   = 1 << 16,
+    LS_OW_WithArrayConversion         = 1 << 17,
 } ;
 
 /*!

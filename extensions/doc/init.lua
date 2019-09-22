@@ -11,6 +11,7 @@
 ---       doc.hs.application
 ---
 --- Results in:
+---
 ---       Manipulate running applications
 ---
 ---       [submodules]
@@ -24,281 +25,86 @@
 ---
 --- By default, the internal core documentation and portions of the Lua 5.3 manual, located at http://www.lua.org/manual/5.3/manual.html, are already registered for inclusion within this documentation object, but you can register additional documentation from 3rd party modules with `hs.registerJSONFile(...)`.
 
-local module = {}
+local USERDATA_TAG  = "hs.doc"
+local module        = require(USERDATA_TAG..".internal")
+local moduleMT      = getmetatable(module)
 
-module.spoonsupport  = require("hs.doc.spoonsupport")
+-- autoloaded by __index -- see end of file
+local submodules = {
+    markdown = USERDATA_TAG .. ".markdown",
+    hsdocs   = USERDATA_TAG .. ".hsdocs",
+    builder  = USERDATA_TAG .. ".builder",
+}
+
+local fnutils   = require("hs.fnutils")
+local watchable = require("hs.watchable")
+local fs        = require "hs.fs"
+
+-- local log = require("hs.logger").new(USERDATA_TAG, require"hs.settings".get(USERDATA_TAG .. ".logLevel") or "warning")
 
 -- private variables and methods -----------------------------------------
-
-local json      = require("hs.json")
-local fs        = require("hs.fs")
-local fnutils   = require("hs.fnutils")
-local inspect   = require("hs.inspect")
-local watchable = require("hs.watchable")
-
-local sortFunction = function(m,n) -- sort function so lua manual toc sorts correctly
-    if m:match("^_%d") and n:match("^_%d") then
-        local a, b =  fnutils.split(m:match("^_([^%s]+)"), "_"),
-                      fnutils.split(n:match("^_([^%s]+)"), "_")
-
-        if tonumber(a[1]) ~= tonumber(b[1]) then
-            return tonumber(a[1]) < tonumber(b[1])
-        elseif a[2] == nil and b[2] == nil then return false
-        elseif a[2] == nil then return true
-        elseif b[2] == nil then return false
-        elseif tonumber(a[2]) ~= tonumber(b[2]) then
-            return tonumber(a[2]) < tonumber(b[2])
-        elseif a[3] == nil and b[3] == nil then return false
-        elseif a[3] == nil then return true
-        elseif b[3] == nil then return false
-        else
-            return tonumber(a[3]) < tonumber(b[3])
-        end
-    else
-        return m < n
-    end
-end
-
-local fixLinks = function(text)
-    -- replace internal link references which work well in html and dash with something
-    -- more appropriate to inline textual help
-    local content = text:gsub("%[([^%]\r\n]+)%]%(#([^%)\r\n]+)%)", "`%1`")
-    return content
-end
-
-local coredocs = {}
-local rawdocs = { spoon = {} }
-
-local docMT
-docMT = {
-    __index = function(self, key)
-        local path, pos = rawget(self, "__path"), rawget(self, "__pos")
-        local result
-        if not path then
-            result = rawdocs[key] and setmetatable({ __path = key, __pos = rawdocs[key] }, docMT) or nil
-        else
-            result = pos[key] and setmetatable({ __path = path .. "." .. key, __pos = pos[key] }, docMT) or nil
-        end
-        return result
-    end,
-    __tostring = function(self)
-        local result
-        local path, pos = rawget(self, "__path"), rawget(self, "__pos")
-        if not pos then
-            result = "[modules]\n"
-            for k,_ in fnutils.sortByKeys(rawdocs, function(a,b) return a:lower() < b:lower() end) do
-                result = result .. k .. "\n"
-            end
-        elseif path == "spoon" then
-            result = "[spoons]\n"
-            for k,_ in fnutils.sortByKeys(pos, function(a,b) return a:lower() < b:lower() end) do
-                result = result .. k .. "\n"
-            end
-        elseif pos.__ and not pos.__.json.items then
-            result = pos.__.json.type .. ": " .. (pos.__.json.signature or pos.__.json.def) .. "\n\n" .. pos.__.json.doc .. "\n"
-        else
-            if pos.__ then
-                result = pos.__.json.doc .. "\n\n"
-            else
-                result = "** DOCUMENTATION MISSING **\n\n"
-            end
-            local submodules, items = "", ""
-            for k, v in fnutils.sortByKeys(pos, sortFunction) do
-                if k ~= "__" then
-                -- spoons placeholder will not have __ and older docs (lua) will not have a type for sections (modules)
-                    if not v.__ or not v.__.json.type or v.__.json.type == "Module" then
-                        submodules = submodules .. k .. "\n"
-                    else
-                        items = items .. (v.__.json.signature or v.__.json.def) .. "\n"
-                    end
-                end
-            end
-
-            result = result .. "[submodules]\n" .. submodules .. "\n"
-            result = result .. "[subitems]\n" .. items .. "\n"
-        end
-        return fixLinks(result)
-    end,
-    __pairs = function(self)
-        local _, pos = rawget(self, "__path"), rawget(self, "__pos")
-        local source
-        if not pos then
-            source = rawdocs
-        else
-            source = pos
-        end
-        return function(_, k)
-            local v
-            k, v = next(source, k)
-            if k == "__" then
-                k, v = next(source, k)
-            end
-            return k, v
-        end, self, nil
-    end
-}
-
-local helpHolder = setmetatable({}, docMT)
-
--- Public interface ------------------------------------------------------
-
-local buildHoldingTable = function(self)
-    local holder = {}
-    for _,v in pairs(coredocs) do
-        if v.spoon == self.__spoon then
-            for _, v2 in ipairs(v.json) do
-                if not (self.__ignore and (v2.name:match("^" .. self.__ignore .. "$") or v2.name:match("^" .. self.__ignore .. "[%.:]"))) then
-                    table.insert(holder, v2)
-                end
-            end
-        end
-    end
-    table.sort(holder, function(a,b) return sortFunction(a.name:lower(), b.name:lower()) end)
-    return holder
-end
-
-local jsonMT = {
-    __index = function(self, key)
-        local holder = buildHoldingTable(self)
-        return holder[key]
-    end,
-    __pairs = function(self)
-        local holder = buildHoldingTable(self)
-        return function(_, k)
-            local v
-            k, v = next(holder, k)
-            return k, v
-        end, self, nil
-    end,
-    __len = function(self)
-        local holder = buildHoldingTable(self)
-        return #holder
-    end,
-}
 
 local changeCount = watchable.new("hs.doc")
 changeCount.changeCount = 0
 
-module._jsonForSpoons    = setmetatable({ __spoon = true,  __ignore = false }, jsonMT)
-module._jsonForNonSpoons = setmetatable({ __spoon = false, __ignore = false }, jsonMT)
-module._jsonForModules   = setmetatable({ __spoon = false, __ignore = "lua" }, jsonMT)
-
---module._coredocs = coredocs
---module._help     = helpHolder
---module._rawdocs  = rawdocs
-
---- hs.doc.validateJSONFile(jsonfile) -> status, message|table
---- Function
---- Validate a JSON file potential inclusion in the Hammerspoon internal documentation.
----
---- Parameters:
----  * jsonfile - A string containing the location of a JSON file
----
---- Returns:
----  * status - Boolean flag indicating if the file was validated or not.
----  * message|table - If the file did not contain valid JSON data, then a message indicating the error is returned; otherwise the parsed JSON data is returned as a table.
-module.validateJSONFile = function(jsonFile)
-    local f = io.open(jsonFile)
-    if not f then
-        return false, "Unable to open '"..jsonFile.."'"
-    else
-        local content = f:read("*a")
-        f:close()
-        return pcall(json.decode, content)
-    end
+local triggerChangeCount = function()
+    changeCount.changeCount = changeCount.changeCount + 1
 end
 
---- hs.doc.registerJSONFile(jsonfile) -> status[, message]
---- Function
---- Register a JSON file for inclusion when Hammerspoon generates internal documentation.
----
---- Parameters:
----  * jsonfile - A string containing the location of a JSON file
----
---- Returns:
----  * status - Boolean flag indicating if the file was registered or not.  If the file was not registered, then a message indicating the error is also returned.
-module.registerJSONFile = function(docFile, isSpoon)
-    if type(docFile) ~= "string" then
-        -- most likely this was called with the result of the locateJSONFile function,
-        -- and the locate function was unable to find the JSON file...
-        return false, "Provided path is not a string."
-    end
+-- so we can trigger this from the C side
+moduleMT._registerTriggerFunction(triggerChangeCount)
 
-    docFile = fs.pathToAbsolute(docFile)
+-- forward declarations for hsdocs
+local _jsonForSpoons = nil
+local _jsonForModules = nil
 
-    local status, message = module.validateJSONFile(docFile)
-    if status then
-        if coredocs[docFile] then
-            return false, "File '"..docFile.."' already registered"
+module._changeCountWatcher = watchable.watch("hs.doc", "changeCount", function(w, p, k, o, n) -- luacheck: ignore
+    _jsonForModules = nil
+    _jsonForSpoons  = nil
+end)
+
+-- forward declaration of things we're going to wrap
+local _help = module.help
+local _registeredFilesFunction = module.registeredFiles
+
+local helperMT
+helperMT = {
+    __index = function(self, key)
+        local parent = rawget(self, "_parent") or ""
+        if parent ~= "" then parent = parent .. "." end
+        parent = parent .. self._key
+        local children = moduleMT._children(parent)
+        if fnutils.contains(children, key) then
+            return setmetatable({ _key = key, _parent = parent }, helperMT)
         end
-        coredocs[docFile] = {
-            spoon = (isSpoon and type(isSpoon) == "boolean") and true or false,
-            json  = message
-        }
+    end,
+    __tostring = function(self)
+        local entry = rawget(self, "_parent")
+        if entry then entry = entry .. "." else entry = "" end
+        entry = entry .. self._key
+        return _help(entry)
+    end,
+    __pairs = function(self)
+        local parent = rawget(self, "_parent") or ""
+        if parent ~= "" then parent = parent .. "." end
+        parent = parent .. self._key
+        local children = {}
+        for i, v in ipairs(moduleMT._children(parent)) do children[v] = i end
+        return function(_, k)
+                local v
+                k, v = next(children, k)
+                return k, v
+            end, self, nil
+    end,
+    __len = function(self)
+        local parent = rawget(self, "_parent") or ""
+        if parent ~= "" then parent = parent .. "." end
+        parent = parent .. self._key
+        return #moduleMT._children(parent)
+    end,
+}
 
-        for _, entry in ipairs(message) do
-            local current = coredocs[docFile].spoon and rawdocs.spoon or rawdocs
-            for s in string.gmatch(entry.name, "[%w_]+") do
-                current[s] = current[s] or {}
-                current = current[s]
-            end
-            if current.__ then
-                print("** hs.doc - duplicate module entry at " .. entry.name .. " -> " .. inspect(entry, { depth = 1 }))
-            else
-                current.__ = { json = entry, file = docFile }
-            end
-            for _, subitem in ipairs(entry.items or {}) do
-                local itemDocName = subitem.name:gsub("[^%w_]", "")
-                current[itemDocName] = current[itemDocName] or {}
-                if current[itemDocName].__ then
-                    print("** hs.doc - duplicate item entry at " .. entry.name .. "." .. subitem.name .. " -> " .. inspect(subitem, { depth = 1 }))
-                else
-                    current[itemDocName].__ = { json = subitem, file = docFile }
-                end
-            end
-        end
-        changeCount.changeCount = changeCount.changeCount + 1
-        return status
-    end
-    return status, message
-end
-
---- hs.doc.unregisterJSONFile(jsonfile, [isSpoon]) -> status[, message]
---- Function
---- Remove a JSON file from the list of registered files.
----
---- Parameters:
----  * jsonfile - A string containing the location of a JSON file
----  * isSpoon  - an optional boolean, default false, specifying that the documentation should be added to the `spoons` sub heading in the documentation hierarchy.
----
---- Returns:
----  * status - Boolean flag indicating if the file was unregistered or not.  If the file was not unregistered, then a message indicating the error is also returned.
-module.unregisterJSONFile = function(docFile)
-    if coredocs[docFile] then
-        coredocs[docFile] = nil
-        local purgeFromInside
-        purgeFromInside = function(where)
-            for k,v in pairs(where) do
-                if k ~= "__" and type(v) == "table" then
-                    if purgeFromInside(v) then
-                        where[k] = nil
-                    end
-                end
-            end
-            if where.__ and where.__.file == docFile then
-                return not next(where, "__")
-            elseif not where.__ then
-                return not next(where)
-            else
-                return false
-            end
-        end
-        purgeFromInside(rawdocs)
-        changeCount.changeCount = changeCount.changeCount + 1
-        return true
-    end
-    return false, "File '"..docFile.."' was not registered"
-end
+-- Public interface ------------------------------------------------------
 
 --- hs.doc.registeredFiles() -> table
 --- Function
@@ -318,24 +124,53 @@ end
 ---  * You can unregister these defaults if you wish to start with a clean slate with the following commands:
 ---    * `hs.doc.unregisterJSONFile(hs.docstrings_json_file)` -- to unregister the Hammerspoon API docs
 ---    * `hs.doc.unregisterJSONFile((hs.docstrings_json_file:gsub("/docs.json$","/extensions/hs/doc/lua.json")))` -- to unregister the Lua 5.3 Documentation.
-module.registeredFiles = function()
-    local registeredJSONFiles = setmetatable({}, {
+module.registeredFiles = function(...)
+    return setmetatable(_registeredFilesFunction(...), {
         __tostring = function(self)
             local result = ""
-            for _,v in fnutils.sortByKeyValues(self) do
+            for _,v in pairs(self) do
                 result = result..v.."\n"
             end
             return result
         end,
     })
+end
 
-    for k,_ in pairs(coredocs) do table.insert(registeredJSONFiles, k) end
-    return registeredJSONFiles
+--- hs.doc.help(identifier)
+--- Function
+--- Prints the documentation for some part of Hammerspoon's API and Lua 5.3.  This function has also been aliased as `hs.help` and `help` as a shorthand for use within the Hammerspoon console.
+---
+--- Parameters:
+---  * identifier - A string containing the signature of some part of Hammerspoon's API (e.g. `"hs.reload"`)
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * This function is mainly for runtime API help while using Hammerspoon's Console
+---
+---  * Documentation files registered with [hs.doc.registerJSONFile](#registerJSONFile) or [hs.doc.preloadSpoonDocs](#preloadSpoonDocs) that have not yet been actually loaded will be loaded when this command is invoked in any of the forms described below.
+---
+---  * You can also access the results of this function by the following methods from the console:
+---    * help("prefix.path") -- quotes are required, e.g. `help("hs.reload")`
+---    * help.prefix.path -- no quotes are required, e.g. `help.hs.reload`
+---      * `prefix` can be one of the following:
+---        * `hs`    - provides documentation for Hammerspoon's builtin commands and modules
+---        * `spoon` - provides documentation for the Spoons installed on your system
+---        * `lua`   - provides documentation for the version of lua Hammerspoon is using, currently 5.3
+---          * `lua._man` - provides the table of contents for the Lua 5.3 manual.  You can pull up a specific section of the lua manual by including the chapter (and subsection) like this: `lua._man._3_4_8`.
+---          * `lua._C`   - provides documentation specifically about the Lua C API for use when developing modules which require external libraries.
+---      * `path` is one or more components, separated by a period specifying the module, submodule, function, or moethod you wish to view documentation for.
+module.help = function(...)
+    local answer = _help(...)
+    return setmetatable({}, {
+        __tostring = function(self) return answer end, -- luacheck: ignore
+    })
 end
 
 --- hs.doc.locateJSONFile(module) -> path | false, message
 --- Function
---- Locates the JSON file corresponding to the specified module by searching package.path and package.cpath.
+--- Locates the JSON file corresponding to the specified third-party module or Spoon by searching package.path and package.cpath.
 ---
 --- Parameters:
 ---  * module - the name of the module to locate a JSON file for
@@ -345,6 +180,8 @@ end
 ---
 --- Notes:
 ---  * The JSON should be named 'docs.json' and located in the same directory as the `lua` or `so` file which is used when the module is loaded via `require`.
+---
+---  * The documentation for core modules is stored in the JSON file specified by the `hs.docstrings_json_file` variable; this function is intended for use in locating the documentation file for third party modules and Spoons.
 module.locateJSONFile = function(moduleName)
     local asLua = package.searchpath(moduleName, package.path)
     local asC   = package.searchpath(moduleName, package.cpath)
@@ -376,66 +213,97 @@ module.locateJSONFile = function(moduleName)
     end
 end
 
---- hs.doc.help(identifier)
+--- hs.doc.preloadSpoonDocs()
 --- Function
---- Prints the documentation for some part of Hammerspoon's API and Lua 5.3.  This function has also been aliased as `hs.help` and `help` as a shorthand for use within the Hammerspoon console.
+--- Locates all installed Spoon documentation files and and marks them for loading the next time the [hs.doc.help](#help) function is invoked.
 ---
 --- Parameters:
----  * identifier - A string containing the signature of some part of Hammerspoon's API (e.g. `"hs.reload"`)
+---  * None
 ---
 --- Returns:
 ---  * None
----
---- Notes:
----  * This function is mainly for runtime API help while using Hammerspoon's Console
----  * This function only returns information about the core Hammerspoon API and Lua 5.3.  If you register additional files from 3rd party modules, or deregister the initial files for creating your own `hs.doc` objects, it will not affect the results used by this function.
----
----  * You can also access the results of this function by the following methods from the console:
----    * help("identifier") -- quotes are required, e.g. `help("hs.reload")`
----    * help.identifier.path -- no quotes are required, e.g. `help.hs.reload`
----
----  * Lua information can be accessed by using the `lua` prefix, rather than `hs`.
----    * the identifier `lua._man` provides the table of contents for the Lua 5.3 manual.  You can pull up a specific section of the lua manual by including the chapter (and subsection) like this: `lua._man._3_4_8`.
----    * the identifier `lua._C` will provide information specifically about the Lua C API for use when developing modules which require external libraries.
-
-function module.help(identifier)
-    local result = helpHolder
-
-    for word in string.gmatch((identifier or ""), '([^.]+)') do
-        result = result[word]
+module.preloadSpoonDocs = function()
+    local spoonPaths, installedSpoons = {}, {}
+    for path in package.path:gmatch("([^;]+Spoons/%?%.spoon/init%.lua)") do
+        table.insert(spoonPaths, path)
     end
-
-    print(result)
+    for _, v in ipairs(spoonPaths) do
+        local dirPath = v:match("^(.+)/%?%.spoon/init%.lua$")
+        if dirPath and fs.dir(dirPath) then
+            for file in fs.dir(dirPath) do
+                local name = file:match("^(.+)%.spoon$")
+                local spoonInit = name and package.searchpath(name, table.concat(spoonPaths, ";"))
+                if name and spoonInit then
+                    local path     = spoonInit:match("^(.+)/init%.lua$")
+                    local docPath  = path .. "/docs.json"
+                    local hasDocs  = fs.attributes(docPath) and true or false
+                    if hasDocs then
+                        module.registerJSONFile(docPath, true)
+                        table.insert(installedSpoons, docPath)
+                    end
+                end
+            end
+        end
+    end
 end
-
 
 -- Return Module Object --------------------------------------------------
 
 module.registerJSONFile(hs.docstrings_json_file)
 module.registerJSONFile((hs.docstrings_json_file:gsub("/docs.json$","/extensions/hs/doc/lua.json")))
 
-module.spoonsupport.updateDocsFiles()
-local _, details = module.spoonsupport.findSpoons()
-for _,v in pairs(details) do if v.hasDocs then module.registerJSONFile(v.docPath, true) end end
+-- we hide some debugging stuff in the metatable but we want to modify it here, and its considered bad style
+-- to do so while it's attached to something, so...
 
--- don't load submodules until needed -- makes it easier to troubleshoot when testing
--- upgrades since hs.doc is loaded by _coresetup, but the others don't have to be, and
--- hsdocs especially uses a lot of other modules we might be testing and dont' want loaded
--- until personal path overrides have been set
+local _mt = getmetatable(module) or {} -- in our case, it's not empty, but I cut and paste a lot
+setmetatable(module, nil)
+_mt.__call = function(_, ...) return module.help(...) end
+_mt.__tostring = function() return _help() end
+_mt.__index = function(self, key)
+    if submodules[key] then
+        self[key] = require(submodules[key])
+        return self[key]
+    end
 
-local submodules = {
-    markdown = "hs.doc.markdown",
-    hsdocs   = "hs.doc.hsdocs",
-    builder  = "hs.doc.builder",
-}
+    _mt._loadRegisteredFiles() -- we have to assume they're accessing this for help or hsdocs, so load files
 
-return setmetatable(module, {
-    __call = function(_, ...) return module.help(...) end,
-    __tostring = function() return tostring(helpHolder) end,
-    __index = function(self, key)
-        if submodules[key] then
-            self[key] = require(submodules[key])
+    -- massage the result for hsdocs, which we should really rewrite at some point
+    if key == "_jsonForSpoons" or key == "_jsonForModules" then
+        if not _jsonForSpoons then
+            _jsonForSpoons = {}
+            for _, path in ipairs(module.registeredFiles()) do
+                local file = _mt._registeredFilesObject()[path]
+                if file.spoon then
+                    for _, v in ipairs(file.json) do
+                        if not (v.name:match("^lua$") or v.name:match("^lua[%.:]")) then
+                            table.insert(_jsonForSpoons, v)
+                        end
+                    end
+                end
+            end
+            table.sort(_jsonForSpoons, function(a,b) return a.name:lower() < b.name:lower() end)
         end
-        return helpHolder[key] or rawget(self, key)
-    end,
-})
+        if not _jsonForModules then
+            _jsonForModules = {}
+            for _, path in ipairs(module.registeredFiles()) do
+                local file = _mt._registeredFilesObject()[path]
+                if not file.spoon then
+                    for _, v in ipairs(file.json) do
+                        if not (v.name:match("^lua$") or v.name:match("^lua[%.:]")) then
+                            table.insert(_jsonForModules, v)
+                        end
+                    end
+                end
+            end
+            table.sort(_jsonForModules, function(a,b) return a.name:lower() < b.name:lower() end)
+        end
+        return (key == "_jsonForModules") and _jsonForModules or _jsonForSpoons
+    end
+    local children = _mt._children()
+    if fnutils.contains(children, key) then
+        return setmetatable({ _key = key }, helperMT)
+    end
+    return rawget(self, key)
+end
+
+return setmetatable(module, _mt)

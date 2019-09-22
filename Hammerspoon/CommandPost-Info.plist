@@ -277,10 +277,16 @@
 	</dict>
 	<key>NSAppleEventsUsageDescription</key>
 	<string>CommandPost needs to send events to automate applications.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Some CommandPost extensions (such as hs.noises) require access to the microphone.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Some CommandPost extensions require access to the camera.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Some CommandPost extensions (such as hs.location) require access to your location.</string>
 	<key>NSAppleScriptEnabled</key>
 	<true/>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright Chris Hocking &amp; David Peterson 2017-2018. Released under MIT license.</string>
+	<string>Copyright Chris Hocking &amp; David Peterson 2017-2019. Released under MIT license.</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
