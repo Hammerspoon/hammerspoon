@@ -19,4 +19,5 @@
 @property (nonatomic, copy) NSString *startupFile;
 @property (nonatomic, weak) id<HSOpenFileDelegate> openFileDelegate;
 @property (nonatomic, strong) NSString* updateAvailable;
+@property (nonatomic, strong) NSString* updateAvailableDisplayVersion;
 @end
