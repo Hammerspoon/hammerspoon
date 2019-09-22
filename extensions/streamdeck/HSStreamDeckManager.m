@@ -86,6 +86,10 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
 }
 
 - (BOOL)stopHIDManager {
+    if (!(__bridge IOHIDManagerRef)self.ioHIDManager) {
+        return YES;
+    }
+
     IOReturn tIOReturn = IOHIDManagerClose((__bridge IOHIDManagerRef)self.ioHIDManager, kIOHIDOptionsTypeNone);
     return tIOReturn == kIOReturnSuccess;
 }
