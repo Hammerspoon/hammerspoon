@@ -316,15 +316,16 @@ static int checkForUpdates(lua_State *L) {
     return 0 ;
 }
 
-/// hs.updateAvailable() -> string or false
+/// hs.updateAvailable() -> string or false, string
 /// Function
-/// Gets the version number of an available update
+/// Gets the version & build number of an available update
 ///
 /// Parameters:
 ///  * None
 ///
 /// Returns:
-///  * A string containing the version number of the latest release, or a boolean false if no update is available
+///  * A string containing the display version of the latest release, or a boolean false if no update is available
+///  * A string containing the build number of the latest release, or `nil` if no update is available
 ///
 /// Notes:
 ///  * This is not a live check, it is a cached result of whatever the previous update check found. By default Hammerspoon checks for updates every few hours, but you can also add your own timer to check for updates more frequently with `hs.checkForUpdates()`
@@ -338,14 +339,17 @@ static int updateAvailable(lua_State *L) {
 #pragma clang diagnostic ignored "-Wundeclared-selector"
 
     NSString *updateAvailable = [appDelegate performSelector:@selector(updateAvailable)];
+    NSString *updateAvailableDisplayVersion = [appDelegate performSelector:@selector(updateAvailableDisplayVersion)];
     if (updateAvailable == nil) {
         lua_pushboolean(L, 0);
+        return 1;
     } else {
+        [skin pushNSObject:updateAvailableDisplayVersion];
         [skin pushNSObject:updateAvailable];
+        return 2;
     }
 
 #pragma clang diagnostic pop
-    return 1;
 }
 
 /// hs.canCheckForUpdates() -> boolean

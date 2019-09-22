@@ -122,8 +122,8 @@ static int socketudp_new(lua_State *L) {
         asyncUdpSocket.readCallback = [skin luaRef:refTable];
     }
 
-    lua_getglobal(skin.L, "hs");
-    for (NSString *field in @[@"socket", @"udp", @"timeout"])
+    [skin requireModule:"hs.socket"] ;
+    for (NSString *field in @[@"udp", @"timeout"])
         lua_getfield(skin.L, -1, [field UTF8String]);
     asyncUdpSocket.timeout = lua_tonumber(skin.L, -1);
 

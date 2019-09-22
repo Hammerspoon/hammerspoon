@@ -215,13 +215,9 @@
     LuaSkin *skin = [LuaSkin shared];
     lua_State *L = skin.L;
     _lua_stackguard_entry(L);
-    lua_getglobal(L, "hs");
-    lua_getfield(L, -1, "chooser");
-    lua_getfield(L, -1, "globalCallback");
-
-    // Remove `chooser` and `hs` from the stack
-    lua_remove(L, -3);
-    lua_remove(L, -2);
+    [skin requireModule:"hs.chooser"] ;
+    lua_getfield(L, -1, "globalCallback") ;
+    lua_remove(L, -2) ;
 
     // Check the type of `globalCallback`
     if (lua_type(L, -1) == LUA_TNIL) {
@@ -272,13 +268,10 @@
     LuaSkin *skin = [LuaSkin shared];
     lua_State *L = skin.L;
     _lua_stackguard_entry(L);
-    lua_getglobal(L, "hs");
-    lua_getfield(L, -1, "chooser");
-    lua_getfield(L, -1, "globalCallback");
+    [skin requireModule:"hs.chooser"] ;
+    lua_getfield(L, -1, "globalCallback") ;
+    lua_remove(L, -2) ;
 
-    // Remove `chooser` and `hs` from the stack
-    lua_remove(L, -3);
-    lua_remove(L, -2);
 
     // Check the type of `globalCallback`
     if (lua_type(L, -1) == LUA_TNIL) {
