@@ -149,7 +149,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.9.76</string>
+	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -188,7 +188,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>5073</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>Fabric</key>
 	<dict>
 		<key>APIKey</key>
@@ -216,18 +216,18 @@
 	</dict>
 	<key>NSAppleEventsUsageDescription</key>
 	<string>Hammerspoon needs to send events to automate applications.</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Some Hammerspoon extensions (such as hs.noises) require access to the microphone.</string>
-	<key>NSCameraUsageDescription</key>
-	<string>Some Hammerspoon extensions require access to the camera.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Some Hammerspoon extensions (such as hs.location) require access to your location.</string>
 	<key>NSAppleScriptEnabled</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Some Hammerspoon extensions require access to the camera.</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Released under MIT license.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Some Hammerspoon extensions (such as hs.location) require access to your location.</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Some Hammerspoon extensions (such as hs.noises) require access to the microphone.</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 	<key>NSServices</key>

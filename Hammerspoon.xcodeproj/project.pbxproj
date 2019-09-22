@@ -5085,6 +5085,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9445CA3C19083251002568BB /* Build configuration list for PBXNativeTarget "Hammerspoon" */;
 			buildPhases = (
+				4F6D9E3523074BC6006CC3E4 /* Update build number (Release only) */,
 				CDFA91F1078130B13A38C135 /* [CP] Check Pods Manifest.lock */,
 				4F251E7F1A49D5BE00AB6103 /* Prepare defines header file */,
 				4FC09F7A19F99E48007542A6 /* Compile docs.json */,
@@ -5093,7 +5094,6 @@
 				4FA81F271B3F2A52000B5537 /* Copy LuaSkin.framework to build/bundle */,
 				4FBE2D161B7268DF00407788 /* Copy extensions to bundle */,
 				9445CA0919083251002568BB /* Resources */,
-				4F6D9E3523074BC6006CC3E4 /* Update build number (Release only) */,
 				E849AEC367EA9502A25B9A7C /* [CP] Embed Pods Frameworks */,
 				4F1CF8D91A47F583001C8AE7 /* Upload binary to Crashlytics */,
 				4F7DB3571A5C513F00C22B03 /* Sign app/frameworks */,
@@ -7916,6 +7916,7 @@
 				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 5073;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -7927,6 +7928,7 @@
 					"\"$(SDK_DIR)\"/usr/include/libxml2",
 				);
 				INFOPLIST_FILE = "Hammerspoon/Hammerspoon-Info.plist";
+				MARKETING_VERSION = 0.9.76;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = Hammerspoon;
 				SDKROOT = macosx;
@@ -21069,6 +21071,7 @@
 				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 5073;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -21080,6 +21083,7 @@
 					"\"$(SDK_DIR)\"/usr/include/libxml2",
 				);
 				INFOPLIST_FILE = "Hammerspoon/Hammerspoon-Info.plist";
+				MARKETING_VERSION = 0.9.76;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = Hammerspoon;
 				SDKROOT = macosx;
@@ -21110,6 +21114,7 @@
 				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 5073;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -21122,6 +21127,7 @@
 					"\"$(SDK_DIR)\"/usr/include/libxml2",
 				);
 				INFOPLIST_FILE = "Hammerspoon/Hammerspoon-Info.plist";
+				MARKETING_VERSION = 0.9.76;
 				OTHER_CODE_SIGN_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = Hammerspoon;
