@@ -356,12 +356,14 @@
 
 #pragma mark - Sparkle delegate methods
 - (void)updater:(id)updater didFindValidUpdate:(id)update {
-    NSLog(@"Update found: %@", [update valueForKey:@"versionString"]);
+    NSLog(@"Update found: %@ (Build: %@)", [update valueForKey:@"displayVersionString"], [update valueForKey:@"versionString"]);
     self.updateAvailable = [update valueForKey:@"versionString"];
+    self.updateAvailableDisplayVersion = [update valueForKey:@"displayVersionString"];
 }
 
 - (void)updaterDidNotFindUpdate:(id)update {
     self.updateAvailable = nil;
+    self.updateAvailableDisplayVersion = nil;
 }
 
 @end
