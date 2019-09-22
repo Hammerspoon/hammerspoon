@@ -236,6 +236,9 @@ static int core_accessibilityState(lua_State* L) {
 ///
 /// Returns:
 ///  * `true` or `false` indicating whether or not Microphone access is enabled for Hammerspoon.
+///
+/// Notes:
+///  * Will always return `true` on macOS 10.13 or earlier.
 static int core_microphoneState(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     BOOL shouldprompt = lua_toboolean(L, 1);
@@ -278,7 +281,7 @@ static int core_microphoneState(lua_State* L) {
         }
     } else {
         // Fallback on earlier versions
-        lua_pushboolean(L, NO) ;
+        lua_pushboolean(L, YES) ;
     }
     return 1;
 }
@@ -291,6 +294,9 @@ static int core_microphoneState(lua_State* L) {
 ///
 /// Returns:
 ///  * `true` or `false` indicating whether or not Camera access is enabled for Hammerspoon.
+///
+/// Notes:
+///  * Will always return `true` on macOS 10.13 or earlier.
 static int core_cameraState(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     BOOL shouldprompt = lua_toboolean(L, 1);
@@ -333,7 +339,7 @@ static int core_cameraState(lua_State* L) {
         }
     } else {
         // Fallback on earlier versions
-        lua_pushboolean(L, NO) ;
+        lua_pushboolean(L, YES) ;
     }
     return 1;
 }
