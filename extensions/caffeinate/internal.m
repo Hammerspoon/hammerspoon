@@ -5,8 +5,8 @@
 
 // Apple Private API items
 #define kIOPMAssertionAppliesToLimitedPowerKey  CFSTR("AppliesToLimitedPower")
-extern int SACLockScreenImmediate(void);
-NSBundle *loginFramework = nil;
+CFBundleRef loginFramework = nil;
+typedef void (*SACLockScreenImmediatePtr)(void);
 
 static IOPMAssertionID noIdleDisplaySleep = 0;
 static IOPMAssertionID noIdleSystemSleep = 0;
@@ -195,11 +195,18 @@ static int caffeinate_lockScreen(lua_State *L) {
 
     // Load the private API we need to call SACLockScreenImmediate()
     if (!loginFramework) {
-        loginFramework = [[NSBundle alloc] initWithPath:@"/System/Library/PrivateFrameworks/login.framework"];
-        [loginFramework load];
+        NSString *bundlePath = @"/System/Library/PrivateFrameworks/login.framework";
+        NSURL *bundleURL = [NSURL fileURLWithPath:bundlePath];
+        loginFramework = CFBundleCreate(kCFAllocatorDefault, (CFURLRef)bundleURL);
     }
 
-    SACLockScreenImmediate();
+    SACLockScreenImmediatePtr SACLockScreenImmediate;
+    SACLockScreenImmediate = (SACLockScreenImmediatePtr)CFBundleGetFunctionPointerForName(loginFramework, (__bridge CFStringRef)@"SACLockScreenImmediate");
+    if (!SACLockScreenImmediate) {
+        [skin logError:@"Unable to load SACLockScreenImmediate from private login.framework"];
+    } else {
+        SACLockScreenImmediate();
+    }
 
     return 0;
 }
@@ -236,6 +243,10 @@ static int caffeinate_gc(lua_State *L) {
     caffeinate_allowIdleDisplaySleep(L);
     caffeinate_allowIdleSystemSleep(L);
     caffeinate_allowSystemSleep(L);
+
+    if (loginFramework) {
+        CFRelease(loginFramework);
+    }
 
     return 0;
 }
