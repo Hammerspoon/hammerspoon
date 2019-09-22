@@ -188,7 +188,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>5011</string>
+	<string>5073</string>
 	<key>Fabric</key>
 	<dict>
 		<key>APIKey</key>
@@ -216,6 +216,12 @@
 	</dict>
 	<key>NSAppleEventsUsageDescription</key>
 	<string>Hammerspoon needs to send events to automate applications.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Some Hammerspoon extensions (such as hs.noises) require access to the microphone.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Some Hammerspoon extensions require access to the camera.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Some Hammerspoon extensions (such as hs.location) require access to your location.</string>
 	<key>NSAppleScriptEnabled</key>
 	<true/>
 	<key>NSHumanReadableCopyright</key>

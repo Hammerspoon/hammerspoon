@@ -1,4 +1,7 @@
-local ls = {}
+local USERDATA_TAG = "luaskin.objectWrapper"
+
+local ls   = _G["ls"]
+local owMT = debug.getregistry()[USERDATA_TAG]
 
 -- private variables and methods -----------------------------------------
 
@@ -103,6 +106,18 @@ end
 
 -- Public interface ------------------------------------------------------
 
-ls.makeConstantsTable = _makeConstantsTable
+owMT.__pairs = function(self)
+    local keys, values = self:children(), {}
+    for _, v in ipairs(keys) do values[v] = self[v] end
+    return function(_, k)
+            local v
+            k, v = next(values, k)
+            return k, v
+        end, self, nil
+end
 
-_G["ls"] = ls
+owMT.__index = function(self, key)
+    return rawget(owMT, key) or owMT.__index2(self, key)
+end
+
+ls.makeConstantsTable = _makeConstantsTable

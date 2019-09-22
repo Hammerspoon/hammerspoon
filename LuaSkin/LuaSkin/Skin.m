@@ -8,6 +8,8 @@
 
 #import "Skin.h"
 
+const char * const LuaSkin_UD_TAG = "luaskin.objectWrapper" ;
+
 typedef struct pushNSHelpers {
     const char            *name;
     pushNSHelperFunction  func;
@@ -59,6 +61,9 @@ NSString *specMaskToString(int spec) {
     }
     if (spec & LS_TBOOLEAN) {
         [parts addObject:@"boolean"];
+    }
+    if (spec & LS_TWRAPPEDOBJECT) {
+        [parts addObject:@"wrappedObject"] ;
     }
 
     return [parts componentsJoinedByString:@" or "];
@@ -164,7 +169,9 @@ NSString *specMaskToString(int spec) {
     NSString *luaSkinLua = [[NSBundle bundleForClass:[self class]] pathForResource:@"luaskin" ofType:@"lua"];
     NSAssert((luaSkinLua != nil), @"createLuaState was unable to find luaskin.lua. Your installation may be damaged");
 
-    int loadresult = luaL_loadfile(self.L, luaSkinLua.fileSystemRepresentation);
+    luaopen_luaskin_internal(self.L) ; // load objectWrapper userdata methods and create _G["ls"]
+
+    int loadresult = luaL_loadfile(self.L, luaSkinLua.fileSystemRepresentation); // extend _G["ls"]
     if (loadresult != 0) {
         NSLog(@"createLuaState was unable to load luaskin.lua. Your installation may be damaged.");
         exit(1);
@@ -498,14 +505,20 @@ NSString *specMaskToString(int spec) {
             case LUA_TUSERDATA:
                 lsType = LS_TUSERDATA;
 
-                // We have to duplicate this check here, because if the user wasn't supposed to pass userdata, we won't have a valid userdataTag value available
-                if (!(spec & lsType)) {
-                    luaL_error(self.L, "ERROR:  incorrect type '%s' for argument %d (expected %s)", luaL_typename(self.L, idx), idx, specMaskToString(spec).UTF8String);
-                }
+                if (spec & LS_TWRAPPEDOBJECT) {
+                    if (!luaL_testudata(self.L, idx, LuaSkin_UD_TAG)) {
+                        luaL_error(self.L, "ERROR: incorrect userdata type for argument %d (expected %s)", idx, LuaSkin_UD_TAG);
+                    }
+                } else {
+                    // We have to duplicate this check here, because if the user wasn't supposed to pass userdata, we won't have a valid userdataTag value available
+                    if (!(spec & lsType)) {
+                        luaL_error(self.L, "ERROR:  incorrect type '%s' for argument %d (expected %s)", luaL_typename(self.L, idx), idx, specMaskToString(spec).UTF8String);
+                    }
 
-                userdataTag = va_arg(args, char*);
-                if (!userdataTag || strlen(userdataTag) == 0 || !luaL_testudata(self.L, idx, userdataTag)) {
-                    luaL_error(self.L, "ERROR: incorrect userdata type for argument %d (expected %s)", idx, userdataTag);
+                    userdataTag = va_arg(args, char*);
+                    if (!userdataTag || strlen(userdataTag) == 0 || !luaL_testudata(self.L, idx, userdataTag)) {
+                        luaL_error(self.L, "ERROR: incorrect userdata type for argument %d (expected %s)", idx, userdataTag);
+                    }
                 }
                 break;
 
@@ -514,7 +527,7 @@ NSString *specMaskToString(int spec) {
                 break;
         }
 
-        if (!(spec & LS_TANY) && !(spec & lsType)) {
+        if (!(spec & LS_TANY) && !(spec & lsType) && !(spec & LS_TWRAPPEDOBJECT)) {
             luaL_error(self.L, "ERROR: incorrect type '%s' for argument %d (expected %s)", luaL_typename(self.L, idx), idx, specMaskToString(spec).UTF8String);
         }
 nextarg:
@@ -1146,20 +1159,36 @@ nextarg:
 }
 
 - (int)pushNSArray:(id)obj withOptions:(NSUInteger)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
-    NSArray* list = obj;
+    if ((options & LS_WithObjectWrapper) == LS_WithObjectWrapper) {
+        void** valuePtr = lua_newuserdata(self.L, sizeof(NSObject *)) ;
+        *valuePtr = (__bridge_retained void *)obj ;
+        luaL_getmetatable(self.L, LuaSkin_UD_TAG) ;
+        lua_setmetatable(self.L, -2) ;
 
-    // Ensure our Lua stack is large enough for the number of items being pushed
-    [self growStack:2 withMessage:"pushNSArray"];
+        lua_newtable(self.L) ;
+        lua_pushboolean(self.L, ((options & LS_OW_ReadWrite) == LS_OW_ReadWrite)) ;
+        lua_setfield(self.L, -2, "mutable") ;
+        lua_pushboolean(self.L, ((options & LS_OW_WithArrayConversion) == LS_OW_WithArrayConversion)) ;
+        lua_setfield(self.L, -2, "arrayAutoConversion") ;
+        lua_setuservalue(self.L, -2) ;
+        lua_pushvalue(self.L, -1) ;
+        alreadySeen[obj] = @(luaL_ref(self.L, LUA_REGISTRYINDEX)) ;
+    } else {
+        NSArray* list = obj;
 
-    lua_newtable(self.L);
-    alreadySeen[obj] = @(luaL_ref(self.L, LUA_REGISTRYINDEX)) ;
-    lua_rawgeti(self.L, LUA_REGISTRYINDEX, [alreadySeen[obj] intValue]) ; // put it back on the stack
-    for (id item in list) {
-        int results = [self pushNSObject:item withOptions:options alreadySeenObjects:alreadySeen];
-// NOTE: This isn't a true representation of the intent of LS_NSIgnoreUnknownTypes as it will actually put `nil`
-// in the indexed positions... is that a problem?  Keeps the numbering indexing simple, though
-        if (results == 0) lua_pushnil(self.L) ;
-        lua_rawseti(self.L, -2, luaL_len(self.L, -2) + 1) ;
+        // Ensure our Lua stack is large enough for the number of items being pushed
+        [self growStack:2 withMessage:"pushNSArray"];
+
+        lua_newtable(self.L);
+        alreadySeen[obj] = @(luaL_ref(self.L, LUA_REGISTRYINDEX)) ;
+        lua_rawgeti(self.L, LUA_REGISTRYINDEX, [alreadySeen[obj] intValue]) ; // put it back on the stack
+        for (id item in list) {
+            int results = [self pushNSObject:item withOptions:options alreadySeenObjects:alreadySeen];
+    // NOTE: This isn't a true representation of the intent of LS_NSIgnoreUnknownTypes as it will actually put `nil`
+    // in the indexed positions... is that a problem?  Keeps the numbering indexing simple, though
+            if (results == 0) lua_pushnil(self.L) ;
+            lua_rawseti(self.L, -2, luaL_len(self.L, -2) + 1) ;
+        }
     }
     return 1 ;
 }
@@ -1183,25 +1212,41 @@ nextarg:
 }
 
 - (int)pushNSDictionary:(id)obj withOptions:(NSUInteger)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
-    NSArray *keys   = [obj allKeys];
-    NSArray *values = [obj allValues];
+    if ((options & LS_WithObjectWrapper) == LS_WithObjectWrapper) {
+        void** valuePtr = lua_newuserdata(self.L, sizeof(NSObject *)) ;
+        *valuePtr = (__bridge_retained void *)obj ;
+        luaL_getmetatable(self.L, LuaSkin_UD_TAG) ;
+        lua_setmetatable(self.L, -2) ;
 
-    // Ensure our Lua stack is large enough for the number of items being pushed
-    [self growStack:2 withMessage:"pushNSDictionary"];
+        lua_newtable(self.L) ;
+        lua_pushboolean(self.L, ((options & LS_OW_ReadWrite) == LS_OW_ReadWrite)) ;
+        lua_setfield(self.L, -2, "mutable") ;
+        lua_pushboolean(self.L, ((options & LS_OW_WithArrayConversion) == LS_OW_WithArrayConversion)) ;
+        lua_setfield(self.L, -2, "arrayAutoConversion") ;
+        lua_setuservalue(self.L, -2) ;
+        lua_pushvalue(self.L, -1) ;
+        alreadySeen[obj] = @(luaL_ref(self.L, LUA_REGISTRYINDEX)) ;
+    } else {
+        NSArray *keys   = [obj allKeys];
+        NSArray *values = [obj allValues];
 
-    lua_newtable(self.L);
-    alreadySeen[obj] = @(luaL_ref(self.L, LUA_REGISTRYINDEX)) ;
-    lua_rawgeti(self.L, LUA_REGISTRYINDEX, [alreadySeen[obj] intValue]) ; // put it back on the stack
-    for (unsigned long i = 0; i < [keys count]; i++) {
-        int result = [self pushNSObject:keys[i] withOptions:options alreadySeenObjects:alreadySeen];
-        if (result > 0) {
-            int result2 = [self pushNSObject:values[i] withOptions:options alreadySeenObjects:alreadySeen];
-            if (result2 > 0) {
-                lua_settable(self.L, -3);
-            } else {
-                lua_pop(self.L, 1) ; // pop the key since we won't be using it
-            }
-        } // else nothing was pushed on the stack, so we don't need to pop anything
+        // Ensure our Lua stack is large enough for the number of items being pushed
+        [self growStack:2 withMessage:"pushNSDictionary"];
+
+        lua_newtable(self.L);
+        alreadySeen[obj] = @(luaL_ref(self.L, LUA_REGISTRYINDEX)) ;
+        lua_rawgeti(self.L, LUA_REGISTRYINDEX, [alreadySeen[obj] intValue]) ; // put it back on the stack
+        for (unsigned long i = 0; i < [keys count]; i++) {
+            int result = [self pushNSObject:keys[i] withOptions:options alreadySeenObjects:alreadySeen];
+            if (result > 0) {
+                int result2 = [self pushNSObject:values[i] withOptions:options alreadySeenObjects:alreadySeen];
+                if (result2 > 0) {
+                    lua_settable(self.L, -3);
+                } else {
+                    lua_pop(self.L, 1) ; // pop the key since we won't be using it
+                }
+            } // else nothing was pushed on the stack, so we don't need to pop anything
+        }
     }
     return 1 ;
 }
@@ -1268,6 +1313,11 @@ nextarg:
 //                 userdataTag = (char *)lua_tostring(self.L, -1);
 //             }
 //             lua_pop(self.L, 1);
+
+            if (luaL_testudata(self.L, idx, LuaSkin_UD_TAG)) {
+                return (__bridge NSObject *)*((void**)luaL_checkudata(self.L, idx, LuaSkin_UD_TAG)) ;
+            }
+
             lua_pushcfunction(self.L, pushUserdataType) ;
             lua_pushvalue(self.L, idx) ;
             if ((lua_pcall(self.L, 1, 1, 0) == LUA_OK) && (lua_type(self.L, -1) == LUA_TSTRING)) {
