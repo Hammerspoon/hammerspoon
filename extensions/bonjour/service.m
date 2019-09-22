@@ -681,7 +681,7 @@ static int pushNSNetService(lua_State *L, id obj) {
     }
 
     if (valueRef) {
-        [skin pushLuaRef:refTable ref:valueRef.integerValue] ;
+        [skin pushLuaRef:refTable ref:valueRef.intValue] ;
         value = [skin toNSObjectAtIndex:-1] ;
         lua_pop(L, 1) ;
     } else {
