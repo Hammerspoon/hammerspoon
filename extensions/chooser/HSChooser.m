@@ -395,6 +395,14 @@
 - (IBAction)cancel:(id)sender {
     //NSLog(@"HSChooser::cancel:");
     [self hide];
+    if (self.refTable != NULL) {
+        if (*(self.refTable) == LUA_REFNIL || *(self.refTable) == LUA_NOREF) {
+            return;
+        }
+    }
+    if (self.completionCallbackRef == LUA_REFNIL || self.completionCallbackRef == LUA_NOREF) {
+        return;
+    }
     LuaSkin *skin = [LuaSkin shared];
     _lua_stackguard_entry(skin.L);
     [skin pushLuaRef:*(self.refTable) ref:self.completionCallbackRef];
