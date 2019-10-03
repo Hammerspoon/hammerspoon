@@ -1105,6 +1105,9 @@ static int screen_snapshot(lua_State *L) {
 ///
 /// Returns:
 ///  * the `hs.screen` object if a new URL was set, otherwise a string containing the current URL
+///
+/// Notes:
+///  * If the user has set a folder of pictures to be alternated as the desktop background, the path to that folder will be returned.
 static int screen_desktopImageURL(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
