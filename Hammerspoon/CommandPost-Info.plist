@@ -247,7 +247,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>5635</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>Fabric</key>
 	<dict>
 		<key>APIKey</key>
