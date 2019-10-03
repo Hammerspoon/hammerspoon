@@ -8,7 +8,8 @@
 
 #import <Cocoa/Cocoa.h>
 #import <XCTest/XCTest.h>
-#import "Skin.h"
+@import LuaSkin;
+//#import "Skin.h"
 
 #pragma mark - Defines
 
@@ -504,6 +505,30 @@ static int pushTestUserData(lua_State *L, id object) {
 
     // FIXME: This test does nothing to test failure conditions. It's hard because luaL_error() is involved, and it calls abort().
     // It seems like we need to set a lua_atpanic() function and have that long jump to safety to prevent the abort(), but what can we jump to?
+}
+
+- (void)testCheckRefs {
+    int valid = 4;
+    int also_valid = 28;
+    int not_valid = LUA_REFNIL;
+    int also_not_valid = LUA_NOREF;
+
+    XCTAssertTrue(LS_RBREAK < LUA_REFNIL);
+    XCTAssertTrue(LS_RBREAK < LUA_NOREF);
+
+    BOOL result;
+
+    result = [self.skin checkRefs:valid, LS_RBREAK];
+    XCTAssertTrue(result);
+    result = [self.skin checkRefs:valid, also_valid, LS_RBREAK];
+    XCTAssertTrue(result);
+
+    result = [self.skin checkRefs:not_valid, LS_RBREAK];
+    XCTAssertFalse(result);
+    result = [self.skin checkRefs:not_valid, also_not_valid, LS_RBREAK];
+    XCTAssertFalse(result);
+    result = [self.skin checkRefs:valid, not_valid, LS_RBREAK];
+    XCTAssertFalse(result);
 }
 
 - (void)testLuaTypeAtIndex {

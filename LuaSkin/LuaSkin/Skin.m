@@ -284,6 +284,7 @@ NSString *specMaskToString(int spec) {
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconstant-conversion"
+#pragma GCC diagnostic ignored "-Wunknown-warning-option"
 #pragma GCC diagnostic ignored "-Wsizeof-pointer-div"
     luaL_newlib(self.L, functions);
     if (metaFunctions != nil) {
@@ -326,6 +327,7 @@ NSString *specMaskToString(int spec) {
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconstant-conversion"
+#pragma GCC diagnostic ignored "-Wunknown-warning-option"
 #pragma GCC diagnostic ignored "-Wsizeof-pointer-div"
     luaL_newlib(self.L, objectFunctions);
 #pragma GCC diagnostic pop
@@ -407,6 +409,27 @@ NSString *specMaskToString(int spec) {
     lua_remove(self.L, -2);
 
     return type;
+}
+
+- (BOOL)checkRefs:(int)firstRef, ... {
+    BOOL result = YES;
+    int ref = firstRef;
+
+    va_list args;
+    va_start(args, firstRef);
+
+    while (true) {
+        if (ref == LS_RBREAK) {
+            break;
+        }
+        if (ref == LUA_REFNIL || ref == LUA_NOREF) {
+            result = NO;
+            break;
+        }
+        ref = va_arg(args, int);
+    }
+
+    return result;
 }
 
 - (void)checkArgs:(int)firstArg, ... {
