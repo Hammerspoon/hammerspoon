@@ -411,6 +411,27 @@ NSString *specMaskToString(int spec) {
     return type;
 }
 
+- (BOOL)checkRefs:(int)firstRef, ... {
+    BOOL result = YES;
+    int ref = firstRef;
+
+    va_list args;
+    va_start(args, firstRef);
+
+    while (true) {
+        if (ref == LS_RBREAK) {
+            break;
+        }
+        if (ref == LUA_REFNIL || ref == LUA_NOREF) {
+            result = NO;
+            break;
+        }
+        ref = va_arg(args, int);
+    }
+
+    return result;
+}
+
 - (void)checkArgs:(int)firstArg, ... {
     int idx = 1;
     int numArgs = lua_gettop(self.L);

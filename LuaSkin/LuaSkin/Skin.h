@@ -20,6 +20,7 @@
 #import "lualib.h"
 #import "lua.h"
 #import <assert.h>
+#import <limits.h>
 
 extern const char * const LuaSkin_UD_TAG ;
 extern int luaopen_luaskin_internal(lua_State* L) ; // entry vector to luaskin.m objectWrapper additions
@@ -36,6 +37,9 @@ extern int luaopen_luaskin_internal(lua_State* L) ; // entry vector to luaskin.m
 /*
 #endif
  */
+
+// Define a break variable for the reference checker
+#define LS_RBREAK INT_MIN
 
 // Define some bits for masking operations in the argument checker
 /*!
@@ -430,6 +434,15 @@ NSString *specMaskToString(int spec);
  @param object an NSObject
  */
 - (void)luaRelease:(int)refTable forNSObject:(id)object ;
+
+/*!
+  @abstract Checks a list of Lua references for validity
+
+  @discussion This compares each argument against LUA_REFNIL and LUA_NOREF. If any of the supplied arguments contain either of those values, this method returns NO. It does not guarantee that the references are valid within the Lua environment, simply that they have not been explicitly invalited.
+  @param firstRef - An integer containing a Lua reference. Followed by zero or more integers containing other Lua references. The final value MUST be LS_RBREAK.
+  @return YES or NO indicating whether all of the supplied references are valid or not
+ */
+- (BOOL)checkRefs:(int)firstRef, ...;
 
 /*!
  @abstract Stores a reference for an NSObject in the supplied table.

@@ -397,6 +397,13 @@
     [self hide];
     LuaSkin *skin = [LuaSkin shared];
     _lua_stackguard_entry(skin.L);
+
+    if (![skin checkRefs:*(self.refTable), self.completionCallbackRef, LS_RBREAK]) {
+        [skin logWarn:@"Unable to call hs.chooser:completionCallback, reference is no longer valid"];
+        _lua_stackguard_exit(skin.L);
+        return;
+    }
+
     [skin pushLuaRef:*(self.refTable) ref:self.completionCallbackRef];
     lua_pushnil(skin.L);
     [skin protectedCallAndError:@"hs.chooser:completionCallback" nargs:1 nresults:0];
