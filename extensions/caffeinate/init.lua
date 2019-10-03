@@ -18,7 +18,7 @@ local applescript = require "hs.applescript"
 ---   * systemIdle - Controls whether the system will be allowed to sleep if the user is idle (display may still sleep).
 ---   * system - Controls whether the system will be allowed to sleep for any reason.
 ---  * aValue - A boolean, true if the specified type of sleep should be prevented, false if it should be allowed
----  * acAndBattery - A boolean, true if the sleep prevention should apply to both AC power and battery power, false if it should only apply to AC power
+---  * acAndBattery - A boolean, true if the sleep prevention should apply to both AC power and battery power, false if it should only apply to AC power.
 ---
 --- Returns:
 ---  * None
@@ -27,6 +27,7 @@ local applescript = require "hs.applescript"
 ---  * These calls are not guaranteed to prevent the system sleep behaviours described above. The OS may override them if it feels it must (e.g. if your CPU temperature becomes dangerously high).
 ---  * The acAndBattery argument only applies to the `system` sleep type.
 ---  * You can toggle the acAndBattery state by calling `hs.caffeinate.set()` again and altering the acAndBattery value.
+---  * The acAndBattery option does not appear to work anymore - it is based on private API that is not allowed in macOS 10.15 when running with the Hardened Runtime (which Hammerspoon now uses).
 function caffeinate.set(aType, aValue, acAndBattery)
     if (aType == "displayIdle") then
         if (aValue == true) then
