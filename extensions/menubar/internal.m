@@ -1086,7 +1086,7 @@ static int menubarGetTitle(lua_State *L) {
 /// Notes:
 ///  * Default priority levels can be found in the [hs.menubar.priorities](#priorities) table.
 ///
-///  * This method uses undocumented methods in the NSStatusBar and NSStatusItem classes; because of this, we cannot guarantee that this method will work with future versions of OS X.  This method has been written so that if the necessary private methods are not present, then a warning will be sent to the Hammerspoon console and no change will occur with respect to the menubar item's priority.
+///  * This method uses undocumented methods in the NSStatusBar and NSStatusItem classes, which appear to have been removed in macOS 10.15 (Catalina), so this method will no longer work correctly.
 static int menubarPriority(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG,

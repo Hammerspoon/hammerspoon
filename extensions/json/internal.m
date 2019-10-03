@@ -100,8 +100,12 @@ static int json_decode(lua_State* L) {
 static int json_write(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TTABLE, LS_TSTRING, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
-    
-    if lua_istable(L, 1) {
+
+    if (!lua_istable(L, 1)) {
+        [skin logError:[NSString stringWithFormat:@"Non-table object given to JSON encoder."]] ;
+        lua_pushboolean(L, false);
+        return 1;
+    } else {
         id obj = [[LuaSkin shared] toNSObjectAtIndex:1] ;
 
         #pragma clang diagnostic push
@@ -112,8 +116,12 @@ static int json_write(lua_State* L) {
         if (lua_toboolean(L, 3)) {
             opts = NSJSONWritingPrettyPrinted;
         }
-        
-        if ([NSJSONSerialization isValidJSONObject:obj]) {
+
+        if (![NSJSONSerialization isValidJSONObject:obj]) {
+            [skin logError:[NSString stringWithFormat:@"Object cannot be encoded as a JSON string."]] ;
+            lua_pushboolean(L, false);
+            return 1;
+        } else {
 
             NSError* error;
             NSData* data = [NSJSONSerialization dataWithJSONObject:obj options:opts error:&error];
@@ -124,12 +132,12 @@ static int json_write(lua_State* L) {
                 return 1;
             } else if (data) {
                 NSString *path = [[skin toNSObjectAtIndex:2] stringByExpandingTildeInPath];
-                
+
                 BOOL replace = NO;
                 if (lua_type(L, 4) == LUA_TBOOLEAN) {
                     replace = lua_toboolean(L, 4);
                 }
-                
+
                 BOOL writeStatus = [data writeToFile: path
                                                options: (replace ? NSDataWritingAtomic : NSDataWritingWithoutOverwriting)
                                                  error: &error];
@@ -138,25 +146,16 @@ static int json_write(lua_State* L) {
                     lua_pushboolean(L, false);
                     return 1;
                 }
-                
+
                 lua_pushboolean(L, true);
                 return 1;
-                
+
             } else {
                 [skin logError:[NSString stringWithFormat:@"JSON output returned nil."]] ;
                 lua_pushboolean(L, false);
                 return 1;
             }
-
-        } else {
-            [skin logError:[NSString stringWithFormat:@"Object cannot be encoded as a JSON string."]] ;
-            lua_pushboolean(L, false);
-            return 1;
         }
-    } else {
-        [skin logError:[NSString stringWithFormat:@"Non-table object given to JSON encoder."]] ;
-        lua_pushboolean(L, false);
-        return 1;
     }
 }
 
@@ -172,11 +171,15 @@ static int json_write(lua_State* L) {
 static int json_read(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
-    
+
     NSString *path = [[skin toNSObjectAtIndex:1] stringByExpandingTildeInPath];
     NSData *data = [NSData dataWithContentsOfFile:path];
 
-    if (data) {
+    if (!data) {
+        [skin logError:[NSString stringWithFormat:@"Unable to convert JSON input into data structure. Was the path valid?"]] ;
+        lua_pushnil(L);
+        return 1;
+    } else {
         NSError* error;
         id obj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&error];
 
@@ -192,10 +195,6 @@ static int json_read(lua_State* L) {
             lua_pushnil(L);
             return 1;
         }
-    } else {
-        [skin logError:[NSString stringWithFormat:@"Unable to convert JSON input into data structure. Was the path valid?"]] ;
-        lua_pushnil(L);
-        return 1;
     }
 }
 
