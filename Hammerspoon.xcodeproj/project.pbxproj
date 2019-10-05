@@ -5179,7 +5179,6 @@
 				4FBE2D161B7268DF00407788 /* Copy extensions to bundle */,
 				9445CA0919083251002568BB /* Resources */,
 				E2887C971E4B5BD200468A07 /* Copy CommandPost Files */,
-				4F6D9E3523074BC6006CC3E4 /* Update build number (Release only) */,
 				E849AEC367EA9502A25B9A7C /* [CP] Embed Pods Frameworks */,
 				4F1CF8D91A47F583001C8AE7 /* Upload binary to Crashlytics */,
 				4F7DB3571A5C513F00C22B03 /* Sign app/frameworks */,
