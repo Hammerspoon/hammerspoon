@@ -6,6 +6,7 @@
         <description>Most recent changes with links to updates.</description>
         <language>en</language>
 <!-- __UPDATE_MARKER__ -->
+<!--
         <item>
             <title>Version 0.9.76</title>
             <sparkle:releaseNotesLink>
@@ -20,7 +21,7 @@
             />
             <sparkle:minimumSystemVersion>10.12</sparkle:minimumSystemVersion>
         </item>
-
+-->
         <item>
             <title>Version 0.9.75</title>
             <sparkle:releaseNotesLink>
