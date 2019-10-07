@@ -476,7 +476,7 @@ function release_update_appcast() {
             <pubDate>$(date +"%a, %e %b %Y %H:%M:%S %z")</pubDate>
             <enclosure url=\"https://github.com/Hammerspoon/hammerspoon/releases/download/${VERSION}/Hammerspoon-${VERSION}.zip\"
                 sparkle:version=\"${BUILD_NUMBER}\"
-                sparkle:shortVersionString\"${VERSION}\"
+                sparkle:shortVersionString=\"${VERSION}\"
                 length=\"${ZIPLEN}\"
                 type=\"application/octet-stream\"
             />
