@@ -5169,7 +5169,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9445CA3C19083251002568BB /* Build configuration list for PBXNativeTarget "Hammerspoon" */;
 			buildPhases = (
-				4F6D9E3523074BC6006CC3E4 /* Update build number (Release only) */,
+				4F6D9E3523074BC6006CC3E4 /* Update build number (only on Release builds that will be signed) */,
 				CDFA91F1078130B13A38C135 /* [CP] Check Pods Manifest.lock */,
 				4F251E7F1A49D5BE00AB6103 /* Prepare defines header file */,
 				4FC09F7A19F99E48007542A6 /* Compile docs.json */,
@@ -5926,7 +5926,7 @@
 			shellPath = /bin/sh;
 			shellScript = "if [ -f \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/init.lua\" ]; then\n  echo \"ERROR: At least one extension's init.lua has membership of the Hammerspoon.app target. While non-fatal, this should not be the case. Here is the first line of said init.lua file, which might help you find out which extension is at fault. Once you know, in Xcode, select View -> Utilities -> Show File Inspector and untick the file from the Hammerspoon target:\"\n  echo -n \"    \"\n  head -1 \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/init.lua\"\n  exit 1\nfi\n\nexit 0";
 		};
-		4F6D9E3523074BC6006CC3E4 /* Update build number (Release only) */ = {
+		4F6D9E3523074BC6006CC3E4 /* Update build number (only on Release builds that will be signed) */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -5935,14 +5935,14 @@
 			);
 			inputPaths = (
 			);
-			name = "Update build number (Release only)";
+			name = "Update build number (only on Release builds that will be signed)";
 			outputFileListPaths = (
 			);
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#Update build number with number of git commits if in release mode\nif [ ${CONFIGURATION} == \"Release\" ]; then\n  buildNumber=$(git rev-list HEAD | wc -l | tr -d ' ')\n  /usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\"\nfi\n";
+			shellScript = "#Update build number with number of git commits if in release mode\nset -eux\n\nif [ -f ../token-codesign -a \"${CONFIGURATION}\" == \"Release\" ]; then\n  buildNumber=$(git rev-list HEAD | wc -l | tr -d ' ')\n  /usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\"\nelse\n  echo \"No signing token found, skipping build number change\"\nfi\n";
 		};
 		4F7DB3571A5C513F00C22B03 /* Sign app/frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
