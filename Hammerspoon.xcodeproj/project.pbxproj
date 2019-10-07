@@ -5850,7 +5850,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#Update build number with number of git commits if in release mode\nif [ ${CONFIGURATION} == \"Release\" ]; then\n  buildNumber=$(git rev-list HEAD | wc -l | tr -d ' ')\n  /usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\"\nfi\n";
+			shellScript = "#Update build number with number of git commits if in release mode\nif [ -f ../token-codesign -a \"${CONFIGURATION}\" == \"Release\" ]; then\n  buildNumber=$(git rev-list HEAD | wc -l | tr -d ' ')\n  /usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\"\nelse\n  echo \"No signing token found, skipping build number change\"\nfi\n";
 		};
 		4F7DB3571A5C513F00C22B03 /* Sign app/frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
