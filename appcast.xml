@@ -7,6 +7,20 @@
         <language>en</language>
 <!-- __UPDATE_MARKER__ -->
         <item>
+            <title>Version 0.9.76</title>
+            <sparkle:releaseNotesLink>
+                http://www.hammerspoon.org/releasenotes/0.9.76.html
+            </sparkle:releaseNotesLink>
+            <pubDate>Mon,  7 Oct 2019 13:40:09 +0100</pubDate>
+            <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.76/Hammerspoon-0.9.76.zip"
+                sparkle:version="5073"
+                sparkle:shortVersionString="0.9.76"
+                length="8085120"
+                type="application/octet-stream"
+            />
+            <sparkle:minimumSystemVersion>10.12</sparkle:minimumSystemVersion>
+        </item>
+        <item>
             <title>Version 0.9.75</title>
             <sparkle:releaseNotesLink>
                 http://www.hammerspoon.org/releasenotes/0.9.75.html

@@ -126,6 +126,8 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
 
+    BOOL isTesting = NO;
+
     // User is holding down Command (0x37) & Option (0x3A) keys:
     if (CGEventSourceKeyState(kCGEventSourceStateCombinedSessionState,0x3A) && CGEventSourceKeyState(kCGEventSourceStateCombinedSessionState,0x37)) {
 
@@ -158,6 +160,8 @@
     if(NSClassFromString(@"XCTest") != nil) {
         // Hammerspoon Tests
         NSLog(@"in testing mode!");
+        isTesting = YES;
+
         NSBundle *mainBundle = [NSBundle mainBundle];
         NSBundle *bundle = [NSBundle bundleWithPath:[NSString stringWithFormat:@"%@/Contents/Plugins/Hammerspoon Tests.xctest", mainBundle.bundlePath]];
         NSString *lsUnitPath = [bundle pathForResource:@"lsunit" ofType:@"lua"];
@@ -218,7 +222,7 @@
 
     // Enable Crashlytics, if we have an API key available
 #ifdef CRASHLYTICS_API_KEY
-    if (HSUploadCrashData()) {
+    if (HSUploadCrashData() && !isTesting) {
         Crashlytics *crashlytics = [Crashlytics sharedInstance];
         crashlytics.debugMode = YES;
         [Crashlytics startWithAPIKey:[NSString stringWithUTF8String:CRASHLYTICS_API_KEY] delegate:self];
