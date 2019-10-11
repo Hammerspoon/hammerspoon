@@ -84,6 +84,7 @@ export HS_LUAONLY="_coresetup \
     logger \
     messages \
     mjomatic \
+    music \
     network \
     redshift \
     spotify \
