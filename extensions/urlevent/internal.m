@@ -310,8 +310,7 @@ static int urleventopenURLWithBundle(lua_State *L) {
 static int urlevent_setup() {
     eventHandler = [[HSURLEventHandler alloc] init];
 
-    defaultContentTypes = @[(__bridge NSString *)kUTTypeHTML,
-                            (__bridge NSString *)kUTTypeURL,
+    defaultContentTypes = @[(__bridge NSString *)kUTTypeURL,
                             (__bridge NSString *)kUTTypeFileURL,
                             (__bridge NSString *)kUTTypeText
                             ];
