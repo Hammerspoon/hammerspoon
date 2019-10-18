@@ -1090,17 +1090,20 @@ static int fs_pathFromBookmark(lua_State *L) {
     return 1 ;
 }
 
-/// hs.fs.readFileContents(path) -> string | nil, string
+/// hs.fs.readTextFileContents(path) -> string | nil, string
 /// Function
-/// Reads the contents of a file at a given path.
+/// Reads the contents of a text file at a given path.
 ///
 /// Parameters:
 ///  * path - The path to the file you want to read.
 ///
 /// Returns:
-///  * A string containing the contents of the file or `nil` if an error occurs.
+///  * A string containing the text contents of the file or `nil` if an error occurs.
 ///  * An error message if an error occurs.
-static int fs_readFileContents(lua_State *L) {
+///
+/// Notes:
+///  * This function will return `nil` if the text encoding of the file can’t be determined.
+static int fs_readTextFileContents(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
     
@@ -1149,7 +1152,7 @@ static const struct luaL_Reg fslib[] = {
     {"displayName", fs_displayName},
     {"pathToBookmark", fs_pathToBookmark},
     {"pathFromBookmark", fs_pathFromBookmark},
-    {"readFileContents", fs_readFileContents },
+    {"readTextFileContents", fs_readTextFileContents },
     {NULL, NULL},
 };
 
