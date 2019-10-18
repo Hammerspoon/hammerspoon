@@ -1090,6 +1090,41 @@ static int fs_pathFromBookmark(lua_State *L) {
     return 1 ;
 }
 
+/// hs.fs.readFileContents(path) -> string | nil, string
+/// Function
+/// Reads the contents of a file at a given path.
+///
+/// Parameters:
+///  * path - The path to the file you want to read.
+///
+/// Returns:
+///  * A string containing the contents of the file or `nil` if an error occurs.
+///  * An error message if an error occurs.
+static int fs_readFileContents(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
+    
+    NSString *filePath = [skin toNSObjectAtIndex:1];
+    NSURL *url = [NSURL fileURLWithPath:filePath];
+    
+    NSError *error = nil;
+    NSStringEncoding encoding;
+    
+    NSString *data = [[NSString alloc] initWithContentsOfURL:url
+                                       usedEncoding:&encoding
+                                       error:&error];
+    
+    if (error != nil) {
+        NSString *errorMessage = [NSString stringWithFormat:@"Error reading file: %@", error];
+        lua_pushnil(L) ;
+        [skin pushNSObject:errorMessage] ;
+        return 2 ;
+    }
+    
+    [skin pushNSObject:data] ;
+    return 1;
+}
+
 static const struct luaL_Reg fslib[] = {
     {"attributes", file_info},
     {"chdir", change_dir},
@@ -1114,6 +1149,7 @@ static const struct luaL_Reg fslib[] = {
     {"displayName", fs_displayName},
     {"pathToBookmark", fs_pathToBookmark},
     {"pathFromBookmark", fs_pathFromBookmark},
+    {"readFileContents", fs_readFileContents },
     {NULL, NULL},
 };
 
