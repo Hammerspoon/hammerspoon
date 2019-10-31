@@ -1006,21 +1006,37 @@ static int imageFromName(lua_State *L) {
     return 1 ;
 }
 
-/// hs.image.imageFromURL(url) -> object
+/// hs.image.imageFromURL(url[, callbackFn]) -> object
 /// Constructor
 /// Creates an `hs.image` object from the contents of the specified URL.
 ///
 /// Parameters:
-///  * url - a web url specifying the location of the image to retrieve
+///  * url - a web URL specifying the location of the image to retrieve
+///  * callbackFn - An optional callback function
 ///
 /// Returns:
-///  * An `hs.image` object or nil, if the url does not specify image contents or is unreachable
+///  * An `hs.image` object or nil, if the URL does not specify image contents, is unreachable or a callbackFn is supplied.
+///
+/// Notes:
+///  * If a callbackFn is supplied, the image will be retrieved on a background thread.
 static int imageFromURL(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
+    [skin checkArgs:LS_TSTRING, LS_TFUNCTION | LS_TOPTIONAL, LS_TBREAK] ;
     NSURL *theURL = [NSURL URLWithString:[skin toNSObjectAtIndex:1]] ;
     if (theURL) {
-        [skin pushNSObject:[[NSImage alloc] initWithContentsOfURL:theURL]] ;
+        if (lua_type(L, 2) == LUA_TFUNCTION) {
+            int fnRef = luaL_ref(L, LUA_REGISTRYINDEX) ;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                NSImage *result = [[NSImage alloc] initWithContentsOfURL:theURL];
+                LuaSkin *_skin = [LuaSkin shared];
+                lua_rawgeti(_skin.L, LUA_REGISTRYINDEX, fnRef) ;
+                [_skin pushNSObject:result] ;
+                [_skin protectedCallAndError:@"hs.image.imageFromURL" nargs:1 nresults:0];
+                luaL_unref(_skin.L, LUA_REGISTRYINDEX, fnRef) ;
+            }) ;
+        } else {
+            [skin pushNSObject:[[NSImage alloc] initWithContentsOfURL:theURL]] ;
+        }
     } else {
         lua_pushnil(L) ;
     }
