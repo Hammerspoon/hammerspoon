@@ -20,6 +20,37 @@ static int plist_read(lua_State *L) {
     return 1;
 }
 
+/// hs.plist.readString(value) -> table | nil
+/// Function
+/// Interpretes a property list file within a string into a table.
+///
+/// Parameters:
+///  * value - The contents of the property list as a string
+///
+/// Returns:
+///  * The contents of the property list as a Lua table or `nil` if an error occurs
+static int plist_readString(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TBREAK];
+
+    NSString *source = [skin toNSObjectAtIndex:1];
+    
+    NSData *plistData = [source dataUsingEncoding:NSUTF8StringEncoding];
+    NSError *error;
+    NSPropertyListFormat format;
+    NSDictionary* plist = [NSPropertyListSerialization propertyListWithData:plistData options:NSPropertyListImmutable format:&format error:&error];
+    
+    if (!plist) {
+        [skin logError:[NSString stringWithFormat:@"hs.plist.readString(): %@", error]];
+        lua_pushnil(L);
+        return 1;
+    }
+        
+    [skin pushNSObject:plist];
+
+    return 1;
+}
+
 /// hs.plist.write(filepath, data[, binary]) -> boolean
 /// Function
 /// Writes a Property List file
@@ -83,6 +114,7 @@ static int plist_write(lua_State *L) {
 
 static const luaL_Reg plistlib[] = {
     {"read", plist_read},
+    {"readString", plist_readString},
     {"write", plist_write},
     {NULL, NULL}
 };
