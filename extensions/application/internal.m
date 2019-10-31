@@ -1099,12 +1099,14 @@ static int application_getMenus(lua_State* L) {
         dispatch_async(dispatch_get_main_queue(), ^{
             NSMutableDictionary *menus = nil;
             AXUIElementRef menuBar;
-
-            if (AXUIElementCopyAttributeValue(app, kAXMenuBarAttribute, (CFTypeRef *)&menuBar) == kAXErrorSuccess) {
-                menus = _getMenuStructure(menuBar);
-                CFRelease(menuBar);
+                        
+            if (app != nil) { // Because this is asynchronous, it's possible that the app could be `nil` at this point.
+                if (AXUIElementCopyAttributeValue(app, kAXMenuBarAttribute, (CFTypeRef *)&menuBar) == kAXErrorSuccess) {
+                    menus = _getMenuStructure(menuBar);
+                    CFRelease(menuBar);
+                }
             }
-
+            
             LuaSkin *_skin = [LuaSkin shared];
             lua_rawgeti(_skin.L, LUA_REGISTRYINDEX, fnRef) ;
             [_skin pushNSObject:menus] ;
