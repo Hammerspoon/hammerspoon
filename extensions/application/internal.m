@@ -1079,7 +1079,7 @@ static int application_getMenus(lua_State* L) {
     [skin checkArgs:LS_TUSERDATA, "hs.application", LS_TFUNCTION | LS_TOPTIONAL, LS_TBREAK] ;
     AXUIElementRef app = get_app(L, 1);
     if (!app) {
-        NSLog(@"hs.application:getMenus() called on a nil app object");
+        [skin logWarn:@"hs.application:getMenus() called on a nil app object"];
         lua_pushnil(L);
         return 1;
     }
@@ -1097,19 +1097,24 @@ static int application_getMenus(lua_State* L) {
         lua_pushvalue(L, 2) ;
         int fnRef = luaL_ref(L, LUA_REGISTRYINDEX) ;
         dispatch_async(dispatch_get_main_queue(), ^{
-            NSMutableDictionary *menus = nil;
-            AXUIElementRef menuBar;
+            // Because this is asynchronous, it's possible that the app could be unavailable at this point.
+            if (!app) {
+                [skin logWarn:@"hs.application:getMenus() called on a nil app object during callback"];
+            } else {
+                NSMutableDictionary *menus = nil;
+                AXUIElementRef menuBar;
 
-            if (AXUIElementCopyAttributeValue(app, kAXMenuBarAttribute, (CFTypeRef *)&menuBar) == kAXErrorSuccess) {
-                menus = _getMenuStructure(menuBar);
-                CFRelease(menuBar);
+                if (AXUIElementCopyAttributeValue(app, kAXMenuBarAttribute, (CFTypeRef *)&menuBar) == kAXErrorSuccess) {
+                    menus = _getMenuStructure(menuBar);
+                    CFRelease(menuBar);
+                }
+
+                LuaSkin *_skin = [LuaSkin shared];
+                lua_rawgeti(_skin.L, LUA_REGISTRYINDEX, fnRef) ;
+                [_skin pushNSObject:menus] ;
+                [_skin protectedCallAndError:@"hs.application:getMenus()" nargs:1 nresults:0];
+                luaL_unref(_skin.L, LUA_REGISTRYINDEX, fnRef) ;
             }
-
-            LuaSkin *_skin = [LuaSkin shared];
-            lua_rawgeti(_skin.L, LUA_REGISTRYINDEX, fnRef) ;
-            [_skin pushNSObject:menus] ;
-            [_skin protectedCallAndError:@"hs.application:getMenus()" nargs:1 nresults:0];
-            luaL_unref(_skin.L, LUA_REGISTRYINDEX, fnRef) ;
         }) ;
         lua_pushvalue(L, 1) ;
     }
