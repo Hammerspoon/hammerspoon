@@ -1009,6 +1009,56 @@ cleanup:
     return 1;
 }
 
+/// hs.screen:setOrigin(x, y) -> bool
+/// Method
+/// Sets the origin of a screen in the global display coordinate space. The origin of the main or primary display is (0,0). The new origin is placed as close as possible to the requested location, without overlapping or leaving a gap between displays. If you use this function to change the origin of a mirrored display, the display may be removed from the mirroring set.
+///
+/// Parameters:
+///  * x - The desired x-coordinate for the upper-left corner of the display.
+///  * y - The desired y-coordinate for the upper-left corner of the display.
+///
+/// Returns:
+///  * true if the operation succeeded, otherwise false
+static int screen_setOrigin(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TNUMBER, LS_TBREAK];
+
+    NSScreen* screen = get_screen_arg(L, 1);
+    int x = (int)lua_tointeger(L, 2);
+    int y = (int)lua_tointeger(L, 3);
+    
+    CGDisplayCount maxDisplays = 32;
+    CGDisplayCount displayCount, i;
+    CGDirectDisplayID *onlineDisplays = NULL;
+    CGDirectDisplayID screenID = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] unsignedIntValue];
+    onlineDisplays = malloc(sizeof(CGDirectDisplayID) * maxDisplays);
+    if (CGGetOnlineDisplayList(maxDisplays, onlineDisplays, &displayCount) != kCGErrorSuccess) goto cleanup;
+
+    CGDisplayConfigRef config;
+    CGBeginDisplayConfiguration(&config);
+    for (i = 0; i < displayCount; i++) {
+        CGDirectDisplayID dID = onlineDisplays[i];
+        if (dID == screenID) {
+            CGConfigureDisplayOrigin(config, dID, x, y);
+        }
+    }
+    
+    CGError anError = CGCompleteDisplayConfiguration(config, kCGConfigurePermanently);
+    if (anError == kCGErrorSuccess) {
+        lua_pushboolean(L, true);
+    } else {
+        [skin logBreadcrumb:[NSString stringWithFormat:@"CGConfigureDisplayOrigin failed: %d", anError]];
+        lua_pushboolean(L, false);
+    }
+    free(onlineDisplays);
+    return 1;
+
+cleanup:
+    free(onlineDisplays);
+    lua_pushboolean(L, false);
+    return 1;
+}
+
 NSRect screenRectToNSRect(lua_State *L, int idx) {
     NSRect rect = NSZeroRect;
     CGFloat x = -1;
@@ -1235,6 +1285,7 @@ static const luaL_Reg screen_objectlib[] = {
     {"rotate", screen_rotate},
     {"setPrimary", screen_setPrimary},
     {"desktopImageURL", screen_desktopImageURL},
+    {"setOrigin", screen_setOrigin},
 
     {"__tostring", userdata_tostring},
     {"__gc", screen_gc},

@@ -270,6 +270,16 @@ function testSetMode()
   return success()
 end
 
+function testSetOrigin()
+  local primary = hs.screen.primaryScreen()
+  assertIsUserdataOfType("hs.screen", primary)
+
+  local origin = primary:fullFrame()
+  assertTrue(primary:setOrigin(origin["_x"], origin["_y"]))
+
+  return success()
+end
+
 function testSetPrimary()
   local primary = hs.screen.primaryScreen()
   assertIsUserdataOfType("hs.screen", primary)
