@@ -58,6 +58,10 @@
     RUN_LUA_TEST()
 }
 
+- (void)testSetOrigin {
+    RUN_LUA_TEST()
+}
+
 - (void)testFrames {
     RUN_LUA_TEST()
 }
