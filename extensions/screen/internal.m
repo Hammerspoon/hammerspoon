@@ -202,6 +202,18 @@ static int screen_availableModes(lua_State* L) {
     return 1;
 }
 
+static int handleDisplayUpdate(lua_State* L, CGDisplayConfigRef config, char *name) {
+    LuaSkin *skin = [LuaSkin shared];
+    CGError anError = CGCompleteDisplayConfiguration(config, kCGConfigurePermanently);
+    if (anError == kCGErrorSuccess) {
+        lua_pushboolean(L, true);
+    } else {
+        [skin logBreadcrumb:[NSString stringWithFormat:@"%s failed: %d", name, anError]];
+        lua_pushboolean(L, false);
+    }
+    return 1;
+}
+
 /// hs.screen:setMode(width, height, scale) -> boolean
 /// Method
 /// Sets the screen to a new mode
@@ -237,14 +249,7 @@ static int screen_setMode(lua_State* L) {
             CGDisplayConfigRef config;
             CGBeginDisplayConfiguration(&config);
             CGSConfigureDisplayMode(config, screen_id, i);
-            CGError anError = CGCompleteDisplayConfiguration(config, kCGConfigurePermanently);
-            if (anError == kCGErrorSuccess) {
-                lua_pushboolean(L, true);
-            } else {
-                [skin logBreadcrumb:[NSString stringWithFormat:@"CGSConfigureDisplayMode failed: %d", anError]];
-                lua_pushboolean(L, false);
-            }
-            return 1;
+            return handleDisplayUpdate(L, config, "CGConfigureDisplayOrigin");
         }
     }
 
@@ -1043,15 +1048,8 @@ static int screen_setOrigin(lua_State* L) {
         }
     }
     
-    CGError anError = CGCompleteDisplayConfiguration(config, kCGConfigurePermanently);
-    if (anError == kCGErrorSuccess) {
-        lua_pushboolean(L, true);
-    } else {
-        [skin logBreadcrumb:[NSString stringWithFormat:@"CGConfigureDisplayOrigin failed: %d", anError]];
-        lua_pushboolean(L, false);
-    }
     free(onlineDisplays);
-    return 1;
+    return handleDisplayUpdate(L, config, "CGConfigureDisplayOrigin");
 
 cleanup:
     free(onlineDisplays);
