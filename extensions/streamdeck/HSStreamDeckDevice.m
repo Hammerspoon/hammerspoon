@@ -104,6 +104,10 @@
     return nil;
 }
 
+- (int)getKeyCount {
+    return self.keyColumns * self.keyRows;
+}
+
 - (void)clearImage:(int)button {
     [self setColor:[NSColor blackColor] forButton:button];
 }

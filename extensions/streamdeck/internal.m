@@ -206,6 +206,27 @@ static int streamdeck_firmwareVersion(lua_State *L __unused) {
     return 1;
 }
 
+/// hs.streamdeck:buttonLayout()
+/// Method
+/// Gets the layout of buttons the device has
+///
+/// Paramters:
+///  * None
+///
+/// Returns:
+///  * The number of columns
+///  * The number of rows
+static int streamdeck_buttonLayout(lua_State *L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
+    HSStreamDeckDevice *device = [skin luaObjectAtIndex:1 toClass:"HSStreamDeckDevice"];
+
+    lua_pushinteger(skin.L, device.keyColumns);
+    lua_pushinteger(skin.L, device.keyRows);
+    return 2;
+}
+
 /// hs.streamdeck:setButtonImage(button, image)
 /// Method
 /// Sets the image of a button on the deck
@@ -321,6 +342,7 @@ static int streamdeck_object_gc(lua_State* L) {
 static const luaL_Reg userdata_metaLib[] = {
     {"serialNumber", streamdeck_serialNumber},
     {"firmwareVersion", streamdeck_firmwareVersion},
+    {"buttonLayout", streamdeck_buttonLayout},
     {"buttonCallback", streamdeck_buttonCallback},
     {"setButtonImage", streamdeck_setButtonImage},
     {"setButtonColor", streamdeck_setButtonColor},

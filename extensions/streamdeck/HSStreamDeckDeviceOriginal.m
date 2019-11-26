@@ -16,7 +16,6 @@
         self.deckType = @"Elgato Stream Deck (Original v1)";
         self.keyRows = 3;
         self.keyColumns = 5;
-        self.keyCount = self.keyRows * self.keyColumns;
         self.imageWidth = 72;
         self.imageHeight = 72;
         self.imageCodec = BMP;

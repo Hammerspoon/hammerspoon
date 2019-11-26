@@ -17,7 +17,6 @@
         self.deckType = @"Elgato Stream Deck (Mini)";
         self.keyRows = 3;
         self.keyColumns = 2;
-        self.keyCount = self.keyRows * self.keyColumns;
         self.imageWidth = 80;
         self.imageHeight = 80;
         self.imageCodec = BMP;
