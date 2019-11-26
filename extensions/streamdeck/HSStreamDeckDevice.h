@@ -33,7 +33,7 @@ typedef enum : NSUInteger {
 @property (nonatomic) BOOL isValid;
 
 @property (nonatomic) NSString *deckType;
-@property (nonatomic) int keyCount;
+@property (nonatomic, readonly, getter=getKeyCount) int keyCount;
 @property (nonatomic) int keyColumns;
 @property (nonatomic) int keyRows;
 @property (nonatomic) int imageWidth;
@@ -58,6 +58,7 @@ typedef enum : NSUInteger {
 
 - (NSString *)serialNumber;
 - (NSString *)firmwareVersion;
+- (int)getKeyCount;
 
 - (void)clearImage:(int)button;
 - (void)setColor:(NSColor*)color forButton:(int)button;
