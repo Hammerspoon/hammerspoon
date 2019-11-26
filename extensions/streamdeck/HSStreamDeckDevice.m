@@ -17,6 +17,17 @@
         self.manager = manager;
         self.buttonCallbackRef = LUA_NOREF;
         self.selfRefCount = 0;
+
+        // These defaults are not necessary, all base classes will override them, but if we miss something, these are chosen to try and provoke a crash where possible, so we notice the lack of an override.
+        self.imageCodec = UNKNOWN;
+        self.deckType = @"Unknown";
+        self.keyColumns = -1;
+        self.keyRows = -1;
+        self.imageFlipX = NO;
+        self.imageFlipY = NO;
+        self.imageAngle = 0;
+        self.reportLength = 0;
+        self.reportHeaderLength = 0;
         //NSLog(@"Added new Stream Deck device %p with IOKit device %p from manager %p", (__bridge void *)self, (void*)self.device, (__bridge void *)self.manager);
     }
     return self;
@@ -24,6 +35,20 @@
 
 - (void)invalidate {
     self.isValid = NO;
+}
+
+- (IOReturn)deviceWrite:(NSData *)report {
+    const uint8_t *rawBytes = (const uint8_t*)report.bytes;
+    return IOHIDDeviceSetReport(self.device, kIOHIDReportTypeFeature, rawBytes[0], rawBytes, report.length);
+}
+
+- (NSData *)deviceRead:(int)resultLength reportID:(CFIndex)reportID {
+    uint8_t report[17];
+    CFIndex reportLength = sizeof(report);
+    IOHIDDeviceGetReport(self.device, kIOHIDReportTypeFeature, reportID, report, &reportLength);
+    char *c_data = (char *)&report + 5;
+    NSData *data = [NSData dataWithBytes:c_data length:resultLength];
+    return data;
 }
 
 - (void)deviceDidSendInput:(NSNumber*)button isDown:(NSNumber*)isDown {
@@ -49,61 +74,38 @@
 }
 
 - (BOOL)setBrightness:(int)brightness {
-    if (!self.isValid) {
-        return NO;
-    }
-
-    uint8_t brightnessHeader[] = {0x05, 0x55, 0xAA, 0xD1, 0x01, brightness};
-    int brightnessLength = 17;
-
-    NSMutableData *reportData = [NSMutableData dataWithLength:brightnessLength];
-    [reportData replaceBytesInRange:NSMakeRange(0, 6) withBytes:brightnessHeader];
-
-    const uint8_t *rawBytes = (const uint8_t *)reportData.bytes;
-
-    IOReturn res = IOHIDDeviceSetReport(self.device,
-                                        kIOHIDReportTypeFeature,
-                                        rawBytes[0], /* Report ID*/
-                                        rawBytes, reportData.length);
-
-    return res == kIOReturnSuccess;
+    NSException *exception = [NSException exceptionWithName:@"HSStreamDeckDeviceUnimplemented"
+                                                     reason:@"setBrightness method not implemented"
+                                                   userInfo:nil];
+    [exception raise];
+    return NO;
 }
 
 - (void)reset {
-    if (!self.isValid) {
-        return;
-    }
-
-    uint8_t resetHeader[] = {0x0B, 0x63};
-    NSData *reportData = [NSData dataWithBytes:resetHeader length:2];
-    const uint8_t *rawBytes = (const uint8_t*)reportData.bytes;
-    IOHIDDeviceSetReport(self.device, kIOHIDReportTypeFeature, rawBytes[0], rawBytes, reportData.length);
+    NSException *exception = [NSException exceptionWithName:@"HSStreamDeckDeviceUnimplemented"
+                                                     reason:@"reset method not implemented"
+                                                   userInfo:nil];
+    [exception raise];
 }
 
 - (NSString*)serialNumber {
-    if (!self.isValid) {
-        return @"INVALID DEVICE";
-    }
-
-    uint8_t serial[17];
-    CFIndex serialLen = sizeof(serial);
-    IOHIDDeviceGetReport(self.device, kIOHIDReportTypeFeature, 0x3, serial, &serialLen);
-    char *serialNum = (char *)&serial + 5;
-    NSData *serialData = [NSData dataWithBytes:serialNum length:12];
-    return [[NSString alloc] initWithData:serialData encoding:NSUTF8StringEncoding];
+    NSException *exception = [NSException exceptionWithName:@"HSStreamDeckDeviceUnimplemented"
+                                                     reason:@"serialNumber method not implemented"
+                                                   userInfo:nil];
+    [exception raise];
+    return nil;
 }
 
 - (NSString*)firmwareVersion {
-    if (!self.isValid) {
-        return @"INVALID DEVICE";
-    }
+    NSException *exception = [NSException exceptionWithName:@"HSStreamDeckDeviceUnimplemented"
+                                                     reason:@"firmwareVersion method not implemented"
+                                                   userInfo:nil];
+    [exception raise];
+    return nil;
+}
 
-    uint8_t fwver[17];
-    CFIndex fwverLen = sizeof(fwver);
-    IOHIDDeviceGetReport(self.device, kIOHIDReportTypeFeature, 0x4, fwver, &fwverLen);
-    char *fwverNum = (char *)&fwver + 5;
-    NSData *fwVerData = [NSData dataWithBytes:fwverNum length:12];
-    return [[NSString alloc] initWithData:fwVerData encoding:NSUTF8StringEncoding];
+- (void)clearImage:(int)button {
+    [self setColor:[NSColor blackColor] forButton:button];
 }
 
 - (void)setColor:(NSColor *)color forButton:(int)button {
@@ -111,9 +113,9 @@
         return;
     }
 
-    NSImage *image = [[NSImage alloc] initWithSize:NSMakeSize(buttonImageSideLength, buttonImageSideLength)];
+    NSImage *image = [[NSImage alloc] initWithSize:NSMakeSize(self.imageWidth, self.imageHeight)];
     [image lockFocus];
-    [color drawSwatchInRect:NSMakeRect(0, 0, buttonImageSideLength, buttonImageSideLength)];
+    [color drawSwatchInRect:NSMakeRect(0, 0, self.imageWidth, self.imageHeight)];
     [image unlockFocus];
     [self setImage:image forButton:button];
 }
@@ -127,7 +129,7 @@
 
     // Unconditionally resize the image
     NSImage *sourceImage = [image copy];
-     NSSize newSize = NSMakeSize(buttonImageSideLength, buttonImageSideLength);
+    NSSize newSize = NSMakeSize(self.imageWidth, self.imageHeight);
     renderImage = [[NSImage alloc] initWithSize: newSize];
     [renderImage lockFocus];
     [sourceImage setSize: newSize];
@@ -143,38 +145,35 @@
     //    return;
     }
 
-    NSData *data = [renderImage bmpData];
+    // Both of these functions are no-ops if there are no rotations or flips required, so we'll call them unconditionally
+    renderImage = [renderImage imageRotated:self.imageAngle];
+    renderImage = [renderImage flipImage:self.imageFlipX vert:self.imageFlipY];
 
-    int reportLength = 8191;
-    uint8_t reportMagic[] = {0x02,  // Report ID
-                             0x01,  // Unknown (always seems to be 1)
-                             0x01,  // Image Page
-                             0x00,  // Padding
-                             0x00,  // Continuation Bool
-                             button // Deck button to set
-                            };
+    NSData *data = nil;
 
-    int imageLen = (int)data.length;
-    int halfImageLen = imageLen / 2;
-    const uint8_t *imageBuf = data.bytes;
+    switch (self.imageCodec) {
+        case BMP:
+            data = [renderImage bmpData];
+            break;
 
-    // Prepare and send the first half of the image
-    NSMutableData *reportPage1 = [NSMutableData dataWithLength:reportLength];
-    [reportPage1 replaceBytesInRange:NSMakeRange(0, 6) withBytes:reportMagic];
-    [reportPage1 replaceBytesInRange:NSMakeRange(16, halfImageLen) withBytes:imageBuf];
-    const uint8_t *rawPage1 = (const uint8_t *)reportPage1.bytes;
+        case JPEG:
+            //data = [renderImage jpegData];
+            break;
 
-    IOHIDDeviceSetReport(self.device, kIOHIDReportTypeOutput, rawPage1[0], rawPage1, reportLength);
+        case UNKNOWN:
+            [[LuaSkin shared] logError:@"Unknown image codec for hs.streamdeck device"];
+            break;
+    }
 
-    // Prepare and send the second half of the image
-    NSMutableData *reportPage2 = [NSMutableData dataWithLength:reportLength];
-    reportMagic[2] = 2;
-    reportMagic[4] = 1;
-    [reportPage2 replaceBytesInRange:NSMakeRange(0, 6) withBytes:reportMagic];
-    [reportPage2 replaceBytesInRange:NSMakeRange(16, halfImageLen) withBytes:imageBuf+halfImageLen];
-    const uint8_t *rawPage2 = (const uint8_t *)reportPage2.bytes;
+    // Writing the image to hardware is a device-specific operation, so hand it off to our subclasses
+    [self deviceWriteImage:data button:button];
 
-    IOHIDDeviceSetReport(self.device, kIOHIDReportTypeOutput, rawPage2[0], rawPage2, reportLength);
+}
 
+- (void)deviceWriteImage:(NSData *)data button:(int)button {
+    NSException *exception = [NSException exceptionWithName:@"HSStreamDeckDeviceUnimplemented"
+                                                     reason:@"deviceWriteImage method not implemented"
+                                                   userInfo:nil];
+    [exception raise];
 }
 @end
