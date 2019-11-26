@@ -24,8 +24,10 @@ static void HIDconnect(void *context, IOReturn result, void *sender, IOHIDDevice
     //NSLog(@"connect: %p:%p", context, (void *)device);
     HSStreamDeckManager *manager = (__bridge HSStreamDeckManager *)context;
     HSStreamDeckDevice *deviceId = [manager deviceDidConnect:device];
-    IOHIDDeviceRegisterInputValueCallback(device, HIDevent, (void*)deviceId);
-    //NSLog(@"Added value callback to new IOKit device %p for Deck Device %p", (void *)device, (__bridge void*)deviceId);
+    if (deviceId) {
+        IOHIDDeviceRegisterInputValueCallback(device, HIDevent, (void*)deviceId);
+        //NSLog(@"Added value callback to new IOKit device %p for Deck Device %p", (void *)device, (__bridge void*)deviceId);
+    }
 }
 
 static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDeviceRef device) {
@@ -52,18 +54,34 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
         // Configure the HID manager to match against Stream Deck devices
         NSString *vendorIDKey = @(kIOHIDVendorIDKey);
         NSString *productIDKey = @(kIOHIDProductIDKey);
-        NSDictionary *match = @{
-                                vendorIDKey: @0x0fd9,
-                                productIDKey: @0x0060,
-                                };
-        IOHIDManagerSetDeviceMatching ((__bridge IOHIDManagerRef)self.ioHIDManager, (__bridge CFDictionaryRef)match);
+
+        NSDictionary *matchOriginal   = @{vendorIDKey:  @USB_VID_ELGATO,
+                                          productIDKey: @USB_PID_STREAMDECK_ORIGINAL};
+        NSDictionary *matchOriginalv2 = @{vendorIDKey:  @USB_VID_ELGATO,
+                                          productIDKey: @USB_PID_STREAMDECK_ORIGINAL_V2};
+        NSDictionary *matchMini       = @{vendorIDKey:  @USB_VID_ELGATO,
+                                          productIDKey: @USB_PID_STREAMDECK_MINI};
+        NSDictionary *matchXL         = @{vendorIDKey: @USB_VID_ELGATO,
+                                          productIDKey: @USB_PID_STREAMDECK_XL};
+
+        IOHIDManagerSetDeviceMatchingMultiple((__bridge IOHIDManagerRef)self.ioHIDManager,
+                                              (__bridge CFArrayRef)@[matchOriginal,
+                                                                     matchOriginalv2,
+                                                                     matchMini,
+                                                                     matchXL]);
 
         // Add our callbacks for relevant events
-        IOHIDManagerRegisterDeviceMatchingCallback((__bridge IOHIDManagerRef)self.ioHIDManager, HIDconnect, (__bridge void*)self);
-        IOHIDManagerRegisterDeviceRemovalCallback((__bridge IOHIDManagerRef)self.ioHIDManager, HIDdisconnect, (__bridge void*)self);
+        IOHIDManagerRegisterDeviceMatchingCallback((__bridge IOHIDManagerRef)self.ioHIDManager,
+                                                   HIDconnect,
+                                                   (__bridge void*)self);
+        IOHIDManagerRegisterDeviceRemovalCallback((__bridge IOHIDManagerRef)self.ioHIDManager,
+                                                  HIDdisconnect,
+                                                  (__bridge void*)self);
 
         // Start our HID manager
-        IOHIDManagerScheduleWithRunLoop((__bridge IOHIDManagerRef)self.ioHIDManager, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
+        IOHIDManagerScheduleWithRunLoop((__bridge IOHIDManagerRef)self.ioHIDManager,
+                                        CFRunLoopGetCurrent(),
+                                        kCFRunLoopDefaultMode);
     }
     return self;
 }
@@ -100,24 +118,52 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
 }
 
 - (HSStreamDeckDevice*)deviceDidConnect:(IOHIDDeviceRef)device {
-    HSStreamDeckDevice *deviceId = [[HSStreamDeckDevice alloc] initWithDevice:device manager:self];
-    [self.devices addObject:deviceId];
+    NSNumber *vendorID = (__bridge NSNumber *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDVendorIDKey));
+    NSNumber *productID = (__bridge NSNumber *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductIDKey));
+
+    if (vendorID.intValue != USB_VID_ELGATO) {
+        NSLog(@"deviceDidConnect from unknown vendor: %d", vendorID.intValue);
+        return nil;
+    }
+
+    HSStreamDeckDevice *deck = nil;
+
+    switch (productID.intValue) {
+        case USB_PID_STREAMDECK_ORIGINAL:
+            deck = [[HSStreamDeckDeviceOriginal alloc] initWithDevice:device manager:self];
+            break;
+
+        case USB_PID_STREAMDECK_MINI:
+            deck = [[HSStreamDeckDeviceMini alloc] initWithDevice:device manager:self];
+            break;
+
+        case USB_PID_STREAMDECK_ORIGINAL_V2:
+        case USB_PID_STREAMDECK_XL:
+        default:
+            NSLog(@"deviceDidConnect from unknown device: %d", productID.intValue);
+            break;
+    }
+    if (!deck) {
+        NSLog(@"deviceDidConnect: no HSStreamDeckDevice was created, ignoring");
+        return nil;
+    }
+    [self.devices addObject:deck];
 
     LuaSkin *skin = [LuaSkin shared];
     _lua_stackguard_entry(skin.L);
     if (self.discoveryCallbackRef == LUA_NOREF || self.discoveryCallbackRef == LUA_REFNIL) {
-        [skin logWarn:@"hs.streamdeck detected a device connecting, but no callback has been set. See hs.streamdeck.discoveryCallback()"];
+        [skin logWarn:@"hs.streamdeck detected a device connecting, but no discovery callback has been set. See hs.streamdeck.discoveryCallback()"];
     } else {
         [skin pushLuaRef:streamDeckRefTable ref:self.discoveryCallbackRef];
         lua_pushboolean(skin.L, 1);
-        [skin pushNSObject:deviceId];
+        [skin pushNSObject:deck];
         [skin protectedCallAndError:@"hs.streamdeck:deviceDidConnect" nargs:2 nresults:0];
     }
 
     //NSLog(@"Created deck device: %p", (__bridge void*)deviceId);
     //NSLog(@"Now have %lu devices", self.devices.count);
     _lua_stackguard_exit(skin.L);
-    return deviceId;
+    return deck;
 }
 
 - (void)deviceDidDisconnect:(IOHIDDeviceRef)device {

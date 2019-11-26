@@ -13,6 +13,8 @@
 @import LuaSkin;
 
 #import "HSStreamDeckDevice.h"
+#import "HSStreamDeckDeviceOriginal.h"
+#import "HSStreamDeckDeviceMini.h"
 #import "streamdeck.h"
 
 @interface HSStreamDeckManager : NSObject
