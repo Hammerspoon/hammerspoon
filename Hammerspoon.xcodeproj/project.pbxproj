@@ -101,6 +101,8 @@
 		4F6653EF238C7A1200DEE120 /* NSImage+Rotated.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F6653ED238C7A1200DEE120 /* NSImage+Rotated.m */; };
 		4F6653F2238C7BC600DEE120 /* NSImage+Flipped.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6653F0238C7BC600DEE120 /* NSImage+Flipped.h */; };
 		4F6653F3238C7BC600DEE120 /* NSImage+Flipped.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F6653F1238C7BC600DEE120 /* NSImage+Flipped.m */; };
+		4F6653F62390351100DEE120 /* NSImage+JPEG.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6653F42390351100DEE120 /* NSImage+JPEG.h */; };
+		4F6653F72390351100DEE120 /* NSImage+JPEG.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F6653F52390351100DEE120 /* NSImage+JPEG.m */; };
 		4F68B530227C2DD70076C4F8 /* HSChooserVerticallyCenteringTextFieldCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F68B52E227C2DD70076C4F8 /* HSChooserVerticallyCenteringTextFieldCell.h */; };
 		4F68B531227C2DD70076C4F8 /* HSChooserVerticallyCenteringTextFieldCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F68B52F227C2DD70076C4F8 /* HSChooserVerticallyCenteringTextFieldCell.m */; };
 		4F6B3EA31B73D6D300B2A4DE /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
@@ -1062,6 +1064,8 @@
 		4F6653ED238C7A1200DEE120 /* NSImage+Rotated.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "NSImage+Rotated.m"; path = "extensions/streamdeck/NSImage+Rotated.m"; sourceTree = "<group>"; };
 		4F6653F0238C7BC600DEE120 /* NSImage+Flipped.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NSImage+Flipped.h"; path = "extensions/streamdeck/NSImage+Flipped.h"; sourceTree = "<group>"; };
 		4F6653F1238C7BC600DEE120 /* NSImage+Flipped.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "NSImage+Flipped.m"; path = "extensions/streamdeck/NSImage+Flipped.m"; sourceTree = "<group>"; };
+		4F6653F42390351100DEE120 /* NSImage+JPEG.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NSImage+JPEG.h"; path = "extensions/streamdeck/NSImage+JPEG.h"; sourceTree = "<group>"; };
+		4F6653F52390351100DEE120 /* NSImage+JPEG.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "NSImage+JPEG.m"; path = "extensions/streamdeck/NSImage+JPEG.m"; sourceTree = "<group>"; };
 		4F6689E01C2852B500E48AF1 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/_coresetup/init.lua; sourceTree = "<group>"; };
 		4F6689E31C288BAA00E48AF1 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/redshift/init.lua; sourceTree = "<group>"; };
 		4F68B52E227C2DD70076C4F8 /* HSChooserVerticallyCenteringTextFieldCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = HSChooserVerticallyCenteringTextFieldCell.h; path = extensions/chooser/HSChooserVerticallyCenteringTextFieldCell.h; sourceTree = "<group>"; };
@@ -2206,11 +2210,13 @@
 				4F2DF3DE1F6046AD00742D08 /* internal.m */,
 				4F2DF3F61F6170BE00742D08 /* NSImage+BMP.h */,
 				4F2DF3F71F6170BE00742D08 /* NSImage+BMP.m */,
+				4F6653F0238C7BC600DEE120 /* NSImage+Flipped.h */,
+				4F6653F1238C7BC600DEE120 /* NSImage+Flipped.m */,
+				4F6653F42390351100DEE120 /* NSImage+JPEG.h */,
+				4F6653F52390351100DEE120 /* NSImage+JPEG.m */,
 				4F6653EC238C7A1200DEE120 /* NSImage+Rotated.h */,
 				4F6653ED238C7A1200DEE120 /* NSImage+Rotated.m */,
 				4F2DF3FA1F61AE6700742D08 /* streamdeck.h */,
-				4F6653F0238C7BC600DEE120 /* NSImage+Flipped.h */,
-				4F6653F1238C7BC600DEE120 /* NSImage+Flipped.m */,
 			);
 			name = streamdeck;
 			sourceTree = "<group>";
@@ -3562,6 +3568,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F2DF3F41F605A9B00742D08 /* HSStreamDeckDevice.h in Headers */,
+				4F6653F62390351100DEE120 /* NSImage+JPEG.h in Headers */,
 				4F6653E6238C36F100DEE120 /* HSStreamDeckDeviceOriginal.h in Headers */,
 				4F2DF3F81F6170BE00742D08 /* NSImage+BMP.h in Headers */,
 				4F2DF3F01F605A4900742D08 /* HSStreamDeckManager.h in Headers */,
@@ -6116,6 +6123,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F6653F72390351100DEE120 /* NSImage+JPEG.m in Sources */,
 				4F6653EF238C7A1200DEE120 /* NSImage+Rotated.m in Sources */,
 				4F2DF3EB1F60471400742D08 /* internal.m in Sources */,
 				4F2DF3F51F605A9B00742D08 /* HSStreamDeckDevice.m in Sources */,
