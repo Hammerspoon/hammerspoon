@@ -20,9 +20,9 @@
 
 
 typedef enum : NSUInteger {
-    UNKNOWN,
-    BMP,
-    JPEG,
+    STREAMDECK_CODEC_UNKNOWN,
+    STREAMDECK_CODEC_BMP,
+    STREAMDECK_CODEC_JPEG,
 } HSStreamDeckImageCodec;
 
 @interface HSStreamDeckDevice : NSObject

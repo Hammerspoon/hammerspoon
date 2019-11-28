@@ -18,9 +18,9 @@
         self.keyColumns = 5;
         self.imageWidth = 72;
         self.imageHeight = 72;
-        self.imageCodec = BMP;
-        self.imageFlipX = NO;
-        self.imageFlipY = NO;
+        self.imageCodec = STREAMDECK_CODEC_BMP;
+        self.imageFlipX = YES;
+        self.imageFlipY = YES;
         self.imageAngle = 0;
         self.reportLength = 8192;
         self.reportHeaderLength = 16;
