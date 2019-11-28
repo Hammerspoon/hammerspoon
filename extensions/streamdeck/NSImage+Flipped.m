@@ -22,15 +22,22 @@
     [[NSGraphicsContext currentContext] setImageInterpolation:NSImageInterpolationHigh];
 
     NSAffineTransform *t = [NSAffineTransform transform];
-    CGFloat xTrans = horiz ? 0 : existingSize.width;
-    CGFloat yTrans = vert ? 0 : existingSize.height;
+    CGFloat xTrans = horiz ? existingSize.width : 0.0;
+    CGFloat yTrans = vert ? existingSize.height : 0.0;
+    CGFloat xScale = horiz ? -1.0 : 1.0;
+    CGFloat yScale = vert ? -1.0 : 1.0;
+
+    NSLog(@"Flipping with xTrans,yTrans: %.1f,%.1f. xScale,yScale: %.1f,%.1f", xTrans, yTrans, xScale, yScale);
 
     [t translateXBy:xTrans yBy:yTrans];
-    [t scaleXBy:horiz ? 1 : -1 yBy:vert ? 1 : -1];
+    [t scaleXBy:xScale yBy:yScale];
 
     [t concat];
 
-    [existingImage drawAtPoint:NSZeroPoint fromRect:NSMakeRect(0, 0, newSize.width, newSize.height) operation:NSCompositingOperationSourceOver fraction:1.0];
+    [existingImage drawAtPoint:NSZeroPoint
+                      fromRect:NSMakeRect(0, 0, newSize.width, newSize.height)
+                     operation:NSCompositingOperationSourceOver
+                      fraction:1.0];
 
     [flipedImage unlockFocus];
 

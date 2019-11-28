@@ -19,7 +19,7 @@
         self.keyColumns = 2;
         self.imageWidth = 80;
         self.imageHeight = 80;
-        self.imageCodec = BMP;
+        self.imageCodec = STREAMDECK_CODEC_BMP;
         self.imageFlipX = NO;
         self.imageFlipY = YES;
         self.imageAngle = 90;
@@ -80,7 +80,7 @@
                              0x01,  // Unknown (always seems to be 1)
                              0x00,  // Page Number
                              0x00,  // Padding
-                             0x00,  // Continuation Bool
+                             0x00,  // Last page Bool
                              button // Deck button to set
                             };
 
@@ -96,9 +96,10 @@
         int reportLength = MIN(bytesRemaining, payloadLength);
         int bytesSent = pageNumber * payloadLength;
 
-        // Set our current page number and thus whether we're a continuation page or not
+        // Set our current page number
         reportMagic[2] = pageNumber;
-        if (pageNumber > 0) reportMagic[4] = 1;
+        // Set if we're the last chunk of data
+        if (bytesRemaining <= payloadLength) reportMagic[4] = 1;
 
         NSMutableData *report = [NSMutableData dataWithLength:self.reportLength];
         [report replaceBytesInRange:NSMakeRange(0, 6) withBytes:reportMagic];

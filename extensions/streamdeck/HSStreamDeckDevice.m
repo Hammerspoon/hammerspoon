@@ -19,7 +19,7 @@
         self.selfRefCount = 0;
 
         // These defaults are not necessary, all base classes will override them, but if we miss something, these are chosen to try and provoke a crash where possible, so we notice the lack of an override.
-        self.imageCodec = UNKNOWN;
+        self.imageCodec = STREAMDECK_CODEC_UNKNOWN;
         self.deckType = @"Unknown";
         self.keyColumns = -1;
         self.keyRows = -1;
@@ -156,15 +156,15 @@
     NSData *data = nil;
 
     switch (self.imageCodec) {
-        case BMP:
+        case STREAMDECK_CODEC_BMP:
             data = [renderImage bmpData];
             break;
 
-        case JPEG:
+        case STREAMDECK_CODEC_JPEG:
             //data = [renderImage jpegData];
             break;
 
-        case UNKNOWN:
+        case STREAMDECK_CODEC_UNKNOWN:
             [[LuaSkin shared] logError:@"Unknown image codec for hs.streamdeck device"];
             break;
     }
