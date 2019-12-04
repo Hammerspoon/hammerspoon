@@ -202,6 +202,18 @@ static int screen_availableModes(lua_State* L) {
     return 1;
 }
 
+static int handleDisplayUpdate(lua_State* L, CGDisplayConfigRef config, char *name) {
+    LuaSkin *skin = [LuaSkin shared];
+    CGError anError = CGCompleteDisplayConfiguration(config, kCGConfigurePermanently);
+    if (anError == kCGErrorSuccess) {
+        lua_pushboolean(L, true);
+    } else {
+        [skin logBreadcrumb:[NSString stringWithFormat:@"%s failed: %d", name, anError]];
+        lua_pushboolean(L, false);
+    }
+    return 1;
+}
+
 /// hs.screen:setMode(width, height, scale) -> boolean
 /// Method
 /// Sets the screen to a new mode
@@ -237,14 +249,7 @@ static int screen_setMode(lua_State* L) {
             CGDisplayConfigRef config;
             CGBeginDisplayConfiguration(&config);
             CGSConfigureDisplayMode(config, screen_id, i);
-            CGError anError = CGCompleteDisplayConfiguration(config, kCGConfigurePermanently);
-            if (anError == kCGErrorSuccess) {
-                lua_pushboolean(L, true);
-            } else {
-                [skin logBreadcrumb:[NSString stringWithFormat:@"CGSConfigureDisplayMode failed: %d", anError]];
-                lua_pushboolean(L, false);
-            }
-            return 1;
+            return handleDisplayUpdate(L, config, "CGConfigureDisplayOrigin");
         }
     }
 
@@ -1009,6 +1014,49 @@ cleanup:
     return 1;
 }
 
+/// hs.screen:setOrigin(x, y) -> bool
+/// Method
+/// Sets the origin of a screen in the global display coordinate space. The origin of the main or primary display is (0,0). The new origin is placed as close as possible to the requested location, without overlapping or leaving a gap between displays. If you use this function to change the origin of a mirrored display, the display may be removed from the mirroring set.
+///
+/// Parameters:
+///  * x - The desired x-coordinate for the upper-left corner of the display.
+///  * y - The desired y-coordinate for the upper-left corner of the display.
+///
+/// Returns:
+///  * true if the operation succeeded, otherwise false
+static int screen_setOrigin(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TNUMBER, LS_TBREAK];
+
+    NSScreen* screen = get_screen_arg(L, 1);
+    int x = (int)lua_tointeger(L, 2);
+    int y = (int)lua_tointeger(L, 3);
+    
+    CGDisplayCount maxDisplays = 32;
+    CGDisplayCount displayCount, i;
+    CGDirectDisplayID *onlineDisplays = NULL;
+    CGDirectDisplayID screenID = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] unsignedIntValue];
+    onlineDisplays = malloc(sizeof(CGDirectDisplayID) * maxDisplays);
+    if (CGGetOnlineDisplayList(maxDisplays, onlineDisplays, &displayCount) != kCGErrorSuccess) goto cleanup;
+
+    CGDisplayConfigRef config;
+    CGBeginDisplayConfiguration(&config);
+    for (i = 0; i < displayCount; i++) {
+        CGDirectDisplayID dID = onlineDisplays[i];
+        if (dID == screenID) {
+            CGConfigureDisplayOrigin(config, dID, x, y);
+        }
+    }
+    
+    free(onlineDisplays);
+    return handleDisplayUpdate(L, config, "CGConfigureDisplayOrigin");
+
+cleanup:
+    free(onlineDisplays);
+    lua_pushboolean(L, false);
+    return 1;
+}
+
 NSRect screenRectToNSRect(lua_State *L, int idx) {
     NSRect rect = NSZeroRect;
     CGFloat x = -1;
@@ -1235,6 +1283,7 @@ static const luaL_Reg screen_objectlib[] = {
     {"rotate", screen_rotate},
     {"setPrimary", screen_setPrimary},
     {"desktopImageURL", screen_desktopImageURL},
+    {"setOrigin", screen_setOrigin},
 
     {"__tostring", userdata_tostring},
     {"__gc", screen_gc},

@@ -15,8 +15,12 @@ What gives Hammerspoon its power is a set of extensions that expose specific pie
 
 ## How do I install it?
 
+### Manually
  * Download the [latest release](https://github.com/Hammerspoon/hammerspoon/releases/latest)
  * Drag `Hammerspoon.app` from your `Downloads` folder to `Applications`
+ 
+### Homebrew
+  * `brew cask install hammerspoon`
 
 ## What next?
 
