@@ -8,6 +8,10 @@ return {setup=function(...)
   local traceback = debug.traceback
   local crashLog = require("hs.crash").crashLog
   local fnutils = require("hs.fnutils")
+  local hsmath = require("hs.math")
+
+  -- seed RNG before we do anything else
+  math.randomseed(hsmath.randomFloat()*100000000)
 
   -- setup core functions
 
