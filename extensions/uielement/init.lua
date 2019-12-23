@@ -75,7 +75,7 @@ uielement.watcher.titleChanged     = "AXTitleChanged"
 local appWatchers = {}
 
 local function appCallback(_, event, app)
-    if appWatchers[app:pid()] and event == application.watcher.terminated then
+    if app and (appWatchers[app:pid()] and event == application.watcher.terminated) then
         fnutils.each(appWatchers[app:pid()], function(watcher) watcher:_stop() end)
         appWatchers[app:pid()] = nil
     end
@@ -125,13 +125,15 @@ end
 function uielement:newWatcher(callback, ...)
     if type(callback) ~= "function" then
         hs.showError("hs.uielement:newWatcher() called with incorrect arguments. The first argument must be a function")
+        return
     end
     local obj = self:_newWatcher(function(...) handleEvent(callback, ...) end, ...)
 
-    obj._pid = self:pid()
-    if self.id then obj._id = self:id() end
-
-    return obj
+    if obj then
+        obj._pid = self:pid()
+        if self.id then obj._id = self:id() end
+        return obj
+    end
 end
 
 --- hs.uielement.watcher:start(events) -> hs.uielement.watcher
