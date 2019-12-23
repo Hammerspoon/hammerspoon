@@ -14,6 +14,7 @@
 #import "Crashlytics.h"
 #import "HSLogger.h" // This should come after Crashlytics
 #import <AVFoundation/AVFoundation.h>
+#import <stdlib.h>
 
 @interface MJPreferencesWindowController ()
 - (void) reflectDefaults ;
@@ -653,7 +654,49 @@ static int core_notify(lua_State* L) {
     return 0;
 }
 
+/// hs.random([lower], [upper]) -> integer
+/// Function
+/// Generates a cryptographic pseudo-random number.
+///
+/// Parameters:
+///  * `lower` - An optional value for the lowest value the random number can be. An upper value must also be supplied.
+///  * `upper ` - An optional value for the highest value the random number can be. A lower value is optional (i.e if you supply a single parameter, then only `upper` is used, and `lower` defaults to 1.
+///
+/// Returns:
+///  * An integer.
+///
+/// Notes:
+///  * `hs.random()` with no arguments generates a real number between 0 and 1.
+///  * `hs.random(upper)` generates integer numbers between 1 and upper (both inclusive).
+///  * `hs.random(lower, upper)` generates integer numbers between lower and upper (both inclusive).
+///  * Internally, this function uses `arc4random` when no paramaters are supplied and `arc4random_uniform` when parameters are supplied.
+static int core_random(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TNUMBER | LS_TOPTIONAL, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK] ;
+    if (lua_gettop(L) == 0) {
+        // hs.random() with no arguments generates a real number between 0 and 1:
+        double result = ((double)arc4random() / UINT32_MAX);
+        lua_pushnumber(L, result) ;
+        return 1 ;
+    } else if (lua_gettop(L) == 1) {
+        // hs.random(upper) generates integer numbers between 1 and upper:
+        NSNumber *upper = [skin toNSObjectAtIndex:1];
+        NSInteger result = 1 + arc4random_uniform((uint32_t)([upper integerValue] - 1 + 1));
+        lua_pushnumber(L, result) ;
+        return 1 ;
+    } else if (lua_gettop(L) == 2) {
+        // hs.random(lower, upper) generates integer numbers between lower and upper:
+        NSNumber *lower = [skin toNSObjectAtIndex:1];
+        NSNumber *upper = [skin toNSObjectAtIndex:2];
+        NSInteger result = [lower integerValue] + arc4random_uniform((uint32_t)([upper integerValue] - [lower integerValue] + 1));
+        lua_pushnumber(L, result) ;
+        return 1 ;
+    }
+    return 0;
+}
+
 static luaL_Reg corelib[] = {
+    {"random", core_random},
     {"preferencesDarkMode", preferencesDarkMode},
     {"openConsoleOnDockClick", core_openConsoleOnDockClick},
     {"openConsole", core_openconsole},
