@@ -65,6 +65,35 @@ static AXUIElementRef system_wide_element() {
     return element;
 }
 
+/// hs.window.timeout(value) -> boolean
+/// Function
+/// Sets the timeout value used in the accessibility API.
+///
+/// Parameters:
+///  * value - The number of seconds for the new timeout value.
+///
+/// Returns:
+///  * `true` is succesful otherwise `false` if an error occured.
+static int window_timeout(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs: LS_TNUMBER, LS_TBREAK] ;
+    NSNumber *value = [skin toNSObjectAtIndex:1] ;
+    float fvalue = [value floatValue];
+    AXError result = AXUIElementSetMessagingTimeout(system_wide_element(), fvalue);
+    if (result == kAXErrorIllegalArgument) {
+        [LuaSkin logError:@"hs.window.timeout() - One or more of the arguments is an illegal value (timeout values must be positive)."];
+        lua_pushboolean(L, false);
+        return 1;
+    }
+    if (result == kAXErrorInvalidUIElement) {
+        [LuaSkin logError:@"hs.window.timeout() - The AXUIElementRef is invalid."];
+        lua_pushboolean(L, false);
+        return 1;
+    }
+    lua_pushboolean(L, true);
+    return 1;
+}
+
 /// hs.window.focusedWindow() -> window
 /// Constructor
 /// Returns the window that has keyboard/mouse focus
@@ -889,6 +918,7 @@ static const luaL_Reg windowlib[] = {
     {"_setFullScreen", window__setfullscreen},
     {"isFullScreen", window_isfullscreen},
     {"snapshot", window_snapshot},
+    {"timeout", window_timeout},
 
     {NULL, NULL}
 };
