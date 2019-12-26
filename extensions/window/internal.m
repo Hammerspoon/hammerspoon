@@ -94,6 +94,48 @@ static int window_timeout(lua_State* L) {
     return 1;
 }
 
+/// hs.window.list(allWindows) -> table
+/// Function
+/// Gets a table containing all the window data retrieved from `CGWindowListCreate`.
+///
+/// Parameters:
+///  * allWindows - Get all the windows, even those "below" the Dock window.
+///
+/// Returns:
+///  * `true` is succesful otherwise `false` if an error occured.
+///
+/// Notes:
+///  * This allows you to get window information without Accessibility Permissions.
+static int window_list(lua_State* L) {
+    // SOURCE: https://stackoverflow.com/a/15985829/6925202
+    BOOL allWindows = lua_toboolean(L, 1);
+    
+    // Fetch all on screen windows
+    CFArrayRef windowListArray = CGWindowListCreate(kCGWindowListOptionOnScreenOnly|kCGWindowListExcludeDesktopElements, kCGNullWindowID);
+    NSArray *windows = CFBridgingRelease(CGWindowListCreateDescriptionFromArray(windowListArray));
+
+    if (!allWindows) {
+        // Find window ID of "Dock" window
+        NSNumber *dockWindowNumber = nil;
+        for (NSDictionary *window in windows) {
+            if ([(NSString *)window[(__bridge NSString *)kCGWindowName] isEqualToString:@"Dock"]) {
+                dockWindowNumber = window[(__bridge NSString *)kCGWindowNumber];
+                break;
+            }
+        }
+        if (dockWindowNumber) {
+            // Fetch on screen windows again, filtering to those "below" the Dock window
+            // This filters out all but the "standard" application windows
+            windowListArray = CGWindowListCreate(kCGWindowListOptionOnScreenBelowWindow|kCGWindowListExcludeDesktopElements, [dockWindowNumber unsignedIntValue]);
+            windows = CFBridgingRelease(CGWindowListCreateDescriptionFromArray(windowListArray));
+        }
+    }
+    CFRelease(windowListArray);
+    
+    [[LuaSkin shared] pushNSObject:windows] ;
+    return 1 ;
+}
+
 /// hs.window.focusedWindow() -> window
 /// Constructor
 /// Returns the window that has keyboard/mouse focus
@@ -892,7 +934,8 @@ static const luaL_Reg windowlib[] = {
     {"_orderedwinids", window__orderedwinids},
     {"setShadows", window_setShadows},
     {"snapshotForID", window_snapshotForID},
-
+    {"list", window_list},
+    
     {"title", window_title},
     {"subrole", window_subrole},
     {"role", window_role},
