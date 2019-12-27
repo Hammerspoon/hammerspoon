@@ -18,12 +18,21 @@ void MJDockIconSetVisible(BOOL visible) {
 }
 
 static void reflect_defaults(void) {
-    NSApplication* app = [NSApplication sharedApplication]; // NSApp is typed to 'id'; lame
+    NSApplication* app = [NSApplication sharedApplication];
+    NSApplicationActivationPolicy currentPolicy = app.activationPolicy;
+    NSApplicationActivationPolicy targetPolicy = MJDockIconVisible() ? NSApplicationActivationPolicyRegular : NSApplicationActivationPolicyAccessory;
+
+    if (currentPolicy == targetPolicy) {
+        // No need to do anything, we already have the policy we want
+        return;
+    }
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     NSDisableScreenUpdates();
 #pragma clang diagnostic pop
-    [app setActivationPolicy: MJDockIconVisible() ? NSApplicationActivationPolicyRegular : NSApplicationActivationPolicyAccessory];
+
+    [app setActivationPolicy:targetPolicy];
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [app unhide: nil];
         [app activateIgnoringOtherApps:YES];

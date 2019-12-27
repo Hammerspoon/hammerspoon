@@ -167,8 +167,6 @@
 			</array>
 		</dict>
 		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
 			<key>CFBundleURLName</key>
 			<string>hammerspoon.Hammerspoon.http</string>
 			<key>CFBundleURLSchemes</key>
@@ -177,8 +175,6 @@
 			</array>
 		</dict>
 		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
 			<key>CFBundleURLName</key>
 			<string>hammerspoon.Hammerspoon.https</string>
 			<key>CFBundleURLSchemes</key>
@@ -207,6 +203,8 @@
 	<string>public.app-category.developer-tools</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>${MACOSX_DEPLOYMENT_TARGET}</string>
+	<key>LSUIElement</key>
+	<true/>
 	<key>NSAppSleepDisabled</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
