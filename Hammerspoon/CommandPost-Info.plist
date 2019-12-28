@@ -226,8 +226,6 @@
 			</array>
 		</dict>
 		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
 			<key>CFBundleURLName</key>
 			<string>latenitefilms.CommandPost.http</string>
 			<key>CFBundleURLSchemes</key>
@@ -236,8 +234,6 @@
 			</array>
 		</dict>
 		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
 			<key>CFBundleURLName</key>
 			<string>latenitefilms.CommandPost.https</string>
 			<key>CFBundleURLSchemes</key>
