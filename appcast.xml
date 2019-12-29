@@ -13,7 +13,7 @@
             </sparkle:releaseNotesLink>
             <pubDate>Sun, 29 Dec 2019 20:45:58 +0100</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.77/Hammerspoon-0.9.77.zip"
-                sparkle:version="5073"
+                sparkle:version="5129"
                 sparkle:shortVersionString="0.9.77"
                 length="8108028"
                 type="application/octet-stream"
