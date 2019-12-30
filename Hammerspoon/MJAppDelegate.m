@@ -280,7 +280,7 @@
 - (void) registerDefaultDefaults {
     [[NSUserDefaults standardUserDefaults]
      registerDefaults: @{@"NSApplicationCrashOnExceptions": @YES,
-                         MJShowDockIconKey: @YES,
+                         MJShowDockIconKey: @NO,
                          MJShowMenuIconKey: @YES,
                          HSAutoLoadExtensions: @YES,
                          HSUploadCrashDataKey: @YES,
