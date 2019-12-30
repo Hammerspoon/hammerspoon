@@ -5,6 +5,9 @@
 /// Watch for Pasteboard Changes.
 /// Sadly, macOS currently doesn't have any API for getting Pasteboard notifications, so this extension uses polling every half a second.
 
+// TODO: * Ideally there should be a single Pasteboard NSTimer for the general pasteboard and each unique pasteboard name.
+//       * Investigate using Grand Central Dispatch instead of an NSTimer.
+
 static const char *USERDATA_TAG = "hs.pasteboard.watcher";
 static int refTable;
 
@@ -14,6 +17,7 @@ const int POLLING_INTERVAL = 0.5;
 
 @interface HSPasteboardTimer : NSObject
 @property NSTimer *t;
+@property NSString *pbName;
 @property int fnRef;
 @property NSInteger changeCount;
 - (void)create;
@@ -29,8 +33,16 @@ const int POLLING_INTERVAL = 0.5;
 }
 
 - (void)callback:(NSTimer *)timer {
+    // Get the correct Pasteboard:
+    NSPasteboard *pb;
+    if (self.pbName) {
+        pb = [NSPasteboard pasteboardWithName:self.pbName];
+    } else {
+        pb = [NSPasteboard generalPasteboard];
+    }
+    
     // Check if the Pasteboard Change Count has changed:
-    NSInteger currentChangeCount = [[NSPasteboard generalPasteboard] changeCount];
+    NSInteger currentChangeCount = [pb changeCount];
     if(currentChangeCount == self.changeCount) {
         self.changeCount = currentChangeCount;
         return;
@@ -50,10 +62,22 @@ const int POLLING_INTERVAL = 0.5;
     if (timer != self.t) {
         [skin logBreadcrumb:@"hs.pasteboard.watcher callback fired with inconsistencies about which NSTimer object it owns. This is a bug"];
     }
-
+    
     [skin pushLuaRef:refTable ref:self.fnRef];
-    lua_pushstring(skin.L, [[[NSPasteboard generalPasteboard] stringForType:NSPasteboardTypeString] UTF8String]);
-    [skin protectedCallAndError:@"hs.pasteboard.watcher callback" nargs:1 nresults:0];
+        
+    NSString *result = [pb stringForType:NSPasteboardTypeString];
+    if (result) {
+        [skin pushNSObject:result];
+    } else {
+        lua_pushnil(skin.L);
+    }
+
+    if (![skin protectedCallAndTraceback:1 nresults:0]) {
+        const char *errorMsg = lua_tostring(skin.L, -1);
+        [skin logBreadcrumb:[NSString stringWithFormat:@"hs.pasteboard.watcher callback error: %s", errorMsg]];
+        [skin logError:[NSString stringWithFormat:@"hs.pasteboard.watcher callback error: %s", errorMsg]];
+        lua_pop(skin.L, 1); // clear error message from stack
+    }
     
     _lua_stackguard_exit(skin.L);
 }
@@ -67,7 +91,13 @@ const int POLLING_INTERVAL = 0.5;
         // We've previously been stopped, which means the NSTimer is invalid, so recreate it
         [self create];
     }
-    self.changeCount = [[NSPasteboard generalPasteboard] changeCount];
+    NSPasteboard *pb;
+    if (self.pbName) {
+        pb = [NSPasteboard pasteboardWithName:self.pbName];
+    } else {
+        pb = [NSPasteboard generalPasteboard];
+    }
+    self.changeCount = [pb changeCount];
     [[NSRunLoop currentRunLoop] addTimer:self.t forMode:NSRunLoopCommonModes];
 }
 
@@ -78,20 +108,22 @@ const int POLLING_INTERVAL = 0.5;
 }
 @end
 
-HSPasteboardTimer *createHSPasteboardTimer(int callbackRef) {
+HSPasteboardTimer *createHSPasteboardTimer(int callbackRef, NSString *pbName) {
     HSPasteboardTimer *timer = [[HSPasteboardTimer alloc] init];
     timer.fnRef = callbackRef;
+    timer.pbName = pbName;
     [timer create];
     return timer;
 }
 
-/// hs.pasteboard.watcher.new(fn) -> pasteboardWatcher
+/// hs.pasteboard.watcher.new(callbackFn[, name]) -> pasteboardWatcher
 /// Constructor
 /// Creates and starts a new `hs.pasteboard.watcher` object for watching for Pasteboard changes.
 ///
 /// Parameters:
 ///  * callbackFn - A function that will be called when the Pasteboard contents has changed. It should accept one parameter:
-///   * A string containing the Pasteboard contents
+///   * A string containing the pasteboard contents or `nil` if the contents is not a valid string.
+///  * name - An optional string containing the name of the pasteboard. Defaults to the system pasteboard.
 ///
 /// Returns:
 ///  * An `hs.pasteboard.watcher` object
@@ -99,16 +131,22 @@ HSPasteboardTimer *createHSPasteboardTimer(int callbackRef) {
 /// Notes:
 ///  * Example usage:
 ///  ```lua
-///  pbWatcher = hs.pasteboard.watcher.new(function(v) print(string.format("Pasteboard Contents: %s", v)) end)
+///  generalPBWatcher = hs.pasteboard.watcher.new(function(v) print(string.format("General Pasteboard Contents: %s", v)) end)
+///  specialPBWatcher = hs.pasteboard.watcher.new(function(v) print(string.format("Special Pasteboard Contents: %s", v)) end, "special")
+///  hs.pasteboard.writeObjects("This is on the general pasteboard.")
+///  hs.pasteboard.writeObjects("This is on the special pasteboard.", "special")
 ///  ```
 static int pasteboardwatcher_new(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TFUNCTION, LS_TBREAK];
+    [skin checkArgs:LS_TFUNCTION, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
 
+    NSString *pbName = [skin toNSObjectAtIndex:2];
+    
+    lua_pushvalue(L, 1);
     int callbackRef = [skin luaRef:refTable];
 
     // Create the timer object:
-    HSPasteboardTimer *timer = createHSPasteboardTimer(callbackRef);
+    HSPasteboardTimer *timer = createHSPasteboardTimer(callbackRef, pbName);
     
     // Start the timer:
     if (![timer isRunning]) {
@@ -237,7 +275,7 @@ static const luaL_Reg pasteboardWatcher_metalib[] = {
 };
 
 // Functions for returned object when module loads
-static const luaL_Reg pasteboardWatcherLib[] = {
+static const luaL_Reg pasteboardWatcher_lib[] = {
     {"new",        pasteboardwatcher_new},
     {NULL,          NULL}
 };
@@ -250,8 +288,7 @@ static const luaL_Reg meta_gcLib[] = {
 
 int luaopen_hs_pasteboard_watcher(lua_State* L __unused) {
     LuaSkin *skin = [LuaSkin shared];
-    refTable = [skin registerLibrary:pasteboardWatcherLib metaFunctions:meta_gcLib];
+    refTable = [skin registerLibrary:pasteboardWatcher_lib metaFunctions:meta_gcLib];
     [skin registerObject:USERDATA_TAG objectFunctions:pasteboardWatcher_metalib];
-
     return 1;
 }
