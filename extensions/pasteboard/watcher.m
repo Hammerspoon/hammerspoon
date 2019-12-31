@@ -11,7 +11,7 @@ const int POLLING_INTERVAL = 0.5;
 static const char *USERDATA_TAG = "hs.pasteboard.watcher";
 static int refTable;
 
-// We only use a single NSTimer for all General Pasteboard Watchers:
+// We only use a single NSTimer for all Pasteboard Watchers:
 static int sharedPasteboardTimerCount = 0;
 NSTimer *sharedPasteboardTimer;
 
