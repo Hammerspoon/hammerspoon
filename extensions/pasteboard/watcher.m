@@ -47,12 +47,13 @@ NSTimer *sharedPasteboardTimer;
     // Check if the Pasteboard Change Count has changed:
     NSInteger currentChangeCount = [pb changeCount];
     if(currentChangeCount == self.changeCount) {
-        self.changeCount = currentChangeCount;
         return;
-    } else {
-        self.changeCount = currentChangeCount;
     }
+    
+    // Update change count:
+    self.changeCount = currentChangeCount;
 
+    // Trigger Lua Callback Function:
     LuaSkin *skin = [LuaSkin shared];
     _lua_stackguard_entry(skin.L);
     
