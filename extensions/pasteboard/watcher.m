@@ -3,15 +3,17 @@
 /// === hs.pasteboard.watcher ===
 ///
 /// Watch for Pasteboard Changes.
-/// Sadly, macOS currently doesn't have any API for getting Pasteboard notifications, so this extension uses polling every half a second.
+/// macOS doesn't offer any API for getting Pasteboard notifications, so this extension uses polling to check for Pasteboard changes every half a second.
 
-// TODO: * Ideally there should be a single Pasteboard NSTimer for the general pasteboard and each unique pasteboard name.
-//       * Investigate using Grand Central Dispatch instead of an NSTimer.
+// How often we should check the Pasteboard for changes:
+const int POLLING_INTERVAL = 0.5;
 
 static const char *USERDATA_TAG = "hs.pasteboard.watcher";
 static int refTable;
 
-const int POLLING_INTERVAL = 0.5;
+// We only use a single NSTimer for all General Pasteboard Watchers:
+static int generalTimerCount = 0;
+NSTimer *generalPasteboardTimer;
 
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 
@@ -20,6 +22,7 @@ const int POLLING_INTERVAL = 0.5;
 @property NSString *pbName;
 @property int fnRef;
 @property NSInteger changeCount;
+@property BOOL watcherRunning;
 - (void)create;
 - (void)callback:(NSTimer *)timer;
 - (BOOL)isRunning;
@@ -29,19 +32,61 @@ const int POLLING_INTERVAL = 0.5;
 
 @implementation HSPasteboardTimer
 - (void)create {
-    self.t = [NSTimer timerWithTimeInterval:POLLING_INTERVAL target:self selector:@selector(callback:) userInfo:nil repeats:YES];
+    if (self.pbName) {
+        // NAMED PASTEBOARD:
+        self.t = [NSTimer timerWithTimeInterval:POLLING_INTERVAL target:self selector:@selector(callback:) userInfo:nil repeats:YES];
+    } else {
+        // GENERAL PASTEBOARD:
+        if (![generalPasteboardTimer isValid]) {
+            generalPasteboardTimer = [NSTimer timerWithTimeInterval:POLLING_INTERVAL target:self selector:@selector(generalCallback:) userInfo:nil repeats:YES];
+        }
+    }
 }
 
-- (void)callback:(NSTimer *)timer {
-    // Get the correct Pasteboard:
-    NSPasteboard *pb;
-    if (self.pbName) {
-        pb = [NSPasteboard pasteboardWithName:self.pbName];
+- (void)generalCallback:(NSTimer *)timer {
+    [[NSNotificationCenter defaultCenter]
+        postNotificationName:@"generalPasteboardNotification"
+        object:nil];
+}
+
+// CALLBACK FOR GENERAL PASTEBOARD:
+- (void)generalPasteboardChanged:(NSNotification*)notification {
+    // Check if the Pasteboard Change Count has changed:
+    NSPasteboard *pb = [NSPasteboard generalPasteboard];
+    NSInteger currentChangeCount = [pb changeCount];
+    if(currentChangeCount == self.changeCount) {
+        self.changeCount = currentChangeCount;
+        return;
     } else {
-        pb = [NSPasteboard generalPasteboard];
+        self.changeCount = currentChangeCount;
+    }
+
+    LuaSkin *skin = [LuaSkin shared];
+    _lua_stackguard_entry(skin.L);
+    
+    [skin pushLuaRef:refTable ref:self.fnRef];
+        
+    NSString *result = [pb stringForType:NSPasteboardTypeString];
+    if (result) {
+        [skin pushNSObject:result];
+    } else {
+        lua_pushnil(skin.L);
+    }
+
+    if (![skin protectedCallAndTraceback:1 nresults:0]) {
+        const char *errorMsg = lua_tostring(skin.L, -1);
+        [skin logBreadcrumb:[NSString stringWithFormat:@"hs.pasteboard.watcher callback error: %s", errorMsg]];
+        [skin logError:[NSString stringWithFormat:@"hs.pasteboard.watcher callback error: %s", errorMsg]];
+        lua_pop(skin.L, 1); // clear error message from stack
     }
     
+    _lua_stackguard_exit(skin.L);
+}
+
+// CALLBACK FOR NAMED PASTEBOARD:
+- (void)callback:(NSTimer *)timer {
     // Check if the Pasteboard Change Count has changed:
+    NSPasteboard *pb = [NSPasteboard pasteboardWithName:self.pbName];
     NSInteger currentChangeCount = [pb changeCount];
     if(currentChangeCount == self.changeCount) {
         self.changeCount = currentChangeCount;
@@ -83,27 +128,91 @@ const int POLLING_INTERVAL = 0.5;
 }
 
 - (BOOL)isRunning {
-    return CFRunLoopContainsTimer(CFRunLoopGetCurrent(), (__bridge CFRunLoopTimerRef)self.t, kCFRunLoopDefaultMode);
+    if (self.pbName) {
+        // NAMED PASTEBOARD:
+        return CFRunLoopContainsTimer(CFRunLoopGetCurrent(), (__bridge CFRunLoopTimerRef)self.t, kCFRunLoopDefaultMode);
+    } else {
+        // GENERAL PASTEBOARD:
+        return self.watcherRunning;
+    }
 }
 
 - (void)start {
-    if (!self.t.isValid) {
-        // We've previously been stopped, which means the NSTimer is invalid, so recreate it
-        [self create];
+    if (self.pbName) {
+        // NAMED PASTEBOARD:
+        if (self.isRunning) {
+            // The timer is already running.
+            return;
+        }
+        if (!self.t.isValid) {
+            // We've previously been stopped, which means the NSTimer is invalid, so recreate it
+            [self create];
+        }
+    } else {
+        // GENERAL PASTEBOARD:
+        self.watcherRunning = YES;
+        if (!generalPasteboardTimer.isValid) {
+            // We've previously been stopped, which means the NSTimer is invalid, so recreate it
+            [self create];
+        }
     }
+    
     NSPasteboard *pb;
     if (self.pbName) {
+        // NAMED PASTEBOARD:
         pb = [NSPasteboard pasteboardWithName:self.pbName];
     } else {
+        // GENERAL PASTEBOARD:
         pb = [NSPasteboard generalPasteboard];
     }
     self.changeCount = [pb changeCount];
-    [[NSRunLoop currentRunLoop] addTimer:self.t forMode:NSRunLoopCommonModes];
+    
+    if (self.pbName) {
+        // NAMED PASTEBOARD:
+        [[NSRunLoop currentRunLoop] addTimer:self.t forMode:NSRunLoopCommonModes];
+    } else {
+        // GENERAL PASTEBOARD:
+        
+        // Start the General Pasteboard NSTimer if it's not already running:
+        if (!CFRunLoopContainsTimer(CFRunLoopGetCurrent(), (__bridge CFRunLoopTimerRef)generalPasteboardTimer, kCFRunLoopDefaultMode)) {
+            [[NSRunLoop currentRunLoop] addTimer:generalPasteboardTimer forMode:NSRunLoopCommonModes];
+        }
+        
+        // Increment the General Pasteboard Timer Counter:
+        generalTimerCount++;
+        
+        // Add observer:
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(generalPasteboardChanged:)
+                                                     name:@"generalPasteboardNotification" object:nil];
+    }
 }
 
 - (void)stop {
-    if (self.t.isValid) {
-        [self.t invalidate];
+    if (self.pbName) {
+        // NAMED PASTEBOARD:
+        if (self.t.isValid) {
+            [self.t invalidate];
+        }
+    } else {
+        // GENERAL PASTEBOARD:
+        
+        // Watcher is no longer running:
+        self.watcherRunning = NO;
+        
+        // Decrement the General Pasteboard Timer Counter:
+        generalTimerCount--;
+                
+        // If no more watchers are left, destroy the NSTimer:
+        if (generalTimerCount == 0) {
+            [generalPasteboardTimer invalidate];
+            generalPasteboardTimer = nil;
+        }
+
+        // Remove observer:
+        [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                        name:@"generalPasteboardNotification"
+                                                      object:nil];
     }
 }
 @end
@@ -129,6 +238,9 @@ HSPasteboardTimer *createHSPasteboardTimer(int callbackRef, NSString *pbName) {
 ///  * An `hs.pasteboard.watcher` object
 ///
 /// Notes:
+///  * Internally this extension uses a `NSTimer` to check for changes to the pasteboard count every half a second.
+///  * All watchers that were created without a `name` parameter use a common `NSTimer`.
+///  * All watchers that were created with a `name` parameter use their own unique `NSTimer` internally.
 ///  * Example usage:
 ///  ```lua
 ///  generalPBWatcher = hs.pasteboard.watcher.new(function(v) print(string.format("General Pasteboard Contents: %s", v)) end)
@@ -149,9 +261,7 @@ static int pasteboardwatcher_new(lua_State* L) {
     HSPasteboardTimer *timer = createHSPasteboardTimer(callbackRef, pbName);
     
     // Start the timer:
-    if (![timer isRunning]) {
-        [timer start];
-    }
+    [timer start];
 
     // Wire up the timer object to Lua:
     void **userData = lua_newuserdata(L, sizeof(HSPasteboardTimer*));
@@ -232,9 +342,10 @@ static int pasteboardwatcher_gc(lua_State* L) {
         [timer stop];
         timer.fnRef = [skin luaUnref:refTable ref:timer.fnRef];
         timer.t = nil;
+        timer.pbName = nil;
         timer = nil;
     }
-
+    
     // Remove the Metatable so future use of the variable in Lua won't think its valid
     lua_pushnil(L);
     lua_setmetatable(L, 1);
@@ -252,12 +363,22 @@ static int userdata_tostring(lua_State* L) {
     HSPasteboardTimer *timer = get_objectFromUserdata(__bridge HSPasteboardTimer, L, 1, USERDATA_TAG);
     NSString* title ;
 
-    if (!timer.t) {
-        title = @"BUG ENCOUNTERED, hs.pasteboard.watcher tostring found timer.t nil";
-    } else if ([timer isRunning]) {
-        title = @"running";
+    if (timer.pbName) {
+        // NAMED PASTEBOARD:
+        if (!timer.t) {
+            title = @"BUG ENCOUNTERED, hs.pasteboard.watcher tostring found timer.t nil";
+        } else if ([timer isRunning]) {
+            title = @"running";
+        } else {
+            title = @"not running";
+        }
     } else {
-        title = @"not running";
+        // GENERAL PASTEBOARD:
+        if ([timer isRunning]) {
+            title = @"running";
+        } else {
+            title = @"not running";
+        }
     }
 
     lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, title, lua_topointer(L, 1)] UTF8String]) ;
