@@ -35,7 +35,7 @@ NSTimer *sharedPasteboardTimer;
         object:nil];
 }
 
-- (void)generalPasteboardChanged:(NSNotification*)notification {
+- (void)sharedPasteboardChanged:(NSNotification*)notification {
     // Get the correct Pasteboard:
     NSPasteboard *pb;
     if (self.pbName) {
@@ -105,7 +105,7 @@ NSTimer *sharedPasteboardTimer;
     
     // Add observer:
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(generalPasteboardChanged:)
+                                             selector:@selector(sharedPasteboardChanged:)
                                                  name:@"sharedPasteboardNotification" object:nil];
 
     // The watcher is now running:
