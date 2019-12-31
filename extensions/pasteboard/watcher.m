@@ -23,17 +23,11 @@ NSTimer *sharedPasteboardTimer;
 @property int fnRef;
 @property NSInteger changeCount;
 @property BOOL isRunning;
-- (void)create;
 - (void)start;
 - (void)stop;
 @end
 
 @implementation HSPasteboardTimer
-- (void)create {
-    if (![sharedPasteboardTimer isValid]) {
-        sharedPasteboardTimer = [NSTimer timerWithTimeInterval:POLLING_INTERVAL target:self selector:@selector(sharedPasteboardTimerCallback:) userInfo:nil repeats:YES];
-    }
-}
 
 - (void)sharedPasteboardTimerCallback:(NSTimer *)timer {
     [[NSNotificationCenter defaultCenter]
@@ -82,14 +76,14 @@ NSTimer *sharedPasteboardTimer;
 }
 
 - (void)start {
+    // Abort if the watcher is already running:
     if (self.isRunning) {
-        // The watcher is already running.
         return;
     }
     
+    // If the Shared Pasteboard Timer doesn't exist, create it:
     if (!sharedPasteboardTimer.isValid) {
-        // We've previously been stopped, which means the NSTimer is invalid, so recreate it
-        [self create];
+        sharedPasteboardTimer = [NSTimer timerWithTimeInterval:POLLING_INTERVAL target:self selector:@selector(sharedPasteboardTimerCallback:) userInfo:nil repeats:YES];
     }
     
     // Update Initial Change Count:
@@ -114,15 +108,16 @@ NSTimer *sharedPasteboardTimer;
                                              selector:@selector(generalPasteboardChanged:)
                                                  name:@"sharedPasteboardNotification" object:nil];
 
-    
     // The watcher is now running:
     self.isRunning = YES;
 }
 
 - (void)stop {
-    // Watcher is no longer running:
-    self.isRunning = NO;
-    
+    // Remove observer:
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:@"sharedPasteboardNotification"
+                                                  object:nil];
+
     // Decrement the Shared Pasteboard Timer Counter:
     sharedPasteboardTimerCount--;
             
@@ -131,11 +126,9 @@ NSTimer *sharedPasteboardTimer;
         [sharedPasteboardTimer invalidate];
         sharedPasteboardTimer = nil;
     }
-
-    // Remove observer:
-    [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                    name:@"sharedPasteboardNotification"
-                                                  object:nil];
+    
+    // Watcher is no longer running:
+    self.isRunning = NO;
 }
 @end
 
@@ -143,7 +136,6 @@ HSPasteboardTimer *createHSPasteboardTimer(int callbackRef, NSString *pbName) {
     HSPasteboardTimer *timer = [[HSPasteboardTimer alloc] init];
     timer.fnRef = callbackRef;
     timer.pbName = pbName;
-    [timer create];
     return timer;
 }
 
