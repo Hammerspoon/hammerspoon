@@ -292,7 +292,7 @@
                          HSAutoLoadExtensions: @YES,
                          HSUploadCrashDataKey: @YES,
                          HSAppleScriptEnabledKey: @NO,
-                         HSOpenConsoleOnDockClickKey: @NO,
+                         HSOpenConsoleOnDockClickKey: @YES,
                          HSPreferencesDarkModeKey: @YES,
                          HSConsoleDarkModeKey: @YES,
                          }];
