@@ -15,8 +15,8 @@
     self = [super initWithDevice:device manager:manager];
     if (self) {
         self.deckType = @"Elgato Stream Deck (Mini)";
-        self.keyRows = 3;
-        self.keyColumns = 2;
+        self.keyRows = 2;
+        self.keyColumns = 3;
         self.imageWidth = 80;
         self.imageHeight = 80;
         self.imageCodec = STREAMDECK_CODEC_BMP;
