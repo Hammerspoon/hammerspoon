@@ -23,6 +23,7 @@
         self.imageFlipX = NO;
         self.imageFlipY = YES;
         self.imageAngle = 90;
+        self.simpleReportLength = 17;
         self.reportLength = 1024;
         self.reportHeaderLength = 16;
     }
@@ -57,7 +58,7 @@
         return @"INVALID DEVICE";
     }
 
-    return [[NSString alloc] initWithData:[self deviceRead:17 reportID:0x3]
+    return [[NSString alloc] initWithData:[self deviceRead:12 reportID:0x3]
                                  encoding:NSUTF8StringEncoding];
 }
 
@@ -66,7 +67,7 @@
         return @"INVALID DEVICE";
     }
 
-    return [[NSString alloc] initWithData:[self deviceRead:17 reportID:0x4]
+    return [[NSString alloc] initWithData:[self deviceRead:12 reportID:0x4]
                                  encoding:NSUTF8StringEncoding];
 }
 
