@@ -26,6 +26,7 @@
         self.imageFlipX = NO;
         self.imageFlipY = NO;
         self.imageAngle = 0;
+        self.simpleReportLength = 0;
         self.reportLength = 0;
         self.reportHeaderLength = 0;
         //NSLog(@"Added new Stream Deck device %p with IOKit device %p from manager %p", (__bridge void *)self, (void*)self.device, (__bridge void *)self.manager);
@@ -35,6 +36,17 @@
 
 - (void)invalidate {
     self.isValid = NO;
+}
+
+- (IOReturn)deviceWriteSimpleReport:(uint8_t[])report reportLen:(int)reportLen {
+    if (self.simpleReportLength == 0) {
+        LuaSkin *skin = [LuaSkin shared];
+        [skin logError:@"Initialising Stream Deck device with no simple report length defined"];
+        return kIOReturnInternalError;
+    }
+    NSMutableData *reportData = [NSMutableData dataWithLength:self.simpleReportLength];
+    [reportData replaceBytesInRange:NSMakeRange(0, reportLen) withBytes:report];
+    return [self deviceWrite:reportData];
 }
 
 - (IOReturn)deviceWrite:(NSData *)report {
