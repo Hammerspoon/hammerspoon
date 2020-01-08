@@ -42,12 +42,14 @@ typedef enum : NSUInteger {
 @property (nonatomic) BOOL imageFlipX;
 @property (nonatomic) BOOL imageFlipY;
 @property (nonatomic) int imageAngle;
+@property (nonatomic) int simpleReportLength;
 @property (nonatomic) int reportLength;
 @property (nonatomic) int reportHeaderLength;
 
 - (id)initWithDevice:(IOHIDDeviceRef)device manager:(id)manager;
 - (void)invalidate;
 
+- (IOReturn)deviceWriteSimpleReport:(uint8_t *)report reportLen:(int)reportLen;
 - (IOReturn)deviceWrite:(NSData *)report;
 - (void)deviceWriteImage:(NSData *)data button:(int)button;
 - (NSData *)deviceRead:(int)resultLength reportID:(CFIndex)reportID;
