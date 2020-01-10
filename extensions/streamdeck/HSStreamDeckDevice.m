@@ -55,11 +55,15 @@
 }
 
 - (NSData *)deviceRead:(int)resultLength reportID:(CFIndex)reportID {
-    uint8_t report[17];
-    CFIndex reportLength = sizeof(report);
+    CFIndex reportLength = resultLength + 5;
+    uint8_t *report = malloc(reportLength);
+
+    //NSLog(@"deviceRead: expecting resultLength %d, calculated report length %ld", resultLength, (long)reportLength);
+
     IOHIDDeviceGetReport(self.device, kIOHIDReportTypeFeature, reportID, report, &reportLength);
-    char *c_data = (char *)&report + 5;
+    char *c_data = (char *)(report + 5);
     NSData *data = [NSData dataWithBytes:c_data length:resultLength];
+
     return data;
 }
 
