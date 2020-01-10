@@ -137,8 +137,11 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
             deck = [[HSStreamDeckDeviceMini alloc] initWithDevice:device manager:self];
             break;
 
-        case USB_PID_STREAMDECK_ORIGINAL_V2:
         case USB_PID_STREAMDECK_XL:
+            deck = [[HSStreamDeckDeviceXL alloc] initWithDevice:device manager:self];
+            break;
+
+        case USB_PID_STREAMDECK_ORIGINAL_V2:
         default:
             NSLog(@"deviceDidConnect from unknown device: %d", productID.intValue);
             break;

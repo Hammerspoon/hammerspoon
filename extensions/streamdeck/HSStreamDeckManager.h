@@ -15,6 +15,7 @@
 #import "HSStreamDeckDevice.h"
 #import "HSStreamDeckDeviceOriginal.h"
 #import "HSStreamDeckDeviceMini.h"
+#import "HSStreamDeckDeviceXL.h"
 #import "streamdeck.h"
 
 @interface HSStreamDeckManager : NSObject
