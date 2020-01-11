@@ -13,6 +13,7 @@
 @import LuaSkin;
 
 #import "NSImage+BMP.h"
+#import "NSImage+JPEG.h"
 #import "NSImage+Rotated.h"
 #import "NSImage+Flipped.h"
 

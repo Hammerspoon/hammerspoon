@@ -22,6 +22,7 @@
         self.imageFlipX = YES;
         self.imageFlipY = YES;
         self.imageAngle = 0;
+        self.simpleReportLength = 32;
         self.reportLength = 1024;
         self.reportHeaderLength = 8;
     }
