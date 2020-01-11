@@ -73,7 +73,7 @@
 - (void)deviceWriteImage:(NSData *)data button:(int)button {
     uint8_t reportMagic[] = {0x02,   // Report ID
                              0x07,   // Unknown (always seems to be 7)
-                             button, // Deck button to set
+                             button - 1, // Deck button to set
                              0x00,   // Final page bool
                              0x00,   // Some kind of encoding of the length of the current page
                              0x00,   // Some other kind of encoding of the current page length
