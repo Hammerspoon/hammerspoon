@@ -177,7 +177,7 @@
             break;
 
         case STREAMDECK_CODEC_JPEG:
-            //data = [renderImage jpegData];
+            data = [renderImage jpegData];
             break;
 
         case STREAMDECK_CODEC_UNKNOWN:
