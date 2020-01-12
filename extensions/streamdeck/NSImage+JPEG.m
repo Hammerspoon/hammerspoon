@@ -31,8 +31,12 @@
     [NSGraphicsContext saveGraphicsState];
     [NSGraphicsContext setCurrentContext:ctx];
 
+    // Draw a black background
+    NSColor *black = [NSColor blackColor];
+    [black drawSwatchInRect:NSMakeRect(0, 0, self.size.width, self.size.height)];
+
     // Render our image into the bitmaprep
-    [self drawAtPoint:NSZeroPoint fromRect:NSZeroRect operation:NSCompositingOperationCopy fraction:1.0];
+    [self drawAtPoint:NSZeroPoint fromRect:NSZeroRect operation:NSCompositingOperationSourceAtop fraction:1.0];
     [ctx flushGraphics];
 
     [NSGraphicsContext restoreGraphicsState];
