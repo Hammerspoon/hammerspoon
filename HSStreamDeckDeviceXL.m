@@ -71,7 +71,7 @@
 }
 
 - (void)deviceWriteImage:(NSData *)data button:(int)button {
-    uint8_t reportMagic[] = {0x02,   // Report ID
+    uint8_t reportHeader[] = {0x02,   // Report ID
                              0x07,   // Unknown (always seems to be 7)
                              button - 1, // Deck button to set
                              0x00,   // Final page bool
@@ -81,38 +81,48 @@
                              0x00    // Some other kind of encoding of the page number
                             };
 
-    // The Mini Stream Deck needs images sent in slices no more than 1008 bytes
-    int payloadLength = self.reportLength - self.reportHeaderLength;
-    int imageLen = (int)data.length;
-    int bytesRemaining = imageLen;
+    // The Mini Stream Deck needs images sent in slices no more than 1016 bytes + the report header
+    int maxPayloadLength = self.reportLength - self.reportHeaderLength;
+
+    int bytesRemaining = (int)data.length;
+    int bytesSent = 0;
     int pageNumber = 0;
     const uint8_t *imageBuf = data.bytes;
+
     IOReturn result;
 
     while (bytesRemaining > 0) {
-        int reportLength = MIN(bytesRemaining, payloadLength);
-        int bytesSent = pageNumber * payloadLength;
+        int thisPageLength = MIN(bytesRemaining, maxPayloadLength);
+        bytesSent = pageNumber * maxPayloadLength;
 
         // Set our current page number
-        reportMagic[6] = pageNumber & 0xFF;
-        reportMagic[7] = pageNumber >> 8;
+        reportHeader[6] = pageNumber & 0xFF;
+        reportHeader[7] = pageNumber >> 8;
 
         // Set our current page length
-        reportMagic[4] = reportLength & 0xFF;
-        reportMagic[5] = reportLength >> 8;
+        reportHeader[4] = thisPageLength & 0xFF;
+        reportHeader[5] = thisPageLength >> 8;
 
         // Set if we're the last page of data
-        if (bytesRemaining <= payloadLength) reportMagic[3] = 1;
+        if (bytesRemaining <= maxPayloadLength) reportHeader[3] = 1;
 
         NSMutableData *report = [NSMutableData dataWithLength:self.reportLength];
-        [report replaceBytesInRange:NSMakeRange(0, self.reportHeaderLength) withBytes:reportMagic];
-        [report replaceBytesInRange:NSMakeRange(self.reportHeaderLength, reportLength) withBytes:imageBuf+bytesSent length:reportLength];
+        [report replaceBytesInRange:NSMakeRange(0, self.reportHeaderLength)
+                          withBytes:reportHeader];
+        [report replaceBytesInRange:NSMakeRange(self.reportHeaderLength, thisPageLength)
+                          withBytes:imageBuf+bytesSent
+                             length:thisPageLength];
 
-        result = IOHIDDeviceSetReport(self.device, kIOHIDReportTypeOutput, reportMagic[0], report.bytes, (int)report.length);
+        result = IOHIDDeviceSetReport(self.device,
+                                      kIOHIDReportTypeOutput,
+                                      reportHeader[0],
+                                      report.bytes,
+                                      (int)report.length);
         if (result != kIOReturnSuccess) {
             NSLog(@"WARNING: writing an image with hs.streamdeck encountered a failure on page %d: %d", pageNumber, result);
         }
-        bytesRemaining = bytesRemaining - (int)report.length;
+
+        bytesRemaining = bytesRemaining - thisPageLength;
         pageNumber++;
     }
 }
