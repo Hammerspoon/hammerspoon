@@ -230,6 +230,8 @@
 		4FEF59431B29A352002344A7 /* HSGrowingTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FEF59421B29A352002344A7 /* HSGrowingTextField.m */; };
 		4FFB20FC23C5E01300811E77 /* HSStreamDeckDeviceXL.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFB20FA23C5E01300811E77 /* HSStreamDeckDeviceXL.h */; };
 		4FFB20FD23C5E01300811E77 /* HSStreamDeckDeviceXL.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FFB20FB23C5E01300811E77 /* HSStreamDeckDeviceXL.m */; };
+		4FFB210023CD14A500811E77 /* HSStreamDeckDeviceOriginalV2.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFB20FE23CD14A400811E77 /* HSStreamDeckDeviceOriginalV2.h */; };
+		4FFB210123CD14A500811E77 /* HSStreamDeckDeviceOriginalV2.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FFB20FF23CD14A400811E77 /* HSStreamDeckDeviceOriginalV2.m */; };
 		6AE181221D36E90B0097211C /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		6AE181281D36E9260097211C /* detectors.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6AE181161D36E8E50097211C /* detectors.cpp */; };
 		6AE1812A1D36E9260097211C /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 6AE181191D36E8E50097211C /* internal.m */; };
@@ -1258,6 +1260,8 @@
 		4FEF59421B29A352002344A7 /* HSGrowingTextField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSGrowingTextField.m; sourceTree = "<group>"; };
 		4FFB20FA23C5E01300811E77 /* HSStreamDeckDeviceXL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = HSStreamDeckDeviceXL.h; path = extensions/streamdeck/HSStreamDeckDeviceXL.h; sourceTree = "<group>"; };
 		4FFB20FB23C5E01300811E77 /* HSStreamDeckDeviceXL.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = HSStreamDeckDeviceXL.m; path = extensions/streamdeck/HSStreamDeckDeviceXL.m; sourceTree = "<group>"; };
+		4FFB20FE23CD14A400811E77 /* HSStreamDeckDeviceOriginalV2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSStreamDeckDeviceOriginalV2.h; path = extensions/streamdeck/HSStreamDeckDeviceOriginalV2.h; sourceTree = "<group>"; };
+		4FFB20FF23CD14A400811E77 /* HSStreamDeckDeviceOriginalV2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSStreamDeckDeviceOriginalV2.m; path = extensions/streamdeck/HSStreamDeckDeviceOriginalV2.m; sourceTree = "<group>"; };
 		5BC78AF8FE9DA0BD317A7528 /* libPods-Hammerspoon.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Hammerspoon.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6AE181161D36E8E50097211C /* detectors.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = detectors.cpp; path = extensions/noises/detectors.cpp; sourceTree = "<group>"; };
 		6AE181171D36E8E50097211C /* detectors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = detectors.h; path = extensions/noises/detectors.h; sourceTree = "<group>"; };
@@ -2208,6 +2212,8 @@
 				4F6653E9238C6B6600DEE120 /* HSStreamDeckDeviceMini.m */,
 				4F6653E4238C36F100DEE120 /* HSStreamDeckDeviceOriginal.h */,
 				4F6653E5238C36F100DEE120 /* HSStreamDeckDeviceOriginal.m */,
+				4FFB20FE23CD14A400811E77 /* HSStreamDeckDeviceOriginalV2.h */,
+				4FFB20FF23CD14A400811E77 /* HSStreamDeckDeviceOriginalV2.m */,
 				4FFB20FA23C5E01300811E77 /* HSStreamDeckDeviceXL.h */,
 				4FFB20FB23C5E01300811E77 /* HSStreamDeckDeviceXL.m */,
 				4F2DF3EE1F605A4900742D08 /* HSStreamDeckManager.h */,
@@ -3578,6 +3584,7 @@
 				4F6653E6238C36F100DEE120 /* HSStreamDeckDeviceOriginal.h in Headers */,
 				4F2DF3F81F6170BE00742D08 /* NSImage+BMP.h in Headers */,
 				4F2DF3F01F605A4900742D08 /* HSStreamDeckManager.h in Headers */,
+				4FFB210023CD14A500811E77 /* HSStreamDeckDeviceOriginalV2.h in Headers */,
 				4F6653F2238C7BC600DEE120 /* NSImage+Flipped.h in Headers */,
 				4FFB20FC23C5E01300811E77 /* HSStreamDeckDeviceXL.h in Headers */,
 				4F6653EA238C6B6600DEE120 /* HSStreamDeckDeviceMini.h in Headers */,
@@ -6133,6 +6140,7 @@
 				4F6653F72390351100DEE120 /* NSImage+JPEG.m in Sources */,
 				4F6653EF238C7A1200DEE120 /* NSImage+Rotated.m in Sources */,
 				4F2DF3EB1F60471400742D08 /* internal.m in Sources */,
+				4FFB210123CD14A500811E77 /* HSStreamDeckDeviceOriginalV2.m in Sources */,
 				4FFB20FD23C5E01300811E77 /* HSStreamDeckDeviceXL.m in Sources */,
 				4F2DF3F51F605A9B00742D08 /* HSStreamDeckDevice.m in Sources */,
 				4F6653EB238C6B6600DEE120 /* HSStreamDeckDeviceMini.m in Sources */,
