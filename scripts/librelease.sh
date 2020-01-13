@@ -228,7 +228,7 @@ function assert_valid_code_signing_entity() {
   local SIGNER
   SIGNER=$(codesign --display --verbose=4 "${HAMMERSPOON_HOME}/build/Hammerspoon.app" 2>&1 | grep ^Authority | head -1)
   if [ "$SIGNER" != "$CODESIGN_AUTHORITY_TOKEN" ]; then
-      fail "App is signed with the wrong key: $SIGNER"
+      fail "App is signed with the wrong key: $SIGNER (expecting $CODESIGN_AUTHORITY_TOKEN)"
       exit 1
   fi
 }
