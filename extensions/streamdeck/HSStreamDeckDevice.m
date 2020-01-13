@@ -80,6 +80,7 @@
     IOHIDDeviceGetReport(self.device, kIOHIDReportTypeFeature, reportID, report, &reportLength);
     char *c_data = (char *)(report + 5);
     NSData *data = [NSData dataWithBytes:c_data length:resultLength];
+    free(report);
 
     return data;
 }
