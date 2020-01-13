@@ -18,6 +18,8 @@
         self.buttonCallbackRef = LUA_NOREF;
         self.selfRefCount = 0;
 
+        self.buttonStateCache = [[NSMutableArray alloc] init];
+
         // These defaults are not necessary, all base classes will override them, but if we miss something, these are chosen to try and provoke a crash where possible, so we notice the lack of an override.
         self.imageCodec = STREAMDECK_CODEC_UNKNOWN;
         self.deckType = @"Unknown";
@@ -29,6 +31,8 @@
         self.simpleReportLength = 0;
         self.reportLength = 0;
         self.reportHeaderLength = 0;
+
+        self.dataKeyOffset = 0;
         //NSLog(@"Added new Stream Deck device %p with IOKit device %p from manager %p", (__bridge void *)self, (void*)self.device, (__bridge void *)self.manager);
     }
     return self;
@@ -36,6 +40,12 @@
 
 - (void)invalidate {
     self.isValid = NO;
+}
+
+- (void)initialiseButtonCache {
+    for (int i = 0; i < self.keyCount; i++) {
+        [self.buttonStateCache setObject:@0 atIndexedSubscript:i];
+    }
 }
 
 - (IOReturn)deviceWriteSimpleReport:(uint8_t[])report reportLen:(int)reportLen {
@@ -67,7 +77,12 @@
     return data;
 }
 
-- (void)deviceDidSendInput:(NSNumber*)button isDown:(NSNumber*)isDown {
+- (int)transformKeyIndex:(int)sourceKey {
+    //NSLog(@"transformKeyIndex: returning %d unmodified", sourceKey);
+    return sourceKey;
+}
+
+- (void)deviceDidSendInput:(NSArray*)newButtonStates {
     //NSLog(@"Got an input event from device: %p: button:%@ isDown:%@", (__bridge void*)self, button, isDown);
 
     if (!self.isValid) {
@@ -81,11 +96,20 @@
         return;
     }
 
-    [skin pushLuaRef:streamDeckRefTable ref:self.buttonCallbackRef];
-    [skin pushNSObject:self];
-    lua_pushinteger(skin.L, button.intValue);
-    lua_pushboolean(skin.L, isDown.boolValue);
-    [skin protectedCallAndError:@"hs.streamdeck:buttonCallback" nargs:3 nresults:0];
+    //NSLog(@"buttonStateCache: %@", self.buttonStateCache);
+    //NSLog(@"newButtonStates: %@", newButtonStates);
+
+    for (int button=0; button < self.keyCount; button++) {
+        if (![self.buttonStateCache[button] isEqual:newButtonStates[button]]) {
+            [skin pushLuaRef:streamDeckRefTable ref:self.buttonCallbackRef];
+            [skin pushNSObject:self];
+            lua_pushinteger(skin.L, button);
+            lua_pushboolean(skin.L, ((NSNumber*)(newButtonStates[button])).boolValue);
+            [skin protectedCallAndError:@"hs.streamdeck:buttonCallback" nargs:3 nresults:0];
+            self.buttonStateCache[button] = newButtonStates[button];
+        }
+    }
+
     _lua_stackguard_exit(skin.L);
 }
 
@@ -186,7 +210,7 @@
     }
 
     // Writing the image to hardware is a device-specific operation, so hand it off to our subclasses
-    [self deviceWriteImage:data button:button];
+    [self deviceWriteImage:data button:[self transformKeyIndex:button]];
 
 }
 

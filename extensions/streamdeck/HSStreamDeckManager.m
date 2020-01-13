@@ -9,15 +9,23 @@
 #import "HSStreamDeckManager.h"
 
 #pragma mark - IOKit C callbacks
-static void HIDevent(void *deviceRef, IOReturn result, void *sender, IOHIDValueRef value) {
-    //NSLog(@"HIDevent: deviceRef:%p sender:%p", deviceRef, sender);
-    HSStreamDeckDevice *device = (__bridge HSStreamDeckDevice*)deviceRef;
-    IOHIDElementRef element = IOHIDValueGetElement(value);
-    int button = IOHIDElementGetCookie(element) - 84;
-    BOOL isDown = IOHIDValueGetIntegerValue(value) == 1 ? YES : NO;
-    //NSLog(@"HIDevent: button pressed: %d, isDown: %@", button, isDown ? @"YES" : @"NO");
 
-    [device deviceDidSendInput:[NSNumber numberWithInt:button] isDown:[NSNumber numberWithBool:isDown]];
+static char *inputBuffer = NULL;
+
+static void HIDReport(void* deviceRef, IOReturn result, void* sender, IOHIDReportType type, uint32_t reportID, uint8_t *report,CFIndex reportLength) {
+    HSStreamDeckDevice *device = (__bridge HSStreamDeckDevice*)deviceRef;
+    NSMutableArray* buttonReport = [NSMutableArray arrayWithCapacity:device.keyCount+1];
+    for(int p=1; p <= device.keyCount; p++) {
+        [buttonReport addObject: @0];
+    }
+
+    uint8_t *start = report + device.dataKeyOffset;
+    for(int button=1; button <= device.keyCount; button ++) {
+        NSNumber* val = [NSNumber numberWithInt:start[button-1]];
+        int translatedButton = [device transformKeyIndex:button];
+        [buttonReport setObject:val atIndexedSubscript:translatedButton];
+    }
+    [device deviceDidSendInput:buttonReport];
 }
 
 static void HIDconnect(void *context, IOReturn result, void *sender, IOHIDDeviceRef device) {
@@ -25,7 +33,7 @@ static void HIDconnect(void *context, IOReturn result, void *sender, IOHIDDevice
     HSStreamDeckManager *manager = (__bridge HSStreamDeckManager *)context;
     HSStreamDeckDevice *deviceId = [manager deviceDidConnect:device];
     if (deviceId) {
-        IOHIDDeviceRegisterInputValueCallback(device, HIDevent, (void*)deviceId);
+        IOHIDDeviceRegisterInputReportCallback(device, (uint8_t*)inputBuffer, 64, HIDReport, (void*)deviceId);
         //NSLog(@"Added value callback to new IOKit device %p for Deck Device %p", (void *)device, (__bridge void*)deviceId);
     }
 }
@@ -35,7 +43,6 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
     HSStreamDeckManager *manager = (__bridge HSStreamDeckManager *)context;
     [manager deviceDidDisconnect:device];
     IOHIDDeviceRegisterInputValueCallback(device, NULL, NULL);
-
 }
 
 #pragma mark - Stream Deck Manager implementation
@@ -46,6 +53,7 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
     if (self) {
         self.devices = [[NSMutableArray alloc] initWithCapacity:5];
         self.discoveryCallbackRef = LUA_NOREF;
+        inputBuffer = malloc(64);
 
         // Create a HID device manager
         self.ioHIDManager = CFBridgingRelease(IOHIDManagerCreate(kCFAllocatorDefault, kIOHIDManagerOptionNone));
@@ -101,6 +109,10 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
 
     // Deallocate the HID manager
     self.ioHIDManager = nil;
+
+    if (inputBuffer) {
+        free(inputBuffer);
+    }
 }
 
 - (BOOL)startHIDManager {
@@ -150,6 +162,7 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
         NSLog(@"deviceDidConnect: no HSStreamDeckDevice was created, ignoring");
         return nil;
     }
+    [deck initialiseButtonCache];
     [self.devices addObject:deck];
 
     LuaSkin *skin = [LuaSkin shared];

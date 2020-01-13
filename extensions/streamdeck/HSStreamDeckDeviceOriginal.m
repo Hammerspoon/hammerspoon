@@ -25,8 +25,29 @@
         self.simpleReportLength = 17;
         self.reportLength = 8192;
         self.reportHeaderLength = 16;
+        self.dataKeyOffset = 1;
     }
     return self;
+}
+
+- (int)transformKeyIndex:(int)sourceKey {
+    int midpoint;
+    int diff;
+
+    if (sourceKey >=1 && sourceKey <= 5) {
+        midpoint = 3;
+    } else if (sourceKey >= 6 && sourceKey <= 10) {
+        midpoint = 8;
+    } else if (sourceKey >= 11 && sourceKey <= 15) {
+        midpoint = 13;
+    } else {
+        midpoint = 3; // This will cause incorrect rendering, but it shouldn't happen
+    }
+
+    diff = midpoint - sourceKey;
+
+    //NSLog(@"transformKeyIndex: source %d, midpoint %d, diff %d, trans %d", sourceKey, midpoint, diff, midpoint + diff);
+    return midpoint + diff;
 }
 
 - (void)reset {

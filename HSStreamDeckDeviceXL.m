@@ -25,6 +25,7 @@
         self.simpleReportLength = 32;
         self.reportLength = 1024;
         self.reportHeaderLength = 8;
+        self.dataKeyOffset = 4;
     }
     return self;
 }
