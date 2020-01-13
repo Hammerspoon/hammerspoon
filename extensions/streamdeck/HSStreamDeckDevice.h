@@ -46,16 +46,21 @@ typedef enum : NSUInteger {
 @property (nonatomic) int simpleReportLength;
 @property (nonatomic) int reportLength;
 @property (nonatomic) int reportHeaderLength;
+@property (nonatomic) int dataKeyOffset;
+
+@property (nonatomic) NSMutableArray *buttonStateCache;
 
 - (id)initWithDevice:(IOHIDDeviceRef)device manager:(id)manager;
 - (void)invalidate;
+- (void)initialiseButtonCache;
 
 - (IOReturn)deviceWriteSimpleReport:(uint8_t *)report reportLen:(int)reportLen;
 - (IOReturn)deviceWrite:(NSData *)report;
 - (void)deviceWriteImage:(NSData *)data button:(int)button;
 - (NSData *)deviceRead:(int)resultLength reportID:(CFIndex)reportID;
 
-- (void)deviceDidSendInput:(NSNumber*)button isDown:(NSNumber*)isDown;
+- (int)transformKeyIndex:(int)sourceKey;
+- (void)deviceDidSendInput:(NSArray*)newButtonStates;
 - (BOOL)setBrightness:(int)brightness;
 - (void)reset;
 
