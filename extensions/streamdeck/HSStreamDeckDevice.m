@@ -43,7 +43,7 @@
 }
 
 - (void)initialiseButtonCache {
-    for (int i = 0; i < self.keyCount; i++) {
+    for (int i = 0; i <= self.keyCount; i++) {
         [self.buttonStateCache setObject:@0 atIndexedSubscript:i];
     }
 }
@@ -99,7 +99,7 @@
     //NSLog(@"buttonStateCache: %@", self.buttonStateCache);
     //NSLog(@"newButtonStates: %@", newButtonStates);
 
-    for (int button=0; button < self.keyCount; button++) {
+    for (int button=1; button <= self.keyCount; button++) {
         if (![self.buttonStateCache[button] isEqual:newButtonStates[button]]) {
             [skin pushLuaRef:streamDeckRefTable ref:self.buttonCallbackRef];
             [skin pushNSObject:self];
