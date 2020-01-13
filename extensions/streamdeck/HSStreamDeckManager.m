@@ -15,8 +15,12 @@ static char *inputBuffer = NULL;
 static void HIDReport(void* deviceRef, IOReturn result, void* sender, IOHIDReportType type, uint32_t reportID, uint8_t *report,CFIndex reportLength) {
     HSStreamDeckDevice *device = (__bridge HSStreamDeckDevice*)deviceRef;
     NSMutableArray* buttonReport = [NSMutableArray arrayWithCapacity:device.keyCount+1];
+
+    // We need an unused button at slot zero - all our uses of these arrays are one-indexed
+    [buttonReport setObject:[NSNumber numberWithInt:0] atIndexedSubscript:0];
+
     for(int p=1; p <= device.keyCount; p++) {
-        [buttonReport addObject: @0];
+        [buttonReport setObject:@0 atIndexedSubscript:p];
     }
 
     uint8_t *start = report + device.dataKeyOffset;
@@ -33,7 +37,7 @@ static void HIDconnect(void *context, IOReturn result, void *sender, IOHIDDevice
     HSStreamDeckManager *manager = (__bridge HSStreamDeckManager *)context;
     HSStreamDeckDevice *deviceId = [manager deviceDidConnect:device];
     if (deviceId) {
-        IOHIDDeviceRegisterInputReportCallback(device, (uint8_t*)inputBuffer, 64, HIDReport, (void*)deviceId);
+        IOHIDDeviceRegisterInputReportCallback(device, (uint8_t*)inputBuffer, 1024, HIDReport, (void*)deviceId);
         //NSLog(@"Added value callback to new IOKit device %p for Deck Device %p", (void *)device, (__bridge void*)deviceId);
     }
 }
@@ -53,7 +57,7 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
     if (self) {
         self.devices = [[NSMutableArray alloc] initWithCapacity:5];
         self.discoveryCallbackRef = LUA_NOREF;
-        inputBuffer = malloc(64);
+        inputBuffer = malloc(1024);
 
         // Create a HID device manager
         self.ioHIDManager = CFBridgingRelease(IOHIDManagerCreate(kCFAllocatorDefault, kIOHIDManagerOptionNone));
