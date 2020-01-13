@@ -183,7 +183,7 @@ static int streamdeck_serialNumber(lua_State *L __unused) {
 
     HSStreamDeckDevice *device = [skin luaObjectAtIndex:1 toClass:"HSStreamDeckDevice"];
 
-    [skin pushNSObject:[device serialNumber]];
+    [skin pushNSObject:device.serialNumber];
     return 1;
 }
 
@@ -302,7 +302,7 @@ static id toHSStreamDeckDeviceFromLua(lua_State *L, int idx) {
 static int streamdeck_object_tostring(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared] ;
     HSStreamDeckDevice *obj = [skin luaObjectAtIndex:1 toClass:"HSStreamDeckDevice"] ;
-    NSString *title = [NSString stringWithFormat:@"%@, serial: %@", obj.deckType, [obj serialNumber]];
+    NSString *title = [NSString stringWithFormat:@"%@, serial: %@", obj.deckType, obj.serialNumber];
     [skin pushNSObject:[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, title, lua_topointer(L, 1)]] ;
     return 1 ;
 }

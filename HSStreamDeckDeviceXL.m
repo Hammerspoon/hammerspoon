@@ -38,7 +38,7 @@
     uint8_t resetHeader[] = {0x03, 0x02};
     IOReturn res = [self deviceWriteSimpleReport:resetHeader reportLen:2];
     if (res != kIOReturnSuccess) {
-        NSLog(@"hs.streamdeck:reset() failed on %@ (%@)", self.deckType, [self serialNumber]);
+        NSLog(@"hs.streamdeck:reset() failed on %@ (%@)", self.deckType, self.serialNumber);
     }
 }
 
@@ -53,9 +53,9 @@
     return res == kIOReturnSuccess;
 }
 
-- (NSString*)serialNumber {
+- (NSString *)cacheSerialNumber {
     if (!self.isValid) {
-        return @"INVALID DEVICE";
+        return nil;
     }
 
     return [[NSString alloc] initWithData:[self deviceRead:32 reportID:0x06]
