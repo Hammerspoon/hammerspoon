@@ -166,7 +166,7 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
         NSLog(@"deviceDidConnect: no HSStreamDeckDevice was created, ignoring");
         return nil;
     }
-    [deck initialiseButtonCache];
+    [deck initialiseCaches];
     [self.devices addObject:deck];
 
     LuaSkin *skin = [LuaSkin shared];

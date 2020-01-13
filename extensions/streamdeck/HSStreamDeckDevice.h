@@ -26,7 +26,9 @@ typedef enum : NSUInteger {
     STREAMDECK_CODEC_JPEG,
 } HSStreamDeckImageCodec;
 
-@interface HSStreamDeckDevice : NSObject
+@interface HSStreamDeckDevice : NSObject {
+    NSString *serialNumberCache;
+}
 @property (nonatomic) IOHIDDeviceRef device;
 @property (nonatomic) id manager;
 @property (nonatomic) int selfRefCount;
@@ -49,10 +51,11 @@ typedef enum : NSUInteger {
 @property (nonatomic) int dataKeyOffset;
 
 @property (nonatomic) NSMutableArray *buttonStateCache;
+@property (nonatomic, readonly, getter=getSerialNumber) NSString *serialNumber;
 
 - (id)initWithDevice:(IOHIDDeviceRef)device manager:(id)manager;
 - (void)invalidate;
-- (void)initialiseButtonCache;
+- (void)initialiseCaches;
 
 - (IOReturn)deviceWriteSimpleReport:(uint8_t *)report reportLen:(int)reportLen;
 - (IOReturn)deviceWrite:(NSData *)report;
@@ -64,7 +67,7 @@ typedef enum : NSUInteger {
 - (BOOL)setBrightness:(int)brightness;
 - (void)reset;
 
-- (NSString *)serialNumber;
+- (NSString *)cacheSerialNumber;
 - (NSString *)firmwareVersion;
 - (int)getKeyCount;
 

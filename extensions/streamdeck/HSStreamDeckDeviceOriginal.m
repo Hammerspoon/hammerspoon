@@ -70,13 +70,13 @@
     return res == kIOReturnSuccess;
 }
 
-- (NSString*)serialNumber {
+- (NSString *)cacheSerialNumber {
     if (!self.isValid) {
-        return @"INVALID DEVICE";
+        return nil;
     }
 
     return [[NSString alloc] initWithData:[self deviceRead:12 reportID:0x3]
-                                 encoding:NSUTF8StringEncoding];
+                                                   encoding:NSUTF8StringEncoding];
 }
 
 - (NSString*)firmwareVersion {

@@ -8,6 +8,10 @@
 
 #import "HSStreamDeckDevice.h"
 
+@interface HSStreamDeckDevice ()
+@property (nonatomic, copy) NSString *serialNumber;
+@end
+
 @implementation HSStreamDeckDevice
 - (id)initWithDevice:(IOHIDDeviceRef)device manager:(id)manager {
     self = [super init];
@@ -33,6 +37,8 @@
         self.reportHeaderLength = 0;
 
         self.dataKeyOffset = 0;
+
+        serialNumberCache = nil;
         //NSLog(@"Added new Stream Deck device %p with IOKit device %p from manager %p", (__bridge void *)self, (void*)self.device, (__bridge void *)self.manager);
     }
     return self;
@@ -42,10 +48,11 @@
     self.isValid = NO;
 }
 
-- (void)initialiseButtonCache {
+- (void)initialiseCaches {
     for (int i = 0; i <= self.keyCount; i++) {
         [self.buttonStateCache setObject:@0 atIndexedSubscript:i];
     }
+    [self cacheSerialNumber];
 }
 
 - (IOReturn)deviceWriteSimpleReport:(uint8_t[])report reportLen:(int)reportLen {
@@ -128,9 +135,22 @@
     [exception raise];
 }
 
-- (NSString*)serialNumber {
+- (NSString*)getSerialNumber {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdirect-ivar-access"
+
+    if (!serialNumberCache) {
+        // This shouldn't be necessary, since we cache the serial number when the device is initialised, but just in case
+        serialNumberCache = [self cacheSerialNumber];
+    }
+
+    return serialNumberCache;
+#pragma clang diagnostic pop
+}
+
+- (NSString *)cacheSerialNumber {
     NSException *exception = [NSException exceptionWithName:@"HSStreamDeckDeviceUnimplemented"
-                                                     reason:@"serialNumber method not implemented"
+                                                     reason:@"cacheSerialNumber method not implemented"
                                                    userInfo:nil];
     [exception raise];
     return nil;
