@@ -8062,7 +8062,7 @@
 					"\"$(SDK_DIR)\"/usr/include/libxml2",
 				);
 				INFOPLIST_FILE = "Hammerspoon/Hammerspoon-Info.plist";
-				MARKETING_VERSION = 0.9.77;
+				MARKETING_VERSION = 0.9.78;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = Hammerspoon;
 				SDKROOT = macosx;
@@ -21455,7 +21455,7 @@
 					"\"$(SDK_DIR)\"/usr/include/libxml2",
 				);
 				INFOPLIST_FILE = "Hammerspoon/Hammerspoon-Info.plist";
-				MARKETING_VERSION = 0.9.77;
+				MARKETING_VERSION = 0.9.78;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = Hammerspoon;
 				SDKROOT = macosx;
@@ -21499,7 +21499,7 @@
 					"\"$(SDK_DIR)\"/usr/include/libxml2",
 				);
 				INFOPLIST_FILE = "Hammerspoon/Hammerspoon-Info.plist";
-				MARKETING_VERSION = 0.9.77;
+				MARKETING_VERSION = 0.9.78;
 				OTHER_CODE_SIGN_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = Hammerspoon;
