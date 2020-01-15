@@ -156,7 +156,7 @@ static int streamdeck_setBrightness(lua_State *L __unused) {
 ///  * None
 ///
 /// Returns:
-///  * The hs.streamdec object
+///  * The hs.streamdeck object
 static int streamdeck_reset(lua_State *L __unused) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
@@ -183,7 +183,7 @@ static int streamdeck_serialNumber(lua_State *L __unused) {
 
     HSStreamDeckDevice *device = [skin luaObjectAtIndex:1 toClass:"HSStreamDeckDevice"];
 
-    [skin pushNSObject:[device serialNumber]];
+    [skin pushNSObject:device.serialNumber];
     return 1;
 }
 
@@ -204,6 +204,27 @@ static int streamdeck_firmwareVersion(lua_State *L __unused) {
 
     [skin pushNSObject:[device firmwareVersion]];
     return 1;
+}
+
+/// hs.streamdeck:buttonLayout()
+/// Method
+/// Gets the layout of buttons the device has
+///
+/// Paramters:
+///  * None
+///
+/// Returns:
+///  * The number of columns
+///  * The number of rows
+static int streamdeck_buttonLayout(lua_State *L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
+    HSStreamDeckDevice *device = [skin luaObjectAtIndex:1 toClass:"HSStreamDeckDevice"];
+
+    lua_pushinteger(skin.L, device.keyColumns);
+    lua_pushinteger(skin.L, device.keyRows);
+    return 2;
 }
 
 /// hs.streamdeck:setButtonImage(button, image)
@@ -281,7 +302,7 @@ static id toHSStreamDeckDeviceFromLua(lua_State *L, int idx) {
 static int streamdeck_object_tostring(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared] ;
     HSStreamDeckDevice *obj = [skin luaObjectAtIndex:1 toClass:"HSStreamDeckDevice"] ;
-    NSString *title = [NSString stringWithFormat:@"Elgato Stream Deck, serial: %@", [obj serialNumber]];
+    NSString *title = [NSString stringWithFormat:@"%@, serial: %@", obj.deckType, obj.serialNumber];
     [skin pushNSObject:[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, title, lua_topointer(L, 1)]] ;
     return 1 ;
 }
@@ -321,6 +342,7 @@ static int streamdeck_object_gc(lua_State* L) {
 static const luaL_Reg userdata_metaLib[] = {
     {"serialNumber", streamdeck_serialNumber},
     {"firmwareVersion", streamdeck_firmwareVersion},
+    {"buttonLayout", streamdeck_buttonLayout},
     {"buttonCallback", streamdeck_buttonCallback},
     {"setButtonImage", streamdeck_setButtonImage},
     {"setButtonColor", streamdeck_setButtonColor},

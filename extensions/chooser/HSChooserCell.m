@@ -11,7 +11,7 @@
 @implementation HSChooserCell
 
 - (BOOL)allowsVibrancy {
-    return YES;
+    return NO;
 }
 
 @end
