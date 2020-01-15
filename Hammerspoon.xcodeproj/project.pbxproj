@@ -98,6 +98,16 @@
 		4F5134641C30819000EFD6D4 /* chooser.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F5134631C30819000EFD6D4 /* chooser.h */; };
 		4F5B6E6B1E9E86BB003FC580 /* CommandPost.sdef in Resources */ = {isa = PBXBuildFile; fileRef = 4F5B6E6A1E9E86BB003FC580 /* CommandPost.sdef */; };
 		4F5B6E6E1E9E87CE003FC580 /* HSAppleScript.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F5B6E6D1E9E87CE003FC580 /* HSAppleScript.m */; };
+		4F6653E6238C36F100DEE120 /* HSStreamDeckDeviceOriginal.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6653E4238C36F100DEE120 /* HSStreamDeckDeviceOriginal.h */; };
+		4F6653E7238C36F100DEE120 /* HSStreamDeckDeviceOriginal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F6653E5238C36F100DEE120 /* HSStreamDeckDeviceOriginal.m */; };
+		4F6653EA238C6B6600DEE120 /* HSStreamDeckDeviceMini.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6653E8238C6B6600DEE120 /* HSStreamDeckDeviceMini.h */; };
+		4F6653EB238C6B6600DEE120 /* HSStreamDeckDeviceMini.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F6653E9238C6B6600DEE120 /* HSStreamDeckDeviceMini.m */; };
+		4F6653EE238C7A1200DEE120 /* NSImage+Rotated.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6653EC238C7A1200DEE120 /* NSImage+Rotated.h */; };
+		4F6653EF238C7A1200DEE120 /* NSImage+Rotated.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F6653ED238C7A1200DEE120 /* NSImage+Rotated.m */; };
+		4F6653F2238C7BC600DEE120 /* NSImage+Flipped.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6653F0238C7BC600DEE120 /* NSImage+Flipped.h */; };
+		4F6653F3238C7BC600DEE120 /* NSImage+Flipped.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F6653F1238C7BC600DEE120 /* NSImage+Flipped.m */; };
+		4F6653F62390351100DEE120 /* NSImage+JPEG.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6653F42390351100DEE120 /* NSImage+JPEG.h */; };
+		4F6653F72390351100DEE120 /* NSImage+JPEG.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F6653F52390351100DEE120 /* NSImage+JPEG.m */; };
 		4F68B530227C2DD70076C4F8 /* HSChooserVerticallyCenteringTextFieldCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F68B52E227C2DD70076C4F8 /* HSChooserVerticallyCenteringTextFieldCell.h */; };
 		4F68B531227C2DD70076C4F8 /* HSChooserVerticallyCenteringTextFieldCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F68B52F227C2DD70076C4F8 /* HSChooserVerticallyCenteringTextFieldCell.m */; };
 		4F6B3EA31B73D6D300B2A4DE /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
@@ -223,6 +233,10 @@
 		4FEF4D4F1C5FA01100E3B939 /* HSaudiodevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FEF4D4E1C5FA01000E3B939 /* HSaudiodevice.m */; };
 		4FEF4D551C5FBC0F00E3B939 /* test_audiodevice.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FEF4D531C5FBA9800E3B939 /* test_audiodevice.lua */; };
 		4FEF59431B29A352002344A7 /* HSGrowingTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FEF59421B29A352002344A7 /* HSGrowingTextField.m */; };
+		4FFB20FC23C5E01300811E77 /* HSStreamDeckDeviceXL.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFB20FA23C5E01300811E77 /* HSStreamDeckDeviceXL.h */; };
+		4FFB20FD23C5E01300811E77 /* HSStreamDeckDeviceXL.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FFB20FB23C5E01300811E77 /* HSStreamDeckDeviceXL.m */; };
+		4FFB210023CD14A500811E77 /* HSStreamDeckDeviceOriginalV2.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFB20FE23CD14A400811E77 /* HSStreamDeckDeviceOriginalV2.h */; };
+		4FFB210123CD14A500811E77 /* HSStreamDeckDeviceOriginalV2.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FFB20FF23CD14A400811E77 /* HSStreamDeckDeviceOriginalV2.m */; };
 		6AE181221D36E90B0097211C /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		6AE181281D36E9260097211C /* detectors.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6AE181161D36E8E50097211C /* detectors.cpp */; };
 		6AE1812A1D36E9260097211C /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 6AE181191D36E8E50097211C /* internal.m */; };
@@ -1067,6 +1081,16 @@
 		4F5B6E6C1E9E87CE003FC580 /* HSAppleScript.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HSAppleScript.h; sourceTree = "<group>"; };
 		4F5B6E6D1E9E87CE003FC580 /* HSAppleScript.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSAppleScript.m; sourceTree = "<group>"; };
 		4F64D8BD1B724C4B00FC4C65 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/alert/init.lua; sourceTree = "<group>"; };
+		4F6653E4238C36F100DEE120 /* HSStreamDeckDeviceOriginal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = HSStreamDeckDeviceOriginal.h; path = extensions/streamdeck/HSStreamDeckDeviceOriginal.h; sourceTree = "<group>"; };
+		4F6653E5238C36F100DEE120 /* HSStreamDeckDeviceOriginal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = HSStreamDeckDeviceOriginal.m; path = extensions/streamdeck/HSStreamDeckDeviceOriginal.m; sourceTree = "<group>"; };
+		4F6653E8238C6B6600DEE120 /* HSStreamDeckDeviceMini.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = HSStreamDeckDeviceMini.h; path = extensions/streamdeck/HSStreamDeckDeviceMini.h; sourceTree = "<group>"; };
+		4F6653E9238C6B6600DEE120 /* HSStreamDeckDeviceMini.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = HSStreamDeckDeviceMini.m; path = extensions/streamdeck/HSStreamDeckDeviceMini.m; sourceTree = "<group>"; };
+		4F6653EC238C7A1200DEE120 /* NSImage+Rotated.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NSImage+Rotated.h"; path = "extensions/streamdeck/NSImage+Rotated.h"; sourceTree = "<group>"; };
+		4F6653ED238C7A1200DEE120 /* NSImage+Rotated.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "NSImage+Rotated.m"; path = "extensions/streamdeck/NSImage+Rotated.m"; sourceTree = "<group>"; };
+		4F6653F0238C7BC600DEE120 /* NSImage+Flipped.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NSImage+Flipped.h"; path = "extensions/streamdeck/NSImage+Flipped.h"; sourceTree = "<group>"; };
+		4F6653F1238C7BC600DEE120 /* NSImage+Flipped.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "NSImage+Flipped.m"; path = "extensions/streamdeck/NSImage+Flipped.m"; sourceTree = "<group>"; };
+		4F6653F42390351100DEE120 /* NSImage+JPEG.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NSImage+JPEG.h"; path = "extensions/streamdeck/NSImage+JPEG.h"; sourceTree = "<group>"; };
+		4F6653F52390351100DEE120 /* NSImage+JPEG.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "NSImage+JPEG.m"; path = "extensions/streamdeck/NSImage+JPEG.m"; sourceTree = "<group>"; };
 		4F6689E01C2852B500E48AF1 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/_coresetup/init.lua; sourceTree = "<group>"; };
 		4F6689E31C288BAA00E48AF1 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/redshift/init.lua; sourceTree = "<group>"; };
 		4F68B52E227C2DD70076C4F8 /* HSChooserVerticallyCenteringTextFieldCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = HSChooserVerticallyCenteringTextFieldCell.h; path = extensions/chooser/HSChooserVerticallyCenteringTextFieldCell.h; sourceTree = "<group>"; };
@@ -1255,6 +1279,10 @@
 		4FEF4D531C5FBA9800E3B939 /* test_audiodevice.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_audiodevice.lua; path = extensions/audiodevice/test_audiodevice.lua; sourceTree = "<group>"; };
 		4FEF59411B29A352002344A7 /* HSGrowingTextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HSGrowingTextField.h; sourceTree = "<group>"; };
 		4FEF59421B29A352002344A7 /* HSGrowingTextField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSGrowingTextField.m; sourceTree = "<group>"; };
+		4FFB20FA23C5E01300811E77 /* HSStreamDeckDeviceXL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = HSStreamDeckDeviceXL.h; path = extensions/streamdeck/HSStreamDeckDeviceXL.h; sourceTree = "<group>"; };
+		4FFB20FB23C5E01300811E77 /* HSStreamDeckDeviceXL.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = HSStreamDeckDeviceXL.m; path = extensions/streamdeck/HSStreamDeckDeviceXL.m; sourceTree = "<group>"; };
+		4FFB20FE23CD14A400811E77 /* HSStreamDeckDeviceOriginalV2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSStreamDeckDeviceOriginalV2.h; path = extensions/streamdeck/HSStreamDeckDeviceOriginalV2.h; sourceTree = "<group>"; };
+		4FFB20FF23CD14A400811E77 /* HSStreamDeckDeviceOriginalV2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSStreamDeckDeviceOriginalV2.m; path = extensions/streamdeck/HSStreamDeckDeviceOriginalV2.m; sourceTree = "<group>"; };
 		5BC78AF8FE9DA0BD317A7528 /* libPods-Hammerspoon.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Hammerspoon.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6AE181161D36E8E50097211C /* detectors.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = detectors.cpp; path = extensions/noises/detectors.cpp; sourceTree = "<group>"; };
 		6AE181171D36E8E50097211C /* detectors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = detectors.h; path = extensions/noises/detectors.h; sourceTree = "<group>"; };
@@ -2220,14 +2248,28 @@
 		4F2DF3DC1F60468E00742D08 /* streamdeck */ = {
 			isa = PBXGroup;
 			children = (
-				4F2DF3DD1F6046AD00742D08 /* init.lua */,
-				4F2DF3DE1F6046AD00742D08 /* internal.m */,
-				4F2DF3EE1F605A4900742D08 /* HSStreamDeckManager.h */,
-				4F2DF3EF1F605A4900742D08 /* HSStreamDeckManager.m */,
 				4F2DF3F21F605A9B00742D08 /* HSStreamDeckDevice.h */,
 				4F2DF3F31F605A9B00742D08 /* HSStreamDeckDevice.m */,
+				4F6653E8238C6B6600DEE120 /* HSStreamDeckDeviceMini.h */,
+				4F6653E9238C6B6600DEE120 /* HSStreamDeckDeviceMini.m */,
+				4F6653E4238C36F100DEE120 /* HSStreamDeckDeviceOriginal.h */,
+				4F6653E5238C36F100DEE120 /* HSStreamDeckDeviceOriginal.m */,
+				4FFB20FE23CD14A400811E77 /* HSStreamDeckDeviceOriginalV2.h */,
+				4FFB20FF23CD14A400811E77 /* HSStreamDeckDeviceOriginalV2.m */,
+				4FFB20FA23C5E01300811E77 /* HSStreamDeckDeviceXL.h */,
+				4FFB20FB23C5E01300811E77 /* HSStreamDeckDeviceXL.m */,
+				4F2DF3EE1F605A4900742D08 /* HSStreamDeckManager.h */,
+				4F2DF3EF1F605A4900742D08 /* HSStreamDeckManager.m */,
+				4F2DF3DD1F6046AD00742D08 /* init.lua */,
+				4F2DF3DE1F6046AD00742D08 /* internal.m */,
 				4F2DF3F61F6170BE00742D08 /* NSImage+BMP.h */,
 				4F2DF3F71F6170BE00742D08 /* NSImage+BMP.m */,
+				4F6653F0238C7BC600DEE120 /* NSImage+Flipped.h */,
+				4F6653F1238C7BC600DEE120 /* NSImage+Flipped.m */,
+				4F6653F42390351100DEE120 /* NSImage+JPEG.h */,
+				4F6653F52390351100DEE120 /* NSImage+JPEG.m */,
+				4F6653EC238C7A1200DEE120 /* NSImage+Rotated.h */,
+				4F6653ED238C7A1200DEE120 /* NSImage+Rotated.m */,
 				4F2DF3FA1F61AE6700742D08 /* streamdeck.h */,
 			);
 			name = streamdeck;
@@ -3605,8 +3647,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F2DF3F41F605A9B00742D08 /* HSStreamDeckDevice.h in Headers */,
+				4F6653F62390351100DEE120 /* NSImage+JPEG.h in Headers */,
+				4F6653E6238C36F100DEE120 /* HSStreamDeckDeviceOriginal.h in Headers */,
 				4F2DF3F81F6170BE00742D08 /* NSImage+BMP.h in Headers */,
 				4F2DF3F01F605A4900742D08 /* HSStreamDeckManager.h in Headers */,
+				4FFB210023CD14A500811E77 /* HSStreamDeckDeviceOriginalV2.h in Headers */,
+				4F6653F2238C7BC600DEE120 /* NSImage+Flipped.h in Headers */,
+				4FFB20FC23C5E01300811E77 /* HSStreamDeckDeviceXL.h in Headers */,
+				4F6653EA238C6B6600DEE120 /* HSStreamDeckDeviceMini.h in Headers */,
+				4F6653EE238C7A1200DEE120 /* NSImage+Rotated.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6202,10 +6251,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F6653F72390351100DEE120 /* NSImage+JPEG.m in Sources */,
+				4F6653EF238C7A1200DEE120 /* NSImage+Rotated.m in Sources */,
 				4F2DF3EB1F60471400742D08 /* internal.m in Sources */,
+				4FFB210123CD14A500811E77 /* HSStreamDeckDeviceOriginalV2.m in Sources */,
+				4FFB20FD23C5E01300811E77 /* HSStreamDeckDeviceXL.m in Sources */,
 				4F2DF3F51F605A9B00742D08 /* HSStreamDeckDevice.m in Sources */,
+				4F6653EB238C6B6600DEE120 /* HSStreamDeckDeviceMini.m in Sources */,
+				4F6653E7238C36F100DEE120 /* HSStreamDeckDeviceOriginal.m in Sources */,
 				4F2DF3F91F6170BE00742D08 /* NSImage+BMP.m in Sources */,
 				4F2DF3F11F605A4900742D08 /* HSStreamDeckManager.m in Sources */,
+				4F6653F3238C7BC600DEE120 /* NSImage+Flipped.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -12901,6 +12957,10 @@
 				ENABLE_STRICT_OBJC_MSGSEND = "$(inherited)";
 				ENABLE_TESTABILITY = YES;
 				EXECUTABLE_PREFIX = lib;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
@@ -14136,6 +14196,10 @@
 				ENABLE_STRICT_OBJC_MSGSEND = "$(inherited)";
 				ENABLE_TESTABILITY = YES;
 				EXECUTABLE_PREFIX = lib;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
@@ -14206,6 +14270,10 @@
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_STRICT_OBJC_MSGSEND = "$(inherited)";
 				EXECUTABLE_PREFIX = lib;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
