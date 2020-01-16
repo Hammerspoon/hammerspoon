@@ -183,7 +183,7 @@ static NSMutableURLRequest* getRequestFromStack(__unused lua_State* L, NSString*
     LuaSkin *skin = [LuaSkin shared];
     NSString* url = [skin toNSObjectAtIndex:1];
     NSString* method = [skin toNSObjectAtIndex:2];
-        
+
     NSUInteger selectedCachePolicy;
     if ([cachePolicy isEqualToString:@"protocolCachePolicy"]) {
         selectedCachePolicy = NSURLRequestUseProtocolCachePolicy;
@@ -251,7 +251,7 @@ static int http_doAsyncRequest(lua_State* L){
     [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TSTRING|LS_TNIL, LS_TTABLE|LS_TNIL, LS_TFUNCTION, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
 
     NSString* cachePolicy = [skin toNSObjectAtIndex:6];
-    
+
     NSMutableURLRequest* request = getRequestFromStack(L, cachePolicy);
     getBodyFromStack(L, 3, request);
     extractHeadersFromStack(L, 4, request);
@@ -303,7 +303,7 @@ static int http_doRequest(lua_State* L) {
     [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TSTRING|LS_TNIL|LS_TOPTIONAL, LS_TTABLE|LS_TNIL|LS_TOPTIONAL, LS_TSTRING|LS_TOPTIONAL, LS_TBREAK];
 
     NSString* cachePolicy = [skin toNSObjectAtIndex:5];
-    
+
     NSMutableURLRequest *request = getRequestFromStack(L, cachePolicy);
     getBodyFromStack(L, 3, request);
     extractHeadersFromStack(L, 4, request);
@@ -656,6 +656,22 @@ static id table_toNSURLRequest(lua_State* L, int idx) {
     return request ;
 }
 
+/// hs.http.websocket(url, callback) -> object
+/// Function
+/// Creates a new websocket connection.
+///
+/// Parameters:
+///  * url - The URL to the websocket
+///  * callback - A function returning a string for each recieved websocket message
+///
+/// Returns:
+///  * The `hs.http.websocket` object
+///
+/// Notes:
+///  * The callback is passed one string parameter containing the received message
+///  * Given a path '/mysock' and a port of 8000, the websocket URL is as follows:
+///   * ws://localhost:8000/mysock
+///   * wss://localhost:8000/mysock (if SSL enabled)
 static int http_ws_open(lua_State* L){
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TFUNCTION, LS_TBREAK];
@@ -677,6 +693,19 @@ static int http_ws_open(lua_State* L){
     return 1;
 }
 
+/// === hs.http.websocket ===
+///
+/// Performs websocket requests
+
+/// hs.http.websocket:send(message) -> object
+/// Method
+/// Sends a message to the websocket client
+///
+/// Parameters:
+///  * message - A string containing the message to send
+///
+/// Returns:
+///  * The `hs.http.websocket` object
 static int http_ws_send(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, WS_USERDATA_TAG, LS_TSTRING, LS_TBREAK];
@@ -689,6 +718,15 @@ static int http_ws_send(lua_State *L) {
     return 1;
 }
 
+/// hs.http.websocket:close() -> object
+/// Method
+/// Closes a websocket connection.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The `hs.http.websocket` object
 static int http_ws_close(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, WS_USERDATA_TAG, LS_TBREAK];
