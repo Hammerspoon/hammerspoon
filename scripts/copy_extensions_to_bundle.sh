@@ -57,6 +57,7 @@ export HS_MODULES="application \
     uielement \
     urlevent \
     usb \
+    websocket \
     webview \
     wifi \
     window"

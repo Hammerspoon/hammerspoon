@@ -14,6 +14,7 @@ PODS:
   - PocketSocket/Client (1.0.1):
     - PocketSocket/Core
   - PocketSocket/Core (1.0.1)
+  - SocketRocket (0.5.1)
   - Sparkle (1.22.0)
 
 DEPENDENCIES:
@@ -25,6 +26,7 @@ DEPENDENCIES:
   - Fabric (= 1.10.2)
   - MIKMIDI (= 1.7.0)
   - PocketSocket/Client (= 1.0.1)
+  - SocketRocket
   - Sparkle (= 1.22.0)
 
 SPEC REPOS:
@@ -37,6 +39,7 @@ SPEC REPOS:
     - Fabric
     - MIKMIDI
     - PocketSocket
+    - SocketRocket
     - Sparkle
 
 SPEC CHECKSUMS:
@@ -48,8 +51,9 @@ SPEC CHECKSUMS:
   Fabric: 706c8b8098fff96c33c0db69cbf81f9c551d0d74
   MIKMIDI: a9192db16687fcf1d2c82b98492b999fa8ede7c6
   PocketSocket: 9c6867d66fb4f962af96b9b07f4b45bb561b2c2a
+  SocketRocket: d57c7159b83c3c6655745cd15302aa24b6bae531
   Sparkle: 593ac2e677c07bcb6c3b22d621240e7cbedaab57
 
-PODFILE CHECKSUM: f6dec9e9c533940944723d62b308ccba957d749d
+PODFILE CHECKSUM: f438cba3a7731bd501575923e5cf63cb0f07a3f1
 
-COCOAPODS: 1.8.1
+COCOAPODS: 1.8.4
