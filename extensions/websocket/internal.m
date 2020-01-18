@@ -34,42 +34,86 @@ static int refTable;
     if (self.fn == LUA_NOREF) {
         return;
     }
-
     dispatch_async(dispatch_get_main_queue(), ^{
         LuaSkin *skin = [LuaSkin shared];
         _lua_stackguard_entry(skin.L);
 
         [skin pushLuaRef:refTable ref:self.fn];
+        [skin pushNSObject:@"recieved"];
         [skin pushNSObject:message];
 
-        [skin protectedCallAndError:@"hs.websocket callback" nargs:1 nresults:0];
+        [skin protectedCallAndError:@"hs.websocket callback" nargs:2 nresults:0];
         _lua_stackguard_exit(skin.L);
     });
 }
 
 - (void)webSocketDidOpen:(SRWebSocket *)webSocket;
 {
-    NSLog(@"Websocket Connected");
+    if (self.fn == LUA_NOREF) {
+        return;
+    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        LuaSkin *skin = [LuaSkin shared];
+        _lua_stackguard_entry(skin.L);
+
+        [skin pushLuaRef:refTable ref:self.fn];
+        [skin pushNSObject:@"open"];
+
+        [skin protectedCallAndError:@"hs.websocket callback" nargs:1 nresults:0];
+        _lua_stackguard_exit(skin.L);
+    });
 }
 
 - (void)webSocket:(SRWebSocket *)webSocket didFailWithError:(NSError *)error;
 {
-    NSLog(@":( Websocket Failed With Error %@", error);
-}
+    if (self.fn == LUA_NOREF) {
+        return;
+    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        LuaSkin *skin = [LuaSkin shared];
+        _lua_stackguard_entry(skin.L);
 
-- (void)webSocket:(SRWebSocket *)webSocket didReceiveMessageWithString:(nonnull NSString *)string
-{
-    NSLog(@"Received \"%@\"", string);
+        [skin pushLuaRef:refTable ref:self.fn];
+        [skin pushNSObject:@"fail"];
+        [skin pushNSObject:error];
+
+        [skin protectedCallAndError:@"hs.websocket callback" nargs:2 nresults:0];
+        _lua_stackguard_exit(skin.L);
+    });
 }
 
 - (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean;
 {
-    NSLog(@"WebSocket closed");
+    if (self.fn == LUA_NOREF) {
+        return;
+    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        LuaSkin *skin = [LuaSkin shared];
+        _lua_stackguard_entry(skin.L);
+
+        [skin pushLuaRef:refTable ref:self.fn];
+        [skin pushNSObject:@"closed"];
+
+        [skin protectedCallAndError:@"hs.websocket callback" nargs:1 nresults:0];
+        _lua_stackguard_exit(skin.L);
+    });
 }
 
 - (void)webSocket:(SRWebSocket *)webSocket didReceivePong:(NSData *)pongPayload;
 {
-    NSLog(@"WebSocket received pong");
+    if (self.fn == LUA_NOREF) {
+        return;
+    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        LuaSkin *skin = [LuaSkin shared];
+        _lua_stackguard_entry(skin.L);
+
+        [skin pushLuaRef:refTable ref:self.fn];
+        [skin pushNSObject:@"pong"];
+
+        [skin protectedCallAndError:@"hs.websocket callback" nargs:1 nresults:0];
+        _lua_stackguard_exit(skin.L);
+    });
 }
 @end
 
@@ -79,13 +123,20 @@ static int refTable;
 ///
 /// Parameters:
 ///  * url - The URL to the websocket
-///  * callback - A function returning a string for each recieved websocket message
+///  * callback - A function that's triggered by websocket actions.
 ///
 /// Returns:
 ///  * The `hs.websocket` object
 ///
 /// Notes:
-///  * The callback is passed one string parameter containing the received message
+///  * The callback should accept two parameters.
+///  * The first paramater is a string with the following possible options:
+///   * open - The websocket connection has been opened
+///   * closed - The websocket connection has been closed
+///   * fail - The websocket connection has failed
+///   * recieved - The websocket has recieved a message
+///   * pong - A pong request has been recieved
+///  * The second parameter is a string with the recieved message or an error message.
 ///  * Given a path '/mysock' and a port of 8000, the websocket URL is as follows:
 ///   * ws://localhost:8000/mysock
 ///   * wss://localhost:8000/mysock (if SSL enabled)
