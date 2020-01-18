@@ -12,7 +12,7 @@ typedef struct _webSocketUserData {
 } webSocketUserData;
 
 #define getWsUserData(L, idx) (__bridge HSWebSocketDelegate *)((webSocketUserData *)lua_touserdata(L, idx))->ws;
-static const char *WS_USERDATA_TAG = "hs.http.websocket";
+static const char *WS_USERDATA_TAG = "hs.websocket";
 
 static int refTable;
 
@@ -42,7 +42,7 @@ static int refTable;
         [skin pushLuaRef:refTable ref:self.fn];
         [skin pushNSObject:message];
 
-        [skin protectedCallAndError:@"hs.http.websocket callback" nargs:1 nresults:0];
+        [skin protectedCallAndError:@"hs.websocket callback" nargs:1 nresults:0];
         _lua_stackguard_exit(skin.L);
     });
 }
@@ -82,14 +82,14 @@ static int refTable;
 ///  * callback - A function returning a string for each recieved websocket message
 ///
 /// Returns:
-///  * The `hs.http.websocket` object
+///  * The `hs.websocket` object
 ///
 /// Notes:
 ///  * The callback is passed one string parameter containing the received message
 ///  * Given a path '/mysock' and a port of 8000, the websocket URL is as follows:
 ///   * ws://localhost:8000/mysock
 ///   * wss://localhost:8000/mysock (if SSL enabled)
-static int http_websocket_new(lua_State *L) {
+static int websocket_new(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TFUNCTION, LS_TBREAK];
 
@@ -118,8 +118,8 @@ static int http_websocket_new(lua_State *L) {
 ///  * message - A string containing the message to send
 ///
 /// Returns:
-///  * The `hs.http.websocket` object
-static int http_websocket_send(lua_State *L) {
+///  * The `hs.websocket` object
+static int websocket_send(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, WS_USERDATA_TAG, LS_TSTRING, LS_TBREAK];
     HSWebSocketDelegate* ws = getWsUserData(L, 1);
@@ -139,8 +139,8 @@ static int http_websocket_send(lua_State *L) {
 ///  * None
 ///
 /// Returns:
-///  * The `hs.http.websocket` object
-static int http_websocket_close(lua_State *L) {
+///  * The `hs.websocket` object
+static int websocket_close(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, WS_USERDATA_TAG, LS_TBREAK];
     HSWebSocketDelegate* ws = getWsUserData(L, 1);
@@ -151,8 +151,7 @@ static int http_websocket_close(lua_State *L) {
     return 1;
 }
 
-
-static int http_websocket_gc(lua_State* L){
+static int websocket_gc(lua_State* L){
     webSocketUserData *userData = lua_touserdata(L, 1);
     HSWebSocketDelegate* ws = (__bridge_transfer HSWebSocketDelegate *)userData->ws;
     userData->ws = nil;
@@ -166,7 +165,7 @@ static int http_websocket_gc(lua_State* L){
     return 0;
 }
 
-static int http_websocket_tostring(lua_State* L) {
+static int websocket_tostring(lua_State* L) {
     HSWebSocketDelegate* ws = getWsUserData(L, 1);
     NSString *host = @"disconnected";
         
@@ -178,31 +177,29 @@ static int http_websocket_tostring(lua_State* L) {
     return 1;
 }
 
-static const luaL_Reg httplib[] = {
-    {"new",         http_websocket_new},
+static const luaL_Reg websocketlib[] = {
+    {"new",         websocket_new},
     
     {NULL, NULL} // This must end with an empty struct
 };
 
 static const luaL_Reg metalib[] = {
-    //{"__gc", http_gc},
-    
     {NULL, NULL} // This must end with an empty struct
 };
 
 static const luaL_Reg wsMetalib[] = {
-    {"send",        http_websocket_send},
-    {"close",       http_websocket_close},
-    {"__tostring",  http_websocket_tostring},
-    {"__gc",        http_websocket_gc},
-
+    {"send",        websocket_send},
+    {"close",       websocket_close},
+    {"__tostring",  websocket_tostring},
+    {"__gc",        websocket_gc},
+    
     {NULL, NULL} // This must end with an empty struct
 };
 
 int luaopen_hs_websocket_internal(lua_State* L __unused) {
     LuaSkin *skin = [LuaSkin shared];
 
-    refTable = [skin registerLibrary:httplib metaFunctions:metalib];
+    refTable = [skin registerLibrary:websocketlib metaFunctions:metalib];
     [skin registerObject:WS_USERDATA_TAG objectFunctions:wsMetalib];
     
     return 1;
