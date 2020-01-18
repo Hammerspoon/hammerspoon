@@ -15,7 +15,6 @@ typedef struct _webSocketUserData {
 static const char *WS_USERDATA_TAG = "hs.http.websocket";
 
 static int refTable;
-static NSMutableArray* delegates;
 
 @interface HSWebSocketDelegate: NSObject<SRWebSocketDelegate>
 @property int fn;
@@ -125,7 +124,7 @@ static int http_websocket_send(lua_State *L) {
     [skin checkArgs:LS_TUSERDATA, WS_USERDATA_TAG, LS_TSTRING, LS_TBREAK];
     HSWebSocketDelegate* ws = getWsUserData(L, 1);
 
-    NSString *message = [skin toNSObjectAtIndex:2];
+    NSData *message = [skin toNSObjectAtIndex:2 withOptions: LS_NSLuaStringAsDataOnly];
     [ws.webSocket send:message];
 
     lua_pushvalue(L, 1);
@@ -203,7 +202,6 @@ static const luaL_Reg wsMetalib[] = {
 int luaopen_hs_websocket_internal(lua_State* L __unused) {
     LuaSkin *skin = [LuaSkin shared];
 
-    delegates = [[NSMutableArray alloc] init];
     refTable = [skin registerLibrary:httplib metaFunctions:metalib];
     [skin registerObject:WS_USERDATA_TAG objectFunctions:wsMetalib];
     
