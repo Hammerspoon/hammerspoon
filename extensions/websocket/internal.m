@@ -182,6 +182,42 @@ static int websocket_send(lua_State *L) {
     return 1;
 }
 
+/// hs.websocket:status() -> string
+/// Method
+/// Gets the status of a websocket.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A string containing one of the following options:
+///   * connecting
+///   * open
+///   * closing
+///   * closed
+///   * unknown
+static int websocket_status(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, WS_USERDATA_TAG, LS_TBREAK];
+    HSWebSocketDelegate* ws = getWsUserData(L, 1);
+    if (ws.webSocket.readyState==0) {
+        [skin pushNSObject:@"connecting"];
+    }
+    else if (ws.webSocket.readyState==1) {
+        [skin pushNSObject:@"open"];
+    }
+    else if (ws.webSocket.readyState==2) {
+        [skin pushNSObject:@"closing"];
+    }
+    else if (ws.webSocket.readyState==3) {
+        [skin pushNSObject:@"closed"];
+    }
+    else {
+        [skin pushNSObject:@"unknown"];
+    }
+    return 1;
+}
+
 /// hs.websocket:close() -> object
 /// Method
 /// Closes a websocket connection.
@@ -241,6 +277,7 @@ static const luaL_Reg metalib[] = {
 static const luaL_Reg wsMetalib[] = {
     {"send",        websocket_send},
     {"close",       websocket_close},
+    {"status",      websocket_status},
     {"__tostring",  websocket_tostring},
     {"__gc",        websocket_gc},
     
