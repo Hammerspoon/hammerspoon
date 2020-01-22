@@ -39,7 +39,7 @@ static int refTable;
         _lua_stackguard_entry(skin.L);
 
         [skin pushLuaRef:refTable ref:self.fn];
-        [skin pushNSObject:@"recieved"];
+        [skin pushNSObject:@"received"];
         [skin pushNSObject:message];
 
         [skin protectedCallAndError:@"hs.websocket callback" nargs:2 nresults:0];
@@ -134,8 +134,8 @@ static int refTable;
 ///   * open - The websocket connection has been opened
 ///   * closed - The websocket connection has been closed
 ///   * fail - The websocket connection has failed
-///   * recieved - The websocket has recieved a message
-///   * pong - A pong request has been recieved
+///   * received - The websocket has received a message
+///   * pong - A pong request has been received
 ///  * The second parameter is a string with the recieved message or an error message.
 ///  * Given a path '/mysock' and a port of 8000, the websocket URL is as follows:
 ///   * ws://localhost:8000/mysock
@@ -255,7 +255,7 @@ static int websocket_gc(lua_State* L){
 static int websocket_tostring(lua_State* L) {
     HSWebSocketDelegate* ws = getWsUserData(L, 1);
     NSString *host = @"disconnected";
-        
+
     if (ws.webSocket.readyState==1) {
         host = @"connected";
     }
@@ -266,7 +266,7 @@ static int websocket_tostring(lua_State* L) {
 
 static const luaL_Reg websocketlib[] = {
     {"new",         websocket_new},
-    
+
     {NULL, NULL} // This must end with an empty struct
 };
 
@@ -280,7 +280,7 @@ static const luaL_Reg wsMetalib[] = {
     {"status",      websocket_status},
     {"__tostring",  websocket_tostring},
     {"__gc",        websocket_gc},
-    
+
     {NULL, NULL} // This must end with an empty struct
 };
 
@@ -289,6 +289,6 @@ int luaopen_hs_websocket_internal(lua_State* L __unused) {
 
     refTable = [skin registerLibrary:websocketlib metaFunctions:metalib];
     [skin registerObject:WS_USERDATA_TAG objectFunctions:wsMetalib];
-    
+
     return 1;
 }
