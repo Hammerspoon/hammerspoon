@@ -6,6 +6,8 @@
 //  Copyright © 2018 Hammerspoon. All rights reserved.
 //
 
+@import LuaSkin;
+
 #import "../application/application.h"
 #import "../window/window.h"
 #import "uielement.h"
@@ -242,5 +244,7 @@ static const luaL_Reg userdata_metaLib[] = {
 int luaopen_hs_uielement_watcher(lua_State *L __unused) {
     LuaSkin *skin = [LuaSkin shared];
     refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:moduleLib metaFunctions:module_metaLib objectFunctions:userdata_metaLib];
+    [skin registerPushNSHelper:pushHSuielementWatcher forClass:USERDATA_TAG];
+    [skin registerLuaObjectHelper:toHSuielementWatcherFromLua forClass:USERDATA_TAG withUserdataMapping:USERDATA_TAG];
     return 1;
 }

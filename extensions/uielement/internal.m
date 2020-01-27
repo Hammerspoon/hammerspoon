@@ -227,6 +227,9 @@ static const luaL_Reg userdata_metaLib[] = {
     {"role", uielement_role},
     {"isWindow", uielement_iswindow},
     {"selectedText", uielement_selectedText},
+    {"__eq", uielement_eq},
+    {"__gc", uielement_gc},
+
     {NULL, NULL}
 };
 

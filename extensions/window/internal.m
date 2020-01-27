@@ -225,30 +225,6 @@ static int window_timeout(lua_State* L) {
     return 1;
 }
 
-/// hs.window.focusedWindow() -> window
-/// Constructor
-/// Returns the window that has keyboard/mouse focus
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * An `hs.window` object representing the currently focused window
-static int window_focusedwindow(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TBREAK];
-    [skin pushNSObject:[HSwindow focusedWindow]];
-    return 1;
-}
-
-static id get_window_prop(AXUIElementRef win, NSString* propType, id defaultValue) {
-    CFTypeRef _someProperty;
-    if (AXUIElementCopyAttributeValue(win, (__bridge CFStringRef)propType, &_someProperty) == kAXErrorSuccess)
-        return CFBridgingRelease(_someProperty);
-
-    return defaultValue;
-}
-
 -(void)setSize:(NSSize)size {
     CFTypeRef sizeStorage = (CFTypeRef)(AXValueCreate(kAXValueCGSizeType, (const void *)&size));
     AXUIElementSetAttributeValue(self.elementRef, (CFStringRef)NSAccessibilitySizeAttribute, sizeStorage);
@@ -583,11 +559,14 @@ static int window_getZoomButtonRect(lua_State* L) {
 /// Returns:
 ///  * True if the window is maximizable, False if it isn't, or nil if an error occurred
 static int window_isMaximizable(lua_State *L) {
-    AXUIElementRef win = get_window_arg(L, 1);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    HSwindow *win = [skin toNSObjectAtIndex:1];
+
     AXUIElementRef button = nil;
     CFBooleanRef isEnabled;
 
-    if (AXUIElementCopyAttributeValue(win, kAXZoomButtonAttribute, (CFTypeRef*)&button) != noErr) goto cleanup;
+    if (AXUIElementCopyAttributeValue(win.elementRef, kAXZoomButtonAttribute, (CFTypeRef*)&button) != noErr) goto cleanup;
     if (AXUIElementCopyAttributeValue(button, kAXEnabledAttribute, (CFTypeRef*)&isEnabled) != noErr) goto cleanup;
 
     lua_pushboolean(L, isEnabled == kCFBooleanTrue ? true : false);
