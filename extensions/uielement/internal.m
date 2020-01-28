@@ -1,88 +1,13 @@
 @import Cocoa ;
 @import Carbon ;
 @import LuaSkin ;
-#import "uielement.h"
-#import "../window/window.h"
-#import "../application/application.h"
+#import "HSuicore.h"
 
 #define get_element(L, idx) *((AXUIElementRef*)lua_touserdata(L, idx))
 
 static const char* USERDATA_TAG = "hs.uielement";
 static int refTable = LUA_NOREF;
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
-
-#pragma mark - HSuielement implementation
-
-@implementation HSuielement
-
-#pragma mark - Class methods
-+(HSuielement *)focusedElement {
-    HSuielement *focused = nil;
-    AXUIElementRef focusedElement;
-    AXUIElementRef systemWide = AXUIElementCreateSystemWide();
-
-    AXError error = AXUIElementCopyAttributeValue(systemWide, kAXFocusedUIElementAttribute, (CFTypeRef *)&focusedElement);
-    CFRelease(systemWide);
-
-    if (error == kAXErrorSuccess) {
-        focused = [[HSuielement alloc] initWithElementRef:focusedElement];
-    }
-
-    return focused;
-}
-
-#pragma mark - Instance initialiser
--(HSuielement *)initWithElementRef:(AXUIElementRef)elementRef {
-    self = [super init];
-    if (self) {
-        _elementRef = elementRef;
-        _selfRefCount = 0;
-    }
-    return self;
-}
-
-#pragma mark - Instance destructor
--(void)dealloc {
-    CFRelease(self.elementRef);
-}
-
-#pragma mark - Instance methods
--(id)newWatcher:(int)callbackRef withUserdata:(int)userDataRef {
-    // FIXME: Implement this
-    HSuielementWatcher *watcher = [[HSuielementWatcher alloc] initWithElement:self callbackRef:(int)callbackRef userdataRef:(int)userDataRef];
-    return watcher;
-}
-
--(id)getElementProperty:(NSString *)property withDefaultValue:(id)defaultValue {
-    CFTypeRef value;
-    if (AXUIElementCopyAttributeValue(self.elementRef, (__bridge CFStringRef)property, &value) == kAXErrorSuccess) {
-        return CFBridgingRelease(value);
-    }
-    return defaultValue;
-}
-
--(BOOL)isWindow {
-    return [self isWindow:self.role];
-}
-
--(BOOL)isWindow:(NSString *)role {
-    // Most windows have a role of kAXWindowRole, but some apps are weird (e.g. Emacs) so we also do a duck-typing test for an expected window attribute
-    return ([role isEqualToString:(__bridge NSString *)kAXWindowRole] || [self getElementProperty:NSAccessibilityMinimizedAttribute withDefaultValue:nil]);
-}
-
--(NSString *)getRole {
-    return [self getElementProperty:NSAccessibilityRoleAttribute withDefaultValue:@""];
-}
-
--(NSString *)getSelectedText {
-    NSString *selectedText = nil;
-    AXValueRef _selectedText = NULL;
-    if (AXUIElementCopyAttributeValue(self.elementRef, kAXSelectedTextAttribute, (CFTypeRef *)&_selectedText) == kAXErrorSuccess) {
-        selectedText = (__bridge_transfer NSString *)_selectedText;
-    }
-    return selectedText;
-}
-@end
 
 /// hs.uielement.focusedElement() -> element or nil
 /// Function

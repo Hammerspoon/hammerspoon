@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <Cocoa/Cocoa.h>
 #import <LuaSkin/LuaSkin.h>
-#import "application.h"
+#import "HSuicore.h"
 
 /// === hs.application.watcher ===
 ///

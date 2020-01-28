@@ -8,108 +8,12 @@
 
 @import LuaSkin;
 
-#import "../application/application.h"
-#import "../window/window.h"
-#import "uielement.h"
+#import "HSuicore.h"
 
 static const char* USERDATA_TAG = "hs.uielement.watcher";
 static int refTable = LUA_NOREF;
 
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
-
-#pragma mark - Helper functions
-
-static void watcher_observer_callback(AXObserverRef observer __unused, AXUIElementRef element,
-                                      CFStringRef notificationName, void* contextData) {
-    LuaSkin *skin = [LuaSkin shared];
-    HSuielementWatcher *watcher = (__bridge HSuielementWatcher *)contextData;
-
-    [skin pushLuaRef:refTable ref:watcher.handlerRef]; // Callback function
-
-    HSuielement *elementObj = [[HSuielement alloc] initWithElementRef:element];
-    id pushObj = elementObj;
-    if (elementObj.isWindow) {
-        pushObj = [[HSwindow alloc] initWithAXUIElementRef:element];
-    } else if ([elementObj.role isEqualToString:(__bridge NSString *)kAXApplicationRole]) {
-        pid_t pid;
-        AXUIElementGetPid(element, &pid);
-        pushObj = [[HSapplication alloc] initWithPid:pid];
-    }
-    [skin pushNSObject:pushObj]; // Parameter 1: element
-    lua_pushstring(skin.L, CFStringGetCStringPtr(notificationName, kCFStringEncodingASCII)); // Parameter 2: event
-    [skin pushLuaRef:refTable ref:watcher.watcherRef];
-    [skin pushLuaRef:refTable ref:watcher.userDataRef];
-
-    if (![skin protectedCallAndTraceback:4 nresults:0]) {
-        const char *errorMsg = lua_tostring(skin.L, -1);
-        [skin logError:[NSString stringWithUTF8String:errorMsg]];
-        lua_pop(skin.L, 1); // remove error message
-    }
-    return;
-}
-
-#pragma mark - HSuielementWatcher implementation
-@implementation HSuielementWatcher
-
-#pragma mark - Instance initialiser
--(HSuielementWatcher *)initWithElement:(HSuielement *)element callbackRef:(int)callbackRef userdataRef:(int)userdataRef{
-    self = [super init];
-    if (self) {
-        _elementRef = element.elementRef;
-        _selfRefCount = 0;
-        _handlerRef = callbackRef;
-        _userDataRef = userdataRef;
-        _watcherRef = LUA_NOREF;
-        _running = NO;
-        AXUIElementGetPid(_elementRef, &_pid);
-    }
-    return self;
-}
-
-#pragma mark - Instance destructor
--(void)dealloc {
-    // FIXME: Implement this, if necessary
-}
-
-#pragma mark - Instance methods
-
--(void)start:(NSArray <NSString *>*)events {
-    LuaSkin *skin = [LuaSkin shared];
-    if (self.running) {
-        return;
-    }
-
-    // Create our observer
-    AXObserverRef observer = NULL;
-    AXError err = AXObserverCreate(self.pid, watcher_observer_callback, &observer);
-    if (err != kAXErrorSuccess) {
-        [skin logBreadcrumb:[NSString stringWithFormat:@"AXObserverCreate error: %d", (int)err]];
-        return;
-    }
-
-    // Add specified events to the observer
-    for (NSString *event in events) {
-        AXObserverAddNotification(observer, self.elementRef, (__bridge CFStringRef)event, (__bridge void *)self);
-    }
-
-    self.observer = observer;
-    self.running = YES;
-
-    // Begin observing events
-    CFRunLoopAddSource([[NSRunLoop currentRunLoop] getCFRunLoop],
-                       AXObserverGetRunLoopSource(observer),
-                       kCFRunLoopDefaultMode);
-}
-
--(void)stop {
-    if (!self.running) {
-        return;
-    }
-    CFRunLoopRemoveSource([[NSRunLoop currentRunLoop] getCFRunLoop], AXObserverGetRunLoopSource(self.observer), kCFRunLoopDefaultMode);
-    CFRelease(self.observer);
-    self.running = NO;
-}
-@end
 
 /// hs.uielement.watcher.new(element, callback[, userdata]) -> hs.uielement.watcher object
 /// Function
@@ -134,7 +38,11 @@ static int watcher_new(lua_State* L) {
     if (lua_type(L, 3) != LUA_TNONE) {
         userdataRef = [skin luaRef:refTable atIndex:3];
     }
-    [skin pushNSObject:[element newWatcher:callbackRef withUserdata:userdataRef]];
+    
+    // FIXME move reftable to an argument for newWatcher
+    HSuielementWatcher *watcher = [element newWatcher:callbackRef withUserdata:userdataRef];
+    watcher.refTable = refTable;
+    [skin pushNSObject:watcher];
     return 1;
 }
 
@@ -244,7 +152,7 @@ static const luaL_Reg userdata_metaLib[] = {
 int luaopen_hs_uielement_watcher(lua_State *L __unused) {
     LuaSkin *skin = [LuaSkin shared];
     refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:moduleLib metaFunctions:module_metaLib objectFunctions:userdata_metaLib];
-    [skin registerPushNSHelper:pushHSuielementWatcher forClass:USERDATA_TAG];
-    [skin registerLuaObjectHelper:toHSuielementWatcherFromLua forClass:USERDATA_TAG withUserdataMapping:USERDATA_TAG];
+    [skin registerPushNSHelper:pushHSuielementWatcher forClass:"HSuielementWatcher"];
+    [skin registerLuaObjectHelper:toHSuielementWatcherFromLua forClass:"HSuielementWatcher" withUserdataMapping:USERDATA_TAG];
     return 1;
 }

@@ -148,17 +148,15 @@
 		4F9797BE1BED0AC800719F3F /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4F9797C41BED0ADC00719F3F /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F9797B61BECD9AD00719F3F /* internal.m */; };
 		4F9BA8C023DF3C6B006349F2 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
-		4F9BA8C223DF3C6B006349F2 /* uielement.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD0AB4C1B749CDD00A82496 /* uielement.h */; };
 		4F9BA8C923DF3CBF006349F2 /* watcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F9BA8C823DF3CBE006349F2 /* watcher.m */; };
+		4F9BA8D023DF4E58006349F2 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FBE2CFD1B7261E500407788 /* internal.m */; };
+		4F9BA8D723DFAB03006349F2 /* HSuicore.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F9BA8D623DFAB03006349F2 /* HSuicore.m */; };
 		4F9F02BB1B3D9591009C32E5 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9F02B91B3D9568009C32E5 /* LuaSkin.framework */; };
 		4FA125882016739500F02FDF /* HSLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FA125872016739500F02FDF /* HSLogger.m */; };
 		4FB74B3B2049A9A600B08851 /* HStask.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FB74B3A2049A9A600B08851 /* HStask.m */; };
 		4FB74B3C2049AB8B00B08851 /* test_task.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FB74B392049A97D00B08851 /* test_task.lua */; };
 		4FBE2CF41B7261A200407788 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
-		4FBE2CFE1B7261E500407788 /* application.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FBE2CFB1B7261E500407788 /* application.h */; };
-		4FBE2CFF1B7261E500407788 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FBE2CFD1B7261E500407788 /* internal.m */; };
 		4FBE2D0A1B72631600407788 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
-		4FBE2D0C1B72631600407788 /* application.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FBE2CFB1B7261E500407788 /* application.h */; };
 		4FBE2D111B72632800407788 /* watcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FBE2D041B72630200407788 /* watcher.m */; };
 		4FC09F7C19F99ECE007542A6 /* docs.json in Resources */ = {isa = PBXBuildFile; fileRef = 4FC09F7B19F99ECE007542A6 /* docs.json */; };
 		4FC93CA21BCD872D0041B820 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
@@ -175,7 +173,6 @@
 		4FD0AB3A1B7486B100A82496 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FD0AB391B7486B100A82496 /* internal.m */; };
 		4FD0AB411B749C8E00A82496 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4FD0AB4D1B749CDD00A82496 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FD0AB4B1B749CDD00A82496 /* internal.m */; };
-		4FD0AB4E1B749CDD00A82496 /* uielement.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD0AB4C1B749CDD00A82496 /* uielement.h */; };
 		4FD0AB561B749D7A00A82496 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4FD0AB611B749DB300A82496 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FD0AB601B749DB300A82496 /* internal.m */; };
 		4FD0AB691B74A67500A82496 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
@@ -188,7 +185,6 @@
 		4FD0ABAB1B74AE8000A82496 /* watcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FD0ABAA1B74AE8000A82496 /* watcher.m */; };
 		4FD0ABB61B74AF4E00A82496 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4FD0ABC01B74AF9900A82496 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FD0ABBE1B74AF9900A82496 /* internal.m */; };
-		4FD0ABC11B74AF9900A82496 /* window.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD0ABBF1B74AF9900A82496 /* window.h */; };
 		4FD0ABD21B74B2C500A82496 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4FD0ABDC1B74B2FA00A82496 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4FD0ABE51B74B33500A82496 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FD0ABE41B74B33500A82496 /* internal.m */; };
@@ -1157,6 +1153,8 @@
 		4F9850E81B722CBF00F7E909 /* LuaSkin.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = LuaSkin.framework; path = "../../../Library/Developer/Xcode/DerivedData/Hammerspoon-bcanpjyjcsxqcveiabevaoqikpya/Build/Products/Debug/LuaSkin.framework"; sourceTree = "<group>"; };
 		4F9BA8C723DF3C6B006349F2 /* libuielementwatcher.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libuielementwatcher.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F9BA8C823DF3CBE006349F2 /* watcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = watcher.m; path = extensions/uielement/watcher.m; sourceTree = "<group>"; };
+		4F9BA8D523DFAB03006349F2 /* HSuicore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HSuicore.h; sourceTree = "<group>"; };
+		4F9BA8D623DFAB03006349F2 /* HSuicore.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HSuicore.m; sourceTree = "<group>"; };
 		4F9F02B91B3D9568009C32E5 /* LuaSkin.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = LuaSkin.framework; path = build/Hammerspoon/Build/Products/Debug/LuaSkin.framework; sourceTree = "<group>"; };
 		4FA125872016739500F02FDF /* HSLogger.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HSLogger.m; sourceTree = "<group>"; };
 		4FA12589201673E400F02FDF /* HSLogger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HSLogger.h; sourceTree = "<group>"; };
@@ -1165,7 +1163,6 @@
 		4FB74B3A2049A9A600B08851 /* HStask.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HStask.m; sourceTree = "<group>"; };
 		4FBE2CE41B72543C00407788 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/applescript/init.lua; sourceTree = "<group>"; };
 		4FBE2CF91B7261A200407788 /* libapplication.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libapplication.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		4FBE2CFB1B7261E500407788 /* application.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = application.h; path = extensions/application/application.h; sourceTree = "<group>"; };
 		4FBE2CFC1B7261E500407788 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/application/init.lua; sourceTree = "<group>"; };
 		4FBE2CFD1B7261E500407788 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/application/internal.m; sourceTree = "<group>"; };
 		4FBE2D041B72630200407788 /* watcher.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = watcher.m; path = extensions/application/watcher.m; sourceTree = "<group>"; };
@@ -1190,7 +1187,6 @@
 		4FD0AB461B749C8E00A82496 /* libuielement.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libuielement.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FD0AB4A1B749CDD00A82496 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/uielement/init.lua; sourceTree = "<group>"; };
 		4FD0AB4B1B749CDD00A82496 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/uielement/internal.m; sourceTree = "<group>"; };
-		4FD0AB4C1B749CDD00A82496 /* uielement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = uielement.h; path = extensions/uielement/uielement.h; sourceTree = "<group>"; };
 		4FD0AB5B1B749D7A00A82496 /* liburlevent.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = liburlevent.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FD0AB5F1B749DB300A82496 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/urlevent/init.lua; sourceTree = "<group>"; };
 		4FD0AB601B749DB300A82496 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/urlevent/internal.m; sourceTree = "<group>"; };
@@ -1208,7 +1204,6 @@
 		4FD0ABBB1B74AF4E00A82496 /* libwindow.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libwindow.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FD0ABBD1B74AF9900A82496 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/window/init.lua; sourceTree = "<group>"; };
 		4FD0ABBE1B74AF9900A82496 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/window/internal.m; sourceTree = "<group>"; };
-		4FD0ABBF1B74AF9900A82496 /* window.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = window.h; path = extensions/window/window.h; sourceTree = "<group>"; };
 		4FD0ABC81B74B0EC00A82496 /* filter.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = filter.lua; path = extensions/window/filter.lua; sourceTree = "<group>"; };
 		4FD0ABCA1B74B1C500A82496 /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/doc/init.lua; sourceTree = "<group>"; };
 		4FD0ABCC1B74B1C500A82496 /* makeLuaDocs.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = makeLuaDocs.lua; path = extensions/doc/makeLuaDocs.lua; sourceTree = "<group>"; };
@@ -2787,7 +2782,6 @@
 		4FBE2CFA1B7261C100407788 /* application */ = {
 			isa = PBXGroup;
 			children = (
-				4FBE2CFB1B7261E500407788 /* application.h */,
 				4FBE2CFC1B7261E500407788 /* init.lua */,
 				4FBE2CFD1B7261E500407788 /* internal.m */,
 				4C403D651CBE627200EE20ED /* test_application.lua */,
@@ -2861,7 +2855,6 @@
 				4F9BA8C823DF3CBE006349F2 /* watcher.m */,
 				4FD0AB4A1B749CDD00A82496 /* init.lua */,
 				4FD0AB4B1B749CDD00A82496 /* internal.m */,
-				4FD0AB4C1B749CDD00A82496 /* uielement.h */,
 				4C8F8CB41CC38BC500F72CE5 /* test_uielement.lua */,
 			);
 			name = uielement;
@@ -2923,7 +2916,6 @@
 			children = (
 				4FD0ABBD1B74AF9900A82496 /* init.lua */,
 				4FD0ABBE1B74AF9900A82496 /* internal.m */,
-				4FD0ABBF1B74AF9900A82496 /* window.h */,
 				4F8779D2200CD56F00E9DB42 /* test_window.lua */,
 			);
 			name = window;
@@ -3295,6 +3287,8 @@
 				4FA12589201673E400F02FDF /* HSLogger.h */,
 				4FA125872016739500F02FDF /* HSLogger.m */,
 				945B65B1198D31FC002D2E30 /* setup.lua */,
+				4F9BA8D523DFAB03006349F2 /* HSuicore.h */,
+				4F9BA8D623DFAB03006349F2 /* HSuicore.m */,
 				942E71AB19B11288001BA156 /* Preferences Window */,
 				942050C219907AF700FC4839 /* Console Window */,
 				945B65B0198D304F002D2E30 /* Auxiliary */,
@@ -3824,7 +3818,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F9BA8C223DF3C6B006349F2 /* uielement.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3832,7 +3825,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FBE2CFE1B7261E500407788 /* application.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3840,7 +3832,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FBE2D0C1B72631600407788 /* application.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3876,7 +3867,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FD0AB4E1B749CDD00A82496 /* uielement.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3919,7 +3909,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FD0ABC11B74AF9900A82496 /* window.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6445,7 +6434,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FBE2CFF1B7261E500407788 /* internal.m in Sources */,
+				4F9BA8D023DF4E58006349F2 /* internal.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6651,6 +6640,7 @@
 				942BF3911989E18600983892 /* MJAutoLaunch.m in Sources */,
 				9409203119A5940600B9964E /* MJVersionUtils.m in Sources */,
 				944A2DA91989760400D8DC90 /* MJConsoleWindowController.m in Sources */,
+				4F9BA8D723DFAB03006349F2 /* HSuicore.m in Sources */,
 				94A1E5481993AC5C003AEB26 /* MJFileUtils.m in Sources */,
 				4FEF59431B29A352002344A7 /* HSGrowingTextField.m in Sources */,
 				949B520319A5576E00ED4F02 /* MJDockIcon.m in Sources */,
