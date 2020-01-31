@@ -23,7 +23,7 @@ FOUNDATION_EXPORT const unsigned char LuaSkinVersionString[];
 #import <LuaSkin/lcode.h>
 #import <LuaSkin/lctype.h>
 #import <LuaSkin/ldebug.h>
-#import <LuaSkin/ldo.h>
+//#import <LuaSkin/ldo.h>
 #import <LuaSkin/lfunc.h>
 #import <LuaSkin/lgc.h>
 #import <LuaSkin/llex.h>
