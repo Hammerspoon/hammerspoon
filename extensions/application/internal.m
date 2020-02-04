@@ -53,7 +53,7 @@ static int application_runningapplications(lua_State* L) {
 ///  * An hs.application object if one can be found, otherwise nil
 static int application_applicationforpid(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TINTEGER, LS_TBREAK];
+    [skin checkArgs:LS_TNUMBER, LS_TBREAK];
     pid_t pid = (pid_t)lua_tointeger(L, 1);
     [skin pushNSObject:[HSapplication applicationForPID:pid]];
     return 1;

@@ -5969,7 +5969,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -eux\n\nif [ -f ../token-crashlytics ] ; then\n  source ../token-crashlytics\n  > Hammerspoon/secrets.h\n  echo \"#define CRASHLYTICS_API_KEY \\\"${CRASHLYTICS_API_KEY}\\\"\" >>Hammerspoon/secrets.h\nelse\n  > Hammerspoon/secrets.h\nfi\n";
+			shellScript = "set -eux\n\n# Skip this on Profile builds\nif [ \"${CONFIGURATION}\" == \"Profile\" ]; then\n  > Hammerspoon/secrets.h\n  exit 0\nfi\n\nif [ -f ../token-crashlytics ] ; then\n  source ../token-crashlytics\n  > Hammerspoon/secrets.h\n  echo \"#define CRASHLYTICS_API_KEY \\\"${CRASHLYTICS_API_KEY}\\\"\" >>Hammerspoon/secrets.h\nelse\n  > Hammerspoon/secrets.h\nfi\n";
 		};
 		4F6689E61C288FF800E48AF1 /* Assert no stray init.lua's in app bundle */ = {
 			isa = PBXShellScriptBuildPhase;

@@ -10,9 +10,13 @@
 
     NSRunningApplication *runningApp = [[NSWorkspace sharedWorkspace] frontmostApplication];
     if (runningApp) {
-        frontmostApp = [[HSapplication alloc] initWithPid:runningApp.processIdentifier];
+        frontmostApp = [HSapplication applicationForNSRunningApplication:runningApp];
     }
     return frontmostApp;
+}
+
++(HSapplication *)applicationForNSRunningApplication:(NSRunningApplication *)app {
+    return [HSapplication applicationForPID:app.processIdentifier];
 }
 
 +(HSapplication *)applicationForPID:(pid_t)pid {
@@ -97,15 +101,21 @@
 
 #pragma mark - Instance initialiser
 -(HSapplication *)initWithPid:(pid_t)pid {
+    NSRunningApplication *runningApp = [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
+    if (!runningApp) {
+        return nil;
+    }
+    
     AXUIElementRef appRef = AXUIElementCreateApplication(pid);
     if (!appRef) {
         return nil;
     }
+
     self = [super init];
     if (self) {
         _pid = pid;
         _elementRef = appRef;
-        _runningApp = [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
+        _runningApp = runningApp;
         _selfRefCount = 0;
     } else {
         CFRelease(appRef);
@@ -115,7 +125,9 @@
 
 #pragma mark - Instance destructor
 -(void)dealloc {
-    CFRelease(self.elementRef);
+    if (self.elementRef) {
+        CFRelease(self.elementRef);
+    }
 }
 
 #pragma mark - Instance methods

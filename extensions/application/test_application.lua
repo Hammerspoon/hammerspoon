@@ -42,8 +42,10 @@ function testBasicAttributes()
   assertFalse(app:isUnresponsive())
 
   hs.dockicon.show()
+  hs.timer.usleep(200000)
   assertIsEqual(1, app:kind())
   hs.dockicon.hide()
+  hs.timer.usleep(200000)
   assertIsEqual(0, app:kind())
 
   return success()

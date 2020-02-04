@@ -8,11 +8,11 @@
 
 #import "HSTestCase.h"
 
-@interface HSapplication : HSTestCase
+@interface HSapplicationTests : HSTestCase
 
 @end
 
-@implementation HSapplication
+@implementation HSapplicationTests
 
 - (void)setUp {
     [super setUpWithRequire:@"test_application"];
