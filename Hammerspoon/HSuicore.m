@@ -190,7 +190,7 @@
 
 -(BOOL)isRunning {
     // FIXME: Check that this actually works
-    return self.runningApp.terminated;
+    return !self.runningApp.terminated;
 }
 
 -(BOOL)setFrontmost:(BOOL)allWindows {
