@@ -321,7 +321,7 @@ static int application_path(lua_State* L) {
 ///  * If an application is terminated and re-launched, this method will still return false, as `hs.application` objects are tied to a specific instance of an application (i.e. its PID)
 static int application_isRunning(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LUA_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSapplication *app = [skin toNSObjectAtIndex:1];
     lua_pushboolean(L, [app isRunning]);
     return 1;
