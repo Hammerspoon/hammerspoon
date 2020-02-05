@@ -93,7 +93,10 @@
 -(BOOL)isHidden {
     CFBooleanRef _isHidden;
     NSNumber* isHidden = @NO;
-    if (AXUIElementCopyAttributeValue(self.elementRef, (CFStringRef)NSAccessibilityHiddenAttribute, (CFTypeRef *)&_isHidden) == kAXErrorSuccess) {
+    AXError result = AXUIElementCopyAttributeValue(self.elementRef,
+                                                   (CFStringRef)NSAccessibilityHiddenAttribute,
+                                                   (CFTypeRef *)&_isHidden);
+    if (result == kAXErrorSuccess) {
         isHidden = (__bridge_transfer NSNumber*)_isHidden;
     }
     return isHidden.boolValue;
@@ -189,8 +192,10 @@
 }
 
 -(BOOL)isRunning {
-    // FIXME: Check that this actually works
-    return !self.runningApp.terminated;
+    // FIXME: Figure out why we can't use NSRunningApplication.terminated here - it always seems to say NO
+    //BOOL isTerminated = self.runningApp.terminated;
+    HSapplication *test = [HSapplication applicationForPID:self.runningApp.processIdentifier];
+    return (test != nil);
 }
 
 -(BOOL)setFrontmost:(BOOL)allWindows {
