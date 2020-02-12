@@ -31,10 +31,10 @@ static int refTable;
     return self;
 }
 - (void)webSocket:(SRWebSocket *)webSocket didReceiveMessage:(id)message {
-    if (self.fn == LUA_NOREF) {
-        return;
-    }
     dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.fn == LUA_NOREF) {
+            return;
+        }
         LuaSkin *skin = [LuaSkin shared];
         _lua_stackguard_entry(skin.L);
 
@@ -49,10 +49,10 @@ static int refTable;
 
 - (void)webSocketDidOpen:(SRWebSocket *)webSocket;
 {
-    if (self.fn == LUA_NOREF) {
-        return;
-    }
     dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.fn == LUA_NOREF) {
+            return;
+        }
         LuaSkin *skin = [LuaSkin shared];
         _lua_stackguard_entry(skin.L);
 
@@ -66,10 +66,10 @@ static int refTable;
 
 - (void)webSocket:(SRWebSocket *)webSocket didFailWithError:(NSError *)error;
 {
-    if (self.fn == LUA_NOREF) {
-        return;
-    }
     dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.fn == LUA_NOREF) {
+            return;
+        }
         LuaSkin *skin = [LuaSkin shared];
         _lua_stackguard_entry(skin.L);
 
@@ -84,10 +84,10 @@ static int refTable;
 
 - (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean;
 {
-    if (self.fn == LUA_NOREF) {
-        return;
-    }
     dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.fn == LUA_NOREF) {
+            return;
+        }
         LuaSkin *skin = [LuaSkin shared];
         _lua_stackguard_entry(skin.L);
 
