@@ -99,6 +99,7 @@ end
 function testFrontmostApplication()
   local app = hs.application.frontmostApplication()
   assertTrue(app:isFrontmost())
+  assertTrue(app:setFrontmost())
 
   return success()
 end
