@@ -436,7 +436,9 @@ static AXUIElementRef get_window_tabs(AXUIElementRef win) {
     AXUIElementRef tabs = NULL;
 
     CFArrayRef children = NULL;
-    if(AXUIElementCopyAttributeValues(win, kAXChildrenAttribute, 0, 100, &children) != noErr) goto cleanup;
+    if (AXUIElementCopyAttributeValues(win, kAXChildrenAttribute, 0, 100, &children) != noErr) {
+        goto cleanup;
+    }
     CFIndex count = CFArrayGetCount(children);
 
     CFTypeRef typeRef;
@@ -454,7 +456,7 @@ static AXUIElementRef get_window_tabs(AXUIElementRef win) {
     }
 
 cleanup:
-    if(children) CFRelease(children);
+    if (children) CFRelease(children);
 
     return tabs;
 }
