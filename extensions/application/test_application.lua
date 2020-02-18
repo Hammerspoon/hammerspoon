@@ -3,6 +3,11 @@ hs.dockicon = require("hs.dockicon")
 
 menuTestValue = nil
 
+function testInitWithPidFailures()
+  AssertIsNil(hs.application.applicationForPID(1))
+  return success()
+end
+
 function testAttributesFromBundleID()
   local appName = "Safari"
   local appPath = "/Applications/Safari.app"

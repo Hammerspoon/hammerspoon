@@ -24,6 +24,10 @@
     [super tearDown];
 }
 
+- (void)testInitWithPidFailures {
+    RUN_LUA_TEST()
+}
+
 - (void)testAttributesFromBundleID {
     RUN_LUA_TEST()
 }
