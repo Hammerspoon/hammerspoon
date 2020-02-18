@@ -232,3 +232,9 @@ function testMenusAsyncValues()
   assertIsEqual("Hammerspoon", menuTestValue[1]["AXTitle"])
   return success()
 end
+
+function testUTI()
+  local bundle = hs.application.defaultAppForUTI('public.jpeg')
+  assertIsEqual("com.apple.Preview", bundle)
+  return success()
+end

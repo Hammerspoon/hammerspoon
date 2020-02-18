@@ -76,4 +76,8 @@
 - (void)testMenusAsync {
     [self luaTestWithCheckAndTimeOut:5 setupCode:@"testMenusAsync()" checkCode:@"testMenusAsyncValues()"];
 }
+
+- (void)testUTI {
+    RUN_LUA_TEST()
+}
 @end

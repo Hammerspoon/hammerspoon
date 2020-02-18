@@ -17,6 +17,10 @@ end
 
 function testHammerspoonElements()
   local consoleElem = getConsole()
+  local consoleElem2 = getConsole()
+  
+  assertIsEqual(consoleElem, consoleElem2)
+
   assertFalse(consoleElem:isApplication())
   assertFalse(consoleElem:isWindow())
   assertIsEqual("AXTextField", consoleElem:role())
