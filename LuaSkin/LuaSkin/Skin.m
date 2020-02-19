@@ -72,6 +72,9 @@ NSString *specMaskToString(int spec) {
 // Extension to LuaSkin class to allow private modification of the lua_State property
 @interface LuaSkin ()
 
+@property (class, readwrite, assign, atomic) lua_State *mainLuaState ;
+@property (class, readonly, atomic) LuaSkin *sharedLuaSkin ;
+
 @property (readwrite, assign, atomic) lua_State *L;
 @property (readonly, atomic)  NSMutableDictionary *registeredNSHelperFunctions ;
 @property (readonly, atomic)  NSMutableDictionary *registeredNSHelperLocations ;
@@ -103,17 +106,61 @@ NSString *specMaskToString(int spec) {
 
 @implementation LuaSkin
 
+// class properties do not get synthesized by the compiler...
+static lua_State *_mainLuaState ;
+
++ (lua_State *)mainLuaState {
+    return _mainLuaState ;
+}
+
++ (void)setMainLuaState:(lua_State *)newL {
+    _mainLuaState = newL ;
+}
+
+static LuaSkin *_sharedLuaSkin ;
+
++ (LuaSkin *)sharedLuaSkin {
+    return _sharedLuaSkin ;
+}
+
 #pragma mark - Class lifecycle
 
 + (id)shared {
-    return [LuaSkin sharedWithDelegate:nil];
+
+// FIXME: log crap about using deperecated method to console
+
+    // self in a class method == the class itself
+    return [self sharedWithState:NULL];
+}
+
++ (id)sharedWithState:(lua_State *)L {
+    // self in a class method == the class itself
+    LuaSkin *skin = [self sharedWithDelegate:nil] ;
+    if (L) {
+        if (lua_status(L) != LUA_OK) {
+            NSLog(@"GRAVE BUG: LUASKIN ATTEMPTING TO USE SUSPENDED OR DEAD LUATHREAD");
+            for (NSString *stackSymbol in [NSThread callStackSymbols]) {
+                NSLog(@"Previous stack symbol: %@", stackSymbol);
+            }
+            NSException* myException = [NSException
+                                        exceptionWithName:@"LuaThreadNotOk"
+                                        reason:@"LuaSkin can only function on an active lua thread"
+                                        userInfo:nil];
+            @throw myException;
+        } else {
+            skin.L = L ;
+        }
+    } else {
+        skin.L = _mainLuaState ;
+    }
+    return skin ;
 }
 
 + (id)sharedWithDelegate:(id)delegate {
-    static LuaSkin *sharedLuaSkin = nil;
+//     static LuaSkin *sharedLuaSkin = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        sharedLuaSkin = [[self alloc] initWithDelegate:delegate];
+        _sharedLuaSkin = [[self alloc] initWithDelegate:delegate];
     });
     if (![NSThread isMainThread]) {
         NSLog(@"GRAVE BUG: LUA EXECUTION ON NON_MAIN THREAD");
@@ -127,9 +174,11 @@ NSString *specMaskToString(int spec) {
         @throw myException;
     }
 #if 0
-    NSLog(@"LuaSkin:shared stack size: %d", lua_gettop(sharedLuaSkin.L));
+    NSLog(@"LuaSkin:shared stack size: %d", lua_gettop(_sharedLuaSkin.L));
 #endif
-    return sharedLuaSkin;
+
+    _sharedLuaSkin.L = _mainLuaState ;
+    return _sharedLuaSkin;
 }
 
 - (id)init {
@@ -162,22 +211,22 @@ NSString *specMaskToString(int spec) {
 
 - (void)createLuaState {
     NSLog(@"createLuaState");
-    NSAssert((self.L == NULL), @"createLuaState called on a live Lua environment", nil);
-    self.L = luaL_newstate();
-    luaL_openlibs(self.L);
+    NSAssert((LuaSkin.mainLuaState == NULL), @"createLuaState called on a live Lua environment", nil);
+    LuaSkin.mainLuaState = luaL_newstate();
+    luaL_openlibs(LuaSkin.mainLuaState);
 
     NSString *luaSkinLua = [[NSBundle bundleForClass:[self class]] pathForResource:@"luaskin" ofType:@"lua"];
     NSAssert((luaSkinLua != nil), @"createLuaState was unable to find luaskin.lua. Your installation may be damaged");
 
-    luaopen_luaskin_internal(self.L) ; // load objectWrapper userdata methods and create _G["ls"]
+    luaopen_luaskin_internal(LuaSkin.mainLuaState) ; // load objectWrapper userdata methods and create _G["ls"]
 
-    int loadresult = luaL_loadfile(self.L, luaSkinLua.fileSystemRepresentation); // extend _G["ls"]
+    int loadresult = luaL_loadfile(LuaSkin.mainLuaState, luaSkinLua.fileSystemRepresentation); // extend _G["ls"]
     if (loadresult != 0) {
         NSLog(@"createLuaState was unable to load luaskin.lua. Your installation may be damaged.");
         exit(1);
     }
 
-    int luaresult = lua_pcall(self.L, 0, 0, 0);
+    int luaresult = lua_pcall(LuaSkin.mainLuaState, 0, 0, 0);
     if (luaresult != LUA_OK) {
         NSLog(@"createLuaState was unable to evaluate luaskin.lua. Your installation may be damaged.");
         exit(1);
@@ -186,8 +235,8 @@ NSString *specMaskToString(int spec) {
 
 - (void)destroyLuaState {
     NSLog(@"destroyLuaState");
-    NSAssert((self.L != NULL), @"destroyLuaState called with no Lua environment", nil);
-    if (self.L) {
+    NSAssert((LuaSkin.mainLuaState != NULL), @"destroyLuaState called with no Lua environment", nil);
+    if (LuaSkin.mainLuaState) {
         [self.retainedObjectsRefTableMappings enumerateKeysAndObjectsUsingBlock:^(NSNumber *refTableN, NSMutableDictionary *objectMappings, __unused BOOL *stop) {
             if ([refTableN isKindOfClass:[NSNumber class]] && [objectMappings isKindOfClass:[NSDictionary class]]) {
                 int tmpRefTable = refTableN.intValue ;
@@ -199,7 +248,7 @@ NSString *specMaskToString(int spec) {
         }] ;
         [self.retainedObjectsRefTableMappings           removeAllObjects] ;
 
-        lua_close(self.L);
+        lua_close(LuaSkin.mainLuaState);
         [self.registeredNSHelperFunctions               removeAllObjects] ;
         [self.registeredNSHelperLocations               removeAllObjects] ;
         [self.registeredLuaObjectHelperFunctions        removeAllObjects] ;
@@ -207,12 +256,12 @@ NSString *specMaskToString(int spec) {
         [self.registeredLuaObjectHelperUserdataMappings removeAllObjects];
         [self.registeredLuaObjectHelperTableMappings    removeAllObjects];
     }
-    self.L = NULL;
+    LuaSkin.mainLuaState = NULL;
 }
 
 - (void)resetLuaState {
     NSLog(@"resetLuaState");
-    NSAssert((self.L != NULL), @"resetLuaState called with no Lua environment", nil);
+    NSAssert((LuaSkin.mainLuaState != NULL), @"resetLuaState called with no Lua environment", nil);
     [self destroyLuaState];
     [self createLuaState];
 }
@@ -248,7 +297,12 @@ NSString *specMaskToString(int spec) {
     int tracebackPosition = -nargs - 2;
     lua_insert(self.L, tracebackPosition);
 
-    if (lua_pcall(self.L, nargs, nresults, tracebackPosition) != LUA_OK) {
+    // if we call something that resumed a coroutine, we can't be positive what self.L points to
+    lua_State *backup = self.L ;
+    int status = lua_pcall(self.L, nargs, nresults, tracebackPosition) ;
+    self.L = backup ;
+
+    if (status != LUA_OK) {
         lua_remove(self.L, -2) ; // remove the message handler
         // At this point the error message from lua_pcall() is on the stack. Our caller is required to deal with this.
         return NO;
@@ -1519,11 +1573,19 @@ nextarg:
 
 + (void)classLogAtLevel:(int)level withMessage:(NSString *)theMessage {
     if ([NSThread isMainThread]) {
-        [[[self class] shared] logAtLevel:level withMessage:theMessage] ;
+        // the class logging methods *do* use the shared instance, so backup the state/thread in case
+        // coroutines involved
+        lua_State *backup = _sharedLuaSkin.L ;
+        [[[self class] sharedWithState:NULL] logAtLevel:level withMessage:theMessage] ;
+        _sharedLuaSkin.L = backup ;
     } else {
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[[self class] shared] logAtLevel:level
+            // the class logging methods *do* use the shared instance, so backup the state/thread in case
+            // coroutines involved
+            lua_State *backup = _sharedLuaSkin.L ;
+            [[[self class] sharedWithState:NULL] logAtLevel:level
                              withMessage:[@"(secondary thread): " stringByAppendingString:theMessage]] ;
+            _sharedLuaSkin.L = backup ;
         }) ;
     }
 }
