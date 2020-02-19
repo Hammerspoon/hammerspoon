@@ -12,7 +12,6 @@ static NSMutableDictionary *documentationTree ;
 #pragma mark - Support Functions and Classes
 
 NSInteger docSortFunction(NSString *a, NSString *b, __unused void *context) {
-    LuaSkin *skin = [LuaSkin shared] ;
     NSError *error = nil ;
     NSRegularExpression *parser = [NSRegularExpression regularExpressionWithPattern:@"^_\\d([\\d_])*"
                                                                             options:NSRegularExpressionUseUnicodeWordBoundaries
@@ -44,17 +43,17 @@ NSInteger docSortFunction(NSString *a, NSString *b, __unused void *context) {
                 return (aNumericParts.count < bNumericParts.count) ? NSOrderedAscending
                                                                    : ((aNumericParts.count > bNumericParts.count) ? NSOrderedDescending : NSOrderedSame) ;
             } else {
-                [skin logError:[NSString stringWithFormat:@"%s.docSortFunction - error initializing 2nd regex: %@", USERDATA_TAG, error.localizedDescription]] ;
+                [LuaSkin logError:[NSString stringWithFormat:@"%s.docSortFunction - error initializing 2nd regex: %@", USERDATA_TAG, error.localizedDescription]] ;
             }
         }
     } else {
-        [skin logError:[NSString stringWithFormat:@"%s.docSortFunction - error initializing regex: %@", USERDATA_TAG, error.localizedDescription]] ;
+        [LuaSkin logError:[NSString stringWithFormat:@"%s.docSortFunction - error initializing regex: %@", USERDATA_TAG, error.localizedDescription]] ;
     }
     return [a caseInsensitiveCompare:b] ;
 }
 
 static BOOL processRegisteredFile(lua_State *L, NSString *path) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
 
     NSError *error = nil ;
     NSData *rawFile = [NSData dataWithContentsOfFile:path options:NSDataReadingMappedIfSafe error:&error] ;
@@ -165,8 +164,6 @@ static void findUnloadedDocumentationFiles(lua_State *L) {
 }
 
 NSMutableDictionary *getPosInTreeFor(NSString *target) {
-    LuaSkin *skin = [LuaSkin shared] ;
-
     __block NSMutableDictionary *pos ;
 
     NSError *error = nil ;
@@ -188,7 +185,7 @@ NSMutableDictionary *getPosInTreeFor(NSString *target) {
             }
         }] ;
     } else {
-        [skin logError:[NSString stringWithFormat:@"%s.getPosInTreeFor - error initializing regex: %@", USERDATA_TAG, error.localizedDescription]] ;
+        [LuaSkin logError:[NSString stringWithFormat:@"%s.getPosInTreeFor - error initializing regex: %@", USERDATA_TAG, error.localizedDescription]] ;
     }
 
     return pos ;
@@ -198,7 +195,7 @@ NSMutableDictionary *getPosInTreeFor(NSString *target) {
 
 // documented in init.lua
 static int doc_help(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING | LS_TNIL | LS_TOPTIONAL, LS_TBREAK] ;
     NSString *identifier = @"" ;
     if (lua_gettop(L) == 1 && lua_type(L, 1) == LUA_TSTRING) identifier = [skin toNSObjectAtIndex:1] ;
@@ -278,7 +275,7 @@ static int doc_help(lua_State *L) {
 /// Notes:
 ///  * this function just registers the documentation file; it won't actually be loaded and parsed until [hs.doc.help](#help) is invoked.
 static int doc_registerJSONFile(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     NSString *path   = [skin toNSObjectAtIndex:1] ;
     BOOL     isSpoon = (lua_gettop(L) > 1) ? (BOOL)lua_toboolean(L, 2) : NO ;
@@ -316,7 +313,7 @@ static int doc_registerJSONFile(lua_State *L) {
 /// Notes:
 ///  * This function requires the rebuilding of the entire documentation tree for all remaining registered files, so the next time help is queried with [hs.doc.help](#help), there may be a slight one-time delay.
 static int doc_unregisterJSONFile(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
     NSString *path   = [skin toNSObjectAtIndex:1] ;
 
@@ -346,8 +343,8 @@ static int doc_unregisterJSONFile(lua_State *L) {
 }
 
 // documented in init.lua
-static int doc_registeredFiles(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int doc_registeredFiles(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
 
     NSMutableArray *sortedPaths = [[registeredFiles allKeys] mutableCopy] ;
     [sortedPaths sortUsingSelector:@selector(localizedCaseInsensitiveCompare:)] ;
@@ -370,7 +367,7 @@ static int doc_registeredFiles(__unused lua_State *L) {
 // ///  * status - Boolean flag indicating if the file was validated or not.
 // ///  * message|table - If the file did not contain valid JSON data, then a message indicating the error is returned; otherwise the parsed JSON data is returned as a table.
 // static int doc_validateJSONFile(lua_State *L) {
-//     LuaSkin *skin = [LuaSkin shared] ;
+//     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
 //     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
 //     NSString *path   = [skin toNSObjectAtIndex:1] ;
 //
@@ -400,7 +397,7 @@ static int doc_registeredFiles(__unused lua_State *L) {
 
 // returns list of children in documentTree for __index and __pairs of helper table for `help`
 static int internal_arrayOfChildren(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING | LS_TNIL | LS_TOPTIONAL, LS_TBREAK] ;
     NSString *identifier = @"" ;
     if (lua_gettop(L) == 1 && lua_type(L, 1) == LUA_TSTRING) identifier = [skin toNSObjectAtIndex:1] ;
@@ -422,7 +419,7 @@ static int internal_arrayOfChildren(lua_State *L) {
 
 // used by doc_help and when json being rebuilt for hsdocs
 static int internal_loadRegisteredFiles(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TBREAK] ;
 
     findUnloadedDocumentationFiles(L) ;
@@ -431,7 +428,7 @@ static int internal_loadRegisteredFiles(lua_State *L) {
 
 // used to register lua function to trigger `hs.watchable` change counter so hsdocs knows when doc files have been updated
 static int internal_registerTriggerFunction(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TFUNCTION, LS_TBREAK] ;
 
     if (refTriggerFn != LUA_NOREF && refTriggerFn != LUA_REFNIL) {
@@ -445,23 +442,23 @@ static int internal_registerTriggerFunction(lua_State *L) {
 #pragma mark - objectWrapper Constructors
 
 // returns objectWrapper for registeredFiles
-static int internal_registeredFiles(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int internal_registeredFiles(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin pushNSObject:registeredFiles withOptions:LS_WithObjectWrapper | LS_NSDescribeUnknownTypes] ;
     return 1 ;
 }
 
 // returns objectWrapper for documentationTree
-static int internal_documentationTree(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int internal_documentationTree(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin pushNSObject:documentationTree withOptions:LS_WithObjectWrapper | LS_NSDescribeUnknownTypes] ;
     return 1 ;
 }
 
 #pragma mark - Hammerspoon/Lua Infrastructure
 
-static int meta_gc(lua_State* __unused L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int meta_gc(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     refTriggerFn = [skin luaUnref:refTable ref:refTriggerFn] ;
 
     // probably overkill, but lets just be official about it
@@ -497,8 +494,8 @@ static const luaL_Reg module_metaLib[] = {
     {NULL,   NULL}
 };
 
-int luaopen_hs_doc_internal(__unused lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+int luaopen_hs_doc_internal(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     refTable = [skin registerLibrary:moduleLib metaFunctions:module_metaLib] ;
 
     registeredFiles = [[NSMutableDictionary alloc] init] ;
