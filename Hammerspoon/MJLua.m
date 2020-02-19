@@ -19,7 +19,7 @@
 - (void) reflectDefaults ;
 @end
 
-static LuaSkin* MJLuaState;
+//  static LuaSkin* MJLuaState; // we can no longer trust that this points to the correct thread -- get it anew as needed
 static HSLogger* MJLuaLogDelegate;
 static int evalfn;
 static int completionsForWordFn;
@@ -162,7 +162,7 @@ static int core_closeconsole(lua_State* L) {
 /// Returns:
 ///  * A boolean, true if the file was opened successfully, otherwise false
 static int core_open(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TBREAK];
 
     BOOL result = [[NSWorkspace sharedWorkspace] openFile:[skin toNSObjectAtIndex:1]];
@@ -185,7 +185,7 @@ static int core_reload(lua_State* L) {
 /// Constant
 /// A table containing read-only information about the Hammerspoon application instance currently running.
 static int push_hammerAppInfo(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     NSDictionary *appInfo = @{
                               @"version": [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"],
                               @"build": [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"],
@@ -240,9 +240,9 @@ static int core_accessibilityState(lua_State* L) {
 /// Notes:
 ///  * Will always return `true` on macOS 10.13 or earlier.
 static int core_microphoneState(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     BOOL shouldprompt = lua_toboolean(L, 1);
-    
+
     // Request permission to access the camera and microphone.
     if (@available(macOS 10.14, *)) {
         switch ([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio])
@@ -298,9 +298,9 @@ static int core_microphoneState(lua_State* L) {
 /// Notes:
 ///  * Will always return `true` on macOS 10.13 or earlier.
 static int core_cameraState(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     BOOL shouldprompt = lua_toboolean(L, 1);
-    
+
     // Request permission to access the camera and microphone.
     if (@available(macOS 10.14, *)) {
         switch ([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo])
@@ -357,7 +357,7 @@ static int core_cameraState(lua_State* L) {
 /// Notes:
 ///  * If you are running a non-release or locally compiled version of Hammerspoon then the results of this function are unspecified.
 static int automaticallyChecksForUpdates(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     if (NSClassFromString(@"SUUpdater")) {
         NSString *frameworkPath = [[[NSBundle mainBundle] privateFrameworksPath] stringByAppendingPathComponent:@"Sparkle.framework"];
         if ([[NSBundle bundleWithPath:frameworkPath] load]) {
@@ -408,7 +408,7 @@ static int automaticallyChecksForUpdates(lua_State *L) {
 /// Notes:
 ///  * If you are running a non-release or locally compiled version of Hammerspoon then the results of this function are unspecified.
 static int checkForUpdates(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
 
     if (NSClassFromString(@"SUUpdater")) {
@@ -448,7 +448,7 @@ static int checkForUpdates(lua_State *L) {
 /// Notes:
 ///  * This is not a live check, it is a cached result of whatever the previous update check found. By default Hammerspoon checks for updates every few hours, but you can also add your own timer to check for updates more frequently with `hs.checkForUpdates()`
 static int updateAvailable(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TBREAK];
 
     id appDelegate = [[NSApplication sharedApplication] delegate];
@@ -483,7 +483,7 @@ static int updateAvailable(lua_State *L) {
 /// Notes:
 ///  * The Sparkle framework is included in all regular releases of Hammerspoon but not included if you are running a non-release or locally compiled version of Hammerspoon, so this function can be used as a simple test to determine whether or not you are running a formal release Hammerspoon or not.
 static int canCheckForUpdates(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TBREAK];
     BOOL canUpdate = NO ;
 
@@ -507,14 +507,14 @@ static int canCheckForUpdates(lua_State *L) {
 /// Returns:
 ///  * A boolean, true if dark mode is enabled otherwise false.
 static int preferencesDarkMode(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
-    
+
     if (lua_isboolean(L, 1)) {
         PreferencesDarkModeSetEnabled(lua_toboolean(L, 1));
         [[MJPreferencesWindowController singleton] reflectDefaults] ;
     }
-    
+
     lua_pushboolean(L, PreferencesDarkModeEnabled()) ;
     return 1;
 }
@@ -545,7 +545,7 @@ static int preferencesDarkMode(lua_State* L) {
 ///      execute lua code "hs.alert([[Hello from AppleScript]])"
 ///    end tell```
 static int core_appleScript(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
 
     if (lua_isboolean(L, 1)) {
@@ -569,7 +569,7 @@ static int core_appleScript(lua_State* L) {
 /// Notes:
 ///  * This only refers to dock icon clicks while Hammerspoon is already running. The console window is not opened by launching the app
 static int core_openConsoleOnDockClick(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
 
     if (lua_isboolean(L, 1)) {
@@ -598,7 +598,7 @@ static int core_focus(lua_State* L) {
 /// Returns:
 ///  * The extension's object metatable, or nil if an error occurred
 static int core_getObjectMetatable(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TBREAK];
     luaL_getmetatable(L, lua_tostring(L,1));
     return 1;
@@ -619,7 +619,7 @@ static int core_getObjectMetatable(lua_State *L) {
 ///  * This function does not modify the original string - to actually replace it, assign the result of this function to the original string.
 ///  * This function is a more specifically targeted version of the `hs.utf8.fixUTF8(...)` function.
 static int core_cleanUTF8(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TANY, LS_TBREAK] ;
     [skin pushNSObject:[skin getValidUTF8AtIndex:1]] ;
     return 1 ;
@@ -724,20 +724,23 @@ void MJLuaAlloc(void) {
     MJLuaLogDelegate = [[HSLogger alloc] initWithLua:nil];
     LuaSkin *skin = [LuaSkin sharedWithDelegate:MJLuaLogDelegate];
     // on a reload, this won't get created in sharedWithDelegate:, so do it manually here
-    if (!skin.L) {
+    if (!LuaSkin.mainLuaState) {
         [skin createLuaState];
         skin.delegate = MJLuaLogDelegate; // FIXME: Is this needed?
+        // ANS: since a new delegate object is created here, yes because LuaSkin's initWithDelegate isn't called, so the new delegate isn't assigned
+        // should consider whether or not we really need to create new object but that's for another day...
+        skin = [LuaSkin sharedWithState:NULL] ; // make sure skin.L points to the main state since we just created a new one
     }
-    MJLuaState = skin;
     [MJLuaLogDelegate setLuaState:skin.L];
     oldPanicFunction = lua_atpanic([skin L], &MJLuaAtPanic) ;
 }
 
 // Configure a Lua environment that has already been created by LuaSkin
 void MJLuaInit(void) {
-    lua_State* L = MJLuaState.L;
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
+    lua_State* L = skin.L;
 
-    refTable = [MJLuaState registerLibrary:corelib metaFunctions:nil];
+    refTable = [skin registerLibrary:corelib metaFunctions:nil];
     push_hammerAppInfo(L) ;
     lua_setfield(L, -2, "processInfo") ;
 
@@ -774,15 +777,15 @@ void MJLuaInit(void) {
         [alert setAlertStyle:NSAlertStyleCritical];
         [alert runModal];
     } else {
-        evalfn = [MJLuaState luaRef:refTable];
-        completionsForWordFn = [MJLuaState luaRef:refTable];
+        evalfn = [skin luaRef:refTable];
+        completionsForWordFn = [skin luaRef:refTable];
     }
 }
 
 // Accessibility State Callback:
 void callAccessibilityStateCallback(void) {
-    LuaSkin *skin = MJLuaState;
-    lua_State *L = MJLuaState.L;
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+    lua_State *L = skin.L;
     _lua_stackguard_entry(L);
 
     lua_getglobal(L, "hs");
@@ -797,7 +800,7 @@ void callAccessibilityStateCallback(void) {
 
 // Text Dropped to Dock Icon Callback:
 void textDroppedToDockIcon(NSString *pboardString) {
-    LuaSkin *skin = MJLuaState;
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     lua_State *L = skin.L;
     _lua_stackguard_entry(L);
 
@@ -814,7 +817,7 @@ void textDroppedToDockIcon(NSString *pboardString) {
 
 // File Dropped to Dock Icon Callback:
 void fileDroppedToDockIcon(NSString *filePath) {
-    LuaSkin *skin = MJLuaState;
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     lua_State *L = skin.L;
     _lua_stackguard_entry(L);
 
@@ -831,8 +834,8 @@ void fileDroppedToDockIcon(NSString *filePath) {
 
 // Dock Icon Click Callback:
 void callDockIconCallback(void) {
-    LuaSkin *skin = MJLuaState;
-    lua_State *L = MJLuaState.L;
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+    lua_State *L = skin.L;
 
     if (L == NULL) {
         // It seems to be possible that NSApplicationDelegate:applicationShouldHandleReopen can be called before a Lua state has been created. We need to bail out immediately or we'll cause a crash.
@@ -858,7 +861,7 @@ void callDockIconCallback(void) {
 
 // Shutdown Callback
 static int callShutdownCallback(lua_State *L) {
-    LuaSkin *skin = MJLuaState;
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     _lua_stackguard_entry(skin.L);
 
     lua_getglobal(L, "hs");
@@ -879,27 +882,28 @@ static int callShutdownCallback(lua_State *L) {
 
 // Deconfigure a Lua environment that will shortly be destroyed by LuaSkin
 void MJLuaDeinit(void) {
-    LuaSkin *skin = MJLuaState;
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
 
     callShutdownCallback(skin.L);
 
     if (MJLuaLogDelegate) {
-        [MJLuaState setDelegate:nil] ;
+        [skin setDelegate:nil] ;
         MJLuaLogDelegate = nil ;
     }
 }
 
 // Destroy a Lua environment with LuaSiin
 void MJLuaDealloc(void) {
-    LuaSkin *skin = MJLuaState;
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     [skin destroyLuaState];
 }
 
 NSString* MJLuaRunString(NSString* command) {
-    lua_State* L = MJLuaState.L;
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+    lua_State* L = skin.L;
     _lua_stackguard_entry(L);
 
-    [MJLuaState pushLuaRef:refTable ref:evalfn];
+    [skin pushLuaRef:refTable ref:evalfn];
     if (!lua_isfunction(L, -1)) {
         HSNSLOG(@"ERROR: MJLuaRunString doesn't seem to have an evalfn");
         if (lua_isstring(L, -1)) {
@@ -911,9 +915,9 @@ NSString* MJLuaRunString(NSString* command) {
         return @"";
     }
     lua_pushstring(L, [command UTF8String]);
-    if ([MJLuaState protectedCallAndTraceback:1 nresults:1] == NO) {
+    if ([skin protectedCallAndTraceback:1 nresults:1] == NO) {
         const char *errorMsg = lua_tostring(L, -1);
-        [MJLuaState logError:[NSString stringWithUTF8String:errorMsg]];
+        [skin logError:[NSString stringWithUTF8String:errorMsg]];
     }
 
     size_t len;
@@ -939,7 +943,7 @@ NSString* MJLuaRunString(NSString* command) {
 
 NSArray *MJLuaCompletionsForWord(NSString *completionWord) {
     //NSLog(@"Fetching completions for %@", completionWord);
-    LuaSkin *skin = MJLuaState;
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     _lua_stackguard_entry(skin.L);
 
     [skin pushLuaRef:refTable ref:completionsForWordFn];
@@ -958,5 +962,6 @@ NSArray *MJLuaCompletionsForWord(NSString *completionWord) {
 // C-Code helper to return current active LuaState. Useful for callbacks to
 // verify stored LuaState still matches active one if GC fails to clear it.
 lua_State* MJGetActiveLuaState() {
-  return MJLuaState.L ;
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+  return skin.L ;
 }
