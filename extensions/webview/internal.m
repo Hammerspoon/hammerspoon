@@ -1175,12 +1175,14 @@ static int webview_reload(lua_State *L) {
 
     if (theView.loading) [theView stopLoading] ;
     while (theView.loading) {}
+    BOOL validate = (lua_type(L, 2) == LUA_TBOOLEAN) ? (BOOL)lua_toboolean(L, 2) : NO ;
+
     dispatch_async(dispatch_get_main_queue(), ^{
         WKNavigation *navID ;
-        if (lua_type(L, 2) == LUA_TBOOLEAN && lua_toboolean(L, 2))
-            navID = [theView reload] ;
-        else
+        if (validate)
             navID = [theView reloadFromOrigin] ;
+        else
+            navID = [theView reload] ;
         theView.trackingID = navID ;
     }) ;
     lua_pushvalue(L, 1) ;

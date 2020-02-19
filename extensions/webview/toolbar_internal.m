@@ -182,30 +182,32 @@ static NSMenu *createCoreSearchFieldMenu() {
     NSNumber *theFnRef = [_fnRefDictionary objectForKey:[item itemIdentifier]] ;
     int itemFnRef = theFnRef ? [theFnRef intValue] : LUA_NOREF ;
     int fnRef = (itemFnRef != LUA_NOREF) ? itemFnRef : _callbackRef ;
-    if (fnRef != LUA_NOREF) {
+    if (fnRef != LUA_NOREF) { // should we bother dispatching?
         dispatch_async(dispatch_get_main_queue(), ^{
-            NSWindow  *ourWindow = self.windowUsingToolbar ;
-            LuaSkin   *skin      = [LuaSkin shared] ;
-            lua_State *L         = [skin L] ;
-            _lua_stackguard_entry(L);
-            [skin pushLuaRef:refTable ref:fnRef] ;
-            [skin pushNSObject:self] ;
-            if (ourWindow) {
-                if ([ourWindow isEqualTo:[[MJConsoleWindowController singleton] window]]) {
-                    lua_pushstring(L, "console") ;
-                } else if (ourWindow.windowController) { // hs.chooser
-                    [skin pushNSObject:ourWindow.windowController withOptions:LS_NSDescribeUnknownTypes] ;
+            if (fnRef != LUA_NOREF) { // now make sure it's still valid
+                NSWindow  *ourWindow = self.windowUsingToolbar ;
+                LuaSkin   *skin      = [LuaSkin shared] ;
+                lua_State *L         = [skin L] ;
+                _lua_stackguard_entry(L);
+                [skin pushLuaRef:refTable ref:fnRef] ;
+                [skin pushNSObject:self] ;
+                if (ourWindow) {
+                    if ([ourWindow isEqualTo:[[MJConsoleWindowController singleton] window]]) {
+                        lua_pushstring(L, "console") ;
+                    } else if (ourWindow.windowController) { // hs.chooser
+                        [skin pushNSObject:ourWindow.windowController withOptions:LS_NSDescribeUnknownTypes] ;
+                    } else {
+                        [skin pushNSObject:ourWindow withOptions:LS_NSDescribeUnknownTypes] ;
+                    }
                 } else {
-                    [skin pushNSObject:ourWindow withOptions:LS_NSDescribeUnknownTypes] ;
+                    // shouldn't be possible, but just in case...
+                    lua_pushstring(L, "** no window attached") ;
                 }
-            } else {
-                // shouldn't be possible, but just in case...
-                lua_pushstring(L, "** no window attached") ;
+                [skin pushNSObject:[item itemIdentifier]] ;
+                if (argCount == 4) [skin pushNSObject:searchText] ;
+                [skin protectedCallAndError:[NSString stringWithFormat:@"hs.webview.toolbar item callback (%@)", item.itemIdentifier] nargs:argCount nresults:0];
+                _lua_stackguard_exit(L);
             }
-            [skin pushNSObject:[item itemIdentifier]] ;
-            if (argCount == 4) [skin pushNSObject:searchText] ;
-            [skin protectedCallAndError:[NSString stringWithFormat:@"hs.webview.toolbar item callback (%@)", item.itemIdentifier] nargs:argCount nresults:0];
-            _lua_stackguard_exit(L);
         }) ;
     }
 }
@@ -701,28 +703,30 @@ static NSMenu *createCoreSearchFieldMenu() {
 - (void)toolbarWillAddItem:(NSNotification *)notification {
     if (_notifyToolbarChanges && (_callbackRef != LUA_NOREF)) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            NSWindow  *ourWindow = self.windowUsingToolbar ;
-            LuaSkin   *skin      = [LuaSkin shared] ;
-            lua_State *L         = [skin L] ;
-            _lua_stackguard_entry(L);
-            [skin pushLuaRef:refTable ref:self.callbackRef] ;
-            [skin pushNSObject:self] ;
-            if (ourWindow) {
-                if ([ourWindow isEqualTo:[[MJConsoleWindowController singleton] window]]) {
-                    lua_pushstring(L, "console") ;
-                } else if (ourWindow.windowController) { // hs.chooser
-                    [skin pushNSObject:ourWindow.windowController withOptions:LS_NSDescribeUnknownTypes] ;
+            if (self.callbackRef != LUA_NOREF) {
+                NSWindow  *ourWindow = self.windowUsingToolbar ;
+                LuaSkin   *skin      = [LuaSkin shared] ;
+                lua_State *L         = [skin L] ;
+                _lua_stackguard_entry(L);
+                [skin pushLuaRef:refTable ref:self.callbackRef] ;
+                [skin pushNSObject:self] ;
+                if (ourWindow) {
+                    if ([ourWindow isEqualTo:[[MJConsoleWindowController singleton] window]]) {
+                        lua_pushstring(L, "console") ;
+                    } else if (ourWindow.windowController) { // hs.chooser
+                        [skin pushNSObject:ourWindow.windowController withOptions:LS_NSDescribeUnknownTypes] ;
+                    } else {
+                        [skin pushNSObject:ourWindow withOptions:LS_NSDescribeUnknownTypes] ;
+                    }
                 } else {
-                    [skin pushNSObject:ourWindow withOptions:LS_NSDescribeUnknownTypes] ;
+                    // shouldn't be possible, but just in case...
+                    lua_pushstring(L, "** no window attached") ;
                 }
-            } else {
-                // shouldn't be possible, but just in case...
-                lua_pushstring(L, "** no window attached") ;
+                [skin pushNSObject:[notification.userInfo[@"item"] itemIdentifier]] ;
+                lua_pushstring(L, "add") ;
+                [skin protectedCallAndError:[NSString stringWithFormat:@"hs.webview.toolbar toolbar item addition callback (%@)", [notification.userInfo[@"item"] itemIdentifier]] nargs:4 nresults:0];
+                _lua_stackguard_exit(L);
             }
-            [skin pushNSObject:[notification.userInfo[@"item"] itemIdentifier]] ;
-            lua_pushstring(L, "add") ;
-            [skin protectedCallAndError:[NSString stringWithFormat:@"hs.webview.toolbar toolbar item addition callback (%@)", [notification.userInfo[@"item"] itemIdentifier]] nargs:4 nresults:0];
-            _lua_stackguard_exit(L);
         }) ;
     }
 }
@@ -730,28 +734,30 @@ static NSMenu *createCoreSearchFieldMenu() {
 - (void)toolbarDidRemoveItem:(NSNotification *)notification {
     if (_notifyToolbarChanges && (_callbackRef != LUA_NOREF)) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            NSWindow  *ourWindow = self.windowUsingToolbar ;
-            LuaSkin   *skin      = [LuaSkin shared] ;
-            lua_State *L         = [skin L] ;
-            _lua_stackguard_entry(L);
-            [skin pushLuaRef:refTable ref:self.callbackRef] ;
-            [skin pushNSObject:self] ;
-            if (ourWindow) {
-                if ([ourWindow isEqualTo:[[MJConsoleWindowController singleton] window]]) {
-                    lua_pushstring(L, "console") ;
-                } else if (ourWindow.windowController) { // hs.chooser
-                    [skin pushNSObject:ourWindow.windowController withOptions:LS_NSDescribeUnknownTypes] ;
+            if (self.callbackRef != LUA_NOREF) {
+                NSWindow  *ourWindow = self.windowUsingToolbar ;
+                LuaSkin   *skin      = [LuaSkin shared] ;
+                lua_State *L         = [skin L] ;
+                _lua_stackguard_entry(L);
+                [skin pushLuaRef:refTable ref:self.callbackRef] ;
+                [skin pushNSObject:self] ;
+                if (ourWindow) {
+                    if ([ourWindow isEqualTo:[[MJConsoleWindowController singleton] window]]) {
+                        lua_pushstring(L, "console") ;
+                    } else if (ourWindow.windowController) { // hs.chooser
+                        [skin pushNSObject:ourWindow.windowController withOptions:LS_NSDescribeUnknownTypes] ;
+                    } else {
+                        [skin pushNSObject:ourWindow withOptions:LS_NSDescribeUnknownTypes] ;
+                    }
                 } else {
-                    [skin pushNSObject:ourWindow withOptions:LS_NSDescribeUnknownTypes] ;
+                    // shouldn't be possible, but just in case...
+                    lua_pushstring(L, "** no window attached") ;
                 }
-            } else {
-                // shouldn't be possible, but just in case...
-                lua_pushstring(L, "** no window attached") ;
+                [skin pushNSObject:[notification.userInfo[@"item"] itemIdentifier]] ;
+                lua_pushstring(L, "remove") ;
+                [skin protectedCallAndError:[NSString stringWithFormat:@"hs.webview.toolbar toolbar item removal callback (%@)", [notification.userInfo[@"item"] itemIdentifier]] nargs:4 nresults:0];
+                _lua_stackguard_exit(L);
             }
-            [skin pushNSObject:[notification.userInfo[@"item"] itemIdentifier]] ;
-            lua_pushstring(L, "remove") ;
-            [skin protectedCallAndError:[NSString stringWithFormat:@"hs.webview.toolbar toolbar item removal callback (%@)", [notification.userInfo[@"item"] itemIdentifier]] nargs:4 nresults:0];
-            _lua_stackguard_exit(L);
         }) ;
     }
 }
