@@ -35,8 +35,8 @@ static int refTable = LUA_NOREF;
 ///    * `WKWebsiteDataTypeSessionStorage`             - HTML session storage.
 ///    * `WKWebsiteDataTypeIndexedDBDatabases`         - WebSQL databases.
 ///    * `WKWebsiteDataTypeWebSQLDatabases`            - IndexedDB databases.
-static int datastore_allWebsiteDataTypes(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int datastore_allWebsiteDataTypes(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TBREAK] ;
     [skin pushNSObject:[WKWebsiteDataStore allWebsiteDataTypes]] ;
     return 1 ;
@@ -54,8 +54,8 @@ static int datastore_allWebsiteDataTypes(__unused lua_State *L) {
 ///
 /// Notes:
 ///  * this is the datastore used unless otherwise specified when creating an `hs.webview` instance.
-static int datastore_newDefaultDataStore(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int datastore_newDefaultDataStore(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TBREAK] ;
     [skin pushNSObject:[WKWebsiteDataStore defaultDataStore]];
     return 1 ;
@@ -75,8 +75,8 @@ static int datastore_newDefaultDataStore(__unused lua_State *L) {
 ///  * The datastore represented by this object will be initially empty.  You can use this function to create a non-persistent datastore that you wish to share among multiple `hs.webview` instances.  Once a datastore is created, you assign it to a `hs.webview` instance by including the `datastore` key in the `hs.webvew.new` constructor's preferences table and setting it equal to this key.  All webview instances created with this datastore object will share web caches, cookies, etc. but will still be isolated from the default datastore and it will be purged from memory when the webviews are deleted, or Hammerspoon is restarted.
 ///
 ///  * Using the `datastore` key in the webview's constructor differs from the `private` key -- use of the `private` key will override the `datastore` key and will create a separate non-persistent datastore for the webview instance.  See `hs.webview.new` for more information.
-static int datastore_newPrivateDataStore(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int datastore_newPrivateDataStore(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TBREAK] ;
     [skin pushNSObject:[WKWebsiteDataStore nonPersistentDataStore]];
     return 1 ;
@@ -97,7 +97,7 @@ static int datastore_newPrivateDataStore(__unused lua_State *L) {
 ///
 ///  * This method can be used to identify the datastore in use for a webview if you wish to create a new instance using the same datastore.
 static int datastore_fromWebview(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, "hs.webview", LS_TBREAK] ;
     HSWebViewWindow        *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, "hs.webview") ;
     HSWebViewView          *theView = theWindow.contentView ;
@@ -129,7 +129,7 @@ static int datastore_fromWebview(lua_State *L) {
 ///  * only those sites with one or more of the specified data types are returned
 ///  * for the sites returned, only those data types that were present in the query will be included in the list, even if the site has data of another type in the datastore.
 static int datastore_fetchRecords(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_DS_TAG,
                     LS_TSTRING | LS_TTABLE | LS_TFUNCTION,
                     LS_TFUNCTION, LS_TBREAK] ;
@@ -165,10 +165,11 @@ static int datastore_fetchRecords(lua_State *L) {
 
     [dataStore fetchDataRecordsOfTypes:typeSet completionHandler:^(NSArray *records){
         dispatch_async(dispatch_get_main_queue(), ^{
-            [skin pushLuaRef:refTable ref:fnRef] ;
-            [skin pushNSObject:records] ;
-            [skin protectedCallAndError:@"hs.webview.datastore:fetchRecords callback" nargs:1 nresults:0];
-            [skin luaUnref:refTable ref:fnRef] ;
+            LuaSkin *blockSkin = [LuaSkin sharedWithState:L] ;
+            [blockSkin pushLuaRef:refTable ref:fnRef] ;
+            [blockSkin pushNSObject:records] ;
+            [blockSkin protectedCallAndError:@"hs.webview.datastore:fetchRecords callback" nargs:1 nresults:0];
+            [blockSkin luaUnref:refTable ref:fnRef] ;
         }) ;
     }] ;
 
@@ -191,7 +192,7 @@ static int datastore_fetchRecords(lua_State *L) {
 /// Notes:
 ///  * to specify that all data types that qualify should be removed, specify the function  [hs.webview.datastore.websiteDataTypes()](#websiteDataTypes). as the second argument.
 static int datastore_removeRecords(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_DS_TAG,
                     LS_TTABLE | LS_TSTRING,
                     LS_TTABLE | LS_TSTRING,
@@ -262,9 +263,10 @@ static int datastore_removeRecords(lua_State *L) {
         [dataStore removeDataOfTypes:typeSet forDataRecords:targets completionHandler:^{
             dispatch_async(dispatch_get_main_queue(), ^{
                 if (fnRef != LUA_NOREF) {
-                    [skin pushLuaRef:refTable ref:fnRef] ;
-                    [skin protectedCallAndError:@"hs.webview.datastore:removeRecordsFor callback" nargs:0 nresults:0];
-                    [skin luaUnref:refTable ref:fnRef] ;
+                    LuaSkin *blockSkin = [LuaSkin sharedWithState:L] ;
+                    [blockSkin pushLuaRef:refTable ref:fnRef] ;
+                    [blockSkin protectedCallAndError:@"hs.webview.datastore:removeRecordsFor callback" nargs:0 nresults:0];
+                    [blockSkin luaUnref:refTable ref:fnRef] ;
                 }
             }) ;
         }] ;
@@ -296,7 +298,7 @@ static int datastore_removeRecords(lua_State *L) {
 /// hs.webview.datastore.default():removeRecordsAfter(0, hs.webview.datastore.websiteDataTypes())
 /// ~~~
 static int datastore_removeDataFrom(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_DS_TAG,
                     LS_TNUMBER | LS_TINTEGER | LS_TSTRING,
                     LS_TTABLE | LS_TSTRING,
@@ -354,9 +356,10 @@ static int datastore_removeDataFrom(lua_State *L) {
     [dataStore removeDataOfTypes:typeSet modifiedSince:theDate completionHandler:^{
         dispatch_async(dispatch_get_main_queue(), ^{
             if (fnRef != LUA_NOREF) {
-                [skin pushLuaRef:refTable ref:fnRef] ;
-                [skin protectedCallAndError:@"hs.webview.datastore:removeRecordsAfter callback" nargs:0 nresults:0];
-                [skin luaUnref:refTable ref:fnRef] ;
+                LuaSkin *blockSkin = [LuaSkin sharedWithState:L] ;
+                [blockSkin pushLuaRef:refTable ref:fnRef] ;
+                [blockSkin protectedCallAndError:@"hs.webview.datastore:removeRecordsAfter callback" nargs:0 nresults:0];
+                [blockSkin luaUnref:refTable ref:fnRef] ;
             }
         }) ;
     }] ;
@@ -378,7 +381,7 @@ static int datastore_removeDataFrom(lua_State *L) {
 /// Notes:
 ///  * Note that this value is the inverse of `hs.webview:privateBrowsing()`, since private browsing uses a non-persistent datastore.
 static int datastore_persistent(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_DS_TAG, LS_TBREAK] ;
     WKWebsiteDataStore *dataStore = [skin toNSObjectAtIndex:1] ;
 
@@ -401,7 +404,7 @@ static int pushWKWebsiteDataStore(lua_State *L, id obj) {
 }
 
 static int pushWKWebsiteDataRecord(lua_State *L, id obj) {
-    LuaSkin             *skin  = [LuaSkin shared] ;
+    LuaSkin             *skin  = [LuaSkin sharedWithState:L] ;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wpartial-availability"
     WKWebsiteDataRecord *value = obj;
@@ -416,7 +419,7 @@ static int pushWKWebsiteDataRecord(lua_State *L, id obj) {
 }
 
 id toWKWebsiteDataStoreFromLua(lua_State *L, int idx) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     WKWebsiteDataStore *value ;
     if (luaL_testudata(L, idx, USERDATA_DS_TAG)) {
         value = get_objectFromUserdata(__bridge WKWebsiteDataStore, L, idx, USERDATA_DS_TAG) ;
@@ -430,7 +433,7 @@ id toWKWebsiteDataStoreFromLua(lua_State *L, int idx) {
 #pragma mark - Hammerspoon/Lua Infrastructure
 
 static int userdata_tostring(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     WKWebsiteDataStore *obj = [skin luaObjectAtIndex:1 toClass:"WKWebsiteDataStore"] ;
     NSString *title = [obj isPersistent] ? @"persistent" : @"non-persistent" ;
     [skin pushNSObject:[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_DS_TAG, title, lua_topointer(L, 1)]] ;
@@ -441,7 +444,7 @@ static int userdata_eq(lua_State* L) {
 // can't get here if at least one of us isn't a userdata type, and we only care if both types are ours,
 // so use luaL_testudata before the macro causes a lua error
     if (luaL_testudata(L, 1, USERDATA_DS_TAG) && luaL_testudata(L, 2, USERDATA_DS_TAG)) {
-        LuaSkin *skin = [LuaSkin shared] ;
+        LuaSkin *skin = [LuaSkin sharedWithState:L] ;
         WKWebsiteDataStore *obj1 = [skin luaObjectAtIndex:1 toClass:"WKWebsiteDataStore"] ;
         WKWebsiteDataStore *obj2 = [skin luaObjectAtIndex:2 toClass:"WKWebsiteDataStore"] ;
         lua_pushboolean(L, [obj1 isEqualTo:obj2]) ;
@@ -495,7 +498,7 @@ static luaL_Reg moduleLib[] = {
 
 // NOTE: ** Make sure to change luaopen_..._internal **
 int luaopen_hs_webview_datastore(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     if (!NSClassFromString(@"WKWebsiteDataStore")) {
         [skin logError:[NSString stringWithFormat:@"%s requires WKWebsiteDataStore support, found in OS X 10.11 or newer", USERDATA_DS_TAG]] ;
         // nil gets interpreted as "nothing" and thus "true" by require...
