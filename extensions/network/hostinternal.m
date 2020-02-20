@@ -22,7 +22,7 @@ typedef struct _hshost_t {
 } hshost_t;
 
 static int pushCFHost(lua_State *L, CFHostRef theHost, CFHostInfoType resolveType) {
-    LuaSkin   *skin    = [LuaSkin sharedWithState:NULL] ;
+    LuaSkin   *skin    = [LuaSkin sharedWithState:L] ;
     hshost_t* thePtr = lua_newuserdata(L, sizeof(hshost_t)) ;
     memset(thePtr, 0, sizeof(hshost_t)) ;
 
