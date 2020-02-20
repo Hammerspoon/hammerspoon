@@ -22,7 +22,7 @@ typedef struct _hshost_t {
 } hshost_t;
 
 static int pushCFHost(lua_State *L, CFHostRef theHost, CFHostInfoType resolveType) {
-    LuaSkin   *skin    = [LuaSkin shared] ;
+    LuaSkin   *skin    = [LuaSkin sharedWithState:NULL] ;
     hshost_t* thePtr = lua_newuserdata(L, sizeof(hshost_t)) ;
     memset(thePtr, 0, sizeof(hshost_t)) ;
 
@@ -47,7 +47,7 @@ static int pushCFHost(lua_State *L, CFHostRef theHost, CFHostInfoType resolveTyp
 }
 
 static int pushQueryResults(lua_State *L, BOOL syncronous, CFHostRef theHost, CFHostInfoType typeInfo) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     Boolean available = false ;
     int argCount = syncronous ? 1 : 2 ;
     switch(typeInfo) {
@@ -146,7 +146,7 @@ void handleCallback(__unused CFHostRef theHost, __unused CFHostInfoType typeInfo
     }
 
     dispatch_async(dispatch_get_main_queue(), ^{
-        LuaSkin *skin = [LuaSkin shared] ;
+        LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
         if (theRef->callbackRef != LUA_NOREF) {
             lua_State *L = [skin L] ;
             _lua_stackguard_entry(L);
@@ -173,7 +173,7 @@ void handleCallback(__unused CFHostRef theHost, __unused CFHostInfoType typeInfo
 }
 
 static int commonConstructor(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION | LS_TNIL, LS_TBREAK] ;
 
     hshost_t* theRef = get_structFromUserdata(hshost_t, L, 1) ;
@@ -210,7 +210,7 @@ static int commonConstructor(lua_State *L) {
 }
 
 static int commonForHostName(lua_State *L, CFHostInfoType resolveType) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TFUNCTION | LS_TNIL | LS_TOPTIONAL, LS_TBREAK] ;
     BOOL syncronous = lua_isnoneornil(L, 2) ;
 
@@ -229,7 +229,7 @@ static int commonForHostName(lua_State *L, CFHostInfoType resolveType) {
 }
 
 static int commonForAddress(lua_State *L, CFHostInfoType resolveType) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING | LS_TNUMBER, LS_TFUNCTION | LS_TNIL | LS_TOPTIONAL, LS_TBREAK] ;
     BOOL syncronous = lua_isnoneornil(L, 2) ;
 
@@ -352,7 +352,7 @@ static int getReachabilityForHostName(lua_State *L) {
 /// Returns:
 ///  * true, if resolution is still in progress, or false if resolution has already completed.
 static int resolutionIsRunning(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     hshost_t* theRef = get_structFromUserdata(hshost_t, L, 1) ;
     lua_pushboolean(L, theRef->running) ;
@@ -372,7 +372,7 @@ static int resolutionIsRunning(lua_State *L) {
 /// Notes:
 ///  * This method has no effect if the resolution has already completed.
 static int cancelResolution(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     hshost_t* theRef = get_structFromUserdata(hshost_t, L, 1) ;
     if (theRef->running) {
@@ -390,7 +390,7 @@ static int cancelResolution(lua_State *L) {
 #pragma mark - Hammerspoon/Lua Infrastructure
 
 static int userdata_tostring(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
 //     CFHostRef theHost = get_structFromUserdata(hshost_t, L, 1)->theHostObj ;
     [skin pushNSObject:[NSString stringWithFormat:@"%s: (%p)", USERDATA_TAG, lua_topointer(L, 1)]] ;
     return 1 ;
@@ -410,7 +410,7 @@ static int userdata_eq(lua_State* L) {
 }
 
 static int userdata_gc(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
 //     [skin logVerbose:@"in hosts __gc"] ;
     hshost_t* theRef = get_structFromUserdata(hshost_t, L, 1) ;
     theRef->callbackRef = [skin luaUnref:refTable ref:theRef->callbackRef] ;
@@ -459,8 +459,8 @@ static luaL_Reg moduleLib[] = {
 //     {NULL,   NULL}
 // };
 
-int luaopen_hs_network_hostinternal(lua_State* __unused L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+int luaopen_hs_network_hostinternal(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     refTable = [skin registerLibraryWithObject:USERDATA_TAG
                                      functions:moduleLib
                                  metaFunctions:nil    // or module_metaLib
