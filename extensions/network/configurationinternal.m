@@ -23,18 +23,20 @@ static void doDynamicStoreCallback(__unused SCDynamicStoreRef store, CFArrayRef 
     if (thePtr->callbackRef != LUA_NOREF) {
         NSArray *nsChangedKeys = [(__bridge NSArray *)changedKeys copy];
         dispatch_async(dispatch_get_main_queue(), ^{
-            LuaSkin   *skin = [LuaSkin shared] ;
-            lua_State *L    = [skin L] ;
-            _lua_stackguard_entry(L);
-            [skin pushLuaRef:refTable ref:thePtr->callbackRef] ;
-            [skin pushLuaRef:refTable ref:thePtr->selfRef] ;
-            if (changedKeys) {
-                [skin pushNSObject:nsChangedKeys] ;
-            } else {
-                lua_pushnil(L) ;
+            if (thePtr->callbackRef != LUA_NOREF) {
+                LuaSkin   *skin = [LuaSkin shared] ;
+                lua_State *L    = [skin L] ;
+                _lua_stackguard_entry(L);
+                [skin pushLuaRef:refTable ref:thePtr->callbackRef] ;
+                [skin pushLuaRef:refTable ref:thePtr->selfRef] ;
+                if (changedKeys) {
+                    [skin pushNSObject:nsChangedKeys] ;
+                } else {
+                    lua_pushnil(L) ;
+                }
+                [skin protectedCallAndError:@"hs.network.configuration callback" nargs:2 nresults:0];
+                _lua_stackguard_exit(L);
             }
-            [skin protectedCallAndError:@"hs.network.configuration callback" nargs:2 nresults:0];
-            _lua_stackguard_exit(L);
         }) ;
     }
 }
