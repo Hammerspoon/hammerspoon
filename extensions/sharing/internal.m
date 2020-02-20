@@ -35,7 +35,7 @@ static id toNSURLFromLua(lua_State *L, int idx) ;
 
 - (void)sharingService:(__unused NSSharingService *)sharingService didFailToShareItems:(NSArray *)items error:(NSError *)error {
     if (_callbackRef != LUA_NOREF) {
-        LuaSkin *skin = [LuaSkin shared] ;
+        LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
         _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_callbackRef] ;
         [skin pushNSObject:self] ;
@@ -49,7 +49,7 @@ static id toNSURLFromLua(lua_State *L, int idx) ;
 
 - (void)sharingService:(__unused NSSharingService *)sharingService didShareItems:(NSArray *)items {
     if (_callbackRef != LUA_NOREF) {
-        LuaSkin *skin = [LuaSkin shared] ;
+        LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
         _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_callbackRef] ;
         [skin pushNSObject:self] ;
@@ -62,7 +62,7 @@ static id toNSURLFromLua(lua_State *L, int idx) ;
 
 - (void)sharingService:(__unused NSSharingService *)sharingService willShareItems:(NSArray *)items {
     if (_callbackRef != LUA_NOREF) {
-        LuaSkin *skin = [LuaSkin shared] ;
+        LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
         _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_callbackRef] ;
         [skin pushNSObject:self] ;
@@ -87,7 +87,7 @@ static id toNSURLFromLua(lua_State *L, int idx) ;
 /// Returns:
 ///  * a sharingObject or nil if the type identifier cannot be created on this system
 static int sharing_new(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
     HSSharingService *wrapper = [[HSSharingService alloc] initWithService:[skin toNSObjectAtIndex:1]] ;
     if (wrapper && wrapper.sharingService) {
@@ -112,7 +112,7 @@ static int sharing_new(lua_State *L) {
 /// Notes:
 ///  * this function is intended to be used to determine the identifiers for sharing services available on your computer and that may not be included in the [hs.sharing.builtinSharingServices](#builtinSharingServices) table.
 static int sharing_servicesForItems(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TTABLE | LS_TOPTIONAL, LS_TBREAK] ;
     NSArray *items ;
     if (lua_gettop(L) == 1) {
@@ -163,7 +163,7 @@ static int sharing_servicesForItems(lua_State *L) {
 ///    * filePath      = a string specifying the actual path to the file in case the url is a file reference URL.  Note that setting this field with this method will be silently ignored; the field is automatically inserted if appropriate when returning an NSURL object to lua.
 ///    * __luaSkinType - a string specifying the macOS type this table represents when converted into an Objective-C type
 static int sharing_makeURL(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING | LS_TTABLE, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     BOOL shouldBeFileURL = (lua_gettop(L) == 2) ? (BOOL)lua_toboolean(L, 2) : NO ;
 
@@ -195,7 +195,7 @@ static int sharing_makeURL(lua_State *L) {
 /// Notes:
 ///  * You can check to see if all of your items can be shared with the [hs.sharing:canShareItems](#canShareItems) method.
 static int sharing_performWith(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBREAK] ;
     HSSharingService *wrapper = [skin toNSObjectAtIndex:1] ;
 
@@ -223,7 +223,7 @@ static int sharing_performWith(lua_State *L) {
 /// Returns:
 ///  * a boolean value indicating whether or not all of the specified items can be shared with the sharing service represented by the sharingObject.
 static int sharing_canPerformWith(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBREAK] ;
     HSSharingService *wrapper = [skin toNSObjectAtIndex:1] ;
 
@@ -256,7 +256,7 @@ static int sharing_canPerformWith(lua_State *L) {
 ///    * an array (table) containing the items being shared; if the message is "didFail" or "didShare", the items may be in a different order or converted to a different internal type to facilitate sharing.
 ///    * if the message is "didFail", the fourth argument will be a localized description of the error that occurred.
 static int sharing_callback(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION | LS_TNIL, LS_TBREAK] ;
     HSSharingService *wrapper = [skin toNSObjectAtIndex:1] ;
 
@@ -283,7 +283,7 @@ static int sharing_callback(lua_State *L) {
 ///  * not all sharing services will make use of the value set by this method.
 ///  * the individual recipients should be specified as strings in the format expected by the sharing service; e.g. for items being shared in an email, the recipients should be email address, etc.
 static int sharing_recipients(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE | LS_TOPTIONAL, LS_TBREAK] ;
     HSSharingService *wrapper = [skin toNSObjectAtIndex:1] ;
 
@@ -325,7 +325,7 @@ static int sharing_recipients(lua_State *L) {
 /// Notes:
 ///  * not all sharing services will make use of the value set by this method.
 static int sharing_subject(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
     HSSharingService *wrapper = [skin toNSObjectAtIndex:1] ;
 
@@ -350,8 +350,8 @@ static int sharing_subject(lua_State *L) {
 ///
 /// Notes:
 ///  * not all sharing services will set a value for this property.
-static int sharing_attachmentURLs(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int sharing_attachmentURLs(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSSharingService *wrapper = [skin toNSObjectAtIndex:1] ;
     [skin pushNSObject:wrapper.sharingService.attachmentFileURLs] ;
@@ -370,8 +370,8 @@ static int sharing_attachmentURLs(__unused lua_State *L) {
 ///
 /// Notes:
 ///  * According to the Apple API documentation, only the Twitter and Sina Weibo sharing services will set this property, but this has not been fully tested.
-static int sharing_accountName(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int sharing_accountName(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSSharingService *wrapper = [skin toNSObjectAtIndex:1] ;
     [skin pushNSObject:wrapper.sharingService.accountName] ;
@@ -390,8 +390,8 @@ static int sharing_accountName(__unused lua_State *L) {
 ///
 /// Notes:
 ///  * not all sharing services will set a value for this property.
-static int sharing_messageBody(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int sharing_messageBody(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSSharingService *wrapper = [skin toNSObjectAtIndex:1] ;
     [skin pushNSObject:wrapper.sharingService.messageBody] ;
@@ -410,8 +410,8 @@ static int sharing_messageBody(__unused lua_State *L) {
 ///
 /// Notes:
 ///  * this string differs from the identifier used to create the sharing service object with [hs.sharing.newShare](#newShare) and is intended to provide a more friendly label for the service if you need to list or refer to it elsewhere.
-static int sharing_title(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int sharing_title(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSSharingService *wrapper = [skin toNSObjectAtIndex:1] ;
     [skin pushNSObject:wrapper.sharingService.title] ;
@@ -430,8 +430,8 @@ static int sharing_title(__unused lua_State *L) {
 ///
 /// Notes:
 ///  * this string will match the identifier used to create the sharing service object with [hs.sharing.newShare](#newShare)
-static int sharing_serviceName(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int sharing_serviceName(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSSharingService *wrapper = [skin toNSObjectAtIndex:1] ;
     NSString *label ;
@@ -459,8 +459,8 @@ static int sharing_serviceName(__unused lua_State *L) {
 ///
 /// Notes:
 ///  * not all sharing services will set a value for this property.
-static int sharing_permanentLink(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int sharing_permanentLink(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSSharingService *wrapper = [skin toNSObjectAtIndex:1] ;
     [skin pushNSObject:wrapper.sharingService.permanentLink] ;
@@ -476,8 +476,8 @@ static int sharing_permanentLink(__unused lua_State *L) {
 ///
 /// Returns:
 ///  * an hs.image object or nil, if no alternate image representation for the sharing service is defined.
-static int sharing_alternateImage(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int sharing_alternateImage(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSSharingService *wrapper = [skin toNSObjectAtIndex:1] ;
     [skin pushNSObject:wrapper.sharingService.alternateImage] ;
@@ -493,8 +493,8 @@ static int sharing_alternateImage(__unused lua_State *L) {
 ///
 /// Returns:
 ///  * an hs.image object or nil, if no image representation for the sharing service is defined.
-static int sharing_image(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int sharing_image(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSSharingService *wrapper = [skin toNSObjectAtIndex:1] ;
     [skin pushNSObject:wrapper.sharingService.image] ;
@@ -504,7 +504,7 @@ static int sharing_image(__unused lua_State *L) {
 #pragma mark - Module Constants
 
 static int pushBuiltinSharingServices(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     lua_newtable(L) ;
     [skin pushNSObject:NSSharingServiceNameAddToAperture] ;             lua_setfield(L, -2, "addToAperture") ;
     [skin pushNSObject:NSSharingServiceNameAddToIPhoto] ;               lua_setfield(L, -2, "addToIPhoto") ;
@@ -543,7 +543,7 @@ static int pushHSSharingService(lua_State *L, id obj) {
 }
 
 id toHSSharingServiceFromLua(lua_State *L, int idx) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     HSSharingService *value ;
     if (luaL_testudata(L, idx, USERDATA_TAG)) {
         value = get_objectFromUserdata(__bridge HSSharingService, L, idx, USERDATA_TAG) ;
@@ -555,7 +555,7 @@ id toHSSharingServiceFromLua(lua_State *L, int idx) {
 }
 
 static int pushNSURL(lua_State *L, id obj) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSURL *url = obj ;
     lua_newtable(L) ;
     [skin pushNSObject:[url absoluteString]] ;
@@ -569,7 +569,7 @@ static int pushNSURL(lua_State *L, id obj) {
 }
 
 static id toNSURLFromLua(lua_State *L, int idx) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSURL   *url ;
     idx = lua_absindex(L, idx) ;
     if (lua_type(L, idx) == LUA_TSTRING) {
@@ -590,7 +590,7 @@ static id toNSURLFromLua(lua_State *L, int idx) {
 #pragma mark - Hammerspoon/Lua Infrastructure
 
 static int userdata_tostring(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     HSSharingService *obj = [skin luaObjectAtIndex:1 toClass:"HSSharingService"] ;
     NSString *title = obj.sharingService.title ;
     [skin pushNSObject:[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, title, lua_topointer(L, 1)]] ;
@@ -601,7 +601,7 @@ static int userdata_eq(lua_State* L) {
 // can't get here if at least one of us isn't a userdata type, and we only care if both types are ours,
 // so use luaL_testudata before the macro causes a lua error
     if (luaL_testudata(L, 1, USERDATA_TAG) && luaL_testudata(L, 2, USERDATA_TAG)) {
-        LuaSkin *skin = [LuaSkin shared] ;
+        LuaSkin *skin = [LuaSkin sharedWithState:L] ;
         HSSharingService *obj1 = [skin luaObjectAtIndex:1 toClass:"HSSharingService"] ;
         HSSharingService *obj2 = [skin luaObjectAtIndex:2 toClass:"HSSharingService"] ;
         lua_pushboolean(L, [obj1 isEqualTo:obj2]) ;
@@ -616,7 +616,7 @@ static int userdata_gc(lua_State* L) {
     if (obj) {
         obj.selfRefCount-- ;
         if (obj.selfRefCount == 0) {
-            LuaSkin *skin = [LuaSkin shared] ;
+            LuaSkin *skin = [LuaSkin sharedWithState:L] ;
             obj.callbackRef = [skin luaUnref:refTable ref:obj.callbackRef] ;
             obj.sharingService = nil ;
             obj = nil ;
@@ -669,7 +669,7 @@ static luaL_Reg moduleLib[] = {
 // };
 
 int luaopen_hs_sharing_internal(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     refTable = [skin registerLibraryWithObject:USERDATA_TAG
                                      functions:moduleLib
                                  metaFunctions:nil    // or module_metaLib
