@@ -77,7 +77,7 @@ static id toNSSortDescriptorFromLua(lua_State *L, int idx) ;
 - (void)doCallbackFor:(NSString *)message with:(NSNotification *)notification {
     dispatch_async(dispatch_get_main_queue(), ^{
         if (self->_callbackRef != LUA_NOREF) {
-            LuaSkin *skin = [LuaSkin shared] ;
+            LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
             _lua_stackguard_entry(skin.L);
             [skin pushLuaRef:refTable ref:self->_callbackRef] ;
             [skin pushNSObject:self] ;
@@ -103,7 +103,7 @@ static id toNSSortDescriptorFromLua(lua_State *L, int idx) ;
 /// Returns:
 ///  * a new spotlightObject
 static int spotlight_new(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TBREAK] ;
     [skin pushNSObject:[[HSMetadataQuery alloc] init]] ;
     return 1 ;
@@ -118,8 +118,8 @@ static int spotlight_new(__unused lua_State *L) {
 ///
 /// Returns:
 ///  * a new spotlightObject
-static int spotlight_searchWithin(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int spotlight_searchWithin(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSMetadataQuery *query = [skin toNSObjectAtIndex:1] ;
 
@@ -139,7 +139,7 @@ static int spotlight_searchWithin(__unused lua_State *L) {
 
 // wrapped in init.lua
 static int spotlight_searchScopes(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TTABLE | LS_TOPTIONAL, LS_TBREAK] ;
     HSMetadataQuery *query = [skin toNSObjectAtIndex:1] ;
 
@@ -231,7 +231,7 @@ static int spotlight_searchScopes(lua_State *L) {
 ///
 ///  * All of the results are always available through the [hs.spotlight:resultAtIndex](#resultAtIndex) method and metamethod shortcuts described in the `hs.spotlight` and `hs.spotlight.item` documentation headers; the results provided by the "didUpdate" and "inProgress" messages are just a convenience and can be used if you wish to parse partial results.
 static int spotlight_callback(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION | LS_TNIL, LS_TBREAK] ;
     HSMetadataQuery *query = [skin toNSObjectAtIndex:1] ;
 
@@ -246,7 +246,7 @@ static int spotlight_callback(lua_State *L) {
 
 // wrapped in init.lua
 static int spotlight_callbackMessages(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TTABLE | LS_TOPTIONAL, LS_TBREAK] ;
     HSMetadataQuery *query = [skin toNSObjectAtIndex:1] ;
 
@@ -298,7 +298,7 @@ static int spotlight_callbackMessages(lua_State *L) {
 /// Returns:
 ///  * if an argument is provided, returns the spotlightObject object; otherwise returns the current value.
 static int spotlight_updateInterval(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK] ;
     HSMetadataQuery *query = [skin toNSObjectAtIndex:1] ;
 
@@ -313,7 +313,7 @@ static int spotlight_updateInterval(lua_State *L) {
 
 // wrapped in init.lua
 static int spotlight_sortDescriptors(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE | LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
     HSMetadataQuery *query = [skin toNSObjectAtIndex:1] ;
 
@@ -359,7 +359,7 @@ static int spotlight_sortDescriptors(lua_State *L) {
 
 // wrapped in init.lua
 static int spotlight_valueListAttributes(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE | LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
     HSMetadataQuery *query = [skin toNSObjectAtIndex:1] ;
 
@@ -391,7 +391,7 @@ static int spotlight_valueListAttributes(lua_State *L) {
 
 // wrapped in init.lua
 static int spotlight_groupingAttributes(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE | LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
     HSMetadataQuery *query = [skin toNSObjectAtIndex:1] ;
 
@@ -434,7 +434,7 @@ static int spotlight_groupingAttributes(lua_State *L) {
 /// Notes:
 ///  * If the query string set with [hs.spotlight:queryString](#queryString) is invalid, an error message will be logged to the Hammerspoon console and the query will not start.  You can test to see if the query is actually running with the [hs.spotlight:isRunning](#isRunning) method.
 static int spotlight_start(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSMetadataQuery *query = [skin toNSObjectAtIndex:1] ;
 
@@ -471,7 +471,7 @@ static int spotlight_start(lua_State *L) {
 /// Notes:
 ///  * This method will prevent further gathering of items either during the initial gathering phase or from updates which may occur after the gathering phase; however it will not discard the results already discovered.
 static int spotlight_stop(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSMetadataQuery *query = [skin toNSObjectAtIndex:1] ;
 
@@ -497,7 +497,7 @@ static int spotlight_stop(lua_State *L) {
 /// Notes:
 ///  * An active query may be gathering query results (in the initial gathering phase) or listening for changes which should cause a "didUpdate" message (after the initial gathering phase). To determine which state the query may be in, use the [hs.spotlight:isGathering](#isGathering) method.
 static int spotlight_isRunning(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSMetadataQuery *query = [skin toNSObjectAtIndex:1] ;
 
@@ -518,7 +518,7 @@ static int spotlight_isRunning(lua_State *L) {
 /// Notes:
 ///  * An inactive query will also return false for this method since an inactive query is neither gathering nor waiting for updates.  To determine if a query is active or inactive, use the [hs.spotlight:isRunning](#isRunning) method.
 static int spotlight_isGathering(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSMetadataQuery *query = [skin toNSObjectAtIndex:1] ;
 
@@ -554,7 +554,7 @@ static int spotlight_isGathering(lua_State *L) {
 ///
 ///  * As a convenience, the __call metamethod has been setup for spotlightObject so that you can use `spotlightObject("query")` as a shortcut for `spotlightObject:queryString("query"):start`.  Because this shortcut includes an explicit start, this should be appended after you have set the callback function if you require a callback (e.g. `spotlightObject:setCallback(fn)("query")`).
 static int spotlight_predicate(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TNIL |LS_TOPTIONAL, LS_TBREAK] ;
     HSMetadataQuery *query = [skin toNSObjectAtIndex:1] ;
 
@@ -594,7 +594,7 @@ static int spotlight_predicate(lua_State *L) {
 ///
 ///  * For convenience, metamethods have been added to the spotlightObject which allow you to use `#spotlightObject` as a shortcut for `spotlightObject:count()`.
 static int spotlight_resultCount(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSMetadataQuery *query = [skin toNSObjectAtIndex:1] ;
 
@@ -615,7 +615,7 @@ static int spotlight_resultCount(lua_State *L) {
 /// Notes:
 ///  * For convenience, metamethods have been added to the spotlightObject which allow you to use `spotlightObject[index]` as a shortcut for `spotlightObject:resultAtIndex(index)`.
 static int spotlight_resultAtIndex(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER| LS_TINTEGER, LS_TBREAK] ;
     HSMetadataQuery *query = [skin toNSObjectAtIndex:1] ;
 
@@ -651,8 +651,8 @@ static int spotlight_resultAtIndex(lua_State *L) {
 ///
 /// Notes:
 ///  * Value list summaries are a quick way to gather statistics about the number of results which match certain criteria - they do not allow you easy access to the matching members, just information about their numbers.
-static int spotlight_valueLists(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int spotlight_valueLists(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSMetadataQuery *query = [skin toNSObjectAtIndex:1] ;
 
@@ -672,8 +672,8 @@ static int spotlight_valueLists(__unused lua_State *L) {
 ///
 /// Notes:
 ///  * The spotlightItemObjects available with the `hs.spotlight.group:resultAtIndex` method are the subset of the full results of the spotlightObject that match the attribute and value of the spotlightGroupObject.  The same item is available through the spotlightObject and the spotlightGroupObject, though likely at different indicies.
-static int spotlight_groupedResults(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int spotlight_groupedResults(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSMetadataQuery *query = [skin toNSObjectAtIndex:1] ;
 
@@ -692,8 +692,8 @@ static int spotlight_groupedResults(__unused lua_State *L) {
 ///
 /// Returns:
 ///  * the attribute name as a string
-static int group_attribute(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int group_attribute(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, GROUP_UD_TAG, LS_TBREAK] ;
     NSMetadataQueryResultGroup *resultGroup = [skin toNSObjectAtIndex:1] ;
 
@@ -710,8 +710,8 @@ static int group_attribute(__unused lua_State *L) {
 ///
 /// Returns:
 ///  * the attribute value as an appropriate data type
-static int group_value(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int group_value(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, GROUP_UD_TAG, LS_TBREAK] ;
     NSMetadataQueryResultGroup *resultGroup = [skin toNSObjectAtIndex:1] ;
 
@@ -732,7 +732,7 @@ static int group_value(__unused lua_State *L) {
 /// Notes:
 ///  * For convenience, metamethods have been added to the spotlightGroupObject which allow you to use `#spotlightGroupObject` as a shortcut for `spotlightGroupObject:count()`.
 static int group_resultCount(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, GROUP_UD_TAG, LS_TBREAK] ;
     NSMetadataQueryResultGroup *resultGroup = [skin toNSObjectAtIndex:1] ;
 
@@ -753,7 +753,7 @@ static int group_resultCount(lua_State *L) {
 /// Notes:
 ///  * For convenience, metamethods have been added to the spotlightGroupObject which allow you to use `spotlightGroupObject[index]` as a shortcut for `spotlightGroupObject:resultAtIndex(index)`.
 static int group_resultAtIndex(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, GROUP_UD_TAG, LS_TNUMBER | LS_TINTEGER, LS_TBREAK] ;
     NSMetadataQueryResultGroup *resultGroup = [skin toNSObjectAtIndex:1] ;
 
@@ -783,8 +783,8 @@ static int group_resultAtIndex(lua_State *L) {
 ///
 /// Notes:
 ///  * Subgroups are created when you supply more than one grouping attribute to `hs.spotlight:groupingAttributes`.
-static int group_subgroups(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int group_subgroups(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, GROUP_UD_TAG, LS_TBREAK] ;
     NSMetadataQueryResultGroup *resultGroup = [skin toNSObjectAtIndex:1] ;
 
@@ -809,8 +809,8 @@ static int group_subgroups(__unused lua_State *L) {
 ///
 /// * A common attribute, which is not usually included in the results of this method is the "kMDItemPath" attribute which specifies the local path to the file the entity represents. This is included here for reference, as it is a commonly desired value that is not obviously available for almost all Spotlight entries.
 ///  * It is believed that only those keys which are explicitly set when an item is added to the Spotlight database are included in the array returned by this method. Any attribute which is calculated or restricted in a sandboxed application appears to require an explicit request. This is, however, conjecture, and when in doubt you should explicitly check for the attributes you require with [hs.spotlight.item:valueForAttribute](#valueForAttribute) and not rely solely on the results from this method.
-static int item_attributes(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int item_attributes(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, ITEM_UD_TAG, LS_TBREAK] ;
     NSMetadataItem *item = [skin toNSObjectAtIndex:1] ;
 
@@ -832,8 +832,8 @@ static int item_attributes(__unused lua_State *L) {
 ///  * See [hs.spotlight.item:attributes](#attributes) for information about possible attribute names.
 ///
 ///  * For convenience, metamethods have been added to the spotlightItemObject which allow you to use `spotlightItemObject.attribute` as a shortcut for `spotlightItemObject:valueForAttribute(attribute)`.
-static int item_valueForAttribute(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int item_valueForAttribute(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, ITEM_UD_TAG, LS_TSTRING, LS_TBREAK] ;
     NSMetadataItem *item = [skin toNSObjectAtIndex:1] ;
 
@@ -861,7 +861,7 @@ static int item_valueForAttribute(__unused lua_State *L) {
 /// Notes:
 ///  * It is uncertain at this time if the `iCloud*` search scopes are actually useful within Hammerspoon as Hammerspoon is not a sandboxed application that uses the iCloud API fo document storage. Further information on your experiences with these scopes, if you use them, is welcome in the Hammerspoon Google Group or at the Hammerspoon Github web site.
 static int push_searchScopes(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     lua_newtable(L) ;
     [skin pushNSObject:NSMetadataQueryUserHomeScope] ;                              lua_setfield(L, -2, "userHome") ;
     [skin pushNSObject:NSMetadataQueryLocalComputerScope] ;                         lua_setfield(L, -2, "localComputer") ;
@@ -883,7 +883,7 @@ static int push_searchScopes(lua_State *L) {
 /// Notes:
 ///  * This list was generated by searching the Framework header files for string constants which matched one of the following regular expressions: "kMDItem.+", "NSMetadataItem.+", and "NSMetadataUbiquitousItem.+"
 static int push_commonAttributeKeys(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     lua_newtable(L) ;
 
     // pulled from 10.12 framework headers based on string names "kMDItem.+", "NSMetadataItem.+", and
@@ -1089,7 +1089,7 @@ static int pushHSMetadataQuery(lua_State *L, id obj) {
 }
 
 static id toHSMetadataQueryFromLua(lua_State *L, int idx) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     HSMetadataQuery *value ;
     if (luaL_testudata(L, idx, USERDATA_TAG)) {
         value = get_objectFromUserdata(__bridge HSMetadataQuery, L, idx, USERDATA_TAG) ;
@@ -1110,7 +1110,7 @@ static int pushNSMetadataQueryResultGroup(lua_State *L, id obj) {
 }
 
 static id toNSMetadataQueryResultGroupFromLua(lua_State *L, int idx) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSMetadataQueryResultGroup *value ;
     if (luaL_testudata(L, idx, GROUP_UD_TAG)) {
         value = get_objectFromUserdata(__bridge NSMetadataQueryResultGroup, L, idx, GROUP_UD_TAG) ;
@@ -1131,7 +1131,7 @@ static int pushNSMetadataItem(lua_State *L, id obj) {
 }
 
 static id toNSMetadataItemFromLua(lua_State *L, int idx) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSMetadataItem *value ;
     if (luaL_testudata(L, idx, ITEM_UD_TAG)) {
         value = get_objectFromUserdata(__bridge NSMetadataItem, L, idx, ITEM_UD_TAG) ;
@@ -1143,7 +1143,7 @@ static id toNSMetadataItemFromLua(lua_State *L, int idx) {
 }
 
 static int pushNSSortDescriptor(lua_State *L, id obj) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSSortDescriptor *descriptor = obj ;
     lua_newtable(L) ;
     [skin pushNSObject:descriptor.key] ; lua_setfield(L, -2, "key") ;
@@ -1153,7 +1153,7 @@ static int pushNSSortDescriptor(lua_State *L, id obj) {
 }
 
 static id toNSSortDescriptorFromLua(lua_State *L, int idx) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSSortDescriptor *value ;
     idx = lua_absindex(L, idx) ;
     if (lua_type(L, idx) == LUA_TSTRING) {
@@ -1179,7 +1179,7 @@ static id toNSSortDescriptorFromLua(lua_State *L, int idx) {
 }
 
 static int pushNSMetadataQueryAttributeValueTuple(lua_State *L, id obj) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSMetadataQueryAttributeValueTuple *tuple = obj ;
     lua_newtable(L) ;
     [skin pushNSObject:tuple.attribute] ;          lua_setfield(L, -2, "attribute") ;
@@ -1191,7 +1191,7 @@ static int pushNSMetadataQueryAttributeValueTuple(lua_State *L, id obj) {
 #pragma mark - Hammerspoon/Lua Infrastructure
 
 static int userdata_tostring(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     HSMetadataQuery *obj = [skin luaObjectAtIndex:1 toClass:"HSMetadataQuery"] ;
     NSString *title = obj.metadataSearch.predicate.predicateFormat ;
     if (!title) title = @"<undefined>" ;
@@ -1203,7 +1203,7 @@ static int userdata_eq(lua_State* L) {
 // can't get here if at least one of us isn't a userdata type, and we only care if both types are ours,
 // so use luaL_testudata before the macro causes a lua error
     if (luaL_testudata(L, 1, USERDATA_TAG) && luaL_testudata(L, 2, USERDATA_TAG)) {
-        LuaSkin *skin = [LuaSkin shared] ;
+        LuaSkin *skin = [LuaSkin sharedWithState:L] ;
         HSMetadataQuery *obj1 = [skin luaObjectAtIndex:1 toClass:"HSMetadataQuery"] ;
         HSMetadataQuery *obj2 = [skin luaObjectAtIndex:2 toClass:"HSMetadataQuery"] ;
         lua_pushboolean(L, [obj1 isEqualTo:obj2]) ;
@@ -1218,7 +1218,7 @@ static int userdata_gc(lua_State* L) {
     if (obj) {
         obj.selfPushCount-- ;
         if (obj.selfPushCount == 0) {
-            LuaSkin *skin = [LuaSkin shared] ;
+            LuaSkin *skin = [LuaSkin sharedWithState:L] ;
             obj.callbackRef = [skin luaUnref:refTable ref:obj.callbackRef] ;
             NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter] ;
             [notificationCenter removeObserver:obj name:NSMetadataQueryDidFinishGatheringNotification object:obj.metadataSearch];
@@ -1237,7 +1237,7 @@ static int userdata_gc(lua_State* L) {
 }
 
 static int group_userdata_tostring(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSMetadataQueryResultGroup *obj = [skin luaObjectAtIndex:1 toClass:"NSMetadataQueryResultGroup"] ;
     NSString *title = obj.attribute ;
     if (!title) title = @"<undefined>" ;
@@ -1249,7 +1249,7 @@ static int group_userdata_eq(lua_State* L) {
 // can't get here if at least one of us isn't a userdata type, and we only care if both types are ours,
 // so use luaL_testudata before the macro causes a lua error
     if (luaL_testudata(L, 1, GROUP_UD_TAG) && luaL_testudata(L, 2, GROUP_UD_TAG)) {
-        LuaSkin *skin = [LuaSkin shared] ;
+        LuaSkin *skin = [LuaSkin sharedWithState:L] ;
         NSMetadataQueryResultGroup *obj1 = [skin luaObjectAtIndex:1 toClass:"NSMetadataQueryResultGroup"] ;
         NSMetadataQueryResultGroup *obj2 = [skin luaObjectAtIndex:2 toClass:"NSMetadataQueryResultGroup"] ;
         lua_pushboolean(L, [obj1 isEqualTo:obj2]) ;
@@ -1269,7 +1269,7 @@ static int group_userdata_gc(lua_State* L) {
 }
 
 static int item_userdata_tostring(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSMetadataItem *obj = [skin luaObjectAtIndex:1 toClass:"NSMetadataItem"] ;
     NSString *title = [obj valueForAttribute:NSMetadataItemFSNameKey] ;
     if (!title) title = @"<undefined>" ;
@@ -1281,7 +1281,7 @@ static int item_userdata_eq(lua_State* L) {
 // can't get here if at least one of us isn't a userdata type, and we only care if both types are ours,
 // so use luaL_testudata before the macro causes a lua error
     if (luaL_testudata(L, 1, ITEM_UD_TAG) && luaL_testudata(L, 2, ITEM_UD_TAG)) {
-        LuaSkin *skin = [LuaSkin shared] ;
+        LuaSkin *skin = [LuaSkin sharedWithState:L] ;
         NSMetadataItem *obj1 = [skin luaObjectAtIndex:1 toClass:"NSMetadataItem"] ;
         NSMetadataItem *obj2 = [skin luaObjectAtIndex:2 toClass:"NSMetadataItem"] ;
         lua_pushboolean(L, [obj1 isEqualTo:obj2]) ;
@@ -1371,7 +1371,7 @@ static const luaL_Reg module_metaLib[] = {
 };
 
 int luaopen_hs_spotlight_internal(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     refTable = [skin registerLibraryWithObject:USERDATA_TAG
                                      functions:moduleLib
                                  metaFunctions:module_metaLib
