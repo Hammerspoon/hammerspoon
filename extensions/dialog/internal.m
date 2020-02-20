@@ -36,7 +36,7 @@ static int refTable = LUA_NOREF ;
 - (void)colorClose:(__unused NSNotification*)note {
     if (_callbackRef != LUA_NOREF) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (_callbackRef != LUA_NOREF) {
+            if (self->_callbackRef != LUA_NOREF) {
                 LuaSkin   *skin = [LuaSkin shared] ;
                 _lua_stackguard_entry(skin.L);
                 lua_State *L    = [skin L] ;
@@ -55,7 +55,7 @@ static int refTable = LUA_NOREF ;
 - (void)colorCallback:(NSColorPanel*)colorPanel {
     if (_callbackRef != LUA_NOREF) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (_callbackRef != LUA_NOREF) {
+            if (self->_callbackRef != LUA_NOREF) {
                 LuaSkin   *skin = [LuaSkin shared] ;
                 _lua_stackguard_entry(skin.L);
                 lua_State *L    = [skin L] ;
