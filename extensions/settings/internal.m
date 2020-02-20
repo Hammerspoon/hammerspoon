@@ -24,7 +24,7 @@ static int refTable = LUA_NOREF ;
     if (context == myKVOContext && _watchedKeys && _watchedKeys[keyPath]) {
         NSMutableDictionary *fnCallbacks = _watchedKeys[keyPath] ;
 //         [LuaSkin logWarn:[NSString stringWithFormat:@"in callback for %@ with %@", keyPath, fnCallbacks]] ;
-        LuaSkin   *skin = [LuaSkin shared] ;
+        LuaSkin   *skin = [LuaSkin sharedWithState:NULL] ;
         _lua_stackguard_entry(skin.L);
         [fnCallbacks enumerateKeysAndObjectsUsingBlock:^(NSString *watcherID, NSNumber *refN, __unused BOOL *stop) {
             [skin pushLuaRef:refTable ref:refN.intValue] ;
@@ -62,7 +62,7 @@ static HSUserDefaultKVOWatcher *watcherManager ;
 ///  * This function cannot set dates or raw data types, see `hs.settings.setDate()` and `hs.settings.setData()`
 ///  * Assigning a nil value is equivalent to clearing the value with `hs.settings.clear`
 static int target_set(lua_State* L) {
-    LuaSkin * skin = [LuaSkin shared] ;
+    LuaSkin * skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TANY | LS_TOPTIONAL, LS_TBREAK] ;
     NSString* key = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
     if (!key) return luaL_error(L, "key must be a valid UTF8 string") ;
@@ -70,7 +70,7 @@ static int target_set(lua_State* L) {
 // Allow for missing second argument for backwards compatibility with pre-LuaSkin behavior
     id val = nil ;
     if (lua_gettop(L) == 2) {
-        val = [[LuaSkin shared] toNSObjectAtIndex:2 withOptions:LS_NSPreserveLuaStringExactly | LS_NSRawTables] ;
+        val = [skin toNSObjectAtIndex:2 withOptions:LS_NSPreserveLuaStringExactly | LS_NSRawTables] ;
     }
 
     @try {
@@ -94,7 +94,7 @@ static int target_set(lua_State* L) {
 /// Returns:
 ///  * None
 static int target_setData(lua_State* L) {
-    [[LuaSkin shared] checkArgs:LS_TSTRING, LS_TSTRING, LS_TBREAK] ;
+    [[LuaSkin sharedWithState:L] checkArgs:LS_TSTRING, LS_TSTRING, LS_TBREAK] ;
     NSString* key = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
         if (!key) return luaL_error(L, "key must be a valid UTF8 string") ;
         if (lua_type(L,2) == LUA_TSTRING) {
@@ -135,7 +135,7 @@ static NSDate* date_from_string(NSString* dateString) {
 /// Notes:
 ///  * See `hs.settings.dateFormat` for a convenient representation of the RFC3339 format, to use with other time/date related functions
 static int target_setDate(lua_State* L) {
-    [[LuaSkin shared] checkArgs:LS_TSTRING, LS_TSTRING | LS_TNUMBER, LS_TBREAK] ;
+    [[LuaSkin sharedWithState:L] checkArgs:LS_TSTRING, LS_TSTRING | LS_TNUMBER, LS_TBREAK] ;
 
     NSString* key = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
     if (!key) return luaL_error(L, "key must be a valid UTF8 string") ;
@@ -162,7 +162,7 @@ static int target_setDate(lua_State* L) {
 /// Notes:
 ///  * This function can load all of the datatypes supported by `hs.settings.set()`, `hs.settings.setData()` and `hs.settings.setDate()`
 static int target_get(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
     NSString* key = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
     if (!key) return luaL_error(L, "key must be a valid UTF8 string") ;
@@ -181,7 +181,7 @@ static int target_get(lua_State* L) {
 /// Returns:
 ///  * A boolean, true if the setting was deleted, otherwise false
 static int target_clear(lua_State* L) {
-    [[LuaSkin shared] checkArgs:LS_TSTRING, LS_TBREAK] ;
+    [[LuaSkin sharedWithState:L] checkArgs:LS_TSTRING, LS_TBREAK] ;
     NSString* key = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
     if (!key) return luaL_error(L, "key must be a valid UTF8 string") ;
     if ([[NSUserDefaults standardUserDefaults] objectForKey:key] && ![[NSUserDefaults standardUserDefaults] objectIsForcedForKey:key]) {
@@ -206,7 +206,7 @@ static int target_clear(lua_State* L) {
 ///  * Use `ipairs(hs.settings.getKeys())` to iterate over all available settings
 ///  * Use `hs.settings.getKeys()["someKey"]` to test for the existance of a particular key
 static int target_getKeys(lua_State* L) {
-    LuaSkin * skin = [LuaSkin shared] ;
+    LuaSkin * skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TBREAK] ;
     NSString *mainID = [[NSBundle mainBundle] bundleIdentifier] ;
     NSArray *keys = [[[NSUserDefaults standardUserDefaults] persistentDomainForName:mainID] allKeys];
@@ -239,7 +239,7 @@ static int target_getKeys(lua_State* L) {
 ///
 ///  * Does not work with keys that include a period (.) in the key name because KVO uses dot notation to specify a sequence of properties.  If you know of a way to escape periods so that they are watchable as NSUSerDefault key names, please file an issue and share!
 static int target_watchKey(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TFUNCTION | LS_TNIL | LS_TOPTIONAL, LS_TBREAK] ;
     NSString *watcherID = [skin toNSObjectAtIndex:1] ;
     NSString *keyPath   = [skin toNSObjectAtIndex:2] ;
@@ -270,13 +270,13 @@ static int target_watchKey(lua_State *L) {
 }
 
 // for debugging, should probably be removed at some point
-static int output_watchers(__unused lua_State *L) {
-    [[LuaSkin shared] pushNSObject:watcherManager.watchedKeys] ;
+static int output_watchers(lua_State *L) {
+    [[LuaSkin sharedWithState:L] pushNSObject:watcherManager.watchedKeys] ;
     return 1 ;
 }
 
-static int meta_gc(lua_State* __unused L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int meta_gc(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [watcherManager.watchedKeys enumerateKeysAndObjectsUsingBlock:^(NSString *keyPath, NSMutableDictionary *watchers, __unused BOOL *outterStop) {
         [[NSUserDefaults standardUserDefaults] removeObserver:watcherManager forKeyPath:keyPath context:myKVOContext] ;
         [watchers enumerateKeysAndObjectsUsingBlock:^(__unused NSString *watcherID, NSNumber *refN, __unused BOOL *innerStop) {
@@ -307,8 +307,8 @@ static const luaL_Reg module_metaLib[] = {
     {NULL,   NULL}
 };
 
-int luaopen_hs_settings_internal(lua_State* L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+int luaopen_hs_settings_internal(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibrary:settingslib metaFunctions:module_metaLib];
 
     watcherManager = [[HSUserDefaultKVOWatcher alloc] init] ;
