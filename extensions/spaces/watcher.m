@@ -33,7 +33,7 @@ typedef struct _spacewatcher_t {
 
 // Call the lua callback function.
 - (void)callback:(NSDictionary* __unused)dict withSpace:(int)space {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     lua_State *L = skin.L;
     _lua_stackguard_entry(L);
 
@@ -73,7 +73,7 @@ typedef struct _spacewatcher_t {
 /// Returns:
 ///  * An `hs.spaces.watcher` object
 static int space_watcher_new(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     luaL_checktype(L, 1, LUA_TFUNCTION);
 
@@ -99,7 +99,7 @@ static int space_watcher_new(lua_State* L) {
 /// Returns:
 ///  * The watcher object
 static int space_watcher_start(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     spacewatcher_t* spaceWatcher = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L, 1);
@@ -145,7 +145,7 @@ static int space_watcher_stop(lua_State* L) {
 }
 
 static int space_watcher_gc(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     spacewatcher_t* spaceWatcher = luaL_checkudata(L, 1, USERDATA_TAG);
 
