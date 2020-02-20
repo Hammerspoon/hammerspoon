@@ -13,7 +13,7 @@ static const char* watcherTag = "hs.uielement.watcher";
 static NSArray *eventNames;
 
 static void new_uielement(lua_State* L, AXUIElementRef element) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     AXUIElementRef* elementptr = lua_newuserdata(L, sizeof(AXUIElementRef));
     if (!elementptr) {
         [skin logBreadcrumb:@"hs.uielement new_uielement: elementptr is nil"];
@@ -208,7 +208,7 @@ typedef struct _watcher_t {
 } watcher_t;
 
 static int uielement_newWatcher(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     int nargs = lua_gettop(L);
 
     void *userData = lua_touserdata(L, 1);
@@ -261,7 +261,7 @@ static watcher_t* get_watcher(lua_State* L, int elem) {
 
 static void watcher_observer_callback(AXObserverRef observer __unused, AXUIElementRef element,
                                       CFStringRef notificationName, void* contextData) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     _lua_stackguard_entry(skin.L);
 
     watcher_t* watcher = (watcher_t*) contextData;
@@ -278,7 +278,7 @@ static void watcher_observer_callback(AXObserverRef observer __unused, AXUIEleme
 }
 
 static int watcher_start(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     watcher_t* watcher = get_watcher(L, 1);
     if (watcher->running) return 0;
 
