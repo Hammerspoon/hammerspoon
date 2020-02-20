@@ -17,7 +17,7 @@ static int refTable = LUA_NOREF;
 @end
 
 static CFDataRef ipc_callback(__unused CFMessagePortRef local, SInt32 msgid, CFDataRef data, void *info) {
-    LuaSkin          *skin   = [LuaSkin shared];
+    LuaSkin          *skin   = [LuaSkin sharedWithState:NULL];
     HSIPCMessagePort *port   = (__bridge HSIPCMessagePort *)info ;
     CFDataRef        outdata = NULL ;
 
@@ -77,7 +77,7 @@ static CFDataRef ipc_callback(__unused CFMessagePortRef local, SInt32 msgid, CFD
 /// Notes:
 ///  * a remote port can send messages at any time to a local port; a local port can only respond to messages from a remote port
 static int ipc_localPort(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TFUNCTION, LS_TBREAK] ;
     NSString *portName = [skin toNSObjectAtIndex:1] ;
 
@@ -126,7 +126,7 @@ static int ipc_localPort(lua_State *L) {
 /// Notes:
 ///  * a remote port can send messages at any time to a local port; a local port can only respond to messages from a remote port
 static int ipc_remotePort(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
     NSString *portName = [skin toNSObjectAtIndex:1] ;
 
@@ -150,8 +150,8 @@ static int ipc_remotePort(lua_State *L) {
 ///
 /// Returns:
 ///  * the port name as a string
-static int ipc_name(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int ipc_name(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSIPCMessagePort *port = [skin toNSObjectAtIndex:1] ;
 
@@ -172,7 +172,7 @@ static int ipc_name(__unused lua_State *L) {
 /// Notes:
 ///  * a remote port can send messages at any time to a local port; a local port can only respond to messages from a remote port
 static int ipc_isRemote(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSIPCMessagePort *port = [skin toNSObjectAtIndex:1] ;
 
@@ -190,7 +190,7 @@ static int ipc_isRemote(lua_State *L) {
 /// Returns:
 ///  * true if the object is a valid port, otherwise false
 static int ipc_isValid(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSIPCMessagePort *port = [skin toNSObjectAtIndex:1] ;
 
@@ -212,7 +212,7 @@ static int ipc_isValid(lua_State *L) {
 ///  * status   - a boolean indicathing whether or not the local port responded before the timeout (true) or if an error or timeout occurred waiting for the response (false)
 ///  * response - the response from the local port, usually a string, but may be nil if there was no response returned.  If status is false, will contain an error message describing the error.
 static int ipc_sendMessage(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG,
                     LS_TANY,
                     LS_TNUMBER | LS_TINTEGER,
@@ -285,7 +285,7 @@ static int pushHSIPCMessagePort(lua_State *L, id obj) {
 }
 
 id toHSIPCMessagePortFromLua(lua_State *L, int idx) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     HSIPCMessagePort *value ;
     if (luaL_testudata(L, idx, USERDATA_TAG)) {
         value = get_objectFromUserdata(__bridge HSIPCMessagePort, L, idx, USERDATA_TAG) ;
@@ -299,7 +299,7 @@ id toHSIPCMessagePortFromLua(lua_State *L, int idx) {
 #pragma mark - Hammerspoon/Lua Infrastructure
 
 static int userdata_tostring(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     HSIPCMessagePort *obj = [skin luaObjectAtIndex:1 toClass:"HSIPCMessagePort"] ;
     NSString *title = [NSString stringWithFormat:@"%@, %@", (__bridge NSString *)CFMessagePortGetName(obj.messagePort), (CFMessagePortIsRemote(obj.messagePort) ? @"remote" : @"local")] ;
     [skin pushNSObject:[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, title, lua_topointer(L, 1)]] ;
@@ -310,7 +310,7 @@ static int userdata_eq(lua_State* L) {
 // can't get here if at least one of us isn't a userdata type, and we only care if both types are ours,
 // so use luaL_testudata before the macro causes a lua error
     if (luaL_testudata(L, 1, USERDATA_TAG) && luaL_testudata(L, 2, USERDATA_TAG)) {
-        LuaSkin *skin = [LuaSkin shared] ;
+        LuaSkin *skin = [LuaSkin sharedWithState:L] ;
         HSIPCMessagePort *obj1 = [skin luaObjectAtIndex:1 toClass:"HSIPCMessagePort"] ;
         HSIPCMessagePort *obj2 = [skin luaObjectAtIndex:2 toClass:"HSIPCMessagePort"] ;
         lua_pushboolean(L, [obj1 isEqualTo:obj2]) ;
@@ -334,7 +334,7 @@ static int userdata_gc(lua_State* L) {
     if (obj) {
         obj.selfRef-- ;
         if (obj.selfRef == 0) {
-            LuaSkin *skin = [LuaSkin shared] ;
+            LuaSkin *skin = [LuaSkin sharedWithState:L] ;
             obj.callbackRef = [skin luaUnref:refTable ref:obj.callbackRef] ;
             if (obj.messagePort) {
                 CFMessagePortInvalidate(obj.messagePort) ;
@@ -381,8 +381,8 @@ static luaL_Reg moduleLib[] = {
 //     {NULL,   NULL}
 // };
 
-int luaopen_hs_ipc_internal(lua_State* __unused L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+int luaopen_hs_ipc_internal(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     refTable = [skin registerLibraryWithObject:USERDATA_TAG
                                      functions:moduleLib
                                  metaFunctions:nil    // or module_metaLib
