@@ -161,7 +161,7 @@ void AudioInputCallback(void * inUserData,  // Custom audio metadata
 }
 
 - (void)runCallbackWithEvent: (NSNumber*)evNumber {
-  LuaSkin *skin = [LuaSkin shared];
+  LuaSkin *skin = [LuaSkin sharedWithState:NULL];
   lua_State* L = self.L;
   _lua_stackguard_entry(L);
   [skin pushLuaRef:refTable ref:self.fn];
@@ -172,7 +172,7 @@ void AudioInputCallback(void * inUserData,  // Custom audio metadata
 @end
 
 static int listener_gc(lua_State* L) {
-  LuaSkin *skin = [LuaSkin shared];
+  LuaSkin *skin = [LuaSkin sharedWithState:L];
   // Have to some contortions to make sure ARC properly frees the Listener
   void **userdata = (void**)luaL_checkudata(L, 1, USERDATA_TAG);
   Listener *listener = (__bridge_transfer Listener*)(*userdata);
@@ -241,7 +241,7 @@ void new_listener(lua_State* L, Listener* listener) {
 /// Returns:
 ///  * An `hs.noises` object
 static int listener_new(lua_State* L) {
-  LuaSkin *skin = [LuaSkin shared];
+  LuaSkin *skin = [LuaSkin sharedWithState:L];
   [skin checkArgs:LS_TFUNCTION, LS_TBREAK];
 
   Listener *listener = [[Listener alloc] initPlugins];
@@ -279,7 +279,7 @@ static const luaL_Reg meta_gcLib[] = {
 };
 
 int luaopen_hs_noises_internal(lua_State* L) {
-  LuaSkin *skin = [LuaSkin shared];
+  LuaSkin *skin = [LuaSkin sharedWithState:L];
   refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:noisesLib metaFunctions:meta_gcLib objectFunctions:noises_metalib];
   return 1;
 }
