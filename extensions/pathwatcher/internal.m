@@ -49,7 +49,7 @@ static void pusheventflagstable(lua_State* L, FSEventStreamEventFlags flags) {
 }
 
 void event_callback(ConstFSEventStreamRef __unused streamRef, void *clientCallBackInfo, size_t numEvents, void *eventPaths, const FSEventStreamEventFlags eventFlags[], const FSEventStreamEventId __unused eventIds[]) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     _lua_stackguard_entry(skin.L);
 
     watcher_path_t* pw = clientCallBackInfo;
@@ -113,7 +113,7 @@ void event_callback(ConstFSEventStreamRef __unused streamRef, void *clientCallBa
 /// Notes:
 ///  * For more information about the event flags, see [the official documentation](https://developer.apple.com/reference/coreservices/1455361-fseventstreameventflags/)
 static int watcher_path_new(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TFUNCTION, LS_TBREAK];
 
     NSString* path = [NSString stringWithUTF8String: lua_tostring(L, 1)];
@@ -189,7 +189,7 @@ static int watcher_path_stop(lua_State* L) {
 }
 
 static int watcher_path_gc(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     watcher_path_t* watcher_path = luaL_checkudata(L, 1, USERDATA_TAG);
 
@@ -238,8 +238,8 @@ static const luaL_Reg meta_gcLib[] = {
     {NULL,      NULL}
 };
 
-int luaopen_hs_pathwatcher_internal(lua_State* L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+int luaopen_hs_pathwatcher_internal(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:pathLib metaFunctions:meta_gcLib objectFunctions:path_metalib];
 
     return 1;
