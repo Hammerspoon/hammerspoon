@@ -51,7 +51,7 @@ static HSLocation *location ;
 - (void)locationManager:(__unused CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
     if (callbackRef != LUA_NOREF) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            LuaSkin *skin = [LuaSkin shared] ;
+            LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
             _lua_stackguard_entry(skin.L);
             [skin pushLuaRef:refTable ref:callbackRef] ;
             [skin pushNSObject:self] ;
@@ -66,7 +66,7 @@ static HSLocation *location ;
 - (void)locationManager:(__unused CLLocationManager *)manager didEnterRegion:(CLRegion *)region {
     if (callbackRef != LUA_NOREF) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            LuaSkin *skin = [LuaSkin shared] ;
+            LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
             _lua_stackguard_entry(skin.L);
             [skin pushLuaRef:refTable ref:callbackRef] ;
             [skin pushNSObject:self] ;
@@ -81,7 +81,7 @@ static HSLocation *location ;
 - (void)locationManager:(__unused CLLocationManager *)manager didExitRegion:(CLRegion *)region {
     if (callbackRef != LUA_NOREF) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            LuaSkin *skin = [LuaSkin shared] ;
+            LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
             _lua_stackguard_entry(skin.L);
             [skin pushLuaRef:refTable ref:callbackRef] ;
             [skin pushNSObject:self] ;
@@ -96,7 +96,7 @@ static HSLocation *location ;
 - (void)locationManager:(__unused CLLocationManager *)manager didFailWithError:(NSError *)error {
     if (callbackRef != LUA_NOREF) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            LuaSkin *skin = [LuaSkin shared] ;
+            LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
             _lua_stackguard_entry(skin.L);
             [skin pushLuaRef:refTable ref:callbackRef] ;
             [skin pushNSObject:self] ;
@@ -112,7 +112,7 @@ static HSLocation *location ;
                                                                       withError:(NSError *)error {
     if (callbackRef != LUA_NOREF) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            LuaSkin *skin = [LuaSkin shared] ;
+            LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
             _lua_stackguard_entry(skin.L);
             [skin pushLuaRef:refTable ref:callbackRef] ;
             [skin pushNSObject:self] ;
@@ -128,7 +128,7 @@ static HSLocation *location ;
 - (void)locationManager:(__unused CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
     if (callbackRef != LUA_NOREF) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            LuaSkin *skin = [LuaSkin shared] ;
+            LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
             _lua_stackguard_entry(skin.L);
             [skin pushLuaRef:refTable ref:callbackRef] ;
             [skin pushNSObject:self] ;
@@ -158,7 +158,7 @@ static HSLocation *location ;
 - (void)locationManager:(__unused CLLocationManager *)manager didStartMonitoringForRegion:(CLRegion *)region {
     if (callbackRef != LUA_NOREF) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            LuaSkin *skin = [LuaSkin shared] ;
+            LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
             _lua_stackguard_entry(skin.L);
             [skin pushLuaRef:refTable ref:callbackRef] ;
             [skin pushNSObject:self] ;
@@ -183,7 +183,7 @@ static BOOL checkLocationManager() {
 
 // internally used function
 static int location_registerCallback(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TFUNCTION | LS_TNIL, LS_TBREAK] ;
     callbackRef = [skin luaUnref:refTable ref:callbackRef] ;
     if (lua_type(L, 1) == LUA_TFUNCTION) {
@@ -204,7 +204,7 @@ static int location_registerCallback(lua_State *L) {
 /// Returns:
 ///  * True if Location Services are enabled, otherwise false
 static int location_locationServicesEnabled(lua_State *L) {
-    [[LuaSkin shared] checkArgs:LS_TBREAK] ;
+    [[LuaSkin sharedWithState:L] checkArgs:LS_TBREAK] ;
     lua_pushboolean(L, [CLLocationManager locationServicesEnabled]) ;
     return 1 ;
 }
@@ -225,8 +225,8 @@ static int location_locationServicesEnabled(lua_State *L) {
 ///
 /// Notes:
 ///  * The first time you use a function which requires Location Services, you will be prompted to grant Hammerspoon access. If you wish to change this permission after the initial prompt, you may do so from the Location Services section of the Security & Privacy section in the System Preferences application.
-static int location_authorizationStatus(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int location_authorizationStatus(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TBREAK] ;
 
 // according to the CLLocationManager.h file, kCLAuthorizationStatusAuthorizedWhenInUse is
@@ -261,7 +261,7 @@ static int location_authorizationStatus(__unused lua_State *L) {
 /// Notes:
 ///  * This function does not require Location Services to be enabled for Hammerspoon.
 static int location_distanceBetween(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TTABLE, LS_TTABLE, LS_TBREAK] ;
     CLLocation *pointA = [skin luaObjectAtIndex:1 toClass:"CLLocation"] ;
     CLLocation *pointB = [skin luaObjectAtIndex:2 toClass:"CLLocation"] ;
@@ -271,15 +271,15 @@ static int location_distanceBetween(lua_State* L) {
 
 // internally used function
 static int location_startWatching(lua_State* L) {
-    [[LuaSkin shared] checkArgs:LS_TBREAK] ;
+    [[LuaSkin sharedWithState:L] checkArgs:LS_TBREAK] ;
     lua_pushboolean(L, checkLocationManager()) ;
     if (lua_toboolean(L, -1)) [location.manager startUpdatingLocation];
     return 1;
 }
 
 // internally used function
-static int location_stopWatching(lua_State* L __unused) {
-    [[LuaSkin shared] checkArgs:LS_TBREAK] ;
+static int location_stopWatching(lua_State* L) {
+    [[LuaSkin sharedWithState:L] checkArgs:LS_TBREAK] ;
     if (location) [location.manager stopUpdatingLocation];
     return 0;
 }
@@ -299,7 +299,7 @@ static int location_stopWatching(lua_State* L __unused) {
 ///  * If access to Location Services is enabled for Hammerspoon, this function will return the most recent cached data for the computer's location.
 ///    * Internally, the Location Services cache is updated whenever additional WiFi networks are detected or lost (not necessarily joined). When update tracking is enabled with the [hs.location.start](#start) function, calculations based upon the RSSI of all currently seen networks are preformed more often to provide a more precise fix, but it's still based on the WiFi networks near you.
 static int location_getLocation(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TBREAK] ;
     if (checkLocationManager()) {
         [skin pushNSObject:location.manager.location] ;
@@ -322,7 +322,7 @@ static int location_getLocation(lua_State* L) {
 /// Notes:
 ///  * This value is derived from the currently configured system timezone, it does not use Location Services
 static int location_dstOffset(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TBREAK];
 
     NSTimeZone *tz = [NSTimeZone localTimeZone];
@@ -337,7 +337,7 @@ static int location_dstOffset(lua_State* L) {
 
 // internally used function
 static int location_monitoredRegions(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TBREAK] ;
     if (location) {
         [skin pushNSObject:location.manager.monitoredRegions] ;
@@ -351,7 +351,7 @@ static int location_monitoredRegions(lua_State *L) {
 
 // internally used function
 static int location_addMonitoredRegion(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TTABLE, LS_TBREAK] ;
     CLCircularRegion  *region  = [skin luaObjectAtIndex:1 toClass:"CLCircularRegion"] ;
     if (region) {
@@ -369,7 +369,7 @@ static int location_addMonitoredRegion(lua_State *L) {
 
 // internally used function
 static int location_removeMonitoredRegion(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
     NSString          *identifier = [skin toNSObjectAtIndex:1] ;
     CLCircularRegion  *targetRegion ;
@@ -397,7 +397,7 @@ static int location_removeMonitoredRegion(lua_State *L) {
 
 // internally used function, may document for testing purposes
 static int location_fakeLocationChange(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TBREAK | LS_TVARARG] ;
     NSString *message = [skin toNSObjectAtIndex:1] ;
     if (location) {
@@ -457,7 +457,7 @@ static int location_fakeLocationChange(lua_State *L) {
 #pragma mark - Sunrise/Sunset Functions
 
 EDSunriseSet* sunturns(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     NSDate *date = nil;
     NSTimeZone *tz = nil;
@@ -570,7 +570,7 @@ static int location_sunset(lua_State *L) {
 ///  * This constructor requires internet access and the callback will be invoked with an error message if the internet is not currently accessible.
 ///  * This constructor does not require Location Services to be enabled for Hammerspoon.
 static int clgeocoder_lookupLocation(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TTABLE, LS_TFUNCTION, LS_TBREAK] ;
     CLLocation *theLocation = [skin luaObjectAtIndex:1 toClass:"CLLocation"] ;
     lua_pushvalue(L, 2) ;
@@ -578,7 +578,7 @@ static int clgeocoder_lookupLocation(lua_State *L) {
 
     CLGeocoder *geoItem = [[CLGeocoder alloc] init] ;
     [geoItem reverseGeocodeLocation:theLocation completionHandler:^(NSArray *placemark, NSError *error) {
-        LuaSkin   *_skin = [LuaSkin shared] ;
+        LuaSkin   *_skin = [LuaSkin sharedWithState:NULL] ;
 //         if (error) [_skin logInfo:[NSString stringWithFormat:@"%s:lookupLocation completion error:%@", GEOCODE_UD_TAG, error.localizedDescription]] ;
         lua_State *_L    = [_skin L] ;
         [_skin pushLuaRef:refTable ref:fnRef] ;
@@ -608,7 +608,7 @@ static int clgeocoder_lookupLocation(lua_State *L) {
 ///  * This constructor requires internet access and the callback will be invoked with an error message if the internet is not currently accessible.
 ///  * This constructor does not require Location Services to be enabled for Hammerspoon.
 static int clgeocoder_lookupAddress(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TFUNCTION, LS_TBREAK] ;
     NSString *searchString = [skin toNSObjectAtIndex:1] ;
     lua_pushvalue(L, 2) ;
@@ -616,7 +616,7 @@ static int clgeocoder_lookupAddress(lua_State *L) {
 
     CLGeocoder *geoItem = [[CLGeocoder alloc] init] ;
     [geoItem geocodeAddressString:searchString completionHandler:^(NSArray *placemark, NSError *error) {
-        LuaSkin   *_skin = [LuaSkin shared] ;
+        LuaSkin   *_skin = [LuaSkin sharedWithState:NULL] ;
 //         if (error) [_skin logInfo:[NSString stringWithFormat:@"%s:lookupAddress completion error:%@", GEOCODE_UD_TAG, error.localizedDescription]] ;
         lua_State *_L    = [_skin L] ;
         [_skin pushLuaRef:refTable ref:fnRef] ;
@@ -648,7 +648,7 @@ static int clgeocoder_lookupAddress(lua_State *L) {
 ///  * This constructor does not require Location Services to be enabled for Hammerspoon.
 ///  * While a partial address can be given, the more information you provide, the more likely the results will be useful.  The `regionTable` only determines sort order if multiple entries are returned, it does not constrain the search.
 static int clgeocoder_lookupAddressNear(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TBREAK | LS_TVARARG] ;
     NSString *searchString = [skin toNSObjectAtIndex:1] ;
     CLCircularRegion *theRegion = nil ;
@@ -664,7 +664,7 @@ static int clgeocoder_lookupAddressNear(lua_State *L) {
 
     CLGeocoder *geoItem = [[CLGeocoder alloc] init] ;
     [geoItem geocodeAddressString:searchString inRegion:theRegion completionHandler:^(NSArray *placemark, NSError *error) {
-        LuaSkin   *_skin = [LuaSkin shared] ;
+        LuaSkin   *_skin = [LuaSkin sharedWithState:NULL] ;
 //         if (error) [_skin logInfo:[NSString stringWithFormat:@"%s:lookupAddressNear completion error:%@", GEOCODE_UD_TAG, error.localizedDescription]] ;
         lua_State *_L    = [_skin L] ;
         [_skin pushLuaRef:refTable ref:fnRef] ;
@@ -689,7 +689,7 @@ static int clgeocoder_lookupAddressNear(lua_State *L) {
 /// Returns:
 ///  * a boolean indicating if the geocoding process is still active.  If false, then the callback function either has already been called or will be as soon as the main thread of Hammerspoon becomes idle again.
 static int clgeocoder_isGeocoding(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, GEOCODE_UD_TAG, LS_TBREAK] ;
     CLGeocoder *geoItem = [skin toNSObjectAtIndex:1] ;
     lua_pushboolean(L, geoItem.geocoding) ;
@@ -709,7 +709,7 @@ static int clgeocoder_isGeocoding(lua_State *L) {
 /// Notes:
 ///  * This method has no effect if the geocoding process has already completed.
 static int clgeocoder_cancelGeocoding(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, GEOCODE_UD_TAG, LS_TBREAK] ;
     CLGeocoder *geoItem = [skin toNSObjectAtIndex:1] ;
     [geoItem cancelGeocode] ;
@@ -731,7 +731,7 @@ static int pushCLGeocoder(lua_State *L, id obj) {
 }
 
 id toCLGeocoderFromLua(lua_State *L, int idx) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     CLGeocoder *value ;
     if (luaL_testudata(L, idx, GEOCODE_UD_TAG)) {
         value = get_objectFromUserdata(__bridge CLGeocoder, L, idx, GEOCODE_UD_TAG) ;
@@ -742,7 +742,7 @@ id toCLGeocoderFromLua(lua_State *L, int idx) {
 }
 
 static int pushCLLocation(lua_State *L, id obj) {
-//     LuaSkin *skin = [LuaSkin shared] ;
+//     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     CLLocation *loc = obj ;
     lua_newtable(L) ;
     lua_pushnumber(L, loc.coordinate.latitude) ;               lua_setfield(L, -2, "latitude") ;
@@ -759,7 +759,7 @@ static int pushCLLocation(lua_State *L, id obj) {
 }
 
 static int pushCLCircularRegion(lua_State *L, id obj) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     CLCircularRegion *theRegion = obj ;
     lua_newtable(L) ;
     [skin pushNSObject:theRegion.identifier] ;      lua_setfield(L, -2, "identifier") ;
@@ -772,7 +772,7 @@ static int pushCLCircularRegion(lua_State *L, id obj) {
 }
 
 static id CLLocationFromLua(lua_State *L, int idx) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     CLLocation *theLocation ;
 
     if (lua_type(L, idx) == LUA_TTABLE) {
@@ -810,7 +810,7 @@ static id CLLocationFromLua(lua_State *L, int idx) {
 }
 
 static id CLCircularRegionFromLua(lua_State *L, int idx) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     CLCircularRegion *theRegion ;
 
     if (lua_type(L, idx) == LUA_TTABLE) {
@@ -838,7 +838,7 @@ static id CLCircularRegionFromLua(lua_State *L, int idx) {
 }
 
 static int pushCLPlacemark(lua_State *L, id obj) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     CLPlacemark *thePlace = obj ;
     lua_newtable(L) ;
       [skin pushNSObject:[thePlace location]] ;                 lua_setfield(L, -2, "location") ;
@@ -868,7 +868,7 @@ static int pushCLPlacemark(lua_State *L, id obj) {
 #pragma mark - Hammerspoon/Lua Infrastructure
 
 static int clgeocoder_tostring(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     CLGeocoder *obj = [skin luaObjectAtIndex:1 toClass:"CLGeocoder"] ;
     NSString *title = obj.geocoding ? @"geocoding" : @"idle" ;
     [skin pushNSObject:[NSString stringWithFormat:@"%s: %@ (%p)", GEOCODE_UD_TAG, title, lua_topointer(L, 1)]] ;
@@ -879,7 +879,7 @@ static int clgeocoder_eq(lua_State* L) {
 // can't get here if at least one of us isn't a userdata type, and we only care if both types are ours,
 // so use luaL_testudata before the macro causes a lua error
     if (luaL_testudata(L, 1, GEOCODE_UD_TAG) && luaL_testudata(L, 2, GEOCODE_UD_TAG)) {
-        LuaSkin *skin = [LuaSkin shared] ;
+        LuaSkin *skin = [LuaSkin sharedWithState:L] ;
         CLGeocoder *obj1 = [skin luaObjectAtIndex:1 toClass:"CLGeocoder"] ;
         CLGeocoder *obj2 = [skin luaObjectAtIndex:2 toClass:"CLGeocoder"] ;
         lua_pushboolean(L, [obj1 isEqualTo:obj2]) ;
@@ -901,9 +901,9 @@ static int clgeocoder_gc(lua_State* L) {
     return 0 ;
 }
 
-static int meta_gc(lua_State* __unused L) {
+static int meta_gc(lua_State* L) {
     // make sure we don't get a last-minute callback during teardown
-    callbackRef = [[LuaSkin shared] luaUnref:refTable ref:callbackRef] ;
+    callbackRef = [[LuaSkin sharedWithState:L] luaUnref:refTable ref:callbackRef] ;
     if (location) {
         if (location.manager) {
             location.manager.delegate = nil ;
@@ -964,7 +964,7 @@ static const luaL_Reg module_metaLib[] = {
 };
 
 int luaopen_hs_location_internal(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
 
     // in case a reload skipped meta_gc for some reason (e.g. module got resurrected right
     // before gc_finalize), kick off the object's dealloc method
