@@ -75,7 +75,7 @@ static int refTable;
     __block NSData *response = nil;
 
     void (^responseCallbackBlock)(void) = ^{
-        LuaSkin *skin = [LuaSkin shared];
+        LuaSkin *skin = [LuaSkin sharedWithState:NULL];
         _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:self.callback];
         lua_pushstring(skin.L, [msg UTF8String]);
@@ -170,7 +170,7 @@ static int refTable;
     __block NSData *responseBody = nil;
 
     void (^responseCallbackBlock)(void) = ^{
-        LuaSkin *skin = [LuaSkin shared];
+        LuaSkin *skin = [LuaSkin sharedWithState:NULL];
         lua_State *L = skin.L;
         _lua_stackguard_entry(L);
 
@@ -347,7 +347,7 @@ typedef struct _httpserver_t {
 ///  * By default, the server will listen on all network interfaces. You can override this with `hs.httpserver:setInterface()` before starting the server
 ///  * Currently, in HTTPS mode, the server will use a self-signed certificate, which most browsers will warn about. If you want/need to be able to use `hs.httpserver` with a certificate signed by a trusted Certificate Authority, please file an bug on Hammerspoon requesting support for this.
 static int httpserver_new(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TBOOLEAN | LS_TOPTIONAL, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
     BOOL useSSL     = (lua_type(L, 1) == LUA_TBOOLEAN) ? (BOOL)lua_toboolean(L, 1) : false;
     BOOL useBonjour = (lua_type(L, 2) == LUA_TBOOLEAN) ? (BOOL)lua_toboolean(L, 2) : true;
@@ -390,7 +390,7 @@ static int httpserver_new(lua_State *L) {
 ///   * ws://localhost:8000/mysock
 ///   * wss://localhost:8000/mysock (if SSL enabled)
 static int httpserver_websocket(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TFUNCTION, LS_TBREAK];
     HSHTTPServer *server = getUserData(L, 1);
 
@@ -413,7 +413,7 @@ static int httpserver_websocket(lua_State *L) {
 /// Returns:
 ///  * The `hs.httpserver` object
 static int httpserver_send(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TBREAK];
     HSHTTPServer *server = getUserData(L, 1);
 
@@ -447,7 +447,7 @@ static int httpserver_send(lua_State *L) {
 /// Notes:
 ///  * A POST request, often used by HTML forms, will store the contents of the form in the body of the request.
 static int httpserver_setCallback(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     HSHTTPServer *server = getUserData(L, 1);
 
@@ -483,7 +483,7 @@ static int httpserver_setCallback(lua_State *L) {
 /// Notes:
 ///  * Because the Hammerspoon http server processes incoming requests completely in memory, this method puts a limit on the maximum size for a POST or PUT request.
 static int httpserver_maxBodySize(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TINTEGER | LS_TOPTIONAL, LS_TBREAK];
 
     HSHTTPServer *server = getUserData(L, 1);
@@ -509,7 +509,7 @@ static int httpserver_maxBodySize(lua_State *L) {
 /// Notes:
 ///  * It is not currently possible to set multiple passwords for different users, or passwords only on specific paths
 static int httpserver_setPassword(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TNIL | LS_TOPTIONAL, LS_TBREAK];
     HSHTTPServer *server = getUserData(L, 1);
 
@@ -540,7 +540,7 @@ static int httpserver_setPassword(lua_State *L) {
 /// Returns:
 ///  * The `hs.httpserver` object
 static int httpserver_start(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     HSHTTPServer *server = getUserData(L, 1);
 
     if (server.fn == LUA_NOREF) {
@@ -677,7 +677,7 @@ static int httpserver_getName(lua_State *L) {
 /// Notes:
 ///  * This is not the hostname of the server, just its name in Bonjour service lists (e.g. Safari's Bonjour bookmarks menu)
 static int httpserver_setName(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TBREAK];
     HSHTTPServer *server = getUserData(L, 1);
     [server setName:[skin toNSObjectAtIndex:2]];
@@ -686,11 +686,12 @@ static int httpserver_setName(lua_State *L) {
 }
 
 static int httpserver_objectGC(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     httpserver_t *httpServer = get_item_arg(L, 1);
     HSHTTPServer *server = (__bridge_transfer HSHTTPServer *)httpServer->server;
     [server stop];
-    [[LuaSkin shared] luaUnref:refTable ref:server.fn];
-    [[LuaSkin shared] luaUnref:refTable ref:server.wsCallback];
+    [skin luaUnref:refTable ref:server.fn];
+    [skin luaUnref:refTable ref:server.wsCallback];
     server = nil;
 
     return 0;
@@ -733,8 +734,8 @@ static const luaL_Reg httpserverObjectLib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_httpserver_internal(lua_State *L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+int luaopen_hs_httpserver_internal(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibraryWithObject:"hs.httpserver" functions:httpserverLib metaFunctions:nil objectFunctions:httpserverObjectLib];
 
     [DDLog addLogger:[DDOSLogger sharedInstance]];
