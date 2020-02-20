@@ -57,7 +57,7 @@
 
 - (IOReturn)deviceWriteSimpleReport:(uint8_t[])report reportLen:(int)reportLen {
     if (self.simpleReportLength == 0) {
-        LuaSkin *skin = [LuaSkin shared];
+        LuaSkin *skin = [LuaSkin sharedWithState:NULL];
         [skin logError:@"Initialising Stream Deck device with no simple report length defined"];
         return kIOReturnInternalError;
     }
@@ -97,7 +97,7 @@
         return;
     }
 
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     _lua_stackguard_entry(skin.L);
     if (self.buttonCallbackRef == LUA_NOREF || self.buttonCallbackRef == LUA_REFNIL) {
         [skin logError:@"hs.streamdeck received a button input, but no callback has been set. See hs.streamdeck:buttonCallback()"];
@@ -203,10 +203,10 @@
     [renderImage unlockFocus];
 
     if (![image isValid]) {
-        [[LuaSkin shared] logError:@"image is invalid"];
+        [[LuaSkin sharedWithState:NULL] logError:@"image is invalid"];
     }
     if (![renderImage isValid]) {
-        [[LuaSkin shared] logError:@"Invalid image passed to hs.streamdeck:setImage() (renderImage)"];
+        [[LuaSkin sharedWithState:NULL] logError:@"Invalid image passed to hs.streamdeck:setImage() (renderImage)"];
     //    return;
     }
 
@@ -226,7 +226,7 @@
             break;
 
         case STREAMDECK_CODEC_UNKNOWN:
-            [[LuaSkin shared] logError:@"Unknown image codec for hs.streamdeck device"];
+            [[LuaSkin sharedWithState:NULL] logError:@"Unknown image codec for hs.streamdeck device"];
             break;
     }
 
