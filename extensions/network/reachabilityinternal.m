@@ -37,20 +37,18 @@ static int pushSCNetworkReachability(lua_State *L, SCNetworkReachabilityRef theR
 
 static void doReachabilityCallback(__unused SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void *info) {
     reachability_t *theRef = (reachability_t *)info ;
-    if (theRef->callbackRef != LUA_NOREF) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (theRef->callbackRef != LUA_NOREF) {
-                LuaSkin   *skin = [LuaSkin shared] ;
-                lua_State *L    = [skin L] ;
-                _lua_stackguard_entry(L);
-                [skin pushLuaRef:refTable ref:theRef->callbackRef] ;
-                [skin pushLuaRef:refTable ref:theRef->selfRef] ;
-                lua_pushinteger(L, (lua_Integer)flags) ;
-                [skin protectedCallAndError:@"hs.network.reachability" nargs:2 nresults:0];
-                _lua_stackguard_exit(L);
-            }
-        }) ;
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ((theRef->callbackRef != LUA_NOREF) && (theRef->selfRef != LUA_NOREF)) {
+            LuaSkin   *skin = [LuaSkin shared] ;
+            lua_State *L    = [skin L] ;
+            _lua_stackguard_entry(L);
+            [skin pushLuaRef:refTable ref:theRef->callbackRef] ;
+            [skin pushLuaRef:refTable ref:theRef->selfRef] ;
+            lua_pushinteger(L, (lua_Integer)flags) ;
+            [skin protectedCallAndError:@"hs.network.reachability" nargs:2 nresults:0];
+            _lua_stackguard_exit(L);
+        }
+    }) ;
 }
 
 static NSString *statusString(SCNetworkReachabilityFlags flags) {
