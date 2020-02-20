@@ -250,7 +250,10 @@ static int http_doAsyncRequest(lua_State* L){
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TSTRING|LS_TNIL, LS_TTABLE|LS_TNIL, LS_TFUNCTION, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
 
-    NSString* cachePolicy = [skin toNSObjectAtIndex:6];
+    NSString* cachePolicy = nil;
+    if (lua_type(L, 6) == LUA_TSTRING) {
+        cachePolicy = [skin toNSObjectAtIndex:6];
+    }
     
     NSMutableURLRequest* request = getRequestFromStack(L, cachePolicy);
     getBodyFromStack(L, 3, request);
