@@ -233,7 +233,7 @@ static int refTable = LUA_NOREF;
     for (MIKMIDIDestinationEndpoint *destination in destinations) {
         NSError *error = nil;
         if (![self.midiDeviceManager sendCommands:@[command] toEndpoint:destination error:&error]) {
-            LuaSkin *skin = [LuaSkin shared] ;
+            LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
             [skin logError:[NSString stringWithFormat:@"Unable to send command %@ to endpoint %@: %@", command, destination, error]] ;
         }
     }
@@ -252,7 +252,7 @@ static int refTable = LUA_NOREF;
     if (context == midiKVOContext) {
         if (([keyPath isEqualToString:@"availableDevices"]) || ([keyPath isEqualToString:@"virtualSources"])) {
             if (_deviceCallbackRef != LUA_NOREF) {
-                LuaSkin *skin = [LuaSkin shared] ;
+                LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
                 _lua_stackguard_entry(skin.L);
                 [skin pushLuaRef:refTable ref:_deviceCallbackRef] ;
 
@@ -308,7 +308,7 @@ HSMIDIDeviceManager *watcherDeviceManager;
 /// Returns:
 ///  * A table containing the names of any physically connected MIDI devices as strings.
 static int devices(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSArray *availableMIDIDevices = [[MIKMIDIDeviceManager sharedDeviceManager] availableDevices];
     NSMutableArray *deviceNames = [NSMutableArray array];
     for (MIKMIDIDevice * device in availableMIDIDevices)
@@ -329,7 +329,7 @@ static int devices(lua_State *L) {
 /// Returns:
 ///  * A table containing the names of any virtual MIDI sources as strings.
 static int virtualSources(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSArray *virtualSources = [[MIKMIDIDeviceManager sharedDeviceManager] virtualSources];
     NSMutableArray *deviceNames = [NSMutableArray array];
     for (MIKMIDIDevice * device in virtualSources)
@@ -366,7 +366,7 @@ static int deviceCallback(lua_State *L) {
     //
     // Check Arguments:
     //
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TFUNCTION | LS_TNIL, LS_TBREAK];
 
     //
@@ -404,7 +404,7 @@ static int deviceCallback(lua_State *L) {
 ///  * Example Usage:
 ///    `hs.midi.new(hs.midi.devices()[1])`
 static int midi_new(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
     HSMIDIDeviceManager *manager = [[HSMIDIDeviceManager alloc] init] ;
     bool result = [manager setPhysicalDevice:[skin toNSObjectAtIndex:1]];
@@ -431,7 +431,7 @@ static int midi_new(lua_State *L) {
 ///  * Example Usage:
 ///    `hs.midi.new(hs.midi.virtualSources()[1])`
 static int midi_newVirtualSource(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
     HSMIDIDeviceManager *manager = [[HSMIDIDeviceManager alloc] init] ;
     bool result = [manager setVirtualDevice:[skin toNSObjectAtIndex:1]];
@@ -616,7 +616,7 @@ static int midi_callback(lua_State *L) {
     //
     // Check Arguments:
     //
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION | LS_TNIL, LS_TBREAK];
 
     //
@@ -664,7 +664,7 @@ static int midi_callback(lua_State *L) {
         id result;
         result = [manager connectInput:endpoint error:&error eventHandler:^(MIKMIDISourceEndpoint *source, NSArray<MIKMIDICommand *> *commands) {
             for (MIKMIDICommand *command in commands) {
-                LuaSkin *skin = [LuaSkin shared] ;
+                LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
                 if (wrapper.callbackRef != LUA_NOREF) {
 
                     //
@@ -1025,7 +1025,7 @@ static int midi_callback(lua_State *L) {
 ///  * Example Usage:
 ///    ```midiDevice:sendSysex("f07e7f06 01f7")```
 static int midi_sendSysex(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TBREAK];
     HSMIDIDeviceManager *wrapper = [skin toNSObjectAtIndex:1] ;
     [wrapper sendSysex:[skin toNSObjectAtIndex:2]];
@@ -1117,7 +1117,7 @@ static int midi_sendSysex(lua_State *L) {
 ///     ```
 static int midi_sendCommand(lua_State *L) {
 
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TTABLE, LS_TBREAK];
 
     //
@@ -1367,7 +1367,7 @@ static int midi_sendCommand(lua_State *L) {
 ///   midiDevice:identityRequest()
 ///   ```
 static int midi_identityRequest(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSMIDIDeviceManager *wrapper = [skin toNSObjectAtIndex:1] ;
     MIKMIDISystemExclusiveCommand *identityRequest = [MIKMIDISystemExclusiveCommand identityRequestCommand];
@@ -1388,7 +1388,7 @@ static int midi_identityRequest(lua_State *L) {
 /// Returns:
 ///  * `true` if enabled otherwise `false`
 static int midi_synthesize(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
 
     HSMIDIDeviceManager *wrapper = [skin toNSObjectAtIndex:1] ;
@@ -1416,7 +1416,7 @@ static int midi_synthesize(lua_State *L) {
 /// Returns:
 ///  * The name as a string.
 static int midi_name(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSMIDIDeviceManager *wrapper = [skin toNSObjectAtIndex:1] ;
     NSString *deviceName = [wrapper.midiDevice name];
@@ -1434,7 +1434,7 @@ static int midi_name(lua_State *L) {
 /// Returns:
 ///  * The name as a string.
 static int midi_displayName(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSMIDIDeviceManager *wrapper = [skin toNSObjectAtIndex:1] ;
     NSString *displayName = [wrapper.midiDevice displayName];
@@ -1452,7 +1452,7 @@ static int midi_displayName(lua_State *L) {
 /// Returns:
 ///  * The model name as a string.
 static int midi_model(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSMIDIDeviceManager *wrapper = [skin toNSObjectAtIndex:1] ;
     NSString *model = [wrapper.midiDevice model];
@@ -1470,7 +1470,7 @@ static int midi_model(lua_State *L) {
 /// Returns:
 ///  * The manufacturer name as a string.
 static int midi_manufacturer(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSMIDIDeviceManager *wrapper = [skin toNSObjectAtIndex:1] ;
     NSString *manufacturer = [wrapper.midiDevice manufacturer];
@@ -1488,7 +1488,7 @@ static int midi_manufacturer(lua_State *L) {
 /// Returns:
 ///  * `true` if online, otherwise `false`
 static int midi_isOnline(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSMIDIDeviceManager *wrapper = [skin toNSObjectAtIndex:1] ;
     lua_pushboolean(L, [wrapper.midiDevice isOnline]);
@@ -1505,7 +1505,7 @@ static int midi_isOnline(lua_State *L) {
 /// Returns:
 ///  * `true` if virtual, otherwise `false`
 static int midi_isVirtual(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSMIDIDeviceManager *wrapper = [skin toNSObjectAtIndex:1] ;
     lua_pushboolean(L, [wrapper.midiDevice isVirtual]);
@@ -1580,7 +1580,7 @@ static int pushHSMIDIDeviceManager(lua_State *L, id obj) {
 }
 
 id toHSMIDIDeviceManagerFromLua(lua_State *L, int idx) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     HSMIDIDeviceManager *value ;
     if (luaL_testudata(L, idx, USERDATA_TAG)) {
         value = get_objectFromUserdata(__bridge HSMIDIDeviceManager, L, idx, USERDATA_TAG) ;
@@ -1594,7 +1594,7 @@ id toHSMIDIDeviceManagerFromLua(lua_State *L, int idx) {
 #pragma mark - Hammerspoon/Lua Infrastructure
 
 static int userdata_tostring(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     HSMIDIDeviceManager *obj = [skin luaObjectAtIndex:1 toClass:"HSMIDIDeviceManager"] ;
     NSString *title = obj.midiDevice.displayName ;
     [skin pushNSObject:[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, title, lua_topointer(L, 1)]] ;
@@ -1606,7 +1606,7 @@ static int userdata_eq(lua_State* L) {
     // Can't get here if at least one of us isn't a userdata type, and we only care if both types are ours, so use luaL_testudata before the macro causes a Lua error:
     //
     if (luaL_testudata(L, 1, USERDATA_TAG) && luaL_testudata(L, 2, USERDATA_TAG)) {
-        LuaSkin *skin = [LuaSkin shared] ;
+        LuaSkin *skin = [LuaSkin sharedWithState:L] ;
         HSMIDIDeviceManager *obj1 = [skin luaObjectAtIndex:1 toClass:"HSMIDIDeviceManager"] ;
         HSMIDIDeviceManager *obj2 = [skin luaObjectAtIndex:2 toClass:"HSMIDIDeviceManager"] ;
         lua_pushboolean(L, [obj1 isEqualTo:obj2]) ;
@@ -1624,7 +1624,7 @@ static int userdata_gc(lua_State* L) {
     if (obj) {
         obj.selfRefCount-- ;
         if (obj.selfRefCount == 0) {
-            LuaSkin *skin = [LuaSkin shared] ;
+            LuaSkin *skin = [LuaSkin sharedWithState:L] ;
             obj.callbackRef = [skin luaUnref:refTable ref:obj.callbackRef] ;
 
             //
@@ -1654,9 +1654,9 @@ static int userdata_gc(lua_State* L) {
 //
 // Metatable Garbage Collection:
 //
-static int meta_gc(lua_State* __unused L) {
+static int meta_gc(lua_State* L) {
     if (watcherDeviceManager) {
-        watcherDeviceManager.deviceCallbackRef = [[LuaSkin shared] luaUnref:refTable ref:watcherDeviceManager.deviceCallbackRef] ;
+        watcherDeviceManager.deviceCallbackRef = [[LuaSkin sharedWithState:L] luaUnref:refTable ref:watcherDeviceManager.deviceCallbackRef] ;
         [watcherDeviceManager unwatchDevices] ;
         watcherDeviceManager = nil ;
     }
@@ -1707,12 +1707,12 @@ static const luaL_Reg module_metaLib[] = {
 //
 // Initalise Module:
 //
-int luaopen_hs_midi_internal(lua_State* __unused L) {
+int luaopen_hs_midi_internal(lua_State* L) {
 
     //
     // Register Module:
     //
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     refTable = [skin registerLibraryWithObject:USERDATA_TAG
                                      functions:moduleLib
                                  metaFunctions:module_metaLib
