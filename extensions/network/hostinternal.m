@@ -146,9 +146,9 @@ void handleCallback(__unused CFHostRef theHost, __unused CFHostInfoType typeInfo
     }
 
     dispatch_async(dispatch_get_main_queue(), ^{
+        LuaSkin *skin = [LuaSkin shared] ;
         if (theRef->callbackRef != LUA_NOREF) {
-            LuaSkin   *skin    = [LuaSkin shared] ;
-            lua_State *L       = [skin L] ;
+            lua_State *L = [skin L] ;
             _lua_stackguard_entry(L);
             int       argCount ;
             [skin pushLuaRef:refTable ref:theRef->callbackRef] ;
@@ -166,7 +166,9 @@ void handleCallback(__unused CFHostRef theHost, __unused CFHostInfoType typeInfo
         CFHostCancelInfoResolution(theRef->theHostObj, theRef->resolveType);
         theRef->running = NO ;
         // allow __gc when their stored version goes away
-        theRef->selfRef = [[LuaSkin shared] luaUnref:refTable ref:theRef->selfRef] ;
+        if (theRef->selfRef != LUA_NOREF) {
+            theRef->selfRef = [skin luaUnref:refTable ref:theRef->selfRef] ;
+        }
     }) ;
 }
 
@@ -228,7 +230,7 @@ static int commonForHostName(lua_State *L, CFHostInfoType resolveType) {
 
 static int commonForAddress(lua_State *L, CFHostInfoType resolveType) {
     LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TSTRING | LS_TNUMBER, LS_TFUNCTION | LS_TOPTIONAL, LS_TBREAK] ;
+    [skin checkArgs:LS_TSTRING | LS_TNUMBER, LS_TFUNCTION | LS_TNIL | LS_TOPTIONAL, LS_TBREAK] ;
     BOOL syncronous = lua_isnoneornil(L, 2) ;
 
     luaL_checkstring(L, 1) ; // force number to be a string
@@ -412,6 +414,8 @@ static int userdata_gc(lua_State* L) {
 //     [skin logVerbose:@"in hosts __gc"] ;
     hshost_t* theRef = get_structFromUserdata(hshost_t, L, 1) ;
     theRef->callbackRef = [skin luaUnref:refTable ref:theRef->callbackRef] ;
+    // in case __gc forced by reload
+    theRef->selfRef = [skin luaUnref:refTable ref:theRef->selfRef] ;
 
     lua_pushcfunction(L, cancelResolution) ;
     lua_pushvalue(L, 1) ;
