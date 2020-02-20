@@ -27,7 +27,7 @@ static int refTable = LUA_NOREF;
 #pragma mark - Support Functions and Classes
 
 static int parseOptionsTable(lua_State *L, int idx) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSArray *optionList = (lua_type(L, idx) == LUA_TTABLE) ? [skin toNSObjectAtIndex:idx] : [NSArray array] ;
     if (![optionList isKindOfClass:[NSArray class]]) {
         return luaL_argerror(L, idx, "expected an array of strings") ;
@@ -98,7 +98,7 @@ static int expandErrno(lua_State *L) {
 /// Returns:
 ///  * True if the operation succeeds; otherwise throws a Lua error with a description of reason for failure.
 static int xattr_setxattr(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TSTRING, LS_TTABLE | LS_TOPTIONAL, LS_TNUMBER | LS_TINTEGER | LS_TOPTIONAL, LS_TBREAK] ;
 
     NSString *path = [skin toNSObjectAtIndex:1] ;
@@ -135,7 +135,7 @@ static int xattr_setxattr(lua_State *L) {
 /// Returns:
 ///  * True if the operation succeeds; otherwise throws a Lua error with a description of reason for failure.
 static int xattr_removexattr(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TTABLE | LS_TOPTIONAL, LS_TBREAK] ;
 
     NSString *path = [skin toNSObjectAtIndex:1] ;
@@ -168,7 +168,7 @@ static int xattr_removexattr(lua_State *L) {
 ///
 ///  * See also [hs.fs.xattr.getHumanReadable](#getHumanReadable).
 static int xattr_getxattr(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TTABLE | LS_TOPTIONAL, LS_TNUMBER | LS_TINTEGER | LS_TOPTIONAL, LS_TBREAK] ;
 
     NSString *path = [skin toNSObjectAtIndex:1] ;
@@ -215,7 +215,7 @@ static int xattr_getxattr(lua_State *L) {
 /// Returns:
 ///  * a table containing an array of strings identifying the extended attributes currently defined for the file or directory; note that the order of the attributes is nondeterministic and is not guaranteed to be the same for future queries.  Throws a Lua error on failure with a description of the reason for the failure.
 static int xattr_listxattr(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TTABLE | LS_TOPTIONAL, LS_TBREAK] ;
 
     NSString *path = [skin toNSObjectAtIndex:1] ;
@@ -270,8 +270,8 @@ static luaL_Reg moduleLib[] = {
     {NULL,     NULL}
 };
 
-int luaopen_hs_fs_xattr(lua_State* __unused L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+int luaopen_hs_fs_xattr(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     refTable = [skin registerLibrary:moduleLib metaFunctions:nil] ;
 
     return 1;
