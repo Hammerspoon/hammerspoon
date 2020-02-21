@@ -11,6 +11,8 @@
 /// The datastore for a webview contains various types of data including cookies, disk and memory caches, and persistent data such as WebSQL, IndexedDB databases, and local storage.  You can use methods in this module to selectively or completely purge the common datastore (used by all Hammerspoon `hs.webview` instances that do not use a non-persistent datastore).
 static int refTable = LUA_NOREF;
 
+static NSMutableSet *backgroundCallbacks ;
+
 #pragma mark - Support Functions and Classes
 
 #pragma mark - Module Functions
@@ -132,13 +134,14 @@ static int datastore_fetchRecords(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_DS_TAG,
                     LS_TSTRING | LS_TTABLE | LS_TFUNCTION,
-                    LS_TFUNCTION, LS_TBREAK] ;
+                    LS_TFUNCTION | LS_TOPTIONAL, LS_TBREAK] ;
 
     WKWebsiteDataStore *dataStore = [skin toNSObjectAtIndex:1] ;
     NSArray            *dataTypes = [[WKWebsiteDataStore allWebsiteDataTypes] allObjects] ;
 
     lua_pushvalue(L, lua_gettop(L)) ;
     int fnRef = [skin luaRef:refTable] ;
+    [backgroundCallbacks addObject:@(fnRef)] ;
 
     if (lua_type(L, 2) == LUA_TSTRING) {
         dataTypes = [NSArray arrayWithObject:[skin toNSObjectAtIndex:2]] ;
@@ -165,10 +168,14 @@ static int datastore_fetchRecords(lua_State *L) {
 
     [dataStore fetchDataRecordsOfTypes:typeSet completionHandler:^(NSArray *records){
         dispatch_async(dispatch_get_main_queue(), ^{
-            [skin pushLuaRef:refTable ref:fnRef] ;
-            [skin pushNSObject:records] ;
-            [skin protectedCallAndError:@"hs.webview.datastore:fetchRecords callback" nargs:1 nresults:0];
-            [skin luaUnref:refTable ref:fnRef] ;
+            if ([backgroundCallbacks containsObject:@(fnRef)]) {
+                LuaSkin *_skin = [LuaSkin shared] ;
+                [_skin pushLuaRef:refTable ref:fnRef] ;
+                [_skin pushNSObject:records] ;
+                [_skin protectedCallAndError:@"hs.webview.datastore:fetchRecords callback" nargs:1 nresults:0];
+                [_skin luaUnref:refTable ref:fnRef] ;
+                [backgroundCallbacks removeObject:@(fnRef)] ;
+            }
         }) ;
     }] ;
 
@@ -247,6 +254,7 @@ static int datastore_removeRecords(lua_State *L) {
     if (lua_type(L, 4) == LUA_TFUNCTION) {
         lua_pushvalue(L, 4) ;
         fnRef = [skin luaRef:refTable] ;
+        [backgroundCallbacks addObject:@(fnRef)] ;
     }
 
     [dataStore fetchDataRecordsOfTypes:typeSet completionHandler:^(NSArray *records){
@@ -261,10 +269,12 @@ static int datastore_removeRecords(lua_State *L) {
 
         [dataStore removeDataOfTypes:typeSet forDataRecords:targets completionHandler:^{
             dispatch_async(dispatch_get_main_queue(), ^{
-                if (fnRef != LUA_NOREF) {
-                    [skin pushLuaRef:refTable ref:fnRef] ;
-                    [skin protectedCallAndError:@"hs.webview.datastore:removeRecordsFor callback" nargs:0 nresults:0];
-                    [skin luaUnref:refTable ref:fnRef] ;
+                if (fnRef != LUA_NOREF && [backgroundCallbacks containsObject:@(fnRef)]) {
+                    LuaSkin *_skin = [LuaSkin shared] ;
+                    [_skin pushLuaRef:refTable ref:fnRef] ;
+                    [_skin protectedCallAndError:@"hs.webview.datastore:removeRecordsFor callback" nargs:0 nresults:0];
+                    [_skin luaUnref:refTable ref:fnRef] ;
+                    [backgroundCallbacks removeObject:@(fnRef)] ;
                 }
             }) ;
         }] ;
@@ -348,15 +358,18 @@ static int datastore_removeDataFrom(lua_State *L) {
     if (lua_type(L, 4) == LUA_TFUNCTION) {
         lua_pushvalue(L, 4) ;
         fnRef = [skin luaRef:refTable] ;
+        [backgroundCallbacks addObject:@(fnRef)] ;
     }
 
 
     [dataStore removeDataOfTypes:typeSet modifiedSince:theDate completionHandler:^{
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (fnRef != LUA_NOREF) {
-                [skin pushLuaRef:refTable ref:fnRef] ;
-                [skin protectedCallAndError:@"hs.webview.datastore:removeRecordsAfter callback" nargs:0 nresults:0];
-                [skin luaUnref:refTable ref:fnRef] ;
+            if (fnRef != LUA_NOREF && [backgroundCallbacks containsObject:@(fnRef)]) {
+                LuaSkin *_skin = [LuaSkin shared] ;
+                [_skin pushLuaRef:refTable ref:fnRef] ;
+                [_skin protectedCallAndError:@"hs.webview.datastore:removeRecordsAfter callback" nargs:0 nresults:0];
+                [_skin luaUnref:refTable ref:fnRef] ;
+                [backgroundCallbacks removeObject:@(fnRef)] ;
             }
         }) ;
     }] ;
@@ -460,9 +473,14 @@ static int userdata_gc(lua_State* L) {
     return 0 ;
 }
 
-// static int meta_gc(lua_State* __unused L) {
-//     return 0 ;
-// }
+static int meta_gc(lua_State* __unused L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [backgroundCallbacks enumerateObjectsUsingBlock:^(NSNumber *ref, __unused BOOL *stop) {
+        [skin luaUnref:refTable ref:ref.intValue] ;
+    }] ;
+    [backgroundCallbacks removeAllObjects] ;
+    return 0;
+}
 
 // Metatable for userdata objects
 static const luaL_Reg userdata_metaLib[] = {
@@ -487,11 +505,11 @@ static luaL_Reg moduleLib[] = {
     {NULL,               NULL}
 };
 
-// // Metatable for module, if needed
-// static const luaL_Reg module_metaLib[] = {
-//     {"__gc", meta_gc},
-//     {NULL,   NULL}
-// };
+// Metatable for module, if needed
+static const luaL_Reg module_metaLib[] = {
+    {"__gc", meta_gc},
+    {NULL,   NULL}
+};
 
 // NOTE: ** Make sure to change luaopen_..._internal **
 int luaopen_hs_webview_datastore(lua_State* L) {
@@ -503,7 +521,7 @@ int luaopen_hs_webview_datastore(lua_State* L) {
     } else {
         refTable = [skin registerLibraryWithObject:USERDATA_DS_TAG
                                          functions:moduleLib
-                                     metaFunctions:nil    // or module_metaLib
+                                     metaFunctions:module_metaLib
                                    objectFunctions:userdata_metaLib];
 
         [skin registerPushNSHelper:pushWKWebsiteDataStore         forClass:"WKWebsiteDataStore"];
@@ -512,5 +530,6 @@ int luaopen_hs_webview_datastore(lua_State* L) {
         [skin registerLuaObjectHelper:toWKWebsiteDataStoreFromLua forClass:"WKWebsiteDataStore"
                                                  withUserdataMapping:USERDATA_DS_TAG];
     }
+    backgroundCallbacks = [NSMutableSet set] ;
     return 1;
 }
