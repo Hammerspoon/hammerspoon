@@ -137,14 +137,16 @@ static void remove_delegate(lua_State* L, connectionDelegate* delegate) {
     }
 
     dispatch_async(dispatch_get_main_queue(), ^{
-        LuaSkin *skin = [LuaSkin sharedWithState:NULL];
-        _lua_stackguard_entry(skin.L);
+        if (self.fn != LUA_NOREF) {
+            LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+            _lua_stackguard_entry(skin.L);
 
-        [skin pushLuaRef:refTable ref:self.fn];
-        [skin pushNSObject:message];
+            [skin pushLuaRef:refTable ref:self.fn];
+            [skin pushNSObject:message];
 
-        [skin protectedCallAndError:@"hs.http.websocket callback" nargs:1 nresults:0];
-        _lua_stackguard_exit(skin.L);
+            [skin protectedCallAndError:@"hs.http.websocket callback" nargs:1 nresults:0];
+            _lua_stackguard_exit(skin.L);
+        }
     });
 }
 

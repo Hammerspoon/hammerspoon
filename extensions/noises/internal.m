@@ -66,6 +66,7 @@ void AudioInputCallback(void * inUserData,  // Custom audio metadata
 - (Listener*)initPlugins {
   self = [super init];
   if (self) {
+    self.fn = LUA_NOREF ;
     recordState.recording = false;
     detectors = detectors_new();
   }
@@ -161,13 +162,15 @@ void AudioInputCallback(void * inUserData,  // Custom audio metadata
 }
 
 - (void)runCallbackWithEvent: (NSNumber*)evNumber {
-  LuaSkin *skin = [LuaSkin sharedWithState:NULL];
-  lua_State* L = self.L;
-  _lua_stackguard_entry(L);
-  [skin pushLuaRef:refTable ref:self.fn];
-  lua_pushinteger(L, [evNumber intValue]);
-  [skin protectedCallAndError:@"hs.noises callback" nargs:1 nresults:0];
-  _lua_stackguard_exit(L);
+  if (self.fn != LUA_NOREF) {
+      LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+      lua_State* L = self.L;
+      _lua_stackguard_entry(L);
+      [skin pushLuaRef:refTable ref:self.fn];
+      lua_pushinteger(L, [evNumber intValue]);
+      [skin protectedCallAndError:@"hs.noises callback" nargs:1 nresults:0];
+      _lua_stackguard_exit(L);
+  }
 }
 @end
 

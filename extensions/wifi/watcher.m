@@ -172,8 +172,8 @@ static HSWifiWatcherManager *manager ;
     }
     [_watchers enumerateObjectsUsingBlock:^(HSWifiWatcher *aWatcher, __unused BOOL *stop) {
         if ([aWatcher.watchingFor containsObject:message]) {
-            if (aWatcher.callbackRef != LUA_NOREF) {
-                dispatch_async(dispatch_get_main_queue(), ^{
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (aWatcher.callbackRef != LUA_NOREF) {
                     LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
                     _lua_stackguard_entry(skin.L);
                     [skin pushLuaRef:refTable ref:aWatcher.callbackRef] ;
@@ -188,8 +188,8 @@ static HSWifiWatcherManager *manager ;
                     }
                     [skin protectedCallAndError:[NSString stringWithFormat:@"hs.wifi.watcher callback for %@", message] nargs:(2 + (int)count) nresults:0];
                     _lua_stackguard_exit(skin.L);
-                }) ;
-            }
+                }
+            }) ;
         }
     }] ;
 }

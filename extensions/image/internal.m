@@ -18,6 +18,8 @@ int refTable = LUA_NOREF;
 // for a single document image...
 static NSImage *missingIconForFile ;
 
+static NSMutableSet *backgroundCallbacks ;
+
 #pragma mark - Module Constants
 
 /// hs.image.systemImageNames[]
@@ -1033,19 +1035,24 @@ static int imageFromURL(lua_State *L) {
         [skin pushNSObject:[[NSImage alloc] initWithContentsOfURL:theURL]] ;
     } else {
         int fnRef = [skin luaRef:refTable atIndex:2];
+        [backgroundCallbacks addObject:@(fnRef)] ;
+
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
             NSImage *image = [[NSImage alloc] initWithContentsOfURL:theURL];
 
             dispatch_async(dispatch_get_main_queue(), ^(void){
-                LuaSkin *bgSkin = [LuaSkin sharedWithState:NULL];
-                _lua_stackguard_entry(bgSkin.L);
+                if ([backgroundCallbacks containsObject:@(fnRef)]) {
+                    LuaSkin *bgSkin = [LuaSkin sharedWithState:NULL];
+                    _lua_stackguard_entry(bgSkin.L);
 
-                [bgSkin pushLuaRef:refTable ref:fnRef];
-                [bgSkin pushNSObject:image];
-                [bgSkin protectedCallAndTraceback:1 nresults:0];
-                [bgSkin luaUnref:refTable ref:fnRef];
+                    [bgSkin pushLuaRef:refTable ref:fnRef];
+                    [bgSkin pushNSObject:image];
+                    [bgSkin protectedCallAndTraceback:1 nresults:0];
+                    [bgSkin luaUnref:refTable ref:fnRef];
 
-                _lua_stackguard_exit(bgSkin.L);
+                    _lua_stackguard_exit(bgSkin.L);
+                    [backgroundCallbacks removeObject:@(fnRef)] ;
+                }
             });
         });
         lua_pushnil(L);
@@ -1656,11 +1663,14 @@ static int userdata_gc(lua_State* L) {
     return 0 ;
 }
 
-// static int meta_gc(lua_State* __unused L) {
-//     [hsimageReferences removeAllIndexes];
-//     hsimageReferences = nil;
-//     return 0 ;
-// }
+static int meta_gc(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+    [backgroundCallbacks enumerateObjectsUsingBlock:^(NSNumber *ref, __unused BOOL *stop) {
+        [skin luaUnref:refTable ref:ref.intValue] ;
+    }] ;
+    [backgroundCallbacks removeAllObjects] ;
+    return 0;
+}
 
 // Metatable for userdata objects
 static const luaL_Reg userdata_metaLib[] = {
@@ -1694,17 +1704,17 @@ static luaL_Reg moduleLib[] = {
     {NULL,                        NULL}
 };
 
-// // Metatable for module, if needed
-// static const luaL_Reg module_metaLib[] = {
-//     {"__gc",                meta_gc},
-//     {NULL,                  NULL}
-// };
+// Metatable for module, if needed
+static const luaL_Reg module_metaLib[] = {
+    {"__gc", meta_gc},
+    {NULL,   NULL}
+};
 
 int luaopen_hs_image_internal(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     refTable = [skin registerLibraryWithObject:USERDATA_TAG
                                      functions:moduleLib
-                                 metaFunctions:nil
+                                 metaFunctions:module_metaLib
                                objectFunctions:userdata_metaLib];
 
     pushNSImageNameTable(L); lua_setfield(L, -2, "systemImageNames") ;
@@ -1714,6 +1724,8 @@ int luaopen_hs_image_internal(lua_State* L) {
     [skin registerLuaObjectHelper:HSImage_toNSImage forClass:"NSImage" withUserdataMapping:USERDATA_TAG] ;
 
     if (!missingIconForFile) missingIconForFile = [[NSWorkspace sharedWorkspace] iconForFile:@""] ; // see comment at top
+
+    backgroundCallbacks = [NSMutableSet set] ;
     return 1;
 }
 

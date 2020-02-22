@@ -70,8 +70,8 @@ local __dispatch = function(msg, ...)
                 end
             else
                 local _self = objectInternals[id]
-                if _self and _self.callback then
-                    _self.callback(_self, msg, ...)
+                if _self and _self._callbk then
+                    _self._callbk(_self, msg, ...)
                 end
             end
         end
@@ -81,7 +81,7 @@ local __dispatch = function(msg, ...)
             if type(k) == "string" then
                 local id, _self = k, v
 
-                if _self.callback then
+                if _self._callbk then
                     if msg:match("Region$") then
                         local args = table.pack(...)
                         local originalID = args[1].identifier
@@ -97,10 +97,10 @@ local __dispatch = function(msg, ...)
                             args[1].notifyOnExit  = _self.regions[originalID].notifyOnExit
                             -- return the objects name for the region, not the internal one
                             args[1].identifier = _self.regions[originalID].identifier
-                            _self.callback(_self, msg, table.unpack(args))
+                            _self._callbk(_self, msg, table.unpack(args))
                         end
                     else
-                        _self.callback(_self, msg, ...)
+                        _self._callbk(_self, msg, ...)
                     end
                 end
             end
@@ -243,7 +243,7 @@ objectMT.__eq = function(self, other)
     return self.id == other.id
 end
 objectMT.__gc = function(self)
-    self.callback = nil
+    self._callbk = nil
     self:stopTracking()
     for _,v in ipairs(self:monitoredRegions()) do self:removeMonitoredRegion(v.identifier) end
     -- yeah, internal gc will get these, but it takes two passes to get both, so lets just kill both at once
@@ -482,7 +482,7 @@ objectMT.callback = function(self, ...)
     if args.n == 1 then
         local fn = args[1]
         if type(fn) == "function" or type(fn) == "nil" then
-            self.callback = fn
+            self._callbk = fn
         else
             error("expeected a function or nil, found " .. type(fn), 2)
         end

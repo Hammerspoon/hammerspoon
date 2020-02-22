@@ -26,6 +26,16 @@ static int refTable;
 @end
 
 @implementation MJScreenWatcher
+
+- (instancetype)init {
+    self = [super init] ;
+    if (self) {
+        _fn            = LUA_NOREF ;
+        _includeActive = NO ;
+    }
+    return self ;
+}
+
 - (void) _screensChanged:(id)note {
     [self performSelectorOnMainThread:@selector(screensChanged:)
                                         withObject:note
@@ -33,21 +43,23 @@ static int refTable;
 }
 
 - (void) screensChanged:(NSNotification*)note {
-    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
-    lua_State *L = skin.L;
-    _lua_stackguard_entry(skin.L);
-    int argCount = _includeActive ? 1 : 0;
+    if (self.fn != LUA_NOREF) {
+        LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+        lua_State *L = skin.L;
+        _lua_stackguard_entry(skin.L);
+        int argCount = _includeActive ? 1 : 0;
 
-    [skin pushLuaRef:refTable ref:self.fn];
-    if (_includeActive) {
-        if ([note.name isEqualToString:@"NSWorkspaceActiveDisplayDidChangeNotification"]) {
-            lua_pushboolean(L, YES);
-        } else {
-            lua_pushnil(L);
+        [skin pushLuaRef:refTable ref:self.fn];
+        if (_includeActive) {
+            if ([note.name isEqualToString:@"NSWorkspaceActiveDisplayDidChangeNotification"]) {
+                lua_pushboolean(L, YES);
+            } else {
+                lua_pushnil(L);
+            }
         }
+        [skin protectedCallAndError:@"hs.screen.watcher callback" nargs:argCount nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
-    [skin protectedCallAndError:@"hs.screen.watcher callback" nargs:argCount nresults:0];
-    _lua_stackguard_exit(skin.L);
 }
 @end
 

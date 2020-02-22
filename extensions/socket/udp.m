@@ -19,36 +19,42 @@ static const char *USERDATA_TAG = "hs.socket.udp";
 // Lua callbacks
 static void connectCallback(HSAsyncUdpSocket *asyncUdpSocket) {
     mainThreadDispatch(
-        LuaSkin *skin = [LuaSkin sharedWithState:NULL];
-        _lua_stackguard_entry(skin.L);
-        [skin pushLuaRef:refTable ref:asyncUdpSocket.connectCallback];
-        asyncUdpSocket.connectCallback = [skin luaUnref:refTable ref:asyncUdpSocket.connectCallback];
-        [skin protectedCallAndError:@"hs.socket.udp:connect" nargs:0 nresults:0];
-        _lua_stackguard_exit(skin.L);
+        if (asyncUdpSocket.connectCallback != LUA_NOREF) {
+            LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+            _lua_stackguard_entry(skin.L);
+            [skin pushLuaRef:refTable ref:asyncUdpSocket.connectCallback];
+            asyncUdpSocket.connectCallback = [skin luaUnref:refTable ref:asyncUdpSocket.connectCallback];
+            [skin protectedCallAndError:@"hs.socket.udp:connect" nargs:0 nresults:0];
+            _lua_stackguard_exit(skin.L);
+        }
     );
 }
 
 static void writeCallback(HSAsyncUdpSocket *asyncUdpSocket, long tag) {
     mainThreadDispatch(
-        LuaSkin *skin = [LuaSkin sharedWithState:NULL];
-        _lua_stackguard_entry(skin.L);
-        [skin pushLuaRef:refTable ref:asyncUdpSocket.writeCallback];
-        [skin pushNSObject: @(tag)];
-        asyncUdpSocket.writeCallback = [skin luaUnref:refTable ref:asyncUdpSocket.writeCallback];
-        [skin protectedCallAndError:@"hs.socket.udp:write callback" nargs:1 nresults:0];
-        _lua_stackguard_exit(skin.L);
+        if (asyncUdpSocket.writeCallback != LUA_NOREF) {
+            LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+            _lua_stackguard_entry(skin.L);
+            [skin pushLuaRef:refTable ref:asyncUdpSocket.writeCallback];
+            [skin pushNSObject: @(tag)];
+            asyncUdpSocket.writeCallback = [skin luaUnref:refTable ref:asyncUdpSocket.writeCallback];
+            [skin protectedCallAndError:@"hs.socket.udp:write callback" nargs:1 nresults:0];
+            _lua_stackguard_exit(skin.L);
+        }
     );
 }
 
 static void readCallback(HSAsyncUdpSocket *asyncUdpSocket, NSData *data, NSData *address) {
     mainThreadDispatch(
-        LuaSkin *skin = [LuaSkin sharedWithState:NULL];
-        _lua_stackguard_entry(skin.L);
-        [skin pushLuaRef:refTable ref:asyncUdpSocket.readCallback];
-        [skin pushNSObject: [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]];
-        [skin pushNSObject: address];
-        [skin protectedCallAndError:@"hs.socket.udp:read callback" nargs:2 nresults:0];
-        _lua_stackguard_exit(skin.L);
+        if (asyncUdpSocket.readCallback != LUA_NOREF) {
+            LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+            _lua_stackguard_entry(skin.L);
+            [skin pushLuaRef:refTable ref:asyncUdpSocket.readCallback];
+            [skin pushNSObject: [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]];
+            [skin pushNSObject: address];
+            [skin protectedCallAndError:@"hs.socket.udp:read callback" nargs:2 nresults:0];
+            _lua_stackguard_exit(skin.L);
+        }
     );
 }
 
