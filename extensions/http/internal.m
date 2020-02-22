@@ -137,14 +137,16 @@ static void remove_delegate(__unused lua_State* L, connectionDelegate* delegate)
     }
 
     dispatch_async(dispatch_get_main_queue(), ^{
-        LuaSkin *skin = [LuaSkin shared];
-        _lua_stackguard_entry(skin.L);
+        if (self.fn != LUA_NOREF) {
+            LuaSkin *skin = [LuaSkin shared];
+            _lua_stackguard_entry(skin.L);
 
-        [skin pushLuaRef:refTable ref:self.fn];
-        [skin pushNSObject:message];
+            [skin pushLuaRef:refTable ref:self.fn];
+            [skin pushNSObject:message];
 
-        [skin protectedCallAndError:@"hs.http.websocket callback" nargs:1 nresults:0];
-        _lua_stackguard_exit(skin.L);
+            [skin protectedCallAndError:@"hs.http.websocket callback" nargs:1 nresults:0];
+            _lua_stackguard_exit(skin.L);
+        }
     });
 }
 
@@ -183,7 +185,7 @@ static NSMutableURLRequest* getRequestFromStack(__unused lua_State* L, NSString*
     LuaSkin *skin = [LuaSkin shared];
     NSString* url = [skin toNSObjectAtIndex:1];
     NSString* method = [skin toNSObjectAtIndex:2];
-        
+
     NSUInteger selectedCachePolicy;
     if ([cachePolicy isEqualToString:@"protocolCachePolicy"]) {
         selectedCachePolicy = NSURLRequestUseProtocolCachePolicy;
@@ -251,7 +253,7 @@ static int http_doAsyncRequest(lua_State* L){
     [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TSTRING|LS_TNIL, LS_TTABLE|LS_TNIL, LS_TFUNCTION, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
 
     NSString* cachePolicy = [skin toNSObjectAtIndex:6];
-    
+
     NSMutableURLRequest* request = getRequestFromStack(L, cachePolicy);
     getBodyFromStack(L, 3, request);
     extractHeadersFromStack(L, 4, request);
@@ -303,7 +305,7 @@ static int http_doRequest(lua_State* L) {
     [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TSTRING|LS_TNIL|LS_TOPTIONAL, LS_TTABLE|LS_TNIL|LS_TOPTIONAL, LS_TSTRING|LS_TOPTIONAL, LS_TBREAK];
 
     NSString* cachePolicy = [skin toNSObjectAtIndex:5];
-    
+
     NSMutableURLRequest *request = getRequestFromStack(L, cachePolicy);
     getBodyFromStack(L, 3, request);
     extractHeadersFromStack(L, 4, request);
