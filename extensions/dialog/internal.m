@@ -821,7 +821,7 @@ static luaL_Reg module_metaLib[] = {
 };
 
 int luaopen_hs_dialog_internal(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 	refTable = [skin registerLibrary:moduleLib metaFunctions:module_metaLib] ;
 
     luaL_newlib(L, colorPanelLib) ; lua_setfield(L, -2, "color") ;

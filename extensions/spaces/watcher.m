@@ -176,8 +176,8 @@ static const luaL_Reg watcher_objectlib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_spaces_watcher(lua_State* L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+int luaopen_hs_spaces_watcher(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:watcherlib metaFunctions:nil objectFunctions:watcher_objectlib];
 
     return 1;

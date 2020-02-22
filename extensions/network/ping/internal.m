@@ -38,8 +38,8 @@ static int refTable = LUA_NOREF;
 
 #pragma mark - Support Functions and Classes
 
-static int pushParsedAddress(NSData *addressData) {
-    LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
+static int pushParsedAddress(lua_State *L, NSData *addressData) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     int  err;
     char addrStr[NI_MAXHOST];
     err = getnameinfo([addressData bytes], (unsigned int)[addressData length], addrStr, sizeof(addrStr), NULL, 0, NI_NUMERICHOST | NI_WITHSCOPEID | NI_NUMERICSERV);
@@ -51,9 +51,8 @@ static int pushParsedAddress(NSData *addressData) {
     return 1;
 }
 
-static int pushParsedICMPPayload(NSData *payloadData) {
-    LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
-    lua_State *L = [skin L] ;
+static int pushParsedICMPPayload(lua_State *L, NSData *payloadData) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     size_t packetLength = [payloadData length] ;
 
     lua_newtable(L) ;
@@ -128,7 +127,7 @@ static int pushParsedICMPPayload(NSData *payloadData) {
         [skin pushLuaRef:refTable ref:_callbackRef] ;
         [skin pushNSObject:pinger] ;
         [skin pushNSObject:@"didStart"] ;
-        pushParsedAddress(address) ;
+        pushParsedAddress(skin.L, address) ;
         [skin protectedCallAndError:@"hs.network.ping.echoRequest:didStartWithAddress callback" nargs:3 nresults:0];
         _lua_stackguard_exit(skin.L);
     }
@@ -161,7 +160,7 @@ static int pushParsedICMPPayload(NSData *payloadData) {
         [skin pushLuaRef:refTable ref:_callbackRef] ;
         [skin pushNSObject:pinger] ;
         [skin pushNSObject:@"sendPacket"] ;
-        pushParsedICMPPayload(packet) ;
+        pushParsedICMPPayload(skin.L, packet) ;
         lua_pushinteger([skin L], sequenceNumber) ;
         [skin protectedCallAndError:@"hs.network.ping.echoRequest:didSendPacket callback" nargs:4 nresults:0];
         _lua_stackguard_exit(skin.L);
@@ -177,7 +176,7 @@ static int pushParsedICMPPayload(NSData *payloadData) {
         [skin pushLuaRef:refTable ref:_callbackRef] ;
         [skin pushNSObject:pinger] ;
         [skin pushNSObject:@"sendPacketFailed"] ;
-        pushParsedICMPPayload(packet) ;
+        pushParsedICMPPayload(skin.L, packet) ;
         lua_pushinteger([skin L], sequenceNumber) ;
         [skin pushNSObject:[error localizedDescription]] ;
         [skin protectedCallAndError:@"hs.network.ping.echoRequest:didFailToSendPacket callback" nargs:5 nresults:0];
@@ -193,7 +192,7 @@ static int pushParsedICMPPayload(NSData *payloadData) {
         [skin pushLuaRef:refTable ref:_callbackRef] ;
         [skin pushNSObject:pinger] ;
         [skin pushNSObject:@"receivedPacket"] ;
-        pushParsedICMPPayload(packet) ;
+        pushParsedICMPPayload(skin.L, packet) ;
         lua_pushinteger([skin L], sequenceNumber) ;
         [skin protectedCallAndError:@"hs.network.ping.echoRequest:didReceivePingResponsePacket" nargs:4 nresults:0];
         _lua_stackguard_exit(skin.L);
@@ -217,7 +216,7 @@ static int pushParsedICMPPayload(NSData *payloadData) {
         [skin pushLuaRef:refTable ref:_callbackRef] ;
         [skin pushNSObject:pinger] ;
         [skin pushNSObject:@"receivedUnexpectedPacket"] ;
-        pushParsedICMPPayload(packet) ;
+        pushParsedICMPPayload(skin.L, packet) ;
         [skin protectedCallAndError:@"hs.network.ping.echoRequest:didReceiveUnexpectedPacket callback" nargs:3 nresults:0];
         _lua_stackguard_exit(skin.L);
     }
@@ -509,7 +508,7 @@ static int echoRequest_hostAddress(lua_State *L) {
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     PingableObject *pinger = [skin toNSObjectAtIndex:1] ;
     if (pinger.hostAddress) {
-        pushParsedAddress(pinger.hostAddress) ;
+        pushParsedAddress(L, pinger.hostAddress) ;
     } else {
         if (pinger.selfRef != LUA_NOREF) {
             lua_pushboolean(L, NO) ;

@@ -356,7 +356,6 @@ static int screen_gammaGet(lua_State* L) {
 }
 
 void storeInitialScreenGamma(CGDirectDisplayID display) {
-    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     uint32_t capacity = CGDisplayGammaTableCapacity(display);
     uint32_t count = 0;
     int i = 0;
@@ -383,7 +382,7 @@ void storeInitialScreenGamma(CGDirectDisplayID display) {
 
         [originalGammas setObject:gammas forKey:[NSNumber numberWithInt:display]];
     } else {
-        [skin logBreadcrumb:[NSString stringWithFormat:@"storeInitialScreenGamma: ERROR %i on display %i", result, display]];
+        [LuaSkin logBreadcrumb:[NSString stringWithFormat:@"storeInitialScreenGamma: ERROR %i on display %i", result, display]];
     }
 
     free(redTable);
@@ -762,7 +761,6 @@ static int screen_setInvertedPolarity(lua_State* L) {
 }
 
 void screen_gammaReapply(CGDirectDisplayID display) {
-    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     NSDictionary *gammas = [currentGammas objectForKey:[NSNumber numberWithInt:display]];
     if (!gammas) {
         return;
@@ -787,7 +785,7 @@ void screen_gammaReapply(CGDirectDisplayID display) {
     CGError result = CGSetDisplayTransferByTable(display, count, redTable, greenTable, blueTable);
 
     if (result != kCGErrorSuccess) {
-        [skin logBreadcrumb:[NSString stringWithFormat:@"screen_gammaReapply: ERROR: %i on display: %i", result, display]];
+        [LuaSkin logBreadcrumb:[NSString stringWithFormat:@"screen_gammaReapply: ERROR: %i on display: %i", result, display]];
     } else {
         //NSLog(@"screen_gammaReapply: Success");
     }
