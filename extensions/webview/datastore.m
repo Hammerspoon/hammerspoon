@@ -165,7 +165,7 @@ static int datastore_fetchRecords(lua_State *L) {
 
     [dataStore fetchDataRecordsOfTypes:typeSet completionHandler:^(NSArray *records){
         dispatch_async(dispatch_get_main_queue(), ^{
-            LuaSkin *blockSkin = [LuaSkin sharedWithState:L] ;
+            LuaSkin *blockSkin = [LuaSkin sharedWithState:NULL] ;
             [blockSkin pushLuaRef:refTable ref:fnRef] ;
             [blockSkin pushNSObject:records] ;
             [blockSkin protectedCallAndError:@"hs.webview.datastore:fetchRecords callback" nargs:1 nresults:0];
@@ -263,7 +263,7 @@ static int datastore_removeRecords(lua_State *L) {
         [dataStore removeDataOfTypes:typeSet forDataRecords:targets completionHandler:^{
             dispatch_async(dispatch_get_main_queue(), ^{
                 if (fnRef != LUA_NOREF) {
-                    LuaSkin *blockSkin = [LuaSkin sharedWithState:L] ;
+                    LuaSkin *blockSkin = [LuaSkin sharedWithState:NULL] ;
                     [blockSkin pushLuaRef:refTable ref:fnRef] ;
                     [blockSkin protectedCallAndError:@"hs.webview.datastore:removeRecordsFor callback" nargs:0 nresults:0];
                     [blockSkin luaUnref:refTable ref:fnRef] ;
@@ -356,7 +356,7 @@ static int datastore_removeDataFrom(lua_State *L) {
     [dataStore removeDataOfTypes:typeSet modifiedSince:theDate completionHandler:^{
         dispatch_async(dispatch_get_main_queue(), ^{
             if (fnRef != LUA_NOREF) {
-                LuaSkin *blockSkin = [LuaSkin sharedWithState:L] ;
+                LuaSkin *blockSkin = [LuaSkin sharedWithState:NULL] ;
                 [blockSkin pushLuaRef:refTable ref:fnRef] ;
                 [blockSkin protectedCallAndError:@"hs.webview.datastore:removeRecordsAfter callback" nargs:0 nresults:0];
                 [blockSkin luaUnref:refTable ref:fnRef] ;

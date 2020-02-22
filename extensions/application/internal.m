@@ -1105,7 +1105,7 @@ static int application_getMenus(lua_State* L) {
                 CFRelease(menuBar);
             }
 
-            LuaSkin *_skin = [LuaSkin sharedWithState:L];
+            LuaSkin *_skin = [LuaSkin sharedWithState:NULL];
             lua_rawgeti(_skin.L, LUA_REGISTRYINDEX, fnRef) ;
             [_skin pushNSObject:menus] ;
             [_skin protectedCallAndError:@"hs.application:getMenus()" nargs:1 nresults:0];
