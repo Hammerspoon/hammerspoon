@@ -102,15 +102,17 @@ typedef enum _event_t {
 
 // Call the lua callback function and pass the event type.
 - (void)callback:(NSDictionary* __unused)dict withEvent:(event_t)event {
-    LuaSkin *skin = [LuaSkin shared];
-    lua_State *L = skin.L;
-    _lua_stackguard_entry(L);
+    if (self.object->fn != LUA_NOREF) {
+        LuaSkin *skin = [LuaSkin shared];
+        lua_State *L = skin.L;
+        _lua_stackguard_entry(L);
 
-    [skin pushLuaRef:refTable ref:self.object->fn];
-    lua_pushinteger(L, event); // Parameter 1: the event type
+        [skin pushLuaRef:refTable ref:self.object->fn];
+        lua_pushinteger(L, event); // Parameter 1: the event type
 
-    [skin protectedCallAndError:@"hs.caffeinate.watcher callback" nargs:1 nresults:0];
-    _lua_stackguard_exit(L);
+        [skin protectedCallAndError:@"hs.caffeinate.watcher callback" nargs:1 nresults:0];
+        _lua_stackguard_exit(L);
+    }
 }
 
 - (void)caffeinateDidWake:(NSNotification*)notification {

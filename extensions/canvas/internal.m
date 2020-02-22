@@ -947,7 +947,7 @@ static int userdata_gc(lua_State* L) ;
       [[NSAnimationContext currentContext] setCompletionHandler:^{
           // unlikely that bself will go to nil after this starts, but this keeps the warnings down from [-Warc-repeated-use-of-weak]
           HSCanvasWindow *mySelf = bself ;
-          if (mySelf) {
+          if (mySelf && (((HSCanvasView *)mySelf.contentView).selfRef != LUA_NOREF)) {
               if (deleteCanvas) {
                   LuaSkin *skin = [LuaSkin shared] ;
                   lua_State *L = [skin L] ;
@@ -1141,7 +1141,7 @@ static int userdata_gc(lua_State* L) ;
         LuaSkin *skin = [LuaSkin shared];
         _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_mouseCallbackRef];
-        [skin pushLuaRef:refTable ref:_selfRef] ;
+        [skin pushNSObject:self] ;
         [skin pushNSObject:message] ;
         [skin pushNSObject:elementIdentifier] ;
         lua_pushnumber(skin.L, location.x) ;
@@ -1157,7 +1157,7 @@ static int userdata_gc(lua_State* L) ;
         LuaSkin *skin = [LuaSkin shared];
         _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_mouseCallbackRef];
-        [skin pushLuaRef:refTable ref:_selfRef] ;
+        [skin pushNSObject:self] ;
         [skin pushNSObject:@"_subview_"] ;
         [skin pushNSObject:sender] ;
         [skin protectedCallAndError:@"hs.canvas:buttonCallback" nargs:3 nresults:0];

@@ -29,8 +29,10 @@ static void callback(void *info) {
 
     battery_watcher_t* t = info;
 
-    [skin pushLuaRef:refTable ref:t->fn];
-    [skin protectedCallAndError:@"hs.battery.watcher callback" nargs:0 nresults:0];
+    if (t->fn != LUA_NOREF) {
+        [skin pushLuaRef:refTable ref:t->fn];
+        [skin protectedCallAndError:@"hs.battery.watcher callback" nargs:0 nresults:0];
+    }
     _lua_stackguard_exit(skin.L);
 }
 
