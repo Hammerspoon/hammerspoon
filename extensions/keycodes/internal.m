@@ -284,13 +284,13 @@ NSString *getLayoutName(TISInputSourceRef layout) {
     return (__bridge NSString *)TISGetInputSourceProperty(layout, kTISPropertyLocalizedName);
 }
 
-void pushSourceIcon(TISInputSourceRef source) {
-    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+void pushSourceIcon(lua_State *L, TISInputSourceRef source) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     IconRef icon = TISGetInputSourceProperty(source, kTISPropertyIconRef);
     if (icon) {
         [skin pushNSObject:[[NSImage alloc] initWithIconRef:icon]];
     } else {
-        lua_pushnil(skin.L);
+        lua_pushnil(L);
     }
 }
 
@@ -372,10 +372,10 @@ static int keycodes_currentLayout(lua_State* L) {
 ///
 /// Returns:
 ///  * An hs.image object containing the icon, if available
-static int keycodes_currentLayoutIcon(__unused lua_State* L) {
+static int keycodes_currentLayoutIcon(lua_State* L) {
     TISInputSourceRef layout = TISCopyCurrentKeyboardInputSource();
 
-    pushSourceIcon(layout);
+    pushSourceIcon(L, layout);
     CFRelease(layout);
     return 1;
 }
@@ -568,7 +568,7 @@ static int keycodes_getIcon(lua_State* L) {
             NSString *layoutName = getLayoutName(layout);
 
             if ([layoutName isEqualToString:sourceName]) {
-                pushSourceIcon(layout);
+                pushSourceIcon(L, layout);
                 found = YES;
                 break;
             }
@@ -581,7 +581,7 @@ static int keycodes_getIcon(lua_State* L) {
                 NSString *layoutName = getLayoutName(layout);
 
                 if ([layoutName isEqualToString:sourceName]) {
-                    pushSourceIcon(layout);
+                    pushSourceIcon(L, layout);
                     found = YES;
                     break;
                 }

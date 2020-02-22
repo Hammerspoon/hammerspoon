@@ -102,7 +102,7 @@ typedef enum _event_t {
 
 // Call the lua callback function and pass the event type.
 - (void)callback:(NSDictionary* __unused)dict withEvent:(event_t)event {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     lua_State *L = skin.L;
     _lua_stackguard_entry(L);
 
@@ -174,7 +174,7 @@ typedef enum _event_t {
 /// Returns:
 ///  * An `hs.caffeinate.watcher` object
 static int caffeinate_watcher_new(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TFUNCTION, LS_TBREAK];
 
     caffeinatewatcher_t* caffeinateWatcher = lua_newuserdata(L, sizeof(caffeinatewatcher_t));
@@ -279,7 +279,7 @@ static void unregister_observer(CaffeinateWatcher* observer) {
 /// Returns:
 ///  * An `hs.caffeinate.watcher` object
 static int caffeinate_watcher_start(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
     caffeinatewatcher_t* caffeinateWatcher = lua_touserdata(L, 1);
@@ -303,7 +303,7 @@ static int caffeinate_watcher_start(lua_State* L) {
 /// Returns:
 ///  * An `hs.caffeinate.watcher` object
 static int caffeinate_watcher_stop(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
     caffeinatewatcher_t* caffeinateWatcher = lua_touserdata(L, 1);
@@ -319,7 +319,7 @@ static int caffeinate_watcher_stop(lua_State* L) {
 
 // Perform cleanup if the CaffeinateWatcher is not required anymore.
 static int caffeinate_watcher_gc(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     caffeinatewatcher_t* caffeinateWatcher = luaL_checkudata(L, 1, USERDATA_TAG);
 
@@ -385,8 +385,8 @@ static const luaL_Reg metaGcLib[] = {
 };
 
 // Called when loading the module. All necessary tables need to be registered here.
-int luaopen_hs_caffeinate_watcher(lua_State* L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+int luaopen_hs_caffeinate_watcher(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:caffeinateLib metaFunctions:metaGcLib objectFunctions:metaLib];
 
     add_event_enum(skin.L);
