@@ -29,15 +29,15 @@ static HSLocaleChangeObserver *observerOfChanges = nil ;
 @implementation HSLocaleChangeObserver
 
 - (void) localeChanged:(__unused NSNotification*)notification {
-    if (callbackRef != LUA_NOREF) {
-        dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (callbackRef != LUA_NOREF) {
             LuaSkin *skin = [LuaSkin shared];
             _lua_stackguard_entry(skin.L);
             [skin pushLuaRef:refTable ref:callbackRef];
             [skin protectedCallAndError:@"hs.host.locale callback" nargs:0 nresults:0];
             _lua_stackguard_exit(skin.L);
-        }) ;
-    }
+        }
+    }) ;
 }
 
 - (void) start {
@@ -349,7 +349,7 @@ static int locale_localizedString(lua_State *L) {
         lua_pushnil(L) ;
         return 1;
     }
-    
+
     // Checks to see if the supplied `localeCode` exists in `availableLocaleIdentifiers`:
     NSString *localeCode = [skin toNSObjectAtIndex:1] ;
     BOOL islocaleCodeValid = [availableLocales containsObject: localeCode];
@@ -357,10 +357,10 @@ static int locale_localizedString(lua_State *L) {
         lua_pushnil(L) ;
         return 1;
     }
-    
+
     NSString *localizedString = [theLocale localizedStringForLanguageCode:localeCode];
     NSString *localizedStringWithDialect = [theLocale displayNameForKey:NSLocaleIdentifier value:localeCode];
-    
+
     [skin pushNSObject:localizedString] ;
     [skin pushNSObject:localizedStringWithDialect] ;
     return 2;
