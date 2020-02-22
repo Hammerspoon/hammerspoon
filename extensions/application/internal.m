@@ -7,6 +7,8 @@
 #define get_app(L, idx) *((AXUIElementRef*)luaL_checkudata(L, idx, "hs.application"))
 #define nsobject_for_app(L, idx) [NSRunningApplication runningApplicationWithProcessIdentifier: pid_for_app(L, idx)]
 
+static NSMutableSet *backgroundCallbacks ;
+
 static pid_t pid_for_app(lua_State* L, int idx) {
     get_app(L, idx); // type-checking
     lua_getuservalue(L, idx);
@@ -19,6 +21,11 @@ static pid_t pid_for_app(lua_State* L, int idx) {
 static int application_gc(lua_State* L) {
     AXUIElementRef app = get_app(L, 1);
     CFRelease(app);
+
+    [backgroundCallbacks enumerateObjectsUsingBlock:^(NSNumber *ref, __unused BOOL *stop) {
+        luaL_unref(L, LUA_REGISTRYINDEX, ref.intValue) ;
+    }] ;
+    [backgroundCallbacks removeAllObjects] ;
     return 0;
 }
 
@@ -1096,20 +1103,25 @@ static int application_getMenus(lua_State* L) {
     } else {
         lua_pushvalue(L, 2) ;
         int fnRef = luaL_ref(L, LUA_REGISTRYINDEX) ;
+        [backgroundCallbacks addObject:@(fnRef)] ;
+
         dispatch_async(dispatch_get_main_queue(), ^{
-            NSMutableDictionary *menus = nil;
-            AXUIElementRef menuBar;
+            if ([backgroundCallbacks containsObject:@(fnRef)]) {
+                NSMutableDictionary *menus = nil;
+                AXUIElementRef menuBar;
 
-            if (AXUIElementCopyAttributeValue(app, kAXMenuBarAttribute, (CFTypeRef *)&menuBar) == kAXErrorSuccess) {
-                menus = _getMenuStructure(menuBar);
-                CFRelease(menuBar);
+                if (AXUIElementCopyAttributeValue(app, kAXMenuBarAttribute, (CFTypeRef *)&menuBar) == kAXErrorSuccess) {
+                    menus = _getMenuStructure(menuBar);
+                    CFRelease(menuBar);
+                }
+
+                LuaSkin *_skin = [LuaSkin sharedWithState:NULL];
+                lua_rawgeti(_skin.L, LUA_REGISTRYINDEX, fnRef) ;
+                [_skin pushNSObject:menus] ;
+                [_skin protectedCallAndError:@"hs.application:getMenus()" nargs:1 nresults:0];
+                luaL_unref(_skin.L, LUA_REGISTRYINDEX, fnRef) ;
+                [backgroundCallbacks removeObject:@(fnRef)] ;
             }
-
-            LuaSkin *_skin = [LuaSkin sharedWithState:NULL];
-            lua_rawgeti(_skin.L, LUA_REGISTRYINDEX, fnRef) ;
-            [_skin pushNSObject:menus] ;
-            [_skin protectedCallAndError:@"hs.application:getMenus()" nargs:1 nresults:0];
-            luaL_unref(_skin.L, LUA_REGISTRYINDEX, fnRef) ;
         }) ;
         lua_pushvalue(L, 1) ;
     }
@@ -1284,6 +1296,8 @@ int luaopen_hs_application_internal(lua_State* L) {
     [skin registerLuaObjectHelper:lua_tonsrunningapplication
                          forClass:"NSRunningApplication"
               withUserdataMapping:"hs.application"] ;
+
+    backgroundCallbacks = [NSMutableSet set] ;
 
     return 1;
 }

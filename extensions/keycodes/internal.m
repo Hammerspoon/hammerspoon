@@ -196,6 +196,14 @@ int keycodes_cachemap(lua_State* L) {
 
 @implementation MJKeycodesObserver
 
+- (instancetype)init {
+    self = [super init] ;
+    if (self) {
+        _ref = LUA_NOREF ;
+    }
+    return self ;
+}
+
 - (void) _inputSourceChanged:(NSNotification*)__unused note {
     [self performSelectorOnMainThread:@selector(inputSourceChanged:)
                                        withObject:nil
@@ -203,11 +211,13 @@ int keycodes_cachemap(lua_State* L) {
 }
 
 - (void) inputSourceChanged:(NSNotification*)__unused note {
-    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
-    _lua_stackguard_entry(skin.L);
-    [skin pushLuaRef:refTable ref:self.ref];
-    [skin protectedCallAndError:@"hs.keycodes.inputSourceChanged" nargs:0 nresults:0];
-    _lua_stackguard_exit(skin.L);
+    if (self.ref != LUA_NOREF) {
+        LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+        _lua_stackguard_entry(skin.L);
+        [skin pushLuaRef:refTable ref:self.ref];
+        [skin protectedCallAndError:@"hs.keycodes.inputSourceChanged" nargs:0 nresults:0];
+        _lua_stackguard_exit(skin.L);
+    }
 }
 
 - (void) start {

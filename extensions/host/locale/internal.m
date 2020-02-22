@@ -29,15 +29,15 @@ static HSLocaleChangeObserver *observerOfChanges = nil ;
 @implementation HSLocaleChangeObserver
 
 - (void) localeChanged:(__unused NSNotification*)notification {
-    if (callbackRef != LUA_NOREF) {
-        dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (callbackRef != LUA_NOREF) {
             LuaSkin *skin = [LuaSkin sharedWithState:NULL];
             _lua_stackguard_entry(skin.L);
             [skin pushLuaRef:refTable ref:callbackRef];
             [skin protectedCallAndError:@"hs.host.locale callback" nargs:0 nresults:0];
             _lua_stackguard_exit(skin.L);
-        }) ;
-    }
+        }
+    }) ;
 }
 
 - (void) start {

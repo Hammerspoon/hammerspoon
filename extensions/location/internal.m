@@ -14,6 +14,8 @@ static HSLocation *location ;
 
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 
+static NSMutableSet *backgroundCallbacks ;
+
 #pragma mark - Support Functions and Classes
 
 @interface HSLocation : NSObject <CLLocationManagerDelegate>
@@ -49,89 +51,83 @@ static HSLocation *location ;
 }
 
 - (void)locationManager:(__unused CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
-    if (callbackRef != LUA_NOREF) {
-        dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (callbackRef != LUA_NOREF) {
             LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
             _lua_stackguard_entry(skin.L);
             [skin pushLuaRef:refTable ref:callbackRef] ;
-            [skin pushNSObject:self] ;
             [skin pushNSObject:@"didUpdateLocations"] ;
             [skin pushNSObject:locations] ;
-            [skin protectedCallAndError:@"hs.location:didUpdateLocations callback" nargs:3 nresults:0];
+            [skin protectedCallAndError:@"hs.location:didUpdateLocations callback" nargs:2 nresults:0];
             _lua_stackguard_exit(skin.L);
-        }) ;
-    }
+        }
+    }) ;
 }
 
 - (void)locationManager:(__unused CLLocationManager *)manager didEnterRegion:(CLRegion *)region {
-    if (callbackRef != LUA_NOREF) {
-        dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (callbackRef != LUA_NOREF) {
             LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
             _lua_stackguard_entry(skin.L);
             [skin pushLuaRef:refTable ref:callbackRef] ;
-            [skin pushNSObject:self] ;
             [skin pushNSObject:@"didEnterRegion"] ;
             [skin pushNSObject:region] ;
-            [skin protectedCallAndError:@"hs.location:didEnterRegion callback" nargs:3 nresults:0];
+            [skin protectedCallAndError:@"hs.location:didEnterRegion callback" nargs:2 nresults:0];
             _lua_stackguard_exit(skin.L);
-        }) ;
-    }
+        }
+    }) ;
 }
 
 - (void)locationManager:(__unused CLLocationManager *)manager didExitRegion:(CLRegion *)region {
-    if (callbackRef != LUA_NOREF) {
-        dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (callbackRef != LUA_NOREF) {
             LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
             _lua_stackguard_entry(skin.L);
             [skin pushLuaRef:refTable ref:callbackRef] ;
-            [skin pushNSObject:self] ;
             [skin pushNSObject:@"didExitRegion"] ;
             [skin pushNSObject:region] ;
-            [skin protectedCallAndError:@"hs.location:didExitRegion callback" nargs:3 nresults:0];
+            [skin protectedCallAndError:@"hs.location:didExitRegion callback" nargs:2 nresults:0];
             _lua_stackguard_exit(skin.L);
-        }) ;
-    }
+        }
+    }) ;
 }
 
 - (void)locationManager:(__unused CLLocationManager *)manager didFailWithError:(NSError *)error {
-    if (callbackRef != LUA_NOREF) {
-        dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (callbackRef != LUA_NOREF) {
             LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
             _lua_stackguard_entry(skin.L);
             [skin pushLuaRef:refTable ref:callbackRef] ;
-            [skin pushNSObject:self] ;
             [skin pushNSObject:@"didFailWithError"] ;
             [skin pushNSObject:error.localizedDescription] ;
-            [skin protectedCallAndError:@"hs.location:didFailWithError callback" nargs:3 nresults:0];
+            [skin protectedCallAndError:@"hs.location:didFailWithError callback" nargs:2 nresults:0];
             _lua_stackguard_exit(skin.L);
-        }) ;
-    }
+        }
+    }) ;
 }
 
 - (void)locationManager:(__unused CLLocationManager *)manager monitoringDidFailForRegion:(CLRegion *)region
                                                                       withError:(NSError *)error {
-    if (callbackRef != LUA_NOREF) {
-        dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (callbackRef != LUA_NOREF) {
             LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
             _lua_stackguard_entry(skin.L);
             [skin pushLuaRef:refTable ref:callbackRef] ;
-            [skin pushNSObject:self] ;
             [skin pushNSObject:@"monitoringDidFailForRegion"] ;
             [skin pushNSObject:region] ;
             [skin pushNSObject:error.localizedDescription] ;
-            [skin protectedCallAndError:@"hs.location:monitoringDidFailForRegion callback" nargs:4 nresults:0];
+            [skin protectedCallAndError:@"hs.location:monitoringDidFailForRegion callback" nargs:3 nresults:0];
             _lua_stackguard_exit(skin.L);
-        }) ;
-    }
+        }
+    }) ;
 }
 
 - (void)locationManager:(__unused CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
-    if (callbackRef != LUA_NOREF) {
-        dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (callbackRef != LUA_NOREF) {
             LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
             _lua_stackguard_entry(skin.L);
             [skin pushLuaRef:refTable ref:callbackRef] ;
-            [skin pushNSObject:self] ;
             [skin pushNSObject:@"didChangeAuthorizationStatus"] ;
 
 // according to the CLLocationManager.h file, kCLAuthorizationStatusAuthorizedWhenInUse is
@@ -149,25 +145,24 @@ static HSLocation *location ;
             }
 #pragma clang diagnostic pop
 
-            [skin protectedCallAndError:@"hs.location:didChangeAuthorizationStatus callback" nargs:3 nresults:0];
+            [skin protectedCallAndError:@"hs.location:didChangeAuthorizationStatus callback" nargs:2 nresults:0];
             _lua_stackguard_exit(skin.L);
-        }) ;
-    }
+        }
+    }) ;
 }
 
 - (void)locationManager:(__unused CLLocationManager *)manager didStartMonitoringForRegion:(CLRegion *)region {
-    if (callbackRef != LUA_NOREF) {
-        dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (callbackRef != LUA_NOREF) {
             LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
             _lua_stackguard_entry(skin.L);
             [skin pushLuaRef:refTable ref:callbackRef] ;
-            [skin pushNSObject:self] ;
             [skin pushNSObject:@"didStartMonitoringForRegion"] ;
             [skin pushNSObject:region] ;
-            [skin protectedCallAndError:@"hs.location:didStartMonitoringForRegion" nargs:3 nresults:0];
+            [skin protectedCallAndError:@"hs.location:didStartMonitoringForRegion" nargs:2 nresults:0];
             _lua_stackguard_exit(skin.L);
-        }) ;
-    }
+        }
+    }) ;
 }
 
 @end
@@ -575,17 +570,21 @@ static int clgeocoder_lookupLocation(lua_State *L) {
     CLLocation *theLocation = [skin luaObjectAtIndex:1 toClass:"CLLocation"] ;
     lua_pushvalue(L, 2) ;
     int fnRef = [skin luaRef:refTable] ;
+    [backgroundCallbacks addObject:@(fnRef)] ;
 
     CLGeocoder *geoItem = [[CLGeocoder alloc] init] ;
     [geoItem reverseGeocodeLocation:theLocation completionHandler:^(NSArray *placemark, NSError *error) {
-        LuaSkin   *_skin = [LuaSkin sharedWithState:NULL] ;
-//         if (error) [_skin logInfo:[NSString stringWithFormat:@"%s:lookupLocation completion error:%@", GEOCODE_UD_TAG, error.localizedDescription]] ;
-        lua_State *_L    = [_skin L] ;
-        [_skin pushLuaRef:refTable ref:fnRef] ;
-        lua_pushboolean(_L, (error == NULL)) ;
-        [_skin pushNSObject:(error ? error.localizedDescription : placemark)] ;
-        [_skin protectedCallAndError:@"hs.location.geocode:lookupLocation callback" nargs:2 nresults:0];
-        [_skin luaUnref:refTable ref:fnRef] ;
+        if ([backgroundCallbacks containsObject:@(fnRef)]) {
+            LuaSkin   *_skin = [LuaSkin sharedWithState:NULL] ;
+    //         if (error) [_skin logInfo:[NSString stringWithFormat:@"%s:lookupLocation completion error:%@", GEOCODE_UD_TAG, error.localizedDescription]] ;
+            lua_State *_L    = [_skin L] ;
+            [_skin pushLuaRef:refTable ref:fnRef] ;
+            lua_pushboolean(_L, (error == NULL)) ;
+            [_skin pushNSObject:(error ? error.localizedDescription : placemark)] ;
+            [_skin protectedCallAndError:@"hs.location.geocode:lookupLocation callback" nargs:2 nresults:0];
+            [_skin luaUnref:refTable ref:fnRef] ;
+            [backgroundCallbacks removeObject:@(fnRef)] ;
+        }
     }] ;
     [skin pushNSObject:geoItem] ;
     return 1 ;
@@ -613,17 +612,21 @@ static int clgeocoder_lookupAddress(lua_State *L) {
     NSString *searchString = [skin toNSObjectAtIndex:1] ;
     lua_pushvalue(L, 2) ;
     int fnRef = [skin luaRef:refTable] ;
+    [backgroundCallbacks addObject:@(fnRef)] ;
 
     CLGeocoder *geoItem = [[CLGeocoder alloc] init] ;
     [geoItem geocodeAddressString:searchString completionHandler:^(NSArray *placemark, NSError *error) {
-        LuaSkin   *_skin = [LuaSkin sharedWithState:NULL] ;
-//         if (error) [_skin logInfo:[NSString stringWithFormat:@"%s:lookupAddress completion error:%@", GEOCODE_UD_TAG, error.localizedDescription]] ;
-        lua_State *_L    = [_skin L] ;
-        [_skin pushLuaRef:refTable ref:fnRef] ;
-        lua_pushboolean(_L, (error == NULL)) ;
-        [_skin pushNSObject:(error ? error.localizedDescription : placemark)] ;
-        [_skin protectedCallAndError:@"hs.location.geocode:lookupAddress callback" nargs:2 nresults:0];
-        [_skin luaUnref:refTable ref:fnRef] ;
+        if ([backgroundCallbacks containsObject:@(fnRef)]) {
+            LuaSkin   *_skin = [LuaSkin sharedWithState:NULL] ;
+    //         if (error) [_skin logInfo:[NSString stringWithFormat:@"%s:lookupAddress completion error:%@", GEOCODE_UD_TAG, error.localizedDescription]] ;
+            lua_State *_L    = [_skin L] ;
+            [_skin pushLuaRef:refTable ref:fnRef] ;
+            lua_pushboolean(_L, (error == NULL)) ;
+            [_skin pushNSObject:(error ? error.localizedDescription : placemark)] ;
+            [_skin protectedCallAndError:@"hs.location.geocode:lookupAddress callback" nargs:2 nresults:0];
+            [_skin luaUnref:refTable ref:fnRef] ;
+            [backgroundCallbacks removeObject:@(fnRef)] ;
+        }
     }] ;
     [skin pushNSObject:geoItem] ;
     return 1 ;
@@ -661,17 +664,21 @@ static int clgeocoder_lookupAddressNear(lua_State *L) {
         lua_pushvalue(L, 3) ;
     }
     int fnRef = [skin luaRef:refTable] ;
+    [backgroundCallbacks addObject:@(fnRef)] ;
 
     CLGeocoder *geoItem = [[CLGeocoder alloc] init] ;
     [geoItem geocodeAddressString:searchString inRegion:theRegion completionHandler:^(NSArray *placemark, NSError *error) {
-        LuaSkin   *_skin = [LuaSkin sharedWithState:NULL] ;
-//         if (error) [_skin logInfo:[NSString stringWithFormat:@"%s:lookupAddressNear completion error:%@", GEOCODE_UD_TAG, error.localizedDescription]] ;
-        lua_State *_L    = [_skin L] ;
-        [_skin pushLuaRef:refTable ref:fnRef] ;
-        lua_pushboolean(_L, (error == NULL)) ;
-        [_skin pushNSObject:(error ? error.localizedDescription : placemark)] ;
-        [_skin protectedCallAndError:@"hs.location.geocode:lookupAddressNear callback" nargs:2 nresults:0];
-        [_skin luaUnref:refTable ref:fnRef] ;
+        if ([backgroundCallbacks containsObject:@(fnRef)]) {
+            LuaSkin   *_skin = [LuaSkin sharedWithState:NULL] ;
+    //         if (error) [_skin logInfo:[NSString stringWithFormat:@"%s:lookupAddressNear completion error:%@", GEOCODE_UD_TAG, error.localizedDescription]] ;
+            lua_State *_L    = [_skin L] ;
+            [_skin pushLuaRef:refTable ref:fnRef] ;
+            lua_pushboolean(_L, (error == NULL)) ;
+            [_skin pushNSObject:(error ? error.localizedDescription : placemark)] ;
+            [_skin protectedCallAndError:@"hs.location.geocode:lookupAddressNear callback" nargs:2 nresults:0];
+            [_skin luaUnref:refTable ref:fnRef] ;
+            [backgroundCallbacks removeObject:@(fnRef)] ;
+        }
     }] ;
     [skin pushNSObject:geoItem] ;
     return 1 ;
@@ -902,8 +909,14 @@ static int clgeocoder_gc(lua_State* L) {
 }
 
 static int meta_gc(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+    [backgroundCallbacks enumerateObjectsUsingBlock:^(NSNumber *ref, __unused BOOL *stop) {
+        [skin luaUnref:refTable ref:ref.intValue] ;
+    }] ;
+    [backgroundCallbacks removeAllObjects] ;
+
     // make sure we don't get a last-minute callback during teardown
-    callbackRef = [[LuaSkin sharedWithState:L] luaUnref:refTable ref:callbackRef] ;
+    callbackRef = [skin luaUnref:refTable ref:callbackRef] ;
     if (location) {
         if (location.manager) {
             location.manager.delegate = nil ;
@@ -991,5 +1004,6 @@ int luaopen_hs_location_internal(lua_State *L) {
 
     [skin registerPushNSHelper:pushCLPlacemark            forClass:"CLPlacemark"] ;
 
+    backgroundCallbacks = [NSMutableSet set] ;
     return 1;
 }
