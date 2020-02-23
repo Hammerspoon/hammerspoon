@@ -459,7 +459,7 @@
 - (void)selectChoice:(NSInteger)row {
     NSUInteger numRows = [[self getChoices] count];
     if (row < 0 || row > (numRows - 1)) {
-        [[LuaSkin sharedWithState:NULL] logError:[NSString stringWithFormat:@"ERROR: unable to select row %li of %li", (long)row, (long)numRows]];
+        [LuaSkin logError:[NSString stringWithFormat:@"ERROR: unable to select row %li of %li", (long)row, (long)numRows]];
         return;
     }
     [self.choicesTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
@@ -563,7 +563,7 @@
                 }
                 if (!callbackChoicesTypeCheckPass) {
                     // Light verification of the callback choices shows the format is wrong, so let's ignore it
-                    [[LuaSkin sharedWithState:NULL] logError:@"ERROR: data returned by hs.chooser:choices() callback could not be parsed correctly"];
+                    [LuaSkin logError:@"ERROR: data returned by hs.chooser:choices() callback could not be parsed correctly"];
                     self.currentCallbackChoices = nil;
                 }
             } else {

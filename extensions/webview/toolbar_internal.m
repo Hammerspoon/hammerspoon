@@ -68,7 +68,7 @@ static NSMenu *createCoreSearchFieldMenu() {
 }
 
 @implementation HSToolbar
-- (instancetype)initWithIdentifier:(NSString *)identifier itemTableIndex:(int)idx {
+- (instancetype)initWithIdentifier:(NSString *)identifier itemTableIndex:(int)idx andState:(lua_State *)L {
     self = [super initWithIdentifier:identifier] ;
     if (self) {
         _allowedIdentifiers    = [[NSMutableOrderedSet alloc] init] ;
@@ -86,8 +86,8 @@ static NSMenu *createCoreSearchFieldMenu() {
         [_allowedIdentifiers addObjectsFromArray:automaticallyIncluded] ;
 
         if (idx != LUA_NOREF) {
-            LuaSkin     *skin      = [LuaSkin sharedWithState:NULL] ;
-            lua_State   *L         = [skin L] ;
+            LuaSkin     *skin      = [LuaSkin sharedWithState:L] ;
+//             lua_State   *L         = [skin L] ;
             lua_Integer count      = luaL_len(L, idx) ;
             lua_Integer index      = 0 ;
             BOOL        isGood     = YES ;
@@ -95,7 +95,7 @@ static NSMenu *createCoreSearchFieldMenu() {
             idx = lua_absindex(L, idx) ;
             while (isGood && (index < count)) {
                 if (lua_rawgeti(L, idx, index + 1) == LUA_TTABLE) {
-                    isGood = [self addToolbarDefinitionAtIndex:-1] ;
+                    isGood = [self addToolbarDefinitionAtIndex:-1 withState:L] ;
                 } else {
                     [skin logWarn:[NSString stringWithFormat:@"%s:not a table at index %lld in toolbar %@", USERDATA_TB_TAG, index + 1, identifier]] ;
                     isGood = NO ;
@@ -120,8 +120,8 @@ static NSMenu *createCoreSearchFieldMenu() {
     return self ;
 }
 
-- (instancetype)initWithCopy:(HSToolbar *)original {
-    LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
+- (instancetype)initWithCopy:(HSToolbar *)original andState:(lua_State *)L{
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     self = [super initWithIdentifier:original.identifier] ;
     if (self) {
         _selfRef               = LUA_NOREF;
@@ -226,9 +226,9 @@ static NSMenu *createCoreSearchFieldMenu() {
 
 // TODO ? if validate of data method added, use here during construction
 
-- (BOOL)addToolbarDefinitionAtIndex:(int)idx {
-    LuaSkin   *skin      = [LuaSkin sharedWithState:NULL] ;
-    lua_State *L         = [skin L] ;
+- (BOOL)addToolbarDefinitionAtIndex:(int)idx withState:(lua_State *)L {
+    LuaSkin   *skin      = [LuaSkin sharedWithState:L] ;
+//     lua_State *L         = [skin L] ;
     idx = lua_absindex(L, idx) ;
 
     NSString *identifier = (lua_getfield(L, -1, "id") == LUA_TSTRING) ?
@@ -300,25 +300,29 @@ static NSMenu *createCoreSearchFieldMenu() {
 }
 
 - (void)fillinNewToolbarItem:(NSToolbarItem *)item {
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
     [self updateToolbarItem:item
              withDictionary:_itemDefDictionary[item.itemIdentifier]
-                    inGroup:NO] ;
+                    inGroup:NO
+                  withState:skin.L] ;
 }
 
 - (void)updateToolbarItem:(NSToolbarItem *)item
-           withDictionary:(NSMutableDictionary *)itemDefinition {
+           withDictionary:(NSMutableDictionary *)itemDefinition withState:(lua_State *)L {
     [self updateToolbarItem:item
              withDictionary:itemDefinition
-                    inGroup:NO] ;
+                    inGroup:NO
+                  withState:L] ;
 }
 
 // TODO ? separate validation of data from apply to live/create new item ? may be cleaner...
 
 - (void)updateToolbarItem:(NSToolbarItem *)item
            withDictionary:(NSMutableDictionary *)itemDefinition
-                  inGroup:(BOOL)inGroup {
+                  inGroup:(BOOL)inGroup
+                withState:(lua_State *)L {
 
-    LuaSkin               *skin       = [LuaSkin sharedWithState:NULL] ;
+    LuaSkin               *skin       = [LuaSkin sharedWithState:L] ;
     HSToolbarSearchField *itemView   = (HSToolbarSearchField *)item.view ;
     NSString              *identifier = item.itemIdentifier ;
 
@@ -476,7 +480,7 @@ static NSMenu *createCoreSearchFieldMenu() {
                                 memberItem.target  = self ;
                                 memberItem.action  = @selector(performCallback:) ;
                                 memberItem.enabled = [_enabledDictionary[memberIdentifier] boolValue] ;
-                                [self updateToolbarItem:memberItem withDictionary:_itemDefDictionary[memberIdentifier] inGroup:YES] ;
+                                [self updateToolbarItem:memberItem withDictionary:_itemDefDictionary[memberIdentifier] inGroup:YES withState:L] ;
                                 // See NSToolbarItemGroup is dumb below
                                 if ([memberItem.view isKindOfClass:[HSToolbarSearchField class]]) {
                                     [updateViews addObject:memberItem] ;
@@ -813,7 +817,8 @@ static int newHSToolbar(lua_State *L) {
 
     if (![identifiersInUse containsObject:identifier]) {
         HSToolbar *toolbar = [[HSToolbar alloc] initWithIdentifier:identifier
-                                                    itemTableIndex:idx] ;
+                                                    itemTableIndex:idx
+                                                          andState:L] ;
         if (toolbar) {
             [skin pushNSObject:toolbar] ;
         } else {
@@ -1024,7 +1029,7 @@ static int copyToolbar(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TBREAK] ;
     HSToolbar *oldToolbar = [skin toNSObjectAtIndex:1] ;
-    HSToolbar *newToolbar = [[HSToolbar alloc] initWithCopy:oldToolbar] ;
+    HSToolbar *newToolbar = [[HSToolbar alloc] initWithCopy:oldToolbar andState:L] ;
     if (newToolbar) {
         [skin pushNSObject:newToolbar] ;
     } else {
@@ -1392,12 +1397,12 @@ static int modifyToolbarItem(lua_State *L) {
         if (toolbar.items) {
             for (NSToolbarItem *item in toolbar.items) {
                 if ([item.itemIdentifier isEqualToString:identifier]) {
-                    [toolbar updateToolbarItem:item withDictionary:newDict] ;
+                    [toolbar updateToolbarItem:item withDictionary:newDict withState:L] ;
                     handled = YES ;
                 } else if ([item isKindOfClass:[NSToolbarItemGroup class]]) {
                     for (NSToolbarItem *subItem in ((NSToolbarItemGroup *)item).subitems) {
                         if ([subItem.itemIdentifier isEqualToString:identifier]) {
-                            [toolbar updateToolbarItem:subItem withDictionary:newDict] ;
+                            [toolbar updateToolbarItem:subItem withDictionary:newDict withState:L] ;
                             handled = YES ;
                         }
                         if (handled) break ;
@@ -1431,7 +1436,7 @@ static int addToolbarItems(lua_State *L) {
 
     while (isGood && (index < count)) {
         if (lua_rawgeti(L, 2, index + 1) == LUA_TTABLE) {
-            isGood = [toolbar addToolbarDefinitionAtIndex:-1] ;
+            isGood = [toolbar addToolbarDefinitionAtIndex:-1 withState:L] ;
         } else {
             [skin logWarn:[NSString stringWithFormat:@"%s:addItems - not a table at index %lld", USERDATA_TB_TAG, index + 1]] ;
             isGood = NO ;

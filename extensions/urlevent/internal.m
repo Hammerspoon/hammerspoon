@@ -19,7 +19,7 @@ NSArray *defaultContentTypes = nil;
 - (void)handleStartupEvents;
 - (void)handleAppleEvent:(NSAppleEventDescriptor *)event withReplyEvent: (NSAppleEventDescriptor *)replyEvent;
 - (void)callbackWithURL:(NSString *)openUrl;
-- (void)gc;
+- (void)gcWithState:(lua_State *)L;
 @end
 
 static HSURLEventHandler *eventHandler;
@@ -43,8 +43,8 @@ static HSURLEventHandler *eventHandler;
     return self;
 }
 
-- (void)gc {
-    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+- (void)gcWithState:(lua_State *)L {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     [self.appleEventManager removeEventHandlerForEventClass:kInternetEventClass
                                                  andEventID:kAEGetURL];
@@ -324,8 +324,8 @@ static int urlevent_setup() {
 
 // ----------------------- Lua/hs glue GAR ---------------------
 
-static int urlevent_gc(lua_State* __unused L) {
-    [eventHandler gc];
+static int urlevent_gc(lua_State* L) {
+    [eventHandler gcWithState:L];
     eventHandler = nil;
 
     return 0;

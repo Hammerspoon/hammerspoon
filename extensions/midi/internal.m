@@ -233,8 +233,7 @@ static int refTable = LUA_NOREF;
     for (MIKMIDIDestinationEndpoint *destination in destinations) {
         NSError *error = nil;
         if (![self.midiDeviceManager sendCommands:@[command] toEndpoint:destination error:&error]) {
-            LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
-            [skin logError:[NSString stringWithFormat:@"Unable to send command %@ to endpoint %@: %@", command, destination, error]] ;
+            [LuaSkin logError:[NSString stringWithFormat:@"Unable to send command %@ to endpoint %@: %@", command, destination, error]] ;
         }
     }
 }

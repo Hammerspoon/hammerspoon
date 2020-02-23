@@ -64,9 +64,9 @@ static NSString *netServiceErrorToString(NSDictionary *error) {
     return self ;
 }
 
-- (void)stop {
+- (void)stopWithState:(lua_State *)L {
     [super stop] ;
-    LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     _callbackRef = [skin luaUnref:refTable ref:_callbackRef] ;
 }
 
@@ -213,7 +213,7 @@ static int browser_searchForBrowsableDomains(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION, LS_TBREAK] ;
     HSNetServiceBrowser *browser = [skin toNSObjectAtIndex:1] ;
-    if (browser.callbackRef != LUA_NOREF) [browser stop] ;
+    if (browser.callbackRef != LUA_NOREF) [browser stopWithState:L] ;
     lua_pushvalue(L, 2) ;
     browser.callbackRef = [skin luaRef:refTable] ;
     [browser searchForBrowsableDomains] ;
@@ -251,7 +251,7 @@ static int browser_searchForRegistrationDomains(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION, LS_TBREAK] ;
     HSNetServiceBrowser *browser = [skin toNSObjectAtIndex:1] ;
-    if (browser.callbackRef != LUA_NOREF) [browser stop] ;
+    if (browser.callbackRef != LUA_NOREF) [browser stopWithState:L] ;
     lua_pushvalue(L, 2) ;
     browser.callbackRef = [skin luaRef:refTable] ;
     [browser searchForRegistrationDomains] ;
@@ -281,7 +281,7 @@ static int browser_searchForServices(lua_State *L) {
             domain  = [skin toNSObjectAtIndex:3] ;
             break ;
     }
-    if (browser.callbackRef != LUA_NOREF) [browser stop] ;
+    if (browser.callbackRef != LUA_NOREF) [browser stopWithState:L] ;
     lua_pushvalue(L, -1) ;
     browser.callbackRef = [skin luaRef:refTable] ;
     [browser searchForServicesOfType:service inDomain:domain] ;
@@ -308,7 +308,7 @@ static int browser_stop(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSNetServiceBrowser *browser = [skin toNSObjectAtIndex:1] ;
-    [browser stop] ;
+    [browser stopWithState:L] ;
     lua_pushvalue(L, 1) ;
     return 1 ;
 }
@@ -369,7 +369,7 @@ static int userdata_gc(lua_State* L) {
         obj.selfRefCount-- ;
         if (obj.selfRefCount == 0) {
             obj.delegate = nil ;
-            [obj stop] ; // stop does this for us: [skin luaUnref:refTable ref:obj.callbackRef] ;
+            [obj stopWithState:L] ; // stop does this for us: [skin luaUnref:refTable ref:obj.callbackRef] ;
             obj = nil ;
         }
     }
