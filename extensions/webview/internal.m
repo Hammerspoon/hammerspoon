@@ -190,7 +190,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
     [NSAnimationContext endGrouping];
 }
 
-- (void)fadeOut:(NSTimeInterval)fadeTime andDelete:(BOOL)deleteWindow {
+- (void)fadeOut:(NSTimeInterval)fadeTime andDelete:(BOOL)deleteWindow withState:(lua_State *)L {
     [NSAnimationContext beginGrouping];
 #if __has_feature(objc_arc)
       __weak HSWebViewWindow *bself = self; // in ARC, __block would increase retain count
@@ -203,8 +203,8 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
           HSWebViewWindow *mySelf = bself ;
           if (mySelf) {
               if (deleteWindow) {
-              LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
-                  lua_State *L = [skin L] ;
+              LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+//                   lua_State *L = [skin L] ;
                   [mySelf close] ; // trigger callback, if set, then cleanup
                   lua_pushcfunction(L, userdata_gc) ;
                   [skin pushLuaRef:refTable ref:mySelf.udRef] ;
@@ -1935,7 +1935,7 @@ static int webview_hide(lua_State *L) {
     NSTimeInterval  fadeTime   = (lua_gettop(L) == 2) ? lua_tonumber(L, 2) : 0.0 ;
 
     if (fadeTime > 0) {
-        [theWindow fadeOut:fadeTime andDelete:NO];
+        [theWindow fadeOut:fadeTime andDelete:NO withState:L];
     } else {
         [theWindow orderOut:nil];
     }
@@ -2390,7 +2390,7 @@ static int webview_delete(lua_State *L) {
             lua_pop(L, 1) ;
         }
     } else {
-        [theWindow fadeOut:lua_tonumber(L, 2) andDelete:YES];
+        [theWindow fadeOut:lua_tonumber(L, 2) andDelete:YES withState:L];
     }
 
     lua_pushnil(L);

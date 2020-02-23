@@ -43,8 +43,7 @@ typedef NS_ENUM(NSInteger, NSStatusBarItemPriority) {
             [invocation invoke];
         }
     } else {
-        LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
-        [skin logWarn:[NSString stringWithFormat:@"%s:_insertStatusItem:withPriority: unavailable in this version of OS X", USERDATA_TAG]] ;
+        [LuaSkin logWarn:[NSString stringWithFormat:@"%s:_insertStatusItem:withPriority: unavailable in this version of OS X", USERDATA_TAG]] ;
     }
 }
 
@@ -66,8 +65,7 @@ typedef NS_ENUM(NSInteger, NSStatusBarItemPriority) {
 
         [self insertStatusItem:statusItem withPriority:priority] ;
     } else {
-        LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
-        [skin logWarn:[NSString stringWithFormat:@"%s:_statusItemWithLength:withPriority: unavailable in this version of OS X", USERDATA_TAG]] ;
+        [LuaSkin logWarn:[NSString stringWithFormat:@"%s:_statusItemWithLength:withPriority: unavailable in this version of OS X", USERDATA_TAG]] ;
     }
 
     if (!statusItem) {
@@ -95,8 +93,7 @@ typedef NS_ENUM(NSInteger, NSStatusBarItemPriority) {
         [invocation invoke] ;
         [invocation getReturnValue:&result] ;
     }else {
-        LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
-        [skin logWarn:[NSString stringWithFormat:@"%s:_priority unavailable in this version of OS X", USERDATA_TAG]] ;
+        [LuaSkin logWarn:[NSString stringWithFormat:@"%s:_priority unavailable in this version of OS X", USERDATA_TAG]] ;
     }
     return result ;
 }

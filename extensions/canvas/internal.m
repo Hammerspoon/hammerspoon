@@ -864,10 +864,8 @@ static int userdata_gc(lua_State* L) ;
 #pragma clang diagnostic pop
 {
 
-    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
-
     if (!(isfinite(contentRect.origin.x) && isfinite(contentRect.origin.y) && isfinite(contentRect.size.height) && isfinite(contentRect.size.width))) {
-        [skin logError:[NSString stringWithFormat:@"%s:coordinates must be finite numbers", USERDATA_TAG]];
+        [LuaSkin logError:[NSString stringWithFormat:@"%s:coordinates must be finite numbers", USERDATA_TAG]];
         return nil;
     }
 
@@ -939,7 +937,7 @@ static int userdata_gc(lua_State* L) ;
     [NSAnimationContext endGrouping];
 }
 
-- (void)fadeOut:(NSTimeInterval)fadeTime andDelete:(BOOL)deleteCanvas {
+- (void)fadeOut:(NSTimeInterval)fadeTime andDelete:(BOOL)deleteCanvas withState:(lua_State *)L {
     CGFloat alphaSetting = self.alphaValue ;
     [NSAnimationContext beginGrouping];
       __weak HSCanvasWindow *bself = self; // in ARC, __block would increase retain count
@@ -949,8 +947,8 @@ static int userdata_gc(lua_State* L) ;
           HSCanvasWindow *mySelf = bself ;
           if (mySelf && (((HSCanvasView *)mySelf.contentView).selfRef != LUA_NOREF)) {
               if (deleteCanvas) {
-                  LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
-                  lua_State *L = [skin L] ;
+                  LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+//                   lua_State *L = [skin L] ;
                   lua_pushcfunction(L, userdata_gc) ;
                   [skin pushLuaRef:refTable ref:((HSCanvasView *)mySelf.contentView).selfRef] ;
                   // FIXME: Can we switch this lua_pcall() to a LuaSkin protectedCallAndError?
@@ -1680,9 +1678,9 @@ static int userdata_gc(lua_State* L) ;
 // To facilitate the way frames and points are specified, we get our tables from lua with the LS_NSRawTables option... this forces rect-tables and point-tables to be just that - tables, but also prevents color tables, styledtext tables, and transform tables from being converted... so we add fixes for them here...
 // Plus we allow some "laziness" on the part of the programmer to leave out __luaSkinType when crafting the tables by hand, either to make things cleaner/easier or for historical reasons...
 
-- (id)massageKeyValue:(id)oldValue forKey:(NSString *)keyName {
-    LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
-    lua_State *L = [skin L] ;
+- (id)massageKeyValue:(id)oldValue forKey:(NSString *)keyName withState:(lua_State *)L {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+//     lua_State *L = [skin L] ;
 
     id newValue = oldValue ; // assume we're not changing anything
 //     [LuaSkin logWarn:[NSString stringWithFormat:@"keyname %@ (%@) oldValue is %@", keyName, NSStringFromClass([oldValue class]), [oldValue debugDescription]]] ;
@@ -1745,7 +1743,7 @@ static int userdata_gc(lua_State* L) ;
     } else if ([oldValue isKindOfClass:[NSDictionary class]]) {
         NSMutableDictionary *blockValue = [[NSMutableDictionary alloc] init] ;
         [oldValue enumerateKeysAndObjectsUsingBlock:^(id blockKeyName, id valueForKey, __unused BOOL *stop) {
-            [blockValue setObject:[self massageKeyValue:valueForKey forKey:blockKeyName] forKey:blockKeyName] ;
+            [blockValue setObject:[self massageKeyValue:valueForKey forKey:blockKeyName withState:L] forKey:blockKeyName] ;
         }] ;
         newValue = blockValue ;
     }
@@ -1775,10 +1773,10 @@ static int userdata_gc(lua_State* L) ;
     return result ;
 }
 
-- (attributeValidity)setDefaultFor:(NSString *)keyName to:(id)keyValue {
+- (attributeValidity)setDefaultFor:(NSString *)keyName to:(id)keyValue withState:(lua_State *)L {
     attributeValidity validityStatus       = attributeInvalid ;
     if ([languageDictionary[keyName][@"nullable"] boolValue]) {
-        keyValue = [self massageKeyValue:keyValue forKey:keyName] ;
+        keyValue = [self massageKeyValue:keyValue forKey:keyName withState:L] ;
         validityStatus = isValueValidForAttribute(keyName, keyValue) ;
         switch (validityStatus) {
             case attributeValid:
@@ -1894,9 +1892,9 @@ static int userdata_gc(lua_State* L) ;
     return foundObject ;
 }
 
-- (attributeValidity)setElementValueFor:(NSString *)keyName atIndex:(NSUInteger)index to:(id)keyValue {
+- (attributeValidity)setElementValueFor:(NSString *)keyName atIndex:(NSUInteger)index to:(id)keyValue withState:(lua_State *)L {
     if (index > [_elementList count]) return attributeInvalid ;
-    keyValue = [self massageKeyValue:keyValue forKey:keyName] ;
+    keyValue = [self massageKeyValue:keyValue forKey:keyName withState:L] ;
     __block attributeValidity validityStatus = isValueValidForAttribute(keyName, keyValue) ;
 
     switch (validityStatus) {
@@ -2070,7 +2068,7 @@ static int userdata_gc(lua_State* L) ;
                 }] ;
                 for (NSString *additionalKey in defaultsForType) {
                     if (!_elementList[index][additionalKey]) {
-                        [self setElementValueFor:additionalKey atIndex:index to:[self getDefaultValueFor:additionalKey onlyIfSet:NO]] ;
+                        [self setElementValueFor:additionalKey atIndex:index to:[self getDefaultValueFor:additionalKey onlyIfSet:NO] withState:L] ;
                     }
                 }
             }
@@ -2633,7 +2631,7 @@ static int canvas_hide(lua_State *L) {
         }
     } else {
         if (parentIsWindow(canvasView)) {
-            [canvasWindow fadeOut:lua_tonumber(L, 2) andDelete:NO];
+            [canvasWindow fadeOut:lua_tonumber(L, 2) andDelete:NO withState:L];
         } else {
             [canvasView fadeOut:lua_tonumber(L, 2) andDelete:NO];
         }
@@ -3152,7 +3150,7 @@ static int canvas_delete(lua_State *L) {
             [canvasWindow close] ; // the least we can do is close the canvas if an error occurs with __gc
         }
     } else {
-        [canvasWindow fadeOut:lua_tonumber(L, 2) andDelete:YES];
+        [canvasWindow fadeOut:lua_tonumber(L, 2) andDelete:YES withState:L];
     }
 
     lua_pushnil(L);
@@ -3255,7 +3253,7 @@ static int canvas_canvasDefaultFor(lua_State *L) {
     } else {
         id keyValue = [skin toNSObjectAtIndex:3 withOptions:LS_NSRawTables] ;
 
-        switch([canvasView setDefaultFor:keyName to:keyValue]) {
+        switch([canvasView setDefaultFor:keyName to:keyValue withState:L]) {
             case attributeValid:
             case attributeNulling:
                 break ;
@@ -3308,9 +3306,9 @@ static int canvas_insertElementAtIndex(lua_State *L) {
             [canvasView.elementList insertObject:[[NSMutableDictionary alloc] init] atIndex:(NSUInteger)tablePosition] ;
             [element enumerateKeysAndObjectsUsingBlock:^(NSString *keyName, id keyValue, __unused BOOL *stop) {
                 // skip type in here to minimize the need to copy in defaults just to be overwritten
-                if (![keyName isEqualTo:@"type"]) [canvasView setElementValueFor:keyName atIndex:(NSUInteger)tablePosition to:keyValue] ;
+                if (![keyName isEqualTo:@"type"]) [canvasView setElementValueFor:keyName atIndex:(NSUInteger)tablePosition to:keyValue withState:L] ;
             }] ;
-            [canvasView setElementValueFor:@"type" atIndex:(NSUInteger)tablePosition to:elementType] ;
+            [canvasView setElementValueFor:@"type" atIndex:(NSUInteger)tablePosition to:elementType withState:L] ;
         } else {
             return luaL_argerror(L, 2, [[NSString stringWithFormat:@"invalid type %@; must be one of %@", elementType, [ALL_TYPES componentsJoinedByString:@", "]] UTF8String]) ;
         }
@@ -3406,7 +3404,7 @@ static int canvas_elementAttributeAtIndex(lua_State *L) {
         [skin pushNSObject:[canvasView getElementValueFor:keyName atIndex:(NSUInteger)tablePosition resolvePercentages:resolvePercentages onlyIfSet:NO]] ;
     } else {
         id keyValue = [skin toNSObjectAtIndex:4 withOptions:LS_NSRawTables] ;
-        switch([canvasView setElementValueFor:keyName atIndex:(NSUInteger)tablePosition to:keyValue]) {
+        switch([canvasView setElementValueFor:keyName atIndex:(NSUInteger)tablePosition to:keyValue withState:L]) {
             case attributeValid:
             case attributeNulling:
                 lua_pushvalue(L, 1) ;
@@ -3655,9 +3653,9 @@ static int canvas_assignElementAtIndex(lua_State *L) {
                 canvasView.elementList[realIndex] = [[NSMutableDictionary alloc] init] ;
                 [element enumerateKeysAndObjectsUsingBlock:^(NSString *keyName, id keyValue, __unused BOOL *stop) {
                     // skip type in here to minimize the need to copy in defaults just to be overwritten
-                    if (![keyName isEqualTo:@"type"]) [canvasView setElementValueFor:keyName atIndex:realIndex to:keyValue] ;
+                    if (![keyName isEqualTo:@"type"]) [canvasView setElementValueFor:keyName atIndex:realIndex to:keyValue withState:L] ;
                 }] ;
-                [canvasView setElementValueFor:@"type" atIndex:realIndex to:elementType] ;
+                [canvasView setElementValueFor:@"type" atIndex:realIndex to:elementType withState:L] ;
             } else {
                 return luaL_argerror(L, 2, [[NSString stringWithFormat:@"invalid type %@; must be one of %@", elementType, [ALL_TYPES componentsJoinedByString:@", "]] UTF8String]) ;
             }
