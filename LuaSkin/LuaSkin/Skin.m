@@ -1,4 +1,4 @@
- //
+//
 //  Skin.m
 //  LuaSkin
 //
@@ -75,6 +75,8 @@ NSString *specMaskToString(int spec) {
 @property (class, readwrite, assign, atomic) lua_State *mainLuaState ;
 @property (class, readonly, atomic) LuaSkin *sharedLuaSkin ;
 
+@property (class, readonly, atomic) NSMutableSet *sharedWarnings ;
+
 @property (readwrite, assign, atomic) lua_State *L;
 @property (readonly, atomic)  NSMutableDictionary *registeredNSHelperFunctions ;
 @property (readonly, atomic)  NSMutableDictionary *registeredNSHelperLocations ;
@@ -125,12 +127,37 @@ static LuaSkin *_sharedLuaSkin ;
 
 #pragma mark - Class lifecycle
 
-+ (id)shared {
+static NSMutableSet *_sharedWarnings ;
 
-// FIXME: log crap about using deperecated method to console
++ (NSMutableSet *)sharedWarnings { return _sharedWarnings ; }
+
++ (id)shared {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        _sharedWarnings = [NSMutableSet set] ;
+    });
 
     // self in a class method == the class itself
-    return [self sharedWithState:NULL];
+    LuaSkin *skin = [self sharedWithState:NULL] ;
+
+    Dl_info   libraryInfo ;
+    NSArray   *csa   = [NSThread callStackReturnAddresses] ;
+    NSNumber  *ret   = (csa.count > 1) ? csa[1] : nil ;
+    uintptr_t add    = ret ? ret.unsignedLongValue : 0ul ;
+    NSString  *fname = (ret && dladdr((const void *)add, &libraryInfo) != 0) ?
+                       [NSString stringWithUTF8String:libraryInfo.dli_fname] : nil ;
+
+    if (fname) {
+        if (![_sharedWarnings containsObject:fname]) {
+            [LuaSkin logWarn:[NSString stringWithFormat:@"Deprecated LuaSkin method [LuaSkin shared] invoked by `%@`. Please notify developer of module to upgrade as this method is unsafe for use with coroutines and may disappear in a future Hammerspoon release.", fname]] ;
+            [_sharedWarnings addObject:fname] ;
+        }
+    } else {
+        [LuaSkin logWarn:@"Deprecated LuaSkin method [LuaSkin shared] invoked but unable to determine source library. Notify Hammerspoon developers and include the following stack trace:"] ;
+        [LuaSkin logWarn:[[NSThread callStackSymbols] componentsJoinedByString:@"\r"]] ;
+    }
+
+    return skin ;
 }
 
 + (id)sharedWithState:(lua_State *)L {

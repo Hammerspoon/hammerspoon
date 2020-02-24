@@ -21,6 +21,7 @@
 #import "lua.h"
 #import <assert.h>
 #import <limits.h>
+#import <dlfcn.h>
 
 extern const char * const LuaSkin_UD_TAG ;
 extern int luaopen_luaskin_internal(lua_State* L) ; // entry vector to luaskin.m objectWrapper additions
