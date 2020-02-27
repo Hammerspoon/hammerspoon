@@ -28,6 +28,7 @@ function testAttributesFromBundleID()
   assertIsEqual("Safari", hs.application.infoForBundlePath("/Applications/Safari.app")["CFBundleExecutable"])
   assertIsNil(hs.application.infoForBundlePath("/C/Windows/System32/lol.exe"))
 
+  app:kill()
   return success()
 end
 
@@ -135,12 +136,12 @@ function testHidingValues()
 end
 
 function testKilling()
-  local app = hs.application.open("Chess", 5, true)
+  local app = hs.application.open("Audio MIDI Setup", 5, true)
   return success()
 end
 
 function testKillingValues()
-  local app = hs.application.get("Chess")
+  local app = hs.application.get("Audio MIDI Setup")
   assertIsNotNil(app)
   assertTrue(app:isRunning())
 
