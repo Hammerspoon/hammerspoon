@@ -211,9 +211,9 @@
     CFBooleanRef _isFrontmost;
     NSNumber* isFrontmost = @NO;
     if (AXUIElementCopyAttributeValue(self.elementRef, (CFStringRef)NSAccessibilityFrontmostAttribute, (CFTypeRef *)&_isFrontmost) == kAXErrorSuccess) {
-        isFrontmost = CFBridgingRelease(_isFrontmost);
+        isFrontmost = (__bridge_transfer NSNumber*)_isFrontmost;
     }
-    NSLog(@"FRONTMOST: %@", isFrontmost);
+    NSLog(@"FRONTMOST: %@:%@", [self title], isFrontmost);
     return [isFrontmost boolValue];
 }
 
