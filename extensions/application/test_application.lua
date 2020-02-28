@@ -98,7 +98,6 @@ function testMetaTable()
 end
 
 function testFrontmostApplication()
-  hs.openConsole()
   local app = hs.application.frontmostApplication()
   assertIsNotNil(app)
   assertTrue(app:isFrontmost())

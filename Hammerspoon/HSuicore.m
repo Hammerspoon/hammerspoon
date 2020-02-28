@@ -210,8 +210,12 @@
 -(BOOL)isFrontmost {
     CFBooleanRef _isFrontmost;
     NSNumber* isFrontmost = @NO;
-    if (AXUIElementCopyAttributeValue(self.elementRef, (CFStringRef)NSAccessibilityFrontmostAttribute, (CFTypeRef *)&_isFrontmost) == kAXErrorSuccess) {
+    AXError result;
+    result = AXUIElementCopyAttributeValue(self.elementRef, (CFStringRef)NSAccessibilityFrontmostAttribute, (CFTypeRef *)&_isFrontmost);
+    if (result == kAXErrorSuccess) {
         isFrontmost = (__bridge_transfer NSNumber*)_isFrontmost;
+    } else {
+        NSLog(@"Unable to fetch element attribute NSAccessibilityFrontmostAttribute for: %@", [self.runningApp localizedName]);
     }
     NSLog(@"FRONTMOST: %@:%@", [self title], isFrontmost);
     return [isFrontmost boolValue];
