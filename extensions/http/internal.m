@@ -100,7 +100,6 @@ static void remove_delegate(lua_State* L, connectionDelegate* delegate) {
 
 @end
 
-<<<<<<< HEAD
 // Implementation of the websocket client delegate
 @implementation HSWebSocketDelegate
 - (instancetype)initWithURL:(NSURL *)URL {
@@ -145,8 +144,6 @@ static void remove_delegate(lua_State* L, connectionDelegate* delegate) {
 }
 @end
 
-=======
->>>>>>> master
 // If the user specified a request body, get it from stack,
 // add it to the request and add the content length header field
 static void getBodyFromStack(lua_State* L, int index, NSMutableURLRequest* request){
@@ -648,7 +645,6 @@ static id table_toNSURLRequest(lua_State* L, int idx) {
     return request ;
 }
 
-<<<<<<< HEAD
 static int http_ws_open(lua_State* L){
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TFUNCTION, LS_TBREAK];
@@ -693,8 +689,6 @@ static int http_ws_close(lua_State *L) {
     return 1;
 }
 
-=======
->>>>>>> master
 static int http_gc(lua_State* L){
     NSMutableArray* delegatesCopy = [[NSMutableArray alloc] init];
     [delegatesCopy addObjectsFromArray:delegates];
@@ -706,7 +700,6 @@ static int http_gc(lua_State* L){
     return 0;
 }
 
-<<<<<<< HEAD
 static int http_ws_gc(lua_State* L){
     webSocketUserData *userData = lua_touserdata(L, 1);
     HSWebSocketDelegate* ws = (__bridge_transfer HSWebSocketDelegate *)userData->ws;
@@ -732,8 +725,6 @@ static int http_ws_tostring(lua_State* L) {
     return 1;
 }
 
-=======
->>>>>>> master
 static const luaL_Reg httplib[] = {
     {"doRequest",       http_doRequest},
     {"doAsyncRequest",  http_doAsyncRequest},
@@ -749,7 +740,6 @@ static const luaL_Reg metalib[] = {
     {NULL, NULL} // This must end with an empty struct
 };
 
-<<<<<<< HEAD
 static const luaL_Reg wsMetalib[] = {
     {"send",        http_ws_send},
     {"close",       http_ws_close},
@@ -761,10 +751,6 @@ static const luaL_Reg wsMetalib[] = {
 
 int luaopen_hs_http_internal(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-=======
-int luaopen_hs_http_internal(lua_State* L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
->>>>>>> master
 
     delegates = [[NSMutableArray alloc] init];
     refTable = [skin registerLibrary:httplib metaFunctions:metalib];
