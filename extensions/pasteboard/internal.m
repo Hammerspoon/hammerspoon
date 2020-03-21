@@ -4,7 +4,7 @@
 #pragma mark - Support Functions and Classes
 
 NSPasteboard *lua_to_pasteboard(lua_State* L, int idx) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     if (!lua_isnoneornil(L, idx)) {
         luaL_checkstring(L, idx) ; // force number to string
         return [NSPasteboard pasteboardWithName:[skin toNSObjectAtIndex:idx]];
@@ -20,7 +20,7 @@ NSPasteboard *lua_to_pasteboard(lua_State* L, int idx) {
 // #pragma mark - Module Constants
 //
 // static int pushPasteboardTypesTable(lua_State *L) {
-//     LuaSkin *skin = [LuaSkin shared] ;
+//     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
 //     lua_newtable(L) ;
 //     [skin pushNSObject:NSPasteboardTypeString] ;                 lua_setfield(L, -2, "string") ;
 //     [skin pushNSObject:NSPasteboardTypePDF] ;                    lua_setfield(L, -2, "PDF") ;
@@ -41,7 +41,7 @@ NSPasteboard *lua_to_pasteboard(lua_State* L, int idx) {
 // }
 //
 // static int pushPasteboardNamesTable(lua_State *L) {
-//     LuaSkin *skin = [LuaSkin shared] ;
+//     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
 //     lua_newtable(L) ;
 //     [skin pushNSObject:NSGeneralPboard] ; lua_setfield(L, -2, "general") ;
 //     [skin pushNSObject:NSFontPboard] ;    lua_setfield(L, -2, "font") ;
@@ -80,7 +80,7 @@ static int pasteboard_getContents(lua_State* L) {
 //     NSImage *image = [[NSImage alloc] initWithData:[lua_to_pasteboard(L, 1) dataForType:NSPasteboardTypePNG]];
 //
 //     if (image && image.valid) {
-//         [[LuaSkin shared] pushNSObject:image];
+//         [[LuaSkin sharedWithState:L] pushNSObject:image];
 //     } else {
 //         return luaL_error(L, "No valid image data in pasteboard");
 //     }
@@ -103,7 +103,7 @@ static int pasteboard_setContents(lua_State* L) {
     NSPasteboard* thePasteboard = lua_to_pasteboard(L, 2);
 
     luaL_tolstring(L, 1, NULL) ;
-    id str = [[LuaSkin shared] toNSObjectAtIndex:-1 withOptions:LS_NSPreserveLuaStringExactly] ;
+    id str = [[LuaSkin sharedWithState:L] toNSObjectAtIndex:-1 withOptions:LS_NSPreserveLuaStringExactly] ;
     [thePasteboard clearContents];
     BOOL result = NO ;
     if ([str isKindOfClass:[NSString class]]) {
@@ -127,8 +127,8 @@ static int pasteboard_setContents(lua_State* L) {
 // /// Returns:
 // ///  * True if the operation succeeded, otherwise false
 // static int pasteboard_setImageContents(lua_State* L) {
-//     [[LuaSkin shared] checkArgs:LS_TUSERDATA, "hs.image", LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
-//     NSImage*  theImage = [[LuaSkin shared] luaObjectAtIndex:1 toClass:"NSImage"] ;
+//     [[LuaSkin sharedWithState:L] checkArgs:LS_TUSERDATA, "hs.image", LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
+//     NSImage*  theImage = [[LuaSkin sharedWithState:L] luaObjectAtIndex:1 toClass:"NSImage"] ;
 //     NSPasteboard* thePasteboard = lua_to_pasteboard(L, 2);
 //
 //     NSData *tiffRep = [theImage TIFFRepresentation];
@@ -236,7 +236,7 @@ static int pasteboard_changeCount(lua_State* L) {
 /// Notes:
 ///  * You can not delete the system pasteboard, this function should only be called on custom pasteboards you have created
 static int pasteboard_delete(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING | LS_TNUMBER, LS_TBREAK] ; // prevents nil from being specified
     luaL_checkstring(L, 1) ; // coerce number to string
     NSString *pbName = [skin toNSObjectAtIndex:1] ;
@@ -263,7 +263,7 @@ static int pasteboard_delete(lua_State* L) {
 /// Returns:
 ///  * an array with each index representing an object on the pasteboard.  If the pasteboard contains only one element, this is equivalent to `{ hs.pasteboard.contentTypes(name) }`.
 static int allPBItemTypes(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TNUMBER | LS_TSTRING | LS_TNIL | LS_TOPTIONAL, LS_TBREAK] ;
     NSPasteboard* thePasteboard = lua_to_pasteboard(L, 1);
     lua_newtable(L) ;
@@ -295,7 +295,7 @@ static int allPBItemTypes(lua_State *L) {
 /// Notes:
 ///  * almost all string and styledText objects are internally convertible and will be available with this method as well as [hs.pasteboard.readStyledText](#readStyledText). If the item is actually an `hs.styledtext` object, the string will be just the text of the object.
 static int readStringObjects(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TNUMBER | LS_TSTRING | LS_TNIL | LS_TBOOLEAN | LS_TOPTIONAL,
                     LS_TBOOLEAN | LS_TOPTIONAL,
                     LS_TBREAK] ;
@@ -342,7 +342,7 @@ static int readStringObjects(lua_State *L) {
 /// Notes:
 ///  * The UTI's of the items on the pasteboard can be determined with the [hs.pasteboard.allContentTypes](#allContentTypes) and [hs.pasteboard.contentTypes](#contentTypes) functions.
 static int readItemForType(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSPasteboard *pb ;
     NSString     *type ;
     if (lua_gettop(L) == 1) {
@@ -383,7 +383,7 @@ static int readItemForType(lua_State *L) {
 ///  * The UTI's of the items on the pasteboard can be determined with the [hs.pasteboard.allContentTypes](#allContentTypes) and [hs.pasteboard.contentTypes](#contentTypes) functions.
 ///  * Property lists consist only of certain types of data: tables, strings, numbers, dates, binary data, and Boolean values.
 static int readPropertyListForType(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSPasteboard *pb ;
     NSString     *type ;
     if (lua_gettop(L) == 1) {
@@ -426,7 +426,7 @@ static int readPropertyListForType(lua_State *L) {
 ///  * Only objects which have conversion functions built in to Hammerspoon can be converted. A string representation describing unrecognized types wil be returned. If you find a common data type that you believe may be of interest to Hammerspoon users, feel free to contribute a conversion function or make a request in the Hammerspoon Google group or Github site.
 ///  * Some applications may define their own classes which can be archived.  Hammerspoon will be unable to recognize these types if the application does not make the object type available in one of its frameworks.  You *may* be able to load the necessary framework with `package.loadlib("/Applications/appname.app/Contents/Frameworks/frameworkname.framework/frameworkname", "*")` before retrieving the data, but a full representation of the data in Hammerspoon is probably not possible without support from the Application's developers.
 static int readArchivedDataForType(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSPasteboard *pb ;
     NSString     *type ;
     if (lua_gettop(L) == 1) {
@@ -474,7 +474,7 @@ static int readArchivedDataForType(lua_State *L) {
 ///
 ///  * A full list of NSObjects supported directly by Hammerspoon is planned in a future Wiki article.
 static int writeArchivedDataForType(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSPasteboard *pb ;
     BOOL          add = NO ;
     NSString     *type ;
@@ -535,7 +535,7 @@ static int writeArchivedDataForType(lua_State *L) {
 /// Notes:
 ///  * The UTI's of the items on the pasteboard can be determined with the [hs.pasteboard.allContentTypes](#allContentTypes) and [hs.pasteboard.contentTypes](#contentTypes) functions.
 static int writeItemForType(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSPasteboard *pb ;
     BOOL          add = NO ;
     NSString     *type ;
@@ -595,7 +595,7 @@ static int writeItemForType(lua_State *L) {
 ///  * The UTI's of the items on the pasteboard can be determined with the [hs.pasteboard.allContentTypes](#allContentTypes) and [hs.pasteboard.contentTypes](#contentTypes) functions.
 ///  * Property lists consist only of certain types of data: tables, strings, numbers, dates, binary data, and Boolean values.
 static int writePropertyListForType(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSPasteboard *pb ;
     BOOL          add = NO ;
     NSString     *type ;
@@ -653,7 +653,7 @@ static int writePropertyListForType(lua_State *L) {
 /// Notes:
 ///  * almost all string and styledText objects are internally convertible and will be available with this method as well as [hs.pasteboard.readString](#readString). If the item on the clipboard is actually just a string, the `hs.styledtext` object representation will have no attributes set
 static int readAttributedStringObjects(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TNUMBER | LS_TSTRING | LS_TNIL | LS_TBOOLEAN | LS_TOPTIONAL,
                     LS_TBOOLEAN | LS_TOPTIONAL,
                     LS_TBREAK] ;
@@ -697,7 +697,7 @@ static int readAttributedStringObjects(lua_State *L) {
 /// Returns:
 ///  * By default the first sound on the clipboard, or a table of all sounds on the clipboard if the `all` parameter is provided and set to true.  Returns nil if no sounds are present.
 static int readSoundObjects(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TNUMBER | LS_TSTRING | LS_TNIL | LS_TBOOLEAN | LS_TOPTIONAL,
                     LS_TBOOLEAN | LS_TOPTIONAL,
                     LS_TBREAK] ;
@@ -741,7 +741,7 @@ static int readSoundObjects(lua_State *L) {
 /// Returns:
 ///  * By default the first image on the clipboard, or a table of all images on the clipboard if the `all` parameter is provided and set to true.  Returns nil if no images are present.
 static int readImageObjects(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TNUMBER | LS_TSTRING | LS_TNIL | LS_TBOOLEAN | LS_TOPTIONAL,
                     LS_TBOOLEAN | LS_TOPTIONAL,
                     LS_TBREAK] ;
@@ -785,7 +785,7 @@ static int readImageObjects(lua_State *L) {
 /// Returns:
 ///  * By default the first url on the clipboard, or a table of all urls on the clipboard if the `all` parameter is provided and set to true.  Returns nil if no urls are present.
 static int readURLObjects(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TNUMBER | LS_TSTRING | LS_TNIL | LS_TBOOLEAN | LS_TOPTIONAL,
                     LS_TBOOLEAN | LS_TOPTIONAL,
                     LS_TBREAK] ;
@@ -829,7 +829,7 @@ static int readURLObjects(lua_State *L) {
 /// Returns:
 ///  * By default the first color on the clipboard, or a table of all colors on the clipboard if the `all` parameter is provided and set to true.  Returns nil if no colors are present.
 static int readColorObjects(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TNUMBER | LS_TSTRING | LS_TNIL | LS_TBOOLEAN | LS_TOPTIONAL,
                     LS_TBOOLEAN | LS_TOPTIONAL,
                     LS_TBREAK] ;
@@ -863,7 +863,7 @@ static int readColorObjects(lua_State *L) {
 }
 
 static id convertToPasteboardWritableObject(lua_State *L, int idx) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     id object ;
     if ((lua_type(L, idx) == LUA_TSTRING) || (lua_type(L, idx) == LUA_TNUMBER)) {
         luaL_tolstring(L, idx, NULL) ; // force number to be a string, but don't change value in stack
@@ -914,7 +914,7 @@ static id convertToPasteboardWritableObject(lua_State *L, int idx) {
 /// Notes:
 ///  * Most applications can only receive the first item on the clipboard.  Multiple items on a clipboard are most often used for intra-application communication where the sender and receiver are specifically written with multiple objects in mind.
 static int writeObjects(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSPasteboard* pboard ;
     if (lua_gettop(L) == 1) {
         [skin checkArgs:LS_TANY, LS_TBREAK] ;
@@ -965,8 +965,8 @@ static int writeObjects(lua_State *L) {
 ///
 /// Notes:
 ///  * to properly manage system resources, you should release the created pasteboard with [hs.pasteboard.deletePasteboard](#deletePasteboard) when you are certain that it is no longer necessary.
-static int newUniquePasteboard(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int newUniquePasteboard(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TBREAK] ;
     [skin pushNSObject:[[NSPasteboard pasteboardWithUniqueName] name]] ;
     return 1 ;
@@ -993,7 +993,7 @@ static int newUniquePasteboard(__unused lua_State *L) {
 ///    * if the item on the clipboard is actually just a string, the `hs.styledtext` object representation will have no attributes set
 ///    * if the item is actually an `hs.styledtext` object, the string representation will be the text without any attributes.
 static int typesOnPasteboard(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TNUMBER | LS_TSTRING | LS_TNIL | LS_TOPTIONAL, LS_TBREAK] ;
     NSPasteboard* pboard = lua_to_pasteboard(L, 1);
     lua_newtable(L) ;
@@ -1057,8 +1057,8 @@ static const luaL_Reg pasteboardLib[] = {
     {NULL,      NULL}
 };
 
-int luaopen_hs_pasteboard_internal(lua_State* L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+int luaopen_hs_pasteboard_internal(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin registerLibrary:pasteboardLib metaFunctions:nil];
 
 //     pushPasteboardTypesTable(L) ; lua_setfield(L, -2, "types") ;

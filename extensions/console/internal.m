@@ -50,7 +50,7 @@ static int refTable = LUA_NOREF;
 ///    end
 ///.   ```
 static int consoleDarkMode(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
 
     if (lua_isboolean(L, 1)) {
@@ -76,7 +76,7 @@ static int consoleDarkMode(lua_State* L) {
 ///  * See the `hs.drawing.color` entry in the Dash documentation, or type `help.hs.drawing.color` in the Hammerspoon console to get more information on how to specify a color.
 ///  * Note this only affects future output -- anything already in the console will remain its current color.
 static int console_consolePrintColor(lua_State *L) {
-    LuaSkin *skin      = [LuaSkin shared];
+    LuaSkin *skin      = [LuaSkin sharedWithState:L];
     //NSTextView *output = [MJConsoleWindowController singleton].outputView;
 
     if (lua_type(L, 1) != LUA_TNONE) {
@@ -102,7 +102,7 @@ static int console_consolePrintColor(lua_State *L) {
 ///  * See the `hs.drawing.color` entry in the Dash documentation, or type `help.hs.drawing.color` in the Hammerspoon console to get more information on how to specify a color.
 ///  * Note this only affects future output -- anything already in the console will remain its current font.
 static int console_consoleFont(lua_State *L) {
-    LuaSkin *skin      = [LuaSkin shared];
+    LuaSkin *skin      = [LuaSkin sharedWithState:L];
     //NSTextView *output = [MJConsoleWindowController singleton].outputView;
 
     if (lua_type(L, 1) != LUA_TNONE) {
@@ -128,7 +128,7 @@ static int console_consoleFont(lua_State *L) {
 ///  * See the `hs.drawing.color` entry in the Dash documentation, or type `help.hs.drawing.color` in the Hammerspoon console to get more information on how to specify a color.
 ///  * Note this only affects future output -- anything already in the console will remain its current color.
 static int console_consoleCommandColor(lua_State *L) {
-    LuaSkin *skin      = [LuaSkin shared];
+    LuaSkin *skin      = [LuaSkin sharedWithState:L];
     //NSTextView *output = [MJConsoleWindowController singleton].outputView;
 
     if (lua_type(L, 1) != LUA_TNONE) {
@@ -154,7 +154,7 @@ static int console_consoleCommandColor(lua_State *L) {
 ///  * See the `hs.drawing.color` entry in the Dash documentation, or type `help.hs.drawing.color` in the Hammerspoon console to get more information on how to specify a color.
 ///  * Note this only affects future output -- anything already in the console will remain its current color.
 static int console_consoleResultColor(lua_State *L) {
-    LuaSkin *skin      = [LuaSkin shared];
+    LuaSkin *skin      = [LuaSkin sharedWithState:L];
     //NSTextView *output = [MJConsoleWindowController singleton].outputView;
 
     if (lua_type(L, 1) != LUA_TNONE) {
@@ -176,7 +176,7 @@ static int console_consoleResultColor(lua_State *L) {
 /// Returns:
 ///  * an hs.window object
 static int console_asWindow(lua_State *L) {
-    LuaSkin *skin     = [LuaSkin shared];
+    LuaSkin *skin     = [LuaSkin sharedWithState:L];
     NSWindow *console = [[MJConsoleWindowController singleton] window];
 
     CGWindowID windowID = (CGWindowID)[console windowNumber];
@@ -200,7 +200,7 @@ static int console_asWindow(lua_State *L) {
 /// Notes:
 ///  * See the `hs.drawing.color` entry in the Dash documentation, or type `help.hs.drawing.color` in the Hammerspoon console to get more information on how to specify a color.
 static int console_backgroundColor(lua_State *L) {
-    LuaSkin *skin     = [LuaSkin shared];
+    LuaSkin *skin     = [LuaSkin sharedWithState:L];
     NSWindow *console = [[MJConsoleWindowController singleton] window];
 
     if (lua_type(L, 1) != LUA_TNONE) {
@@ -225,7 +225,7 @@ static int console_backgroundColor(lua_State *L) {
 /// Notes:
 ///  * See the `hs.drawing.color` entry in the Dash documentation, or type `help.hs.drawing.color` in the Hammerspoon console to get more information on how to specify a color.
 static int console_outputBackgroundColor(lua_State *L) {
-    LuaSkin *skin      = [LuaSkin shared];
+    LuaSkin *skin      = [LuaSkin sharedWithState:L];
     NSTextView *output = [MJConsoleWindowController singleton].outputView;
 
     if (lua_type(L, 1) != LUA_TNONE) {
@@ -250,7 +250,7 @@ static int console_outputBackgroundColor(lua_State *L) {
 /// Notes:
 ///  * See the `hs.drawing.color` entry in the Dash documentation, or type `help.hs.drawing.color` in the Hammerspoon console to get more information on how to specify a color.
 static int console_inputBackgroundColor(lua_State *L) {
-    LuaSkin *skin      = [LuaSkin shared];
+    LuaSkin *skin      = [LuaSkin sharedWithState:L];
     NSTextField *input = [MJConsoleWindowController singleton].inputField;
 
     if (lua_type(L, 1) != LUA_TNONE) {
@@ -294,8 +294,8 @@ static int console_smartInsertDeleteEnabled(lua_State *L) {
 ///
 /// Returns:
 ///  * an array containing the history of commands entered into the Hammerspoon console.
-static int console_getHistory(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+static int console_getHistory(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TBREAK];
     MJConsoleWindowController *console = [MJConsoleWindowController singleton];
 
@@ -316,7 +316,7 @@ static int console_getHistory(__unused lua_State *L) {
 /// Notes:
 ///  * You can specify the console content as a string or as an `hs.styledtext` object in either userdata or table format.
 static int console_setConsole(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TANY | LS_TOPTIONAL, LS_TBREAK];
     MJConsoleWindowController *console = [MJConsoleWindowController singleton];
 
@@ -357,7 +357,7 @@ static int console_setConsole(lua_State *L) {
 /// Notes:
 ///  * If the text of the console is retrieved as a string, no color or style information in the console output is retrieved - only the raw text.
 static int console_getConsole(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
     MJConsoleWindowController *console = [MJConsoleWindowController singleton];
     BOOL styled                        = lua_isboolean(L, 1) ? (BOOL)lua_toboolean(L, 1) : NO;
@@ -384,7 +384,7 @@ static int console_getConsole(lua_State *L) {
 /// Notes:
 ///  * You can clear the console history by using an empty array (e.g. `hs.console.setHistory({})`
 static int console_setHistory(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TTABLE, LS_TBREAK];
     MJConsoleWindowController *console = [MJConsoleWindowController singleton];
 
@@ -414,7 +414,7 @@ static int console_setHistory(lua_State *L) {
 ///    end
 /// ~~~
 static int console_printStyledText(lua_State *L) {
-    LuaSkin *skin                      = [LuaSkin shared];
+    LuaSkin *skin                      = [LuaSkin sharedWithState:L];
     MJConsoleWindowController *console = [MJConsoleWindowController singleton];
     NSDictionary *consoleAttrs         = @{ NSFontAttributeName: [MJConsoleWindowController singleton].consoleFont,
                                     NSForegroundColorAttributeName: [MJConsoleWindowController singleton].MJColorForStdout };
@@ -458,7 +458,7 @@ static int console_printStyledText(lua_State *L) {
 /// Notes:
 ///  * see the notes for `hs.drawing.windowLevels`
 static int console_level(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TNUMBER | LS_TINTEGER | LS_TOPTIONAL, LS_TBREAK] ;
     NSWindow *console = [[MJConsoleWindowController singleton] window];
 
@@ -487,7 +487,7 @@ static int console_level(lua_State *L) {
 /// Returns:
 ///  * the current, possibly new, value.
 static int console_alpha(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK] ;
     NSWindow *console = [[MJConsoleWindowController singleton] window];
 
@@ -512,7 +512,7 @@ static int console_alpha(lua_State *L) {
 /// Notes:
 ///  * Window behaviors determine how the webview object is handled by Spaces and Exposé. See `hs.drawing.windowBehaviors` for more information.
 static int console_behavior(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TNUMBER | LS_TOPTIONAL,
                     LS_TBREAK] ;
 
@@ -549,7 +549,7 @@ static int console_behavior(lua_State *L) {
 ///
 ///  * If a toolbar is attached to the console, you can achieve the same effect as this function with `hs.console.toolbar():inTitleBar(boolean)`
 static int console_titleVisibility(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
     NSWindow *console = [[MJConsoleWindowController singleton] window];
     NSDictionary *mapping = @{
@@ -618,8 +618,8 @@ static const luaL_Reg extrasLib[] = {
 //     {NULL,   NULL}
 // };
 
-int luaopen_hs_console_internal(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+int luaopen_hs_console_internal(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable      = [skin registerLibrary:extrasLib metaFunctions:nil];
 
     return 1;

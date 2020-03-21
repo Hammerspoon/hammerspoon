@@ -13,7 +13,7 @@
 /// Returns:
 ///  * A random number between 0 and 1
 static int math_randomFloat(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TBREAK];
 
     uint32_t rand = arc4random();
@@ -34,7 +34,7 @@ static int math_randomFloat(lua_State* L) {
 /// Returns:
 ///  * A randomly chosen integer between `start` and `end`
 static int math_randomFromRange(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TNUMBER, LS_TNUMBER, LS_TBREAK] ;
 
     int start = (int)lua_tointeger(L, 1);
@@ -60,8 +60,8 @@ static const luaL_Reg mathLib[] = {
     {NULL,      NULL}
 };
 
-int luaopen_hs_math_internal(lua_State* L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+int luaopen_hs_math_internal(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin registerLibrary:mathLib metaFunctions:nil];
 
     return 1;

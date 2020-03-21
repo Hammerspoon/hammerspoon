@@ -75,7 +75,7 @@ static AXUIElementRef system_wide_element() {
 /// Returns:
 ///  * `true` is succesful otherwise `false` if an error occured.
 static int window_timeout(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs: LS_TNUMBER, LS_TBREAK] ;
     NSNumber *value = [skin toNSObjectAtIndex:1] ;
     float fvalue = [value floatValue];
@@ -298,7 +298,7 @@ static int window_isstandard(lua_State* L) {
 /// Returns:
 ///  * A point-table containing the absolute co-ordinates of the top left corner of the window
 static int window__topleft(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, "hs.window", LS_TBREAK];
 
     AXUIElementRef win = get_window_arg(L, 1);
@@ -316,7 +316,7 @@ static int window__topleft(lua_State* L) {
 /// Returns:
 ///  * A size-table containing the width and height of the window
 static int window__size(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, "hs.window", LS_TBREAK];
 
     AXUIElementRef win = get_window_arg(L, 1);
@@ -334,7 +334,7 @@ static int window__size(lua_State* L) {
 /// Returns:
 ///  * The `hs.window` object
 static int window__settopleft(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, "hs.window", LS_TTABLE, LS_TBREAK];
 
     AXUIElementRef win = get_window_arg(L, 1);
@@ -362,7 +362,7 @@ static int window__settopleft(lua_State* L) {
 /// Returns:
 ///  * The `hs.window` object
 static int window__setsize(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, "hs.window", LS_TTABLE, LS_TBREAK];
 
     AXUIElementRef win = get_window_arg(L, 1);
@@ -775,7 +775,7 @@ static int window_setShadows(lua_State* L) {
 // used by hs.window.snapshotForID and hs.window:snapshot
 
 static int snapshot_common_code(lua_State* L, CGWindowID windowID, CGWindowImageOption makeOpaque) {
-        LuaSkin *skin = [LuaSkin shared];
+        LuaSkin *skin = [LuaSkin sharedWithState:L];
 //         CGRect windowRect = { get_window_topleft(win), get_window_size(win) };
         CGRect windowRect = CGRectNull ;
 
@@ -795,7 +795,7 @@ static int snapshot_common_code(lua_State* L, CGWindowID windowID, CGWindowImage
 
         CGImageRelease(windowImage) ;
 
-        [[LuaSkin shared] pushNSObject:newImage] ;
+        [skin pushNSObject:newImage] ;
         return 1 ;
 }
 
@@ -837,6 +837,7 @@ static int window_snapshotForID(lua_State* L) {
 /// Notes:
 ///  * See also function `hs.window.snapshotForID()`
 static int window_snapshot(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     AXUIElementRef win = get_window_arg(L, 1);
     CGWindowID windowID;
     AXError err = _AXUIElementGetWindow(win, &windowID);
@@ -847,7 +848,7 @@ static int window_snapshot(lua_State* L) {
 
         return snapshot_common_code(L, windowID, makeOpaque) ;
     } else {
-        [[LuaSkin shared] logWarn:@"hs.window:snapshot() Unable to retrieve CGWindowID for specified window."] ;
+        [skin logWarn:@"hs.window:snapshot() Unable to retrieve CGWindowID for specified window."] ;
         return 0 ;
     }
 }

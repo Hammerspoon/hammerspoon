@@ -56,7 +56,7 @@ static int burnTheWorld(lua_State *L __unused) {
 /// Notes:
 ///  * Outside of a context of a Lua pcall() (or a C lua_pcall()), this will cause Hammerspoon to exit. We follow the safe behaviour of terminating the app on any unhandled Objective C exception.
 static int throwTheWorld(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TBREAK];
 
     [NSException raise:[skin toNSObjectAtIndex:1] format:@"%@", [skin toNSObjectAtIndex:2]];
@@ -77,7 +77,7 @@ static int throwTheWorld(lua_State *L) {
 /// Notes:
 ///  * This is probably only useful to extension developers. If you are trying to track down a confusing crash, and you have access to the Crashlytics project for Hammerspoon (or access to someone who has access!), this can be a useful way to leave breadcrumbs from Lua in the crash dump
 static int crashLog(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin logBreadcrumb:[skin toNSObjectAtIndex:1]];
 
     return 0;
@@ -94,7 +94,7 @@ static int crashLog(lua_State *L) {
 /// Returns:
 ///  * None
 static int crashKV(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TBREAK];
 
     NSString *key = [skin toNSObjectAtIndex:1];
@@ -146,8 +146,8 @@ static const luaL_Reg crashlib[] = {
 /* NOTE: The substring "hs_crash_internal" in the following function's name
          must match the require-path of this file, i.e. "hs.crash.internal". */
 
-int luaopen_hs_crash_internal(lua_State *L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+int luaopen_hs_crash_internal(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin registerLibrary:crashlib metaFunctions:nil];
 
     return 1;

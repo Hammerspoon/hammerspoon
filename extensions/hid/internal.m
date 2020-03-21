@@ -121,13 +121,13 @@ static int hid_capslock_off(lua_State* L) {
 bool hidled_set(uint32 usage, long target_value);
 
 static int hid_led_set(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TBOOLEAN, LS_TBREAK];
-    
+
     NSString *name = [skin toNSObjectAtIndex:1];
     long target_value = (BOOL)lua_toboolean(L, 2) ? 1 : 0;
     bool ret = false;
-    
+
     if ([name isEqualToString:@"caps"]) {
         ret = hidled_set(kHIDUsage_LED_CapsLock, target_value);
     } else if ([name isEqualToString:@"scroll"]) {
@@ -137,7 +137,7 @@ static int hid_led_set(lua_State* L) {
     } else {
         [skin logError:@"Unsupported LED name"];
     }
-    
+
     lua_pushboolean(L, ret);
     return 1;
 }
@@ -151,8 +151,8 @@ static const luaL_Reg hid_lib[] = {
     {NULL,      NULL}
 };
 
-int luaopen_hs_hid_internal(lua_State* L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+int luaopen_hs_hid_internal(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin registerLibrary:hid_lib metaFunctions:nil];
 
     return 1;

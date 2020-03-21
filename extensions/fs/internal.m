@@ -62,7 +62,7 @@ NSURL *path_to_nsurl(NSString *path) {
 }
 
 const char *path_at_index(lua_State *L, int i) {
-    NSString *path = [[LuaSkin shared] toNSObjectAtIndex:i];
+    NSString *path = [[LuaSkin sharedWithState:L] toNSObjectAtIndex:i];
     return [[path_to_nsurl(path) path] UTF8String];
 }
 
@@ -72,7 +72,7 @@ NSArray *tags_from_lua_stack(lua_State *L) {
     lua_pushnil(L);
     while (lua_next(L, 2) != 0) {
         if (lua_type(L, -1) == LUA_TSTRING) {
-            NSString *tag = [[LuaSkin shared] toNSObjectAtIndex:-1];
+            NSString *tag = [[LuaSkin sharedWithState:L] toNSObjectAtIndex:-1];
             [tags addObject:tag];
         }
         lua_pop(L, 1);
@@ -89,7 +89,7 @@ NSArray *tags_from_file(lua_State *L, NSString *filePath) {
 #pragma clang diagnostic ignored "-Wpartial-availability"
     if (![url getResourceValue:&tags forKey:NSURLTagNamesKey error:&error]) {
 #pragma clang diagnostic pop
-//         [[LuaSkin shared] logError:[NSString stringWithFormat:@"hs.fs tags_from_file() Unable to get tags for %@: %@", url, [error localizedDescription]]];
+//         [[LuaSkin sharedWithState:L] logError:[NSString stringWithFormat:@"hs.fs tags_from_file() Unable to get tags for %@: %@", url, [error localizedDescription]]];
 //         return nil;
         luaL_error(L, error.localizedDescription.UTF8String) ;
     }
@@ -104,7 +104,7 @@ BOOL tags_to_file(lua_State *L, NSString *filePath, NSArray *tags) {
 #pragma clang diagnostic ignored "-Wpartial-availability"
     if (![url setResourceValue:tags forKey:NSURLTagNamesKey error:&error]) {
 #pragma clang diagnostic pop
-//         [[LuaSkin shared] logError:[NSString stringWithFormat:@"hs.fs tags_to_file() Unable to set tags for %@: %@", url, [error localizedDescription]]];
+//         [[LuaSkin sharedWithState:L] logError:[NSString stringWithFormat:@"hs.fs tags_to_file() Unable to set tags for %@: %@", url, [error localizedDescription]]];
 //         return false;
         luaL_error(L, error.localizedDescription.UTF8String) ;
     }
@@ -125,7 +125,7 @@ BOOL tags_to_file(lua_State *L, NSString *filePath, NSArray *tags) {
 /// Returns:
 ///  * If successful, returns true, otherwise returns nil and an error string
 static int change_dir (lua_State *L) {
-    [[LuaSkin shared] checkArgs:LS_TSTRING, LS_TBREAK];
+    [[LuaSkin sharedWithState:L] checkArgs:LS_TSTRING, LS_TBREAK];
     const char *path = path_at_index(L, 1);
 
     if (chdir(path)) {
@@ -335,7 +335,7 @@ static int file_unlock (lua_State *L) {
 /// Returns:
 ///  * True if the link was created, otherwise nil and an error string
 static int make_link(lua_State *L) {
-    [[LuaSkin shared] checkArgs:LS_TSTRING, LS_TSTRING, LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
+    [[LuaSkin sharedWithState:L] checkArgs:LS_TSTRING, LS_TSTRING, LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
     const char *oldpath = path_at_index(L, 1);
     const char *newpath = path_at_index(L, 2);
     BOOL error;
@@ -369,7 +369,7 @@ static int make_link(lua_State *L) {
 /// Returns:
 ///  * True if the directory was created, otherwise nil and an error string
 static int make_dir (lua_State *L) {
-    [[LuaSkin shared] checkArgs:LS_TSTRING, LS_TBREAK];
+    [[LuaSkin sharedWithState:L] checkArgs:LS_TSTRING, LS_TBREAK];
     const char *path = path_at_index(L, 1);
 
     int fail =  mkdir (path, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP |
@@ -398,7 +398,7 @@ static int make_dir (lua_State *L) {
 /// Returns:
 ///  * True if the directory was removed, otherwise nil and an error string
 static int remove_dir (lua_State *L) {
-    [[LuaSkin shared] checkArgs:LS_TSTRING, LS_TBREAK];
+    [[LuaSkin sharedWithState:L] checkArgs:LS_TSTRING, LS_TBREAK];
     const char *path = path_at_index(L, 1);
     int fail;
 
@@ -477,7 +477,7 @@ static int dir_close (lua_State *L) {
 ///       end
 ///    ```
 static int dir_iter_factory (lua_State *L) {
-    [[LuaSkin shared] checkArgs:LS_TSTRING, LS_TBREAK];
+    [[LuaSkin sharedWithState:L] checkArgs:LS_TSTRING, LS_TBREAK];
     const char *path = path_at_index(L, 1);
     dir_data *d;
     lua_pushcfunction (L, dir_iter);
@@ -571,7 +571,7 @@ static const char *mode2string (mode_t mode) {
 /// Returns:
 ///  * True if the operation was successful, otherwise nil and an error string
 static int file_utime (lua_State *L) {
-    [[LuaSkin shared] checkArgs:LS_TSTRING, LS_TNUMBER|LS_TOPTIONAL, LS_TNUMBER|LS_TOPTIONAL, LS_TBREAK];
+    [[LuaSkin sharedWithState:L] checkArgs:LS_TSTRING, LS_TNUMBER|LS_TOPTIONAL, LS_TNUMBER|LS_TOPTIONAL, LS_TBREAK];
     const char *file = path_at_index(L, 1);
     struct utimbuf utb, *buf;
 
@@ -720,7 +720,7 @@ static stat_members members[] = {
 /// Notes:
 ///  * This function uses `stat()` internally thus if the given filepath is a symbolic link, it is followed (if it points to another link the chain is followed recursively) and the information is about the file it refers to. To obtain information about the link itself, see function `hs.fs.symlinkAttributes()`
 static int _file_info_ (lua_State *L, int (*st)(const char*, STAT_STRUCT*)) {
-    [[LuaSkin shared] checkArgs:LS_TSTRING, LS_TSTRING|LS_TOPTIONAL, LS_TBREAK];
+    [[LuaSkin sharedWithState:L] checkArgs:LS_TSTRING, LS_TSTRING|LS_TOPTIONAL, LS_TBREAK];
     const char *file = path_at_index(L, 1);
     STAT_STRUCT info;
     int i;
@@ -796,7 +796,7 @@ static int link_info (lua_State *L) {
 /// Returns:
 ///  * A table containing the list of the file's tags, or nil if the file has no tags assigned; throws a lua error if an error accessing the file occurs
 static int tagsGet(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TBREAK];
     NSString *path = [skin toNSObjectAtIndex:1];
 
@@ -829,7 +829,7 @@ static int tagsGet(lua_State *L) {
 /// Returns:
 ///  * true if the tags were updated; throws a lua error if an error occurs updating the tags
 static int tagsAdd(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TTABLE, LS_TBREAK];
     NSString *path = [skin toNSObjectAtIndex:1];
 
@@ -852,7 +852,7 @@ static int tagsAdd(lua_State *L) {
 /// Returns:
 ///  * true if the tags were set; throws a lua error if an error occurs setting the new tags
 static int tagsSet(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TTABLE, LS_TBREAK];
     NSString *path = [skin toNSObjectAtIndex:1];
 
@@ -873,7 +873,7 @@ static int tagsSet(lua_State *L) {
 /// Returns:
 ///  * true if the tags were updated; throws a lua error if an error occurs updating the tags
 static int tagsRemove(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TTABLE, LS_TBREAK];
     NSString *path = [skin toNSObjectAtIndex:1];
     NSMutableSet *removeTags = [NSMutableSet setWithArray:tags_from_lua_stack(L)];
@@ -909,7 +909,7 @@ static int hs_temporaryDirectory(lua_State *L) {
 /// Returns:
 ///  * a string containing the Uniform Type Identifier for the file location specified or nil if an error occured
 static int hs_fileuti(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
     NSString *path = [NSString stringWithUTF8String:path_at_index(L, 1)];
 
@@ -938,7 +938,7 @@ static int hs_fileuti(lua_State *L) {
 /// Returns:
 ///  * the file UTI in the alternate format or nil if the UTI does not have an alternate of the specified type.
 static int hs_fileUTIalternate(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TBREAK] ;
     NSString *fileUTI = [skin toNSObjectAtIndex:1] ;
     NSString *format  = [skin toNSObjectAtIndex:2] ;
@@ -971,7 +971,7 @@ static int hs_fileUTIalternate(lua_State *L) {
 ///  * A string containing the absolute path of `filepath` (i.e. one that doesn't intolve `.`, `..` or symlinks)
 ///  * Note that symlinks will be resolved to their target file
 static int hs_pathToAbsolute(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TBREAK];
 
     NSString *filePath = [skin toNSObjectAtIndex:1];
@@ -997,7 +997,7 @@ static int hs_pathToAbsolute(lua_State *L) {
 /// Returns:
 ///  * a string containing the display name of the file or directory at a specified path; returns nil if no file with the specified path exists.
 static int fs_displayName(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
     NSString *filePath = [skin toNSObjectAtIndex:1];
     if ([[NSFileManager defaultManager] fileExistsAtPath:filePath.stringByExpandingTildeInPath]) {
@@ -1018,7 +1018,7 @@ static int fs_displayName(lua_State *L) {
 /// Returns:
 ///  * Bookmark data in a binary encoded string or `nil` if path is invalid.
 static int fs_pathToBookmark(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
 
     NSString *filePath = [skin toNSObjectAtIndex:1];
@@ -1057,7 +1057,7 @@ static int fs_pathToBookmark(lua_State *L) {
 ///    user relaunches your app or restarts the system.
 ///  * No volumes are mounted during the resolution of the bookmark data.
 static int fs_pathFromBookmark(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
 
     const char *data = lua_tostring(L, 1);

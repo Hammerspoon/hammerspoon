@@ -7,6 +7,8 @@
 #define get_app(L, idx) *((AXUIElementRef*)luaL_checkudata(L, idx, "hs.application"))
 #define nsobject_for_app(L, idx) [NSRunningApplication runningApplicationWithProcessIdentifier: pid_for_app(L, idx)]
 
+static NSMutableSet *backgroundCallbacks ;
+
 static pid_t pid_for_app(lua_State* L, int idx) {
     get_app(L, idx); // type-checking
     lua_getuservalue(L, idx);
@@ -19,6 +21,11 @@ static pid_t pid_for_app(lua_State* L, int idx) {
 static int application_gc(lua_State* L) {
     AXUIElementRef app = get_app(L, 1);
     CFRelease(app);
+
+    [backgroundCallbacks enumerateObjectsUsingBlock:^(NSNumber *ref, __unused BOOL *stop) {
+        luaL_unref(L, LUA_REGISTRYINDEX, ref.intValue) ;
+    }] ;
+    [backgroundCallbacks removeAllObjects] ;
     return 0;
 }
 
@@ -126,7 +133,7 @@ static int application_applicationsForBundleID(lua_State* L) {
 /// Returns:
 ///  * A string containing the application name, or nil if the bundle identifier could not be located
 static int application_nameForBundleID(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TBREAK];
 
     NSWorkspace *ws = [NSWorkspace sharedWorkspace];
@@ -149,7 +156,7 @@ static int application_nameForBundleID(lua_State* L) {
 /// Returns:
 ///  * A string containing the app bundle's filesystem path, or nil if the bundle identifier could not be located
 static int application_pathForBundleID(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TBREAK];
 
     NSString *appPath = [[NSWorkspace sharedWorkspace] absolutePathForAppBundleWithIdentifier:[skin toNSObjectAtIndex:1]];
@@ -168,7 +175,7 @@ static int application_pathForBundleID(lua_State* L) {
 /// Returns:
 ///  * A table containing information about the application, or nil if the bundle identifier could not be located
 static int application_infoForBundleID(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TBREAK];
 
     NSWorkspace *ws = [NSWorkspace sharedWorkspace];
@@ -194,7 +201,7 @@ static int application_infoForBundleID(lua_State* L) {
 /// Returns:
 ///  * A table containing information about the application, or nil if the bundle could not be located
 static int application_infoForBundlePath(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TBREAK];
 
     NSBundle *app = [NSBundle bundleWithPath:[skin toNSObjectAtIndex:1]];
@@ -218,7 +225,7 @@ static int application_infoForBundlePath(lua_State* L) {
 /// Returns:
 ///  * A string containing a bundle ID, or nil if none could be found
 static int application_bundleForUTI(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TBREAK];
 
     NSString *uti = [skin toNSObjectAtIndex:1];
@@ -424,7 +431,7 @@ static int application_path(lua_State* L) {
     NSURL *appURL = [app bundleURL] ;
     if (appURL) {
         NSString *appPath = [NSBundle bundleWithURL:appURL].bundlePath;
-        [[LuaSkin shared] pushNSObject:appPath];
+        [[LuaSkin sharedWithState:L] pushNSObject:appPath];
     } else {
         lua_pushnil(L) ;
     }
@@ -596,7 +603,7 @@ static int application_kind(lua_State* L) {
 
 // Internal helper function to get an AXUIElementRef for a menu item in an app, by searching all menus
 AXUIElementRef _findmenuitembyname(lua_State* L, AXUIElementRef app, NSString *name, BOOL nameIsRegex) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     AXUIElementRef foundItem = nil;
     AXUIElementRef menuBar;
     AXError error = AXUIElementCopyAttributeValue(app, kAXMenuBarAttribute, (CFTypeRef *)&menuBar);
@@ -682,8 +689,8 @@ AXUIElementRef _findmenuitembyname(lua_State* L, AXUIElementRef app, NSString *n
 }
 //
 // Internal helper function to get an AXUIElementRef for a menu item in an app, by following the menu path provided
-AXUIElementRef _findmenuitembypath(lua_State* L __unused, AXUIElementRef app, NSArray *_path) {
-    LuaSkin *skin = [LuaSkin shared];
+AXUIElementRef _findmenuitembypath(lua_State* L, AXUIElementRef app, NSArray *_path) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     AXUIElementRef foundItem = nil;
     AXUIElementRef menuBar;
     AXUIElementRef searchItem;
@@ -810,7 +817,7 @@ AXUIElementRef _findmenuitembypath(lua_State* L __unused, AXUIElementRef app, NS
 /// Notes:
 ///  * This can only search for menu items that don't have children - i.e. you can't search for the name of a submenu
 static int application_findmenuitem(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     AXError error;
     AXUIElementRef app = get_app(L, 1);
     AXUIElementRef foundItem;
@@ -898,7 +905,7 @@ static int application_findmenuitem(lua_State* L) {
 /// Notes:
 ///  * Depending on the type of menu item involved, this will either activate or tick/untick the menu item
 static int application_selectmenuitem(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     AXUIElementRef app = get_app(L, 1);
     AXUIElementRef foundItem;
     NSString *name;
@@ -1075,7 +1082,7 @@ id _getMenuStructure(AXUIElementRef menuItem) {
 ///   * AXMenuItemCmdGlyph - An integer, corresponding to one of the defined glyphs in `hs.application.menuGlyphs` if the keyboard shortcut is a special character usually represented by a pictorial representation (think arrow keys, return, etc), or an empty string if no glyph is used in presenting the keyboard shortcut.
 ///  * Using `hs.inspect()` on these tables, while useful for exploration, can be extremely slow, taking several minutes to correctly render very complex menus
 static int application_getMenus(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, "hs.application", LS_TFUNCTION | LS_TOPTIONAL, LS_TBREAK] ;
     AXUIElementRef app = get_app(L, 1);
     if (!app) {
@@ -1096,11 +1103,10 @@ static int application_getMenus(lua_State* L) {
     } else {
         lua_pushvalue(L, 2) ;
         int fnRef = luaL_ref(L, LUA_REGISTRYINDEX) ;
+        [backgroundCallbacks addObject:@(fnRef)] ;
+
         dispatch_async(dispatch_get_main_queue(), ^{
-            // Because this is asynchronous, it's possible that the app could be unavailable at this point.
-            if (!app) {
-                [skin logWarn:@"hs.application:getMenus() called on a nil app object during callback"];
-            } else {
+            if ([backgroundCallbacks containsObject:@(fnRef)]) {
                 NSMutableDictionary *menus = nil;
                 AXUIElementRef menuBar;
 
@@ -1109,11 +1115,12 @@ static int application_getMenus(lua_State* L) {
                     CFRelease(menuBar);
                 }
 
-                LuaSkin *_skin = [LuaSkin shared];
+                LuaSkin *_skin = [LuaSkin sharedWithState:NULL];
                 lua_rawgeti(_skin.L, LUA_REGISTRYINDEX, fnRef) ;
                 [_skin pushNSObject:menus] ;
                 [_skin protectedCallAndError:@"hs.application:getMenus()" nargs:1 nresults:0];
                 luaL_unref(_skin.L, LUA_REGISTRYINDEX, fnRef) ;
+                [backgroundCallbacks removeObject:@(fnRef)] ;
             }
         }) ;
         lua_pushvalue(L, 1) ;
@@ -1239,7 +1246,7 @@ static int nsrunningapplication_tolua(lua_State *L, id obj) {
 
     if (!new_application(L, [app processIdentifier])) {
         lua_pop(L, 1) ; // removed aborted userdata
-        [[LuaSkin shared] logWarn:[NSString stringWithFormat:@"No Process ID for %@", obj]] ;
+        [[LuaSkin sharedWithState:L] logWarn:[NSString stringWithFormat:@"No Process ID for %@", obj]] ;
         lua_pushnil(L) ;
     }
     return 1 ;
@@ -1255,7 +1262,7 @@ static id lua_tonsrunningapplication(lua_State *L, int idx) {
 }
 
 int luaopen_hs_application_internal(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     luaL_newlib(L, applicationlib);
 
@@ -1289,6 +1296,8 @@ int luaopen_hs_application_internal(lua_State* L) {
     [skin registerLuaObjectHelper:lua_tonsrunningapplication
                          forClass:"NSRunningApplication"
               withUserdataMapping:"hs.application"] ;
+
+    backgroundCallbacks = [NSMutableSet set] ;
 
     return 1;
 }

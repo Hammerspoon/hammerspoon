@@ -21,6 +21,7 @@
 #import "lua.h"
 #import <assert.h>
 #import <limits.h>
+#import <dlfcn.h>
 
 extern const char * const LuaSkin_UD_TAG ;
 extern int luaopen_luaskin_internal(lua_State* L) ; // entry vector to luaskin.m objectWrapper additions
@@ -150,36 +151,38 @@ NSString *specMaskToString(int spec);
  */
 @property (atomic, readonly) lua_State *L;
 
+/*!
+ @property mainLuaState
+ @abstract The lua state that LuaSkin was initialized with
+ @discussion Provides access to the raw Lua state object that was created when LuaSkin was initialized. This is the main lua thread where all callbacks should be run.  Care should be taken when using this object, to ensure you are interacting with the Lua stack in a way that makes sense
+ */
+@property (class, readonly, atomic) lua_State *mainLuaState ;
+
 #pragma mark - Class lifecycle
 
 /*!
  @abstract Returns the singleton LuaSkin.Skin object
+ @warning This method is deprecated and may go away at some point. Use +(id)sharedWithState:(lua_State *)L instead.
  @return Shared instance of LuaSkin.Skin
  */
 + (id)shared;
 
 /*!
+ @abstract Returns the singleton LuaSkin.Skin object with the internal lua thread pointer set to the specified state.
+ @param L the lua state representing the lua thread to assign to the LuaSkin internal lua thread pointer. If NULL, the lua state that was created by +(id)sharedWithDelegate:(id)delegate will be used.
+ @discussion This method will set the internal lua thread pointer to the specified state and should be invoked with the state passed into the C function defining a new lua function or method. For macOS delegates or other events which are triggered by the macOS rather than the lua engine executing a code block, pass in NULL for L.
+ @return Shared instance of LuaSkin.Skin
+*/
++ (id)sharedWithState:(lua_State *)L ;
+
+/*!
  @abstract Returns the singleton LuaSkin.Skin object and sets its delegate
  @param delegate An object that responds to -(void)logForLuaSkinAtLevel:(int)level withMessage:(NSString *)theMessage
- @discussion It is only appropriate to use this class method when you are first bootstrapping your LuaSkin instance, and its only reason for existence is to ensure that the logging delegate is set early enough to capture any messages that might arise during the initial Lua instantiation. For all other purposes, use [LuaSkin shared].
+ @discussion It is only appropriate to use this class method when you are first bootstrapping your LuaSkin instance, and its only reason for existence is to ensure that the logging delegate is set early enough to capture any messages that might arise during the initial Lua instantiation. For all other purposes, use +(id)sharedWithState:(lua_State *)L.
+ @warning Calling this method leaves the lua thread pointer in the same state that invoking [LuaSkin sharedWithState:NULL] will.
  @return Shared instance of LuaSkinSkin
  */
 + (id)sharedWithDelegate:(id)delegate;
-
-/*!
- @abstract Initialises a LuaSkin object
- @discussion Typically you are unlikely to want to use the alloc/init pattern. Instead, see @link shared @/link for getting the singleton object. You should only call alloc/init directly if you need to manage multiple Lua environments
- @return An initialised LuaSkin.Skin object
- */
-- (id)init;
-
-/*!
- @abstract Initialises a LuaSkin object and sets its delegate
- @param delegate An object that responds to -(void)logForLuaSkinAtLevel:(int)level withMessage:(NSString *)theMessage
- @discussion Typically you are unlikely to want to use the alloc/init pattern. Instead, see @link shared @/link for getting the singleton object. You should only call this method directly if you need to manage multiple Lua environments with logging delegates
- @return An initialised LuaSkin.Skin object
- */
-- (id)initWithDelegate:(id)delegate;
 
 #pragma mark - lua_State lifecycle
 

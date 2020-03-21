@@ -25,7 +25,7 @@ static OSStatus trigger_hotkey_callback(int eventUID, int eventKind, BOOL isRepe
 - (void)startTimer:(int)theEventID eventKind:(int)theEventKind {
     //NSLog(@"startTimer");
     if (keyRepeatTimer) {
-        LuaSkin *skin = [LuaSkin shared];
+        LuaSkin *skin = [LuaSkin sharedWithState:NULL];
         [skin logWarn:@"hs.hotkey - startTimer() called while an existing repeat timer is running. Stopping existing timer and refusing to proceed."];
         [self stopTimer];
         return;
@@ -70,7 +70,7 @@ static OSStatus trigger_hotkey_callback(int eventUID, int eventKind, BOOL isRepe
 @end
 
 static int store_hotkey(lua_State* L, int idx) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     lua_pushvalue(L, idx);
     int x = [skin luaRef:refTable];
     [handlers addIndex: x];
@@ -78,14 +78,14 @@ static int store_hotkey(lua_State* L, int idx) {
 }
 
 static int remove_hotkey(lua_State* L, int x) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin luaUnref:refTable ref:x];
     [handlers removeIndex: x];
     return LUA_NOREF;
 }
 
 static void* push_hotkey(lua_State* L, int x) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin pushLuaRef:refTable ref:x];
     return lua_touserdata(L, -1);
 }
@@ -103,7 +103,7 @@ typedef struct _hotkey_t {
 
 
 static int hotkey_new(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     luaL_checktype(L, 1, LUA_TTABLE);
     UInt32 keycode = (UInt32)luaL_checkinteger(L, 2);
@@ -180,7 +180,7 @@ static int hotkey_new(lua_State* L) {
 }
 
 static int hotkey_systemAssigned(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     luaL_checktype(L, 1, LUA_TTABLE);
     UInt32 keycode = (UInt32)luaL_checkinteger(L, 2);
@@ -233,7 +233,7 @@ static int hotkey_systemAssigned(lua_State* L) {
 }
 
 static int hotkey_enable(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
     hotkey_t* hotkey = lua_touserdata(L, 1);
@@ -268,7 +268,7 @@ static int hotkey_enable(lua_State* L) {
 }
 
 static void stop(lua_State* L, hotkey_t* hotkey) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     if (!hotkey->enabled)
         return;
@@ -297,7 +297,7 @@ static int hotkey_disable(lua_State* L) {
 }
 
 static int hotkey_gc(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     hotkey_t* hotkey = luaL_checkudata(L, 1, USERDATA_TAG);
 
@@ -313,7 +313,7 @@ static int hotkey_gc(lua_State* L) {
 static EventHandlerRef eventhandler;
 
 static OSStatus hotkey_callback(EventHandlerCallRef __attribute__ ((unused)) inHandlerCallRef, EventRef inEvent, void *inUserData) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     EventHotKeyID eventID;
     int eventKind;
     int eventUID;
@@ -333,7 +333,7 @@ static OSStatus hotkey_callback(EventHandlerCallRef __attribute__ ((unused)) inH
 
 static OSStatus trigger_hotkey_callback(int eventUID, int eventKind, BOOL isRepeat) {
     //NSLog(@"trigger_hotkey_callback: isDown: %s, isUp: %s, isRepeat: %s", (eventKind == kEventHotKeyPressed) ? "YES" : "NO", (eventKind == kEventHotKeyReleased) ? "YES" : "NO", isRepeat ? "YES" : "NO");
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     lua_State *L = skin.L;
     _lua_stackguard_entry(L);
 
@@ -411,8 +411,8 @@ static const luaL_Reg hotkey_objectlib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_hotkey_internal(lua_State* L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+int luaopen_hs_hotkey_internal(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     handlers = [NSMutableIndexSet indexSet];
     keyRepeatManager = [[HSKeyRepeatManager alloc] init];

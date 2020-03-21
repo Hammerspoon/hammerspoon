@@ -24,7 +24,7 @@ NSData *TransformDataWithFunction(NSData *inputData, SecTransformRef (*function)
 // Function
 // Returns the base64 encoding of the string provided.
 static int base64_encode(lua_State* L) {
-    [[LuaSkin shared] checkArgs:LS_TNUMBER | LS_TSTRING, LS_TBREAK] ;
+    [[LuaSkin sharedWithState:L] checkArgs:LS_TNUMBER | LS_TSTRING, LS_TBREAK] ;
     NSUInteger sz ;
     const char* data = luaL_tolstring(L, 1, &sz) ;
     NSData* decodedStr = [[NSData alloc] initWithBytes:data length:sz] ;
@@ -38,7 +38,7 @@ static int base64_encode(lua_State* L) {
 // Function
 // Returns a Lua string representing the given base64 string.
 static int base64_decode(lua_State* L) {
-    [[LuaSkin shared] checkArgs:LS_TNUMBER | LS_TSTRING, LS_TBREAK] ;
+    [[LuaSkin sharedWithState:L] checkArgs:LS_TNUMBER | LS_TSTRING, LS_TBREAK] ;
     NSUInteger sz ;
     const char* data = luaL_tolstring(L, 1, &sz) ;
     NSData* encodedStr = [[NSData alloc] initWithBytes:data length:sz] ;
@@ -54,8 +54,8 @@ static const luaL_Reg base64_lib[] = {
     {NULL,      NULL}
 };
 
-int luaopen_hs_base64_internal(lua_State* L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+int luaopen_hs_base64_internal(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin registerLibrary:base64_lib metaFunctions:nil];
 
     return 1;

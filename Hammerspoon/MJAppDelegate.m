@@ -317,7 +317,7 @@
     @try {
         [[NSApplication sharedApplication] orderFrontStandardAboutPanel: nil];
     } @catch (NSException *exception) {
-        [[LuaSkin shared] logError:@"Unable to open About dialog. This may mean your CommandPost installation is corrupt. Please re-install it!"];
+        [[LuaSkin sharedWithState:NULL] logError:@"Unable to open About dialog. This may mean your CommandPost installation is corrupt. Please re-install it!"];
     }
 }
 

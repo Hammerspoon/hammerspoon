@@ -11,7 +11,7 @@ typedef struct _eventtap_t {
 } eventtap_t;
 
 CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     lua_State *L = skin.L;
     _lua_stackguard_entry(L);
 
@@ -121,7 +121,7 @@ static int eventtap_keyStrokes(lua_State* L) {
 /// Notes:
 ///  * If you specify the argument `types` as the special table {"all"[, events to ignore]}, then *all* events (except those you optionally list *after* the "all" string) will trigger a callback, even events which are not defined in the [Quartz Event Reference](https://developer.apple.com/library/mac/documentation/Carbon/Reference/QuartzEventServicesRef/Reference/reference.html).
 static int eventtap_new(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     luaL_checktype(L, 1, LUA_TTABLE);
     luaL_checktype(L, 2, LUA_TFUNCTION);
@@ -166,7 +166,7 @@ static int eventtap_new(lua_State* L) {
 /// Returns:
 ///  * The event tap object
 static int eventtap_start(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     eventtap_t* e = luaL_checkudata(L, 1, USERDATA_TAG);
 
     if (!(e->tap && CGEventTapIsEnabled(e->tap))) {
@@ -304,7 +304,7 @@ static int checkKeyboardModifiers(lua_State* L) {
 ///  * If secure input is enabled, Hammerspoon is not able to intercept keyboard events
 ///  * Secure input is enabled generally only in situations where an password field is focused in a web browser, system dialog or terminal
 static int secureInputEnabled(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TBREAK];
 
     BOOL isSecure = (BOOL)IsSecureEventInputEnabled();
@@ -397,7 +397,7 @@ static int eventtap_doubleClickInterval(lua_State* L) {
 }
 
 static int eventtap_gc(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     eventtap_t* eventtap = luaL_checkudata(L, 1, USERDATA_TAG);
     if (eventtap->tap) {
@@ -454,8 +454,8 @@ static const luaL_Reg meta_gcLib[] = {
     {NULL,      NULL}
 };
 
-int luaopen_hs_eventtap_internal(lua_State* L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+int luaopen_hs_eventtap_internal(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:eventtaplib metaFunctions:meta_gcLib objectFunctions:eventtap_metalib];
 
     return 1;
