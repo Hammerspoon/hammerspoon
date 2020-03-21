@@ -5,15 +5,6 @@
 @import WebKit;
 #import "PocketSocket/PSWebSocket.h"
 
-// Websocket userdata struct
-typedef struct _webSocketUserData {
-    int selfRef;
-    void *ws;
-} webSocketUserData;
-
-#define getWsUserData(L, idx) (__bridge HSWebSocketDelegate *)((webSocketUserData *)lua_touserdata(L, idx))->ws;
-static const char *WS_USERDATA_TAG = "hs.http.websocket";
-
 static int refTable;
 static NSMutableArray* delegates;
 
@@ -37,12 +28,6 @@ static id responseBodyToId(NSHTTPURLResponse *httpResponse, NSData *bodyData) {
 @property(nonatomic, retain) NSMutableData* receivedData;
 @property(nonatomic, retain) NSHTTPURLResponse* httpResponse;
 @property(nonatomic, retain) NSURLConnection* connection;
-@end
-
-// Definition of websocket delegate object
-@interface HSWebSocketDelegate: NSObject<PSWebSocketDelegate>
-@property int fn;
-@property (strong) PSWebSocket *webSocket;
 @end
 
 // Store a created delegate so we can cancel it on garbage collection
@@ -115,6 +100,7 @@ static void remove_delegate(lua_State* L, connectionDelegate* delegate) {
 
 @end
 
+<<<<<<< HEAD
 // Implementation of the websocket client delegate
 @implementation HSWebSocketDelegate
 - (instancetype)initWithURL:(NSURL *)URL {
@@ -159,6 +145,8 @@ static void remove_delegate(lua_State* L, connectionDelegate* delegate) {
 }
 @end
 
+=======
+>>>>>>> master
 // If the user specified a request body, get it from stack,
 // add it to the request and add the content length header field
 static void getBodyFromStack(lua_State* L, int index, NSMutableURLRequest* request){
@@ -175,7 +163,7 @@ static void getBodyFromStack(lua_State* L, int index, NSMutableURLRequest* reque
             [request setValue:postLength forHTTPHeaderField:@"Content-Length"];
             [request setHTTPBody:postData];
         } else {
-            [LuaSkin logError:[NSString stringWithFormat:@"%s - getBodyFromStack - non-nil entry at stack index %u but unable to convert to NSData", WS_USERDATA_TAG, index]] ;
+            [LuaSkin logError:[NSString stringWithFormat:@"hs.http - getBodyFromStack - non-nil entry at stack index %u but unable to convert to NSData", index]] ;
         }
     }
 }
@@ -660,6 +648,7 @@ static id table_toNSURLRequest(lua_State* L, int idx) {
     return request ;
 }
 
+<<<<<<< HEAD
 static int http_ws_open(lua_State* L){
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TFUNCTION, LS_TBREAK];
@@ -704,6 +693,8 @@ static int http_ws_close(lua_State *L) {
     return 1;
 }
 
+=======
+>>>>>>> master
 static int http_gc(lua_State* L){
     NSMutableArray* delegatesCopy = [[NSMutableArray alloc] init];
     [delegatesCopy addObjectsFromArray:delegates];
@@ -715,6 +706,7 @@ static int http_gc(lua_State* L){
     return 0;
 }
 
+<<<<<<< HEAD
 static int http_ws_gc(lua_State* L){
     webSocketUserData *userData = lua_touserdata(L, 1);
     HSWebSocketDelegate* ws = (__bridge_transfer HSWebSocketDelegate *)userData->ws;
@@ -740,12 +732,13 @@ static int http_ws_tostring(lua_State* L) {
     return 1;
 }
 
+=======
+>>>>>>> master
 static const luaL_Reg httplib[] = {
     {"doRequest",       http_doRequest},
     {"doAsyncRequest",  http_doAsyncRequest},
     {"urlParts",        http_urlParts},
     {"encodeForQuery",  http_encodeForQuery},
-    {"websocket",       http_ws_open},
 
     {NULL, NULL} // This must end with an empty struct
 };
@@ -756,6 +749,7 @@ static const luaL_Reg metalib[] = {
     {NULL, NULL} // This must end with an empty struct
 };
 
+<<<<<<< HEAD
 static const luaL_Reg wsMetalib[] = {
     {"send",        http_ws_send},
     {"close",       http_ws_close},
@@ -767,10 +761,13 @@ static const luaL_Reg wsMetalib[] = {
 
 int luaopen_hs_http_internal(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
+=======
+int luaopen_hs_http_internal(lua_State* L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+>>>>>>> master
 
     delegates = [[NSMutableArray alloc] init];
     refTable = [skin registerLibrary:httplib metaFunctions:metalib];
-    [skin registerObject:WS_USERDATA_TAG objectFunctions:wsMetalib];
 
     [skin registerPushNSHelper:NSURLRequest_toLua      forClass:"NSURLRequest"] ;
     [skin registerPushNSHelper:NSURLResponse_toLua     forClass:"NSURLResponse"] ;

@@ -106,19 +106,19 @@
 		<dict>
 			<key>CFBundleTypeExtensions</key>
 			<array>
-				<string>spoon</string>
+				<string>cpPlugin</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
-			<string>Spoon</string>
+			<string>cpPlugin</string>
 			<key>CFBundleTypeMIMETypes</key>
 			<array/>
 			<key>CFBundleTypeName</key>
-			<string>Hammerspoon Module</string>
+			<string>CommandPost Plugin</string>
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
 			<key>LSItemContentTypes</key>
 			<array>
-				<string>org.hammerspoon.Hammerspoon.Spoon</string>
+				<string>org.latenitefilms.CommandPost.Plugin</string>
 			</array>
 			<key>LSTypeIsPackage</key>
 			<integer>1</integer>
@@ -135,11 +135,70 @@
 			<key>NSDocumentClass</key>
 			<string>NSDocument</string>
 		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>cpCache</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>cpCache</string>
+			<key>CFBundleTypeName</key>
+			<string>CommandPost Cache</string>
+			<key>CFBundleTypeRole</key>
+			<string>None</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>org.latenitefilms.CommandPost.Cache</string>
+			</array>
+			<key>LSTypeIsPackage</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>cpMIDI</string>
+				<string>cpShortcuts</string>
+				<string>cpStreamDeck</string>
+				<string>cpTangent</string>
+				<string>cpTouchBar</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>cpPrefs</string>
+			<key>CFBundleTypeName</key>
+			<string>CommandPost Preferences</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>org.latenitefilms.CommandPost.Preferences</string>
+			</array>
+			<key>LSTypeIsPackage</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>cpPasteboard</string>
+				<string>cpSharedPasteboard</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>cpPaste</string>
+			<key>CFBundleTypeName</key>
+			<string>CommandPost Pasteboard</string>
+			<key>CFBundleTypeRole</key>
+			<string>None</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>org.latenitefilms.CommandPost.Pasteboard</string>
+			</array>
+			<key>LSTypeIsPackage</key>
+			<integer>0</integer>
+		</dict>
 	</array>
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIconFile</key>
-	<string>Hammerspoon</string>
+	<string>CommandPost</string>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -160,15 +219,15 @@
 			<key>CFBundleURLIconFile</key>
 			<string></string>
 			<key>CFBundleURLName</key>
-			<string>org.hammerspoon.Hammerspoon</string>
+			<string>org.latenitefilms.CommandPost</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>hammerspoon</string>
+				<string>commandpost</string>
 			</array>
 		</dict>
 		<dict>
 			<key>CFBundleURLName</key>
-			<string>hammerspoon.Hammerspoon.http</string>
+			<string>latenitefilms.CommandPost.http</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>http</string>
@@ -176,7 +235,7 @@
 		</dict>
 		<dict>
 			<key>CFBundleURLName</key>
-			<string>hammerspoon.Hammerspoon.https</string>
+			<string>latenitefilms.CommandPost.https</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>https</string>
@@ -192,11 +251,11 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>5164</string>
+	<string>5724</string>
 	<key>Fabric</key>
 	<dict>
 		<key>APIKey</key>
-		<string>a9a43ddffec0ebfb007388756dfd662a9c153188</string>
+		<string>4799997d730e264415e10b3cecc13d0f3cf205fa</string>
 		<key>Kits</key>
 		<array>
 			<dict>
@@ -208,10 +267,10 @@
 		</array>
 	</dict>
 	<key>LSApplicationCategoryType</key>
-	<string>public.app-category.developer-tools</string>
+	<string>public.app-category.video</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>${MACOSX_DEPLOYMENT_TARGET}</string>
-	<key>LSUIElement</key>
+	<key>LSMultipleInstancesProhibited</key>
 	<true/>
 	<key>NSAppSleepDisabled</key>
 	<true/>
@@ -221,19 +280,19 @@
 		<true/>
 	</dict>
 	<key>NSAppleEventsUsageDescription</key>
-	<string>Hammerspoon needs to send events to automate applications.</string>
+	<string>CommandPost needs to send events to automate applications.</string>
 	<key>NSAppleScriptEnabled</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Some Hammerspoon extensions require access to the camera.</string>
+	<string>Some CommandPost extensions require access to the camera.</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Released under MIT license.</string>
+	<string>Copyright Chris Hocking &amp; David Peterson 2017-2019. Released under MIT license.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Some Hammerspoon extensions (such as hs.location) require access to your location.</string>
+	<string>Some CommandPost extensions (such as hs.location) require access to your location.</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Some Hammerspoon extensions (such as hs.noises) require access to the microphone.</string>
+	<string>Some CommandPost extensions (such as hs.noises) require access to the microphone.</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 	<key>NSServices</key>
@@ -242,7 +301,7 @@
 			<key>NSMenuItem</key>
 			<dict>
 				<key>default</key>
-				<string>Send to Hammerspoon</string>
+				<string>Send to CommandPost</string>
 			</dict>
 			<key>NSMessage</key>
 			<string>processDockIconDraggedText</string>
@@ -257,7 +316,7 @@
 			<key>NSMenuItem</key>
 			<dict>
 				<key>default</key>
-				<string>Send to Hammerspoon</string>
+				<string>Send to CommandPost</string>
 			</dict>
 			<key>NSMessage</key>
 			<string>processDockIconDraggedFile</string>
@@ -272,13 +331,15 @@
 	<key>NSUserNotificationAlertStyle</key>
 	<string>alert</string>
 	<key>OSAScriptingDefinition</key>
-	<string>Hammerspoon.sdef</string>
+	<string>CommandPost.sdef</string>
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
 	<key>SUFeedURL</key>
-	<string>https://raw.githubusercontent.com/Hammerspoon/hammerspoon/master/appcast.xml</string>
+	<string>https://raw.githubusercontent.com/CommandPost/CommandPost/develop/appcast/appcast.xml</string>
+	<key>SUPublicDSAKeyFile</key>
+	<string>dsa_pub.pem</string>
 	<key>SUScheduledCheckInterval</key>
-	<integer>21600</integer>
+	<integer>900</integer>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>
@@ -288,16 +349,16 @@
 				<string>com.apple.package</string>
 			</array>
 			<key>UTTypeIconFile</key>
-			<string>Spoon</string>
+			<string>cpPlugin</string>
 			<key>UTTypeIdentifier</key>
-			<string>org.hammerspoon.Hammerspoon.Spoon</string>
+			<string>org.latenitefilms.CommandPost.Plugin</string>
 			<key>UTTypeReferenceURL</key>
-			<string>http://www.hammerspoon.org/</string>
+			<string>http://commandpost.io</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>
 				<array>
-					<string>spoon</string>
+					<string>cpPlugin</string>
 				</array>
 			</dict>
 		</dict>

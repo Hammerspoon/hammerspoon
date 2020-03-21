@@ -17,6 +17,7 @@ pod 'Crashlytics', '3.14.0'
 pod 'Fabric', '1.10.2'
 pod 'Sparkle', '1.22.0', :configurations => ['Release']
 pod 'MIKMIDI', '1.7.0'
+pod 'SocketRocket'
 end
 
 post_install do |installer|

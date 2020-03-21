@@ -11,7 +11,7 @@
 @implementation HSChooserRootView
 
 - (BOOL)allowsVibrancy {
-    return YES;
+    return NO;
 }
 
 @end

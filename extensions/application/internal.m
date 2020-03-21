@@ -1086,7 +1086,7 @@ static int application_getMenus(lua_State* L) {
     [skin checkArgs:LS_TUSERDATA, "hs.application", LS_TFUNCTION | LS_TOPTIONAL, LS_TBREAK] ;
     AXUIElementRef app = get_app(L, 1);
     if (!app) {
-        NSLog(@"hs.application:getMenus() called on a nil app object");
+        [skin logWarn:@"hs.application:getMenus() called on a nil app object"];
         lua_pushnil(L);
         return 1;
     }

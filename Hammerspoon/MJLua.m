@@ -14,6 +14,8 @@
 #import "Crashlytics.h"
 #import "HSLogger.h" // This should come after Crashlytics
 #import <AVFoundation/AVFoundation.h>
+#import <AppKit/AppKit.h>
+#import <libproc.h>
 
 @interface MJPreferencesWindowController ()
 - (void) reflectDefaults ;
@@ -81,7 +83,6 @@ static int core_menuicon(lua_State* L) {
     lua_pushboolean(L, MJMenuIconVisible()) ;
     return 1;
 }
-
 
 // hs.dockIcon -- for historical reasons, this is actually handled by the hs.dockicon module, but a wrapper
 // in the lua portion of this (setup.lua) provides an interface to this module which follows the syntax
@@ -224,6 +225,64 @@ static int core_accessibilityState(lua_State* L) {
     BOOL shouldprompt = lua_toboolean(L, 1);
     BOOL enabled = MJAccessibilityIsEnabled();
     if (shouldprompt) { MJAccessibilityOpenPanel(); }
+    lua_pushboolean(L, enabled);
+    return 1;
+}
+
+// SOURCE: https://stackoverflow.com/a/58786245/6925202
+bool isScreenRecordingEnabled()
+{
+    if (@available(macos 10.15, *)) {
+        bool bRet = false;
+        CFArrayRef list = CGWindowListCopyWindowInfo(kCGWindowListOptionAll, kCGNullWindowID);
+        if (list) {
+            int n = (int)(CFArrayGetCount(list));
+            for (int i = 0; i < n; i++) {
+                NSDictionary* info = (NSDictionary*)(CFArrayGetValueAtIndex(list, (CFIndex)i));
+                NSString* name = info[(id)kCGWindowName];
+                NSNumber* pid = info[(id)kCGWindowOwnerPID];
+                if (pid != nil && name != nil) {
+                    int nPid = [pid intValue];
+                    char path[PROC_PIDPATHINFO_MAXSIZE+1];
+                    int lenPath = proc_pidpath(nPid, path, PROC_PIDPATHINFO_MAXSIZE);
+                    if (lenPath > 0) {
+                        path[lenPath] = 0;
+                        if (strcmp(path, "/System/Library/CoreServices/SystemUIServer.app/Contents/MacOS/SystemUIServer") == 0) {
+                            bRet = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            CFRelease(list);
+        }
+        return bRet;
+    } else {
+        return true;
+    }
+}
+
+/// hs.screenRecordingState(shouldPrompt) -> isEnabled
+/// Function
+///
+/// Parameters:
+///  * shouldPrompt - an optional boolean value indicating if the dialog box asking if the System Preferences application should be opened should be presented when Screen Recording is not currently enabled for Hammerspoon.  Defaults to false.
+///
+/// Returns:
+///  * True or False indicating whether or not Screen Recording is enabled for Hammerspoon.
+///
+/// Notes:
+///  * If you trigger the prompt and the user denies it, you cannot bring up the prompt again - the user must manually enable it in System Preferences.
+static int core_screenRecordingState(lua_State* L) {
+    BOOL shouldprompt = lua_toboolean(L, 1);
+    BOOL enabled = isScreenRecordingEnabled();
+    if (shouldprompt) {
+        CGDisplayStreamRef stream = CGDisplayStreamCreate(CGMainDisplayID(), 1, 1, kCVPixelFormatType_32BGRA, nil, ^(CGDisplayStreamFrameStatus status, uint64_t displayTime, IOSurfaceRef frameSurface, CGDisplayStreamUpdateRef updateRef) {
+        });
+        if (stream) {
+            CFRelease(stream);
+        }
+    }
     lua_pushboolean(L, enabled);
     return 1;
 }
@@ -385,11 +444,11 @@ static int automaticallyChecksForUpdates(lua_State *L) {
             lua_pushboolean(L, (BOOL)[sharedUpdater performSelector:@selector(automaticallyChecksForUpdates)]) ;
 #pragma clang diagnostic pop
         } else {
-            [skin logWarn:@"Sparkle Update framework not available for the running instance of Hammerspoon."] ;
+            //[skin logWarn:@"Sparkle Update framework not available for the running instance of CommandPost."] ;
             lua_pushboolean(L, NO) ;
         }
     } else {
-        [skin logWarn:@"Sparkle Update framework not available for the running instance of Hammerspoon."] ;
+        //[skin logWarn:@"Sparkle Update framework not available for the running instance of CommandPost."] ;
         lua_pushboolean(L, NO) ;
     }
     return 1 ;
@@ -426,10 +485,10 @@ static int checkForUpdates(lua_State *L) {
             [sharedUpdater performSelector:checkMethod withObject:nil] ;
 #pragma clang diagnostic pop
         } else {
-            [skin logWarn:@"Sparkle Update framework not available for the running instance of Hammerspoon."] ;
+            [skin logWarn:@"Sparkle Update framework not available for the running instance of CommandPost."] ;
         }
     } else {
-        [skin logWarn:@"Sparkle Update framework not available for the running instance of Hammerspoon."] ;
+        [skin logWarn:@"Sparkle Update framework not available for the running instance of CommandPost."] ;
     }
     return 0 ;
 }
@@ -661,6 +720,7 @@ static luaL_Reg corelib[] = {
     {"consoleOnTop", core_consoleontop},
     {"openAbout", core_openabout},
     {"menuIcon", core_menuicon},
+    {"allowAppleScript", core_appleScript},
     {"openPreferences", core_openpreferences},
     {"open", core_open},
     {"autoLaunch", core_autolaunch},
@@ -672,6 +732,7 @@ static luaL_Reg corelib[] = {
     {"reload", core_reload},
     {"focus", core_focus},
     {"accessibilityState", core_accessibilityState},
+    {"screenRecordingState", core_screenRecordingState},
     {"microphoneState", core_microphoneState},
     {"cameraState", core_cameraState},
     {"getObjectMetatable", core_getObjectMetatable},
@@ -751,8 +812,8 @@ void MJLuaInit(void) {
         HSNSLOG(@"Unable to load setup.lua from bundle. Terminating");
         NSAlert *alert = [[NSAlert alloc] init];
         [alert addButtonWithTitle:@"OK"];
-        [alert setMessageText:@"Hammerspoon installation is corrupted"];
-        [alert setInformativeText:@"Please re-install Hammerspoon"];
+        [alert setMessageText:@"CommandPost installation is corrupted"];
+        [alert setInformativeText:@"Please re-install CommandPost"];
         [alert setAlertStyle:NSAlertStyleCritical];
         [alert runModal];
         [[NSApplication sharedApplication] terminate: nil];
@@ -772,7 +833,7 @@ void MJLuaInit(void) {
         HSNSLOG(@"Error running setup.lua:%@", errorMessage);
         NSAlert *alert = [[NSAlert alloc] init];
         [alert addButtonWithTitle:@"OK"];
-        [alert setMessageText:@"Hammerspoon initialization failed"];
+        [alert setMessageText:@"CommandPost initialization failed"];
         [alert setInformativeText:errorMessage];
         [alert setAlertStyle:NSAlertStyleCritical];
         [alert runModal];
