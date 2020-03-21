@@ -55,8 +55,9 @@ static luaL_Reg moduleLib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_audiounit_internal(lua_State* __unused L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+int luaopen_hs_audiounit_internal(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibrary:moduleLib metaFunctions:nil] ;
     return 1;
 }
+
