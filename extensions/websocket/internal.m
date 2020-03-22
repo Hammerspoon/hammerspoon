@@ -35,7 +35,7 @@ static int refTable;
         if (self.fn == LUA_NOREF) {
             return;
         }
-        LuaSkin *skin = [LuaSkin shared];
+        LuaSkin *skin = [LuaSkin sharedWithState:NULL];
         _lua_stackguard_entry(skin.L);
 
         [skin pushLuaRef:refTable ref:self.fn];
@@ -53,7 +53,7 @@ static int refTable;
         if (self.fn == LUA_NOREF) {
             return;
         }
-        LuaSkin *skin = [LuaSkin shared];
+        LuaSkin *skin = [LuaSkin sharedWithState:NULL];
         _lua_stackguard_entry(skin.L);
 
         [skin pushLuaRef:refTable ref:self.fn];
@@ -70,7 +70,7 @@ static int refTable;
         if (self.fn == LUA_NOREF) {
             return;
         }
-        LuaSkin *skin = [LuaSkin shared];
+        LuaSkin *skin = [LuaSkin sharedWithState:NULL];
         _lua_stackguard_entry(skin.L);
 
         [skin pushLuaRef:refTable ref:self.fn];
@@ -88,7 +88,7 @@ static int refTable;
         if (self.fn == LUA_NOREF) {
             return;
         }
-        LuaSkin *skin = [LuaSkin shared];
+        LuaSkin *skin = [LuaSkin sharedWithState:NULL];
         _lua_stackguard_entry(skin.L);
 
         [skin pushLuaRef:refTable ref:self.fn];
@@ -105,7 +105,7 @@ static int refTable;
         return;
     }
     dispatch_async(dispatch_get_main_queue(), ^{
-        LuaSkin *skin = [LuaSkin shared];
+        LuaSkin *skin = [LuaSkin sharedWithState:NULL];
         _lua_stackguard_entry(skin.L);
 
         [skin pushLuaRef:refTable ref:self.fn];
@@ -141,7 +141,7 @@ static int refTable;
 ///   * ws://localhost:8000/mysock
 ///   * wss://localhost:8000/mysock (if SSL enabled)
 static int websocket_new(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TFUNCTION, LS_TBREAK];
 
     NSString *url = [skin toNSObjectAtIndex:1];
@@ -171,7 +171,7 @@ static int websocket_new(lua_State *L) {
 /// Returns:
 ///  * The `hs.websocket` object
 static int websocket_send(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, WS_USERDATA_TAG, LS_TSTRING, LS_TBREAK];
     HSWebSocketDelegate* ws = getWsUserData(L, 1);
 
@@ -197,7 +197,7 @@ static int websocket_send(lua_State *L) {
 ///   * closed
 ///   * unknown
 static int websocket_status(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, WS_USERDATA_TAG, LS_TBREAK];
     HSWebSocketDelegate* ws = getWsUserData(L, 1);
     if (ws.webSocket.readyState==0) {
@@ -228,7 +228,7 @@ static int websocket_status(lua_State *L) {
 /// Returns:
 ///  * The `hs.websocket` object
 static int websocket_close(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, WS_USERDATA_TAG, LS_TBREAK];
     HSWebSocketDelegate* ws = getWsUserData(L, 1);
 
@@ -246,7 +246,7 @@ static int websocket_gc(lua_State* L){
     [ws.webSocket close];
     ws.webSocket.delegate = nil;
     ws.webSocket = nil;
-    ws.fn = [[LuaSkin shared] luaUnref:refTable ref:ws.fn];
+    ws.fn = [[LuaSkin sharedWithState:L] luaUnref:refTable ref:ws.fn];
     ws = nil;
 
     return 0;
@@ -284,8 +284,8 @@ static const luaL_Reg wsMetalib[] = {
     {NULL, NULL} // This must end with an empty struct
 };
 
-int luaopen_hs_websocket_internal(lua_State* L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+int luaopen_hs_websocket_internal(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     refTable = [skin registerLibrary:websocketlib metaFunctions:metalib];
     [skin registerObject:WS_USERDATA_TAG objectFunctions:wsMetalib];
