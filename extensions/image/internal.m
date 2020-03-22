@@ -1619,7 +1619,7 @@ static int copyImage(lua_State *L) {
 /// Returns:
 ///  * A string containing the RGB data
 static int getLoupedeckArray(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
 
     NSImage *image = [skin luaObjectAtIndex:1 toClass:"NSImage"] ;
