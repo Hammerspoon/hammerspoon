@@ -13,7 +13,12 @@
  */
 
 
+#if __has_feature(modules)
+#if __has_warning("-Watimport-in-framework-header")
+#pragma clang diagnostic ignored "-Watimport-in-framework-header"
+#endif
 @import Foundation;
+#endif
 #import "lobject.h"
 #import "lapi.h"
 #import "lauxlib.h"
