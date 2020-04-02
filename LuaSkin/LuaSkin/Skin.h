@@ -13,7 +13,7 @@
  */
 
 
-@import Foundation;
+#import <Foundation/Foundation.h>
 #import "lobject.h"
 #import "lapi.h"
 #import "lauxlib.h"
