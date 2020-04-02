@@ -374,7 +374,7 @@ static int chooseFileOrFolder(lua_State *L) {
     // Default Path:
     NSString* path = [skin toNSObjectAtIndex:2];
     if(path != nil) {
-        NSURL *url = [[NSURL alloc] initWithString:path];
+        NSURL *url = [NSURL fileURLWithPath:path];
         [panel setDirectoryURL:url];
     }
 
