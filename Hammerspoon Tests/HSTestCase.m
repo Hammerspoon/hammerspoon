@@ -38,7 +38,7 @@
     NSLog(@"Calling setup code: %@", setupCode);
     [self runLua:setupCode];
 
-    [NSTimer scheduledTimerWithTimeInterval:0.5 repeats:YES block:^(NSTimer *timer) {
+    NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:0.5 repeats:YES block:^(NSTimer *timer) {
         NSLog(@"Calling check code: %@", checkCode);
         BOOL result = [self luaTest:checkCode];
         if (result) {
@@ -59,6 +59,7 @@
         } else {
             NSLog(@"%@ succeeded", setupCode);
         }
+        [timer invalidate];
     }];
 }
 
