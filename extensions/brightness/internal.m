@@ -68,7 +68,7 @@ static int brightness_set(lua_State* L) {
     kern_return_t result = IOServiceGetMatchingServices(kIOMasterPortDefault,
                                                         IOServiceMatching("IODisplayConnect"),
                                                         &iterator);
-
+    NSLog(@"ENV: %@", NSProcessInfo.processInfo.environment);
     if (result == kIOReturnSuccess)
     {
         io_object_t service;
