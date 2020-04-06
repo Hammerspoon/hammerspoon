@@ -12,9 +12,11 @@
 
 #define RUN_LUA_TEST() XCTAssertTrue([self luaTestFromSelector:_cmd], @"Test failed: %@", NSStringFromSelector(_cmd));
 #define SKIP_IN_TRAVIS() if(self.isTravis) { NSLog(@"Skipping %@ due to Travis", NSStringFromSelector(_cmd)) ; return; }
+#define SKIP_IN_XCODE_SERVER() if(self.isXcodeServer) { NSLog(@"Skipping %@ due to Xcode Server", NSStringFromSelector(_cmd)) ; return; }
 
 @interface HSTestCase : XCTestCase
 @property (nonatomic) BOOL isTravis;
+@property (nonatomic) BOOL isXcodeServer;
 
 /**
  Sets up the testing environment and loads a Lua file with require()
@@ -71,4 +73,12 @@
  @return A boolean, true if the test run is happening in Travis, false otherwise
  */
 - (BOOL)runningInTravis;
+
+/**
+ Determines if the test run is happening in an Xcode Server  build system, since we need to skip some tests in that environment
+
+ @return A boolean, true if the test run is happening in Xcode Server, false otherwise
+ */
+- (BOOL)runningInXcodeServer;
+
 @end

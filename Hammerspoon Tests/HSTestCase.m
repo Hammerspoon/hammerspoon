@@ -13,6 +13,7 @@
 - (void)setUpWithRequire:(NSString *)requireName {
     [super setUp];
     self.isTravis = [self runningInTravis];
+    self.isXcodeServer = [self runningInXcodeServer];
 
     NSString *result = [self runLua:[NSString stringWithFormat:@"require('%@')", requireName]];
     XCTAssertEqualObjects(@"true", result, @"Unable to load %@.lua", requireName);
@@ -69,6 +70,10 @@
 
 - (BOOL)runningInTravis {
     return (getenv("TRAVIS") != NULL);
+}
+
+- (BOOL)runningInXcodeServer {
+    return (getenv("XCS") == 1);
 }
 
 // Tests of the above methods
