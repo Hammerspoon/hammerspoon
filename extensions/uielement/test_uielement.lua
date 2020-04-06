@@ -18,7 +18,7 @@ end
 function testHammerspoonElements()
   local consoleElem = getConsole()
   local consoleElem2 = getConsole()
-  
+
   assertIsEqual(consoleElem, consoleElem2)
 
   assertFalse(consoleElem:isApplication())
