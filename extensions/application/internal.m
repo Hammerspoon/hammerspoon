@@ -431,6 +431,29 @@ static int application_isfrontmost(lua_State* L) {
     return 1;
 }
 
+/// hs.application:setFrontmost([allWindows]) -> boolean
+/// Method
+/// Sets the app to the frontmost (i.e. currently active) application
+///
+/// Parameters:
+///  * allWindows - An optional boolean, true to bring all windows of the application to the front. Defaults to false
+///
+/// Returns:
+///  * A boolean, true if the operation was successful, otherwise false
+static int application_setfrontmost(lua_State *L) {
+    BOOL allWindows = NO;
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
+    HSapplication *app = [skin toNSObjectAtIndex:1];
+
+    if (lua_type(L, 2) == LUA_TBOOLEAN) {
+        allWindows = lua_toboolean(L, 2);
+    }
+
+    lua_pushboolean(L, [app setFrontmost:allWindows]);
+    return 1;
+}
+
 /// hs.application:pid() -> number
 /// Method
 /// Returns the app's process identifier.
@@ -1130,6 +1153,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {"kill9", application_kill9},
     {"isHidden", application_ishidden},
     {"isFrontmost", application_isfrontmost},
+    {"setFrontmost", application_setfrontmost},
     {"pid", application_pid},
     {"isUnresponsive", application_isunresponsive},
     {"kind", application_kind},
