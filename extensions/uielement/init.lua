@@ -19,7 +19,7 @@ local watcherMT    = hs.getObjectMetatable("hs.uielement.watcher")
 ---
 --- Returns:
 ---  * A boolean, true if the UI element is an application
-function uielement:isApplication()
+function objectMT.isApplication(self)
     return self:role() == "AXApplication"
 end
 
