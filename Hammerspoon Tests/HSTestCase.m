@@ -73,7 +73,7 @@
 }
 
 - (BOOL)runningInXcodeServer {
-    return (getenv("XCS") == 1);
+    return (getenv("XCS") != NULL);
 }
 
 // Tests of the above methods
