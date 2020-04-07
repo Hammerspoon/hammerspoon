@@ -23,8 +23,8 @@ function testHammerspoonElements()
 
   local prefsElem = getPrefs()
   assertFalse(prefsElem:isApplication())
-  assertFalse(prefsElem:isWindow())
-  assertIsEqual("AXCheckBox", prefsElem:role())
+  assertTrue(prefsElem:isWindow())
+  assertIsEqual("AXWindow", prefsElem:role())
   assertIsEqual(nil, prefsElem:selectedText())
 
   local consoleElem2 = getConsole()
