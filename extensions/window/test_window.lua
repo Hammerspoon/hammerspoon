@@ -83,8 +83,8 @@ function testSize()
   local sizeNew = hs.geometry.size(sizeOrig.w + 1, sizeOrig.h + 1)
   win:setSize(sizeNew)
   sizeNew = win:size()
-  assertTrue(sizeNew.w == sizeOrig.w + 1)
-  assertTrue(sizeNew.h == sizeOrig.h + 1)
+  assertIsEqual(sizeNew.w, sizeOrig.w + 1)
+  assertIsEqual(sizeNew.h, sizeOrig.h + 1)
   return success()
 end
 
