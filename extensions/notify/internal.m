@@ -62,7 +62,7 @@ typedef struct _notification_t {
 // after reload.
 
 - (notification_t *)getOrCreateUserdata:(NSUserNotification *)notification {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     NSMutableDictionary *noteInfoDict = [notification.userInfo mutableCopy];
     BOOL rebuild = NO ;
 
@@ -139,7 +139,7 @@ typedef struct _notification_t {
         NSString *fnTag = [notification.userInfo valueForKey:@"tag"] ;
 
         if (fnTag) {
-            LuaSkin *skin = [LuaSkin shared];
+            LuaSkin *skin = [LuaSkin sharedWithState:NULL];
             _lua_stackguard_entry(skin.L);
 
         // maybe a little more overhead than just assuming its there and putting logic in init.lua to
@@ -266,8 +266,8 @@ static int notification_withdraw_allScheduled(lua_State* __unused L) {
 ///     end
 /// end)
 /// ~~~
-static int notification_deliveredNotifications(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int notification_deliveredNotifications(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TBREAK] ;
     [skin pushNSObject:[[NSUserNotificationCenter defaultUserNotificationCenter] deliveredNotifications]] ;
     return 1 ;
@@ -287,8 +287,8 @@ static int notification_deliveredNotifications(__unused lua_State *L) {
 ///  * Once a notification has been delivered, it is moved to [hs.notify.deliveredNotifications](#deliveredNotifications) or removed, depending upon the users action.
 ///
 ///  * You can use this function along with [hs.notify:getFunctionTag](#getFunctionTag) to re=register necessary callback functions with [hs.notify.register](#register) when Hammerspoon is restarted.
-static int notification_scheduledNotifications(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int notification_scheduledNotifications(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TBREAK] ;
     [skin pushNSObject:[[NSUserNotificationCenter defaultUserNotificationCenter] scheduledNotifications]] ;
     return 1 ;
@@ -299,7 +299,7 @@ static int notification_new(lua_State* L) {
 // hs.notify._new(fntag) -> notificationObject
 // Constructor
 // Returns a new notification object with the specified information and the assigned callback function.
-    LuaSkin *skin  = [LuaSkin shared];
+    LuaSkin *skin  = [LuaSkin sharedWithState:L];
     NSString *myID = [[NSProcessInfo processInfo] globallyUniqueString] ;
 
     NSMutableDictionary *noteInfoDict = [@{
@@ -558,7 +558,7 @@ static int notification_actionButtonTitle(lua_State* L) {
 /// Notes:
 ///  * The affects of this method only apply if the user has set Hammerspoon notifications to `Alert` in the Notification Center pane of System Preferences
 ///  * This value is ignored if [hs.notify:hasReplyButton](#hasReplyButton) is true.
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TNIL | LS_TOPTIONAL, LS_TBREAK] ;
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     if (lua_isnone(L, 2)) {
@@ -592,7 +592,7 @@ static int notification_otherButtonTitle(lua_State* L) {
 /// Notes:
 ///  * The affects of this method only apply if the user has set Hammerspoon notifications to `Alert` in the Notification Center pane of System Preferences
 ///  * Due to OSX limitations, it is NOT possible to get a callback for this button.
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TNIL | LS_TOPTIONAL, LS_TBREAK] ;
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     if (lua_isnone(L, 2)) {
@@ -684,7 +684,7 @@ static int notification_release(lua_State* L) {
 ///  * The proper way to release a notifications callback is to remove its tag from the [hs.notify.registry](#registry) with [hs.notify.unregister](#unregister).
 ///  * This is included for backwards compatibility.
 
-    [[LuaSkin shared] logInfo:@"hs.notify:release() is a no-op. If you want to remove a notification's callback, see hs.notify:getFunctionTag()."] ;
+    [[LuaSkin sharedWithState:L] logInfo:@"hs.notify:release() is a no-op. If you want to remove a notification's callback, see hs.notify:getFunctionTag()."] ;
     lua_settop(L, 1) ;
     return 1;
 }
@@ -778,17 +778,17 @@ static int notification_contentImage(lua_State *L) {
 // NOTE: THIS FUNCTION IS WRAPPED IN init.lua
     NSImage *contentImage;
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
-
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     if (lua_isnone(L, 2)) {
         if ([((__bridge NSUserNotification *) notification->note) respondsToSelector:@selector(contentImage)]) {
             contentImage = ((__bridge NSUserNotification *) notification->note).contentImage ;
-            [[LuaSkin shared] pushNSObject:contentImage];
+            [skin pushNSObject:contentImage];
         } else {
             lua_pushnil(L) ;
         }
     } else if (!notification->locked) {
         if ([((__bridge NSUserNotification *) notification->note) respondsToSelector:@selector(contentImage)]) {
-            contentImage = [[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSImage"] ;
+            contentImage = [skin luaObjectAtIndex:2 toClass:"NSImage"] ;
             if (!contentImage) {
                 return luaL_error(L, "invalid image specified");
             } else {
@@ -797,7 +797,7 @@ static int notification_contentImage(lua_State *L) {
                 lua_settop(L, 1) ;
             }
         } else {
-            [[LuaSkin shared] logInfo:@"hs.notify:contentImage() is only supported in OS X 10.9 and newer."] ;
+            [skin logInfo:@"hs.notify:contentImage() is only supported in OS X 10.9 and newer."] ;
             lua_settop(L, 1) ;
         }
     } else {
@@ -808,7 +808,7 @@ static int notification_contentImage(lua_State *L) {
 
 static int notification_setIdImage(lua_State *L) {
 // NOTE: THIS FUNCTION IS WRAPPED IN init.lua
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TUSERDATA, "hs.image", LS_TBOOLEAN, LS_TBREAK];
     notification_t *notificationUserdata = luaL_checkudata(L, 1, USERDATA_TAG);
     BOOL hasBorder = (BOOL)lua_toboolean(L, 3);
@@ -852,7 +852,7 @@ static int notification_setIdImage(lua_State *L) {
 ///  * [hs.notify:hasActionButton](#hasActionButton) must also be true or the "Reply" button will not be displayed.
 ///  * If this is set to true, the action button will be "Reply" even if you have set another one with [hs.notify:actionButtonTitle](#actionButtonTitle).
 static int notification_hasReplyButton(lua_State *L) {
-    [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
+    [[LuaSkin sharedWithState:L] checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     if (lua_isnone(L, 2)) {
         lua_pushboolean(L, ((__bridge NSUserNotification *) notification->note).hasReplyButton);
@@ -881,7 +881,7 @@ static int notification_hasReplyButton(lua_State *L) {
 ///  * [hs.notify:additionalActions](#additionalActions) must also be used for this method to have any effect.
 ///  * **WARNING:** This method uses a private API. It could break at any time. Please file an issue if it does.
 static int notification_alwaysShowAdditionalActions(lua_State *L) {
-    [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
+    [[LuaSkin sharedWithState:L] checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     if (lua_isnone(L, 2)) {
         lua_pushboolean(L, ((__bridge NSUserNotification *) notification->note)._alwaysShowAlternateActionMenu);
@@ -908,7 +908,7 @@ static int notification_alwaysShowAdditionalActions(lua_State *L) {
 ///  * While this setting applies to both Banner and Alert styles of notifications, it is functionally meaningless for Banner styles
 ///  * A value of 0 will disable auto-withdrawal
 static int notification_withdrawAfter(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK];
     notification_t *notification = luaL_checkudata(L, 1, USERDATA_TAG);
     if (lua_isnone(L, 2)) {
@@ -936,7 +936,7 @@ static int notification_withdrawAfter(lua_State *L) {
 ///  * In macOS 10.13, this text appears so light that it is almost unreadable; so far no workaround has been found.
 ///  * See also [hs.notify:hasReplyButton](#hasReplyButton)
 static int notification_responsePlaceholder(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TNIL | LS_TOPTIONAL, LS_TBREAK] ;
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     if (lua_isnone(L, 2)) {
@@ -970,7 +970,7 @@ static int notification_responsePlaceholder(lua_State *L) {
 ///  * [hs.notify:activationType](#activationType) will equal `hs.notify.activationTypes.replied` if the user clicked on the Reply button and then clicks on Send.
 ///  * See also [hs.notify:hasReplyButton](#hasReplyButton)
 static int notification_response(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     NSAttributedString *response = ((__bridge NSUserNotification *) notification->note).response ;
@@ -998,7 +998,7 @@ static int notification_response(lua_State *L) {
 ///  * If the user selects one of the additional actions, [hs.notify:activationType](#activationType) will equal `hs.notify.activationTypes.additionalActionClicked`
 ///  * See also [hs.notify:additionalActivationAction](#additionalActivationAction)
 static int notification_additionalActions(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE | LS_TOPTIONAL, LS_TBREAK] ;
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     if (lua_gettop(L) == 1) {
@@ -1049,7 +1049,7 @@ static int notification_additionalActions(lua_State *L) {
 ///  * If the user selects one of the additional actions, [hs.notify:activationType](#activationType) will equal `hs.notify.activationTypes.additionalActionClicked`
 ///  * See also [hs.notify:additionalActions](#additionalActions)
 static int notification_additionalActivationAction(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     NSUserNotificationAction *action = ((__bridge NSUserNotification *) notification->note).additionalActivationAction ;
@@ -1191,14 +1191,14 @@ static int notification_delegate_setup(lua_State* __unused L) {
 #ifdef DEBUGGING
 static int showMyDict(lua_State* L) {
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
-    [[LuaSkin shared] pushNSObject:((__bridge NSUserNotification *) notification->note).userInfo withOptions:LS_NSDescribeUnknownTypes] ;
+    [[LuaSkin sharedWithState:L] pushNSObject:((__bridge NSUserNotification *) notification->note).userInfo withOptions:LS_NSDescribeUnknownTypes] ;
     return 1 ;
 }
 #endif
 
-static int pushNSUserNotification(__unused lua_State *L, id obj) {
+static int pushNSUserNotification(lua_State *L, id obj) {
     NSUserNotification *value = obj;
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
 
     notification_t *notification = [[ourNotificationManager sharedManager] getOrCreateUserdata:value] ;
     [skin pushLuaRef:refTable ref:[[((__bridge NSUserNotification *) notification->note).userInfo valueForKey:@"userdata"] intValue]];
@@ -1314,7 +1314,7 @@ int luaopen_hs_notify_internal(lua_State* L) {
 
     notification_delegate_setup(L);
 
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibraryWithObject:USERDATA_TAG
                                      functions:moduleLib
                                  metaFunctions:module_metaLib

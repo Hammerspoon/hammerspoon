@@ -28,7 +28,7 @@ static AXUIElementRef system_wide_element() {
 /// Returns:
 ///  * `true` is succesful otherwise `false` if an error occured.
 static int window_timeout(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs: LS_TNUMBER, LS_TBREAK] ;
     NSNumber *value = [skin toNSObjectAtIndex:1] ;
     float fvalue = [value floatValue];
@@ -57,7 +57,7 @@ static int window_timeout(lua_State* L) {
 /// Returns:
 ///  * An `hs.window` object representing the currently focused window
 static int window_focusedwindow(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TBREAK];
     [skin pushNSObject:[HSwindow focusedWindow]];
     return 1;
@@ -73,7 +73,7 @@ static int window_focusedwindow(lua_State* L) {
 /// Returns:
 ///  * A string containing the title of the window
 static int window_title(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSwindow *win = [skin toNSObjectAtIndex:1];
     [skin pushNSObject:win.title];
@@ -93,7 +93,7 @@ static int window_title(lua_State* L) {
 /// Notes:
 ///  * This typically helps to determine if a window is a special kind of window - such as a modal window, or a floating window
 static int window_subrole(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSwindow *win = [skin toNSObjectAtIndex:1];
     [skin pushNSObject:win.subRole];
@@ -110,7 +110,7 @@ static int window_subrole(lua_State* L) {
 /// Returns:
 ///  * A string containing the role of the window
 static int window_role(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSwindow *win = [skin toNSObjectAtIndex:1];
     [skin pushNSObject:win.role];
@@ -130,7 +130,7 @@ static int window_role(lua_State* L) {
 /// Notes:
 ///  * "Standard window" means that this is not an unusual popup window, a modal dialog, a floating window, etc.
 static int window_isstandard(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSwindow *win = [skin toNSObjectAtIndex:1];
     lua_pushboolean(L, win.isStandard);
@@ -147,7 +147,7 @@ static int window_isstandard(lua_State* L) {
 /// Returns:
 ///  * A point-table containing the absolute co-ordinates of the top left corner of the window
 static int window__topleft(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSwindow *win = [skin toNSObjectAtIndex:1];
     [skin pushNSPoint:win.topLeft];
@@ -164,7 +164,7 @@ static int window__topleft(lua_State* L) {
 /// Returns:
 ///  * A size-table containing the width and height of the window
 static int window__size(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSwindow *win = [skin toNSObjectAtIndex:1];
     [skin pushNSSize:win.size];
@@ -181,7 +181,7 @@ static int window__size(lua_State* L) {
 /// Returns:
 ///  * The `hs.window` object
 static int window__settopleft(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBREAK];
     HSwindow *win = [skin toNSObjectAtIndex:1];
     win.topLeft = [skin tableToPointAtIndex:2];
@@ -202,7 +202,7 @@ static int window__settopleft(lua_State* L) {
 /// Returns:
 ///  * The `hs.window` object
 static int window__setsize(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBREAK];
     HSwindow *win = [skin toNSObjectAtIndex:1];
     win.size = [skin tableToSizeAtIndex:2];
@@ -220,7 +220,7 @@ static int window__setsize(lua_State* L) {
 /// Returns:
 ///  * The `hs.window` object
 static int window__togglezoom(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSwindow *win = [skin toNSObjectAtIndex:1];
     [win toggleZoom];
@@ -242,7 +242,7 @@ static int window__togglezoom(lua_State* L) {
 ///  * The co-ordinates in the rect-table (i.e. the `x` and `y` values) are in absolute co-ordinates, not relative to the window the button is part of, or the screen the window is on
 ///  * Although not perfect as such, this method can provide a useful way to find a region of the titlebar suitable for simulating mouse click events on, with `hs.eventtap`
 static int window_getZoomButtonRect(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSwindow *win = [skin toNSObjectAtIndex:1];
     [skin pushNSRect:win.zoomButtonRect];
@@ -259,7 +259,7 @@ static int window_getZoomButtonRect(lua_State* L) {
 /// Returns:
 ///  * True if the window is maximizable, False if it isn't, or nil if an error occurred
 static int window_isMaximizable(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSwindow *win = [skin toNSObjectAtIndex:1];
 
@@ -287,7 +287,7 @@ cleanup:
 /// Returns:
 ///  * True if the operation succeeded, false if not
 static int window__close(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSwindow *win = [skin toNSObjectAtIndex:1];
     lua_pushboolean(L, [win close]);
@@ -306,7 +306,7 @@ static int window__close(lua_State* L) {
 /// Returns:
 ///  * true if the tab was successfully pressed, or false if there was a problem
 static int window_focustab(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TINTEGER, LS_TBREAK];
     HSwindow *win = [skin toNSObjectAtIndex:1];
     int tabIndex = (int)lua_tointeger(L, 2);
@@ -326,7 +326,7 @@ static int window_focustab(lua_State* L) {
 /// Returns:
 ///  * A number containing the number of tabs, or nil if an error occurred
 static int window_tabcount(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSwindow *win = [skin toNSObjectAtIndex:1];
     lua_pushinteger(L, win.tabCount);
@@ -343,7 +343,7 @@ static int window_tabcount(lua_State* L) {
 /// Returns:
 ///  * The `hs.window` object
 static int window__setfullscreen(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN, LS_TBREAK];
     HSwindow *win = [skin toNSObjectAtIndex:1];
     win.fullscreen = lua_toboolean(L, 2);
@@ -361,7 +361,7 @@ static int window__setfullscreen(lua_State* L) {
 /// Returns:
 ///  * True if the window is fullscreen, false if not. Nil if an error occurred
 static int window_isfullscreen(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSwindow *win = [skin toNSObjectAtIndex:1];
     lua_pushboolean(L, win.fullscreen);
@@ -381,7 +381,7 @@ static int window_isfullscreen(lua_State* L) {
 /// Notes:
 ///  * This method will always animate per your system settings and is not affected by `hs.window.animationDuration`
 static int window__minimize(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSwindow *win = [skin toNSObjectAtIndex:1];
     win.minimized = YES;
@@ -399,7 +399,7 @@ static int window__minimize(lua_State* L) {
 /// Returns:
 ///  * The `hs.window` object
 static int window__unminimize(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSwindow *win = [skin toNSObjectAtIndex:1];
     win.minimized = NO;
@@ -417,7 +417,7 @@ static int window__unminimize(lua_State* L) {
 /// Returns:
 ///  * True if the window is minimized, otherwise false
 static int window_isminimized(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSwindow *win = [skin toNSObjectAtIndex:1];
     lua_pushboolean(L, win.minimized);
@@ -426,7 +426,7 @@ static int window_isminimized(lua_State* L) {
 
 // hs.window:pid()
 static int window_pid(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSwindow *win = [skin toNSObjectAtIndex:1];
     lua_pushinteger(L, win.pid);
@@ -443,7 +443,7 @@ static int window_pid(lua_State *L) {
 /// Returns:
 ///  * An `hs.application` object representing the application that owns the window, or nil if an error occurred
 static int window_application(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSwindow *win = [skin toNSObjectAtIndex:1];
     HSapplication *app = [[HSapplication alloc] initWithPid:win.pid];
@@ -464,7 +464,7 @@ static int window_application(lua_State* L) {
 /// Notes:
 ///  * Make a window become the main window does not transfer focus to the application. See `hs.window.focus()`
 static int window_becomemain(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSwindow *win = [skin toNSObjectAtIndex:1];
     [win becomeMain];
@@ -482,7 +482,7 @@ static int window_becomemain(lua_State* L) {
 /// Returns:
 ///  * The `hs.window` object
 static int window_raise(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSwindow *win = [skin toNSObjectAtIndex:1];
     [win raise];
@@ -491,7 +491,7 @@ static int window_raise(lua_State* L) {
 }
 
 static int window__orderedwinids(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TBREAK];
     [skin pushNSObject:[HSwindow orderedWindowIDs]];
     return 1;
@@ -507,7 +507,7 @@ static int window__orderedwinids(lua_State* L) {
 /// Returns:
 ///  * A number containing the unique identifier of the window, or nil if an error occurred
 static int window_id(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSwindow *win = [skin toNSObjectAtIndex:1];
     lua_pushinteger(L, win.winID);
@@ -555,7 +555,7 @@ static int window_setShadows(lua_State* L) {
 ///  * See also method `hs.window:snapshot()`
 ///  * Because the window ID cannot always be dynamically determined, this function will allow you to provide the ID of a window that was cached earlier.
 static int window_snapshotForID(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TNUMBER|LS_TSTRING, LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
     CGWindowID windowID = (CGWindowID)lua_tointeger(L, 1);
     [skin pushNSObject:[HSwindow snapshotForID:windowID keepTransparency:lua_toboolean(L, 2)]];
@@ -575,7 +575,7 @@ static int window_snapshotForID(lua_State* L) {
 /// Notes:
 ///  * See also function `hs.window.snapshotForID()`
 static int window_snapshot(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSwindow *win = [skin toNSObjectAtIndex:1];
     [skin pushNSObject:[win snapshot:lua_toboolean(L, 2)]];
@@ -597,7 +597,7 @@ static int pushHSwindow(lua_State *L, id obj) {
 }
 
 static id toHSwindowFromLua(lua_State *L, int idx) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     HSwindow *value;
     if (luaL_testudata(L, idx, USERDATA_TAG)) {
         value = get_objectFromUserdata(__bridge HSwindow, L, idx, USERDATA_TAG);
@@ -611,7 +611,7 @@ static id toHSwindowFromLua(lua_State *L, int idx) {
 #pragma mark - Hammerspoon/Lua Infrastructure
 
 static int userdata_tostring(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSwindow *win = [skin toNSObjectAtIndex:1];
     lua_pushstring(L, [NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, win.title, lua_topointer(L, 1)].UTF8String);
@@ -621,7 +621,7 @@ static int userdata_tostring(lua_State* L) {
 static int userdata_eq(lua_State *L) {
     BOOL isEqual = NO;
     if (luaL_testudata(L, 1, USERDATA_TAG) && luaL_testudata(L, 2, USERDATA_TAG)) {
-        LuaSkin *skin = [LuaSkin shared];
+        LuaSkin *skin = [LuaSkin sharedWithState:L];
         HSwindow *win1 = [skin toNSObjectAtIndex:1];
         HSwindow *win2 = [skin toNSObjectAtIndex:2];
         isEqual = CFEqual(win1.elementRef, win2.elementRef);
@@ -631,7 +631,7 @@ static int userdata_eq(lua_State *L) {
 }
 
 static int userdata_gc(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSwindow *win = get_objectFromUserdata(__bridge_transfer HSwindow, L, 1, USERDATA_TAG);
     if (win) {
@@ -698,7 +698,7 @@ static const luaL_Reg userdata_metaLib[] = {
 };
 
 int luaopen_hs_window_internal(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibrary:moduleLib metaFunctions:module_metaLib];
     [skin registerObject:USERDATA_TAG objectFunctions:userdata_metaLib];
 

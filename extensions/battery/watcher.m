@@ -24,13 +24,15 @@ typedef struct _battery_watcher_t {
 } battery_watcher_t;
 
 static void callback(void *info) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     _lua_stackguard_entry(skin.L);
 
     battery_watcher_t* t = info;
 
-    [skin pushLuaRef:refTable ref:t->fn];
-    [skin protectedCallAndError:@"hs.battery.watcher callback" nargs:0 nresults:0];
+    if (t->fn != LUA_NOREF) {
+        [skin pushLuaRef:refTable ref:t->fn];
+        [skin protectedCallAndError:@"hs.battery.watcher callback" nargs:0 nresults:0];
+    }
     _lua_stackguard_exit(skin.L);
 }
 
@@ -47,7 +49,7 @@ static void callback(void *info) {
 /// Notes:
 ///  * Because the callback function accepts no arguments, tracking of state of changing battery attributes is the responsibility of the user (see https://github.com/Hammerspoon/hammerspoon/issues/166 for discussion)
 static int battery_watcher_new(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     luaL_checktype(L, 1, LUA_TFUNCTION);
 
@@ -107,7 +109,7 @@ static int battery_watcher_stop(lua_State* L) {
 }
 
 static int battery_watcher_gc(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     battery_watcher_t* watcher = luaL_checkudata(L, 1, USERDATA_TAG);
 
@@ -149,8 +151,8 @@ static const luaL_Reg meta_gcLib[] = {
     {NULL,      NULL}
 };
 
-int luaopen_hs_battery_watcher(lua_State* L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+int luaopen_hs_battery_watcher(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:batteryLib metaFunctions:meta_gcLib objectFunctions:battery_metalib];
 
     return 1;

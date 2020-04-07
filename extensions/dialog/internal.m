@@ -36,15 +36,17 @@ static int refTable = LUA_NOREF ;
 - (void)colorClose:(__unused NSNotification*)note {
     if (_callbackRef != LUA_NOREF) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            LuaSkin   *skin = [LuaSkin shared] ;
-            _lua_stackguard_entry(skin.L);
-            lua_State *L    = [skin L] ;
-            NSColorPanel *cp = [NSColorPanel sharedColorPanel];
-            [skin pushLuaRef:refTable ref:self->_callbackRef] ;
-            [skin pushNSObject:cp.color] ;
-            lua_pushboolean(L, YES) ;
-            [skin protectedCallAndError:@"hs.dialog color close callback" nargs:2 nresults:0];
-            _lua_stackguard_exit(skin.L);
+            if (self->_callbackRef != LUA_NOREF) {
+                LuaSkin   *skin = [LuaSkin sharedWithState:NULL] ;
+                _lua_stackguard_entry(skin.L);
+                lua_State *L    = [skin L] ;
+                NSColorPanel *cp = [NSColorPanel sharedColorPanel];
+                [skin pushLuaRef:refTable ref:self->_callbackRef] ;
+                [skin pushNSObject:cp.color] ;
+                lua_pushboolean(L, YES) ;
+                [skin protectedCallAndError:@"hs.dialog color close callback" nargs:2 nresults:0];
+                _lua_stackguard_exit(skin.L);
+            }
         }) ;
     }
 }
@@ -53,14 +55,16 @@ static int refTable = LUA_NOREF ;
 - (void)colorCallback:(NSColorPanel*)colorPanel {
     if (_callbackRef != LUA_NOREF) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            LuaSkin   *skin = [LuaSkin shared] ;
-            _lua_stackguard_entry(skin.L);
-            lua_State *L    = [skin L] ;
-            [skin pushLuaRef:refTable ref:self->_callbackRef] ;
-            [skin pushNSObject:colorPanel.color] ;
-            lua_pushboolean(L, NO) ;
-            [skin protectedCallAndError:@"hs.dialog color callback" nargs:2 nresults:0];
-            _lua_stackguard_exit(skin.L);
+            if (self->_callbackRef != LUA_NOREF) {
+                LuaSkin   *skin = [LuaSkin sharedWithState:NULL] ;
+                _lua_stackguard_entry(skin.L);
+                lua_State *L    = [skin L] ;
+                [skin pushLuaRef:refTable ref:self->_callbackRef] ;
+                [skin pushNSObject:colorPanel.color] ;
+                lua_pushboolean(L, NO) ;
+                [skin protectedCallAndError:@"hs.dialog color callback" nargs:2 nresults:0];
+                _lua_stackguard_exit(skin.L);
+            }
         }) ;
     }
 }
@@ -86,7 +90,7 @@ static HSColorPanel *cpReceiverObject ;
 ///  * Example:
 ///      `hs.dialog.color.callback(function(a,b) print("COLOR CALLBACK:\nSelected Color: " .. hs.inspect(a) .. "\nPanel Closed: " .. hs.inspect(b)) end)`
 static int colorPanelCallback(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TFUNCTION | LS_TNIL | LS_TOPTIONAL, LS_TBREAK] ;
 
     if (cpReceiverObject.callbackRef != LUA_NOREF) {
@@ -121,7 +125,7 @@ static int colorPanelCallback(lua_State *L) {
 ///  * Example:
 ///      `hs.dialog.color.continuous(true)`
 static int colorPanelContinuous(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     NSColorPanel *cp = [NSColorPanel sharedColorPanel];
     if (lua_gettop(L) == 1) {
@@ -145,7 +149,7 @@ static int colorPanelContinuous(lua_State *L) {
 ///  * Example:
 ///      `hs.dialog.color.showsAlpha(true)`
 static int colorPanelShowsAlpha(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     NSColorPanel *cp = [NSColorPanel sharedColorPanel];
     if (lua_gettop(L) == 1) {
@@ -169,11 +173,11 @@ static int colorPanelShowsAlpha(lua_State *L) {
 ///  * Example:
 ///      `hs.dialog.color.color(hs.drawing.color.blue)`
 static int colorPanelColor(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TTABLE | LS_TOPTIONAL, LS_TBREAK] ;
     NSColorPanel *cp = [NSColorPanel sharedColorPanel];
     if (lua_gettop(L) == 1) {
-        NSColor *theColor = [[LuaSkin shared] luaObjectAtIndex:1 toClass:"NSColor"] ;
+        NSColor *theColor = [skin luaObjectAtIndex:1 toClass:"NSColor"] ;
         [cp setColor:theColor] ;
     }
     [skin pushNSObject:[cp color]] ;
@@ -203,7 +207,7 @@ static int colorPanelColor(lua_State *L) {
 ///  * Example:
 ///      `hs.dialog.color.mode("RGB")`
 static int colorPanelMode(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
     NSColorPanel *cp = [NSColorPanel sharedColorPanel];
     if (lua_gettop(L) == 1) {
@@ -262,7 +266,7 @@ static int colorPanelMode(lua_State *L) {
 ///  * Example:
 ///      `hs.dialog.color.alpha(0.5)`
 static int colorPanelAlpha(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK] ;
 
     NSColorPanel *cp = [NSColorPanel sharedColorPanel];
@@ -289,8 +293,8 @@ static int colorPanelAlpha(lua_State *L) {
 /// Notes:
 ///  * Example:
 ///      `hs.dialog.color.show()`
-static int colorPanelShow(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int colorPanelShow(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TBREAK] ;
     [NSApp orderFrontColorPanel:nil] ;
     return 0 ;
@@ -309,8 +313,8 @@ static int colorPanelShow(__unused lua_State *L) {
 /// Notes:
 ///  * Example:
 ///      `hs.dialog.color.hide()`
-static int colorPanelHide(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int colorPanelHide(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TBREAK] ;
     [[NSColorPanel sharedColorPanel] close] ;
     return 0 ;
@@ -341,7 +345,7 @@ static int colorPanelHide(__unused lua_State *L) {
 static int chooseFileOrFolder(lua_State *L) {
 
     // Check the Parameters:
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     //              [message],                 [defaultPath],             [canChooseFiles],           [canChooseDirectories],     [allowsMultipleSelection],  [allowedFileTypes],       [resolvesAliases]
     [skin checkArgs:LS_TOPTIONAL | LS_TSTRING, LS_TOPTIONAL | LS_TSTRING, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBOOLEAN | LS_TOPTIONAL, LS_TTABLE | LS_TOPTIONAL, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
 
@@ -462,7 +466,7 @@ static int webviewAlert(lua_State *L) {
     NSString* defaultButton = @"OK";
     const NSAlertStyle defaultAlertStyle = NSAlertStyleInformational;
 
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     //                            webview,      callbackFn,   message,    [informativeText],         [buttonOne],               [buttonTwo],                         [style]
     [skin checkArgs:LS_TUSERDATA, "hs.webview", LS_TFUNCTION, LS_TSTRING, LS_TSTRING | LS_TOPTIONAL, LS_TSTRING | LS_TOPTIONAL, LS_TSTRING | LS_TNIL | LS_TOPTIONAL, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
 
@@ -577,7 +581,7 @@ static int blockAlert(lua_State *L) {
 
 	NSString* defaultButton = @"OK";
 
- 	LuaSkin *skin = [LuaSkin shared];
+ 	LuaSkin *skin = [LuaSkin sharedWithState:L];
     //              message,    informativeText,
     //                                      [buttonOne],               [buttonTwo],               [style]
     [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TSTRING | LS_TOPTIONAL, LS_TSTRING | LS_TOPTIONAL, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
@@ -682,7 +686,7 @@ static int blockAlert(lua_State *L) {
 static int textPrompt(lua_State *L) {
     NSString* defaultButton = @"OK";
 
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     //              message,    informativeText,
     //                                      [defaultText],             [buttonOne],               [buttonTwo]
     [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TSTRING | LS_TOPTIONAL, LS_TSTRING | LS_TOPTIONAL, LS_TSTRING | LS_TOPTIONAL, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
@@ -775,8 +779,8 @@ static int textPrompt(lua_State *L) {
 
 #pragma mark - Hammerspoon/Lua Infrastructure
 
-static int releaseReceivers(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int releaseReceivers(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSColorPanel *cp = [NSColorPanel sharedColorPanel];
     [[NSNotificationCenter defaultCenter] removeObserver:cpReceiverObject
                                                     name:NSWindowWillCloseNotification
@@ -817,7 +821,7 @@ static luaL_Reg module_metaLib[] = {
 };
 
 int luaopen_hs_dialog_internal(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 	refTable = [skin registerLibrary:moduleLib metaFunctions:module_metaLib] ;
 
     luaL_newlib(L, colorPanelLib) ; lua_setfield(L, -2, "color") ;

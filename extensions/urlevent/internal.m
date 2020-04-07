@@ -19,7 +19,7 @@ NSArray *defaultContentTypes = nil;
 - (void)handleStartupEvents;
 - (void)handleAppleEvent:(NSAppleEventDescriptor *)event withReplyEvent: (NSAppleEventDescriptor *)replyEvent;
 - (void)callbackWithURL:(NSString *)openUrl;
-- (void)gc;
+- (void)gcWithState:(lua_State *)L;
 @end
 
 static HSURLEventHandler *eventHandler;
@@ -43,8 +43,8 @@ static HSURLEventHandler *eventHandler;
     return self;
 }
 
-- (void)gc {
-    LuaSkin *skin = [LuaSkin shared];
+- (void)gcWithState:(lua_State *)L {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     [self.appleEventManager removeEventHandlerForEventClass:kInternetEventClass
                                                  andEventID:kAEGetURL];
@@ -93,7 +93,7 @@ static HSURLEventHandler *eventHandler;
 }
 
 - (void)callbackWithURL:(NSString *)openUrl {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     _lua_stackguard_entry(skin.L);
 
     if (self.fnCallback == LUA_NOREF || self.fnCallback == LUA_REFNIL) {
@@ -145,7 +145,7 @@ static HSURLEventHandler *eventHandler;
 
 // Rather than manage complex callback state from C, we just have one path into Lua for all events, and events are directed to their callbacks from there
 static int urleventSetCallback(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     luaL_checktype(L, 1, LUA_TFUNCTION);
     lua_pushvalue(L, 1);
@@ -168,7 +168,7 @@ static int urleventSetCallback(lua_State *L) {
 /// Notes:
 ///  * You don't have to call this function if you want Hammerspoon to permanently be your default handler. Only use this if you want the handler to be automatically reverted to something else when Hammerspoon exits/reloads.
 static int urleventsetRestoreHandler(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TBREAK];
 
     [eventHandler.restoreHandlers setObject:[skin toNSObjectAtIndex:2] forKey:[skin toNSObjectAtIndex:1]];
@@ -191,7 +191,7 @@ static int urleventsetRestoreHandler(lua_State *L) {
 /// Notes:
 ///  * Changing the default handler for http/https URLs will display a system prompt asking the user to confirm the change
 static int urleventsetDefaultHandler(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TSTRING|LS_TOPTIONAL, LS_TBREAK];
 
     OSStatus status;
@@ -235,7 +235,7 @@ static int urleventsetDefaultHandler(lua_State *L) {
 /// Returns:
 ///  * A string containing the bundle identifier of the current default application
 static int urleventgetDefaultHandler(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TBREAK];
 
     NSString *scheme = [NSString stringWithUTF8String:lua_tostring(L, 1)];
@@ -260,7 +260,7 @@ static int urleventgetDefaultHandler(lua_State *L) {
 /// Returns:
 ///  * A table containing the bundle identifiers of all applications that can handle the scheme
 static int urleventgetAllHandlersForScheme(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TBREAK];
 
     NSString *scheme = [NSString stringWithUTF8String:lua_tostring(L, 1)];
@@ -292,7 +292,7 @@ static int urleventgetAllHandlersForScheme(lua_State *L) {
 /// Returns:
 ///  * True if the application was launched successfully, otherwise false
 static int urleventopenURLWithBundle(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TBREAK];
 
     BOOL result = false;
@@ -324,8 +324,8 @@ static int urlevent_setup() {
 
 // ----------------------- Lua/hs glue GAR ---------------------
 
-static int urlevent_gc(lua_State* __unused L) {
-    [eventHandler gc];
+static int urlevent_gc(lua_State* L) {
+    [eventHandler gcWithState:L];
     eventHandler = nil;
 
     return 0;
@@ -351,8 +351,8 @@ static const luaL_Reg urlevent_gclib[] = {
 /* NOTE: The substring "hs_urlevent_internal" in the following function's name
          must match the require-path of this file, i.e. "hs.urlevent.internal". */
 
-int luaopen_hs_urlevent_internal(lua_State *L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+int luaopen_hs_urlevent_internal(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     urlevent_setup();
 

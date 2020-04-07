@@ -19,7 +19,7 @@ static int refTable = LUA_NOREF;
 /// Returns:
 ///  * An `hs.uielement` object or nil if no object could be found
 static int uielement_focusedElement(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TBREAK];
     HSuielement *element = [HSuielement focusedElement];
     [skin pushNSObject:element];
@@ -36,7 +36,7 @@ static int uielement_focusedElement(lua_State* L) {
 /// Returns:
 ///  * A boolean, true if the UI element is a window, otherwise false
 static int uielement_iswindow(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSuielement *element = [skin toNSObjectAtIndex:1];
     lua_pushboolean(L, element.isWindow);
@@ -53,7 +53,7 @@ static int uielement_iswindow(lua_State* L) {
 /// Returns:
 ///  * A string containing the role of the UI element
 static int uielement_role(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSuielement *element = [skin toNSObjectAtIndex:1];
     [skin pushNSObject:element.role];
@@ -73,7 +73,7 @@ static int uielement_role(lua_State* L) {
 /// Notes:
 ///  * Many applications (e.g. Safari, Mail, Firefox) do not implement the necessary accessibility features for this to work in their web views
 static int uielement_selectedText(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSuielement *element = [skin toNSObjectAtIndex:1];
     [skin pushNSObject:element.selectedText];
@@ -95,7 +95,7 @@ static int pushHSuielement(lua_State *L, id obj) {
 }
 
 static id toHSuielementFromLua(lua_State *L, int idx) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     HSuielement *value;
     if (luaL_testudata(L, idx, USERDATA_TAG)) {
         value = get_objectFromUserdata(__bridge HSuielement, L, idx, USERDATA_TAG);
@@ -111,7 +111,7 @@ static id toHSuielementFromLua(lua_State *L, int idx) {
 static int uielement_eq(lua_State* L) {
     BOOL isEqual = NO;
     if (luaL_testudata(L, 1, USERDATA_TAG) && luaL_testudata(L, 2, USERDATA_TAG)) {
-        LuaSkin *skin = [LuaSkin shared];
+        LuaSkin *skin = [LuaSkin sharedWithState:L];
         HSuielement *element1 = [skin toNSObjectAtIndex:1];
         HSuielement *element2 = [skin toNSObjectAtIndex:2];
         isEqual = CFEqual(element1.elementRef, element2.elementRef);
@@ -122,7 +122,7 @@ static int uielement_eq(lua_State* L) {
 
 // Clean up a bare uielement if it isn't needed anymore.
 static int uielement_gc(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSuielement *element = get_objectFromUserdata(__bridge_transfer HSuielement, L, 1, USERDATA_TAG);
     if (element) {
@@ -159,7 +159,7 @@ static const luaL_Reg userdata_metaLib[] = {
 };
 
 int luaopen_hs_uielement_internal(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibrary:moduleLib metaFunctions:module_metaLib];
     [skin registerObject:USERDATA_TAG objectFunctions:userdata_metaLib];
     [skin registerPushNSHelper:pushHSuielement         forClass:"HSuielement"];

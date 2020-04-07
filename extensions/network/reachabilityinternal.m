@@ -37,9 +37,9 @@ static int pushSCNetworkReachability(lua_State *L, SCNetworkReachabilityRef theR
 
 static void doReachabilityCallback(__unused SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void *info) {
     reachability_t *theRef = (reachability_t *)info ;
-    if (theRef->callbackRef != LUA_NOREF) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            LuaSkin   *skin = [LuaSkin shared] ;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ((theRef->callbackRef != LUA_NOREF) && (theRef->selfRef != LUA_NOREF)) {
+            LuaSkin   *skin = [LuaSkin sharedWithState:NULL] ;
             lua_State *L    = [skin L] ;
             _lua_stackguard_entry(L);
             [skin pushLuaRef:refTable ref:theRef->callbackRef] ;
@@ -47,8 +47,8 @@ static void doReachabilityCallback(__unused SCNetworkReachabilityRef target, SCN
             lua_pushinteger(L, (lua_Integer)flags) ;
             [skin protectedCallAndError:@"hs.network.reachability" nargs:2 nresults:0];
             _lua_stackguard_exit(L);
-        }) ;
-    }
+        }
+    }) ;
 }
 
 static NSString *statusString(SCNetworkReachabilityFlags flags) {
@@ -78,7 +78,7 @@ static NSString *statusString(SCNetworkReachabilityFlags flags) {
 /// Notes:
 ///  * this object will reflect reachability status for any interface available on the computer.  To check for reachability from a specific interface, use [hs.network.reachability.forAddressPair](#addressPair).
 static int reachabilityForAddress(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING | LS_TNUMBER, LS_TBREAK] ;
 
     luaL_checkstring(L, 1) ; // force number to be a string
@@ -111,7 +111,7 @@ static int reachabilityForAddress(lua_State *L) {
 ///  * this object will reflect reachability status for a specific interface on the computer.  To check for reachability from any interface, use [hs.network.reachability.forAddress](#address).
 ///  * this constructor can be used to test for a specific local network.
 static int reachabilityForAddressPair(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING | LS_TNUMBER, LS_TSTRING | LS_TNUMBER, LS_TBREAK] ;
 
     luaL_checkstring(L, 1) ; // force number to be a string
@@ -155,7 +155,7 @@ static int reachabilityForAddressPair(lua_State *L) {
 ///  * this object will reflect reachability status for any interface available on the computer.
 ///  * this constructor relies on the hostname being resolvable, possibly through DNS, Bonjour, locally defined, etc.
 static int reachabilityForHostName(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
 
     const char *internalName = [[skin toNSObjectAtIndex:1] UTF8String] ;
@@ -180,7 +180,7 @@ static int reachabilityForHostName(lua_State *L) {
 /// Notes:
 ///  * The numeric representation is made up from a combination of the flags defined in [hs.network.reachability.flags](#flags).
 static int reachabilityStatus(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     SCNetworkReachabilityRef theRef = get_structFromUserdata(reachability_t, L, 1)->reachabilityObj ;
     SCNetworkReachabilityFlags flags ; // = 0 ;
@@ -215,7 +215,7 @@ static int reachabilityStatus(lua_State *L) {
 ///    * 'l'|'-' indicates if the destination is actually a local address
 ///    * 'd'|'-' indicates if the destination is directly connected
 static int reachabilityStatusString(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     SCNetworkReachabilityRef theRef = get_structFromUserdata(reachability_t, L, 1)->reachabilityObj ;
     SCNetworkReachabilityFlags flags ; // = 0 ;
@@ -242,7 +242,7 @@ static int reachabilityStatusString(lua_State *L) {
 ///  * The callback function will be invoked each time the status for the given reachability object changes.  The callback function should expect 2 arguments, the reachability object itself and a numeric representation of the reachability flags, and should not return anything.
 ///  * This method just sets the callback function.  You can start or stop the watcher with [hs.network.reachability:start](#start) or [hs.network.reachability:stop](#stop)
 static int reachabilityCallback(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION | LS_TNIL, LS_TBREAK];
     reachability_t* theRef = get_structFromUserdata(reachability_t, L, 1) ;
 
@@ -276,7 +276,7 @@ static int reachabilityCallback(lua_State *L) {
 /// Notes:
 ///  * The callback function should be specified with [hs.network.reachability:setCallback](#setCallback).
 static int reachabilityStartWatcher(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     reachability_t* theRef = get_structFromUserdata(reachability_t, L, 1) ;
     if (!theRef->watcherEnabled) {
@@ -307,7 +307,7 @@ static int reachabilityStartWatcher(lua_State *L) {
 /// Returns:
 ///  * the reachability object
 static int reachabilityStopWatcher(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     reachability_t* theRef = get_structFromUserdata(reachability_t, L, 1) ;
     SCNetworkReachabilitySetCallback(theRef->reachabilityObj, NULL, NULL);
@@ -347,7 +347,7 @@ static int pushReachabilityFlags(lua_State *L) {
 #pragma mark - Hammerspoon/Lua Infrastructure
 
 static int userdata_tostring(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     SCNetworkReachabilityRef theRef = get_structFromUserdata(reachability_t, L, 1)->reachabilityObj ;
     SCNetworkReachabilityFlags flags ; // = 0 ;
     Boolean valid = SCNetworkReachabilityGetFlags(theRef, &flags);
@@ -371,7 +371,7 @@ static int userdata_eq(lua_State* L) {
 }
 
 static int userdata_gc(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
 //     [skin logVerbose:@"Reachability GC"] ;
     reachability_t* theRef = get_structFromUserdata(reachability_t, L, 1) ;
     if (theRef->callbackRef != LUA_NOREF) {
@@ -421,7 +421,7 @@ static const luaL_Reg module_metaLib[] = {
 };
 
 int luaopen_hs_network_reachabilityinternal(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     refTable = [skin registerLibraryWithObject:USERDATA_TAG
                                      functions:moduleLib
                                  metaFunctions:module_metaLib

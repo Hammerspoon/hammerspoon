@@ -124,7 +124,7 @@ static int hostLocalizedName(lua_State* L) {
 ///  * Except for the addition of cacheHits, cacheLookups, pageSize and memSize, the results for this function should be identical to the OS X command `vm_stat`.
 ///  * Adapted primarily from the source code to Apple's vm_stat command located at http://www.opensource.apple.com/source/system_cmds/system_cmds-643.1.1/vm_stat.tproj/vm_stat.c
 static int hs_vmstat(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     int mib[6];
     mib[0] = CTL_HW; mib[1] = HW_PAGESIZE;
 
@@ -216,7 +216,7 @@ static int hs_vmstat(lua_State *L) {
 ///
 ///  * Adapted primarily from code found at http://stackoverflow.com/questions/6785069/get-cpu-percent-usage
 static int hs_cpuUsageTicks(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TBREAK] ;
 
     unsigned numCPUs;
@@ -307,7 +307,7 @@ static int hs_operatingSystemVersionString(lua_State *L) {
 /// Returns:
 ///  * The system's thermal state as a human readable string
 static int hs_thermalStateString(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TBREAK];
 
     NSProcessInfoThermalState state = [NSProcessInfo processInfo].thermalState;
@@ -598,7 +598,7 @@ static int hs_idleTime(lua_State *L) {
 /// * Not all keys will be present for all volumes
 /// * The meanings of NSURLVolumeIsEjectableKey and NSURLVolumeIsRemovableKey are not generally what they sound like. If you want a simple test as to whether or not a volume is a removable drive (e.g. a USB hard disk), check for NSURLVolumeIsInternalKey being false (this is what Finder does)
 static int hs_volumeInformation(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
 
     NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -727,8 +727,8 @@ static const luaL_Reg hostlib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_host_internal(lua_State* L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+int luaopen_hs_host_internal(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     [skin registerLibrary:hostlib metaFunctions:nil];
 

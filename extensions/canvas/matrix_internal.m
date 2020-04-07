@@ -30,8 +30,8 @@ static int refTable = LUA_NOREF;
 /// [ 0,  1,  0 ]
 /// [ 0,  0,  1 ]
 /// ~~~
-static int matrix_identity(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int matrix_identity(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TTABLE | LS_TOPTIONAL,
                     LS_TBREAK] ;
     [skin pushNSObject:[NSAffineTransform transform]] ;
@@ -53,8 +53,8 @@ static int matrix_identity(__unused lua_State *L) {
 /// Notes:
 ///  * Inverting a matrix which represents a series of transformations has the effect of reversing or undoing the original transformations.
 ///  * This is useful when used with [hs.canvas.matrix.append](#append) to undo a previously applied transformation without actually replacing all of the transformations which may have been applied to a canvas element.
-static int matrix_invert(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int matrix_invert(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TTABLE,
                     LS_TBREAK] ;
     NSAffineTransform *transform = [skin luaObjectAtIndex:1 toClass:"NSAffineTransform"] ;
@@ -76,8 +76,8 @@ static int matrix_invert(__unused lua_State *L) {
 /// Notes:
 ///  * Mathematically this method multiples the original matrix by the new one and returns the result of the multiplication.
 ///  * You can use this method to "stack" additional transformations on top of existing transformations, without having to know what the existing transformations in effect for the canvas element are.
-static int matrix_append(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int matrix_append(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TTABLE,
                     LS_TTABLE,
                     LS_TBREAK] ;
@@ -101,8 +101,8 @@ static int matrix_append(__unused lua_State *L) {
 /// Notes:
 ///  * Mathematically this method multiples the new matrix by the original one and returns the result of the multiplication.
 ///  * You can use this method to apply a transformation *before* the currently applied transformations, without having to know what the existing transformations in effect for the canvas element are.
-static int matrix_prepend(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int matrix_prepend(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TTABLE,
                     LS_TTABLE,
                     LS_TBREAK] ;
@@ -127,7 +127,7 @@ static int matrix_prepend(__unused lua_State *L) {
 ///  * The rotation of an element this matrix is applied to will be rotated about the origin (zero point).  To rotate an object about another point (its center for example), prepend a translation to the point to rotate about, and append a translation reversing the initial translation.
 ///    * e.g. `hs.canvas.matrix.translate(x, y):rotate(angle):translate(-x, -y)`
 static int matrix_rotate(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSAffineTransform *transform = [NSAffineTransform transform] ;
     int argsAt = 2 ;
     if (lua_type(L, 1) == LUA_TNUMBER) {
@@ -156,7 +156,7 @@ static int matrix_rotate(lua_State *L) {
 /// Returns:
 ///  * the new matrix
 static int matrix_scale(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSAffineTransform *transform = [NSAffineTransform transform] ;
     int argsAt = 2 ;
     if (lua_type(L, 1) == LUA_TNUMBER) {
@@ -189,7 +189,7 @@ static int matrix_scale(lua_State *L) {
 /// Returns:
 ///  * the new matrix
 static int matrix_shear(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSAffineTransform *transform = [NSAffineTransform transform] ;
     int argsAt = 2 ;
     if (lua_type(L, 1) == LUA_TNUMBER) {
@@ -228,7 +228,7 @@ static int matrix_shear(lua_State *L) {
 /// Returns:
 ///  * the new matrix
 static int matrix_translate(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSAffineTransform *transform = [NSAffineTransform transform] ;
     int argsAt = 2 ;
     if (lua_type(L, 1) == LUA_TNUMBER) {
@@ -255,7 +255,7 @@ static int matrix_translate(lua_State *L) {
 #pragma mark - Lua<->NSObject Conversion Functions
 
 static int pushNSAffineTransform(lua_State *L, id obj) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     if ([obj isKindOfClass:[NSAffineTransform class]]) {
         NSAffineTransformStruct structure = [(NSAffineTransform *)obj transformStruct] ;
         lua_newtable(L) ;
@@ -278,7 +278,7 @@ static int pushNSAffineTransform(lua_State *L, id obj) {
 }
 
 static id toNSAffineTransformFromLua(lua_State *L, int idx) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSAffineTransform  *value = [NSAffineTransform transform] ;
     NSAffineTransformStruct structure = [value transformStruct] ;
     if (lua_type(L, idx) == LUA_TTABLE) {
@@ -350,8 +350,8 @@ static luaL_Reg moduleLib[] = {
 //     {NULL,   NULL}
 // };
 
-int luaopen_hs_canvas_matrix_internal(lua_State* __unused L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+int luaopen_hs_canvas_matrix_internal(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     refTable = [skin registerLibrary:moduleLib metaFunctions:nil] ; // or module_metaLib
 
     [skin registerPushNSHelper:pushNSAffineTransform         forClass:"NSAffineTransform"];
