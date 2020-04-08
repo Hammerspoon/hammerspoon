@@ -34,8 +34,9 @@
 -(void)setHidden:(BOOL)shouldHide;
 -(BOOL)isHidden;
 
-// Initialiser
+// Initialisers
 -(HSapplication *)initWithPid:(pid_t)pid;
+-(HSapplication *)initWithNSRunningApplication:(NSRunningApplication *)app;
 
 // Destructor
 -(void)dealloc;
