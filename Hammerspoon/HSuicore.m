@@ -22,7 +22,7 @@
 }
 
 +(HSapplication *)applicationForNSRunningApplication:(NSRunningApplication *)app {
-    return [HSapplication applicationForPID:app.processIdentifier];
+    return [[HSapplication alloc] initWithNSRunningApplication:app];
 }
 
 +(HSapplication *)applicationForPID:(pid_t)pid {
@@ -108,7 +108,7 @@
     return isHidden.boolValue;
 }
 
-#pragma mark - Instance initialiser
+#pragma mark - Instance initialisers
 -(HSapplication *)initWithPid:(pid_t)pid {
     LuaSkin *skin = [LuaSkin sharedWithState:NULL];
 
@@ -118,17 +118,28 @@
         return nil;
     }
     
-    AXUIElementRef appRef = AXUIElementCreateApplication(pid);
+    return [self initWithNSRunningApplication:runningApp];
+}
+
+-(HSapplication *)initWithNSRunningApplication:(NSRunningApplication *)app {
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+
+    if (!app) {
+        [skin logError:@"HSapplication::initWithNSRunningApplication called with invalid application"];
+        return nil;
+    }
+
+    AXUIElementRef appRef = AXUIElementCreateApplication(app.processIdentifier);
     if (!appRef) {
-        [skin logError:[NSString stringWithFormat:@"Unable to fetch AXUIElementRef for pid: %d", pid]];
+        [skin logError:[NSString stringWithFormat:@"Unable to fetch AXUIElementRef for application: %@", app.localizedName]];
         return nil;
     }
 
     self = [super init];
     if (self) {
-        _pid = pid;
+        _pid = app.processIdentifier;
         _elementRef = appRef;
-        _runningApp = runningApp;
+        _runningApp = app;
         _selfRefCount = 0;
     } else {
         CFRelease(appRef);
