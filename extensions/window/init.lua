@@ -5,16 +5,18 @@
 --- Notes:
 ---  * See `hs.screen` and `hs.geometry` for more information on how Hammerspoon uses window/screen frames and coordinates
 
-local uielement = hs.uielement  -- Make sure parent module loads
-local window = require "hs.window.internal"
-local application = require "hs.application"
+local window = require("hs.window.internal")
 local geometry = require "hs.geometry"
 local gtype=geometry.type
 local screen = require "hs.screen"
 local timer = require "hs.timer"
 require "hs.image" -- make sure we know about HSImage userdata type
 local pairs,ipairs,next,min,max,abs,cos,type = pairs,ipairs,next,math.min,math.max,math.abs,math.cos,type
-local tremove,tsort,tunpack,tpack = table.remove,table.sort,table.unpack,table.pack
+local tinsert,tremove,tsort,tunpack,tpack = table.insert,table.remove,table.sort,table.unpack,table.pack
+
+local USERDATA_TAG = "hs.window"
+local objectMT     = hs.getObjectMetatable(USERDATA_TAG)
+
 --- hs.window.animationDuration (number)
 --- Variable
 --- The default duration for animations, in seconds. Initial value is 0.2; set to 0 to disable animations.
@@ -43,7 +45,7 @@ window.animationDuration = 0.2
 ---  * The desktop window has no id, a role of `AXScrollArea` and no subrole
 ---  * The desktop is filtered out from `hs.window.allWindows()` (and downstream uses)
 function window.desktop()
-  local finder=application.get'com.apple.finder'
+  local finder=hs.application.get'com.apple.finder'
   for _,w in ipairs(finder:allWindows()) do if w:role()=='AXScrollArea' then return w end end
 end
 
@@ -85,13 +87,17 @@ local SKIP_APPS={
 -- Karabiner's AXNotifier and Adobe Update Notifier fail in that fashion
 function window.allWindows()
   local r={}
-  for _,app in ipairs(application.runningApplications()) do
+  for _,app in ipairs(hs.application.runningApplications()) do
     if app:kind()>=0 then
       local bid=app:bundleID() or 'N/A' --just for safety; universalaccessd has no bundleid (but it's kind()==-1 anyway)
       if bid=='com.apple.finder' then --exclude the desktop "window"
         -- check the role explicitly, instead of relying on absent :id() - sometimes minimized windows have no :id() (El Cap Notes.app)
         for _,w in ipairs(app:allWindows()) do if w:role()=='AXWindow' then r[#r+1]=w end end
-      elseif not SKIP_APPS[bid] then for _,w in ipairs(app:allWindows()) do r[#r+1]=w end end
+      elseif not SKIP_APPS[bid] then
+        for _,w in ipairs(app:allWindows()) do
+          r[#r+1]=w
+        end
+      end
     end
   end
   return r
@@ -99,7 +105,7 @@ end
 
 function window._timed_allWindows()
   local r={}
-  for _,app in ipairs(application.runningApplications()) do
+  for _,app in ipairs(hs.application.runningApplications()) do
     local starttime=timer.secondsSinceEpoch()
     local _,bid=app:allWindows(),app:bundleID() or 'N/A'
     r[bid]=(r[bid] or 0) + timer.secondsSinceEpoch()-starttime
@@ -122,7 +128,7 @@ end
 ---  * A list containing `hs.window` objects representing all windows that are visible as per `hs.window:isVisible()`
 function window.visibleWindows()
   local r={}
-  for _,app in ipairs(application.runningApplications()) do
+  for _,app in ipairs(hs.application.runningApplications()) do
     if app:kind()>0 and not app:isHidden() then for _,w in ipairs(app:visibleWindows()) do r[#r+1]=w end end -- speedup by excluding hidden apps
   end
   return r
@@ -244,7 +250,7 @@ end
 ---
 --- Notes:
 ---  * This does not mean the user can see the window - it may be obscured by other windows, or it may be off the edge of the screen
-function window:isVisible()
+function objectMT.isVisible(self)
   return not self:application():isHidden() and not self:isMinimized()
 end
 
@@ -294,11 +300,11 @@ local function stopAnimation(win,snap,id)
   if snap then win:_setFrame(anim.endFrame) end
 end
 
-function window:_frame() -- get actual window frame right now
+function objectMT._frame(self) -- get actual window frame right now
   return geometry(self:_topLeft(),self:_size())
 end
 
-function window:_setFrame(f) -- set window frame instantly
+function objectMT._setFrame(self, f) -- set window frame instantly
   self:_setSize(f) self:_setTopLeft(f) return self:_setSize(f)
 end
 
@@ -364,7 +370,7 @@ end
 ---
 --- Returns:
 ---  * The `hs.window` object
-function window:setFrame(f, duration) return setFrame(self,f,duration,window.setFrameCorrectness) end
+function objectMT.setFrame(self, f, duration) return setFrame(self,f,duration,window.setFrameCorrectness) end
 
 --- hs.window:setFrameWithWorkarounds(rect[, duration]) -> hs.window object
 --- Method
@@ -376,7 +382,7 @@ function window:setFrame(f, duration) return setFrame(self,f,duration,window.set
 ---
 --- Returns:
 ---  * The `hs.window` object
-function window:setFrameWithWorkarounds(f, duration) return setFrame(self,f,duration,true) end
+function objectMT.setFrameWithWorkarounds(self, f, duration) return setFrame(self,f,duration,true) end
 
 --- hs.window.setFrameCorrectness
 --- Variable
@@ -409,7 +415,7 @@ window.setFrameCorrectness = false
 ---
 --- Returns:
 ---  * The `hs.window` object
-function window:setFrameInScreenBounds(f, duration)
+function objectMT.setFrameInScreenBounds(self, f, duration)
   if type(f)=='number' then duration=f f=nil end
   f = f and geometry(f):floor() or self:frame()
   return self:setFrame(f:fit(screen.find(f):frame()),duration)
@@ -425,42 +431,42 @@ window.ensureIsInScreenBounds=window.setFrameInScreenBounds --backward compatibl
 ---
 --- Returns:
 ---  * An hs.geometry rect containing the co-ordinates of the top left corner of the window and its width and height
-function window:frame() return getAnimationFrame(self) or self:_frame() end
+function objectMT.frame(self) return getAnimationFrame(self) or self:_frame() end
 
 -- wrapping these Lua-side for dealing with animations cache
-function window:size()
+function objectMT.size(self)
   local f=getAnimationFrame(self)
   return f and f.size or geometry(self:_size())
 end
-function window:topLeft()
+function objectMT.topLeft(self)
   local f=getAnimationFrame(self)
   return f and f.xy or geometry(self:_topLeft())
 end
-function window:setSize(...)
+function objectMT.setSize(self, ...)
   stopAnimation(self,true)
   return self:_setSize(geometry.size(...))
 end
-function window:setTopLeft(...)
+function objectMT.setTopLeft(self, ...)
   stopAnimation(self,true)
   return self:_setTopLeft(geometry.point(...))
 end
-function window:minimize()
+function objectMT.minimize(self)
   stopAnimation(self,true)
   return self:_minimize()
 end
-function window:unminimize()
+function objectMT.unminimize(self)
   stopAnimation(self,true)
   return self:_unminimize()
 end
-function window:toggleZoom()
+function objectMT.toggleZoom(self)
   stopAnimation(self,true)
   return self:_toggleZoom()
 end
-function window:setFullScreen(v)
+function objectMT.setFullScreen(self, v)
   stopAnimation(self,true)
   return self:_setFullScreen(v)
 end
-function window:close()
+function objectMT.close(self)
   stopAnimation(self,true)
   return self:_close()
 end
@@ -474,7 +480,7 @@ end
 ---
 --- Returns:
 ---  * A table of `hs.window` objects representing the visible windows other than this one that are on the same screen
-function window:otherWindowsSameScreen()
+function objectMT.otherWindowsSameScreen(self)
   local r=window.visibleWindows() for i=#r,1,-1 do if r[i]==self or r[i]:screen()~=self:screen() then tremove(r,i) end end
   return r
 end
@@ -488,7 +494,7 @@ end
 ---
 --- Returns:
 ---  * A table containing `hs.window` objects representing all visible windows other than this one
-function window:otherWindowsAllScreens()
+function objectMT.otherWindowsAllScreens(self)
   local r=window.visibleWindows() for i=#r,1,-1 do if r[i]==self then tremove(r,i) break end end
   return r
 end
@@ -503,7 +509,7 @@ local desktopFocusWorkaroundTimer --workaround for the desktop taking over
 ---
 --- Returns:
 ---  * The `hs.window` object
-function window:focus()
+function objectMT.focus(self)
   local app=self:application()
   self:becomeMain()
   app:_bringtofront()
@@ -543,7 +549,7 @@ end
 ---   So if you don't use orderly layouts, or if you have a lot of windows in general, you're probably better off using
 ---   `hs.application:hide()` (or simply `cmd-h`)
 local WINDOW_ROLES={AXStandardWindow=true,AXDialog=true,AXSystemDialog=true}
-function window:sendToBack()
+function objectMT.sendToBack(self)
   local id,frame=self:id(),self:frame()
   local fw=window.focusedWindow()
   local wins=window.orderedWindows()
@@ -583,7 +589,7 @@ end
 ---
 --- Notes:
 ---  * The window will be resized as large as possible, without obscuring the dock/menu
-function window:maximize(duration)
+function objectMT.maximize(self, duration)
   return self:setFrame(self:screen():frame(), duration)
 end
 
@@ -599,14 +605,14 @@ end
 ---
 --- Notes:
 ---  * Not all windows support being full-screened
-function window:toggleFullScreen()
+function objectMT.toggleFullScreen(self)
   self:setFullScreen(not self:isFullScreen())
   return self
 end
 -- aliases
-window.toggleFullscreen=window.toggleFullScreen
-window.isFullscreen=window.isFullScreen
-window.setFullscreen=window.setFullScreen
+objectMT.toggleFullscreen=objectMT.toggleFullScreen
+objectMT.isFullscreen=objectMT.isFullScreen
+objectMT.setFullscreen=objectMT.setFullScreen
 
 --- hs.window:screen() -> hs.screen object
 --- Method
@@ -617,7 +623,7 @@ window.setFullscreen=window.setFullScreen
 ---
 --- Returns:
 ---  * An `hs.screen` object representing the screen which most contains the window (by area)
-function window:screen()
+function objectMT.screen(self)
   return screen.find(self:frame())--findScreenForFrame(self:frame())
 end
 
@@ -800,7 +806,7 @@ end
 ---
 --- Returns:
 ---  * The `hs.window` object
-function window:centerOnScreen(toScreen,inBounds,duration)
+function objectMT.centerOnScreen(self, toScreen,inBounds,duration)
   if type(toScreen)=='boolean' then duration=inBounds inBounds=toScreen toScreen=nil
   elseif type(toScreen)=='number' then duration=toScreen inBounds=nil toScreen=nil end
   if type(inBounds)=='number' then duration=inBounds inBounds=nil end
@@ -824,7 +830,7 @@ end
 ---
 --- Notes:
 ---  * An example, which would make a window fill the top-left quarter of the screen: `win:moveToUnit'[0,0,50,50]'`
-function window:moveToUnit(unit, duration)
+function objectMT.moveToUnit(self, unit, duration)
   return self:setFrame(self:screen():fromUnitRect(unit),duration)
 end
 
@@ -841,7 +847,7 @@ end
 ---
 --- Returns:
 ---  * The `hs.window` object
-function window:moveToScreen(toScreen,noResize,inBounds,duration)
+function objectMT.moveToScreen(self, toScreen,noResize,inBounds,duration)
   if not toScreen then return end
   local theScreen=screen.find(toScreen)
   if not theScreen then print('window:moveToScreen(): screen not found: '..toScreen) return self end
@@ -871,7 +877,7 @@ end
 ---
 --- Returns:
 ---  * The `hs.window` object
-function window:move(rect,toScreen,inBounds,duration)
+function objectMT.move(self, rect,toScreen,inBounds,duration)
   if type(toScreen)=='boolean' then duration=inBounds inBounds=toScreen toScreen=nil
   elseif type(toScreen)=='number' then duration=toScreen inBounds=nil toScreen=nil end
   if type(inBounds)=='number' then duration=inBounds inBounds=nil end

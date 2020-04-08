@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4F04557E20F509EC00699F29 /* lobjectivec_exceptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F478F0A1DE6251400E0DC38 /* lobjectivec_exceptions.h */; };
 		4F0455BE20F50C7500699F29 /* lapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F0455A720F50C5000699F29 /* lapi.c */; };
 		4F0455BF20F50C7500699F29 /* lauxlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F0455B920F50C5200699F29 /* lauxlib.c */; };
 		4F0455C020F50C7500699F29 /* lbaselib.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F04558620F50C4D00699F29 /* lbaselib.c */; };
@@ -93,7 +92,8 @@
 		4F04561020F50C9300699F29 /* lvm.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F04558520F50C4D00699F29 /* lvm.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4F04561120F50C9300699F29 /* lzio.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F04559920F50C4F00699F29 /* lzio.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4F04561220F50C9C00699F29 /* lua.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4F04559420F50C4F00699F29 /* lua.hpp */; };
-		4F04561320F5128800699F29 /* lobjectivec_exceptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F478F0B1DE6251400E0DC38 /* lobjectivec_exceptions.m */; };
+		4F29CF7823FB03EF002B0D4C /* lobjectivec_exceptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F29CF7623FB03EF002B0D4C /* lobjectivec_exceptions.h */; };
+		4F29CF7923FB03EF002B0D4C /* lobjectivec_exceptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F29CF7723FB03EF002B0D4C /* lobjectivec_exceptions.m */; };
 		4FDC203D1E117F7500EDA72E /* luaskin.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FDC203C1E117F7500EDA72E /* luaskin.lua */; };
 		4FDD8E781C850AC800085D7A /* lsunit.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FDD8E771C850AC800085D7A /* lsunit.lua */; };
 		4FDD8E801C85A09600085D7A /* testinit.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FDD8E7F1C85A09600085D7A /* testinit.lua */; };
@@ -177,8 +177,8 @@
 		4F0455BB20F50C5200699F29 /* lapi.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = lapi.h; path = "lua-5.3.5/src/lapi.h"; sourceTree = "<group>"; };
 		4F0455BC20F50C5300699F29 /* lualib.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = lualib.h; path = "lua-5.3.5/src/lualib.h"; sourceTree = "<group>"; };
 		4F0455BD20F50C5300699F29 /* lprefix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = lprefix.h; path = "lua-5.3.5/src/lprefix.h"; sourceTree = "<group>"; };
-		4F478F0A1DE6251400E0DC38 /* lobjectivec_exceptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lobjectivec_exceptions.h; sourceTree = "<group>"; };
-		4F478F0B1DE6251400E0DC38 /* lobjectivec_exceptions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = lobjectivec_exceptions.m; sourceTree = "<group>"; };
+		4F29CF7623FB03EF002B0D4C /* lobjectivec_exceptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lobjectivec_exceptions.h; path = "lua-5.3.5/src/lobjectivec_exceptions.h"; sourceTree = "<group>"; };
+		4F29CF7723FB03EF002B0D4C /* lobjectivec_exceptions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = lobjectivec_exceptions.m; path = "lua-5.3.5/src/lobjectivec_exceptions.m"; sourceTree = "<group>"; };
 		4FDC203C1E117F7500EDA72E /* luaskin.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = luaskin.lua; sourceTree = "<group>"; };
 		4FDD8E771C850AC800085D7A /* lsunit.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = lsunit.lua; sourceTree = "<group>"; };
 		4FDD8E7F1C85A09600085D7A /* testinit.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = testinit.lua; sourceTree = "<group>"; };
@@ -224,6 +224,8 @@
 		4F04558120F50C2900699F29 /* lua-5.3.5 */ = {
 			isa = PBXGroup;
 			children = (
+				4F29CF7623FB03EF002B0D4C /* lobjectivec_exceptions.h */,
+				4F29CF7723FB03EF002B0D4C /* lobjectivec_exceptions.m */,
 				4F0455A720F50C5000699F29 /* lapi.c */,
 				4F0455BB20F50C5200699F29 /* lapi.h */,
 				4F0455B920F50C5200699F29 /* lauxlib.c */,
@@ -312,8 +314,6 @@
 			isa = PBXGroup;
 			children = (
 				D671D313231EDA6B0043822A /* luaskin.m */,
-				4F478F0A1DE6251400E0DC38 /* lobjectivec_exceptions.h */,
-				4F478F0B1DE6251400E0DC38 /* lobjectivec_exceptions.m */,
 				4FEF59541B29CE06002344A7 /* LuaSkin.h */,
 				4FEF59521B29CE06002344A7 /* Supporting Files */,
 				4FEF596F1B29D0FB002344A7 /* Skin.h */,
@@ -402,7 +402,6 @@
 				4F0455F120F50C9100699F29 /* ltable.h in Headers */,
 				4F0455E820F50C9100699F29 /* llex.h in Headers */,
 				4F0455EC20F50C9100699F29 /* lopcodes.h in Headers */,
-				4F04557E20F509EC00699F29 /* lobjectivec_exceptions.h in Headers */,
 				4F0455EB20F50C9100699F29 /* lobject.h in Headers */,
 				4F0455F520F50C9100699F29 /* lualib.h in Headers */,
 				4F0455E120F50C9100699F29 /* lauxlib.h in Headers */,
@@ -410,6 +409,7 @@
 				4F0455E720F50C9100699F29 /* lgc.h in Headers */,
 				4F0455E420F50C9100699F29 /* ldebug.h in Headers */,
 				4F0455F320F50C9100699F29 /* lua.h in Headers */,
+				4F29CF7823FB03EF002B0D4C /* lobjectivec_exceptions.h in Headers */,
 				4F0455ED20F50C9100699F29 /* lparser.h in Headers */,
 				4F0455E220F50C9100699F29 /* lcode.h in Headers */,
 				4F0455F020F50C9100699F29 /* lstring.h in Headers */,
@@ -559,7 +559,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F04561320F5128800699F29 /* lobjectivec_exceptions.m in Sources */,
 				4F0455C920F50C7500699F29 /* lfunc.c in Sources */,
 				4F0455DD20F50C7500699F29 /* lutf8lib.c in Sources */,
 				4F0455D020F50C7500699F29 /* loadlib.c in Sources */,
@@ -588,6 +587,7 @@
 				4F0455DA20F50C7500699F29 /* ltm.c in Sources */,
 				4F0455D620F50C7500699F29 /* lstring.c in Sources */,
 				4F0455C120F50C7500699F29 /* lbitlib.c in Sources */,
+				4F29CF7923FB03EF002B0D4C /* lobjectivec_exceptions.m in Sources */,
 				4F0455D920F50C7500699F29 /* ltablib.c in Sources */,
 				4F0455CC20F50C7500699F29 /* liolib.c in Sources */,
 				4F0455C220F50C7500699F29 /* lcode.c in Sources */,

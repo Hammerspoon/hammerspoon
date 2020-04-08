@@ -8,11 +8,11 @@
 
 #import "HSTestCase.h"
 
-@interface HSuielement : HSTestCase
+@interface HSuielementTests : HSTestCase
 
 @end
 
-@implementation HSuielement
+@implementation HSuielementTests
 
 - (void)setUp {
     [super setUpWithRequire:@"test_uielement"];

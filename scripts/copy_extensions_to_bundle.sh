@@ -68,6 +68,7 @@ export HS_WATCHERS="application \
     caffeinate \
     screen \
     spaces \
+    uielement \
     usb \
     wifi"
 export HS_LUAONLY="_coresetup \

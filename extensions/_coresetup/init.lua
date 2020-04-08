@@ -630,6 +630,13 @@ coroutine.applicationYield = hs.coroutineApplicationYield
   end
 
   local hscrash = require("hs.crash")
+
+  -- These three modules are so tightly coupled that we will unconditionally preload them
+  require("hs.application.internal")
+  require("hs.uielement")
+  require("hs.window")
+  require("hs.application")
+
   rawrequire = require
   require = function(modulename) -- luacheck: ignore
     local result = rawrequire(modulename)

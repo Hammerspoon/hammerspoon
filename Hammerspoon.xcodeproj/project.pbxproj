@@ -154,15 +154,16 @@
 		4F9618AF1E24ED650048F71D /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9618AE1E24ED650048F71D /* libsqlite3.tbd */; };
 		4F9797BE1BED0AC800719F3F /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4F9797C41BED0ADC00719F3F /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F9797B61BECD9AD00719F3F /* internal.m */; };
+		4F9BA8C023DF3C6B006349F2 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
+		4F9BA8C923DF3CBF006349F2 /* watcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F9BA8C823DF3CBE006349F2 /* watcher.m */; };
+		4F9BA8D023DF4E58006349F2 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FBE2CFD1B7261E500407788 /* internal.m */; };
+		4F9BA8D723DFAB03006349F2 /* HSuicore.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F9BA8D623DFAB03006349F2 /* HSuicore.m */; };
 		4F9F02BB1B3D9591009C32E5 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9F02B91B3D9568009C32E5 /* LuaSkin.framework */; };
 		4FA125882016739500F02FDF /* HSLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FA125872016739500F02FDF /* HSLogger.m */; };
 		4FB74B3B2049A9A600B08851 /* HStask.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FB74B3A2049A9A600B08851 /* HStask.m */; };
 		4FB74B3C2049AB8B00B08851 /* test_task.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FB74B392049A97D00B08851 /* test_task.lua */; };
 		4FBE2CF41B7261A200407788 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
-		4FBE2CFE1B7261E500407788 /* application.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FBE2CFB1B7261E500407788 /* application.h */; };
-		4FBE2CFF1B7261E500407788 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FBE2CFD1B7261E500407788 /* internal.m */; };
 		4FBE2D0A1B72631600407788 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
-		4FBE2D0C1B72631600407788 /* application.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FBE2CFB1B7261E500407788 /* application.h */; };
 		4FBE2D111B72632800407788 /* watcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FBE2D041B72630200407788 /* watcher.m */; };
 		4FC09F7C19F99ECE007542A6 /* docs.json in Resources */ = {isa = PBXBuildFile; fileRef = 4FC09F7B19F99ECE007542A6 /* docs.json */; };
 		4FC93CA21BCD872D0041B820 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
@@ -179,7 +180,6 @@
 		4FD0AB3A1B7486B100A82496 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FD0AB391B7486B100A82496 /* internal.m */; };
 		4FD0AB411B749C8E00A82496 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4FD0AB4D1B749CDD00A82496 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FD0AB4B1B749CDD00A82496 /* internal.m */; };
-		4FD0AB4E1B749CDD00A82496 /* uielement.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD0AB4C1B749CDD00A82496 /* uielement.h */; };
 		4FD0AB561B749D7A00A82496 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4FD0AB611B749DB300A82496 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FD0AB601B749DB300A82496 /* internal.m */; };
 		4FD0AB691B74A67500A82496 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
@@ -192,7 +192,6 @@
 		4FD0ABAB1B74AE8000A82496 /* watcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FD0ABAA1B74AE8000A82496 /* watcher.m */; };
 		4FD0ABB61B74AF4E00A82496 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4FD0ABC01B74AF9900A82496 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FD0ABBE1B74AF9900A82496 /* internal.m */; };
-		4FD0ABC11B74AF9900A82496 /* window.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD0ABBF1B74AF9900A82496 /* window.h */; };
 		4FD0ABD21B74B2C500A82496 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4FD0ABDC1B74B2FA00A82496 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4FD0ABE51B74B33500A82496 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FD0ABE41B74B33500A82496 /* internal.m */; };
@@ -606,6 +605,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 4F9797B91BED0AC800719F3F;
 			remoteInfo = task;
+		};
+		4F9BA8CA23DF3CCE006349F2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9445CA0319083251002568BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4F9BA8BC23DF3C6B006349F2;
+			remoteInfo = uielementwatcher;
 		};
 		4FBE2D011B72624A00407788 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1178,6 +1184,10 @@
 		4F9797B61BECD9AD00719F3F /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/task/internal.m; sourceTree = "<group>"; };
 		4F9797C31BED0AC800719F3F /* libtask.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libtask.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F9850E81B722CBF00F7E909 /* LuaSkin.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = LuaSkin.framework; path = "../../../Library/Developer/Xcode/DerivedData/Hammerspoon-bcanpjyjcsxqcveiabevaoqikpya/Build/Products/Debug/LuaSkin.framework"; sourceTree = "<group>"; };
+		4F9BA8C723DF3C6B006349F2 /* libuielementwatcher.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libuielementwatcher.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		4F9BA8C823DF3CBE006349F2 /* watcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = watcher.m; path = extensions/uielement/watcher.m; sourceTree = "<group>"; };
+		4F9BA8D523DFAB03006349F2 /* HSuicore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HSuicore.h; sourceTree = "<group>"; };
+		4F9BA8D623DFAB03006349F2 /* HSuicore.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HSuicore.m; sourceTree = "<group>"; };
 		4F9F02B91B3D9568009C32E5 /* LuaSkin.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = LuaSkin.framework; path = build/Hammerspoon/Build/Products/Debug/LuaSkin.framework; sourceTree = "<group>"; };
 		4FA125872016739500F02FDF /* HSLogger.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HSLogger.m; sourceTree = "<group>"; };
 		4FA12589201673E400F02FDF /* HSLogger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HSLogger.h; sourceTree = "<group>"; };
@@ -1186,7 +1196,6 @@
 		4FB74B3A2049A9A600B08851 /* HStask.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HStask.m; sourceTree = "<group>"; };
 		4FBE2CE41B72543C00407788 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/applescript/init.lua; sourceTree = "<group>"; };
 		4FBE2CF91B7261A200407788 /* libapplication.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libapplication.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		4FBE2CFB1B7261E500407788 /* application.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = application.h; path = extensions/application/application.h; sourceTree = "<group>"; };
 		4FBE2CFC1B7261E500407788 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/application/init.lua; sourceTree = "<group>"; };
 		4FBE2CFD1B7261E500407788 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/application/internal.m; sourceTree = "<group>"; };
 		4FBE2D041B72630200407788 /* watcher.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = watcher.m; path = extensions/application/watcher.m; sourceTree = "<group>"; };
@@ -1211,7 +1220,6 @@
 		4FD0AB461B749C8E00A82496 /* libuielement.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libuielement.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FD0AB4A1B749CDD00A82496 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/uielement/init.lua; sourceTree = "<group>"; };
 		4FD0AB4B1B749CDD00A82496 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/uielement/internal.m; sourceTree = "<group>"; };
-		4FD0AB4C1B749CDD00A82496 /* uielement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = uielement.h; path = extensions/uielement/uielement.h; sourceTree = "<group>"; };
 		4FD0AB5B1B749D7A00A82496 /* liburlevent.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = liburlevent.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FD0AB5F1B749DB300A82496 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/urlevent/init.lua; sourceTree = "<group>"; };
 		4FD0AB601B749DB300A82496 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/urlevent/internal.m; sourceTree = "<group>"; };
@@ -1229,7 +1237,6 @@
 		4FD0ABBB1B74AF4E00A82496 /* libwindow.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libwindow.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FD0ABBD1B74AF9900A82496 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/window/init.lua; sourceTree = "<group>"; };
 		4FD0ABBE1B74AF9900A82496 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/window/internal.m; sourceTree = "<group>"; };
-		4FD0ABBF1B74AF9900A82496 /* window.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = window.h; path = extensions/window/window.h; sourceTree = "<group>"; };
 		4FD0ABC81B74B0EC00A82496 /* filter.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = filter.lua; path = extensions/window/filter.lua; sourceTree = "<group>"; };
 		4FD0ABCA1B74B1C500A82496 /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/doc/init.lua; sourceTree = "<group>"; };
 		4FD0ABCC1B74B1C500A82496 /* makeLuaDocs.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = makeLuaDocs.lua; path = extensions/doc/makeLuaDocs.lua; sourceTree = "<group>"; };
@@ -1753,6 +1760,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F9797BE1BED0AC800719F3F /* LuaSkin.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4F9BA8BF23DF3C6B006349F2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4F9BA8C023DF3C6B006349F2 /* LuaSkin.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2840,7 +2855,6 @@
 		4FBE2CFA1B7261C100407788 /* application */ = {
 			isa = PBXGroup;
 			children = (
-				4FBE2CFB1B7261E500407788 /* application.h */,
 				4FBE2CFC1B7261E500407788 /* init.lua */,
 				4FBE2CFD1B7261E500407788 /* internal.m */,
 				4C403D651CBE627200EE20ED /* test_application.lua */,
@@ -2911,9 +2925,9 @@
 		4FD0AB491B749CCD00A82496 /* uielement */ = {
 			isa = PBXGroup;
 			children = (
+				4F9BA8C823DF3CBE006349F2 /* watcher.m */,
 				4FD0AB4A1B749CDD00A82496 /* init.lua */,
 				4FD0AB4B1B749CDD00A82496 /* internal.m */,
-				4FD0AB4C1B749CDD00A82496 /* uielement.h */,
 				4C8F8CB41CC38BC500F72CE5 /* test_uielement.lua */,
 			);
 			name = uielement;
@@ -2975,7 +2989,6 @@
 			children = (
 				4FD0ABBD1B74AF9900A82496 /* init.lua */,
 				4FD0ABBE1B74AF9900A82496 /* internal.m */,
-				4FD0ABBF1B74AF9900A82496 /* window.h */,
 				4F8779D2200CD56F00E9DB42 /* test_window.lua */,
 			);
 			name = window;
@@ -3289,6 +3302,7 @@
 				D62F9EC72320B86300FAE188 /* libbonjourservice.dylib */,
 				4FCBAFCD23B0D941007BA1D0 /* libmath.dylib */,
 				224BA33223D1ECA900487FDB /* libwebsocket.dylib */,
+				4F9BA8C723DF3C6B006349F2 /* libuielementwatcher.dylib */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -3353,6 +3367,8 @@
 				4FA12589201673E400F02FDF /* HSLogger.h */,
 				4FA125872016739500F02FDF /* HSLogger.m */,
 				945B65B1198D31FC002D2E30 /* setup.lua */,
+				4F9BA8D523DFAB03006349F2 /* HSuicore.h */,
+				4F9BA8D623DFAB03006349F2 /* HSuicore.m */,
 				942E71AB19B11288001BA156 /* Preferences Window */,
 				942050C219907AF700FC4839 /* Console Window */,
 				945B65B0198D304F002D2E30 /* Auxiliary */,
@@ -3903,11 +3919,17 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4F9BA8C123DF3C6B006349F2 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4FBE2CF51B7261A200407788 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FBE2CFE1B7261E500407788 /* application.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3915,7 +3937,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FBE2D0C1B72631600407788 /* application.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3951,7 +3972,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FD0AB4E1B749CDD00A82496 /* uielement.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3994,7 +4014,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FD0ABC11B74AF9900A82496 /* window.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4904,6 +4923,23 @@
 			productReference = 4F9797C31BED0AC800719F3F /* libtask.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
+		4F9BA8BC23DF3C6B006349F2 /* uielementwatcher */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4F9BA8C323DF3C6B006349F2 /* Build configuration list for PBXNativeTarget "uielementwatcher" */;
+			buildPhases = (
+				4F9BA8BD23DF3C6B006349F2 /* Sources */,
+				4F9BA8BF23DF3C6B006349F2 /* Frameworks */,
+				4F9BA8C123DF3C6B006349F2 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = uielementwatcher;
+			productName = alert;
+			productReference = 4F9BA8C723DF3C6B006349F2 /* libuielementwatcher.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
 		4FBE2CEF1B7261A200407788 /* application */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4FBE2CF61B7261A200407788 /* Build configuration list for PBXNativeTarget "application" */;
@@ -5354,6 +5390,7 @@
 			dependencies = (
 				221F9747211E742C0019F1B9 /* PBXTargetDependency */,
 				224BA33623D1EFB300487FDB /* PBXTargetDependency */,
+				4F9BA8CB23DF3CCE006349F2 /* PBXTargetDependency */,
 				4FCBAFD023B0D98F007BA1D0 /* PBXTargetDependency */,
 				D62F9ECA2320B90200FAE188 /* PBXTargetDependency */,
 				D62F9ECC2320B90200FAE188 /* PBXTargetDependency */,
@@ -5973,6 +6010,7 @@
 				4F9797B91BED0AC800719F3F /* task */,
 				4FD0AB2A1B74867600A82496 /* timer */,
 				4FD0AB3C1B749C8E00A82496 /* uielement */,
+				4F9BA8BC23DF3C6B006349F2 /* uielementwatcher */,
 				4FD0AB511B749D7A00A82496 /* urlevent */,
 				4FD0AB641B74A67500A82496 /* usb */,
 				4FD0AB6F1B74A68900A82496 /* usbwatcher */,
@@ -6066,7 +6104,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "set -eux\n\nif [ -f ../token-crashlytics -a \"${CONFIGURATION}\" == \"Release\" ] ; then\n  echo \"UPLOADING TO CRASHLYTICS\"\n  source ../token-crashlytics\n  ./Pods/Fabric/run $CRASHLYTICS_API_KEY $CRASHLYTICS_BUILD_SECRET -debug YES\n  if [ \"$?\" != \"0\" ]; then\n    echo \"CRASHLYTICS UPLOAD FAILED\"\n    exit 1\n  fi\nelse\n  echo \"SKIPPING CRASHLYTICS UPLOAD: No secret token found, or not a Release build\"\nfi";
+			shellScript = "set -eux\n\nTOKENPATH=\"${HAMMERSPOON_TOKEN_PATH:-..}\"\n\nif [ -f \"${TOKENPATH}/token-crashlytics\" -a \"${CONFIGURATION}\" == \"Release\" ] ; then\n  echo \"UPLOADING TO CRASHLYTICS\"\n  source \"${TOKENPATH}/token-crashlytics\"\n  ./Pods/Fabric/run $CRASHLYTICS_API_KEY $CRASHLYTICS_BUILD_SECRET -debug YES\n  if [ \"$?\" != \"0\" ]; then\n    echo \"CRASHLYTICS UPLOAD FAILED\"\n    exit 1\n  fi\nelse\n  echo \"SKIPPING CRASHLYTICS UPLOAD: No secret token found, or not a Release build\"\nfi\n";
 		};
 		4F251E7F1A49D5BE00AB6103 /* Prepare defines header file */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -6080,7 +6118,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -eux\n\nif [ -f ../token-crashlytics ] ; then\n  source ../token-crashlytics\n  > Hammerspoon/secrets.h\n  echo \"#define CRASHLYTICS_API_KEY \\\"${CRASHLYTICS_API_KEY}\\\"\" >>Hammerspoon/secrets.h\nelse\n  > Hammerspoon/secrets.h\nfi\n";
+			shellScript = "set -eux\n\n# Skip this on Profile builds\nif [ \"${CONFIGURATION}\" == \"Profile\" ]; then\n  > Hammerspoon/secrets.h\n  exit 0\nfi\n\nTOKENPATH=\"${HAMMERSPOON_TOKEN_PATH:-..}\"\n\nif [ -f \"${TOKENPATH}/token-crashlytics\" ] ; then\n  source \"${TOKENPATH}/token-crashlytics\"\n  > Hammerspoon/secrets.h\n  echo \"#define CRASHLYTICS_API_KEY \\\"${CRASHLYTICS_API_KEY}\\\"\" >>Hammerspoon/secrets.h\nelse\n  > Hammerspoon/secrets.h\nfi\n";
 		};
 		4F6689E61C288FF800E48AF1 /* Assert no stray init.lua's in app bundle */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -6094,7 +6132,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ -f \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/init.lua\" ]; then\n  echo \"ERROR: At least one extension's init.lua has membership of the Hammerspoon.app target. While non-fatal, this should not be the case. Here is the first line of said init.lua file, which might help you find out which extension is at fault. Once you know, in Xcode, select View -> Utilities -> Show File Inspector and untick the file from the Hammerspoon target:\"\n  echo -n \"    \"\n  head -1 \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/init.lua\"\n  exit 1\nfi\n\nexit 0";
+			shellScript = "if [ -f \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/init.lua\" ]; then\n  echo \"ERROR: At least one extension's init.lua has membership of the Hammerspoon.app target. While non-fatal, this should not be the case. Here is the first line of said init.lua file, which might help you find out which extension is at fault. Once you know, in Xcode, select View -> Utilities -> Show File Inspector and untick the file from the Hammerspoon target:\"\n  echo -n \"    \"\n  head -1 \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/init.lua\"\n  exit 1\nfi\n\nexit 0\n";
 		};
 		4F6D9E3523074BC6006CC3E4 /* Update build number (only on Release builds that will be signed) */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -6112,7 +6150,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#Update build number with number of git commits if in release mode\nset -eux\n\nif [ -f ../token-codesign -a \"${CONFIGURATION}\" == \"Release\" ]; then\n  buildNumber=$(git rev-list HEAD | wc -l | tr -d ' ')\n  /usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\"\nelse\n  echo \"No signing token found, skipping build number change\"\nfi\n";
+			shellScript = "#Update build number with number of git commits if in release mode\nset -eux\n\nTOKENPATH=\"${HAMMERSPOON_TOKEN_PATH:-..}\"\n\nif [ -f \"${TOKENPATH}/token-codesign\" -a \"${CONFIGURATION}\" == \"Release\" ]; then\n  buildNumber=$(git rev-list HEAD | wc -l | tr -d ' ')\n  /usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\"\nelse\n  echo \"No signing token found or not a Release build, skipping build number change\"\nfi\n";
 		};
 		4F7DB3571A5C513F00C22B03 /* Sign app/frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -6126,7 +6164,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -eux\n\n# Some Instruments profiles are broken with the code signing stuff we currently do, so let's just skip signing entirely when we're Profiling\n\nif [ \"${CONFIGURATION}\" == \"Profile\" ]; then\n    exit 0\nfi\n\nif [ -f ../token-codesign ] ; then\n    echo \"SIGNING CODE\"\n    source ../token-codesign\n\n    if [ \"${CONFIGURATION}\" == \"Debug\" ]; then\n        CODESIGN_OPTS=\"--timestamp=none\"\n    elif [ \"${CONFIGURATION}\" == \"Release\" ]; then\n        CODESIGN_OPTS=\"--timestamp\"\n    else\n        CODESIGN_OPTS=\"\"\n    fi\n\n    LOCATION=\"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n\n    # sign Sparkle.framework if this is a release build\n    if [ -e \"${LOCATION}/Sparkle.framework/Versions/A\" ] ; then\n        codesign ${CODESIGN_OPTS} -o runtime --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/fileop\"\n        codesign ${CODESIGN_OPTS} -o runtime --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/Autoupdate\"\n        codesign ${CODESIGN_OPTS} --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/Sparkle.framework/Versions/A\"\n    fi\n\n    # sign Hammerspoon Tests.xctest if this is a test build\n    if [ -e \"${BUILT_PRODUCTS_DIR}/${CONTENTS_FOLDER_PATH}/PlugIns/Hammerspoon Tests.xctest\" ] ; then\n        codesign ${CODESIGN_OPTS} --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${BUILT_PRODUCTS_DIR}/${CONTENTS_FOLDER_PATH}/PlugIns/Hammerspoon Tests.xctest\"\n    fi\n\n    # sign LuaSkin.framework\n    codesign ${CODESIGN_OPTS} --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/LuaSkin.framework/Versions/A\"\n\n    # sign the modules\n    find \"${CODESIGNING_FOLDER_PATH}\" -type f -name '*.so' -exec codesign ${CODESIGN_OPTS} --verbose --force --sign \"$CODESIGN_IDENTITY\" {} \\;\n\n    # sign the CLI app\n    codesign ${CODESIGN_OPTS} -o runtime --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${CODESIGNING_FOLDER_PATH}/Contents/Resources/extensions/hs/ipc/bin/cmdpost\"\n\n    # sign the Hammerspoon binary\n    ENTITLEMENTS=\"${SRCROOT}/Hammerspoon/Hammerspoon.entitlements\"\n    if [ \"${CONFIGURATION}\" == \"Debug\" ]; then\n        ENTITLEMENTS=\"${SRCROOT}/Hammerspoon/Hammerspoon-dev.entitlements\"\n    fi\n\ncodesign ${CODESIGN_OPTS} -o runtime --verbose --force --entitlements \"${ENTITLEMENTS}\" --sign \"$CODESIGN_IDENTITY\" \"${CODESIGNING_FOLDER_PATH}\"\nelse\n    echo \"SKIPPING CODE SIGNING\"\nfi\n";
+			shellScript = "set -eux\n\n# Some Instruments profiles are broken with the code signing stuff we currently do, so let's just skip signing entirely when we're Profiling\n\nif [ \"${CONFIGURATION}\" == \"Profile\" ]; then\n    exit 0\nfi\n\nTOKENPATH=\"${HAMMERSPOON_TOKEN_PATH:-..}\"\n\nif [ -f \"${TOKENPATH}/token-codesign\" ] ; then\n    echo \"SIGNING CODE\"\n    source \"${TOKENPATH}/token-codesign\"\n\n    if [ \"${CONFIGURATION}\" == \"Debug\" ]; then\n        CODESIGN_OPTS=\"--timestamp=none\"\n    elif [ \"${CONFIGURATION}\" == \"Release\" ]; then\n        CODESIGN_OPTS=\"--timestamp\"\n    else\n        CODESIGN_OPTS=\"\"\n    fi\n\n    LOCATION=\"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n\n    # sign Sparkle.framework if this is a release build\n    if [ -e \"${LOCATION}/Sparkle.framework/Versions/A\" ] ; then\n        codesign ${CODESIGN_OPTS} -o runtime --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/fileop\"\n        codesign ${CODESIGN_OPTS} -o runtime --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/Autoupdate\"\n        codesign ${CODESIGN_OPTS} --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/Sparkle.framework/Versions/A\"\n    fi\n\n    # sign Hammerspoon Tests.xctest if this is a test build\n    if [ -e \"${BUILT_PRODUCTS_DIR}/${CONTENTS_FOLDER_PATH}/PlugIns/Hammerspoon Tests.xctest\" ] ; then\n        codesign ${CODESIGN_OPTS} --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${BUILT_PRODUCTS_DIR}/${CONTENTS_FOLDER_PATH}/PlugIns/Hammerspoon Tests.xctest\"\n    fi\n\n    # sign LuaSkin.framework\n    codesign ${CODESIGN_OPTS} --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/LuaSkin.framework/Versions/A\"\n\n    # sign the modules\n    find \"${CODESIGNING_FOLDER_PATH}\" -type f -name '*.so' -exec codesign ${CODESIGN_OPTS} --verbose --force --sign \"$CODESIGN_IDENTITY\" {} \\;\n\n    # sign the CLI app\n    codesign ${CODESIGN_OPTS} -o runtime --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${CODESIGNING_FOLDER_PATH}/Contents/Resources/extensions/hs/ipc/bin/hs\"\n\n    # sign the Hammerspoon binary\n    ENTITLEMENTS=\"${SRCROOT}/Hammerspoon/Hammerspoon.entitlements\"\n    if [ \"${CONFIGURATION}\" == \"Debug\" ]; then\n        ENTITLEMENTS=\"${SRCROOT}/Hammerspoon/Hammerspoon-dev.entitlements\"\n    fi\n\ncodesign ${CODESIGN_OPTS} -o runtime --verbose --force --entitlements \"${ENTITLEMENTS}\" --sign \"$CODESIGN_IDENTITY\" \"${CODESIGNING_FOLDER_PATH}\"\nelse\n    echo \"SKIPPING CODE SIGNING\"\nfi\n";
 		};
 		4FA81F271B3F2A52000B5537 /* Copy LuaSkin.framework to build/bundle */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -6168,7 +6206,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -eux\n\nrm -f build/docs.json\nmake build/docs.json";
+			shellScript = "set -eux\n\nrm -f build/docs.json\nmake build/docs.json\n";
 		};
 		4FD0AC2E1B74C66200A82496 /* Prepare HammerspoonCertTemplate.h */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -6561,11 +6599,19 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4F9BA8BD23DF3C6B006349F2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4F9BA8C923DF3CBF006349F2 /* watcher.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4FBE2CF01B7261A200407788 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FBE2CFF1B7261E500407788 /* internal.m in Sources */,
+				4F9BA8D023DF4E58006349F2 /* internal.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6771,6 +6817,7 @@
 				942BF3911989E18600983892 /* MJAutoLaunch.m in Sources */,
 				9409203119A5940600B9964E /* MJVersionUtils.m in Sources */,
 				944A2DA91989760400D8DC90 /* MJConsoleWindowController.m in Sources */,
+				4F9BA8D723DFAB03006349F2 /* HSuicore.m in Sources */,
 				94A1E5481993AC5C003AEB26 /* MJFileUtils.m in Sources */,
 				4FEF59431B29A352002344A7 /* HSGrowingTextField.m in Sources */,
 				949B520319A5576E00ED4F02 /* MJDockIcon.m in Sources */,
@@ -7199,6 +7246,11 @@
 			isa = PBXTargetDependency;
 			target = 4F9797B91BED0AC800719F3F /* task */;
 			targetProxy = 4F9797C61BED0B5000719F3F /* PBXContainerItemProxy */;
+		};
+		4F9BA8CB23DF3CCE006349F2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4F9BA8BC23DF3C6B006349F2 /* uielementwatcher */;
+			targetProxy = 4F9BA8CA23DF3CCE006349F2 /* PBXContainerItemProxy */;
 		};
 		4FBE2D021B72624A00407788 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -18415,6 +18467,220 @@
 			};
 			name = Release;
 		};
+		4F9BA8C423DF3C6B006349F2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
+				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
+				CLANG_WARN_ASSIGN_ENUM = "$(inherited)";
+				CLANG_WARN_BOOL_CONVERSION = "$(inherited)";
+				CLANG_WARN_CONSTANT_CONVERSION = "$(inherited)";
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = "$(inherited)";
+				CLANG_WARN_EMPTY_BODY = "$(inherited)";
+				CLANG_WARN_ENUM_CONVERSION = "$(inherited)";
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = "$(inherited)";
+				CLANG_WARN_INT_CONVERSION = "$(inherited)";
+				CLANG_WARN_OBJC_EXPLICIT_OWNERSHIP_TYPE = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = "$(inherited)";
+				CLANG_WARN_OBJC_MISSING_PROPERTY_SYNTHESIS = "$(inherited)";
+				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = "$(inherited)";
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = "$(inherited)";
+				CLANG_WARN_UNREACHABLE_CODE = YES_AGGRESSIVE;
+				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = "$(inherited)";
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = "$(inherited)";
+				COMBINE_HIDPI_IMAGES = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_STRICT_OBJC_MSGSEND = "$(inherited)";
+				ENABLE_TESTABILITY = YES;
+				EXECUTABLE_PREFIX = lib;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = "$(inherited)";
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_NEWLINE = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = "$(inherited)";
+				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = "$(inherited)";
+				GCC_WARN_ALLOW_INCOMPLETE_PROTOCOL = "$(inherited)";
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = "$(inherited)";
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = "$(inherited)";
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = "$(inherited)";
+				GCC_WARN_MISSING_PARENTHESES = "$(inherited)";
+				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = "$(inherited)";
+				GCC_WARN_PEDANTIC = "$(inherited)";
+				GCC_WARN_SHADOW = "$(inherited)";
+				GCC_WARN_SIGN_COMPARE = "$(inherited)";
+				GCC_WARN_STRICT_SELECTOR_MATCH = "$(inherited)";
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = "$(inherited)";
+				GCC_WARN_UNDECLARED_SELECTOR = "$(inherited)";
+				GCC_WARN_UNKNOWN_PRAGMAS = "$(inherited)";
+				GCC_WARN_UNUSED_FUNCTION = "$(inherited)";
+				GCC_WARN_UNUSED_LABEL = "$(inherited)";
+				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
+				GCC_WARN_UNUSED_VALUE = "$(inherited)";
+				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				OTHER_LDFLAGS = "$(inherited)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
+				SDKROOT = "$(inherited)";
+				STRIP_INSTALLED_PRODUCT = NO;
+			};
+			name = Debug;
+		};
+		4F9BA8C523DF3C6B006349F2 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
+				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
+				CLANG_WARN_ASSIGN_ENUM = "$(inherited)";
+				CLANG_WARN_BOOL_CONVERSION = "$(inherited)";
+				CLANG_WARN_CONSTANT_CONVERSION = "$(inherited)";
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = "$(inherited)";
+				CLANG_WARN_EMPTY_BODY = "$(inherited)";
+				CLANG_WARN_ENUM_CONVERSION = "$(inherited)";
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = "$(inherited)";
+				CLANG_WARN_INT_CONVERSION = "$(inherited)";
+				CLANG_WARN_OBJC_EXPLICIT_OWNERSHIP_TYPE = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = "$(inherited)";
+				CLANG_WARN_OBJC_MISSING_PROPERTY_SYNTHESIS = "$(inherited)";
+				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = "$(inherited)";
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = "$(inherited)";
+				CLANG_WARN_UNREACHABLE_CODE = YES_AGGRESSIVE;
+				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = "$(inherited)";
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = "$(inherited)";
+				COMBINE_HIDPI_IMAGES = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_STRICT_OBJC_MSGSEND = "$(inherited)";
+				ENABLE_TESTABILITY = YES;
+				EXECUTABLE_PREFIX = lib;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = "$(inherited)";
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_NEWLINE = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = "$(inherited)";
+				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = "$(inherited)";
+				GCC_WARN_ALLOW_INCOMPLETE_PROTOCOL = "$(inherited)";
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = "$(inherited)";
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = "$(inherited)";
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = "$(inherited)";
+				GCC_WARN_MISSING_PARENTHESES = "$(inherited)";
+				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = "$(inherited)";
+				GCC_WARN_PEDANTIC = "$(inherited)";
+				GCC_WARN_SHADOW = "$(inherited)";
+				GCC_WARN_SIGN_COMPARE = "$(inherited)";
+				GCC_WARN_STRICT_SELECTOR_MATCH = "$(inherited)";
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = "$(inherited)";
+				GCC_WARN_UNDECLARED_SELECTOR = "$(inherited)";
+				GCC_WARN_UNKNOWN_PRAGMAS = "$(inherited)";
+				GCC_WARN_UNUSED_FUNCTION = "$(inherited)";
+				GCC_WARN_UNUSED_LABEL = "$(inherited)";
+				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
+				GCC_WARN_UNUSED_VALUE = "$(inherited)";
+				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				OTHER_LDFLAGS = "$(inherited)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
+				SDKROOT = "$(inherited)";
+				STRIP_INSTALLED_PRODUCT = NO;
+			};
+			name = Profile;
+		};
+		4F9BA8C623DF3C6B006349F2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
+				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
+				CLANG_WARN_ASSIGN_ENUM = "$(inherited)";
+				CLANG_WARN_BOOL_CONVERSION = "$(inherited)";
+				CLANG_WARN_CONSTANT_CONVERSION = "$(inherited)";
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = "$(inherited)";
+				CLANG_WARN_EMPTY_BODY = "$(inherited)";
+				CLANG_WARN_ENUM_CONVERSION = "$(inherited)";
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = "$(inherited)";
+				CLANG_WARN_INT_CONVERSION = "$(inherited)";
+				CLANG_WARN_OBJC_EXPLICIT_OWNERSHIP_TYPE = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = "$(inherited)";
+				CLANG_WARN_OBJC_MISSING_PROPERTY_SYNTHESIS = "$(inherited)";
+				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = "$(inherited)";
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = "$(inherited)";
+				CLANG_WARN_UNREACHABLE_CODE = YES_AGGRESSIVE;
+				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = "$(inherited)";
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = "$(inherited)";
+				COMBINE_HIDPI_IMAGES = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_STRICT_OBJC_MSGSEND = "$(inherited)";
+				EXECUTABLE_PREFIX = lib;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = "$(inherited)";
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_NEWLINE = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = "$(inherited)";
+				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = "$(inherited)";
+				GCC_WARN_ALLOW_INCOMPLETE_PROTOCOL = "$(inherited)";
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = "$(inherited)";
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = "$(inherited)";
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = "$(inherited)";
+				GCC_WARN_MISSING_PARENTHESES = "$(inherited)";
+				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = "$(inherited)";
+				GCC_WARN_PEDANTIC = "$(inherited)";
+				GCC_WARN_SHADOW = "$(inherited)";
+				GCC_WARN_SIGN_COMPARE = "$(inherited)";
+				GCC_WARN_STRICT_SELECTOR_MATCH = "$(inherited)";
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = "$(inherited)";
+				GCC_WARN_UNDECLARED_SELECTOR = "$(inherited)";
+				GCC_WARN_UNKNOWN_PRAGMAS = "$(inherited)";
+				GCC_WARN_UNUSED_FUNCTION = "$(inherited)";
+				GCC_WARN_UNUSED_LABEL = "$(inherited)";
+				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
+				GCC_WARN_UNUSED_VALUE = "$(inherited)";
+				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = "$(inherited)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
+				SDKROOT = "$(inherited)";
+				STRIP_INSTALLED_PRODUCT = NO;
+			};
+			name = Release;
+		};
 		4FBE2CF71B7261A200407788 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -25791,6 +26057,16 @@
 				4F9797C11BED0AC800719F3F /* Debug */,
 				4F0454D420F0EE7D00699F29 /* Profile */,
 				4F9797C21BED0AC800719F3F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		4F9BA8C323DF3C6B006349F2 /* Build configuration list for PBXNativeTarget "uielementwatcher" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4F9BA8C423DF3C6B006349F2 /* Debug */,
+				4F9BA8C523DF3C6B006349F2 /* Profile */,
+				4F9BA8C623DF3C6B006349F2 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

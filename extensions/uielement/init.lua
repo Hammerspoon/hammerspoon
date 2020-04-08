@@ -2,11 +2,13 @@
 ---
 --- A generalized framework for working with OSX UI elements
 
-local uielement = require "hs.uielement.internal"
-local application = {}
-application.watcher = require "hs.application.watcher"
+local uielement = require("hs.uielement.internal")
+uielement.watcher = require("hs.uielement.watcher")
 local fnutils = require "hs.fnutils"
 
+local USERDATA_TAG = "hs.uielement"
+local objectMT     = hs.getObjectMetatable(USERDATA_TAG)
+local watcherMT    = hs.getObjectMetatable("hs.uielement.watcher")
 
 --- hs.uielement:isApplication() -> bool
 --- Method
@@ -17,7 +19,7 @@ local fnutils = require "hs.fnutils"
 ---
 --- Returns:
 ---  * A boolean, true if the UI element is an application
-function uielement:isApplication()
+function objectMT.isApplication(self)
     return self:role() == "AXApplication"
 end
 
@@ -81,7 +83,7 @@ local function appCallback(_, event, app)
     end
 end
 
-local globalAppWatcher = application.watcher.new(appCallback)
+local globalAppWatcher = hs.application.watcher.new(appCallback)
 globalAppWatcher:start()
 
 -- Keep track of all other UI elements to automatically stop their watchers.
@@ -122,12 +124,12 @@ end
 ---
 --- Returns:
 ---  * An `hs.uielement.watcher` object, or `nil` if an error occurred
-function uielement:newWatcher(callback, ...)
+function objectMT.newWatcher(self, callback, ...)
     if type(callback) ~= "function" then
         hs.showError("hs.uielement:newWatcher() called with incorrect arguments. The first argument must be a function")
         return
     end
-    local obj = self:_newWatcher(function(...) handleEvent(callback, ...) end, ...)
+    local obj = hs.uielement.watcher.new(self, function(...) handleEvent(callback, ...) end, ...)
 
     if obj then
         obj._pid = self:pid()
@@ -149,7 +151,7 @@ end
 --- Notes:
 ---  * See hs.uielement.watcher for a list of events. You may also specify arbitrary event names as strings.
 ---  * Does nothing if the watcher has already been started. To start with different events, stop it first.
-function uielement.watcher:start(events)
+function watcherMT.start(self, events)
     -- Track all watchers in appWatchers.
     local pid = self._pid
     if not appWatchers[pid] then appWatchers[pid] = {} end
@@ -182,7 +184,7 @@ end
 ---
 --- Notes:
 ---  * This is automatically called if the element is destroyed.
-function uielement.watcher:stop()
+function watcherMT.stop(self)
     -- Remove self from appWatchers.
     local pid = self._pid
     if appWatchers[pid] then
@@ -204,7 +206,7 @@ end
 ---
 --- Returns:
 ---  * The element the watcher is watching.
-function uielement.watcher:element()
+function watcherMT.element(self)
     return self._element
 end
 

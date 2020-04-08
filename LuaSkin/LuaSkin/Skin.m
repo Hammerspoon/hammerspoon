@@ -283,6 +283,9 @@ static NSMutableSet *_sharedWarnings ;
         [self.registeredLuaObjectHelperUserdataMappings removeAllObjects];
         [self.registeredLuaObjectHelperTableMappings    removeAllObjects];
     }
+    if (self.L) {
+        self.L = NULL;
+    }
     LuaSkin.mainLuaState = NULL;
 }
 
@@ -1162,7 +1165,7 @@ nextarg:
             } else if ((options & LS_NSIgnoreUnknownTypes) == LS_NSIgnoreUnknownTypes) {
                 [self logVerbose:[NSString stringWithFormat:@"unrecognized type %@; ignoring", NSStringFromClass([obj class])]] ;
                 return 0 ;
-            }else {
+            } else {
                 [self logDebug:[NSString stringWithFormat:@"unrecognized type %@; returning nil", NSStringFromClass([obj class])]] ;
                 lua_pushnil(self.L) ;
             }
