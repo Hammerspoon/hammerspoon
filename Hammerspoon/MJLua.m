@@ -15,6 +15,8 @@
 #import "HSLogger.h" // This should come after Crashlytics
 #import <AVFoundation/AVFoundation.h>
 #import <dlfcn.h>
+#import <AppKit/AppKit.h>
+#import <libproc.h>
 
 @interface MJPreferencesWindowController ()
 - (void) reflectDefaults ;
