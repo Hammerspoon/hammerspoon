@@ -259,7 +259,7 @@ static int application_isunresponsive(lua_State* L) {
 
 static int application__bringtofront(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
     HSapplication *app = [skin toNSObjectAtIndex:1];
     lua_pushboolean(L, [app setFrontmost:lua_toboolean(L, 2)]);
     return 1;
