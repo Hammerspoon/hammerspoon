@@ -30,7 +30,7 @@ static int refTable = LUA_NOREF;
 /// Returns:
 ///  * An hs.uielement.watcher object
 static int watcher_new(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, "hs.uielement", LS_TFUNCTION, LS_TANY|LS_TOPTIONAL, LS_TBREAK];
     HSuielement *element = [skin toNSObjectAtIndex:1];
     int callbackRef = [skin luaRef:refTable atIndex:2];
@@ -47,7 +47,7 @@ static int watcher_new(lua_State* L) {
 }
 
 static int watcher_start(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBREAK];
     HSuielementWatcher *watcher = [skin toNSObjectAtIndex:1];
     [watcher start:[skin toNSObjectAtIndex:2]];
@@ -56,7 +56,7 @@ static int watcher_start(lua_State* L) {
 }
 
 static int watcher_stop(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSuielementWatcher *watcher = [skin toNSObjectAtIndex:1];
     [watcher stop];
@@ -79,7 +79,7 @@ static int pushHSuielementWatcher(lua_State *L, id obj) {
 }
 
 static id toHSuielementWatcherFromLua(lua_State *L, int idx) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     HSuielementWatcher *value;
     if (luaL_testudata(L, idx, USERDATA_TAG)) {
         value = get_objectFromUserdata(__bridge HSuielementWatcher, L, idx, USERDATA_TAG);
@@ -93,7 +93,7 @@ static id toHSuielementWatcherFromLua(lua_State *L, int idx) {
 #pragma mark - Hammerspoon/Lua Infrastructure
 
 static int userdata_tostring(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     lua_pushstring(L, [NSString stringWithFormat:@"%s: %p", USERDATA_TAG, lua_topointer(L, 1)].UTF8String);
     return 1 ;
@@ -102,7 +102,7 @@ static int userdata_tostring(lua_State* L) {
 static int userdata_eq(lua_State *L) {
     BOOL isEqual = NO;
     if (luaL_testudata(L, 1, USERDATA_TAG) && luaL_testudata(L, 2, USERDATA_TAG)) {
-        LuaSkin *skin = [LuaSkin shared];
+        LuaSkin *skin = [LuaSkin sharedWithState:L];
         HSuielementWatcher *watcher1 = [skin toNSObjectAtIndex:1];
         HSuielementWatcher *watcher2 = [skin toNSObjectAtIndex:2];
         isEqual = [watcher1 isEqual:watcher2];
@@ -113,7 +113,7 @@ static int userdata_eq(lua_State *L) {
 
 // Perform cleanup if the watcher is not required anymore.
 static int userdata_gc(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSuielementWatcher *watcher = get_objectFromUserdata(__bridge_transfer HSuielementWatcher, L, 1, USERDATA_TAG);
     if (watcher) {
@@ -149,8 +149,8 @@ static const luaL_Reg userdata_metaLib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_uielement_watcher(lua_State *L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+int luaopen_hs_uielement_watcher(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:moduleLib metaFunctions:module_metaLib objectFunctions:userdata_metaLib];
     [skin registerPushNSHelper:pushHSuielementWatcher forClass:"HSuielementWatcher"];
     [skin registerLuaObjectHelper:toHSuielementWatcherFromLua forClass:"HSuielementWatcher" withUserdataMapping:USERDATA_TAG];
