@@ -6,13 +6,16 @@
 
 #pragma mark - Class methods
 +(HSapplication *)frontmostApplication {
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     HSapplication *frontmostApp = nil;
 
     NSRunningApplication *runningApp = [[NSWorkspace sharedWorkspace] frontmostApplication];
     if (runningApp) {
         frontmostApp = [HSapplication applicationForNSRunningApplication:runningApp];
+        if (!frontmostApp) {
+            [skin logError:[NSString stringWithFormat:@"HSapplication::frontmostApplication failed for app: %@", runningApp.localizedName]];
+        }
     } else {
-        LuaSkin *skin = [LuaSkin sharedWithState:NULL];
         [skin logError:@"Unable to fetch frontmost application"];
     }
     return frontmostApp;
