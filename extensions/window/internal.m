@@ -653,6 +653,7 @@ static const luaL_Reg moduleLib[] = {
     {"_orderedwinids", window__orderedwinids},
     {"setShadows", window_setShadows},
     {"snapshotForID", window_snapshotForID},
+    {"timeout", window_timeout},
 
     {NULL, NULL}
 };
@@ -688,7 +689,6 @@ static const luaL_Reg userdata_metaLib[] = {
     {"_setFullScreen", window__setfullscreen},
     {"isFullScreen", window_isfullscreen},
     {"snapshot", window_snapshot},
-    {"timeout", window_timeout},
 
     {"__tostring", userdata_tostring},
     {"__eq", userdata_eq},
