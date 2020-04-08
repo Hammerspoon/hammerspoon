@@ -103,7 +103,7 @@ typedef enum _event_t {
 
     lua_pushinteger(L, event); // Parameter 2: the event type
 
-    HSapplication *application = [[HSapplication alloc] initWithPid:app.processIdentifier];
+    HSapplication *application = [HSapplication applicationForNSRunningApplication:app];
     [skin pushNSObject:application];
 
     [skin protectedCallAndError:@"hs.application.watcher callback" nargs:3 nresults:0];

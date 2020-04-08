@@ -15,6 +15,7 @@
 
 // Class methods that return an application matching a criteria
 +(HSapplication *)applicationForPID:(pid_t)pid;
++(HSapplication *)applicationForNSRunningApplication:(NSRunningApplication *)app;
 
 // Class methods that return application metadata based on an argument
 +(NSString *)nameForBundleID:(NSString *)bundleID;
