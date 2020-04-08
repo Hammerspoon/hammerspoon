@@ -58,7 +58,7 @@
     NSMutableArray<HSapplication *> *apps = [[NSMutableArray alloc] init];
 
     for (NSRunningApplication* runningApp in [[NSWorkspace sharedWorkspace] runningApplications]) {
-        HSapplication *app = [[HSapplication alloc] initWithPid:runningApp.processIdentifier];
+        HSapplication *app = [HSapplication applicationForNSRunningApplication:runningApp];
         if (app) {
             [apps addObject:app];
         }
@@ -71,7 +71,7 @@
     NSMutableArray<HSapplication *> *apps = [[NSMutableArray alloc] init];
 
     for (NSRunningApplication* runningApp in [NSRunningApplication runningApplicationsWithBundleIdentifier:bundleID]) {
-        HSapplication *app = [[HSapplication alloc] initWithPid:runningApp.processIdentifier];
+        HSapplication *app = [HSapplication applicationForNSRunningApplication:runningApp];
         if (app) {
             [apps addObject:app];
         }
