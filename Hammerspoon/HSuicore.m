@@ -11,6 +11,9 @@
     NSRunningApplication *runningApp = [[NSWorkspace sharedWorkspace] frontmostApplication];
     if (runningApp) {
         frontmostApp = [HSapplication applicationForNSRunningApplication:runningApp];
+    } else {
+        LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+        [skin logError:@"Unable to fetch frontmost application"];
     }
     return frontmostApp;
 }
@@ -104,13 +107,17 @@
 
 #pragma mark - Instance initialiser
 -(HSapplication *)initWithPid:(pid_t)pid {
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+
     NSRunningApplication *runningApp = [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
     if (!runningApp) {
+        [skin logError:[NSString stringWithFormat:@"Unable to fetch NSRunningApplication for pid: %d", pid]];
         return nil;
     }
     
     AXUIElementRef appRef = AXUIElementCreateApplication(pid);
     if (!appRef) {
+        [skin logError:[NSString stringWithFormat:@"Unable to fetch AXUIElementRef for pid: %d", pid]];
         return nil;
     }
 
