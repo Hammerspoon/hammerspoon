@@ -153,7 +153,7 @@ static int pushTestUserData(lua_State *L, id object) {
 
 - (void)setUp {
     [super setUp];
-    self.skin = [[LuaSkin alloc] init];
+    self.skin = [LuaSkin sharedWithState:NULL];
     libraryGCCalled = NO;
     libraryObjectGCCalled = NO;
 
@@ -202,7 +202,7 @@ static int pushTestUserData(lua_State *L, id object) {
 }
 
 - (void)tearDown {
-    [self.skin destroyLuaState];
+    [self.skin resetLuaState];
     [super tearDown];
 }
 

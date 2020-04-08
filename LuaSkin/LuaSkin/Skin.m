@@ -283,6 +283,9 @@ static NSMutableSet *_sharedWarnings ;
         [self.registeredLuaObjectHelperUserdataMappings removeAllObjects];
         [self.registeredLuaObjectHelperTableMappings    removeAllObjects];
     }
+    if (self.L) {
+        self.L = NULL;
+    }
     LuaSkin.mainLuaState = NULL;
 }
 
