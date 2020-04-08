@@ -336,7 +336,7 @@
 
 static void watcher_observer_callback(AXObserverRef observer __unused, AXUIElementRef element,
                                       CFStringRef notificationName, void* contextData) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     HSuielementWatcher *watcher = (__bridge HSuielementWatcher *)contextData;
 
     [skin pushLuaRef:watcher.refTable ref:watcher.handlerRef]; // Callback function
@@ -388,7 +388,7 @@ static void watcher_observer_callback(AXObserverRef observer __unused, AXUIEleme
 #pragma mark - Instance methods
 
 -(void)start:(NSArray <NSString *>*)events {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     if (self.running) {
         return;
     }
