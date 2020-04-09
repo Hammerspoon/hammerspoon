@@ -446,7 +446,7 @@ static int window_application(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSwindow *win = [skin toNSObjectAtIndex:1];
-    HSapplication *app = [[HSapplication alloc] initWithPid:win.pid];
+    HSapplication *app = [[HSapplication alloc] initWithPid:win.pid withState:L];
     [skin pushNSObject:app];
     return 1;
 }

@@ -30,7 +30,7 @@ static int application_gc(lua_State* L) {
 static int application_frontmostapplication(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TBREAK];
-    [skin pushNSObject:[HSapplication frontmostApplication]];
+    [skin pushNSObject:[HSapplication frontmostApplicationWithState:L]];
     return 1;
 }
 
@@ -46,7 +46,7 @@ static int application_frontmostapplication(lua_State* L) {
 static int application_runningapplications(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TBREAK];
-    NSArray *apps = [HSapplication runningApplications];
+    NSArray *apps = [HSapplication runningApplicationsWithState:L];
     [skin pushNSObject:apps];
     return 1;
 }
@@ -64,7 +64,7 @@ static int application_applicationforpid(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TNUMBER, LS_TBREAK];
     pid_t pid = (pid_t)lua_tointeger(L, 1);
-    [skin pushNSObject:[HSapplication applicationForPID:pid]];
+    [skin pushNSObject:[HSapplication applicationForPID:pid withState:L]];
     return 1;
 }
 
@@ -80,7 +80,7 @@ static int application_applicationforpid(lua_State* L) {
 static int application_applicationsForBundleID(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TBREAK];
-    [skin pushNSObject:[HSapplication applicationsForBundleID:[skin toNSObjectAtIndex:1]]];
+    [skin pushNSObject:[HSapplication applicationsForBundleID:[skin toNSObjectAtIndex:1] withState:L]];
     return 1;
 }
 
@@ -332,7 +332,7 @@ static int application_isRunning(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSapplication *app = [skin toNSObjectAtIndex:1];
-    lua_pushboolean(L, [app isRunning]);
+    lua_pushboolean(L, [app isRunningWithState:L]);
     return 1;
 }
 
