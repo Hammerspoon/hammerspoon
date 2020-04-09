@@ -38,7 +38,7 @@ static int watcher_new(lua_State* L) {
     if (lua_type(L, 3) != LUA_TNONE) {
         userdataRef = [skin luaRef:refTable atIndex:3];
     }
-    
+
     // FIXME move reftable to an argument for newWatcher
     HSuielementWatcher *watcher = [element newWatcher:callbackRef withUserdata:userdataRef];
     watcher.refTable = refTable;
@@ -50,7 +50,7 @@ static int watcher_start(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBREAK];
     HSuielementWatcher *watcher = [skin toNSObjectAtIndex:1];
-    [watcher start:[skin toNSObjectAtIndex:2]];
+    [watcher start:[skin toNSObjectAtIndex:2] withState:L];
     lua_pushvalue(L, 1);
     return 1;
 }

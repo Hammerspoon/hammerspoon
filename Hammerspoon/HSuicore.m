@@ -5,13 +5,13 @@
 @implementation HSapplication
 
 #pragma mark - Class methods
-+(HSapplication *)frontmostApplication {
-    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
++(HSapplication *)frontmostApplicationWithState:(lua_State *)L {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     HSapplication *frontmostApp = nil;
 
     NSRunningApplication *runningApp = [[NSWorkspace sharedWorkspace] frontmostApplication];
     if (runningApp) {
-        frontmostApp = [HSapplication applicationForNSRunningApplication:runningApp];
+        frontmostApp = [HSapplication applicationForNSRunningApplication:runningApp withState:L];
         if (!frontmostApp) {
             [skin logError:[NSString stringWithFormat:@"HSapplication::frontmostApplication failed for app: %@", runningApp.localizedName]];
         }
@@ -21,12 +21,12 @@
     return frontmostApp;
 }
 
-+(HSapplication *)applicationForNSRunningApplication:(NSRunningApplication *)app {
-    return [[HSapplication alloc] initWithNSRunningApplication:app];
++(HSapplication *)applicationForNSRunningApplication:(NSRunningApplication *)app withState:(lua_State *)L {
+    return [[HSapplication alloc] initWithNSRunningApplication:app withState:L];
 }
 
-+(HSapplication *)applicationForPID:(pid_t)pid {
-    return [[HSapplication alloc] initWithPid:pid];
++(HSapplication *)applicationForPID:(pid_t)pid withState:(lua_State *)L {
+    return [[HSapplication alloc] initWithPid:pid withState:L];
 }
 
 +(NSString *)nameForBundleID:(NSString *)bundleID {
@@ -54,11 +54,11 @@
     return appInfo;
 }
 
-+(NSArray<HSapplication *>*)runningApplications {
++(NSArray<HSapplication *>*)runningApplicationsWithState:(lua_State *)L {
     NSMutableArray<HSapplication *> *apps = [[NSMutableArray alloc] init];
 
     for (NSRunningApplication* runningApp in [[NSWorkspace sharedWorkspace] runningApplications]) {
-        HSapplication *app = [HSapplication applicationForNSRunningApplication:runningApp];
+        HSapplication *app = [HSapplication applicationForNSRunningApplication:runningApp withState:L];
         if (app) {
             [apps addObject:app];
         }
@@ -67,11 +67,11 @@
     return (NSArray *)[apps copy];
 }
 
-+(NSArray<HSapplication *>*)applicationsForBundleID:(NSString *)bundleID {
++(NSArray<HSapplication *>*)applicationsForBundleID:(NSString *)bundleID withState:(lua_State *)L {
     NSMutableArray<HSapplication *> *apps = [[NSMutableArray alloc] init];
 
     for (NSRunningApplication* runningApp in [NSRunningApplication runningApplicationsWithBundleIdentifier:bundleID]) {
-        HSapplication *app = [HSapplication applicationForNSRunningApplication:runningApp];
+        HSapplication *app = [HSapplication applicationForNSRunningApplication:runningApp withState:L];
         if (app) {
             [apps addObject:app];
         }
@@ -109,20 +109,20 @@
 }
 
 #pragma mark - Instance initialisers
--(HSapplication *)initWithPid:(pid_t)pid {
-    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+-(HSapplication *)initWithPid:(pid_t)pid withState:(lua_State *)L {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     NSRunningApplication *runningApp = [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
     if (!runningApp) {
         [skin logError:[NSString stringWithFormat:@"Unable to fetch NSRunningApplication for pid: %d", pid]];
         return nil;
     }
-    
-    return [self initWithNSRunningApplication:runningApp];
+
+    return [self initWithNSRunningApplication:runningApp withState:L];
 }
 
--(HSapplication *)initWithNSRunningApplication:(NSRunningApplication *)app {
-    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+-(HSapplication *)initWithNSRunningApplication:(NSRunningApplication *)app withState:(lua_State *)L {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     if (!app) {
         [skin logError:@"HSapplication::initWithNSRunningApplication called with invalid application"];
@@ -212,10 +212,10 @@
     return !CGSEventIsAppUnresponsive(conn, &psn);
 }
 
--(BOOL)isRunning {
+-(BOOL)isRunningWithState:(lua_State *)L {
     // FIXME: Figure out why we can't use NSRunningApplication.terminated here - it always seems to say NO
     //BOOL isTerminated = self.runningApp.terminated;
-    HSapplication *test = [HSapplication applicationForPID:self.runningApp.processIdentifier];
+    HSapplication *test = [HSapplication applicationForPID:self.runningApp.processIdentifier withState:(lua_State *)L];
     return (test != nil);
 }
 
@@ -369,7 +369,7 @@ static void watcher_observer_callback(AXObserverRef observer __unused, AXUIEleme
     } else if ([elementObj.role isEqualToString:(__bridge NSString *)kAXApplicationRole]) {
         pid_t pid;
         AXUIElementGetPid(element, &pid);
-        pushObj = [[HSapplication alloc] initWithPid:pid];
+        pushObj = [[HSapplication alloc] initWithPid:pid withState:skin.L];
     }
     [skin pushNSObject:pushObj]; // Parameter 1: element
     lua_pushstring(skin.L, CFStringGetCStringPtr(notificationName, kCFStringEncodingASCII)); // Parameter 2: event
@@ -408,8 +408,8 @@ static void watcher_observer_callback(AXObserverRef observer __unused, AXUIEleme
 
 #pragma mark - Instance methods
 
--(void)start:(NSArray <NSString *>*)events {
-    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+-(void)start:(NSArray <NSString *>*)events withState:(lua_State *)L {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     if (self.running) {
         return;
     }

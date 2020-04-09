@@ -11,11 +11,11 @@
 @property (nonatomic, getter=isHidden, setter=setHidden:) BOOL hidden;
 
 // Simplest class methods that just return an application
-+(HSapplication *)frontmostApplication;
++(HSapplication *)frontmostApplicationWithState:(lua_State *)L;
 
 // Class methods that return an application matching a criteria
-+(HSapplication *)applicationForPID:(pid_t)pid;
-+(HSapplication *)applicationForNSRunningApplication:(NSRunningApplication *)app;
++(HSapplication *)applicationForPID:(pid_t)pid withState:(lua_State *)L;
++(HSapplication *)applicationForNSRunningApplication:(NSRunningApplication *)app withState:(lua_State *)L;
 
 // Class methods that return application metadata based on an argument
 +(NSString *)nameForBundleID:(NSString *)bundleID;
@@ -24,8 +24,8 @@
 +(NSDictionary *)infoForBundlePath:(NSString *)bundlePath;
 
 // Class methods that return arrays of applications
-+(NSArray<HSapplication *>*)runningApplications;
-+(NSArray<HSapplication *>*)applicationsForBundleID:(NSString *)bundleID;
++(NSArray<HSapplication *>*)runningApplicationsWithState:(lua_State *)L;
++(NSArray<HSapplication *>*)applicationsForBundleID:(NSString *)bundleID withState:(lua_State *)L;
 
 // Class methods that launch applications
 +(BOOL)launchByName:(NSString *)name;
@@ -36,8 +36,8 @@
 -(BOOL)isHidden;
 
 // Initialisers
--(HSapplication *)initWithPid:(pid_t)pid;
--(HSapplication *)initWithNSRunningApplication:(NSRunningApplication *)app;
+-(HSapplication *)initWithPid:(pid_t)pid withState:(lua_State *)L;
+-(HSapplication *)initWithNSRunningApplication:(NSRunningApplication *)app withState:(lua_State *)L;
 
 // Destructor
 -(void)dealloc;
@@ -48,7 +48,7 @@
 -(id)focusedWindow;
 -(BOOL)activate:(BOOL)allWindows;
 -(BOOL)isResponsive;
--(BOOL)isRunning;
+-(BOOL)isRunningWithState:(lua_State *)L;
 -(BOOL)setFrontmost:(BOOL)allWindows;
 -(BOOL)isFrontmost;
 -(NSString *)title;
@@ -99,7 +99,7 @@
 -(HSuielementWatcher *)initWithElement:(HSuielement *)element callbackRef:(int)callbackRef userdataRef:(int)userdataRef;
 -(void)dealloc;
 
--(void)start:(NSArray <NSString *>*)events;
+-(void)start:(NSArray <NSString *>*)events withState:(lua_State *)L;
 -(void)stop;
 @end
 
