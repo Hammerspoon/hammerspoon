@@ -22,7 +22,7 @@ static const char *USERDATA_TAG = "hs.socket";
 static void connectCallback(HSAsyncTcpSocket *asyncSocket) {
     mainThreadDispatch(
     	if (asyncSocket.connectCallback != LUA_NOREF) {
-			LuaSkin *skin = [LuaSkin shared];
+			LuaSkin *skin = [LuaSkin sharedWithState:NULL];
 			_lua_stackguard_entry(skin.L);
 			[skin pushLuaRef:refTable ref:asyncSocket.connectCallback];
 			asyncSocket.connectCallback = [skin luaUnref:refTable ref:asyncSocket.connectCallback];
@@ -35,7 +35,7 @@ static void connectCallback(HSAsyncTcpSocket *asyncSocket) {
 static void writeCallback(HSAsyncTcpSocket *asyncSocket, long tag) {
     mainThreadDispatch(
     	if (asyncSocket.writeCallback != LUA_NOREF) {
-			LuaSkin *skin = [LuaSkin shared];
+			LuaSkin *skin = [LuaSkin sharedWithState:NULL];
 			_lua_stackguard_entry(skin.L);
 			[skin pushLuaRef:refTable ref:asyncSocket.writeCallback];
 			[skin pushNSObject: @(tag)];
@@ -49,7 +49,7 @@ static void writeCallback(HSAsyncTcpSocket *asyncSocket, long tag) {
 static void readCallback(HSAsyncTcpSocket *asyncSocket, NSData *data, long tag) {
     mainThreadDispatch(
     	if (asyncSocket.readCallback != LUA_NOREF) {
-			LuaSkin *skin = [LuaSkin shared];
+			LuaSkin *skin = [LuaSkin sharedWithState:NULL];
 			_lua_stackguard_entry(skin.L);
 			[skin pushLuaRef:refTable ref:asyncSocket.readCallback];
 			[skin pushNSObject:data withOptions:LS_NSLuaStringAsDataOnly];
@@ -162,7 +162,7 @@ static void readCallback(HSAsyncTcpSocket *asyncSocket, NSData *data, long tag) 
 ///  * An [`hs.socket`](#new) object
 ///
 static int socket_new(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TFUNCTION|LS_TNIL|LS_TOPTIONAL, LS_TBREAK];
     HSAsyncTcpSocket *asyncSocket = [[HSAsyncTcpSocket alloc] init];
 
@@ -214,7 +214,7 @@ static int socket_new(lua_State *L) {
 /// AF_INET6 | 30 | IPv6
 ///
 static int socket_parseAddress(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TBREAK];
     const char *addressData = lua_tostring(L, 1);
     NSUInteger addressDataLength = lua_rawlen(L, 1);
@@ -248,7 +248,7 @@ static int socket_parseAddress(lua_State *L) {
 ///  * Either a host/port pair OR a Unix domain socket path must be supplied. If no port is passed, the first param is assumed to be a path to the socket file
 ///
 static int socket_connect(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TANY|LS_TOPTIONAL, LS_TANY|LS_TOPTIONAL, LS_TBREAK];
     HSAsyncTcpSocket* asyncSocket = getUserData(L, 1);
     NSError *err;
@@ -306,7 +306,7 @@ static int socket_connect(lua_State *L) {
 ///  * The [`hs.socket`](#new) object or `nil` if an error occurred
 ///
 static int socket_listen(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER|LS_TINTEGER|LS_TSTRING, LS_TBREAK];
     HSAsyncTcpSocket* asyncSocket = getUserData(L, 1);
     NSError *err;
@@ -356,7 +356,7 @@ static int socket_listen(lua_State *L) {
 ///  * If called on a listening socket with multiple connections, each client is disconnected
 ///
 static int socket_disconnect(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSAsyncTcpSocket* asyncSocket = getUserData(L, 1);
 
@@ -381,7 +381,7 @@ static int socket_disconnect(lua_State *L) {
 ///  * If called on a listening socket with multiple connections, data is read from each of them
 ///
 static int socket_read(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER|LS_TINTEGER|LS_TSTRING, LS_TNUMBER|LS_TINTEGER|LS_TOPTIONAL, LS_TBREAK];
     HSAsyncTcpSocket* asyncSocket = getUserData(L, 1);
     long tag = (lua_type(L, 3) == LUA_TNUMBER) ? lua_tointeger(L, 3) : -1;
@@ -441,7 +441,7 @@ static int socket_read(lua_State *L) {
 ///  * If called on a listening socket with multiple connections, data is broadcasted to all connected sockets
 ///
 static int socket_write(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TNUMBER|LS_TINTEGER|LS_TFUNCTION|LS_TNIL|LS_TOPTIONAL, LS_TFUNCTION|LS_TOPTIONAL, LS_TBREAK];
     HSAsyncTcpSocket* asyncSocket = getUserData(L, 1);
     NSData *message = [skin toNSObjectAtIndex:2 withOptions:LS_NSLuaStringAsDataOnly];
@@ -484,7 +484,7 @@ static int socket_write(lua_State *L) {
 ///  * The [`hs.socket`](#new) object
 ///
 static int socket_setCallback(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION|LS_TNIL|LS_TOPTIONAL, LS_TBREAK];
     HSAsyncTcpSocket* asyncSocket = getUserData(L, 1);
     asyncSocket.readCallback = [skin luaUnref:refTable ref:asyncSocket.readCallback];
@@ -509,7 +509,7 @@ static int socket_setCallback(lua_State *L) {
 ///  * The [`hs.socket`](#new) object
 ///
 static int socket_setTimeout(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TBREAK];
     HSAsyncTcpSocket* asyncSocket = getUserData(L, 1);
     NSTimeInterval timeout = lua_tonumber(L, 2);
@@ -545,7 +545,7 @@ static int socket_setTimeout(lua_State *L) {
 /// should set `peerName` to "MySecureServer.com".
 ///
 static int socket_startTLS(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN|LS_TSTRING|LS_TOPTIONAL, LS_TBREAK];
     HSAsyncTcpSocket* asyncSocket = getUserData(L, 1);
     NSDictionary *tlsSettings = nil;
@@ -585,7 +585,7 @@ static NSInteger get_socket_connections(HSAsyncTcpSocket* asyncSocket) {
 ///  * `true` if connected, otherwise `false`
 ///
 static int socket_connected(lua_State *L) {
-    [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    [[LuaSkin sharedWithState:L] checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSAsyncTcpSocket* asyncSocket = getUserData(L, 1);
 
     lua_pushboolean(L, (BOOL)get_socket_connections(asyncSocket));
@@ -603,7 +603,7 @@ static int socket_connected(lua_State *L) {
 ///  * The number of connections to the socket
 ///
 static int socket_connections(lua_State *L) {
-    [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    [[LuaSkin sharedWithState:L] checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSAsyncTcpSocket* asyncSocket = getUserData(L, 1);
 
     lua_pushinteger(L, get_socket_connections(asyncSocket));
@@ -640,7 +640,7 @@ static int socket_connections(lua_State *L) {
 ///   * userData - `string`
 ///
 static int socket_info(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSAsyncTcpSocket* asyncSocket = getUserData(L, 1);
 
@@ -690,11 +690,12 @@ static int userdata_gc(lua_State *L) {
     HSAsyncTcpSocket* asyncSocket = (__bridge_transfer HSAsyncTcpSocket *)userData->asyncSocket;
     userData->asyncSocket = nil;
 
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [asyncSocket disconnect];
     [asyncSocket setDelegate:nil delegateQueue:NULL];
-    asyncSocket.readCallback = [[LuaSkin shared] luaUnref:refTable ref:asyncSocket.readCallback];
-    asyncSocket.writeCallback = [[LuaSkin shared] luaUnref:refTable ref:asyncSocket.writeCallback];
-    asyncSocket.connectCallback = [[LuaSkin shared] luaUnref:refTable ref:asyncSocket.connectCallback];
+    asyncSocket.readCallback = [skin luaUnref:refTable ref:asyncSocket.readCallback];
+    asyncSocket.writeCallback = [skin luaUnref:refTable ref:asyncSocket.writeCallback];
+    asyncSocket.connectCallback = [skin luaUnref:refTable ref:asyncSocket.connectCallback];
     asyncSocket = nil;
 
     return 0;
@@ -725,8 +726,8 @@ static const luaL_Reg userdata_metaLib[] = {
     {NULL,              NULL} // This must end with an empty struct
 };
 
-int luaopen_hs_socket_internal(lua_State *L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+int luaopen_hs_socket_internal(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibrary:moduleLib metaFunctions:meta_gcLib];
     [skin registerObject:USERDATA_TAG objectFunctions:userdata_metaLib];
 

@@ -172,9 +172,9 @@ static HSWifiWatcherManager *manager ;
     }
     [_watchers enumerateObjectsUsingBlock:^(HSWifiWatcher *aWatcher, __unused BOOL *stop) {
         if ([aWatcher.watchingFor containsObject:message]) {
-            if (aWatcher.callbackRef != LUA_NOREF) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    LuaSkin *skin = [LuaSkin shared] ;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (aWatcher.callbackRef != LUA_NOREF) {
+                    LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
                     _lua_stackguard_entry(skin.L);
                     [skin pushLuaRef:refTable ref:aWatcher.callbackRef] ;
                     [skin pushNSObject:aWatcher] ;
@@ -188,8 +188,8 @@ static HSWifiWatcherManager *manager ;
                     }
                     [skin protectedCallAndError:[NSString stringWithFormat:@"hs.wifi.watcher callback for %@", message] nargs:(2 + (int)count) nresults:0];
                     _lua_stackguard_exit(skin.L);
-                }) ;
-            }
+                }
+            }) ;
         }
     }] ;
 }
@@ -275,7 +275,7 @@ static HSWifiWatcherManager *manager ;
 // ///      * `message`   - the message specifying the event, in this case "virtualInterfaceStateChanged"
 // ///      * `interface` - the name of the interface for which the event occured
 static int wifi_watcher_new(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TFUNCTION, LS_TBREAK] ;
     HSWifiWatcher *newWatcher = [[HSWifiWatcher alloc] init] ;
     if (newWatcher) {
@@ -298,7 +298,7 @@ static int wifi_watcher_new(lua_State *L) {
 /// Returns:
 ///  * The `hs.wifi.watcher` object
 static int wifi_watcher_start(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSWifiWatcher *watcher = [skin toNSObjectAtIndex:1] ;
     [manager.watchers addObject:watcher] ;
@@ -316,7 +316,7 @@ static int wifi_watcher_start(lua_State *L) {
 /// Returns:
 ///  * The `hs.wifi.watcher` object
 static int wifi_watcher_stop(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSWifiWatcher *watcher = [skin toNSObjectAtIndex:1] ;
     [manager.watchers removeObject:watcher] ;
@@ -338,7 +338,7 @@ static int wifi_watcher_stop(lua_State *L) {
 ///  * the possible values for this method are described in [hs.wifi.watcher.eventTypes](#eventTypes).
 ///  * the special string "all" specifies that all event types should be watched for.
 static int wifi_watcher_watchingFor(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE | LS_TOPTIONAL, LS_TBREAK] ;
     HSWifiWatcher *watcher = [skin toNSObjectAtIndex:1] ;
     if (lua_gettop(L) == 1) {
@@ -384,8 +384,8 @@ static int wifi_watcher_watchingFor(lua_State *L) {
 /// * "powerChange"                  - monitor when the power state of the Wi-Fi interface changes
 /// * "scanCacheUpdated"             - monitor when the scan cache of the Wi-Fi interface is updated with new information
 // /// * "virtualInterfaceStateChanged" - monitor when the state of a Wi-Fi virtual interface changes
-static int pushEventTypes(__unused lua_State *L) {
-    [[LuaSkin shared] pushNSObject:[watchableTypes allKeys]] ;
+static int pushEventTypes(lua_State *L) {
+    [[LuaSkin sharedWithState:L] pushNSObject:[watchableTypes allKeys]] ;
     return 1 ;
 }
 
@@ -404,7 +404,7 @@ static int pushHSWifiWatcher(lua_State *L, id obj) {
 }
 
 id toHSWifiWatcherFromLua(lua_State *L, int idx) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     HSWifiWatcher *value ;
     if (luaL_testudata(L, idx, USERDATA_TAG)) {
         value = get_objectFromUserdata(__bridge HSWifiWatcher, L, idx, USERDATA_TAG) ;
@@ -418,7 +418,7 @@ id toHSWifiWatcherFromLua(lua_State *L, int idx) {
 #pragma mark - Hammerspoon/Lua Infrastructure
 
 static int userdata_tostring(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
 //     HSWifiWatcher *obj = [skin luaObjectAtIndex:1 toClass:"HSWifiWatcher"] ;
     [skin pushNSObject:[NSString stringWithFormat:@"%s: (%p)", USERDATA_TAG, lua_topointer(L, 1)]] ;
     return 1 ;
@@ -428,7 +428,7 @@ static int userdata_eq(lua_State* L) {
 // can't get here if at least one of us isn't a userdata type, and we only care if both types are ours,
 // so use luaL_testudata before the macro causes a lua error
     if (luaL_testudata(L, 1, USERDATA_TAG) && luaL_testudata(L, 2, USERDATA_TAG)) {
-        LuaSkin *skin = [LuaSkin shared] ;
+        LuaSkin *skin = [LuaSkin sharedWithState:L] ;
         HSWifiWatcher *obj1 = [skin luaObjectAtIndex:1 toClass:"HSWifiWatcher"] ;
         HSWifiWatcher *obj2 = [skin luaObjectAtIndex:2 toClass:"HSWifiWatcher"] ;
         lua_pushboolean(L, [obj1 isEqualTo:obj2]) ;
@@ -443,7 +443,7 @@ static int userdata_gc(lua_State* L) {
     if (obj) {
         obj.selfRef-- ;
         if (obj.selfRef == 0) {
-            obj.callbackRef = [[LuaSkin shared] luaUnref:refTable ref:obj.callbackRef] ;
+            obj.callbackRef = [[LuaSkin sharedWithState:L] luaUnref:refTable ref:obj.callbackRef] ;
             [manager.watchers removeObject:obj] ;
             obj = nil ;
         }
@@ -493,7 +493,7 @@ static const luaL_Reg module_metaLib[] = {
 };
 
 int luaopen_hs_wifi_watcher(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     refTable = [skin registerLibraryWithObject:USERDATA_TAG
                                      functions:moduleLib
                                  metaFunctions:module_metaLib

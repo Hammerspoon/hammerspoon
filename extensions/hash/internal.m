@@ -170,9 +170,9 @@ static const luaL_Reg hashlib[] = {
 /* NOTE: The substring "hs_hash_internal" in the following function's name
          must match the require-path of this file, i.e. "hs.hash.internal". */
 
-int luaopen_hs_hash_internal(lua_State *L __unused) {
+int luaopen_hs_hash_internal(lua_State *L) {
     // Table for luaopen
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin registerLibrary:hashlib metaFunctions:nil];
 
     return 1;

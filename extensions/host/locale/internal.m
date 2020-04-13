@@ -29,15 +29,15 @@ static HSLocaleChangeObserver *observerOfChanges = nil ;
 @implementation HSLocaleChangeObserver
 
 - (void) localeChanged:(__unused NSNotification*)notification {
-    if (callbackRef != LUA_NOREF) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            LuaSkin *skin = [LuaSkin shared];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (callbackRef != LUA_NOREF) {
+            LuaSkin *skin = [LuaSkin sharedWithState:NULL];
             _lua_stackguard_entry(skin.L);
             [skin pushLuaRef:refTable ref:callbackRef];
             [skin protectedCallAndError:@"hs.host.locale callback" nargs:0 nresults:0];
             _lua_stackguard_exit(skin.L);
-        }) ;
-    }
+        }
+    }) ;
 }
 
 - (void) start {
@@ -59,7 +59,7 @@ static HSLocaleChangeObserver *observerOfChanges = nil ;
 //       create support tables for what we care about right now and don't register them as helpers
 
 static int pushNSCalendar(lua_State *L, id obj) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSCalendar *calendar = obj ;
     lua_newtable(L) ;
     // obj-c uses zero based indexing; lua uses 1 based indexing
@@ -97,8 +97,8 @@ static int pushNSCalendar(lua_State *L, id obj) {
     return 1 ;
 }
 
-static int pushNSCharacterSet(__unused lua_State *L, id obj) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int pushNSCharacterSet(lua_State *L, id obj) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSCharacterSet *charSet = obj ;
 
 // tweaked from http://stackoverflow.com/questions/26610931/list-of-characters-in-an-nscharacterset
@@ -121,14 +121,14 @@ static int pushNSCharacterSet(__unused lua_State *L, id obj) {
             }
         }
     }
-    [[LuaSkin shared] pushNSObject:array] ;
+    [skin pushNSObject:array] ;
     return 1 ;
 }
 
 FOUNDATION_EXPORT NSLocaleKey const NSLocaleTemperatureUnit  __attribute__((weak_import));
 
 static int pushNSLocale(lua_State *L, id obj) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSLocale *locale = obj ;
     lua_newtable(L) ;
     [skin pushNSObject:[locale objectForKey:NSLocaleIdentifier]] ;                          lua_setfield(L, -2, "identifier") ;
@@ -182,7 +182,7 @@ static int pushNSLocale(lua_State *L, id obj) {
 /// Notes:
 ///  * these values can be used with [hs.host.locale.details](#details) to get details for a specific locale.
 static int locale_availableLocaleIdentifiers(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TBREAK] ;
     NSArray *locales = [NSLocale availableLocaleIdentifiers] ;
     if (locales) {
@@ -204,7 +204,7 @@ static int locale_availableLocaleIdentifiers(lua_State *L) {
 /// Returns:
 ///  * an array table of strings specifying the user's preferred languages as string identifiers.
 static int locale_preferredLanguages(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TBREAK] ;
     NSArray *languages = [NSLocale preferredLanguages] ;
     if (languages) {
@@ -229,7 +229,7 @@ static int locale_preferredLanguages(lua_State *L) {
 /// Notes:
 ///  * this value can be used with [hs.host.locale.details](#details) to get details for the returned locale.
 static int locale_currenIdentifier(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TBREAK] ;
     [skin pushNSObject:[[NSLocale currentLocale] localeIdentifier]] ;
     return 1 ;
@@ -297,7 +297,7 @@ static int locale_currenIdentifier(lua_State *L) {
 ///    * `timeFormatIs24Hour` - http://stackoverflow.com/a/1972487
 ///  * If you are able to identify additional locale or regional settings that are not provided by this function and have a source which describes a reliable method to retrieve this information, please submit an issue at https://github.com/Hammerspoon/hammerspoon with the details.
 static int locale_localeInformation(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
     NSLocale *theLocale ;
     if (lua_gettop(L) == 0) {
@@ -329,7 +329,7 @@ static int locale_localeInformation(lua_State *L) {
 /// Notes:
 ///  * The `localeCode` and optional `baseLocaleCode` must be one of the strings returned by [hs.host.locale.availableLocales](#availableLocales).
 static int locale_localizedString(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
     NSLocale *theLocale ;
     NSArray *availableLocales = [NSLocale availableLocaleIdentifiers] ;
@@ -349,7 +349,7 @@ static int locale_localizedString(lua_State *L) {
         lua_pushnil(L) ;
         return 1;
     }
-    
+
     // Checks to see if the supplied `localeCode` exists in `availableLocaleIdentifiers`:
     NSString *localeCode = [skin toNSObjectAtIndex:1] ;
     BOOL islocaleCodeValid = [availableLocales containsObject: localeCode];
@@ -357,17 +357,17 @@ static int locale_localizedString(lua_State *L) {
         lua_pushnil(L) ;
         return 1;
     }
-    
+
     NSString *localizedString = [theLocale localizedStringForLanguageCode:localeCode];
     NSString *localizedStringWithDialect = [theLocale displayNameForKey:NSLocaleIdentifier value:localeCode];
-    
+
     [skin pushNSObject:localizedString] ;
     [skin pushNSObject:localizedStringWithDialect] ;
     return 2;
 }
 
 static int locale_registerCallback(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TFUNCTION, LS_TBREAK] ;
     callbackRef = [skin luaUnref:refTable ref:callbackRef] ; // should be unnecessary, but just in case
     lua_pushvalue(L, 1) ;
@@ -377,8 +377,8 @@ static int locale_registerCallback(lua_State *L) {
 
 #pragma mark - Hammerspoon/Lua Infrastructure
 
-static int meta_gc(lua_State* __unused L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int meta_gc(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     callbackRef = [skin luaUnref:refTable ref:callbackRef] ;
     [observerOfChanges stop] ;
     observerOfChanges = nil ;
@@ -402,8 +402,8 @@ static const luaL_Reg module_metaLib[] = {
     {NULL,   NULL}
 };
 
-int luaopen_hs_host_locale_internal(__unused lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+int luaopen_hs_host_locale_internal(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     refTable = [skin registerLibrary:moduleLib metaFunctions:module_metaLib] ;
 
     observerOfChanges = [[HSLocaleChangeObserver alloc] init] ;

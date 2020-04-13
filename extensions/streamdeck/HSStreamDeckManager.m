@@ -172,7 +172,7 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
     [deck initialiseCaches];
     [self.devices addObject:deck];
 
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     _lua_stackguard_entry(skin.L);
     if (self.discoveryCallbackRef == LUA_NOREF || self.discoveryCallbackRef == LUA_REFNIL) {
         [skin logWarn:@"hs.streamdeck detected a device connecting, but no discovery callback has been set. See hs.streamdeck.discoveryCallback()"];
@@ -193,7 +193,7 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
     for (HSStreamDeckDevice *deckDevice in self.devices) {
         if (deckDevice.device == device) {
             [deckDevice invalidate];
-            LuaSkin *skin = [LuaSkin shared];
+            LuaSkin *skin = [LuaSkin sharedWithState:NULL];
             _lua_stackguard_entry(skin.L);
             if (self.discoveryCallbackRef == LUA_NOREF || self.discoveryCallbackRef == LUA_REFNIL) {
                 [skin logWarn:@"hs.streamdeck detected a device disconnecting, but no callback has been set. See hs.streamdeck.discoveryCallback()"];

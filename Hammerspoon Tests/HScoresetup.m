@@ -52,7 +52,7 @@ static int verifyShutdown(lua_State *L) {
         {"verifyShutdown", verifyShutdown},
         {NULL, NULL}
     };
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     [skin registerLibrary:shutdownLib metaFunctions:nil];
     lua_setglobal(skin.L, "shutdownLib");
 

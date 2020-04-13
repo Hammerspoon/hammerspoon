@@ -60,7 +60,7 @@ typedef enum _event_t {
 
 // Call the lua callback function and pass the application name and event type.
 - (void)callback:(NSDictionary *)dict withEvent:(event_t)event {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     lua_State *L = skin.L;
     _lua_stackguard_entry(L);
 
@@ -121,7 +121,7 @@ typedef enum _event_t {
 ///  * A boolean, true if the volume was ejected, otherwise false
 ///  * A string, empty if the volume was ejected, otherwise it will contain the error message
 static int volume_eject(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TBREAK];
 
     NSWorkspace *workspace = [NSWorkspace sharedWorkspace];
@@ -150,7 +150,7 @@ static int volume_eject(lua_State *L) {
 /// Returns:
 ///  * An `hs.fs.volume` object
 static int volume_watcher_new(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TFUNCTION, LS_TBREAK];
 
     VolumeWatcher_t* watcher = lua_newuserdata(L, sizeof(VolumeWatcher_t));
@@ -208,7 +208,7 @@ static void unregister_observer(VolumeWatcher* observer) {
 /// Returns:
 ///  * An `hs.fs.volume` object
 static int volume_watcher_start(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
     VolumeWatcher_t* watcher = lua_touserdata(L, 1);
@@ -232,7 +232,7 @@ static int volume_watcher_start(lua_State* L) {
 /// Returns:
 ///  * An `hs.fs.volume` object
 static int volume_watcher_stop(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
     VolumeWatcher_t* watcher = lua_touserdata(L, 1);
@@ -248,7 +248,7 @@ static int volume_watcher_stop(lua_State* L) {
 
 // Perform cleanup if the VolumeWatcher is not required anymore.
 static int volume_watcher_gc(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     VolumeWatcher_t* watcher = luaL_checkudata(L, 1, USERDATA_TAG);
 
@@ -307,8 +307,8 @@ static const luaL_Reg metaGcLib[] = {
 };
 
 // Called when loading the module. All necessary tables need to be registered here.
-int luaopen_hs_fs_volume(lua_State* L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+int luaopen_hs_fs_volume(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:appLib metaFunctions:metaGcLib objectFunctions:metaLib];
 
     add_event_enum(skin.L);
