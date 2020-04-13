@@ -5,6 +5,7 @@
 local uielement = require("hs.uielement.internal")
 uielement.watcher = require("hs.uielement.watcher")
 local fnutils = require "hs.fnutils"
+local appWatcher = require "hs.application.watcher"
 
 local USERDATA_TAG = "hs.uielement"
 local objectMT     = hs.getObjectMetatable(USERDATA_TAG)
@@ -83,7 +84,7 @@ local function appCallback(_, event, app)
     end
 end
 
-local globalAppWatcher = hs.application.watcher.new(appCallback)
+local globalAppWatcher = appWatcher.new(appCallback)
 globalAppWatcher:start()
 
 -- Keep track of all other UI elements to automatically stop their watchers.
