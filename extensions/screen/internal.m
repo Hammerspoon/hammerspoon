@@ -7,6 +7,14 @@
 
 #define get_screen_arg(L, idx) (__bridge NSScreen*)*((void**)luaL_checkudata(L, idx, USERDATA_TAG))
 
+#pragma mark - Private API declarations
+
+extern void CoreDisplay_Display_SetUserBrightness(CGDirectDisplayID id, double brightness)
+    __attribute__((weak_import));
+extern double CoreDisplay_Display_GetUserBrightness(CGDirectDisplayID)
+    __attribute__((weak_import));
+
+#pragma mark - Module
 static void geom_pushrect(lua_State* L, NSRect rect) {
     lua_newtable(L);
     lua_pushnumber(L, rect.origin.x);    lua_setfield(L, -2, "x");
@@ -607,18 +615,26 @@ static int screen_getBrightness(lua_State *L) {
 
     NSScreen* screen = get_screen_arg(L, 1);
     CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
+
+    if (CoreDisplay_Display_GetUserBrightness != NULL) {
+        // Preferred API - interacts better with Night Shift, but is semi-private
+        double brightness = CoreDisplay_Display_GetUserBrightness(screen_id);
+        lua_pushnumber(L, brightness);
+    } else {
+        // Legacy API for people on older macOS
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    io_service_t service = CGDisplayIOServicePort(screen_id);
+        io_service_t service = CGDisplayIOServicePort(screen_id);
 #pragma clang diagnostic pop
-    CGDisplayErr err;
+        CGDisplayErr err;
 
-    float brightness;
-    err = IODisplayGetFloatParameter(service, kNilOptions, CFSTR(kIODisplayBrightnessKey), &brightness);
-    if (err != kIOReturnSuccess) {
-        lua_pushnil(L);
-    } else {
-        lua_pushnumber(L, (lua_Number)brightness);
+        float brightness;
+        err = IODisplayGetFloatParameter(service, kNilOptions, CFSTR(kIODisplayBrightnessKey), &brightness);
+        if (err != kIOReturnSuccess) {
+            lua_pushnil(L);
+        } else {
+            lua_pushnumber(L, (lua_Number)brightness);
+        }
     }
     return 1;
 }
@@ -638,12 +654,19 @@ static int screen_setBrightness(lua_State *L) {
 
     NSScreen* screen = get_screen_arg(L, 1);
     CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
+
+    double brightness = lua_tonumber(L, 2);
+    if (CoreDisplay_Display_SetUserBrightness != NULL) {
+        // Preferred API - interacts better with Night Shift, but is semi-private
+        CoreDisplay_Display_SetUserBrightness(screen_id, brightness);
+    } else {
+        // Legacy API for people on older macOS
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    io_service_t service = CGDisplayIOServicePort(screen_id);
+        io_service_t service = CGDisplayIOServicePort(screen_id);
 #pragma clang diagnostic pop
-
-    IODisplaySetFloatParameter(service, kNilOptions, CFSTR(kIODisplayBrightnessKey), lua_tonumber(L, 2));
+        IODisplaySetFloatParameter(service, kNilOptions, CFSTR(kIODisplayBrightnessKey), brightness);
+    }
 
     lua_pushvalue(L, 1);
     return 1;
