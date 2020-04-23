@@ -57,8 +57,7 @@
 
 - (IOReturn)deviceWriteSimpleReport:(uint8_t[])report reportLen:(int)reportLen {
     if (self.simpleReportLength == 0) {
-        LuaSkin *skin = [LuaSkin shared];
-        [skin logError:@"Initialising Stream Deck device with no simple report length defined"];
+        [LuaSkin logError:@"Initialising Stream Deck device with no simple report length defined"];
         return kIOReturnInternalError;
     }
     NSMutableData *reportData = [NSMutableData dataWithLength:self.simpleReportLength];
@@ -97,7 +96,7 @@
         return;
     }
 
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     _lua_stackguard_entry(skin.L);
     if (self.buttonCallbackRef == LUA_NOREF || self.buttonCallbackRef == LUA_REFNIL) {
         [skin logError:@"hs.streamdeck received a button input, but no callback has been set. See hs.streamdeck:buttonCallback()"];
@@ -203,10 +202,10 @@
     [renderImage unlockFocus];
 
     if (![image isValid]) {
-        [[LuaSkin shared] logError:@"image is invalid"];
+        [LuaSkin logError:@"image is invalid"];
     }
     if (![renderImage isValid]) {
-        [[LuaSkin shared] logError:@"Invalid image passed to hs.streamdeck:setImage() (renderImage)"];
+        [LuaSkin logError:@"Invalid image passed to hs.streamdeck:setImage() (renderImage)"];
     //    return;
     }
 
@@ -226,7 +225,7 @@
             break;
 
         case STREAMDECK_CODEC_UNKNOWN:
-            [[LuaSkin shared] logError:@"Unknown image codec for hs.streamdeck device"];
+            [LuaSkin logError:@"Unknown image codec for hs.streamdeck device"];
             break;
     }
 

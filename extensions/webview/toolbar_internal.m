@@ -68,7 +68,7 @@ static NSMenu *createCoreSearchFieldMenu() {
 }
 
 @implementation HSToolbar
-- (instancetype)initWithIdentifier:(NSString *)identifier itemTableIndex:(int)idx {
+- (instancetype)initWithIdentifier:(NSString *)identifier itemTableIndex:(int)idx andState:(lua_State *)L {
     self = [super initWithIdentifier:identifier] ;
     if (self) {
         _allowedIdentifiers    = [[NSMutableOrderedSet alloc] init] ;
@@ -86,8 +86,8 @@ static NSMenu *createCoreSearchFieldMenu() {
         [_allowedIdentifiers addObjectsFromArray:automaticallyIncluded] ;
 
         if (idx != LUA_NOREF) {
-            LuaSkin     *skin      = [LuaSkin shared] ;
-            lua_State   *L         = [skin L] ;
+            LuaSkin     *skin      = [LuaSkin sharedWithState:L] ;
+//             lua_State   *L         = [skin L] ;
             lua_Integer count      = luaL_len(L, idx) ;
             lua_Integer index      = 0 ;
             BOOL        isGood     = YES ;
@@ -95,7 +95,7 @@ static NSMenu *createCoreSearchFieldMenu() {
             idx = lua_absindex(L, idx) ;
             while (isGood && (index < count)) {
                 if (lua_rawgeti(L, idx, index + 1) == LUA_TTABLE) {
-                    isGood = [self addToolbarDefinitionAtIndex:-1] ;
+                    isGood = [self addToolbarDefinitionAtIndex:-1 withState:L] ;
                 } else {
                     [skin logWarn:[NSString stringWithFormat:@"%s:not a table at index %lld in toolbar %@", USERDATA_TB_TAG, index + 1, identifier]] ;
                     isGood = NO ;
@@ -120,8 +120,8 @@ static NSMenu *createCoreSearchFieldMenu() {
     return self ;
 }
 
-- (instancetype)initWithCopy:(HSToolbar *)original {
-    LuaSkin *skin = [LuaSkin shared] ;
+- (instancetype)initWithCopy:(HSToolbar *)original andState:(lua_State *)L{
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     self = [super initWithIdentifier:original.identifier] ;
     if (self) {
         _selfRef               = LUA_NOREF;
@@ -182,30 +182,32 @@ static NSMenu *createCoreSearchFieldMenu() {
     NSNumber *theFnRef = [_fnRefDictionary objectForKey:[item itemIdentifier]] ;
     int itemFnRef = theFnRef ? [theFnRef intValue] : LUA_NOREF ;
     int fnRef = (itemFnRef != LUA_NOREF) ? itemFnRef : _callbackRef ;
-    if (fnRef != LUA_NOREF) {
+    if (fnRef != LUA_NOREF) { // should we bother dispatching?
         dispatch_async(dispatch_get_main_queue(), ^{
-            NSWindow  *ourWindow = self.windowUsingToolbar ;
-            LuaSkin   *skin      = [LuaSkin shared] ;
-            lua_State *L         = [skin L] ;
-            _lua_stackguard_entry(L);
-            [skin pushLuaRef:refTable ref:fnRef] ;
-            [skin pushNSObject:self] ;
-            if (ourWindow) {
-                if ([ourWindow isEqualTo:[[MJConsoleWindowController singleton] window]]) {
-                    lua_pushstring(L, "console") ;
-                } else if (ourWindow.windowController) { // hs.chooser
-                    [skin pushNSObject:ourWindow.windowController withOptions:LS_NSDescribeUnknownTypes] ;
+            if (fnRef != LUA_NOREF) { // now make sure it's still valid
+                NSWindow  *ourWindow = self.windowUsingToolbar ;
+                LuaSkin   *skin      = [LuaSkin sharedWithState:NULL] ;
+                lua_State *L         = [skin L] ;
+                _lua_stackguard_entry(L);
+                [skin pushLuaRef:refTable ref:fnRef] ;
+                [skin pushNSObject:self] ;
+                if (ourWindow) {
+                    if ([ourWindow isEqualTo:[[MJConsoleWindowController singleton] window]]) {
+                        lua_pushstring(L, "console") ;
+                    } else if (ourWindow.windowController) { // hs.chooser
+                        [skin pushNSObject:ourWindow.windowController withOptions:LS_NSDescribeUnknownTypes] ;
+                    } else {
+                        [skin pushNSObject:ourWindow withOptions:LS_NSDescribeUnknownTypes] ;
+                    }
                 } else {
-                    [skin pushNSObject:ourWindow withOptions:LS_NSDescribeUnknownTypes] ;
+                    // shouldn't be possible, but just in case...
+                    lua_pushstring(L, "** no window attached") ;
                 }
-            } else {
-                // shouldn't be possible, but just in case...
-                lua_pushstring(L, "** no window attached") ;
+                [skin pushNSObject:[item itemIdentifier]] ;
+                if (argCount == 4) [skin pushNSObject:searchText] ;
+                [skin protectedCallAndError:[NSString stringWithFormat:@"hs.webview.toolbar item callback (%@)", item.itemIdentifier] nargs:argCount nresults:0];
+                _lua_stackguard_exit(L);
             }
-            [skin pushNSObject:[item itemIdentifier]] ;
-            if (argCount == 4) [skin pushNSObject:searchText] ;
-            [skin protectedCallAndError:[NSString stringWithFormat:@"hs.webview.toolbar item callback (%@)", item.itemIdentifier] nargs:argCount nresults:0];
-            _lua_stackguard_exit(L);
         }) ;
     }
 }
@@ -224,9 +226,9 @@ static NSMenu *createCoreSearchFieldMenu() {
 
 // TODO ? if validate of data method added, use here during construction
 
-- (BOOL)addToolbarDefinitionAtIndex:(int)idx {
-    LuaSkin   *skin      = [LuaSkin shared] ;
-    lua_State *L         = [skin L] ;
+- (BOOL)addToolbarDefinitionAtIndex:(int)idx withState:(lua_State *)L {
+    LuaSkin   *skin      = [LuaSkin sharedWithState:L] ;
+//     lua_State *L         = [skin L] ;
     idx = lua_absindex(L, idx) ;
 
     NSString *identifier = (lua_getfield(L, -1, "id") == LUA_TSTRING) ?
@@ -298,25 +300,29 @@ static NSMenu *createCoreSearchFieldMenu() {
 }
 
 - (void)fillinNewToolbarItem:(NSToolbarItem *)item {
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
     [self updateToolbarItem:item
              withDictionary:_itemDefDictionary[item.itemIdentifier]
-                    inGroup:NO] ;
+                    inGroup:NO
+                  withState:skin.L] ;
 }
 
 - (void)updateToolbarItem:(NSToolbarItem *)item
-           withDictionary:(NSMutableDictionary *)itemDefinition {
+           withDictionary:(NSMutableDictionary *)itemDefinition withState:(lua_State *)L {
     [self updateToolbarItem:item
              withDictionary:itemDefinition
-                    inGroup:NO] ;
+                    inGroup:NO
+                  withState:L] ;
 }
 
 // TODO ? separate validation of data from apply to live/create new item ? may be cleaner...
 
 - (void)updateToolbarItem:(NSToolbarItem *)item
            withDictionary:(NSMutableDictionary *)itemDefinition
-                  inGroup:(BOOL)inGroup {
+                  inGroup:(BOOL)inGroup
+                withState:(lua_State *)L {
 
-    LuaSkin               *skin       = [LuaSkin shared] ;
+    LuaSkin               *skin       = [LuaSkin sharedWithState:L] ;
     HSToolbarSearchField *itemView   = (HSToolbarSearchField *)item.view ;
     NSString              *identifier = item.itemIdentifier ;
 
@@ -474,7 +480,7 @@ static NSMenu *createCoreSearchFieldMenu() {
                                 memberItem.target  = self ;
                                 memberItem.action  = @selector(performCallback:) ;
                                 memberItem.enabled = [_enabledDictionary[memberIdentifier] boolValue] ;
-                                [self updateToolbarItem:memberItem withDictionary:_itemDefDictionary[memberIdentifier] inGroup:YES] ;
+                                [self updateToolbarItem:memberItem withDictionary:_itemDefDictionary[memberIdentifier] inGroup:YES withState:L] ;
                                 // See NSToolbarItemGroup is dumb below
                                 if ([memberItem.view isKindOfClass:[HSToolbarSearchField class]]) {
                                     [updateViews addObject:memberItem] ;
@@ -701,28 +707,30 @@ static NSMenu *createCoreSearchFieldMenu() {
 - (void)toolbarWillAddItem:(NSNotification *)notification {
     if (_notifyToolbarChanges && (_callbackRef != LUA_NOREF)) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            NSWindow  *ourWindow = self.windowUsingToolbar ;
-            LuaSkin   *skin      = [LuaSkin shared] ;
-            lua_State *L         = [skin L] ;
-            _lua_stackguard_entry(L);
-            [skin pushLuaRef:refTable ref:self.callbackRef] ;
-            [skin pushNSObject:self] ;
-            if (ourWindow) {
-                if ([ourWindow isEqualTo:[[MJConsoleWindowController singleton] window]]) {
-                    lua_pushstring(L, "console") ;
-                } else if (ourWindow.windowController) { // hs.chooser
-                    [skin pushNSObject:ourWindow.windowController withOptions:LS_NSDescribeUnknownTypes] ;
+            if (self.callbackRef != LUA_NOREF) {
+                NSWindow  *ourWindow = self.windowUsingToolbar ;
+                LuaSkin   *skin      = [LuaSkin sharedWithState:NULL] ;
+                lua_State *L         = [skin L] ;
+                _lua_stackguard_entry(L);
+                [skin pushLuaRef:refTable ref:self.callbackRef] ;
+                [skin pushNSObject:self] ;
+                if (ourWindow) {
+                    if ([ourWindow isEqualTo:[[MJConsoleWindowController singleton] window]]) {
+                        lua_pushstring(L, "console") ;
+                    } else if (ourWindow.windowController) { // hs.chooser
+                        [skin pushNSObject:ourWindow.windowController withOptions:LS_NSDescribeUnknownTypes] ;
+                    } else {
+                        [skin pushNSObject:ourWindow withOptions:LS_NSDescribeUnknownTypes] ;
+                    }
                 } else {
-                    [skin pushNSObject:ourWindow withOptions:LS_NSDescribeUnknownTypes] ;
+                    // shouldn't be possible, but just in case...
+                    lua_pushstring(L, "** no window attached") ;
                 }
-            } else {
-                // shouldn't be possible, but just in case...
-                lua_pushstring(L, "** no window attached") ;
+                [skin pushNSObject:[notification.userInfo[@"item"] itemIdentifier]] ;
+                lua_pushstring(L, "add") ;
+                [skin protectedCallAndError:[NSString stringWithFormat:@"hs.webview.toolbar toolbar item addition callback (%@)", [notification.userInfo[@"item"] itemIdentifier]] nargs:4 nresults:0];
+                _lua_stackguard_exit(L);
             }
-            [skin pushNSObject:[notification.userInfo[@"item"] itemIdentifier]] ;
-            lua_pushstring(L, "add") ;
-            [skin protectedCallAndError:[NSString stringWithFormat:@"hs.webview.toolbar toolbar item addition callback (%@)", [notification.userInfo[@"item"] itemIdentifier]] nargs:4 nresults:0];
-            _lua_stackguard_exit(L);
         }) ;
     }
 }
@@ -730,28 +738,30 @@ static NSMenu *createCoreSearchFieldMenu() {
 - (void)toolbarDidRemoveItem:(NSNotification *)notification {
     if (_notifyToolbarChanges && (_callbackRef != LUA_NOREF)) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            NSWindow  *ourWindow = self.windowUsingToolbar ;
-            LuaSkin   *skin      = [LuaSkin shared] ;
-            lua_State *L         = [skin L] ;
-            _lua_stackguard_entry(L);
-            [skin pushLuaRef:refTable ref:self.callbackRef] ;
-            [skin pushNSObject:self] ;
-            if (ourWindow) {
-                if ([ourWindow isEqualTo:[[MJConsoleWindowController singleton] window]]) {
-                    lua_pushstring(L, "console") ;
-                } else if (ourWindow.windowController) { // hs.chooser
-                    [skin pushNSObject:ourWindow.windowController withOptions:LS_NSDescribeUnknownTypes] ;
+            if (self.callbackRef != LUA_NOREF) {
+                NSWindow  *ourWindow = self.windowUsingToolbar ;
+                LuaSkin   *skin      = [LuaSkin sharedWithState:NULL] ;
+                lua_State *L         = [skin L] ;
+                _lua_stackguard_entry(L);
+                [skin pushLuaRef:refTable ref:self.callbackRef] ;
+                [skin pushNSObject:self] ;
+                if (ourWindow) {
+                    if ([ourWindow isEqualTo:[[MJConsoleWindowController singleton] window]]) {
+                        lua_pushstring(L, "console") ;
+                    } else if (ourWindow.windowController) { // hs.chooser
+                        [skin pushNSObject:ourWindow.windowController withOptions:LS_NSDescribeUnknownTypes] ;
+                    } else {
+                        [skin pushNSObject:ourWindow withOptions:LS_NSDescribeUnknownTypes] ;
+                    }
                 } else {
-                    [skin pushNSObject:ourWindow withOptions:LS_NSDescribeUnknownTypes] ;
+                    // shouldn't be possible, but just in case...
+                    lua_pushstring(L, "** no window attached") ;
                 }
-            } else {
-                // shouldn't be possible, but just in case...
-                lua_pushstring(L, "** no window attached") ;
+                [skin pushNSObject:[notification.userInfo[@"item"] itemIdentifier]] ;
+                lua_pushstring(L, "remove") ;
+                [skin protectedCallAndError:[NSString stringWithFormat:@"hs.webview.toolbar toolbar item removal callback (%@)", [notification.userInfo[@"item"] itemIdentifier]] nargs:4 nresults:0];
+                _lua_stackguard_exit(L);
             }
-            [skin pushNSObject:[notification.userInfo[@"item"] itemIdentifier]] ;
-            lua_pushstring(L, "remove") ;
-            [skin protectedCallAndError:[NSString stringWithFormat:@"hs.webview.toolbar toolbar item removal callback (%@)", [notification.userInfo[@"item"] itemIdentifier]] nargs:4 nresults:0];
-            _lua_stackguard_exit(L);
         }) ;
     }
 }
@@ -799,7 +809,7 @@ static NSMenu *createCoreSearchFieldMenu() {
 ///  * See [hs.webview.toolbar:addItems](#addItems) for a description of the format for `toolbarTable`
 
 static int newHSToolbar(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TTABLE | LS_TOPTIONAL, LS_TBREAK] ;
     NSString *identifier = [skin toNSObjectAtIndex:1] ;
 
@@ -807,7 +817,8 @@ static int newHSToolbar(lua_State *L) {
 
     if (![identifiersInUse containsObject:identifier]) {
         HSToolbar *toolbar = [[HSToolbar alloc] initWithIdentifier:identifier
-                                                    itemTableIndex:idx] ;
+                                                    itemTableIndex:idx
+                                                          andState:L] ;
         if (toolbar) {
             [skin pushNSObject:toolbar] ;
         } else {
@@ -829,7 +840,7 @@ static int newHSToolbar(lua_State *L) {
 /// Returns:
 ///  * `true` if the name is unique otherwise `false`
 static int uniqueName(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
     NSString *identifier = [skin toNSObjectAtIndex:1] ;
     lua_pushboolean(L, ![identifiersInUse containsObject:identifier]);
@@ -854,7 +865,7 @@ static int uniqueName(lua_State *L) {
 ///
 ///  * If the toolbar is currently attached to another window when this function is called, it will be detached from the original window and attached to the new one specified by this function.
 static int attachToolbar(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSWindow  *theWindow ;
     HSToolbar *newToolbar ;
     BOOL      setToolbar = YES ;
@@ -966,7 +977,7 @@ static int attachToolbar(lua_State *L) {
 ///
 /// * This method is only valid when the toolbar is attached to a webview, chooser, or the console.
 static int toolbar_inTitleBar(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     HSToolbar *toolbar   = [skin toNSObjectAtIndex:1] ;
     NSWindow  *theWindow = toolbar.windowUsingToolbar ;
@@ -998,7 +1009,7 @@ static int toolbar_inTitleBar(lua_State *L) {
 /// Returns:
 ///  * a boolean indicating whether or not the toolbar is currently attached to a window.
 static int isAttachedToWindow(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
     lua_pushboolean(L, [toolbar isAttachedToWindow]) ;
@@ -1015,10 +1026,10 @@ static int isAttachedToWindow(lua_State *L) {
 /// Returns:
 ///  * a copy of the toolbar which can be attached to another window (webview, chooser, or console).
 static int copyToolbar(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TBREAK] ;
     HSToolbar *oldToolbar = [skin toNSObjectAtIndex:1] ;
-    HSToolbar *newToolbar = [[HSToolbar alloc] initWithCopy:oldToolbar] ;
+    HSToolbar *newToolbar = [[HSToolbar alloc] initWithCopy:oldToolbar andState:L] ;
     if (newToolbar) {
         [skin pushNSObject:newToolbar] ;
     } else {
@@ -1042,7 +1053,7 @@ static int copyToolbar(lua_State *L) {
 ///  * the global callback function is invoked for a toolbar button item that does not have a specific function assigned directly to it.
 ///  * if [hs.webview.toolbar:notifyOnChange](#notifyOnChange) is set to true, then this callback function will also be invoked when a toolbar item is added or removed from the toolbar either programmatically with [hs.webview.toolbar:insertItem](#insertItem) and [hs.webview.toolbar:removeItem](#removeItem) or under user control with [hs.webview.toolbar:customizePanel](#customizePanel) and the callback function will receive a string of "add" or "remove" as a fourth argument.
 static int setCallback(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TFUNCTION | LS_TNIL, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
 
@@ -1069,8 +1080,8 @@ static int setCallback(lua_State *L) {
 /// Notes:
 ///  * If the toolbar is set to autosave, then a user-defaults entry is created in org.hammerspoon.Hammerspoon domain with the key "NSToolbar Configuration XXX" where XXX is the toolbar identifier specified when the toolbar was created.
 ///  * This method is provided if you do not wish for changes to the toolbar to be autosaved for every change, but may wish to save it programmatically under specific conditions.
-static int configurationDictionary(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int configurationDictionary(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
     [skin pushNSObject:[toolbar configurationDictionary]] ;
@@ -1087,7 +1098,7 @@ static int configurationDictionary(__unused lua_State *L) {
 /// Returns:
 ///  * if an argument is provided, returns the toolbar object; otherwise returns the current value
 static int showsBaselineSeparator(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
     if (lua_gettop(L) != 1) {
@@ -1109,7 +1120,7 @@ static int showsBaselineSeparator(lua_State *L) {
 /// Returns:
 ///  * if an argument is provided, returns the toolbar object; otherwise returns the current value
 static int visible(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
     if (lua_gettop(L) != 1) {
@@ -1131,7 +1142,7 @@ static int visible(lua_State *L) {
 /// Returns:
 ///  * if an argument is provided, returns the toolbar object; otherwise returns the current value
 static int notifyWhenToolbarChanges(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
     if (lua_gettop(L) != 1) {
@@ -1157,7 +1168,7 @@ static int notifyWhenToolbarChanges(lua_State *L) {
 /// Notes:
 ///  * the toolbar position must be between 1 and the number of currently active toolbar items.
 static int insertItemAtIndex(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TSTRING, LS_TNUMBER, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
     NSString  *identifier = [skin toNSObjectAtIndex:2] ;
@@ -1187,7 +1198,7 @@ static int insertItemAtIndex(lua_State *L) {
 
 // NOTE: wrapped and documented in toolbar.lua
 static int removeItemAtIndex(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TNUMBER, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
     NSInteger index = luaL_checkinteger(L, 2) ;
@@ -1210,7 +1221,7 @@ static int removeItemAtIndex(lua_State *L) {
 /// Returns:
 ///  * if an argument is provided, returns the toolbar object; otherwise returns the current value
 static int sizeMode(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
 
@@ -1257,7 +1268,7 @@ static int sizeMode(lua_State *L) {
 /// Returns:
 ///  * if an argument is provided, returns the toolbar object; otherwise returns the current value
 static int displayMode(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
 
@@ -1313,7 +1324,7 @@ static int displayMode(lua_State *L) {
 ///  * You cannot change a toolbar item's `id`
 ///  * For a list of the possible toolbar item attribute keys, see [hs.webview.toolbar:addItems](#addItems).
 static int modifyToolbarItem(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TTABLE, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
     NSString *identifier ;
@@ -1386,12 +1397,12 @@ static int modifyToolbarItem(lua_State *L) {
         if (toolbar.items) {
             for (NSToolbarItem *item in toolbar.items) {
                 if ([item.itemIdentifier isEqualToString:identifier]) {
-                    [toolbar updateToolbarItem:item withDictionary:newDict] ;
+                    [toolbar updateToolbarItem:item withDictionary:newDict withState:L] ;
                     handled = YES ;
                 } else if ([item isKindOfClass:[NSToolbarItemGroup class]]) {
                     for (NSToolbarItem *subItem in ((NSToolbarItemGroup *)item).subitems) {
                         if ([subItem.itemIdentifier isEqualToString:identifier]) {
-                            [toolbar updateToolbarItem:subItem withDictionary:newDict] ;
+                            [toolbar updateToolbarItem:subItem withDictionary:newDict withState:L] ;
                             handled = YES ;
                         }
                         if (handled) break ;
@@ -1415,7 +1426,7 @@ static int modifyToolbarItem(lua_State *L) {
 
 // NOTE: wrapped and documented in toolbar.lua
 static int addToolbarItems(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TTABLE, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
 
@@ -1425,7 +1436,7 @@ static int addToolbarItems(lua_State *L) {
 
     while (isGood && (index < count)) {
         if (lua_rawgeti(L, 2, index + 1) == LUA_TTABLE) {
-            isGood = [toolbar addToolbarDefinitionAtIndex:-1] ;
+            isGood = [toolbar addToolbarDefinitionAtIndex:-1 withState:L] ;
         } else {
             [skin logWarn:[NSString stringWithFormat:@"%s:addItems - not a table at index %lld", USERDATA_TB_TAG, index + 1]] ;
             isGood = NO ;
@@ -1455,7 +1466,7 @@ static int addToolbarItems(lua_State *L) {
 /// Notes:
 ///  * This method completely removes the toolbar item from the toolbar's definition dictionary, thus removing it from active use in the toolbar as well as removing it from the customization panel, if supported.  If you only want to remove a toolbar item from the active toolbar, consider [hs.webview.toolbar:removeItem](#removeItem).
 static int deleteToolbarItem(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TSTRING, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
     NSString *identifier = [skin toNSObjectAtIndex:2] ;
@@ -1495,7 +1506,7 @@ static int deleteToolbarItem(lua_State *L) {
 ///    * `toolbar`  - the toolbar object the item belongs to
 ///    * `subItems` - if the toolbar item is actually a group, this will contain a table with basic information about the members of the group.  If you wish to get the full details for each sub-member, you may iterate on the identifiers provided in `groupMembers`.
 static int detailsForItemIdentifier(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TSTRING, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
     NSString *identifier = [skin toNSObjectAtIndex:2] ;
@@ -1551,8 +1562,8 @@ static int detailsForItemIdentifier(lua_State *L) {
 ///
 /// Returns:
 ///  * a table as an array of all toolbar item identifiers defined for this toolbar.  See also [hs.webview.toolbar:items](#items) and [hs.webview.toolbar:visibleItems](#visibleItems).
-static int allowedToolbarItems(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int allowedToolbarItems(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
     [skin pushNSObject:[toolbar.allowedIdentifiers array]] ;
@@ -1568,8 +1579,8 @@ static int allowedToolbarItems(__unused lua_State *L) {
 ///
 /// Returns:
 ///  * a table as an array of the currently active (assigned) toolbar item identifiers.  Toolbar items which are in the overflow menu *are* included in this array.  See also [hs.webview.toolbar:visibleItems](#visibleItems) and [hs.webview.toolbar:allowedItems](#allowedItems).
-static int toolbarItems(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int toolbarItems(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
     [skin pushNSObject:[toolbar.items valueForKey:@"itemIdentifier"]] ;
@@ -1585,8 +1596,8 @@ static int toolbarItems(__unused lua_State *L) {
 ///
 /// Returns:
 ///  * a table as an array of the currently visible toolbar item identifiers.  Toolbar items which are in the overflow menu are *not* included in this array.  See also [hs.webview.toolbar:items](#items) and [hs.webview.toolbar:allowedItems](#allowedItems).
-static int visibleToolbarItems(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int visibleToolbarItems(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
     [skin pushNSObject:[toolbar.visibleItems valueForKey:@"itemIdentifier"]] ;
@@ -1606,7 +1617,7 @@ static int visibleToolbarItems(__unused lua_State *L) {
 /// Notes:
 ///  * Only toolbar items which were defined as `selectable` when created with [hs.webview.toolbar.new](#new) can be selected with this method.
 static int selectedToolbarItem(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TSTRING | LS_TNIL | LS_TOPTIONAL, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
     if (lua_gettop(L) == 2) {
@@ -1639,7 +1650,7 @@ static int selectedToolbarItem(lua_State *L) {
 /// Notes:
 ///  * if there is current text in the searchfield, it will be selected so that any subsequent typing by the user will replace the current value in the searchfield.
 static int toolbar_selectSearchField(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
     NSString *targetID = (lua_gettop(L) == 2) ? [skin toNSObjectAtIndex:2] : nil ;
@@ -1669,8 +1680,8 @@ static int toolbar_selectSearchField(lua_State *L) {
 ///
 /// Returns:
 ///  * The identifier for this toolbar.
-static int toolbarIdentifier(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int toolbarIdentifier(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
     [skin pushNSObject:toolbar.identifier] ;
@@ -1687,7 +1698,7 @@ static int toolbarIdentifier(__unused lua_State *L) {
 /// Returns:
 ///  * the toolbar object
 static int customizeToolbar(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
     [toolbar runCustomizationPalette:toolbar] ;
@@ -1705,7 +1716,7 @@ static int customizeToolbar(lua_State *L) {
 /// Returns:
 ///  * true or false indicating whether or not the customization panel is open for the toolbar
 static int toolbarIsCustomizing(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
     lua_pushboolean(L, toolbar.customizationPaletteIsRunning) ;
@@ -1725,7 +1736,7 @@ static int toolbarIsCustomizing(lua_State *L) {
 /// Notes:
 ///  * the customization panel can be pulled up by right-clicking on the toolbar or by invoking [hs.webview.toolbar:customizePanel](#customizePanel).
 static int toolbarCanCustomize(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
 
@@ -1758,7 +1769,7 @@ static int toolbarCanCustomize(lua_State *L) {
 ///    * the currently shown identifiers and their order
 /// * Note that the labels, icons, callback functions, etc. are not saved -- these are determined at toolbar creation time, by the [hs.webview.toolbar:addItems](#addItems), or by the [hs.webview.toolbar:modifyItem](#modifyItem) method and can differ between invocations of toolbars with the same identifier and button identifiers.
 static int toolbarCanAutosave(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
 
@@ -1782,7 +1793,7 @@ static int toolbarCanAutosave(lua_State *L) {
 // /// Returns:
 // ///  * a table containing information stored in the HSToolbar object for debugging purposes.
 static int infoDump(lua_State *L) {
-    LuaSkin *skin     = [LuaSkin shared];
+    LuaSkin *skin     = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
 
@@ -1818,8 +1829,8 @@ static int infoDump(lua_State *L) {
 /// Currently supported identifiers include:
 ///  * NSToolbarSpaceItem         - represents a space approximately the size of a toolbar item
 ///  * NSToolbarFlexibleSpaceItem - represents a space that stretches to fill available space in the toolbar
-static int systemToolbarItems(__unused lua_State *L) {
-    [[LuaSkin shared] pushNSObject:automaticallyIncluded] ;
+static int systemToolbarItems(lua_State *L) {
+    [[LuaSkin sharedWithState:L] pushNSObject:automaticallyIncluded] ;
     return 1 ;
 }
 
@@ -1846,7 +1857,7 @@ static int toolbarItemPriorities(lua_State *L) {
 // delegates and blocks.
 
 static int pushHSToolbar(lua_State *L, id obj) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     HSToolbar *value = obj;
     if (value.selfRef == LUA_NOREF) {
         void** valuePtr = lua_newuserdata(L, sizeof(HSToolbar *));
@@ -1862,7 +1873,7 @@ static int pushHSToolbar(lua_State *L, id obj) {
 }
 
 static id toHSToolbarFromLua(lua_State *L, int idx) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     HSToolbar *value ;
     if (luaL_testudata(L, idx, USERDATA_TB_TAG)) {
         value = get_objectFromUserdata(__bridge HSToolbar, L, idx, USERDATA_TB_TAG) ;
@@ -1877,7 +1888,7 @@ static id toHSToolbarFromLua(lua_State *L, int idx) {
 }
 
 static int pushNSToolbarItem(lua_State *L, id obj) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSToolbarItem *value = obj ;
     lua_newtable(L) ;
     [skin pushNSObject:value.itemIdentifier] ;     lua_setfield(L, -2, "id") ;
@@ -1930,7 +1941,7 @@ static int pushNSToolbarItem(lua_State *L, id obj) {
 #pragma mark - Hammerspoon/Lua Infrastructure
 
 static int userdata_tostring(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     HSToolbar *obj = [skin luaObjectAtIndex:1 toClass:"HSToolbar"] ;
     NSString *title = obj.identifier ;
     [skin pushNSObject:[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TB_TAG, title, lua_topointer(L, 1)]] ;
@@ -1941,7 +1952,7 @@ static int userdata_eq(lua_State* L) {
 // can't get here if at least one of us isn't a userdata type, and we only care if both types are ours,
 // so use luaL_testudata before the macro causes a lua error
     if (luaL_testudata(L, 1, USERDATA_TB_TAG) && luaL_testudata(L, 2, USERDATA_TB_TAG)) {
-        LuaSkin *skin = [LuaSkin shared] ;
+        LuaSkin *skin = [LuaSkin sharedWithState:L] ;
         HSToolbar *obj1 = [skin luaObjectAtIndex:1 toClass:"HSToolbar"] ;
         HSToolbar *obj2 = [skin luaObjectAtIndex:2 toClass:"HSToolbar"] ;
         lua_pushboolean(L, [obj1 isEqualTo:obj2]) ;
@@ -1961,7 +1972,7 @@ static int userdata_eq(lua_State* L) {
 /// Returns:
 ///  * None
 static int userdata_gc(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     HSToolbar *obj = get_objectFromUserdata(__bridge_transfer HSToolbar, L, 1, USERDATA_TB_TAG) ;
     if (obj) {
         for (NSNumber *fnRef in [obj.fnRefDictionary allValues]) [skin luaUnref:refTable ref:[fnRef intValue]] ;
@@ -2050,7 +2061,7 @@ static const luaL_Reg module_metaLib[] = {
 };
 
 int luaopen_hs_webview_toolbar_internal(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     refTable = [skin registerLibraryWithObject:USERDATA_TB_TAG
                                      functions:moduleLib
                                  metaFunctions:module_metaLib

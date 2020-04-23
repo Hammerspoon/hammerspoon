@@ -17,14 +17,18 @@ end
 
 function testHammerspoonElements()
   local consoleElem = getConsole()
+  local consoleElem2 = getConsole()
+
+  assertIsEqual(consoleElem, consoleElem2)
+
   assertFalse(consoleElem:isApplication())
   assertFalse(consoleElem:isWindow())
   assertIsEqual("AXTextField", consoleElem:role())
 
   local prefsElem = getPrefs()
   assertFalse(prefsElem:isApplication())
-  assertFalse(prefsElem:isWindow())
-  assertIsEqual("AXCheckBox", prefsElem:role())
+  assertTrue(prefsElem:isWindow())
+  assertIsEqual("AXWindow", prefsElem:role())
   assertIsEqual(nil, prefsElem:selectedText())
 
   local consoleElem2 = getConsole()

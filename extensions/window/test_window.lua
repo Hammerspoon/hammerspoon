@@ -70,8 +70,8 @@ function testTopLeft()
   local topLeftNew = hs.geometry.point(topLeftOrig.x + 1, topLeftOrig.y + 1)
   win:setTopLeft(topLeftNew)
   topLeftNew = win:topLeft()
-  assertTrue(topLeftNew.x == topLeftOrig.x + 1)
-  assertTrue(topLeftNew.y == topLeftOrig.y + 1)
+  assertIsEqual(topLeftNew.x, topLeftOrig.x + 1)
+  assertIsEqual(topLeftNew.y, topLeftOrig.y + 1)
   return success()
 end
 
@@ -83,8 +83,8 @@ function testSize()
   local sizeNew = hs.geometry.size(sizeOrig.w + 1, sizeOrig.h + 1)
   win:setSize(sizeNew)
   sizeNew = win:size()
-  assertTrue(sizeNew.w == sizeOrig.w + 1)
-  assertTrue(sizeNew.h == sizeOrig.h + 1)
+  assertIsEqual(sizeNew.w, sizeOrig.w + 1)
+  assertIsEqual(sizeNew.h, sizeOrig.h + 1)
   return success()
 end
 

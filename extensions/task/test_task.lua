@@ -141,8 +141,8 @@ end
 
 function testTaskWorkingDirectory()
   taskObject = hs.task.new("/bin/sleep", nil, {"60"})
-  assertIsString(taskObject:workingDirectory())
   taskObject:setWorkingDirectory("/tmp")
+  assertIsEqual("/tmp", taskObject:workingDirectory())
   taskObject:setStreamingCallback(function() print("unused") end)
   taskObject:start()
   assertIsEqual("/tmp", taskObject:workingDirectory())

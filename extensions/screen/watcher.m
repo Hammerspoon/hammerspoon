@@ -26,6 +26,16 @@ static int refTable;
 @end
 
 @implementation MJScreenWatcher
+
+- (instancetype)init {
+    self = [super init] ;
+    if (self) {
+        _fn            = LUA_NOREF ;
+        _includeActive = NO ;
+    }
+    return self ;
+}
+
 - (void) _screensChanged:(id)note {
     [self performSelectorOnMainThread:@selector(screensChanged:)
                                         withObject:note
@@ -33,21 +43,23 @@ static int refTable;
 }
 
 - (void) screensChanged:(NSNotification*)note {
-    LuaSkin *skin = [LuaSkin shared];
-    lua_State *L = skin.L;
-    _lua_stackguard_entry(skin.L);
-    int argCount = _includeActive ? 1 : 0;
+    if (self.fn != LUA_NOREF) {
+        LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+        lua_State *L = skin.L;
+        _lua_stackguard_entry(skin.L);
+        int argCount = _includeActive ? 1 : 0;
 
-    [skin pushLuaRef:refTable ref:self.fn];
-    if (_includeActive) {
-        if ([note.name isEqualToString:@"NSWorkspaceActiveDisplayDidChangeNotification"]) {
-            lua_pushboolean(L, YES);
-        } else {
-            lua_pushnil(L);
+        [skin pushLuaRef:refTable ref:self.fn];
+        if (_includeActive) {
+            if ([note.name isEqualToString:@"NSWorkspaceActiveDisplayDidChangeNotification"]) {
+                lua_pushboolean(L, YES);
+            } else {
+                lua_pushnil(L);
+            }
         }
+        [skin protectedCallAndError:@"hs.screen.watcher callback" nargs:argCount nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
-    [skin protectedCallAndError:@"hs.screen.watcher callback" nargs:argCount nresults:0];
-    _lua_stackguard_exit(skin.L);
 }
 @end
 
@@ -74,7 +86,7 @@ typedef struct _screenwatcher_t {
 /// Notes:
 ///  * A screen layout change usually involves a change that is made from the Displays Preferences Panel or when a monitor is attached or removed.
 static int screen_watcher_new(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     luaL_checktype(L, 1, LUA_TFUNCTION);
 
@@ -112,7 +124,7 @@ static int screen_watcher_new(lua_State* L) {
 ///  * An active screen change indicates that the focused or main screen has changed when the user has "Displays have separate spaces" checked in the Mission Control Preferences Panel (the focused display is the display which has the active window and active menubar).
 ///    * Detecting a change in the active display relies on watching for the `NSWorkspaceActiveDisplayDidChangeNotification` message which is not documented by Apple.  While this message has been around at least since OS X 10.9, because it is undocumented, we cannot be positive that Apple won't remove it in a future OS X update.  Because this watcher works by listening for posted messages, should Apple remove this notification, your callback function will no longer receive messages about this change -- it won't crash or change behavior in any other way.  This documentation will be updated if this status changes.
 static int screen_watcher_new_with_active_screen(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TFUNCTION, LS_TBREAK];
 
     lua_pushcfunction(L, screen_watcher_new);
@@ -180,7 +192,7 @@ static int screen_watcher_stop(lua_State* L) {
 }
 
 static int screen_watcher_gc(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     screenwatcher_t* screenwatcher = luaL_checkudata(L, 1, USERDATA_TAG);
 
@@ -225,8 +237,8 @@ static const luaL_Reg meta_gcLib[] = {
     {NULL,      NULL}
 };
 
-int luaopen_hs_screen_watcher(__unused lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+int luaopen_hs_screen_watcher(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:screenLib metaFunctions:meta_gcLib objectFunctions:screen_metalib];
 
     return 1;

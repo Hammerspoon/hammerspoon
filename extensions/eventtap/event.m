@@ -63,7 +63,7 @@ static int eventtap_event_newEvent(lua_State* L) {
 /// Returns:
 ///  * a new `hs.eventtap.event` object or nil if the string did not represent a valid event
 static int eventtap_event_newEventFromData(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
     NSData *data = [skin toNSObjectAtIndex:1 withOptions:LS_NSLuaStringAsDataOnly] ;
 
@@ -93,7 +93,7 @@ static int eventtap_event_asData(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
     CFDataRef data = CGEventCreateData(NULL, event) ;
     if (data) {
-        [[LuaSkin shared] pushNSObject:(__bridge_transfer NSData *)data] ;
+        [[LuaSkin sharedWithState:L] pushNSObject:(__bridge_transfer NSData *)data] ;
     } else {
         lua_pushnil(L) ;
     }
@@ -113,7 +113,7 @@ static int eventtap_event_asData(lua_State* L) {
 /// Notes:
 ///  * the use or effect of this method is undefined if the event is not a mouse type event.
 static int eventtap_event_location(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, EVENT_USERDATA_TAG, LS_TTABLE | LS_TOPTIONAL, LS_TBREAK] ;
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
     if (lua_gettop(L) == 1) {
@@ -141,7 +141,7 @@ static int eventtap_event_location(lua_State* L) {
 ///  * The timestamp, if specified, is expressed as an integer representing the number of nanoseconds since the system was last booted.  See `hs.timer.absoluteTime`.
 ///  * This field appears to be informational only and is not required when crafting your own events with this module.
 static int eventtap_event_timestamp(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, EVENT_USERDATA_TAG, LS_TNUMBER | LS_TINTEGER | LS_TOPTIONAL, LS_TBREAK] ;
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
     if (lua_gettop(L) == 1) {
@@ -163,7 +163,7 @@ static int eventtap_event_timestamp(lua_State* L) {
 /// Returns:
 ///  * the `hs.eventtap.event` object
 static int eventtap_event_setType(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, EVENT_USERDATA_TAG, LS_TNUMBER | LS_TINTEGER, LS_TBREAK] ;
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
     CGEventSetType(event, (CGEventType)lua_tointeger(L, 2)) ;
@@ -185,7 +185,7 @@ static int eventtap_event_setType(lua_State* L) {
 ///  * This method is experimental and may undergo changes or even removal in the future
 ///  * See [hs.eventtap.event.rawFlagMasks](#rawFlagMasks) for more information
 static int eventtap_event_rawFlags(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, EVENT_USERDATA_TAG, LS_TNUMBER | LS_TINTEGER | LS_TOPTIONAL, LS_TBREAK] ;
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
     if (lua_gettop(L) == 1) {
@@ -402,7 +402,7 @@ static int eventtap_event_setKeyCode(lua_State* L) {
 /// Returns:
 ///  * A string containing the unicode character
 static int eventtap_event_getUnicodeString(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, EVENT_USERDATA_TAG, LS_TBREAK];
 
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
@@ -435,7 +435,7 @@ static int eventtap_event_getUnicodeString(lua_State *L) {
 ///  * Calling this method will reset any flags previously set on the event (because they don't make any sense, and you should not try to set flags again)
 ///  * This is likely to only work with short unicode strings that resolve to a single character
 static int eventtap_event_setUnicodeString(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, EVENT_USERDATA_TAG, LS_TSTRING, LS_TBREAK];
 
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
@@ -648,7 +648,7 @@ static int eventtap_event_setProperty(lua_State* L) {
 ///
 /// * The shortcut approach is still limited to generating only the left version of modifiers.
 static int eventtap_event_newKeyEvent(lua_State* L) {
-    LuaSkin      *skin = [LuaSkin shared];
+    LuaSkin      *skin = [LuaSkin sharedWithState:L];
     BOOL         hasModTable = NO ;
     int          keyCodePos = 2 ;
     CGEventFlags flags = (CGEventFlags)0;
@@ -728,7 +728,7 @@ static int eventtap_event_newKeyEvent(lua_State* L) {
 ///  * To set modifiers on a system key event (e.g. cmd/ctrl/etc), see the `hs.eventtap.event:setFlags()` method
 ///  * The event names are case sensitive
 static int eventtap_event_newSystemKeyEvent(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TBOOLEAN, LS_TBREAK];
 
     NSString *keyName = [skin toNSObjectAtIndex:1];
@@ -808,7 +808,7 @@ static int eventtap_event_newSystemKeyEvent(lua_State* L) {
 /// Returns:
 ///  * An `hs.eventtap.event` object
 static int eventtap_event_newScrollWheelEvent(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     luaL_checktype(L, 1, LUA_TTABLE);
     lua_pushnumber(L, 1); lua_gettable(L, 1); int32_t offset_y = (int32_t)lua_tointeger(L, -1) ; lua_pop(L, 1);
     lua_pushnumber(L, 2); lua_gettable(L, 1); int32_t offset_x = (int32_t)lua_tointeger(L, -1) ; lua_pop(L, 1);
@@ -847,7 +847,7 @@ static int eventtap_event_newScrollWheelEvent(lua_State* L) {
 }
 
 static int eventtap_event_newMouseEvent(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     CGEventType type = (CGEventType)(luaL_checkinteger(L, 1));
     CGPoint point = hs_topoint(L, 2);
     const char* buttonString = luaL_checkstring(L, 3);
@@ -1447,7 +1447,7 @@ static CGEventFlags flagsFromArray(lua_State* L, int arg) {
     while (lua_next(L, arg) != 0) {
         modifier = lua_tostring(L, -1);
         if (!modifier) {
-            LuaSkin *skin = [LuaSkin shared];
+            LuaSkin *skin = [LuaSkin sharedWithState:L];
             [skin logBreadcrumb:[NSString stringWithFormat:@"hs.eventtap.event.flags: unexpected entry in modifiers table: %d", lua_type(L, -1)]];
             lua_pop(L, 1);
             continue;
@@ -1483,7 +1483,7 @@ static int flags_containExactly(lua_State* L) {
 }
 
 int luaopen_hs_eventtap_event(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin registerLibraryWithObject:EVENT_USERDATA_TAG functions:eventtapeventlib metaFunctions:meta_gcLib objectFunctions:eventtapevent_metalib];
 
     pushtypestable(L);

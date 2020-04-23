@@ -79,6 +79,44 @@ hs.relaunch = function()
     hs._exit(true, true)
 end
 
+--- hs.coroutineApplicationYield([delay])
+--- Function
+--- Yield coroutine to allow the Hammerspoon application to process other scheduled events and schedule a resume in the event application queue.
+---
+--- Parameters:
+---  * `delay` - an optional number, default `hs.math.minFloat`, specifying the number of seconds from when this function is executed that the `coroutine.resume` should be scheduled for.
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * this function will return an error if invoked outside of a coroutine.
+---  * unlike `coroutine.yield`, this function does not allow the passing of (new) information to or from the coroutine while it is running; this function is to allow long running tasks to yield time to the Hammerspoon application so other timers and scheduled events can occur without requiring the programmer to add code for an explicit resume.
+---
+---  * this function is added to the lua `coroutine` library as `coroutine.applicationYield` as an alternative name.
+local resumeTimers = {}
+
+hs.coroutineApplicationYield = function(delay)
+    delay = delay or require"hs.math".minFloat
+
+    local thread, isMain = coroutine.running()
+    if not isMain then
+        local uuid = require"hs.host".uuid()
+        resumeTimers[uuid] = require"hs.timer".doAfter(delay, function()
+            resumeTimers[uuid] = nil
+            local status, msg = coroutine.resume(thread)
+            if not status then
+                hs.luaSkinLog.ef("hs.coroutineApplicationYield: %s", msg)
+            end
+        end)
+        coroutine.yield()
+    else
+        error("attempt to yield from outside a coroutine", 2)
+    end
+end
+
+coroutine.applicationYield = hs.coroutineApplicationYield
+
 --- hs.docstrings_json_file
 --- Constant
 --- A string containing the full path to the `docs.json` file inside Hammerspoon's app bundle. This contains the full Hammerspoon API documentation and can be accessed in the Console using `help("someAPI")`. It can also be loaded and processed by the `hs.doc` extension
@@ -592,6 +630,13 @@ end
   end
 
   local hscrash = require("hs.crash")
+
+  -- These three modules are so tightly coupled that we will unconditionally preload them
+  require("hs.application.internal")
+  require("hs.uielement")
+  require("hs.window")
+  require("hs.application")
+
   rawrequire = require
   require = function(modulename) -- luacheck: ignore
     local result = rawrequire(modulename)

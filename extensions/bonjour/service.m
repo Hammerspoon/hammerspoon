@@ -83,7 +83,7 @@ static NSString *netServiceErrorToString(NSDictionary *error) {
 
 - (void)performCallbackWith:(id)argument usingCallback:(int)fnRef {
     if (fnRef != LUA_NOREF) {
-        LuaSkin   *skin = [LuaSkin shared] ;
+        LuaSkin   *skin = [LuaSkin sharedWithState:NULL] ;
         lua_State *L    = skin.L ;
         int argCount    = 1 ;
         [skin pushLuaRef:refTable ref:fnRef] ;
@@ -166,7 +166,7 @@ static NSString *netServiceErrorToString(NSDictionary *error) {
 
 // hs.bonjour.service.remote is documented with its wrapper in init.lua
 static int service_newForResolve(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
     NSString *name   = [skin toNSObjectAtIndex:1] ;
     NSString *type   = [skin toNSObjectAtIndex:2] ;
@@ -187,7 +187,7 @@ static int service_newForResolve(lua_State *L) {
 
 // hs.bonjour.service.new is documented with its wrapper in init.lua
 static int service_newForPublish(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TNUMBER | LS_TINTEGER, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
     NSString *name   = [skin toNSObjectAtIndex:1] ;
     NSString *type   = [skin toNSObjectAtIndex:2] ;
@@ -224,7 +224,7 @@ static int service_newForPublish(lua_State *L) {
 ///  * for remote serviceObjects, the table will be empty if this method is invoked before [hs.bonjour.service:resolve](#resolve).
 ///  * for local (published) serviceObjects, this table will always be empty.
 static int service_addresses(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSNetServiceWrapper *wrapper = [skin toNSObjectAtIndex:1] ;
 
@@ -258,8 +258,8 @@ static int service_addresses(lua_State *L) {
 /// Notes:
 ///  * for remote serviceObjects, this domain will be the domain the service was discovered in.
 ///  * for local (published) serviceObjects, this domain will be the domain the service is published in; if you did not specify a domain with [hs.bonjour.service.new](#new) then this will be an empty string until [hs.bonjour.service:publish](#publish) is invoked.
-static int service_domain(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int service_domain(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSNetServiceWrapper *wrapper = [skin toNSObjectAtIndex:1] ;
     [skin pushNSObject:wrapper.service.domain] ;
@@ -275,8 +275,8 @@ static int service_domain(__unused lua_State *L) {
 ///
 /// Returns:
 ///  * a string containing the name of the service represented by the serviceObject.
-static int service_name(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int service_name(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSNetServiceWrapper *wrapper = [skin toNSObjectAtIndex:1] ;
     [skin pushNSObject:wrapper.service.name] ;
@@ -296,8 +296,8 @@ static int service_name(__unused lua_State *L) {
 /// Notes:
 ///  * for remote serviceObjects, this will be nil if this method is invoked before [hs.bonjour.service:resolve](#resolve).
 ///  * for local (published) serviceObjects, this method will always return nil.
-static int service_hostName(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int service_hostName(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSNetServiceWrapper *wrapper = [skin toNSObjectAtIndex:1] ;
     [skin pushNSObject:wrapper.service.hostName] ;
@@ -313,8 +313,8 @@ static int service_hostName(__unused lua_State *L) {
 ///
 /// Returns:
 ///  * a string containing the type of service represented by the serviceObject.
-static int service_type(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int service_type(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSNetServiceWrapper *wrapper = [skin toNSObjectAtIndex:1] ;
     [skin pushNSObject:wrapper.service.type] ;
@@ -335,7 +335,7 @@ static int service_type(__unused lua_State *L) {
 ///  * for remote serviceObjects, this will be -1 if this method is invoked before [hs.bonjour.service:resolve](#resolve).
 ///  * for local (published) serviceObjects, this method will always return the number specified when the serviceObject was created with the [hs.bonjour.service.new](#new) constructor.
 static int service_port(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSNetServiceWrapper *wrapper = [skin toNSObjectAtIndex:1] ;
     lua_pushinteger(L, wrapper.service.port) ;
@@ -358,7 +358,7 @@ static int service_port(lua_State *L) {
 ///
 ///  * Text records are usually used to provide additional information concerning the service and their purpose and meanings are service dependant; for example, when advertising an `_http._tcp.` service, you can specify a specific path on the server by specifying a table of text records containing the "path" key.
 static int service_TXTRecordData(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE | LS_TNIL | LS_TOPTIONAL, LS_TBREAK] ;
     HSNetServiceWrapper *wrapper = [skin toNSObjectAtIndex:1] ;
     if (lua_gettop(L) == 1) {
@@ -413,7 +413,7 @@ static int service_TXTRecordData(lua_State *L) {
 ///  * for remote serviceObjects, this flag determines if resolution and text record monitoring should occur over peer-to-peer network interfaces.
 ///  * for local (published) serviceObjects, this flag determines if advertising should occur over peer-to-peer network interfaces.
 static int service_includesPeerToPeer(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     HSNetServiceWrapper *wrapper = [skin toNSObjectAtIndex:1] ;
     if (lua_gettop(L) == 1) {
@@ -448,7 +448,7 @@ static int service_includesPeerToPeer(lua_State *L) {
 /// Notes:
 ///  * this method should only be called on serviceObjects which were created with [hs.bonjour.service.new](#new).
 static int service_publish(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK | LS_TVARARG] ;
     HSNetServiceWrapper *wrapper = [skin toNSObjectAtIndex:1] ;
     if (!wrapper.canPublish) return luaL_error(L, "can't publish a service created for resolution") ;
@@ -510,7 +510,7 @@ static int service_publish(lua_State *L) {
 ///  * For a remote service, this method must be called in order to retrieve the [addresses](#addresses), the [port](#port), the [hostname](#hostname), and any the associated [text records](#txtRecord) for the service.
 ///  * To reduce the usage of system resources, you should generally specify a timeout value or make sure to invoke [hs.bonjour.service:stop](#stop) after you have verified that you have received the details you require.
 static int service_resolveWithTimeout(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK | LS_TVARARG] ;
     HSNetServiceWrapper *wrapper = [skin toNSObjectAtIndex:1] ;
     if (wrapper.canPublish) return luaL_error(L, "can't resolve a service created for publishing") ;
@@ -569,7 +569,7 @@ static int service_resolveWithTimeout(lua_State *L) {
 ///
 ///  * You *can* monitor for text changes on local serviceObjects that were created by [hs.bonjour.service.new](#new) and that you are publishing. This can be used to invoke a callback when one portion of your code makes changes to the text records you are publishing and you need another portion of your code to be aware of this change.
 static int service_startMonitoring(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION | LS_TOPTIONAL, LS_TBREAK] ;
     HSNetServiceWrapper *wrapper = [skin toNSObjectAtIndex:1] ;
 
@@ -600,7 +600,7 @@ static int service_startMonitoring(lua_State *L) {
 ///
 ///  * To reduce the usage of system resources, you should make sure to use this method when resolving a remote service if you did not specify a timeout for [hs.bonjour.service:resolve](#resolve) or specified a timeout of 0.0 once you have verified that you have the details you need.
 static int service_stop(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSNetServiceWrapper *wrapper = [skin toNSObjectAtIndex:1] ;
     wrapper.callbackRef = [skin luaUnref:refTable ref:wrapper.callbackRef] ;
@@ -622,7 +622,7 @@ static int service_stop(lua_State *L) {
 /// Notes:
 ///  * This method will stop updating [hs.bonjour.service:txtRecord](#txtRecord) and invoking the callback, if any, assigned with [hs.bonjour.service:monitor](#monitor).
 static int service_stopMonitoring(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSNetServiceWrapper *wrapper = [skin toNSObjectAtIndex:1] ;
     wrapper.monitorCallbackRef = [skin luaUnref:refTable ref:wrapper.monitorCallbackRef] ;
@@ -638,7 +638,7 @@ static int service_stopMonitoring(lua_State *L) {
 // delegates and blocks.
 
 static int pushHSNetServiceWrapper(lua_State *L, id obj) {
-    LuaSkin *skin  = [LuaSkin shared] ;
+    LuaSkin *skin  = [LuaSkin sharedWithState:L] ;
     HSNetServiceWrapper *value = obj;
     if (value.selfRefCount == 0) {
         void** valuePtr = lua_newuserdata(L, sizeof(HSNetServiceWrapper *));
@@ -654,7 +654,7 @@ static int pushHSNetServiceWrapper(lua_State *L, id obj) {
 }
 
 id toHSNetServiceWrapperFromLua(lua_State *L, int idx) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     HSNetServiceWrapper *value ;
     if (luaL_testudata(L, idx, USERDATA_TAG)) {
         value = get_objectFromUserdata(__bridge HSNetServiceWrapper, L, idx, USERDATA_TAG) ;
@@ -666,7 +666,7 @@ id toHSNetServiceWrapperFromLua(lua_State *L, int idx) {
 }
 
 static int pushNSNetService(lua_State *L, id obj) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSNumber *valueRef         = nil ;
     HSNetServiceWrapper *value = nil ;
 
@@ -699,7 +699,7 @@ static int pushNSNetService(lua_State *L, id obj) {
 #pragma mark - Hammerspoon/Lua Infrastructure
 
 static int userdata_tostring(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     HSNetServiceWrapper *obj = [skin luaObjectAtIndex:1 toClass:"HSNetServiceWrapper"] ;
     NSString *title = [NSString stringWithFormat:@"%@ (%@%@)", obj.service.name, obj.service.type, obj.service.domain] ;
     [skin pushNSObject:[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, title, lua_topointer(L, 1)]] ;
@@ -710,7 +710,7 @@ static int userdata_eq(lua_State* L) {
 // can't get here if at least one of us isn't a userdata type, and we only care if both types are ours,
 // so use luaL_testudata before the macro causes a lua error
     if (luaL_testudata(L, 1, USERDATA_TAG) && luaL_testudata(L, 2, USERDATA_TAG)) {
-        LuaSkin *skin = [LuaSkin shared] ;
+        LuaSkin *skin = [LuaSkin sharedWithState:L] ;
         HSNetServiceWrapper *obj1 = [skin luaObjectAtIndex:1 toClass:"HSNetServiceWrapper"] ;
         HSNetServiceWrapper *obj2 = [skin luaObjectAtIndex:2 toClass:"HSNetServiceWrapper"] ;
 
@@ -726,7 +726,7 @@ static int userdata_gc(lua_State* L) {
     if (obj) {
         obj.selfRefCount-- ;
         if (obj.selfRefCount == 0) {
-            LuaSkin *skin = [LuaSkin shared] ;
+            LuaSkin *skin = [LuaSkin sharedWithState:L] ;
             obj.callbackRef = [skin luaUnref:refTable ref:obj.callbackRef] ;
             obj.monitorCallbackRef = [skin luaUnref:refTable ref:obj.monitorCallbackRef] ;
             obj.service.delegate = nil ;
@@ -786,8 +786,8 @@ static const luaL_Reg module_metaLib[] = {
     {NULL,   NULL}
 };
 
-int luaopen_hs_bonjour_service(lua_State* __unused L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+int luaopen_hs_bonjour_service(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     refTable = [skin registerLibraryWithObject:USERDATA_TAG
                                      functions:moduleLib
                                  metaFunctions:module_metaLib

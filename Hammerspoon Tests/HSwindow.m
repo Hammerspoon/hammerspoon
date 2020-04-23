@@ -8,11 +8,11 @@
 
 #import "HSTestCase.h"
 
-@interface HSwindow : HSTestCase
+@interface HSwindowTests : HSTestCase
 
 @end
 
-@implementation HSwindow
+@implementation HSwindowTests
 
 - (void)setUp {
     [super setUpWithRequire:@"test_window"];

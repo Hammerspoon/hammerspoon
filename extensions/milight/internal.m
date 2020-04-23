@@ -151,7 +151,7 @@ static int milight_del(lua_State *L) {
 /// Notes:
 ///  * This is a low level command, you typically should use a specific method for the operation you want to perform
 static int milight_send(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     bridge_t *bridge = luaL_checkudata(L, 1, USERDATA_TAG);
 
     int cmd_key = (int)luaL_checkinteger(L, 2);
@@ -217,7 +217,7 @@ static const luaL_Reg milight_objectlib[] = {
          must match the require-path of this file, i.e. "hs.milight.internal". */
 
 int luaopen_hs_milight_internal(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin registerLibraryWithObject:USERDATA_TAG functions:milightlib metaFunctions:nil objectFunctions:milight_objectlib];
 
     return 1;

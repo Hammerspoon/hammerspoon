@@ -71,7 +71,7 @@ NSString* stringFromError(unsigned int errorVal) {
 
 // Create an IOPM Assertion of specified type and store its ID in the specified variable
 static void caffeinate_create_assertion(lua_State *L, CFStringRef assertionType, IOPMAssertionID *assertionID) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     IOReturn result = 1;
 
     if (*assertionID) return;
@@ -92,7 +92,7 @@ static void caffeinate_create_assertion(lua_State *L, CFStringRef assertionType,
 
 // Release a previously stored assertion
 static void caffeinate_release_assertion(lua_State *L, IOPMAssertionID *assertionID) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     IOReturn result = 1;
 
     if (!*assertionID) return;
@@ -150,7 +150,7 @@ static int caffeinate_isIdleSystemSleepPrevented(lua_State *L) {
 
 // Prevent system sleep
 static int caffeinate_preventSystemSleep(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     IOReturn result = 1;
     BOOL ac_and_battery = false;
 
@@ -220,7 +220,7 @@ static int caffeinate_systemSleep(lua_State *L __unused) {
 ///  * This is intended to simulate user activity, for example to prevent displays from sleeping, or to wake them up
 ///  * It is not mandatory to re-use assertion IDs if you are calling this function mulitple times, but it is recommended that you do so if the calls are related
 static int caffeinate_declareUserActivity(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TNUMBER | LS_TINTEGER | LS_TNIL | LS_TOPTIONAL, LS_TBREAK]; // The LS_TNIL is so people can call foo = hs.caffeinate.declareUserActivity(foo) and not have it error out the first time
 
     IOPMAssertionID assertionID = kIOPMNullAssertionID;
@@ -247,7 +247,7 @@ static int caffeinate_declareUserActivity(lua_State *L) {
 /// Notes:
 ///  * This function uses private Apple APIs and could therefore stop working in any given release of macOS without warning.
 static int caffeinate_lockScreen(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TBREAK];
 
     // Load the private API we need to call SACLockScreenImmediate()
@@ -281,7 +281,7 @@ static int caffeinate_lockScreen(lua_State *L) {
 /// Notes:
 ///  * The keys in this dictionary will vary based on the current state of the system (e.g. local vs VNC login, screen locked vs unlocked).
 static int caffeinate_sessionProperties(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TBREAK];
 
     CFDictionaryRef ref = CGSessionCopyCurrentDictionary();
@@ -339,8 +339,8 @@ static const luaL_Reg metalib[] = {
 /* NOTE: The substring "hs_caffeinate_internal" in the following function's name
          must match the require-path of this file, i.e. "hs.caffeinate.internal". */
 
-int luaopen_hs_caffeinate_internal(lua_State *L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+int luaopen_hs_caffeinate_internal(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin registerLibrary:caffeinatelib metaFunctions:metalib];
 
     return 1;
