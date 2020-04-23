@@ -223,8 +223,8 @@ static const luaL_Reg hints_metalib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_hints_internal(lua_State* L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+int luaopen_hs_hints_internal(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin registerLibraryWithObject:USERDATA_TAG functions:hintslib metaFunctions:nil objectFunctions:hints_metalib];
 
     return 1;

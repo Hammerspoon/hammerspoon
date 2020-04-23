@@ -33,14 +33,16 @@ typedef struct _spacewatcher_t {
 
 // Call the lua callback function.
 - (void)callback:(NSDictionary* __unused)dict withSpace:(int)space {
-    LuaSkin *skin = [LuaSkin shared];
-    lua_State *L = skin.L;
-    _lua_stackguard_entry(L);
+    if (self.object->fn != LUA_NOREF) {
+        LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+        lua_State *L = skin.L;
+        _lua_stackguard_entry(L);
 
-    [skin pushLuaRef:refTable ref:self.object->fn];
-    lua_pushinteger(L, space);
-    [skin protectedCallAndError:@"hs.spaces.watcher callback" nargs:1 nresults:0];
-    _lua_stackguard_exit(L);
+        [skin pushLuaRef:refTable ref:self.object->fn];
+        lua_pushinteger(L, space);
+        [skin protectedCallAndError:@"hs.spaces.watcher callback" nargs:1 nresults:0];
+        _lua_stackguard_exit(L);
+    }
 }
 
 - (void)spaceChanged:(NSNotification*)notification {
@@ -73,7 +75,7 @@ typedef struct _spacewatcher_t {
 /// Returns:
 ///  * An `hs.spaces.watcher` object
 static int space_watcher_new(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     luaL_checktype(L, 1, LUA_TFUNCTION);
 
@@ -99,7 +101,7 @@ static int space_watcher_new(lua_State* L) {
 /// Returns:
 ///  * The watcher object
 static int space_watcher_start(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     spacewatcher_t* spaceWatcher = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L, 1);
@@ -145,7 +147,7 @@ static int space_watcher_stop(lua_State* L) {
 }
 
 static int space_watcher_gc(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     spacewatcher_t* spaceWatcher = luaL_checkudata(L, 1, USERDATA_TAG);
 
@@ -176,8 +178,8 @@ static const luaL_Reg watcher_objectlib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_spaces_watcher(lua_State* L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+int luaopen_hs_spaces_watcher(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:watcherlib metaFunctions:nil objectFunctions:watcher_objectlib];
 
     return 1;

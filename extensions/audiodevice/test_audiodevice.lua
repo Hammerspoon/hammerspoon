@@ -190,7 +190,7 @@ end
 assertTrue(device:setInputVolume(0))
 assertTrue(device:setInputVolume(wantVolume))
 
-assertIsAlmostEqual(wantVolume, device:inputVolume(), 0.5)
+assertIsAlmostEqual(wantVolume, device:inputVolume(), 2)
 
 -- Be nice and put the volume back where we found it
 device:setInputVolume(originalVolume)

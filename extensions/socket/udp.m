@@ -19,36 +19,42 @@ static const char *USERDATA_TAG = "hs.socket.udp";
 // Lua callbacks
 static void connectCallback(HSAsyncUdpSocket *asyncUdpSocket) {
     mainThreadDispatch(
-        LuaSkin *skin = [LuaSkin shared];
-        _lua_stackguard_entry(skin.L);
-        [skin pushLuaRef:refTable ref:asyncUdpSocket.connectCallback];
-        asyncUdpSocket.connectCallback = [skin luaUnref:refTable ref:asyncUdpSocket.connectCallback];
-        [skin protectedCallAndError:@"hs.socket.udp:connect" nargs:0 nresults:0];
-        _lua_stackguard_exit(skin.L);
+        if (asyncUdpSocket.connectCallback != LUA_NOREF) {
+            LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+            _lua_stackguard_entry(skin.L);
+            [skin pushLuaRef:refTable ref:asyncUdpSocket.connectCallback];
+            asyncUdpSocket.connectCallback = [skin luaUnref:refTable ref:asyncUdpSocket.connectCallback];
+            [skin protectedCallAndError:@"hs.socket.udp:connect" nargs:0 nresults:0];
+            _lua_stackguard_exit(skin.L);
+        }
     );
 }
 
 static void writeCallback(HSAsyncUdpSocket *asyncUdpSocket, long tag) {
     mainThreadDispatch(
-        LuaSkin *skin = [LuaSkin shared];
-        _lua_stackguard_entry(skin.L);
-        [skin pushLuaRef:refTable ref:asyncUdpSocket.writeCallback];
-        [skin pushNSObject: @(tag)];
-        asyncUdpSocket.writeCallback = [skin luaUnref:refTable ref:asyncUdpSocket.writeCallback];
-        [skin protectedCallAndError:@"hs.socket.udp:write callback" nargs:1 nresults:0];
-        _lua_stackguard_exit(skin.L);
+        if (asyncUdpSocket.writeCallback != LUA_NOREF) {
+            LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+            _lua_stackguard_entry(skin.L);
+            [skin pushLuaRef:refTable ref:asyncUdpSocket.writeCallback];
+            [skin pushNSObject: @(tag)];
+            asyncUdpSocket.writeCallback = [skin luaUnref:refTable ref:asyncUdpSocket.writeCallback];
+            [skin protectedCallAndError:@"hs.socket.udp:write callback" nargs:1 nresults:0];
+            _lua_stackguard_exit(skin.L);
+        }
     );
 }
 
 static void readCallback(HSAsyncUdpSocket *asyncUdpSocket, NSData *data, NSData *address) {
     mainThreadDispatch(
-        LuaSkin *skin = [LuaSkin shared];
-        _lua_stackguard_entry(skin.L);
-        [skin pushLuaRef:refTable ref:asyncUdpSocket.readCallback];
-        [skin pushNSObject: [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]];
-        [skin pushNSObject: address];
-        [skin protectedCallAndError:@"hs.socket.udp:read callback" nargs:2 nresults:0];
-        _lua_stackguard_exit(skin.L);
+        if (asyncUdpSocket.readCallback != LUA_NOREF) {
+            LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+            _lua_stackguard_entry(skin.L);
+            [skin pushLuaRef:refTable ref:asyncUdpSocket.readCallback];
+            [skin pushNSObject: [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]];
+            [skin pushNSObject: address];
+            [skin protectedCallAndError:@"hs.socket.udp:read callback" nargs:2 nresults:0];
+            _lua_stackguard_exit(skin.L);
+        }
     );
 }
 
@@ -74,7 +80,7 @@ static void readCallback(HSAsyncUdpSocket *asyncUdpSocket, NSData *data, NSData 
 
 - (void)udpSocket:(GCDAsyncUdpSocket *)sock didNotConnect:(NSError *)error {
     [LuaSkin logError:[NSString stringWithFormat:@"UDP socket did not connect: %@", [error localizedDescription]]];
-    mainThreadDispatch(self.connectCallback = [[LuaSkin shared] luaUnref:refTable ref:self.connectCallback]);
+    mainThreadDispatch(self.connectCallback = [[LuaSkin sharedWithState:NULL] luaUnref:refTable ref:self.connectCallback]);
 }
 
 - (void)udpSocketDidClose:(GCDAsyncUdpSocket *)sock withError:(NSError *)error {
@@ -90,7 +96,7 @@ static void readCallback(HSAsyncUdpSocket *asyncUdpSocket, NSData *data, NSData 
 
 - (void)udpSocket:(GCDAsyncUdpSocket *)sock didNotSendDataWithTag:(long)tag dueToError:(NSError *)error {
     [LuaSkin logError:[NSString stringWithFormat:@"Data not sent on UDP socket: %@", [error localizedDescription]]];
-    mainThreadDispatch(self.writeCallback = [[LuaSkin shared] luaUnref:refTable ref:self.writeCallback]);
+    mainThreadDispatch(self.writeCallback = [[LuaSkin sharedWithState:NULL] luaUnref:refTable ref:self.writeCallback]);
 }
 
 - (void)udpSocket:(GCDAsyncUdpSocket *)sock didReceiveData:(NSData *)data fromAddress:(NSData *)address withFilterContext:(id)filterContext {
@@ -113,7 +119,7 @@ static void readCallback(HSAsyncUdpSocket *asyncUdpSocket, NSData *data, NSData 
 ///  * An [`hs.socket.udp`](#new) object
 ///
 static int socketudp_new(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TFUNCTION|LS_TNIL|LS_TOPTIONAL, LS_TBREAK];
     HSAsyncUdpSocket *asyncUdpSocket = [[HSAsyncUdpSocket alloc] init];
 
@@ -159,7 +165,7 @@ static int socketudp_new(lua_State *L) {
 /// * You can only connect a socket once
 ///
 static int socketudp_connect(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TNUMBER|LS_TINTEGER, LS_TFUNCTION|LS_TOPTIONAL, LS_TBREAK];
     HSAsyncUdpSocket* asyncUdpSocket = getUserData(L, 1);
     NSString *theHost = [skin toNSObjectAtIndex:2];
@@ -194,7 +200,7 @@ static int socketudp_connect(lua_State *L) {
 ///  * The [`hs.socket.udp`](#new) object or `nil` if an error occured
 ///
 static int socketudp_listen(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER|LS_TINTEGER, LS_TBREAK];
     HSAsyncUdpSocket* asyncUdpSocket = getUserData(L, 1);
     UInt16 thePort = [[skin toNSObjectAtIndex:2] unsignedShortValue];
@@ -224,7 +230,7 @@ static int socketudp_listen(lua_State *L) {
 ///  * The [`hs.socket.udp`](#new) object
 ///
 static int socketudp_close(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSAsyncUdpSocket* asyncUdpSocket = getUserData(L, 1);
 
@@ -245,7 +251,7 @@ static int socketudp_close(lua_State *L) {
 ///  * The [`hs.socket.udp`](#new) object
 ///
 static int socketudp_pause(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSAsyncUdpSocket* asyncUdpSocket = getUserData(L, 1);
 
@@ -256,7 +262,7 @@ static int socketudp_pause(lua_State *L) {
 }
 
 static BOOL socketudp_receiveContinuous(lua_State *L, BOOL readContinuous) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION|LS_TOPTIONAL, LS_TBREAK];
     HSAsyncUdpSocket* asyncUdpSocket = getUserData(L, 1);
     NSError *err;
@@ -354,7 +360,7 @@ static int socketudp_receiveOne(lua_State *L) {
 ///  * For connected sockets, data can only be sent to the connected address
 ///
 static int socketudp_send(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TANY|LS_TOPTIONAL, LS_TANY|LS_TOPTIONAL, LS_TANY|LS_TOPTIONAL, LS_TANY|LS_TOPTIONAL, LS_TBREAK];
     HSAsyncUdpSocket* asyncUdpSocket = getUserData(L, 1);
     NSString *message = [skin toNSObjectAtIndex:2];
@@ -423,7 +429,7 @@ static int socketudp_send(lua_State *L) {
 ///  * The reason this is generally disabled by default (by the OS) is to prevent accidental broadcast messages from flooding the network.
 ///
 static int socketudp_enableBroadcast(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
     HSAsyncUdpSocket* asyncUdpSocket = getUserData(L, 1);
     BOOL enableFlag = (lua_type(L, 2) == LUA_TBOOLEAN && lua_toboolean(L, 3) == false) ? false : true;
@@ -457,7 +463,7 @@ static int socketudp_enableBroadcast(lua_State *L) {
 ///  * Must be called before binding the socket
 ///
 static int socketudp_enableReusePort(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
     HSAsyncUdpSocket* asyncUdpSocket = getUserData(L, 1);
     BOOL enableFlag = (lua_type(L, 2) == LUA_TBOOLEAN && lua_toboolean(L, 3) == false) ? false : true;
@@ -491,7 +497,7 @@ static int socketudp_enableReusePort(lua_State *L) {
 ///  * The convenience constructor [`hs.socket.server`](#server) will automatically bind the socket and requires closing and relistening to use this method
 ///
 static int socketudp_enableIPversion(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER|LS_TINTEGER, LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
     HSAsyncUdpSocket* asyncUdpSocket = getUserData(L, 1);
     UInt8 ipVersion = lua_tointeger(L, 2);
@@ -527,7 +533,7 @@ static int socketudp_enableIPversion(lua_State *L) {
 ///  * If a DNS lookup returns both IPv4 and IPv6 results, then the protocol used depends on the configured preference
 ///
 static int socketudp_preferIPversion(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER|LS_TINTEGER|LS_TOPTIONAL, LS_TBREAK];
     HSAsyncUdpSocket* asyncUdpSocket = getUserData(L, 1);
 
@@ -563,7 +569,7 @@ static int socketudp_preferIPversion(lua_State *L) {
 ///  * If you set the buffer size too small, the sockets API in the OS will silently discard any extra data
 ///
 static int socketudp_setReceiveBufferSize(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER|LS_TINTEGER, LS_TNUMBER|LS_TINTEGER|LS_TOPTIONAL, LS_TBREAK];
     HSAsyncUdpSocket* asyncUdpSocket = getUserData(L, 1);
     NSUInteger bufferSize = lua_tointeger(L, 2);
@@ -600,7 +606,7 @@ static int socketudp_setReceiveBufferSize(lua_State *L) {
 ///  * The [`hs.socket.udp`](#new) object
 ///
 static int socketudp_setCallback(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION|LS_TNIL|LS_TOPTIONAL, LS_TBREAK];
     HSAsyncUdpSocket* asyncUdpSocket = getUserData(L, 1);
 
@@ -626,7 +632,7 @@ static int socketudp_setCallback(lua_State *L) {
 ///  * The [`hs.socket.udp`](#new) object
 ///
 static int socketudp_setTimeout(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TBREAK];
     HSAsyncUdpSocket* asyncUdpSocket = getUserData(L, 1);
     NSTimeInterval timeout = lua_tonumber(L, 2);
@@ -651,7 +657,7 @@ static int socketudp_setTimeout(lua_State *L) {
 ///  * This method will only return `true` if the [`connect`](#connect) method has been explicitly called
 ///
 static int socketudp_connected(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSAsyncUdpSocket* asyncUdpSocket = getUserData(L, 1);
 
@@ -675,7 +681,7 @@ static int socketudp_connected(lua_State *L) {
 ///  * An active listening socket will not be closed, but will not be 'connected' unless the [connect](#connect) method has been called
 ///
 static int socketudp_closed(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSAsyncUdpSocket* asyncUdpSocket = getUserData(L, 1);
 
@@ -719,7 +725,7 @@ static int socketudp_closed(lua_State *L) {
 ///   * userData - `string`
 ///
 static int socketudp_info(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSAsyncUdpSocket* asyncUdpSocket = getUserData(L, 1);
 
@@ -773,11 +779,12 @@ static int userdata_gc(lua_State *L) {
     HSAsyncUdpSocket* asyncUdpSocket = (__bridge_transfer HSAsyncUdpSocket *)userData->asyncSocket;
     userData->asyncSocket = nil;
 
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [asyncUdpSocket close];
     [asyncUdpSocket setDelegate:nil delegateQueue:NULL];
-    asyncUdpSocket.readCallback = [[LuaSkin shared] luaUnref:refTable ref:asyncUdpSocket.readCallback];
-    asyncUdpSocket.writeCallback = [[LuaSkin shared] luaUnref:refTable ref:asyncUdpSocket.writeCallback];
-    asyncUdpSocket.connectCallback = [[LuaSkin shared] luaUnref:refTable ref:asyncUdpSocket.connectCallback];
+    asyncUdpSocket.readCallback = [skin luaUnref:refTable ref:asyncUdpSocket.readCallback];
+    asyncUdpSocket.writeCallback = [skin luaUnref:refTable ref:asyncUdpSocket.writeCallback];
+    asyncUdpSocket.connectCallback = [skin luaUnref:refTable ref:asyncUdpSocket.connectCallback];
     asyncUdpSocket = nil;
 
     return 0;
@@ -813,8 +820,8 @@ static const luaL_Reg userdata_metaLib[] = {
     {NULL,              NULL} // This must end with an empty struct
 };
 
-int luaopen_hs_socket_udp(lua_State *L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+int luaopen_hs_socket_udp(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibrary:moduleLib metaFunctions:meta_gcLib];
     [skin registerObject:USERDATA_TAG objectFunctions:userdata_metaLib];
 

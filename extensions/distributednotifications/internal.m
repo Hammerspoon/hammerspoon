@@ -22,7 +22,7 @@ typedef struct _distnot_t {
 
 - (void)callback:(NSNotification *)note {
     if (self.fnRef != LUA_NOREF && self.fnRef != LUA_REFNIL) {
-        LuaSkin *skin = [LuaSkin shared];
+        LuaSkin *skin = [LuaSkin sharedWithState:NULL];
         _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:self.fnRef];
         [skin pushNSObject:note.name];
@@ -50,7 +50,7 @@ typedef struct _distnot_t {
 /// Returns:
 ///  * An `hs.distributednotifications` object
 static int distnot_new(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TFUNCTION, LS_TSTRING|LS_TNIL|LS_TOPTIONAL, LS_TSTRING|LS_TNIL|LS_TOPTIONAL, LS_TBREAK];
 
     NSString *name = lua_isnoneornil(L, 2) ? nil : [skin toNSObjectAtIndex:2];
@@ -84,7 +84,7 @@ static int distnot_new(lua_State *L) {
 ///  * sender - An optional string containing the name of the sender of the notification (in the form `com.domain.application.foo`). Defaults to nil.
 ///  * userInfo - An optional table containing additional information to post with the notification. Defaults to nil.
 static int distnot_post(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TSTRING | LS_TNIL | LS_TOPTIONAL, LS_TTABLE | LS_TNIL | LS_TOPTIONAL, LS_TBREAK];
 
     NSString *object;
@@ -120,7 +120,7 @@ static int distnot_post(lua_State *L) {
 /// Returns:
 ///  * The `hs.distributednotifications` object
 static int distnot_start(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
     distnot_t *userData = lua_touserdata(L, 1);
@@ -143,7 +143,7 @@ static int distnot_start(lua_State *L) {
 /// Returns:
 ///  * The `hs.distributednotifications` object
 static int distnot_stop(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
     distnot_t *userData = lua_touserdata(L, 1);
@@ -159,7 +159,7 @@ static int distnot_stop(lua_State *L) {
 #pragma mark - Hammerspoon Infrastructure
 
 static int userdata_tostring(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
     distnot_t *userData = lua_touserdata(L, 1);
@@ -170,7 +170,7 @@ static int userdata_tostring(lua_State* L) {
 }
 
 static int userdata_gc(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
     distnot_t *userData = lua_touserdata(L, 1);
@@ -206,8 +206,8 @@ static const luaL_Reg userdata_metaLib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_distributednotifications_internal(__unused lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+int luaopen_hs_distributednotifications_internal(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibrary:distributednotificationslib metaFunctions:nil];
     [skin registerObject:USERDATA_TAG objectFunctions:userdata_metaLib];
 

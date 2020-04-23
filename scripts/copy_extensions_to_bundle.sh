@@ -67,6 +67,7 @@ export HS_WATCHERS="application \
     pasteboard \
     screen \
     spaces \
+    uielement \
     usb \
     wifi"
 export HS_LUAONLY="_coresetup \

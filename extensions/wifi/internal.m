@@ -54,7 +54,7 @@ CWInterface *get_wifi_interface(NSString *theInterface) {
 
 - (void)invokeCallback:(id)object {
     if (_fnRef != LUA_NOREF) {
-        LuaSkin *skin = [LuaSkin shared] ;
+        LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
         _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_fnRef];
         if ([object isKindOfClass:[NSError class]]) {
@@ -83,7 +83,7 @@ CWInterface *get_wifi_interface(NSString *theInterface) {
 /// Returns:
 ///  * True if the power change was successful, or false and an error string if an error occurred attempting to set the power state.  Returns nil if there is a problem attaching to the interface.
 static int setPower(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TBOOLEAN, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
     BOOL powerState = (BOOL)lua_toboolean(L, 1) ;
     NSString *theName = nil ;
@@ -117,7 +117,7 @@ static int setPower(lua_State *L) {
 /// Returns:
 ///  * None
 static int disassociate(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
     NSString *theName = nil ;
     if (lua_gettop(L) == 1)
@@ -145,7 +145,7 @@ static int disassociate(lua_State *L) {
 ///  * This function blocks Hammerspoon until the operation is completed
 ///  * If multiple access points are available with the same SSID, one will be chosen at random to connect to
 static int associate(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
 
     BOOL success = NO;
@@ -179,8 +179,8 @@ static int associate(lua_State *L) {
 ///
 /// Notes:
 ///  * For most systems, this will be one interface, but the result is still returned as an array.
-static int wifi_interfaces(__unused lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+static int wifi_interfaces(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TBREAK] ;
     [skin pushNSObject:[CWWiFiClient interfaceNames]] ;
     return 1 ;
@@ -199,7 +199,7 @@ static int wifi_interfaces(__unused lua_State *L) {
 /// Notes:
 ///  * WARNING: This function will block all Lua execution until the scan has completed. It's probably not very sensible to use this function very much, if at all.
 static int wifi_scan(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
     NSString *theName = nil ;
     if (lua_gettop(L) == 1)
@@ -280,7 +280,7 @@ static int wifi_scan(lua_State* L) {
 ///
 ///    * These precautions are in response to Hammerspoon Github Issue #859.  As binary data, even when cleaned up with the Console's UTF8 wrapper code, some valid UTF8 sequences have been found to cause crashes in the OSX CoreText API during rendering.  While some specific sequences have made the rounds on the Internet, the specific code analysis at http://www.theregister.co.uk/2015/05/27/text_message_unicode_ios_osx_vulnerability/ suggests a possible cause of the problem which may be triggered by other currently unknown sequences as well.  As the sequences aren't at present predictable, we can't add to the UTF8 wrapper already in place for the Hammerspoon console.
 static int wifi_scan_background(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TFUNCTION | LS_TNIL, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
 
     int callbackRef = LUA_NOREF ;
@@ -312,7 +312,7 @@ static int wifi_scan_background(lua_State* L) {
 /// Returns:
 ///  * A string containing the SSID of the WiFi network currently joined, or nil if no there is no WiFi connection
 static int wifi_current_ssid(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
     NSString *theName = nil ;
     if (lua_gettop(L) == 1)
@@ -371,7 +371,7 @@ static int wifi_current_ssid(lua_State* L) {
 ///      * number - The channel number.
 ///      * width  - The channel width.
 static int interfaceDetails(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
     NSString *theName = nil ;
     if (lua_gettop(L) == 1)
@@ -402,7 +402,7 @@ static int interfaceDetails(lua_State* L) {
 /// Notes:
 ///  * This will be set whether or not an actual callback function was invoked.  This method can be checked to see if the cached data for the `cachedScanResults` entry returned by [hs.wifi.interfaceDetails](#interfaceDetails) has been updated.
 static int backgroundScanIsDone(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSWifiScan *scanner = get_objectFromUserdata(__bridge HSWifiScan, L, 1);
     lua_pushboolean(L, scanner.isDone) ;
@@ -412,7 +412,7 @@ static int backgroundScanIsDone(lua_State *L) {
 #pragma mark - Lua<->NSObject Conversion Functions
 
 static int pushCWInterface(lua_State *L, id obj) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     CWInterface *theInterface = (CWInterface *)obj ;
     lua_newtable(L) ;
 
@@ -499,7 +499,7 @@ static int pushCWChannel(lua_State *L, id obj) {
 }
 
 static int pushCWConfiguration(lua_State *L, id obj) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
 
     CWConfiguration *theConfig = (CWConfiguration *)obj ;
     lua_newtable(L) ;
@@ -518,7 +518,7 @@ static int pushCWConfiguration(lua_State *L, id obj) {
 }
 
 static int pushCWNetwork(lua_State *L, id obj) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     CWNetwork *theNetwork = (CWNetwork *)obj ;
     lua_newtable(L) ;
 
@@ -631,7 +631,7 @@ static int pushCWNetwork(lua_State *L, id obj) {
 }
 
 static int pushCWNetworkProfile(lua_State *L, id obj) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     CWNetworkProfile *theProfile = (CWNetworkProfile *)obj ;
     lua_newtable(L) ;
 
@@ -661,14 +661,14 @@ static int pushCWNetworkProfile(lua_State *L, id obj) {
 
 static int userdata_tostring(lua_State* L) {
     HSWifiScan *scanner = get_objectFromUserdata(__bridge HSWifiScan, L, 1);
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin pushNSObject:[NSString stringWithFormat:@"%s: %s (%p)", USERDATA_TAG, ((scanner.isDone) ? "scanning" : "done"), (void *)scanner]];
     return 1;
 }
 
 static int userdata_gc(lua_State* L) {
     HSWifiScan *scanner = get_objectFromUserdata(__bridge_transfer HSWifiScan, L, 1);
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     scanner.fnRef = [skin luaUnref:refTable ref:scanner.fnRef];
 
@@ -710,8 +710,8 @@ static const luaL_Reg userdata_metaLib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_wifi_internal(__unused lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+int luaopen_hs_wifi_internal(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibraryWithObject:USERDATA_TAG
                                      functions:wifilib
                                  metaFunctions:nil // metalib

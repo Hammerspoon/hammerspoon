@@ -182,9 +182,17 @@
 				<string>https</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>org.hammerspoon.Hammerspoon.mailto</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>mailto</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>5129</string>
+	<string>5164</string>
 	<key>Fabric</key>
 	<dict>
 		<key>APIKey</key>
