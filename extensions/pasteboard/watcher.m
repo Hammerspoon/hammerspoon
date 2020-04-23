@@ -54,7 +54,7 @@ NSTimer *sharedPasteboardTimer;
     self.changeCount = currentChangeCount;
 
     // Trigger Lua Callback Function:
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     _lua_stackguard_entry(skin.L);
     
     [skin pushLuaRef:refTable ref:self.fnRef];
@@ -162,7 +162,7 @@ HSPasteboardTimer *createHSPasteboardTimer(int callbackRef, NSString *pbName) {
 ///  hs.pasteboard.writeObjects("This is on the special pasteboard.", "special")
 ///  ```
 static int pasteboardwatcher_new(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TFUNCTION, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
 
     NSString *pbName = [skin toNSObjectAtIndex:2];
@@ -195,7 +195,7 @@ static int pasteboardwatcher_new(lua_State* L) {
 /// Returns:
 ///  * The `hs.pasteboard.watcher` object
 static int pasteboardwatcher_start(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
     HSPasteboardTimer* timer = get_objectFromUserdata(__bridge HSPasteboardTimer, L, 1, USERDATA_TAG);
@@ -217,7 +217,7 @@ static int pasteboardwatcher_start(lua_State* L) {
 /// Returns:
 ///  * A boolean value indicating whether or not the timer is currently running.
 static int pasteboardwatcher_running(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSPasteboardTimer *timer = get_objectFromUserdata(__bridge HSPasteboardTimer, L, 1, USERDATA_TAG);
 
@@ -236,7 +236,7 @@ static int pasteboardwatcher_running(lua_State* L) {
 /// Returns:
 ///  * The `hs.pasteboard.watcher` object
 static int pasteboardwatcher_stop(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSPasteboardTimer *timer = get_objectFromUserdata(__bridge HSPasteboardTimer, L, 1, USERDATA_TAG);
     lua_settop(L, 1);
@@ -248,7 +248,7 @@ static int pasteboardwatcher_stop(lua_State* L) {
 }
 
 static int pasteboardwatcher_gc(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     HSPasteboardTimer *timer = get_objectFromUserdata(__bridge_transfer HSPasteboardTimer, L, 1, USERDATA_TAG);
 
     if (timer) {
@@ -271,7 +271,7 @@ static int meta_gc(lua_State* __unused L) {
 }
 
 static int userdata_tostring(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSPasteboardTimer *timer = get_objectFromUserdata(__bridge HSPasteboardTimer, L, 1, USERDATA_TAG);
     NSString* title ;
@@ -308,8 +308,8 @@ static const luaL_Reg meta_gcLib[] = {
     {NULL,      NULL}
 };
 
-int luaopen_hs_pasteboard_watcher(lua_State* L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+int luaopen_hs_pasteboard_watcher(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibrary:pasteboardWatcher_lib metaFunctions:meta_gcLib];
     [skin registerObject:USERDATA_TAG objectFunctions:pasteboardWatcher_metalib];
     return 1;
