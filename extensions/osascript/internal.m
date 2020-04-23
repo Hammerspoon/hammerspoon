@@ -15,7 +15,7 @@
 ///  * An object containing the parsed output that can be any type, or nil if unsuccessful
 ///  * A string containing the raw output of the code and/or its errors
 static int runosascript(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TBREAK];
 
     NSString* source = [skin toNSObjectAtIndex:1];
@@ -48,8 +48,8 @@ static const luaL_Reg scriptlib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_osascript_internal(lua_State* L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+int luaopen_hs_osascript_internal(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin registerLibrary:scriptlib metaFunctions:nil];
 
     return 1;

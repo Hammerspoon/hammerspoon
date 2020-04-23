@@ -31,6 +31,7 @@
 
 - (void)testSet {
     SKIP_IN_TRAVIS()
+    SKIP_IN_XCODE_SERVER()
     RUN_LUA_TEST()
 }
 

@@ -13,6 +13,7 @@
 - (void)setUpWithRequire:(NSString *)requireName {
     [super setUp];
     self.isTravis = [self runningInTravis];
+    self.isXcodeServer = [self runningInXcodeServer];
 
     NSString *result = [self runLua:[NSString stringWithFormat:@"require('%@')", requireName]];
     XCTAssertEqualObjects(@"true", result, @"Unable to load %@.lua", requireName);
@@ -37,7 +38,7 @@
     NSLog(@"Calling setup code: %@", setupCode);
     [self runLua:setupCode];
 
-    [NSTimer scheduledTimerWithTimeInterval:0.5 repeats:YES block:^(NSTimer *timer) {
+    NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:0.5 repeats:YES block:^(NSTimer *timer) {
         NSLog(@"Calling check code: %@", checkCode);
         BOOL result = [self luaTest:checkCode];
         if (result) {
@@ -58,6 +59,7 @@
         } else {
             NSLog(@"%@ succeeded", setupCode);
         }
+        [timer invalidate];
     }];
 }
 
@@ -69,6 +71,10 @@
 
 - (BOOL)runningInTravis {
     return (getenv("TRAVIS") != NULL);
+}
+
+- (BOOL)runningInXcodeServer {
+    return (getenv("XCS") != NULL);
 }
 
 // Tests of the above methods

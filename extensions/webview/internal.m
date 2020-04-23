@@ -95,7 +95,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
 }
 
 - (void)windowWillClose:(__unused NSNotification *)notification {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
     lua_State *L = [skin L] ;
     _lua_stackguard_entry(L);
     if (_windowCallback != LUA_NOREF) {
@@ -119,7 +119,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
 - (void)windowDidBecomeKey:(__unused NSNotification *)notification {
 	dispatch_async(dispatch_get_main_queue(), ^{
         if (self->_windowCallback != LUA_NOREF) {
-			LuaSkin *skin = [LuaSkin shared] ;
+			LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
 			_lua_stackguard_entry(skin.L);
 			[skin pushLuaRef:refTable ref:self->_windowCallback] ;
 			[skin pushNSObject:@"focusChange"] ;
@@ -134,7 +134,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
 - (void)windowDidResignKey:(__unused NSNotification *)notification {
 	dispatch_async(dispatch_get_main_queue(), ^{
         if (self->_windowCallback != LUA_NOREF) {
-			LuaSkin *skin = [LuaSkin shared] ;
+			LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
 			_lua_stackguard_entry(skin.L);
 			[skin pushLuaRef:refTable ref:self->_windowCallback] ;
 			[skin pushNSObject:@"focusChange"] ;
@@ -149,7 +149,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
 - (void)windowDidResize:(__unused NSNotification *)notification {
 	dispatch_async(dispatch_get_main_queue(), ^{
         if (self->_windowCallback != LUA_NOREF) {
-			LuaSkin *skin = [LuaSkin shared] ;
+			LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
 			_lua_stackguard_entry(skin.L);
 			[skin pushLuaRef:refTable ref:self->_windowCallback] ;
 			[skin pushNSObject:@"frameChange"] ;
@@ -164,7 +164,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
 - (void)windowDidMove:(__unused NSNotification *)notification {
 	dispatch_async(dispatch_get_main_queue(), ^{
         if (self->_windowCallback != LUA_NOREF) {
-			LuaSkin *skin = [LuaSkin shared] ;
+			LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
 			_lua_stackguard_entry(skin.L);
 			[skin pushLuaRef:refTable ref:self->_windowCallback] ;
 			[skin pushNSObject:@"frameChange"] ;
@@ -190,7 +190,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
     [NSAnimationContext endGrouping];
 }
 
-- (void)fadeOut:(NSTimeInterval)fadeTime andDelete:(BOOL)deleteWindow {
+- (void)fadeOut:(NSTimeInterval)fadeTime andDelete:(BOOL)deleteWindow withState:(lua_State *)L {
     [NSAnimationContext beginGrouping];
 #if __has_feature(objc_arc)
       __weak HSWebViewWindow *bself = self; // in ARC, __block would increase retain count
@@ -203,8 +203,8 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
           HSWebViewWindow *mySelf = bself ;
           if (mySelf) {
               if (deleteWindow) {
-              LuaSkin *skin = [LuaSkin shared] ;
-                  lua_State *L = [skin L] ;
+              LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+//                   lua_State *L = [skin L] ;
                   [mySelf close] ; // trigger callback, if set, then cleanup
                   lua_pushcfunction(L, userdata_gc) ;
                   [skin pushLuaRef:refTable ref:mySelf.udRef] ;
@@ -321,7 +321,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
         NSURLCredential *previousCredential = [challenge proposedCredential] ;
 
         if (self.policyCallback != LUA_NOREF && [challenge previousFailureCount] < 3) { // don't get in a loop if the callback isn't working
-            LuaSkin *skin = [LuaSkin shared] ;
+            LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
             _lua_stackguard_entry(skin.L);
             [skin pushLuaRef:refTable ref:self.policyCallback];
             lua_pushstring([skin L], "authenticationChallenge") ;
@@ -419,7 +419,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
         SecTrustEvaluate(serverTrust, &status);
 
         if (status == kSecTrustResultRecoverableTrustFailure && self.sslCallback != LUA_NOREF) {
-            LuaSkin *skin = [LuaSkin shared] ;
+            LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
             _lua_stackguard_entry(skin.L);
             [skin pushLuaRef:refTable ref:self.sslCallback];
             [skin pushNSObject:(HSWebViewWindow *)theView.window] ;
@@ -454,7 +454,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
 - (void)webView:(WKWebView *)theView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
                                                      decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
     if (self.policyCallback != LUA_NOREF) {
-        LuaSkin *skin = [LuaSkin shared] ;
+        LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
         _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:self.policyCallback];
         lua_pushstring([skin L], "navigationAction") ;
@@ -483,7 +483,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
 - (void)webView:(WKWebView *)theView decidePolicyForNavigationResponse:(WKNavigationResponse *)navigationResponse
                                                        decisionHandler:(void (^)(WKNavigationResponsePolicy))decisionHandler {
     if (self.policyCallback != LUA_NOREF) {
-        LuaSkin *skin = [LuaSkin shared] ;
+        LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
         _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:self.policyCallback];
         lua_pushstring([skin L], "navigationResponse") ;
@@ -519,7 +519,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
 // TODO: maybe prevent when not titled/movable, include toggle to prevent new windows...
 // copy window settings... what else?
     if (((HSWebViewView *)theView).allowNewWindows) {
-        LuaSkin *skin = [LuaSkin shared] ;
+        LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
         _lua_stackguard_entry(skin.L); // FIXME: Are we 100% sure this method is called from C and not Lua?
 
         HSWebViewWindow *parent = (HSWebViewWindow *)theView.window ;
@@ -696,7 +696,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
     BOOL actionRequiredAfterReturn = YES ;
 
     if (self.navigationCallback != LUA_NOREF) {
-        LuaSkin *skin = [LuaSkin shared] ;
+        LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
         _lua_stackguard_entry(skin.L);
         int numberOfArguments = 3 ;
         [skin pushLuaRef:refTable ref:self.navigationCallback];
@@ -746,7 +746,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
 
 #ifdef _WK_DEBUG
 static int webview_preferences(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     HSWebViewWindow        *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
     HSWebViewView          *theView = theWindow.contentView ;
     WKWebViewConfiguration *theConfiguration = [theView configuration] ;
@@ -782,7 +782,7 @@ static int webview_preferences(lua_State *L) {
 ///
 ///  * See `hs.webview.datastore` and [hs.webview.new](#new) for more information.
 static int webview_privateBrowsing(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
 
@@ -812,7 +812,7 @@ static int webview_privateBrowsing(lua_State *L) {
 /// Returns:
 ///  * an array containing the webview objects of all child windows opened from this webview.
 static int webview_children(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
 
@@ -835,7 +835,7 @@ static int webview_children(lua_State *L) {
 /// Returns:
 ///  * the parent webview object for the calling webview object, or nil if the webview has no parent
 static int webview_parent(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
 
@@ -885,7 +885,7 @@ static int webview_parent(lua_State *L) {
 /// Notes:
 ///  * The networkServiceType field of the URL request table is a hint to the operating system about what the underlying traffic is used for. This hint enhances the system's ability to prioritize traffic, determine how quickly it needs to wake up the Wi-Fi radio, and so on. By providing accurate information, you improve the ability of the system to optimally balance battery life, performance, and other considerations.  Likewise, inaccurate information can have a deleterious effect on your system performance and battery life.
 static int webview_url(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TTABLE | LS_TOPTIONAL, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
     HSWebViewView   *theView = theWindow.contentView ;
@@ -931,7 +931,7 @@ static int webview_url(lua_State *L) {
 ///
 ///  * If you have set the user agent application name with the `applicationName` parameter to the [hs.webview.new](#new) constructor, it will be ignored unless this value is "", i.e. the default user agent string.  If you wish to specify an application name after the user agent string and use a custom string, include the application name in your custom string.
 static int webview_userAgent(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
     HSWebViewView   *theView = theWindow.contentView ;
@@ -977,7 +977,7 @@ static int webview_userAgent(lua_State *L) {
 ///  * For OIDs which specify a type of "date" -- e.g. "2.5.29.24" (invalidityDate) -- the number provided represents the number of seconds since 12:00:00 AM, January 1, 1970 and can be used directly with the Lua `os.date` command.
 ///  * For OIDs which are known to represent a date, but specify its type as a "number" -- e.g. "2.16.840.1.113741.2.1.1.1.7" (X509V1ValidityNotAfter) or "2.16.840.1.113741.2.1.1.1.6" (X509V1ValidityNotBefore) -- the epoch is 12:00:00 AM, Jan 1, 2001.  To convert these dates into a format usable by Lua, you will need to do something similar to the following:  `os.date("%c", value + os.time({year=2001,month=1,day=1,hour=0,min=0,sec=0})`
 static int webview_certificateChain(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
     HSWebViewView   *theView = theWindow.contentView ;
@@ -1006,7 +1006,7 @@ static int webview_certificateChain(lua_State *L) {
 /// Returns:
 ///  * the title
 static int webview_title(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
     HSWebViewView   *theView = theWindow.contentView ;
@@ -1028,7 +1028,7 @@ static int webview_title(lua_State *L) {
 /// Notes:
 ///  * This navigation identifier can be used to track the progress of a webview with the navigation callback function - see `hs.webview.navigationCallback`.
 static int webview_navigationID(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
     HSWebViewView   *theView = theWindow.contentView ;
@@ -1047,7 +1047,7 @@ static int webview_navigationID(lua_State *L) {
 /// Returns:
 ///  * true if the content is still being loaded, or false if it has completed.
 static int webview_loading(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
     HSWebViewView   *theView = theWindow.contentView ;
@@ -1067,7 +1067,7 @@ static int webview_loading(lua_State *L) {
 /// Returns:
 ///  * The webview object
 static int webview_stopLoading(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
     HSWebViewView   *theView = theWindow.contentView ;
@@ -1088,7 +1088,7 @@ static int webview_stopLoading(lua_State *L) {
 /// Returns:
 ///  * a numerical value between 0.0 and 1.0 indicating the percentage of expected content which has been loaded.
 static int webview_estimatedProgress(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
     HSWebViewView   *theView = theWindow.contentView ;
@@ -1108,7 +1108,7 @@ static int webview_estimatedProgress(lua_State *L) {
 /// Returns:
 ///  * true if all content current displayed in the web view was loaded over securely encrypted connections; otherwise false.
 static int webview_isOnlySecureContent(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
     HSWebViewView   *theView = theWindow.contentView ;
@@ -1128,7 +1128,7 @@ static int webview_isOnlySecureContent(lua_State *L) {
 /// Returns:
 ///  * The webview Object
 static int webview_goForward(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
     HSWebViewView   *theView = theWindow.contentView ;
@@ -1148,7 +1148,7 @@ static int webview_goForward(lua_State *L) {
 /// Returns:
 ///  * The webview Object
 static int webview_goBack(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
     HSWebViewView   *theView = theWindow.contentView ;
@@ -1168,19 +1168,21 @@ static int webview_goBack(lua_State *L) {
 /// Returns:
 ///  * The webview Object
 static int webview_reload(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
     HSWebViewView   *theView = theWindow.contentView ;
 
     if (theView.loading) [theView stopLoading] ;
     while (theView.loading) {}
+    BOOL validate = (lua_type(L, 2) == LUA_TBOOLEAN) ? (BOOL)lua_toboolean(L, 2) : NO ;
+
     dispatch_async(dispatch_get_main_queue(), ^{
         WKNavigation *navID ;
-        if (lua_type(L, 2) == LUA_TBOOLEAN && lua_toboolean(L, 2))
-            navID = [theView reload] ;
-        else
+        if (validate)
             navID = [theView reloadFromOrigin] ;
+        else
+            navID = [theView reload] ;
         theView.trackingID = navID ;
     }) ;
     lua_pushvalue(L, 1) ;
@@ -1201,7 +1203,7 @@ static int webview_reload(lua_State *L) {
 ///  * When enabled, the webview's background color is equal to the body's `background-color` (transparent by default)
 ///  * Setting `background-color:rgba(0, 225, 0, 0.3)` on `<body>` will give a translucent green webview background
 static int webview_transparent(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG);
 
@@ -1225,7 +1227,7 @@ static int webview_transparent(lua_State *L) {
 /// Returns:
 ///  * If a value is provided, then this method returns the webview object; otherwise the current value
 static int webview_allowMagnificationGestures(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
     HSWebViewView   *theView = theWindow.contentView ;
@@ -1253,7 +1255,7 @@ static int webview_allowMagnificationGestures(lua_State *L) {
 ///  * This method allows you to prevent a webview from being able to open a new window by any method.   This includes right-clicking on a link and selecting "Open in a New Window", JavaScript pop-ups, links with the target of "__blank", etc.
 ///  * If you just want to prevent automatic JavaScript windows, set the preference value javaScriptCanOpenWindowsAutomatically to false when creating the web view - this method blocks *all* methods.
 static int webview_allowNewWindows(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
     HSWebViewView   *theView = theWindow.contentView ;
@@ -1291,7 +1293,7 @@ static int webview_allowNewWindows(lua_State *L) {
 ///
 /// * If the certificate has been granted an exception in another application which registers the exception in the user's keychain (e.g. Safari), then the certificate is no longer considered invalid and this setting has no effect for that certificate.
 static int webview_examineInvalidCertificates(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
     HSWebViewView   *theView = theWindow.contentView ;
@@ -1315,7 +1317,7 @@ static int webview_examineInvalidCertificates(lua_State *L) {
 /// Returns:
 ///  * If a value is provided, then this method returns the webview object; otherwise the current value
 static int webview_allowNavigationGestures(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
     HSWebViewView   *theView = theWindow.contentView ;
@@ -1339,7 +1341,7 @@ static int webview_allowNavigationGestures(lua_State *L) {
 /// Returns:
 ///  * If a value is provided, then this method returns the webview object; otherwise the current value
 static int webview_magnification(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
     HSWebViewView   *theView = theWindow.contentView ;
@@ -1377,7 +1379,7 @@ static int webview_magnification(lua_State *L) {
 /// Notes:
 ///  * Web Pages generated in this manner are not added to the webview history list
 static int webview_html(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
     HSWebViewWindow        *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
     HSWebViewView          *theView = theWindow.contentView ;
@@ -1426,7 +1428,7 @@ static int webview_html(lua_State *L) {
 /// Notes:
 ///  * The return value of the callback function is ignored except when the `action` argument is equal to `didFailNavigation` or `didFailProvisionalNavigation`.  If the return value when the action argument is one of these values is a string, it will be treated as html and displayed in the webview as the error message.  If the return value is the boolean value true, then no change will be made to the webview (it will continue to display the previous web page).  All other return values or no return value at all, if these navigation actions occur, will cause a default error page to be displayed in the webview.
 static int webview_navigationCallback(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG,
                     LS_TFUNCTION | LS_TNIL,
                     LS_TBREAK] ;
@@ -1527,7 +1529,7 @@ static int webview_navigationCallback(lua_State *L) {
 /// Notes:
 ///  * With the `newWindow` action, the navigationCallback and policyCallback are automatically replicated for the new window from its parent.  If you wish to disable these for the new window or assign a different set of callback functions, you can do so before returning true in the callback function with the webview argument provided.
 static int webview_policyCallback(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG,
                     LS_TFUNCTION | LS_TNIL,
                     LS_TBREAK] ;
@@ -1582,7 +1584,7 @@ static int webview_policyCallback(lua_State *L) {
 ///
 /// * If the certificate has been granted an exception in another application which registers the exception in the user's keychain (e.g. Safari), then the certificate is no longer considered invalid and this callback will not be invoked.
 static int webview_sslCallback(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG,
                     LS_TFUNCTION | LS_TNIL,
                     LS_TBREAK] ;
@@ -1615,7 +1617,7 @@ static int webview_sslCallback(lua_State *L) {
 ///    * `initialURL` - the URL of the initial request that led to this item
 ///    * `title`      - the web page title
 static int webview_historyList(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
 
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
@@ -1638,7 +1640,7 @@ static int webview_historyList(lua_State *L) {
 /// Returns:
 ///  * the webview object
 static int webview_evaluateJavaScript(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG,
                     LS_TSTRING,
                     LS_TFUNCTION | LS_TOPTIONAL,
@@ -1659,7 +1661,7 @@ static int webview_evaluateJavaScript(lua_State *L) {
               completionHandler:^(id obj, NSError *error){
 
         if (callbackRef != LUA_NOREF) {
-            LuaSkin *blockSkin = [LuaSkin shared] ;
+            LuaSkin *blockSkin = [LuaSkin sharedWithState:L] ;
             [blockSkin pushLuaRef:refTable ref:callbackRef] ;
             [blockSkin pushNSObject:obj] ;
             NSError_toLua([blockSkin L], error) ;
@@ -1687,7 +1689,7 @@ static int webview_evaluateJavaScript(lua_State *L) {
 /// Notes:
 ///  * a point-table is a table with key-value pairs specifying the new top-left coordinate on the screen of the webview (keys `x`  and `y`). The table may be crafted by any method which includes these keys, including the use of an `hs.geometry` object.
 static int webview_topLeft(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG,
                     LS_TTABLE | LS_TOPTIONAL,
                     LS_TBREAK] ;
@@ -1719,7 +1721,7 @@ static int webview_topLeft(lua_State *L) {
 /// Notes:
 ///  * a size-table is a table with key-value pairs specifying the size (keys `h` and `w`) the webview should be resized to. The table may be crafted by any method which includes these keys, including the use of an `hs.geometry` object.
 static int webview_size(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG,
                     LS_TTABLE | LS_TOPTIONAL,
                     LS_TBREAK] ;
@@ -1770,7 +1772,7 @@ static int webview_size(lua_State *L) {
 ///
 ///  * developerExtrasEnabled is not listed in Apple's documentation, but is included in the WebKit2 documentation.
 static int webview_new(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
 
     NSRect windowRect = [skin tableToRectAtIndex:1] ;
 
@@ -1900,7 +1902,7 @@ static int webview_new(lua_State *L) {
 /// Returns:
 ///  * The webview object
 static int webview_show(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK] ;
 
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
@@ -1926,14 +1928,14 @@ static int webview_show(lua_State *L) {
 /// Returns:
 ///  * The webview object
 static int webview_hide(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK] ;
 
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
     NSTimeInterval  fadeTime   = (lua_gettop(L) == 2) ? lua_tonumber(L, 2) : 0.0 ;
 
     if (fadeTime > 0) {
-        [theWindow fadeOut:fadeTime andDelete:NO];
+        [theWindow fadeOut:fadeTime andDelete:NO withState:L];
     } else {
         [theWindow orderOut:nil];
     }
@@ -1952,7 +1954,7 @@ static int webview_hide(lua_State *L) {
 /// Returns:
 ///  * If a value is provided, then this method returns the webview object; otherwise the current value
 static int webview_allowTextEntry(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
     if (lua_type(L, 2) == LUA_TNONE) {
@@ -1978,7 +1980,7 @@ static int webview_allowTextEntry(lua_State *L) {
 ///  * If set to true, a webview object will be deleted when the user clicks on the close button of a titled and closable webview (see `hs.webview.windowStyle`).
 ///  * Children of an explicitly created webview automatically have this attribute set to true.  To cause closed children to remain after the user closes the parent, you can set this to false with a policy callback function when it receives the "newWindow" action.
 static int webview_deleteOnClose(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
     if (lua_type(L, 2) == LUA_TNONE) {
@@ -2000,7 +2002,7 @@ static int webview_deleteOnClose(lua_State *L) {
 /// Returns:
 ///  * A boolean, `true` if dark mode is enabled otherwise `false`.
 static int webview_darkMode(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
 
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
@@ -2034,7 +2036,7 @@ static int webview_darkMode(lua_State *L) {
 /// Notes:
 ///  * If this is set to true, Escape will only close the window if no other element responds to the Escape key first (e.g. if you are editing a text input field, the Escape will be captured by the text field, not by the webview Window.)
 static int webview_closeOnEscape(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
     if (lua_type(L, 2) == LUA_TNONE) {
@@ -2064,7 +2066,7 @@ static int webview_closeOnEscape(lua_State *L) {
 ///  * hs.window:close only works if the webview is closable (see `hs.webview.windowStyle`)
 ///  * hs.window:maximize will reposition the webview to the upper left corner of your screen, but will only resize the webview if the webview is resizable (see `hs.webview.windowStyle`)
 static int webview_hswindow(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
     CGWindowID windowID = (CGWindowID)[theWindow windowNumber];
@@ -2086,7 +2088,7 @@ static int webview_hswindow(lua_State *L) {
 /// Returns:
 ///  * `true` if the webview window is visible, otherwise `false`
 static int webview_isVisible(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
     if (theWindow.isVisible) {
@@ -2110,7 +2112,7 @@ static int webview_isVisible(lua_State *L) {
 /// Notes:
 ///  * The title will be hidden unless the window style includes the "titled" style (see `hs.webview.windowStyle` and `hs.webview.windowMasks`)
 static int webview_windowTitle(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
 
@@ -2146,7 +2148,7 @@ static int webview_windowTitle(lua_State *L) {
 ///
 ///  * If a toolbar is attached to the webview, you can achieve the same effect as this method with `hs.webview:attachedToolbar():inTitleBar(boolean)`
 static int webview_titleVisibility(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
 
@@ -2178,7 +2180,7 @@ static int webview_titleVisibility(lua_State *L) {
 
 static int webview_windowStyle(lua_State *L) {
 // NOTE:  This method is wrapped in init.lua
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TINTEGER | LS_TOPTIONAL, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
     if (lua_type(L, 2) == LUA_TNONE) {
@@ -2213,7 +2215,7 @@ static int webview_windowStyle(lua_State *L) {
 /// Notes:
 ///  * see the notes for `hs.drawing.windowLevels`
 static int webview_level(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TINTEGER | LS_TOPTIONAL, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG);
 
@@ -2244,7 +2246,7 @@ static int webview_level(lua_State *L) {
 /// Returns:
 ///  * The webview object
 static int webview_bringToFront(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
     theWindow.level = lua_toboolean(L, 2) ? NSScreenSaverWindowLevel : NSFloatingWindowLevel ;
@@ -2262,7 +2264,7 @@ static int webview_bringToFront(lua_State *L) {
 /// Returns:
 ///  * The drawing object
 static int webview_sendToBack(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
     theWindow.level = CGWindowLevelForKey(kCGDesktopIconWindowLevelKey) - 1;
@@ -2280,7 +2282,7 @@ static int webview_sendToBack(lua_State *L) {
 /// Returns:
 ///  * If a parameter is provided, returns the webview object; otherwise returns the current value.
 static int webview_alpha(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
 
@@ -2304,7 +2306,7 @@ static int webview_alpha(lua_State *L) {
 /// Returns:
 ///  * If a value is provided, then this method returns the webview object; otherwise the current value
 static int webview_shadow(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
 
@@ -2318,7 +2320,7 @@ static int webview_shadow(lua_State *L) {
 }
 
 static int webview_orderHelper(lua_State *L, NSWindowOrderingMode mode) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG,
                     LS_TBREAK | LS_TVARARG] ;
 
@@ -2372,7 +2374,7 @@ static int webview_orderBelow(lua_State *L) {
 
 // NOTE: this function is wrapped in init.lua
 static int webview_delete(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG,
                     LS_TNUMBER | LS_TOPTIONAL,
                     LS_TBREAK] ;
@@ -2388,7 +2390,7 @@ static int webview_delete(lua_State *L) {
             lua_pop(L, 1) ;
         }
     } else {
-        [theWindow fadeOut:lua_tonumber(L, 2) andDelete:YES];
+        [theWindow fadeOut:lua_tonumber(L, 2) andDelete:YES withState:L];
     }
 
     lua_pushnil(L);
@@ -2408,7 +2410,7 @@ static int webview_delete(lua_State *L) {
 /// Notes:
 ///  * Window behaviors determine how the webview object is handled by Spaces and Exposé. See `hs.drawing.windowBehaviors` for more information.
 static int webview_behavior(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG,
                     LS_TNUMBER | LS_TOPTIONAL,
                     LS_TBREAK] ;
@@ -2460,7 +2462,7 @@ static int webview_behavior(lua_State *L) {
 /// Returns:
 ///  * The webview object
 static int webview_windowCallback(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG,
                     LS_TFUNCTION | LS_TNIL,
                     LS_TBREAK] ;
@@ -2529,7 +2531,7 @@ static int webview_windowMasksTable(lua_State *L) {
 ///
 /// This list is based on the contents of OS X's /System/Library/Frameworks/Security.framework/Headers/SecCertificateOIDs.h.
 static int webview_pushCertificateOIDs(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     lua_newtable(L) ;
     [skin pushNSObject:(__bridge NSString *)kSecOIDADC_CERT_POLICY] ;                           lua_setfield(L, -2, "ADC_CERT_POLICY") ;
     [skin pushNSObject:(__bridge NSString *)kSecOIDAPPLE_CERT_POLICY] ;                         lua_setfield(L, -2, "APPLE_CERT_POLICY") ;
@@ -2659,7 +2661,7 @@ static int webview_pushCertificateOIDs(lua_State *L) {
 #pragma mark - NS<->lua conversion tools
 
 static id luaTo_HSWebViewWindow(lua_State *L, int idx) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     HSWebViewWindow *value ;
     if (luaL_testudata(L, idx, USERDATA_TAG)) {
         value = get_objectFromUserdata(__bridge HSWebViewWindow, L, idx, USERDATA_TAG) ;
@@ -2671,7 +2673,7 @@ static id luaTo_HSWebViewWindow(lua_State *L, int idx) {
 }
 
 static int HSWebViewWindow_toLua(lua_State *L, id obj) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     HSWebViewWindow *theWindow = obj ;
 
     if (theWindow.udRef == LUA_NOREF) {
@@ -2687,7 +2689,7 @@ static int HSWebViewWindow_toLua(lua_State *L, id obj) {
 }
 
 static int WKNavigationAction_toLua(lua_State *L, id obj) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     WKNavigationAction *navAction = obj ;
 
     lua_newtable(L) ;
@@ -2720,7 +2722,7 @@ static int WKNavigationAction_toLua(lua_State *L, id obj) {
 }
 
 static int WKNavigationResponse_toLua(lua_State *L, id obj) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     WKNavigationResponse *navResponse = obj ;
 
     lua_newtable(L) ;
@@ -2731,7 +2733,7 @@ static int WKNavigationResponse_toLua(lua_State *L, id obj) {
 }
 
 static int WKFrameInfo_toLua(lua_State *L, id obj) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     WKFrameInfo *frameInfo = obj ;
 
     lua_newtable(L) ;
@@ -2747,7 +2749,7 @@ static int WKFrameInfo_toLua(lua_State *L, id obj) {
 }
 
 static int WKBackForwardListItem_toLua(lua_State *L, id obj) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     WKBackForwardListItem *item = obj ;
 
     lua_newtable(L) ;
@@ -2758,7 +2760,7 @@ static int WKBackForwardListItem_toLua(lua_State *L, id obj) {
 }
 
 static int WKBackForwardList_toLua(lua_State *L, id obj) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     WKBackForwardList *theList = obj ;
 
     lua_newtable(L) ;
@@ -2793,7 +2795,7 @@ static int WKNavigation_toLua(lua_State *L, id obj) {
 }
 
 static int NSError_toLua(lua_State *L, id obj) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSError *theError = obj ;
 
     lua_newtable(L) ;
@@ -2851,7 +2853,7 @@ static int WKWindowFeatures_toLua(lua_State *L, id obj) {
 }
 
 static int NSURLAuthenticationChallenge_toLua(lua_State *L, id obj) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSURLAuthenticationChallenge *challenge = obj ;
 
     lua_newtable(L) ;
@@ -2865,7 +2867,7 @@ static int NSURLAuthenticationChallenge_toLua(lua_State *L, id obj) {
 }
 
 static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     lua_newtable(L) ;
     CFStringRef commonName = NULL ;
     SecCertificateCopyCommonName(certRef, &commonName);
@@ -2883,7 +2885,7 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) {
 }
 
 static int NSURLProtectionSpace_toLua(lua_State *L, id obj) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSURLProtectionSpace *theSpace = obj ;
 
     lua_newtable(L) ;
@@ -2929,7 +2931,7 @@ static int NSURLProtectionSpace_toLua(lua_State *L, id obj) {
 }
 
 static int NSURLCredential_toLua(lua_State *L, id obj) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSURLCredential *credential = obj ;
 
     lua_newtable(L) ;
@@ -2955,7 +2957,7 @@ static int NSURLCredential_toLua(lua_State *L, id obj) {
 }
 
 static int WKSecurityOrigin_toLua(lua_State *L, id obj) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wpartial-availability"
     WKSecurityOrigin *origin = obj ;
@@ -3001,7 +3003,7 @@ static int userdata_gc(lua_State* L) {
     lua_setmetatable(L, 1) ;
 
     if (theWindow) {
-        LuaSkin *skin = [LuaSkin shared];
+        LuaSkin *skin = [LuaSkin sharedWithState:L];
         theWindow.udRef            = [skin luaUnref:refTable ref:theWindow.udRef] ;
         theWindow.windowCallback   = [skin luaUnref:refTable ref:theWindow.windowCallback] ;
         theView.navigationCallback = [skin luaUnref:refTable ref:theView.navigationCallback] ;
@@ -3127,7 +3129,7 @@ static const luaL_Reg module_metaLib[] = {
 };
 
 int luaopen_hs_webview_internal(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     if (!NSClassFromString(@"WKWebView")) {
         [skin logError:[NSString stringWithFormat:@"%s requires WKWebView support, found in OS X 10.10 or newer", USERDATA_TAG]] ;
         // nil gets interpreted as "nothing" and thus "true" by require...

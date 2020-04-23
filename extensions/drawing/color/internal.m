@@ -20,11 +20,12 @@ static int colorCollectionsTable ;
 ///  * This function provides a tostring metatable method which allows listing the defined color lists in the Hammerspoon console with: `hs.drawing.color.lists()`
 ///  * See also `hs.drawing.color.colorsFor`
 static int getColorLists(lua_State *L) {
-    [[LuaSkin shared] checkArgs:LS_TBREAK] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+    [skin checkArgs:LS_TBREAK] ;
 
     lua_newtable(L) ;
     for (NSColorList *colorList in [NSColorList availableColorLists]) {
-        [[LuaSkin shared] pushNSObject:colorList] ;
+        [skin pushNSObject:colorList] ;
         lua_setfield(L, -2, [[colorList name] UTF8String]) ;
     }
     return 1 ;
@@ -43,8 +44,9 @@ static int getColorLists(lua_State *L) {
 /// Notes:
 ///  * See also `hs.drawing.color.asHSB`
 static int colorAsRGB(lua_State *L) {
-    [[LuaSkin shared] checkArgs:LS_TTABLE, LS_TBREAK] ;
-    NSColor *theColor = [[LuaSkin shared] luaObjectAtIndex:1 toClass:"NSColor"] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+    [skin checkArgs:LS_TTABLE, LS_TBREAK] ;
+    NSColor *theColor = [skin luaObjectAtIndex:1 toClass:"NSColor"] ;
 
     NSColor *safeColor = [theColor colorUsingColorSpaceName:NSCalibratedRGBColorSpace] ;
 
@@ -74,8 +76,9 @@ static int colorAsRGB(lua_State *L) {
 /// Notes:
 ///  * See also `hs.drawing.color.asRGB`
 static int colorAsHSB(lua_State *L) {
-    [[LuaSkin shared] checkArgs:LS_TTABLE, LS_TBREAK] ;
-    NSColor *theColor = [[LuaSkin shared] luaObjectAtIndex:1 toClass:"NSColor"] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+    [skin checkArgs:LS_TTABLE, LS_TBREAK] ;
+    NSColor *theColor = [skin luaObjectAtIndex:1 toClass:"NSColor"] ;
 
     NSColor *safeColor = [theColor colorUsingColorSpaceName:NSCalibratedRGBColorSpace] ;
 
@@ -92,10 +95,11 @@ static int colorAsHSB(lua_State *L) {
     return 1 ;
 }
 
-// [[LuaSkin shared] pushNSObject:NSColor]
+// [skin pushNSObject:NSColor]
 // C-API
 // Pushes the provided NSColor onto the Lua Stack as an array meeting the color table description provided in `hs.drawing.color`
 static int NSColor_tolua(lua_State *L, id obj) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSColor *theColor = obj ;
     NSColor *safeColor = [theColor colorUsingColorSpaceName:NSCalibratedRGBColorSpace] ;
 
@@ -108,14 +112,14 @@ static int NSColor_tolua(lua_State *L, id obj) {
           lua_pushstring(L, "NSColor") ; lua_setfield(L, -2, "__luaSkinType") ;
     } else if ([[theColor colorSpaceName] isEqualToString:NSNamedColorSpace]) {
         lua_newtable(L) ;
-          [[LuaSkin shared] pushNSObject:[theColor catalogNameComponent]] ;
+          [skin pushNSObject:[theColor catalogNameComponent]] ;
           lua_setfield(L, -2, "list") ;
-          [[LuaSkin shared] pushNSObject:[theColor colorNameComponent]] ;
+          [skin pushNSObject:[theColor colorNameComponent]] ;
           lua_setfield(L, -2, "name") ;
           lua_pushstring(L, "NSColor") ; lua_setfield(L, -2, "__luaSkinType") ;
     } else if ([theColor.colorSpaceName isEqualToString:NSPatternColorSpace]) {
         lua_newtable(L) ;
-          [[LuaSkin shared] pushNSObject:[theColor patternImage]] ;
+          [skin pushNSObject:[theColor patternImage]] ;
           lua_setfield(L, -2, "image") ;
           lua_pushstring(L, "NSColor") ; lua_setfield(L, -2, "__luaSkinType") ;
     } else {
@@ -125,15 +129,16 @@ static int NSColor_tolua(lua_State *L, id obj) {
     return 1 ;
 }
 
-// [[LuaSkin shared] pushNSObject:NSColorList]
+// [skin pushNSObject:NSColorList]
 // C-API
 // Pushes the provided NSColorList onto the Lua Stack as a table of color tables meeting the color table description provided in `hs.drawing.color`
 static int NSColorList_tolua(lua_State *L, id obj) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSColorList *colorList = obj ;
 
     lua_newtable(L) ;
     for (id key in [colorList allKeys]) {
-        [[LuaSkin shared] pushNSObject:[colorList colorWithKey:key]] ;
+        [skin pushNSObject:[colorList colorWithKey:key]] ;
         lua_setfield(L, -2, [key UTF8String]) ;
     }
 
@@ -142,7 +147,7 @@ static int NSColorList_tolua(lua_State *L, id obj) {
 
 #define COLOR_LOOP_LEVEL 10
 static id table_toNSColorHelper(lua_State *L, int idx, int level) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     CGFloat red = 0.0, green = 0.0, blue = 0.0, alpha = 1.0 ;
     CGFloat hue = 0.0, saturation = 0.0, brightness = 0.0 ;
     CGFloat white = 0.0 ;
@@ -266,7 +271,7 @@ static id table_toNSColorHelper(lua_State *L, int idx, int level) {
     }
 }
 
-// [[LuaSkin shared] luaObjectAtIndex:idx toClass:"NSColor"]
+// [skin luaObjectAtIndex:idx toClass:"NSColor"]
 // C-API
 // Converts the table at the specified index on the Lua Stack into an NSColor and returns the NSColor.  A description of how the table should be defined can be found in `hs.drawing.color`
 static id table_toNSColor(lua_State *L, int idx) {
@@ -275,10 +280,11 @@ static id table_toNSColor(lua_State *L, int idx) {
 
 // register the lookup table for Lua defined color tables
 static int registerColorCollectionsTable(lua_State *L) {
-    [[LuaSkin shared] checkArgs:LS_TTABLE, LS_TBREAK] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+    [skin checkArgs:LS_TTABLE, LS_TBREAK] ;
 
     lua_pushvalue(L, 1) ;
-    colorCollectionsTable = [[LuaSkin shared] luaRef:refTable] ;
+    colorCollectionsTable = [skin luaRef:refTable] ;
     return 0 ;
 }
 
@@ -292,8 +298,8 @@ static luaL_Reg moduleLib[] = {
     {NULL,    NULL}
 };
 
-int luaopen_hs_drawing_color_internal(lua_State* __unused L) {
-    LuaSkin *skin = [LuaSkin shared];
+int luaopen_hs_drawing_color_internal(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibrary:moduleLib metaFunctions:nil] ; // or module_metaLib
     colorCollectionsTable = LUA_NOREF ;
 

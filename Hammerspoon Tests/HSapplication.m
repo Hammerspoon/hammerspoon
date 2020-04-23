@@ -8,11 +8,11 @@
 
 #import "HSTestCase.h"
 
-@interface HSapplication : HSTestCase
+@interface HSapplicationTests : HSTestCase
 
 @end
 
-@implementation HSapplication
+@implementation HSapplicationTests
 
 - (void)setUp {
     [super setUpWithRequire:@"test_application"];
@@ -22,6 +22,10 @@
 - (void)tearDown {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
     [super tearDown];
+}
+
+- (void)testInitWithPidFailures {
+    RUN_LUA_TEST()
 }
 
 - (void)testAttributesFromBundleID {
@@ -71,5 +75,9 @@
 
 - (void)testMenusAsync {
     [self luaTestWithCheckAndTimeOut:5 setupCode:@"testMenusAsync()" checkCode:@"testMenusAsyncValues()"];
+}
+
+- (void)testUTI {
+    RUN_LUA_TEST()
 }
 @end

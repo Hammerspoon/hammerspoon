@@ -16,7 +16,7 @@
 ///  * This is useful for storing some of the more complex lua table structures as a persistent setting (see `hs.settings`)
 static int json_encode(lua_State* L) {
     if lua_istable(L, 1) {
-        id obj = [[LuaSkin shared] toNSObjectAtIndex:1] ;
+        id obj = [[LuaSkin sharedWithState:L] toNSObjectAtIndex:1] ;
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wassign-enum"
@@ -64,7 +64,7 @@ static int json_encode(lua_State* L) {
 /// Notes:
 ///  * This is useful for retrieving some of the more complex lua table structures as a persistent setting (see `hs.settings`)
 static int json_decode(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
     NSData* data = [skin toNSObjectAtIndex:1 withOptions:LS_NSLuaStringAsDataOnly] ;
     if (data) {
@@ -74,7 +74,7 @@ static int json_decode(lua_State* L) {
 		if (error) {
 			return luaL_error(L, "%s", [[error localizedDescription] UTF8String]);
 		} else if (obj) {
-			[[LuaSkin shared] pushNSObject:obj] ;
+			[skin pushNSObject:obj] ;
 			return 1;
 		} else {
 			return luaL_error(L, "json input returned nil") ;
@@ -98,15 +98,15 @@ static int json_decode(lua_State* L) {
 /// Returns:
 ///  * `true` if successful otherwise `false` if an error has occurred
 static int json_write(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TTABLE, LS_TSTRING, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
-    
+
     if (!lua_istable(L, 1)) {
         [skin logError:[NSString stringWithFormat:@"Non-table object given to JSON encoder."]] ;
         lua_pushboolean(L, false);
         return 1;
     } else {
-        id obj = [[LuaSkin shared] toNSObjectAtIndex:1] ;
+        id obj = [skin toNSObjectAtIndex:1] ;
 
         #pragma clang diagnostic push
         #pragma clang diagnostic ignored "-Wassign-enum"
@@ -116,7 +116,7 @@ static int json_write(lua_State* L) {
         if (lua_toboolean(L, 3)) {
             opts = NSJSONWritingPrettyPrinted;
         }
-        
+
         if (![NSJSONSerialization isValidJSONObject:obj]) {
             [skin logError:[NSString stringWithFormat:@"Object cannot be encoded as a JSON string."]] ;
             lua_pushboolean(L, false);
@@ -132,12 +132,12 @@ static int json_write(lua_State* L) {
                 return 1;
             } else if (data) {
                 NSString *path = [[skin toNSObjectAtIndex:2] stringByExpandingTildeInPath];
-                
+
                 BOOL replace = NO;
                 if (lua_type(L, 4) == LUA_TBOOLEAN) {
                     replace = lua_toboolean(L, 4);
                 }
-                
+
                 BOOL writeStatus = [data writeToFile: path
                                                options: (replace ? NSDataWritingAtomic : NSDataWritingWithoutOverwriting)
                                                  error: &error];
@@ -146,10 +146,10 @@ static int json_write(lua_State* L) {
                     lua_pushboolean(L, false);
                     return 1;
                 }
-                
+
                 lua_pushboolean(L, true);
                 return 1;
-                
+
             } else {
                 [skin logError:[NSString stringWithFormat:@"JSON output returned nil."]] ;
                 lua_pushboolean(L, false);
@@ -169,9 +169,9 @@ static int json_write(lua_State* L) {
 /// Returns:
 ///  * A table representing the supplied JSON data, or `nil` if an error occurs.
 static int json_read(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
-    
+
     NSString *path = [[skin toNSObjectAtIndex:1] stringByExpandingTildeInPath];
     NSData *data = [NSData dataWithContentsOfFile:path];
 
@@ -188,7 +188,7 @@ static int json_read(lua_State* L) {
             lua_pushnil(L);
             return 1;
         } else if (obj) {
-            [[LuaSkin shared] pushNSObject:obj] ;
+            [skin pushNSObject:obj] ;
             return 1;
         } else {
             [skin logError:[NSString stringWithFormat:@"JSON input returned nil"]] ;
@@ -207,8 +207,8 @@ static const luaL_Reg jsonLib[] = {
     {NULL,      NULL}
 };
 
-int luaopen_hs_json_internal(lua_State* L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+int luaopen_hs_json_internal(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin registerLibrary:jsonLib metaFunctions:nil];
 
     return 1;

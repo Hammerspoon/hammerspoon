@@ -43,7 +43,7 @@ void DeviceNotification(void *refCon, io_service_t service __unused, natural_t m
     usbwatcher_t *watcher = privateDataRef->watcher;
 
     if (messageType == kIOMessageServiceIsTerminated) {
-        LuaSkin *skin = [LuaSkin shared];
+        LuaSkin *skin = [LuaSkin sharedWithState:NULL];
         lua_State *L = skin.L;
         _lua_stackguard_entry(L);
 
@@ -81,7 +81,7 @@ void DeviceNotification(void *refCon, io_service_t service __unused, natural_t m
 
 // Iterate over new devices
 void DeviceAdded(void *refCon, io_iterator_t iterator) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     lua_State *L = skin.L;
     _lua_stackguard_entry(L);
     usbwatcher_t *watcher = (usbwatcher_t *)refCon;
@@ -174,7 +174,7 @@ void DeviceAdded(void *refCon, io_iterator_t iterator) {
 /// Returns:
 ///  * A `hs.usb.watcher` object
 static int usb_watcher_new(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     luaL_checktype(L, 1, LUA_TFUNCTION);
 
@@ -203,7 +203,7 @@ static int usb_watcher_new(lua_State* L) {
 /// Returns:
 ///  * The `hs.usb.watcher` object
 static int usb_watcher_start(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     usbwatcher_t* usbwatcher = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L,1) ;
 
@@ -255,7 +255,7 @@ static int usb_watcher_stop(lua_State* L) {
 }
 
 static int usb_watcher_gc(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     usbwatcher_t* usbwatcher = luaL_checkudata(L, 1, USERDATA_TAG);
 
@@ -298,8 +298,8 @@ static const luaL_Reg meta_gcLib[] = {
     {NULL,      NULL}
 };
 
-int luaopen_hs_usb_watcher(lua_State* L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+int luaopen_hs_usb_watcher(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:usbLib metaFunctions:meta_gcLib objectFunctions:usb_metalib];
 
     return 1;

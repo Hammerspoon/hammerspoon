@@ -31,8 +31,8 @@ static int streamdeck_gc(lua_State *L __unused) {
 ///
 /// Notes:
 ///  * This function must be called before any other parts of this module are used
-static int streamdeck_init(lua_State *L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+static int streamdeck_init(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TFUNCTION, LS_TBREAK];
 
     deckManager = [[HSStreamDeckManager alloc] init];
@@ -53,8 +53,8 @@ static int streamdeck_init(lua_State *L __unused) {
 ///
 /// Returns:
 ///  * None
-static int streamdeck_discoveryCallback(lua_State *L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+static int streamdeck_discoveryCallback(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TFUNCTION, LS_TBREAK];
 
     deckManager.discoveryCallbackRef = [skin luaUnref:streamDeckRefTable ref:deckManager.discoveryCallbackRef];
@@ -75,8 +75,8 @@ static int streamdeck_discoveryCallback(lua_State *L __unused) {
 ///
 /// Returns:
 ///  * A number containing the number of Stream Deck devices attached to the system
-static int streamdeck_numDevices(lua_State *L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+static int streamdeck_numDevices(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TBREAK];
 
     lua_pushinteger(skin.L, deckManager.devices.count);
@@ -92,8 +92,8 @@ static int streamdeck_numDevices(lua_State *L __unused) {
 ///
 /// Returns:
 ///  * An hs.streamdeck object
-static int streamdeck_getDevice(lua_State *L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+static int streamdeck_getDevice(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TNUMBER, LS_TBREAK];
 
     [skin pushNSObject:deckManager.devices[lua_tointeger(skin.L, 1) - 1]];
@@ -112,8 +112,8 @@ static int streamdeck_getDevice(lua_State *L __unused) {
 ///
 /// Returns:
 ///  * The hs.streamdeck device
-static int streamdeck_buttonCallback(lua_State *L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+static int streamdeck_buttonCallback(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION | LS_TNIL, LS_TBREAK];
 
     HSStreamDeckDevice *device = [skin luaObjectAtIndex:1 toClass:"HSStreamDeckDevice"];
@@ -136,8 +136,8 @@ static int streamdeck_buttonCallback(lua_State *L __unused) {
 ///
 /// Returns:
 ///  * The hs.streamdeck device
-static int streamdeck_setBrightness(lua_State *L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+static int streamdeck_setBrightness(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TBREAK];
 
     HSStreamDeckDevice *device = [skin luaObjectAtIndex:1 toClass:"HSStreamDeckDevice"];
@@ -156,9 +156,9 @@ static int streamdeck_setBrightness(lua_State *L __unused) {
 ///  * None
 ///
 /// Returns:
-///  * The hs.streamdec object
-static int streamdeck_reset(lua_State *L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+///  * The hs.streamdeck object
+static int streamdeck_reset(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
     HSStreamDeckDevice *device = [skin luaObjectAtIndex:1 toClass:"HSStreamDeckDevice"];
@@ -177,13 +177,13 @@ static int streamdeck_reset(lua_State *L __unused) {
 ///
 /// Returns:
 ///  * A string containing the serial number of the deck
-static int streamdeck_serialNumber(lua_State *L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+static int streamdeck_serialNumber(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
     HSStreamDeckDevice *device = [skin luaObjectAtIndex:1 toClass:"HSStreamDeckDevice"];
 
-    [skin pushNSObject:[device serialNumber]];
+    [skin pushNSObject:device.serialNumber];
     return 1;
 }
 
@@ -196,14 +196,35 @@ static int streamdeck_serialNumber(lua_State *L __unused) {
 ///
 /// Returns:
 ///  * A string containing the firmware version of the deck
-static int streamdeck_firmwareVersion(lua_State *L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+static int streamdeck_firmwareVersion(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
     HSStreamDeckDevice *device = [skin luaObjectAtIndex:1 toClass:"HSStreamDeckDevice"];
 
     [skin pushNSObject:[device firmwareVersion]];
     return 1;
+}
+
+/// hs.streamdeck:buttonLayout()
+/// Method
+/// Gets the layout of buttons the device has
+///
+/// Paramters:
+///  * None
+///
+/// Returns:
+///  * The number of columns
+///  * The number of rows
+static int streamdeck_buttonLayout(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
+    HSStreamDeckDevice *device = [skin luaObjectAtIndex:1 toClass:"HSStreamDeckDevice"];
+
+    lua_pushinteger(skin.L, device.keyColumns);
+    lua_pushinteger(skin.L, device.keyRows);
+    return 2;
 }
 
 /// hs.streamdeck:setButtonImage(button, image)
@@ -216,8 +237,8 @@ static int streamdeck_firmwareVersion(lua_State *L __unused) {
 ///
 /// Returns:
 ///  * The hs.streamdeck object
-static int streamdeck_setButtonImage(lua_State *L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+static int streamdeck_setButtonImage(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TUSERDATA, "hs.image", LS_TBREAK];
 
     HSStreamDeckDevice *device = [skin luaObjectAtIndex:1 toClass:"HSStreamDeckDevice"];
@@ -238,8 +259,8 @@ static int streamdeck_setButtonImage(lua_State *L __unused) {
 ///
 /// Returns:
 ///  * The hs.streamdeck object
-static int streamdeck_setButtonColor(lua_State *L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
+static int streamdeck_setButtonColor(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TTABLE, LS_TBREAK];
 
     HSStreamDeckDevice *device = [skin luaObjectAtIndex:1 toClass:"HSStreamDeckDevice"];
@@ -265,7 +286,7 @@ static int pushHSStreamDeckDevice(lua_State *L, id obj) {
 }
 
 static id toHSStreamDeckDeviceFromLua(lua_State *L, int idx) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     HSStreamDeckDevice *value ;
     if (luaL_testudata(L, idx, USERDATA_TAG)) {
         value = get_objectFromUserdata(__bridge HSStreamDeckDevice, L, idx, USERDATA_TAG) ;
@@ -279,9 +300,9 @@ static id toHSStreamDeckDeviceFromLua(lua_State *L, int idx) {
 #pragma mark - Hammerspoon/Lua Infrastructure
 
 static int streamdeck_object_tostring(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     HSStreamDeckDevice *obj = [skin luaObjectAtIndex:1 toClass:"HSStreamDeckDevice"] ;
-    NSString *title = [NSString stringWithFormat:@"Elgato Stream Deck, serial: %@", [obj serialNumber]];
+    NSString *title = [NSString stringWithFormat:@"%@, serial: %@", obj.deckType, obj.serialNumber];
     [skin pushNSObject:[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, title, lua_topointer(L, 1)]] ;
     return 1 ;
 }
@@ -290,7 +311,7 @@ static int streamdeck_object_eq(lua_State* L) {
     // can't get here if at least one of us isn't a userdata type, and we only care if both types are ours,
     // so use luaL_testudata before the macro causes a lua error
     if (luaL_testudata(L, 1, USERDATA_TAG) && luaL_testudata(L, 2, USERDATA_TAG)) {
-        LuaSkin *skin = [LuaSkin shared] ;
+        LuaSkin *skin = [LuaSkin sharedWithState:L] ;
         HSStreamDeckDevice *obj1 = [skin luaObjectAtIndex:1 toClass:"HSStreamDeckDevice"] ;
         HSStreamDeckDevice *obj2 = [skin luaObjectAtIndex:2 toClass:"HSStreamDeckDevice"] ;
         lua_pushboolean(L, [obj1 isEqualTo:obj2]) ;
@@ -301,7 +322,7 @@ static int streamdeck_object_eq(lua_State* L) {
 }
 
 static int streamdeck_object_gc(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     HSStreamDeckDevice *theDevice = get_objectFromUserdata(__bridge_transfer HSStreamDeckDevice, L, 1, USERDATA_TAG) ;
     if (theDevice) {
         theDevice.selfRefCount-- ;
@@ -321,6 +342,7 @@ static int streamdeck_object_gc(lua_State* L) {
 static const luaL_Reg userdata_metaLib[] = {
     {"serialNumber", streamdeck_serialNumber},
     {"firmwareVersion", streamdeck_firmwareVersion},
+    {"buttonLayout", streamdeck_buttonLayout},
     {"buttonCallback", streamdeck_buttonCallback},
     {"setButtonImage", streamdeck_setButtonImage},
     {"setButtonColor", streamdeck_setButtonColor},
@@ -350,8 +372,8 @@ static const luaL_Reg metalib[] = {
 };
 
 #pragma mark - Lua initialiser
-int luaopen_hs_streamdeck_internal(__unused lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
+int luaopen_hs_streamdeck_internal(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     streamDeckRefTable = [skin registerLibrary:streamdecklib metaFunctions:metalib];
     [skin registerObject:USERDATA_TAG objectFunctions:userdata_metaLib];
 

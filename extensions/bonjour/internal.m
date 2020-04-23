@@ -64,15 +64,15 @@ static NSString *netServiceErrorToString(NSDictionary *error) {
     return self ;
 }
 
-- (void)stop {
+- (void)stopWithState:(lua_State *)L {
     [super stop] ;
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     _callbackRef = [skin luaUnref:refTable ref:_callbackRef] ;
 }
 
 - (void)performCallbackWith:(id)argument {
     if (_callbackRef != LUA_NOREF) {
-        LuaSkin   *skin = [LuaSkin shared] ;
+        LuaSkin   *skin = [LuaSkin sharedWithState:NULL] ;
         lua_State *L    = skin.L ;
         int argCount    = 1 ;
         [skin pushLuaRef:refTable ref:_callbackRef] ;
@@ -145,7 +145,7 @@ static NSString *netServiceErrorToString(NSDictionary *error) {
 /// Returns:
 ///  * a new browserObject or nil if an error occurs
 static int browser_new(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TBREAK] ;
     HSNetServiceBrowser *browser = [[HSNetServiceBrowser alloc] init] ;
     if (browser) {
@@ -171,7 +171,7 @@ static int browser_new(lua_State *L) {
 /// Notes:
 ///  * This property must be set before initiating a search to have an effect.
 static int browser_includesPeerToPeer(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     HSNetServiceBrowser *browser = [skin toNSObjectAtIndex:1] ;
     if (lua_gettop(L) == 1) {
@@ -210,10 +210,10 @@ static int browser_includesPeerToPeer(lua_State *L) {
 ///    * Generally macOS is fairly accurate in this regard concerning domain searchs, so to reduce the impact on system resources, it is recommended that you use [hs.bonjour:stop](#stop) when this parameter is false
 //     * If any of your network interfaces are particularly slow or if a host on the network is slow to respond and you are concerend that additional records *may* still be forthcoming, you can use this flag to initiate additional logic or timers to determine how long to remain searching for additional domains.
 static int browser_searchForBrowsableDomains(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION, LS_TBREAK] ;
     HSNetServiceBrowser *browser = [skin toNSObjectAtIndex:1] ;
-    if (browser.callbackRef != LUA_NOREF) [browser stop] ;
+    if (browser.callbackRef != LUA_NOREF) [browser stopWithState:L] ;
     lua_pushvalue(L, 2) ;
     browser.callbackRef = [skin luaRef:refTable] ;
     [browser searchForBrowsableDomains] ;
@@ -248,10 +248,10 @@ static int browser_searchForBrowsableDomains(lua_State *L) {
 ///    * Generally macOS is fairly accurate in this regard concerning domain searchs, so to reduce the impact on system resources, it is recommended that you use [hs.bonjour:stop](#stop) when this parameter is false
 //     * If any of your network interfaces are particularly slow or if a host on the network is slow to respond and you are concerend that additional records *may* still be forthcoming, you can use this flag to initiate additional logic or timers to determine how long to remain searching for additional domains.
 static int browser_searchForRegistrationDomains(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION, LS_TBREAK] ;
     HSNetServiceBrowser *browser = [skin toNSObjectAtIndex:1] ;
-    if (browser.callbackRef != LUA_NOREF) [browser stop] ;
+    if (browser.callbackRef != LUA_NOREF) [browser stopWithState:L] ;
     lua_pushvalue(L, 2) ;
     browser.callbackRef = [skin luaRef:refTable] ;
     [browser searchForRegistrationDomains] ;
@@ -261,7 +261,7 @@ static int browser_searchForRegistrationDomains(lua_State *L) {
 
 // hs.bonjour:findServices is documented with its wrapper in init.lua
 static int browser_searchForServices(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK | LS_TVARARG] ;
     HSNetServiceBrowser *browser = [skin toNSObjectAtIndex:1] ;
     NSString *service = @"_services._dns-sd._udp." ;
@@ -281,7 +281,7 @@ static int browser_searchForServices(lua_State *L) {
             domain  = [skin toNSObjectAtIndex:3] ;
             break ;
     }
-    if (browser.callbackRef != LUA_NOREF) [browser stop] ;
+    if (browser.callbackRef != LUA_NOREF) [browser stopWithState:L] ;
     lua_pushvalue(L, -1) ;
     browser.callbackRef = [skin luaRef:refTable] ;
     [browser searchForServicesOfType:service inDomain:domain] ;
@@ -305,10 +305,10 @@ static int browser_searchForServices(lua_State *L) {
 ///
 ///  * In general, when your callback function for [hs.bonjour:findBrowsableDomains](#findBrowsableDomains), [hs.bonjour:findRegistrationDomains](#findRegistrationDomains), or [hs.bonjour:findServices](#findServices) receives false for the `moreExpected` paramter, you should invoke this method on the browserObject unless there are specific reasons not to. Possible reasons you might want to extend the life of the browserObject are documented within each method.
 static int browser_stop(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSNetServiceBrowser *browser = [skin toNSObjectAtIndex:1] ;
-    [browser stop] ;
+    [browser stopWithState:L] ;
     lua_pushvalue(L, 1) ;
     return 1 ;
 }
@@ -330,7 +330,7 @@ static int pushHSNetServiceBrowser(lua_State *L, id obj) {
 }
 
 id toHSNetServiceBrowserFromLua(lua_State *L, int idx) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     HSNetServiceBrowser *value ;
     if (luaL_testudata(L, idx, USERDATA_TAG)) {
         value = get_objectFromUserdata(__bridge HSNetServiceBrowser, L, idx, USERDATA_TAG) ;
@@ -344,7 +344,7 @@ id toHSNetServiceBrowserFromLua(lua_State *L, int idx) {
 #pragma mark - Hammerspoon/Lua Infrastructure
 
 static int userdata_tostring(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin pushNSObject:[NSString stringWithFormat:@"%s: (%p)", USERDATA_TAG, lua_topointer(L, 1)]] ;
     return 1 ;
 }
@@ -353,7 +353,7 @@ static int userdata_eq(lua_State* L) {
 // can't get here if at least one of us isn't a userdata type, and we only care if both types are ours,
 // so use luaL_testudata before the macro causes a lua error
     if (luaL_testudata(L, 1, USERDATA_TAG) && luaL_testudata(L, 2, USERDATA_TAG)) {
-        LuaSkin *skin = [LuaSkin shared] ;
+        LuaSkin *skin = [LuaSkin sharedWithState:L] ;
         HSNetServiceBrowser *obj1 = [skin luaObjectAtIndex:1 toClass:"HSNetServiceBrowser"] ;
         HSNetServiceBrowser *obj2 = [skin luaObjectAtIndex:2 toClass:"HSNetServiceBrowser"] ;
         lua_pushboolean(L, [obj1 isEqualTo:obj2]) ;
@@ -369,7 +369,7 @@ static int userdata_gc(lua_State* L) {
         obj.selfRefCount-- ;
         if (obj.selfRefCount == 0) {
             obj.delegate = nil ;
-            [obj stop] ; // stop does this for us: [skin luaUnref:refTable ref:obj.callbackRef] ;
+            [obj stopWithState:L] ; // stop does this for us: [skin luaUnref:refTable ref:obj.callbackRef] ;
             obj = nil ;
         }
     }
@@ -409,8 +409,8 @@ static luaL_Reg moduleLib[] = {
 //     {NULL,   NULL}
 // };
 
-int luaopen_hs_bonjour_internal(lua_State* __unused L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+int luaopen_hs_bonjour_internal(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     refTable = [skin registerLibraryWithObject:USERDATA_TAG
                                      functions:moduleLib
                                  metaFunctions:nil    // or module_metaLib
