@@ -5,6 +5,7 @@
 --- Notes:
 ---  * See `hs.screen` and `hs.geometry` for more information on how Hammerspoon uses window/screen frames and coordinates
 
+local application = require "hs.application"
 local window = require("hs.window.internal")
 local geometry = require "hs.geometry"
 local gtype=geometry.type
@@ -45,7 +46,7 @@ window.animationDuration = 0.2
 ---  * The desktop window has no id, a role of `AXScrollArea` and no subrole
 ---  * The desktop is filtered out from `hs.window.allWindows()` (and downstream uses)
 function window.desktop()
-  local finder=hs.application.get'com.apple.finder'
+  local finder = application.get('com.apple.finder')
   for _,w in ipairs(finder:allWindows()) do if w:role()=='AXScrollArea' then return w end end
 end
 
@@ -87,7 +88,7 @@ local SKIP_APPS={
 -- Karabiner's AXNotifier and Adobe Update Notifier fail in that fashion
 function window.allWindows()
   local r={}
-  for _,app in ipairs(hs.application.runningApplications()) do
+  for _,app in ipairs(application.runningApplications()) do
     if app:kind()>=0 then
       local bid=app:bundleID() or 'N/A' --just for safety; universalaccessd has no bundleid (but it's kind()==-1 anyway)
       if bid=='com.apple.finder' then --exclude the desktop "window"
@@ -105,7 +106,7 @@ end
 
 function window._timed_allWindows()
   local r={}
-  for _,app in ipairs(hs.application.runningApplications()) do
+  for _,app in ipairs(application.runningApplications()) do
     local starttime=timer.secondsSinceEpoch()
     local _,bid=app:allWindows(),app:bundleID() or 'N/A'
     r[bid]=(r[bid] or 0) + timer.secondsSinceEpoch()-starttime
@@ -128,7 +129,7 @@ end
 ---  * A list containing `hs.window` objects representing all windows that are visible as per `hs.window:isVisible()`
 function window.visibleWindows()
   local r={}
-  for _,app in ipairs(hs.application.runningApplications()) do
+  for _,app in ipairs(application.runningApplications()) do
     if app:kind()>0 and not app:isHidden() then for _,w in ipairs(app:visibleWindows()) do r[#r+1]=w end end -- speedup by excluding hidden apps
   end
   return r
