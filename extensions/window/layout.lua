@@ -69,6 +69,8 @@
 
 --TODO full examples in the wiki
 
+local application = require 'hs.application'
+
 local pairs,ipairs,next,type,pcall=pairs,ipairs,next,type,pcall
 local floor=math.floor
 local sformat,ssub,gmatch,gsub=string.format,string.sub,string.gmatch,string.gsub
@@ -517,7 +519,7 @@ local function applyRule(rule)
     elseif selector==CREATEDFIRST then
       win=windowsCreated[#windowsCreated]
     elseif selector==FRONTMOST then
-      if windows[1]:application() == hs.application.frontmostApplication() then
+      if windows[1]:application() == application.frontmostApplication() then
         win=windows[1]
         nprocessed = 999
       else
