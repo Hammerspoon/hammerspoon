@@ -37,17 +37,21 @@ void delayUntilViewStopsLoading(HSWebViewView *theView, dispatch_block_t block) 
         existingTimer = nil ;
     }
 
-    NSTimer *newDelay = [NSTimer scheduledTimerWithTimeInterval:0.01
-                                                        repeats:YES
-                                                          block:^(NSTimer *timer) {
+    NSTimer *newDelay = [NSTimer timerWithTimeInterval:0.001
+                                               repeats:YES
+                                                 block:^(NSTimer *timer) {
         if (!theView.loading) {
             [delayTimers removeObjectForKey:theView] ;
             [timer invalidate] ;
-            dispatch_async(dispatch_get_main_queue(), block) ;
+            block() ;
         }
     }] ;
 
     [delayTimers setObject:newDelay forKey:theView] ;
+
+    // fire immediately
+    newDelay.fireDate = [NSDate dateWithTimeIntervalSinceNow:0] ;
+    [[NSRunLoop currentRunLoop] addTimer:newDelay forMode:NSRunLoopCommonModes];
 }
 
 #pragma mark - our window object
