@@ -11,6 +11,8 @@
 static int           refTable ;
 static WKProcessPool *HSWebViewProcessPool ;
 
+static NSMapTable    *delayTimers ;
+
 static inline NSRect RectWithFlippedYCoordinate(NSRect theRect) {
     return NSMakeRect(theRect.origin.x,
                       [[NSScreen screens][0] frame].size.height - theRect.origin.y - theRect.size.height,
@@ -24,6 +26,29 @@ static inline NSRect RectWithFlippedYCoordinate(NSRect theRect) {
 static int userdata_gc(lua_State* L) ;
 static int NSError_toLua(lua_State *L, id obj) ;
 static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
+
+void delayUntilViewStopsLoading(HSWebViewView *theView, dispatch_block_t block) {
+    if (!delayTimers) delayTimers = [NSMapTable strongToWeakObjectsMapTable] ;
+
+    NSTimer *existingTimer = [delayTimers objectForKey:theView] ;
+    if (existingTimer) {
+        [existingTimer invalidate] ;
+        [delayTimers removeObjectForKey:theView] ;
+        existingTimer = nil ;
+    }
+
+    NSTimer *newDelay = [NSTimer scheduledTimerWithTimeInterval:0.01
+                                                        repeats:YES
+                                                          block:^(NSTimer *timer) {
+        if (!theView.loading) {
+            [delayTimers removeObjectForKey:theView] ;
+            [timer invalidate] ;
+            dispatch_async(dispatch_get_main_queue(), block) ;
+        }
+    }] ;
+
+    [delayTimers setObject:newDelay forKey:theView] ;
+}
 
 #pragma mark - our window object
 
@@ -897,11 +922,12 @@ static int webview_url(lua_State *L) {
         NSURLRequest *theNSURL = [skin luaObjectAtIndex:2 toClass:"NSURLRequest"] ;
         if (theNSURL) {
             if (theView.loading) [theView stopLoading] ;
-            while (theView.loading) {}
-            dispatch_async(dispatch_get_main_queue(), ^{
+
+            delayUntilViewStopsLoading(theView, ^{
                 WKNavigation *navID = [theView loadRequest:theNSURL] ;
                 theView.trackingID = navID ;
             }) ;
+
             lua_pushvalue(L, 1) ;
             return 1 ;
         } else {
@@ -1174,10 +1200,9 @@ static int webview_reload(lua_State *L) {
     HSWebViewView   *theView = theWindow.contentView ;
 
     if (theView.loading) [theView stopLoading] ;
-    while (theView.loading) {}
     BOOL validate = (lua_type(L, 2) == LUA_TBOOLEAN) ? (BOOL)lua_toboolean(L, 2) : NO ;
 
-    dispatch_async(dispatch_get_main_queue(), ^{
+    delayUntilViewStopsLoading(theView, ^{
         WKNavigation *navID ;
         if (validate)
             navID = [theView reloadFromOrigin] ;
@@ -1185,6 +1210,7 @@ static int webview_reload(lua_State *L) {
             navID = [theView reload] ;
         theView.trackingID = navID ;
     }) ;
+
     lua_pushvalue(L, 1) ;
     return 1 ;
 }
@@ -1392,11 +1418,12 @@ static int webview_html(lua_State *L) {
     NSString *theBaseURL = (lua_type(L, 3) == LUA_TSTRING) ? [skin toNSObjectAtIndex:3] : nil ;
 
     if (theView.loading) [theView stopLoading] ;
-    while (theView.loading) {}
-    dispatch_async(dispatch_get_main_queue(), ^{
+
+    delayUntilViewStopsLoading(theView, ^{
         WKNavigation *navID = [theView loadHTMLString:theHTML baseURL:[NSURL URLWithString:theBaseURL]] ;
         theView.trackingID = navID ;
     }) ;
+
     lua_pushvalue(L, 1) ;
     return 1 ;
 }
@@ -3027,6 +3054,13 @@ static int userdata_gc(lua_State* L) {
             child.parent = nil ;
         }
 
+        NSTimer *reloadTimer = [delayTimers objectForKey:theView] ;
+        if (reloadTimer) {
+            [reloadTimer invalidate] ;
+            [delayTimers removeObjectForKey:theView] ;
+            reloadTimer = nil ;
+        }
+
         theView.navigationDelegate = nil ;
         theView.UIDelegate         = nil ;
         theWindow.contentView      = nil ;
@@ -3043,6 +3077,15 @@ static int meta_gc(lua_State* __unused L) {
     if (HSWebViewProcessPool) {
         HSWebViewProcessPool = nil ;
     }
+
+    if (delayTimers) {
+        NSEnumerator *enumerator = [delayTimers objectEnumerator];
+        NSTimer *timer ;
+        while ((timer = [enumerator nextObject])) [timer invalidate] ;
+        [delayTimers removeAllObjects] ;
+    }
+    delayTimers = nil ;
+
     return 0 ;
 }
 
