@@ -1,0 +1,40 @@
+{
+  "name": "Sentry",
+  "version": "5.0.0",
+  "summary": "Sentry client for cocoa",
+  "homepage": "https://github.com/getsentry/sentry-cocoa",
+  "license": "mit",
+  "authors": "Sentry",
+  "source": {
+    "git": "https://github.com/getsentry/sentry-cocoa.git",
+    "tag": "5.0.0"
+  },
+  "platforms": {
+    "ios": "8.0",
+    "osx": "10.10",
+    "tvos": "9.0",
+    "watchos": "2.0"
+  },
+  "module_name": "Sentry",
+  "requires_arc": true,
+  "frameworks": "Foundation",
+  "libraries": [
+    "z",
+    "c++"
+  ],
+  "xcconfig": {
+    "GCC_ENABLE_CPP_EXCEPTIONS": "YES"
+  },
+  "default_subspecs": [
+    "Core"
+  ],
+  "subspecs": [
+    {
+      "name": "Core",
+      "source_files": [
+        "Sources/Sentry/**/*.{h,m}",
+        "Sources/SentryCrash/**/*.{h,m,mm,c,cpp}"
+      ]
+    }
+  ]
+}

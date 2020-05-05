@@ -1,0 +1,1 @@
+../../../Sentry/Sources/SentryCrash/Recording/Tools/NSError+SentrySimpleConstructor.h
