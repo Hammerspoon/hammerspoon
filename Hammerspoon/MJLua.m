@@ -12,7 +12,7 @@
 #import "MJDockIcon.h"
 #import "HSAppleScript.h"
 #import "Sentry.h"
-#import "HSLogger.h" // This should come after Crashlytics
+#import "HSLogger.h" // This should come after Sentry
 #import <AVFoundation/AVFoundation.h>
 #import <dlfcn.h>
 
