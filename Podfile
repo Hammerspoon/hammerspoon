@@ -10,7 +10,7 @@ project 'Hammerspoon', 'Profile' => :debug
 target 'Hammerspoon' do
 pod 'ASCIImage', '1.0.0'
 pod 'CocoaLumberjack', '3.5.3'
-pod 'CocoaAsyncSocket', '7.6.3'
+pod 'CocoaAsyncSocket', '7.6.4'
 pod 'CocoaHTTPServer', '2.3'
 pod 'PocketSocket/Client', '1.0.1'
 pod 'Sentry', :git => 'https://github.com/getsentry/sentry-cocoa.git', :tag => '5.0.0'
