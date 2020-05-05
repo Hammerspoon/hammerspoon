@@ -1,0 +1,1 @@
+../../../Sentry/Sources/SentryCrash/Recording/SentryCrashDoctor.h
