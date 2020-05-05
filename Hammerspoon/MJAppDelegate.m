@@ -218,7 +218,7 @@
 #ifdef SENTRY_API_URL
     if (HSUploadCrashData() && !isTesting) {
         [SentrySDK startWithOptions:@{
-            @"dsn": SENTRY_API_URL,
+            @"dsn": @SENTRY_API_URL,
             @"debug": @(YES)
         }];
     }

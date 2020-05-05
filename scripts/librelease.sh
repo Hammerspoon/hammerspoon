@@ -388,6 +388,7 @@ function upload_dSYMs() {
   else
     export SENTRY_ORG=hammerspoon
     export SENTRY_PROJECT=hammerspoon
+    export SENTRY_LOG_LEVEL=debug
     "${HAMMERSPOON_HOME}/scripts/sentry-cli" upload-dif "archive/${VERSION}/dSYM/" >"archive/${VERSION}/dSYM-upload.log" 2>&1
   fi
   popd >/dev/null
