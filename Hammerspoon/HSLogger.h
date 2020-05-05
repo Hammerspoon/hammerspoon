@@ -7,7 +7,12 @@
 //
 
 #import <LuaSkin/LuaSkin.h>
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wvariadic-macros"
 #import "Sentry.h"
+#pragma clang diagnostic pop
+
 #import "secrets.h"
 
 #ifndef DEBUG
