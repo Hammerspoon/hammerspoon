@@ -86,10 +86,9 @@ static int crashKV(lua_State *L) {
     NSString *key = [skin toNSObjectAtIndex:1];
     NSString *value = [skin toNSObjectAtIndex:2];
 
-    /* CRASHLYTICS LEFTOVER, HOW DO IN SENTRY?
-    Crashlytics *crashlytics = [Crashlytics sharedInstance];
-    [crashlytics setObjectValue:value forKey:key];
-     */
+    [SentrySDK configureScope:^(SentryScope * _Nonnull scope) {
+        [scope setExtras:@{key: value}];
+    }];
      
     return 0;
 }

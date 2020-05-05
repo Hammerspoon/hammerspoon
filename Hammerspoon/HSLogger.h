@@ -16,8 +16,8 @@
 #import "secrets.h"
 
 #ifndef DEBUG
-#    ifdef CRASHLYTICS_API_KEY
-#       pragma message "BUILD NOTE: Crashlytics API key available"
+#    ifdef SENTRY_API_URL
+#       pragma message "BUILD NOTE: Sentry API URL available"
 #       ifdef CLS_LOG
 #           pragma message "BUILD NOTE: CLS_LOG defined"
 #           define HSNSLOG(__FORMAT__, ...) CLSNSLog(__FORMAT__, ##__VA_ARGS__)
