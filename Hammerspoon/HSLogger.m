@@ -40,7 +40,7 @@
             HSNSLOG(@"%@", theMessage);
             break;
 
-        // Capture anything that isn't verbose/debug logging, in Crashlytics
+        // Capture anything that isn't verbose/debug logging, in Sentry
         // These intentionally fall through to default.
         case LS_LOG_ERROR:
         case LS_LOG_WARN:

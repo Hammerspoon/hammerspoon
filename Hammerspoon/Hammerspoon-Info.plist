@@ -193,20 +193,6 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>5164</string>
-	<key>Fabric</key>
-	<dict>
-		<key>APIKey</key>
-		<string>a9a43ddffec0ebfb007388756dfd662a9c153188</string>
-		<key>Kits</key>
-		<array>
-			<dict>
-				<key>KitInfo</key>
-				<dict/>
-				<key>KitName</key>
-				<string>Crashlytics</string>
-			</dict>
-		</array>
-	</dict>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.developer-tools</string>
 	<key>LSMinimumSystemVersion</key>

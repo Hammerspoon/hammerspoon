@@ -11,7 +11,7 @@
 #import "MJAutoLaunch.h"
 #import "MJDockIcon.h"
 #import "HSAppleScript.h"
-#import "Crashlytics.h"
+#import "Sentry.h"
 #import "HSLogger.h" // This should come after Crashlytics
 #import <AVFoundation/AVFoundation.h>
 #import <dlfcn.h>

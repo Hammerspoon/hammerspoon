@@ -37,7 +37,7 @@ export CODESIGN_AUTHORITY_TOKEN_FILE="${TOKENPATH}/token-codesign-authority"
 export GITHUB_TOKEN_FILE="${TOKENPATH}/token-github-release"
 export GITHUB_USER="hammerspoon"
 export GITHUB_REPO="hammerspoon"
-export FABRIC_TOKEN_FILE="${TOKENPATH}/token-crashlytics"
+export SENTRY_TOKEN_FILE="${TOKENPATH}/token-sentry"
 export NOTARIZATION_TOKEN_FILE="${TOKENPATH}/token-notarization"
 
 # Import our function library
