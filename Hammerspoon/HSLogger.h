@@ -7,7 +7,7 @@
 //
 
 #import <LuaSkin/LuaSkin.h>
-#import "Crashlytics.h"
+#import "Sentry.h"
 #import "secrets.h"
 
 #ifndef DEBUG

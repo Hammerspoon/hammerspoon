@@ -214,12 +214,13 @@
 
     [self registerDefaultDefaults];
 
-    // Enable Crashlytics, if we have an API key available
-#ifdef CRASHLYTICS_API_KEY
+    // Enable Sentry, if we have an API URL available
+#ifdef SENTRY_API_URL
     if (HSUploadCrashData() && !isTesting) {
-        Crashlytics *crashlytics = [Crashlytics sharedInstance];
-        crashlytics.debugMode = YES;
-        [Crashlytics startWithAPIKey:[NSString stringWithUTF8String:CRASHLYTICS_API_KEY] delegate:self];
+        [SentrySDK startWithOptions:@{
+            @"dsn": SENTRY_API_URL,
+            @"debug": @(YES)
+        }];
     }
 #endif
 
@@ -343,6 +344,8 @@
     [alert runModal];
 }
 
+/*
+ CRASHLYTICS
 - (void)crashlyticsDidDetectReportForLastExecution:(CLSReport *)report completionHandler:(void (^)(BOOL submit))completionHandler {
     BOOL showMjolnirMigrationDialog = NO;
 
@@ -356,6 +359,7 @@
         [self showMjolnirMigrationNotification];
     }
 }
+ */
 
 #pragma mark - Sparkle delegate methods
 - (void)updater:(id)updater didFindValidUpdate:(id)update {
