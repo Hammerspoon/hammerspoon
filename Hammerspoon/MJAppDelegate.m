@@ -217,9 +217,18 @@
     // Enable Sentry, if we have an API URL available
 #ifdef SENTRY_API_URL
     if (HSUploadCrashData() && !isTesting) {
+        SentryEvent* (^sentryWillUploadCrashReport) (SentryEvent *event) = ^SentryEvent* (SentryEvent *event) {
+            if ([event.extra objectForKey:@"MjolnirModuleLoaded"]) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                   [self showMjolnirMigrationNotification];
+                });
+            }
+            return event;
+        };
+
         [SentrySDK startWithOptions:@{
             @"dsn": @SENTRY_API_URL,
-            @"debug": @(YES)
+            @"beforeSend": sentryWillUploadCrashReport,
         }];
     }
 #endif
@@ -343,23 +352,6 @@
     [alert setAlertStyle:NSAlertStyleCritical];
     [alert runModal];
 }
-
-/*
- CRASHLYTICS
-- (void)crashlyticsDidDetectReportForLastExecution:(CLSReport *)report completionHandler:(void (^)(BOOL submit))completionHandler {
-    BOOL showMjolnirMigrationDialog = NO;
-
-    if ([report.customKeys objectForKey:@"MjolnirModuleLoaded"]) {
-        showMjolnirMigrationDialog = YES;
-    }
-
-    completionHandler(YES);
-
-    if (showMjolnirMigrationDialog) {
-        [self showMjolnirMigrationNotification];
-    }
-}
- */
 
 #pragma mark - Sparkle delegate methods
 - (void)updater:(id)updater didFindValidUpdate:(id)update {

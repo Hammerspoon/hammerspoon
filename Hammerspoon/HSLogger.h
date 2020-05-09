@@ -15,14 +15,12 @@
 
 #import "secrets.h"
 
-#ifndef DEBUG
-#    ifdef SENTRY_API_URL
-#       pragma message "BUILD NOTE: Sentry API URL available"
-#       define HSNSLOG(__FORMAT__, ...) [LuaSkin logBreadcrumb:[NSString stringWithFormat:__FORMAT__, ##__VA_ARGS__]];
-#    else
-#       pragma message "BUILD NOTE: Sentry API URL unavailable"
-#       define HSNSLOG(__FORMAT__, ...) NSLog(__FORMAT__, ##__VA_ARGS__)
-#    endif
+#ifdef SENTRY_API_URL
+#   pragma message "BUILD NOTE: Sentry API URL available"
+#   define HSNSLOG(__FORMAT__, ...) [LuaSkin logBreadcrumb:[NSString stringWithFormat:__FORMAT__, ##__VA_ARGS__]];
+#else
+#   pragma message "BUILD NOTE: Sentry API URL unavailable"
+#   define HSNSLOG(__FORMAT__, ...) NSLog(__FORMAT__, ##__VA_ARGS__)
 #endif
 
 @interface HSLogger : NSObject <LuaSkinDelegate> {
