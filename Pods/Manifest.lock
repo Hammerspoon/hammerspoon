@@ -1,32 +1,37 @@
 PODS:
   - ASCIImage (1.0.0)
-  - CocoaAsyncSocket (7.6.3)
+  - CocoaAsyncSocket (7.6.4)
   - CocoaHTTPServer (2.3):
     - CocoaAsyncSocket
     - CocoaLumberjack
   - CocoaLumberjack (3.5.3):
     - CocoaLumberjack/Core (= 3.5.3)
   - CocoaLumberjack/Core (3.5.3)
-  - Crashlytics (3.14.0):
-    - Fabric (~> 1.10.2)
-  - Fabric (1.10.2)
   - MIKMIDI (1.7.0)
   - PocketSocket/Client (1.0.1):
     - PocketSocket/Core
   - PocketSocket/Core (1.0.1)
+<<<<<<< HEAD
   - SocketRocket (0.5.1)
+=======
+  - Sentry (5.0.0):
+    - Sentry/Core (= 5.0.0)
+  - Sentry/Core (5.0.0)
+>>>>>>> Hammerspoon/master
   - Sparkle (1.22.0)
 
 DEPENDENCIES:
   - ASCIImage (= 1.0.0)
-  - CocoaAsyncSocket (= 7.6.3)
+  - CocoaAsyncSocket (= 7.6.4)
   - CocoaHTTPServer (= 2.3)
   - CocoaLumberjack (= 3.5.3)
-  - Crashlytics (= 3.14.0)
-  - Fabric (= 1.10.2)
   - MIKMIDI (= 1.7.0)
   - PocketSocket/Client (= 1.0.1)
+<<<<<<< HEAD
   - SocketRocket
+=======
+  - Sentry (from `https://github.com/getsentry/sentry-cocoa.git`, tag `5.0.0`)
+>>>>>>> Hammerspoon/master
   - Sparkle (= 1.22.0)
 
 SPEC REPOS:
@@ -35,25 +40,40 @@ SPEC REPOS:
     - CocoaAsyncSocket
     - CocoaHTTPServer
     - CocoaLumberjack
-    - Crashlytics
-    - Fabric
     - MIKMIDI
     - PocketSocket
     - SocketRocket
     - Sparkle
 
+EXTERNAL SOURCES:
+  Sentry:
+    :git: https://github.com/getsentry/sentry-cocoa.git
+    :tag: 5.0.0
+
+CHECKOUT OPTIONS:
+  Sentry:
+    :git: https://github.com/getsentry/sentry-cocoa.git
+    :tag: 5.0.0
+
 SPEC CHECKSUMS:
   ASCIImage: bcff9650deae86e0e0ac310145cc628948201ab8
-  CocoaAsyncSocket: eafaa68a7e0ec99ead0a7b35015e0bf25d2c8987
+  CocoaAsyncSocket: 694058e7c0ed05a9e217d1b3c7ded962f4180845
   CocoaHTTPServer: 5624681fc3473d43b18202f635f9b3abb013b530
   CocoaLumberjack: 2f44e60eb91c176d471fdba43b9e3eae6a721947
-  Crashlytics: 540b7e5f5da5a042647227a5e3ac51d85eed06df
-  Fabric: 706c8b8098fff96c33c0db69cbf81f9c551d0d74
   MIKMIDI: a9192db16687fcf1d2c82b98492b999fa8ede7c6
   PocketSocket: 9c6867d66fb4f962af96b9b07f4b45bb561b2c2a
+<<<<<<< HEAD
   SocketRocket: d57c7159b83c3c6655745cd15302aa24b6bae531
   Sparkle: 593ac2e677c07bcb6c3b22d621240e7cbedaab57
 
 PODFILE CHECKSUM: f438cba3a7731bd501575923e5cf63cb0f07a3f1
 
 COCOAPODS: 1.8.4
+=======
+  Sentry: 1279f37a5691c19b1b761f7e260bba5dab7c2311
+  Sparkle: 593ac2e677c07bcb6c3b22d621240e7cbedaab57
+
+PODFILE CHECKSUM: 6d4b20df1b7b2074cbc50ee536ee3697a73e4dba
+
+COCOAPODS: 1.9.1
+>>>>>>> Hammerspoon/master

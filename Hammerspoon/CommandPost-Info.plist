@@ -252,20 +252,6 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>6035</string>
-	<key>Fabric</key>
-	<dict>
-		<key>APIKey</key>
-		<string>4799997d730e264415e10b3cecc13d0f3cf205fa</string>
-		<key>Kits</key>
-		<array>
-			<dict>
-				<key>KitInfo</key>
-				<dict/>
-				<key>KitName</key>
-				<string>Crashlytics</string>
-			</dict>
-		</array>
-	</dict>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.video</string>
 	<key>LSMinimumSystemVersion</key>
@@ -294,7 +280,7 @@
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Some CommandPost extensions (such as hs.noises) require access to the microphone.</string>
 	<key>NSPrincipalClass</key>
-	<string>NSApplication</string>
+	<string>SentryCrashExceptionApplication</string>
 	<key>NSServices</key>
 	<array>
 		<dict>

@@ -220,12 +220,22 @@
 
     [self registerDefaultDefaults];
 
-    // Enable Crashlytics, if we have an API key available
-#ifdef CRASHLYTICS_API_KEY
+    // Enable Sentry, if we have an API URL available
+#ifdef SENTRY_API_URL
     if (HSUploadCrashData() && !isTesting) {
-        Crashlytics *crashlytics = [Crashlytics sharedInstance];
-        crashlytics.debugMode = YES;
-        [Crashlytics startWithAPIKey:[NSString stringWithUTF8String:CRASHLYTICS_API_KEY] delegate:self];
+        SentryEvent* (^sentryWillUploadCrashReport) (SentryEvent *event) = ^SentryEvent* (SentryEvent *event) {
+            if ([event.extra objectForKey:@"MjolnirModuleLoaded"]) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                   [self showMjolnirMigrationNotification];
+                });
+            }
+            return event;
+        };
+
+        [SentrySDK startWithOptions:@{
+            @"dsn": @SENTRY_API_URL,
+            @"beforeSend": sentryWillUploadCrashReport,
+        }];
     }
 #endif
 
@@ -348,39 +358,6 @@
     [alert setInformativeText:@"Your init.lua is loading Mjolnir modules and a previous launch crashed.\n\nCommandPost ships with updated versions of many of the Mjolnir modules, with both new features and many bug fixes.\n\nPlease consult our API documentation and migrate your config."];
     [alert setAlertStyle:NSAlertStyleCritical];
     [alert runModal];
-}
-
-// Commented out by Chris Hocking:
-/*
-- (void)crashlyticsDidDetectReportForLastExecution:(CLSReport *)report completionHandler:(void (^)(BOOL submit))completionHandler {
-    BOOL showMjolnirMigrationDialog = NO;
-
-    if ([report.customKeys objectForKey:@"MjolnirModuleLoaded"]) {
-        showMjolnirMigrationDialog = YES;
-    }
-
-    completionHandler(YES);
-
-    if (showMjolnirMigrationDialog) {
-        [self showMjolnirMigrationNotification];
-    }
-}
-*/
-
-// Added by Chris Hocking:
-- (void)crashlyticsDidDetectReportForLastExecution:(CLSReport *)report completionHandler:(void (^)(BOOL))completionHandler {
-    // Use this opportunity to take synchronous action on a crash. See Crashlytics.h for
-    // details and implications.
-
-    // Maybe consult NSUserDefaults or show a UI prompt.
-
-    // But, make ABSOLUTELY SURE you invoke completionHandler, as the SDK
-    // will not submit the report until you do. You can do this from any
-    // thread, but that's optional. If you want, you can just call the
-    // completionHandler and return.
-    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        completionHandler(YES);
-    }];
 }
 
 #pragma mark - Sparkle delegate methods

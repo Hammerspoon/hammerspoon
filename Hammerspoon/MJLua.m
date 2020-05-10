@@ -11,8 +11,13 @@
 #import "MJAutoLaunch.h"
 #import "MJDockIcon.h"
 #import "HSAppleScript.h"
-#import "Crashlytics.h"
-#import "HSLogger.h" // This should come after Crashlytics
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wvariadic-macros"
+#import "Sentry.h"
+#pragma clang diagnostic pop
+
+#import "HSLogger.h" // This should come after Sentry
 #import <AVFoundation/AVFoundation.h>
 #import <dlfcn.h>
 #import <AppKit/AppKit.h>
