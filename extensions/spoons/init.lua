@@ -38,7 +38,7 @@ local function slurp(path)
 end
 
 --- hs.spoons.newSpoon(name, basedir, metadata) -> string | nil
---- Method
+--- Function
 --- Create a skeleton for a new Spoon
 ---
 --- Parameters:
@@ -93,7 +93,7 @@ function module.newSpoon(name, basedir, metadata, template)
 end
 
 --- hs.spoons.scriptPath([n]) -> string
---- Method
+--- Function
 --- Return path of the current spoon.
 ---
 --- Parameters:
@@ -108,7 +108,7 @@ function module.scriptPath(n)
 end
 
 --- hs.spoons.resourcePath(partial) -> string
---- Method
+--- Function
 --- Return full path of an object within a spoon directory, given its partial path.
 ---
 --- Parameters:
@@ -121,7 +121,7 @@ function module.resourcePath(partial)
 end
 
 --- hs.spoons.bindHotkeysToSpec(def, map) -> none
---- Method
+--- Function
 --- Map a number of hotkeys according to a definition table
 ---
 --- Parameters:
@@ -146,7 +146,7 @@ function module.bindHotkeysToSpec(def,map)
 end
 
 --- hs.spoons.list() -> table
---- Method
+--- Function
 --- Return a list of installed/loaded Spoons
 ---
 --- Parameters:
@@ -180,7 +180,7 @@ function module.list(onlyLoaded)
 end
 
 --- hs.spoons.isInstalled(name) -> table | nil
---- Method
+--- Function
 --- Check if a given Spoon is installed.
 ---
 --- Parameters:
@@ -199,7 +199,7 @@ function module.isInstalled(name)
 end
 
 --- hs.spoons.isLoaded(name) -> boolean | nil
---- Method
+--- Function
 --- Check if a given Spoon is loaded.
 ---
 --- Parameters:
@@ -218,7 +218,7 @@ function module.isLoaded(name)
 end
 
 --- hs.spoons.use(name, arg) -> boolean | nil
---- Method
+--- Function
 --- Declaratively load and configure a Spoon
 ---
 --- Parameters:
