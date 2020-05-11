@@ -128,6 +128,20 @@ static int core_openpreferences(lua_State* __unused L) {
     return 0 ;
 }
 
+/// hs.closePreferences()
+/// Function
+/// Closes the Hammerspoon Preferences window
+///
+/// Paramters:
+///  * None
+///
+/// Returns:
+///  * None
+static int core_closepreferences(lua_State* __unused L) {
+    [[MJPreferencesWindowController singleton].window orderOut:nil];
+    return 0;
+}
+
 /// hs.openConsole([bringToFront])
 /// Function
 /// Opens the Hammerspoon Console window and optionally focuses it.
@@ -668,6 +682,7 @@ static luaL_Reg corelib[] = {
     {"openAbout", core_openabout},
     {"menuIcon", core_menuicon},
     {"openPreferences", core_openpreferences},
+    {"closePreferences", core_closepreferences},
     {"open", core_open},
     {"autoLaunch", core_autolaunch},
     {"automaticallyCheckForUpdates", automaticallyChecksForUpdates},
