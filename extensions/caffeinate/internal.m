@@ -5,7 +5,7 @@
 
 // Apple Private API items
 #define kIOPMAssertionAppliesToLimitedPowerKey  CFSTR("AppliesToLimitedPower")
-CFBundleRef loginFramework = nil;
+CFBundleRef loginFramework = NULL;
 typedef void (*SACLockScreenImmediatePtr)(void);
 
 static IOPMAssertionID noIdleDisplaySleep = 0;
@@ -303,6 +303,7 @@ static int caffeinate_gc(lua_State *L) {
 
     if (loginFramework) {
         CFRelease(loginFramework);
+        loginFramework = NULL ;
     }
 
     return 0;
