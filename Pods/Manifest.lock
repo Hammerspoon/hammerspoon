@@ -11,13 +11,10 @@ PODS:
   - PocketSocket/Client (1.0.1):
     - PocketSocket/Core
   - PocketSocket/Core (1.0.1)
-<<<<<<< HEAD
-  - SocketRocket (0.5.1)
-=======
   - Sentry (5.0.0):
     - Sentry/Core (= 5.0.0)
   - Sentry/Core (5.0.0)
->>>>>>> Hammerspoon/master
+  - SocketRocket (0.5.1)
   - Sparkle (1.22.0)
 
 DEPENDENCIES:
@@ -27,11 +24,8 @@ DEPENDENCIES:
   - CocoaLumberjack (= 3.5.3)
   - MIKMIDI (= 1.7.0)
   - PocketSocket/Client (= 1.0.1)
-<<<<<<< HEAD
-  - SocketRocket
-=======
   - Sentry (from `https://github.com/getsentry/sentry-cocoa.git`, tag `5.0.0`)
->>>>>>> Hammerspoon/master
+  - SocketRocket
   - Sparkle (= 1.22.0)
 
 SPEC REPOS:
@@ -62,18 +56,10 @@ SPEC CHECKSUMS:
   CocoaLumberjack: 2f44e60eb91c176d471fdba43b9e3eae6a721947
   MIKMIDI: a9192db16687fcf1d2c82b98492b999fa8ede7c6
   PocketSocket: 9c6867d66fb4f962af96b9b07f4b45bb561b2c2a
-<<<<<<< HEAD
+  Sentry: 1279f37a5691c19b1b761f7e260bba5dab7c2311
   SocketRocket: d57c7159b83c3c6655745cd15302aa24b6bae531
   Sparkle: 593ac2e677c07bcb6c3b22d621240e7cbedaab57
 
-PODFILE CHECKSUM: f438cba3a7731bd501575923e5cf63cb0f07a3f1
+PODFILE CHECKSUM: d756d8f4a506be49803849e63b407a73b80805ca
 
 COCOAPODS: 1.8.4
-=======
-  Sentry: 1279f37a5691c19b1b761f7e260bba5dab7c2311
-  Sparkle: 593ac2e677c07bcb6c3b22d621240e7cbedaab57
-
-PODFILE CHECKSUM: 6d4b20df1b7b2074cbc50ee536ee3697a73e4dba
-
-COCOAPODS: 1.9.1
->>>>>>> Hammerspoon/master
