@@ -196,6 +196,35 @@ static int chooserSetChoices(lua_State *L) {
     return 1;
 }
 
+/// hs.chooser:hideCallback([fn]) -> hs.chooser object
+/// Method
+/// Sets/clears a callback for when the chooser window is hidden
+///
+/// Parameters:
+///  * fn - An optional function that will be called when the chooser window is hidden. If this parameter is omitted, the existing callback will be removed.
+///
+/// Returns:
+///  * The hs.chooser object
+///
+/// Notes:
+///  * This callback is called *after* the chooser is hidden.
+///  * This callback is called *after* hs.chooser.globalCallback.
+static int chooserHideCallback(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION|LS_TOPTIONAL, LS_TBREAK];
+
+    HSChooser *chooser = [skin toNSObjectAtIndex:1];
+
+    chooser.hideCallbackRef = [skin luaUnref:refTable ref:chooser.hideCallbackRef];
+
+    if (lua_type(L, 2) == LUA_TFUNCTION) {
+        chooser.hideCallbackRef = [skin luaRef:refTable atIndex:2];
+    }
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
 /// hs.chooser:showCallback([fn]) -> hs.chooser object
 /// Method
 /// Sets/clears a callback for when the chooser window is shown
@@ -783,6 +812,7 @@ static int userdata_gc(lua_State* L) {
     if (chooser) {
         chooser.selfRefCount--;
         if (chooser.selfRefCount == 0) {
+            chooser.hideCallbackRef = [skin luaUnref:refTable ref:chooser.hideCallbackRef];
             chooser.showCallbackRef = [skin luaUnref:refTable ref:chooser.showCallbackRef];
             chooser.choicesCallbackRef = [skin luaUnref:refTable ref:chooser.choicesCallbackRef];
             chooser.queryChangedCallbackRef = [skin luaUnref:refTable ref:chooser.queryChangedCallbackRef];
@@ -818,6 +848,7 @@ static const luaL_Reg userdataLib[] = {
     {"hide", chooserHide},
     {"isVisible", chooserIsVisible},
     {"choices", chooserSetChoices},
+    {"hideCallback", chooserHideCallback},
     {"showCallback", chooserShowCallback},
     {"queryChangedCallback", chooserQueryCallback},
     {"query", chooserSetQuery},

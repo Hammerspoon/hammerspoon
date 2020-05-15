@@ -1,12 +1,16 @@
 require("hs.timer")
 
 function testAllWindows()
+  hs.openConsole()
+  hs.openPreferences()
   local allWindows = hs.window.allWindows()
   assertIsEqual("table", type(allWindows))
   assertGreaterThan(1, #allWindows)
   -- Enable this when hs.window objects have a proper __type metatable entry
   -- assertIsUserdataOfType(allWindows[1], "hs.window")
 
+  hs.closePreferences()
+  hs.closeConsole()
   return success()
 end
 

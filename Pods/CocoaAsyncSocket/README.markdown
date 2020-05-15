@@ -2,13 +2,13 @@
 [![Build Status](https://travis-ci.org/robbiehanson/CocoaAsyncSocket.svg?branch=master)](https://travis-ci.org/robbiehanson/CocoaAsyncSocket) [![Version Status](https://img.shields.io/cocoapods/v/CocoaAsyncSocket.svg?style=flat)](http://cocoadocs.org/docsets/CocoaAsyncSocket) [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage) [![Platform](http://img.shields.io/cocoapods/p/CocoaAsyncSocket.svg?style=flat)](http://cocoapods.org/?q=CocoaAsyncSocket) [![license Public Domain](https://img.shields.io/badge/license-Public%20Domain-orange.svg?style=flat)](https://en.wikipedia.org/wiki/Public_domain)
 
 
-CocoaAsyncSocket provides easy-to-use and powerful asynchronous socket libraries for Mac and iOS. The classes are described below.
+CocoaAsyncSocket provides easy-to-use and powerful asynchronous socket libraries for macOS, iOS, and tvOS. The classes are described below.
 
 ## Installation
 
 #### CocoaPods
 
-Install using [CocoaPods](http://cocoapods.org) by adding this line to your Podfile:
+Install using [CocoaPods](https://cocoapods.org) by adding this line to your Podfile:
 
 ````ruby
 use_frameworks! # Add this if you are targeting iOS 8+ or using Swift
@@ -31,6 +31,15 @@ The project is currently configured to build for **iOS**, **tvOS** and **Mac**. 
 
 Select the correct framework(s) and drag it into your project.
 
+#### Swift Package Manager
+
+Simply add the package dependency to your Package.swift and depend on "CocoaAsyncSocket" in the necessary targets:
+```swift
+dependencies: [
+    .package(url: "https://github.com/robbiehanson/CocoaAsyncSocket", from: "7.6.4")
+]
+```
+
 #### Manual
 
 You can also include it into your project by adding the source files directly, but you should probably be using a dependency manager to keep up to date.
@@ -40,10 +49,10 @@ You can also include it into your project by adding the source files directly, b
 Using Objective-C:
 
 ```obj-c
-// When using iOS 8+ frameworks
+// When using Clang Modules:
 @import CocoaAsyncSocket; 
 
-// OR when not using frameworks, targeting iOS 7 or below
+// or when not:
 #import "GCDAsyncSocket.h" // for TCP
 #import "GCDAsyncUdpSocket.h" // for UDP
 ```
@@ -58,7 +67,7 @@ import CocoaAsyncSocket
 
 **GCDAsyncSocket** is a TCP/IP socket networking library built atop Grand Central Dispatch. Here are the key features available:
 
-- Native objective-c, fully self-contained in one class.<br/>
+- Native Objective-C, fully self-contained in one class.<br/>
   _No need to muck around with sockets or streams. This class handles everything for you._
 
 - Full delegate support<br/>
@@ -79,14 +88,11 @@ import CocoaAsyncSocket
 - Fully GCD based and Thread-Safe<br/>
   _It runs entirely within its own GCD dispatch_queue, and is completely thread-safe. Further, the delegate methods are all invoked asynchronously onto a dispatch_queue of your choosing. This means parallel operation of your socket code, and your delegate/processing code._
 
-- The Latest Technology & Performance Optimizations<br/>
-  _Internally the library takes advantage of technologies such as [kqueue's](http://en.wikipedia.org/wiki/Kqueue) to limit [system calls](http://en.wikipedia.org/wiki/System_call) and optimize buffer allocations. In other words, peak performance._
-
 ## UDP
 
 **GCDAsyncUdpSocket** is a UDP/IP socket networking library built atop Grand Central Dispatch. Here are the key features available:
 
-- Native objective-c, fully self-contained in one class.<br/>
+- Native Objective-C, fully self-contained in one class.<br/>
   _No need to muck around with low-level sockets. This class handles everything for you._
 
 - Full delegate support.<br/>
@@ -105,7 +111,7 @@ import CocoaAsyncSocket
 
 For those new(ish) to networking, it's recommended you **[read the wiki](https://github.com/robbiehanson/CocoaAsyncSocket/wiki)**.<br/>_Sockets might not work exactly like you think they do..._
 
-**Still got questions?** Try the **[CocoaAsyncSocket Mailing List](http://groups.google.com/group/cocoaasyncsocket)**.
+**Still got questions?** Try the **[CocoaAsyncSocket Mailing List](https://groups.google.com/group/cocoaasyncsocket)**.
 ***
 
 Love the project? Wanna buy me a ☕️&nbsp;&nbsp;? (or a 🍺&nbsp;&nbsp;😀&nbsp;):
