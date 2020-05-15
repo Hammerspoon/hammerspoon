@@ -1524,6 +1524,7 @@ static int userdata_gc(lua_State* L) ;
                     NSView *externalView = [self getElementValueFor:@"canvas" atIndex:idx onlyIfSet:NO] ;
                     if ([externalView isKindOfClass:[NSView class]]) {
                         externalView.needsDisplay = YES ;
+                        if (externalView.hidden) externalView.hidden = NO ;
                         NSNumber *alpha = [self getElementValueFor:@"canvasAlpha" atIndex:idx onlyIfSet:YES] ;
                         if (alpha) externalView.alphaValue = [alpha doubleValue] ;
                         [externalView setFrame:frameRect] ;
@@ -1665,6 +1666,13 @@ static int userdata_gc(lua_State* L) ;
             if (!wasClippingChanged) [gc restoreGraphicsState] ;
 
             if (idx == previousTrackedRealIndex) self->_previousTrackedIndex = [self->_elementBounds count] - 1 ;
+        } else {
+            if ([elementType isEqualToString:@"canvas"]) {
+                NSView *externalView = [self getElementValueFor:@"canvas" atIndex:idx onlyIfSet:NO] ;
+                if ([externalView isKindOfClass:[NSView class]]) {
+                        if (!externalView.hidden) externalView.hidden = YES ;
+                }
+            }
         }
     }] ;
 
