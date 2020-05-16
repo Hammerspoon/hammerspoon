@@ -30,6 +30,8 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
 void delayUntilViewStopsLoading(HSWebViewView *theView, dispatch_block_t block) {
     if (!delayTimers) delayTimers = [NSMapTable strongToWeakObjectsMapTable] ;
 
+//     if (theView.loading) [theView stopLoading] ;
+
     NSTimer *existingTimer = [delayTimers objectForKey:theView] ;
     if (existingTimer) {
         [existingTimer invalidate] ;
@@ -43,6 +45,7 @@ void delayUntilViewStopsLoading(HSWebViewView *theView, dispatch_block_t block) 
         // make sure were wenen't queued in the runloop before the timer was invalidated by another "load" event
         if (timer.valid) {
             if (!theView.loading) {
+                [theView stopLoading] ; // stop loading other resources
                 [delayTimers removeObjectForKey:theView] ;
                 [timer invalidate] ;
                 block() ;
@@ -928,7 +931,6 @@ static int webview_url(lua_State *L) {
     } else {
         NSURLRequest *theNSURL = [skin luaObjectAtIndex:2 toClass:"NSURLRequest"] ;
         if (theNSURL) {
-            if (theView.loading) [theView stopLoading] ;
 
             delayUntilViewStopsLoading(theView, ^{
                 WKNavigation *navID = [theView loadRequest:theNSURL] ;
@@ -1206,7 +1208,6 @@ static int webview_reload(lua_State *L) {
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
     HSWebViewView   *theView = theWindow.contentView ;
 
-    if (theView.loading) [theView stopLoading] ;
     BOOL validate = (lua_type(L, 2) == LUA_TBOOLEAN) ? (BOOL)lua_toboolean(L, 2) : NO ;
 
     delayUntilViewStopsLoading(theView, ^{
@@ -1423,8 +1424,6 @@ static int webview_html(lua_State *L) {
     lua_pop(L, 1) ;
 
     NSString *theBaseURL = (lua_type(L, 3) == LUA_TSTRING) ? [skin toNSObjectAtIndex:3] : nil ;
-
-    if (theView.loading) [theView stopLoading] ;
 
     delayUntilViewStopsLoading(theView, ^{
         WKNavigation *navID = [theView loadHTMLString:theHTML baseURL:[NSURL URLWithString:theBaseURL]] ;
