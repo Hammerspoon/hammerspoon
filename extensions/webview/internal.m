@@ -30,6 +30,8 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
 void delayUntilViewStopsLoading(HSWebViewView *theView, dispatch_block_t block) {
     if (!delayTimers) delayTimers = [NSMapTable strongToWeakObjectsMapTable] ;
 
+//     if (theView.loading) [theView stopLoading] ;
+
     NSTimer *existingTimer = [delayTimers objectForKey:theView] ;
     if (existingTimer) {
         [existingTimer invalidate] ;
@@ -43,6 +45,7 @@ void delayUntilViewStopsLoading(HSWebViewView *theView, dispatch_block_t block) 
         // make sure were wenen't queued in the runloop before the timer was invalidated by another "load" event
         if (timer.valid) {
             if (!theView.loading) {
+                [theView stopLoading] ; // stop loading other resources
                 [delayTimers removeObjectForKey:theView] ;
                 [timer invalidate] ;
                 block() ;
@@ -930,7 +933,6 @@ static int webview_url(lua_State *L) {
     } else {
         NSURLRequest *theNSURL = [skin luaObjectAtIndex:2 toClass:"NSURLRequest"] ;
         if (theNSURL) {
-            if (theView.loading) [theView stopLoading] ;
 
             delayUntilViewStopsLoading(theView, ^{
                 WKNavigation *navID = [theView loadRequest:theNSURL] ;
@@ -1094,20 +1096,25 @@ static int webview_loading(lua_State *L) {
 
 /// hs.webview:stopLoading() -> webviewObject
 /// Method
-/// Stop loading content if the webview is still loading content.  Does nothing if content has already completed loading.
+/// Stop loading additional content for the webview.
 ///
 /// Parameters:
 ///  * None
 ///
 /// Returns:
 ///  * The webview object
+///
+/// Notes:
+///  * this method does not stop the loading of the primary content for the page at the specified URL
+///  * if [hs.webview:loading](#loading) would return true, this method does nothing -- see notes:
+///    * The documentation from Apple is unclear and experimentation has shown that if this method is applied before the content of the specified URL has loaded, it can cause the webview to lock up; however it appears to stop the loading of addiional resources specified for the content (external script files, external style files, AJAX queries, etc.) and should be used in this context.
 static int webview_stopLoading(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
     HSWebViewView   *theView = theWindow.contentView ;
 
-    [theView stopLoading] ;
+    if (!theView.loading) [theView stopLoading] ;
 
     lua_settop(L, 1) ;
     return 1 ;
@@ -1208,7 +1215,6 @@ static int webview_reload(lua_State *L) {
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
     HSWebViewView   *theView = theWindow.contentView ;
 
-    if (theView.loading) [theView stopLoading] ;
     BOOL validate = (lua_type(L, 2) == LUA_TBOOLEAN) ? (BOOL)lua_toboolean(L, 2) : NO ;
 
     delayUntilViewStopsLoading(theView, ^{
@@ -1425,8 +1431,6 @@ static int webview_html(lua_State *L) {
     lua_pop(L, 1) ;
 
     NSString *theBaseURL = (lua_type(L, 3) == LUA_TSTRING) ? [skin toNSObjectAtIndex:3] : nil ;
-
-    if (theView.loading) [theView stopLoading] ;
 
     delayUntilViewStopsLoading(theView, ^{
         WKNavigation *navID = [theView loadHTMLString:theHTML baseURL:[NSURL URLWithString:theBaseURL]] ;
