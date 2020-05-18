@@ -4,10 +4,8 @@
 ---
 --- This module will also mirror the contents of the built-in Lua `math` library so it is safe to do something like the following in your code and have acces to both libraries:
 ---
----     ~~~
 ---     local math = require("hs.math")
 ---     local n = math.sin(math.minFloat) -- works even though they're both from different libraries
----     ~~~
 
 local module = require("hs.math.internal")
 local _luaMath = math
