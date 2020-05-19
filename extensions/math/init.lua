@@ -2,7 +2,7 @@
 ---
 --- Various helpful mathematical functions
 ---
---- This module will also mirror the contents of the built-in Lua `math` library so it is safe to do something like the following in your code and have acces to both libraries:
+--- This module will also mirror the contents of the built-in Lua `math` library so it is safe to do something like the following in your own code and still have access to both libraries:
 ---
 ---     local math = require("hs.math")
 ---     local n = math.sin(math.minFloat) -- works even though they're both from different libraries
@@ -95,7 +95,7 @@ return setmetatable(module, {
     end,
     __newindex = function(self, key, value)
         if key == "minFloat" then
-            error("hs.math.minFloat is a constant determined at application launch and can't be changed", 3)
+            error("hs.math.minFloat is a constant determined at application launch and cannot be changed", 3)
         elseif _luaMath[key] then
             error(string.format("hs.math.%s mirrors lua's math.%s and cannot be changed", key, key), 3)
         else
