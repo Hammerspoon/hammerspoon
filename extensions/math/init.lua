@@ -2,11 +2,42 @@
 ---
 --- Various helpful mathematical functions
 ---
---- This module will also mirror the contents of the built-in Lua `math` library so it is safe to do something like the following in your own code and still have access to both libraries:
+--- This module includes, and is a superset of the built-in Lua `math` library so it is safe to do something like the following in your own code and still have access to both libraries:
 ---
 ---     local math = require("hs.math")
 ---     local n = math.sin(math.minFloat) -- works even though they're both from different libraries
-
+---
+--- The documentation for the math library can be found at http://www.lua.org/manual/5.3/ or from the Hammerspoon console via the help command: `help.lua.math`. This includes the following functions and variables:
+---
+---   * hs.math.abs        - help available via `help.lua.math.abs`
+---   * hs.math.acos       - help available via `help.lua.math.acos`
+---   * hs.math.asin       - help available via `help.lua.math.asin`
+---   * hs.math.atan       - help available via `help.lua.math.atan`
+---   * hs.math.ceil       - help available via `help.lua.math.ceil`
+---   * hs.math.cos        - help available via `help.lua.math.cos`
+---   * hs.math.deg        - help available via `help.lua.math.deg`
+---   * hs.math.exp        - help available via `help.lua.math.exp`
+---   * hs.math.floor      - help available via `help.lua.math.floor`
+---   * hs.math.fmod       - help available via `help.lua.math.fmod`
+---   * hs.math.huge       - help available via `help.lua.math.huge`
+---   * hs.math.log        - help available via `help.lua.math.log`
+---   * hs.math.max        - help available via `help.lua.math.max`
+---   * hs.math.maxinteger - help available via `help.lua.math.maxinteger`
+---   * hs.math.min        - help available via `help.lua.math.min`
+---   * hs.math.mininteger - help available via `help.lua.math.mininteger`
+---   * hs.math.modf       - help available via `help.lua.math.modf`
+---   * hs.math.pi         - help available via `help.lua.math.pi`
+---   * hs.math.rad        - help available via `help.lua.math.rad`
+---   * hs.math.random     - help available via `help.lua.math.random`
+---   * hs.math.randomseed - help available via `help.lua.math.randomseed`
+---   * hs.math.sin        - help available via `help.lua.math.sin`
+---   * hs.math.sqrt       - help available via `help.lua.math.sqrt`
+---   * hs.math.tan        - help available via `help.lua.math.tan`
+---   * hs.math.tointeger  - help available via `help.lua.math.tointeger`
+---   * hs.math.type       - help available via `help.lua.math.type`
+---   * hs.math.ult        - help available via `help.lua.math.ult`
+---
+--- Additional functions and values that are specific to Hammerspoon which provide expanded math support are documented here.
 local module = require("hs.math.internal")
 local _luaMath = math
 
