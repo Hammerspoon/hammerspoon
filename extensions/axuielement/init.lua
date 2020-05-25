@@ -97,6 +97,8 @@ objectMT.__index = function(self, _)
         if not matchName then matchName = _ end
         local formalName = matchName:match("^AX[%w%d_]+$") and matchName or "AX"..matchName:sub(1,1):upper()..matchName:sub(2)
 
+        -- luacheck: push ignore __
+
         -- check for setters
         if _:match("^set%u") then
 
@@ -135,6 +137,8 @@ objectMT.__index = function(self, _)
             end
         end
 
+        -- luacheck: pop
+
         -- guess it doesn't exist
         return nil
     elseif type(_) == "number" then
@@ -167,7 +171,9 @@ end
 objectMT.__pairs = function(_)
     local keys = {}
 
-     -- getters and setters for attributeNames
+    -- luacheck: push ignore __
+
+    -- getters and setters for attributeNames
     for __, v in ipairs(objectMT.attributeNames(_) or {}) do
         local partialName = v:match("^AX(.*)")
         keys[partialName:sub(1,1):lower() .. partialName:sub(2)] = true
@@ -187,6 +193,8 @@ objectMT.__pairs = function(_)
         local partialName = v:match("^AX(.*)")
         keys["do" .. partialName] = true
     end
+
+    -- luacheck: pop
 
     return function(_, k)
             local v
