@@ -25,8 +25,7 @@
 local USERDATA_TAG = "hs.axuielement"
 
 if not hs.accessibilityState(true) then
-    hs.luaSkinLog.ef("%s - module requires accessibility to be enabled; fix in SystemPreferences -> Privacy & Security and restart Hammerspoon", USERDATA_TAG)
-    return nil
+    hs.luaSkinLog.ef("%s - module requires accessibility to be enabled; fix in SystemPreferences -> Privacy & Security", USERDATA_TAG)
 end
 
 local module       = require(USERDATA_TAG..".internal")
