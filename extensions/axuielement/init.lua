@@ -43,7 +43,6 @@ local log  = require("hs.logger").new(USERDATA_TAG, require"hs.settings".get(USE
 module.log = log
 
 local fnutils = require("hs.fnutils")
-local inspect = require("hs.inspect")
 
 require("hs.styledtext")
 
@@ -102,9 +101,9 @@ objectMT.__index = function(self, _)
         if _:match("^set%u") then
 
              -- check attributes
-             for i, v in ipairs(objectMT.attributeNames(self) or {}) do
+             for __, v in ipairs(objectMT.attributeNames(self) or {}) do
                 if v == formalName and objectMT.isAttributeSettable(self, formalName) then
-                    return function(self, ...) return objectMT.setAttributeValue(self, formalName, ...) end
+                    return function(self2, ...) return objectMT.setAttributeValue(self2, formalName, ...) end
                 end
             end
 
@@ -112,9 +111,9 @@ objectMT.__index = function(self, _)
         elseif _:match("^do%u") then
 
             -- check actions
-            for i, v in ipairs(objectMT.actionNames(self) or {}) do
+            for __, v in ipairs(objectMT.actionNames(self) or {}) do
                 if v == formalName then
-                    return function(self, ...) return objectMT.performAction(self, formalName, ...) end
+                    return function(self2, ...) return objectMT.performAction(self2, formalName, ...) end
                 end
             end
 
@@ -122,16 +121,16 @@ objectMT.__index = function(self, _)
         else
 
             -- check attributes
-            for i, v in ipairs(objectMT.attributeNames(self) or {}) do
+            for __, v in ipairs(objectMT.attributeNames(self) or {}) do
                 if v == formalName then
-                    return function(self, ...) return objectMT.attributeValue(self, formalName, ...) end
+                    return function(self2, ...) return objectMT.attributeValue(self2, formalName, ...) end
                 end
             end
 
             -- check paramaterizedAttributes
-            for i, v in ipairs(objectMT.parameterizedAttributeNames(self) or {}) do
+            for __, v in ipairs(objectMT.parameterizedAttributeNames(self) or {}) do
                 if v == formalName then
-                    return function(self, ...) return objectMT.parameterizedAttributeValue(self, formalName, ...) end
+                    return function(self2, ...) return objectMT.parameterizedAttributeValue(self2, formalName, ...) end
                 end
             end
         end
@@ -169,7 +168,7 @@ objectMT.__pairs = function(_)
     local keys = {}
 
      -- getters and setters for attributeNames
-    for i, v in ipairs(objectMT.attributeNames(_) or {}) do
+    for __, v in ipairs(objectMT.attributeNames(_) or {}) do
         local partialName = v:match("^AX(.*)")
         keys[partialName:sub(1,1):lower() .. partialName:sub(2)] = true
         if objectMT.isAttributeSettable(_, v) then
@@ -178,13 +177,13 @@ objectMT.__pairs = function(_)
     end
 
     -- getters for paramaterizedAttributes
-    for i, v in ipairs(objectMT.parameterizedAttributeNames(_) or {}) do
+    for __, v in ipairs(objectMT.parameterizedAttributeNames(_) or {}) do
         local partialName = v:match("^AX(.*)")
         keys[partialName:sub(1,1):lower() .. partialName:sub(2) .. "WithParameter"] = true
     end
 
     -- doers for actionNames
-    for i, v in ipairs(objectMT.actionNames(_) or {}) do
+    for __, v in ipairs(objectMT.actionNames(_) or {}) do
         local partialName = v:match("^AX(.*)")
         keys["do" .. partialName] = true
     end
@@ -258,7 +257,7 @@ end
 local buildTreeHamster
 buildTreeHamster = function(self, prams, depth, withParents, seen)
     if prams.cancel then return prams.msg end
-    coroutine.applicationYield()
+    coroutine.applicationYield() -- luacheck: ignore
 
     if depth == 0 then return "** max depth exceeded" end
     seen  = seen or {}
