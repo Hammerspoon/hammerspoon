@@ -419,6 +419,9 @@ static int axuielement_isAttributeSettable(lua_State *L) {
 ///
 /// Returns:
 ///  * a boolean value indicating whether or not the accessibility object is still valid.
+///
+/// Notes:
+///  * an accessibilityObject can become invalid for a variety of reasons, including but not limited to the element referred to no longer being available (e.g. an element referring to a window or one of its children that has been closed) or the application terminating.
 static int axuielement_isValid(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
@@ -485,13 +488,13 @@ static int axuielement_performAction(lua_State *L) {
     return 1 ;
 }
 
-/// hs.axuielement:elementAtPosition(x, y | { x, y }) -> axuielementObject
+/// hs.axuielement:elementAtPosition(x, y | pointTable) -> axuielementObject
 /// Method
-/// Returns the accessibility object at the specified position in top-left relative screen coordinates.
+/// Returns the accessibility object at the specified position on the screen. The top-left corner of the primary screen is 0, 0.
 ///
 /// Parameters:
-///  * `x`, `y`   - the x and y coordinates of the screen location to test, provided as separate parameters
-///  * `{ x, y }` - the x and y coordinates of the screen location to test, provided as a point-table, like the one returned by `hs.mouse.getAbsolutePosition`.
+///  * `x`, `y`     - the x and y coordinates of the screen location to test, provided as separate parameters
+///  * `pointTable` - the x and y coordinates of the screen location to test, provided as a point-table, like the one returned by `hs.mouse.getAbsolutePosition`. A point-table is a table with key-value pairs for keys `x` and `y`.
 ///
 /// Returns:
 ///  * an axuielementObject for the object at the specified coordinates, or nil if no object could be identified.
@@ -542,9 +545,6 @@ static int axuielement_getElementAtPosition(lua_State *L) {
 ///
 /// Returns:
 ///  * the current value of the parameterized attribute, or nil if it has no value
-///
-/// Notes:
-///  * Parameterized attribute support is still considered experimental and not fully supported yet.  Use with caution.
 static int axuielement_getParameterizedAttributeValue(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TANY, LS_TBREAK] ;
@@ -671,7 +671,7 @@ static int axuielement_toHSWindow(lua_State *L) {
 ///
 /// Notes:
 ///  * To change the global timeout affecting all queries on elements which do not have a specific timeout set, use this method on the systemwide element (see [hs.axuielement.systemWideElement](#systemWideElement).
-///  * Changing the timeout value for an axuielement object only changes the value for that specific element -- other axuieleement objects that may refere to the identical accessibiity item are not affected.
+///  * Changing the timeout value for an axuielement object only changes the value for that specific element -- other axuieleement objects that may refer to the identical accessibiity item are not affected.
 ///
 ///  * Setting the value to 0.0 resets the timeout -- if applied to the `systemWideElement`, the global default will be reset to its default value; if applied to another axuielement object, the timeout will be reset to the current global value as applied to the systemWideElement.
 static int axuielement_setTimeout(lua_State *L) {
@@ -813,11 +813,20 @@ static int axuielement_pushSubrolesTable(lua_State *L) {
 /// A table of common accessibility object attribute names, provided for reference. The names are grouped into the following subcategories (keys):
 ///
 ///  * `application`
+///  * `attributedStrings`
+///  * `cell`
 ///  * `dock`
 ///  * `general`
+///  * `grid`
+///  * `layout`
+///  * `level`
 ///  * `matte`
 ///  * `menu`
 ///  * `misc`
+///  * `obsolete`
+///  * `outline`
+///  * `ruler`
+///  * `searchField`
 ///  * `system`
 ///  * `table`
 ///  * `text`
@@ -825,7 +834,7 @@ static int axuielement_pushSubrolesTable(lua_State *L) {
 ///
 /// Notes:
 ///  * this table is provided for reference only and is not intended to be comprehensive.
-///  * the category name indicates the type of accessibility object likely to contain the member elements.
+///  * the category name suggests the type of accessibility object likely to contain the member elements.
 static int axuielement_pushAttributesTable(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     lua_newtable(L) ;
