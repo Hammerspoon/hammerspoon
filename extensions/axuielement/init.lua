@@ -417,7 +417,7 @@ objectMT.matchesCriteria = function(self, criteria, isPattern)
             if not answer then break end
         end
     end
-    return answer
+    return answer and true or false
 end
 
 local allChildElementsHamster
@@ -449,7 +449,7 @@ allChildElementsHamster = function(self, prams, withParents, seen)
     return seen
 end
 
---- hs._asm.axuielement:allChildElements(callback, [withParents]) -> childElementsObject
+--- hs.axuielement:allChildElements(callback, [withParents]) -> childElementsObject
 --- Method
 --- Query the accessibility object for all child accessibility objects (and their children...).
 ---
