@@ -180,16 +180,16 @@ objectMT.__pairs = function(_)
 
     -- getters for paramaterizedAttributes
     for __, v in ipairs(objectMT.parameterizedAttributeNames(_) or {}) do
+        local partialName = v:match("^AX(.*)")
         if partialName then
-            local partialName = v:match("^AX(.*)")
             keys[partialName:sub(1,1):lower() .. partialName:sub(2) .. "WithParameter"] = true
         end
     end
 
     -- doers for actionNames
     for __, v in ipairs(objectMT.actionNames(_) or {}) do
+        local partialName = v:match("^AX(.*)")
         if partialName then
-            local partialName = v:match("^AX(.*)")
             keys["do" .. partialName] = true
         end
     end
@@ -400,7 +400,7 @@ objectMT.matchesCriteria = function(self, criteria, isPattern)
             local result = values[formalName]
             if type(v) ~= "table" then v = { v } end
             local partialAnswer = false
-            for i2, v2 in ipairs(v) do
+            for _, v2 in ipairs(v) do
                 if type(v2) == type(result) then
                     if type(v2) == "string" then
                         partialAnswer = partialAnswer or (not isPattern and result == v2) or (isPattern and result:match(v2))
@@ -440,7 +440,7 @@ allChildElementsHamster = function(self, prams, withParents, seen)
             end
         end
     elseif type(self) == "table" then
-        for i,v in ipairs(self) do
+        for _,v in ipairs(self) do
             if getmetatable(v) == objectMT or type(v) == "table" then
                 allChildElementsHamster(v, prams, withParents, seen)
             end
