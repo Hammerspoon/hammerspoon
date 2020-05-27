@@ -170,22 +170,28 @@ objectMT.__pairs = function(_)
     -- getters and setters for attributeNames
     for __, v in ipairs(objectMT.attributeNames(_) or {}) do
         local partialName = v:match("^AX(.*)")
-        keys[partialName:sub(1,1):lower() .. partialName:sub(2)] = true
-        if objectMT.isAttributeSettable(_, v) then
-            keys["set" .. partialName] = true
+        if partialName then
+            keys[partialName:sub(1,1):lower() .. partialName:sub(2)] = true
+            if objectMT.isAttributeSettable(_, v) then
+                keys["set" .. partialName] = true
+            end
         end
     end
 
     -- getters for paramaterizedAttributes
     for __, v in ipairs(objectMT.parameterizedAttributeNames(_) or {}) do
-        local partialName = v:match("^AX(.*)")
-        keys[partialName:sub(1,1):lower() .. partialName:sub(2) .. "WithParameter"] = true
+        if partialName then
+            local partialName = v:match("^AX(.*)")
+            keys[partialName:sub(1,1):lower() .. partialName:sub(2) .. "WithParameter"] = true
+        end
     end
 
     -- doers for actionNames
     for __, v in ipairs(objectMT.actionNames(_) or {}) do
-        local partialName = v:match("^AX(.*)")
-        keys["do" .. partialName] = true
+        if partialName then
+            local partialName = v:match("^AX(.*)")
+            keys["do" .. partialName] = true
+        end
     end
 
     -- luacheck: pop
@@ -334,10 +340,13 @@ objectMT.buildTree = function(self, callback, depth, withParents)
         cancel = false,
         callback = callback, -- may add partial updates at some point
     }
-    coroutine.wrap(function()
+    local f
+    f = coroutine.wrap(function()
         local results = buildTreeHamster(self, prams, depth, withParents)
         callback(prams.msg or "completed", results)
-    end)()
+        f = nil -- ensure garabge collection doesn't happen until after we're done
+    end)
+    f()
 
     return setmetatable({}, {
         __index = {
@@ -358,6 +367,143 @@ objectMT.buildTree = function(self, callback, depth, withParents)
     })
 end
 
+--- hs.axuielement:matchesCriteria(criteria, [isPattern]) -> boolean
+--- Method
+--- Returns true if the axuielementObject matches the specified criteria or false if it does not.
+---
+--- Paramters:
+---  * `criteria`  - the criteria to compare against the accessibility object
+---  * `isPattern` - an optional boolean, default false, specifying whether or not the strings in the search criteria should be considered as Lua patterns (true) or as absolute string matches (false).
+---
+--- Returns:
+---  * true if the axuielementObject matches the criteria, false if it does not.
+---
+--- Notes:
+---  * if `isPattern` is specified and is true, all string comparisons are done with `string.match`.  See the Lua manual, section 6.4.1 (`help.lua._man._6_4_1` in the Hammerspoon console).
+---  * the `criteria` parameter must be one of the following:
+---    * a single string, specifying the AXRole value the axuielementObject's AXRole attribute must equal for the match to return true
+---    * an array of strings, specifying a list of AXRoles for which the match should return true
+---    * a table of key-value pairs specifying a more complex match criteria.  This table will be evaluated as follows:
+---      * each key-value pair is treated as a separate test and the object *must* match as true for all tests
+---      * each key is a string specifying an attribute to evaluate.  This attribute may be specified with its formal name (e.g. "AXRole") or the informal version (e.g. "role" or "Role").
+---      * each value may be a string, a number, a boolean, or an axuielementObject userdata object, or an array (table) of such.  If the value is an array, then the test will match as true if the object matches any of the supplied values for the attribute specified by the key.
+---        * Put another way: key-value pairs are "and'ed" together while the values for a specific key-value pair are "or'ed" together.
+objectMT.matchesCriteria = function(self, criteria, isPattern)
+    isPattern = isPattern or false
+    if type(criteria) == "string" or #criteria > 0 then criteria = { role = criteria } end
+    local answer = nil
+    if getmetatable(self) == objectMT then
+        answer = true
+        local values = self:allAttributeValues() or {}
+        for k, v in pairs(criteria) do
+            local formalName = k:match("^AX[%w_]+$") and k or "AX"..k:sub(1,1):upper()..k:sub(2)
+            local result = values[formalName]
+            if type(v) ~= "table" then v = { v } end
+            local partialAnswer = false
+            for i2, v2 in ipairs(v) do
+                if type(v2) == type(result) then
+                    if type(v2) == "string" then
+                        partialAnswer = partialAnswer or (not isPattern and result == v2) or (isPattern and result:match(v2))
+                    elseif type(v2) == "number" or type(v2) == "boolean" or getmetatable(v2) == objectMT then
+                        partialAnswer = partialAnswer or (result == v2)
+                    else
+                        local dbg = debug.getinfo(2)
+                        log.wf("%s:%d: unable to compare type '%s' in criteria", dbg.short_src, dbg.currentline, type(v2))
+                    end
+                end
+                if partialAnswer then break end
+            end
+            answer = partialAnswer
+            if not answer then break end
+        end
+    end
+    return answer
+end
+
+local allChildElementsHamster
+allChildElementsHamster = function(self, prams, withParents, seen)
+    if prams.cancel then return seen end
+    coroutine.applicationYield() -- luacheck: ignore
+
+    seen = seen or {}
+    if getmetatable(self) == objectMT then
+        local seenBefore = fnutils.find(seen, function(_) return _ == self end)
+        if not seenBefore then
+            table.insert(seen, self)
+            local values = self:allAttributeValues() or {}
+            for k,v in pairs(values) do
+                if withParents or not fnutils.contains(parentLabels, k) then
+                    if getmetatable(v) == objectMT or type(v) == "table" then
+                        allChildElementsHamster(v, prams, withParents, seen)
+                    end
+                end
+            end
+        end
+    elseif type(self) == "table" then
+        for i,v in ipairs(self) do
+            if getmetatable(v) == objectMT or type(v) == "table" then
+                allChildElementsHamster(v, prams, withParents, seen)
+            end
+        end
+    end -- else we don't care about it
+    return seen
+end
+
+--- hs._asm.axuielement:allChildElements(callback, [withParents]) -> childElementsObject
+--- Method
+--- Query the accessibility object for all child accessibility objects (and their children...).
+---
+--- Paramters:
+---  * `callback`    - a required function which should expect two arguments: a `msg` string specifying how the search ended, and a table contiaining the discovered child elements. `msg` will be "completed" when the traversal has completed normally and will contain a string starting with "**" if it terminates early for some reason (see Returns: section)
+---  * `withParents` - an optional boolean, default false, indicating that the parent of objects (and their children) should be collected as well.
+---
+--- Returns:
+---  * a childElementsObject which contains metamethods allowing you to check to see if the collection process has completed and cancel it early if desired:
+---    * childElementsObject:isRunning() - will return true if the traversal is still ongoing, or false if it has completed or been cancelled
+---    * childElementsObject:cancel() - will cancel the currently running search and invoke the callback with the partial results already collected. The msg parameter for the calback will be "** cancelled".
+---
+--- Notes:
+---  * this method utilizes coroutines to keep Hammerspoon responsive, but can be slow to complete If `withParent` is true or if you start from an element that has a lot of children or has children with many elements (e.g. the application element for a web browser).
+
+-- not yet...
+--
+--  * The table generated, either as the return value, or as the argument to the callback function, has the `hs.axuielement.elementSearchTable` metatable assigned to it. See [hs.axuielement:elementSearch](#elementSearch) for details on what this provides.
+objectMT.allChildElements = function(self, callback, withParents)
+    assert(
+        type(callback) == "function" or (getmetatable(callback) or {}).__call,
+        "allChildElements requires a callback function; element:childElementsObject(callback, [withParents])"
+    )
+
+    local prams = {
+        cancel = false,
+        callback = callback, -- may add partial updates at some point
+    }
+    local f
+    f = coroutine.wrap(function()
+        local results = allChildElementsHamster(self, prams, withParents)
+        callback(prams.msg or "completed", results)
+        f = nil -- ensure garabge collection doesn't happen until after we're done
+    end)
+    f()
+
+    return setmetatable({}, {
+        __index = {
+            cancel = function(_, msg)
+                prams.cancel = true
+                prams.msg = msg or "** cancelled"
+            end,
+            isRunning = function(_)
+                return not prams.msg
+            end,
+        },
+        __tostring = function(_)
+            return USERDATA_TAG .. ":childElementsObject " .. tostring(self):match(USERDATA_TAG .. ": (.+)$")
+        end,
+--         __gc = function(_)
+--             _:cancel("** gc on childElementsObject object")
+--         end,
+    })
+end
 -- Return Module Object --------------------------------------------------
 
 return module
