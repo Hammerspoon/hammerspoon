@@ -7,9 +7,12 @@
 --- The basic methods available to determine what attributes and actions are available for a given object are described in this reference documentation.  In addition, the module will dynamically add methods for the attributes and actions appropriate to the object, but these will differ between object roles and applications -- again we are limited by what the target application developers provide us.
 ---
 --- The dynamically generated methods will follow one of the following templates:
----  * `object:<attribute>()`         - this will return the value for the specified attribute (see [hs.axuielement:attributeValue](#attributeValue) for the generic function this is based on).
----  * `object:set<attribute>(value)` - this will set the specified attribute to the given value (see [hs.axuielement:setAttributeValue](#setAttributeValue) for the generic function this is based on).
----  * `object:do<action>()`          - this request that the specified action is performed by the object (see [hs.axuielement:performAction](#performAction) for the generic function this is based on).
+---  * `object:<attribute>()`            - this will return the value for the specified attribute (see [hs.axuielement:attributeValue](#attributeValue) for the generic function this is based on). If the element does not have this specific attribute, an error will be generated.
+---  * `object("<attribute>")`           - this will return the value for the specified attribute. Returns nil if the element does not have this specific attribute instead of generating an error.
+---  * `object:set<attribute>(value)`    - this will set the specified attribute to the given value (see [hs.axuielement:setAttributeValue](#setAttributeValue) for the generic function this is based on). If the element does not have this specific attribute or if it is not settable, an error will be generated.
+---  * `object("set<attribute>", value)` - this will set the specified attribute to the given value. If the element does not have this specific attribute or if it is not settable, an error will be generated.
+---  * `object:do<action>()`             - this request that the specified action is performed by the object (see [hs.axuielement:performAction](#performAction) for the generic function this is based on). If the element does not respond to this action, an error will be generated.
+---  * `object("do<action>")`            - this request that the specified action is performed by the object. If the element does not respond to this action, an error will be generated.
 ---
 --- Where `<action>` and `<attribute>` can be the formal Accessibility version of the attribute or action name (a string usually prefixed with "AX") or without the "AX" prefix.  When the prefix is left off, the first letter of the action or attribute can be uppercase or lowercase.
 ---
@@ -249,7 +252,7 @@ end
 ---  * a table containing this object and 0 or more parent objects representing the path from the root object to this element.
 ---
 --- Notes:
----  * this object will always exist as the last element in the table (e.g. at `table[#table]`) with its most imemdiate parent at `#table - 1`, etc. until the rootmost object for this element is reached at index position 1.
+---  * this object will always exist as the last element in the table (e.g. at `table[#table]`) with its most immediate parent at `#table - 1`, etc. until the rootmost object for this element is reached at index position 1.
 ---
 ---  * an axuielement object representing an application or the system wide object is its own rootmost object and will return a table containing only itself (i.e. `#table` will equal 1)
 objectMT.path = function(self)
@@ -261,117 +264,11 @@ objectMT.path = function(self)
     return results
 end
 
-
-local buildTreeHamster
-buildTreeHamster = function(self, prams, depth, withParents, seen)
-    if prams.cancel then return prams.msg end
-    coroutine.applicationYield() -- luacheck: ignore
-
-    if depth == 0 then return "** max depth exceeded" end
-    seen  = seen or {}
-    if getmetatable(self) == objectMT then
-        local seenBefore = fnutils.find(seen, function(_) return _._element == self end)
-        if seenBefore then return seenBefore end
-        local thisObject = self:allAttributeValues() or {}
-        thisObject._element = self
-        thisObject._actions = self:actionNames()
-        thisObject._attributes = self:attributeNames()
-        thisObject._parameterizedAttributes = self:parameterizedAttributeNames()
-
-        seen[self] = thisObject
-        for k, v in pairs(thisObject) do
-            if k ~= "_element" then
-                if (type(v) == "table" and #v > 0) then
-                    thisObject[k] = buildTreeHamster(v, prams, depth, withParents, seen)
-                elseif getmetatable(v) == objectMT then
-                    if not withParents and fnutils.contains(parentLabels, k) then
-                    -- not diving into parents, but lets see if we've seen them already...
-                        thisObject[k] = fnutils.find(seen, function(_) return _._element == v end) or v
-                    else
-                        thisObject[k] = buildTreeHamster(v, prams, depth - 1, withParents, seen)
-                    end
-                end
-            end
-        end
-        return thisObject
-    elseif type(self) == "table" then
-        local results = {}
-        for i,v in ipairs(self) do
-            if (type(v) == "table" and #v > 0) or getmetatable(v) == objectMT then
-                results[i] = buildTreeHamster(v, prams, depth - 1, withParents, seen)
-            else
-                results[i] = v
-            end
-        end
-        return results
-    end
-    return self
-end
-
---- hs.axuielement:buildTree(callback, [depth], [withParents]) -> buildTreeObject
---- Method
---- Captures all of the available information for the accessibility object and its children and returns it in a table for inspection.
----
---- Parameters:
----  * `callback` - a required function which should expect two arguments: a `msg` string specifying how the search ended, and a table contiaining the recorded information. `msg` will be "completed" when the search has completed normally (or reached the specified depth) and will contain a string starting with "**" if it terminates early for some reason (see Returns: section)
----  * `depth`    - an optional integer, default `math.huge`, specifying the maximum depth from the intial accessibility object that should be visited to identify child elements and their attributes.
----  * `withParents` - an optional boolean, default false, specifying whether or not an element's (or child's) attributes for `AXParent` and `AXTopLevelUIElement` should also be visited when identifying additional elements to include in the results table.
----
---- Returns:
----  * a `buildTreeObject` which contains metamethods allowing you to check to see if the build process has completed and cancel it early if desired:
----    * `buildTreeObject:isRunning()` - will return true if the traversal is still ongoing, or false if it has completed or been cancelled
----    * `buildTreeObject:cancel()`    - will cancel the currently running search and invoke the callback with the partial results already collected. The `msg` parameter for the calback will be "** cancelled".
----
---- Notes:
----  * this method utilizes coroutines to keep Hammerspoon responsive, but can be slow to complete if you do not specifiy a depth or if you start from an element that has a lot of children or has children with many elements (e.g. the application element for a web browser).
----
----  * The results of this method are not generally intended to be used in production programs; it is organized more for exploratory purposes when trying to understand how elements are related within a given application or to determine what elements might be worth targetting with more specific queries.
-objectMT.buildTree = function(self, callback, depth, withParents)
-    assert(
-        type(callback) == "function" or (getmetatable(callback) or {}).__call,
-        "buildTree requires a callback function; element:buildTree(callback, [depth], [withParents])"
-    )
-    if type(depth) == "boolean" and type(withParents) == "nil" then
-        depth, withParents = nil, depth
-    end
-    depth = depth or math.huge
-
-    local prams = {
-        cancel = false,
-        callback = callback, -- may add partial updates at some point
-    }
-    local f
-    f = coroutine.wrap(function()
-        local results = buildTreeHamster(self, prams, depth, withParents)
-        callback(prams.msg or "completed", results)
-        f = nil -- ensure garabge collection doesn't happen until after we're done
-    end)
-    f()
-
-    return setmetatable({}, {
-        __index = {
-            cancel = function(_, msg)
-                prams.cancel = true
-                prams.msg = msg or "** cancelled"
-            end,
-            isRunning = function(_)
-                return not prams.msg
-            end,
-        },
-        __tostring = function(_)
-            return USERDATA_TAG .. ":buildTree " .. tostring(self):match(USERDATA_TAG .. ": (.+)$")
-        end,
---         __gc = function(_)
---             _:cancel("** gc on buildTree object")
---         end,
-    })
-end
-
 --- hs.axuielement:matchesCriteria(criteria, [isPattern]) -> boolean
 --- Method
 --- Returns true if the axuielementObject matches the specified criteria or false if it does not.
 ---
---- Paramters:
+--- Parameters:
 ---  * `criteria`  - the criteria to compare against the accessibility object
 ---  * `isPattern` - an optional boolean, default false, specifying whether or not the strings in the search criteria should be considered as Lua patterns (true) or as absolute string matches (false).
 ---
@@ -388,6 +285,8 @@ end
 ---      * each key is a string specifying an attribute to evaluate.  This attribute may be specified with its formal name (e.g. "AXRole") or the informal version (e.g. "role" or "Role").
 ---      * each value may be a string, a number, a boolean, or an axuielementObject userdata object, or an array (table) of such.  If the value is an array, then the test will match as true if the object matches any of the supplied values for the attribute specified by the key.
 ---        * Put another way: key-value pairs are "and'ed" together while the values for a specific key-value pair are "or'ed" together.
+---
+---  * This method is used by [hs.axuielement:elementSearch](#elementSearch) when a criteria is specified.
 objectMT.matchesCriteria = function(self, criteria, isPattern)
     isPattern = isPattern or false
     if type(criteria) == "string" or #criteria > 0 then criteria = { role = criteria } end
@@ -420,90 +319,283 @@ objectMT.matchesCriteria = function(self, criteria, isPattern)
     return answer and true or false
 end
 
-local allChildElementsHamster
-allChildElementsHamster = function(self, prams, withParents, seen)
-    if prams.cancel then return seen end
-    coroutine.applicationYield() -- luacheck: ignore
-
-    seen = seen or {}
-    if getmetatable(self) == objectMT then
-        local seenBefore = fnutils.find(seen, function(_) return _ == self end)
-        if not seenBefore then
-            table.insert(seen, self)
-            local values = self:allAttributeValues() or {}
-            for k,v in pairs(values) do
-                if withParents or not fnutils.contains(parentLabels, k) then
-                    if getmetatable(v) == objectMT or type(v) == "table" then
-                        allChildElementsHamster(v, prams, withParents, seen)
-                    end
-                end
-            end
-        end
-    elseif type(self) == "table" then
-        for _,v in ipairs(self) do
-            if getmetatable(v) == objectMT or type(v) == "table" then
-                allChildElementsHamster(v, prams, withParents, seen)
-            end
-        end
-    end -- else we don't care about it
-    return seen
+--- hs.axuielement:buildTree(callback, [depth], [withParents]) -> elementSearchObject
+--- Method
+--- Captures all of the available information for the accessibility object and its children and returns it in a table for inspection.
+---
+--- Parameters:
+---  * `callback` - a required function which should expect two arguments: a `msg` string specifying how the search ended, and a table containing the recorded information. `msg` will be "completed" when the search has completed normally (or reached the specified depth) and will contain a string starting with "**" if it terminates early for some reason (see Notes: section for more information)
+---  * `depth`    - an optional integer, default `math.huge`, specifying the maximum depth from the initial accessibility object that should be visited to identify child elements and their attributes.
+---  * `withParents` - an optional boolean, default false, specifying whether or not an element's (or child's) attributes for `AXParent` and `AXTopLevelUIElement` should also be visited when identifying additional elements to include in the results table.
+---
+--- Returns:
+---  * an elementSearchObject as described in [hs.axuielement:elementSearch](#elementSearch)
+---
+--- Notes:
+--- * The format of the `results` table passed to the callback for this method is primarily for debugging and exploratory purposes and may not be arranged for easy programatic evaluation.
+---
+---  * This method is syntactic sugar for `hs.axuielement:elementSearch(callback, { objectOnly = false, asTree = true, [maxDepth = depth], [includeParents = withParents] })`. Please refer to [hs.axuielement:elementSearch](#elementSearch) for details about the returned object and callback arguments.
+objectMT.buildTree = function(self, callback, depth, withParents)
+    return self:elementSearch(callback, nil, {
+        objectOnly     = false,
+        asTree         = true,
+        maxDepth       = depth or math.huge,
+        includeParents = withParents and true or false,
+    })
 end
 
---- hs.axuielement:allChildElements(callback, [withParents]) -> childElementsObject
+--- hs.axuielement:allChildElements(callback, [withParents]) -> elementSearchObject
 --- Method
 --- Query the accessibility object for all child accessibility objects (and their children...).
 ---
---- Paramters:
----  * `callback`    - a required function which should expect two arguments: a `msg` string specifying how the search ended, and a table contiaining the discovered child elements. `msg` will be "completed" when the traversal has completed normally and will contain a string starting with "**" if it terminates early for some reason (see Returns: section)
+--- Parameters:
+---  * `callback`    - a required function which should expect two arguments: a `msg` string specifying how the search ended, and a table containing the discovered child elements. `msg` will be "completed" when the traversal has completed normally and will contain a string starting with "**" if it terminates early for some reason (see Notes: section for more information)
 ---  * `withParents` - an optional boolean, default false, indicating that the parent of objects (and their children) should be collected as well.
 ---
 --- Returns:
----  * a childElementsObject which contains metamethods allowing you to check to see if the collection process has completed and cancel it early if desired:
----    * childElementsObject:isRunning() - will return true if the traversal is still ongoing, or false if it has completed or been cancelled
----    * childElementsObject:cancel() - will cancel the currently running search and invoke the callback with the partial results already collected. The msg parameter for the calback will be "** cancelled".
+---  * an elementSearchObject as described in [hs.axuielement:elementSearch](#elementSearch)
 ---
 --- Notes:
----  * this method utilizes coroutines to keep Hammerspoon responsive, but can be slow to complete If `withParent` is true or if you start from an element that has a lot of children or has children with many elements (e.g. the application element for a web browser).
-
--- not yet...
---
---  * The table generated, either as the return value, or as the argument to the callback function, has the `hs.axuielement.elementSearchTable` metatable assigned to it. See [hs.axuielement:elementSearch](#elementSearch) for details on what this provides.
+---  * This method is syntactic sugar for `hs.axuielement:elementSearch(callback, { [includeParents = withParents] })`. Please refer to [hs.axuielement:elementSearch](#elementSearch) for details about the returned object and callback arguments.
 objectMT.allChildElements = function(self, callback, withParents)
-    assert(
-        type(callback) == "function" or (getmetatable(callback) or {}).__call,
-        "allChildElements requires a callback function; element:childElementsObject(callback, [withParents])"
-    )
+    return self:elementSearch(callback, nil, { includeParents = withParents and true or false })
+end
 
-    local prams = {
-        cancel = false,
-        callback = callback, -- may add partial updates at some point
+-- used by hs.axuielement:elementSearch to do the heavy lifting. The search performed is a breadth first search.
+local elementSearchHamsterBF = function(self, state)
+    local queue   = { self }
+    local depth   = 0
+    -- allows use of userdata as key in hash table even though different userdata can refer to same object
+    local seen    = setmetatable({ [self] = true }, {
+                        __index = function(self, key)
+                            for k,v in pairs(self) do
+                                if k == key then return v end
+                            end
+                            return nil
+                        end,
+                        __newindex = function(self, key, value)
+                            for k,v in pairs(self) do
+                                if k == key then
+                                    rawset(self, k, value)
+                                    return
+                                end
+                            end
+                            rawset(self, key, value)
+                        end
+                    })
+    local results = {}
+
+    local criteria       = state.criteria
+    local isPattern      = state.namedMods.isPattern
+    local includeParents = state.namedMods.includeParents
+    local maxDepth       = state.namedMods.maxDepth
+    local objectOnly     = state.namedMods.objectOnly
+    local asTree         = state.namedMods.asTree
+
+    local criteriaEmpty = not(next(criteria) and true or false)
+    local depthExceeded = false
+
+    while #queue > 0 do
+        if state.cancel then
+            break
+        elseif maxDepth < depth then
+            depthExceeded = true
+            break
+        end
+
+        coroutine.applicationYield() -- luacheck: ignore
+
+        local element = table.remove(queue, 1)
+        if getmetatable(element) == objectMT then
+            state.visited = state.visited + 1
+            if criteriaEmpty or element:matchesCriteria(criteria, isPattern) then
+                state.matched = state.matched + 1
+                local keeping = objectOnly and element or element:allAttributeValues() or {}
+                if not objectOnly then
+                    keeping._element                 = element
+                    keeping._actions                 = element:actionNames()
+                    keeping._attributes              = element:attributeNames()
+                    keeping._parameterizedAttributes = element:parameterizedAttributeNames()
+                    -- store the table of details so we can replace the axuielement objects in the final results for attributes and children with their details
+                    seen[element] = keeping
+                end
+                table.insert(results, keeping)
+            end
+            if type(queue[#queue]) ~= "table" then table.insert(queue, {}) end
+            local nxtLvlQueue = queue[#queue]
+            local children = element("children") or {}
+            for _,v in ipairs(children) do
+                if not seen[v] then
+                    seen[v] = true
+                    table.insert(nxtLvlQueue, v)
+                end
+            end
+            if includeParents then
+                for _,v in ipairs(parentLabels) do
+                    local pElement = element(v)
+                    if pElement then
+                        if not seen[v] then
+                            seen[v] = true
+                            table.insert(nxtLvlQueue, v)
+                        end
+                    end
+                end
+            end
+        elseif type(element) == "table" then
+            queue = element
+            depth = depth + 1
+        end
+    end
+
+    if not objectOnly then -- convert values that are axuielements to their table stored in `seen`
+        local deTableValue
+        deTableValue = function(val)
+            if getmetatable(val) == objectMT then
+                return seen[val] or val
+            elseif type(val) == "table" then
+                for k, v in pairs(val) do val[k] = deTableValue(v) end
+            end
+            return val
+        end
+
+        for _, element in ipairs(results) do
+            for key, value in pairs(element) do
+                coroutine.applicationYield() -- luacheck: ignore
+
+                if not key:match("^_") then -- skip our collections of actions, etc. and the element itself
+                    element[key] = deTableValue(value)
+                end
+            end
+        end
+    end
+
+    -- asTree is only valid (and in fact only works) if we captured all elements from the starting node and recorded their details
+    if asTree and criteriaEmpty and not objectOnly then results = results[1] end
+
+    return results
+end
+
+--- hs.axuielement:elementSearch(callback, [criteria], [namedModifiers]) -> elementSearchObject
+--- Method
+--- Search for and generate a table of the accessibility elements for the attributes and children of this object based on the specified criteria.
+---
+--- Parameters:
+---  * `callback`       - a required function which will receive the results of this search. The callback should expect two arguments and return none. The arguments to the callback function will be `msg`, a string specifying how the search ended and `results`, a table containing the requested results. `msg` will be "completed" if the search completes normally, or a string starting with "**" if it is terminated early (see Returns: and Notes: for more details).
+---  * `matchCriteria`  - an optional table or string which will be passed to [hs.axuielement:matchesCriteria](#matchesCriteria) to determine if the discovered element should be included in the final result set. This criteria does not prune the search, it just determines if the element will be included in the results.
+---  * `namedModifiers` - an optional table specifying key-value pairs that further modify or control the search. This table may contain 0 or more of the following keys:
+---    * `isPattern`      - a boolean, default false, specifying whether or not all string values in `criteria` should be evaluated as patterns (true) or as literal strings to be matched (false). This value is passed to [hs.axuielement:matchesCriteria](#matchesCriteria) when `matchCriteria` is specified and has no effect otherwise.
+---    * `includeParents` - a boolean, default false, specifying whether or not parent attributes (`AXParent` and `AXTopLevelUIElement`) should be examined during the search. Note that in most cases, setting this value to true will end up traversing the entire Accessibility structure for the target application and may significantly slow down the search.
+---    * `maxDepth`       - an optional integer, default `math.huge`, specifying the maximum number of steps from the initial accessibility element the search should visit. If you know that your desired element(s) are relatively close to your starting element, setting this to a lower value can significantly speed up the search.
+---    * `objectOnly`     - an optional boolean, default true, specifying whether each result in the final table will be the accessibility element discovered (true) or a table containing details about the element include the attribute names, actions, etc. for the element (false). This latter format is primarily for debugging and exploratory purposes and may not be arranged for easy programatic evaluation.
+---    * `asTree`         - an optional boolean, default false, and is ignored if `criteria` is specified and non-empty or `objectOnly` is true. This modifier specifies whether the search results should return as an array table of tables containing each element's details (false) or as a tree where in which the root node details are the key-value pairs of the returned table and child elements are likewise described in subtables attached to the attribute name they belong to (true). This format is primarily for debugging and exploratory purposes and may not be arranged for easy programatic evaluation.
+---
+--- Returns:
+---  * an elementSearchObject which contains metamethods allowing you to check to see if the process has completed and cancel it early if desired. The methods include:
+---    * `elementSearchObject:cancel([reason])` - cancels the current search and invokes the callback with the partial results already collected. If you specify `reason`, the `msg` parameter for the callback will be `** <reason>`; otherwise it will be "** cancelled".
+---    * `elementSearchObject:isRunning()`      - returns true if the search is still ongoing or false if it has completed or been cancelled
+---    * `elementSearchObject:matched()`        - returns an integer specifying the number of elements which have already been found that meet the specified criteria.
+---    * `elementSearchObject:visited()`        - returns an integer specifying the number of elements which have been examined during the search so far.
+---    * `elementSearchObject:runtime()`        - returns an integer specifying the number of seconds since this search was started. Note that this is *not* an accurate measure of how much time has been spent *specifically* in the search because it will be greatly affected by how much other activity is occurring within Hammerspoon and on the users computer. Once the callback has been invoked, this will return the total time in seconds between when the search began and when it completed.
+---
+--- Notes:
+---  * This method utilizes coroutines to keep Hammerspoon responsive, but may be slow to complete if `includeParents` is true, if you do not specify `maxDepth`, or if you start from an element that has a lot of children or has children with many elements (e.g. the application element for a web browser). This is dependent entirely upon how many active accessibility elements the target application defines and where you begin your search and cannot reliably be determined up front, so you may need to experiment to find the best balance for your specific requirements.
+---
+--- * [hs.axuielement:allChildElements](#allChildElements) is syntactic sugar for `hs.axuielement:elementSearch(callback, { [includeParents = withParents] })`
+--- * [hs.axuielement:buildTree](#buildTree) is syntactic sugar for `hs.axuielement:elementSearch(callback, { objectOnly = false, asTree = true, [maxDepth = depth], [includeParents = withParents] })`
+---
+--- * The search performed is a breadth-first search, so in general earlier elements in the results table will be "closer" in the Accessibility hierarchy to the starting point than later elements.
+
+-- callback results should be further reducible with something like fnutils.ifilter (but with optional callback?)
+-- can we extend this to when objectOnly is false or asTree = true?
+
+objectMT.elementSearch = function(self, callback, criteria, namedModifiers)
+    local namedModifierDefaults = {
+        isPattern      = false,
+        includeParents = false,
+        maxDepth       = math.huge,
+        objectOnly     = true,
+        asTree         = false,
     }
-    local f
-    f = coroutine.wrap(function()
-        local results = allChildElementsHamster(self, prams, withParents)
-        callback(prams.msg or "completed", results)
-        f = nil -- ensure garabge collection doesn't happen until after we're done
+
+    assert(
+        type(callback) == "function" or (getmetatable(callback) or {}).__call, "elementSearch requires a callback function"
+    )
+    -- check to see if criteria left off and second arg is actually the namedModifiers table
+    if type(namedModifiers) == "nil" and type(criteria) == "table" then
+        local criteriaEmpty = false
+        for k,_ in pairs(namedModifierDefaults) do
+            if type(criteria[k]) ~= "nil" then
+                criteriaEmpty = true
+                break
+            end
+        end
+        if criteriaEmpty then criteria, namedModifiers = nil, criteria end
+    end
+    -- set default values for criteria and namedModifiers if they aren't present
+    criteria = criteria or {}
+    if type(criteria) == "string" or #criteria > 0 then criteria = { role = criteria } end
+
+    namedModifiers = namedModifiers or {}
+    -- set defaults in namedModifiers for keys not provided
+    for k,v in pairs(namedModifierDefaults) do
+        if type(namedModifiers[k]) == "nil" then
+            namedModifiers[k] = v
+        end
+    end
+
+    local state = {
+        cancel    = false,
+        callback  = callback, -- may add partial updates at some point
+        criteria  = criteria,
+        namedMods = namedModifiers,
+        matched   = 0,
+        visited   = 0,
+        started   = os.time(),
+        finished  = nil,
+    }
+
+    local searchCoroutine
+    searchCoroutine = coroutine.wrap(function()
+        local results = elementSearchHamsterBF(self, state)
+        state.finished = os.time() - state.started
+        callback(state.msg or "completed", results)
+        searchCoroutine = nil -- ensure garbage collection doesn't happen until after we're done
     end)
-    f()
+    searchCoroutine()
 
     return setmetatable({}, {
         __index = {
             cancel = function(_, msg)
-                prams.cancel = true
-                prams.msg = msg or "** cancelled"
+                state.cancel = true
+                if msg then
+                    state.msg = "** " .. tostring(msg)
+                else
+                    state.msg = "** cancelled"
+                end
             end,
             isRunning = function(_)
-                return not prams.msg
+                return not state.msg
+            end,
+            matched = function(_)
+                return state.matched
+            end,
+            visited = function(_)
+                return state.visited
+            end,
+            runtime = function(_)
+                return state.finished or (os.time() - state.started)
             end,
         },
         __tostring = function(_)
-            return USERDATA_TAG .. ":childElementsObject " .. tostring(self):match(USERDATA_TAG .. ": (.+)$")
+            return USERDATA_TAG .. ":elementSearchObject " .. tostring(self):match(USERDATA_TAG .. ": (.+)$")
         end,
+-- For now, not requiring that they capture this value to prevent collection.
 --         __gc = function(_)
---             _:cancel("** gc on childElementsObject object")
+--             _:cancel("gc on elementSearchObject object")
 --         end,
     })
 end
+
 -- Return Module Object --------------------------------------------------
 
 return module
