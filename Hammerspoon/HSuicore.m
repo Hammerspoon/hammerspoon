@@ -140,6 +140,7 @@
         _pid = app.processIdentifier;
         _elementRef = appRef;
         _runningApp = app;
+        _uiElement = [[HSuielement alloc] initWithElementRef:_elementRef];
         _selfRefCount = 0;
     } else {
         CFRelease(appRef);
@@ -314,9 +315,15 @@
 }
 
 #pragma mark - Instance methods
--(id)newWatcher:(int)callbackRef withUserdata:(int)userDataRef {
-    // FIXME: Implement this
-    HSuielementWatcher *watcher = [[HSuielementWatcher alloc] initWithElement:self callbackRef:(int)callbackRef userdataRef:(int)userDataRef];
+-(id)newWatcherAtIndex:(int)callbackRefIndex withUserdataAtIndex:(int)userDataRefIndex withLuaState:(lua_State *)L {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    
+    int callbackRef = [skin luaRef:LUA_REGISTRYINDEX atIndex:callbackRefIndex];
+    int userDataRef = [skin luaRef:LUA_REGISTRYINDEX atIndex:userDataRefIndex];
+
+    HSuielementWatcher *watcher = [[HSuielementWatcher alloc] initWithElement:self
+                                                                  callbackRef:(int)callbackRef
+                                                                  userdataRef:(int)userDataRef];
     return watcher;
 }
 
@@ -358,6 +365,8 @@
 static void watcher_observer_callback(AXObserverRef observer __unused, AXUIElementRef element,
                                       CFStringRef notificationName, void* contextData) {
     LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+    _lua_stackguard_entry(skin.L);
+
     HSuielementWatcher *watcher = (__bridge HSuielementWatcher *)contextData;
 
     [skin pushLuaRef:watcher.refTable ref:watcher.handlerRef]; // Callback function
@@ -370,26 +379,34 @@ static void watcher_observer_callback(AXObserverRef observer __unused, AXUIEleme
         pid_t pid;
         AXUIElementGetPid(element, &pid);
         pushObj = [[HSapplication alloc] initWithPid:pid withState:skin.L];
+    } else {
+        // This isn't a window or an application, so we'll send it as an hs.uielement object
+        pushObj = elementObj;
     }
+
     [skin pushNSObject:pushObj]; // Parameter 1: element
     lua_pushstring(skin.L, CFStringGetCStringPtr(notificationName, kCFStringEncodingASCII)); // Parameter 2: event
-    [skin pushLuaRef:watcher.refTable ref:watcher.watcherRef];
-    [skin pushLuaRef:watcher.refTable ref:watcher.userDataRef];
+    [skin pushLuaRef:watcher.refTable ref:watcher.watcherRef]; // Parameter 3: watcher
+    [skin pushLuaRef:watcher.refTable ref:watcher.userDataRef]; // Parameter 4: userData
 
     if (![skin protectedCallAndTraceback:4 nresults:0]) {
         const char *errorMsg = lua_tostring(skin.L, -1);
         [skin logError:[NSString stringWithUTF8String:errorMsg]];
         lua_pop(skin.L, 1); // remove error message
     }
+    
+    _lua_stackguard_exit(skin.L);
     return;
 }
 
 @implementation HSuielementWatcher
 
 #pragma mark - Instance initialiser
+// NOTE THAT THE LUA REF ARGUMENTS MUST BE ON LUA_REGISTRYINDEX AND NOT SOME OTHER REFTABLE
 -(HSuielementWatcher *)initWithElement:(HSuielement *)element callbackRef:(int)callbackRef userdataRef:(int)userdataRef{
     self = [super init];
     if (self) {
+        _refTable = LUA_REGISTRYINDEX;
         _elementRef = element.elementRef;
         _selfRefCount = 0;
         _handlerRef = callbackRef;
@@ -440,7 +457,10 @@ static void watcher_observer_callback(AXObserverRef observer __unused, AXUIEleme
     if (!self.running) {
         return;
     }
-    CFRunLoopRemoveSource([[NSRunLoop currentRunLoop] getCFRunLoop], AXObserverGetRunLoopSource(self.observer), kCFRunLoopDefaultMode);
+    
+    CFRunLoopRemoveSource([[NSRunLoop currentRunLoop] getCFRunLoop],
+                          AXObserverGetRunLoopSource(self.observer),
+                          kCFRunLoopDefaultMode);
     CFRelease(self.observer);
     self.running = NO;
 }
@@ -559,6 +579,8 @@ cleanup:
         if (!err) {
             _winID = winID;
         }
+        
+        _uiElement = [[HSuielement alloc] initWithElementRef:_elementRef];
     }
     return self;
 }

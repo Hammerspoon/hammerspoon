@@ -1,12 +1,56 @@
 @import Foundation;
 @import LuaSkin;
 
+#pragma mark - HSuielement declarations
+
+@interface HSuielement : NSObject
+@property (nonatomic, readonly) AXUIElementRef elementRef;
+@property (nonatomic) int selfRefCount;
+@property (nonatomic, readonly, getter=isWindow) BOOL isWindow;
+@property (nonatomic, readonly, getter=getRole) NSString *role;
+@property (nonatomic, readonly, getter=getSelectedText) NSString *selectedText;
+
+// Class methods
++(HSuielement *)focusedElement;
+
+// Instance initializer/destructor
+-(HSuielement *)initWithElementRef:(AXUIElementRef)elementRef;
+-(void)dealloc;
+
+// Instance methods
+-(id)newWatcherAtIndex:(int)callbackRefIndex withUserdataAtIndex:(int)userDataRefIndex withLuaState:(lua_State *)L;
+-(id)getElementProperty:(NSString *)property withDefaultValue:(id)defaultValue;
+-(BOOL)isWindow;
+-(BOOL)isWindow:(NSString *)role;
+-(NSString *)getRole;
+-(NSString *)getSelectedText;
+@end
+
+@interface HSuielementWatcher : NSObject
+@property (nonatomic) int selfRefCount;
+@property (nonatomic) AXUIElementRef elementRef;
+@property (nonatomic) int refTable;
+@property (nonatomic) int handlerRef;
+@property (nonatomic) int userDataRef;
+@property (nonatomic) int watcherRef;
+@property (nonatomic) AXObserverRef observer;
+@property (nonatomic) pid_t pid;
+@property (nonatomic) BOOL running;
+
+-(HSuielementWatcher *)initWithElement:(HSuielement *)element callbackRef:(int)callbackRef userdataRef:(int)userdataRef;
+-(void)dealloc;
+
+-(void)start:(NSArray <NSString *>*)events withState:(lua_State *)L;
+-(void)stop;
+@end
+
 #pragma mark - HSapplication declaration
 
 @interface HSapplication : NSObject
 @property (nonatomic, readonly) pid_t pid;
 @property (nonatomic, readonly) AXUIElementRef elementRef;
 @property (nonatomic, readonly) NSRunningApplication *runningApp;
+@property (nonatomic, readonly) HSuielement *uiElement;
 @property (nonatomic) int selfRefCount;
 @property (nonatomic, getter=isHidden, setter=setHidden:) BOOL hidden;
 
@@ -60,55 +104,13 @@
 
 @end
 
-#pragma mark - HSuielement declarations
-
-@interface HSuielement : NSObject
-@property (nonatomic, readonly) AXUIElementRef elementRef;
-@property (nonatomic) int selfRefCount;
-@property (nonatomic, readonly, getter=isWindow) BOOL isWindow;
-@property (nonatomic, readonly, getter=getRole) NSString *role;
-@property (nonatomic, readonly, getter=getSelectedText) NSString *selectedText;
-
-// Class methods
-+(HSuielement *)focusedElement;
-
-// Instance initializer/destructor
--(HSuielement *)initWithElementRef:(AXUIElementRef)elementRef;
--(void)dealloc;
-
-// Instance methods
--(id)newWatcher:(int)callbackRef withUserdata:(int)userDataRef;
--(id)getElementProperty:(NSString *)property withDefaultValue:(id)defaultValue;
--(BOOL)isWindow;
--(BOOL)isWindow:(NSString *)role;
--(NSString *)getRole;
--(NSString *)getSelectedText;
-@end
-
-@interface HSuielementWatcher : NSObject
-@property (nonatomic) int selfRefCount;
-@property (nonatomic) AXUIElementRef elementRef;
-@property (nonatomic) int refTable;
-@property (nonatomic) int handlerRef;
-@property (nonatomic) int userDataRef;
-@property (nonatomic) int watcherRef;
-@property (nonatomic) AXObserverRef observer;
-@property (nonatomic) pid_t pid;
-@property (nonatomic) BOOL running;
-
--(HSuielementWatcher *)initWithElement:(HSuielement *)element callbackRef:(int)callbackRef userdataRef:(int)userdataRef;
--(void)dealloc;
-
--(void)start:(NSArray <NSString *>*)events withState:(lua_State *)L;
--(void)stop;
-@end
-
 #pragma mark - HSwindow declaration
 
 @interface HSwindow : NSObject
 @property (nonatomic, readonly) pid_t pid;
 @property (nonatomic, readonly) AXUIElementRef elementRef;
 @property (nonatomic, readonly) CGWindowID winID;
+@property (nonatomic, readonly) HSuielement *uiElement;
 @property (nonatomic) int selfRefCount;
 
 @property (nonatomic, readonly, getter=title) NSString *title;

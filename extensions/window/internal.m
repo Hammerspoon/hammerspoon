@@ -624,6 +624,57 @@ static int window_snapshot(lua_State* L) {
     return 1;
 }
 
+#pragma mark - hs.uielement methods
+
+static int window_uielement_isApplication(lua_State *L) {
+    // This method is a clone of what happens in hs.uielement:isApplication(), since hs.window objects have to conform to hs.uielement methods
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    HSapplication *app = [skin toNSObjectAtIndex:1];
+    HSuielement *uiElement = app.uiElement;
+    lua_pushboolean(L, [uiElement.role isEqualToString:@"AXApplication"]);
+    
+    return 1;
+}
+
+static int window_uielement_isWindow(lua_State *L) {
+    // This method is a clone of what happens in hs.uielement:isWindow(), since hs.window objects have to conform to hs.uielement methods
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    HSapplication *app = [skin toNSObjectAtIndex:1];
+    HSuielement *uiElement = app.uiElement;
+    lua_pushboolean(L, uiElement.isWindow);
+    
+    return 1;
+}
+
+static int window_uielement_role(lua_State *L) {
+    // This method is a clone of what happens in hs.uielement:role(), since hs.window objects have to conform to hs.uielement methods
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    HSapplication *app = [skin toNSObjectAtIndex:1];
+    HSuielement *uiElement = app.uiElement;
+    [skin pushNSObject:uiElement.role];
+    
+    return 1;
+}
+
+static int window_uielement_selectedText(lua_State *L) {
+    // This method is a clone of what happens in hs.uielement:selectedText(), since hs.window objects have to conform to hs.uielement methods
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    HSapplication *app = [skin toNSObjectAtIndex:1];
+    HSuielement *uiElement = app.uiElement;
+    [skin pushNSObject:uiElement.selectedText];
+    
+    return 1;
+}
+
+static int window_uielement_newWatcher(lua_State *L) {
+    // FIXME: Implement this
+    return 0;
+}
+
 #pragma mark - Lua<->NSObject Conversion Functions
 // These must not throw a lua error to ensure LuaSkin can safely be used from Objective-C
 // delegates and blocks.
@@ -732,6 +783,13 @@ static const luaL_Reg userdata_metaLib[] = {
     {"_setFullScreen", window__setfullscreen},
     {"isFullScreen", window_isfullscreen},
     {"snapshot", window_snapshot},
+
+    // hs.uielement methods
+    {"isApplication", window_uielement_isApplication},
+    {"isWindow", window_uielement_isWindow},
+    {"role", window_uielement_role},
+    {"selectedText", window_uielement_selectedText},
+    {"newWatcher", window_uielement_newWatcher},
 
     {"__tostring", userdata_tostring},
     {"__eq", userdata_eq},

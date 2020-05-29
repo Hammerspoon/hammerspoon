@@ -15,6 +15,8 @@ static int refTable = LUA_NOREF;
 
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 
+/*
+ CMSJ: I don't remember why I added this in the refactor of hs.application/window/uielement, but it's not needed, so I'm leaving it commented for now (mid-2020), on the assumption it can be removed later.
 /// hs.uielement.watcher.new(element, callback[, userdata]) -> hs.uielement.watcher object
 /// Function
 /// Creates a new hs.uielement.watcher object for a given hs.uielement object
@@ -45,6 +47,7 @@ static int watcher_new(lua_State* L) {
     [skin pushNSObject:watcher];
     return 1;
 }
+*/
 
 static int watcher_start(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
@@ -120,8 +123,8 @@ static int userdata_gc(lua_State* L) {
         watcher.selfRefCount--;
         if (watcher.selfRefCount == 0) {
             [watcher stop];
-            watcher.handlerRef = [skin luaUnref:refTable ref:watcher.handlerRef];
-            watcher.userDataRef = [skin luaUnref:refTable ref:watcher.userDataRef];
+            watcher.handlerRef = [skin luaUnref:watcher.refTable ref:watcher.handlerRef];
+            watcher.userDataRef = [skin luaUnref:watcher.refTable ref:watcher.userDataRef];
             watcher = nil;
         }
     }
@@ -129,7 +132,7 @@ static int userdata_gc(lua_State* L) {
 }
 
 static const luaL_Reg moduleLib[] = {
-    {"newWatcher", watcher_new},
+    //{"newWatcher", watcher_new},
 
     {NULL, NULL}
 };
@@ -151,8 +154,18 @@ static const luaL_Reg userdata_metaLib[] = {
 
 int luaopen_hs_uielement_watcher(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:moduleLib metaFunctions:module_metaLib objectFunctions:userdata_metaLib];
-    [skin registerPushNSHelper:pushHSuielementWatcher forClass:"HSuielementWatcher"];
-    [skin registerLuaObjectHelper:toHSuielementWatcherFromLua forClass:"HSuielementWatcher" withUserdataMapping:USERDATA_TAG];
+
+    refTable = [skin registerLibraryWithObject:USERDATA_TAG
+                                     functions:moduleLib
+                                 metaFunctions:module_metaLib
+                               objectFunctions:userdata_metaLib];
+
+    [skin registerPushNSHelper:pushHSuielementWatcher
+                      forClass:"HSuielementWatcher"];
+
+    [skin registerLuaObjectHelper:toHSuielementWatcherFromLua
+                         forClass:"HSuielementWatcher"
+              withUserdataMapping:USERDATA_TAG];
+
     return 1;
 }

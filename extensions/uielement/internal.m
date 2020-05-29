@@ -36,6 +36,7 @@ static int uielement_focusedElement(lua_State* L) {
 /// Returns:
 ///  * A boolean, true if the UI element is a window, otherwise false
 static int uielement_iswindow(lua_State* L) {
+    // NOTE: If you find yourself modifying this method, you should check hs.application and hs.window, since they contain clones of it
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSuielement *element = [skin toNSObjectAtIndex:1];
@@ -53,6 +54,7 @@ static int uielement_iswindow(lua_State* L) {
 /// Returns:
 ///  * A string containing the role of the UI element
 static int uielement_role(lua_State* L) {
+    // NOTE: If you find yourself modifying this method, you should check hs.application and hs.window, since they contain clones of it
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSuielement *element = [skin toNSObjectAtIndex:1];
@@ -73,6 +75,7 @@ static int uielement_role(lua_State* L) {
 /// Notes:
 ///  * Many applications (e.g. Safari, Mail, Firefox) do not implement the necessary accessibility features for this to work in their web views
 static int uielement_selectedText(lua_State* L) {
+    // NOTE: If you find yourself modifying this method, you should check hs.application and hs.window, since they contain clones of it
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSuielement *element = [skin toNSObjectAtIndex:1];
