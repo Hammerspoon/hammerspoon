@@ -71,6 +71,31 @@ BOOL new_window(lua_State* L, AXUIElementRef win) {
     return isGood ;
 }
 
+static int pushAXTextMarkerRef(lua_State *L, AXTextMarkerRef marker) {
+    if (AXTextMarkerGetLength != NULL && AXTextMarkerGetBytePtr != NULL) {
+        lua_newtable(L) ;
+        lua_pushstring(L, "AXTextMarker") ;                                  lua_setfield(L, -2, "__AXTypeHelper") ;
+        CFIndex length = AXTextMarkerGetLength(marker) ;
+        lua_pushinteger(L, (lua_Integer)length) ;                            lua_setfield(L, -2, "length") ;
+        lua_pushlstring(L, AXTextMarkerGetBytePtr(marker), (size_t)length) ; lua_setfield(L, -2, "bytes") ;
+    } else {
+        lua_pushstring(L, "** AXTextMarkerGetLength or AXTextMarkerGetBytePtr unresolved") ;
+    }
+    return 1 ;
+}
+
+static int pushAXTextMarkerRangeRef(lua_State *L, AXTextMarkerRangeRef markerRange) {
+    if (AXTextMarkerRangeCopyStartMarker != NULL && AXTextMarkerRangeCopyEndMarker != NULL) {
+        lua_newtable(L) ;
+        lua_pushstring(L, "AXTextMarkerRange") ;                                lua_setfield(L, -2, "__AXTypeHelper") ;
+        pushAXTextMarkerRef(L, AXTextMarkerRangeCopyStartMarker(markerRange)) ; lua_setfield(L, -2, "startMarker") ;
+        pushAXTextMarkerRef(L, AXTextMarkerRangeCopyEndMarker(markerRange)) ;   lua_setfield(L, -2, "endMarker") ;
+    } else {
+        lua_pushstring(L, "** AXTextMarkerRangeCopyStartMarker or AXTextMarkerRangeCopyEndMarker unresolved") ;
+    }
+    return 1 ;
+}
+
 // Not sure if the alreadySeen trick is working here, but it hasn't crashed yet... of course I don't think I've found any loops that don't have a userdata object in-between that drops us back to Lua before deciding whether or not to delve deeper, either, so... should be safe in CFDictionary and CFArray, since they toll-free bridge; don't use for others -- fails for setting with AXUIElementRef as key, at least...
 
 // AXTextMarkerRef, and AXTextMarkerRangeRef mentioned as well, but private, so... no joy for now.
@@ -170,6 +195,10 @@ static int pushCFTypeHamster(lua_State *L, CFTypeRef theItem, NSMutableDictionar
         pushAXUIElement(L, theItem) ;
     } else if (theType == AXObserverGetTypeID()) {
         pushAXObserver(L, theItem) ;
+    } else if (AXTextMarkerGetTypeID != NULL      && theType == AXTextMarkerGetTypeID()) {
+        pushAXTextMarkerRef(L, theItem) ;
+    } else if (AXTextMarkerRangeGetTypeID != NULL && theType == AXTextMarkerRangeGetTypeID()) {
+        pushAXTextMarkerRangeRef(L, theItem) ;
 // Thought I'd found the missing framework, but apparently not
 //     } else if (theType == wkGetAXTextMarkerTypeID()) {
 //         lua_newtable(L) ;
@@ -210,7 +239,26 @@ static int pushCFTypeHamster(lua_State *L, CFTypeRef theItem, NSMutableDictionar
     return 1 ;
 }
 
-// AXTextMarkerRef, and AXTextMarkerRangeRef mentioned as well, but private, so... no joy for now.
+static AXTextMarkerRef createAXTextMarkerFromIndex(lua_State *L, int index) {
+    if (AXTextMarkerCreate != NULL) {
+        LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+        index = lua_absindex(L, index) ;
+        CFIndex length = 0 ;
+        if (lua_getfield(L, index, "length") == LUA_TNUMBER) {
+            length = lua_tointeger(L, -1) ;
+        }
+        NSData *bytesAsData = [NSData data] ;
+        if (lua_getfield(L, index, "bytes") == LUA_TSTRING) {
+            bytesAsData = [skin toNSObjectAtIndex:-1 withOptions:LS_NSLuaStringAsDataOnly] ;
+        }
+        AXTextMarkerRef textMarker = AXTextMarkerCreate(kCFAllocatorDefault, bytesAsData.bytes, length) ;
+        lua_pop(L, 2) ;
+        return textMarker ;
+    } else {
+        return kCFNull ;
+    }
+}
+
 static CFTypeRef lua_toCFTypeHamster(lua_State *L, int idx, NSMutableDictionary *seen) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     int index = lua_absindex(L, idx) ;
@@ -265,7 +313,34 @@ static CFTypeRef lua_toCFTypeHamster(lua_State *L, int idx, NSMutableDictionary 
         // specified on the lua side
             BOOL hasURL    = (lua_getfield(L, index, "_URL")     != LUA_TNIL) ; lua_pop(L, 1) ;
 
-            if (hasX && hasY && hasH && hasW) { // CGRect
+        // AXTextMarker and AXTextMarkerRange -- not sure what they're good for yet, but we can finally break them out
+            BOOL hasAXTextMarker = NO ;
+            BOOL hasAXTextMarkerRange = NO ;
+            if (lua_getfield(L, index, "__AXTypeHelper") != LUA_TNIL) {
+                NSString *type       = [skin toNSObjectAtIndex:-1] ;
+                hasAXTextMarker      = [type isEqualToString:@"AXTextMarker"] ;
+                hasAXTextMarkerRange = [type isEqualToString:@"AXTextMarkerRange"] ;
+            }
+            lua_pop(L, 1) ;
+
+            if (AXTextMarkerCreate != NULL && hasAXTextMarker) {
+                value = createAXTextMarkerFromIndex(L, index) ; // retain not required because of Create rule
+            } else if (AXTextMarkerRangeCreate != NULL && hasAXTextMarkerRange) {
+                AXTextMarkerRef startMarker = AXTextMarkerCreate(kCFAllocatorDefault, NULL, 0) ;
+                if (lua_getfield(L, index, "startMarker") == LUA_TTABLE) {
+                    CFRelease(startMarker) ;
+                    startMarker = createAXTextMarkerFromIndex(L, -1) ;
+                }
+                AXTextMarkerRef endMarker = AXTextMarkerCreate(kCFAllocatorDefault, NULL, 0) ;
+                if (lua_getfield(L, index, "endMarker") == LUA_TTABLE) {
+                    CFRelease(endMarker) ;
+                    endMarker = createAXTextMarkerFromIndex(L, -1) ;
+                }
+                lua_pop(L, 2) ;
+                value = AXTextMarkerRangeCreate(kCFAllocatorDefault, startMarker, endMarker) ;
+                CFRelease(startMarker) ;
+                CFRelease(endMarker) ;
+            } else if (hasX && hasY && hasH && hasW) { // CGRect
                 lua_getfield(L, index, "x") ;
                 lua_getfield(L, index, "y") ;
                 lua_getfield(L, index, "w") ;

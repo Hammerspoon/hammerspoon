@@ -63,6 +63,30 @@ static int errorWrapper(lua_State *L, NSString *where, NSString *what, AXError e
 
 #pragma mark - Module Functions
 
+// static int axuielement_AXTextMarkerGetTypeID(lua_State *L) {
+//     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+//     [skin checkArgs:LS_TBREAK | LS_TVARARG] ;
+//
+//     if (AXTextMarkerGetTypeID != NULL) {
+//         lua_pushinteger(L, (lua_Integer)AXTextMarkerGetTypeID()) ;
+//     } else {
+//         lua_pushnil(L) ;
+//     }
+//     return 1 ;
+// }
+//
+// static int axuielement_AXTextMarkerRangeGetTypeID(lua_State *L) {
+//     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+//     [skin checkArgs:LS_TBREAK | LS_TVARARG] ;
+//
+//     if (AXTextMarkerRangeGetTypeID != NULL) {
+//         lua_pushinteger(L, (lua_Integer)AXTextMarkerRangeGetTypeID()) ;
+//     } else {
+//         lua_pushnil(L) ;
+//     }
+//     return 1 ;
+// }
+
 /// hs.axuielement.windowElement(windowObject) -> axuielementObject
 /// Constructor
 /// Returns the accessibility object for the window specified by the `hs.window` object.
@@ -1189,29 +1213,15 @@ static const luaL_Reg userdata_metaLib[] = {
     {NULL,                          NULL}
 } ;
 
-// static int axuielement_textMarkerTesting(lua_State *L) {
-//     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
-//     int returns = 2 ;
-// #pragma clang diagnostic push
-// #pragma clang diagnostic ignored "-Wformat-pedantic"
-//     [skin pushNSObject:[NSString stringWithFormat:@"wkGetAXTextMarkerTypeID == %p", wkGetAXTextMarkerTypeID]] ;
-//     [skin pushNSObject:[NSString stringWithFormat:@"wkGetAXTextMarkerRangeTypeID == %p", wkGetAXTextMarkerRangeTypeID]] ;
-// #pragma clang diagnostic pop
-//     if (&wkGetAXTextMarkerTypeID && &wkGetAXTextMarkerRangeTypeID) {
-//         lua_pushinteger(L, (lua_Integer)wkGetAXTextMarkerTypeID()) ;
-//         lua_pushinteger(L, (lua_Integer)wkGetAXTextMarkerRangeTypeID()) ;
-//         returns = 4 ;
-//     }
-//     return returns ;
-// }
-
 // Functions for returned object when module loads
 static luaL_Reg moduleLib[] = {
     {"systemWideElement",        axuielement_getSystemWideElement},
     {"windowElement",            axuielement_getWindowElement},
     {"applicationElement",       axuielement_getApplicationElement},
     {"applicationElementForPID", axuielement_getApplicationElementForPID},
-//     {"textMarker",               axuielement_textMarkerTesting},
+
+//     {"textMarkerID",             axuielement_AXTextMarkerGetTypeID},
+//     {"textMarkerRangeID",        axuielement_AXTextMarkerRangeGetTypeID},
 
     {NULL,                       NULL}
 } ;
