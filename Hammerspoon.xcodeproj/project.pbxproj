@@ -5233,7 +5233,7 @@
 			buildPhases = (
 				CDFA91F1078130B13A38C135 /* [CP] Check Pods Manifest.lock */,
 				4F6D9E3523074BC6006CC3E4 /* Update build number (only on Release builds that will be signed) */,
-				4F251E7F1A49D5BE00AB6103 /* Prepare defines header file */,
+				4F251E7F1A49D5BE00AB6103 /* Prepare secret header file */,
 				4FC09F7A19F99E48007542A6 /* Compile docs.json */,
 				9445CA0719083251002568BB /* Sources */,
 				9445CA0819083251002568BB /* Frameworks */,
@@ -5241,7 +5241,7 @@
 				4FBE2D161B7268DF00407788 /* Copy extensions to bundle */,
 				9445CA0919083251002568BB /* Resources */,
 				E849AEC367EA9502A25B9A7C /* [CP] Embed Pods Frameworks */,
-				4F1CF8D91A47F583001C8AE7 /* Upload binary to Crashlytics */,
+				4F1CF8D91A47F583001C8AE7 /* Upload binary to Sentry */,
 				4F7DB3571A5C513F00C22B03 /* Sign app/frameworks */,
 				4F6689E61C288FF800E48AF1 /* Assert no stray init.lua's in app bundle */,
 			);
@@ -5943,33 +5943,33 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		4F1CF8D91A47F583001C8AE7 /* Upload binary to Crashlytics */ = {
+		4F1CF8D91A47F583001C8AE7 /* Upload binary to Sentry */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Upload binary to Crashlytics";
+			name = "Upload binary to Sentry";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "set -eux\n\nTOKENPATH=\"${HAMMERSPOON_TOKEN_PATH:-..}\"\n\nif [ -f \"${TOKENPATH}/token-crashlytics\" -a \"${CONFIGURATION}\" == \"Release\" ] ; then\n  echo \"UPLOADING TO CRASHLYTICS\"\n  source \"${TOKENPATH}/token-crashlytics\"\n  ./Pods/Fabric/run $CRASHLYTICS_API_KEY $CRASHLYTICS_BUILD_SECRET -debug YES\n  if [ \"$?\" != \"0\" ]; then\n    echo \"CRASHLYTICS UPLOAD FAILED\"\n    exit 1\n  fi\nelse\n  echo \"SKIPPING CRASHLYTICS UPLOAD: No secret token found, or not a Release build\"\nfi\n";
+			shellScript = "set -eux\n\nTOKENPATH=\"${HAMMERSPOON_TOKEN_PATH:-..}\"\n\nif [ -f \"${TOKENPATH}/token-sentry\" -a \"${CONFIGURATION}\" == \"Release\" ] ; then\n  echo \"UPLOADING TO SENTRY\"\n  source \"${TOKENPATH}/token-sentry\"\n  export SENTRY_ORG=hammerspoon\n  export SENTRY_PROJECT=hammerspoon\n  export SENTRY_LOG_LEVEL=debug\n  export SENTRY_AUTH_TOKEN\n  ./scripts/sentry-cli upload-dif \"$DWARF_DSYM_FOLDER_PATH\" 2>&1 >/dev/null\n  if [ \"$?\" != \"0\" ]; then\n    echo \"SENTRY UPLOAD FAILED\"\n    exit 1\n  fi\nelse\n  echo \"SKIPPING SENTRY UPLOAD: No secret token found, or not a Release build\"\nfi\n";
 		};
-		4F251E7F1A49D5BE00AB6103 /* Prepare defines header file */ = {
+		4F251E7F1A49D5BE00AB6103 /* Prepare secret header file */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Prepare defines header file";
+			name = "Prepare secret header file";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -eux\n\n# Skip this on Profile builds\nif [ \"${CONFIGURATION}\" == \"Profile\" ]; then\n  > Hammerspoon/secrets.h\n  exit 0\nfi\n\nTOKENPATH=\"${HAMMERSPOON_TOKEN_PATH:-..}\"\n\nif [ -f \"${TOKENPATH}/token-crashlytics\" ] ; then\n  source \"${TOKENPATH}/token-crashlytics\"\n  > Hammerspoon/secrets.h\n  echo \"#define CRASHLYTICS_API_KEY \\\"${CRASHLYTICS_API_KEY}\\\"\" >>Hammerspoon/secrets.h\nelse\n  > Hammerspoon/secrets.h\nfi\n";
+			shellScript = "set -eux\n\n# Skip this on Profile builds\nif [ \"${CONFIGURATION}\" != \"Release\" ]; then\n  > Hammerspoon/secrets.h\n  exit 0\nfi\n\nTOKENPATH=\"${HAMMERSPOON_TOKEN_PATH:-..}\"\n\nif [ -f \"${TOKENPATH}/token-sentry\" ] ; then\n  source \"${TOKENPATH}/token-sentry\"\n  > Hammerspoon/secrets.h\n  echo \"#define SENTRY_API_URL \\\"${SENTRY_API_URL}\\\"\" >>Hammerspoon/secrets.h\nelse\n  > Hammerspoon/secrets.h\nfi\n";
 		};
 		4F6689E61C288FF800E48AF1 /* Assert no stray init.lua's in app bundle */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -6099,12 +6099,10 @@
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon-frameworks.sh",
 				"${PODS_ROOT}/Sparkle/Sparkle.framework",
-				"${PODS_ROOT}/Sparkle/Sparkle.framework.dSYM",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Sparkle.framework",
-				"${DWARF_DSYM_FOLDER_PATH}/Sparkle.framework.dSYM",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -8069,7 +8067,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/Pods/**",
-					"$(SRCROOT)/Pods/Crashlytics/OSX/Crashlytics.framework/Versions/A/Headers/",
+					"$(SRCROOT)/Pods/Sentry/Sources/Sentry/include/",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				ONLY_ACTIVE_ARCH = YES;
@@ -8078,7 +8076,7 @@
 					dynamic_lookup,
 				);
 				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/** $(SRCROOT)/Pods/Crashlytics/OSX/Crashlytics.framework/Versions/A/Headers/";
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/** $(SRCROOT)/Pods/Sentry/Sources/Sentry/include/";
 				WARNING_CFLAGS = (
 					"-Wno-cstring-format-directive",
 					"-Wno-padded",
@@ -21610,7 +21608,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/Pods/**",
-					"$(SRCROOT)/Pods/Crashlytics/OSX/Crashlytics.framework/Versions/A/Headers/",
+					"$(SRCROOT)/Pods/Sentry/Sources/Sentry/include/",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				ONLY_ACTIVE_ARCH = YES;
@@ -21619,7 +21617,7 @@
 					dynamic_lookup,
 				);
 				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/** $(SRCROOT)/Pods/Crashlytics/OSX/Crashlytics.framework/Versions/A/Headers/";
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/** $(SRCROOT)/Pods/Sentry/Sources/Sentry/include/";
 				WARNING_CFLAGS = (
 					"-Wno-cstring-format-directive",
 					"-Wno-padded",
@@ -21677,7 +21675,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/Pods/**",
-					"$(SRCROOT)/Pods/Crashlytics/OSX/Crashlytics.framework/Versions/A/Headers/",
+					"$(SRCROOT)/Pods/Sentry/Sources/Sentry/include/",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				OTHER_LDFLAGS = (
@@ -21685,7 +21683,7 @@
 					dynamic_lookup,
 				);
 				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/** $(SRCROOT)/Pods/Crashlytics/OSX/Crashlytics.framework/Versions/A/Headers/";
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/** $(SRCROOT)/Pods/Sentry/Sources/Sentry/include/";
 				WARNING_CFLAGS = (
 					"-Wno-cstring-format-directive",
 					"-Wno-padded",

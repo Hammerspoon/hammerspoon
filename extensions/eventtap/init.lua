@@ -272,7 +272,7 @@ end
 --- Parameters:
 ---  * modifiers - A table containing the keyboard modifiers to apply ("fn", "ctrl", "alt", "cmd", "shift", or their Unicode equivalents)
 ---  * character - A string containing a character to be emitted
----  * delay - An optional delay (in microseconds) between mouse down and up event. Defaults to 200000 (i.e. 200ms)
+---  * delay - An optional delay (in microseconds) between key down and up event. Defaults to 200000 (i.e. 200ms)
 ---
 --- Returns:
 ---  * None

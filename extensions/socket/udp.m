@@ -363,8 +363,8 @@ static int socketudp_send(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TANY|LS_TOPTIONAL, LS_TANY|LS_TOPTIONAL, LS_TANY|LS_TOPTIONAL, LS_TANY|LS_TOPTIONAL, LS_TBREAK];
     HSAsyncUdpSocket* asyncUdpSocket = getUserData(L, 1);
-    NSString *message = [skin toNSObjectAtIndex:2];
-    NSData *sendData;
+    
+    NSData *sendData = [skin toNSObjectAtIndex:2 withOptions:LS_NSLuaStringAsDataOnly];
 
     if (asyncUdpSocket.isConnected) {
         [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TNUMBER|LS_TINTEGER|LS_TFUNCTION|LS_TNIL|LS_TOPTIONAL, LS_TFUNCTION|LS_TOPTIONAL, LS_TBREAK];
@@ -377,8 +377,7 @@ static int socketudp_send(lua_State *L) {
             lua_pushvalue(L, 4);
             asyncUdpSocket.writeCallback = [skin luaRef:refTable];
         }
-
-        sendData = [message dataUsingEncoding:NSUTF8StringEncoding];
+        
         if (sendData) {
             [asyncUdpSocket sendData:sendData
                          withTimeout:asyncUdpSocket.timeout
@@ -397,8 +396,7 @@ static int socketudp_send(lua_State *L) {
             lua_pushvalue(L, 6);
             asyncUdpSocket.writeCallback = [skin luaRef:refTable];
         }
-
-        sendData = [message dataUsingEncoding:NSUTF8StringEncoding];
+        
         if (sendData) {
             [asyncUdpSocket sendData:sendData
                               toHost:theHost

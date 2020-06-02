@@ -214,12 +214,22 @@
 
     [self registerDefaultDefaults];
 
-    // Enable Crashlytics, if we have an API key available
-#ifdef CRASHLYTICS_API_KEY
+    // Enable Sentry, if we have an API URL available
+#ifdef SENTRY_API_URL
     if (HSUploadCrashData() && !isTesting) {
-        Crashlytics *crashlytics = [Crashlytics sharedInstance];
-        crashlytics.debugMode = YES;
-        [Crashlytics startWithAPIKey:[NSString stringWithUTF8String:CRASHLYTICS_API_KEY] delegate:self];
+        SentryEvent* (^sentryWillUploadCrashReport) (SentryEvent *event) = ^SentryEvent* (SentryEvent *event) {
+            if ([event.extra objectForKey:@"MjolnirModuleLoaded"]) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                   [self showMjolnirMigrationNotification];
+                });
+            }
+            return event;
+        };
+
+        [SentrySDK startWithOptions:@{
+            @"dsn": @SENTRY_API_URL,
+            @"beforeSend": sentryWillUploadCrashReport,
+        }];
     }
 #endif
 
@@ -341,20 +351,6 @@
     [alert setInformativeText:@"Your init.lua is loading Mjolnir modules and a previous launch crashed.\n\nHammerspoon ships with updated versions of many of the Mjolnir modules, with both new features and many bug fixes.\n\nPlease consult our API documentation and migrate your config."];
     [alert setAlertStyle:NSAlertStyleCritical];
     [alert runModal];
-}
-
-- (void)crashlyticsDidDetectReportForLastExecution:(CLSReport *)report completionHandler:(void (^)(BOOL submit))completionHandler {
-    BOOL showMjolnirMigrationDialog = NO;
-
-    if ([report.customKeys objectForKey:@"MjolnirModuleLoaded"]) {
-        showMjolnirMigrationDialog = YES;
-    }
-
-    completionHandler(YES);
-
-    if (showMjolnirMigrationDialog) {
-        [self showMjolnirMigrationNotification];
-    }
 }
 
 #pragma mark - Sparkle delegate methods

@@ -39,6 +39,7 @@
         self.currentCallbackChoices = nil;
         self.filteredChoices = nil;
 
+        self.hideCallbackRef = LUA_NOREF;
         self.showCallbackRef = LUA_NOREF;
         self.choicesCallbackRef = LUA_NOREF;
         self.queryChangedCallbackRef = LUA_NOREF;
@@ -272,7 +273,6 @@
     lua_getfield(L, -1, "globalCallback") ;
     lua_remove(L, -2) ;
 
-
     // Check the type of `globalCallback`
     if (lua_type(L, -1) == LUA_TNIL) {
         lua_remove(L, -1);
@@ -284,6 +284,12 @@
         [skin pushNSObject:self];
         lua_pushstring(L, "didClose");
         [skin protectedCallAndError:@"hs.chooser.globalCallback didClose" nargs:2 nresults:0];
+    }
+
+    // Call hs.chooser:hideCallback()
+    if (self.hideCallbackRef != LUA_NOREF && self.hideCallbackRef != LUA_REFNIL) {
+        [skin pushLuaRef:*(self.refTable) ref:self.hideCallbackRef];
+        [skin protectedCallAndError:@"hs.chooser:hideCallback" nargs:0 nresults:0];
     }
     _lua_stackguard_exit(L);
 }
