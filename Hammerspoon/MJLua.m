@@ -11,8 +11,13 @@
 #import "MJAutoLaunch.h"
 #import "MJDockIcon.h"
 #import "HSAppleScript.h"
-#import "Crashlytics.h"
-#import "HSLogger.h" // This should come after Crashlytics
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wvariadic-macros"
+#import "Sentry.h"
+#pragma clang diagnostic pop
+
+#import "HSLogger.h" // This should come after Sentry
 #import <AVFoundation/AVFoundation.h>
 #import <dlfcn.h>
 
@@ -121,6 +126,20 @@ static int core_openpreferences(lua_State* __unused L) {
     [[MJPreferencesWindowController singleton] showWindow: nil];
 
     return 0 ;
+}
+
+/// hs.closePreferences()
+/// Function
+/// Closes the Hammerspoon Preferences window
+///
+/// Paramters:
+///  * None
+///
+/// Returns:
+///  * None
+static int core_closepreferences(lua_State* __unused L) {
+    [[MJPreferencesWindowController singleton].window orderOut:nil];
+    return 0;
 }
 
 /// hs.openConsole([bringToFront])
@@ -663,6 +682,7 @@ static luaL_Reg corelib[] = {
     {"openAbout", core_openabout},
     {"menuIcon", core_menuicon},
     {"openPreferences", core_openpreferences},
+    {"closePreferences", core_closepreferences},
     {"open", core_open},
     {"autoLaunch", core_autolaunch},
     {"automaticallyCheckForUpdates", automaticallyChecksForUpdates},

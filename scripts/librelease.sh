@@ -20,8 +20,8 @@ function assert() {
   assert_github_release_token && GITHUB_TOKEN="$(cat "${GITHUB_TOKEN_FILE}")"
   assert_codesign_authority_token && CODESIGN_AUTHORITY_TOKEN="$(cat "${CODESIGN_AUTHORITY_TOKEN_FILE}")"
   assert_notarization_token && source "${NOTARIZATION_TOKEN_FILE}"
-  # shellcheck source=../token-crashlytics disable=SC1091
-  assert_fabric_token && source "${FABRIC_TOKEN_FILE}"
+  # shellcheck source=../token-sentry disable=SC1091
+  assert_sentry_token && source "${SENTRY_TOKEN_FILE}"
   assert_version_in_xcode
   assert_version_in_git_tags
   assert_version_not_in_github_releases
@@ -141,10 +141,10 @@ function assert_notarization_token() {
   fi
 }
 
-function assert_fabric_token() {
-  echo "Checking for Fabric API tokens..."
-  if [ ! -f "${FABRIC_TOKEN_FILE}" ]; then
-    fail "You do not have Fabric API tokens in ${FABRIC_TOKEN_FILE}"
+function assert_sentry_token() {
+  echo "Checking for Sentry API tokens..."
+  if [ ! -f "${SENTRY_TOKEN_FILE}" ]; then
+    fail "You do not have Sentry API tokens in ${SENTRY_TOKEN_FILE}"
   fi
 }
 
@@ -381,12 +381,16 @@ function archive_dSYMs() {
 }
 
 function upload_dSYMs() {
-  echo "Uploading .dSYM files to Fabric..."
+  echo "Uploading .dSYM files to Sentry..."
   pushd "${HAMMERSPOON_HOME}/../" >/dev/null
   if [ ! -d "archive/${VERSION}/dSYM" ]; then
-    echo "ERROR: dSYM archive does not exist yet, can't upload it to Fabric. You need to fix this"
+    echo "ERROR: dSYM archive does not exist yet, can't upload it to Sentry. You need to fix this"
   else
-    "${HAMMERSPOON_HOME}/Pods/Fabric/upload-symbols" -p mac -a "${CRASHLYTICS_API_KEY}" "archive/${VERSION}/dSYM/" >"archive/${VERSION}/dSYM-upload.log" 2>&1
+    export SENTRY_ORG=hammerspoon
+    export SENTRY_PROJECT=hammerspoon
+    export SENTRY_LOG_LEVEL=debug
+    export SENTRY_AUTH_TOKEN
+    "${HAMMERSPOON_HOME}/scripts/sentry-cli" upload-dif "archive/${VERSION}/dSYM/" >"archive/${VERSION}/dSYM-upload.log" 2>&1
   fi
   popd >/dev/null
 }
