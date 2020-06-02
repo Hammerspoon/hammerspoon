@@ -325,7 +325,7 @@ static const luaL_Reg pasteboardWatcher_metalib[] = {
 
 // Functions for returned object when module loads
 static const luaL_Reg pasteboardWatcher_lib[] = {
-    {"new",        pasteboardwatcher_new},
+    {"new",         pasteboardwatcher_new},
     {"interval",    pasteboardwatcher_interval},
     {NULL,          NULL}
 };
