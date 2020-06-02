@@ -1,14 +1,14 @@
-local websocket   = require "hs.websocket"
-local timer       = require "hs.timer"
+local websocket         = require "hs.websocket"
+local timer             = require "hs.timer"
 
-local doAfter     = timer.doAfter
+local doAfter           = timer.doAfter
 
 --
 -- Variables:
 --
-TEST_STRING       = "ABC123"
-ECHO_URL          = "wss://echo.websocket.org/"
-FAKE_URL          = "wss://fake.com/"
+local TEST_STRING       = "ABC123"
+local ECHO_URL          = "wss://echo.websocket.org/"
+local FAKE_URL          = "wss://fake.com/"
 
 --
 -- Test creating a new object:
@@ -23,9 +23,9 @@ end
 --
 -- Test sending an echo:
 --
-echoTestObj = nil
-event = ""
-message = ""
+local echoTestObj = nil
+local event = ""
+local message = ""
 
 function testEcho()
   echoTestObj = websocket.new(ECHO_URL, function(e, m)
@@ -49,7 +49,7 @@ end
 --
 -- Test the status of an open websocket:
 --
-openStatusTestObj = nil
+local openStatusTestObj = nil
 
 function testOpenStatus()
   openStatusTestObj = websocket.new(ECHO_URL, function() end)
@@ -67,7 +67,7 @@ end
 --
 -- Test the status of an closing websocket:
 --
-closingStatusTestObj = nil
+local closingStatusTestObj = nil
 
 function testClosingStatus()
   closingStatusTestObj = websocket.new(FAKE_URL, function() end)
@@ -86,7 +86,7 @@ end
 --
 -- Test the status of an closed websocket:
 --
-closedStatusTestObj = nil
+local closedStatusTestObj = nil
 
 function testClosedStatus()
   closedStatusTestObj = websocket.new(FAKE_URL, function() end)
@@ -105,8 +105,8 @@ end
 -- Test hs.http.websocket wrapper
 --
 
-wrapperTestObj = nil
-wrapperMessage = ""
+local wrapperTestObj = nil
+local wrapperMessage = ""
 
 function testLegacy()
   local http = require("hs.http")
