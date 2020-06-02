@@ -14,6 +14,8 @@
 		224BA32C23D1ECA900487FDB /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		22613FEC1F297E0D00E05E11 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		22613FF51F2A127E00E05E11 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 22613FE41F297B9B00E05E11 /* internal.m */; };
+		22738935248606F0003EBC68 /* HSwebsocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 22738934248606F0003EBC68 /* HSwebsocket.m */; };
+		2273893624860C0E003EBC68 /* test_websocket.lua in Resources */ = {isa = PBXBuildFile; fileRef = 22738933248606A9003EBC68 /* test_websocket.lua */; };
 		22E4D7FD1FA7488900C8CF5C /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		22E4D8031FA748AC00C8CF5C /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 22E4D7F71FA7485A00C8CF5C /* internal.m */; };
 		394FD223913AE68B92126D37 /* libPods-Hammerspoon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BC78AF8FE9DA0BD317A7528 /* libPods-Hammerspoon.a */; };
@@ -972,6 +974,8 @@
 		22613FE41F297B9B00E05E11 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/dialog/internal.m; sourceTree = "<group>"; };
 		22613FE51F297B9B00E05E11 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/dialog/init.lua; sourceTree = "<group>"; };
 		22613FF11F297E0D00E05E11 /* libdialog.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libdialog.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		22738933248606A9003EBC68 /* test_websocket.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_websocket.lua; path = extensions/websocket/test_websocket.lua; sourceTree = "<group>"; };
+		22738934248606F0003EBC68 /* HSwebsocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSwebsocket.m; sourceTree = "<group>"; };
 		22E4D7F71FA7485A00C8CF5C /* internal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/midi/internal.m; sourceTree = SOURCE_ROOT; };
 		22E4D7F81FA7485A00C8CF5C /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/midi/init.lua; sourceTree = SOURCE_ROOT; };
 		22E4D8021FA7488900C8CF5C /* libmidi.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libmidi.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -2169,6 +2173,7 @@
 			isa = PBXGroup;
 			children = (
 				224BA33423D1EE6F00487FDB /* init.lua */,
+				22738933248606A9003EBC68 /* test_websocket.lua */,
 				224BA32523D1E63A00487FDB /* internal.m */,
 			);
 			name = websocket;
@@ -3387,6 +3392,7 @@
 				4FDD8E881C8AE3ED00085D7A /* HSTestCase.m */,
 				4F6CE1331C6B93E10016668E /* HStimer.m */,
 				4C8F8CB21CC38B7E00F72CE5 /* HSuielement.m */,
+				22738934248606F0003EBC68 /* HSwebsocket.m */,
 				4F8779D0200CD51200E9DB42 /* HSwindow.m */,
 				4FDD8E7B1C85A05700085D7A /* lsunit.lua */,
 				D02F95261A00221C00E28BB2 /* Supporting Files */,
@@ -5969,6 +5975,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2273893624860C0E003EBC68 /* test_websocket.lua in Resources */,
 				4FCBAFD923B1152F007BA1D0 /* test_math.lua in Resources */,
 				4FDD8E4A1C6E4FA100085D7A /* test_screen.lua in Resources */,
 				6AE181341D39C9570097211C /* test_noises.lua in Resources */,
@@ -6750,6 +6757,7 @@
 				4CD64AA91C6F15F400EB6E39 /* HSsocket.m in Sources */,
 				4FEF4D4F1C5FA01100E3B939 /* HSaudiodevice.m in Sources */,
 				4CEDEE1C1C640D11005CBF97 /* HSosascript.m in Sources */,
+				22738935248606F0003EBC68 /* HSwebsocket.m in Sources */,
 				4F40EC401CCD0FE3006342D7 /* HSdistributednotifications.m in Sources */,
 				4FB74B3B2049A9A600B08851 /* HStask.m in Sources */,
 				4FDD8E891C8AE3ED00085D7A /* HSTestCase.m in Sources */,

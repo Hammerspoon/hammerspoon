@@ -101,10 +101,10 @@ static int refTable;
 
 - (void)webSocket:(SRWebSocket *)webSocket didReceivePong:(NSData *)pongPayload;
 {
-    if (self.fn == LUA_NOREF) {
-        return;
-    }
     dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.fn == LUA_NOREF) {
+            return;
+        }
         LuaSkin *skin = [LuaSkin sharedWithState:NULL];
         _lua_stackguard_entry(skin.L);
 
