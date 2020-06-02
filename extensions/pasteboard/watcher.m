@@ -5,11 +5,11 @@
 /// Watch for Pasteboard Changes.
 /// macOS doesn't offer any API for getting Pasteboard notifications, so this extension uses polling to check for Pasteboard changes every half a second.
 
-// How often we should poll the Pasteboard for changes:
-const int POLLING_INTERVAL = 0.5;
-
 static const char *USERDATA_TAG = "hs.pasteboard.watcher";
 static int refTable;
+
+// How often we should poll the Pasteboard for changes:
+static double pollingInterval = 0.25;
 
 // We only use a single NSTimer for all Pasteboard Watchers:
 static int sharedPasteboardTimerCount = 0;
@@ -84,7 +84,7 @@ NSTimer *sharedPasteboardTimer;
     
     // If the Shared Pasteboard Timer doesn't exist, create it:
     if (!sharedPasteboardTimer.isValid) {
-        sharedPasteboardTimer = [NSTimer timerWithTimeInterval:POLLING_INTERVAL target:self selector:@selector(sharedPasteboardTimerCallback:) userInfo:nil repeats:YES];
+        sharedPasteboardTimer = [NSTimer timerWithTimeInterval:pollingInterval target:self selector:@selector(sharedPasteboardTimerCallback:) userInfo:nil repeats:YES];
     }
     
     // Update Initial Change Count:
@@ -247,6 +247,29 @@ static int pasteboardwatcher_stop(lua_State* L) {
     return 1;
 }
 
+/// hs.pasteboard.watcher.interval([value]) -> number
+/// Function
+/// Gets or sets the polling interval (i.e. the frequency the pasteboard watcher checks the pasteboard).
+///
+/// Parameters:
+///  * value - an optional number to set the polling interval to.
+///
+/// Returns:
+///  * The polling interval as a number.
+///
+/// Notes:
+///  * This only affects new watchers, not existing/running ones.
+///  * The default value is 0.25.
+static int pasteboardwatcher_interval(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+    [skin checkArgs:LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK] ;
+    if (lua_gettop(L) == 1) {
+        pollingInterval = lua_tonumber(L, 1);
+    }
+    lua_pushnumber(L, pollingInterval);
+    return 1 ;
+}
+
 static int pasteboardwatcher_gc(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     HSPasteboardTimer *timer = get_objectFromUserdata(__bridge_transfer HSPasteboardTimer, L, 1, USERDATA_TAG);
@@ -267,6 +290,10 @@ static int pasteboardwatcher_gc(lua_State* L) {
 }
 
 static int meta_gc(lua_State* __unused L) {
+    if (sharedPasteboardTimer) {
+        [sharedPasteboardTimer invalidate] ;
+        sharedPasteboardTimer = nil ;
+    }
     return 0;
 }
 
@@ -299,6 +326,7 @@ static const luaL_Reg pasteboardWatcher_metalib[] = {
 // Functions for returned object when module loads
 static const luaL_Reg pasteboardWatcher_lib[] = {
     {"new",        pasteboardwatcher_new},
+    {"interval",    pasteboardwatcher_interval},
     {NULL,          NULL}
 };
 
