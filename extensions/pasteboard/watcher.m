@@ -3,7 +3,7 @@
 /// === hs.pasteboard.watcher ===
 ///
 /// Watch for Pasteboard Changes.
-/// macOS doesn't offer any API for getting Pasteboard notifications, so this extension uses polling to check for Pasteboard changes every half a second.
+/// macOS doesn't offer any API for getting Pasteboard notifications, so this extension uses polling to check for Pasteboard changes at a chosen interval (defaults to 0.25).
 
 static const char *USERDATA_TAG = "hs.pasteboard.watcher";
 static int refTable;
@@ -43,22 +43,22 @@ NSTimer *sharedPasteboardTimer;
     } else {
         pb = [NSPasteboard generalPasteboard];
     }
-        
+
     // Check if the Pasteboard Change Count has changed:
     NSInteger currentChangeCount = [pb changeCount];
     if(currentChangeCount == self.changeCount) {
         return;
     }
-    
+
     // Update change count:
     self.changeCount = currentChangeCount;
 
     // Trigger Lua Callback Function:
     LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     _lua_stackguard_entry(skin.L);
-    
+
     [skin pushLuaRef:refTable ref:self.fnRef];
-        
+
     NSString *result = [pb stringForType:NSPasteboardTypeString];
     if (result) {
         [skin pushNSObject:result];
@@ -72,7 +72,7 @@ NSTimer *sharedPasteboardTimer;
         [skin logError:[NSString stringWithFormat:@"hs.pasteboard.watcher callback error: %s", errorMsg]];
         lua_pop(skin.L, 1); // clear error message from stack
     }
-    
+
     _lua_stackguard_exit(skin.L);
 }
 
@@ -81,12 +81,12 @@ NSTimer *sharedPasteboardTimer;
     if (self.isRunning) {
         return;
     }
-    
+
     // If the Shared Pasteboard Timer doesn't exist, create it:
     if (!sharedPasteboardTimer.isValid) {
         sharedPasteboardTimer = [NSTimer timerWithTimeInterval:pollingInterval target:self selector:@selector(sharedPasteboardTimerCallback:) userInfo:nil repeats:YES];
     }
-    
+
     // Update Initial Change Count:
     NSPasteboard *pb;
     if (self.pbName) {
@@ -95,15 +95,15 @@ NSTimer *sharedPasteboardTimer;
         pb = [NSPasteboard generalPasteboard];
     }
     self.changeCount = [pb changeCount];
-        
+
     // Start the Shared Pasteboard NSTimer if it's not already running:
     if (!CFRunLoopContainsTimer(CFRunLoopGetCurrent(), (__bridge CFRunLoopTimerRef)sharedPasteboardTimer, kCFRunLoopDefaultMode)) {
         [[NSRunLoop currentRunLoop] addTimer:sharedPasteboardTimer forMode:NSRunLoopCommonModes];
     }
-    
+
     // Increment the General Pasteboard Timer Counter:
     sharedPasteboardTimerCount++;
-    
+
     // Add observer:
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(sharedPasteboardChanged:)
@@ -121,13 +121,13 @@ NSTimer *sharedPasteboardTimer;
 
     // Decrement the Shared Pasteboard Timer Counter:
     sharedPasteboardTimerCount--;
-            
+
     // If no more watchers are left, destroy the NSTimer:
     if (sharedPasteboardTimerCount == 0) {
         [sharedPasteboardTimer invalidate];
         sharedPasteboardTimer = nil;
     }
-    
+
     // Watcher is no longer running:
     self.isRunning = NO;
 }
@@ -166,13 +166,13 @@ static int pasteboardwatcher_new(lua_State* L) {
     [skin checkArgs:LS_TFUNCTION, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
 
     NSString *pbName = [skin toNSObjectAtIndex:2];
-    
+
     lua_pushvalue(L, 1);
     int callbackRef = [skin luaRef:refTable];
 
     // Create the timer object:
     HSPasteboardTimer *timer = createHSPasteboardTimer(callbackRef, pbName);
-    
+
     // Start the timer:
     [timer start];
 
@@ -200,7 +200,7 @@ static int pasteboardwatcher_start(lua_State* L) {
 
     HSPasteboardTimer* timer = get_objectFromUserdata(__bridge HSPasteboardTimer, L, 1, USERDATA_TAG);
     lua_settop(L, 1);
-    
+
     // Start the timer:
     [timer start];
 
@@ -281,7 +281,7 @@ static int pasteboardwatcher_gc(lua_State* L) {
         timer.pbName = nil;
         timer = nil;
     }
-    
+
     // Remove the Metatable so future use of the variable in Lua won't think its valid
     lua_pushnil(L);
     lua_setmetatable(L, 1);
