@@ -14,10 +14,9 @@ FAKE_URL          = "wss://fake.com/"
 -- Test creating a new object:
 --
 function testNew()
-  local websocketObject = websocket.new("wss://echo.websocket.org/", function() end)
+  local websocketObject = websocket.new(ECHO_URL, function() end)
   assertIsUserdataOfType("hs.websocket", websocketObject)
   assertTrue(#tostring(websocketObject) > 0)
-  websocketObject = nil
   return success()
 end
 
@@ -29,7 +28,7 @@ event = ""
 message = ""
 
 function testEcho()
-  echoTestObj = websocket.new("wss://echo.websocket.org/", function(e, m)
+  echoTestObj = websocket.new(ECHO_URL, function(e, m)
     event = e
     message = m
   end)
@@ -99,5 +98,32 @@ function testClosedStatusValues()
     return success()
   else
     print("Waiting for websocket to close...")
+  end
+end
+
+--
+-- Test hs.http.websocket wrapper
+--
+
+wrapperTestObj = nil
+wrapperMessage = ""
+
+function testLegacy()
+  local http = require("hs.http")
+  local legacy = http.websocket
+  wrapperTestObj = legacy(ECHO_URL, function(m)
+    wrapperMessage = m
+  end)
+  doAfter(5, function()
+    wrapperTestObj:send(TEST_STRING)
+  end)
+  return success()
+end
+
+function testLegacyValues()
+  if type(wrapperMessage) == "string" and wrapperMessage == TEST_STRING then
+    return success()
+  else
+    print("Waiting for echo...")
   end
 end

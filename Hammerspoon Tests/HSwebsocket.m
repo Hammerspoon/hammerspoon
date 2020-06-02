@@ -45,4 +45,7 @@
     RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(5)
 }
 
+- (void)testLegacy {
+    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(8)
+}
 @end
