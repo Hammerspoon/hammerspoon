@@ -47,6 +47,7 @@
 @property(nonatomic, retain) NSArray *filteredChoices;
 
 // Lua callback references
+@property(nonatomic) int hideCallbackRef;
 @property(nonatomic) int showCallbackRef;
 @property(nonatomic) int choicesCallbackRef;
 @property(nonatomic) int queryChangedCallbackRef;

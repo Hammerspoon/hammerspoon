@@ -1,0 +1,1 @@
+../../../Sentry/Sources/SentryCrash/Reporting/Filters/Tools/Container+SentryDeepSearch.h

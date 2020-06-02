@@ -20,7 +20,7 @@ extern NSString *const GCDAsyncUdpSocketErrorDomain;
 extern NSString *const GCDAsyncUdpSocketQueueName;
 extern NSString *const GCDAsyncUdpSocketThreadName;
 
-typedef NS_ENUM(NSInteger, GCDAsyncUdpSocketError) {
+typedef NS_ERROR_ENUM(GCDAsyncUdpSocketErrorDomain, GCDAsyncUdpSocketError) {
 	GCDAsyncUdpSocketNoError = 0,          // Never used
 	GCDAsyncUdpSocketBadConfigError,       // Invalid configuration
 	GCDAsyncUdpSocketBadParamError,        // Invalid parameter was passed
@@ -180,22 +180,22 @@ typedef BOOL (^GCDAsyncUdpSocketSendFilterBlock)(NSData *data, NSData *address, 
 **/
 - (instancetype)init;
 - (instancetype)initWithSocketQueue:(nullable dispatch_queue_t)sq;
-- (instancetype)initWithDelegate:(nullable id <GCDAsyncUdpSocketDelegate>)aDelegate delegateQueue:(nullable dispatch_queue_t)dq;
-- (instancetype)initWithDelegate:(nullable id <GCDAsyncUdpSocketDelegate>)aDelegate delegateQueue:(nullable dispatch_queue_t)dq socketQueue:(nullable dispatch_queue_t)sq;
+- (instancetype)initWithDelegate:(nullable id<GCDAsyncUdpSocketDelegate>)aDelegate delegateQueue:(nullable dispatch_queue_t)dq;
+- (instancetype)initWithDelegate:(nullable id<GCDAsyncUdpSocketDelegate>)aDelegate delegateQueue:(nullable dispatch_queue_t)dq socketQueue:(nullable dispatch_queue_t)sq NS_DESIGNATED_INITIALIZER;
 
 #pragma mark Configuration
 
-- (nullable id <GCDAsyncUdpSocketDelegate>)delegate;
-- (void)setDelegate:(nullable id <GCDAsyncUdpSocketDelegate>)delegate;
-- (void)synchronouslySetDelegate:(nullable id <GCDAsyncUdpSocketDelegate>)delegate;
+- (nullable id<GCDAsyncUdpSocketDelegate>)delegate;
+- (void)setDelegate:(nullable id<GCDAsyncUdpSocketDelegate>)delegate;
+- (void)synchronouslySetDelegate:(nullable id<GCDAsyncUdpSocketDelegate>)delegate;
 
 - (nullable dispatch_queue_t)delegateQueue;
 - (void)setDelegateQueue:(nullable dispatch_queue_t)delegateQueue;
 - (void)synchronouslySetDelegateQueue:(nullable dispatch_queue_t)delegateQueue;
 
-- (void)getDelegate:(id <GCDAsyncUdpSocketDelegate> __nullable * __nullable)delegatePtr delegateQueue:(dispatch_queue_t __nullable * __nullable)delegateQueuePtr;
-- (void)setDelegate:(nullable id <GCDAsyncUdpSocketDelegate>)delegate delegateQueue:(nullable dispatch_queue_t)delegateQueue;
-- (void)synchronouslySetDelegate:(nullable id <GCDAsyncUdpSocketDelegate>)delegate delegateQueue:(nullable dispatch_queue_t)delegateQueue;
+- (void)getDelegate:(id<GCDAsyncUdpSocketDelegate> __nullable * __nullable)delegatePtr delegateQueue:(dispatch_queue_t __nullable * __nullable)delegateQueuePtr;
+- (void)setDelegate:(nullable id<GCDAsyncUdpSocketDelegate>)delegate delegateQueue:(nullable dispatch_queue_t)delegateQueue;
+- (void)synchronouslySetDelegate:(nullable id<GCDAsyncUdpSocketDelegate>)delegate delegateQueue:(nullable dispatch_queue_t)delegateQueue;
 
 /**
  * By default, both IPv4 and IPv6 are enabled.
