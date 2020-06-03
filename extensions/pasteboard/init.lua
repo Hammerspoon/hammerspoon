@@ -5,6 +5,7 @@
 --- This module is based partially on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
 
 local module = require("hs.pasteboard.internal")
+module.watcher = require("hs.pasteboard.watcher")
 
 -- make sure the convertors for types we can recognize are loaded
 require("hs.image")
