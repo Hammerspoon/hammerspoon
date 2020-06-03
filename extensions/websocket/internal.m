@@ -175,7 +175,7 @@ static int websocket_send(lua_State *L) {
     [skin checkArgs:LS_TUSERDATA, WS_USERDATA_TAG, LS_TSTRING, LS_TBREAK];
     HSWebSocketDelegate* ws = getWsUserData(L, 1);
 
-    NSData *message = [skin toNSObjectAtIndex:2 withOptions: LS_NSLuaStringAsDataOnly];
+    id message = [skin toNSObjectAtIndex:2 withOptions:LS_NSPreserveLuaStringExactly];
     [ws.webSocket send:message];
 
     lua_pushvalue(L, 1);
