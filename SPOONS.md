@@ -120,13 +120,13 @@ If your Spoon provides some kind of background activity, e.g. timers, watchers, 
 #### Hotkeys
 
 If your Spoon provides actions that a user can map to hotkeys, you should expose a `:bindHotKeys()` method. The method should accept a single parameter, which is a table.
-The keys of the table should be strings that describe the action performed by the hotkeys, and the values of the table should be tables containing modifiers and keynames/keycodes.
+The keys of the table should be strings that describe the action performed by the hotkeys, and the values of the table should be tables containing modifiers and keynames/keycodes and, optionally, a message to be displayed via `hs.alert()` when the hotkey has been triggered.
 
 For example, if the user wants to map two of your actions, `show` and `hide`, they would pass in:
 
 ```lua
   {
-    show={{"cmd", "alt"}, "s"},
+    show={{"cmd", "alt"}, "s", message="Show"},
     hide={{"cmd", "alt"}, "h"}
   }
 ```

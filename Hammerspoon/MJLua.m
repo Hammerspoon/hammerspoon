@@ -19,6 +19,8 @@
 
 #import "HSLogger.h" // This should come after Sentry
 #import <AVFoundation/AVFoundation.h>
+#import <AppKit/AppKit.h>
+#import <libproc.h>
 #import <dlfcn.h>
 #import <AppKit/AppKit.h>
 #import <libproc.h>
