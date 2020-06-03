@@ -19,6 +19,8 @@
 
 #import "HSLogger.h" // This should come after Sentry
 #import <AVFoundation/AVFoundation.h>
+#import <AppKit/AppKit.h>
+#import <libproc.h>
 #import <dlfcn.h>
 
 @interface MJPreferencesWindowController ()
@@ -244,6 +246,64 @@ static int core_accessibilityState(lua_State* L) {
     BOOL shouldprompt = lua_toboolean(L, 1);
     BOOL enabled = MJAccessibilityIsEnabled();
     if (shouldprompt) { MJAccessibilityOpenPanel(); }
+    lua_pushboolean(L, enabled);
+    return 1;
+}
+
+// SOURCE: https://stackoverflow.com/a/58786245/6925202
+bool isScreenRecordingEnabled()
+{
+    if (@available(macos 10.15, *)) {
+        bool bRet = false;
+        CFArrayRef list = CGWindowListCopyWindowInfo(kCGWindowListOptionAll, kCGNullWindowID);
+        if (list) {
+            int n = (int)(CFArrayGetCount(list));
+            for (int i = 0; i < n; i++) {
+                NSDictionary* info = (NSDictionary*)(CFArrayGetValueAtIndex(list, (CFIndex)i));
+                NSString* name = info[(id)kCGWindowName];
+                NSNumber* pid = info[(id)kCGWindowOwnerPID];
+                if (pid != nil && name != nil) {
+                    int nPid = [pid intValue];
+                    char path[PROC_PIDPATHINFO_MAXSIZE+1];
+                    int lenPath = proc_pidpath(nPid, path, PROC_PIDPATHINFO_MAXSIZE);
+                    if (lenPath > 0) {
+                        path[lenPath] = 0;
+                        if (strcmp(path, "/System/Library/CoreServices/SystemUIServer.app/Contents/MacOS/SystemUIServer") == 0) {
+                            bRet = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            CFRelease(list);
+        }
+        return bRet;
+    } else {
+        return true;
+    }
+}
+
+/// hs.screenRecordingState(shouldPrompt) -> isEnabled
+/// Function
+///
+/// Parameters:
+///  * shouldPrompt - an optional boolean value indicating if the dialog box asking if the System Preferences application should be opened should be presented when Screen Recording is not currently enabled for Hammerspoon.  Defaults to false.
+///
+/// Returns:
+///  * True or False indicating whether or not Screen Recording is enabled for Hammerspoon.
+///
+/// Notes:
+///  * If you trigger the prompt and the user denies it, you cannot bring up the prompt again - the user must manually enable it in System Preferences.
+static int core_screenRecordingState(lua_State* L) {
+    BOOL shouldprompt = lua_toboolean(L, 1);
+    BOOL enabled = isScreenRecordingEnabled();
+    if (shouldprompt) {
+        CGDisplayStreamRef stream = CGDisplayStreamCreate(CGMainDisplayID(), 1, 1, kCVPixelFormatType_32BGRA, nil, ^(CGDisplayStreamFrameStatus status, uint64_t displayTime, IOSurfaceRef frameSurface, CGDisplayStreamUpdateRef updateRef) {
+        });
+        if (stream) {
+            CFRelease(stream);
+        }
+    }
     lua_pushboolean(L, enabled);
     return 1;
 }
@@ -693,6 +753,7 @@ static luaL_Reg corelib[] = {
     {"reload", core_reload},
     {"focus", core_focus},
     {"accessibilityState", core_accessibilityState},
+    {"screenRecordingState", core_screenRecordingState},
     {"microphoneState", core_microphoneState},
     {"cameraState", core_cameraState},
     {"getObjectMetatable", core_getObjectMetatable},
