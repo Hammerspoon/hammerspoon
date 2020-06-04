@@ -311,7 +311,6 @@
 
 #pragma mark - Instance destructor
 -(void)dealloc {
-    CFRelease(self.elementRef);
 }
 
 #pragma mark - Instance methods
