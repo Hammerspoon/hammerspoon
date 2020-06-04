@@ -23,6 +23,8 @@ end
 
 function testOrderedWindows()
   hs.openConsole() -- Make sure we have at least one window
+  hs.openPreferences()
+
   local orderedWindows = hs.window.orderedWindows()
   assertIsEqual("table", type(orderedWindows))
   assertGreaterThan(1, #orderedWindows)
@@ -32,7 +34,7 @@ end
 function testFocusedWindow()
   hs.openConsole()
   local win = hs.window.focusedWindow()
-  assertIsUserdataOfType("hs.window", win) -- This will fail right now, because hs.window doesn't have a __type metatable entry
+  assertIsUserdataOfType("hs.window", win)
   return success()
 end
 
@@ -82,13 +84,16 @@ end
 function testSize()
   hs.openConsole()
   local win = hs.window.focusedWindow()
+  win:setSize(hs.geometry.size(500, 600))
   local sizeOrig = win:size()
   assertIsTable(sizeOrig)
-  local sizeNew = hs.geometry.size(sizeOrig.w + 1, sizeOrig.h + 1)
+  assertIsEqual(500, sizeOrig.w)
+  assertIsEqual(600, sizeOrig.h)
+  local sizeNew = hs.geometry.size(sizeOrig.w + 5, sizeOrig.h + 5)
   win:setSize(sizeNew)
   sizeNew = win:size()
-  assertIsEqual(sizeNew.w, sizeOrig.w + 1)
-  assertIsEqual(sizeNew.h, sizeOrig.h + 1)
+  assertIsEqual(sizeNew.w, sizeOrig.w + 5)
+  assertIsEqual(sizeNew.h, sizeOrig.h + 5)
   return success()
 end
 
