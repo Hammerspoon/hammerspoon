@@ -4,6 +4,9 @@ hs.timer = require("hs.timer")
 hs.eventtap = require("hs.eventtap")
 hs.application = require("hs.application")
 
+elem = nil
+elemEvent = nil
+
 function getPrefs()
   hs.openPreferences()
   return hs.uielement.focusedElement()
@@ -13,7 +16,6 @@ function getConsole()
   hs.openConsole()
   return hs.uielement.focusedElement()
 end
-
 
 function testHammerspoonElements()
   local consoleElem = getConsole()
@@ -64,11 +66,14 @@ function testSelectedText()
 end
 
 function testWatcherValues()
+  assertIsNotNil(elem)
+  elem:move({1,1})
+
   if (type(elemEvent) == "string" and elemEvent == "AXWindowMoved") then
     app:kill()
     return success()
   else
-    return "Waiting for success..."
+    return "Waiting for success... (" .. type(elemEvent) .. ")"
   end
 end
 
@@ -76,21 +81,18 @@ function testWatcher()
   app = hs.application.open("com.apple.systempreferences", 5, true)
   assertIsUserdataOfType("hs.application", app)
 
-  hs.timer.doAfter(1, function()
-      hs.window.find("System Preferences"):focus()
-      local elem = hs.window.focusedWindow()
-      assertIsNotNil(elem)
+  hs.window.find("System Preferences"):focus()
+  elem = hs.window.focusedWindow()
+  assertIsNotNil(elem)
 
-      watcher = elem:newWatcher(function(element, event, thisWatcher, userdata)
-          elemEvent = event
-          assertIsEqual(watcher, thisWatcher:stop())
-        end)
-
-      assertIsEqual(watcher, watcher:start({hs.uielement.watcher.windowMoved}))
-      assertIsEqual(elem, watcher:element())
-
-      hs.timer.doAfter(1, function() elem:move({1,1}) end)
+  watcher = elem:newWatcher(function(element, event, thisWatcher, userdata)
+      hs.alert.show("watcher-callback")
+      elemEvent = event
+      assertIsEqual(watcher, thisWatcher:stop())
     end)
+
+  assertIsEqual(watcher, watcher:start({hs.uielement.watcher.windowMoved}))
+  assertIsEqual(elem, watcher:element())
 
   return success()
 end
