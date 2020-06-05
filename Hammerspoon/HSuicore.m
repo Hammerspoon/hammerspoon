@@ -165,7 +165,6 @@
         allWindows = [[NSMutableArray alloc] initWithCapacity:windowCount];
         for (NSInteger i = 0; i < windowCount; i++) {
             AXUIElementRef win = CFArrayGetValueAtIndex(windows, i);
-            CFRetain(win);
             HSwindow *window = [[HSwindow alloc] initWithAXUIElementRef:win];
             [allWindows addObject:window];
         }
@@ -179,6 +178,7 @@
     CFTypeRef window;
     if (AXUIElementCopyAttributeValue(self.elementRef, kAXMainWindowAttribute, &window) == kAXErrorSuccess) {
         mainWindow = [[HSwindow alloc] initWithAXUIElementRef:window];
+        CFRelease(window);
     }
     return mainWindow;
 }
@@ -188,6 +188,7 @@
     CFTypeRef window;
     if (AXUIElementCopyAttributeValue(self.elementRef, kAXFocusedWindowAttribute, &window) == kAXErrorSuccess) {
         focusedWindow = [[HSwindow alloc] initWithAXUIElementRef:window];
+        CFRelease(window);
     }
     return focusedWindow;
 }
@@ -230,17 +231,20 @@
 }
 
 -(BOOL)isFrontmost {
-    CFBooleanRef _isFrontmost;
+    CFTypeRef _isFrontmost;
     NSNumber* isFrontmost = @NO;
-    AXError result;
-    result = AXUIElementCopyAttributeValue(self.elementRef, (CFStringRef)NSAccessibilityFrontmostAttribute, (CFTypeRef *)&_isFrontmost);
-    if (result == kAXErrorSuccess) {
-        isFrontmost = (__bridge_transfer NSNumber*)_isFrontmost;
+
+    if (kAXErrorSuccess == AXUIElementCopyAttributeValue(self.elementRef,
+                                                         (__bridge CFStringRef)NSAccessibilityFrontmostAttribute,
+                                                         &_isFrontmost)) {
+        isFrontmost = (__bridge_transfer NSNumber *)_isFrontmost;
     } else {
-        NSLog(@"Unable to fetch element attribute NSAccessibilityFrontmostAttribute for: %@", [self.runningApp localizedName]);
+        [LuaSkin logError:[NSString stringWithFormat:@"Unable to fetch element attribute NSAccessibilityFrontmostAttribute for: %@", [self.runningApp localizedName]]];
     }
-    NSLog(@"FRONTMOST: %@:%@", [self title], isFrontmost);
-    return [isFrontmost boolValue];
+
+    [LuaSkin logBreadcrumb:[NSString stringWithFormat:@"FRONTMOST: %@:%@:%@", self.title, isFrontmost, AXIsProcessTrusted() ? @"YES" : @"NO"]];
+
+    return isFrontmost.boolValue;
 }
 
 -(NSString *)title {
@@ -555,6 +559,7 @@ cleanup:
 
         if (result == kAXErrorSuccess) {
             window = [[HSwindow alloc] initWithAXUIElementRef:win];
+            CFRelease(win);
         }
     }
     return window;
@@ -565,6 +570,7 @@ cleanup:
 -(HSwindow *)initWithAXUIElementRef:(AXUIElementRef)winRef {
     self = [super init];
     if (self) {
+        CFRetain(winRef);
         _elementRef = winRef;
         _selfRefCount = 0;
 
@@ -586,7 +592,7 @@ cleanup:
 
 #pragma mark - Destructor
 -(void)dealloc {
-    CFRelease(self.elementRef);
+    CFRelease(_elementRef);
 }
 
 #pragma mark - Instance methods
