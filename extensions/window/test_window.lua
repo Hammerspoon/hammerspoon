@@ -26,11 +26,13 @@ function testOrderedWindows()
   hs.openPreferences()
 
   hs.application.launchOrFocus("Activity Monitor.app")
+  hs.application.launchOrFocus("System Information.app")
   local orderedWindows = hs.window.orderedWindows()
   assertIsEqual("table", type(orderedWindows))
   --assertIsEqual(hs.inspect(orderedWindows) .. " :: " .. hs.inspect(hs.window.visibleWindows()) .. " :: " .. hs.inspect(hs.window._orderedwinids()), "lol")
   hs.timer.usleep(500000)
   hs.application.find("Activity Monitor"):kill()
+  hs.application.find("System Information"):kill()
   assertGreaterThan(1, #orderedWindows)
   return success()
 end
