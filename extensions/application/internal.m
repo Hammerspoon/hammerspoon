@@ -1163,7 +1163,7 @@ static int userdata_eq(lua_State *L) {
         LuaSkin *skin = [LuaSkin sharedWithState:L];
         HSapplication *app1 = [skin toNSObjectAtIndex:1];
         HSapplication *app2 = [skin toNSObjectAtIndex:2];
-        isEqual = CFEqual(app1.elementRef, app2.elementRef);
+        isEqual = [app1.runningApp isEqual:app2.runningApp];
     }
     lua_pushboolean(L, isEqual);
     return 1;
