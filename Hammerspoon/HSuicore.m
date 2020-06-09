@@ -235,7 +235,7 @@
     NSNumber* isFrontmost = @NO;
 
     if (kAXErrorSuccess == AXUIElementCopyAttributeValue(self.elementRef,
-                                                         (__bridge CFStringRef)NSAccessibilityFrontmostAttribute,
+                                                         (CFStringRef)NSAccessibilityFrontmostAttribute,
                                                          &_isFrontmost)) {
         isFrontmost = (__bridge_transfer NSNumber *)_isFrontmost;
     } else {

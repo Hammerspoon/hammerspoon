@@ -100,6 +100,7 @@ end
 function testFrontmostApplication()
   hs.openConsole()
   local app = hs.application.frontmostApplication()
+  app:activate()
   assertIsNotNil(app)
   assertTrue(app:isFrontmost())
   assertTrue(app:setFrontmost())
