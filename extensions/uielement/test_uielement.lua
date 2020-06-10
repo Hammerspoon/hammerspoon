@@ -6,6 +6,7 @@ hs.application = require("hs.application")
 
 elem = nil
 elemEvent = nil
+watcher = nil
 
 function getPrefs()
   hs.openPreferences()
@@ -73,7 +74,7 @@ function testWatcherValues()
     app:kill()
     return success()
   else
-    return "Waiting for success... (" .. type(elemEvent) .. ")"
+    return "Waiting for success... (" .. type(elem) .. ":" .. type(watcher) .. ":" .. type(elemEvent) .. ")"
   end
 end
 
