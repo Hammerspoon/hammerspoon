@@ -71,6 +71,11 @@
     }];
 }
 
+- (void)twoPartTestName:(SEL)selector withTimeout:(NSTimeInterval)timeout {
+    NSString *funcName = NSStringFromSelector(selector);
+    [self luaTestWithCheckAndTimeOut:timeout setupCode:[funcName stringByAppendingString:@"()"] checkCode:[funcName stringByAppendingString:@"Values()"]];
+}
+
 - (BOOL)luaTestFromSelector:(SEL)selector {
     NSString *funcName = NSStringFromSelector(selector);
     NSLog(@"Calling Lua function from selector: %@()", funcName);
