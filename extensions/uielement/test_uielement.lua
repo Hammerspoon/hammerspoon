@@ -98,3 +98,31 @@ function testWindowWatcher()
 
   return success()
 end
+
+function testApplicationWatcherValues()
+  assertIsNotNil(elem)
+  elem:hide()
+
+  if (type(elemEvent) == "string" and elemEvent == hs.uielement.watcher.applicationHidden) then
+    elem:kill()
+    return success()
+  else
+    return "Waiting for success..."
+  end
+end
+
+function testApplicationWatcher()
+  elem = hs.application.open("com.apple.systempreferences", 5, true)
+  assertIsUserdataOfType("hs.application", elem)
+
+  watcher = elem:newWatcher(function(element, event, thisWatcher, userdata)
+        elemEvent = event
+        assertIsEqual(watcher, thisWatcher:stop())
+  end)
+
+  assertIsNotNil(watcher)
+  assertIsEqual(watcher, watcher:start({hs.uielement.watcher.applicationHidden}))
+  assertIsEqual(elem, watcher:element())
+
+  return success()
+end
