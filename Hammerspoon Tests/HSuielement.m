@@ -8,6 +8,8 @@
 
 #import "HSTestCase.h"
 
+#define RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(timeout) [self twoPartTestName:_cmd withTimeout:timeout];
+
 @interface HSuielementTests : HSTestCase
 
 @end
@@ -24,9 +26,14 @@
     [super tearDown];
 }
 
-- (void)testWatcher {
+- (void)twoPartTestName:(SEL)selector withTimeout:(NSTimeInterval)timeout {
+    NSString *funcName = NSStringFromSelector(selector);
+    [self luaTestWithCheckAndTimeOut:timeout setupCode:[funcName stringByAppendingString:@"()"] checkCode:[funcName stringByAppendingString:@"Values()"]];
+}
+
+- (void)testWindowWatcher {
     SKIP_IN_TRAVIS()
-    [self luaTestWithCheckAndTimeOut:5 setupCode:@"testWatcher()" checkCode:@"testWatcherValues()"];
+    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(5)
 }
 
 - (void)testHammerspoonElements {

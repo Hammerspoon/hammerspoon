@@ -7,6 +7,7 @@
 @property (nonatomic, readonly) AXUIElementRef elementRef;
 @property (nonatomic) int selfRefCount;
 @property (nonatomic, readonly, getter=isWindow) BOOL isWindow;
+@property (nonatomic, readonly, getter=isApplication) BOOL isApplication;
 @property (nonatomic, readonly, getter=getRole) NSString *role;
 @property (nonatomic, readonly, getter=getSelectedText) NSString *selectedText;
 
@@ -34,8 +35,9 @@
 @property (nonatomic) int userDataRef;
 @property (nonatomic) int watcherRef;
 @property (nonatomic) AXObserverRef observer;
-@property (nonatomic) pid_t pid;
 @property (nonatomic) BOOL running;
+@property (nonatomic) pid_t pid;
+@property (nonatomic) BOOL watchDestroyed;
 
 -(HSuielementWatcher *)initWithElement:(HSuielement *)element callbackRef:(int)callbackRef userdataRef:(int)userdataRef;
 -(void)dealloc;

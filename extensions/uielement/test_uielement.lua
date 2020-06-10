@@ -66,7 +66,7 @@ function testSelectedText()
   return success()
 end
 
-function testWatcherValues()
+function testWindowWatcherValues()
   assertIsNotNil(elem)
   elem:move({1,1})
 
@@ -74,11 +74,11 @@ function testWatcherValues()
     app:kill()
     return success()
   else
-    return "Waiting for success... (" .. type(elem) .. ":" .. type(watcher) .. ":" .. type(elemEvent) .. ")"
+    return "Waiting for success..."
   end
 end
 
-function testWatcher()
+function testWindowWatcher()
   app = hs.application.open("com.apple.systempreferences", 5, true)
   assertIsUserdataOfType("hs.application", app)
 
@@ -92,6 +92,7 @@ function testWatcher()
       assertIsEqual(watcher, thisWatcher:stop())
     end)
 
+  assertIsNotNil(watcher)
   assertIsEqual(watcher, watcher:start({hs.uielement.watcher.windowMoved}))
   assertIsEqual(elem, watcher:element())
 

@@ -15,55 +15,85 @@ static int refTable = LUA_NOREF;
 
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 
-/*
- CMSJ: I don't remember why I added this in the refactor of hs.application/window/uielement, but it's not needed, so I'm leaving it commented for now (mid-2020), on the assumption it can be removed later.
-/// hs.uielement.watcher.new(element, callback[, userdata]) -> hs.uielement.watcher object
-/// Function
-/// Creates a new hs.uielement.watcher object for a given hs.uielement object
-///
-/// Paramters:
-///  * element - An hs.uielement object
-///  * callback - A function that will be called when events happen on the hs.uielement object. The function should accept four arguments:
-///   * element - The element the event occurred on (which may not be the element being watched)
-///   * event - A string containing the name of the event
-///   * watcher - The hs.uielement.watcher object
-///   * userdata - Some data you want to send along to the callback. This can be of any type
-///
-/// Returns:
-///  * An hs.uielement.watcher object
-static int watcher_new(lua_State* L) {
-    LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin checkArgs:LS_TUSERDATA, "hs.uielement", LS_TFUNCTION, LS_TANY|LS_TOPTIONAL, LS_TBREAK];
-    HSuielement *element = [skin toNSObjectAtIndex:1];
-    int callbackRef = [skin luaRef:refTable atIndex:2];
-    int userdataRef = LUA_NOREF;
-    if (lua_type(L, 3) != LUA_TNONE) {
-        userdataRef = [skin luaRef:refTable atIndex:3];
-    }
-
-    // FIXME move reftable to an argument for newWatcher
-    HSuielementWatcher *watcher = [element newWatcher:callbackRef withUserdata:userdataRef];
-    watcher.refTable = refTable;
-    [skin pushNSObject:watcher];
-    return 1;
-}
-*/
-
+// This is wrapped, and documented, in init.lua
 static int watcher_start(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBREAK];
     HSuielementWatcher *watcher = [skin toNSObjectAtIndex:1];
+    watcher.watcherRef = [skin luaRef:LUA_REGISTRYINDEX atIndex:1];
     [watcher start:[skin toNSObjectAtIndex:2] withState:L];
     lua_pushvalue(L, 1);
     return 1;
 }
 
+// This is wrapped, and documented, in init.lua
 static int watcher_stop(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSuielementWatcher *watcher = [skin toNSObjectAtIndex:1];
     [watcher stop];
+    watcher.watcherRef = [skin luaUnref:LUA_REGISTRYINDEX ref:watcher.watcherRef];
     lua_pushvalue(L, 1);
+    return 1;
+}
+
+/// hs.uielement.watcher:pid() -> number
+/// Method
+/// Returns the PID of the element being watched
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The PID of the element being watched
+static int watcher_pid(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    HSuielementWatcher *watcher = [skin toNSObjectAtIndex:1];
+    lua_pushnumber(L, watcher.pid);
+    return 1;
+}
+
+/// hs.uielement.watcher:element() -> object
+/// Method
+/// Returns the element the watcher is watching.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The element the watcher is watching.
+static int watcher_element(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    HSuielementWatcher *watcher = [skin toNSObjectAtIndex:1];
+    HSuielement *element = [[HSuielement alloc] initWithElementRef:watcher.elementRef];
+
+    if (element.isWindow) {
+        HSwindow *window = [[HSwindow alloc] initWithAXUIElementRef:watcher.elementRef];
+        [skin pushNSObject:window];
+    } else if (element.isApplication) {
+        HSapplication *application = [[HSapplication alloc] initWithPid:watcher.pid withState:L];
+        [skin pushNSObject:application];
+    } else {
+        [skin pushNSObject:element];
+    }
+    return 1;
+}
+
+// This is internal API only and does not require documentation
+static int watcher_watchDestroyed(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
+    HSuielementWatcher *watcher = [skin toNSObjectAtIndex:1];
+
+    if (lua_type(L, LS_TBOOLEAN)) {
+        watcher.watchDestroyed = lua_toboolean(L, 2);
+        lua_pushvalue(L, 1);
+    } else {
+        lua_pushboolean(L, watcher.watchDestroyed);
+    }
+
     return 1;
 }
 
@@ -132,8 +162,6 @@ static int userdata_gc(lua_State* L) {
 }
 
 static const luaL_Reg moduleLib[] = {
-    //{"newWatcher", watcher_new},
-
     {NULL, NULL}
 };
 
@@ -144,6 +172,9 @@ static const luaL_Reg module_metaLib[] = {
 static const luaL_Reg userdata_metaLib[] = {
     {"_start", watcher_start},
     {"_stop", watcher_stop},
+    {"pid", watcher_pid},
+    {"element", watcher_element},
+    {"watchDestroyed", watcher_watchDestroyed},
 
     {"__tostring", userdata_tostring},
     {"__eq", userdata_eq},

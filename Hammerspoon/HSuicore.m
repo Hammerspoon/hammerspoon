@@ -322,7 +322,11 @@
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     
     int callbackRef = [skin luaRef:LUA_REGISTRYINDEX atIndex:callbackRefIndex];
-    int userDataRef = [skin luaRef:LUA_REGISTRYINDEX atIndex:userDataRefIndex];
+
+    int userDataRef = LUA_REFNIL;
+    if (lua_type(L, userDataRefIndex) != LUA_TNONE) {
+        userDataRef = [skin luaRef:LUA_REGISTRYINDEX atIndex:userDataRefIndex];
+    }
 
     HSuielementWatcher *watcher = [[HSuielementWatcher alloc] initWithElement:self
                                                                   callbackRef:(int)callbackRef
@@ -336,6 +340,10 @@
         return CFBridgingRelease(value);
     }
     return defaultValue;
+}
+
+-(BOOL)isApplication {
+    return [self.role isEqualToString:(__bridge NSString *)kAXApplicationRole];
 }
 
 -(BOOL)isWindow {
@@ -359,6 +367,7 @@
     }
     return selectedText;
 }
+
 @end
 
 #pragma mark - HSuielementWatcher implementation
@@ -390,7 +399,11 @@ static void watcher_observer_callback(AXObserverRef observer __unused, AXUIEleme
     [skin pushNSObject:pushObj]; // Parameter 1: element
     lua_pushstring(skin.L, CFStringGetCStringPtr(notificationName, kCFStringEncodingASCII)); // Parameter 2: event
     [skin pushLuaRef:watcher.refTable ref:watcher.watcherRef]; // Parameter 3: watcher
-    [skin pushLuaRef:watcher.refTable ref:watcher.userDataRef]; // Parameter 4: userData
+    if (watcher.userDataRef == LUA_NOREF || watcher.userDataRef == LUA_REFNIL) {
+        lua_pushnil(skin.L);
+    } else {
+        [skin pushLuaRef:watcher.refTable ref:watcher.userDataRef]; // Parameter 4: userData
+    }
 
     if (![skin protectedCallAndTraceback:4 nresults:0]) {
         const char *errorMsg = lua_tostring(skin.L, -1);
@@ -416,6 +429,7 @@ static void watcher_observer_callback(AXObserverRef observer __unused, AXUIEleme
         _userDataRef = userdataRef;
         _watcherRef = LUA_NOREF;
         _running = NO;
+        _watchDestroyed = NO;
         AXUIElementGetPid(_elementRef, &_pid);
     }
     return self;

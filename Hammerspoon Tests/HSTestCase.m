@@ -35,8 +35,16 @@
 
 - (void)luaTestWithCheckAndTimeOut:(NSTimeInterval)timeOut setupCode:(NSString *)setupCode checkCode:(NSString *)checkCode {
     XCTestExpectation *expectation = [self expectationWithDescription:setupCode];
+
     NSLog(@"Calling setup code: %@", setupCode);
-    [self runLua:setupCode];
+    NSString *result = [self runLua:setupCode];
+    NSLog(@"Test returned %@ for: %@", result, setupCode);
+    if (![result isEqualToString:@"Success"]) {
+        // Invert the expectation and then fulfill it, to force a failure
+        expectation.inverted = YES;
+        [expectation fulfill];
+        return;
+    }
 
     NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:0.5 repeats:YES block:^(NSTimer *timer) {
         NSLog(@"Calling check code: %@", checkCode);

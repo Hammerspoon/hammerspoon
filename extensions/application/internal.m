@@ -1115,7 +1115,7 @@ static int application_uielement_newWatcher(lua_State *L) {
 
     HSapplication *app = [skin toNSObjectAtIndex:1];
     HSuielement *uiElement = app.uiElement;
-    HSuielementWatcher *watcher = [uiElement newWatcherAtIndex:1 withUserdataAtIndex:2 withLuaState:L];
+    HSuielementWatcher *watcher = [uiElement newWatcherAtIndex:2 withUserdataAtIndex:3 withLuaState:L];
     [skin pushNSObject:watcher];
 
     return 1;

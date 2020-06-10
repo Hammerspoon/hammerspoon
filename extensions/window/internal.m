@@ -671,8 +671,15 @@ static int window_uielement_selectedText(lua_State *L) {
 }
 
 static int window_uielement_newWatcher(lua_State *L) {
-    // FIXME: Implement this
-    return 0;
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION, LS_TANY|LS_TOPTIONAL, LS_TBREAK];
+
+    HSwindow *win = [skin toNSObjectAtIndex:1];
+    HSuielement *uiElement = win.uiElement;
+    HSuielementWatcher *watcher = [uiElement newWatcherAtIndex:2 withUserdataAtIndex:3 withLuaState:L];
+    [skin pushNSObject:watcher];
+
+    return 1;
 }
 
 #pragma mark - Lua<->NSObject Conversion Functions
