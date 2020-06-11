@@ -4,6 +4,7 @@ hs.timer = require("hs.timer")
 hs.eventtap = require("hs.eventtap")
 hs.application = require("hs.application")
 
+app = nil
 elem = nil
 elemEvent = nil
 watcher = nil
@@ -125,4 +126,40 @@ function testApplicationWatcher()
   assertIsEqual(elem, watcher:element())
 
   return success()
+end
+
+function testUIelementWatcherValues()
+    assertIsNotNil(elem)
+    app:kill()
+
+    if (type(elemEvent) == "string" and elemEvent == hs.uielement.watcher.elementDestroyed) then
+        return success()
+    else
+        return "Waiting for success... " .. (elemEvent or "(nil)")
+    end
+end
+
+-- This doesn't work because the elementDestroyed event is not produced for UI widgets.
+function testUIelementWatcher()
+    assertTrue(hs.accessibilityState(false))
+    app = hs.application.open("System Information", 5, true)
+    assertIsUserdataOfType("hs.application", app)
+    hs.timer.usleep(500000)
+    assertTrue(hs.application.launchOrFocus("System Information"))
+
+    elem = hs.uielement.focusedElement()
+    assertIsNotNil(elem)
+    assertIsString(elem:role())
+
+    watcher = elem:newWatcher(function(element, event, thisWatcher, userdata)
+        hs.alert.show("watcher-callback")
+        elemEvent = event
+        assertIsEqual(watcher, thisWatcher:stop())
+    end)
+
+    assertIsNotNil(watcher)
+    assertIsEqual(watcher, watcher:start({hs.uielement.watcher.elementDestroyed}))
+    assertIsEqual(elem, watcher:element())
+
+    return success()
 end
