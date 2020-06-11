@@ -4,8 +4,6 @@
 
 #import "HSTestCase.h"
 
-#define RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(timeout) [self twoPartTestName:_cmd withTimeout:timeout];
-
 @interface HSwebsocket : HSTestCase
 
 @end
@@ -18,11 +16,6 @@
 
 - (void)tearDown {
     [super tearDown];
-}
-
-- (void)twoPartTestName:(SEL)selector withTimeout:(NSTimeInterval)timeout {
-    NSString *funcName = NSStringFromSelector(selector);
-    [self luaTestWithCheckAndTimeOut:timeout setupCode:[funcName stringByAppendingString:@"()"] checkCode:[funcName stringByAppendingString:@"Values()"]];
 }
 
 - (void)testNew {
