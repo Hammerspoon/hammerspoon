@@ -64,6 +64,7 @@ export HS_WATCHERS="application \
     audiodevice \
     battery \
     caffeinate \
+    pasteboard \
     screen \
     spaces \
     uielement \

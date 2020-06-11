@@ -98,7 +98,7 @@ local function handleEvent(callback, element, event, watcher, userData)
         end
 
         -- Pass along event if wanted.
-        if watcher._watchingDestroyed then
+        if watcher:watchDestroyed() then
             callback(element, event, watcher, userData)
         end
 
@@ -108,34 +108,6 @@ local function handleEvent(callback, element, event, watcher, userData)
         end
     else
         callback(element, event, watcher, userData)
-    end
-end
-
---- hs.uielement:newWatcher(handler[, userData]) -> hs.uielement.watcher or nil
---- Constructor
---- Creates a new watcher for the element represented by self (the object the method is being invoked for).
----
---- Parameters:
----  * a function to be called when a watched event occurs.  The argument will be passed the following arguments:
----    * element: The element the event occurred on. Note this is not always the element being watched.
----    * event: The name of the event that occurred.
----    * watcher: The watcher object being created.
----    * userData: The userData you included, if any.
----  * an optional userData object which will be included as the final argument to the callback function when it is called.
----
---- Returns:
----  * An `hs.uielement.watcher` object, or `nil` if an error occurred
-function objectMT.newWatcher(self, callback, ...)
-    if type(callback) ~= "function" then
-        hs.showError("hs.uielement:newWatcher() called with incorrect arguments. The first argument must be a function")
-        return
-    end
-    local obj = hs.uielement.watcher.new(self, function(...) handleEvent(callback, ...) end, ...)
-
-    if obj then
-        obj._pid = self:pid()
-        if self.id then obj._id = self:id() end
-        return obj
     end
 end
 
@@ -154,16 +126,16 @@ end
 ---  * Does nothing if the watcher has already been started. To start with different events, stop it first.
 function watcherMT.start(self, events)
     -- Track all watchers in appWatchers.
-    local pid = self._pid
+    local pid = self:pid()
     if not appWatchers[pid] then appWatchers[pid] = {} end
     table.insert(appWatchers[pid], self)
 
     -- For normal elements, listen for elementDestroyed events.
-    if not self._element:isApplication() then
+    if not self:element():isApplication() then
         if fnutils.contains(events, self.elementDestroyed) then
-            self._watchingDestroyed = true
+            self:watchDestroyed(true)
         else
-            self._watchingDestroyed = false
+            self:watchDestroyed(false)
             events = fnutils.copy(events)
             table.insert(events, self.elementDestroyed)
         end
@@ -187,7 +159,7 @@ end
 ---  * This is automatically called if the element is destroyed.
 function watcherMT.stop(self)
     -- Remove self from appWatchers.
-    local pid = self._pid
+    local pid = self:pid()
     if appWatchers[pid] then
         local idx = fnutils.indexOf(appWatchers[pid], self)
         if idx then
@@ -196,19 +168,6 @@ function watcherMT.stop(self)
     end
 
     return self:_stop()
-end
-
---- hs.uielement.watcher:element() -> object
---- Method
---- Returns the element the watcher is watching.
----
---- Parameters:
----  * None
----
---- Returns:
----  * The element the watcher is watching.
-function watcherMT.element(self)
-    return self._element
 end
 
 return uielement
