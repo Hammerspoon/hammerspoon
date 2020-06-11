@@ -36,6 +36,7 @@ static int uielement_focusedElement(lua_State* L) {
 /// Returns:
 ///  * A boolean, true if the UI element is a window, otherwise false
 static int uielement_iswindow(lua_State* L) {
+    // NOTE: If you find yourself modifying this method, you should check hs.application and hs.window, since they contain clones of it
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSuielement *element = [skin toNSObjectAtIndex:1];
@@ -53,6 +54,7 @@ static int uielement_iswindow(lua_State* L) {
 /// Returns:
 ///  * A string containing the role of the UI element
 static int uielement_role(lua_State* L) {
+    // NOTE: If you find yourself modifying this method, you should check hs.application and hs.window, since they contain clones of it
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSuielement *element = [skin toNSObjectAtIndex:1];
@@ -73,10 +75,36 @@ static int uielement_role(lua_State* L) {
 /// Notes:
 ///  * Many applications (e.g. Safari, Mail, Firefox) do not implement the necessary accessibility features for this to work in their web views
 static int uielement_selectedText(lua_State* L) {
+    // NOTE: If you find yourself modifying this method, you should check hs.application and hs.window, since they contain clones of it
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSuielement *element = [skin toNSObjectAtIndex:1];
     [skin pushNSObject:element.selectedText];
+    return 1;
+}
+
+/// hs.uielement:newWatcher(handler[, userData]) -> hs.uielement.watcher or nil
+/// Method
+/// Creates a new watcher
+///
+/// Parameters:
+///  * A function to be called when a watched event occurs.  The function will be passed the following arguments:
+///    * element: The element the event occurred on. Note this is not always the element being watched.
+///    * event: The name of the event that occurred.
+///    * watcher: The watcher object being created.
+///    * userData: The userData you included, if any.
+///  * an optional userData object which will be included as the final argument to the callback function when it is called.
+///
+/// Returns:
+///  * An `hs.uielement.watcher` object, or `nil` if an error occurred
+static int uielement_newWatcher(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION, LS_TANY|LS_TOPTIONAL, LS_TBREAK];
+
+    HSuielement *uiElement = [skin toNSObjectAtIndex:1];
+    HSuielementWatcher *watcher = [uiElement newWatcherAtIndex:2 withUserdataAtIndex:3 withLuaState:L];
+    [skin pushNSObject:watcher];
+
     return 1;
 }
 
@@ -152,6 +180,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {"role", uielement_role},
     {"isWindow", uielement_iswindow},
     {"selectedText", uielement_selectedText},
+    {"newWatcher", uielement_newWatcher},
     {"__eq", uielement_eq},
     {"__gc", uielement_gc},
 
