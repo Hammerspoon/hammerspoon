@@ -413,6 +413,35 @@ static int chooserRightClickCallback(lua_State *L) {
     return 1;
 }
 
+/// hs.chooser:invalidCallback([fn]) -> hs.chooser object
+/// Method
+/// Sets/clears a callback for invalid choices
+///
+/// Parameters:
+///  * fn - An optional function that will be called whenever the user select an choice set as invalid. If this parameter is omitted, the existing callback will be removed.
+///
+/// Returns:
+///  * The `hs.chooser` object
+///
+/// Notes:
+///   * The callback may accept one argument, it will be a table containing whatever information you supplied for the item the user chose.
+///   * To display a context menu, see `hs.menubar`, specifically the `:popupMenu()` method
+static int chooserInvalidCallback(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION|LS_TOPTIONAL, LS_TBREAK];
+
+    HSChooser *chooser = [skin toNSObjectAtIndex:1];
+
+    chooser.invalidCallbackRef = [skin luaUnref:refTable ref:chooser.invalidCallbackRef];
+
+    if (lua_type(L, 2) == LUA_TFUNCTION) {
+        chooser.invalidCallbackRef = [skin luaRef:refTable atIndex:2];
+    }
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
 /// hs.chooser:delete()
 /// Method
 /// Deletes a chooser
@@ -818,6 +847,7 @@ static int userdata_gc(lua_State* L) {
             chooser.queryChangedCallbackRef = [skin luaUnref:refTable ref:chooser.queryChangedCallbackRef];
             chooser.completionCallbackRef = [skin luaUnref:refTable ref:chooser.completionCallbackRef];
             chooser.rightClickCallbackRef = [skin luaUnref:refTable ref:chooser.rightClickCallbackRef];
+            chooser.invalidCallbackRef = [skin luaUnref:refTable ref:chooser.invalidCallbackRef];
             chooser.isObservingThemeChanges = NO;  // Stop observing for interface theme changes.
 
             NSWindow *theWindow = chooser.window ;
@@ -855,6 +885,7 @@ static const luaL_Reg userdataLib[] = {
     {"delete", chooserDelete},
     {"refreshChoicesCallback", chooserRefreshChoicesCallback},
     {"rightClickCallback", chooserRightClickCallback},
+    {"invalidCallback", chooserInvalidCallback},
     {"selectedRow", chooserSelectedRow},
     {"selectedRowContents", chooserSelectedRowContents},
     {"select", chooserSelect},
