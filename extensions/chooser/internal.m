@@ -123,6 +123,7 @@ static int chooserIsVisible(lua_State *L) {
 ///  * Each choice may also optionally contain the following keys:
 ///   * subText - A string or hs.styledtext object that will be shown underneath the main text of the choice
 ///   * image - An `hs.image` image object that will be displayed next to the choice
+///   * valid - A boolean that defaults to `true`, if set to `false` selecting the choice will invoke the `invalidCallback` method instead of dismissing the chooser
 ///  * Any other keys/values in each choice table will be retained by the chooser and returned to the completion callback when a choice is made. This is useful for storing UUIDs or other non-user-facing information, however, it is important to note that you should not store userdata objects in the table - it is run through internal conversion functions, so only basic Lua types should be stored.
 ///  * If a function is given, it will be called once, when the chooser window is displayed. The results are then cached until this method is called again, or `hs.chooser:refreshChoicesCallback()` is called.
 ///  * If you're using a hs.styledtext object for text or subText choices, make sure you specify a color, otherwise your text could appear transparent depending on the bgDark setting.
