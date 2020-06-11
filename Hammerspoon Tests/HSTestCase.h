@@ -11,6 +11,8 @@
 #import "MJLua.h"
 
 #define RUN_LUA_TEST() XCTAssertTrue([self luaTestFromSelector:_cmd], @"Test failed: %@", NSStringFromSelector(_cmd));
+#define RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(timeout) [self twoPartTestName:_cmd withTimeout:timeout];
+
 #define SKIP_IN_TRAVIS() if(self.isTravis) { NSLog(@"Skipping %@ due to Travis", NSStringFromSelector(_cmd)) ; return; }
 #define SKIP_IN_XCODE_SERVER() if(self.isXcodeServer) { NSLog(@"Skipping %@ due to Xcode Server", NSStringFromSelector(_cmd)) ; return; }
 
@@ -44,6 +46,14 @@
  @return A boolean, true if the Lua code returned "Success" otherwise false
  */
 - (BOOL)luaTest:(NSString *)luaCode;
+
+/**
+Executes a two-part Lua test with a timeout.
+
+ This is similar to luaTestWithCheckAndTimeOut, but automatically finds the second function by appending `Values` to the first function.
+ The second function will be called repeatedly until it either returns successfully, or timeout is reached.
+ */
+- (void)twoPartTestName:(SEL)selector withTimeout:(NSTimeInterval)timeout;
 
 /**
  Executes a two-part Lua test with a timeout.

@@ -432,6 +432,14 @@ static NSMutableSet *_sharedWarnings ;
         return LUA_REFNIL;
     }
 
+    int ref = LUA_NOREF;
+
+    if (refTable == LUA_REGISTRYINDEX) {
+        // Directly store the value in the global registry
+        ref = luaL_ref(self.L, LUA_REGISTRYINDEX);
+        return ref;
+    }
+
     // Ensure our Lua stack is large enough for the number of items being pushed
     [self growStack:1 withMessage:"luaRef:"];
 
@@ -442,7 +450,7 @@ static NSMutableSet *_sharedWarnings ;
     lua_insert(self.L, -2);
 
     // Reference the object at the top of the stack (pops it off)
-    int ref = luaL_ref(self.L, -2);
+    ref = luaL_ref(self.L, -2);
 
     // Remove refTable from the stack
     lua_remove(self.L, -1);
@@ -459,6 +467,11 @@ static NSMutableSet *_sharedWarnings ;
 
 - (int)luaUnref:(int)refTable ref:(int)ref {
     NSAssert((refTable != LUA_NOREF && refTable != LUA_REFNIL), @"ERROR: LuaSkin::luaUnref was passed a NOREF/REFNIL refTable", nil);
+
+    if (refTable == LUA_REGISTRYINDEX && ref != LUA_NOREF && ref != LUA_REFNIL) {
+        luaL_unref(self.L, LUA_REGISTRYINDEX, ref);
+        return LUA_NOREF;
+    }
 
     // Ensure our Lua stack is large enough for the number of items being pushed
     [self growStack:1 withMessage:"luaUnref"];
@@ -480,6 +493,13 @@ static NSMutableSet *_sharedWarnings ;
     NSAssert((refTable != LUA_NOREF && refTable != LUA_REFNIL), @"ERROR: LuaSkin::pushLuaRef was passed a NOREF/REFNIL refTable", nil);
     NSAssert((ref != LUA_NOREF && ref != LUA_REFNIL), @"ERROR: LuaSkin::pushLuaRef was passed a NOREF/REFNIL ref", nil);
 
+    int type = LUA_TNONE;
+
+    if (refTable == LUA_REGISTRYINDEX) {
+        type = lua_rawgeti(self.L, LUA_REGISTRYINDEX, ref);
+        return type;
+    }
+
     // Ensure our Lua stack is large enough for the number of items being pushed
     [self growStack:2 withMessage:"pushLuaRef"];
 
@@ -487,7 +507,7 @@ static NSMutableSet *_sharedWarnings ;
     lua_rawgeti(self.L, LUA_REGISTRYINDEX, refTable);
 
     // Push ref onto the stack
-    int type = lua_rawgeti(self.L, -1, ref);
+    type = lua_rawgeti(self.L, -1, ref);
 
     // Remove refTable from the stack
     lua_remove(self.L, -2);
