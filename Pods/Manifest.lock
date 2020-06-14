@@ -8,6 +8,7 @@ PODS:
     - CocoaLumberjack/Core (= 3.5.3)
   - CocoaLumberjack/Core (3.5.3)
   - MIKMIDI (1.7.0)
+  - ORSSerialPort (2.1)
   - PocketSocket/Client (1.0.1):
     - PocketSocket/Core
   - PocketSocket/Core (1.0.1)
@@ -22,6 +23,7 @@ DEPENDENCIES:
   - CocoaHTTPServer (= 2.3)
   - CocoaLumberjack (= 3.5.3)
   - MIKMIDI (= 1.7.0)
+  - ORSSerialPort (= 2.1.0)
   - PocketSocket/Client (= 1.0.1)
   - Sentry (from `https://github.com/getsentry/sentry-cocoa.git`, tag `5.0.0`)
   - Sparkle (= 1.22.0)
@@ -33,6 +35,7 @@ SPEC REPOS:
     - CocoaHTTPServer
     - CocoaLumberjack
     - MIKMIDI
+    - ORSSerialPort
     - PocketSocket
     - Sparkle
 
@@ -52,10 +55,11 @@ SPEC CHECKSUMS:
   CocoaHTTPServer: 5624681fc3473d43b18202f635f9b3abb013b530
   CocoaLumberjack: 2f44e60eb91c176d471fdba43b9e3eae6a721947
   MIKMIDI: a9192db16687fcf1d2c82b98492b999fa8ede7c6
+  ORSSerialPort: d2d5d131797453430c557ba8dc7dcbcae20ff2e5
   PocketSocket: 9c6867d66fb4f962af96b9b07f4b45bb561b2c2a
   Sentry: 1279f37a5691c19b1b761f7e260bba5dab7c2311
   Sparkle: 593ac2e677c07bcb6c3b22d621240e7cbedaab57
 
-PODFILE CHECKSUM: 6d4b20df1b7b2074cbc50ee536ee3697a73e4dba
+PODFILE CHECKSUM: fa2440d85281659ed97ba90b2f83efec41c421ad
 
-COCOAPODS: 1.9.1
+COCOAPODS: 1.9.3

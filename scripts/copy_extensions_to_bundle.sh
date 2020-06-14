@@ -45,6 +45,7 @@ export HS_MODULES="application \
     plist \
     screen \
     settings \
+    serial \
     sharing \
     socket \
     sound \

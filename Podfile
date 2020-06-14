@@ -16,6 +16,7 @@ pod 'PocketSocket/Client', '1.0.1'
 pod 'Sentry', :git => 'https://github.com/getsentry/sentry-cocoa.git', :tag => '5.0.0'
 pod 'Sparkle', '1.22.0', :configurations => ['Release']
 pod 'MIKMIDI', '1.7.0'
+pod 'ORSSerialPort', '2.1.0'
 end
 
 post_install do |installer|
