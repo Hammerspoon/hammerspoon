@@ -535,8 +535,7 @@ static int serial_sendData(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TBREAK];
     HSSerialPort *controller = [skin toNSObjectAtIndex:1];
-    NSString *dataString = [skin toNSObjectAtIndex:2];
-    NSData *dataToSend = [dataString dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *dataToSend = [skin toNSObjectAtIndex:2 withOptions:LS_NSLuaStringAsDataOnly];
     [controller.serialPort sendData:dataToSend];
     return 0;
 }
