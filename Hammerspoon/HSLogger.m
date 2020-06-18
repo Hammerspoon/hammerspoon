@@ -66,6 +66,7 @@
     va_list args;
     va_start(args, format);
     NSString *message = [[NSString alloc] initWithFormat:format arguments:args];
+    NSLog(@"BREADCRUMB: %@", message);
     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] init];
     crumb.message = message;
     [SentrySDK addBreadcrumb:crumb];
