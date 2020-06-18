@@ -58,6 +58,7 @@ static void purgeWatchers(const void *key, const void *value, void *context) {
 
 static void cleanupAXObserver(AXObserverRef observer, CFMutableDictionaryRef details) {
     LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
+    _lua_stackguard_entry(skin.L);
 
     int callbackRef = [(__bridge NSNumber *)CFDictionaryGetValue(details, keyCallbackRef) intValue] ;
     callbackRef = [skin luaUnref:refTable ref:callbackRef] ;
@@ -79,10 +80,12 @@ static void cleanupAXObserver(AXObserverRef observer, CFMutableDictionaryRef det
     // release the details dictionary.
     CFDictionaryRemoveAllValues(details) ;
     CFRelease(details) ;
+    _lua_stackguard_exit(skin.L);
 }
 
 static void observerCallback(AXObserverRef observer, AXUIElementRef element, CFStringRef notification, CFDictionaryRef info, __unused void *refcon) {
     LuaSkin   *skin = [LuaSkin sharedWithState:NULL] ;
+    _lua_stackguard_entry(skin.L);
     lua_State *L    = skin.L ;
 
     CFMutableDictionaryRef details = CFDictionaryGetValue(observerDetails, observer) ;
@@ -106,6 +109,7 @@ static void observerCallback(AXObserverRef observer, AXUIElementRef element, CFS
             }
         }
     }
+    _lua_stackguard_exit(skin.L);
 }
 
 #pragma mark - Module Functions
@@ -449,7 +453,6 @@ static int pushNotificationsTable(lua_State *L) {
     [skin pushNSObject:(__bridge NSString *)kAXSelectedTextChangedNotification] ;     lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
     [skin pushNSObject:(__bridge NSString *)kAXTitleChangedNotification] ;            lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
     [skin pushNSObject:(__bridge NSString *)kAXUnitsChangedNotification] ;            lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-    [skin pushNSObject:(__bridge NSString *)kAXRowCountChangedNotification] ;         lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
 
     return 1 ;
 }

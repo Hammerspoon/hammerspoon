@@ -333,6 +333,8 @@
 		D6BB4FC81C169605000DC0A2 /* listener.m in Sources */ = {isa = PBXBuildFile; fileRef = D6BB4FA91C169539000DC0A2 /* listener.m */; };
 		D6E164D71F4C262300B85D8A /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		D6E164DD1F4C264D00B85D8A /* xattr.m in Sources */ = {isa = PBXBuildFile; fileRef = D6E164D11F4C25FD00B85D8A /* xattr.m */; };
+		D6EE7C7F249B488C0053FB3A /* ExternalReferences.h in Headers */ = {isa = PBXBuildFile; fileRef = D6EE7C7D249B488B0053FB3A /* ExternalReferences.h */; };
+		D6EE7C80249B488C0053FB3A /* axtextmarker.m in Sources */ = {isa = PBXBuildFile; fileRef = D6EE7C7E249B488B0053FB3A /* axtextmarker.m */; };
 		D6F310DB1BDF0E1700045CCD /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		D6F310E11BDF0E5F00045CCD /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = D6F310CD1BDF0DCC00045CCD /* internal.m */; };
 		D6F310E41BDF109900045CCD /* drawing.h in Headers */ = {isa = PBXBuildFile; fileRef = D6F310E21BDF107D00045CCD /* drawing.h */; };
@@ -1435,6 +1437,8 @@
 		D6E071681E04D9FC00C1046A /* canvasWrapper.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = canvasWrapper.lua; path = extensions/drawing/canvasWrapper.lua; sourceTree = "<group>"; };
 		D6E164D11F4C25FD00B85D8A /* xattr.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = xattr.m; path = extensions/fs/xattr.m; sourceTree = "<group>"; };
 		D6E164DC1F4C262300B85D8A /* libfsxattr.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libfsxattr.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		D6EE7C7D249B488B0053FB3A /* ExternalReferences.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ExternalReferences.h; path = extensions/axuielement/ExternalReferences.h; sourceTree = SOURCE_ROOT; };
+		D6EE7C7E249B488B0053FB3A /* axtextmarker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = axtextmarker.m; path = extensions/axuielement/axtextmarker.m; sourceTree = SOURCE_ROOT; };
 		D6F310CC1BDF0DCC00045CCD /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/drawing/color/init.lua; sourceTree = "<group>"; };
 		D6F310CD1BDF0DCC00045CCD /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/drawing/color/internal.m; sourceTree = "<group>"; };
 		D6F310D01BDF0E0000045CCD /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/styledtext/init.lua; sourceTree = "<group>"; };
@@ -3530,6 +3534,8 @@
 		D687FC37247B92EE005FA3A5 /* axuielement */ = {
 			isa = PBXGroup;
 			children = (
+				D6EE7C7E249B488B0053FB3A /* axtextmarker.m */,
+				D6EE7C7D249B488B0053FB3A /* ExternalReferences.h */,
 				D687FC38247B9316005FA3A5 /* common.h */,
 				D687FC3C247B9317005FA3A5 /* common.m */,
 				D687FC3A247B9317005FA3A5 /* init.lua */,
@@ -4101,6 +4107,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D633A9ED247B9C2C005C88E2 /* common.h in Headers */,
+				D6EE7C7F249B488C0053FB3A /* ExternalReferences.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6851,6 +6858,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D633A9EA247B9C1A005C88E2 /* common.m in Sources */,
+				D6EE7C80249B488C0053FB3A /* axtextmarker.m in Sources */,
 				D633A9EB247B9C1A005C88E2 /* internal.m in Sources */,
 				D633A9EC247B9C1A005C88E2 /* observer.m in Sources */,
 			);

@@ -71,34 +71,8 @@ BOOL new_window(lua_State* L, AXUIElementRef win) {
     return isGood ;
 }
 
-static int pushAXTextMarkerRef(lua_State *L, AXTextMarkerRef marker) {
-    if (AXTextMarkerGetLength != NULL && AXTextMarkerGetBytePtr != NULL) {
-        lua_newtable(L) ;
-        lua_pushstring(L, "AXTextMarker") ;                                  lua_setfield(L, -2, "__AXTypeHelper") ;
-        CFIndex length = AXTextMarkerGetLength(marker) ;
-        lua_pushinteger(L, (lua_Integer)length) ;                            lua_setfield(L, -2, "length") ;
-        lua_pushlstring(L, AXTextMarkerGetBytePtr(marker), (size_t)length) ; lua_setfield(L, -2, "bytes") ;
-    } else {
-        lua_pushstring(L, "** AXTextMarkerGetLength or AXTextMarkerGetBytePtr unresolved") ;
-    }
-    return 1 ;
-}
-
-static int pushAXTextMarkerRangeRef(lua_State *L, AXTextMarkerRangeRef markerRange) {
-    if (AXTextMarkerRangeCopyStartMarker != NULL && AXTextMarkerRangeCopyEndMarker != NULL) {
-        lua_newtable(L) ;
-        lua_pushstring(L, "AXTextMarkerRange") ;                                lua_setfield(L, -2, "__AXTypeHelper") ;
-        pushAXTextMarkerRef(L, AXTextMarkerRangeCopyStartMarker(markerRange)) ; lua_setfield(L, -2, "startMarker") ;
-        pushAXTextMarkerRef(L, AXTextMarkerRangeCopyEndMarker(markerRange)) ;   lua_setfield(L, -2, "endMarker") ;
-    } else {
-        lua_pushstring(L, "** AXTextMarkerRangeCopyStartMarker or AXTextMarkerRangeCopyEndMarker unresolved") ;
-    }
-    return 1 ;
-}
-
 // Not sure if the alreadySeen trick is working here, but it hasn't crashed yet... of course I don't think I've found any loops that don't have a userdata object in-between that drops us back to Lua before deciding whether or not to delve deeper, either, so... should be safe in CFDictionary and CFArray, since they toll-free bridge; don't use for others -- fails for setting with AXUIElementRef as key, at least...
 
-// AXTextMarkerRef, and AXTextMarkerRangeRef mentioned as well, but private, so... no joy for now.
 static int pushCFTypeHamster(lua_State *L, CFTypeRef theItem, NSMutableDictionary *alreadySeen, int refTable) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
 
@@ -165,8 +139,8 @@ static int pushCFTypeHamster(lua_State *L, CFTypeRef theItem, NSMutableDictionar
             CFRange theRange ;
             AXValueGetValue((AXValueRef)theItem, kAXValueCFRangeType, &theRange) ;
             lua_newtable(L) ;
-              lua_pushinteger(L, theRange.location) ; lua_setfield(L, -2, "loc") ;
-              lua_pushinteger(L, theRange.length) ;   lua_setfield(L, -2, "len") ;
+              lua_pushinteger(L, theRange.location) ; lua_setfield(L, -2, "location") ;
+              lua_pushinteger(L, theRange.length) ;   lua_setfield(L, -2, "length") ;
         } else if (valueType == kAXValueAXErrorType) {
             AXError theError ;
             AXValueGetValue((AXValueRef)theItem, kAXValueAXErrorType, &theError) ;
@@ -177,6 +151,11 @@ static int pushCFTypeHamster(lua_State *L, CFTypeRef theItem, NSMutableDictionar
         } else {
             lua_pushfstring(L, "unrecognized value type (%p)", theItem) ;
         }
+    } else if (theType == CGColorGetTypeID()) {
+        [skin pushNSObject:[NSColor colorWithCGColor:theItem]] ;
+    } else if (theType == CGImageGetTypeID()) {
+        NSSize imageSize = NSMakeSize(CGImageGetWidth(theItem), CGImageGetHeight(theItem)) ;
+        [skin pushNSObject:[[NSImage alloc] initWithCGImage:theItem size:imageSize]] ;
     } else if (theType == CFAttributedStringGetTypeID()) {
         [skin pushNSObject:(__bridge NSAttributedString *)theItem] ;
     } else if (theType == CFNullGetTypeID()) {
@@ -190,73 +169,21 @@ static int pushCFTypeHamster(lua_State *L, CFTypeRef theItem, NSMutableDictionar
     } else if (theType == CFStringGetTypeID()) {
         [skin pushNSObject:(__bridge NSString *)theItem] ;
     } else if (theType == CFURLGetTypeID()) {
-        [skin pushNSObject:(__bridge_transfer NSString *)CFRetain(CFURLGetString(theItem))] ;
+        [skin pushNSObject:(__bridge NSURL *)theItem] ;
     } else if (theType == AXUIElementGetTypeID()) {
         pushAXUIElement(L, theItem) ;
     } else if (theType == AXObserverGetTypeID()) {
         pushAXObserver(L, theItem) ;
     } else if (AXTextMarkerGetTypeID != NULL      && theType == AXTextMarkerGetTypeID()) {
-        pushAXTextMarkerRef(L, theItem) ;
+        pushAXTextMarker(L, theItem) ;
     } else if (AXTextMarkerRangeGetTypeID != NULL && theType == AXTextMarkerRangeGetTypeID()) {
-        pushAXTextMarkerRangeRef(L, theItem) ;
-// Thought I'd found the missing framework, but apparently not
-//     } else if (theType == wkGetAXTextMarkerTypeID()) {
-//         lua_newtable(L) ;
-//         struct TextMarkerData textMarkerData ;
-//         BOOL valid = wkGetBytesFromAXTextMarker(theItem, &textMarkerData, sizeof(textMarkerData)) ;
-//         lua_pushboolean(L, (BOOL)valid) ; lua_setfield(L, -2, "valid") ;
-//         if (valid) {
-//             lua_pushinteger(L, textMarkerData.axID) ; lua_setfield(L, -2, "axID") ;
-// //             Node* node;
-//             lua_pushinteger(L, textMarkerData.offset) ; lua_setfield(L, -2, "offset") ;
-//             lua_pushinteger(L, textMarkerData.characterStartIndex) ; lua_setfield(L, -2, "characterStartIndex") ;
-//             lua_pushinteger(L, textMarkerData.characterOffset) ; lua_setfield(L, -2, "characterOffset") ;
-//             lua_pushboolean(L, textMarkerData.ignored) ; lua_setfield(L, -2, "ignored") ;
-//             switch(textMarkerData.affinity) {
-//                 case UPSTREAM:   lua_pushstring(L, "upstream") ; break ;
-//                 case DOWNSTREAM: lua_pushstring(L, "downstream") ; break ;
-//                 default:
-//                     [skin pushNSObject:[NSString stringWithFormat:@"unrecognized affinity value:%d, notify developers", textMarkerData.affinity]] ;
-//                     break ;
-//             }
-//             lua_setfield(L, -2, "affinity") ;
-//         }
-//     } else if (theType == wkGetAXTextMarkerRangeTypeID()) {
-//         lua_newtable(L) ;
-//         CFTypeRef startRange = wkCopyAXTextMarkerRangeStart(theItem) ;
-//         pushCFTypeHamster(L, startRange, alreadySeen, refTable) ;
-//         lua_setfield(L, -2, "start") ;
-//         if (startRange) CFRelease(startRange) ;
-//         CFTypeRef rangeEnd = wkCopyAXTextMarkerRangeEnd(theItem) ;
-//         pushCFTypeHamster(L, rangeEnd, alreadySeen, refTable) ;
-//         lua_setfield(L, -2, "end") ;
-//         if (rangeEnd) CFRelease(rangeEnd) ;
+        pushAXTextMarkerRange(L, theItem) ;
     } else {
           NSString *typeLabel = [NSString stringWithFormat:@"unrecognized type: %lu", theType] ;
           [skin logDebug:[NSString stringWithFormat:@"%s:%@", USERDATA_TAG, typeLabel]];
           lua_pushstring(L, [typeLabel UTF8String]) ;
       }
     return 1 ;
-}
-
-static AXTextMarkerRef createAXTextMarkerFromIndex(lua_State *L, int index) {
-    if (AXTextMarkerCreate != NULL) {
-        LuaSkin *skin = [LuaSkin sharedWithState:L] ;
-        index = lua_absindex(L, index) ;
-        CFIndex length = 0 ;
-        if (lua_getfield(L, index, "length") == LUA_TNUMBER) {
-            length = lua_tointeger(L, -1) ;
-        }
-        NSData *bytesAsData = [NSData data] ;
-        if (lua_getfield(L, index, "bytes") == LUA_TSTRING) {
-            bytesAsData = [skin toNSObjectAtIndex:-1 withOptions:LS_NSLuaStringAsDataOnly] ;
-        }
-        AXTextMarkerRef textMarker = AXTextMarkerCreate(kCFAllocatorDefault, bytesAsData.bytes, length) ;
-        lua_pop(L, 2) ;
-        return textMarker ;
-    } else {
-        return kCFNull ;
-    }
 }
 
 static CFTypeRef lua_toCFTypeHamster(lua_State *L, int idx, NSMutableDictionary *seen) {
@@ -292,6 +219,9 @@ static CFTypeRef lua_toCFTypeHamster(lua_State *L, int idx, NSMutableDictionary 
                 value = CFNumberCreate(kCFAllocatorDefault, kCFNumberDoubleType, &holder) ;
             }
         } else if (theType == LUA_TTABLE) {
+        // for object LuaSkin types
+            BOOL has__luaSkinType = (lua_getfield(L, index, "__luaSkinType") != LUA_TNIL) ; lua_pop(L, 1) ;
+
         // rect, point, and size are regularly tables in Hammerspoon, differentiated by which of these
         // keys are present.
             BOOL hasX      = (lua_getfield(L, index, "x")        != LUA_TNIL) ; lua_pop(L, 1) ;
@@ -309,38 +239,11 @@ static CFTypeRef lua_toCFTypeHamster(lua_State *L, int idx, NSMutableDictionary 
         // since date is just a number or string, we'll have to make it a "psuedo" table so that it can
         // be uniquely specified on the lua side
             BOOL hasDate   = (lua_getfield(L, index, "_date")    != LUA_TNIL) ; lua_pop(L, 1) ;
-        // since url is just a string, we'll have to make it a "psuedo" table so that it can be uniquely
-        // specified on the lua side
-            BOOL hasURL    = (lua_getfield(L, index, "_URL")     != LUA_TNIL) ; lua_pop(L, 1) ;
 
-        // AXTextMarker and AXTextMarkerRange -- not sure what they're good for yet, but we can finally break them out
-            BOOL hasAXTextMarker = NO ;
-            BOOL hasAXTextMarkerRange = NO ;
-            if (lua_getfield(L, index, "__AXTypeHelper") != LUA_TNIL) {
-                NSString *type       = [skin toNSObjectAtIndex:-1] ;
-                hasAXTextMarker      = [type isEqualToString:@"AXTextMarker"] ;
-                hasAXTextMarkerRange = [type isEqualToString:@"AXTextMarkerRange"] ;
-            }
-            lua_pop(L, 1) ;
-
-            if (AXTextMarkerCreate != NULL && hasAXTextMarker) {
-                value = createAXTextMarkerFromIndex(L, index) ; // retain not required because of Create rule
-            } else if (AXTextMarkerRangeCreate != NULL && hasAXTextMarkerRange) {
-                AXTextMarkerRef startMarker = AXTextMarkerCreate(kCFAllocatorDefault, NULL, 0) ;
-                if (lua_getfield(L, index, "startMarker") == LUA_TTABLE) {
-                    CFRelease(startMarker) ;
-                    startMarker = createAXTextMarkerFromIndex(L, -1) ;
-                }
-                AXTextMarkerRef endMarker = AXTextMarkerCreate(kCFAllocatorDefault, NULL, 0) ;
-                if (lua_getfield(L, index, "endMarker") == LUA_TTABLE) {
-                    CFRelease(endMarker) ;
-                    endMarker = createAXTextMarkerFromIndex(L, -1) ;
-                }
-                lua_pop(L, 2) ;
-                value = AXTextMarkerRangeCreate(kCFAllocatorDefault, startMarker, endMarker) ;
-                CFRelease(startMarker) ;
-                CFRelease(endMarker) ;
-            } else if (hasX && hasY && hasH && hasW) { // CGRect
+            // check these first because range, rect, point, and size also have __luaSkinType versions with NSValue, but that's a pain
+            // to convert to AXTypeRef plus not all methods return them *with* the __luaSkinType field set so we'd have to double up
+            // on the checks anyways...
+            if (hasX && hasY && hasH && hasW) { // CGRect
                 lua_getfield(L, index, "x") ;
                 lua_getfield(L, index, "y") ;
                 lua_getfield(L, index, "w") ;
@@ -381,10 +284,6 @@ static CFTypeRef lua_toCFTypeHamster(lua_State *L, int idx, NSMutableDictionary 
                 AXError holder = (AXError)(unsigned long long)luaL_checkinteger(L, -1) ;
                 value = AXValueCreate(kAXValueAXErrorType, &holder) ;
                 lua_pop(L, 1) ;
-            } else if (hasURL) {                // CFURL
-                lua_getfield(L, index, "_url") ;
-                value = CFURLCreateWithString(kCFAllocatorDefault, (__bridge CFStringRef)[skin toNSObjectAtIndex:-1], NULL) ;
-                lua_pop(L, 1) ;
             } else if (hasDate) {               // CFDate
                 int dateType = lua_getfield(L, index, "_date") ;
                 if (dateType == LUA_TNUMBER) {
@@ -403,6 +302,18 @@ static CFTypeRef lua_toCFTypeHamster(lua_State *L, int idx, NSMutableDictionary 
                     return kCFNull ;
                 }
                 lua_pop(L, 1) ;
+            } else if (has__luaSkinType) {
+                NSObject *object = [skin toNSObjectAtIndex:index] ;
+                if ([object isKindOfClass:[NSColor class]])                 { value = CFRetain([(NSColor *)object CGColor]) ; }
+                else if ([object isKindOfClass:[NSURL class]])              { value = (__bridge_retained CFURLRef)object ; }
+                else if ([object isKindOfClass:[NSImage class]])            { value = CFRetain([(NSImage *)object CGImageForProposedRect:NULL context:nil hints:nil]) ; }
+                else if ([object isKindOfClass:[NSAttributedString class]]) { value = (__bridge_retained CFAttributedStringRef)object ; }
+                else {
+                    lua_getfield(L, index, "__luaSkinType") ;
+                    [skin logError:[NSString stringWithFormat:@"%s:__luaSkinType table %s not supported for conversion", USERDATA_TAG, lua_tostring(L, -1)]] ;
+                    lua_pop(L, 1) ;
+                    return kCFNull ;
+                }
             } else {                            // real CFDictionary or CFArray
               seen[[NSValue valueWithPointer:lua_topointer(L, index)]] = @(YES) ;
               if (luaL_len(L, index) == [skin countNatIndex:index]) { // CFArray
@@ -430,19 +341,16 @@ static CFTypeRef lua_toCFTypeHamster(lua_State *L, int idx, NSMutableDictionary 
               }
             }
         } else if (theType == LUA_TUSERDATA) {
-            if (luaL_testudata(L, index, "hs.styledtext")) {
-                value = (__bridge_retained CFAttributedStringRef)[skin toNSObjectAtIndex:index] ;
-            } else if (luaL_testudata(L, index, USERDATA_TAG)) {
-                value = CFRetain(get_axuielementref(L, index, USERDATA_TAG)) ;
-            } else if (luaL_testudata(L, index, OBSERVER_TAG)) {
-                value = CFRetain(get_axobserverref(L, index, OBSERVER_TAG)) ;
-            } else {
-//                 lua_pop(L, 1) ; <-- I think this is an error
+            if (luaL_testudata(L, index, "hs.styledtext"))       { value = (__bridge_retained CFAttributedStringRef)[skin toNSObjectAtIndex:index] ; }
+            else if (luaL_testudata(L, index, USERDATA_TAG))     { value = CFRetain(get_axuielementref(L, index, USERDATA_TAG)) ; }
+            else if (luaL_testudata(L, index, OBSERVER_TAG))     { value = CFRetain(get_axobserverref(L, index, OBSERVER_TAG)) ; }
+            else if (luaL_testudata(L, index, AXTEXTMARKER_TAG)) { value = CFRetain(get_axtextmarkerref(L, index, AXTEXTMARKER_TAG)) ; }
+            else if (luaL_testudata(L, index, AXTEXTMRKRNG_TAG)) { value = CFRetain(get_axtextmarkerrangeref(L, index, AXTEXTMRKRNG_TAG)) ; }
+            else {
                 [skin logError:[NSString stringWithFormat:@"%s:unrecognized userdata is not supported for conversion", USERDATA_TAG]] ;
                 return kCFNull ;
             }
         } else if (theType != LUA_TNIL) { // value already set to kCFNull, no specific match necessary
-//             lua_pop(L, 1) ; <-- I think this is an error
             [skin logError:[NSString stringWithFormat:@"%s:type %s not supported for conversion", USERDATA_TAG, lua_typename(L, theType)]] ;
             return kCFNull ;
         }
