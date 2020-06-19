@@ -324,7 +324,7 @@ objectMT.matchesCriteria = function(self, criteria)
         criteria = { attribute = "AXRole", value = criteria }
     elseif type(criteria) == "table" and #criteria > 0 then
         local allStrings = true
-        for i,v in ipairs(criteria) do
+        for _,v in ipairs(criteria) do
             if type(v) ~= "string" then
                 allStrings = false
                 break
@@ -402,7 +402,7 @@ objectMT.matchesCriteria = function(self, criteria)
     for _,thisCriteria in ipairs(criteria) do
         local thisResult = true
         if thisCriteria.attribute then
-            for i,v in ipairs(thisCriteria.attribute) do
+            for _,v in ipairs(thisCriteria.attribute) do
                 if type(aav[v]) == "nil" then
                     thisResult = false
                     break
@@ -410,7 +410,7 @@ objectMT.matchesCriteria = function(self, criteria)
             end
         end
         if thisResult and thisCriteria.action then
-            for i,v in ipairs(thisCriteria.action) do
+            for _,v in ipairs(thisCriteria.action) do
                 if not fnutils.contains(aan, v) then
                     thisResult = false
                     break
@@ -418,7 +418,7 @@ objectMT.matchesCriteria = function(self, criteria)
             end
         end
         if thisResult and thisCriteria.parameterizedAttribute then
-            for i,v in ipairs(thisCriteria.parameterizedAttribute) do
+            for _,v in ipairs(thisCriteria.parameterizedAttribute) do
                 if not fnutils.contains(apa, v) then
                     thisResult = false
                     break
@@ -442,7 +442,7 @@ objectMT.matchesCriteria = function(self, criteria)
                     if not thisResult then break end
                 end
             elseif type(thisCriteria.nilValue) ~= "nil" then
-                for i,v in ipairs(thisCriteria.attribute) do
+                for _,v in ipairs(thisCriteria.attribute) do
                     thisResult = thisCriteria.nilValue == ((type(aav[v]) == "table") and (aav[v]._code == -25212))
                     if not thisResult then break end
                 end
@@ -892,19 +892,19 @@ objectMT.elementSearch = function(self, callback, criteria, namedModifiers)
     if not namedModifiers.asTree then
         esoMT.__index.filter = elementSearchResultsFilter -- make sure to document that results table is *new* with only filter method carrying over
         esoMT.__index.next = function(_)
-            local state = getmetatable(_)._state
-            if not callback or state.finished then
-                if state.msg ~= "completed" then
-                    state.started  = os.time() - state.finished
-                    state.finished = nil
-                    state.cancel   = nil
-                    state.msg      = nil
+            local nxtState = getmetatable(_)._nxtState
+            if not callback or nxtState.finished then
+                if nxtState.msg ~= "completed" then
+                    nxtState.started  = os.time() - nxtState.finished
+                    nxtState.finished = nil
+                    nxtState.cancel   = nil
+                    nxtState.msg      = nil
                     if callback then
                         local searchCoroutine
                         searchCoroutine = coroutine.wrap(function()
                             local results, countAdded = elementSearchHamsterBF(_)
-                            state.finished = os.time() - state.started
-                            callback(state.msg, results, countAdded)
+                            nxtState.finished = os.time() - nxtState.started
+                            callback(nxtState.msg, results, countAdded)
                             searchCoroutine = nil -- ensure garbage collection doesn't happen until after we're done
                         end)
                         searchCoroutine()
