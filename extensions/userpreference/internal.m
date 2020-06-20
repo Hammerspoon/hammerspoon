@@ -41,8 +41,7 @@ static int userpreference_get(lua_State *L) {
                                                    kCFPreferencesCurrentUser,
                                                    kCFPreferencesCurrentHost);
     if (ref != nil) {
-        [skin pushNSObject:(__bridge NSObject *)ref];
-        CFAutorelease(ref);
+        [skin pushNSObject:(__bridge_transfer NSObject *)ref];
     } else {
         [skin pushNSObject:[NSNull null]];
     }
