@@ -1,5 +1,5 @@
 //
-//  HSnotdisturbmode.m
+//  HSuserpreferences.m
 //  Hammerspoon Tests
 //
 //  Created by Linghua Zhang on 2018/03/15.
@@ -8,21 +8,21 @@
 
 #import "HSTestCase.h"
 
-@interface HSnotdisturbmode : HSTestCase
+@interface HSuserpreferences: HSTestCase
 
 @end
 
-@implementation HSnotdisturbmode
+@implementation HSuserpreferences
 
 - (void)setUp {
-    [super setUpWithRequire:@"test_notdisturbmode"];
+    [super setUpWithRequire:@"test_userpreferences"];
 }
 
 - (void)tearDown {
     [super tearDown];
 }
 
-- (void)testNotDisturbMode {
+- (void)testUserPreferences {
     SKIP_IN_TRAVIS()
     RUN_LUA_TEST()
 }

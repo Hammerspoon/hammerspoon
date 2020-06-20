@@ -242,10 +242,10 @@
 		6AE181341D39C9570097211C /* test_noises.lua in Resources */ = {isa = PBXBuildFile; fileRef = 6AE181331D39C9570097211C /* test_noises.lua */; };
 		78378621249E491300F2C606 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		78378628249E494A00F2C606 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 78378618249E47A700F2C606 /* internal.m */; };
-		7837862B249E4A1200F2C606 /* test_userpreference.lua in Resources */ = {isa = PBXBuildFile; fileRef = 78378619249E47A700F2C606 /* test_userpreference.lua */; };
-		7837862D249E4C2F00F2C606 /* HSuserpreference.m in Sources */ = {isa = PBXBuildFile; fileRef = 7837862C249E4C2F00F2C606 /* HSuserpreference.m */; };
-		78378633249E4CBE00F2C606 /* test_notdisturbmode.lua in Resources */ = {isa = PBXBuildFile; fileRef = 78378630249E4C9200F2C606 /* test_notdisturbmode.lua */; };
-		78378635249E4D1700F2C606 /* HSnotdisturbmode.m in Sources */ = {isa = PBXBuildFile; fileRef = 78378634249E4D1600F2C606 /* HSnotdisturbmode.m */; };
+		78378635249E4D1700F2C606 /* HSdonotdisturb.m in Sources */ = {isa = PBXBuildFile; fileRef = 78378634249E4D1600F2C606 /* HSdonotdisturb.m */; };
+		78378636249E55C400F2C606 /* HSuserpreferences.m in Sources */ = {isa = PBXBuildFile; fileRef = 7837862C249E4C2F00F2C606 /* HSuserpreferences.m */; };
+		78378637249E56C500F2C606 /* test_userpreferences.lua in Resources */ = {isa = PBXBuildFile; fileRef = 78378619249E47A700F2C606 /* test_userpreferences.lua */; };
+		78378638249E56F300F2C606 /* test_donotdisturb.lua in Resources */ = {isa = PBXBuildFile; fileRef = 78378630249E4C9200F2C606 /* test_donotdisturb.lua */; };
 		9409203119A5940600B9964E /* MJVersionUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9409203019A5940600B9964E /* MJVersionUtils.m */; };
 		9422ACBD19B6163800F06A90 /* MJConfigUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9422ACBC19B6163800F06A90 /* MJConfigUtils.m */; };
 		942BF3911989E18600983892 /* MJAutoLaunch.m in Sources */ = {isa = PBXBuildFile; fileRef = 942BF3901989E18600983892 /* MJAutoLaunch.m */; };
@@ -791,7 +791,7 @@
 			containerPortal = 9445CA0319083251002568BB /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 7837861D249E491300F2C606;
-			remoteInfo = userpreference;
+			remoteInfo = userpreferences;
 		};
 		B8524F33201A89BF00844F3D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1307,12 +1307,12 @@
 		75E2C8065BA22C7EA133713A /* Pods-Hammerspoon.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hammerspoon.profile.xcconfig"; path = "Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon.profile.xcconfig"; sourceTree = "<group>"; };
 		78378617249E47A700F2C606 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = init.lua; sourceTree = "<group>"; };
 		78378618249E47A700F2C606 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = internal.m; sourceTree = "<group>"; };
-		78378619249E47A700F2C606 /* test_userpreference.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = test_userpreference.lua; sourceTree = "<group>"; };
-		78378627249E491300F2C606 /* libuserpreference.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libuserpreference.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		7837862C249E4C2F00F2C606 /* HSuserpreference.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSuserpreference.m; sourceTree = "<group>"; };
+		78378619249E47A700F2C606 /* test_userpreferences.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = test_userpreferences.lua; sourceTree = "<group>"; };
+		78378627249E491300F2C606 /* libuserpreferences.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libuserpreferences.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		7837862C249E4C2F00F2C606 /* HSuserpreferences.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSuserpreferences.m; sourceTree = "<group>"; };
 		7837862F249E4C9200F2C606 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = init.lua; sourceTree = "<group>"; };
-		78378630249E4C9200F2C606 /* test_notdisturbmode.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = test_notdisturbmode.lua; sourceTree = "<group>"; };
-		78378634249E4D1600F2C606 /* HSnotdisturbmode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSnotdisturbmode.m; sourceTree = "<group>"; };
+		78378630249E4C9200F2C606 /* test_donotdisturb.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = test_donotdisturb.lua; sourceTree = "<group>"; };
+		78378634249E4D1600F2C606 /* HSdonotdisturb.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSdonotdisturb.m; sourceTree = "<group>"; };
 		867B086413FD65986CB40932 /* Pods-Hammerspoon.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hammerspoon.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon.debug.xcconfig"; sourceTree = "<group>"; };
 		9409202F19A5940600B9964E /* MJVersionUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJVersionUtils.h; sourceTree = "<group>"; };
 		9409203019A5940600B9964E /* MJVersionUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJVersionUtils.m; sourceTree = "<group>"; };
@@ -2772,7 +2772,7 @@
 				4F6B3EFC1B73E7E200B2A4DE /* mouse */,
 				D6477BFB1C5ED57400F67BBC /* network */,
 				6AE181151D36E8BE0097211C /* noises */,
-				7837862E249E4C9200F2C606 /* notdisturbmode */,
+				7837862E249E4C9200F2C606 /* donotdisturb */,
 				4F6B3F0F1B73E9BA00B2A4DE /* notify */,
 				4C3D55A81C7F05D00023B633 /* osascript */,
 				4F6B3F241B73EBF000B2A4DE /* pasteboard */,
@@ -2804,7 +2804,7 @@
 				4FD0AB5E1B749DA300A82496 /* urlevent */,
 				4FD0AB7D1B74A6D700A82496 /* usb */,
 				4FD0AB841B74A72200A82496 /* usbwatcher */,
-				78378616249E47A700F2C606 /* userpreference */,
+				78378616249E47A700F2C606 /* userpreferences */,
 				4FD0AB8A1B74AC1800A82496 /* utf8 */,
 				D684BBFA1DFB728500B4D0B8 /* watchable */,
 				D64125571BA07CA9000FB5F8 /* webview */,
@@ -3160,25 +3160,25 @@
 			name = noises;
 			sourceTree = "<group>";
 		};
-		78378616249E47A700F2C606 /* userpreference */ = {
+		78378616249E47A700F2C606 /* userpreferences */ = {
 			isa = PBXGroup;
 			children = (
 				78378617249E47A700F2C606 /* init.lua */,
 				78378618249E47A700F2C606 /* internal.m */,
-				78378619249E47A700F2C606 /* test_userpreference.lua */,
+				78378619249E47A700F2C606 /* test_userpreferences.lua */,
 			);
-			name = userpreference;
-			path = extensions/userpreference;
+			name = userpreferences;
+			path = extensions/userpreferences;
 			sourceTree = "<group>";
 		};
-		7837862E249E4C9200F2C606 /* notdisturbmode */ = {
+		7837862E249E4C9200F2C606 /* donotdisturb */ = {
 			isa = PBXGroup;
 			children = (
 				7837862F249E4C9200F2C606 /* init.lua */,
-				78378630249E4C9200F2C606 /* test_notdisturbmode.lua */,
+				78378630249E4C9200F2C606 /* test_donotdisturb.lua */,
 			);
-			name = notdisturbmode;
-			path = extensions/notdisturbmode;
+			name = donotdisturb;
+			path = extensions/donotdisturb;
 			sourceTree = "<group>";
 		};
 		942050C219907AF700FC4839 /* Console Window */ = {
@@ -3309,7 +3309,7 @@
 				4FCBAFCD23B0D941007BA1D0 /* libmath.dylib */,
 				22DF5D2723B9A9D300C41AE6 /* libpasteboardwatcher.dylib */,
 				4F9BA8C723DF3C6B006349F2 /* libuielementwatcher.dylib */,
-				78378627249E491300F2C606 /* libuserpreference.dylib */,
+				78378627249E491300F2C606 /* libuserpreferences.dylib */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -3425,7 +3425,7 @@
 				4FDD8E8C1C8C8BF200085D7A /* HScoresetup.m */,
 				4FEE39D81F0A697400935F90 /* HScrash.m */,
 				4F40EC3F1CCD0FE3006342D7 /* HSdistributednotifications.m */,
-				78378634249E4D1600F2C606 /* HSnotdisturbmode.m */,
+				78378634249E4D1600F2C606 /* HSdonotdisturb.m */,
 				4C5BA6B41C85EAEB00E68CA9 /* HSfs.m */,
 				4F2C0C7221BB4A03008F32C1 /* HSinspect.m */,
 				4FCBAFD623B0FB95007BA1D0 /* HSmath.m */,
@@ -3439,7 +3439,7 @@
 				4FDD8E881C8AE3ED00085D7A /* HSTestCase.m */,
 				4F6CE1331C6B93E10016668E /* HStimer.m */,
 				4C8F8CB21CC38B7E00F72CE5 /* HSuielement.m */,
-				7837862C249E4C2F00F2C606 /* HSuserpreference.m */,
+				7837862C249E4C2F00F2C606 /* HSuserpreferences.m */,
 				4F8779D0200CD51200E9DB42 /* HSwindow.m */,
 				4FDD8E7B1C85A05700085D7A /* lsunit.lua */,
 				D02F95261A00221C00E28BB2 /* Supporting Files */,
@@ -5342,9 +5342,9 @@
 			productReference = 6AE181271D36E90B0097211C /* libnoises.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
-		7837861D249E491300F2C606 /* userpreference */ = {
+		7837861D249E491300F2C606 /* userpreferences */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 78378623249E491300F2C606 /* Build configuration list for PBXNativeTarget "userpreference" */;
+			buildConfigurationList = 78378623249E491300F2C606 /* Build configuration list for PBXNativeTarget "userpreferences" */;
 			buildPhases = (
 				7837861E249E491300F2C606 /* Sources */,
 				78378620249E491300F2C606 /* Frameworks */,
@@ -5354,9 +5354,9 @@
 			);
 			dependencies = (
 			);
-			name = userpreference;
+			name = userpreferences;
 			productName = alert;
-			productReference = 78378627249E491300F2C606 /* libuserpreference.dylib */;
+			productReference = 78378627249E491300F2C606 /* libuserpreferences.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 		9445CA0A19083251002568BB /* Hammerspoon */ = {
@@ -6006,7 +6006,7 @@
 				4FD0AB511B749D7A00A82496 /* urlevent */,
 				4FD0AB641B74A67500A82496 /* usb */,
 				4FD0AB6F1B74A68900A82496 /* usbwatcher */,
-				7837861D249E491300F2C606 /* userpreference */,
+				7837861D249E491300F2C606 /* userpreferences */,
 				D641255A1BA07CEA000FB5F8 /* webview */,
 				D6B946481D139C7D00177E0C /* webviewdatastore */,
 				D6B946541D139CC500177E0C /* webviewtoolbar */,
@@ -6054,13 +6054,13 @@
 				4CB349EF1C7F74AD006F0DE0 /* test_javascript.lua in Resources */,
 				4CD64AAB1C6F168700EB6E39 /* test_socket.lua in Resources */,
 				4FDD8E911C8DEE3700085D7A /* test_appfinder.lua in Resources */,
-				7837862B249E4A1200F2C606 /* test_userpreference.lua in Resources */,
 				4F3042FF21D4DEE300769310 /* test_inspect.lua in Resources */,
 				4F40EC441CCD126F006342D7 /* test_distributednotifications.lua in Resources */,
 				4F8779D3200CD63F00E9DB42 /* test_window.lua in Resources */,
 				4CE639141C772DC700BB7CD2 /* test_udpsocket.lua in Resources */,
-				78378633249E4CBE00F2C606 /* test_notdisturbmode.lua in Resources */,
 				4FCC52CF1E1528D4007F93D0 /* test_brightness.lua in Resources */,
+				78378638249E56F300F2C606 /* test_donotdisturb.lua in Resources */,
+				78378637249E56C500F2C606 /* test_userpreferences.lua in Resources */,
 				4FEF4D551C5FBC0F00E3B939 /* test_audiodevice.lua in Resources */,
 				4C5BA6B71C85EB0400E68CA9 /* test_fs.lua in Resources */,
 				4C403D661CBE627200EE20ED /* test_application.lua in Resources */,
@@ -6824,7 +6824,7 @@
 				4FDD8E8F1C8DED1C00085D7A /* HSappfinder.m in Sources */,
 				6AE181321D39C8F10097211C /* HSnoises.m in Sources */,
 				4FCC52CE1E1527EF007F93D0 /* HSbrightness.m in Sources */,
-				78378635249E4D1700F2C606 /* HSnotdisturbmode.m in Sources */,
+				78378635249E4D1700F2C606 /* HSdonotdisturb.m in Sources */,
 				4FDD8E4E1C834C8100085D7A /* HSbase64.m in Sources */,
 				4FCBAFD723B0FB95007BA1D0 /* HSmath.m in Sources */,
 				4F8779D1200CD51200E9DB42 /* HSwindow.m in Sources */,
@@ -6835,7 +6835,6 @@
 				4C403D641CBE5B9F00EE20ED /* HSapplication.m in Sources */,
 				4C8F8CB31CC38B7E00F72CE5 /* HSuielement.m in Sources */,
 				D02F95291A00221C00E28BB2 /* HSrequire_all.m in Sources */,
-				7837862D249E4C2F00F2C606 /* HSuserpreference.m in Sources */,
 				4C5BA6B51C85EAEB00E68CA9 /* HSfs.m in Sources */,
 				4F6CE1341C6B93E10016668E /* HStimer.m in Sources */,
 				4CD64AA91C6F15F400EB6E39 /* HSsocket.m in Sources */,
@@ -6844,6 +6843,7 @@
 				4F40EC401CCD0FE3006342D7 /* HSdistributednotifications.m in Sources */,
 				4FB74B3B2049A9A600B08851 /* HStask.m in Sources */,
 				4FDD8E891C8AE3ED00085D7A /* HSTestCase.m in Sources */,
+				78378636249E55C400F2C606 /* HSuserpreferences.m in Sources */,
 				4FDD8E521C83612D00085D7A /* HSalert.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -7355,7 +7355,7 @@
 		};
 		7837862A249E498F00F2C606 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 7837861D249E491300F2C606 /* userpreference */;
+			target = 7837861D249E491300F2C606 /* userpreferences */;
 			targetProxy = 78378629249E498F00F2C606 /* PBXContainerItemProxy */;
 		};
 		B8524F34201A89BF00844F3D /* PBXTargetDependency */ = {
@@ -26296,7 +26296,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		78378623249E491300F2C606 /* Build configuration list for PBXNativeTarget "userpreference" */ = {
+		78378623249E491300F2C606 /* Build configuration list for PBXNativeTarget "userpreferences" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				78378624249E491300F2C606 /* Debug */,

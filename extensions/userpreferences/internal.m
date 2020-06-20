@@ -13,7 +13,7 @@
 #pragma mark - Module Functions
 
 // key, value, app id
-static int userpreference_set(lua_State *L) {
+static int userpreferences_set(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TSTRING|LS_TNUMBER|LS_TBOOLEAN|LS_TINTEGER|LS_TNIL, LS_TSTRING, LS_TBREAK];
 
@@ -29,7 +29,7 @@ static int userpreference_set(lua_State *L) {
     return 0;
 }
 
-static int userpreference_get(lua_State *L) {
+static int userpreferences_get(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TBREAK];
 
@@ -49,7 +49,7 @@ static int userpreference_get(lua_State *L) {
     return 1;
 }
 
-static int userpreference_sync(lua_State *L) {
+static int userpreferences_sync(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TBREAK];
 
@@ -60,17 +60,17 @@ static int userpreference_sync(lua_State *L) {
     return 0;
 }
 
-static const luaL_Reg userpreferenceLib[] = {
-    {"set", userpreference_set},
-    {"get", userpreference_get},
-    {"sync", userpreference_sync},
+static const luaL_Reg userpreferencesLib[] = {
+    {"set", userpreferences_set},
+    {"get", userpreferences_get},
+    {"sync", userpreferences_sync},
 
     {NULL, NULL}
 };
 
-int luaopen_hs_userpreference_internal(__unused lua_State* L) {
+int luaopen_hs_userpreferences_internal(__unused lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin registerLibrary:userpreferenceLib metaFunctions:nil];
+    [skin registerLibrary:userpreferencesLib metaFunctions:nil];
 
     return 1;
 }
