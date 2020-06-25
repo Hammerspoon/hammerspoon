@@ -4,7 +4,7 @@
 ///
 /// This submodule allows you to create observers for accessibility elements and be notified when they trigger notifications. Not all notifications are supported by all elements and not all elements support notifications, so some trial and error will be necessary, but for compliant applications, this can allow your code to be notified when an application's user interface changes in some way.
 
-#define DEBUGGING_METHODS
+//#define DEBUGGING_METHODS switched to `#if defined(HS_EXTERNAL_MODULE)` which tracks a definition included in my Makefiles (but not the Hammerspoon one)
 
 static int refTable = LUA_NOREF ;
 
@@ -383,7 +383,7 @@ static int axobserver_watchedElements(lua_State *L) {
     return 1 ;
 }
 
-#ifdef DEBUGGING_METHODS
+#if defined(HS_EXTERNAL_MODULE)
 static int axobserver_internalDetails(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     CFMutableDictionaryRef details = observerDetails ;
@@ -409,50 +409,50 @@ static int pushNotificationsTable(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     lua_newtable(L) ;
 // Focus notifications
-    [skin pushNSObject:(__bridge NSString *)kAXMainWindowChangedNotification] ;       lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-    [skin pushNSObject:(__bridge NSString *)kAXFocusedWindowChangedNotification] ;    lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-    [skin pushNSObject:(__bridge NSString *)kAXFocusedUIElementChangedNotification] ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    [skin pushNSObject:(__bridge NSString *)kAXMainWindowChangedNotification] ;       lua_setfield(L, -2, "mainWindowChanged") ;
+    [skin pushNSObject:(__bridge NSString *)kAXFocusedWindowChangedNotification] ;    lua_setfield(L, -2, "focusedWindowChanged") ;
+    [skin pushNSObject:(__bridge NSString *)kAXFocusedUIElementChangedNotification] ; lua_setfield(L, -2, "focusedUIElementChanged") ;
 // Application notifications
-    [skin pushNSObject:(__bridge NSString *)kAXApplicationActivatedNotification] ;    lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-    [skin pushNSObject:(__bridge NSString *)kAXApplicationDeactivatedNotification] ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-    [skin pushNSObject:(__bridge NSString *)kAXApplicationHiddenNotification] ;       lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-    [skin pushNSObject:(__bridge NSString *)kAXApplicationShownNotification] ;        lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    [skin pushNSObject:(__bridge NSString *)kAXApplicationActivatedNotification] ;    lua_setfield(L, -2, "applicationActivated") ;
+    [skin pushNSObject:(__bridge NSString *)kAXApplicationDeactivatedNotification] ;  lua_setfield(L, -2, "applicationDeactivated") ;
+    [skin pushNSObject:(__bridge NSString *)kAXApplicationHiddenNotification] ;       lua_setfield(L, -2, "applicationHidden") ;
+    [skin pushNSObject:(__bridge NSString *)kAXApplicationShownNotification] ;        lua_setfield(L, -2, "applicationShown") ;
 // Window notifications
-    [skin pushNSObject:(__bridge NSString *)kAXWindowCreatedNotification] ;           lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-    [skin pushNSObject:(__bridge NSString *)kAXWindowMovedNotification] ;             lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-    [skin pushNSObject:(__bridge NSString *)kAXWindowResizedNotification] ;           lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-    [skin pushNSObject:(__bridge NSString *)kAXWindowMiniaturizedNotification] ;      lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-    [skin pushNSObject:(__bridge NSString *)kAXWindowDeminiaturizedNotification] ;    lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    [skin pushNSObject:(__bridge NSString *)kAXWindowCreatedNotification] ;           lua_setfield(L, -2, "windowCreated") ;
+    [skin pushNSObject:(__bridge NSString *)kAXWindowMovedNotification] ;             lua_setfield(L, -2, "windowMoved") ;
+    [skin pushNSObject:(__bridge NSString *)kAXWindowResizedNotification] ;           lua_setfield(L, -2, "windowResized") ;
+    [skin pushNSObject:(__bridge NSString *)kAXWindowMiniaturizedNotification] ;      lua_setfield(L, -2, "windowMiniaturized") ;
+    [skin pushNSObject:(__bridge NSString *)kAXWindowDeminiaturizedNotification] ;    lua_setfield(L, -2, "windowDeminiaturized") ;
 // New drawer, sheet, and help tag notifications
-    [skin pushNSObject:(__bridge NSString *)kAXDrawerCreatedNotification] ;           lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-    [skin pushNSObject:(__bridge NSString *)kAXSheetCreatedNotification] ;            lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-    [skin pushNSObject:(__bridge NSString *)kAXHelpTagCreatedNotification] ;          lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    [skin pushNSObject:(__bridge NSString *)kAXDrawerCreatedNotification] ;           lua_setfield(L, -2, "drawerCreated") ;
+    [skin pushNSObject:(__bridge NSString *)kAXSheetCreatedNotification] ;            lua_setfield(L, -2, "sheetCreated") ;
+    [skin pushNSObject:(__bridge NSString *)kAXHelpTagCreatedNotification] ;          lua_setfield(L, -2, "helpTagCreated") ;
 // Element notifications
-    [skin pushNSObject:(__bridge NSString *)kAXValueChangedNotification] ;            lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-    [skin pushNSObject:(__bridge NSString *)kAXUIElementDestroyedNotification] ;      lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-    [skin pushNSObject:(__bridge NSString *)kAXElementBusyChangedNotification] ;      lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    [skin pushNSObject:(__bridge NSString *)kAXValueChangedNotification] ;            lua_setfield(L, -2, "valueChanged") ;
+    [skin pushNSObject:(__bridge NSString *)kAXUIElementDestroyedNotification] ;      lua_setfield(L, -2, "uIElementDestroyed") ;
+    [skin pushNSObject:(__bridge NSString *)kAXElementBusyChangedNotification] ;      lua_setfield(L, -2, "elementBusyChanged") ;
 // Menu notifications
-    [skin pushNSObject:(__bridge NSString *)kAXMenuOpenedNotification] ;              lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-    [skin pushNSObject:(__bridge NSString *)kAXMenuClosedNotification] ;              lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-    [skin pushNSObject:(__bridge NSString *)kAXMenuItemSelectedNotification] ;        lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    [skin pushNSObject:(__bridge NSString *)kAXMenuOpenedNotification] ;              lua_setfield(L, -2, "menuOpened") ;
+    [skin pushNSObject:(__bridge NSString *)kAXMenuClosedNotification] ;              lua_setfield(L, -2, "menuClosed") ;
+    [skin pushNSObject:(__bridge NSString *)kAXMenuItemSelectedNotification] ;        lua_setfield(L, -2, "menuItemSelected") ;
 // Table and outline view notifications
-    [skin pushNSObject:(__bridge NSString *)kAXRowCountChangedNotification] ;         lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-    [skin pushNSObject:(__bridge NSString *)kAXRowCollapsedNotification] ;            lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-    [skin pushNSObject:(__bridge NSString *)kAXRowExpandedNotification] ;             lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    [skin pushNSObject:(__bridge NSString *)kAXRowCountChangedNotification] ;         lua_setfield(L, -2, "rowCountChanged") ;
+    [skin pushNSObject:(__bridge NSString *)kAXRowCollapsedNotification] ;            lua_setfield(L, -2, "rowCollapsed") ;
+    [skin pushNSObject:(__bridge NSString *)kAXRowExpandedNotification] ;             lua_setfield(L, -2, "rowExpanded") ;
 // Miscellaneous notifications
-    [skin pushNSObject:(__bridge NSString *)kAXSelectedChildrenChangedNotification] ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-    [skin pushNSObject:(__bridge NSString *)kAXResizedNotification] ;                 lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-    [skin pushNSObject:(__bridge NSString *)kAXMovedNotification] ;                   lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-    [skin pushNSObject:(__bridge NSString *)kAXCreatedNotification] ;                 lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-    [skin pushNSObject:(__bridge NSString *)kAXAnnouncementRequestedNotification] ;   lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-    [skin pushNSObject:(__bridge NSString *)kAXLayoutChangedNotification] ;           lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-    [skin pushNSObject:(__bridge NSString *)kAXSelectedCellsChangedNotification] ;    lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-    [skin pushNSObject:(__bridge NSString *)kAXSelectedChildrenMovedNotification] ;   lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-    [skin pushNSObject:(__bridge NSString *)kAXSelectedColumnsChangedNotification] ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-    [skin pushNSObject:(__bridge NSString *)kAXSelectedRowsChangedNotification] ;     lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-    [skin pushNSObject:(__bridge NSString *)kAXSelectedTextChangedNotification] ;     lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-    [skin pushNSObject:(__bridge NSString *)kAXTitleChangedNotification] ;            lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-    [skin pushNSObject:(__bridge NSString *)kAXUnitsChangedNotification] ;            lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    [skin pushNSObject:(__bridge NSString *)kAXSelectedChildrenChangedNotification] ; lua_setfield(L, -2, "selectedChildrenChanged") ;
+    [skin pushNSObject:(__bridge NSString *)kAXResizedNotification] ;                 lua_setfield(L, -2, "resized") ;
+    [skin pushNSObject:(__bridge NSString *)kAXMovedNotification] ;                   lua_setfield(L, -2, "moved") ;
+    [skin pushNSObject:(__bridge NSString *)kAXCreatedNotification] ;                 lua_setfield(L, -2, "created") ;
+    [skin pushNSObject:(__bridge NSString *)kAXAnnouncementRequestedNotification] ;   lua_setfield(L, -2, "announcementRequested") ;
+    [skin pushNSObject:(__bridge NSString *)kAXLayoutChangedNotification] ;           lua_setfield(L, -2, "layoutChanged") ;
+    [skin pushNSObject:(__bridge NSString *)kAXSelectedCellsChangedNotification] ;    lua_setfield(L, -2, "selectedCellsChanged") ;
+    [skin pushNSObject:(__bridge NSString *)kAXSelectedChildrenMovedNotification] ;   lua_setfield(L, -2, "selectedChildrenMoved") ;
+    [skin pushNSObject:(__bridge NSString *)kAXSelectedColumnsChangedNotification] ;  lua_setfield(L, -2, "selectedColumnsChanged") ;
+    [skin pushNSObject:(__bridge NSString *)kAXSelectedRowsChangedNotification] ;     lua_setfield(L, -2, "selectedRowsChanged") ;
+    [skin pushNSObject:(__bridge NSString *)kAXSelectedTextChangedNotification] ;     lua_setfield(L, -2, "selectedTextChanged") ;
+    [skin pushNSObject:(__bridge NSString *)kAXTitleChangedNotification] ;            lua_setfield(L, -2, "titleChanged") ;
+    [skin pushNSObject:(__bridge NSString *)kAXUnitsChangedNotification] ;            lua_setfield(L, -2, "unitsChanged") ;
 
     return 1 ;
 }
@@ -522,7 +522,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {"removeWatcher", axobserver_removeWatchedElement},
     {"watching",      axobserver_watchedElements},
 
-#ifdef DEBUGGING_METHODS
+#if defined(HS_EXTERNAL_MODULE)
     {"_internals",    axobserver_internalDetails},
 #endif
 
@@ -535,7 +535,7 @@ static const luaL_Reg userdata_metaLib[] = {
 // Functions for returned object when module loads
 static luaL_Reg moduleLib[] = {
     {"new",        axobserver_new},
-#ifdef DEBUGGING_METHODS
+#if defined(HS_EXTERNAL_MODULE)
     {"_internals", axobserver_internalDetails},
 #endif
     {NULL,         NULL}

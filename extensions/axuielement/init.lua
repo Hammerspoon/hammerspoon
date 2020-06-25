@@ -4,22 +4,38 @@
 ---
 --- This module works through the use of axuielementObjects, which is the Hammerspoon representation for an accessibility object.  An accessibility object represents any object or component of an OS X application which can be manipulated through the OS X Accessibility API -- it can be an application, a window, a button, selected text, etc.  As such, it can only support those features and objects within an application that the application developers make available through the Accessibility API.
 ---
---- The basic methods available to determine what attributes and actions are available for a given object are described in this reference documentation.  In addition, the module will dynamically add methods for the attributes and actions appropriate to the object, but these will differ between object roles and applications -- again we are limited by what the target application developers provide us.
+--- In addition to the formal methods described in this documentation, dynamic methods exist for accessing element attributes and actions. These will differ somewhat between objects as the specific attributes and actions will depend upon the accessibility object's role and purpose, but the following outlines the basics.
 ---
---- The dynamically generated methods will follow one of the following templates:
----  * `object:<attribute>()`            - this will return the value for the specified attribute (see [hs.axuielement:attributeValue](#attributeValue) for the generic function this is based on). If the element does not have this specific attribute, an error will be generated.
----  * `object("<attribute>")`           - this will return the value for the specified attribute. Returns nil if the element does not have this specific attribute instead of generating an error.
----  * `object:set<attribute>(value)`    - this will set the specified attribute to the given value (see [hs.axuielement:setAttributeValue](#setAttributeValue) for the generic function this is based on). If the element does not have this specific attribute or if it is not settable, an error will be generated.
----  * `object("set<attribute>", value)` - this will set the specified attribute to the given value. If the element does not have this specific attribute or if it is not settable, an error will be generated.
----  * `object:do<action>()`             - this request that the specified action is performed by the object (see [hs.axuielement:performAction](#performAction) for the generic function this is based on). If the element does not respond to this action, an error will be generated.
----  * `object("do<action>")`            - this request that the specified action is performed by the object. If the element does not respond to this action, an error will be generated.
+--- Getting and Setting Attribute values:
+---  * `object.attribute` is a shortcut for `object:attributeValue(attribute)`
+---  * `object.attribute = value` is a shortcut for `object:setAttributeValue(attribute, value)`
+---    * If detecting accessiblity errors that may occur is necessary, you must use the formal methods [hs.axuielement:attributeValue](#attributeValue) and [hs.axuielement:setAttributeValue](#setAttributeValue)
+---    * Note that setting an attribute value is not guaranteeed to work with either method:
+---      * internal logic within the receiving application may decline to accept the newly assigned value
+---      * an accessibility error may occur
+---      * the element may not be settable (surprisingly this does not return an error, even when [hs.axuielement:isAttributeSettable](#isAttributeSettable) returns false for the attribute specified)
+---    * If you require confirmation of the change, you will need to check the value of the attribute with one of the methods described above after setting it.
 ---
---- Where `<action>` and `<attribute>` can be the formal Accessibility version of the attribute or action name (a string usually prefixed with "AX") or without the "AX" prefix.  When the prefix is left off, the first letter of the action or attribute can be uppercase or lowercase.
+--- Iteration over Attributes:
+---  * `for k,v in pairs(object) do ... end` is a shortcut for `for k,_ in ipairs(object:attributeNames()) do local v = object:attributeValue(k) ; ... end` or `for k,v in pairs(object:allAttributeValues()) do ... end` (though see note below)
+---     * If detecting accessiblity errors that may occur is necessary, you must use one of the formal approaches [hs.axuielement:allAttributeValues](#allAttributeValues) or [hs.axuielement:attributeNames](#attributeNames) and [hs.axuielement:attributeValue](#attributeValue)
+---    * By default, [hs.axuielement:allAttributeValues](#allAttributeValues) will not include key-value pairs for which the attribute (key) exists for the element but has no assigned value (nil) at the present time. This is because the value of `nil` prevents the key from being retained in the table returned. See [hs.axuielement:allAttributeValues](#allAttributeValues) for details and a workaround.
 ---
---- The module also dynamically supports treating the axuielementObject useradata as an array, to access it's children (i.e. `#object` will return a number, indicating the number of direct children the object has, and `object[1]` is equivalent to `object:children()[1]` or, more formally, `object:attributeValue("AXChildren")[1]`).
+--- Iteration over Child Elements (AXChildren):
+---  * `for i,v in ipairs(object) do ... end` is a shortcut for `for i,v in pairs(object:attributeValue("AXChildren")) do ... end`
+---  * `#object` is a shortcut for `#object:attributeValue("AXChildren")`
+---  * `object[i]` is a shortcut for `object:attributeValue("AXChildren")[i]`
+---    * If detecting accessiblity errors that may occur is necessary, you must use the formal method [hs.axuielement:attributeValue](#attributeValue) to get the "AXChildren" attribute.
 ---
---- You can also treat the axuielementObject userdata as a table of key-value pairs to generate a list of the dynamically generated functions: `for k, v in pairs(object) do print(k, v) end` (this is essentially what [hs.axuielement:dynamicMethods](#dynamicMethods) does).
-
+--- Actions ([hs.axuielement:actionNames](#actionNames)):
+---  * `object:do<action>()` is a shortcut for `object:performAction(action)`
+---    * See [hs.axuielement:performAction](#performAction) for a description of the return values and [hs.axuielement:actionNames](#actionNames) to get a list of actions that the element supports.
+---
+--- ParameterizedAttributes:
+---  * `object:<attribute>WithParameter(value)` is a shortcut for `object:parameterizedAttributeValue(attribute, value)
+---    * See [hs.axuielement:parameterizedAttributeValue](#parameterizedAttributeValue) for a description of the return values and [hs.axuielement:parameterizedAttributeNames](#parameterizedAttributeNames) to get a list of parameterized values that the element supports
+---
+---    * The specific value required for a each parameterized attribute is different and is often application specific thus requiring some experimentation. Notes regarding identified parameter types and thoughts on some still being investigated will be provided in the Hammerspoon Wiki, hopefully shortly after this module becomes part of a Hammerspoon release.
 local USERDATA_TAG = "hs.axuielement"
 
 if not hs.accessibilityState(true) then
@@ -91,164 +107,108 @@ end
 
 -- build up the "correct" object metatable methods
 
-objectMT.__index = function(self, _)
-    if type(_) == "string" then
+objectMT.__index = function(self, key)
+    if type(key) == "string" then
         -- take care of the internally defined items first so we can get out of here quickly if its one of them
-        if objectMT[_] then return objectMT[_] end
+        if objectMT[key] then return objectMT[key] end
 
-        -- Now for the dynamically generated methods...
+        -- Now for the dynamically generated stuff...
 
-        local matchName = _:match("^set(%u[%w_]*)$")
-        if not matchName then matchName = _:match("^do(%u[%w_]*)$") end
-        if not matchName then matchName = _:match("^([%w_]+)Parameter$") end
-        if not matchName then matchName = _ end
-        local formalName = matchName:match("^AX[%w_]+$") and matchName or "AX"..matchName:sub(1,1):upper()..matchName:sub(2)
+        local doer, parameterized = false, false
 
-        -- luacheck: push ignore __
-
-        -- check for setters
-        if _:match("^set%u") then
-
-             -- check attributes
-             for __, v in ipairs(objectMT.attributeNames(self) or {}) do
-                if v == formalName and objectMT.isAttributeSettable(self, formalName) then
-                    return function(self2, ...) return objectMT.setAttributeValue(self2, formalName, ...) end
-                end
-            end
-
-        -- check for doers
-        elseif _:match("^do%u") then
-
-            -- check actions
-            for __, v in ipairs(objectMT.actionNames(self) or {}) do
-                if v == formalName then
-                    return function(self2, ...) return objectMT.performAction(self2, formalName, ...) end
-                end
-            end
-
-        -- getter or bust
+        local AXName = key:match("^do(%u[%w_]*)$")
+        if AXName then
+            doer = true
         else
-
-            -- check attributes
-            for __, v in ipairs(objectMT.attributeNames(self) or {}) do
-                if v == formalName then
-                    return function(self2, ...) return objectMT.attributeValue(self2, formalName, ...) end
-                end
-            end
-
-            -- check paramaterizedAttributes
-            for __, v in ipairs(objectMT.parameterizedAttributeNames(self) or {}) do
-                if v == formalName then
-                    return function(self2, ...) return objectMT.parameterizedAttributeValue(self2, formalName, ...) end
-                end
+            AXName = key:match("^([%w_]+)WithParameter$")
+            if AXName then
+                parameterized = true
+            else
+                AXName = key
             end
         end
 
-        -- luacheck: pop
+        if doer then
+            for _, v in ipairs(objectMT.actionNames(self) or {}) do
+                if v == AXName then
+                    return function(self2, ...) return objectMT.performAction(self2, v, ...) end
+                end
+            end
+        elseif parameterized then
+            for _, v in ipairs(objectMT.parameterizedAttributeNames(self) or {}) do
+                if v == AXName then
+                    return function(self2, ...) return objectMT.parameterizedAttributeValue(self2, v, ...) end
+                end
+            end
+        else
+            for _, v in ipairs(objectMT.attributeNames(self) or {}) do
+                if v == AXName then
+                    return objectMT.attributeValue(self, v)
+                end
+            end
+        end
 
         -- guess it doesn't exist
         return nil
-    elseif type(_) == "number" then
-        local children = objectMT.attributeValue(self, "AXChildren")
-        if children then
-            return children[_]
-        else
-            return nil
+    elseif type(key) == "number" then
+        local children = objectMT.attributeValue(self, "AXChildren") or {}
+        return children[key]
+    else
+        return nil
+    end
+end
+
+objectMT.__newindex = function(self, key, value)
+    for _, v in ipairs(objectMT.attributeNames(self) or {}) do
+        if v == key then
+            local ok, err = self:setAttributeValue(v, value) -- luacheck: ignore
+-- undecided if this should generate an error when an accessibility error occurs. it's more "table" like if it
+-- doesn't; otoh table assignment never fail unless you try with a key of `nil` and then it *does* throw an
+-- error... the docs above do say that you should use setAttributeValue if you care about accssibility errors,
+-- so unless/until someone complains I guess I'll leave the next line commented out
+--             if not ok then error(err, 2) end
+            return
         end
-    else
-        return nil
     end
+-- in this case it's not an attribute they're trying to set, so an error does make sense
+    error("attempt to index a " .. USERDATA_TAG .. " value", 2)
 end
 
-objectMT.__call = function(_, cmd, ...)
-    local fn = objectMT.__index(_, cmd)
-    if fn and type(fn) == "function" then
-        return fn(_, ...)
-    elseif fn then
-        return fn
-    elseif cmd:match("^do%u") then
-        error(tostring(cmd) .. " is not a recognized action", 2)
-    elseif cmd:match("^set%u") then
-        error(tostring(cmd) .. " is not a recognized attribute", 2)
-    else
-        return nil
-    end
-end
+-- too many optional ways to access things was becoming confusing even for me, so commenting this out
+-- it would allow you to use object("AXSomething") for properties, object("doAXSomething") for actions
+-- and object("AXSomethingWithParameter", value) for parameterized attributes.
+--
+-- objectMT.__call = function(self, cmd, ...)
+--     local fn = objectMT.__index(self, cmd)
+--     if fn and type(fn) == "function" then
+--         return fn(self, ...)
+--     elseif fn then
+--         return fn
+--     elseif cmd:match("^do%u") then
+--         error(tostring(cmd) .. " is not a recognized action", 2)
+--     else
+--         return nil
+--     end
+-- end
 
-objectMT.__pairs = function(_)
+objectMT.__pairs = function(self)
     local keys = {}
+    -- rather than capture all attribute values at outset, we just capture key names so
+    -- the generator function can get the latest values in case something changes during
+    -- iteration
+    for _,v in ipairs(objectMT.attributeNames(self)) do keys[v] = true end
 
-    -- luacheck: push ignore __
-
-    -- getters and setters for attributeNames
-    for __, v in ipairs(objectMT.attributeNames(_) or {}) do
-        local partialName = v:match("^AX(.*)")
-        if partialName then
-            keys[partialName:sub(1,1):lower() .. partialName:sub(2)] = true
-            if objectMT.isAttributeSettable(_, v) then
-                keys["set" .. partialName] = true
-            end
-        end
-    end
-
-    -- getters for paramaterizedAttributes
-    for __, v in ipairs(objectMT.parameterizedAttributeNames(_) or {}) do
-        local partialName = v:match("^AX(.*)")
-        if partialName then
-            keys[partialName:sub(1,1):lower() .. partialName:sub(2) .. "Parameter"] = true
-        end
-    end
-
-    -- doers for actionNames
-    for __, v in ipairs(objectMT.actionNames(_) or {}) do
-        local partialName = v:match("^AX(.*)")
-        if partialName then
-            keys["do" .. partialName] = true
-        end
-    end
-
-    -- luacheck: pop
-
-    return function(_, k)
+     return function(_, k)
             local v
             k, v = next(keys, k)
-            if k then v = _[k] end
+            if k then v = self:attributeValue(k) end
             return k, v
-        end, _, nil
+        end, self, nil
 end
 
 objectMT.__len = function(self)
-    local children = objectMT.attributeValue(self, "AXChildren")
-    if children then
-        return #children
-    else
-        return 0
-    end
-end
-
---- hs.axuielement:dynamicMethods([keyValueTable]) -> table
---- Method
---- Returns a list of the dynamic methods (short cuts) created by this module for the object
----
---- Parameters:
----  * `keyValueTable` - an optional boolean, default false, indicating whether or not the result should be an array (false) or a table of key-value pairs (true).
----
---- Returns:
----  * If `keyValueTable` is true, this method returns a table of key-value pairs with each key being the name of a dynamically generated method, and the value being the corresponding function.  Otherwise, this method returns an array of the dynamically generated method names.
----
---- Notes:
----  * the dynamically generated methods are described more fully in the reference documentation header, but basically provide shortcuts for getting and setting attribute values as well as perform actions supported by the Accessibility object the axuielementObject represents.
-objectMT.dynamicMethods = function(self, asKV)
-    local results = {}
-    for k, v in pairs(self) do
-        if asKV then
-            results[k] = v
-        else
-            table.insert(results, k)
-        end
-    end
-    if not asKV then table.sort(results) end
-    return ls.makeConstantsTable(results)
+    local children = objectMT.attributeValue(self, "AXChildren") or {}
+    return #children
 end
 
 --- hs.axuielement:path() -> table
@@ -297,16 +257,16 @@ end
 ---  * true if the axuielementObject matches the criteria, false if it does not.
 ---
 --- Notes:
----  * the `criteria` parameter must be one of the following:
+---  * the `criteria` argument must be one of the following:
 ---    * a single string, specifying the value the element's AXRole attribute must equal for a positive match
 ---
 ---    * an array table of strings specifying a list of possible values the element's AXRole attribute can equal for a positive match
 ---
 ---    * a table of key-value pairs specifying a more complex criteria. The table should be defined as follows:
 ---      * one or more of the following must be specified (though all specified must match):
----        * `attribute`              -- a string, or table of strings, specifying attributes that the element must support. Strings may be specified with their formal name (e.g. "AXSomething") or informal name (e.g. "something" or "Something").
----        * `action`                 -- a string, or table of strings, specifying actions that the element must be able to perform. Strings may be specified with their formal name (e.g. "AXSomething") or informal name (e.g. "something" or "Something").
----        * `parameterizedAttribute` -- a string, or table of strings, specifying parametrized attributes that the element must support. Strings may be specified with their formal name (e.g. "AXSomething") or informal name (e.g. "something" or "Something").
+---        * `attribute`              -- a string, or table of strings, specifying attributes that the element must support.
+---        * `action`                 -- a string, or table of strings, specifying actions that the element must be able to perform.
+---        * `parameterizedAttribute` -- a string, or table of strings, specifying parametrized attributes that the element must support.
 ---
 ---      * if the `attribute` key is specified, you can use one of the the following to specify a specific value the attribute must equal for a positive match. No more than one of these should be provided. If neither are present, then only the existence of the attributes specified by `attribute` are required.
 ---        * `value`                  -- a value, or table of values, that a specifeid attribute must equal. If it's a table, then only one of the values has to match the attribute value for a positive match. Note that if you specify more than one attribute with the `attribute` key, you must provide at least one value for each attribute in this table (order does not matter, but the match will fail if any atrribute does not match at least one value provided).
@@ -362,34 +322,15 @@ objectMT.matchesCriteria = function(self, criteria)
 
         if thisCriteria.attribute then
             if type(thisCriteria.attribute) ~= "table" then thisCriteria.attribute = { thisCriteria.attribute } end
-            -- convert to formal versions of attribute names, if they aren't already (i.a. AXAttribtue)
-            for i,v in ipairs(thisCriteria.attribute) do
-                if not v:match("^AX") then
-                    thisCriteria.attribute[i] = "AX" .. v:sub(1,1):upper() .. v:sub(2,-1)
-                end
-            end
         end
         if thisCriteria.action then
             if type(thisCriteria.action) ~= "table" then thisCriteria.action = { thisCriteria.action } end
-            -- convert to formal versions of action names, if they aren't already (i.a. AXAction)
-            for i,v in ipairs(thisCriteria.action) do
-                if not v:match("^AX") then
-                    thisCriteria.action[i] = "AX" .. v:sub(1,1):upper() .. v:sub(2,-1)
-                end
-            end
         end
         if thisCriteria.parameterizedAttribute then
             if type(thisCriteria.parameterizedAttribute) ~= "table" then thisCriteria.parameterizedAttribute = { thisCriteria.parameterizedAttribute } end
-            -- convert to formal versions of parameterizedAttribute names, if they aren't already (i.a. AXParameterizedAttribute)
-            for i,v in ipairs(thisCriteria.parameterizedAttribute) do
-                if not v:match("^AX") then
-                    thisCriteria.parameterizedAttribute[i] = "AX" .. v:sub(1,1):upper() .. v:sub(2,-1)
-                end
-            end
         end
         if thisCriteria.value then
             if type(thisCriteria.value) ~= "table" then thisCriteria.value = { thisCriteria.value } end
-            -- values can be anything, so we make no changes...
         end
     end
 
@@ -472,12 +413,12 @@ end
 
 --- hs.axuielement:buildTree(callback, [depth], [withParents]) -> elementSearchObject
 --- Method
---- Captures all of the available information for the accessibility object and its children and returns it in a table for inspection.
+--- Captures all of the available information for the accessibility object and its descendants and returns it in a table for inspection.
 ---
 --- Parameters:
 ---  * `callback` - a required function which should expect two arguments: a `msg` string specifying how the search ended, and a table containing the recorded information. `msg` will be "completed" when the search has completed normally (or reached the specified depth) and will contain a string starting with "**" if it terminates early for some reason (see Notes: section for more information)
----  * `depth`    - an optional integer, default `math.huge`, specifying the maximum depth from the initial accessibility object that should be visited to identify child elements and their attributes.
----  * `withParents` - an optional boolean, default false, specifying whether or not an element's (or child's) attributes for `AXParent` and `AXTopLevelUIElement` should also be visited when identifying additional elements to include in the results table.
+---  * `depth`    - an optional integer, default `math.huge`, specifying the maximum depth from the initial accessibility object that should be visited to identify descendant elements and their attributes.
+---  * `withParents` - an optional boolean, default false, specifying whether or not an element's (or descendant's) attributes for `AXParent` and `AXTopLevelUIElement` should also be visited when identifying additional elements to include in the results table.
 ---
 --- Returns:
 ---  * an elementSearchObject as described in [hs.axuielement:elementSearch](#elementSearch)
@@ -497,11 +438,11 @@ end
 
 --- hs.axuielement:allChildElements(callback, [withParents]) -> elementSearchObject
 --- Method
---- Query the accessibility object for all child accessibility objects (and their children...).
+--- Query the accessibility object for all child accessibility objects and their descendants
 ---
 --- Parameters:
----  * `callback`    - a required function which should expect two arguments: a `msg` string specifying how the search ended, and a table containing the discovered child elements. `msg` will be "completed" when the traversal has completed normally and will contain a string starting with "**" if it terminates early for some reason (see Notes: section for more information)
----  * `withParents` - an optional boolean, default false, indicating that the parent of objects (and their children) should be collected as well.
+---  * `callback`    - a required function which should expect two arguments: a `msg` string specifying how the search ended, and a table containing the discovered descendant elements. `msg` will be "completed" when the traversal has completed normally and will contain a string starting with "**" if it terminates early for some reason (see Notes: section for more information)
+---  * `withParents` - an optional boolean, default false, indicating that the parent of objects (and their descendants) should be collected as well.
 ---
 --- Returns:
 ---  * an elementSearchObject as described in [hs.axuielement:elementSearch](#elementSearch)
@@ -761,24 +702,24 @@ end
 
 --- hs.axuielement:elementSearch(callback, [criteria], [namedModifiers]) -> elementSearchObject
 --- Method
---- Search for and generate a table of the accessibility elements for the attributes and children of this object based on the specified criteria.
+--- Search for and generate a table of the accessibility elements for the attributes and descendants of this object based on the specified criteria.
 ---
 --- Parameters:
 ---  * `callback`       - a (usually) required function which will receive the results of this search. The callback should expect three arguments and return none. The arguments to the callback function will be `msg`, a string specifying how the search ended and `results`, the elementSearchObject containing the requested results, and the number of items added to the results (see `count` in `namedModifiers`). `msg` will be "completed" if the search completes normally, or a string starting with "**" if it is terminated early (see Returns: and Notes: for more details).
 ---  * `criteria`       - an optional function which should accept one argument (the current element being examined) and return true if it should be included in the results or false if it should be rejected. See [hs.axuielement.searchCriteriaFunction](#searchCriteriaFunction) to create a search function that uses [hs.axuielement:matchesCriteria](#matchesCriteria) for evaluation.
 ---  * `namedModifiers` - an optional table specifying key-value pairs that further modify or control the search. This table may contain 0 or more of the following keys:
 ---    * `count`          - an optional integer, default `math.huge`, specifying the maximum number of matches to collect before ending the search and invoking the callback. You can continue the search to find additional elements by invoking `elementSearchObject:next()` (described below in the `Returns` section) on the return value of this method, or on the results argument passed to the callback.
----    * `depth`          - an optional integer, default `math.huge`, specifying the maximum number of steps (children of children...) from the initial accessibility element the search should visit. If you know that your desired element(s) are relatively close to your starting element, setting this to a lower value can significantly speed up the search.
+---    * `depth`          - an optional integer, default `math.huge`, specifying the maximum number of steps (descendants) from the initial accessibility element the search should visit. If you know that your desired element(s) are relatively close to your starting element, setting this to a lower value can significantly speed up the search.
 ---
 ---    * The following are also recognized, but may impact the speed of the search, the responsiveness of Hammerspoon, or the format of the results in ways that limit further filtering and are not recommended except when you know that you require them:
----      * `asTree`         - an optional boolean, default false, and ignored if `criteria` is specified and non-empty, `objectOnly` is true, or `count` is specified. This modifier specifies whether the search results should return as an array table of tables containing each element's details (false) or as a tree where in which the root node details are the key-value pairs of the returned table and child elements are likewise described in subtables attached to the attribute name they belong to (true). This format is primarily for debugging and exploratory purposes and may not be arranged for easy programatic evaluation.
+---      * `asTree`         - an optional boolean, default false, and ignored if `criteria` is specified and non-empty, `objectOnly` is true, or `count` is specified. This modifier specifies whether the search results should return as an array table of tables containing each element's details (false) or as a tree where in which the root node details are the key-value pairs of the returned table and descendant elements are likewise described in subtables attached to the attribute name they belong to (true). This format is primarily for debugging and exploratory purposes and may not be arranged for easy programatic evaluation.
 ---      * `includeParents` - a boolean, default false, specifying whether or not parent attributes (`AXParent` and `AXTopLevelUIElement`) should be examined during the search. Note that in most cases, setting this value to true will end up traversing the entire Accessibility structure for the target application and may significantly slow down the search.
 ---      * `noCallback`     - an optional boolean, default false, and ignored if `callback` is not also nil, allowing you to specify nil as the callback when set to true. This feature requires setting this named argumennt to true *and* specifying the callback field as nil because starting a query from an element with a lot of descendants **WILL** block Hammerspoon and slow down the responsiveness of your computer (I've seen blocking for over 5 minutes in extreme cases) and should be used *only* when you know you are starting from close to the end of the element heirarchy.
 ---      * `objectOnly`     - an optional boolean, default true, specifying whether each result in the final table will be the accessibility element discovered (true) or a table containing details about the element include the attribute names, actions, etc. for the element (false). This latter format is primarily for debugging and exploratory purposes and may not be arranged for easy programatic evaluation.
 ---
 --- Returns:
 ---  * an elementSearchObject which contains metamethods allowing you to check to see if the process has completed and cancel it early if desired. The methods include:
----    * `elementSearchObject:cancel([reason])` - cancels the current search and invokes the callback with the partial results already collected. If you specify `reason`, the `msg` parameter for the callback will be `** <reason>`; otherwise it will be "** cancelled".
+---    * `elementSearchObject:cancel([reason])` - cancels the current search and invokes the callback with the partial results already collected. If you specify `reason`, the `msg` argument for the callback will be `** <reason>`; otherwise it will be "** cancelled".
 ---    * `elementSearchObject:isRunning()`      - returns true if the search is currently ongoing or false if it has completed or been cancelled.
 ---    * `elementSearchObject:matched()`        - returns an integer specifying the number of elements which have already been found that meet the specified criteria function.
 ---    * `elementSearchObject:runTime()`        - returns an integer specifying the number of seconds spent performing this search. Note that this is *not* an accurate measure of how much time a given search will always take because the time will be greatly affected by how much other activity is occurring within Hammerspoon and on the users computer. Resuming a cancelled search or a search which invoked the callback because it reached `count` items with the `next` method (descibed below) will cause this number to begin increasing again to provide a cumulative total of time spent performing the search; time between when the callback is invoked and the `next` method is invoked is not included.
@@ -793,13 +734,13 @@ end
 ---      * `elementSearchObject:next()` - if the search was cancelled or reached the count of matches specified, this method will continue the search where it left off. The elementSearchObject returned when the callback is next invoked will have up to `count` items added to the existing results (calls to `next` are cummulative for the total results captured in the elementSearchObject). The third ardument to the callback will be the number of items *added* to the search results, not the number of items *in* the search results.
 ---
 --- Notes:
----  * This method utilizes coroutines to keep Hammerspoon responsive, but may be slow to complete if `includeParents` is true, if you do not specify `depth`, or if you start from an element that has a lot of children or has children with many elements (e.g. the application element for a web browser). This is dependent entirely upon how many active accessibility elements the target application defines and where you begin your search and cannot reliably be determined up front, so you may need to experiment to find the best balance for your specific requirements.
+---  * This method utilizes coroutines to keep Hammerspoon responsive, but may be slow to complete if `includeParents` is true, if you do not specify `depth`, or if you start from an element that has a lot of descendants (e.g. the application element for a web browser). This is dependent entirely upon how many active accessibility elements the target application defines and where you begin your search and cannot reliably be determined up front, so you may need to experiment to find the best balance for your specific requirements.
 ---
 --- * The search performed is a breadth-first search, so in general earlier elements in the results table will be "closer" in the Accessibility hierarchy to the starting point than later elements.
 ---
 --- * The `elementSearchObject` returned by this method and the results passed in as the second argument to the callback function are the same object -- you can use either one in your code depending upon which makes the most sense. Results that match the criteria function are added to the `elementSearchObject` as they are found, so if you examine the object/table returned by this method and determine that you have located the element or elements you require before the callback has been invoked, you can safely invoke the cancel method to end the search early.
 ---
---- * If `objectsOnly` is specified as false, it may take some time after `cancel` is invoked for the mapping of element attribute tables to the child elements in the results set -- this is a by product of the need to iterate through the results to match up all of the instances of each element to it's attribute table.
+--- * If `objectsOnly` is specified as false, it may take some time after `cancel` is invoked for the mapping of element attribute tables to the descendant elements in the results set -- this is a by product of the need to iterate through the results to match up all of the instances of each element to it's attribute table.
 ---
 --- * [hs.axuielement:allChildElements](#allChildElements) is syntactic sugar for `hs.axuielement:elementSearch(callback, { [includeParents = withParents] })`
 --- * [hs.axuielement:buildTree](#buildTree) is syntactic sugar for `hs.axuielement:elementSearch(callback, { objectOnly = false, asTree = true, [depth = depth], [includeParents = withParents] })`
@@ -815,7 +756,18 @@ objectMT.elementSearch = function(self, callback, criteria, namedModifiers)
 
     -- check to see if criteria left off and second arg is actually the namedModifiers table
     if type(namedModifiers) == "nil" and type(criteria) == "table" and not (getmetatable(criteria) or {}).__call then
-        criteria, namedModifiers = nil, criteria
+        -- verify criteria "table" is actually namedMods and not a mistake on the users part (esp since we used to take a table
+        -- for criteria)
+        local isGoodForNM = true
+        for k,_ in pairs(criteria) do
+            if type(namedModifierDefaults[k]) == "nil" then
+                isGoodForNM = false
+                break
+            end
+        end
+        if isGoodForNM then
+            criteria, namedModifiers = nil, criteria
+        end -- else let error out for bad criteria below
     end
 
     namedModifiers = namedModifiers or {}

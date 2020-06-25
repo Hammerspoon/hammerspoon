@@ -17,21 +17,21 @@ const char *AXErrorAsString(AXError theError) {
     switch(theError) {
         case kAXErrorSuccess:                           ans = "No error occurred" ; break ;
         case kAXErrorFailure:                           ans = "A system error occurred" ; break ;
-        case kAXErrorIllegalArgument:                   ans = "Illegal argument." ; break ;
-        case kAXErrorInvalidUIElement:                  ans = "AXUIElementRef is invalid." ; break ;
-        case kAXErrorInvalidUIElementObserver:          ans = "Not a valid observer." ; break ;
-        case kAXErrorCannotComplete:                    ans = "Messaging failed." ; break ;
-        case kAXErrorAttributeUnsupported:              ans = "Attribute is not supported by target." ; break ;
-        case kAXErrorActionUnsupported:                 ans = "Action is not supported by target." ; break ;
-        case kAXErrorNotificationUnsupported:           ans = "Notification is not supported by target." ; break ;
-        case kAXErrorNotImplemented:                    ans = "Function or method not implemented." ; break ;
-        case kAXErrorNotificationAlreadyRegistered:     ans = "Notification has already been registered." ; break ;
-        case kAXErrorNotificationNotRegistered:         ans = "Notification is not registered yet." ; break ;
+        case kAXErrorIllegalArgument:                   ans = "Illegal argument" ; break ;
+        case kAXErrorInvalidUIElement:                  ans = "AXUIElementRef is invalid" ; break ;
+        case kAXErrorInvalidUIElementObserver:          ans = "Not a valid observer" ; break ;
+        case kAXErrorCannotComplete:                    ans = "Messaging failed" ; break ;
+        case kAXErrorAttributeUnsupported:              ans = "Attribute is not supported by target" ; break ;
+        case kAXErrorActionUnsupported:                 ans = "Action is not supported by target" ; break ;
+        case kAXErrorNotificationUnsupported:           ans = "Notification is not supported by target" ; break ;
+        case kAXErrorNotImplemented:                    ans = "Function or method not implemented" ; break ;
+        case kAXErrorNotificationAlreadyRegistered:     ans = "Notification has already been registered" ; break ;
+        case kAXErrorNotificationNotRegistered:         ans = "Notification is not registered yet" ; break ;
         case kAXErrorAPIDisabled:                       ans = "The accessibility API is disabled" ; break ;
-        case kAXErrorNoValue:                           ans = "Requested value does not exist." ; break ;
-        case kAXErrorParameterizedAttributeUnsupported: ans = "Parameterized attribute is not supported." ; break ;
-        case kAXErrorNotEnoughPrecision:                ans = "Not enough precision." ; break ;
-        default:                                        ans = "Unrecognized error occured." ; break ;
+        case kAXErrorNoValue:                           ans = "Requested value does not exist" ; break ;
+        case kAXErrorParameterizedAttributeUnsupported: ans = "Parameterized attribute is not supported" ; break ;
+        case kAXErrorNotEnoughPrecision:                ans = "Not enough precision" ; break ;
+        default:                                        ans = "Unrecognized error occured" ; break ;
     }
     return ans ;
 }
@@ -321,6 +321,13 @@ static int axuielement_getAttributeValue(lua_State *L) {
 ///
 /// Returns:
 ///  * a table with key-value pairs corresponding to the attributes of the accessibility object or nil and an error string if an accessibility error occurred
+///
+/// Notes:
+///  * if `includeErrors` is not specified or is false, then attributes which exist for the element, but currently have no value assigned, will not appear in the table. This is because Lua treats a nil value for a table's key-value pair as an instruction to remove the key from the table, if it currently exists.
+///  * To include attributes which exist but are currently unset, you need to specify `includeErrors` as true.
+///    * attributes for which no value is currently assigned will be given a table value with the following key-value pairs:
+///      * `_code` = -25212
+///      * `error` = "Requested value does not exist"
 static int axuielement_getAllAttributeValues(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
@@ -448,7 +455,7 @@ static int axuielement_isAttributeSettable(lua_State *L) {
 ///  * a boolean value indicating whether or not the accessibility object is still valid or nil and an error string if any other accessibility error occurred
 ///
 /// Notes:
-///  * an accessibilityObject can become invalid for a variety of reasons, including but not limited to the element referred to no longer being available (e.g. an element referring to a window or one of its children that has been closed) or the application terminating.
+///  * an accessibilityObject can become invalid for a variety of reasons, including but not limited to the element referred to no longer being available (e.g. an element referring to a window or one of its descendants that has been closed) or the application terminating.
 static int axuielement_isValid(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
@@ -584,7 +591,7 @@ static int axuielement_getElementAtPosition(lua_State *L) {
 ///  * the current value of the parameterized attribute, nil if the parameterized attribute has no value, or nil and an error string if an accessibility error occurred
 ///
 /// Notes:
-///  * The specific parameter required for a each parameterized attribute is different and may even be application specific thus requiring some experimentation. Notes regarding identified parameter types and thoughts on some still being investigated will be provided in the Hammerspoon Wiki, hopefully shortly after this module becomes part of a Hammerspoon release.
+///  * The specific parameter required for a each parameterized attribute is different and is often application specific thus requiring some experimentation. Notes regarding identified parameter types and thoughts on some still being investigated will be provided in the Hammerspoon Wiki, hopefully shortly after this module becomes part of a Hammerspoon release.
 static int axuielement_getParameterizedAttributeValue(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TANY, LS_TBREAK] ;
@@ -617,9 +624,6 @@ static int axuielement_getParameterizedAttributeValue(lua_State *L) {
 ///
 /// Returns:
 ///  * the axuielementObject on success; nil and an error string if the attribute could not be set or an accessibility error occurred.
-///
-/// Notes:
-///  * This is still somewhat experimental and needs more testing; use with caution.
 static int axuielement_setAttributeValue(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TANY, LS_TBREAK] ;
