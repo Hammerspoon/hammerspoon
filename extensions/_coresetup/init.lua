@@ -11,7 +11,7 @@ return {setup=function(...)
   local hsmath = require("hs.math")
 
   -- seed RNG before we do anything else
-  math.randomseed(hsmath.randomFloat()*100000000)
+  math.randomseed(math.floor(hsmath.randomFloat()*100000000000000))
 
   -- setup core functions
 
