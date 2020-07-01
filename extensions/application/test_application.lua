@@ -12,6 +12,9 @@ function testInitWithPid()
   local apps = hs.application.runningApplications()
   for _,app in pairs(apps) do
     local pidApp = hs.application.applicationForPID(app:pid())
+    if pidApp == nil then
+      assertIsEqual(app:name(), "nil")
+    end
     assertIsEqual(app:name(), pidApp:name())
   end
   return success()
