@@ -385,8 +385,8 @@ function testUdpBufferSize()
   client:send("0123456789abcdef", "255.255.255.255", port, function() client:broadcast(false) end)
 
   local info = client:info()
-  assertIsEqual(9216, info.maxReceiveIPv4BufferSize)
-  assertIsEqual(9216, info.maxReceiveIPv6BufferSize)
+  assertIsEqual(65535, info.maxReceiveIPv4BufferSize)
+  assertIsEqual(65535, info.maxReceiveIPv6BufferSize)
 
   info = client:setBufferSize(4294967296):info()
   assertIsEqual(65535, info.maxReceiveIPv4BufferSize)
