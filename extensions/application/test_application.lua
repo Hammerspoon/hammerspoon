@@ -8,6 +8,15 @@ function testInitWithPidFailures()
   return success()
 end
 
+function testInitWithPid()
+  local apps = hs.application.runningApplications()
+  for _,app in pairs(apps) do
+    local pidApp = hs.application.applicationForPID(app:pid())
+    assertIsEqual(app:name(), pidApp:name())
+  end
+  return success()
+end
+
 function testAttributesFromBundleID()
   local appName = "Safari"
   local appPath = "/Applications/Safari.app"
