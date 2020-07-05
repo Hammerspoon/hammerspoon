@@ -22,7 +22,8 @@
 ---    * By default, [hs.axuielement:allAttributeValues](#allAttributeValues) will not include key-value pairs for which the attribute (key) exists for the element but has no assigned value (nil) at the present time. This is because the value of `nil` prevents the key from being retained in the table returned. See [hs.axuielement:allAttributeValues](#allAttributeValues) for details and a workaround.
 ---
 --- Iteration over Child Elements (AXChildren):
----  * `for i,v in ipairs(object) do ... end` is a shortcut for `for i,v in pairs(object:attributeValue("AXChildren")) do ... end`
+---  * `for i,v in ipairs(object) do ... end` is a shortcut for `for i,v in pairs(object:attributeValue("AXChildren") or {}) do ... end`
+---    * Note that `object:attributeValue("AXChildren")` *may* return nil if the object does not have the `AXChildren` attribute; the shortcut does not have this limitation.
 ---  * `#object` is a shortcut for `#object:attributeValue("AXChildren")`
 ---  * `object[i]` is a shortcut for `object:attributeValue("AXChildren")[i]`
 ---    * If detecting accessiblity errors that may occur is necessary, you must use the formal method [hs.axuielement:attributeValue](#attributeValue) to get the "AXChildren" attribute.
@@ -436,7 +437,7 @@ objectMT.buildTree = function(self, callback, depth, withParents)
     })
 end
 
---- hs.axuielement:allChildElements(callback, [withParents]) -> elementSearchObject
+--- hs.axuielement:allDescendantElements(callback, [withParents]) -> elementSearchObject
 --- Method
 --- Query the accessibility object for all child accessibility objects and their descendants
 ---
@@ -449,7 +450,7 @@ end
 ---
 --- Notes:
 ---  * This method is syntactic sugar for `hs.axuielement:elementSearch(callback, { [includeParents = withParents] })`. Please refer to [hs.axuielement:elementSearch](#elementSearch) for details about the returned object and callback arguments.
-objectMT.allChildElements = function(self, callback, withParents)
+objectMT.allDescendantElements = function(self, callback, withParents)
     return self:elementSearch(callback, nil, { includeParents = withParents and true or false })
 end
 
@@ -742,7 +743,7 @@ end
 ---
 --- * If `objectsOnly` is specified as false, it may take some time after `cancel` is invoked for the mapping of element attribute tables to the descendant elements in the results set -- this is a by product of the need to iterate through the results to match up all of the instances of each element to it's attribute table.
 ---
---- * [hs.axuielement:allChildElements](#allChildElements) is syntactic sugar for `hs.axuielement:elementSearch(callback, { [includeParents = withParents] })`
+--- * [hs.axuielement:allDescendantElements](#allDescendantElements) is syntactic sugar for `hs.axuielement:elementSearch(callback, { [includeParents = withParents] })`
 --- * [hs.axuielement:buildTree](#buildTree) is syntactic sugar for `hs.axuielement:elementSearch(callback, { objectOnly = false, asTree = true, [depth = depth], [includeParents = withParents] })`
 objectMT.elementSearch = function(self, callback, criteria, namedModifiers)
     local namedModifierDefaults = {
