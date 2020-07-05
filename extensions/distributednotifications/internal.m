@@ -44,11 +44,14 @@ typedef struct _distnot_t {
 /// Parameters:
 ///  * callback - A function to be called when a matching notification arrives. The function should accept one argument:
 ///   * notificationName - A string containing the name of the notification
-///  * name - An optional string containing the name of notifications to watch for. A value of `nil` will cause all notifications to be watched. Defaults to `nil`.
+///  * name - An optional string containing the name of notifications to watch for. A value of `nil` will cause all notifications to be watched on macOS versions earlier than Catalina. Defaults to `nil`.
 ///  * object - An optional string containing the name of sending objects to watch for. A value of `nil` will cause all sending objects to be watched. Defaults to `nil`.
 ///
 /// Returns:
 ///  * An `hs.distributednotifications` object
+///
+/// Notes:
+///  * On Catalina and above, it is no longer possible to observe all notifications - the `name` parameter is effectively now required. See https://mjtsai.com/blog/2019/10/04/nsdistributednotificationcenter-no-longer-supports-nil-names/
 static int distnot_new(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TFUNCTION, LS_TSTRING|LS_TNIL|LS_TOPTIONAL, LS_TSTRING|LS_TNIL|LS_TOPTIONAL, LS_TBREAK];
