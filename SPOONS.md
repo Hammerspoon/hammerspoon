@@ -48,7 +48,7 @@ Hopefully the Spoon came with some documentation, either on its homepage or in `
 
 ### Loading a Spoon
 
-For most Spoons, simply add `hs.loadSpoon(NAME)` to your Hammerspoon config (note that `NAME` should *not* include the `.spoon` extension). This will make the spoon available in the global Lua namespace as `spoon.NAME`.
+For most Spoons, simply add `hs.loadSpoon("NAME")` to your Hammerspoon config (note that `NAME` should *not* include the `.spoon` extension). This will make the spoon available in the global Lua namespace as `spoon.NAME`.
 
 ### Integrating into your configuration
 
