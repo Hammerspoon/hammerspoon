@@ -632,7 +632,7 @@ coroutine.applicationYield = hs.coroutineApplicationYield
   if not hasinitfile then
     local notify = require("hs.notify")
     local printf = hs.printf
-    notify.register("__noinitfile", function() os.execute("open http://www.hammerspoon.org/go/") end)
+    notify.register("__noinitfile", function() os.execute("open https://www.hammerspoon.org/go/") end)
     notify.show("Hammerspoon", "No config file found", "Click here for the Getting Started Guide", "__noinitfile")
     printf("-- Can't find %s; create it and reload your config.", prettypath)
     return hs.completionsForInputString, runstring
