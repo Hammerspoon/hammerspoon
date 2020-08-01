@@ -278,7 +278,7 @@
 			<key>UTTypeIdentifier</key>
 			<string>org.hammerspoon.Hammerspoon.Spoon</string>
 			<key>UTTypeReferenceURL</key>
-			<string>http://www.hammerspoon.org/</string>
+			<string>https://www.hammerspoon.org/</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>
