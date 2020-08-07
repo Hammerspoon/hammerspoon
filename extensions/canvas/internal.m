@@ -901,7 +901,7 @@ static int userdata_gc(lua_State* L) ;
             return _subroleOverride ;
         }
     } else {
-        return [[super accessibilitySubrole] stringByAppendingString:@".Hammerspoon"] ;
+        return [super accessibilitySubrole] ;
     }
 }
 
