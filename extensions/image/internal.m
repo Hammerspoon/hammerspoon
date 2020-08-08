@@ -1704,12 +1704,12 @@ static int getLoupedeckArray(lua_State* L) {
                 int green = data[offset+2];
                 int blue = data[offset+3];
                 
-                uint16_t color = ((green >> 5) & 0x07) | (((red >> 3) & 0x1F) << 3) | (((blue >> 3) & 0x1F) << 8);
+                uint16_t color = ((red >> 3) & 0x1f) << 11 | (((green >> 2) & 0x3F) << 5) | ((blue >> 3) & 0x1F);
                             
                 uint8_t little = color & 0xFF;
                 uint8_t big = (color >> 8 ) & 0xFF;
-                [output appendBytes:&big length:1];
                 [output appendBytes:&little length:1];
+                [output appendBytes:&big length:1];
             }
         }
     }
