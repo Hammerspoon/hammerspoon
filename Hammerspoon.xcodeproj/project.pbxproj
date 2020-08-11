@@ -8979,7 +8979,7 @@
 					"\"$(SDK_DIR)\"/usr/include/libxml2",
 				);
 				INFOPLIST_FILE = "Hammerspoon/CommandPost-Info.plist";
-				MARKETING_VERSION = "1.0.7-beta.14";
+				MARKETING_VERSION = "1.0.7-beta.15";
 				PRODUCT_BUNDLE_IDENTIFIER = org.latenitefilms.CommandPost;
 				PRODUCT_NAME = CommandPost;
 				SDKROOT = macosx;
@@ -22576,7 +22576,7 @@
 					"\"$(SDK_DIR)\"/usr/include/libxml2",
 				);
 				INFOPLIST_FILE = "Hammerspoon/CommandPost-Info.plist";
-				MARKETING_VERSION = "1.0.7-beta.14";
+				MARKETING_VERSION = "1.0.7-beta.15";
 				PRODUCT_BUNDLE_IDENTIFIER = org.latenitefilms.CommandPost;
 				PRODUCT_NAME = CommandPost;
 				SDKROOT = macosx;
@@ -22610,7 +22610,7 @@
 					"\"$(SDK_DIR)\"/usr/include/libxml2",
 				);
 				INFOPLIST_FILE = "Hammerspoon/CommandPost-Info.plist";
-				MARKETING_VERSION = "1.0.7-beta.14";
+				MARKETING_VERSION = "1.0.7-beta.15";
 				OTHER_CODE_SIGN_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = org.latenitefilms.CommandPost;
 				PRODUCT_NAME = CommandPost;
