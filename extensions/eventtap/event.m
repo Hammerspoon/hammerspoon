@@ -88,7 +88,7 @@ static int eventtap_event_newEventFromData(lua_State* L) {
 ///  * a string representing the event or nil if the event cannot be represented as a string
 ///
 /// Notes:
-///  * You can recreate the event for later posting with [hs.eventtap.event.newnEventFromData](#newEventFromData)
+///  * You can recreate the event for later posting with [hs.eventtap.event.newEventFromData](#newEventFromData)
 static int eventtap_event_asData(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
     CFDataRef data = CGEventCreateData(NULL, event) ;
