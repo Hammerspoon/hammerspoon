@@ -293,6 +293,32 @@ static int caffeinate_sessionProperties(lua_State *L) {
     return 1;
 }
 
+/// hs.caffeinate.currentAssertions()
+/// Function
+/// Fetches information about processes which are currently asserting display/power sleep restrictions
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A table containing information about current power assertions, with process IDs (PID) as the keys, each of which may contain multiple assertions
+static int caffeinate_currentAssertions(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TBREAK];
+
+    CFDictionaryRef assertions = NULL;
+    IOReturn result = IOPMCopyAssertionsByProcess(&assertions);
+    if (result != kIOReturnSuccess) {
+        [skin pushNSObject:@{}];
+        return 1;
+    }
+
+    [skin pushNSObject:(__bridge id)assertions];
+    CFRelease(assertions);
+
+    return 1;
+}
+
 // ----------------------- Lua/hs glue GAR ---------------------
 
 static int caffeinate_gc(lua_State *L) {
@@ -327,6 +353,8 @@ static const luaL_Reg caffeinatelib[] = {
     {"lockScreen", caffeinate_lockScreen},
 
     {"sessionProperties", caffeinate_sessionProperties},
+
+    {"currentAssertions", caffeinate_currentAssertions},
 
     {NULL, NULL}
 };

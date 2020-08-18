@@ -8661,16 +8661,6 @@
 				STRIP_INSTALLED_PRODUCT = NO;
 				STRIP_STYLE = all;
 				USER_HEADER_SEARCH_PATHS = "$(inherited)/**";
-				WARNING_CFLAGS = (
-					"-Wno-cstring-format-directive",
-					"-Wno-padded",
-					"-Wno-objc-missing-property-synthesis",
-					"-Wno-auto-import",
-					"-Wno-gnu-statement-expression",
-					"-Wno-reserved-id-macro",
-					"-Wno-gnu-zero-variadic-macro-arguments",
-					"-Wno-objc-messaging-id",
-				);
 				WRAPPER_EXTENSION = app;
 			};
 			name = Profile;
@@ -22268,16 +22258,6 @@
 				STRIP_INSTALLED_PRODUCT = NO;
 				STRIP_STYLE = all;
 				USER_HEADER_SEARCH_PATHS = "$(inherited)/**";
-				WARNING_CFLAGS = (
-					"-Wno-cstring-format-directive",
-					"-Wno-padded",
-					"-Wno-objc-missing-property-synthesis",
-					"-Wno-auto-import",
-					"-Wno-gnu-statement-expression",
-					"-Wno-reserved-id-macro",
-					"-Wno-gnu-zero-variadic-macro-arguments",
-					"-Wno-objc-messaging-id",
-				);
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -22313,16 +22293,6 @@
 				STRIP_INSTALLED_PRODUCT = NO;
 				STRIP_STYLE = all;
 				USER_HEADER_SEARCH_PATHS = "$(inherited)/**";
-				WARNING_CFLAGS = (
-					"-Wno-cstring-format-directive",
-					"-Wno-padded",
-					"-Wno-objc-missing-property-synthesis",
-					"-Wno-auto-import",
-					"-Wno-gnu-statement-expression",
-					"-Wno-reserved-id-macro",
-					"-Wno-gnu-zero-variadic-macro-arguments",
-					"-Wno-objc-messaging-id",
-				);
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
