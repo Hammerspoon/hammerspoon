@@ -10,29 +10,33 @@ typedef NS_ENUM(NSUInteger, SentrySessionStatus) {
 };
 
 @interface SentrySession : NSObject
+SENTRY_NO_INIT
 
-- (instancetype)init;
+- (instancetype)initWithReleaseName:(NSString *)releaseName;
 - (instancetype)initWithJSONObject:(NSDictionary *)jsonObject;
 
-- (void)endSessionExitedSessionWithTimestamp:(NSDate *)timestamp;
+- (void)endSessionExitedWithTimestamp:(NSDate *)timestamp;
 - (void)endSessionCrashedWithTimestamp:(NSDate *)timestamp;
 - (void)endSessionAbnormalWithTimestamp:(NSDate *)timestamp;
 
 - (void)incrementErrors;
 
-@property(nonatomic, readonly, strong) NSUUID *sessionId;
-@property(nonatomic, readonly, strong) NSDate *started;
-@property(nonatomic, readonly) enum SentrySessionStatus status;
-@property(nonatomic, readonly) NSInteger errors;
-@property(nonatomic, readonly) NSInteger sequence;
-@property(nonatomic, strong) NSString *distinctId;
+@property (nonatomic, readonly, strong) NSUUID *sessionId;
+@property (nonatomic, readonly, strong) NSDate *started;
+@property (nonatomic, readonly) enum SentrySessionStatus status;
+@property (nonatomic, readonly) NSUInteger errors;
+@property (nonatomic, readonly) NSUInteger sequence;
+@property (nonatomic, readonly, strong) NSString *distinctId;
+/**
+  We can't use init because it overlaps with NSObject.init
+ */
+@property (nonatomic, readonly, copy) NSNumber *_Nullable flagInit;
+@property (nonatomic, readonly, strong) NSDate *_Nullable timestamp;
+@property (nonatomic, readonly, strong) NSNumber *_Nullable duration;
 
-@property(nonatomic, copy) NSNumber *_Nullable init;
-@property(nonatomic, strong) NSDate *_Nullable timestamp;
-@property(nonatomic, strong) NSNumber *_Nullable duration;
-@property(nonatomic, copy) NSString *_Nullable releaseName;
-@property(nonatomic, copy) NSString *_Nullable environment;
-@property(nonatomic, copy) SentryUser *_Nullable user;
+@property (nonatomic, readonly, copy) NSString *_Nullable releaseName;
+@property (nonatomic, copy) NSString *_Nullable environment;
+@property (nonatomic, copy) SentryUser *_Nullable user;
 
 - (NSDictionary<NSString *, id> *)serialize;
 

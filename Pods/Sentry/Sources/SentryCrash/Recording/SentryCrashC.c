@@ -24,22 +24,21 @@
 // THE SOFTWARE.
 //
 
-
 #include "SentryCrashC.h"
 
 #include "SentryCrashCachedData.h"
+#include "SentryCrashFileUtils.h"
+#include "SentryCrashMonitorContext.h"
+#include "SentryCrashMonitor_AppState.h"
+#include "SentryCrashMonitor_Deadlock.h"
+#include "SentryCrashMonitor_System.h"
+#include "SentryCrashMonitor_User.h"
+#include "SentryCrashMonitor_Zombie.h"
+#include "SentryCrashObjC.h"
 #include "SentryCrashReport.h"
 #include "SentryCrashReportFixer.h"
 #include "SentryCrashReportStore.h"
-#include "SentryCrashMonitor_Deadlock.h"
-#include "SentryCrashMonitor_User.h"
-#include "SentryCrashFileUtils.h"
-#include "SentryCrashObjC.h"
 #include "SentryCrashString.h"
-#include "SentryCrashMonitor_System.h"
-#include "SentryCrashMonitor_Zombie.h"
-#include "SentryCrashMonitor_AppState.h"
-#include "SentryCrashMonitorContext.h"
 #include "SentryCrashSystemCapabilities.h"
 
 //#define SentryCrashLogger_LocalLevel TRACE
@@ -49,7 +48,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 
 // ============================================================================
 #pragma mark - Globals -
@@ -64,24 +62,24 @@ static char g_consoleLogPath[SentryCrashFU_MAX_PATH_LENGTH];
 static SentryCrashMonitorType g_monitoring = SentryCrashMonitorTypeProductionSafeMinimal;
 static char g_lastCrashReportFilePath[SentryCrashFU_MAX_PATH_LENGTH];
 
-
 // ============================================================================
 #pragma mark - Utility -
 // ============================================================================
 
-static void printPreviousLog(const char* filePath)
+static void
+printPreviousLog(const char *filePath)
 {
-    char* data;
+    char *data;
     int length;
-    if(sentrycrashfu_readEntireFile(filePath, &data, &length, 0))
-    {
-        printf("\nvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv Previous Log vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv\n\n");
+    if (sentrycrashfu_readEntireFile(filePath, &data, &length, 0)) {
+        printf("\nvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv Previous Log "
+               "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv\n\n");
         printf("%s\n", data);
-        printf("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n");
+        printf("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+               "^^^^^^^^^^^^^^^^^^^^^\n\n");
         fflush(stdout);
     }
 }
-
 
 // ============================================================================
 #pragma mark - Callbacks -
@@ -91,7 +89,8 @@ static void printPreviousLog(const char* filePath)
  *
  * This function gets passed as a callback to a crash handler.
  */
-static void onCrash(struct SentryCrash_MonitorContext* monitorContext)
+static void
+onCrash(struct SentryCrash_MonitorContext *monitorContext)
 {
     if (monitorContext->currentSnapshotUserReported == false) {
         SentryCrashLOG_DEBUG("Updating application state to note crash.");
@@ -99,12 +98,9 @@ static void onCrash(struct SentryCrash_MonitorContext* monitorContext)
     }
     monitorContext->consoleLogPath = g_shouldAddConsoleLogToReport ? g_consoleLogPath : NULL;
 
-    if(monitorContext->crashedDuringCrashHandling)
-    {
+    if (monitorContext->crashedDuringCrashHandling) {
         sentrycrashreport_writeRecrashReport(monitorContext, g_lastCrashReportFilePath);
-    }
-    else
-    {
+    } else {
         char crashReportFilePath[SentryCrashFU_MAX_PATH_LENGTH];
         sentrycrashcrs_getNextCrashReportPath(crashReportFilePath);
         strncpy(g_lastCrashReportFilePath, crashReportFilePath, sizeof(g_lastCrashReportFilePath));
@@ -112,17 +108,16 @@ static void onCrash(struct SentryCrash_MonitorContext* monitorContext)
     }
 }
 
-
 // ============================================================================
 #pragma mark - API -
 // ============================================================================
 
-SentryCrashMonitorType sentrycrash_install(const char* appName, const char* const installPath)
+SentryCrashMonitorType
+sentrycrash_install(const char *appName, const char *const installPath)
 {
     SentryCrashLOG_DEBUG("Installing crash reporter.");
 
-    if(g_installed)
-    {
+    if (g_installed) {
         SentryCrashLOG_DEBUG("Crash reporter already installed.");
         return g_monitoring;
     }
@@ -139,8 +134,7 @@ SentryCrashMonitorType sentrycrash_install(const char* appName, const char* cons
     sentrycrashstate_initialize(path);
 
     snprintf(g_consoleLogPath, sizeof(g_consoleLogPath), "%s/Data/ConsoleLog.txt", installPath);
-    if(g_shouldPrintPreviousLog)
-    {
+    if (g_shouldPrintPreviousLog) {
         printPreviousLog(g_consoleLogPath);
     }
     sentrycrashlog_setLogFilename(g_consoleLogPath, true);
@@ -154,12 +148,12 @@ SentryCrashMonitorType sentrycrash_install(const char* appName, const char* cons
     return monitors;
 }
 
-SentryCrashMonitorType sentrycrash_setMonitoring(SentryCrashMonitorType monitors)
+SentryCrashMonitorType
+sentrycrash_setMonitoring(SentryCrashMonitorType monitors)
 {
     g_monitoring = monitors;
 
-    if(g_installed)
-    {
+    if (g_installed) {
         sentrycrashcm_setActiveMonitors(monitors);
         return sentrycrashcm_getActiveMonitors();
     }
@@ -167,117 +161,119 @@ SentryCrashMonitorType sentrycrash_setMonitoring(SentryCrashMonitorType monitors
     return g_monitoring;
 }
 
-void sentrycrash_setUserInfoJSON(const char* const userInfoJSON)
+void
+sentrycrash_setUserInfoJSON(const char *const userInfoJSON)
 {
     sentrycrashreport_setUserInfoJSON(userInfoJSON);
 }
 
-void sentrycrash_setDeadlockWatchdogInterval(double deadlockWatchdogInterval)
+void
+sentrycrash_setDeadlockWatchdogInterval(double deadlockWatchdogInterval)
 {
 #if SentryCrashCRASH_HAS_OBJC
     sentrycrashcm_setDeadlockHandlerWatchdogInterval(deadlockWatchdogInterval);
 #endif
 }
 
-void sentrycrash_setIntrospectMemory(bool introspectMemory)
+void
+sentrycrash_setIntrospectMemory(bool introspectMemory)
 {
     sentrycrashreport_setIntrospectMemory(introspectMemory);
 }
 
-void sentrycrash_setDoNotIntrospectClasses(const char** doNotIntrospectClasses, int length)
+void
+sentrycrash_setDoNotIntrospectClasses(const char **doNotIntrospectClasses, int length)
 {
     sentrycrashreport_setDoNotIntrospectClasses(doNotIntrospectClasses, length);
 }
 
-void sentrycrash_setCrashNotifyCallback(const SentryCrashReportWriteCallback onCrashNotify)
+void
+sentrycrash_setCrashNotifyCallback(const SentryCrashReportWriteCallback onCrashNotify)
 {
     sentrycrashreport_setUserSectionWriteCallback(onCrashNotify);
 }
 
-void sentrycrash_setAddConsoleLogToReport(bool shouldAddConsoleLogToReport)
+void
+sentrycrash_setAddConsoleLogToReport(bool shouldAddConsoleLogToReport)
 {
     g_shouldAddConsoleLogToReport = shouldAddConsoleLogToReport;
 }
 
-void sentrycrash_setPrintPreviousLog(bool shouldPrintPreviousLog)
+void
+sentrycrash_setPrintPreviousLog(bool shouldPrintPreviousLog)
 {
     g_shouldPrintPreviousLog = shouldPrintPreviousLog;
 }
 
-void sentrycrash_setMaxReportCount(int maxReportCount)
+void
+sentrycrash_setMaxReportCount(int maxReportCount)
 {
     sentrycrashcrs_setMaxReportCount(maxReportCount);
 }
 
-void sentrycrash_reportUserException(const char* name,
-                                 const char* reason,
-                                 const char* language,
-                                 const char* lineOfCode,
-                                 const char* stackTrace,
-                                 bool logAllThreads,
-                                 bool terminateProgram)
+void
+sentrycrash_reportUserException(const char *name, const char *reason, const char *language,
+    const char *lineOfCode, const char *stackTrace, bool logAllThreads, bool terminateProgram)
 {
-    sentrycrashcm_reportUserException(name,
-                             reason,
-                             language,
-                             lineOfCode,
-                             stackTrace,
-                             logAllThreads,
-                             terminateProgram);
-    if(g_shouldAddConsoleLogToReport)
-    {
+    sentrycrashcm_reportUserException(
+        name, reason, language, lineOfCode, stackTrace, logAllThreads, terminateProgram);
+    if (g_shouldAddConsoleLogToReport) {
         sentrycrashlog_clearLogFile();
     }
 }
 
-void sentrycrash_notifyAppActive(bool isActive)
+void
+sentrycrash_notifyAppActive(bool isActive)
 {
     sentrycrashstate_notifyAppActive(isActive);
 }
 
-void sentrycrash_notifyAppInForeground(bool isInForeground)
+void
+sentrycrash_notifyAppInForeground(bool isInForeground)
 {
     sentrycrashstate_notifyAppInForeground(isInForeground);
 }
 
-void sentrycrash_notifyAppTerminate(void)
+void
+sentrycrash_notifyAppTerminate(void)
 {
     sentrycrashstate_notifyAppTerminate();
 }
 
-void sentrycrash_notifyAppCrash(void)
+void
+sentrycrash_notifyAppCrash(void)
 {
     sentrycrashstate_notifyAppCrash();
 }
 
-int sentrycrash_getReportCount()
+int
+sentrycrash_getReportCount()
 {
     return sentrycrashcrs_getReportCount();
 }
 
-int sentrycrash_getReportIDs(int64_t* reportIDs, int count)
+int
+sentrycrash_getReportIDs(int64_t *reportIDs, int count)
 {
     return sentrycrashcrs_getReportIDs(reportIDs, count);
 }
 
-char* sentrycrash_readReport(int64_t reportID)
+char *
+sentrycrash_readReport(int64_t reportID)
 {
-    if(reportID <= 0)
-    {
+    if (reportID <= 0) {
         SentryCrashLOG_ERROR("Report ID was %" PRIx64, reportID);
         return NULL;
     }
 
-    char* rawReport = sentrycrashcrs_readReport(reportID);
-    if(rawReport == NULL)
-    {
+    char *rawReport = sentrycrashcrs_readReport(reportID);
+    if (rawReport == NULL) {
         SentryCrashLOG_ERROR("Failed to load report ID %" PRIx64, reportID);
         return NULL;
     }
 
-    char* fixedReport = sentrycrashcrf_fixupCrashReport(rawReport);
-    if(fixedReport == NULL)
-    {
+    char *fixedReport = sentrycrashcrf_fixupCrashReport(rawReport);
+    if (fixedReport == NULL) {
         SentryCrashLOG_ERROR("Failed to fixup report ID %" PRIx64, reportID);
     }
 
@@ -285,17 +281,20 @@ char* sentrycrash_readReport(int64_t reportID)
     return fixedReport;
 }
 
-int64_t sentrycrash_addUserReport(const char* report, int reportLength)
+int64_t
+sentrycrash_addUserReport(const char *report, int reportLength)
 {
     return sentrycrashcrs_addUserReport(report, reportLength);
 }
 
-void sentrycrash_deleteAllReports()
+void
+sentrycrash_deleteAllReports()
 {
     sentrycrashcrs_deleteAllReports();
 }
 
-void sentrycrash_deleteReportWithID(int64_t reportID)
+void
+sentrycrash_deleteReportWithID(int64_t reportID)
 {
     sentrycrashcrs_deleteReportWithID(reportID);
 }

@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 
-#import "SentryEvent.h"
 #import "SentryEnvelope.h"
+#import "SentryEvent.h"
 #import "SentryFileManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -18,18 +18,19 @@ NS_SWIFT_NAME(Transport)
  * Triggerd when a event occurs. Thus the first try to upload an event.
  * CompletionHandler will be called if set.
  *
- * Failure to send will most likely keep this event on disk to batch upload it on next app launch.
+ * Failure to send will most likely keep this event on disk to batch upload it
+ * on next app launch.
  *
  * @param event SentryEvent that should be sent
  * @param completionHandler SentryRequestFinished
  */
 - (void)sendEvent:(SentryEvent *)event
-withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler
-NS_SWIFT_NAME(send(event:completion:));
+    withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler
+    NS_SWIFT_NAME(send(event:completion:));
 
-- (void) sendEnvelope:(SentryEnvelope *)envelope
-withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler
-NS_SWIFT_NAME(send(envelope:completion:));
+- (void)sendEnvelope:(SentryEnvelope *)envelope
+    withCompletionHandler:(_Nullable SentryRequestFinished)completionHandler
+    NS_SWIFT_NAME(send(envelope:completion:));
 
 @end
 

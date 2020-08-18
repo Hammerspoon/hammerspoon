@@ -22,7 +22,6 @@
 // THE SOFTWARE.
 //
 
-
 #include "SentryCrashStackCursor_SelfThread.h"
 #include "SentryCrashStackCursor_Backtrace.h"
 #include <execinfo.h>
@@ -30,17 +29,19 @@
 //#define SentryCrashLogger_LocalLevel TRACE
 #include "SentryCrashLogger.h"
 
-#define MAX_BACKTRACE_LENGTH (SentryCrashSC_CONTEXT_SIZE - sizeof(SentryCrashStackCursor_Backtrace_Context) / sizeof(void*) - 1)
+#define MAX_BACKTRACE_LENGTH                                                                       \
+    (SentryCrashSC_CONTEXT_SIZE                                                                    \
+        - sizeof(SentryCrashStackCursor_Backtrace_Context) / sizeof(void *) - 1)
 
-typedef struct
-{
+typedef struct {
     SentryCrashStackCursor_Backtrace_Context SelfThreadContextSpacer;
     uintptr_t backtrace[0];
 } SelfThreadContext;
 
-void sentrycrashsc_initSelfThread(SentryCrashStackCursor *cursor, int skipEntries)
+void
+sentrycrashsc_initSelfThread(SentryCrashStackCursor *cursor, int skipEntries)
 {
-    SelfThreadContext* context = (SelfThreadContext*)cursor->context;
-    int backtraceLength = backtrace((void**)context->backtrace, MAX_BACKTRACE_LENGTH);
+    SelfThreadContext *context = (SelfThreadContext *)cursor->context;
+    int backtraceLength = backtrace((void **)context->backtrace, MAX_BACKTRACE_LENGTH);
     sentrycrashsc_initWithBacktrace(cursor, context->backtrace, backtraceLength, skipEntries + 1);
 }

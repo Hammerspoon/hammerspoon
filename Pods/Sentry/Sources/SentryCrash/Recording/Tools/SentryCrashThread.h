@@ -31,10 +31,8 @@
 extern "C" {
 #endif
 
-
-#include <sys/types.h>
 #include <stdbool.h>
-
+#include <sys/types.h>
 
 typedef uintptr_t SentryCrashThread;
 
@@ -49,7 +47,8 @@ typedef uintptr_t SentryCrashThread;
  *
  * @return true if a name was found.
  */
-bool sentrycrashthread_getThreadName(const SentryCrashThread thread, char* const buffer, int bufLength);
+bool sentrycrashthread_getThreadName(
+    const SentryCrashThread thread, char *const buffer, int bufLength);
 
 /* Get the current mach thread ID.
  * mach_thread_self() receives a send right for the thread port which needs to
@@ -59,7 +58,6 @@ bool sentrycrashthread_getThreadName(const SentryCrashThread thread, char* const
  * @return The current thread ID.
  */
 SentryCrashThread sentrycrashthread_self(void);
-
 
 #ifdef __cplusplus
 }

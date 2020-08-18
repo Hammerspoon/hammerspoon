@@ -31,74 +31,67 @@
 @synthesize length = _length;
 @synthesize bytes = _bytes;
 
-+ (SentryCrashCString*) stringWithString:(NSString*) string
++ (SentryCrashCString *)stringWithString:(NSString *)string
 {
     return [[self alloc] initWithString:string];
 }
 
-+ (SentryCrashCString*) stringWithCString:(const char*) string
++ (SentryCrashCString *)stringWithCString:(const char *)string
 {
     return [[self alloc] initWithCString:string];
 }
 
-+ (SentryCrashCString*) stringWithData:(NSData*) data
++ (SentryCrashCString *)stringWithData:(NSData *)data
 {
     return [[self alloc] initWithData:data];
 }
 
-+ (SentryCrashCString*) stringWithData:(const char*) data length:(NSUInteger) length
++ (SentryCrashCString *)stringWithData:(const char *)data length:(NSUInteger)length
 {
     return [[self alloc] initWithData:data length:length];
 }
 
-- (id) initWithString:(NSString*) string
+- (id)initWithString:(NSString *)string
 {
     return [self initWithCString:[string cStringUsingEncoding:NSUTF8StringEncoding]];
 }
 
-- (id) initWithCString:(const char*) string
+- (id)initWithCString:(const char *)string
 {
-    if((self = [super init]))
-    {
+    if ((self = [super init])) {
         _bytes = strdup(string);
-        if(_bytes != NULL)
-        {
+        if (_bytes != NULL) {
             _length = strlen(_bytes);
         }
     }
     return self;
 }
 
-- (id) initWithData:(NSData*) data
+- (id)initWithData:(NSData *)data
 {
     return [self initWithData:data.bytes length:data.length];
 }
 
-- (id) initWithData:(const char*) data length:(NSUInteger) length
+- (id)initWithData:(const char *)data length:(NSUInteger)length
 {
-    if((self = [super init]))
-    {
+    if ((self = [super init])) {
         _length = length;
-        char* bytes = malloc((unsigned)_length+1);
-        if(bytes != NULL)
-        {
+        char *bytes = malloc((unsigned)_length + 1);
+        if (bytes != NULL) {
             memcpy(bytes, data, _length);
             bytes[_length] = 0;
             _bytes = bytes;
-        }
-        else
-        {
+        } else {
             _length = 0;
         }
     }
     return self;
 }
 
-- (void) dealloc
+- (void)dealloc
 {
-    if(_bytes != NULL)
-    {
-        free((void*)_bytes);
+    if (_bytes != NULL) {
+        free((void *)_bytes);
     }
 }
 

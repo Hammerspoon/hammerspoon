@@ -24,7 +24,6 @@
 // THE SOFTWARE.
 //
 
-
 #ifndef HDR_SentryCrashMonitorContext_h
 #define HDR_SentryCrashMonitorContext_h
 
@@ -32,16 +31,15 @@
 extern "C" {
 #endif
 
-#include "SentryCrashMonitorType.h"
 #include "SentryCrashMachineContext.h"
+#include "SentryCrashMonitorType.h"
 
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef struct SentryCrash_MonitorContext
-{
+typedef struct SentryCrash_MonitorContext {
     /** Unique identifier for this event. */
-    const char* eventID;
+    const char *eventID;
     /**
      If true, so reported user exception will have the current snapshot.
      */
@@ -67,7 +65,7 @@ typedef struct SentryCrash_MonitorContext
     bool isStackOverflow;
 
     /** The machine context that generated the event. */
-    struct SentryCrashMachineContext* offendingMachineContext;
+    struct SentryCrashMachineContext *offendingMachineContext;
 
     /** Address that caused the fault. */
     uintptr_t faultAddress;
@@ -77,18 +75,17 @@ typedef struct SentryCrash_MonitorContext
     SentryCrashMonitorType crashType;
 
     /** The name of the exception that caused the crash, if any. */
-    const char* exceptionName;
+    const char *exceptionName;
 
     /** Short description of why the crash occurred. */
-    const char* crashReason;
+    const char *crashReason;
 
     /** The stack cursor for the trace leading up to the crash.
      *  Note: Actual type is SentryCrashStackCursor*
      */
-    void* stackCursor;
+    void *stackCursor;
 
-    struct
-    {
+    struct {
         /** The mach exception type. */
         int type;
 
@@ -99,47 +96,42 @@ typedef struct SentryCrash_MonitorContext
         int64_t subcode;
     } mach;
 
-    struct
-    {
+    struct {
         /** The exception name. */
-        const char* name;
+        const char *name;
 
         /** The exception userInfo. */
-        const char* userInfo;
+        const char *userInfo;
     } NSException;
 
-    struct
-    {
+    struct {
         /** The exception name. */
-        const char* name;
+        const char *name;
 
     } CPPException;
 
-    struct
-    {
+    struct {
         /** User context information. */
-        const void* userContext;
+        const void *userContext;
         int signum;
         int sigcode;
     } signal;
 
-    struct
-    {
+    struct {
         /** The exception name. */
-        const char* name;
+        const char *name;
 
         /** The language the exception occured in. */
-        const char* language;
+        const char *language;
 
         /** The line of code where the exception occurred. Can be NULL. */
-        const char* lineOfCode;
+        const char *lineOfCode;
 
         /** The user-supplied JSON encoded stack trace. */
-        const char* customStackTrace;
+        const char *customStackTrace;
     } userException;
 
-    struct
-    {
+    struct {
         /** Total active time elapsed since the last crash. */
         double activeDurationSinceLastCrash;
 
@@ -149,7 +141,8 @@ typedef struct SentryCrash_MonitorContext
         /** Number of app launches since the last crash. */
         int launchesSinceLastCrash;
 
-        /** Number of sessions (launch, resume from suspend) since last crash. */
+        /** Number of sessions (launch, resume from suspend) since last crash.
+         */
         int sessionsSinceLastCrash;
 
         /** Total active time elapsed since launch. */
@@ -158,7 +151,8 @@ typedef struct SentryCrash_MonitorContext
         /** Total time backgrounded elapsed since launch. */
         double backgroundDurationSinceLaunch;
 
-        /** Number of sessions (launch, resume from suspend) since app launch. */
+        /** Number of sessions (launch, resume from suspend) since app launch.
+         */
         int sessionsSinceLaunch;
 
         /** If true, the application crashed on the previous launch. */
@@ -167,8 +161,8 @@ typedef struct SentryCrash_MonitorContext
         /** If true, the application crashed on this launch. */
         bool crashedThisLaunch;
 
-        /** Timestamp for when the app state was last changed (active<->inactive,
-         * background<->foreground) */
+        /** Timestamp for when the app state was last changed
+         * (active<->inactive, background<->foreground) */
         double appStateTransitionTime;
 
         /** If true, the application is currently active. */
@@ -180,58 +174,55 @@ typedef struct SentryCrash_MonitorContext
     } AppState;
 
     /* Misc system information */
-    struct
-    {
-        const char* systemName;
-        const char* systemVersion;
-        const char* machine;
-        const char* model;
-        const char* kernelVersion;
-        const char* osVersion;
+    struct {
+        const char *systemName;
+        const char *systemVersion;
+        const char *machine;
+        const char *model;
+        const char *kernelVersion;
+        const char *osVersion;
         bool isJailbroken;
-        const char* bootTime;
-        const char* appStartTime;
-        const char* executablePath;
-        const char* executableName;
-        const char* bundleID;
-        const char* bundleName;
-        const char* bundleVersion;
-        const char* bundleShortVersion;
-        const char* appID;
-        const char* cpuArchitecture;
+        const char *bootTime;
+        const char *appStartTime;
+        const char *executablePath;
+        const char *executableName;
+        const char *bundleID;
+        const char *bundleName;
+        const char *bundleVersion;
+        const char *bundleShortVersion;
+        const char *appID;
+        const char *cpuArchitecture;
         int cpuType;
         int cpuSubType;
         int binaryCPUType;
         int binaryCPUSubType;
-        const char* timezone;
-        const char* processName;
+        const char *timezone;
+        const char *processName;
         int processID;
         int parentProcessID;
-        const char* deviceAppHash;
-        const char* buildType;
+        const char *deviceAppHash;
+        const char *buildType;
         uint64_t storageSize;
         uint64_t memorySize;
         uint64_t freeMemory;
         uint64_t usableMemory;
     } System;
 
-    struct
-    {
+    struct {
         /** Address of the last deallocated exception. */
         uintptr_t address;
 
         /** Name of the last deallocated exception. */
-        const char* name;
+        const char *name;
 
         /** Reason field from the last deallocated exception. */
-        const char* reason;
+        const char *reason;
     } ZombieException;
 
     /** Full path to the console log, if any. */
-    const char* consoleLogPath;
+    const char *consoleLogPath;
 
 } SentryCrash_MonitorContext;
-
 
 #ifdef __cplusplus
 }

@@ -31,18 +31,16 @@
 extern "C" {
 #endif
 
-
 #include <dlfcn.h>
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef struct
-{
+typedef struct {
     uint64_t address;
     uint64_t vmAddress;
     uint64_t size;
-    const char* name;
-    const uint8_t* uuid;
+    const char *name;
+    const uint8_t *uuid;
     int cpuType;
     int cpuSubType;
     uint64_t majorVersion;
@@ -62,7 +60,7 @@ int sentrycrashdl_imageCount(void);
  *
  * @return True if the image was successfully queried.
  */
-bool sentrycrashdl_getBinaryImage(int index, SentryCrashBinaryImage* buffer);
+bool sentrycrashdl_getBinaryImage(int index, SentryCrashBinaryImage *buffer);
 
 /** Find a loaded binary image with the specified name.
  *
@@ -72,7 +70,7 @@ bool sentrycrashdl_getBinaryImage(int index, SentryCrashBinaryImage* buffer);
  *
  * @return the index of the matched image, or UINT32_MAX if not found.
  */
-uint32_t sentrycrashdl_imageNamed(const char* const imageName, bool exactMatch);
+uint32_t sentrycrashdl_imageNamed(const char *const imageName, bool exactMatch);
 
 /** Get the UUID of a loaded binary image with the specified name.
  *
@@ -83,7 +81,7 @@ uint32_t sentrycrashdl_imageNamed(const char* const imageName, bool exactMatch);
  * @return A pointer to the binary (16 byte) UUID of the image, or NULL if it
  *         wasn't found.
  */
-const uint8_t* sentrycrashdl_imageUUID(const char* const imageName, bool exactMatch);
+const uint8_t *sentrycrashdl_imageUUID(const char *const imageName, bool exactMatch);
 
 /** async-safe version of dladdr.
  *
@@ -99,8 +97,7 @@ const uint8_t* sentrycrashdl_imageUUID(const char* const imageName, bool exactMa
  * @param info Gets filled out by this function.
  * @return true if at least some information was found.
  */
-bool sentrycrashdl_dladdr(const uintptr_t address, Dl_info* const info);
-
+bool sentrycrashdl_dladdr(const uintptr_t address, Dl_info *const info);
 
 #ifdef __cplusplus
 }

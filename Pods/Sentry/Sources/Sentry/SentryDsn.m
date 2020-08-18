@@ -5,7 +5,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryDsn ()
+@interface
+SentryDsn ()
 
 @end
 
@@ -14,7 +15,9 @@ NS_ASSUME_NONNULL_BEGIN
     NSURL *_envelopeEndpoint;
 }
 
-- (_Nullable instancetype)initWithString:(NSString *)dsnString didFailWithError:(NSError *_Nullable *_Nullable)error {
+- (_Nullable instancetype)initWithString:(NSString *)dsnString
+                        didFailWithError:(NSError *_Nullable *_Nullable)error
+{
     self = [super init];
     if (self) {
         _url = [self convertDsnString:dsnString didFailWithError:error];
@@ -25,7 +28,8 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (NSString *)getHash {
+- (NSString *)getHash
+{
     NSData *data = [[self.url absoluteString] dataUsingEncoding:NSUTF8StringEncoding];
     uint8_t digest[CC_SHA1_DIGEST_LENGTH];
     CC_SHA1(data.bytes, (CC_LONG)data.length, digest);
@@ -36,9 +40,10 @@ NS_ASSUME_NONNULL_BEGIN
     return output;
 }
 
-- (NSURL *)getStoreEndpoint {
+- (NSURL *)getStoreEndpoint
+{
     if (nil == _storeEndpoint) {
-        @synchronized (self) {
+        @synchronized(self) {
             if (nil == _storeEndpoint) {
                 _storeEndpoint = [[self getBaseEndpoint] URLByAppendingPathComponent:@"store/"];
             }
@@ -47,30 +52,34 @@ NS_ASSUME_NONNULL_BEGIN
     return _storeEndpoint;
 }
 
-- (NSURL *)getEnvelopeEndpoint {
+- (NSURL *)getEnvelopeEndpoint
+{
     if (nil == _envelopeEndpoint) {
-        @synchronized (self) {
+        @synchronized(self) {
             if (nil == _envelopeEndpoint) {
-                _envelopeEndpoint = [[self getBaseEndpoint] URLByAppendingPathComponent:@"envelope/"];
+                _envelopeEndpoint =
+                    [[self getBaseEndpoint] URLByAppendingPathComponent:@"envelope/"];
             }
         }
     }
     return _envelopeEndpoint;
 }
 
-- (NSURL *)getBaseEndpoint {
+- (NSURL *)getBaseEndpoint
+{
     NSURL *url = self.url;
     NSString *projectId = url.lastPathComponent;
     NSMutableArray *paths = [url.pathComponents mutableCopy];
     // [0] = /
     // [1] = projectId
-    // If there are more than two, that means someone wants to have an additional path
-    // ref: https://github.com/getsentry/sentry-cocoa/issues/236
+    // If there are more than two, that means someone wants to have an
+    // additional path ref: https://github.com/getsentry/sentry-cocoa/issues/236
     NSString *path = @"";
     if ([paths count] > 2) {
         [paths removeObjectAtIndex:0]; // We remove the leading /
         [paths removeLastObject]; // We remove projectId since we add it later
-        path = [NSString stringWithFormat:@"/%@", [paths componentsJoinedByString:@"/"]]; // We put together the path
+        path = [NSString stringWithFormat:@"/%@",
+                         [paths componentsJoinedByString:@"/"]]; // We put together the path
     }
     NSURLComponents *components = [NSURLComponents new];
     components.scheme = url.scheme;
@@ -80,8 +89,11 @@ NS_ASSUME_NONNULL_BEGIN
     return components.URL;
 }
 
-- (NSURL *_Nullable)convertDsnString:(NSString *)dsnString didFailWithError:(NSError *_Nullable *_Nullable)error {
-    NSString *trimmedDsnString = [dsnString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+- (NSURL *_Nullable)convertDsnString:(NSString *)dsnString
+                    didFailWithError:(NSError *_Nullable *_Nullable)error
+{
+    NSString *trimmedDsnString = [dsnString
+        stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     NSSet *allowedSchemes = [NSSet setWithObjects:@"http", @"https", nil];
     NSURL *url = [NSURL URLWithString:trimmedDsnString];
     NSString *errorMessage = nil;
