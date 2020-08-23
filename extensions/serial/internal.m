@@ -1,19 +1,6 @@
 @import Cocoa;
 @import LuaSkin;
 
-/*
-
- TODO:
- 
- - Impliment `allowsNonStandardBaudRates` property
- - Impliment `numberOfStopBits` property
- - Impliment `shouldEchoReceivedData` property
- - Impliment `usesRTSCTSFlowControl` property
- - Impliment `usesDTRDSRFlowControl` property
- - Impliment `usesDCDOutputFlowControl` property
- 
- */
-
 #import "ORSSerialPort/ORSSerialPort.h"
 #import "ORSSerialPort/ORSSerialPortManager.h"
 
@@ -59,6 +46,19 @@ static int refTable = LUA_NOREF;
 @property id                        callbackToken;
 @property int                       deviceCallbackRef;
 
+@property NSString*                 portName;
+@property NSString*                 portPath;
+
+@property ORSSerialPortParity       parity;
+@property NSNumber*                 baudRate;
+@property NSUInteger                numberOfStopBits;
+@property NSUInteger                numberOfDataBits;
+@property BOOL                      shouldEchoReceivedData;
+@property BOOL                      usesRTSCTSFlowControl;
+@property BOOL                      usesDTRDSRFlowControl;
+@property BOOL                      usesDCDOutputFlowControl;
+@property BOOL                      allowsNonStandardBaudRates;
+
 @end
 
 @implementation HSSerialPort
@@ -70,10 +70,22 @@ static int refTable = LUA_NOREF;
     {
         self.serialPortManager = [ORSSerialPortManager sharedSerialPortManager];
                 
-        _callbackRef             = LUA_NOREF;
-        _deviceCallbackRef       = LUA_NOREF;
-        _callbackToken           = nil;
-        _selfRefCount            = 0;
+        _callbackRef                = LUA_NOREF;
+        _deviceCallbackRef          = LUA_NOREF;
+        _callbackToken              = nil;
+        _selfRefCount               = 0;
+        
+        _portName                   = nil;
+        _portPath                   = nil;
+        _parity                     = ORSSerialPortParityNone;
+        _baudRate                   = [NSNumber numberWithInt:115200];
+        _numberOfStopBits           = 1;
+        _numberOfDataBits           = 8;
+        _shouldEchoReceivedData     = NO;
+        _usesRTSCTSFlowControl      = NO;
+        _usesDTRDSRFlowControl      = NO;
+        _usesDCDOutputFlowControl   = NO;
+        _allowsNonStandardBaudRates = NO;
     }
     return self;
 }
@@ -147,6 +159,11 @@ static int refTable = LUA_NOREF;
     }
 }
 
+- (void)serialPort:(ORSSerialPort *)serialPort didReceivePacket:(NSData *)packetData matchingDescriptor:(ORSSerialPacketDescriptor *)descriptor
+{
+    // TODO: Impliment `ORSSerialPacketDescriptor` functionality
+}
+
 - (void)serialPortWasRemovedFromSystem:(ORSSerialPort *)serialPort;
 {
     if (_callbackRef != LUA_NOREF) {
@@ -157,7 +174,7 @@ static int refTable = LUA_NOREF;
         [skin protectedCallAndError:@"hs.serial:callback" nargs:2 nresults:0];
     }
     
-    // After a serial port is removed from the system, it is invalid and we must discard any references to it
+    // After a serial port is removed from the system, it is invalid and we must discard any references to it:
     self.serialPort = nil;
 }
 
@@ -218,27 +235,36 @@ static int refTable = LUA_NOREF;
 
 #pragma mark - Properties
 
-- (void)open
+- (bool)isPortNameValid:(NSString *)portName
 {
-    [self.serialPort open];
+    NSArray *availablePorts = _serialPortManager.availablePorts;
+    for (ORSSerialPort *port in availablePorts)
+    {
+        NSString *currentName = [port name];
+        if ([portName isEqualToString:currentName]) {
+            self.portName = portName;
+            return YES;
+        }
+    }
+    return NO;
 }
 
-- (void)close
+- (bool)isPathValid:(NSString *)path
 {
-    [self.serialPort close];
+    NSArray *availablePorts = _serialPortManager.availablePorts;
+    for (ORSSerialPort *port in availablePorts)
+    {
+        NSString *currentPath = [port path];
+        if ([path isEqualToString:currentPath]) {
+            self.portPath = [port path];
+            self.portName = [port name];
+            return YES;
+        }
+    }
+    return NO;
 }
 
-- (BOOL)isOpen
-{
-    return self.serialPort.isOpen;
-}
-
-- (void)sendData:(NSData*)dataToSend
-{
-    [self.serialPort sendData:dataToSend];
-}
-
-- (bool)createPort:(NSString *)portName
+- (bool)createPortFromPortName:(NSString *)portName
 {
     NSArray *availablePorts = _serialPortManager.availablePorts;
     for (ORSSerialPort *port in availablePorts)
@@ -258,11 +284,63 @@ static int refTable = LUA_NOREF;
     return NO;
 }
 
+- (bool)createPortFromPath:(NSString *)portPath
+{
+    [_serialPort close];
+    _serialPort.delegate = nil;
+
+    _serialPort = [ORSSerialPort serialPortWithPath:portPath];
+    _serialPort.delegate = self;
+    return YES;
+}
+
+- (BOOL)open
+{
+    if (!self.serialPort && self.portPath) {
+        [self createPortFromPath:self.portPath];
+    }
+    if (!self.serialPort && self.portName) {
+        [self createPortFromPortName:self.portName];
+    }
+    if (self.serialPort) {
+        self.serialPort.allowsNonStandardBaudRates  = self.allowsNonStandardBaudRates;
+        self.serialPort.parity                      = self.parity;
+        self.serialPort.baudRate                    = self.baudRate;
+        self.serialPort.numberOfStopBits            = self.numberOfStopBits;
+        self.serialPort.numberOfDataBits            = self.numberOfDataBits;
+        self.serialPort.shouldEchoReceivedData      = self.shouldEchoReceivedData;
+        self.serialPort.usesRTSCTSFlowControl       = self.usesRTSCTSFlowControl;
+        self.serialPort.usesDTRDSRFlowControl       = self.usesDTRDSRFlowControl;
+        self.serialPort.usesDCDOutputFlowControl    = self.usesDCDOutputFlowControl;
+        [self.serialPort open];
+    }
+    return self.serialPort && self.serialPort.isOpen;
+}
+
+- (void)close
+{
+    if (self.serialPort) {
+        [self.serialPort close];
+    }
+}
+
+- (BOOL)isOpen
+{
+    return self.serialPort && self.serialPort.isOpen;
+}
+
+- (void)sendData:(NSData*)dataToSend
+{
+    if (self.serialPort) {
+        [self.serialPort sendData:dataToSend];
+    }
+}
+
 @end
 
-/// hs.serial.new(portName) -> serialPortObject
+/// hs.serial.newFromName(portName) -> serialPortObject
 /// Constructor
-/// Creates a new `hs.serial` object.
+/// Creates a new `hs.serial` object using the port name.
 ///
 /// Parameters:
 ///  * portName - A string containing the port name.
@@ -271,8 +349,8 @@ static int refTable = LUA_NOREF;
 ///  * An `hs.serial` object or `nil` if an error occured.
 ///
 /// Notes:
-///  * A valid port name can be found by checking `hs.serial.availablePorts()`.
-static int serial_new(lua_State *L) {
+///  * A valid port name can be found by checking `hs.serial.availablePortNames()`.
+static int serial_newFromName(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TBREAK];
     
@@ -280,7 +358,38 @@ static int serial_new(lua_State *L) {
     
     HSSerialPort *serialPort = [[HSSerialPort alloc] init];
     
-    bool result = [serialPort createPort:portName];
+    bool result = [serialPort isPortNameValid:portName];
+        
+    if (serialPort && result) {
+        [skin pushNSObject:serialPort];
+    } else {
+        serialPort = nil;
+        lua_pushnil(L);
+    }
+    return 1;
+}
+
+/// hs.serial.newFromPath(path) -> serialPortObject
+/// Constructor
+/// Creates a new `hs.serial` object using a path.
+///
+/// Parameters:
+///  * path - A string containing the path (i.e. "/dev/cu.usbserial").
+///
+/// Returns:
+///  * An `hs.serial` object or `nil` if an error occured.
+///
+/// Notes:
+///  * A valid port name can be found by checking `hs.serial.availablePortPaths()`.
+static int serial_newFromPath(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TSTRING, LS_TBREAK];
+    
+    NSString *path = [skin toNSObjectAtIndex:1];
+    
+    HSSerialPort *serialPort = [[HSSerialPort alloc] init];
+    
+    bool result = [serialPort isPathValid:path];
         
     if (serialPort && result) {
         [skin pushNSObject:serialPort];
@@ -331,16 +440,16 @@ static int serial_callback(lua_State *L) {
     return 1;
 }
 
-/// hs.serial.availablePorts() -> table
+/// hs.serial.availablePortNames() -> table
 /// Function
-/// Returns a table of currently connected serial ports.
+/// Returns a table of currently connected serial ports names.
 ///
 /// Parameters:
 ///  * None
 ///
 /// Returns:
-///  * A table containing the names of any physically connected serial ports as strings.
-static int serial_availablePorts(lua_State *L) {
+///  * A table containing the names of any connected serial port names as strings.
+static int serial_availablePortNames(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs: LS_TBREAK];
     ORSSerialPortManager *portManager = [ORSSerialPortManager sharedSerialPortManager];
@@ -350,6 +459,30 @@ static int serial_availablePorts(lua_State *L) {
     {
         NSString *portName = [port name];
         [result addObject:portName];
+    }
+    [skin pushNSObject:result];
+    return 1;
+}
+
+/// hs.serial.availablePortPaths() -> table
+/// Function
+/// Returns a table of currently connected serial ports paths.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A table containing the names of any connected serial port paths as strings.
+static int serial_availablePortPaths(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs: LS_TBREAK];
+    ORSSerialPortManager *portManager = [ORSSerialPortManager sharedSerialPortManager];
+    NSArray *availablePorts = portManager.availablePorts;
+    NSMutableArray *result = [[NSMutableArray alloc] init];
+    for (ORSSerialPort *port in availablePorts)
+    {
+        NSString *portPath = [port path];
+        [result addObject:portPath];
     }
     [skin pushNSObject:result];
     return 1;
@@ -391,7 +524,7 @@ static int serial_path(lua_State *L) {
     return 1;
 }
 
-/// hs.serial:open() -> serialPortObject
+/// hs.serial:open() -> serialPortObject | nil
 /// Method
 /// Opens the serial port.
 ///
@@ -399,13 +532,17 @@ static int serial_path(lua_State *L) {
 ///  * None
 ///
 /// Returns:
-///  * The `hs.serial` object.
+///  * The `hs.serial` object or `nil` if the port could not be opened.
 static int serial_open(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSSerialPort *serialPort = [skin toNSObjectAtIndex:1];
-    [serialPort open];
-    lua_pushvalue(L, 1);
+    BOOL result = [serialPort open];
+    if (result) {
+        lua_pushvalue(L, 1);
+    } else {
+        lua_pushnil(L);
+    }
     return 1;
 }
 
@@ -427,43 +564,52 @@ static int serial_close(lua_State *L) {
     return 1;
 }
 
-/// hs.serial:baudRate([value]) -> number | serialPortObject
+/// hs.serial:baudRate([value], [allowNonStandardBaudRates]) -> number | serialPortObject
 /// Method
 /// Gets or sets the baud rate for the serial port.
 ///
 /// Parameters:
 ///  * value - An optional number to set the baud rate.
+///  * [allowNonStandardBaudRates] - An optional boolean to enable non-standard baud rates. Defaults to `false`.
 ///
 /// Returns:
 ///  * If a value is specified, then this method returns the serial port object. Otherwise this method returns the baud rate as a number
 ///
 /// Notes:
-///  * This function supports the following baud rates as numbers: 300, 1200, 2400, 4800, 9600, 14400, 19200, 28800, 38400, 57600, 115200, 230400.
+///  * This function supports the following standard baud rates as numbers: 300, 1200, 2400, 4800, 9600, 14400, 19200, 28800, 38400, 57600, 115200, 230400.
+///  * If no baud rate is supplied, it defaults to 115200.
 static int serial_baudRate(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TOPTIONAL, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
 
     HSSerialPort *serialPort = [skin toNSObjectAtIndex:1];
     NSNumber *baudRate;
     
     if (lua_gettop(L) == 1) {
         // Get:
-        baudRate = [serialPort.serialPort baudRate];
+        baudRate = serialPort.baudRate;
         [skin pushNSObject:baudRate];
     }
     else {
         // Set:
         NSNumber *proposedBaudRate = [skin toNSObjectAtIndex:2];
-        NSArray *availableBaudRates = @[@300, @1200, @2400, @4800, @9600, @14400, @19200, @28800, @38400, @57600, @115200, @230400];
-        if ([availableBaudRates containsObject:proposedBaudRate]) {
-            // Valid Baud Rate:
-            serialPort.serialPort.baudRate = proposedBaudRate;
-            baudRate = proposedBaudRate;
+        
+        BOOL allowNonStandardBaudRates = (lua_isboolean(L, 3) && lua_toboolean(L, 3));
+        if (allowNonStandardBaudRates) {
+            serialPort.allowsNonStandardBaudRates = YES;
+            serialPort.baudRate = proposedBaudRate;
+            lua_pushvalue(L, 1);
+        } else {
+            NSArray *availableBaudRates = @[@300, @1200, @2400, @4800, @9600, @14400, @19200, @28800, @38400, @57600, @115200, @230400];
+            if ([availableBaudRates containsObject:proposedBaudRate]) {
+                // Valid Baud Rate:
+                serialPort.baudRate = proposedBaudRate;
+            }
+            else {
+                [skin logError:[NSString stringWithFormat:@"%s: Invalid Baud Rate supplied. Possible baud rates are: 300, 1200, 2400, 4800, 9600, 14400, 19200, 28800, 38400, 57600, 115200 and 230400.", USERDATA_TAG]];
+            }
+            lua_pushvalue(L, 1);
         }
-        else {
-            [skin logError:[NSString stringWithFormat:@"%s: Invalid Baud Rate supplied. Possible baud rates are: 300, 1200, 2400, 4800, 9600, 14400, 19200, 28800, 38400, 57600, 115200 and 230400.", USERDATA_TAG]];
-        }
-        lua_pushvalue(L, 1);
     }
     
     return 1;
@@ -505,13 +651,13 @@ static int serial_parity(lua_State *L) {
         if ([availableParity containsObject:proposedParity]) {
             // Valid Parity Rate:
             if ([proposedParity isEqualToString:@"none"]) {
-                serialPort.serialPort.parity = ORSSerialPortParityNone;
+                serialPort.parity = ORSSerialPortParityNone;
             }
             else if ([proposedParity isEqualToString:@"odd"]) {
-                serialPort.serialPort.parity = ORSSerialPortParityOdd;
+                serialPort.parity = ORSSerialPortParityOdd;
             }
             else if ([proposedParity isEqualToString:@"even"]) {
-                serialPort.serialPort.parity = ORSSerialPortParityEven;
+                serialPort.parity = ORSSerialPortParityEven;
             }
             result = proposedParity;
         } else {
@@ -520,6 +666,168 @@ static int serial_parity(lua_State *L) {
         lua_pushvalue(L, 1);
     }
     
+    return 1;
+}
+
+/// hs.serial:usesDTRDSRFlowControl([value]) -> boolean | serialPortObject
+/// Method
+/// Gets or sets whether the port should use DCD Flow Control.
+///
+/// Parameters:
+///  * value - An optional boolean.
+///
+/// Returns:
+///  * If a value is specified, then this method returns the serial port object. Otherwise this method returns a boolean.
+///  * The default value is `false`.
+static int serial_usesDCDOutputFlowControl(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK];
+    HSSerialPort *serialPort = [skin toNSObjectAtIndex:1];
+    if (lua_gettop(L) == 1) {
+        // Get:
+        BOOL usesDCDOutputFlowControl = serialPort.usesDCDOutputFlowControl;
+        lua_pushboolean(L, usesDCDOutputFlowControl);
+    } else {
+        serialPort.usesDCDOutputFlowControl = lua_toboolean(L, 2);
+        lua_pushvalue(L, 1);
+    }
+    return 1;
+}
+
+/// hs.serial:usesDTRDSRFlowControl([value]) -> boolean | serialPortObject
+/// Method
+/// Gets or sets whether the port should use DTR/DSR Flow Control.
+///
+/// Parameters:
+///  * value - An optional boolean.
+///
+/// Returns:
+///  * If a value is specified, then this method returns the serial port object. Otherwise this method returns a boolean.
+///  * The default value is `false`.
+static int serial_usesDTRDSRFlowControl(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK];
+    HSSerialPort *serialPort = [skin toNSObjectAtIndex:1];
+    if (lua_gettop(L) == 1) {
+        // Get:
+        BOOL usesDTRDSRFlowControl = serialPort.usesDTRDSRFlowControl;
+        lua_pushboolean(L, usesDTRDSRFlowControl);
+    } else {
+        serialPort.usesDTRDSRFlowControl = lua_toboolean(L, 2);
+        lua_pushvalue(L, 1);
+    }
+    return 1;
+}
+
+/// hs.serial:usesRTSCTSFlowControl([value]) -> boolean | serialPortObject
+/// Method
+/// Gets or sets whether the port should use RTS/CTS Flow Control.
+///
+/// Parameters:
+///  * value - An optional boolean.
+///
+/// Returns:
+///  * If a value is specified, then this method returns the serial port object. Otherwise this method returns a boolean.
+///  * The default value is `false`.
+static int serial_usesRTSCTSFlowControl(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK];
+    HSSerialPort *serialPort = [skin toNSObjectAtIndex:1];
+    if (lua_gettop(L) == 1) {
+        // Get:
+        BOOL usesRTSCTSFlowControl = serialPort.usesRTSCTSFlowControl;
+        lua_pushboolean(L, usesRTSCTSFlowControl);
+    } else {
+        serialPort.usesRTSCTSFlowControl = lua_toboolean(L, 2);
+        lua_pushvalue(L, 1);
+    }
+    return 1;
+}
+
+/// hs.serial:shouldEchoReceivedData([value]) -> boolean | serialPortObject
+/// Method
+/// Gets or sets whether the port should echo recieved data.
+///
+/// Parameters:
+///  * value - An optional boolean.
+///
+/// Returns:
+///  * If a value is specified, then this method returns the serial port object. Otherwise this method returns a boolean.
+///  * The default value is `false`.
+static int serial_shouldEchoReceivedData(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK];
+    HSSerialPort *serialPort = [skin toNSObjectAtIndex:1];
+    if (lua_gettop(L) == 1) {
+        // Get:
+        BOOL shouldEchoReceivedData = serialPort.shouldEchoReceivedData;
+        lua_pushboolean(L, shouldEchoReceivedData);
+    } else {
+        serialPort.shouldEchoReceivedData = lua_toboolean(L, 2);
+        lua_pushvalue(L, 1);
+    }
+    return 1;
+}
+
+/// hs.serial:numberOfStopBits([value]) -> number | serialPortObject
+/// Method
+/// Gets or sets the number of stop bits for the serial port.
+///
+/// Parameters:
+///  * value - An optional number to set the number of stop bits. It can be 1 or 2.
+///
+/// Returns:
+///  * If a value is specified, then this method returns the serial port object. Otherwise this method reutrns a string value of "none", "odd" or "even".
+///  * The default value is 1.
+static int serial_numberOfStopBits(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK];
+    HSSerialPort *serialPort = [skin toNSObjectAtIndex:1];
+    if (lua_gettop(L) == 1) {
+        // Get:
+        NSUInteger numberOfStopBits = serialPort.numberOfStopBits;
+        [skin pushNSObject:@(numberOfStopBits)];
+    } else {
+        // Set:
+        int proposedNumberOfStopBits = (int)lua_tointeger(L, 2);
+        if (proposedNumberOfStopBits >= 1 && proposedNumberOfStopBits <= 2) {
+            serialPort.numberOfStopBits = proposedNumberOfStopBits;
+        } else {
+            [skin logError:[NSString stringWithFormat:@"%s: Invalid number of stop bits Should be 1 or 2.", USERDATA_TAG]];
+        }
+        lua_pushvalue(L, 1);
+    }
+    return 1;
+}
+
+/// hs.serial:numberOfDataBits([value]) -> number | serialPortObject
+/// Method
+/// Gets or sets the number of data bits for the serial port.
+///
+/// Parameters:
+///  * value - An optional number to set the number of stop bits. It can be 5 to 8.
+///
+/// Returns:
+///  * If a value is specified, then this method returns the serial port object. Otherwise this method reutrns a string value of "none", "odd" or "even".
+///  * The default value is 8.
+static int serial_numberOfDataBits(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK];
+    HSSerialPort *serialPort = [skin toNSObjectAtIndex:1];
+    if (lua_gettop(L) == 1) {
+        // Get:
+        NSUInteger numberOfStopBits = serialPort.numberOfDataBits;
+        [skin pushNSObject:@(numberOfStopBits)];
+    } else {
+        // Set:
+        int proposedNumberOfDataBits = (int)lua_tointeger(L, 2);
+        if (proposedNumberOfDataBits >= 5 && proposedNumberOfDataBits <= 8) {
+            serialPort.numberOfDataBits = proposedNumberOfDataBits;
+        } else {
+            [skin logError:[NSString stringWithFormat:@"%s: Invalid number of data bits Should be 1 or 2.", USERDATA_TAG]];
+        }
+        lua_pushvalue(L, 1);
+    }
     return 1;
 }
 
@@ -629,8 +937,13 @@ id toHSSerialPortFromLua(lua_State *L, int idx) {
 static int userdata_tostring(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     HSSerialPort *obj = [skin luaObjectAtIndex:1 toClass:"HSSerialPort"];
-    NSString *title = obj.serialPort.name;
-    [skin pushNSObject:[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, title, lua_topointer(L, 1)]];
+    NSString *title = obj.portName;
+    BOOL isOpen = [obj isOpen];
+    NSString *connected = @"Connected";
+    if (!isOpen) {
+        connected = @"Disconnected";
+    }
+    [skin pushNSObject:[NSString stringWithFormat:@"%s: %@ - %@ (%p)", USERDATA_TAG, title, connected, lua_topointer(L, 1)]];
     return 1;
 }
 
@@ -678,25 +991,33 @@ static int meta_gc(lua_State* L) {
 
 // Metatable for userdata objects:
 static const luaL_Reg userdata_metaLib[] = {
-    {"name",        serial_name},
-    {"path",        serial_path},
-    {"open",        serial_open},
-    {"close",       serial_close},
-    {"baudRate",    serial_baudRate},
-    {"sendData",    serial_sendData},
-    {"parity",      serial_parity},
-    {"isOpen",      serial_isOpen},
-    {"callback",    serial_callback},
-    {"__tostring",  userdata_tostring},
-    {"__eq",        userdata_eq},
-    {"__gc",        userdata_gc},
-    {NULL,          NULL}
+    {"name",                        serial_name},
+    {"path",                        serial_path},
+    {"open",                        serial_open},
+    {"close",                       serial_close},
+    {"baudRate",                    serial_baudRate},
+    {"sendData",                    serial_sendData},
+    {"parity",                      serial_parity},
+    {"isOpen",                      serial_isOpen},
+    {"callback",                    serial_callback},
+    {"numberOfStopBits",            serial_numberOfStopBits},
+    {"numberOfDataBits",            serial_numberOfDataBits},
+    {"shouldEchoReceivedData",      serial_shouldEchoReceivedData},
+    {"usesRTSCTSFlowControl",       serial_usesRTSCTSFlowControl},
+    {"usesDTRDSRFlowControl",       serial_usesDTRDSRFlowControl},
+    {"usesDCDOutputFlowControl",    serial_usesDCDOutputFlowControl},
+    {"__tostring",                  userdata_tostring},
+    {"__eq",                        userdata_eq},
+    {"__gc",                        userdata_gc},
+    {NULL,                          NULL}
 };
 
 // Functions for returned object when module loads:
 static luaL_Reg moduleLib[] = {
-    {"new",                 serial_new},
-    {"availablePorts",      serial_availablePorts},
+    {"newFromName",         serial_newFromName},
+    {"newFromPath",         serial_newFromPath},
+    {"availablePortNames",  serial_availablePortNames},
+    {"availablePortPaths",  serial_availablePortPaths},
     {"deviceCallback",      serial_deviceCallback},
     {NULL,  NULL}
 };
