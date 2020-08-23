@@ -838,7 +838,7 @@ static int serial_shouldEchoReceivedData(lua_State *L) {
     return 1;
 }
 
-/// hs.serial:numberOfStopBits([value]) -> number | serialPortObject
+/// hs.serial:stopBits([value]) -> number | serialPortObject
 /// Method
 /// Gets or sets the number of stop bits for the serial port.
 ///
@@ -869,7 +869,7 @@ static int serial_numberOfStopBits(lua_State *L) {
     return 1;
 }
 
-/// hs.serial:numberOfDataBits([value]) -> number | serialPortObject
+/// hs.serial:dataBits([value]) -> number | serialPortObject
 /// Method
 /// Gets or sets the number of data bits for the serial port.
 ///
@@ -1069,8 +1069,8 @@ static const luaL_Reg userdata_metaLib[] = {
     {"parity",                      serial_parity},
     {"isOpen",                      serial_isOpen},
     {"callback",                    serial_callback},
-    {"numberOfStopBits",            serial_numberOfStopBits},
-    {"numberOfDataBits",            serial_numberOfDataBits},
+    {"stopBits",                    serial_numberOfStopBits},
+    {"dataBits",                    serial_numberOfDataBits},
     {"shouldEchoReceivedData",      serial_shouldEchoReceivedData},
     {"usesRTSCTSFlowControl",       serial_usesRTSCTSFlowControl},
     {"usesDTRDSRFlowControl",       serial_usesDTRDSRFlowControl},
