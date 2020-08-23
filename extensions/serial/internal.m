@@ -317,6 +317,71 @@ static int refTable = LUA_NOREF;
     return self.serialPort && self.serialPort.isOpen;
 }
 
+- (void)changeParity:(ORSSerialPortParity)parity
+{
+    self.parity = parity;
+    if ([self isOpen]) {
+        self.serialPort.parity = parity;
+    }
+}
+
+- (void)changeBaudRate:(NSNumber*)baudRate
+{
+    self.baudRate = baudRate;
+    if ([self isOpen]) {
+        self.serialPort.allowsNonStandardBaudRates = self.allowsNonStandardBaudRates;
+        self.serialPort.baudRate = baudRate;
+    }
+}
+
+- (void)changeNumberOfStopBits:(NSUInteger)numberOfStopBits
+{
+    self.numberOfStopBits = numberOfStopBits;
+    if ([self isOpen]) {
+        self.serialPort.numberOfStopBits = numberOfStopBits;
+    }
+}
+
+- (void)changeNumberOfDataBits:(NSUInteger)numberOfDataBits
+{
+    self.numberOfDataBits = numberOfDataBits;
+    if ([self isOpen]) {
+        self.serialPort.numberOfDataBits = numberOfDataBits;
+    }
+}
+
+- (void)changeUsesRTSCTSFlowControl:(BOOL)usesRTSCTSFlowControl
+{
+    self.usesRTSCTSFlowControl = usesRTSCTSFlowControl;
+    if ([self isOpen]) {
+        self.serialPort.usesRTSCTSFlowControl = usesRTSCTSFlowControl;
+    }
+}
+
+- (void)changeUsesDTRDSRFlowControl:(BOOL)usesDTRDSRFlowControl
+{
+    self.usesDTRDSRFlowControl = usesDTRDSRFlowControl;
+    if ([self isOpen]) {
+        self.serialPort.usesDTRDSRFlowControl = usesDTRDSRFlowControl;
+    }
+}
+
+- (void)changeUsesDCDOutputFlowControl:(BOOL)usesDCDOutputFlowControl
+{
+    self.usesDCDOutputFlowControl = usesDCDOutputFlowControl;
+    if ([self isOpen]) {
+        self.serialPort.usesDCDOutputFlowControl = usesDCDOutputFlowControl;
+    }
+}
+
+- (void)changeShouldEchoReceivedData:(BOOL)shouldEchoReceivedData
+{
+    self.shouldEchoReceivedData = shouldEchoReceivedData;
+    if ([self isOpen]) {
+        self.serialPort.shouldEchoReceivedData = shouldEchoReceivedData;
+    }
+}
+
 - (void)close
 {
     if (self.serialPort) {
@@ -597,13 +662,13 @@ static int serial_baudRate(lua_State *L) {
         BOOL allowNonStandardBaudRates = (lua_isboolean(L, 3) && lua_toboolean(L, 3));
         if (allowNonStandardBaudRates) {
             serialPort.allowsNonStandardBaudRates = YES;
-            serialPort.baudRate = proposedBaudRate;
+            [serialPort changeBaudRate:proposedBaudRate];
             lua_pushvalue(L, 1);
         } else {
             NSArray *availableBaudRates = @[@300, @1200, @2400, @4800, @9600, @14400, @19200, @28800, @38400, @57600, @115200, @230400];
             if ([availableBaudRates containsObject:proposedBaudRate]) {
                 // Valid Baud Rate:
-                serialPort.baudRate = proposedBaudRate;
+                [serialPort changeBaudRate:proposedBaudRate];
             }
             else {
                 [skin logError:[NSString stringWithFormat:@"%s: Invalid Baud Rate supplied. Possible baud rates are: 300, 1200, 2400, 4800, 9600, 14400, 19200, 28800, 38400, 57600, 115200 and 230400.", USERDATA_TAG]];
@@ -650,16 +715,16 @@ static int serial_parity(lua_State *L) {
         NSString *proposedParity = [skin toNSObjectAtIndex:2];
         if ([availableParity containsObject:proposedParity]) {
             // Valid Parity Rate:
-            if ([proposedParity isEqualToString:@"none"]) {
-                serialPort.parity = ORSSerialPortParityNone;
-            }
-            else if ([proposedParity isEqualToString:@"odd"]) {
-                serialPort.parity = ORSSerialPortParityOdd;
+            ORSSerialPortParity newParity;
+            if ([proposedParity isEqualToString:@"odd"]) {
+                newParity = ORSSerialPortParityOdd;
             }
             else if ([proposedParity isEqualToString:@"even"]) {
-                serialPort.parity = ORSSerialPortParityEven;
+                newParity = ORSSerialPortParityEven;
+            } else {
+                newParity = ORSSerialPortParityNone;
             }
-            result = proposedParity;
+            [serialPort changeParity:newParity];
         } else {
             [skin logError:[NSString stringWithFormat:@"%s: Invalid Parity string supplied. Should be 'none', 'odd' or 'even'.", USERDATA_TAG]];
         }
@@ -688,7 +753,8 @@ static int serial_usesDCDOutputFlowControl(lua_State *L) {
         BOOL usesDCDOutputFlowControl = serialPort.usesDCDOutputFlowControl;
         lua_pushboolean(L, usesDCDOutputFlowControl);
     } else {
-        serialPort.usesDCDOutputFlowControl = lua_toboolean(L, 2);
+        bool usesDCDOutputFlowControl = lua_toboolean(L, 2);
+        [serialPort changeUsesDCDOutputFlowControl:usesDCDOutputFlowControl];
         lua_pushvalue(L, 1);
     }
     return 1;
@@ -713,7 +779,8 @@ static int serial_usesDTRDSRFlowControl(lua_State *L) {
         BOOL usesDTRDSRFlowControl = serialPort.usesDTRDSRFlowControl;
         lua_pushboolean(L, usesDTRDSRFlowControl);
     } else {
-        serialPort.usesDTRDSRFlowControl = lua_toboolean(L, 2);
+        BOOL usesDTRDSRFlowControl = lua_toboolean(L, 2);
+        [serialPort changeUsesDTRDSRFlowControl:usesDTRDSRFlowControl];
         lua_pushvalue(L, 1);
     }
     return 1;
@@ -738,7 +805,8 @@ static int serial_usesRTSCTSFlowControl(lua_State *L) {
         BOOL usesRTSCTSFlowControl = serialPort.usesRTSCTSFlowControl;
         lua_pushboolean(L, usesRTSCTSFlowControl);
     } else {
-        serialPort.usesRTSCTSFlowControl = lua_toboolean(L, 2);
+        BOOL usesRTSCTSFlowControl = lua_toboolean(L, 2);
+        [serialPort changeUsesRTSCTSFlowControl:usesRTSCTSFlowControl];
         lua_pushvalue(L, 1);
     }
     return 1;
@@ -763,7 +831,8 @@ static int serial_shouldEchoReceivedData(lua_State *L) {
         BOOL shouldEchoReceivedData = serialPort.shouldEchoReceivedData;
         lua_pushboolean(L, shouldEchoReceivedData);
     } else {
-        serialPort.shouldEchoReceivedData = lua_toboolean(L, 2);
+        BOOL shouldEchoReceivedData = lua_toboolean(L, 2);
+        [serialPort changeShouldEchoReceivedData:shouldEchoReceivedData];
         lua_pushvalue(L, 1);
     }
     return 1;
@@ -791,7 +860,7 @@ static int serial_numberOfStopBits(lua_State *L) {
         // Set:
         int proposedNumberOfStopBits = (int)lua_tointeger(L, 2);
         if (proposedNumberOfStopBits >= 1 && proposedNumberOfStopBits <= 2) {
-            serialPort.numberOfStopBits = proposedNumberOfStopBits;
+            [serialPort changeNumberOfStopBits:proposedNumberOfStopBits];
         } else {
             [skin logError:[NSString stringWithFormat:@"%s: Invalid number of stop bits Should be 1 or 2.", USERDATA_TAG]];
         }
@@ -822,7 +891,7 @@ static int serial_numberOfDataBits(lua_State *L) {
         // Set:
         int proposedNumberOfDataBits = (int)lua_tointeger(L, 2);
         if (proposedNumberOfDataBits >= 5 && proposedNumberOfDataBits <= 8) {
-            serialPort.numberOfDataBits = proposedNumberOfDataBits;
+            [serialPort changeNumberOfDataBits:proposedNumberOfDataBits];
         } else {
             [skin logError:[NSString stringWithFormat:@"%s: Invalid number of data bits Should be 1 or 2.", USERDATA_TAG]];
         }
