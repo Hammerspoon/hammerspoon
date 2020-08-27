@@ -50,6 +50,15 @@ Hopefully the Spoon came with some documentation, either on its homepage or in `
 
 For most Spoons, simply add `hs.loadSpoon("NAME")` to your Hammerspoon config (note that `NAME` should *not* include the `.spoon` extension). This will make the spoon available in the global Lua namespace as `spoon.NAME`.
 
+Note that `hs.loadSpoon()` uses `package.path` to find Spoons. Hence you can have it look for Spoons in other paths by adding those paths to `package.path` as follows:
+
+```lua
+-- Look for Spoons in ~/.hammerspoon/MySpoons as well
+package.path = package.path .. ";" ..  hs.configdir .. "/MySpoons/?.spoon/init.lua"
+```
+
+This can be useful if you have Spoons you are developing for example.
+
 ### Integrating into your configuration
 
 In most cases, the API should take roughly this form:
