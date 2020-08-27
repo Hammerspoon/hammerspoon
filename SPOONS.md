@@ -189,33 +189,28 @@ This will search the current working director for any `.lua` files, extract docs
 
 If your Spoon grows more complex than just an `init.lua`, a problem you will quickly run into is how you can load extra `.lua` files, or other types of resources (e.g. images).
 
-There is, however, a simple way to discover the true path of your Spoon on the filesystem. Simply include this code in your Spoon:
+There is, however, a simple way to discover the true path of your Spoon on the filesystem. Simply use the `hs.spoons.scriptPath()` function:
 
 ```lua
--- Internal function used to find our location, so we know where to load files from
-local function script_path()
-    local str = debug.getinfo(2, "S").source:sub(2)
-    return str:match("(.*/)")
-end
-obj.spoonPath = script_path()
+-- Get path to Spoon's init.lua script
+obj.spoonPath = hs.spoon.scriptPath()
 ```
+#### Assets
 
-Assuming you have been building your Spoon object as `obj`, you can now reference `obj.spoonPath` anywhere in your methods, and know where you should load files from.
+To access assets bundled with your Spoon, use the `hs.spoons.resourcePath()` function:
+
+```lua
+
+-- Get path to a resource bundled with the Spoon
+obj.imagePath = hs.spoon.resourcePath("images/someImage.png")
+```
 
 #### Code
 
 You cannot use `require()` to load `.lua` files in a Spoon, instead you should use:
 
 ```lua
-dofile(obj.spoonPath.."/someCode.lua")
+dofile(hs.spoon.resourcePath("someCode.lua"))
 ```
 
 and the `someCode.lua` file will be loaded and executed (and if it returns anything, you can capture those values from `dofile()`)
-
-#### Assets
-
-Once you have `spoonPath` available in your object, any normal Lua/Hammerspoon/etc. methods for loading files, should work, e.g.:
-
-```lua
-hs.image.imageFromPath(self.spoonPath.."/someImage.png")
-```
