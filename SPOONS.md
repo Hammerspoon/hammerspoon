@@ -144,6 +144,19 @@ Your `:bindHotkeys()` method now has all of the information it needs to bind hot
 
 While you might want to verify the contents of the table, it seems reasonable to be fairly limited in the extent, so long as you have documented the method well.
 
+The function `hs.spoons.bindHotkeysToSpec()` can do most of the hard work of the mappings for you. For exmaple, the following would allow binding of actions `show` and `hide` to `showMethod()` and `hideMethod()` respectively:
+
+```lua
+function MySpoon:bindHotKeys(mapping)
+  local spec = {
+    show = hs.fnutils.partial(self.showMethod, self),
+    hide = hs.fnutils.partial(self.hideMethod, self),
+  }
+  hs.spoons.bindHotkeysToSpec(spec, mapping)
+  return self
+end
+```
+
 #### Other
 
 You can present any other methods you want, and while they are all technically accessible to the user, you should only document the ones you actually intend to be public API.
