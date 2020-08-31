@@ -21,8 +21,8 @@ SentryTransportFactory ()
 
 @implementation SentryTransportFactory
 
-+ (id<SentryTransport> _Nonnull)initTransport:(SentryOptions *)options
-                            sentryFileManager:(SentryFileManager *)sentryFileManager
++ (id<SentryTransport>)initTransport:(SentryOptions *)options
+                   sentryFileManager:(SentryFileManager *)sentryFileManager
 {
     NSURLSessionConfiguration *configuration =
         [NSURLSessionConfiguration ephemeralSessionConfiguration];

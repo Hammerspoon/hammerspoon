@@ -136,6 +136,11 @@ SENTRY_NO_INIT
 @property (nonatomic, class) SentryLogLevel logLevel;
 
 /**
+ * Checks if the last program execution terminated with a crash.
+ */
+@property (nonatomic, class, readonly) BOOL crashedLastRun;
+
+/**
  * Set global user -> thus will be sent with every event
  */
 + (void)setUser:(SentryUser *_Nullable)user;

@@ -5,7 +5,7 @@
 // Don't remove the static keyword. If you do the compiler adds the constant name to the global
 // symbol table and it might clash with other constants. When keeping the static keyword the
 // compiler replaces all occurrences with the value.
-static NSString *const versionString = @"5.2.0";
+static NSString *const versionString = @"5.2.2";
 static NSString *const sdkName = @"sentry.cocoa";
 
 + (NSString *)versionString

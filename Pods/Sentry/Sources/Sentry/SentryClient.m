@@ -96,6 +96,7 @@ SentryClient ()
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
     event.message = exception.reason;
+    [self setUserInfo:exception.userInfo withEvent:event];
     return [self sendEvent:event withScope:scope alwaysAttachStacktrace:YES];
 }
 
@@ -103,6 +104,7 @@ SentryClient ()
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
     event.message = error.localizedDescription;
+    [self setUserInfo:error.userInfo withEvent:event];
     return [self sendEvent:event withScope:scope alwaysAttachStacktrace:YES];
 }
 
@@ -251,6 +253,21 @@ SentryClient ()
         }
     }
     return newEvent;
+}
+
+- (void)setUserInfo:(NSDictionary *)userInfo withEvent:(SentryEvent *)event
+{
+    if (nil != event && nil != userInfo && userInfo.count > 0) {
+        NSMutableDictionary *context;
+        if (nil == event.context) {
+            context = [[NSMutableDictionary alloc] init];
+            event.context = context;
+        } else {
+            context = [event.context mutableCopy];
+        }
+
+        [context setValue:userInfo forKey:@"user info"];
+    }
 }
 
 @end

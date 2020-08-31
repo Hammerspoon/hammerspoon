@@ -2,6 +2,7 @@
 #import "SentryBreadcrumb.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryClient.h"
+#import "SentryCrash.h"
 #import "SentryDefines.h"
 #import "SentryHub.h"
 #import "SentryLog.h"
@@ -201,6 +202,11 @@ static SentryHub *currentHub;
     *p = 0;
 }
 #endif
+
++ (BOOL)crashedLastRun
+{
+    return SentryCrash.sharedInstance.crashedLastLaunch;
+}
 
 /**
  * Install integrations and keeps ref in `SentryHub.integrations`
