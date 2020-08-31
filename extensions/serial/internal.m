@@ -151,7 +151,7 @@ static int refTable = LUA_NOREF;
         LuaSkin *skin = [LuaSkin sharedWithState:NULL];
         [skin pushLuaRef:refTable ref:_callbackRef];
         [skin pushNSObject:self];
-        [skin pushNSObject:@"recieved"];
+        [skin pushNSObject:@"received"];
         [skin pushNSObject:data];
         NSString *hex = [data hexadecimalString];
         [skin pushNSObject:hex];
@@ -478,9 +478,9 @@ static int serial_newFromPath(lua_State *L) {
 /// Notes:
 ///  * The callback function should expect 4 arguments and should not return anything:
 ///    * `serialPortObject` - The serial port object that triggered the callback.
-///    * `callbackType` - A string containing "opened", "closed", "recieved", "removed" or "error".
-///    * `message` - If the `callbackType` is "recieved", then this will be the data received as a string. If the `callbackType` is "error", this will be the error message as a string.
-///    * `hexadecimalString` - If the `callbackType` is "recieved", then this will be the data received as a hexadecimal string.
+///    * `callbackType` - A string containing "opened", "closed", "received", "removed" or "error".
+///    * `message` - If the `callbackType` is "received", then this will be the data received as a string. If the `callbackType` is "error", this will be the error message as a string.
+///    * `hexadecimalString` - If the `callbackType` is "received", then this will be the data received as a hexadecimal string.
 static int serial_callback(lua_State *L) {
     // Check Arguments:
     LuaSkin *skin = [LuaSkin sharedWithState:L];
@@ -814,7 +814,7 @@ static int serial_usesRTSCTSFlowControl(lua_State *L) {
 
 /// hs.serial:shouldEchoReceivedData([value]) -> boolean | serialPortObject
 /// Method
-/// Gets or sets whether the port should echo recieved data.
+/// Gets or sets whether the port should echo received data.
 ///
 /// Parameters:
 ///  * value - An optional boolean.
