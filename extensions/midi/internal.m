@@ -771,7 +771,7 @@ static int midi_callback(lua_State *L) {
                     //
                     // Push Values:
                     //
-                    lua_pushvalue(L, 1);                        ///    * `object`       - The `hs.midi` object.
+                    [skin pushNSObject:wrapper];                ///    * `object`       - The `hs.midi` object.
                     [skin pushNSObject:deviceName];             ///    * `deviceName`   - The device name as a string.
                     [skin pushNSObject:commandTypeString];      ///    * `commandType`  - Type of MIDI message as a string.
                     [skin pushNSObject:description];            ///    * `description`  - Description of the event as a string. This is useful for debugging.
