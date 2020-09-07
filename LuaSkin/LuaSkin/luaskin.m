@@ -184,7 +184,7 @@ static int obj_ud_newindex(lua_State *L) {
     lua_getfield(L, -1, "mutable") ;
     isMutable = isMutable && lua_toboolean(L, -1) ;
     lua_getfield(L, -2, "arrayAutoConversion") ;
-    arrayAutoConversion = (BOOL)lua_toboolean(L, -1) ;
+    arrayAutoConversion = lua_toboolean(L, -1) ;
     lua_pop(L, 3) ;
 
     if (isMutable) {
