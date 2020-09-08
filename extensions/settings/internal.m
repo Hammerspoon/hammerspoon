@@ -20,6 +20,11 @@ static int refTable = LUA_NOREF ;
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+    if (context != myKVOContext) {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+        return;
+    }
+    
 //     [LuaSkin logWarn:[NSString stringWithFormat:@"in observeValueForKeyPath for %@ with %@", keyPath, change]] ;
     if (context == myKVOContext && _watchedKeys && _watchedKeys[keyPath]) {
         NSMutableDictionary *fnCallbacks = _watchedKeys[keyPath] ;
@@ -32,8 +37,6 @@ static int refTable = LUA_NOREF ;
             [skin protectedCallAndError:[NSString stringWithFormat:@"hs.settings:watcher %@ callback", watcherID] nargs:1 nresults:0];
         }] ;
         _lua_stackguard_exit(skin.L);
-    } else {
-        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context] ;
     }
 }
 
