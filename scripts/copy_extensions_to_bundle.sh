@@ -56,6 +56,7 @@ export HS_MODULES="application \
     timer \
     uielement \
     urlevent \
+    userpreferences \
     usb \
     webview \
     wifi \
@@ -88,6 +89,7 @@ export HS_LUAONLY="_coresetup \
     messages \
     mjomatic \
     network \
+    donotdisturb \
     redshift \
     spotify \
     spoons \
