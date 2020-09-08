@@ -1,6 +1,10 @@
 --- === hs.timer ===
 ---
 --- Execute functions with various timing rules
+---
+--- **NOTE**: timers use NSTimer internally, which will be paused when computers sleep.
+--- Especially, repeating timers won't be triggered at the specificed time when there are sleeps in between.
+--- The workaround is to prevent system from sleeping, configured in Energy Saver in System Preferences.
 
 local module = require("hs.timer.internal")
 local log=require'hs.logger'.new('timer',3)
