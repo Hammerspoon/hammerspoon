@@ -1,13 +1,14 @@
 #import "SentryException.h"
-#import "SentryThread.h"
 #import "SentryMechanism.h"
 #import "SentryStacktrace.h"
+#import "SentryThread.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryException
 
-- (instancetype)initWithValue:(NSString *)value type:(NSString *)type {
+- (instancetype)initWithValue:(NSString *)value type:(NSString *)type
+{
     self = [super init];
     if (self) {
         self.value = value;
@@ -16,7 +17,8 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (NSDictionary<NSString *, id> *)serialize {
+- (NSDictionary<NSString *, id> *)serialize
+{
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
 
     [serializedData setValue:self.value forKey:@"value"];

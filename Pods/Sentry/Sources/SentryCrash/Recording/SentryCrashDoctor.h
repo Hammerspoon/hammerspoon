@@ -10,8 +10,8 @@
 
 @interface SentryCrashDoctor : NSObject
 
-+ (SentryCrashDoctor*) doctor;
++ (SentryCrashDoctor *)doctor;
 
-- (NSString*) diagnoseCrash:(NSDictionary*) crashReport;
+- (NSString *)diagnoseCrash:(NSDictionary *)crashReport;
 
 @end

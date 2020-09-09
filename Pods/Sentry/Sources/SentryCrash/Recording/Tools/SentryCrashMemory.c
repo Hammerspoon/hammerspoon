@@ -24,69 +24,56 @@
 // THE SOFTWARE.
 //
 
-
 #include "SentryCrashMemory.h"
 
 //#define SentryCrashLogger_LocalLevel TRACE
 #include "SentryCrashLogger.h"
 
-#include <mach/mach.h>
 #include <_types/_uint8_t.h>
+#include <mach/mach.h>
 
-
-static inline int copySafely(const void* restrict const src, void* restrict const dst, const int byteCount)
+static inline int
+copySafely(const void *restrict const src, void *restrict const dst, const int byteCount)
 {
     vm_size_t bytesCopied = 0;
-    kern_return_t result = vm_read_overwrite(mach_task_self(),
-                                             (vm_address_t)src,
-                                             (vm_size_t)byteCount,
-                                             (vm_address_t)dst,
-                                             &bytesCopied);
-    if(result != KERN_SUCCESS)
-    {
+    kern_return_t result = vm_read_overwrite(
+        mach_task_self(), (vm_address_t)src, (vm_size_t)byteCount, (vm_address_t)dst, &bytesCopied);
+    if (result != KERN_SUCCESS) {
         return 0;
     }
     return (int)bytesCopied;
 }
 
-static inline int copyMaxPossible(const void* restrict const src, void* restrict const dst, const int byteCount)
+static inline int
+copyMaxPossible(const void *restrict const src, void *restrict const dst, const int byteCount)
 {
-    const uint8_t* pSrc = src;
-    const uint8_t* pSrcMax = (uint8_t*)src + byteCount;
-    const uint8_t* pSrcEnd = (uint8_t*)src + byteCount;
-    uint8_t* pDst = dst;
+    const uint8_t *pSrc = src;
+    const uint8_t *pSrcMax = (uint8_t *)src + byteCount;
+    const uint8_t *pSrcEnd = (uint8_t *)src + byteCount;
+    uint8_t *pDst = dst;
 
     int bytesCopied = 0;
 
     // Short-circuit if no memory is readable
-    if(copySafely(src, dst, 1) != 1)
-    {
+    if (copySafely(src, dst, 1) != 1) {
         return 0;
-    }
-    else if(byteCount <= 1)
-    {
+    } else if (byteCount <= 1) {
         return byteCount;
     }
 
-    for(;;)
-    {
+    for (;;) {
         int copyLength = (int)(pSrcEnd - pSrc);
-        if(copyLength <= 0)
-        {
+        if (copyLength <= 0) {
             break;
         }
 
-        if(copySafely(pSrc, pDst, copyLength) == copyLength)
-        {
+        if (copySafely(pSrc, pDst, copyLength) == copyLength) {
             bytesCopied += copyLength;
             pSrc += copyLength;
             pDst += copyLength;
             pSrcEnd = pSrc + (pSrcMax - pSrc) / 2;
-        }
-        else
-        {
-            if(copyLength <= 1)
-            {
+        } else {
+            if (copyLength <= 1) {
                 break;
             }
             pSrcMax = pSrcEnd;
@@ -97,16 +84,15 @@ static inline int copyMaxPossible(const void* restrict const src, void* restrict
 }
 
 static char g_memoryTestBuffer[10240];
-static inline bool isMemoryReadable(const void* const memory, const int byteCount)
+static inline bool
+isMemoryReadable(const void *const memory, const int byteCount)
 {
     const int testBufferSize = sizeof(g_memoryTestBuffer);
     int bytesRemaining = byteCount;
 
-    while(bytesRemaining > 0)
-    {
+    while (bytesRemaining > 0) {
         int bytesToCopy = bytesRemaining > testBufferSize ? testBufferSize : bytesRemaining;
-        if(copySafely(memory, g_memoryTestBuffer, bytesToCopy) != bytesToCopy)
-        {
+        if (copySafely(memory, g_memoryTestBuffer, bytesToCopy) != bytesToCopy) {
             break;
         }
         bytesRemaining -= bytesToCopy;
@@ -114,16 +100,15 @@ static inline bool isMemoryReadable(const void* const memory, const int byteCoun
     return bytesRemaining == 0;
 }
 
-int sentrycrashmem_maxReadableBytes(const void* const memory, const int tryByteCount)
+int
+sentrycrashmem_maxReadableBytes(const void *const memory, const int tryByteCount)
 {
     const int testBufferSize = sizeof(g_memoryTestBuffer);
-    const uint8_t* currentPosition = memory;
+    const uint8_t *currentPosition = memory;
     int bytesRemaining = tryByteCount;
 
-    while(bytesRemaining > testBufferSize)
-    {
-        if(!isMemoryReadable(currentPosition, testBufferSize))
-        {
+    while (bytesRemaining > testBufferSize) {
+        if (!isMemoryReadable(currentPosition, testBufferSize)) {
             break;
         }
         currentPosition += testBufferSize;
@@ -133,17 +118,22 @@ int sentrycrashmem_maxReadableBytes(const void* const memory, const int tryByteC
     return tryByteCount - bytesRemaining;
 }
 
-bool sentrycrashmem_isMemoryReadable(const void* const memory, const int byteCount)
+bool
+sentrycrashmem_isMemoryReadable(const void *const memory, const int byteCount)
 {
     return isMemoryReadable(memory, byteCount);
 }
 
-int sentrycrashmem_copyMaxPossible(const void* restrict const src, void* restrict const dst, const int byteCount)
+int
+sentrycrashmem_copyMaxPossible(
+    const void *restrict const src, void *restrict const dst, const int byteCount)
 {
     return copyMaxPossible(src, dst, byteCount);
 }
 
-bool sentrycrashmem_copySafely(const void* restrict const src, void* restrict const dst, const int byteCount)
+bool
+sentrycrashmem_copySafely(
+    const void *restrict const src, void *restrict const dst, const int byteCount)
 {
     return copySafely(src, dst, byteCount);
 }

@@ -1,3 +1,4 @@
+#import "SentryRateLimitCategory.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -13,15 +14,15 @@ NS_SWIFT_NAME(RateLimits)
 /**
 Check if a data category has reached a rate limit.
  @param category the type e.g. event, error, session, transaction, etc.
- 
+
  @return BOOL YES if limit is reached, NO otherwise.
  */
-- (BOOL)isRateLimitActive:(NSString *)category;
+- (BOOL)isRateLimitActive:(SentryRateLimitCategory)category;
 
 /**
 Should be called for each HTTP response of the Sentry
  server. It checks the response for any communicated rate limits.
- 
+
  @param response The response from the server
  */
 - (void)update:(NSHTTPURLResponse *)response;

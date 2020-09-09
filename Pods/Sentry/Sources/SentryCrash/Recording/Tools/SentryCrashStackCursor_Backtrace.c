@@ -22,24 +22,24 @@
 // THE SOFTWARE.
 //
 
-
 #include "SentryCrashStackCursor_Backtrace.h"
 #include "SentryCrashCPU.h"
 
 //#define SentryCrashLogger_LocalLevel TRACE
 #include "SentryCrashLogger.h"
 
-static bool advanceCursor(SentryCrashStackCursor *cursor)
+static bool
+advanceCursor(SentryCrashStackCursor *cursor)
 {
-    SentryCrashStackCursor_Backtrace_Context* context = (SentryCrashStackCursor_Backtrace_Context*)cursor->context;
+    SentryCrashStackCursor_Backtrace_Context *context
+        = (SentryCrashStackCursor_Backtrace_Context *)cursor->context;
     int endDepth = context->backtraceLength - context->skippedEntries;
-    if(cursor->state.currentDepth < endDepth)
-    {
+    if (cursor->state.currentDepth < endDepth) {
         int currentIndex = cursor->state.currentDepth + context->skippedEntries;
         uintptr_t nextAddress = context->backtrace[currentIndex];
-        // Bug: The system sometimes gives a backtrace with an extra 0x00000001 at the end.
-        if(nextAddress > 1)
-        {
+        // Bug: The system sometimes gives a backtrace with an extra 0x00000001
+        // at the end.
+        if (nextAddress > 1) {
             cursor->stackEntry.address = sentrycrashcpu_normaliseInstructionPointer(nextAddress);
             cursor->state.currentDepth++;
             return true;
@@ -48,10 +48,13 @@ static bool advanceCursor(SentryCrashStackCursor *cursor)
     return false;
 }
 
-void sentrycrashsc_initWithBacktrace(SentryCrashStackCursor *cursor, const uintptr_t* backtrace, int backtraceLength, int skipEntries)
+void
+sentrycrashsc_initWithBacktrace(SentryCrashStackCursor *cursor, const uintptr_t *backtrace,
+    int backtraceLength, int skipEntries)
 {
     sentrycrashsc_initCursor(cursor, sentrycrashsc_resetCursor, advanceCursor);
-    SentryCrashStackCursor_Backtrace_Context* context = (SentryCrashStackCursor_Backtrace_Context*)cursor->context;
+    SentryCrashStackCursor_Backtrace_Context *context
+        = (SentryCrashStackCursor_Backtrace_Context *)cursor->context;
     context->skippedEntries = skipEntries;
     context->backtraceLength = backtraceLength;
     context->backtrace = backtrace;

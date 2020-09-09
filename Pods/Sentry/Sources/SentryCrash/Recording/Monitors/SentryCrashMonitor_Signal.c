@@ -25,27 +25,26 @@
 //
 
 #include "SentryCrashMonitor_Signal.h"
-#include "SentryCrashMonitorContext.h"
 #include "SentryCrashID.h"
-#include "SentryCrashSignalInfo.h"
 #include "SentryCrashMachineContext.h"
-#include "SentryCrashSystemCapabilities.h"
+#include "SentryCrashMonitorContext.h"
+#include "SentryCrashSignalInfo.h"
 #include "SentryCrashStackCursor_MachineContext.h"
+#include "SentryCrashSystemCapabilities.h"
 
 //#define SentryCrashLogger_LocalLevel TRACE
 #include "SentryCrashLogger.h"
 
 #if SentryCrashCRASH_HAS_SIGNAL
 
-#include <errno.h>
-#include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
+#    include <errno.h>
+#    include <signal.h>
+#    include <stdio.h>
+#    include <stdlib.h>
+#    include <string.h>
 
 // ============================================================================
-#pragma mark - Globals -
+#    pragma mark - Globals -
 // ============================================================================
 
 static volatile bool g_isEnabled = false;
@@ -53,18 +52,18 @@ static volatile bool g_isEnabled = false;
 static SentryCrash_MonitorContext g_monitorContext;
 static SentryCrashStackCursor g_stackCursor;
 
-#if SentryCrashCRASH_HAS_SIGNAL_STACK
+#    if SentryCrashCRASH_HAS_SIGNAL_STACK
 /** Our custom signal stack. The signal handler will use this as its stack. */
-static stack_t g_signalStack = {0};
-#endif
+static stack_t g_signalStack = { 0 };
+#    endif
 
 /** Signal handlers that were installed before we installed ours. */
-static struct sigaction* g_previousSignalHandlers = NULL;
+static struct sigaction *g_previousSignalHandlers = NULL;
 
 static char g_eventID[37];
 
 // ============================================================================
-#pragma mark - Callbacks -
+#    pragma mark - Callbacks -
 // ============================================================================
 
 /** Our custom signal handler.
@@ -79,11 +78,11 @@ static char g_eventID[37];
  *
  * @param userContext Other contextual information.
  */
-static void handleSignal(int sigNum, siginfo_t* signalInfo, void* userContext)
+static void
+handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
 {
     SentryCrashLOG_DEBUG("Trapped signal %d", sigNum);
-    if(g_isEnabled)
-    {
+    if (g_isEnabled) {
         sentrycrashmc_suspendEnvironment();
         sentrycrashcm_notifyFatalExceptionCaptured(false);
 
@@ -92,7 +91,7 @@ static void handleSignal(int sigNum, siginfo_t* signalInfo, void* userContext)
         sentrycrashmc_getContextForSignal(userContext, machineContext);
         sentrycrashsc_initWithMachineContext(&g_stackCursor, 100, machineContext);
 
-        SentryCrash_MonitorContext* crashContext = &g_monitorContext;
+        SentryCrash_MonitorContext *crashContext = &g_monitorContext;
         memset(crashContext, 0, sizeof(*crashContext));
         crashContext->crashType = SentryCrashMonitorTypeSignal;
         crashContext->eventID = g_eventID;
@@ -113,72 +112,65 @@ static void handleSignal(int sigNum, siginfo_t* signalInfo, void* userContext)
     raise(sigNum);
 }
 
-
 // ============================================================================
-#pragma mark - API -
+#    pragma mark - API -
 // ============================================================================
 
-static bool installSignalHandler()
+static bool
+installSignalHandler()
 {
     SentryCrashLOG_DEBUG("Installing signal handler.");
 
-#if SentryCrashCRASH_HAS_SIGNAL_STACK
+#    if SentryCrashCRASH_HAS_SIGNAL_STACK
 
-    if(g_signalStack.ss_size == 0)
-    {
+    if (g_signalStack.ss_size == 0) {
         SentryCrashLOG_DEBUG("Allocating signal stack area.");
         g_signalStack.ss_size = SIGSTKSZ;
         g_signalStack.ss_sp = malloc(g_signalStack.ss_size);
 
-        if(g_signalStack.ss_sp == NULL)
-        {
-            SentryCrashLOG_ERROR("Failed to allocate signal stack area of size %ul", g_signalStack.ss_size);
+        if (g_signalStack.ss_sp == NULL) {
+            SentryCrashLOG_ERROR(
+                "Failed to allocate signal stack area of size %ul", g_signalStack.ss_size);
             goto failed;
         }
     }
 
     SentryCrashLOG_DEBUG("Setting signal stack area.");
-    if(sigaltstack(&g_signalStack, NULL) != 0)
-    {
+    if (sigaltstack(&g_signalStack, NULL) != 0) {
         SentryCrashLOG_ERROR("signalstack: %s", strerror(errno));
         goto failed;
     }
-#endif
+#    endif
 
-    const int* fatalSignals = sentrycrashsignal_fatalSignals();
+    const int *fatalSignals = sentrycrashsignal_fatalSignals();
     int fatalSignalsCount = sentrycrashsignal_numFatalSignals();
 
-    if(g_previousSignalHandlers == NULL)
-    {
+    if (g_previousSignalHandlers == NULL) {
         SentryCrashLOG_DEBUG("Allocating memory to store previous signal handlers.");
-        g_previousSignalHandlers = malloc(sizeof(*g_previousSignalHandlers)
-                                          * (unsigned)fatalSignalsCount);
+        g_previousSignalHandlers
+            = malloc(sizeof(*g_previousSignalHandlers) * (unsigned)fatalSignalsCount);
     }
 
-    struct sigaction action = {{0}};
+    struct sigaction action = { { 0 } };
     action.sa_flags = SA_SIGINFO | SA_ONSTACK;
-#if SentryCrashCRASH_HOST_APPLE && defined(__LP64__)
+#    if SentryCrashCRASH_HOST_APPLE && defined(__LP64__)
     action.sa_flags |= SA_64REGSET;
-#endif
+#    endif
     sigemptyset(&action.sa_mask);
     action.sa_sigaction = &handleSignal;
 
-    for(int i = 0; i < fatalSignalsCount; i++)
-    {
+    for (int i = 0; i < fatalSignalsCount; i++) {
         SentryCrashLOG_DEBUG("Assigning handler for signal %d", fatalSignals[i]);
-        if(sigaction(fatalSignals[i], &action, &g_previousSignalHandlers[i]) != 0)
-        {
+        if (sigaction(fatalSignals[i], &action, &g_previousSignalHandlers[i]) != 0) {
             char sigNameBuff[30];
-            const char* sigName = sentrycrashsignal_signalName(fatalSignals[i]);
-            if(sigName == NULL)
-            {
+            const char *sigName = sentrycrashsignal_signalName(fatalSignals[i]);
+            if (sigName == NULL) {
                 snprintf(sigNameBuff, sizeof(sigNameBuff), "%d", fatalSignals[i]);
                 sigName = sigNameBuff;
             }
             SentryCrashLOG_ERROR("sigaction (%s): %s", sigName, strerror(errno));
             // Try to reverse the damage
-            for(i--;i >= 0; i--)
-            {
+            for (i--; i >= 0; i--) {
                 sigaction(fatalSignals[i], &g_previousSignalHandlers[i], NULL);
             }
             goto failed;
@@ -192,64 +184,62 @@ failed:
     return false;
 }
 
-static void uninstallSignalHandler(void)
+static void
+uninstallSignalHandler(void)
 {
     SentryCrashLOG_DEBUG("Uninstalling signal handlers.");
 
-    const int* fatalSignals = sentrycrashsignal_fatalSignals();
+    const int *fatalSignals = sentrycrashsignal_fatalSignals();
     int fatalSignalsCount = sentrycrashsignal_numFatalSignals();
 
-    for(int i = 0; i < fatalSignalsCount; i++)
-    {
+    for (int i = 0; i < fatalSignalsCount; i++) {
         SentryCrashLOG_DEBUG("Restoring original handler for signal %d", fatalSignals[i]);
         sigaction(fatalSignals[i], &g_previousSignalHandlers[i], NULL);
     }
 
-#if SentryCrashCRASH_HAS_SIGNAL_STACK
-    g_signalStack = (stack_t){0};
-#endif
+#    if SentryCrashCRASH_HAS_SIGNAL_STACK
+    g_signalStack = (stack_t) { 0 };
+#    endif
     SentryCrashLOG_DEBUG("Signal handlers uninstalled.");
 }
 
-static void setEnabled(bool isEnabled)
+static void
+setEnabled(bool isEnabled)
 {
-    if(isEnabled != g_isEnabled)
-    {
+    if (isEnabled != g_isEnabled) {
         g_isEnabled = isEnabled;
-        if(isEnabled)
-        {
+        if (isEnabled) {
             sentrycrashid_generate(g_eventID);
-            if(!installSignalHandler())
-            {
+            if (!installSignalHandler()) {
                 return;
             }
-        }
-        else
-        {
+        } else {
             uninstallSignalHandler();
         }
     }
 }
 
-static bool isEnabled()
+static bool
+isEnabled()
 {
     return g_isEnabled;
 }
 
-static void addContextualInfoToEvent(struct SentryCrash_MonitorContext* eventContext)
+static void
+addContextualInfoToEvent(struct SentryCrash_MonitorContext *eventContext)
 {
-    if(!(eventContext->crashType & (SentryCrashMonitorTypeSignal | SentryCrashMonitorTypeMachException)))
-    {
+    if (!(eventContext->crashType
+            & (SentryCrashMonitorTypeSignal | SentryCrashMonitorTypeMachException))) {
         eventContext->signal.signum = SIGABRT;
     }
 }
 
 #endif
 
-SentryCrashMonitorAPI* sentrycrashcm_signal_getAPI()
+SentryCrashMonitorAPI *
+sentrycrashcm_signal_getAPI()
 {
-    static SentryCrashMonitorAPI api =
-    {
+    static SentryCrashMonitorAPI api = {
 #if SentryCrashCRASH_HAS_SIGNAL
         .setEnabled = setEnabled,
         .isEnabled = isEnabled,

@@ -160,6 +160,7 @@ static void dispatchToClockQueue(MIKMIDIClock *self, void(^block)(void))
             historicalClock->_currentTempo = self->_currentTempo;
             historicalClock->_timeStampZero = self->_timeStampZero;
             historicalClock->_lastSyncedMIDITimeStamp = self->_lastSyncedMIDITimeStamp;
+			historicalClock->_lastSyncedMusicTimeStamp = self->_lastSyncedMusicTimeStamp;
             historicalClock->_musicTimeStampsPerMIDITimeStamp = self->_musicTimeStampsPerMIDITimeStamp;
             historicalClock->_midiTimeStampsPerMusicTimeStamp = self->_midiTimeStampsPerMusicTimeStamp;
             

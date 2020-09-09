@@ -5,19 +5,24 @@
 
 @dynamic listeners;
 
-- (NSMutableArray<SentryScopeListener> *)listeners{
+- (NSMutableArray<SentryScopeListener> *)listeners
+{
     return objc_getAssociatedObject(self, @selector(listeners));
 }
 
-- (void)setListeners:(NSMutableArray<SentryScopeListener> *)listeners {
-    objc_setAssociatedObject(self, @selector(listeners), listeners, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+- (void)setListeners:(NSMutableArray<SentryScopeListener> *)listeners
+{
+    objc_setAssociatedObject(
+        self, @selector(listeners), listeners, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-- (void)addScopeListener:(SentryScopeListener)listener; {
+- (void)addScopeListener:(SentryScopeListener)listener;
+{
     [self.listeners addObject:listener];
 }
 
-- (void)notifyListeners {
+- (void)notifyListeners
+{
     for (SentryScopeListener listener in self.listeners) {
         listener(self);
     }

@@ -1,3 +1,4 @@
+#import "SentryRateLimitCategory.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -7,11 +8,12 @@ NS_SWIFT_NAME(RateLimitCategoryMapper)
 
 /** Maps an event type to the category for rate limiting.
  */
-+ (NSString *)mapEventTypeToCategory:(NSString *)eventType;
++ (SentryRateLimitCategory)mapEventTypeToCategory:(NSString *)eventType;
 
-+ (NSString *)mapEnvelopeItemTypeToCategory:(NSString *)itemType;
++ (SentryRateLimitCategory)mapEnvelopeItemTypeToCategory:(NSString *)itemType;
+
++ (SentryRateLimitCategory)mapIntegerToCategory:(NSUInteger)value;
 
 @end
 
 NS_ASSUME_NONNULL_END
-

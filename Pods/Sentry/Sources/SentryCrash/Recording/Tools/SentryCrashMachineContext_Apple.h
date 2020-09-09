@@ -24,7 +24,6 @@
 // THE SOFTWARE.
 //
 
-
 #ifndef HDR_SentryCrashMachineContext_Apple_h
 #define HDR_SentryCrashMachineContext_Apple_h
 
@@ -37,13 +36,12 @@ extern "C" {
 #include <sys/ucontext.h>
 
 #ifdef __arm64__
-    #define STRUCT_MCONTEXT_L _STRUCT_MCONTEXT64
+#    define STRUCT_MCONTEXT_L _STRUCT_MCONTEXT64
 #else
-    #define STRUCT_MCONTEXT_L _STRUCT_MCONTEXT
+#    define STRUCT_MCONTEXT_L _STRUCT_MCONTEXT
 #endif
 
-typedef struct SentryCrashMachineContext
-{
+typedef struct SentryCrashMachineContext {
     thread_t thisThread;
     thread_t allThreads[100];
     int threadCount;
@@ -53,7 +51,6 @@ typedef struct SentryCrashMachineContext
     bool isSignalContext;
     STRUCT_MCONTEXT_L machineContext;
 } SentryCrashMachineContext;
-
 
 #ifdef __cplusplus
 }

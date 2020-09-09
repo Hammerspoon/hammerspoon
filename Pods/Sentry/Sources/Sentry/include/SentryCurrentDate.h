@@ -1,17 +1,18 @@
-#import <Foundation/Foundation.h>
 #import "SentryCurrentDateProvider.h"
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 /**
-* A static API to return the current date. This allows to change the current date, especially useful for testing.
-*/
+ * A static API to return the current date. This allows to change the current
+ * date, especially useful for testing.
+ */
 NS_SWIFT_NAME(CurrentDate)
 @interface SentryCurrentDate : NSObject
 
-+(NSDate * _Nonnull) date;
++ (NSDate *_Nonnull)date;
 
-+(void) setCurrentDateProvider:(id<SentryCurrentDateProvider>) currentDateProvider;
++ (void)setCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider;
 
 @end
 

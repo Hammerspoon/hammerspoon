@@ -22,7 +22,6 @@
 // THE SOFTWARE.
 //
 
-
 #ifndef SentryCrashStackCursor_SelfThread_h
 #define SentryCrashStackCursor_SelfThread_h
 
@@ -30,19 +29,17 @@
 extern "C" {
 #endif
 
-
 #include "SentryCrashStackCursor.h"
 
 /** Initialize a stack cursor for the current thread.
- *  You may want to skip some entries to account for the trace immediately leading
- *  up to this init function.
+ *  You may want to skip some entries to account for the trace immediately
+ * leading up to this init function.
  *
  * @param cursor The stack cursor to initialize.
  *
  * @param skipEntries The number of stack entries to skip.
  */
 void sentrycrashsc_initSelfThread(SentryCrashStackCursor *cursor, int skipEntries);
-
 
 #ifdef __cplusplus
 }

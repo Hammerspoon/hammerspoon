@@ -24,23 +24,20 @@
 // THE SOFTWARE.
 //
 
-
 #import <Foundation/Foundation.h>
 
-#import "SentryCrashReportWriter.h"
-#import "SentryCrashReportFilter.h"
 #import "SentryCrashMonitorType.h"
+#import "SentryCrashReportFilter.h"
+#import "SentryCrashReportWriter.h"
 
-typedef enum
-{
+typedef enum {
     SentryCrashDemangleLanguageNone = 0,
     SentryCrashDemangleLanguageCPlusPlus = 1,
     SentryCrashDemangleLanguageSwift = 2,
     SentryCrashDemangleLanguageAll = ~1
 } SentryCrashDemangleLanguage;
 
-typedef enum
-{
+typedef enum {
     SentryCrashCDeleteNever,
     SentryCrashCDeleteOnSucess,
     SentryCrashCDeleteAlways
@@ -49,14 +46,15 @@ typedef enum
 /**
  * Reports any crashes that occur in the application.
  *
- * The crash reports will be located in $APP_HOME/Library/Caches/SentryCrashReports
+ * The crash reports will be located in
+ * $APP_HOME/Library/Caches/SentryCrashReports
  */
 @interface SentryCrash : NSObject
 
 #pragma mark - Configuration -
 
 /** Init SentryCrash instance with custom base path. */
-- (id) initWithBasePath:(NSString *)basePath;
+- (id)initWithBasePath:(NSString *)basePath;
 
 /** A dictionary containing any info you'd like to appear in crash reports. Must
  * contain only JSON-safe data: NSString for keys, and NSDictionary, NSArray,
@@ -64,18 +62,18 @@ typedef enum
  *
  * Default: nil
  */
-@property(atomic,readwrite,retain) NSDictionary* userInfo;
+@property (atomic, readwrite, retain) NSDictionary *userInfo;
 
 /** What to do after sending reports via sendAllReportsWithCompletion:
  *
  * - Use SentryCrashCDeleteNever if you will manually manage the reports.
- * - Use SentryCrashCDeleteAlways if you will be using an alert confirmation (otherwise it
- *   will nag the user incessantly until he selects "yes").
+ * - Use SentryCrashCDeleteAlways if you will be using an alert confirmation
+ * (otherwise it will nag the user incessantly until he selects "yes").
  * - Use SentryCrashCDeleteOnSuccess for all other situations.
  *
  * Default: SentryCrashCDeleteAlways
  */
-@property(nonatomic,readwrite,assign) SentryCrashCDeleteBehavior deleteBehaviorAfterSendAll;
+@property (nonatomic, readwrite, assign) SentryCrashCDeleteBehavior deleteBehaviorAfterSendAll;
 
 /** The monitors that will or have been installed.
  * Note: This value may change once SentryCrash is installed if some monitors
@@ -83,29 +81,30 @@ typedef enum
  *
  * Default: SentryCrashMonitorTypeProductionSafeMinimal
  */
-@property(nonatomic,readwrite,assign) SentryCrashMonitorType monitoring;
+@property (nonatomic, readwrite, assign) SentryCrashMonitorType monitoring;
 
 /** Maximum time to allow the main thread to run without returning.
  * If a task occupies the main thread for longer than this interval, the
  * watchdog will consider the queue deadlocked and shut down the app and write a
  * crash report.
  *
- * Note: You must have added SentryCrashMonitorTypeMainThreadDeadlock to the monitoring
- *       property in order for this to have any effect.
+ * Note: You must have added SentryCrashMonitorTypeMainThreadDeadlock to the
+ * monitoring property in order for this to have any effect.
  *
- * Warning: Make SURE that nothing in your app that runs on the main thread takes
- * longer to complete than this value or it WILL get shut down! This includes
- * your app startup process, so you may need to push app initialization to
- * another thread, or perhaps set this to a higher value until your application
- * has been fully initialized.
+ * Warning: Make SURE that nothing in your app that runs on the main thread
+ * takes longer to complete than this value or it WILL get shut down! This
+ * includes your app startup process, so you may need to push app initialization
+ * to another thread, or perhaps set this to a higher value until your
+ * application has been fully initialized.
  *
- * WARNING: This is still causing false positives in some cases. Use at own risk!
+ * WARNING: This is still causing false positives in some cases. Use at own
+ * risk!
  *
  * 0 = Disabled.
  *
  * Default: 0
  */
-@property(nonatomic,readwrite,assign) double deadlockWatchdogInterval;
+@property (nonatomic, readwrite, assign) double deadlockWatchdogInterval;
 
 /** If YES, introspect memory contents during a crash.
  * Any Objective-C objects or C strings near the stack pointer or referenced by
@@ -114,28 +113,28 @@ typedef enum
  *
  * Default: YES
  */
-@property(nonatomic,readwrite,assign) BOOL introspectMemory;
+@property (nonatomic, readwrite, assign) BOOL introspectMemory;
 
 /** If YES, monitor all Objective-C/Swift deallocations and keep track of any
  * accesses after deallocation.
  *
  * Default: NO
  */
-@property(nonatomic,readwrite,assign) BOOL catchZombies;
+@property (nonatomic, readwrite, assign) BOOL catchZombies;
 
 /** List of Objective-C classes that should never be introspected.
- * Whenever a class in this list is encountered, only the class name will be recorded.
- * This can be useful for information security concerns.
+ * Whenever a class in this list is encountered, only the class name will be
+ * recorded. This can be useful for information security concerns.
  *
  * Default: nil
  */
-@property(nonatomic,readwrite,retain) NSArray* doNotIntrospectClasses;
+@property (nonatomic, readwrite, retain) NSArray *doNotIntrospectClasses;
 
 /** The maximum number of reports allowed on disk before old ones get deleted.
  *
  * Default: 5
  */
-@property(nonatomic,readwrite,assign) int maxReportCount;
+@property (nonatomic, readwrite, assign) int maxReportCount;
 
 /** The report sink where reports get sent.
  * This MUST be set or else the reporter will not send reports (although it will
@@ -144,10 +143,10 @@ typedef enum
  * Note: If you use an installation, it will automatically set this property.
  *       Do not modify it in such a case.
  */
-@property(nonatomic,readwrite,retain) id<SentryCrashReportFilter> sink;
+@property (nonatomic, readwrite, retain) id<SentryCrashReportFilter> sink;
 
-/** C Function to call during a crash report to give the callee an opportunity to
- * add to the report. NULL = ignore.
+/** C Function to call during a crash report to give the callee an opportunity
+ * to add to the report. NULL = ignore.
  *
  * WARNING: Only call async-safe functions from this function! DO NOT call
  * Objective-C methods!!!
@@ -155,63 +154,67 @@ typedef enum
  * Note: If you use an installation, it will automatically set this property.
  *       Do not modify it in such a case.
  */
-@property(nonatomic,readwrite,assign) SentryCrashReportWriteCallback onCrash;
+@property (nonatomic, readwrite, assign) SentryCrashReportWriteCallback onCrash;
 
 /** Add a copy of SentryCrash's console log messages to the crash report.
  */
-@property(nonatomic,readwrite,assign) BOOL addConsoleLogToReport;
+@property (nonatomic, readwrite, assign) BOOL addConsoleLogToReport;
 
 /** Print the previous app run log to the console when installing SentryCrash.
  *  This is primarily for debugging purposes.
  */
-@property(nonatomic,readwrite,assign) BOOL printPreviousLog;
+@property (nonatomic, readwrite, assign) BOOL printPreviousLog;
 
-/** Which languages to demangle when getting stack traces (default SentryCrashDemangleLanguageAll) */
-@property(nonatomic,readwrite,assign) SentryCrashDemangleLanguage demangleLanguages;
+/** Which languages to demangle when getting stack traces (default
+ * SentryCrashDemangleLanguageAll) */
+@property (nonatomic, readwrite, assign) SentryCrashDemangleLanguage demangleLanguages;
 
-/** Exposes the uncaughtExceptionHandler if set from SentryCrash. Is nil if debugger is running. **/
+/** Exposes the uncaughtExceptionHandler if set from SentryCrash. Is nil if
+ * debugger is running. **/
 @property (nonatomic, assign) NSUncaughtExceptionHandler *uncaughtExceptionHandler;
 
-/** Exposes the currentSnapshotUserReportedExceptionHandler if set from SentryCrash. Is nil if debugger is running. **/
-@property (nonatomic, assign) NSUncaughtExceptionHandler *currentSnapshotUserReportedExceptionHandler;
+/** Exposes the currentSnapshotUserReportedExceptionHandler if set from
+ * SentryCrash. Is nil if debugger is running. **/
+@property (nonatomic, assign)
+    NSUncaughtExceptionHandler *currentSnapshotUserReportedExceptionHandler;
 
 #pragma mark - Information -
 
 /** Total active time elapsed since the last crash. */
-@property(nonatomic,readonly,assign) NSTimeInterval activeDurationSinceLastCrash;
+@property (nonatomic, readonly, assign) NSTimeInterval activeDurationSinceLastCrash;
 
 /** Total time backgrounded elapsed since the last crash. */
-@property(nonatomic,readonly,assign) NSTimeInterval backgroundDurationSinceLastCrash;
+@property (nonatomic, readonly, assign) NSTimeInterval backgroundDurationSinceLastCrash;
 
 /** Number of app launches since the last crash. */
-@property(nonatomic,readonly,assign) int launchesSinceLastCrash;
+@property (nonatomic, readonly, assign) int launchesSinceLastCrash;
 
 /** Number of sessions (launch, resume from suspend) since last crash. */
-@property(nonatomic,readonly,assign) int sessionsSinceLastCrash;
+@property (nonatomic, readonly, assign) int sessionsSinceLastCrash;
 
 /** Total active time elapsed since launch. */
-@property(nonatomic,readonly,assign) NSTimeInterval activeDurationSinceLaunch;
+@property (nonatomic, readonly, assign) NSTimeInterval activeDurationSinceLaunch;
 
 /** Total time backgrounded elapsed since launch. */
-@property(nonatomic,readonly,assign) NSTimeInterval backgroundDurationSinceLaunch;
+@property (nonatomic, readonly, assign) NSTimeInterval backgroundDurationSinceLaunch;
 
 /** Number of sessions (launch, resume from suspend) since app launch. */
-@property(nonatomic,readonly,assign) int sessionsSinceLaunch;
+@property (nonatomic, readonly, assign) int sessionsSinceLaunch;
 
 /** If true, the application crashed on the previous launch. */
-@property(nonatomic,readonly,assign) BOOL crashedLastLaunch;
+@property (nonatomic, readonly, assign) BOOL crashedLastLaunch;
 
 /** The total number of unsent reports. Note: This is an expensive operation. */
-@property(nonatomic,readonly,assign) int reportCount;
+@property (nonatomic, readonly, assign) int reportCount;
 
 /** Information about the operating system and environment */
-@property(nonatomic,readonly,strong) NSDictionary* systemInfo;
+@property (nonatomic, readonly, strong) NSDictionary *systemInfo;
 
 #pragma mark - API -
 
 /** Get the singleton instance of the crash reporter.
  */
-+ (SentryCrash*) sharedInstance;
++ (SentryCrash *)sharedInstance;
 
 /** Install the crash reporter.
  * The reporter will record crashes, but will not send any crash reports unless
@@ -219,7 +222,7 @@ typedef enum
  *
  * @return YES if the reporter successfully installed.
  */
-- (BOOL) install;
+- (BOOL)install;
 
 /** Send all outstanding crash reports to the current sink.
  * It will only attempt to send the most recent 5 reports. All others will be
@@ -231,37 +234,38 @@ typedef enum
  *
  * @param onCompletion Called when sending is complete (nil = ignore).
  */
-- (void) sendAllReportsWithCompletion:(SentryCrashReportFilterCompletion) onCompletion;
+- (void)sendAllReportsWithCompletion:(SentryCrashReportFilterCompletion)onCompletion;
 
 /** Get all unsent report IDs.
  *
  * @return An array with report IDs.
  */
-- (NSArray*) reportIDs;
+- (NSArray *)reportIDs;
 
 /** Get report.
  *
  * @param reportID An ID of report.
  *
- * @return A dictionary with report fields. See SentryCrashReportFields.h for available fields.
+ * @return A dictionary with report fields. See SentryCrashReportFields.h for
+ * available fields.
  */
-- (NSDictionary*) reportWithID:(NSNumber*) reportID;
+- (NSDictionary *)reportWithID:(NSNumber *)reportID;
 
 /** Delete all unsent reports.
  */
-- (void) deleteAllReports;
+- (void)deleteAllReports;
 
 /** Delete report.
  *
  * @param reportID An ID of report to delete.
  */
-- (void) deleteReportWithID:(NSNumber*) reportID;
+- (void)deleteReportWithID:(NSNumber *)reportID;
 
 /** Report a custom, user defined exception.
  * This can be useful when dealing with scripting languages.
  *
- * If terminateProgram is true, all sentries will be uninstalled and the application will
- * terminate with an abort().
+ * If terminateProgram is true, all sentries will be uninstalled and the
+ * application will terminate with an abort().
  *
  * @param name The exception name (for namespacing exception types).
  *
@@ -271,23 +275,25 @@ typedef enum
  *
  * @param lineOfCode A copy of the offending line of code (nil = ignore).
  *
- * @param stackTrace An array of frames (dictionaries or strings) representing the call stack leading to the exception (nil = ignore).
+ * @param stackTrace An array of frames (dictionaries or strings) representing
+ * the call stack leading to the exception (nil = ignore).
  *
- * @param logAllThreads If true, suspend all threads and log their state. Note that this incurs a
- *                      performance penalty, so it's best to use only on fatal errors.
+ * @param logAllThreads If true, suspend all threads and log their state. Note
+ * that this incurs a performance penalty, so it's best to use only on fatal
+ * errors.
  *
- * @param terminateProgram If true, do not return from this function call. Terminate the program instead.
+ * @param terminateProgram If true, do not return from this function call.
+ * Terminate the program instead.
  */
-- (void) reportUserException:(NSString*) name
-                      reason:(NSString*) reason
-                    language:(NSString*) language
-                  lineOfCode:(NSString*) lineOfCode
-                  stackTrace:(NSArray*) stackTrace
-               logAllThreads:(BOOL) logAllThreads
-            terminateProgram:(BOOL) terminateProgram;
+- (void)reportUserException:(NSString *)name
+                     reason:(NSString *)reason
+                   language:(NSString *)language
+                 lineOfCode:(NSString *)lineOfCode
+                 stackTrace:(NSArray *)stackTrace
+              logAllThreads:(BOOL)logAllThreads
+           terminateProgram:(BOOL)terminateProgram;
 
 @end
-
 
 //! Project version number for SentryCrashFramework.
 FOUNDATION_EXPORT const double SentryCrashFrameworkVersionNumber;

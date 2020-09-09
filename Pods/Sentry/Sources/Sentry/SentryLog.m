@@ -1,12 +1,13 @@
-#import "SentryClient.h"
 #import "SentryLog.h"
+#import "SentryClient.h"
 #import "SentrySDK.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryLog
 
-+ (void)logWithMessage:(NSString *)message andLevel:(SentryLogLevel)level {
++ (void)logWithMessage:(NSString *)message andLevel:(SentryLogLevel)level
+{
     SentryLogLevel defaultLevel = kSentryLogLevelError;
     if (SentrySDK.logLevel > 0) {
         defaultLevel = SentrySDK.logLevel;
@@ -16,14 +17,15 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-+ (NSString *)logLevelToString:(SentryLogLevel)level {
++ (NSString *)logLevelToString:(SentryLogLevel)level
+{
     switch (level) {
-        case kSentryLogLevelDebug:
-            return @"Debug";
-        case kSentryLogLevelVerbose:
-            return @"Verbose";
-        default:
-            return @"Error";
+    case kSentryLogLevelDebug:
+        return @"Debug";
+    case kSentryLogLevelVerbose:
+        return @"Verbose";
+    default:
+        return @"Error";
     }
 }
 @end

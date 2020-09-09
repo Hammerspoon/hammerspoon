@@ -28,6 +28,10 @@
     RUN_LUA_TEST()
 }
 
+- (void)testInitWithPid {
+    RUN_LUA_TEST()
+}
+
 - (void)testAttributesFromBundleID {
     RUN_LUA_TEST()
 }

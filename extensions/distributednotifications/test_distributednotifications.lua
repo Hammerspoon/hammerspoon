@@ -11,7 +11,7 @@ function testDistributedNotifications()
         object == "org.hammerspoon.Hammerspoon.testRunner") then
       testDistNotValue = true
     end
-  end)
+  end, "org.hammerspoon.Hammerspoon.testDistributedNotifications")
   distNotWatcher:start()
 
   hs.distributednotifications.post("org.hammerspoon.Hammerspoon.testDistributedNotifications", "org.hammerspoon.Hammerspoon.testRunner")

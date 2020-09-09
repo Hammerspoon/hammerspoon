@@ -7,22 +7,26 @@ PODS:
   - CocoaLumberjack (3.5.3):
     - CocoaLumberjack/Core (= 3.5.3)
   - CocoaLumberjack/Core (3.5.3)
-  - MIKMIDI (1.7.0)
-  - Sentry (5.0.0):
-    - Sentry/Core (= 5.0.0)
-  - Sentry/Core (5.0.0)
+  - MIKMIDI (1.7.1)
+  - PocketSocket/Client (1.0.1):
+    - PocketSocket/Core
+  - PocketSocket/Core (1.0.1)
+  - Sentry (5.2.2):
+    - Sentry/Core (= 5.2.2)
+  - Sentry/Core (5.2.2)
   - SocketRocket (0.5.1)
-  - Sparkle (1.22.0)
+  - Sparkle (1.23.0)
 
 DEPENDENCIES:
   - ASCIImage (= 1.0.0)
   - CocoaAsyncSocket (= 7.6.4)
   - CocoaHTTPServer (= 2.3)
   - CocoaLumberjack (= 3.5.3)
-  - MIKMIDI (= 1.7.0)
-  - Sentry (from `https://github.com/getsentry/sentry-cocoa.git`, tag `5.0.0`)
+  - MIKMIDI (= 1.7.1)
+  - PocketSocket/Client (= 1.0.1)
+  - Sentry (from `https://github.com/getsentry/sentry-cocoa.git`, tag `5.2.2`)
   - SocketRocket (= 0.5.1)
-  - Sparkle (= 1.22.0)
+  - Sparkle (= 1.23.0)
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
@@ -31,29 +35,31 @@ SPEC REPOS:
     - CocoaHTTPServer
     - CocoaLumberjack
     - MIKMIDI
+    - PocketSocket
     - SocketRocket
     - Sparkle
 
 EXTERNAL SOURCES:
   Sentry:
     :git: https://github.com/getsentry/sentry-cocoa.git
-    :tag: 5.0.0
+    :tag: 5.2.2
 
 CHECKOUT OPTIONS:
   Sentry:
     :git: https://github.com/getsentry/sentry-cocoa.git
-    :tag: 5.0.0
+    :tag: 5.2.2
 
 SPEC CHECKSUMS:
   ASCIImage: bcff9650deae86e0e0ac310145cc628948201ab8
   CocoaAsyncSocket: 694058e7c0ed05a9e217d1b3c7ded962f4180845
   CocoaHTTPServer: 5624681fc3473d43b18202f635f9b3abb013b530
   CocoaLumberjack: 2f44e60eb91c176d471fdba43b9e3eae6a721947
-  MIKMIDI: a9192db16687fcf1d2c82b98492b999fa8ede7c6
-  Sentry: 1279f37a5691c19b1b761f7e260bba5dab7c2311
+  MIKMIDI: f53dca2f372e71183ecdd2b35c984c1c2cd11cbc
+  PocketSocket: 9c6867d66fb4f962af96b9b07f4b45bb561b2c2a
+  Sentry: 8fa58a051237554f22507fb483b9a1de0171a2dc
   SocketRocket: d57c7159b83c3c6655745cd15302aa24b6bae531
-  Sparkle: 593ac2e677c07bcb6c3b22d621240e7cbedaab57
+  Sparkle: 55b1a87ba69d56913375a281546b7c82dec95bb0
 
-PODFILE CHECKSUM: f16f4dbe80a2d99ce39952908fdfc41b9e44916f
+PODFILE CHECKSUM: 88725108b150d787f314d4fa27a76678b16f3ba3
 
 COCOAPODS: 1.9.3

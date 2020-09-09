@@ -206,7 +206,7 @@
 			}
 		}
 	});
-	return nil;
+	return result;
 }
 
 #pragma mark Coaelescing

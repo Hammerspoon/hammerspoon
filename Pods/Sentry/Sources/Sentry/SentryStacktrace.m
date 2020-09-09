@@ -7,7 +7,8 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation SentryStacktrace
 
 - (instancetype)initWithFrames:(NSArray<SentryFrame *> *)frames
-                     registers:(NSDictionary<NSString *, NSString *> *)registers {
+                     registers:(NSDictionary<NSString *, NSString *> *)registers
+{
     self = [super init];
     if (self) {
         self.registers = registers;
@@ -18,24 +19,27 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// This function fixes duplicate frames and removes the first duplicate
 /// https://github.com/kstenerud/KSCrash/blob/05cdc801cfc578d256f85de2e72ec7877cbe79f8/Source/KSCrash/Recording/Tools/KSStackCursor_MachineContext.c#L84
-- (void)fixDuplicateFrames {
+- (void)fixDuplicateFrames
+{
     if (self.frames.count < 2 || nil == self.registers) {
         return;
     }
-    
+
     SentryFrame *lastFrame = self.frames.lastObject;
     SentryFrame *beforeLastFrame = [self.frames objectAtIndex:self.frames.count - 2];
- 
+
     if ([lastFrame.symbolAddress isEqualToString:beforeLastFrame.symbolAddress] &&
         [self.registers[@"lr"] isEqualToString:beforeLastFrame.instructionAddress]) {
         NSMutableArray *copyFrames = self.frames.mutableCopy;
         [copyFrames removeObjectAtIndex:self.frames.count - 2];
         self.frames = copyFrames;
-        [SentryLog logWithMessage:@"Found duplicate frame, removing one with link register" andLevel:kSentryLogLevelDebug];
+        [SentryLog logWithMessage:@"Found duplicate frame, removing one with link register"
+                         andLevel:kSentryLogLevelDebug];
     }
 }
 
-- (NSDictionary<NSString *, id> *)serialize {
+- (NSDictionary<NSString *, id> *)serialize
+{
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
 
     NSMutableArray *frames = [NSMutableArray new];

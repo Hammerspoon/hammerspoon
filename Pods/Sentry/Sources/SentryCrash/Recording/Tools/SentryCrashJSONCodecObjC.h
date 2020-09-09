@@ -24,13 +24,10 @@
 // THE SOFTWARE.
 //
 
-
 #import <Foundation/Foundation.h>
 
-
 /** Optional behavior when encoding JSON data */
-typedef enum
-{
+typedef enum {
     SentryCrashJSONEncodeOptionNone = 0,
 
     /** Indent 4 spaces per object/array level */
@@ -40,10 +37,8 @@ typedef enum
     SentryCrashJSONEncodeOptionSorted = 2,
 } SentryCrashJSONEncodeOption;
 
-
 /** Optional behavior when decoding JSON data */
-typedef enum
-{
+typedef enum {
     SentryCrashJSONDecodeOptionNone = 0,
 
     /** Normally, null elements get stored as [NSNull null].
@@ -65,7 +60,6 @@ typedef enum
     SentryCrashJSONDecodeOptionKeepPartialObject = 4,
 } SentryCrashJSONDecodeOption;
 
-
 /**
  * Encodes and decodes UTF-8 JSON data.
  */
@@ -82,9 +76,7 @@ typedef enum
  *
  * @return The encoded UTF-8 JSON data or nil if an error occurred.
  */
-+ (NSData*) encode:(id) object
-           options:(SentryCrashJSONEncodeOption) options
-             error:(NSError**) error;
++ (NSData *)encode:(id)object options:(SentryCrashJSONEncodeOption)options error:(NSError **)error;
 
 /** Decode JSON data to an object.
  *
@@ -95,11 +87,12 @@ typedef enum
  * @param error Place to store any error that occurs (nil = ignore). Will be
  *              set to nil on success.
  *
- * @return The decoded object or, if the SentryCrashJSONDecodeOptionKeepPartialFile
- *         option is not set, nil when an error occurs.
+ * @return The decoded object or, if the
+ * SentryCrashJSONDecodeOptionKeepPartialFile option is not set, nil when an
+ * error occurs.
  */
-+ (id) decode:(NSData*) JSONData
-      options:(SentryCrashJSONDecodeOption) options
-        error:(NSError**) error;
++ (id)decode:(NSData *)JSONData
+     options:(SentryCrashJSONDecodeOption)options
+       error:(NSError **)error;
 
 @end
