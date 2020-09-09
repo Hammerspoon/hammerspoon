@@ -1,34 +1,35 @@
 #import "SentryCrashReportConverter.h"
-#import "SentryEvent.h"
-#import "SentryBreadcrumb.h"
-#import "SentryDebugMeta.h"
-#import "SentryThread.h"
-#import "SentryStacktrace.h"
-#import "SentryFrame.h"
-#import "SentryException.h"
-#import "SentryUser.h"
-#import "SentryMechanism.h"
 #import "NSDate+SentryExtras.h"
+#import "SentryBreadcrumb.h"
+#import "SentryCrashStackEntryMapper.h"
+#import "SentryDebugMeta.h"
+#import "SentryEvent.h"
+#import "SentryException.h"
+#import "SentryFrame.h"
+#import "SentryHexAddressFormatter.h"
+#import "SentryLog.h"
+#import "SentryMechanism.h"
+#import "SentryStacktrace.h"
+#import "SentryThread.h"
+#import "SentryUser.h"
 
-@interface SentryCrashReportConverter ()
+@interface
+SentryCrashReportConverter ()
 
-@property(nonatomic, strong) NSDictionary *report;
-@property(nonatomic, assign) NSInteger crashedThreadIndex;
-@property(nonatomic, strong) NSDictionary *exceptionContext;
-@property(nonatomic, strong) NSArray *binaryImages;
-@property(nonatomic, strong) NSArray *threads;
-@property(nonatomic, strong) NSDictionary *systemContext;
-@property(nonatomic, strong) NSString *diagnosis;
+@property (nonatomic, strong) NSDictionary *report;
+@property (nonatomic, assign) NSInteger crashedThreadIndex;
+@property (nonatomic, strong) NSDictionary *exceptionContext;
+@property (nonatomic, strong) NSArray *binaryImages;
+@property (nonatomic, strong) NSArray *threads;
+@property (nonatomic, strong) NSDictionary *systemContext;
+@property (nonatomic, strong) NSString *diagnosis;
 
 @end
 
 @implementation SentryCrashReportConverter
 
-static inline NSString *hexAddress(NSNumber *value) {
-    return [NSString stringWithFormat:@"0x%016llx", [value unsignedLongLongValue]];
-}
-
-- (instancetype)initWithReport:(NSDictionary *)report {
+- (instancetype)initWithReport:(NSDictionary *)report
+{
     self = [super init];
     if (self) {
         self.report = report;
@@ -46,85 +47,120 @@ static inline NSString *hexAddress(NSNumber *value) {
 
         self.diagnosis = crashContext[@"diagnosis"];
         self.exceptionContext = crashContext[@"error"];
-        self.threads = crashContext[@"threads"];
-        for (NSUInteger i = 0; i < self.threads.count; i++) {
-            NSDictionary *thread = self.threads[i];
-            if ([thread[@"crashed"] boolValue]) {
-                self.crashedThreadIndex = (NSInteger) i;
-                break;
-            }
-        }
+        [self initThreads:crashContext[@"threads"]];
     }
     return self;
 }
 
-- (SentryEvent *)convertReportToEvent {
-    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelFatal];
-    if ([self.report[@"report"][@"timestamp"] isKindOfClass:NSNumber.class]) {
-        event.timestamp = [NSDate dateWithTimeIntervalSince1970:[self.report[@"report"][@"timestamp"] integerValue]];
-    } else {
-        event.timestamp = [NSDate sentry_fromIso8601String:self.report[@"report"][@"timestamp"]];
+- (void)initThreads:(NSArray<NSDictionary *> *)threads
+{
+    if (nil != threads && [threads isKindOfClass:[NSArray class]]) {
+        // SentryCrash sometimes produces recrash_reports where an element of threads is a
+        // NSString instead of a NSDictionary. When this happens we can't read the details of
+        // the thread, but we have to discard it. Otherwise we would crash.
+        NSPredicate *onlyNSDictionary = [NSPredicate predicateWithBlock:^BOOL(id object,
+            NSDictionary *bindings) { return [object isKindOfClass:[NSDictionary class]]; }];
+        self.threads = [threads filteredArrayUsingPredicate:onlyNSDictionary];
+
+        for (NSUInteger i = 0; i < self.threads.count; i++) {
+            NSDictionary *thread = self.threads[i];
+            if ([thread[@"crashed"] boolValue]) {
+                self.crashedThreadIndex = (NSInteger)i;
+                break;
+            }
+        }
     }
-    event.debugMeta = [self convertDebugMeta];
-    event.threads = [self convertThreads];
-    event.exceptions = [self convertExceptions];
-    event.releaseName = [self.userContext objectForKey:@"release"]; // serialized the key is just release
-    event.dist = [self.userContext objectForKey:@"dist"];
-    event.environment = [self.userContext objectForKey:@"environment"];
-    event.context = [self.userContext objectForKey:@"context"];
-    event.extra = [self.userContext objectForKey:@"extra"];
-    event.tags = [self.userContext objectForKey:@"tags"];
-//    event.level we do not set the level here since this always resulted from a fatal crash
-    
-    event.user = [self convertUser];
-    event.breadcrumbs = [self convertBreadcrumbs];
-    
-    NSDictionary *appContext = [event.context objectForKey:@"app"];
-    // We want to set the release and dist to the version from the crash report itself
-    // otherwise it can happend that we have two different version when the app crashes
-    // right before an app update #218 #219
-    if (nil == event.releaseName && [appContext objectForKey:@"app_identifier"] && [appContext objectForKey:@"app_version"] && [appContext objectForKey:@"app_build"]) {
-        event.releaseName = [NSString stringWithFormat:@"%@@%@+%@", [appContext objectForKey:@"app_identifier"], [appContext objectForKey:@"app_version"], [appContext objectForKey:@"app_build"]];
-    }
-     
-    if (nil == event.dist && [appContext objectForKey:@"app_build"]) {
-        event.dist = [appContext objectForKey:@"app_build"];
-    }
-    
-    return event;
 }
 
-- (SentryUser *_Nullable)convertUser {
+- (SentryEvent *_Nullable)convertReportToEvent
+{
+    @try {
+        SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelFatal];
+        if ([self.report[@"report"][@"timestamp"] isKindOfClass:NSNumber.class]) {
+            event.timestamp = [NSDate
+                dateWithTimeIntervalSince1970:[self.report[@"report"][@"timestamp"] integerValue]];
+        } else {
+            event.timestamp =
+                [NSDate sentry_fromIso8601String:self.report[@"report"][@"timestamp"]];
+        }
+        event.debugMeta = [self convertDebugMeta];
+        event.threads = [self convertThreads];
+        event.exceptions = [self convertExceptions];
+
+        event.dist = self.userContext[@"dist"];
+        event.environment = self.userContext[@"environment"];
+        event.context = self.userContext[@"context"];
+        event.extra = self.userContext[@"extra"];
+        event.tags = self.userContext[@"tags"];
+        //    event.level we do not set the level here since this always resulted
+        //    from a fatal crash
+
+        event.user = [self convertUser];
+        event.breadcrumbs = [self convertBreadcrumbs];
+
+        // The releaseName must be set on the userInfo of SentryCrash.sharedInstance
+        event.releaseName = self.userContext[@"release"];
+
+        // We want to set the release and dist to the version from the crash report
+        // itself otherwise it can happend that we have two different version when
+        // the app crashes right before an app update #218 #219
+        NSDictionary *appContext = event.context[@"app"];
+        if (nil == event.releaseName && appContext[@"app_identifier"] && appContext[@"app_version"]
+            && appContext[@"app_build"]) {
+            event.releaseName =
+                [NSString stringWithFormat:@"%@@%@+%@", appContext[@"app_identifier"],
+                          appContext[@"app_version"], appContext[@"app_build"]];
+        }
+
+        if (nil == event.dist && appContext[@"app_build"]) {
+            event.dist = appContext[@"app_build"];
+        }
+
+        return event;
+    } @catch (NSException *exception) {
+        NSString *errorMessage =
+            [NSString stringWithFormat:@"Could not convert report:%@", exception.description];
+        [SentryLog logWithMessage:errorMessage andLevel:kSentryLogLevelError];
+    }
+
+    return nil;
+}
+
+- (SentryUser *_Nullable)convertUser
+{
     SentryUser *user = nil;
-    if (nil != [self.userContext objectForKey:@"user"]) {
-        NSDictionary *storedUser = [self.userContext objectForKey:@"user"];
+    if (nil != self.userContext[@"user"]) {
+        NSDictionary *storedUser = self.userContext[@"user"];
         user = [[SentryUser alloc] init];
-        user.userId = [storedUser objectForKey:@"id"];
-        user.email = [storedUser objectForKey:@"email"];
-        user.username = [storedUser objectForKey:@"username"];
-        user.data = [storedUser objectForKey:@"data"];
+        user.userId = storedUser[@"id"];
+        user.email = storedUser[@"email"];
+        user.username = storedUser[@"username"];
+        user.data = storedUser[@"data"];
     }
     return user;
 }
 
-
-- (NSMutableArray <SentryBreadcrumb *>*)convertBreadcrumbs {
+- (NSMutableArray<SentryBreadcrumb *> *)convertBreadcrumbs
+{
     NSMutableArray *breadcrumbs = [NSMutableArray new];
-    if (nil != [self.userContext objectForKey:@"breadcrumbs"]) {
-        NSArray *storedBreadcrumbs = [self.userContext objectForKey:@"breadcrumbs"];
+    if (nil != self.userContext[@"breadcrumbs"]) {
+        NSArray *storedBreadcrumbs = self.userContext[@"breadcrumbs"];
         for (NSDictionary *storedCrumb in storedBreadcrumbs) {
-            SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:[self sentryLevelFromString:[storedCrumb objectForKey:@"level"]]
-                                                                     category:[storedCrumb objectForKey:@"category"]];
-            crumb.message = [storedCrumb objectForKey:@"message"];
-            crumb.type = [storedCrumb objectForKey:@"type"];
-            crumb.timestamp = [NSDate sentry_fromIso8601String:[storedCrumb objectForKey:@"timestamp"]];
+            SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc]
+                initWithLevel:[self sentryLevelFromString:storedCrumb[@"level"]]
+                     category:storedCrumb[@"category"]];
+            crumb.message = storedCrumb[@"message"];
+            crumb.type = storedCrumb[@"type"];
+            crumb.timestamp = [NSDate sentry_fromIso8601String:storedCrumb[@"timestamp"]];
+            crumb.data = storedCrumb[@"data"];
             [breadcrumbs addObject:crumb];
         }
     }
     return breadcrumbs;
 }
 
-- (SentryLevel)sentryLevelFromString:(NSString *)level {
+- (SentryLevel)sentryLevelFromString:(NSString *)level
+{
     if ([level isEqualToString:@"fatal"]) {
         return kSentryLevelFatal;
     } else if ([level isEqualToString:@"warning"]) {
@@ -139,25 +175,30 @@ static inline NSString *hexAddress(NSNumber *value) {
     return kSentryLevelError;
 }
 
-- (NSArray *)rawStackTraceForThreadIndex:(NSInteger)threadIndex {
-    NSDictionary *thread = [self.threads objectAtIndex:threadIndex];
+- (NSArray *)rawStackTraceForThreadIndex:(NSInteger)threadIndex
+{
+    NSDictionary *thread = self.threads[threadIndex];
     return thread[@"backtrace"][@"contents"];
 }
 
-- (NSDictionary *)registersForThreadIndex:(NSInteger)threadIndex {
-    NSDictionary *thread = [self.threads objectAtIndex:threadIndex];
+- (NSDictionary *)registersForThreadIndex:(NSInteger)threadIndex
+{
+    NSDictionary *thread = self.threads[threadIndex];
     NSMutableDictionary *registers = [NSMutableDictionary new];
     for (NSString *key in [thread[@"registers"][@"basic"] allKeys]) {
-        [registers setValue:hexAddress(thread[@"registers"][@"basic"][key]) forKey:key];
+        [registers setValue:sentry_formatHexAddress(thread[@"registers"][@"basic"][key])
+                     forKey:key];
     }
     return registers;
 }
 
-- (NSDictionary *)binaryImageForAddress:(uintptr_t)address {
+- (NSDictionary *)binaryImageForAddress:(uintptr_t)address
+{
     NSDictionary *result = nil;
     for (NSDictionary *binaryImage in self.binaryImages) {
-        uintptr_t imageStart = (uintptr_t) [binaryImage[@"image_addr"] unsignedLongLongValue];
-        uintptr_t imageEnd = imageStart + (uintptr_t) [binaryImage[@"image_size"] unsignedLongLongValue];
+        uintptr_t imageStart = (uintptr_t)[binaryImage[@"image_addr"] unsignedLongLongValue];
+        uintptr_t imageEnd
+            = imageStart + (uintptr_t)[binaryImage[@"image_size"] unsignedLongLongValue];
         if (address >= imageStart && address < imageEnd) {
             result = binaryImage;
             break;
@@ -166,11 +207,13 @@ static inline NSString *hexAddress(NSNumber *value) {
     return result;
 }
 
-- (SentryThread *_Nullable)threadAtIndex:(NSInteger)threadIndex stripCrashedStacktrace:(BOOL)stripCrashedStacktrace {
+- (SentryThread *_Nullable)threadAtIndex:(NSInteger)threadIndex
+                  stripCrashedStacktrace:(BOOL)stripCrashedStacktrace
+{
     if (threadIndex >= [self.threads count]) {
         return nil;
     }
-    NSDictionary *threadDictionary = [self.threads objectAtIndex:threadIndex];
+    NSDictionary *threadDictionary = self.threads[threadIndex];
 
     SentryThread *thread = [[SentryThread alloc] initWithThreadId:threadDictionary[@"index"]];
     // We only want to add the stacktrace if this thread hasn't crashed
@@ -188,17 +231,19 @@ static inline NSString *hexAddress(NSNumber *value) {
     return thread;
 }
 
-- (SentryFrame *)stackFrameAtIndex:(NSInteger)frameIndex inThreadIndex:(NSInteger)threadIndex {
+- (SentryFrame *)stackFrameAtIndex:(NSInteger)frameIndex inThreadIndex:(NSInteger)threadIndex
+{
     NSDictionary *frameDictionary = [self rawStackTraceForThreadIndex:threadIndex][frameIndex];
-    uintptr_t instructionAddress = (uintptr_t) [frameDictionary[@"instruction_addr"] unsignedLongLongValue];
+    uintptr_t instructionAddress
+        = (uintptr_t)[frameDictionary[@"instruction_addr"] unsignedLongLongValue];
     NSDictionary *binaryImage = [self binaryImageForAddress:instructionAddress];
-    BOOL isAppImage = [binaryImage[@"name"] containsString:@"/Bundle/Application/"] || [binaryImage[@"name"] containsString:@".app"];
     SentryFrame *frame = [[SentryFrame alloc] init];
-    frame.symbolAddress = hexAddress(frameDictionary[@"symbol_addr"]);
-    frame.instructionAddress = hexAddress(frameDictionary[@"instruction_addr"]);
-    frame.imageAddress = hexAddress(binaryImage[@"image_addr"]);
+    frame.symbolAddress = sentry_formatHexAddress(frameDictionary[@"symbol_addr"]);
+    frame.instructionAddress = sentry_formatHexAddress(frameDictionary[@"instruction_addr"]);
+    frame.imageAddress = sentry_formatHexAddress(binaryImage[@"image_addr"]);
     frame.package = binaryImage[@"name"];
-    frame.inApp = [NSNumber numberWithBool:isAppImage];
+    BOOL isInApp = [SentryCrashStackEntryMapper isInApp:binaryImage[@"name"]];
+    frame.inApp = @(isInApp);
     if (frameDictionary[@"symbol_name"]) {
         frame.function = frameDictionary[@"symbol_name"];
     }
@@ -206,7 +251,8 @@ static inline NSString *hexAddress(NSNumber *value) {
 }
 
 // We already get all the frames in the right order
-- (NSArray<SentryFrame *> *)stackFramesForThreadIndex:(NSInteger)threadIndex {
+- (NSArray<SentryFrame *> *)stackFramesForThreadIndex:(NSInteger)threadIndex
+{
     NSUInteger frameCount = [self rawStackTraceForThreadIndex:threadIndex].count;
     if (frameCount <= 0) {
         return [NSArray new];
@@ -219,19 +265,23 @@ static inline NSString *hexAddress(NSNumber *value) {
     return frames;
 }
 
-- (SentryStacktrace *)stackTraceForThreadIndex:(NSInteger)threadIndex {
+- (SentryStacktrace *)stackTraceForThreadIndex:(NSInteger)threadIndex
+{
     NSArray<SentryFrame *> *frames = [self stackFramesForThreadIndex:threadIndex];
-    SentryStacktrace *stacktrace = [[SentryStacktrace alloc] initWithFrames:frames
-                                                                  registers:[self registersForThreadIndex:threadIndex]];
+    SentryStacktrace *stacktrace =
+        [[SentryStacktrace alloc] initWithFrames:frames
+                                       registers:[self registersForThreadIndex:threadIndex]];
     [stacktrace fixDuplicateFrames];
     return stacktrace;
 }
 
-- (SentryThread *_Nullable)crashedThread {
+- (SentryThread *_Nullable)crashedThread
+{
     return [self threadAtIndex:self.crashedThreadIndex stripCrashedStacktrace:NO];
 }
 
-- (NSArray<SentryDebugMeta *> *)convertDebugMeta {
+- (NSArray<SentryDebugMeta *> *)convertDebugMeta
+{
     NSMutableArray<SentryDebugMeta *> *result = [NSMutableArray new];
     for (NSDictionary *sourceImage in self.report[@"binary_images"]) {
         SentryDebugMeta *debugMeta = [[SentryDebugMeta alloc] init];
@@ -239,9 +289,9 @@ static inline NSString *hexAddress(NSNumber *value) {
         debugMeta.type = @"apple";
         // We default to 0 on the server if not sent
         if ([sourceImage[@"image_vmaddr"] integerValue] > 0) {
-            debugMeta.imageVmAddress = hexAddress(sourceImage[@"image_vmaddr"]);
+            debugMeta.imageVmAddress = sentry_formatHexAddress(sourceImage[@"image_vmaddr"]);
         }
-        debugMeta.imageAddress = hexAddress(sourceImage[@"image_addr"]);
+        debugMeta.imageAddress = sentry_formatHexAddress(sourceImage[@"image_addr"]);
         debugMeta.imageSize = sourceImage[@"image_size"];
         debugMeta.name = sourceImage[@"name"];
         [result addObject:debugMeta];
@@ -249,7 +299,8 @@ static inline NSString *hexAddress(NSNumber *value) {
     return result;
 }
 
-- (NSArray<SentryException *> *_Nullable)convertExceptions {
+- (NSArray<SentryException *> *_Nullable)convertExceptions
+{
     if (nil == self.exceptionContext) {
         return nil;
     }
@@ -258,28 +309,39 @@ static inline NSString *hexAddress(NSNumber *value) {
     if ([exceptionType isEqualToString:@"nsexception"]) {
         exception = [self parseNSException];
     } else if ([exceptionType isEqualToString:@"cpp_exception"]) {
-        exception = [[SentryException alloc] initWithValue:self.exceptionContext[@"cpp_exception"][@"name"]
-                                                      type:@"C++ Exception"];
+        exception =
+            [[SentryException alloc] initWithValue:self.exceptionContext[@"cpp_exception"][@"name"]
+                                              type:@"C++ Exception"];
     } else if ([exceptionType isEqualToString:@"mach"]) {
-        exception = [[SentryException alloc] initWithValue:[NSString stringWithFormat:@"Exception %@, Code %@, Subcode %@",
-                                                                                      self.exceptionContext[@"mach"][@"exception"],
-                                                                                      self.exceptionContext[@"mach"][@"code"],
-                                                                                      self.exceptionContext[@"mach"][@"subcode"]]
-                                                      type:self.exceptionContext[@"mach"][@"exception_name"]];
+        exception = [[SentryException alloc]
+            initWithValue:[NSString stringWithFormat:@"Exception %@, Code %@, Subcode %@",
+                                    self.exceptionContext[@"mach"][@"exception"],
+                                    self.exceptionContext[@"mach"][@"code"],
+                                    self.exceptionContext[@"mach"][@"subcode"]]
+                     type:self.exceptionContext[@"mach"][@"exception_name"]];
     } else if ([exceptionType isEqualToString:@"signal"]) {
-        exception = [[SentryException alloc] initWithValue:[NSString stringWithFormat:@"Signal %@, Code %@",
-                                                                                      self.exceptionContext[@"signal"][@"signal"],
-                                                                                      self.exceptionContext[@"signal"][@"code"]]
-                                                      type:self.exceptionContext[@"signal"][@"name"]];
+        exception = [[SentryException alloc]
+            initWithValue:[NSString stringWithFormat:@"Signal %@, Code %@",
+                                    self.exceptionContext[@"signal"][@"signal"],
+                                    self.exceptionContext[@"signal"][@"code"]]
+                     type:self.exceptionContext[@"signal"][@"name"]];
     } else if ([exceptionType isEqualToString:@"user"]) {
-        NSString *exceptionReason = [NSString stringWithFormat:@"%@", self.exceptionContext[@"reason"]];
-        exception = [[SentryException alloc] initWithValue:exceptionReason
-                                                      type:self.exceptionContext[@"user_reported"][@"name"]];
+        NSString *exceptionReason =
+            [NSString stringWithFormat:@"%@", self.exceptionContext[@"reason"]];
+        exception = [[SentryException alloc]
+            initWithValue:exceptionReason
+                     type:self.exceptionContext[@"user_reported"][@"name"]];
 
         NSRange match = [exceptionReason rangeOfString:@":"];
         if (match.location != NSNotFound) {
-            exception = [[SentryException alloc] initWithValue:[[exceptionReason substringWithRange:NSMakeRange(match.location + match.length, (exceptionReason.length - match.location) - match.length)] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]]
-                                                          type:[exceptionReason substringWithRange:NSMakeRange(0, match.location)]];
+            exception = [[SentryException alloc]
+                initWithValue:[[exceptionReason
+                                  substringWithRange:NSMakeRange(match.location + match.length,
+                                                         (exceptionReason.length - match.location)
+                                                             - match.length)]
+                                  stringByTrimmingCharactersInSet:[NSCharacterSet
+                                                                      whitespaceCharacterSet]]
+                         type:[exceptionReason substringWithRange:NSMakeRange(0, match.location)]];
         }
     } else {
         exception = [[SentryException alloc] initWithValue:@"Unknown Exception" type:exceptionType];
@@ -288,59 +350,68 @@ static inline NSString *hexAddress(NSNumber *value) {
     [self enhanceValueFromNotableAddresses:exception];
     exception.mechanism = [self extractMechanismOfType:exceptionType];
     exception.thread = [self crashedThread];
-    if (nil != self.diagnosis && self.diagnosis.length > 0 && ![self.diagnosis containsString:exception.value]) {
-        exception.value = [exception.value stringByAppendingString:[NSString stringWithFormat:@" >\n%@", self.diagnosis]];
+    if (nil != self.diagnosis && self.diagnosis.length > 0
+        && ![self.diagnosis containsString:exception.value]) {
+        exception.value = [exception.value
+            stringByAppendingString:[NSString stringWithFormat:@" >\n%@", self.diagnosis]];
     }
-    return @[exception];
+    return @[ exception ];
 }
 
-- (SentryException *)parseNSException {
-//    if ([self.exceptionContext[@"nsexception"][@"name"] containsString:@"NativeScript encountered a fatal error:"]) {
-//        // TODO parsing here
-//        SentryException *exception = [[SentryException alloc] initWithValue:self.exceptionContext[@"nsexception"][@"reason"]
-//                                                                       type:self.exceptionContext[@"nsexception"][@"name"]];
-//        // exception.thread set here with parsed js stacktrace
-//
-//        return exception;
-//    }
+- (SentryException *)parseNSException
+{
+    //    if ([self.exceptionContext[@"nsexception"][@"name"]
+    //    containsString:@"NativeScript encountered a fatal error:"]) {
+    //        // TODO parsing here
+    //        SentryException *exception = [[SentryException alloc]
+    //        initWithValue:self.exceptionContext[@"nsexception"][@"reason"]
+    //                                                                       type:self.exceptionContext[@"nsexception"][@"name"]];
+    //        // exception.thread set here with parsed js stacktrace
+    //
+    //        return exception;
+    //    }
     NSString *reason = @"";
     if (nil != self.exceptionContext[@"nsexception"][@"reason"]) {
         reason = self.exceptionContext[@"nsexception"][@"reason"];
     } else if (nil != self.exceptionContext[@"reason"]) {
         reason = self.exceptionContext[@"reason"];
     }
-    
+
     return [[SentryException alloc] initWithValue:[NSString stringWithFormat:@"%@", reason]
                                              type:self.exceptionContext[@"nsexception"][@"name"]];
 }
 
-- (void)enhanceValueFromNotableAddresses:(SentryException *)exception {
+- (void)enhanceValueFromNotableAddresses:(SentryException *)exception
+{
     // Gatekeeper fixes https://github.com/getsentry/sentry-cocoa/issues/231
     if ([self.threads count] == 0 || self.crashedThreadIndex >= [self.threads count]) {
         return;
     }
-    NSDictionary *crashedThread = [self.threads objectAtIndex:self.crashedThreadIndex];
-    NSDictionary *notableAddresses = [crashedThread objectForKey:@"notable_addresses"];
+    NSDictionary *crashedThread = self.threads[self.crashedThreadIndex];
+    NSDictionary *notableAddresses = crashedThread[@"notable_addresses"];
     NSMutableOrderedSet *reasons = [[NSMutableOrderedSet alloc] init];
     if (nil != notableAddresses) {
-        for(id key in notableAddresses) {
-            NSDictionary *content = [notableAddresses objectForKey:key];
-            if ([[content objectForKey:@"type"] isEqualToString:@"string"] && nil != [content objectForKey:@"value"]) {
+        for (id key in notableAddresses) {
+            NSDictionary *content = notableAddresses[key];
+            if ([content[@"type"] isEqualToString:@"string"] && nil != content[@"value"]) {
                 // if there are less than 3 slashes it shouldn't be a filepath
-                if ([[[content objectForKey:@"value"] componentsSeparatedByString:@"/"] count] < 3) {
-                    [reasons addObject:[content objectForKey:@"value"]];
+                if ([[content[@"value"] componentsSeparatedByString:@"/"] count] < 3) {
+                    [reasons addObject:content[@"value"]];
                 }
             }
         }
     }
     if (reasons.count > 0) {
-        exception.value = [[[reasons array] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)] componentsJoinedByString:@" > "];
+        exception.value =
+            [[[reasons array] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]
+                componentsJoinedByString:@" > "];
     }
 }
 
-- (SentryMechanism *_Nullable)extractMechanismOfType:(nonnull NSString *)type {
+- (SentryMechanism *_Nullable)extractMechanismOfType:(nonnull NSString *)type
+{
     SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:type];
-    if (nil != [self.exceptionContext objectForKey:@"mach"]) {
+    if (nil != self.exceptionContext[@"mach"]) {
         mechanism.handled = @(NO);
 
         NSMutableDictionary *meta = [NSMutableDictionary new];
@@ -352,7 +423,7 @@ static inline NSString *hexAddress(NSNumber *value) {
         [machException setValue:self.exceptionContext[@"mach"][@"code"] forKey:@"code"];
         [meta setValue:machException forKey:@"mach_exception"];
 
-        if (nil != [self.exceptionContext objectForKey:@"signal"]) {
+        if (nil != self.exceptionContext[@"signal"]) {
             NSMutableDictionary *signal = [NSMutableDictionary new];
             [signal setValue:self.exceptionContext[@"signal"][@"signal"] forKey:@"number"];
             [signal setValue:self.exceptionContext[@"signal"][@"code"] forKey:@"code"];
@@ -363,16 +434,20 @@ static inline NSString *hexAddress(NSNumber *value) {
 
         mechanism.meta = meta;
 
-        if (nil != self.exceptionContext[@"address"] && [self.exceptionContext[@"address"] integerValue] > 0) {
-            mechanism.data = @{ @"relevant_address": hexAddress(self.exceptionContext[@"address"]) };
+        if (nil != self.exceptionContext[@"address"] &&
+            [self.exceptionContext[@"address"] integerValue] > 0) {
+            mechanism.data = @{
+                @"relevant_address" : sentry_formatHexAddress(self.exceptionContext[@"address"])
+            };
         }
     }
     return mechanism;
 }
 
-- (NSArray *)convertThreads {
+- (NSArray *)convertThreads
+{
     NSMutableArray *result = [NSMutableArray new];
-    for (NSInteger threadIndex = 0; threadIndex < (NSInteger) self.threads.count; threadIndex++) {
+    for (NSInteger threadIndex = 0; threadIndex < (NSInteger)self.threads.count; threadIndex++) {
         SentryThread *thread = [self threadAtIndex:threadIndex stripCrashedStacktrace:YES];
         if (thread && nil != thread.stacktrace) {
             [result addObject:thread];

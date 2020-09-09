@@ -1,5 +1,6 @@
 #import <Foundation/Foundation.h>
 
+#import "SentryCurrentDateProvider.h"
 #import "SentryDefines.h"
 #import "SentrySession.h"
 
@@ -11,7 +12,9 @@ NS_SWIFT_NAME(SentryFileManager)
 @interface SentryFileManager : NSObject
 SENTRY_NO_INIT
 
-- (_Nullable instancetype)initWithDsn:(SentryDsn *)dsn didFailWithError:(NSError **)error NS_DESIGNATED_INITIALIZER;
+- (_Nullable instancetype)initWithDsn:(SentryDsn *)dsn
+               andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
+                     didFailWithError:(NSError **)error NS_DESIGNATED_INITIALIZER;
 
 - (NSString *)storeEvent:(SentryEvent *)event;
 - (NSString *)storeEnvelope:(SentryEnvelope *)envelope;
@@ -20,6 +23,10 @@ SENTRY_NO_INIT
 - (SentrySession *_Nullable)readCurrentSession;
 - (void)deleteCurrentSession;
 
+- (void)storeTimestampLastInForeground:(NSDate *)timestamp;
+- (NSDate *_Nullable)readTimestampLastInForeground;
+- (void)deleteTimestampLastInForeground;
+
 + (BOOL)createDirectoryAtPath:(NSString *)path withError:(NSError **)error;
 
 - (void)deleteAllStoredEventsAndEnvelopes;
@@ -27,10 +34,11 @@ SENTRY_NO_INIT
 - (void)deleteAllFolders;
 
 /**
- In a previous version of SentryFileManager envelopes were stored in the same path as events.
- Now events and envelopes are stored in two different paths. We decided that there is no need
- for a migration strategy, because in worst case only a few envelopes get lost and this is not
- worth the effort. Since there is no migration strategy this method could also return envelopes.
+ In a previous version of SentryFileManager envelopes were stored in the same
+ path as events. Now events and envelopes are stored in two different paths. We
+ decided that there is no need for a migration strategy, because in worst case
+ only a few envelopes get lost and this is not worth the effort. Since there is
+ no migration strategy this method could also return envelopes.
  */
 - (NSArray<SentryFileContents *> *)getAllEventsAndMaybeEnvelopes;
 - (NSArray<SentryFileContents *> *)getAllEnvelopes;
@@ -42,8 +50,8 @@ SENTRY_NO_INIT
 
 - (NSString *)storeDictionary:(NSDictionary *)dictionary toPath:(NSString *)path;
 
-@property(nonatomic, assign) NSUInteger maxEvents;
-@property(nonatomic, assign) NSUInteger maxEnvelopes;
+@property (nonatomic, assign) NSUInteger maxEvents;
+@property (nonatomic, assign) NSUInteger maxEnvelopes;
 
 @end
 

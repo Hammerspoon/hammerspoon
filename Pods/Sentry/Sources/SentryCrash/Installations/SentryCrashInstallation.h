@@ -24,11 +24,9 @@
 // THE SOFTWARE.
 //
 
-
-#import <Foundation/Foundation.h>
 #import "SentryCrashReportFilter.h"
 #import "SentryCrashReportWriter.h"
-
+#import <Foundation/Foundation.h>
 
 /**
  * Crash system installation which handles backend-specific details.
@@ -39,33 +37,35 @@
  */
 @interface SentryCrashInstallation : NSObject
 
-/** C Function to call during a crash report to give the callee an opportunity to
- * add to the report. NULL = ignore.
+/** C Function to call during a crash report to give the callee an opportunity
+ * to add to the report. NULL = ignore.
  *
  * WARNING: Only call async-safe functions from this function! DO NOT call
  * Objective-C methods!!!
  */
-@property(atomic,readwrite,assign) SentryCrashReportWriteCallback onCrash;
+@property (atomic, readwrite, assign) SentryCrashReportWriteCallback onCrash;
 
-/** Install this installation. Call this instead of -[SentryCrash install] to install
- * with everything needed for your particular backend.
+/** Install this installation. Call this instead of -[SentryCrash install] to
+ * install with everything needed for your particular backend.
  */
-- (void) install;
+- (void)install;
 
 /** Convenience method to call -[SentryCrash sendAllReportsWithCompletion:].
- * This method will set the SentryCrash sink and then send all outstanding reports.
+ * This method will set the SentryCrash sink and then send all outstanding
+ * reports.
  *
- * Note: Pay special attention to SentryCrash's "deleteBehaviorAfterSendAll" property.
+ * Note: Pay special attention to SentryCrash's "deleteBehaviorAfterSendAll"
+ * property.
  *
  * @param onCompletion Called when sending is complete (nil = ignore).
  */
-- (void) sendAllReportsWithCompletion:(SentryCrashReportFilterCompletion) onCompletion;
+- (void)sendAllReportsWithCompletion:(SentryCrashReportFilterCompletion)onCompletion;
 
 /** Add a filter that gets executed before all normal filters.
  * Prepended filters will be executed in the order in which they were added.
  *
  * @param filter the filter to prepend.
  */
-- (void) addPreFilter:(id<SentryCrashReportFilter>) filter;
+- (void)addPreFilter:(id<SentryCrashReportFilter>)filter;
 
 @end

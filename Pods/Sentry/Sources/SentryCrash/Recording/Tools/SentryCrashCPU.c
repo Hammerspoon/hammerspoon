@@ -24,47 +24,46 @@
 // THE SOFTWARE.
 //
 
-
 #include "SentryCrashCPU.h"
 
 #include "SentryCrashSystemCapabilities.h"
 
-#include <mach/mach.h>
 #include <mach-o/arch.h>
+#include <mach/mach.h>
 
 //#define SentryCrashLogger_LocalLevel TRACE
 #include "SentryCrashLogger.h"
 
-
-const char* sentrycrashcpu_currentArch(void)
+const char *
+sentrycrashcpu_currentArch(void)
 {
-    const NXArchInfo* archInfo = NXGetLocalArchInfo();
-    return archInfo == NULL ? NULL : archInfo->name;
+    // This is blocking App Store submissions and must be worked around
+    // TODO: Figure out a replacement
+    //    const NXArchInfo *archInfo = NXGetLocalArchInfo();
+    //    return archInfo == NULL ? NULL : archInfo->name;
+    return NULL;
 }
 
 #if SentryCrashCRASH_HAS_THREADS_API
-bool sentrycrashcpu_i_fillState(const thread_t thread,
-                       const thread_state_t state,
-                       const thread_state_flavor_t flavor,
-                       const mach_msg_type_number_t stateCount)
+bool
+sentrycrashcpu_i_fillState(const thread_t thread, const thread_state_t state,
+    const thread_state_flavor_t flavor, const mach_msg_type_number_t stateCount)
 {
     SentryCrashLOG_TRACE("Filling thread state with flavor %x.", flavor);
     mach_msg_type_number_t stateCountBuff = stateCount;
     kern_return_t kr;
 
     kr = thread_get_state(thread, flavor, state, &stateCountBuff);
-    if(kr != KERN_SUCCESS)
-    {
+    if (kr != KERN_SUCCESS) {
         SentryCrashLOG_ERROR("thread_get_state: %s", mach_error_string(kr));
         return false;
     }
     return true;
 }
 #else
-bool sentrycrashcpu_i_fillState(__unused const thread_t thread,
-                       __unused const thread_state_t state,
-                       __unused const thread_state_flavor_t flavor,
-                       __unused const mach_msg_type_number_t stateCount)
+bool
+sentrycrashcpu_i_fillState(__unused const thread_t thread, __unused const thread_state_t state,
+    __unused const thread_state_flavor_t flavor, __unused const mach_msg_type_number_t stateCount)
 {
     return false;
 }

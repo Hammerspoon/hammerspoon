@@ -25,6 +25,8 @@
 #import "MIKMIDISequence+MIKMIDIPrivate.h"
 #import "MIKMIDICommandScheduler.h"
 #import "MIKMIDIDestinationEndpoint.h"
+#import "MIKMIDIControlChangeCommand.h"
+#import "MIKMIDIControlChangeEvent.h"
 
 
 #if !__has_feature(objc_arc)
@@ -566,6 +568,14 @@ const MusicTimeStamp MIKMIDISequencerEndOfSequenceLoopEndTimeStamp = -1;
     } else if ([command isKindOfClass:[MIKMIDINoteOffCommand class]]) {		// note Off
         MIKMIDINoteOffCommand *noteOffCommand = (MIKMIDINoteOffCommand *)command;
         event = [self pendingNoteEventWithNoteNumber:@(noteOffCommand.note) channel:noteOffCommand.channel releaseVelocity:noteOffCommand.velocity offTimeStamp:musicTimeStamp];
+    } else if ([command isKindOfClass:[MIKMIDIControlChangeCommand class]]) { // cc command
+        MIKMIDIControlChangeCommand* ccCmd = (MIKMIDIControlChangeCommand*)command;
+        MIKMutableMIDIControlChangeEvent* ccEvent = [[MIKMutableMIDIControlChangeEvent alloc] init];
+        ccEvent.controllerNumber = ccCmd.controllerNumber;
+        ccEvent.controllerValue = ccCmd.controllerValue;
+        ccEvent.channel = ccCmd.channel;
+        ccEvent.timeStamp = musicTimeStamp;
+        event = ccEvent;
     }
 
     if (event) [self.recordEnabledTracks makeObjectsPerformSelector:@selector(addEvent:) withObject:event];

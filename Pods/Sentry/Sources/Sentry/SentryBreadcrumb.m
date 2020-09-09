@@ -4,7 +4,8 @@
 
 @implementation SentryBreadcrumb
 
-- (instancetype)initWithLevel:(enum SentryLevel)level category:(NSString *)category {
+- (instancetype)initWithLevel:(enum SentryLevel)level category:(NSString *)category
+{
     self = [super init];
     if (self) {
         self.level = level;
@@ -14,11 +15,13 @@
     return self;
 }
 
-- (instancetype)init {
+- (instancetype)init
+{
     return [self initWithLevel:kSentryLevelInfo category:@"default"];
 }
 
-- (NSDictionary<NSString *, id> *)serialize {
+- (NSDictionary<NSString *, id> *)serialize
+{
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
 
     [serializedData setValue:SentryLevelNames[self.level] forKey:@"level"];

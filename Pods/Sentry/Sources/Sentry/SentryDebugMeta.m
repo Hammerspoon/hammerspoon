@@ -4,11 +4,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryDebugMeta
 
-- (instancetype)init {
+- (instancetype)init
+{
     return [super init];
 }
 
-- (NSDictionary<NSString *, id> *)serialize {
+- (NSDictionary<NSString *, id> *)serialize
+{
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
 
     [serializedData setValue:self.uuid forKey:@"uuid"];
@@ -17,7 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:self.imageSize forKey:@"image_size"];
     [serializedData setValue:[self.name lastPathComponent] forKey:@"name"];
     [serializedData setValue:self.imageVmAddress forKey:@"image_vmaddr"];
-    
+
     return serializedData;
 }
 

@@ -80,7 +80,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *  @return An array of specified class of MIDI events.
  */
-- (MIKArrayOfKindOf(MIKMIDIEvent *) *)eventsOfClass:(Class)eventClass fromTimeStamp:(MusicTimeStamp)startTimeStamp toTimeStamp:(MusicTimeStamp)endTimeStamp;
+- (MIKArrayOfKindOf(MIKMIDIEvent *) *)eventsOfClass:(nullable Class)eventClass fromTimeStamp:(MusicTimeStamp)startTimeStamp toTimeStamp:(MusicTimeStamp)endTimeStamp;
 
 /**
  *  Gets all of the MIDI notes in the track starting from startTimeStamp and ending at endTimeStamp inclusively.

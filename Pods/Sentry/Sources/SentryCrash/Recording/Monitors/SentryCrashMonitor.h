@@ -24,10 +24,8 @@
 // THE SOFTWARE.
 //
 
-
 /** Keeps watch for crashes and informs via callback when on occurs.
  */
-
 
 #ifndef HDR_SentryCrashMonitor_h
 #define HDR_SentryCrashMonitor_h
@@ -36,14 +34,12 @@
 extern "C" {
 #endif
 
-
 #include "SentryCrashMonitorType.h"
 #include "SentryCrashThread.h"
 
 #include <stdbool.h>
 
 struct SentryCrash_MonitorContext;
-
 
 // ============================================================================
 #pragma mark - External API -
@@ -63,24 +59,24 @@ SentryCrashMonitorType sentrycrashcm_getActiveMonitors(void);
  *
  * @param onEvent Called whenever an event is captured.
  */
-void sentrycrashcm_setEventCallback(void (*onEvent)(struct SentryCrash_MonitorContext* monitorContext));
-
+void sentrycrashcm_setEventCallback(
+    void (*onEvent)(struct SentryCrash_MonitorContext *monitorContext));
 
 // ============================================================================
 #pragma mark - Internal API -
 // ============================================================================
 
-typedef struct
-{
+typedef struct {
     void (*setEnabled)(bool isEnabled);
     bool (*isEnabled)(void);
-    void (*addContextualInfoToEvent)(struct SentryCrash_MonitorContext* eventContext);
+    void (*addContextualInfoToEvent)(struct SentryCrash_MonitorContext *eventContext);
 } SentryCrashMonitorAPI;
 
 /** Notify that a fatal exception has been captured.
  *  This allows the system to take appropriate steps in preparation.
  *
- * @oaram isAsyncSafeEnvironment If true, only async-safe functions are allowed from now on.
+ * @oaram isAsyncSafeEnvironment If true, only async-safe functions are allowed
+ * from now on.
  */
 bool sentrycrashcm_notifyFatalExceptionCaptured(bool isAsyncSafeEnvironment);
 
@@ -88,8 +84,7 @@ bool sentrycrashcm_notifyFatalExceptionCaptured(bool isAsyncSafeEnvironment);
  *
  * @oaram context Contextual information about the exception.
  */
-void sentrycrashcm_handleException(struct SentryCrash_MonitorContext* context);
-
+void sentrycrashcm_handleException(struct SentryCrash_MonitorContext *context);
 
 #ifdef __cplusplus
 }

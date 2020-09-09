@@ -14,10 +14,11 @@ NS_SWIFT_NAME(RetryAfterHeaderParser)
 - (instancetype)initWithHttpDateParser:(SentryHttpDateParser *)httpDateParser;
 
 /** Parses the HTTP header into a NSDate.
- 
+
  @param retryAfterHeader The header value.
- 
- @return NSDate representation of Retry-After. If the date can't be parsed nil is returned.
+
+ @return NSDate representation of Retry-After. If the date can't be parsed nil
+ is returned.
 */
 - (NSDate *_Nullable)parse:(NSString *_Nullable)retryAfterHeader;
 

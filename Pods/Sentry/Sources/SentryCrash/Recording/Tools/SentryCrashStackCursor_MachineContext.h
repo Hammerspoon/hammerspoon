@@ -22,14 +22,12 @@
 // THE SOFTWARE.
 //
 
-
 #ifndef SentryCrashStackCursor_MachineContext_h
 #define SentryCrashStackCursor_MachineContext_h
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 #include "SentryCrashStackCursor.h"
 
@@ -41,8 +39,8 @@ extern "C" {
  *
  * @param machineContext The machine context whose stack to walk.
  */
-void sentrycrashsc_initWithMachineContext(SentryCrashStackCursor *cursor, int maxStackDepth, const struct SentryCrashMachineContext* machineContext);
-
+void sentrycrashsc_initWithMachineContext(SentryCrashStackCursor *cursor, int maxStackDepth,
+    const struct SentryCrashMachineContext *machineContext);
 
 #ifdef __cplusplus
 }

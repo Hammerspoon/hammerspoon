@@ -25,8 +25,8 @@
 //
 
 #include "SentryCrashReportStore.h"
-#include "SentryCrashLogger.h"
 #include "SentryCrashFileUtils.h"
+#include "SentryCrashLogger.h"
 
 #include <dirent.h>
 #include <errno.h>
@@ -38,41 +38,41 @@
 #include <string.h>
 #include <unistd.h>
 
-
 static int g_maxReportCount = 5;
 // Have to use max 32-bit atomics because of MIPS.
 static _Atomic(uint32_t) g_nextUniqueIDLow;
 static int64_t g_nextUniqueIDHigh;
-static const char* g_appName;
-static const char* g_reportsPath;
+static const char *g_appName;
+static const char *g_reportsPath;
 static pthread_mutex_t g_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-static int compareInt64(const void* a, const void* b)
+static int
+compareInt64(const void *a, const void *b)
 {
-    int64_t diff = *(int64_t*)a - *(int64_t*)b;
-    if(diff < 0)
-    {
+    int64_t diff = *(int64_t *)a - *(int64_t *)b;
+    if (diff < 0) {
         return -1;
-    }
-    else if(diff > 0)
-    {
+    } else if (diff > 0) {
         return 1;
     }
     return 0;
 }
 
-static inline int64_t getNextUniqueID()
+static inline int64_t
+getNextUniqueID()
 {
     return g_nextUniqueIDHigh + g_nextUniqueIDLow++;
 }
 
-static void getCrashReportPathByID(int64_t id, char* pathBuffer)
+static void
+getCrashReportPathByID(int64_t id, char *pathBuffer)
 {
-    snprintf(pathBuffer, SentryCrashCRS_MAX_PATH_LENGTH, "%s/%s-report-%016llx.json", g_reportsPath, g_appName, id);
-
+    snprintf(pathBuffer, SentryCrashCRS_MAX_PATH_LENGTH, "%s/%s-report-%016llx.json", g_reportsPath,
+        g_appName, id);
 }
 
-static int64_t getReportIDFromFilename(const char* filename)
+static int64_t
+getReportIDFromFilename(const char *filename)
 {
     char scanFormat[100];
     snprintf(scanFormat, sizeof(scanFormat), "%s-report-%%" PRIx64 ".json", g_appName);
@@ -82,48 +82,43 @@ static int64_t getReportIDFromFilename(const char* filename)
     return reportID;
 }
 
-static int getReportCount()
+static int
+getReportCount()
 {
     int count = 0;
-    DIR* dir = opendir(g_reportsPath);
-    if(dir == NULL)
-    {
+    DIR *dir = opendir(g_reportsPath);
+    if (dir == NULL) {
         SentryCrashLOG_ERROR("Could not open directory %s", g_reportsPath);
         goto done;
     }
-    struct dirent* ent;
-    while((ent = readdir(dir)) != NULL)
-    {
-        if(getReportIDFromFilename(ent->d_name) > 0)
-        {
+    struct dirent *ent;
+    while ((ent = readdir(dir)) != NULL) {
+        if (getReportIDFromFilename(ent->d_name) > 0) {
             count++;
         }
     }
 
 done:
-    if(dir != NULL)
-    {
+    if (dir != NULL) {
         closedir(dir);
     }
     return count;
 }
 
-static int getReportIDs(int64_t* reportIDs, int count)
+static int
+getReportIDs(int64_t *reportIDs, int count)
 {
     int index = 0;
-    DIR* dir = opendir(g_reportsPath);
-    if(dir == NULL)
-    {
+    DIR *dir = opendir(g_reportsPath);
+    if (dir == NULL) {
         SentryCrashLOG_ERROR("Could not open directory %s", g_reportsPath);
         goto done;
     }
 
-    struct dirent* ent;
-    while((ent = readdir(dir)) != NULL && index < count)
-    {
+    struct dirent *ent;
+    while ((ent = readdir(dir)) != NULL && index < count) {
         int64_t reportID = getReportIDFromFilename(ent->d_name);
-        if(reportID > 0)
-        {
+        if (reportID > 0) {
             reportIDs[index++] = reportID;
         }
     }
@@ -131,49 +126,46 @@ static int getReportIDs(int64_t* reportIDs, int count)
     qsort(reportIDs, (unsigned)count, sizeof(reportIDs[0]), compareInt64);
 
 done:
-    if(dir != NULL)
-    {
+    if (dir != NULL) {
         closedir(dir);
     }
     return index;
 }
 
-static void pruneReports()
+static void
+pruneReports()
 {
     int reportCount = getReportCount();
-    if(reportCount > g_maxReportCount)
-    {
+    if (reportCount > g_maxReportCount) {
         int64_t reportIDs[reportCount];
         reportCount = getReportIDs(reportIDs, reportCount);
 
-        for(int i = 0; i < reportCount - g_maxReportCount; i++)
-        {
+        for (int i = 0; i < reportCount - g_maxReportCount; i++) {
             sentrycrashcrs_deleteReportWithID(reportIDs[i]);
         }
     }
 }
 
-static void initializeIDs()
+static void
+initializeIDs()
 {
     time_t rawTime;
     time(&rawTime);
     struct tm time;
     gmtime_r(&rawTime, &time);
-    int64_t baseID = (int64_t)time.tm_sec
-                   + (int64_t)time.tm_min * 61
-                   + (int64_t)time.tm_hour * 61 * 60
-                   + (int64_t)time.tm_yday * 61 * 60 * 24
-                   + (int64_t)time.tm_year * 61 * 60 * 24 * 366;
+    int64_t baseID = (int64_t)time.tm_sec + (int64_t)time.tm_min * 61
+        + (int64_t)time.tm_hour * 61 * 60 + (int64_t)time.tm_yday * 61 * 60 * 24
+        + (int64_t)time.tm_year * 61 * 60 * 24 * 366;
     baseID <<= 23;
 
     g_nextUniqueIDHigh = baseID & ~0xffffffff;
     g_nextUniqueIDLow = (uint32_t)(baseID & 0xffffffff);
 }
 
-
 // Public API
 
-void sentrycrashcrs_initialize(const char* appName, const char* reportsPath)
+void
+sentrycrashcrs_initialize(const char *appName, const char *reportsPath)
 {
     pthread_mutex_lock(&g_mutex);
     g_appName = strdup(appName);
@@ -184,12 +176,14 @@ void sentrycrashcrs_initialize(const char* appName, const char* reportsPath)
     pthread_mutex_unlock(&g_mutex);
 }
 
-void sentrycrashcrs_getNextCrashReportPath(char* crashReportPathBuffer)
+void
+sentrycrashcrs_getNextCrashReportPath(char *crashReportPathBuffer)
 {
     getCrashReportPathByID(getNextUniqueID(), crashReportPathBuffer);
 }
 
-int sentrycrashcrs_getReportCount()
+int
+sentrycrashcrs_getReportCount()
 {
     pthread_mutex_lock(&g_mutex);
     int count = getReportCount();
@@ -197,7 +191,8 @@ int sentrycrashcrs_getReportCount()
     return count;
 }
 
-int sentrycrashcrs_getReportIDs(int64_t* reportIDs, int count)
+int
+sentrycrashcrs_getReportIDs(int64_t *reportIDs, int count)
 {
     pthread_mutex_lock(&g_mutex);
     count = getReportIDs(reportIDs, count);
@@ -205,18 +200,20 @@ int sentrycrashcrs_getReportIDs(int64_t* reportIDs, int count)
     return count;
 }
 
-char* sentrycrashcrs_readReport(int64_t reportID)
+char *
+sentrycrashcrs_readReport(int64_t reportID)
 {
     pthread_mutex_lock(&g_mutex);
     char path[SentryCrashCRS_MAX_PATH_LENGTH];
     getCrashReportPathByID(reportID, path);
-    char* result;
+    char *result;
     sentrycrashfu_readEntireFile(path, &result, NULL, 2000000);
     pthread_mutex_unlock(&g_mutex);
     return result;
 }
 
-int64_t sentrycrashcrs_addUserReport(const char* report, int reportLength)
+int64_t
+sentrycrashcrs_addUserReport(const char *report, int reportLength)
 {
     pthread_mutex_lock(&g_mutex);
     int64_t currentID = getNextUniqueID();
@@ -224,26 +221,22 @@ int64_t sentrycrashcrs_addUserReport(const char* report, int reportLength)
     getCrashReportPathByID(currentID, crashReportPath);
 
     int fd = open(crashReportPath, O_WRONLY | O_CREAT, 0644);
-    if(fd < 0)
-    {
+    if (fd < 0) {
         SentryCrashLOG_ERROR("Could not open file %s: %s", crashReportPath, strerror(errno));
         goto done;
     }
 
     int bytesWritten = (int)write(fd, report, (unsigned)reportLength);
-    if(bytesWritten < 0)
-    {
+    if (bytesWritten < 0) {
         SentryCrashLOG_ERROR("Could not write to file %s: %s", crashReportPath, strerror(errno));
         goto done;
-    }
-    else if(bytesWritten < reportLength)
-    {
-        SentryCrashLOG_ERROR("Expected to write %d bytes to file %s, but only wrote %d", crashReportPath, reportLength, bytesWritten);
+    } else if (bytesWritten < reportLength) {
+        SentryCrashLOG_ERROR("Expected to write %d bytes to file %s, but only wrote %d",
+            crashReportPath, reportLength, bytesWritten);
     }
 
 done:
-    if(fd >= 0)
-    {
+    if (fd >= 0) {
         close(fd);
     }
     pthread_mutex_unlock(&g_mutex);
@@ -251,21 +244,24 @@ done:
     return currentID;
 }
 
-void sentrycrashcrs_deleteAllReports()
+void
+sentrycrashcrs_deleteAllReports()
 {
     pthread_mutex_lock(&g_mutex);
     sentrycrashfu_deleteContentsOfPath(g_reportsPath);
     pthread_mutex_unlock(&g_mutex);
 }
 
-void sentrycrashcrs_deleteReportWithID(int64_t reportID)
+void
+sentrycrashcrs_deleteReportWithID(int64_t reportID)
 {
     char path[SentryCrashCRS_MAX_PATH_LENGTH];
     getCrashReportPathByID(reportID, path);
     sentrycrashfu_removeFile(path, true);
 }
 
-void sentrycrashcrs_setMaxReportCount(int maxReportCount)
+void
+sentrycrashcrs_setMaxReportCount(int maxReportCount)
 {
     g_maxReportCount = maxReportCount;
 }

@@ -24,9 +24,7 @@
 // THE SOFTWARE.
 //
 
-
 #import "SentryCrashReportFilter.h"
-
 
 /**
  * Very basic filter that passes through reports untouched.
@@ -36,14 +34,13 @@
  */
 @interface SentryCrashReportFilterPassthrough : NSObject <SentryCrashReportFilter>
 
-+ (SentryCrashReportFilterPassthrough*) filter;
++ (SentryCrashReportFilterPassthrough *)filter;
 
 @end
 
-
 /**
- * Passes reports to a series of subfilters, then stores the results of those operations
- * as keyed values in final master reports.
+ * Passes reports to a series of subfilters, then stores the results of those
+ * operations as keyed values in final master reports.
  *
  * Input: Anything
  * Output: NSDictionary
@@ -53,21 +50,21 @@
 /** Constructor.
  *
  * @param firstFilter The first filter, followed by key, filter, key, ...
- *                    Each "filter" can be id<SentryCrashReportFilter> or an NSArray
- *                    of filters (which gets wrapped in a pipeline filter).
+ *                    Each "filter" can be id<SentryCrashReportFilter> or an
+ * NSArray of filters (which gets wrapped in a pipeline filter).
  */
-+ (SentryCrashReportFilterCombine*) filterWithFiltersAndKeys:(id) firstFilter, ... NS_REQUIRES_NIL_TERMINATION;
++ (SentryCrashReportFilterCombine *)filterWithFiltersAndKeys:(id)firstFilter,
+                                                             ... NS_REQUIRES_NIL_TERMINATION;
 
 /** Initializer.
  *
  * @param firstFilter The first filter, followed by key, filter, key, ...
- *                    Each "filter" can be id<SentryCrashReportFilter> or an NSArray
- *                    of filters (which gets wrapped in a pipeline filter).
+ *                    Each "filter" can be id<SentryCrashReportFilter> or an
+ * NSArray of filters (which gets wrapped in a pipeline filter).
  */
-- (id) initWithFiltersAndKeys:(id)firstFilter, ... NS_REQUIRES_NIL_TERMINATION;
+- (id)initWithFiltersAndKeys:(id)firstFilter, ... NS_REQUIRES_NIL_TERMINATION;
 
 @end
-
 
 /**
  * A pipeline of filters. Reports get passed through each subfilter in order.
@@ -78,24 +75,24 @@
 @interface SentryCrashReportFilterPipeline : NSObject <SentryCrashReportFilter>
 
 /** The filters in this pipeline. */
-@property(nonatomic,readonly,retain) NSArray* filters;
+@property (nonatomic, readonly, retain) NSArray *filters;
 
 /** Constructor.
  *
  * @param firstFilter The first filter, followed by filter, filter, ...
  */
-+ (SentryCrashReportFilterPipeline*) filterWithFilters:(id) firstFilter, ... NS_REQUIRES_NIL_TERMINATION;
++ (SentryCrashReportFilterPipeline *)filterWithFilters:(id)firstFilter,
+                                                       ... NS_REQUIRES_NIL_TERMINATION;
 
 /** Initializer.
  *
  * @param firstFilter The first filter, followed by filter, filter, ...
  */
-- (id) initWithFilters:(id) firstFilter, ... NS_REQUIRES_NIL_TERMINATION;
+- (id)initWithFilters:(id)firstFilter, ... NS_REQUIRES_NIL_TERMINATION;
 
-- (void) addFilter:(id<SentryCrashReportFilter>) filter;
+- (void)addFilter:(id<SentryCrashReportFilter>)filter;
 
 @end
-
 
 /**
  * Extracts data associated with a key from each report.
@@ -109,8 +106,7 @@
  * @param allowNotFound If NO, filtering will stop with an error if the key
  *                      was not found in a report.
  */
-+ (SentryCrashReportFilterObjectForKey*) filterWithKey:(id) key
-                                     allowNotFound:(BOOL) allowNotFound;
++ (SentryCrashReportFilterObjectForKey *)filterWithKey:(id)key allowNotFound:(BOOL)allowNotFound;
 
 /** Initializer.
  *
@@ -119,14 +115,13 @@
  * @param allowNotFound If NO, filtering will stop with an error if the key
  *                      was not found in a report.
  */
-- (id) initWithKey:(id) key
-     allowNotFound:(BOOL) allowNotFound;
+- (id)initWithKey:(id)key allowNotFound:(BOOL)allowNotFound;
 
 @end
 
-
 /**
- * Takes values by key from the report and concatenates their string representations.
+ * Takes values by key from the report and concatenates their string
+ * representations.
  *
  * Input: NSDictionary
  * Output: NSString
@@ -135,24 +130,28 @@
 
 /** Constructor.
  *
- * @param separatorFmt Formatting text to use when separating the values. You may include
- *                     %@ in the formatting text to include the key name as well.
+ * @param separatorFmt Formatting text to use when separating the values. You
+ * may include
+ *                     %@ in the formatting text to include the key name as
+ * well.
  * @param firstKey Series of keys to extract from the source report.
  */
-+ (SentryCrashReportFilterConcatenate*) filterWithSeparatorFmt:(NSString*) separatorFmt
-                                                      keys:(id) firstKey, ... NS_REQUIRES_NIL_TERMINATION;
++ (SentryCrashReportFilterConcatenate *)filterWithSeparatorFmt:(NSString *)separatorFmt
+                                                          keys:(id)firstKey,
+                                                               ... NS_REQUIRES_NIL_TERMINATION;
 
 /** Constructor.
  *
- * @param separatorFmt Formatting text to use when separating the values. You may include
- *                     %@ in the formatting text to include the key name as well.
+ * @param separatorFmt Formatting text to use when separating the values. You
+ * may include
+ *                     %@ in the formatting text to include the key name as
+ * well.
  * @param firstKey Series of keys to extract from the source report.
  */
-- (id) initWithSeparatorFmt:(NSString*) separatorFmt
-                       keys:(id) firstKey, ... NS_REQUIRES_NIL_TERMINATION;
+- (id)initWithSeparatorFmt:(NSString *)separatorFmt
+                      keys:(id)firstKey, ... NS_REQUIRES_NIL_TERMINATION;
 
 @end
-
 
 /**
  * Fetches subsets of data from the source reports. All other data is discarded.
@@ -166,16 +165,15 @@
  *
  * @param firstKeyPath Series of key paths to search in the source reports.
  */
-+ (SentryCrashReportFilterSubset*) filterWithKeys:(id) firstKeyPath, ... NS_REQUIRES_NIL_TERMINATION;
++ (SentryCrashReportFilterSubset *)filterWithKeys:(id)firstKeyPath, ... NS_REQUIRES_NIL_TERMINATION;
 
 /** Initializer.
  *
  * @param firstKeyPath Series of key paths to search in the source reports.
  */
-- (id) initWithKeys:(id) firstKeyPath, ... NS_REQUIRES_NIL_TERMINATION;
+- (id)initWithKeys:(id)firstKeyPath, ... NS_REQUIRES_NIL_TERMINATION;
 
 @end
-
 
 /**
  * Convert UTF-8 data to an NSString.
@@ -185,10 +183,9 @@
  */
 @interface SentryCrashReportFilterDataToString : NSObject <SentryCrashReportFilter>
 
-+ (SentryCrashReportFilterDataToString*) filter;
++ (SentryCrashReportFilterDataToString *)filter;
 
 @end
-
 
 /**
  * Convert NSString to UTF-8 encoded NSData.
@@ -198,6 +195,6 @@
  */
 @interface SentryCrashReportFilterStringToData : NSObject <SentryCrashReportFilter>
 
-+ (SentryCrashReportFilterStringToData*) filter;
++ (SentryCrashReportFilterStringToData *)filter;
 
 @end

@@ -7,7 +7,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject
-SENTRY_NO_INIT
 
 /**
  * Init SentryOptions.
@@ -15,86 +14,106 @@ SENTRY_NO_INIT
  * @return SentryOptions
  */
 - (_Nullable instancetype)initWithDict:(NSDictionary<NSString *, id> *)options
-                         didFailWithError:(NSError *_Nullable *_Nullable)error;
+                      didFailWithError:(NSError *_Nullable *_Nullable)error;
 
 /**
- * The Dsn passed in the options.
+ * The DSN tells the SDK where to send the events to. If this value is not provided, the SDK will
+ * not send any events.
  */
-@property(nonatomic, strong) SentryDsn *dsn;
+@property (nonatomic, strong) NSString *_Nullable dsn;
 
 /**
- * debug [mode] sets a more verbose log level. Default is @NO. If set to @YES sentry prints more log messages to the console.
+ * The parsed internal DSN.
  */
-@property(nonatomic, copy) NSNumber *debug;
+@property (nonatomic, strong) SentryDsn *_Nullable parsedDsn;
 
 /**
- DEPRECATED: use debug bool instead (debug = @YES maps to logLevel kSentryLogLevelError, debug = @NO maps to loglevel kSentryLogLevelError).
-             thus kSentryLogLevelNone and kSentryLogLevelDebug will be dropped entirely.
- defines the log level of sentry log (console output).
+ * debug [mode] sets a more verbose log level. Default is @NO. If set to @YES
+ * sentry prints more log messages to the console.
  */
-@property(nonatomic, assign) SentryLogLevel logLevel;
+@property (nonatomic, copy) NSNumber *debug;
+
+/**
+ DEPRECATED: use debug bool instead (debug = @YES maps to logLevel
+ kSentryLogLevelError, debug = @NO maps to loglevel kSentryLogLevelError). thus
+ kSentryLogLevelNone and kSentryLogLevelDebug will be dropped entirely. defines
+ the log level of sentry log (console output).
+ */
+@property (nonatomic, assign) SentryLogLevel logLevel;
 
 /**
  * This property will be filled before the event is sent.
  */
-@property(nonatomic, copy) NSString *_Nullable releaseName;
+@property (nonatomic, copy) NSString *_Nullable releaseName;
 
 /**
  * This property will be filled before the event is sent.
  */
-@property(nonatomic, copy) NSString *_Nullable dist;
+@property (nonatomic, copy) NSString *_Nullable dist;
 
 /**
  * The environment used for this event
  */
-@property(nonatomic, copy) NSString *_Nullable environment;
+@property (nonatomic, copy) NSString *_Nullable environment;
 
 /**
- * Is the client enabled?. Default is @YES, if set @NO sending of events will be prevented.
+ * Is the client enabled?. Default is @YES, if set @NO sending of events will be
+ * prevented.
  */
-@property(nonatomic, copy) NSNumber *enabled;
+@property (nonatomic, copy) NSNumber *enabled;
 
 /**
  * How many breadcrumbs do you want to keep in memory?
  * Default is 100.
  */
-@property(nonatomic, assign) NSUInteger maxBreadcrumbs;
+@property (nonatomic, assign) NSUInteger maxBreadcrumbs;
 
 /**
- * This block can be used to modify the event before it will be serialized and sent
+ * This block can be used to modify the event before it will be serialized and
+ * sent
  */
-@property(nonatomic, copy) SentryBeforeSendEventCallback _Nullable beforeSend;
+@property (nonatomic, copy) SentryBeforeSendEventCallback _Nullable beforeSend;
 
 /**
- * This block can be used to modify the event before it will be serialized and sent
+ * This block can be used to modify the event before it will be serialized and
+ * sent
  */
-@property(nonatomic, copy) SentryBeforeBreadcrumbCallback _Nullable beforeBreadcrumb;
+@property (nonatomic, copy) SentryBeforeBreadcrumbCallback _Nullable beforeBreadcrumb;
 
 /**
  * Array of integrations to install.
  */
-@property(nonatomic, copy) NSArray<NSString *>* _Nullable integrations;
+@property (nonatomic, copy) NSArray<NSString *> *_Nullable integrations;
 
 /**
  * Array of default integrations. Will be used if integrations are nil
  */
-+ (NSArray<NSString *>*)defaultIntegrations;
++ (NSArray<NSString *> *)defaultIntegrations;
 
 /**
- * Defines the sample rate of SentryClient, should be a float between 0.0 and 1.0.
- * valid settings are 0.0 - 1.0 and nil
+ * Defines the sample rate of SentryClient, should be a float between 0.0
+ * and 1.0. valid settings are 0.0 - 1.0 and nil
  */
-@property(nonatomic, copy) NSNumber *_Nullable sampleRate;
+@property (nonatomic, copy) NSNumber *_Nullable sampleRate;
 
 /**
  * Whether to enable automatic session tracking.
  */
-@property(nonatomic, copy) NSNumber *enableAutoSessionTracking;
+@property (nonatomic, copy) NSNumber *enableAutoSessionTracking;
 
 /**
  * The interval to end a session if the App goes to the background.
  */
-@property(nonatomic, assign) NSUInteger sessionTrackingIntervalMillis;
+@property (nonatomic, assign) NSUInteger sessionTrackingIntervalMillis;
+
+/**
+ * When enabled, stack traces are automatically attached to all messages logged. Stack traces are
+ * always attached to exceptions but when this is set stack traces are also sent with messages.
+ * Stack traces are only attached for the current thread.
+ *
+ * This feature is disabled by default.
+ */
+@property (nonatomic, copy) NSNumber *attachStacktrace;
 
 @end
 

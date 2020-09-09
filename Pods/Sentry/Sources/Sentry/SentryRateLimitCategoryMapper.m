@@ -1,36 +1,68 @@
-#import <Foundation/Foundation.h>
 #import "SentryRateLimitCategoryMapper.h"
-#import "SentryRateLimitCategory.h"
 #import "SentryEnvelopeItemType.h"
+#import "SentryRateLimitCategory.h"
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryRateLimitCategoryMapper ()
+@interface
+SentryRateLimitCategoryMapper ()
 
 @end
 
 @implementation SentryRateLimitCategoryMapper
 
-+ (NSString *)mapEventTypeToCategory:(NSString *)eventType {
++ (SentryRateLimitCategory)mapEventTypeToCategory:(NSString *)eventType
+{
     // Currently we classify every event type as error.
     // This is going to change in the future.
-    return SentryRateLimitCategoryError;
+    return kSentryRateLimitCategoryError;
 }
 
-+ (NSString *)mapEnvelopeItemTypeToCategory:(NSString *)itemType {
-    NSString *category = SentryRateLimitCategoryDefault;
++ (SentryRateLimitCategory)mapEnvelopeItemTypeToCategory:(NSString *)itemType
+{
+    SentryRateLimitCategory category = kSentryRateLimitCategoryDefault;
     if ([itemType isEqualToString:SentryEnvelopeItemTypeEvent]) {
-        category = SentryRateLimitCategoryError;
+        category = kSentryRateLimitCategoryError;
     }
     if ([itemType isEqualToString:SentryEnvelopeItemTypeSession]) {
-        category = SentryRateLimitCategorySession;
+        category = kSentryRateLimitCategorySession;
     }
     if ([itemType isEqualToString:SentryEnvelopeItemTypeTransaction]) {
-        category = SentryRateLimitCategoryTransaction;
+        category = kSentryRateLimitCategoryTransaction;
     }
     if ([itemType isEqualToString:SentryEnvelopeItemTypeAttachment]) {
-        category = SentryRateLimitCategoryAttachment;
+        category = kSentryRateLimitCategoryAttachment;
     }
+    return category;
+}
+
++ (SentryRateLimitCategory)mapIntegerToCategory:(NSUInteger)value
+{
+    SentryRateLimitCategory category = kSentryRateLimitCategoryUnknown;
+
+    if (value == kSentryRateLimitCategoryAll) {
+        category = kSentryRateLimitCategoryAll;
+    }
+    if (value == kSentryRateLimitCategoryDefault) {
+        category = kSentryRateLimitCategoryDefault;
+    }
+    if (value == kSentryRateLimitCategoryError) {
+        category = kSentryRateLimitCategoryError;
+    }
+    if (value == kSentryRateLimitCategorySession) {
+        category = kSentryRateLimitCategorySession;
+    }
+    if (value == kSentryRateLimitCategoryTransaction) {
+        category = kSentryRateLimitCategoryTransaction;
+    }
+    if (value == kSentryRateLimitCategoryAttachment) {
+        category = kSentryRateLimitCategoryAttachment;
+    }
+    if (value == kSentryRateLimitCategoryUnknown) {
+        category = kSentryRateLimitCategoryUnknown;
+    }
+
     return category;
 }
 

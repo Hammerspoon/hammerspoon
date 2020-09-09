@@ -24,10 +24,8 @@
 // THE SOFTWARE.
 //
 
-
 /* Basic file reading/writing functions.
  */
-
 
 #ifndef HDR_SentryCrashFileUtils_h
 #define HDR_SentryCrashFileUtils_h
@@ -36,10 +34,8 @@
 extern "C" {
 #endif
 
-
-#include <stdbool.h>
 #include <stdarg.h>
-
+#include <stdbool.h>
 
 #define SentryCrashFU_MAX_PATH_LENGTH 500
 
@@ -49,7 +45,7 @@ extern "C" {
  *
  * @return the last entry in the path.
  */
-const char* sentrycrashfu_lastPathEntry(const char* path);
+const char *sentrycrashfu_lastPathEntry(const char *path);
 
 /** Write bytes to a file descriptor.
  *
@@ -61,7 +57,7 @@ const char* sentrycrashfu_lastPathEntry(const char* path);
  *
  * @return true if the operation was successful.
  */
-bool sentrycrashfu_writeBytesToFD(const int fd, const char* bytes, int length);
+bool sentrycrashfu_writeBytesToFD(const int fd, const char *bytes, int length);
 
 /** Read bytes from a file descriptor.
  *
@@ -73,7 +69,7 @@ bool sentrycrashfu_writeBytesToFD(const int fd, const char* bytes, int length);
  *
  * @return true if the operation was successful.
  */
-bool sentrycrashfu_readBytesFromFD(const int fd, char* bytes, int length);
+bool sentrycrashfu_readBytesFromFD(const int fd, char *bytes, int length);
 
 /** Read an entire file. Returns a buffer of file size + 1, null terminated.
  *
@@ -84,12 +80,12 @@ bool sentrycrashfu_readBytesFromFD(const int fd, char* bytes, int length);
  * @param length Place to store the length of the loaded data (can be NULL).
  *
  * @param maxLength the maximum amount of bytes to read. It will skip beginning
- *                  bytes if necessary, and always get the latter part of the file.
- *                  0 = no maximum.
+ *                  bytes if necessary, and always get the latter part of the
+ * file. 0 = no maximum.
  *
  * @return true if the operation was successful.
  */
-bool sentrycrashfu_readEntireFile(const char* path, char** data, int* length, int maxLength);
+bool sentrycrashfu_readEntireFile(const char *path, char **data, int *length, int maxLength);
 
 /** Write a string to a file.
  *
@@ -99,7 +95,7 @@ bool sentrycrashfu_readEntireFile(const char* path, char** data, int* length, in
  *
  * @return true if successful.
  */
-bool sentrycrashfu_writeStringToFD(const int fd, const char* string);
+bool sentrycrashfu_writeStringToFD(const int fd, const char *string);
 
 /** Write a formatted string to a file.
  *
@@ -109,7 +105,7 @@ bool sentrycrashfu_writeStringToFD(const int fd, const char* string);
  *
  * @return true if successful.
  */
-bool sentrycrashfu_writeFmtToFD(const int fd, const char* fmt, ...);
+bool sentrycrashfu_writeFmtToFD(const int fd, const char *fmt, ...);
 
 /** Write a formatted string to a file.
  *
@@ -121,7 +117,7 @@ bool sentrycrashfu_writeFmtToFD(const int fd, const char* fmt, ...);
  *
  * @return true if successful.
  */
-bool sentrycrashfu_writeFmtArgsToFD(const int fd, const char* fmt, va_list args);
+bool sentrycrashfu_writeFmtArgsToFD(const int fd, const char *fmt, va_list args);
 
 /** Read a single line from a file.
  *
@@ -133,7 +129,7 @@ bool sentrycrashfu_writeFmtArgsToFD(const int fd, const char* fmt, va_list args)
  *
  * @return The number of bytes read.
  */
-int sentrycrashfu_readLineFromFD(const int fd, char* buffer, int maxLength);
+int sentrycrashfu_readLineFromFD(const int fd, char *buffer, int maxLength);
 
 /** Make all directories in a path.
  *
@@ -141,7 +137,7 @@ int sentrycrashfu_readLineFromFD(const int fd, char* buffer, int maxLength);
  *
  * @return true if successful.
  */
-bool sentrycrashfu_makePath(const char* absolutePath);
+bool sentrycrashfu_makePath(const char *absolutePath);
 
 /** Remove a file or directory.
  *
@@ -151,7 +147,7 @@ bool sentrycrashfu_makePath(const char* absolutePath);
  *
  * @return true if successful.
  */
-bool sentrycrashfu_removeFile(const char* path, bool mustExist);
+bool sentrycrashfu_removeFile(const char *path, bool mustExist);
 
 /** Delete the contents of a directory.
  *
@@ -159,12 +155,12 @@ bool sentrycrashfu_removeFile(const char* path, bool mustExist);
  *
  * @return true if successful.
  */
-bool sentrycrashfu_deleteContentsOfPath(const char* path);
+bool sentrycrashfu_deleteContentsOfPath(const char *path);
 
-/** Buffered writer structure. Everything inside should be considered internal use only. */
-typedef struct
-{
-    char* buffer;
+/** Buffered writer structure. Everything inside should be considered internal
+ * use only. */
+typedef struct {
+    char *buffer;
     int bufferLength;
     int position;
     int fd;
@@ -182,13 +178,14 @@ typedef struct
  *
  * @return True if the file was successfully opened.
  */
-bool sentrycrashfu_openBufferedWriter(SentryCrashBufferedWriter* writer, const char* const path, char* writeBuffer, int writeBufferLength);
+bool sentrycrashfu_openBufferedWriter(SentryCrashBufferedWriter *writer, const char *const path,
+    char *writeBuffer, int writeBufferLength);
 
 /** Close a buffered writer.
  *
  * @param writer The writer to close.
  */
-void sentrycrashfu_closeBufferedWriter(SentryCrashBufferedWriter* writer);
+void sentrycrashfu_closeBufferedWriter(SentryCrashBufferedWriter *writer);
 
 /** Write to a buffered writer.
  *
@@ -200,7 +197,8 @@ void sentrycrashfu_closeBufferedWriter(SentryCrashBufferedWriter* writer);
  *
  * @return True if the data was successfully written.
  */
-bool sentrycrashfu_writeBufferedWriter(SentryCrashBufferedWriter* writer, const char* restrict const data, const int length);
+bool sentrycrashfu_writeBufferedWriter(
+    SentryCrashBufferedWriter *writer, const char *restrict const data, const int length);
 
 /** Flush a buffered writer, writing all uncommitted data to disk.
  *
@@ -208,12 +206,12 @@ bool sentrycrashfu_writeBufferedWriter(SentryCrashBufferedWriter* writer, const 
  *
  * @return True if the buffer was successfully flushed.
  */
-bool sentrycrashfu_flushBufferedWriter(SentryCrashBufferedWriter* writer);
+bool sentrycrashfu_flushBufferedWriter(SentryCrashBufferedWriter *writer);
 
-/** Buffered reader structure. Everything inside should be considered internal use only. */
-typedef struct
-{
-    char* buffer;
+/** Buffered reader structure. Everything inside should be considered internal
+ * use only. */
+typedef struct {
+    char *buffer;
     int bufferLength;
     int dataStartPos;
     int dataEndPos;
@@ -232,13 +230,14 @@ typedef struct
  *
  * @return True if the file was successfully opened.
  */
-bool sentrycrashfu_openBufferedReader(SentryCrashBufferedReader* reader, const char* const path, char* readBuffer, int readBufferLength);
+bool sentrycrashfu_openBufferedReader(SentryCrashBufferedReader *reader, const char *const path,
+    char *readBuffer, int readBufferLength);
 
 /** Close a buffered reader.
  *
  * @param reader The reader to close.
  */
-void sentrycrashfu_closeBufferedReader(SentryCrashBufferedReader* reader);
+void sentrycrashfu_closeBufferedReader(SentryCrashBufferedReader *reader);
 
 /** Read from a buffered reader.
  *
@@ -250,7 +249,8 @@ void sentrycrashfu_closeBufferedReader(SentryCrashBufferedReader* reader);
  *
  * @return The number of bytes actually read.
  */
-int sentrycrashfu_readBufferedReader(SentryCrashBufferedReader* reader, char* dstBuffer, int byteCount);
+int sentrycrashfu_readBufferedReader(
+    SentryCrashBufferedReader *reader, char *dstBuffer, int byteCount);
 
 /** Read from a buffered reader until the specified character is encountered.
  * All bytes up to and including the character will be read.
@@ -261,13 +261,13 @@ int sentrycrashfu_readBufferedReader(SentryCrashBufferedReader* reader, char* ds
  *
  * @param dstBuffer The buffer to read into.
  *
- * @param length in: The maximum number of bytes to read before giving up the search.
- *              out: The actual number of bytes read.
+ * @param length in: The maximum number of bytes to read before giving up the
+ * search. out: The actual number of bytes read.
  *
  * @return True if the character was found before giving up.
  */
-bool sentrycrashfu_readBufferedReaderUntilChar(SentryCrashBufferedReader* reader, int ch, char* dstBuffer, int* length);
-
+bool sentrycrashfu_readBufferedReaderUntilChar(
+    SentryCrashBufferedReader *reader, int ch, char *dstBuffer, int *length);
 
 #ifdef __cplusplus
 }
