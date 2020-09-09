@@ -22,14 +22,12 @@
 // THE SOFTWARE.
 //
 
-
 #ifndef HDR_SentryCrashMonitorType_h
 #define HDR_SentryCrashMonitorType_h
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 /** Various aspects of the system that can be monitored:
  * - Mach kernel exception
@@ -39,102 +37,87 @@ extern "C" {
  * - Deadlock on the main thread
  * - User reported custom exception
  */
-typedef enum
-{
+typedef enum {
     /* Captures and reports Mach exceptions. */
-    SentryCrashMonitorTypeMachException      = 0x01,
+    SentryCrashMonitorTypeMachException = 0x01,
 
     /* Captures and reports POSIX signals. */
-    SentryCrashMonitorTypeSignal             = 0x02,
+    SentryCrashMonitorTypeSignal = 0x02,
 
     /* Captures and reports C++ exceptions.
      * Note: This will slightly slow down exception processing.
      */
-    SentryCrashMonitorTypeCPPException       = 0x04,
+    SentryCrashMonitorTypeCPPException = 0x04,
 
     /* Captures and reports NSExceptions. */
-    SentryCrashMonitorTypeNSException        = 0x08,
+    SentryCrashMonitorTypeNSException = 0x08,
 
     /* Detects and reports a deadlock in the main thread. */
     SentryCrashMonitorTypeMainThreadDeadlock = 0x10,
 
     /* Accepts and reports user-generated exceptions. */
-    SentryCrashMonitorTypeUserReported       = 0x20,
+    SentryCrashMonitorTypeUserReported = 0x20,
 
     /* Keeps track of and injects system information. */
-    SentryCrashMonitorTypeSystem             = 0x40,
+    SentryCrashMonitorTypeSystem = 0x40,
 
     /* Keeps track of and injects application state. */
-    SentryCrashMonitorTypeApplicationState   = 0x80,
+    SentryCrashMonitorTypeApplicationState = 0x80,
 
     /* Keeps track of zombies, and injects the last zombie NSException. */
-    SentryCrashMonitorTypeZombie             = 0x100,
+    SentryCrashMonitorTypeZombie = 0x100,
 } SentryCrashMonitorType;
 
-#define SentryCrashMonitorTypeAll              \
-(                                          \
-    SentryCrashMonitorTypeMachException      | \
-    SentryCrashMonitorTypeSignal             | \
-    SentryCrashMonitorTypeCPPException       | \
-    SentryCrashMonitorTypeNSException        | \
-    SentryCrashMonitorTypeMainThreadDeadlock | \
-    SentryCrashMonitorTypeUserReported       | \
-    SentryCrashMonitorTypeSystem             | \
-    SentryCrashMonitorTypeApplicationState   | \
-    SentryCrashMonitorTypeZombie               \
-)
+#define SentryCrashMonitorTypeAll                                                                  \
+    (SentryCrashMonitorTypeMachException | SentryCrashMonitorTypeSignal                            \
+        | SentryCrashMonitorTypeCPPException | SentryCrashMonitorTypeNSException                   \
+        | SentryCrashMonitorTypeMainThreadDeadlock | SentryCrashMonitorTypeUserReported            \
+        | SentryCrashMonitorTypeSystem | SentryCrashMonitorTypeApplicationState                    \
+        | SentryCrashMonitorTypeZombie)
 
-#define SentryCrashMonitorTypeExperimental     \
-(                                          \
-    SentryCrashMonitorTypeMainThreadDeadlock   \
-)
+#define SentryCrashMonitorTypeExperimental (SentryCrashMonitorTypeMainThreadDeadlock)
 
-#define SentryCrashMonitorTypeDebuggerUnsafe   \
-(                                          \
-    SentryCrashMonitorTypeMachException      | \
-    SentryCrashMonitorTypeSignal             | \
-    SentryCrashMonitorTypeCPPException       | \
-    SentryCrashMonitorTypeNSException          \
-)
+#define SentryCrashMonitorTypeDebuggerUnsafe                                                       \
+    (SentryCrashMonitorTypeMachException | SentryCrashMonitorTypeSignal                            \
+        | SentryCrashMonitorTypeCPPException | SentryCrashMonitorTypeNSException)
 
-#define SentryCrashMonitorTypeAsyncSafe        \
-(                                          \
-    SentryCrashMonitorTypeMachException      | \
-    SentryCrashMonitorTypeSignal               \
-)
+#define SentryCrashMonitorTypeAsyncSafe                                                            \
+    (SentryCrashMonitorTypeMachException | SentryCrashMonitorTypeSignal)
 
-#define SentryCrashMonitorTypeOptional         \
-(                                          \
-    SentryCrashMonitorTypeZombie               \
-)
+#define SentryCrashMonitorTypeOptional (SentryCrashMonitorTypeZombie)
 
-#define SentryCrashMonitorTypeAsyncUnsafe (SentryCrashMonitorTypeAll & (~SentryCrashMonitorTypeAsyncSafe))
+#define SentryCrashMonitorTypeAsyncUnsafe                                                          \
+    (SentryCrashMonitorTypeAll & (~SentryCrashMonitorTypeAsyncSafe))
 
 /** Monitors that are safe to enable in a debugger. */
-#define SentryCrashMonitorTypeDebuggerSafe (SentryCrashMonitorTypeAll & (~SentryCrashMonitorTypeDebuggerUnsafe))
+#define SentryCrashMonitorTypeDebuggerSafe                                                         \
+    (SentryCrashMonitorTypeAll & (~SentryCrashMonitorTypeDebuggerUnsafe))
 
 /** Monitors that are safe to use in a production environment.
  * All other monitors should be considered experimental.
  */
-#define SentryCrashMonitorTypeProductionSafe (SentryCrashMonitorTypeAll & (~SentryCrashMonitorTypeExperimental))
+#define SentryCrashMonitorTypeProductionSafe                                                       \
+    (SentryCrashMonitorTypeAll & (~SentryCrashMonitorTypeExperimental))
 
 /** Production safe monitors, minus the optional ones. */
-#define SentryCrashMonitorTypeProductionSafeMinimal (SentryCrashMonitorTypeProductionSafe & (~SentryCrashMonitorTypeOptional))
+#define SentryCrashMonitorTypeProductionSafeMinimal                                                \
+    (SentryCrashMonitorTypeProductionSafe & (~SentryCrashMonitorTypeOptional))
 
 /** Monitors that are required for proper operation.
  * These add essential information to the reports, but do not trigger reporting.
  */
-#define SentryCrashMonitorTypeRequired (SentryCrashMonitorTypeSystem | SentryCrashMonitorTypeApplicationState)
+#define SentryCrashMonitorTypeRequired                                                             \
+    (SentryCrashMonitorTypeSystem | SentryCrashMonitorTypeApplicationState)
 
 /** Effectively disables automatica reporting. The only way to generate a report
  * in this mode is by manually calling sentrycrash_reportUserException().
  */
-#define SentryCrashMonitorTypeManual (SentryCrashMonitorTypeRequired | SentryCrashMonitorTypeUserReported)
+#define SentryCrashMonitorTypeManual                                                               \
+    (SentryCrashMonitorTypeRequired | SentryCrashMonitorTypeUserReported)
 
 #define SentryCrashMonitorTypeNone 0
 
-const char* sentrycrashmonitortype_name(SentryCrashMonitorType monitorType);
-
+const char *sentrycrashmonitortype_name(SentryCrashMonitorType monitorType);
 
 #ifdef __cplusplus
 }

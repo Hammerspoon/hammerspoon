@@ -22,10 +22,8 @@
 // THE SOFTWARE.
 //
 
-
 /* Maintains a cache of difficult-to-retrieve data.
  */
-
 
 #include "SentryCrashThread.h"
 
@@ -34,8 +32,8 @@ void sentrycrashccd_init(int pollingIntervalInSeconds);
 void sentrycrashccd_freeze(void);
 void sentrycrashccd_unfreeze(void);
 
-SentryCrashThread* sentrycrashccd_getAllThreads(int* threadCount);
+SentryCrashThread *sentrycrashccd_getAllThreads(int *threadCount);
 
-const char* sentrycrashccd_getThreadName(SentryCrashThread thread);
+const char *sentrycrashccd_getThreadName(SentryCrashThread thread);
 
-const char* sentrycrashccd_getQueueName(SentryCrashThread thread);
+const char *sentrycrashccd_getQueueName(SentryCrashThread thread);

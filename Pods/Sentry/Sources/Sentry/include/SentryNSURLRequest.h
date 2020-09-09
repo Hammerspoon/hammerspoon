@@ -15,8 +15,8 @@ NS_ASSUME_NONNULL_BEGIN
                                  didFailWithError:(NSError *_Nullable *_Nullable)error;
 
 - (_Nullable instancetype)initEnvelopeRequestWithDsn:(SentryDsn *)dsn
-                                          andData:(NSData *)data
-                                 didFailWithError:(NSError *_Nullable *_Nullable)error;
+                                             andData:(NSData *)data
+                                    didFailWithError:(NSError *_Nullable *_Nullable)error;
 
 @end
 

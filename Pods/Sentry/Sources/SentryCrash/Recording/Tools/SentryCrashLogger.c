@@ -24,7 +24,6 @@
 // THE SOFTWARE.
 //
 
-
 #include "SentryCrashLogger.h"
 #include "SentryCrashSystemCapabilities.h"
 
@@ -39,11 +38,9 @@
 #include <string.h>
 #include <unistd.h>
 
-
 // Compiler hints for "if" statements
-#define likely_if(x) if(__builtin_expect(x,1))
-#define unlikely_if(x) if(__builtin_expect(x,0))
-
+#define likely_if(x) if (__builtin_expect(x, 1))
+#define unlikely_if(x) if (__builtin_expect(x, 0))
 
 /** The buffer size to use when writing log entries.
  *
@@ -55,7 +52,7 @@
  * Unless you're logging from within signal handlers, it's safe to set it to 0.
  */
 #ifndef SentryCrashLOGGER_CBufferSize
-#define SentryCrashLOGGER_CBufferSize 1024
+#    define SentryCrashLOGGER_CBufferSize 1024
 #endif
 
 /** Where console logs will be written */
@@ -65,7 +62,7 @@ static char g_logFilename[1024];
  *
  * @param fmt The format string, followed by its arguments.
  */
-static void writeFmtToLog(const char* fmt, ...);
+static void writeFmtToLog(const char *fmt, ...);
 
 /** Write a formatted string to the log using a vararg list.
  *
@@ -73,23 +70,24 @@ static void writeFmtToLog(const char* fmt, ...);
  *
  * @param args The variable arguments.
  */
-static void writeFmtArgsToLog(const char* fmt, va_list args);
+static void writeFmtArgsToLog(const char *fmt, va_list args);
 
 /** Flush the log stream.
  */
 static void flushLog(void);
 
-
-static inline const char* lastPathEntry(const char* const path)
+static inline const char *
+lastPathEntry(const char *const path)
 {
-    const char* lastFile = strrchr(path, '/');
+    const char *lastFile = strrchr(path, '/');
     return lastFile == 0 ? path : lastFile + 1;
 }
 
-static inline void writeFmtToLog(const char* fmt, ...)
+static inline void
+writeFmtToLog(const char *fmt, ...)
 {
     va_list args;
-    va_start(args,fmt);
+    va_start(args, fmt);
     writeFmtArgsToLog(fmt, args);
     va_end(args);
 }
@@ -99,20 +97,15 @@ static inline void writeFmtToLog(const char* fmt, ...)
 /** The file descriptor where log entries get written. */
 static int g_fd = -1;
 
-
-static void writeToLog(const char* const str)
+static void
+writeToLog(const char *const str)
 {
-    if(g_fd >= 0)
-    {
+    if (g_fd >= 0) {
         int bytesToWrite = (int)strlen(str);
-        const char* pos = str;
-        while(bytesToWrite > 0)
-        {
+        const char *pos = str;
+        while (bytesToWrite > 0) {
             int bytesWritten = (int)write(g_fd, pos, (unsigned)bytesToWrite);
-            unlikely_if(bytesWritten == -1)
-            {
-                break;
-            }
+            unlikely_if(bytesWritten == -1) { break; }
             bytesToWrite -= bytesWritten;
             pos += bytesWritten;
         }
@@ -120,12 +113,10 @@ static void writeToLog(const char* const str)
     write(STDOUT_FILENO, str, strlen(str));
 }
 
-static inline void writeFmtArgsToLog(const char* fmt, va_list args)
+static inline void
+writeFmtArgsToLog(const char *fmt, va_list args)
 {
-    unlikely_if(fmt == NULL)
-    {
-        writeToLog("(null)");
-    }
+    unlikely_if(fmt == NULL) { writeToLog("(null)"); }
     else
     {
         char buffer[SentryCrashLOGGER_CBufferSize];
@@ -134,28 +125,28 @@ static inline void writeFmtArgsToLog(const char* fmt, va_list args)
     }
 }
 
-static inline void flushLog(void)
+static inline void
+flushLog(void)
 {
     // Nothing to do.
 }
 
-static inline void setLogFD(int fd)
+static inline void
+setLogFD(int fd)
 {
-    if(g_fd >= 0 && g_fd != STDOUT_FILENO && g_fd != STDERR_FILENO && g_fd != STDIN_FILENO)
-    {
+    if (g_fd >= 0 && g_fd != STDOUT_FILENO && g_fd != STDERR_FILENO && g_fd != STDIN_FILENO) {
         close(g_fd);
     }
     g_fd = fd;
 }
 
-bool sentrycrashlog_setLogFilename(const char* filename, bool overwrite)
+bool
+sentrycrashlog_setLogFilename(const char *filename, bool overwrite)
 {
     static int fd = -1;
-    if(filename != NULL)
-    {
+    if (filename != NULL) {
         int openMask = O_WRONLY | O_CREAT;
-        if(overwrite)
-        {
+        if (overwrite) {
             openMask |= O_TRUNC;
         }
         fd = open(filename, openMask, 0644);
@@ -164,8 +155,7 @@ bool sentrycrashlog_setLogFilename(const char* filename, bool overwrite)
             writeFmtToLog("SentryCrashLogger: Could not open %s: %s", filename, strerror(errno));
             return false;
         }
-        if(filename != g_logFilename)
-        {
+        if (filename != g_logFilename) {
             strncpy(g_logFilename, filename, sizeof(g_logFilename));
         }
     }
@@ -176,54 +166,50 @@ bool sentrycrashlog_setLogFilename(const char* filename, bool overwrite)
 
 #else // if SentryCrashLogger_CBufferSize <= 0
 
-static FILE* g_file = NULL;
+static FILE *g_file = NULL;
 
-static inline void setLogFD(FILE* file)
+static inline void
+setLogFD(FILE *file)
 {
-    if(g_file != NULL && g_file != stdout && g_file != stderr && g_file != stdin)
-    {
+    if (g_file != NULL && g_file != stdout && g_file != stderr && g_file != stdin) {
         fclose(g_file);
     }
     g_file = file;
 }
 
-void writeToLog(const char* const str)
+void
+writeToLog(const char *const str)
 {
-    if(g_file != NULL)
-    {
+    if (g_file != NULL) {
         fprintf(g_file, "%s", str);
     }
     fprintf(stdout, "%s", str);
 }
 
-static inline void writeFmtArgsToLog(const char* fmt, va_list args)
+static inline void
+writeFmtArgsToLog(const char *fmt, va_list args)
 {
-    unlikely_if(g_file == NULL)
-    {
-        g_file = stdout;
-    }
+    unlikely_if(g_file == NULL) { g_file = stdout; }
 
-    if(fmt == NULL)
-    {
+    if (fmt == NULL) {
         writeToLog("(null)");
-    }
-    else
-    {
+    } else {
         vfprintf(g_file, fmt, args);
     }
 }
 
-static inline void flushLog(void)
+static inline void
+flushLog(void)
 {
     fflush(g_file);
 }
 
-bool sentrycrashlog_setLogFilename(const char* filename, bool overwrite)
+bool
+sentrycrashlog_setLogFilename(const char *filename, bool overwrite)
 {
-    static FILE* file = NULL;
-    FILE* oldFile = file;
-    if(filename != NULL)
-    {
+    static FILE *file = NULL;
+    FILE *oldFile = file;
+    if (filename != NULL) {
         file = fopen(filename, overwrite ? "wb" : "ab");
         unlikely_if(file == NULL)
         {
@@ -231,13 +217,11 @@ bool sentrycrashlog_setLogFilename(const char* filename, bool overwrite)
             return false;
         }
     }
-    if(filename != g_logFilename)
-    {
+    if (filename != g_logFilename) {
         strncpy(g_logFilename, filename, sizeof(g_logFilename));
     }
 
-    if(oldFile != NULL)
-    {
+    if (oldFile != NULL) {
         fclose(oldFile);
     }
 
@@ -247,97 +231,87 @@ bool sentrycrashlog_setLogFilename(const char* filename, bool overwrite)
 
 #endif
 
-bool sentrycrashlog_clearLogFile()
+bool
+sentrycrashlog_clearLogFile()
 {
     return sentrycrashlog_setLogFilename(g_logFilename, true);
 }
-
 
 // ===========================================================================
 #pragma mark - C -
 // ===========================================================================
 
-void i_sentrycrashlog_logCBasic(const char* const fmt, ...)
+void
+i_sentrycrashlog_logCBasic(const char *const fmt, ...)
 {
     va_list args;
-    va_start(args,fmt);
+    va_start(args, fmt);
     writeFmtArgsToLog(fmt, args);
     va_end(args);
     writeToLog("\n");
     flushLog();
 }
 
-void i_sentrycrashlog_logC(const char* const level,
-                  const char* const file,
-                  const int line,
-                  const char* const function,
-                  const char* const fmt, ...)
+void
+i_sentrycrashlog_logC(const char *const level, const char *const file, const int line,
+    const char *const function, const char *const fmt, ...)
 {
     writeFmtToLog("%s: %s (%u): %s: ", level, lastPathEntry(file), line, function);
     va_list args;
-    va_start(args,fmt);
+    va_start(args, fmt);
     writeFmtArgsToLog(fmt, args);
     va_end(args);
     writeToLog("\n");
     flushLog();
 }
-
 
 // ===========================================================================
 #pragma mark - Objective-C -
 // ===========================================================================
 
 #if SentryCrashCRASH_HAS_OBJC
-#include <CoreFoundation/CoreFoundation.h>
+#    include <CoreFoundation/CoreFoundation.h>
 
-void i_sentrycrashlog_logObjCBasic(CFStringRef fmt, ...)
+void
+i_sentrycrashlog_logObjCBasic(CFStringRef fmt, ...)
 {
-    if(fmt == NULL)
-    {
+    if (fmt == NULL) {
         writeToLog("(null)");
         return;
     }
 
     va_list args;
-    va_start(args,fmt);
+    va_start(args, fmt);
     CFStringRef entry = CFStringCreateWithFormatAndArguments(NULL, NULL, fmt, args);
     va_end(args);
 
     int bufferLength = (int)CFStringGetLength(entry) * 4 + 1;
-    char* stringBuffer = malloc((unsigned)bufferLength);
-    if(stringBuffer != NULL && CFStringGetCString(entry, stringBuffer, (CFIndex)bufferLength, kCFStringEncodingUTF8))
-    {
+    char *stringBuffer = malloc((unsigned)bufferLength);
+    if (stringBuffer != NULL
+        && CFStringGetCString(entry, stringBuffer, (CFIndex)bufferLength, kCFStringEncodingUTF8)) {
         writeToLog(stringBuffer);
-    }
-    else
-    {
+    } else {
         writeToLog("Could not convert log string to UTF-8. No logging performed.");
     }
     writeToLog("\n");
 
-    if(stringBuffer != NULL)
-    {
+    if (stringBuffer != NULL) {
         free(stringBuffer);
     }
     CFRelease(entry);
 }
 
-void i_sentrycrashlog_logObjC(const char* const level,
-                     const char* const file,
-                     const int line,
-                     const char* const function,
-                     CFStringRef fmt, ...)
+void
+i_sentrycrashlog_logObjC(const char *const level, const char *const file, const int line,
+    const char *const function, CFStringRef fmt, ...)
 {
     CFStringRef logFmt = NULL;
-    if(fmt == NULL)
-    {
+    if (fmt == NULL) {
         logFmt = CFStringCreateWithCString(NULL, "%s: %s (%u): %s: (null)", kCFStringEncodingUTF8);
         i_sentrycrashlog_logObjCBasic(logFmt, level, lastPathEntry(file), line, function);
-    }
-    else
-    {
+    } else {
         va_list args;
-        va_start(args,fmt);
+        va_start(args, fmt);
         CFStringRef entry = CFStringCreateWithFormatAndArguments(NULL, NULL, fmt, args);
         va_end(args);
 

@@ -24,11 +24,10 @@
 // THE SOFTWARE.
 //
 
-
 #include "SentryCrashThread.h"
 
-#include "SentryCrashSystemCapabilities.h"
 #include "SentryCrashMemory.h"
+#include "SentryCrashSystemCapabilities.h"
 
 //#define SentryCrashLogger_LocalLevel TRACE
 #include "SentryCrashLogger.h"
@@ -38,19 +37,19 @@
 #include <pthread.h>
 #include <sys/sysctl.h>
 
-
-SentryCrashThread sentrycrashthread_self()
+SentryCrashThread
+sentrycrashthread_self()
 {
     thread_t thread_self = mach_thread_self();
     mach_port_deallocate(mach_task_self(), thread_self);
     return (SentryCrashThread)thread_self;
 }
 
-bool sentrycrashthread_getThreadName(const SentryCrashThread thread, char* const buffer, int bufLength)
+bool
+sentrycrashthread_getThreadName(const SentryCrashThread thread, char *const buffer, int bufLength)
 {
     // WARNING: This implementation is no longer async-safe!
 
     const pthread_t pthread = pthread_from_mach_thread_np((thread_t)thread);
     return pthread_getname_np(pthread, buffer, (unsigned)bufLength) == 0;
 }
-

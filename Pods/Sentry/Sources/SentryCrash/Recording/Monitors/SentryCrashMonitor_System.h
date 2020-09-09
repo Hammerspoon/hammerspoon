@@ -31,14 +31,11 @@
 extern "C" {
 #endif
 
-
 #include "SentryCrashMonitor.h"
-
 
 /** Access the Monitor API.
  */
-    SentryCrashMonitorAPI* sentrycrashcm_system_getAPI(void);
-
+SentryCrashMonitorAPI *sentrycrashcm_system_getAPI(void);
 
 #ifdef __cplusplus
 }

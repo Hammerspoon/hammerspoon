@@ -4,7 +4,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef void(^SentryScopeListener)(SentryScope *scope);
+typedef void (^SentryScopeListener)(SentryScope *scope);
 
 @interface SentryScope (Private)
 

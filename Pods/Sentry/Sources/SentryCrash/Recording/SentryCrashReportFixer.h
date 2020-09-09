@@ -31,18 +31,17 @@
 extern "C" {
 #endif
 
-
 /** Fixes up fields in a crash report that could not be fixed up at crash time.
- * Some fields, such a mangled fields and dates, cannot be fixed up at crash time
- * because the function calls needed to do it are not async-safe.
+ * Some fields, such a mangled fields and dates, cannot be fixed up at crash
+ * time because the function calls needed to do it are not async-safe.
  *
  * @param crashReport A raw report loaded from disk.
  *
  * @return A fixed up crash report.
- *         MEMORY MANAGEMENT WARNING: User is responsible for calling free() on the returned value.
+ *         MEMORY MANAGEMENT WARNING: User is responsible for calling free() on
+ * the returned value.
  */
-char* sentrycrashcrf_fixupCrashReport(const char* crashReport);
-
+char *sentrycrashcrf_fixupCrashReport(const char *crashReport);
 
 #ifdef __cplusplus
 }

@@ -1,13 +1,14 @@
-#import <Foundation/Foundation.h>
 #import "SentryFileContents.h"
+#import <Foundation/Foundation.h>
 
-@interface SentryFileContents ()
+@interface
+SentryFileContents ()
 
 @end
 
 @implementation SentryFileContents
 
-- (instancetype)initWithPath:(NSString *) path andContents:(NSData *) contents
+- (instancetype)initWithPath:(NSString *)path andContents:(NSData *)contents
 {
     if (self = [super init]) {
         _path = path;

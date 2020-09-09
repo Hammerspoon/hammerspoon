@@ -24,7 +24,6 @@
 // THE SOFTWARE.
 //
 
-
 #ifndef HDR_SentryCrashMachineContext_h
 #define HDR_SentryCrashMachineContext_h
 
@@ -44,8 +43,9 @@ void sentrycrashmc_suspendEnvironment(void);
 void sentrycrashmc_resumeEnvironment(void);
 
 /** Create a new machine context on the stack.
- * This macro creates a storage object on the stack, as well as a pointer of type
- * struct SentryCrashMachineContext* in the current scope, which points to the storage object.
+ * This macro creates a storage object on the stack, as well as a pointer of
+ * type struct SentryCrashMachineContext* in the current scope, which points to
+ * the storage object.
  *
  * Example usage: SentryCrashMC_NEW_CONTEXT(a_context);
  * This creates a new pointer at the current scope that behaves as if:
@@ -53,9 +53,10 @@ void sentrycrashmc_resumeEnvironment(void);
  *
  * @param NAME The C identifier to give the pointer.
  */
-#define SentryCrashMC_NEW_CONTEXT(NAME) \
-    char sentrycrashmc_##NAME##_storage[sentrycrashmc_contextSize()]; \
-    struct SentryCrashMachineContext* NAME = (struct SentryCrashMachineContext*)sentrycrashmc_##NAME##_storage
+#define SentryCrashMC_NEW_CONTEXT(NAME)                                                            \
+    char sentrycrashmc_##NAME##_storage[sentrycrashmc_contextSize()];                              \
+    struct SentryCrashMachineContext *NAME                                                         \
+        = (struct SentryCrashMachineContext *)sentrycrashmc_##NAME##_storage
 
 struct SentryCrashMachineContext;
 
@@ -67,11 +68,13 @@ int sentrycrashmc_contextSize(void);
  *
  * @param thread The thread to get information from.
  * @param destinationContext The context to fill.
- * @param isCrashedContext Used to indicate that this is the thread that crashed,
+ * @param isCrashedContext Used to indicate that this is the thread that
+ * crashed,
  *
  * @return true if successful.
  */
-bool sentrycrashmc_getContextForThread(SentryCrashThread thread, struct SentryCrashMachineContext* destinationContext, bool isCrashedContext);
+bool sentrycrashmc_getContextForThread(SentryCrashThread thread,
+    struct SentryCrashMachineContext *destinationContext, bool isCrashedContext);
 
 /** Fill in a machine context from a signal handler.
  * A signal handler context is always assumed to be a crashed context.
@@ -81,7 +84,8 @@ bool sentrycrashmc_getContextForThread(SentryCrashThread thread, struct SentryCr
  *
  * @return true if successful.
  */
-bool sentrycrashmc_getContextForSignal(void* signalUserContext, struct SentryCrashMachineContext* destinationContext);
+bool sentrycrashmc_getContextForSignal(
+    void *signalUserContext, struct SentryCrashMachineContext *destinationContext);
 
 /** Get the thread associated with a machine context.
  *
@@ -89,7 +93,8 @@ bool sentrycrashmc_getContextForSignal(void* signalUserContext, struct SentryCra
  *
  * @return The associated thread.
  */
-SentryCrashThread sentrycrashmc_getThreadFromContext(const struct SentryCrashMachineContext* const context);
+SentryCrashThread sentrycrashmc_getThreadFromContext(
+    const struct SentryCrashMachineContext *const context);
 
 /** Get the number of threads stored in a machine context.
  *
@@ -97,7 +102,7 @@ SentryCrashThread sentrycrashmc_getThreadFromContext(const struct SentryCrashMac
  *
  * @return The number of threads.
  */
-int sentrycrashmc_getThreadCount(const struct SentryCrashMachineContext* const context);
+int sentrycrashmc_getThreadCount(const struct SentryCrashMachineContext *const context);
 
 /** Get a thread from a machine context.
  *
@@ -106,7 +111,8 @@ int sentrycrashmc_getThreadCount(const struct SentryCrashMachineContext* const c
  *
  * @return The thread.
  */
-SentryCrashThread sentrycrashmc_getThreadAtIndex(const struct SentryCrashMachineContext* const context, int index);
+SentryCrashThread sentrycrashmc_getThreadAtIndex(
+    const struct SentryCrashMachineContext *const context, int index);
 
 /** Get the index of a thread.
  *
@@ -115,26 +121,27 @@ SentryCrashThread sentrycrashmc_getThreadAtIndex(const struct SentryCrashMachine
  *
  * @return The thread's index, or -1 if it couldn't be determined.
  */
-int sentrycrashmc_indexOfThread(const struct SentryCrashMachineContext* const context, SentryCrashThread thread);
+int sentrycrashmc_indexOfThread(
+    const struct SentryCrashMachineContext *const context, SentryCrashThread thread);
 
 /** Check if this is a crashed context.
  */
-bool sentrycrashmc_isCrashedContext(const struct SentryCrashMachineContext* const context);
+bool sentrycrashmc_isCrashedContext(const struct SentryCrashMachineContext *const context);
 
 /** Check if this context can have stored CPU state.
  */
-bool sentrycrashmc_canHaveCPUState(const struct SentryCrashMachineContext* const context);
+bool sentrycrashmc_canHaveCPUState(const struct SentryCrashMachineContext *const context);
 
 /** Check if this context has valid exception registers.
  */
-bool sentrycrashmc_hasValidExceptionRegisters(const struct SentryCrashMachineContext* const context);
+bool sentrycrashmc_hasValidExceptionRegisters(
+    const struct SentryCrashMachineContext *const context);
 
 /** Add a thread to the reserved threads list.
  *
  * @param thread The thread to add to the list.
  */
 void sentrycrashmc_addReservedThread(SentryCrashThread thread);
-
 
 #ifdef __cplusplus
 }

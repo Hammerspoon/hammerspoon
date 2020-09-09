@@ -31,11 +31,9 @@ extern "C" {
 
 #include "SentryCrashMonitor.h"
 
-
 /** Access the Monitor API.
  */
-SentryCrashMonitorAPI* sentrycrashcm_cppexception_getAPI(void);
-
+SentryCrashMonitorAPI *sentrycrashcm_cppexception_getAPI(void);
 
 #ifdef __cplusplus
 }

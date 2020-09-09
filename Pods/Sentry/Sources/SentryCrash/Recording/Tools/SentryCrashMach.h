@@ -29,7 +29,6 @@
 extern "C" {
 #endif
 
-
 #include <stdint.h>
 
 /** Get the name of a mach exception.
@@ -38,7 +37,7 @@ extern "C" {
  *
  * @return The exception's name or NULL if not found.
  */
-const char* sentrycrashmach_exceptionName(int64_t exceptionType);
+const char *sentrycrashmach_exceptionName(int64_t exceptionType);
 
 /** Get the name of a mach kernel return code.
  *
@@ -46,7 +45,7 @@ const char* sentrycrashmach_exceptionName(int64_t exceptionType);
  *
  * @return The code's name or NULL if not found.
  */
-const char* sentrycrashmach_kernelReturnCodeName(int64_t returnCode);
+const char *sentrycrashmach_kernelReturnCodeName(int64_t returnCode);
 
 /** Get the signal equivalent of a mach exception.
  *
@@ -65,7 +64,6 @@ int sentrycrashmach_signalForMachException(int exception, int64_t code);
  * @return The matching mach exception, or 0 if not found.
  */
 int sentrycrashmach_machExceptionForSignal(int signal);
-
 
 #ifdef __cplusplus
 }

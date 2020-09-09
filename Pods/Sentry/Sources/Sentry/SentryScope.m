@@ -1,60 +1,62 @@
 #import "SentryScope.h"
-#import "SentryScope+Private.h"
-#import "SentryLog.h"
-#import "SentryUser.h"
 #import "SentryEvent.h"
 #import "SentryGlobalEventProcessor.h"
+#import "SentryLog.h"
+#import "SentryScope+Private.h"
+#import "SentryUser.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryScope ()
+@interface
+SentryScope ()
 
 /**
  * Set global user -> thus will be sent with every event
  */
-@property(atomic, strong) SentryUser *_Nullable userObject;
+@property (atomic, strong) SentryUser *_Nullable userObject;
 
 /**
  * Set global tags -> these will be sent with every event
  */
-@property(nonatomic, strong) NSMutableDictionary<NSString *, NSString *> *_Nullable tagDictionary;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, NSString *> *_Nullable tagDictionary;
 
 /**
  * Set global extra -> these will be sent with every event
  */
-@property(nonatomic, strong) NSMutableDictionary<NSString *, id> *_Nullable extraDictionary;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, id> *_Nullable extraDictionary;
 
 /**
  * used to add values in event context.
  */
-@property(nonatomic, strong) NSMutableDictionary<NSString *, NSDictionary<NSString *, id>*> *_Nullable contextDictionary;
+@property (nonatomic, strong)
+    NSMutableDictionary<NSString *, NSDictionary<NSString *, id> *> *_Nullable contextDictionary;
 
 /**
  * Contains the breadcrumbs which will be sent with the event
  */
-@property(nonatomic, strong) NSMutableArray<SentryBreadcrumb *> *breadcrumbArray;
+@property (nonatomic, strong) NSMutableArray<SentryBreadcrumb *> *breadcrumbArray;
 
 /**
  * This distribution of the application.
  */
-@property(atomic, copy) NSString *_Nullable distString;
+@property (atomic, copy) NSString *_Nullable distString;
 
 /**
  * The environment used in this scope.
  */
-@property(atomic, copy) NSString *_Nullable environmentString;
+@property (atomic, copy) NSString *_Nullable environmentString;
 
 /**
  * Set the fingerprint of an event to determine the grouping
  */
-@property(atomic, strong) NSArray<NSString *> *_Nullable fingerprintArray;
+@property (atomic, strong) NSArray<NSString *> *_Nullable fingerprintArray;
 
 /**
  * SentryLevel of the event
  */
-@property(atomic) enum SentryLevel levelEnum;
+@property (atomic) enum SentryLevel levelEnum;
 
-@property(atomic) NSInteger maxBreadcrumbs;
+@property (atomic) NSInteger maxBreadcrumbs;
 
 @end
 
@@ -62,7 +64,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark Initializer
 
-- (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs {
+- (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
+{
     if (self = [super init]) {
         self.listeners = [NSMutableArray new];
         self.maxBreadcrumbs = maxBreadcrumbs;
@@ -71,11 +74,13 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (instancetype)init {
+- (instancetype)init
+{
     return [self initWithMaxBreadcrumbs:defaultMaxBreadcrumbs];
 }
 
-- (instancetype)initWithScope:(SentryScope *)scope {
+- (instancetype)initWithScope:(SentryScope *)scope
+{
     if (self = [self init]) {
         self.extraDictionary = scope.extraDictionary.mutableCopy;
         self.tagDictionary = scope.tagDictionary.mutableCopy;
@@ -102,9 +107,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark Global properties
 
-- (void)addBreadcrumb:(SentryBreadcrumb *)crumb {
-    [SentryLog logWithMessage:[NSString stringWithFormat:@"Add breadcrumb: %@", crumb] andLevel:kSentryLogLevelDebug];
-    @synchronized (self) {
+- (void)addBreadcrumb:(SentryBreadcrumb *)crumb
+{
+    [SentryLog logWithMessage:[NSString stringWithFormat:@"Add breadcrumb: %@", crumb]
+                     andLevel:kSentryLogLevelDebug];
+    @synchronized(self) {
         [self.breadcrumbArray addObject:crumb];
         if ([self.breadcrumbArray count] > self.maxBreadcrumbs) {
             [self.breadcrumbArray removeObjectAtIndex:0];
@@ -113,8 +120,9 @@ NS_ASSUME_NONNULL_BEGIN
     [self notifyListeners];
 }
 
-- (void)clear {
-    @synchronized (self) {
+- (void)clear
+{
+    @synchronized(self) {
         self.breadcrumbArray = [NSMutableArray new];
         self.userObject = nil;
         self.tagDictionary = [NSMutableDictionary new];
@@ -128,71 +136,105 @@ NS_ASSUME_NONNULL_BEGIN
     [self notifyListeners];
 }
 
-- (void)clearBreadcrumbs {
-    @synchronized (self) {
+- (void)clearBreadcrumbs
+{
+    @synchronized(self) {
         [self.breadcrumbArray removeAllObjects];
     }
     [self notifyListeners];
 }
 
-- (void)setContextValue:(NSDictionary<NSString *, id>*)value forKey:(NSString *)key {
-    @synchronized (self) {
+- (void)setContextValue:(NSDictionary<NSString *, id> *)value forKey:(NSString *)key
+{
+    @synchronized(self) {
         [self.contextDictionary setValue:value forKey:key];
     }
     [self notifyListeners];
 }
 
-- (void)setExtraValue:(id)value forKey:(NSString *)key {
-    @synchronized (self) {
+- (void)removeContextForKey:(NSString *)key
+{
+    @synchronized(self) {
+        [self.contextDictionary removeObjectForKey:key];
+    }
+    [self notifyListeners];
+}
+
+- (void)setExtraValue:(id)value forKey:(NSString *)key
+{
+    @synchronized(self) {
         [self.extraDictionary setValue:value forKey:key];
     }
     [self notifyListeners];
 }
 
-- (void)setExtras:(NSDictionary<NSString *,id> *_Nullable)extras {
+- (void)removeExtraForKey:(NSString *)key
+{
+    @synchronized(self) {
+        [self.extraDictionary removeObjectForKey:key];
+    }
+    [self notifyListeners];
+}
+
+- (void)setExtras:(NSDictionary<NSString *, id> *_Nullable)extras
+{
     if (extras == nil) {
         return;
     }
-    @synchronized (self) {
+    @synchronized(self) {
         [self.extraDictionary addEntriesFromDictionary:extras];
     }
     [self notifyListeners];
 }
 
-- (void)setTagValue:(id)value forKey:(NSString *)key {
-    @synchronized (self) {
-        [self.tagDictionary setValue:value forKey:key];
+- (void)setTagValue:(NSString *)value forKey:(NSString *)key
+{
+    @synchronized(self) {
+        self.tagDictionary[key] = value;
     }
     [self notifyListeners];
 }
 
-- (void)setTags:(NSMutableDictionary<NSString *,NSString *> *_Nullable)tags {
+- (void)removeTagForKey:(NSString *)key
+{
+    @synchronized(self) {
+        [self.tagDictionary removeObjectForKey:key];
+    }
+    [self notifyListeners];
+}
+
+- (void)setTags:(NSDictionary<NSString *, NSString *> *_Nullable)tags
+{
     if (tags == nil) {
         return;
     }
-    @synchronized (self) {
+    @synchronized(self) {
         [self.tagDictionary addEntriesFromDictionary:tags];
     }
     [self notifyListeners];
 }
 
-- (void)setUser:(SentryUser *_Nullable)user {
+- (void)setUser:(SentryUser *_Nullable)user
+{
     self.userObject = user;
     [self notifyListeners];
 }
 
-- (void)setDist:(NSString *_Nullable)dist {
+- (void)setDist:(NSString *_Nullable)dist
+{
     self.distString = dist;
     [self notifyListeners];
 }
 
-- (void)setEnvironment:(NSString *_Nullable)environment {
+- (void)setEnvironment:(NSString *_Nullable)environment
+{
     self.environmentString = environment;
     [self notifyListeners];
 }
 
-- (void)setFingerprint:(NSArray<NSString *> *_Nullable)fingerprint {
-    @synchronized (self) {
+- (void)setFingerprint:(NSArray<NSString *> *_Nullable)fingerprint
+{
+    @synchronized(self) {
         if (fingerprint == nil) {
             self.fingerprintArray = [NSMutableArray new];
         } else {
@@ -203,28 +245,31 @@ NS_ASSUME_NONNULL_BEGIN
     [self notifyListeners];
 }
 
-- (void)setLevel:(enum SentryLevel)level {
+- (void)setLevel:(enum SentryLevel)level
+{
     self.levelEnum = level;
     [self notifyListeners];
 }
 
-- (NSDictionary<NSString *, id> *)serializeBreadcrumbs {
+- (NSDictionary<NSString *, id> *)serializeBreadcrumbs
+{
     NSMutableArray *crumbs = [NSMutableArray new];
-    
+
     for (SentryBreadcrumb *crumb in self.breadcrumbArray) {
         [crumbs addObject:[crumb serialize]];
     }
- 
+
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
     if (crumbs.count > 0) {
         [serializedData setValue:crumbs forKey:@"breadcrumbs"];
     }
-    
+
     return serializedData;
 }
 
-- (NSDictionary<NSString *, id> *)serialize {
-    @synchronized (self) {
+- (NSDictionary<NSString *, id> *)serialize
+{
+    @synchronized(self) {
         NSMutableDictionary *serializedData = [[self serializeBreadcrumbs] mutableCopy];
         [serializedData setValue:self.tagDictionary forKey:@"tags"];
         [serializedData setValue:self.extraDictionary forKey:@"extra"];
@@ -240,22 +285,26 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (void)applyToSession:(SentrySession *)session {
-    @synchronized (self) {
+- (void)applyToSession:(SentrySession *)session
+{
+    @synchronized(self) {
         if (nil != self.userObject) {
             session.user = self.userObject.copy;
         }
 
         NSString *environment = self.environmentString;
         if (nil != environment) {
-            // TODO: Make sure environment set on options is applied to the scope so it's available now
+            // TODO: Make sure environment set on options is applied to the
+            // scope so it's available now
             session.environment = environment;
         }
     }
 }
 
-- (SentryEvent * __nullable)applyToEvent:(SentryEvent *)event maxBreadcrumb:(NSUInteger)maxBreadcrumbs {
-    @synchronized (self) {
+- (SentryEvent *__nullable)applyToEvent:(SentryEvent *)event
+                          maxBreadcrumb:(NSUInteger)maxBreadcrumbs
+{
+    @synchronized(self) {
         if (nil != self.tagDictionary) {
             if (nil == event.tags) {
                 event.tags = self.tagDictionary.copy;
@@ -281,16 +330,17 @@ NS_ASSUME_NONNULL_BEGIN
         if (nil != self.userObject) {
             event.user = self.userObject.copy;
         }
-        
+
         NSString *dist = self.distString;
         if (nil != dist && nil == event.dist) {
             // dist can also be set via options but scope takes precedence.
             event.dist = dist;
         }
-        
+
         NSString *environment = self.environmentString;
         if (nil != environment && nil == event.environment) {
-            // environment can also be set via options but scope takes precedence.
+            // environment can also be set via options but scope takes
+            // precedence.
             event.environment = environment;
         }
 
@@ -298,18 +348,21 @@ NS_ASSUME_NONNULL_BEGIN
         if (fingerprint.count > 0 && nil == event.fingerprint) {
             event.fingerprint = fingerprint.mutableCopy;
         }
-        
+
         if (self.levelEnum != kSentryLevelNone) {
-            // We always want to set the level from the scope since this has benn set on purpose
+            // We always want to set the level from the scope since this has
+            // benn set on purpose
             event.level = self.levelEnum;
         }
-        
+
         if (nil != self.breadcrumbArray) {
             if (nil == event.breadcrumbs) {
-                event.breadcrumbs = [self.breadcrumbArray subarrayWithRange:NSMakeRange(0, MIN(maxBreadcrumbs, [self.breadcrumbArray count]))];
+                event.breadcrumbs = [self.breadcrumbArray
+                    subarrayWithRange:NSMakeRange(
+                                          0, MIN(maxBreadcrumbs, [self.breadcrumbArray count]))];
             }
         }
-        
+
         if (nil != self.contextDictionary) {
             if (nil == event.context) {
                 event.context = self.contextDictionary;

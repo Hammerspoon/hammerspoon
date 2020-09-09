@@ -22,14 +22,12 @@
 // THE SOFTWARE.
 //
 
-
 #ifndef SentryCrashSymbolicator_h
 #define SentryCrashSymbolicator_h
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 #include "SentryCrashStackCursor.h"
 #include <stdbool.h>
@@ -41,7 +39,6 @@ extern "C" {
  * @return True if successful.
  */
 bool sentrycrashsymbolicator_symbolicate(SentryCrashStackCursor *cursor);
-
 
 #ifdef __cplusplus
 }

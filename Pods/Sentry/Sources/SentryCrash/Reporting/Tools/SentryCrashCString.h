@@ -31,27 +31,28 @@
  */
 @interface SentryCrashCString : NSObject
 
-/** Length of the string in bytes (not characters!). Length does not include null terminator. */
-@property(nonatomic,readonly,assign) NSUInteger length;
+/** Length of the string in bytes (not characters!). Length does not include
+ * null terminator. */
+@property (nonatomic, readonly, assign) NSUInteger length;
 
 /** String contents, including null terminator */
-@property(nonatomic,readonly,assign) const char* bytes;
+@property (nonatomic, readonly, assign) const char *bytes;
 
 /** Constructor for NSString */
-+ (SentryCrashCString*) stringWithString:(NSString*) string;
++ (SentryCrashCString *)stringWithString:(NSString *)string;
 
 /** Constructor for null-terminated C string (assumes UTF-8 encoding). */
-+ (SentryCrashCString*) stringWithCString:(const char*) string;
++ (SentryCrashCString *)stringWithCString:(const char *)string;
 
 /** Constructor for string contained in NSData (assumes UTF-8 encoding). */
-+ (SentryCrashCString*) stringWithData:(NSData*) data;
++ (SentryCrashCString *)stringWithData:(NSData *)data;
 
 /** Constructor for non-terminated string (assumes UTF-8 encoding). */
-+ (SentryCrashCString*) stringWithData:(const char*) data length:(NSUInteger) length;
++ (SentryCrashCString *)stringWithData:(const char *)data length:(NSUInteger)length;
 
-- (id) initWithString:(NSString*) string;
-- (id) initWithCString:(const char*) string;
-- (id) initWithData:(NSData*) data;
-- (id) initWithData:(const char*) data length:(NSUInteger) length;
+- (id)initWithString:(NSString *)string;
+- (id)initWithCString:(const char *)string;
+- (id)initWithData:(NSData *)data;
+- (id)initWithData:(const char *)data length:(NSUInteger)length;
 
 @end

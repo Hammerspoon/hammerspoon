@@ -29,16 +29,16 @@
 extern "C" {
 #endif
 
-
 #include <sys/types.h>
 
 /** Convert a UNIX timestamp to an RFC3339 string representation.
  *
  * @param timestamp The date to convert.
  *
- * @param buffer21Chars A buffer of at least 21 chars to hold the RFC3339 date string.
+ * @param buffer21Chars A buffer of at least 21 chars to hold the RFC3339 date
+ * string.
  */
-void sentrycrashdate_utcStringFromTimestamp(time_t timestamp, char* buffer21Chars);
+void sentrycrashdate_utcStringFromTimestamp(time_t timestamp, char *buffer21Chars);
 
 #ifdef __cplusplus
 }

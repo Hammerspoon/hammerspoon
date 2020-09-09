@@ -24,31 +24,29 @@
 // THE SOFTWARE.
 //
 
-
 #include "SentryCrashSignalInfo.h"
 
 #include <signal.h>
 #include <stdlib.h>
 
-
-typedef struct
-{
+typedef struct {
     const int code;
-    const char* const name;
+    const char *const name;
 } SentryCrashSignalCodeInfo;
 
-typedef struct
-{
+typedef struct {
     const int sigNum;
-    const char* const name;
-    const SentryCrashSignalCodeInfo* const codes;
+    const char *const name;
+    const SentryCrashSignalCodeInfo *const codes;
     const int numCodes;
 } SentryCrashSignalInfo;
 
-#define ENUM_NAME_MAPPING(A) {A, #A}
+#define ENUM_NAME_MAPPING(A)                                                                       \
+    {                                                                                              \
+        A, #A                                                                                      \
+    }
 
-static const SentryCrashSignalCodeInfo g_sigIllCodes[] =
-{
+static const SentryCrashSignalCodeInfo g_sigIllCodes[] = {
 #ifdef ILL_NOOP
     ENUM_NAME_MAPPING(ILL_NOOP),
 #endif
@@ -62,15 +60,13 @@ static const SentryCrashSignalCodeInfo g_sigIllCodes[] =
     ENUM_NAME_MAPPING(ILL_BADSTK),
 };
 
-static const SentryCrashSignalCodeInfo g_sigTrapCodes[] =
-{
+static const SentryCrashSignalCodeInfo g_sigTrapCodes[] = {
     ENUM_NAME_MAPPING(0),
     ENUM_NAME_MAPPING(TRAP_BRKPT),
     ENUM_NAME_MAPPING(TRAP_TRACE),
 };
 
-static const SentryCrashSignalCodeInfo g_sigFPECodes[] =
-{
+static const SentryCrashSignalCodeInfo g_sigFPECodes[] = {
 #ifdef FPE_NOOP
     ENUM_NAME_MAPPING(FPE_NOOP),
 #endif
@@ -84,8 +80,7 @@ static const SentryCrashSignalCodeInfo g_sigFPECodes[] =
     ENUM_NAME_MAPPING(FPE_INTOVF),
 };
 
-static const SentryCrashSignalCodeInfo g_sigBusCodes[] =
-{
+static const SentryCrashSignalCodeInfo g_sigBusCodes[] = {
 #ifdef BUS_NOOP
     ENUM_NAME_MAPPING(BUS_NOOP),
 #endif
@@ -94,8 +89,7 @@ static const SentryCrashSignalCodeInfo g_sigBusCodes[] =
     ENUM_NAME_MAPPING(BUS_OBJERR),
 };
 
-static const SentryCrashSignalCodeInfo g_sigSegVCodes[] =
-{
+static const SentryCrashSignalCodeInfo g_sigSegVCodes[] = {
 #ifdef SEGV_NOOP
     ENUM_NAME_MAPPING(SEGV_NOOP),
 #endif
@@ -103,11 +97,16 @@ static const SentryCrashSignalCodeInfo g_sigSegVCodes[] =
     ENUM_NAME_MAPPING(SEGV_ACCERR),
 };
 
-#define SIGNAL_INFO(SIGNAL, CODES) {SIGNAL, #SIGNAL, CODES, sizeof(CODES) / sizeof(*CODES)}
-#define SIGNAL_INFO_NOCODES(SIGNAL) {SIGNAL, #SIGNAL, 0, 0}
+#define SIGNAL_INFO(SIGNAL, CODES)                                                                 \
+    {                                                                                              \
+        SIGNAL, #SIGNAL, CODES, sizeof(CODES) / sizeof(*CODES)                                     \
+    }
+#define SIGNAL_INFO_NOCODES(SIGNAL)                                                                \
+    {                                                                                              \
+        SIGNAL, #SIGNAL, 0, 0                                                                      \
+    }
 
-static const SentryCrashSignalInfo g_fatalSignalData[] =
-{
+static const SentryCrashSignalInfo g_fatalSignalData[] = {
     SIGNAL_INFO_NOCODES(SIGABRT),
     SIGNAL_INFO(SIGBUS, g_sigBusCodes),
     SIGNAL_INFO(SIGFPE, g_sigFPECodes),
@@ -121,8 +120,7 @@ static const int g_fatalSignalsCount = sizeof(g_fatalSignalData) / sizeof(*g_fat
 
 // Note: Dereferencing a NULL pointer causes SIGILL, ILL_ILLOPC on i386
 //       but causes SIGTRAP, 0 on arm.
-static const int g_fatalSignals[] =
-{
+static const int g_fatalSignals[] = {
     SIGABRT,
     SIGBUS,
     SIGFPE,
@@ -133,28 +131,24 @@ static const int g_fatalSignals[] =
     SIGTRAP,
 };
 
-const char* sentrycrashsignal_signalName(const int sigNum)
+const char *
+sentrycrashsignal_signalName(const int sigNum)
 {
-    for(int i = 0; i < g_fatalSignalsCount; i++)
-    {
-        if(g_fatalSignalData[i].sigNum == sigNum)
-        {
+    for (int i = 0; i < g_fatalSignalsCount; i++) {
+        if (g_fatalSignalData[i].sigNum == sigNum) {
             return g_fatalSignalData[i].name;
         }
     }
     return NULL;
 }
 
-const char* sentrycrashsignal_signalCodeName(const int sigNum, const int code)
+const char *
+sentrycrashsignal_signalCodeName(const int sigNum, const int code)
 {
-    for(int si = 0; si < g_fatalSignalsCount; si++)
-    {
-        if(g_fatalSignalData[si].sigNum == sigNum)
-        {
-            for(int ci = 0; ci < g_fatalSignalData[si].numCodes; ci++)
-            {
-                if(g_fatalSignalData[si].codes[ci].code == code)
-                {
+    for (int si = 0; si < g_fatalSignalsCount; si++) {
+        if (g_fatalSignalData[si].sigNum == sigNum) {
+            for (int ci = 0; ci < g_fatalSignalData[si].numCodes; ci++) {
+                if (g_fatalSignalData[si].codes[ci].code == code) {
                     return g_fatalSignalData[si].codes[ci].name;
                 }
             }
@@ -163,12 +157,14 @@ const char* sentrycrashsignal_signalCodeName(const int sigNum, const int code)
     return NULL;
 }
 
-const int* sentrycrashsignal_fatalSignals(void)
+const int *
+sentrycrashsignal_fatalSignals(void)
 {
     return g_fatalSignals;
 }
 
-int sentrycrashsignal_numFatalSignals(void)
+int
+sentrycrashsignal_numFatalSignals(void)
 {
     return g_fatalSignalsCount;
 }

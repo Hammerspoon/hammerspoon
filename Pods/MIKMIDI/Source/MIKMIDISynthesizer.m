@@ -36,6 +36,18 @@
 {
 	self = [super init];
 	if (self) {
+		NSString *queueLabel = [[[NSBundle mainBundle] bundleIdentifier] stringByAppendingFormat:@".%@.%p", [self class], self];
+		dispatch_queue_attr_t attr = DISPATCH_QUEUE_SERIAL;
+
+#if defined (__MAC_10_10) || defined (__IPHONE_8_0)
+		if (@available(macOS 10.10, iOS 8, *)) {
+			if (&dispatch_queue_attr_make_with_qos_class != NULL) {
+				attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, 0);
+			}
+		}
+#endif
+		_scheduledCommandQueue = dispatch_queue_create(queueLabel.UTF8String, attr);
+
 		_componentDescription = componentDescription;
 		if (![self setupAUGraphWithError:error]) { return nil; }
 
@@ -369,25 +381,8 @@
 
 - (void)scheduleMIDICommands:(NSArray *)commands
 {
-	dispatch_queue_t queue = _scheduledCommandQueue;
-	if (!queue) {
-		NSString *queueLabel = [[[NSBundle mainBundle] bundleIdentifier] stringByAppendingFormat:@".%@.%p", [self class], self];
-		dispatch_queue_attr_t attr = DISPATCH_QUEUE_SERIAL;
-
-#if defined (__MAC_10_10) || defined (__IPHONE_8_0)
-		if (@available(macOS 10.10, iOS 8, *)) {
-			if (&dispatch_queue_attr_make_with_qos_class != NULL) {
-				attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, 0);
-			}
-		}
-#endif
-		
-		queue = dispatch_queue_create(queueLabel.UTF8String, attr);
-		_scheduledCommandQueue = queue;
-	}
-
 	for (MIKMIDICommand *command in commands) {
-		dispatch_sync(queue, ^{
+		dispatch_sync(_scheduledCommandQueue, ^{
 			NSUInteger count = commands.count;
 			if (!self->_scheduledCommandsByTimeStamp) {
 				self->_scheduledCommandsByTimeStamp = CFDictionaryCreateMutable(NULL, count, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);

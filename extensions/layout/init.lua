@@ -94,7 +94,7 @@ layout.maximized = geometry.rect(0, 0, 1, 1)
 ---  * If the window title argument is a function, the function will be called with the application name argument (which may be nil), and should return a table of `hs.window` objects (even if there is only one window it must be in a table)
 ---  * You can specify both application name and window title if you want to match only one window of a particular application
 ---  * If you specify neither application name or window title, no windows will be matched :)
----  * Monitor name is a string, as found in `hs.screen:name()`. You can also pass an `hs.screen` object, or a function that returns an `hs.screen` object. If you pass nil, the first screen will be selected
+---  * Monitor name is a string, as found in `hs.screen:name()` or `hs.screen:getUUID()`. You can also pass an `hs.screen` object, or a function that returns an `hs.screen` object. If you pass nil, the first screen will be selected
 ---  * The final three arguments use `hs.geometry.rect()` objects to describe the desired position and size of matched windows:
 ---    * Unit rect will be passed to `hs.window.moveToUnit()`
 ---    * Frame rect will be passed to `hs.window.setFrame()` (including menubar and dock)
@@ -157,7 +157,7 @@ function layout.apply(theLayout, windowTitleComparator)
         -- Find the destination display, if wanted
         if _row[3] then
             if type(_row[3]) == "string" then
-                local displays = fnutils.filter(screen.allScreens(), function(aScreen) return aScreen:name() == _row[3] end)
+                local displays = fnutils.filter(screen.allScreens(), function(aScreen) return (aScreen:name() == _row[3]) or (aScreen:getUUID() == _row[3]) end)
                 if displays then
                     -- TODO: This is bogus, multiple identical monitors will be impossible to lay out
                     display = displays[1]

@@ -22,7 +22,6 @@
 // THE SOFTWARE.
 //
 
-
 #include "SentryCrashStackCursor.h"
 #include "SentryCrashSymbolicator.h"
 #include <stdlib.h>
@@ -30,13 +29,17 @@
 //#define SentryCrashLogger_LocalLevel TRACE
 #include "SentryCrashLogger.h"
 
-static bool g_advanceCursor(__unused SentryCrashStackCursor *cursor)
+static bool
+g_advanceCursor(__unused SentryCrashStackCursor *cursor)
 {
-    SentryCrashLOG_WARN("No stack cursor has been set. For C++, this means that hooking __cxa_throw() failed for some reason. Embedded frameworks can cause this: https://github.com/getsentry/SentryCrash/issues/205");
+    SentryCrashLOG_WARN("No stack cursor has been set. For C++, this means that hooking "
+                        "__cxa_throw() failed for some reason. Embedded frameworks can cause "
+                        "this: https://github.com/getsentry/SentryCrash/issues/205");
     return false;
 }
 
-void sentrycrashsc_resetCursor(SentryCrashStackCursor *cursor)
+void
+sentrycrashsc_resetCursor(SentryCrashStackCursor *cursor)
 {
     cursor->state.currentDepth = 0;
     cursor->state.hasGivenUp = false;
@@ -47,9 +50,9 @@ void sentrycrashsc_resetCursor(SentryCrashStackCursor *cursor)
     cursor->stackEntry.symbolName = NULL;
 }
 
-void sentrycrashsc_initCursor(SentryCrashStackCursor *cursor,
-                     void (*resetCursor)(SentryCrashStackCursor*),
-                     bool (*advanceCursor)(SentryCrashStackCursor*))
+void
+sentrycrashsc_initCursor(SentryCrashStackCursor *cursor,
+    void (*resetCursor)(SentryCrashStackCursor *), bool (*advanceCursor)(SentryCrashStackCursor *))
 {
     cursor->symbolicate = sentrycrashsymbolicator_symbolicate;
     cursor->advanceCursor = advanceCursor != NULL ? advanceCursor : g_advanceCursor;

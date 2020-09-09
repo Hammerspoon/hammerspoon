@@ -1,49 +1,60 @@
-#import "SentryClient.h"
-#import "SentryScope.h"
 #import "SentryBreadcrumb.h"
+#import "SentryClient.h"
 #import "SentryDefines.h"
 #import "SentryEvent.h"
 #import "SentryIntegrationProtocol.h"
+#import "SentryScope.h"
 
 NS_ASSUME_NONNULL_BEGIN
 @interface SentryHub : NSObject
 SENTRY_NO_INIT
 
-- (instancetype)initWithClient:(SentryClient *_Nullable)client andScope:(SentryScope *_Nullable)scope;
+- (instancetype)initWithClient:(SentryClient *_Nullable)client
+                      andScope:(SentryScope *_Nullable)scope;
 
-// Since there's no scope stack, single hub instance, experimenting with holding session here.
-@property(nonatomic, readonly, strong) SentrySession *_Nullable session;
+// Since there's no scope stack, single hub instance, experimenting with holding
+// session here.
+@property (nonatomic, readonly, strong) SentrySession *_Nullable session;
 
 - (void)startSession;
-- (void)endSessionWithTimestamp:(NSDate*)timestamp;
-- (void)closeCachedSession;
+- (void)endSessionWithTimestamp:(NSDate *)timestamp;
+- (void)closeCachedSessionWithTimestamp:(NSDate *_Nullable)timestamp;
 
-@property (nonatomic, strong) NSMutableArray<NSObject<SentryIntegrationProtocol> *> *installedIntegrations;
+@property (nonatomic, strong)
+    NSMutableArray<NSObject<SentryIntegrationProtocol> *> *installedIntegrations;
 
 /**
  * Captures an SentryEvent
  */
-- (NSString *_Nullable)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(event:scope:));
+- (NSString *_Nullable)captureEvent:(SentryEvent *)event
+                          withScope:(SentryScope *_Nullable)scope
+    NS_SWIFT_NAME(capture(event:scope:));
 
 /**
  * Captures a NSError
  */
-- (NSString *_Nullable)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(error:scope:));
+- (NSString *_Nullable)captureError:(NSError *)error
+                          withScope:(SentryScope *_Nullable)scope
+    NS_SWIFT_NAME(capture(error:scope:));
 
 /**
  * Captures a NSException
  */
-- (NSString *_Nullable)captureException:(NSException *)exception withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(exception:scope:));
+- (NSString *_Nullable)captureException:(NSException *)exception
+                              withScope:(SentryScope *_Nullable)scope
+    NS_SWIFT_NAME(capture(exception:scope:));
 
 /**
  * Captures a Message
  */
-- (NSString *_Nullable)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope NS_SWIFT_NAME(capture(message:scope:));
+- (NSString *_Nullable)captureMessage:(NSString *)message
+                            withScope:(SentryScope *_Nullable)scope
+    NS_SWIFT_NAME(capture(message:scope:));
 
 /**
  * Invokes the callback with a mutable reference to the scope for modifications.
  */
-- (void)configureScope:(void(^)(SentryScope *scope))callback;
+- (void)configureScope:(void (^)(SentryScope *scope))callback;
 
 /**
  * Adds a breadcrumb to the current scope.
@@ -70,17 +81,17 @@ SENTRY_NO_INIT
  */
 - (id _Nullable)getIntegration:(NSString *)integrationName;
 
-
 /**
  * Checks if a specific Integration (`integrationClass`) has been installed.
- * @return BOOL If instance of `integrationClass` exists within `SentryHub.installedIntegrations`.
+ * @return BOOL If instance of `integrationClass` exists within
+ * `SentryHub.installedIntegrations`.
  */
 - (BOOL)isIntegrationInstalled:(Class)integrationClass;
 
 /**
  * Set global user -> thus will be sent with every event
  */
-- (void)setUser:(SentryUser * _Nullable)user;
+- (void)setUser:(SentryUser *_Nullable)user;
 
 @end
 

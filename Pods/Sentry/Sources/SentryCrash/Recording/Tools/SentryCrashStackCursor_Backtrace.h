@@ -22,7 +22,6 @@
 // THE SOFTWARE.
 //
 
-
 #ifndef SentryCrashStackCursor_Backtrace_h
 #define SentryCrashStackCursor_Backtrace_h
 
@@ -30,18 +29,15 @@
 extern "C" {
 #endif
 
-
 #include "SentryCrashStackCursor.h"
 
 /** Exposed for other internal systems to use.
  */
-typedef struct
-{
+typedef struct {
     int skippedEntries;
     int backtraceLength;
-    const uintptr_t* backtrace;
+    const uintptr_t *backtrace;
 } SentryCrashStackCursor_Backtrace_Context;
-
 
 /** Initialize a stack cursor for an existing backtrace (array of addresses).
  *
@@ -53,8 +49,8 @@ typedef struct
  *
  * @param skipEntries The number of stack entries to skip.
  */
-void sentrycrashsc_initWithBacktrace(SentryCrashStackCursor *cursor, const uintptr_t* backtrace, int backtraceLength, int skipEntries);
-
+void sentrycrashsc_initWithBacktrace(SentryCrashStackCursor *cursor, const uintptr_t *backtrace,
+    int backtraceLength, int skipEntries);
 
 #ifdef __cplusplus
 }
