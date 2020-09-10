@@ -125,7 +125,7 @@ static int hid_led_set(lua_State* L) {
     [skin checkArgs:LS_TSTRING, LS_TBOOLEAN, LS_TBREAK];
 
     NSString *name = [skin toNSObjectAtIndex:1];
-    long target_value = (BOOL)lua_toboolean(L, 2) ? 1 : 0;
+    long target_value = lua_toboolean(L, 2);
     bool ret = false;
 
     if ([name isEqualToString:@"caps"]) {
