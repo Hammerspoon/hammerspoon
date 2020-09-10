@@ -24,11 +24,9 @@
 // THE SOFTWARE.
 //
 
-
 /* Manages persistent state information useful for crash reporting such as
  * number of sessions, session length, etc.
  */
-
 
 #ifndef HDR_SentryCrashMonitor_AppState_h
 #define HDR_SentryCrashMonitor_AppState_h
@@ -41,9 +39,7 @@ extern "C" {
 
 #include <stdbool.h>
 
-
-typedef struct
-{
+typedef struct {
     // Saved data
 
     /** Total active time elapsed since the last crash. */
@@ -87,12 +83,11 @@ typedef struct
 
 } SentryCrash_AppState;
 
-
 /** Initialize the state monitor.
  *
  * @param stateFilePath Where to store on-disk representation of state.
  */
-void sentrycrashstate_initialize(const char* stateFilePath);
+void sentrycrashstate_initialize(const char *stateFilePath);
 
 /** Reset the crash state.
  */
@@ -121,12 +116,11 @@ void sentrycrashstate_notifyAppCrash(void);
 
 /** Read-only access into the current state.
  */
-const SentryCrash_AppState* const sentrycrashstate_currentState(void);
+const SentryCrash_AppState *const sentrycrashstate_currentState(void);
 
 /** Access the Monitor API.
  */
-SentryCrashMonitorAPI* sentrycrashcm_appstate_getAPI(void);
-
+SentryCrashMonitorAPI *sentrycrashcm_appstate_getAPI(void);
 
 #ifdef __cplusplus
 }

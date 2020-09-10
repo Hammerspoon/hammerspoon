@@ -3,9 +3,9 @@ This README file is meant to give a broad overview of MIKMIDI. More complete doc
 MIKMIDI
 -------
 
-MIKMIDI is an easy-to-use Objective-C MIDI library created by Andrew Madsen and developed by him and Chris Flesner of [Mixed In Key](http://www.mixedinkey.com/). It's useful for programmers writing Objective-C or Swift OS X or iOS apps that use MIDI. It includes the ability to communicate with external MIDI devices, to read and write MIDI files, to record and play back MIDI, etc. MIKMIDI is used to provide MIDI functionality in the OS X versions of our DJ app, [Flow](http://flowdjsoftware.com), our flagship app [Mixed In Key](http://www.mixedinkey.com/), and our composition software, [Odesi](http://odesi.mixedinkey.com).
+MIKMIDI is an easy-to-use Mac and iOS MIDI library created by Andrew Madsen and developed by him and Chris Flesner of [Mixed In Key](http://www.mixedinkey.com/). It's useful for programmers writing Objective-C or Swift macOS or iOS apps that use MIDI. It includes the ability to communicate with external MIDI devices, to read and write MIDI files, to record and play back MIDI, etc. MIKMIDI is used to provide MIDI functionality in the Mac versions of our DJ app, [Flow](http://flowdjsoftware.com), our flagship app [Mixed In Key](http://www.mixedinkey.com/), and our composition software, [Odesi](http://odesi.mixedinkey.com).
 
-MIKMIDI can be used in projects targeting Mac OS X 10.7 and later, and iOS 6 and later. The example code in this readme is in Objective-C. However, MIKMIDI can also easily be used from Swift code.
+MIKMIDI can be used in projects targeting Mac OS X 10.7 and later, and iOS 6 and later. The example code in this readme is in Swift. However, MIKMIDI can also easily be used from Objective-C code.
 
 MIKMIDI is released under an MIT license, meaning you're free to use it in both closed and open source projects. However, even in a closed source project, you must include a publicly-accessible copy of MIKMIDI's copyright notice, which you can find in the LICENSE file.
 
@@ -15,6 +15,8 @@ How To Use MIKMIDI
 ------------------
 
 MIKMIDI ships with a project to build frameworks for iOS and macOS. You can also install it using CocoaPods or Carthage. See [this page](https://github.com/mixedinkey-opensource/MIKMIDI/wiki/Installing-MIKMIDI) on the MIKMIDI wiki for detailed instructions for adding MIKMIDI to your project.
+
+*A note about Swift*: MIKMIDI is written in Objective-C, but fully supports Swift. The only caveat is that API changes that affect only Swift, but not Objective-C, such as improved nullability annotation, refined API names for Swift, etc., are *not* limited to major versions, but rather will sometimes be included in minor version releases. Bug fix/patch releases will not break Swift *or* Objective-C API. Objective-C API will be stable within a major version, e.g. 1.y.z.
 
 MIKMIDI Overview
 ----------------
@@ -26,7 +28,7 @@ MIKMIDI is not limited to Objective-C interfaces for existing CoreMIDI functiona
 To understand MIKMIDI, it's helpful to break it down into its major subsystems:
 
 - Device support -- includes support for device discovery, connection/disconnection, and sending/receiving MIDI messages.
-- Commands -- includes a number of Objective-C classes that various represent MIDI message types as received from and sent to MIDI devices and endpoints.
+- Commands -- includes a number of classes that represent various MIDI message types as received from and sent to MIDI devices and endpoints.
 - Mapping -- support for generating, saving, loading, and using files that associate physical MIDI controls with corresponding application features.
 - Files -- support for reading and writing MIDI files.
 - Synthesis -- support for turning MIDI into audio, e.g. playback of MIDI files and incoming MIDI keyboard input.
@@ -48,21 +50,18 @@ MIKMIDI's device support architecture is based on the underlying CoreMIDI archit
 
 `MIKMIDIDeviceManager` is a singleton class used for device discovery, and to send and receive MIDI messages to and from endpoints. To get a list of MIDI devices available on the system, call `-availableDevices` on the shared device manager:
 
-    NSArray *availableMIDIDevices = [[MIKMIDIDeviceManager sharedDeviceManager] availableDevices];
+    let availableDevices = MIKMIDIDeviceManager.shared.availableDevices
 
 `MIKMIDIDeviceManager` also includes the ability to retrieve 'virtual' endpoints, to enable communicating with other MIDI apps, or with devices (e.g. Native Instruments controllers) which present as virtual endpoints rather than physical devices.
 
 `MIKMIDIDeviceManager`'s `availableDevices`, and `virtualSources` and `virtualDestinations` properties are Key Value Observing (KVO) compliant. This means that for example, `availableDevices` can be bound to an `NSPopupMenu` in an OS X app to provide an automatically updated list of connected MIDI devices. They can also be directly observed using key value observing to be notified when devices are connected or disconnected, etc. Additionally, `MIKMIDIDeviceManager` posts these notifications: `MIKMIDIDeviceWasAddedNotification`, `MIKMIDIDeviceWasRemovedNotification`, `MIKMIDIVirtualEndpointWasAddedNotification`, `MIKMIDIVirtualEndpointWasRemovedNotification`.
 
-`MIKMIDIDeviceManager` is used to sign up to receive messages from MIDI endpoints as well as to send them. To receive messages from a `MIKMIDISourceEndpoint`, you must connect the endpoint and supply an event handler block to be called anytime messages are received. This is done using the `-connectInput:error:eventHandler:` method. When you no longer want to receive messages, you must call the `-disconnectInput:` method. To send MIDI messages to an `MIKMIDIDestinationEndpoint`, call `-[MIKMIDIDeviceManager sendCommands:toEndpoint:error:]` passing an `NSArray` of `MIKMIDICommand` instances. For example:
+`MIKMIDIDeviceManager` is used to sign up to receive messages from MIDI devices as well as to send them. To receive messages from a `MIKMIDIDevice`, you must connect the device and supply an event handler block to be called anytime messages are received. This is done using the `connect(_:, eventHandler:)` method. When you no longer want to receive messages, you must call the `disconnectConnection(forToken:)` method. To send MIDI messages to an `MIKMIDIDevice`, get the appropriate `MIKMIDIDestinationEndpoint` from the device, then call `MIKMIDIDeviceManager.send(_: [MIKMIDICommand], to:)` passing an array of `MIKMIDICommand` instances. For example:
 
-```objective-c
-NSDate *date = [NSDate date];
-MIKMIDINoteOnCommand *noteOn = [MIKMIDINoteOnCommand noteOnCommandWithNote:60 velocity:127 channel:0 timestamp:date];
-MIKMIDINoteOffCommand *noteOff = [MIKMIDINoteOffCommand noteOffCommandWithNote:60 velocity:0 channel:0 timestamp:[date dateByAddingTimeInterval:0.5]];
-
-MIKMIDIDeviceManager *dm = [MIKMIDIDeviceManager sharedDeviceManager];
-[dm sendCommands:@[noteOn, noteOff] toEndpoint:destinationEndpoint error:&error];
+```swift
+let noteOn = MIKMIDINoteOnCommand(note: 60, velocity: 127, channel: 0, timestamp: Date())
+let noteOff = MIKMIDINoteOffCommand(note: 60, velocity: 127, channel: 0, timestamp: Date().advanced(by: 0.5))
+try MIKMIDIDeviceManager.shared.send([noteOn, noteOff], to: destinationEndpoint)
 ```
 
 If you've used CoreMIDI before, you may be familiar with `MIDIClientRef` and `MIDIPortRef`. These are used internally by MIKMIDI, but the "public" API for MIKMIDI does not expose them -- or their Objective-C counterparts -- directly. Rather, `MIKMIDIDeviceManager` itself allows sending and receiving messages to/from `MIKMIDIEndpoint`s.
@@ -70,7 +69,7 @@ If you've used CoreMIDI before, you may be familiar with `MIDIClientRef` and `MI
 MIDI Messages
 -------------
 
-In MIKMIDI, MIDI messages are Objective-C objects. These objects are instances of concrete subclasses of `MIKMIDICommand`. Each MIDI message type (e.g. Control Change, Note On, System Exclusive, etc.) has a corresponding class (e.g. MIKMIDIControlChangeCommand). Each command class has properties specific to that message type. By default, MIKMIDICommands are immutable. Mutable variants of each command type are also available.
+In MIKMIDI, MIDI messages are objects. These objects are instances of concrete subclasses of `MIKMIDICommand`. Each MIDI message type (e.g. Control Change, Note On, System Exclusive, etc.) has a corresponding class (e.g. MIKMIDIControlChangeCommand). Each command class has properties specific to that message type. By default, MIKMIDICommands are immutable. Mutable variants of each command type are also available.
 
 MIDI Mapping
 ------------
@@ -97,9 +96,9 @@ MIDI Synthesis
 
 MIDI synthesis is the process by which MIDI events/messages are turned into audio that you can hear. This is accomplished using `MIKMIDISynthesizer`. Also included is a subclass of `MIKMIDISynthesizer`, `MIKMIDIEndpointSynthesizer` which can very easily be hooked up to a MIDI endpoint to synthesize incoming MIDI messages:
 
-```objective-c
-MIKMIDISourceEndpoint *endpoint = midiDevice.entities.firstObject.sources.firstObject;
-MIKMIDISynthesizer *synth = [[MIKMIDIEndpointSynthesizer alloc] initWithMIDISource:endpoint];
+```swift
+let endpoint = midiDevice.entities.first!.sources.first!
+let synth = try MIKMIDIEndpointSynthesizer(midiSource: endpoint)
 ```
 
 MIDI Sequencing
@@ -107,8 +106,8 @@ MIDI Sequencing
 
 `MIKMIDISequencer` can be used to play and record to an `MIKMIDISequence`. It includes a number of high level features useful when implementing MIDI recording and playback. However, at the very simplest, MIKMIDISequencer can be used to load a MIDI file and play it like so:
 
-```objective-c
-MIKMIDISequence *sequence = [MIKMIDISequence sequenceWithFileAtURL:midiFileURL error:&error];
-MIKMIDISequencer *sequencer = [MIKMIDISequencer sequencerWithSequence:sequence];
-[sequencer startPlayback];
+```swift
+let sequence = try! MIKMIDISequence(fileAt: midiFileURL)
+let sequencer = MIKMIDISequencer(sequence: sequence)
+sequencer.startPlayback()
 ```

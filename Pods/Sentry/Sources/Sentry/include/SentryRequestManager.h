@@ -5,11 +5,12 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(RequestManager)
 @protocol SentryRequestManager <NSObject>
 
-@property(nonatomic, readonly, getter = isReady) BOOL ready;
+@property (nonatomic, readonly, getter=isReady) BOOL ready;
 
 - (instancetype)initWithSession:(NSURLSession *)session;
 
-- (void)addRequest:(NSURLRequest *)request completionHandler:(_Nullable SentryRequestOperationFinished)completionHandler;
+- (void)addRequest:(NSURLRequest *)request
+    completionHandler:(_Nullable SentryRequestOperationFinished)completionHandler;
 
 - (void)cancelAllOperations;
 

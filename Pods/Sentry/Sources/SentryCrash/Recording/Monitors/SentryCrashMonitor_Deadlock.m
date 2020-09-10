@@ -25,18 +25,16 @@
 //
 
 #import "SentryCrashMonitor_Deadlock.h"
-#import "SentryCrashMonitorContext.h"
 #import "SentryCrashID.h"
-#import "SentryCrashThread.h"
+#import "SentryCrashMonitorContext.h"
 #import "SentryCrashStackCursor_MachineContext.h"
+#import "SentryCrashThread.h"
 #import <Foundation/Foundation.h>
 
 //#define SentryCrashLogger_LocalLevel TRACE
 #import "SentryCrashLogger.h"
 
-
 #define kIdleInterval 5.0f
-
 
 @class SentryCrashDeadlockMonitor;
 
@@ -49,22 +47,21 @@ static volatile bool g_isEnabled = false;
 static SentryCrash_MonitorContext g_monitorContext;
 
 /** Thread which monitors other threads. */
-static SentryCrashDeadlockMonitor* g_monitor;
+static SentryCrashDeadlockMonitor *g_monitor;
 
 static SentryCrashThread g_mainQueueThread;
 
 /** Interval between watchdog pulses. */
 static NSTimeInterval g_watchdogInterval = 0;
 
-
 // ============================================================================
 #pragma mark - X -
 // ============================================================================
 
-@interface SentryCrashDeadlockMonitor: NSObject
+@interface SentryCrashDeadlockMonitor : NSObject
 
-@property(nonatomic, readwrite, retain) NSThread* monitorThread;
-@property(atomic, readwrite, assign) BOOL awaitingResponse;
+@property (nonatomic, readwrite, retain) NSThread *monitorThread;
+@property (atomic, readwrite, assign) BOOL awaitingResponse;
 
 @end
 
@@ -73,39 +70,37 @@ static NSTimeInterval g_watchdogInterval = 0;
 @synthesize monitorThread = _monitorThread;
 @synthesize awaitingResponse = _awaitingResponse;
 
-- (id) init
+- (id)init
 {
-    if((self = [super init]))
-    {
+    if ((self = [super init])) {
         // target (self) is retained until selector (runMonitor) exits.
-        self.monitorThread = [[NSThread alloc] initWithTarget:self selector:@selector(runMonitor) object:nil];
+        self.monitorThread = [[NSThread alloc] initWithTarget:self
+                                                     selector:@selector(runMonitor)
+                                                       object:nil];
         self.monitorThread.name = @"SentryCrash Deadlock Detection Thread";
         [self.monitorThread start];
     }
     return self;
 }
 
-- (void) cancel
+- (void)cancel
 {
     [self.monitorThread cancel];
 }
 
-- (void) watchdogPulse
+- (void)watchdogPulse
 {
     __block id blockSelf = self;
     self.awaitingResponse = YES;
-    dispatch_async(dispatch_get_main_queue(), ^
-                   {
-                       [blockSelf watchdogAnswer];
-                   });
+    dispatch_async(dispatch_get_main_queue(), ^{ [blockSelf watchdogAnswer]; });
 }
 
-- (void) watchdogAnswer
+- (void)watchdogAnswer
 {
     self.awaitingResponse = NO;
 }
 
-- (void) handleDeadlock
+- (void)handleDeadlock
 {
     sentrycrashmc_suspendEnvironment();
     sentrycrashcm_notifyFatalExceptionCaptured(false);
@@ -118,7 +113,7 @@ static NSTimeInterval g_watchdogInterval = 0;
     sentrycrashid_generate(eventID);
 
     SentryCrashLOG_DEBUG(@"Filling out context.");
-    SentryCrash_MonitorContext* crashContext = &g_monitorContext;
+    SentryCrash_MonitorContext *crashContext = &g_monitorContext;
     memset(crashContext, 0, sizeof(*crashContext));
     crashContext->crashType = SentryCrashMonitorTypeMainThreadDeadlock;
     crashContext->eventID = eventID;
@@ -133,30 +128,24 @@ static NSTimeInterval g_watchdogInterval = 0;
     abort();
 }
 
-- (void) runMonitor
+- (void)runMonitor
 {
     BOOL cancelled = NO;
-    do
-    {
+    do {
         // Only do a watchdog check if the watchdog interval is > 0.
         // If the interval is <= 0, just idle until the user changes it.
         @autoreleasepool {
             NSTimeInterval sleepInterval = g_watchdogInterval;
             BOOL runWatchdogCheck = sleepInterval > 0;
-            if(!runWatchdogCheck)
-            {
+            if (!runWatchdogCheck) {
                 sleepInterval = kIdleInterval;
             }
             [NSThread sleepForTimeInterval:sleepInterval];
             cancelled = self.monitorThread.isCancelled;
-            if(!cancelled && runWatchdogCheck)
-            {
-                if(self.awaitingResponse)
-                {
+            if (!cancelled && runWatchdogCheck) {
+                if (self.awaitingResponse) {
                     [self handleDeadlock];
-                }
-                else
-                {
+                } else {
                     [self watchdogPulse];
                 }
             }
@@ -170,29 +159,27 @@ static NSTimeInterval g_watchdogInterval = 0;
 #pragma mark - API -
 // ============================================================================
 
-static void initialize()
+static void
+initialize()
 {
     static bool isInitialized = false;
-    if(!isInitialized)
-    {
+    if (!isInitialized) {
         isInitialized = true;
-        dispatch_async(dispatch_get_main_queue(), ^{g_mainQueueThread = sentrycrashthread_self();});
+        dispatch_async(
+            dispatch_get_main_queue(), ^{ g_mainQueueThread = sentrycrashthread_self(); });
     }
 }
 
-static void setEnabled(bool isEnabled)
+static void
+setEnabled(bool isEnabled)
 {
-    if(isEnabled != g_isEnabled)
-    {
+    if (isEnabled != g_isEnabled) {
         g_isEnabled = isEnabled;
-        if(isEnabled)
-        {
+        if (isEnabled) {
             SentryCrashLOG_DEBUG(@"Creating new deadlock monitor.");
             initialize();
             g_monitor = [[SentryCrashDeadlockMonitor alloc] init];
-        }
-        else
-        {
+        } else {
             SentryCrashLOG_DEBUG(@"Stopping deadlock monitor.");
             [g_monitor cancel];
             g_monitor = nil;
@@ -200,22 +187,21 @@ static void setEnabled(bool isEnabled)
     }
 }
 
-static bool isEnabled()
+static bool
+isEnabled()
 {
     return g_isEnabled;
 }
 
-SentryCrashMonitorAPI* sentrycrashcm_deadlock_getAPI()
+SentryCrashMonitorAPI *
+sentrycrashcm_deadlock_getAPI()
 {
-    static SentryCrashMonitorAPI api =
-    {
-        .setEnabled = setEnabled,
-        .isEnabled = isEnabled
-    };
+    static SentryCrashMonitorAPI api = { .setEnabled = setEnabled, .isEnabled = isEnabled };
     return &api;
 }
 
-void sentrycrashcm_setDeadlockHandlerWatchdogInterval(double value)
+void
+sentrycrashcm_setDeadlockHandlerWatchdogInterval(double value)
 {
     g_watchdogInterval = value;
 }

@@ -29,15 +29,13 @@
 extern "C" {
 #endif
 
-
 #include "SentryCrashMonitor.h"
 
 #include <stdbool.h>
 
-
 /** Report a custom, user defined exception.
- * If terminateProgram is true, all sentries will be uninstalled and the application will
- * terminate with an abort().
+ * If terminateProgram is true, all sentries will be uninstalled and the
+ * application will terminate with an abort().
  *
  * @param name The exception name (for namespacing exception types).
  *
@@ -47,26 +45,23 @@ extern "C" {
  *
  * @param lineOfCode A copy of the offending line of code (NULL = ignore).
  *
- * @param stackTrace JSON encoded array containing stack trace information (one frame per array entry).
- *                   The frame structure can be anything you want, including bare strings.
+ * @param stackTrace JSON encoded array containing stack trace information (one
+ * frame per array entry). The frame structure can be anything you want,
+ * including bare strings.
  *
- * @param logAllThreads If true, suspend all threads and log their state. Note that this incurs a
- *                      performance penalty, so it's best to use only on fatal errors.
+ * @param logAllThreads If true, suspend all threads and log their state. Note
+ * that this incurs a performance penalty, so it's best to use only on fatal
+ * errors.
  *
- * @param terminateProgram If true, do not return from this function call. Terminate the program instead.
+ * @param terminateProgram If true, do not return from this function call.
+ * Terminate the program instead.
  */
-void sentrycrashcm_reportUserException(const char* name,
-                              const char* reason,
-                              const char* language,
-                              const char* lineOfCode,
-                              const char* stackTrace,
-                              bool logAllThreads,
-                              bool terminateProgram);
+void sentrycrashcm_reportUserException(const char *name, const char *reason, const char *language,
+    const char *lineOfCode, const char *stackTrace, bool logAllThreads, bool terminateProgram);
 
 /** Access the Monitor API.
  */
-SentryCrashMonitorAPI* sentrycrashcm_user_getAPI(void);
-
+SentryCrashMonitorAPI *sentrycrashcm_user_getAPI(void);
 
 #ifdef __cplusplus
 }

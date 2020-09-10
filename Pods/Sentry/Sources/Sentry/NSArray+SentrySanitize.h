@@ -2,8 +2,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface NSString (SentryNSUIntegerValue)
-- (NSUInteger)unsignedLongLongValue;
+@interface NSArray (SentrySanitize)
+
+- (NSArray *)sentry_sanitize;
+
 @end
 
 NS_ASSUME_NONNULL_END

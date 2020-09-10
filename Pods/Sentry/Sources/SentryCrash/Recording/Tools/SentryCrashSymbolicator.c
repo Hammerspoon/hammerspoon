@@ -22,25 +22,22 @@
 // THE SOFTWARE.
 //
 
-
 #include "SentryCrashSymbolicator.h"
 #include "SentryCrashDynamicLinker.h"
 
-
 /** Remove any pointer tagging from an instruction address
  * On armv7 the least significant bit of the pointer distinguishes
- * between thumb mode (2-byte instructions) and normal mode (4-byte instructions).
- * On arm64 all instructions are 4-bytes wide so the two least significant
- * bytes should always be 0.
- * On x86_64 and i386, instructions are variable length so all bits are
- * signficant.
+ * between thumb mode (2-byte instructions) and normal mode (4-byte
+ * instructions). On arm64 all instructions are 4-bytes wide so the two least
+ * significant bytes should always be 0. On x86_64 and i386, instructions are
+ * variable length so all bits are signficant.
  */
 #if defined(__arm__)
-#define DETAG_INSTRUCTION_ADDRESS(A) ((A) & ~(1UL))
+#    define DETAG_INSTRUCTION_ADDRESS(A) ((A) & ~(1UL))
 #elif defined(__arm64__)
-#define DETAG_INSTRUCTION_ADDRESS(A) ((A) & ~(3UL))
+#    define DETAG_INSTRUCTION_ADDRESS(A) ((A) & ~(3UL))
 #else
-#define DETAG_INSTRUCTION_ADDRESS(A) (A)
+#    define DETAG_INSTRUCTION_ADDRESS(A) (A)
 #endif
 
 /** Step backwards by one instruction.
@@ -51,12 +48,12 @@
  */
 #define CALL_INSTRUCTION_FROM_RETURN_ADDRESS(A) (DETAG_INSTRUCTION_ADDRESS((A)) - 1)
 
-
-bool sentrycrashsymbolicator_symbolicate(SentryCrashStackCursor *cursor)
+bool
+sentrycrashsymbolicator_symbolicate(SentryCrashStackCursor *cursor)
 {
     Dl_info symbolsBuffer;
-    if(sentrycrashdl_dladdr(CALL_INSTRUCTION_FROM_RETURN_ADDRESS(cursor->stackEntry.address), &symbolsBuffer))
-    {
+    if (sentrycrashdl_dladdr(
+            CALL_INSTRUCTION_FROM_RETURN_ADDRESS(cursor->stackEntry.address), &symbolsBuffer)) {
         cursor->stackEntry.imageAddress = (uintptr_t)symbolsBuffer.dli_fbase;
         cursor->stackEntry.imageName = symbolsBuffer.dli_fname;
         cursor->stackEntry.symbolAddress = (uintptr_t)symbolsBuffer.dli_saddr;

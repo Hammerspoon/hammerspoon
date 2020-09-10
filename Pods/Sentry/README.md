@@ -13,7 +13,6 @@
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![SwiftPM compatible](https://img.shields.io/badge/spm-compatible-brightgreen.svg?style=flat)](https://swift.org/package-manager)
 ![platforms](https://img.shields.io/cocoapods/p/Sentry.svg?style=flat)
-[![Twitter](https://img.shields.io/badge/twitter-@getsentry-blue.svg?style=flat)](http://twitter.com/getsentry)
 
 This SDK is written in Objective-C but also provides a nice Swift interface.
 
@@ -27,6 +26,15 @@ import Sentry
 
 // ....
 
+// Added in 5.1.6
+SentrySDK.start { options in
+    options.dsn = "___PUBLIC_DSN___"
+    options.debug = true // Helpful to see what's going on
+}    
+
+// Or
+
+// Added in 5.0.0
 SentrySDK.start(options: [
     "dsn": "___PUBLIC_DSN___",
     "debug": true // Helpful to see what's going on
@@ -38,12 +46,30 @@ SentrySDK.start(options: [
 
 // ....
 
+// Added in 5.1.6
+[SentrySDK startWithConfigureOptions:^(SentryOptions *options) {
+    options.dsn = @"___PUBLIC_DSN___";
+    options.debug = @YES; // Helpful to see what's going on
+}];
+
+// Or
+
+// Added in 5.0.0
 [SentrySDK startWithOptions:@{
     @"dsn": @"___PUBLIC_DSN___",
     @"debug": @(YES) // Helpful to see what's going on
 }];
 ```
 
-- [Documentation](https://docs.sentry.io/platforms/cocoa/)
+For more information checkout the [docs](https://docs.sentry.io/platforms/cocoa/?platform=swift).
 
-<sup>(1)</sup>limited symbolication support
+<sup>(1)</sup>limited symbolication support and no crash handling.
+
+# Resources
+
+* [![Documentation](https://img.shields.io/badge/documentation-sentry.io-green.svg)](https://docs.sentry.io/platforms/cocoa/)
+* [![Forum](https://img.shields.io/badge/forum-sentry-green.svg)](https://forum.sentry.io/c/sdks)
+* [![Discord](https://img.shields.io/discord/621778831602221064)](https://discord.gg/Ww9hbqr)
+* [![Stack Overflow](https://img.shields.io/badge/stack%20overflow-sentry-green.svg)](http://stackoverflow.com/questions/tagged/sentry)
+* [![Code of Conduct](https://img.shields.io/badge/code%20of%20conduct-sentry-green.svg)](https://github.com/getsentry/.github/blob/master/CODE_OF_CONDUCT.md)
+* [![Twitter Follow](https://img.shields.io/twitter/follow/getsentry?label=getsentry&style=social)](https://twitter.com/intent/follow?screen_name=getsentry)

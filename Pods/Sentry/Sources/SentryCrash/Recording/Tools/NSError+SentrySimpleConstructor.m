@@ -26,15 +26,16 @@
 
 #import "NSError+SentrySimpleConstructor.h"
 
-
 @implementation NSError (SentrySimpleConstructor)
 
-+ (NSError*) errorWithDomain:(NSString*) domain code:(NSInteger) code description:(NSString*) fmt, ...
++ (NSError *)errorWithDomain:(NSString *)domain
+                        code:(NSInteger)code
+                 description:(NSString *)fmt, ...
 {
     va_list args;
     va_start(args, fmt);
 
-    NSString* desc = [[NSString alloc] initWithFormat:fmt arguments:args];
+    NSString *desc = [[NSString alloc] initWithFormat:fmt arguments:args];
     va_end(args);
 
     return [NSError errorWithDomain:domain
@@ -43,31 +44,30 @@
                                                                 forKey:NSLocalizedDescriptionKey]];
 }
 
-+ (BOOL) fillError:(NSError* __autoreleasing *) error
-        withDomain:(NSString*) domain
-              code:(NSInteger) code
-       description:(NSString*) fmt, ...
++ (BOOL)fillError:(NSError *__autoreleasing *)error
+       withDomain:(NSString *)domain
+             code:(NSInteger)code
+      description:(NSString *)fmt, ...
 {
-    if(error != nil)
-    {
+    if (error != nil) {
         va_list args;
         va_start(args, fmt);
 
-        NSString* desc = [[NSString alloc] initWithFormat:fmt arguments:args];
+        NSString *desc = [[NSString alloc] initWithFormat:fmt arguments:args];
         va_end(args);
 
-        *error = [NSError errorWithDomain:domain
-                                     code:code
-                                 userInfo:[NSDictionary dictionaryWithObject:desc
-                                                                      forKey:NSLocalizedDescriptionKey]];
+        *error =
+            [NSError errorWithDomain:domain
+                                code:code
+                            userInfo:[NSDictionary dictionaryWithObject:desc
+                                                                 forKey:NSLocalizedDescriptionKey]];
     }
     return NO;
 }
 
-+ (BOOL) clearError:(NSError* __autoreleasing *) error
++ (BOOL)clearError:(NSError *__autoreleasing *)error
 {
-    if(error != nil)
-    {
+    if (error != nil) {
         *error = nil;
     }
     return NO;
@@ -75,5 +75,7 @@
 
 @end
 
-@interface sentrycrashobjc_NSError_SimpleConstructor_AOG8G : NSObject @end @implementation sentrycrashobjc_NSError_SimpleConstructor_AOG8G @end
-
+@interface sentrycrashobjc_NSError_SimpleConstructor_AOG8G : NSObject
+@end
+@implementation sentrycrashobjc_NSError_SimpleConstructor_AOG8G
+@end
