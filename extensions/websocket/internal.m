@@ -101,10 +101,10 @@ static int refTable;
 
 - (void)webSocket:(SRWebSocket *)webSocket didReceivePong:(NSData *)pongPayload;
 {
-    if (self.fn == LUA_NOREF) {
-        return;
-    }
     dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.fn == LUA_NOREF) {
+            return;
+        }
         LuaSkin *skin = [LuaSkin sharedWithState:NULL];
         _lua_stackguard_entry(skin.L);
 
@@ -175,7 +175,7 @@ static int websocket_send(lua_State *L) {
     [skin checkArgs:LS_TUSERDATA, WS_USERDATA_TAG, LS_TSTRING, LS_TBREAK];
     HSWebSocketDelegate* ws = getWsUserData(L, 1);
 
-    NSData *message = [skin toNSObjectAtIndex:2 withOptions: LS_NSLuaStringAsDataOnly];
+    id message = [skin toNSObjectAtIndex:2 withOptions:LS_NSPreserveLuaStringExactly];
     [ws.webSocket send:message];
 
     lua_pushvalue(L, 1);

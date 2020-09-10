@@ -19,6 +19,8 @@
 		22613FEC1F297E0D00E05E11 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		22613FF51F2A127E00E05E11 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 22613FE41F297B9B00E05E11 /* internal.m */; };
 		22D0C33F2132713800B19D83 /* cpPaste.icns in Resources */ = {isa = PBXBuildFile; fileRef = 22D0C33E2132713700B19D83 /* cpPaste.icns */; };
+		22738935248606F0003EBC68 /* HSwebsocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 22738934248606F0003EBC68 /* HSwebsocket.m */; };
+		2273893624860C0E003EBC68 /* test_websocket.lua in Resources */ = {isa = PBXBuildFile; fileRef = 22738933248606A9003EBC68 /* test_websocket.lua */; };
 		22DF5D2023B9A9D300C41AE6 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		22DF5D2823B9A9EA00C41AE6 /* watcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 22DF5D1A23B99C4D00C41AE6 /* watcher.m */; };
 		22E4D7FD1FA7488900C8CF5C /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
@@ -1025,6 +1027,8 @@
 		22613FE51F297B9B00E05E11 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/dialog/init.lua; sourceTree = "<group>"; };
 		22613FF11F297E0D00E05E11 /* libdialog.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libdialog.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		22D0C33E2132713700B19D83 /* cpPaste.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpPaste.icns; sourceTree = "<group>"; };
+		22738933248606A9003EBC68 /* test_websocket.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_websocket.lua; path = extensions/websocket/test_websocket.lua; sourceTree = "<group>"; };
+		22738934248606F0003EBC68 /* HSwebsocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSwebsocket.m; sourceTree = "<group>"; };
 		22DF5D1A23B99C4D00C41AE6 /* watcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = watcher.m; path = extensions/pasteboard/watcher.m; sourceTree = "<group>"; };
 		22DF5D2723B9A9D300C41AE6 /* libpasteboardwatcher.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libpasteboardwatcher.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		22E4D7F71FA7485A00C8CF5C /* internal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/midi/internal.m; sourceTree = SOURCE_ROOT; };
@@ -2280,6 +2284,7 @@
 			isa = PBXGroup;
 			children = (
 				224BA33423D1EE6F00487FDB /* init.lua */,
+				22738933248606A9003EBC68 /* test_websocket.lua */,
 				224BA32523D1E63A00487FDB /* internal.m */,
 			);
 			name = websocket;
@@ -3529,6 +3534,7 @@
 				4FDD8E881C8AE3ED00085D7A /* HSTestCase.m */,
 				4F6CE1331C6B93E10016668E /* HStimer.m */,
 				4C8F8CB21CC38B7E00F72CE5 /* HSuielement.m */,
+				22738934248606F0003EBC68 /* HSwebsocket.m */,
 				4F8779D0200CD51200E9DB42 /* HSwindow.m */,
 				4FDD8E7B1C85A05700085D7A /* lsunit.lua */,
 				D02F95261A00221C00E28BB2 /* Supporting Files */,
@@ -5554,6 +5560,7 @@
 				221F9747211E742C0019F1B9 /* PBXTargetDependency */,
 				224BA33623D1EFB300487FDB /* PBXTargetDependency */,
 				22EEC62624926EAF00BAE4DA /* PBXTargetDependency */,
+				224BA33623D1EFB300487FDB /* PBXTargetDependency */,
 				D633A9EF247B9C57005C88E2 /* PBXTargetDependency */,
 				22DF5D2B23B9AA8C00C41AE6 /* PBXTargetDependency */,
 				4F9BA8CB23DF3CCE006349F2 /* PBXTargetDependency */,
@@ -6247,6 +6254,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2273893624860C0E003EBC68 /* test_websocket.lua in Resources */,
 				4FCBAFD923B1152F007BA1D0 /* test_math.lua in Resources */,
 				4FDD8E4A1C6E4FA100085D7A /* test_screen.lua in Resources */,
 				6AE181341D39C9570097211C /* test_noises.lua in Resources */,
@@ -7069,6 +7077,7 @@
 				4CD64AA91C6F15F400EB6E39 /* HSsocket.m in Sources */,
 				4FEF4D4F1C5FA01100E3B939 /* HSaudiodevice.m in Sources */,
 				4CEDEE1C1C640D11005CBF97 /* HSosascript.m in Sources */,
+				22738935248606F0003EBC68 /* HSwebsocket.m in Sources */,
 				4F40EC401CCD0FE3006342D7 /* HSdistributednotifications.m in Sources */,
 				4FB74B3B2049A9A600B08851 /* HStask.m in Sources */,
 				4FDD8E891C8AE3ED00085D7A /* HSTestCase.m in Sources */,
@@ -8176,7 +8185,7 @@
 				EXECUTABLE_PREFIX = lib;
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
-				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = "$(inherited)";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = "$(inherited)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = "$(inherited)";
 				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = "$(inherited)";
@@ -8242,7 +8251,7 @@
 				EXECUTABLE_PREFIX = lib;
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
-				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = "$(inherited)";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = "$(inherited)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = "$(inherited)";
 				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = "$(inherited)";
@@ -8274,7 +8283,7 @@
 				SDKROOT = "$(inherited)";
 				STRIP_INSTALLED_PRODUCT = NO;
 			};
-			name = Release;
+			name = Debug;
 		};
 		22DF5D2423B9A9D300C41AE6 /* Debug */ = {
 			isa = XCBuildConfiguration;
