@@ -18,6 +18,7 @@ pod 'Sparkle', '1.23.0', :configurations => ['Release']
 pod 'MIKMIDI', '1.7.1'
 pod 'ORSSerialPort', '2.1.0'
 pod 'SocketRocket', '0.5.1'
+pod 'ORSSerialPort', '2.1.0'
 end
 
 post_install do |installer|
