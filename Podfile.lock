@@ -14,6 +14,7 @@ PODS:
   - Sentry (5.2.2):
     - Sentry/Core (= 5.2.2)
   - Sentry/Core (5.2.2)
+  - SocketRocket (0.5.1)
   - Sparkle (1.23.0)
 
 DEPENDENCIES:
@@ -24,6 +25,7 @@ DEPENDENCIES:
   - MIKMIDI (= 1.7.1)
   - PocketSocket/Client (= 1.0.1)
   - Sentry (from `https://github.com/getsentry/sentry-cocoa.git`, tag `5.2.2`)
+  - SocketRocket (= 0.5.1)
   - Sparkle (= 1.23.0)
 
 SPEC REPOS:
@@ -34,6 +36,7 @@ SPEC REPOS:
     - CocoaLumberjack
     - MIKMIDI
     - PocketSocket
+    - SocketRocket
     - Sparkle
 
 EXTERNAL SOURCES:
@@ -54,8 +57,9 @@ SPEC CHECKSUMS:
   MIKMIDI: f53dca2f372e71183ecdd2b35c984c1c2cd11cbc
   PocketSocket: 9c6867d66fb4f962af96b9b07f4b45bb561b2c2a
   Sentry: 8fa58a051237554f22507fb483b9a1de0171a2dc
+  SocketRocket: d57c7159b83c3c6655745cd15302aa24b6bae531
   Sparkle: 55b1a87ba69d56913375a281546b7c82dec95bb0
 
-PODFILE CHECKSUM: f8987557f8cdb23952fb4db07cdd3d65db567f76
+PODFILE CHECKSUM: 88725108b150d787f314d4fa27a76678b16f3ba3
 
 COCOAPODS: 1.9.3

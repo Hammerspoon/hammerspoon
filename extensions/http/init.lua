@@ -428,4 +428,15 @@ http.encodeForQuery = function(...)
     return (encodeForQuery(...):gsub("[%?=&+]", { ["?"] = "%3F", ["="] = "%3D", ["&"] = "%26", ["+"] = "%2B" } ))
 end
 
+-- Wrapper for legacy `hs.http.websocket(url, callback)`
+-- This is undocumented, as `hs.http.websocket` was never originally exposed/documented.
+local websocket = require("hs.websocket")
+http.websocket = function(url, callback)
+    return websocket.new(url, function(status, message)
+        if type(callback) == "function" and status == "received" then
+            return callback(message)
+        end
+    end)
+end
+
 return http
