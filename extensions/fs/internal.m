@@ -1035,6 +1035,7 @@ static int fs_pathToBookmark(lua_State *L) {
                     relativeToURL:nil
                     error:nil];
     [skin pushNSObject:bookmarkData] ;
+    free(absolutePath);
     return 1 ;
 }
 
@@ -1090,6 +1091,34 @@ static int fs_pathFromBookmark(lua_State *L) {
     return 1 ;
 }
 
+/// hs.fs.urlFromPath(path) -> string | nil
+/// Function
+/// Returns the encoded URL from a path.
+///
+/// Parameters:
+///  * path - The path
+///
+/// Returns:
+///  * A string or `nil` if path is invalid.
+static int fs_urlFromPath(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+    [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
+
+    NSString *filePath = [skin toNSObjectAtIndex:1];
+    char *absolutePath = realpath([filePath stringByExpandingTildeInPath].UTF8String, NULL);
+
+    if (!absolutePath) {
+        lua_pushnil(L);
+        return 1;
+    }
+    
+    NSURL *fileURL = [[NSURL alloc] initFileURLWithPath:[NSString stringWithFormat:@"%s", absolutePath]];
+    
+    [skin pushNSObject:fileURL] ;
+    free(absolutePath);
+    return 1 ;
+}
+
 static const struct luaL_Reg fslib[] = {
     {"attributes", file_info},
     {"chdir", change_dir},
@@ -1114,6 +1143,7 @@ static const struct luaL_Reg fslib[] = {
     {"displayName", fs_displayName},
     {"pathToBookmark", fs_pathToBookmark},
     {"pathFromBookmark", fs_pathFromBookmark},
+    {"urlFromPath", fs_urlFromPath},
     {NULL, NULL},
 };
 
