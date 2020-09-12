@@ -136,7 +136,7 @@ static int watcher_path_new(lua_State* L) {
     watcher_path->stream = FSEventStreamCreate(NULL,
                                               event_callback,
                                               &context,
-                                              (__bridge CFArrayRef)@[[path stringByStandardizingPath] stringByResolvingSymlinksInPath],
+                                              (__bridge CFArrayRef)@[[[path stringByStandardizingPath] stringByResolvingSymlinksInPath]],
                                               kFSEventStreamEventIdSinceNow,
                                               0.4,
                                               kFSEventStreamCreateFlagWatchRoot | kFSEventStreamCreateFlagNoDefer | kFSEventStreamCreateFlagFileEvents);
