@@ -588,7 +588,7 @@ static int socket_connected(lua_State *L) {
     [[LuaSkin sharedWithState:L] checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSAsyncTcpSocket* asyncSocket = getUserData(L, 1);
 
-    lua_pushboolean(L, (BOOL)get_socket_connections(asyncSocket));
+    lua_pushboolean(L, get_socket_connections(asyncSocket) ? true : false);
     return 1;
 }
 

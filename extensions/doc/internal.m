@@ -278,7 +278,7 @@ static int doc_registerJSONFile(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     NSString *path   = [skin toNSObjectAtIndex:1] ;
-    BOOL     isSpoon = (lua_gettop(L) > 1) ? (BOOL)lua_toboolean(L, 2) : NO ;
+    BOOL     isSpoon = (lua_gettop(L) > 1) ? lua_toboolean(L, 2) : NO ;
 
     // some tricks used to figure out if the docs.json file exists duplicate final "/" before "docs.json"
     // so rather then track them all down, just adjust it here; otherwise we have two "different" paths

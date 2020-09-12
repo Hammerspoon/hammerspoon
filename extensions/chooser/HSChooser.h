@@ -53,6 +53,7 @@
 @property(nonatomic) int queryChangedCallbackRef;
 @property(nonatomic) int completionCallbackRef;
 @property(nonatomic) int rightClickCallbackRef;
+@property(nonatomic) int invalidCallbackRef;
 
 // A pointer to the hs.chooser module's references table
 @property(nonatomic) int *refTable;
