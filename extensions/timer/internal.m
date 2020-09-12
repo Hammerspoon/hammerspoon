@@ -145,7 +145,7 @@ static int timer_new(lua_State* L) {
 
     BOOL continueOnError;
     if (lua_isboolean(L, 3))
-        continueOnError = (BOOL)lua_toboolean(L, 3) ;
+        continueOnError = lua_toboolean(L, 3) ;
     else
         continueOnError = NO ;
 

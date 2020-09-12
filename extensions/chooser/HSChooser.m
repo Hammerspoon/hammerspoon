@@ -44,6 +44,7 @@
         self.choicesCallbackRef = LUA_NOREF;
         self.queryChangedCallbackRef = LUA_NOREF;
         self.rightClickCallbackRef = LUA_NOREF;
+        self.invalidCallbackRef = LUA_NOREF;
         self.completionCallbackRef = completionCallbackRef;
 
         self.hasChosen = NO;
@@ -372,14 +373,21 @@
     //NSLog(@"didClickedRow: %li", (long)row);
     if (row >= 0 && row < [[self getChoices] count]) {
         self.hasChosen = YES;
-        [self hide];
         LuaSkin *skin = [LuaSkin sharedWithState:NULL];
         _lua_stackguard_entry(skin.L);
         NSDictionary *choice = [[self getChoices] objectAtIndex:row];
-
-        [skin pushLuaRef:*(self.refTable) ref:self.completionCallbackRef];
-        [skin pushNSObject:choice];
-        [skin protectedCallAndError:@"hs.chooser:completionCallback" nargs:1 nresults:0];
+        
+        if ([choice objectForKey:@"valid"] && ![[choice objectForKey:@"valid"] boolValue] && self.invalidCallbackRef != LUA_NOREF && self.invalidCallbackRef != LUA_REFNIL) {
+            [skin pushLuaRef:*(self.refTable) ref:self.invalidCallbackRef];
+            [skin pushNSObject:choice];
+            [skin protectedCallAndError:@"hs.chooser:invalidCallback" nargs:1 nresults:0];
+        } else {
+            [self hide];
+            [skin pushLuaRef:*(self.refTable) ref:self.completionCallbackRef];
+            [skin pushNSObject:choice];
+            [skin protectedCallAndError:@"hs.chooser:completionCallback" nargs:1 nresults:0];
+        }
+        
         _lua_stackguard_exit(skin.L);
     }
 }

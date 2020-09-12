@@ -123,6 +123,7 @@ static int chooserIsVisible(lua_State *L) {
 ///  * Each choice may also optionally contain the following keys:
 ///   * subText - A string or hs.styledtext object that will be shown underneath the main text of the choice
 ///   * image - An `hs.image` image object that will be displayed next to the choice
+///   * valid - A boolean that defaults to `true`, if set to `false` selecting the choice will invoke the `invalidCallback` method instead of dismissing the chooser
 ///  * Any other keys/values in each choice table will be retained by the chooser and returned to the completion callback when a choice is made. This is useful for storing UUIDs or other non-user-facing information, however, it is important to note that you should not store userdata objects in the table - it is run through internal conversion functions, so only basic Lua types should be stored.
 ///  * If a function is given, it will be called once, when the chooser window is displayed. The results are then cached until this method is called again, or `hs.chooser:refreshChoicesCallback()` is called.
 ///  * If you're using a hs.styledtext object for text or subText choices, make sure you specify a color, otherwise your text could appear transparent depending on the bgDark setting.
@@ -407,6 +408,35 @@ static int chooserRightClickCallback(lua_State *L) {
 
     if (lua_type(L, 2) == LUA_TFUNCTION) {
         chooser.rightClickCallbackRef = [skin luaRef:refTable atIndex:2];
+    }
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
+/// hs.chooser:invalidCallback([fn]) -> hs.chooser object
+/// Method
+/// Sets/clears a callback for invalid choices
+///
+/// Parameters:
+///  * fn - An optional function that will be called whenever the user select an choice set as invalid. If this parameter is omitted, the existing callback will be removed.
+///
+/// Returns:
+///  * The `hs.chooser` object
+///
+/// Notes:
+///   * The callback may accept one argument, it will be a table containing whatever information you supplied for the item the user chose.
+///   * To display a context menu, see `hs.menubar`, specifically the `:popupMenu()` method
+static int chooserInvalidCallback(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION|LS_TOPTIONAL, LS_TBREAK];
+
+    HSChooser *chooser = [skin toNSObjectAtIndex:1];
+
+    chooser.invalidCallbackRef = [skin luaUnref:refTable ref:chooser.invalidCallbackRef];
+
+    if (lua_type(L, 2) == LUA_TFUNCTION) {
+        chooser.invalidCallbackRef = [skin luaRef:refTable atIndex:2];
     }
 
     lua_pushvalue(L, 1);
@@ -818,6 +848,7 @@ static int userdata_gc(lua_State* L) {
             chooser.queryChangedCallbackRef = [skin luaUnref:refTable ref:chooser.queryChangedCallbackRef];
             chooser.completionCallbackRef = [skin luaUnref:refTable ref:chooser.completionCallbackRef];
             chooser.rightClickCallbackRef = [skin luaUnref:refTable ref:chooser.rightClickCallbackRef];
+            chooser.invalidCallbackRef = [skin luaUnref:refTable ref:chooser.invalidCallbackRef];
             chooser.isObservingThemeChanges = NO;  // Stop observing for interface theme changes.
 
             NSWindow *theWindow = chooser.window ;
@@ -855,6 +886,7 @@ static const luaL_Reg userdataLib[] = {
     {"delete", chooserDelete},
     {"refreshChoicesCallback", chooserRefreshChoicesCallback},
     {"rightClickCallback", chooserRightClickCallback},
+    {"invalidCallback", chooserInvalidCallback},
     {"selectedRow", chooserSelectedRow},
     {"selectedRowContents", chooserSelectedRowContents},
     {"select", chooserSelect},

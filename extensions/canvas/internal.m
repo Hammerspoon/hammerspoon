@@ -4,6 +4,7 @@
 
 static const char *USERDATA_TAG = "hs.canvas" ;
 static int refTable = LUA_NOREF;
+static BOOL defaultCustomSubRole = YES ;
 
 // Can't have "static" or "constant" dynamic NSObjects like NSArray, so define in lua_open
 static NSDictionary *languageDictionary ;
@@ -894,14 +895,17 @@ static int userdata_gc(lua_State* L) ;
 }
 
 - (NSString *)accessibilitySubrole {
+    NSString *defaultSubrole = [super accessibilitySubrole] ;
+    NSString *customSubrole  = [defaultSubrole stringByAppendingString:@".Hammerspoon"] ;
+
     if (_subroleOverride) {
         if ([_subroleOverride isEqualToString:@""]) {
-            return [super accessibilitySubrole] ;
+            return defaultCustomSubRole ? defaultSubrole : customSubrole ;
         } else {
             return _subroleOverride ;
         }
     } else {
-        return [[super accessibilitySubrole] stringByAppendingString:@".Hammerspoon"] ;
+        return defaultCustomSubRole ? customSubrole : defaultSubrole ;
     }
 }
 
@@ -2280,6 +2284,33 @@ static int userdata_gc(lua_State* L) ;
 
 #pragma mark - Module Functions
 
+/// hs.canvas.useCustomAccessibilitySubrole([state]) -> boolean
+/// Function
+/// Get or set whether or not canvas objects use a custom accessibility subrole for the contaning system window.
+///
+/// Parameters:
+///  * `state` - an optional boolean, default true, specifying whether or not canvas containers should use a custom accessibility subrole.
+///
+/// Returns:
+///  * the current, possibly changed, value as a boolean
+///
+/// Notes:
+///  * Under some conditions, it has been observed that Hammerspoon's `hs.window.filter` module will misidentify Canvas and Drawing objects as windows of the Hammerspoon application that it should consider when evaluating its filters. To eliminate this, `hs.canvas` objects (and previously `hs.drawing` objects, which are now deprecated and pass through to `hs.canvas`) were given a nonstandard accessibilty subrole to prevent them from being included. This has caused some issues with third party tools, like Yabai, which also use the accessibility subroles for determining what actions it may take with Hammerspoon windows.
+///
+///  * By passing `false` to this function, all canvas objects will revert to specifying the standard subrole for the containing windows by default and should work as expected with third party tools. Note that this may cause issues or slowdowns if you are also using `hs.window.filter`; a more permanent solution is being considered.
+///
+///  * If you need to control the subrole of canvas objects more specifically, or only for some canvas objects, see [hs.canvas:_accessibilitySubrole](#_accessibilitySubrole).
+static int canvas_useCustomAccessibilitySubrole(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+    [skin checkArgs:LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
+
+    if (lua_gettop(L) == 1) {
+        defaultCustomSubRole = lua_toboolean(L, 1) ;
+    }
+    lua_pushboolean(L, defaultCustomSubRole) ;
+    return 1 ;
+}
+
 /// hs.canvas.new(rect) -> canvasObject
 /// Constructor
 /// Create a new canvas object at the specified coordinates
@@ -2453,6 +2484,27 @@ static int canvas_draggingCallback(lua_State *L) {
     return 1;
 }
 
+/// hs.canvas:_accessibilitySubrole([subrole]) -> canvasObject | current value
+/// Method
+/// Get or set the accessibility subrole returned by `hs.canvas` objects.
+///
+/// Parameters:
+///  * `subrole` - an optional string or explicit nil wihch specifies what accessibility subrole value should be returned when canvas objects are queried through the macOS accessibility framework. See Notes for a discussion of how this value is interpreted. Defaults to `nil`.
+///
+/// Returns:
+///  * If an argument is specified, returns the canvasObject; otherwise returns the current value.
+///
+/// Notes:
+///  * Most people will probably not need to use this method; See [hs.canvas.useCustomAccessibilitySubrole](#useCustomAccessibilitySubrole) for a discussion as to why this method may be of use when Hammerspoon is being controlled through the accessibility framework by other applications.
+///
+///  * If a non empty string is specified as the argument to this method, the string will be returned whenever the canvas object's containing window is queried for its accessibility subrole.
+///  * The other possible values depend upon the value registerd with [hs.canvas.useCustomAccessibilitySubrole](#useCustomAccessibilitySubrole):
+///    * If `useCustomAccessibilitySubrole` is set to true (the default):
+///      * If an explicit `nil` (the default) is specified fror this method, the string returned when the canvas object's accessibility is queried will be the default macOS subrole for the canvas's window with the string ".Hammerspoon` appended to it.
+///      * If the empty string is specified (e.g. `""`), then the default macOS subrole for the canvas's window will be returned.
+///    * If `useCustomAccessibilitySubrole` is set to false:
+///      * If an explicit `nil` (the default) is specified fror this method, then the default macOS subrole for the canvas's window will be returned.
+///      * If the empty string is specified (e.g. `""`), the string returned when the canvas object's accessibility is queried will be the default macOS subrole for the canvas's window with the string ".Hammerspoon` appended to it.
 static int canvas_accessibilitySubrole(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TNIL | LS_TOPTIONAL, LS_TBREAK] ;
@@ -3961,6 +4013,7 @@ static luaL_Reg moduleLib[] = {
     {"elementSpec",          dumpLanguageDictionary},
     {"enableScreenUpdates",  enableUpdates},
     {"new",                  canvas_new},
+    {"useCustomAccessibilitySubrole", canvas_useCustomAccessibilitySubrole},
 
     {NULL,                   NULL}
 };
@@ -3981,6 +4034,9 @@ int luaopen_hs_canvas_internal(lua_State* L) {
     pushCompositeTypes(L) ;      lua_setfield(L, -2, "compositeTypes") ;
     pushCollectionTypeTable(L) ; lua_setfield(L, -2, "windowBehaviors") ;
     cg_windowLevels(L) ;         lua_setfield(L, -2, "windowLevels") ;
+
+    // in case we're reloaded, return to default state
+    defaultCustomSubRole = YES ;
 
     return 1;
 }
