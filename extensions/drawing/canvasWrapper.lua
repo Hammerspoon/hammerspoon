@@ -12,9 +12,9 @@ local drawingMT    = {}
 
 local newDrawing = function(...)
     local result = canvas.new(...)
-    if result then
-        result:_accessibilitySubrole("hammerspoonDrawing")
-    end
+--     if result then
+--         result:_accessibilitySubrole("hammerspoonDrawing")
+--     end
     return result
 end
 
