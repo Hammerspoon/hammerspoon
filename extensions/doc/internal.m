@@ -283,7 +283,7 @@ static int doc_registerJSONFile(lua_State *L) {
     // some tricks used to figure out if the docs.json file exists duplicate final "/" before "docs.json"
     // so rather then track them all down, just adjust it here; otherwise we have two "different" paths
     // containing the same data and get a lot of duplicate entry warnings
-    path = [path stringByStandardizingPath] ;
+    path = [[path stringByStandardizingPath] stringByResolvingSymlinksInPath] ;
 
     if (registeredFiles[path]) {
         lua_pushboolean(L, NO) ;
