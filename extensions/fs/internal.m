@@ -975,15 +975,14 @@ static int hs_pathToAbsolute(lua_State *L) {
     [skin checkArgs:LS_TSTRING, LS_TBREAK];
 
     NSString *filePath = [skin toNSObjectAtIndex:1];
-    char *absolutePath = realpath([filePath stringByExpandingTildeInPath].UTF8String, NULL);
+    NSString *absolutePath = [[filePath stringByStandardizingPath] stringByResolvingSymlinksInPath];
 
     if (!absolutePath) {
         lua_pushnil(L);
         return 1;
     }
 
-    lua_pushstring(L, absolutePath);
-    free(absolutePath);
+    [skin pushNSObject:absolutePath];
     return 1;
 }
 
@@ -1022,14 +1021,14 @@ static int fs_pathToBookmark(lua_State *L) {
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
 
     NSString *filePath = [skin toNSObjectAtIndex:1];
-    char *absolutePath = realpath([filePath stringByExpandingTildeInPath].UTF8String, NULL);
+    NSString *absolutePath = [[filePath stringByStandardizingPath] stringByResolvingSymlinksInPath];
 
     if (!absolutePath) {
         lua_pushnil(L);
         return 1;
     }
 
-    NSData *bookmarkData = [[NSURL fileURLWithPath:filePath]
+    NSData *bookmarkData = [[NSURL fileURLWithPath:absolutePath]
                     bookmarkDataWithOptions:0
                     includingResourceValuesForKeys:nil
                     relativeToURL:nil
@@ -1090,6 +1089,33 @@ static int fs_pathFromBookmark(lua_State *L) {
     return 1 ;
 }
 
+/// hs.fs.urlFromPath(path) -> string | nil
+/// Function
+/// Returns the encoded URL from a path.
+///
+/// Parameters:
+///  * path - The path
+///
+/// Returns:
+///  * A string or `nil` if path is invalid.
+static int fs_urlFromPath(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+    [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
+
+    NSString *filePath = [skin toNSObjectAtIndex:1];
+    NSString *absolutePath = [[filePath stringByStandardizingPath] stringByResolvingSymlinksInPath];
+
+    if (!absolutePath) {
+        lua_pushnil(L);
+        return 1;
+    }
+    
+    NSURL *fileURL = [[NSURL alloc] initFileURLWithPath:absolutePath];
+
+    [skin pushNSObject:fileURL.absoluteString] ;
+    return 1 ;
+}
+
 static const struct luaL_Reg fslib[] = {
     {"attributes", file_info},
     {"chdir", change_dir},
@@ -1114,6 +1140,7 @@ static const struct luaL_Reg fslib[] = {
     {"displayName", fs_displayName},
     {"pathToBookmark", fs_pathToBookmark},
     {"pathFromBookmark", fs_pathFromBookmark},
+    {"urlFromPath", fs_urlFromPath},
     {NULL, NULL},
 };
 
