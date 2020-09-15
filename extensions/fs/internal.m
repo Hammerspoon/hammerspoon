@@ -975,14 +975,15 @@ static int hs_pathToAbsolute(lua_State *L) {
     [skin checkArgs:LS_TSTRING, LS_TBREAK];
 
     NSString *filePath = [skin toNSObjectAtIndex:1];
-    NSString *absolutePath = [[filePath stringByStandardizingPath] stringByResolvingSymlinksInPath];
+    char *absolutePath = realpath([filePath stringByExpandingTildeInPath].UTF8String, NULL);
 
     if (!absolutePath) {
         lua_pushnil(L);
         return 1;
     }
 
-    [skin pushNSObject:absolutePath];
+    lua_pushstring(L, absolutePath);
+    free(absolutePath);
     return 1;
 }
 
@@ -1021,19 +1022,20 @@ static int fs_pathToBookmark(lua_State *L) {
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
 
     NSString *filePath = [skin toNSObjectAtIndex:1];
-    NSString *absolutePath = [[filePath stringByStandardizingPath] stringByResolvingSymlinksInPath];
+    char *absolutePath = realpath([filePath stringByExpandingTildeInPath].UTF8String, NULL);
 
     if (!absolutePath) {
         lua_pushnil(L);
         return 1;
     }
 
-    NSData *bookmarkData = [[NSURL fileURLWithPath:absolutePath]
+    NSData *bookmarkData = [[NSURL fileURLWithPath:filePath]
                     bookmarkDataWithOptions:0
                     includingResourceValuesForKeys:nil
                     relativeToURL:nil
                     error:nil];
     [skin pushNSObject:bookmarkData] ;
+    free(absolutePath);
     return 1 ;
 }
 
@@ -1103,16 +1105,17 @@ static int fs_urlFromPath(lua_State *L) {
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
 
     NSString *filePath = [skin toNSObjectAtIndex:1];
-    NSString *absolutePath = [[filePath stringByStandardizingPath] stringByResolvingSymlinksInPath];
+    char *absolutePath = realpath([filePath stringByExpandingTildeInPath].UTF8String, NULL);
 
     if (!absolutePath) {
         lua_pushnil(L);
         return 1;
     }
     
-    NSURL *fileURL = [[NSURL alloc] initFileURLWithPath:absolutePath];
+    NSURL *fileURL = [[NSURL alloc] initFileURLWithPath:[NSString stringWithFormat:@"%s", absolutePath]];
 
     [skin pushNSObject:fileURL.absoluteString] ;
+    free(absolutePath);
     return 1 ;
 }
 
