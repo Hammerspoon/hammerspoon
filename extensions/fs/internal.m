@@ -1112,7 +1112,8 @@ static int fs_urlFromPath(lua_State *L) {
         return 1;
     }
     
-    NSURL *fileURL = [[NSURL alloc] initFileURLWithPath:[NSString stringWithFormat:@"%s", absolutePath]];
+    NSString *urlPath = [[filePath stringByStandardizingPath] stringByResolvingSymlinksInPath];
+    NSURL *fileURL = [[NSURL alloc] initFileURLWithPath:urlPath];
 
     [skin pushNSObject:fileURL.absoluteString] ;
     free(absolutePath);
