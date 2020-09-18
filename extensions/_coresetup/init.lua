@@ -9,6 +9,8 @@ return {setup=function(...)
   local crashLog = require("hs.crash").crashLog
   local fnutils = require("hs.fnutils")
   local hsmath = require("hs.math")
+  local host = require("hs.host")
+  local timer = require("hs.timer")
 
   -- seed RNG before we do anything else
   math.randomseed(math.floor(hsmath.randomFloat()*100000000000000))
@@ -97,12 +99,12 @@ end
 local resumeTimers = {}
 
 hs.coroutineApplicationYield = function(delay)
-    delay = delay or require"hs.math".minFloat
+    delay = delay or hsmath.minFloat
 
     local thread, isMain = coroutine.running()
     if not isMain then
-        local uuid = require"hs.host".uuid()
-        resumeTimers[uuid] = require"hs.timer".doAfter(delay, function()
+        local uuid = host.uuid()
+        resumeTimers[uuid] = timer.doAfter(delay, function()
             resumeTimers[uuid] = nil
             local status, msg = coroutine.resume(thread)
             if not status then
