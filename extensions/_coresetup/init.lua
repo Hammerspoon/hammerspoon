@@ -6,14 +6,36 @@ return {setup=function(...)
   local modpath, prettypath, fullpath, configdir, docstringspath, hasinitfile, autoload_extensions = ...
   local tostring,pack,tconcat,sformat,tsort=tostring,table.pack,table.concat,string.format,table.sort
   local traceback = debug.traceback
+
+  -- define hs.printf before requiring anything because it's used by some of the modules
+  -- for logging and console messages.
+
+--- hs.printf(format, ...)
+--- Function
+--- Prints formatted strings to the Console
+---
+--- Parameters:
+---  * format - A format string
+---  * ... - Zero or more arguments to fill the placeholders in the format string
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * This is a simple wrapper around the Lua code `print(string.format(...))`.
+  function hs.printf(fmt,...) return print(sformat(fmt,...)) end -- luacheck: ignore
+
+  -- load these first so logs can be captured and randomizer can be seeded
   local crashLog = require("hs.crash").crashLog
-  local fnutils = require("hs.fnutils")
   local hsmath = require("hs.math")
-  local host = require("hs.host")
-  local timer = require("hs.timer")
 
   -- seed RNG before we do anything else
   math.randomseed(math.floor(hsmath.randomFloat()*100000000000000))
+
+  -- now regular require locals for use later on in _coresetup
+  local fnutils = require("hs.fnutils")
+  local host = require("hs.host")
+  local timer = require("hs.timer")
 
   -- setup core functions
 
@@ -205,22 +227,6 @@ coroutine.applicationYield = hs.coroutineApplicationYield
     local str = tconcat(vals, "\t") .. "\n"
     logmessage(str)
   end
-
---- hs.printf(format, ...)
---- Function
---- Prints formatted strings to the Console
----
---- Parameters:
----  * format - A format string
----  * ... - Zero or more arguments to fill the placeholders in the format string
----
---- Returns:
----  * None
----
---- Notes:
----  * This is a simple wrapper around the Lua code `print(string.format(...))`.
-  function hs.printf(fmt,...) return print(sformat(fmt,...)) end
-
 
 --- hs.execute(command[, with_user_env]) -> output, status, type, rc
 --- Function
