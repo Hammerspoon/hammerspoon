@@ -23,7 +23,7 @@ return {setup=function(...)
 ---
 --- Notes:
 ---  * This is a simple wrapper around the Lua code `print(string.format(...))`.
-  function hs.printf(fmt,...) return print(sformat(fmt,...)) end
+  function hs.printf(fmt,...) return print(sformat(fmt,...)) end -- luacheck: ignore
 
   -- load these first so logs can be captured and randomizer can be seeded
   local crashLog = require("hs.crash").crashLog
