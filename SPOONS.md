@@ -50,6 +50,8 @@ Hopefully the Spoon came with some documentation, either on its homepage or in `
 
 For most Spoons, simply add `hs.loadSpoon("NAME")` to your Hammerspoon config (note that `NAME` should *not* include the `.spoon` extension). This will make the spoon available in the global Lua namespace as `spoon.NAME`.
 
+After loading a Spoon, you are responsible for calling its `start()` method if it has one before using it.
+
 Note that `hs.loadSpoon()` uses `package.path` to find Spoons. Hence you can have it look for Spoons in other paths by adding those paths to `package.path` as follows:
 
 ```lua

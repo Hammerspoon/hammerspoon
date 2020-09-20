@@ -293,6 +293,7 @@ coroutine.applicationYield = hs.coroutineApplicationYield
 --- Notes:
 ---  * Spoons are a way of distributing self-contained units of Lua functionality, for Hammerspoon. For more information, see https://github.com/Hammerspoon/hammerspoon/blob/master/SPOON.md
 ---  * This function will load the Spoon and call its `:init()` method if it has one. If you do not wish this to happen, or wish to use a Spoon that somehow doesn't fit with the behaviours of this function, you can also simply `require('name')` to load the Spoon
+---  * If the Spoon has a `:start()` method you are responsible for calling it before using the functionality of the Spoon.
 ---  * If the Spoon provides documentation, it will be loaded by made available in hs.docs
 ---  * To learn how to distribute your own code as a Spoon, see https://github.com/Hammerspoon/hammerspoon/blob/master/SPOON.md
   hs.loadSpoon = function (name, global)
