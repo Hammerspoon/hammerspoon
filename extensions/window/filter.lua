@@ -1558,7 +1558,9 @@ local function startGlobalWatcher()
   for _,app in ipairs(runningApps) do
     startAppWatcher(app,app:name())
   end
-  global.watcher:start()
+  if global.watcher then
+    global.watcher:start()
+  end
 end
 
 local function stopGlobalWatcher()
