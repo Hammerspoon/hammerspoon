@@ -390,6 +390,8 @@ function upload_dSYMs() {
     export SENTRY_PROJECT=hammerspoon
     export SENTRY_LOG_LEVEL=debug
     export SENTRY_AUTH_TOKEN
+    "${HAMMERSPOON_HOME}/scripts/sentry-cli" releases new -p hammerspoon ${VERSION}
+    "${HAMMERSPOON_HOME}/scripts/sentry-cli" releases set-commits --auto "${VERSION}"
     "${HAMMERSPOON_HOME}/scripts/sentry-cli" upload-dif "archive/${VERSION}/dSYM/" >"archive/${VERSION}/dSYM-upload.log" 2>&1
   fi
   popd >/dev/null
