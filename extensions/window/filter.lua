@@ -1341,7 +1341,7 @@ function App:destroyed()
   apps[self.name]=nil
 end
 
-local function windowEvent(win,event,_,appname,id)
+local function windowEvent(event,appname,id)
   local app=apps[appname]
   log.vf('%s (%s) <= %s (window event)',appname,id or '?',event)
   if not id then return log.df('%s: %s cannot be processed',appname,event) end
@@ -1380,8 +1380,8 @@ appWindowEvent=function(win,event,_,appname,retry)
       return
     end
     if apps[appname].windows[id] then return log.df('%s (%d) already registered',appname,id) end
-    local watcher=win:newWatcher(function(win,event,_,appname)
-      windowEvent(win,event,_,appname,id)
+    local watcher=win:newWatcher(function(_,watcherEvent)
+      windowEvent(watcherEvent,appname,id)
     end, appname)
     if not watcher:pid() then
       log.wf('%s: %s has no watcher pid',appname,role or (win.role and win:role()))
