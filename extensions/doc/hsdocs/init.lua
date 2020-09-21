@@ -11,7 +11,7 @@
 ---  * Documentation for the LuaSkin Objective-C Framework
 ---  * Lua Reference documentation
 ---
---- The intent of this sub-module is to provide as close a rendering of the same documentation available at the Hammerspoon Github site and Dash documentation as possible in a manner suitable for run-time modification so module developers can test out documentation additions without requiring a complete recompilation of the Hammerspoon source.  As always, the most current and official documentation can be found at http://www.hammerspoon.org and in the official Hammerspoon Dash docset.
+--- The intent of this sub-module is to provide as close a rendering of the same documentation available at the Hammerspoon Github site and Dash documentation as possible in a manner suitable for run-time modification so module developers can test out documentation additions without requiring a complete recompilation of the Hammerspoon source.  As always, the most current and official documentation can be found at https://www.hammerspoon.org and in the official Hammerspoon Dash docset.
 
 local module  = {}
 -- private variables and methods -----------------------------------------

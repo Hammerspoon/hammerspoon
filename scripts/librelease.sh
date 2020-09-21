@@ -390,6 +390,8 @@ function upload_dSYMs() {
     export SENTRY_PROJECT=hammerspoon
     export SENTRY_LOG_LEVEL=debug
     export SENTRY_AUTH_TOKEN
+    "${HAMMERSPOON_HOME}/scripts/sentry-cli" releases new -p hammerspoon ${VERSION}
+    "${HAMMERSPOON_HOME}/scripts/sentry-cli" releases set-commits --auto "${VERSION}"
     "${HAMMERSPOON_HOME}/scripts/sentry-cli" upload-dif "archive/${VERSION}/dSYM/" >"archive/${VERSION}/dSYM-upload.log" 2>&1
   fi
   popd >/dev/null
@@ -452,7 +454,7 @@ function release_submit_dash_docs() {
       "archive": "Hammerspoon.tgz",
       "author": {
           "name": "Hammerspoon Team",
-          "link": "http://www.hammerspoon.org/"
+          "link": "https://www.hammerspoon.org/"
       },
       "aliases": [],
 
@@ -476,7 +478,7 @@ function release_update_appcast() {
         <item>
             <title>Version ${VERSION}</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/${VERSION}.html
+                https://www.hammerspoon.org/releasenotes/${VERSION}.html
             </sparkle:releaseNotesLink>
             <pubDate>$(date +"%a, %e %b %Y %H:%M:%S %z")</pubDate>
             <enclosure url=\"https://github.com/Hammerspoon/hammerspoon/releases/download/${VERSION}/Hammerspoon-${VERSION}.zip\"
@@ -500,7 +502,7 @@ function release_tweet() {
   local CURRENT
   CURRENT=$(t accounts | grep -B1 active | head -1)
   t set active hammerspoon1
-  t update "Just released ${VERSION} - http://www.hammerspoon.org/releasenotes/"
+  t update "Just released ${VERSION} - https://www.hammerspoon.org/releasenotes/"
   t set active "$CURRENT"
 }
 

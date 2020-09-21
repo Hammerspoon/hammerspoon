@@ -55,7 +55,7 @@ void MJLuaSetupLogHandler(void(^blk)(NSString* str)) {
 ///
 /// Notes:
 ///  * If at all possible, please do allow Hammerspoon to upload crash reports to us, it helps a great deal in keeping Hammerspoon stable
-///  * Our Privacy Policy can be found here: [http://www.hammerspoon.org/privacy.html](http://www.hammerspoon.org/privacy.html)
+///  * Our Privacy Policy can be found here: [https://www.hammerspoon.org/privacy.html](https://www.hammerspoon.org/privacy.html)
 static int core_uploadCrashData(lua_State* L) {
     if (lua_isboolean(L, 1)) { HSSetUploadCrashData(lua_toboolean(L, 1)); }
     lua_pushboolean(L, HSUploadCrashData()) ;

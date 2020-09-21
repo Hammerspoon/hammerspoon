@@ -168,7 +168,7 @@ void create_task(task_userdata_t *userData) {
     return;
 }
 
-/// hs.task.new(launchPath, callbackFn[, streamCallbackFn, arguments]) -> hs.task object
+/// hs.task.new(launchPath, callbackFn[, streamCallbackFn][, arguments]) -> hs.task object
 /// Function
 /// Creates a new hs.task object
 ///

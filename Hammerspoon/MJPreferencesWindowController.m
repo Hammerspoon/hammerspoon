@@ -200,7 +200,7 @@ void PreferencesDarkModeSetEnabled(BOOL enabled) {
 }
 
 - (IBAction) privacyPolicyClicked:(id)sender {
-    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"http://www.hammerspoon.org/privacy"]];
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://www.hammerspoon.org/privacy"]];
 }
 
 - (void) dockMenuProblemAlertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo {

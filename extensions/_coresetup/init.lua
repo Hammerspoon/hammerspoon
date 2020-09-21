@@ -293,6 +293,7 @@ coroutine.applicationYield = hs.coroutineApplicationYield
 --- Notes:
 ---  * Spoons are a way of distributing self-contained units of Lua functionality, for Hammerspoon. For more information, see https://github.com/Hammerspoon/hammerspoon/blob/master/SPOON.md
 ---  * This function will load the Spoon and call its `:init()` method if it has one. If you do not wish this to happen, or wish to use a Spoon that somehow doesn't fit with the behaviours of this function, you can also simply `require('name')` to load the Spoon
+---  * If the Spoon has a `:start()` method you are responsible for calling it before using the functionality of the Spoon.
 ---  * If the Spoon provides documentation, it will be loaded by made available in hs.docs
 ---  * To learn how to distribute your own code as a Spoon, see https://github.com/Hammerspoon/hammerspoon/blob/master/SPOON.md
   hs.loadSpoon = function (name, global)
@@ -631,7 +632,7 @@ coroutine.applicationYield = hs.coroutineApplicationYield
   if not hasinitfile then
     local notify = require("hs.notify")
     local printf = hs.printf
-    notify.register("__noinitfile", function() os.execute("open http://www.hammerspoon.org/go/") end)
+    notify.register("__noinitfile", function() os.execute("open https://www.hammerspoon.org/go/") end)
     notify.show("Hammerspoon", "No config file found", "Click here for the Getting Started Guide", "__noinitfile")
     printf("-- Can't find %s; create it and reload your config.", prettypath)
     return hs.completionsForInputString, runstring
