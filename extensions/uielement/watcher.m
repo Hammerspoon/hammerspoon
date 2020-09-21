@@ -158,6 +158,8 @@ static int userdata_gc(lua_State* L) {
             watcher = nil;
         }
     }
+    lua_pushnil(L) ;
+    lua_setmetatable(L, 1) ;
     return 0;
 }
 
