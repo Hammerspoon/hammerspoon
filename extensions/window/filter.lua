@@ -1387,7 +1387,7 @@ appWindowEvent=function(win,event,_,appname,retry)
     end
     if apps[appname].windows[id] then return log.df('%s (%d) already registered',appname,id) end
     local watcher=win:newWatcher(windowEvent,appname)
-    if not watcher._element.pid then
+    if not watcher:pid() then
       log.wf('%s: %s has no watcher pid',appname,role or (win.role and win:role()))
       if retry>MAX_RETRIES then log.df('%s: %s has no watcher pid',appname,win.subrole and win:subrole() or (win.role and win:role()) or 'window')
       else
@@ -1412,7 +1412,7 @@ local function startAppWatcher(app,appname)
   local watcher = app:newWatcher(appWindowEvent,appname)
   watcher:start({uiwatcher.windowCreated,uiwatcher.focusedWindowChanged})
   App.new(app,appname,watcher)
-  if not watcher._element.pid then
+  if not watcher:pid() then
     log.wf('No accessibility access to app %s (no watcher pid)',(appname or '[???]'))
   end
 end
@@ -1428,7 +1428,7 @@ local function startAppWatcher(app,appname,retry,nologging)
   if retry>1 and not pendingApps[appname] then return end --given up before anything could even happen
 
   local watcher = app:newWatcher(appWindowEvent,appname)
-  if watcher._element.pid then
+  if watcher:pid() then
     pendingApps[appname]=nil --done
     watcher:start({uiwatcher.windowCreated,uiwatcher.focusedWindowChanged})
     App.new(app,appname,watcher)
