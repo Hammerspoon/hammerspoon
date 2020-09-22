@@ -230,6 +230,7 @@ static int push_hammerAppInfo(lua_State* L) {
 
 /// hs.accessibilityState(shouldPrompt) -> isEnabled
 /// Function
+/// Checks the Accessibility Permissions for Hammerspoon, and optionally allows you to prompt for permissions.
 ///
 /// Parameters:
 ///  * shouldPrompt - an optional boolean value indicating if the dialog box asking if the System Preferences application should be opened should be presented when Accessibility is not currently enabled for Hammerspoon.  Defaults to false.
@@ -285,6 +286,7 @@ bool isScreenRecordingEnabled()
 
 /// hs.screenRecordingState(shouldPrompt) -> isEnabled
 /// Function
+/// Checks the Screen Recording Permissions for Hammerspoon, and optionally allows you to prompt for permissions.
 ///
 /// Parameters:
 ///  * shouldPrompt - an optional boolean value indicating if the dialog box asking if the System Preferences application should be opened should be presented when Screen Recording is not currently enabled for Hammerspoon.  Defaults to false.
@@ -310,6 +312,7 @@ static int core_screenRecordingState(lua_State* L) {
 
 /// hs.microphoneState(shouldPrompt) -> boolean
 /// Function
+/// Checks the Microphone Permissions for Hammerspoon, and optionally allows you to prompt for permissions.
 ///
 /// Parameters:
 ///  * shouldPrompt - an optional boolean value indicating if we should request microphone access. Defaults to false.
@@ -368,6 +371,7 @@ static int core_microphoneState(lua_State* L) {
 
 /// hs.cameraState(shouldPrompt) -> boolean
 /// Function
+/// Checks the Camera Permissions for Hammerspoon, and optionally allows you to prompt for permissions.
 ///
 /// Parameters:
 ///  * shouldPrompt - an optional boolean value indicating if we should request camear access. Defaults to false.
