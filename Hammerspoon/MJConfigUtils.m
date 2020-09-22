@@ -6,8 +6,7 @@ NSString* MJConfigDir(void) {
 }
 
 NSString* MJConfigDirAbsolute(void) {
-    NSString* configDir = MJConfigDir();
-    return [[configDir stringByStandardizingPath] stringByResolvingSymlinksInPath];
+    return [MJConfigDir() stringByResolvingSymlinksInPath];
 }
 
 NSString* MJConfigFileFullPath(void) {
