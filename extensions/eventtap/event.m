@@ -984,6 +984,41 @@ static int eventtap_event_systemKey(lua_State* L) {
     return 1;
 }
 
+/// hs.eventtap.event:getTouches() -> table | nil
+/// Method
+/// Returns a table of details containing information about touches on the trackpad associated with this event if the event is of the type NSEventTypeGesture.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * if the event is of the type NSEventTypeGesture, returns a table; otherwise returns nil.
+///
+/// Notes:
+///  * if the event is of the type NSEventTypeGesture, the table will contain one or more tables in an array. Each member table of the array will have the following key-value pairs:
+///    * `device`             - a string containing a unique identifier for the device on which the touch occurred. At present we do not have a way to match the identifier to a specific touch device, but if multiple such devices are attached to the computer, this value will differ between them.
+///    * `deviceSize`         - a size table containing keys `h` and `w` for the height and width of the touch device in points.
+///    * `identity`           - a string specifying a unique identifier for the touch guaranteed to be unique for the life of the touch. This identifier may be used to track the movement of a specific touch (e.g. finger) as it moves through successive callbacks.
+///    * `normalizedPosition` - a point table specifying the `x` and `y` coordinates of the touch, each normalized to be a value between 0.0 and 1.0. `{ x = 0, y = 0 }` is the lower left corner of the touch device.
+///    * `phase`              - a string specifying the current phase the touch is considered to be in. The possible values are: "began", "moved", "stationary", "ended", or "cancelled".
+///    * `resting`            - From the Apple API documentation: "Resting touches occur when a user simply rests their thumb on the trackpad device."; however I've never observed this as anything other than false.
+///    * `touching`           - a boolean specifying whether or not the touch phase is "began", "moved", or "stationary" (i.e. is *not* "ended" or "cancelled").
+///    * `type`               - a string specifying the type of touch from a Touch Bar interaction. It will be the string "direct" or "indirect"
+///      * From the Apple API documentation: "A direct touch [is] from a user's finger on a screen." and "An indirect touch that is not on a screen, like a digitizer touch."
+static int eventtap_event_getTouches(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+    [skin checkArgs:LS_TUSERDATA, EVENT_USERDATA_TAG, LS_TBREAK] ;
+    CGEventRef event      = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG) ;
+    NSEvent    *asNSEvent = [NSEvent eventWithCGEvent:event] ;
+
+    if (asNSEvent.type == NSEventTypeGesture) {
+        [skin pushNSObject:asNSEvent.allTouches] ;
+    } else {
+        lua_pushnil(L) ;
+    }
+    return 1 ;
+}
+
 /// hs.eventtap.event.types -> table
 /// Constant
 /// A table containing event types to be used with `hs.eventtap.new(...)` and returned by `hs.eventtap.event:type()`.  The table supports forward (label to number) and reverse (number to label) lookups to increase its flexibility.
@@ -1310,10 +1345,10 @@ static void pushpropertiestable(lua_State* L) {
 ///  * alphaShift                - related to the caps-lock in some way?
 ///  * alphaShiftStateless       - related to the caps-lock in some way?
 ///  * deviceAlphaShiftStateless - related to the caps-lock in some way?
-///  * deviceLeftAlternate       -
-///  * deviceLeftCommand         -
-///  * deviceLeftControl         -
-///  * deviceLeftShift           -
+///  * deviceLeftAlternate       - Corresponds to the left alt key on the keyboard (if present)
+///  * deviceLeftCommand         - Corresponds to the left cmd key on the keyboard (if present)
+///  * deviceLeftControl         - Corresponds to the left ctrl key on the keyboard (if present)
+///  * deviceLeftShift           - Corresponds to the left shift key on the keyboard (if present)
 ///  * help                      - related to a modifier found on old NeXT keyboards but not on modern keyboards?
 ///
 /// It has also been observed that synthetic events that have been posted also have the bit represented by 0x20000000 set.  This constant does not appear in IOLLEvent.h or CGEventTypes.h, which defines most of the constants used in this module, so it is not included within this table at present, but may be added in the future if any corroborating information can be found.
@@ -1376,6 +1411,7 @@ static const luaL_Reg eventtapevent_metalib[] = {
     {"getUnicodeString", eventtap_event_getUnicodeString},
     {"setUnicodeString", eventtap_event_setUnicodeString},
     {"getType",         eventtap_event_getType},
+    {"getTouches",      eventtap_event_getTouches},
     {"post",            eventtap_event_post},
     {"getProperty",     eventtap_event_getProperty},
     {"setProperty",     eventtap_event_setProperty},
@@ -1482,6 +1518,69 @@ static int flags_containExactly(lua_State* L) {
     return 1;
 }
 
+static int NSTouch_toLua(lua_State *L, id obj) {
+    LuaSkin *skin  = [LuaSkin sharedWithState:L];
+    NSTouch *touch = obj;
+
+    lua_newtable(L);
+
+    NSTouchType type = touch.type ;
+    switch(type) {
+        case NSTouchTypeDirect:   lua_pushstring(L, "direct") ; break ;
+        case NSTouchTypeIndirect: lua_pushstring(L, "indirect") ; break ;
+        default:
+            lua_pushfstring(L, "** unrecognized type: %d", type) ;
+    }
+    lua_setfield(L, -2, "type") ;
+
+    lua_pushfstring(L, "%p", touch.identity) ;    lua_setfield(L, -2, "identity") ;
+
+    NSTouchPhase phase = touch.phase ;
+    switch(phase) {
+        case NSTouchPhaseBegan:      lua_pushstring(L, "began") ; break ;
+        case NSTouchPhaseMoved:      lua_pushstring(L, "moved") ; break ;
+        case NSTouchPhaseStationary: lua_pushstring(L, "stationary") ; break ;
+        case NSTouchPhaseEnded:      lua_pushstring(L, "ended") ; break ;
+        case NSTouchPhaseCancelled:  lua_pushstring(L, "cancelled") ; break ;
+        default:
+            lua_pushfstring(L, "** unrecognized phase: %d", phase) ;
+    }
+    lua_setfield(L, -2, "phase") ;
+
+    lua_pushboolean(L, ((phase & NSTouchPhaseTouching) > 0)) ; lua_setfield(L, -2, "touching") ;
+
+    // this fails with virtual touchbar; not sure about a physical one yet
+    @try {
+        NSPoint np = touch.normalizedPosition ;
+        [skin pushNSPoint:np] ;
+    }
+    @catch (NSException *exception) {
+        lua_pushnil(L) ;
+        if (![exception.name isEqualToString:NSInternalInconsistencyException]) {
+            [LuaSkin logWarn:[NSString stringWithFormat:@"%s.NSTouch_toLua - caught unexpected exception: %@", EVENT_USERDATA_TAG, exception]] ;
+        }
+    }
+    @finally {
+        lua_setfield(L, -2, "normalizedPosition") ;
+    }
+
+    lua_pushboolean(L, touch.resting) ; lua_setfield(L, -2, "resting") ;
+
+    lua_pushfstring(L, "%p", touch.device) ;    lua_setfield(L, -2, "device") ;
+
+    [skin pushNSSize:touch.deviceSize] ; lua_setfield(L, -2, "deviceSize") ;
+
+// Only useful if we know the view the touch originated in, and in any case only if it's one of
+// ours anyways... perhaps food for thought for hs.canvas if we ever figure out how to detect
+// gestures in our own creations.
+//
+//     - (NSPoint)locationInView:(NSView *)view;
+//     - (NSPoint)previousLocationInView:(NSView *)view;
+
+    return 1;
+}
+
+
 int luaopen_hs_eventtap_event(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin registerLibraryWithObject:EVENT_USERDATA_TAG functions:eventtapeventlib metaFunctions:meta_gcLib objectFunctions:eventtapevent_metalib];
@@ -1509,5 +1608,8 @@ int luaopen_hs_eventtap_event(lua_State* L) {
 
     eventSource = CGEventSourceCreate(kCGEventSourceStatePrivate);
 //     eventSource = CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
+
+    [skin registerPushNSHelper:NSTouch_toLua forClass:"NSTouch"];
+
     return 1;
 }
