@@ -968,7 +968,7 @@ static int hs_fileUTIalternate(lua_State *L) {
 ///  * filepath - Any kind of file or directory path, be it relative or not
 ///
 /// Returns:
-///  * A string containing the absolute path of `filepath` (i.e. one that doesn't intolve `.`, `..` or symlinks)
+///  * A string containing the absolute path of `filepath` (i.e. one that doesn't resolve `.`, `..` or symlinks)
 ///  * Note that symlinks will be resolved to their target file
 static int hs_pathToAbsolute(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
