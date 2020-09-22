@@ -943,15 +943,16 @@ do
     return window[k]
   end
   local mt=getmetatable(window)
-  if mt.__index==uielement then
-    --inject "lazy loading" for submodules
-    mt.__index=function(t,k)
-      if t==window and submodules[k] then return loadSubModule(k)
-      else return uielement[k] end
+  --inject "lazy loading" for submodules
+  mt.__index=function(_,k)
+    if submodules[k] then
+        return loadSubModule(k)
+    else
+        return nil -- if it's already in the module, __index is never called
     end
-    -- whoever gets it first (window vs application)
-    if not mt.__call then mt.__call=function(t,...) return t.find(...) end end
   end
+  -- whoever gets it first (window vs application)
+  if not mt.__call then mt.__call=function(t,...) return t.find(...) end end
 end
 
 return window
