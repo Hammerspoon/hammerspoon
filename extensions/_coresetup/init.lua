@@ -6,14 +6,36 @@ return {setup=function(...)
   local modpath, prettypath, fullpath, configdir, docstringspath, hasinitfile, autoload_extensions = ...
   local tostring,pack,tconcat,sformat,tsort=tostring,table.pack,table.concat,string.format,table.sort
   local traceback = debug.traceback
+
+  -- define hs.printf before requiring anything because it's used by some of the modules
+  -- for logging and console messages.
+
+--- hs.printf(format, ...)
+--- Function
+--- Prints formatted strings to the Console
+---
+--- Parameters:
+---  * format - A format string
+---  * ... - Zero or more arguments to fill the placeholders in the format string
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * This is a simple wrapper around the Lua code `print(string.format(...))`.
+  function hs.printf(fmt,...) return print(sformat(fmt,...)) end -- luacheck: ignore
+
+  -- load these first so logs can be captured and randomizer can be seeded
   local crashLog = require("hs.crash").crashLog
-  local fnutils = require("hs.fnutils")
   local hsmath = require("hs.math")
-  local host = require("hs.host")
-  local timer = require("hs.timer")
 
   -- seed RNG before we do anything else
   math.randomseed(math.floor(hsmath.randomFloat()*100000000000000))
+
+  -- now regular require locals for use later on in _coresetup
+  local fnutils = require("hs.fnutils")
+  local host = require("hs.host")
+  local timer = require("hs.timer")
 
   -- setup core functions
 
@@ -206,22 +228,6 @@ coroutine.applicationYield = hs.coroutineApplicationYield
     logmessage(str)
   end
 
---- hs.printf(format, ...)
---- Function
---- Prints formatted strings to the Console
----
---- Parameters:
----  * format - A format string
----  * ... - Zero or more arguments to fill the placeholders in the format string
----
---- Returns:
----  * None
----
---- Notes:
----  * This is a simple wrapper around the Lua code `print(string.format(...))`.
-  function hs.printf(fmt,...) return print(sformat(fmt,...)) end
-
-
 --- hs.execute(command[, with_user_env]) -> output, status, type, rc
 --- Function
 --- Runs a shell command, optionally loading the users shell environment first, and returns stdout as a string, followed by the same result codes as `os.execute` would return.
@@ -287,6 +293,7 @@ coroutine.applicationYield = hs.coroutineApplicationYield
 --- Notes:
 ---  * Spoons are a way of distributing self-contained units of Lua functionality, for Hammerspoon. For more information, see https://github.com/Hammerspoon/hammerspoon/blob/master/SPOON.md
 ---  * This function will load the Spoon and call its `:init()` method if it has one. If you do not wish this to happen, or wish to use a Spoon that somehow doesn't fit with the behaviours of this function, you can also simply `require('name')` to load the Spoon
+---  * If the Spoon has a `:start()` method you are responsible for calling it before using the functionality of the Spoon.
 ---  * If the Spoon provides documentation, it will be loaded by made available in hs.docs
 ---  * To learn how to distribute your own code as a Spoon, see https://github.com/Hammerspoon/hammerspoon/blob/master/SPOON.md
   hs.loadSpoon = function (name, global)
@@ -625,7 +632,7 @@ coroutine.applicationYield = hs.coroutineApplicationYield
   if not hasinitfile then
     local notify = require("hs.notify")
     local printf = hs.printf
-    notify.register("__noinitfile", function() os.execute("open http://www.hammerspoon.org/go/") end)
+    notify.register("__noinitfile", function() os.execute("open https://www.hammerspoon.org/go/") end)
     notify.show("Hammerspoon", "No config file found", "Click here for the Getting Started Guide", "__noinitfile")
     printf("-- Can't find %s; create it and reload your config.", prettypath)
     return hs.completionsForInputString, runstring

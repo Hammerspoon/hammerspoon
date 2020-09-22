@@ -192,7 +192,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>5342</string>
+	<string>5530</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.developer-tools</string>
 	<key>LSMinimumSystemVersion</key>
@@ -278,7 +278,7 @@
 			<key>UTTypeIdentifier</key>
 			<string>org.hammerspoon.Hammerspoon.Spoon</string>
 			<key>UTTypeReferenceURL</key>
-			<string>http://www.hammerspoon.org/</string>
+			<string>https://www.hammerspoon.org/</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>

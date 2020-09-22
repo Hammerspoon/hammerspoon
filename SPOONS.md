@@ -35,7 +35,7 @@ This is possible because of two things:
 
 ## Where do I get Spoons from?
 
-The official repository of Spoons is [http://www.hammerspoon.org/Spoons](http://www.hammerspoon.org/Spoons) (the source for which can be found at [https://github.com/Hammerspoon/Spoons](https://github.com/Hammerspoon/Spoons)), but authors may choose to distribute them separately from their own sites.
+The official repository of Spoons is [https://www.hammerspoon.org/Spoons](https://www.hammerspoon.org/Spoons) (the source for which can be found at [https://github.com/Hammerspoon/Spoons](https://github.com/Hammerspoon/Spoons)), but authors may choose to distribute them separately from their own sites.
 
 ## How do I install a Spoon?
 
@@ -49,6 +49,8 @@ Hopefully the Spoon came with some documentation, either on its homepage or in `
 ### Loading a Spoon
 
 For most Spoons, simply add `hs.loadSpoon("NAME")` to your Hammerspoon config (note that `NAME` should *not* include the `.spoon` extension). This will make the spoon available in the global Lua namespace as `spoon.NAME`.
+
+After loading a Spoon, you are responsible for calling its `start()` method if it has one before using it.
 
 Note that `hs.loadSpoon()` uses `package.path` to find Spoons. Hence you can have it look for Spoons in other paths by adding those paths to `package.path` as follows:
 
@@ -186,7 +188,7 @@ By convention in Hammerspoon, methods tend to return the object they belong to (
 #### Generating
 
 Several tools are able to operate on the docstrings used by Hammerspoon and Spoons. In the simplest case, each Spoon should include a `docs.json` file which is little more than the various docstrings collected together.
-This file can be generated using the Hammerspoon command line tool (see [http://www.hammerspoon.org/docs/hs.ipc.html#cliInstall](http://www.hammerspoon.org/docs/hs.ipc.html#cliInstall)):
+This file can be generated using the Hammerspoon command line tool (see [https://www.hammerspoon.org/docs/hs.ipc.html#cliInstall](https://www.hammerspoon.org/docs/hs.ipc.html#cliInstall)):
 
 ```bash
 cd /path/too/your/Spoon

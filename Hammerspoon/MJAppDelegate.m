@@ -229,6 +229,7 @@
         [SentrySDK startWithOptions:@{
             @"dsn": @SENTRY_API_URL,
             @"beforeSend": sentryWillUploadCrashReport,
+            @"release": [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]
         }];
     }
 #endif

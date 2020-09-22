@@ -2,7 +2,7 @@
 ---
 --- Utility and management functions for Spoons
 --- Spoons are Lua plugins for Hammerspoon.
---- See http://www.hammerspoon.org/Spoons/ for more information
+--- See https://www.hammerspoon.org/Spoons/ for more information
 
 if _G["spoon"] == nil then
   _G["spoon"] = {}
