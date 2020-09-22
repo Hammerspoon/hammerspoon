@@ -5,6 +5,11 @@ NSString* MJConfigDir(void) {
     return [MJConfigFileFullPath() stringByDeletingLastPathComponent];
 }
 
-NSString* MJConfigFileFullPath(void) {
-    return [[MJConfigFile stringByStandardizingPath] stringByResolvingSymlinksInPath];
+NSString* MJConfigDirAbsolute(void) {
+    return [MJConfigDir() stringByResolvingSymlinksInPath];
 }
+
+NSString* MJConfigFileFullPath(void) {
+    return [MJConfigFile stringByStandardizingPath];
+}
+

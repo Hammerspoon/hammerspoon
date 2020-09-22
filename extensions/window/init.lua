@@ -743,11 +743,11 @@ function window.frontmostWindow()
 end
 
 for n,dir in pairs{['0']='East','North','West','South'}do
-  window['windowsTo'..dir]=function(self,...)
+  objectMT['windowsTo'..dir]=function(self,...)
     self=self or window.frontmostWindow()
     return self and windowsInDirection(self,n,...)
   end
-  window['focusWindow'..dir]=function(self,wins,...)
+  objectMT['focusWindow'..dir]=function(self,wins,...)
     self=self or window.frontmostWindow()
     if not self then return end
     if wins==true then -- legacy sameApp parameter
@@ -755,7 +755,7 @@ for n,dir in pairs{['0']='East','North','West','South'}do
     end
     return self and focus_first_valid_window(window['windowsTo'..dir](self,wins,...))
   end
-  window['moveOneScreen'..dir]=function(self,...) local s=self:screen() return self:moveToScreen(s['to'..dir](s),...) end
+  objectMT['moveOneScreen'..dir]=function(self,...) local s=self:screen() return self:moveToScreen(s['to'..dir](s),...) end
 end
 
 --- hs.window:focusWindowEast([candidateWindows[, frontmost[, strict]]]) -> boolean
@@ -943,15 +943,16 @@ do
     return window[k]
   end
   local mt=getmetatable(window)
-  if mt.__index==uielement then
-    --inject "lazy loading" for submodules
-    mt.__index=function(t,k)
-      if t==window and submodules[k] then return loadSubModule(k)
-      else return uielement[k] end
+  --inject "lazy loading" for submodules
+  mt.__index=function(_,k)
+    if submodules[k] then
+        return loadSubModule(k)
+    else
+        return nil -- if it's already in the module, __index is never called
     end
-    -- whoever gets it first (window vs application)
-    if not mt.__call then mt.__call=function(t,...) return t.find(...) end end
   end
+  -- whoever gets it first (window vs application)
+  if not mt.__call then mt.__call=function(t,...) return t.find(...) end end
 end
 
 return window
