@@ -140,7 +140,8 @@ function testTabs()
   -- First test tabs on a window that doesn't have tabs
   hs.openConsole()
   local win = hs.window.focusedWindow()
-  assertIsNil(win:tabCount())
+  assertIsUserdata(win)
+  assertIsEqual(0, win:tabCount())
 
   -- Now test an app with tabs
   local safari = hs.application.open("Safari", 5, true)
@@ -150,6 +151,8 @@ function testTabs()
   hs.urlevent.openURLWithBundle("http://developer.apple.com", "com.apple.Safari")
 
   local safariWin = safari:mainWindow()
+  assertIsUserdata(safariWin)
+
   local tabCount = safariWin:tabCount()
   assertGreaterThan(1, tabCount)
 
@@ -189,7 +192,7 @@ function testFullscreenOneSetup()
 
   win:setFullScreen(true)
 
-  --return success()
+  return success()
 end
 
 function testFullscreenOneResult()

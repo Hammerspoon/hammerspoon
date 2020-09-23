@@ -317,7 +317,8 @@ function testVolumes()
       os.execute("diskutil rename "..ramdiskName.." "..ramdiskRename)
     end
     if event == hs.fs.volume.didRename then
-      newPath = info.path:match("(/Volumes/"..ramdiskRename..")/?$")
+      -- NOTE: in this case, `info` is returned as a NSURL object:
+      newPath = info.path and info.path.filePath:match("(/Volumes/"..ramdiskRename..")/?$")
       if not newPath then return end
       hs.fs.volume.eject(newPath)
       volumeWatcher:stop()

