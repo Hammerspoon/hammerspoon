@@ -490,7 +490,16 @@ static int dir_iter_factory (lua_State *L) {
         lua_pushnil(L);
         lua_pushfstring(L, "cannot open %s: %s", path, strerror (errno));
     }
+
+    // Lua 5.4: use __close to close dir if you break the iterator
+    // SOURCE: https://github.com/keplerproject/luafilesystem/commit/842505b6a33d0b0e2445568ea42f2adbf3c4eb77
+    #if LUA_VERSION_NUM >= 504
+      lua_pushnil(L);
+      lua_pushvalue(L, -2);
+      return 4;
+    #else
     return 2;
+    #endif
 }
 
 
@@ -511,6 +520,13 @@ static int dir_create_meta (lua_State *L) {
     lua_setfield(L, -2, "__index");
     lua_pushcfunction (L, dir_close);
     lua_setfield (L, -2, "__gc");
+    
+    // Lua 5.4: use __close to close dir if you break the iterator
+    // SOURCE: https://github.com/keplerproject/luafilesystem/commit/842505b6a33d0b0e2445568ea42f2adbf3c4eb77
+    #if LUA_VERSION_NUM >= 504
+      lua_pushcfunction(L, dir_close);
+      lua_setfield(L, -2, "__close");
+    #endif
     return 1;
 }
 
