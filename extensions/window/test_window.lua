@@ -140,7 +140,7 @@ function testTabs()
   -- First test tabs on a window that doesn't have tabs
   hs.openConsole()
   local win = hs.window.focusedWindow()
-  assertIsNil(win:tabCount())
+  assertIsEqual(0, win:tabCount())
 
   -- Now test an app with tabs
   local safari = hs.application.open("Safari", 5, true)
