@@ -189,7 +189,7 @@ function testFullscreenOneSetup()
 
   win:setFullScreen(true)
 
-  --return success()
+  return success()
 end
 
 function testFullscreenOneResult()
