@@ -140,6 +140,7 @@ function testTabs()
   -- First test tabs on a window that doesn't have tabs
   hs.openConsole()
   local win = hs.window.focusedWindow()
+  assertIsUserdata(win)
   assertIsEqual(0, win:tabCount())
 
   -- Now test an app with tabs
@@ -150,6 +151,8 @@ function testTabs()
   hs.urlevent.openURLWithBundle("http://developer.apple.com", "com.apple.Safari")
 
   local safariWin = safari:mainWindow()
+  assertIsUserdata(safariWin)
+
   local tabCount = safariWin:tabCount()
   assertGreaterThan(1, tabCount)
 
