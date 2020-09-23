@@ -231,6 +231,7 @@ static int push_hammerAppInfo(lua_State* L) {
 
 /// hs.accessibilityState(shouldPrompt) -> isEnabled
 /// Function
+/// Checks the Accessibility Permissions for Hammerspoon, and optionally allows you to prompt for permissions.
 ///
 /// Parameters:
 ///  * shouldPrompt - an optional boolean value indicating if the dialog box asking if the System Preferences application should be opened should be presented when Accessibility is not currently enabled for Hammerspoon.  Defaults to false.
@@ -286,6 +287,7 @@ bool isScreenRecordingEnabled()
 
 /// hs.screenRecordingState(shouldPrompt) -> isEnabled
 /// Function
+/// Checks the Screen Recording Permissions for Hammerspoon, and optionally allows you to prompt for permissions.
 ///
 /// Parameters:
 ///  * shouldPrompt - an optional boolean value indicating if the dialog box asking if the System Preferences application should be opened should be presented when Screen Recording is not currently enabled for Hammerspoon.  Defaults to false.
@@ -311,6 +313,7 @@ static int core_screenRecordingState(lua_State* L) {
 
 /// hs.microphoneState(shouldPrompt) -> boolean
 /// Function
+/// Checks the Microphone Permissions for Hammerspoon, and optionally allows you to prompt for permissions.
 ///
 /// Parameters:
 ///  * shouldPrompt - an optional boolean value indicating if we should request microphone access. Defaults to false.
@@ -369,6 +372,7 @@ static int core_microphoneState(lua_State* L) {
 
 /// hs.cameraState(shouldPrompt) -> boolean
 /// Function
+/// Checks the Camera Permissions for Hammerspoon, and optionally allows you to prompt for permissions.
 ///
 /// Parameters:
 ///  * shouldPrompt - an optional boolean value indicating if we should request camear access. Defaults to false.
@@ -875,7 +879,12 @@ void callAccessibilityStateCallback(void) {
     lua_getglobal(L, "hs");
     lua_getfield(L, -1, "accessibilityStateCallback");
 
-    [skin protectedCallAndError:@"hs.callAccessibilityStateCallback" nargs:0 nresults:0];
+    if (lua_type(L, -1) == LUA_TNIL) {
+        // There is no callback set, so just pop the callback and carry on
+        lua_pop(L, 1);
+    } else {
+        [skin protectedCallAndError:@"hs.callAccessibilityStateCallback" nargs:0 nresults:0];
+    }
 
     // Pop the hs global off the stack
     lua_pop(L, 1);
@@ -891,8 +900,13 @@ void textDroppedToDockIcon(NSString *pboardString) {
     lua_getglobal(L, "hs");
     lua_getfield(L, -1, "textDroppedToDockIconCallback");
 
-    [skin pushNSObject:pboardString];
-    [skin protectedCallAndError:@"hs.textDroppedToDockIconCallback" nargs:1 nresults:0];
+    if (lua_type(L, -1) == LUA_TNIL) {
+        // There is no callback set, so just pop the callback and carry on
+        lua_pop(L, 1);
+    } else {
+        [skin pushNSObject:pboardString];
+        [skin protectedCallAndError:@"hs.textDroppedToDockIconCallback" nargs:1 nresults:0];
+    }
 
     // Pop the hs global off the stack
     lua_pop(L, 1);
@@ -908,8 +922,13 @@ void fileDroppedToDockIcon(NSString *filePath) {
     lua_getglobal(L, "hs");
     lua_getfield(L, -1, "fileDroppedToDockIconCallback");
 
-    [skin pushNSObject:filePath];
-    [skin protectedCallAndError:@"hs.fileDroppedToDockIconCallback" nargs:1 nresults:0];
+    if (lua_type(L, -1) == LUA_TNIL) {
+        // There is no callback set, so just pop the callback and carry on
+        lua_pop(L, 1);
+    } else {
+        [skin pushNSObject:filePath];
+        [skin protectedCallAndError:@"hs.fileDroppedToDockIconCallback" nargs:1 nresults:0];
+    }
 
     // Pop the hs global off the stack
     lua_pop(L, 1);

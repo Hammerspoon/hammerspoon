@@ -1341,14 +1341,8 @@ function App:destroyed()
   apps[self.name]=nil
 end
 
-local function windowEvent(win,event,_,appname)
-  local id=win and win.id and win:id()
+local function windowEvent(event,appname,id)
   local app=apps[appname]
-  if not id and app then
-    for _,v in pairs(app.windows) do
-      if v.window==win then id=v.id break end
-    end
-  end
   log.vf('%s (%s) <= %s (window event)',appname,id or '?',event)
   if not id then return log.df('%s: %s cannot be processed',appname,event) end
   if not app then return log.df('app %s is not registered!',appname) end
@@ -1386,7 +1380,9 @@ appWindowEvent=function(win,event,_,appname,retry)
       return
     end
     if apps[appname].windows[id] then return log.df('%s (%d) already registered',appname,id) end
-    local watcher=win:newWatcher(windowEvent,appname)
+    local watcher=win:newWatcher(function(_,watcherEvent)
+      windowEvent(watcherEvent,appname,id)
+    end, appname)
     if not watcher:pid() then
       log.wf('%s: %s has no watcher pid',appname,role or (win.role and win:role()))
       if retry>MAX_RETRIES then log.df('%s: %s has no watcher pid',appname,win.subrole and win:subrole() or (win.role and win:role()) or 'window')

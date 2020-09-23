@@ -58,7 +58,7 @@
         NSString *dstSpoonFullPath = [spoonPath stringByAppendingPathComponent:spoonName];
 
         if ([dstSpoonFullPath isEqualToString:fileAndPath]) {
-            NSLog(@"User double clicked on a Spoon in %@, skipping", MJConfigDir());
+            NSLog(@"User double clicked on a Spoon in %@, skipping", MJConfigDirAbsolute());
             return YES;
         }
 
