@@ -1,3 +1,5 @@
+#import <Foundation/Foundation.h>
+#import "TouchEvents.h"
 #import "eventtap_event.h"
 #import "HSuicore.h"
 @import IOKit.hidsystem ;
@@ -69,6 +71,58 @@ static int eventtap_event_newEventFromData(lua_State* L) {
     NSData *data = [skin toNSObjectAtIndex:1 withOptions:LS_NSLuaStringAsDataOnly] ;
 
     CGEventRef event = CGEventCreateFromData(NULL, (__bridge CFDataRef)data);
+    if (event) {
+        new_eventtap_event(L, event);
+        CFRelease(event);
+    } else {
+        lua_pushnil(L) ;
+    }
+    return 1;
+}
+
+/// hs.eventtap.event.newGesture(gestureType) -> event
+/// Constructor
+/// Creates an event from the data encoded in the string provided.
+///
+/// Parameters:
+///  * gestureType - the type of gesture you want to create.
+///
+/// Returns:
+///  * a new `hs.eventtap.event` object or nil if the string did not represent a valid event
+///
+/// Notes:
+///  * Valid gestureType values are:
+///   * `beginSwipeLeft` - Begin a swipe left
+///   * `endSwipeLeft` - End a swipe left
+static int eventtap_event_newGesture(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+    [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
+    
+    NSString *gesture = [skin toNSObjectAtIndex:1];
+    
+    NSDictionary* gestureDict;
+    
+    if ([gesture isEqualToString:@"beginSwipeLeft"]) {
+        gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                       @(kTLInfoSubtypeSwipe), kTLInfoKeyGestureSubtype,
+                       @(1), kTLInfoKeyGesturePhase,
+                       nil];
+    }
+    else if ([gesture isEqualToString:@"endSwipeLeft"]) {
+        gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                       @(kTLInfoSubtypeSwipe), kTLInfoKeyGestureSubtype,
+                       @(kTLInfoSwipeLeft), kTLInfoKeySwipeDirection,
+                       @(4), kTLInfoKeyGesturePhase,
+                       nil];
+    }
+    else
+    {
+        [LuaSkin logError:@"hs.eventtap.event.newGesture() - Invalid gesture supplied."];
+        lua_pushnil(L) ;
+        return 1;
+    }
+    
+    CGEventRef event = tl_CGEventCreateFromGesture((__bridge CFDictionaryRef)(gestureDict), (__bridge CFArrayRef)@[]);
     if (event) {
         new_eventtap_event(L, event);
         CFRelease(event);
@@ -1389,6 +1443,7 @@ static const luaL_Reg eventtapevent_metalib[] = {
 
 // Functions for returned object when module loads
 static luaL_Reg eventtapeventlib[] = {
+    {"newGesture",        eventtap_event_newGesture},
     {"newEvent",          eventtap_event_newEvent},
     {"newEventFromData",  eventtap_event_newEventFromData},
     {"newKeyEvent",       eventtap_event_newKeyEvent},
