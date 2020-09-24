@@ -81,87 +81,153 @@ static int eventtap_event_newEventFromData(lua_State* L) {
     return 1;
 }
 
-/// hs.eventtap.event.newGesture(gestureType[, magnification]) -> event
+/// hs.eventtap.event.newGesture(gestureType[, gestureValue]) -> event
 /// Constructor
 /// Creates an gesture event.
 ///
 /// Parameters:
 ///  * gestureType - the type of gesture you want to create.
-///  * magnification - an optional magnification number.
+///  * gestureValue - an optional value for the specific gesture (i.e. magnification, rotation or swipe distance)
 ///
 /// Returns:
 ///  * a new `hs.eventtap.event` object or `nil` if the `gestureType` is not valid.
 ///
 /// Notes:
 ///  * Valid gestureType values are:
-///   * `beginMagnify` - Starts a magnification event with an optional magnification value
-///   * `endMagnify` - Starts a magnification event with an optional magnification value
-///   * `beginSwipeLeft` - Begin a swipe left
-///   * `endSwipeLeft` - End a swipe left
-///   * `beginSwipeRight` - Begin a swipe right
-///   * `endSwipeRight` - End a swipe right
-///   * `beginSwipeUp` - Begin a swipe up
-///   * `endSwipeUp` - End a swipe up
-///   * `beginSwipeDown` - Begin a swipe down
-///   * `endSwipeDown` - End a swipe down
+///   * `beginMagnify` - Starts a magnification event with an optional magnification value as a number.
+///   * `endMagnify` - Starts a magnification event with an optional magnification value as a number.
+///   * `beginRotate` - Starts a rotation event with an optional rotation value as a number.
+///   * `endRotate` - Starts a rotation event with an optional rotation value as a number.
+///   * `beginSwipeLeft` - Begin a swipe left with an optional swipe distance value as a number.
+///   * `endSwipeLeft` - End a swipe left with an optional swipe distance value as a number.
+///   * `beginSwipeRight` - Begin a swipe right with an optional swipe distance value as a number.
+///   * `endSwipeRight` - End a swipe right with an optional swipe distance value as a number.
+///   * `beginSwipeUp` - Begin a swipe up with an optional swipe distance value as a number.
+///   * `endSwipeUp` - End a swipe up with an optional swipe distance value as a number.
+///   * `beginSwipeDown` - Begin a swipe down with an optional swipe distance value as a number.
+///   * `endSwipeDown` - End a swipe down with an optional swipe distance value as a number.
+///
+///  * Example Usage:
+///   ```lua
+///   hs.hotkey.bind({"cmd", "alt", "ctrl"}, "1", function()
+///       print("Time to Magnify!")
+///       a = require("hs.eventtap.event").newGesture("beginMagnify", 0)
+///       b = require("hs.eventtap.event").newGesture("endMagnify", 3)
+///       a:post()
+///       hs.timer.doAfter(hs.math.minFloat, function() b:post() end)
+///   end)
+///   hs.hotkey.bind({"cmd", "alt", "ctrl"}, "2", function()
+///       print("Time to Swipe Down!")
+///       a = require("hs.eventtap.event").newGesture("beginSwipeDown", 0)
+///       b = require("hs.eventtap.event").newGesture("endSwipeDown", 3)
+///       a:post()
+///       hs.timer.doAfter(hs.math.minFloat, function() b:post() end)
+///   end)
+///   hs.hotkey.bind({"cmd", "alt", "ctrl"}, "3", function()
+///       print("Time to Rotate!")
+///       a = require("hs.eventtap.event").newGesture("beginRotate", 0)
+///       b = require("hs.eventtap.event").newGesture("endRotate", 3)
+///       a:post()
+///       hs.timer.doAfter(hs.math.minFloat, function() b:post() end)
+///   end)
+///   ```
 static int eventtap_event_newGesture(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK] ;
     
     NSString *gesture = [skin toNSObjectAtIndex:1];
-    
     NSDictionary* gestureDict;
     
     if ([gesture isEqualToString:@"beginSwipeLeft"]) {
+        NSNumber *swipeDistanceValue = [skin toNSObjectAtIndex:2];
+        double swipeDistance = 0.0;
+        if (swipeDistanceValue) {
+            swipeDistance = [swipeDistanceValue floatValue];
+        }
         gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
                        @(kTLInfoSubtypeSwipe), kTLInfoKeyGestureSubtype,
-                       @(1), kTLInfoKeyGesturePhase,
+                       @(swipeDistance), kTLInfoKeyGesturePhase,
                        nil];
     }
     else if ([gesture isEqualToString:@"endSwipeLeft"]) {
+        NSNumber *swipeDistanceValue = [skin toNSObjectAtIndex:2];
+        double swipeDistance = 0.0;
+        if (swipeDistanceValue) {
+            swipeDistance = [swipeDistanceValue floatValue];
+        }
         gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
                        @(kTLInfoSubtypeSwipe), kTLInfoKeyGestureSubtype,
                        @(kTLInfoSwipeLeft), kTLInfoKeySwipeDirection,
-                       @(4), kTLInfoKeyGesturePhase,
+                       @(swipeDistance), kTLInfoKeyGesturePhase,
                        nil];
     }
     else if ([gesture isEqualToString:@"beginSwipeRight"]) {
+        NSNumber *swipeDistanceValue = [skin toNSObjectAtIndex:2];
+        double swipeDistance = 0.0;
+        if (swipeDistanceValue) {
+            swipeDistance = [swipeDistanceValue floatValue];
+        }
         gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
                        @(kTLInfoSubtypeSwipe), kTLInfoKeyGestureSubtype,
-                       @(1), kTLInfoKeyGesturePhase,
+                       @(swipeDistance), kTLInfoKeyGesturePhase,
                        nil];
     }
     else if ([gesture isEqualToString:@"endSwipeRight"]) {
+        NSNumber *swipeDistanceValue = [skin toNSObjectAtIndex:2];
+        double swipeDistance = 0.0;
+        if (swipeDistanceValue) {
+            swipeDistance = [swipeDistanceValue floatValue];
+        }
         gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
                        @(kTLInfoSubtypeSwipe), kTLInfoKeyGestureSubtype,
                        @(kTLInfoSwipeRight), kTLInfoKeySwipeDirection,
-                       @(4), kTLInfoKeyGesturePhase,
+                       @(swipeDistance), kTLInfoKeyGesturePhase,
                        nil];
     }
     else if ([gesture isEqualToString:@"beginSwipeUp"]) {
+        NSNumber *swipeDistanceValue = [skin toNSObjectAtIndex:2];
+        double swipeDistance = 0.0;
+        if (swipeDistanceValue) {
+            swipeDistance = [swipeDistanceValue floatValue];
+        }
         gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
                        @(kTLInfoSubtypeSwipe), kTLInfoKeyGestureSubtype,
-                       @(1), kTLInfoKeyGesturePhase,
+                       @(swipeDistance), kTLInfoKeyGesturePhase,
                        nil];
     }
     else if ([gesture isEqualToString:@"endSwipeUp"]) {
+        NSNumber *swipeDistanceValue = [skin toNSObjectAtIndex:2];
+        double swipeDistance = 0.0;
+        if (swipeDistanceValue) {
+            swipeDistance = [swipeDistanceValue floatValue];
+        }
         gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
                        @(kTLInfoSubtypeSwipe), kTLInfoKeyGestureSubtype,
                        @(kTLInfoSwipeUp), kTLInfoKeySwipeDirection,
-                       @(4), kTLInfoKeyGesturePhase,
+                       @(swipeDistance), kTLInfoKeyGesturePhase,
                        nil];
     }
     else if ([gesture isEqualToString:@"beginSwipeDown"]) {
+        NSNumber *swipeDistanceValue = [skin toNSObjectAtIndex:2];
+        double swipeDistance = 0.0;
+        if (swipeDistanceValue) {
+            swipeDistance = [swipeDistanceValue floatValue];
+        }
         gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
                        @(kTLInfoSubtypeSwipe), kTLInfoKeyGestureSubtype,
-                       @(1), kTLInfoKeyGesturePhase,
+                       @(swipeDistance), kTLInfoKeyGesturePhase,
                        nil];
     }
     else if ([gesture isEqualToString:@"endSwipeDown"]) {
+        NSNumber *swipeDistanceValue = [skin toNSObjectAtIndex:2];
+        double swipeDistance = 0.0;
+        if (swipeDistanceValue) {
+            swipeDistance = [swipeDistanceValue floatValue];
+        }
         gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
                        @(kTLInfoSubtypeSwipe), kTLInfoKeyGestureSubtype,
                        @(kTLInfoSwipeDown), kTLInfoKeySwipeDirection,
-                       @(4), kTLInfoKeyGesturePhase,
+                       @(swipeDistance), kTLInfoKeyGesturePhase,
                        nil];
     }
     else if ([gesture isEqualToString:@"beginMagnify"]) {
@@ -188,9 +254,33 @@ static int eventtap_event_newGesture(lua_State* L) {
                        @(magnification), kTLInfoKeyMagnification,
                        nil];
     }
+    else if ([gesture isEqualToString:@"beginRotate"]) {
+        NSNumber *rotatationValue = [skin toNSObjectAtIndex:2];
+        double rotatation = 0.0;
+        if (rotatationValue) {
+            rotatation = [rotatationValue floatValue];
+        }
+        gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                       @(kTLInfoSubtypeRotate), kTLInfoKeyGestureSubtype,
+                       @(kIOHIDEventPhaseBegan), kTLInfoKeyGesturePhase,
+                       @(rotatation), kTLInfoKeyMagnification,
+                       nil];
+    }
+    else if ([gesture isEqualToString:@"endRotate"]) {
+        NSNumber *rotatationValue = [skin toNSObjectAtIndex:2];
+        double rotatation = 0.0;
+        if (rotatationValue) {
+            rotatation = [rotatationValue floatValue];
+        }
+        gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                       @(kTLInfoSubtypeRotate), kTLInfoKeyGestureSubtype,
+                       @(kIOHIDEventPhaseEnded), kTLInfoKeyGesturePhase,
+                       @(rotatation), kTLInfoKeyMagnification,
+                       nil];
+    }
     else
     {
-        [LuaSkin logError:@"hs.eventtap.event.newGesture() - Invalid gesture supplied."];
+        [LuaSkin logError:@"hs.eventtap.event.newGesture() - Invalid gesture identifier supplied."];
         lua_pushnil(L) ;
         return 1;
     }
