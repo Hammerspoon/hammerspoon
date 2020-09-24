@@ -27,3 +27,10 @@
 
 "Preference.WarnAboutDockMenuAlert.Title" = "How to get back to this window";
 "Preference.WarnAboutDockMenuAlert.Text"  = "When both the dock icon and menu icon are disabled, you can get back to this Preferences window by activating Hammerspoon from Spotlight or by running `open -a Hammerspoon` from Terminal, and then pressing Command + Comma.";
+
+"Lua.Console.ToolBar.Preferences" = "Preferences";
+"Lua.Console.ToolBar.PreferencesToolTip" = "Open Preferences";
+"Lua.Console.ToolBar.Reload" = "Reload config";
+"Lua.Console.ToolBar.ReloadToolTip" = "Reload configuration";
+"Lua.Console.ToolBar.Help" = "Help";
+"Lua.Console.ToolBar.HelpToolTip" = "Open API docs browser"; 

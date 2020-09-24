@@ -27,3 +27,10 @@
 
 "Preference.WarnAboutDockMenuAlert.Title" = "如何返回这个窗口";
 "Preference.WarnAboutDockMenuAlert.Text"  = "当程序坞和菜单栏图标都被禁止显示时，你可以通过“聚焦搜索”执行 Hammerspoon，或通过命令行运行 `open -a Hammerspoon` 打开窗口，并使用 `Command` + `,` 快捷键打开“Hammerspoon 偏好设置”";
+
+"Lua.Console.ToolBar.Preferences"        = "首选项";
+"Lua.Console.ToolBar.PreferencesToolTip" = "打开首选项";
+"Lua.Console.ToolBar.Reload"             = "重载配置";
+"Lua.Console.ToolBar.ReloadToolTip"      = "重载配置文件";
+"Lua.Console.ToolBar.Help"               = "帮助";
+"Lua.Console.ToolBar.HelpToolTip"        = "打开 API 文档浏览器";

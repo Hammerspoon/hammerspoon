@@ -737,6 +737,34 @@ static int core_notify(lua_State* L) {
     return 0;
 }
 
+/// hs._localizedString(key[, comment]) -> string | nil
+/// Function
+/// Returns a localized version of the string designated by the specified key.
+///
+/// Parameters:
+///  * `key` - The key for a string in the table identified by tableName.
+///  * `comment` - The value to return if key is nil or if a localized string for key can’t be found in the table.
+///
+/// Returns:
+///  * A string containing the localized string or `nil `.
+static int core_localizedString(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+    [skin checkArgs:LS_TSTRING, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
+    NSString *key = [skin toNSObjectAtIndex:1];
+    NSString *comment = nil;
+    
+    if (lua_gettop(L) == 2) {
+        comment = [skin toNSObjectAtIndex:2] ;
+    }
+    NSString *localedString = NSLocalizedString(key, comment);
+    if (!localedString) {
+        lua_pushnil(L) ;
+        return 1;
+    }
+    [skin pushNSObject:localedString] ;
+    return 1;
+}
+
 static luaL_Reg corelib[] = {
     {"preferencesDarkMode", preferencesDarkMode},
     {"openConsoleOnDockClick", core_openConsoleOnDockClick},
@@ -766,6 +794,7 @@ static luaL_Reg corelib[] = {
     {"_exit", core_exit},
     {"_logmessage", core_logmessage},
     {"_notify", core_notify},
+    {"_localizedString", core_localizedString},
     {NULL, NULL}
 };
 

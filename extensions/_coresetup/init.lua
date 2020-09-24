@@ -686,10 +686,19 @@ coroutine.applicationYield = hs.coroutineApplicationYield
   local toolbar = require("hs.webview.toolbar")
   local console = require("hs.console")
   local image = require("hs.image")
+  
+  -- localization
+  local preferencesLabel   = hs._localizedString("Lua.Console.ToolBar.Preferences")
+  local preferencesToolTip = hs._localizedString("Lua.Console.ToolBar.PreferencesToolTip")
+  local reloadLabel        = hs._localizedString("Lua.Console.ToolBar.Reload")
+  local reloadToolTip      = hs._localizedString("Lua.Console.ToolBar.ReloadToolTip")
+  local helpLabel          = hs._localizedString("Lua.Console.ToolBar.Help")
+  local helpToolTip        = hs._localizedString("Lua.Console.ToolBar.HelpToolTip")
+  
   console.defaultToolbar = toolbar.new("Console Default", {
-    { id="prefs", label="Preferences", image=image.imageFromName("NSPreferencesGeneral"), tooltip="Open Preferences", fn=function() hs.openPreferences() end },
-    { id="reload", label="Reload config", image=image.imageFromName("NSSynchronize"), tooltip="Reload configuration", fn=function() hs.reload() end },
-    { id="help", label="Help", image=image.imageFromName("NSInfo"), tooltip="Open API docs browser", fn=function() hs.doc.hsdocs.help() end }
+    { id="prefs", label=preferencesLabel, image=image.imageFromName("NSPreferencesGeneral"), tooltip=preferencesToolTip, fn=function() hs.openPreferences() end },
+    { id="reload", label=reloadLabel, image=image.imageFromName("NSSynchronize"), tooltip=reloadToolTip, fn=function() hs.reload() end },
+    { id="help", label=helpLabel, image=image.imageFromName("NSInfo"), tooltip=helpToolTip, fn=function() hs.doc.hsdocs.help() end }
   }):canCustomize(true):autosaves(true)
   console.toolbar(console.defaultToolbar)
 
