@@ -2,6 +2,7 @@
 #import "TouchEvents.h"
 #import "eventtap_event.h"
 #import "HSuicore.h"
+#include "IOHIDEventTypes.h"
 @import IOKit.hidsystem ;
 
 #define FLAGS_TAG "hs.eventtap.event.flags"
@@ -80,18 +81,21 @@ static int eventtap_event_newEventFromData(lua_State* L) {
     return 1;
 }
 
-/// hs.eventtap.event.newGesture(gestureType) -> event
+/// hs.eventtap.event.newGesture(gestureType[, magnification]) -> event
 /// Constructor
-/// Creates an event from the data encoded in the string provided.
+/// Creates an gesture event.
 ///
 /// Parameters:
 ///  * gestureType - the type of gesture you want to create.
+///  * magnification - an optional magnification number.
 ///
 /// Returns:
-///  * a new `hs.eventtap.event` object or nil if the string did not represent a valid event
+///  * a new `hs.eventtap.event` object or `nil` if the `gestureType` is not valid.
 ///
 /// Notes:
 ///  * Valid gestureType values are:
+///   * `beginMagnify` - Starts a magnification event with an optional magnification value
+///   * `endMagnify` - Starts a magnification event with an optional magnification value
 ///   * `beginSwipeLeft` - Begin a swipe left
 ///   * `endSwipeLeft` - End a swipe left
 ///   * `beginSwipeRight` - Begin a swipe right
@@ -102,7 +106,7 @@ static int eventtap_event_newEventFromData(lua_State* L) {
 ///   * `endSwipeDown` - End a swipe down
 static int eventtap_event_newGesture(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
-    [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
+    [skin checkArgs:LS_TSTRING, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK] ;
     
     NSString *gesture = [skin toNSObjectAtIndex:1];
     
@@ -158,6 +162,30 @@ static int eventtap_event_newGesture(lua_State* L) {
                        @(kTLInfoSubtypeSwipe), kTLInfoKeyGestureSubtype,
                        @(kTLInfoSwipeDown), kTLInfoKeySwipeDirection,
                        @(4), kTLInfoKeyGesturePhase,
+                       nil];
+    }
+    else if ([gesture isEqualToString:@"beginMagnify"]) {
+        NSNumber *magnificationValue = [skin toNSObjectAtIndex:2];
+        double magnification = 0.0;
+        if (magnificationValue) {
+            magnification = [magnificationValue floatValue];
+        }
+        gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                       @(kTLInfoSubtypeMagnify), kTLInfoKeyGestureSubtype,
+                       @(kIOHIDEventPhaseBegan), kTLInfoKeyGesturePhase,
+                       @(magnification), kTLInfoKeyMagnification,
+                       nil];
+    }
+    else if ([gesture isEqualToString:@"endMagnify"]) {
+        NSNumber *magnificationValue = [skin toNSObjectAtIndex:2];
+        double magnification = 0.0;
+        if (magnificationValue) {
+            magnification = [magnificationValue floatValue];
+        }
+        gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                       @(kTLInfoSubtypeMagnify), kTLInfoKeyGestureSubtype,
+                       @(kIOHIDEventPhaseEnded), kTLInfoKeyGesturePhase,
+                       @(magnification), kTLInfoKeyMagnification,
                        nil];
     }
     else
