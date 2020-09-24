@@ -623,7 +623,9 @@ static int eventtap_event_post(lua_State* L) {
         }
     }
     else {
-        CGEventPost(kCGHIDEventTap, event);
+        // NOTE: @latenitefilms has tried to use `kCGHIDEventTap` as discussed in #2104
+        //       however, it doesn't seem to be any different than `kCGSessionEventTap`
+        CGEventPost(kCGSessionEventTap, event);
     }
 
     usleep(1000);
@@ -1634,9 +1636,10 @@ int luaopen_hs_eventtap_event(lua_State* L) {
     lua_setfield(L, -2, "__index");
     lua_pop(L, 1);
 
-    //eventSource = CGEventSourceCreate(kCGEventSourceStatePrivate);
-    //eventSource = CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
-    eventSource = CGEventSourceCreate(kCGEventSourceStateHIDSystemState);
+    // NOTE: @latenitefilms has tried to use `kCGEventSourceStateCombinedSessionState`
+    //       and `kCGEventSourceStateHIDSystemState` as discussed in #2104
+    //       however, it doesn't seem to be any different than `kCGEventSourceStatePrivate`
+    eventSource = CGEventSourceCreate(kCGEventSourceStatePrivate);
     
     return 1;
 }
