@@ -94,6 +94,12 @@ static int eventtap_event_newEventFromData(lua_State* L) {
 ///  * Valid gestureType values are:
 ///   * `beginSwipeLeft` - Begin a swipe left
 ///   * `endSwipeLeft` - End a swipe left
+///   * `beginSwipeRight` - Begin a swipe right
+///   * `endSwipeRight` - End a swipe right
+///   * `beginSwipeUp` - Begin a swipe up
+///   * `endSwipeUp` - End a swipe up
+///   * `beginSwipeDown` - Begin a swipe down
+///   * `endSwipeDown` - End a swipe down
 static int eventtap_event_newGesture(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
@@ -112,6 +118,45 @@ static int eventtap_event_newGesture(lua_State* L) {
         gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
                        @(kTLInfoSubtypeSwipe), kTLInfoKeyGestureSubtype,
                        @(kTLInfoSwipeLeft), kTLInfoKeySwipeDirection,
+                       @(4), kTLInfoKeyGesturePhase,
+                       nil];
+    }
+    else if ([gesture isEqualToString:@"beginSwipeRight"]) {
+        gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                       @(kTLInfoSubtypeSwipe), kTLInfoKeyGestureSubtype,
+                       @(1), kTLInfoKeyGesturePhase,
+                       nil];
+    }
+    else if ([gesture isEqualToString:@"endSwipeRight"]) {
+        gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                       @(kTLInfoSubtypeSwipe), kTLInfoKeyGestureSubtype,
+                       @(kTLInfoSwipeRight), kTLInfoKeySwipeDirection,
+                       @(4), kTLInfoKeyGesturePhase,
+                       nil];
+    }
+    else if ([gesture isEqualToString:@"beginSwipeUp"]) {
+        gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                       @(kTLInfoSubtypeSwipe), kTLInfoKeyGestureSubtype,
+                       @(1), kTLInfoKeyGesturePhase,
+                       nil];
+    }
+    else if ([gesture isEqualToString:@"endSwipeUp"]) {
+        gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                       @(kTLInfoSubtypeSwipe), kTLInfoKeyGestureSubtype,
+                       @(kTLInfoSwipeUp), kTLInfoKeySwipeDirection,
+                       @(4), kTLInfoKeyGesturePhase,
+                       nil];
+    }
+    else if ([gesture isEqualToString:@"beginSwipeDown"]) {
+        gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                       @(kTLInfoSubtypeSwipe), kTLInfoKeyGestureSubtype,
+                       @(1), kTLInfoKeyGesturePhase,
+                       nil];
+    }
+    else if ([gesture isEqualToString:@"endSwipeDown"]) {
+        gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                       @(kTLInfoSubtypeSwipe), kTLInfoKeyGestureSubtype,
+                       @(kTLInfoSwipeDown), kTLInfoKeySwipeDirection,
                        @(4), kTLInfoKeyGesturePhase,
                        nil];
     }
@@ -550,7 +595,7 @@ static int eventtap_event_post(lua_State* L) {
         }
     }
     else {
-        CGEventPost(kCGSessionEventTap, event);
+        CGEventPost(kCGHIDEventTap, event);
     }
 
     usleep(1000);
