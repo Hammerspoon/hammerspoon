@@ -253,7 +253,6 @@
 		942E71AA19B11176001BA156 /* MJAccessibilityUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 942E71A919B11176001BA156 /* MJAccessibilityUtils.m */; };
 		943BF0F219A4B43E0017F79D /* MJUserNotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 943BF0F119A4B43E0017F79D /* MJUserNotificationManager.m */; };
 		944A2D391989735300D8DC90 /* MJAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D341989735300D8DC90 /* MJAppDelegate.m */; };
-		944A2D3A1989735300D8DC90 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 944A2D351989735300D8DC90 /* MainMenu.xib */; };
 		944A2D431989737E00D8DC90 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 944A2D3D1989737E00D8DC90 /* Credits.rtf */; };
 		944A2D451989737E00D8DC90 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 944A2D3F1989737E00D8DC90 /* Images.xcassets */; };
 		944A2DA91989760400D8DC90 /* MJConsoleWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A2DA81989760400D8DC90 /* MJConsoleWindowController.m */; };
@@ -261,11 +260,13 @@
 		945B65B2198D31FC002D2E30 /* setup.lua in Resources */ = {isa = PBXBuildFile; fileRef = 945B65B1198D31FC002D2E30 /* setup.lua */; };
 		949B520319A5576E00ED4F02 /* MJDockIcon.m in Sources */ = {isa = PBXBuildFile; fileRef = 949B520219A5576E00ED4F02 /* MJDockIcon.m */; };
 		949B520619A55BF400ED4F02 /* MJMenuIcon.m in Sources */ = {isa = PBXBuildFile; fileRef = 949B520519A55BF400ED4F02 /* MJMenuIcon.m */; };
-		949CDBFE1990747B00906CCE /* PreferencesWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 949CDBFD1990747B00906CCE /* PreferencesWindow.xib */; };
-		949CDC001990759B00906CCE /* ConsoleWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 949CDBFF1990759B00906CCE /* ConsoleWindow.xib */; };
 		94A1E5481993AC5C003AEB26 /* MJFileUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A1E5471993AC5C003AEB26 /* MJFileUtils.m */; };
 		B8524F2C201A88CD00844F3D /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		B8524F32201A896000844F3D /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = B8524F25201A875600844F3D /* internal.m */; };
+		C4E9925C251AF491005FB3E6 /* PreferencesWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = C4E9925E251AF491005FB3E6 /* PreferencesWindow.xib */; };
+		C4E992BE251AF914005FB3E6 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = C4E992BC251AF914005FB3E6 /* Localizable.strings */; };
+		C4E99377251AFE9A005FB3E6 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = C4E99379251AFE9A005FB3E6 /* MainMenu.xib */; };
+		C4E998CC251C94A2005FB3E6 /* ConsoleWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = C4E998CE251C94A2005FB3E6 /* ConsoleWindow.xib */; };
 		D02F95291A00221C00E28BB2 /* HSrequire_all.m in Sources */ = {isa = PBXBuildFile; fileRef = D02F95281A00221C00E28BB2 /* HSrequire_all.m */; };
 		D077B5BF1A001B5300369B30 /* variables.m in Sources */ = {isa = PBXBuildFile; fileRef = D077B5BE1A001B5300369B30 /* variables.m */; };
 		D61F4A2A1DCFA67900AEE223 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
@@ -1350,7 +1351,6 @@
 		943BF0F119A4B43E0017F79D /* MJUserNotificationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJUserNotificationManager.m; sourceTree = "<group>"; };
 		9445CA0B19083251002568BB /* Hammerspoon.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hammerspoon.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		944A2D341989735300D8DC90 /* MJAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJAppDelegate.m; sourceTree = "<group>"; };
-		944A2D351989735300D8DC90 /* MainMenu.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainMenu.xib; sourceTree = "<group>"; };
 		944A2D3D1989737E00D8DC90 /* Credits.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
 		944A2D3F1989737E00D8DC90 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		944A2D401989737E00D8DC90 /* Hammerspoon-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Hammerspoon-Info.plist"; sourceTree = "<group>"; };
@@ -1364,13 +1364,18 @@
 		949B520419A55BF400ED4F02 /* MJMenuIcon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJMenuIcon.h; sourceTree = "<group>"; };
 		949B520519A55BF400ED4F02 /* MJMenuIcon.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJMenuIcon.m; sourceTree = "<group>"; };
 		949CDBFB1990739800906CCE /* MJConsoleWindowController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MJConsoleWindowController.h; sourceTree = "<group>"; };
-		949CDBFD1990747B00906CCE /* PreferencesWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PreferencesWindow.xib; sourceTree = "<group>"; };
-		949CDBFF1990759B00906CCE /* ConsoleWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ConsoleWindow.xib; sourceTree = "<group>"; };
 		94A1E5461993AC5C003AEB26 /* MJFileUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJFileUtils.h; sourceTree = "<group>"; };
 		94A1E5471993AC5C003AEB26 /* MJFileUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJFileUtils.m; sourceTree = "<group>"; };
 		B8524F24201A875600844F3D /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/hid/init.lua; sourceTree = "<group>"; };
 		B8524F25201A875600844F3D /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/hid/internal.m; sourceTree = "<group>"; };
 		B8524F31201A88CD00844F3D /* libhid.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libhid.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		C4E9925D251AF491005FB3E6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/PreferencesWindow.xib; sourceTree = "<group>"; };
+		C4E99260251AF49E005FB3E6 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/PreferencesWindow.strings"; sourceTree = "<group>"; };
+		C4E992BD251AF914005FB3E6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Base; path = Base.lproj/Localizable.strings; sourceTree = "<group>"; };
+		C4E9931B251AF91E005FB3E6 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		C4E9937A251AFE9F005FB3E6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		C4E998CD251C94A2005FB3E6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/ConsoleWindow.xib; sourceTree = "<group>"; };
+		C4E9992B251C94A8005FB3E6 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/ConsoleWindow.strings"; sourceTree = "<group>"; };
 		D02F95241A00221C00E28BB2 /* Hammerspoon Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Hammerspoon Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D02F95271A00221C00E28BB2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D02F95281A00221C00E28BB2 /* HSrequire_all.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HSrequire_all.m; sourceTree = "<group>"; };
@@ -3228,7 +3233,7 @@
 		942050C219907AF700FC4839 /* Console Window */ = {
 			isa = PBXGroup;
 			children = (
-				949CDBFF1990759B00906CCE /* ConsoleWindow.xib */,
+				C4E998CE251C94A2005FB3E6 /* ConsoleWindow.xib */,
 				949CDBFB1990739800906CCE /* MJConsoleWindowController.h */,
 				944A2DA81989760400D8DC90 /* MJConsoleWindowController.m */,
 				4FEF59411B29A352002344A7 /* HSGrowingTextField.h */,
@@ -3240,7 +3245,7 @@
 		942E71AB19B11288001BA156 /* Preferences Window */ = {
 			isa = PBXGroup;
 			children = (
-				949CDBFD1990747B00906CCE /* PreferencesWindow.xib */,
+				C4E9925E251AF491005FB3E6 /* PreferencesWindow.xib */,
 				942E71A319B1112F001BA156 /* MJPreferencesWindowController.h */,
 				942E71A419B1112F001BA156 /* MJPreferencesWindowController.m */,
 			);
@@ -3398,6 +3403,7 @@
 				944A2D401989737E00D8DC90 /* Hammerspoon-Info.plist */,
 				944A2D411989737E00D8DC90 /* Hammerspoon-Prefix.pch */,
 				4F5B6E6A1E9E86BB003FC580 /* Hammerspoon.sdef */,
+				C4E992BC251AF914005FB3E6 /* Localizable.strings */,
 			);
 			name = Extras;
 			sourceTree = "<group>";
@@ -3407,7 +3413,7 @@
 			children = (
 				94787D1419A38A8B00540401 /* variables.h */,
 				D077B5BE1A001B5300369B30 /* variables.m */,
-				944A2D351989735300D8DC90 /* MainMenu.xib */,
+				C4E99379251AFE9A005FB3E6 /* MainMenu.xib */,
 				944A2D341989735300D8DC90 /* MJAppDelegate.m */,
 				4F5050311B97A7B9009E2B14 /* MJAppDelegate.h */,
 				942050C41990940000FC4839 /* MJLua.h */,
@@ -6030,6 +6036,7 @@
 			knownRegions = (
 				en,
 				Base,
+				"zh-Hans",
 			);
 			mainGroup = 9445CA0219083251002568BB;
 			productRefGroup = 9445CA0C19083251002568BB /* Products */;
@@ -6149,9 +6156,10 @@
 				4F8E84311B90EDBF00C25955 /* statusicon.pdf in Resources */,
 				944A2D451989737E00D8DC90 /* Images.xcassets in Resources */,
 				944A2D431989737E00D8DC90 /* Credits.rtf in Resources */,
-				944A2D3A1989735300D8DC90 /* MainMenu.xib in Resources */,
-				949CDC001990759B00906CCE /* ConsoleWindow.xib in Resources */,
-				949CDBFE1990747B00906CCE /* PreferencesWindow.xib in Resources */,
+				C4E99377251AFE9A005FB3E6 /* MainMenu.xib in Resources */,
+				C4E992BE251AF914005FB3E6 /* Localizable.strings in Resources */,
+				C4E998CC251C94A2005FB3E6 /* ConsoleWindow.xib in Resources */,
+				C4E9925C251AF491005FB3E6 /* PreferencesWindow.xib in Resources */,
 				945B65B2198D31FC002D2E30 /* setup.lua in Resources */,
 				4F5B6E6B1E9E86BB003FC580 /* Hammerspoon.sdef in Resources */,
 			);
@@ -7621,6 +7629,44 @@
 			targetProxy = D6FD56911C04230200BAE238 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		C4E9925E251AF491005FB3E6 /* PreferencesWindow.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C4E9925D251AF491005FB3E6 /* Base */,
+				C4E99260251AF49E005FB3E6 /* zh-Hans */,
+			);
+			name = PreferencesWindow.xib;
+			sourceTree = "<group>";
+		};
+		C4E992BC251AF914005FB3E6 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C4E992BD251AF914005FB3E6 /* Base */,
+				C4E9931B251AF91E005FB3E6 /* zh-Hans */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+		C4E99379251AFE9A005FB3E6 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C4E9937A251AFE9F005FB3E6 /* Base */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+		C4E998CE251C94A2005FB3E6 /* ConsoleWindow.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C4E998CD251C94A2005FB3E6 /* Base */,
+				C4E9992B251C94A8005FB3E6 /* zh-Hans */,
+			);
+			name = ConsoleWindow.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		224BA32F23D1ECA900487FDB /* Debug */ = {

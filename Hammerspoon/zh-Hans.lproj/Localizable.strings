@@ -1,0 +1,29 @@
+"App.Upgrading.Error.Message" = "应用升级失败";
+"App.Upgrading.Error.Info"    = "%@\n\来源: %@\n目标: %@";
+
+"App.Installing.Error.Message" = "应用安装失败";
+"App.Installing.Error.Info"    = "%@\n\来源: %@\n目标: %@";
+
+"App.AvailableAlert.Upgraded"     = "已升级";
+"App.AvailableAlert.Installed"    = "已安装";
+"App.AvailableAlert.Info"         = "%@ 现已可用%@";
+"App.AvailableAlert.ReloadConfig" = ", 重载配置";
+
+"App.RemovalAlert.Continue" = "继续";
+"App.RemovalAlert.Delete"   = "删除配置";
+"App.RemovalAlert.Message"  = "你想要删除配置么?";
+"App.RemovalAlert.Info"     = "删除配置文件，您的所有 Hammerspoon 设置（包括 hs.setting 的所有内容）将会重置";
+
+"App.CrashAlert.Message" = "检测到 Hammerspoon 崩溃信息";
+"App.CrashAlert.Info"    = "您的 init.lua 正在加载 Mjolnir 模块，且上次开启时崩溃。\n\nHammerspoon 包含了许多更新版本的 Mjolnir 模块, 同时修复了很多问题，提供了新的功能特性。\n\n请查阅我们的 API 文档并迁移您的配置。";
+
+"Lua.InstallationAlert.Message" = "Hammerspoon 安装文件损坏";
+"Lua.InstallationAlert.Info"    = "请重新安装 Hammerspoon";
+
+"Lua.InitAlert.Message" = "Hammerspoon 初始化失败";
+
+"Preference.Accessibility.Granted" = "您已成功授权开启系统辅助功能!";
+"Preference.Accessibility.Warning" = "您已成功授权开启系统辅助功能!";
+
+"Preference.WarnAboutDockMenuAlert.Title" = "如何返回这个窗口";
+"Preference.WarnAboutDockMenuAlert.Text"  = "当程序坞和菜单栏图标都被禁止显示时，你可以通过“聚焦搜索”执行 Hammerspoon，或通过命令行运行 `open -a Hammerspoon` 打开窗口，并使用 `Command` + `,` 快捷键打开“Hammerspoon 偏好设置”";

@@ -1,0 +1,29 @@
+"App.Upgrading.Error.Message" = "Error upgrading Spoon";
+"App.Upgrading.Error.Info"    = "%@\n\nSource : %@\nDest : %@";
+
+"App.Installing.Error.Message" = "Error installing Spoon";
+"App.Installing.Error.Info"    = "%@\n\nSource : %@\nDest : %@";
+
+"App.AvailableAlert.Upgraded"     = "upgraded";
+"App.AvailableAlert.Installed"    = "installed";
+"App.AvailableAlert.Info"         = "%@ is now available%@";
+"App.AvailableAlert.ReloadConfig" = ", reload your config";
+
+"App.RemovalAlert.Continue" = "Continue";
+"App.RemovalAlert.Delete"   = "Delete Preferences";
+"App.RemovalAlert.Message"  = "Do you want to delete the preferences?";
+"App.RemovalAlert.Info"     = "Deleting the preferences will reset all Hammerspoon settings (including everything that uses hs.settings) to their defaults.";
+
+"App.CrashAlert.Message" = "Hammerspoon crash detected";
+"App.CrashAlert.Info"    = "Your init.lua is loading Mjolnir modules and a previous launch crashed.\n\nHammerspoon ships with updated versions of many of the Mjolnir modules, with both new features and many bug fixes.\n\nPlease consult our API documentation and migrate your config.";
+
+"Lua.InstallationAlert.Message" = "Hammerspoon installation is corrupted";
+"Lua.InstallationAlert.Info"    = "Please re-install Hammerspoon";
+
+"Lua.InitAlert.Message" = "Hammerspoon initialization failed";
+
+"Preference.Accessibility.Granted" = "Accessibility is enabled. You're all set!";
+"Preference.Accessibility.Warning" = "WARNING! Accessibility is not enabled!";
+
+"Preference.WarnAboutDockMenuAlert.Title" = "How to get back to this window";
+"Preference.WarnAboutDockMenuAlert.Text"  = "When both the dock icon and menu icon are disabled, you can get back to this Preferences window by activating Hammerspoon from Spotlight or by running `open -a Hammerspoon` from Terminal, and then pressing Command + Comma.";

@@ -836,9 +836,9 @@ void MJLuaInit(void) {
     if (loadresult != 0) {
         HSNSLOG(@"Unable to load setup.lua from bundle. Terminating");
         NSAlert *alert = [[NSAlert alloc] init];
-        [alert addButtonWithTitle:@"OK"];
-        [alert setMessageText:@"Hammerspoon installation is corrupted"];
-        [alert setInformativeText:@"Please re-install Hammerspoon"];
+        [alert addButtonWithTitle :@"OK"];
+        [alert setMessageText     :NSLocalizedString(@"Lua.InstallationAlert.Message", nil)];
+        [alert setInformativeText :NSLocalizedString(@"Lua.InstallationAlert.Info", nil)];
         [alert setAlertStyle:NSAlertStyleCritical];
         [alert runModal];
         [[NSApplication sharedApplication] terminate: nil];
@@ -857,8 +857,8 @@ void MJLuaInit(void) {
         lua_pop(L, 1); // Pop the error message off the stack
         HSNSLOG(@"Error running setup.lua:%@", errorMessage);
         NSAlert *alert = [[NSAlert alloc] init];
-        [alert addButtonWithTitle:@"OK"];
-        [alert setMessageText:@"Hammerspoon initialization failed"];
+        [alert addButtonWithTitle :@"OK"];
+        [alert setMessageText     :NSLocalizedString(@"Lua.InitAlert.Message", nil)];
         [alert setInformativeText:errorMessage];
         [alert setAlertStyle:NSAlertStyleCritical];
         [alert runModal];

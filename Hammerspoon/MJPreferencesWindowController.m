@@ -145,9 +145,9 @@ void PreferencesDarkModeSetEnabled(BOOL enabled) {
 
 - (NSString*) maybeEnableAccessibilityString {
     if (self.isAccessibilityEnabled)
-        return @"Accessibility is enabled. You're all set!";
+        return NSLocalizedString(@"Preference.Accessibility.Granted", nil);
     else
-        return @"WARNING! Accessibility is not enabled!";
+        return NSLocalizedString(@"Preference.Accessibility.Warning", nil);
 }
 
 - (NSImage*) isAccessibilityEnabledImage {
@@ -217,8 +217,8 @@ void PreferencesDarkModeSetEnabled(BOOL enabled) {
 
     NSAlert* alert = [[NSAlert alloc] init];
     [alert setAlertStyle:NSAlertStyleWarning];
-    [alert setMessageText:@"How to get back to this window"];
-    [alert setInformativeText:@"When both the dock icon and menu icon are disabled, you can get back to this Preferences window by activating Hammerspoon from Spotlight or by running `open -a Hammerspoon` from Terminal, and then pressing Command + Comma."];
+    [alert setMessageText     :NSLocalizedString(@"Preference.WarnAboutDockMenuAlert.Title", nil)];
+    [alert setInformativeText :NSLocalizedString(@"Preference.WarnAboutDockMenuAlert.Text", nil)];
     [alert setShowsSuppressionButton:YES];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"

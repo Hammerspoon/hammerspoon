@@ -68,9 +68,9 @@
             if (!success) {
                 NSLog(@"Unable to remove existing Spoon (%@):%@", dstSpoonFullPath, fileError);
                 NSAlert *alert = [[NSAlert alloc] init];
-                [alert addButtonWithTitle:@"OK"];
-                [alert setMessageText:@"Error upgrading Spoon"];
-                [alert setInformativeText:[NSString stringWithFormat:@"%@\n\nSource: %@\nDest: %@", fileError.localizedDescription, fileAndPath, spoonPath]];
+                [alert addButtonWithTitle :@"OK"];
+                [alert setMessageText     :NSLocalizedString(@"App.Upgrading.Error.Message", nil)];
+                [alert setInformativeText :[NSString stringWithFormat :NSLocalizedString(@"App.Upgrading.Error.Info", nil), fileError.localizedDescription, fileAndPath, spoonPath]];
                 [alert setAlertStyle:NSAlertStyleCritical];
                 [alert runModal];
                 return YES;
@@ -81,15 +81,15 @@
         if (!success) {
             NSLog(@"Unable to move %@ to %@: %@", fileAndPath, spoonPath, fileError);
             NSAlert *alert = [[NSAlert alloc] init];
-            [alert addButtonWithTitle:@"OK"];
-            [alert setMessageText:@"Error installing Spoon"];
-            [alert setInformativeText:[NSString stringWithFormat:@"%@\n\nSource: %@\nDest: %@", fileError.localizedDescription, fileAndPath, spoonPath]];
+            [alert addButtonWithTitle :@"OK"];
+            [alert setMessageText     :NSLocalizedString(@"App.Installing.Error.Message", nil)];
+            [alert setInformativeText :[NSString stringWithFormat :NSLocalizedString(@"App.Installing.Error.Info", nil), fileError.localizedDescription, fileAndPath, spoonPath]];
             [alert setAlertStyle:NSAlertStyleCritical];
             [alert runModal];
         } else {
             NSUserNotification *notification = [[NSUserNotification alloc] init];
-            notification.title = [NSString stringWithFormat:@"Spoon %@", upgrade ? @"upgraded" : @"installed"];
-            notification.informativeText = [NSString stringWithFormat:@"%@ is now available%@", spoonName, upgrade ? @", reload your config" : @""];
+            notification.title = [NSString stringWithFormat:@"Spoon %@", upgrade ? NSLocalizedString(@"App.AvailableAlert.Upgraded", nil) : NSLocalizedString(@"App.AvailableAlert.Installed", nil)];
+            notification.informativeText = [NSString stringWithFormat:NSLocalizedString(@"App.AvailableAlert.Info", nil), spoonName, upgrade ? NSLocalizedString(@"App.AvailableAlert.ReloadConfig", nil) : @""];
             notification.soundName = NSUserNotificationDefaultSoundName;
             [[NSUserNotificationCenter defaultUserNotificationCenter] deliverNotification:notification];
         }
@@ -126,10 +126,10 @@
     if (CGEventSourceKeyState(kCGEventSourceStateCombinedSessionState,0x3A) && CGEventSourceKeyState(kCGEventSourceStateCombinedSessionState,0x37)) {
 
         NSAlert *alert = [[NSAlert alloc] init];
-        [alert addButtonWithTitle:@"Continue"];
-        [alert addButtonWithTitle:@"Delete Preferences"];
-        [alert setMessageText:@"Do you want to delete the preferences?"];
-        [alert setInformativeText:@"Deleting the preferences will reset all Hammerspoon settings (including everything that uses hs.settings) to their defaults."];
+        [alert addButtonWithTitle :NSLocalizedString(@"App.RemovalAlert.Continue", nil)];
+        [alert addButtonWithTitle :NSLocalizedString(@"App.RemovalAlert.Delete", nil)];
+        [alert setMessageText     :NSLocalizedString(@"App.RemovalAlert.Message", nil)];
+        [alert setInformativeText :NSLocalizedString(@"App.RemovalAlert.Info", nil)];
         [alert setAlertStyle:NSAlertStyleWarning];
 
         if ([alert runModal] == NSAlertSecondButtonReturn) {
@@ -347,9 +347,9 @@
 
 - (void)showMjolnirMigrationNotification {
     NSAlert *alert = [[NSAlert alloc] init];
-    [alert addButtonWithTitle:@"OK"];
-    [alert setMessageText:@"Hammerspoon crash detected"];
-    [alert setInformativeText:@"Your init.lua is loading Mjolnir modules and a previous launch crashed.\n\nHammerspoon ships with updated versions of many of the Mjolnir modules, with both new features and many bug fixes.\n\nPlease consult our API documentation and migrate your config."];
+    [alert addButtonWithTitle :@"OK"];
+    [alert setMessageText     :NSLocalizedString(@"App.CrashAlert.Message", nil)];
+    [alert setInformativeText :NSLocalizedString(@"App.CrashAlert.Info", nil)];
     [alert setAlertStyle:NSAlertStyleCritical];
     [alert runModal];
 }
