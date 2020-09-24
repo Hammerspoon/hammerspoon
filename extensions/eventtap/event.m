@@ -98,14 +98,14 @@ static int eventtap_event_newEventFromData(lua_State* L) {
 ///   * `endMagnify` - Starts a magnification event with an optional magnification value as a number.
 ///   * `beginRotate` - Starts a rotation event with an optional rotation value as a number.
 ///   * `endRotate` - Starts a rotation event with an optional rotation value as a number.
-///   * `beginSwipeLeft` - Begin a swipe left with an optional swipe distance value as a number.
-///   * `endSwipeLeft` - End a swipe left with an optional swipe distance value as a number.
-///   * `beginSwipeRight` - Begin a swipe right with an optional swipe distance value as a number.
-///   * `endSwipeRight` - End a swipe right with an optional swipe distance value as a number.
-///   * `beginSwipeUp` - Begin a swipe up with an optional swipe distance value as a number.
-///   * `endSwipeUp` - End a swipe up with an optional swipe distance value as a number.
-///   * `beginSwipeDown` - Begin a swipe down with an optional swipe distance value as a number.
-///   * `endSwipeDown` - End a swipe down with an optional swipe distance value as a number.
+///   * `beginSwipeLeft` - Begin a swipe left.
+///   * `endSwipeLeft` - End a swipe left.
+///   * `beginSwipeRight` - Begin a swipe right.
+///   * `endSwipeRight` - End a swipe right.
+///   * `beginSwipeUp` - Begin a swipe up.
+///   * `endSwipeUp` - End a swipe up.
+///   * `beginSwipeDown` - Begin a swipe down.
+///   * `endSwipeDown` - End a swipe down.
 ///
 ///  * Example Usage:
 ///   ```lua
@@ -139,95 +139,55 @@ static int eventtap_event_newGesture(lua_State* L) {
     NSDictionary* gestureDict;
     
     if ([gesture isEqualToString:@"beginSwipeLeft"]) {
-        NSNumber *swipeDistanceValue = [skin toNSObjectAtIndex:2];
-        double swipeDistance = 0.0;
-        if (swipeDistanceValue) {
-            swipeDistance = [swipeDistanceValue floatValue];
-        }
         gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
                        @(kTLInfoSubtypeSwipe), kTLInfoKeyGestureSubtype,
-                       @(swipeDistance), kTLInfoKeyGesturePhase,
+                       @(kIOHIDEventPhaseBegan), kTLInfoKeyGesturePhase,
                        nil];
     }
     else if ([gesture isEqualToString:@"endSwipeLeft"]) {
-        NSNumber *swipeDistanceValue = [skin toNSObjectAtIndex:2];
-        double swipeDistance = 0.0;
-        if (swipeDistanceValue) {
-            swipeDistance = [swipeDistanceValue floatValue];
-        }
         gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
                        @(kTLInfoSubtypeSwipe), kTLInfoKeyGestureSubtype,
                        @(kTLInfoSwipeLeft), kTLInfoKeySwipeDirection,
-                       @(swipeDistance), kTLInfoKeyGesturePhase,
+                       @(kIOHIDEventPhaseEnded), kTLInfoKeyGesturePhase,
                        nil];
     }
     else if ([gesture isEqualToString:@"beginSwipeRight"]) {
-        NSNumber *swipeDistanceValue = [skin toNSObjectAtIndex:2];
-        double swipeDistance = 0.0;
-        if (swipeDistanceValue) {
-            swipeDistance = [swipeDistanceValue floatValue];
-        }
         gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
                        @(kTLInfoSubtypeSwipe), kTLInfoKeyGestureSubtype,
-                       @(swipeDistance), kTLInfoKeyGesturePhase,
+                       @(kIOHIDEventPhaseBegan), kTLInfoKeyGesturePhase,
                        nil];
     }
     else if ([gesture isEqualToString:@"endSwipeRight"]) {
-        NSNumber *swipeDistanceValue = [skin toNSObjectAtIndex:2];
-        double swipeDistance = 0.0;
-        if (swipeDistanceValue) {
-            swipeDistance = [swipeDistanceValue floatValue];
-        }
         gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
                        @(kTLInfoSubtypeSwipe), kTLInfoKeyGestureSubtype,
                        @(kTLInfoSwipeRight), kTLInfoKeySwipeDirection,
-                       @(swipeDistance), kTLInfoKeyGesturePhase,
+                       @(kIOHIDEventPhaseEnded), kTLInfoKeyGesturePhase,
                        nil];
     }
     else if ([gesture isEqualToString:@"beginSwipeUp"]) {
-        NSNumber *swipeDistanceValue = [skin toNSObjectAtIndex:2];
-        double swipeDistance = 0.0;
-        if (swipeDistanceValue) {
-            swipeDistance = [swipeDistanceValue floatValue];
-        }
         gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
                        @(kTLInfoSubtypeSwipe), kTLInfoKeyGestureSubtype,
-                       @(swipeDistance), kTLInfoKeyGesturePhase,
+                       @(kIOHIDEventPhaseBegan), kTLInfoKeyGesturePhase,
                        nil];
     }
     else if ([gesture isEqualToString:@"endSwipeUp"]) {
-        NSNumber *swipeDistanceValue = [skin toNSObjectAtIndex:2];
-        double swipeDistance = 0.0;
-        if (swipeDistanceValue) {
-            swipeDistance = [swipeDistanceValue floatValue];
-        }
         gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
                        @(kTLInfoSubtypeSwipe), kTLInfoKeyGestureSubtype,
                        @(kTLInfoSwipeUp), kTLInfoKeySwipeDirection,
-                       @(swipeDistance), kTLInfoKeyGesturePhase,
+                       @(kIOHIDEventPhaseEnded), kTLInfoKeyGesturePhase,
                        nil];
     }
     else if ([gesture isEqualToString:@"beginSwipeDown"]) {
-        NSNumber *swipeDistanceValue = [skin toNSObjectAtIndex:2];
-        double swipeDistance = 0.0;
-        if (swipeDistanceValue) {
-            swipeDistance = [swipeDistanceValue floatValue];
-        }
         gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
                        @(kTLInfoSubtypeSwipe), kTLInfoKeyGestureSubtype,
-                       @(swipeDistance), kTLInfoKeyGesturePhase,
+                       @(kIOHIDEventPhaseBegan), kTLInfoKeyGesturePhase,
                        nil];
     }
     else if ([gesture isEqualToString:@"endSwipeDown"]) {
-        NSNumber *swipeDistanceValue = [skin toNSObjectAtIndex:2];
-        double swipeDistance = 0.0;
-        if (swipeDistanceValue) {
-            swipeDistance = [swipeDistanceValue floatValue];
-        }
         gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
                        @(kTLInfoSubtypeSwipe), kTLInfoKeyGestureSubtype,
                        @(kTLInfoSwipeDown), kTLInfoKeySwipeDirection,
-                       @(swipeDistance), kTLInfoKeyGesturePhase,
+                       @(kIOHIDEventPhaseEnded), kTLInfoKeyGesturePhase,
                        nil];
     }
     else if ([gesture isEqualToString:@"beginMagnify"]) {
