@@ -1606,7 +1606,9 @@ int luaopen_hs_eventtap_event(lua_State* L) {
     lua_setfield(L, -2, "__index");
     lua_pop(L, 1);
 
-    eventSource = CGEventSourceCreate(kCGEventSourceStatePrivate);
-//     eventSource = CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
+    //eventSource = CGEventSourceCreate(kCGEventSourceStatePrivate);
+    //eventSource = CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
+    eventSource = CGEventSourceCreate(kCGEventSourceStateHIDSystemState);
+    
     return 1;
 }
