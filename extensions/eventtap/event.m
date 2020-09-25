@@ -86,18 +86,18 @@ static int eventtap_event_newEventFromData(lua_State* L) {
 /// Creates an gesture event.
 ///
 /// Parameters:
-///  * gestureType - the type of gesture you want to create.
-///  * gestureValue - an optional value for the specific gesture (i.e. magnification, rotation or swipe distance)
+///  * gestureType - the type of gesture you want to create as a string (see notes below).
+///  * [gestureValue] - an optional value for the specific gesture (i.e. magnification amount or rotation in degrees).
 ///
 /// Returns:
 ///  * a new `hs.eventtap.event` object or `nil` if the `gestureType` is not valid.
 ///
 /// Notes:
 ///  * Valid gestureType values are:
-///   * `beginMagnify` - Starts a magnification event with an optional magnification value as a number.
-///   * `endMagnify` - Starts a magnification event with an optional magnification value as a number.
-///   * `beginRotate` - Starts a rotation event with an optional rotation value as a number.
-///   * `endRotate` - Starts a rotation event with an optional rotation value as a number.
+///   * `beginMagnify` - Starts a magnification event with an optional magnification value as a number (defaults to 0). The exact unit of measurement is unknown.
+///   * `endMagnify` - Starts a magnification event with an optional magnification value as a number (defaults to 0.1). The exact unit of measurement is unknown.
+///   * `beginRotate` - Starts a rotation event with an rotation value in degrees (i.e. a value of 45 turns it 45 degrees left - defaults to 0).
+///   * `endRotate` - Starts a rotation event with an rotation value in degrees (i.e. a value of 45 turns it 45 degrees left - defaults to 45).
 ///   * `beginSwipeLeft` - Begin a swipe left.
 ///   * `endSwipeLeft` - End a swipe left.
 ///   * `beginSwipeRight` - Begin a swipe right.
@@ -110,25 +110,32 @@ static int eventtap_event_newEventFromData(lua_State* L) {
 ///  * Example Usage:
 ///   ```lua
 ///   hs.hotkey.bind({"cmd", "alt", "ctrl"}, "1", function()
-///       print("Time to Magnify!")
+///       print("Magnify slightly")
 ///       a = require("hs.eventtap.event").newGesture("beginMagnify", 0)
-///       b = require("hs.eventtap.event").newGesture("endMagnify", 3)
+///       b = require("hs.eventtap.event").newGesture("endMagnify", 0.1)
 ///       a:post()
-///       hs.timer.doAfter(hs.math.minFloat, function() b:post() end)
+///       b:post()
 ///   end)
 ///   hs.hotkey.bind({"cmd", "alt", "ctrl"}, "2", function()
-///       print("Time to Swipe Down!")
+///       print("Swipe down")
 ///       a = require("hs.eventtap.event").newGesture("beginSwipeDown")
 ///       b = require("hs.eventtap.event").newGesture("endSwipeDown")
 ///       a:post()
-///       hs.timer.doAfter(hs.math.minFloat, function() b:post() end)
+///       b:post()
 ///   end)
 ///   hs.hotkey.bind({"cmd", "alt", "ctrl"}, "3", function()
-///       print("Time to Rotate!")
+///       print("Rotate 45 degrees left")
 ///       a = require("hs.eventtap.event").newGesture("beginRotate", 0)
-///       b = require("hs.eventtap.event").newGesture("endRotate", 3)
+///       b = require("hs.eventtap.event").newGesture("endRotate", 45)
 ///       a:post()
-///       hs.timer.doAfter(hs.math.minFloat, function() b:post() end)
+///       b:post()
+///   end)
+///   hs.hotkey.bind({"cmd", "alt", "ctrl"}, "4", function()
+///       print("Rotate 45 degrees right")
+///       a = require("hs.eventtap.event").newGesture("beginRotate", 0)
+///       b = require("hs.eventtap.event").newGesture("endRotate", -45)
+///       a:post()
+///       b:post()
 ///   end)
 ///   ```
 static int eventtap_event_newGesture(lua_State* L) {
@@ -204,7 +211,7 @@ static int eventtap_event_newGesture(lua_State* L) {
     }
     else if ([gesture isEqualToString:@"endMagnify"]) {
         NSNumber *magnificationValue = [skin toNSObjectAtIndex:2];
-        double magnification = 0.0;
+        double magnification = 0.1;
         if (magnificationValue) {
             magnification = [magnificationValue floatValue];
         }
@@ -228,7 +235,7 @@ static int eventtap_event_newGesture(lua_State* L) {
     }
     else if ([gesture isEqualToString:@"endRotate"]) {
         NSNumber *rotatationValue = [skin toNSObjectAtIndex:2];
-        double rotatation = 0.0;
+        double rotatation = 45;
         if (rotatationValue) {
             rotatation = [rotatationValue floatValue];
         }
