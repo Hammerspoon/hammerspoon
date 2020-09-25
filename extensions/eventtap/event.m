@@ -223,7 +223,7 @@ static int eventtap_event_newGesture(lua_State* L) {
         gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
                        @(kTLInfoSubtypeRotate), kTLInfoKeyGestureSubtype,
                        @(kIOHIDEventPhaseBegan), kTLInfoKeyGesturePhase,
-                       @(rotatation), kTLInfoKeyMagnification,
+                       @(rotatation), kTLInfoKeyRotation,
                        nil];
     }
     else if ([gesture isEqualToString:@"endRotate"]) {
@@ -235,7 +235,7 @@ static int eventtap_event_newGesture(lua_State* L) {
         gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
                        @(kTLInfoSubtypeRotate), kTLInfoKeyGestureSubtype,
                        @(kIOHIDEventPhaseEnded), kTLInfoKeyGesturePhase,
-                       @(rotatation), kTLInfoKeyMagnification,
+                       @(rotatation), kTLInfoKeyRotation,
                        nil];
     }
     else
