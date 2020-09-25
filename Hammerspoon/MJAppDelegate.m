@@ -157,7 +157,7 @@
         isTesting = YES;
 
         NSBundle *mainBundle = [NSBundle mainBundle];
-        NSBundle *bundle = [NSBundle bundleWithPath:[NSString stringWithFormat:@"%@/Contents/Plugins/Hammerspoon Tests.xctest", mainBundle.bundlePath]];
+        NSBundle *bundle = [NSBundle bundleWithPath:[NSString stringWithFormat:@"%@/Contents/PlugIns/Hammerspoon Tests.xctest", mainBundle.bundlePath]];
         NSString *lsUnitPath = [bundle pathForResource:@"lsunit" ofType:@"lua"];
         const char *fsPath = [lsUnitPath fileSystemRepresentation];
 
