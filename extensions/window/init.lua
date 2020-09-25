@@ -753,7 +753,7 @@ for n,dir in pairs{['0']='East','North','West','South'}do
     if wins==true then -- legacy sameApp parameter
       wins=self:application():visibleWindows()
     end
-    return self and focus_first_valid_window(window['windowsTo'..dir](self,wins,...))
+    return self and focus_first_valid_window(objectMT['windowsTo'..dir](self,wins,...))
   end
   objectMT['moveOneScreen'..dir]=function(self,...) local s=self:screen() return self:moveToScreen(s['to'..dir](s),...) end
 end
