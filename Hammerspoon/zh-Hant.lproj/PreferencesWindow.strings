@@ -1,0 +1,33 @@
+
+/* Class = "NSButtonCell"; title = "Show dock icon"; ObjectID = "1Ay-Q1-93j"; */
+"1Ay-Q1-93j.title" = "顯示 dock 圖表";
+
+/* Class = "NSWindow"; title = "Hammerspoon Preferences"; ObjectID = "1ae-mv-r5b"; */
+"1ae-mv-r5b.title" = "Hammerspoon 偏好設定";
+
+/* Class = "NSButtonCell"; title = "Keep Console window on top"; ObjectID = "OSm-zw-Lk8"; */
+"OSm-zw-Lk8.title" = "控制台視圖總在最前";
+
+/* Class = "NSButtonCell"; title = "Launch Hammerspoon at login"; ObjectID = "WYx-7x-qXj"; */
+"WYx-7x-qXj.title" = "登陸後啟動 Hammerspoon";
+
+/* Class = "NSButtonCell"; title = "Send crash data (requires restart)"; ObjectID = "YwH-Pc-MwX"; */
+"YwH-Pc-MwX.title" = "發送崩潰信息(需重啟)";
+
+/* Class = "NSButtonCell"; title = "Enable Accessibility"; ObjectID = "cuD-Tg-hc1"; */
+"cuD-Tg-hc1.title" = "授權開啟系統輔助功能";
+
+/* Class = "NSTextFieldCell"; title = "Behavior:"; ObjectID = "dha-iU-GWx"; */
+"dha-iU-GWx.title" = "行為:";
+
+/* Class = "NSButtonCell"; title = "Check for updates"; ObjectID = "eue-1N-zi1"; */
+"eue-1N-zi1.title" = "檢查更新";
+
+/* Class = "NSButtonCell"; title = "Crash Data Privacy Policy"; ObjectID = "hjR-yP-MS1"; */
+"hjR-yP-MS1.title" = "崩潰信息私隱協議";
+
+/* Class = "NSButtonCell"; title = "Show menu icon"; ObjectID = "uNE-4I-dRd"; */
+"uNE-4I-dRd.title" = "顯示選單列圖表";
+
+/* Class = "NSTextFieldCell"; title = "Accessibility:"; ObjectID = "xX6-GD-rGt"; */
+"xX6-GD-rGt.title" = "系統輔助功能:";
