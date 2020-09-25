@@ -6,9 +6,8 @@
  *  Copyright 2010 Calf Trail Software, LLC. All rights reserved.
  *
  */
-
 #include "TouchEvents.h"
-
+#include <mach/mach_time.h>
 #include "IOHIDEventData.h"
 
 const CFStringRef kTLInfoKeyDeviceID = CFSTR("deviceID");
@@ -49,14 +48,15 @@ const CFStringRef kTLEventKeyMinorRadius = CFSTR("minorRadius");
 static inline IOFixed tl_float2fixed(double f) { return (IOFixed)(f * 65536.0); }
 
 static inline uint64_t tl_uptime() {
-	AbsoluteTime uptimeAbs = AbsoluteToNanoseconds(UpTime());
-	return ((uint64_t)uptimeAbs.hi << 32) + uptimeAbs.lo;
+    mach_timebase_info_data_t timebase ;
+    mach_timebase_info(&timebase) ;
+    uint64_t absTime = mach_absolute_time() ;
+    return ((absTime * timebase.numer) / timebase.denom);
 }
 
 static inline void setVendorData(IOHIDVendorDefinedEventData* vd, const void* data) {
 	memmove(vd->data, data, vd->length);
 }
-
 
 static void appendHeader(CFMutableDataRef data, uint8_t field, uint8_t type, uint16_t count) {
 	// serialize header
@@ -205,9 +205,9 @@ CGEventRef tl_CGEventCreateFromGesture(CFDictionaryRef info, CFArrayRef touches)
 		SInt64 sumY;
 		SInt64 sumZ;
 	} AvgPosition;
-	AvgPosition avgTouch = {};
-	AvgPosition avgRange = {};
-	AvgPosition avgOther = {};
+	AvgPosition avgTouch = {0};
+	AvgPosition avgRange = {0};
+	AvgPosition avgOther = {0};
 	CFNumberRef val;
 	
 	uint64_t timestamp;
@@ -219,7 +219,7 @@ CGEventRef tl_CGEventCreateFromGesture(CFDictionaryRef info, CFArrayRef touches)
 		timestamp = tl_uptime();
 	}
 	
-	IOHIDDigitizerEventData parent = {};
+	IOHIDDigitizerEventData parent = {0};
 	parent.size = (uint32_t)sizeof(IOHIDDigitizerEventData);
 	parent.type = kIOHIDEventTypeDigitizer;
 	parent.timestamp = timestamp;
@@ -237,7 +237,7 @@ CGEventRef tl_CGEventCreateFromGesture(CFDictionaryRef info, CFArrayRef touches)
 		CFNumberGetValue(typeVal, kCFNumberSInt32Type, &type);
 		assert(type == kIOHIDEventTypeDigitizer);	// only digitizer events currently supported
 		
-		IOHIDDigitizerEventData touch = {};
+		IOHIDDigitizerEventData touch = {0};
 		fillOutBase(touchInfo, (IOHIDEventData*)&touch);
 		fillOutDigitizer(touchInfo, &touch);
 		CFDataAppendBytes(serializedTouches, (UInt8*)&touch, touch.size);
@@ -287,7 +287,7 @@ CGEventRef tl_CGEventCreateFromGesture(CFDictionaryRef info, CFArrayRef touches)
 	if (val) {
 		CFNumberGetValue(val, kCFNumberSInt64Type, &deviceID);
 	}
-	UInt8 vendorPayload[40] = {};
+	UInt8 vendorPayload[40] = {0};
 	*(uint64_t*)vendorPayload = CFSwapInt64HostToLittle(deviceID);
 	const size_t vendorPayloadLen = sizeof(vendorPayload);
 	const size_t vendorDataSize = sizeof(IOHIDVendorDefinedEventData) + vendorPayloadLen;
@@ -325,7 +325,7 @@ CGEventRef tl_CGEventCreateFromGesture(CFDictionaryRef info, CFArrayRef touches)
 	CFDataAppendBytes(gestureData, (UInt8[]){0x10, 0x6D}, 2);
 	
 	// serialize event queue collection header
-	IOHIDSystemQueueElement queueElement = {};
+	IOHIDSystemQueueElement queueElement = {0};
 	queueElement.timeStamp = timestamp;
 	queueElement.options = parent.options;
 	queueElement.eventCount = (uint32_t)numTouches + 2;
