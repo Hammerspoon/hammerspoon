@@ -686,7 +686,7 @@ coroutine.applicationYield = hs.coroutineApplicationYield
   local toolbar = require("hs.webview.toolbar")
   local console = require("hs.console")
   local image = require("hs.image")
-  
+
   -- localization
   local preferencesLabel   = hs._localizedString("Lua.Console.ToolBar.Preferences")
   local preferencesToolTip = hs._localizedString("Lua.Console.ToolBar.PreferencesToolTip")
