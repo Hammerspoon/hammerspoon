@@ -694,7 +694,7 @@ coroutine.applicationYield = hs.coroutineApplicationYield
   local reloadToolTip      = hs._localizedString("Lua.Console.ToolBar.ReloadToolTip")
   local helpLabel          = hs._localizedString("Lua.Console.ToolBar.Help")
   local helpToolTip        = hs._localizedString("Lua.Console.ToolBar.HelpToolTip")
-  
+
   console.defaultToolbar = toolbar.new("Console Default", {
     { id="prefs", label=preferencesLabel, image=image.imageFromName("NSPreferencesGeneral"), tooltip=preferencesToolTip, fn=function() hs.openPreferences() end },
     { id="reload", label=reloadLabel, image=image.imageFromName("NSSynchronize"), tooltip=reloadToolTip, fn=function() hs.reload() end },
