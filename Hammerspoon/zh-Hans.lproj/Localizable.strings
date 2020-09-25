@@ -1,8 +1,8 @@
 "App.Upgrading.Error.Message" = "应用升级失败";
-"App.Upgrading.Error.Info"    = "%@\n\来源: %@\n目标: %@";
+"App.Upgrading.Error.Info"    = "%@\n\n来源: %@\n目标: %@";
 
 "App.Installing.Error.Message" = "应用安装失败";
-"App.Installing.Error.Info"    = "%@\n\来源: %@\n目标: %@";
+"App.Installing.Error.Info"    = "%@\n\n来源: %@\n目标: %@";
 
 "App.AvailableAlert.Upgraded"     = "已升级";
 "App.AvailableAlert.Installed"    = "已安装";
@@ -23,13 +23,13 @@
 "Lua.InitAlert.Message" = "Hammerspoon 初始化失败";
 
 "Preference.Accessibility.Granted" = "您已成功授权开启系统辅助功能!";
-"Preference.Accessibility.Warning" = "您已成功授权开启系统辅助功能!";
+"Preference.Accessibility.Warning" = "警告! 系统辅助功能未获得授权!";
 
 "Preference.WarnAboutDockMenuAlert.Title" = "如何返回这个窗口";
 "Preference.WarnAboutDockMenuAlert.Text"  = "当程序坞和菜单栏图标都被禁止显示时，你可以通过“聚焦搜索”执行 Hammerspoon，或通过命令行运行 `open -a Hammerspoon` 打开窗口，并使用 `Command` + `,` 快捷键打开“Hammerspoon 偏好设置”";
 
-"Lua.Console.ToolBar.Preferences"        = "首选项";
-"Lua.Console.ToolBar.PreferencesToolTip" = "打开首选项";
+"Lua.Console.ToolBar.Preferences"        = "偏好设置";
+"Lua.Console.ToolBar.PreferencesToolTip" = "打开偏好设置";
 "Lua.Console.ToolBar.Reload"             = "重载配置";
 "Lua.Console.ToolBar.ReloadToolTip"      = "重载配置文件";
 "Lua.Console.ToolBar.Help"               = "帮助";

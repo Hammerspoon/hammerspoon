@@ -42,7 +42,7 @@
 "8rK-CR-NrT.title" = "控制台...";
 
 /* Class = "NSMenuItem"; title = "Preferences…"; ObjectID = "9Kc-1f-Fv2"; */
-"9Kc-1f-Fv2.title" = "首选项…";
+"9Kc-1f-Fv2.title" = "偏好设置…";
 
 /* Class = "NSMenuItem"; title = "Substitutions"; ObjectID = "9ic-FL-obx"; */
 "9ic-FL-obx.title" = "替换";
@@ -108,7 +108,7 @@
 "R4o-n2-Eq4.title" = "缩放";
 
 /* Class = "NSMenuItem"; title = "Preferences..."; ObjectID = "RGq-yR-Y0Q"; */
-"RGq-yR-Y0Q.title" = "首选项...";
+"RGq-yR-Y0Q.title" = "偏好设置...";
 
 /* Class = "NSMenuItem"; title = "Select All"; ObjectID = "Ruw-6m-B2m"; */
 "Ruw-6m-B2m.title" = "全选";

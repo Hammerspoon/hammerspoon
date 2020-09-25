@@ -9,7 +9,7 @@
 "OSm-zw-Lk8.title" = "控制台窗口总在最前";
  
 /* Class = "NSButtonCell"; title = "Launch Hammerspoon at login"; ObjectID = "WYx-7x-qXj"; */
-"WYx-7x-qXj.title" = "开机时启动 Hammerspoon";
+"WYx-7x-qXj.title" = "登录后启动 Hammerspoon";
 
 /* Class = "NSButtonCell"; title = "Send crash data (requires restart)"; ObjectID = "YwH-Pc-MwX"; */
 "YwH-Pc-MwX.title" = "发送崩溃信息 (需重启)";
