@@ -996,16 +996,22 @@ static int eventtap_event_systemKey(lua_State* L) {
 /// Notes:
 ///  * if the event is of the type NSEventTypeGesture, the table will contain one or more tables in an array. Each member table of the array will have the following key-value pairs:
 ///    * `device`                     - a string containing a unique identifier for the device on which the touch occurred. At present we do not have a way to match the identifier to a specific touch device, but if multiple such devices are attached to the computer, this value will differ between them.
-///    * `deviceSize`                 - a size table containing keys `h` and `w` for the height and width of the touch device in points.
-///    * `force`                      -
+///    * `deviceSize`                 - a size table containing keys `h` and `w` for the height and width of the touch device in points (72 PPI resolution).
+///    * `force`                      - a number representing a measure of the force of the touch when the device is a forcetouch trackpad. This will be 0.0 for non-forcetouch trackpads and the touchbar.
 ///    * `identity`                   - a string specifying a unique identifier for the touch guaranteed to be unique for the life of the touch. This identifier may be used to track the movement of a specific touch (e.g. finger) as it moves through successive callbacks.
-///    * `normalizedPosition`         - a point table specifying the `x` and `y` coordinates of the touch, each normalized to be a value between 0.0 and 1.0. `{ x = 0, y = 0 }` is the lower left corner of the touch device.
 ///    * `phase`                      - a string specifying the current phase the touch is considered to be in. The possible values are: "began", "moved", "stationary", "ended", or "cancelled".
-///    * `previousNormalizedPosition` -
 ///    * `resting`                    - Resting touches occur when a user simply rests their thumb on the trackpad device. Requires that the foreground window has views accepting resting touches.
-///    * `timestamp`                  -
+///    * `timestamp`                  - a number representing the time the touch was detected. This number corresponds to seconds since the last system boot, not including time the computer has been asleep. Comparable to `hs.timer.absoluteTime() / 1000000000`.
 ///    * `touching`                   - a boolean specifying whether or not the touch phase is "began", "moved", or "stationary" (i.e. is *not* "ended" or "cancelled").
 ///    * `type`                       - a string specifying the type of touch. A "direct" touch will indicate a touchbar, while a trackpad will report "indirect".
+///
+///    * The following fields will be present when the touch is from a touchpad (`type` == "indirect")`
+///      * `normalizedPosition`         - a point table specifying the `x` and `y` coordinates of the touch, each normalized to be a value between 0.0 and 1.0. `{ x = 0, y = 0 }` is the lower left corner of the touch device.
+///      * `previousNormalizedPosition` - a point table specifying the `x` and `y` coordinates of the previous position for this specific touch (as linked by `identity`) normalezed to values between 0.0 and 1.0.
+///
+///    * The following fields will be present when the touch is from the touchbar (`type` == "direct")`
+///      * `location`                   -
+///      * `previousLocation`           -
 static int eventtap_event_getTouches(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, EVENT_USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
@@ -1496,15 +1502,15 @@ static int NSTouch_toLua(lua_State *L, id obj) {
     lua_pushboolean(L, ((phase & NSTouchPhaseTouching) > 0)) ; lua_setfield(L, -2, "touching") ;
 
     if (touch.type == NSTouchTypeIndirect) {
-        [skin pushNSPoint:touch.normalizedPosition] ;
-        lua_setfield(L, -2, "normalizedPosition") ;
-        [skin pushNSPoint:touch.previousNormalizedPosition] ;
-        lua_setfield(L, -2, "previousNormalizedPosition") ;
+        [skin pushNSPoint:touch.normalizedPosition] ;         lua_setfield(L, -2, "normalizedPosition") ;
+        [skin pushNSPoint:touch.previousNormalizedPosition] ; lua_setfield(L, -2, "previousNormalizedPosition") ;
+    } else {
+        [skin pushNSPoint:[touch locationInView:nil]] ;         lua_setfield(L, -2, "location") ;
+        [skin pushNSPoint:[touch previousLocationInView:nil]] ; lua_setfield(L, -2, "previousLocation") ;
     }
 
     lua_pushnumber(L, touch.timestamp) ; lua_setfield(L, -2, "timestamp") ;
 
-    // I suspect this may bomb on touchbar's as well and need to go in with normalizedPosition
     double force = [touch _force] ;
     lua_pushnumber(L, force) ; lua_setfield(L, -2, "force") ;
 
@@ -1513,13 +1519,6 @@ static int NSTouch_toLua(lua_State *L, id obj) {
     lua_pushfstring(L, "%p", touch.device) ;    lua_setfield(L, -2, "device") ;
 
     [skin pushNSSize:touch.deviceSize] ; lua_setfield(L, -2, "deviceSize") ;
-
-// Only useful if we know the view the touch originated in, and in any case only if it's one of
-// ours anyways... perhaps food for thought for hs.canvas if we ever figure out how to detect
-// gestures in our own creations.
-//
-//     - (NSPoint)locationInView:(NSView *)view;
-//     - (NSPoint)previousLocationInView:(NSView *)view;
 
     return 1;
 }
