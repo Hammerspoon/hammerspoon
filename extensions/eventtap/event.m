@@ -1,4 +1,5 @@
 #import "eventtap_event.h"
+#import "HSuicore.h"
 @import IOKit.hidsystem ;
 
 #define FLAGS_TAG "hs.eventtap.event.flags"
@@ -473,16 +474,15 @@ static int eventtap_event_setUnicodeString(lua_State *L) {
 ///
 /// Returns:
 ///  * The `hs.eventtap.event` object
-//  * None
 static int eventtap_event_post(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, EVENT_USERDATA_TAG, LS_TANY | LS_TOPTIONAL, LS_TBREAK];
+    
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
 
-    if (luaL_testudata(L, 2, "hs.application")) {
-//         AXUIElementRef app = lua_touserdata(L, 2);
-        AXUIElementRef app = *((AXUIElementRef*)luaL_checkudata(L, 2, "hs.application")) ;
-
-        pid_t pid;
-        AXUIElementGetPid(app, &pid);
+    if (luaL_testudata(L, 2, APPLICATION_USERDATA_TAG)) {
+        HSapplication *appObj = [skin toNSObjectAtIndex:2] ;
+        pid_t pid = appObj.pid;
 
         ProcessSerialNumber psn;
 #pragma clang diagnostic push
@@ -502,7 +502,6 @@ static int eventtap_event_post(lua_State* L) {
     usleep(1000);
 
     lua_settop(L, 1) ;
-//     return 0;
     return 1 ;
 }
 

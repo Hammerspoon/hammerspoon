@@ -238,8 +238,8 @@
                                                          (CFStringRef)NSAccessibilityFrontmostAttribute,
                                                          &_isFrontmost)) {
         isFrontmost = (__bridge_transfer NSNumber *)_isFrontmost;
-    } else {
-        [LuaSkin logError:[NSString stringWithFormat:@"Unable to fetch element attribute NSAccessibilityFrontmostAttribute for: %@", [self.runningApp localizedName]]];
+//     } else {
+//         [LuaSkin logError:[NSString stringWithFormat:@"Unable to fetch element attribute NSAccessibilityFrontmostAttribute for: %@", [self.runningApp localizedName]]];
     }
 
     [LuaSkin logBreadcrumb:[NSString stringWithFormat:@"FRONTMOST: %@:%@:%@", self.title, isFrontmost, AXIsProcessTrusted() ? @"YES" : @"NO"]];
@@ -320,7 +320,7 @@
 #pragma mark - Instance methods
 -(id)newWatcherAtIndex:(int)callbackRefIndex withUserdataAtIndex:(int)userDataRefIndex withLuaState:(lua_State *)L {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    
+
     int callbackRef = [skin luaRef:LUA_REGISTRYINDEX atIndex:callbackRefIndex];
 
     int userDataRef = LUA_REFNIL;
@@ -410,7 +410,7 @@ static void watcher_observer_callback(AXObserverRef observer __unused, AXUIEleme
         [skin logError:[NSString stringWithUTF8String:errorMsg]];
         lua_pop(skin.L, 1); // remove error message
     }
-    
+
     _lua_stackguard_exit(skin.L);
     return;
 }
@@ -474,7 +474,7 @@ static void watcher_observer_callback(AXObserverRef observer __unused, AXUIEleme
     if (!self.running) {
         return;
     }
-    
+
     CFRunLoopRemoveSource([[NSRunLoop currentRunLoop] getCFRunLoop],
                           AXObserverGetRunLoopSource(self.observer),
                           kCFRunLoopDefaultMode);
@@ -598,7 +598,7 @@ cleanup:
         if (!err) {
             _winID = winID;
         }
-        
+
         _uiElement = [[HSuielement alloc] initWithElementRef:_elementRef];
     }
     return self;

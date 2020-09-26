@@ -49,12 +49,12 @@
         NSError *fileError;
         BOOL success = NO;
         BOOL upgrade = NO;
-        NSString *spoonPath = [MJConfigDir() stringByAppendingPathComponent:@"Spoons"];
+        NSString *spoonPath = [MJConfigDirAbsolute() stringByAppendingPathComponent:@"Spoons"];
         NSString *spoonName = [fileAndPath lastPathComponent];
         NSString *dstSpoonFullPath = [spoonPath stringByAppendingPathComponent:spoonName];
 
         if ([dstSpoonFullPath isEqualToString:fileAndPath]) {
-            NSLog(@"User double clicked on a Spoon in %@, skipping", MJConfigDir());
+            NSLog(@"User double clicked on a Spoon in %@, skipping", MJConfigDirAbsolute());
             return YES;
         }
 
@@ -188,7 +188,7 @@
         if (userMJConfigFile) MJConfigFile = userMJConfigFile ;
 
         // Ensure we have a Spoons directory
-        NSString *spoonsPath = [MJConfigDir() stringByAppendingPathComponent:@"Spoons"];
+        NSString *spoonsPath = [MJConfigDirAbsolute() stringByAppendingPathComponent:@"Spoons"];
         NSFileManager *fileManager = [NSFileManager defaultManager];
         BOOL spoonsPathIsDir;
         BOOL spoonsPathExists = [fileManager fileExistsAtPath:spoonsPath isDirectory:&spoonsPathIsDir];
@@ -321,7 +321,7 @@
     @try {
         [[NSApplication sharedApplication] orderFrontStandardAboutPanel: nil];
     } @catch (NSException *exception) {
-        [[LuaSkin sharedWithState:NULL] logError:@"Unable to open About dialog. This may mean your Hammerspoon installation is corrupt. Please re-install it!"];
+        [LuaSkin logError:@"Unable to open About dialog. This may mean your Hammerspoon installation is corrupt. Please re-install it!"];
     }
 }
 

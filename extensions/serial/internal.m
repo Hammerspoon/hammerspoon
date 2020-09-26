@@ -688,7 +688,7 @@ static int serial_baudRate(lua_State *L) {
 ///  * value - An optional string to set the parity. It can be "none", "odd" or "even".
 ///
 /// Returns:
-///  * If a value is specified, then this method returns the serial port object. Otherwise this method reutrns a string value of "none", "odd" or "even".
+///  * If a value is specified, then this method returns the serial port object. Otherwise this method returns a string value of "none", "odd" or "even".
 static int serial_parity(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
@@ -846,7 +846,7 @@ static int serial_shouldEchoReceivedData(lua_State *L) {
 ///  * value - An optional number to set the number of stop bits. It can be 1 or 2.
 ///
 /// Returns:
-///  * If a value is specified, then this method returns the serial port object. Otherwise this method reutrns a string value of "none", "odd" or "even".
+///  * If a value is specified, then this method returns the serial port object. Otherwise this method returns the number of stop bits as a number.
 ///  * The default value is 1.
 static int serial_numberOfStopBits(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
@@ -874,10 +874,10 @@ static int serial_numberOfStopBits(lua_State *L) {
 /// Gets or sets the number of data bits for the serial port.
 ///
 /// Parameters:
-///  * value - An optional number to set the number of stop bits. It can be 5 to 8.
+///  * value - An optional number to set the number of data bits. It can be 5 to 8.
 ///
 /// Returns:
-///  * If a value is specified, then this method returns the serial port object. Otherwise this method reutrns a string value of "none", "odd" or "even".
+///  * If a value is specified, then this method returns the serial port object. Otherwise this method returns the data bits as a number.
 ///  * The default value is 8.
 static int serial_numberOfDataBits(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
