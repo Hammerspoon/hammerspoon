@@ -84,7 +84,7 @@ typedef struct _screenwatcher_t {
 ///  * An `hs.screen.watcher` object
 ///
 /// Notes:
-///  * A screen layout change usually involves a change that is made from the Displays Preferences Panel or when a monitor is attached or removed.
+///  * A screen layout change usually involves a change that is made from the Displays Preferences Panel or when a monitor is attached or removed. It can also be caused by a change in the Dock size or presence.
 static int screen_watcher_new(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
 
@@ -119,10 +119,11 @@ static int screen_watcher_new(lua_State* L) {
 ///  * An `hs.screen.watcher` object
 ///
 /// Notes:
-///  * A screen layout change usually involves a change that is made from the Displays Preferences Panel or when a monitor is attached or removed.
+///  * A screen layout change usually involves a change that is made from the Displays Preferences Panel or when a monitor is attached or removed. It can also be caused by a change in the Dock size or presence.
 ///    * `nil` was chosen instead of `false` for the argument type when this type of change occurs to more closely match the previous behavior of having no argument passed to the callback function.
 ///  * An active screen change indicates that the focused or main screen has changed when the user has "Displays have separate spaces" checked in the Mission Control Preferences Panel (the focused display is the display which has the active window and active menubar).
 ///    * Detecting a change in the active display relies on watching for the `NSWorkspaceActiveDisplayDidChangeNotification` message which is not documented by Apple.  While this message has been around at least since OS X 10.9, because it is undocumented, we cannot be positive that Apple won't remove it in a future OS X update.  Because this watcher works by listening for posted messages, should Apple remove this notification, your callback function will no longer receive messages about this change -- it won't crash or change behavior in any other way.  This documentation will be updated if this status changes.
+///  * Plugging in or unplugging a monitor can cause both a screen layout callback and an active screen change callback.
 static int screen_watcher_new_with_active_screen(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TFUNCTION, LS_TBREAK];
