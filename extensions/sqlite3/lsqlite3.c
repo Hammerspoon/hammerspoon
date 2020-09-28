@@ -1,4 +1,4 @@
-// HAMMERSPOON NOTE: This file has been modified from the original 0.9.4 release. Be careful when updating it
+// HAMMERSPOON NOTE: This file has been modified from the original 0.9.5 release. Be careful when updating it.
 
 /************************************************************************
 * lsqlite3                                                              *
@@ -1182,10 +1182,7 @@ static int collwrapper(scc *co,int l1,const void *p1,
     lua_rawgeti(L,LUA_REGISTRYINDEX,co->ref);
     lua_pushlstring(L,p1,l1);
     lua_pushlstring(L,p2,l2);
-    if (lua_pcall(L,2,1,0)==0) {
-        double d=lua_tonumber(L,-1);
-        res=(int)d;
-    }
+	if (lua_pcall(L,2,1,0)==0) res=(int)lua_tonumber(L,-1);
     lua_pop(L,1);
     return res;
 }
@@ -1323,6 +1320,7 @@ static void db_update_hook_callback(void *user, int op, char const *dbname, char
     sdb *db = (sdb*)user;
     lua_State *L = db->L;
     int top = lua_gettop(L);
+    lua_Number n;
 
     /* setup lua callback call */
     lua_rawgeti(L, LUA_REGISTRYINDEX, db->update_hook_cb);    /* get callback */
@@ -2138,7 +2136,7 @@ static int lsqlite_newindex(lua_State *L) {
 
 #ifndef LSQLITE_VERSION
 /* should be defined in rockspec, but just in case... */
-#define LSQLITE_VERSION "0.9.4"
+#define LSQLITE_VERSION "0.9.5"
 #endif
 
 /* Version number of this library
