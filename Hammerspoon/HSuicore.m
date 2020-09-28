@@ -138,7 +138,7 @@
     self = [super init];
     if (self) {
         _pid = app.processIdentifier;
-        _elementRef = appRef;
+        _elementRef = appRef; // no retain required because of AXUIElementCreateApplication above
         _runningApp = app;
         _uiElement = [[HSuielement alloc] initWithElementRef:_elementRef];
         _selfRefCount = 0;
@@ -150,9 +150,8 @@
 
 #pragma mark - Instance destructor
 -(void)dealloc {
-    if (self.elementRef) {
-        CFRelease(self.elementRef);
-    }
+    if (_elementRef) CFRelease(_elementRef) ;
+    _elementRef = NULL ;
 }
 
 #pragma mark - Instance methods
@@ -298,6 +297,7 @@
 
     if (error == kAXErrorSuccess) {
         focused = [[HSuielement alloc] initWithElementRef:focusedElement];
+        CFRelease(focusedElement) ;
     }
 
     return focused;
@@ -307,7 +307,7 @@
 -(HSuielement *)initWithElementRef:(AXUIElementRef)elementRef {
     self = [super init];
     if (self) {
-        _elementRef = elementRef;
+        _elementRef = CFRetain(elementRef);
         _selfRefCount = 0;
     }
     return self;
@@ -315,6 +315,8 @@
 
 #pragma mark - Instance destructor
 -(void)dealloc {
+    if (_elementRef) CFRelease(_elementRef) ;
+    _elementRef = NULL ;
 }
 
 #pragma mark - Instance methods
@@ -423,7 +425,7 @@ static void watcher_observer_callback(AXObserverRef observer __unused, AXUIEleme
     self = [super init];
     if (self) {
         _refTable = LUA_REGISTRYINDEX;
-        _elementRef = element.elementRef;
+        _elementRef = CFRetain(element.elementRef);
         _selfRefCount = 0;
         _handlerRef = callbackRef;
         _userDataRef = userdataRef;
@@ -437,7 +439,8 @@ static void watcher_observer_callback(AXObserverRef observer __unused, AXUIEleme
 
 #pragma mark - Instance destructor
 -(void)dealloc {
-    // FIXME: Implement this, if necessary
+    if (_elementRef) CFRelease(_elementRef) ;
+    _elementRef = NULL ;
 }
 
 #pragma mark - Instance methods
@@ -585,7 +588,7 @@ cleanup:
     self = [super init];
     if (self) {
         CFRetain(winRef);
-        _elementRef = winRef;
+        _elementRef = winRef; // retained above
         _selfRefCount = 0;
 
         pid_t pid;
@@ -606,7 +609,8 @@ cleanup:
 
 #pragma mark - Destructor
 -(void)dealloc {
-    CFRelease(_elementRef);
+    if (_elementRef) CFRelease(_elementRef) ;
+    _elementRef = NULL ;
 }
 
 #pragma mark - Instance methods

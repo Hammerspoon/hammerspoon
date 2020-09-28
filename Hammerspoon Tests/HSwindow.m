@@ -44,6 +44,7 @@
 }
 
 - (void)testSnapshots {
+    SKIP_IN_TRAVIS() // Added by @latenitefilms
     RUN_LUA_TEST()
 }
 
@@ -60,6 +61,7 @@
 }
 
 - (void)testSize {
+    SKIP_IN_TRAVIS() // Added by @latenitefilms
     RUN_LUA_TEST()
 }
 
