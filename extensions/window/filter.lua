@@ -1549,12 +1549,15 @@ local function startGlobalWatcher()
     preexistingWindowCreated[id]=time+id-999999
   end
   global.watcher = appwatcher.new(appEvent)
+  global.inStartGlobalWatcher = true
   local runningApps = application.runningApplications()
   log.f('registering %d running apps',#runningApps)
   for _,app in ipairs(runningApps) do
     startAppWatcher(app,app:name())
   end
   global.watcher:start()
+  global.inStartGlobalWatcher = nil
+
 end
 
 local function stopGlobalWatcher()
@@ -2065,7 +2068,8 @@ function WF:delete()
   self.log.i(self,'instance deleted')
   activeInstances[self]=nil spacesInstances[self]=nil applicationActiveInstances[self]=nil
   self.events={} self.filters={} self.windows={}
-  setmetatable(self,nil) stopGlobalWatcher()
+  setmetatable(self,nil)
+  if not global.inStartGlobalWatcher then stopGlobalWatcher() end
 end
 
 
