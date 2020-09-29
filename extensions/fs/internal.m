@@ -470,7 +470,7 @@ static int dir_close (lua_State *L) {
 /*
  ** Factory of directory iterators
  */
-/// hs.fs.dir(path) -> iter_fn, dir_obj
+/// hs.fs.dir(path) -> iter_fn, dir_obj, nil, dir_obj
 /// Function
 /// Creates an iterator for walking a filesystem path
 ///
@@ -478,23 +478,30 @@ static int dir_close (lua_State *L) {
 ///  * path - A string containing a directory to iterate
 ///
 /// Returns:
-///  * An iterator function or `nil` if the supplied path cannot be iterated
+///  * An iterator function
 ///  * A data object to pass to the iterator function or an error message as a string
+///  * `nil` as the initial argument for the iterator (unused and unnecessary in this case, but conforms to Lua spec for iterators). Ignore this value if you are not using this function with `for` (see Notes).
+///  * A second data object used by `for` to close the directory object immediately when the loop terminates. Ignore this value if you are not using this function with `for` (see Notes).
 ///
 /// Notes:
-///  * The data object should be passed to the iterator function. Each call will return either a string containing the name of an entry in the directory, or `nil` if there are no more entries.
-///  * Iteration can also be performed by calling `:next()` on the data object. Note that if you do this, you must call `:close()` on the object when you have finished.
-///  * The iterator function will return `nil` if the supplied path cannot be iterated, as well as the error message as a string.
-///  * Example Usage:
+///  * Unlike most functions in this module, `hs.fs.dir` will throw a Lua error if the supplied path cannot be iterated.
+///
+///  * The simplest way to use this function is with a `for` loop. When used in this manner, the `for` loop itself will take care of closing the directory stream for us, even if we break out of the loop early.
+///    ```
+///       for file in hs.fs.dir("/Users/Guest/Documents") do
+///           print(file)
+///       end
+///    ```
+///
+///  * It is also possible to use the dir_obj directly if you wish:
 ///    ```
 ///       local iterFn, dirObj = hs.fs.dir("/Users/Guest/Documents")
-///       if iterFn then
-///          for file in iterFn, dirObj do
-///             print(file)
-///          end
-///       else
-///          print(string.format("The following error occurred: %s", dirObj))
+///       local file = dirObj:next() -- get the first file in the directory
+///       while (file) do
+///           print(file)
+///           file = dirObj:next() -- get the next file in the directory
 ///       end
+///       dirObj:close() -- necessary to make sure that the directory stream is closed
 ///    ```
 static int dir_iter_factory (lua_State *L) {
     [[LuaSkin sharedWithState:L] checkArgs:LS_TSTRING, LS_TBREAK];
@@ -507,9 +514,10 @@ static int dir_iter_factory (lua_State *L) {
     d->closed = 0;
     d->dir = opendir (path);
     if (d->dir == NULL) {
-        lua_pushnil(L);
-        lua_pushfstring(L, "cannot open %s: %s", path, strerror (errno));
-        return 2;
+        return luaL_error(L, "cannot open %s: %s", path, strerror (errno));
+//         lua_pushnil(L);
+//         lua_pushfstring(L, "cannot open %s: %s", path, strerror (errno));
+//         return 2;
     }
 
     // Lua 5.4: use __close to close dir if you break the iterator

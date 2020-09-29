@@ -229,8 +229,8 @@ function testDirWalker()
   iterfn, dirobj = hs.fs.dir(dirname)
   dirobj:close()
 
-  local status, err = hs.fs.dir("some_non_existent_dir")
-  assertIsNil(status)
+  local status, err = pcall(hs.fs.dir, "some_non_existent_dir")
+  assertFalse(status)
   assertIsEqual("cannot open", err:match("cannot open"))
 
   return success()
