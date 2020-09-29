@@ -349,7 +349,7 @@ static int window__close(lua_State* L) {
 ///  * true if the tab was successfully pressed, or false if there was a problem
 static int window_focustab(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TINTEGER, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TINTEGER, LS_TBREAK];
     HSwindow *win = [skin toNSObjectAtIndex:1];
     int tabIndex = (int)lua_tointeger(L, 2);
     lua_pushboolean(L, [win focusTab:tabIndex]);
@@ -633,7 +633,7 @@ static int window_uielement_isApplication(lua_State *L) {
     HSapplication *app = [skin toNSObjectAtIndex:1];
     HSuielement *uiElement = app.uiElement;
     lua_pushboolean(L, [uiElement.role isEqualToString:@"AXApplication"]);
-    
+
     return 1;
 }
 
@@ -644,7 +644,7 @@ static int window_uielement_isWindow(lua_State *L) {
     HSapplication *app = [skin toNSObjectAtIndex:1];
     HSuielement *uiElement = app.uiElement;
     lua_pushboolean(L, uiElement.isWindow);
-    
+
     return 1;
 }
 
@@ -655,7 +655,7 @@ static int window_uielement_role(lua_State *L) {
     HSapplication *app = [skin toNSObjectAtIndex:1];
     HSuielement *uiElement = app.uiElement;
     [skin pushNSObject:uiElement.role];
-    
+
     return 1;
 }
 
@@ -666,7 +666,7 @@ static int window_uielement_selectedText(lua_State *L) {
     HSapplication *app = [skin toNSObjectAtIndex:1];
     HSuielement *uiElement = app.uiElement;
     [skin pushNSObject:uiElement.selectedText];
-    
+
     return 1;
 }
 
