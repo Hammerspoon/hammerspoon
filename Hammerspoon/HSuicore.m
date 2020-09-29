@@ -521,6 +521,28 @@ static AXUIElementRef get_window_tabs(AXUIElementRef win) {
         }
     }
 
+    // Safari 14 puts them into an AXGroup, not an AXTabsGroup
+    if (tabs == NULL) {
+        for (CFIndex i = 0; i < count; ++i) {
+            AXUIElementRef child = CFArrayGetValueAtIndex(children, i);
+            if(AXUIElementCopyAttributeValue(child, kAXRoleAttribute, &typeRef) != noErr) goto cleanup;
+            CFStringRef role = (CFStringRef)typeRef;
+            BOOL correctRole = kCFCompareEqualTo == CFStringCompare(role, kAXGroupRole, 0);
+            CFRelease(role);
+            if (correctRole) {
+                CFArrayRef attributeNames = NULL ;
+                if (AXUIElementCopyAttributeNames(child, &attributeNames) != noErr) goto cleanup ;
+                if (CFArrayContainsValue(attributeNames, CFRangeMake(0, CFArrayGetCount(attributeNames)), kAXTabsAttribute)) {
+                    tabs = child;
+                    CFRetain(tabs);
+                    CFRelease(attributeNames) ;
+                    break;
+                }
+                CFRelease(attributeNames) ;
+            }
+        }
+    }
+
 cleanup:
     if (children) CFRelease(children);
 
@@ -747,7 +769,11 @@ cleanup:
     CFIndex count = CFArrayGetCount(children);
 
     CFIndex i = index;
-    if(i >= count || i < 0) i = count - 1;
+    if(i > count || i <= 0) {
+        i = count - 1;
+    } else {
+        i = i - 1 ; // adjust because lua style indexes start at 1
+    }
     tab = CFArrayGetValueAtIndex(children, i);
 
     if (AXUIElementPerformAction(tab, kAXPressAction) != noErr) goto cleanup;
