@@ -896,7 +896,12 @@ void callAccessibilityStateCallback(void) {
     lua_getglobal(L, "hs");
     lua_getfield(L, -1, "accessibilityStateCallback");
 
-    [skin protectedCallAndError:@"hs.callAccessibilityStateCallback" nargs:0 nresults:0];
+    if (lua_type(L, -1) == LUA_TNIL) {
+        // There is no callback set, so just pop the callback and carry on
+        lua_pop(L, 1);
+    } else {
+        [skin protectedCallAndError:@"hs.callAccessibilityStateCallback" nargs:0 nresults:0];
+    }
 
     // Pop the hs global off the stack
     lua_pop(L, 1);
@@ -912,8 +917,13 @@ void textDroppedToDockIcon(NSString *pboardString) {
     lua_getglobal(L, "hs");
     lua_getfield(L, -1, "textDroppedToDockIconCallback");
 
-    [skin pushNSObject:pboardString];
-    [skin protectedCallAndError:@"hs.textDroppedToDockIconCallback" nargs:1 nresults:0];
+    if (lua_type(L, -1) == LUA_TNIL) {
+        // There is no callback set, so just pop the callback and carry on
+        lua_pop(L, 1);
+    } else {
+        [skin pushNSObject:pboardString];
+        [skin protectedCallAndError:@"hs.textDroppedToDockIconCallback" nargs:1 nresults:0];
+    }
 
     // Pop the hs global off the stack
     lua_pop(L, 1);
@@ -929,8 +939,13 @@ void fileDroppedToDockIcon(NSString *filePath) {
     lua_getglobal(L, "hs");
     lua_getfield(L, -1, "fileDroppedToDockIconCallback");
 
-    [skin pushNSObject:filePath];
-    [skin protectedCallAndError:@"hs.fileDroppedToDockIconCallback" nargs:1 nresults:0];
+    if (lua_type(L, -1) == LUA_TNIL) {
+        // There is no callback set, so just pop the callback and carry on
+        lua_pop(L, 1);
+    } else {
+        [skin pushNSObject:filePath];
+        [skin protectedCallAndError:@"hs.fileDroppedToDockIconCallback" nargs:1 nresults:0];
+    }
 
     // Pop the hs global off the stack
     lua_pop(L, 1);

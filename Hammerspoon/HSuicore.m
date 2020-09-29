@@ -138,7 +138,7 @@
     self = [super init];
     if (self) {
         _pid = app.processIdentifier;
-        _elementRef = appRef;
+        _elementRef = appRef; // no retain required because of AXUIElementCreateApplication above
         _runningApp = app;
         _uiElement = [[HSuielement alloc] initWithElementRef:_elementRef];
         _selfRefCount = 0;
@@ -150,9 +150,8 @@
 
 #pragma mark - Instance destructor
 -(void)dealloc {
-    if (self.elementRef) {
-        CFRelease(self.elementRef);
-    }
+    if (_elementRef) CFRelease(_elementRef) ;
+    _elementRef = NULL ;
 }
 
 #pragma mark - Instance methods
@@ -238,8 +237,8 @@
                                                          (CFStringRef)NSAccessibilityFrontmostAttribute,
                                                          &_isFrontmost)) {
         isFrontmost = (__bridge_transfer NSNumber *)_isFrontmost;
-    } else {
-        [LuaSkin logError:[NSString stringWithFormat:@"Unable to fetch element attribute NSAccessibilityFrontmostAttribute for: %@", [self.runningApp localizedName]]];
+//     } else {
+//         [LuaSkin logError:[NSString stringWithFormat:@"Unable to fetch element attribute NSAccessibilityFrontmostAttribute for: %@", [self.runningApp localizedName]]];
     }
 
     [LuaSkin logBreadcrumb:[NSString stringWithFormat:@"FRONTMOST: %@:%@:%@", self.title, isFrontmost, AXIsProcessTrusted() ? @"YES" : @"NO"]];
@@ -298,6 +297,7 @@
 
     if (error == kAXErrorSuccess) {
         focused = [[HSuielement alloc] initWithElementRef:focusedElement];
+        CFRelease(focusedElement) ;
     }
 
     return focused;
@@ -307,7 +307,7 @@
 -(HSuielement *)initWithElementRef:(AXUIElementRef)elementRef {
     self = [super init];
     if (self) {
-        _elementRef = elementRef;
+        _elementRef = CFRetain(elementRef);
         _selfRefCount = 0;
     }
     return self;
@@ -315,12 +315,14 @@
 
 #pragma mark - Instance destructor
 -(void)dealloc {
+    if (_elementRef) CFRelease(_elementRef) ;
+    _elementRef = NULL ;
 }
 
 #pragma mark - Instance methods
 -(id)newWatcherAtIndex:(int)callbackRefIndex withUserdataAtIndex:(int)userDataRefIndex withLuaState:(lua_State *)L {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    
+
     int callbackRef = [skin luaRef:LUA_REGISTRYINDEX atIndex:callbackRefIndex];
 
     int userDataRef = LUA_REFNIL;
@@ -410,7 +412,7 @@ static void watcher_observer_callback(AXObserverRef observer __unused, AXUIEleme
         [skin logError:[NSString stringWithUTF8String:errorMsg]];
         lua_pop(skin.L, 1); // remove error message
     }
-    
+
     _lua_stackguard_exit(skin.L);
     return;
 }
@@ -423,7 +425,7 @@ static void watcher_observer_callback(AXObserverRef observer __unused, AXUIEleme
     self = [super init];
     if (self) {
         _refTable = LUA_REGISTRYINDEX;
-        _elementRef = element.elementRef;
+        _elementRef = CFRetain(element.elementRef);
         _selfRefCount = 0;
         _handlerRef = callbackRef;
         _userDataRef = userdataRef;
@@ -437,7 +439,8 @@ static void watcher_observer_callback(AXObserverRef observer __unused, AXUIEleme
 
 #pragma mark - Instance destructor
 -(void)dealloc {
-    // FIXME: Implement this, if necessary
+    if (_elementRef) CFRelease(_elementRef) ;
+    _elementRef = NULL ;
 }
 
 #pragma mark - Instance methods
@@ -474,7 +477,7 @@ static void watcher_observer_callback(AXObserverRef observer __unused, AXUIEleme
     if (!self.running) {
         return;
     }
-    
+
     CFRunLoopRemoveSource([[NSRunLoop currentRunLoop] getCFRunLoop],
                           AXObserverGetRunLoopSource(self.observer),
                           kCFRunLoopDefaultMode);
@@ -515,6 +518,28 @@ static AXUIElementRef get_window_tabs(AXUIElementRef win) {
             tabs = child;
             CFRetain(tabs);
             break;
+        }
+    }
+
+    // Safari 14 puts them into an AXGroup, not an AXTabsGroup
+    if (tabs == NULL) {
+        for (CFIndex i = 0; i < count; ++i) {
+            AXUIElementRef child = CFArrayGetValueAtIndex(children, i);
+            if(AXUIElementCopyAttributeValue(child, kAXRoleAttribute, &typeRef) != noErr) goto cleanup;
+            CFStringRef role = (CFStringRef)typeRef;
+            BOOL correctRole = kCFCompareEqualTo == CFStringCompare(role, kAXGroupRole, 0);
+            CFRelease(role);
+            if (correctRole) {
+                CFArrayRef attributeNames = NULL ;
+                if (AXUIElementCopyAttributeNames(child, &attributeNames) != noErr) goto cleanup ;
+                if (CFArrayContainsValue(attributeNames, CFRangeMake(0, CFArrayGetCount(attributeNames)), kAXTabsAttribute)) {
+                    tabs = child;
+                    CFRetain(tabs);
+                    CFRelease(attributeNames) ;
+                    break;
+                }
+                CFRelease(attributeNames) ;
+            }
         }
     }
 
@@ -585,7 +610,7 @@ cleanup:
     self = [super init];
     if (self) {
         CFRetain(winRef);
-        _elementRef = winRef;
+        _elementRef = winRef; // retained above
         _selfRefCount = 0;
 
         pid_t pid;
@@ -598,7 +623,7 @@ cleanup:
         if (!err) {
             _winID = winID;
         }
-        
+
         _uiElement = [[HSuielement alloc] initWithElementRef:_elementRef];
     }
     return self;
@@ -606,7 +631,8 @@ cleanup:
 
 #pragma mark - Destructor
 -(void)dealloc {
-    CFRelease(_elementRef);
+    if (_elementRef) CFRelease(_elementRef) ;
+    _elementRef = NULL ;
 }
 
 #pragma mark - Instance methods
@@ -743,7 +769,11 @@ cleanup:
     CFIndex count = CFArrayGetCount(children);
 
     CFIndex i = index;
-    if(i >= count || i < 0) i = count - 1;
+    if(i > count || i <= 0) {
+        i = count - 1;
+    } else {
+        i = i - 1 ; // adjust because lua style indexes start at 1
+    }
     tab = CFArrayGetValueAtIndex(children, i);
 
     if (AXUIElementPerformAction(tab, kAXPressAction) != noErr) goto cleanup;

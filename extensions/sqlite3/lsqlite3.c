@@ -1,4 +1,4 @@
-// HAMMERSPOON NOTE: This file has been modified from the original 0.9.4 release. Be careful when updating it
+// HAMMERSPOON NOTE: This file has been modified from the original 0.9.5 release. Be careful when updating it.
 
 /************************************************************************
 * lsqlite3                                                              *
@@ -2138,7 +2138,7 @@ static int lsqlite_newindex(lua_State *L) {
 
 #ifndef LSQLITE_VERSION
 /* should be defined in rockspec, but just in case... */
-#define LSQLITE_VERSION "0.9.4"
+#define LSQLITE_VERSION "0.9.5"
 #endif
 
 /* Version number of this library
