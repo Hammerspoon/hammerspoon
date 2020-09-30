@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 """Hammerspoon autocompletion stubs using EmmyLua annotations for lua lsp servers"""
 
@@ -7,8 +7,6 @@ import json
 import os
 import re
 import sys
-
-sys.stdout.reconfigure(encoding="utf-8")
 
 typeOverrides = {
     "app": "hs.application",
@@ -21,14 +19,16 @@ typeOverrides = {
 }
 
 
-def parseType(module, expr: str, depth=1):
+def parseType(module, expr, depth=1):
     t = expr.lower()
     if t in typeOverrides:
-        t = typeOverrides[t]
-    elif m := re.match("^[`'\"]?(hs\.[\w.]+)[`'\"]?([\s+\-\s*]?object)?$", t):
-        t = m.group(1)
-    elif m := re.match("^list of [`'\"]?(hs\.[\w.]+)[`'\"]?(\s+objects)?$", t):
-        t = m.group(1) + "[]"
+        return typeOverrides[t]
+    m = re.match("^[`'\"]?(hs\.[\w.]+)[`'\"]?([\s+\-\s*]?object)?$", t)
+    if m:
+        return m.group(1)
+    m = re.match("^list of [`'\"]?(hs\.[\w.]+)[`'\"]?(\s+objects)?$", t)
+    if m:
+        return m.group(1) + "[]"
     elif re.match("^true|false|bool(ean)?$", t):
         t = "boolean"
     elif t == "string":
@@ -45,8 +45,10 @@ def parseType(module, expr: str, depth=1):
         t = module["name"]
     else:
         # when multiple types are possible, parse the first type
-        if len(parts := re.split("(\s*[,\|]\s*|\s+or\s+)", t)) > 1:
-            if first := parseType(module, parts[0], depth + 1):
+        parts = re.split("(\s*[,\|]\s*|\s+or\s+)", t)
+        if len(parts) > 1:
+            first = parseType(module, parts[0], depth + 1)
+            if first:
                 return first
         # if depth == 1:
         #    print((expr, t))
@@ -54,7 +56,7 @@ def parseType(module, expr: str, depth=1):
     return t
 
 
-def parseSignature(module, expr: str):
+def parseSignature(module, expr):
     parts = re.split("\s*-+>\s*", expr, 2)
     if len(parts) == 2:
         return (parts[0], parseType(module, parts[1]))
@@ -63,7 +65,8 @@ def parseSignature(module, expr: str):
 
 def processFunction(f, module, el, returnType=False):
     left, type = parseSignature(module, el["signature"])
-    if m := re.match("^(.*)\((.*)\)$", left):
+    m = re.match("^(.*)\((.*)\)$", left)
+    if m:
         name = m.group(1)
         params = m.group(2).strip()
         params = re.sub("[\[\]\{\}\(\)]+", "", params)
@@ -91,9 +94,6 @@ def processFunction(f, module, el, returnType=False):
 def processVar(f, module, var):
     ret = doc(var)
     left, type = parseSignature(module, var["signature"])
-
-    # if "(" in var["def"]:
-    #    return processFunction(f, module, var)
 
     if left.endswith("[]"):
         if type:
