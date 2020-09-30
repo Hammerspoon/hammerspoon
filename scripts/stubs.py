@@ -1,12 +1,11 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-"""Hammerspoon autocompletion stubs using EmmyLua annotations for lua lsp servers"""
+"""HS autocompletion stubs using EmmyLua annotations for lsp servers"""
 
 import codecs
 import json
 import os
 import re
-import sys
 
 typeOverrides = {
     "app": "hs.application",
@@ -23,10 +22,10 @@ def parseType(module, expr, depth=1):
     t = expr.lower()
     if t in typeOverrides:
         return typeOverrides[t]
-    m = re.match("^[`'\"]?(hs\.[\w.]+)[`'\"]?([\s+\-\s*]?object)?$", t)
+    m = re.match(r"^[`'\"]?(hs\.[\w.]+)[`'\"]?([\s+\-\s*]?object)?$", t)
     if m:
         return m.group(1)
-    m = re.match("^list of [`'\"]?(hs\.[\w.]+)[`'\"]?(\s+objects)?$", t)
+    m = re.match(r"^list of [`'\"]?(hs\.[\w.]+)[`'\"]?(\s+objects)?$", t)
     if m:
         return m.group(1) + "[]"
     elif re.match("^true|false|bool(ean)?$", t):
@@ -40,12 +39,13 @@ def parseType(module, expr, depth=1):
     elif re.match("none|nil|null|nothing", t):
         return None
     elif t == "self" or re.match(
-        "^" + re.escape(module["name"].split(".")[-1].lower()) + "\s*(object)?$", t
+        "^" + re.escape(module["name"].split(".")
+                        [-1].lower()) + r"\s*(object)?$", t
     ):
         t = module["name"]
     else:
         # when multiple types are possible, parse the first type
-        parts = re.split("(\s*[,\|]\s*|\s+or\s+)", t)
+        parts = re.split(r"(\s*[,\|]\s*|\s+or\s+)", t)
         if len(parts) > 1:
             first = parseType(module, parts[0], depth + 1)
             if first:
@@ -57,7 +57,7 @@ def parseType(module, expr, depth=1):
 
 
 def parseSignature(module, expr):
-    parts = re.split("\s*-+>\s*", expr, 2)
+    parts = re.split(r"\s*-+>\s*", expr, 2)
     if len(parts) == 2:
         return (parts[0], parseType(module, parts[1]))
     return (parts[0], None)
@@ -65,19 +65,22 @@ def parseSignature(module, expr):
 
 def processFunction(f, module, el, returnType=False):
     left, type = parseSignature(module, el["signature"])
-    m = re.match("^(.*)\((.*)\)$", left)
+    m = re.match(r"^(.*)\((.*)\)$", left)
     if m:
         name = m.group(1)
         params = m.group(2).strip()
-        params = re.sub("[\[\]\{\}\(\)]+", "", params)
-        params = re.sub("(\s*\|\s*|\s+or\s+)", "_or_", params)
-        params = re.sub("\s*,\s*", ",", params)
+        params = re.sub(r"[\[\]\{\}\(\)]+", "", params)
+        params = re.sub(r"(\s*\|\s*|\s+or\s+)", "_or_", params)
+        params = re.sub(r"\s*,\s*", ",", params)
         params = ", ".join(
             map(
-                lambda x: re.sub("^(end|function|false)$", "_\\1", x), params.split(",")
+                lambda x: re.sub("^(end|function|false)$",
+                                 "_\\1", x), params.split(",")
             )
         )
-        addDef = (name + "(" + params + ")").replace(" ", "") != left.replace(" ", "")
+        addDef = (name + "(" + params + ")") \
+            .replace(" ",
+                     "") != left.replace(" ", "")
         ret = doc(el, addDef)
         if returnType:
             ret += "---@return " + returnType + "\n"
@@ -87,7 +90,8 @@ def processFunction(f, module, el, returnType=False):
         f.write(ret)
     else:
         print(
-            "Warning: invalid function definition:\n " + el["signature"] + "\n " + left
+            "Warning: invalid function definition:\n " +
+            el["signature"] + "\n " + left
         )
 
 
@@ -111,7 +115,7 @@ def processVar(f, module, var):
 def doc(el, addDef=False):
     ret = ""
     if addDef and "def" in el:
-        parts = re.split("\s*-+>\s*", el["def"], 2)
+        parts = re.split(r"\s*-+>\s*", el["def"], 2)
         ret += "---`" + parts[0] + "`\n---\n"
     ret += "---" + "---".join(el["doc"].strip().splitlines(True)) + "\n"
     return ret
@@ -123,8 +127,8 @@ def processModule(dir, module):
     f = codecs.open(dir + "/" + name + ".lua", "w", "utf-8")
 
     if name == "hs":
-        f.write("function __IGNORE(...) end\n")
-        f.write("--- global variable that contains loaded spoons\nspoon = {}\n")
+        f.write("--- global variable containing loaded spoons\n")
+        f.write("spoon = {}\n")
 
     ret = doc(module)
     ret += "---@class " + name + "\n"
@@ -153,7 +157,6 @@ def main():
 
     with open("build/docs.json") as json_file:
         data = json.load(json_file)
-        c = 0
         for m in data:
             if m["type"] == "Module":
                 processModule(target, m)
