@@ -72,6 +72,40 @@ static int refTable;
     [LuaSkin logInfo:@"Opened websocket connection"];
 }
 
+- (void)didReceiveData:(NSData *)msg
+{
+    __block NSData *response = nil;
+
+    void (^responseCallbackBlock)(void) = ^{
+        if (self.callback != LUA_NOREF) {
+            LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+            _lua_stackguard_entry(skin.L);
+            [skin pushLuaRef:refTable ref:self.callback];
+            [skin pushNSObject:msg];
+            
+            if (![skin protectedCallAndTraceback:1 nresults:1]) {
+                const char *errorMsg = lua_tostring(skin.L, -1);
+                [skin logError:[NSString stringWithFormat:@"hs.httpserver:websocket callback error: %s", errorMsg]];
+                // No need to lua_pop() here, nresults is 1 so the lua_pop() below catches successful results and error messages
+            } else {
+                response = [skin toNSObjectAtIndex:-1];
+            }
+
+            lua_pop(skin.L, 1);
+            _lua_stackguard_exit(skin.L);
+        }
+    };
+
+    // Make sure we do all the above Lua work on the main thread
+    if ([NSThread isMainThread]) {
+        responseCallbackBlock();
+    } else {
+        dispatch_sync(dispatch_get_main_queue(), responseCallbackBlock);
+    }
+
+    [self sendMessage:[NSString stringWithFormat:@"%@", response]];
+}
+
 - (void)didReceiveMessage:(NSString *)msg
 {
     __block NSData *response = nil;
