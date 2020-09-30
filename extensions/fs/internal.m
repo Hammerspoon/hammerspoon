@@ -35,10 +35,8 @@
 #include <utime.h>
 #include "lfs.h"
 
-//#define LFS_VERSION "1.6.2"
-//#define LFS_LIBNAME "fs"
+// #define LFS_VERSION "1.8.0"
 
-#define getcwd_error    strerror(errno)
 #include <sys/param.h>
 #define LFS_MAXPATHLEN MAXPATHLEN
 
@@ -111,6 +109,17 @@ BOOL tags_to_file(lua_State *L, NSString *filePath, NSArray *tags) {
     return true;
 }
 
+static int pusherror(lua_State * L, const char *info) {
+    lua_pushnil(L);
+    if (info == NULL)
+        lua_pushstring(L, strerror(errno));
+    else
+        lua_pushfstring(L, "%s: %s", info, strerror(errno));
+//     lua_pushinteger(L, errno);
+//     return 3;
+    return 2 ;
+}
+
 
 /*
  ** This function changes the working (current) directory
@@ -130,7 +139,7 @@ static int change_dir (lua_State *L) {
 
     if (chdir(path)) {
         lua_pushnil (L);
-        lua_pushfstring (L,"Unable to change working directory to '%s'\n%s\n", path, chdir_error);
+        lua_pushfstring (L,"Unable to change working directory to '%s'\n%s\n", path, strerror(errno));
         return 2;
     } else {
         lua_pushboolean (L, 1);
@@ -152,34 +161,45 @@ static int change_dir (lua_State *L) {
 ///
 /// Returns:
 ///  * A string containing the current working directory, or if an error occured, nil and an error string
-static int get_dir (lua_State *L) {
-    char *path;
+static int get_dir(lua_State * L) {
+    char *path = NULL;
     /* Passing (NULL, 0) is not guaranteed to work. Use a temp buffer and size instead. */
-    char buf[LFS_MAXPATHLEN];
-    if ((path = getcwd(buf, LFS_MAXPATHLEN)) == NULL) {
-        lua_pushnil(L);
-        lua_pushstring(L, getcwd_error);
-        return 2;
+    size_t size = LFS_MAXPATHLEN; /* initial buffer size */
+    int result;
+    while (1) {
+        char *path2 = realloc(path, size);
+        if (!path2) {               /* failed to allocate */
+            result = pusherror(L, "get_dir realloc() failed");
+            break;
+        }
+        path = path2;
+        if (getcwd(path, size) != NULL) {
+            /* success, push the path to the Lua stack */
+            lua_pushstring(L, path);
+            result = 1;
+            break;
+        }
+        if (errno != ERANGE) {      /* unexpected error */
+            result = pusherror(L, "get_dir getcwd() failed");
+            break;
+        }
+        /* ERANGE = insufficient buffer capacity, double size and retry */
+        size *= 2;
     }
-    else {
-        lua_pushstring(L, path);
-        return 1;
-    }
+    free(path);
+    return result;
 }
 
 /*
  ** Check if the given element on the stack is a file and returns it.
  */
-static FILE *check_file (lua_State *L, int idx, const char *funcname) {
-    FILE **fh = (FILE **)luaL_checkudata (L, idx, "FILE*");
-    if (fh == NULL) {
-        luaL_error (L, "%s: not a file", funcname);
-        return 0;
-    } else if (*fh == NULL) {
-        luaL_error (L, "%s: closed file", funcname);
+static FILE *check_file(lua_State * L, int idx, const char *funcname) {
+    luaL_Stream *fh = (luaL_Stream *) luaL_checkudata(L, idx, "FILE*");
+    if (fh->closef == 0 || fh->f == NULL) {
+        luaL_error(L, "%s: closed file", funcname);
         return 0;
     } else
-        return *fh;
+        return fh->f;
 }
 
 
@@ -450,7 +470,7 @@ static int dir_close (lua_State *L) {
 /*
  ** Factory of directory iterators
  */
-/// hs.fs.dir(path) -> iter_fn, dir_obj
+/// hs.fs.dir(path) -> iter_fn, dir_obj, nil, dir_obj
 /// Function
 /// Creates an iterator for walking a filesystem path
 ///
@@ -458,23 +478,30 @@ static int dir_close (lua_State *L) {
 ///  * path - A string containing a directory to iterate
 ///
 /// Returns:
-///  * An iterator function or `nil` if the supplied path cannot be iterated
+///  * An iterator function
 ///  * A data object to pass to the iterator function or an error message as a string
+///  * `nil` as the initial argument for the iterator (unused and unnecessary in this case, but conforms to Lua spec for iterators). Ignore this value if you are not using this function with `for` (see Notes).
+///  * A second data object used by `for` to close the directory object immediately when the loop terminates. Ignore this value if you are not using this function with `for` (see Notes).
 ///
 /// Notes:
-///  * The data object should be passed to the iterator function. Each call will return either a string containing the name of an entry in the directory, or `nil` if there are no more entries.
-///  * Iteration can also be performed by calling `:next()` on the data object. Note that if you do this, you must call `:close()` on the object when you have finished.
-///  * The iterator function will return `nil` if the supplied path cannot be iterated, as well as the error message as a string.
-///  * Example Usage:
+///  * Unlike most functions in this module, `hs.fs.dir` will throw a Lua error if the supplied path cannot be iterated.
+///
+///  * The simplest way to use this function is with a `for` loop. When used in this manner, the `for` loop itself will take care of closing the directory stream for us, even if we break out of the loop early.
+///    ```
+///       for file in hs.fs.dir("/Users/Guest/Documents") do
+///           print(file)
+///       end
+///    ```
+///
+///  * It is also possible to use the dir_obj directly if you wish:
 ///    ```
 ///       local iterFn, dirObj = hs.fs.dir("/Users/Guest/Documents")
-///       if iterFn then
-///          for file in iterFn, dirObj do
-///             print(file)
-///          end
-///       else
-///          print(string.format("The following error occurred: %s", dirObj))
+///       local file = dirObj:next() -- get the first file in the directory
+///       while (file) do
+///           print(file)
+///           file = dirObj:next() -- get the next file in the directory
 ///       end
+///       dirObj:close() -- necessary to make sure that the directory stream is closed
 ///    ```
 static int dir_iter_factory (lua_State *L) {
     [[LuaSkin sharedWithState:L] checkArgs:LS_TSTRING, LS_TBREAK];
@@ -487,10 +514,17 @@ static int dir_iter_factory (lua_State *L) {
     d->closed = 0;
     d->dir = opendir (path);
     if (d->dir == NULL) {
-        lua_pushnil(L);
-        lua_pushfstring(L, "cannot open %s: %s", path, strerror (errno));
+        return luaL_error(L, "cannot open %s: %s", path, strerror (errno));
+//         lua_pushnil(L);
+//         lua_pushfstring(L, "cannot open %s: %s", path, strerror (errno));
+//         return 2;
     }
-    return 2;
+
+    // Lua 5.4: use __close to close dir if you break the iterator
+    // SOURCE: https://github.com/keplerproject/luafilesystem/commit/842505b6a33d0b0e2445568ea42f2adbf3c4eb77
+        lua_pushnil(L);
+        lua_pushvalue(L, -2); // forces "to-be-closed" when used with `for`
+        return 4;
 }
 
 
@@ -511,6 +545,9 @@ static int dir_create_meta (lua_State *L) {
     lua_setfield(L, -2, "__index");
     lua_pushcfunction (L, dir_close);
     lua_setfield (L, -2, "__gc");
+
+    lua_pushcfunction(L, dir_close);
+    lua_setfield(L, -2, "__close");
     return 1;
 }
 
@@ -640,6 +677,14 @@ static void push_st_birthtime (lua_State *L, STAT_STRUCT *info) {
 static void push_st_size (lua_State *L, STAT_STRUCT *info) {
     lua_pushinteger (L, (lua_Integer)info->st_size);
 }
+/* blocks allocated for file */
+static void push_st_blocks(lua_State * L, STAT_STRUCT * info) {
+  lua_pushinteger(L, (lua_Integer) info->st_blocks);
+}
+/* optimal file system I/O blocksize */
+static void push_st_blksize(lua_State * L, STAT_STRUCT * info) {
+  lua_pushinteger(L, (lua_Integer) info->st_blksize);
+}
 
 /*
  ** Convert the inode protection mode to a permission list.
@@ -673,19 +718,21 @@ typedef struct _stat_members {
 } stat_members;
 
 static stat_members members[] = {
-    { "mode",     push_st_mode },
-    { "dev",      push_st_dev },
-    { "ino",      push_st_ino },
-    { "nlink",    push_st_nlink },
-    { "uid",      push_st_uid },
-    { "gid",      push_st_gid },
-    { "rdev",     push_st_rdev },
+    { "mode",         push_st_mode },
+    { "dev",          push_st_dev },
+    { "ino",          push_st_ino },
+    { "nlink",        push_st_nlink },
+    { "uid",          push_st_uid },
+    { "gid",          push_st_gid },
+    { "rdev",         push_st_rdev },
     { "access",       push_st_atime },
     { "modification", push_st_mtime },
     { "change",       push_st_ctime },
     { "creation",     push_st_birthtime },
-    { "size",     push_st_size },
+    { "size",         push_st_size },
     { "permissions",  push_st_perm },
+    { "blocks",       push_st_blocks },
+    { "blksize",      push_st_blksize },
     { NULL, NULL }
 };
 
@@ -712,6 +759,7 @@ static stat_members members[] = {
 ///   * access - A number containing the time of last access modification (as seconds since the UNIX epoch)
 ///   * change - A number containing the time of last file status change (as seconds since the UNIX epoch)
 ///   * modification - A number containing the time of the last file contents change (as seconds since the UNIX epoch)
+///   * permissions - A 9 character string specifying the user access permissions for the file. The first three characters represent Read/Write/Execute permissions for the file owner. The first character will be "r" if the user has read permissions, "-" if they do not; the second will be "w" if they have write permissions, "-" if they do not; the third will be "x" if they have execute permissions, "-" if they do not. The second group of three characters follow the same convention, but refer to whether or not the file's group have Read/Write/Execute permissions, and the final three characters follow the same convention, but apply to other system users not covered by the Owner or Group fields.
 ///   * creation - A number containing the time the file was created (as seconds since the UNIX epoch)
 ///   * size - A number containing the file size, in bytes
 ///   * blocks - A number containing the number of blocks allocated for file
@@ -727,7 +775,7 @@ static int _file_info_ (lua_State *L, int (*st)(const char*, STAT_STRUCT*)) {
 
     if (st(file, &info)) {
         lua_pushnil (L);
-        lua_pushfstring (L, "cannot obtain information from file `%s'", file);
+        lua_pushfstring(L, "cannot obtain information from file '%s': %s", file, strerror(errno));
         return 2;
     }
     if (lua_isstring (L, 2)) {
@@ -735,16 +783,17 @@ static int _file_info_ (lua_State *L, int (*st)(const char*, STAT_STRUCT*)) {
         for (i = 0; members[i].name; i++) {
             if (strcmp(members[i].name, member) == 0) {
                 /* push member value and return */
-                members[i].push (L, &info);
+                members[i].push(L, &info);
                 return 1;
             }
         }
         /* member not found */
         lua_pushnil (L);
-        lua_pushstring (L, "invalid attribute name");
+        lua_pushfstring(L, "invalid attribute name '%s'", member);
         return 2;
     }
-    /* creates a table if none is given */
+    /* creates a table if none is given, removes extra arguments */
+    lua_settop(L, 2);
     if (!lua_istable (L, 2)) {
         lua_newtable (L);
     }
@@ -769,19 +818,6 @@ static int file_info (lua_State *L) {
 /*
  ** Get symbolic link information using lstat.
  */
-/// hs.fs.symlinkAttributes (filepath [, aname]) -> table or string or nil,error
-/// Function
-/// Gets the attributes of a symbolic link
-///
-/// Parameters:
-///  * filepath - A string containing the path of a link to inspect
-///  * aName - An optional attribute name. If this value is specified, only the attribute requested, is returned
-///
-/// Returns:
-///  * A table or string if the values could be found, otherwise nil and an error string.
-///
-/// Notes:
-///  * The return values for this function are identical to those provided by `hs.fs.attributes()`
 static int link_info (lua_State *L) {
     return _file_info_ (L, LSTAT_FUNC);
 }
@@ -1111,7 +1147,7 @@ static int fs_urlFromPath(lua_State *L) {
         lua_pushnil(L);
         return 1;
     }
-    
+
     NSString *urlPath = [[filePath stringByStandardizingPath] stringByResolvingSymlinksInPath];
     NSURL *fileURL = [[NSURL alloc] initFileURLWithPath:urlPath];
 
@@ -1130,9 +1166,11 @@ static const struct luaL_Reg fslib[] = {
     {"mkdir", make_dir},
     {"rmdir", remove_dir},
     {"symlinkAttributes", link_info},
+//     {"setmode", lfs_f_setmode }, // noop for non Windows platforms
     {"touch", file_utime},
     {"unlock", file_unlock},
     {"lockDir", lfs_lock_dir},
+
     {"tagsAdd", tagsAdd},
     {"tagsRemove", tagsRemove},
     {"tagsSet", tagsSet},
