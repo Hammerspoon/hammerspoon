@@ -51,8 +51,16 @@ build/docs.sqlite: build/docs.json
 build/docs.json: build
 	scripts/docs/bin/build_docs.py -o build/ --json $(DOCS_SEARCH_DIRS)
 
-build/stubs: build/docs.json
+build/stubs-core: build/docs.json
 	scripts/stubs.py
+
+build/stubs-spoons: build/spoon_docs.json
+	scripts/stubs.py spoons
+
+build/stubs: build/stubs-core build/stubs-spoons
+
+build/spoon_docs.json:
+	curl https://raw.githubusercontent.com/Hammerspoon/Spoons/master/docs/docs.json -o build/spoon_docs.json -s
 
 build:
 	mkdir -p build

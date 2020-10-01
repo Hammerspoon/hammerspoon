@@ -6,6 +6,7 @@ import codecs
 import json
 import os
 import re
+import sys
 
 typeOverrides = {
     "app": "hs.application",
@@ -28,15 +29,15 @@ def parseType(module, expr, depth=1):
     m = re.match(r"^list of [`'\"]?(hs\.[\w.]+)[`'\"]?(\s+objects)?$", t)
     if m:
         return m.group(1) + "[]"
-    elif re.match("^true|false|bool(ean)?$", t):
+    elif re.match(r"^true|false|bool(ean)?$", t):
         t = "boolean"
     elif t == "string":
         t = "string"
-    elif re.match("number|integer|float", t):
+    elif re.match(r"number|integer|float", t):
         t = "number"
-    elif re.match("array|table|list|object", t):
+    elif re.match(r"array|table|list|object", t):
         t = "table"
-    elif re.match("none|nil|null|nothing", t):
+    elif re.match(r"none|nil|null|nothing", t):
         return None
     elif t == "self" or re.match(
         "^" + re.escape(module["name"].split(".")
@@ -65,9 +66,13 @@ def parseSignature(module, expr):
 
 def processFunction(f, module, el, returnType=False):
     left, type = parseSignature(module, el["signature"])
+
+    if "(" not in left:
+        left = left + "()"
+
     m = re.match(r"^(.*)\((.*)\)$", left)
     if m:
-        name = m.group(1)
+        name = module["prefix"] + m.group(1)
         params = m.group(2).strip()
         params = re.sub(r"[\[\]\{\}\(\)]+", "", params)
         params = re.sub(r"(\s*\|\s*|\s+or\s+)", "_or_", params)
@@ -97,7 +102,7 @@ def processFunction(f, module, el, returnType=False):
 
 def processVar(f, module, var):
     ret = doc(var)
-    left, type = parseSignature(module, var["signature"])
+    left, type = parseSignature(module, module['prefix'] + var["signature"])
 
     if left.endswith("[]"):
         if type:
@@ -122,7 +127,7 @@ def doc(el, addDef=False):
 
 
 def processModule(dir, module):
-    name = module["name"]
+    name = module["prefix"] + module["name"]
 
     f = codecs.open(dir + "/" + name + ".lua", "w", "utf-8")
 
@@ -140,7 +145,7 @@ def processModule(dir, module):
     for function in module["Method"]:
         processFunction(f, module, function)
     for function in module["Constructor"]:
-        processFunction(f, module, function, module["name"])
+        processFunction(f, module, function, name)
     for function in module["Variable"]:
         processVar(f, module, function)
     for function in module["Constant"]:
@@ -151,14 +156,22 @@ def processModule(dir, module):
 
 
 def main():
+    docsFile = "build/docs.json"
+    modulePrefix = ""
+
+    if len(sys.argv) == 2 and sys.argv[1] == 'spoons':
+        docsFile = "build/spoon_docs.json"
+        modulePrefix = "spoon."
+
     target = "build/stubs"
     if not os.path.exists(target):
         os.mkdir(target)
 
-    with open("build/docs.json") as json_file:
+    with open(docsFile) as json_file:
         data = json.load(json_file)
         for m in data:
             if m["type"] == "Module":
+                m["prefix"] = modulePrefix
                 processModule(target, m)
             else:
                 raise Exception("Unknown type " + m["type"])
