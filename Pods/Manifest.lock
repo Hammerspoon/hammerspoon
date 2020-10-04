@@ -21,7 +21,7 @@ PODS:
 DEPENDENCIES:
   - ASCIImage (= 1.0.0)
   - CocoaAsyncSocket (= 7.6.4)
-  - CocoaHTTPServer (= 2.3)
+  - CocoaHTTPServer (from `https://github.com/CommandPost/CocoaHTTPServer.git`)
   - CocoaLumberjack (= 3.5.3)
   - MIKMIDI (= 1.7.1)
   - ORSSerialPort (= 2.1.0)
@@ -34,7 +34,6 @@ SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
     - ASCIImage
     - CocoaAsyncSocket
-    - CocoaHTTPServer
     - CocoaLumberjack
     - MIKMIDI
     - ORSSerialPort
@@ -43,11 +42,16 @@ SPEC REPOS:
     - Sparkle
 
 EXTERNAL SOURCES:
+  CocoaHTTPServer:
+    :git: https://github.com/CommandPost/CocoaHTTPServer.git
   Sentry:
     :git: https://github.com/getsentry/sentry-cocoa.git
     :tag: 5.2.2
 
 CHECKOUT OPTIONS:
+  CocoaHTTPServer:
+    :commit: 5b63f170649ce15f820b64f63ce076c172ce15ff
+    :git: https://github.com/CommandPost/CocoaHTTPServer.git
   Sentry:
     :git: https://github.com/getsentry/sentry-cocoa.git
     :tag: 5.2.2
@@ -64,6 +68,6 @@ SPEC CHECKSUMS:
   SocketRocket: d57c7159b83c3c6655745cd15302aa24b6bae531
   Sparkle: 55b1a87ba69d56913375a281546b7c82dec95bb0
 
-PODFILE CHECKSUM: 268df15341b69b87bd1a2f4f92cc71a2a2aacd21
+PODFILE CHECKSUM: bec22939199000f8ca28d72fe75a179be956ab34
 
 COCOAPODS: 1.9.3
