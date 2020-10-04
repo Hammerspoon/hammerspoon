@@ -23,38 +23,45 @@ def parseType(module, expr, depth=1):
     t = expr.lower()
     if t in typeOverrides:
         return typeOverrides[t]
+
     m = re.match(r"^[`'\"]?(hs\.[\w.]+)[`'\"]?([\s+\-\s*]?object)?$", t)
     if m:
         return m.group(1)
+
     m = re.match(r"^list of [`'\"]?(hs\.[\w.]+)[`'\"]?(\s+objects)?$", t)
     if m:
         return m.group(1) + "[]"
-    elif re.match(r"^true|false|bool(ean)?$", t):
-        t = "boolean"
-    elif t == "string":
-        t = "string"
-    elif re.match(r"number|integer|float", t):
-        t = "number"
-    elif re.match(r"array|table|list|object", t):
-        t = "table"
-    elif re.match(r"none|nil|null|nothing", t):
+
+    if re.match(r"^true|false|bool(ean)?$", t):
+        return "boolean"
+
+    if t == "string":
+        return "string"
+
+    if re.match(r"number|integer|float", t):
+        return "number"
+
+    if re.match(r"array|table|list|object", t):
+        return "table"
+
+    if re.match(r"none|nil|null|nothing", t):
         return None
-    elif t == "self" or re.match(
+
+    if t == "self" or re.match(
         "^" + re.escape(module["name"].split(".")
                         [-1].lower()) + r"\s*(object)?$", t
     ):
-        t = module["name"]
-    else:
-        # when multiple types are possible, parse the first type
-        parts = re.split(r"(\s*[,\|]\s*|\s+or\s+)", t)
-        if len(parts) > 1:
-            first = parseType(module, parts[0], depth + 1)
-            if first:
-                return first
-        # if depth == 1:
-        #    print((expr, t))
-        return None
-    return t
+        return module["name"]
+
+    # when multiple types are possible, parse the first type
+    parts = re.split(r"(\s*[,\|]\s*|\s+or\s+)", t)
+    if len(parts) > 1:
+        first = parseType(module, parts[0], depth + 1)
+        if first:
+            return first
+    # if depth == 1:
+    #    print((expr, t))
+    return None
 
 
 def parseSignature(module, expr):
