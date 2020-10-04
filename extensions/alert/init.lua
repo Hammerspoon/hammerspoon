@@ -123,7 +123,7 @@ local showAlert = function(message, style, screenObj, duration)
     }
     local UUID = uuid()
     alertEntry.UUID = UUID
-    
+
     local strokeWidth = thisAlertStyle.strokeWidth -- strokeWidth should be used to adjust position and padding.
     local textFrame = drawing.getTextDrawingSize(message, { font = textFont, size = textSize })
     textFrame.w = math.ceil(textFrame.w) -- drawing.getTextDrawingSize may return a float value, and use it directly could cause some display problem, the last character of a line may disappear.
