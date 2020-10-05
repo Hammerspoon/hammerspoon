@@ -2303,10 +2303,10 @@ end
 
 for _,dir in ipairs{'East','North','West','South'}do
   WF['windowsTo'..dir]=function(self,win,...)
-    return window['windowsTo'..dir](win,self:getWindows(),...)
+    return win['windowsTo'..dir](win,self:getWindows(),...)
   end
   WF['focusWindow'..dir]=function(self,win,...)
-    if window['focusWindow'..dir](win,self:getWindows(),...) then self.log.i('focused window '..dir:lower()) end
+    if win['focusWindow'..dir](win,self:getWindows(),...) then self.log.i('focused window '..dir:lower()) end
   end
   windowfilter['focus'..dir]=function()local d=makeDefaultCurrentSpace():keepActive()d['focusWindow'..dir](d,nil,nil,true)end
 end
