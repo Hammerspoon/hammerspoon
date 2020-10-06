@@ -128,7 +128,7 @@ ls.deprecated = function(module, name, message)
     assert(type(message) == "string", "expected string specifying deprecation message for argument 3")
 
     local shortName = name:match("%.([%w_]+)$") or name
-    assert(module[shortName] == nil,       string.format("%s defined in module; can't deprecate"))
+    assert(module[shortName] == nil,       string.format("%s defined in module; can't deprecate", name))
 
     module[shortName] = function(...)
         error(string.format("%s has been deprecated; %s", name, message), 2)
