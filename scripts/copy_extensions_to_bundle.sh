@@ -5,7 +5,6 @@ export HS_RESOURCES="${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}"
 export HS_DST="${HS_RESOURCES}/extensions/hs"
 export HS_MODULES="application \
     audiodevice \
-    audiounit \
     axuielement \
     base64 \
     battery \
