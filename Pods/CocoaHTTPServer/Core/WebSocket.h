@@ -9,16 +9,16 @@
 @interface WebSocket : NSObject
 {
 	dispatch_queue_t websocketQueue;
-	
+
 	HTTPMessage *request;
 	GCDAsyncSocket *asyncSocket;
-	
+
 	NSData *term;
-	
+
 	BOOL isStarted;
 	BOOL isOpen;
 	BOOL isVersion76;
-	
+
 	id __unsafe_unretained delegate;
 }
 
@@ -28,7 +28,7 @@
 
 /**
  * Delegate option.
- * 
+ *
  * In most cases it will be easier to subclass WebSocket,
  * but some circumstances may lead one to prefer standard delegate callbacks instead.
 **/
@@ -43,7 +43,7 @@
 
 /**
  * Public API
- * 
+ *
  * These methods are automatically called by the HTTPServer.
  * You may invoke the stop method yourself to close the WebSocket manually.
 **/
@@ -52,19 +52,28 @@
 
 /**
  * Public API
- * 
+ *
  * Sends a message over the WebSocket.
  * This method is thread-safe.
-**/
+ **/
 - (void)sendMessage:(NSString *)msg;
 
 /**
+ * Public API
+ *
+ * Sends a message over the WebSocket.
+ * This method is thread-safe.
+ **/
+- (void)sendData:(NSData *)msg;
+
+/**
  * Subclass API
- * 
+ *
  * These methods are designed to be overriden by subclasses.
 **/
 - (void)didOpen;
 - (void)didReceiveMessage:(NSString *)msg;
+- (void)didReceiveData:(NSData *)data;
 - (void)didClose;
 
 @end
@@ -75,10 +84,10 @@
 
 /**
  * There are two ways to create your own custom WebSocket:
- * 
+ *
  * - Subclass it and override the methods you're interested in.
  * - Use traditional delegate paradigm along with your own custom class.
- * 
+ *
  * They both exist to allow for maximum flexibility.
  * In most cases it will be easier to subclass WebSocket.
  * However some circumstances may lead one to prefer standard delegate callbacks instead.
@@ -91,6 +100,8 @@
 - (void)webSocketDidOpen:(WebSocket *)ws;
 
 - (void)webSocket:(WebSocket *)ws didReceiveMessage:(NSString *)msg;
+
+- (void)webSocket:(WebSocket *)ws didReceiveData:(NSData *)data;
 
 - (void)webSocketDidClose:(WebSocket *)ws;
 

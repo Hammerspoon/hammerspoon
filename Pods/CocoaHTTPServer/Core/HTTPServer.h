@@ -21,9 +21,13 @@
 @interface HTTPServer : NSObject IMPLEMENTED_PROTOCOLS
 {
 	// Underlying asynchronous TCP/IP socket
+	GCDAsyncSocket *asyncSocket;
+	
+	// Dispatch queues
 	dispatch_queue_t serverQueue;
 	dispatch_queue_t connectionQueue;
-	GCDAsyncSocket *asyncSocket;
+	void *IsOnServerQueueKey;
+	void *IsOnConnectionQueueKey;
 	
 	// HTTP server configuration
 	NSString *documentRoot;

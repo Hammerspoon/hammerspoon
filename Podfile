@@ -11,7 +11,7 @@ target 'Hammerspoon' do
 pod 'ASCIImage', '1.0.0'
 pod 'CocoaLumberjack', '3.5.3'
 pod 'CocoaAsyncSocket', '7.6.4'
-pod 'CocoaHTTPServer', '2.3'
+pod 'CocoaHTTPServer', :git => 'https://github.com/CommandPost/CocoaHTTPServer.git'
 pod 'PocketSocket/Client', '1.0.1'
 pod 'Sentry', :git => 'https://github.com/getsentry/sentry-cocoa.git', :tag => '5.2.2'
 pod 'Sparkle', '1.23.0', :configurations => ['Release']
