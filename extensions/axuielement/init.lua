@@ -677,7 +677,7 @@ local elementSearchHamsterBF = function(elementSearchObject)
         local deTableValue
         deTableValue = function(val)
             if getmetatable(val) == objectMT then
-                return next(seen[val]) and seen[val] or val
+                return next(seen[val] or {}) and seen[val] or val
             elseif type(val) == "table" then
                 for k, v in pairs(val) do val[k] = deTableValue(v) end
             end
@@ -737,14 +737,14 @@ end
 --- Notes:
 ---  * This method utilizes coroutines to keep Hammerspoon responsive, but may be slow to complete if `includeParents` is true, if you do not specify `depth`, or if you start from an element that has a lot of descendants (e.g. the application element for a web browser). This is dependent entirely upon how many active accessibility elements the target application defines and where you begin your search and cannot reliably be determined up front, so you may need to experiment to find the best balance for your specific requirements.
 ---
---- * The search performed is a breadth-first search, so in general earlier elements in the results table will be "closer" in the Accessibility hierarchy to the starting point than later elements.
+---  * The search performed is a breadth-first search, so in general earlier elements in the results table will be "closer" in the Accessibility hierarchy to the starting point than later elements.
 ---
---- * The `elementSearchObject` returned by this method and the results passed in as the second argument to the callback function are the same object -- you can use either one in your code depending upon which makes the most sense. Results that match the criteria function are added to the `elementSearchObject` as they are found, so if you examine the object/table returned by this method and determine that you have located the element or elements you require before the callback has been invoked, you can safely invoke the cancel method to end the search early.
+---  * The `elementSearchObject` returned by this method and the results passed in as the second argument to the callback function are the same object -- you can use either one in your code depending upon which makes the most sense. Results that match the criteria function are added to the `elementSearchObject` as they are found, so if you examine the object/table returned by this method and determine that you have located the element or elements you require before the callback has been invoked, you can safely invoke the cancel method to end the search early.
+---    * The exception to this is when `asTree` is true and `objectsOnly` is false and the search criteria is nil -- see [hs.axuielement:buildTree](#buildTree). In this case, the results passed to the callback will be equal to `elementSearchObject[1]`.
+---  * If `objectsOnly` is specified as false, it may take some time after `cancel` is invoked for the mapping of element attribute tables to the descendant elements in the results set -- this is a by product of the need to iterate through the results to match up all of the instances of each element to it's attribute table.
 ---
---- * If `objectsOnly` is specified as false, it may take some time after `cancel` is invoked for the mapping of element attribute tables to the descendant elements in the results set -- this is a by product of the need to iterate through the results to match up all of the instances of each element to it's attribute table.
----
---- * [hs.axuielement:allDescendantElements](#allDescendantElements) is syntactic sugar for `hs.axuielement:elementSearch(callback, { [includeParents = withParents] })`
---- * [hs.axuielement:buildTree](#buildTree) is syntactic sugar for `hs.axuielement:elementSearch(callback, { objectOnly = false, asTree = true, [depth = depth], [includeParents = withParents] })`
+---  * [hs.axuielement:allDescendantElements](#allDescendantElements) is syntactic sugar for `hs.axuielement:elementSearch(callback, { [includeParents = withParents] })`
+---  * [hs.axuielement:buildTree](#buildTree) is syntactic sugar for `hs.axuielement:elementSearch(callback, { objectOnly = false, asTree = true, [depth = depth], [includeParents = withParents] })`
 objectMT.elementSearch = function(self, callback, criteria, namedModifiers)
     local namedModifierDefaults = {
         includeParents = false,
@@ -910,6 +910,30 @@ module.windowElement = function(obj)
     else
         return _windowElement(obj)
     end
+end
+
+--- hs.axuielement:childrenWithRole(role) -> table
+--- Method
+--- Returns a table containing only those immediate children of the element that perform the specified role.
+---
+--- Parameters:
+---  * `role` - a string specifying the role that the returned children must perform. Example values can be found in [hs.axuielement.roles](#roles).
+---
+--- Returns:
+---  * a table containing zero or more axuielementObjects.
+---
+--- Notes:
+---  * only the immediate children of the object are searched.
+objectMT.childrenWithRole = function(self, role)
+    assert(type(role) == "string", "expected string for role value")
+
+    local ans = {}
+    if self.AXChildren then
+        for _,v in ipairs(self) do
+            if v.AXRole == role then table.insert(ans, v) end
+        end
+    end
+    return ans
 end
 
 -- Return Module Object --------------------------------------------------
