@@ -247,6 +247,26 @@ tableCopyNoMT = function(t, seen)
     return copy
 end
 
+local compareStrings = function(a, b, pattern)
+    if pattern then
+        return a:match(b) and true or false
+    else
+        return a == b
+    end
+end
+
+local compareNumbers = function(a, b, comparisonOp)
+    local ans = false
+    if     comparisonOp == "==" then ans = a == b
+    elseif comparisonOp == "~=" then ans = a ~= b
+    elseif comparisonOp == "<"  then ans = a <  b
+    elseif comparisonOp == ">"  then ans = a >  b
+    elseif comparisonOp == "<=" then ans = a <= b
+    elseif comparisonOp == ">=" then ans = a >= b
+    end
+    return ans
+end
+
 --- hs.axuielement:matchesCriteria(criteria) -> boolean
 --- Method
 --- Returns true if the axuielementObject matches the specified criteria or false if it does not.
@@ -271,11 +291,20 @@ end
 ---
 ---      * if the `attribute` key is specified, you can use one of the the following to specify a specific value the attribute must equal for a positive match. No more than one of these should be provided. If neither are present, then only the existence of the attributes specified by `attribute` are required.
 ---        * `value`                  -- a value, or table of values, that a specifeid attribute must equal. If it's a table, then only one of the values has to match the attribute value for a positive match. Note that if you specify more than one attribute with the `attribute` key, you must provide at least one value for each attribute in this table (order does not matter, but the match will fail if any atrribute does not match at least one value provided).
+---          * when specifying a value which is itself a table with keys (e.g. frame, size, url, color, etc.) then you *must* provide the value or values as a table of tables, e.g. `{ { y = 22 } }`.
+---            * only those keys which are specified within the value are checked for equality (or pattern matching). Values which are present in the attribute's value but are not specified in the comparioson value are ignored (i.e. the previous example of `y = 22` would only check the `y` component of an AXFrame attribute -- the `x`, `h`, and `w` values would be ignored).
+---            * For value compoents which are numeric, e.g. `22` in the previous example, the default comparison is equality. You may change this with the `comparison` key described below in the optional keys.
+---            * For possible keys when trying to match a color, see the documentation for `hs.drawing.color`.
+---            * For possible keys when trying to match a URL, use `url = <string>` and/or `filePath = <string>`. The string for the specified table key will be compared in accordance with the `pattern` optional key described below.
+---          * when specifying a value which is itself a table of values (e.g. a list of axuielementObjects) you *must* provide the value or values as a table of tables, e.g. `{ { obj1, obj2 } }`.
+---            * Order of the elements provided in the comparison value does not matter -- this only tests for existence within the attributes value.
+---            * The test is for inclusion only -- the attribute's value may contain other elements as well, but must contain those specified within the comparison value.
 ---        * `nilValue`               -- a boolean, specifying that the attributes must not have an assigned value (true) or may be assigned any value except nil (false). If the `value` key is specified, this key is ignored. Note that this applies to *all* of the attributes specified with the `attribute` key.
 ---
 ---      * the following are optional keys and are not required:
 ---        * `pattern`                -- a boolean, default false, specifying whether string matches for attribute values should be evaluated with `string.match` (true) or as exact matches (false). See the Lua manual, section 6.4.1 (`help.lua._man._6_4_1` in the Hammerspoon console). If the `value` key is not set, than this key is ignored.
 ---        * `invert`                 -- a boolean, default false, specifying inverted logic for the criteria result --- if this is true and the criteria matches, evaluate criteria as false; otherwise evaluate as true.
+---        * `comparison`             -- a string, default "==", specifying the comparison to be used when comparing numeric values. Possible comparison strings are: "==" for equality, "<" for less than, "<=" for less than or equal to, ">" for greater than, ">=" for greater than or equal to, or "~=" for not equal to.
 ---
 ---    * an array table of one or more key-value tables as described immediately above; the element must be a positive match for all of the individual criteria tables specified (logical AND).
 ---
@@ -310,7 +339,9 @@ objectMT.matchesCriteria = function(self, criteria)
         nilValue               = true,
         pattern                = true,
         invert                 = true,
+        comparison             = true,
     }
+    local numericComparison = "=="
 
     for idx,thisCriteria in ipairs(criteria) do
         assert(
@@ -332,6 +363,13 @@ objectMT.matchesCriteria = function(self, criteria)
         end
         if thisCriteria.value then
             if type(thisCriteria.value) ~= "table" then thisCriteria.value = { thisCriteria.value } end
+        end
+        if thisCriteria.comparison then
+            assert(
+                fnutils.contains({ "==", "~=", "<", ">", "<=", ">=" }, thisCriteria.comparison),
+                "numericComparison must be ==, ~=, <, >, <=, or >="
+            )
+            numericComparison = thisCriteria.comparison
         end
     end
 
@@ -373,10 +411,45 @@ objectMT.matchesCriteria = function(self, criteria)
                 for _,v in ipairs(thisCriteria.attribute) do
                     local ans, found = aav[v], false
                     for _, v2 in ipairs(thisCriteria.value) do
-                        if type(v2) == "string" and type(ans) == "string" and thisCriteria.pattern then
-                            found = ans:match(v2) and true or false
-                        else
-                            found = ans == v2
+                        if type(v2) == type(ans) then
+                            if type(v2) == "string" then
+                                found = compareStrings(ans, v2, thisCriteria.pattern)
+                            elseif type(v2) == "number" then
+                                found = compareNumbers(ans, v2, numericComparison)
+                            elseif type(v2) == "table" then
+                                if #v2 > 0 then
+                                    for _, v2v in ipairs(v2) do
+                                        for _, ansV in ipairs(ans) do
+                                            if type(v2v) == type(ansV) then
+                                                if type(v2v) == "string" then
+                                                    found = compareStrings(ansV, v2v, thisCriteria.pattern)
+                                                elseif type(v2v) == "number" then
+                                                    found = compareNumbers(ansV, v2v, numericComparison)
+                                                else
+                                                    found = ansV == v2v
+                                                end
+                                            end
+                                            if found then break end
+                                        end
+                                        if not found then break end
+                                    end
+                                else
+                                    for v2k, v2v in pairs(v2) do
+                                        if type(v2v) == type(ans[v2k]) then
+                                            if type(v2v) == "string" then
+                                                found = compareStrings(ans[v2k], v2v, thisCriteria.pattern)
+                                            elseif type(v2v) == "number" then
+                                                found = compareNumbers(ans[v2k], v2v, numericComparison)
+                                            else
+                                                found = ans[v2k] == v2v
+                                            end
+                                        end
+                                        if not found then break end
+                                    end
+                                end
+                            else
+                                found = ans == v2
+                            end
                         end
                         if found then break end
                     end
@@ -845,7 +918,7 @@ objectMT.elementSearch = function(self, callback, criteria, namedModifiers)
     if not namedModifiers.asTree then
         esoMT.__index.filter = elementSearchResultsFilter -- make sure to document that results table is *new* with only filter method carrying over
         esoMT.__index.next = function(_)
-            local nxtState = getmetatable(_)._nxtState
+            local nxtState = getmetatable(_)._state
             if not callback or nxtState.finished then
                 if nxtState.msg ~= "completed" then
                     nxtState.started  = os.time() - nxtState.finished
