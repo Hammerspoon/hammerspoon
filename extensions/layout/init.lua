@@ -61,6 +61,56 @@ layout.right70 = geometry.rect(0.3, 0, 0.7, 1)
 --- A unit rect which will make a window occupy the right 75% of a screen
 layout.right75 = geometry.rect(0.25, 0, 0.75, 1)
 
+--- hs.layout.top25
+--- Constant
+--- A unit rect which will make a window occupy the top 25% of a screen
+layout.top25 = geometry.rect(0, 0, 1, 0.25)
+
+--- hs.layout.top30
+--- Constant
+--- A unit rect which will make a window occupy the top 30% of a screen
+layout.top30 = geometry.rect(0, 0, 1, 0.3)
+
+--- hs.layout.top50
+--- Constant
+--- A unit rect which will make a window occupy the top 50% of a screen
+layout.top50 = geometry.rect(0, 0, 1, 0.5)
+
+--- hs.layout.top70
+--- Constant
+--- A unit rect which will make a window occupy the top 70% of a screen
+layout.top70 = geometry.rect(0, 0, 1, 0.7)
+
+--- hs.layout.top75
+--- Constant
+--- A unit rect which will make a window occupy the top 75% of a screen
+layout.top75 = geometry.rect(0, 0, 1, 0.75)
+
+--- hs.layout.bot25
+--- Constant
+--- A unit rect which will make a window occupy the bottom 25% of a screen
+layout.bot25 = geometry.rect(0, 0.25, 1, 0.25)
+
+--- hs.layout.bot30
+--- Constant
+--- A unit rect which will make a window occupy the bottom 30% of a screen
+layout.bot30 = geometry.rect(0, 0.7, 1, 0.3)
+
+--- hs.layout.bot50
+--- Constant
+--- A unit rect which will make a window occupy the bottom 50% of a screen
+layout.bot50 = geometry.rect(0, 0.5, 1, 0.5)
+
+--- hs.layout.bot70
+--- Constant
+--- A unit rect which will make a window occupy the bottom 70% of a screen
+layout.bot70 = geometry.rect(0, 0.3, 1, 0.7)
+
+--- hs.layout.bot75
+--- Constant
+--- A unit rect which will make a window occupy the bottom 75% of a screen
+layout.bot75 = geometry.rect(0, 0.25, 1, 0.75)
+
 --- hs.layout.maximized
 --- Constant
 --- A unit rect which will make a window occupy all of a screen
