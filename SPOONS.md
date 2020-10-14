@@ -217,7 +217,7 @@ There is, however, a simple way to discover the true path of your Spoon on the f
 
 ```lua
 -- Get path to Spoon's init.lua script
-obj.spoonPath = hs.spoon.scriptPath()
+obj.spoonPath = hs.spoons.scriptPath()
 ```
 #### Assets
 
