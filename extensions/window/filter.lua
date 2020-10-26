@@ -77,6 +77,8 @@ local logger = require'hs.logger'
 local log = logger.new('wfilter')
 local DISTANT_FUTURE=315360000 -- 10 years (roughly)
 
+local windowMT = hs.getObjectMetatable("hs.window")
+
 local windowfilter={} -- module
 local WF={} -- class
 -- instance fields:
@@ -2303,10 +2305,10 @@ end
 
 for _,dir in ipairs{'East','North','West','South'}do
   WF['windowsTo'..dir]=function(self,win,...)
-    return window['windowsTo'..dir](win,self:getWindows(),...)
+    return windowMT['windowsTo'..dir](win,self:getWindows(),...)
   end
   WF['focusWindow'..dir]=function(self,win,...)
-    if window['focusWindow'..dir](win,self:getWindows(),...) then self.log.i('focused window '..dir:lower()) end
+    if windowMT['focusWindow'..dir](win,self:getWindows(),...) then self.log.i('focused window '..dir:lower()) end
   end
   windowfilter['focus'..dir]=function()local d=makeDefaultCurrentSpace():keepActive()d['focusWindow'..dir](d,nil,nil,true)end
 end
