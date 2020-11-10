@@ -1,6 +1,5 @@
 #import "SentryInstallation.h"
 #import "SentryDefines.h"
-#import "SentryUser.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

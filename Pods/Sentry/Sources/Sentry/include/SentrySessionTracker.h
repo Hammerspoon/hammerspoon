@@ -1,8 +1,8 @@
+#import "SentryCurrentDateProvider.h"
+#import "SentryDefines.h"
 #import <Foundation/Foundation.h>
 
-#import "SentryCurrentDateProvider.h"
-#import "SentryEvent.h"
-#import "SentryOptions.h"
+@class SentryEvent, SentryOptions, SentryCurrentDateProvider;
 
 /**
  * Tracks sessions for release health. For more info see:

@@ -1,4 +1,7 @@
 #import "SentrySessionTracker.h"
+#import "SentryClient+Private.h"
+#import "SentryClient.h"
+#import "SentryFileManager.h"
 #import "SentryHub.h"
 #import "SentryLog.h"
 #import "SentrySDK.h"

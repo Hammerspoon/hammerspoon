@@ -1,1 +1,0 @@
-../../../Sentry/Sources/Sentry/include/SentryScope+Private.h
