@@ -73,6 +73,7 @@ local next,tsort,setmetatable,pcall = next,table.sort,setmetatable,pcall
 local timer,geometry,screen = require'hs.timer',require'hs.geometry',require'hs.screen'
 local application,window = require'hs.application',hs.window
 local appwatcher,uiwatcher = application.watcher,require'hs.uielement'.watcher
+local axuielement, fnutils = require("hs.axuielement"), require("hs.fnutils")
 local logger = require'hs.logger'
 local log = logger.new('wfilter')
 local DISTANT_FUTURE=315360000 -- 10 years (roughly)
@@ -1305,7 +1306,7 @@ function App:focusChanged(id,win)
     self.focused=nil
   else
     if not self.windows[id] then
-      log.wf('%s (%d) is not registered yet',self.name,id)
+      log.df('%s (%d) is not registered yet',self.name,id)
       appWindowEvent(win,uiwatcher.windowCreated,nil,self.name)
     end
     if self==active then
@@ -1385,13 +1386,14 @@ appWindowEvent=function(win,event,_,appname,retry)
     local watcher=win:newWatcher(function(_,watcherEvent)
       windowEvent(watcherEvent,appname,id)
     end, appname)
-    if not watcher:pid() then
-      log.wf('%s: %s has no watcher pid',appname,role or (win.role and win:role()))
-      if retry>MAX_RETRIES then log.df('%s: %s has no watcher pid',appname,win.subrole and win:subrole() or (win.role and win:role()) or 'window')
-      else
-        windowWatcherDelayed[win]=timer.doAfter(retry*RETRY_DELAY,function()appWindowEvent(win,event,_,appname,retry)end) end
-      return
-    end
+-- pretty sure this is a NOP now since pid capture is no longer delayed
+--     if not watcher:pid() then
+--       log.wf('%s: %s has no watcher pid',appname,role or (win.role and win:role()))
+--       if retry>MAX_RETRIES then log.df('%s: %s has no watcher pid',appname,win.subrole and win:subrole() or (win.role and win:role()) or 'window')
+--       else
+--         windowWatcherDelayed[win]=timer.doAfter(retry*RETRY_DELAY,function()appWindowEvent(win,event,_,appname,retry)end) end
+--       return
+--     end
     Window.created(win,id,apps[appname],watcher)
     watcher:start({uiwatcher.elementDestroyed,uiwatcher.windowMoved,uiwatcher.windowResized
       ,uiwatcher.windowMinimized,uiwatcher.windowUnminimized,uiwatcher.titleChanged})
@@ -1402,41 +1404,27 @@ appWindowEvent=function(win,event,_,appname,retry)
   end
 end
 
---[[
-local function startAppWatcher(app,appname)
-  if not app or not appname then log.e('Called startAppWatcher with no app') return end
-  if apps[appname] then log.df('App %s already registered',appname) return end
-  if app:kind()<0 or not windowfilter.isGuiApp(appname) then log.df('App %s has no GUI',appname) return end
-  local watcher = app:newWatcher(appWindowEvent,appname)
-  watcher:start({uiwatcher.windowCreated,uiwatcher.focusedWindowChanged})
-  App.new(app,appname,watcher)
-  if not watcher:pid() then
-    log.wf('No accessibility access to app %s (no watcher pid)',(appname or '[???]'))
-  end
-end
---]]
-
--- old workaround for the 'missing pid' bug
--- reinstated because occasionally apps take a while to be watchable after launching
-local function startAppWatcher(app,appname,retry,nologging)
+local function startAppWatcher(app,appname,retry,nologging,force)
   if not app or not appname then log.e('called startAppWatcher with no app') return end
   if apps[appname] then return not nologging and log.df('app %s already registered',appname) end
   if app:kind()<0 or not windowfilter.isGuiApp(appname) then log.df('app %s has no GUI',appname) return end
+  if not fnutils.contains(axuielement.applicationElement(app):attributeNames() or {}, "AXFocusedWindow") then
+      log.df('app %s has no AXFocusedWindow element',appname)
+      return
+  end
   retry=(retry or 0)+1
-  if retry>1 and not pendingApps[appname] then return end --given up before anything could even happen
 
-  local watcher = app:newWatcher(appWindowEvent,appname)
-  if watcher:pid() then
+  if app:focusedWindow() or force then
     pendingApps[appname]=nil --done
+    local watcher = app:newWatcher(appWindowEvent,appname)
     watcher:start({uiwatcher.windowCreated,uiwatcher.focusedWindowChanged})
     App.new(app,appname,watcher)
   else
-    if retry>5 then
-      pendingApps[appname]=nil --give up
-      return log[nologging and 'df' or 'wf']('No accessibility access to app %s (no watcher pid)',appname)
-    end
-    timer.doAfter(RETRY_DELAY*MAX_RETRIES,function()startAppWatcher(app,appname,retry,nologging)end)
-    pendingApps[appname]=true
+    -- apps that start with an open window will often fail to be detected by the watcher if we
+    -- start it too early, so we try `app:focusedWindow()` MAX_RETRIES times before giving up
+    pendingApps[appname] = timer.doAfter(retry*RETRY_DELAY,function()
+        startAppWatcher(app,appname,retry,nologging, retry > MAX_RETRIES)
+    end)
   end
 end
 
