@@ -1,1 +1,1 @@
-../../../Sentry/Sources/Sentry/SentryStacktraceBuilder.h
+../../../Sentry/Sources/Sentry/include/SentryStacktraceBuilder.h

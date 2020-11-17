@@ -1,1 +1,1 @@
-../../../Sentry/Sources/Sentry/NSArray+SentrySanitize.h
+../../../Sentry/Sources/Sentry/include/NSArray+SentrySanitize.h
