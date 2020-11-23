@@ -126,7 +126,7 @@ do
     'com.apple.security.pboxd', 'PowerChime',
     'SystemUIServer', 'Dock', 'com.apple.dock.extra', 'storeuid',
     'Folder Actions Dispatcher', 'Keychain Circle Notification', 'Wi-Fi',
-    'Image Capture Extension', 'iCloud Photos', 'System Events',
+    'Image Capture Extension', 'iCloud Photos', 'System Events',
     'Speech Synthesis Server', 'Dropbox Finder Integration', 'LaterAgent',
     'Karabiner_AXNotifier', 'Photos Agent', 'EscrowSecurityAlert',
     'Google Chrome Helper', 'com.apple.MailServiceAgent', 'Safari Web Content', 'Mail Web Content',
