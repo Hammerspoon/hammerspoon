@@ -89,7 +89,7 @@ layout.top75 = geometry.rect(0, 0, 1, 0.75)
 --- hs.layout.bot25
 --- Constant
 --- A unit rect which will make a window occupy the bottom 25% of a screen
-layout.bot25 = geometry.rect(0, 0.25, 1, 0.25)
+layout.bot25 = geometry.rect(0, 0.75, 1, 0.25)
 
 --- hs.layout.bot30
 --- Constant
