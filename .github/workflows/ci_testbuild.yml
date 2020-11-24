@@ -1,0 +1,32 @@
+name: CI build&test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: macos-11.0
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Prepare environment
+        run: ./scripts/github-ci-pre.sh
+      - name: Build for testing
+        run: ./scripts/github-ci-testbuild.sh
+      - name: Run tests
+        id: test
+        run: ./scripts/github-ci-test.sh
+      - name: Upload test coverage
+        uses: codecov/codecov-action@v1
+        with:
+          verbose: true
+        if: ${{ always() }}
+      - name: IRC notification
+        uses: Gottox/irc-message-action@v1.1
+        with:
+          channel: '#hammerspoon'
+          nickname: 'HSGHA'
+          message: |-
+            ${{ github.actor }} pushed ${{ github.event.ref }} ${{ github.event.compare }} - Tests: ${{ steps.test.outputs.test_result }}
+        if: ${{ always() }}

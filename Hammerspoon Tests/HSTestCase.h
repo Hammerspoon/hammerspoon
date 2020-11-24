@@ -15,10 +15,12 @@
 
 #define SKIP_IN_TRAVIS() if(self.isTravis) { NSLog(@"Skipping %@ due to Travis", NSStringFromSelector(_cmd)) ; return; }
 #define SKIP_IN_XCODE_SERVER() if(self.isXcodeServer) { NSLog(@"Skipping %@ due to Xcode Server", NSStringFromSelector(_cmd)) ; return; }
+#define SKIP_IN_GITHUB_ACTIONS() if(self.isGitHubActions) { NSLog(@"Skipping %@ due to GitHub Actions", NSStringFromSelector(_cmd)) ; return; }
 
 @interface HSTestCase : XCTestCase
 @property (nonatomic) BOOL isTravis;
 @property (nonatomic) BOOL isXcodeServer;
+@property (nonatomic) BOOL isGitHubActions;
 
 /**
  Sets up the testing environment and loads a Lua file with require()
