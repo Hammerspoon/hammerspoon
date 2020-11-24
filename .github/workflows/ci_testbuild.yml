@@ -38,4 +38,3 @@ jobs:
           nickname: 'HSGHA'
           message: |
             ${{ github.actor }} pushed to PR ${{ github.event.html_url }} - Tests: ${{ steps.test.outputs.test_result }}
-
