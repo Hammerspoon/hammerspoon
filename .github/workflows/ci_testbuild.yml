@@ -28,5 +28,5 @@ jobs:
           channel: '#hammerspoon'
           nickname: 'HSGHA'
           message: |-
-            ${{ github.actor }} pushed ${{ github.event.ref }} ${{ github.event.compare }} - Tests: ${{ steps.test.outputs.test_result }}
+            ${{ github.actor }} ${{ github.event.event_name }} ${{ github.event.ref }} ${{ github.event.compare }} - Tests: ${{ steps.test.outputs.test_result }}
         if: ${{ always() }}
