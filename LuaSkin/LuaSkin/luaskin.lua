@@ -130,7 +130,7 @@ ls.deprecated = function(module, name, message)
     local shortName = name:match("%.([%w_]+)$") or name
     assert(module[shortName] == nil,       string.format("%s defined in module; can't deprecate", name))
 
-    module[shortName] = function(...)
+    module[shortName] = function(...)  -- luacheck: ignore
         error(string.format("%s has been deprecated; %s", name, message), 2)
     end
 end
