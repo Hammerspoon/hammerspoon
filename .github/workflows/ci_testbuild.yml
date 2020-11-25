@@ -1,4 +1,4 @@
-name: CI build&test
+name: CI
 
 on:
   push:
@@ -22,11 +22,20 @@ jobs:
         with:
           verbose: true
         if: ${{ always() }}
-      - name: IRC notification
+      - name: IRC notification - push
         uses: Gottox/irc-message-action@v1.1
+        if: github.event_name == 'push'
         with:
           channel: '#hammerspoon'
           nickname: 'HSGHA'
           message: |-
-            ${{ github.actor }} ${{ github.event.event_name }} ${{ github.event.ref }} ${{ github.event.compare }} - Tests: ${{ steps.test.outputs.test_result }}
-        if: ${{ always() }}
+            ${{ github.actor }} pushed ${{ github.event.ref }} ${{ github.event.compare }} - Tests: ${{ steps.test.outputs.test_result }}
+      - name: IRC notification - PR
+        uses: Gottox/irc-message-action@v1.1
+        if: github.event_name == 'pull_request'
+        with:
+          channel: '#hammerspoon'
+          nickname: 'HSGHA'
+          message: |-
+            ${{ github.actor }} pushed to PR ${{ github.event.html_url }} - Tests: ${{ steps.test.outputs.test_result }}
+
