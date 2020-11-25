@@ -86,6 +86,7 @@ NSString *specMaskToString(int spec) {
 @property (readonly, atomic)  NSMutableDictionary *registeredLuaObjectHelperTableMappings;
 @property (readonly, atomic)  NSMutableDictionary *retainedObjectsRefTableMappings ;
 
+@property (readwrite, assign, atomic) int debugLibraryRef ;
 @end
 
 // Extension to LuaSkin class for conversion support
@@ -242,6 +243,9 @@ static NSMutableSet *_sharedWarnings ;
     LuaSkin.mainLuaState = luaL_newstate();
     luaL_openlibs(LuaSkin.mainLuaState);
 
+    lua_getglobal(LuaSkin.mainLuaState, "debug") ;
+    self.debugLibraryRef = luaL_ref(LuaSkin.mainLuaState, LUA_REGISTRYINDEX) ;
+
     NSString *luaSkinLua = [[NSBundle bundleForClass:[self class]] pathForResource:@"luaskin" ofType:@"lua"];
     NSAssert((luaSkinLua != nil), @"createLuaState was unable to find luaskin.lua. Your installation may be damaged");
 
@@ -275,6 +279,9 @@ static NSMutableSet *_sharedWarnings ;
         }] ;
         [self.retainedObjectsRefTableMappings           removeAllObjects] ;
 
+        luaL_unref(LuaSkin.mainLuaState, LUA_REGISTRYINDEX, self.debugLibraryRef) ;
+        self.debugLibraryRef = LUA_REFNIL ;
+
         lua_close(LuaSkin.mainLuaState);
         [self.registeredNSHelperFunctions               removeAllObjects] ;
         [self.registeredNSHelperLocations               removeAllObjects] ;
@@ -302,7 +309,7 @@ static NSMutableSet *_sharedWarnings ;
     // At this point we are being called with nargs+1 items on the stack, but we need to shove our traceback handler below that
 
     // Get debug.traceback() onto the top of the stack
-    lua_getglobal(self.L, "debug");
+    lua_rawgeti(self.L, LUA_REGISTRYINDEX, self.debugLibraryRef);
     lua_getfield(self.L, -1, "traceback");
     lua_remove(self.L, -2);
 
