@@ -1,4 +1,4 @@
-THIS IS A TEST BRANCH ONLY. DO NOT MERGE. NOT EVEN NOW.
+THIS IS A TEST BRANCH ONLY. DO NOT MERGE. NOT EVEN NOW. OR NOW.
 # Hammerspoon
 [![IRC](https://img.shields.io/badge/IRC-%23hammerspoon-1e72ff.svg?style=flat)](https://www.irccloud.com/invite?channel=%23hammerspoon&amp;hostname=irc.freenode.net&amp;port=6697&amp;ssl=1)
 [![Build Status](https://travis-ci.org/Hammerspoon/hammerspoon.svg?branch=master)](https://travis-ci.org/Hammerspoon/hammerspoon)
