@@ -1,8 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 
 xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release test-without-building 2>&1 | tee test.log
 
-RESULT=$(cat test.log | grep -A1 "Test Suite 'All tests'" | tail -1)
+RESULT=$(grep -A1 "Test Suite 'All tests'" test.log | tail -1 | sed -e 's/^[ ]+//')
 
 echo "::set-output name=test_result::${RESULT}"
 
