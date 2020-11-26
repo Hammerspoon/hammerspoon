@@ -69,6 +69,27 @@ NSString *specMaskToString(int spec) {
     return [parts componentsJoinedByString:@" or "];
 }
 
+static NSString *getCallerFileName(void) {
+    NSString *executablePath  = [[NSBundle mainBundle] executablePath] ;
+    Dl_info  libraryInfo ;
+    NSArray  *csa = [NSThread callStackReturnAddresses] ;
+    NSString *fname, *prevFname ;
+    for (NSNumber *entry in csa) {
+        prevFname = fname ;
+        fname = nil ;
+        uintptr_t add = entry.unsignedLongValue ;
+        if (dladdr((const void *)add, &libraryInfo) != 0) {
+            fname = [NSString stringWithUTF8String:libraryInfo.dli_fname] ;
+            if ([fname isEqualToString:executablePath]) {
+                fname = prevFname ;
+                break ;
+            }
+            if (![fname containsString:@"LuaSkin"]) break ;
+        }
+    }
+    return fname ;
+}
+
 // Extension to LuaSkin class to allow private modification of the lua_State property
 @interface LuaSkin ()
 
@@ -141,12 +162,7 @@ static NSMutableSet *_sharedWarnings ;
     // self in a class method == the class itself
     LuaSkin *skin = [self sharedWithState:NULL] ;
 
-    Dl_info   libraryInfo ;
-    NSArray   *csa   = [NSThread callStackReturnAddresses] ;
-    NSNumber  *ret   = (csa.count > 1) ? csa[1] : nil ;
-    uintptr_t add    = ret ? ret.unsignedLongValue : 0ul ;
-    NSString  *fname = (ret && dladdr((const void *)add, &libraryInfo) != 0) ?
-                       [NSString stringWithUTF8String:libraryInfo.dli_fname] : nil ;
+    NSString  *fname = getCallerFileName() ;
 
     if (fname) {
         if (![_sharedWarnings containsObject:fname]) {
@@ -384,6 +400,26 @@ static NSMutableSet *_sharedWarnings ;
         lua_setmetatable(self.L, -2);
     }
     lua_newtable(self.L);
+
+    NSString *fname = getCallerFileName() ;
+
+    if (fname) {
+        NSRange range = [fname rangeOfString:@"/hs/"] ;
+        if (range.location == NSNotFound) range = [fname rangeOfString:@"/LuaSkin"] ;
+        if (range.location != NSNotFound) {
+            NSUInteger startAt = range.location + 1 ;
+            if (startAt < fname.length) {
+                fname = [fname substringFromIndex:startAt] ;
+            }
+            if ([fname hasSuffix:@".so"]) fname = [fname substringToIndex:(fname.length - 3)] ;
+            fname = [fname stringByReplacingOccurrencesOfString:@"/" withString:@"."] ;
+        }
+        lua_pushstring(self.L, fname.UTF8String) ;
+    } else {
+        lua_pushstring(self.L, "** unable to determine source file **" ) ;
+    }
+    lua_setfield(self.L, -2, "__type") ;
+
     int tmpRefTable = luaL_ref(self.L, LUA_REGISTRYINDEX);
     lua_pushinteger(self.L, tmpRefTable) ;
     lua_setfield(self.L, -2, "__refTable") ;
@@ -737,10 +773,6 @@ nextarg:
 
 - (BOOL)registerPushNSHelper:(pushNSHelperFunction)helperFN forClass:(const char *)cClassName {
     BOOL allGood = NO ;
-// this hackery assumes that this method is only called from within the luaopen_* function of a module and
-// attempts to compensate for a wrapper to "require"... I doubt anyone is actually using it anymore.
-    int level = (int)[[NSUserDefaults standardUserDefaults] integerForKey:@"HSLuaSkinRegisterRequireLevel"];
-    if (level == 0) level = 3 ;
 
     NSString *className = nil;
     @try {
@@ -756,11 +788,13 @@ nextarg:
                                                         cClassName,
                                                         self.registeredNSHelperLocations[className]]] ;
         } else {
-            luaL_where(self.L, level) ;
-            NSString *locationString = @(lua_tostring(self.L, -1)) ;
-            self.registeredNSHelperLocations[className] = locationString;
+            NSString *locationString = getCallerFileName() ;
+            if (locationString) {
+                self.registeredNSHelperLocations[className] = locationString;
+            } else {
+                self.registeredNSHelperLocations[className] = @"** unable to determine source file **" ;
+            }
             self.registeredNSHelperFunctions[className] = [NSValue valueWithPointer:(void *)helperFN];
-            lua_pop(self.L, 1) ;
             allGood = YES ;
         }
     } else {
@@ -842,10 +876,6 @@ nextarg:
 
 - (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(const char *)cClassName {
     BOOL allGood = NO ;
-// this hackery assumes that this method is only called from within the luaopen_* function of a module and
-// attempts to compensate for a wrapper to "require"... I doubt anyone is actually using it anymore.
-    int level = (int)[[NSUserDefaults standardUserDefaults] integerForKey:@"HSLuaSkinRegisterRequireLevel"];
-    if (level == 0) level = 3 ;
 
     NSString *className = nil;
     @try {
@@ -861,11 +891,13 @@ nextarg:
                                                         cClassName,
                                                         self.registeredLuaObjectHelperFunctions[className]]] ;
         } else {
-            luaL_where(self.L, level) ;
-            NSString *locationString = @(lua_tostring(self.L, -1)) ;
-            self.registeredLuaObjectHelperLocations[className] = locationString;
+            NSString *locationString = getCallerFileName() ;
+            if (locationString) {
+                self.registeredLuaObjectHelperLocations[className] = locationString;
+            } else {
+                self.registeredLuaObjectHelperLocations[className] = @"** unable to determine source file **" ;
+            }
             self.registeredLuaObjectHelperFunctions[className] = [NSValue valueWithPointer:(void *)helperFN];
-            lua_pop(self.L, 1) ;
             allGood = YES ;
         }
     } else {
