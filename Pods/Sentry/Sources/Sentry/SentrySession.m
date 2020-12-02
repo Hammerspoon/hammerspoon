@@ -68,6 +68,11 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
+- (void)setFlagInit
+{
+    _init = @YES;
+}
+
 - (void)endSessionExitedWithTimestamp:(NSDate *)timestamp
 {
     @synchronized(self) {
@@ -184,6 +189,28 @@ NS_ASSUME_NONNULL_BEGIN
 
         return serializedData;
     }
+}
+
+- (id)copyWithZone:(nullable NSZone *)zone
+{
+    SentrySession *copy = [[[self class] allocWithZone:zone] init];
+
+    if (copy != nil) {
+        copy->_sessionId = _sessionId;
+        copy->_started = _started;
+        copy->_status = _status;
+        copy->_errors = _errors;
+        copy->_sequence = _sequence;
+        copy->_distinctId = _distinctId;
+        copy->_timestamp = _timestamp;
+        copy->_duration = _duration;
+        copy->_releaseName = _releaseName;
+        copy.environment = self.environment;
+        copy.user = self.user;
+        copy->_init = _init;
+    }
+
+    return copy;
 }
 
 @end

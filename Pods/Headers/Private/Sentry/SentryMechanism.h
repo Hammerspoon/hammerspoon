@@ -1,1 +1,1 @@
-../../../Sentry/Sources/Sentry/include/SentryMechanism.h
+../../../Sentry/Sources/Sentry/Public/SentryMechanism.h

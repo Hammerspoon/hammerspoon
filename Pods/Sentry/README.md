@@ -13,6 +13,7 @@
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![SwiftPM compatible](https://img.shields.io/badge/spm-compatible-brightgreen.svg?style=flat)](https://swift.org/package-manager)
 ![platforms](https://img.shields.io/cocoapods/p/Sentry.svg?style=flat)
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fgetsentry%2Fsentry-cocoa%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/getsentry/sentry-cocoa)
 
 This SDK is written in Objective-C but also provides a nice Swift interface.
 
@@ -26,48 +27,35 @@ import Sentry
 
 // ....
 
-// Added in 5.1.6
 SentrySDK.start { options in
     options.dsn = "___PUBLIC_DSN___"
     options.debug = true // Helpful to see what's going on
 }    
-
-// Or
-
-// Added in 5.0.0
-SentrySDK.start(options: [
-    "dsn": "___PUBLIC_DSN___",
-    "debug": true // Helpful to see what's going on
-])
 ```
 
-```objective-c
+```objc
 @import Sentry;
 
 // ....
 
-// Added in 5.1.6
 [SentrySDK startWithConfigureOptions:^(SentryOptions *options) {
     options.dsn = @"___PUBLIC_DSN___";
     options.debug = @YES; // Helpful to see what's going on
 }];
 
-// Or
-
-// Added in 5.0.0
-[SentrySDK startWithOptions:@{
-    @"dsn": @"___PUBLIC_DSN___",
-    @"debug": @(YES) // Helpful to see what's going on
-}];
 ```
 
-For more information checkout the [docs](https://docs.sentry.io/platforms/cocoa/?platform=swift).
+For more information checkout the [docs](https://docs.sentry.io/platforms/apple).
 
 <sup>(1)</sup>limited symbolication support and no crash handling.
 
+# Sentry Self Hosted Compatibility
+
+Since version 6.0.0 of this SDK, Sentry version >= v20.6.0 is required. This only applies to on-premise Sentry, if you are using [sentry.io](http://sentry.io/) no action is needed.
+
 # Resources
 
-* [![Documentation](https://img.shields.io/badge/documentation-sentry.io-green.svg)](https://docs.sentry.io/platforms/cocoa/)
+* [![Documentation](https://img.shields.io/badge/documentation-sentry.io-green.svg)](https://docs.sentry.io/platforms/apple/)
 * [![Forum](https://img.shields.io/badge/forum-sentry-green.svg)](https://forum.sentry.io/c/sdks)
 * [![Discord](https://img.shields.io/discord/621778831602221064)](https://discord.gg/Ww9hbqr)
 * [![Stack Overflow](https://img.shields.io/badge/stack%20overflow-sentry-green.svg)](http://stackoverflow.com/questions/tagged/sentry)

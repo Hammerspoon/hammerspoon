@@ -418,7 +418,7 @@ static int chooseFileOrFolder(lua_State *L) {
     // Counter used when multiple files can be selected:
     int count = 1;
 
-    if (clicked == NSFileHandlingPanelOKButton) {
+    if (clicked == NSModalResponseOK) {
         lua_newtable(L);
         for (NSURL *url in [panel URLs]) {
             lua_pushstring(L,[[url path] UTF8String]); lua_setfield(L, -2, [[NSString stringWithFormat:@"%i", count] UTF8String]);

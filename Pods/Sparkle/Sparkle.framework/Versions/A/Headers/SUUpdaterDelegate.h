@@ -36,7 +36,7 @@ SU_EXPORT extern NSString *const SUUpdaterAppcastItemNotificationKey;
 SU_EXPORT extern NSString *const SUUpdaterAppcastNotificationKey;
 
 // -----------------------------------------------------------------------------
-//	SUUpdater Delegate:
+// SUUpdater Delegate:
 // -----------------------------------------------------------------------------
 
 /*!

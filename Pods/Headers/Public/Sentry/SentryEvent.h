@@ -1,1 +1,1 @@
-../../../Sentry/Sources/Sentry/include/SentryEvent.h
+../../../Sentry/Sources/Sentry/Public/SentryEvent.h
