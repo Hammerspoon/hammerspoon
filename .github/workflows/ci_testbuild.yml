@@ -24,7 +24,7 @@ jobs:
         if: ${{ always() }}
       - name: IRC notification - push
         uses: rectalogic/notify-irc@v1
-        if: github.event_name == 'push'
+        if: ${{ always() && github.event_name == 'push' }}
         with:
           channel: '#hammerspoon'
           nickname: 'HSGHA'
@@ -32,7 +32,7 @@ jobs:
             ${{ github.actor }} pushed ${{ github.event.ref }} ${{ github.event.compare }} - Tests: ${{ steps.test.outputs.test_result }}
       - name: IRC notification - PR
         uses: rectalogic/notify-irc@v1
-        if: github.event_name == 'pull_request'
+        if: ${{ always() && github.event_name == 'pull_request' }}
         with:
           channel: '#hammerspoon'
           nickname: 'HSGHA'
