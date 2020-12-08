@@ -125,7 +125,7 @@ def find_module_for_item(modules, item):
     module = None
 
     # We need a shortcut here for root level items
-    if not ARGUMENTS.standalone and string.count(item, '.') == 1:
+    if not ARGUMENTS.standalone and item.count('.') == 1:
         dbg("find_module_for_item: Using root-level shortcut")
         module = "hs"
 
