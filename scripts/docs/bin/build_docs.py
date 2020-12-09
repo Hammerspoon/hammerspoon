@@ -459,8 +459,8 @@ def write_sql(filepath, data):
             except:
                 err("DB Insert failed on %s:%s(%s)" % (module["name"], item["name"], item["type"]))
 
-    cur.execute("VACUUM;")
     db.commit()
+    cur.execute("VACUUM;")
 
 
 def write_templated_output(output_dir, template_dir, title, data, extension):
