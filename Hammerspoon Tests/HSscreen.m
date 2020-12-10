@@ -55,6 +55,7 @@
 }
 
 - (void)testSetMode {
+    SKIP_IN_GITHUB_ACTIONS()
     RUN_LUA_TEST()
 }
 
