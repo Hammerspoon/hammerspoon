@@ -1144,7 +1144,7 @@ static int eventtap_event_getTouchDetails(lua_State *L) {
 ///  The following events, also included in the lookup table, are provided through NSEvent and currently may require the use of `hs.eventtap.event:getRawEventData()` to retrieve supporting information.  Target specific methods may be added as the usability of these events is explored.
 ///
 ///   * gesture               --  An event that represents a touch event on a touch sensitive trackpad or touchbar. See below.
-///   * systemDefined         --  ** needs more investigation and docs with info re special keys **
+///   * systemDefined         --  An event indicating some system event has occurred. For us, it is primarily used to detect special system keys (Volume Up/Down, etc.). See [hs.eventtap.event:systemKey](#systemKey) and [hs.eventtap.event.newSystemKeyEvent](#newSystemKeyEvent).
 ///
 ///   * appKitDefined         --  (thus far unobserved; please submit an issue if you can provide more information)
 ///   * applicationDefined    --  (thus far unobserved; please submit an issue if you can provide more information)
