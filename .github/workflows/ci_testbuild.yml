@@ -29,7 +29,9 @@ jobs:
           channel: '#hammerspoon'
           nickname: 'HSGHA'
           message: |
-            ${{ github.actor }} pushed ${{ github.event.ref }} ${{ github.event.compare }} - Tests: ${{ steps.test.outputs.test_result }}
+            New push from ${{ github.event.head_commit.author.name }}
+            ${{ github.event.head_commit.message }} -> ${{ github.event.compare }}
+            Tests: ${{ steps.tests.outputs.test_result }}
       - name: IRC notification - PR
         uses: Gottox/irc-message-action@v1.3.0
         if: ${{ always() && github.event_name == 'pull_request' && github.repository == 'hammerspoon/hammerspoon' }}
@@ -37,5 +39,7 @@ jobs:
           channel: '#hammerspoon'
           nickname: 'HSGHA'
           message: |
-            ${{ github.actor }} pushed to PR ${{ github.event.html_url }} - Tests: ${{ steps.test.outputs.test_result }}
+            Commits pushed to PR by ${{ github.actor }}: ${{ github.event.pull_request.title }}
+            ${{ github.event.html_url }}
+            Tests: ${{ steps.test.outputs.test_result }}
 
