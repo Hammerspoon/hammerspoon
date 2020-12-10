@@ -94,7 +94,8 @@ static int eventtap_event_asData(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
     CFDataRef data = CGEventCreateData(NULL, event) ;
     if (data) {
-        [[LuaSkin sharedWithState:L] pushNSObject:(__bridge_transfer NSData *)data] ;
+        LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+        [skin pushNSObject:(__bridge_transfer NSData *)data] ;
     } else {
         lua_pushnil(L) ;
     }
@@ -167,7 +168,7 @@ static int eventtap_event_setType(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, EVENT_USERDATA_TAG, LS_TNUMBER | LS_TINTEGER, LS_TBREAK] ;
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
-    CGEventSetType(event, (CGEventType)lua_tointeger(L, 2)) ;
+    CGEventSetType(event, (CGEventType)(lua_tointeger(L, 2))) ;
     lua_pushvalue(L, 1) ;
     return 1 ;
 }
@@ -190,9 +191,9 @@ static int eventtap_event_rawFlags(lua_State *L) {
     [skin checkArgs:LS_TUSERDATA, EVENT_USERDATA_TAG, LS_TNUMBER | LS_TINTEGER | LS_TOPTIONAL, LS_TBREAK] ;
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
     if (lua_gettop(L) == 1) {
-        lua_pushinteger(L, (lua_Integer)CGEventGetFlags(event)) ;
+        lua_pushinteger(L, (lua_Integer)(CGEventGetFlags(event))) ;
     } else {
-        CGEventSetFlags(event, (CGEventFlags)lua_tointeger(L, 2)) ;
+        CGEventSetFlags(event, (CGEventFlags)(lua_tointeger(L, 2))) ;
         lua_pushvalue(L, 1) ;
     }
     return 1 ;
@@ -293,7 +294,7 @@ static int eventtap_event_getRawEventData(lua_State* L) {
     lua_newtable(L) ;
         lua_newtable(L) ;
             lua_pushinteger(L, CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode));  lua_setfield(L, -2, "keycode") ;
-            lua_pushinteger(L, CGEventGetFlags(event));                                       lua_setfield(L, -2, "flags") ;
+            lua_pushinteger(L, (lua_Integer)(CGEventGetFlags(event)));                        lua_setfield(L, -2, "flags") ;
             lua_pushinteger(L, cgType);                                                       lua_setfield(L, -2, "type") ;
         lua_setfield(L, -2, "CGEventData") ;
 
@@ -301,8 +302,8 @@ static int eventtap_event_getRawEventData(lua_State* L) {
         if ((cgType != kCGEventTapDisabledByTimeout) && (cgType != kCGEventTapDisabledByUserInput)) {
             NSEvent*    sysEvent = [NSEvent eventWithCGEvent:event];
             NSEventType type     = [sysEvent type] ;
-            lua_pushinteger(L, [sysEvent modifierFlags]);                                     lua_setfield(L, -2, "modifierFlags") ;
-            lua_pushinteger(L, type);                                                         lua_setfield(L, -2, "type") ;
+            lua_pushinteger(L, (lua_Integer)([sysEvent modifierFlags]));                      lua_setfield(L, -2, "modifierFlags") ;
+            lua_pushinteger(L, (lua_Integer)type);                                            lua_setfield(L, -2, "type") ;
             lua_pushinteger(L, [sysEvent windowNumber]);                                      lua_setfield(L, -2, "windowNumber") ;
             if ((type == NSEventTypeKeyDown) || (type == NSEventTypeKeyUp)) {
                 lua_pushstring(L, [[sysEvent characters] UTF8String]) ;                       lua_setfield(L, -2, "characters") ;
@@ -340,7 +341,7 @@ static int eventtap_event_getRawEventData(lua_State* L) {
 ///  * If the keypress does not correspond to a valid Unicode character, an empty string is returned (e.g. if `clean` is false, then Opt-E will return an empty string, while Opt-Shift-E will return an accent mark).
 static int eventtap_event_getCharacters(lua_State* L) {
     CGEventRef  event    = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
-    BOOL        clean    = lua_isnone(L, 2) ? NO : (BOOL)lua_toboolean(L, 2) ;
+    BOOL        clean    = lua_isnone(L, 2) ? NO : (BOOL)(lua_toboolean(L, 2)) ;
     CGEventType cgType   = CGEventGetType(event) ;
 
     if ((cgType == kCGEventKeyDown) || (cgType == kCGEventKeyUp)) {
@@ -505,18 +506,45 @@ static int eventtap_event_post(lua_State* L) {
     return 1 ;
 }
 
-/// hs.eventtap.event:getType() -> number
+/// hs.eventtap.event:getType([nsSpecificType]) -> number
 /// Method
 /// Gets the type of the event
 ///
 /// Parameters:
-///  * None
+///  * `nsSpecificType` - an optional boolean, default false, specifying whether or not a more specific Cocoa NSEvent type should be returned, if available.
 ///
 /// Returns:
 ///  * A number containing the type of the event, taken from `hs.eventtap.event.types`
+///
+/// Notes:
+///  * some newer events are grouped into a more generic event for watching purposes and the specific event type is determined by examining the event through the Cocoa API. The primary example of this is for gestures on a trackpad or touches of the touchbar, as all of these are grouped under the `hs.eventtap.event.types.gesture` event. For example:
+///
+///      ```lua
+///      myTap = hs.eventtap.new( { hs.eventtap.event.types.gesture }, function(e)
+///          local gestureType = e:getType(true)
+///          if gestureType == hs.eventtap.types.directTouch then
+///              -- they touched the touch bar
+///          elseif gestureType == hs.eventtap.types.gesture then
+///              -- they are touching the trackpad, but it's not for a gesture
+///          elseif gestureType == hs.eventtap.types.magnify then
+///              -- they're preforming a magnify gesture
+///          -- etc -- see hs.eventtap.event.types for more
+///          endif
+///      end
+///      ```
 static int eventtap_event_getType(lua_State* L) {
-    CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
-    lua_pushinteger(L, CGEventGetType(event));
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+    [skin checkArgs:LS_TUSERDATA, EVENT_USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
+    CGEventRef event   = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
+    BOOL       nsEvent = (lua_gettop(L) > 1) ? (BOOL)(lua_toboolean(L, 2)) : NO ;
+
+    if (nsEvent) {
+        NSEvent *cocoaEvent = [NSEvent eventWithCGEvent:event] ;
+        NSUInteger eventType = [cocoaEvent type] ;
+        lua_pushinteger(L, (lua_Integer)(eventType)) ;
+    } else {
+        lua_pushinteger(L, CGEventGetType(event));
+    }
     return 1;
 }
 
@@ -679,7 +707,7 @@ static int eventtap_event_newKeyEvent(lua_State* L) {
         [skin checkArgs:LS_TNUMBER | LS_TINTEGER, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
         keyCodePos  = 1 ;
     }
-    BOOL         isDown  = (BOOL)lua_toboolean(L, keyCodePos + 1) ;
+    BOOL         isDown  = (BOOL)(lua_toboolean(L, keyCodePos + 1)) ;
     CGKeyCode    keyCode = (CGKeyCode)lua_tointeger(L, keyCodePos) ;
 
     CGEventRef keyevent = CGEventCreateKeyboardEvent(eventSource, keyCode, isDown);
@@ -731,7 +759,7 @@ static int eventtap_event_newSystemKeyEvent(lua_State* L) {
     [skin checkArgs:LS_TSTRING, LS_TBOOLEAN, LS_TBREAK];
 
     NSString *keyName = [skin toNSObjectAtIndex:1];
-    BOOL isDown = (BOOL)lua_toboolean(L, 2);
+    BOOL isDown = (BOOL)(lua_toboolean(L, 2));
     int keyVal = -1;
 
     if ([keyName isEqualToString:@"SOUND_UP"]) {
@@ -985,16 +1013,16 @@ static int eventtap_event_systemKey(lua_State* L) {
 
 /// hs.eventtap.event:getTouches() -> table | nil
 /// Method
-/// Returns a table of details containing information about touches on the trackpad associated with this event if the event is of the type NSEventTypeGesture.
+/// Returns a table of details containing information about touches on the trackpad associated with this event if the event is of the type `hs.eventtap.event.types.gesture`.
 ///
 /// Parameters:
 ///  * None
 ///
 /// Returns:
-///  * if the event is of the type NSEventTypeGesture, returns a table; otherwise returns nil.
+///  * if the event is of the type gesture, returns a table; otherwise returns nil.
 ///
 /// Notes:
-///  * if the event is of the type NSEventTypeGesture, the table will contain one or more tables in an array. Each member table of the array will have the following key-value pairs:
+///  * if the event is of the type gesture, the table will contain one or more tables in an array. Each member table of the array will have the following key-value pairs:
 ///    * `device`                     - a string containing a unique identifier for the device on which the touch occurred. At present we do not have a way to match the identifier to a specific touch device, but if multiple such devices are attached to the computer, this value will differ between them.
 ///    * `deviceSize`                 - a size table containing keys `h` and `w` for the height and width of the touch device in points (72 PPI resolution).
 ///    * `force`                      - a number representing a measure of the force of the touch when the device is a forcetouch trackpad. This will be 0.0 for non-forcetouch trackpads and the touchbar.
@@ -1010,40 +1038,79 @@ static int eventtap_event_systemKey(lua_State* L) {
 ///      * `previousNormalizedPosition` - a point table specifying the `x` and `y` coordinates of the previous position for this specific touch (as linked by `identity`) normalezed to values between 0.0 and 1.0.
 ///
 ///    * The following fields will be present when the touch is from the touchbar (`type` == "direct")`
-///      * `location`                   -
-///      * `previousLocation`           -
+///      * `location`                   - a point table specifying the `x` and `y` coordinates of the touch location within the touchbar.
+///      * `previousLocation`           - a point table specifying the `x` and `y` coordinates of the previous location for this specific touch (as linked by `identity`) within the touchbar.
 static int eventtap_event_getTouches(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
-    [skin checkArgs:LS_TUSERDATA, EVENT_USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
+    [skin checkArgs:LS_TUSERDATA, EVENT_USERDATA_TAG, LS_TBREAK] ;
+    CGEventRef  event      = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG) ;
+    NSEvent     *asNSEvent = [NSEvent eventWithCGEvent:event] ;
+
+    if (CGEventGetType(event) == NSEventTypeGesture) {
+        NSSet *touches = asNSEvent.allTouches ;
+        [skin pushNSObject:touches] ;
+    } else {
+        lua_pushnil(L) ;
+    }
+    return 1 ;
+}
+
+/// hs.eventtap.event:getTouchDetails() -> table | nil
+/// Method
+/// Returns a table contining more information about some touch related events.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * if the event is a touch event (i.e. is an event of type `hs.eventtap.event.types.gesture`), then this method returns a table with zero or more of the following key-value pairs:
+///    * if the gesture is for a pressure event:
+///      * `pressure`         - a number between 0.0 and 1.0 inclusive indicating the relative amount of pressure applied by the touch; trackpads which are not pressure sensitive will only report the discrete values of 0.0 and 1.0.
+///      * `stage`            - an integer between 0 and 2 specifying the stage. 0 represents a touch transitioning to a state too light to be considered a touch, usually at the end of a click; 1 represents a touch with enough pressure to be considered a mouseDown event; 2 represents additional pressure, usually what would trigger a "deep" or "force" touch.
+///      * `stageTransition`  - a number between 0.0 and 1.0. As the pressure increases and transition between stages begins, this will rise from 0.0 to 1.0; as the pressure decreases and a transition between stages begins, this will fall from 0.0 to -1.0. When the pressure is solidly within a specific stage, this will remain 0.0.
+///      * `pressureBehavior` - a string specifying the effect or purpose of the pressure. Note that the exact meaning (in terms of haptic feedback or action being performed) of each label is target application or ui element specific. Valid values for this key are:
+///        * "unknown", "default", "click", "generic", "accelerator", "deepClick", "deepDrag"
+///    * if the gesture is for a magnification event:
+///      * `magnification` - a number specifying the change in magnification that should be added to the current scaling of an item to achieve the new scale factor.
+///    * if the gesture is for a rotation event:
+///      * `rotation` - a number specifying in degrees the change in rotation that should be added as specified by this event. Clockwise rotation is indicated by a negative number while counter-clockwise rotation will be positive.
+static int eventtap_event_getTouchDetails(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+    [skin checkArgs:LS_TUSERDATA, EVENT_USERDATA_TAG, LS_TBREAK] ;
     CGEventRef  event      = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG) ;
     NSEvent     *asNSEvent = [NSEvent eventWithCGEvent:event] ;
     NSEventType type       = asNSEvent.type ;
 
-    BOOL        proceed    = lua_gettop(L) > 1 ? lua_toboolean(L, 2) : (type == NSEventTypeGesture      ||
-                                                                        type == NSEventTypeMagnify      ||
-                                                                        type == NSEventTypeSwipe        ||
-                                                                        type == NSEventTypeRotate       ||
-                                                                        type == NSEventTypeBeginGesture ||
-                                                                        type == NSEventTypeEndGesture   ||
-                                                                        type == NSEventTypeSmartMagnify ||
-                                                                        type == NSEventTypeQuickLook    ||
-                                                                        type == NSEventTypePressure     ||
-                                                                        type == NSEventTypeDirectTouch
-                                                                    ) ;
+    if (CGEventGetType(event) == NSEventTypeGesture) {
+        lua_newtable(L) ;
 
-    if (proceed) {
-        NSSet *touches = nil ;
-        // per https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Exceptions/Articles/Exceptions64Bit.html#//apple_ref/doc/uid/TP40009044-SW1
-        @try { // this is zero cost on 64bit systems (all modern macs)
-            touches = asNSEvent.allTouches ;
+        if (type == NSEventTypePressure) {
+            lua_pushnumber(L, (lua_Number)asNSEvent.pressure) ; lua_setfield(L, -2, "pressure") ;
+            lua_pushinteger(L, asNSEvent.stage) ;               lua_setfield(L, -2, "stage") ;
+            lua_pushnumber(L, asNSEvent.stageTransition) ;      lua_setfield(L, -2, "stageTransition") ;
+            NSPressureBehavior pressureBehavior = asNSEvent.pressureBehavior ;
+            switch(pressureBehavior) {
+                case NSPressureBehaviorUnknown:            lua_pushstring(L, "unknown") ; break ;
+                case NSPressureBehaviorPrimaryDefault:     lua_pushstring(L, "default") ; break ;
+                case NSPressureBehaviorPrimaryClick:       lua_pushstring(L, "click") ; break ;
+                case NSPressureBehaviorPrimaryGeneric:     lua_pushstring(L, "generic") ; break ;
+                case NSPressureBehaviorPrimaryAccelerator: lua_pushstring(L, "accelerator") ; break ;
+                case NSPressureBehaviorPrimaryDeepClick:   lua_pushstring(L, "deepClick") ; break ;
+                case NSPressureBehaviorPrimaryDeepDrag:    lua_pushstring(L, "deepDrag") ; break ;
+                default:
+                    lua_pushfstring(L, "** unrecognized pressureBehavior: %d", pressureBehavior) ;
+            }
+            lua_setfield(L, -2, "pressureBehavior") ;
         }
-        @catch (NSException *exception) { // but this is expenseive, hence we require an explicit boolean if not one of the anointed event types
-            [skin logWarn:[NSString stringWithFormat:@"%s:getTouches - exception %@: %@", EVENT_USERDATA_TAG, exception.name, exception.reason]] ;
-            touches = nil ; // probably not necessary, but lets be explicit
+
+        if (type == NSEventTypeMagnify) {
+            lua_pushnumber(L, asNSEvent.magnification) ;        lua_setfield(L, -2, "magnification") ;
         }
-        @finally {
-            [skin pushNSObject:touches] ;
+
+        if (type == NSEventTypeRotate) {
+            lua_pushnumber(L, (lua_Number)asNSEvent.rotation) ; lua_setfield(L, -2, "rotation") ;
         }
+
     } else {
         lua_pushnil(L) ;
     }
@@ -1056,47 +1123,50 @@ static int eventtap_event_getTouches(lua_State *L) {
 ///
 /// The constants defined in this table are as follows:
 ///
-///   * nullEvent               --  Specifies a null event.
-///   * leftMouseDown           --  Specifies a mouse down event with the left button.
-///   * leftMouseUp             --  Specifies a mouse up event with the left button.
-///   * rightMouseDown          --  Specifies a mouse down event with the right button.
-///   * rightMouseUp            --  Specifies a mouse up event with the right button.
-///   * mouseMoved              --  Specifies a mouse moved event.
-///   * leftMouseDragged        --  Specifies a mouse drag event with the left button down.
-///   * rightMouseDragged       --  Specifies a mouse drag event with the right button down.
-///   * keyDown                 --  Specifies a key down event.
-///   * keyUp                   --  Specifies a key up event.
-///   * flagsChanged            --  Specifies a key changed event for a modifier or status key.
-///   * scrollWheel             --  Specifies a scroll wheel moved event.
-///   * tabletPointer           --  Specifies a tablet pointer event.
-///   * tabletProximity         --  Specifies a tablet proximity event.
-///   * otherMouseDown          --  Specifies a mouse down event with one of buttons 2-31.
-///   * otherMouseUp            --  Specifies a mouse up event with one of buttons 2-31.
-///   * otherMouseDragged       --  Specifies a mouse drag event with one of buttons 2-31 down.
+///   * nullEvent         --  Specifies a null event. (thus far unobserved; please submit an issue if you can provide more information)
+///   * leftMouseDown     --  Specifies a mouse down event with the left button.
+///   * leftMouseUp       --  Specifies a mouse up event with the left button.
+///   * rightMouseDown    --  Specifies a mouse down event with the right button.
+///   * rightMouseUp      --  Specifies a mouse up event with the right button.
+///   * mouseMoved        --  Specifies a mouse moved event.
+///   * leftMouseDragged  --  Specifies a mouse drag event with the left button down.
+///   * rightMouseDragged --  Specifies a mouse drag event with the right button down.
+///   * keyDown           --  Specifies a key down event.
+///   * keyUp             --  Specifies a key up event.
+///   * flagsChanged      --  Specifies a key changed event for a modifier or status key.
+///   * scrollWheel       --  Specifies a scroll wheel moved event.
+///   * tabletPointer     --  Specifies a tablet pointer event.
+///   * tabletProximity   --  Specifies a tablet proximity event.
+///   * otherMouseDown    --  Specifies a mouse down event with one of buttons 2-31.
+///   * otherMouseUp      --  Specifies a mouse up event with one of buttons 2-31.
+///   * otherMouseDragged --  Specifies a mouse drag event with one of buttons 2-31 down.
 ///
 ///  The following events, also included in the lookup table, are provided through NSEvent and currently may require the use of `hs.eventtap.event:getRawEventData()` to retrieve supporting information.  Target specific methods may be added as the usability of these events is explored.
 ///
-///   * NSMouseEntered          --  See Mouse-Tracking and Cursor-Update Events in Cocoa Event Handling Guide.
-///   * NSMouseExited           --  See Mouse-Tracking and Cursor-Update Events in Cocoa Event Handling Guide.
-///   * NSCursorUpdate          --  See Mouse-Tracking and Cursor-Update Events in Cocoa Event Handling Guide.
-///   * NSAppKitDefined         --  See Event Objects and Types in Cocoa Event Handling Guide.
-///   * NSSystemDefined         --  See Event Objects and Types in Cocoa Event Handling Guide.
-///   * NSApplicationDefined    --  See Event Objects and Types in Cocoa Event Handling Guide.
-///   * NSPeriodic              --  See Event Objects and Types in Cocoa Event Handling Guide.
-///   * NSEventTypeGesture      --  An event that represents some type of gesture such as NSEventTypeMagnify, NSEventTypeSwipe, NSEventTypeRotate, NSEventTypeBeginGesture, or NSEventTypeEndGesture.
-///   * NSEventTypeMagnify      --  An event representing a pinch open or pinch close gesture.
-///   * NSEventTypeSwipe        --  An event representing a swipe gesture.
-///   * NSEventTypeRotate       --  An event representing a rotation gesture.
-///   * NSEventTypeBeginGesture --  An event that represents a gesture beginning.
-///   * NSEventTypeEndGesture   --  An event that represents a gesture ending.
-///   * NSEventTypeSmartMagnify --  NSEvent type for the smart zoom gesture (2-finger double tap on trackpads) along with a corresponding NSResponder method. In response to this event, you should intelligently magnify the content.
-///   * NSEventTypeQuickLook    --  Supports the new event responder method that initiates a Quicklook.
-///   * NSEventTypePressure     --  An NSEvent type representing a change in pressure on a pressure-sensitive device. Requires a 64-bit processor.
-///   * NSEventTypeDirectTouch  --  The user touched a portion of the touch bar.
-///   * NSEventTypeChangeMode   --  A double-tap on the side of an Apple Pencil paired with an iPad that is being used as an external monitor via Sidecar.
+///   * gesture               --  An event that represents a touch event on a touch sensitive trackpad or touchbar. See below.
+///   * systemDefined         --  ** needs more investigation and docs with info re special keys **
+///
+///   * appKitDefined         --  (thus far unobserved; please submit an issue if you can provide more information)
+///   * applicationDefined    --  (thus far unobserved; please submit an issue if you can provide more information)
+///   * cursorUpdate          --  (thus far unobserved; please submit an issue if you can provide more information)
+///   * mouseEntered          --  (thus far unobserved; please submit an issue if you can provide more information)
+///   * mouseExited           --  (thus far unobserved; please submit an issue if you can provide more information)
+///   * periodic              --  (thus far unobserved; please submit an issue if you can provide more information)
+///   * quickLook             --  (thus far unobserved; please submit an issue if you can provide more information)
+///
+///  To detect the following events, setup your eventtap to capture the `hs.eventtap.event.type.gesture` type and examine the value of [hs.eventtap.event:getType(true)](#getType).
+///   * gesture      --  The user touched a portion of a touchpad
+///   * directTouch  --  The user touched a portion of the touch bar.
+///   * changeMode   --  A double-tap on the side of an Apple Pencil paired with an iPad that is being used as an external monitor via Sidecar.
+///   * magnify      --  The user performed a pinch open or pinch close gesture.
+///   * pressure     --  The pressure on a forcetouch trackpad has changed..
+///   * rotate       --  The user performed a rotation gesture.
+///   * smartMagnify --  The user performed a smart zoom gesture (2-finger double tap on trackpads).
+///   * swipe        --  The user performed a swipe gesture. (thus far unobserved; please submit an issue if you can provide more information)
 
 static void pushtypestable(lua_State* L) {
     lua_newtable(L);
+    lua_pushinteger(L, kCGEventNull);                  lua_setfield(L, -2, "nullEvent");
     lua_pushinteger(L, kCGEventLeftMouseDown);         lua_setfield(L, -2, "leftMouseDown");
     lua_pushinteger(L, kCGEventLeftMouseUp);           lua_setfield(L, -2, "leftMouseUp");
     lua_pushinteger(L, kCGEventLeftMouseDragged);      lua_setfield(L, -2, "leftMouseDragged");
@@ -1107,38 +1177,45 @@ static void pushtypestable(lua_State* L) {
     lua_pushinteger(L, kCGEventOtherMouseUp);          lua_setfield(L, -2, "otherMouseUp");
     lua_pushinteger(L, kCGEventOtherMouseDragged);     lua_setfield(L, -2, "otherMouseDragged");
     lua_pushinteger(L, kCGEventMouseMoved);            lua_setfield(L, -2, "mouseMoved");
-
-    // The middleMouse* mappings here are for backwards compatibility (likely for nearly zero users)
-    lua_pushinteger(L, kCGEventOtherMouseDown);        lua_setfield(L, -2, "middleMouseDown");
-    lua_pushinteger(L, kCGEventOtherMouseUp);          lua_setfield(L, -2, "middleMouseUp");
-    lua_pushinteger(L, kCGEventOtherMouseDragged);     lua_setfield(L, -2, "middleMouseDragged");
-
     lua_pushinteger(L, kCGEventKeyDown);               lua_setfield(L, -2, "keyDown");
     lua_pushinteger(L, kCGEventKeyUp);                 lua_setfield(L, -2, "keyUp");
     lua_pushinteger(L, kCGEventFlagsChanged);          lua_setfield(L, -2, "flagsChanged");
     lua_pushinteger(L, kCGEventScrollWheel);           lua_setfield(L, -2, "scrollWheel");
     lua_pushinteger(L, kCGEventTabletPointer);         lua_setfield(L, -2, "tabletPointer");
     lua_pushinteger(L, kCGEventTabletProximity);       lua_setfield(L, -2, "tabletProximity");
-    lua_pushinteger(L, kCGEventNull);                  lua_setfield(L, -2, "nullEvent");
 
-    lua_pushinteger(L, NSEventTypeMouseEntered);       lua_setfield(L, -2, "NSMouseEntered");
-    lua_pushinteger(L, NSEventTypeMouseExited);        lua_setfield(L, -2, "NSMouseExited");
-    lua_pushinteger(L, NSEventTypeAppKitDefined);      lua_setfield(L, -2, "NSAppKitDefined");
-    lua_pushinteger(L, NSEventTypeSystemDefined);      lua_setfield(L, -2, "NSSystemDefined");
-    lua_pushinteger(L, NSEventTypeApplicationDefined); lua_setfield(L, -2, "NSApplicationDefined");
-    lua_pushinteger(L, NSEventTypePeriodic);           lua_setfield(L, -2, "NSPeriodic");
-    lua_pushinteger(L, NSEventTypeCursorUpdate);       lua_setfield(L, -2, "NSCursorUpdate");
-    lua_pushinteger(L, NSEventTypeGesture);            lua_setfield(L, -2, "NSEventTypeGesture");
-    lua_pushinteger(L, NSEventTypeMagnify);            lua_setfield(L, -2, "NSEventTypeMagnify");
-    lua_pushinteger(L, NSEventTypeSwipe);              lua_setfield(L, -2, "NSEventTypeSwipe");
-    lua_pushinteger(L, NSEventTypeRotate);             lua_setfield(L, -2, "NSEventTypeRotate");
-    lua_pushinteger(L, NSEventTypeBeginGesture);       lua_setfield(L, -2, "NSEventTypeBeginGesture");
-    lua_pushinteger(L, NSEventTypeEndGesture);         lua_setfield(L, -2, "NSEventTypeEndGesture");
-    lua_pushinteger(L, NSEventTypeSmartMagnify);       lua_setfield(L, -2, "NSEventTypeSmartMagnify");
-    lua_pushinteger(L, NSEventTypeQuickLook);          lua_setfield(L, -2, "NSEventTypeQuickLook");
-    lua_pushinteger(L, NSEventTypePressure);           lua_setfield(L, -2, "NSEventTypePressure");
-    lua_pushinteger(L, NSEventTypeDirectTouch);        lua_setfield(L, -2, "NSEventTypeDirectTouch");
-    lua_pushinteger(L, NSEventTypeChangeMode);         lua_setfield(L, -2, "NSEventTypeChangeMode");
+// // The middleMouse* mappings here are for backwards compatibility (likely for nearly zero users)
+//     lua_pushinteger(L, kCGEventOtherMouseDown);        lua_setfield(L, -2, "middleMouseDown");
+//     lua_pushinteger(L, kCGEventOtherMouseUp);          lua_setfield(L, -2, "middleMouseUp");
+//     lua_pushinteger(L, kCGEventOtherMouseDragged);     lua_setfield(L, -2, "middleMouseDragged");
+
+
+    lua_pushinteger(L, NSEventTypeMouseEntered);       lua_setfield(L, -2, "mouseEntered");
+    lua_pushinteger(L, NSEventTypeMouseExited);        lua_setfield(L, -2, "mouseExited");
+    lua_pushinteger(L, NSEventTypeCursorUpdate);       lua_setfield(L, -2, "cursorUpdate");
+
+    lua_pushinteger(L, NSEventTypePeriodic);           lua_setfield(L, -2, "periodic");
+
+    lua_pushinteger(L, NSEventTypeAppKitDefined);      lua_setfield(L, -2, "appKitDefined");
+    lua_pushinteger(L, NSEventTypeSystemDefined);      lua_setfield(L, -2, "systemDefined");
+    lua_pushinteger(L, NSEventTypeApplicationDefined); lua_setfield(L, -2, "applicationDefined");
+    lua_pushinteger(L, NSEventTypeQuickLook);          lua_setfield(L, -2, "quickLook");
+
+    lua_pushinteger(L, NSEventTypeGesture);            lua_setfield(L, -2, "gesture");
+    lua_pushinteger(L, NSEventTypeMagnify);            lua_setfield(L, -2, "magnify");
+    lua_pushinteger(L, NSEventTypeSwipe);              lua_setfield(L, -2, "swipe");
+    lua_pushinteger(L, NSEventTypeRotate);             lua_setfield(L, -2, "rotate");
+    lua_pushinteger(L, NSEventTypeSmartMagnify);       lua_setfield(L, -2, "smartMagnify");
+    lua_pushinteger(L, NSEventTypePressure);           lua_setfield(L, -2, "pressure");
+    lua_pushinteger(L, NSEventTypeDirectTouch);        lua_setfield(L, -2, "directTouch");
+    if (@available(macOS 10.15, *)) {
+        lua_pushinteger(L, NSEventTypeChangeMode);         lua_setfield(L, -2, "changeMode");
+    }
+
+// // no longer generated as of 10.11+
+//     lua_pushinteger(L, NSEventTypeBeginGesture);       lua_setfield(L, -2, "beginGesture");
+//     lua_pushinteger(L, NSEventTypeEndGesture);         lua_setfield(L, -2, "endGesture");
+
 }
 
 /// hs.eventtap.event.properties -> table
@@ -1364,6 +1441,7 @@ static const luaL_Reg eventtapevent_metalib[] = {
     {"setUnicodeString", eventtap_event_setUnicodeString},
     {"getType",         eventtap_event_getType},
     {"getTouches",      eventtap_event_getTouches},
+    {"getTouchDetails", eventtap_event_getTouchDetails},
     {"post",            eventtap_event_post},
     {"getProperty",     eventtap_event_getProperty},
     {"setProperty",     eventtap_event_setProperty},
@@ -1494,6 +1572,10 @@ static int NSTouch_toLua(lua_State *L, id obj) {
         case NSTouchPhaseStationary: lua_pushstring(L, "stationary") ; break ;
         case NSTouchPhaseEnded:      lua_pushstring(L, "ended") ; break ;
         case NSTouchPhaseCancelled:  lua_pushstring(L, "cancelled") ; break ;
+
+        case NSTouchPhaseTouching:
+        case NSTouchPhaseAny:        lua_pushnil(L) ; break ;
+
         default:
             lua_pushfstring(L, "** unrecognized phase: %d", phase) ;
     }
