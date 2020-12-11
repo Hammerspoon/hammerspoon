@@ -2,4 +2,4 @@
 # Prepare GitHub Actions environment for testing
 
 gem install xcpretty
-pip install --user -r requirements.txt
+/usr/bin/python3 -m pip install --user -r requirements.txt

@@ -23,19 +23,25 @@ jobs:
           verbose: true
         if: ${{ always() }}
       - name: IRC notification - push
-        uses: rectalogic/notify-irc@v1
-        if: github.event_name == 'push'
+        uses: Gottox/irc-message-action@v1.3.0
+        if: ${{ always() && github.event_name == 'push' && github.repository == 'hammerspoon/hammerspoon' }}
         with:
           channel: '#hammerspoon'
           nickname: 'HSGHA'
           message: |
-            ${{ github.actor }} pushed ${{ github.event.ref }} ${{ github.event.compare }} - Tests: ${{ steps.test.outputs.test_result }}
+            CI result for push from ${{ github.event.head_commit.author.name }}:
+              * ${{ github.event.head_commit.message }}
+              * ${{ github.event.compare }}
+            ${{ steps.test.outputs.test_result }}
       - name: IRC notification - PR
-        uses: rectalogic/notify-irc@v1
-        if: github.event_name == 'pull_request'
+        uses: Gottox/irc-message-action@v1.3.0
+        if: ${{ always() && github.event_name == 'pull_request' && github.repository == 'hammerspoon/hammerspoon' }}
         with:
           channel: '#hammerspoon'
           nickname: 'HSGHA'
           message: |
-            ${{ github.actor }} pushed to PR ${{ github.event.html_url }} - Tests: ${{ steps.test.outputs.test_result }}
+            CI result for PR from ${{ github.actor }}:
+              * ${{ github.event.pull_request.title }}
+              * ${{ github.event.pull_request.html_url }}
+            ${{ steps.test.outputs.test_result }}
 
