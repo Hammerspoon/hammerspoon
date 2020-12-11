@@ -5,6 +5,7 @@
 #import "SentryHub.h"
 #import "SentryLog.h"
 #import "SentrySDK.h"
+#import "SentryScope.h"
 #import "SentrySwizzle.h"
 
 #if SENTRY_HAS_UIKIT
@@ -152,8 +153,9 @@
                     sanitizeViewControllerName:[NSString stringWithFormat:@"%@", self]];
                 crumb.data = @ { @"screen" : viewControllerName };
 
+                // Adding crumb via the SDK calls SentryBeforeBreadcrumbCallback
+                [SentrySDK addBreadcrumb:crumb];
                 [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull scope) {
-                    [scope addBreadcrumb:crumb];
                     [scope setExtraValue:viewControllerName forKey:@"__sentry_transaction"];
                 }];
             }

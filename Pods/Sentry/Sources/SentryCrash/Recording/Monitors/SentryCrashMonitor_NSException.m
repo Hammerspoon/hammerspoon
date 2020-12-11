@@ -68,6 +68,8 @@ handleException(NSException *exception, BOOL currentSnapshotUserReported)
         NSArray *addresses = [exception callStackReturnAddresses];
         NSUInteger numFrames = addresses.count;
         uintptr_t *callstack = malloc(numFrames * sizeof(*callstack));
+        assert(callstack != NULL);
+
         for (NSUInteger i = 0; i < numFrames; i++) {
             callstack[i] = (uintptr_t)[addresses[i] unsignedLongLongValue];
         }

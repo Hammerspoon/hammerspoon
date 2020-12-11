@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: macos-11.0
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Prepare environment
+        run: ./scripts/github-ci-pre.sh
+      - name: Build for testing
+        run: ./scripts/github-ci-testbuild.sh
+      - name: Run tests
+        id: test
+        run: ./scripts/github-ci-test.sh
+      - name: Upload test coverage
+        uses: codecov/codecov-action@v1
+        with:
+          verbose: true
+        if: ${{ always() }}
+      - name: IRC notification - push
+        uses: Gottox/irc-message-action@v1.3.0
+        if: ${{ always() && github.event_name == 'push' && github.repository == 'hammerspoon/hammerspoon' }}
+        with:
+          channel: '#hammerspoon'
+          nickname: 'HSGHA'
+          message: |
+            CI result for push from ${{ github.event.head_commit.author.name }}:
+              * ${{ github.event.head_commit.message }}
+              * ${{ github.event.compare }}
+            ${{ steps.test.outputs.test_result }}
+      - name: IRC notification - PR
+        uses: Gottox/irc-message-action@v1.3.0
+        if: ${{ always() && github.event_name == 'pull_request' && github.repository == 'hammerspoon/hammerspoon' }}
+        with:
+          channel: '#hammerspoon'
+          nickname: 'HSGHA'
+          message: |
+            CI result for PR from ${{ github.actor }}:
+              * ${{ github.event.pull_request.title }}
+              * ${{ github.event.pull_request.html_url }}
+            ${{ steps.test.outputs.test_result }}
+

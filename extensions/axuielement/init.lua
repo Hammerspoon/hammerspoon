@@ -229,7 +229,7 @@ end
 objectMT.path = function(self)
     local results, current = { self }, self
     while current:attributeValue("AXParent") do
-        current = current("parent")
+        current = current.AXParent
         table.insert(results, 1, current)
     end
     return results

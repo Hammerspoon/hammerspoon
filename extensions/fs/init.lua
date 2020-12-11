@@ -2,9 +2,7 @@
 ---
 --- Access/inspect the filesystem
 ---
---- Home: http://keplerproject.github.io/luafilesystem/
----
---- This module is produced by the Kepler Project under the name "Lua File System"
+--- This module is partial superset of LuaFileSystem 1.8.0 (http://keplerproject.github.io/luafilesystem/). It has been modified to remove functions which do not apply to macOS filesystems and additional functions providing macOS specific filesystem information have been added.
 
 local module = require("hs.fs.internal")
 module.volume = require("hs.fs.volume")
@@ -117,6 +115,35 @@ end tell
         return state
     else
         error(raw.NSLocalizedDescription, 2)
+    end
+end
+
+-- easier to wrap here than adjust in internal.m since we have a more macOS way to resolve
+-- symlinks
+local hs_fs_symlinkAttributes = module.symlinkAttributes
+--- hs.fs.symlinkAttributes (filepath [, aname]) -> table or string or nil,error
+--- Function
+--- Gets the attributes of a symbolic link
+---
+--- Parameters:
+---  * filepath - A string containing the path of a link to inspect
+---  * aName - An optional attribute name. If this value is specified, only the attribute requested, is returned
+---
+--- Returns:
+---  * A table or string if the values could be found, otherwise nil and an error string.
+---
+--- Notes:
+---  * The return values for this function are identical to those provided by `hs.fs.attributes()` with the following addition: the attribute name "target" is added and specifies a string containing the absolute path that the symlink points to.
+module.symlinkAttributes = function(...)
+    local args = table.pack(...)
+    if args[2] == "target" then
+        return module.pathToAbsolute(args[1])
+    else
+        local ans = table.pack(hs_fs_symlinkAttributes(...))
+        if ans.n == 1 and type(ans[1]) == "table" then
+            ans[1].target = module.pathToAbsolute(args[1])
+        end
+        return table.unpack(ans)
     end
 end
 

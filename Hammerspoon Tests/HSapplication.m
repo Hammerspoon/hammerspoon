@@ -46,6 +46,7 @@
 
 - (void)testFrontmostApplication {
     SKIP_IN_TRAVIS()
+    SKIP_IN_GITHUB_ACTIONS()
     RUN_LUA_TEST()
 }
 
@@ -55,6 +56,7 @@
 
 - (void)testHiding {
     SKIP_IN_TRAVIS()
+    SKIP_IN_GITHUB_ACTIONS()
     [self luaTestWithCheckAndTimeOut:5 setupCode:@"testHiding()" checkCode:@"testHidingValues()"];
 }
 
@@ -70,6 +72,7 @@
 
 - (void)testWindows {
     SKIP_IN_TRAVIS()
+    SKIP_IN_GITHUB_ACTIONS()
     [self luaTestWithCheckAndTimeOut:5 setupCode:@"testWindows()" checkCode:@"testWindowsValues()"];
 }
 

@@ -1,7 +1,8 @@
 #import <Foundation/Foundation.h>
 
-#import "SentryOptions.h"
 #import "SentryTransport.h"
+
+@class SentryOptions, SentryFileManager;
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -1,5 +1,6 @@
 #import <Cocoa/Cocoa.h>
 #import <LuaSkin/LuaSkin.h>
+#import <AVFoundation/AVFoundation.h>
 
 #define USERDATA_TAG "hs.sound"
 static int refTable = LUA_NOREF;
@@ -57,6 +58,47 @@ static int refTable = LUA_NOREF;
 @end
 
 #pragma mark - Module Functions
+
+/// hs.sound.getAudioEffectNames() -> table
+/// Function
+/// Gets a table of installed Audio Units Effect names.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A table containing the names of all installed Audio Units Effects.
+///
+/// Notes:
+///  * Example usage: `hs.inspect(hs.audiounit.getAudioEffectNames())`
+static int sound_getAudioEffectNames(lua_State *L) {
+    AudioComponentDescription description;
+    description.componentType = kAudioUnitType_Effect;
+    description.componentSubType = 0;
+    description.componentManufacturer = 0;
+    description.componentFlags = 0;
+    description.componentFlagsMask = 0;
+    
+    AudioComponent component = nil;
+        
+    int count = 1;
+    
+    lua_newtable(L);
+    while((component = AudioComponentFindNext(component, &description))) {
+        CFStringRef name;
+        AudioComponentCopyName(component, &name);
+        NSString *theName = (__bridge NSString *)name;
+        
+        if (theName) {
+            lua_pushstring(L,[[NSString stringWithFormat:@"%@", theName] UTF8String]);
+            lua_rawseti(L, -2, count++);
+        }
+        if (name) {
+            CFRelease(name);
+        }
+    }
+    return 1 ;
+}
 
 /// hs.sound.getByName(name) -> sound or nil
 /// Constructor
@@ -621,11 +663,12 @@ static const luaL_Reg userdata_metaLib[] = {
 
 // Functions for returned object when module loads
 static luaL_Reg moduleLib[] = {
-    {"soundTypes",      sound_soundUnfilteredTypes},
-    {"soundFileTypes",  sound_soundUnfilteredFileTypes},
-    {"getByName",       sound_byname},
-    {"getByFile",       sound_byfile},
-    {"systemSounds",    sound_systemSounds},
+    {"soundTypes",          sound_soundUnfilteredTypes},
+    {"soundFileTypes",      sound_soundUnfilteredFileTypes},
+    {"getByName",           sound_byname},
+    {"getByFile",           sound_byfile},
+    {"systemSounds",        sound_systemSounds},
+    {"getAudioEffectNames", sound_getAudioEffectNames},
     {NULL,              NULL}
 };
 

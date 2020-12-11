@@ -1,1 +1,1 @@
-../../../Sentry/Sources/Sentry/include/SentryClient.h
+../../../Sentry/Sources/Sentry/Public/SentryClient.h

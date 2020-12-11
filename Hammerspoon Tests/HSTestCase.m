@@ -14,6 +14,7 @@
     [super setUp];
     self.isTravis = [self runningInTravis];
     self.isXcodeServer = [self runningInXcodeServer];
+    self.isGitHubActions = [self runningInGitHubActions];
 
     NSString *result = [self runLua:[NSString stringWithFormat:@"require('%@')", requireName]];
     XCTAssertEqualObjects(@"true", result, @"Unable to load %@.lua", requireName);
@@ -88,6 +89,10 @@
 
 - (BOOL)runningInXcodeServer {
     return (getenv("XCS") != NULL);
+}
+
+- (BOOL)runningInGitHubActions {
+    return (getenv("GITHUB_ACTIONS") != NULL);
 }
 
 // Tests of the above methods
