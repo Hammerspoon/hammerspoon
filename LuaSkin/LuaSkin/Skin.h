@@ -842,6 +842,12 @@ NSString *specMaskToString(int spec);
 // FIXME: Should this be documented? Seems unnecessary to do so, at the moment
 + (void)classLogAtLevel:(int)level withMessage:(NSString *)theMessage;
 
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdocumentation-unknown-command"
+// clang doesn't like apiuid, but it allows headerdoc2html to properly reference class methods with duplicate
+// prototypes in the TOC
+
 /*!
  @apiuid //apple_ref/doc/classmethodparam/LuaSkin/logVerbose:/theMessage
  @abstract Log the specified message from any thread with LS_LOG_VERBOSE level
@@ -889,6 +895,8 @@ NSString *specMaskToString(int spec);
  @param theMessage the message to log
  */
 + (void)logBreadcrumb:(NSString *)theMessage ;
+
+#pragma clang diagnostic pop
 
 /*!
  @abstract Returns a string containing the current stack top, the absolute index position of the stack top, and the output from luaL_traceback.
