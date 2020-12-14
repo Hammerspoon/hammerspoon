@@ -10,6 +10,9 @@
      @header Skin.h
      An Objective-C framework that both wraps and abstracts Lua
      @copyright The Hammerspoon Authors
+
+     @ignorefuncmacro NS_OPTIONS
+     @ignorefuncmacro NS_ENUM
  */
 
 
@@ -44,38 +47,58 @@ extern int luaopen_luaskin_internal(lua_State* L) ; // entry vector to luaskin.m
 
 // Define some bits for masking operations in the argument checker
 /*!
-  @definedblock Bit masks for Lua type checking with LuaSkin:checkArgs:
-  @hidesingletons
+  @definedblock Bit masks for Lua type checking
+  @abstract Bit masks indicating valid argument types for use with @link checkArgs: @/link
+
+    @define LS_TBREAK The final value in all @link checkArgs: @/link calls, signals the end of the argument list
+    @define LS_TOPTIONAL Can be OR'd with any argument to indicate that it does not have to be present
+    @define LS_TNIL maps to LUA_TNIL
+    @define LS_TBOOLEAN maps to LUA_TBOOLEAN
+    @define LS_TNUMBER maps to LUA_TNUMBER
+    @define LS_TSTRING maps to LUA_TSTRING
+    @define LS_TTABLE maps to LUA_TTABLE
+    @define LS_TFUNCTION maps to LUA_TFUNCTION
+    @define LS_TUSERDATA maps to LUA_TUSERDATA
+    @define LS_TNONE maps to LUA_TNONE.  Deprecated, as this serves no real use in checkArgs except to provide parity with Lua's LUA_TNONE, which is handled by optional argument tagging or as an argument count error.
+    @define LS_TANY indicates that any Lua variable type is accepted
+    @define LS_TINTEGER Can be OR'd with LS_TNUMBER to specify that the number must be an integer.  This option is ignored if paired with other types.
+    @define LS_TVARARG Can be OR'd with LS_TBREAK to indicate that any additional arguments on the stack after this location are to be ignored by @link checkArgs: @/link.  It is the responsibility of the module function to check and use or ignore any additional arguments.
+    @define LS_TTYPEDTABLE maps to LUA_TTABLE, but like LS_TUSERDATA, expects a string argument following which specifies the specific value expected in the __luaSkinType field of the table.
+    @define LS_TWRAPPEDOBJECT maps to a userdata which represents a raw Objective-C object.
   */
-#define LS_TBREAK         1 << 0  /*! @define LS_TBREAK The final value in all @link //apple_ref/occ/instm/LuaSkin/checkArgs: checkArgs @/link calls, signals the end of the argument list */
-#define LS_TOPTIONAL      1 << 1  /*! @define LS_TOPTIONAL Can be OR'd with any argument to indicate that it does not have to be present */
-#define LS_TNIL           1 << 2  /*! @define LS_TNIL maps to LUA_TNIL */
-#define LS_TBOOLEAN       1 << 3  /*! @define LS_TBOOLEAN maps to LUA_TBOOLEAN */
-#define LS_TNUMBER        1 << 4  /*! @define LS_TNUMBER maps to LUA_TNUMBER */
-#define LS_TSTRING        1 << 5  /*! @define LS_TSTRING maps to LUA_TSTRING */
-#define LS_TTABLE         1 << 6  /*! @define LS_TTABLE maps to LUA_TTABLE */
-#define LS_TFUNCTION      1 << 7  /*! @define LS_TFUNCTION maps to LUA_TFUNCTION */
-#define LS_TUSERDATA      1 << 8  /*! @define LS_TUSERDATA maps to LUA_TUSERDATA */
-#define LS_TNONE          1 << 9  /*! @define LS_TNONE maps to LUA_TNONE.  Deprecated, as this serves no real use in checkArgs except to provide parity with Lua's LUA_TNONE, which is handled by optional argument tagging or as an argument count error. */
-#define LS_TANY           1 << 10 /*! @define LS_TANY indicates that any Lua variable type is accepted */
-#define LS_TINTEGER       1 << 11 /*! @define LS_TINTEGER Can be OR'd with LS_TNUMBER to specify that the number must be an integer.  This option is ignored if paired with other types. */
-#define LS_TVARARG        1 << 12 /*! @define LS_TVARARG Can be OR'd with LS_TBREAK to indicate that any additional arguments on the stack after this location are to be ignored by @link //apple_ref/occ/instm/LuaSkin/checkArgs: checkArgs @/link.  It is the responsibility of the module function to check and use or ignore any additional arguments. */
-#define LS_TTYPEDTABLE    1 << 13 /*! @define LS_TTYPEDTABLE maps to LUA_TTABLE, but like LS_TUSERDATA, expects a string argument following which specifies the specific value expected in the __luaSkinType field of the table. */
-#define LS_TWRAPPEDOBJECT 1 << 14 /*! @define LS_TWRAPPEDOBJECT maps to a userdata which represents a raw Objective-C object. */
+#define LS_TBREAK         1 << 0
+#define LS_TOPTIONAL      1 << 1
+#define LS_TNIL           1 << 2
+#define LS_TBOOLEAN       1 << 3
+#define LS_TNUMBER        1 << 4
+#define LS_TSTRING        1 << 5
+#define LS_TTABLE         1 << 6
+#define LS_TFUNCTION      1 << 7
+#define LS_TUSERDATA      1 << 8
+#define LS_TNONE          1 << 9
+#define LS_TANY           1 << 10
+#define LS_TINTEGER       1 << 11
+#define LS_TVARARG        1 << 12
+#define LS_TTYPEDTABLE    1 << 13
+#define LS_TWRAPPEDOBJECT 1 << 14
 
 /*! @/definedblock Bit masks for Lua type checking */
 
 /*!
+ @typedef LS_NSConversionOptions
  @abstract Conversion options for @link pushNSObject:withOptions: @/link and @link toNSObjectAtIndex:withOptions: @/link
 
-   @constant LS_NSNone no options specified, use default beahvior
-   @constant LS_NSUnsignedLongLongPreserveBits convert NSNumber that contains an unsigned long long to a lua_Integer (long long) rather than preserve the numerical magnitude with lua_Number (double).  Default is to preserve magnitude when the unsigned long long is greater than 0x7fffffffffffffff.
-   @constant LS_NSDescribeUnknownTypes when a date type or sub-type is unrecognized and does not match any defined converter, return a string describing the data (from [NSObject debugDescription] or luaL_tolstring, whichever is appropriate for the initial data type) instead of the default behavior of returing nil for the entire conversion. Not compatible with LS_NSDescribeUnknownTypes.
-   @constant LS_NSIgnoreUnknownTypes when a date type or sub-type is unrecognized and does not match any defined converter, return a nil placeholder (from [NSNull null] or lua_pushnil, whichever is appropriate for the initial data type) for the data or sub-component instead of the default behavior of returing nil for the entire conversion. Not compatible with LS_NSDescribeUnknownTypes.
-   @constant LS_NSPreserveLuaStringExactly If a Lua string contains character byte sequences which cannot be converted to a proper UTF8 Unicode character, return the string as an NSData object instead of the default lossy behavior of converting invalid sequences into the Unicode Invalid Character code.  You should check your result to see if it is an NSString or an NSData object with the isKindOfClass: message if you select this option. Not compatible with LS_NSLuaStringAsDataOnly.
-   @constant LS_NSLuaStringAsDataOnly A lua string is always returned as an NSData object instead of the default lossy behavior of converting invalid sequences into the Unicode Invalid Character code.  Not compatible with LS_NSPreserveLuaStringExactly.
-   @constant LS_NSAllowsSelfReference If a lua table contains a self reference (a table value which equals one of tables in which it is nested), allow the same self reference in the NSArray or NSDictionary object being created instead of the defualt behavior of returning nil for the entire conversion.  Note that this option will create an object which likely cannot be fully collected by ARC without additional code due to strong internal references.
-   @constant LS_NSRawTables Always convert a Lua table to NSArray or NSDictionary, even if it contains a __luaSkinType field and a registered conversion function for the specified type exists.
+   @constant LS_NSNone (used by both methods) no options specified, use default beahvior
+   @constant LS_NSUnsignedLongLongPreserveBits (used by @link pushNSObject:withOptions: @/link) convert NSNumber that contains an unsigned long long to a lua_Integer (long long) rather than preserve the numerical magnitude with lua_Number (double).  Default is to preserve magnitude when the unsigned long long is greater than 0x7fffffffffffffff.
+   @constant LS_NSDescribeUnknownTypes (used by both methods) when a data type or sub-type is unrecognized and does not match any defined converter, return a string describing the data (from [NSObject debugDescription] or luaL_tolstring, whichever is appropriate for the initial data type) instead of the default behavior of returing nil for the entire conversion. Not compatible with LS_NSIgnoreUnknownTypes.
+   @constant LS_NSIgnoreUnknownTypes (used by both methods) when a date type or sub-type is unrecognized and does not match any defined converter, return a nil placeholder (from [NSNull null] or lua_pushnil, whichever is appropriate for the initial data type) for the data or sub-component instead of the default behavior of returing nil for the entire conversion. Not compatible with LS_NSDescribeUnknownTypes.
+   @constant LS_NSPreserveLuaStringExactly (used by @link toNSObjectAtIndex:withOptions: @/link) If a Lua string contains character byte sequences which cannot be converted to a proper UTF8 Unicode character, return the string as an NSData object instead of the default lossy behavior of converting invalid sequences into the Unicode Invalid Character code.  You should check your result to see if it is an NSString or an NSData object with the isKindOfClass: message if you select this option. Not compatible with LS_NSLuaStringAsDataOnly.
+   @constant LS_NSLuaStringAsDataOnly (used by @link toNSObjectAtIndex:withOptions: @/link) A lua string is always returned as an NSData object instead of the default lossy behavior of converting invalid sequences into the Unicode Invalid Character code.  Not compatible with LS_NSPreserveLuaStringExactly.
+   @constant LS_NSAllowsSelfReference (used by @link toNSObjectAtIndex:withOptions: @/link) If a lua table contains a self reference (a table value which equals one of tables in which it is nested), allow the same self reference in the NSArray or NSDictionary object being created instead of the defualt behavior of returning nil for the entire conversion.  Note that this option will create an object which likely cannot be fully collected by ARC without additional code due to strong internal references.
+   @constant LS_NSRawTables (used by @link toNSObjectAtIndex:withOptions: @/link) Always convert a Lua table to NSArray or NSDictionary, even if it contains a __luaSkinType field and a registered conversion function for the specified type exists.
+   @constant LS_WithObjectWrapper (used by @link pushNSObject:withOptions: @/link) Push NSArray or NSDictionary as userdata instead of table to lua stack. Meta-methods allow Lua to (mostly) use this as it would a table, but reduces overhead by not requiring data to be duplicated and inserted into Lua VM. Defaults to read-only (i.e. attempts to add or remove table elements in Lua will fail).
+   @constant LS_OW_ReadWrite (used by @link pushNSObject:withOptions: @/link) When combined with @link LS_WithObjectWrapper @/link, the virtual table can be modified from Lua by adding or removing elements (as long as doing so would not change the underlying NSObject type), and the corresponding NSObject will be updated to reflect the changes.
+   @constant LS_OW_WithArrayConversion (used by @link pushNSObject:withOptions: @/link) When combined with @link LS_WithObjectWrapper @/link and @link LS_OW_ReadWrite @/link, modifying the virtual table in a way that would change the underlying NSObject type will cause it to be changed as necessary (e.g. adding a keyed element to an NSArray would change the underlying object to an NSDictionary; removing a keyed element from an NSDictionary that leaves only sequential integer keys starting at 1 will change the object to an NSArray.)
  */
 typedef NS_OPTIONS(NSUInteger, LS_NSConversionOptions) {
     LS_NSNone                         = 0,
@@ -95,15 +118,22 @@ typedef NS_OPTIONS(NSUInteger, LS_NSConversionOptions) {
 } ;
 
 /*!
- @definedblock Log level definitions for logAtLevel:withMessage:
- @hidesingletons
+ @definedblock Log level definitions
+ @abstract Log level definitions for use with @link logAtLevel:withMessage: @/link
+
+   @define LS_LOG_BREADCRUMB for messages that should be considered for recording in crash logs
+   @define LS_LOG_VERBOSE for messages that contain excessive detail that is usually only of interest during debugging
+   @define LS_LOG_DEBUG for messages that are usually only of interest during debugging
+   @define LS_LOG_INFO for messages that are informative
+   @define LS_LOG_WARN for messages that contain warnings
+   @define LS_LOG_ERROR for messages that indicate an error has occured
  */
-#define LS_LOG_BREADCRUMB 6 /*! @define LS_LOG_BREADCRUMB for messages that should be considered for recording in crash logs */
-#define LS_LOG_VERBOSE    5 /*! @define LS_LOG_VERBOSE for messages that contain excessive detail that is usually only of interest during debugging */
-#define LS_LOG_DEBUG      4 /*! @define LS_LOG_DEBUG for messages that are usually only of interest during debugging */
-#define LS_LOG_INFO       3 /*! @define LS_LOG_INFO for messages that are informative */
-#define LS_LOG_WARN       2 /*! @define LS_LOG_WARN for messages that contain warnings */
-#define LS_LOG_ERROR      1 /*! @define LS_LOG_ERROR for messages that indicate an error has occured */
+#define LS_LOG_BREADCRUMB 6
+#define LS_LOG_VERBOSE    5
+#define LS_LOG_DEBUG      4
+#define LS_LOG_INFO       3
+#define LS_LOG_WARN       2
+#define LS_LOG_ERROR      1
 
 /*! @/definedblock Log level definitions */
 
@@ -319,7 +349,7 @@ NSString *specMaskToString(int spec);
 /*!
  @abstract Defines a Lua object with methods
  @discussion Here is some sample code:
- @code
+ <pre>@textblock
  char *objectName = "shinyObject";
 
  static const luaL_Reg myShinyObject[] = {
@@ -329,7 +359,7 @@ NSString *specMaskToString(int spec);
  };
 
  [luaSkin registerObject:objectName objectFunctions:myShinyObject];
- @endcode
+ @/textblock</pre>
 
  @warning Every C function pointer must point to a function of the form: static int someFunction(lua_State *L);
 
@@ -342,7 +372,7 @@ NSString *specMaskToString(int spec);
 
 /*!
  @abstract Stores a reference to the object at the top of the Lua stack, in the supplied table, and pops the object off the stack
- @remark This method is functionally analogous to luaL_ref(), it just takes care of pushing the supplied table ref onto the stack, and removes it afterwards
+ <br> This method is functionally analogous to luaL_ref(), it just takes care of pushing the supplied table ref onto the stack, and removes it afterwards
 
  @param refTable - An integer reference to a table, (e.g. the result of a previous luaRef on a table object or the result of the module's registration through registerLibrary:metaFunctions: or registerLibraryWithObject:functions:metaFunctions:objectFunctions:)
  @return An integer reference to the object that was at the top of the stack
@@ -361,7 +391,7 @@ NSString *specMaskToString(int spec);
 /*!
  @abstract Removes a reference from the supplied table
 
- @remark This method is functionally analogous to luaL_unref(), it just takes care of pushing the supplied table ref onto the Lua stack, and removes it afterwards
+ <br> This method is functionally analogous to luaL_unref(), it just takes care of pushing the supplied table ref onto the Lua stack, and removes it afterwards
 
  @param refTable - An integer reference to a table, (e.g. the result of a previous luaRef on a table object or the result of the module's registration through registerLibrary:metaFunctions: or registerLibraryWithObject:functions:metaFunctions:objectFunctions:)
  @param ref - An integer reference for an object that should be removed from the refTable table
@@ -372,7 +402,7 @@ NSString *specMaskToString(int spec);
 /*!
  @abstract Pushes a stored reference onto the Lua stack
 
- @remark This method is functionally analogous to lua_rawgeti(), it just takes care of pushing the supplied table ref onto the Lua stack, and removes it afterwards
+ <br> This method is functionally analogous to lua_rawgeti(), it just takes care of pushing the supplied table ref onto the Lua stack, and removes it afterwards
 
  @param refTable - An integer reference to a table, (e.g. the result of a previous luaRef on a table object or the result of the module's registration through registerLibrary:metaFunctions: or registerLibraryWithObject:functions:metaFunctions:objectFunctions:)
  @param ref - An integer reference for an object that should be pushed onto the stack
@@ -385,7 +415,7 @@ NSString *specMaskToString(int spec);
 /*!
  @abstract Ensures a Lua->C call has the right arguments
 
- @remark If the arguments are incorrect, this call will never return and the user will get a nice Lua traceback instead
+ <br> If the arguments are incorrect, this call will never return and the user will get a nice Lua traceback instead
  @discussion Each argument can use boolean OR's to allow multiple types to be accepted (e.g. LS_TNIL | LS_TBOOLEAN).
 
  Each argument can be OR'd with LS_TOPTIONAL to indicate that the argument is optional.
@@ -394,7 +424,7 @@ NSString *specMaskToString(int spec);
 
  @warning The final argument MUST be LS_TBREAK, to signal the end of the list
 
- @param firstArg - An integer that defines the first acceptable Lua argument type. Possible values are LS_TNIL, LS_TBOOLEAN, LS_TNUMBER, LS_TSTRING, LS_TTABLE, LS_TFUNCTION, LS_TUSERDATA, LS_TBREAK. Followed by zero or more integers of the same possible values. The final value MUST be LS_TBREAK
+ @param firstArg - An integer that defines the first acceptable Lua argument type. Possible values are defined @link //apple_ref/doc/title:macro/BitmasksforLuatypechecking here @/link. Followed by zero or more integers of the same possible values. The final value MUST be LS_TBREAK
  */
 - (void)checkArgs:(int)firstArg, ...;
 
@@ -417,7 +447,7 @@ NSString *specMaskToString(int spec);
 
  @discussion This method stores a reference to the object in the supplied table if it is able to.
 
- @remark This can be used to prevent garbage collection of an object's userdata when the object must be retained whether or not the user has done so in lua. An object retained by this method can only be released through the use of luaRelease:forNSObject: or destroyLuaState:. Returns NO if canPushNSObject: returns NO.
+ <br> This can be used to prevent garbage collection of an object's userdata when the object must be retained whether or not the user has done so in lua. An object retained by this method can only be released through the use of luaRelease:forNSObject: or destroyLuaState:. Returns NO if canPushNSObject: returns NO.
 
  @param refTable - An integer reference to a table, (e.g. the result of a previous luaRef on a table object or the result of the module's registration through registerLibrary:metaFunctions: or registerLibraryWithObject:functions:metaFunctions:objectFunctions:)
 
@@ -450,7 +480,7 @@ NSString *specMaskToString(int spec);
 /*!
  @abstract Stores a reference for an NSObject in the supplied table.
 
- @remark Use luaUnref:ref: to release an object retained by this method. Returns LUA_NOREF if canPushNSObject: returns NO.
+ <br> Use luaUnref:ref: to release an object retained by this method. Returns LUA_NOREF if canPushNSObject: returns NO.
 
  @param refTable - An integer reference to a table, (e.g. the result of a previous luaRef on a table object or the result of the module's registration through registerLibrary:metaFunctions: or registerLibraryWithObject:functions:metaFunctions:objectFunctions:)
 
@@ -495,7 +525,7 @@ NSString *specMaskToString(int spec);
 
  @discussion This method takes an NSObject and checks its class against registered classes and then against the built in defaults to determine the best way to represent it in Lua.
 
- @remark The default classes are (in order): NSNull, NSNumber, NSValue, NSString, NSData, NSDate, NSArray, NSSet, NSOrderedSet, NSDictionary, NSURL, and NSObject.
+ <br> The default classes are (in order): NSNull, NSNumber, NSValue, NSString, NSData, NSDate, NSArray, NSSet, NSOrderedSet, NSDictionary, NSURL, and NSObject.
 
  @param obj an NSObject
  @param options options for the conversion made by using the bitwise OR operator with members of @link LS_NSConversionOptions @/link.
@@ -564,9 +594,9 @@ NSString *specMaskToString(int spec);
 
   Userdata types and typed tables (a lua table with a __luaSkinType key-value pair) will be converted to the appropriate Objective-C type if a module has registered a helper function for the specified type.
 
- @remark An empty table will be returned as an empty NSArray.
+ <br> An empty table will be returned as an empty NSArray.
 
- @remark If the type is not in the above list, this method returns nil.
+ <br> If the type is not in the above list, this method returns nil.
 
  @warning This method is equivalent to invoking [LuaSkin toNSObjectAtIndex:idx withOptions:LS_NSNone].  See @link toNSObjectAtIndex:withOptions: @/link.
 
@@ -595,9 +625,9 @@ NSString *specMaskToString(int spec);
 
   Userdata types and typed tables (a lua table with a __luaSkinType key-value pair) will be converted to the appropriate Objective-C type if a module has registered a helper function for the specified type.
 
- @remark An empty table will be returned as an empty NSArray.
+ <br> An empty table will be returned as an empty NSArray.
 
- @remark If the type is not in the above list, this method will return nil for the entire conversion, or [NSNull null] or a description of the unrecognized type  for the data or sub-component depending upon the specified options.
+ <br> If the type is not in the above list, this method will return nil for the entire conversion, or [NSNull null] or a description of the unrecognized type  for the data or sub-component depending upon the specified options.
 
  @param idx the index on lua stack which contains the data to convert
  @param options options for the conversion made by using the bitwise OR operator with members of @link LS_NSConversionOptions @/link.
@@ -813,6 +843,7 @@ NSString *specMaskToString(int spec);
 + (void)classLogAtLevel:(int)level withMessage:(NSString *)theMessage;
 
 /*!
+ @apiuid //apple_ref/doc/classmethodparam/LuaSkin/logVerbose:/theMessage
  @abstract Log the specified message from any thread with LS_LOG_VERBOSE level
  @discussion This class method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_VERBOSE @/link, but is safe to use from any thread, not just the main application thread.  If this method is invoked from a thread other than the main thread, it uses dispatch_async to submit the logging message to the main thread for proper handling by the delegate.
  @param theMessage the message to log
@@ -820,6 +851,7 @@ NSString *specMaskToString(int spec);
 + (void)logVerbose:(NSString *)theMessage ;
 
 /*!
+ @apiuid //apple_ref/doc/classmethodparam/LuaSkin/logDebug:/theMessage
  @abstract Log the specified message from any thread with LS_LOG_DEBUG level
  @discussion This class method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_DEBUG @/link, but is safe to use from any thread, not just the main application thread.  If this method is invoked from a thread other than the main thread, it uses dispatch_async to submit the logging message to the main thread for proper handling by the delegate.
  @param theMessage the message to log
@@ -827,6 +859,7 @@ NSString *specMaskToString(int spec);
 + (void)logDebug:(NSString *)theMessage ;
 
 /*!
+ @apiuid //apple_ref/doc/classmethodparam/LuaSkin/logInfo:/theMessage
  @abstract Log the specified message from any thread with LS_LOG_INFO level
  @discussion This class method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_INFO @/link, but is safe to use from any thread, not just the main application thread.  If this method is invoked from a thread other than the main thread, it uses dispatch_async to submit the logging message to the main thread for proper handling by the delegate.
  @param theMessage the message to log
@@ -834,6 +867,7 @@ NSString *specMaskToString(int spec);
 + (void)logInfo:(NSString *)theMessage ;
 
 /*!
+ @apiuid //apple_ref/doc/classmethodparam/LuaSkin/logWarn:/theMessage
  @abstract Log the specified message from any thread with LS_LOG_WARN level
  @discussion This class method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_WARN @/link, but is safe to use from any thread, not just the main application thread.  If this method is invoked from a thread other than the main thread, it uses dispatch_async to submit the logging message to the main thread for proper handling by the delegate.
  @param theMessage the message to log
@@ -841,6 +875,7 @@ NSString *specMaskToString(int spec);
 + (void)logWarn:(NSString *)theMessage ;
 
 /*!
+ @apiuid //apple_ref/doc/classmethodparam/LuaSkin/logError:/theMessage
  @abstract Log the specified message from any thread with LS_LOG_ERROR level
  @discussion This class method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_ERROR @/link, but is safe to use from any thread, not just the main application thread.  If this method is invoked from a thread other than the main thread, it uses dispatch_async to submit the logging message to the main thread for proper handling by the delegate.
  @param theMessage the message to log
@@ -848,6 +883,7 @@ NSString *specMaskToString(int spec);
 + (void)logError:(NSString *)theMessage ;
 
 /*!
+ @apiuid //apple_ref/doc/classmethodparam/LuaSkin/logBreadcrumb:/theMessage
  @abstract Log the specified message from any thread with LS_LOG_BREADCRUMB level
  @discussion This class method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_BREADCRUMB @/link, but is safe to use from any thread, not just the main application thread.  If this method is invoked from a thread other than the main thread, it uses dispatch_async to submit the logging message to the main thread for proper handling by the delegate.
  @param theMessage the message to log
