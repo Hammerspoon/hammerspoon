@@ -208,12 +208,14 @@ end
 ---    However, this will log only to the file, leaving the console empty. If you want
 ---    to log to both file and console, you can create a new log handler that calls
 ---    both the file log handler and hs.logger.defaultLogHandler
----    
+--- Example:
+--- ```lua
 ---    local fileHandler = hs.logger.createFileLogHandler('path/example.log')
 ---    hs.logger.logHandler(function(log)
 ---      fileHandler(log)
 ---      hs.logger.defaultLogHandler(log)
 ---    end)
+--- ```
 logger.createFileLogHandler = function(filePath)
   local file = assert(io.open(filePath,'a'))
   file:setvbuf("line")
