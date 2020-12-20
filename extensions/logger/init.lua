@@ -9,6 +9,7 @@ local sformat,ssub,slower,srep,sfind=string.format,string.sub,string.lower,strin
 local type,select,rawget,rawset,print,printf=type,select,rawget,rawset,print,hs.printf
 
 local ERROR,WARNING,INFO,DEBUG,VERBOSE=1,2,3,4,5
+local LEVEL_NAMES = {"ERROR","WARNING","INFO","DEBUG","VERBOSE"}
 local MAXLEVEL=VERBOSE
 local LEVELS={nothing=0,error=ERROR,warning=WARNING,info=INFO,debug=DEBUG,verbose=VERBOSE}
 local function toLogLevel(lvl)
@@ -136,6 +137,92 @@ local formatID = function(theID)
   return theID
 end
 
+--- hs.logger.defaultLogHandler
+--- Constant
+--- Default log handler
+---
+--- The default log handler formats and outputs messages to Hammerspoon console
+logger.defaultLogHandler = function(logRecord)
+  local id=formatID(logRecord.id)
+  local stime = timeempty
+  local ct, lvl, msg = logRecord.time, logRecord.level, logRecord.message
+  if ct-lasttime>0 or lvl<3 then stime=date('%X') lasttime=ct end
+  if id==lastid and lvl>3 then id=idempty else lastid=id end
+  if lvl==ERROR then print'********' end
+  printf('%s %s%s %s%s',stime,LEVELFMT[lvl][1],id,LEVELFMT[lvl][2],msg)
+  if lvl==ERROR then print'********' end
+end
+
+local logHandler = logger.defaultLogHandler
+--- hs.logger.logHandler([handler]) -> function
+--- Function
+--- Sets or gets the log handler
+---
+--- Parameters:
+---  * handler - (optional) a callback to handle a log record. A log record is
+---    a table with 4 fields: id, time, level, message.
+---    If omitted, will return the current handler; the starting value is hs.logger.defaultLogHandler
+---
+--- Returns:
+---  * the current or new log handler
+---
+--- Notes:
+---  * The default log handler is logger.defaultLogHandler . You can use that constant
+---    to reset the log handler to the original behavior.
+logger.logHandler = function(handler)
+  if handler == nil then
+    return logHandler
+  end
+  if type(logHandler) ~= 'function' then
+    error('handler must be a function')
+  end
+  logHandler = handler
+  return logHandler
+end
+
+-- The default formatter for the file logger below
+local function formatLog(log)
+  assert(type(log) == 'table')
+  local dateString = date("%Y-%m-%d %H:%M:%S", log.time)
+  local level = LEVEL_NAMES[log.level]
+  return sformat("[%s] %s %s --- %s", dateString, level, log.id, log.message)
+end
+
+--- hs.logger.createFileLogHandler([filePath]) -> function
+--- Function
+--- Creates a log handler that logs to a file
+---
+--- Parameters:
+---  * filePath - the path to a file for logging. The file will be opened for appending.
+---    The file will be created if it doesn't exist.
+---
+--- Returns:
+---  * a log handler that can be used with hs.logger.logHandler()
+---  * a file handle to the newly opened file
+---
+--- Notes:
+---  * The second returned value (the file handle to the log file) is useful if
+---    you want to close the file on shutting down or occasionally check the file size.
+---  * The returned log handler can be directly used such as
+---    hs.logger.logHandler(hs.logger.createFileLogHandler('path/example.log'))
+---    However, this will log only to the file, leaving the console empty. If you want
+---    to log to both file and console, you can create a new log handler that calls
+---    both the file log handler and hs.logger.defaultLogHandler
+---    
+---    local fileHandler = hs.logger.createFileLogHandler('path/example.log')
+---    hs.logger.logHandler(function(log)
+---      fileHandler(log)
+---      hs.logger.defaultLogHandler(log)
+---    end)
+logger.createFileLogHandler = function(filePath)
+  local file = assert(io.open(filePath,'a'))
+  file:setvbuf("line")
+  local handler = function(log)
+    file:write(formatLog(log), "\n")
+  end
+  return handler, file
+end
+
 --- hs.logger.printHistory([entries[, level[, filter[, caseSensitive]]]])
 --- Function
 --- Prints the global log history to the console
@@ -174,16 +261,12 @@ local lf = function(loglevel,lvl,id,fmt,...)
   if histSize<=0 and loglevel<lvl then return end
   local ct = time()
   local msg=sformat(fmt,...)
-  if histSize>0 then store({time=ct,level=lvl,id=id,message=msg}) end
+  local logRecord = { time = ct, level = lvl, id = id, message = msg }
+  if histSize>0 then store(logRecord) end
   if loglevel<lvl then return end
-  id=formatID(id)
---   id=sformat(idf,id)
-  local stime = timeempty
-  if ct-lasttime>0 or lvl<3 then stime=date('%X') lasttime=ct end
-  if id==lastid and lvl>3 then id=idempty else lastid=id end
-  if lvl==ERROR then print'********' end
-  printf('%s %s%s %s%s',stime,LEVELFMT[lvl][1],id,LEVELFMT[lvl][2],msg)
-  if lvl==ERROR then print'********' end
+  if logHandler ~= nil then
+    return logHandler(logRecord)
+  end
 end
 local l = function(loglevel,lvl,id,...)
   if histSize>0 or loglevel>=lvl then return lf(loglevel,lvl,id,srep('%s',select('#',...),' '),...) end
