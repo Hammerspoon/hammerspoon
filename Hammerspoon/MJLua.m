@@ -737,6 +737,24 @@ static int core_notify(lua_State* L) {
     return 0;
 }
 
+static int core_localizedString(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+    [skin checkArgs:LS_TSTRING, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
+    NSString *key = [skin toNSObjectAtIndex:1];
+    NSString *comment = nil;
+    
+    if (lua_gettop(L) == 2) {
+        comment = [skin toNSObjectAtIndex:2] ;
+    }
+    NSString *localedString = NSLocalizedString(key, comment);
+    if (!localedString) {
+        lua_pushnil(L) ;
+        return 1;
+    }
+    [skin pushNSObject:localedString] ;
+    return 1;
+}
+
 static luaL_Reg corelib[] = {
     {"preferencesDarkMode", preferencesDarkMode},
     {"openConsoleOnDockClick", core_openConsoleOnDockClick},
@@ -766,6 +784,7 @@ static luaL_Reg corelib[] = {
     {"_exit", core_exit},
     {"_logmessage", core_logmessage},
     {"_notify", core_notify},
+    {"_localizedString", core_localizedString},
     {NULL, NULL}
 };
 
@@ -836,9 +855,9 @@ void MJLuaInit(void) {
     if (loadresult != 0) {
         HSNSLOG(@"Unable to load setup.lua from bundle. Terminating");
         NSAlert *alert = [[NSAlert alloc] init];
-        [alert addButtonWithTitle:@"OK"];
-        [alert setMessageText:@"Hammerspoon installation is corrupted"];
-        [alert setInformativeText:@"Please re-install Hammerspoon"];
+        [alert addButtonWithTitle :@"OK"];
+        [alert setMessageText     :NSLocalizedString(@"Lua.InstallationAlert.Message", nil)];
+        [alert setInformativeText :NSLocalizedString(@"Lua.InstallationAlert.Info", nil)];
         [alert setAlertStyle:NSAlertStyleCritical];
         [alert runModal];
         [[NSApplication sharedApplication] terminate: nil];
@@ -857,8 +876,8 @@ void MJLuaInit(void) {
         lua_pop(L, 1); // Pop the error message off the stack
         HSNSLOG(@"Error running setup.lua:%@", errorMessage);
         NSAlert *alert = [[NSAlert alloc] init];
-        [alert addButtonWithTitle:@"OK"];
-        [alert setMessageText:@"Hammerspoon initialization failed"];
+        [alert addButtonWithTitle :@"OK"];
+        [alert setMessageText     :NSLocalizedString(@"Lua.InitAlert.Message", nil)];
         [alert setInformativeText:errorMessage];
         [alert setAlertStyle:NSAlertStyleCritical];
         [alert runModal];

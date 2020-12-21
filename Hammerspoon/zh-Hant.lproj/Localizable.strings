@@ -1,0 +1,36 @@
+"App.Upgrading.Error.Message" = "程式升級失敗";
+"App.Upgrading.Error.Info"    = "%@\n\n來源 : %@\n目標 : %@";
+
+"App.Installing.Error.Message" = "應用安裝失敗";
+"App.Installing.Error.Info"    = "%@\n\n來源 : %@\n目標 : %@";
+
+"App.AvailableAlert.Upgraded"     = "已升級";
+"App.AvailableAlert.Installed"    = "已安裝";
+"App.AvailableAlert.Info"         = "%@ 現已可用%@";
+"App.AvailableAlert.ReloadConfig" = ", 重載配置";
+
+"App.RemovalAlert.Continue" = "繼續";
+"App.RemovalAlert.Delete"   = "刪除設定";
+"App.RemovalAlert.Message"  = "你想刪除配置檔案麼?";
+"App.RemovalAlert.Info"     = "刪除設定檔案，您的所有 Hammerspoon 設定(包括 hs.settings 的所有內容)將會重置";
+
+"App.CrashAlert.Message" = "檢測到 Hammerspoon 崩潰信息";
+"App.CrashAlert.Info"    = "Your init.lua is loading Mjolnir modules and a previous launch crashed.\n\nHammerspoon ships with updated versions of many of the Mjolnir modules, with both new features and many bug fixes.\n\nPlease consult our API documentation and migrate your config.";
+
+"Lua.InstallationAlert.Message" = "Hammerspoon 安裝檔案損毀";
+"Lua.InstallationAlert.Info" = "請重新安裝 Hammerspoon 程式";
+
+"Lua.InitAlert.Message" = "Hammerspoon 初始化失敗";
+
+"Preference.Accessibility.Granted" = "您已成功授權開啟系統輔助功能!";
+"Preference.Accessibility.Warning" = "警告! 系統輔助功能未獲得授權!";
+
+"Preference.WarnAboutDockMenuAlert.Text"  = "當程序塢與選單列圖標都被禁止顯示時，您可以通過 Spotlight 執行 Hammerspoon，或通過終端運行 `open -a Hammerspoon` 打開視圖，並使用快捷鍵 `Command` + `,` 顯示“Hammerspoon 偏好設定”";
+"Preference.WarnAboutDockMenuAlert.Title" = "如何返回這個視圖";
+
+"Lua.Console.ToolBar.Preferences"        = "偏好設定";
+"Lua.Console.ToolBar.PreferencesToolTip" = "打開偏好設定";
+"Lua.Console.ToolBar.Reload"             = "重載配置";
+"Lua.Console.ToolBar.ReloadToolTip"      = "重載配置檔案";
+"Lua.Console.ToolBar.Help"               = "幫助";
+"Lua.Console.ToolBar.HelpToolTip"        = "開啟 API 文檔瀏覽器";
