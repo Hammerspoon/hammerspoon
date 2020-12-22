@@ -17,17 +17,15 @@
 - (instancetype)init
 {
     if (self = [super init]) {
-        self.enabled = @NO;
-
+        self.enabled = YES;
         self.logLevel = kSentryLogLevelError;
-
-        self.debug = @NO;
+        self.debug = NO;
         self.maxBreadcrumbs = defaultMaxBreadcrumbs;
         self.integrations = SentryOptions.defaultIntegrations;
         self.sampleRate = @1;
-        self.enableAutoSessionTracking = @NO;
+        self.enableAutoSessionTracking = YES;
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
-        self.attachStacktrace = @NO;
+        self.attachStacktrace = YES;
 
         // Set default release name
         NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
@@ -62,10 +60,8 @@
 
     if (nil == error) {
         _dsn = dsn;
-        self.enabled = @YES;
     } else {
-        self.enabled = @NO;
-        NSString *errorMessage = [NSString stringWithFormat:@"Could not parse the DSN: %@", error];
+        NSString *errorMessage = [NSString stringWithFormat:@"Could not parse the DSN: %@.", error];
         [SentryLog logWithMessage:errorMessage andLevel:kSentryLogLevelError];
     }
 }
@@ -78,10 +74,10 @@
        didFailWithError:(NSError *_Nullable *_Nullable)error
 {
     if (nil != options[@"debug"]) {
-        self.debug = @([options[@"debug"] boolValue]);
+        self.debug = [options[@"debug"] boolValue];
     }
 
-    if ([self.debug isEqual:@YES]) {
+    if (self.debug) {
         // In other SDKs there's debug=true + diagnosticLevel where we can
         // control how chatty the SDK is. Ideally we'd support all the levels
         // here, and perhaps name it `diagnosticLevel` to align more.
@@ -92,19 +88,13 @@
         }
     }
 
-    if (nil == [options valueForKey:@"dsn"]
-        || ![[options valueForKey:@"dsn"] isKindOfClass:[NSString class]]) {
-        self.enabled = @NO;
-        [SentryLog logWithMessage:@"DSN is empty, will disable the SDK"
-                         andLevel:kSentryLogLevelDebug];
-        return;
+    NSString *dsn = @"";
+    if (nil != [options valueForKey:@"dsn"] &&
+        [[options valueForKey:@"dsn"] isKindOfClass:[NSString class]]) {
+        dsn = [options valueForKey:@"dsn"];
     }
 
-    self.parsedDsn = [[SentryDsn alloc] initWithString:[options valueForKey:@"dsn"]
-                                      didFailWithError:error];
-    if (nil != error && nil != *error) {
-        self.enabled = @NO;
-    }
+    self.parsedDsn = [[SentryDsn alloc] initWithString:dsn didFailWithError:error];
 
     if ([options[@"release"] isKindOfClass:[NSString class]]) {
         self.releaseName = options[@"release"];
@@ -119,9 +109,7 @@
     }
 
     if (nil != options[@"enabled"]) {
-        self.enabled = @([options[@"enabled"] boolValue]);
-    } else {
-        self.enabled = @YES;
+        self.enabled = [options[@"enabled"] boolValue];
     }
 
     if (nil != options[@"maxBreadcrumbs"]) {
@@ -146,7 +134,7 @@
     }
 
     if (nil != options[@"enableAutoSessionTracking"]) {
-        self.enableAutoSessionTracking = @([options[@"enableAutoSessionTracking"] boolValue]);
+        self.enableAutoSessionTracking = [options[@"enableAutoSessionTracking"] boolValue];
     }
 
     if (nil != options[@"sessionTrackingIntervalMillis"]) {
@@ -155,7 +143,7 @@
     }
 
     if (nil != options[@"attachStacktrace"]) {
-        self.attachStacktrace = @([options[@"attachStacktrace"] boolValue]);
+        self.attachStacktrace = [options[@"attachStacktrace"] boolValue];
     }
 }
 

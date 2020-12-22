@@ -1,23 +1,38 @@
 #import "SentryStacktraceBuilder.h"
-#import "SentryCrashDynamicLinker.h"
 #import "SentryCrashStackCursor.h"
 #import "SentryCrashStackCursor_SelfThread.h"
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryFrame.h"
-#import "SentryHexAddressFormatter.h"
+#import "SentryFrameRemover.h"
 #import "SentryStacktrace.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface
+SentryStacktraceBuilder ()
+
+@property (nonatomic, strong) SentryFrameRemover *frameRemover;
+
+@end
+
 @implementation SentryStacktraceBuilder
 
-- (SentryStacktrace *)buildStacktraceForCurrentThreadSkippingFrames:(NSInteger)framesToSkip
+- (id)initWithSentryFrameRemover:(SentryFrameRemover *)frameRemover
+{
+    if (self = [super init]) {
+        self.frameRemover = frameRemover;
+    }
+    return self;
+}
+
+- (SentryStacktrace *)buildStacktraceForCurrentThread
 {
     NSMutableArray<SentryFrame *> *frames = [NSMutableArray new];
 
     SentryCrashStackCursor stackCursor;
-    // Always skip the first entry so we remove the current function from the stacktrace
-    sentrycrashsc_initSelfThread(&stackCursor, (int)framesToSkip + 1);
+    // We don't need to skip any frames, because we filter out non sentry frames below.
+    NSInteger framesToSkip = 0;
+    sentrycrashsc_initSelfThread(&stackCursor, (int)framesToSkip);
 
     while (stackCursor.advanceCursor(&stackCursor)) {
         if (stackCursor.symbolicate(&stackCursor)) {
@@ -26,8 +41,10 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
 
+    NSArray<SentryFrame *> *framesCleared = [self.frameRemover removeNonSdkFrames:frames];
+
     // The frames must be ordered from caller to callee, or oldest to youngest
-    NSArray<SentryFrame *> *framesReversed = [[frames reverseObjectEnumerator] allObjects];
+    NSArray<SentryFrame *> *framesReversed = [[framesCleared reverseObjectEnumerator] allObjects];
 
     SentryStacktrace *stacktrace = [[SentryStacktrace alloc] initWithFrames:framesReversed
                                                                   registers:@{}];

@@ -1,1 +1,1 @@
-../../../Sentry/Sources/Sentry/include/SentryBreadcrumb.h
+../../../Sentry/Sources/Sentry/Public/SentryBreadcrumb.h

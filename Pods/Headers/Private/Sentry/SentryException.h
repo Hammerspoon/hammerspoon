@@ -1,1 +1,1 @@
-../../../Sentry/Sources/Sentry/include/SentryException.h
+../../../Sentry/Sources/Sentry/Public/SentryException.h

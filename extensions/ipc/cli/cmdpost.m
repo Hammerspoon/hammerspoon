@@ -461,6 +461,7 @@ int main()
         BOOL           interactive = !readStdIn && (BOOL)isatty(STDOUT_FILENO) ;
         BOOL           useColors   = interactive ;
         BOOL           autoLaunch  = NO ;
+        BOOL           exitIfNoHS  = NO ;
         NSString       *portName   = defaultPortName ;
         NSString       *fileName   = nil ;
 
@@ -487,7 +488,11 @@ int main()
                 readStdIn   = YES ;
                 if (!seenColors) useColors = NO ;
             } else if ([args[idx] isEqualToString:@"-A"]) {
+                exitIfNoHS = NO ;
                 autoLaunch = YES ;
+            } else if ([args[idx] isEqualToString:@"-a"]) {
+                exitIfNoHS = YES ;
+                autoLaunch = NO ;
             } else if ([args[idx] isEqualToString:@"-n"]) {
                 useColors = NO ;
             } else if ([args[idx] isEqualToString:@"-N"]) {
@@ -553,6 +558,7 @@ int main()
 
         NSArray *ra = [NSRunningApplication runningApplicationsWithBundleIdentifier:(__bridge NSString *)hammerspoonBundle] ;
         if (ra.count == 0) {
+            if (exitIfNoHS) exit(EX_TEMPFAIL) ;
             BOOL launchHS = autoLaunch ;
             if (!autoLaunch) {
                 NSAlert *alert = [[NSAlert alloc] init] ;

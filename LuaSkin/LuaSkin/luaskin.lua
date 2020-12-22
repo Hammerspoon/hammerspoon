@@ -121,3 +121,45 @@ owMT.__index = function(self, key)
 end
 
 ls.makeConstantsTable = _makeConstantsTable
+
+ls.deprecated = function(module, name, message)
+    assert(type(module)  == "table",  "expected module table for argument 1")
+    assert(type(name)    == "string", "expected string specifying function name for argument 2")
+    assert(type(message) == "string", "expected string specifying deprecation message for argument 3")
+
+    local shortName = name:match("%.([%w_]+)$") or name
+    assert(module[shortName] == nil,       string.format("%s defined in module; can't deprecate", name))
+
+    module[shortName] = function(...)  -- luacheck: ignore
+        error(string.format("%s has been deprecated; %s", name, message), 2)
+    end
+end
+
+local warningsIssued = {}
+
+ls.deprecationWarning = function(module, name, message, fn)
+    assert(type(module)  == "table",  "expected module table for argument 1")
+    assert(type(name)    == "string", "expected string specifying function name for argument 2")
+    assert(type(message) == "string", "expected string specifying deprecation message for argument 3")
+
+    local shortName = name:match("%.([%w_]+)$") or name
+    if type(fn) == "nil" then fn = module[shortName] end
+    if type(module[shortName]) ~= "nil" then
+        assert(module[shortName] == fn, "if function predefined, specified function must match or be nil")
+    end
+    assert(type(fn) == "function" or (getmetatable(fn) or {}).__call, "expected function for argument 4")
+
+    -- use math.random instead of hs.host.uuid to keep this non hammerspoon specific
+    local uniqueKey = math.random(1000000)
+    while type(warningsIssued[uniqueKey]) ~= "nil" do uniqueKey = math.random(1000000) end
+
+    warningsIssued[uniqueKey] = false
+    module[shortName] = function(...)
+        if not warningsIssued[uniqueKey] then
+            warningsIssued[uniqueKey] = true
+            if hs and hs.openConsole then hs.openConsole() end
+            print(string.format("%s has been deprecated and may go away in the future; %s", name, message))
+        end
+        return fn(...)
+    end
+end

@@ -122,7 +122,11 @@ SentryCrashJSONCodec ()
 {
     if ((self = [super init])) {
         self.containerStack = [NSMutableArray array];
+
         self.callbacks = malloc(sizeof(*self.callbacks));
+        // Unlikely malloc failure.
+        NSAssert(self.callbacks != NULL, @"Could not allocate callbacks");
+
         self.callbacks->onBeginArray = onBeginArray;
         self.callbacks->onBeginObject = onBeginObject;
         self.callbacks->onBooleanElement = onBooleanElement;
@@ -132,6 +136,7 @@ SentryCrashJSONCodec ()
         self.callbacks->onIntegerElement = onIntegerElement;
         self.callbacks->onNullElement = onNullElement;
         self.callbacks->onStringElement = onStringElement;
+
         self.prettyPrint = (encodeOptions & SentryCrashJSONEncodeOptionPretty) != 0;
         self.sorted = (encodeOptions & SentryCrashJSONEncodeOptionSorted) != 0;
         self.ignoreNullsInArrays

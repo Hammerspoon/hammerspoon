@@ -1236,7 +1236,7 @@
 		4FCBAFD223B0F7F1007BA1D0 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/math/internal.m; sourceTree = "<group>"; };
 		4FCBAFD423B0F805007BA1D0 /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/math/init.lua; sourceTree = "<group>"; };
 		4FCBAFD623B0FB95007BA1D0 /* HSmath.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HSmath.m; sourceTree = "<group>"; };
-		4FCBAFD823B0FC04007BA1D0 /* test_math.lua */ = {isa = PBXFileReference; lastKnownFileType = text; path = test_math.lua; sourceTree = "<group>"; };
+		4FCBAFD823B0FC04007BA1D0 /* test_math.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = test_math.lua; path = extensions/math/test_math.lua; sourceTree = "<group>"; };
 		4FCC52CB1E1526A6007F93D0 /* test_brightness.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = test_brightness.lua; path = extensions/brightness/test_brightness.lua; sourceTree = "<group>"; };
 		4FCC52CD1E1527EF007F93D0 /* HSbrightness.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSbrightness.m; sourceTree = "<group>"; };
 		4FD0AB1D1B7484D700A82496 /* libspaceswatcher.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libspaceswatcher.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -3629,7 +3629,8 @@
 				D687FC39247B9317005FA3A5 /* internal.m */,
 				D687FC3B247B9317005FA3A5 /* observer.m */,
 			);
-			path = axuielement;
+			name = axuielement;
+			path = extensions/axuielement;
 			sourceTree = "<group>";
 		};
 		D68CE61A1E9C44C600912154 /* locale */ = {
@@ -6031,7 +6032,7 @@
 			isa = PBXProject;
 			attributes = {
 				CLASSPREFIX = HS;
-				LastUpgradeCheck = 1020;
+				LastUpgradeCheck = 1220;
 				ORGANIZATIONNAME = "LateNite Films";
 				TargetAttributes = {
 					4F20B5281C1F1C5B00F52437 = {
@@ -9038,7 +9039,7 @@
 					"$(SRCROOT)/Pods/**",
 					"$(SRCROOT)/Pods/Sentry/Sources/Sentry/include/",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-undefined",
@@ -22569,7 +22570,7 @@
 					"$(SRCROOT)/Pods/**",
 					"$(SRCROOT)/Pods/Sentry/Sources/Sentry/include/",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-undefined",
@@ -22636,7 +22637,7 @@
 					"$(SRCROOT)/Pods/**",
 					"$(SRCROOT)/Pods/Sentry/Sources/Sentry/include/",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				OTHER_LDFLAGS = (
 					"-undefined",
 					dynamic_lookup,

@@ -360,16 +360,6 @@ SentryCrashReportConverter ()
 
 - (SentryException *)parseNSException
 {
-    //    if ([self.exceptionContext[@"nsexception"][@"name"]
-    //    containsString:@"NativeScript encountered a fatal error:"]) {
-    //        // TODO parsing here
-    //        SentryException *exception = [[SentryException alloc]
-    //        initWithValue:self.exceptionContext[@"nsexception"][@"reason"]
-    //                                                                       type:self.exceptionContext[@"nsexception"][@"name"]];
-    //        // exception.thread set here with parsed js stacktrace
-    //
-    //        return exception;
-    //    }
     NSString *reason = @"";
     if (nil != self.exceptionContext[@"nsexception"][@"reason"]) {
         reason = self.exceptionContext[@"nsexception"][@"reason"];
