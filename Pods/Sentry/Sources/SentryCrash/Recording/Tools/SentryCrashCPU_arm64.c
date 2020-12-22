@@ -49,25 +49,41 @@ static const int g_exceptionRegisterNamesCount
 uintptr_t
 sentrycrashcpu_framePointer(const SentryCrashMachineContext *const context)
 {
+    // We don't want this from stopping us to enable warnings as errors. This needs to be fixed.
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
     return context->machineContext.__ss.__fp;
+#    pragma clang diagnostic pop
 }
 
 uintptr_t
 sentrycrashcpu_stackPointer(const SentryCrashMachineContext *const context)
 {
+    // We don't want this from stopping us to enable warnings as errors. This needs to be fixed.
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
     return context->machineContext.__ss.__sp;
+#    pragma clang diagnostic pop
 }
 
 uintptr_t
 sentrycrashcpu_instructionAddress(const SentryCrashMachineContext *const context)
 {
+    // We don't want this from stopping us to enable warnings as errors. This needs to be fixed.
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
     return context->machineContext.__ss.__pc;
+#    pragma clang diagnostic pop
 }
 
 uintptr_t
 sentrycrashcpu_linkRegister(const SentryCrashMachineContext *const context)
 {
+    // We don't want this from stopping us to enable warnings as errors. This needs to be fixed.
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
     return context->machineContext.__ss.__lr;
+#    pragma clang diagnostic pop
 }
 
 void
@@ -157,7 +173,11 @@ sentrycrashcpu_exceptionRegisterValue(
 uintptr_t
 sentrycrashcpu_faultAddress(const SentryCrashMachineContext *const context)
 {
+    // We don't want this from stopping us to enable warnings as errors. This needs to be fixed.
+#    pragma clang diagnostic push
+#    pragma GCC diagnostic ignored "-Wshorten-64-to-32"
     return context->machineContext.__es.__far;
+#    pragma clang diagnostic pop
 }
 
 int

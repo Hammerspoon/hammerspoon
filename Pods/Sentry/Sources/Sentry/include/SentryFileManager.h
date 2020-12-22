@@ -16,12 +16,14 @@ SENTRY_NO_INIT
                andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
                      didFailWithError:(NSError **)error NS_DESIGNATED_INITIALIZER;
 
-- (NSString *)storeEvent:(SentryEvent *)event;
 - (NSString *)storeEnvelope:(SentryEnvelope *)envelope;
 
 - (void)storeCurrentSession:(SentrySession *)session;
+- (void)storeCrashedSession:(SentrySession *)session;
 - (SentrySession *_Nullable)readCurrentSession;
+- (SentrySession *_Nullable)readCrashedSession;
 - (void)deleteCurrentSession;
+- (void)deleteCrashedSession;
 
 - (void)storeTimestampLastInForeground:(NSDate *)timestamp;
 - (NSDate *_Nullable)readTimestampLastInForeground;
@@ -29,20 +31,22 @@ SENTRY_NO_INIT
 
 + (BOOL)createDirectoryAtPath:(NSString *)path withError:(NSError **)error;
 
-- (void)deleteAllStoredEventsAndEnvelopes;
+- (void)deleteAllEnvelopes;
 
 - (void)deleteAllFolders;
 
 /**
- In a previous version of SentryFileManager envelopes were stored in the same
- path as events. Now events and envelopes are stored in two different paths. We
- decided that there is no need for a migration strategy, because in worst case
- only a few envelopes get lost and this is not worth the effort. Since there is
- no migration strategy this method could also return envelopes.
+ * Get all envelopes sorted ascending by the timeIntervalSince1970 the envelope was stored and if
+ * two envelopes are stored at the same time sorted by the order they were stored.
  */
-- (NSArray<SentryFileContents *> *)getAllEventsAndMaybeEnvelopes;
 - (NSArray<SentryFileContents *> *)getAllEnvelopes;
-- (NSArray<SentryFileContents *> *)getAllStoredEventsAndEnvelopes;
+
+/**
+ * Gets the oldest stored envelope. For the order see getAllEnvelopes.
+ *
+ * @return SentryFileContens if there is an envelope and nil if there are no envelopes.
+ */
+- (SentryFileContents *_Nullable)getOldestEnvelope;
 
 - (BOOL)removeFileAtPath:(NSString *)path;
 
@@ -50,7 +54,6 @@ SENTRY_NO_INIT
 
 - (NSString *)storeDictionary:(NSDictionary *)dictionary toPath:(NSString *)path;
 
-@property (nonatomic, assign) NSUInteger maxEvents;
 @property (nonatomic, assign) NSUInteger maxEnvelopes;
 
 @end

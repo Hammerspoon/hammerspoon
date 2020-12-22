@@ -1,12 +1,12 @@
 #import "SentryHub.h"
-#import "SentryBreadcrumbTracker.h"
-#import "SentryClient.h"
+#import "SentryClient+Private.h"
 #import "SentryCrashAdapter.h"
 #import "SentryCurrentDate.h"
 #import "SentryFileManager.h"
-#import "SentryIntegrationProtocol.h"
+#import "SentryId.h"
 #import "SentryLog.h"
 #import "SentrySDK.h"
+#import "SentryScope.h"
 
 @interface
 SentryHub ()
@@ -64,6 +64,12 @@ SentryHub ()
             lastSession = _session;
         }
         _session = [[SentrySession alloc] initWithReleaseName:options.releaseName];
+
+        NSString *environment = options.environment;
+        if (nil != environment) {
+            _session.environment = environment;
+        }
+
         [scope applyToSession:_session];
 
         [self storeCurrentSession:_session];
@@ -120,15 +126,9 @@ SentryHub ()
         return;
     }
 
-    if (self.sentryCrashWrapper.crashedLastLaunch) {
-        NSDate *timeSinceLastCrash = [[SentryCurrentDate date]
-            dateByAddingTimeInterval:-self.sentryCrashWrapper.activeDurationSinceLastCrash];
-
-        [SentryLog logWithMessage:@"Closing cached session as crashed."
-                         andLevel:kSentryLogLevelDebug];
-
-        [session endSessionCrashedWithTimestamp:timeSinceLastCrash];
-    } else {
+    // The crashed session is handled in SentryCrashIntegration. Checkout the comments there to find
+    // out more.
+    if (!self.sentryCrashWrapper.crashedLastLaunch) {
         if (nil == timestamp) {
             [SentryLog
                 logWithMessage:[NSString stringWithFormat:@"No timestamp to close session "
@@ -143,9 +143,9 @@ SentryHub ()
                              andLevel:kSentryLogLevelDebug];
             [session endSessionExitedWithTimestamp:timestamp];
         }
+        [self deleteCurrentSession];
+        [client captureSession:session];
     }
-    [self deleteCurrentSession];
-    [client captureSession:session];
 }
 
 - (void)captureSession:(SentrySession *)session
@@ -168,53 +168,123 @@ SentryHub ()
     }
 }
 
-- (void)incrementSessionErrors
+- (SentrySession *)incrementSessionErrors
 {
+    SentrySession *sessionCopy = nil;
     @synchronized(_sessionLock) {
         if (nil != _session) {
             [_session incrementErrors];
             [self storeCurrentSession:_session];
+            sessionCopy = [_session copy];
         }
     }
+
+    return sessionCopy;
 }
 
-- (NSString *_Nullable)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope
+/**
+ * If autoSessionTracking is enabled we want to send the crash and the event together to get proper
+ * numbers for release health statistics. If there are multiple crash events to be sent on the start
+ * of the SDK there is currently no way to know which one belongs to the crashed session so we just
+ * send the session with the first crashed event we receive.
+ */
+- (void)captureCrashEvent:(SentryEvent *)event
+{
+    SentryClient *client = [self getClient];
+    if (nil == client) {
+        return;
+    }
+
+    // Check this condition first to avoid unnecessary I/O
+    if (client.options.enableAutoSessionTracking) {
+        SentryFileManager *fileManager = [client fileManager];
+        SentrySession *crashedSession = [fileManager readCrashedSession];
+
+        // It can be that there is no session yet, because autoSessionTracking was just enabled and
+        // there is a previous crash on disk. In this case we just send the crash event.
+        if (nil != crashedSession) {
+            [client captureEvent:event withSession:crashedSession withScope:self.scope];
+            [fileManager deleteCrashedSession];
+            return;
+        }
+    }
+
+    [self captureEvent:event withScope:self.scope];
+}
+
+- (SentryId *)captureEvent:(SentryEvent *)event
+{
+    return [self captureEvent:event withScope:[[SentryScope alloc] init]];
+}
+
+- (SentryId *)captureEvent:(SentryEvent *)event withScope:(SentryScope *)scope
 {
     SentryClient *client = [self getClient];
     if (nil != client) {
         return [client captureEvent:event withScope:scope];
     }
-    return nil;
+    return SentryId.empty;
 }
 
-- (NSString *_Nullable)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope
+- (SentryId *)captureMessage:(NSString *)message
+{
+    return [self captureMessage:message withScope:[[SentryScope alloc] init]];
+}
+
+- (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *)scope
 {
     SentryClient *client = [self getClient];
     if (nil != client) {
         return [client captureMessage:message withScope:scope];
     }
-    return nil;
+    return SentryId.empty;
 }
 
-- (NSString *_Nullable)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope
+- (SentryId *)captureError:(NSError *)error
 {
-    [self incrementSessionErrors];
-    SentryClient *client = [self getClient];
-    if (nil != client) {
-        return [client captureError:error withScope:scope];
-    }
-    return nil;
+    return [self captureError:error withScope:[[SentryScope alloc] init]];
 }
 
-- (NSString *_Nullable)captureException:(NSException *)exception
-                              withScope:(SentryScope *_Nullable)scope
+- (SentryId *)captureError:(NSError *)error withScope:(SentryScope *)scope
 {
-    [self incrementSessionErrors];
+    SentrySession *currentSession = [self incrementSessionErrors];
     SentryClient *client = [self getClient];
     if (nil != client) {
-        return [client captureException:exception withScope:scope];
+        if (nil != currentSession) {
+            return [client captureError:error withSession:currentSession withScope:scope];
+        } else {
+            return [client captureError:error withScope:scope];
+        }
     }
-    return nil;
+    return SentryId.empty;
+}
+
+- (SentryId *)captureException:(NSException *)exception
+{
+    return [self captureException:exception withScope:[[SentryScope alloc] init]];
+}
+
+- (SentryId *)captureException:(NSException *)exception withScope:(SentryScope *)scope
+{
+    SentrySession *currentSession = [self incrementSessionErrors];
+    SentryClient *client = [self getClient];
+
+    if (nil != client) {
+        if (nil != currentSession) {
+            return [client captureException:exception withSession:currentSession withScope:scope];
+        } else {
+            return [client captureException:exception withScope:scope];
+        }
+    }
+    return SentryId.empty;
+}
+
+- (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
+{
+    SentryClient *client = [self getClient];
+    if (nil != client) {
+        [client captureUserFeedback:userFeedback];
+    }
 }
 
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb

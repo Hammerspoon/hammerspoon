@@ -1,4 +1,5 @@
 #import "SentrySystemEventsBreadcrumbs.h"
+#import "SentryBreadcrumb.h"
 #import "SentryLog.h"
 #import "SentrySDK.h"
 

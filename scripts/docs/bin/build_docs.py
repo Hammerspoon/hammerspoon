@@ -1,8 +1,8 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 """Hammerspoon API Documentation Builder"""
 
-from __future__ import print_function
+
 import argparse
 import json
 import os
@@ -89,10 +89,7 @@ def extract_docstrings(filename):
     with open(filename, "r") as filedata:
         for raw_line in filedata.readlines():
             i += 1
-            try:
-                line = raw_line.decode('utf-8').strip('\n')
-            except UnicodeDecodeError:
-                err("Unable to decode: %s" % raw_line)
+            line = raw_line.strip('\n')
             if line.startswith("----") or line.startswith("////"):
                 dbg("Skipping %s:%d - too many comment chars" % (filename, i))
                 continue
@@ -128,12 +125,12 @@ def find_module_for_item(modules, item):
     module = None
 
     # We need a shortcut here for root level items
-    if not ARGUMENTS.standalone and string.count(item, '.') == 1:
+    if not ARGUMENTS.standalone and item.count('.') == 1:
         dbg("find_module_for_item: Using root-level shortcut")
         module = "hs"
 
     # Methods are very easy to shortcut
-    if string.count(item, ':') == 1:
+    if item.count(':') == 1:
         dbg("find_module_for_item: Using method shortcut")
         module = item.split(':')[0]
 
@@ -238,7 +235,7 @@ def process_docstrings(docstrings):
                 itemname,
                 chunk[CHUNK_FILE],
                 chunk[CHUNK_LINE]))
-            modulename = find_module_for_item(docs.keys(), itemname)
+            modulename = find_module_for_item(list(docs.keys()), itemname)
             dbg("process_docstrings:   Assigning item to module: %s" %
                 modulename)
             docs[modulename]["items"][itemname] = chunk
@@ -323,19 +320,19 @@ def process_markdown(data):
 
     md = mistune.Markdown(renderer=HighlightRenderer())
 
-    for i in xrange(0, len(data)):
+    for i in range(0, len(data)):
         module = data[i]
         module["desc_gfm"] = md(module["desc"])
         module["doc_gfm"] = md(module["doc"])
         for item_type in TYPE_NAMES:
             items = module[item_type]
-            for j in xrange(0, len(items)):
+            for j in range(0, len(items)):
                 item = items[j]
                 item["def_gfm"] = strip_paragraph(md(item["def"]))
                 item["doc_gfm"] = md(item["doc"])
                 items[j] = item
         # Now do the same for the deprecated 'items' list
-        for j in xrange(0, len(module["items"])):
+        for j in range(0, len(module["items"])):
             item = module["items"][j]
             item["def_gfm"] = strip_paragraph(md(item["def"]))
             item["doc_gfm"] = md(item["doc"])
@@ -394,7 +391,7 @@ def do_processing(directories):
         for part in module_parts:
             cursor = cursor[part]
         # cursor now points at this module, so now we can check for subs
-        for sub in cursor.keys():
+        for sub in list(cursor.keys()):
             processed_docstrings[i]["submodules"].append(sub)
         processed_docstrings[i]["submodules"].sort()
         i += 1
@@ -463,8 +460,8 @@ def write_sql(filepath, data):
             except:
                 err("DB Insert failed on %s:%s(%s)" % (module["name"], item["name"], item["type"]))
 
-    cur.execute("VACUUM;")
     db.commit()
+    cur.execute("VACUUM;")
 
 
 def write_templated_output(output_dir, template_dir, title, data, extension):
@@ -513,7 +510,7 @@ def write_templated_output(output_dir, template_dir, title, data, extension):
         data = process_markdown(data)
 
     # Render and write index.<extension>
-    template = jinja.from_string(tmplfile.read().decode('utf-8'))
+    template = jinja.from_string(tmplfile.read())
     render = template.render(data=data, links=LINKS, title=title)
     outfile.write(render.encode("utf-8"))
     outfile.close()
@@ -523,7 +520,7 @@ def write_templated_output(output_dir, template_dir, title, data, extension):
     # Render and write module docs
     try:
         tmplfile = open(template_dir + "/module.j2." + extension, "r")
-        template = jinja.from_string(tmplfile.read().decode('utf-8'))
+        template = jinja.from_string(tmplfile.read())
     except Exception as error:
         err("Unable to open module.j2.%s: %s" % (extension, error))
 

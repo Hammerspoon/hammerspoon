@@ -31,11 +31,13 @@
 
 - (void)testDesktop {
     SKIP_IN_TRAVIS()
+    SKIP_IN_GITHUB_ACTIONS()
     RUN_LUA_TEST()
 }
 
 - (void)testOrderedWindows {
     SKIP_IN_TRAVIS()
+    SKIP_IN_GITHUB_ACTIONS()
     RUN_LUA_TEST()
 }
 
@@ -62,6 +64,7 @@
 
 - (void)testSize {
     SKIP_IN_TRAVIS() // Added by @latenitefilms
+    SKIP_IN_GITHUB_ACTIONS()
     RUN_LUA_TEST()
 }
 
@@ -79,6 +82,7 @@
 
 - (void)testTabs {
     SKIP_IN_TRAVIS()
+    SKIP_IN_GITHUB_ACTIONS()
     RUN_LUA_TEST()
 }
 
