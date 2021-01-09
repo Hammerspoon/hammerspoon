@@ -30,7 +30,7 @@ Out of the box, Hammerspoon does nothing - you will need to create `~/.hammerspo
  * [FAQ](https://www.hammerspoon.org/faq/)
  * [Sample Configurations](https://github.com/Hammerspoon/hammerspoon/wiki/Sample-Configurations) supplied by various users
  * [Contribution Guide](https://github.com/Hammerspoon/hammerspoon/blob/master/CONTRIBUTING.md) for developers looking to get involved
- * An IRC channel for general chat/support/development (#hammerspoon on Freenode) with [searchable archives](https://botbot.me/freenode/hammerspoon/)
+ * An IRC channel for general chat/support/development (#hammerspoon on Freenode)
  * [Google Group](https://groups.google.com/forum/#!forum/hammerspoon/) for support
 
 ## What is the history of the project?
