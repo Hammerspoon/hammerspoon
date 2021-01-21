@@ -3,6 +3,10 @@
 static int            refTable = LUA_NOREF;
 static NSMutableArray *identifiersInUse ;
 
+// @encode is a compiler directive which may give different answers on different architectures,
+// so instead lets capture the value with the same method we use for testing later on...
+static const char *boolEncodingType ;
+
 // Can't have "static" or "constant" dynamic NSObjects like NSArray, so define in lua_open
 static NSArray *builtinToolbarItems;
 static NSArray *automaticallyIncluded ;
@@ -335,7 +339,7 @@ static NSMenu *createCoreSearchFieldMenu() {
     // need to take care of this first in case we need to create the searchfield view for later items...
     id keyValue = itemDefinition[@"searchfield"] ;
     if (keyValue) {
-        if ([keyValue isKindOfClass:[NSNumber class]] && !strcmp(@encode(BOOL), [keyValue objCType])) {
+        if ([keyValue isKindOfClass:[NSNumber class]] && !strcmp(boolEncodingType, [keyValue objCType])) {
             if ([keyValue boolValue]) {
                 if (![itemView isKindOfClass:[HSToolbarSearchField class]]) {
                     if (!itemView) {
@@ -371,7 +375,7 @@ static NSMenu *createCoreSearchFieldMenu() {
 
     keyValue = itemDefinition[@"searchPredefinedMenuTitle"] ;
     if (keyValue) {
-        if ([keyValue isKindOfClass:[NSString class]] || ([keyValue isKindOfClass:[NSNumber class]] && !strcmp(@encode(BOOL), [keyValue objCType]))) {
+        if ([keyValue isKindOfClass:[NSString class]] || ([keyValue isKindOfClass:[NSNumber class]] && !strcmp(boolEncodingType, [keyValue objCType]))) {
         // make sure searchPredefinedSearches is in this dictionary since we need to recreate it anyways
             if ((itemDefinition != _itemDefDictionary[identifier]) && !itemDefinition[@"searchPredefinedSearches"]) {
                 itemDefinition[@"searchPredefinedSearches"] = _itemDefDictionary[identifier][@"searchPredefinedSearches"] ;
@@ -386,7 +390,7 @@ static NSMenu *createCoreSearchFieldMenu() {
         keyValue = itemDefinition[keyName] ;
 
         if ([keyName isEqualToString:@"enable"]) {
-            if ([keyValue isKindOfClass:[NSNumber class]] && !strcmp(@encode(BOOL), [keyValue objCType])) {
+            if ([keyValue isKindOfClass:[NSNumber class]] && !strcmp(boolEncodingType, [keyValue objCType])) {
                 _enabledDictionary[identifier] = itemDefinition[keyName] ;
             } else {
                 [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be a boolean", USERDATA_TB_TAG, keyName, identifier]] ;
@@ -545,7 +549,7 @@ static NSMenu *createCoreSearchFieldMenu() {
                 [itemDefinition removeObjectForKey:keyName] ;
             }
         } else if ([keyName isEqualToString:@"searchReleaseFocusOnCallback"] && [itemView isKindOfClass:[HSToolbarSearchField class]]) {
-            if ([keyValue isKindOfClass:[NSNumber class]] && !strcmp(@encode(BOOL), [keyValue objCType])) {
+            if ([keyValue isKindOfClass:[NSNumber class]] && !strcmp(boolEncodingType, [keyValue objCType])) {
                 itemView.releaseOnCallback = [keyValue boolValue] ;
             } else {
                 [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be a boolean", USERDATA_TB_TAG, keyName, identifier]] ;
@@ -585,7 +589,7 @@ static NSMenu *createCoreSearchFieldMenu() {
                     id checkForTitle = itemDefinition[@"searchPredefinedMenuTitle"] ? itemDefinition[@"searchPredefinedMenuTitle"] : _itemDefDictionary[identifier][@"searchPredefinedMenuTitle"] ;
 
                     if (checkForTitle) {
-                        if ([checkForTitle isKindOfClass:[NSNumber class]] && !strcmp(@encode(BOOL), [checkForTitle objCType])) {
+                        if ([checkForTitle isKindOfClass:[NSNumber class]] && !strcmp(boolEncodingType, [checkForTitle objCType])) {
                             if (![checkForTitle boolValue]) {
                                 menuName = nil ;
                             }
@@ -2066,6 +2070,9 @@ int luaopen_hs_webview_toolbar_internal(lua_State* L) {
                                      functions:moduleLib
                                  metaFunctions:module_metaLib
                                objectFunctions:userdata_metaLib];
+
+    // see comment at top re @encode
+    boolEncodingType = [@(YES) objCType] ;
 
     builtinToolbarItems = @[
                               NSToolbarSpaceItemIdentifier,
