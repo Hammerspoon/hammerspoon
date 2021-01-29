@@ -1,7 +1,7 @@
 #import "SentryDefines.h"
 #import "SentrySerializable.h"
 
-@class SentryUser, SentrySession, SentryOptions, SentryBreadcrumb;
+@class SentryUser, SentrySession, SentryOptions, SentryBreadcrumb, SentryAttachment;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -106,15 +106,17 @@ NS_SWIFT_NAME(Scope)
 - (void)removeContextForKey:(NSString *)key NS_SWIFT_NAME(removeContext(key:));
 
 /**
+ * Adds an attachment to the Scope's list of attachments. The SDK adds the attachment to every event
+ * sent to Sentry.
+ *
+ * @param attachment The attachment to add to the Scope's list of attachments.
+ */
+- (void)addAttachment:(SentryAttachment *)attachment;
+
+/**
  * Clears the current Scope
  */
 - (void)clear;
-
-- (BOOL)isEqual:(id _Nullable)other;
-
-- (BOOL)isEqualToScope:(SentryScope *)scope;
-
-- (NSUInteger)hash;
 
 @end
 

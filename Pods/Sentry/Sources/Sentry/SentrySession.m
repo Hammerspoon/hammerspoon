@@ -9,7 +9,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @synthesize flagInit = _init;
 
-- (instancetype)initWithReleaseName:(NSString *)releaseName
+/**
+ * Default private constructor. We don't name it init to avoid the overlap with the default init of
+ * NSObject, which is not available as we specified in the header with SENTRY_NO_INIT.
+ */
+- (instancetype)initDefault
 {
     if (self = [super init]) {
         _sessionId = [NSUUID UUID];
@@ -17,8 +21,16 @@ NS_ASSUME_NONNULL_BEGIN
         _status = kSentrySessionStatusOk;
         _sequence = 1;
         _errors = 0;
-        _init = @YES;
         _distinctId = [SentryInstallation id];
+    }
+
+    return self;
+}
+
+- (instancetype)initWithReleaseName:(NSString *)releaseName
+{
+    if (self = [self initDefault]) {
+        _init = @YES;
         _releaseName = releaseName;
     }
     return self;
@@ -26,43 +38,80 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithJSONObject:(NSDictionary *)jsonObject
 {
-    // Note this doesn't use the main init method since it should only init
-    // fields that exist in the JSON.
-    if (self = [super init]) {
-        _sessionId = [[NSUUID UUID] initWithUUIDString:[jsonObject valueForKey:@"sid"]];
-        _distinctId = [jsonObject valueForKey:@"did"];
-        NSString *startedString = [jsonObject valueForKey:@"started"];
-        if (nil != startedString) {
-            _started = [NSDate sentry_fromIso8601String:startedString];
+    // We use the default constructor here to set the non nullable values to a default values,
+    // because this could cause crashes, for example, in serialize.
+    // With this approach we avoid crashes and accept the tradeoff that some session data might not
+    // be 100% accurate.
+    // Ideally we would return nil, if the passed JSON is not valid, which we can't do because it
+    // would be a breaking change.
+    if (self = [self initDefault]) {
+        id sid = [jsonObject valueForKey:@"sid"];
+        if ([sid isKindOfClass:[NSString class]]) {
+            NSUUID *sessionId = [[NSUUID UUID] initWithUUIDString:sid];
+            if (nil != sessionId) {
+                _sessionId = sessionId;
+            }
         }
-        NSString *timestampString = [jsonObject valueForKey:@"timestamp"];
-        if (nil != timestampString) {
-            _timestamp = [NSDate sentry_fromIso8601String:timestampString];
+
+        id started = [jsonObject valueForKey:@"started"];
+        if ([started isKindOfClass:[NSString class]]) {
+            _started = [NSDate sentry_fromIso8601String:started];
         }
-        NSString *status = [jsonObject valueForKey:@"status"];
-        if ([@"ok" isEqualToString:status]) {
-            _status = kSentrySessionStatusOk;
-        } else if ([@"exited" isEqualToString:status]) {
-            _status = kSentrySessionStatusExited;
-        } else if ([@"crashed" isEqualToString:status]) {
-            _status = kSentrySessionStatusCrashed;
-        } else if ([@"abnormal" isEqualToString:status]) {
-            _status = kSentrySessionStatusAbnormal;
+
+        id status = [jsonObject valueForKey:@"status"];
+        if ([status isKindOfClass:[NSString class]]) {
+            if ([@"ok" isEqualToString:status]) {
+                _status = kSentrySessionStatusOk;
+            } else if ([@"exited" isEqualToString:status]) {
+                _status = kSentrySessionStatusExited;
+            } else if ([@"crashed" isEqualToString:status]) {
+                _status = kSentrySessionStatusCrashed;
+            } else if ([@"abnormal" isEqualToString:status]) {
+                _status = kSentrySessionStatusAbnormal;
+            }
         }
-        _sequence = [[jsonObject valueForKey:@"seq"] unsignedIntegerValue];
-        _errors = [[jsonObject valueForKey:@"errors"] unsignedIntegerValue];
+
+        id seq = [jsonObject valueForKey:@"seq"];
+        if ([seq isKindOfClass:[NSNumber class]]) {
+            _sequence = [seq unsignedIntegerValue];
+        }
+
+        id errors = [jsonObject valueForKey:@"errors"];
+        if ([errors isKindOfClass:[NSNumber class]]) {
+            _errors = [errors unsignedIntegerValue];
+        }
+
+        id did = [jsonObject valueForKey:@"did"];
+        if ([did isKindOfClass:[NSString class]]) {
+            _distinctId = did;
+        }
+
         id init = [jsonObject valueForKey:@"init"];
-        if (nil != init) {
+        if ([init isKindOfClass:[NSNumber class]]) {
             _init = init;
         }
-        NSNumber *duration = [jsonObject valueForKey:@"duration"];
-        if (nil != duration) {
-            _duration = duration;
-        }
+
         id attrs = [jsonObject valueForKey:@"attrs"];
         if (nil != attrs) {
-            _releaseName = [attrs valueForKey:@"release"];
-            _environment = [attrs valueForKey:@"environment"];
+            id releaseName = [attrs valueForKey:@"release"];
+            if ([releaseName isKindOfClass:[NSString class]]) {
+                _releaseName = releaseName;
+            }
+
+            id environment = [attrs valueForKey:@"environment"];
+            if ([environment isKindOfClass:[NSString class]]) {
+                _environment = environment;
+            }
+        }
+
+        id timestamp = [jsonObject valueForKey:@"timestamp"];
+        if ([timestamp isKindOfClass:[NSString class]]) {
+            _timestamp = [NSDate sentry_fromIso8601String:timestamp];
+        }
+
+        id duration = [jsonObject valueForKey:@"duration"];
+        if ([duration isKindOfClass:[NSNumber class]]) {
+            _duration = duration;
         }
     }
     return self;
@@ -128,7 +177,7 @@ NS_ASSUME_NONNULL_BEGIN
     @synchronized(self) {
         NSMutableDictionary *serializedData = @{
             @"sid" : _sessionId.UUIDString,
-            @"errors" : [NSNumber numberWithLong:_errors],
+            @"errors" : @(_errors),
             @"started" : [_started sentry_toIso8601String],
         }
                                                   .mutableCopy;
@@ -171,7 +220,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
 
         // TODO: seq to be just unix time in mills?
-        [serializedData setValue:[NSNumber numberWithLong:_sequence] forKey:@"seq"];
+        [serializedData setValue:@(_sequence) forKey:@"seq"];
 
         if (nil != _releaseName || nil != _environment) {
             NSMutableDictionary *attrs = [[NSMutableDictionary alloc] init];

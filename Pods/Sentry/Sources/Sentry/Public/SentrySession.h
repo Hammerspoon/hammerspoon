@@ -1,4 +1,5 @@
 #import "SentryDefines.h"
+#import "SentrySerializable.h"
 
 @class SentryUser;
 
@@ -11,7 +12,7 @@ typedef NS_ENUM(NSUInteger, SentrySessionStatus) {
     kSentrySessionStatusAbnormal = 3,
 };
 
-@interface SentrySession : NSObject <NSCopying>
+@interface SentrySession : NSObject <SentrySerializable, NSCopying>
 SENTRY_NO_INIT
 
 - (instancetype)initWithReleaseName:(NSString *)releaseName;

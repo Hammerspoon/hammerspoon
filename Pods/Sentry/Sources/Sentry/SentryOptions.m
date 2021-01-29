@@ -2,7 +2,9 @@
 #import "SentryDsn.h"
 #import "SentryError.h"
 #import "SentryLog.h"
+#import "SentryMeta.h"
 #import "SentrySDK.h"
+#import "SentrySdkInfo.h"
 
 @implementation SentryOptions
 
@@ -26,6 +28,9 @@
         self.enableAutoSessionTracking = YES;
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
         self.attachStacktrace = YES;
+        self.maxAttachmentSize = 20 * 1024 * 1024;
+        _sdkInfo = [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
+                                            andVersion:SentryMeta.versionString];
 
         // Set default release name
         NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
@@ -124,6 +129,10 @@
         self.beforeBreadcrumb = options[@"beforeBreadcrumb"];
     }
 
+    if (nil != options[@"onCrashedLastRun"]) {
+        self.onCrashedLastRun = options[@"onCrashedLastRun"];
+    }
+
     if (nil != options[@"integrations"]) {
         self.integrations = options[@"integrations"];
     }
@@ -144,6 +153,10 @@
 
     if (nil != options[@"attachStacktrace"]) {
         self.attachStacktrace = [options[@"attachStacktrace"] boolValue];
+    }
+
+    if (nil != options[@"maxAttachmentSize"]) {
+        self.maxAttachmentSize = [options[@"maxAttachmentSize"] unsignedIntValue];
     }
 }
 

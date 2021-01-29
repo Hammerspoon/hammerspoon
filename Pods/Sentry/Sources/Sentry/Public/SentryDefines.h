@@ -49,6 +49,11 @@ typedef SentryBreadcrumb *_Nullable (^SentryBeforeBreadcrumbCallback)(
 typedef SentryEvent *_Nullable (^SentryBeforeSendEventCallback)(SentryEvent *_Nonnull event);
 
 /**
+ * A callback to be notified when the last program execution terminated with a crash.
+ */
+typedef void (^SentryOnCrashedLastRunCallback)(SentryEvent *_Nonnull event);
+
+/**
  * Block can be used to determine if an event should be queued and stored
  * locally. It will be tried to send again after next successful send. Note that
  * this will only be called once the event is created and send manully. Once it

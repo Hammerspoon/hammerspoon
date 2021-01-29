@@ -62,7 +62,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 BSD 3-Clause License
 
-Copyright (c) 2010-2019, Deusty, LLC
+Copyright (c) 2010-2020, Deusty, LLC
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:

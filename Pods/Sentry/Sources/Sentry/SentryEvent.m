@@ -141,7 +141,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (NSMutableArray *_Nullable)serializeBreadcrumbs
+- (NSArray *_Nullable)serializeBreadcrumbs
 {
     NSMutableArray *crumbs = [NSMutableArray new];
     for (SentryBreadcrumb *crumb in self.breadcrumbs) {

@@ -1,1 +1,1 @@
-../../../CocoaLumberjack/Classes/DDLog+LOGV.h
+../../../CocoaLumberjack/Sources/CocoaLumberjack/include/CocoaLumberjack/DDLog+LOGV.h

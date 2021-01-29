@@ -490,6 +490,18 @@ typedef BOOL (^GCDAsyncUdpSocketSendFilterBlock)(NSData *data, NSData *address, 
 - (BOOL)leaveMulticastGroup:(NSString *)group error:(NSError **)errPtr;
 - (BOOL)leaveMulticastGroup:(NSString *)group onInterface:(nullable NSString *)interface error:(NSError **)errPtr;
 
+/**
+ * Send multicast on a specified interface.
+ * For IPv4, interface should be the the IP address of the interface (eg @"192.168.10.1").
+ * For IPv6, interface should be the a network interface name (eg @"en0").
+ *
+ * On success, returns YES.
+ * Otherwise returns NO, and sets errPtr. If you don't care about the error, you can pass nil for errPtr.
+**/
+
+- (BOOL)sendIPv4MulticastOnInterface:(NSString*)interface error:(NSError **)errPtr;
+- (BOOL)sendIPv6MulticastOnInterface:(NSString*)interface error:(NSError **)errPtr;
+
 #pragma mark Reuse Port
 
 /**

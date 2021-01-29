@@ -2,6 +2,8 @@
 
 #import "SentryScope.h"
 
+@class SentryAttachment;
+
 NS_ASSUME_NONNULL_BEGIN
 
 typedef void (^SentryScopeListener)(SentryScope *scope);
@@ -12,6 +14,8 @@ typedef void (^SentryScopeListener)(SentryScope *scope);
 
 - (void)addScopeListener:(SentryScopeListener)listener;
 - (void)notifyListeners;
+
+@property (atomic, strong, readonly) NSArray<SentryAttachment *> *attachments;
 
 @end
 
