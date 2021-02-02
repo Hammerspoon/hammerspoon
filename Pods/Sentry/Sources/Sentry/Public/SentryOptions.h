@@ -138,6 +138,16 @@ NS_SWIFT_NAME(Options)
  */
 @property (nonatomic, assign) NSUInteger maxAttachmentSize;
 
+/**
+ * When enabled, the SDK sends personal identifiable along with events. The default is
+ * <code>NO</code>.
+ *
+ * @discussion When the user of an event doesn't contain an IP address, the SDK sets it to
+ * <code>{{auto}}</code> to instruct the server to use the connection IP address as the user
+ * address.
+ */
+@property (nonatomic, assign) BOOL sendDefaultPii;
+
 @end
 
 NS_ASSUME_NONNULL_END

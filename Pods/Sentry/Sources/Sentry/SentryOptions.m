@@ -29,6 +29,7 @@
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
         self.attachStacktrace = YES;
         self.maxAttachmentSize = 20 * 1024 * 1024;
+        self.sendDefaultPii = NO;
         _sdkInfo = [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
                                             andVersion:SentryMeta.versionString];
 
@@ -157,6 +158,10 @@
 
     if (nil != options[@"maxAttachmentSize"]) {
         self.maxAttachmentSize = [options[@"maxAttachmentSize"] unsignedIntValue];
+    }
+
+    if (nil != options[@"sendDefaultPii"]) {
+        self.sendDefaultPii = [options[@"sendDefaultPii"] boolValue];
     }
 }
 
