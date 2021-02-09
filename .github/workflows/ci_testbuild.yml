@@ -2,10 +2,14 @@ name: CI
 
 on:
   push:
-  pull_request:
+  pull_request_target:
 
 jobs:
   test:
+    if: >
+      github.event_name == 'push' ||
+      github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository
+
     runs-on: macos-11.0
 
     steps:
@@ -22,6 +26,11 @@ jobs:
         with:
           verbose: true
         if: ${{ always() }}
+      - name: Publish test results
+        uses: EnricoMi/publish-unit-test-result-action@v1
+        if: ${{ always() }}
+        with:
+          files: build/reports/junit.xml
       - name: IRC notification - push
         uses: Gottox/irc-message-action@v1.3.0
         if: ${{ always() && github.event_name == 'push' && github.repository == 'hammerspoon/hammerspoon' }}

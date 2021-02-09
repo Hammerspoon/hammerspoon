@@ -1,6 +1,6 @@
 #!/bin/bash
 
-xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release test-without-building 2>&1 | tee test.log
+xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release test-without-building 2>&1 | tee test.log | xcpretty -r junit -f `xcpretty-actions-formatter`
 
 RESULT=$(grep -A1 "Test Suite 'All tests'" test.log | tail -1 | sed -e 's/^[ ]+//')
 
