@@ -1278,22 +1278,25 @@ static int userdata_tostring(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
+    NSString *theName = @"(un-named screen)" ;
     NSScreen *screen = get_screen_arg(L, 1);
-    CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
+
+    if (@available(macOS 10.15, *)) {
+        theName = screen.localizedName ;
+    } else {
+        CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    CFDictionaryRef deviceInfo = IODisplayCreateInfoDictionary(CGDisplayIOServicePort(screen_id), kIODisplayOnlyPreferredName);
+        CFDictionaryRef deviceInfo = IODisplayCreateInfoDictionary(CGDisplayIOServicePort(screen_id), kIODisplayOnlyPreferredName);
 #pragma clang diagnostic pop
-    NSDictionary *localizedNames = [(__bridge NSDictionary *)deviceInfo objectForKey:(NSString *)[NSString stringWithUTF8String:kDisplayProductName]];
-    NSString *theName ;
-    if ([localizedNames count])
-        theName = [localizedNames objectForKey:[[localizedNames allKeys] objectAtIndex:0]] ;
-    else
-        theName = @"(un-named screen)" ;
+        NSDictionary *localizedNames = [(__bridge NSDictionary *)deviceInfo objectForKey:(NSString *)[NSString stringWithUTF8String:kDisplayProductName]];
+        if ([localizedNames count])
+            theName = [localizedNames objectForKey:[[localizedNames allKeys] objectAtIndex:0]] ;
+        CFRelease(deviceInfo);
+    }
 
     lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, theName, lua_topointer(L, 1)] UTF8String]) ;
-    CFRelease(deviceInfo);
     return 1 ;
 }
 
