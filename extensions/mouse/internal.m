@@ -6,7 +6,7 @@
 #import <IOKit/hidsystem/IOHIDLib.h>
 #import <IOKit/hid/IOHIDLib.h>
 
-#define LS_API(...) LuaSkin *skin = [LuaSkin sharedWithState:L]; [skin checkArgs:__VA_ARGS__];
+#define LS_API(...) [LuaSkin sharedWithState:L]; [skin checkArgs:__VA_ARGS__];
 
 // We need a dictionary and a callback outside HSmouse so they can be used at the IOKit level
 NSMutableArray<NSString *> *mice = nil;
@@ -161,7 +161,7 @@ static void enum_callback(void *ctx, IOReturn res, void *sender, IOHIDDeviceRef 
 ///  * This function leverages code from [ManyMouse](http://icculus.org/manymouse/).
 ///  * This function considers any mouse labelled as "Apple Internal Keyboard / Trackpad" to be an internal mouse.
 static int mouse_count(lua_State* L) {
-    LS_API(LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK);
+    LuaSkin *skin = LS_API(LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK);
     BOOL includeInternal = lua_toboolean(L, 1);
 
     HSmouse *mouseManager = [[HSmouse alloc] init];
@@ -188,7 +188,7 @@ static int mouse_count(lua_State* L) {
 /// Notes:
 ///  * This function leverages code from [ManyMouse](http://icculus.org/manymouse/).
 static int mouse_names(lua_State* L) {
-    LS_API(LS_TBREAK);
+    LuaSkin *skin = LS_API(LS_TBREAK);
     HSmouse *mouseManager = [[HSmouse alloc] init];
     
     [skin pushNSObject:mouseManager.names];
@@ -208,7 +208,7 @@ static int mouse_names(lua_State* L) {
 /// Notes:
 ///  * If no parameters are supplied, the current position will be returned. If a point table parameter is supplied, the mouse pointer poisition will be set and the new co-ordinates returned
 static int mouse_absolutePosition(lua_State *L) {
-    LS_API(LS_TTABLE|LS_TOPTIONAL, LS_TBREAK);
+    LuaSkin *skin = LS_API(LS_TTABLE|LS_TOPTIONAL, LS_TBREAK);
     HSmouse *mouseManager = [[HSmouse alloc] init];
     
     if (lua_type(skin.L, 1) == LUA_TTABLE) {
@@ -234,7 +234,7 @@ static int mouse_absolutePosition(lua_State *L) {
 ///  * This is represented in the System Preferences as the "Tracking speed" setting for mice
 ///  * Note that not all values will work, they should map to the steps defined in the System Preferences app
 static int mouse_mouseAcceleration(lua_State *L) {
-    LS_API(LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK);
+    LuaSkin *skin = LS_API(LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK);
     HSmouse *mouseManager = [[HSmouse alloc] init];
 
     if (lua_type(skin.L, 1) == LUA_TNUMBER) {
@@ -258,7 +258,7 @@ static int mouse_mouseAcceleration(lua_State *L) {
 /// Returns:
 ///  * A string, either "natural" or "normal"
 static int mouse_scrollDirection(lua_State *L) {
-    LS_API(LS_TBREAK);
+    LuaSkin *skin = LS_API(LS_TBREAK);
     HSmouse *mouseManager = [[HSmouse alloc] init];
     
     [skin pushNSObject:mouseManager.isScrollDirectionNatural ? @"natural" : @"normal"];
