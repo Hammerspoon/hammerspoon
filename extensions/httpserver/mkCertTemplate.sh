@@ -39,5 +39,6 @@ rm -rv cert.cer
 rm -rv cert.cer.asn1
 
 echo ""
-
+echo "=== Header file contents:"
+cat "${INCLUDE_FILE}"
 echo "== Done"
