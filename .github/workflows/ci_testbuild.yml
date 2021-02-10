@@ -6,6 +6,7 @@ on:
 
 jobs:
   build:
+    name: Build and Test
     if: >
       github.event_name == 'push' ||
       github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository
@@ -24,17 +25,6 @@ jobs:
         with:
           name: Build Log
           path: artifacts/build.log
-
-  test:
-    if: >
-      github.event_name == 'push' ||
-      github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository
-
-    needs: build
-
-    runs-on: macos-11.0
-
-    steps:
       - name: Run tests
         id: test
         run: ./scripts/github-ci-test.sh
@@ -80,7 +70,7 @@ jobs:
 
   publish:
     name: "Publish Unit Test Results"
-    needs: test
+    needs: build
     runs-on: ubuntu-latest
     if: always()
 
