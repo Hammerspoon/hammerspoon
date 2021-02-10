@@ -6322,7 +6322,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -eux\n\nif [ ! -e \"${SRCROOT}/extensions/httpserver/HammerspoonCertTemplate.h\" ]; then\n  pushd \"${SRCROOT}/extensions/httpserver/\"\n  ./mkCertTemplate.sh\n  popd\nfi";
+			shellScript = "set -eux\n\nif [ ! -e \"${SRCROOT}/extensions/httpserver/HammerspoonCertTemplate.h\" ]; then\n  pushd \"${SRCROOT}/extensions/httpserver/\"\n  ./mkCertTemplate.sh\n  popd\nfi\n";
 		};
 		CDFA91F1078130B13A38C135 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
