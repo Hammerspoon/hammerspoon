@@ -48,7 +48,8 @@ static NSDictionary *defineLanguageDictionary() {
         @"absolutePosition" : @{
             @"class"       : @[ [NSNumber class] ],
             @"luaClass"    : @"boolean",
-            @"objCType"    : @(@encode(BOOL)),
+            @"objCType"    : @([@(YES) objCType]),  // @encode may change depending upon architecture, so use the
+                                                    // same value we check against in isValueValidForDictionary
             @"nullable"    : @(YES),
             @"default"     : @(YES),
             @"optionalFor" : VISIBLE,
@@ -56,7 +57,7 @@ static NSDictionary *defineLanguageDictionary() {
         @"absoluteSize" : @{
             @"class"       : @[ [NSNumber class] ],
             @"luaClass"    : @"boolean",
-            @"objCType"    : @(@encode(BOOL)),
+            @"objCType"    : @([@(YES) objCType]),
             @"nullable"    : @(YES),
             @"default"     : @(YES),
             @"optionalFor" : VISIBLE,
@@ -64,7 +65,7 @@ static NSDictionary *defineLanguageDictionary() {
         @"antialias" : @{
             @"class"       : @[ [NSNumber class] ],
             @"luaClass"    : @"boolean",
-            @"objCType"    : @(@encode(BOOL)),
+            @"objCType"    : @([@(YES) objCType]),
             @"nullable"    : @(YES),
             @"default"     : @(YES),
             @"optionalFor" : VISIBLE,
@@ -72,7 +73,7 @@ static NSDictionary *defineLanguageDictionary() {
         @"arcRadii" : @{
             @"class"       : @[ [NSNumber class] ],
             @"luaClass"    : @"boolean",
-            @"objCType"    : @(@encode(BOOL)),
+            @"objCType"    : @([@(YES) objCType]),
             @"nullable"    : @(YES),
             @"default"     : @(YES),
             @"optionalFor" : @[ @"arc", @"ellipticalArc" ],
@@ -80,7 +81,7 @@ static NSDictionary *defineLanguageDictionary() {
         @"arcClockwise" : @{
             @"class"       : @[ [NSNumber class] ],
             @"luaClass"    : @"boolean",
-            @"objCType"    : @(@encode(BOOL)),
+            @"objCType"    : @([@(YES) objCType]),
             @"nullable"    : @(YES),
             @"default"     : @(YES),
             @"optionalFor" : @[ @"arc", @"ellipticalArc" ],
@@ -88,7 +89,7 @@ static NSDictionary *defineLanguageDictionary() {
         @"clipToPath" : @{
             @"class"       : @[ [NSNumber class] ],
             @"luaClass"    : @"boolean",
-            @"objCType"    : @(@encode(BOOL)),
+            @"objCType"    : @([@(YES) objCType]),
             @"nullable"    : @(YES),
             @"default"     : @(NO),
             @"optionalFor" : CLOSED,
@@ -124,7 +125,7 @@ static NSDictionary *defineLanguageDictionary() {
         @"closed" : @{
             @"class"       : @[ [NSNumber class] ],
             @"luaClass"    : @"boolean",
-            @"objCType"    : @(@encode(BOOL)),
+            @"objCType"    : @([@(YES) objCType]),
             @"nullable"    : @(NO),
             @"default"     : @(NO),
             @"requiredFor" : @[ @"segments" ],
@@ -258,7 +259,7 @@ static NSDictionary *defineLanguageDictionary() {
         @"flattenPath" : @{
             @"class"       : @[ [NSNumber class] ],
             @"luaClass"    : @"boolean",
-            @"objCType"    : @(@encode(BOOL)),
+            @"objCType"    : @([@(YES) objCType]),
             @"nullable"    : @(YES),
             @"default"     : @(NO),
             @"optionalFor" : PRIMITIVES,
@@ -325,7 +326,8 @@ static NSDictionary *defineLanguageDictionary() {
         },
         @"imageAnimationFrame" : @ {
             @"class"       : @[ [NSNumber class] ],
-            @"objCType"    : @(@encode(lua_Integer)),
+            @"objCType"    : @([@((lua_Integer)1) objCType]), // @encode may change depending upon architecture, so use the
+                                                              // same value we check against in isValueValidForDictionary
             @"luaClass"    : @"integer",
             @"nullable"    : @(YES),
             @"default"     : @(0),
@@ -334,7 +336,7 @@ static NSDictionary *defineLanguageDictionary() {
         @"imageAnimates" : @{
             @"class"       : @[ [NSNumber class] ],
             @"luaClass"    : @"boolean",
-            @"objCType"    : @(@encode(BOOL)),
+            @"objCType"    : @([@(YES) objCType]),
             @"nullable"    : @(NO),
             @"default"     : @(NO),
             @"requiredFor" : @[ @"image" ],
@@ -371,7 +373,7 @@ static NSDictionary *defineLanguageDictionary() {
         @"reversePath" : @{
             @"class"       : @[ [NSNumber class] ],
             @"luaClass"    : @"boolean",
-            @"objCType"    : @(@encode(BOOL)),
+            @"objCType"    : @([@(YES) objCType]),
             @"nullable"    : @(YES),
             @"default"     : @(NO),
             @"optionalFor" : PRIMITIVES,
@@ -503,7 +505,7 @@ static NSDictionary *defineLanguageDictionary() {
         @"trackMouseByBounds" : @{
             @"class"       : @[ [NSNumber class] ],
             @"luaClass"    : @"boolean",
-            @"objCType"    : @(@encode(BOOL)),
+            @"objCType"    : @([@(YES) objCType]),
             @"nullable"    : @(YES),
             @"default"     : @(NO),
             @"optionalFor" : VISIBLE,
@@ -511,7 +513,7 @@ static NSDictionary *defineLanguageDictionary() {
         @"trackMouseEnterExit" : @{
             @"class"       : @[ [NSNumber class] ],
             @"luaClass"    : @"boolean",
-            @"objCType"    : @(@encode(BOOL)),
+            @"objCType"    : @([@(YES) objCType]),
             @"nullable"    : @(YES),
             @"default"     : @(NO),
             @"optionalFor" : VISIBLE,
@@ -519,7 +521,7 @@ static NSDictionary *defineLanguageDictionary() {
         @"trackMouseDown" : @{
             @"class"       : @[ [NSNumber class] ],
             @"luaClass"    : @"boolean",
-            @"objCType"    : @(@encode(BOOL)),
+            @"objCType"    : @([@(YES) objCType]),
             @"nullable"    : @(YES),
             @"default"     : @(NO),
             @"optionalFor" : VISIBLE,
@@ -527,7 +529,7 @@ static NSDictionary *defineLanguageDictionary() {
         @"trackMouseUp" : @{
             @"class"       : @[ [NSNumber class] ],
             @"luaClass"    : @"boolean",
-            @"objCType"    : @(@encode(BOOL)),
+            @"objCType"    : @([@(YES) objCType]),
             @"nullable"    : @(YES),
             @"default"     : @(NO),
             @"optionalFor" : VISIBLE,
@@ -535,7 +537,7 @@ static NSDictionary *defineLanguageDictionary() {
         @"trackMouseMove" : @{
             @"class"       : @[ [NSNumber class] ],
             @"luaClass"    : @"boolean",
-            @"objCType"    : @(@encode(BOOL)),
+            @"objCType"    : @([@(YES) objCType]),
             @"nullable"    : @(YES),
             @"default"     : @(NO),
             @"optionalFor" : VISIBLE,
@@ -581,7 +583,7 @@ static NSDictionary *defineLanguageDictionary() {
         @"withShadow" : @{
             @"class"       : @[ [NSNumber class] ],
             @"luaClass"    : @"boolean",
-            @"objCType"    : @(@encode(BOOL)),
+            @"objCType"    : @([@(YES) objCType]),
             @"nullable"    : @(YES),
             @"default"     : @(NO),
             @"optionalFor" : PRIMITIVES,

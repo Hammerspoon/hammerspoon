@@ -1290,16 +1290,30 @@ nextarg:
     NSValue    *value    = obj;
     const char *objCType = [value objCType];
 
+    // @encode is a compiler directive that can give different results depending upon the
+    // architecture, so lets compare apples to apples:
+    static dispatch_once_t onceToken;
+    static const char *pointEncoding ;
+    static const char *sizeEncoding ;
+    static const char *rectEncoding ;
+    static const char *rangeEncoding ;
+    dispatch_once(&onceToken, ^{
+        pointEncoding = [[NSValue valueWithPoint:NSZeroPoint] objCType] ;
+        sizeEncoding  = [[NSValue valueWithSize:NSZeroSize] objCType] ;
+        rectEncoding  = [[NSValue valueWithRect:NSZeroRect] objCType] ;
+        rangeEncoding = [[NSValue valueWithRange:NSMakeRange(0,1)] objCType] ;
+    });
+
     // Ensure our Lua stack is large enough for the number of items being pushed
     [self growStack:3 withMessage:"pushNSValue"];
 
-    if (strcmp(objCType, @encode(NSPoint))==0) {
+    if (strcmp(objCType, pointEncoding)==0) {
         [self pushNSPoint:[value pointValue]] ;
-    } else if (strcmp(objCType, @encode(NSSize))==0) {
+    } else if (strcmp(objCType, sizeEncoding)==0) {
         [self  pushNSSize:[value sizeValue]] ;
-    } else if (strcmp(objCType, @encode(NSRect))==0) {
+    } else if (strcmp(objCType, rectEncoding)==0) {
         [self  pushNSRect:[value rectValue]] ;
-    } else if (strcmp(objCType, @encode(NSRange))==0) {
+    } else if (strcmp(objCType, rangeEncoding)==0) {
         NSRange holder = [value rangeValue] ;
         lua_newtable(self.L) ;
         lua_pushinteger(self.L, (lua_Integer)holder.location) ; lua_setfield(self.L, -2, "location") ;
