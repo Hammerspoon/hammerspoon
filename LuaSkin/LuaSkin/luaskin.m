@@ -230,7 +230,11 @@ static int obj_ud_newindex(lua_State *L) {
             NSObject *key = [skin toNSObjectAtIndex:2] ;
             NSObject *value = [skin toNSObjectAtIndex:3 withOptions:LS_NSDescribeUnknownTypes] ;
             if (key) {
-                [(NSMutableDictionary *)obj setObject:value forKey:(id <NSCopying>)key] ;
+                if (value) {
+                    [(NSMutableDictionary *)obj setObject:value forKey:(id <NSCopying>)key] ;
+                } else {
+                    [(NSMutableDictionary *)obj removeObjectForKey:(id <NSCopying>)key] ;
+                }
                 if (arrayAutoConversion) {
                     NSUInteger totalKeys = [(NSMutableDictionary *)obj count] ;
                     NSUInteger count     = 0 ;
