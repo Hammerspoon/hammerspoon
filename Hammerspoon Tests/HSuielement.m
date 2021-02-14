@@ -26,11 +26,13 @@
 
 - (void)testWindowWatcher {
     SKIP_IN_TRAVIS()
+    SKIP_IN_GITHUB_ACTIONS()
     RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(5)
 }
 
 - (void)testApplicationWatcher {
     SKIP_IN_TRAVIS()
+    SKIP_IN_GITHUB_ACTIONS()
     RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(5)
 }
 
@@ -47,6 +49,7 @@
 
 - (void)testSelectedText {
     SKIP_IN_TRAVIS()
+    SKIP_IN_GITHUB_ACTIONS()
     RUN_LUA_TEST()
 }
 

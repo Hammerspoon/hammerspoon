@@ -72,20 +72,24 @@ static int screen_name(lua_State* L) {
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
     NSScreen* screen = get_screen_arg(L, 1);
-    CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
+    if (@available(macOS 10.15, *)) {
+        [skin pushNSObject:screen.localizedName] ;
+    } else {
+        CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    CFDictionaryRef deviceInfo = IODisplayCreateInfoDictionary(CGDisplayIOServicePort(screen_id), kIODisplayOnlyPreferredName);
+        CFDictionaryRef deviceInfo = IODisplayCreateInfoDictionary(CGDisplayIOServicePort(screen_id), kIODisplayOnlyPreferredName);
 #pragma clang diagnostic pop
-    NSDictionary *localizedNames = [(__bridge NSDictionary *)deviceInfo objectForKey:(NSString *)[NSString stringWithUTF8String:kDisplayProductName]];
+        NSDictionary *localizedNames = [(__bridge NSDictionary *)deviceInfo objectForKey:(NSString *)[NSString stringWithUTF8String:kDisplayProductName]];
 
-    if ([localizedNames count])
-        lua_pushstring(L, [[localizedNames objectForKey:[[localizedNames allKeys] objectAtIndex:0]] UTF8String]);
-    else
-        lua_pushnil(L);
+        if ([localizedNames count])
+            lua_pushstring(L, [[localizedNames objectForKey:[[localizedNames allKeys] objectAtIndex:0]] UTF8String]);
+        else
+            lua_pushnil(L);
 
-    CFRelease(deviceInfo);
+        CFRelease(deviceInfo);
+    }
 
     return 1;
 }
@@ -127,7 +131,9 @@ enum {
 ///   * w - A number containing the width of the screen mode in points
 ///   * h - A number containing the height of the screen mode in points
 ///   * scale - A number containing the scaling factor of the screen mode (typically `1` for a native mode, `2` for a HiDPI mode)
-///   * desc - A string containing a representation of the mode as used in `hs.screen:availableModes()` - e.g. "1920x1080@2x"
+///   * freq - A number containing the vertical refresh rate in Hz
+///   * depth - A number containing the bit depth
+///   * desc - A string containing a representation of the mode as used in `hs.screen:availableModes()` - e.g. "1920x1080@2x 60Hz 4bpp"
 static int screen_currentMode(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
@@ -150,7 +156,13 @@ static int screen_currentMode(lua_State* L) {
     lua_pushnumber(L, (double)mode.density);
     lua_setfield(L, -2, "scale");
 
-    lua_pushstring(L, [[NSString stringWithFormat:@"%dx%d@%.0fx", mode.width, mode.height, (double)mode.density] UTF8String]);
+    lua_pushnumber(L, mode.freq);
+    lua_setfield(L, -2, "freq");
+
+    lua_pushnumber(L, mode.depth);
+    lua_setfield(L, -2, "depth");
+
+    lua_pushstring(L, [[NSString stringWithFormat:@"%dx%d@%.0fx %huHz %ubpp", mode.width, mode.height, (double)mode.density, mode.freq, mode.depth] UTF8String]);
     lua_setfield(L, -2, "desc");
 
     return 1;
@@ -168,9 +180,11 @@ static int screen_currentMode(lua_State* L) {
 ///   * w - A number containing the width of the screen mode in points
 ///   * h - A number containing the height of the screen mode in points
 ///   * scale - A number containing the scaling factor of the screen mode (typically `1` for a native mode, `2` for a HiDPI mode)
+///   * freq - A number containing the vertical refresh rate in Hz
+///   * depth - A number containing the bit depth of the display mode
 ///
 /// Notes:
-///  * Only 32-bit colour modes are returned. If you really need to know about 16-bit modes, please file an Issue on GitHub
+///  * Prior to 0.9.83, only 32-bit colour modes would be returned, but now all colour depths are returned. This has necessitated changing the naming of the modes in the returned table.
 ///  * "points" are not necessarily the same as pixels, because they take the scale factor into account (e.g. "1440x900@2x" is a 2880x1800 screen resolution, with a scaling factor of 2, i.e. with HiDPI pixel-doubled rendering enabled), however, they are far more useful to work with than native pixel modes, when a Retina screen is involved. For non-retina screens, points and pixels are equivalent.
 static int screen_availableModes(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
@@ -189,22 +203,26 @@ static int screen_availableModes(lua_State* L) {
         CGSDisplayMode mode;
         CGSGetDisplayModeDescriptionOfLength(screen_id, i, &mode, sizeof(mode));
 
-        // NSLog(@"Found a mode: %dx%d@%.0fx, %dbit", mode.width, mode.height, mode.density, (mode.depth == 4) ? 32 : 16);
-        if (mode.depth == 4) {
-            lua_newtable(L);
+        //NSLog(@"Found a mode: %dx%d@%.0fx, %huHz, %dbit", mode.width, mode.height, (double)mode.density, mode.freq, mode.depth);
+        lua_newtable(L);
 
-            lua_pushinteger(L, mode.width);
-            lua_setfield(L, -2, "w");
+        lua_pushinteger(L, mode.width);
+        lua_setfield(L, -2, "w");
 
-            lua_pushinteger(L, mode.height);
-            lua_setfield(L, -2, "h");
+        lua_pushinteger(L, mode.height);
+        lua_setfield(L, -2, "h");
 
-            lua_pushnumber(L, (double)mode.density);
-            lua_setfield(L, -2, "scale");
+        lua_pushnumber(L, (double)mode.density);
+        lua_setfield(L, -2, "scale");
 
-            // Now push this mode table into the list-of-modes table
-            lua_setfield(L, -2, [[NSString stringWithFormat:@"%dx%d@%.0fx", mode.width, mode.height, (double)mode.density] UTF8String]);
-        }
+        lua_pushnumber(L, mode.freq);
+        lua_setfield(L, -2, "freq");
+
+        lua_pushnumber(L, mode.depth);
+        lua_setfield(L, -2, "depth");
+
+        // Now push this mode table into the list-of-modes table
+        lua_setfield(L, -2, [[NSString stringWithFormat:@"%dx%d@%.0fx %huHz %ubpp", mode.width, mode.height, (double)mode.density, mode.freq, mode.depth] UTF8String]);
     }
 
     return 1;
@@ -230,6 +248,8 @@ static int handleDisplayUpdate(lua_State* L, CGDisplayConfigRef config, char *na
 ///  * width - A number containing the width in points of the new mode
 ///  * height - A number containing the height in points of the new mode
 ///  * scale - A number containing the scaling factor of the new mode (typically 1 for native pixel resolutions, 2 for HiDPI/Retina resolutions)
+///  * frequency - A number containing the vertical refresh rate, in Hertz of the new mode
+///  * depth - A number containing the bit depth of the new mode
 ///
 /// Returns:
 ///  * A boolean, true if the requested mode was set, otherwise false
@@ -238,12 +258,15 @@ static int handleDisplayUpdate(lua_State* L, CGDisplayConfigRef config, char *na
 ///  * The available widths/heights/scales can be seen in the output of `hs.screen:availableModes()`, however, it should be noted that the CoreGraphics subsystem seems to list more modes for a given screen than it is actually prepared to set, so you may find that seemingly valid modes still return false. It is not currently understood why this is so!
 static int screen_setMode(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TNUMBER, LS_TNUMBER, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TNUMBER, LS_TNUMBER, LS_TNUMBER, LS_TNUMBER, LS_TBREAK];
 
     NSScreen* screen = get_screen_arg(L, 1);
     long width = (long)lua_tointeger(L, 2);
     long height = (long)lua_tointeger(L, 3);
     lua_Number scale = lua_tonumber(L, 4);
+    uint16_t freq = (uint16_t) lua_tointeger(L, 5);
+    uint32_t depth = (uint32_t)lua_tointeger(L, 6);
+
     CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
 
     int i, numberOfDisplayModes;
@@ -253,7 +276,7 @@ static int screen_setMode(lua_State* L) {
         CGSDisplayMode mode;
         CGSGetDisplayModeDescriptionOfLength(screen_id, i, &mode, sizeof(mode));
 
-        if (mode.depth == 4 && mode.width == width && mode.height == height && (int)mode.density == (int)scale) {
+        if (mode.depth == depth && mode.freq == freq && mode.width == width && mode.height == height && (int)mode.density == (int)scale) {
             CGDisplayConfigRef config;
             CGBeginDisplayConfiguration(&config);
             CGSConfigureDisplayMode(config, screen_id, i);
@@ -1255,22 +1278,25 @@ static int userdata_tostring(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
+    NSString *theName = @"(un-named screen)" ;
     NSScreen *screen = get_screen_arg(L, 1);
-    CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
+
+    if (@available(macOS 10.15, *)) {
+        theName = screen.localizedName ;
+    } else {
+        CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    CFDictionaryRef deviceInfo = IODisplayCreateInfoDictionary(CGDisplayIOServicePort(screen_id), kIODisplayOnlyPreferredName);
+        CFDictionaryRef deviceInfo = IODisplayCreateInfoDictionary(CGDisplayIOServicePort(screen_id), kIODisplayOnlyPreferredName);
 #pragma clang diagnostic pop
-    NSDictionary *localizedNames = [(__bridge NSDictionary *)deviceInfo objectForKey:(NSString *)[NSString stringWithUTF8String:kDisplayProductName]];
-    NSString *theName ;
-    if ([localizedNames count])
-        theName = [localizedNames objectForKey:[[localizedNames allKeys] objectAtIndex:0]] ;
-    else
-        theName = @"(un-named screen)" ;
+        NSDictionary *localizedNames = [(__bridge NSDictionary *)deviceInfo objectForKey:(NSString *)[NSString stringWithUTF8String:kDisplayProductName]];
+        if ([localizedNames count])
+            theName = [localizedNames objectForKey:[[localizedNames allKeys] objectAtIndex:0]] ;
+        CFRelease(deviceInfo);
+    }
 
     lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, theName, lua_topointer(L, 1)] UTF8String]) ;
-    CFRelease(deviceInfo);
     return 1 ;
 }
 

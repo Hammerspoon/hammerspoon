@@ -804,6 +804,49 @@ static int additionalImages(lua_State *L) {
 
 #pragma mark - Module Functions
 
+/// hs.image.getExifFromPath(path) -> table | nil
+/// Function
+/// Gets the EXIF metadata information from an image file.
+///
+/// Parameters:
+///  * path - The path to the image file.
+///
+/// Returns:
+///  * A table of EXIF metadata, or `nil` if no metadata can be found or the file path is invalid.
+static int getExifFromPath(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+    [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
+    
+    NSString* imagePath = [skin toNSObjectAtIndex:1];
+    imagePath = [imagePath stringByExpandingTildeInPath];
+    imagePath = [[imagePath componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]] componentsJoinedByString:@""];
+    
+    // SOURCE: https://stackoverflow.com/a/18301470
+    NSURL *imageFileURL = [NSURL fileURLWithPath:imagePath];
+    CGImageSourceRef imageSource = CGImageSourceCreateWithURL((CFURLRef)imageFileURL, NULL);
+    NSDictionary *treeDict;
+    NSDictionary *exifTree;
+    
+    NSDictionary *options = [NSDictionary dictionaryWithObjectsAndKeys:
+                             [NSNumber numberWithBool:NO], (NSString *)kCGImageSourceShouldCache,
+                             nil];
+
+    CFDictionaryRef imageProperties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, ( CFDictionaryRef)options);
+    CFRelease(imageSource);
+    if (imageProperties) {
+        treeDict = [NSDictionary dictionaryWithDictionary:(NSDictionary*)CFBridgingRelease(imageProperties)];
+        exifTree = [treeDict objectForKey:@"{Exif}"];
+    }
+    
+    if (exifTree) {
+        [skin pushNSObject:exifTree];
+    } else {
+        lua_pushnil(L);
+    }
+    
+    return 1 ;
+}
+
 /// hs.image.imageFromPath(path) -> object
 /// Constructor
 /// Loads an image file
@@ -1700,6 +1743,7 @@ static luaL_Reg moduleLib[] = {
     {"imageFromMediaFile",        imageFromMediaFile},
     {"iconForFile",               imageForFiles},
     {"iconForFileType",           imageForFileType},
+    {"getExifFromPath",           getExifFromPath},
 
     {NULL,                        NULL}
 };

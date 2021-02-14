@@ -1,0 +1,1 @@
+../../../CocoaHTTPServer/Core/Responses/HTTPErrorResponse.h

@@ -124,27 +124,26 @@ local showAlert = function(message, style, screenObj, duration)
     local UUID = uuid()
     alertEntry.UUID = UUID
 
+    local strokeWidth = thisAlertStyle.strokeWidth -- strokeWidth should be used to adjust position and padding.
     local textFrame = drawing.getTextDrawingSize(message, { font = textFont, size = textSize })
-    textFrame.w = textFrame.w + 8 -- known fudge factor, see hs.drawing.getTextDrawingSize docs
-    -- fudge factor seems worse when using `hs.drawing` but completely unnecessary with `hs.canvas`
-    -- need to figure out where drawing is inheriting margins from or push to retire hs.drawing completely...
+    textFrame.w = math.ceil(textFrame.w) -- drawing.getTextDrawingSize may return a float value, and use it directly could cause some display problem, the last character of a line may disappear.
     local drawingFrame = {
 -- approximates, but it scales a *little* better than hard coded numbers for differing sizes...
 --         x = screenFrame.x + (screenFrame.w - (textFrame.w + 26)) / 2,
-        x = screenFrame.x + (screenFrame.w - (textFrame.w + textSize)) / 2,
+        x = screenFrame.x + (screenFrame.w - (textFrame.w + textSize  + strokeWidth)) / 2,
         y = absoluteTop,
 --         h = textFrame.h + 24,
 --         w = textFrame.w + 26,
-        h = textFrame.h + textSize,
-        w = textFrame.w + textSize,
+        h = textFrame.h + textSize + strokeWidth,
+        w = textFrame.w + textSize + strokeWidth,
     }
     if thisAlertStyle.atScreenEdge == 2 then
         drawingFrame.y = screenFrame.y + screenFrame.h - drawingFrame.h
     end
 --     textFrame.x = drawingFrame.x + 13
 --     textFrame.y = drawingFrame.y + 12
-    textFrame.x = drawingFrame.x + textSize / 2
-    textFrame.y = drawingFrame.y + textSize / 2
+    textFrame.x = drawingFrame.x + (drawingFrame.w - textFrame.w) / 2
+    textFrame.y = drawingFrame.y + (drawingFrame.h - textFrame.h) / 2
 
     table.insert(alertEntry.drawings, drawing.rectangle(drawingFrame)
                                             :setStroke(true)

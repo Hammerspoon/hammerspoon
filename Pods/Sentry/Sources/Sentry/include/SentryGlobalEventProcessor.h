@@ -1,4 +1,6 @@
-#import "SentryEvent.h"
+#import "SentryDefines.h"
+
+@class SentryEvent;
 
 typedef SentryEvent *__nullable (^SentryEventProcessor)(SentryEvent *_Nonnull event);
 

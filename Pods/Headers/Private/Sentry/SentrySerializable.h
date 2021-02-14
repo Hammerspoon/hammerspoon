@@ -1,1 +1,1 @@
-../../../Sentry/Sources/Sentry/include/SentrySerializable.h
+../../../Sentry/Sources/Sentry/Public/SentrySerializable.h
