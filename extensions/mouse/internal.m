@@ -54,6 +54,7 @@ static void enum_callback(void *ctx, IOReturn res, void *sender, IOHIDDeviceRef 
 @implementation HSmouse
 // MARK:- Mouse enumeration
 #define RUNLOOPMODE (CFSTR("hs.mouse"))
+#define MOUSE_TRACKING_FACTOR 65536
 -(NSArray<NSString *>*)getNames {
     // This is a highly condensed version of what ManyMouse does to enumerate mice
     IOHIDManagerRef hidman = NULL;
@@ -128,7 +129,7 @@ static void enum_callback(void *ctx, IOReturn res, void *sender, IOHIDDeviceRef 
 -(double)getTrackingSpeed {
     NSDictionary *parameters = [self getIOHIDParameters];
     NSNumber *accel = parameters[@"HIDMouseAcceleration"];
-    return accel.doubleValue;
+    return accel.doubleValue / MOUSE_TRACKING_FACTOR;
 }
 
 -(kern_return_t)setTrackingSpeed:(double)trackingSpeed {
@@ -137,7 +138,7 @@ static void enum_callback(void *ctx, IOReturn res, void *sender, IOHIDDeviceRef 
     NSDictionary *parameters = [self getIOHIDParamtersFromService:service];
 
     NSMutableDictionary *newParameters = [parameters mutableCopy];
-    newParameters[@"HIDMouseAcceleration"] = @(trackingSpeed);
+    newParameters[@"HIDMouseAcceleration"] = @(trackingSpeed * MOUSE_TRACKING_FACTOR);
 
     kern_return_t result = IORegistryEntrySetCFProperty(service, CFSTR(kIOHIDParametersKey), (__bridge CFDictionaryRef)newParameters);
 
@@ -232,7 +233,9 @@ static int mouse_absolutePosition(lua_State *L) {
 ///
 /// Notes:
 ///  * This is represented in the System Preferences as the "Tracking speed" setting for mice
-///  * Note that not all values will work, they should map to the steps defined in the System Preferences app
+///  * Note that not all values will work, they should map to the steps defined in the System Preferences app, which are:
+///    * 0.0, 0.125, 0.5, 0.6875, 0.875, 1.0, 1.5, 2.0, 2.5, 3.0
+///  * Note that changes to this value will not be noticed immedaitely by macOS
 static int mouse_mouseAcceleration(lua_State *L) {
     LuaSkin *skin = LS_API(LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK);
     HSmouse *mouseManager = [[HSmouse alloc] init];
