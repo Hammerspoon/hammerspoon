@@ -27,10 +27,12 @@
 // FIXME: These tests don't really test anything other than the functions exist and don't throw errors
 
 - (void)testMouseCount {
+    SKIP_IN_GITHUB_ACTIONS()
     RUN_LUA_TEST()
 }
 
 - (void)testMouseNames {
+    SKIP_IN_GITHUB_ACTIONS()
     RUN_LUA_TEST()
 }
 
