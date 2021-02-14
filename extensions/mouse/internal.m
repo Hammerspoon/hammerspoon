@@ -6,8 +6,6 @@
 #import <IOKit/hidsystem/IOHIDLib.h>
 #import <IOKit/hid/IOHIDLib.h>
 
-#define LS_API(...) [LuaSkin sharedWithState:L]; [skin checkArgs:__VA_ARGS__];
-
 // We need a dictionary and a callback outside HSmouse so they can be used at the IOKit level
 NSMutableArray<NSString *> *mice = nil;
 static void enum_callback(void *ctx, IOReturn res, void *sender, IOHIDDeviceRef device) {

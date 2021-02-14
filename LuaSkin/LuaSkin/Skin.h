@@ -191,6 +191,29 @@ NSString *specMaskToString(int spec);
 #pragma mark - Class lifecycle
 
 /*!
+ @abstract Entrypoint from Lua to C
+
+ This macro should be called at the start of every C function that is accessible from Lua. Its job is to create a LuaSkin object and validate the arguments expected to have been passed from Lua.
+  It is a wrapper that performs:
+ <pre>@textblock
+  [LuaSkin sharedWithState:L];
+  [skin checkArgs:__VA_ARGS__];
+ @/textblock</pre>
+
+ <br> If the arguments are incorrect, this call will never return and the user will get a nice Lua traceback instead
+ @discussion Each argument can use boolean OR's to allow multiple types to be accepted (e.g. LS_TNIL | LS_TBOOLEAN).
+
+ Each argument can be OR'd with LS_TOPTIONAL to indicate that the argument is optional.
+
+ LS_TUSERDATA arguments should be followed by a string containing the metatable tag name (e.g. "hs.screen" for objects from hs.screen).
+
+ @warning The final argument MUST be LS_TBREAK, to signal the end of the list
+
+ @param firstArg - An integer that defines the first acceptable Lua argument type. Possible values are defined @link //apple_ref/doc/title:macro/BitmasksforLuatypechecking here @/link. Followed by zero or more integers of the same possible values. The final value MUST be LS_TBREAK
+ */
+#define LS_API(...) [LuaSkin sharedWithState:L]; [skin checkArgs:__VA_ARGS__];
+
+/*!
  @abstract Returns the singleton LuaSkin.Skin object
  @warning This method is deprecated and may go away at some point. Use +(id)sharedWithState:(lua_State *)L instead.
  @return Shared instance of LuaSkin.Skin
