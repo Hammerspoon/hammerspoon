@@ -1,11 +1,16 @@
 #!/bin/bash
+
+set -eux
+set -o pipefail
+
+echo "== Using /usr/bin/openssl. PATH would use: $(which openssl)"
 echo "== Generating a private key and using it to sign an x509:"
-openssl req -x509 -newkey rsa:2048 -outform DER -out cert.cer -config openssl.conf -set_serial 106 >/dev/null
+/usr/bin/openssl req -x509 -newkey rsa:2048 -outform DER -out cert.cer -config openssl.conf -set_serial 106 >/dev/null
 
 echo ""
 
 echo "== Dumping ASN.1 structure of cert.cer:"
-openssl asn1parse -inform DER -in cert.cer -dump -i >cert.cer.asn1
+/usr/bin/openssl asn1parse -inform DER -in cert.cer -dump -i >cert.cer.asn1
 
 echo ""
 
@@ -32,12 +37,13 @@ echo "#define kCSRLength     ${CSR_LENGTH}u" >>${INCLUDE_FILE}
 echo "" >>${INCLUDE_FILE}
 
 echo "=== Dumping template certificate bytes..."
-openssl x509 -C -inform DER -in cert.cer -noout | sed -n '/XXX_certificate/,$p' | sed -e 's/unsigned char XXX_certificate/static uint8_t const kCertTemplate/' >>${INCLUDE_FILE}
+/usr/bin/openssl x509 -C -inform DER -in cert.cer -noout | sed -n '/XXX_certificate/,$p' | sed -e 's/unsigned char XXX_certificate/static uint8_t const kCertTemplate/' >>${INCLUDE_FILE}
 
 echo "=== Tidying..."
 rm -rv cert.cer
 rm -rv cert.cer.asn1
 
 echo ""
-
+echo "=== Header file contents:"
+cat "${INCLUDE_FILE}"
 echo "== Done"
