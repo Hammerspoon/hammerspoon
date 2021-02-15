@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="17701" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14490.70"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="17701"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -19,16 +19,16 @@
             <windowStyleMask key="styleMask" nonactivatingPanel="YES" fullSizeContentView="YES"/>
             <windowCollectionBehavior key="collectionBehavior" ignoresCycle="YES"/>
             <rect key="contentRect" x="574" y="449" width="509" height="281"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
-            <view key="contentView" id="EiT-Mj-1SZ" customClass="HSChooserRootView">
-                <rect key="frame" x="0.0" y="0.0" width="509" height="281"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="3840" height="2135"/>
+            <view key="contentView" misplaced="YES" id="EiT-Mj-1SZ" customClass="HSChooserRootView">
+                <rect key="frame" x="0.0" y="0.0" width="529" height="262"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <visualEffectView wantsLayer="YES" blendingMode="behindWindow" material="appearanceBased" state="followsWindowActiveState" translatesAutoresizingMaskIntoConstraints="NO" id="RBO-8e-TkV">
-                        <rect key="frame" x="0.0" y="0.0" width="509" height="281"/>
+                        <rect key="frame" x="0.0" y="0.0" width="529" height="236"/>
                         <subviews>
-                            <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="SNk-MY-4Fz">
-                                <rect key="frame" x="18" y="218" width="473" height="43"/>
+                            <textField wantsLayer="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="SNk-MY-4Fz">
+                                <rect key="frame" x="18" y="173" width="493" height="43"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="43" id="00K-hU-lcx"/>
                                 </constraints>
@@ -39,24 +39,23 @@
                                 </textFieldCell>
                             </textField>
                             <box verticalHuggingPriority="750" boxType="separator" translatesAutoresizingMaskIntoConstraints="NO" id="6rA-6M-we2">
-                                <rect key="frame" x="0.0" y="195" width="509" height="5"/>
+                                <rect key="frame" x="0.0" y="150" width="529" height="5"/>
                             </box>
                             <scrollView borderType="none" autohidesScrollers="YES" horizontalLineScroll="42" horizontalPageScroll="10" verticalLineScroll="42" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="F4h-Cy-3Ua">
-                                <rect key="frame" x="5" y="5" width="499" height="187"/>
+                                <rect key="frame" x="5" y="5" width="519" height="142"/>
                                 <clipView key="contentView" drawsBackground="NO" copiesOnScroll="NO" id="Ujw-G9-DZG">
-                                    <rect key="frame" x="0.0" y="0.0" width="499" height="187"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="519" height="142"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" selectionHighlightStyle="sourceList" columnReordering="NO" columnResizing="NO" multipleSelection="NO" emptySelection="NO" autosaveColumns="NO" typeSelect="NO" rowHeight="40" rowSizeStyle="automatic" viewBased="YES" id="Cek-LK-OOM" customClass="HSChooserTableView">
-                                            <rect key="frame" x="0.0" y="0.0" width="499" height="187"/>
-                                            <autoresizingMask key="autoresizingMask"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="519" height="142"/>
+                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <size key="intercellSpacing" width="3" height="2"/>
                                             <color key="backgroundColor" red="0.0" green="0.41176470588235292" blue="0.85098039215686272" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                                             <color key="gridColor" white="0.80000000000000004" alpha="0.0" colorSpace="deviceWhite"/>
                                             <tableColumns>
-                                                <tableColumn editable="NO" width="496" minWidth="40" maxWidth="1000" id="U09-Ar-y6G">
+                                                <tableColumn editable="NO" width="487" minWidth="40" maxWidth="1000" id="U09-Ar-y6G">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border">
-                                                        <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                                     </tableHeaderCell>
@@ -68,11 +67,11 @@
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES"/>
                                                     <prototypeCellViews>
                                                         <tableCellView identifier="HSChooserCellSubtext" misplaced="YES" id="25d-LW-n5V" userLabel="Subtext Cell" customClass="HSChooserCell">
-                                                            <rect key="frame" x="1" y="1" width="496" height="40"/>
+                                                            <rect key="frame" x="11" y="1" width="496" height="40"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
-                                                                <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" tag="4" translatesAutoresizingMaskIntoConstraints="NO" id="Vzr-2t-wcq">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="36" height="27"/>
+                                                                <imageView wantsLayer="YES" horizontalHuggingPriority="251" verticalHuggingPriority="251" tag="4" translatesAutoresizingMaskIntoConstraints="NO" id="Vzr-2t-wcq">
+                                                                    <rect key="frame" x="0.0" y="-3" width="36" height="33"/>
                                                                     <constraints>
                                                                         <constraint firstAttribute="width" constant="36" id="FIK-ZB-KlK"/>
                                                                     </constraints>
@@ -87,7 +86,7 @@
                                                                     </textFieldCell>
                                                                 </textField>
                                                                 <textField verticalHuggingPriority="750" tag="-1" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Dai-jT-vTY">
-                                                                    <rect key="frame" x="39" y="3" width="414" height="16"/>
+                                                                    <rect key="frame" x="39" y="3" width="414" height="15"/>
                                                                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" state="on" title="Subtext" allowsEditingTextAttributes="YES" id="ixM-7l-qh2">
                                                                         <font key="font" metaFont="cellTitle"/>
                                                                         <color key="textColor" name="tertiaryLabelColor" catalog="System" colorSpace="catalog"/>
@@ -130,11 +129,11 @@
                                                             </connections>
                                                         </tableCellView>
                                                         <tableCellView identifier="HSChooserCell" misplaced="YES" id="M9u-t4-ygl" userLabel="Plain Cell" customClass="HSChooserCell">
-                                                            <rect key="frame" x="1" y="43" width="496" height="40"/>
+                                                            <rect key="frame" x="11" y="43" width="496" height="40"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
-                                                                <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" tag="4" translatesAutoresizingMaskIntoConstraints="NO" id="lLt-6S-nmH">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="36" height="32"/>
+                                                                <imageView wantsLayer="YES" horizontalHuggingPriority="251" verticalHuggingPriority="251" tag="4" translatesAutoresizingMaskIntoConstraints="NO" id="lLt-6S-nmH">
+                                                                    <rect key="frame" x="0.0" y="-3" width="36" height="38"/>
                                                                     <constraints>
                                                                         <constraint firstAttribute="width" constant="36" id="x6X-oD-Yer"/>
                                                                     </constraints>
@@ -224,6 +223,6 @@
         </window>
     </objects>
     <resources>
-        <image name="NSActionTemplate" width="14" height="14"/>
+        <image name="NSActionTemplate" width="15" height="15"/>
     </resources>
 </document>
