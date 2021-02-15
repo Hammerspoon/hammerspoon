@@ -75,7 +75,7 @@
                                                                     <constraints>
                                                                         <constraint firstAttribute="width" constant="36" id="FIK-ZB-KlK"/>
                                                                     </constraints>
-                                                                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="NSActionTemplate" id="eRE-Aa-zrO"/>
+                                                                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="eRE-Aa-zrO"/>
                                                                 </imageView>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" tag="1" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="jON-1W-aJd">
                                                                     <rect key="frame" x="39" y="5" width="414" height="19"/>
@@ -137,7 +137,7 @@
                                                                     <constraints>
                                                                         <constraint firstAttribute="width" constant="36" id="x6X-oD-Yer"/>
                                                                     </constraints>
-                                                                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="NSActionTemplate" id="8cY-0z-OzM"/>
+                                                                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="NSActionTemplate" id="8cY-0z-OzM"/>
                                                                 </imageView>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" tag="1" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="XAU-Vc-N92">
                                                                     <rect key="frame" x="39" y="5" width="414" height="24"/>
