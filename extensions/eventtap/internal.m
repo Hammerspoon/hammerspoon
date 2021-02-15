@@ -1,4 +1,5 @@
 #import "eventtap_event.h"
+#import "HSuicore.h"
 
 #define USERDATA_TAG        "hs.eventtap"
 static int refTable;
@@ -67,12 +68,13 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef
         return event;
 }
 
-/// hs.eventtap.keyStrokes(text)
+/// hs.eventtap.keyStrokes(text[, application])
 /// Function
 /// Generates and emits keystroke events for the supplied text
 ///
 /// Parameters:
 ///  * text - A string containing the text to be typed
+///  * application - An optional hs.application object to send the keystrokes to
 ///
 /// Returns:
 ///  * None
@@ -80,8 +82,24 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef
 /// Notes:
 ///  * If you want to send a single keystroke with keyboard modifiers (e.g. sending ⌘-v to paste), see `hs.eventtap.keyStroke()`
 static int eventtap_keyStrokes(lua_State* L) {
-    luaL_checktype(L, 1, LUA_TSTRING);
-    NSString *theString = [NSString stringWithUTF8String:luaL_checkstring(L, 1)];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TSTRING, LS_TANY|LS_TOPTIONAL, LS_TBREAK];
+
+    NSString *theString = [skin toNSObjectAtIndex:1];
+    HSapplication *app = nil;
+    ProcessSerialNumber psn;
+
+    if (lua_type(L, 2) == LUA_TUSERDATA && luaL_checkudata(L, 2, "hs.application")) {
+        app = [skin toNSObjectAtIndex:2];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        OSStatus err = GetProcessForPID(app.pid, &psn);
+#pragma clang diagnostic pop
+        if (err != noErr) {
+            [skin logError:[NSString stringWithFormat:@"Unable to get PSN for: %@", app]];
+            return 0;
+        }
+    }
 
     CGEventRef keyDownEvent = CGEventCreateKeyboardEvent(nil, 0, true);
     CGEventRef keyUpEvent = CGEventCreateKeyboardEvent(nil, 0, false);
@@ -94,12 +112,20 @@ static int eventtap_keyStrokes(lua_State* L) {
         // Send the keydown
         CGEventSetFlags(keyDownEvent, (CGEventFlags)0);
         CGEventKeyboardSetUnicodeString(keyDownEvent, 1, &buffer);
-        CGEventPost(kCGHIDEventTap, keyDownEvent);
+        if (app) {
+            CGEventPostToPSN(&psn, keyDownEvent);
+        } else {
+            CGEventPost(kCGHIDEventTap, keyDownEvent);
+        }
 
         // Send the keyup
         CGEventSetFlags(keyUpEvent, (CGEventFlags)0);
         CGEventKeyboardSetUnicodeString(keyUpEvent, 1, &buffer);
-        CGEventPost(kCGHIDEventTap, keyUpEvent);
+        if (app) {
+            CGEventPostToPSN(&psn, keyUpEvent);
+        } else {
+            CGEventPost(kCGHIDEventTap, keyUpEvent);
+        }
     }
     CFRelease(keyDownEvent);
     CFRelease(keyUpEvent);
