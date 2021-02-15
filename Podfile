@@ -25,7 +25,7 @@ post_install do |installer|
    puts "Enabling assertions in #{target.name}"
    target.build_configurations.each do |config|
      config.build_settings['ENABLE_NS_ASSERTIONS'] = 'YES'
-     if config.build_settings['MACOSX_DEPLOYMENT_TARGET'] == '10.8'
+     if ['10.7', '10.8'].include? config.build_settings['MACOSX_DEPLOYMENT_TARGET']
        config.build_settings['MACOSX_DEPLOYMENT_TARGET'] = '10.13'
      end
    end
