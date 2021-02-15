@@ -2,6 +2,8 @@ local testTable = {
   first = 1,
   second = "two"
 }
+local emptyTable = {}
+local notATable = "I am not a table"
 
 function testEncodeDecode()
   local encoded = hs.json.encode(testTable)
@@ -9,6 +11,14 @@ function testEncodeDecode()
 
   local encodedPP = hs.json.encode(testTable, true)
   assertTablesEqual(testTable, hs.json.decode(encodedPP))
+
+  assertIsEqual("[]", hs.json.encode(emptyTable))
+
+  return success()
+end
+
+function testEncodeDecodeFailures()
+  hs.json.encode(notATable)
 
   return success()
 end

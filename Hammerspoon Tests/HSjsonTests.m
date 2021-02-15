@@ -28,6 +28,10 @@
     RUN_LUA_TEST()
 }
 
+- (void)testEncodeDecodeFailures {
+    XCTAssertFalse([self luaTestFromSelector:_cmd], @"Test failed: %@", NSStringFromSelector(_cmd));
+}
+
 - (void)testReadWrite {
     RUN_LUA_TEST()
 }
