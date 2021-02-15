@@ -24,11 +24,7 @@
     [super tearDown];
 }
 
-- (void)testEncode {
-    RUN_LUA_TEST()
-}
-
-- (void)testDecode {
+- (void)testEncodeDecode {
     RUN_LUA_TEST()
 }
 

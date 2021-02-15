@@ -2,25 +2,13 @@ local testTable = {
   first = 1,
   second = "two"
 }
-local testTableEncoded = '{"second":"two","first":1}'
-local testTableEncodedPP = [[{
-  "second" : "two",
-  "first" : 1
-}]]
 
-function testEncode()
+function testEncodeDecode()
   local encoded = hs.json.encode(testTable)
+  assertTablesEqual(testTable, hs.json.decode(encoded))
+
   local encodedPP = hs.json.encode(testTable, true)
-
-  assertIsEqual(testTableEncoded, encoded)
-  assertIsEqual(testTableEncodedPP, encodedPP)
-
-  return success()
-end
-
-function testDecode()
-  local decoded = hs.json.decode(testTableEncoded)
-  assertTablesEqual(testTable, decoded)
+  assertTablesEqual(testTable, hs.json.decode(encodedPP))
 
   return success()
 end
