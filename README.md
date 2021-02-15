@@ -1,6 +1,6 @@
 # Hammerspoon
 [![IRC](https://img.shields.io/badge/IRC-%23hammerspoon-1e72ff.svg?style=flat)](https://www.irccloud.com/invite?channel=%23hammerspoon&amp;hostname=irc.freenode.net&amp;port=6697&amp;ssl=1)
-[![Build Status](https://travis-ci.org/Hammerspoon/hammerspoon.svg?branch=master)](https://travis-ci.org/Hammerspoon/hammerspoon)
+![CI](https://github.com/Hammerspoon/hammerspoon/workflows/CI/badge.svg)
 [![codecov.io](https://codecov.io/github/Hammerspoon/hammerspoon/coverage.svg?branch=master)](https://codecov.io/github/Hammerspoon/hammerspoon?branch=master)
 [![Downloads current release](https://img.shields.io/github/downloads/Hammerspoon/hammerspoon/latest/total.svg)](https://github.com/Hammerspoon/hammerspoon/releases)
 [![Downloads all releases](https://img.shields.io/github/downloads/Hammerspoon/hammerspoon/total.svg?maxAge=2592000)](https://github.com/Hammerspoon/hammerspoon/releases)
