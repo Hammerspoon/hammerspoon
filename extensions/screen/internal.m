@@ -1101,6 +1101,69 @@ cleanup:
     return 1;
 }
 
+/// hs.screen:mirrorOf(aScreen[, permanent]) -> bool
+/// Method
+/// Make this screen mirror another
+///
+/// Parameters:
+///  * aScreen - an hs.screen object you wish to mirror
+///  * permament - an optional bool, true if this should be configured permanently, false if it should apply just for this login session. Defaults to false.
+///
+/// Returns:
+///  * true if the operation succeeded, otherwise false
+static int screen_mirrorOf(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
+
+    NSScreen *mirrorTarget = get_screen_arg(L, 1);
+    NSScreen *mirrorSource = get_screen_arg(L, 2);
+
+    BOOL permanent = lua_toboolean(L, 3);
+
+    CGDirectDisplayID sourceID = [[[mirrorSource deviceDescription] objectForKey:@"NSScreenNumber"] unsignedIntValue];
+    CGDirectDisplayID targetID = [[[mirrorTarget deviceDescription] objectForKey:@"NSScreenNumber"] unsignedIntValue];
+
+    CGDisplayConfigRef config;
+    CGError result;
+
+    CGBeginDisplayConfiguration(&config);
+    result = CGConfigureDisplayMirrorOfDisplay(config, targetID, sourceID);
+    CGCompleteDisplayConfiguration(config, permanent ? kCGConfigurePermanently : kCGConfigureForSession);
+
+    lua_pushboolean(L, result == kCGErrorSuccess);
+    return 1;
+}
+
+/// hs.screen:mirrorStop([permanent]) -> bool
+/// Method
+/// Stops this screen mirroring another
+///
+/// Parameters:
+///  * permanent - an optional bool, true if this should be configured permanently, false if it should apply just for this login session. Defaults to false.
+///
+/// Returns:
+///  * true if the operation succeeded, otherwise false
+static int screen_mirrorStop(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
+
+    NSScreen *screen = get_screen_arg(L, 1);
+
+    BOOL permanent = lua_toboolean(L, 2);
+
+    CGDirectDisplayID screenID = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] unsignedIntValue];
+
+    CGDisplayConfigRef config;
+    CGError result;
+
+    CGBeginDisplayConfiguration(&config);
+    result = CGConfigureDisplayMirrorOfDisplay(config, screenID, kCGNullDirectDisplay);
+    CGCompleteDisplayConfiguration(config, permanent ? kCGConfigurePermanently : kCGConfigureForSession);
+
+    lua_pushboolean(L, result == kCGErrorSuccess);
+    return 1;
+}
+
 NSRect screenRectToNSRect(lua_State *L, int idx) {
     NSRect rect = NSZeroRect;
     CGFloat x = -1;
@@ -1331,6 +1394,8 @@ static const luaL_Reg screen_objectlib[] = {
     {"setPrimary", screen_setPrimary},
     {"desktopImageURL", screen_desktopImageURL},
     {"setOrigin", screen_setOrigin},
+    {"mirrorOf", screen_mirrorOf},
+    {"mirrorStop", screen_mirrorStop},
 
     {"__tostring", userdata_tostring},
     {"__gc", screen_gc},
