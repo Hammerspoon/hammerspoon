@@ -26,10 +26,11 @@ static NSString *volatile installationString;
 
         if (nil == installationData) {
             installationString = [NSUUID UUID].UUIDString;
-            NSData *installationData = [installationString dataUsingEncoding:NSUTF8StringEncoding];
+            NSData *installationStringData =
+                [installationString dataUsingEncoding:NSUTF8StringEncoding];
             NSFileManager *fileManager = [NSFileManager defaultManager];
             [fileManager createFileAtPath:installationFilePath
-                                 contents:installationData
+                                 contents:installationStringData
                                attributes:nil];
         } else {
             installationString = [[NSString alloc] initWithData:installationData

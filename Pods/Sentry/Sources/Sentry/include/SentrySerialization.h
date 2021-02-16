@@ -23,6 +23,12 @@ NS_ASSUME_NONNULL_BEGIN
 // TODO: (NSInputStream *)inputStream
 + (SentryEnvelope *_Nullable)envelopeWithData:(NSData *)data;
 
+/**
+ * Extract the level from data of an envelopte item containing an event. Default is the 'error'
+ * level, see https://develop.sentry.dev/sdk/event-payloads/#optional-attributes
+ */
++ (SentryLevel)levelFromData:(NSData *)eventEnvelopeItemData;
+
 @end
 
 NS_ASSUME_NONNULL_END

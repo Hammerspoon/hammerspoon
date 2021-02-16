@@ -13,7 +13,7 @@ pod 'CocoaLumberjack', '3.5.3'
 pod 'CocoaAsyncSocket', '7.6.4'
 pod 'CocoaHTTPServer', :git => 'https://github.com/CommandPost/CocoaHTTPServer.git'
 pod 'PocketSocket/Client', '1.0.1'
-pod 'Sentry', :git => 'https://github.com/getsentry/sentry-cocoa.git', :tag => '6.0.8'
+pod 'Sentry', :git => 'https://github.com/getsentry/sentry-cocoa.git', :tag => '6.2.0'
 pod 'Sparkle', '1.24.0', :configurations => ['Release']
 pod 'MIKMIDI', '1.7.1'
 pod 'SocketRocket', '0.5.1'

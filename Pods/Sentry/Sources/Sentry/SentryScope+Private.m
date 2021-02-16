@@ -3,7 +3,7 @@
 
 @implementation SentryScope (Private)
 
-@dynamic listeners;
+@dynamic listeners, attachments;
 
 - (NSMutableArray<SentryScopeListener> *)listeners
 {

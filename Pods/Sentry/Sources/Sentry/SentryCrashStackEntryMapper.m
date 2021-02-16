@@ -39,7 +39,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (BOOL)isInApp:(NSString *)imageName
 {
-    return [imageName containsString:@"/Bundle/Application/"] || [imageName containsString:@".app"];
+    // We don't want to mark images from Xcode as inApp. As these images are located in
+    // "/Applications/Xcode.app/Contents" checking for ".app" would be true. Therefore we need to
+    // exclude them. We search for "/Applications/Xcode" and ".app/Contents/" to be more exclusive,
+    // but not too strict for future Xcode versions. We also can't use Xcode.app, because this
+    // wouldn't work if you have multiple Xcode versions installed. We don't support Xcode being
+    // installed in a different location than "/Applications".
+
+    BOOL isNotXcodeSimulatorImage = !([imageName containsString:@"/Applications/Xcode"] &&
+        [imageName containsString:@".app/Contents/"]);
+
+    return [imageName containsString:@"/Bundle/Application/"]
+        || ([imageName containsString:@".app"] && isNotXcodeSimulatorImage);
 }
 
 @end

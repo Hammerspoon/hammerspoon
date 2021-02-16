@@ -17,9 +17,11 @@ NS_ASSUME_NONNULL_BEGIN
                    withSession:(SentrySession *)session
                      withScope:(SentryScope *)scope;
 
-- (SentryId *)captureEvent:(SentryEvent *)event
-               withSession:(SentrySession *)session
-                 withScope:(SentryScope *)scope;
+- (SentryId *)captureCrashEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
+
+- (SentryId *)captureCrashEvent:(SentryEvent *)event
+                    withSession:(SentrySession *)session
+                      withScope:(SentryScope *)scope;
 
 @end
 
