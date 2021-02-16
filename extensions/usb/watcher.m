@@ -71,10 +71,21 @@ void DeviceNotification(void *refCon, io_service_t service __unused, natural_t m
         [skin protectedCallAndError:@"hs.usb.watcher:removed callback" nargs:1 nresults:0];
 
         // Free the USB private data
-        IOObjectRelease(privateDataRef->notification);
-        free(privateDataRef->productName);
-        free(privateDataRef->vendorName);
-        free(privateDataRef);
+        if (privateDataRef) {
+            IOObjectRelease(privateDataRef->notification);
+        }
+        if (privateDataRef->productName) {
+            free(privateDataRef->productName);
+            privateDataRef->productName = NULL;
+        }
+        if (privateDataRef->vendorName) {
+            free(privateDataRef->vendorName);
+            privateDataRef->vendorName = NULL;
+        }
+        if (privateDataRef) {
+            free(privateDataRef);
+            privateDataRef = NULL;
+        }
         _lua_stackguard_exit(L);
     }
 }
