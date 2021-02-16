@@ -128,7 +128,7 @@
                                                                 <outlet property="text" destination="jON-1W-aJd" id="M13-L2-veK"/>
                                                             </connections>
                                                         </tableCellView>
-                                                        <tableCellView identifier="HSChooserCell" id="M9u-t4-ygl" userLabel="Plain Cell" customClass="HSChooserCell">
+                                                        <tableCellView identifier="HSChooserCell" misplaced="YES" id="M9u-t4-ygl" userLabel="Plain Cell" customClass="HSChooserCell">
                                                             <rect key="frame" x="11" y="43" width="496" height="40"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
@@ -166,9 +166,9 @@
                                                                 <constraint firstAttribute="trailing" secondItem="leM-dV-1AW" secondAttribute="trailing" id="7Np-88-JEt"/>
                                                                 <constraint firstItem="leM-dV-1AW" firstAttribute="leading" secondItem="XAU-Vc-N92" secondAttribute="trailing" constant="5" id="AYb-fb-HyB"/>
                                                                 <constraint firstAttribute="bottom" secondItem="XAU-Vc-N92" secondAttribute="bottom" constant="5" id="cjo-8L-g7A"/>
-                                                                <constraint firstItem="XAU-Vc-N92" firstAttribute="top" secondItem="M9u-t4-ygl" secondAttribute="top" constant="11" id="dJ8-EE-xdd"/>
+                                                                <constraint firstItem="XAU-Vc-N92" firstAttribute="top" secondItem="M9u-t4-ygl" secondAttribute="top" constant="5" id="dJ8-EE-xdd"/>
                                                                 <constraint firstItem="lLt-6S-nmH" firstAttribute="leading" secondItem="M9u-t4-ygl" secondAttribute="leading" id="lYA-sQ-Q9z"/>
-                                                                <constraint firstItem="lLt-6S-nmH" firstAttribute="top" secondItem="M9u-t4-ygl" secondAttribute="top" constant="8" id="m3e-TU-FxB"/>
+                                                                <constraint firstItem="lLt-6S-nmH" firstAttribute="top" secondItem="M9u-t4-ygl" secondAttribute="top" constant="2" id="m3e-TU-FxB"/>
                                                                 <constraint firstItem="XAU-Vc-N92" firstAttribute="leading" secondItem="lLt-6S-nmH" secondAttribute="trailing" constant="5" id="s7R-Dr-toS"/>
                                                             </constraints>
                                                             <connections>
