@@ -490,7 +490,7 @@
 		4FEF59461B29CE06002344A7 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1220;
+				LastUpgradeCheck = 1240;
 				ORGANIZATIONNAME = Hammerspoon;
 				TargetAttributes = {
 					4FEF594E1B29CE06002344A7 = {

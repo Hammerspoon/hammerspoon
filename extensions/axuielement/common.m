@@ -152,10 +152,10 @@ static int pushCFTypeHamster(lua_State *L, CFTypeRef theItem, NSMutableDictionar
             lua_pushfstring(L, "unrecognized value type (%p)", theItem) ;
         }
     } else if (theType == CGColorGetTypeID()) {
-        [skin pushNSObject:[NSColor colorWithCGColor:theItem]] ;
+        [skin pushNSObject:[NSColor colorWithCGColor:(CGColorRef)theItem]] ;
     } else if (theType == CGImageGetTypeID()) {
-        NSSize imageSize = NSMakeSize(CGImageGetWidth(theItem), CGImageGetHeight(theItem)) ;
-        [skin pushNSObject:[[NSImage alloc] initWithCGImage:theItem size:imageSize]] ;
+        NSSize imageSize = NSMakeSize(CGImageGetWidth((CGImageRef)theItem), CGImageGetHeight((CGImageRef)theItem)) ;
+        [skin pushNSObject:[[NSImage alloc] initWithCGImage:(CGImageRef)theItem size:imageSize]] ;
     } else if (theType == CFAttributedStringGetTypeID()) {
         [skin pushNSObject:(__bridge NSAttributedString *)theItem] ;
     } else if (theType == CFNullGetTypeID()) {
@@ -173,7 +173,7 @@ static int pushCFTypeHamster(lua_State *L, CFTypeRef theItem, NSMutableDictionar
     } else if (theType == AXUIElementGetTypeID()) {
         pushAXUIElement(L, theItem) ;
     } else if (theType == AXObserverGetTypeID()) {
-        pushAXObserver(L, theItem) ;
+        pushAXObserver(L, (AXObserverRef)theItem) ;
     } else if (AXTextMarkerGetTypeID != NULL      && theType == AXTextMarkerGetTypeID()) {
         pushAXTextMarker(L, theItem) ;
     } else if (AXTextMarkerRangeGetTypeID != NULL && theType == AXTextMarkerRangeGetTypeID()) {

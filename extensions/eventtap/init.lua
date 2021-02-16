@@ -265,7 +265,7 @@ module.middleClick = function(point, delay)
     module.otherClick(point, delay, 2)
 end
 
---- hs.eventtap.keyStroke(modifiers, character[, delay])
+--- hs.eventtap.keyStroke(modifiers, character[, delay, application])
 --- Function
 --- Generates and emits a single keystroke event pair for the supplied keyboard modifiers and character
 ---
@@ -273,6 +273,7 @@ end
 ---  * modifiers - A table containing the keyboard modifiers to apply ("fn", "ctrl", "alt", "cmd", "shift", or their Unicode equivalents)
 ---  * character - A string containing a character to be emitted
 ---  * delay - An optional delay (in microseconds) between key down and up event. Defaults to 200000 (i.e. 200ms)
+---  * application - An optional hs.application object to send the keystroke to
 ---
 --- Returns:
 ---  * None
@@ -281,14 +282,26 @@ end
 ---  * This function is ideal for sending single keystrokes with a modifier applied (e.g. sending ⌘-v to paste, with `hs.eventtap.keyStroke({"cmd"}, "v")`). If you want to emit multiple keystrokes for typing strings of text, see `hs.eventtap.keyStrokes()`
 ---
 ---  * Note that invoking this function with a table (empty or otherwise) for the `modifiers` argument will force the release of any modifier keys which have been explicitly created by [hs.eventtap.event.newKeyEvent](#newKeyEvent) and posted that are still in the "down" state. An explicit `nil` for this argument will not (i.e. the keystroke will inherit any currently "down" modifiers)
-function module.keyStroke(modifiers, character, delay)
-    if delay==nil then
-        delay=200000
+function module.keyStroke(modifiers, character, delay, application)
+    local targetApp = nil
+    local keyDelay = 200000
+
+    if type(delay) == "userdata" then
+        targetApp = delay
+    else
+        targetApp = application
     end
 
-    module.event.newKeyEvent(modifiers, character, true):post()
-    timer.usleep(delay)
-    module.event.newKeyEvent(modifiers, character, false):post()
+    if type(delay) == "number" then
+        keyDelay = delay
+    end
+
+    print("targetApp: "..tostring(targetApp))
+    print("keyDelay: "..tostring(keyDelay))
+
+    module.event.newKeyEvent(modifiers, character, true):post(targetApp)
+    timer.usleep(keyDelay)
+    module.event.newKeyEvent(modifiers, character, false):post(targetApp)
 end
 
 
