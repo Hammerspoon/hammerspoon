@@ -14,8 +14,10 @@
 #import "SentryId.h"
 #import "SentryInstallation.h"
 #import "SentryLog.h"
+#import "SentryMechanism.h"
 #import "SentryMessage.h"
 #import "SentryMeta.h"
+#import "SentryNSError.h"
 #import "SentryOptions.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
@@ -167,13 +169,27 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
 - (SentryEvent *)buildErrorEvent:(NSError *)error
 {
-    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
-    NSString *formatted = [NSString stringWithFormat:@"%@ %ld", error.domain, (long)error.code];
-    SentryMessage *message = [[SentryMessage alloc] initWithFormatted:formatted];
-    message.message = [error.domain stringByAppendingString:@" %s"];
-    message.params = @[ [NSString stringWithFormat:@"%ld", (long)error.code] ];
-    event.message = message;
-    [self setUserInfo:error.userInfo withEvent:event];
+    SentryEvent *event = [[SentryEvent alloc] initWithError:error];
+
+    NSString *exceptionValue = [NSString stringWithFormat:@"Code: %ld", (long)error.code];
+    SentryException *exception = [[SentryException alloc] initWithValue:exceptionValue
+                                                                   type:error.domain];
+
+    // Sentry uses the error domain and code on the mechanism for gouping
+    SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:@"NSError"];
+    mechanism.error = [[SentryNSError alloc] initWithDomain:error.domain code:error.code];
+    // The description of the error can be especially useful for error from swift that
+    // use a simple enum.
+    mechanism.desc = error.description;
+
+    NSDictionary<NSString *, id> *userInfo = [error.userInfo sentry_sanitize];
+    mechanism.data = userInfo;
+    exception.mechanism = mechanism;
+    event.exceptions = @[ exception ];
+
+    // Once the UI displays the mechanism data we can the userInfo from the event.context.
+    [self setUserInfo:userInfo withEvent:event];
+
     return event;
 }
 

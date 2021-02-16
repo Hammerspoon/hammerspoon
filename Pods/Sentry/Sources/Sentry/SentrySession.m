@@ -36,55 +36,56 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (instancetype)initWithJSONObject:(NSDictionary *)jsonObject
+- (nullable instancetype)initWithJSONObject:(NSDictionary *)jsonObject
 {
-    // We use the default constructor here to set the non nullable values to a default values,
-    // because this could cause crashes, for example, in serialize.
-    // With this approach we avoid crashes and accept the tradeoff that some session data might not
-    // be 100% accurate.
-    // Ideally we would return nil, if the passed JSON is not valid, which we can't do because it
-    // would be a breaking change.
-    if (self = [self initDefault]) {
+    if (self = [super init]) {
+
         id sid = [jsonObject valueForKey:@"sid"];
-        if ([sid isKindOfClass:[NSString class]]) {
-            NSUUID *sessionId = [[NSUUID UUID] initWithUUIDString:sid];
-            if (nil != sessionId) {
-                _sessionId = sessionId;
-            }
-        }
+        if (sid == nil || ![sid isKindOfClass:[NSString class]])
+            return nil;
+        NSUUID *sessionId = [[NSUUID UUID] initWithUUIDString:sid];
+        if (nil == sessionId)
+            return nil;
+        _sessionId = sessionId;
 
         id started = [jsonObject valueForKey:@"started"];
-        if ([started isKindOfClass:[NSString class]]) {
-            _started = [NSDate sentry_fromIso8601String:started];
+        if (started == nil || ![started isKindOfClass:[NSString class]])
+            return nil;
+        NSDate *startedDate = [NSDate sentry_fromIso8601String:started];
+        if (nil == startedDate) {
+            return nil;
         }
+        _started = startedDate;
 
         id status = [jsonObject valueForKey:@"status"];
-        if ([status isKindOfClass:[NSString class]]) {
-            if ([@"ok" isEqualToString:status]) {
-                _status = kSentrySessionStatusOk;
-            } else if ([@"exited" isEqualToString:status]) {
-                _status = kSentrySessionStatusExited;
-            } else if ([@"crashed" isEqualToString:status]) {
-                _status = kSentrySessionStatusCrashed;
-            } else if ([@"abnormal" isEqualToString:status]) {
-                _status = kSentrySessionStatusAbnormal;
-            }
+        if (status == nil || ![status isKindOfClass:[NSString class]])
+            return nil;
+        if ([@"ok" isEqualToString:status]) {
+            _status = kSentrySessionStatusOk;
+        } else if ([@"exited" isEqualToString:status]) {
+            _status = kSentrySessionStatusExited;
+        } else if ([@"crashed" isEqualToString:status]) {
+            _status = kSentrySessionStatusCrashed;
+        } else if ([@"abnormal" isEqualToString:status]) {
+            _status = kSentrySessionStatusAbnormal;
+        } else {
+            return nil;
         }
 
         id seq = [jsonObject valueForKey:@"seq"];
-        if ([seq isKindOfClass:[NSNumber class]]) {
-            _sequence = [seq unsignedIntegerValue];
-        }
+        if (seq == nil || ![seq isKindOfClass:[NSNumber class]])
+            return nil;
+        _sequence = [seq unsignedIntegerValue];
 
         id errors = [jsonObject valueForKey:@"errors"];
-        if ([errors isKindOfClass:[NSNumber class]]) {
-            _errors = [errors unsignedIntegerValue];
-        }
+        if (errors == nil || ![errors isKindOfClass:[NSNumber class]])
+            return nil;
+        _errors = [errors unsignedIntegerValue];
 
         id did = [jsonObject valueForKey:@"did"];
-        if ([did isKindOfClass:[NSString class]]) {
-            _distinctId = did;
-        }
+        if (did == nil || ![did isKindOfClass:[NSString class]])
+            return nil;
+        _distinctId = did;
 
         id init = [jsonObject valueForKey:@"init"];
         if ([init isKindOfClass:[NSNumber class]]) {
@@ -114,6 +115,7 @@ NS_ASSUME_NONNULL_BEGIN
             _duration = duration;
         }
     }
+
     return self;
 }
 

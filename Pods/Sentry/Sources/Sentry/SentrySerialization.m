@@ -262,6 +262,12 @@ NS_ASSUME_NONNULL_BEGIN
     }
     SentrySession *session = [[SentrySession alloc] initWithJSONObject:sessionDictionary];
 
+    if (nil == session) {
+        [SentryLog logWithMessage:@"Failed to initialize session from dictionary. Dropping it."
+                         andLevel:kSentryLogLevelError];
+        return nil;
+    }
+
     if (nil == session.releaseName || [session.releaseName isEqualToString:@""]) {
         [SentryLog
             logWithMessage:@"Deserialized session doesn't contain a release name. Dropping it."
