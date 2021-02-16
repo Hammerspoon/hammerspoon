@@ -421,7 +421,7 @@ static NSMutableSet *_sharedWarnings ;
     lua_setfield(self.L, -2, "__type") ;
 
     int tmpRefTable = luaL_ref(self.L, LUA_REGISTRYINDEX);
-    NSAssert(tmpRefTable != LUA_REFNIL, @"Unexpected LUA_REFNIL registering library: %@", fname.UTF8String);
+    NSAssert(tmpRefTable != LUA_REFNIL, @"Unexpected LUA_REFNIL registering library: %@", fname);
 
     lua_pushinteger(self.L, tmpRefTable) ;
     lua_setfield(self.L, -2, "__refTable") ;
