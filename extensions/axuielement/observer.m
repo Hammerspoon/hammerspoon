@@ -6,7 +6,7 @@
 
 //#define DEBUGGING_METHODS switched to `#if defined(HS_EXTERNAL_MODULE)` which tracks a definition included in my Makefiles (but not the Hammerspoon one)
 
-static int refTable = LUA_NOREF ;
+static NSUUID *refTable ;
 
 static CFMutableDictionaryRef observerDetails = NULL ;
 

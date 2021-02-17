@@ -4,7 +4,7 @@
 @import SystemConfiguration.SCDynamicStoreCopyDHCPInfo ;
 
 #define USERDATA_TAG    "hs.network.configuration"
-static int              refTable          = LUA_NOREF;
+static NSUUID           *refTable;
 static dispatch_queue_t dynamicStoreQueue = nil ;
 
 #define get_structFromUserdata(objType, L, idx) ((objType *)luaL_checkudata(L, idx, USERDATA_TAG))

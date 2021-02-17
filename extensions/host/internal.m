@@ -730,7 +730,7 @@ static const luaL_Reg hostlib[] = {
 int luaopen_hs_host_internal(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
 
-    [skin registerLibrary:hostlib metaFunctions:nil];
+    [skin registerLibrary:"hs.host" functions:hostlib metaFunctions:nil];
 
     return 1;
 }

@@ -5,7 +5,7 @@
 // Common Code
 
 static const char *USERDATA_TAG = "hs.timer";
-static int refTable;
+static NSUUID *refTable;
 
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 
@@ -481,7 +481,7 @@ static const luaL_Reg meta_gcLib[] = {
 
 int luaopen_hs_timer_internal(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    refTable = [skin registerLibrary:timerLib metaFunctions:meta_gcLib];
+    refTable = [skin registerLibrary:USERDATA_TAG functions:timerLib metaFunctions:meta_gcLib];
     [skin registerObject:USERDATA_TAG objectFunctions:timer_metalib];
 
     return 1;

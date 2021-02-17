@@ -232,6 +232,7 @@ static NSMutableSet *_sharedWarnings ;
 - (id)initWithDelegate:(id)delegate {
     self = [super init];
     if (self) {
+        self.refTables = [[NSMutableDictionary alloc] init];
         _L = NULL;
         _registeredNSHelperFunctions               = [[NSMutableDictionary alloc] init] ;
         _registeredNSHelperLocations               = [[NSMutableDictionary alloc] init] ;
@@ -310,6 +311,7 @@ static NSMutableSet *_sharedWarnings ;
         self.L = NULL;
     }
     LuaSkin.mainLuaState = NULL;
+    self.refTables = [[NSMutableDictionary alloc] init];
 }
 
 - (void)resetLuaState {
@@ -376,7 +378,9 @@ static NSMutableSet *_sharedWarnings ;
 
 #pragma mark - Methods for registering libraries with Lua
 
-- (int)registerLibrary:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions {
+- (NSUUID *)registerLibrary:(const char * _Nonnull)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions {
+
+    NSAssert(libraryName != NULL, @"libraryName can not be NULL", nil);
     // Ensure we're not given a null function table
     NSAssert(functions != NULL, @"functions can not be NULL", nil);
 
@@ -403,6 +407,7 @@ static NSMutableSet *_sharedWarnings ;
 
     NSString *fname = getCallerFileName() ;
 
+    // FIXME: Can this all be replaced just by using the libraryName argument?
     if (fname) {
         NSRange range = [fname rangeOfString:@"/hs/"] ;
         if (range.location == NSNotFound) range = [fname rangeOfString:@"/LuaSkin"] ;
@@ -423,12 +428,17 @@ static NSMutableSet *_sharedWarnings ;
     int tmpRefTable = luaL_ref(self.L, LUA_REGISTRYINDEX);
     NSAssert(tmpRefTable != LUA_REFNIL, @"Unexpected LUA_REFNIL registering library: %@", fname);
 
+    // FIXME: This doesn't seem to ever be used, and it conflicts with our new NSUUID driven refTable lookups. remove it?
     lua_pushinteger(self.L, tmpRefTable) ;
     lua_setfield(self.L, -2, "__refTable") ;
-    return tmpRefTable;
+
+    NSUUID *uuid = [NSUUID UUID];
+    self.refTables[uuid] = @[@(tmpRefTable), [NSString stringWithFormat:@"%s", libraryName]];
+
+    return uuid;
 }
 
-- (int)registerLibraryWithObject:(const char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions objectFunctions:(const luaL_Reg *)objectFunctions {
+- (NSUUID *)registerLibraryWithObject:(const char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions objectFunctions:(const luaL_Reg *)objectFunctions {
 
     NSAssert(libraryName != NULL, @"libraryName can not be NULL", nil);
     NSAssert(functions != NULL, @"functions can not be NULL (%s)", libraryName);
@@ -436,9 +446,7 @@ static NSMutableSet *_sharedWarnings ;
 
     [self registerObject:libraryName objectFunctions:objectFunctions];
 
-    int moduleRefTable = [self registerLibrary:functions metaFunctions:metaFunctions];
-
-    return moduleRefTable;
+    return [self registerLibrary:libraryName functions:functions metaFunctions:metaFunctions];
 }
 
 - (void)registerObject:(const char *)objectName objectFunctions:(const luaL_Reg *)objectFunctions {
@@ -470,7 +478,26 @@ static NSMutableSet *_sharedWarnings ;
     lua_setfield(self.L, LUA_REGISTRYINDEX, objectName);
 }
 
-- (int)luaRef:(int)refTable {
+- (int)refTableFromUUID:(NSUUID *)uuid {
+    if ([uuid.UUIDString isEqualToString:LS_REGISTRYINDEX_REF]) {
+        return LUA_REGISTRYINDEX;
+    }
+
+    NSArray *data = [self.refTables objectForKey:uuid];
+    if (!data) {
+        return LUA_REFNIL;
+    }
+    NSNumber *ref = data[0];
+    return ref.intValue;
+}
+
+- (int)luaRef:(NSUUID *)refTableUUID {
+    int refTable = [self refTableFromUUID:refTableUUID];
+
+    return [self luaRefFromInt:refTable];
+}
+
+- (int)luaRefFromInt:(int)refTable {
     NSAssert((refTable != LUA_NOREF && refTable != LUA_REFNIL), @"ERROR: LuaSkin::luaRef was passed a NOREF/REFNIL refTable", nil);
 
     if (lua_isnil(self.L, -1)) {
@@ -503,14 +530,25 @@ static NSMutableSet *_sharedWarnings ;
     return ref;
 }
 
-- (int)luaRef:(int)refTable atIndex:(int)idx {
+- (int)luaRef:(NSUUID *)refTableUUID atIndex:(int)idx {
     // Ensure our Lua stack is large enough for the number of items being pushed
     [self growStack:1 withMessage:"luaRef:atIndex"];
     lua_pushvalue(self.L, idx);
-    return [self luaRef:refTable];
+    return [self luaRef:refTableUUID];
 }
 
-- (int)luaUnref:(int)refTable ref:(int)ref {
+- (int)luaRefFromInt:(int)refTable atIndex:(int)idx {
+    [self growStack:1 withMessage:"luaRefFromInt:atIndex"];
+    lua_pushvalue(self.L, idx);
+    return [self luaRefFromInt:refTable];
+}
+
+- (int)luaUnref:(NSUUID *)refTableUUID ref:(int)ref {
+    int refTable = [self refTableFromUUID:refTableUUID];
+    return [self luaUnrefFromInt:refTable ref:ref];
+}
+
+- (int)luaUnrefFromInt:(int)refTable ref:(int)ref {
     NSAssert((refTable != LUA_NOREF && refTable != LUA_REFNIL), @"ERROR: LuaSkin::luaUnref was passed a NOREF/REFNIL refTable", nil);
 
     if (refTable == LUA_REGISTRYINDEX && ref != LUA_NOREF && ref != LUA_REFNIL) {
@@ -534,7 +572,8 @@ static NSMutableSet *_sharedWarnings ;
     return LUA_NOREF;
 }
 
-- (int)pushLuaRef:(int)refTable ref:(int)ref {
+- (int)pushLuaRef:(NSUUID *)refTableUUID ref:(int)ref {
+    int refTable = [self refTableFromUUID:refTableUUID];
     NSAssert((refTable != LUA_NOREF && refTable != LUA_REFNIL), @"ERROR: LuaSkin::pushLuaRef was passed a NOREF/REFNIL refTable", nil);
     NSAssert((ref != LUA_NOREF && ref != LUA_REFNIL), @"ERROR: LuaSkin::pushLuaRef was passed a NOREF/REFNIL ref", nil);
 
@@ -735,7 +774,7 @@ nextarg:
             self.retainedObjectsRefTableMappings[@(refTable)] = [[NSMutableDictionary alloc] init] ;
     NSMutableDictionary *holding = self.retainedObjectsRefTableMappings[@(refTable)] ;
     [self pushNSObject:object] ;
-    int newRef = [self luaRef:refTable] ;
+    int newRef = [self luaRefFromInt:refTable] ;
     holding[@(newRef)] = object ;
     return YES ;
 }
@@ -747,15 +786,15 @@ nextarg:
     NSArray             *refs    = [holding allKeysForObject:object] ;
     if (refs.count > 0) {
         NSNumber *refN = refs.firstObject ;
-        [self luaUnref:refTable ref:refN.intValue] ;
+        [self luaUnrefFromInt:refTable ref:refN.intValue] ;
         holding[refN] = nil ;
     }
 }
 
-- (int)luaRef:(int)refTable forNSObject:(id)object {
+- (int)luaRef:(NSUUID *)refTableUUID forNSObject:(id)object {
     if (![self canPushNSObject:object]) return LUA_NOREF ;
     [self pushNSObject:object] ;
-    return [self luaRef:refTable] ;
+    return [self luaRef:refTableUUID] ;
 }
 
 #pragma mark - Conversion from NSObjects into Lua objects

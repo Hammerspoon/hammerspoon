@@ -143,7 +143,7 @@ static int pushTestUserData(lua_State *L, id object) {
 
 @interface LuaSkinTests : XCTestCase
 @property LuaSkin *skin;
-@property int refTable;
+@property NSUUID *refTable;
 @property int evalfn;
 @end
 
@@ -178,7 +178,7 @@ static int pushTestUserData(lua_State *L, id object) {
 
     // Prepare a refTable
     lua_newtable(self.skin.L);
-    self.refTable = luaL_ref(self.skin.L, LUA_REGISTRYINDEX);
+    self.refTable = [[NSUUID alloc] initWithUUIDString:LS_REGISTRYINDEX_REF];
 
     // Load init.lua from our bundle
     NSLog(@"Loading LuaSkinTests lsunit.lua from %@", lsUnitPath);
@@ -374,7 +374,7 @@ static int pushTestUserData(lua_State *L, id object) {
 }
 
 - (void)testLibrary {
-    [self.skin registerLibrary:functions metaFunctions:metaFunctions];
+    [self.skin registerLibrary:"testLibrary" functions:functions metaFunctions:metaFunctions];
 
     // Normally we'd be returning to a luaopen_ function after registerLibrary, and thus the library would be inserted into the right namespace. Since we're not doing that here, we'll just go ahead and register it as a global, using the library name
     lua_setglobal(self.skin.L, libraryTestName);
@@ -426,10 +426,9 @@ static int pushTestUserData(lua_State *L, id object) {
 
     // Set up a table for the refs
     lua_newtable(self.skin.L);
-    int tableRef = luaL_ref(self.skin.L, LUA_REGISTRYINDEX);
+    NSUUID *tableRef = [[NSUUID alloc] initWithUUIDString:LS_REGISTRYINDEX_REF];
 
-    XCTAssertNotEqual(LUA_REFNIL, tableRef, @"tableRef creation returned LUA_REFNIL");
-    XCTAssertNotEqual(LUA_NOREF, tableRef, @"tableRef creation returned LUA_NOREF");
+    XCTAssertTrue(tableRef != nil, @"tableRef creation returned nil");
 
     // Test that reffing a nil fails with LUA_REFNIL
     lua_pushnil(self.skin.L);
@@ -1101,7 +1100,7 @@ id luaObjectHelperTestFunction(lua_State *L, int idx) {
 }
 
 - (void)testObjCExceptionHandler {
-    [self.skin registerLibrary:functions metaFunctions:metaFunctions];
+    [self.skin registerLibrary:"LuaSkinTests" functions:functions metaFunctions:metaFunctions];
 
     // Normally we'd be returning to a luaopen_ function after registerLibrary, and thus the library would be inserted into the right namespace. Since we're not doing that here, we'll just go ahead and register it as a global, using the library name
     lua_setglobal(self.skin.L, libraryTestName);

@@ -17,7 +17,7 @@ typedef struct _task_userdata_t {
     int selfRef;
 } task_userdata_t;
 
-static int refTable;
+static NSUUID *refTable;
 NSMutableArray *tasks;
 id fileReadObserver; // This maybe ought to be __block __weak, but that's not allowed on global variables
 

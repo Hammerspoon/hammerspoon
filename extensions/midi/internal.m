@@ -8,7 +8,7 @@
 //
 static const char * const USERDATA_TAG = "hs.midi";
 static void *midiKVOContext = &midiKVOContext ;                 // See: http://nshipster.com/key-value-observing/
-static int refTable = LUA_NOREF;
+static NSUUID *refTable;
 
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 

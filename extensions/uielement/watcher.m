@@ -11,7 +11,7 @@
 #import "HSuicore.h"
 
 static const char* USERDATA_TAG = "hs.uielement.watcher";
-static int refTable = LUA_NOREF;
+static NSUUID *refTable;
 
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 
@@ -20,7 +20,7 @@ static int watcher_start(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBREAK];
     HSuielementWatcher *watcher = [skin toNSObjectAtIndex:1];
-    watcher.watcherRef = [skin luaRef:LUA_REGISTRYINDEX atIndex:1];
+    watcher.watcherRef = [skin luaRefFromInt:LUA_REGISTRYINDEX atIndex:1];
     [watcher start:[skin toNSObjectAtIndex:2] withState:L];
     lua_pushvalue(L, 1);
     return 1;
@@ -32,7 +32,7 @@ static int watcher_stop(lua_State* L) {
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSuielementWatcher *watcher = [skin toNSObjectAtIndex:1];
     [watcher stop];
-    watcher.watcherRef = [skin luaUnref:LUA_REGISTRYINDEX ref:watcher.watcherRef];
+    watcher.watcherRef = [skin luaUnrefFromInt:LUA_REGISTRYINDEX ref:watcher.watcherRef];
     lua_pushvalue(L, 1);
     return 1;
 }

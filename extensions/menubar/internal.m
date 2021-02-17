@@ -5,7 +5,7 @@
 // ----------------------- Definitions ---------------------
 
 #define USERDATA_TAG "hs.menubar"
-static int refTable;
+static NSUUID *refTable;
 #define get_item_arg(L, idx) ((menubaritem_t *)luaL_checkudata(L, idx, USERDATA_TAG))
 
 // Adds undocumented "appearance" argument to "popUpMenuPositioningItem":

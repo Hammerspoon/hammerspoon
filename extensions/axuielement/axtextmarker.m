@@ -18,7 +18,7 @@
 
 #import "common.h"
 
-static int refTable = LUA_NOREF ;
+static NSUUID *refTable ;
 
 #pragma mark - Support Functions
 
