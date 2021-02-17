@@ -246,7 +246,8 @@ static int websocket_gc(lua_State* L){
     [ws.webSocket close];
     ws.webSocket.delegate = nil;
     ws.webSocket = nil;
-    ws.fn = [[LuaSkin sharedWithState:L] luaUnref:refTable ref:ws.fn];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    ws.fn = [skin luaUnref:refTable ref:ws.fn];
     ws = nil;
 
     return 0;

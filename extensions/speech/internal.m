@@ -12,7 +12,7 @@
 // full version can be found at https://github.com/asmagill/hammerspoon_asm/tree/master/speech
 
 #define USERDATA_TAG "hs.speech"
-static LSRefTable refTable = LUA_NOREF;
+static LSRefTable refTable;
 
 #define get_objectFromUserdata(objType, L, idx) (objType*)*((void**)luaL_checkudata(L, idx, USERDATA_TAG))
 // #define get_structFromUserdata(objType, L, idx) ((objType *)luaL_checkudata(L, idx, USERDATA_TAG))

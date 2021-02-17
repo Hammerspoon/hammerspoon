@@ -4,7 +4,7 @@
 
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 
-static LSRefTable refTable = LUA_NOREF;
+static LSRefTable refTable;
 
 #pragma mark - Lua API defines
 static int userdata_gc(lua_State *L);

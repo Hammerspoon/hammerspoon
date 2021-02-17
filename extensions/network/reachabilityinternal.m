@@ -7,7 +7,7 @@
 @import Darwin.POSIX.netdb ;
 
 #define USERDATA_TAG    "hs.network.reachability"
-static LSRefTable       refTable          = LUA_NOREF;
+static LSRefTable       refTable;
 static dispatch_queue_t reachabilityQueue = nil ;
 
 #define get_structFromUserdata(objType, L, idx) ((objType *)luaL_checkudata(L, idx, USERDATA_TAG))

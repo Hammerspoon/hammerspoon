@@ -12,7 +12,7 @@
 #define mainThreadDispatch(...) dispatch_async(dispatch_get_main_queue(), ^{ @autoreleasepool {__VA_ARGS__;} })
 
 // Helper for Lua callbacks
-static LSRefTable refTable = LUA_NOREF;
+static LSRefTable refTable;
 
 // Userdata struct
 typedef struct _asyncSocketUserData {

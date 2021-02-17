@@ -15,7 +15,7 @@
 #include "plaintext.h"
 #include "houdini.h"
 
-static LSRefTable refTable = LUA_NOREF;
+static LSRefTable refTable;
 
 typedef enum {
     GFM,

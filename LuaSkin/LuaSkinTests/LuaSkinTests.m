@@ -178,7 +178,7 @@ static int pushTestUserData(lua_State *L, id object) {
 
     // Prepare a refTable
     lua_newtable(self.skin.L);
-    self.refTable = luaL_ref(self.skin.L, LUA_REGISTRYINDEX);
+    self.refTable = [LSRefTableUUID luaRegistryIndex];
 
     // Load init.lua from our bundle
     NSLog(@"Loading LuaSkinTests lsunit.lua from %@", lsUnitPath);
@@ -426,10 +426,9 @@ static int pushTestUserData(lua_State *L, id object) {
 
     // Set up a table for the refs
     lua_newtable(self.skin.L);
-    int tableRef = luaL_ref(self.skin.L, LUA_REGISTRYINDEX);
+    LSRefTableUUID *tableRef = [LSRefTableUUID luaRegistryIndex];
 
-    XCTAssertNotEqual(LUA_REFNIL, tableRef, @"tableRef creation returned LUA_REFNIL");
-    XCTAssertNotEqual(LUA_NOREF, tableRef, @"tableRef creation returned LUA_NOREF");
+    XCTAssertTrue(tableRef != nil, @"tableRef creation returned nil");
 
     // Test that reffing a nil fails with LUA_REFNIL
     lua_pushnil(self.skin.L);

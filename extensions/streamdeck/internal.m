@@ -8,7 +8,7 @@
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 
 static HSStreamDeckManager *deckManager;
-LSRefTable streamDeckRefTable = LUA_NOREF;
+LSRefTable streamDeckRefTable;
 
 #pragma mark - Lua API
 static int streamdeck_gc(lua_State *L __unused) {

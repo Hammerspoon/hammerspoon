@@ -5,7 +5,7 @@
 @import Darwin.POSIX.netdb ;
 
 static const char * const USERDATA_TAG = "hs.bonjour.service" ;
-static LSRefTable refTable = LUA_NOREF;
+static LSRefTable refTable;
 
 static NSMapTable *serviceUDRecords ;
 

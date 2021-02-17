@@ -3,7 +3,7 @@
 
 static const char * const USERDATA_TAG = "hs.doc" ; // we're using it as a module tag for console messages
 
-static LSRefTable refTable = LUA_NOREF;
+static LSRefTable refTable;
 static int refTriggerFn = LUA_NOREF ;
 
 static NSMutableDictionary *registeredFiles ;

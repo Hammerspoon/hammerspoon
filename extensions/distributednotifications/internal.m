@@ -4,7 +4,7 @@
 
 #define USERDATA_TAG "hs.distributednotifications"
 
-static LSRefTable refTable = LUA_NOREF;
+static LSRefTable refTable;
 
 typedef struct _distnot_t {
     void *watcher;

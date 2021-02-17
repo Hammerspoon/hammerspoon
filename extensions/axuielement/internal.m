@@ -1,6 +1,6 @@
 #import "common.h"
 
-static LSRefTable refTable = LUA_NOREF ;
+static LSRefTable refTable ;
 
 #pragma mark - Support Functions
 

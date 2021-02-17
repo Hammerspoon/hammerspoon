@@ -323,11 +323,11 @@
 -(id)newWatcherAtIndex:(int)callbackRefIndex withUserdataAtIndex:(int)userDataRefIndex withLuaState:(lua_State *)L {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
 
-    int callbackRef = [skin luaRef:LUA_REGISTRYINDEX atIndex:callbackRefIndex];
+    int callbackRef = [skin luaRefFromInt:LUA_REGISTRYINDEX atIndex:callbackRefIndex];
 
     int userDataRef = LUA_REFNIL;
     if (lua_type(L, userDataRefIndex) != LUA_TNONE) {
-        userDataRef = [skin luaRef:LUA_REGISTRYINDEX atIndex:userDataRefIndex];
+        userDataRef = [skin luaRefFromInt:LUA_REGISTRYINDEX atIndex:userDataRefIndex];
     }
 
     HSuielementWatcher *watcher = [[HSuielementWatcher alloc] initWithElement:self
@@ -424,7 +424,7 @@ static void watcher_observer_callback(AXObserverRef observer __unused, AXUIEleme
 -(HSuielementWatcher *)initWithElement:(HSuielement *)element callbackRef:(int)callbackRef userdataRef:(int)userdataRef{
     self = [super init];
     if (self) {
-        _refTable = LUA_REGISTRYINDEX;
+        _refTable = [LSRefTableUUID luaRegistryIndex];
         _elementRef = CFRetain(element.elementRef);
         _selfRefCount = 0;
         _handlerRef = callbackRef;

@@ -5,7 +5,7 @@
 #import "ORSSerialPort/ORSSerialPortManager.h"
 
 #define USERDATA_TAG  "hs.serial"
-static LSRefTable refTable = LUA_NOREF;
+static LSRefTable refTable;
 
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 

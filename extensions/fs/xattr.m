@@ -22,7 +22,7 @@
 ///
 
 // static const char * const USERDATA_TAG = "hs.fs.xattr" ;
-static LSRefTable refTable = LUA_NOREF;
+static LSRefTable refTable;
 
 #pragma mark - Support Functions and Classes
 
