@@ -4,7 +4,7 @@
 @import LuaSkin;
 @import WebKit;
 
-static int refTable;
+static LSRefTable refTable;
 static NSMutableArray* delegates;
 
 // Convert a response body to data we can send to Lua

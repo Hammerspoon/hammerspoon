@@ -62,7 +62,7 @@
 // Common Code
 
 #define USERDATA_TAG "hs.caffeinate.watcher"
-static int refTable;
+static LSRefTable refTable;
 
 // Not so common code
 
