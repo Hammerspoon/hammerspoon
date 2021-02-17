@@ -2,7 +2,7 @@
 #import "HSuicore.h"
 
 #define USERDATA_TAG        "hs.eventtap"
-static NSUUID *refTable;
+static LSRefTable refTable;
 
 typedef struct _eventtap_t {
     int fn;

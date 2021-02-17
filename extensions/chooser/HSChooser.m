@@ -15,7 +15,7 @@
 
 #pragma mark - Object initialisation
 
-- (id)initWithRefTable:(NSUUID *)refTable completionCallbackRef:(int)completionCallbackRef {
+- (id)initWithRefTable:(LSRefTable)refTable completionCallbackRef:(int)completionCallbackRef {
     self = [super initWithWindowNibName:@"HSChooserWindow" owner:self];
     if (self) {
         self.refTable = refTable;

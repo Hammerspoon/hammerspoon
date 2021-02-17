@@ -4,7 +4,7 @@
 #import "HSuicore.h"
 
 static const char *USERDATA_TAG = "hs.window";
-static NSUUID *refTable;
+static LSRefTable refTable;
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 
 #pragma mark - Helper functions

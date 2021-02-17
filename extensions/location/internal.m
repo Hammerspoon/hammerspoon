@@ -8,8 +8,8 @@
 
 static const char *USERDATA_TAG   = "hs.location" ;
 static const char *GEOCODE_UD_TAG = "hs.location.geocode" ;
-static NSUUID     *refTable;
-static int        callbackRef     = LUA_NOREF ;
+static LSRefTable  refTable;
+static int         callbackRef     = LUA_NOREF ;
 static HSLocation *location ;
 
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))

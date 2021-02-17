@@ -14,7 +14,7 @@ typedef struct _webSocketUserData {
 #define getWsUserData(L, idx) (__bridge HSWebSocketDelegate *)((webSocketUserData *)lua_touserdata(L, idx))->ws;
 static const char *WS_USERDATA_TAG = "hs.websocket";
 
-static NSUUID *refTable;
+static LSRefTable refTable;
 
 @interface HSWebSocketDelegate: NSObject<SRWebSocketDelegate>
 @property int fn;

@@ -3,7 +3,7 @@
 #define VIEW_DEBUG
 
 static const char *USERDATA_TAG = "hs.canvas" ;
-static NSUUID *refTable;
+static LSRefTable refTable;
 static BOOL defaultCustomSubRole = YES ;
 
 // Can't have "static" or "constant" dynamic NSObjects like NSArray, so define in lua_open

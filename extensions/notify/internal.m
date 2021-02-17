@@ -4,7 +4,7 @@
 // #define DEBUGGING
 
 #define USERDATA_TAG    "hs.notify"
-static NSUUID *refTable ;
+static LSRefTable refTable ;
 
 // NOTE: Hammerspoon's internal notification delegate (from MJUserNotificationManager.h and MJUserNotificationUser.m)
 

@@ -45,8 +45,19 @@ extern int luaopen_luaskin_internal(lua_State* L) ; // entry vector to luaskin.m
 // Define a break variable for the reference checker
 #define LS_RBREAK INT_MIN
 
-// Define a hacky fixed UUID refTable value to indicate LUA_REGISTRYINDEX
-#define LS_REGISTRYINDEX_REF @"11111111-1111-1111-1111-111111111111"
+@interface LSRefTableUUID : NSObject
+@property (nonatomic) NSUUID *uuid;
+@property (nonatomic, readonly, getter=getUUIDString) NSString *UUIDString;
+@property (nonatomic) BOOL isLuaRegistryIndex;
+@property (nonatomic) NSString *library;
+
++(LSRefTableUUID *)luaRegistryIndex;
+
+-(LSRefTableUUID *)initWithLibrary:(NSString *)libraryName;
+-(NSString *)getUUIDString;
+@end
+
+typedef LSRefTableUUID* LSRefTable;
 
 // Define some bits for masking operations in the argument checker
 /*!
@@ -337,7 +348,7 @@ NSString *specMaskToString(int spec);
  @param metaFunctions - A static array of mappings between special meta Lua function names (such as <tt>__gc</tt>) and C function pointers
  @return A UUID that can be used to retrieve the Lua reference to a per-module table for storage
  */
-- (NSUUID *)registerLibrary:(const char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions;
+- (LSRefTable)registerLibrary:(const char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions;
 
 /*!
  @abstract Defines a Lua library that creates objects, which have methods
@@ -372,7 +383,7 @@ NSString *specMaskToString(int spec);
  @param objectFunctions - A static array of mappings between Lua object method names and C function pointers. This provides the public API of objects created by this library. Note that this object is also used as the metatable, so special functions (e.g. "__gc") should be included here
  @return A UUID that can be used to retrieve the Lua reference to a per-module table for storage
  */
-- (NSUUID *)registerLibraryWithObject:(const char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions objectFunctions:(const luaL_Reg *)objectFunctions;
+- (LSRefTable)registerLibraryWithObject:(const char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions objectFunctions:(const luaL_Reg *)objectFunctions;
 
 /*!
  @abstract Defines a Lua object with methods
@@ -404,7 +415,7 @@ NSString *specMaskToString(int spec);
  @param uuid - A UUID that LuaSkin returned from registerLibrary or registerLibraryWithObject
  @return A Lua reference to the table created for this library to store its own references
  */
-- (int)refTableFromUUID:(NSUUID *)uuid;
+- (int)refTableFromUUID:(LSRefTableUUID *)uuid;
 
 /*!
  @abstract Stores a reference to the object at the top of the Lua stack, in the supplied table, and pops the object off the stack
@@ -413,7 +424,7 @@ NSString *specMaskToString(int spec);
  @param refTableUUID - An UUID reference to a table, (e.g. the result of a previous luaRef on a table object or the result of the module's registration through registerLibrary:metaFunctions: or registerLibraryWithObject:functions:metaFunctions:objectFunctions:)
  @return An integer reference to the object that was at the top of the stack
  */
-- (int)luaRef:(NSUUID *)refTableUUID;
+- (int)luaRef:(LSRefTableUUID *)refTableUUID;
 // FIXME: Decide if this should be documented or not, it's private for now
 - (int)luaRefFromInt:(int)refTable;
 
@@ -424,7 +435,7 @@ NSString *specMaskToString(int spec);
  @param idx - An integer stack position
  @return An integer reference to the object at the specified stack position
  */
-- (int)luaRef:(NSUUID *)refTableUUID atIndex:(int)idx;
+- (int)luaRef:(LSRefTableUUID *)refTableUUID atIndex:(int)idx;
 - (int)luaRefFromInt:(int)refTable atIndex:(int)idx;
 
 /*!
@@ -436,7 +447,7 @@ NSString *specMaskToString(int spec);
  @param ref - An integer reference for an object that should be removed from the refTable table
  @return An integer, always LUA_NOREF (you are advised to store this value in the variable containing the ref parameter, so it does not become a stale reference)
  */
-- (int)luaUnref:(NSUUID *)refTableUUID ref:(int)ref;
+- (int)luaUnref:(LSRefTableUUID *)refTableUUID ref:(int)ref;
 // FIXME: Decide if this should be documented or not, it's private for now
 - (int)luaUnrefFromInt:(int)refTable ref:(int)ref;
 
@@ -450,7 +461,7 @@ NSString *specMaskToString(int spec);
  @return An integer containing the Lua type of the object pushed onto the stack
  */
 //- (int)pushLuaRef:(int)refTable ref:(int)ref;
-- (int)pushLuaRef:(NSUUID *)refTableUUID ref:(int)ref;
+- (int)pushLuaRef:(LSRefTable)refTableUUID ref:(int)ref;
 
 /*! @methodgroup Checking Lua arguments in Objective C functions */
 
@@ -530,7 +541,7 @@ NSString *specMaskToString(int spec);
 
  @return An integer reference to the object that was at the top of the stack
  */
-- (int)luaRef:(NSUUID *)refTableUUID forNSObject:(id)object ;
+- (int)luaRef:(LSRefTable)refTableUUID forNSObject:(id)object ;
 
 #pragma mark - Conversion from NSObjects into Lua objects
 

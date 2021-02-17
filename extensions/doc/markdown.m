@@ -15,7 +15,7 @@
 #include "plaintext.h"
 #include "houdini.h"
 
-static NSUUID *refTable;
+static LSRefTable refTable;
 
 typedef enum {
     GFM,

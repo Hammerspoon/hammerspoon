@@ -28,7 +28,7 @@
 // Common Code
 
 #define USERDATA_TAG "hs.fs.volume"
-static NSUUID *refTable;
+static LSRefTable refTable;
 
 // Not so common code
 

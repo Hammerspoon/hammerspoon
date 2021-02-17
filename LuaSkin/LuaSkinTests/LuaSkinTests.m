@@ -143,7 +143,7 @@ static int pushTestUserData(lua_State *L, id object) {
 
 @interface LuaSkinTests : XCTestCase
 @property LuaSkin *skin;
-@property NSUUID *refTable;
+@property LSRefTable refTable;
 @property int evalfn;
 @end
 
@@ -178,7 +178,7 @@ static int pushTestUserData(lua_State *L, id object) {
 
     // Prepare a refTable
     lua_newtable(self.skin.L);
-    self.refTable = [[NSUUID alloc] initWithUUIDString:LS_REGISTRYINDEX_REF];
+    self.refTable = [LSRefTableUUID luaRegistryIndex];
 
     // Load init.lua from our bundle
     NSLog(@"Loading LuaSkinTests lsunit.lua from %@", lsUnitPath);
@@ -426,7 +426,7 @@ static int pushTestUserData(lua_State *L, id object) {
 
     // Set up a table for the refs
     lua_newtable(self.skin.L);
-    NSUUID *tableRef = [[NSUUID alloc] initWithUUIDString:LS_REGISTRYINDEX_REF];
+    LSRefTableUUID *tableRef = [LSRefTableUUID luaRegistryIndex];
 
     XCTAssertTrue(tableRef != nil, @"tableRef creation returned nil");
 

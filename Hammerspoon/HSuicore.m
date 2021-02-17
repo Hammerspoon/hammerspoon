@@ -424,7 +424,7 @@ static void watcher_observer_callback(AXObserverRef observer __unused, AXUIEleme
 -(HSuielementWatcher *)initWithElement:(HSuielement *)element callbackRef:(int)callbackRef userdataRef:(int)userdataRef{
     self = [super init];
     if (self) {
-        _refTable = [[NSUUID alloc] initWithUUIDString:LS_REGISTRYINDEX_REF]; //LUA_REGISTRYINDEX;
+        _refTable = [LSRefTableUUID luaRegistryIndex];
         _elementRef = CFRetain(element.elementRef);
         _selfRefCount = 0;
         _handlerRef = callbackRef;

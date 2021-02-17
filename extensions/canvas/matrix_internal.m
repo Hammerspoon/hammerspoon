@@ -6,7 +6,7 @@
 #pragma clang diagnostic pop
 
 static const char *USERDATA_TAG = "hs.canvas.matrix" ;
-static NSUUID *refTable;
+static LSRefTable refTable;
 
 #pragma mark - Support Functions and Classes
 

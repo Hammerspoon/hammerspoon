@@ -73,7 +73,7 @@ BOOL new_window(lua_State* L, AXUIElementRef win) {
 
 // Not sure if the alreadySeen trick is working here, but it hasn't crashed yet... of course I don't think I've found any loops that don't have a userdata object in-between that drops us back to Lua before deciding whether or not to delve deeper, either, so... should be safe in CFDictionary and CFArray, since they toll-free bridge; don't use for others -- fails for setting with AXUIElementRef as key, at least...
 
-static int pushCFTypeHamster(lua_State *L, CFTypeRef theItem, NSMutableDictionary *alreadySeen, NSUUID *refTable) {
+static int pushCFTypeHamster(lua_State *L, CFTypeRef theItem, NSMutableDictionary *alreadySeen, LSRefTable refTable) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
 
     if (!theItem) {
@@ -358,7 +358,7 @@ static CFTypeRef lua_toCFTypeHamster(lua_State *L, int idx, NSMutableDictionary 
     return value ;
 }
 
-int pushCFTypeToLua(lua_State *L, CFTypeRef theItem, NSUUID *refTable) {
+int pushCFTypeToLua(lua_State *L, CFTypeRef theItem, LSRefTable refTable) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     NSMutableDictionary *alreadySeen = [[NSMutableDictionary alloc] init] ;
     pushCFTypeHamster(L, theItem, alreadySeen, refTable) ;

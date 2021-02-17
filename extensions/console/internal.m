@@ -28,7 +28,7 @@
 - (void) reflectDefaults ;
 @end
 
-static NSUUID *refTable;
+static LSRefTable refTable;
 
 /// hs.console.darkMode([state]) -> bool
 /// Function

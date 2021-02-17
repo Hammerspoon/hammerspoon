@@ -10,7 +10,7 @@
 @class HSWifiWatcherManager ;
 
 static const char           *USERDATA_TAG = "hs.wifi.watcher" ;
-static NSUUID               *refTable ;
+static LSRefTable            refTable ;
 static NSDictionary         *watchableTypes ;
 static HSWifiWatcherManager *manager ;
 

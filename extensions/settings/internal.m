@@ -4,7 +4,7 @@
 // establish a unique context for identifying our observers
 //static const char * const USERDATA_TAG = "hs.settings" ;
 static void *myKVOContext = &myKVOContext ; // See http://nshipster.com/key-value-observing/
-static NSUUID *refTable ;
+static LSRefTable refTable ;
 
 @interface HSUserDefaultKVOWatcher : NSObject ;
 @property NSMutableDictionary *watchedKeys ;

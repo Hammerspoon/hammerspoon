@@ -4,7 +4,7 @@
 
 #define USERDATA_TAG "hs.distributednotifications"
 
-static NSUUID *refTable;
+static LSRefTable refTable;
 
 typedef struct _distnot_t {
     void *watcher;

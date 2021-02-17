@@ -13,7 +13,7 @@
 // Common Code
 
 #define USERDATA_TAG    "hs.battery.watcher"
-static NSUUID *refTable;
+static LSRefTable refTable;
 
 // Not so common code
 

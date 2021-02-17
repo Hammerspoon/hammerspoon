@@ -1,6 +1,6 @@
 #import "webview.h"
 
-static NSUUID         *refTable;
+static LSRefTable      refTable;
 static NSMutableArray *identifiersInUse ;
 
 // @encode is a compiler directive which may give different answers on different architectures,

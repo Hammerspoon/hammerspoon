@@ -1,6 +1,6 @@
 #import "webview.h"
 
-static NSUUID *refTable ;
+static LSRefTable refTable ;
 
 #pragma mark - our userContentController
 

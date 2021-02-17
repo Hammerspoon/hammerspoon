@@ -15,7 +15,7 @@
 // Common Code
 
 #define USERDATA_TAG    "hs.screen.watcher"
-static NSUUID *refTable;
+static LSRefTable refTable;
 
 // Not so common code
 

@@ -35,7 +35,7 @@ static const AudioObjectPropertySelector watchSelectors[] = {
     kAudioHardwareServiceDeviceProperty_VirtualMasterVolume
 };
 
-static NSUUID *refTable;
+static LSRefTable refTable;
 
 #pragma mark - Function definitions
 

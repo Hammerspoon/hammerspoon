@@ -3,7 +3,7 @@
 @import LuaSkin ;
 
 static char *USERDATA_TAG  = "hs.keycodes.callback" ;
-static NSUUID *refTable;
+static LSRefTable refTable;
 
 static void pushkeycode(lua_State* L, int code, const char* key) {
     // t[key] = code

@@ -5,7 +5,7 @@
 // Common Code
 
 static const char *USERDATA_TAG = "hs.timer";
-static NSUUID *refTable;
+static LSRefTable refTable;
 
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 

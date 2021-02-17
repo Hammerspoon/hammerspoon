@@ -2,7 +2,7 @@
 @import LuaSkin ;
 
 #define USERDATA_TAG "hs.styledtext"
-static NSUUID *refTable;
+static LSRefTable refTable;
 
 #define get_objectFromUserdata(objType, L, idx) (objType *) * ((void **)luaL_checkudata(L, idx, USERDATA_TAG))
 

@@ -1,6 +1,6 @@
 #import "common.h"
 
-static NSUUID *refTable ;
+static LSRefTable refTable ;
 
 #pragma mark - Support Functions
 

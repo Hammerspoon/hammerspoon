@@ -4,7 +4,7 @@
 #import "MJAppDelegate.h"
 
 #define USERDATA_TAG  "hs.dialog"
-static NSUUID *refTable ;
+static LSRefTable refTable ;
 
 #pragma mark - Support Functions and Classes
 

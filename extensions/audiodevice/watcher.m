@@ -25,7 +25,7 @@ const AudioObjectPropertySelector watchSelectors[] = {
     kAudioHardwarePropertyDefaultSystemOutputDevice,
 };
 
-static NSUUID *refTable;
+static LSRefTable refTable;
 static audiodevice_watcher *theWatcher = nil;
 
 #pragma mark - Function definitions
