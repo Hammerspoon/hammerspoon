@@ -52,7 +52,7 @@ CHECKOUT OPTIONS:
     :commit: 5b63f170649ce15f820b64f63ce076c172ce15ff
     :git: https://github.com/CommandPost/CocoaHTTPServer.git
   Sentry:
-    :commit: f0cf27040c6c8d8f7d38e7eddbd19641fd336c8b
+    :commit: 8a6182e4a0fc9ebf5e8ce541b545c9636e5bbaca
     :git: https://github.com/getsentry/sentry-cocoa.git
 
 SPEC CHECKSUMS:

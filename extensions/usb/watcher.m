@@ -71,10 +71,21 @@ void DeviceNotification(void *refCon, io_service_t service __unused, natural_t m
         [skin protectedCallAndError:@"hs.usb.watcher:removed callback" nargs:1 nresults:0];
 
         // Free the USB private data
-        IOObjectRelease(privateDataRef->notification);
-        free(privateDataRef->productName);
-        free(privateDataRef->vendorName);
-        free(privateDataRef);
+        if (privateDataRef) {
+            IOObjectRelease(privateDataRef->notification);
+        }
+        if (privateDataRef->productName) {
+            free(privateDataRef->productName);
+            privateDataRef->productName = NULL;
+        }
+        if (privateDataRef->vendorName) {
+            free(privateDataRef->vendorName);
+            privateDataRef->vendorName = NULL;
+        }
+        if (privateDataRef) {
+            free(privateDataRef);
+            privateDataRef = NULL;
+        }
         _lua_stackguard_exit(L);
     }
 }
@@ -133,7 +144,7 @@ void DeviceAdded(void *refCon, io_iterator_t iterator) {
         IOObjectRelease(usbDevice);
 
         // We don't want to trigger callbacks for every device attached before the watcher starts, but we needed to enumerate them to get private device data cached
-        if (!watcher->isFirstRun) {
+        if (!watcher->isFirstRun && watcher->fn != LUA_REFNIL && watcher->fn != LUA_NOREF) {
             [skin pushLuaRef:refTable ref:watcher->fn];
 
             lua_newtable(L);

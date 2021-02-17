@@ -946,30 +946,32 @@ static int userdata_gc(lua_State* L) ;
 - (void)fadeOut:(NSTimeInterval)fadeTime andDelete:(BOOL)deleteCanvas withState:(lua_State *)L {
     CGFloat alphaSetting = self.alphaValue ;
     [NSAnimationContext beginGrouping];
-      __weak HSCanvasWindow *bself = self; // in ARC, __block would increase retain count
-      [[NSAnimationContext currentContext] setDuration:fadeTime];
-      [[NSAnimationContext currentContext] setCompletionHandler:^{
-          // unlikely that bself will go to nil after this starts, but this keeps the warnings down from [-Warc-repeated-use-of-weak]
-          HSCanvasWindow *mySelf = bself ;
-          if (mySelf && (((HSCanvasView *)mySelf.contentView).selfRef != LUA_NOREF)) {
-              if (deleteCanvas) {
-                  LuaSkin *skin = [LuaSkin sharedWithState:L] ;
-//                   lua_State *L = [skin L] ;
-                  lua_pushcfunction(L, userdata_gc) ;
-                  [skin pushLuaRef:refTable ref:((HSCanvasView *)mySelf.contentView).selfRef] ;
-                  // FIXME: Can we switch this lua_pcall() to a LuaSkin protectedCallAndError?
-                  if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
-                      [skin logBreadcrumb:[NSString stringWithFormat:@"%s:error invoking _gc for delete (with fade) method:%s", USERDATA_TAG, lua_tostring(L, -1)]] ;
-                      lua_pop(L, 1) ;
-                      [mySelf close] ;  // the least we can do is close the canvas if an error occurs with __gc
-                  }
-              } else {
-                  [mySelf orderOut:nil];
-                  [mySelf setAlphaValue:alphaSetting];
-              }
-          }
-      }];
-      [[self animator] setAlphaValue:0.0];
+    __weak HSCanvasWindow *bself = self; // in ARC, __block would increase retain count
+    [[NSAnimationContext currentContext] setDuration:fadeTime];
+    [[NSAnimationContext currentContext] setCompletionHandler:^{
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // unlikely that bself will go to nil after this starts, but this keeps the warnings down from [-Warc-repeated-use-of-weak]
+            HSCanvasWindow *mySelf = bself ;
+            if (mySelf && (((HSCanvasView *)mySelf.contentView).selfRef != LUA_NOREF)) {
+                if (deleteCanvas) {
+                    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+                    //                   lua_State *L = [skin L] ;
+                    lua_pushcfunction(L, userdata_gc) ;
+                    [skin pushLuaRef:refTable ref:((HSCanvasView *)mySelf.contentView).selfRef] ;
+                    // FIXME: Can we switch this lua_pcall() to a LuaSkin protectedCallAndError?
+                    if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
+                        [skin logBreadcrumb:[NSString stringWithFormat:@"%s:error invoking _gc for delete (with fade) method:%s", USERDATA_TAG, lua_tostring(L, -1)]] ;
+                        lua_pop(L, 1) ;
+                        [mySelf close] ;  // the least we can do is close the canvas if an error occurs with __gc
+                    }
+                } else {
+                    [mySelf orderOut:nil];
+                    [mySelf setAlphaValue:alphaSetting];
+                }
+            }
+        });
+    }];
+    [[self animator] setAlphaValue:0.0];
     [NSAnimationContext endGrouping];
 }
 @end

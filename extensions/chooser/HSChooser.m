@@ -183,9 +183,15 @@
     CGFloat intercellHeight =[self.choicesTableView intercellSpacing].height;
     CGFloat allRowsHeight = (rowHeight + intercellHeight) * self.numRows;
 
+    CGFloat toolbarHeight = 0.0;
+    if (self.window.toolbar && self.window.toolbar.visible) {
+        NSRect windowFrame = [NSWindow contentRectForFrameRect:self.window.frame styleMask:self.window.styleMask];
+        toolbarHeight = NSHeight(windowFrame) - NSHeight(self.window.contentView.frame);
+    }
+
     CGFloat windowHeight = NSHeight([[self.window contentView] bounds]);
     CGFloat tableHeight = NSHeight([[self.choicesTableView superview] frame]);
-    CGFloat finalHeight = (windowHeight - tableHeight) + allRowsHeight;
+    CGFloat finalHeight = (windowHeight - tableHeight) + allRowsHeight + toolbarHeight;
 
     CGFloat width;
     if (self.width >= 0 && self.width <= 100) {
