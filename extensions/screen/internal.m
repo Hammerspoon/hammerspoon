@@ -1420,7 +1420,7 @@ int luaopen_hs_screen_internal(lua_State* L) {
     notificationQueue = dispatch_queue_create("org.hammerspoon.Hammerspoon.gammaReapplyNotificationQueue", NULL);
     CGDisplayRegisterReconfigurationCallback(displayReconfigurationCallback, NULL);
 
-    [skin registerLibrary:screenlib metaFunctions:metalib];
+    [skin registerLibrary:USERDATA_TAG functions:screenlib metaFunctions:metalib];
     [skin registerObject:USERDATA_TAG objectFunctions:screen_objectlib];
 
     return 1;

@@ -169,7 +169,7 @@ static const luaL_Reg plistlib[] = {
 int luaopen_hs_plist_internal(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
 
-    [skin registerLibrary:plistlib metaFunctions:nil];
+    [skin registerLibrary:"hs.plist" functions:plistlib metaFunctions:nil];
 
     return 1;
 }

@@ -334,7 +334,7 @@ NSString *specMaskToString(int spec);
  @param metaFunctions - A static array of mappings between special meta Lua function names (such as <tt>__gc</tt>) and C function pointers
  @return An opaque reference to the table created for this library to store its own references
  */
-- (LSRefTable)registerLibrary:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions;
+- (LSRefTable)registerLibrary:(const char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions;
 
 /*!
  @abstract Defines a Lua library that creates objects, which have methods

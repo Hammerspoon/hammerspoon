@@ -338,7 +338,7 @@ static const luaL_Reg meta_gcLib[] = {
 
 int luaopen_hs_pasteboard_watcher(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    refTable = [skin registerLibrary:pasteboardWatcher_lib metaFunctions:meta_gcLib];
+    refTable = [skin registerLibrary:USERDATA_TAG functions:pasteboardWatcher_lib metaFunctions:meta_gcLib];
     [skin registerObject:USERDATA_TAG objectFunctions:pasteboardWatcher_metalib];
     return 1;
 }

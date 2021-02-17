@@ -272,7 +272,7 @@ static luaL_Reg moduleLib[] = {
 
 int luaopen_hs_fs_xattr(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
-    refTable = [skin registerLibrary:moduleLib metaFunctions:nil] ;
+    refTable = [skin registerLibrary:"hs.fs.xattr" functions:moduleLib metaFunctions:nil] ;
 
     return 1;
 }
