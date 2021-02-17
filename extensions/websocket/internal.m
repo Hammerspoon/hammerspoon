@@ -287,7 +287,7 @@ static const luaL_Reg wsMetalib[] = {
 int luaopen_hs_websocket_internal(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
 
-    refTable = [skin registerLibrary:websocketlib metaFunctions:metalib];
+    refTable = [skin registerLibrary:WS_USERDATA_TAG functions:websocketlib metaFunctions:metalib];
     [skin registerObject:WS_USERDATA_TAG objectFunctions:wsMetalib];
 
     return 1;

@@ -352,7 +352,7 @@ static luaL_Reg moduleLib[] = {
 
 int luaopen_hs_canvas_matrix_internal(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
-    refTable = [skin registerLibrary:moduleLib metaFunctions:nil] ; // or module_metaLib
+    refTable = [skin registerLibrary:USERDATA_TAG functions:moduleLib metaFunctions:nil] ; // or module_metaLib
 
     [skin registerPushNSHelper:pushNSAffineTransform         forClass:"NSAffineTransform"];
     [skin registerLuaObjectHelper:toNSAffineTransformFromLua forClass:"NSAffineTransform"

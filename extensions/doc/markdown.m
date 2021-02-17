@@ -247,7 +247,7 @@ static luaL_Reg moduleLib[] = {
 
 int luaopen_hs_doc_markdown(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
-    refTable = [skin registerLibrary:moduleLib metaFunctions:nil] ;
+    refTable = [skin registerLibrary:"hs.doc.markdown" functions:moduleLib metaFunctions:nil] ;
 
     ghmd__init_md();
     ghmd__init_gfm();

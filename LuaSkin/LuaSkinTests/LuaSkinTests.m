@@ -374,7 +374,7 @@ static int pushTestUserData(lua_State *L, id object) {
 }
 
 - (void)testLibrary {
-    [self.skin registerLibrary:functions metaFunctions:metaFunctions];
+    [self.skin registerLibrary:"testLibrary" functions:functions metaFunctions:metaFunctions];
 
     // Normally we'd be returning to a luaopen_ function after registerLibrary, and thus the library would be inserted into the right namespace. Since we're not doing that here, we'll just go ahead and register it as a global, using the library name
     lua_setglobal(self.skin.L, libraryTestName);
@@ -1101,7 +1101,7 @@ id luaObjectHelperTestFunction(lua_State *L, int idx) {
 }
 
 - (void)testObjCExceptionHandler {
-    [self.skin registerLibrary:functions metaFunctions:metaFunctions];
+    [self.skin registerLibrary:"LuaSkinTests" functions:functions metaFunctions:metaFunctions];
 
     // Normally we'd be returning to a luaopen_ function after registerLibrary, and thus the library would be inserted into the right namespace. Since we're not doing that here, we'll just go ahead and register it as a global, using the library name
     lua_setglobal(self.skin.L, libraryTestName);

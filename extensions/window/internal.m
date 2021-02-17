@@ -807,7 +807,7 @@ static const luaL_Reg userdata_metaLib[] = {
 
 int luaopen_hs_window_internal(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    refTable = [skin registerLibrary:moduleLib metaFunctions:module_metaLib];
+    refTable = [skin registerLibrary:USERDATA_TAG functions:moduleLib metaFunctions:module_metaLib];
     [skin registerObject:USERDATA_TAG objectFunctions:userdata_metaLib];
 
     [skin registerPushNSHelper:pushHSwindow         forClass:"HSwindow"];

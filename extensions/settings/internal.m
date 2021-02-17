@@ -312,7 +312,7 @@ static const luaL_Reg module_metaLib[] = {
 
 int luaopen_hs_settings_internal(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    refTable = [skin registerLibrary:settingslib metaFunctions:module_metaLib];
+    refTable = [skin registerLibrary:"hs.settings" functions:settingslib metaFunctions:module_metaLib];
 
     watcherManager = [[HSUserDefaultKVOWatcher alloc] init] ;
 

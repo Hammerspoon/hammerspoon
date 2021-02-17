@@ -376,7 +376,9 @@ static NSMutableSet *_sharedWarnings ;
 
 #pragma mark - Methods for registering libraries with Lua
 
-- (int)registerLibrary:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions {
+- (int)registerLibrary:(const char * _Nonnull)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions {
+
+    NSAssert(libraryName != NULL, @"libraryName can not be NULL", nil);
     // Ensure we're not given a null function table
     NSAssert(functions != NULL, @"functions can not be NULL", nil);
 
@@ -403,6 +405,7 @@ static NSMutableSet *_sharedWarnings ;
 
     NSString *fname = getCallerFileName() ;
 
+    // FIXME: Can this all be replaced just by using the libraryName argument?
     if (fname) {
         NSRange range = [fname rangeOfString:@"/hs/"] ;
         if (range.location == NSNotFound) range = [fname rangeOfString:@"/LuaSkin"] ;
@@ -436,9 +439,7 @@ static NSMutableSet *_sharedWarnings ;
 
     [self registerObject:libraryName objectFunctions:objectFunctions];
 
-    int moduleRefTable = [self registerLibrary:functions metaFunctions:metaFunctions];
-
-    return moduleRefTable;
+    return [self registerLibrary:libraryName functions:functions metaFunctions:metaFunctions];
 }
 
 - (void)registerObject:(const char *)objectName objectFunctions:(const luaL_Reg *)objectFunctions {
