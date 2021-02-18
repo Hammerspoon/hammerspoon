@@ -188,6 +188,8 @@ NSString *specMaskToString(int spec);
  */
 @property (class, readonly, atomic) lua_State *mainLuaState ;
 
+@property (atomic) NSUUID *uuid;
+
 #pragma mark - Class lifecycle
 
 /*!

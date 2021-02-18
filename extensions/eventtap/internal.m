@@ -9,6 +9,7 @@ typedef struct _eventtap_t {
     CGEventMask mask;
     CFMachPortRef tap;
     CFRunLoopSourceRef runloopsrc;
+    char luaSkinUUID[37];
 } eventtap_t;
 
 CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon) {
@@ -17,6 +18,13 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef
     _lua_stackguard_entry(L);
 
     eventtap_t* e = refcon;
+
+    // Guard against this callback being delivered at a point where LuaSkin has been reset and our references wouldn't make sense anymore
+    const char *luaSkinUUID = [skin.uuid.UUIDString cStringUsingEncoding:NSUTF8StringEncoding];
+    if (strncmp(e->luaSkinUUID, luaSkinUUID, 36) != 0) {
+        [skin logDebug:@"hs.eventtap callback arrived for a different LuaSkin instance"];
+        return event; // Allow the event to pass through unmodified
+    }
 
     // Guard against a crash where e->fn is a LUA_NOREF/LUA_REFNIL, which shouldn't be possible (maybe a subtle race condition?)
     if (e->fn == LUA_NOREF || e->fn == LUA_REFNIL) {
@@ -156,6 +164,7 @@ static int eventtap_new(lua_State* L) {
     memset(eventtap, 0, sizeof(eventtap_t));
 
     eventtap->tap = NULL ;
+    strncpy(eventtap->luaSkinUUID, [skin.uuid.UUIDString cStringUsingEncoding:NSUTF8StringEncoding], 36);
 
     lua_pushnil(L);
     while (lua_next(L, 1) != 0) {
