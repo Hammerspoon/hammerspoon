@@ -20,15 +20,16 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef
     eventtap_t* e = refcon;
 
     // Guard against this callback being delivered at a point where LuaSkin has been reset and our references wouldn't make sense anymore
-    const char *luaSkinUUID = [skin.uuid.UUIDString cStringUsingEncoding:NSUTF8StringEncoding];
-    if (strncmp(e->luaSkinUUID, luaSkinUUID, 36) != 0) {
-        [skin logDebug:@"hs.eventtap callback arrived for a different LuaSkin instance"];
+    if (![skin checkLuaSkinInstance:[NSString stringWithCString:e->luaSkinUUID encoding:NSUTF8StringEncoding]]) {
+        [skin logBreadcrumb:@"hs.eventtap callback arrived for a different LuaSkin instance"];
+        _lua_stackguard_exit(L);
         return event; // Allow the event to pass through unmodified
     }
 
     // Guard against a crash where e->fn is a LUA_NOREF/LUA_REFNIL, which shouldn't be possible (maybe a subtle race condition?)
     if (e->fn == LUA_NOREF || e->fn == LUA_REFNIL) {
         [skin logBreadcrumb:@"eventtap_callback called with LUA_NOREF/LUA_REFNIL"];
+        _lua_stackguard_exit(L);
         return event;
     }
 

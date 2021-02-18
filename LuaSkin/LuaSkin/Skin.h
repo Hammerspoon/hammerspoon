@@ -260,6 +260,8 @@ NSString *specMaskToString(int spec);
  */
 - (void)resetLuaState;
 
+- (BOOL)checkLuaSkinInstance:(NSString *)checkUUID;
+
 #pragma mark - Methods for calling into Lua from C
 
 /*! @methodgroup Calling Lua functions from Objective C */
@@ -514,6 +516,7 @@ NSString *specMaskToString(int spec);
  @return An integer reference to the object that was at the top of the stack
  */
 - (int)luaRef:(int)refTable forNSObject:(id)object ;
+
 
 #pragma mark - Conversion from NSObjects into Lua objects
 

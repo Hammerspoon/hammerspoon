@@ -320,6 +320,10 @@ static NSMutableSet *_sharedWarnings ;
     [self createLuaState];
 }
 
+- (BOOL)checkLuaSkinInstance:(NSString *)checkUUID {
+    return [self.uuid.UUIDString isEqualToString:checkUUID];
+}
+
 #pragma mark - Methods for calling into Lua from C
 
 - (BOOL)protectedCallAndTraceback:(int)nargs nresults:(int)nresults {
