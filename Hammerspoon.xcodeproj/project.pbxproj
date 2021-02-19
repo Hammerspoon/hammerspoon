@@ -1118,7 +1118,7 @@
 		4F4CB4541B73B0D5000EA9B6 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/image/init.lua; sourceTree = "<group>"; };
 		4F4CB4551B73B0D5000EA9B6 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/image/internal.m; sourceTree = "<group>"; };
 		4F4F6DA925DB1BB6000187FA /* HSjsonTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HSjsonTests.m; sourceTree = "<group>"; };
-		4F4F6EBE25DB1C7C000187FA /* test_json.lua */ = {isa = PBXFileReference; lastKnownFileType = text; path = test_json.lua; sourceTree = "<group>"; };
+		4F4F6EBE25DB1C7C000187FA /* test_json.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = test_json.lua; path = extensions/json/test_json.lua; sourceTree = "<group>"; };
 		4F5050311B97A7B9009E2B14 /* MJAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MJAppDelegate.h; sourceTree = "<group>"; };
 		4F5134501C2EE08F00EFD6D4 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/chooser/init.lua; sourceTree = "<group>"; };
 		4F5134511C2EE08F00EFD6D4 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/chooser/internal.m; sourceTree = "<group>"; };
@@ -1332,7 +1332,7 @@
 		4FFB20FE23CD14A400811E77 /* HSStreamDeckDeviceOriginalV2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSStreamDeckDeviceOriginalV2.h; path = extensions/streamdeck/HSStreamDeckDeviceOriginalV2.h; sourceTree = "<group>"; };
 		4FFB20FF23CD14A400811E77 /* HSStreamDeckDeviceOriginalV2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSStreamDeckDeviceOriginalV2.m; path = extensions/streamdeck/HSStreamDeckDeviceOriginalV2.m; sourceTree = "<group>"; };
 		4FFF9FB425D89B3B00D2997C /* HSmouse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSmouse.m; sourceTree = "<group>"; };
-		4FFFA01125D89BAF00D2997C /* test_mouse.lua */ = {isa = PBXFileReference; lastKnownFileType = text; path = test_mouse.lua; sourceTree = "<group>"; };
+		4FFFA01125D89BAF00D2997C /* test_mouse.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = test_mouse.lua; path = extensions/mouse/test_mouse.lua; sourceTree = "<group>"; };
 		5BC78AF8FE9DA0BD317A7528 /* libPods-Hammerspoon.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Hammerspoon.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6AE181161D36E8E50097211C /* detectors.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = detectors.cpp; path = extensions/noises/detectors.cpp; sourceTree = "<group>"; };
 		6AE181171D36E8E50097211C /* detectors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = detectors.h; path = extensions/noises/detectors.h; sourceTree = "<group>"; };
