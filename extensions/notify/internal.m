@@ -248,8 +248,10 @@ static int notification_deliveredNotifications(lua_State *L) {
     // just in case pushNSUserNotification had to recreate our entries in ourNotificationSpecifics
     for (NSUserNotification *notification in deliveredNotifications) {
         NSString *gus = notification.userInfo[KEY_ID] ;
-        NSMutableDictionary *userInfo = ourNotificationSpecifics[gus] ;
-        userInfo[KEY_DELIVERED] = @(YES) ;
+        if (gus) {
+            NSMutableDictionary *userInfo = ourNotificationSpecifics[gus] ;
+            userInfo[KEY_DELIVERED] = @(YES) ;
+        }
     }
     return 1 ;
 }
@@ -327,12 +329,16 @@ static int notification_send(lua_State* L) {
     NSUserNotification *notification = [skin toNSObjectAtIndex:1] ;
 
     NSString *gus = notification.userInfo[KEY_ID] ;
-    NSMutableDictionary *userInfo = ourNotificationSpecifics[gus] ;
-    userInfo[KEY_DELIVERED] = @(NO) ;
-    userInfo[KEY_LOCKED] = @(YES) ;
-    notification.userInfo = [userInfo copy] ;
+    if (gus) {
+        NSMutableDictionary *userInfo = ourNotificationSpecifics[gus] ;
+        userInfo[KEY_DELIVERED] = @(NO) ;
+        userInfo[KEY_LOCKED] = @(YES) ;
+        notification.userInfo = [userInfo copy] ;
 
-    [[NSUserNotificationCenter defaultUserNotificationCenter] deliverNotification:notification] ;
+        [[NSUserNotificationCenter defaultUserNotificationCenter] deliverNotification:notification] ;
+    } else {
+        return luaL_error(L, "notification was not created by this module") ;
+    }
     lua_pushvalue(L, 1) ;
     return 1 ;
 }
@@ -363,12 +369,16 @@ static int notification_scheduleNotification(lua_State* L) {
     }
 
     NSString *gus = notification.userInfo[KEY_ID] ;
-    NSMutableDictionary *userInfo = ourNotificationSpecifics[gus] ;
-    userInfo[KEY_DELIVERED] = @(NO) ;
-    userInfo[KEY_LOCKED] = @(YES) ;
-    notification.userInfo = [userInfo copy] ;
+    if (gus) {
+        NSMutableDictionary *userInfo = ourNotificationSpecifics[gus] ;
+        userInfo[KEY_DELIVERED] = @(NO) ;
+        userInfo[KEY_LOCKED] = @(YES) ;
+        notification.userInfo = [userInfo copy] ;
 
-    [[NSUserNotificationCenter defaultUserNotificationCenter] scheduleNotification:notification] ;
+        [[NSUserNotificationCenter defaultUserNotificationCenter] scheduleNotification:notification] ;
+    } else {
+        return luaL_error(L, "notification was not created by this module") ;
+    }
     lua_settop(L,1);
     return 1;
 }
@@ -403,26 +413,31 @@ static int notification_scheduleNotification(lua_State* L) {
 /// Returns:
 ///  * The notification object
 ///  * This method allows you to unlock a dispatched notification so that it can be modified and resent.
+///
+///  * if the notification was not created by this module, it will still be withdrawn if possible
 static int notification_withdraw(lua_State* L) {
     LuaSkin *skin  = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     NSUserNotification *notification = [skin toNSObjectAtIndex:1] ;
 
     NSString *gus = notification.userInfo[KEY_ID] ;
-    NSMutableDictionary *userInfo = ourNotificationSpecifics[gus] ;
-    NSNumber *isLocked = userInfo[KEY_LOCKED] ;
+    if (gus) {
+        NSMutableDictionary *userInfo = ourNotificationSpecifics[gus] ;
+        NSNumber *isLocked = userInfo[KEY_LOCKED] ;
 
-    if (isLocked.boolValue == YES) {
+        if (isLocked.boolValue == YES) {
+            [[NSUserNotificationCenter defaultUserNotificationCenter] removeDeliveredNotification:notification];
+            [[NSUserNotificationCenter defaultUserNotificationCenter] removeScheduledNotification:notification];
+
+            userInfo[KEY_DELIVERED] = @(NO) ;
+            userInfo[KEY_LOCKED] = @(NO) ;
+            notification.userInfo = @{ KEY_ID : gus } ;
+        } else {
+            return luaL_error(L, "notification has not yet been dispatched and cannot be withdrawn") ;
+        }
+    } else { // not ours, but withdraw anyways
         [[NSUserNotificationCenter defaultUserNotificationCenter] removeDeliveredNotification:notification];
-        [[NSUserNotificationCenter defaultUserNotificationCenter] removeScheduledNotification:notification];
-
-        userInfo[KEY_DELIVERED] = @(NO) ;
-        userInfo[KEY_LOCKED] = @(NO) ;
-        notification.userInfo = @{ KEY_ID : gus } ;
-    } else {
-        return luaL_error(L, "notification has not yet been dispatched and cannot be withdrawn") ;
     }
-
     lua_pushvalue(L, 1) ;
     return 1;
 }
@@ -447,15 +462,19 @@ static int notification_title(lua_State* L) {
 
     if (lua_isnone(L,2)) {
         [skin pushNSObject:notification.title] ;
-    } else if (isLocked.boolValue == NO) {
-        if (lua_isnil(L,2)) {
-            notification.title = @"";
+    } else if (gus) {
+        if (isLocked.boolValue == NO) {
+            if (lua_isnil(L,2)) {
+                notification.title = @"";
+            } else {
+                notification.title = [skin toNSObjectAtIndex:2] ;
+            }
+            lua_pushvalue(L, 1) ;
         } else {
-            notification.title = [skin toNSObjectAtIndex:2] ;
+            return luaL_error(L, "notification has been dispatched and can no longer be modified") ;
         }
-        lua_pushvalue(L, 1) ;
     } else {
-        return luaL_error(L, "notification has been dispatched and can no longer be modified") ;
+        return luaL_error(L, "notification was not created by this module") ;
     }
     return 1;
 }
@@ -480,15 +499,19 @@ static int notification_subtitle(lua_State* L) {
 
     if (lua_isnone(L,2)) {
         [skin pushNSObject:notification.subtitle] ;
-    } else if (isLocked.boolValue == NO) {
-        if (lua_isnil(L,2)) {
-            notification.subtitle = nil ;
+    } else if (gus) {
+        if (isLocked.boolValue == NO) {
+            if (lua_isnil(L,2)) {
+                notification.subtitle = nil ;
+            } else {
+                notification.subtitle = [skin toNSObjectAtIndex:2] ;
+            }
+            lua_pushvalue(L, 1) ;
         } else {
-            notification.subtitle = [skin toNSObjectAtIndex:2] ;
+            return luaL_error(L, "notification has been dispatched and can no longer be modified") ;
         }
-        lua_pushvalue(L, 1) ;
     } else {
-        return luaL_error(L, "notification has been dispatched and can no longer be modified") ;
+        return luaL_error(L, "notification was not created by this module") ;
     }
     return 1;
 }
@@ -513,15 +536,19 @@ static int notification_informativeText(lua_State* L) {
 
     if (lua_isnone(L,2)) {
         [skin pushNSObject:notification.informativeText] ;
-    } else if (isLocked.boolValue == NO) {
-        if (lua_isnil(L,2)) {
-            notification.informativeText = nil ;
+    } else if (gus) {
+        if (isLocked.boolValue == NO) {
+            if (lua_isnil(L,2)) {
+                notification.informativeText = nil ;
+            } else {
+                notification.informativeText = [skin toNSObjectAtIndex:2] ;
+            }
+            lua_pushvalue(L, 1) ;
         } else {
-            notification.informativeText = [skin toNSObjectAtIndex:2] ;
+            return luaL_error(L, "notification has been dispatched and can no longer be modified") ;
         }
-        lua_pushvalue(L, 1) ;
     } else {
-        return luaL_error(L, "notification has been dispatched and can no longer be modified") ;
+        return luaL_error(L, "notification was not created by this module") ;
     }
     return 1;
 }
@@ -550,15 +577,19 @@ static int notification_actionButtonTitle(lua_State* L) {
 
     if (lua_isnone(L,2)) {
         [skin pushNSObject:notification.actionButtonTitle] ;
-    } else if (isLocked.boolValue == NO) {
-        if (lua_isnil(L,2)) {
-            notification.actionButtonTitle = @"" ;
+    } else if (gus) {
+        if (isLocked.boolValue == NO) {
+            if (lua_isnil(L,2)) {
+                notification.actionButtonTitle = @"" ;
+            } else {
+                notification.actionButtonTitle = [skin toNSObjectAtIndex:2] ;
+            }
+            lua_pushvalue(L, 1) ;
         } else {
-            notification.actionButtonTitle = [skin toNSObjectAtIndex:2] ;
+            return luaL_error(L, "notification has been dispatched and can no longer be modified") ;
         }
-        lua_pushvalue(L, 1) ;
     } else {
-        return luaL_error(L, "notification has been dispatched and can no longer be modified") ;
+        return luaL_error(L, "notification was not created by this module") ;
     }
     return 1;
 }
@@ -587,15 +618,19 @@ static int notification_otherButtonTitle(lua_State* L) {
 
     if (lua_isnone(L,2)) {
         [skin pushNSObject:notification.otherButtonTitle] ;
-    } else if (isLocked.boolValue == NO) {
-        if (lua_isnil(L,2)) {
-            notification.otherButtonTitle = @"" ;
+    } else if (gus) {
+        if (isLocked.boolValue == NO) {
+            if (lua_isnil(L,2)) {
+                notification.otherButtonTitle = @"" ;
+            } else {
+                notification.otherButtonTitle = [skin toNSObjectAtIndex:2] ;
+            }
+            lua_pushvalue(L, 1) ;
         } else {
-            notification.otherButtonTitle = [skin toNSObjectAtIndex:2] ;
+            return luaL_error(L, "notification has been dispatched and can no longer be modified") ;
         }
-        lua_pushvalue(L, 1) ;
     } else {
-        return luaL_error(L, "notification has been dispatched and can no longer be modified") ;
+        return luaL_error(L, "notification was not created by this module") ;
     }
     return 1;
 }
@@ -623,11 +658,15 @@ static int notification_hasActionButton(lua_State* L) {
 
     if (lua_isnone(L,2)) {
         lua_pushboolean(L, notification.hasActionButton) ;
-    } else if (isLocked.boolValue == NO) {
-        notification.hasActionButton = (BOOL)(lua_toboolean(L, 2)) ;
-        lua_pushvalue(L, 1) ;
+    } else if (gus) {
+        if (isLocked.boolValue == NO) {
+            notification.hasActionButton = (BOOL)(lua_toboolean(L, 2)) ;
+            lua_pushvalue(L, 1) ;
+        } else {
+            return luaL_error(L, "notification has been dispatched and can no longer be modified") ;
+        }
     } else {
-        return luaL_error(L, "notification has been dispatched and can no longer be modified") ;
+        return luaL_error(L, "notification was not created by this module") ;
     }
     return 1;
 }
@@ -645,6 +684,8 @@ static int notification_hasActionButton(lua_State* L) {
 /// Notes:
 ///  * This does not affect the return value of `hs.notify:presented()` -- that will still reflect the decision of the Notification Center
 ///  * Examples of why the users Notification Center would choose not to display a notification would be if Hammerspoon is the currently focussed application, being attached to a projector, or the user having set Do Not Disturb.
+///
+///  * if the notification was not created by this module, this method will return nil
 static int notification_alwaysPresent(lua_State* L) {
     LuaSkin *skin  = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
@@ -655,13 +696,21 @@ static int notification_alwaysPresent(lua_State* L) {
     NSNumber *isLocked = userInfo[KEY_LOCKED] ;
 
     if (lua_isnone(L,2)) {
-        NSNumber *alwaysPresent = userInfo[KEY_ALWAYSPRESENT] ;
-        lua_pushboolean(L, alwaysPresent.boolValue) ;
-    } else if (isLocked.boolValue == NO) {
-        userInfo[KEY_ALWAYSPRESENT] = lua_toboolean(L, 2) ? @(YES) : @(NO) ;
-        lua_pushvalue(L, 1) ;
+        if (gus) {
+            NSNumber *alwaysPresent = userInfo[KEY_ALWAYSPRESENT] ;
+            lua_pushboolean(L, alwaysPresent.boolValue) ;
+        } else {
+            lua_pushnil(L) ;
+        }
+    } else if (gus) {
+            if (isLocked.boolValue == NO) {
+            userInfo[KEY_ALWAYSPRESENT] = lua_toboolean(L, 2) ? @(YES) : @(NO) ;
+            lua_pushvalue(L, 1) ;
+        } else {
+            return luaL_error(L, "notification has been dispatched and can no longer be modified") ;
+        }
     } else {
-        return luaL_error(L, "notification has been dispatched and can no longer be modified") ;
+        return luaL_error(L, "notification was not created by this module") ;
     }
     return 1;
 }
@@ -698,15 +747,21 @@ static int notification_alwaysPresent(lua_State* L) {
 ///
 /// Notes:
 ///  * This tag should correspond to a function in [hs.notify.registry](#registry) and can be used to either add a replacement with `hs.notify.register(...)` or remove it with `hs.notify.unregister(...)`
+///
+///  * if the notification was not created by this module, this method will return nil
 static int notification_getFunctionTag(lua_State* L) {
     LuaSkin *skin  = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     NSUserNotification *notification = [skin toNSObjectAtIndex:1] ;
 
     NSString *gus = notification.userInfo[KEY_ID] ;
-    NSMutableDictionary *userInfo = ourNotificationSpecifics[gus] ;
+    if (gus) {
+        NSMutableDictionary *userInfo = ourNotificationSpecifics[gus] ;
+        [skin pushNSObject:userInfo[KEY_FNTAG]] ;
+    } else {
+        lua_pushnil(L) ;
+    }
 
-    [skin pushNSObject:userInfo[KEY_FNTAG]] ;
     return 1;
 }
 
@@ -723,6 +778,8 @@ static int notification_getFunctionTag(lua_State* L) {
 /// Note:
 ///  * This method has no effect if the user has set Hammerspoon notifications to `Alert` in the Notification Center pane of System Preferences: clicking on either the action or other button will clear the notification automatically.
 ///  * If a notification which was created before your last reload (or restart) of Hammerspoon and is clicked upon before hs.notify has been loaded into memory, this setting will not be honored because the initial application delegate is not aware of this option and is set to automatically withdraw all notifications which are acted upon.
+///
+///  * if the notification was not created by this module, this method will return nil
 static int notification_autoWithdraw(lua_State* L) {
     LuaSkin *skin  = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
@@ -733,13 +790,21 @@ static int notification_autoWithdraw(lua_State* L) {
     NSNumber *isLocked = userInfo[KEY_LOCKED] ;
 
     if (lua_isnone(L,2)) {
-        NSNumber *alwaysPresent = userInfo[KEY_AUTOWITHDRAW] ;
-        lua_pushboolean(L, alwaysPresent.boolValue) ;
-    } else if (isLocked.boolValue == NO) {
-        userInfo[KEY_AUTOWITHDRAW] = lua_toboolean(L, 2) ? @(YES) : @(NO) ;
-        lua_pushvalue(L, 1) ;
+        if (gus) {
+            NSNumber *alwaysPresent = userInfo[KEY_AUTOWITHDRAW] ;
+            lua_pushboolean(L, alwaysPresent.boolValue) ;
+        } else {
+            lua_pushnil(L) ;
+        }
+    } else if (gus) {
+        if (isLocked.boolValue == NO) {
+            userInfo[KEY_AUTOWITHDRAW] = lua_toboolean(L, 2) ? @(YES) : @(NO) ;
+            lua_pushvalue(L, 1) ;
+        } else {
+            return luaL_error(L, "notification has been dispatched and can no longer be modified") ;
+        }
     } else {
-        return luaL_error(L, "notification has been dispatched and can no longer be modified") ;
+        return luaL_error(L, "notification was not created by this module") ;
     }
     return 1;
 }
@@ -771,15 +836,19 @@ static int notification_soundName(lua_State* L) {
 
     if (lua_isnone(L,2)) {
         [skin pushNSObject:notification.soundName] ;
-    } else if (isLocked.boolValue == NO) {
-        if (lua_isnil(L,2)) {
-            notification.soundName = nil ;
+    } else if (gus) {
+        if (isLocked.boolValue == NO) {
+            if (lua_isnil(L,2)) {
+                notification.soundName = nil ;
+            } else {
+                notification.soundName = [skin toNSObjectAtIndex:2] ;
+            }
+            lua_pushvalue(L, 1) ;
         } else {
-            notification.soundName = [skin toNSObjectAtIndex:2] ;
+            return luaL_error(L, "notification has been dispatched and can no longer be modified") ;
         }
-        lua_pushvalue(L, 1) ;
     } else {
-        return luaL_error(L, "notification has been dispatched and can no longer be modified") ;
+        return luaL_error(L, "notification was not created by this module") ;
     }
     return 1;
 }
@@ -796,12 +865,16 @@ static int notification_contentImage(lua_State *L) {
 
     if (lua_isnone(L,2)) {
         [skin pushNSObject:notification.contentImage];
-    } else if (isLocked.boolValue == NO) {
-        [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TUSERDATA, "hs.image", LS_TBREAK] ;
-        notification.contentImage = [skin toNSObjectAtIndex:2] ;
-        lua_pushvalue(L, 1) ;
+    } else if (gus) {
+        if (isLocked.boolValue == NO) {
+            [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TUSERDATA, "hs.image", LS_TBREAK] ;
+            notification.contentImage = [skin toNSObjectAtIndex:2] ;
+            lua_pushvalue(L, 1) ;
+        } else {
+            return luaL_error(L, "notification has been dispatched and can no longer be modified") ;
+        }
     } else {
-        return luaL_error(L, "notification has been dispatched and can no longer be modified") ;
+        return luaL_error(L, "notification was not created by this module") ;
     }
     return 1;
 }
@@ -816,19 +889,23 @@ static int notification_setIdImage(lua_State *L) {
     NSMutableDictionary *userInfo = ourNotificationSpecifics[gus] ;
     NSNumber *isLocked = userInfo[KEY_LOCKED] ;
 
-    if (isLocked.boolValue == NO) {
-        NSImage *idImage = [skin toNSObjectAtIndex:2] ;
-        BOOL hasBorder = (BOOL)(lua_toboolean(L, 3)) ;
+    if (gus) {
+        if (isLocked.boolValue == NO) {
+            NSImage *idImage = [skin toNSObjectAtIndex:2] ;
+            BOOL hasBorder = (BOOL)(lua_toboolean(L, 3)) ;
 
-        if ([notification respondsToSelector:@selector(set_identityImage:)] && [notification respondsToSelector:@selector(_identityImageHasBorder)]) {
-            [notification set_identityImage:idImage];
-            notification._identityImageHasBorder = hasBorder;
+            if ([notification respondsToSelector:@selector(set_identityImage:)] && [notification respondsToSelector:@selector(_identityImageHasBorder)]) {
+                [notification set_identityImage:idImage];
+                notification._identityImageHasBorder = hasBorder;
+            } else {
+                [skin logInfo:[NSString stringWithFormat:@"%s:setIdImage() is not supported on this machine or macOS version. Please file an issue", USERDATA_TAG]];
+            }
+            lua_pushvalue(L, 1) ;
         } else {
-            [skin logInfo:[NSString stringWithFormat:@"%s:setIdImage() is not supported on this machine or macOS version. Please file an issue", USERDATA_TAG]];
+            return luaL_error(L, "notification has been dispatched and can no longer be modified");
         }
-        lua_pushvalue(L, 1) ;
     } else {
-        return luaL_error(L, "notification has been dispatched and can no longer be modified");
+        return luaL_error(L, "notification was not created by this module") ;
     }
     return 1 ;
 }
@@ -858,11 +935,15 @@ static int notification_hasReplyButton(lua_State *L) {
 
     if (lua_isnone(L,2)) {
         lua_pushboolean(L, notification.hasReplyButton) ;
-    } else if (isLocked.boolValue == NO) {
-        notification.hasReplyButton = (BOOL)(lua_toboolean(L, 2)) ;
-        lua_pushvalue(L, 1) ;
+    } else if (gus) {
+        if (isLocked.boolValue == NO) {
+            notification.hasReplyButton = (BOOL)(lua_toboolean(L, 2)) ;
+            lua_pushvalue(L, 1) ;
+        } else {
+            return luaL_error(L, "notification has been dispatched and can no longer be modified") ;
+        }
     } else {
-        return luaL_error(L, "notification has been dispatched and can no longer be modified") ;
+        return luaL_error(L, "notification was not created by this module") ;
     }
     return 1;
 }
@@ -893,11 +974,15 @@ static int notification_alwaysShowAdditionalActions(lua_State *L) {
     if ([notification respondsToSelector:@selector(_alwaysShowAlternateActionMenu)]) {
         if (lua_isnone(L,2)) {
             lua_pushboolean(L, notification._alwaysShowAlternateActionMenu) ;
-        } else if (isLocked.boolValue == NO) {
-            notification._alwaysShowAlternateActionMenu = (BOOL)(lua_toboolean(L, 2)) ;
-            lua_pushvalue(L, 1) ;
+        } else if (gus) {
+            if (isLocked.boolValue == NO) {
+                notification._alwaysShowAlternateActionMenu = (BOOL)(lua_toboolean(L, 2)) ;
+                lua_pushvalue(L, 1) ;
+            } else {
+                return luaL_error(L, "notification has been dispatched and can no longer be modified") ;
+            }
         } else {
-            return luaL_error(L, "notification has been dispatched and can no longer be modified") ;
+            return luaL_error(L, "notification was not created by this module") ;
         }
     } else {
         [skin logInfo:[NSString stringWithFormat:@"%s:alwaysShowAdditionalActions() is not supported on this machine or macOS version. Please file an issue", USERDATA_TAG]];
@@ -918,6 +1003,8 @@ static int notification_alwaysShowAdditionalActions(lua_State *L) {
 /// Note:
 ///  * While this setting applies to both Banner and Alert styles of notifications, it is functionally meaningless for Banner styles
 ///  * A value of 0 will disable auto-withdrawal
+///
+///  * if the notification was not created by this module, this method will return nil
 static int notification_withdrawAfter(lua_State *L) {
     LuaSkin *skin  = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK] ;
@@ -928,12 +1015,20 @@ static int notification_withdrawAfter(lua_State *L) {
     NSNumber *isLocked = userInfo[KEY_LOCKED] ;
 
     if (lua_isnone(L,2)) {
-        [skin pushNSObject:userInfo[KEY_WITHDRAWAFTER]] ;
-    } else if (isLocked.boolValue == NO) {
-        userInfo[KEY_WITHDRAWAFTER] = [skin toNSObjectAtIndex:2] ;
-        lua_pushvalue(L, 1) ;
+        if (gus) {
+            [skin pushNSObject:userInfo[KEY_WITHDRAWAFTER]] ;
+        } else {
+            lua_pushnil(L) ;
+        }
+    } else if (gus) {
+        if (isLocked.boolValue == NO) {
+            userInfo[KEY_WITHDRAWAFTER] = [skin toNSObjectAtIndex:2] ;
+            lua_pushvalue(L, 1) ;
+        } else {
+            return luaL_error(L, "notification has been dispatched and can no longer be modified") ;
+        }
     } else {
-        return luaL_error(L, "notification has been dispatched and can no longer be modified") ;
+        return luaL_error(L, "notification was not created by this module") ;
     }
     return 1;
 }
@@ -962,15 +1057,19 @@ static int notification_responsePlaceholder(lua_State *L) {
 
     if (lua_isnone(L,2)) {
         [skin pushNSObject:notification.responsePlaceholder] ;
-    } else if (isLocked.boolValue == NO) {
-        if (lua_isnil(L,2)) {
-            notification.responsePlaceholder = @"";
+    } else if (gus) {
+        if (isLocked.boolValue == NO) {
+            if (lua_isnil(L,2)) {
+                notification.responsePlaceholder = @"";
+            } else {
+                notification.responsePlaceholder = [skin toNSObjectAtIndex:2] ;
+            }
+            lua_pushvalue(L, 1) ;
         } else {
-            notification.responsePlaceholder = [skin toNSObjectAtIndex:2] ;
+            return luaL_error(L, "notification has been dispatched and can no longer be modified") ;
         }
-        lua_pushvalue(L, 1) ;
     } else {
-        return luaL_error(L, "notification has been dispatched and can no longer be modified") ;
+        return luaL_error(L, "notification was not created by this module") ;
     }
     return 1;
 }
@@ -1035,27 +1134,31 @@ static int notification_additionalActions(lua_State *L) {
                 lua_rawseti(L, -2, luaL_len(L, -2) + 1 ) ;
             }
         }
-    } else if (isLocked.boolValue == NO) {
-        NSArray *actions = [skin toNSObjectAtIndex:2] ;
-        NSMutableArray *newActions = [[NSMutableArray alloc] init] ;
-        __block NSString *errorMsg = nil ;
-        if ([actions isKindOfClass:[NSArray class]]) {
-            [actions enumerateObjectsUsingBlock:^(NSString *item, NSUInteger idx, BOOL *stop) {
-                if (![item isKindOfClass:[NSString class]]) {
-                    errorMsg = [NSString stringWithFormat:@"expected string at index %lu", idx + 1] ;
-                    *stop = YES ;
-                } else {
-                    [newActions addObject:[NSUserNotificationAction actionWithIdentifier:item title:item]] ;
-                }
-            }] ;
+    } else if (gus) {
+        if (isLocked.boolValue == NO) {
+            NSArray *actions = [skin toNSObjectAtIndex:2] ;
+            NSMutableArray *newActions = [[NSMutableArray alloc] init] ;
+            __block NSString *errorMsg = nil ;
+            if ([actions isKindOfClass:[NSArray class]]) {
+                [actions enumerateObjectsUsingBlock:^(NSString *item, NSUInteger idx, BOOL *stop) {
+                    if (![item isKindOfClass:[NSString class]]) {
+                        errorMsg = [NSString stringWithFormat:@"expected string at index %lu", idx + 1] ;
+                        *stop = YES ;
+                    } else {
+                        [newActions addObject:[NSUserNotificationAction actionWithIdentifier:item title:item]] ;
+                    }
+                }] ;
+            } else {
+                errorMsg = @"expected a table containing an array of strings" ;
+            }
+            if (errorMsg) return luaL_argerror(L, 2, errorMsg.UTF8String) ;
+            notification.additionalActions = newActions ;
+            lua_pushvalue(L, 1) ;
         } else {
-            errorMsg = @"expected a table containing an array of strings" ;
+            return luaL_error(L, "notification has been dispatched and can no longer be modified") ;
         }
-        if (errorMsg) return luaL_argerror(L, 2, errorMsg.UTF8String) ;
-        notification.additionalActions = newActions ;
-        lua_pushvalue(L, 1) ;
     } else {
-        return luaL_error(L, "notification has been dispatched and can no longer be modified") ;
+        return luaL_error(L, "notification was not created by this module") ;
     }
     return 1 ;
 }
@@ -1123,10 +1226,15 @@ static int notification_delivered(lua_State* L) {
     NSUserNotification *notification = [skin toNSObjectAtIndex:1] ;
 
     NSString *gus = notification.userInfo[KEY_ID] ;
-    NSMutableDictionary *userInfo = ourNotificationSpecifics[gus] ;
-    NSNumber *delivered = userInfo[KEY_DELIVERED] ;
+    if (gus) {
+        NSMutableDictionary *userInfo = ourNotificationSpecifics[gus] ;
+        NSNumber *delivered = userInfo[KEY_DELIVERED] ;
 
-    lua_pushboolean(L, delivered.boolValue) ;
+        lua_pushboolean(L, delivered.boolValue) ;
+    } else {
+        NSArray *deliveredNotifications = [[NSUserNotificationCenter defaultUserNotificationCenter] deliveredNotifications] ;
+        lua_pushboolean(L, [deliveredNotifications containsObject:notification]) ;
+    }
     return 1 ;
 }
 
