@@ -12,6 +12,9 @@ uint64_t LMUtoLux(uint64_t value) {
   return lux;
 }
 
+extern int DisplayServicesGetBrightness(CGDirectDisplayID display, float *brightness) __attribute__((weak_import));
+extern int DisplayServicesSetBrightness(CGDirectDisplayID display, float brightness) __attribute__((weak_import));
+
 /// hs.brightness.ambient() -> number
 /// Function
 /// Gets the current ambient brightness
@@ -25,6 +28,8 @@ uint64_t LMUtoLux(uint64_t value) {
 /// Notes:
 ///  * Even though external Apple displays include an ambient light sensor, their data is typically not available, so this function will likely only be useful to MacBook users
 ///  * The raw sensor data is converted to lux via an algorithm used by Mozilla Firefox and is not guaranteed to give an accurate lux value
+///
+///  * At present this function does not work on Macs with Apple Silicon processors.
 static int brightness_ambient(lua_State* L) {
     kern_return_t result;
     io_service_t serviceObject;
@@ -64,19 +69,25 @@ final:
 static int brightness_set(lua_State* L) {
     double level = MIN(MAX(luaL_checkinteger(L, 1) / 100.0, 0.0), 1.0);
     bool found = false;
-    io_iterator_t iterator;
-    kern_return_t result = IOServiceGetMatchingServices(kIOMasterPortDefault,
-                                                        IOServiceMatching("IODisplayConnect"),
-                                                        &iterator);
 
-    if (result == kIOReturnSuccess)
-    {
-        io_object_t service;
-        while ((service = IOIteratorNext(iterator))) {
-            IODisplaySetFloatParameter(service, kNilOptions, CFSTR(kIODisplayBrightnessKey), level);
+    if (DisplayServicesSetBrightness != NULL) {
+        int err = DisplayServicesSetBrightness(CGMainDisplayID(), level) ;
+        found = (err == kCGErrorSuccess) ;
+    } else {
+        io_iterator_t iterator;
+        kern_return_t result = IOServiceGetMatchingServices(kIOMasterPortDefault,
+                                                            IOServiceMatching("IODisplayConnect"),
+                                                            &iterator);
 
-            IOObjectRelease(service);
-            found = true;
+        if (result == kIOReturnSuccess)
+        {
+            io_object_t service;
+            while ((service = IOIteratorNext(iterator))) {
+                IODisplaySetFloatParameter(service, kNilOptions, CFSTR(kIODisplayBrightnessKey), level);
+
+                IOObjectRelease(service);
+                found = true;
+            }
         }
     }
     lua_pushboolean(L, found);
@@ -94,21 +105,32 @@ static int brightness_set(lua_State* L) {
 /// Returns:
 ///  * A number containing the brightness of the display, between 0 and 100
 static int brightness_get(lua_State *L) {
-    io_iterator_t iterator;
-    kern_return_t result = IOServiceGetMatchingServices(kIOMasterPortDefault,
-                                                        IOServiceMatching("IODisplayConnect"),
-                                                        &iterator);
+     if (DisplayServicesGetBrightness != NULL) {
+        float level ;
+        int err = DisplayServicesGetBrightness(CGMainDisplayID(), &level) ;
+        if (err == kCGErrorSuccess) {
+            lua_pushinteger(L, level * 100.0) ;
+        } else {
+            lua_pushnil(L);
+        }
+        return 1 ;
+    } else {
+        io_iterator_t iterator;
+        kern_return_t result = IOServiceGetMatchingServices(kIOMasterPortDefault,
+                                                            IOServiceMatching("IODisplayConnect"),
+                                                            &iterator);
 
-    if (result == kIOReturnSuccess)
-    {
-        io_object_t service;
-        while ((service = IOIteratorNext(iterator))) {
-            float level;
-            IODisplayGetFloatParameter(service, kNilOptions, CFSTR(kIODisplayBrightnessKey), &level);
+        if (result == kIOReturnSuccess)
+        {
+            io_object_t service;
+            while ((service = IOIteratorNext(iterator))) {
+                float level;
+                IODisplayGetFloatParameter(service, kNilOptions, CFSTR(kIODisplayBrightnessKey), &level);
 
-            IOObjectRelease(service);
-            lua_pushinteger(L, level * 100.0);
-            return 1;
+                IOObjectRelease(service);
+                lua_pushinteger(L, level * 100.0);
+                return 1;
+            }
         }
     }
 
