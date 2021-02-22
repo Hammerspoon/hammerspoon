@@ -27,10 +27,11 @@ extern int DisplayServicesSetBrightness(CGDirectDisplayID display, float brightn
 ///
 /// Notes:
 ///  * Even though external Apple displays include an ambient light sensor, their data is typically not available, so this function will likely only be useful to MacBook users
-///  * The raw sensor data is converted to lux via an algorithm used by Mozilla Firefox and is not guaranteed to give an accurate lux value
 ///
-///  * At present this function does not work on Macs with Apple Silicon processors.
+///  * On Silicon based macs, this function uses a method similar to that used by `corebrightnessdiag` to retrieve the aggregate lux as reported to `sysdiagnose`.
+///  * On Intel based macs, the raw sensor data is converted to lux via an algorithm used by Mozilla Firefox and is not guaranteed to give an accurate lux value.
 static int brightness_ambient(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     kern_return_t result;
     io_service_t serviceObject;
     io_connect_t dataPort = 0;
@@ -39,18 +40,39 @@ static int brightness_ambient(lua_State* L) {
     uint64_t lux = -1;
 
     serviceObject = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceMatching("AppleLMUController"));
-    if (!serviceObject) goto final;
+    if (!serviceObject) {
+        // M1 macs don't have such an IOService, so we have to use an undocumented class...
 
-    result = IOServiceOpen(serviceObject, mach_task_self(), 0, &dataPort);
-    IOObjectRelease(serviceObject);
-    if (result != KERN_SUCCESS) goto final;
+        //   NSNumber *aggregatedLux = [[DisplayServicesClient new] copyPropertyForKey:@"AggregatedLux"] ;
+        NSNumber *aggregatedLux      = nil ;
+        NSObject *ourDSC             = [NSClassFromString(@"DisplayServicesClient") new] ;
+        NSString *key                = @"AggregatedLux" ;
+        void     *tempResultValuePtr = NULL ;
+        // copyPropertyForKey: has same signature as NSDictionary's objectForKey:
+        NSMethodSignature *signature  = [[NSDictionary class] instanceMethodSignatureForSelector:@selector(objectForKey:)];
+        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
+        [invocation setTarget:ourDSC];
+        [invocation setSelector:NSSelectorFromString(@"copyPropertyForKey:")];
+        [invocation setArgument:&key atIndex:2];
+        [invocation invoke];
+        [invocation getReturnValue:&tempResultValuePtr];
+        aggregatedLux = (__bridge NSNumber *)tempResultValuePtr;
+        if (aggregatedLux) {
+            [skin pushNSObject:aggregatedLux] ;
+            return 1 ;
+        } else goto final;
+    } else {
+        result = IOServiceOpen(serviceObject, mach_task_self(), 0, &dataPort);
+        IOObjectRelease(serviceObject);
+        if (result != KERN_SUCCESS) goto final;
 
-    result = IOConnectCallMethod(dataPort, 0, nil, 0, nil, 0, values, &outputs, nil, 0);
-    IOServiceClose(dataPort);
-    if (result != KERN_SUCCESS) goto final;
+        result = IOConnectCallMethod(dataPort, 0, nil, 0, nil, 0, values, &outputs, nil, 0);
+        IOServiceClose(dataPort);
+        if (result != KERN_SUCCESS) goto final;
 
-    // Take the mean of the two sensor values (note that most modern MacBooks only have one sensor, so the values are identical)
-    lux = LMUtoLux((values[0] + values[1])/2);
+        // Take the mean of the two sensor values (note that most modern MacBooks only have one sensor, so the values are identical)
+        lux = LMUtoLux((values[0] + values[1])/2);
+    }
 
 final:
     lua_pushinteger(L, lux);
