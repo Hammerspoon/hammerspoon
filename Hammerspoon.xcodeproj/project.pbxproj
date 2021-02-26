@@ -355,7 +355,6 @@
 		DAED28EC20B95E8F004602CB /* led.m in Sources */ = {isa = PBXBuildFile; fileRef = DAED28EB20B95E8E004602CB /* led.m */; };
 		E2491A2E1E98CAD80005A439 /* cpPlugin.icns in Resources */ = {isa = PBXBuildFile; fileRef = E2491A2D1E98CAD80005A439 /* cpPlugin.icns */; };
 		E29DDE461E85524F00313995 /* dsa_pub.pem in Resources */ = {isa = PBXBuildFile; fileRef = E29DDE451E85524F00313995 /* dsa_pub.pem */; };
-		E2E2B1FE1E8546FE009AEAD6 /* PFMoveApplication.m in Sources */ = {isa = PBXBuildFile; fileRef = E2E2B1FD1E8546FE009AEAD6 /* PFMoveApplication.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1492,8 +1491,6 @@
 		DE2547C1592A3EDD90D9815D /* Pods-Hammerspoon.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hammerspoon.release.xcconfig"; path = "Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon.release.xcconfig"; sourceTree = "<group>"; };
 		E2491A2D1E98CAD80005A439 /* cpPlugin.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpPlugin.icns; sourceTree = "<group>"; };
 		E29DDE451E85524F00313995 /* dsa_pub.pem */ = {isa = PBXFileReference; lastKnownFileType = text; path = dsa_pub.pem; sourceTree = "<group>"; };
-		E2E2B1FC1E8546FE009AEAD6 /* PFMoveApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PFMoveApplication.h; sourceTree = "<group>"; };
-		E2E2B1FD1E8546FE009AEAD6 /* PFMoveApplication.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PFMoveApplication.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -3438,7 +3435,6 @@
 		945B65B0198D304F002D2E30 /* Auxiliary */ = {
 			isa = PBXGroup;
 			children = (
-				E2E2B1FB1E8545F9009AEAD6 /* LetsMove */,
 				9422ACBB19B6163800F06A90 /* MJConfigUtils.h */,
 				9422ACBC19B6163800F06A90 /* MJConfigUtils.m */,
 				94A1E5461993AC5C003AEB26 /* MJFileUtils.h */,
@@ -3699,16 +3695,6 @@
 				D6FD56821C04228800BAE238 /* internal.m */,
 			);
 			name = console;
-			sourceTree = "<group>";
-		};
-		E2E2B1FB1E8545F9009AEAD6 /* LetsMove */ = {
-			isa = PBXGroup;
-			children = (
-				E2E2B1FC1E8546FE009AEAD6 /* PFMoveApplication.h */,
-				E2E2B1FD1E8546FE009AEAD6 /* PFMoveApplication.m */,
-			);
-			name = LetsMove;
-			path = ..;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -6970,7 +6956,6 @@
 				4F5B6E6E1E9E87CE003FC580 /* HSAppleScript.m in Sources */,
 				9422ACBD19B6163800F06A90 /* MJConfigUtils.m in Sources */,
 				942E71A619B1112F001BA156 /* MJPreferencesWindowController.m in Sources */,
-				E2E2B1FE1E8546FE009AEAD6 /* PFMoveApplication.m in Sources */,
 				4FA125882016739500F02FDF /* HSLogger.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

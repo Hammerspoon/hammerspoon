@@ -12,7 +12,6 @@
 #import "HSLogger.h"
 #import "variables.h"
 #import "secrets.h"
-#import "PFMoveApplication.h"
 
 @implementation MJAppDelegate
 
@@ -26,9 +25,6 @@
 
 -(void)applicationWillFinishLaunching:(NSNotification *)aNotification
 {
-    // LetsWatch:
-    PFMoveToApplicationsFolderIfNecessary();
-
     // Set up an early event manager handler so we can catch URLs used to launch us
     NSAppleEventManager *appleEventManager = [NSAppleEventManager sharedAppleEventManager];
     [appleEventManager setEventHandler:self
