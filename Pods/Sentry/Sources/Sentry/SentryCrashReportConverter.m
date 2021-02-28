@@ -1,11 +1,11 @@
 #import "SentryCrashReportConverter.h"
 #import "NSDate+SentryExtras.h"
 #import "SentryBreadcrumb.h"
-#import "SentryCrashStackEntryMapper.h"
 #import "SentryDebugMeta.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
 #import "SentryFrame.h"
+#import "SentryFrameInAppLogic.h"
 #import "SentryHexAddressFormatter.h"
 #import "SentryLog.h"
 #import "SentryMechanism.h"
@@ -23,16 +23,19 @@ SentryCrashReportConverter ()
 @property (nonatomic, strong) NSArray *threads;
 @property (nonatomic, strong) NSDictionary *systemContext;
 @property (nonatomic, strong) NSString *diagnosis;
+@property (nonatomic, strong) SentryFrameInAppLogic *frameInAppLogic;
 
 @end
 
 @implementation SentryCrashReportConverter
 
 - (instancetype)initWithReport:(NSDictionary *)report
+               frameInAppLogic:(SentryFrameInAppLogic *)frameInAppLogic
 {
     self = [super init];
     if (self) {
         self.report = report;
+        self.frameInAppLogic = frameInAppLogic;
         self.systemContext = report[@"system"];
         self.userContext = report[@"user"];
 
@@ -247,7 +250,7 @@ SentryCrashReportConverter ()
     frame.instructionAddress = sentry_formatHexAddress(frameDictionary[@"instruction_addr"]);
     frame.imageAddress = sentry_formatHexAddress(binaryImage[@"image_addr"]);
     frame.package = binaryImage[@"name"];
-    BOOL isInApp = [SentryCrashStackEntryMapper isInApp:binaryImage[@"name"]];
+    BOOL isInApp = [self.frameInAppLogic isInApp:binaryImage[@"name"]];
     frame.inApp = @(isInApp);
     if (frameDictionary[@"symbol_name"]) {
         frame.function = frameDictionary[@"symbol_name"];

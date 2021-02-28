@@ -7,16 +7,26 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface
+SentryCrashInstallationReporter ()
+
+@property (nonatomic, strong) SentryFrameInAppLogic *frameInAppLogic;
+
+@end
+
 @implementation SentryCrashInstallationReporter
 
-- (id)init
+- (instancetype)initWithFrameInAppLogic:(SentryFrameInAppLogic *)frameInAppLogic
 {
-    return [super initWithRequiredProperties:[NSArray new]];
+    if (self = [super initWithRequiredProperties:[NSArray new]]) {
+        self.frameInAppLogic = frameInAppLogic;
+    }
+    return self;
 }
 
 - (id<SentryCrashReportFilter>)sink
 {
-    return [[SentryCrashReportSink alloc] init];
+    return [[SentryCrashReportSink alloc] initWithFrameInAppLogic:self.frameInAppLogic];
 }
 
 - (void)sendAllReports

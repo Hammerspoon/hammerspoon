@@ -3,6 +3,7 @@
 #import "SentryCrashInstallationReporter.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryEvent.h"
+#import "SentryFrameInAppLogic.h"
 #import "SentryHub.h"
 #import "SentrySDK.h"
 #import "SentryScope+Private.h"
@@ -72,7 +73,11 @@ SentryCrashIntegration ()
 {
     static dispatch_once_t onceToken = 0;
     void (^block)(void) = ^{
-        installation = [[SentryCrashInstallationReporter alloc] init];
+        SentryFrameInAppLogic *frameInAppLogic =
+            [[SentryFrameInAppLogic alloc] initWithInAppIncludes:self.options.inAppIncludes
+                                                   inAppExcludes:self.options.inAppExcludes];
+        installation =
+            [[SentryCrashInstallationReporter alloc] initWithFrameInAppLogic:frameInAppLogic];
         [installation install];
 
         // We need to send the crashed event together with the crashed session in the same envelope

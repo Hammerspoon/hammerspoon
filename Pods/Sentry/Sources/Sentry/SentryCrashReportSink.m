@@ -11,7 +11,22 @@
 #import "SentrySDK.h"
 #import "SentryThread.h"
 
+@interface
+SentryCrashReportSink ()
+
+@property (nonatomic, strong) SentryFrameInAppLogic *frameInAppLogic;
+
+@end
+
 @implementation SentryCrashReportSink
+
+- (instancetype)initWithFrameInAppLogic:(SentryFrameInAppLogic *)frameInAppLogic
+{
+    if (self = [super init]) {
+        self.frameInAppLogic = frameInAppLogic;
+    }
+    return self;
+}
 
 - (void)handleConvertedEvent:(SentryEvent *)event
                       report:(NSDictionary *)report
@@ -29,7 +44,8 @@
         NSMutableArray *sentReports = [NSMutableArray new];
         for (NSDictionary *report in reports) {
             SentryCrashReportConverter *reportConverter =
-                [[SentryCrashReportConverter alloc] initWithReport:report];
+                [[SentryCrashReportConverter alloc] initWithReport:report
+                                                   frameInAppLogic:self.frameInAppLogic];
             if (nil != [SentrySDK.currentHub getClient]) {
                 SentryEvent *event = [reportConverter convertReportToEvent];
                 if (nil != event) {
