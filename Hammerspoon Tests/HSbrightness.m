@@ -26,6 +26,7 @@
 
 - (void)testGet {
     SKIP_IN_TRAVIS()
+    SKIP_IN_GITHUB_ACTIONS()
     RUN_LUA_TEST()
 }
 
