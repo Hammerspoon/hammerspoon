@@ -376,6 +376,11 @@ static NSMutableSet *_sharedWarnings ;
 
 #pragma mark - Methods for registering libraries with Lua
 
+- (int)registerLibrary:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions {
+    [self logWarn:@"This library is using an old registerLibrary method on LuaSkin"];
+    return [self registerLibrary:"Unknown" functions:functions metaFunctions:metaFunctions];
+}
+
 - (int)registerLibrary:(const char * _Nonnull)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions {
 
     NSAssert(libraryName != NULL, @"libraryName can not be NULL", nil);

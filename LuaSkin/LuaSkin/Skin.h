@@ -325,6 +325,41 @@ NSString *specMaskToString(int spec);
     {NULL, NULL} // Library arrays must always end with this
  };
 
+ [luaSkin registerLibrary:"myShinyLibrary" functions:myShinyLibrary metaFunctions:myShinyMetaLibrary];
+ @/textblock</pre>
+
+ @param libraryName - A C string containing the name of the library
+ @param functions - A static array of mappings between Lua function names and C function pointers. This provides the public API of the Lua library
+ @param metaFunctions - A static array of mappings between special meta Lua function names (such as <tt>__gc</tt>) and C function pointers
+ @return A Lua reference to the table created for this library to store its own references
+ */
+- (int)registerLibrary:(const char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions;
+
+/*!
+ @abstract (DEPRECATED) Defines a Lua library and creates a references table for the library
+ @discussion Lua libraries defined in C are simple mappings between Lua function names and C function pointers.
+
+ NOTE: You should be using - (int)registerLibrary:(const char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions;
+
+ A library consists of a series of Lua functions that are exposed to the user, and (optionally) several special Lua functions that will be used by Lua itself. The most common of these is <tt>__gc</tt> which will be called when Lua is performing garbage collection for the library.
+ These "special" functions are stored in the library's metatable. Other common metatable functions include <tt>__tostring</tt> and <tt>__index</tt>.
+
+ The mapping between Lua functions and C functions is done using an array of type <tt>luaL_Reg</tt>
+
+ Every C function pointed to in a <tt>luaL_Reg</tt> array must have the signature: <tt>static int someFunction(lua_State *L);</tt>
+
+ Here is some sample code:
+ <pre>@textblock
+ static const luaL_Reg myShinyLibrary[] = {
+    {"doThing", function_doThing},
+    {NULL, NULL} // Library arrays must always end with this
+ };
+
+ static const luaL_Reg myShinyMetaLibrary[] = {
+    {"__gc", function_doLibraryCleanup},
+    {NULL, NULL} // Library arrays must always end with this
+ };
+
  [luaSkin registerLibrary:myShinyLibrary metaFunctions:myShinyMetaLibrary];
  @/textblock</pre>
 
@@ -332,7 +367,8 @@ NSString *specMaskToString(int spec);
  @param metaFunctions - A static array of mappings between special meta Lua function names (such as <tt>__gc</tt>) and C function pointers
  @return A Lua reference to the table created for this library to store its own references
  */
-- (int)registerLibrary:(const char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions;
+- (int)registerLibrary:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions __attribute__((deprecated("Please use the version of registerLibrary that takes the library name argument","registerLibrary:functions:metaFunctions:")));
+
 
 /*!
  @abstract Defines a Lua library that creates objects, which have methods
