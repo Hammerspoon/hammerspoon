@@ -10,7 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Verify PR label
-        uses: docker://agilepathway/pull-request-label-checker:latest
+        uses: jesusvasquez333/verify-pr-label-action@v1.3.1
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          one_of: 'pr-fix, pr-change, pr-feature, pr-maintenance'
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+          valid-labels: 'pr-fix, pr-change, pr-feature, pr-maintenance'
+          pull-request-number: '${{ github.event.pull_request.number }}'
