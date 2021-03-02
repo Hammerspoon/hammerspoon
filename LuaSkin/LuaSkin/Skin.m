@@ -321,7 +321,17 @@ static NSMutableSet *_sharedWarnings ;
 }
 
 - (BOOL)checkLuaSkinInstance:(NSString *)checkUUID {
-    return [self.uuid.UUIDString isEqualToString:checkUUID];
+    // FIXME: For now this is going to always return YES. I want to see if it associates with crashes in the wild.
+    // FIXME: This method should just be the following commented out line.
+    //return [self.uuid.UUIDString isEqualToString:
+
+    if (![self.uuid.UUIDString isEqualToString:checkUUID]) {
+        [self logBreadcrumb:@"LUASKIN UUID MISMATCH DETECTED"];
+    } else {
+        [self logBreadcrumb:@"LuaSkin UUID matches correctly"];
+    }
+
+    return YES;
 }
 
 #pragma mark - Methods for calling into Lua from C
