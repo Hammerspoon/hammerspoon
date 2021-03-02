@@ -188,6 +188,8 @@ NSString *specMaskToString(int spec);
  */
 @property (class, readonly, atomic) lua_State *mainLuaState ;
 
+@property (atomic) NSUUID *uuid;
+
 #pragma mark - Class lifecycle
 
 /*!
@@ -257,6 +259,8 @@ NSString *specMaskToString(int spec);
  @abstract Recreates the Lua environment in the LuaSkin object, from scratch
  */
 - (void)resetLuaState;
+
+- (BOOL)checkLuaSkinInstance:(NSString *)checkUUID;
 
 #pragma mark - Methods for calling into Lua from C
 
@@ -512,6 +516,7 @@ NSString *specMaskToString(int spec);
  @return An integer reference to the object that was at the top of the stack
  */
 - (int)luaRef:(int)refTable forNSObject:(id)object ;
+
 
 #pragma mark - Conversion from NSObjects into Lua objects
 

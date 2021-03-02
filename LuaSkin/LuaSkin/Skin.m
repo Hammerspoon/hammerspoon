@@ -256,6 +256,7 @@ static NSMutableSet *_sharedWarnings ;
 - (void)createLuaState {
     NSLog(@"createLuaState");
     NSAssert((LuaSkin.mainLuaState == NULL), @"createLuaState called on a live Lua environment", nil);
+    self.uuid = [NSUUID UUID];
     LuaSkin.mainLuaState = luaL_newstate();
     luaL_openlibs(LuaSkin.mainLuaState);
 
@@ -317,6 +318,20 @@ static NSMutableSet *_sharedWarnings ;
     NSAssert((LuaSkin.mainLuaState != NULL), @"resetLuaState called with no Lua environment", nil);
     [self destroyLuaState];
     [self createLuaState];
+}
+
+- (BOOL)checkLuaSkinInstance:(NSString *)checkUUID {
+    // FIXME: For now this is going to always return YES. I want to see if it associates with crashes in the wild.
+    // FIXME: This method should just be the following commented out line.
+    //return [self.uuid.UUIDString isEqualToString:
+
+    if (![self.uuid.UUIDString isEqualToString:checkUUID]) {
+        [self logBreadcrumb:@"LUASKIN UUID MISMATCH DETECTED"];
+    } else {
+        [self logBreadcrumb:@"LuaSkin UUID matches correctly"];
+    }
+
+    return YES;
 }
 
 #pragma mark - Methods for calling into Lua from C
