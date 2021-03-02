@@ -1,0 +1,16 @@
+name: Pull Request Label Checker
+
+on:
+  pull_request_target:
+    types: [opened, reopened, labeled, unlabeled, synchronize]
+
+jobs:
+  check_labels:
+    name: Verify PR has a valid label
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify PR label
+        uses: docker://agilepathway/pull-request-label-checker:latest
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          one_of: 'pr-fix, pr-change, pr-feature, pr-maintenance'
