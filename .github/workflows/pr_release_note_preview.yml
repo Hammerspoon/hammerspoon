@@ -26,4 +26,4 @@ jobs:
         with:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           header: release_notes_preview
-          message: ${{ steps.release_notes_generator.outputs.changelog }}
+          message: "# Release Notes Preview\n\n${{ steps.release_notes_generator.outputs.changelog }}"
