@@ -1,0 +1,26 @@
+name: Release Notes Preview
+
+on:
+  pull_request_target:
+    types: [opened, reopened, edited, synchronize]
+
+jobs:
+  generate_preview:
+    name: Generate Release Notes preview
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Generate Release Notes
+        id: release_notes_generator
+        uses: mikepenz/release-changelog-builder-action@main
+        with:
+          configuration: ".github/workflows/release_notes_config.json"
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Add PR comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          header: release_notes_preview
+          message: ${{ steps.release_notes_generator.outputs.changelog }}
