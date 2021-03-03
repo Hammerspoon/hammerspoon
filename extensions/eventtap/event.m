@@ -1,5 +1,8 @@
+#import <Foundation/Foundation.h>
+#import "TouchEvents.h"
 #import "eventtap_event.h"
 #import "HSuicore.h"
+#include "IOHIDEventTypes.h"
 @import IOKit.hidsystem ;
 
 #define FLAGS_TAG "hs.eventtap.event.flags"
@@ -69,6 +72,187 @@ static int eventtap_event_newEventFromData(lua_State* L) {
     NSData *data = [skin toNSObjectAtIndex:1 withOptions:LS_NSLuaStringAsDataOnly] ;
 
     CGEventRef event = CGEventCreateFromData(NULL, (__bridge CFDataRef)data);
+    if (event) {
+        new_eventtap_event(L, event);
+        CFRelease(event);
+    } else {
+        lua_pushnil(L) ;
+    }
+    return 1;
+}
+
+/// hs.eventtap.event.newGesture(gestureType[, gestureValue]) -> event
+/// Constructor
+/// Creates an gesture event.
+///
+/// Parameters:
+///  * gestureType - the type of gesture you want to create as a string (see notes below).
+///  * [gestureValue] - an optional value for the specific gesture (i.e. magnification amount or rotation in degrees).
+///
+/// Returns:
+///  * a new `hs.eventtap.event` object or `nil` if the `gestureType` is not valid.
+///
+/// Notes:
+///  * Valid gestureType values are:
+///   * `beginMagnify` - Starts a magnification event with an optional magnification value as a number (defaults to 0). The exact unit of measurement is unknown.
+///   * `endMagnify` - Starts a magnification event with an optional magnification value as a number (defaults to 0.1). The exact unit of measurement is unknown.
+///   * `beginRotate` - Starts a rotation event with an rotation value in degrees (i.e. a value of 45 turns it 45 degrees left - defaults to 0).
+///   * `endRotate` - Starts a rotation event with an rotation value in degrees (i.e. a value of 45 turns it 45 degrees left - defaults to 45).
+///   * `beginSwipeLeft` - Begin a swipe left.
+///   * `endSwipeLeft` - End a swipe left.
+///   * `beginSwipeRight` - Begin a swipe right.
+///   * `endSwipeRight` - End a swipe right.
+///   * `beginSwipeUp` - Begin a swipe up.
+///   * `endSwipeUp` - End a swipe up.
+///   * `beginSwipeDown` - Begin a swipe down.
+///   * `endSwipeDown` - End a swipe down.
+///
+///  * Example Usage:
+///   ```lua
+///   hs.hotkey.bind({"cmd", "alt", "ctrl"}, "1", function()
+///       print("Magnify slightly")
+///       a = require("hs.eventtap.event").newGesture("beginMagnify", 0)
+///       b = require("hs.eventtap.event").newGesture("endMagnify", 0.1)
+///       a:post()
+///       b:post()
+///   end)
+///   hs.hotkey.bind({"cmd", "alt", "ctrl"}, "2", function()
+///       print("Swipe down")
+///       a = require("hs.eventtap.event").newGesture("beginSwipeDown")
+///       b = require("hs.eventtap.event").newGesture("endSwipeDown")
+///       a:post()
+///       b:post()
+///   end)
+///   hs.hotkey.bind({"cmd", "alt", "ctrl"}, "3", function()
+///       print("Rotate 45 degrees left")
+///       a = require("hs.eventtap.event").newGesture("beginRotate", 0)
+///       b = require("hs.eventtap.event").newGesture("endRotate", 45)
+///       a:post()
+///       b:post()
+///   end)
+///   hs.hotkey.bind({"cmd", "alt", "ctrl"}, "4", function()
+///       print("Rotate 45 degrees right")
+///       a = require("hs.eventtap.event").newGesture("beginRotate", 0)
+///       b = require("hs.eventtap.event").newGesture("endRotate", -45)
+///       a:post()
+///       b:post()
+///   end)
+///   ```
+static int eventtap_event_newGesture(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+    [skin checkArgs:LS_TSTRING, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK] ;
+    
+    NSString *gesture = [skin toNSObjectAtIndex:1];
+    NSDictionary* gestureDict;
+    
+    if ([gesture isEqualToString:@"beginSwipeLeft"]) {
+        gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                       @(kTLInfoSubtypeSwipe), kTLInfoKeyGestureSubtype,
+                       @(kIOHIDEventPhaseBegan), kTLInfoKeyGesturePhase,
+                       nil];
+    }
+    else if ([gesture isEqualToString:@"endSwipeLeft"]) {
+        gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                       @(kTLInfoSubtypeSwipe), kTLInfoKeyGestureSubtype,
+                       @(kTLInfoSwipeLeft), kTLInfoKeySwipeDirection,
+                       @(kIOHIDEventPhaseEnded), kTLInfoKeyGesturePhase,
+                       nil];
+    }
+    else if ([gesture isEqualToString:@"beginSwipeRight"]) {
+        gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                       @(kTLInfoSubtypeSwipe), kTLInfoKeyGestureSubtype,
+                       @(kIOHIDEventPhaseBegan), kTLInfoKeyGesturePhase,
+                       nil];
+    }
+    else if ([gesture isEqualToString:@"endSwipeRight"]) {
+        gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                       @(kTLInfoSubtypeSwipe), kTLInfoKeyGestureSubtype,
+                       @(kTLInfoSwipeRight), kTLInfoKeySwipeDirection,
+                       @(kIOHIDEventPhaseEnded), kTLInfoKeyGesturePhase,
+                       nil];
+    }
+    else if ([gesture isEqualToString:@"beginSwipeUp"]) {
+        gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                       @(kTLInfoSubtypeSwipe), kTLInfoKeyGestureSubtype,
+                       @(kIOHIDEventPhaseBegan), kTLInfoKeyGesturePhase,
+                       nil];
+    }
+    else if ([gesture isEqualToString:@"endSwipeUp"]) {
+        gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                       @(kTLInfoSubtypeSwipe), kTLInfoKeyGestureSubtype,
+                       @(kTLInfoSwipeUp), kTLInfoKeySwipeDirection,
+                       @(kIOHIDEventPhaseEnded), kTLInfoKeyGesturePhase,
+                       nil];
+    }
+    else if ([gesture isEqualToString:@"beginSwipeDown"]) {
+        gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                       @(kTLInfoSubtypeSwipe), kTLInfoKeyGestureSubtype,
+                       @(kIOHIDEventPhaseBegan), kTLInfoKeyGesturePhase,
+                       nil];
+    }
+    else if ([gesture isEqualToString:@"endSwipeDown"]) {
+        gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                       @(kTLInfoSubtypeSwipe), kTLInfoKeyGestureSubtype,
+                       @(kTLInfoSwipeDown), kTLInfoKeySwipeDirection,
+                       @(kIOHIDEventPhaseEnded), kTLInfoKeyGesturePhase,
+                       nil];
+    }
+    else if ([gesture isEqualToString:@"beginMagnify"]) {
+        NSNumber *magnificationValue = [skin toNSObjectAtIndex:2];
+        double magnification = 0.0;
+        if (magnificationValue) {
+            magnification = [magnificationValue floatValue];
+        }
+        gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                       @(kTLInfoSubtypeMagnify), kTLInfoKeyGestureSubtype,
+                       @(kIOHIDEventPhaseBegan), kTLInfoKeyGesturePhase,
+                       @(magnification), kTLInfoKeyMagnification,
+                       nil];
+    }
+    else if ([gesture isEqualToString:@"endMagnify"]) {
+        NSNumber *magnificationValue = [skin toNSObjectAtIndex:2];
+        double magnification = 0.1;
+        if (magnificationValue) {
+            magnification = [magnificationValue floatValue];
+        }
+        gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                       @(kTLInfoSubtypeMagnify), kTLInfoKeyGestureSubtype,
+                       @(kIOHIDEventPhaseEnded), kTLInfoKeyGesturePhase,
+                       @(magnification), kTLInfoKeyMagnification,
+                       nil];
+    }
+    else if ([gesture isEqualToString:@"beginRotate"]) {
+        NSNumber *rotatationValue = [skin toNSObjectAtIndex:2];
+        double rotatation = 0.0;
+        if (rotatationValue) {
+            rotatation = [rotatationValue floatValue];
+        }
+        gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                       @(kTLInfoSubtypeRotate), kTLInfoKeyGestureSubtype,
+                       @(kIOHIDEventPhaseBegan), kTLInfoKeyGesturePhase,
+                       @(rotatation), kTLInfoKeyRotation,
+                       nil];
+    }
+    else if ([gesture isEqualToString:@"endRotate"]) {
+        NSNumber *rotatationValue = [skin toNSObjectAtIndex:2];
+        double rotatation = 45;
+        if (rotatationValue) {
+            rotatation = [rotatationValue floatValue];
+        }
+        gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                       @(kTLInfoSubtypeRotate), kTLInfoKeyGestureSubtype,
+                       @(kIOHIDEventPhaseEnded), kTLInfoKeyGesturePhase,
+                       @(rotatation), kTLInfoKeyRotation,
+                       nil];
+    }
+    else
+    {
+        [LuaSkin logError:@"hs.eventtap.event.newGesture() - Invalid gesture identifier supplied."];
+        lua_pushnil(L) ;
+        return 1;
+    }
+    
+    CGEventRef event = tl_CGEventCreateFromGesture((__bridge CFDictionaryRef)(gestureDict), (__bridge CFArrayRef)@[]);
     if (event) {
         new_eventtap_event(L, event);
         CFRelease(event);
@@ -496,6 +680,8 @@ static int eventtap_event_post(lua_State* L) {
         }
     }
     else {
+        // NOTE: @latenitefilms has tried to use `kCGHIDEventTap` as discussed in #2104
+        //       however, it doesn't seem to be any different than `kCGSessionEventTap`
         CGEventPost(kCGSessionEventTap, event);
     }
 
@@ -1389,6 +1575,7 @@ static const luaL_Reg eventtapevent_metalib[] = {
 
 // Functions for returned object when module loads
 static luaL_Reg eventtapeventlib[] = {
+    {"newGesture",        eventtap_event_newGesture},
     {"newEvent",          eventtap_event_newEvent},
     {"newEventFromData",  eventtap_event_newEventFromData},
     {"newKeyEvent",       eventtap_event_newKeyEvent},
@@ -1506,7 +1693,10 @@ int luaopen_hs_eventtap_event(lua_State* L) {
     lua_setfield(L, -2, "__index");
     lua_pop(L, 1);
 
+    // NOTE: @latenitefilms has tried to use `kCGEventSourceStateCombinedSessionState`
+    //       and `kCGEventSourceStateHIDSystemState` as discussed in #2104
+    //       however, it doesn't seem to be any different than `kCGEventSourceStatePrivate`
     eventSource = CGEventSourceCreate(kCGEventSourceStatePrivate);
-//     eventSource = CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
+    
     return 1;
 }

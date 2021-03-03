@@ -11,6 +11,10 @@
 		224BA32C23D1ECA900487FDB /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		22613FEC1F297E0D00E05E11 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		22613FF51F2A127E00E05E11 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 22613FE41F297B9B00E05E11 /* internal.m */; };
+		22652B39251C38AC000FF14D /* TouchEvents.c in Sources */ = {isa = PBXBuildFile; fileRef = 22652B37251C38AB000FF14D /* TouchEvents.c */; };
+		22652B3A251C38AC000FF14D /* TouchEvents.h in Headers */ = {isa = PBXBuildFile; fileRef = 22652B38251C38AB000FF14D /* TouchEvents.h */; };
+		22652B3D251C3914000FF14D /* IOHIDEventData.h in Headers */ = {isa = PBXBuildFile; fileRef = 22652B3B251C3913000FF14D /* IOHIDEventData.h */; };
+		22652B3E251C3914000FF14D /* IOHIDEventTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 22652B3C251C3914000FF14D /* IOHIDEventTypes.h */; };
 		22738935248606F0003EBC68 /* HSwebsocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 22738934248606F0003EBC68 /* HSwebsocket.m */; };
 		2273893624860C0E003EBC68 /* test_websocket.lua in Resources */ = {isa = PBXBuildFile; fileRef = 22738933248606A9003EBC68 /* test_websocket.lua */; };
 		22DF5D2023B9A9D300C41AE6 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
@@ -1004,6 +1008,10 @@
 		22613FE41F297B9B00E05E11 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/dialog/internal.m; sourceTree = "<group>"; };
 		22613FE51F297B9B00E05E11 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/dialog/init.lua; sourceTree = "<group>"; };
 		22613FF11F297E0D00E05E11 /* libdialog.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libdialog.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		22652B37251C38AB000FF14D /* TouchEvents.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = TouchEvents.c; path = extensions/eventtap/TouchEvents.c; sourceTree = "<group>"; };
+		22652B38251C38AB000FF14D /* TouchEvents.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TouchEvents.h; path = extensions/eventtap/TouchEvents.h; sourceTree = "<group>"; };
+		22652B3B251C3913000FF14D /* IOHIDEventData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOHIDEventData.h; path = extensions/eventtap/IOHIDEventData.h; sourceTree = "<group>"; };
+		22652B3C251C3914000FF14D /* IOHIDEventTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOHIDEventTypes.h; path = extensions/eventtap/IOHIDEventTypes.h; sourceTree = "<group>"; };
 		22738933248606A9003EBC68 /* test_websocket.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_websocket.lua; path = extensions/websocket/test_websocket.lua; sourceTree = "<group>"; };
 		22738934248606F0003EBC68 /* HSwebsocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSwebsocket.m; sourceTree = "<group>"; };
 		22DF5D1A23B99C4D00C41AE6 /* watcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = watcher.m; path = extensions/pasteboard/watcher.m; sourceTree = "<group>"; };
@@ -2249,6 +2257,17 @@
 			name = dialog;
 			sourceTree = "<group>";
 		};
+		22652B3F251C391E000FF14D /* gestures */ = {
+			isa = PBXGroup;
+			children = (
+				22652B3B251C3913000FF14D /* IOHIDEventData.h */,
+				22652B3C251C3914000FF14D /* IOHIDEventTypes.h */,
+				22652B37251C38AB000FF14D /* TouchEvents.c */,
+				22652B38251C38AB000FF14D /* TouchEvents.h */,
+			);
+			name = gestures;
+			sourceTree = "<group>";
+		};
 		22DF5D2923B9AA1E00C41AE6 /* pasteboardwatcher */ = {
 			isa = PBXGroup;
 			children = (
@@ -3087,6 +3106,7 @@
 		4FD0ABE81B74B34E00A82496 /* eventtapevent */ = {
 			isa = PBXGroup;
 			children = (
+				22652B3F251C391E000FF14D /* gestures */,
 				4FD0ABE91B74B36000A82496 /* event.m */,
 				4FD0ABEA1B74B36000A82496 /* eventtap_event.h */,
 			);
@@ -4083,7 +4103,10 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				22652B3D251C3914000FF14D /* IOHIDEventData.h in Headers */,
 				4FD0ABEC1B74B36000A82496 /* eventtap_event.h in Headers */,
+				22652B3A251C38AC000FF14D /* TouchEvents.h in Headers */,
+				22652B3E251C3914000FF14D /* IOHIDEventTypes.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6813,6 +6836,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				22652B39251C38AC000FF14D /* TouchEvents.c in Sources */,
 				4FD0ABEB1B74B36000A82496 /* event.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
