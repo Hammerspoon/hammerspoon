@@ -2,11 +2,11 @@
     "categories": [
         {
             "title": "## Fixed",
-            "labels": "pr-fixed"
+            "labels": "pr-fix"
         },
         {
             "title": "## Changed",
-            "labels": "pr-changed"
+            "labels": "pr-change"
         },
         {
             "title": "## Added",
