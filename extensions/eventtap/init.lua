@@ -10,6 +10,25 @@
 --- Create, modify and inspect events for `hs.eventtap`
 ---
 --- This module is based primarily on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
+---
+--- `hs.eventtap.event.newGesture` uses an external library by Calf Trail Software, LLC.
+---
+--- Touch
+--- Copyright (C) 2010 Calf Trail Software, LLC
+---
+--- This program is free software; you can redistribute it and/or
+--- modify it under the terms of the GNU General Public License
+--- as published by the Free Software Foundation; either version 2
+--- of the License, or (at your option) any later version.
+---
+--- This program is distributed in the hope that it will be useful,
+--- but WITHOUT ANY WARRANTY; without even the implied warranty of
+--- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+--- GNU General Public License for more details.
+---
+--- You should have received a copy of the GNU General Public License
+--- along with this program; if not, write to the Free Software
+--- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 local module   = require("hs.eventtap.internal")
 module.event   = require("hs.eventtap.event")
@@ -18,44 +37,6 @@ local keycodes = require("hs.keycodes")
 local timer    = require("hs.timer")
 
 -- private variables and methods -----------------------------------------
-
-local __tostring_for_tables = function(self)
-    local result = ""
-    local width = 0
-    for i,_ in fnutils.sortByKeys(self) do
-        if type(i) == "string" and width < i:len() then width = i:len() end
-    end
-    for i,v in fnutils.sortByKeys(self) do
-        if type(i) == "string" then
-            result = result..string.format("%-"..tostring(width).."s %d\n", i, v)
-        end
-    end
-    return result
-end
-
-local __index_for_types = function(object, key)
-    for i,_ in pairs(object) do
-        if type(i) == "string" then -- ignore numbered keys
-            if i:lower() == key then
-                print(debug.getinfo(2).short_src..":"..debug.getinfo(2).currentline..": type '"..key.."' is deprecated, use '"..i.."'")
-                return object[i]
-            end
-        end
-    end
-    return nil
-end
-
-local __index_for_props = function(object, key)
-    for i,_ in pairs(object) do
-        if type(i) == "string" then -- ignore numbered keys
-            if i:sub(1,1):upper()..i:sub(2,-1) == key then
-                print(debug.getinfo(2).short_src..":"..debug.getinfo(2).currentline..": property '"..key.."' is deprecated, use '"..i.."'")
-                return object[i]
-            end
-        end
-    end
-    return nil
-end
 
 local function getKeycode(s)
   local n
@@ -85,14 +66,8 @@ local function getMods(mods)
   return r
 end
 
--- note the tables backing these constants should be modified to only include the string -> number
--- assignments before they can be safely wrapped with ls.makeConstantsTable, but as there is a pull
--- outstanding which modifies these tables, this is being delayed to simplify merging.
-module.event.types      = setmetatable(module.event.types,      { __index    = __index_for_types,
-                                                                  __tostring = __tostring_for_tables })
-module.event.properties = setmetatable(module.event.properties, { __index    = __index_for_props,
-                                                                  __tostring = __tostring_for_tables })
-
+module.event.types        = ls.makeConstantsTable(module.event.types)
+module.event.properties   = ls.makeConstantsTable(module.event.properties)
 module.event.rawFlagMasks = ls.makeConstantsTable(module.event.rawFlagMasks)
 
 -- Public interface ------------------------------------------------------

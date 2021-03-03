@@ -3951,6 +3951,10 @@ static int userdata_gc(lua_State* L) {
 
         theView.selfRef          = [skin luaUnref:refTable ref:theView.selfRef] ;
 
+        NSDockTile *tile     = [[NSApplication sharedApplication] dockTile];
+        NSView     *tileView = tile.contentView ;
+        if (tileView && [theView isEqualTo:tileView]) tile.contentView = nil ;
+
         HSCanvasWindow *theWindow = theView.wrapperWindow ;
         if (theWindow) [theWindow close];
         theView.wrapperWindow    = nil ;

@@ -9,6 +9,13 @@
 #define APPLICATION_USERDATA_TAG    "hs.application"
 #define MODS_USERDATA_TAG           "hs.eventtap.event.modifiers"
 
+@interface NSTouch (private)
+@property (atomic, readonly) NSPoint previousNormalizedPosition ;
+@property (atomic, readonly) double  timestamp ;
+
+- (double)_force ;
+@end
+
 NSPoint hs_topoint(lua_State* L, int idx) {
     luaL_checktype(L, idx, LUA_TTABLE);
     CGFloat x = ((void)lua_getfield(L, idx, "x"), luaL_checknumber(L, -1));
