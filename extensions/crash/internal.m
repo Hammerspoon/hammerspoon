@@ -134,7 +134,7 @@ static const luaL_Reg crashlib[] = {
 
 int luaopen_hs_crash_internal(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin registerLibrary:crashlib metaFunctions:nil];
+    [skin registerLibrary:"hs.crash" functions:crashlib metaFunctions:nil];
 
     return 1;
 }

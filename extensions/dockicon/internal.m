@@ -165,7 +165,7 @@ static luaL_Reg icon_lib[] = {
 
 int luaopen_hs_dockicon_internal(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin registerLibrary:icon_lib metaFunctions:nil];
+    [skin registerLibrary:"hs.dockicon" functions:icon_lib metaFunctions:nil];
 
     return 1;
 }

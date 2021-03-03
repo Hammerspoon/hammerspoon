@@ -1000,7 +1000,7 @@ int luaopen_hs_location_internal(lua_State *L) {
     // before gc_finalize), kick off the object's dealloc method
     if (location) location = nil ;
 
-    refTable = [skin registerLibrary:moduleLib metaFunctions:module_metaLib] ;
+    refTable = [skin registerLibrary:USERDATA_TAG functions:moduleLib metaFunctions:module_metaLib] ;
 
     [skin registerPushNSHelper:pushCLLocation             forClass:"CLLocation"] ;
     [skin registerLuaObjectHelper:CLLocationFromLua       forClass:"CLLocation"

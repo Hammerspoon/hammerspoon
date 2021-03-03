@@ -279,7 +279,7 @@ static const luaL_Reg mouseLib[] = {
 
 int luaopen_hs_mouse_internal(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin registerLibrary:mouseLib metaFunctions:nil];
+    [skin registerLibrary:"hs.mouse" functions:mouseLib metaFunctions:nil];
 
     return 1;
 }

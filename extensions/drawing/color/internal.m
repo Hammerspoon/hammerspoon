@@ -300,7 +300,7 @@ static luaL_Reg moduleLib[] = {
 
 int luaopen_hs_drawing_color_internal(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    refTable = [skin registerLibrary:moduleLib metaFunctions:nil] ; // or module_metaLib
+    refTable = [skin registerLibrary:"hs.drawing" functions:moduleLib metaFunctions:nil] ; // or module_metaLib
     colorCollectionsTable = LUA_NOREF ;
 
     [skin registerPushNSHelper:NSColor_tolua      forClass:"NSColor"] ;
