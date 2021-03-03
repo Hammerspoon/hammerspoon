@@ -17,7 +17,7 @@
         "pr-maintenance"
     ],
     "pr_template": "- ${{TITLE}}",
-    "empty_template": "- None"
+    "empty_template": "- None",
     "template": "${{CHANGELOG}}",
     "sort": "ASC"
 }
