@@ -162,8 +162,8 @@ end
 
 function testVolume()
   local device = hs.audiodevice.defaultOutputDevice()
-  originalVolume = device:volume()
-  wantVolume = 25
+  local originalVolume = device:volume()
+  local wantVolume = 25
 
   if (type(originalVolume) ~= "number") then
     print("Audiodevice does not support volume. Skipping test due to lack of hardware")
@@ -183,47 +183,47 @@ function testVolume()
 end
 
 function testInputVolume()
-local device = hs.audiodevice.defaultInputDevice()
-originalVolume = device:inputVolume()
-wantVolume = 25
+  local device = hs.audiodevice.defaultInputDevice()
+  local originalVolume = device:inputVolume()
+  local wantVolume = 25
 
-if (type(originalVolume) ~= "number") then
-print("Audiodevice does not support volume. Skipping test due to lack of hardware")
-return success()
-end
+  if (type(originalVolume) ~= "number") then
+    print("Audiodevice does not support volume. Skipping test due to lack of hardware")
+    return success()
+  end
 
--- Set the volume to 0 and test if we can set it to a high value
-assertTrue(device:setInputVolume(0))
-assertTrue(device:setInputVolume(wantVolume))
+  -- Set the volume to 0 and test if we can set it to a high value
+  assertTrue(device:setInputVolume(0))
+  assertTrue(device:setInputVolume(wantVolume))
 
-assertIsAlmostEqual(wantVolume, device:inputVolume(), 2)
+  assertIsAlmostEqual(wantVolume, device:inputVolume(), 2)
 
--- Be nice and put the volume back where we found it
-device:setInputVolume(originalVolume)
+  -- Be nice and put the volume back where we found it
+  device:setInputVolume(originalVolume)
 
-return success()
+  return success()
 end
 
 function testOutputVolume()
-local device = hs.audiodevice.defaultOutputDevice()
-originalVolume = device:outputVolume()
-wantVolume = 25
+  local device = hs.audiodevice.defaultOutputDevice()
+  local originalVolume = device:outputVolume()
+  local wantVolume = 25
 
-if (type(originalVolume) ~= "number") then
-print("Audiodevice does not support volume. Skipping test due to lack of hardware")
-return success()
-end
+  if (type(originalVolume) ~= "number") then
+    print("Audiodevice does not support volume. Skipping test due to lack of hardware")
+    return success()
+  end
 
--- Set the volume to 0 and test if we can set it to a high value
-assertTrue(device:setOutputVolume(0))
-assertTrue(device:setOutputVolume(wantVolume))
+  -- Set the volume to 0 and test if we can set it to a high value
+  assertTrue(device:setOutputVolume(0))
+  assertTrue(device:setOutputVolume(wantVolume))
 
-assertIsAlmostEqual(wantVolume, device:outputVolume(), 2)
+  assertIsAlmostEqual(wantVolume, device:outputVolume(), 2)
 
--- Be nice and put the volume back where we found it
-device:setOutputVolume(originalVolume)
+  -- Be nice and put the volume back where we found it
+  device:setOutputVolume(originalVolume)
 
-return success()
+  return success()
 end
 
 function testWatcher()
