@@ -18,6 +18,7 @@ jobs:
         uses: mikepenz/release-changelog-builder-action@main
         with:
           configuration: ".github/workflows/release_notes_config.json"
+          toTag: "HEAD"
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
       - name: Add PR comment

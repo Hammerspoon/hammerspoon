@@ -20,5 +20,4 @@
     "empty_template": "- None",
     "template": "${{CHANGELOG}}",
     "sort": "ASC",
-    "toTag": "HEAD"
 }
