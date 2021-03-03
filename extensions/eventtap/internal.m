@@ -343,7 +343,7 @@ static int secureInputEnabled(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TBREAK];
 
-    BOOL isSecure = (BOOL)IsSecureEventInputEnabled();
+    BOOL isSecure = (BOOL)(IsSecureEventInputEnabled());
 
     lua_pushboolean(L, isSecure);
     return 1;
