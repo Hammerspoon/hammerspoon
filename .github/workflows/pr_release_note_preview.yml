@@ -13,6 +13,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Debug git tags
         run: |
+          pwd
           git tag
           /usr/bin/git rev-list --tags --skip=0 --max-count=1
           /usr/bin/git describe --abbrev=0 --tags HEAD
