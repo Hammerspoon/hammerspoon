@@ -265,7 +265,7 @@ function testSetMode()
   assertIsUserdataOfType("hs.screen", primary)
 
   local mode = primary:currentMode()
-  assertTrue(primary:setMode(mode["w"], mode["h"], mode["scale"]))
+  assertTrue(primary:setMode(mode["w"], mode["h"], mode["scale"], mode["freq"], mode["depth"]))
 
   return success()
 end
