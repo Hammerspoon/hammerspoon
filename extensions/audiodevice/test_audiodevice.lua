@@ -41,7 +41,13 @@ function testGetAllOutputDevices()
 end
 
 function testFindDeviceByName()
-  assertIsUserdataOfType("hs.audiodevice", hs.audiodevice.findDeviceByName("Built-in Output"))
+  local devices = hs.audiodevice.allOutputDevices()
+
+  local found = hs.audiodevice.findDeviceByName(devices[1]:name())
+
+  assertIsEqual(devices[1], found)
+  assertIsUserdataOfType("hs.audiodevice", found)
+
   return success()
 end
 
