@@ -8,7 +8,11 @@
  */
 #include "TouchEvents.h"
 #include <mach/mach_time.h>
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wzero-length-array"
 #include "IOHIDEventData.h"
+#pragma clang diagnostic pop
 
 const CFStringRef kTLInfoKeyDeviceID = CFSTR("deviceID");
 const CFStringRef kTLInfoKeyTimestamp = CFSTR("timestamp");
