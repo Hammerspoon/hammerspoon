@@ -11,6 +11,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Debug git tags
+        run: |
+          git tag
+          /usr/bin/git rev-list --tags --skip=0 --max-count=1
+          /usr/bin/git describe --abbrev=0 --tags HEAD
       - name: Generate Release Notes
         id: release_notes_generator
         uses: mikepenz/release-changelog-builder-action@main
