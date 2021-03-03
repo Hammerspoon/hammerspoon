@@ -19,5 +19,6 @@
     "pr_template": "- ${{TITLE}}",
     "empty_template": "- None",
     "template": "${{CHANGELOG}}",
-    "sort": "ASC"
+    "sort": "ASC",
+    "toTag": "HEAD"
 }
