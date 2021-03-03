@@ -2,15 +2,15 @@
     "categories": [
         {
             "title": "## Fixed",
-            "labels": "pr-fix"
+            "labels": ["pr-fix"]
         },
         {
             "title": "## Changed",
-            "labels": "pr-change"
+            "labels": ["pr-change"]
         },
         {
             "title": "## Added",
-            "labels": "pr-feature"
+            "labels": ["pr-feature"]
         }
     ],
     "ignore_labels": [
@@ -20,4 +20,7 @@
     "empty_template": "- None",
     "template": "${{CHANGELOG}}",
     "sort": "ASC",
+    "tag_resolver": {
+        "method": "sort",
+    }
 }
