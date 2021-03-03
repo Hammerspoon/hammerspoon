@@ -10,7 +10,7 @@
 #define streamdeck_h
 
 #pragma mark - Global variables
-extern int streamDeckRefTable;
+extern LSRefTable streamDeckRefTable;
 static const char *USERDATA_TAG = "hs.streamdeck";
 
 #define USB_VID_ELGATO                 0x0fd9

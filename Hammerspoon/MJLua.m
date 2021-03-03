@@ -34,7 +34,7 @@ static int completionsForWordFn;
 
 static lua_CFunction oldPanicFunction ;
 
-static int refTable;
+static LSRefTable refTable;
 
 static void(^loghandler)(NSString* str);
 void MJLuaSetupLogHandler(void(^blk)(NSString* str)) {

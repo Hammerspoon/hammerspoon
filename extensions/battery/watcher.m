@@ -13,7 +13,7 @@
 // Common Code
 
 #define USERDATA_TAG    "hs.battery.watcher"
-static int refTable;
+static LSRefTable refTable;
 
 // Not so common code
 

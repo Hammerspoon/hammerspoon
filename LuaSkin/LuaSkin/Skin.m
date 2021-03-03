@@ -256,6 +256,7 @@ static NSMutableSet *_sharedWarnings ;
 - (void)createLuaState {
     NSLog(@"createLuaState");
     NSAssert((LuaSkin.mainLuaState == NULL), @"createLuaState called on a live Lua environment", nil);
+    self.uuid = [NSUUID UUID];
     LuaSkin.mainLuaState = luaL_newstate();
     luaL_openlibs(LuaSkin.mainLuaState);
 
@@ -319,6 +320,20 @@ static NSMutableSet *_sharedWarnings ;
     [self createLuaState];
 }
 
+- (BOOL)checkLuaSkinInstance:(NSString *)checkUUID {
+    // FIXME: For now this is going to always return YES. I want to see if it associates with crashes in the wild.
+    // FIXME: This method should just be the following commented out line.
+    //return [self.uuid.UUIDString isEqualToString:
+
+    if (![self.uuid.UUIDString isEqualToString:checkUUID]) {
+        [self logBreadcrumb:@"LUASKIN UUID MISMATCH DETECTED"];
+    } else {
+        [self logBreadcrumb:@"LuaSkin UUID matches correctly"];
+    }
+
+    return YES;
+}
+
 #pragma mark - Methods for calling into Lua from C
 
 - (BOOL)protectedCallAndTraceback:(int)nargs nresults:(int)nresults {
@@ -376,12 +391,12 @@ static NSMutableSet *_sharedWarnings ;
 
 #pragma mark - Methods for registering libraries with Lua
 
-- (int)registerLibrary:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions {
+- (LSRefTable)registerLibrary:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions {
     [self logWarn:@"This library is using an old registerLibrary method on LuaSkin"];
     return [self registerLibrary:"Unknown" functions:functions metaFunctions:metaFunctions];
 }
 
-- (int)registerLibrary:(const char * _Nonnull)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions {
+- (LSRefTable)registerLibrary:(const char * _Nonnull)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions {
 
     NSAssert(libraryName != NULL, @"libraryName can not be NULL", nil);
     // Ensure we're not given a null function table
@@ -436,7 +451,7 @@ static NSMutableSet *_sharedWarnings ;
     return tmpRefTable;
 }
 
-- (int)registerLibraryWithObject:(const char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions objectFunctions:(const luaL_Reg *)objectFunctions {
+- (LSRefTable)registerLibraryWithObject:(const char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions objectFunctions:(const luaL_Reg *)objectFunctions {
 
     NSAssert(libraryName != NULL, @"libraryName can not be NULL", nil);
     NSAssert(functions != NULL, @"functions can not be NULL (%s)", libraryName);

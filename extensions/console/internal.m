@@ -28,7 +28,7 @@
 - (void) reflectDefaults ;
 @end
 
-static int refTable = LUA_NOREF;
+static LSRefTable refTable = LUA_NOREF;
 
 /// hs.console.darkMode([state]) -> bool
 /// Function

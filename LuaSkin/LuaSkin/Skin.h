@@ -45,6 +45,8 @@ extern int luaopen_luaskin_internal(lua_State* L) ; // entry vector to luaskin.m
 // Define a break variable for the reference checker
 #define LS_RBREAK INT_MIN
 
+typedef int LSRefTable;
+
 // Define some bits for masking operations in the argument checker
 /*!
   @definedblock Bit masks for Lua type checking
@@ -188,6 +190,8 @@ NSString *specMaskToString(int spec);
  */
 @property (class, readonly, atomic) lua_State *mainLuaState ;
 
+@property (atomic) NSUUID *uuid;
+
 #pragma mark - Class lifecycle
 
 /*!
@@ -257,6 +261,8 @@ NSString *specMaskToString(int spec);
  @abstract Recreates the Lua environment in the LuaSkin object, from scratch
  */
 - (void)resetLuaState;
+
+- (BOOL)checkLuaSkinInstance:(NSString *)checkUUID;
 
 #pragma mark - Methods for calling into Lua from C
 
@@ -333,7 +339,7 @@ NSString *specMaskToString(int spec);
  @param metaFunctions - A static array of mappings between special meta Lua function names (such as <tt>__gc</tt>) and C function pointers
  @return A Lua reference to the table created for this library to store its own references
  */
-- (int)registerLibrary:(const char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions;
+- (LSRefTable)registerLibrary:(const char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions;
 
 /*!
  @abstract (DEPRECATED) Defines a Lua library and creates a references table for the library
@@ -365,10 +371,9 @@ NSString *specMaskToString(int spec);
 
  @param functions - A static array of mappings between Lua function names and C function pointers. This provides the public API of the Lua library
  @param metaFunctions - A static array of mappings between special meta Lua function names (such as <tt>__gc</tt>) and C function pointers
- @return A Lua reference to the table created for this library to store its own references
+ @return An opaque reference to the table created for this library to store its own references
  */
-- (int)registerLibrary:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions __attribute__((deprecated("Please use the version of registerLibrary that takes the library name argument","registerLibrary:functions:metaFunctions:")));
-
+- (LSRefTable)registerLibrary:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions __attribute__((deprecated("Please use the version of registerLibrary that takes the library name argument","registerLibrary:functions:metaFunctions:")));
 
 /*!
  @abstract Defines a Lua library that creates objects, which have methods
@@ -401,9 +406,9 @@ NSString *specMaskToString(int spec);
  @param functions - A static array of mappings between Lua function names and C function pointers. This provides the public API of the Lua library
  @param metaFunctions - A static array of mappings between special meta Lua function names (such as "__gc") and C function pointers
  @param objectFunctions - A static array of mappings between Lua object method names and C function pointers. This provides the public API of objects created by this library. Note that this object is also used as the metatable, so special functions (e.g. "__gc") should be included here
- @return A Lua reference to the table created for this library to store its own references
+ @return An opaque reference to the table created for this library to store its own references
  */
-- (int)registerLibraryWithObject:(const char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions objectFunctions:(const luaL_Reg *)objectFunctions;
+- (LSRefTable)registerLibraryWithObject:(const char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions objectFunctions:(const luaL_Reg *)objectFunctions;
 
 /*!
  @abstract Defines a Lua object with methods
@@ -433,7 +438,7 @@ NSString *specMaskToString(int spec);
  @abstract Stores a reference to the object at the top of the Lua stack, in the supplied table, and pops the object off the stack
  <br> This method is functionally analogous to luaL_ref(), it just takes care of pushing the supplied table ref onto the stack, and removes it afterwards
 
- @param refTable - An integer reference to a table, (e.g. the result of a previous luaRef on a table object or the result of the module's registration through registerLibrary:metaFunctions: or registerLibraryWithObject:functions:metaFunctions:objectFunctions:)
+ @param refTable - An opaque reference to a table, (e.g. the result of a previous luaRef on a table object or the result of the module's registration through registerLibrary:metaFunctions: or registerLibraryWithObject:functions:metaFunctions:objectFunctions:)
  @return An integer reference to the object that was at the top of the stack
  */
 - (int)luaRef:(int)refTable;
@@ -441,7 +446,7 @@ NSString *specMaskToString(int spec);
 /*!
  @abstract Stores a reference to the object at the specified position of the Lua stack, in the supplied table, without removing the object from the stack
 
- @param refTable - An integer reference to a table, (e.g. the result of a previous luaRef on a table object or the result of the module's registration through registerLibrary:metaFunctions: or registerLibraryWithObject:functions:metaFunctions:objectFunctions:)
+ @param refTable - An opaque reference to a table, (e.g. the result of a previous luaRef on a table object or the result of the module's registration through registerLibrary:metaFunctions: or registerLibraryWithObject:functions:metaFunctions:objectFunctions:)
  @param idx - An integer stack position
  @return An integer reference to the object at the specified stack position
  */
@@ -452,7 +457,7 @@ NSString *specMaskToString(int spec);
 
  <br> This method is functionally analogous to luaL_unref(), it just takes care of pushing the supplied table ref onto the Lua stack, and removes it afterwards
 
- @param refTable - An integer reference to a table, (e.g. the result of a previous luaRef on a table object or the result of the module's registration through registerLibrary:metaFunctions: or registerLibraryWithObject:functions:metaFunctions:objectFunctions:)
+ @param refTable - An opaque reference to a table, (e.g. the result of a previous luaRef on a table object or the result of the module's registration through registerLibrary:metaFunctions: or registerLibraryWithObject:functions:metaFunctions:objectFunctions:)
  @param ref - An integer reference for an object that should be removed from the refTable table
  @return An integer, always LUA_NOREF (you are advised to store this value in the variable containing the ref parameter, so it does not become a stale reference)
  */
@@ -463,7 +468,7 @@ NSString *specMaskToString(int spec);
 
  <br> This method is functionally analogous to lua_rawgeti(), it just takes care of pushing the supplied table ref onto the Lua stack, and removes it afterwards
 
- @param refTable - An integer reference to a table, (e.g. the result of a previous luaRef on a table object or the result of the module's registration through registerLibrary:metaFunctions: or registerLibraryWithObject:functions:metaFunctions:objectFunctions:)
+ @param refTable - An opaque reference to a table, (e.g. the result of a previous luaRef on a table object or the result of the module's registration through registerLibrary:metaFunctions: or registerLibraryWithObject:functions:metaFunctions:objectFunctions:)
  @param ref - An integer reference for an object that should be pushed onto the stack
  @return An integer containing the Lua type of the object pushed onto the stack
  */
@@ -541,13 +546,14 @@ NSString *specMaskToString(int spec);
 
  <br> Use luaUnref:ref: to release an object retained by this method. Returns LUA_NOREF if canPushNSObject: returns NO.
 
- @param refTable - An integer reference to a table, (e.g. the result of a previous luaRef on a table object or the result of the module's registration through registerLibrary:metaFunctions: or registerLibraryWithObject:functions:metaFunctions:objectFunctions:)
+ @param refTable - An opaque reference to a table, (e.g. the result of a previous luaRef on a table object or the result of the module's registration through registerLibrary:metaFunctions: or registerLibraryWithObject:functions:metaFunctions:objectFunctions:)
 
  @param object an NSObject
 
  @return An integer reference to the object that was at the top of the stack
  */
 - (int)luaRef:(int)refTable forNSObject:(id)object ;
+
 
 #pragma mark - Conversion from NSObjects into Lua objects
 

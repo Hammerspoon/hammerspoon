@@ -3,7 +3,7 @@
 #import <LuaSkin/LuaSkin.h>
 
 #define USERDATA_TAG "hs.hotkey"
-static int refTable;
+static LSRefTable refTable;
 
 @interface HSKeyRepeatManager : NSObject {
     NSTimer *keyRepeatTimer;

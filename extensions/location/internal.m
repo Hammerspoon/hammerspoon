@@ -8,7 +8,7 @@
 
 static const char *USERDATA_TAG   = "hs.location" ;
 static const char *GEOCODE_UD_TAG = "hs.location.geocode" ;
-static int        refTable        = LUA_NOREF;
+static LSRefTable  refTable       = LUA_NOREF;
 static int        callbackRef     = LUA_NOREF ;
 static HSLocation *location ;
 
@@ -850,7 +850,24 @@ static int pushCLPlacemark(lua_State *L, id obj) {
     lua_newtable(L) ;
       [skin pushNSObject:[thePlace location]] ;                 lua_setfield(L, -2, "location") ;
       [skin pushNSObject:[thePlace name]] ;                     lua_setfield(L, -2, "name") ;
-      [skin pushNSObject:[thePlace addressDictionary]] ;        lua_setfield(L, -2, "addressDictionary") ;
+
+      // Generate addressDictionary which used to exist as a property on CLPlacemark, but is now deprecated
+      NSDictionary *addressDictionary = @{
+          @"City": thePlace.locality,
+          @"Country": thePlace.country,
+          @"CountryCode": thePlace.ISOcountryCode,
+          @"FormattedAddressLines": @[ thePlace.name, thePlace.locality, thePlace.postalCode, thePlace.administrativeArea],
+          @"Name": thePlace.name,
+          @"State": thePlace.administrativeArea,
+          @"Street": [NSString stringWithFormat:@"%@ %@", thePlace.subThoroughfare, thePlace.thoroughfare],
+          @"SubAdministrativeArea": thePlace.subAdministrativeArea,
+          @"SubLocality": thePlace.subLocality,
+          @"SubThoroughfare": thePlace.subThoroughfare,
+          @"Thoroughfare": thePlace.thoroughfare,
+          @"ZIP": thePlace.postalCode
+      };
+
+      [skin pushNSObject:addressDictionary] ;                   lua_setfield(L, -2, "addressDictionary") ;
       [skin pushNSObject:[thePlace ISOcountryCode]] ;           lua_setfield(L, -2, "countryCode") ;
       [skin pushNSObject:[thePlace country]] ;                  lua_setfield(L, -2, "country") ;
       [skin pushNSObject:[thePlace postalCode]] ;               lua_setfield(L, -2, "postalCode") ;

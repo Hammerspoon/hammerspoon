@@ -5,7 +5,7 @@
 #import "../../Hammerspoon/MJAppDelegate.h"
 #import "../../Hammerspoon/MJDockIcon.h"
 
-static int refTable;
+static LSRefTable refTable;
 NSArray *defaultContentTypes = nil;
 
 // ----------------------- Objective C ---------------------

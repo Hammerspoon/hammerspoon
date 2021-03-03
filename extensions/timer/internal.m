@@ -5,7 +5,7 @@
 // Common Code
 
 static const char *USERDATA_TAG = "hs.timer";
-static int refTable;
+static LSRefTable refTable;
 
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 
@@ -17,6 +17,7 @@ static int refTable;
 @property BOOL continueOnError;
 @property BOOL repeats;
 @property NSTimeInterval interval;
+@property NSString *luaSkinUUID;
 
 - (void)create:(NSTimeInterval)interval repeat:(BOOL)repeat;
 - (void)callback:(NSTimer *)timer;
@@ -36,6 +37,12 @@ static int refTable;
 - (void)callback:(NSTimer *)timer {
     LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     _lua_stackguard_entry(skin.L);
+
+    if (![skin checkLuaSkinInstance:self.luaSkinUUID]) {
+        [skin logBreadcrumb: @"hs.eventtap callback arrived for a different LuaSkin instance"];
+        _lua_stackguard_exit(skin.L);
+        return;
+    }
 
     if (!timer.isValid) {
         [skin logBreadcrumb:@"hs.timer callback fired on an invalid hs.timer object. This is a bug"];
@@ -110,6 +117,10 @@ HSTimer *createHSTimer(NSTimeInterval interval, int callbackRef, BOOL continueOn
     timer.repeats = repeat;
     timer.interval = interval;
     [timer create:interval repeat:repeat];
+
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+    // NOTE: The stringWithString call here is vital, so we get a true copy of UUIDString - we must not simply point at it, or we'll never be able to use it to detect an inconsistency later.
+    timer.luaSkinUUID = [NSString stringWithString:skin.uuid.UUIDString];
 
     return timer;
 }

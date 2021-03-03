@@ -143,7 +143,7 @@ static int pushTestUserData(lua_State *L, id object) {
 
 @interface LuaSkinTests : XCTestCase
 @property LuaSkin *skin;
-@property int refTable;
+@property LSRefTable refTable;
 @property int evalfn;
 @end
 

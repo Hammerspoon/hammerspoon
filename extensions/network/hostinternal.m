@@ -7,7 +7,7 @@
 @import Darwin.POSIX.netdb ;
 
 #define USERDATA_TAG    "hs.network.host"
-static int              refTable          = LUA_NOREF;
+static LSRefTable       refTable          = LUA_NOREF;
 
 #define get_structFromUserdata(objType, L, idx) ((objType *)luaL_checkudata(L, idx, USERDATA_TAG))
 

@@ -3,7 +3,7 @@
 #define VIEW_DEBUG
 
 static const char *USERDATA_TAG = "hs.canvas" ;
-static int refTable = LUA_NOREF;
+static LSRefTable refTable = LUA_NOREF;
 static BOOL defaultCustomSubRole = YES ;
 
 // Can't have "static" or "constant" dynamic NSObjects like NSArray, so define in lua_open
@@ -3950,6 +3950,10 @@ static int userdata_gc(lua_State* L) {
         theView.draggingCallbackRef = [skin luaUnref:refTable ref:theView.draggingCallbackRef] ;
 
         theView.selfRef          = [skin luaUnref:refTable ref:theView.selfRef] ;
+
+        NSDockTile *tile     = [[NSApplication sharedApplication] dockTile];
+        NSView     *tileView = tile.contentView ;
+        if (tileView && [theView isEqualTo:tileView]) tile.contentView = nil ;
 
         HSCanvasWindow *theWindow = theView.wrapperWindow ;
         if (theWindow) [theWindow close];

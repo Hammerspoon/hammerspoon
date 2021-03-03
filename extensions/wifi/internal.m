@@ -3,7 +3,7 @@
 @import LuaSkin;
 
 static const char *USERDATA_TAG = "hs.wifi" ;
-static int        refTable      = LUA_NOREF;
+static LSRefTable  refTable     = LUA_NOREF;
 
 #define get_objectFromUserdata(objType, L, idx) (objType*)*((void**)luaL_checkudata(L, idx, USERDATA_TAG))
 
