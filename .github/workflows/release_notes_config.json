@@ -18,7 +18,7 @@
     ],
     "pr_template": "- ${{TITLE}}",
     "empty_template": "- None",
-    "template": "${{CHANGELOG}}",
+    "template": "${{CHANGELOG}}\n\nOther:\n${{UNCATEGORIZED}}",
     "sort": "ASC",
     "tag_resolver": {
         "method": "sort",
