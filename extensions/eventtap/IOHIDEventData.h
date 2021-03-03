@@ -29,14 +29,14 @@
     uint32_t        size;       \
     IOHIDEventType  type;       \
     uint64_t        timestamp;  \
-    uint32_t        options;
+    uint32_t        options
 
 #define IOHIDAXISEVENT_BASE     \
     struct {                    \
         IOFixed x;              \
         IOFixed y;              \
         IOFixed z;              \
-    } position;
+    } position
 
 
 // NOTE: original Apple source had "struct IOHIDEventData" instead of typedef
@@ -74,7 +74,7 @@ typedef uint8_t IOHIDDigitizerOrientationType;
         IOFixed         pressure;       \
         uint8_t         buttonNumber;   \
         uint8_t         clickState;     \
-    } button;
+    } button
 
 typedef struct _IOHIDButtonEventData {
     IOHIDEVENT_BASE;
