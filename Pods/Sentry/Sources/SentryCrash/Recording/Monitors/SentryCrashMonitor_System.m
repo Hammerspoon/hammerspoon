@@ -84,7 +84,7 @@ static volatile bool g_isEnabled = false;
 #pragma mark - Utility -
 // ============================================================================
 
-const char *
+static const char *
 cString(NSString *str)
 {
     return str == NULL ? NULL : strdup(str.UTF8String);

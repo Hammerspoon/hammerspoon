@@ -110,6 +110,12 @@
 - (void)swizzleSendAction
 {
 #if SENTRY_HAS_UIKIT
+
+    // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
+    // fine and we accept this warning.
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow"
+
     static const void *swizzleSendActionKey = &swizzleSendActionKey;
     SEL selector = NSSelectorFromString(@"sendAction:to:from:forEvent:");
     SentrySwizzleInstanceMethod(UIApplication.class, selector, SentrySWReturnType(BOOL),
@@ -131,6 +137,7 @@
             return SentrySWCallOriginal(action, target, sender, event);
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, swizzleSendActionKey);
+#    pragma clang diagnostic pop
 #else
     [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker "
                               @"swizzleSendAction] does nothing."
@@ -141,6 +148,12 @@
 - (void)swizzleViewDidAppear
 {
 #if SENTRY_HAS_UIKIT
+
+    // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
+    // fine and we accept this warning.
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow"
+
     static const void *swizzleViewDidAppearKey = &swizzleViewDidAppearKey;
     SEL selector = NSSelectorFromString(@"viewDidAppear:");
     SentrySwizzleInstanceMethod(UIViewController.class, selector, SentrySWReturnType(void),
@@ -162,6 +175,7 @@
             SentrySWCallOriginal(animated);
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewDidAppearKey);
+#    pragma clang diagnostic pop
 #else
     [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker "
                               @"swizzleViewDidAppear] does nothing."

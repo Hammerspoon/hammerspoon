@@ -2,7 +2,7 @@
 #import "SentryIntegrationProtocol.h"
 
 @class SentryEvent, SentryClient, SentryScope, SentrySession, SentryUser, SentryBreadcrumb,
-    SentryId, SentryUserFeedback;
+    SentryId, SentryUserFeedback, SentryEnvelope;
 
 NS_ASSUME_NONNULL_BEGIN
 @interface SentryHub : NSObject
@@ -151,6 +151,16 @@ SENTRY_NO_INIT
  * Set global user -> thus will be sent with every event
  */
 - (void)setUser:(SentryUser *_Nullable)user;
+
+/**
+ * The SDK reserves this method for hybrid SDKs, which use it to capture events.
+ *
+ * @discussion We increase the session error count if an envelope is passed in containing an
+ * event with event.level error or higher. Ideally, we would check the mechanism and/or exception
+ * list, like the Java and Python SDK do this, but this would require full deserialization of the
+ * event.
+ */
+- (void)captureEnvelope:(SentryEnvelope *)envelope NS_SWIFT_NAME(capture(envelope:));
 
 @end
 

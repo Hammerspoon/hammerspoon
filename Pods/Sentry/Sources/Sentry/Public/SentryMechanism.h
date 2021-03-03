@@ -5,6 +5,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class SentryNSError;
+
 NS_SWIFT_NAME(Mechanism)
 @interface SentryMechanism : NSObject <SentrySerializable>
 SENTRY_NO_INIT
@@ -16,8 +18,8 @@ SENTRY_NO_INIT
 @property (nonatomic, copy) NSString *type;
 
 /**
- * Human readable description of the error mechanism and a possible
- * hint on how to solve this error
+ * Human readable description of the error mechanism and a possible hint on how to solve this error.
+ * We can't use description as it overlaps with NSObject.description.
  */
 @property (nonatomic, copy) NSString *_Nullable desc;
 
@@ -26,6 +28,11 @@ SENTRY_NO_INIT
  * this mechanism
  */
 @property (nonatomic, strong) NSDictionary<NSString *, id> *_Nullable data;
+
+/**
+ * Sentry uses the NSErrors domain and code for grouping. Only domain and code are serialized.
+ */
+@property (nonatomic, strong) SentryNSError *_Nullable error;
 
 /**
  * Flag indicating whether the exception has been handled by the user

@@ -1,4 +1,5 @@
 #import "eventtap_event.h"
+#import "HSuicore.h"
 
 #define USERDATA_TAG        "hs.eventtap"
 static int refTable;
@@ -8,6 +9,7 @@ typedef struct _eventtap_t {
     CGEventMask mask;
     CFMachPortRef tap;
     CFRunLoopSourceRef runloopsrc;
+    char luaSkinUUID[37];
 } eventtap_t;
 
 CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon) {
@@ -17,9 +19,17 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef
 
     eventtap_t* e = refcon;
 
+    // Guard against this callback being delivered at a point where LuaSkin has been reset and our references wouldn't make sense anymore
+    if (![skin checkLuaSkinInstance:[NSString stringWithCString:e->luaSkinUUID encoding:NSUTF8StringEncoding]]) {
+        [skin logBreadcrumb:@"hs.eventtap callback arrived for a different LuaSkin instance"];
+        _lua_stackguard_exit(L);
+        return event; // Allow the event to pass through unmodified
+    }
+
     // Guard against a crash where e->fn is a LUA_NOREF/LUA_REFNIL, which shouldn't be possible (maybe a subtle race condition?)
     if (e->fn == LUA_NOREF || e->fn == LUA_REFNIL) {
         [skin logBreadcrumb:@"eventtap_callback called with LUA_NOREF/LUA_REFNIL"];
+        _lua_stackguard_exit(L);
         return event;
     }
 
@@ -67,12 +77,13 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef
         return event;
 }
 
-/// hs.eventtap.keyStrokes(text)
+/// hs.eventtap.keyStrokes(text[, application])
 /// Function
 /// Generates and emits keystroke events for the supplied text
 ///
 /// Parameters:
 ///  * text - A string containing the text to be typed
+///  * application - An optional hs.application object to send the keystrokes to
 ///
 /// Returns:
 ///  * None
@@ -80,8 +91,24 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef
 /// Notes:
 ///  * If you want to send a single keystroke with keyboard modifiers (e.g. sending ⌘-v to paste), see `hs.eventtap.keyStroke()`
 static int eventtap_keyStrokes(lua_State* L) {
-    luaL_checktype(L, 1, LUA_TSTRING);
-    NSString *theString = [NSString stringWithUTF8String:luaL_checkstring(L, 1)];
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TSTRING, LS_TANY|LS_TOPTIONAL, LS_TBREAK];
+
+    NSString *theString = [skin toNSObjectAtIndex:1];
+    HSapplication *app = nil;
+    ProcessSerialNumber psn;
+
+    if (lua_type(L, 2) == LUA_TUSERDATA && luaL_checkudata(L, 2, "hs.application")) {
+        app = [skin toNSObjectAtIndex:2];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        OSStatus err = GetProcessForPID(app.pid, &psn);
+#pragma clang diagnostic pop
+        if (err != noErr) {
+            [skin logError:[NSString stringWithFormat:@"Unable to get PSN for: %@", app]];
+            return 0;
+        }
+    }
 
     CGEventRef keyDownEvent = CGEventCreateKeyboardEvent(nil, 0, true);
     CGEventRef keyUpEvent = CGEventCreateKeyboardEvent(nil, 0, false);
@@ -94,12 +121,20 @@ static int eventtap_keyStrokes(lua_State* L) {
         // Send the keydown
         CGEventSetFlags(keyDownEvent, (CGEventFlags)0);
         CGEventKeyboardSetUnicodeString(keyDownEvent, 1, &buffer);
-        CGEventPost(kCGHIDEventTap, keyDownEvent);
+        if (app) {
+            CGEventPostToPSN(&psn, keyDownEvent);
+        } else {
+            CGEventPost(kCGHIDEventTap, keyDownEvent);
+        }
 
         // Send the keyup
         CGEventSetFlags(keyUpEvent, (CGEventFlags)0);
         CGEventKeyboardSetUnicodeString(keyUpEvent, 1, &buffer);
-        CGEventPost(kCGHIDEventTap, keyUpEvent);
+        if (app) {
+            CGEventPostToPSN(&psn, keyUpEvent);
+        } else {
+            CGEventPost(kCGHIDEventTap, keyUpEvent);
+        }
     }
     CFRelease(keyDownEvent);
     CFRelease(keyUpEvent);
@@ -130,6 +165,7 @@ static int eventtap_new(lua_State* L) {
     memset(eventtap, 0, sizeof(eventtap_t));
 
     eventtap->tap = NULL ;
+    strncpy(eventtap->luaSkinUUID, [skin.uuid.UUIDString cStringUsingEncoding:NSUTF8StringEncoding], 36);
 
     lua_pushnil(L);
     while (lua_next(L, 1) != 0) {

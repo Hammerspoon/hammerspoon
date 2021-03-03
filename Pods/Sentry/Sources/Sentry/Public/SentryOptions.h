@@ -2,7 +2,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryDsn;
+@class SentryDsn, SentrySdkInfo;
 
 NS_SWIFT_NAME(Options)
 @interface SentryOptions : NSObject
@@ -80,6 +80,17 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, copy) SentryBeforeBreadcrumbCallback _Nullable beforeBreadcrumb;
 
 /**
+ * This gets called shortly after the initialization of the SDK when the last program execution
+ * terminated with a crash. It is not guaranteed that this is called on the main thread.
+ *
+ * @discussion This callback is only executed once during the entire run of the program to avoid
+ * multiple callbacks if there are multiple crash events to send. This can happen when the program
+ * terminates with a crash before the SDK can send the crash event. You can look into beforeSend if
+ * you prefer a callback for every event.
+ */
+@property (nonatomic, copy) SentryOnCrashedLastRunCallback _Nullable onCrashedLastRun;
+
+/**
  * Array of integrations to install.
  */
 @property (nonatomic, copy) NSArray<NSString *> *_Nullable integrations;
@@ -110,9 +121,32 @@ NS_SWIFT_NAME(Options)
  * always attached to exceptions but when this is set stack traces are also sent with messages.
  * Stack traces are only attached for the current thread.
  *
- * This feature is disabled by default.
+ * This feature is enabled by default.
  */
 @property (nonatomic, assign) BOOL attachStacktrace;
+
+/**
+ * Describes the Sentry SDK and its configuration used to capture and transmit an event.
+ */
+@property (nonatomic, readonly, strong) SentrySdkInfo *sdkInfo;
+
+/**
+ * The maximum size for each attachment in bytes. Default is 20 MiB / 20 * 1024 * 1024 bytes.
+ *
+ * Please also check the maximum attachment size of relay to make sure your attachments don't get
+ * discarded there: https://docs.sentry.io/product/relay/options/
+ */
+@property (nonatomic, assign) NSUInteger maxAttachmentSize;
+
+/**
+ * When enabled, the SDK sends personal identifiable along with events. The default is
+ * <code>NO</code>.
+ *
+ * @discussion When the user of an event doesn't contain an IP address, the SDK sets it to
+ * <code>{{auto}}</code> to instruct the server to use the connection IP address as the user
+ * address.
+ */
+@property (nonatomic, assign) BOOL sendDefaultPii;
 
 @end
 

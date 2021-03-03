@@ -14,9 +14,13 @@
 #import "SentryId.h"
 #import "SentryInstallation.h"
 #import "SentryLog.h"
+#import "SentryMechanism.h"
 #import "SentryMessage.h"
 #import "SentryMeta.h"
+#import "SentryNSError.h"
 #import "SentryOptions.h"
+#import "SentrySDK+Private.h"
+#import "SentryScope+Private.h"
 #import "SentryScope.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentryThreadInspector.h"
@@ -130,7 +134,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 {
     SentryEvent *event = [self buildExceptionEvent:exception];
     event = [self prepareEvent:event withScope:scope alwaysAttachStacktrace:YES];
-    return [self sendEvent:event withSession:session];
+    return [self sendEvent:event withSession:session withScope:scope];
 }
 
 - (SentryEvent *)buildExceptionEvent:(NSException *)exception
@@ -160,29 +164,49 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 {
     SentryEvent *event = [self buildErrorEvent:error];
     event = [self prepareEvent:event withScope:scope alwaysAttachStacktrace:YES];
-    return [self sendEvent:event withSession:session];
+    return [self sendEvent:event withSession:session withScope:scope];
 }
 
 - (SentryEvent *)buildErrorEvent:(NSError *)error
 {
-    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
-    NSString *formatted = [NSString stringWithFormat:@"%@ %ld", error.domain, (long)error.code];
-    SentryMessage *message = [[SentryMessage alloc] initWithFormatted:formatted];
-    message.message = [error.domain stringByAppendingString:@" %s"];
-    message.params = @[ [NSString stringWithFormat:@"%ld", (long)error.code] ];
-    event.message = message;
-    [self setUserInfo:error.userInfo withEvent:event];
+    SentryEvent *event = [[SentryEvent alloc] initWithError:error];
+
+    NSString *exceptionValue = [NSString stringWithFormat:@"Code: %ld", (long)error.code];
+    SentryException *exception = [[SentryException alloc] initWithValue:exceptionValue
+                                                                   type:error.domain];
+
+    // Sentry uses the error domain and code on the mechanism for gouping
+    SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:@"NSError"];
+    mechanism.error = [[SentryNSError alloc] initWithDomain:error.domain code:error.code];
+    // The description of the error can be especially useful for error from swift that
+    // use a simple enum.
+    mechanism.desc = error.description;
+
+    NSDictionary<NSString *, id> *userInfo = [error.userInfo sentry_sanitize];
+    mechanism.data = userInfo;
+    exception.mechanism = mechanism;
+    event.exceptions = @[ exception ];
+
+    // Once the UI displays the mechanism data we can the userInfo from the event.context.
+    [self setUserInfo:userInfo withEvent:event];
+
     return event;
 }
 
-- (SentryId *)captureEvent:(SentryEvent *)event
-               withSession:(SentrySession *)session
-                 withScope:(SentryScope *)scope
+- (SentryId *)captureCrashEvent:(SentryEvent *)event withScope:(SentryScope *)scope
+{
+    return [self sendEvent:event withScope:scope alwaysAttachStacktrace:NO isCrashEvent:YES];
+}
+
+- (SentryId *)captureCrashEvent:(SentryEvent *)event
+                    withSession:(SentrySession *)session
+                      withScope:(SentryScope *)scope
 {
     SentryEvent *preparedEvent = [self prepareEvent:event
                                           withScope:scope
-                             alwaysAttachStacktrace:NO];
-    return [self sendEvent:preparedEvent withSession:session];
+                             alwaysAttachStacktrace:NO
+                                       isCrashEvent:YES];
+    return [self sendEvent:preparedEvent withSession:session withScope:scope];
 }
 
 - (SentryId *)captureEvent:(SentryEvent *)event
@@ -199,29 +223,42 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                  withScope:(SentryScope *)scope
     alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
 {
+    return [self sendEvent:event
+                     withScope:scope
+        alwaysAttachStacktrace:alwaysAttachStacktrace
+                  isCrashEvent:NO];
+}
+
+- (SentryId *)sendEvent:(SentryEvent *)event
+                 withScope:(SentryScope *)scope
+    alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+              isCrashEvent:(BOOL)isCrashEvent
+{
     SentryEvent *preparedEvent = [self prepareEvent:event
                                           withScope:scope
-                             alwaysAttachStacktrace:alwaysAttachStacktrace];
+                             alwaysAttachStacktrace:alwaysAttachStacktrace
+                                       isCrashEvent:isCrashEvent];
 
     if (nil != preparedEvent) {
-        [self.transport sendEvent:preparedEvent];
+        [self.transport sendEvent:preparedEvent attachments:scope.attachments];
         return preparedEvent.eventId;
     }
 
     return SentryId.empty;
 }
 
-- (SentryId *)sendEvent:(SentryEvent *)event withSession:(SentrySession *)session
+- (SentryId *)sendEvent:(SentryEvent *)event
+            withSession:(SentrySession *)session
+              withScope:(SentryScope *)scope
 {
-
     if (nil != event) {
         if (nil == session.releaseName || [session.releaseName length] == 0) {
             [SentryLog logWithMessage:DropSessionLogMessage andLevel:kSentryLogLevelDebug];
-            [self.transport sendEvent:event];
+            [self.transport sendEvent:event attachments:scope.attachments];
             return event.eventId;
         }
 
-        [self.transport sendEvent:event withSession:session];
+        [self.transport sendEvent:event withSession:session attachments:scope.attachments];
         return event.eventId;
     } else {
         [self captureSession:session];
@@ -290,6 +327,17 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                              withScope:(SentryScope *)scope
                 alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
 {
+    return [self prepareEvent:event
+                     withScope:scope
+        alwaysAttachStacktrace:alwaysAttachStacktrace
+                  isCrashEvent:NO];
+}
+
+- (SentryEvent *_Nullable)prepareEvent:(SentryEvent *)event
+                             withScope:(SentryScope *)scope
+                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+                          isCrashEvent:(BOOL)isCrashEvent
+{
     NSParameterAssert(event);
     if ([self isDisabled]) {
         [self logDisabledMessage];
@@ -340,12 +388,12 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         || (nil != event.exceptions && [event.exceptions count] > 0);
 
     BOOL debugMetaNotAttached = !(nil != event.debugMeta && event.debugMeta.count > 0);
-    if (shouldAttachStacktrace && debugMetaNotAttached) {
+    if (!isCrashEvent && shouldAttachStacktrace && debugMetaNotAttached) {
         event.debugMeta = [self.debugMetaBuilder buildDebugMeta];
     }
 
     BOOL threadsNotAttached = !(nil != event.threads && event.threads.count > 0);
-    if (shouldAttachStacktrace && threadsNotAttached) {
+    if (!isCrashEvent && shouldAttachStacktrace && threadsNotAttached) {
         event.threads = [self.threadInspector getCurrentThreads];
     }
 
@@ -360,10 +408,23 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
     // Need to do this after the scope is applied cause this sets the user if there is any
     [self setUserIdIfNoUserSet:event];
 
+    // User can't be nil as setUserIdIfNoUserSet sets it.
+    if (self.options.sendDefaultPii && nil == event.user.ipAddress) {
+        // Let Sentry infer the IP address from the connection.
+        event.user.ipAddress = @"{{auto}}";
+    }
+
     event = [self callEventProcessors:event];
 
     if (nil != self.options.beforeSend) {
         event = self.options.beforeSend(event);
+    }
+
+    if (isCrashEvent && nil != self.options.onCrashedLastRun && !SentrySDK.crashedLastRunCalled) {
+        // We only want to call the callback once. It can occur that multiple crash events are
+        // about to be sent.
+        self.options.onCrashedLastRun(event);
+        SentrySDK.crashedLastRunCalled = YES;
     }
 
     return event;

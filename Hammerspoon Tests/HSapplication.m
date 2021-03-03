@@ -29,6 +29,7 @@
 }
 
 - (void)testInitWithPid {
+    SKIP_IN_GITHUB_ACTIONS() // Added by @asmagill
     RUN_LUA_TEST()
 }
 

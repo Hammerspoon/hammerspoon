@@ -411,9 +411,9 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
 
     if (self.sink == nil) {
         sentrycrash_callCompletion(onCompletion, reports, NO,
-            [NSError errorWithDomain:[[self class] description]
-                                code:0
-                         description:@"No sink set. Crash reports not sent."]);
+            [NSError sentryErrorWithDomain:[[self class] description]
+                                      code:0
+                               description:@"No sink set. Crash reports not sent."]);
         return;
     }
 

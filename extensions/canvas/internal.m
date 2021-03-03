@@ -48,7 +48,8 @@ static NSDictionary *defineLanguageDictionary() {
         @"absolutePosition" : @{
             @"class"       : @[ [NSNumber class] ],
             @"luaClass"    : @"boolean",
-            @"objCType"    : @(@encode(BOOL)),
+            @"objCType"    : @([@(YES) objCType]),  // @encode may change depending upon architecture, so use the
+                                                    // same value we check against in isValueValidForDictionary
             @"nullable"    : @(YES),
             @"default"     : @(YES),
             @"optionalFor" : VISIBLE,
@@ -56,7 +57,7 @@ static NSDictionary *defineLanguageDictionary() {
         @"absoluteSize" : @{
             @"class"       : @[ [NSNumber class] ],
             @"luaClass"    : @"boolean",
-            @"objCType"    : @(@encode(BOOL)),
+            @"objCType"    : @([@(YES) objCType]),
             @"nullable"    : @(YES),
             @"default"     : @(YES),
             @"optionalFor" : VISIBLE,
@@ -64,7 +65,7 @@ static NSDictionary *defineLanguageDictionary() {
         @"antialias" : @{
             @"class"       : @[ [NSNumber class] ],
             @"luaClass"    : @"boolean",
-            @"objCType"    : @(@encode(BOOL)),
+            @"objCType"    : @([@(YES) objCType]),
             @"nullable"    : @(YES),
             @"default"     : @(YES),
             @"optionalFor" : VISIBLE,
@@ -72,7 +73,7 @@ static NSDictionary *defineLanguageDictionary() {
         @"arcRadii" : @{
             @"class"       : @[ [NSNumber class] ],
             @"luaClass"    : @"boolean",
-            @"objCType"    : @(@encode(BOOL)),
+            @"objCType"    : @([@(YES) objCType]),
             @"nullable"    : @(YES),
             @"default"     : @(YES),
             @"optionalFor" : @[ @"arc", @"ellipticalArc" ],
@@ -80,7 +81,7 @@ static NSDictionary *defineLanguageDictionary() {
         @"arcClockwise" : @{
             @"class"       : @[ [NSNumber class] ],
             @"luaClass"    : @"boolean",
-            @"objCType"    : @(@encode(BOOL)),
+            @"objCType"    : @([@(YES) objCType]),
             @"nullable"    : @(YES),
             @"default"     : @(YES),
             @"optionalFor" : @[ @"arc", @"ellipticalArc" ],
@@ -88,7 +89,7 @@ static NSDictionary *defineLanguageDictionary() {
         @"clipToPath" : @{
             @"class"       : @[ [NSNumber class] ],
             @"luaClass"    : @"boolean",
-            @"objCType"    : @(@encode(BOOL)),
+            @"objCType"    : @([@(YES) objCType]),
             @"nullable"    : @(YES),
             @"default"     : @(NO),
             @"optionalFor" : CLOSED,
@@ -124,7 +125,7 @@ static NSDictionary *defineLanguageDictionary() {
         @"closed" : @{
             @"class"       : @[ [NSNumber class] ],
             @"luaClass"    : @"boolean",
-            @"objCType"    : @(@encode(BOOL)),
+            @"objCType"    : @([@(YES) objCType]),
             @"nullable"    : @(NO),
             @"default"     : @(NO),
             @"requiredFor" : @[ @"segments" ],
@@ -258,7 +259,7 @@ static NSDictionary *defineLanguageDictionary() {
         @"flattenPath" : @{
             @"class"       : @[ [NSNumber class] ],
             @"luaClass"    : @"boolean",
-            @"objCType"    : @(@encode(BOOL)),
+            @"objCType"    : @([@(YES) objCType]),
             @"nullable"    : @(YES),
             @"default"     : @(NO),
             @"optionalFor" : PRIMITIVES,
@@ -325,7 +326,8 @@ static NSDictionary *defineLanguageDictionary() {
         },
         @"imageAnimationFrame" : @ {
             @"class"       : @[ [NSNumber class] ],
-            @"objCType"    : @(@encode(lua_Integer)),
+            @"objCType"    : @([@((lua_Integer)1) objCType]), // @encode may change depending upon architecture, so use the
+                                                              // same value we check against in isValueValidForDictionary
             @"luaClass"    : @"integer",
             @"nullable"    : @(YES),
             @"default"     : @(0),
@@ -334,7 +336,7 @@ static NSDictionary *defineLanguageDictionary() {
         @"imageAnimates" : @{
             @"class"       : @[ [NSNumber class] ],
             @"luaClass"    : @"boolean",
-            @"objCType"    : @(@encode(BOOL)),
+            @"objCType"    : @([@(YES) objCType]),
             @"nullable"    : @(NO),
             @"default"     : @(NO),
             @"requiredFor" : @[ @"image" ],
@@ -371,7 +373,7 @@ static NSDictionary *defineLanguageDictionary() {
         @"reversePath" : @{
             @"class"       : @[ [NSNumber class] ],
             @"luaClass"    : @"boolean",
-            @"objCType"    : @(@encode(BOOL)),
+            @"objCType"    : @([@(YES) objCType]),
             @"nullable"    : @(YES),
             @"default"     : @(NO),
             @"optionalFor" : PRIMITIVES,
@@ -503,7 +505,7 @@ static NSDictionary *defineLanguageDictionary() {
         @"trackMouseByBounds" : @{
             @"class"       : @[ [NSNumber class] ],
             @"luaClass"    : @"boolean",
-            @"objCType"    : @(@encode(BOOL)),
+            @"objCType"    : @([@(YES) objCType]),
             @"nullable"    : @(YES),
             @"default"     : @(NO),
             @"optionalFor" : VISIBLE,
@@ -511,7 +513,7 @@ static NSDictionary *defineLanguageDictionary() {
         @"trackMouseEnterExit" : @{
             @"class"       : @[ [NSNumber class] ],
             @"luaClass"    : @"boolean",
-            @"objCType"    : @(@encode(BOOL)),
+            @"objCType"    : @([@(YES) objCType]),
             @"nullable"    : @(YES),
             @"default"     : @(NO),
             @"optionalFor" : VISIBLE,
@@ -519,7 +521,7 @@ static NSDictionary *defineLanguageDictionary() {
         @"trackMouseDown" : @{
             @"class"       : @[ [NSNumber class] ],
             @"luaClass"    : @"boolean",
-            @"objCType"    : @(@encode(BOOL)),
+            @"objCType"    : @([@(YES) objCType]),
             @"nullable"    : @(YES),
             @"default"     : @(NO),
             @"optionalFor" : VISIBLE,
@@ -527,7 +529,7 @@ static NSDictionary *defineLanguageDictionary() {
         @"trackMouseUp" : @{
             @"class"       : @[ [NSNumber class] ],
             @"luaClass"    : @"boolean",
-            @"objCType"    : @(@encode(BOOL)),
+            @"objCType"    : @([@(YES) objCType]),
             @"nullable"    : @(YES),
             @"default"     : @(NO),
             @"optionalFor" : VISIBLE,
@@ -535,7 +537,7 @@ static NSDictionary *defineLanguageDictionary() {
         @"trackMouseMove" : @{
             @"class"       : @[ [NSNumber class] ],
             @"luaClass"    : @"boolean",
-            @"objCType"    : @(@encode(BOOL)),
+            @"objCType"    : @([@(YES) objCType]),
             @"nullable"    : @(YES),
             @"default"     : @(NO),
             @"optionalFor" : VISIBLE,
@@ -581,7 +583,7 @@ static NSDictionary *defineLanguageDictionary() {
         @"withShadow" : @{
             @"class"       : @[ [NSNumber class] ],
             @"luaClass"    : @"boolean",
-            @"objCType"    : @(@encode(BOOL)),
+            @"objCType"    : @([@(YES) objCType]),
             @"nullable"    : @(YES),
             @"default"     : @(NO),
             @"optionalFor" : PRIMITIVES,
@@ -944,30 +946,32 @@ static int userdata_gc(lua_State* L) ;
 - (void)fadeOut:(NSTimeInterval)fadeTime andDelete:(BOOL)deleteCanvas withState:(lua_State *)L {
     CGFloat alphaSetting = self.alphaValue ;
     [NSAnimationContext beginGrouping];
-      __weak HSCanvasWindow *bself = self; // in ARC, __block would increase retain count
-      [[NSAnimationContext currentContext] setDuration:fadeTime];
-      [[NSAnimationContext currentContext] setCompletionHandler:^{
-          // unlikely that bself will go to nil after this starts, but this keeps the warnings down from [-Warc-repeated-use-of-weak]
-          HSCanvasWindow *mySelf = bself ;
-          if (mySelf && (((HSCanvasView *)mySelf.contentView).selfRef != LUA_NOREF)) {
-              if (deleteCanvas) {
-                  LuaSkin *skin = [LuaSkin sharedWithState:L] ;
-//                   lua_State *L = [skin L] ;
-                  lua_pushcfunction(L, userdata_gc) ;
-                  [skin pushLuaRef:refTable ref:((HSCanvasView *)mySelf.contentView).selfRef] ;
-                  // FIXME: Can we switch this lua_pcall() to a LuaSkin protectedCallAndError?
-                  if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
-                      [skin logBreadcrumb:[NSString stringWithFormat:@"%s:error invoking _gc for delete (with fade) method:%s", USERDATA_TAG, lua_tostring(L, -1)]] ;
-                      lua_pop(L, 1) ;
-                      [mySelf close] ;  // the least we can do is close the canvas if an error occurs with __gc
-                  }
-              } else {
-                  [mySelf orderOut:nil];
-                  [mySelf setAlphaValue:alphaSetting];
-              }
-          }
-      }];
-      [[self animator] setAlphaValue:0.0];
+    __weak HSCanvasWindow *bself = self; // in ARC, __block would increase retain count
+    [[NSAnimationContext currentContext] setDuration:fadeTime];
+    [[NSAnimationContext currentContext] setCompletionHandler:^{
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // unlikely that bself will go to nil after this starts, but this keeps the warnings down from [-Warc-repeated-use-of-weak]
+            HSCanvasWindow *mySelf = bself ;
+            if (mySelf && (((HSCanvasView *)mySelf.contentView).selfRef != LUA_NOREF)) {
+                if (deleteCanvas) {
+                    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+                    //                   lua_State *L = [skin L] ;
+                    lua_pushcfunction(L, userdata_gc) ;
+                    [skin pushLuaRef:refTable ref:((HSCanvasView *)mySelf.contentView).selfRef] ;
+                    // FIXME: Can we switch this lua_pcall() to a LuaSkin protectedCallAndError?
+                    if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
+                        [skin logBreadcrumb:[NSString stringWithFormat:@"%s:error invoking _gc for delete (with fade) method:%s", USERDATA_TAG, lua_tostring(L, -1)]] ;
+                        lua_pop(L, 1) ;
+                        [mySelf close] ;  // the least we can do is close the canvas if an error occurs with __gc
+                    }
+                } else {
+                    [mySelf orderOut:nil];
+                    [mySelf setAlphaValue:alphaSetting];
+                }
+            }
+        });
+    }];
+    [[self animator] setAlphaValue:0.0];
     [NSAnimationContext endGrouping];
 }
 @end
@@ -3946,6 +3950,10 @@ static int userdata_gc(lua_State* L) {
         theView.draggingCallbackRef = [skin luaUnref:refTable ref:theView.draggingCallbackRef] ;
 
         theView.selfRef          = [skin luaUnref:refTable ref:theView.selfRef] ;
+
+        NSDockTile *tile     = [[NSApplication sharedApplication] dockTile];
+        NSView     *tileView = tile.contentView ;
+        if (tileView && [theView isEqualTo:tileView]) tile.contentView = nil ;
 
         HSCanvasWindow *theWindow = theView.wrapperWindow ;
         if (theWindow) [theWindow close];

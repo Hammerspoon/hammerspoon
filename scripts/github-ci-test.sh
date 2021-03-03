@@ -1,8 +1,10 @@
 #!/bin/bash
 
-xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release test-without-building 2>&1 | tee test.log
+mkdir -p artifacts
 
-RESULT=$(grep -A1 "Test Suite 'All tests'" test.log | tail -1 | sed -e 's/^[ ]+//')
+xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release test-without-building 2>&1 | tee artifacts/test.log | xcpretty -r junit -f `xcpretty-actions-formatter`
+
+RESULT=$(grep -A1 "Test Suite 'All tests'" artifacts/test.log | tail -1 | sed -e 's/^[ ]+//')
 
 echo "::set-output name=test_result::${RESULT}"
 

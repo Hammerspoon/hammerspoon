@@ -804,6 +804,21 @@ isValidIvarType(const char *const type)
 }
 
 static bool
+containsValidExtData(class_rw_t *rw)
+{
+    uintptr_t ext_ptr = rw->ro_or_rw_ext;
+    if (ext_ptr & 0x1UL) {
+        ext_ptr &= ~0x1UL;
+        struct class_rw_ext_t *rw_ext = (struct class_rw_ext_t *)ext_ptr;
+        if (!sentrycrashmem_isMemoryReadable(rw_ext, sizeof(*rw_ext))) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+static bool
 containsValidROData(const void *const classPtr)
 {
     const struct class_t *const class = classPtr;
@@ -812,6 +827,9 @@ containsValidROData(const void *const classPtr)
     }
     class_rw_t *rw = getClassRW(class);
     if (!sentrycrashmem_isMemoryReadable(rw, sizeof(*rw))) {
+        return false;
+    }
+    if (!containsValidExtData(rw)) {
         return false;
     }
     const class_ro_t *ro = getClassRO(class);
@@ -1823,29 +1841,6 @@ sentrycrashobjc_dictionaryFirstEntry(const void *dict, uintptr_t *key, uintptr_t
     }
     return true;
 }
-
-// bool sentrycrashobjc_dictionaryContents(const void* dict, uintptr_t* keys,
-// uintptr_t* values, CFIndex* count)
-//{
-//    struct CFBasicHash copy;
-//    void* pointers[100];
-//
-//    if(!sentrycrashmem_copySafely(dict, &copy, sizeof(copy)))
-//    {
-//        return false;
-//    }
-//
-//    struct CFBasicHash* ht = (struct CFBasicHash*)dict;
-//    int values_offset = 0;
-//    int keys_offset = copy.bits.keys_offset;
-//    if(!sentrycrashmem_copySafely(&ht->pointers, pointers, sizeof(*pointers) *
-//    keys_offset))
-//    {
-//        return false;
-//    }
-//
-//    return true;
-//}
 
 int
 sentrycrashobjc_dictionaryCount(const void *dict)

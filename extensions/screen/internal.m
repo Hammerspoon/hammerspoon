@@ -14,6 +14,9 @@ extern void CoreDisplay_Display_SetUserBrightness(CGDirectDisplayID id, double b
 extern double CoreDisplay_Display_GetUserBrightness(CGDirectDisplayID)
     __attribute__((weak_import));
 
+extern int DisplayServicesGetBrightness(CGDirectDisplayID display, float *brightness) __attribute__((weak_import));
+extern int DisplayServicesSetBrightness(CGDirectDisplayID display, float brightness) __attribute__((weak_import));
+
 #pragma mark - Module
 static void geom_pushrect(lua_State* L, NSRect rect) {
     lua_newtable(L);
@@ -72,20 +75,24 @@ static int screen_name(lua_State* L) {
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
     NSScreen* screen = get_screen_arg(L, 1);
-    CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
+    if (@available(macOS 10.15, *)) {
+        [skin pushNSObject:screen.localizedName] ;
+    } else {
+        CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    CFDictionaryRef deviceInfo = IODisplayCreateInfoDictionary(CGDisplayIOServicePort(screen_id), kIODisplayOnlyPreferredName);
+        CFDictionaryRef deviceInfo = IODisplayCreateInfoDictionary(CGDisplayIOServicePort(screen_id), kIODisplayOnlyPreferredName);
 #pragma clang diagnostic pop
-    NSDictionary *localizedNames = [(__bridge NSDictionary *)deviceInfo objectForKey:(NSString *)[NSString stringWithUTF8String:kDisplayProductName]];
+        NSDictionary *localizedNames = [(__bridge NSDictionary *)deviceInfo objectForKey:(NSString *)[NSString stringWithUTF8String:kDisplayProductName]];
 
-    if ([localizedNames count])
-        lua_pushstring(L, [[localizedNames objectForKey:[[localizedNames allKeys] objectAtIndex:0]] UTF8String]);
-    else
-        lua_pushnil(L);
+        if ([localizedNames count])
+            lua_pushstring(L, [[localizedNames objectForKey:[[localizedNames allKeys] objectAtIndex:0]] UTF8String]);
+        else
+            lua_pushnil(L);
 
-    CFRelease(deviceInfo);
+        CFRelease(deviceInfo);
+    }
 
     return 1;
 }
@@ -635,7 +642,15 @@ static int screen_getBrightness(lua_State *L) {
     NSScreen* screen = get_screen_arg(L, 1);
     CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
 
-    if (CoreDisplay_Display_GetUserBrightness != NULL) {
+    if (DisplayServicesGetBrightness != NULL) {
+        float brightness ;
+        int err = DisplayServicesGetBrightness(screen_id, &brightness) ;
+        if (err == kCGErrorSuccess) {
+            lua_pushnumber(L, (lua_Number)brightness) ;
+        } else {
+            lua_pushnil(L);
+        }
+    } else if (CoreDisplay_Display_GetUserBrightness != NULL) {
         // Preferred API - interacts better with Night Shift, but is semi-private
         double brightness = CoreDisplay_Display_GetUserBrightness(screen_id);
         lua_pushnumber(L, brightness);
@@ -675,7 +690,9 @@ static int screen_setBrightness(lua_State *L) {
     CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
 
     double brightness = lua_tonumber(L, 2);
-    if (CoreDisplay_Display_SetUserBrightness != NULL) {
+    if (DisplayServicesSetBrightness != NULL) {
+        DisplayServicesSetBrightness(screen_id, brightness) ;
+    } else if (CoreDisplay_Display_SetUserBrightness != NULL) {
         // Preferred API - interacts better with Night Shift, but is semi-private
         CoreDisplay_Display_SetUserBrightness(screen_id, brightness);
     } else {
@@ -1097,6 +1114,69 @@ cleanup:
     return 1;
 }
 
+/// hs.screen:mirrorOf(aScreen[, permanent]) -> bool
+/// Method
+/// Make this screen mirror another
+///
+/// Parameters:
+///  * aScreen - an hs.screen object you wish to mirror
+///  * permament - an optional bool, true if this should be configured permanently, false if it should apply just for this login session. Defaults to false.
+///
+/// Returns:
+///  * true if the operation succeeded, otherwise false
+static int screen_mirrorOf(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
+
+    NSScreen *mirrorTarget = get_screen_arg(L, 1);
+    NSScreen *mirrorSource = get_screen_arg(L, 2);
+
+    BOOL permanent = lua_toboolean(L, 3);
+
+    CGDirectDisplayID sourceID = [[[mirrorSource deviceDescription] objectForKey:@"NSScreenNumber"] unsignedIntValue];
+    CGDirectDisplayID targetID = [[[mirrorTarget deviceDescription] objectForKey:@"NSScreenNumber"] unsignedIntValue];
+
+    CGDisplayConfigRef config;
+    CGError result;
+
+    CGBeginDisplayConfiguration(&config);
+    result = CGConfigureDisplayMirrorOfDisplay(config, targetID, sourceID);
+    CGCompleteDisplayConfiguration(config, permanent ? kCGConfigurePermanently : kCGConfigureForSession);
+
+    lua_pushboolean(L, result == kCGErrorSuccess);
+    return 1;
+}
+
+/// hs.screen:mirrorStop([permanent]) -> bool
+/// Method
+/// Stops this screen mirroring another
+///
+/// Parameters:
+///  * permanent - an optional bool, true if this should be configured permanently, false if it should apply just for this login session. Defaults to false.
+///
+/// Returns:
+///  * true if the operation succeeded, otherwise false
+static int screen_mirrorStop(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
+
+    NSScreen *screen = get_screen_arg(L, 1);
+
+    BOOL permanent = lua_toboolean(L, 2);
+
+    CGDirectDisplayID screenID = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] unsignedIntValue];
+
+    CGDisplayConfigRef config;
+    CGError result;
+
+    CGBeginDisplayConfiguration(&config);
+    result = CGConfigureDisplayMirrorOfDisplay(config, screenID, kCGNullDirectDisplay);
+    CGCompleteDisplayConfiguration(config, permanent ? kCGConfigurePermanently : kCGConfigureForSession);
+
+    lua_pushboolean(L, result == kCGErrorSuccess);
+    return 1;
+}
+
 NSRect screenRectToNSRect(lua_State *L, int idx) {
     NSRect rect = NSZeroRect;
     CGFloat x = -1;
@@ -1274,22 +1354,25 @@ static int userdata_tostring(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
+    NSString *theName = @"(un-named screen)" ;
     NSScreen *screen = get_screen_arg(L, 1);
-    CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
+
+    if (@available(macOS 10.15, *)) {
+        theName = screen.localizedName ;
+    } else {
+        CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    CFDictionaryRef deviceInfo = IODisplayCreateInfoDictionary(CGDisplayIOServicePort(screen_id), kIODisplayOnlyPreferredName);
+        CFDictionaryRef deviceInfo = IODisplayCreateInfoDictionary(CGDisplayIOServicePort(screen_id), kIODisplayOnlyPreferredName);
 #pragma clang diagnostic pop
-    NSDictionary *localizedNames = [(__bridge NSDictionary *)deviceInfo objectForKey:(NSString *)[NSString stringWithUTF8String:kDisplayProductName]];
-    NSString *theName ;
-    if ([localizedNames count])
-        theName = [localizedNames objectForKey:[[localizedNames allKeys] objectAtIndex:0]] ;
-    else
-        theName = @"(un-named screen)" ;
+        NSDictionary *localizedNames = [(__bridge NSDictionary *)deviceInfo objectForKey:(NSString *)[NSString stringWithUTF8String:kDisplayProductName]];
+        if ([localizedNames count])
+            theName = [localizedNames objectForKey:[[localizedNames allKeys] objectAtIndex:0]] ;
+        CFRelease(deviceInfo);
+    }
 
     lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, theName, lua_topointer(L, 1)] UTF8String]) ;
-    CFRelease(deviceInfo);
     return 1 ;
 }
 
@@ -1324,6 +1407,8 @@ static const luaL_Reg screen_objectlib[] = {
     {"setPrimary", screen_setPrimary},
     {"desktopImageURL", screen_desktopImageURL},
     {"setOrigin", screen_setOrigin},
+    {"mirrorOf", screen_mirrorOf},
+    {"mirrorStop", screen_mirrorStop},
 
     {"__tostring", userdata_tostring},
     {"__gc", screen_gc},

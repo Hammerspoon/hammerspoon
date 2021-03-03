@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="17701" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
-        <deployment version="101200" identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14490.70"/>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="17701"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -23,16 +23,16 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="957" y="580" width="357" height="246"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="3840" height="2135"/>
             <view key="contentView" id="Akb-Ed-9u3">
-                <rect key="frame" x="0.0" y="0.0" width="358" height="246"/>
+                <rect key="frame" x="0.0" y="0.0" width="358" height="249"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <visualEffectView blendingMode="behindWindow" material="underWindowBackground" state="followsWindowActiveState" translatesAutoresizingMaskIntoConstraints="NO" id="eNw-hu-Cry">
-                        <rect key="frame" x="0.0" y="0.0" width="358" height="246"/>
+                        <rect key="frame" x="0.0" y="0.0" width="358" height="249"/>
                         <subviews>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="VQb-h7-4Va">
-                                <rect key="frame" x="18" y="209" width="84" height="17"/>
+                            <textField wantsLayer="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="VQb-h7-4Va">
+                                <rect key="frame" x="18" y="213" width="84" height="16"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Behavior:" id="dha-iU-GWx">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -40,7 +40,7 @@
                                 </textFieldCell>
                             </textField>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="e5P-fQ-lSS">
-                                <rect key="frame" x="106" y="208" width="207" height="18"/>
+                                <rect key="frame" x="106" y="213" width="211" height="18"/>
                                 <buttonCell key="cell" type="check" title="Launch Hammerspoon at login" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="WYx-7x-qXj">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -50,7 +50,7 @@
                                 </connections>
                             </button>
                             <button verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="gOt-KN-83u">
-                                <rect key="frame" x="106" y="105" width="228" height="18"/>
+                                <rect key="frame" x="106" y="103" width="231" height="18"/>
                                 <buttonCell key="cell" type="check" title="Send crash data (requires restart)" bezelStyle="regularSquare" imagePosition="left" alignment="left" state="on" inset="2" id="YwH-Pc-MwX">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -60,14 +60,14 @@
                                 </connections>
                             </button>
                             <button verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="8hE-jn-yvO">
-                                <rect key="frame" x="106" y="188" width="134" height="18"/>
+                                <rect key="frame" x="106" y="191" width="138" height="18"/>
                                 <buttonCell key="cell" type="check" title="Check for updates" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="eue-1N-zi1">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
                                 </buttonCell>
                             </button>
                             <button verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="LCE-lg-IdY">
-                                <rect key="frame" x="106" y="168" width="118" height="18"/>
+                                <rect key="frame" x="106" y="169" width="122" height="18"/>
                                 <buttonCell key="cell" type="check" title="Show dock icon" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="1Ay-Q1-93j">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -77,7 +77,7 @@
                                 </connections>
                             </button>
                             <button verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="onk-bV-cOj">
-                                <rect key="frame" x="106" y="148" width="122" height="18"/>
+                                <rect key="frame" x="106" y="147" width="126" height="18"/>
                                 <buttonCell key="cell" type="check" title="Show menu icon" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="uNE-4I-dRd">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -87,7 +87,7 @@
                                 </connections>
                             </button>
                             <button translatesAutoresizingMaskIntoConstraints="NO" id="pYS-Wj-7iw">
-                                <rect key="frame" x="106" y="125" width="198" height="21"/>
+                                <rect key="frame" x="106" y="125" width="202" height="18"/>
                                 <buttonCell key="cell" type="check" title="Keep Console window on top" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="OSm-zw-Lk8">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -96,8 +96,8 @@
                                     <action selector="toggleKeepConsoleOnTop:" target="-2" id="bCp-5r-duV"/>
                                 </connections>
                             </button>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="fRb-9A-PSe">
-                                <rect key="frame" x="106" y="82" width="234" height="17"/>
+                            <textField wantsLayer="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="fRb-9A-PSe">
+                                <rect key="frame" x="106" y="80" width="234" height="16"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Accessibility is enabled. You're all set!" id="PqP-7R-CO6">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -107,16 +107,16 @@
                                     <binding destination="-2" name="value" keyPath="self.maybeEnableAccessibilityString" id="Vfi-fV-yoo"/>
                                 </connections>
                             </textField>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Ljs-s0-qtL">
-                                <rect key="frame" x="18" y="82" width="84" height="17"/>
+                            <textField wantsLayer="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Ljs-s0-qtL">
+                                <rect key="frame" x="18" y="80" width="84" height="16"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Accessibility:" id="xX6-GD-rGt">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="4ho-hR-nJI">
-                                <rect key="frame" x="102" y="46" width="212" height="32"/>
+                            <button wantsLayer="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="4ho-hR-nJI">
+                                <rect key="frame" x="101" y="45" width="214" height="32"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="200" id="76R-TM-xrf"/>
                                 </constraints>
@@ -133,8 +133,8 @@
                                     </binding>
                                 </connections>
                             </button>
-                            <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="fzK-vc-sjF">
-                                <rect key="frame" x="316" y="56" width="16" height="16"/>
+                            <imageView wantsLayer="YES" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="fzK-vc-sjF">
+                                <rect key="frame" x="316" y="54" width="16" height="16"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="16" id="RvQ-ow-kGP"/>
                                     <constraint firstAttribute="height" constant="16" id="yrp-C5-h6a"/>
@@ -144,8 +144,8 @@
                                     <binding destination="-2" name="value" keyPath="self.isAccessibilityEnabledImage" id="sOX-IP-ZMv"/>
                                 </connections>
                             </imageView>
-                            <button horizontalHuggingPriority="249" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Brc-yV-QuI">
-                                <rect key="frame" x="102" y="13" width="212" height="32"/>
+                            <button wantsLayer="YES" horizontalHuggingPriority="249" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Brc-yV-QuI">
+                                <rect key="frame" x="101" y="13" width="214" height="32"/>
                                 <constraints>
                                     <constraint firstAttribute="width" priority="250" constant="200" id="vs7-6D-JVd"/>
                                 </constraints>

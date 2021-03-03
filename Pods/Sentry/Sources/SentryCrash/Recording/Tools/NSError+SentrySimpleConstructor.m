@@ -28,9 +28,9 @@
 
 @implementation NSError (SentrySimpleConstructor)
 
-+ (NSError *)errorWithDomain:(NSString *)domain
-                        code:(NSInteger)code
-                 description:(NSString *)fmt, ...
++ (NSError *)sentryErrorWithDomain:(NSString *)domain
+                              code:(NSInteger)code
+                       description:(NSString *)fmt, ...
 {
     va_list args;
     va_start(args, fmt);
@@ -44,10 +44,10 @@
                                                                 forKey:NSLocalizedDescriptionKey]];
 }
 
-+ (BOOL)fillError:(NSError *__autoreleasing *)error
-       withDomain:(NSString *)domain
-             code:(NSInteger)code
-      description:(NSString *)fmt, ...
++ (BOOL)sentryFillError:(NSError *__autoreleasing *)error
+             withDomain:(NSString *)domain
+                   code:(NSInteger)code
+            description:(NSString *)fmt, ...
 {
     if (error != nil) {
         va_list args;
@@ -65,7 +65,7 @@
     return NO;
 }
 
-+ (BOOL)clearError:(NSError *__autoreleasing *)error
++ (BOOL)sentryClearError:(NSError *__autoreleasing *)error
 {
     if (error != nil) {
         *error = nil;
