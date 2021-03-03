@@ -21,6 +21,6 @@
     "template": "${{CHANGELOG}}\n\nOther:\n${{UNCATEGORIZED}}",
     "sort": "ASC",
     "tag_resolver": {
-        "method": "sort",
+        "method": "sort"
     }
 }
