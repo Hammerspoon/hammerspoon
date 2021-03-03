@@ -8,7 +8,7 @@
 
 static const char *USERDATA_TAG   = "hs.location" ;
 static const char *GEOCODE_UD_TAG = "hs.location.geocode" ;
-static int        refTable        = LUA_NOREF;
+static LSRefTable  refTable       = LUA_NOREF;
 static int        callbackRef     = LUA_NOREF ;
 static HSLocation *location ;
 

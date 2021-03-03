@@ -4,7 +4,7 @@
 
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 
-static int refTable = LUA_NOREF;
+static LSRefTable refTable = LUA_NOREF;
 
 #pragma mark - Lua API defines
 static int userdata_gc(lua_State *L);
@@ -32,7 +32,7 @@ static int chooserNew(lua_State *L) {
     int completionCallbackRef = [skin luaRef:refTable];
 
     // Create the HSChooser object with our arguments
-    HSChooser *chooser = [[HSChooser alloc] initWithRefTable:&refTable completionCallbackRef:completionCallbackRef];
+    HSChooser *chooser = [[HSChooser alloc] initWithRefTable:refTable completionCallbackRef:completionCallbackRef];
     [skin pushNSObject:chooser];
 
     return 1;

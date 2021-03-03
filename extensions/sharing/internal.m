@@ -2,7 +2,7 @@
 @import LuaSkin ;
 
 static const char *USERDATA_TAG = "hs.sharing" ;
-static int        refTable = LUA_NOREF ;
+static LSRefTable  refTable = LUA_NOREF ;
 
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 

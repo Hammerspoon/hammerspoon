@@ -2,7 +2,7 @@
 @import LuaSkin ;
 
 static const char * const USERDATA_TAG = "hs.host.locale" ;
-static int refTable = LUA_NOREF;
+static LSRefTable refTable = LUA_NOREF;
 static int callbackRef = LUA_NOREF ;
 
 #pragma mark - Support Functions and Classes

@@ -11,7 +11,7 @@
 #pragma clang diagnostic ignored "-Wdeprecated-implementations"
 
 static const char * const USERDATA_TAG = "hs.notify" ;
-static int refTable = LUA_NOREF;
+static LSRefTable refTable = LUA_NOREF ;
 
 // changes made to userInfo dictionary in userNotificationCenter:didDeliverNotification: are not
 // kept (is notification object a copy?) so we can't update delivered if it's in that particular

@@ -2,7 +2,7 @@
 #import <Carbon/Carbon.h>
 #import <LuaSkin/LuaSkin.h>
 
-static int refTable ;
+static LSRefTable refTable ;
 static int colorCollectionsTable ;
 
 /// hs.drawing.color.lists() -> table

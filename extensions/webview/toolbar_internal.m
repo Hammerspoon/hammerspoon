@@ -1,6 +1,6 @@
 #import "webview.h"
 
-static int            refTable = LUA_NOREF;
+static LSRefTable      refTable = LUA_NOREF;
 static NSMutableArray *identifiersInUse ;
 
 // @encode is a compiler directive which may give different answers on different architectures,

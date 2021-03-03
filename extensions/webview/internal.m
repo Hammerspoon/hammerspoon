@@ -8,7 +8,7 @@
 //   can we adjust context menu?
 //   can we choose native viewer over plugin if plugins enabled (e.g. not use Adobe for PDF)?
 
-static int           refTable ;
+static LSRefTable     refTable ;
 static WKProcessPool *HSWebViewProcessPool ;
 
 static NSMapTable    *delayTimers ;
