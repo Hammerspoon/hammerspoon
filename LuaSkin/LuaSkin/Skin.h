@@ -155,6 +155,13 @@ NSString *specMaskToString(int spec);
  @abstract Delegate method for passing control back to the parent environment for environment specific handling.  Curerntly only offers support for passing log messages back to the parent environment for display or processing.
  */
 @protocol LuaSkinDelegate <NSObject>
+
+/*!
+ @abstract LuaSkin has been unable to perform a vital operation, the delegate should make the attached message visible to the user and then exit
+ @param message A message to display to the user
+ */
+- (void)handleCatastrophe:(NSString *)message;
+
 @optional
 /*!
  @abstract Pass log level and message back to parent for handling and/or display
