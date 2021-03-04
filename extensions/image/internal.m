@@ -9,7 +9,7 @@
 @import AVFoundation;
 
 #define USERDATA_TAG "hs.image"
-int refTable = LUA_NOREF;
+LSRefTable refTable = LUA_NOREF;
 
 // NSWorkspace iconForFile: logs a warning every time you try to query when the path is nil.  Since
 // this happens a lot when trying to query based on a file bundle it means anything using spotlight

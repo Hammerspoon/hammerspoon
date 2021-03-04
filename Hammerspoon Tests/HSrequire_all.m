@@ -28,8 +28,12 @@
 - (void)testRequireAll {
     // FIXME: this is hacky, we should be getting a table back so we can assert every extension, etc.
     NSString *res = [self runLua:@"return testrequires()"];
-    NSLog(@"%@", res);
-    XCTAssertEqualObjects(res, @"", @"one or more require statements failed");
+    NSArray *errors = [res componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"💩"]];
+
+    // If Hammerspoon is already running, hs.ipc will fail to load, so let's filter that error out if it exists.
+    NSArray *filteredErrors = [errors filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT (SELF contains 'failed to create new local port') AND NOT (SELF == '')"]];
+
+    XCTAssertEqual(0, filteredErrors.count, @"Some modules failed to load: %@", filteredErrors);
 }
 
 

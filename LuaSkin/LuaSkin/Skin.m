@@ -254,8 +254,11 @@ static NSMutableSet *_sharedWarnings ;
 #pragma mark - lua_State lifecycle
 
 - (void)createLuaState {
+    NSString *catastropheText = @"";
+
     NSLog(@"createLuaState");
     NSAssert((LuaSkin.mainLuaState == NULL), @"createLuaState called on a live Lua environment", nil);
+    self.uuid = [NSUUID UUID];
     LuaSkin.mainLuaState = luaL_newstate();
     luaL_openlibs(LuaSkin.mainLuaState);
 
@@ -263,21 +266,30 @@ static NSMutableSet *_sharedWarnings ;
     self.debugLibraryRef = luaL_ref(LuaSkin.mainLuaState, LUA_REGISTRYINDEX) ;
 
     NSString *luaSkinLua = [[NSBundle bundleForClass:[self class]] pathForResource:@"luaskin" ofType:@"lua"];
-    NSAssert((luaSkinLua != nil), @"createLuaState was unable to find luaskin.lua. Your installation may be damaged");
+    if (!luaSkinLua) {
+        catastropheText = @"createLuaState was unable to find luaskin.lua. Please re-install Hammerspoon";
+        goto catastrophe;
+    }
 
     luaopen_luaskin_internal(LuaSkin.mainLuaState) ; // load objectWrapper userdata methods and create _G["ls"]
 
     int loadresult = luaL_loadfile(LuaSkin.mainLuaState, luaSkinLua.fileSystemRepresentation); // extend _G["ls"]
     if (loadresult != 0) {
-        NSLog(@"createLuaState was unable to load luaskin.lua. Your installation may be damaged.");
-        exit(1);
+        catastropheText = @"createLuaState was unable to load luaskin.lua. Please re-install Hammerspoon";
+        goto catastrophe;
     }
 
     int luaresult = lua_pcall(LuaSkin.mainLuaState, 0, 0, 0);
     if (luaresult != LUA_OK) {
-        NSLog(@"createLuaState was unable to evaluate luaskin.lua. Your installation may be damaged.");
-        exit(1);
+        catastropheText = @"createLuaState was unable to evaluate luaskin.lua. Please re-install Hammerspoon";
+        goto catastrophe;
     }
+
+    return;
+
+catastrophe:
+    [self.delegate handleCatastrophe:catastropheText];
+    exit(1);
 }
 
 - (void)destroyLuaState {
@@ -317,6 +329,18 @@ static NSMutableSet *_sharedWarnings ;
     NSAssert((LuaSkin.mainLuaState != NULL), @"resetLuaState called with no Lua environment", nil);
     [self destroyLuaState];
     [self createLuaState];
+}
+
+- (BOOL)checkLuaSkinInstance:(NSString *)checkUUID {
+    // FIXME: For now this is going to always return YES. I want to see if it associates with crashes in the wild.
+    // FIXME: This method should just be the following commented out line.
+    //return [self.uuid.UUIDString isEqualToString:checkUUID];
+
+    if (![self.uuid.UUIDString isEqualToString:checkUUID]) {
+        [self logBreadcrumb:@"LUASKIN UUID MISMATCH DETECTED"];
+    }
+
+    return YES;
 }
 
 #pragma mark - Methods for calling into Lua from C
@@ -376,7 +400,14 @@ static NSMutableSet *_sharedWarnings ;
 
 #pragma mark - Methods for registering libraries with Lua
 
-- (int)registerLibrary:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions {
+- (LSRefTable)registerLibrary:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions {
+    [self logWarn:@"This library is using an old registerLibrary method on LuaSkin"];
+    return [self registerLibrary:"Unknown" functions:functions metaFunctions:metaFunctions];
+}
+
+- (LSRefTable)registerLibrary:(const char * _Nonnull)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions {
+
+    NSAssert(libraryName != NULL, @"libraryName can not be NULL", nil);
     // Ensure we're not given a null function table
     NSAssert(functions != NULL, @"functions can not be NULL", nil);
 
@@ -403,6 +434,7 @@ static NSMutableSet *_sharedWarnings ;
 
     NSString *fname = getCallerFileName() ;
 
+    // FIXME: Can this all be replaced just by using the libraryName argument?
     if (fname) {
         NSRange range = [fname rangeOfString:@"/hs/"] ;
         if (range.location == NSNotFound) range = [fname rangeOfString:@"/LuaSkin"] ;
@@ -428,7 +460,7 @@ static NSMutableSet *_sharedWarnings ;
     return tmpRefTable;
 }
 
-- (int)registerLibraryWithObject:(const char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions objectFunctions:(const luaL_Reg *)objectFunctions {
+- (LSRefTable)registerLibraryWithObject:(const char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions objectFunctions:(const luaL_Reg *)objectFunctions {
 
     NSAssert(libraryName != NULL, @"libraryName can not be NULL", nil);
     NSAssert(functions != NULL, @"functions can not be NULL (%s)", libraryName);
@@ -436,9 +468,7 @@ static NSMutableSet *_sharedWarnings ;
 
     [self registerObject:libraryName objectFunctions:objectFunctions];
 
-    int moduleRefTable = [self registerLibrary:functions metaFunctions:metaFunctions];
-
-    return moduleRefTable;
+    return [self registerLibrary:libraryName functions:functions metaFunctions:metaFunctions];
 }
 
 - (void)registerObject:(const char *)objectName objectFunctions:(const luaL_Reg *)objectFunctions {

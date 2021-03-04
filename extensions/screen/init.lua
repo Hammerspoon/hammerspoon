@@ -6,6 +6,15 @@
 --- System Preferences->Displays->Arrangement). The origin `0,0` is at the top left corner of the *primary screen*.
 --- (Screens to the left of the primary screen, or above it, and windows on these screens, will have negative coordinates)
 
+-- try to load private framework for brightness controls
+local state, msg = package.loadlib(
+    "/System/Library/PrivateFrameworks/DisplayServices.framework/Versions/Current/DisplayServices",
+    "*"
+)
+if not state then
+    hs.printf("-- unable to load DisplayServices framework; may impact brightness control: %s", msg)
+end
+
 local screen = require "hs.screen.internal"
 local geometry = require "hs.geometry"
 require "hs.image"

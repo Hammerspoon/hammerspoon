@@ -14,6 +14,9 @@ extern void CoreDisplay_Display_SetUserBrightness(CGDirectDisplayID id, double b
 extern double CoreDisplay_Display_GetUserBrightness(CGDirectDisplayID)
     __attribute__((weak_import));
 
+extern int DisplayServicesGetBrightness(CGDirectDisplayID display, float *brightness) __attribute__((weak_import));
+extern int DisplayServicesSetBrightness(CGDirectDisplayID display, float brightness) __attribute__((weak_import));
+
 #pragma mark - Module
 static void geom_pushrect(lua_State* L, NSRect rect) {
     lua_newtable(L);
@@ -639,7 +642,15 @@ static int screen_getBrightness(lua_State *L) {
     NSScreen* screen = get_screen_arg(L, 1);
     CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
 
-    if (CoreDisplay_Display_GetUserBrightness != NULL) {
+    if (DisplayServicesGetBrightness != NULL) {
+        float brightness ;
+        int err = DisplayServicesGetBrightness(screen_id, &brightness) ;
+        if (err == kCGErrorSuccess) {
+            lua_pushnumber(L, (lua_Number)brightness) ;
+        } else {
+            lua_pushnil(L);
+        }
+    } else if (CoreDisplay_Display_GetUserBrightness != NULL) {
         // Preferred API - interacts better with Night Shift, but is semi-private
         double brightness = CoreDisplay_Display_GetUserBrightness(screen_id);
         lua_pushnumber(L, brightness);
@@ -679,7 +690,9 @@ static int screen_setBrightness(lua_State *L) {
     CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
 
     double brightness = lua_tonumber(L, 2);
-    if (CoreDisplay_Display_SetUserBrightness != NULL) {
+    if (DisplayServicesSetBrightness != NULL) {
+        DisplayServicesSetBrightness(screen_id, brightness) ;
+    } else if (CoreDisplay_Display_SetUserBrightness != NULL) {
         // Preferred API - interacts better with Night Shift, but is semi-private
         CoreDisplay_Display_SetUserBrightness(screen_id, brightness);
     } else {
@@ -1420,7 +1433,7 @@ int luaopen_hs_screen_internal(lua_State* L) {
     notificationQueue = dispatch_queue_create("org.hammerspoon.Hammerspoon.gammaReapplyNotificationQueue", NULL);
     CGDisplayRegisterReconfigurationCallback(displayReconfigurationCallback, NULL);
 
-    [skin registerLibrary:screenlib metaFunctions:metalib];
+    [skin registerLibrary:USERDATA_TAG functions:screenlib metaFunctions:metalib];
     [skin registerObject:USERDATA_TAG objectFunctions:screen_objectlib];
 
     return 1;

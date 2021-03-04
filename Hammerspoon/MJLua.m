@@ -36,7 +36,7 @@ static int completionsForWordFn;
 
 static lua_CFunction oldPanicFunction ;
 
-static int refTable;
+static LSRefTable refTable;
 
 static void(^loghandler)(NSString* str);
 void MJLuaSetupLogHandler(void(^blk)(NSString* str)) {
@@ -843,7 +843,7 @@ void MJLuaInit(void) {
     LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
     lua_State* L = skin.L;
 
-    refTable = [skin registerLibrary:corelib metaFunctions:nil];
+    refTable = [skin registerLibrary:"core" functions:corelib metaFunctions:nil];
     push_hammerAppInfo(L) ;
     lua_setfield(L, -2, "processInfo") ;
 

@@ -18,7 +18,7 @@ function testrequires()
       table.insert(failed, failreason)
     end
   end
-  return table.concat(failed, " / ")
+  return table.concat(failed, "💩")
 end
 
 print("-- Hammerspoon Tests testinit.lua loaded")

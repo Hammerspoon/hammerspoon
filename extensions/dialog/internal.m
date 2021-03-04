@@ -4,7 +4,7 @@
 #import "MJAppDelegate.h"
 
 #define USERDATA_TAG  "hs.dialog"
-static int refTable = LUA_NOREF ;
+static LSRefTable refTable = LUA_NOREF ;
 
 #pragma mark - Support Functions and Classes
 
@@ -822,7 +822,7 @@ static luaL_Reg module_metaLib[] = {
 
 int luaopen_hs_dialog_internal(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-	refTable = [skin registerLibrary:moduleLib metaFunctions:module_metaLib] ;
+    refTable = [skin registerLibrary:USERDATA_TAG functions:moduleLib metaFunctions:module_metaLib] ;
 
     luaL_newlib(L, colorPanelLib) ; lua_setfield(L, -2, "color") ;
     [NSColorPanel setPickerMask:NSColorPanelAllModesMask] ;

@@ -25,7 +25,7 @@ const AudioObjectPropertySelector watchSelectors[] = {
     kAudioHardwarePropertyDefaultSystemOutputDevice,
 };
 
-static int refTable;
+static LSRefTable refTable;
 static audiodevice_watcher *theWatcher = nil;
 
 #pragma mark - Function definitions
@@ -242,6 +242,6 @@ static const luaL_Reg metaLib[] = {
 
 int luaopen_hs_audiodevice_watcher(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    refTable = [skin registerLibrary:audiodevicewatcherLib metaFunctions:metaLib];
+    refTable = [skin registerLibrary:"hs.audiodevice.watcher" functions:audiodevicewatcherLib metaFunctions:metaLib];
     return 1;
 }
