@@ -6,7 +6,7 @@
 /// macOS doesn't offer any API for getting Pasteboard notifications, so this extension uses polling to check for Pasteboard changes at a chosen interval (defaults to 0.25).
 
 static const char *USERDATA_TAG = "hs.pasteboard.watcher";
-static int refTable;
+static LSRefTable refTable;
 
 // How often we should poll the Pasteboard for changes:
 static double pollingInterval = 0.25;
@@ -338,7 +338,7 @@ static const luaL_Reg meta_gcLib[] = {
 
 int luaopen_hs_pasteboard_watcher(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    refTable = [skin registerLibrary:pasteboardWatcher_lib metaFunctions:meta_gcLib];
+    refTable = [skin registerLibrary:USERDATA_TAG functions:pasteboardWatcher_lib metaFunctions:meta_gcLib];
     [skin registerObject:USERDATA_TAG objectFunctions:pasteboardWatcher_metalib];
     return 1;
 }

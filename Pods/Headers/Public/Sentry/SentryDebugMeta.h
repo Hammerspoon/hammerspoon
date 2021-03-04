@@ -1,1 +1,1 @@
-../../../Sentry/Sources/Sentry/include/SentryDebugMeta.h
+../../../Sentry/Sources/Sentry/Public/SentryDebugMeta.h

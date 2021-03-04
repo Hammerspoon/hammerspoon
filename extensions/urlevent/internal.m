@@ -5,7 +5,7 @@
 #import "../../Hammerspoon/MJAppDelegate.h"
 #import "../../Hammerspoon/MJDockIcon.h"
 
-static int refTable;
+static LSRefTable refTable;
 NSArray *defaultContentTypes = nil;
 
 // ----------------------- Objective C ---------------------
@@ -356,7 +356,7 @@ int luaopen_hs_urlevent_internal(lua_State *L) {
 
     urlevent_setup();
 
-    refTable = [skin registerLibrary:urleventlib metaFunctions:urlevent_gclib];
+    refTable = [skin registerLibrary:"hs.urlevent" functions:urleventlib metaFunctions:urlevent_gclib];
 
     return 1;
 }

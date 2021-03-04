@@ -1,4 +1,7 @@
 #import "SentrySessionTracker.h"
+#import "SentryClient+Private.h"
+#import "SentryClient.h"
+#import "SentryFileManager.h"
 #import "SentryHub.h"
 #import "SentryLog.h"
 #import "SentrySDK.h"
@@ -9,12 +12,25 @@
 #    import <Cocoa/Cocoa.h>
 #endif
 
+/**
+ * In hybrid SDKs, we might initialize the Cocoa SDK after the hybrid engine is ready. So, we may
+ * register the didBecomeActive notification after the OS posts it. Therefore the hybrid SDKs can
+ * post this internal notification after initializing the Cocoa SDK to start a session. We can't
+ * start the session in this method because we don't know if a background task or a hybrid SDK
+ * initialized the SDK. Hybrid SDKs must only post this notification if they are running in the
+ * foreground because the auto session tracking logic doesn't support background tasks. Posting the
+ * notification from the background would mess up the session stats.
+ */
+static NSString *const SentryHybridSdkDidBecomeActiveNotificationName
+    = @"SentryHybridSdkDidBecomeActive";
+
 @interface
 SentrySessionTracker ()
 
 @property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) id<SentryCurrentDateProvider> currentDateProvider;
 @property (atomic, strong) NSDate *lastInForeground;
+@property (nonatomic, assign) BOOL wasDidBecomeActiveCalled;
 
 @end
 
@@ -26,6 +42,7 @@ SentrySessionTracker ()
     if (self = [super init]) {
         self.options = options;
         self.currentDateProvider = currentDateProvider;
+        self.wasDidBecomeActiveCalled = NO;
     }
     return self;
 }
@@ -72,6 +89,11 @@ SentrySessionTracker ()
                                              object:nil];
 
     [NSNotificationCenter.defaultCenter addObserver:self
+                                           selector:@selector(didBecomeActive)
+                                               name:SentryHybridSdkDidBecomeActiveNotificationName
+                                             object:nil];
+
+    [NSNotificationCenter.defaultCenter addObserver:self
                                            selector:@selector(willResignActive)
                                                name:willResignActiveNotificationName
                                              object:nil];
@@ -91,9 +113,9 @@ SentrySessionTracker ()
 }
 
 /**
- * End previously cached sessions. We never can be sure that WillResignActive or WillTerminate
- are called due to a crash or unexpected behavior. Still, we don't want to lose such sessions and
- end them.
+ * End previously cached sessions. We never can be sure that WillResignActive or WillTerminate are
+ * called due to a crash or unexpected behavior. Still, we don't want to lose such sessions and end
+ * them.
  */
 - (void)endCachedSession
 {
@@ -108,10 +130,21 @@ SentrySessionTracker ()
 }
 
 /**
- * Is only called when an app is receiving events / it is in the foreground.
+ * It is called when an App. is receiving events / It is in the foreground and when we receive a
+ * SentryHybridSdkDidBecomeActiveNotification. There is no guarantee that this method is called once
+ * or twice. We need to ensure that we execute it only once.
  */
 - (void)didBecomeActive
 {
+    // We don't know if the hybrid SDKs post the notification from a background thread, so we
+    // synchronize to be safe.
+    @synchronized(self) {
+        if (self.wasDidBecomeActiveCalled) {
+            return;
+        }
+        self.wasDidBecomeActiveCalled = YES;
+    }
+
     SentryHub *hub = [SentrySDK currentHub];
     self.lastInForeground = [[[hub getClient] fileManager] readTimestampLastInForeground];
 
@@ -146,6 +179,7 @@ SentrySessionTracker ()
     self.lastInForeground = [self.currentDateProvider date];
     SentryHub *hub = [SentrySDK currentHub];
     [[[hub getClient] fileManager] storeTimestampLastInForeground:self.lastInForeground];
+    self.wasDidBecomeActiveCalled = NO;
 }
 
 /**
@@ -158,6 +192,7 @@ SentrySessionTracker ()
     SentryHub *hub = [SentrySDK currentHub];
     [hub endSessionWithTimestamp:sessionEnded];
     [[[hub getClient] fileManager] deleteTimestampLastInForeground];
+    self.wasDidBecomeActiveCalled = NO;
 }
 
 @end

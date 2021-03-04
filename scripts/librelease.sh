@@ -392,8 +392,8 @@ function upload_dSYMs() {
     export SENTRY_AUTH_TOKEN
     cd "${HAMMERSPOON_HOME}"
     "${HAMMERSPOON_HOME}/scripts/sentry-cli" releases new -p hammerspoon ${VERSION}
-    "${HAMMERSPOON_HOME}/scripts/sentry-cli" releases set-commits --auto "${VERSION}"
-    "${HAMMERSPOON_HOME}/scripts/sentry-cli" upload-dif "archive/${VERSION}/dSYM/" >"archive/${VERSION}/dSYM-upload.log" 2>&1
+    "${HAMMERSPOON_HOME}/scripts/sentry-cli" releases set-commits "${VERSION}" --auto
+    "${HAMMERSPOON_HOME}/scripts/sentry-cli" upload-dif "archive/${VERSION}/dSYM/" >"../archive/${VERSION}/dSYM-upload.log" 2>&1
     "${HAMMERSPOON_HOME}/scripts/sentry-cli" releases finalize "${VERSION}"
   fi
   popd >/dev/null

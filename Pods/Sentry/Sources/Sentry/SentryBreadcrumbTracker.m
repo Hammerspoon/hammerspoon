@@ -5,6 +5,7 @@
 #import "SentryHub.h"
 #import "SentryLog.h"
 #import "SentrySDK.h"
+#import "SentryScope.h"
 #import "SentrySwizzle.h"
 
 #if SENTRY_HAS_UIKIT
@@ -109,6 +110,12 @@
 - (void)swizzleSendAction
 {
 #if SENTRY_HAS_UIKIT
+
+    // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
+    // fine and we accept this warning.
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow"
+
     static const void *swizzleSendActionKey = &swizzleSendActionKey;
     SEL selector = NSSelectorFromString(@"sendAction:to:from:forEvent:");
     SentrySwizzleInstanceMethod(UIApplication.class, selector, SentrySWReturnType(BOOL),
@@ -130,6 +137,7 @@
             return SentrySWCallOriginal(action, target, sender, event);
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, swizzleSendActionKey);
+#    pragma clang diagnostic pop
 #else
     [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker "
                               @"swizzleSendAction] does nothing."
@@ -140,6 +148,12 @@
 - (void)swizzleViewDidAppear
 {
 #if SENTRY_HAS_UIKIT
+
+    // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
+    // fine and we accept this warning.
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow"
+
     static const void *swizzleViewDidAppearKey = &swizzleViewDidAppearKey;
     SEL selector = NSSelectorFromString(@"viewDidAppear:");
     SentrySwizzleInstanceMethod(UIViewController.class, selector, SentrySWReturnType(void),
@@ -152,14 +166,16 @@
                     sanitizeViewControllerName:[NSString stringWithFormat:@"%@", self]];
                 crumb.data = @ { @"screen" : viewControllerName };
 
+                // Adding crumb via the SDK calls SentryBeforeBreadcrumbCallback
+                [SentrySDK addBreadcrumb:crumb];
                 [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull scope) {
-                    [scope addBreadcrumb:crumb];
                     [scope setExtraValue:viewControllerName forKey:@"__sentry_transaction"];
                 }];
             }
             SentrySWCallOriginal(animated);
         }),
         SentrySwizzleModeOncePerClassAndSuperclasses, swizzleViewDidAppearKey);
+#    pragma clang diagnostic pop
 #else
     [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker "
                               @"swizzleViewDidAppear] does nothing."

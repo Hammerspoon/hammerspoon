@@ -4,7 +4,7 @@
 #import "MJAppDelegate.h"
 
 #define USERDATA_TAG  "hs.dialog"
-static int refTable = LUA_NOREF ;
+static LSRefTable refTable = LUA_NOREF ;
 
 #pragma mark - Support Functions and Classes
 
@@ -418,7 +418,7 @@ static int chooseFileOrFolder(lua_State *L) {
     // Counter used when multiple files can be selected:
     int count = 1;
 
-    if (clicked == NSFileHandlingPanelOKButton) {
+    if (clicked == NSModalResponseOK) {
         lua_newtable(L);
         for (NSURL *url in [panel URLs]) {
             lua_pushstring(L,[[url path] UTF8String]); lua_setfield(L, -2, [[NSString stringWithFormat:@"%i", count] UTF8String]);
@@ -822,7 +822,7 @@ static luaL_Reg module_metaLib[] = {
 
 int luaopen_hs_dialog_internal(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-	refTable = [skin registerLibrary:moduleLib metaFunctions:module_metaLib] ;
+    refTable = [skin registerLibrary:USERDATA_TAG functions:moduleLib metaFunctions:module_metaLib] ;
 
     luaL_newlib(L, colorPanelLib) ; lua_setfield(L, -2, "color") ;
     [NSColorPanel setPickerMask:NSColorPanelAllModesMask] ;

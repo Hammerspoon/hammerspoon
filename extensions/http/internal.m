@@ -4,7 +4,7 @@
 @import LuaSkin;
 @import WebKit;
 
-static int refTable;
+static LSRefTable refTable;
 static NSMutableArray* delegates;
 
 // Convert a response body to data we can send to Lua
@@ -633,7 +633,7 @@ int luaopen_hs_http_internal(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     delegates = [[NSMutableArray alloc] init];
-    refTable = [skin registerLibrary:httplib metaFunctions:metalib];
+    refTable = [skin registerLibrary:"hs.http" functions:httplib metaFunctions:metalib];
 
     [skin registerPushNSHelper:NSURLRequest_toLua      forClass:"NSURLRequest"] ;
     [skin registerPushNSHelper:NSURLResponse_toLua     forClass:"NSURLResponse"] ;

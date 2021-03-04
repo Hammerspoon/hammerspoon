@@ -33,7 +33,6 @@ SentryCrashReportConverter ()
     self = [super init];
     if (self) {
         self.report = report;
-        self.binaryImages = report[@"binary_images"];
         self.systemContext = report[@"system"];
         self.userContext = report[@"user"];
 
@@ -43,6 +42,12 @@ SentryCrashReportConverter ()
             crashContext = report[@"recrash_report"][@"crash"];
         } else {
             crashContext = report[@"crash"];
+        }
+
+        if (nil != report[@"recrash_report"][@"binary_images"]) {
+            self.binaryImages = report[@"recrash_report"][@"binary_images"];
+        } else {
+            self.binaryImages = report[@"binary_images"];
         }
 
         self.diagnosis = crashContext[@"diagnosis"];
@@ -283,7 +288,7 @@ SentryCrashReportConverter ()
 - (NSArray<SentryDebugMeta *> *)convertDebugMeta
 {
     NSMutableArray<SentryDebugMeta *> *result = [NSMutableArray new];
-    for (NSDictionary *sourceImage in self.report[@"binary_images"]) {
+    for (NSDictionary *sourceImage in self.binaryImages) {
         SentryDebugMeta *debugMeta = [[SentryDebugMeta alloc] init];
         debugMeta.uuid = sourceImage[@"uuid"];
         debugMeta.type = @"apple";
@@ -360,16 +365,6 @@ SentryCrashReportConverter ()
 
 - (SentryException *)parseNSException
 {
-    //    if ([self.exceptionContext[@"nsexception"][@"name"]
-    //    containsString:@"NativeScript encountered a fatal error:"]) {
-    //        // TODO parsing here
-    //        SentryException *exception = [[SentryException alloc]
-    //        initWithValue:self.exceptionContext[@"nsexception"][@"reason"]
-    //                                                                       type:self.exceptionContext[@"nsexception"][@"name"]];
-    //        // exception.thread set here with parsed js stacktrace
-    //
-    //        return exception;
-    //    }
     NSString *reason = @"";
     if (nil != self.exceptionContext[@"nsexception"][@"reason"]) {
         reason = self.exceptionContext[@"nsexception"][@"reason"];

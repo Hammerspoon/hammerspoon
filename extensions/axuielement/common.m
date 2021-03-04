@@ -73,7 +73,7 @@ BOOL new_window(lua_State* L, AXUIElementRef win) {
 
 // Not sure if the alreadySeen trick is working here, but it hasn't crashed yet... of course I don't think I've found any loops that don't have a userdata object in-between that drops us back to Lua before deciding whether or not to delve deeper, either, so... should be safe in CFDictionary and CFArray, since they toll-free bridge; don't use for others -- fails for setting with AXUIElementRef as key, at least...
 
-static int pushCFTypeHamster(lua_State *L, CFTypeRef theItem, NSMutableDictionary *alreadySeen, int refTable) {
+static int pushCFTypeHamster(lua_State *L, CFTypeRef theItem, NSMutableDictionary *alreadySeen, LSRefTable refTable) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
 
     if (!theItem) {
@@ -152,10 +152,10 @@ static int pushCFTypeHamster(lua_State *L, CFTypeRef theItem, NSMutableDictionar
             lua_pushfstring(L, "unrecognized value type (%p)", theItem) ;
         }
     } else if (theType == CGColorGetTypeID()) {
-        [skin pushNSObject:[NSColor colorWithCGColor:theItem]] ;
+        [skin pushNSObject:[NSColor colorWithCGColor:(CGColorRef)theItem]] ;
     } else if (theType == CGImageGetTypeID()) {
-        NSSize imageSize = NSMakeSize(CGImageGetWidth(theItem), CGImageGetHeight(theItem)) ;
-        [skin pushNSObject:[[NSImage alloc] initWithCGImage:theItem size:imageSize]] ;
+        NSSize imageSize = NSMakeSize(CGImageGetWidth((CGImageRef)theItem), CGImageGetHeight((CGImageRef)theItem)) ;
+        [skin pushNSObject:[[NSImage alloc] initWithCGImage:(CGImageRef)theItem size:imageSize]] ;
     } else if (theType == CFAttributedStringGetTypeID()) {
         [skin pushNSObject:(__bridge NSAttributedString *)theItem] ;
     } else if (theType == CFNullGetTypeID()) {
@@ -173,7 +173,7 @@ static int pushCFTypeHamster(lua_State *L, CFTypeRef theItem, NSMutableDictionar
     } else if (theType == AXUIElementGetTypeID()) {
         pushAXUIElement(L, theItem) ;
     } else if (theType == AXObserverGetTypeID()) {
-        pushAXObserver(L, theItem) ;
+        pushAXObserver(L, (AXObserverRef)theItem) ;
     } else if (AXTextMarkerGetTypeID != NULL      && theType == AXTextMarkerGetTypeID()) {
         pushAXTextMarker(L, theItem) ;
     } else if (AXTextMarkerRangeGetTypeID != NULL && theType == AXTextMarkerRangeGetTypeID()) {
@@ -358,7 +358,7 @@ static CFTypeRef lua_toCFTypeHamster(lua_State *L, int idx, NSMutableDictionary 
     return value ;
 }
 
-int pushCFTypeToLua(lua_State *L, CFTypeRef theItem, int refTable) {
+int pushCFTypeToLua(lua_State *L, CFTypeRef theItem, LSRefTable refTable) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     NSMutableDictionary *alreadySeen = [[NSMutableDictionary alloc] init] ;
     pushCFTypeHamster(L, theItem, alreadySeen, refTable) ;

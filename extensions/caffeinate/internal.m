@@ -370,7 +370,7 @@ static const luaL_Reg metalib[] = {
 
 int luaopen_hs_caffeinate_internal(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin registerLibrary:caffeinatelib metaFunctions:metalib];
+    [skin registerLibrary:"hs.caffeinate" functions:caffeinatelib metaFunctions:metalib];
 
     return 1;
 }

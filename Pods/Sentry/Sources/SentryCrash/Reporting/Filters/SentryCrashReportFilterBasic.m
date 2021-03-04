@@ -129,10 +129,10 @@ SentryCrashReportFilterCombine ()
 
     if (filterCount != [keys count]) {
         sentrycrash_callCompletion(onCompletion, reports, NO,
-            [NSError errorWithDomain:[[self class] description]
-                                code:0
-                         description:@"Key/filter mismatch (%d keys, %d filters", [keys count],
-                         filterCount]);
+            [NSError sentryErrorWithDomain:[[self class] description]
+                                      code:0
+                               description:@"Key/filter mismatch (%d keys, %d filters",
+                               [keys count], filterCount]);
         return;
     }
 
@@ -151,9 +151,9 @@ SentryCrashReportFilterCombine ()
                 sentrycrash_callCompletion(onCompletion, filteredReports, completed, filterError);
             } else if (filteredReports == nil) {
                 sentrycrash_callCompletion(onCompletion, filteredReports, NO,
-                    [NSError errorWithDomain:[[self class] description]
-                                        code:0
-                                 description:@"filteredReports was nil"]);
+                    [NSError sentryErrorWithDomain:[[self class] description]
+                                              code:0
+                                       description:@"filteredReports was nil"]);
             }
             disposeOfCompletion();
             return;
@@ -264,9 +264,9 @@ SentryCrashReportFilterPipeline ()
                 sentrycrash_callCompletion(onCompletion, filteredReports, completed, filterError);
             } else if (filteredReports == nil) {
                 sentrycrash_callCompletion(onCompletion, filteredReports, NO,
-                    [NSError errorWithDomain:[[self class] description]
-                                        code:0
-                                 description:@"filteredReports was nil"]);
+                    [NSError sentryErrorWithDomain:[[self class] description]
+                                              code:0
+                                       description:@"filteredReports was nil"]);
             }
             disposeOfCompletion();
             return;
@@ -334,9 +334,9 @@ SentryCrashReportFilterObjectForKey ()
         if (object == nil) {
             if (!self.allowNotFound) {
                 sentrycrash_callCompletion(onCompletion, filteredReports, NO,
-                    [NSError errorWithDomain:[[self class] description]
-                                        code:0
-                                 description:@"Key not found: %@", self.key]);
+                    [NSError sentryErrorWithDomain:[[self class] description]
+                                              code:0
+                                       description:@"Key not found: %@", self.key]);
                 return;
             }
             [filteredReports addObject:[NSDictionary dictionary]];
@@ -466,9 +466,9 @@ SentryCrashReportFilterSubset ()
             id object = [report sentry_objectForKeyPath:keyPath];
             if (object == nil) {
                 sentrycrash_callCompletion(onCompletion, filteredReports, NO,
-                    [NSError errorWithDomain:[[self class] description]
-                                        code:0
-                                 description:@"Report did not have key path %@", keyPath]);
+                    [NSError sentryErrorWithDomain:[[self class] description]
+                                              code:0
+                                       description:@"Report did not have key path %@", keyPath]);
                 return;
             }
             [subset setObject:object forKey:[keyPath lastPathComponent]];
@@ -516,9 +516,9 @@ SentryCrashReportFilterSubset ()
         NSData *converted = [report dataUsingEncoding:NSUTF8StringEncoding];
         if (converted == nil) {
             sentrycrash_callCompletion(onCompletion, filteredReports, NO,
-                [NSError errorWithDomain:[[self class] description]
-                                    code:0
-                             description:@"Could not convert report to UTF-8"]);
+                [NSError sentryErrorWithDomain:[[self class] description]
+                                          code:0
+                                   description:@"Could not convert report to UTF-8"]);
             return;
         } else {
             [filteredReports addObject:converted];

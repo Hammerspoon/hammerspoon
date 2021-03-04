@@ -240,11 +240,11 @@ static int pasteboard_delete(lua_State* L) {
     [skin checkArgs:LS_TSTRING | LS_TNUMBER, LS_TBREAK] ; // prevents nil from being specified
     luaL_checkstring(L, 1) ; // coerce number to string
     NSString *pbName = [skin toNSObjectAtIndex:1] ;
-    if ([pbName isEqualToString:NSGeneralPboard] ||
-        [pbName isEqualToString:NSFontPboard]    ||
-        [pbName isEqualToString:NSRulerPboard]   ||
-        [pbName isEqualToString:NSFindPboard]    ||
-        [pbName isEqualToString:NSDragPboard]) return luaL_error(L, "cannot delete a system pasteboard") ;
+    if ([pbName isEqualToString:NSPasteboardNameGeneral] ||
+        [pbName isEqualToString:NSPasteboardNameFont]    ||
+        [pbName isEqualToString:NSPasteboardNameRuler]   ||
+        [pbName isEqualToString:NSPasteboardNameFind]    ||
+        [pbName isEqualToString:NSPasteboardNameDrag]) return luaL_error(L, "cannot delete a system pasteboard") ;
 
     NSPasteboard *thePasteboard = [NSPasteboard pasteboardWithName:pbName];
     [thePasteboard releaseGlobally];
@@ -1059,7 +1059,7 @@ static const luaL_Reg pasteboardLib[] = {
 
 int luaopen_hs_pasteboard_internal(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin registerLibrary:pasteboardLib metaFunctions:nil];
+    [skin registerLibrary:"hs.pasteboard" functions:pasteboardLib metaFunctions:nil];
 
 //     pushPasteboardTypesTable(L) ; lua_setfield(L, -2, "types") ;
 //     pushPasteboardNamesTable(L) ; lua_setfield(L, -2, "names") ;

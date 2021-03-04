@@ -22,7 +22,7 @@
 ///
 
 // static const char * const USERDATA_TAG = "hs.fs.xattr" ;
-static int refTable = LUA_NOREF;
+static LSRefTable refTable = LUA_NOREF;
 
 #pragma mark - Support Functions and Classes
 
@@ -272,7 +272,7 @@ static luaL_Reg moduleLib[] = {
 
 int luaopen_hs_fs_xattr(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
-    refTable = [skin registerLibrary:moduleLib metaFunctions:nil] ;
+    refTable = [skin registerLibrary:"hs.fs.xattr" functions:moduleLib metaFunctions:nil] ;
 
     return 1;
 }

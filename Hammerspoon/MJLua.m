@@ -34,7 +34,7 @@ static int completionsForWordFn;
 
 static lua_CFunction oldPanicFunction ;
 
-static int refTable;
+static LSRefTable refTable;
 
 static void(^loghandler)(NSString* str);
 void MJLuaSetupLogHandler(void(^blk)(NSString* str)) {
@@ -251,34 +251,49 @@ static int core_accessibilityState(lua_State* L) {
     return 1;
 }
 
-// SOURCE: https://stackoverflow.com/a/58786245/6925202
+// SOURCE: https://stackoverflow.com/a/58985069
 bool isScreenRecordingEnabled()
 {
     if (@available(macos 10.15, *)) {
-        bool bRet = false;
-        CFArrayRef list = CGWindowListCopyWindowInfo(kCGWindowListOptionAll, kCGNullWindowID);
-        if (list) {
-            int n = (int)(CFArrayGetCount(list));
-            for (int i = 0; i < n; i++) {
-                NSDictionary* info = (NSDictionary*)(CFArrayGetValueAtIndex(list, (CFIndex)i));
-                NSString* name = info[(id)kCGWindowName];
-                NSNumber* pid = info[(id)kCGWindowOwnerPID];
-                if (pid != nil && name != nil) {
-                    int nPid = [pid intValue];
-                    char path[PROC_PIDPATHINFO_MAXSIZE+1];
-                    int lenPath = proc_pidpath(nPid, path, PROC_PIDPATHINFO_MAXSIZE);
-                    if (lenPath > 0) {
-                        path[lenPath] = 0;
-                        if (strcmp(path, "/System/Library/CoreServices/SystemUIServer.app/Contents/MacOS/SystemUIServer") == 0) {
-                            bRet = true;
-                            break;
+        BOOL canRecordScreen = YES;
+        if (@available(macOS 10.15, *)) {
+            canRecordScreen = NO;
+            NSRunningApplication *runningApplication = NSRunningApplication.currentApplication;
+            NSNumber *ourProcessIdentifier = [NSNumber numberWithInteger:runningApplication.processIdentifier];
+
+            CFArrayRef windowList = CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly, kCGNullWindowID);
+            NSUInteger numberOfWindows = CFArrayGetCount(windowList);
+            for (int index = 0; index < numberOfWindows; index++) {
+                // get information for each window
+                NSDictionary *windowInfo = (NSDictionary *)CFArrayGetValueAtIndex(windowList, index);
+                NSString *windowName = windowInfo[(id)kCGWindowName];
+                NSNumber *processIdentifier = windowInfo[(id)kCGWindowOwnerPID];
+
+                // don't check windows owned by this process
+                if (! [processIdentifier isEqual:ourProcessIdentifier]) {
+                    // get process information for each window
+                    pid_t pid = processIdentifier.intValue;
+                    NSRunningApplication *windowRunningApplication = [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
+                    if (! windowRunningApplication) {
+                        // ignore processes we don't have access to, such as WindowServer, which manages the windows named "Menubar" and "Backstop Menubar"
+                    }
+                    else {
+                        NSString *windowExecutableName = windowRunningApplication.executableURL.lastPathComponent;
+                        if (windowName) {
+                            if ([windowExecutableName isEqual:@"Dock"]) {
+                                // ignore the Dock, which provides the desktop picture
+                            }
+                            else {
+                                canRecordScreen = YES;
+                                break;
+                            }
                         }
                     }
                 }
             }
-            CFRelease(list);
+            CFRelease(windowList);
         }
-        return bRet;
+        return canRecordScreen;
     } else {
         return true;
     }
@@ -826,7 +841,7 @@ void MJLuaInit(void) {
     LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
     lua_State* L = skin.L;
 
-    refTable = [skin registerLibrary:corelib metaFunctions:nil];
+    refTable = [skin registerLibrary:"core" functions:corelib metaFunctions:nil];
     push_hammerAppInfo(L) ;
     lua_setfield(L, -2, "processInfo") ;
 

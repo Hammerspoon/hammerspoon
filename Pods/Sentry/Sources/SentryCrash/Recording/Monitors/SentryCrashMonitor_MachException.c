@@ -253,7 +253,7 @@ handleExceptions(void *const userData)
 
     const char *threadName = (const char *)userData;
     pthread_setname_np(threadName);
-    if (threadName == kThreadSecondary) {
+    if (strcmp(threadName, kThreadSecondary) == 0) {
         SentryCrashLOG_DEBUG("This is the secondary thread. Suspending.");
         thread_suspend((thread_t)sentrycrashthread_self());
         eventID = g_secondaryEventID;

@@ -2,7 +2,7 @@
 @import LuaSkin ;
 
 static const char * const USERDATA_TAG = "hs.host.locale" ;
-static int refTable = LUA_NOREF;
+static LSRefTable refTable = LUA_NOREF;
 static int callbackRef = LUA_NOREF ;
 
 #pragma mark - Support Functions and Classes
@@ -404,7 +404,7 @@ static const luaL_Reg module_metaLib[] = {
 
 int luaopen_hs_host_locale_internal(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
-    refTable = [skin registerLibrary:moduleLib metaFunctions:module_metaLib] ;
+    refTable = [skin registerLibrary:USERDATA_TAG functions:moduleLib metaFunctions:module_metaLib] ;
 
     observerOfChanges = [[HSLocaleChangeObserver alloc] init] ;
     [observerOfChanges start] ;
