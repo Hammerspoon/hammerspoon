@@ -78,7 +78,7 @@ local function getColor(t) if type(t)~='table' or t.red or not t[1] then return 
 local function getScreens()
   local screens=screen.allScreens()
   if #screens==0 then log.w('Cannot get current screens') return end
-  sf=screens[1]:frame()
+  sf=screens[1]:fullFrame()
   for i=2,#screens do
     local fr=screens[i]:frame()
     if fr.x<sf.x then sf.x=fr.x end
@@ -170,7 +170,11 @@ local isolatesubs={
 
 local function setUiPrefs()
   local prevOverlay,prevFlash=hasOverlay,hasFlash
-  if frame then frame:delete() rt:delete() rl:delete() rb:delete() rr:delete() rflash:delete() end
+  if frame then
+    if next(frame) ~= nil then
+      frame:delete() rt:delete() rl:delete() rb:delete() rr:delete() rflash:delete()
+    end
+  end
   local ui=highlight.ui
   local f={x=-5,y=0,w=1,h=1}
   frame=drrect(f):setFill(false):setStroke(true):setStrokeWidth(ui.frameWidth):setBehavior(BEHAVIOR)
