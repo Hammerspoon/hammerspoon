@@ -254,6 +254,8 @@ static NSMutableSet *_sharedWarnings ;
 #pragma mark - lua_State lifecycle
 
 - (void)createLuaState {
+    NSString *catastropheText = @"";
+
     NSLog(@"createLuaState");
     NSAssert((LuaSkin.mainLuaState == NULL), @"createLuaState called on a live Lua environment", nil);
     self.uuid = [NSUUID UUID];
@@ -264,21 +266,30 @@ static NSMutableSet *_sharedWarnings ;
     self.debugLibraryRef = luaL_ref(LuaSkin.mainLuaState, LUA_REGISTRYINDEX) ;
 
     NSString *luaSkinLua = [[NSBundle bundleForClass:[self class]] pathForResource:@"luaskin" ofType:@"lua"];
-    NSAssert((luaSkinLua != nil), @"createLuaState was unable to find luaskin.lua. Your installation may be damaged");
+    if (!luaSkinLua) {
+        catastropheText = @"createLuaState was unable to find luaskin.lua. Please re-install Hammerspoon";
+        goto catastrophe;
+    }
 
     luaopen_luaskin_internal(LuaSkin.mainLuaState) ; // load objectWrapper userdata methods and create _G["ls"]
 
     int loadresult = luaL_loadfile(LuaSkin.mainLuaState, luaSkinLua.fileSystemRepresentation); // extend _G["ls"]
     if (loadresult != 0) {
-        NSLog(@"createLuaState was unable to load luaskin.lua. Your installation may be damaged.");
-        exit(1);
+        catastropheText = @"createLuaState was unable to load luaskin.lua. Please re-install Hammerspoon";
+        goto catastrophe;
     }
 
     int luaresult = lua_pcall(LuaSkin.mainLuaState, 0, 0, 0);
     if (luaresult != LUA_OK) {
-        NSLog(@"createLuaState was unable to evaluate luaskin.lua. Your installation may be damaged.");
-        exit(1);
+        catastropheText = @"createLuaState was unable to evaluate luaskin.lua. Please re-install Hammerspoon";
+        goto catastrophe;
     }
+
+    return;
+
+catastrophe:
+    [self.delegate handleCatastrophe:catastropheText];
+    exit(1);
 }
 
 - (void)destroyLuaState {
