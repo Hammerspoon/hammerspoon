@@ -382,12 +382,12 @@
         LuaSkin *skin = [LuaSkin sharedWithState:NULL];
         _lua_stackguard_entry(skin.L);
         NSDictionary *choice = [[self getChoices] objectAtIndex:row];
-        
+
         if ([choice objectForKey:@"valid"] && ![[choice objectForKey:@"valid"] boolValue] && self.invalidCallbackRef != LUA_NOREF && self.invalidCallbackRef != LUA_REFNIL) {
             [skin pushLuaRef:self.refTable ref:self.invalidCallbackRef];
             [skin pushNSObject:choice];
             [skin protectedCallAndError:@"hs.chooser:invalidCallback" nargs:1 nresults:0];
-        } else {
+        } else if (self.completionCallbackRef != LUA_NOREF && self.completionCallbackRef != LUA_REFNIL) {
             [self hide];
             [skin pushLuaRef:self.refTable ref:self.completionCallbackRef];
             [skin pushNSObject:choice];
