@@ -69,7 +69,7 @@ jobs:
             ${{ steps.test.outputs.test_result }}
 
   publish:
-    name: "Publish Unit Test Results"
+    name: "Process Test Results"
     needs: build
     runs-on: ubuntu-latest
     if: always()
@@ -83,7 +83,7 @@ jobs:
       - name: Publish Results
         uses: EnricoMi/publish-unit-test-result-action@v1
         with:
-          check_name: Unit Test Results
+          check_name: View Test Results
           github_token: ${{ secrets.GITHUB_TOKEN }}
           files: "artifacts/**/*.xml"
 
