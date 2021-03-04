@@ -31,7 +31,7 @@
     NSArray *errors = [res componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"💩"]];
 
     // If Hammerspoon is already running, hs.ipc will fail to load, so let's filter that error out if it exists.
-    NSArray *filteredErrors = [errors filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT (SELF contains 'failed to create new local port')"]];
+    NSArray *filteredErrors = [errors filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT (SELF contains 'failed to create new local port') AND NOT (SELF == '')"]];
 
     XCTAssertEqual(0, filteredErrors.count, @"Some modules failed to load: %@", filteredErrors);
 }
