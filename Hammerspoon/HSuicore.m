@@ -230,20 +230,10 @@
 }
 
 -(BOOL)isFrontmost {
-    CFTypeRef _isFrontmost;
-    NSNumber* isFrontmost = @NO;
+    NSWorkspace *workspace = [NSWorkspace sharedWorkspace];
+    NSRunningApplication *frontmostApp = workspace.frontmostApplication;
 
-    if (kAXErrorSuccess == AXUIElementCopyAttributeValue(self.elementRef,
-                                                         (CFStringRef)NSAccessibilityFrontmostAttribute,
-                                                         &_isFrontmost)) {
-        isFrontmost = (__bridge_transfer NSNumber *)_isFrontmost;
-//     } else {
-//         [LuaSkin logError:[NSString stringWithFormat:@"Unable to fetch element attribute NSAccessibilityFrontmostAttribute for: %@", [self.runningApp localizedName]]];
-    }
-
-    [LuaSkin logBreadcrumb:[NSString stringWithFormat:@"FRONTMOST: %@:%@:%@", self.title, isFrontmost, AXIsProcessTrusted() ? @"YES" : @"NO"]];
-
-    return isFrontmost.boolValue;
+    return frontmostApp == self.runningApp;
 }
 
 -(NSString *)title {
