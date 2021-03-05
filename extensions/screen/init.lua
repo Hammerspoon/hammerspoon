@@ -82,7 +82,7 @@ function screen.find(p)
         local sname=s:name()
         if s:getUUID() == p then
           r[#r+1]=s
-        elseif sname and sname:lower():find(p:lower()) then
+        elseif sname and sname:lower():find(p:lower(), 1, true) then
           r[#r+1]=s
         end
       end
