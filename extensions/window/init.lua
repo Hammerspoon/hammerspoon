@@ -47,6 +47,7 @@ window.animationDuration = 0.2
 ---  * The desktop is filtered out from `hs.window.allWindows()` (and downstream uses)
 function window.desktop()
   local finder = application.get('com.apple.finder')
+  if not finder then return false end
   for _,w in ipairs(finder:allWindows()) do if w:role()=='AXScrollArea' then return w end end
 end
 
