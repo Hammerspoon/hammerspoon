@@ -6,6 +6,7 @@
 [![Downloads all releases](https://img.shields.io/github/downloads/Hammerspoon/hammerspoon/total.svg?maxAge=2592000)](https://github.com/Hammerspoon/hammerspoon/releases)
 [![Latest tag](https://img.shields.io/github/tag/Hammerspoon/hammerspoon.svg)](https://github.com/Hammerspoon/hammerspoon/tags)
 [![Latest release](https://img.shields.io/github/release/Hammerspoon/hammerspoon.svg)](https://github.com/Hammerspoon/hammerspoon/releases/latest)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FHammerspoon%2Fhammerspoon.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FHammerspoon%2Fhammerspoon?ref=badge_shield)
 
 ## What is Hammerspoon?
 
@@ -43,3 +44,7 @@ Our intentions for Hammerspoon broadly fall into these categories:
  * Ever wider coverage of system APIs in Extensions
  * Tighter integration between extensions
  * Smoother user experience
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FHammerspoon%2Fhammerspoon.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FHammerspoon%2Fhammerspoon?ref=badge_large)
