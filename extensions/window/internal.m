@@ -50,6 +50,8 @@ static int window_list(lua_State* L) {
         if (dockWindowNumber) {
             // Fetch on screen windows again, filtering to those "below" the Dock window
             // This filters out all but the "standard" application windows
+
+            CFRelease(windowListArray);
             windowListArray = CGWindowListCreate(kCGWindowListOptionOnScreenBelowWindow|kCGWindowListExcludeDesktopElements, [dockWindowNumber unsignedIntValue]);
             windows = CFBridgingRelease(CGWindowListCreateDescriptionFromArray(windowListArray));
         }

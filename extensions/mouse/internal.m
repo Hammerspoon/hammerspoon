@@ -114,7 +114,7 @@ static void enum_callback(void *ctx, IOReturn res, void *sender, IOHIDDeviceRef 
 }
 
 -(NSDictionary *)getIOHIDParamtersFromService:(io_service_t)service {
-    return (__bridge NSDictionary *)IORegistryEntryCreateCFProperty(service, CFSTR(kIOHIDParametersKey), kCFAllocatorDefault, kNilOptions);
+    return CFBridgingRelease(IORegistryEntryCreateCFProperty(service, CFSTR(kIOHIDParametersKey), kCFAllocatorDefault, kNilOptions));
 }
 
 -(NSDictionary *)getIOHIDParameters {
