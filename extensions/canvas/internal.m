@@ -1822,7 +1822,7 @@ static int userdata_gc(lua_State* L) ;
 }
 
 - (id)getElementValueFor:(NSString *)keyName atIndex:(NSUInteger)index resolvePercentages:(BOOL)resolvePercentages onlyIfSet:(BOOL)onlyIfSet {
-    if (index > [_elementList count]) return nil ;
+    if (index >= [_elementList count]) return nil ;
     NSDictionary *elementAttributes = _elementList[index] ;
     id foundObject = elementAttributes[keyName] ? elementAttributes[keyName] : (onlyIfSet ? nil : [self getDefaultValueFor:keyName onlyIfSet:NO]) ;
     if ([[foundObject class] conformsToProtocol:@protocol(NSMutableCopying)]) {
@@ -1906,7 +1906,7 @@ static int userdata_gc(lua_State* L) ;
 }
 
 - (attributeValidity)setElementValueFor:(NSString *)keyName atIndex:(NSUInteger)index to:(id)keyValue withState:(lua_State *)L {
-    if (index > [_elementList count]) return attributeInvalid ;
+    if (index >= [_elementList count]) return attributeInvalid ;
     keyValue = [self massageKeyValue:keyValue forKey:keyName withState:L] ;
     __block attributeValidity validityStatus = isValueValidForAttribute(keyName, keyValue) ;
 
@@ -3596,7 +3596,7 @@ static int canvas_elementBoundsAtIndex(lua_State *L) {
     NSUInteger      elementCount  = [canvasView.elementList count] ;
     NSInteger       tablePosition = (lua_tointeger(L, 2) - 1) ;
 
-    if (tablePosition < 0 || tablePosition > (NSInteger)elementCount - 1) {
+    if (tablePosition < 0 || tablePosition >= (NSInteger)elementCount) {
         return luaL_argerror(L, 3, [[NSString stringWithFormat:@"index %ld out of bounds", tablePosition + 1] UTF8String]) ;
     }
 
