@@ -36,13 +36,12 @@ static LSRefTable refTable;
 
 - (void)callback:(NSTimer *)timer {
     LuaSkin *skin = [LuaSkin sharedWithState:NULL];
-    _lua_stackguard_entry(skin.L);
 
     if (![skin checkLuaSkinInstance:self.luaSkinUUID]) {
-        [skin logBreadcrumb: @"hs.eventtap callback arrived for a different LuaSkin instance"];
-        _lua_stackguard_exit(skin.L);
         return;
     }
+
+    _lua_stackguard_entry(skin.L);
 
     if (!timer.isValid) {
         [skin logBreadcrumb:@"hs.timer callback fired on an invalid hs.timer object. This is a bug"];
@@ -384,6 +383,7 @@ static int timer_gc(lua_State* L) {
         [timer stop];
         timer.fnRef = [skin luaUnref:refTable ref:timer.fnRef];
         timer.t = nil;
+        timer.luaSkinUUID = nil;
         timer = nil;
     }
 
