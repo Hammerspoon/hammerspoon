@@ -445,7 +445,7 @@ static int eventtap_gc(lua_State* L) {
     }
 
     eventtap->fn = [skin luaUnref:refTable ref:eventtap->fn];
-    eventtap->luaSkinUUID = nil;
+    eventtap->luaSkinUUID[0] = '\0';
 
     return 0;
 }

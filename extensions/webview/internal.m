@@ -3085,7 +3085,7 @@ static int userdata_gc(lua_State* L) {
         theView.UIDelegate         = nil ;
         theWindow.contentView      = nil ;
         theView                    = nil ;
-        theWIndow.luaSkinUUID      = nil ;
+        theWindow.luaSkinUUID      = nil ;
 
         theWindow.delegate         = nil ;
         theWindow                  = nil;
