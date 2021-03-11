@@ -106,6 +106,7 @@ void delayUntilViewStopsLoading(HSWebViewView *theView, dispatch_block_t block) 
         _allowKeyboardEntry = NO;
         _closeOnEscape      = NO;
         _darkMode           = NO;
+        _luaSkinUUID        = nil;
 
         // can't be set before the callback which acts on delegate methods is defined
         self.delegate       = self;
@@ -132,7 +133,12 @@ void delayUntilViewStopsLoading(HSWebViewView *theView, dispatch_block_t block) 
 - (void)windowWillClose:(__unused NSNotification *)notification {
     LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
     lua_State *L = [skin L] ;
+
+    if (![skin checkLuaSkinInstance:self.luaSkinUUID]) {
+        return;
+    }
     _lua_stackguard_entry(L);
+
     if (_windowCallback != LUA_NOREF) {
         [skin pushLuaRef:refTable ref:_windowCallback] ;
         [skin pushNSObject:@"closing"] ;
@@ -575,6 +581,7 @@ void delayUntilViewStopsLoading(HSWebViewView *theView, dispatch_block_t block) 
         newWindow.parent             = parent ;
         newWindow.deleteOnClose      = YES ;
         newWindow.opaque             = parent.opaque ;
+        newWindow.luaSkinUUID        = [NSString stringWithString:skin.uuid.UUIDString];
 
         if (((HSWebViewWindow *)theView.window).windowCallback != LUA_NOREF) {
             [skin pushLuaRef:refTable ref:((HSWebViewWindow *)theView.window).windowCallback];
@@ -1822,6 +1829,8 @@ static int webview_new(lua_State *L) {
                                                                         defer:YES];
 
     if (theWindow) {
+        theWindow.luaSkinUUID = [NSString stringWithString:skin.uuid.UUIDString];
+
         // Don't create until actually used...
         if (!HSWebViewProcessPool) HSWebViewProcessPool = [[WKProcessPool alloc] init] ;
 
@@ -3078,6 +3087,7 @@ static int userdata_gc(lua_State* L) {
         theView.UIDelegate         = nil ;
         theWindow.contentView      = nil ;
         theView                    = nil ;
+        theWindow.luaSkinUUID      = nil ;
 
         theWindow.delegate         = nil ;
         theWindow                  = nil;

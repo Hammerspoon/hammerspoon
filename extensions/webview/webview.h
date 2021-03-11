@@ -27,6 +27,7 @@
 @property BOOL            titleFollow ;
 @property BOOL            deleteOnClose ;
 @property BOOL            closeOnEscape ;
+@property NSString        *luaSkinUUID ;
 @end
 
 @interface HSWebViewView : WKWebView <WKNavigationDelegate, WKUIDelegate>

@@ -1393,8 +1393,6 @@ static int userdata_gc(lua_State* L) ;
 }
 
 - (void)drawRect:(__unused NSRect)rect {
-    NSDisableScreenUpdates() ;
-
     NSGraphicsContext* gc = [NSGraphicsContext currentContext];
     [gc saveGraphicsState];
 
@@ -1688,7 +1686,6 @@ static int userdata_gc(lua_State* L) ;
 
     _mouseTracking = needMouseTracking ;
     [gc restoreGraphicsState];
-    NSEnableScreenUpdates() ;
 }
 
 // To facilitate the way frames and points are specified, we get our tables from lua with the LS_NSRawTables option... this forces rect-tables and point-tables to be just that - tables, but also prevents color tables, styledtext tables, and transform tables from being converted... so we add fixes for them here...
@@ -1825,7 +1822,7 @@ static int userdata_gc(lua_State* L) ;
 }
 
 - (id)getElementValueFor:(NSString *)keyName atIndex:(NSUInteger)index resolvePercentages:(BOOL)resolvePercentages onlyIfSet:(BOOL)onlyIfSet {
-    if (index > [_elementList count]) return nil ;
+    if (index >= [_elementList count]) return nil ;
     NSDictionary *elementAttributes = _elementList[index] ;
     id foundObject = elementAttributes[keyName] ? elementAttributes[keyName] : (onlyIfSet ? nil : [self getDefaultValueFor:keyName onlyIfSet:NO]) ;
     if ([[foundObject class] conformsToProtocol:@protocol(NSMutableCopying)]) {
@@ -1909,7 +1906,7 @@ static int userdata_gc(lua_State* L) ;
 }
 
 - (attributeValidity)setElementValueFor:(NSString *)keyName atIndex:(NSUInteger)index to:(id)keyValue withState:(lua_State *)L {
-    if (index > [_elementList count]) return attributeInvalid ;
+    if (index >= [_elementList count]) return attributeInvalid ;
     keyValue = [self massageKeyValue:keyValue forKey:keyName withState:L] ;
     __block attributeValidity validityStatus = isValueValidForAttribute(keyName, keyValue) ;
 
@@ -2365,48 +2362,6 @@ static int dumpLanguageDictionary(lua_State *L) {
     [skin checkArgs:LS_TBREAK] ;
     [skin pushNSObject:languageDictionary withOptions:LS_NSDescribeUnknownTypes] ;
     return 1 ;
-}
-
-/// hs.canvas.disableScreenUpdates() -> None
-/// Function
-/// Tells the OS X window server to pause updating the physical displays for a short while.
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * None
-///
-/// Notes:
-///  * This method can be used to allow multiple changes which are being made to the users display appear as if they all occur simultaneously by holding off on updating the screen on the regular schedule.
-///  * This method should always be balanced with a call to [hs.canvas.enableScreenUpdates](#enableScreenUpdates) when your updates have been completed.  Failure to do so will be logged in the system logs.
-///
-///  * The window server will only allow you to pause updates for up to 1 second.  This prevents a rogue or hung process from locking the system`s display completely.  Updates will be resumed when [hs.canvas.enableScreenUpdates](#enableScreenUpdates) is encountered or after 1 second, whichever comes first.
-static int disableUpdates(lua_State *L) {
-    [[LuaSkin sharedWithState:L] checkArgs:LS_TBREAK] ;
-    NSDisableScreenUpdates() ;
-    return 0 ;
-}
-
-/// hs.canvas.enableScreenUpdates() -> None
-/// Function
-/// Tells the OS X window server to resume updating the physical displays after a previous pause.
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * None
-///
-/// Notes:
-///  * In conjunction with [hs.canvas.disableScreenUpdates](#disableScreenUpdates), this method can be used to allow multiple changes which are being made to the users display appear as if they all occur simultaneously by holding off on updating the screen on the regular schedule.
-///  * This method should always be preceded by a call to [hs.canvas.disableScreenUpdates](#disableScreenUpdates).  Failure to do so will be logged in the system logs.
-///
-///  * The window server will only allow you to pause updates for up to 1 second.  This prevents a rogue or hung process from locking the system`s display completely.  Updates will be resumed when this function is encountered  or after 1 second, whichever comes first.
-static int enableUpdates(lua_State *L) {
-    [[LuaSkin sharedWithState:L] checkArgs:LS_TBREAK] ;
-    NSEnableScreenUpdates() ;
-    return 0 ;
 }
 
 /// hs.canvas.defaultTextStyle() -> `hs.styledtext` attributes table
@@ -3641,7 +3596,7 @@ static int canvas_elementBoundsAtIndex(lua_State *L) {
     NSUInteger      elementCount  = [canvasView.elementList count] ;
     NSInteger       tablePosition = (lua_tointeger(L, 2) - 1) ;
 
-    if (tablePosition < 0 || tablePosition > (NSInteger)elementCount - 1) {
+    if (tablePosition < 0 || tablePosition >= (NSInteger)elementCount) {
         return luaL_argerror(L, 3, [[NSString stringWithFormat:@"index %ld out of bounds", tablePosition + 1] UTF8String]) ;
     }
 
@@ -4017,9 +3972,7 @@ static const luaL_Reg userdata_metaLib[] = {
 // Functions for returned object when module loads
 static luaL_Reg moduleLib[] = {
     {"defaultTextStyle",     default_textAttributes},
-    {"disableScreenUpdates", disableUpdates},
     {"elementSpec",          dumpLanguageDictionary},
-    {"enableScreenUpdates",  enableUpdates},
     {"new",                  canvas_new},
     {"useCustomAccessibilitySubrole", canvas_useCustomAccessibilitySubrole},
 

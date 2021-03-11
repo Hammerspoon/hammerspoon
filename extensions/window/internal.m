@@ -50,6 +50,8 @@ static int window_list(lua_State* L) {
         if (dockWindowNumber) {
             // Fetch on screen windows again, filtering to those "below" the Dock window
             // This filters out all but the "standard" application windows
+
+            CFRelease(windowListArray);
             windowListArray = CGWindowListCreate(kCGWindowListOptionOnScreenBelowWindow|kCGWindowListExcludeDesktopElements, [dockWindowNumber unsignedIntValue]);
             windows = CFBridgingRelease(CGWindowListCreateDescriptionFromArray(windowListArray));
         }
@@ -618,7 +620,7 @@ static int window_snapshotForID(lua_State* L) {
 ///  * See also function `hs.window.snapshotForID()`
 static int window_snapshot(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
     HSwindow *win = [skin toNSObjectAtIndex:1];
     [skin pushNSObject:[win snapshot:lua_toboolean(L, 2)]];
     return 1;

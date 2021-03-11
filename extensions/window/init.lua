@@ -38,7 +38,7 @@ window.animationDuration = 0.2
 ---  * None
 ---
 --- Returns:
----  * An `hs.window` object representing the desktop
+---  * An `hs.window` object representing the desktop, or nil if Finder is not running
 ---
 --- Notes:
 ---  * The desktop belongs to Finder.app: when Finder is the active application, you can focus the desktop by cycling
@@ -47,6 +47,7 @@ window.animationDuration = 0.2
 ---  * The desktop is filtered out from `hs.window.allWindows()` (and downstream uses)
 function window.desktop()
   local finder = application.get('com.apple.finder')
+  if not finder then return nil end
   for _,w in ipairs(finder:allWindows()) do if w:role()=='AXScrollArea' then return w end end
 end
 
@@ -252,6 +253,7 @@ end
 --- Notes:
 ---  * This does not mean the user can see the window - it may be obscured by other windows, or it may be off the edge of the screen
 function objectMT.isVisible(self)
+  if not self:application() then return false end
   return not self:application():isHidden() and not self:isMinimized()
 end
 

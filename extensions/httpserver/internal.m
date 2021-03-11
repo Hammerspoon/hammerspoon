@@ -203,7 +203,7 @@ static LSRefTable refTable;
 }
 
 - (NSObject<HTTPResponse> *)httpResponseForMethod:(NSString *)method URI:(NSString *)path {
-    __block int responseCode;
+    __block int responseCode = 0;
     __block NSMutableDictionary *responseHeaders = nil;
     __block NSData *responseBody = nil;
 
