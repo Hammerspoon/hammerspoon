@@ -767,6 +767,7 @@
 					"-DLUA_COMPAT_5_3",
 					"-DLUA_USE_MACOSX",
 					"-DLUA_USE_APICHECK",
+					"-DLUAI_ASSERT",
 				);
 				OTHER_LDFLAGS = "-lreadline";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1052,6 +1053,7 @@
 					"-DLUA_COMPAT_5_3",
 					"-DLUA_USE_MACOSX",
 					"-DLUA_USE_APICHECK",
+					"-DLUAI_ASSERT",
 				);
 				OTHER_LDFLAGS = "-lreadline";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1071,6 +1073,7 @@
 					"-DLUA_COMPAT_5_3",
 					"-DLUA_USE_MACOSX",
 					"-DLUA_USE_APICHECK",
+					"-DLUAI_ASSERT",
 				);
 				OTHER_LDFLAGS = "-lreadline";
 				PRODUCT_NAME = "$(TARGET_NAME)";
