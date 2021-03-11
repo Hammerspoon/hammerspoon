@@ -74,7 +74,7 @@ SentrySessionTracker ()
 #else
     [SentryLog logWithMessage:@"NO UIKit -> SentrySessionTracker will not "
                               @"track sessions automatically."
-                     andLevel:kSentryLogLevelDebug];
+                     andLevel:kSentryLevelDebug];
 #endif
 
 #if SENTRY_HAS_UIKIT || TARGET_OS_OSX || TARGET_OS_MACCATALYST

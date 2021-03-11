@@ -27,18 +27,15 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, strong) SentryDsn *_Nullable parsedDsn;
 
 /**
- * debug [mode] sets a more verbose log level. Default is NO. If set to YES
- * sentry prints more log messages to the console.
+ * Turns debug mode on or off. If debug is enabled SDK will attempt to print out useful debugging
+ * information if something goes wrong. Default is disabled.
  */
 @property (nonatomic, assign) BOOL debug;
 
 /**
- DEPRECATED: use debug bool instead (debug = YES maps to logLevel
- kSentryLogLevelError, debug = NO maps to loglevel kSentryLogLevelError). thus
- kSentryLogLevelNone and kSentryLogLevelDebug will be dropped entirely. defines
- the log level of sentry log (console output).
+ * Minimum LogLevel to be used if debug is enabled. Default is debug.
  */
-@property (nonatomic, assign) SentryLogLevel logLevel;
+@property (nonatomic, assign) SentryLevel diagnosticLevel;
 
 /**
  * This property will be filled before the event is sent.

@@ -126,9 +126,14 @@ SENTRY_NO_INIT
 - (SentryClient *_Nullable)getClient;
 
 /**
- * Returns a scope either the current or new.
+ * Returns either the current scope and if nil a new one.
  */
-- (SentryScope *)getScope;
+- (SentryScope *)getScope __deprecated_msg("Use SentryHub.scope instead.");
+
+/**
+ * Returns either the current scope and if nil a new one.
+ */
+@property (nonatomic, readonly, strong) SentryScope *scope;
 
 /**
  * Binds a different client to the hub.

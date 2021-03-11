@@ -58,7 +58,7 @@ SentryCrashReportSink ()
                                           @"misconfiguration, make sure you set the client with "
                                           @"[SentrySDK.currentHub bindClient] before calling "
                                           @"startCrashHandlerWithError:."
-                                 andLevel:kSentryLogLevelError];
+                                 andLevel:kSentryLevelError];
             }
         }
         if (onCompletion) {

@@ -158,7 +158,7 @@ SentryFileManager ()
         [SentryLog
             logWithMessage:[NSString stringWithFormat:@"Couldn't load files in folder %@: %@", path,
                                      error]
-                  andLevel:kSentryLogLevelError];
+                  andLevel:kSentryLevelError];
         return [NSArray new];
     }
     return [storedFiles sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
@@ -173,7 +173,7 @@ SentryFileManager ()
         if (nil != error) {
             [SentryLog logWithMessage:[NSString stringWithFormat:@"Couldn't delete file %@: %@",
                                                 path, error]
-                             andLevel:kSentryLogLevelError];
+                             andLevel:kSentryLevelError];
             return NO;
         }
     }
@@ -217,7 +217,7 @@ SentryFileManager ()
     [SentryLog logWithMessage:[NSString stringWithFormat:@"Removed %ld file(s) from <%@>",
                                         (long)numberOfEnvelopesToRemove,
                                         [self.envelopesPath lastPathComponent]]
-                     andLevel:kSentryLogLevelDebug];
+                     andLevel:kSentryLevelDebug];
 }
 
 - (void)storeCurrentSession:(SentrySession *)session
@@ -234,7 +234,7 @@ SentryFileManager ()
 {
     NSData *sessionData = [SentrySerialization dataWithSession:session error:nil];
     [SentryLog logWithMessage:[NSString stringWithFormat:@"Writing session: %@", sessionFilePath]
-                     andLevel:kSentryLogLevelDebug];
+                     andLevel:kSentryLevelDebug];
     @synchronized(self.currentSessionFilePath) {
         [sessionData writeToFile:sessionFilePath options:NSDataWritingAtomic error:nil];
     }
@@ -253,7 +253,7 @@ SentryFileManager ()
 - (void)deleteSession:(NSString *)sessionFilePath
 {
     [SentryLog logWithMessage:[NSString stringWithFormat:@"Deleting session: %@", sessionFilePath]
-                     andLevel:kSentryLogLevelDebug];
+                     andLevel:kSentryLevelDebug];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     @synchronized(self.currentSessionFilePath) {
         [fileManager removeItemAtPath:sessionFilePath error:nil];
@@ -274,7 +274,7 @@ SentryFileManager ()
 {
     [SentryLog
         logWithMessage:[NSString stringWithFormat:@"Reading from session: %@", sessionFilePath]
-              andLevel:kSentryLogLevelDebug];
+              andLevel:kSentryLevelDebug];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSData *currentData = nil;
     @synchronized(self.currentSessionFilePath) {
@@ -288,7 +288,7 @@ SentryFileManager ()
         [SentryLog logWithMessage:[NSString stringWithFormat:@"Data stored in session: "
                                                              @"'%@' was not parsed as session.",
                                             sessionFilePath]
-                         andLevel:kSentryLogLevelError];
+                         andLevel:kSentryLevelError];
         return nil;
     }
     return currentSession;
@@ -299,7 +299,7 @@ SentryFileManager ()
     NSString *timestampString = [timestamp sentry_toIso8601String];
     NSString *logMessage =
         [NSString stringWithFormat:@"Persisting lastInForeground: %@", timestampString];
-    [SentryLog logWithMessage:logMessage andLevel:kSentryLogLevelDebug];
+    [SentryLog logWithMessage:logMessage andLevel:kSentryLevelDebug];
     @synchronized(self.lastInForegroundFilePath) {
         [[timestampString dataUsingEncoding:NSUTF8StringEncoding]
             writeToFile:self.lastInForegroundFilePath
@@ -312,7 +312,7 @@ SentryFileManager ()
 {
     [SentryLog logWithMessage:[NSString stringWithFormat:@"Deleting LastInForeground at: %@",
                                         self.lastInForegroundFilePath]
-                     andLevel:kSentryLogLevelDebug];
+                     andLevel:kSentryLevelDebug];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     @synchronized(self.lastInForegroundFilePath) {
         [fileManager removeItemAtPath:self.lastInForegroundFilePath error:nil];
@@ -324,14 +324,14 @@ SentryFileManager ()
     [SentryLog logWithMessage:[NSString stringWithFormat:@"Reading timestamp of last "
                                                          @"in foreground at: %@",
                                         self.lastInForegroundFilePath]
-                     andLevel:kSentryLogLevelDebug];
+                     andLevel:kSentryLevelDebug];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSData *lastInForegroundData = nil;
     @synchronized(self.lastInForegroundFilePath) {
         lastInForegroundData = [fileManager contentsAtPath:self.lastInForegroundFilePath];
     }
     if (nil == lastInForegroundData) {
-        [SentryLog logWithMessage:@"No lastInForeground found." andLevel:kSentryLogLevelDebug];
+        [SentryLog logWithMessage:@"No lastInForeground found." andLevel:kSentryLevelDebug];
         return nil;
     }
     NSString *timestampString = [[NSString alloc] initWithData:lastInForegroundData
@@ -344,7 +344,7 @@ SentryFileManager ()
     @synchronized(self) {
         NSString *finalPath = [path stringByAppendingPathComponent:[self uniqueAcendingJsonName]];
         [SentryLog logWithMessage:[NSString stringWithFormat:@"Writing to file: %@", finalPath]
-                         andLevel:kSentryLogLevelDebug];
+                         andLevel:kSentryLevelDebug];
         [data writeToFile:finalPath options:NSDataWritingAtomic error:nil];
         return finalPath;
     }

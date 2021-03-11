@@ -32,11 +32,6 @@ SENTRY_NO_INIT
 @property (nonatomic, copy) NSString *_Nullable module;
 
 /**
- * Determines if the exception was reported by a user BOOL
- */
-@property (nonatomic, copy) NSNumber *_Nullable userReported;
-
-/**
  * SentryThread of the SentryException
  */
 @property (nonatomic, strong) SentryThread *_Nullable thread;

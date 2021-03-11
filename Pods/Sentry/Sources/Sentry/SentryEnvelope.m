@@ -151,8 +151,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                      error:&error];
 
     if (nil != error) {
-        [SentryLog logWithMessage:@"Couldn't serialize user feedback."
-                         andLevel:kSentryLogLevelError];
+        [SentryLog logWithMessage:@"Couldn't serialize user feedback." andLevel:kSentryLevelError];
         json = [NSData new];
     }
 
@@ -174,7 +173,7 @@ NS_ASSUME_NONNULL_BEGIN
                                            @"the maximum allowed attachment size of %lu bytes.",
                           attachment.filename, (unsigned long)attachment.data.length,
                           (unsigned long)maxAttachmentSize];
-            [SentryLog logWithMessage:message andLevel:kSentryLogLevelDebug];
+            [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
 
             return nil;
         }
@@ -191,7 +190,7 @@ NS_ASSUME_NONNULL_BEGIN
             NSString *message = [NSString
                 stringWithFormat:@"Couldn't check file size of attachment with path: %@. Error: %@",
                 attachment.path, error.localizedDescription];
-            [SentryLog logWithMessage:message andLevel:kSentryLogLevelError];
+            [SentryLog logWithMessage:message andLevel:kSentryLevelError];
 
             return nil;
         }
@@ -204,7 +203,7 @@ NS_ASSUME_NONNULL_BEGIN
                     @"Dropping attachment, because the size of the it located at '%@' with %llu "
                     @"bytes is bigger than the maximum allowed attachment size of %lu bytes.",
                 attachment.path, fileSize, (unsigned long)maxAttachmentSize];
-            [SentryLog logWithMessage:message andLevel:kSentryLogLevelDebug];
+            [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
             return nil;
         }
 
@@ -212,7 +211,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     if (nil == data) {
-        [SentryLog logWithMessage:@"Couldn't init Attachment." andLevel:kSentryLogLevelError];
+        [SentryLog logWithMessage:@"Couldn't init Attachment." andLevel:kSentryLevelError];
         return nil;
     }
 

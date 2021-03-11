@@ -1,33 +1,43 @@
 #import "SentryLog.h"
-#import "SentryClient.h"
-#import "SentrySDK.h"
+#import "SentryLogOutput.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryLog
 
-+ (void)logWithMessage:(NSString *)message andLevel:(SentryLogLevel)level
+/**
+ * Enable per default to log initialization errors.
+ */
+static BOOL isDebug = YES;
+static SentryLevel diagnosticLevel = kSentryLevelError;
+static SentryLogOutput *logOutput;
+
++ (void)configure:(BOOL)debug diagnosticLevel:(SentryLevel)level
 {
-    SentryLogLevel defaultLevel = kSentryLogLevelError;
-    if (SentrySDK.logLevel > 0) {
-        defaultLevel = SentrySDK.logLevel;
+    isDebug = debug;
+    diagnosticLevel = level;
+}
+
++ (void)logWithMessage:(NSString *)message andLevel:(SentryLevel)level
+{
+    if (nil == logOutput) {
+        logOutput = [[SentryLogOutput alloc] init];
     }
-    if (level <= defaultLevel && level != kSentryLogLevelNone) {
-        NSLog(@"Sentry - %@:: %@", [self.class logLevelToString:level], message);
+
+    if (isDebug && level != kSentryLevelNone && level >= diagnosticLevel) {
+        [logOutput
+            log:[NSString stringWithFormat:@"Sentry - %@:: %@", SentryLevelNames[level], message]];
     }
 }
 
-+ (NSString *)logLevelToString:(SentryLogLevel)level
+/**
+ * Internal and only needed for testing.
+ */
++ (void)setLogOutput:(nullable SentryLogOutput *)output
 {
-    switch (level) {
-    case kSentryLogLevelDebug:
-        return @"Debug";
-    case kSentryLogLevelVerbose:
-        return @"Verbose";
-    default:
-        return @"Error";
-    }
+    logOutput = output;
 }
+
 @end
 
 NS_ASSUME_NONNULL_END

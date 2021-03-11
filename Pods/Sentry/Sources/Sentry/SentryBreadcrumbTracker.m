@@ -37,7 +37,7 @@
 #else
     [SentryLog logWithMessage:@"NO UIKit, OSX and Catalyst -> [SentryBreadcrumbTracker "
                               @"trackApplicationUIKitNotifications] does nothing."
-                     andLevel:kSentryLogLevelDebug];
+                     andLevel:kSentryLevelDebug];
 #endif
 
     // not available for macOS
@@ -141,7 +141,7 @@
 #else
     [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker "
                               @"swizzleSendAction] does nothing."
-                     andLevel:kSentryLogLevelDebug];
+                     andLevel:kSentryLevelDebug];
 #endif
 }
 
@@ -179,7 +179,7 @@
 #else
     [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker "
                               @"swizzleViewDidAppear] does nothing."
-                     andLevel:kSentryLogLevelDebug];
+                     andLevel:kSentryLevelDebug];
 #endif
 }
 

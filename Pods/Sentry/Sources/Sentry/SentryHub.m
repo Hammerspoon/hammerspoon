@@ -56,7 +56,7 @@ SentryHub ()
     if (nil == options || nil == options.releaseName) {
         [SentryLog
             logWithMessage:[NSString stringWithFormat:@"No option or release to start a session."]
-                  andLevel:kSentryLogLevelError];
+                  andLevel:kSentryLevelError];
         return;
     }
     @synchronized(_sessionLock) {
@@ -91,7 +91,7 @@ SentryHub ()
 
     if (nil == currentSession) {
         [SentryLog logWithMessage:[NSString stringWithFormat:@"No session to end with timestamp."]
-                         andLevel:kSentryLogLevelDebug];
+                         andLevel:kSentryLevelDebug];
         return;
     }
 
@@ -114,15 +114,15 @@ SentryHub ()
     SentryFileManager *fileManager = [_client fileManager];
     SentrySession *session = [fileManager readCurrentSession];
     if (nil == session) {
-        [SentryLog logWithMessage:@"No cached session to close." andLevel:kSentryLogLevelDebug];
+        [SentryLog logWithMessage:@"No cached session to close." andLevel:kSentryLevelDebug];
         return;
     }
-    [SentryLog logWithMessage:@"A cached session was found." andLevel:kSentryLogLevelDebug];
+    [SentryLog logWithMessage:@"A cached session was found." andLevel:kSentryLevelDebug];
 
     // Make sure there's a client bound.
     SentryClient *client = _client;
     if (nil == client) {
-        [SentryLog logWithMessage:@"No client bound." andLevel:kSentryLogLevelDebug];
+        [SentryLog logWithMessage:@"No client bound." andLevel:kSentryLevelDebug];
         return;
     }
 
@@ -135,12 +135,12 @@ SentryHub ()
                                                           @"was provided. Closing as abnormal. "
                                                            "Using session's start time %@",
                                          session.started]
-                      andLevel:kSentryLogLevelDebug];
+                      andLevel:kSentryLevelDebug];
             timestamp = session.started;
             [session endSessionAbnormalWithTimestamp:timestamp];
         } else {
             [SentryLog logWithMessage:@"Closing cached session as exited."
-                             andLevel:kSentryLogLevelDebug];
+                             andLevel:kSentryLevelDebug];
             [session endSessionExitedWithTimestamp:timestamp];
         }
         [self deleteCurrentSession];
@@ -153,7 +153,7 @@ SentryHub ()
     if (nil != session) {
         SentryClient *client = _client;
 
-        if (SentrySDK.logLevel == kSentryLogLevelVerbose) {
+        if (client.options.diagnosticLevel == kSentryLevelDebug) {
             NSData *sessionData = [NSJSONSerialization dataWithJSONObject:[session serialize]
                                                                   options:0
                                                                     error:nil];
@@ -162,7 +162,7 @@ SentryHub ()
             [SentryLog
                 logWithMessage:[NSString stringWithFormat:@"Capturing session with status: %@",
                                          sessionString]
-                      andLevel:kSentryLogLevelDebug];
+                      andLevel:kSentryLevelDebug];
         }
         [client captureSession:session];
     }
@@ -296,7 +296,7 @@ SentryHub ()
     if (nil == crumb) {
         [SentryLog logWithMessage:[NSString stringWithFormat:@"Discarded Breadcrumb "
                                                              @"in `beforeBreadcrumb`"]
-                         andLevel:kSentryLogLevelDebug];
+                         andLevel:kSentryLevelDebug];
         return;
     }
     [self.scope addBreadcrumb:crumb];
@@ -318,10 +318,9 @@ SentryHub ()
         if (_scope == nil) {
             SentryClient *client = _client;
             if (nil != client) {
-                self.scope =
-                    [[SentryScope alloc] initWithMaxBreadcrumbs:client.options.maxBreadcrumbs];
+                _scope = [[SentryScope alloc] initWithMaxBreadcrumbs:client.options.maxBreadcrumbs];
             } else {
-                self.scope = [[SentryScope alloc] init];
+                _scope = [[SentryScope alloc] init];
             }
         }
         return _scope;

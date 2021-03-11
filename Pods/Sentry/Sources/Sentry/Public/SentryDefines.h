@@ -61,15 +61,6 @@ typedef void (^SentryOnCrashedLastRunCallback)(SentryEvent *_Nonnull event);
  */
 typedef BOOL (^SentryShouldQueueEvent)(
     NSHTTPURLResponse *_Nullable response, NSError *_Nullable error);
-/**
- * Loglevel
- */
-typedef NS_ENUM(NSInteger, SentryLogLevel) {
-    kSentryLogLevelNone = 1,
-    kSentryLogLevelError,
-    kSentryLogLevelDebug,
-    kSentryLogLevelVerbose
-};
 
 /**
  * Sentry level
@@ -82,7 +73,7 @@ typedef NS_ENUM(NSUInteger, SentryLevel) {
     kSentryLevelInfo = 2,
     kSentryLevelWarning = 3,
     kSentryLevelError = 4,
-    kSentryLevelFatal = 5,
+    kSentryLevelFatal = 5
 };
 
 /**

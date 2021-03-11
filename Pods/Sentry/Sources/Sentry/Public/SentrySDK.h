@@ -203,11 +203,6 @@ SENTRY_NO_INIT
 + (void)configureScope:(void (^)(SentryScope *scope))callback;
 
 /**
- * Set logLevel for the current client default kSentryLogLevelError
- */
-@property (nonatomic, class) SentryLogLevel logLevel;
-
-/**
  * Checks if the last program execution terminated with a crash.
  */
 @property (nonatomic, class, readonly) BOOL crashedLastRun;

@@ -113,7 +113,7 @@ SentryScope ()
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
     [SentryLog logWithMessage:[NSString stringWithFormat:@"Add breadcrumb: %@", crumb]
-                     andLevel:kSentryLogLevelDebug];
+                     andLevel:kSentryLevelDebug];
     @synchronized(_breadcrumbArray) {
         [_breadcrumbArray addObject:crumb];
         if ([_breadcrumbArray count] > self.maxBreadcrumbs) {
