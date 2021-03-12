@@ -1,0 +1,61 @@
+name: New Tag
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  generate-release-notes:
+    name: Generate Release Notes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Get tag name
+        id: tag
+        uses: "WyriHaximus/github-action-get-previous-tag@v1"
+      - name: Get date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+      - name: Generate
+        id: generate
+        uses: mikepenz/release-changelog-builder-action@main
+        with:
+          configuration: ".github/workflows/release_notes_config.json"
+          toTag: "HEAD"
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Capture
+        run: |
+          echo "${{ steps.generate.outputs.changelog }}" >releasenotes.md
+      - name: Upload
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ steps.date.outputs.date}}-${{ steps.tag.outputs.tag }}.md
+          path: releasenotes.md
+
+  create-next-milestone:
+    name: Create next milestone
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Get current version
+        id: tag
+        uses: "WyriHaximus/github-action-get-previous-tag@v1"
+      - name: Get next version
+        id: semvers
+        uses: "WyriHaximus/github-action-next-semvers@v1"
+        with:
+          version: ${{ steps.tag.outputs.tag }}
+      - name: Create milestone
+        uses: "WyriHaximus/github-action-create-milestone@v1"
+        with:
+          title: ${{ steps.semvers.outputs.patch }}
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+
