@@ -1,3 +1,4 @@
+
 function testAvailablePortNames()
   local availablePortNames = hs.serial.availablePortNames()
   assertTrue(type(availablePortNames) == "table")
@@ -11,21 +12,21 @@ function testAvailablePortPaths()
 end
 
 function testNewFromName()
-  local obj = hs.serial.newFromName("MALS")
+  local obj = hs.serial.newFromName("Bluetooth-Incoming-Port")
   assertIsUserdataOfType("hs.serial", obj)
   assertTrue(#tostring(obj) > 0)
   return success()
 end
 
 function testNewFromPath()
-  local obj = hs.serial.newFromPath("/dev/cu.MALS")
+  local obj = hs.serial.newFromPath("/dev/cu.Bluetooth-Incoming-Port")
   assertIsUserdataOfType("hs.serial", obj)
   assertTrue(#tostring(obj) > 0)
   return success()
 end
 
 function testOpenAndClose()
-  local obj = hs.serial.newFromPath("/dev/cu.MALS")
+  local obj = hs.serial.newFromPath("/dev/cu.Bluetooth-Incoming-Port")
   assertIsUserdataOfType("hs.serial", obj)
   assertTrue(#tostring(obj) > 0)
 
@@ -50,7 +51,7 @@ function testOpenAndClose()
 end
 
 function testAttributes()
-  local obj = hs.serial.newFromPath("/dev/cu.MALS")
+  local obj = hs.serial.newFromPath("/dev/cu.Bluetooth-Incoming-Port")
   assertIsUserdataOfType("hs.serial", obj)
   assertTrue(#tostring(obj) > 0)
 
