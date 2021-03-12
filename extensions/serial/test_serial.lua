@@ -14,7 +14,6 @@ function testNewFromName()
   local obj = hs.serial.newFromName("MALS")
   assertIsUserdataOfType("hs.serial", obj)
   assertTrue(#tostring(obj) > 0)
-  obj = nil
   return success()
 end
 
@@ -22,7 +21,6 @@ function testNewFromPath()
   local obj = hs.serial.newFromPath("/dev/cu.MALS")
   assertIsUserdataOfType("hs.serial", obj)
   assertTrue(#tostring(obj) > 0)
-  obj = nil
   return success()
 end
 
@@ -48,7 +46,6 @@ function testOpenAndClose()
 
   assertTrue(obj:isOpen() == false)
 
-  obj = nil
   return success()
 end
 
@@ -92,6 +89,5 @@ function testAttributes()
 
   assertTrue(obj:isOpen() == false)
 
-  obj = nil
   return success()
 end
