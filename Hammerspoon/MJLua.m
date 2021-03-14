@@ -878,6 +878,21 @@ void MJLuaInit(void) {
         [alert setAlertStyle:NSAlertStyleCritical];
         [alert runModal];
     } else {
+        if (lua_gettop(L) != 2 || lua_type(L, -1) != LUA_TFUNCTION || lua_type(L, -2) != LUA_TFUNCTION) {
+            NSString *debugPart = [NSString stringWithFormat:@"setup.lua returned this: %d:%d:%d", lua_gettop(L), (lua_gettop(L) >= 1) ? lua_type(L, -1) : -10, (lua_gettop(L) >= 2) ? lua_type(L, -2) : -10];
+
+            NSString *errorMessage = [NSString stringWithFormat:@"setup.lua failed to return the two items it is supposed to.\nThis is a severe bug. We would really appreciate your help in getting this fixed - please relaunch Hammerspoon so a crash report can be uploaded, then contact the Hammerspoon developers via GitHub."];
+            NSAlert *alert = [[NSAlert alloc] init];
+            [alert addButtonWithTitle:@"OK"];
+            [alert setMessageText:@"Critical startup failure bug"];
+            [alert setInformativeText:errorMessage];
+            [alert setAlertStyle:NSAlertStyleCritical];
+            [alert runModal];
+
+            [skin logBreadcrumb:[NSString stringWithFormat:@"setup.lua returned incorrectly: %@", debugPart]];
+
+            // Fall through this, so we crash, so we can get the crash report
+        }
         evalfn = [skin luaRef:refTable];
         completionsForWordFn = [skin luaRef:refTable];
     }
