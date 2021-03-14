@@ -506,6 +506,9 @@ catastrophe:
     NSAssert((refTable != LUA_NOREF && refTable != LUA_REFNIL), @"ERROR: LuaSkin::luaRef was passed a NOREF/REFNIL refTable", nil);
 
     if (lua_isnil(self.L, -1)) {
+        // Remove the nil from the stack
+        lua_remove(self.L, -1);
+
         return LUA_REFNIL;
     }
 
