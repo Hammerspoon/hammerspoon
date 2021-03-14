@@ -49,6 +49,8 @@ static LSRefTable refTable = LUA_NOREF;
 @property NSString*                 portName;
 @property NSString*                 portPath;
 
+@property NSString*                 luaSkinUUID;
+
 @property ORSSerialPortParity       parity;
 @property NSNumber*                 baudRate;
 @property NSUInteger                numberOfStopBits;
@@ -127,10 +129,17 @@ static LSRefTable refTable = LUA_NOREF;
 {
     if (_callbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+        
+        if (![skin checkLuaSkinInstance:self.luaSkinUUID]) {
+            return;
+        }
+        
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_callbackRef];
         [skin pushNSObject:self];
         [skin pushNSObject:@"opened"];
         [skin protectedCallAndError:@"hs.serial:callback" nargs:2 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 
@@ -138,10 +147,17 @@ static LSRefTable refTable = LUA_NOREF;
 {
     if (_callbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+        
+        if (![skin checkLuaSkinInstance:self.luaSkinUUID]) {
+            return;
+        }
+        
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_callbackRef];
         [skin pushNSObject:self];
         [skin pushNSObject:@"closed"];
         [skin protectedCallAndError:@"hs.serial:callback" nargs:2 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 
@@ -149,6 +165,12 @@ static LSRefTable refTable = LUA_NOREF;
 {
     if (_callbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+        
+        if (![skin checkLuaSkinInstance:self.luaSkinUUID]) {
+            return;
+        }
+
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_callbackRef];
         [skin pushNSObject:self];
         [skin pushNSObject:@"received"];
@@ -156,6 +178,7 @@ static LSRefTable refTable = LUA_NOREF;
         NSString *hex = [data hexadecimalString];
         [skin pushNSObject:hex];
         [skin protectedCallAndError:@"hs.serial:callback" nargs:4 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 
@@ -168,10 +191,17 @@ static LSRefTable refTable = LUA_NOREF;
 {
     if (_callbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+
+        if (![skin checkLuaSkinInstance:self.luaSkinUUID]) {
+            return;
+        }
+        
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_callbackRef];
         [skin pushNSObject:self];
         [skin pushNSObject:@"removed"];
         [skin protectedCallAndError:@"hs.serial:callback" nargs:2 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
     
     // After a serial port is removed from the system, it is invalid and we must discard any references to it:
@@ -183,11 +213,18 @@ static LSRefTable refTable = LUA_NOREF;
     if (_callbackRef != LUA_NOREF) {
         NSString *errorString = [NSString stringWithFormat:@"%@", error];
         LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+        
+        if (![skin checkLuaSkinInstance:self.luaSkinUUID]) {
+            return;
+        }
+        
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_callbackRef];
         [skin pushNSObject:self];
         [skin pushNSObject:@"error"];
         [skin pushNSObject:errorString];
         [skin protectedCallAndError:@"hs.serial:callback" nargs:3 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 
@@ -197,6 +234,12 @@ static LSRefTable refTable = LUA_NOREF;
 {
     if (_deviceCallbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+        
+        if (![skin checkLuaSkinInstance:self.luaSkinUUID]) {
+            return;
+        }
+        
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_deviceCallbackRef];
         [skin pushNSObject:@"connected"];
         
@@ -210,6 +253,7 @@ static LSRefTable refTable = LUA_NOREF;
         }
         [skin pushNSObject:result];
         [skin protectedCallAndError:@"hs.serial:deviceCallback" nargs:2 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 
@@ -217,6 +261,12 @@ static LSRefTable refTable = LUA_NOREF;
 {
     if (_deviceCallbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+        
+        if (![skin checkLuaSkinInstance:self.luaSkinUUID]) {
+            return;
+        }
+        
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_deviceCallbackRef];
         [skin pushNSObject:@"disconnected"];
         
@@ -230,6 +280,7 @@ static LSRefTable refTable = LUA_NOREF;
         }
         [skin pushNSObject:result];
         [skin protectedCallAndError:@"hs.serial:deviceCallback" nargs:2 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 
@@ -423,6 +474,9 @@ static int serial_newFromName(lua_State *L) {
     
     HSSerialPort *serialPort = [[HSSerialPort alloc] init];
     
+    // NOTE: The stringWithString call here is vital, so we get a true copy of UUIDString - we must not simply point at it, or we'll never be able to use it to detect an inconsistency later.
+    serialPort.luaSkinUUID = [NSString stringWithString:skin.uuid.UUIDString];
+    
     bool result = [serialPort isPortNameValid:portName];
         
     if (serialPort && result) {
@@ -453,6 +507,9 @@ static int serial_newFromPath(lua_State *L) {
     NSString *path = [skin toNSObjectAtIndex:1];
     
     HSSerialPort *serialPort = [[HSSerialPort alloc] init];
+    
+    // NOTE: The stringWithString call here is vital, so we get a true copy of UUIDString - we must not simply point at it, or we'll never be able to use it to detect an inconsistency later.
+    serialPort.luaSkinUUID = [NSString stringWithString:skin.uuid.UUIDString];
     
     bool result = [serialPort isPathValid:path];
         
@@ -1044,6 +1101,7 @@ static int userdata_gc(lua_State* L) {
                 obj.callbackToken = nil;
             }
             obj = nil;
+            obj.luaSkinUUID = nil;
         }
     }
     
