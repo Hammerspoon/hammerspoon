@@ -35,10 +35,12 @@
 }
 
 - (void)testOpenAndClose {
+    SKIP_IN_GITHUB_ACTIONS()
     RUN_LUA_TEST()
 }
 
 - (void)testAttributes {
+    SKIP_IN_GITHUB_ACTIONS()
     RUN_LUA_TEST()
 }
 
