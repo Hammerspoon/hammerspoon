@@ -161,7 +161,7 @@ static int websocket_new(lua_State *L) {
     return 1;
 }
 
-/// hs.websocket:send(message) -> object
+/// hs.websocket:send(message[, isData]) -> object
 /// Method
 /// Sends a message to the websocket client.
 ///
