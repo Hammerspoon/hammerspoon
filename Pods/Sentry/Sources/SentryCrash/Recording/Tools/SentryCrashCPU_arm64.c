@@ -39,7 +39,7 @@
 
 static const char *g_registerNames[] = { "x0", "x1", "x2", "x3", "x4", "x5", "x6", "x7", "x8", "x9",
     "x10", "x11", "x12", "x13", "x14", "x15", "x16", "x17", "x18", "x19", "x20", "x21", "x22",
-    "x23", "x24", "x25", "x26", "x27", "x28", "x29", "fp", "lr", "sp", "pc", "cpsr" };
+    "x23", "x24", "x25", "x26", "x27", "x28", "fp", "lr", "sp", "pc", "cpsr" };
 static const int g_registerNamesCount = sizeof(g_registerNames) / sizeof(*g_registerNames);
 
 static const char *g_exceptionRegisterNames[] = { "exception", "esr", "far" };
@@ -116,20 +116,20 @@ sentrycrashcpu_registerName(const int regNumber)
 uint64_t
 sentrycrashcpu_registerValue(const SentryCrashMachineContext *const context, const int regNumber)
 {
-    if (regNumber <= 29) {
+    if (regNumber < 29) {
         return context->machineContext.__ss.__x[regNumber];
     }
 
     switch (regNumber) {
-    case 30:
+    case 29:
         return context->machineContext.__ss.__fp;
-    case 31:
+    case 30:
         return context->machineContext.__ss.__lr;
-    case 32:
+    case 31:
         return context->machineContext.__ss.__sp;
-    case 33:
+    case 32:
         return context->machineContext.__ss.__pc;
-    case 34:
+    case 33:
         return context->machineContext.__ss.__cpsr;
     }
 
