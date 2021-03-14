@@ -183,14 +183,9 @@ static int websocket_send(lua_State *L) {
     HSWebSocketDelegate* ws = getWsUserData(L, 1);
 
     BOOL isData = (lua_gettop(L) > 2) ? (BOOL)(lua_toboolean(L, 3)) : YES ;
-    
-    if (isData) {
-        NSData *message = [skin toNSObjectAtIndex:2 withOptions: LS_NSLuaStringAsDataOnly];
-        [ws.webSocket send:message];
-    } else {
-        NSString *message = [skin toNSObjectAtIndex:2 withOptions: LS_NSPreserveLuaStringExactly];
-        [ws.webSocket send:message];
-    }
+
+    NSUInteger options = isData ? LS_NSLuaStringAsDataOnly : LS_NSPreserveLuaStringExactly;    
+    [ws.webSocket send:[skin toNSObjectAtIndex:2 withOptions:options]];
     
     lua_pushvalue(L, 1);
     return 1;
