@@ -3,7 +3,7 @@
 
 @interface HSjson : NSObject
 -(NSString *)encode:(id)obj prettyPrint:(BOOL)prettyPrint;
--(id)decode:(NSString *)json;
+-(id)decode:(NSData *)json;
 -(BOOL)encodeToFile:(id)obj filePath:(NSString *)path replace:(BOOL)replace prettyPrint:(BOOL)prettyPrint;
 -(id)decodeFromFile:(NSString *)path;
 @end
@@ -40,10 +40,9 @@
                                  encoding:NSUTF8StringEncoding];
 }
 
-- (id)decode:(NSString *)json {
+- (id)decode:(NSData *)data {
     LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     NSError *error;
-    NSData* data = [json dataUsingEncoding:NSUTF8StringEncoding];
 
     if (!data) {
         [skin logError:@"Unable to convert JSON to NSData object"];
@@ -51,7 +50,7 @@
     }
 
     id obj = [NSJSONSerialization JSONObjectWithData:data
-                                             options:NSJSONReadingAllowFragments
+                                             options:NSJSONReadingFragmentsAllowed
                                                error:&error];
 
     if (error) {
@@ -105,7 +104,7 @@
         return nil;
     }
 
-    return [self decode:json];
+    return [self decode:[json dataUsingEncoding:NSUTF8StringEncoding]];
 }
 @end
 
@@ -154,7 +153,9 @@ static int json_decode(lua_State* L) {
 
     HSjson *jsonManager = [[HSjson alloc] init];
 
-    id table = [jsonManager decode:[skin toNSObjectAtIndex:1]];
+    NSData* data = [skin toNSObjectAtIndex:1 withOptions:LS_NSLuaStringAsDataOnly];
+    
+    id table = [jsonManager decode:data];
     [skin pushNSObject:table];
     return 1;
 }
