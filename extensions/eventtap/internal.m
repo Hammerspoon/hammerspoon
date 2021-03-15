@@ -61,8 +61,10 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef
     if (lua_istable(L, -1)) {
         lua_pushnil(L);
         while (lua_next(L, -2) != 0) {
-            CGEventRef newEvent = hs_to_eventtap_event(L, -1);
-            CGEventTapPostEvent(proxy, newEvent);
+            if (lua_type(L, -1) == LUA_TUSERDATA && luaL_testudata(L, -1, EVENT_USERDATA_TAG)) {
+                CGEventRef newEvent = hs_to_eventtap_event(L, -1);
+                CGEventTapPostEvent(proxy, newEvent);
+            }
             lua_pop(L, 1);
         }
     }

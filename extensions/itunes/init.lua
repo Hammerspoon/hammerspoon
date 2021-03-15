@@ -9,7 +9,8 @@ local as = require "hs.applescript"
 local app = require "hs.application"
 
 local applicationName = 'iTunes'
-if hs.host.operatingSystemVersion().minor >= 15 then
+local osVersion = hs.host.operatingSystemVersion()
+if osVersion.major >= 11 or osVersion.minor >= 15 then
   applicationName = 'Music'
 end
 

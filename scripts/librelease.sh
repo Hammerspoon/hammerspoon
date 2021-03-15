@@ -503,7 +503,7 @@ function release_tweet() {
   echo "Tweeting release..."
   local CURRENT
   CURRENT=$(t accounts | grep -B1 active | head -1)
-  t set active hammerspoon1
+  t set active _hammerspoon
   t update "Just released ${VERSION} - https://www.hammerspoon.org/releasenotes/"
   t set active "$CURRENT"
 }
