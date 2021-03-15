@@ -22,7 +22,7 @@
     -(instancetype)init NS_UNAVAILABLE;                                                            \
     +(instancetype) new NS_UNAVAILABLE;
 
-@class SentryEvent, SentryBreadcrumb;
+@class SentryEvent, SentryBreadcrumb, SentrySamplingContext;
 
 /**
  * Block used for returning after a request finished
@@ -61,6 +61,26 @@ typedef void (^SentryOnCrashedLastRunCallback)(SentryEvent *_Nonnull event);
  */
 typedef BOOL (^SentryShouldQueueEvent)(
     NSHTTPURLResponse *_Nullable response, NSError *_Nullable error);
+
+/**
+ * Function pointer for a sampler callback.
+ *
+ * @param samplingContext context of the sampling.
+ *
+ * @return A sample rate between 0.0 and 1.0.
+ */
+typedef NSNumber *_Nullable (^SentryTracesSamplerCallback)(
+    SentrySamplingContext *_Nonnull samplingContext);
+
+/**
+ * Loglevel
+ */
+typedef NS_ENUM(NSInteger, SentryLogLevel) {
+    kSentryLogLevelNone = 1,
+    kSentryLogLevelError,
+    kSentryLogLevelDebug,
+    kSentryLogLevelVerbose
+};
 
 /**
  * Sentry level

@@ -2,8 +2,10 @@
 
 #import "SentryDefines.h"
 
+@protocol SentrySpan;
+
 @class SentryHub, SentryOptions, SentryEvent, SentryBreadcrumb, SentryScope, SentryUser, SentryId,
-    SentryUserFeedback;
+    SentryUserFeedback, SentryTransactionContext;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -80,6 +82,27 @@ SENTRY_NO_INIT
  */
 + (SentryId *)captureEvent:(SentryEvent *)event
             withScopeBlock:(void (^)(SentryScope *scope))block NS_SWIFT_NAME(capture(event:block:));
+
+/**
+ * Creates a transaction bound to the current hub and returns the instance.
+ *
+ * @param name The transaction name.
+ * @param operation Short code identifying the type of operation the transaction is measuring.
+ *
+ * @return The created transaction.
+ */
++ (id<SentrySpan>)startTransactionWithName:(NSString *)name
+                                 operation:(NSString *)operation
+    NS_SWIFT_NAME(startTransaction(name:operation:));
+
+/**
+ * Creates a transaction bound to the current hub and returns the instance.
+ *
+ * @param transactionContext The transaction context.
+ * @return The created transaction.
+ */
++ (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+    NS_SWIFT_NAME(startTransaction(transactionContext:));
 
 /**
  * Captures an error event and sends it to Sentry.

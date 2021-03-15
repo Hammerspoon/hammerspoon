@@ -26,6 +26,7 @@
 #import "SentryScope.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentryThreadInspector.h"
+#import "SentryTransaction.h"
 #import "SentryTransport.h"
 #import "SentryTransportFactory.h"
 #import "SentryUser.h"

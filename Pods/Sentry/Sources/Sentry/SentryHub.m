@@ -8,8 +8,12 @@
 #import "SentryId.h"
 #import "SentryLog.h"
 #import "SentrySDK.h"
+#import "SentrySamplingContext.h"
 #import "SentryScope.h"
 #import "SentrySerialization.h"
+#import "SentryTracer.h"
+#import "SentryTransactionContext.h"
+#import "TracesSampler.h"
 
 @interface
 SentryHub ()
@@ -17,6 +21,7 @@ SentryHub ()
 @property (nonatomic, strong) SentryClient *_Nullable client;
 @property (nonatomic, strong) SentryScope *_Nullable scope;
 @property (nonatomic, strong) SentryCrashAdapter *crashAdapter;
+@property (nonatomic, strong) TracesSampler *sampler;
 
 @end
 
@@ -33,6 +38,7 @@ SentryHub ()
         _sessionLock = [[NSObject alloc] init];
         _installedIntegrations = [[NSMutableArray alloc] init];
         _crashAdapter = [[SentryCrashAdapter alloc] init];
+        _sampler = [[TracesSampler alloc] initWithOptions:client.options];
     }
     return self;
 }
@@ -224,6 +230,31 @@ SentryHub ()
         return [client captureEvent:event withScope:scope];
     }
     return SentryId.empty;
+}
+
+- (id<SentrySpan>)startTransactionWithName:(NSString *)name operation:(NSString *)operation
+{
+    return [self
+        startTransactionWithContext:[[SentryTransactionContext alloc] initWithName:name
+                                                                         operation:operation]];
+}
+
+- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+{
+    return [self startTransactionWithContext:transactionContext customSamplingContext:nil];
+}
+
+- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                        customSamplingContext:
+                            (nullable NSDictionary<NSString *, id> *)customSamplingContext
+{
+    SentrySamplingContext *samplingContext =
+        [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
+                                            customSamplingContext:customSamplingContext];
+
+    transactionContext.sampled = [_sampler sample:samplingContext];
+
+    return [[SentryTracer alloc] initWithTransactionContext:transactionContext hub:self];
 }
 
 - (SentryId *)captureMessage:(NSString *)message

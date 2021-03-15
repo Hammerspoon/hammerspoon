@@ -1,8 +1,9 @@
 #import "SentryDefines.h"
 #import "SentryIntegrationProtocol.h"
+#import "SentrySpanProtocol.h"
 
 @class SentryEvent, SentryClient, SentryScope, SentrySession, SentryUser, SentryBreadcrumb,
-    SentryId, SentryUserFeedback, SentryEnvelope;
+    SentryId, SentryUserFeedback, SentryEnvelope, SentryTransactionContext;
 
 NS_ASSUME_NONNULL_BEGIN
 @interface SentryHub : NSObject
@@ -41,6 +42,41 @@ SENTRY_NO_INIT
  */
 - (SentryId *)captureEvent:(SentryEvent *)event
                  withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(event:scope:));
+
+/**
+ * Creates a transaction bound to the hub and returns the instance.
+ *
+ * @param name The transaction name.
+ * @param operation Short code identifying the type of operation the span is measuring.
+ *
+ * @return The created transaction.
+ */
+- (id<SentrySpan>)startTransactionWithName:(NSString *)name
+                                 operation:(NSString *)operation
+    NS_SWIFT_NAME(startTransaction(name:operation:));
+
+/**
+ * Creates a transaction bound to the hub and returns the instance.
+ *
+ * @param transactionContext The transaction context.
+ *
+ * @return The created transaction.
+ */
+- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+    NS_SWIFT_NAME(startTransaction(transactionContext:));
+
+/**
+ * Creates a transaction bound to the hub and returns the instance.
+ *
+ * @param transactionContext The transaction context.
+ * @param customSamplingContext Additional information about the sampling context.
+ *
+ * @return The created transaction.
+ */
+- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                        customSamplingContext:
+                            (nullable NSDictionary<NSString *, id> *)customSamplingContext
+    NS_SWIFT_NAME(startTransaction(transactionContext:customSamplingContext:));
 
 /**
  * Captures an error event and sends it to Sentry.

@@ -30,6 +30,7 @@
         self.attachStacktrace = YES;
         self.maxAttachmentSize = 20 * 1024 * 1024;
         self.sendDefaultPii = NO;
+        self.tracesSampleRate = 0;
 
         // Use the name of the bundle’s executable file as inAppInclude, so SentryFrameInAppLogic
         // marks frames coming from there as inApp. With this approach, the SDK marks public
@@ -179,6 +180,16 @@
 
     if (nil != options[@"sendDefaultPii"]) {
         self.sendDefaultPii = [options[@"sendDefaultPii"] boolValue];
+    }
+
+    NSNumber *tracesSampleRate = options[@"tracesSampleRate"];
+    if (nil != tracesSampleRate && [tracesSampleRate floatValue] >= 0 &&
+        [tracesSampleRate floatValue] <= 1.0) {
+        self.tracesSampleRate = tracesSampleRate;
+    }
+
+    if (nil != options[@"tracesSampler"]) {
+        self.tracesSampler = options[@"tracesSampler"];
     }
 
     NSPredicate *isNSString = [NSPredicate predicateWithBlock:^BOOL(

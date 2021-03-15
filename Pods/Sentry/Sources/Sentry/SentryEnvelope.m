@@ -9,6 +9,7 @@
 #import "SentrySdkInfo.h"
 #import "SentrySerialization.h"
 #import "SentrySession.h"
+#import "SentryTransaction.h"
 #import "SentryUserFeedback.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -124,10 +125,15 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
 
-    return [self
-        initWithHeader:[[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeEvent
-                                                               length:json.length]
-                  data:json];
+    // event.type can be nil and the server infers error if there's a stack trace, otherwise
+    // default. In any case in the envelope type it should be event. Except for transactions
+    NSString *envelopeType = [event.type isEqualToString:SentryEnvelopeItemTypeTransaction]
+        ? SentryEnvelopeItemTypeTransaction
+        : SentryEnvelopeItemTypeEvent;
+
+    return [self initWithHeader:[[SentryEnvelopeItemHeader alloc] initWithType:envelopeType
+                                                                        length:json.length]
+                           data:json];
 }
 
 - (instancetype)initWithSession:(SentrySession *)session
