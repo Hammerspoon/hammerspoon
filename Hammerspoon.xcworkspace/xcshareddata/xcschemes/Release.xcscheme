@@ -104,9 +104,7 @@
       buildConfiguration = "Release"
       selectedDebuggerIdentifier = ""
       selectedLauncherIdentifier = "Xcode.IDEFoundation.Launcher.PosixSpawn"
-      enableAddressSanitizer = "YES"
-      enableASanStackUseAfterReturn = "YES"
-      enableUBSanitizer = "YES"
+      disableMainThreadChecker = "YES"
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
       customWorkingDirectory = "$(PROJECT_DIR)/build"
@@ -114,7 +112,6 @@
       debugDocumentVersioning = "YES"
       debugXPCServices = "NO"
       debugServiceExtension = "internal"
-      enableGPUValidationMode = "1"
       allowLocationSimulation = "YES"
       viewDebuggingEnabled = "No">
       <BuildableProductRunnable
@@ -127,18 +124,6 @@
             ReferencedContainer = "container:Hammerspoon.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
-      <AdditionalOptions>
-         <AdditionalOption
-            key = "NSZombieEnabled"
-            value = "YES"
-            isEnabled = "YES">
-         </AdditionalOption>
-         <AdditionalOption
-            key = "MallocScribble"
-            value = ""
-            isEnabled = "YES">
-         </AdditionalOption>
-      </AdditionalOptions>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
