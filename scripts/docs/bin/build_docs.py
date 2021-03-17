@@ -62,6 +62,11 @@ def dbg(msg):
         print("DEBUG: %s" % msg)
 
 
+def warn(msg):
+    """Print a warning message"""
+    print("WARN: %s" % msg)
+
+
 def err(msg):
     """Print an error message"""
     print("ERROR: %s" % msg)
@@ -291,6 +296,24 @@ def process_module(modulename, raw_module):
         module["items"].append(item)  # Deprecated
 
         dbg("    %s" % pprint.pformat(item).replace('\n', "\n            "))
+
+        # The rest of this code is only for functions/constructors/methods
+        if item["type"] not in ["Function", "Constructor", "Method"]:
+            continue
+
+        def is_actual_parameter(some_text):
+            return some_text.startswith(" * ")
+
+        try:
+            sig_params = re.sub(r".*\((.*)\).*", r"\1", item["signature"])
+            sig_param_arr = sig_params.split(',')
+            sig_arg_count = len(sig_param_arr)
+            actual_params = list(filter(is_actual_parameter, item["parameters"]))
+            parameter_count = len(actual_params)
+            if parameter_count != sig_arg_count:
+                warn("SIGNATURE/PARAMETER COUNT MISMATCH: %s says %d paramters, but Parameters section has %d entries:\n%s\n" % (item["signature"], sig_arg_count, parameter_count, '\n'.join(actual_params)))
+        except:
+            warn("Unable to parse parameters for %s\n" % item["signature"])
     return module
 
 
