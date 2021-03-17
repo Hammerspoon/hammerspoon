@@ -14,7 +14,7 @@ import re
 
 DEBUG = False
 FAIL_ON_WARN = True
-WARNFAIL = FALSE
+WARNFAIL = False
 
 CHUNK_FILE = 0
 CHUNK_LINE = 1
