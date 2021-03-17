@@ -296,6 +296,38 @@ static int audiodevice_defaultinputdevice(lua_State* L) {
     return 1;
 }
 
+/// hs.audiodevice.defaultEffectDevice() -> audio or nil
+/// Function
+/// Get the currently selected sound effect device
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * An hs.audiodevice object, or nil if no suitable device could be found
+static int audiodevice_defaulteffectdevice(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TBREAK];
+
+    AudioObjectPropertyAddress propertyAddress = {
+        kAudioHardwarePropertyDefaultSystemOutputDevice,
+        kAudioObjectPropertyScopeGlobal,
+        kAudioObjectPropertyElementMaster
+    };
+
+    AudioDeviceID deviceId;
+    UInt32 deviceIdSize = sizeof(AudioDeviceID);
+
+    if ((AudioObjectGetPropertyData(kAudioObjectSystemObject, &propertyAddress, 0, NULL, &deviceIdSize, &deviceId) == noErr) && isOutputDevice(deviceId)) {
+        new_device(L, deviceId);
+    } else {
+        lua_pushnil(L);
+    }
+
+    return 1;
+}
+
+
 #pragma mark - hs.audiodevice object methods
 
 /// hs.audiodevice:setDefaultOutputDevice() -> bool
@@ -316,6 +348,39 @@ static int audiodevice_setdefaultoutputdevice(lua_State* L) {
 
     AudioObjectPropertyAddress propertyAddress = {
         kAudioHardwarePropertyDefaultOutputDevice,
+        kAudioObjectPropertyScopeGlobal,
+        kAudioObjectPropertyElementMaster
+    };
+
+    UInt32 deviceIdSize = sizeof(AudioDeviceID);
+
+    if (isOutputDevice(deviceId) && (AudioObjectSetPropertyData(kAudioObjectSystemObject, &propertyAddress, 0, NULL, deviceIdSize, &deviceId) == noErr)) {
+        lua_pushboolean(L, TRUE);
+    } else {
+        lua_pushboolean(L, FALSE);
+    }
+
+    return 1;
+}
+
+/// hs.audiodevice:setDefaultEffectDevice() -> bool
+/// Method
+/// Selects this device as the audio output device for system sound effects
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * True if the audio device was successfully selected, otherwise false.
+static int audiodevice_setdefaulteffectdevice(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
+    audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
+    AudioDeviceID deviceId = audioDevice->deviceId;
+
+    AudioObjectPropertyAddress propertyAddress = {
+        kAudioHardwarePropertyDefaultSystemOutputDevice,
         kAudioObjectPropertyScopeGlobal,
         kAudioObjectPropertyElementMaster
     };
@@ -1766,6 +1831,7 @@ static int datasource_eq(lua_State* L) {
 static const luaL_Reg audiodevice_metalib[] = {
     {"setDefaultOutputDevice",  audiodevice_setdefaultoutputdevice},
     {"setDefaultInputDevice",   audiodevice_setdefaultinputdevice},
+    {"setDefaultEffectDevice",  audiodevice_setdefaulteffectdevice},
     {"name",                    audiodevice_name},
     {"uid",                     audiodevice_uid},
     {"volume",                  audiodevice_volume},
@@ -1807,6 +1873,7 @@ static const luaL_Reg audiodeviceLib[] = {
     {"allDevices",              audiodevice_alldevices},
     {"defaultOutputDevice",     audiodevice_defaultoutputdevice},
     {"defaultInputDevice",      audiodevice_defaultinputdevice},
+    {"defaultEffectDevice",     audiodevice_defaulteffectdevice},
 
     {NULL, NULL}
 };

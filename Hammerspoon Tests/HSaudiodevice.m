@@ -27,6 +27,10 @@
 
 // Test functions/constructors
 
+- (void)testGetDefaultEffect {
+    RUN_LUA_TEST()
+}
+
 - (void)testGetDefaultOutput {
     RUN_LUA_TEST()
 }
@@ -99,6 +103,10 @@
 
 // Test hs.audiodevice methods
 - (void)testToString {
+    RUN_LUA_TEST()
+}
+
+- (void)testSetDefaultEffect {
     RUN_LUA_TEST()
 }
 
