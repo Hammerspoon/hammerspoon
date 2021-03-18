@@ -96,15 +96,15 @@
 
 - (id)decodeFromFile:(NSString *)path {
     LuaSkin *skin = [LuaSkin sharedWithState:NULL];
-    NSError *error;
-    NSString *json = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
-
+    NSError *error = nil;
+    NSData *json = [NSData dataWithContentsOfFile:path options:0 error:&error];
+    
     if (error) {
         [skin logError:[NSString stringWithFormat:@"Error reading JSON from file: %@", error.localizedDescription]];
         return nil;
     }
 
-    return [self decode:[json dataUsingEncoding:NSUTF8StringEncoding]];
+    return [self decode:json];
 }
 @end
 
