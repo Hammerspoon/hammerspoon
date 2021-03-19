@@ -37,7 +37,7 @@ local function slurp(path)
    return s
 end
 
---- hs.spoons.newSpoon(name, basedir, metadata) -> string | nil
+--- hs.spoons.newSpoon(name, basedir, metadata, [template]) -> string | nil
 --- Function
 --- Create a skeleton for a new Spoon
 ---
@@ -217,7 +217,7 @@ function module.isLoaded(name)
    return nil
 end
 
---- hs.spoons.use(name, arg) -> boolean | nil
+--- hs.spoons.use(name, arg, [noerror]) -> boolean | nil
 --- Function
 --- Declaratively load and configure a Spoon
 ---

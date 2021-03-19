@@ -359,7 +359,7 @@ end
 --- Set the default filtering rules to be used for apps without app-specific rules
 ---
 --- Parameters:
----   * filter - see `hs.window.filter:setAppFilter`
+---  * filter - see `hs.window.filter:setAppFilter`
 ---
 --- Returns:
 ---  * the `hs.window.filter` object for method chaining
@@ -371,7 +371,7 @@ end
 --- Set overriding filtering rules that will be applied for all apps before any app-specific rules
 ---
 --- Parameters:
----   * filter - see `hs.window.filter:setAppFilter`
+---  * filter - see `hs.window.filter:setAppFilter`
 ---
 --- Returns:
 ---  * the `hs.window.filter` object for method chaining
@@ -1775,7 +1775,7 @@ end
 --- Sets the sort order for this windowfilter's `:getWindows()` method
 ---
 --- Parameters:
----   * sortOrder - one of the `hs.window.filter.sortBy...` constants
+---  * sortOrder - one of the `hs.window.filter.sortBy...` constants
 ---
 --- Returns:
 ---  * the `hs.window.filter` object for method chaining

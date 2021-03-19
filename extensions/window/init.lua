@@ -691,39 +691,60 @@ end
 --- Gets all windows to the east of this window
 ---
 --- Parameters:
----  * candidateWindows - (optional) a list of candidate windows to consider; if nil, all visible windows
----    to the east are candidates.
+---  * candidateWindows - (optional) a list of candidate windows to consider; if nil, all visible windows to the east are candidates.
 ---  * frontmost - (optional) boolean, if true unoccluded windows will be placed before occluded ones in the result list
----  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the
----    eastward axis
+---  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the eastward axis
 ---
 --- Returns:
 ---  * A list of `hs.window` objects representing all windows positioned east (i.e. right) of the window, in ascending order of distance
 ---
 --- Notes:
----  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows
----    every time this method is called; this can be slow, and some undesired "windows" could be included
----    (see the notes for `hs.window.allWindows()`); consider using the equivalent methods in
----    `hs.window.filter` instead
+---  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows every time this method is called; this can be slow, and some undesired "windows" could be included (see the notes for `hs.window.allWindows()`); consider using the equivalent methods in `hs.window.filter` instead
 
 --- hs.window:windowsToWest([candidateWindows[, frontmost[, strict]]]) -> list of hs.window objects
 --- Method
 --- Gets all windows to the west of this window
 ---
---- (See `hs.window:windowsToEast()`)
+--- Parameters:
+---  * candidateWindows - (optional) a list of candidate windows to consider; if nil, all visible windows to the west are candidates.
+---  * frontmost - (optional) boolean, if true unoccluded windows will be placed before occluded ones in the result list
+---  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the westward axis
+---
+--- Returns:
+---  * A list of `hs.window` objects representing all windows positioned west (i.e. left) of the window, in ascending order of distance
+---
+--- Notes:
+---  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows every time this method is called; this can be slow, and some undesired "windows" could be included (see the notes for `hs.window.allWindows()`); consider using the equivalent methods in `hs.window.filter` instead
 
 --- hs.window:windowsToNorth([candidateWindows[, frontmost[, strict]]]) -> list of hs.window objects
 --- Method
 --- Gets all windows to the north of this window
 ---
---- (See `hs.window:windowsToEast()`)
+--- Parameters:
+---  * candidateWindows - (optional) a list of candidate windows to consider; if nil, all visible windows to the north are candidates.
+---  * frontmost - (optional) boolean, if true unoccluded windows will be placed before occluded ones in the result list
+---  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the northward axis
+---
+--- Returns:
+---  * A list of `hs.window` objects representing all windows positioned north (i.e. up) of the window, in ascending order of distance
+---
+--- Notes:
+---  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows every time this method is called; this can be slow, and some undesired "windows" could be included (see the notes for `hs.window.allWindows()`); consider using the equivalent methods in `hs.window.filter` instead
 
 --- hs.window:windowsToSouth([candidateWindows[, frontmost[, strict]]]) -> list of hs.window objects
 --- Method
 --- Gets all windows to the south of this window
 ---
---- (See `hs.window:windowsToEast()`)
-
+--- Parameters:
+---  * candidateWindows - (optional) a list of candidate windows to consider; if nil, all visible windows to the south are candidates.
+---  * frontmost - (optional) boolean, if true unoccluded windows will be placed before occluded ones in the result list
+---  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the southward axis
+---
+--- Returns:
+---  * A list of `hs.window` objects representing all windows positioned south (i.e. down) of the window, in ascending order of distance
+---
+--- Notes:
+---  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows every time this method is called; this can be slow, and some undesired "windows" could be included (see the notes for `hs.window.allWindows()`); consider using the equivalent methods in `hs.window.filter` instead
 
 --- hs.window.frontmostWindow() -> hs.window object
 --- Constructor
@@ -784,19 +805,61 @@ end
 --- Method
 --- Focuses the nearest possible window to the west (i.e. left)
 ---
---- (See `hs.window:focusWindowEast()`)
+--- Parameters:
+---  * candidateWindows - (optional) a list of candidate windows to consider; if nil, all visible windows
+---    to the east are candidates.
+---  * frontmost - (optional) boolean, if true focuses the nearest window that isn't occluded by any other window
+---  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the
+---    eastward axis
+---
+--- Returns:
+---  * `true` if a window was found and focused, `false` otherwise; `nil` if the search couldn't take place
+---
+--- Notes:
+---  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows
+---    every time this method is called; this can be slow, and some undesired "windows" could be included
+---    (see the notes for `hs.window.allWindows()`); consider using the equivalent methods in
+---    `hs.window.filter` instead
 
 --- hs.window:focusWindowNorth([candidateWindows[, frontmost[, strict]]]) -> boolean
 --- Method
 --- Focuses the nearest possible window to the north (i.e. up)
 ---
---- (See `hs.window:focusWindowEast()`)
+--- Parameters:
+---  * candidateWindows - (optional) a list of candidate windows to consider; if nil, all visible windows
+---    to the east are candidates.
+---  * frontmost - (optional) boolean, if true focuses the nearest window that isn't occluded by any other window
+---  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the
+---    eastward axis
+---
+--- Returns:
+---  * `true` if a window was found and focused, `false` otherwise; `nil` if the search couldn't take place
+---
+--- Notes:
+---  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows
+---    every time this method is called; this can be slow, and some undesired "windows" could be included
+---    (see the notes for `hs.window.allWindows()`); consider using the equivalent methods in
+---    `hs.window.filter` instead
 
 --- hs.window:focusWindowSouth([candidateWindows[, frontmost[, strict]]]) -> boolean
 --- Method
 --- Focuses the nearest possible window to the south (i.e. down)
 ---
---- (See `hs.window:focusWindowEast()`)
+--- Parameters:
+---  * candidateWindows - (optional) a list of candidate windows to consider; if nil, all visible windows
+---    to the east are candidates.
+---  * frontmost - (optional) boolean, if true focuses the nearest window that isn't occluded by any other window
+---  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the
+---    eastward axis
+---
+--- Returns:
+---  * `true` if a window was found and focused, `false` otherwise; `nil` if the search couldn't take place
+---
+--- Notes:
+---  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows
+---    every time this method is called; this can be slow, and some undesired "windows" could be included
+---    (see the notes for `hs.window.allWindows()`); consider using the equivalent methods in
+---    `hs.window.filter` instead
 
 
 --- hs.window:centerOnScreen([screen][, ensureInScreenBounds][, duration]) --> hs.window object
@@ -921,21 +984,42 @@ end
 --- Method
 --- Moves the window one screen west (i.e. left)
 ---
---- (See `hs.window:moveOneScreenEast()`)
+--- Parameters:
+---  * noResize - (optional) if `true`, maintain the window's absolute size
+---  * ensureInScreenBounds - (optional) if `true`, use `setFrameInScreenBounds()` to ensure the resulting window frame is fully contained within
+---    the window's screen
+---  * duration - (optional) The number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
+---
+--- Returns:
+---  * The `hs.window` object
 
 --- hs.window:moveOneScreenNorth([noResize, ensureInScreenBounds][, duration]) -> hs.window object
 --- Method
 --- Moves the window one screen north (i.e. up)
 ---
 ---
---- (See `hs.window:moveOneScreenEast()`)
+--- Parameters:
+---  * noResize - (optional) if `true`, maintain the window's absolute size
+---  * ensureInScreenBounds - (optional) if `true`, use `setFrameInScreenBounds()` to ensure the resulting window frame is fully contained within
+---    the window's screen
+---  * duration - (optional) The number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
+---
+--- Returns:
+---  * The `hs.window` object
 
 --- hs.window:moveOneScreenSouth([noResize, ensureInScreenBounds][, duration]) -> hs.window object
 --- Method
 --- Moves the window one screen south (i.e. down)
 ---
 ---
---- (See `hs.window:moveOneScreenEast()`)
+--- Parameters:
+---  * noResize - (optional) if `true`, maintain the window's absolute size
+---  * ensureInScreenBounds - (optional) if `true`, use `setFrameInScreenBounds()` to ensure the resulting window frame is fully contained within
+---    the window's screen
+---  * duration - (optional) The number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
+---
+--- Returns:
+---  * The `hs.window` object
 
 do
   local submodules={filter=true,layout=true,tiling=true,switcher=true,highlight=true}

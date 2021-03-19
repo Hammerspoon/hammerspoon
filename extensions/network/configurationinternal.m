@@ -480,7 +480,7 @@ static int dynamicStoreProxies(lua_State *L) {
     return 1 ;
 }
 
-/// hs.network.configuration:setCallback(function | nil) -> storeObject
+/// hs.network.configuration:setCallback(function) -> storeObject
 /// Method
 /// Set or remove the callback function for a store object
 ///

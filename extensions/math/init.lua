@@ -79,7 +79,7 @@ end
 --- Function
 --- Returns whether or not the value is a finite number
 ---
---- Paramters:
+--- Parameters:
 ---  * `value` - the value to be tested
 ---
 --- Returns:

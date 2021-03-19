@@ -495,7 +495,7 @@ static int speaking(lua_State *L) {
     return 1;
 }
 
-/// hs.speech:setCallback(fn | nil) -> synthesizerObject
+/// hs.speech:setCallback(fn) -> synthesizerObject
 /// Method
 /// Sets or removes a callback function for the synthesizer.
 ///
