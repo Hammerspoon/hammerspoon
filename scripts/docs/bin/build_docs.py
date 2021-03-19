@@ -14,7 +14,7 @@ import re
 
 DEBUG = False
 FAIL_ON_WARN = True
-WARNFAIL = False
+HAS_WARNED = False
 
 CHUNK_FILE = 0
 CHUNK_LINE = 1
@@ -67,7 +67,7 @@ def dbg(msg):
 def warn(msg):
     """Print a warning message"""
     print("WARN: %s" % msg)
-    WARNFAIL = True
+    HAS_WARNED = True
 
 
 def err(msg):
@@ -646,5 +646,5 @@ def main():
 
 if __name__ == "__main__":
     main()
-    if FAIL_ON_WARN and WARNFAIL:
+    if FAIL_ON_WARN and HAS_WARNED:
         sys.exit(1)
