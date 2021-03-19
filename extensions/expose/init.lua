@@ -582,7 +582,18 @@ end
 --- Method
 --- Toggles the expose - see `hs.expose:show()` and `hs.expose:hide()`
 ---
---- Parameters: see `hs.expose:show()`
+--- Parameters:
+---  * activeApplication - (optional) if true, only show windows of the active application (within the scope of the instance windowfilter); otherwise show all windows allowed by the instance windowfilter
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * passing `true` for `activeApplication` will simply hide hints/thumbnails for applications other than the active one, without recalculating the hints layout; conversely, setting `onlyActiveApplication=true` for an expose instance's `ui` will calculate an optimal layout for the current active application's windows
+---  * Completing a hint will exit the expose and focus the selected window.
+---  * Pressing esc will exit the expose and with no action taken.
+---  * If shift is being held when a hint is completed (the background will be red), the selected window will be closed. If it's the last window of an application, the application will be closed.
+---  * If alt is being held when a hint is completed (the background will be blue), the selected  window will be minimized (if visible) or unminimized/unhidden (if minimized or hidden).
 ---
 --- Returns:
 ---  * None

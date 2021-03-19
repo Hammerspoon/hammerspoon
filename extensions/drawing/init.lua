@@ -281,7 +281,7 @@ return require("hs.drawing.canvasWrapper")
 --- Notes:
 ---  * If this is called on an `hs.drawing.text` object, only its window will be resized. If you also want to change the font size, use `:setTextSize()`
 
---- hs.drawing:clippingRectangle([rect | nil]) -> drawingObject or current value
+--- hs.drawing:clippingRectangle([rect]) -> drawingObject or current value
 --- Method
 --- Set the screen area in which the drawing contents are visible.
 ---
@@ -790,6 +790,7 @@ return require("hs.drawing.canvasWrapper")
 ---
 --- Parameters:
 ---  * styledTextObject - an object created with the hs.styledtext module or its table representation (see `hs.styledtext`).
+---  * textStyle - an optional table containing one or more of the following keys to set for the text of the drawing object (if textStyle is nil or missing, the `hs.drawing` defaults are used):
 ---
 ---  The following simplified style format is supported for use with `hs.drawing:setText` and `hs.drawing.setTextStyle`.
 ---

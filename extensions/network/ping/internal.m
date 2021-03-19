@@ -250,7 +250,7 @@ static int echoRequest_new(lua_State *L) {
 
 #pragma mark - Module Methods
 
-/// hs.network.ping.echoRequest:setCallback(fn | nil) -> echoRequestObject
+/// hs.network.ping.echoRequest:setCallback(fn) -> echoRequestObject
 /// Method
 /// Set or remove the object callback function
 ///

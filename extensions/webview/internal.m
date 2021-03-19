@@ -1320,7 +1320,7 @@ static int webview_allowNewWindows(lua_State *L) {
 /// Get or set whether or not invalid SSL server certificates that are approved by the ssl callback function are accepted as valid for browsing with the webview.
 ///
 /// Parameters:
-/// * `flag` - an optional boolean, default false, specifying whether or not an invalid SSL server certificate should be  accepted if it is approved by the ssl callback function.
+///  * `flag` - an optional boolean, default false, specifying whether or not an invalid SSL server certificate should be  accepted if it is approved by the ssl callback function.
 ///
 /// Returns:
 ///  * If a value is provided, then this method returns the webview object; otherwise the current value
@@ -1800,7 +1800,6 @@ static int webview_size(lua_State *L) {
 ///   * `plugInsEnabled`                        - plug-ins are enabled (default false)
 ///   * `developerExtrasEnabled`                - include "Inspect Element" in the context menu
 ///   * `suppressesIncrementalRendering`        - suppresses content rendering until fully loaded into memory (default false)
-///
 ///   * The following additional preferences may also be set under OS X 10.11 or later (they will be ignored with a warning printed if used under OS X 10.10):
 ///     * `applicationName`                       - a string specifying an application name to be listed at the end of the browser's USER-AGENT header.  Note that this is only appended to the default user agent string; if you set a custom one with [hs.webview:userAgent](#userAgent), this value is ignored.
 ///     * `allowsAirPlay`                         - a boolean specifying whether media playback within the webview can play through AirPlay devices.

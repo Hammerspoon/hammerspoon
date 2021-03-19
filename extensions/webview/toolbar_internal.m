@@ -856,10 +856,12 @@ static int uniqueName(lua_State *L) {
 /// Get or attach/detach a toolbar to the webview, chooser, or console.
 ///
 /// Parameters:
-///  * if no arguments are present, this function returns the current toolbarObject for the Hammerspoon console, or nil if one is not attached.
-///  * if one argument is provided and it is a toolbarObject or nil, this function will attach or detach a toolbarObject to/from the Hammerspoon console.
-///  * if one argument is provided and it is an hs.webview or hs.chooser object, this function will return the current toolbarObject for the object, or nil if one is not attached.
-///  * if two arguments are provided and the first is an hs.webview or hs.chooser object and the second is a toolbarObject or nil, this function will attach or detach a toolbarObject to/from the object.
+///  * obj1 - An optional toolbarObject
+///  * obj2 - An optional toolbarObject
+///   * if no arguments are present, this function returns the current toolbarObject for the Hammerspoon console, or nil if one is not attached.
+///   * if one argument is provided and it is a toolbarObject or nil, this function will attach or detach a toolbarObject to/from the Hammerspoon console.
+///   * if one argument is provided and it is an hs.webview or hs.chooser object, this function will return the current toolbarObject for the object, or nil if one is not attached.
+///   * if two arguments are provided and the first is an hs.webview or hs.chooser object and the second is a toolbarObject or nil, this function will attach or detach a toolbarObject to/from the object.
 ///
 /// Returns:
 ///  * if the function is used to attach/detach a toolbar, then the first object provided (the target) will be returned ; if this function is used to get the current toolbar object for a webview, chooser, or console, then the toolbarObject or nil will be returned.
@@ -1042,7 +1044,7 @@ static int copyToolbar(lua_State *L) {
     return 1 ;
 }
 
-/// hs.webview.toolbar:setCallback(fn | nil) -> toolbarObject
+/// hs.webview.toolbar:setCallback(fn) -> toolbarObject
 /// Method
 /// Sets or removes the global callback function for the toolbar.
 ///

@@ -92,7 +92,8 @@ module.observer.notifications  = ls.makeConstantsTable(module.observer.notificat
 --- Returns the accessibility object at the specified position on the screen. The top-left corner of the primary screen is 0, 0.
 ---
 --- Parameters:
----  * `x`, `y`     - the x and y coordinates of the screen location to test, provided as separate parameters
+---  * `x` - the x coordinate of the screen location to test
+---  * `y` - the y coordinate of the screen location to test
 ---  * `pointTable` - the x and y coordinates of the screen location to test, provided as a point-table, like the one returned by `hs.mouse.getAbsolutePosition`. A point-table is a table with key-value pairs for keys `x` and `y`.
 ---
 --- Returns:

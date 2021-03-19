@@ -346,46 +346,46 @@ end
 --- If set to `true`, the methods `hs.screen:toEast()`, `:toNorth()` etc. will disregard screens that lie perpendicularly to the desired axis
 screen.strictScreenInDirection = false
 
---- hs.screen:toEast() -> hs.screen object
+--- hs.screen:toEast(from, strict) -> hs.screen object
 --- Method
 --- Gets the first screen to the east of this one, ordered by proximity to its center or a specified point.
 ---
 --- Parameters:
----   * from - An `hs.geometry.rect` or `hs.geometry.point` object; if omitted, the geometric center of this screen will be used
----   * strict - If `true`, disregard screens that lie completely above or below this one (alternatively, set `hs.screen.strictScreenInDirection`)
+---  * from - An `hs.geometry.rect` or `hs.geometry.point` object; if omitted, the geometric center of this screen will be used
+---  * strict - If `true`, disregard screens that lie completely above or below this one (alternatively, set `hs.screen.strictScreenInDirection`)
 ---
 --- Returns:
 ---   * An `hs.screen` object, or `nil` if not found
 
---- hs.screen:toWest() -> hs.screen object
+--- hs.screen:toWest(from, strict) -> hs.screen object
 --- Method
 --- Gets the first screen to the west of this one, ordered by proximity to its center or a specified point.
 ---
 --- Parameters:
----   * from - An `hs.geometry.rect` or `hs.geometry.point` object; if omitted, the geometric center of this screen will be used
----   * strict - If `true`, disregard screens that lie completely above or below this one (alternatively, set `hs.screen.strictScreenInDirection`)
+---  * from - An `hs.geometry.rect` or `hs.geometry.point` object; if omitted, the geometric center of this screen will be used
+---  * strict - If `true`, disregard screens that lie completely above or below this one (alternatively, set `hs.screen.strictScreenInDirection`)
 ---
 --- Returns:
 ---   * An `hs.screen` object, or `nil` if not found
 
---- hs.screen:toNorth() -> hs.screen object
+--- hs.screen:toNorth(from, strict) -> hs.screen object
 --- Method
 --- Gets the first screen to the north of this one, ordered by proximity to its center or a specified point.
 ---
 --- Parameters:
----   * from - An `hs.geometry.rect` or `hs.geometry.point` object; if omitted, the geometric center of this screen will be used
----   * strict - If `true`, disregard screens that lie completely to the left or to the right of this one (alternatively, set `hs.screen.strictScreenInDirection`)
+---  * from - An `hs.geometry.rect` or `hs.geometry.point` object; if omitted, the geometric center of this screen will be used
+---  * strict - If `true`, disregard screens that lie completely to the left or to the right of this one (alternatively, set `hs.screen.strictScreenInDirection`)
 ---
 --- Returns:
 ---   * An `hs.screen` object, or `nil` if not found
 
---- hs.screen:toSouth() -> hs.screen object
+--- hs.screen:toSouth(from, strict) -> hs.screen object
 --- Method
 --- Gets the first screen to the south of this one, ordered by proximity to its center or a specified point.
 ---
 --- Parameters:
----   * from - An `hs.geometry.rect` or `hs.geometry.point` object; if omitted, the geometric center of this screen will be used
----   * strict - If `true`, disregard screens that lie completely to the left or to the right of this one (alternatively, set `hs.screen.strictScreenInDirection`)
+---  * from - An `hs.geometry.rect` or `hs.geometry.point` object; if omitted, the geometric center of this screen will be used
+---  * strict - If `true`, disregard screens that lie completely to the left or to the right of this one (alternatively, set `hs.screen.strictScreenInDirection`)
 ---
 --- Returns:
 ---   * An `hs.screen` object, or `nil` if not found

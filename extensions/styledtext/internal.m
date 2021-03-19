@@ -1288,7 +1288,7 @@ static int string_convert(lua_State *L) {
 /// Function
 /// Loads a font from a file at the specified path.
 ///
-/// Paramaters:
+/// Parameters:
 ///  * `path` - the path and filename of the font file to attempt to load
 ///
 /// Returns:

@@ -236,12 +236,12 @@ static int sharing_canPerformWith(lua_State *L) {
     return 1 ;
 }
 
-/// hs.sharing:callback(function | nil) -> sharingObject
+/// hs.sharing:callback(fn) -> sharingObject
 /// Method
 /// Set or clear the callback for the sharingObject.
 ///
 /// Parameters:
-///  * a function, or nil, to set or remove the callback for the sharingObject
+///  * fn - A function, or nil, to set or remove the callback for the sharingObject
 ///
 /// Returns:
 ///  * the sharingObject

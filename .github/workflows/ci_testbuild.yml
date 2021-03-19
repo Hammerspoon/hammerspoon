@@ -17,6 +17,8 @@ jobs:
       - uses: actions/checkout@v2
       - name: Prepare environment
         run: ./scripts/github-ci-pre.sh
+      - name: Generate and lint docs
+        run: ./scripts/github-ci-docs.sh
       - name: Build for testing
         run: ./scripts/github-ci-testbuild.sh
       - name: Upload artifacts

@@ -13,6 +13,8 @@ import sys
 import re
 
 DEBUG = False
+FAIL_ON_WARN = True
+HAS_WARNED = False
 
 CHUNK_FILE = 0
 CHUNK_LINE = 1
@@ -60,6 +62,13 @@ def dbg(msg):
     """Print a debug message"""
     if DEBUG:
         print("DEBUG: %s" % msg)
+
+
+def warn(msg):
+    """Print a warning message"""
+    global HAS_WARNED
+    print("WARN: %s" % msg)
+    HAS_WARNED = True
 
 
 def err(msg):
@@ -291,6 +300,29 @@ def process_module(modulename, raw_module):
         module["items"].append(item)  # Deprecated
 
         dbg("    %s" % pprint.pformat(item).replace('\n', "\n            "))
+
+        # The rest of this code is only for functions/constructors/methods
+        if item["type"] not in ["Function", "Constructor", "Method"]:
+            continue
+
+        def is_actual_parameter(some_text):
+            return some_text.startswith(" * ")
+
+        try:
+            if item['desc'].startswith("Alias for [`"):
+                pass
+            else:
+                sig_without_return = item["signature"].split("->")[0]
+                sig_params = re.sub(r".*\((.*)\).*", r"\1", sig_without_return)
+                sig_param_arr = re.split(r',|\|', sig_params)
+                sig_arg_count = len(sig_param_arr)
+                actual_params = list(filter(is_actual_parameter, item["parameters"]))
+                parameter_count = len(actual_params)
+                if parameter_count != sig_arg_count:
+                    warn("SIGNATURE/PARAMETER COUNT MISMATCH: '%s' says %d parameters ('%s'), but Parameters section has %d entries:\n%s\n" % (sig_without_return, sig_arg_count, ','.join(sig_param_arr), parameter_count, '\n'.join(actual_params)))
+        except:
+            warn("Unable to parse parameters for %s\n%s\n" % (item["signature"], sys.exc_info()[1]))
+            sys.exit(1)
     return module
 
 
@@ -615,3 +647,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+    if FAIL_ON_WARN and HAS_WARNED:
+        sys.exit(1)

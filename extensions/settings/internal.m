@@ -58,12 +58,12 @@ static HSUserDefaultKVOWatcher *watcherManager ;
 ///    * boolean
 ///    * nil
 ///    * table (which may contain any of the same valid datatypes)
-///  * if no value is provided, it is assumed to be nil
 ///
 /// Returns:
 ///  * None
 ///
 /// Notes:
+///  * If no val parameter is provided, it is assumed to be nil
 ///  * This function cannot set dates or raw data types, see `hs.settings.setDate()` and `hs.settings.setData()`
 ///  * Assigning a nil value is equivalent to clearing the value with `hs.settings.clear`
 static int target_set(lua_State* L) {
@@ -227,7 +227,7 @@ static int target_getKeys(lua_State* L) {
     return 1;
 }
 
-/// hs.settings.watchKey(identifier, key, [fn | nil]) -> identifier | current value
+/// hs.settings.watchKey(identifier, key, [fn]) -> identifier | current value
 /// Function
 /// Get or set a watcher to invoke a callback when the specified settings key changes
 ///

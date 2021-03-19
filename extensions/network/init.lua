@@ -142,12 +142,12 @@ module.primaryInterfaces = function()
         queryResult["State:/Network/Global/IPv6"] and queryResult["State:/Network/Global/IPv6"].PrimaryInterface or false
 end
 
---- hs.network.addresses([interface, ...]) -> table
+--- hs.network.addresses([interface_list]) -> table
 --- Function
 --- Returns a list of the IPv4 and IPv6 addresses for the specified interfaces, or all interfaces if no arguments are given.
 ---
 --- Parameters:
----  * interface, ... - The interface names to return the IP addresses for. It should be specified as one of the following:
+---  * interface_list - The interface names to return the IP addresses for. It should be specified as one of the following:
 ---    * one or more interface names, separated by a comma
 ---    * if the first argument is a table, it is assumes to be a table containing a list of interfaces and this list is used instead, ignoring any additional arguments that may be provided
 ---    * if no arguments are specified, then the results of [hs.network.interfaces](#interfaces) is used.
@@ -190,6 +190,8 @@ end
 --- hs.network.interfaceName([interface | favorIPv6]) -> string
 --- Function
 --- Returns the user defined name for the specified interface or the primary interface if no interface is specified.
+---
+--- Parameters:
 ---  * interface - an optional string specifying the interface to retrieve the name for.  Defaults to the primary interface if not specified.
 ---  * favorIPv6 - an optional boolean specifying whether or not to prefer the primary IPv6 or the primary IPv4 interface if `interface` is not specified.  Defaults to false.
 ---

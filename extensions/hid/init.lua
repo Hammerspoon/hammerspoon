@@ -17,6 +17,9 @@ module.capslock = {}
 --- Function
 --- Checks the state of the caps lock via HID
 ---
+--- Parameters:
+---  * None
+---
 --- Returns:
 ---  * true if on, false if off
 module.capslock.get = function()
@@ -26,6 +29,9 @@ end
 --- hs.hid.capslock.toggle() -> bool
 --- Function
 --- Toggles the state of caps lock via HID
+---
+--- Parameters:
+---  * None
 ---
 --- Returns:
 ---  * true if on, false if off

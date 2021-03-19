@@ -210,7 +210,7 @@ static int streamdeck_firmwareVersion(lua_State *L) {
 /// Method
 /// Gets the layout of buttons the device has
 ///
-/// Paramters:
+/// Parameters:
 ///  * None
 ///
 /// Returns:

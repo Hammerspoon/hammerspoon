@@ -100,7 +100,6 @@ end
 ---
 --- Parameters:
 ---  * `index` - the numerical position of the toolbar item to remove.
----      or
 ---  * `identifier` - the identifier of the toolbar item to remove, if currently active in the toolbar
 ---
 --- Returns:
