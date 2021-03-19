@@ -1,6 +1,11 @@
 hs.audiodevice = require("hs.audiodevice")
 
 -- Test constructors/functions
+function testGetDefaultEffect()
+  assertIsUserdataOfType("hs.audiodevice", hs.audiodevice.defaultEffectDevice())
+  return success()
+end
+
 function testGetDefaultOutput()
   assertIsUserdataOfType("hs.audiodevice", hs.audiodevice.defaultOutputDevice())
   return success()
@@ -88,6 +93,15 @@ end
 -- Test hs.audiodevice methods
 function testToString()
   assertIsString(tostring(hs.audiodevice.defaultOutputDevice()))
+  return success()
+end
+
+function testSetDefaultEffect()
+  local beforeDevice = hs.audiodevice.defaultEffectDevice()
+  assertTrue(beforeDevice:setDefaultEffectDevice())
+  local afterDevice = hs.audiodevice.defaultEffectDevice()
+  assertIsEqual(beforeDevice, afterDevice)
+
   return success()
 end
 

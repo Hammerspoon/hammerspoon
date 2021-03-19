@@ -271,8 +271,8 @@ function module.keyStroke(modifiers, character, delay, application)
         keyDelay = delay
     end
 
-    print("targetApp: "..tostring(targetApp))
-    print("keyDelay: "..tostring(keyDelay))
+    --print("targetApp: "..tostring(targetApp))
+    --print("keyDelay: "..tostring(keyDelay))
 
     module.event.newKeyEvent(modifiers, character, true):post(targetApp)
     timer.usleep(keyDelay)
