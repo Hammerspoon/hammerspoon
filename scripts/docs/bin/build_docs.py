@@ -66,6 +66,7 @@ def dbg(msg):
 
 def warn(msg):
     """Print a warning message"""
+    global HAS_WARNED
     print("WARN: %s" % msg)
     HAS_WARNED = True
 
@@ -313,7 +314,7 @@ def process_module(modulename, raw_module):
             else:
                 sig_without_return = item["signature"].split("->")[0]
                 sig_params = re.sub(r".*\((.*)\).*", r"\1", sig_without_return)
-                sig_param_arr = re.split(',|\|', sig_params)
+                sig_param_arr = re.split(r',|\|', sig_params)
                 sig_arg_count = len(sig_param_arr)
                 actual_params = list(filter(is_actual_parameter, item["parameters"]))
                 parameter_count = len(actual_params)
