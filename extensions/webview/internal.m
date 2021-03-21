@@ -1706,12 +1706,14 @@ static int webview_evaluateJavaScript(lua_State *L) {
               completionHandler:^(id obj, NSError *error){
 
         if (callbackRef != LUA_NOREF) {
-            LuaSkin *blockSkin = [LuaSkin sharedWithState:L] ;
-            [blockSkin pushLuaRef:refTable ref:callbackRef] ;
-            [blockSkin pushNSObject:obj] ;
-            NSError_toLua([blockSkin L], error) ;
-            [blockSkin protectedCallAndError:@"hs.webview:evaluateJavaScript callback" nargs:2 nresults:0];
-            [blockSkin luaUnref:refTable ref:callbackRef] ;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                LuaSkin *blockSkin = [LuaSkin sharedWithState:L] ;
+                [blockSkin pushLuaRef:refTable ref:callbackRef] ;
+                [blockSkin pushNSObject:obj] ;
+                NSError_toLua([blockSkin L], error) ;
+                [blockSkin protectedCallAndError:@"hs.webview:evaluateJavaScript callback" nargs:2 nresults:0];
+                [blockSkin luaUnref:refTable ref:callbackRef] ;
+            });
         }
     }] ;
 
