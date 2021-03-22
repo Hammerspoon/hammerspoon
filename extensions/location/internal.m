@@ -844,6 +844,10 @@ static id CLCircularRegionFromLua(lua_State *L, int idx) {
     return theRegion ;
 }
 
+NSString *addressDictHelper(NSString *item) {
+    return item ? item : @"";
+}
+
 static int pushCLPlacemark(lua_State *L, id obj) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     CLPlacemark *thePlace = obj ;
@@ -853,18 +857,18 @@ static int pushCLPlacemark(lua_State *L, id obj) {
 
       // Generate addressDictionary which used to exist as a property on CLPlacemark, but is now deprecated
       NSDictionary *addressDictionary = @{
-          @"City": thePlace.locality,
-          @"Country": thePlace.country,
-          @"CountryCode": thePlace.ISOcountryCode,
-          @"FormattedAddressLines": @[ thePlace.name, thePlace.locality, thePlace.postalCode, thePlace.administrativeArea],
-          @"Name": thePlace.name,
-          @"State": thePlace.administrativeArea,
+          @"City": addressDictHelper(thePlace.locality),
+          @"Country": addressDictHelper(thePlace.country),
+          @"CountryCode": addressDictHelper(thePlace.ISOcountryCode),
+          @"FormattedAddressLines": @[ addressDictHelper(thePlace.name), addressDictHelper(thePlace.locality), addressDictHelper(thePlace.postalCode), addressDictHelper(thePlace.administrativeArea)],
+          @"Name": addressDictHelper(thePlace.name),
+          @"State": addressDictHelper(thePlace.administrativeArea),
           @"Street": [NSString stringWithFormat:@"%@ %@", thePlace.subThoroughfare, thePlace.thoroughfare],
-          @"SubAdministrativeArea": thePlace.subAdministrativeArea,
-          @"SubLocality": thePlace.subLocality,
-          @"SubThoroughfare": thePlace.subThoroughfare,
-          @"Thoroughfare": thePlace.thoroughfare,
-          @"ZIP": thePlace.postalCode
+          @"SubAdministrativeArea": addressDictHelper(thePlace.subAdministrativeArea),
+          @"SubLocality": addressDictHelper(thePlace.subLocality),
+          @"SubThoroughfare": addressDictHelper(thePlace.subThoroughfare),
+          @"Thoroughfare": addressDictHelper(thePlace.thoroughfare),
+          @"ZIP": addressDictHelper(thePlace.postalCode)
       };
 
       [skin pushNSObject:addressDictionary] ;                   lua_setfield(L, -2, "addressDictionary") ;
