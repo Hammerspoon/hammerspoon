@@ -253,8 +253,10 @@ end
 --- Notes:
 ---  * This does not mean the user can see the window - it may be obscured by other windows, or it may be off the edge of the screen
 function objectMT.isVisible(self)
-  if not self:application() then return false end
-  return not self:application():isHidden() and not self:isMinimized()
+  if getmetatable(self).__type ~= 'hs.window' then return end
+  local parentApp = self:application()
+  if not parentApp then return false end
+  return not parentApp:isHidden() and not self:isMinimized()
 end
 
 
