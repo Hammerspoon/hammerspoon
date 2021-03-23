@@ -1702,12 +1702,16 @@ static int webview_evaluateJavaScript(lua_State *L) {
         callbackRef = [skin luaRef:refTable] ;
     }
 
+    NSString *luaSkinUUID = [NSString stringWithString:skin.uuid.UUIDString];
     [theView evaluateJavaScript:javascript
               completionHandler:^(id obj, NSError *error){
 
         if (callbackRef != LUA_NOREF) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 LuaSkin *blockSkin = [LuaSkin sharedWithState:L] ;
+                if (![blockSkin checkLuaSkinInstance:luaSkinUUID]) {
+                    return;
+                }
                 [blockSkin pushLuaRef:refTable ref:callbackRef] ;
                 [blockSkin pushNSObject:obj] ;
                 NSError_toLua([blockSkin L], error) ;
