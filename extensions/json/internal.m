@@ -3,7 +3,7 @@
 
 @interface HSjson : NSObject
 -(NSString *)encode:(id)obj prettyPrint:(BOOL)prettyPrint;
--(id)decode:(NSString *)json;
+-(id)decode:(NSData *)json;
 -(BOOL)encodeToFile:(id)obj filePath:(NSString *)path replace:(BOOL)replace prettyPrint:(BOOL)prettyPrint;
 -(id)decodeFromFile:(NSString *)path;
 @end
@@ -40,10 +40,9 @@
                                  encoding:NSUTF8StringEncoding];
 }
 
-- (id)decode:(NSString *)json {
+- (id)decode:(NSData *)data {
     LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     NSError *error;
-    NSData* data = [json dataUsingEncoding:NSUTF8StringEncoding];
 
     if (!data) {
         [skin logError:@"Unable to convert JSON to NSData object"];
@@ -51,7 +50,7 @@
     }
 
     id obj = [NSJSONSerialization JSONObjectWithData:data
-                                             options:NSJSONReadingAllowFragments
+                                             options:NSJSONReadingFragmentsAllowed
                                                error:&error];
 
     if (error) {
@@ -97,9 +96,9 @@
 
 - (id)decodeFromFile:(NSString *)path {
     LuaSkin *skin = [LuaSkin sharedWithState:NULL];
-    NSError *error;
-    NSString *json = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
-
+    NSError *error = nil;
+    NSData *json = [NSData dataWithContentsOfFile:path options:0 error:&error];
+    
     if (error) {
         [skin logError:[NSString stringWithFormat:@"Error reading JSON from file: %@", error.localizedDescription]];
         return nil;
@@ -154,7 +153,9 @@ static int json_decode(lua_State* L) {
 
     HSjson *jsonManager = [[HSjson alloc] init];
 
-    id table = [jsonManager decode:[skin toNSObjectAtIndex:1]];
+    NSData* data = [skin toNSObjectAtIndex:1 withOptions:LS_NSLuaStringAsDataOnly];
+    
+    id table = [jsonManager decode:data];
     [skin pushNSObject:table];
     return 1;
 }

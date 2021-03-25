@@ -344,7 +344,7 @@ end
 ---  * See [hs.canvas:isOccluded](#isOccluded) for more details.
 canvasMT.isVisible = function(obj, ...) return not obj:isOccluded(...) end
 
---- hs.canvas:appendElements(element, ...) -> canvasObject
+--- hs.canvas:appendElements(element...) -> canvasObject
 --- Method
 --- Appends the elements specified to the canvas.
 ---
@@ -363,7 +363,7 @@ canvasMT.appendElements = function(obj, ...)
     return obj
 end
 
---- hs.canvas:replaceElements(element, ...) -> canvasObject
+--- hs.canvas:replaceElements(element...) -> canvasObject
 --- Method
 --- Replaces all of the elements in the canvas with the elements specified.  Shortens or lengthens the canvas element count if necessary to accomodate the new canvas elements.
 ---

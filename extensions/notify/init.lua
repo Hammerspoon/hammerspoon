@@ -216,7 +216,8 @@ end
 --- Unregisters a function callback so that it is no longer available as a callback when notifications corresponding to the specified entry are interacted with.
 ---
 --- Parameters:
----  * id or tag - the numerical id provided by [hs.notify.register](#register) or string tag representing the callback function to be removed
+---  * id - the numerical id provided by [hs.notify.register](#register)
+---  * tag - a string tag representing the callback function to be removed
 ---
 --- Returns:
 ---  * None

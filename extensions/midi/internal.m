@@ -444,7 +444,7 @@ static int midi_newVirtualSource(lua_State *L) {
 
 #pragma mark - Module Methods
 
-/// hs.midi:callback(callbackFn | nil)
+/// hs.midi:callback(callbackFn)
 /// Method
 /// Sets or removes a callback function for the `hs.midi` object.
 ///

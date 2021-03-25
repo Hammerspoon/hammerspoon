@@ -243,7 +243,7 @@ static int handleDisplayUpdate(lua_State* L, CGDisplayConfigRef config, char *na
     return 1;
 }
 
-/// hs.screen:setMode(width, height, scale) -> boolean
+/// hs.screen:setMode(width, height, scale, frequency, depth) -> boolean
 /// Method
 /// Sets the screen to a new mode
 ///

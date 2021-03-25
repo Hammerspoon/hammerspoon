@@ -115,6 +115,12 @@ static int core_consoleontop(lua_State* L) {
 /// hs.openAbout()
 /// Function
 /// Displays the OS X About panel for Hammerspoon; implicitly focuses Hammerspoon.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
 static int core_openabout(lua_State* __unused L) {
     [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
     [[NSApplication sharedApplication] orderFrontStandardAboutPanel:nil];
@@ -124,6 +130,12 @@ static int core_openabout(lua_State* __unused L) {
 /// hs.openPreferences()
 /// Function
 /// Displays the Hammerspoon Preferences panel; implicitly focuses Hammerspoon.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
 static int core_openpreferences(lua_State* __unused L) {
     [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
     [[MJPreferencesWindowController singleton] showWindow: nil];
@@ -135,7 +147,7 @@ static int core_openpreferences(lua_State* __unused L) {
 /// Function
 /// Closes the Hammerspoon Preferences window
 ///
-/// Paramters:
+/// Parameters:
 ///  * None
 ///
 /// Returns:
@@ -197,6 +209,12 @@ static int core_open(lua_State *L) {
 /// hs.reload()
 /// Function
 /// Reloads your init-file in a fresh Lua environment.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
 static int core_reload(lua_State* L) {
     dispatch_async(dispatch_get_main_queue(), ^{
         MJLuaReplace();
@@ -683,6 +701,12 @@ static int core_openConsoleOnDockClick(lua_State* L) {
 /// hs.focus()
 /// Function
 /// Makes Hammerspoon the foreground app.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
 static int core_focus(lua_State* L) {
     [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
     return 0;

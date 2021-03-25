@@ -1322,7 +1322,7 @@ static int webview_allowNewWindows(lua_State *L) {
 /// Get or set whether or not invalid SSL server certificates that are approved by the ssl callback function are accepted as valid for browsing with the webview.
 ///
 /// Parameters:
-/// * `flag` - an optional boolean, default false, specifying whether or not an invalid SSL server certificate should be  accepted if it is approved by the ssl callback function.
+///  * `flag` - an optional boolean, default false, specifying whether or not an invalid SSL server certificate should be  accepted if it is approved by the ssl callback function.
 ///
 /// Returns:
 ///  * If a value is provided, then this method returns the webview object; otherwise the current value
@@ -1704,16 +1704,22 @@ static int webview_evaluateJavaScript(lua_State *L) {
         callbackRef = [skin luaRef:refTable] ;
     }
 
+    NSString *luaSkinUUID = [NSString stringWithString:skin.uuid.UUIDString];
     [theView evaluateJavaScript:javascript
               completionHandler:^(id obj, NSError *error){
 
         if (callbackRef != LUA_NOREF) {
-            LuaSkin *blockSkin = [LuaSkin sharedWithState:L] ;
-            [blockSkin pushLuaRef:refTable ref:callbackRef] ;
-            [blockSkin pushNSObject:obj] ;
-            NSError_toLua([blockSkin L], error) ;
-            [blockSkin protectedCallAndError:@"hs.webview:evaluateJavaScript callback" nargs:2 nresults:0];
-            [blockSkin luaUnref:refTable ref:callbackRef] ;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                LuaSkin *blockSkin = [LuaSkin sharedWithState:L] ;
+                if (![blockSkin checkLuaSkinInstance:luaSkinUUID]) {
+                    return;
+                }
+                [blockSkin pushLuaRef:refTable ref:callbackRef] ;
+                [blockSkin pushNSObject:obj] ;
+                NSError_toLua([blockSkin L], error) ;
+                [blockSkin protectedCallAndError:@"hs.webview:evaluateJavaScript callback" nargs:2 nresults:0];
+                [blockSkin luaUnref:refTable ref:callbackRef] ;
+            });
         }
     }] ;
 
@@ -1802,7 +1808,6 @@ static int webview_size(lua_State *L) {
 ///   * `plugInsEnabled`                        - plug-ins are enabled (default false)
 ///   * `developerExtrasEnabled`                - include "Inspect Element" in the context menu
 ///   * `suppressesIncrementalRendering`        - suppresses content rendering until fully loaded into memory (default false)
-///
 ///   * The following additional preferences may also be set under OS X 10.11 or later (they will be ignored with a warning printed if used under OS X 10.10):
 ///     * `applicationName`                       - a string specifying an application name to be listed at the end of the browser's USER-AGENT header.  Note that this is only appended to the default user agent string; if you set a custom one with [hs.webview:userAgent](#userAgent), this value is ignored.
 ///     * `allowsAirPlay`                         - a boolean specifying whether media playback within the webview can play through AirPlay devices.

@@ -264,7 +264,7 @@ static int isListening(lua_State *L) {
     return 1 ;
 }
 
-/// hs.speech.listener:setCallback(fn | nil) -> recognizerObject
+/// hs.speech.listener:setCallback(fn) -> recognizerObject
 /// Method
 /// Sets or removes a callback function for the speech recognizer.
 ///

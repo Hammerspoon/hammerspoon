@@ -589,7 +589,7 @@ static int service_startMonitoring(lua_State *L) {
 /// Method
 /// Stop advertising or resolving the service specified by the serviceObject
 ///
-/// Paramters:
+/// Parameters:
 ///  * None
 ///
 /// Returns:

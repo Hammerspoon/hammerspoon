@@ -994,7 +994,7 @@ static int notification_alwaysShowAdditionalActions(lua_State *L) {
 /// Method
 /// Get or set the number of seconds after which to automatically withdraw a notification
 ///
-/// Paramters:
+/// Parameters:
 ///  * seconds - An optional number, default 5, of seconds after which to withdraw a notification. A value of 0 will not withdraw a notification automatically
 ///
 /// Returns:

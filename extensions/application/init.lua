@@ -81,7 +81,7 @@ end
 
 --- hs.application:name()
 --- Method
---- Alias for `hs.application:title()`
+--- Alias for [`hs.application:title()`](#title)
 objectMT.name=objectMT.title
 
 --- hs.application.get(hint) -> hs.application object

@@ -297,7 +297,7 @@ static int window_getZoomButtonRect(lua_State* L) {
 /// Method
 /// Determines if a window is maximizable
 ///
-/// Paramters:
+/// Parameters:
 ///  * None
 ///
 /// Returns:

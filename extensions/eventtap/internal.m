@@ -355,7 +355,7 @@ static int secureInputEnabled(lua_State *L) {
 /// Returns a table containing the current mouse buttons being pressed *at this instant*.
 ///
 /// Parameters:
-///  None
+///  * None
 ///
 /// Returns:
 ///  * Returns an array containing indicies starting from 1 up to the highest numbered button currently being pressed where the index is `true` if the button is currently pressed or `false` if it is not.

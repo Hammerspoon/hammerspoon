@@ -97,7 +97,7 @@ mt_watcher = {
             setmetatable(self, nil)
             return nil
         end,
---- hs.watchable:callback(fn | nil) -> watchableObject
+--- hs.watchable:callback(fn) -> watchableObject
 --- Method
 --- Change or remove the callback function for the watchableObject.
 ---

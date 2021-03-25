@@ -2397,7 +2397,7 @@ static int default_textAttributes(lua_State *L) {
 
 #pragma mark - Module Methods
 
-/// hs.canvas:draggingCallback(fn | nil) -> canvasObject
+/// hs.canvas:draggingCallback(fn) -> canvasObject
 /// Method
 /// Sets or remove a callback for accepting dragging and dropping items onto the canvas.
 ///

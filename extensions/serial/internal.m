@@ -522,7 +522,7 @@ static int serial_newFromPath(lua_State *L) {
     return 1;
 }
 
-/// hs.serial:callback(callbackFn | nil) -> serialPortObject
+/// hs.serial:callback(callbackFn) -> serialPortObject
 /// Method
 /// Sets or removes a callback function for the `hs.serial` object.
 ///

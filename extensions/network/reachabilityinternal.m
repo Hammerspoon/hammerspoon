@@ -228,7 +228,7 @@ static int reachabilityStatusString(lua_State *L) {
     return 1 ;
 }
 
-/// hs.network.reachability:setCallback(function | nil) -> reachabilityObject
+/// hs.network.reachability:setCallback(function) -> reachabilityObject
 /// Method
 /// Set or remove the callback function for a reachability object
 ///

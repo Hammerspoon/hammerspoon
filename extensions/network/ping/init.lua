@@ -262,7 +262,7 @@ pingObjectMT = {
 ---  * the `didFinish` message will be sent to the callback function as its final message.
     cancel  = basicPingCompletionFunction,
 
---- hs.network.ping:setCallback(fn | nil) -> pingObject
+--- hs.network.ping:setCallback(fn) -> pingObject
 --- Method
 --- Set or remoce the callback function for the pingObject.
 ---

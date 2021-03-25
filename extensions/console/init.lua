@@ -133,7 +133,7 @@ module.behaviorAsLabels = function(...)
 end
 
 
---- hs.console.toolbar([toolbar | nil]) -> toolbarObject | currentValue
+--- hs.console.toolbar([toolbar]) -> toolbarObject | currentValue
 --- Method
 --- Get or attach/detach a toolbar to/from the Hammerspoon console.
 ---

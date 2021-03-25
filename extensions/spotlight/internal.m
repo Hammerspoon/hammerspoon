@@ -195,7 +195,7 @@ static int spotlight_searchScopes(lua_State *L) {
     return 1 ;
 }
 
-/// hs.spotlight:setCallback(fn | nil) -> spotlightObject
+/// hs.spotlight:setCallback(fn) -> spotlightObject
 /// Method
 /// Set or remove the callback function for the Spotlight search object.
 ///
