@@ -19,9 +19,9 @@
 		22652B3E251C3914000FF14D /* IOHIDEventTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 22652B3C251C3914000FF14D /* IOHIDEventTypes.h */; };
 		22738935248606F0003EBC68 /* HSwebsocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 22738934248606F0003EBC68 /* HSwebsocket.m */; };
 		2273893624860C0E003EBC68 /* test_websocket.lua in Resources */ = {isa = PBXBuildFile; fileRef = 22738933248606A9003EBC68 /* test_websocket.lua */; };
-		22D0C33F2132713800B19D83 /* cpPaste.icns in Resources */ = {isa = PBXBuildFile; fileRef = 22D0C33E2132713700B19D83 /* cpPaste.icns */; };
 		22A6626025FC080200AA329E /* test_serial.lua in Resources */ = {isa = PBXBuildFile; fileRef = 22A6625F25FC07F700AA329E /* test_serial.lua */; };
 		22A6626225FC087000AA329E /* HSserial.m in Sources */ = {isa = PBXBuildFile; fileRef = 22A6626125FC087000AA329E /* HSserial.m */; };
+		22D0C33F2132713800B19D83 /* cpPaste.icns in Resources */ = {isa = PBXBuildFile; fileRef = 22D0C33E2132713700B19D83 /* cpPaste.icns */; };
 		22DF5D2023B9A9D300C41AE6 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		22DF5D2823B9A9EA00C41AE6 /* watcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 22DF5D1A23B99C4D00C41AE6 /* watcher.m */; };
 		22E4D7FD1FA7488900C8CF5C /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
@@ -1023,9 +1023,9 @@
 		22652B3C251C3914000FF14D /* IOHIDEventTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOHIDEventTypes.h; path = extensions/eventtap/IOHIDEventTypes.h; sourceTree = "<group>"; };
 		22738933248606A9003EBC68 /* test_websocket.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_websocket.lua; path = extensions/websocket/test_websocket.lua; sourceTree = "<group>"; };
 		22738934248606F0003EBC68 /* HSwebsocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSwebsocket.m; sourceTree = "<group>"; };
-		22D0C33E2132713700B19D83 /* cpPaste.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpPaste.icns; sourceTree = "<group>"; };
 		22A6625F25FC07F700AA329E /* test_serial.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_serial.lua; path = extensions/serial/test_serial.lua; sourceTree = "<group>"; };
 		22A6626125FC087000AA329E /* HSserial.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSserial.m; sourceTree = "<group>"; };
+		22D0C33E2132713700B19D83 /* cpPaste.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpPaste.icns; sourceTree = "<group>"; };
 		22DF5D1A23B99C4D00C41AE6 /* watcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = watcher.m; path = extensions/pasteboard/watcher.m; sourceTree = "<group>"; };
 		22DF5D2723B9A9D300C41AE6 /* libpasteboardwatcher.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libpasteboardwatcher.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		22E4D7F71FA7485A00C8CF5C /* internal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/midi/internal.m; sourceTree = SOURCE_ROOT; };
@@ -9093,7 +9093,7 @@
 					"\"$(SDK_DIR)\"/usr/include/libxml2",
 				);
 				INFOPLIST_FILE = "Hammerspoon/CommandPost-Info.plist";
-				MARKETING_VERSION = 1.1.6;
+				MARKETING_VERSION = "1.1.6-beta.1";
 				PRODUCT_BUNDLE_IDENTIFIER = org.latenitefilms.CommandPost;
 				PRODUCT_NAME = CommandPost;
 				SDKROOT = macosx;
@@ -22690,7 +22690,7 @@
 					"\"$(SDK_DIR)\"/usr/include/libxml2",
 				);
 				INFOPLIST_FILE = "Hammerspoon/CommandPost-Info.plist";
-				MARKETING_VERSION = 1.1.6;
+				MARKETING_VERSION = "1.1.6-beta.1";
 				PRODUCT_BUNDLE_IDENTIFIER = org.latenitefilms.CommandPost;
 				PRODUCT_NAME = CommandPost;
 				SDKROOT = macosx;
@@ -22724,7 +22724,7 @@
 					"\"$(SDK_DIR)\"/usr/include/libxml2",
 				);
 				INFOPLIST_FILE = "Hammerspoon/CommandPost-Info.plist";
-				MARKETING_VERSION = 1.1.6;
+				MARKETING_VERSION = "1.1.6-beta.1";
 				OTHER_CODE_SIGN_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = org.latenitefilms.CommandPost;
 				PRODUCT_NAME = CommandPost;
