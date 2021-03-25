@@ -2,6 +2,7 @@
 #import "NSDictionary+SentrySanitize.h"
 #import "SentryCrashDefaultBinaryImageProvider.h"
 #import "SentryCrashDefaultMachineContextWrapper.h"
+#import "SentryCrashIntegration.h"
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryDebugMetaBuilder.h"
 #import "SentryDefaultCurrentDateProvider.h"
@@ -21,6 +22,7 @@
 #import "SentryMeta.h"
 #import "SentryNSError.h"
 #import "SentryOptions.h"
+#import "SentryOutOfMemoryTracker.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentryScope.h"
@@ -79,10 +81,10 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
         NSError *error = nil;
 
-        self.fileManager =
-            [[SentryFileManager alloc] initWithDsn:self.options.parsedDsn
-                            andCurrentDateProvider:[[SentryDefaultCurrentDateProvider alloc] init]
-                                  didFailWithError:&error];
+        self.fileManager = [[SentryFileManager alloc]
+                   initWithOptions:self.options
+            andCurrentDateProvider:[[SentryDefaultCurrentDateProvider alloc] init]
+                             error:&error];
         if (nil != error) {
             [SentryLog logWithMessage:error.localizedDescription andLevel:kSentryLevelError];
             return nil;
@@ -406,6 +408,12 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     event = [scope applyToEvent:event maxBreadcrumb:self.options.maxBreadcrumbs];
 
+    // Remove free_memory if OOM as free_memory stems from the current run and not of the time of
+    // the OOM.
+    if ([self isOOM:event isCrashEvent:isCrashEvent]) {
+        [self removeFreeMemoryFromDeviceContext:event];
+    }
+
     // With scope applied, before running callbacks run:
     if (nil == event.environment) {
         // We default to environment 'production' if nothing was set
@@ -488,6 +496,36 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         user.userId = [SentryInstallation id];
         event.user = user;
     }
+}
+
+- (BOOL)isOOM:(SentryEvent *)event isCrashEvent:(BOOL)isCrashEvent
+{
+    if (!isCrashEvent) {
+        return NO;
+    }
+
+    if (nil == event.exceptions || event.exceptions.count != 1) {
+        return NO;
+    }
+
+    SentryException *exception = event.exceptions[0];
+    return nil != exception.mechanism &&
+        [exception.mechanism.type isEqualToString:SentryOutOfMemoryMechanismType];
+}
+
+- (void)removeFreeMemoryFromDeviceContext:(SentryEvent *)event
+{
+    if (nil == event.context || event.context.count == 0 || nil == event.context[@"device"]) {
+        return;
+    }
+
+    NSMutableDictionary *context = [[NSMutableDictionary alloc] initWithDictionary:event.context];
+    NSMutableDictionary *device =
+        [[NSMutableDictionary alloc] initWithDictionary:context[@"device"]];
+    [device removeObjectForKey:SentryDeviceContextFreeMemoryKey];
+    context[@"device"] = device;
+
+    event.context = context;
 }
 
 @end

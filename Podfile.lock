@@ -12,9 +12,9 @@ PODS:
   - PocketSocket/Client (1.0.1):
     - PocketSocket/Core
   - PocketSocket/Core (1.0.1)
-  - Sentry (7.0.0-alpha.2):
-    - Sentry/Core (= 7.0.0-alpha.2)
-  - Sentry/Core (7.0.0-alpha.2)
+  - Sentry (7.0.0-alpha.3):
+    - Sentry/Core (= 7.0.0-alpha.3)
+  - Sentry/Core (7.0.0-alpha.3)
   - SocketRocket (0.5.1)
   - Sparkle (1.26.0)
 
@@ -52,7 +52,7 @@ CHECKOUT OPTIONS:
     :commit: 5b63f170649ce15f820b64f63ce076c172ce15ff
     :git: https://github.com/CommandPost/CocoaHTTPServer.git
   Sentry:
-    :commit: c9b7cbe228f70cca0f383e3b5156ff1e97457af3
+    :commit: 0073a2316e5d9038bc91591eeb231202176e5568
     :git: https://github.com/getsentry/sentry-cocoa.git
 
 SPEC CHECKSUMS:
@@ -63,7 +63,7 @@ SPEC CHECKSUMS:
   MIKMIDI: f53dca2f372e71183ecdd2b35c984c1c2cd11cbc
   ORSSerialPort: d2d5d131797453430c557ba8dc7dcbcae20ff2e5
   PocketSocket: 9c6867d66fb4f962af96b9b07f4b45bb561b2c2a
-  Sentry: dd9d830e6a232b63712b1cfed341e2eac10bb691
+  Sentry: 76fba3dedd001da9c9eb23016b47edf3bcef1259
   SocketRocket: d57c7159b83c3c6655745cd15302aa24b6bae531
   Sparkle: d56d028f4b0c123577825f5d1004f6140d77f90e
 

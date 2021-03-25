@@ -1,4 +1,5 @@
 #import "SentrySerialization.h"
+#import "SentryAppState.h"
 #import "SentryDefines.h"
 #import "SentryEnvelope.h"
 #import "SentryEnvelopeItemType.h"
@@ -276,6 +277,23 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     return session;
+}
+
++ (SentryAppState *_Nullable)appStateWithData:(NSData *)data
+{
+    NSError *error = nil;
+    NSDictionary *appSateDictionary = [NSJSONSerialization JSONObjectWithData:data
+                                                                      options:0
+                                                                        error:&error];
+    if (nil != error) {
+        [SentryLog
+            logWithMessage:[NSString
+                               stringWithFormat:@"Failed to deserialize app state data %@", error]
+                  andLevel:kSentryLevelError];
+        return nil;
+    }
+
+    return [[SentryAppState alloc] initWithJSONObject:appSateDictionary];
 }
 
 + (SentryLevel)levelFromData:(NSData *)eventEnvelopeItemData

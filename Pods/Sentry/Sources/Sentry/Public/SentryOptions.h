@@ -65,6 +65,11 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) NSUInteger maxBreadcrumbs;
 
 /**
+ * The maximum number of envelopes to keep in cache. Default is 30.
+ */
+@property (nonatomic, assign) NSUInteger maxCacheItems;
+
+/**
  * This block can be used to modify the event before it will be serialized and
  * sent
  */
@@ -107,6 +112,11 @@ NS_SWIFT_NAME(Options)
  * Whether to enable automatic session tracking or not. Default is YES.
  */
 @property (nonatomic, assign) BOOL enableAutoSessionTracking;
+
+/**
+ * Whether to enable to enable out of memory tracking or not. Default is YES.
+ */
+@property (nonatomic, assign) BOOL enableOutOfMemoryTracking;
 
 /**
  * The interval to end a session if the App goes to the background.
