@@ -64,6 +64,7 @@ end
 --- ```lua
 --- hs.screen(724562417) --> Color LCD - by id
 --- hs.screen'Dell'      --> DELL U2414M - by name
+--- hs.screen'Built%-in' --> Built-in Retina Display, note the % to escape the hyphen repetition character
 --- hs.screen'0,0'       --> PHL BDM4065 - by position, same as hs.screen.primaryScreen()
 --- hs.screen{x=-1,y=0}  --> DELL U2414M - by position, screen to the immediate left of the primary screen
 --- hs.screen'3840x2160' --> PHL BDM4065 - by screen resolution
