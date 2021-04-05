@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Hammerspoon API Documentation Builder"""
 
@@ -320,8 +320,8 @@ def process_module(modulename, raw_module):
                 parameter_count = len(actual_params)
                 if parameter_count != sig_arg_count:
                     warn("SIGNATURE/PARAMETER COUNT MISMATCH: '%s' says %d parameters ('%s'), but Parameters section has %d entries:\n%s\n" % (sig_without_return, sig_arg_count, ','.join(sig_param_arr), parameter_count, '\n'.join(actual_params)))
-        except:
-            warn("Unable to parse parameters for %s\n%s\n" % (item["signature"], sys.exc_info()[1]))
+        except Exception as e:
+            warn("Unable to parse parameters for %s\n%s\n" % (item["signature"], repr(e)))
             sys.exit(1)
     return module
 

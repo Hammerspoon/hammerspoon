@@ -322,7 +322,7 @@ static int colorPanelHide(lua_State *L) {
 
 #pragma mark - Choose File or Folder
 
-/// hs.dialog.chooseFileOrFolder([message], [defaultPath], [canChooseFiles], [canChooseDirectories], [allowsMultipleSelection], [allowedFileTypes], [resolvesAliases]) -> string
+/// hs.dialog.chooseFileOrFolder([message], [defaultPath], [canChooseFiles], [canChooseDirectories], [allowsMultipleSelection], [allowedFileTypes], [resolvesAliases]) -> table or nil
 /// Function
 /// Displays a file and/or folder selection dialog box using NSOpenPanel.
 ///
@@ -332,7 +332,7 @@ static int colorPanelHide(lua_State *L) {
 ///  * [canChooseFiles] - Whether or not the user can select files. Defaults to `true`.
 ///  * [canChooseDirectories] - Whether or not the user can select folders. Default to `false`.
 ///  * [allowsMultipleSelection] - Allow multiple selections of files and/or folders. Defaults to `false`.
-///  * [allowedFileTypes] - An optional table of allowed file types. Defaults to `true`.
+///  * [allowedFileTypes] - An optional table of allowed file types. Defaults to allowing all types.
 ///  * [resolvesAliases] - An optional boolean that indicates whether the panel resolves aliases.
 ///
 /// Returns:
@@ -679,10 +679,10 @@ static int blockAlert(lua_State *L) {
 ///  * `buttonOne` defaults to "OK" if no value is supplied.
 ///  * `buttonOne` will also be triggered by pressing `ENTER`, whereas `buttonTwo` will be triggered by pressing `ESC`.
 ///  * Examples:
-///      `hs.dialog.textPrompt("Main message.", "Please enter something:")`
-///      `hs.dialog.textPrompt("Main message.", "Please enter something:", "Default Value", "OK")`
-///      `hs.dialog.textPrompt("Main message.", "Please enter something:", "Default Value", "OK", "Cancel")`
-///      `hs.dialog.textPrompt("Main message.", "Please enter something:", "", "OK", "Cancel", true)`
+///     * `hs.dialog.textPrompt("Main message.", "Please enter something:")`
+///     * `hs.dialog.textPrompt("Main message.", "Please enter something:", "Default Value", "OK")`
+///     * `hs.dialog.textPrompt("Main message.", "Please enter something:", "Default Value", "OK", "Cancel")`
+///     * `hs.dialog.textPrompt("Main message.", "Please enter something:", "", "OK", "Cancel", true)`
 static int textPrompt(lua_State *L) {
     NSString* defaultButton = @"OK";
 
