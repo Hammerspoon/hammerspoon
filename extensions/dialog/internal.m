@@ -332,7 +332,7 @@ static int colorPanelHide(lua_State *L) {
 ///  * [canChooseFiles] - Whether or not the user can select files. Defaults to `true`.
 ///  * [canChooseDirectories] - Whether or not the user can select folders. Default to `false`.
 ///  * [allowsMultipleSelection] - Allow multiple selections of files and/or folders. Defaults to `false`.
-///  * [allowedFileTypes] - An optional table of allowed file types. Defaults to `true`.
+///  * [allowedFileTypes] - An optional table of allowed file types. Defaults to allowing all types.
 ///  * [resolvesAliases] - An optional boolean that indicates whether the panel resolves aliases.
 ///
 /// Returns:
