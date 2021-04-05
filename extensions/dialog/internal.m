@@ -679,10 +679,10 @@ static int blockAlert(lua_State *L) {
 ///  * `buttonOne` defaults to "OK" if no value is supplied.
 ///  * `buttonOne` will also be triggered by pressing `ENTER`, whereas `buttonTwo` will be triggered by pressing `ESC`.
 ///  * Examples:
-///      `hs.dialog.textPrompt("Main message.", "Please enter something:")`
-///      `hs.dialog.textPrompt("Main message.", "Please enter something:", "Default Value", "OK")`
-///      `hs.dialog.textPrompt("Main message.", "Please enter something:", "Default Value", "OK", "Cancel")`
-///      `hs.dialog.textPrompt("Main message.", "Please enter something:", "", "OK", "Cancel", true)`
+///     * `hs.dialog.textPrompt("Main message.", "Please enter something:")`
+///     * `hs.dialog.textPrompt("Main message.", "Please enter something:", "Default Value", "OK")`
+///     * `hs.dialog.textPrompt("Main message.", "Please enter something:", "Default Value", "OK", "Cancel")`
+///     * `hs.dialog.textPrompt("Main message.", "Please enter something:", "", "OK", "Cancel", true)`
 static int textPrompt(lua_State *L) {
     NSString* defaultButton = @"OK";
 
