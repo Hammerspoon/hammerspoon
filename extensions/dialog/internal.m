@@ -322,7 +322,7 @@ static int colorPanelHide(lua_State *L) {
 
 #pragma mark - Choose File or Folder
 
-/// hs.dialog.chooseFileOrFolder([message], [defaultPath], [canChooseFiles], [canChooseDirectories], [allowsMultipleSelection], [allowedFileTypes], [resolvesAliases]) -> string
+/// hs.dialog.chooseFileOrFolder([message], [defaultPath], [canChooseFiles], [canChooseDirectories], [allowsMultipleSelection], [allowedFileTypes], [resolvesAliases]) -> table or nil
 /// Function
 /// Displays a file and/or folder selection dialog box using NSOpenPanel.
 ///
