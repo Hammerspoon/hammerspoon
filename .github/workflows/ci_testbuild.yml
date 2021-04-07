@@ -94,12 +94,9 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           files: "artifacts/**/*.xml"
 
-      - name: More Debug Annotations
-        run: find artifacts
-
       - name: Publish Docstring Annotations
         uses: yuzutech/annotations-action@v0.3.0
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
           title: "Docstrings linter"
-          input: "artifacts/annotations.json"
+          input: "artifacts/artifact/annotations.json"
