@@ -5,13 +5,13 @@
     NSArray<id<SentrySpan>> *_spans;
 }
 
-- (instancetype)initWithTrace:(id<SentrySpan>)trace childs:(NSArray<id<SentrySpan>> *)childs
+- (instancetype)initWithTrace:(id<SentrySpan>)trace children:(NSArray<id<SentrySpan>> *)children
 {
     if ([super init]) {
         self.timestamp = trace.timestamp;
         self.startTimestamp = trace.startTimestamp;
         _trace = trace;
-        _spans = childs;
+        _spans = children;
         self.type = SentryEnvelopeItemTypeTransaction;
     }
     return self;

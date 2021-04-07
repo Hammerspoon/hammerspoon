@@ -46,7 +46,7 @@
                                            sampled:_rootSpan.context.sampled];
     context.spanDescription = description;
 
-    SentrySpan *span = [[SentrySpan alloc] initWithContext:context];
+    SentrySpan *span = [[SentrySpan alloc] initWithTracer:self context:context];
     @synchronized(_spans) {
         [_spans addObject:span];
     }
@@ -109,12 +109,18 @@
 {
     NSArray *spans;
     @synchronized(_spans) {
-        spans = [[NSArray alloc] initWithArray:_spans];
+        spans = [_spans copy];
     }
 
-    SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self childs:spans];
+    SentryTransaction *transaction = [[SentryTransaction alloc] initWithTrace:self children:spans];
     transaction.transaction = self.name;
-    [_hub captureEvent:transaction];
+    [_hub captureEvent:transaction withScope:_hub.scope];
+
+    [_hub.scope useSpan:^(id<SentrySpan> _Nullable span) {
+        if (span == self) {
+            [self->_hub.scope setSpan:nil];
+        }
+    }];
 }
 
 - (NSDictionary *)serialize

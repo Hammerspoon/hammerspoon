@@ -58,6 +58,8 @@ For more information checkout the [docs](https://docs.sentry.io/platforms/apple)
 
 [Close the Loop with User Feedback](https://blog.sentry.io/2021/02/16/close-the-loop-with-user-feedback/?utm_source=github&utm_medium=readme&utm_campaign=sentry-cocoa).
 
+[A Sanity Listicle for Mobile Developers](https://blog.sentry.io/2021/03/30/a-sanity-listicle-for-mobile-developers/?utm_source=github&utm_medium=readme&utm_campaign=sentry-cocoa).
+
 # Resources
 
 * [![Documentation](https://img.shields.io/badge/documentation-sentry.io-green.svg)](https://docs.sentry.io/platforms/apple/)

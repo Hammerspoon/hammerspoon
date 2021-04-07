@@ -30,6 +30,19 @@ SENTRY_NO_INIT
 - (instancetype)initWithName:(NSString *)name operation:(NSString *)operation;
 
 /**
+ * Init a SentryTransactionContext with given name and set other fields by default
+ *
+ * @param name Transaction name
+ * @param operation The operation this span is measuring.
+ * @param sampled Determines whether the trace should be sampled.
+ *
+ * @return SentryTransactionContext
+ */
+- (instancetype)initWithName:(NSString *)name
+                   operation:(NSString *)operation
+                     sampled:(SentrySampleDecision)sampled;
+
+/**
  * Init a SentryTransactionContext with given name, traceId, SpanId, parentSpanId and whether the
  * parent is sampled.
  *

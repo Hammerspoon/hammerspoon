@@ -18,6 +18,7 @@
 #import "SentryInstallation.h"
 #import "SentryLog.h"
 #import "SentryMechanism.h"
+#import "SentryMechanismMeta.h"
 #import "SentryMessage.h"
 #import "SentryMeta.h"
 #import "SentryNSError.h"
@@ -186,7 +187,9 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
 
     // Sentry uses the error domain and code on the mechanism for gouping
     SentryMechanism *mechanism = [[SentryMechanism alloc] initWithType:@"NSError"];
-    mechanism.error = [[SentryNSError alloc] initWithDomain:error.domain code:error.code];
+    SentryMechanismMeta *mechanismMeta = [[SentryMechanismMeta alloc] init];
+    mechanismMeta.error = [[SentryNSError alloc] initWithDomain:error.domain code:error.code];
+    mechanism.meta = mechanismMeta;
     // The description of the error can be especially useful for error from swift that
     // use a simple enum.
     mechanism.desc = error.description;

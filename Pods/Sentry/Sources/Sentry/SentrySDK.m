@@ -1,6 +1,6 @@
 #import "SentrySDK.h"
 #import "SentryBreadcrumb.h"
-#import "SentryClient.h"
+#import "SentryClient+Private.h"
 #import "SentryCrash.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
@@ -10,9 +10,6 @@
 @interface
 SentrySDK ()
 
-/**
- holds the current hub instance
- */
 @property (class) SentryHub *currentHub;
 
 @end
@@ -33,11 +30,17 @@ static BOOL crashedLastRunCalled;
     }
 }
 
+/** Internal, only needed for testing. */
 + (void)setCurrentHub:(SentryHub *)hub
 {
     @synchronized(self) {
         currentHub = hub;
     }
+}
+
++ (nullable id<SentrySpan>)span
+{
+    return currentHub.scope.span;
 }
 
 + (BOOL)crashedLastRunCalled
@@ -111,9 +114,43 @@ static BOOL crashedLastRunCalled;
     return [SentrySDK.currentHub startTransactionWithName:name operation:operation];
 }
 
++ (id<SentrySpan>)startTransactionWithName:(NSString *)name
+                                 operation:(NSString *)operation
+                               bindToScope:(BOOL)bindToScope
+{
+    return [SentrySDK.currentHub startTransactionWithName:name
+                                                operation:operation
+                                              bindToScope:bindToScope];
+}
+
 + (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
 {
     return [SentrySDK.currentHub startTransactionWithContext:transactionContext];
+}
+
++ (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                                  bindToScope:(BOOL)bindToScope
+{
+    return [SentrySDK.currentHub startTransactionWithContext:transactionContext
+                                                 bindToScope:bindToScope];
+}
+
++ (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                                  bindToScope:(BOOL)bindToScope
+                        customSamplingContext:
+                            (nullable NSDictionary<NSString *, id> *)customSamplingContext
+{
+    return [SentrySDK.currentHub startTransactionWithContext:transactionContext
+                                                 bindToScope:bindToScope
+                                       customSamplingContext:customSamplingContext];
+}
+
++ (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                        customSamplingContext:
+                            (nullable NSDictionary<NSString *, id> *)customSamplingContext
+{
+    return [SentrySDK.currentHub startTransactionWithContext:transactionContext
+                                       customSamplingContext:customSamplingContext];
 }
 
 + (SentryId *)captureError:(NSError *)error
@@ -168,6 +205,24 @@ static BOOL crashedLastRunCalled;
     return [SentrySDK.currentHub captureMessage:message withScope:scope];
 }
 
+/**
+ * Needed by hybrid SDKs as react-native to synchronously capture an envelope.
+ */
++ (void)captureEnvelope:(SentryEnvelope *)envelope
+{
+    [SentrySDK.currentHub captureEnvelope:envelope];
+}
+
+/**
+ * Needed by hybrid SDKs as react-native to synchronously store an envelope to disk.
+ */
++ (void)storeEnvelope:(SentryEnvelope *)envelope
+{
+    if (nil != [SentrySDK.currentHub getClient]) {
+        [[SentrySDK.currentHub getClient] storeEnvelope:envelope];
+    }
+}
+
 + (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
 {
     [SentrySDK.currentHub captureUserFeedback:userFeedback];
@@ -183,26 +238,24 @@ static BOOL crashedLastRunCalled;
     [SentrySDK.currentHub configureScope:callback];
 }
 
-/**
- * Set global user -> thus will be sent with every event
- */
 + (void)setUser:(SentryUser *_Nullable)user
 {
     [SentrySDK.currentHub setUser:user];
 }
 
-#ifndef __clang_analyzer__
-// Code not to be analyzed
-+ (void)crash
-{
-    int *p = 0;
-    *p = 0;
-}
-#endif
-
 + (BOOL)crashedLastRun
 {
     return SentryCrash.sharedInstance.crashedLastLaunch;
+}
+
++ (void)startSession
+{
+    [SentrySDK.currentHub startSession];
+}
+
++ (void)endSession
+{
+    [SentrySDK.currentHub endSession];
 }
 
 /**
@@ -239,6 +292,15 @@ static BOOL crashedLastRunCalled;
         [SentrySDK.currentHub.installedIntegrations addObject:integrationInstance];
     }
 }
+
+#ifndef __clang_analyzer__
+// Code not to be analyzed
++ (void)crash
+{
+    int *p = 0;
+    *p = 0;
+}
+#endif
 
 @end
 

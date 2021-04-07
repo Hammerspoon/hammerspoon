@@ -7,7 +7,7 @@
 #import "SentryFileManager.h"
 #import "SentryId.h"
 #import "SentryLog.h"
-#import "SentrySDK.h"
+#import "SentrySDK+Private.h"
 #import "SentrySamplingContext.h"
 #import "SentryScope.h"
 #import "SentrySerialization.h"
@@ -84,6 +84,11 @@ SentryHub ()
     }
     [lastSession endSessionExitedWithTimestamp:[SentryCurrentDate date]];
     [self captureSession:lastSession];
+}
+
+- (void)endSession
+{
+    [self endSessionWithTimestamp:[SentryCurrentDate date]];
 }
 
 - (void)endSessionWithTimestamp:(NSDate *)timestamp
@@ -239,12 +244,40 @@ SentryHub ()
                                                                          operation:operation]];
 }
 
+- (id<SentrySpan>)startTransactionWithName:(NSString *)name
+                                 operation:(NSString *)operation
+                               bindToScope:(BOOL)bindToScope
+{
+    return
+        [self startTransactionWithContext:[[SentryTransactionContext alloc] initWithName:name
+                                                                               operation:operation]
+                              bindToScope:bindToScope];
+}
+
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
 {
     return [self startTransactionWithContext:transactionContext customSamplingContext:nil];
 }
 
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                                  bindToScope:(BOOL)bindToScope
+{
+    return [self startTransactionWithContext:transactionContext
+                                 bindToScope:bindToScope
+                       customSamplingContext:nil];
+}
+
+- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                        customSamplingContext:
+                            (nullable NSDictionary<NSString *, id> *)customSamplingContext
+{
+    return [self startTransactionWithContext:transactionContext
+                                 bindToScope:false
+                       customSamplingContext:customSamplingContext];
+}
+
+- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                                  bindToScope:(BOOL)bindToScope
                         customSamplingContext:
                             (nullable NSDictionary<NSString *, id> *)customSamplingContext
 {
@@ -254,7 +287,12 @@ SentryHub ()
 
     transactionContext.sampled = [_sampler sample:samplingContext];
 
-    return [[SentryTracer alloc] initWithTransactionContext:transactionContext hub:self];
+    id<SentrySpan> tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
+                                                                         hub:self];
+    if (bindToScope)
+        _scope.span = tracer;
+
+    return tracer;
 }
 
 - (SentryId *)captureMessage:(NSString *)message
@@ -358,11 +396,6 @@ SentryHub ()
     }
 }
 
-- (SentryScope *)getScope
-{
-    return self.scope;
-}
-
 - (void)configureScope:(void (^)(SentryScope *scope))callback
 {
     SentryScope *scope = self.scope;
@@ -396,9 +429,6 @@ SentryHub ()
     return [integrations objectAtIndex:[integrations indexOfObject:integrationName]];
 }
 
-/**
- * Set global user -> thus will be sent with every event
- */
 - (void)setUser:(SentryUser *_Nullable)user
 {
     SentryScope *scope = self.scope;

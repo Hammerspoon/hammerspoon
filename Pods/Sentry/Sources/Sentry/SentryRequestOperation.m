@@ -3,7 +3,7 @@
 #import "SentryError.h"
 #import "SentryHub.h"
 #import "SentryLog.h"
-#import "SentrySDK.h"
+#import "SentrySDK+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

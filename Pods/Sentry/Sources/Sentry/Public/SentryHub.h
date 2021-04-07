@@ -12,13 +12,27 @@ SENTRY_NO_INIT
 - (instancetype)initWithClient:(SentryClient *_Nullable)client
                       andScope:(SentryScope *_Nullable)scope;
 
-// Since there's no scope stack, single hub instance, experimenting with holding
-// session here.
+/**
+ * Since there's no scope stack, single hub instance,  we keep the session here.
+ */
 @property (nonatomic, readonly, strong) SentrySession *_Nullable session;
 
+/**
+ * Starts a new session. If there's a running session, it ends it before starting the new one.
+ */
 - (void)startSession;
+
+/**
+ * Ends the current session.
+ */
+- (void)endSession;
+
+/**
+ * Ends the current session with the given timestamp.
+ *
+ * @param timestamp The timestamp to end the session with.
+ */
 - (void)endSessionWithTimestamp:(NSDate *)timestamp;
-- (void)closeCachedSessionWithTimestamp:(NSDate *_Nullable)timestamp;
 
 @property (nonatomic, strong)
     NSMutableArray<NSObject<SentryIntegrationProtocol> *> *installedIntegrations;
@@ -44,7 +58,7 @@ SENTRY_NO_INIT
                  withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(event:scope:));
 
 /**
- * Creates a transaction bound to the hub and returns the instance.
+ * Creates a transaction, bound it to the hub and returns the instance.
  *
  * @param name The transaction name.
  * @param operation Short code identifying the type of operation the span is measuring.
@@ -56,7 +70,21 @@ SENTRY_NO_INIT
     NS_SWIFT_NAME(startTransaction(name:operation:));
 
 /**
- * Creates a transaction bound to the hub and returns the instance.
+ * Creates a transaction, bound it to the hub and returns the instance.
+ *
+ * @param name The transaction name.
+ * @param operation Short code identifying the type of operation the span is measuring.
+ * @param bindToScope Indicates whether the new transaction should be bind to the scope.
+ *
+ * @return The created transaction.
+ */
+- (id<SentrySpan>)startTransactionWithName:(NSString *)name
+                                 operation:(NSString *)operation
+                               bindToScope:(BOOL)bindToScope
+    NS_SWIFT_NAME(startTransaction(name:operation:bindToScope:));
+
+/**
+ * Creates a transaction, bound it to the hub and returns the instance.
  *
  * @param transactionContext The transaction context.
  *
@@ -66,7 +94,34 @@ SENTRY_NO_INIT
     NS_SWIFT_NAME(startTransaction(transactionContext:));
 
 /**
- * Creates a transaction bound to the hub and returns the instance.
+ * Creates a transaction, bound it to the hub and returns the instance.
+ *
+ * @param transactionContext The transaction context.
+ * @param bindToScope Indicates whether the new transaction should be bind to the scope.
+ *
+ * @return The created transaction.
+ */
+- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                                  bindToScope:(BOOL)bindToScope
+    NS_SWIFT_NAME(startTransaction(transactionContext:bindToScope:));
+
+/**
+ * Creates a transaction, bound it to the hub and returns the instance.
+ *
+ * @param transactionContext The transaction context.
+ * @param bindToScope Indicates whether the new transaction should be bind to the scope.
+ * @param customSamplingContext Additional information about the sampling context.
+ *
+ * @return The created transaction.
+ */
+- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                                  bindToScope:(BOOL)bindToScope
+                        customSamplingContext:
+                            (nullable NSDictionary<NSString *, id> *)customSamplingContext
+    NS_SWIFT_NAME(startTransaction(transactionContext:bindToScope:customSamplingContext:));
+
+/**
+ * Creates a transaction, bound it to the hub and returns the instance.
  *
  * @param transactionContext The transaction context.
  * @param customSamplingContext Additional information about the sampling context.
@@ -147,12 +202,17 @@ SENTRY_NO_INIT
     NS_SWIFT_NAME(capture(userFeedback:));
 
 /**
- * Invokes the callback with a mutable reference to the scope for modifications.
+ * Use this method to modify the Scope of the Hub. The SDK uses the Scope to attach
+ * contextual data to events.
+ *
+ * @param callback The callback for configuring the Scope of the Hub.
  */
 - (void)configureScope:(void (^)(SentryScope *scope))callback;
 
 /**
- * Adds a breadcrumb to the current scope.
+ * Adds a breadcrumb to the Scope of the Hub.
+ *
+ * @param crumb The Breadcrumb to add to the Scope of the Hub.
  */
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb;
 
@@ -160,11 +220,6 @@ SENTRY_NO_INIT
  * Returns a client if there is a bound client on the Hub.
  */
 - (SentryClient *_Nullable)getClient;
-
-/**
- * Returns either the current scope and if nil a new one.
- */
-- (SentryScope *)getScope __deprecated_msg("Use SentryHub.scope instead.");
 
 /**
  * Returns either the current scope and if nil a new one.
@@ -183,13 +238,15 @@ SENTRY_NO_INIT
 
 /**
  * Checks if a specific Integration (`integrationClass`) has been installed.
- * @return BOOL If instance of `integrationClass` exists within
- * `SentryHub.installedIntegrations`.
+ *
+ * @return BOOL If instance of `integrationClass` exists within `SentryHub.installedIntegrations`.
  */
 - (BOOL)isIntegrationInstalled:(Class)integrationClass;
 
 /**
- * Set global user -> thus will be sent with every event
+ * Set user to the Scope of the Hub.
+ *
+ * @param user The user to set to the Scope.
  */
 - (void)setUser:(SentryUser *_Nullable)user;
 

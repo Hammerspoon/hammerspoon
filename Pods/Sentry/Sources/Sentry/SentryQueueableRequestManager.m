@@ -49,11 +49,6 @@ SentryQueueableRequestManager ()
     [self.queue addOperation:operation];
 }
 
-- (void)cancelAllOperations
-{
-    [self.queue cancelAllOperations];
-}
-
 @end
 
 NS_ASSUME_NONNULL_END

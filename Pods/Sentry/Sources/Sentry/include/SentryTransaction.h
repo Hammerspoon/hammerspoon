@@ -6,7 +6,7 @@ NS_SWIFT_NAME(Transaction)
 @interface SentryTransaction : SentryEvent
 SENTRY_NO_INIT
 
-- (instancetype)initWithTrace:(id<SentrySpan>)trace childs:(NSArray<id<SentrySpan>> *)childs;
+- (instancetype)initWithTrace:(id<SentrySpan>)trace children:(NSArray<id<SentrySpan>> *)children;
 
 @end
 

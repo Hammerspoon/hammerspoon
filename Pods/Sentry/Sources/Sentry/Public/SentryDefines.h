@@ -23,6 +23,7 @@
     +(instancetype) new NS_UNAVAILABLE;
 
 @class SentryEvent, SentryBreadcrumb, SentrySamplingContext;
+@protocol SentrySpan;
 
 /**
  * Block used for returning after a request finished
@@ -56,7 +57,7 @@ typedef void (^SentryOnCrashedLastRunCallback)(SentryEvent *_Nonnull event);
 /**
  * Block can be used to determine if an event should be queued and stored
  * locally. It will be tried to send again after next successful send. Note that
- * this will only be called once the event is created and send manully. Once it
+ * this will only be called once the event is created and send manually. Once it
  * has been queued once it will be discarded if it fails again.
  */
 typedef BOOL (^SentryShouldQueueEvent)(
@@ -71,6 +72,13 @@ typedef BOOL (^SentryShouldQueueEvent)(
  */
 typedef NSNumber *_Nullable (^SentryTracesSamplerCallback)(
     SentrySamplingContext *_Nonnull samplingContext);
+
+/**
+ * Function pointer for span manipulation.
+ *
+ * @param span The span to be used.
+ */
+typedef void (^SentrySpanCallback)(id<SentrySpan> _Nullable span);
 
 /**
  * Loglevel

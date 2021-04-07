@@ -9,6 +9,7 @@
 #import "SentryHexAddressFormatter.h"
 #import "SentryLog.h"
 #import "SentryMechanism.h"
+#import "SentryMechanismMeta.h"
 #import "SentryStacktrace.h"
 #import "SentryThread.h"
 #import "SentryUser.h"
@@ -357,7 +358,11 @@ SentryCrashReportConverter ()
 
     [self enhanceValueFromNotableAddresses:exception];
     exception.mechanism = [self extractMechanismOfType:exceptionType];
-    exception.thread = [self crashedThread];
+
+    SentryThread *crashedThread = [self crashedThread];
+    exception.threadId = crashedThread.threadId;
+    exception.stacktrace = crashedThread.stacktrace;
+
     if (nil != self.diagnosis && self.diagnosis.length > 0
         && ![self.diagnosis containsString:exception.value]) {
         exception.value = [exception.value
@@ -412,14 +417,14 @@ SentryCrashReportConverter ()
     if (nil != self.exceptionContext[@"mach"]) {
         mechanism.handled = @(NO);
 
-        NSMutableDictionary *meta = [NSMutableDictionary new];
+        SentryMechanismMeta *meta = [[SentryMechanismMeta alloc] init];
 
         NSMutableDictionary *machException = [NSMutableDictionary new];
         [machException setValue:self.exceptionContext[@"mach"][@"exception_name"] forKey:@"name"];
         [machException setValue:self.exceptionContext[@"mach"][@"exception"] forKey:@"exception"];
         [machException setValue:self.exceptionContext[@"mach"][@"subcode"] forKey:@"subcode"];
         [machException setValue:self.exceptionContext[@"mach"][@"code"] forKey:@"code"];
-        [meta setValue:machException forKey:@"mach_exception"];
+        meta.machException = machException;
 
         if (nil != self.exceptionContext[@"signal"]) {
             NSMutableDictionary *signal = [NSMutableDictionary new];
@@ -427,7 +432,7 @@ SentryCrashReportConverter ()
             [signal setValue:self.exceptionContext[@"signal"][@"code"] forKey:@"code"];
             [signal setValue:self.exceptionContext[@"signal"][@"code_name"] forKey:@"code_name"];
             [signal setValue:self.exceptionContext[@"signal"][@"name"] forKey:@"name"];
-            [meta setValue:signal forKey:@"signal"];
+            meta.signal = signal;
         }
 
         mechanism.meta = meta;

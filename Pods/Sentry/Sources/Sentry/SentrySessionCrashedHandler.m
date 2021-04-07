@@ -5,7 +5,7 @@
 #import "SentryFileManager.h"
 #import "SentryHub.h"
 #import "SentryOutOfMemoryLogic.h"
-#import "SentrySDK.h"
+#import "SentrySDK+Private.h"
 
 @interface
 SentrySessionCrashedHandler ()

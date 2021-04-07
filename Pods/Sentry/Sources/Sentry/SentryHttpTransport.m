@@ -168,7 +168,6 @@ SentryHttpTransport ()
     [self.fileManager removeFileAtPath:envelopePath];
     self.isSending = NO;
     [self sendAllCachedEnvelopes];
-    return;
 }
 
 - (NSURLRequest *)createEnvelopeRequest:(SentryEnvelope *)envelope

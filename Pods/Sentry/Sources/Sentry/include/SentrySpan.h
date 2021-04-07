@@ -40,7 +40,7 @@ SENTRY_NO_INIT
 /**
  * Init a SentrySpan with given tracer and context.
  *
- * @param tracer The tracer responsable for this span.
+ * @param tracer The tracer responsible for this span.
  * @param context This span context information.
  *
  * @return SentrySpan

@@ -6,6 +6,8 @@
 #import "SentryLog.h"
 #import "SentryScope+Private.h"
 #import "SentrySession.h"
+#import "SentrySpan.h"
+#import "SentryTracer.h"
 #import "SentryUser.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -65,7 +67,9 @@ SentryScope ()
 
 @end
 
-@implementation SentryScope
+@implementation SentryScope {
+    NSObject *_spanLock;
+}
 
 #pragma mark Initializer
 
@@ -80,6 +84,7 @@ SentryScope ()
         self.contextDictionary = [NSMutableDictionary new];
         self.attachmentArray = [NSMutableArray new];
         self.fingerprintArray = [NSMutableArray new];
+        _spanLock = [[NSObject alloc] init];
     }
     return self;
 }
@@ -123,6 +128,20 @@ SentryScope ()
     [self notifyListeners];
 }
 
+- (void)setSpan:(nullable id<SentrySpan>)span
+{
+    @synchronized(_spanLock) {
+        _span = span;
+    }
+}
+
+- (void)useSpan:(SentrySpanCallback)callback
+{
+    @synchronized(_spanLock) {
+        callback(_span);
+    }
+}
+
 - (void)clear
 {
     // As we need to synchronize the accesses of the arrays and dictionaries and we use the
@@ -146,6 +165,9 @@ SentryScope ()
     }
     @synchronized(_attachmentArray) {
         [_attachmentArray removeAllObjects];
+    }
+    @synchronized(_spanLock) {
+        _span = nil;
     }
 
     self.userObject = nil;
@@ -430,8 +452,18 @@ SentryScope ()
     SentryLevel level = self.levelEnum;
     if (level != kSentryLevelNone) {
         // We always want to set the level from the scope since this has
-        // benn set on purpose
+        // been set on purpose
         event.level = level;
+    }
+
+    id<SentrySpan> span;
+    @synchronized(_spanLock) {
+        span = self.span;
+    }
+
+    if (![event.type isEqualToString:SentryEnvelopeItemTypeTransaction] &&
+        [span isKindOfClass:[SentryTracer class]]) {
+        event.transaction = [(SentryTracer *)span name];
     }
 
     return event;

@@ -1,3 +1,4 @@
+#import "SentrySDK+Private.h"
 #import <Foundation/Foundation.h>
 #import <SentryAppState.h>
 #import <SentryClient+Private.h>
@@ -6,7 +7,6 @@
 #import <SentryHub.h>
 #import <SentryOptions.h>
 #import <SentryOutOfMemoryLogic.h>
-#import <SentrySDK.h>
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>

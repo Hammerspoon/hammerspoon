@@ -2,10 +2,10 @@
 #import "SentryClient+Private.h"
 #import "SentryClient.h"
 #import "SentryFileManager.h"
-#import "SentryHub.h"
+#import "SentryHub+Private.h"
 #import "SentryInternalNotificationNames.h"
 #import "SentryLog.h"
-#import "SentrySDK.h"
+#import "SentrySDK+Private.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
