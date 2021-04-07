@@ -178,7 +178,7 @@ end
 ---
 --- NOTE: For convenience, you can call this function as `hs.alert(...)`
 ---
---- Parameters:
+--- Paramters:
 ---  * str     - The string or `hs.styledtext` object to display in the alert
 ---  * style   - an optional table containing one or more of the keys specified in [hs.alert.defaultStyle](#defaultStyle).  If `str` is already an `hs.styledtext` object, this argument is ignored.
 ---  * screen  - an optional `hs.screen` userdata object specifying the screen (monitor) to display the alert on.  Defaults to `hs.screen.mainScreen()` which corresponds to the screen with the currently focused window.

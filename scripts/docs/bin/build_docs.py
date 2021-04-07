@@ -16,6 +16,9 @@ DEBUG = False
 FAIL_ON_WARN = True
 HAS_WARNED = False
 
+LINT_MODE = False
+LINTS = []
+
 CHUNK_FILE = 0
 CHUNK_LINE = 1
 CHUNK_SIGN = 2
@@ -321,10 +324,27 @@ def process_module(modulename, raw_module):
                 actual_params = list(filter(is_actual_parameter, item["parameters"]))
                 parameter_count = len(actual_params)
                 if parameter_count != sig_arg_count:
-                    warn("SIGNATURE/PARAMETER COUNT MISMATCH: '%s' says %d parameters ('%s'), but Parameters section has %d entries:\n%s\n" % (sig_without_return, sig_arg_count, ','.join(sig_param_arr), parameter_count, '\n'.join(actual_params)))
+                    message = "SIGNATURE/PARAMETER COUNT MISMATCH: '%s' says %d parameters ('%s'), but Parameters section has %d entries:\n%s\n" % (sig_without_return, sig_arg_count, ','.join(sig_param_arr), parameter_count, '\n'.join(actual_params))
+                    warn(message)
+                    LINTS.append({
+                        "file": item["file"],
+                        "line": int(item["lineno"]),
+                        "title": "Docstring signature/parameter mismatch",
+                        "message": message,
+                        "annotation_level": "failure"
+                    })
         except:
-            warn("Unable to parse parameters for %s\n%s\n" % (item["signature"], sys.exc_info()[1]))
-            sys.exit(1)
+            message = "Unable to parse parameters for %s\n%s\n" % (item["signature"], sys.exc_info()[1])
+            warn(message)
+            LINTS.append({
+                "file": item["file"],
+                "line": int(item["lineno"]),
+                "title": "Docstring Parameters parse failure",
+                "message": message,
+                "annotation_level": "failure"
+            })
+            if FAIL_ON_WARN:
+                sys.exit(1)
     return module
 
 
@@ -431,6 +451,14 @@ def do_processing(directories):
 
     processed_docstrings.sort(key=lambda module: module["name"].lower())
     return processed_docstrings
+
+
+def write_annotations(filepath, data):
+    """Write out a JSON file with our linter errors"""
+    with open(filepath, "wb") as jsonfile:
+        jsonfile.write(json.dumps(data, indent=2,
+                                  separators=(',', ': '),
+                                  ensure_ascii=False).encode('utf-8'))
 
 
 def write_json(filepath, data):
@@ -604,6 +632,9 @@ def main():
     parser.add_argument("-i", "--title", action="store",
                         dest="title", default="Hammerspoon",
                         help="Title for the index page")
+    parser.add_argument("-l", "--lint", action="store_true",
+                        dest="lint_mode", default=False,
+                        help="Run in Lint mode. No docs will be built")
     parser.add_argument("DIRS", nargs=argparse.REMAINDER,
                         help="Directories to search")
     arguments, leftovers = parser.parse_known_args()
@@ -616,7 +647,8 @@ def main():
        not arguments.json and \
        not arguments.sql and \
        not arguments.html and \
-       not arguments.markdown:
+       not arguments.markdown and \
+       not arguments.lint_mode:
         parser.print_help()
         err("At least one of validate/json/sql/html/markdown is required.")
 
@@ -627,11 +659,19 @@ def main():
     # Store global copy of our arguments
     ARGUMENTS = arguments
 
+    if arguments.lint_mode:
+        global LINT_MODE
+        global FAIL_ON_WARN
+        LINT_MODE = True
+        FAIL_ON_WARN = False
+
     results = do_processing(arguments.DIRS)
 
     if arguments.validate:
         # If we got this far, we already processed the docs, and validated them
         pass
+    if arguments.lint_mode:
+        write_annotations(arguments.output_dir + "/annotations.json", LINTS)
     if arguments.json:
         write_json(arguments.output_dir + "/docs.json", results)
         write_json_index(arguments.output_dir + "/docs_index.json", results)
