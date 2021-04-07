@@ -288,6 +288,8 @@ def process_module(modulename, raw_module):
         item["type"] = chunk[CHUNK_TYPE]
         item["desc"] = chunk[CHUNK_DESC]
         item["doc"] = '\n'.join(chunk[CHUNK_DESC:])
+        item["file"] = chunk[CHUNK_FILE]
+        item["lineno"] = chunk[CHUNK_LINE]
 
         for section in ["Parameters", "Returns", "Notes"]:
             if section + ':' in chunk:
