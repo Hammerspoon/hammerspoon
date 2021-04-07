@@ -19,6 +19,11 @@ jobs:
         run: ./scripts/github-ci-pre.sh
       - name: Generate and lint docs
         run: ./scripts/github-ci-docs.sh
+      - name: Upload artifacts (docstrings lint annotations)
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          path: build/annotations.json
       - name: Build for testing
         run: ./scripts/github-ci-testbuild.sh
       - name: Upload artifacts
@@ -89,3 +94,9 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           files: "artifacts/**/*.xml"
 
+      - name: Publish Docstring Annotations
+        uses: yuzutech/annotations-action@v0.3.0
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          title: "Docstrings linter"
+          input: "artifacts/artifact/annotations.json"
