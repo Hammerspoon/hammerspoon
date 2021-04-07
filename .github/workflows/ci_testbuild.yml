@@ -97,6 +97,9 @@ jobs:
       - name: Debug Annotations
         run: cat artifacts/annotations.json
 
+      - name: More Debug Annotations
+        run: find artifacts
+
       - name: Publish Docstring Annotations
         uses: yuzutech/annotations-action@v0.3.0
         with:
