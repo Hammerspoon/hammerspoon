@@ -94,9 +94,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           files: "artifacts/**/*.xml"
 
-      - name: Debug Annotations
-        run: cat artifacts/annotations.json
-
       - name: More Debug Annotations
         run: find artifacts
 
