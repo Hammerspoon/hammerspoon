@@ -51,7 +51,7 @@ build/docs.sqlite: build/docs.json
 build/docs.json: build
 	scripts/docs/bin/build_docs.py -o build/ --json $(DOCS_SEARCH_DIRS)
 
-doclint:
+doclint: build
 	scripts/docs/bin/build_docs.py -o build -l $(DOCS_SEARCH_DIRS)
 
 build:
