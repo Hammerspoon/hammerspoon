@@ -23,7 +23,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: Docstring lint annotations
+          name: docstring_annotations.json
           path: build/annotations.json
       - name: Build for testing
         run: ./scripts/github-ci-testbuild.sh
@@ -100,4 +100,4 @@ jobs:
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
           title: "Docstrings linter"
-          input: "artifacts/annotations.json"
+          input: "artifacts/docstring_annotations.json"
