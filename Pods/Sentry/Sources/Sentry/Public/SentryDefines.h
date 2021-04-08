@@ -22,8 +22,7 @@
     -(instancetype)init NS_UNAVAILABLE;                                                            \
     +(instancetype) new NS_UNAVAILABLE;
 
-@class SentryEvent, SentryBreadcrumb, SentrySamplingContext;
-@protocol SentrySpan;
+@class SentryEvent, SentryBreadcrumb;
 
 /**
  * Block used for returning after a request finished
@@ -57,29 +56,11 @@ typedef void (^SentryOnCrashedLastRunCallback)(SentryEvent *_Nonnull event);
 /**
  * Block can be used to determine if an event should be queued and stored
  * locally. It will be tried to send again after next successful send. Note that
- * this will only be called once the event is created and send manually. Once it
+ * this will only be called once the event is created and send manully. Once it
  * has been queued once it will be discarded if it fails again.
  */
 typedef BOOL (^SentryShouldQueueEvent)(
     NSHTTPURLResponse *_Nullable response, NSError *_Nullable error);
-
-/**
- * Function pointer for a sampler callback.
- *
- * @param samplingContext context of the sampling.
- *
- * @return A sample rate between 0.0 and 1.0.
- */
-typedef NSNumber *_Nullable (^SentryTracesSamplerCallback)(
-    SentrySamplingContext *_Nonnull samplingContext);
-
-/**
- * Function pointer for span manipulation.
- *
- * @param span The span to be used.
- */
-typedef void (^SentrySpanCallback)(id<SentrySpan> _Nullable span);
-
 /**
  * Loglevel
  */
@@ -101,7 +82,7 @@ typedef NS_ENUM(NSUInteger, SentryLevel) {
     kSentryLevelInfo = 2,
     kSentryLevelWarning = 3,
     kSentryLevelError = 4,
-    kSentryLevelFatal = 5
+    kSentryLevelFatal = 5,
 };
 
 /**

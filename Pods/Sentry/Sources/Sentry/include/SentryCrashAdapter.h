@@ -10,8 +10,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSTimeInterval)activeDurationSinceLastCrash;
 
-- (BOOL)isBeingTraced;
-
 @end
 
 NS_ASSUME_NONNULL_END

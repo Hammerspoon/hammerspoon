@@ -1,1 +1,1 @@
-../../../CocoaLumberjack/Sources/CocoaLumberjack/include/CocoaLumberjack/DDLogMacros.h
+../../../CocoaLumberjack/Classes/DDLogMacros.h

@@ -7,13 +7,9 @@
 #import "SentryFileManager.h"
 #import "SentryId.h"
 #import "SentryLog.h"
-#import "SentrySDK+Private.h"
-#import "SentrySamplingContext.h"
+#import "SentrySDK.h"
 #import "SentryScope.h"
 #import "SentrySerialization.h"
-#import "SentryTracer.h"
-#import "SentryTransactionContext.h"
-#import "TracesSampler.h"
 
 @interface
 SentryHub ()
@@ -21,7 +17,6 @@ SentryHub ()
 @property (nonatomic, strong) SentryClient *_Nullable client;
 @property (nonatomic, strong) SentryScope *_Nullable scope;
 @property (nonatomic, strong) SentryCrashAdapter *crashAdapter;
-@property (nonatomic, strong) TracesSampler *sampler;
 
 @end
 
@@ -38,7 +33,6 @@ SentryHub ()
         _sessionLock = [[NSObject alloc] init];
         _installedIntegrations = [[NSMutableArray alloc] init];
         _crashAdapter = [[SentryCrashAdapter alloc] init];
-        _sampler = [[TracesSampler alloc] initWithOptions:client.options];
     }
     return self;
 }
@@ -62,7 +56,7 @@ SentryHub ()
     if (nil == options || nil == options.releaseName) {
         [SentryLog
             logWithMessage:[NSString stringWithFormat:@"No option or release to start a session."]
-                  andLevel:kSentryLevelError];
+                  andLevel:kSentryLogLevelError];
         return;
     }
     @synchronized(_sessionLock) {
@@ -86,11 +80,6 @@ SentryHub ()
     [self captureSession:lastSession];
 }
 
-- (void)endSession
-{
-    [self endSessionWithTimestamp:[SentryCurrentDate date]];
-}
-
 - (void)endSessionWithTimestamp:(NSDate *)timestamp
 {
     SentrySession *currentSession = nil;
@@ -102,7 +91,7 @@ SentryHub ()
 
     if (nil == currentSession) {
         [SentryLog logWithMessage:[NSString stringWithFormat:@"No session to end with timestamp."]
-                         andLevel:kSentryLevelDebug];
+                         andLevel:kSentryLogLevelDebug];
         return;
     }
 
@@ -125,15 +114,15 @@ SentryHub ()
     SentryFileManager *fileManager = [_client fileManager];
     SentrySession *session = [fileManager readCurrentSession];
     if (nil == session) {
-        [SentryLog logWithMessage:@"No cached session to close." andLevel:kSentryLevelDebug];
+        [SentryLog logWithMessage:@"No cached session to close." andLevel:kSentryLogLevelDebug];
         return;
     }
-    [SentryLog logWithMessage:@"A cached session was found." andLevel:kSentryLevelDebug];
+    [SentryLog logWithMessage:@"A cached session was found." andLevel:kSentryLogLevelDebug];
 
     // Make sure there's a client bound.
     SentryClient *client = _client;
     if (nil == client) {
-        [SentryLog logWithMessage:@"No client bound." andLevel:kSentryLevelDebug];
+        [SentryLog logWithMessage:@"No client bound." andLevel:kSentryLogLevelDebug];
         return;
     }
 
@@ -146,12 +135,12 @@ SentryHub ()
                                                           @"was provided. Closing as abnormal. "
                                                            "Using session's start time %@",
                                          session.started]
-                      andLevel:kSentryLevelDebug];
+                      andLevel:kSentryLogLevelDebug];
             timestamp = session.started;
             [session endSessionAbnormalWithTimestamp:timestamp];
         } else {
             [SentryLog logWithMessage:@"Closing cached session as exited."
-                             andLevel:kSentryLevelDebug];
+                             andLevel:kSentryLogLevelDebug];
             [session endSessionExitedWithTimestamp:timestamp];
         }
         [self deleteCurrentSession];
@@ -164,7 +153,7 @@ SentryHub ()
     if (nil != session) {
         SentryClient *client = _client;
 
-        if (client.options.diagnosticLevel == kSentryLevelDebug) {
+        if (SentrySDK.logLevel == kSentryLogLevelVerbose) {
             NSData *sessionData = [NSJSONSerialization dataWithJSONObject:[session serialize]
                                                                   options:0
                                                                     error:nil];
@@ -173,7 +162,7 @@ SentryHub ()
             [SentryLog
                 logWithMessage:[NSString stringWithFormat:@"Capturing session with status: %@",
                                          sessionString]
-                      andLevel:kSentryLevelDebug];
+                      andLevel:kSentryLogLevelDebug];
         }
         [client captureSession:session];
     }
@@ -235,64 +224,6 @@ SentryHub ()
         return [client captureEvent:event withScope:scope];
     }
     return SentryId.empty;
-}
-
-- (id<SentrySpan>)startTransactionWithName:(NSString *)name operation:(NSString *)operation
-{
-    return [self
-        startTransactionWithContext:[[SentryTransactionContext alloc] initWithName:name
-                                                                         operation:operation]];
-}
-
-- (id<SentrySpan>)startTransactionWithName:(NSString *)name
-                                 operation:(NSString *)operation
-                               bindToScope:(BOOL)bindToScope
-{
-    return
-        [self startTransactionWithContext:[[SentryTransactionContext alloc] initWithName:name
-                                                                               operation:operation]
-                              bindToScope:bindToScope];
-}
-
-- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-{
-    return [self startTransactionWithContext:transactionContext customSamplingContext:nil];
-}
-
-- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-                                  bindToScope:(BOOL)bindToScope
-{
-    return [self startTransactionWithContext:transactionContext
-                                 bindToScope:bindToScope
-                       customSamplingContext:nil];
-}
-
-- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-                        customSamplingContext:
-                            (nullable NSDictionary<NSString *, id> *)customSamplingContext
-{
-    return [self startTransactionWithContext:transactionContext
-                                 bindToScope:false
-                       customSamplingContext:customSamplingContext];
-}
-
-- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-                                  bindToScope:(BOOL)bindToScope
-                        customSamplingContext:
-                            (nullable NSDictionary<NSString *, id> *)customSamplingContext
-{
-    SentrySamplingContext *samplingContext =
-        [[SentrySamplingContext alloc] initWithTransactionContext:transactionContext
-                                            customSamplingContext:customSamplingContext];
-
-    transactionContext.sampled = [_sampler sample:samplingContext];
-
-    id<SentrySpan> tracer = [[SentryTracer alloc] initWithTransactionContext:transactionContext
-                                                                         hub:self];
-    if (bindToScope)
-        _scope.span = tracer;
-
-    return tracer;
 }
 
 - (SentryId *)captureMessage:(NSString *)message
@@ -365,7 +296,7 @@ SentryHub ()
     if (nil == crumb) {
         [SentryLog logWithMessage:[NSString stringWithFormat:@"Discarded Breadcrumb "
                                                              @"in `beforeBreadcrumb`"]
-                         andLevel:kSentryLevelDebug];
+                         andLevel:kSentryLogLevelDebug];
         return;
     }
     [self.scope addBreadcrumb:crumb];
@@ -387,13 +318,19 @@ SentryHub ()
         if (_scope == nil) {
             SentryClient *client = _client;
             if (nil != client) {
-                _scope = [[SentryScope alloc] initWithMaxBreadcrumbs:client.options.maxBreadcrumbs];
+                self.scope =
+                    [[SentryScope alloc] initWithMaxBreadcrumbs:client.options.maxBreadcrumbs];
             } else {
-                _scope = [[SentryScope alloc] init];
+                self.scope = [[SentryScope alloc] init];
             }
         }
         return _scope;
     }
+}
+
+- (SentryScope *)getScope
+{
+    return self.scope;
 }
 
 - (void)configureScope:(void (^)(SentryScope *scope))callback
@@ -429,6 +366,9 @@ SentryHub ()
     return [integrations objectAtIndex:[integrations indexOfObject:integrationName]];
 }
 
+/**
+ * Set global user -> thus will be sent with every event
+ */
 - (void)setUser:(SentryUser *_Nullable)user
 {
     SentryScope *scope = self.scope;

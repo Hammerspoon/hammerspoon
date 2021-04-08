@@ -7,7 +7,7 @@
 #import "SentryHub.h"
 #import "SentryLog.h"
 #import "SentryMeta.h"
-#import "SentrySDK+Private.h"
+#import "SentrySDK.h"
 #import "SentrySerialization.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -40,15 +40,15 @@ SentryNSURLRequest ()
         return nil;
     }
 
-    if ([SentrySDK.currentHub getClient].options.debug == YES) {
+    if ([SentrySDK.currentHub getClient].options.logLevel == kSentryLogLevelVerbose) {
         [SentryLog logWithMessage:@"Sending JSON -------------------------------"
-                         andLevel:kSentryLevelDebug];
+                         andLevel:kSentryLogLevelVerbose];
         [SentryLog logWithMessage:[NSString stringWithFormat:@"%@",
                                             [[NSString alloc] initWithData:jsonData
                                                                   encoding:NSUTF8StringEncoding]]
-                         andLevel:kSentryLevelDebug];
+                         andLevel:kSentryLogLevelVerbose];
         [SentryLog logWithMessage:@"--------------------------------------------"
-                         andLevel:kSentryLevelDebug];
+                         andLevel:kSentryLogLevelVerbose];
     }
     return [self initStoreRequestWithDsn:dsn andData:jsonData didFailWithError:error];
 }
@@ -97,11 +97,11 @@ SentryNSURLRequest ()
     // TODO: When the SDK inits, Client is created, then hub, then hub assigned
     // to SentrySDK. That means there's no hub set yet on SentrySDK when this
     // code runs (hub init closes pending sessions)
-    if ([SentrySDK.currentHub getClient].options.debug == YES) {
+    if ([SentrySDK.currentHub getClient].options.logLevel == kSentryLogLevelVerbose) {
         [SentryLog logWithMessage:[NSString stringWithFormat:@"Envelope request with data: %@",
                                             [[NSString alloc] initWithData:data
                                                                   encoding:NSUTF8StringEncoding]]
-                         andLevel:kSentryLevelDebug];
+                         andLevel:kSentryLogLevelVerbose];
     }
     return self;
 }

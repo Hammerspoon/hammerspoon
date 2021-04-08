@@ -1,1 +1,1 @@
-../../../CocoaLumberjack/Sources/CocoaLumberjack/include/CocoaLumberjack/DDOSLogger.h
+../../../CocoaLumberjack/Classes/DDOSLogger.h

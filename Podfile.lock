@@ -1,34 +1,34 @@
 PODS:
   - ASCIImage (1.0.0)
-  - CocoaAsyncSocket (7.6.5)
+  - CocoaAsyncSocket (7.6.4)
   - CocoaHTTPServer (2.3):
     - CocoaAsyncSocket
     - CocoaLumberjack
-  - CocoaLumberjack (3.7.1):
-    - CocoaLumberjack/Core (= 3.7.1)
-  - CocoaLumberjack/Core (3.7.1)
+  - CocoaLumberjack (3.5.3):
+    - CocoaLumberjack/Core (= 3.5.3)
+  - CocoaLumberjack/Core (3.5.3)
   - MIKMIDI (1.7.1)
   - ORSSerialPort (2.1)
   - PocketSocket/Client (1.0.1):
     - PocketSocket/Core
   - PocketSocket/Core (1.0.1)
-  - Sentry (7.0.0-alpha.5):
-    - Sentry/Core (= 7.0.0-alpha.5)
-  - Sentry/Core (7.0.0-alpha.5)
+  - Sentry (6.2.1):
+    - Sentry/Core (= 6.2.1)
+  - Sentry/Core (6.2.1)
   - SocketRocket (0.5.1)
-  - Sparkle (1.26.0)
+  - Sparkle (1.24.0)
 
 DEPENDENCIES:
-  - ASCIImage
-  - CocoaAsyncSocket
+  - ASCIImage (= 1.0.0)
+  - CocoaAsyncSocket (= 7.6.4)
   - CocoaHTTPServer (from `https://github.com/CommandPost/CocoaHTTPServer.git`)
-  - CocoaLumberjack
-  - MIKMIDI
-  - ORSSerialPort
-  - PocketSocket/Client
-  - Sentry (from `https://github.com/getsentry/sentry-cocoa.git`)
-  - SocketRocket
-  - Sparkle
+  - CocoaLumberjack (= 3.5.3)
+  - MIKMIDI (= 1.7.1)
+  - ORSSerialPort (= 2.1.0)
+  - PocketSocket/Client (= 1.0.1)
+  - Sentry (from `https://github.com/getsentry/sentry-cocoa.git`, tag `6.2.1`)
+  - SocketRocket (= 0.5.1)
+  - Sparkle (= 1.24.0)
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
@@ -46,27 +46,28 @@ EXTERNAL SOURCES:
     :git: https://github.com/CommandPost/CocoaHTTPServer.git
   Sentry:
     :git: https://github.com/getsentry/sentry-cocoa.git
+    :tag: 6.2.1
 
 CHECKOUT OPTIONS:
   CocoaHTTPServer:
     :commit: 5b63f170649ce15f820b64f63ce076c172ce15ff
     :git: https://github.com/CommandPost/CocoaHTTPServer.git
   Sentry:
-    :commit: ee1dcf28e0e2b87c24ff6d8dae7813b719b3a8ad
     :git: https://github.com/getsentry/sentry-cocoa.git
+    :tag: 6.2.1
 
 SPEC CHECKSUMS:
   ASCIImage: bcff9650deae86e0e0ac310145cc628948201ab8
-  CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
+  CocoaAsyncSocket: 694058e7c0ed05a9e217d1b3c7ded962f4180845
   CocoaHTTPServer: 5624681fc3473d43b18202f635f9b3abb013b530
-  CocoaLumberjack: 7776c302e2e78298fc28738d6a0e3df1bfca68b6
+  CocoaLumberjack: 2f44e60eb91c176d471fdba43b9e3eae6a721947
   MIKMIDI: f53dca2f372e71183ecdd2b35c984c1c2cd11cbc
   ORSSerialPort: d2d5d131797453430c557ba8dc7dcbcae20ff2e5
   PocketSocket: 9c6867d66fb4f962af96b9b07f4b45bb561b2c2a
-  Sentry: 3d0f68ec84cb0b68ab6b10293b9ee9ae418ba16b
+  Sentry: 9b922b396b0e0bca8516a10e36b0ea3ebea5faf7
   SocketRocket: d57c7159b83c3c6655745cd15302aa24b6bae531
-  Sparkle: d56d028f4b0c123577825f5d1004f6140d77f90e
+  Sparkle: 270cd27377bf04e9c128af06e3a22d0f572d6ee3
 
-PODFILE CHECKSUM: 3321f60e8d7bbaa9822d64e49d81db8ac9c02846
+PODFILE CHECKSUM: 7ea2e26e05c72ff1b08dde6af4563c763cb3d613
 
 COCOAPODS: 1.10.0

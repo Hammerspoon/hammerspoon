@@ -4,7 +4,7 @@
 #import "SentryDefines.h"
 #import "SentryHub.h"
 #import "SentryLog.h"
-#import "SentrySDK+Private.h"
+#import "SentrySDK.h"
 #import "SentryScope.h"
 #import "SentrySwizzle.h"
 
@@ -37,7 +37,7 @@
 #else
     [SentryLog logWithMessage:@"NO UIKit, OSX and Catalyst -> [SentryBreadcrumbTracker "
                               @"trackApplicationUIKitNotifications] does nothing."
-                     andLevel:kSentryLevelDebug];
+                     andLevel:kSentryLogLevelDebug];
 #endif
 
     // not available for macOS
@@ -121,7 +121,7 @@
     SentrySwizzleInstanceMethod(UIApplication.class, selector, SentrySWReturnType(BOOL),
         SentrySWArguments(SEL action, id target, id sender, UIEvent * event), SentrySWReplacement({
             if (nil != [SentrySDK.currentHub getClient]) {
-                NSDictionary *data = nil;
+                NSDictionary *data = [NSDictionary new];
                 for (UITouch *touch in event.allTouches) {
                     if (touch.phase == UITouchPhaseCancelled || touch.phase == UITouchPhaseEnded) {
                         data = @ { @"view" : [NSString stringWithFormat:@"%@", touch.view] };
@@ -141,7 +141,7 @@
 #else
     [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker "
                               @"swizzleSendAction] does nothing."
-                     andLevel:kSentryLevelDebug];
+                     andLevel:kSentryLogLevelDebug];
 #endif
 }
 
@@ -179,7 +179,7 @@
 #else
     [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker "
                               @"swizzleViewDidAppear] does nothing."
-                     andLevel:kSentryLevelDebug];
+                     andLevel:kSentryLogLevelDebug];
 #endif
 }
 

@@ -3,8 +3,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *const SentryDeviceContextFreeMemoryKey = @"free_memory";
-
 @interface SentryCrashIntegration : NSObject <SentryIntegrationProtocol>
 
 @end

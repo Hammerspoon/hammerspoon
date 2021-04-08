@@ -5,7 +5,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryStacktrace, SentryMechanism;
+@class SentryThread, SentryMechanism;
 
 NS_SWIFT_NAME(Exception)
 @interface SentryException : NSObject <SentrySerializable>
@@ -32,14 +32,14 @@ SENTRY_NO_INIT
 @property (nonatomic, copy) NSString *_Nullable module;
 
 /**
- * An optional value which refers to a thread in `SentryEvent.threads`.
+ * Determines if the exception was reported by a user BOOL
  */
-@property (nonatomic, copy) NSNumber *_Nullable threadId;
+@property (nonatomic, copy) NSNumber *_Nullable userReported;
 
 /**
- * Stacktrace containing frames of this exception.
+ * SentryThread of the SentryException
  */
-@property (nonatomic, strong) SentryStacktrace *_Nullable stacktrace;
+@property (nonatomic, strong) SentryThread *_Nullable thread;
 
 /**
  * Initialize an SentryException with value and type

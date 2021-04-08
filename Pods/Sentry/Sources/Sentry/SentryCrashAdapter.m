@@ -1,7 +1,6 @@
 #import "SentryCrashAdapter.h"
 #import "SentryCrash.h"
 #import <Foundation/Foundation.h>
-#import <SentryCrashDebug.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -15,11 +14,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSTimeInterval)activeDurationSinceLastCrash
 {
     return SentryCrash.sharedInstance.activeDurationSinceLastCrash;
-}
-
-- (BOOL)isBeingTraced
-{
-    return sentrycrashdebug_isBeingTraced();
 }
 
 @end

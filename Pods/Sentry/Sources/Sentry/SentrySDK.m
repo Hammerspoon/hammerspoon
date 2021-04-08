@@ -1,15 +1,20 @@
 #import "SentrySDK.h"
 #import "SentryBreadcrumb.h"
-#import "SentryClient+Private.h"
+#import "SentryClient.h"
 #import "SentryCrash.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
 #import "SentryMeta.h"
 #import "SentryScope.h"
 
+static SentryLogLevel logLevel = kSentryLogLevelError;
+
 @interface
 SentrySDK ()
 
+/**
+ holds the current hub instance
+ */
 @property (class) SentryHub *currentHub;
 
 @end
@@ -19,6 +24,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 static SentryHub *currentHub;
 static BOOL crashedLastRunCalled;
+
+@dynamic logLevel;
 
 + (SentryHub *)currentHub
 {
@@ -30,17 +37,11 @@ static BOOL crashedLastRunCalled;
     }
 }
 
-/** Internal, only needed for testing. */
 + (void)setCurrentHub:(SentryHub *)hub
 {
     @synchronized(self) {
         currentHub = hub;
     }
-}
-
-+ (nullable id<SentrySpan>)span
-{
-    return currentHub.scope.span;
 }
 
 + (BOOL)crashedLastRunCalled
@@ -59,9 +60,10 @@ static BOOL crashedLastRunCalled;
     SentryOptions *options = [[SentryOptions alloc] initWithDict:optionsDict
                                                 didFailWithError:&error];
     if (nil != error) {
-        [SentryLog logWithMessage:@"Error while initializing the SDK" andLevel:kSentryLevelError];
+        [SentryLog logWithMessage:@"Error while initializing the SDK"
+                         andLevel:kSentryLogLevelError];
         [SentryLog logWithMessage:[NSString stringWithFormat:@"%@", error]
-                         andLevel:kSentryLevelError];
+                         andLevel:kSentryLogLevelError];
     } else {
         [SentrySDK startWithOptionsObject:options];
     }
@@ -69,14 +71,14 @@ static BOOL crashedLastRunCalled;
 
 + (void)startWithOptionsObject:(SentryOptions *)options
 {
-    [SentryLog configure:options.debug diagnosticLevel:options.diagnosticLevel];
+    [self setLogLevel:options.logLevel];
     SentryClient *newClient = [[SentryClient alloc] initWithOptions:options];
     // The Hub needs to be initialized with a client so that closing a session
     // can happen.
     [SentrySDK setCurrentHub:[[SentryHub alloc] initWithClient:newClient andScope:nil]];
     [SentryLog logWithMessage:[NSString stringWithFormat:@"SDK initialized! Version: %@",
                                         SentryMeta.versionString]
-                     andLevel:kSentryLevelDebug];
+                     andLevel:kSentryLogLevelDebug];
     [SentrySDK installIntegrations];
 }
 
@@ -94,12 +96,12 @@ static BOOL crashedLastRunCalled;
 
 + (SentryId *)captureEvent:(SentryEvent *)event
 {
-    return [SentrySDK captureEvent:event withScope:SentrySDK.currentHub.scope];
+    return [SentrySDK captureEvent:event withScope:[SentrySDK.currentHub getScope]];
 }
 
 + (SentryId *)captureEvent:(SentryEvent *)event withScopeBlock:(void (^)(SentryScope *))block
 {
-    SentryScope *scope = [[SentryScope alloc] initWithScope:SentrySDK.currentHub.scope];
+    SentryScope *scope = [[SentryScope alloc] initWithScope:[SentrySDK.currentHub getScope]];
     block(scope);
     return [SentrySDK captureEvent:event withScope:scope];
 }
@@ -109,58 +111,14 @@ static BOOL crashedLastRunCalled;
     return [SentrySDK.currentHub captureEvent:event withScope:scope];
 }
 
-+ (id<SentrySpan>)startTransactionWithName:(NSString *)name operation:(NSString *)operation
-{
-    return [SentrySDK.currentHub startTransactionWithName:name operation:operation];
-}
-
-+ (id<SentrySpan>)startTransactionWithName:(NSString *)name
-                                 operation:(NSString *)operation
-                               bindToScope:(BOOL)bindToScope
-{
-    return [SentrySDK.currentHub startTransactionWithName:name
-                                                operation:operation
-                                              bindToScope:bindToScope];
-}
-
-+ (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-{
-    return [SentrySDK.currentHub startTransactionWithContext:transactionContext];
-}
-
-+ (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-                                  bindToScope:(BOOL)bindToScope
-{
-    return [SentrySDK.currentHub startTransactionWithContext:transactionContext
-                                                 bindToScope:bindToScope];
-}
-
-+ (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-                                  bindToScope:(BOOL)bindToScope
-                        customSamplingContext:
-                            (nullable NSDictionary<NSString *, id> *)customSamplingContext
-{
-    return [SentrySDK.currentHub startTransactionWithContext:transactionContext
-                                                 bindToScope:bindToScope
-                                       customSamplingContext:customSamplingContext];
-}
-
-+ (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-                        customSamplingContext:
-                            (nullable NSDictionary<NSString *, id> *)customSamplingContext
-{
-    return [SentrySDK.currentHub startTransactionWithContext:transactionContext
-                                       customSamplingContext:customSamplingContext];
-}
-
 + (SentryId *)captureError:(NSError *)error
 {
-    return [SentrySDK captureError:error withScope:SentrySDK.currentHub.scope];
+    return [SentrySDK captureError:error withScope:[SentrySDK.currentHub getScope]];
 }
 
 + (SentryId *)captureError:(NSError *)error withScopeBlock:(void (^)(SentryScope *_Nonnull))block
 {
-    SentryScope *scope = [[SentryScope alloc] initWithScope:SentrySDK.currentHub.scope];
+    SentryScope *scope = [[SentryScope alloc] initWithScope:[SentrySDK.currentHub getScope]];
     block(scope);
     return [SentrySDK captureError:error withScope:scope];
 }
@@ -172,13 +130,13 @@ static BOOL crashedLastRunCalled;
 
 + (SentryId *)captureException:(NSException *)exception
 {
-    return [SentrySDK captureException:exception withScope:SentrySDK.currentHub.scope];
+    return [SentrySDK captureException:exception withScope:[SentrySDK.currentHub getScope]];
 }
 
 + (SentryId *)captureException:(NSException *)exception
                 withScopeBlock:(void (^)(SentryScope *))block
 {
-    SentryScope *scope = [[SentryScope alloc] initWithScope:SentrySDK.currentHub.scope];
+    SentryScope *scope = [[SentryScope alloc] initWithScope:[SentrySDK.currentHub getScope]];
     block(scope);
     return [SentrySDK captureException:exception withScope:scope];
 }
@@ -190,12 +148,12 @@ static BOOL crashedLastRunCalled;
 
 + (SentryId *)captureMessage:(NSString *)message
 {
-    return [SentrySDK captureMessage:message withScope:SentrySDK.currentHub.scope];
+    return [SentrySDK captureMessage:message withScope:[SentrySDK.currentHub getScope]];
 }
 
 + (SentryId *)captureMessage:(NSString *)message withScopeBlock:(void (^)(SentryScope *))block
 {
-    SentryScope *scope = [[SentryScope alloc] initWithScope:SentrySDK.currentHub.scope];
+    SentryScope *scope = [[SentryScope alloc] initWithScope:[SentrySDK.currentHub getScope]];
     block(scope);
     return [SentrySDK captureMessage:message withScope:scope];
 }
@@ -203,24 +161,6 @@ static BOOL crashedLastRunCalled;
 + (SentryId *)captureMessage:(NSString *)message withScope:(SentryScope *)scope
 {
     return [SentrySDK.currentHub captureMessage:message withScope:scope];
-}
-
-/**
- * Needed by hybrid SDKs as react-native to synchronously capture an envelope.
- */
-+ (void)captureEnvelope:(SentryEnvelope *)envelope
-{
-    [SentrySDK.currentHub captureEnvelope:envelope];
-}
-
-/**
- * Needed by hybrid SDKs as react-native to synchronously store an envelope to disk.
- */
-+ (void)storeEnvelope:(SentryEnvelope *)envelope
-{
-    if (nil != [SentrySDK.currentHub getClient]) {
-        [[SentrySDK.currentHub getClient] storeEnvelope:envelope];
-    }
 }
 
 + (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
@@ -238,24 +178,37 @@ static BOOL crashedLastRunCalled;
     [SentrySDK.currentHub configureScope:callback];
 }
 
++ (void)setLogLevel:(SentryLogLevel)level
+{
+    NSParameterAssert(level);
+    logLevel = level;
+}
+
++ (SentryLogLevel)logLevel
+{
+    return logLevel;
+}
+
+/**
+ * Set global user -> thus will be sent with every event
+ */
 + (void)setUser:(SentryUser *_Nullable)user
 {
     [SentrySDK.currentHub setUser:user];
 }
 
+#ifndef __clang_analyzer__
+// Code not to be analyzed
++ (void)crash
+{
+    int *p = 0;
+    *p = 0;
+}
+#endif
+
 + (BOOL)crashedLastRun
 {
     return SentryCrash.sharedInstance.crashedLastLaunch;
-}
-
-+ (void)startSession
-{
-    [SentrySDK.currentHub startSession];
-}
-
-+ (void)endSession
-{
-    [SentrySDK.currentHub endSession];
 }
 
 /**
@@ -274,33 +227,24 @@ static BOOL crashedLastRunCalled;
             NSString *logMessage = [NSString stringWithFormat:@"[SentryHub doInstallIntegrations] "
                                                               @"couldn't find \"%@\" -> skipping.",
                                              integrationName];
-            [SentryLog logWithMessage:logMessage andLevel:kSentryLevelError];
+            [SentryLog logWithMessage:logMessage andLevel:kSentryLogLevelError];
             continue;
         } else if ([SentrySDK.currentHub isIntegrationInstalled:integrationClass]) {
             NSString *logMessage =
                 [NSString stringWithFormat:@"[SentryHub doInstallIntegrations] already "
                                            @"installed \"%@\" -> skipping.",
                           integrationName];
-            [SentryLog logWithMessage:logMessage andLevel:kSentryLevelError];
+            [SentryLog logWithMessage:logMessage andLevel:kSentryLogLevelError];
             continue;
         }
         id<SentryIntegrationProtocol> integrationInstance = [[integrationClass alloc] init];
         [integrationInstance installWithOptions:options];
         [SentryLog
             logWithMessage:[NSString stringWithFormat:@"Integration installed: %@", integrationName]
-                  andLevel:kSentryLevelDebug];
+                  andLevel:kSentryLogLevelDebug];
         [SentrySDK.currentHub.installedIntegrations addObject:integrationInstance];
     }
 }
-
-#ifndef __clang_analyzer__
-// Code not to be analyzed
-+ (void)crash
-{
-    int *p = 0;
-    *p = 0;
-}
-#endif
 
 @end
 

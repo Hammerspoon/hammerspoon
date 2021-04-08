@@ -2,16 +2,27 @@
 #import "SentryClient+Private.h"
 #import "SentryClient.h"
 #import "SentryFileManager.h"
-#import "SentryHub+Private.h"
-#import "SentryInternalNotificationNames.h"
+#import "SentryHub.h"
 #import "SentryLog.h"
-#import "SentrySDK+Private.h"
+#import "SentrySDK.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
 #elif TARGET_OS_OSX || TARGET_OS_MACCATALYST
 #    import <Cocoa/Cocoa.h>
 #endif
+
+/**
+ * In hybrid SDKs, we might initialize the Cocoa SDK after the hybrid engine is ready. So, we may
+ * register the didBecomeActive notification after the OS posts it. Therefore the hybrid SDKs can
+ * post this internal notification after initializing the Cocoa SDK to start a session. We can't
+ * start the session in this method because we don't know if a background task or a hybrid SDK
+ * initialized the SDK. Hybrid SDKs must only post this notification if they are running in the
+ * foreground because the auto session tracking logic doesn't support background tasks. Posting the
+ * notification from the background would mess up the session stats.
+ */
+static NSString *const SentryHybridSdkDidBecomeActiveNotificationName
+    = @"SentryHybridSdkDidBecomeActive";
 
 @interface
 SentrySessionTracker ()
@@ -63,7 +74,7 @@ SentrySessionTracker ()
 #else
     [SentryLog logWithMessage:@"NO UIKit -> SentrySessionTracker will not "
                               @"track sessions automatically."
-                     andLevel:kSentryLevelDebug];
+                     andLevel:kSentryLogLevelDebug];
 #endif
 
 #if SENTRY_HAS_UIKIT || TARGET_OS_OSX || TARGET_OS_MACCATALYST
@@ -122,11 +133,6 @@ SentrySessionTracker ()
  * It is called when an App. is receiving events / It is in the foreground and when we receive a
  * SentryHybridSdkDidBecomeActiveNotification. There is no guarantee that this method is called once
  * or twice. We need to ensure that we execute it only once.
- *
- * We can't start the session in this method because we don't know if a background task or a hybrid
- * SDK initialized the SDK. Hybrid SDKs must only post this notification if they are running in the
- * foreground because the auto session tracking logic doesn't support background tasks. Posting the
- * notification from the background would mess up the session stats.
  */
 - (void)didBecomeActive
 {

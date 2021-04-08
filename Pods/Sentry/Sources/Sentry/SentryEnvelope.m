@@ -9,7 +9,6 @@
 #import "SentrySdkInfo.h"
 #import "SentrySerialization.h"
 #import "SentrySession.h"
-#import "SentryTransaction.h"
 #import "SentryUserFeedback.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -125,15 +124,10 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
 
-    // event.type can be nil and the server infers error if there's a stack trace, otherwise
-    // default. In any case in the envelope type it should be event. Except for transactions
-    NSString *envelopeType = [event.type isEqualToString:SentryEnvelopeItemTypeTransaction]
-        ? SentryEnvelopeItemTypeTransaction
-        : SentryEnvelopeItemTypeEvent;
-
-    return [self initWithHeader:[[SentryEnvelopeItemHeader alloc] initWithType:envelopeType
-                                                                        length:json.length]
-                           data:json];
+    return [self
+        initWithHeader:[[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeEvent
+                                                               length:json.length]
+                  data:json];
 }
 
 - (instancetype)initWithSession:(SentrySession *)session
@@ -157,7 +151,8 @@ NS_ASSUME_NONNULL_BEGIN
                                                      error:&error];
 
     if (nil != error) {
-        [SentryLog logWithMessage:@"Couldn't serialize user feedback." andLevel:kSentryLevelError];
+        [SentryLog logWithMessage:@"Couldn't serialize user feedback."
+                         andLevel:kSentryLogLevelError];
         json = [NSData new];
     }
 
@@ -179,7 +174,7 @@ NS_ASSUME_NONNULL_BEGIN
                                            @"the maximum allowed attachment size of %lu bytes.",
                           attachment.filename, (unsigned long)attachment.data.length,
                           (unsigned long)maxAttachmentSize];
-            [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
+            [SentryLog logWithMessage:message andLevel:kSentryLogLevelDebug];
 
             return nil;
         }
@@ -196,7 +191,7 @@ NS_ASSUME_NONNULL_BEGIN
             NSString *message = [NSString
                 stringWithFormat:@"Couldn't check file size of attachment with path: %@. Error: %@",
                 attachment.path, error.localizedDescription];
-            [SentryLog logWithMessage:message andLevel:kSentryLevelError];
+            [SentryLog logWithMessage:message andLevel:kSentryLogLevelError];
 
             return nil;
         }
@@ -209,7 +204,7 @@ NS_ASSUME_NONNULL_BEGIN
                     @"Dropping attachment, because the size of the it located at '%@' with %llu "
                     @"bytes is bigger than the maximum allowed attachment size of %lu bytes.",
                 attachment.path, fileSize, (unsigned long)maxAttachmentSize];
-            [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
+            [SentryLog logWithMessage:message andLevel:kSentryLogLevelDebug];
             return nil;
         }
 
@@ -217,7 +212,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     if (nil == data) {
-        [SentryLog logWithMessage:@"Couldn't init Attachment." andLevel:kSentryLevelError];
+        [SentryLog logWithMessage:@"Couldn't init Attachment." andLevel:kSentryLogLevelError];
         return nil;
     }
 

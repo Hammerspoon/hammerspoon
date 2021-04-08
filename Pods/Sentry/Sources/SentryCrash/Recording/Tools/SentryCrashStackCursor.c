@@ -23,7 +23,6 @@
 //
 
 #include "SentryCrashStackCursor.h"
-#include "SentryCrashCPU.h"
 #include "SentryCrashSymbolicator.h"
 #include <stdlib.h>
 
@@ -44,7 +43,6 @@ sentrycrashsc_resetCursor(SentryCrashStackCursor *cursor)
 {
     cursor->state.currentDepth = 0;
     cursor->state.hasGivenUp = false;
-    cursor->state.current_async_caller = NULL;
     cursor->stackEntry.address = 0;
     cursor->stackEntry.imageAddress = 0;
     cursor->stackEntry.imageName = NULL;
@@ -58,30 +56,6 @@ sentrycrashsc_initCursor(SentryCrashStackCursor *cursor,
 {
     cursor->symbolicate = sentrycrashsymbolicator_symbolicate;
     cursor->advanceCursor = advanceCursor != NULL ? advanceCursor : g_advanceCursor;
-    cursor->async_caller = NULL;
     cursor->resetCursor = resetCursor != NULL ? resetCursor : sentrycrashsc_resetCursor;
     cursor->resetCursor(cursor);
-}
-
-bool
-sentrycrashsc_advanceAsyncCursor(SentryCrashStackCursor *cursor)
-{
-    sentrycrash_async_backtrace_t *async_caller = cursor->state.current_async_caller;
-    if (async_caller) {
-        if (cursor->state.currentDepth < async_caller->len) {
-            uintptr_t nextAddress = (uintptr_t)async_caller->backtrace[cursor->state.currentDepth];
-            if (nextAddress > 1) {
-                cursor->stackEntry.address
-                    = sentrycrashcpu_normaliseInstructionPointer(nextAddress);
-                cursor->state.currentDepth++;
-                return true;
-            }
-        }
-        if (async_caller->async_caller) {
-            cursor->state.current_async_caller = async_caller->async_caller;
-            cursor->state.currentDepth = 0;
-            return sentrycrashsc_advanceAsyncCursor(cursor);
-        }
-    }
-    return false;
 }

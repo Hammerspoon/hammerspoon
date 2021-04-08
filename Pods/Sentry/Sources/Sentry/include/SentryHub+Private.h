@@ -8,10 +8,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)captureCrashEvent:(SentryEvent *)event;
 
-- (void)setSampleRandomValue:(NSNumber *)value;
-
-- (void)closeCachedSessionWithTimestamp:(NSDate *_Nullable)timestamp;
-
 @end
 
 NS_ASSUME_NONNULL_END

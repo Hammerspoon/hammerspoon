@@ -6,15 +6,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryEvent, SentryOptions, SentryEnvelope, SentryFileContents, SentryAppState;
+@class SentryEvent, SentryDsn, SentryEnvelope, SentryFileContents;
 
 NS_SWIFT_NAME(SentryFileManager)
 @interface SentryFileManager : NSObject
 SENTRY_NO_INIT
 
-- (nullable instancetype)initWithOptions:(SentryOptions *)options
-                  andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
-                                   error:(NSError **)error NS_DESIGNATED_INITIALIZER;
+- (_Nullable instancetype)initWithDsn:(SentryDsn *)dsn
+               andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
+                     didFailWithError:(NSError **)error NS_DESIGNATED_INITIALIZER;
 
 - (NSString *)storeEnvelope:(SentryEnvelope *)envelope;
 
@@ -54,9 +54,7 @@ SENTRY_NO_INIT
 
 - (NSString *)storeDictionary:(NSDictionary *)dictionary toPath:(NSString *)path;
 
-- (void)storeAppState:(SentryAppState *)appState;
-- (SentryAppState *_Nullable)readAppState;
-- (void)deleteAppState;
+@property (nonatomic, assign) NSUInteger maxEnvelopes;
 
 @end
 

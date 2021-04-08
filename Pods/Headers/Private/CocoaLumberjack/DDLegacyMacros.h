@@ -1,1 +1,1 @@
-../../../CocoaLumberjack/Sources/CocoaLumberjack/Supporting Files/DDLegacyMacros.h
+../../../CocoaLumberjack/Classes/DDLegacyMacros.h

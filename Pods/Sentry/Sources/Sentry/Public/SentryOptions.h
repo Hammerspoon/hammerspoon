@@ -19,38 +19,41 @@ NS_SWIFT_NAME(Options)
  * The DSN tells the SDK where to send the events to. If this value is not provided, the SDK will
  * not send any events.
  */
-@property (nullable, nonatomic, strong) NSString *dsn;
+@property (nonatomic, strong) NSString *_Nullable dsn;
 
 /**
  * The parsed internal DSN.
  */
-@property (nullable, nonatomic, strong) SentryDsn *parsedDsn;
+@property (nonatomic, strong) SentryDsn *_Nullable parsedDsn;
 
 /**
- * Turns debug mode on or off. If debug is enabled SDK will attempt to print out useful debugging
- * information if something goes wrong. Default is disabled.
+ * debug [mode] sets a more verbose log level. Default is NO. If set to YES
+ * sentry prints more log messages to the console.
  */
 @property (nonatomic, assign) BOOL debug;
 
 /**
- * Minimum LogLevel to be used if debug is enabled. Default is debug.
+ DEPRECATED: use debug bool instead (debug = YES maps to logLevel
+ kSentryLogLevelError, debug = NO maps to loglevel kSentryLogLevelError). thus
+ kSentryLogLevelNone and kSentryLogLevelDebug will be dropped entirely. defines
+ the log level of sentry log (console output).
  */
-@property (nonatomic, assign) SentryLevel diagnosticLevel;
+@property (nonatomic, assign) SentryLogLevel logLevel;
 
 /**
  * This property will be filled before the event is sent.
  */
-@property (nullable, nonatomic, copy) NSString *releaseName;
+@property (nonatomic, copy) NSString *_Nullable releaseName;
 
 /**
  * This property will be filled before the event is sent.
  */
-@property (nullable, nonatomic, copy) NSString *dist;
+@property (nonatomic, copy) NSString *_Nullable dist;
 
 /**
  * The environment used for this event
  */
-@property (nullable, nonatomic, copy) NSString *environment;
+@property (nonatomic, copy) NSString *_Nullable environment;
 
 /**
  * Specifies wether this SDK should send events to Sentry. If set to NO events will be
@@ -65,21 +68,16 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) NSUInteger maxBreadcrumbs;
 
 /**
- * The maximum number of envelopes to keep in cache. Default is 30.
+ * This block can be used to modify the event before it will be serialized and
+ * sent
  */
-@property (nonatomic, assign) NSUInteger maxCacheItems;
+@property (nonatomic, copy) SentryBeforeSendEventCallback _Nullable beforeSend;
 
 /**
  * This block can be used to modify the event before it will be serialized and
  * sent
  */
-@property (nullable, nonatomic, copy) SentryBeforeSendEventCallback beforeSend;
-
-/**
- * This block can be used to modify the event before it will be serialized and
- * sent
- */
-@property (nullable, nonatomic, copy) SentryBeforeBreadcrumbCallback beforeBreadcrumb;
+@property (nonatomic, copy) SentryBeforeBreadcrumbCallback _Nullable beforeBreadcrumb;
 
 /**
  * This gets called shortly after the initialization of the SDK when the last program execution
@@ -90,12 +88,12 @@ NS_SWIFT_NAME(Options)
  * terminates with a crash before the SDK can send the crash event. You can look into beforeSend if
  * you prefer a callback for every event.
  */
-@property (nullable, nonatomic, copy) SentryOnCrashedLastRunCallback onCrashedLastRun;
+@property (nonatomic, copy) SentryOnCrashedLastRunCallback _Nullable onCrashedLastRun;
 
 /**
  * Array of integrations to install.
  */
-@property (nullable, nonatomic, copy) NSArray<NSString *> *integrations;
+@property (nonatomic, copy) NSArray<NSString *> *_Nullable integrations;
 
 /**
  * Array of default integrations. Will be used if integrations are nil
@@ -106,17 +104,12 @@ NS_SWIFT_NAME(Options)
  * Defines the sample rate of SentryClient, should be a float between 0.0
  * and 1.0. valid settings are 0.0 - 1.0 and nil
  */
-@property (nullable, nonatomic, copy) NSNumber *sampleRate;
+@property (nonatomic, copy) NSNumber *_Nullable sampleRate;
 
 /**
  * Whether to enable automatic session tracking or not. Default is YES.
  */
 @property (nonatomic, assign) BOOL enableAutoSessionTracking;
-
-/**
- * Whether to enable to enable out of memory tracking or not. Default is YES.
- */
-@property (nonatomic, assign) BOOL enableOutOfMemoryTracking;
 
 /**
  * The interval to end a session if the App goes to the background.
@@ -154,49 +147,6 @@ NS_SWIFT_NAME(Options)
  * address.
  */
 @property (nonatomic, assign) BOOL sendDefaultPii;
-
-/**
- * Indicates the percentage of the tracing data that is collected.
- * Setting this to 0 or NIL discards all trace data, 1.0 collects all trace data,
- * 0.01 collects 1% of all trace data.
- */
-@property (nullable, nonatomic, strong) NSNumber *tracesSampleRate;
-
-/**
- * A callback to a user defined traces sampler function.
- * Returning 0 or NIL discards all trace data, 1.0 collects all trace data,
- * 0.01 collects 1% of all trace data.
- */
-@property (nullable, nonatomic) SentryTracesSamplerCallback tracesSampler;
-
-/**
- * A list of string prefixes of framework names that belong to the app. This option takes precedence
- * over inAppExcludes. Per default this contains CFBundleExecutable to mark it as inApp.
- */
-@property (nonatomic, readonly, copy) NSArray<NSString *> *inAppIncludes;
-
-/**
- * Adds an item to the list of inAppIncludes.
- *
- * @param inAppInclude The prefix of the framework name.
- */
-- (void)addInAppInclude:(NSString *)inAppInclude;
-
-/**
- * A list of string prefixes of framework names that do not belong to the app, but rather to
- * third-party frameworks. Frameworks considered not part of the app will be hidden from stack
- * traces by default.
- *
- * This option can be overridden using inAppIncludes.
- */
-@property (nonatomic, readonly, copy) NSArray<NSString *> *inAppExcludes;
-
-/**
- * Adds an item to the list of inAppExcludes.
- *
- * @param inAppExclude The prefix of the frameworks name.
- */
-- (void)addInAppExclude:(NSString *)inAppExclude;
 
 @end
 
