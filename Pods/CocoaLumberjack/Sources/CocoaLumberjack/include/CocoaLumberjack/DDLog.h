@@ -1,6 +1,6 @@
 // Software License Agreement (BSD License)
 //
-// Copyright (c) 2010-2020, Deusty, LLC
+// Copyright (c) 2010-2021, Deusty, LLC
 // All rights reserved.
 //
 // Redistribution and use of this software in source and binary forms,
@@ -23,6 +23,10 @@
     #endif
     // DD_LEGACY_MACROS is checked in the file itself
     #import <CocoaLumberjack/DDLegacyMacros.h>
+#endif
+
+#ifndef DD_LEGACY_MESSAGE_TAG
+    #define DD_LEGACY_MESSAGE_TAG 1
 #endif
 
 // Names of loggers.
@@ -621,7 +625,7 @@ FOUNDATION_EXTERN NSString * __nullable DDExtractFileNameWithoutExtension(const 
  * For example, a database logger may only save occasionally as the disk IO is slow.
  * In such loggers, this method should be implemented to flush any pending IO.
  *
- * This allows invocations of DDLog's flushLog method to be propogated to loggers that need it.
+ * This allows invocations of DDLog's flushLog method to be propagated to loggers that need it.
  *
  * Note that DDLog's flushLog method is invoked automatically when the application quits,
  * and it may be also invoked manually by the developer prior to application crashes, or other such reasons.
@@ -778,7 +782,7 @@ typedef NS_OPTIONS(NSInteger, DDLogMessageOptions){
     NSString *_fileName;
     NSString *_function;
     NSUInteger _line;
-    id _tag;
+    id _representedObject;
     DDLogMessageOptions _options;
     NSDate * _timestamp;
     NSString *_threadID;
@@ -845,7 +849,10 @@ typedef NS_OPTIONS(NSInteger, DDLogMessageOptions){
 @property (readonly, nonatomic) NSString *fileName;
 @property (readonly, nonatomic, nullable) NSString * function;
 @property (readonly, nonatomic) NSUInteger line;
-@property (readonly, nonatomic, nullable) id tag;
+#if DD_LEGACY_MESSAGE_TAG
+@property (readonly, nonatomic, nullable) id tag __attribute__((deprecated("Use representedObject instead", "representedObject")));
+#endif
+@property (readonly, nonatomic, nullable) id representedObject;
 @property (readonly, nonatomic) DDLogMessageOptions options;
 @property (readonly, nonatomic) NSDate *timestamp;
 @property (readonly, nonatomic) NSString *threadID; // ID as it appears in NSLog calculated from the machThreadID

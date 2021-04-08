@@ -1,6 +1,6 @@
 // Software License Agreement (BSD License)
 //
-// Copyright (c) 2010-2020, Deusty, LLC
+// Copyright (c) 2010-2021, Deusty, LLC
 // All rights reserved.
 //
 // Redistribution and use of this software in source and binary forms,
@@ -90,6 +90,7 @@ FOUNDATION_EXPORT const unsigned char CocoaLumberjackVersionString[];
 
 // Extensions
 #import <CocoaLumberjack/DDContextFilterLogFormatter.h>
+#import <CocoaLumberjack/DDContextFilterLogFormatter+Deprecated.h>
 #import <CocoaLumberjack/DDDispatchQueueLogFormatter.h>
 #import <CocoaLumberjack/DDMultiFormatter.h>
 #import <CocoaLumberjack/DDFileLogger+Buffering.h>

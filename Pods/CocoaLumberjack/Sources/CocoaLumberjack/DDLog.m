@@ -1,6 +1,6 @@
 // Software License Agreement (BSD License)
 //
-// Copyright (c) 2010-2020, Deusty, LLC
+// Copyright (c) 2010-2021, Deusty, LLC
 // All rights reserved.
 //
 // Redistribution and use of this software in source and binary forms,
@@ -47,21 +47,6 @@
 #endif
 
 #define NSLogDebug(frmt, ...) do{ if(DD_DEBUG) NSLog((frmt), ##__VA_ARGS__); } while(0)
-
-// Specifies the maximum queue size of the logging thread.
-//
-// Since most logging is asynchronous, its possible for rogue threads to flood the logging queue.
-// That is, to issue an abundance of log statements faster than the logging thread can keep up.
-// Typically such a scenario occurs when log statements are added haphazardly within large loops,
-// but may also be possible if relatively slow loggers are being used.
-//
-// This property caps the queue size at a given number of outstanding log statements.
-// If a thread attempts to issue a log statement when the queue is already maxed out,
-// the issuing thread will block until the queue size drops below the max again.
-
-#ifndef DDLOG_MAX_QUEUE_SIZE
-    #define DDLOG_MAX_QUEUE_SIZE 1000 // Should not exceed INT32_MAX
-#endif
 
 // The "global logging queue" refers to [DDLog loggingQueue].
 // It is the queue that all log statements go through.
@@ -112,10 +97,6 @@ static dispatch_queue_t _loggingQueue;
 // Each logger has it's own associated queue, and a dispatch group is used for synchronization.
 static dispatch_group_t _loggingGroup;
 
-// In order to prevent to queue from growing infinitely large,
-// a maximum size is enforced (DDLOG_MAX_QUEUE_SIZE).
-static dispatch_semaphore_t _queueSemaphore;
-
 // Minor optimization for uniprocessor machines
 static NSUInteger _numProcessors;
 
@@ -155,8 +136,6 @@ static NSUInteger _numProcessors;
 
         void *nonNullValue = GlobalLoggingQueueIdentityKey; // Whatever, just not null
         dispatch_queue_set_specific(_loggingQueue, GlobalLoggingQueueIdentityKey, nonNullValue, NULL);
-
-        _queueSemaphore = dispatch_semaphore_create(DDLOG_MAX_QUEUE_SIZE);
 
         // Figure out how many processors are available.
         // This may be used later for an optimization on uniprocessor machines.
@@ -338,19 +317,7 @@ static NSUInteger _numProcessors;
     // Now assume we have another separate thread that attempts to issue log message G.
     // It should block until log messages A and B have been unqueued.
 
-
-    // We are using a counting semaphore provided by GCD.
-    // The semaphore is initialized with our DDLOG_MAX_QUEUE_SIZE value.
-    // Every time we want to queue a log message we decrement this value.
-    // If the resulting value is less than zero,
-    // the semaphore function waits in FIFO order for a signal to occur before returning.
-    //
-    // A dispatch semaphore is an efficient implementation of a traditional counting semaphore.
-    // Dispatch semaphores call down to the kernel only when the calling thread needs to be blocked.
-    // If the calling semaphore does not need to block, no kernel call is made.
-
     dispatch_block_t logBlock = ^{
-        dispatch_semaphore_wait(_queueSemaphore, DISPATCH_TIME_FOREVER);
         // We're now sure we won't overflow the queue.
         // It is time to queue our log message.
         @autoreleasepool {
@@ -521,6 +488,9 @@ static NSUInteger _numProcessors;
 }
 
 - (void)flushLog {
+    NSAssert(!dispatch_get_specific(GlobalLoggingQueueIdentityKey),
+             @"This method shouldn't be run on the logging thread/queue that make flush fast enough");
+    
     dispatch_sync(_loggingQueue, ^{ @autoreleasepool {
         [self lt_flush];
     } });
@@ -868,22 +838,6 @@ static NSUInteger _numProcessors;
             } });
         }
     }
-
-    // If our queue got too big, there may be blocked threads waiting to add log messages to the queue.
-    // Since we've now dequeued an item from the log, we may need to unblock the next thread.
-
-    // We are using a counting semaphore provided by GCD.
-    // The semaphore is initialized with our DDLOG_MAX_QUEUE_SIZE value.
-    // When a log message is queued this value is decremented.
-    // When a log message is dequeued this value is incremented.
-    // If the value ever drops below zero,
-    // the queueing thread blocks and waits in FIFO order for us to signal it.
-    //
-    // A dispatch semaphore is an efficient implementation of a traditional counting semaphore.
-    // Dispatch semaphores call down to the kernel only when the calling thread needs to be blocked.
-    // If the calling semaphore does not need to block, no kernel call is made.
-
-    dispatch_semaphore_signal(_queueSemaphore);
 }
 
 - (void)lt_flush {
@@ -1044,7 +998,7 @@ NSString * __nullable DDExtractFileNameWithoutExtension(const char *filePath, BO
         _function = copyFunction ? [function copy] : function;
 
         _line         = line;
-        _tag          = tag;
+        _representedObject = tag;
         _options      = options;
         _timestamp    = timestamp ?: [NSDate new];
 
@@ -1086,7 +1040,7 @@ NSString * __nullable DDExtractFileNameWithoutExtension(const char *filePath, BO
         && [otherMsg->_fileName isEqualToString:_fileName]
         && [otherMsg->_function isEqualToString:_function]
         && otherMsg->_line == _line
-        && (([otherMsg->_tag respondsToSelector:@selector(isEqual:)] && [otherMsg->_tag isEqual:_tag]) || otherMsg->_tag == _tag)
+        && (([otherMsg->_representedObject respondsToSelector:@selector(isEqual:)] && [otherMsg->_representedObject isEqual:_representedObject]) || otherMsg->_representedObject == _representedObject)
         && otherMsg->_options == _options
         && [otherMsg->_timestamp isEqualToDate:_timestamp]
         && [otherMsg->_threadID isEqualToString:_threadID] // If the thread ID is the same, the name will likely be the same as well.
@@ -1105,7 +1059,7 @@ NSString * __nullable DDExtractFileNameWithoutExtension(const char *filePath, BO
     ^ _fileName.hash
     ^ _function.hash
     ^ _line
-    ^ ([_tag respondsToSelector:@selector(hash)] ? [_tag hash] : 0)
+    ^ ([_representedObject respondsToSelector:@selector(hash)] ? [_representedObject hash] : 0)
     ^ _options
     ^ _timestamp.hash
     ^ _threadID.hash
@@ -1124,7 +1078,7 @@ NSString * __nullable DDExtractFileNameWithoutExtension(const char *filePath, BO
     newMessage->_fileName = _fileName;
     newMessage->_function = _function;
     newMessage->_line = _line;
-    newMessage->_tag = _tag;
+    newMessage->_representedObject = _representedObject;
     newMessage->_options = _options;
     newMessage->_timestamp = _timestamp;
     newMessage->_threadID = _threadID;
@@ -1133,6 +1087,11 @@ NSString * __nullable DDExtractFileNameWithoutExtension(const char *filePath, BO
     newMessage->_qos = _qos;
 
     return newMessage;
+}
+
+// ensure compatibility even when build with DD_LEGACY_MESSAGE_TAG to 0.
+- (id)tag {
+    return _representedObject;
 }
 
 @end
