@@ -60,6 +60,10 @@
                 <th>Description</th>
                 <td>{{ item.doc_gfm }}</td>
               </tr>
+              <tr>
+                <th>Source</th>
+                <td><a href="https://github.com/Hammerspoon/hammerspoon/blob/master/{{ item.file }}#L{{ item.lineno }}">{{ item.file }}</a></td>
+              </tr>
             </table>
           </section>
           {% endfor %}
