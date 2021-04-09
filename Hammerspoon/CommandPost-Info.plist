@@ -118,7 +118,7 @@
 			<string>Viewer</string>
 			<key>LSItemContentTypes</key>
 			<array>
-				<string>org.latenitefilms.CommandPost.Plugin</string>
+				<string>org.latenitefilms.CommandPost.cpPlugin</string>
 			</array>
 			<key>LSTypeIsPackage</key>
 			<integer>1</integer>
@@ -134,65 +134,6 @@
 			<string>Viewer</string>
 			<key>NSDocumentClass</key>
 			<string>NSDocument</string>
-		</dict>
-		<dict>
-			<key>CFBundleTypeExtensions</key>
-			<array>
-				<string>cpCache</string>
-			</array>
-			<key>CFBundleTypeIconFile</key>
-			<string>cpCache</string>
-			<key>CFBundleTypeName</key>
-			<string>CommandPost Cache</string>
-			<key>CFBundleTypeRole</key>
-			<string>None</string>
-			<key>LSItemContentTypes</key>
-			<array>
-				<string>org.latenitefilms.CommandPost.Cache</string>
-			</array>
-			<key>LSTypeIsPackage</key>
-			<integer>0</integer>
-		</dict>
-		<dict>
-			<key>CFBundleTypeExtensions</key>
-			<array>
-				<string>cpMIDI</string>
-				<string>cpShortcuts</string>
-				<string>cpStreamDeck</string>
-				<string>cpTangent</string>
-				<string>cpTouchBar</string>
-			</array>
-			<key>CFBundleTypeIconFile</key>
-			<string>cpPrefs</string>
-			<key>CFBundleTypeName</key>
-			<string>CommandPost Preferences</string>
-			<key>CFBundleTypeRole</key>
-			<string>Viewer</string>
-			<key>LSItemContentTypes</key>
-			<array>
-				<string>org.latenitefilms.CommandPost.Preferences</string>
-			</array>
-			<key>LSTypeIsPackage</key>
-			<integer>0</integer>
-		</dict>
-		<dict>
-			<key>CFBundleTypeExtensions</key>
-			<array>
-				<string>cpPasteboard</string>
-				<string>cpSharedPasteboard</string>
-			</array>
-			<key>CFBundleTypeIconFile</key>
-			<string>cpPaste</string>
-			<key>CFBundleTypeName</key>
-			<string>CommandPost Pasteboard</string>
-			<key>CFBundleTypeRole</key>
-			<string>None</string>
-			<key>LSItemContentTypes</key>
-			<array>
-				<string>org.latenitefilms.CommandPost.Pasteboard</string>
-			</array>
-			<key>LSTypeIsPackage</key>
-			<integer>0</integer>
 		</dict>
 	</array>
 	<key>CFBundleExecutable</key>
@@ -226,24 +167,30 @@
 			</array>
 		</dict>
 		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>latenitefilms.CommandPost.http</string>
+			<string>org.latenitefilms.CommandPost.http</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>http</string>
 			</array>
 		</dict>
 		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>latenitefilms.CommandPost.https</string>
+			<string>org.latenitefilms.CommandPost.https</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>https</string>
 			</array>
 		</dict>
 		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>org.hammerspoon.Hammerspoon.mailto</string>
+			<string>org.latenitefilms.CommandPost.mailto</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>mailto</string>
@@ -251,7 +198,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>6768</string>
+	<string>6770</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.video</string>
 	<key>LSMinimumSystemVersion</key>
@@ -334,17 +281,296 @@
 				<string>public.composite-content</string>
 				<string>com.apple.package</string>
 			</array>
+			<key>UTTypeDescription</key>
+			<string>CommandPost Plugin</string>
 			<key>UTTypeIconFile</key>
 			<string>cpPlugin</string>
 			<key>UTTypeIdentifier</key>
-			<string>org.latenitefilms.CommandPost.Plugin</string>
+			<string>org.latenitefilms.CommandPost.cpPlugin</string>
 			<key>UTTypeReferenceURL</key>
-			<string>http://commandpost.io</string>
+			<string></string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>
 				<array>
 					<string>cpPlugin</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>CommandPost HUD Preferences</string>
+			<key>UTTypeIconFile</key>
+			<string>cpHUD</string>
+			<key>UTTypeIdentifier</key>
+			<string>org.latenitefilms.CommandPost. cpHUD</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>cpHUD</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>CommandPost Loupedeck Preferences</string>
+			<key>UTTypeIconFile</key>
+			<string>cpLoupedeck</string>
+			<key>UTTypeIdentifier</key>
+			<string>org.latenitefilms.CommandPost. cpLoupedeck</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>cpLoupedeck</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>CommandPost Loupedeck CT Preferences</string>
+			<key>UTTypeIconFile</key>
+			<string>cpLoupedeckCT</string>
+			<key>UTTypeIdentifier</key>
+			<string>org.latenitefilms.CommandPost.cpLoupedeckCT</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>cpLoupedeckCT</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>CommandPost Loupedeck Live Preferences</string>
+			<key>UTTypeIconFile</key>
+			<string>cpLoupedeckLive</string>
+			<key>UTTypeIdentifier</key>
+			<string>org.latenitefilms.CommandPost.cpLoupedeckLive</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>cpLoupedeckLive</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>CommandPost Loupedeck+ Preferences</string>
+			<key>UTTypeIconFile</key>
+			<string>cpLoupedeckPlus</string>
+			<key>UTTypeIdentifier</key>
+			<string>org.latenitefilms.CommandPost.cpLoupedeckPlus</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>cpLoupedeckPlus</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>CommandPost MIDI Preferences</string>
+			<key>UTTypeIconFile</key>
+			<string>cpMIDI</string>
+			<key>UTTypeIdentifier</key>
+			<string>org.latenitefilms.CommandPost.cpMIDI</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>cpMIDI</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>CommandPots Monogram Preferences</string>
+			<key>UTTypeIconFile</key>
+			<string>cpMonogram</string>
+			<key>UTTypeIdentifier</key>
+			<string>org.latenitefilms.CommandPost.cpMonogram</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>cpMonogram</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>CommandPost Pasteboard Preferences</string>
+			<key>UTTypeIconFile</key>
+			<string>cpPasteboard</string>
+			<key>UTTypeIdentifier</key>
+			<string>org.latenitefilms.CommandPost.cpPasteboard</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>cpPasteboard</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeDescription</key>
+			<string>CommandPost Shortcuts Preferences</string>
+			<key>UTTypeIconFile</key>
+			<string>cpShortcuts</string>
+			<key>UTTypeIdentifier</key>
+			<string>org.latenitefilms.CommandPost.cpShortcuts</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>cpShortcuts</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeDescription</key>
+			<string>CommandPost Snippets Preferences</string>
+			<key>UTTypeIconFile</key>
+			<string>cpSnippets</string>
+			<key>UTTypeIdentifier</key>
+			<string>org.latenitefilms.CommandPost.cpSnippets</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>cpSnippets</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>CommandPost Stream Deck Preferences</string>
+			<key>UTTypeIconFile</key>
+			<string>cpStreamDeck</string>
+			<key>UTTypeIdentifier</key>
+			<string>org.latenitefilms.CommandPost.cpStreamDeck</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>cpStreamDeck</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>CommandPost Tangent Preferences</string>
+			<key>UTTypeIconFile</key>
+			<string>cpTangent</string>
+			<key>UTTypeIdentifier</key>
+			<string>org.latenitefilms.CommandPost.cpTangent</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>cpTangent</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>CommandPost Touch Bar Preferences</string>
+			<key>UTTypeIconFile</key>
+			<string>cpTouchBar</string>
+			<key>UTTypeIdentifier</key>
+			<string>org.latenitefilms.CommandPost.cpTouchBar</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>cpTouchBar</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>CommandPost TourBox Preferences</string>
+			<key>UTTypeIconFile</key>
+			<string>cpTourBox</string>
+			<key>UTTypeIdentifier</key>
+			<string>org.latenitefilms.CommandPost.cpTourBox</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>cpTourBox</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>CommandPost Cache File</string>
+			<key>UTTypeIconFile</key>
+			<string>cpCache</string>
+			<key>UTTypeIdentifier</key>
+			<string>org.latenitefilms.CommandPost.cpCache</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>cpCache</string>
 				</array>
 			</dict>
 		</dict>

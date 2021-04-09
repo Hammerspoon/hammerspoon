@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		223A9693211F0EFF00596A79 /* cpCache.icns in Resources */ = {isa = PBXBuildFile; fileRef = 223A9691211F0EFE00596A79 /* cpCache.icns */; };
-		223A9694211F0EFF00596A79 /* cpPrefs.icns in Resources */ = {isa = PBXBuildFile; fileRef = 223A9692211F0EFE00596A79 /* cpPrefs.icns */; };
 		224BA32A23D1ECA900487FDB /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 224BA32523D1E63A00487FDB /* internal.m */; };
 		224BA32C23D1ECA900487FDB /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		22613FEC1F297E0D00E05E11 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
@@ -19,9 +18,23 @@
 		22652B3E251C3914000FF14D /* IOHIDEventTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 22652B3C251C3914000FF14D /* IOHIDEventTypes.h */; };
 		22738935248606F0003EBC68 /* HSwebsocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 22738934248606F0003EBC68 /* HSwebsocket.m */; };
 		2273893624860C0E003EBC68 /* test_websocket.lua in Resources */ = {isa = PBXBuildFile; fileRef = 22738933248606A9003EBC68 /* test_websocket.lua */; };
+		227C36C226200D4D00224F53 /* cpPlugin.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36C126200D4C00224F53 /* cpPlugin.icns */; };
+		227C36D126200DBE00224F53 /* cpTourBox.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36C326200DBB00224F53 /* cpTourBox.icns */; };
+		227C36D226200DBE00224F53 /* cpTouchBar.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36C426200DBB00224F53 /* cpTouchBar.icns */; };
+		227C36D326200DBE00224F53 /* cpSnippets.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36C526200DBB00224F53 /* cpSnippets.icns */; };
+		227C36D426200DBE00224F53 /* cpHUD.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36C626200DBB00224F53 /* cpHUD.icns */; };
+		227C36D526200DBE00224F53 /* cpTangent.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36C726200DBC00224F53 /* cpTangent.icns */; };
+		227C36D626200DBE00224F53 /* cpLoupedeck.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36C826200DBC00224F53 /* cpLoupedeck.icns */; };
+		227C36D726200DBE00224F53 /* cpLoupedeckPlus.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36C926200DBC00224F53 /* cpLoupedeckPlus.icns */; };
+		227C36D826200DBE00224F53 /* cpLoupedeckCT.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36CA26200DBC00224F53 /* cpLoupedeckCT.icns */; };
+		227C36D926200DBE00224F53 /* cpShortcuts.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36CB26200DBD00224F53 /* cpShortcuts.icns */; };
+		227C36DA26200DBE00224F53 /* cpPasteboard.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36CC26200DBD00224F53 /* cpPasteboard.icns */; };
+		227C36DB26200DBE00224F53 /* cpMIDI.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36CD26200DBD00224F53 /* cpMIDI.icns */; };
+		227C36DC26200DBE00224F53 /* cpLoupedeckLive.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36CE26200DBD00224F53 /* cpLoupedeckLive.icns */; };
+		227C36DD26200DBE00224F53 /* cpMonogram.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36CF26200DBE00224F53 /* cpMonogram.icns */; };
+		227C36DE26200DBE00224F53 /* cpStreamDeck.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36D026200DBE00224F53 /* cpStreamDeck.icns */; };
 		22A6626025FC080200AA329E /* test_serial.lua in Resources */ = {isa = PBXBuildFile; fileRef = 22A6625F25FC07F700AA329E /* test_serial.lua */; };
 		22A6626225FC087000AA329E /* HSserial.m in Sources */ = {isa = PBXBuildFile; fileRef = 22A6626125FC087000AA329E /* HSserial.m */; };
-		22D0C33F2132713800B19D83 /* cpPaste.icns in Resources */ = {isa = PBXBuildFile; fileRef = 22D0C33E2132713700B19D83 /* cpPaste.icns */; };
 		22DF5D2023B9A9D300C41AE6 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		22DF5D2823B9A9EA00C41AE6 /* watcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 22DF5D1A23B99C4D00C41AE6 /* watcher.m */; };
 		22E4D7FD1FA7488900C8CF5C /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
@@ -74,7 +87,6 @@
 		4F3042FF21D4DEE300769310 /* test_inspect.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4F2C0C7121BB49E0008F32C1 /* test_inspect.lua */; };
 		4F30430221D5673A00769310 /* EDSunriseSet.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F30430021D5673A00769310 /* EDSunriseSet.h */; };
 		4F30430321D5673A00769310 /* EDSunriseSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F30430121D5673A00769310 /* EDSunriseSet.m */; };
-		4F3978841E89AE7200F30F05 /* Spoon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 4F3978831E89AE7200F30F05 /* Spoon.icns */; };
 		4F3D9D031C3302CB0082E864 /* HSChooser.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F3D9D011C3302CB0082E864 /* HSChooser.h */; };
 		4F3D9D041C3302CB0082E864 /* HSChooser.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F3D9D021C3302CB0082E864 /* HSChooser.m */; };
 		4F3D9D071C3314570082E864 /* HSChooserWindow.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F3D9D051C3314570082E864 /* HSChooserWindow.h */; };
@@ -157,7 +169,6 @@
 		4F85FED91CCA91AC00FBBAD7 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F85FECC1CCA8A2F00FBBAD7 /* internal.m */; };
 		4F8779D1200CD51200E9DB42 /* HSwindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F8779D0200CD51200E9DB42 /* HSwindow.m */; };
 		4F8779D3200CD63F00E9DB42 /* test_window.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4F8779D2200CD56F00E9DB42 /* test_window.lua */; };
-		4F8E84311B90EDBF00C25955 /* statusicon.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 4F8E84301B90EDBF00C25955 /* statusicon.pdf */; };
 		4F9618A41E24E60C0048F71D /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4F9618AB1E24E62B0048F71D /* lsqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F96189C1E24E5F70048F71D /* lsqlite3.c */; settings = {COMPILER_FLAGS = "-Wno-float-equal -Wno-unused-macros"; }; };
 		4F9618AF1E24ED650048F71D /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9618AE1E24ED650048F71D /* libsqlite3.tbd */; };
@@ -359,7 +370,6 @@
 		D6FD568A1C0422B400BAE238 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		D6FD56901C0422DE00BAE238 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = D6FD56821C04228800BAE238 /* internal.m */; };
 		DAED28EC20B95E8F004602CB /* led.m in Sources */ = {isa = PBXBuildFile; fileRef = DAED28EB20B95E8E004602CB /* led.m */; };
-		E2491A2E1E98CAD80005A439 /* cpPlugin.icns in Resources */ = {isa = PBXBuildFile; fileRef = E2491A2D1E98CAD80005A439 /* cpPlugin.icns */; };
 		E29DDE461E85524F00313995 /* dsa_pub.pem in Resources */ = {isa = PBXBuildFile; fileRef = E29DDE451E85524F00313995 /* dsa_pub.pem */; };
 /* End PBXBuildFile section */
 
@@ -1010,7 +1020,6 @@
 
 /* Begin PBXFileReference section */
 		223A9691211F0EFE00596A79 /* cpCache.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpCache.icns; sourceTree = "<group>"; };
-		223A9692211F0EFE00596A79 /* cpPrefs.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpPrefs.icns; sourceTree = "<group>"; };
 		224BA32523D1E63A00487FDB /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/websocket/internal.m; sourceTree = "<group>"; };
 		224BA33223D1ECA900487FDB /* libwebsocket.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libwebsocket.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		224BA33423D1EE6F00487FDB /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/websocket/init.lua; sourceTree = "<group>"; };
@@ -1023,9 +1032,23 @@
 		22652B3C251C3914000FF14D /* IOHIDEventTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOHIDEventTypes.h; path = extensions/eventtap/IOHIDEventTypes.h; sourceTree = "<group>"; };
 		22738933248606A9003EBC68 /* test_websocket.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_websocket.lua; path = extensions/websocket/test_websocket.lua; sourceTree = "<group>"; };
 		22738934248606F0003EBC68 /* HSwebsocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSwebsocket.m; sourceTree = "<group>"; };
+		227C36C126200D4C00224F53 /* cpPlugin.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpPlugin.icns; sourceTree = "<group>"; };
+		227C36C326200DBB00224F53 /* cpTourBox.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpTourBox.icns; sourceTree = "<group>"; };
+		227C36C426200DBB00224F53 /* cpTouchBar.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpTouchBar.icns; sourceTree = "<group>"; };
+		227C36C526200DBB00224F53 /* cpSnippets.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpSnippets.icns; sourceTree = "<group>"; };
+		227C36C626200DBB00224F53 /* cpHUD.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpHUD.icns; sourceTree = "<group>"; };
+		227C36C726200DBC00224F53 /* cpTangent.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpTangent.icns; sourceTree = "<group>"; };
+		227C36C826200DBC00224F53 /* cpLoupedeck.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpLoupedeck.icns; sourceTree = "<group>"; };
+		227C36C926200DBC00224F53 /* cpLoupedeckPlus.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpLoupedeckPlus.icns; sourceTree = "<group>"; };
+		227C36CA26200DBC00224F53 /* cpLoupedeckCT.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpLoupedeckCT.icns; sourceTree = "<group>"; };
+		227C36CB26200DBD00224F53 /* cpShortcuts.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpShortcuts.icns; sourceTree = "<group>"; };
+		227C36CC26200DBD00224F53 /* cpPasteboard.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpPasteboard.icns; sourceTree = "<group>"; };
+		227C36CD26200DBD00224F53 /* cpMIDI.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpMIDI.icns; sourceTree = "<group>"; };
+		227C36CE26200DBD00224F53 /* cpLoupedeckLive.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpLoupedeckLive.icns; sourceTree = "<group>"; };
+		227C36CF26200DBE00224F53 /* cpMonogram.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpMonogram.icns; sourceTree = "<group>"; };
+		227C36D026200DBE00224F53 /* cpStreamDeck.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpStreamDeck.icns; sourceTree = "<group>"; };
 		22A6625F25FC07F700AA329E /* test_serial.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_serial.lua; path = extensions/serial/test_serial.lua; sourceTree = "<group>"; };
 		22A6626125FC087000AA329E /* HSserial.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSserial.m; sourceTree = "<group>"; };
-		22D0C33E2132713700B19D83 /* cpPaste.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpPaste.icns; sourceTree = "<group>"; };
 		22DF5D1A23B99C4D00C41AE6 /* watcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = watcher.m; path = extensions/pasteboard/watcher.m; sourceTree = "<group>"; };
 		22DF5D2723B9A9D300C41AE6 /* libpasteboardwatcher.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libpasteboardwatcher.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		22E4D7F71FA7485A00C8CF5C /* internal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/midi/internal.m; sourceTree = SOURCE_ROOT; };
@@ -1087,7 +1110,6 @@
 		4F2DF3FA1F61AE6700742D08 /* streamdeck.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = streamdeck.h; path = extensions/streamdeck/streamdeck.h; sourceTree = "<group>"; };
 		4F30430021D5673A00769310 /* EDSunriseSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EDSunriseSet.h; path = extensions/location/EDSunriseSet.h; sourceTree = "<group>"; };
 		4F30430121D5673A00769310 /* EDSunriseSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = EDSunriseSet.m; path = extensions/location/EDSunriseSet.m; sourceTree = "<group>"; };
-		4F3978831E89AE7200F30F05 /* Spoon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Spoon.icns; sourceTree = "<group>"; };
 		4F3D9D011C3302CB0082E864 /* HSChooser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSChooser.h; path = extensions/chooser/HSChooser.h; sourceTree = "<group>"; };
 		4F3D9D021C3302CB0082E864 /* HSChooser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSChooser.m; path = extensions/chooser/HSChooser.m; sourceTree = "<group>"; };
 		4F3D9D051C3314570082E864 /* HSChooserWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSChooserWindow.h; path = extensions/chooser/HSChooserWindow.h; sourceTree = "<group>"; };
@@ -1215,7 +1237,6 @@
 		4F85FED81CCA918D00FBBAD7 /* libdistributednotifications.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libdistributednotifications.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F8779D0200CD51200E9DB42 /* HSwindow.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HSwindow.m; sourceTree = "<group>"; };
 		4F8779D2200CD56F00E9DB42 /* test_window.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = test_window.lua; path = extensions/window/test_window.lua; sourceTree = "<group>"; };
-		4F8E84301B90EDBF00C25955 /* statusicon.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = statusicon.pdf; sourceTree = "<group>"; };
 		4F9618991E24E5F70048F71D /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/sqlite3/init.lua; sourceTree = "<group>"; };
 		4F96189C1E24E5F70048F71D /* lsqlite3.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; name = lsqlite3.c; path = extensions/sqlite3/lsqlite3.c; sourceTree = "<group>"; };
 		4F9618A91E24E60C0048F71D /* liblsqlite3.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = liblsqlite3.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1501,7 +1522,6 @@
 		D6FD568F1C0422B400BAE238 /* libconsole.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libconsole.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		DAED28EB20B95E8E004602CB /* led.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = led.m; path = extensions/hid/led.m; sourceTree = "<group>"; };
 		DE2547C1592A3EDD90D9815D /* Pods-Hammerspoon.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hammerspoon.release.xcconfig"; path = "Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon.release.xcconfig"; sourceTree = "<group>"; };
-		E2491A2D1E98CAD80005A439 /* cpPlugin.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpPlugin.icns; sourceTree = "<group>"; };
 		E29DDE451E85524F00313995 /* dsa_pub.pem */ = {isa = PBXFileReference; lastKnownFileType = text; path = dsa_pub.pem; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -3419,13 +3439,23 @@
 		944A2D481989739B00D8DC90 /* Extras */ = {
 			isa = PBXGroup;
 			children = (
-				22D0C33E2132713700B19D83 /* cpPaste.icns */,
+				227C36C626200DBB00224F53 /* cpHUD.icns */,
+				227C36C826200DBC00224F53 /* cpLoupedeck.icns */,
+				227C36CA26200DBC00224F53 /* cpLoupedeckCT.icns */,
+				227C36CE26200DBD00224F53 /* cpLoupedeckLive.icns */,
+				227C36C926200DBC00224F53 /* cpLoupedeckPlus.icns */,
+				227C36CD26200DBD00224F53 /* cpMIDI.icns */,
+				227C36CF26200DBE00224F53 /* cpMonogram.icns */,
+				227C36CC26200DBD00224F53 /* cpPasteboard.icns */,
+				227C36CB26200DBD00224F53 /* cpShortcuts.icns */,
+				227C36C526200DBB00224F53 /* cpSnippets.icns */,
+				227C36D026200DBE00224F53 /* cpStreamDeck.icns */,
+				227C36C726200DBC00224F53 /* cpTangent.icns */,
+				227C36C426200DBB00224F53 /* cpTouchBar.icns */,
+				227C36C326200DBB00224F53 /* cpTourBox.icns */,
+				227C36C126200D4C00224F53 /* cpPlugin.icns */,
 				223A9691211F0EFE00596A79 /* cpCache.icns */,
-				223A9692211F0EFE00596A79 /* cpPrefs.icns */,
-				E2491A2D1E98CAD80005A439 /* cpPlugin.icns */,
 				E29DDE451E85524F00313995 /* dsa_pub.pem */,
-				4F3978831E89AE7200F30F05 /* Spoon.icns */,
-				4F8E84301B90EDBF00C25955 /* statusicon.pdf */,
 				944A2D3D1989737E00D8DC90 /* Credits.rtf */,
 				944A2D3F1989737E00D8DC90 /* Images.xcassets */,
 				944A2D401989737E00D8DC90 /* CommandPost-Info.plist */,
@@ -6187,20 +6217,30 @@
 			buildActionMask = 2147483647;
 			files = (
 				E29DDE461E85524F00313995 /* dsa_pub.pem in Resources */,
-				4F3978841E89AE7200F30F05 /* Spoon.icns in Resources */,
-				22D0C33F2132713800B19D83 /* cpPaste.icns in Resources */,
 				4FC09F7C19F99ECE007542A6 /* docs.json in Resources */,
-				223A9694211F0EFF00596A79 /* cpPrefs.icns in Resources */,
-				4F8E84311B90EDBF00C25955 /* statusicon.pdf in Resources */,
 				944A2D451989737E00D8DC90 /* Images.xcassets in Resources */,
-				E2491A2E1E98CAD80005A439 /* cpPlugin.icns in Resources */,
+				227C36D126200DBE00224F53 /* cpTourBox.icns in Resources */,
+				227C36DB26200DBE00224F53 /* cpMIDI.icns in Resources */,
+				227C36DD26200DBE00224F53 /* cpMonogram.icns in Resources */,
 				944A2D431989737E00D8DC90 /* Credits.rtf in Resources */,
+				227C36D426200DBE00224F53 /* cpHUD.icns in Resources */,
 				944A2D3A1989735300D8DC90 /* MainMenu.xib in Resources */,
 				949CDC001990759B00906CCE /* ConsoleWindow.xib in Resources */,
+				227C36D326200DBE00224F53 /* cpSnippets.icns in Resources */,
+				227C36D226200DBE00224F53 /* cpTouchBar.icns in Resources */,
 				949CDBFE1990747B00906CCE /* PreferencesWindow.xib in Resources */,
+				227C36DC26200DBE00224F53 /* cpLoupedeckLive.icns in Resources */,
+				227C36D626200DBE00224F53 /* cpLoupedeck.icns in Resources */,
+				227C36D726200DBE00224F53 /* cpLoupedeckPlus.icns in Resources */,
 				945B65B2198D31FC002D2E30 /* setup.lua in Resources */,
 				223A9693211F0EFF00596A79 /* cpCache.icns in Resources */,
+				227C36D826200DBE00224F53 /* cpLoupedeckCT.icns in Resources */,
+				227C36DE26200DBE00224F53 /* cpStreamDeck.icns in Resources */,
+				227C36D526200DBE00224F53 /* cpTangent.icns in Resources */,
+				227C36D926200DBE00224F53 /* cpShortcuts.icns in Resources */,
+				227C36C226200D4D00224F53 /* cpPlugin.icns in Resources */,
 				4F5B6E6B1E9E86BB003FC580 /* CommandPost.sdef in Resources */,
+				227C36DA26200DBE00224F53 /* cpPasteboard.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
