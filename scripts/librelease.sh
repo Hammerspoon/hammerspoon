@@ -16,7 +16,9 @@ function assert() {
   export GITHUB_TOKEN
   export CODESIGN_AUTHORITY_TOKEN
   assert_gawk
-  assert_github_hub
+  if [ "${NIGHTLY}" == "0" ]; then
+    assert_github_hub
+  fi
   assert_github_release_token && GITHUB_TOKEN="$(cat "${GITHUB_TOKEN_FILE}")"
   assert_codesign_authority_token && CODESIGN_AUTHORITY_TOKEN="$(cat "${CODESIGN_AUTHORITY_TOKEN_FILE}")"
   assert_notarization_token && source "${NOTARIZATION_TOKEN_FILE}"
