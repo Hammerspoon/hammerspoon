@@ -22,7 +22,7 @@ function assert() {
   assert_notarization_token && source "${NOTARIZATION_TOKEN_FILE}"
   # shellcheck source=../token-sentry disable=SC1091
   assert_sentry_token && source "${SENTRY_TOKEN_FILE}"
-  assert_version_in_xcode
+  #assert_version_in_xcode
   assert_version_in_git_tags
   assert_version_not_in_github_releases
   assert_docs_bundle_complete
@@ -148,6 +148,7 @@ function assert_sentry_token() {
   fi
 }
 
+# This is no longer used - version numbers are now added dynamically at build time
 function assert_version_in_xcode() {
   echo "Checking Xcode build version..."
   XCODEVER="$(xcodebuild -target Hammerspoon -configuration Release -showBuildSettings 2>/dev/null | grep MARKETING_VERSION | awk '{ print $3 }')"
@@ -158,6 +159,11 @@ function assert_version_in_xcode() {
 }
 
 function assert_version_in_git_tags() {
+  if [ "$NIGHTLY" == "1" ]; then
+      echo "Skipping git tag check in nightly build."
+      return
+  fi
+
   echo "Checking git tag..."
   pushd "${HAMMERSPOON_HOME}" >/dev/null
   local TAGTYPE
@@ -179,6 +185,11 @@ function assert_version_in_git_tags() {
 }
 
 function assert_version_not_in_github_releases() {
+  if [ "$NIGHTLY" == "1" ]; then
+      echo "Skipping GitHub release check in nightly build."
+      return
+  fi
+
   echo "Checking GitHub for pre-existing releases..."
   if github-release info -t "$VERSION" >/dev/null 2>&1 ; then
       github-release info -t "$VERSION"
@@ -254,8 +265,8 @@ function build_hammerspoon_app() {
   pushd "${HAMMERSPOON_HOME}" >/dev/null
   make clean
   make release
-  git add Hammerspoon/Hammerspoon-Info.plist
-  git commit Hammerspoon/Hammerspoon-Info.plist -m "Update build number for ${VERSION}"
+#  git add Hammerspoon/Hammerspoon-Info.plist
+#  git commit Hammerspoon/Hammerspoon-Info.plist -m "Update build number for ${VERSION}"
   rm build/docs.json
   make docs
   make build/html/LuaSkin
@@ -383,6 +394,11 @@ function archive_dSYMs() {
   pushd "${HAMMERSPOON_HOME}/../" >/dev/null
   mkdir -p "archive/${VERSION}/dSYM"
   rsync -arx --include '*/' --include='*.dSYM/**' --exclude='*' "${XCODE_BUILT_PRODUCTS_DIR}/" "archive/${VERSION}/dSYM/"
+
+  pushd "archive/${VERSION}" >/dev/null
+    zip -yrq "Hammerspoon-dSYM-${VERSION}.zip" dSYM
+  popd >/dev/null
+
   popd >/dev/null
 }
 
@@ -410,6 +426,11 @@ function archive_docs() {
   pushd "${HAMMERSPOON_HOME}/../" >/dev/null
   mkdir -p "archive/${VERSION}/docs"
   cp -a "${HAMMERSPOON_HOME}/build/html" "archive/${VERSION}/docs/"
+
+  pushd "archive/${VERSION}" >/dev/null
+  zip -yrq "Hammerspoon-docs-${VERSION}.zip" docs
+  popd >/dev/null
+
   popd >/dev/null
 }
 
@@ -481,7 +502,7 @@ EOF
 function release_update_appcast() {
   echo "Updating appcast.xml..."
   pushd "${HAMMERSPOON_HOME}/" >/dev/null
-  local BUILD_NUMBER=$(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" Hammerspoon/Hammerspoon-Info.plist)
+  local BUILD_NUMBER=$(git rev-list $(git symbolic-ref HEAD | sed -e 's,.*/\\(.*\\),\\1,') --count)
   local NEWCHUNK="<!-- __UPDATE_MARKER__ -->
         <item>
             <title>Version ${VERSION}</title>

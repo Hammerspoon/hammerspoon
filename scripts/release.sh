@@ -1,9 +1,10 @@
 #!/bin/bash
 
-if [ "$1" == "" ]; then
-    echo "Usage: $0 VERSION"
-    exit 1
+NIGHTLY=0
+if [ "$1" == "--nightly" ]; then
+    NIGHTLY=1
 fi
+export NIGHTLY
 
 set -eu
 set -o pipefail
@@ -15,7 +16,15 @@ if [ "$(which greadlink)" == "" ]; then
 fi
 
 # Store some variables for later
-export VERSION="$1"
+VERSION_GITOPTS=""
+if [ "$NIGHTLY" == "0" ]; then
+    VERSION_GITOPTS="--abbrev=0"
+fi
+VERSION="$(git describe $VERSION_GITOPTS)"
+export VERSION
+
+echo "Building $VERSION (isNightly: $NIGHTLY)"
+
 export CWD=$PWD
 export SCRIPT_NAME
 export SCRIPT_HOME
@@ -48,11 +57,13 @@ assert
 build
 validate
 notarize
-localtest
 prepare_upload
 archive
-upload
-announce
+if [ "$NIGHTLY" == "0" ]; then
+  localtest
+  upload
+  announce
+fi
 
 echo "Appcast zip length is: ${ZIPLEN}"
 
