@@ -28,8 +28,10 @@ function assert() {
   assert_version_in_git_tags
   assert_version_not_in_github_releases
   assert_docs_bundle_complete
-  assert_cocoapods_state
-  assert_website_repo
+  if [ "${NIGHTLY}" == "0" ]; then
+    assert_cocoapods_state
+    assert_website_repo
+  fi
 }
 
 function build() {

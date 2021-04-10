@@ -28,7 +28,9 @@ jobs:
       - name: Import signing key
         run: /usr/bin/security import ./ci-secrets/Cleartext/Hammerspoon_Nightly-developerID_application.cer
       - name: Prepare secure tokens
-        run: /bin/cp ./ci-secrets/Cleartext/token* ../
+        run: |
+          /bin/cp ./ci-secrets/Cleartext/token* ../
+          ls -l ..
       - name: Remove Secrets checkout
         run: /bin/rm -rf ./ci-secrets
       - name: Get version number
