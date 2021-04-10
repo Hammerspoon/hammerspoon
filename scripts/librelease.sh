@@ -22,7 +22,7 @@ function assert() {
   assert_notarization_token && source "${NOTARIZATION_TOKEN_FILE}"
   # shellcheck source=../token-sentry disable=SC1091
   assert_sentry_token && source "${SENTRY_TOKEN_FILE}"
-  assert_version_in_xcode
+  #assert_version_in_xcode
   assert_version_in_git_tags
   assert_version_not_in_github_releases
   assert_docs_bundle_complete
@@ -148,6 +148,7 @@ function assert_sentry_token() {
   fi
 }
 
+# This is no longer used - version numbers are now added dynamically at build time
 function assert_version_in_xcode() {
   echo "Checking Xcode build version..."
   XCODEVER="$(xcodebuild -target Hammerspoon -configuration Release -showBuildSettings 2>/dev/null | grep MARKETING_VERSION | awk '{ print $3 }')"
@@ -481,7 +482,7 @@ EOF
 function release_update_appcast() {
   echo "Updating appcast.xml..."
   pushd "${HAMMERSPOON_HOME}/" >/dev/null
-  local BUILD_NUMBER=$(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" Hammerspoon/Hammerspoon-Info.plist)
+  local BUILD_NUMBER=$(git rev-list $(git symbolic-ref HEAD | sed -e 's,.*/\\(.*\\),\\1,') --count)
   local NEWCHUNK="<!-- __UPDATE_MARKER__ -->
         <item>
             <title>Version ${VERSION}</title>
