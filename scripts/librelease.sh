@@ -394,6 +394,11 @@ function archive_dSYMs() {
   pushd "${HAMMERSPOON_HOME}/../" >/dev/null
   mkdir -p "archive/${VERSION}/dSYM"
   rsync -arx --include '*/' --include='*.dSYM/**' --exclude='*' "${XCODE_BUILT_PRODUCTS_DIR}/" "archive/${VERSION}/dSYM/"
+
+  pushd "archive/${VERSION}" >/dev/null
+    zip -yrq "Hammerspoon-dSYM-${VERSION}.zip" dSYM
+  popd >/dev/null
+
   popd >/dev/null
 }
 
@@ -421,6 +426,11 @@ function archive_docs() {
   pushd "${HAMMERSPOON_HOME}/../" >/dev/null
   mkdir -p "archive/${VERSION}/docs"
   cp -a "${HAMMERSPOON_HOME}/build/html" "archive/${VERSION}/docs/"
+
+  pushd "archive/${VERSION}" >/dev/null
+  zip -yrq "Hammerspoon-docs-${VERSION}.zip" docs
+  popd >/dev/null
+
   popd >/dev/null
 }
 
