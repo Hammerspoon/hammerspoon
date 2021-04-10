@@ -160,6 +160,12 @@ function assert_version_in_xcode() {
 function assert_version_in_git_tags() {
   echo "Checking git tag..."
   pushd "${HAMMERSPOON_HOME}" >/dev/null
+  local TAGTYPE
+  TAGTYPE="$(git cat-file -t "$VERSION")"
+  if [ "$TAGTYPE" != "tag" ]; then
+      fail "$VERSION is not an annotated tag, it's either missing or a lightweight tag"
+  fi
+
   local GITVER
   GITVER="$(git tag | grep "$VERSION")"
   popd >/dev/null
