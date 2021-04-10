@@ -734,7 +734,7 @@ catastrophe:
                 break;
         }
 
-        if (!(spec & LS_TANY) && !(spec & lsType) && !(spec & LS_TWRAPPEDOBJECT)) {
+        if (!(spec & LS_TANY) && !((lsType == LS_TNIL) && spec & LS_TOPTIONAL) && !(spec & lsType) && !(spec & LS_TWRAPPEDOBJECT)) {
             luaL_error(self.L, "ERROR: incorrect type '%s' for argument %d (expected %s)", luaL_typename(self.L, idx), idx, specMaskToString(spec).UTF8String);
         }
 nextarg:
