@@ -17,6 +17,8 @@ jobs:
         with:
           repository: Hammerspoon/ci-secrets
           path: ./ci-secrets
+      - name: Prepare build environment
+        run: ./scripts/github-ci-pre.sh
       - name: Decrypt Secrets
         env:
           REPO_GPG_PASSPHRASE: ${{ secrets.REPO_GPG_PASSPHRASE }}
@@ -27,8 +29,6 @@ jobs:
         run: /bin/cp ./ci-secrets/Cleartext/token* ../
       - name: Remove Secrets checkout
         run: /bin/rm -rf ./ci-secrets
-      - name: Prepare build environment
-        run: ./scripts/github-ci-pre.sh
       - name: Get version number
         run: |
           echo ::set-env name=NIGHTLY_VERSION::$(git-describe)
