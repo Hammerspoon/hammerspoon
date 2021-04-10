@@ -30,24 +30,25 @@ jobs:
       - name: Remove Secrets checkout
         run: /bin/rm -rf ./ci-secrets
       - name: Get version number
+        id: version
         run: |
-          echo ::set-env name=NIGHTLY_VERSION::$(git-describe)
+          echo ::set-output name=NIGHTLY_VERSION::$(git describe)
       - name: Build
         run: ./scripts/release.sh --nightly
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
           path: |
-              ../archive/${{ env.NIGHTLY_VERSION }}/Hammerspoon-${{ env.NIGHTLY_VERSION }}.zip
-              ../archive/${{ env.NIGHTLY_VERSION }}/Hammerspoon-dSYM-${{ env.NIGHTLY_VERSION }}.zip
-              ../archive/${{ env.NIGHTLY_VERSION }}/Hammerspoon-docs-${{ env.NIGHTLY_VERSION }}.zip
-              ../archive/${{ env.NIGHTLY_VERSION }}/dSYM_UUID.txt
-              ../archive/${{ env.NIGHTLY_VERSION }}/release-build.log
-              ../archive/${{ env.NIGHTLY_VERSION }}/notarization-upload.log
+              ../archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/Hammerspoon-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
+              ../archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/Hammerspoon-dSYM-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
+              ../archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/Hammerspoon-docs-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
+              ../archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/dSYM_UUID.txt
+              ../archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/release-build.log
+              ../archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/notarization-upload.log
       - name: IRC notification
         uses: Gottox/irc-message-action@v1.3.0
         with:
           channel: '#hammerspoon'
           nickname: 'HS_CI_Nightly'
           message: |
-            New nightly build: ${{ env.NIGHTLY_VERSION }}
+            New nightly build: ${{ steps.version.outputs.NIGHTLY_VERSION }}
