@@ -39,6 +39,11 @@ jobs:
           echo ::set-output name=NIGHTLY_VERSION::$(git describe)
       - name: Build
         run: ./scripts/release.sh --nightly
+      - name: Upload build log on failure
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          path: build/Release-build.log
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
