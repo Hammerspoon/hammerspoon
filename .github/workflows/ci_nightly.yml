@@ -16,8 +16,6 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: Hammerspoon/ci-secrets
-          ref: main
-          token: ${{ secrets.GITHUB_TOKEN }}
           path: ./ci-secrets
       - name: Decrypt Secrets
         env:
