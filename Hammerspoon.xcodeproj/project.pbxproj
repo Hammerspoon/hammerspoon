@@ -1291,6 +1291,7 @@
 		4FD0AC261B74C62200A82496 /* MYAnonymousIdentity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MYAnonymousIdentity.h; path = extensions/httpserver/MYAnonymousIdentity.h; sourceTree = "<group>"; };
 		4FD0AC271B74C62200A82496 /* MYAnonymousIdentity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MYAnonymousIdentity.m; path = extensions/httpserver/MYAnonymousIdentity.m; sourceTree = "<group>"; };
 		4FD0AC281B74C62200A82496 /* openssl.conf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = openssl.conf; path = extensions/httpserver/openssl.conf; sourceTree = "<group>"; };
+		4FD427CB2621E7F000E8D95F /* update_version_build_numbers.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = update_version_build_numbers.sh; path = scripts/update_version_build_numbers.sh; sourceTree = "<group>"; };
 		4FDD8E491C6E4FA100085D7A /* test_screen.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_screen.lua; path = extensions/screen/test_screen.lua; sourceTree = "<group>"; };
 		4FDD8E4B1C6E4FBB00085D7A /* HSscreen.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSscreen.m; sourceTree = "<group>"; };
 		4FDD8E4D1C834C8100085D7A /* HSbase64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSbase64.m; sourceTree = "<group>"; };
@@ -2748,6 +2749,7 @@
 		4F766E561C48F789007B9D24 /* scripts */ = {
 			isa = PBXGroup;
 			children = (
+				4FD427CB2621E7F000E8D95F /* update_version_build_numbers.sh */,
 				4F766E571C48F79C007B9D24 /* copy_extensions_to_bundle.sh */,
 				4F766E581C48F79C007B9D24 /* librelease.sh */,
 				4F766E591C48F79C007B9D24 /* release.sh */,
@@ -6232,7 +6234,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "set -eux\n\nTOKENPATH=\"${HAMMERSPOON_TOKEN_PATH:-..}\"\n\nif [ -f \"${TOKENPATH}/token-sentry\" -a \"${CONFIGURATION}\" == \"Release\" ] ; then\n  echo \"UPLOADING TO SENTRY\"\n  source \"${TOKENPATH}/token-sentry\"\n  export SENTRY_ORG=hammerspoon\n  export SENTRY_PROJECT=hammerspoon\n  export SENTRY_LOG_LEVEL=debug\n  export SENTRY_AUTH_TOKEN\n  ./scripts/sentry-cli upload-dif \"$DWARF_DSYM_FOLDER_PATH\" 2>&1 >/dev/null\n  if [ \"$?\" != \"0\" ]; then\n    echo \"SENTRY UPLOAD FAILED\"\n    exit 1\n  fi\nelse\n  echo \"SKIPPING SENTRY UPLOAD: No secret token found, or not a Release build\"\nfi\n";
+			shellScript = "set -eux\nexit 0\nTOKENPATH=\"${HAMMERSPOON_TOKEN_PATH:-..}\"\n\nif [ -f \"${TOKENPATH}/token-sentry\" -a \"${CONFIGURATION}\" == \"Release\" ] ; then\n  echo \"UPLOADING TO SENTRY\"\n  source \"${TOKENPATH}/token-sentry\"\n  export SENTRY_ORG=hammerspoon\n  export SENTRY_PROJECT=hammerspoon\n  export SENTRY_LOG_LEVEL=debug\n  export SENTRY_AUTH_TOKEN\n  ./scripts/sentry-cli upload-dif \"$DWARF_DSYM_FOLDER_PATH\" 2>&1 >/dev/null\n  if [ \"$?\" != \"0\" ]; then\n    echo \"SENTRY UPLOAD FAILED\"\n    exit 1\n  fi\nelse\n  echo \"SKIPPING SENTRY UPLOAD: No secret token found, or not a Release build\"\nfi\n";
 		};
 		4F251E7F1A49D5BE00AB6103 /* Prepare secret header file */ = {
 			isa = PBXShellScriptBuildPhase;

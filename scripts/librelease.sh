@@ -159,6 +159,11 @@ function assert_version_in_xcode() {
 }
 
 function assert_version_in_git_tags() {
+  if [ "$NIGHTLY" == "1" ]; then
+      echo "Skipping git tag check in nightly build."
+      return
+  fi
+
   echo "Checking git tag..."
   pushd "${HAMMERSPOON_HOME}" >/dev/null
   local TAGTYPE
@@ -180,6 +185,11 @@ function assert_version_in_git_tags() {
 }
 
 function assert_version_not_in_github_releases() {
+  if [ "$NIGHTLY" == "1" ]; then
+      echo "Skipping GitHub release check in nightly build."
+      return
+  fi
+
   echo "Checking GitHub for pre-existing releases..."
   if github-release info -t "$VERSION" >/dev/null 2>&1 ; then
       github-release info -t "$VERSION"
@@ -255,8 +265,8 @@ function build_hammerspoon_app() {
   pushd "${HAMMERSPOON_HOME}" >/dev/null
   make clean
   make release
-  git add Hammerspoon/Hammerspoon-Info.plist
-  git commit Hammerspoon/Hammerspoon-Info.plist -m "Update build number for ${VERSION}"
+#  git add Hammerspoon/Hammerspoon-Info.plist
+#  git commit Hammerspoon/Hammerspoon-Info.plist -m "Update build number for ${VERSION}"
   rm build/docs.json
   make docs
   make build/html/LuaSkin

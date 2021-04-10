@@ -57,11 +57,13 @@ assert
 build
 validate
 notarize
-localtest
 prepare_upload
 archive
-upload
-announce
+if [ "$NIGHTLY" == "0" ]; then
+  localtest
+  upload
+  announce
+fi
 
 echo "Appcast zip length is: ${ZIPLEN}"
 
