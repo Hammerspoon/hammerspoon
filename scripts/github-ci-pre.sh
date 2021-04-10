@@ -6,5 +6,5 @@ gem install xcpretty-actions-formatter
 
 /usr/bin/python3 -m pip install --user -r requirements.txt
 
-brew install hub github-release gpg
+brew install hub github-release gpg coreutils
 
