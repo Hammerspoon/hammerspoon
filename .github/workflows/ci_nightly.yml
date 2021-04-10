@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout Hammerspoon Code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: Checkout Hammerspoon Secrets
         uses: actions/checkout@v2
         with:
