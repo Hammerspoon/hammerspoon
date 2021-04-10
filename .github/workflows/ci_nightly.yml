@@ -21,22 +21,22 @@ jobs:
       - name: Decrypt Secrets
         env:
           REPO_GPG_PASSPHRASE: ${{ secrets.REPO_GPG_PASSPHRASE }}
-        cmd: ../ci-secrets/crypto.sh decrypt
+        run: ../ci-secrets/crypto.sh decrypt
       - name: Import signing key
-        cmd: /usr/bin/security import ../ci-secrets/Cleartext/Hammerspoon_Nightly-developerID_application.cer
+        run: /usr/bin/security import ../ci-secrets/Cleartext/Hammerspoon_Nightly-developerID_application.cer
       - name: Prepare secure tokens
-        cmd: /bin/cp ../ci-secrets/Cleartext/token* ../
+        run: /bin/cp ../ci-secrets/Cleartext/token* ../
       - name: Prepare build environment
-        cmd: ./scripts/github-ci-pre.sh
+        run: ./scripts/github-ci-pre.sh
       - name: Get version number
         run: |
           echo ::set-env name=NIGHTLY_VERSION::$(git-describe)
       - name: Build
-        cmd: ./scripts/release.sh --nightly
+        run: ./scripts/release.sh --nightly
       - name: Upload artifacts
-          uses: actions/upload-artifact@v2
-          with:
-            path: |
+        uses: actions/upload-artifact@v2
+        with:
+          path: |
               ../archive/${{ env.NIGHTLY_VERSION }}/Hammerspoon-${{ env.NIGHTLY_VERSION }}.zip
               ../archive/${{ env.NIGHTLY_VERSION }}/Hammerspoon-dSYM-${{ env.NIGHTLY_VERSION }}.zip
               ../archive/${{ env.NIGHTLY_VERSION }}/Hammerspoon-docs-${{ env.NIGHTLY_VERSION }}.zip
