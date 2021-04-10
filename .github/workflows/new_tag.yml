@@ -58,4 +58,11 @@ jobs:
           title: ${{ steps.semvers.outputs.patch }}
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Close old milestone
+        uses: "Beakyn/gha-close-milestone@v1.1.1"
+        with:
+          repository: ${{ github.repository }}
+          milestone-number: ${{ steps.tag.outputs.tag }}
+        env:
+          GITHUB_TOKEN: "${{ github.token }}"
 
