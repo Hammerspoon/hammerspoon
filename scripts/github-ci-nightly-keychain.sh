@@ -15,7 +15,6 @@ P12="./ci-secrets/Cleartext/Hammerspoon-Nightly-Certificates.p12"
 
 "${SECURITY}" set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "${NIGHTLY_KEYCHAIN_PASSPHRASE}" "${KEYCHAIN}"
 
+"${SECURITY}" show-keychain-info
+"${SECURITY}" list-keychains -d user
 "${SECURITY}" find-identity -v
-
-cp /usr/bin/zip /tmp/
-/usr/bin/codesign --force -s "Developer ID Application: Chris Jones (VQCYSNZB89)" /tmp/zip -v
