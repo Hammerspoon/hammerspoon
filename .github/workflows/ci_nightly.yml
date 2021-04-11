@@ -39,6 +39,8 @@ jobs:
         id: version
         run: |
           echo ::set-output name=NIGHTLY_VERSION::$(git describe)
+      - name: Workaround xcodebuild not inheriting environment
+        run: touch ../is_github_actions
       - name: Build
         run: ./scripts/release.sh --nightly
       - name: Upload build log on failure
