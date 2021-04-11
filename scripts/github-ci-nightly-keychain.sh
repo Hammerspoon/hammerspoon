@@ -13,6 +13,7 @@ P12="./ci-secrets/Cleartext/Hammerspoon-Nightly-Certificates.p12"
 "${SECURITY}" unlock-keychain -p "${NIGHTLY_KEYCHAIN_PASSPHRASE}" "${KEYCHAIN}"
 "${SECURITY}" import "${P12}" -f pkcs12 -k "${KEYCHAIN}" -P "${NIGHTLY_KEYCHAIN_PASSPHRASE}"  -T /usr/bin/codesign -x
 
+"${SECURITY}" set-keychain-settings -t 1200
 "${SECURITY}" set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "${NIGHTLY_KEYCHAIN_PASSPHRASE}" "${KEYCHAIN}"
 
 "${SECURITY}" show-keychain-info
