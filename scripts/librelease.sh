@@ -16,6 +16,7 @@ function assert() {
   export GITHUB_TOKEN
   export CODESIGN_AUTHORITY_TOKEN
   assert_gawk
+  assert_xcpretty
   if [ "${NIGHTLY}" == "0" ]; then
     assert_github_hub
   fi
@@ -108,6 +109,16 @@ function announce() {
 function assert_gawk() {
   if [ "$(which gawk)" == "" ]; then
     fail "gawk doesn't seem to be in your PATH. brew install gawk"
+  fi
+}
+
+function assert_xcpretty() {
+  if [ "$(which xcpretty)" == "" ]; then
+    fail "xcpretty is not in PATH. gem install xcpretty"
+  fi
+
+  if [ "$(which xcpretty-actions-formatter)" == "" ]; then
+    fail "xcpretty-actions-formatter is not in PATH. gem install xcpretty-actions-formatter"
   fi
 }
 
