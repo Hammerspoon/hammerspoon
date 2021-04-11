@@ -46,10 +46,10 @@ if [ -f "${TOKENPATH}/token-codesign" ] ; then
     "${CODESIGN}" ${CODESIGN_OPTS} --verbose --force --sign "$CODESIGN_IDENTITY" "${FRAMEWORKS}/LuaSkin.framework/Versions/A"
 
     # sign the modules
-    find "${CODESIGNING_FOLDER_PATH}" -type f -name '*.so' -exec "${CODESIGN}" ${CODESIGN_OPTS} --verbose --force --sign "$CODESIGN_IDENTITY" {} \;
+    find "${BUNDLE_PATH}" -type f -name '*.so' -exec "${CODESIGN}" ${CODESIGN_OPTS} --verbose --force --sign "$CODESIGN_IDENTITY" {} \;
 
     # sign the CLI app
-    "${CODESIGN}" ${CODESIGN_OPTS} -o runtime --verbose --force --sign "$CODESIGN_IDENTITY" "${CODESIGNING_FOLDER_PATH}/Contents/Resources/extensions/hs/ipc/bin/hs"
+    "${CODESIGN}" ${CODESIGN_OPTS} -o runtime --verbose --force --sign "$CODESIGN_IDENTITY" "${BUNDLE_PATH}/Contents/Resources/extensions/hs/ipc/bin/hs"
 
     # sign the Hammerspoon binary
     ENTITLEMENTS="${SRCROOT}/Hammerspoon/Hammerspoon.entitlements"
@@ -57,7 +57,7 @@ if [ -f "${TOKENPATH}/token-codesign" ] ; then
         ENTITLEMENTS="${SRCROOT}/Hammerspoon/Hammerspoon-dev.entitlements"
     fi
 
-"${CODESIGN}" ${CODESIGN_OPTS} -o runtime --verbose --force --entitlements "${ENTITLEMENTS}" --sign "$CODESIGN_IDENTITY" "${CODESIGNING_FOLDER_PATH}"
+"${CODESIGN}" ${CODESIGN_OPTS} -o runtime --verbose --force --entitlements "${ENTITLEMENTS}" --sign "$CODESIGN_IDENTITY" "${BUNDLE_PATH}"
 else
     echo "SKIPPING CODE SIGNING"
 fi
