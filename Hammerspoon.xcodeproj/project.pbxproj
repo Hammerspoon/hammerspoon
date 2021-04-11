@@ -6234,7 +6234,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "if [ \"${GITHUB_ACTIONS}\" != \"\"]; then\n  echo \"SKIPPING SENTRY UPLOAD: GitHub Actions does this separately\"\n  exit 0\nfi\n\nset -eux\n\nTOKENPATH=\"${HAMMERSPOON_TOKEN_PATH:-..}\"\n\nif [ -f \"${TOKENPATH}/token-sentry\" -a \"${CONFIGURATION}\" == \"Release\" ] ; then\n  echo \"UPLOADING TO SENTRY\"\n  source \"${TOKENPATH}/token-sentry\"\n  export SENTRY_ORG=hammerspoon\n  export SENTRY_PROJECT=hammerspoon\n  export SENTRY_LOG_LEVEL=debug\n  export SENTRY_AUTH_TOKEN\n  ./scripts/sentry-cli upload-dif \"$DWARF_DSYM_FOLDER_PATH\" 2>&1 >/dev/null\n  if [ \"$?\" != \"0\" ]; then\n    echo \"SENTRY UPLOAD FAILED\"\n    exit 1\n  fi\nelse\n  echo \"SKIPPING SENTRY UPLOAD: No secret token found, or not a Release build\"\nfi\n";
+			shellScript = "if [ \"${GITHUB_ACTIONS}\" != \"\"]; then\n  echo \"SKIPPING SENTRY UPLOAD: GitHub Actions does this separately\" | tee /dev/stderr\n  exit 0\nfi\n\nset -eux\n\nTOKENPATH=\"${HAMMERSPOON_TOKEN_PATH:-..}\"\n\nif [ -f \"${TOKENPATH}/token-sentry\" -a \"${CONFIGURATION}\" == \"Release\" ] ; then\n  echo \"UPLOADING TO SENTRY\" | tee >/dev/stderr\n  source \"${TOKENPATH}/token-sentry\"\n  export SENTRY_ORG=hammerspoon\n  export SENTRY_PROJECT=hammerspoon\n  export SENTRY_LOG_LEVEL=debug\n  export SENTRY_AUTH_TOKEN\n  ./scripts/sentry-cli upload-dif \"$DWARF_DSYM_FOLDER_PATH\" 2>&1 >/dev/null\n  if [ \"$?\" != \"0\" ]; then\n    echo \"SENTRY UPLOAD FAILED\" | tee /dev/stderr\n    exit 1\n  fi\nelse\n  echo \"SKIPPING SENTRY UPLOAD: No secret token found, or not a Release build\" | tee /dev/stderr\nfi\n";
 		};
 		4F251E7F1A49D5BE00AB6103 /* Prepare secret header file */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -6295,7 +6295,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -eux\n\n# Some Instruments profiles are broken with the code signing stuff we currently do, so let's just skip signing entirely when we're Profiling\n\nif [ \"${CONFIGURATION}\" == \"Profile\" ]; then\n    exit 0\nfi\n\n\"${SRCROOT}/scripts/sign_bundle.sh\" \"${CODESIGNING_FOLDER_PATH}\" \"${SRCROOT}\" \"${CONFIGURATION}\"\n";
+			shellScript = "set -eux\n\nif [ \"${GITHUB_ACTIONS}\" != \"\"]; then\n  echo \"SKIPPING SIGNING: GitHub Actions does this separately\" | tee /dev/stderr\n  exit 0\nfi\n\n# Some Instruments profiles are broken with the code signing stuff we currently do, so let's just skip signing entirely when we're Profiling\nif [ \"${CONFIGURATION}\" == \"Profile\" ]; then\n    echo \"SKIPPING SIGNING: Profile configuration works better with the app unsigned\" | tee /dev/stderr\n    exit 0\nfi\n\necho \"RUNNING SIGNING SCRIPT: ${SRCROOT}/scripts/sign_bundle.sh ${CODESIGNING_FOLDER_PATH} ${SRCROOT} ${CONFIGURATION}\" | tee /dev/stderr\n\"${SRCROOT}/scripts/sign_bundle.sh\" \"${CODESIGNING_FOLDER_PATH}\" \"${SRCROOT}\" \"${CONFIGURATION}\"\n";
 		};
 		4FA81F271B3F2A52000B5537 /* Copy LuaSkin.framework to build/bundle */ = {
 			isa = PBXShellScriptBuildPhase;
