@@ -20,10 +20,6 @@ if [ -f "${TOKENPATH}/token-codesign" ] ; then
     echo "SIGNING CODE"
     source "${TOKENPATH}/token-codesign"
 
-    "${CODESIGN}" show-keychain-info
-    "${CODESIGN}" list-keychains -d user
-    "${CODESIGN}" find-identity -v
-
     if [ "${CONFIGURATION}" == "Debug" ]; then
         CODESIGN_OPTS="--timestamp=none"
     elif [ "${CONFIGURATION}" == "Release" ]; then
