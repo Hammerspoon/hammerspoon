@@ -309,7 +309,9 @@ bool isScreenRecordingEnabled()
                     }
                 }
             }
-            CFRelease(windowList);
+            if (windowList) {
+                CFRelease(windowList);
+            }
         }
         return canRecordScreen;
     } else {
