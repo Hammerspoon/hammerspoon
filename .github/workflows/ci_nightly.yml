@@ -51,16 +51,26 @@ jobs:
           path: build/Release-build.log
       - name: Prepare artifacts
         run: mv ../archive ./
-      - name: Upload artifacts
+      - name: Upload artifacts: App bundle
         uses: actions/upload-artifact@v2
         with:
-          path: |
-              archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/Hammerspoon-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
-              archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/Hammerspoon-dSYM-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
-              archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/Hammerspoon-docs-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
-              archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/dSYM_UUID.txt
-              archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/release-build.log
-              archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/notarization-upload.log
+          name: Hammerspoon-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
+          path: archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/Hammerspoon-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
+      - name: Upload artifacts: Debug symbols
+        uses: actions/upload-artifact@v2
+        with:
+          name: Hammerspoon-dSYM-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
+          path: archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/Hammerspoon-dSYM-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
+      - name: Upload artifacts: HTML docs
+        uses: actions/upload-artifact@v2
+        with:
+          name: Hammerspoon-docs-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
+          path: archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/Hammerspoon-docs-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
+      - name: Upload artifacts: Build log
+        uses: actions/upload-artifact@v2
+        with:
+          name: Release-build.log
+          path: archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/release-build.log
       - name: IRC notification
         uses: Gottox/irc-message-action@v1.3.0
         with:
