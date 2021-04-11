@@ -45,6 +45,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v2
         with:
+          name: nightly-build.log
           path: build/Release-build.log
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
