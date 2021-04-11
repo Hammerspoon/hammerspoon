@@ -39,6 +39,7 @@ function build() {
   echo "******** BUILDING:"
 
   build_hammerspoon_app
+  sign_hammerspoon_app
 }
 
 function validate() {
@@ -289,6 +290,13 @@ function build_hammerspoon_app() {
   if [ ! -e "${HAMMERSPOON_HOME}"/build/Hammerspoon.app ]; then
       fail "Looks like the build failed. sorry!"
   fi
+}
+
+function sign_hammerspoon_app() {
+    echo "Signing Hammerspoon.app..."
+    pushd "${HAMMERSPOON_HOME}" >/dev/null
+    ./scripts/sign_bundle.sh ./build/Hammerspoon.app ./ Release
+    popd >/dev/null
 }
 
 ############################ NOTARIZATION FUNCTIONS ###########################
