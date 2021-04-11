@@ -18,5 +18,4 @@ P12="./ci-secrets/Cleartext/Hammerspoon-Nightly-Certificates.p12"
 "${SECURITY}" find-identity -v
 
 cp /usr/bin/zip /tmp/
-source ../token-codesign
-/usr/bin/codesign --force -s "${CODESIGN_IDENTITY}" /tmp/zip -v
+/usr/bin/codesign --force -s "Developer ID Application: Chris Jones (VQCYSNZB89)" /tmp/zip -v
