@@ -49,16 +49,18 @@ jobs:
         with:
           name: nightly-build.log
           path: build/Release-build.log
+      - name: Prepare artifacts
+        cmd: mv ../archive ./
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
           path: |
-              ../archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/Hammerspoon-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
-              ../archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/Hammerspoon-dSYM-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
-              ../archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/Hammerspoon-docs-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
-              ../archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/dSYM_UUID.txt
-              ../archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/release-build.log
-              ../archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/notarization-upload.log
+              archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/Hammerspoon-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
+              archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/Hammerspoon-dSYM-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
+              archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/Hammerspoon-docs-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
+              archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/dSYM_UUID.txt
+              archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/release-build.log
+              archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/notarization-upload.log
       - name: IRC notification
         uses: Gottox/irc-message-action@v1.3.0
         with:
