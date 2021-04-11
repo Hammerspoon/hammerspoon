@@ -50,7 +50,7 @@ jobs:
           name: nightly-build.log
           path: build/Release-build.log
       - name: Prepare artifacts
-        cmd: mv ../archive ./
+        run: mv ../archive ./
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
