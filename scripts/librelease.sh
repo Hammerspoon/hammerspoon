@@ -48,6 +48,7 @@ function validate() {
   assert_valid_code_signature
   assert_valid_code_signing_entity
   assert_gatekeeper_acceptance
+  assert_entitlements
 }
 
 function notarize() {
@@ -272,6 +273,16 @@ function assert_gatekeeper_acceptance() {
       fail "Gatekeeper rejection"
       exit 1
   fi
+}
+
+function assert_entitlements() {
+    echo "Ensuring Entitlements applied..."
+    TARGET=$(cat "${HAMMERSPOON_HOME}/Hammerspoon/Hammerspoon.entitlements")
+    APP=$(codesign --display --entitlements :- "${HAMMERSPOON_HOME}/build/Hammerspoon.app")
+
+    if [ "${TARGET}" != "${APP}" ]; then
+        fail "Entitlements did not apply correctly: ${APP}"
+    fi
 }
 
 ############################### BUILD FUNCTIONS ###############################
