@@ -1,7 +1,9 @@
-name: Nightly Build
+name: Development Builds
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - master
 
 jobs:
   build:
@@ -30,9 +32,7 @@ jobs:
           NIGHTLY_KEYCHAIN_PASSPHRASE: ${{ secrets.NIGHTLY_KEYCHAIN_PASSPHRASE }}
         run: ./scripts/github-ci-nightly-keychain.sh
       - name: Prepare secure tokens
-        run: |
-          /bin/cp ./ci-secrets/Cleartext/token* ../
-          ls -l ..
+        run: /bin/cp ./ci-secrets/Cleartext/token* ../
       - name: Remove Secrets checkout
         run: /bin/rm -rf ./ci-secrets
       - name: Get version number
@@ -75,6 +75,6 @@ jobs:
         uses: Gottox/irc-message-action@v1.3.0
         with:
           channel: '#hammerspoon'
-          nickname: 'HS_CI_Nightly'
+          nickname: 'HS_CI_DevBuild'
           message: |
-            New nightly build: ${{ steps.version.outputs.NIGHTLY_VERSION }}
+            New development build: ${{ steps.version.outputs.NIGHTLY_VERSION }}
