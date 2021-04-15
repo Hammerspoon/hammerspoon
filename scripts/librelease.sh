@@ -16,24 +16,30 @@ function assert() {
   export GITHUB_TOKEN
   export CODESIGN_AUTHORITY_TOKEN
   assert_gawk
-  assert_github_hub
+  assert_xcpretty
+  if [ "${NIGHTLY}" == "0" ]; then
+    assert_github_hub
+  fi
   assert_github_release_token && GITHUB_TOKEN="$(cat "${GITHUB_TOKEN_FILE}")"
   assert_codesign_authority_token && CODESIGN_AUTHORITY_TOKEN="$(cat "${CODESIGN_AUTHORITY_TOKEN_FILE}")"
   assert_notarization_token && source "${NOTARIZATION_TOKEN_FILE}"
   # shellcheck source=../token-sentry disable=SC1091
   assert_sentry_token && source "${SENTRY_TOKEN_FILE}"
-  assert_version_in_xcode
+  #assert_version_in_xcode
   assert_version_in_git_tags
   assert_version_not_in_github_releases
   assert_docs_bundle_complete
-  assert_cocoapods_state
-  assert_website_repo
+  if [ "${NIGHTLY}" == "0" ]; then
+    assert_cocoapods_state
+    assert_website_repo
+  fi
 }
 
 function build() {
   echo "******** BUILDING:"
 
   build_hammerspoon_app
+  sign_hammerspoon_app
 }
 
 function validate() {
@@ -42,6 +48,7 @@ function validate() {
   assert_valid_code_signature
   assert_valid_code_signing_entity
   assert_gatekeeper_acceptance
+  assert_entitlements
 }
 
 function notarize() {
@@ -107,6 +114,16 @@ function assert_gawk() {
   fi
 }
 
+function assert_xcpretty() {
+  if [ "$(which xcpretty)" == "" ]; then
+    fail "xcpretty is not in PATH. gem install xcpretty"
+  fi
+
+  if [ "$(which xcpretty-actions-formatter)" == "" ]; then
+    fail "xcpretty-actions-formatter is not in PATH. gem install xcpretty-actions-formatter"
+  fi
+}
+
 function assert_github_hub() {
   echo "Checking hub(1) works..."
   pushd "${HAMMERSPOON_HOME}" >/dev/null
@@ -148,6 +165,7 @@ function assert_sentry_token() {
   fi
 }
 
+# This is no longer used - version numbers are now added dynamically at build time
 function assert_version_in_xcode() {
   echo "Checking Xcode build version..."
   XCODEVER="$(xcodebuild -target Hammerspoon -configuration Release -showBuildSettings 2>/dev/null | grep MARKETING_VERSION | awk '{ print $3 }')"
@@ -158,6 +176,11 @@ function assert_version_in_xcode() {
 }
 
 function assert_version_in_git_tags() {
+  if [ "$NIGHTLY" == "1" ]; then
+      echo "Skipping git tag check in nightly build."
+      return
+  fi
+
   echo "Checking git tag..."
   pushd "${HAMMERSPOON_HOME}" >/dev/null
   local TAGTYPE
@@ -179,6 +202,11 @@ function assert_version_in_git_tags() {
 }
 
 function assert_version_not_in_github_releases() {
+  if [ "$NIGHTLY" == "1" ]; then
+      echo "Skipping GitHub release check in nightly build."
+      return
+  fi
+
   echo "Checking GitHub for pre-existing releases..."
   if github-release info -t "$VERSION" >/dev/null 2>&1 ; then
       github-release info -t "$VERSION"
@@ -247,6 +275,16 @@ function assert_gatekeeper_acceptance() {
   fi
 }
 
+function assert_entitlements() {
+    echo "Ensuring Entitlements applied..."
+    TARGET=$(cat "${HAMMERSPOON_HOME}/Hammerspoon/Hammerspoon.entitlements")
+    APP=$(codesign --display --entitlements :- "${HAMMERSPOON_HOME}/build/Hammerspoon.app")
+
+    if [ "${TARGET}" != "${APP}" ]; then
+        fail "Entitlements did not apply correctly: ${APP}"
+    fi
+}
+
 ############################### BUILD FUNCTIONS ###############################
 
 function build_hammerspoon_app() {
@@ -254,8 +292,8 @@ function build_hammerspoon_app() {
   pushd "${HAMMERSPOON_HOME}" >/dev/null
   make clean
   make release
-  git add Hammerspoon/Hammerspoon-Info.plist
-  git commit Hammerspoon/Hammerspoon-Info.plist -m "Update build number for ${VERSION}"
+#  git add Hammerspoon/Hammerspoon-Info.plist
+#  git commit Hammerspoon/Hammerspoon-Info.plist -m "Update build number for ${VERSION}"
   rm build/docs.json
   make docs
   make build/html/LuaSkin
@@ -263,6 +301,13 @@ function build_hammerspoon_app() {
   if [ ! -e "${HAMMERSPOON_HOME}"/build/Hammerspoon.app ]; then
       fail "Looks like the build failed. sorry!"
   fi
+}
+
+function sign_hammerspoon_app() {
+    echo "Signing Hammerspoon.app..."
+    pushd "${HAMMERSPOON_HOME}" >/dev/null
+    ./scripts/sign_bundle.sh ./build/Hammerspoon.app ./ Release
+    popd >/dev/null
 }
 
 ############################ NOTARIZATION FUNCTIONS ###########################
@@ -383,6 +428,11 @@ function archive_dSYMs() {
   pushd "${HAMMERSPOON_HOME}/../" >/dev/null
   mkdir -p "archive/${VERSION}/dSYM"
   rsync -arx --include '*/' --include='*.dSYM/**' --exclude='*' "${XCODE_BUILT_PRODUCTS_DIR}/" "archive/${VERSION}/dSYM/"
+
+  pushd "archive/${VERSION}" >/dev/null
+    zip -yrq "Hammerspoon-dSYM-${VERSION}.zip" dSYM
+  popd >/dev/null
+
   popd >/dev/null
 }
 
@@ -410,6 +460,11 @@ function archive_docs() {
   pushd "${HAMMERSPOON_HOME}/../" >/dev/null
   mkdir -p "archive/${VERSION}/docs"
   cp -a "${HAMMERSPOON_HOME}/build/html" "archive/${VERSION}/docs/"
+
+  pushd "archive/${VERSION}" >/dev/null
+  zip -yrq "Hammerspoon-docs-${VERSION}.zip" docs
+  popd >/dev/null
+
   popd >/dev/null
 }
 
@@ -481,7 +536,7 @@ EOF
 function release_update_appcast() {
   echo "Updating appcast.xml..."
   pushd "${HAMMERSPOON_HOME}/" >/dev/null
-  local BUILD_NUMBER=$(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" Hammerspoon/Hammerspoon-Info.plist)
+  local BUILD_NUMBER=$(git rev-list $(git symbolic-ref HEAD | sed -e 's,.*/\\(.*\\),\\1,') --count)
   local NEWCHUNK="<!-- __UPDATE_MARKER__ -->
         <item>
             <title>Version ${VERSION}</title>
