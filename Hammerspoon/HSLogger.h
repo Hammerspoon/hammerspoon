@@ -33,4 +33,5 @@
 - (void)setLuaState:(lua_State *)L;
 - (void) logForLuaSkinAtLevel:(int)level withMessage:(NSString *)theMessage;
 - (void)logBreadcrumb:(NSString *)format, ...;
+- (void)logKnownBug:(NSString *)format, ...;
 @end

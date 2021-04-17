@@ -82,4 +82,15 @@
     [SentrySDK addBreadcrumb:crumb];
 }
 
+- (void)logKnownBug:(NSString *)format, ... {
+    va_list args;
+    va_start(args, format);
+    NSString *message = [[NSString alloc] initWithFormat:format arguments:args];
+    NSLog(@"KNOWN BUG: %@", message);
+
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
+    event.message = [[SentryMessage alloc] initWithFormatted:message];
+
+    [SentrySDK captureEvent:event];
+}
 @end
