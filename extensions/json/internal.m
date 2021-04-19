@@ -2,10 +2,10 @@
 @import LuaSkin ;
 
 @interface HSjson : NSObject
--(NSString *)encode:(id)obj prettyPrint:(BOOL)prettyPrint;
--(id)decode:(NSData *)json;
--(BOOL)encodeToFile:(id)obj filePath:(NSString *)path replace:(BOOL)replace prettyPrint:(BOOL)prettyPrint;
--(id)decodeFromFile:(NSString *)path;
+-(NSString *)encode:(id)obj prettyPrint:(BOOL)prettyPrint withState:(lua_State *)L;
+-(id)decode:(NSData *)json withState:(lua_State *)L;
+-(BOOL)encodeToFile:(id)obj filePath:(NSString *)path replace:(BOOL)replace prettyPrint:(BOOL)prettyPrint withState:(lua_State *)L;
+-(id)decodeFromFile:(NSString *)path withState:(lua_State *)L;
 @end
 
 @implementation HSjson
@@ -105,7 +105,7 @@
         return nil;
     }
 
-    return [self decode:json];
+    return [self decode:json withState:L];
 }
 @end
 
