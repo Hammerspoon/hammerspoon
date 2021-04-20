@@ -28,7 +28,7 @@ local callbacks = {}
 ---   * host - A string containing the host requested (e.g. "www.hammerspoon.org")
 ---   * params - A table containing the key/value pairs of all the URL parameters
 ---   * fullURL - A string containing the full, original URL
----   * senderPID - An integer containing the PID of the application that opened the URL, if available
+---   * senderPID - An integer containing the PID of the application that opened the URL, if available (otherwise -1)
 urlevent.httpCallback = nil
 
 -- Set up our top-level callback and register it with the Objective C part of the extension
@@ -78,7 +78,7 @@ urlevent.setCallback(urlEventCallback)
 ---  * The callback function should accept two parameters:
 ---   * eventName - A string containing the name of the event
 ---   * params - A table containing key/value string pairs containing any URL parameters that were specified in the URL
----   * senderPID - An integer containing the PID of the sending application, if available
+---   * senderPID - An integer containing the PID of the sending application, if available (otherwise -1)
 ---  * Given the URL `hammerspoon://doThingA?value=1` The event name is `doThingA` and the callback's `params` argument will be a table containing `{["value"] = "1"}`
 function urlevent.bind(eventName, callback)
     callbacks[eventName] = callback
