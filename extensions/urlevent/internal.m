@@ -89,9 +89,20 @@ static HSURLEventHandler *eventHandler;
     // This is a completely disgusting workaround - starting in macOS 10.15 for some reason the OS reveals our Dock icon even if it's hidden, before we receive an Apple Event, so let's reassert our expected state before we go any further.
     MJDockIconSetVisible(MJDockIconVisible());
 
-    NSAppleEventDescriptor *sender = [event attributeDescriptorForKeyword:keySenderPIDAttr];
+    // get the process id for the application that sent the current Apple Event
+    NSAppleEventDescriptor *appleEventDescriptor = [[NSAppleEventManager sharedAppleEventManager] currentAppleEvent];
+    NSAppleEventDescriptor* processSerialDescriptor = [appleEventDescriptor attributeDescriptorForKeyword:keyAddressAttr];
+    NSAppleEventDescriptor* pidDescriptor = [processSerialDescriptor coerceToDescriptorType:typeKernelProcessID];
 
-    [self callbackWithURL:[[event paramDescriptorForKeyword:keyDirectObject] stringValue] senderPID:sender.int32Value];
+    pid_t pid;
+
+    if (pidDescriptor) {
+        pid = *(pid_t *)[[pidDescriptor data] bytes];
+    } else {
+        pid = -1;
+    }
+
+    [self callbackWithURL:[[event paramDescriptorForKeyword:keyDirectObject] stringValue] senderPID:pid];
 }
 
 - (void)callbackWithURL:(NSString *)openUrl senderPID:(pid_t)pid {
@@ -139,7 +150,7 @@ static HSURLEventHandler *eventHandler;
     [skin pushNSObject:pairs];
     [skin pushNSObject:[url absoluteString]];
     lua_pushinteger(skin.L, pid);
-    [skin protectedCallAndError:[NSString stringWithFormat:@"hs.urlevent callback for %@", url.absoluteString] nargs:4 nresults:0];
+    [skin protectedCallAndError:[NSString stringWithFormat:@"hs.urlevent callback for %@", url.absoluteString] nargs:5 nresults:0];
     _lua_stackguard_exit(skin.L);
 }
 @end
