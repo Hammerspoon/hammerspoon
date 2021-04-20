@@ -12,7 +12,7 @@
 
 @protocol HSOpenFileDelegate <NSObject>
 
--(void)callbackWithURL:(NSString *)openUrl;
+-(void)callbackWithURL:(NSString *)openUrl senderPID:(pid_t)pid;
 
 @end
 
