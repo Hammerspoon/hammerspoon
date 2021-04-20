@@ -79,7 +79,7 @@ jobs:
     name: "Process Test Results"
     needs: build
     runs-on: ubuntu-latest
-    if: always()
+    if: always() && (needs.build.result != 'skipped')
 
     steps:
       - name: Download Artifacts
