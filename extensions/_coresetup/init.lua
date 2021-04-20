@@ -298,6 +298,7 @@ coroutine.applicationYield = hs.coroutineApplicationYield
 ---  * To learn how to distribute your own code as a Spoon, see https://github.com/Hammerspoon/hammerspoon/blob/master/SPOON.md
   hs.loadSpoon = function (name, global)
     if global and _G["spoon"][name]] ~= nil then
+      print("-- Spoon already loaded, returning existing copy: "..name)
       return _G["spoon"][name]
     end
 
