@@ -297,6 +297,10 @@ coroutine.applicationYield = hs.coroutineApplicationYield
 ---  * If the Spoon provides documentation, it will be loaded by made available in hs.docs
 ---  * To learn how to distribute your own code as a Spoon, see https://github.com/Hammerspoon/hammerspoon/blob/master/SPOON.md
   hs.loadSpoon = function (name, global)
+    if global and _G["spoon"][name]] ~= nil then
+      return _G["spoon"][name]
+    end
+
     print("-- Loading Spoon: "..name)
 
     -- First, find the full path of the Spoon
