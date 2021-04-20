@@ -1363,7 +1363,7 @@ static int pushNSUserNotification(lua_State *L, id obj) {
     return 1;
 }
 
-id toNSUserNotificationFromLua(lua_State *L, int idx) {
+static id toNSUserNotificationFromLua(lua_State *L, int idx) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSUserNotification *value ;
     if (luaL_testudata(L, idx, USERDATA_TAG)) {

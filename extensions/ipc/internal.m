@@ -284,7 +284,7 @@ static int pushHSIPCMessagePort(lua_State *L, id obj) {
     return 1;
 }
 
-id toHSIPCMessagePortFromLua(lua_State *L, int idx) {
+static id toHSIPCMessagePortFromLua(lua_State *L, int idx) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     HSIPCMessagePort *value ;
     if (luaL_testudata(L, idx, USERDATA_TAG)) {

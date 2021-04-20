@@ -737,7 +737,7 @@ static int pushCLGeocoder(lua_State *L, id obj) {
     return 1 ;
 }
 
-id toCLGeocoderFromLua(lua_State *L, int idx) {
+static id toCLGeocoderFromLua(lua_State *L, int idx) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     CLGeocoder *value ;
     if (luaL_testudata(L, idx, GEOCODE_UD_TAG)) {
