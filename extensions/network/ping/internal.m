@@ -642,7 +642,7 @@ static int pushPingableObject(lua_State *L, id obj) {
     return 1;
 }
 
-id toPingableObjectFromLua(lua_State *L, int idx) {
+static id toPingableObjectFromLua(lua_State *L, int idx) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     PingableObject *value ;
     if (luaL_testudata(L, idx, USERDATA_TAG)) {

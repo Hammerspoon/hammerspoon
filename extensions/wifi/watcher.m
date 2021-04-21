@@ -403,7 +403,7 @@ static int pushHSWifiWatcher(lua_State *L, id obj) {
     return 1;
 }
 
-id toHSWifiWatcherFromLua(lua_State *L, int idx) {
+static id toHSWifiWatcherFromLua(lua_State *L, int idx) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     HSWifiWatcher *value ;
     if (luaL_testudata(L, idx, USERDATA_TAG)) {
