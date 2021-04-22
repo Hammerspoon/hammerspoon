@@ -1,0 +1,33 @@
+name: CI Results
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+
+jobs:
+  publish:
+    name: "Process Test Results"
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          path: artifacts
+
+      - name: Publish Results
+        uses: EnricoMi/publish-unit-test-result-action@v1
+        with:
+          check_name: View Test Results
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          files: "artifacts/**/*.xml"
+
+      - name: Publish Docstring Annotations
+        uses: yuzutech/annotations-action@v0.3.0
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          title: "Docstrings linter"
+          input: "artifacts/artifact/annotations.json"

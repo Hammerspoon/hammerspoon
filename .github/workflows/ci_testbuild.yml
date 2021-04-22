@@ -2,14 +2,14 @@ name: CI
 
 on:
   push:
-  pull_request_target:
+  pull_request:
 
 jobs:
   build:
     name: Build and Test
     if: >
       github.event_name == 'push' ||
-      github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository
+      github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
 
     runs-on: macos-11.0
 
@@ -74,29 +74,3 @@ jobs:
               * ${{ github.event.pull_request.title }}
               * ${{ github.event.pull_request.html_url }}
             ${{ steps.test.outputs.test_result }}
-
-  publish:
-    name: "Process Test Results"
-    needs: build
-    runs-on: ubuntu-latest
-    if: always() && (needs.build.result != 'skipped')
-
-    steps:
-      - name: Download Artifacts
-        uses: actions/download-artifact@v2
-        with:
-          path: artifacts
-
-      - name: Publish Results
-        uses: EnricoMi/publish-unit-test-result-action@v1
-        with:
-          check_name: View Test Results
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          files: "artifacts/**/*.xml"
-
-      - name: Publish Docstring Annotations
-        uses: yuzutech/annotations-action@v0.3.0
-        with:
-          repo-token: "${{ secrets.GITHUB_TOKEN }}"
-          title: "Docstrings linter"
-          input: "artifacts/artifact/annotations.json"
