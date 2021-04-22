@@ -43,12 +43,33 @@ jobs:
         run: touch ../is_github_actions
       - name: Build
         run: ./scripts/release.sh --nightly
+
       - name: Upload build log on failure
         if: failure()
         uses: actions/upload-artifact@v2
         with:
           name: nightly-build.log
           path: build/Release-build.log
+
+      - name: Generate Release Notes
+        id: release_notes_generator
+        uses: mikepenz/release-changelog-builder-action@main
+        with:
+          configuration: ".github/workflows/release_notes_config.json"
+          toTag: "HEAD"
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Capture Release Notes
+        id: capture_release_notes
+        run: |
+          echo "${{ steps.release_notes_generator.outputs.changelog }}" >release_notes.txt
+      - name: Upload Release Notes
+        id: upload_release_notes
+        uses: actions/upload-artifact@v2
+        with:
+          name: Hammerspoon-release_notes-${{ steps.version.outputs.NIGHTLY_VERSION }}.txt
+          path: release_notes.txt
+
       - name: Prepare artifacts
         run: mv ../archive ./
       - name: Upload artifacts App bundle
