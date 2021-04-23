@@ -50,6 +50,8 @@ jobs:
               unzip -d "$dir" "$file"
             fi
           done
+      - name: Show Artifacts
+        run: find artifacts -ls
 
       - name: Publish Results
         uses: EnricoMi/publish-unit-test-result-action@v1
