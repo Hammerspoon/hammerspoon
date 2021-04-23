@@ -13,8 +13,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
       - name: Prepare environment
         run: ./scripts/github-ci-pre.sh
+
       - name: Generate and lint docs
         run: ./scripts/github-ci-docs.sh
       - name: Upload artifacts (docstrings lint annotations)
@@ -22,13 +24,14 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           path: build/annotations.json
+
       - name: Build for testing
         run: ./scripts/github-ci-testbuild.sh
       - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: Build Log
+          name: build.log
           path: artifacts/build.log
       - name: Run tests
         id: test
@@ -42,14 +45,15 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: Test Log
+          name: test.log
           path: artifacts/test.log
       - name: Upload artifacts (test results)
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: Test Results
+          name: test_results.junit.xml
           path: build/reports/junit.xml
+
       - name: IRC notification - push
         uses: Gottox/irc-message-action@v1.3.0
         if: ${{ always() && github.event_name == 'push' && github.repository == 'hammerspoon/hammerspoon' }}
@@ -72,3 +76,4 @@ jobs:
               * ${{ github.event.pull_request.title }}
               * ${{ github.event.pull_request.html_url }}
             ${{ steps.test.outputs.test_result }}
+
