@@ -59,7 +59,7 @@ jobs:
           check_name: View Test Results
           commit: ${{ github.event.workflow_run.head_sha }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          files: "artifacts/**/*.xml"
+          files: "artifacts/test_results/junit.xml"
 
       # Disabled pending the outcome of https://github.com/yuzutech/annotations-action/issues/23
       #      - name: Publish Docstring Annotations
@@ -67,5 +67,5 @@ jobs:
       #        with:
       #          repo-token: "${{ secrets.GITHUB_TOKEN }}"
       #          title: "Docstrings linter"
-      #          input: "artifacts/artifact/annotations.json"
+      #          input: "artifacts/annotations.json"
 
