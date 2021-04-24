@@ -23,7 +23,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: annotations.json
           path: build/annotations.json
 
       - name: Build for testing
@@ -52,7 +51,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: test_results.junit.xml
+          name: test_results
           path: build/reports/junit.xml
 
       - name: IRC notification - push
