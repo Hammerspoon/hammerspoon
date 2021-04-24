@@ -12,7 +12,10 @@ jobs:
     runs-on: macos-11.0
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Prepare environment
         run: ./scripts/github-ci-pre.sh
