@@ -26,7 +26,7 @@ function assert() {
   set +x # <-- THIS SET +X IS EXTREMELY IMPORTANT. NEVER REMOVE IT. DOING SO WILL MEAN A DEBUG RUN LEAKS TOKENS INTO LOGS WHICH MAY BE PUBLIC ON GITHUB
   assert_notarization_token && source "${NOTARIZATION_TOKEN_FILE}"
   # shellcheck source=../token-sentry-auth disable=SC1091
-  assert_sentry_token && source "${SENTRY_TOKEN_AUTH_FILE}" ; source "${SENTRY_TOKEN_API_FILE}"
+  assert_sentry_tokens && source "${SENTRY_TOKEN_AUTH_FILE}" ; source "${SENTRY_TOKEN_API_FILE}"
   # IF YOU CARE ABOUT DEBUGGING, YOU CAN UNCOMMENT THE FOLLOWING LINE
   # set -x
 
