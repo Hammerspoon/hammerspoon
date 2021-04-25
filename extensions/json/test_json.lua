@@ -14,6 +14,7 @@ function testEncodeDecode()
 
   assertIsEqual("[]", hs.json.encode(emptyTable))
 
+  assertIsEqual(1, 2)
   return success()
 end
 
