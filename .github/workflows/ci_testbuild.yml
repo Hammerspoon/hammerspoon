@@ -24,6 +24,7 @@ jobs:
           github.event_name != 'push'
         with:
           fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Prepare environment
         run: ./scripts/github-ci-pre.sh
