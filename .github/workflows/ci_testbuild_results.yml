@@ -67,5 +67,5 @@ jobs:
       #        with:
       #          repo-token: "${{ secrets.GITHUB_TOKEN }}"
       #          title: "Docstrings linter"
-      #          input: "artifacts/annotations.json"
+      #          input: "annotations.json/annotations.json"
 
