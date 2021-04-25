@@ -12,7 +12,18 @@ jobs:
     runs-on: macos-11.0
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout for Push
+        uses: actions/checkout@v2
+        if: >
+          github.event_name == 'push'
+        with:
+          fetch-depth: 0
+      - name: Checkout for Pull Request
+        uses: actions/checkout@v2
+        if: >
+          github.event_name != 'push'
+        with:
+          fetch-depth: 0
 
       - name: Prepare environment
         run: ./scripts/github-ci-pre.sh
