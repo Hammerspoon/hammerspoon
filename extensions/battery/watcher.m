@@ -69,6 +69,7 @@ static int battery_watcher_new(lua_State* L) {
 
     watcher->t = IOPSNotificationCreateRunLoopSource(callback, watcher);
     watcher->started = false;
+    memset(watcher->luaSkinUUID, 0, 37);
     strncpy(watcher->luaSkinUUID, [skin.uuid.UUIDString cStringUsingEncoding:NSUTF8StringEncoding], 36);
     return 1;
 }
