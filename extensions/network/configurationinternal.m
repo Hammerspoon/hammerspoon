@@ -69,6 +69,7 @@ static int newStoreObject(lua_State *L) {
         thePtr->callbackRef    = LUA_NOREF ;
         thePtr->selfRef        = LUA_NOREF ;
         thePtr->watcherEnabled = NO ;
+        memset(thePtr->luaSkinUUID, 0, 37);
         strncpy(thePtr->luaSkinUUID, [skin.uuid.UUIDString cStringUsingEncoding:NSUTF8StringEncoding], 36);
 
         luaL_getmetatable(L, USERDATA_TAG) ;

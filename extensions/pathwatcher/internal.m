@@ -125,6 +125,7 @@ static int watcher_path_new(lua_State* L) {
 
     watcher_path_t* watcher_path = lua_newuserdata(L, sizeof(watcher_path_t));
     watcher_path->started = NO;
+    memset(watcher_path->luaSkinUUID, 0, 37);
     strncpy(watcher_path->luaSkinUUID, [skin.uuid.UUIDString cStringUsingEncoding:NSUTF8StringEncoding], 36);
 
     luaL_getmetatable(L, USERDATA_TAG);

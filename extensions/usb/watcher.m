@@ -201,6 +201,7 @@ static int usb_watcher_new(lua_State* L) {
     usbwatcher->running = NO;
     usbwatcher->gNotifyPort = IONotificationPortCreate(kIOMasterPortDefault);
     usbwatcher->runLoopSource = IONotificationPortGetRunLoopSource(usbwatcher->gNotifyPort);
+    memset(usbwatcher->luaSkinUUID, 0, 37);
     strncpy(usbwatcher->luaSkinUUID, [skin.uuid.UUIDString cStringUsingEncoding:NSUTF8StringEncoding], 36);
 
     luaL_getmetatable(L, USERDATA_TAG);

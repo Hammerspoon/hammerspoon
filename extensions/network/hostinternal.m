@@ -38,6 +38,7 @@ static int pushCFHost(lua_State *L, CFHostRef theHost, CFHostInfoType resolveTyp
     thePtr->resolveType = resolveType ;
     thePtr->selfRef     = LUA_NOREF ;
     thePtr->running     = NO ;
+    memset(thePtr->luaSkinUUID, 0, 37);
     strncpy(thePtr->luaSkinUUID, [skin.uuid.UUIDString cStringUsingEncoding:NSUTF8StringEncoding], 36);
 
     luaL_getmetatable(L, USERDATA_TAG) ;

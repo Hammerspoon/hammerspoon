@@ -145,6 +145,7 @@ void new_device(lua_State* L, AudioDeviceID deviceId) {
     audioDevice->watcherRunning = NO;
 
     LuaSkin *skin = [LuaSkin sharedWithState:L];
+    memset(audioDevice->luaSkinUUID, 0, 37);
     strncpy(audioDevice->luaSkinUUID, [skin.uuid.UUIDString cStringUsingEncoding:NSUTF8StringEncoding], 36);
 
     luaL_getmetatable(L, USERDATA_TAG);
