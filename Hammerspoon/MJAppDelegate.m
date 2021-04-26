@@ -107,8 +107,8 @@
         if (!self.openFileDelegate) {
             self.startupFile = fileAndPath;
         } else {
-            if ([self.openFileDelegate respondsToSelector:@selector(callbackWithURL:)]) {
-                [self.openFileDelegate callbackWithURL:fileAndPath];
+            if ([self.openFileDelegate respondsToSelector:@selector(callbackWithURL:senderPID:)]) {
+                [self.openFileDelegate callbackWithURL:fileAndPath senderPID:-1];
             }
         }
     } else {

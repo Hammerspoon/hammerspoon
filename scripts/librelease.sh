@@ -22,9 +22,14 @@ function assert() {
   fi
   assert_github_release_token && GITHUB_TOKEN="$(cat "${GITHUB_TOKEN_FILE}")"
   assert_codesign_authority_token && CODESIGN_AUTHORITY_TOKEN="$(cat "${CODESIGN_AUTHORITY_TOKEN_FILE}")"
+
+  set +x # <-- THIS SET +X IS EXTREMELY IMPORTANT. NEVER REMOVE IT. DOING SO WILL MEAN A DEBUG RUN LEAKS TOKENS INTO LOGS WHICH MAY BE PUBLIC ON GITHUB
   assert_notarization_token && source "${NOTARIZATION_TOKEN_FILE}"
-  # shellcheck source=../token-sentry disable=SC1091
-  assert_sentry_token && source "${SENTRY_TOKEN_FILE}"
+  # shellcheck source=../token-sentry-auth disable=SC1091
+  assert_sentry_tokens && source "${SENTRY_TOKEN_AUTH_FILE}" ; source "${SENTRY_TOKEN_API_FILE}"
+  # IF YOU CARE ABOUT DEBUGGING, YOU CAN UNCOMMENT THE FOLLOWING LINE
+  # set -x
+
   #assert_version_in_xcode
   assert_version_in_git_tags
   assert_version_not_in_github_releases
@@ -158,10 +163,15 @@ function assert_notarization_token() {
   fi
 }
 
-function assert_sentry_token() {
-  echo "Checking for Sentry API tokens..."
-  if [ ! -f "${SENTRY_TOKEN_FILE}" ]; then
-    fail "You do not have Sentry API tokens in ${SENTRY_TOKEN_FILE}"
+function assert_sentry_tokens() {
+  echo "Checking for Sentry auth token..."
+  if [ ! -f "${SENTRY_TOKEN_AUTH_FILE}" ]; then
+    fail "You do not have a Sentry auth tokens in ${SENTRY_TOKEN_AUTH_FILE}"
+  fi
+
+  echo "Checking for Sentry API token..."
+  if [ ! -f "${SENTRY_TOKEN_API_FILE}" ]; then
+    fail "You do not have a Sentry API token in ${SENTRY_TOKEN_API_FILE}"
   fi
 }
 

@@ -2,15 +2,15 @@
 @import LuaSkin ;
 
 @interface HSjson : NSObject
--(NSString *)encode:(id)obj prettyPrint:(BOOL)prettyPrint;
--(id)decode:(NSData *)json;
--(BOOL)encodeToFile:(id)obj filePath:(NSString *)path replace:(BOOL)replace prettyPrint:(BOOL)prettyPrint;
--(id)decodeFromFile:(NSString *)path;
+-(NSString *)encode:(id)obj prettyPrint:(BOOL)prettyPrint withState:(lua_State *)L;
+-(id)decode:(NSData *)json withState:(lua_State *)L;
+-(BOOL)encodeToFile:(id)obj filePath:(NSString *)path replace:(BOOL)replace prettyPrint:(BOOL)prettyPrint withState:(lua_State *)L;
+-(id)decodeFromFile:(NSString *)path withState:(lua_State *)L;
 @end
 
 @implementation HSjson
-- (NSString *)encode:(id)obj prettyPrint:(BOOL)prettyPrint {
-    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+- (NSString *)encode:(id)obj prettyPrint:(BOOL)prettyPrint withState:(lua_State *)L {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     NSError *error;
     NSData *data;
 #pragma clang diagnostic push
@@ -40,8 +40,8 @@
                                  encoding:NSUTF8StringEncoding];
 }
 
-- (id)decode:(NSData *)data {
-    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+- (id)decode:(NSData *)data withState:(lua_State *)L {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     NSError *error;
 
     if (!data) {
@@ -64,10 +64,11 @@
 - (BOOL)encodeToFile:(id)obj
             filePath:(NSString *)path
              replace:(BOOL)replace
-         prettyPrint:(BOOL)prettyPrint {
-    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+         prettyPrint:(BOOL)prettyPrint
+           withState:(lua_State *)L {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     NSError *error;
-    NSString *json = [self encode:obj prettyPrint:prettyPrint];
+    NSString *json = [self encode:obj prettyPrint:prettyPrint withState:L];
 
     if (!json) {
         [skin logError:@"Failed to write object to JSON file"];
@@ -94,17 +95,17 @@
     return YES;
 }
 
-- (id)decodeFromFile:(NSString *)path {
-    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+- (id)decodeFromFile:(NSString *)path withState:(lua_State *)L {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     NSError *error = nil;
     NSData *json = [NSData dataWithContentsOfFile:path options:0 error:&error];
-    
+
     if (error) {
         [skin logError:[NSString stringWithFormat:@"Error reading JSON from file: %@", error.localizedDescription]];
         return nil;
     }
 
-    return [self decode:json];
+    return [self decode:json withState:L];
 }
 @end
 
@@ -130,7 +131,7 @@ static int json_encode(lua_State* L) {
     id table = [skin toNSObjectAtIndex:1];
     BOOL prettyPrint = lua_toboolean(L, 2);
 
-    NSString *json = [jsonManager encode:table prettyPrint:prettyPrint];
+    NSString *json = [jsonManager encode:table prettyPrint:prettyPrint withState:L];
     [skin pushNSObject:json];
     return 1;
 }
@@ -154,8 +155,8 @@ static int json_decode(lua_State* L) {
     HSjson *jsonManager = [[HSjson alloc] init];
 
     NSData* data = [skin toNSObjectAtIndex:1 withOptions:LS_NSLuaStringAsDataOnly];
-    
-    id table = [jsonManager decode:data];
+
+    id table = [jsonManager decode:data withState:L];
     [skin pushNSObject:table];
     return 1;
 }
@@ -186,7 +187,8 @@ static int json_write(lua_State* L) {
     BOOL result = [jsonManager encodeToFile:table
                                    filePath:filePath
                                     replace:replace
-                                prettyPrint:prettyPrint];
+                                prettyPrint:prettyPrint
+                                  withState:L];
 
     lua_pushboolean(L, result);
     return 1;
@@ -209,7 +211,7 @@ static int json_read(lua_State* L) {
 
     NSString *filePath = [[skin toNSObjectAtIndex:1] stringByExpandingTildeInPath];
 
-    id table = [jsonManager decodeFromFile:filePath];
+    id table = [jsonManager decodeFromFile:filePath withState:L];
     [skin pushNSObject:table];
     return 1;
 }

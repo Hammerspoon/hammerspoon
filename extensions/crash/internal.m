@@ -93,6 +93,17 @@ static int crashKV(lua_State *L) {
     return 0;
 }
 
+// This is intentionally undocumented, do not document it
+//static int crashEvent(lua_State *L) {
+//    LuaSkin *skin = [LuaSkin sharedWithState:L];
+//    [skin checkArgs:LS_TSTRING, LS_TBREAK];
+//
+//    NSString *message = [skin toNSObjectAtIndex:1];
+//
+//    [skin logKnownBug:message];
+//    return 0;
+//}
+
 /// hs.crash.residentSize() -> integer or nil
 /// Function
 /// Gets the resident size of the Hammerspoon process
@@ -124,6 +135,7 @@ static const luaL_Reg crashlib[] = {
     {"throwObjCException", throwTheWorld},
     {"crashLog", crashLog},
     {"crashKV", crashKV},
+//    {"crashEvent", crashEvent},
     {"residentSize", residentSize},
 
     {NULL, NULL}

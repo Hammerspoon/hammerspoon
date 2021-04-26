@@ -1046,7 +1046,7 @@ static int pushHSSerialPort(lua_State *L, id obj) {
     return 1;
 }
 
-id toHSSerialPortFromLua(lua_State *L, int idx) {
+static id toHSSerialPortFromLua(lua_State *L, int idx) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     HSSerialPort *value;
     if (luaL_testudata(L, idx, USERDATA_TAG)) {

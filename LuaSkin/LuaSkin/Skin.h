@@ -170,6 +170,13 @@ NSString *specMaskToString(int spec);
  @param theMessage The text of the message to be logged.
  */
 - (void)logForLuaSkinAtLevel:(int)level withMessage:(NSString *)theMessage ;
+
+/*!
+ @abstract Log a known, but avoided issue via the log delegate, primarily to ensure it can be recorded in a crash reporting service
+ @discussion If no delegate has been assigned, the message is logged to the system logs via NSLog.
+ @param message The message to log
+ */
+- (void)logKnownBug:(NSString *)message, ...;
 @end
 
 /*!
@@ -910,6 +917,13 @@ NSString *specMaskToString(int spec);
  @param theMessage the message to log
  */
 - (void)logBreadcrumb:(NSString *)theMessage ;
+
+/*!
+ @abstract Log a known, but avoided issue via the log delegate, primarily to ensure it can be recorded in a crash reporting service
+ @discussion If no delegate has been assigned, the message is logged to the system logs via NSLog.
+ @param message The message to log
+ */
+- (void)logKnownBug:(NSString *)message;
 
 // FIXME: Should this be documented? Seems unnecessary to do so, at the moment
 + (void)classLogAtLevel:(int)level withMessage:(NSString *)theMessage;

@@ -338,7 +338,7 @@ catastrophe:
     }
 
     if (![self.uuid.UUIDString isEqualToString:checkUUID]) {
-        [self logBreadcrumb:@"LuaSkin UUID mismatch detected"];
+        [self logKnownBug:[NSString stringWithFormat:@"LuaSkin UUID mismatch detected: %@ from the callback, %@ from the current LuaSkin instance", checkUUID, self.uuid.UUIDString]];
         return NO;
     }
 
@@ -1710,6 +1710,17 @@ nextarg:
 - (void)logWarn:(NSString *)theMessage       { [self logAtLevel:LS_LOG_WARN withMessage:theMessage] ; }
 - (void)logError:(NSString *)theMessage      { [self logAtLevel:LS_LOG_ERROR withMessage:theMessage] ; }
 - (void)logBreadcrumb:(NSString *)theMessage { [self logAtLevel:LS_LOG_BREADCRUMB withMessage:theMessage] ; }
+
+- (void)logKnownBug:(NSString *)message {
+    id theDelegate = self.delegate;
+
+    if (theDelegate &&  [theDelegate respondsToSelector:@selector(logKnownBug:)]) {
+        [theDelegate logKnownBug:message];
+    } else {
+        NSLog(@"(missing delegate):known bug: %@", message);
+    }
+
+}
 
 + (void)classLogAtLevel:(int)level withMessage:(NSString *)theMessage {
     if ([NSThread isMainThread]) {

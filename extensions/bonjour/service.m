@@ -653,7 +653,7 @@ static int pushHSNetServiceWrapper(lua_State *L, id obj) {
     return 1;
 }
 
-id toHSNetServiceWrapperFromLua(lua_State *L, int idx) {
+static id toHSNetServiceWrapperFromLua(lua_State *L, int idx) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     HSNetServiceWrapper *value ;
     if (luaL_testudata(L, idx, USERDATA_TAG)) {
