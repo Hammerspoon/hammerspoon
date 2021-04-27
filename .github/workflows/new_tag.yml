@@ -59,9 +59,6 @@ jobs:
       - name: Get current tag name
         id: current_tag
         run: echo "::set-output name=TAGNAME::$(git describe --abbrev=0)"
-      - name: Get previous tag name
-        id: previous_tag
-        run: echo "::set-output name=TAGNAME::$(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1))"
 
       - name: Get next version
         id: semvers
@@ -80,7 +77,7 @@ jobs:
         uses: "Beakyn/gha-close-milestone@v1.1.1"
         with:
           repository: ${{ github.repository }}
-          milestone-title: ${{ steps.previous_tag.outputs.TAGNAME }}
+          milestone-title: ${{ steps.current_tag.outputs.TAGNAME }}
         env:
           GITHUB_TOKEN: "${{ github.token }}"
 
