@@ -15,9 +15,12 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - name: Get tag name
-        id: tag
-        uses: "WyriHaximus/github-action-get-previous-tag@v1"
+      - name: Get current tag name
+        id: current_tag
+        run: echo "::set-output name=TAGNAME::$(git describe --abbrev=0)"
+      - name: Get previous tag name
+        id: previous_tag
+        run: echo "::set-output name=TAGNAME::$(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1))"
       - name: Get date
         id: date
         run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
@@ -26,6 +29,8 @@ jobs:
         uses: mikepenz/release-changelog-builder-action@main
         with:
           configuration: ".github/workflows/release_notes_config.json"
+          fromTag: ${{ steps.previous_tag.outputs.TAGNAME }}
+          toTag: ${{ steps.current_tag.outputs.TAGNAME }}
             #          toTag: "HEAD"
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
