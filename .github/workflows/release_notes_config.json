@@ -18,6 +18,6 @@
     ],
     "pr_template": "- ${{TITLE}} [#${{NUMBER}}](${{URL}})",
     "empty_template": "- None",
-    "template": "${{CHANGELOG}}\n\nOther:\n${{UNCATEGORIZED}}",
+    "template": "${{CHANGELOG}}\n## Other\n\n${{UNCATEGORIZED}}",
     "sort": "ASC"
 }
