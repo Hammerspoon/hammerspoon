@@ -21,13 +21,19 @@ typedef struct _battery_watcher_t {
     CFRunLoopSourceRef t;
     int fn;
     bool started;
+    char luaSkinUUID[37];
 } battery_watcher_t;
 
 static void callback(void *info) {
     LuaSkin *skin = [LuaSkin sharedWithState:NULL];
-    _lua_stackguard_entry(skin.L);
 
     battery_watcher_t* t = info;
+
+    if (![skin checkLuaSkinInstance:[NSString stringWithCString:t->luaSkinUUID encoding:NSUTF8StringEncoding]]) {
+        return;
+    }
+
+    _lua_stackguard_entry(skin.L);
 
     if (t->fn != LUA_NOREF) {
         [skin pushLuaRef:refTable ref:t->fn];
@@ -63,6 +69,8 @@ static int battery_watcher_new(lua_State* L) {
 
     watcher->t = IOPSNotificationCreateRunLoopSource(callback, watcher);
     watcher->started = false;
+    memset(watcher->luaSkinUUID, 0, 37);
+    strncpy(watcher->luaSkinUUID, [skin.uuid.UUIDString cStringUsingEncoding:NSUTF8StringEncoding], 36);
     return 1;
 }
 
@@ -116,6 +124,7 @@ static int battery_watcher_gc(lua_State* L) {
     lua_pushcfunction(L, battery_watcher_stop) ; lua_pushvalue(L,1); lua_call(L, 1, 1);
 
     watcher->fn = [skin luaUnref:refTable ref:watcher->fn];
+    watcher->luaSkinUUID[0] = '\0';
     CFRunLoopSourceInvalidate(watcher->t);
     CFRelease(watcher->t);
     return 0;

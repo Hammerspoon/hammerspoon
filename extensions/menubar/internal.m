@@ -1199,7 +1199,7 @@ static int pushPrioritiesTable(lua_State *L) {
     return 1 ;
 }
 
-void menubar_setup() {
+void menubar_setup(void) {
     if (!dynamicMenuDelegates) {
         dynamicMenuDelegates = [[NSMutableArray alloc] init];
     }

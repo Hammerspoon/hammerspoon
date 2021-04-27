@@ -304,7 +304,7 @@ void pushSourceIcon(lua_State *L, TISInputSourceRef source) {
     }
 }
 
-CFArrayRef getAllLayouts() {
+CFArrayRef getAllLayouts(void) {
     NSDictionary *properties = @{
                                  (__bridge NSString *)kTISPropertyInputSourceType : (__bridge NSString *)kTISTypeKeyboardLayout,
                                  (__bridge NSString *)kTISPropertyInputSourceIsSelectCapable: @true
@@ -312,7 +312,7 @@ CFArrayRef getAllLayouts() {
     return TISCreateInputSourceList((__bridge CFDictionaryRef)properties, false);
 }
 
-CFArrayRef getAllInputMethods() {
+CFArrayRef getAllInputMethods(void) {
     NSDictionary *properties = @{
                                  (__bridge NSString *)kTISPropertyInputSourceType : (__bridge NSString *)kTISTypeKeyboardInputMode,
                                  (__bridge NSString *)kTISPropertyInputSourceIsSelectCapable: @true

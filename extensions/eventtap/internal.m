@@ -166,6 +166,7 @@ static int eventtap_new(lua_State* L) {
     memset(eventtap, 0, sizeof(eventtap_t));
 
     eventtap->tap = NULL ;
+    memset(eventtap->luaSkinUUID, 0, 37);
     strncpy(eventtap->luaSkinUUID, [skin.uuid.UUIDString cStringUsingEncoding:NSUTF8StringEncoding], 36);
 
     lua_pushnil(L);

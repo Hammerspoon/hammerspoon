@@ -259,6 +259,8 @@ static NSMutableSet *_sharedWarnings ;
     NSLog(@"createLuaState");
     NSAssert((LuaSkin.mainLuaState == NULL), @"createLuaState called on a live Lua environment", nil);
     self.uuid = [NSUUID UUID];
+    [self logBreadcrumb:[NSString stringWithFormat:@"createLuaState: %@", self.uuid]];
+
     LuaSkin.mainLuaState = luaL_newstate();
     luaL_openlibs(LuaSkin.mainLuaState);
 
@@ -293,7 +295,7 @@ catastrophe:
 }
 
 - (void)destroyLuaState {
-    NSLog(@"destroyLuaState");
+    [self logBreadcrumb:[NSString stringWithFormat:@"destroyLuaState: %@", self.uuid]];
     NSAssert((LuaSkin.mainLuaState != NULL), @"destroyLuaState called with no Lua environment", nil);
     if (LuaSkin.mainLuaState) {
         [self.retainedObjectsRefTableMappings enumerateKeysAndObjectsUsingBlock:^(NSNumber *refTableN, NSMutableDictionary *objectMappings, __unused BOOL *stop) {
@@ -302,7 +304,7 @@ catastrophe:
                 for (id object in objectMappings.allValues) [self luaRelease:tmpRefTable forNSObject:object] ;
 
             } else {
-                NSLog(@"destroyLuaState - invalid retainedObject reference table entry:%@ = %@", refTableN, objectMappings) ;
+                [self logBreadcrumb:[NSString stringWithFormat:@"destroyLuaState - invalid retainedObject reference table entry: %@ = %@", refTableN, objectMappings]];
             }
         }] ;
         [self.retainedObjectsRefTableMappings           removeAllObjects] ;

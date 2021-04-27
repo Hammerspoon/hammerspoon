@@ -426,7 +426,7 @@ void storeInitialScreenGamma(CGDirectDisplayID display) {
     return;
 }
 
-void getAllInitialScreenGammas() {
+void getAllInitialScreenGammas(void) {
     // Get the number of displays
     CGDisplayCount numDisplays;
     CGGetActiveDisplayList(0, NULL, &numDisplays);

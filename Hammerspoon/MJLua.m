@@ -271,7 +271,7 @@ static int core_accessibilityState(lua_State* L) {
 }
 
 // SOURCE: https://stackoverflow.com/a/58985069
-bool isScreenRecordingEnabled()
+bool isScreenRecordingEnabled(void)
 {
     if (@available(macos 10.15, *)) {
         BOOL canRecordScreen = YES;
@@ -1120,7 +1120,7 @@ NSArray *MJLuaCompletionsForWord(NSString *completionWord) {
 
 // C-Code helper to return current active LuaState. Useful for callbacks to
 // verify stored LuaState still matches active one if GC fails to clear it.
-lua_State* MJGetActiveLuaState() {
+lua_State* MJGetActiveLuaState(void) {
     LuaSkin *skin = [LuaSkin sharedWithState:NULL];
   return skin.L ;
 }
