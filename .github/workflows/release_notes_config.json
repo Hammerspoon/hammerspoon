@@ -16,7 +16,7 @@
     "ignore_labels": [
         "pr-maintenance"
     ],
-    "pr_template": "- ${{TITLE}}",
+    "pr_template": "- ${{TITLE}} [#${{NUMBER}}](${{URL}})",
     "empty_template": "- None",
     "template": "${{CHANGELOG}}\n\nOther:\n${{UNCATEGORIZED}}",
     "sort": "ASC"
