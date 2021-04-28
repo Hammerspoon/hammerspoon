@@ -3,7 +3,7 @@
 #import "SentryError.h"
 #import "SentryHub.h"
 #import "SentryLog.h"
-#import "SentrySDK.h"
+#import "SentrySDK+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -34,19 +34,19 @@ SentryRequestOperation ()
                   // We only have these if's here because of performance reasons
                   [SentryLog logWithMessage:[NSString stringWithFormat:@"Request status: %ld",
                                                       (long)statusCode]
-                                   andLevel:kSentryLogLevelDebug];
-                  if ([SentrySDK.currentHub getClient].options.logLevel == kSentryLogLevelVerbose) {
+                                   andLevel:kSentryLevelDebug];
+                  if ([SentrySDK.currentHub getClient].options.debug == YES) {
                       [SentryLog logWithMessage:[NSString stringWithFormat:@"Request response: %@",
                                                           [[NSString alloc]
                                                               initWithData:data
                                                                   encoding:NSUTF8StringEncoding]]
-                                       andLevel:kSentryLogLevelVerbose];
+                                       andLevel:kSentryLevelDebug];
                   }
 
                   if (nil != error) {
                       [SentryLog
                           logWithMessage:[NSString stringWithFormat:@"Request failed: %@", error]
-                                andLevel:kSentryLogLevelError];
+                                andLevel:kSentryLevelError];
                   }
 
                   if (completionHandler) {

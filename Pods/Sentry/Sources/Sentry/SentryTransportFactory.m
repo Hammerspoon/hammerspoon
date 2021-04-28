@@ -27,7 +27,9 @@ SentryTransportFactory ()
 {
     NSURLSessionConfiguration *configuration =
         [NSURLSessionConfiguration ephemeralSessionConfiguration];
-    NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration];
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration
+                                                          delegate:options.urlSessionDelegate
+                                                     delegateQueue:nil];
     id<SentryRequestManager> requestManager =
         [[SentryQueueableRequestManager alloc] initWithSession:session];
 
@@ -42,7 +44,11 @@ SentryTransportFactory ()
     SentryEnvelopeRateLimit *envelopeRateLimit =
         [[SentryEnvelopeRateLimit alloc] initWithRateLimits:rateLimits];
 
-    SentryDispatchQueueWrapper *dispatchQueueWrapper = [[SentryDispatchQueueWrapper alloc] init];
+    dispatch_queue_attr_t attributes = dispatch_queue_attr_make_with_qos_class(
+        DISPATCH_QUEUE_SERIAL, DISPATCH_QUEUE_PRIORITY_LOW, 0);
+    SentryDispatchQueueWrapper *dispatchQueueWrapper =
+        [[SentryDispatchQueueWrapper alloc] initWithName:"sentry-http-transport"
+                                              attributes:attributes];
 
     return [[SentryHttpTransport alloc] initWithOptions:options
                                             fileManager:sentryFileManager

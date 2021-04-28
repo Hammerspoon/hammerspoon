@@ -2,39 +2,31 @@
 
 #import "SentryDefines.h"
 
+@protocol SentrySpan;
+
 @class SentryHub, SentryOptions, SentryEvent, SentryBreadcrumb, SentryScope, SentryUser, SentryId,
-    SentryUserFeedback;
+    SentryUserFeedback, SentryTransactionContext;
 
 NS_ASSUME_NONNULL_BEGIN
 
-// NS_SWIFT_NAME(SDK)
 /**
- "static api" for easy access to most common sentry sdk features
-
- try `SentryHub` for advanced features
+ * The main entry point for the SentrySDK.
+ *
+ * We recommend using `[Sentry startWithConfigureOptions]` to initialize Sentry.
  */
 @interface SentrySDK : NSObject
 SENTRY_NO_INIT
 
 /**
- * Returns current hub
+ * The current active transaction or span bound to the scope.
  */
-+ (SentryHub *)currentHub;
-
-/**
- * This forces a crash, useful to test the SentryCrash integration
- */
-+ (void)crash;
-
-/**
- * Sets current hub
- */
-+ (void)setCurrentHub:(SentryHub *)hub;
+@property (nullable, class, nonatomic, readonly) id<SentrySpan> span;
 
 /**
  * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations.
  */
-+ (void)startWithOptions:(NSDictionary<NSString *, id> *)optionsDict NS_SWIFT_NAME(start(options:));
++ (void)startWithOptions:(NSDictionary<NSString *, id> *)optionsDict
+    NS_SWIFT_NAME(start(options:));
 
 /**
  * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations.
@@ -43,7 +35,7 @@ SENTRY_NO_INIT
 
 /**
  * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations. Make sure to
- * set a valid DSN otherwise.
+ * set a valid DSN.
  */
 + (void)startWithConfigureOptions:(void (^)(SentryOptions *options))configureOptions
     NS_SWIFT_NAME(start(configureOptions:));
@@ -79,7 +71,82 @@ SENTRY_NO_INIT
  * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
 + (SentryId *)captureEvent:(SentryEvent *)event
-            withScopeBlock:(void (^)(SentryScope *scope))block NS_SWIFT_NAME(capture(event:block:));
+            withScopeBlock:(void (^)(SentryScope *scope))block
+    NS_SWIFT_NAME(capture(event:block:));
+
+/**
+ * Creates a transaction, binds it to the hub and returns the instance.
+ *
+ * @param name The transaction name.
+ * @param operation Short code identifying the type of operation the span is measuring.
+ *
+ * @return The created transaction.
+ */
++ (id<SentrySpan>)startTransactionWithName:(NSString *)name
+                                 operation:(NSString *)operation
+    NS_SWIFT_NAME(startTransaction(name:operation:));
+
+/**
+ * Creates a transaction, binds it to the hub and returns the instance.
+ *
+ * @param name The transaction name.
+ * @param operation Short code identifying the type of operation the span is measuring.
+ * @param bindToScope Indicates whether the new transaction should be bind to the scope.
+ *
+ * @return The created transaction.
+ */
++ (id<SentrySpan>)startTransactionWithName:(NSString *)name
+                                 operation:(NSString *)operation
+                               bindToScope:(BOOL)bindToScope
+    NS_SWIFT_NAME(startTransaction(name:operation:bindToScope:));
+
+/**
+ * Creates a transaction, binds it to the hub and returns the instance.
+ *
+ * @param transactionContext The transaction context.
+ *
+ * @return The created transaction.
+ */
++ (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+    NS_SWIFT_NAME(startTransaction(transactionContext:));
+
+/**
+ * Creates a transaction, binds it to the hub and returns the instance.
+ *
+ * @param transactionContext The transaction context.
+ * @param bindToScope Indicates whether the new transaction should be bind to the scope.
+ *
+ * @return The created transaction.
+ */
++ (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                                  bindToScope:(BOOL)bindToScope
+    NS_SWIFT_NAME(startTransaction(transactionContext:bindToScope:));
+
+/**
+ * Creates a transaction, binds it to the hub and returns the instance.
+ *
+ * @param transactionContext The transaction context.
+ * @param bindToScope Indicates whether the new transaction should be bind to the scope.
+ * @param customSamplingContext Additional information about the sampling context.
+ *
+ * @return The created transaction.
+ */
++ (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                                  bindToScope:(BOOL)bindToScope
+                        customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
+    NS_SWIFT_NAME(startTransaction(transactionContext:bindToScope:customSamplingContext:));
+
+/**
+ * Creates a transaction, binds it to the hub and returns the instance.
+ *
+ * @param transactionContext The transaction context.
+ * @param customSamplingContext Additional information about the sampling context.
+ *
+ * @return The created transaction.
+ */
++ (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                        customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
+    NS_SWIFT_NAME(startTransaction(transactionContext:customSamplingContext:));
 
 /**
  * Captures an error event and sends it to Sentry.
@@ -112,7 +179,8 @@ SENTRY_NO_INIT
  * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
 + (SentryId *)captureError:(NSError *)error
-            withScopeBlock:(void (^)(SentryScope *scope))block NS_SWIFT_NAME(capture(error:block:));
+            withScopeBlock:(void (^)(SentryScope *scope))block
+    NS_SWIFT_NAME(capture(error:block:));
 
 /**
  * Captures an exception event and sends it to Sentry.
@@ -191,21 +259,20 @@ SENTRY_NO_INIT
     NS_SWIFT_NAME(capture(userFeedback:));
 
 /**
- * Adds a SentryBreadcrumb to the current Scope on the `currentHub`.
- * If the total number of breadcrumbs exceeds the `max_breadcrumbs` setting, the
- * oldest breadcrumb is removed.
+ * Adds a Breadcrumb to the current Scope of the current Hub. If the total number of breadcrumbs
+ * exceeds the `SentryOptions.maxBreadcrumbs`, the SDK removes the oldest breadcrumb.
+ *
+ * @param crumb The Breadcrumb to add to the current Scope of the current Hub.
  */
 + (void)addBreadcrumb:(SentryBreadcrumb *)crumb NS_SWIFT_NAME(addBreadcrumb(crumb:));
 
-//- `configure_scope(callback)`: Calls a callback with a scope object that can
-// be reconfigured. This is used to attach contextual data for future events in
-// the same scope.
-+ (void)configureScope:(void (^)(SentryScope *scope))callback;
-
 /**
- * Set logLevel for the current client default kSentryLogLevelError
+ * Use this method to modify the current Scope of the current Hub. The SDK uses the Scope to attach
+ * contextual data to events.
+ *
+ * @param callback The callback for configuring the current Scope of the current Hub.
  */
-@property (nonatomic, class) SentryLogLevel logLevel;
++ (void)configureScope:(void (^)(SentryScope *scope))callback;
 
 /**
  * Checks if the last program execution terminated with a crash.
@@ -213,9 +280,31 @@ SENTRY_NO_INIT
 @property (nonatomic, class, readonly) BOOL crashedLastRun;
 
 /**
- * Set global user -> thus will be sent with every event
+ * Set user to the current Scope of the current Hub.
+ *
+ * @param user The user to set to the current Scope.
  */
 + (void)setUser:(SentryUser *_Nullable)user;
+
+/**
+ * Starts a new session. If there's a running session, it ends it before starting the new one.
+ */
++ (void)startSession;
+
+/**
+ * Ends the current session.
+ */
++ (void)endSession;
+
+/**
+ * This forces a crash, useful to test the SentryCrash integration
+ */
++ (void)crash;
+
+/**
+ * Closes the SDK and uninstalls all the integrations.
+ */
++ (void)close;
 
 @end
 

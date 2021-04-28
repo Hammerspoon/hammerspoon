@@ -31,7 +31,7 @@ NS_SWIFT_NAME(Event)
 /**
  * NSDate of when the event occured
  */
-@property (nonatomic, strong) NSDate *timestamp;
+@property (nonatomic, strong) NSDate *_Nullable timestamp;
 
 /**
  * NSDate of when the event started, mostly useful if event type transaction

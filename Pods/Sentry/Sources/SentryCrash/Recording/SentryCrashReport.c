@@ -873,8 +873,8 @@ writeStackContents(const SentryCrashReportWriter *const writer, const char *cons
         + (uintptr_t)(kStackContentsPushedDistance * (int)sizeof(sp)
             * sentrycrashcpu_stackGrowDirection() * -1);
     uintptr_t highAddress = sp
-        + (uintptr_t)(
-            kStackContentsPoppedDistance * (int)sizeof(sp) * sentrycrashcpu_stackGrowDirection());
+        + (uintptr_t)(kStackContentsPoppedDistance * (int)sizeof(sp)
+            * sentrycrashcpu_stackGrowDirection());
     if (highAddress < lowAddress) {
         uintptr_t tmp = lowAddress;
         lowAddress = highAddress;

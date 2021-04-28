@@ -3,7 +3,7 @@
 #import "SentryDefines.h"
 
 @class SentryOptions, SentrySession, SentryEvent, SentryEnvelope, SentryScope, SentryFileManager,
-    SentryId, SentryUserFeedback;
+    SentryId, SentryUserFeedback, SentryTransaction;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -112,11 +112,6 @@ SENTRY_NO_INIT
 - (void)captureSession:(SentrySession *)session NS_SWIFT_NAME(capture(session:));
 
 - (void)captureEnvelope:(SentryEnvelope *)envelope NS_SWIFT_NAME(capture(envelope:));
-
-/**
- * Needed by hybrid SDKs as react-native to synchronously store an envelope to disk.
- */
-- (void)storeEnvelope:(SentryEnvelope *)envelope;
 
 @end
 

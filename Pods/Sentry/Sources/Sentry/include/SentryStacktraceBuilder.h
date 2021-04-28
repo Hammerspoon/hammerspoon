@@ -1,13 +1,16 @@
 #import "SentryDefines.h"
 #import <Foundation/Foundation.h>
 
-@class SentryStacktrace, SentryFrameRemover;
+@class SentryStacktrace, SentryFrameRemover, SentryCrashStackEntryMapper;
 
 NS_ASSUME_NONNULL_BEGIN
 
 /** Uses SentryCrash internally to retrieve the stacktrace.
  */
 @interface SentryStacktraceBuilder : NSObject
+SENTRY_NO_INIT
+
+- (id)initWithCrashStackEntryMapper:(SentryCrashStackEntryMapper *)crashStackEntryMapper;
 
 /**
  * Builds the stacktrace for the current thread removing frames from the SentrySDK until frames from
