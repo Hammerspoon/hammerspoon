@@ -6344,7 +6344,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# DISABLED FOR COMMANDPOST:\n#Update build number with number of git commits if in release mode\n#set -eux\n\n#./scripts/update_version_build_numbers.sh\n";
+			shellScript = "#Update build number with number of git commits if in release mode\nset -eux\n\nTOKENPATH=\"${HAMMERSPOON_TOKEN_PATH:-..}\"\n\nif [ -f \"${TOKENPATH}/token-codesign\" -a \"${CONFIGURATION}\" == \"Release\" ]; then\n  buildNumber=$(git rev-list HEAD | wc -l | tr -d ' ')\n  /usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\"\nelse\n  echo \"No signing token found or not a Release build, skipping build number change\"\nfi\n";
 		};
 		4F7DB3571A5C513F00C22B03 /* Sign app/frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
