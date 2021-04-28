@@ -51,6 +51,14 @@
 bool
 sentrycrashsymbolicator_symbolicate(SentryCrashStackCursor *cursor)
 {
+    if (cursor->stackEntry.address == SentryCrashSC_ASYNC_MARKER) {
+        cursor->stackEntry.imageAddress = 0;
+        cursor->stackEntry.imageName = 0;
+        cursor->stackEntry.symbolAddress = 0;
+        cursor->stackEntry.symbolName = "__sentrycrash__async_marker__";
+        return true;
+    }
+
     Dl_info symbolsBuffer;
     if (sentrycrashdl_dladdr(
             CALL_INSTRUCTION_FROM_RETURN_ADDRESS(cursor->stackEntry.address), &symbolsBuffer)) {

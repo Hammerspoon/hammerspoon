@@ -1,11 +1,14 @@
 #import "SentryScope.h"
 #import "SentryAttachment.h"
 #import "SentryBreadcrumb.h"
+#import "SentryEnvelopeItemType.h"
 #import "SentryEvent.h"
 #import "SentryGlobalEventProcessor.h"
 #import "SentryLog.h"
 #import "SentryScope+Private.h"
 #import "SentrySession.h"
+#import "SentrySpan.h"
+#import "SentryTracer.h"
 #import "SentryUser.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -65,7 +68,9 @@ SentryScope ()
 
 @end
 
-@implementation SentryScope
+@implementation SentryScope {
+    NSObject *_spanLock;
+}
 
 #pragma mark Initializer
 
@@ -80,6 +85,7 @@ SentryScope ()
         self.contextDictionary = [NSMutableDictionary new];
         self.attachmentArray = [NSMutableArray new];
         self.fingerprintArray = [NSMutableArray new];
+        _spanLock = [[NSObject alloc] init];
     }
     return self;
 }
@@ -113,7 +119,7 @@ SentryScope ()
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
     [SentryLog logWithMessage:[NSString stringWithFormat:@"Add breadcrumb: %@", crumb]
-                     andLevel:kSentryLogLevelDebug];
+                     andLevel:kSentryLevelDebug];
     @synchronized(_breadcrumbArray) {
         [_breadcrumbArray addObject:crumb];
         if ([_breadcrumbArray count] > self.maxBreadcrumbs) {
@@ -121,6 +127,20 @@ SentryScope ()
         }
     }
     [self notifyListeners];
+}
+
+- (void)setSpan:(nullable id<SentrySpan>)span
+{
+    @synchronized(_spanLock) {
+        _span = span;
+    }
+}
+
+- (void)useSpan:(SentrySpanCallback)callback
+{
+    @synchronized(_spanLock) {
+        callback(_span);
+    }
 }
 
 - (void)clear
@@ -146,6 +166,9 @@ SentryScope ()
     }
     @synchronized(_attachmentArray) {
         [_attachmentArray removeAllObjects];
+    }
+    @synchronized(_spanLock) {
+        _span = nil;
     }
 
     self.userObject = nil;
@@ -400,15 +423,6 @@ SentryScope ()
             subarrayWithRange:NSMakeRange(0, MIN(maxBreadcrumbs, [breadcrumbs count]))];
     }
 
-    if (nil == event.context) {
-        event.context = [self context];
-    } else {
-        NSMutableDictionary *newContext = [NSMutableDictionary new];
-        [newContext addEntriesFromDictionary:[self context]];
-        [newContext addEntriesFromDictionary:event.context];
-        event.context = newContext;
-    }
-
     SentryUser *user = self.userObject.copy;
     if (nil != user) {
         event.user = user;
@@ -430,10 +444,35 @@ SentryScope ()
     SentryLevel level = self.levelEnum;
     if (level != kSentryLevelNone) {
         // We always want to set the level from the scope since this has
-        // benn set on purpose
+        // been set on purpose
         event.level = level;
     }
 
+    NSMutableDictionary *newContext;
+    if (nil == event.context) {
+        newContext = [self context].mutableCopy;
+    } else {
+        newContext = [NSMutableDictionary new];
+        [newContext addEntriesFromDictionary:[self context]];
+        [newContext addEntriesFromDictionary:event.context];
+    }
+
+    if (self.span != nil) {
+        id<SentrySpan> span;
+        @synchronized(_spanLock) {
+            span = self.span;
+        }
+
+        // Span could be nil as we do the first check outside the synchronize
+        if (span != nil) {
+            if (![event.type isEqualToString:SentryEnvelopeItemTypeTransaction] &&
+                [span isKindOfClass:[SentryTracer class]]) {
+                event.transaction = [(SentryTracer *)span name];
+            }
+            newContext[@"trace"] = [span.context serialize];
+        }
+    }
+    event.context = newContext;
     return event;
 }
 

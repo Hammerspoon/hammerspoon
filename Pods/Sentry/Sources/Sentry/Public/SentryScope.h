@@ -1,5 +1,6 @@
 #import "SentryDefines.h"
 #import "SentrySerializable.h"
+#import "SentrySpanProtocol.h"
 
 @class SentryUser, SentrySession, SentryOptions, SentryBreadcrumb, SentryAttachment;
 
@@ -7,6 +8,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_SWIFT_NAME(Scope)
 @interface SentryScope : NSObject <SentrySerializable>
+
+/**
+ * Returns current Span or Transaction.
+ *
+ * @return current Span or Transaction or null if transaction has not been set.
+ */
+@property (nullable, nonatomic, strong) id<SentrySpan> span;
 
 - (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs NS_DESIGNATED_INITIALIZER;
 - (instancetype)init;
@@ -95,7 +103,7 @@ NS_SWIFT_NAME(Scope)
 
 /**
  * Sets context values which will overwrite SentryEvent.context when event is
- * "enrichted" with scope before sending event.
+ * "enriched" with scope before sending event.
  */
 - (void)setContextValue:(NSDictionary<NSString *, id> *)value
                  forKey:(NSString *)key NS_SWIFT_NAME(setContext(value:key:));
@@ -117,6 +125,13 @@ NS_SWIFT_NAME(Scope)
  * Clears the current Scope
  */
 - (void)clear;
+
+/**
+ * Mutates the current transaction atomically.
+ *
+ * @param callback the SentrySpanCallback.
+ */
+- (void)useSpan:(SentrySpanCallback)callback;
 
 @end
 

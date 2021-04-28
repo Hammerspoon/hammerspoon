@@ -108,7 +108,7 @@ SentryHttpTransport ()
 
     if (envelope.items.count == 0) {
         [SentryLog logWithMessage:@"RateLimit is active for all envelope items."
-                         andLevel:kSentryLogLevelDebug];
+                         andLevel:kSentryLevelDebug];
         return;
     }
 
@@ -168,7 +168,6 @@ SentryHttpTransport ()
     [self.fileManager removeFileAtPath:envelopePath];
     self.isSending = NO;
     [self sendAllCachedEnvelopes];
-    return;
 }
 
 - (NSURLRequest *)createEnvelopeRequest:(SentryEnvelope *)envelope

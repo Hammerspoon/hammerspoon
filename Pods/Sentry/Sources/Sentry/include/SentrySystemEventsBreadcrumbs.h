@@ -12,4 +12,6 @@
 - (void)start:(UIDevice *)currentDevice;
 #endif
 
+- (void)stop;
+
 @end

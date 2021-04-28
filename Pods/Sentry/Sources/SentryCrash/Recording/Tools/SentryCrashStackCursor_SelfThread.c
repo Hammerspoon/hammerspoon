@@ -44,4 +44,6 @@ sentrycrashsc_initSelfThread(SentryCrashStackCursor *cursor, int skipEntries)
     SelfThreadContext *context = (SelfThreadContext *)cursor->context;
     int backtraceLength = backtrace((void **)context->backtrace, MAX_BACKTRACE_LENGTH);
     sentrycrashsc_initWithBacktrace(cursor, context->backtrace, backtraceLength, skipEntries + 1);
+
+    cursor->async_caller = sentrycrash_get_async_caller_for_thread(sentrycrashthread_self());
 }

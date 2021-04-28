@@ -1,4 +1,5 @@
 #import "SentrySerialization.h"
+#import "SentryAppState.h"
 #import "SentryDefines.h"
 #import "SentryEnvelope.h"
 #import "SentryEnvelopeItemType.h"
@@ -22,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
         data = [NSJSONSerialization dataWithJSONObject:dictionary options:0 error:error];
     } else {
         [SentryLog logWithMessage:[NSString stringWithFormat:@"Invalid JSON."]
-                         andLevel:kSentryLogLevelError];
+                         andLevel:kSentryLevelError];
         if (error) {
             *error = NSErrorFromSentryError(
                 kSentryErrorJsonConversionError, @"Event cannot be converted to JSON");
@@ -51,7 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (nil == header) {
         [SentryLog logWithMessage:[NSString stringWithFormat:@"Envelope header cannot "
                                                              @"be converted to JSON."]
-                         andLevel:kSentryLogLevelError];
+                         andLevel:kSentryLevelError];
         if (error) {
             *error = NSErrorFromSentryError(
                 kSentryErrorJsonConversionError, @"Envelope header cannot be converted to JSON");
@@ -87,7 +88,7 @@ NS_ASSUME_NONNULL_BEGIN
         if (nil == itemHeader) {
             [SentryLog logWithMessage:[NSString stringWithFormat:@"Envelope item header cannot "
                                                                  @"be converted to JSON."]
-                             andLevel:kSentryLogLevelError];
+                             andLevel:kSentryLevelError];
             if (error) {
                 *error = NSErrorFromSentryError(kSentryErrorJsonConversionError,
                     @"Envelope item header cannot be converted to JSON");
@@ -116,7 +117,7 @@ NS_ASSUME_NONNULL_BEGIN
             NSString *headerString = [[NSString alloc] initWithData:headerData
                                                            encoding:NSUTF8StringEncoding];
             [SentryLog logWithMessage:[NSString stringWithFormat:@"Header %@", headerString]
-                             andLevel:kSentryLogLevelDebug];
+                             andLevel:kSentryLevelDebug];
 #endif
             NSError *error = nil;
             NSDictionary *headerDictionary = [NSJSONSerialization JSONObjectWithData:headerData
@@ -126,7 +127,7 @@ NS_ASSUME_NONNULL_BEGIN
                 [SentryLog logWithMessage:[NSString stringWithFormat:@"Failed to parse "
                                                                      @"envelope header %@",
                                                     error]
-                                 andLevel:kSentryLogLevelError];
+                                 andLevel:kSentryLevelError];
             } else {
                 SentryId *eventId = nil;
                 NSString *eventIdAsString = headerDictionary[@"event_id"];
@@ -146,7 +147,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
     if (nil == envelopeHeader) {
         [SentryLog logWithMessage:[NSString stringWithFormat:@"Invalid envelope. No header found."]
-                         andLevel:kSentryLogLevelError];
+                         andLevel:kSentryLevelError];
         return nil;
     }
     NSAssert(envelopeHeaderIndex > 0, @"EnvelopeHeader was parsed, its index is expected.");
@@ -168,7 +169,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                                encoding:NSUTF8StringEncoding];
             [SentryLog
                 logWithMessage:[NSString stringWithFormat:@"Item Header %@", itemHeaderString]
-                      andLevel:kSentryLogLevelDebug];
+                      andLevel:kSentryLevelDebug];
 #endif
             NSError *error = nil;
             NSDictionary *headerDictionary = [NSJSONSerialization JSONObjectWithData:itemHeaderData
@@ -179,14 +180,14 @@ NS_ASSUME_NONNULL_BEGIN
                     logWithMessage:[NSString
                                        stringWithFormat:@"Failed to parse envelope item header %@",
                                        error]
-                          andLevel:kSentryLogLevelError];
+                          andLevel:kSentryLevelError];
                 return nil;
             }
             NSString *_Nullable type = [headerDictionary valueForKey:@"type"];
             if (nil == type) {
                 [SentryLog
                     logWithMessage:[NSString stringWithFormat:@"Envelope item type is required."]
-                          andLevel:kSentryLogLevelError];
+                          andLevel:kSentryLevelError];
                 break;
             }
             NSNumber *bodyLengthNumber = [headerDictionary valueForKey:@"length"];
@@ -197,7 +198,7 @@ NS_ASSUME_NONNULL_BEGIN
                                        stringWithFormat:@"Envelope item has no data but header "
                                                         @"indicates it's length is %d.",
                                        (int)bodyLength]
-                          andLevel:kSentryLogLevelError];
+                          andLevel:kSentryLevelError];
                 break;
             }
 
@@ -221,7 +222,7 @@ NS_ASSUME_NONNULL_BEGIN
                 NSString *event = [[NSString alloc] initWithData:itemBody
                                                         encoding:NSUTF8StringEncoding];
                 [SentryLog logWithMessage:[NSString stringWithFormat:@"Event %@", event]
-                                 andLevel:kSentryLogLevelDebug];
+                                 andLevel:kSentryLevelDebug];
             }
 #endif
             SentryEnvelopeItem *envelopeItem = [[SentryEnvelopeItem alloc] initWithHeader:itemHeader
@@ -233,7 +234,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     if (items.count == 0) {
         [SentryLog logWithMessage:[NSString stringWithFormat:@"Envelope has no items."]
-                         andLevel:kSentryLogLevelError];
+                         andLevel:kSentryLevelError];
         return nil;
     }
 
@@ -257,25 +258,42 @@ NS_ASSUME_NONNULL_BEGIN
         [SentryLog
             logWithMessage:[NSString
                                stringWithFormat:@"Failed to deserialize session data %@", error]
-                  andLevel:kSentryLogLevelError];
+                  andLevel:kSentryLevelError];
         return nil;
     }
     SentrySession *session = [[SentrySession alloc] initWithJSONObject:sessionDictionary];
 
     if (nil == session) {
         [SentryLog logWithMessage:@"Failed to initialize session from dictionary. Dropping it."
-                         andLevel:kSentryLogLevelError];
+                         andLevel:kSentryLevelError];
         return nil;
     }
 
     if (nil == session.releaseName || [session.releaseName isEqualToString:@""]) {
         [SentryLog
             logWithMessage:@"Deserialized session doesn't contain a release name. Dropping it."
-                  andLevel:kSentryLogLevelError];
+                  andLevel:kSentryLevelError];
         return nil;
     }
 
     return session;
+}
+
++ (SentryAppState *_Nullable)appStateWithData:(NSData *)data
+{
+    NSError *error = nil;
+    NSDictionary *appSateDictionary = [NSJSONSerialization JSONObjectWithData:data
+                                                                      options:0
+                                                                        error:&error];
+    if (nil != error) {
+        [SentryLog
+            logWithMessage:[NSString
+                               stringWithFormat:@"Failed to deserialize app state data %@", error]
+                  andLevel:kSentryLevelError];
+        return nil;
+    }
+
+    return [[SentryAppState alloc] initWithJSONObject:appSateDictionary];
 }
 
 + (SentryLevel)levelFromData:(NSData *)eventEnvelopeItemData
@@ -290,7 +308,7 @@ NS_ASSUME_NONNULL_BEGIN
                 [NSString
                     stringWithFormat:@"Failed to retrieve event level from envelope item data: %@",
                     error]
-                  andLevel:kSentryLogLevelError];
+                  andLevel:kSentryLevelError];
         return kSentryLevelError;
     }
 

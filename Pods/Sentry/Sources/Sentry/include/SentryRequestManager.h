@@ -12,8 +12,6 @@ NS_SWIFT_NAME(RequestManager)
 - (void)addRequest:(NSURLRequest *)request
     completionHandler:(_Nullable SentryRequestOperationFinished)completionHandler;
 
-- (void)cancelAllOperations;
-
 @end
 
 NS_ASSUME_NONNULL_END

@@ -4,7 +4,7 @@
 #import "SentryDefines.h"
 #import "SentryHub.h"
 #import "SentryLog.h"
-#import "SentrySDK.h"
+#import "SentrySDK+Private.h"
 #import "SentryScope.h"
 #import "SentrySwizzle.h"
 
@@ -24,6 +24,14 @@
     [self trackApplicationUIKitNotifications];
 }
 
+- (void)stop
+{
+    // This is a noop because the notifications are registered via blocks and monkey patching
+    // which are both super hard to clean up.
+    // Either way, all these are guarded by checking the client of the current hub, which
+    // we remove when uninstalling the SDK.
+}
+
 - (void)trackApplicationUIKitNotifications
 {
 #if SENTRY_HAS_UIKIT
@@ -37,7 +45,7 @@
 #else
     [SentryLog logWithMessage:@"NO UIKit, OSX and Catalyst -> [SentryBreadcrumbTracker "
                               @"trackApplicationUIKitNotifications] does nothing."
-                     andLevel:kSentryLogLevelDebug];
+                     andLevel:kSentryLevelDebug];
 #endif
 
     // not available for macOS
@@ -121,7 +129,7 @@
     SentrySwizzleInstanceMethod(UIApplication.class, selector, SentrySWReturnType(BOOL),
         SentrySWArguments(SEL action, id target, id sender, UIEvent * event), SentrySWReplacement({
             if (nil != [SentrySDK.currentHub getClient]) {
-                NSDictionary *data = [NSDictionary new];
+                NSDictionary *data = nil;
                 for (UITouch *touch in event.allTouches) {
                     if (touch.phase == UITouchPhaseCancelled || touch.phase == UITouchPhaseEnded) {
                         data = @ { @"view" : [NSString stringWithFormat:@"%@", touch.view] };
@@ -141,7 +149,7 @@
 #else
     [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker "
                               @"swizzleSendAction] does nothing."
-                     andLevel:kSentryLogLevelDebug];
+                     andLevel:kSentryLevelDebug];
 #endif
 }
 
@@ -179,7 +187,7 @@
 #else
     [SentryLog logWithMessage:@"NO UIKit -> [SentryBreadcrumbTracker "
                               @"swizzleViewDidAppear] does nothing."
-                     andLevel:kSentryLogLevelDebug];
+                     andLevel:kSentryLevelDebug];
 #endif
 }
 

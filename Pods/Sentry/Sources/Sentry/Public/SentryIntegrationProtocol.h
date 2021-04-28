@@ -8,9 +8,15 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol SentryIntegrationProtocol <NSObject>
 
 /**
- * installs the integration and returns YES if successful.
+ * Installs the integration and returns YES if successful.
  */
 - (void)installWithOptions:(SentryOptions *)options;
+
+/**
+ * Uninstalls the integration.
+ */
+@optional
+- (void)uninstall;
 
 @end
 

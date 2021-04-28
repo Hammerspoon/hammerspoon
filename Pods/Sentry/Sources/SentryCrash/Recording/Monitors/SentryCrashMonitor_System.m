@@ -398,10 +398,10 @@ getDeviceAndAppHash()
     }
 
     // Append some device-specific data.
-    [data appendData:(NSData * _Nonnull)
-                         [nsstringSysctl(@"hw.machine") dataUsingEncoding:NSUTF8StringEncoding]];
-    [data appendData:(NSData * _Nonnull)
-                         [nsstringSysctl(@"hw.model") dataUsingEncoding:NSUTF8StringEncoding]];
+    [data appendData:(NSData *_Nonnull)[nsstringSysctl(@"hw.machine")
+                         dataUsingEncoding:NSUTF8StringEncoding]];
+    [data appendData:(NSData *_Nonnull)[nsstringSysctl(@"hw.model")
+                         dataUsingEncoding:NSUTF8StringEncoding]];
     //    const char *cpuArch = getCurrentCPUArch();
     //    [data appendBytes:cpuArch length:strlen(cpuArch)];
 
