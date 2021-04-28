@@ -6344,7 +6344,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#Update build number with number of git commits if in release mode\nset -eux\n\n./scripts/update_version_build_numbers.sh\n";
+			shellScript = "# DISABLED FOR COMMANDPOST:\n#Update build number with number of git commits if in release mode\n#set -eux\n\n#./scripts/update_version_build_numbers.sh\n";
 		};
 		4F7DB3571A5C513F00C22B03 /* Sign app/frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -6446,7 +6446,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -eux\necho Copying CommandPost Setup from Source to App Bundle...\ncp -R \"${SRCROOT}/../CommandPost/src/setup/\"* \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/\"\necho Copying CommandPost Extensions from Source to App Bundle...\ncp -R \"${SRCROOT}/../CommandPost/src/extensions/\"* \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/extensions/\"\necho Creating plugins folder within App Bundle...\nmkdir -p \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/plugins/\"\necho Copying CommandPost Plugins from Source to App Bundle...\ncp -R \"${SRCROOT}/../CommandPost/src/plugins/\"* \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/plugins/\"\nxattr -cr ${BUILT_PRODUCTS_DIR}";
+			shellScript = "set -eux\necho Copying CommandPost Setup from Source to App Bundle...\ncp -R \"${SRCROOT}/../CommandPost/src/setup/\"* \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/\"\necho Copying CommandPost Extensions from Source to App Bundle...\ncp -R \"${SRCROOT}/../CommandPost/src/extensions/\"* \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/extensions/\"\necho Creating plugins folder within App Bundle...\nmkdir -p \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/plugins/\"\necho Copying CommandPost Plugins from Source to App Bundle...\ncp -R \"${SRCROOT}/../CommandPost/src/plugins/\"* \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/plugins/\"\nxattr -cr ${BUILT_PRODUCTS_DIR}\n";
 		};
 		E849AEC367EA9502A25B9A7C /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
