@@ -1,10 +1,10 @@
-#import "TracesSampler.h"
+#import "SentryTracesSampler.h"
 #import "SentryOptions.h"
 #import "SentrySamplingContext.h"
 #import "SentryTransactionContext.h"
 #import <SentryOptions+Private.h>
 
-@implementation TracesSampler {
+@implementation SentryTracesSampler {
     SentryOptions *_options;
 }
 

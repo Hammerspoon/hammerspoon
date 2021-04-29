@@ -2,6 +2,7 @@
 #import "NSDate+SentryExtras.h"
 #import "SentryCurrentDate.h"
 #import "SentryInstallation.h"
+#import "SentryLog.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -203,7 +204,9 @@ NS_ASSUME_NONNULL_BEGIN
             statusString = @"abnormal";
             break;
         default:
-            // TODO: Log warning
+            [SentryLog
+                logWithMessage:@"Missing string for SessionStatus when serializing SentrySession."
+                      andLevel:kSentryLevelWarning];
             break;
         }
 
