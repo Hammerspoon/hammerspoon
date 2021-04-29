@@ -9,7 +9,7 @@ typedef struct _eventtap_t {
     CGEventMask mask;
     CFMachPortRef tap;
     CFRunLoopSourceRef runloopsrc;
-    char luaSkinUUID[37];
+    LSUUID luaSkinUUID;
 } eventtap_t;
 
 CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon) {
@@ -19,7 +19,7 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef
     eventtap_t* e = refcon;
 
     // Guard against this callback being delivered at a point where LuaSkin has been reset and our references wouldn't make sense anymore
-    if (![skin checkLuaSkinInstance:[NSString stringWithCString:e->luaSkinUUID encoding:NSUTF8StringEncoding]]) {
+    if (![skin checkLuaSkinInstance:e->luaSkinUUID]) {
         return event; // Allow the event to pass through unmodified
     }
 
@@ -166,8 +166,7 @@ static int eventtap_new(lua_State* L) {
     memset(eventtap, 0, sizeof(eventtap_t));
 
     eventtap->tap = NULL ;
-    memset(eventtap->luaSkinUUID, 0, 37);
-    strncpy(eventtap->luaSkinUUID, [skin.uuid.UUIDString cStringUsingEncoding:NSUTF8StringEncoding], 36);
+    eventtap->luaSkinUUID = [skin getLuaSkinUUID];
 
     lua_pushnil(L);
     while (lua_next(L, 1) != 0) {
@@ -448,7 +447,7 @@ static int eventtap_gc(lua_State* L) {
     }
 
     eventtap->fn = [skin luaUnref:refTable ref:eventtap->fn];
-    eventtap->luaSkinUUID[0] = '\0';
+    [skin gcLuaSkinUUID:&(eventtap->luaSkinUUID)];
 
     return 0;
 }

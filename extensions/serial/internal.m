@@ -49,7 +49,7 @@ static LSRefTable refTable = LUA_NOREF;
 @property NSString*                 portName;
 @property NSString*                 portPath;
 
-@property NSString*                 luaSkinUUID;
+@property LSUUID                    luaSkinUUID;
 
 @property ORSSerialPortParity       parity;
 @property NSNumber*                 baudRate;
@@ -474,8 +474,7 @@ static int serial_newFromName(lua_State *L) {
     
     HSSerialPort *serialPort = [[HSSerialPort alloc] init];
     
-    // NOTE: The stringWithString call here is vital, so we get a true copy of UUIDString - we must not simply point at it, or we'll never be able to use it to detect an inconsistency later.
-    serialPort.luaSkinUUID = [NSString stringWithString:skin.uuid.UUIDString];
+    serialPort.luaSkinUUID = [skin getLuaSkinUUID];
     
     bool result = [serialPort isPortNameValid:portName];
         
@@ -507,9 +506,8 @@ static int serial_newFromPath(lua_State *L) {
     NSString *path = [skin toNSObjectAtIndex:1];
     
     HSSerialPort *serialPort = [[HSSerialPort alloc] init];
-    
-    // NOTE: The stringWithString call here is vital, so we get a true copy of UUIDString - we must not simply point at it, or we'll never be able to use it to detect an inconsistency later.
-    serialPort.luaSkinUUID = [NSString stringWithString:skin.uuid.UUIDString];
+
+    serialPort.luaSkinUUID = [skin getLuaSkinUUID];
     
     bool result = [serialPort isPathValid:path];
         
@@ -1101,7 +1099,10 @@ static int userdata_gc(lua_State* L) {
                 obj.callbackToken = nil;
             }
             obj = nil;
-            obj.luaSkinUUID = nil;
+
+            LSUUID tmpluaSkinUUID = obj.luaSkinUUID;
+            [skin gcLuaSkinUUID:&tmpluaSkinUUID];
+            obj.luaSkinUUID = tmpluaSkinUUID;
         }
     }
     

@@ -16,7 +16,7 @@ typedef struct _dynamicstore_t {
     int               callbackRef ;
     int               selfRef ;
     BOOL              watcherEnabled ;
-    char              luaSkinUUID[37];
+    LSUUID            luaSkinUUID;
 } dynamicstore_t;
 
 static void doDynamicStoreCallback(__unused SCDynamicStoreRef store, CFArrayRef changedKeys, void *info) {
@@ -26,7 +26,7 @@ static void doDynamicStoreCallback(__unused SCDynamicStoreRef store, CFArrayRef 
         if ((thePtr->callbackRef != LUA_NOREF) && (thePtr->selfRef != LUA_NOREF)) {
             LuaSkin   *skin = [LuaSkin sharedWithState:NULL] ;
             lua_State *L    = [skin L] ;
-            if (![skin checkLuaSkinInstance:[NSString stringWithCString:thePtr->luaSkinUUID encoding:NSUTF8StringEncoding]]) {
+            if (![skin checkLuaSkinInstance:thePtr->luaSkinUUID]) {
                 return;
             }
             _lua_stackguard_entry(L);
@@ -69,8 +69,7 @@ static int newStoreObject(lua_State *L) {
         thePtr->callbackRef    = LUA_NOREF ;
         thePtr->selfRef        = LUA_NOREF ;
         thePtr->watcherEnabled = NO ;
-        memset(thePtr->luaSkinUUID, 0, 37);
-        strncpy(thePtr->luaSkinUUID, [skin.uuid.UUIDString cStringUsingEncoding:NSUTF8StringEncoding], 36);
+        thePtr->luaSkinUUID = [skin getLuaSkinUUID];
 
         luaL_getmetatable(L, USERDATA_TAG) ;
         lua_setmetatable(L, -2) ;
@@ -655,7 +654,7 @@ static int userdata_gc(lua_State* L) {
         }
     }
     thePtr->selfRef = [skin luaUnref:refTable ref:thePtr->selfRef] ;
-    thePtr->luaSkinUUID[0] = '\0';
+    [skin gcLuaSkinUUID:&(thePtr->luaSkinUUID)];
 
     CFRelease(thePtr->storeObject) ;
     lua_pushnil(L) ;

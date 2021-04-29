@@ -19,7 +19,7 @@ typedef struct _audioDeviceUserData {
     AudioDeviceID deviceId;
     int callback;
     BOOL watcherRunning;
-    char luaSkinUUID[37];
+    LSUUID luaSkinUUID;
 } audioDeviceUserData;
 
 // Define a datatype for hs.audiodevice.datasource objects
@@ -82,7 +82,7 @@ OSStatus audiodevice_callback(AudioDeviceID deviceID, UInt32 numAddresses, const
 
         audioDeviceUserData *userData = (audioDeviceUserData *)clientData;
         LuaSkin *skin = [LuaSkin sharedWithState:NULL];
-        if (![skin checkLuaSkinInstance:[NSString stringWithCString:userData->luaSkinUUID encoding:NSUTF8StringEncoding]]) {
+        if (![skin checkLuaSkinInstance:userData->luaSkinUUID]) {
             return;
         }
 
@@ -145,8 +145,7 @@ void new_device(lua_State* L, AudioDeviceID deviceId) {
     audioDevice->watcherRunning = NO;
 
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    memset(audioDevice->luaSkinUUID, 0, 37);
-    strncpy(audioDevice->luaSkinUUID, [skin.uuid.UUIDString cStringUsingEncoding:NSUTF8StringEncoding], 36);
+    audioDevice->luaSkinUUID = [skin getLuaSkinUUID];
 
     luaL_getmetatable(L, USERDATA_TAG);
     lua_setmetatable(L, -2);
@@ -1712,7 +1711,7 @@ static int audiodevice_gc(lua_State* L) {
     audiodevice_watcherStop(L);
 
     audioDevice->callback = [skin luaUnref:refTable ref:audioDevice->callback];
-    audioDevice->luaSkinUUID[0] = '\0';
+    [skin gcLuaSkinUUID:&(audioDevice->luaSkinUUID)];
 
     return 0;
 }
