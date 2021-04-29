@@ -12,8 +12,8 @@
 #import "SentryScope.h"
 #import "SentrySerialization.h"
 #import "SentryTracer.h"
+#import "SentryTracesSampler.h"
 #import "SentryTransactionContext.h"
-#import "TracesSampler.h"
 
 @interface
 SentryHub ()
@@ -21,7 +21,7 @@ SentryHub ()
 @property (nonatomic, strong) SentryClient *_Nullable client;
 @property (nonatomic, strong) SentryScope *_Nullable scope;
 @property (nonatomic, strong) SentryCrashAdapter *crashAdapter;
-@property (nonatomic, strong) TracesSampler *sampler;
+@property (nonatomic, strong) SentryTracesSampler *sampler;
 
 @end
 
@@ -38,7 +38,7 @@ SentryHub ()
         _sessionLock = [[NSObject alloc] init];
         _installedIntegrations = [[NSMutableArray alloc] init];
         _crashAdapter = [[SentryCrashAdapter alloc] init];
-        _sampler = [[TracesSampler alloc] initWithOptions:client.options];
+        _sampler = [[SentryTracesSampler alloc] initWithOptions:client.options];
     }
     return self;
 }
