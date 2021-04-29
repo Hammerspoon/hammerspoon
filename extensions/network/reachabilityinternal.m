@@ -19,7 +19,7 @@ typedef struct _reachability_t {
     int                      callbackRef ;
     int                      selfRef ;
     BOOL                     watcherEnabled ;
-    char                     luaSkinUUID[37];
+    LSUUID                   luaSkinUUID;
 } reachability_t;
 
 static int pushSCNetworkReachability(lua_State *L, SCNetworkReachabilityRef theRef) {
@@ -31,8 +31,7 @@ static int pushSCNetworkReachability(lua_State *L, SCNetworkReachabilityRef theR
     thePtr->callbackRef     = LUA_NOREF ;
     thePtr->selfRef         = LUA_NOREF ;
     thePtr->watcherEnabled  = NO ;
-    memset(thePtr->luaSkinUUID, 0, 37);
-    strncpy(thePtr->luaSkinUUID, [skin.uuid.UUIDString cStringUsingEncoding:NSUTF8StringEncoding], 36);
+    thePtr->luaSkinUUID     = [skin getLuaSkinUUID];
 
     luaL_getmetatable(L, USERDATA_TAG) ;
     lua_setmetatable(L, -2) ;
@@ -45,7 +44,7 @@ static void doReachabilityCallback(__unused SCNetworkReachabilityRef target, SCN
         if ((theRef->callbackRef != LUA_NOREF) && (theRef->selfRef != LUA_NOREF)) {
             LuaSkin   *skin = [LuaSkin sharedWithState:NULL] ;
             lua_State *L    = [skin L] ;
-            if (![skin checkLuaSkinInstance:[NSString stringWithCString:theRef->luaSkinUUID encoding:NSUTF8StringEncoding]]) {
+            if (![skin checkLuaSkinInstance:theRef->luaSkinUUID]) {
                 return;
             }
             _lua_stackguard_entry(L);
@@ -387,7 +386,7 @@ static int userdata_gc(lua_State* L) {
         SCNetworkReachabilitySetDispatchQueue(theRef->reachabilityObj, NULL);
     }
     theRef->selfRef = [skin luaUnref:refTable ref:theRef->selfRef] ;
-    theRef->luaSkinUUID[0] = '\0';
+    [skin gcLuaSkinUUID:&(theRef->luaSkinUUID)];
 
     CFRelease(theRef->reachabilityObj) ;
     lua_pushnil(L) ;

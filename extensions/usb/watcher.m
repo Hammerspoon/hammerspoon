@@ -25,7 +25,7 @@ typedef struct _usbwatcher_t {
     IONotificationPortRef gNotifyPort;
     io_iterator_t gAddedIter;
     CFRunLoopSourceRef runLoopSource;
-    char luaSkinUUID[37];
+    LSUUID luaSkinUUID;
 } usbwatcher_t;
 
 // private data for each USB device
@@ -46,7 +46,7 @@ void DeviceNotification(void *refCon, io_service_t service __unused, natural_t m
     if (messageType == kIOMessageServiceIsTerminated) {
         LuaSkin *skin = [LuaSkin sharedWithState:NULL];
         lua_State *L = skin.L;
-        if (![skin checkLuaSkinInstance:[NSString stringWithCString:watcher->luaSkinUUID encoding:NSUTF8StringEncoding]]) {
+        if (![skin checkLuaSkinInstance:watcher->luaSkinUUID]) {
             return;
         }
         _lua_stackguard_entry(L);
@@ -201,8 +201,7 @@ static int usb_watcher_new(lua_State* L) {
     usbwatcher->running = NO;
     usbwatcher->gNotifyPort = IONotificationPortCreate(kIOMasterPortDefault);
     usbwatcher->runLoopSource = IONotificationPortGetRunLoopSource(usbwatcher->gNotifyPort);
-    memset(usbwatcher->luaSkinUUID, 0, 37);
-    strncpy(usbwatcher->luaSkinUUID, [skin.uuid.UUIDString cStringUsingEncoding:NSUTF8StringEncoding], 36);
+    usbwatcher->luaSkinUUID = [skin getLuaSkinUUID];
 
     luaL_getmetatable(L, USERDATA_TAG);
     lua_setmetatable(L, -2);
@@ -279,7 +278,7 @@ static int usb_watcher_gc(lua_State* L) {
     lua_pushcfunction(L, usb_watcher_stop) ; lua_pushvalue(L,1); lua_call(L, 1, 1);
 
     usbwatcher->fn = [skin luaUnref:refTable ref:usbwatcher->fn];
-    usbwatcher->luaSkinUUID[0] = '\0';
+    [skin gcLuaSkinUUID:&(usbwatcher->luaSkinUUID)];
 
     IONotificationPortDestroy(usbwatcher->gNotifyPort);
 

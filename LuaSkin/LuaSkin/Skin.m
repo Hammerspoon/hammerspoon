@@ -333,18 +333,37 @@ catastrophe:
     [self createLuaState];
 }
 
-- (BOOL)checkLuaSkinInstance:(NSString *)checkUUID {
+- (BOOL)checkLuaSkinInstance:(LSUUID)lsUUID {
     if (!self.L) {
         [self logBreadcrumb:@"LuaSkin nil lua_State detected"];
         return NO;
     }
 
-    if (![self.uuid.UUIDString isEqualToString:checkUUID]) {
-        [self logKnownBug:[NSString stringWithFormat:@"LuaSkin UUID mismatch detected: %@ from the callback, %@ from the current LuaSkin instance", checkUUID, self.uuid.UUIDString]];
+    NSString *NSlsUUID = [NSString stringWithCString:lsUUID.uuid encoding:NSUTF8StringEncoding];
+    if (!NSlsUUID || ![self.uuid.UUIDString isEqualToString:NSlsUUID]) {
+        [self logKnownBug:[NSString stringWithFormat:@"LuaSkin UUID mismatch detected: %s from the callback, %@ from the current LuaSkin instance", lsUUID.uuid, self.uuid.UUIDString]];
         return NO;
     }
 
     return YES;
+}
+
+- (LSUUID)getLuaSkinUUID {
+    LSUUID lsUUID;
+    memset(lsUUID.uuid, 0, LSUUIDLen);
+    strncpy(lsUUID.uuid, "UNINITIALISED", 13);
+
+    const char *tmpUUID = [self.uuid.UUIDString cStringUsingEncoding:NSUTF8StringEncoding];
+    if (tmpUUID) {
+        strncpy(lsUUID.uuid, tmpUUID, LSUUIDLen);
+    }
+
+    return lsUUID;
+}
+
+- (void)gcLuaSkinUUID:(LSUUID *)lsUUID {
+    memset(lsUUID->uuid, 0, LSUUIDLen);
+    strncpy(lsUUID->uuid, "GC", 2);
 }
 
 #pragma mark - Methods for calling into Lua from C

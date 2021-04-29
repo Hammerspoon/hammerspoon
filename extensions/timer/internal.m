@@ -17,7 +17,7 @@ static LSRefTable refTable;
 @property BOOL continueOnError;
 @property BOOL repeats;
 @property NSTimeInterval interval;
-@property NSString *luaSkinUUID;
+@property LSUUID luaSkinUUID;
 
 - (void)create:(NSTimeInterval)interval repeat:(BOOL)repeat;
 - (void)callback:(NSTimer *)timer;
@@ -119,7 +119,7 @@ HSTimer *createHSTimer(NSTimeInterval interval, int callbackRef, BOOL continueOn
 
     LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     // NOTE: The stringWithString call here is vital, so we get a true copy of UUIDString - we must not simply point at it, or we'll never be able to use it to detect an inconsistency later.
-    timer.luaSkinUUID = [NSString stringWithString:skin.uuid.UUIDString];
+    timer.luaSkinUUID = [skin getLuaSkinUUID];
 
     return timer;
 }
@@ -383,7 +383,11 @@ static int timer_gc(lua_State* L) {
         [timer stop];
         timer.fnRef = [skin luaUnref:refTable ref:timer.fnRef];
         timer.t = nil;
-        timer.luaSkinUUID = nil;
+
+        LSUUID tmpLSUUID = timer.luaSkinUUID;
+        [skin gcLuaSkinUUID:&tmpLSUUID];
+        timer.luaSkinUUID = tmpLSUUID;
+
         timer = nil;
     }
 

@@ -12,7 +12,7 @@ typedef struct _watcher_path_t {
     int closureref;
     FSEventStreamRef stream;
     bool started;
-    char luaSkinUUID[37];
+    LSUUID luaSkinUUID;
 } watcher_path_t;
 
 #if MAC_OS_X_VERSION_MAX_ALLOWED < 1090
@@ -55,7 +55,7 @@ void event_callback(ConstFSEventStreamRef __unused streamRef, void *clientCallBa
     LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     lua_State *L = skin.L;
 
-    if (![skin checkLuaSkinInstance:[NSString stringWithCString:pw->luaSkinUUID encoding:NSUTF8StringEncoding]]) {
+    if (![skin checkLuaSkinInstance:pw->luaSkinUUID]) {
         return;
     }
 
@@ -125,8 +125,7 @@ static int watcher_path_new(lua_State* L) {
 
     watcher_path_t* watcher_path = lua_newuserdata(L, sizeof(watcher_path_t));
     watcher_path->started = NO;
-    memset(watcher_path->luaSkinUUID, 0, 37);
-    strncpy(watcher_path->luaSkinUUID, [skin.uuid.UUIDString cStringUsingEncoding:NSUTF8StringEncoding], 36);
+    watcher_path->luaSkinUUID = [skin getLuaSkinUUID];
 
     luaL_getmetatable(L, USERDATA_TAG);
     lua_setmetatable(L, -2);
@@ -206,7 +205,7 @@ static int watcher_path_gc(lua_State* L) {
     FSEventStreamRelease(watcher_path->stream);
 
     watcher_path->closureref = [skin luaUnref:refTable ref:watcher_path->closureref];
-    watcher_path->luaSkinUUID[0] = '\0';
+    [skin gcLuaSkinUUID:&(watcher_path->luaSkinUUID)];
 
     return 0;
 }

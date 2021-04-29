@@ -70,6 +70,7 @@ typedef struct _caffeinatewatcher_t {
     bool running;
     int fn;
     void* obj;
+    LSUUID luaSkinUUID;
 } caffeinatewatcher_t;
 
 typedef enum _event_t {
@@ -104,6 +105,7 @@ typedef enum _event_t {
 - (void)callback:(NSDictionary* __unused)dict withEvent:(event_t)event {
     if (self.object->fn != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+        [skin checkLuaSkinInstance:self.object->luaSkinUUID];
         lua_State *L = skin.L;
         _lua_stackguard_entry(L);
 
@@ -186,6 +188,7 @@ static int caffeinate_watcher_new(lua_State* L) {
     caffeinateWatcher->fn = [skin luaRef:refTable];
     caffeinateWatcher->running = NO;
     caffeinateWatcher->obj = (__bridge_retained void*) [[CaffeinateWatcher alloc] initWithObject:caffeinateWatcher];
+    caffeinateWatcher->luaSkinUUID = [skin getLuaSkinUUID];
 
     luaL_getmetatable(L, USERDATA_TAG);
     lua_setmetatable(L, -2);
@@ -328,6 +331,7 @@ static int caffeinate_watcher_gc(lua_State* L) {
     caffeinate_watcher_stop(L);
 
     caffeinateWatcher->fn = [skin luaUnref:refTable ref:caffeinateWatcher->fn];
+    [skin gcLuaSkinUUID:&(caffeinateWatcher->luaSkinUUID)];
 
     CaffeinateWatcher* object = (__bridge_transfer CaffeinateWatcher*)caffeinateWatcher->obj;
     object = nil;
