@@ -99,6 +99,7 @@ typedef struct _hotkey_t {
     int repeatfn;
     BOOL enabled;
     EventHotKeyRef carbonHotKey;
+    LSUUID luaSkinUUID;
 } hotkey_t;
 
 
@@ -134,6 +135,7 @@ static int hotkey_new(lua_State* L) {
     hotkey_t* hotkey = lua_newuserdata(L, sizeof(hotkey_t));
     memset(hotkey, 0, sizeof(hotkey_t));
 
+    hotkey->luaSkinUUID = [skin getLuaSkinUUID];
     hotkey->carbonHotKey = nil;
     hotkey->keycode = keycode;
 
@@ -306,6 +308,7 @@ static int hotkey_gc(lua_State* L) {
     hotkey->pressedfn = [skin luaUnref:refTable ref:hotkey->pressedfn];
     hotkey->releasedfn = [skin luaUnref:refTable ref:hotkey->releasedfn];
     hotkey->repeatfn = [skin luaUnref:refTable ref:hotkey->repeatfn];
+    [skin gcLuaSkinUUID:&(hotkey->luaSkinUUID)];
 
     return 0;
 }
@@ -334,11 +337,17 @@ static OSStatus hotkey_callback(EventHandlerCallRef __attribute__ ((unused)) inH
 static OSStatus trigger_hotkey_callback(int eventUID, int eventKind, BOOL isRepeat) {
     //NSLog(@"trigger_hotkey_callback: isDown: %s, isUp: %s, isRepeat: %s", (eventKind == kEventHotKeyPressed) ? "YES" : "NO", (eventKind == kEventHotKeyReleased) ? "YES" : "NO", isRepeat ? "YES" : "NO");
     LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+
     lua_State *L = skin.L;
-    _lua_stackguard_entry(L);
 
     hotkey_t* hotkey = push_hotkey(L, eventUID);
     lua_pop(L, 1);
+
+    if (![skin checkLuaSkinInstance:hotkey->luaSkinUUID]) {
+        return noErr;
+    }
+
+    _lua_stackguard_entry(L);
 
     if (!isRepeat) {
         //NSLog(@"trigger_hotkey_callback: not a repeat, killing the timer if it's running");
