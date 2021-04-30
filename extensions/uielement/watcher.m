@@ -150,6 +150,10 @@ static int userdata_gc(lua_State* L) {
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSuielementWatcher *watcher = get_objectFromUserdata(__bridge_transfer HSuielementWatcher, L, 1, USERDATA_TAG);
     if (watcher) {
+        LSGCCanary tmplsCanary = watcher.lsCanary;
+        [skin destroyGCCanary:&tmplsCanary];
+        watcher.lsCanary = tmplsCanary;
+
         watcher.selfRefCount--;
         if (watcher.selfRefCount == 0) {
             [watcher stop];
