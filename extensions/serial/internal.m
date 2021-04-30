@@ -49,7 +49,7 @@ static LSRefTable refTable = LUA_NOREF;
 @property NSString*                 portName;
 @property NSString*                 portPath;
 
-@property LSUUID                    luaSkinUUID;
+@property LSGCCanary                    lsCanary;
 
 @property ORSSerialPortParity       parity;
 @property NSNumber*                 baudRate;
@@ -130,7 +130,7 @@ static LSRefTable refTable = LUA_NOREF;
     if (_callbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin sharedWithState:NULL];
         
-        if (![skin checkLuaSkinInstance:self.luaSkinUUID]) {
+        if (![skin checkGCCanary:self.lsCanary]) {
             return;
         }
         
@@ -148,7 +148,7 @@ static LSRefTable refTable = LUA_NOREF;
     if (_callbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin sharedWithState:NULL];
         
-        if (![skin checkLuaSkinInstance:self.luaSkinUUID]) {
+        if (![skin checkGCCanary:self.lsCanary]) {
             return;
         }
         
@@ -166,7 +166,7 @@ static LSRefTable refTable = LUA_NOREF;
     if (_callbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin sharedWithState:NULL];
         
-        if (![skin checkLuaSkinInstance:self.luaSkinUUID]) {
+        if (![skin checkGCCanary:self.lsCanary]) {
             return;
         }
 
@@ -192,7 +192,7 @@ static LSRefTable refTable = LUA_NOREF;
     if (_callbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin sharedWithState:NULL];
 
-        if (![skin checkLuaSkinInstance:self.luaSkinUUID]) {
+        if (![skin checkGCCanary:self.lsCanary]) {
             return;
         }
         
@@ -214,7 +214,7 @@ static LSRefTable refTable = LUA_NOREF;
         NSString *errorString = [NSString stringWithFormat:@"%@", error];
         LuaSkin *skin = [LuaSkin sharedWithState:NULL];
         
-        if (![skin checkLuaSkinInstance:self.luaSkinUUID]) {
+        if (![skin checkGCCanary:self.lsCanary]) {
             return;
         }
         
@@ -235,7 +235,7 @@ static LSRefTable refTable = LUA_NOREF;
     if (_deviceCallbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin sharedWithState:NULL];
         
-        if (![skin checkLuaSkinInstance:self.luaSkinUUID]) {
+        if (![skin checkGCCanary:self.lsCanary]) {
             return;
         }
         
@@ -262,7 +262,7 @@ static LSRefTable refTable = LUA_NOREF;
     if (_deviceCallbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin sharedWithState:NULL];
         
-        if (![skin checkLuaSkinInstance:self.luaSkinUUID]) {
+        if (![skin checkGCCanary:self.lsCanary]) {
             return;
         }
         
@@ -474,7 +474,7 @@ static int serial_newFromName(lua_State *L) {
     
     HSSerialPort *serialPort = [[HSSerialPort alloc] init];
     
-    serialPort.luaSkinUUID = [skin getLuaSkinUUID];
+    serialPort.lsCanary = [skin createGCCanary];
     
     bool result = [serialPort isPortNameValid:portName];
         
@@ -507,7 +507,7 @@ static int serial_newFromPath(lua_State *L) {
     
     HSSerialPort *serialPort = [[HSSerialPort alloc] init];
 
-    serialPort.luaSkinUUID = [skin getLuaSkinUUID];
+    serialPort.lsCanary = [skin createGCCanary];
     
     bool result = [serialPort isPathValid:path];
         
@@ -1100,9 +1100,9 @@ static int userdata_gc(lua_State* L) {
             }
             obj = nil;
 
-            LSUUID tmpluaSkinUUID = obj.luaSkinUUID;
-            [skin gcLuaSkinUUID:&tmpluaSkinUUID];
-            obj.luaSkinUUID = tmpluaSkinUUID;
+            LSGCCanary tmplsCanary = obj.lsCanary;
+            [skin destroyGCCanary:&tmplsCanary];
+            obj.lsCanary = tmplsCanary;
         }
     }
     

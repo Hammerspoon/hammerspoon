@@ -21,7 +21,7 @@ typedef struct _battery_watcher_t {
     CFRunLoopSourceRef t;
     int fn;
     bool started;
-    LSUUID luaSkinUUID;
+    LSGCCanary lsCanary;
 } battery_watcher_t;
 
 static void callback(void *info) {
@@ -29,7 +29,7 @@ static void callback(void *info) {
 
     battery_watcher_t* t = info;
 
-    if (![skin checkLuaSkinInstance:t->luaSkinUUID]) {
+    if (![skin checkGCCanary:t->lsCanary]) {
         return;
     }
 
@@ -69,7 +69,7 @@ static int battery_watcher_new(lua_State* L) {
 
     watcher->t = IOPSNotificationCreateRunLoopSource(callback, watcher);
     watcher->started = false;
-    watcher->luaSkinUUID = [skin getLuaSkinUUID];
+    watcher->lsCanary = [skin createGCCanary];
     return 1;
 }
 
@@ -123,7 +123,7 @@ static int battery_watcher_gc(lua_State* L) {
     lua_pushcfunction(L, battery_watcher_stop) ; lua_pushvalue(L,1); lua_call(L, 1, 1);
 
     watcher->fn = [skin luaUnref:refTable ref:watcher->fn];
-    [skin gcLuaSkinUUID:&(watcher->luaSkinUUID)];
+    [skin destroyGCCanary:&(watcher->lsCanary)];
     CFRunLoopSourceInvalidate(watcher->t);
     CFRelease(watcher->t);
     return 0;

@@ -19,7 +19,7 @@ typedef struct _reachability_t {
     int                      callbackRef ;
     int                      selfRef ;
     BOOL                     watcherEnabled ;
-    LSUUID                   luaSkinUUID;
+    LSGCCanary                   lsCanary;
 } reachability_t;
 
 static int pushSCNetworkReachability(lua_State *L, SCNetworkReachabilityRef theRef) {
@@ -31,7 +31,7 @@ static int pushSCNetworkReachability(lua_State *L, SCNetworkReachabilityRef theR
     thePtr->callbackRef     = LUA_NOREF ;
     thePtr->selfRef         = LUA_NOREF ;
     thePtr->watcherEnabled  = NO ;
-    thePtr->luaSkinUUID     = [skin getLuaSkinUUID];
+    thePtr->lsCanary     = [skin createGCCanary];
 
     luaL_getmetatable(L, USERDATA_TAG) ;
     lua_setmetatable(L, -2) ;
@@ -44,7 +44,7 @@ static void doReachabilityCallback(__unused SCNetworkReachabilityRef target, SCN
         if ((theRef->callbackRef != LUA_NOREF) && (theRef->selfRef != LUA_NOREF)) {
             LuaSkin   *skin = [LuaSkin sharedWithState:NULL] ;
             lua_State *L    = [skin L] ;
-            if (![skin checkLuaSkinInstance:theRef->luaSkinUUID]) {
+            if (![skin checkGCCanary:theRef->lsCanary]) {
                 return;
             }
             _lua_stackguard_entry(L);
@@ -386,7 +386,7 @@ static int userdata_gc(lua_State* L) {
         SCNetworkReachabilitySetDispatchQueue(theRef->reachabilityObj, NULL);
     }
     theRef->selfRef = [skin luaUnref:refTable ref:theRef->selfRef] ;
-    [skin gcLuaSkinUUID:&(theRef->luaSkinUUID)];
+    [skin destroyGCCanary:&(theRef->lsCanary)];
 
     CFRelease(theRef->reachabilityObj) ;
     lua_pushnil(L) ;

@@ -27,7 +27,7 @@
 @property BOOL            titleFollow ;
 @property BOOL            deleteOnClose ;
 @property BOOL            closeOnEscape ;
-@property LSUUID          luaSkinUUID ;
+@property LSGCCanary          lsCanary ;
 @end
 
 @interface HSWebViewView : WKWebView <WKNavigationDelegate, WKUIDelegate>
