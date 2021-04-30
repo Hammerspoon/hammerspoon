@@ -333,37 +333,37 @@ catastrophe:
     [self createLuaState];
 }
 
-- (BOOL)checkLuaSkinInstance:(LSUUID)lsUUID {
+- (BOOL)checkGCCanary:(LSGCCanary)canary {
     if (!self.L) {
         [self logBreadcrumb:@"LuaSkin nil lua_State detected"];
         return NO;
     }
 
-    NSString *NSlsUUID = [NSString stringWithCString:lsUUID.uuid encoding:NSUTF8StringEncoding];
-    if (!NSlsUUID || ![self.uuid.UUIDString isEqualToString:NSlsUUID]) {
-        [self logKnownBug:[NSString stringWithFormat:@"LuaSkin UUID mismatch detected: %s from the callback, %@ from the current LuaSkin instance", lsUUID.uuid, self.uuid.UUIDString]];
+    NSString *NSlsCanary = [NSString stringWithCString:canary.uuid encoding:NSUTF8StringEncoding];
+    if (!NSlsCanary || ![self.uuid.UUIDString isEqualToString:NSlsCanary]) {
+        [self logWarn:@"LuaSkin has caught an attempt to operate on an object that has been garbage collected."];
         return NO;
     }
 
     return YES;
 }
 
-- (LSUUID)getLuaSkinUUID {
-    LSUUID lsUUID;
-    memset(lsUUID.uuid, 0, LSUUIDLen);
-    strncpy(lsUUID.uuid, "UNINITIALISED", 13);
+- (LSGCCanary)createGCCanary {
+    LSGCCanary canary;
+    memset(canary.uuid, 0, LSUUIDLen);
+    strncpy(canary.uuid, "UNINITIALISED", 13);
 
     const char *tmpUUID = [self.uuid.UUIDString cStringUsingEncoding:NSUTF8StringEncoding];
     if (tmpUUID) {
-        strncpy(lsUUID.uuid, tmpUUID, LSUUIDLen);
+        strncpy(canary.uuid, tmpUUID, LSUUIDLen);
     }
 
-    return lsUUID;
+    return canary;
 }
 
-- (void)gcLuaSkinUUID:(LSUUID *)lsUUID {
-    memset(lsUUID->uuid, 0, LSUUIDLen);
-    strncpy(lsUUID->uuid, "GC", 2);
+- (void)destroyGCCanary:(LSGCCanary *)canary {
+    memset(canary->uuid, 0, LSUUIDLen);
+    strncpy(canary->uuid, "GC", 2);
 }
 
 #pragma mark - Methods for calling into Lua from C

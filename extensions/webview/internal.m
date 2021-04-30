@@ -106,7 +106,7 @@ void delayUntilViewStopsLoading(HSWebViewView *theView, dispatch_block_t block) 
         _allowKeyboardEntry = NO;
         _closeOnEscape      = NO;
         _darkMode           = NO;
-//        _luaSkinUUID        = nil;
+//        _lsCanary        = nil;
 
         // can't be set before the callback which acts on delegate methods is defined
         self.delegate       = self;
@@ -134,7 +134,7 @@ void delayUntilViewStopsLoading(HSWebViewView *theView, dispatch_block_t block) 
     LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
     lua_State *L = [skin L] ;
 
-    if (![skin checkLuaSkinInstance:self.luaSkinUUID]) {
+    if (![skin checkGCCanary:self.lsCanary]) {
         return;
     }
     _lua_stackguard_entry(L);
@@ -581,7 +581,7 @@ void delayUntilViewStopsLoading(HSWebViewView *theView, dispatch_block_t block) 
         newWindow.parent             = parent ;
         newWindow.deleteOnClose      = YES ;
         newWindow.opaque             = parent.opaque ;
-        newWindow.luaSkinUUID        = [skin getLuaSkinUUID];
+        newWindow.lsCanary           = [skin createGCCanary];
 
         if (((HSWebViewWindow *)theView.window).windowCallback != LUA_NOREF) {
             [skin pushLuaRef:refTable ref:((HSWebViewWindow *)theView.window).windowCallback];
@@ -1702,14 +1702,14 @@ static int webview_evaluateJavaScript(lua_State *L) {
         callbackRef = [skin luaRef:refTable] ;
     }
 
-    LSUUID luaSkinUUID = [skin getLuaSkinUUID];
+    LSGCCanary lsCanary = [skin createGCCanary];
     [theView evaluateJavaScript:javascript
               completionHandler:^(id obj, NSError *error){
 
         if (callbackRef != LUA_NOREF) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 LuaSkin *blockSkin = [LuaSkin sharedWithState:L] ;
-                if (![blockSkin checkLuaSkinInstance:luaSkinUUID]) {
+                if (![blockSkin checkGCCanary:lsCanary]) {
                     return;
                 }
                 [blockSkin pushLuaRef:refTable ref:callbackRef] ;
@@ -1718,7 +1718,7 @@ static int webview_evaluateJavaScript(lua_State *L) {
                 [blockSkin protectedCallAndError:@"hs.webview:evaluateJavaScript callback" nargs:2 nresults:0];
                 [blockSkin luaUnref:refTable ref:callbackRef] ;
 
-                [skin gcLuaSkinUUID:&luaSkinUUID];
+                [skin destroyGCCanary:&lsCanary];
             });
         }
     }] ;
@@ -1834,7 +1834,7 @@ static int webview_new(lua_State *L) {
                                                                         defer:YES];
 
     if (theWindow) {
-        theWindow.luaSkinUUID = [skin getLuaSkinUUID];
+        theWindow.lsCanary = [skin createGCCanary];
 
         // Don't create until actually used...
         if (!HSWebViewProcessPool) HSWebViewProcessPool = [[WKProcessPool alloc] init] ;
@@ -3093,9 +3093,9 @@ static int userdata_gc(lua_State* L) {
         theWindow.contentView      = nil ;
         theView                    = nil ;
 
-        LSUUID tmpLSUUID           = theWindow.luaSkinUUID;
-        [skin gcLuaSkinUUID:&tmpLSUUID];
-        theWindow.luaSkinUUID      = tmpLSUUID;
+        LSGCCanary tmpLSUUID           = theWindow.lsCanary;
+        [skin destroyGCCanary:&tmpLSUUID];
+        theWindow.lsCanary      = tmpLSUUID;
 
         theWindow.delegate         = nil ;
         theWindow                  = nil;

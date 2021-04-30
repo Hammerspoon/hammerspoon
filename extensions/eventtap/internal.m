@@ -9,7 +9,7 @@ typedef struct _eventtap_t {
     CGEventMask mask;
     CFMachPortRef tap;
     CFRunLoopSourceRef runloopsrc;
-    LSUUID luaSkinUUID;
+    LSGCCanary lsCanary;
 } eventtap_t;
 
 CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon) {
@@ -19,7 +19,7 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef
     eventtap_t* e = refcon;
 
     // Guard against this callback being delivered at a point where LuaSkin has been reset and our references wouldn't make sense anymore
-    if (![skin checkLuaSkinInstance:e->luaSkinUUID]) {
+    if (![skin checkGCCanary:e->lsCanary]) {
         return event; // Allow the event to pass through unmodified
     }
 
@@ -166,7 +166,7 @@ static int eventtap_new(lua_State* L) {
     memset(eventtap, 0, sizeof(eventtap_t));
 
     eventtap->tap = NULL ;
-    eventtap->luaSkinUUID = [skin getLuaSkinUUID];
+    eventtap->lsCanary = [skin createGCCanary];
 
     lua_pushnil(L);
     while (lua_next(L, 1) != 0) {
@@ -447,7 +447,7 @@ static int eventtap_gc(lua_State* L) {
     }
 
     eventtap->fn = [skin luaUnref:refTable ref:eventtap->fn];
-    [skin gcLuaSkinUUID:&(eventtap->luaSkinUUID)];
+    [skin destroyGCCanary:&(eventtap->lsCanary)];
 
     return 0;
 }

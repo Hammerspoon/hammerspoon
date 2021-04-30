@@ -12,7 +12,7 @@ typedef struct _watcher_path_t {
     int closureref;
     FSEventStreamRef stream;
     bool started;
-    LSUUID luaSkinUUID;
+    LSGCCanary lsCanary;
 } watcher_path_t;
 
 #if MAC_OS_X_VERSION_MAX_ALLOWED < 1090
@@ -55,7 +55,7 @@ void event_callback(ConstFSEventStreamRef __unused streamRef, void *clientCallBa
     LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     lua_State *L = skin.L;
 
-    if (![skin checkLuaSkinInstance:pw->luaSkinUUID]) {
+    if (![skin checkGCCanary:pw->lsCanary]) {
         return;
     }
 
@@ -125,7 +125,7 @@ static int watcher_path_new(lua_State* L) {
 
     watcher_path_t* watcher_path = lua_newuserdata(L, sizeof(watcher_path_t));
     watcher_path->started = NO;
-    watcher_path->luaSkinUUID = [skin getLuaSkinUUID];
+    watcher_path->lsCanary = [skin createGCCanary];
 
     luaL_getmetatable(L, USERDATA_TAG);
     lua_setmetatable(L, -2);
@@ -205,7 +205,7 @@ static int watcher_path_gc(lua_State* L) {
     FSEventStreamRelease(watcher_path->stream);
 
     watcher_path->closureref = [skin luaUnref:refTable ref:watcher_path->closureref];
-    [skin gcLuaSkinUUID:&(watcher_path->luaSkinUUID)];
+    [skin destroyGCCanary:&(watcher_path->lsCanary)];
 
     return 0;
 }
