@@ -333,6 +333,7 @@
     HSuielementWatcher *watcher = [[HSuielementWatcher alloc] initWithElement:self
                                                                   callbackRef:(int)callbackRef
                                                                   userdataRef:(int)userDataRef];
+    watcher.lsCanary = [skin createGCCanary];
     return watcher;
 }
 
@@ -378,10 +379,11 @@
 
 static void watcher_observer_callback(AXObserverRef observer __unused, AXUIElementRef element,
                                       CFStringRef notificationName, void* contextData) {
+    HSuielementWatcher *watcher = (__bridge HSuielementWatcher *)contextData;
     LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+    [skin checkGCCanary:watcher.lsCanary];
     _lua_stackguard_entry(skin.L);
 
-    HSuielementWatcher *watcher = (__bridge HSuielementWatcher *)contextData;
 
     [skin pushLuaRef:watcher.refTable ref:watcher.handlerRef]; // Callback function
 
