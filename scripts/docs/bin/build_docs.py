@@ -322,6 +322,20 @@ def process_module(modulename, raw_module):
                 sig_param_arr = re.split(r',|\|', sig_params)
                 sig_arg_count = len(sig_param_arr)
                 actual_params = list(filter(is_actual_parameter, item["parameters"]))
+
+#                # Check if all Parameters lines started with " * " as they should
+#                if len(actual_params) != len(item["parameters"]):
+#                    message = "PARAMETERS FORMAT ISSUE: Likely some parameters are split across multiple lines when they should not be:\n'%s'" % '\n'.join(item["parameters"])
+#                    warn(message)
+#                    LINTS.append({
+#                        "file": item["file"],
+#                        "line": int(item["lineno"]),
+#                        "title": "Docstring parameter format",
+#                        "message": message,
+#                        "annotation_level": "failure"
+#                    })
+
+                # Check the number of parameters in the signature matches the number in Parameters
                 parameter_count = len(actual_params)
                 if parameter_count != sig_arg_count:
                     message = "SIGNATURE/PARAMETER COUNT MISMATCH: '%s' says %d parameters ('%s'), but Parameters section has %d entries:\n%s\n" % (sig_without_return, sig_arg_count, ','.join(sig_param_arr), parameter_count, '\n'.join(actual_params))
@@ -333,7 +347,12 @@ def process_module(modulename, raw_module):
                         "message": message,
                         "annotation_level": "failure"
                     })
-                if len(item["returns"]) == 0:
+
+                # Check if we have zero items for Returns.
+                # This is a lint error in Hammerspoon, but in Standalone (ie Spoons) we'll let it slide and assume they meant to have no returns
+                if "returns" not in item:
+                    item["returns"] = []
+                if len(item["returns"]) == 0 and not ARGUMENTS.standalone:
                     message = "RETURN COUNT ERROR: '%s' does not specify a return value" % (sig_without_return)
                     warn(message)
                     LINTS.append({
@@ -343,6 +362,10 @@ def process_module(modulename, raw_module):
                         "message": message,
                         "annotation_level": "failure"
                     })
+
+                # Having validated the Returns, we will now remove any "None" ones
+                if len(item["returns"]) == 1 and item["returns"][0] == "* None":
+                    item["returns"] = []
         except:
             message = "Unable to parse parameters for %s\n%s\n" % (item["signature"], sys.exc_info()[1])
             warn(message)
