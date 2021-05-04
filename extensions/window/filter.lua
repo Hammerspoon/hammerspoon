@@ -729,6 +729,9 @@ end
 ---  * windowfilter - an `hs.window.filter` object to copy
 ---  * logname - (optional) name of the `hs.logger` instance for the new windowfilter; if omitted, the class logger will be used
 ---  * loglevel - (optional) log level for the `hs.logger` instance for the new windowfilter
+---
+--- Returns:
+---  * An `hs.window.filter` object
 function windowfilter.copy(wf,logname,loglevel)
   local mt=getmetatable(wf) if not mt or mt.__index~=WF then error('windowfilter must be an hs.window.filter object',2) end
   local self=windowfilter.new(true,logname,loglevel,wf)
