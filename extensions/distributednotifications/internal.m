@@ -86,6 +86,9 @@ static int distnot_new(lua_State *L) {
 ///  * name - A string containing the name of the notification
 ///  * sender - An optional string containing the name of the sender of the notification (in the form `com.domain.application.foo`). Defaults to nil.
 ///  * userInfo - An optional table containing additional information to post with the notification. Defaults to nil.
+///
+/// Returns:
+///  * None
 static int distnot_post(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TSTRING | LS_TNIL | LS_TOPTIONAL, LS_TTABLE | LS_TNIL | LS_TOPTIONAL, LS_TBREAK];
