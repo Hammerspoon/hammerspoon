@@ -333,6 +333,16 @@ def process_module(modulename, raw_module):
                         "message": message,
                         "annotation_level": "failure"
                     })
+                if len(item["returns"]) == 0:
+                    message = "RETURN COUNT ERROR: '%s' does not specify a return value" % (sig_without_return)
+                    warn(message)
+                    LINTS.append({
+                        "file": item["file"],
+                        "line": int(item["lineno"]),
+                        "title": "Docstring missing return value",
+                        "message": message,
+                        "annotation_level": "failure"
+                    })
         except:
             message = "Unable to parse parameters for %s\n%s\n" % (item["signature"], sys.exc_info()[1])
             warn(message)
