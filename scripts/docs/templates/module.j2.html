@@ -58,8 +58,30 @@
               </tr>
               <tr>
                 <th>Description</th>
-                <td>{{ item.doc_gfm }}</td>
+                <td>{{ item.desc }}</td>
               </tr>
+              {% if item.type == "Function" or item.type == "Method" or item.type == "Constructor" %}
+              <tr>
+                  <th>Parameters</th>
+                  <td>{{ item.parameters_gfm }}</td>
+              </tr>
+              <tr>
+                  <th>Returns</th>
+                  <td>{{ item.returns_gfm }}</td>
+              </tr>
+              {% endif %}
+              {% if item.notes|length > 0 %}
+              <tr>
+                  <th>Notes</th>
+                  <td>{{ item.notes_gfm }}</td>
+              </tr>
+              {% endif %}
+              {% if item.examples|length > 0 %}
+              <tr>
+                  <th>Examples</th>
+                  <td>{{ item.examples_gfm }}</td>
+              </tr>
+              {% endif %}
               <tr>
                 <th>Source</th>
                 <td><a href="https://github.com/Hammerspoon/hammerspoon/blob/master/{{ item.file }}#L{{ item.lineno }}">{{ item.file }}</a></td>
