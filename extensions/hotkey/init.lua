@@ -339,8 +339,7 @@ end
 
 --- hs.hotkey.showHotkeys(mods, key) -> hs.hotkey object
 --- Function
---- Creates (and enables) a hotkey that shows all currently active hotkeys (i.e. enabled and not "shadowed"
---- in the current context) while pressed
+--- Creates (and enables) a hotkey that shows all currently active hotkeys (i.e. enabled and not "shadowed" in the current context) while pressed
 ---
 --- Parameters:
 ---  * mods - A table or a string containing (as elements, or as substrings with any separator) the keyboard modifiers required,
