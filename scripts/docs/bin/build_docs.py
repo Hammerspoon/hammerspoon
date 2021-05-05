@@ -26,7 +26,7 @@ CHUNK_TYPE = 3
 CHUNK_DESC = 4
 TYPE_NAMES = ["Deprecated", "Command", "Constant", "Variable", "Function",
               "Constructor", "Field", "Method"]
-SECTION_NAMES = ["Parameters", "Returns", "Notes"]
+SECTION_NAMES = ["Parameters", "Returns", "Notes", "Examples"]
 TYPE_DESC = {
         "Constant": "Useful values which cannot be changed",
         "Variable": "Configurable values",
@@ -201,7 +201,7 @@ def get_section_from_chunk(chunk, sectionname):
 
 
 def strip_sections_from_chunk(chunk):
-    """Remove the Parameters/Returns/Notes sections from a chunk"""
+    """Remove the Parameters/Returns/Notes/Examples sections from a chunk"""
     stripped_chunk = []
     in_section = False
     for line in chunk:
@@ -294,7 +294,7 @@ def process_module(modulename, raw_module):
         item["file"] = chunk[CHUNK_FILE]
         item["lineno"] = chunk[CHUNK_LINE]
 
-        for section in ["Parameters", "Returns", "Notes"]:
+        for section in ["Parameters", "Returns", "Notes", "Examples"]:
             if section + ':' in chunk:
                 item[section.lower()] = get_section_from_chunk(chunk,
                                                                section + ':')
@@ -315,30 +315,71 @@ def process_module(modulename, raw_module):
 
         try:
             if item['desc'].startswith("Alias for [`"):
+                item["parameters"] = []
+                item["returns"] = []
+                item["notes"] = []
                 pass
             else:
                 sig_without_return = item["signature"].split("->")[0]
                 sig_params = re.sub(r".*\((.*)\).*", r"\1", sig_without_return)
                 sig_param_arr = re.split(r',|\|', sig_params)
                 sig_arg_count = len(sig_param_arr)
-                actual_params = list(filter(is_actual_parameter, item["parameters"]))
 
-#                # Check if all Parameters lines started with " * " as they should
-#                if len(actual_params) != len(item["parameters"]):
-#                    message = "PARAMETERS FORMAT ISSUE: Likely some parameters are split across multiple lines when they should not be:\n'%s'" % '\n'.join(item["parameters"])
-#                    warn(message)
-#                    LINTS.append({
-#                        "file": item["file"],
-#                        "line": int(item["lineno"]),
-#                        "title": "Docstring parameter format",
-#                        "message": message,
-#                        "annotation_level": "failure"
-#                    })
+                # Check if there are more than a single line of description at the top of the function
+                params_index = chunk[CHUNK_DESC:].index("Parameters:")
+                desc_section = [x for x in chunk[CHUNK_DESC:][0:params_index] if x != '']
+                if len(desc_section) > 1:
+                    message = "Function description should be a single line. Other content may belong in Notes: %s" % sig_without_return
+                    warn(message)
+                    LINTS.append({
+                        "file": item["file"],
+                        "line": int(item["lineno"]),
+                        "title": "Docstring function/method/constructor description should not be multiline",
+                        "message": message,
+                        "annotation_level": "failure"
+
+                    })
+
+                # Clean up Parameters
+                clean_params = []
+                numlines = len(item["parameters"])
+                try:
+                    for i in range(0, numlines):
+                        line = item["parameters"][i]
+                        cleanline = ""
+
+                        if line.startswith(" * "):
+                            # This is the start of a new parameter, add it to clean_params
+                            clean_params.append(line.rstrip())
+                        elif line.startswith("  * ") or line.startswith("   * "):
+                            if line.startswith("  * "):
+                                # Sub-lists should start with two spaces in GitHub Flavoured Markdown, so add in the missing space in this item
+                                line = " " + line
+                            # This is a sub-parameter of the previous parameter, add it to that string in clean_params
+                            prev_clean_line = clean_params[-1]
+                            prev_clean_line += '\n' + line.rstrip()
+                            clean_params[-1] = prev_clean_line
+                        else:
+                            # This should have been on the line before
+                            prev_clean_line = clean_params[-1]
+                            prev_clean_line += ' ' + line.strip()
+                            clean_params[-1] = prev_clean_line
+                except:
+                    message = "PARAMETERS FORMAT ISSUE: Unable to parse Parameters for: %s" % sig_without_return
+                    warn(message)
+                    LINTS.append({
+                        "file": item["file"],
+                        "line": int(item["lineno"]),
+                        "title": "Docstring function/method/constructor parameter parsing error",
+                        "message": message,
+                        "annotation_level": "failure"
+                    })
+                item["parameters"] = clean_params
 
                 # Check the number of parameters in the signature matches the number in Parameters
-                parameter_count = len(actual_params)
+                parameter_count = len(item["parameters"])
                 if parameter_count != sig_arg_count:
-                    message = "SIGNATURE/PARAMETER COUNT MISMATCH: '%s' says %d parameters ('%s'), but Parameters section has %d entries:\n%s\n" % (sig_without_return, sig_arg_count, ','.join(sig_param_arr), parameter_count, '\n'.join(actual_params))
+                    message = "SIGNATURE/PARAMETER COUNT MISMATCH: '%s' says %d parameters ('%s'), but Parameters section has %d entries:\n%s\n" % (sig_without_return, sig_arg_count, ','.join(sig_param_arr), parameter_count, '\n'.join(item["parameters"]))
                     warn(message)
                     LINTS.append({
                         "file": item["file"],
@@ -366,6 +407,15 @@ def process_module(modulename, raw_module):
                 # Having validated the Returns, we will now remove any "None" ones
                 if len(item["returns"]) == 1 and item["returns"][0] == "* None":
                     item["returns"] = []
+
+                # Check if we have zero items for Notes
+                if "notes" not in item:
+                    item["notes"] = []
+
+                # Check if we have zero items for Examples
+                if "examples" not in item:
+                    item["examples"] = []
+
         except:
             message = "Unable to parse parameters for %s\n%s\n" % (item["signature"], sys.exc_info()[1])
             warn(message)
@@ -414,8 +464,13 @@ def process_markdown(data):
             items = module[item_type]
             for j in range(0, len(items)):
                 item = items[j]
+                dbg("Preparing template data for: %s" % item["def"])
                 item["def_gfm"] = strip_paragraph(md(item["def"]))
                 item["doc_gfm"] = md(item["doc"])
+                if item_type in ["Function", "Constructor", "Method"]:
+                    item["parameters_gfm"] = md('\n'.join(item["parameters"]))
+                    item["returns_gfm"] = md('\n'.join(item["returns"]))
+                    item["notes_gfm"] = md('\n'.join(item["notes"]))
                 items[j] = item
         # Now do the same for the deprecated 'items' list
         for j in range(0, len(module["items"])):
@@ -588,6 +643,9 @@ def write_templated_output(output_dir, template_dir, title, data, extension):
     if extension == "html":
         # Re-process the doc data to convert Markdown to HTML
         data = process_markdown(data)
+        # Write out the data as a file, for later debugging
+        write_json(output_dir + "/templated_docs.json", data)
+
 
     # Render and write index.<extension>
     template = jinja.from_string(tmplfile.read())
