@@ -1472,17 +1472,6 @@ local spacesDone = {}
 --- Function
 --- Callback to inform all windowfilters that the user initiated a switch to a (numbered) Mission Control Space.
 ---
---- See `hs.window.filter.forceRefreshOnSpaceChange` for an overview of Spaces limitations in Hammerspoon. If you
---- often (or always) change Space via the "numbered" Mission Control keyboard shortcuts (by default, `ctrl-1` etc.), you
---- can call this function from your `init.lua` when intercepting these shortcuts; for example:
---- ```
---- hs.hotkey.bind('ctrl','1',nil,function()hs.window.filter.switchedToSpace(1)end)
---- hs.hotkey.bind('ctrl','2',nil,function()hs.window.filter.switchedToSpace(2)end)
---- -- etc.
---- ```
---- Using this callback results in slightly better performance than setting `forceRefreshOnSpaceChange` to `true`, since
---- already visited Spaces are remembered and no refreshing is necessary when switching back to those.
----
 --- Parameters:
 ---  * space - the Space number the user is switching to
 ---
@@ -1493,6 +1482,14 @@ local spacesDone = {}
 ---  * Only use this function if "Displays have separate Spaces" and "Automatically rearrange Spaces" are OFF in System Preferences>Mission Control
 ---  * Calling this function will set `hs.window.filter.forceRefreshOnSpaceChange` to `false`
 ---  * If you defined one or more Spaces-aware windowfilters (i.e. when the `currentSpace` field of a filter is present), windows need refreshing at every space change anyway, so using this callback will not result in improved performance
+---  * See `hs.window.filter.forceRefreshOnSpaceChange` for an overview of Spaces limitations in Hammerspoon. If you often (or always) change Space via the "numbered" Mission Control keyboard shortcuts (by default, `ctrl-1` etc.), you can call this function from your `init.lua` when intercepting these shortcuts; for example:
+---  ```
+---  hs.hotkey.bind('ctrl','1',nil,function()hs.window.filter.switchedToSpace(1)end)
+---  hs.hotkey.bind('ctrl','2',nil,function()hs.window.filter.switchedToSpace(2)end)
+---  -- etc.
+---  ```
+--- * Using this callback results in slightly better performance than setting `forceRefreshOnSpaceChange` to `true`, since already visited Spaces are remembered and no refreshing is necessary when switching back to those.
+
 local pendingSpace
 local function spaceChanged()
   if not pendingSpace then return end

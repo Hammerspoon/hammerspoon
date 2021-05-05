@@ -602,14 +602,16 @@ function expose:toggleShow(...)
 end
 --- hs.expose:hide()
 --- Method
---- Hides the expose, if visible, and exits the modal mode.
---- Call this function if you need to make sure the modal is exited without waiting for the user to press `esc`.
+--- Hides the expose, if visible, and exits the modal mode
 ---
 --- Parameters:
 ---  * None
 ---
 --- Returns:
 ---  * None
+---
+--- Notes:
+---  * Call this function if you need to make sure the modal is exited without waiting for the user to press `esc`
 function expose:hide()
   if activeInstance then return exitAll(activeInstance) end
 end
