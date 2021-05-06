@@ -33,18 +33,22 @@
 }
 
 - (void)testGetSystemAssigned {
+    SKIP_IN_GITHUB_ACTIONS()
     RUN_LUA_TEST()
 }
 
 - (void)testBasicHotkey {
+    SKIP_IN_GITHUB_ACTIONS()
     RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(2)
 }
 
 - (void)testRepeatingHotkey {
+    SKIP_IN_GITHUB_ACTIONS()
     RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(5)
 }
 
 - (void)testHotkeyStates {
+    SKIP_IN_GITHUB_ACTIONS()
     RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(5)
 }
 @end
