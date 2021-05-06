@@ -150,6 +150,8 @@
 		4F70EEEF1B7273B00025A7B3 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F70EEEE1B7273B00025A7B3 /* internal.m */; };
 		4F76944F1B74C96800536DE4 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4F76945A1B74C9CA00536DE4 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F7694591B74C9CA00536DE4 /* internal.m */; };
+		4F7BB9D426447C390077A926 /* test_hotkey.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4F7BB9D326447C390077A926 /* test_hotkey.lua */; };
+		4F7BB9D626447C640077A926 /* HShotkey.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F7BB9D526447C640077A926 /* HShotkey.m */; };
 		4F85FED31CCA918D00FBBAD7 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4F85FED91CCA91AC00FBBAD7 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F85FECC1CCA8A2F00FBBAD7 /* internal.m */; };
 		4F8779D1200CD51200E9DB42 /* HSwindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F8779D0200CD51200E9DB42 /* HSwindow.m */; };
@@ -1202,6 +1204,8 @@
 		4F7694541B74C96800536DE4 /* libkeycodes.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libkeycodes.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F7694581B74C9CA00536DE4 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/keycodes/init.lua; sourceTree = "<group>"; };
 		4F7694591B74C9CA00536DE4 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/keycodes/internal.m; sourceTree = "<group>"; };
+		4F7BB9D326447C390077A926 /* test_hotkey.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = test_hotkey.lua; path = extensions/hotkey/test_hotkey.lua; sourceTree = "<group>"; };
+		4F7BB9D526447C640077A926 /* HShotkey.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HShotkey.m; sourceTree = "<group>"; };
 		4F85FECB1CCA8A2F00FBBAD7 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/distributednotifications/init.lua; sourceTree = "<group>"; };
 		4F85FECC1CCA8A2F00FBBAD7 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/distributednotifications/internal.m; sourceTree = "<group>"; };
 		4F85FED81CCA918D00FBBAD7 /* libdistributednotifications.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libdistributednotifications.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -2485,6 +2489,7 @@
 			children = (
 				4F4CB42C1B73AD47000EA9B6 /* init.lua */,
 				4F4CB42D1B73AD47000EA9B6 /* internal.m */,
+				4F7BB9D326447C390077A926 /* test_hotkey.lua */,
 			);
 			name = hotkey;
 			sourceTree = "<group>";
@@ -3492,6 +3497,7 @@
 				4FEE39D81F0A697400935F90 /* HScrash.m */,
 				4F40EC3F1CCD0FE3006342D7 /* HSdistributednotifications.m */,
 				4C5BA6B41C85EAEB00E68CA9 /* HSfs.m */,
+				4F7BB9D526447C640077A926 /* HShotkey.m */,
 				4F2C0C7221BB4A03008F32C1 /* HSinspect.m */,
 				4F4F6DA925DB1BB6000187FA /* HSjsonTests.m */,
 				4FCBAFD623B0FB95007BA1D0 /* HSmath.m */,
@@ -6187,6 +6193,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F7BB9D426447C390077A926 /* test_hotkey.lua in Resources */,
 				2273893624860C0E003EBC68 /* test_websocket.lua in Resources */,
 				4FCBAFD923B1152F007BA1D0 /* test_math.lua in Resources */,
 				4FDD8E4A1C6E4FA100085D7A /* test_screen.lua in Resources */,
@@ -6980,6 +6987,7 @@
 				4F8779D1200CD51200E9DB42 /* HSwindow.m in Sources */,
 				4FDD8E8D1C8C8BF200085D7A /* HScoresetup.m in Sources */,
 				4FDD8E4C1C6E4FBB00085D7A /* HSscreen.m in Sources */,
+				4F7BB9D626447C640077A926 /* HShotkey.m in Sources */,
 				4F2C0C7321BB4A04008F32C1 /* HSinspect.m in Sources */,
 				4FEE39D91F0A697400935F90 /* HScrash.m in Sources */,
 				4C403D641CBE5B9F00EE20ED /* HSapplication.m in Sources */,
