@@ -17,7 +17,6 @@ static LSRefTable refTable;
 - (void)repeatTimerFired:(NSTimer *)timer;
 @end
 
-static NSMutableIndexSet* handlers;
 static HSKeyRepeatManager* keyRepeatManager;
 static OSStatus trigger_hotkey_callback(int eventUID, int eventKind, BOOL isRepeat);
 
@@ -73,14 +72,12 @@ static int store_hotkey(lua_State* L, int idx) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     lua_pushvalue(L, idx);
     int x = [skin luaRef:refTable];
-    [handlers addIndex: x];
     return x;
 }
 
 static int remove_hotkey(lua_State* L, int x) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin luaUnref:refTable ref:x];
-    [handlers removeIndex: x];
     return LUA_NOREF;
 }
 
@@ -423,7 +420,6 @@ static const luaL_Reg hotkey_objectlib[] = {
 int luaopen_hs_hotkey_internal(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
 
-    handlers = [NSMutableIndexSet indexSet];
     keyRepeatManager = [[HSKeyRepeatManager alloc] init];
 
     refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:hotkeylib metaFunctions:metalib objectFunctions:hotkey_objectlib];
