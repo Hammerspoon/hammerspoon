@@ -87,7 +87,7 @@ static int crashKV(lua_State *L) {
     NSString *value = [skin toNSObjectAtIndex:2];
 
     [SentrySDK configureScope:^(SentryScope * _Nonnull scope) {
-        [scope setExtras:@{key: value}];
+        [scope setExtraValue:value forKey:key];
     }];
 
     return 0;

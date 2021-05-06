@@ -6,6 +6,8 @@
     <h1>Official Sentry SDK for iOS / tvOS / macOS / watchOS <sup>(1)</sup>.</h1>
 </p>
 
+_Bad software is everywhere, and we're tired of it. Sentry is on a mission to help developers write better software faster, so we can get back to enjoying technology. If you want to join us [<kbd>**Check out our open positions**</kbd>](https://sentry.io/careers/)_
+
 [![Build](https://img.shields.io/github/workflow/status/getsentry/sentry-cocoa/Build%20%26%20Test)](https://github.com/getsentry/sentry-cocoa/actions?query=workflow%3A%22Build+%26+Test%22)
 [![codebeat badge](https://codebeat.co/badges/07f0bc91-9102-4fd8-99a6-30b25dc98037)](https://codebeat.co/projects/github-com-getsentry-sentry-cocoa-master)
 [![codecov.io](https://codecov.io/gh/getsentry/sentry-cocoa/branch/master/graph/badge.svg)](https://codecov.io/gh/getsentry/sentry-cocoa)
@@ -49,6 +51,14 @@ SentrySDK.start { options in
 For more information checkout the [docs](https://docs.sentry.io/platforms/apple).
 
 <sup>(1)</sup>limited symbolication support and no crash handling.
+
+# Blog posts
+
+[How to use Sentry Attachments with Mobile Applications](https://blog.sentry.io/2021/02/03/how-to-use-sentry-attachments-with-mobile-applications/?utm_source=github&utm_medium=readme&utm_campaign=sentry-cocoa).
+
+[Close the Loop with User Feedback](https://blog.sentry.io/2021/02/16/close-the-loop-with-user-feedback/?utm_source=github&utm_medium=readme&utm_campaign=sentry-cocoa).
+
+[A Sanity Listicle for Mobile Developers](https://blog.sentry.io/2021/03/30/a-sanity-listicle-for-mobile-developers/?utm_source=github&utm_medium=readme&utm_campaign=sentry-cocoa).
 
 # Resources
 

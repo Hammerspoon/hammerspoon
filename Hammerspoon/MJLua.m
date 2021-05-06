@@ -850,7 +850,9 @@ static int MJLuaAtPanic(lua_State *L) {
 
 // Create a Lua environment with LuaSkin
 void MJLuaAlloc(void) {
-    MJLuaLogDelegate = [[HSLogger alloc] initWithLua:nil];
+    if (!MJLuaLogDelegate) {
+        MJLuaLogDelegate = [[HSLogger alloc] initWithLua:nil];
+    }
     LuaSkin *skin = [LuaSkin sharedWithDelegate:MJLuaLogDelegate];
     // on a reload, this won't get created in sharedWithDelegate:, so do it manually here
     if (!LuaSkin.mainLuaState) {
@@ -1045,10 +1047,7 @@ void MJLuaDeinit(void) {
 
     callShutdownCallback(skin.L);
 
-    if (MJLuaLogDelegate) {
-        [skin setDelegate:nil] ;
-        MJLuaLogDelegate = nil ;
-    }
+    [MJLuaLogDelegate setLuaState:nil];
 }
 
 // Destroy a Lua environment with LuaSiin

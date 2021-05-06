@@ -38,6 +38,7 @@
 @property (nonatomic) BOOL running;
 @property (nonatomic) pid_t pid;
 @property (nonatomic) BOOL watchDestroyed;
+@property (nonatomic) LSGCCanary lsCanary;
 
 -(HSuielementWatcher *)initWithElement:(HSuielement *)element callbackRef:(int)callbackRef userdataRef:(int)userdataRef;
 -(void)dealloc;

@@ -23,6 +23,11 @@ NS_ASSUME_NONNULL_BEGIN
                     withSession:(SentrySession *)session
                       withScope:(SentryScope *)scope;
 
+/**
+ * Needed by hybrid SDKs as react-native to synchronously store an envelope to disk.
+ */
+- (void)storeEnvelope:(SentryEnvelope *)envelope;
+
 @end
 
 NS_ASSUME_NONNULL_END

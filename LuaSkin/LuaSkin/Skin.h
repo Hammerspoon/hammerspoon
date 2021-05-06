@@ -42,10 +42,17 @@ extern int luaopen_luaskin_internal(lua_State* L) ; // entry vector to luaskin.m
 #endif
  */
 
+#pragma mark - LuaSkin typedefs/defines
+
 // Define a break variable for the reference checker
 #define LS_RBREAK INT_MIN
 
 typedef int LSRefTable;
+
+#define LSUUIDLen 37
+typedef struct LSGCCanary {
+    char uuid[LSUUIDLen];
+} LSGCCanary;
 
 // Define some bits for masking operations in the argument checker
 /*!
@@ -276,7 +283,9 @@ NSString *specMaskToString(int spec);
  */
 - (void)resetLuaState;
 
-- (BOOL)checkLuaSkinInstance:(NSString *)checkUUID;
+- (BOOL)checkGCCanary:(LSGCCanary)canary;
+- (LSGCCanary)createGCCanary;
+- (void)destroyGCCanary:(LSGCCanary *)canary;
 
 #pragma mark - Methods for calling into Lua from C
 

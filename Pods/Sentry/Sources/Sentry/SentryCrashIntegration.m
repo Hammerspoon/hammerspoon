@@ -3,8 +3,11 @@
 #import "SentryCrashInstallationReporter.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryEvent.h"
+#import "SentryFrameInAppLogic.h"
+#import "SentryHook.h"
 #import "SentryHub.h"
-#import "SentrySDK.h"
+#import "SentryOutOfMemoryLogic.h"
+#import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySessionCrashedHandler.h"
 
@@ -12,6 +15,7 @@
 #    import <UIKit/UIKit.h>
 #endif
 
+static dispatch_once_t installationToken = 0;
 static SentryCrashInstallationReporter *installation = nil;
 
 @interface
@@ -19,6 +23,7 @@ SentryCrashIntegration ()
 
 @property (nonatomic, weak) SentryOptions *options;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
+@property (nonatomic, strong) SentryCrashAdapter *crashAdapter;
 @property (nonatomic, strong) SentrySessionCrashedHandler *crashedSessionHandler;
 
 @end
@@ -28,22 +33,19 @@ SentryCrashIntegration ()
 - (instancetype)init
 {
     if (self = [super init]) {
-        SentryCrashAdapter *crashWrapper = [[SentryCrashAdapter alloc] init];
+        self.crashAdapter = [[SentryCrashAdapter alloc] init];
         self.dispatchQueueWrapper = [[SentryDispatchQueueWrapper alloc] init];
-        self.crashedSessionHandler =
-            [[SentrySessionCrashedHandler alloc] initWithCrashWrapper:crashWrapper];
     }
     return self;
 }
 
 /** Internal constructor for testing */
-- (instancetype)initWithCrashWrapper:(SentryCrashAdapter *)crashWrapper
+- (instancetype)initWithCrashAdapter:(SentryCrashAdapter *)crashAdapter
              andDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     self = [self init];
+    self.crashAdapter = crashAdapter;
     self.dispatchQueueWrapper = dispatchQueueWrapper;
-    self.crashedSessionHandler =
-        [[SentrySessionCrashedHandler alloc] initWithCrashWrapper:crashWrapper];
 
     return self;
 }
@@ -64,15 +66,27 @@ SentryCrashIntegration ()
 - (void)installWithOptions:(nonnull SentryOptions *)options
 {
     self.options = options;
+
+    SentryOutOfMemoryLogic *logic =
+        [[SentryOutOfMemoryLogic alloc] initWithOptions:options crashAdapter:self.crashAdapter];
+    self.crashedSessionHandler =
+        [[SentrySessionCrashedHandler alloc] initWithCrashWrapper:self.crashAdapter
+                                                 outOfMemoryLogic:logic];
+
     [self startCrashHandler];
+    // TODO: enable with feature flag from SentryOptions because this is still experimental
+    //    sentrycrash_install_async_hooks();
     [self configureScope];
 }
 
 - (void)startCrashHandler
 {
-    static dispatch_once_t onceToken = 0;
     void (^block)(void) = ^{
-        installation = [[SentryCrashInstallationReporter alloc] init];
+        SentryFrameInAppLogic *frameInAppLogic =
+            [[SentryFrameInAppLogic alloc] initWithInAppIncludes:self.options.inAppIncludes
+                                                   inAppExcludes:self.options.inAppExcludes];
+        installation =
+            [[SentryCrashInstallationReporter alloc] initWithFrameInAppLogic:frameInAppLogic];
         [installation install];
 
         // We need to send the crashed event together with the crashed session in the same envelope
@@ -88,11 +102,27 @@ SentryCrashIntegration ()
         // there and the AutoSessionTrackingIntegration can work properly.
         //
         // This is a pragmatic and not the most optimal place for this logic.
-        [self.crashedSessionHandler endCurrentSessionAsCrashedWhenCrashed];
+        [self.crashedSessionHandler endCurrentSessionAsCrashedWhenCrashOrOOM];
 
         [installation sendAllReports];
     };
-    [self.dispatchQueueWrapper dispatchOnce:&onceToken block:block];
+    [self.dispatchQueueWrapper dispatchOnce:&installationToken block:block];
+}
+
+- (void)uninstall
+{
+    if (nil != installation) {
+        // Its not really possible to uninstall SentryCrash. Best we can do is to deactivate
+        // all the monitors and clear the `onCrash` callback installed on the global handler.
+        SentryCrash *handler = [SentryCrash sharedInstance];
+        @synchronized(handler) {
+            [handler setMonitoring:SentryCrashMonitorTypeNone];
+            handler.onCrash = NULL;
+        }
+        installation = nil;
+        installationToken = 0;
+    }
+    sentrycrash_deactivate_async_hooks();
 }
 
 - (void)configureScope
@@ -115,12 +145,17 @@ SentryCrashIntegration ()
             [osData setValue:@"watchOS" forKey:@"name"];
 #endif
 
-#if SENTRY_HAS_UIDEVICE
+            // For MacCatalyst the UIDevice returns the current version of MacCatalyst and not the
+            // macOSVersion. Therefore we have to use NSProcessInfo.
+#if SENTRY_HAS_UIDEVICE && !TARGET_OS_MACCATALYST
             [osData setValue:[UIDevice currentDevice].systemVersion forKey:@"version"];
 #else
             NSOperatingSystemVersion version = [NSProcessInfo processInfo].operatingSystemVersion;
-            NSString *systemVersion = [NSString stringWithFormat:@"%d.%d.%d", (int) version.majorVersion, (int) version.minorVersion, (int) version.patchVersion];
+            NSString *systemVersion =
+                [NSString stringWithFormat:@"%d.%d.%d", (int)version.majorVersion,
+                          (int)version.minorVersion, (int)version.patchVersion];
             [osData setValue:systemVersion forKey:@"version"];
+
 #endif
 
             NSDictionary *systemInfo = [SentryCrashIntegration systemInfo];
@@ -142,11 +177,16 @@ SentryCrashIntegration ()
                 componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceCharacterSet]]
                 firstObject];
 
+#if TARGET_OS_MACCATALYST
+            // This would be iOS. Set it to macOS instead.
+            family = @"macOS";
+#endif
+
             [deviceData setValue:family forKey:@"family"];
             [deviceData setValue:systemInfo[@"cpuArchitecture"] forKey:@"arch"];
             [deviceData setValue:systemInfo[@"machine"] forKey:@"model"];
             [deviceData setValue:systemInfo[@"model"] forKey:@"model_id"];
-            [deviceData setValue:systemInfo[@"freeMemory"] forKey:@"free_memory"];
+            [deviceData setValue:systemInfo[@"freeMemory"] forKey:SentryDeviceContextFreeMemoryKey];
             [deviceData setValue:systemInfo[@"usableMemory"] forKey:@"usable_memory"];
             [deviceData setValue:systemInfo[@"memorySize"] forKey:@"memory_size"];
             [deviceData setValue:systemInfo[@"storageSize"] forKey:@"storage_size"];

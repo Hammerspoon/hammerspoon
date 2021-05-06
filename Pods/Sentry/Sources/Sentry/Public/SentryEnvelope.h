@@ -2,7 +2,8 @@
 
 #import "SentryDefines.h"
 
-@class SentryEvent, SentrySession, SentrySdkInfo, SentryId, SentryUserFeedback, SentryAttachment;
+@class SentryEvent, SentrySession, SentrySdkInfo, SentryId, SentryUserFeedback, SentryAttachment,
+    SentryTransaction;
 
 NS_ASSUME_NONNULL_BEGIN
 

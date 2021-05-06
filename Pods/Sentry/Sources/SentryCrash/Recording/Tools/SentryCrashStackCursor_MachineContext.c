@@ -57,6 +57,11 @@ typedef struct {
 static bool
 advanceCursor(SentryCrashStackCursor *cursor)
 {
+    sentrycrash_async_backtrace_t *async_caller = cursor->state.current_async_caller;
+    if (async_caller) {
+        return sentrycrashsc_advanceAsyncCursor(cursor);
+    }
+
     MachineContextCursor *context = (MachineContextCursor *)cursor->context;
     uintptr_t nextAddress = 0;
 
@@ -68,7 +73,7 @@ advanceCursor(SentryCrashStackCursor *cursor)
     if (context->instructionAddress == 0) {
         context->instructionAddress = sentrycrashcpu_instructionAddress(context->machineContext);
         if (context->instructionAddress == 0) {
-            return false;
+            goto tryAsyncChain;
         }
         nextAddress = context->instructionAddress;
         goto successfulExit;
@@ -85,7 +90,7 @@ advanceCursor(SentryCrashStackCursor *cursor)
 
     if (context->currentFrame.previous == NULL) {
         if (context->isPastFramePointer) {
-            return false;
+            goto tryAsyncChain;
         }
         context->currentFrame.previous
             = (struct FrameEntry *)sentrycrashcpu_framePointer(context->machineContext);
@@ -97,7 +102,7 @@ advanceCursor(SentryCrashStackCursor *cursor)
         return false;
     }
     if (context->currentFrame.previous == 0 || context->currentFrame.return_address == 0) {
-        return false;
+        goto tryAsyncChain;
     }
 
     nextAddress = context->currentFrame.return_address;
@@ -106,6 +111,9 @@ successfulExit:
     cursor->stackEntry.address = sentrycrashcpu_normaliseInstructionPointer(nextAddress);
     cursor->state.currentDepth++;
     return true;
+
+tryAsyncChain:
+    return sentrycrashsc_tryAsyncChain(cursor, cursor->async_caller);
 }
 
 static void
@@ -129,4 +137,7 @@ sentrycrashsc_initWithMachineContext(SentryCrashStackCursor *cursor, int maxStac
     context->machineContext = machineContext;
     context->maxStackDepth = maxStackDepth;
     context->instructionAddress = cursor->stackEntry.address;
+
+    SentryCrashThread thread = sentrycrashmc_getThreadFromContext(machineContext);
+    cursor->async_caller = sentrycrash_get_async_caller_for_thread(thread);
 }

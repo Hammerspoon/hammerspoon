@@ -333,18 +333,37 @@ catastrophe:
     [self createLuaState];
 }
 
-- (BOOL)checkLuaSkinInstance:(NSString *)checkUUID {
+- (BOOL)checkGCCanary:(LSGCCanary)canary {
     if (!self.L) {
         [self logBreadcrumb:@"LuaSkin nil lua_State detected"];
         return NO;
     }
 
-    if (![self.uuid.UUIDString isEqualToString:checkUUID]) {
-        [self logKnownBug:[NSString stringWithFormat:@"LuaSkin UUID mismatch detected: %@ from the callback, %@ from the current LuaSkin instance", checkUUID, self.uuid.UUIDString]];
+    NSString *NSlsCanary = [NSString stringWithCString:canary.uuid encoding:NSUTF8StringEncoding];
+    if (!NSlsCanary || ![self.uuid.UUIDString isEqualToString:NSlsCanary]) {
+        [self logWarn:@"LuaSkin has caught an attempt to operate on an object that has been garbage collected."];
         return NO;
     }
 
     return YES;
+}
+
+- (LSGCCanary)createGCCanary {
+    LSGCCanary canary;
+    memset(canary.uuid, 0, LSUUIDLen);
+    strncpy(canary.uuid, "UNINITIALISED", 13);
+
+    const char *tmpUUID = [self.uuid.UUIDString cStringUsingEncoding:NSUTF8StringEncoding];
+    if (tmpUUID) {
+        strncpy(canary.uuid, tmpUUID, LSUUIDLen);
+    }
+
+    return canary;
+}
+
+- (void)destroyGCCanary:(LSGCCanary *)canary {
+    memset(canary->uuid, 0, LSUUIDLen);
+    strncpy(canary->uuid, "GC", 2);
 }
 
 #pragma mark - Methods for calling into Lua from C

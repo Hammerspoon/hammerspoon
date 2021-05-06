@@ -63,6 +63,11 @@ NS_SWIFT_NAME(Frame)
  */
 @property (nonatomic, copy) NSNumber *_Nullable inApp;
 
+/**
+ * Determines if the Frame is the base of an async continuation.
+ */
+@property (nonatomic, copy) NSNumber *_Nullable stackStart;
+
 - (instancetype)init;
 + (instancetype)new NS_UNAVAILABLE;
 

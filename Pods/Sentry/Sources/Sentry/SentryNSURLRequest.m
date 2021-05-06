@@ -7,7 +7,7 @@
 #import "SentryHub.h"
 #import "SentryLog.h"
 #import "SentryMeta.h"
-#import "SentrySDK.h"
+#import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -40,15 +40,15 @@ SentryNSURLRequest ()
         return nil;
     }
 
-    if ([SentrySDK.currentHub getClient].options.logLevel == kSentryLogLevelVerbose) {
+    if ([SentrySDK.currentHub getClient].options.debug == YES) {
         [SentryLog logWithMessage:@"Sending JSON -------------------------------"
-                         andLevel:kSentryLogLevelVerbose];
+                         andLevel:kSentryLevelDebug];
         [SentryLog logWithMessage:[NSString stringWithFormat:@"%@",
                                             [[NSString alloc] initWithData:jsonData
                                                                   encoding:NSUTF8StringEncoding]]
-                         andLevel:kSentryLogLevelVerbose];
+                         andLevel:kSentryLevelDebug];
         [SentryLog logWithMessage:@"--------------------------------------------"
-                         andLevel:kSentryLogLevelVerbose];
+                         andLevel:kSentryLevelDebug];
     }
     return [self initStoreRequestWithDsn:dsn andData:jsonData didFailWithError:error];
 }
@@ -97,11 +97,11 @@ SentryNSURLRequest ()
     // TODO: When the SDK inits, Client is created, then hub, then hub assigned
     // to SentrySDK. That means there's no hub set yet on SentrySDK when this
     // code runs (hub init closes pending sessions)
-    if ([SentrySDK.currentHub getClient].options.logLevel == kSentryLogLevelVerbose) {
+    if ([SentrySDK.currentHub getClient].options.debug == YES) {
         [SentryLog logWithMessage:[NSString stringWithFormat:@"Envelope request with data: %@",
                                             [[NSString alloc] initWithData:data
                                                                   encoding:NSUTF8StringEncoding]]
-                         andLevel:kSentryLogLevelVerbose];
+                         andLevel:kSentryLevelDebug];
     }
     return self;
 }
