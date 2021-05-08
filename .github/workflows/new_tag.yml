@@ -56,12 +56,17 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
+
       - name: Get current tag name
         id: current_tag
         run: echo "::set-output name=TAGNAME::$(git describe --abbrev=0)"
 
+      - name: Get previous tag name
+        id: previous_tag
+        run: echo "::set-output name=TAGNAME::$(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1))"
+
       - name: Get next version
-        id: semvers
+        id: next_tag
         uses: "WyriHaximus/github-action-next-semvers@v1"
         with:
           version: ${{ steps.current_tag.outputs.TAGNAME }}
@@ -69,7 +74,7 @@ jobs:
       - name: Create milestone
         uses: "WyriHaximus/github-action-create-milestone@v1"
         with:
-          title: ${{ steps.semvers.outputs.patch }}
+          title: ${{ steps.next_tag.outputs.patch }}
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 
@@ -77,7 +82,7 @@ jobs:
         uses: "Beakyn/gha-close-milestone@v1.1.1"
         with:
           repository: ${{ github.repository }}
-          milestone-title: ${{ steps.current_tag.outputs.TAGNAME }}
+          milestone-title: ${{ steps.previous_tag.outputs.TAGNAME }}
         env:
           GITHUB_TOKEN: "${{ github.token }}"
 
