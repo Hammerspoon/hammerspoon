@@ -396,6 +396,8 @@ static int meta_gc(lua_State* L __unused) {
     [keyRepeatManager stopTimer];
     keyRepeatManager = nil;
 
+    [hotkeys removeAllObjects];
+
     return 0;
 }
 
