@@ -4,10 +4,70 @@
 #import "ORSSerialPort/ORSSerialPort.h"
 #import "ORSSerialPort/ORSSerialPortManager.h"
 
+#import <IOKit/usb/USBSpec.h>
+
 #define USERDATA_TAG  "hs.serial"
 static LSRefTable refTable = LUA_NOREF;
 
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
+
+#pragma mark - ORSSerial Additions
+
+@interface ORSSerialPort (Attributes)
+
+@property (nonatomic, readonly) NSDictionary *ioDeviceAttributes;
+@property (nonatomic, readonly) NSNumber *vendorID;
+@property (nonatomic, readonly) NSNumber *productID;
+
+@end
+
+@implementation ORSSerialPort (Attributes)
+
+- (NSDictionary *)ioDeviceAttributes
+{
+  NSDictionary *result = nil;
+    
+    io_iterator_t iterator = 0;
+    if (IORegistryEntryCreateIterator(self.IOKitDevice,
+                                      kIOServicePlane,
+                                      kIORegistryIterateRecursively + kIORegistryIterateParents,
+                                      &iterator) != KERN_SUCCESS) return nil;
+    
+    io_object_t device = 0;
+    while ((device = IOIteratorNext(iterator)) && result == nil)
+    {
+        CFMutableDictionaryRef usbProperties = 0;
+        if (IORegistryEntryCreateCFProperties(device, &usbProperties, kCFAllocatorDefault, kNilOptions) != KERN_SUCCESS)
+        {
+            IOObjectRelease(device);
+            continue;
+        }
+        NSDictionary *properties = CFBridgingRelease(usbProperties);
+        
+        NSNumber *vendorID = properties[(__bridge NSString *)CFSTR(kUSBVendorID)];
+        NSNumber *productID = properties[(__bridge NSString *)CFSTR(kUSBProductID)];
+        if (!vendorID || !productID) { IOObjectRelease(device); continue; } // not a USB device
+        
+        result = properties;
+        
+        IOObjectRelease(device);
+    }
+    
+    IOObjectRelease(iterator);
+    return result;
+}
+
+- (NSNumber *)vendorID;
+{
+    return [self ioDeviceAttributes][(__bridge NSString *)CFSTR(kUSBVendorID)];
+}
+
+- (NSNumber *)productID;
+{
+    return [self ioDeviceAttributes][(__bridge NSString *)CFSTR(kUSBProductID)];
+}
+
+@end
 
 #pragma mark - String Conversion
 
@@ -584,6 +644,35 @@ static int serial_availablePortNames(lua_State *L) {
     return 1;
 }
 
+/// hs.serial.availablePortDetails() -> table
+/// Function
+/// Returns a table of currently connected serial ports details, organised by port name.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A table containing the IOKit details of any connected serial ports, organised by port name.
+static int serial_availablePortDetails(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs: LS_TBREAK];
+    ORSSerialPortManager *portManager = [ORSSerialPortManager sharedSerialPortManager];
+    NSArray *availablePorts = portManager.availablePorts;
+    NSMutableArray *result = [[NSMutableArray alloc] init];
+    for (ORSSerialPort *port in availablePorts)
+    {
+        NSString *portName = [port name];
+        NSDictionary *attributes = [port ioDeviceAttributes];
+        if (attributes == nil) {
+            attributes = @{};
+        }
+        NSDictionary* portDetails = @{portName:attributes};
+        [result addObject:portDetails];
+    }
+    [skin pushNSObject:result];
+    return 1;
+}
+
 /// hs.serial.availablePortPaths() -> table
 /// Function
 /// Returns a table of currently connected serial ports paths.
@@ -1142,11 +1231,12 @@ static const luaL_Reg userdata_metaLib[] = {
 
 // Functions for returned object when module loads:
 static luaL_Reg moduleLib[] = {
-    {"newFromName",         serial_newFromName},
-    {"newFromPath",         serial_newFromPath},
-    {"availablePortNames",  serial_availablePortNames},
-    {"availablePortPaths",  serial_availablePortPaths},
-    {"deviceCallback",      serial_deviceCallback},
+    {"newFromName",             serial_newFromName},
+    {"newFromPath",             serial_newFromPath},
+    {"availablePortNames",      serial_availablePortNames},
+    {"availablePortPaths",      serial_availablePortPaths},
+    {"availablePortDetails",    serial_availablePortDetails},
+    {"deviceCallback",          serial_deviceCallback},
     {NULL,  NULL}
 };
 
