@@ -14,11 +14,7 @@ static LSRefTable refTable = LUA_NOREF;
 #pragma mark - ORSSerial Additions
 
 @interface ORSSerialPort (Attributes)
-
 @property (nonatomic, readonly) NSDictionary *ioDeviceAttributes;
-@property (nonatomic, readonly) NSNumber *vendorID;
-@property (nonatomic, readonly) NSNumber *productID;
-
 @end
 
 @implementation ORSSerialPort (Attributes)
@@ -55,16 +51,6 @@ static LSRefTable refTable = LUA_NOREF;
     
     IOObjectRelease(iterator);
     return result;
-}
-
-- (NSNumber *)vendorID;
-{
-    return [self ioDeviceAttributes][(__bridge NSString *)CFSTR(kUSBVendorID)];
-}
-
-- (NSNumber *)productID;
-{
-    return [self ioDeviceAttributes][(__bridge NSString *)CFSTR(kUSBProductID)];
 }
 
 @end
@@ -1104,6 +1090,7 @@ static int serial_deviceCallback(lua_State *L) {
     // Setup or Remove Callback Function:
     if (!watcherDeviceManager) {
         watcherDeviceManager = [[HSSerialPort alloc] init];
+        watcherDeviceManager.lsCanary = [skin createGCCanary];
     } else {
         if (watcherDeviceManager.deviceCallbackRef != LUA_NOREF) [watcherDeviceManager unwatchDevices];
     }
