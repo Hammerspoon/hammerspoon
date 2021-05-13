@@ -644,7 +644,7 @@ static int serial_availablePortDetails(lua_State *L) {
     [skin checkArgs: LS_TBREAK];
     ORSSerialPortManager *portManager = [ORSSerialPortManager sharedSerialPortManager];
     NSArray *availablePorts = portManager.availablePorts;
-    NSMutableArray *result = [[NSMutableArray alloc] init];
+    NSMutableDictionary *result = [NSMutableDictionary dictionary];
     for (ORSSerialPort *port in availablePorts)
     {
         NSString *portName = [port name];
@@ -652,8 +652,7 @@ static int serial_availablePortDetails(lua_State *L) {
         if (attributes == nil) {
             attributes = @{};
         }
-        NSDictionary* portDetails = @{portName:attributes};
-        [result addObject:portDetails];
+        [result setObject:attributes forKey:portName];
     }
     [skin pushNSObject:result];
     return 1;
