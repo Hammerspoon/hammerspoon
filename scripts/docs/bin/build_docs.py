@@ -8,7 +8,6 @@ import json
 import os
 import pprint
 import sqlite3
-import string
 import sys
 import re
 
@@ -28,35 +27,32 @@ TYPE_NAMES = ["Deprecated", "Command", "Constant", "Variable", "Function",
               "Constructor", "Field", "Method"]
 SECTION_NAMES = ["Parameters", "Returns", "Notes", "Examples"]
 TYPE_DESC = {
-        "Constant": "Useful values which cannot be changed",
-        "Variable": "Configurable values",
-        "Function": "API calls offered directly by the extension",
-        "Method": "API calls which can only be made on an object returned "
-                  "by a constructor",
-        "Constructor": "API calls which return an object, typically one "
-                       "that offers API methods",
-        "Command": "External shell commands",
-        "Field": "Variables which can only be accessed from an object returned "
-                 "by a constructor",
-        "Deprecated": "API features which will be removed in an future "
-                      "release"}
+    "Constant": "Useful values which cannot be changed",
+    "Variable": "Configurable values",
+    "Function": "API calls offered directly by the extension",
+    "Method": "API calls which can only be made on an object returned by a constructor",
+    "Constructor": "API calls which return an object, typically one that offers API methods",
+    "Command": "External shell commands",
+    "Field": "Variables which can only be accessed from an object returned by a constructor",
+    "Deprecated": "API features which will be removed in an future release"
+}
 LINKS = [
-        {"name": "Website", "url": "https://www.hammerspoon.org/"},
-        {"name": "GitHub page",
-         "url": "https://github.com/Hammerspoon/hammerspoon"},
-        {"name": "Getting Started Guide",
-         "url": "https://www.hammerspoon.org/go/"},
-        {"name": "Spoon Plugin Documentation",
-         "url": "https://github.com/Hammerspoon/hammerspoon/blob/master/SPOONS.md"},
-        {"name": "Official Spoon repository",
-         "url": "https://www.hammerspoon.org/Spoons"},
-        {"name": "IRC channel",
-         "url": "irc://chat.freenode.net/#hammerspoon"},
-        {"name": "Mailing list",
-         "url": "https://groups.google.com/forum/#!forum/hammerspoon/"},
-        {"name": "LuaSkin API docs",
-         "url": "https://www.hammerspoon.org/docs/LuaSkin/"}
-        ]
+    {"name": "Website", "url": "https://www.hammerspoon.org/"},
+    {"name": "GitHub page",
+     "url": "https://github.com/Hammerspoon/hammerspoon"},
+    {"name": "Getting Started Guide",
+     "url": "https://www.hammerspoon.org/go/"},
+    {"name": "Spoon Plugin Documentation",
+     "url": "https://github.com/Hammerspoon/hammerspoon/blob/master/SPOONS.md"},
+    {"name": "Official Spoon repository",
+     "url": "https://www.hammerspoon.org/Spoons"},
+    {"name": "IRC channel",
+     "url": "irc://chat.freenode.net/#hammerspoon"},
+    {"name": "Mailing list",
+     "url": "https://groups.google.com/forum/#!forum/hammerspoon/"},
+    {"name": "LuaSkin API docs",
+     "url": "https://www.hammerspoon.org/docs/LuaSkin/"}
+]
 
 ARGUMENTS = None
 
@@ -263,7 +259,7 @@ def process_module(modulename, raw_module):
     module["type"] = "Module"
     module["desc"] = raw_module["header"][CHUNK_DESC]
     module["doc"] = '\n'.join(raw_module["header"][CHUNK_DESC:])
-    module["stripped_doc"] = '\n'.join(raw_module["header"][CHUNK_DESC+1:])
+    module["stripped_doc"] = '\n'.join(raw_module["header"][CHUNK_DESC + 1:])
     module["submodules"] = []
     module["items"] = []  # Deprecated
     module["Function"] = []
@@ -299,8 +295,7 @@ def process_module(modulename, raw_module):
                 item[section.lower()] = get_section_from_chunk(chunk,
                                                                section + ':')
 
-        item["stripped_doc"] = '\n'.join(strip_sections_from_chunk(
-                                            chunk[CHUNK_DESC+1:]))
+        item["stripped_doc"] = '\n'.join(strip_sections_from_chunk(chunk[CHUNK_DESC + 1:]))
         module[item["type"]].append(item)
         module["items"].append(item)  # Deprecated
 
@@ -644,7 +639,6 @@ def write_templated_output(output_dir, template_dir, title, data, extension):
         data = process_markdown(data)
         # Write out the data as a file, for later debugging
         write_json(output_dir + "/templated_docs.json", data)
-
 
     # Render and write index.<extension>
     template = jinja.from_string(tmplfile.read())
