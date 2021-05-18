@@ -346,7 +346,6 @@ def process_module(modulename, raw_module):
                 try:
                     for i in range(0, numlines):
                         line = item["parameters"][i]
-                        cleanline = ""
 
                         if line.startswith(" * "):
                             # This is the start of a new parameter, add it to clean_params
