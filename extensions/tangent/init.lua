@@ -1520,7 +1520,7 @@ end
 ---  * The string supplied will replace the normal text which has been derived from the Controls XML file.
 ---  * To remove any existing replacement name set `newName` to `""`, this will remove any renaming and return the system to the normal display text
 ---  * When applied to Modes, the string displayed on buttons which mapped to the reserved "Go To Mode" action for this particular mode will also change.
--function mod.sendRenameControl(targetID, newName)
+function mod.sendRenameControl(targetID, newName)
     --------------------------------------------------------------------------------
     -- Format: 0xA2, <targetID>, <nameStrLen>, <nameStr>
     --
