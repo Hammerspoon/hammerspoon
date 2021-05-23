@@ -3,7 +3,7 @@
 --- **WARNING**: EXPERIMENTAL MODULE. DO **NOT** USE IN PRODUCTION.
 --- This module is *for testing purposes only*. It can undergo breaking API changes or *go away entirely* **at any point and without notice**.
 --- (Should you encounter any issues, please feel free to report them on https://github.com/Hammerspoon/hammerspoon/issues
---- or #hammerspoon on irc.freenode.net)
+--- or #hammerspoon on irc.libera.chat)
 ---
 --- Tile windows
 ---

@@ -47,7 +47,7 @@ LINKS = [
     {"name": "Official Spoon repository",
      "url": "https://www.hammerspoon.org/Spoons"},
     {"name": "IRC channel",
-     "url": "irc://chat.freenode.net/#hammerspoon"},
+     "url": "irc://irc.libera.chat/#hammerspoon"},
     {"name": "Mailing list",
      "url": "https://groups.google.com/forum/#!forum/hammerspoon/"},
     {"name": "LuaSkin API docs",

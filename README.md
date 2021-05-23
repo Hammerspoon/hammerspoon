@@ -1,5 +1,5 @@
 # Hammerspoon
-[![IRC](https://img.shields.io/badge/IRC-%23hammerspoon-1e72ff.svg?style=flat)](https://www.irccloud.com/invite?channel=%23hammerspoon&amp;hostname=irc.freenode.net&amp;port=6697&amp;ssl=1)
+[![IRC](https://img.shields.io/badge/IRC-%23hammerspoon-1e72ff.svg?style=flat)](https://www.irccloud.com/invite?channel=%23hammerspoon&amp;hostname=irc.libera.chat&amp;port=6697&amp;ssl=1)
 [![CI](https://github.com/Hammerspoon/hammerspoon/workflows/CI/badge.svg)](https://github.com/Hammerspoon/hammerspoon/actions?query=workflow%3ACI)
 [![codecov.io](https://codecov.io/github/Hammerspoon/hammerspoon/coverage.svg?branch=master)](https://codecov.io/github/Hammerspoon/hammerspoon?branch=master)
 [![Downloads current release](https://img.shields.io/github/downloads/Hammerspoon/hammerspoon/latest/total.svg)](https://github.com/Hammerspoon/hammerspoon/releases)
@@ -30,7 +30,7 @@ Out of the box, Hammerspoon does nothing - you will need to create `~/.hammerspo
  * [FAQ](https://www.hammerspoon.org/faq/)
  * [Sample Configurations](https://github.com/Hammerspoon/hammerspoon/wiki/Sample-Configurations) supplied by various users
  * [Contribution Guide](https://github.com/Hammerspoon/hammerspoon/blob/master/CONTRIBUTING.md) for developers looking to get involved
- * An IRC channel for general chat/support/development (#hammerspoon on Freenode)
+ * An IRC channel for general chat/support/development (#hammerspoon on Libera)
  * [Google Group](https://groups.google.com/forum/#!forum/hammerspoon/) for support
 
 ## What is the history of the project?
