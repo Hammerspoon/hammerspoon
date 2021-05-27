@@ -4,7 +4,7 @@
 ---
 --- Warning: this module is still somewhat experimental.
 --- Should you encounter any issues, please feel free to report them on https://github.com/Hammerspoon/hammerspoon/issues
---- or #hammerspoon on irc.freenode.net
+--- or #hammerspoon on irc.libera.chat
 ---
 --- With this module you can configure a hotkey to show thumbnails for open windows when invoked; each thumbnail will have
 --- an associated keyboard "hint" (usually one or two characters) that you can type to quickly switch focus to that
@@ -602,14 +602,16 @@ function expose:toggleShow(...)
 end
 --- hs.expose:hide()
 --- Method
---- Hides the expose, if visible, and exits the modal mode.
---- Call this function if you need to make sure the modal is exited without waiting for the user to press `esc`.
+--- Hides the expose, if visible, and exits the modal mode
 ---
 --- Parameters:
 ---  * None
 ---
 --- Returns:
 ---  * None
+---
+--- Notes:
+---  * Call this function if you need to make sure the modal is exited without waiting for the user to press `esc`
 function expose:hide()
   if activeInstance then return exitAll(activeInstance) end
 end

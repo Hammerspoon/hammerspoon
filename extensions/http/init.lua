@@ -65,6 +65,9 @@ end
 ---   * A string containing the response body
 ---   * A table containing the response headers
 ---
+--- Returns:
+---  * None
+---
 --- Notes:
 ---  * If authentication is required in order to download the request, the required credentials must be specified as part of the URL (e.g. "http://user:password@host.com/"). If authentication fails, or credentials are missing, the connection will attempt to continue without credentials.
 ---
@@ -85,6 +88,9 @@ end
 ---   * A number containing the HTTP response status
 ---   * A string containing the response body
 ---   * A table containing the response headers
+---
+--- Returns:
+---  * None
 ---
 --- Notes:
 ---  * If authentication is required in order to download the request, the required credentials must be specified as part of the URL (e.g. "http://user:password@host.com/"). If authentication fails, or credentials are missing, the connection will attempt to continue without credentials.

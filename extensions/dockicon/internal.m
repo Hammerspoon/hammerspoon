@@ -53,6 +53,9 @@ static int icon_hide(lua_State* L __unused) {
 ///
 /// Parameters:
 ///  * indefinitely - A boolean value, true if the dock icon should bounce until the dock icon is clicked, false if the dock icon should only bounce briefly
+///
+/// Returns:
+///  * None
 static int icon_bounce(lua_State* L) {
     [[NSApplication sharedApplication] requestUserAttention: lua_toboolean(L, 1) ? NSCriticalRequest : NSInformationalRequest];
     return 0;
@@ -64,6 +67,9 @@ static int icon_bounce(lua_State* L) {
 ///
 /// Parameters:
 ///  * badge - A string containing the label to place inside the dock icon badge. If the string is empty, the badge will be cleared
+///
+/// Returns:
+///  * None
 static int icon_setBadge(lua_State* L) {
     NSDockTile* tile = [[NSApplication sharedApplication] dockTile];
     [tile setBadgeLabel:[NSString stringWithUTF8String: luaL_checkstring(L, 1)]];
