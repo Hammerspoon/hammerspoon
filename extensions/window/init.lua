@@ -623,7 +623,10 @@ objectMT.setFullscreen=objectMT.setFullScreen
 ---  * None
 ---
 --- Returns:
----  * An `hs.screen` object representing the screen which most contains the window (by area)
+---  * An `hs.screen` object representing the screen which contains the window.
+---
+--- Notes:
+---  * While windows can be dragged to span multiple screens, part of the window will disappear when the mouse is released. The screen returned by this method will be the part of the window that remains visible.
 function objectMT.screen(self)
   return screen.find(self:frame())--findScreenForFrame(self:frame())
 end
