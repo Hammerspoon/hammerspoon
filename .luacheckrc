@@ -44,7 +44,8 @@ files["**/test_*.lua"] = {
         "success",
     },
     ignore = {
-        "111" -- Setting an undefined global variable
+        "111", -- Setting an undefined global variable
+        "501" -- Line too long
     }
 }
 

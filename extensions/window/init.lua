@@ -540,10 +540,6 @@ end
 --- Method
 --- Sends the window to the back
 ---
---- This method works by focusing all overlapping windows behind this one, front to back.
---- If called on the focused window, this method will switch focus to the topmost window under this one; otherwise, the
---- currently focused window will regain focus after this window has been sent to the back.
----
 --- Parameters:
 ---  * None
 ---
@@ -551,10 +547,8 @@ end
 ---  * The `hs.window` object
 ---
 --- Notes:
----  * Due to the way this method works and OSX limitations, calling this method when you have a lot of randomly overlapping
----   (as opposed to neatly tiled) windows might be visually jarring, and take a fair amount of time to complete.
----   So if you don't use orderly layouts, or if you have a lot of windows in general, you're probably better off using
----   `hs.application:hide()` (or simply `cmd-h`)
+---  * Due to the way this method works and OSX limitations, calling this method when you have a lot of randomly overlapping (as opposed to neatly tiled) windows might be visually jarring, and take a fair amount of time to complete. So if you don't use orderly layouts, or if you have a lot of windows in general, you're probably better off using `hs.application:hide()` (or simply `cmd-h`)
+---  * This method works by focusing all overlapping windows behind this one, front to back. If called on the focused window, this method will switch focus to the topmost window under this one; otherwise, the currently focused window will regain focus after this window has been sent to the back.
 local WINDOW_ROLES={AXStandardWindow=true,AXDialog=true,AXSystemDialog=true}
 function objectMT.sendToBack(self)
   local id,frame=self:id(),self:frame()
@@ -629,7 +623,10 @@ objectMT.setFullscreen=objectMT.setFullScreen
 ---  * None
 ---
 --- Returns:
----  * An `hs.screen` object representing the screen which most contains the window (by area)
+---  * An `hs.screen` object representing the screen which contains the window.
+---
+--- Notes:
+---  * While windows can be dragged to span multiple screens, part of the window will disappear when the mouse is released. The screen returned by this method will be the part of the window that remains visible.
 function objectMT.screen(self)
   return screen.find(self:frame())--findScreenForFrame(self:frame())
 end

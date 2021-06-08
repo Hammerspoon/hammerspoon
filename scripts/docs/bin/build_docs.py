@@ -8,7 +8,6 @@ import json
 import os
 import pprint
 import sqlite3
-import string
 import sys
 import re
 
@@ -26,37 +25,34 @@ CHUNK_TYPE = 3
 CHUNK_DESC = 4
 TYPE_NAMES = ["Deprecated", "Command", "Constant", "Variable", "Function",
               "Constructor", "Field", "Method"]
-SECTION_NAMES = ["Parameters", "Returns", "Notes"]
+SECTION_NAMES = ["Parameters", "Returns", "Notes", "Examples"]
 TYPE_DESC = {
-        "Constant": "Useful values which cannot be changed",
-        "Variable": "Configurable values",
-        "Function": "API calls offered directly by the extension",
-        "Method": "API calls which can only be made on an object returned "
-                  "by a constructor",
-        "Constructor": "API calls which return an object, typically one "
-                       "that offers API methods",
-        "Command": "External shell commands",
-        "Field": "Variables which can only be accessed from an object returned "
-                 "by a constructor",
-        "Deprecated": "API features which will be removed in an future "
-                      "release"}
+    "Constant": "Useful values which cannot be changed",
+    "Variable": "Configurable values",
+    "Function": "API calls offered directly by the extension",
+    "Method": "API calls which can only be made on an object returned by a constructor",
+    "Constructor": "API calls which return an object, typically one that offers API methods",
+    "Command": "External shell commands",
+    "Field": "Variables which can only be accessed from an object returned by a constructor",
+    "Deprecated": "API features which will be removed in an future release"
+}
 LINKS = [
-        {"name": "Website", "url": "https://www.hammerspoon.org/"},
-        {"name": "GitHub page",
-         "url": "https://github.com/Hammerspoon/hammerspoon"},
-        {"name": "Getting Started Guide",
-         "url": "https://www.hammerspoon.org/go/"},
-        {"name": "Spoon Plugin Documentation",
-         "url": "https://github.com/Hammerspoon/hammerspoon/blob/master/SPOONS.md"},
-        {"name": "Official Spoon repository",
-         "url": "https://www.hammerspoon.org/Spoons"},
-        {"name": "IRC channel",
-         "url": "irc://chat.freenode.net/#hammerspoon"},
-        {"name": "Mailing list",
-         "url": "https://groups.google.com/forum/#!forum/hammerspoon/"},
-        {"name": "LuaSkin API docs",
-         "url": "https://www.hammerspoon.org/docs/LuaSkin/"}
-        ]
+    {"name": "Website", "url": "https://www.hammerspoon.org/"},
+    {"name": "GitHub page",
+     "url": "https://github.com/Hammerspoon/hammerspoon"},
+    {"name": "Getting Started Guide",
+     "url": "https://www.hammerspoon.org/go/"},
+    {"name": "Spoon Plugin Documentation",
+     "url": "https://github.com/Hammerspoon/hammerspoon/blob/master/SPOONS.md"},
+    {"name": "Official Spoon repository",
+     "url": "https://www.hammerspoon.org/Spoons"},
+    {"name": "IRC channel",
+     "url": "irc://irc.libera.chat/#hammerspoon"},
+    {"name": "Mailing list",
+     "url": "https://groups.google.com/forum/#!forum/hammerspoon/"},
+    {"name": "LuaSkin API docs",
+     "url": "https://www.hammerspoon.org/docs/LuaSkin/"}
+]
 
 ARGUMENTS = None
 
@@ -201,7 +197,7 @@ def get_section_from_chunk(chunk, sectionname):
 
 
 def strip_sections_from_chunk(chunk):
-    """Remove the Parameters/Returns/Notes sections from a chunk"""
+    """Remove the Parameters/Returns/Notes/Examples sections from a chunk"""
     stripped_chunk = []
     in_section = False
     for line in chunk:
@@ -263,7 +259,7 @@ def process_module(modulename, raw_module):
     module["type"] = "Module"
     module["desc"] = raw_module["header"][CHUNK_DESC]
     module["doc"] = '\n'.join(raw_module["header"][CHUNK_DESC:])
-    module["stripped_doc"] = '\n'.join(raw_module["header"][CHUNK_DESC+1:])
+    module["stripped_doc"] = '\n'.join(raw_module["header"][CHUNK_DESC + 1:])
     module["submodules"] = []
     module["items"] = []  # Deprecated
     module["Function"] = []
@@ -294,13 +290,12 @@ def process_module(modulename, raw_module):
         item["file"] = chunk[CHUNK_FILE]
         item["lineno"] = chunk[CHUNK_LINE]
 
-        for section in ["Parameters", "Returns", "Notes"]:
+        for section in ["Parameters", "Returns", "Notes", "Examples"]:
             if section + ':' in chunk:
                 item[section.lower()] = get_section_from_chunk(chunk,
                                                                section + ':')
 
-        item["stripped_doc"] = '\n'.join(strip_sections_from_chunk(
-                                            chunk[CHUNK_DESC+1:]))
+        item["stripped_doc"] = '\n'.join(strip_sections_from_chunk(chunk[CHUNK_DESC + 1:]))
         module[item["type"]].append(item)
         module["items"].append(item)  # Deprecated
 
@@ -315,16 +310,70 @@ def process_module(modulename, raw_module):
 
         try:
             if item['desc'].startswith("Alias for [`"):
+                item["parameters"] = []
+                item["returns"] = []
+                item["notes"] = []
                 pass
             else:
                 sig_without_return = item["signature"].split("->")[0]
                 sig_params = re.sub(r".*\((.*)\).*", r"\1", sig_without_return)
                 sig_param_arr = re.split(r',|\|', sig_params)
                 sig_arg_count = len(sig_param_arr)
-                actual_params = list(filter(is_actual_parameter, item["parameters"]))
-                parameter_count = len(actual_params)
+
+                # Check if there are more than a single line of description at the top of the function
+                params_index = chunk[CHUNK_DESC:].index("Parameters:")
+                desc_section = [x for x in chunk[CHUNK_DESC:][0:params_index] if x != '']
+                if len(desc_section) > 1:
+                    message = "Function description should be a single line. Other content may belong in Notes: %s" % sig_without_return
+                    warn(message)
+                    LINTS.append({
+                        "file": item["file"],
+                        "line": int(item["lineno"]),
+                        "title": "Docstring function/method/constructor description should not be multiline",
+                        "message": message,
+                        "annotation_level": "failure"
+
+                    })
+
+                # Clean up Parameters
+                clean_params = []
+                numlines = len(item["parameters"])
+                try:
+                    for i in range(0, numlines):
+                        line = item["parameters"][i]
+
+                        if line.startswith(" * "):
+                            # This is the start of a new parameter, add it to clean_params
+                            clean_params.append(line.rstrip())
+                        elif line.startswith("  * ") or line.startswith("   * "):
+                            if line.startswith("  * "):
+                                # Sub-lists should start with two spaces in GitHub Flavoured Markdown, so add in the missing space in this item
+                                line = " " + line
+                            # This is a sub-parameter of the previous parameter, add it to that string in clean_params
+                            prev_clean_line = clean_params[-1]
+                            prev_clean_line += '\n' + line.rstrip()
+                            clean_params[-1] = prev_clean_line
+                        else:
+                            # This should have been on the line before
+                            prev_clean_line = clean_params[-1]
+                            prev_clean_line += ' ' + line.strip()
+                            clean_params[-1] = prev_clean_line
+                except:
+                    message = "PARAMETERS FORMAT ISSUE: Unable to parse Parameters for: %s" % sig_without_return
+                    warn(message)
+                    LINTS.append({
+                        "file": item["file"],
+                        "line": int(item["lineno"]),
+                        "title": "Docstring function/method/constructor parameter parsing error",
+                        "message": message,
+                        "annotation_level": "failure"
+                    })
+                item["parameters"] = clean_params
+
+                # Check the number of parameters in the signature matches the number in Parameters
+                parameter_count = len(item["parameters"])
                 if parameter_count != sig_arg_count:
-                    message = "SIGNATURE/PARAMETER COUNT MISMATCH: '%s' says %d parameters ('%s'), but Parameters section has %d entries:\n%s\n" % (sig_without_return, sig_arg_count, ','.join(sig_param_arr), parameter_count, '\n'.join(actual_params))
+                    message = "SIGNATURE/PARAMETER COUNT MISMATCH: '%s' says %d parameters ('%s'), but Parameters section has %d entries:\n%s\n" % (sig_without_return, sig_arg_count, ','.join(sig_param_arr), parameter_count, '\n'.join(item["parameters"]))
                     warn(message)
                     LINTS.append({
                         "file": item["file"],
@@ -333,6 +382,34 @@ def process_module(modulename, raw_module):
                         "message": message,
                         "annotation_level": "failure"
                     })
+
+                # Check if we have zero items for Returns.
+                # This is a lint error in Hammerspoon, but in Standalone (ie Spoons) we'll let it slide and assume they meant to have no returns
+                if "returns" not in item:
+                    item["returns"] = []
+                if len(item["returns"]) == 0 and not ARGUMENTS.standalone:
+                    message = "RETURN COUNT ERROR: '%s' does not specify a return value" % (sig_without_return)
+                    warn(message)
+                    LINTS.append({
+                        "file": item["file"],
+                        "line": int(item["lineno"]),
+                        "title": "Docstring missing return value",
+                        "message": message,
+                        "annotation_level": "failure"
+                    })
+
+                # Having validated the Returns, we will now remove any "None" ones
+                if len(item["returns"]) == 1 and item["returns"][0] == "* None":
+                    item["returns"] = []
+
+                # Check if we have zero items for Notes
+                if "notes" not in item:
+                    item["notes"] = []
+
+                # Check if we have zero items for Examples
+                if "examples" not in item:
+                    item["examples"] = []
+
         except:
             message = "Unable to parse parameters for %s\n%s\n" % (item["signature"], sys.exc_info()[1])
             warn(message)
@@ -381,8 +458,13 @@ def process_markdown(data):
             items = module[item_type]
             for j in range(0, len(items)):
                 item = items[j]
+                dbg("Preparing template data for: %s" % item["def"])
                 item["def_gfm"] = strip_paragraph(md(item["def"]))
                 item["doc_gfm"] = md(item["doc"])
+                if item_type in ["Function", "Constructor", "Method"]:
+                    item["parameters_gfm"] = md('\n'.join(item["parameters"]))
+                    item["returns_gfm"] = md('\n'.join(item["returns"]))
+                    item["notes_gfm"] = md('\n'.join(item["notes"]))
                 items[j] = item
         # Now do the same for the deprecated 'items' list
         for j in range(0, len(module["items"])):
@@ -555,6 +637,8 @@ def write_templated_output(output_dir, template_dir, title, data, extension):
     if extension == "html":
         # Re-process the doc data to convert Markdown to HTML
         data = process_markdown(data)
+        # Write out the data as a file, for later debugging
+        write_json(output_dir + "/templated_docs.json", data)
 
     # Render and write index.<extension>
     template = jinja.from_string(tmplfile.read())

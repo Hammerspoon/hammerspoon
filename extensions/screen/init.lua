@@ -245,8 +245,7 @@ end
 
 --- hs.screen:localToAbsolute(geom) -> hs.geometry object
 --- Method
---- Transforms from the screen's local coordinate space, where `0,0` is at the screen's top left corner,
---- to the absolute coordinate space used by OSX/Hammerspoon
+--- Transforms from the screen's local coordinate space, where `0,0` is at the screen's top left corner, to the absolute coordinate space used by OSX/Hammerspoon
 ---
 --- Parameters:
 ---  * geom - an hs.geometry point or rect, or arguments to construct one
@@ -259,8 +258,7 @@ end
 
 --- hs.screen:absoluteToLocal(geom) -> hs.geometry object
 --- Method
---- Transforms from the absolute coordinate space used by OSX/Hammerspoon to the screen's local
---- coordinate space, where `0,0` is at the screen's top left corner
+--- Transforms from the absolute coordinate space used by OSX/Hammerspoon to the screen's local coordinate space, where `0,0` is at the screen's top left corner
 ---
 --- Parameters:
 ---  * geom - an hs.geometry point or rect, or arguments to construct one

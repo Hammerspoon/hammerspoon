@@ -37,7 +37,7 @@ This is generally very simple in terms of the workflow, but there's less likely 
 * Make the changes you want
 * Push them up to a fork on GitHub
 * Propose a Pull Request on GitHub
-* Talk to us in #hammerspoon on Freenode if you need any guidance
+* Talk to us in #hammerspoon on Libera if you need any guidance
 
 ## Contributing to the extensions
 
@@ -62,7 +62,7 @@ To create such an extension:
 * Build Hammerspoon and test your extension
 * Push your changes up to a fork on GitHub
 * Propose a Pull Request on GitHub
-* Talk to us in #hammerspoon on Freenode if you need any guidance
+* Talk to us in #hammerspoon on Libera if you need any guidance
 
 ### Writing a new mixed Lua/Objective-C extension ###
 
@@ -90,7 +90,7 @@ To create such an extension:
 * Build Hammerspoon and test your extension
 * Push your changes up to a fork on GitHub
 * Propose a Pull Request on GitHub
-* Talk to us in #hammerspoon on Freenode if you need any guidance
+* Talk to us in #hammerspoon on Libera if you need any guidance
 
 ### Documenting your extension
 
