@@ -93,7 +93,7 @@ jobs:
           name: Release-build.log
           path: archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/release-build.log
       - name: IRC notification
-        uses: Gottox/irc-message-action@v1.3.0
+        uses: Gottox/irc-message-action@v2.1.0
         with:
           channel: '#hammerspoon'
           nickname: 'HS_CI_DevBuild'

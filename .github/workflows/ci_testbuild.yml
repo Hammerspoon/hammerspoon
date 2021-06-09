@@ -59,7 +59,7 @@ jobs:
           path: build/reports/junit.xml
 
       - name: IRC notification - push
-        uses: Gottox/irc-message-action@v1.3.0
+        uses: Gottox/irc-message-action@v2.1.0
         if: ${{ always() && github.event_name == 'push' && github.repository == 'hammerspoon/hammerspoon' }}
         with:
           channel: '#hammerspoon'
@@ -70,7 +70,7 @@ jobs:
               * ${{ github.event.compare }}
             ${{ steps.test.outputs.test_result }}
       - name: IRC notification - PR
-        uses: Gottox/irc-message-action@v1.3.0
+        uses: Gottox/irc-message-action@v2.1.0
         if: ${{ always() && github.event_name == 'pull_request' && github.repository == 'hammerspoon/hammerspoon' }}
         with:
           channel: '#hammerspoon'
