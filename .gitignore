@@ -24,6 +24,7 @@ extensions/httpserver/HammerspoonCertTemplate.h
 
 ## Build generated
 build/
+artifacts/
 DerivedData/
 
 ## Various settings
