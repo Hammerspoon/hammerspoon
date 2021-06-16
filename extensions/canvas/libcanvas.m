@@ -6,6 +6,8 @@ static const char *USERDATA_TAG = "hs.canvas" ;
 static LSRefTable refTable = LUA_NOREF;
 static BOOL defaultCustomSubRole = YES ;
 
+static int warnedAboutDelete = 0 ;
+
 // Can't have "static" or "constant" dynamic NSObjects like NSArray, so define in lua_open
 static NSDictionary *languageDictionary ;
 
@@ -944,6 +946,12 @@ static int userdata_gc(lua_State* L) ;
 }
 
 - (void)fadeOut:(NSTimeInterval)fadeTime andDelete:(BOOL)deleteCanvas withState:(lua_State *)L {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+    HSCanvasView *theView = self.contentView ;
+    if (theView.selfRef != LUA_NOREF) return ; // already in a fade
+    [skin pushNSObject:theView] ;
+    theView.selfRef = [skin luaRef:refTable] ;
+
     CGFloat alphaSetting = self.alphaValue ;
     [NSAnimationContext beginGrouping];
     __weak HSCanvasWindow *bself = self; // in ARC, __block would increase retain count
@@ -953,21 +961,24 @@ static int userdata_gc(lua_State* L) ;
             // unlikely that bself will go to nil after this starts, but this keeps the warnings down from [-Warc-repeated-use-of-weak]
             HSCanvasWindow *mySelf = bself ;
             if (mySelf && (((HSCanvasView *)mySelf.contentView).selfRef != LUA_NOREF)) {
-                if (deleteCanvas) {
-                    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
-                    //                   lua_State *L = [skin L] ;
-                    lua_pushcfunction(L, userdata_gc) ;
-                    [skin pushLuaRef:refTable ref:((HSCanvasView *)mySelf.contentView).selfRef] ;
-                    // FIXME: Can we switch this lua_pcall() to a LuaSkin protectedCallAndError?
-                    if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
-                        [skin logBreadcrumb:[NSString stringWithFormat:@"%s:error invoking _gc for delete (with fade) method:%s", USERDATA_TAG, lua_tostring(L, -1)]] ;
-                        lua_pop(L, 1) ;
-                        [mySelf close] ;  // the least we can do is close the canvas if an error occurs with __gc
-                    }
-                } else {
+                LuaSkin *bSkin = [LuaSkin sharedWithState:NULL] ;
+                HSCanvasView *myView = mySelf.contentView ;
+                myView.selfRef = [bSkin luaUnref:refTable ref:myView.selfRef] ;
+
+//                 if (deleteCanvas) {
+//                     LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
+//                     lua_pushcfunction(L, userdata_gc) ;
+//                     [skin pushLuaRef:refTable ref:((HSCanvasView *)mySelf.contentView).selfRef] ;
+//                     // FIXME: Can we switch this lua_pcall() to a LuaSkin protectedCallAndError?
+//                     if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
+//                         [skin logBreadcrumb:[NSString stringWithFormat:@"%s:error invoking _gc for delete (with fade) method:%s", USERDATA_TAG, lua_tostring(L, -1)]] ;
+//                         lua_pop(L, 1) ;
+//                         [mySelf close] ;  // the least we can do is close the canvas if an error occurs with __gc
+//                     }
+//                 } else {
                     [mySelf orderOut:nil];
                     [mySelf setAlphaValue:alphaSetting];
-                }
+//                 }
             }
         });
     }];
@@ -982,6 +993,7 @@ static int userdata_gc(lua_State* L) ;
     self = [super initWithFrame:frameRect];
     if (self) {
         _selfRef               = LUA_NOREF ;
+        _selfRefCount          = 0 ;
         _wrapperWindow         = nil ;
 
         _mouseCallbackRef      = LUA_NOREF;
@@ -2176,24 +2188,32 @@ static int userdata_gc(lua_State* L) ;
     [NSAnimationContext endGrouping];
 }
 
-- (void)fadeOut:(NSTimeInterval)fadeTime andDelete:(BOOL)deleteView {
+- (void)fadeOut:(NSTimeInterval)fadeTime andDelete:(BOOL)deleteView withState:(lua_State *)L {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+    if (_selfRef != LUA_NOREF) return ; // already in a fade
+    [skin pushNSObject:self] ;
+    _selfRef = [skin luaRef:refTable] ;
+
     CGFloat alphaSetting = self.alphaValue ;
     [NSAnimationContext beginGrouping];
-      __weak HSCanvasView *bself = self; // in ARC, __block would increase retain count
-      [[NSAnimationContext currentContext] setDuration:fadeTime];
-      [[NSAnimationContext currentContext] setCompletionHandler:^{
-          // unlikely that bself will go to nil after this starts, but this keeps the warnings down from [-Warc-repeated-use-of-weak]
-          HSCanvasView *mySelf = bself ;
-          if (mySelf) {
-              if (deleteView) {
-                  [mySelf removeFromSuperview] ;
-              } else {
-                  [mySelf setHidden:YES];
-                  [mySelf setAlphaValue:alphaSetting];
-              }
-          }
-      }];
-      [[self animator] setAlphaValue:0.0];
+        __weak HSCanvasView *bself = self; // in ARC, __block would increase retain count
+        [[NSAnimationContext currentContext] setDuration:fadeTime];
+        [[NSAnimationContext currentContext] setCompletionHandler:^{
+            // unlikely that bself will go to nil after this starts, but this keeps the warnings down from [-Warc-repeated-use-of-weak]
+            HSCanvasView *mySelf = bself ;
+            if (mySelf) {
+                LuaSkin *bSkin = [LuaSkin sharedWithState:NULL] ;
+                mySelf.selfRef = [bSkin luaUnref:refTable ref:mySelf.selfRef] ;
+
+                if (deleteView) {
+                    [mySelf removeFromSuperview] ;
+                } else {
+                    [mySelf setHidden:YES];
+                    [mySelf setAlphaValue:alphaSetting];
+                }
+            }
+        }];
+        [[self animator] setAlphaValue:0.0];
     [NSAnimationContext endGrouping];
 }
 
@@ -2652,7 +2672,7 @@ static int canvas_hide(lua_State *L) {
         if (parentIsWindow(canvasView)) {
             [canvasWindow fadeOut:lua_tonumber(L, 2) andDelete:NO withState:L];
         } else {
-            [canvasView fadeOut:lua_tonumber(L, 2) andDelete:NO];
+            [canvasView fadeOut:lua_tonumber(L, 2) andDelete:NO withState:L];
         }
     }
 
@@ -3158,19 +3178,26 @@ static int canvas_delete(lua_State *L) {
                     LS_TBREAK] ;
 
     HSCanvasView   *canvasView   = [skin luaObjectAtIndex:1 toClass:"HSCanvasView"] ;
-    HSCanvasWindow *canvasWindow = canvasView.wrapperWindow ;
-    if ((lua_gettop(L) == 1) || (![canvasWindow isVisible])) {
-        lua_pushcfunction(L, userdata_gc) ;
-        lua_pushvalue(L, 1) ;
-        // FIXME: Can we convert this lua_pcall() to a LuaSkin protectedCallAndError?
-        if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
-            [skin logBreadcrumb:[NSString stringWithFormat:@"%s:error invoking _gc for delete method:%s", USERDATA_TAG, lua_tostring(L, -1)]] ;
-            lua_pop(L, 1) ;
-            [canvasWindow close] ; // the least we can do is close the canvas if an error occurs with __gc
-        }
-    } else {
-        [canvasWindow fadeOut:lua_tonumber(L, 2) andDelete:YES withState:L];
+//     HSCanvasWindow *canvasWindow = canvasView.wrapperWindow ;
+    if (warnedAboutDelete < 10) {
+        warnedAboutDelete++ ;
+        [skin logWarn:[NSString stringWithFormat:@"%s:delete - explicit delete is no longer required for canvas objects; garbage collection occurs automatically", USERDATA_TAG]] ;
     }
+    canvas_hide(L) ;
+    lua_pop(L, 1) ; // remove userdata pushed by hide
+
+//     if ((lua_gettop(L) == 1) || (![canvasWindow isVisible])) {
+//         lua_pushcfunction(L, userdata_gc) ;
+//         lua_pushvalue(L, 1) ;
+//         // FIXME: Can we convert this lua_pcall() to a LuaSkin protectedCallAndError?
+//         if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
+//             [skin logBreadcrumb:[NSString stringWithFormat:@"%s:error invoking _gc for delete method:%s", USERDATA_TAG, lua_tostring(L, -1)]] ;
+//             lua_pop(L, 1) ;
+//             [canvasWindow close] ; // the least we can do is close the canvas if an error occurs with __gc
+//         }
+//     } else {
+//         [canvasWindow fadeOut:lua_tonumber(L, 2) andDelete:YES withState:L];
+//     }
 
     lua_pushnil(L);
     return 1;
@@ -3844,14 +3871,15 @@ static int cg_windowLevels(lua_State *L) {
 static int pushHSCanvasView(lua_State *L, id obj) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     HSCanvasView *value = obj;
-    if (value.selfRef == LUA_NOREF) {
+    value.selfRefCount++ ;
+//     if (value.selfRef == LUA_NOREF) {
         void** valuePtr = lua_newuserdata(L, sizeof(HSCanvasView *));
         *valuePtr = (__bridge_retained void *)value;
         luaL_getmetatable(L, USERDATA_TAG);
         lua_setmetatable(L, -2);
-        value.selfRef = [skin luaRef:refTable] ;
-    }
-    [skin pushLuaRef:refTable ref:value.selfRef] ;
+//         value.selfRef = [skin luaRef:refTable] ;
+//     }
+//     [skin pushLuaRef:refTable ref:value.selfRef] ;
     return 1;
 }
 
@@ -3900,19 +3928,22 @@ static int userdata_gc(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     HSCanvasView *theView = get_objectFromUserdata(__bridge_transfer HSCanvasView, L, 1, USERDATA_TAG) ;
     if (theView) {
-        if (!parentIsWindow(theView)) [theView removeFromSuperview] ;
-        theView.mouseCallbackRef    = [skin luaUnref:refTable ref:theView.mouseCallbackRef] ;
-        theView.draggingCallbackRef = [skin luaUnref:refTable ref:theView.draggingCallbackRef] ;
+        theView.selfRefCount-- ;
+        if (theView.selfRefCount == 0) {
+            if (!parentIsWindow(theView)) [theView removeFromSuperview] ;
+            theView.mouseCallbackRef    = [skin luaUnref:refTable ref:theView.mouseCallbackRef] ;
+            theView.draggingCallbackRef = [skin luaUnref:refTable ref:theView.draggingCallbackRef] ;
 
-        theView.selfRef          = [skin luaUnref:refTable ref:theView.selfRef] ;
+//             theView.selfRef          = [skin luaUnref:refTable ref:theView.selfRef] ;
 
-        NSDockTile *tile     = [[NSApplication sharedApplication] dockTile];
-        NSView     *tileView = tile.contentView ;
-        if (tileView && [theView isEqualTo:tileView]) tile.contentView = nil ;
+            NSDockTile *tile     = [[NSApplication sharedApplication] dockTile];
+            NSView     *tileView = tile.contentView ;
+            if (tileView && [theView isEqualTo:tileView]) tile.contentView = nil ;
 
-        HSCanvasWindow *theWindow = theView.wrapperWindow ;
-        if (theWindow) [theWindow close];
-        theView.wrapperWindow    = nil ;
+            HSCanvasWindow *theWindow = theView.wrapperWindow ;
+            if (theWindow) [theWindow close];
+            theView.wrapperWindow    = nil ;
+        }
     }
 
     // Remove the Metatable so future use of the variable in Lua won't think its valid
