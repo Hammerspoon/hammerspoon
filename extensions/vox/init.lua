@@ -306,8 +306,8 @@ end
 --- Returns:
 ---  * A boolean value indicating whether the vox application is running
 function vox.isRunning()
-  local app = app.get("VOX")
-  return app and app:isRunning() ~= nil
+  local a = app.get("VOX")
+  return a and a:isRunning() ~= nil
 end
 
 return vox
