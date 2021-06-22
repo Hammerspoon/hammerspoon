@@ -2,7 +2,7 @@
 #import <LuaSkin/LuaSkin.h>
 
 #define USERDATA_TAG "hs.speech.listener"
-static int refTable = LUA_NOREF ;
+static LSRefTable refTable = LUA_NOREF ;
 
 #define get_objectFromUserdata(objType, L, idx) (objType*)*((void**)luaL_checkudata(L, idx, USERDATA_TAG))
 // #define get_structFromUserdata(objType, L, idx) ((objType *)luaL_checkudata(L, idx, USERDATA_TAG))
@@ -264,7 +264,7 @@ static int isListening(lua_State *L) {
     return 1 ;
 }
 
-/// hs.speech.listener:setCallback(fn | nil) -> recognizerObject
+/// hs.speech.listener:setCallback(fn) -> recognizerObject
 /// Method
 /// Sets or removes a callback function for the speech recognizer.
 ///

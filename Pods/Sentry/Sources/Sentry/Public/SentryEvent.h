@@ -17,14 +17,21 @@ NS_SWIFT_NAME(Event)
 @property (nonatomic, strong) SentryId *eventId;
 
 /**
- * Message of the event
+ * Message of the event.
  */
-@property (nonatomic, strong) SentryMessage *message;
+@property (nonatomic, strong) SentryMessage *_Nullable message;
+
+/**
+ * The error of the event. This property adds convenience to access the error directly in
+ * beforeSend. This property is not serialized. Instead when preparing the event the SentryClient
+ * puts the error into exceptions.
+ */
+@property (nonatomic, copy) NSError *_Nullable error;
 
 /**
  * NSDate of when the event occured
  */
-@property (nonatomic, strong) NSDate *timestamp;
+@property (nonatomic, strong) NSDate *_Nullable timestamp;
 
 /**
  * NSDate of when the event started, mostly useful if event type transaction
@@ -163,6 +170,15 @@ NS_SWIFT_NAME(Event)
  * @return SentryEvent
  */
 - (instancetype)initWithLevel:(enum SentryLevel)level NS_DESIGNATED_INITIALIZER;
+
+/**
+ * Initializes a SentryEvent with an NSError and sets the level to SentryLevelError.
+ *
+ * @param error The error of the event.
+ *
+ * @return The initialized SentryEvent.
+ */
+- (instancetype)initWithError:(NSError *)error;
 
 @end
 

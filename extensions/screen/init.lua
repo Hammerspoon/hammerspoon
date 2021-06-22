@@ -6,6 +6,15 @@
 --- System Preferences->Displays->Arrangement). The origin `0,0` is at the top left corner of the *primary screen*.
 --- (Screens to the left of the primary screen, or above it, and windows on these screens, will have negative coordinates)
 
+-- try to load private framework for brightness controls
+local state, msg = package.loadlib(
+    "/System/Library/PrivateFrameworks/DisplayServices.framework/Versions/Current/DisplayServices",
+    "*"
+)
+if not state then
+    hs.printf("-- unable to load DisplayServices framework; may impact brightness control: %s", msg)
+end
+
 local screen = require "hs.screen.internal"
 local geometry = require "hs.geometry"
 require "hs.image"
@@ -55,6 +64,7 @@ end
 --- ```lua
 --- hs.screen(724562417) --> Color LCD - by id
 --- hs.screen'Dell'      --> DELL U2414M - by name
+--- hs.screen'Built%-in' --> Built-in Retina Display, note the % to escape the hyphen repetition character
 --- hs.screen'0,0'       --> PHL BDM4065 - by position, same as hs.screen.primaryScreen()
 --- hs.screen{x=-1,y=0}  --> DELL U2414M - by position, screen to the immediate left of the primary screen
 --- hs.screen'3840x2160' --> PHL BDM4065 - by screen resolution
@@ -235,8 +245,7 @@ end
 
 --- hs.screen:localToAbsolute(geom) -> hs.geometry object
 --- Method
---- Transforms from the screen's local coordinate space, where `0,0` is at the screen's top left corner,
---- to the absolute coordinate space used by OSX/Hammerspoon
+--- Transforms from the screen's local coordinate space, where `0,0` is at the screen's top left corner, to the absolute coordinate space used by OSX/Hammerspoon
 ---
 --- Parameters:
 ---  * geom - an hs.geometry point or rect, or arguments to construct one
@@ -249,8 +258,7 @@ end
 
 --- hs.screen:absoluteToLocal(geom) -> hs.geometry object
 --- Method
---- Transforms from the absolute coordinate space used by OSX/Hammerspoon to the screen's local
---- coordinate space, where `0,0` is at the screen's top left corner
+--- Transforms from the absolute coordinate space used by OSX/Hammerspoon to the screen's local coordinate space, where `0,0` is at the screen's top left corner
 ---
 --- Parameters:
 ---  * geom - an hs.geometry point or rect, or arguments to construct one
@@ -337,46 +345,46 @@ end
 --- If set to `true`, the methods `hs.screen:toEast()`, `:toNorth()` etc. will disregard screens that lie perpendicularly to the desired axis
 screen.strictScreenInDirection = false
 
---- hs.screen:toEast() -> hs.screen object
+--- hs.screen:toEast(from, strict) -> hs.screen object
 --- Method
 --- Gets the first screen to the east of this one, ordered by proximity to its center or a specified point.
 ---
 --- Parameters:
----   * from - An `hs.geometry.rect` or `hs.geometry.point` object; if omitted, the geometric center of this screen will be used
----   * strict - If `true`, disregard screens that lie completely above or below this one (alternatively, set `hs.screen.strictScreenInDirection`)
+---  * from - An `hs.geometry.rect` or `hs.geometry.point` object; if omitted, the geometric center of this screen will be used
+---  * strict - If `true`, disregard screens that lie completely above or below this one (alternatively, set `hs.screen.strictScreenInDirection`)
 ---
 --- Returns:
 ---   * An `hs.screen` object, or `nil` if not found
 
---- hs.screen:toWest() -> hs.screen object
+--- hs.screen:toWest(from, strict) -> hs.screen object
 --- Method
 --- Gets the first screen to the west of this one, ordered by proximity to its center or a specified point.
 ---
 --- Parameters:
----   * from - An `hs.geometry.rect` or `hs.geometry.point` object; if omitted, the geometric center of this screen will be used
----   * strict - If `true`, disregard screens that lie completely above or below this one (alternatively, set `hs.screen.strictScreenInDirection`)
+---  * from - An `hs.geometry.rect` or `hs.geometry.point` object; if omitted, the geometric center of this screen will be used
+---  * strict - If `true`, disregard screens that lie completely above or below this one (alternatively, set `hs.screen.strictScreenInDirection`)
 ---
 --- Returns:
 ---   * An `hs.screen` object, or `nil` if not found
 
---- hs.screen:toNorth() -> hs.screen object
+--- hs.screen:toNorth(from, strict) -> hs.screen object
 --- Method
 --- Gets the first screen to the north of this one, ordered by proximity to its center or a specified point.
 ---
 --- Parameters:
----   * from - An `hs.geometry.rect` or `hs.geometry.point` object; if omitted, the geometric center of this screen will be used
----   * strict - If `true`, disregard screens that lie completely to the left or to the right of this one (alternatively, set `hs.screen.strictScreenInDirection`)
+---  * from - An `hs.geometry.rect` or `hs.geometry.point` object; if omitted, the geometric center of this screen will be used
+---  * strict - If `true`, disregard screens that lie completely to the left or to the right of this one (alternatively, set `hs.screen.strictScreenInDirection`)
 ---
 --- Returns:
 ---   * An `hs.screen` object, or `nil` if not found
 
---- hs.screen:toSouth() -> hs.screen object
+--- hs.screen:toSouth(from, strict) -> hs.screen object
 --- Method
 --- Gets the first screen to the south of this one, ordered by proximity to its center or a specified point.
 ---
 --- Parameters:
----   * from - An `hs.geometry.rect` or `hs.geometry.point` object; if omitted, the geometric center of this screen will be used
----   * strict - If `true`, disregard screens that lie completely to the left or to the right of this one (alternatively, set `hs.screen.strictScreenInDirection`)
+---  * from - An `hs.geometry.rect` or `hs.geometry.point` object; if omitted, the geometric center of this screen will be used
+---  * strict - If `true`, disregard screens that lie completely to the left or to the right of this one (alternatively, set `hs.screen.strictScreenInDirection`)
 ---
 --- Returns:
 ---   * An `hs.screen` object, or `nil` if not found

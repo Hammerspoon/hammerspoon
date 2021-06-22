@@ -11,7 +11,7 @@
 #import "HSuicore.h"
 
 static const char* USERDATA_TAG = "hs.uielement.watcher";
-static int refTable = LUA_NOREF;
+static LSRefTable refTable = LUA_NOREF;
 
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 
@@ -150,6 +150,10 @@ static int userdata_gc(lua_State* L) {
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSuielementWatcher *watcher = get_objectFromUserdata(__bridge_transfer HSuielementWatcher, L, 1, USERDATA_TAG);
     if (watcher) {
+        LSGCCanary tmplsCanary = watcher.lsCanary;
+        [skin destroyGCCanary:&tmplsCanary];
+        watcher.lsCanary = tmplsCanary;
+
         watcher.selfRefCount--;
         if (watcher.selfRefCount == 0) {
             [watcher stop];

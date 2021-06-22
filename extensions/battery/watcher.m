@@ -13,7 +13,7 @@
 // Common Code
 
 #define USERDATA_TAG    "hs.battery.watcher"
-static int refTable;
+static LSRefTable refTable;
 
 // Not so common code
 
@@ -21,13 +21,19 @@ typedef struct _battery_watcher_t {
     CFRunLoopSourceRef t;
     int fn;
     bool started;
+    LSGCCanary lsCanary;
 } battery_watcher_t;
 
 static void callback(void *info) {
     LuaSkin *skin = [LuaSkin sharedWithState:NULL];
-    _lua_stackguard_entry(skin.L);
 
     battery_watcher_t* t = info;
+
+    if (![skin checkGCCanary:t->lsCanary]) {
+        return;
+    }
+
+    _lua_stackguard_entry(skin.L);
 
     if (t->fn != LUA_NOREF) {
         [skin pushLuaRef:refTable ref:t->fn];
@@ -63,6 +69,7 @@ static int battery_watcher_new(lua_State* L) {
 
     watcher->t = IOPSNotificationCreateRunLoopSource(callback, watcher);
     watcher->started = false;
+    watcher->lsCanary = [skin createGCCanary];
     return 1;
 }
 
@@ -116,6 +123,7 @@ static int battery_watcher_gc(lua_State* L) {
     lua_pushcfunction(L, battery_watcher_stop) ; lua_pushvalue(L,1); lua_call(L, 1, 1);
 
     watcher->fn = [skin luaUnref:refTable ref:watcher->fn];
+    [skin destroyGCCanary:&(watcher->lsCanary)];
     CFRunLoopSourceInvalidate(watcher->t);
     CFRelease(watcher->t);
     return 0;

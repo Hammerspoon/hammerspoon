@@ -5,7 +5,7 @@
 // Common Code
 
 static const char *USERDATA_TAG = "hs.timer";
-static int refTable;
+static LSRefTable refTable;
 
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 
@@ -17,6 +17,7 @@ static int refTable;
 @property BOOL continueOnError;
 @property BOOL repeats;
 @property NSTimeInterval interval;
+@property LSGCCanary lsCanary;
 
 - (void)create:(NSTimeInterval)interval repeat:(BOOL)repeat;
 - (void)callback:(NSTimer *)timer;
@@ -35,6 +36,11 @@ static int refTable;
 
 - (void)callback:(NSTimer *)timer {
     LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+
+    if (![skin checkGCCanary:self.lsCanary]) {
+        return;
+    }
+
     _lua_stackguard_entry(skin.L);
 
     if (!timer.isValid) {
@@ -110,6 +116,10 @@ HSTimer *createHSTimer(NSTimeInterval interval, int callbackRef, BOOL continueOn
     timer.repeats = repeat;
     timer.interval = interval;
     [timer create:interval repeat:repeat];
+
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+    // NOTE: The stringWithString call here is vital, so we get a true copy of UUIDString - we must not simply point at it, or we'll never be able to use it to detect an inconsistency later.
+    timer.lsCanary = [skin createGCCanary];
 
     return timer;
 }
@@ -373,6 +383,11 @@ static int timer_gc(lua_State* L) {
         [timer stop];
         timer.fnRef = [skin luaUnref:refTable ref:timer.fnRef];
         timer.t = nil;
+
+        LSGCCanary tmpLSUUID = timer.lsCanary;
+        [skin destroyGCCanary:&tmpLSUUID];
+        timer.lsCanary = tmpLSUUID;
+
         timer = nil;
     }
 
@@ -481,7 +496,7 @@ static const luaL_Reg meta_gcLib[] = {
 
 int luaopen_hs_timer_internal(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    refTable = [skin registerLibrary:timerLib metaFunctions:meta_gcLib];
+    refTable = [skin registerLibrary:USERDATA_TAG functions:timerLib metaFunctions:meta_gcLib];
     [skin registerObject:USERDATA_TAG objectFunctions:timer_metalib];
 
     return 1;

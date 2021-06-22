@@ -297,6 +297,15 @@ coroutine.applicationYield = hs.coroutineApplicationYield
 ---  * If the Spoon provides documentation, it will be loaded by made available in hs.docs
 ---  * To learn how to distribute your own code as a Spoon, see https://github.com/Hammerspoon/hammerspoon/blob/master/SPOON.md
   hs.loadSpoon = function (name, global)
+    if _G["spoon"] == nil then
+      _G["spoon"] = {}
+    end
+
+    if global ~= false and _G["spoon"][name] ~= nil then
+      print("-- Spoon already loaded, returning existing copy: "..name)
+      return _G["spoon"][name]
+    end
+
     print("-- Loading Spoon: "..name)
 
     -- First, find the full path of the Spoon
@@ -336,9 +345,6 @@ coroutine.applicationYield = hs.coroutineApplicationYield
 
       -- If the Spoon is desired to be global, make it so
       if global ~= false then
-        if _G["spoon"] == nil then
-          _G["spoon"] = {}
-        end
         _G["spoon"][name] = obj
       end
 
@@ -650,7 +656,16 @@ coroutine.applicationYield = hs.coroutineApplicationYield
   require = function(modulename) -- luacheck: ignore
     local result = rawrequire(modulename)
     pcall(function()
-    hscrash.crashLog("require: "..modulename)
+
+    local loadedModules = {}
+    local n = 0
+    for k,_ in pairs(package.loaded) do
+      n = n + 1
+      loadedModules[n] = k
+    end
+    table.sort(loadedModules)
+    hscrash.crashKV("modules", table.concat(loadedModules, ", "))
+
       --if string.sub(modulename, 1, 3) == "hs." then
       --  -- Reasonably certain that we're dealing with a Hammerspoon extension
       --  local extname = string.sub(modulename, 4, -1)
@@ -660,6 +675,7 @@ coroutine.applicationYield = hs.coroutineApplicationYield
       --    end
       --  end
       --end
+
       if string.sub(modulename, 1, 8) == "mjolnir." then
         -- Reasonably certain that we're dealing with a Mjolnir module
         local mjolnirmod = string.sub(modulename, 9, -1)

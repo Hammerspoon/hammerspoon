@@ -64,7 +64,7 @@ static int _push_dict_key_value(lua_State* L, NSDictionary* dict, NSString* key)
 }
 
 // Gets battery info from IOPM API.
-NSDictionary* get_iopm_battery_info() {
+NSDictionary* get_iopm_battery_info(void) {
     mach_port_t masterPort;
     CFArrayRef batteryInfo;
 
@@ -80,7 +80,7 @@ NSDictionary* get_iopm_battery_info() {
 }
 
 // Get battery info from IOPS API.
-NSDictionary* get_iops_battery_info() {
+NSDictionary* get_iops_battery_info(void) {
     CFTypeRef info = IOPSCopyPowerSourcesInfo();
 
     if (info == NULL)
@@ -108,7 +108,7 @@ NSDictionary* get_iops_battery_info() {
 }
 
 // Get battery info from IOPMPS Apple Smart Battery API.
-NSDictionary* get_iopmps_battery_info() {
+NSDictionary* get_iopmps_battery_info(void) {
     io_registry_entry_t entry = 0;
     entry = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceNameMatching("AppleSmartBattery"));
     if (entry == IO_OBJECT_NULL)
@@ -615,7 +615,7 @@ static const luaL_Reg battery_lib[] = {
 
 int luaopen_hs_battery_internal(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin registerLibrary:battery_lib metaFunctions:nil];
+    [skin registerLibrary:"hs.battery" functions:battery_lib metaFunctions:nil];
 
     return 1;
 }

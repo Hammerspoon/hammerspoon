@@ -15,7 +15,7 @@ $(APPFILE): PRODUCT_DIR = $(shell xcodebuild -workspace Hammerspoon.xcworkspace 
 $(APPFILE): build $(shell find Hammerspoon -type f)
 	echo "Building Hammerspoon in $(CONFIGURATION) configuration"
 	rm -rf $@
-	xcodebuild -workspace Hammerspoon.xcworkspace -scheme $(SCHEME) -configuration $(CONFIGURATION) clean build > build/$(CONFIGURATION)-build.log
+	xcodebuild -workspace Hammerspoon.xcworkspace -scheme $(SCHEME) -configuration $(CONFIGURATION) clean build | tee build/$(CONFIGURATION)-build.log | xcbeautify
 	cp -R ${PRODUCT_DIR}/Hammerspoon.app $@
 	cp -R ${PRODUCT_DIR}/Hammerspoon.app.dSYM build/
 	cp -R ${PRODUCT_DIR}/LuaSkin.framework.dSYM build/
@@ -61,6 +61,9 @@ build/stubs: build/stubs-core build/stubs-spoons
 
 build/spoon_docs.json:
 	curl https://raw.githubusercontent.com/Hammerspoon/Spoons/master/docs/docs.json -o build/spoon_docs.json -s
+	
+doclint: build
+	scripts/docs/bin/build_docs.py -o build -l $(DOCS_SEARCH_DIRS)
 
 build:
 	mkdir -p build

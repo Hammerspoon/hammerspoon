@@ -4,7 +4,7 @@
 // Common Code
 
 #define USERDATA_TAG    "hs.pathwatcher"
-static int refTable;
+static LSRefTable refTable;
 
 // Not so common code
 
@@ -12,6 +12,7 @@ typedef struct _watcher_path_t {
     int closureref;
     FSEventStreamRef stream;
     bool started;
+    LSGCCanary lsCanary;
 } watcher_path_t;
 
 #if MAC_OS_X_VERSION_MAX_ALLOWED < 1090
@@ -49,12 +50,16 @@ static void pusheventflagstable(lua_State* L, FSEventStreamEventFlags flags) {
 }
 
 void event_callback(ConstFSEventStreamRef __unused streamRef, void *clientCallBackInfo, size_t numEvents, void *eventPaths, const FSEventStreamEventFlags eventFlags[], const FSEventStreamEventId __unused eventIds[]) {
-    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
-    _lua_stackguard_entry(skin.L);
-
     watcher_path_t* pw = clientCallBackInfo;
 
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     lua_State *L = skin.L;
+
+    if (![skin checkGCCanary:pw->lsCanary]) {
+        return;
+    }
+
+    _lua_stackguard_entry(skin.L);
 
     const char** changedFiles = eventPaths;
 
@@ -120,6 +125,7 @@ static int watcher_path_new(lua_State* L) {
 
     watcher_path_t* watcher_path = lua_newuserdata(L, sizeof(watcher_path_t));
     watcher_path->started = NO;
+    watcher_path->lsCanary = [skin createGCCanary];
 
     luaL_getmetatable(L, USERDATA_TAG);
     lua_setmetatable(L, -2);
@@ -199,6 +205,7 @@ static int watcher_path_gc(lua_State* L) {
     FSEventStreamRelease(watcher_path->stream);
 
     watcher_path->closureref = [skin luaUnref:refTable ref:watcher_path->closureref];
+    [skin destroyGCCanary:&(watcher_path->lsCanary)];
 
     return 0;
 }

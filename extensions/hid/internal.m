@@ -153,7 +153,7 @@ static const luaL_Reg hid_lib[] = {
 
 int luaopen_hs_hid_internal(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin registerLibrary:hid_lib metaFunctions:nil];
+    [skin registerLibrary:"hs.hid" functions:hid_lib metaFunctions:nil];
 
     return 1;
 }

@@ -5,7 +5,7 @@
 // ----------------------- Definitions ---------------------
 
 #define USERDATA_TAG "hs.menubar"
-static int refTable;
+static LSRefTable refTable;
 #define get_item_arg(L, idx) ((menubaritem_t *)luaL_checkudata(L, idx, USERDATA_TAG))
 
 // Adds undocumented "appearance" argument to "popUpMenuPositioningItem":
@@ -1199,7 +1199,7 @@ static int pushPrioritiesTable(lua_State *L) {
     return 1 ;
 }
 
-void menubar_setup() {
+void menubar_setup(void) {
     if (!dynamicMenuDelegates) {
         dynamicMenuDelegates = [[NSMutableArray alloc] init];
     }

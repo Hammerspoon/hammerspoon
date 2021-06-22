@@ -4,7 +4,7 @@
 #import "HSuicore.h"
 
 static const char *USERDATA_TAG = "hs.window";
-static int refTable = LUA_NOREF;
+static LSRefTable refTable = LUA_NOREF;
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 
 #pragma mark - Helper functions
@@ -50,6 +50,8 @@ static int window_list(lua_State* L) {
         if (dockWindowNumber) {
             // Fetch on screen windows again, filtering to those "below" the Dock window
             // This filters out all but the "standard" application windows
+
+            CFRelease(windowListArray);
             windowListArray = CGWindowListCreate(kCGWindowListOptionOnScreenBelowWindow|kCGWindowListExcludeDesktopElements, [dockWindowNumber unsignedIntValue]);
             windows = CFBridgingRelease(CGWindowListCreateDescriptionFromArray(windowListArray));
         }
@@ -295,7 +297,7 @@ static int window_getZoomButtonRect(lua_State* L) {
 /// Method
 /// Determines if a window is maximizable
 ///
-/// Paramters:
+/// Parameters:
 ///  * None
 ///
 /// Returns:
@@ -338,15 +340,16 @@ static int window__close(lua_State* L) {
 
 /// hs.window:focusTab(index) -> bool
 /// Method
-/// Focuses the tab in the window's tab group at index, or the last tab if
-/// index is out of bounds. Returns true if a tab was pressed.
-/// Works with document tab groups and some app tabs, like Chrome and Safari.
+/// Focuses the tab in the window's tab group at index, or the last tab if index is out of bounds
 ///
 /// Parameters:
 ///  * index - A number, a 1-based index of a tab to focus
 ///
 /// Returns:
 ///  * true if the tab was successfully pressed, or false if there was a problem
+///
+/// Notes:
+///  * This method works with document tab groups and some app tabs, like Chrome and Safari.
 static int window_focustab(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TINTEGER, LS_TBREAK];
@@ -358,15 +361,16 @@ static int window_focustab(lua_State* L) {
 
 /// hs.window:tabCount() -> number or nil
 /// Method
-/// Gets the number of tabs in the window has, or nil if the window doesn't have tabs.
-/// Intended for use with the focusTab method, if this returns a number, then focusTab
-/// can switch between that many tabs.
+/// Gets the number of tabs in the window has
 ///
 /// Parameters:
 ///  * None
 ///
 /// Returns:
 ///  * A number containing the number of tabs, or nil if an error occurred
+///
+/// Notes:
+///  * Intended for use with the focusTab method, if this returns a number, then focusTab can switch between that many tabs.
 static int window_tabcount(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
@@ -618,7 +622,7 @@ static int window_snapshotForID(lua_State* L) {
 ///  * See also function `hs.window.snapshotForID()`
 static int window_snapshot(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
     HSwindow *win = [skin toNSObjectAtIndex:1];
     [skin pushNSObject:[win snapshot:lua_toboolean(L, 2)]];
     return 1;
@@ -807,7 +811,7 @@ static const luaL_Reg userdata_metaLib[] = {
 
 int luaopen_hs_window_internal(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    refTable = [skin registerLibrary:moduleLib metaFunctions:module_metaLib];
+    refTable = [skin registerLibrary:USERDATA_TAG functions:moduleLib metaFunctions:module_metaLib];
     [skin registerObject:USERDATA_TAG objectFunctions:userdata_metaLib];
 
     [skin registerPushNSHelper:pushHSwindow         forClass:"HSwindow"];

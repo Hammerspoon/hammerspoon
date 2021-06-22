@@ -45,20 +45,40 @@ function module.get(...)
     local state = debug.getinfo(2)
     local tag = state.short_src..":"..state.currentline
     if not deprecation_warnings[tag] then
-        print(tag..": hs.mouse.get is deprecated.  Please update your code to use hs.mouse.getAbsolutePosition or hs.mouse.getRelativePosition")
+        print(tag..": hs.mouse.get is deprecated.  Please update your code to use hs.mouse.absolutePosition or hs.mouse.getRelativePosition")
         deprecation_warnings[tag] = true
     end
-    return module.getAbsolutePosition(...)
+    return module.absolutePosition(...)
 end
 
 function module.set(...)
     local state = debug.getinfo(2)
     local tag = state.short_src..":"..state.currentline
     if not deprecation_warnings[tag] then
-        print(tag..": hs.mouse.set is deprecated.  Please update your code to use hs.mouse.setAbsolutePosition or hs.mouse.setRelativePosition")
+        print(tag..": hs.mouse.set is deprecated.  Please update your code to use hs.mouse.absolutePosition or hs.mouse.setRelativePosition")
         deprecation_warnings[tag] = true
     end
-    return module.setAbsolutePosition(...)
+    return module.absolutePosition(...)
+end
+
+function module.getAbsolutePosition(...)
+    local state = debug.getinfo(2)
+    local tag = state.short_src..":"..state.currentline
+    if not deprecation_warnings[tag] then
+        print(tag..": hs.mouse.getAbsolutePosition is deprecated.  Please update your code to use hs.mouse.absolutePosition")
+        deprecation_warnings[tag] = true
+    end
+    return module.absolutePosition(...)
+end
+
+function module.setAbsolutePosition(...)
+    local state = debug.getinfo(2)
+    local tag = state.short_src..":"..state.currentline
+    if not deprecation_warnings[tag] then
+        print(tag..": hs.mouse.setAbsolutePosition is deprecated.  Please update your code to use hs.mouse.absolutePosition")
+        deprecation_warnings[tag] = true
+    end
+    return module.absolutePosition(...)
 end
 
 --- hs.mouse.getRelativePosition() -> point or nil
@@ -80,7 +100,7 @@ function module.getRelativePosition()
     end
 
     local frame = currentScreen:fullFrame()
-    local point = module.getAbsolutePosition()
+    local point = module.absolutePosition()
     local rel = {}
 
     rel["x"] = point["x"] - frame["x"]
@@ -114,7 +134,7 @@ function module.setRelativePosition(point, currentScreen)
     abs["x"] = frame["x"] + point["x"]
     abs["y"] = frame["y"] + point["y"]
 
-    return module.setAbsolutePosition(abs)
+    return module.absolutePosition(abs)
 end
 
 --- hs.mouse.getCurrentScreen() -> screen or nil
@@ -127,7 +147,7 @@ end
 --- Returns:
 ---  * An `hs.screen` object that the mouse pointer is on, or nil if an error occurred
 function module.getCurrentScreen()
-    local point = module.getAbsolutePosition()
+    local point = module.absolutePosition()
     return fnutils.find(screen.allScreens(), function(aScreen) return geometry.isPointInRect(point, aScreen:fullFrame()) end)
 end
 
@@ -136,7 +156,7 @@ end
 --- Returns a table containing the current mouse buttons being pressed *at this instant*.
 ---
 --- Parameters:
----  None
+---  * None
 ---
 --- Returns:
 ---  * Returns an array containing indicies starting from 1 up to the highest numbered button currently being pressed where the index is `true` if the button is currently pressed or `false` if it is not.

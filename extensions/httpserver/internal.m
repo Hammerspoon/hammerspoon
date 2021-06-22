@@ -21,7 +21,7 @@
 #define get_item_arg(L, idx) ((httpserver_t *)luaL_checkudata(L, idx, USERDATA_TAG))
 #define getUserData(L, idx) (__bridge HSHTTPServer *)((httpserver_t *)get_item_arg(L, idx))->server
 
-static int refTable;
+static LSRefTable refTable;
 
 // ObjC Class definitions
 @interface HSWebSocket : WebSocket
@@ -203,7 +203,7 @@ static int refTable;
 }
 
 - (NSObject<HTTPResponse> *)httpResponseForMethod:(NSString *)method URI:(NSString *)path {
-    __block int responseCode;
+    __block int responseCode = 0;
     __block NSMutableDictionary *responseHeaders = nil;
     __block NSData *responseBody = nil;
 

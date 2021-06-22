@@ -5,7 +5,7 @@
 #import "ORSSerialPort/ORSSerialPortManager.h"
 
 #define USERDATA_TAG  "hs.serial"
-static int refTable = LUA_NOREF;
+static LSRefTable refTable = LUA_NOREF;
 
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 
@@ -48,6 +48,8 @@ static int refTable = LUA_NOREF;
 
 @property NSString*                 portName;
 @property NSString*                 portPath;
+
+@property LSGCCanary                    lsCanary;
 
 @property ORSSerialPortParity       parity;
 @property NSNumber*                 baudRate;
@@ -127,10 +129,17 @@ static int refTable = LUA_NOREF;
 {
     if (_callbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+        
+        if (![skin checkGCCanary:self.lsCanary]) {
+            return;
+        }
+        
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_callbackRef];
         [skin pushNSObject:self];
         [skin pushNSObject:@"opened"];
         [skin protectedCallAndError:@"hs.serial:callback" nargs:2 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 
@@ -138,10 +147,17 @@ static int refTable = LUA_NOREF;
 {
     if (_callbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+        
+        if (![skin checkGCCanary:self.lsCanary]) {
+            return;
+        }
+        
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_callbackRef];
         [skin pushNSObject:self];
         [skin pushNSObject:@"closed"];
         [skin protectedCallAndError:@"hs.serial:callback" nargs:2 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 
@@ -149,6 +165,12 @@ static int refTable = LUA_NOREF;
 {
     if (_callbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+        
+        if (![skin checkGCCanary:self.lsCanary]) {
+            return;
+        }
+
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_callbackRef];
         [skin pushNSObject:self];
         [skin pushNSObject:@"received"];
@@ -156,6 +178,7 @@ static int refTable = LUA_NOREF;
         NSString *hex = [data hexadecimalString];
         [skin pushNSObject:hex];
         [skin protectedCallAndError:@"hs.serial:callback" nargs:4 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 
@@ -168,10 +191,17 @@ static int refTable = LUA_NOREF;
 {
     if (_callbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+
+        if (![skin checkGCCanary:self.lsCanary]) {
+            return;
+        }
+        
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_callbackRef];
         [skin pushNSObject:self];
         [skin pushNSObject:@"removed"];
         [skin protectedCallAndError:@"hs.serial:callback" nargs:2 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
     
     // After a serial port is removed from the system, it is invalid and we must discard any references to it:
@@ -183,11 +213,18 @@ static int refTable = LUA_NOREF;
     if (_callbackRef != LUA_NOREF) {
         NSString *errorString = [NSString stringWithFormat:@"%@", error];
         LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+        
+        if (![skin checkGCCanary:self.lsCanary]) {
+            return;
+        }
+        
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_callbackRef];
         [skin pushNSObject:self];
         [skin pushNSObject:@"error"];
         [skin pushNSObject:errorString];
         [skin protectedCallAndError:@"hs.serial:callback" nargs:3 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 
@@ -197,6 +234,12 @@ static int refTable = LUA_NOREF;
 {
     if (_deviceCallbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+        
+        if (![skin checkGCCanary:self.lsCanary]) {
+            return;
+        }
+        
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_deviceCallbackRef];
         [skin pushNSObject:@"connected"];
         
@@ -210,6 +253,7 @@ static int refTable = LUA_NOREF;
         }
         [skin pushNSObject:result];
         [skin protectedCallAndError:@"hs.serial:deviceCallback" nargs:2 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 
@@ -217,6 +261,12 @@ static int refTable = LUA_NOREF;
 {
     if (_deviceCallbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+        
+        if (![skin checkGCCanary:self.lsCanary]) {
+            return;
+        }
+        
+        _lua_stackguard_entry(skin.L);
         [skin pushLuaRef:refTable ref:_deviceCallbackRef];
         [skin pushNSObject:@"disconnected"];
         
@@ -230,6 +280,7 @@ static int refTable = LUA_NOREF;
         }
         [skin pushNSObject:result];
         [skin protectedCallAndError:@"hs.serial:deviceCallback" nargs:2 nresults:0];
+        _lua_stackguard_exit(skin.L);
     }
 }
 
@@ -423,6 +474,8 @@ static int serial_newFromName(lua_State *L) {
     
     HSSerialPort *serialPort = [[HSSerialPort alloc] init];
     
+    serialPort.lsCanary = [skin createGCCanary];
+    
     bool result = [serialPort isPortNameValid:portName];
         
     if (serialPort && result) {
@@ -453,6 +506,8 @@ static int serial_newFromPath(lua_State *L) {
     NSString *path = [skin toNSObjectAtIndex:1];
     
     HSSerialPort *serialPort = [[HSSerialPort alloc] init];
+
+    serialPort.lsCanary = [skin createGCCanary];
     
     bool result = [serialPort isPathValid:path];
         
@@ -465,7 +520,7 @@ static int serial_newFromPath(lua_State *L) {
     return 1;
 }
 
-/// hs.serial:callback(callbackFn | nil) -> serialPortObject
+/// hs.serial:callback(callbackFn) -> serialPortObject
 /// Method
 /// Sets or removes a callback function for the `hs.serial` object.
 ///
@@ -989,7 +1044,7 @@ static int pushHSSerialPort(lua_State *L, id obj) {
     return 1;
 }
 
-id toHSSerialPortFromLua(lua_State *L, int idx) {
+static id toHSSerialPortFromLua(lua_State *L, int idx) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     HSSerialPort *value;
     if (luaL_testudata(L, idx, USERDATA_TAG)) {
@@ -1044,6 +1099,10 @@ static int userdata_gc(lua_State* L) {
                 obj.callbackToken = nil;
             }
             obj = nil;
+
+            LSGCCanary tmplsCanary = obj.lsCanary;
+            [skin destroyGCCanary:&tmplsCanary];
+            obj.lsCanary = tmplsCanary;
         }
     }
     

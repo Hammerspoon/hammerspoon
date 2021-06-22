@@ -82,15 +82,15 @@ end
 --- Create a webviewObject with some presets common to an interactive web browser.
 ---
 --- Parameters:
----  * The parameters are the same as for [hs.webview.new](#new) -- check there for more details
----    * `rect`                  - a rectangle specifying where the webviewObject should be displayed.
----    * `preferencesTable`      - an optional table which specifies special settings for the webview object.
----    * `userContentController` - an optional `hs.webview.usercontent` object to provide script injection and JavaScript messaging with Hammerspoon from the webview.
+---  * `rect`                  - a rectangle specifying where the webviewObject should be displayed.
+---  * `preferencesTable`      - an optional table which specifies special settings for the webview object.
+---  * `userContentController` - an optional `hs.webview.usercontent` object to provide script injection and JavaScript messaging with Hammerspoon from the webview.
 ---
 --- Returns:
 ---  * The webview object
 ---
 --- Notes:
+---  * The parameters are the same as for [hs.webview.new](#new) -- check there for more details
 ---  * This constructor is just a short-hand for `hs.webview.new(...):allowTextEntry(true):allowGestures(true):windowStyle(15)`, which specifies a webview with a title bar, title bar buttons (zoom, close, minimize), and allows form entry and gesture support for previous and next pages.
 ---
 --- * See [hs.webview.new](#new) and the following for more details:
@@ -104,7 +104,7 @@ module.newBrowser = function(...)
                           :allowGestures(true)
 end
 
---- hs.webview:attachedToolbar([toolbar | nil]) -> webviewObject | currentValue
+--- hs.webview:attachedToolbar([toolbar]) -> webviewObject | currentValue
 --- Method
 --- Get or attach/detach a toolbar to/from the webview.
 ---

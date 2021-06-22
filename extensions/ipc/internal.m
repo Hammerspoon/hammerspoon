@@ -2,7 +2,7 @@
 @import LuaSkin ;
 
 static const char * const USERDATA_TAG = "hs.ipc" ;
-static int refTable = LUA_NOREF;
+static LSRefTable refTable = LUA_NOREF;
 
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 // #define get_structFromUserdata(objType, L, idx, tag) ((objType *)luaL_checkudata(L, idx, tag))
@@ -284,7 +284,7 @@ static int pushHSIPCMessagePort(lua_State *L, id obj) {
     return 1;
 }
 
-id toHSIPCMessagePortFromLua(lua_State *L, int idx) {
+static id toHSIPCMessagePortFromLua(lua_State *L, int idx) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     HSIPCMessagePort *value ;
     if (luaL_testudata(L, idx, USERDATA_TAG)) {

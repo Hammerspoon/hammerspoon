@@ -5,7 +5,7 @@
 @import Darwin.POSIX.netdb ;
 
 static const char * const USERDATA_TAG = "hs.bonjour.service" ;
-static int refTable = LUA_NOREF;
+static LSRefTable refTable = LUA_NOREF;
 
 static NSMapTable *serviceUDRecords ;
 
@@ -589,7 +589,7 @@ static int service_startMonitoring(lua_State *L) {
 /// Method
 /// Stop advertising or resolving the service specified by the serviceObject
 ///
-/// Paramters:
+/// Parameters:
 ///  * None
 ///
 /// Returns:
@@ -653,7 +653,7 @@ static int pushHSNetServiceWrapper(lua_State *L, id obj) {
     return 1;
 }
 
-id toHSNetServiceWrapperFromLua(lua_State *L, int idx) {
+static id toHSNetServiceWrapperFromLua(lua_State *L, int idx) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     HSNetServiceWrapper *value ;
     if (luaL_testudata(L, idx, USERDATA_TAG)) {

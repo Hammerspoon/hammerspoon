@@ -4,7 +4,7 @@
 ---
 --- Warning: this module is still somewhat experimental.
 --- Should you encounter any issues, please feel free to report them on https://github.com/Hammerspoon/hammerspoon/issues
---- or #hammerspoon on irc.freenode.net
+--- or #hammerspoon on irc.libera.chat
 ---
 --- With this module you can configure a hotkey to show thumbnails for open windows when invoked; each thumbnail will have
 --- an associated keyboard "hint" (usually one or two characters) that you can type to quickly switch focus to that
@@ -582,7 +582,18 @@ end
 --- Method
 --- Toggles the expose - see `hs.expose:show()` and `hs.expose:hide()`
 ---
---- Parameters: see `hs.expose:show()`
+--- Parameters:
+---  * activeApplication - (optional) if true, only show windows of the active application (within the scope of the instance windowfilter); otherwise show all windows allowed by the instance windowfilter
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * passing `true` for `activeApplication` will simply hide hints/thumbnails for applications other than the active one, without recalculating the hints layout; conversely, setting `onlyActiveApplication=true` for an expose instance's `ui` will calculate an optimal layout for the current active application's windows
+---  * Completing a hint will exit the expose and focus the selected window.
+---  * Pressing esc will exit the expose and with no action taken.
+---  * If shift is being held when a hint is completed (the background will be red), the selected window will be closed. If it's the last window of an application, the application will be closed.
+---  * If alt is being held when a hint is completed (the background will be blue), the selected  window will be minimized (if visible) or unminimized/unhidden (if minimized or hidden).
 ---
 --- Returns:
 ---  * None
@@ -591,14 +602,16 @@ function expose:toggleShow(...)
 end
 --- hs.expose:hide()
 --- Method
---- Hides the expose, if visible, and exits the modal mode.
---- Call this function if you need to make sure the modal is exited without waiting for the user to press `esc`.
+--- Hides the expose, if visible, and exits the modal mode
 ---
 --- Parameters:
 ---  * None
 ---
 --- Returns:
 ---  * None
+---
+--- Notes:
+---  * Call this function if you need to make sure the modal is exited without waiting for the user to press `esc`
 function expose:hide()
   if activeInstance then return exitAll(activeInstance) end
 end

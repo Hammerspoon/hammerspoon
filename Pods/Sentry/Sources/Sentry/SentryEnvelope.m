@@ -1,4 +1,5 @@
 #import "SentryEnvelope.h"
+#import "SentryAttachment.h"
 #import "SentryBreadcrumb.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryEvent.h"
@@ -8,6 +9,7 @@
 #import "SentrySdkInfo.h"
 #import "SentrySerialization.h"
 #import "SentrySession.h"
+#import "SentryTransaction.h"
 #import "SentryUserFeedback.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -43,6 +45,18 @@ NS_ASSUME_NONNULL_BEGIN
     if (self = [super init]) {
         _type = type;
         _length = length;
+    }
+    return self;
+}
+
+- (instancetype)initWithType:(NSString *)type
+                      length:(NSUInteger)length
+                   filenname:(NSString *)filename
+                 contentType:(NSString *)contentType
+{
+    if (self = [self initWithType:type length:length]) {
+        _filename = filename;
+        _contentType = contentType;
     }
     return self;
 }
@@ -111,10 +125,15 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }
 
-    return [self
-        initWithHeader:[[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeEvent
-                                                               length:json.length]
-                  data:json];
+    // event.type can be nil and the server infers error if there's a stack trace, otherwise
+    // default. In any case in the envelope type it should be event. Except for transactions
+    NSString *envelopeType = [event.type isEqualToString:SentryEnvelopeItemTypeTransaction]
+        ? SentryEnvelopeItemTypeTransaction
+        : SentryEnvelopeItemTypeEvent;
+
+    return [self initWithHeader:[[SentryEnvelopeItemHeader alloc] initWithType:envelopeType
+                                                                        length:json.length]
+                           data:json];
 }
 
 - (instancetype)initWithSession:(SentrySession *)session
@@ -138,8 +157,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                      error:&error];
 
     if (nil != error) {
-        [SentryLog logWithMessage:@"Couldn't serialize user feedback."
-                         andLevel:kSentryLogLevelError];
+        [SentryLog logWithMessage:@"Couldn't serialize user feedback." andLevel:kSentryLevelError];
         json = [NSData new];
     }
 
@@ -147,6 +165,69 @@ NS_ASSUME_NONNULL_BEGIN
                                     initWithType:SentryEnvelopeItemTypeUserFeedback
                                           length:json.length]
                            data:json];
+}
+
+- (_Nullable instancetype)initWithAttachment:(SentryAttachment *)attachment
+                           maxAttachmentSize:(NSUInteger)maxAttachmentSize
+{
+    NSData *data = nil;
+    if (nil != attachment.data) {
+        if (attachment.data.length > maxAttachmentSize) {
+            NSString *message =
+                [NSString stringWithFormat:@"Dropping attachment with filename '%@', because the "
+                                           @"size of the passed data with %lu bytes is bigger than "
+                                           @"the maximum allowed attachment size of %lu bytes.",
+                          attachment.filename, (unsigned long)attachment.data.length,
+                          (unsigned long)maxAttachmentSize];
+            [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
+
+            return nil;
+        }
+
+        data = attachment.data;
+    } else if (nil != attachment.path) {
+
+        NSError *error = nil;
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        NSDictionary<NSFileAttributeKey, id> *attr =
+            [fileManager attributesOfItemAtPath:attachment.path error:&error];
+
+        if (nil != error) {
+            NSString *message = [NSString
+                stringWithFormat:@"Couldn't check file size of attachment with path: %@. Error: %@",
+                attachment.path, error.localizedDescription];
+            [SentryLog logWithMessage:message andLevel:kSentryLevelError];
+
+            return nil;
+        }
+
+        unsigned long long fileSize = [attr fileSize];
+
+        if (fileSize > maxAttachmentSize) {
+            NSString *message = [NSString
+                stringWithFormat:
+                    @"Dropping attachment, because the size of the it located at '%@' with %llu "
+                    @"bytes is bigger than the maximum allowed attachment size of %lu bytes.",
+                attachment.path, fileSize, (unsigned long)maxAttachmentSize];
+            [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
+            return nil;
+        }
+
+        data = [[NSFileManager defaultManager] contentsAtPath:attachment.path];
+    }
+
+    if (nil == data) {
+        [SentryLog logWithMessage:@"Couldn't init Attachment." andLevel:kSentryLevelError];
+        return nil;
+    }
+
+    SentryEnvelopeItemHeader *itemHeader =
+        [[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeAttachment
+                                                length:data.length
+                                             filenname:attachment.filename
+                                           contentType:attachment.contentType];
+
+    return [self initWithHeader:itemHeader data:data];
 }
 
 @end

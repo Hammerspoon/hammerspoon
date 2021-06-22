@@ -8,7 +8,7 @@
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 
 static HSStreamDeckManager *deckManager;
-int streamDeckRefTable = LUA_NOREF;
+LSRefTable streamDeckRefTable = LUA_NOREF;
 
 #pragma mark - Lua API
 static int streamdeck_gc(lua_State *L __unused) {
@@ -210,7 +210,7 @@ static int streamdeck_firmwareVersion(lua_State *L) {
 /// Method
 /// Gets the layout of buttons the device has
 ///
-/// Paramters:
+/// Parameters:
 ///  * None
 ///
 /// Returns:
@@ -374,7 +374,7 @@ static const luaL_Reg metalib[] = {
 #pragma mark - Lua initialiser
 int luaopen_hs_streamdeck_internal(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    streamDeckRefTable = [skin registerLibrary:streamdecklib metaFunctions:metalib];
+    streamDeckRefTable = [skin registerLibrary:USERDATA_TAG functions:streamdecklib metaFunctions:metalib];
     [skin registerObject:USERDATA_TAG objectFunctions:userdata_metaLib];
 
     [skin registerPushNSHelper:pushHSStreamDeckDevice         forClass:"HSStreamDeckDevice"];

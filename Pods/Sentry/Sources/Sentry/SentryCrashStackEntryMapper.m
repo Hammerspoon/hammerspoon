@@ -1,13 +1,29 @@
 #import "SentryCrashStackEntryMapper.h"
 #import "SentryFrame.h"
+#import "SentryFrameInAppLogic.h"
 #import "SentryHexAddressFormatter.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface
+SentryCrashStackEntryMapper ()
+
+@property (nonatomic, strong) SentryFrameInAppLogic *frameInAppLogic;
+
+@end
+
 @implementation SentryCrashStackEntryMapper
 
-+ (SentryFrame *)mapStackEntryWithCursor:(SentryCrashStackCursor)stackCursor
+- (instancetype)initWithFrameInAppLogic:(SentryFrameInAppLogic *)frameInAppLogic
+{
+    if (self = [super init]) {
+        self.frameInAppLogic = frameInAppLogic;
+    }
+    return self;
+}
+
+- (SentryFrame *)mapStackEntryWithCursor:(SentryCrashStackCursor)stackCursor
 {
     SentryFrame *frame = [[SentryFrame alloc] init];
 
@@ -29,17 +45,10 @@ NS_ASSUME_NONNULL_BEGIN
         NSString *imageName = [NSString stringWithCString:stackCursor.stackEntry.imageName
                                                  encoding:NSUTF8StringEncoding];
         frame.package = imageName;
-
-        BOOL isInApp = [self isInApp:imageName];
-        frame.inApp = @(isInApp);
+        frame.inApp = @([self.frameInAppLogic isInApp:imageName]);
     }
 
     return frame;
-}
-
-+ (BOOL)isInApp:(NSString *)imageName
-{
-    return [imageName containsString:@"/Bundle/Application/"] || [imageName containsString:@".app"];
 }
 
 @end

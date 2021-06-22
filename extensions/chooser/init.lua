@@ -10,12 +10,12 @@ require("hs.drawing.color")
 local chooser = require("hs.chooser.internal")
 local window = require("hs.window")
 
---- hs.chooser:attachedToolbar([toolbar | nil]) -> hs.chooser object | currentValue
+--- hs.chooser:attachedToolbar([toolbar]) -> hs.chooser object | currentValue
 --- Method
 --- Get or attach/detach a toolbar to/from the chooser.
 ---
 --- Parameters:
----  * `toolbar` - if an `hs.webview.toolbar` object is specified, it will be attached to the chooser.  If an explicit nil is specified, the current toolbar will be removed from the chooser.
+---  * `toolbar` - An `hs.webview.toolbar` object to be attached to the chooser. If `nil` is supplied, the current toolbar will be removed
 ---
 --- Returns:
 ---  * if a toolbarObject or explicit nil is specified, returns the hs.chooser object; otherwise returns the current toolbarObject or nil, if no toolbar is attached to the chooser.

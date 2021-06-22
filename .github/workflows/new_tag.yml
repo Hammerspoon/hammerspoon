@@ -1,0 +1,88 @@
+name: New Tag
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  generate-release-notes:
+    name: Generate Release Notes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Get current tag name
+        id: current_tag
+        run: echo "::set-output name=TAGNAME::$(git describe --abbrev=0)"
+      - name: Get previous tag name
+        id: previous_tag
+        run: echo "::set-output name=TAGNAME::$(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1))"
+      - name: Get date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+      - name: Generate
+        id: generate
+        uses: mikepenz/release-changelog-builder-action@main
+        with:
+          configuration: ".github/workflows/release_notes_config.json"
+          fromTag: ${{ steps.previous_tag.outputs.TAGNAME }}
+          toTag: ${{ steps.current_tag.outputs.TAGNAME }}
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Capture
+        run: |
+          echo "${{ steps.generate.outputs.changelog }}" >releasenotes.md
+      - name: Upload as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ steps.date.outputs.date}}-${{ steps.tag.outputs.tag }}.md
+          path: releasenotes.md
+      - name: Attach to release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: "${{ steps.current_tag.outputs.TAGNAME }}"
+          body: "${{ steps.generate.outputs.changelog }}"
+          allowUpdates: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  create-next-milestone:
+    name: Create next milestone
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Get current tag name
+        id: current_tag
+        run: echo "::set-output name=TAGNAME::$(git describe --abbrev=0)"
+
+      - name: Get previous tag name
+        id: previous_tag
+        run: echo "::set-output name=TAGNAME::$(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1))"
+
+      - name: Get next version
+        id: next_tag
+        uses: "WyriHaximus/github-action-next-semvers@v1"
+        with:
+          version: ${{ steps.current_tag.outputs.TAGNAME }}
+
+      - name: Create milestone
+        uses: "WyriHaximus/github-action-create-milestone@v1"
+        with:
+          title: ${{ steps.next_tag.outputs.patch }}
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Close old milestone
+        uses: "Beakyn/gha-close-milestone@v1.1.1"
+        with:
+          repository: ${{ github.repository }}
+          milestone-title: ${{ steps.previous_tag.outputs.TAGNAME }}
+        env:
+          GITHUB_TOKEN: "${{ github.token }}"
+

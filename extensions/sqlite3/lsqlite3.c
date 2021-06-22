@@ -804,7 +804,10 @@ static int lcontext_set_aggregate_context(lua_State *L) {
 static int lcontext_aggregate_count(lua_State *L) {
     lcontext *ctx = lsqlite_checkcontext(L, 1);
     lcontext_check_aggregate(L, ctx);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     lua_pushinteger(L, sqlite3_aggregate_count(ctx->ctx));
+#pragma clang diagnostic pop
     return 1;
 }
 
@@ -1288,7 +1291,10 @@ static int db_trace(lua_State *L) {
         db->trace_udata = LUA_NOREF;
 
         /* clear trace handler */
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         sqlite3_trace(db->db, NULL, NULL);
+#pragma clang diagnostic pop
     }
     else {
         luaL_checktype(L, 2, LUA_TFUNCTION);
@@ -1303,7 +1309,10 @@ static int db_trace(lua_State *L) {
         db->trace_cb = luaL_ref(L, LUA_REGISTRYINDEX);
 
         /* set trace handler */
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         sqlite3_trace(db->db, db_trace_callback, db);
+#pragma clang diagnostic pop
     }
 
     return 0;

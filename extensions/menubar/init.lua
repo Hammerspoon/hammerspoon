@@ -37,7 +37,7 @@ end
 --- Method
 --- Returns the menubar item frame
 ---
---- Parameters
+--- Parameters:
 ---  * None
 ---
 --- Returns:

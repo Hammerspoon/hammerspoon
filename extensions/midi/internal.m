@@ -8,7 +8,7 @@
 //
 static const char * const USERDATA_TAG = "hs.midi";
 static void *midiKVOContext = &midiKVOContext ;                 // See: http://nshipster.com/key-value-observing/
-static int refTable = LUA_NOREF;
+static LSRefTable refTable = LUA_NOREF;
 
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 
@@ -445,7 +445,7 @@ static int midi_newVirtualSource(lua_State *L) {
 
 #pragma mark - Module Methods
 
-/// hs.midi:callback(callbackFn | nil)
+/// hs.midi:callback(callbackFn)
 /// Method
 /// Sets or removes a callback function for the `hs.midi` object.
 ///
@@ -1578,7 +1578,7 @@ static int pushHSMIDIDeviceManager(lua_State *L, id obj) {
     return 1;
 }
 
-id toHSMIDIDeviceManagerFromLua(lua_State *L, int idx) {
+static id toHSMIDIDeviceManagerFromLua(lua_State *L, int idx) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     HSMIDIDeviceManager *value ;
     if (luaL_testudata(L, idx, USERDATA_TAG)) {

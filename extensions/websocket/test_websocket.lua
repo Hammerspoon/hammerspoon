@@ -17,6 +17,7 @@ function testNew()
   local websocketObject = websocket.new(ECHO_URL, function() end)
   assertIsUserdataOfType("hs.websocket", websocketObject)
   assertTrue(#tostring(websocketObject) > 0)
+  websocketObject:close()
   return success()
 end
 
@@ -34,6 +35,7 @@ function testEcho()
   end)
   doAfter(5, function()
     echoTestObj:send(TEST_STRING)
+    echoTestObj:close()
   end)
   return success()
 end
@@ -42,7 +44,7 @@ function testEchoValues()
   if type(event) == "string" and event == "received" and type(message) == "string" and message == TEST_STRING then
     return success()
   else
-    print("Waiting for echo...")
+    return "Waiting for echo..."..echoTestObj:status()
   end
 end
 
@@ -58,9 +60,10 @@ end
 
 function testOpenStatusValues()
   if openStatusTestObj:status() == "open" then
+    openStatusTestObj:close()
     return success()
   else
-    print("Waiting for websocket to open...")
+    return "Waiting for websocket to open..."..openStatusTestObj:status()
   end
 end
 
@@ -79,7 +82,7 @@ function testClosingStatusValues()
   if closingStatusTestObj:status() == "closing" then
     return success()
   else
-    print("Waiting for websocket to start closing...")
+    return "Waiting for websocket to start closing..."..closingStatusTestObj:status()
   end
 end
 
@@ -97,7 +100,7 @@ function testClosedStatusValues()
   if closedStatusTestObj:status() == "closed" then
     return success()
   else
-    print("Waiting for websocket to close...")
+    return "Waiting for websocket to close..."..closedStatusTestObj:status()
   end
 end
 
@@ -122,8 +125,9 @@ end
 
 function testLegacyValues()
   if type(wrapperMessage) == "string" and wrapperMessage == TEST_STRING then
+    wrapperTestObj:close()
     return success()
   else
-    print("Waiting for echo...")
+    return "Waiting for echo..."..wrapperTestObj:status()
   end
 end

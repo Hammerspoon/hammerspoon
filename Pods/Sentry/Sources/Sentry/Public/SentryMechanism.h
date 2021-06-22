@@ -5,6 +5,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class SentryNSError, SentryMechanismMeta;
+
 NS_SWIFT_NAME(Mechanism)
 @interface SentryMechanism : NSObject <SentrySerializable>
 SENTRY_NO_INIT
@@ -16,8 +18,8 @@ SENTRY_NO_INIT
 @property (nonatomic, copy) NSString *type;
 
 /**
- * Human readable description of the error mechanism and a possible
- * hint on how to solve this error
+ * Human readable description of the error mechanism and a possible hint on how to solve this error.
+ * We can't use description as it overlaps with NSObject.description.
  */
 @property (nonatomic, copy) NSString *_Nullable desc;
 
@@ -41,9 +43,9 @@ SENTRY_NO_INIT
 
 /**
  * Information from the operating system or runtime on the exception
- * mechanism
+ * mechanism.
  */
-@property (nonatomic, strong) NSDictionary<NSString *, NSString *> *_Nullable meta;
+@property (nullable, nonatomic, strong) SentryMechanismMeta *meta;
 
 /**
  * Initialize an SentryMechanism with a type

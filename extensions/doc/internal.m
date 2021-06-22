@@ -3,7 +3,7 @@
 
 static const char * const USERDATA_TAG = "hs.doc" ; // we're using it as a module tag for console messages
 
-static int refTable     = LUA_NOREF;
+static LSRefTable refTable = LUA_NOREF;
 static int refTriggerFn = LUA_NOREF ;
 
 static NSMutableDictionary *registeredFiles ;
@@ -496,7 +496,7 @@ static const luaL_Reg module_metaLib[] = {
 
 int luaopen_hs_doc_internal(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
-    refTable = [skin registerLibrary:moduleLib metaFunctions:module_metaLib] ;
+    refTable = [skin registerLibrary:USERDATA_TAG functions:moduleLib metaFunctions:module_metaLib] ;
 
     registeredFiles = [[NSMutableDictionary alloc] init] ;
     // if you change this, also change it in doc_unregisterJSONFile

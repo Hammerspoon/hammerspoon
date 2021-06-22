@@ -18,7 +18,7 @@ Hammerspoon is composed of three separate logical areas - a Lua runtime wrapper 
 
 ## How is everything built?
 
-The app itself is built using Xcode. You must open `Hammerspoon.xcworkspace` rather than `Hammerspoon.xcodeproj`. If you open the latter, your build will fail because Xcode will not know about the Cocoapods that Hammerspoon depends on (see our [`Podfile`](https://github.com/Hammerspoon/hammerspoon/blob/master/Podfile) for the current list of required pods).
+The app itself is built using Xcode. You must open `Hammerspoon.xcworkspace` rather than `Hammerspoon.xcodeproj`. If you open the latter, your build will fail because Xcode will not know about the Cocoapods that Hammerspoon depends on (see our [`Podfile`](https://github.com/Hammerspoon/hammerspoon/blob/master/Podfile) for the current list of required pods). On versions of macOS prior to Catalina [Python 3](https://www.python.org) will need to be installed for the build to work.
 
 The extension modules are built before the core Hammerspoon binary as target dependencies. Each extension is defined as an Xcode target in its own right, although there is usually no reason to build these targets manually. During the late stages of the build process, a script ([`scripts/copy_extensions_to_bundle.sh`](https://github.com/Hammerspoon/hammerspoon/blob/master/scripts/copy_extensions_to_bundle.sh)) collects all of the compiled extension libraries and their associated Lua components, and inserts them into the final `Hammerspoon.app` bundle.
 
@@ -37,7 +37,7 @@ This is generally very simple in terms of the workflow, but there's less likely 
 * Make the changes you want
 * Push them up to a fork on GitHub
 * Propose a Pull Request on GitHub
-* Talk to us in #hammerspoon on Freenode if you need any guidance
+* Talk to us in #hammerspoon on Libera if you need any guidance
 
 ## Contributing to the extensions
 
@@ -62,7 +62,7 @@ To create such an extension:
 * Build Hammerspoon and test your extension
 * Push your changes up to a fork on GitHub
 * Propose a Pull Request on GitHub
-* Talk to us in #hammerspoon on Freenode if you need any guidance
+* Talk to us in #hammerspoon on Libera if you need any guidance
 
 ### Writing a new mixed Lua/Objective-C extension ###
 
@@ -90,7 +90,7 @@ To create such an extension:
 * Build Hammerspoon and test your extension
 * Push your changes up to a fork on GitHub
 * Propose a Pull Request on GitHub
-* Talk to us in #hammerspoon on Freenode if you need any guidance
+* Talk to us in #hammerspoon on Libera if you need any guidance
 
 ### Documenting your extension
 

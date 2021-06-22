@@ -17,7 +17,7 @@ typedef struct _task_userdata_t {
     int selfRef;
 } task_userdata_t;
 
-static int refTable;
+static LSRefTable refTable;
 NSMutableArray *tasks;
 id fileReadObserver; // This maybe ought to be __block __weak, but that's not allowed on global variables
 
@@ -88,10 +88,15 @@ void (^writerBlock)(NSFileHandle *) = ^(NSFileHandle *stdInFH) {
         id inputData = (__bridge_transfer id)userData->inputData;
         userData->inputData = nil;
 
-        if ([inputData isKindOfClass:[NSData class]]) {
-            [stdInFH writeData:inputData];
-        } else {
-            [stdInFH writeData:[inputData dataUsingEncoding:NSUTF8StringEncoding]];
+        @try {
+            if ([inputData isKindOfClass:[NSData class]]) {
+                [stdInFH writeData:inputData];
+            } else {
+                [stdInFH writeData:[inputData dataUsingEncoding:NSUTF8StringEncoding]];
+            }
+        }
+        @catch (NSException *exception) {
+            [skin logWarn:@"Exception while writing to hs.task handle"];
         }
 
         // If we're not a streaming task, we can close the file handle now

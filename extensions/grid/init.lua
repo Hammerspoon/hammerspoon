@@ -187,17 +187,16 @@ end
 --- hs.grid.show([exitedCallback][, multipleWindows])
 --- Function
 --- Shows the grid and starts the modal interactive resizing process for the focused or frontmost window.
---- In most cases this function should be invoked via `hs.hotkey.bind` with some keyboard shortcut.
 ---
 --- Parameters:
 ---  * exitedCallback - (optional) a function that will be called after the user dismisses the modal interface
----  * multipleWindows - (optional) if `true`, the resizing grid won't automatically go away after selecting the desired cells
----    for the frontmost window; instead, it'll switch to the next window
+---  * multipleWindows - (optional) if `true`, the resizing grid won't automatically go away after selecting the desired cells for the frontmost window; instead, it'll switch to the next window
 ---
 --- Returns:
 ---  * None
 ---
 --- Notes:
+---  * In most cases this function should be invoked via `hs.hotkey.bind` with some keyboard shortcut.
 ---  * In the modal interface, press the arrow keys to jump to adjacent screens; spacebar to maximize/unmaximize; esc to quit without any effect
 ---  * Pressing `tab` or `shift-tab` in the modal interface will cycle to the next or previous window; if `multipleWindows`
 ---    is false or omitted, the first press will just enable the multiple windows behaviour
@@ -208,7 +207,6 @@ end
 --- hs.grid.hide()
 --- Function
 --- Hides the grid, if visible, and exits the modal resizing mode.
---- Call this function if you need to make sure the modal is exited without waiting for the user to press `esc`.
 ---
 --- Parameters:
 ---  * None
@@ -217,13 +215,16 @@ end
 ---  * None
 ---
 --- Notes:
+---  * Call this function if you need to make sure the modal is exited without waiting for the user to press `esc`.
 ---  * If an exit callback was provided when invoking the modal interface, calling `.hide()` will call it
 
 --- hs.grid.toggleShow([exitedCallback][, multipleWindows])
 --- Function
 --- Toggles the grid and modal resizing mode - see `hs.grid.show()` and `hs.grid.hide()`
 ---
---- Parameters: see `hs.grid.show()`
+--- Parameters:
+---  * exitedCallback - (optional) a function that will be called after the user dismisses the modal interface
+---  * multipleWindows - (optional) if `true`, the resizing grid won't automatically go away after selecting the desired cells for the frontmost window; instead, it'll switch to the next window
 ---
 --- Returns:
 ---  * None
@@ -244,10 +245,10 @@ end
 --- Gets the cell describing a window
 ---
 --- Parameters:
---- * an `hs.window` object to get the cell of
+---  * an `hs.window` object to get the cell of
 ---
 --- Returns:
---- * a cell object (i.e. an `hs.geometry` rect), or nil if an error occurred
+---  * a cell object (i.e. an `hs.geometry` rect), or nil if an error occurred
 function grid.get(win)
   local winframe = win:frame()
   local winscreen = win:screen()

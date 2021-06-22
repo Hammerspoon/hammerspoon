@@ -34,7 +34,7 @@ static int completionsForWordFn;
 
 static lua_CFunction oldPanicFunction ;
 
-static int refTable;
+static LSRefTable refTable;
 
 static void(^loghandler)(NSString* str);
 void MJLuaSetupLogHandler(void(^blk)(NSString* str)) {
@@ -114,6 +114,12 @@ static int core_consoleontop(lua_State* L) {
 /// hs.openAbout()
 /// Function
 /// Displays the OS X About panel for Hammerspoon; implicitly focuses Hammerspoon.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
 static int core_openabout(lua_State* __unused L) {
     [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
     [[NSApplication sharedApplication] orderFrontStandardAboutPanel:nil];
@@ -123,6 +129,12 @@ static int core_openabout(lua_State* __unused L) {
 /// hs.openPreferences()
 /// Function
 /// Displays the Hammerspoon Preferences panel; implicitly focuses Hammerspoon.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
 static int core_openpreferences(lua_State* __unused L) {
     [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
     [[MJPreferencesWindowController singleton] showWindow: nil];
@@ -134,7 +146,7 @@ static int core_openpreferences(lua_State* __unused L) {
 /// Function
 /// Closes the Hammerspoon Preferences window
 ///
-/// Paramters:
+/// Parameters:
 ///  * None
 ///
 /// Returns:
@@ -196,6 +208,12 @@ static int core_open(lua_State *L) {
 /// hs.reload()
 /// Function
 /// Reloads your init-file in a fresh Lua environment.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
 static int core_reload(lua_State* L) {
     dispatch_async(dispatch_get_main_queue(), ^{
         MJLuaReplace();
@@ -251,34 +269,51 @@ static int core_accessibilityState(lua_State* L) {
     return 1;
 }
 
-// SOURCE: https://stackoverflow.com/a/58786245/6925202
-bool isScreenRecordingEnabled()
+// SOURCE: https://stackoverflow.com/a/58985069
+bool isScreenRecordingEnabled(void)
 {
     if (@available(macos 10.15, *)) {
-        bool bRet = false;
-        CFArrayRef list = CGWindowListCopyWindowInfo(kCGWindowListOptionAll, kCGNullWindowID);
-        if (list) {
-            int n = (int)(CFArrayGetCount(list));
-            for (int i = 0; i < n; i++) {
-                NSDictionary* info = (NSDictionary*)(CFArrayGetValueAtIndex(list, (CFIndex)i));
-                NSString* name = info[(id)kCGWindowName];
-                NSNumber* pid = info[(id)kCGWindowOwnerPID];
-                if (pid != nil && name != nil) {
-                    int nPid = [pid intValue];
-                    char path[PROC_PIDPATHINFO_MAXSIZE+1];
-                    int lenPath = proc_pidpath(nPid, path, PROC_PIDPATHINFO_MAXSIZE);
-                    if (lenPath > 0) {
-                        path[lenPath] = 0;
-                        if (strcmp(path, "/System/Library/CoreServices/SystemUIServer.app/Contents/MacOS/SystemUIServer") == 0) {
-                            bRet = true;
-                            break;
+        BOOL canRecordScreen = YES;
+        if (@available(macOS 10.15, *)) {
+            canRecordScreen = NO;
+            NSRunningApplication *runningApplication = NSRunningApplication.currentApplication;
+            NSNumber *ourProcessIdentifier = [NSNumber numberWithInteger:runningApplication.processIdentifier];
+
+            CFArrayRef windowList = CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly, kCGNullWindowID);
+            NSUInteger numberOfWindows = CFArrayGetCount(windowList);
+            for (int index = 0; index < numberOfWindows; index++) {
+                // get information for each window
+                NSDictionary *windowInfo = (NSDictionary *)CFArrayGetValueAtIndex(windowList, index);
+                NSString *windowName = windowInfo[(id)kCGWindowName];
+                NSNumber *processIdentifier = windowInfo[(id)kCGWindowOwnerPID];
+
+                // don't check windows owned by this process
+                if (! [processIdentifier isEqual:ourProcessIdentifier]) {
+                    // get process information for each window
+                    pid_t pid = processIdentifier.intValue;
+                    NSRunningApplication *windowRunningApplication = [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
+                    if (! windowRunningApplication) {
+                        // ignore processes we don't have access to, such as WindowServer, which manages the windows named "Menubar" and "Backstop Menubar"
+                    }
+                    else {
+                        NSString *windowExecutableName = windowRunningApplication.executableURL.lastPathComponent;
+                        if (windowName) {
+                            if ([windowExecutableName isEqual:@"Dock"]) {
+                                // ignore the Dock, which provides the desktop picture
+                            }
+                            else {
+                                canRecordScreen = YES;
+                                break;
+                            }
                         }
                     }
                 }
             }
-            CFRelease(list);
+            if (windowList) {
+                CFRelease(windowList);
+            }
         }
-        return bRet;
+        return canRecordScreen;
     } else {
         return true;
     }
@@ -667,6 +702,12 @@ static int core_openConsoleOnDockClick(lua_State* L) {
 /// hs.focus()
 /// Function
 /// Makes Hammerspoon the foreground app.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
 static int core_focus(lua_State* L) {
     [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
     return 0;
@@ -807,7 +848,9 @@ static int MJLuaAtPanic(lua_State *L) {
 
 // Create a Lua environment with LuaSkin
 void MJLuaAlloc(void) {
-    MJLuaLogDelegate = [[HSLogger alloc] initWithLua:nil];
+    if (!MJLuaLogDelegate) {
+        MJLuaLogDelegate = [[HSLogger alloc] initWithLua:nil];
+    }
     LuaSkin *skin = [LuaSkin sharedWithDelegate:MJLuaLogDelegate];
     // on a reload, this won't get created in sharedWithDelegate:, so do it manually here
     if (!LuaSkin.mainLuaState) {
@@ -826,7 +869,7 @@ void MJLuaInit(void) {
     LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
     lua_State* L = skin.L;
 
-    refTable = [skin registerLibrary:corelib metaFunctions:nil];
+    refTable = [skin registerLibrary:"core" functions:corelib metaFunctions:nil];
     push_hammerAppInfo(L) ;
     lua_setfield(L, -2, "processInfo") ;
 
@@ -863,6 +906,21 @@ void MJLuaInit(void) {
         [alert setAlertStyle:NSAlertStyleCritical];
         [alert runModal];
     } else {
+        if (lua_gettop(L) != 2 || lua_type(L, -1) != LUA_TFUNCTION || lua_type(L, -2) != LUA_TFUNCTION) {
+            NSString *debugPart = [NSString stringWithFormat:@"setup.lua returned this: %d:%d:%d", lua_gettop(L), (lua_gettop(L) >= 1) ? lua_type(L, -1) : -10, (lua_gettop(L) >= 2) ? lua_type(L, -2) : -10];
+
+            NSString *errorMessage = [NSString stringWithFormat:@"setup.lua failed to return the two items it is supposed to.\nThis is a severe bug. We would really appreciate your help in getting this fixed - please relaunch Hammerspoon so a crash report can be uploaded, then contact the Hammerspoon developers via GitHub."];
+            NSAlert *alert = [[NSAlert alloc] init];
+            [alert addButtonWithTitle:@"OK"];
+            [alert setMessageText:@"Critical startup failure bug"];
+            [alert setInformativeText:errorMessage];
+            [alert setAlertStyle:NSAlertStyleCritical];
+            [alert runModal];
+
+            [skin logBreadcrumb:[NSString stringWithFormat:@"setup.lua returned incorrectly: %@", debugPart]];
+
+            // Fall through this, so we crash, so we can get the crash report
+        }
         evalfn = [skin luaRef:refTable];
         completionsForWordFn = [skin luaRef:refTable];
     }
@@ -987,10 +1045,7 @@ void MJLuaDeinit(void) {
 
     callShutdownCallback(skin.L);
 
-    if (MJLuaLogDelegate) {
-        [skin setDelegate:nil] ;
-        MJLuaLogDelegate = nil ;
-    }
+    [MJLuaLogDelegate setLuaState:nil];
 }
 
 // Destroy a Lua environment with LuaSiin
@@ -1062,7 +1117,7 @@ NSArray *MJLuaCompletionsForWord(NSString *completionWord) {
 
 // C-Code helper to return current active LuaState. Useful for callbacks to
 // verify stored LuaState still matches active one if GC fails to clear it.
-lua_State* MJGetActiveLuaState() {
+lua_State* MJGetActiveLuaState(void) {
     LuaSkin *skin = [LuaSkin sharedWithState:NULL];
   return skin.L ;
 }

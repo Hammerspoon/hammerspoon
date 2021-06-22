@@ -29,6 +29,11 @@ SentryAutoSessionTrackingIntegration ()
     }
 }
 
+- (void)uninstall
+{
+    [self stop];
+}
+
 - (void)stop
 {
     if (nil != self.tracker) {

@@ -24,7 +24,7 @@
 #include "SimplePing.h"
 
 #define USERDATA_TAG "hs.network.ping.echoRequest"
-static int refTable = LUA_NOREF;
+static LSRefTable refTable = LUA_NOREF;
 
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 // #define get_structFromUserdata(objType, L, idx, tag) ((objType *)luaL_checkudata(L, idx, tag))
@@ -250,7 +250,7 @@ static int echoRequest_new(lua_State *L) {
 
 #pragma mark - Module Methods
 
-/// hs.network.ping.echoRequest:setCallback(fn | nil) -> echoRequestObject
+/// hs.network.ping.echoRequest:setCallback(fn) -> echoRequestObject
 /// Method
 /// Set or remove the object callback function
 ///
@@ -642,7 +642,7 @@ static int pushPingableObject(lua_State *L, id obj) {
     return 1;
 }
 
-id toPingableObjectFromLua(lua_State *L, int idx) {
+static id toPingableObjectFromLua(lua_State *L, int idx) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     PingableObject *value ;
     if (luaL_testudata(L, idx, USERDATA_TAG)) {

@@ -2,7 +2,8 @@
 
 #import "SentryDefines.h"
 
-@class SentryEvent, SentrySession, SentrySdkInfo, SentryId, SentryUserFeedback;
+@class SentryEvent, SentrySession, SentrySdkInfo, SentryId, SentryUserFeedback, SentryAttachment,
+    SentryTransaction;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -48,11 +49,18 @@ SENTRY_NO_INIT
 
 - (instancetype)initWithType:(NSString *)type length:(NSUInteger)length NS_DESIGNATED_INITIALIZER;
 
+- (instancetype)initWithType:(NSString *)type
+                      length:(NSUInteger)length
+                   filenname:(NSString *)filename
+                 contentType:(NSString *)contentType;
+
 /**
  * The type of the envelope item.
  */
 @property (nonatomic, readonly, copy) NSString *type;
 @property (nonatomic, readonly) NSUInteger length;
+@property (nonatomic, readonly, copy) NSString *_Nullable filename;
+@property (nonatomic, readonly, copy) NSString *_Nullable contentType;
 
 @end
 
@@ -62,6 +70,8 @@ SENTRY_NO_INIT
 - (instancetype)initWithEvent:(SentryEvent *)event;
 - (instancetype)initWithSession:(SentrySession *)session;
 - (instancetype)initWithUserFeedback:(SentryUserFeedback *)userFeedback;
+- (_Nullable instancetype)initWithAttachment:(SentryAttachment *)attachment
+                           maxAttachmentSize:(NSUInteger)maxAttachmentSize;
 - (instancetype)initWithHeader:(SentryEnvelopeItemHeader *)header
                           data:(NSData *)data NS_DESIGNATED_INITIALIZER;
 

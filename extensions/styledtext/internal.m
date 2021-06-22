@@ -2,7 +2,7 @@
 @import LuaSkin ;
 
 #define USERDATA_TAG "hs.styledtext"
-static int refTable;
+static LSRefTable refTable;
 
 #define get_objectFromUserdata(objType, L, idx) (objType *) * ((void **)luaL_checkudata(L, idx, USERDATA_TAG))
 
@@ -1288,7 +1288,7 @@ static int string_convert(lua_State *L) {
 /// Function
 /// Loads a font from a file at the specified path.
 ///
-/// Paramaters:
+/// Parameters:
 ///  * `path` - the path and filename of the font file to attempt to load
 ///
 /// Returns:

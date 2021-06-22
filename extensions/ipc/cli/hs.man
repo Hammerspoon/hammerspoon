@@ -6,7 +6,7 @@
 .Nd Command line interface to Hammerspoon.app
 .Sh SYNOPSIS
 .Nm
-.Op Fl A
+.Op Fl A | Fl a
 .Op Fl c Ar code Op Fl c Ar ...
 .Op Fl C | Fl P
 .Op Fl i | Fl s
@@ -33,6 +33,8 @@ are implied unless stdin or stdout are redirected (i.e. not a tty).
 Autolaunch Hammerspoon if it is not already running. By default,
 .Nm
 prompts the user for confirmation.
+.It Fl a
+If Hammerspoon is not currently running, exit with EX_TEMPFAIL rather than prompt the user.
 .It Fl c Ar code
 Executes the specified code. May be specified more than once and the commands will be executed in the order given. Disables
 .Fl i
@@ -127,6 +129,10 @@ A Hammerspoon or Lua error occured when attempting to execute code in a non-inte
 There was an error reading from stdin or
 .Pa /path/file
 \&.
+.It EX_TEMPFAIL (75)
+Hammerspoon is not running and
+.Fl a
+was specified to prevent autolaunch or prompting the user.
 .It EX_UNAVAILABLE (69)
 Hammerspoon is not running, the
 .Pa hs.ipc

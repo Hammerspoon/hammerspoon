@@ -2,7 +2,7 @@
 @import LuaSkin ;
 
 static const char * const USERDATA_TAG = "hs.bonjour" ;
-static int refTable = LUA_NOREF;
+static LSRefTable refTable = LUA_NOREF;
 
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 
@@ -329,7 +329,7 @@ static int pushHSNetServiceBrowser(lua_State *L, id obj) {
     return 1;
 }
 
-id toHSNetServiceBrowserFromLua(lua_State *L, int idx) {
+static id toHSNetServiceBrowserFromLua(lua_State *L, int idx) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     HSNetServiceBrowser *value ;
     if (luaL_testudata(L, idx, USERDATA_TAG)) {

@@ -1,7 +1,11 @@
 #import "webview.h"
 
-static int            refTable = LUA_NOREF;
+static LSRefTable      refTable = LUA_NOREF;
 static NSMutableArray *identifiersInUse ;
+
+// @encode is a compiler directive which may give different answers on different architectures,
+// so instead lets capture the value with the same method we use for testing later on...
+static const char *boolEncodingType ;
 
 // Can't have "static" or "constant" dynamic NSObjects like NSArray, so define in lua_open
 static NSArray *builtinToolbarItems;
@@ -335,7 +339,7 @@ static NSMenu *createCoreSearchFieldMenu() {
     // need to take care of this first in case we need to create the searchfield view for later items...
     id keyValue = itemDefinition[@"searchfield"] ;
     if (keyValue) {
-        if ([keyValue isKindOfClass:[NSNumber class]] && !strcmp(@encode(BOOL), [keyValue objCType])) {
+        if ([keyValue isKindOfClass:[NSNumber class]] && !strcmp(boolEncodingType, [keyValue objCType])) {
             if ([keyValue boolValue]) {
                 if (![itemView isKindOfClass:[HSToolbarSearchField class]]) {
                     if (!itemView) {
@@ -371,7 +375,7 @@ static NSMenu *createCoreSearchFieldMenu() {
 
     keyValue = itemDefinition[@"searchPredefinedMenuTitle"] ;
     if (keyValue) {
-        if ([keyValue isKindOfClass:[NSString class]] || ([keyValue isKindOfClass:[NSNumber class]] && !strcmp(@encode(BOOL), [keyValue objCType]))) {
+        if ([keyValue isKindOfClass:[NSString class]] || ([keyValue isKindOfClass:[NSNumber class]] && !strcmp(boolEncodingType, [keyValue objCType]))) {
         // make sure searchPredefinedSearches is in this dictionary since we need to recreate it anyways
             if ((itemDefinition != _itemDefDictionary[identifier]) && !itemDefinition[@"searchPredefinedSearches"]) {
                 itemDefinition[@"searchPredefinedSearches"] = _itemDefDictionary[identifier][@"searchPredefinedSearches"] ;
@@ -386,7 +390,7 @@ static NSMenu *createCoreSearchFieldMenu() {
         keyValue = itemDefinition[keyName] ;
 
         if ([keyName isEqualToString:@"enable"]) {
-            if ([keyValue isKindOfClass:[NSNumber class]] && !strcmp(@encode(BOOL), [keyValue objCType])) {
+            if ([keyValue isKindOfClass:[NSNumber class]] && !strcmp(boolEncodingType, [keyValue objCType])) {
                 _enabledDictionary[identifier] = itemDefinition[keyName] ;
             } else {
                 [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be a boolean", USERDATA_TB_TAG, keyName, identifier]] ;
@@ -545,7 +549,7 @@ static NSMenu *createCoreSearchFieldMenu() {
                 [itemDefinition removeObjectForKey:keyName] ;
             }
         } else if ([keyName isEqualToString:@"searchReleaseFocusOnCallback"] && [itemView isKindOfClass:[HSToolbarSearchField class]]) {
-            if ([keyValue isKindOfClass:[NSNumber class]] && !strcmp(@encode(BOOL), [keyValue objCType])) {
+            if ([keyValue isKindOfClass:[NSNumber class]] && !strcmp(boolEncodingType, [keyValue objCType])) {
                 itemView.releaseOnCallback = [keyValue boolValue] ;
             } else {
                 [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be a boolean", USERDATA_TB_TAG, keyName, identifier]] ;
@@ -585,7 +589,7 @@ static NSMenu *createCoreSearchFieldMenu() {
                     id checkForTitle = itemDefinition[@"searchPredefinedMenuTitle"] ? itemDefinition[@"searchPredefinedMenuTitle"] : _itemDefDictionary[identifier][@"searchPredefinedMenuTitle"] ;
 
                     if (checkForTitle) {
-                        if ([checkForTitle isKindOfClass:[NSNumber class]] && !strcmp(@encode(BOOL), [checkForTitle objCType])) {
+                        if ([checkForTitle isKindOfClass:[NSNumber class]] && !strcmp(boolEncodingType, [checkForTitle objCType])) {
                             if (![checkForTitle boolValue]) {
                                 menuName = nil ;
                             }
@@ -852,10 +856,12 @@ static int uniqueName(lua_State *L) {
 /// Get or attach/detach a toolbar to the webview, chooser, or console.
 ///
 /// Parameters:
-///  * if no arguments are present, this function returns the current toolbarObject for the Hammerspoon console, or nil if one is not attached.
-///  * if one argument is provided and it is a toolbarObject or nil, this function will attach or detach a toolbarObject to/from the Hammerspoon console.
-///  * if one argument is provided and it is an hs.webview or hs.chooser object, this function will return the current toolbarObject for the object, or nil if one is not attached.
-///  * if two arguments are provided and the first is an hs.webview or hs.chooser object and the second is a toolbarObject or nil, this function will attach or detach a toolbarObject to/from the object.
+///  * obj1 - An optional toolbarObject
+///  * obj2 - An optional toolbarObject
+///   * if no arguments are present, this function returns the current toolbarObject for the Hammerspoon console, or nil if one is not attached.
+///   * if one argument is provided and it is a toolbarObject or nil, this function will attach or detach a toolbarObject to/from the Hammerspoon console.
+///   * if one argument is provided and it is an hs.webview or hs.chooser object, this function will return the current toolbarObject for the object, or nil if one is not attached.
+///   * if two arguments are provided and the first is an hs.webview or hs.chooser object and the second is a toolbarObject or nil, this function will attach or detach a toolbarObject to/from the object.
 ///
 /// Returns:
 ///  * if the function is used to attach/detach a toolbar, then the first object provided (the target) will be returned ; if this function is used to get the current toolbar object for a webview, chooser, or console, then the toolbarObject or nil will be returned.
@@ -1038,7 +1044,7 @@ static int copyToolbar(lua_State *L) {
     return 1 ;
 }
 
-/// hs.webview.toolbar:setCallback(fn | nil) -> toolbarObject
+/// hs.webview.toolbar:setCallback(fn) -> toolbarObject
 /// Method
 /// Sets or removes the global callback function for the toolbar.
 ///
@@ -2066,6 +2072,9 @@ int luaopen_hs_webview_toolbar_internal(lua_State* L) {
                                      functions:moduleLib
                                  metaFunctions:module_metaLib
                                objectFunctions:userdata_metaLib];
+
+    // see comment at top re @encode
+    boolEncodingType = [@(YES) objCType] ;
 
     builtinToolbarItems = @[
                               NSToolbarSpaceItemIdentifier,

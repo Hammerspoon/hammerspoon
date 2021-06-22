@@ -18,7 +18,7 @@
 
 #import "common.h"
 
-static int refTable = LUA_NOREF ;
+static LSRefTable refTable = LUA_NOREF ;
 
 #pragma mark - Support Functions
 
@@ -168,7 +168,7 @@ static int axtextmarker_AXTextMarkerRangeGetTypeID(lua_State *L) {
 /// Function
 /// Returns a table of the AXTextMarker and AXTextMarkerRange functions that have been discovered and are used within this module.
 ///
-/// Paramters:
+/// Parameters:
 ///  * None
 ///
 /// Returns:
@@ -200,7 +200,7 @@ static int axtextmarker_availabilityCheck(lua_State *L) {
 /// Function
 /// Returns a string containing the opaque binary data contained within the axTextMarkerObject
 ///
-/// Paramters:
+/// Parameters:
 ///  * None
 ///
 /// Returns:
@@ -234,7 +234,7 @@ static int axtextmarker_markerBytes(lua_State *L) {
 /// Function
 /// Returns an integer specifying the number of bytes in the data portion of the axTextMarkerObject.
 ///
-/// Paramters:
+/// Parameters:
 ///  * None
 ///
 /// Returns:
@@ -261,7 +261,7 @@ static int axtextmarker_markerLength(lua_State *L) {
 /// Function
 /// Returns the starting marker for an axTextMarkerRangeObject
 ///
-/// Paramters:
+/// Parameters:
 ///  * None
 ///
 /// Returns:
@@ -293,7 +293,7 @@ static int axtextmarker_rangeStartMarker(lua_State *L) {
 /// Function
 /// Returns the ending marker for an axTextMarkerRangeObject
 ///
-/// Paramters:
+/// Parameters:
 ///  * None
 ///
 /// Returns:

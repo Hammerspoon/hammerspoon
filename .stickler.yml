@@ -1,5 +1,6 @@
 linters:
     flake8:
+        config: '.flake8rc'
     shellcheck:
         shell: bash
     luacheck:

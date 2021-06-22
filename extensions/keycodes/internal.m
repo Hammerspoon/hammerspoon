@@ -3,7 +3,7 @@
 @import LuaSkin ;
 
 static char *USERDATA_TAG  = "hs.keycodes.callback" ;
-static int refTable;
+static LSRefTable refTable;
 
 static void pushkeycode(lua_State* L, int code, const char* key) {
     // t[key] = code
@@ -192,6 +192,7 @@ int keycodes_cachemap(lua_State* L) {
 
 @interface MJKeycodesObserver : NSObject
 @property int ref;
+@property LSGCCanary lsCanary;
 @end
 
 @implementation MJKeycodesObserver
@@ -204,25 +205,24 @@ int keycodes_cachemap(lua_State* L) {
     return self ;
 }
 
-- (void) _inputSourceChanged:(NSNotification*)__unused note {
-    [self performSelectorOnMainThread:@selector(inputSourceChanged:)
-                                       withObject:nil
-                                    waitUntilDone:YES];
-}
-
 - (void) inputSourceChanged:(NSNotification*)__unused note {
-    if (self.ref != LUA_NOREF) {
-        LuaSkin *skin = [LuaSkin sharedWithState:NULL];
-        _lua_stackguard_entry(skin.L);
-        [skin pushLuaRef:refTable ref:self.ref];
-        [skin protectedCallAndError:@"hs.keycodes.inputSourceChanged" nargs:0 nresults:0];
-        _lua_stackguard_exit(skin.L);
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.ref != LUA_NOREF) {
+            LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+            if (![skin checkGCCanary:self.lsCanary]) {
+                return;
+            }
+            _lua_stackguard_entry(skin.L);
+            [skin pushLuaRef:refTable ref:self.ref];
+            [skin protectedCallAndError:@"hs.keycodes.inputSourceChanged" nargs:0 nresults:0];
+            _lua_stackguard_exit(skin.L);
+        }
+    });
 }
 
 - (void) start {
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(_inputSourceChanged:)
+                                             selector:@selector(inputSourceChanged:)
                                                  name:NSTextInputContextKeyboardSelectionDidChangeNotification
                                                object:nil];
     /* This should have made things better, but it seems to cause crashes for some, possibly because the paired removeObserver call is wrong?
@@ -257,6 +257,7 @@ static int keycodes_newcallback(lua_State* L) {
 
     MJKeycodesObserver* observer = [[MJKeycodesObserver alloc] init];
     observer.ref = ref;
+    observer.lsCanary = [skin createGCCanary];
     [observer start];
 
     void** ud = lua_newuserdata(L, sizeof(id));
@@ -277,6 +278,11 @@ static int keycodes_callback_gc(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     MJKeycodesObserver* observer = (__bridge_transfer MJKeycodesObserver*)*(void**)luaL_checkudata(L, 1, USERDATA_TAG);
+
+    LSGCCanary tmplsCanary = observer.lsCanary;
+    [skin destroyGCCanary:&tmplsCanary];
+    observer.lsCanary = tmplsCanary;
+
     [observer stop];
 
     observer.ref = [skin luaUnref:refTable ref:observer.ref];
@@ -304,7 +310,7 @@ void pushSourceIcon(lua_State *L, TISInputSourceRef source) {
     }
 }
 
-CFArrayRef getAllLayouts() {
+CFArrayRef getAllLayouts(void) {
     NSDictionary *properties = @{
                                  (__bridge NSString *)kTISPropertyInputSourceType : (__bridge NSString *)kTISTypeKeyboardLayout,
                                  (__bridge NSString *)kTISPropertyInputSourceIsSelectCapable: @true
@@ -312,7 +318,7 @@ CFArrayRef getAllLayouts() {
     return TISCreateInputSourceList((__bridge CFDictionaryRef)properties, false);
 }
 
-CFArrayRef getAllInputMethods() {
+CFArrayRef getAllInputMethods(void) {
     NSDictionary *properties = @{
                                  (__bridge NSString *)kTISPropertyInputSourceType : (__bridge NSString *)kTISTypeKeyboardInputMode,
                                  (__bridge NSString *)kTISPropertyInputSourceIsSelectCapable: @true

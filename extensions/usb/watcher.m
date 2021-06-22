@@ -13,7 +13,7 @@
 // Common Code
 
 #define USERDATA_TAG    "hs.usb.watcher"
-static int refTable;
+static LSRefTable refTable;
 
 // Not so common code
 
@@ -25,6 +25,7 @@ typedef struct _usbwatcher_t {
     IONotificationPortRef gNotifyPort;
     io_iterator_t gAddedIter;
     CFRunLoopSourceRef runLoopSource;
+    LSGCCanary lsCanary;
 } usbwatcher_t;
 
 // private data for each USB device
@@ -45,6 +46,9 @@ void DeviceNotification(void *refCon, io_service_t service __unused, natural_t m
     if (messageType == kIOMessageServiceIsTerminated) {
         LuaSkin *skin = [LuaSkin sharedWithState:NULL];
         lua_State *L = skin.L;
+        if (![skin checkGCCanary:watcher->lsCanary]) {
+            return;
+        }
         _lua_stackguard_entry(L);
 
         [skin pushLuaRef:refTable ref:watcher->fn];
@@ -71,10 +75,21 @@ void DeviceNotification(void *refCon, io_service_t service __unused, natural_t m
         [skin protectedCallAndError:@"hs.usb.watcher:removed callback" nargs:1 nresults:0];
 
         // Free the USB private data
-        IOObjectRelease(privateDataRef->notification);
-        free(privateDataRef->productName);
-        free(privateDataRef->vendorName);
-        free(privateDataRef);
+        if (privateDataRef) {
+            IOObjectRelease(privateDataRef->notification);
+        }
+        if (privateDataRef->productName) {
+            free(privateDataRef->productName);
+            privateDataRef->productName = NULL;
+        }
+        if (privateDataRef->vendorName) {
+            free(privateDataRef->vendorName);
+            privateDataRef->vendorName = NULL;
+        }
+        if (privateDataRef) {
+            free(privateDataRef);
+            privateDataRef = NULL;
+        }
         _lua_stackguard_exit(L);
     }
 }
@@ -133,7 +148,7 @@ void DeviceAdded(void *refCon, io_iterator_t iterator) {
         IOObjectRelease(usbDevice);
 
         // We don't want to trigger callbacks for every device attached before the watcher starts, but we needed to enumerate them to get private device data cached
-        if (!watcher->isFirstRun) {
+        if (!watcher->isFirstRun && watcher->fn != LUA_REFNIL && watcher->fn != LUA_NOREF) {
             [skin pushLuaRef:refTable ref:watcher->fn];
 
             lua_newtable(L);
@@ -186,6 +201,7 @@ static int usb_watcher_new(lua_State* L) {
     usbwatcher->running = NO;
     usbwatcher->gNotifyPort = IONotificationPortCreate(kIOMasterPortDefault);
     usbwatcher->runLoopSource = IONotificationPortGetRunLoopSource(usbwatcher->gNotifyPort);
+    usbwatcher->lsCanary = [skin createGCCanary];
 
     luaL_getmetatable(L, USERDATA_TAG);
     lua_setmetatable(L, -2);
@@ -262,6 +278,7 @@ static int usb_watcher_gc(lua_State* L) {
     lua_pushcfunction(L, usb_watcher_stop) ; lua_pushvalue(L,1); lua_call(L, 1, 1);
 
     usbwatcher->fn = [skin luaUnref:refTable ref:usbwatcher->fn];
+    [skin destroyGCCanary:&(usbwatcher->lsCanary)];
 
     IONotificationPortDestroy(usbwatcher->gNotifyPort);
 

@@ -5,7 +5,7 @@ static const char       *USERDATA_TAG = "hs.spotlight" ;
 static const char       *ITEM_UD_TAG  = "hs.spotlight.item" ;
 static const char       *GROUP_UD_TAG = "hs.spotlight.group" ;
 
-static int              refTable = LUA_NOREF;
+static LSRefTable        refTable = LUA_NOREF;
 static NSOperationQueue *moduleSearchQueue ;
 
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
@@ -195,7 +195,7 @@ static int spotlight_searchScopes(lua_State *L) {
     return 1 ;
 }
 
-/// hs.spotlight:setCallback(fn | nil) -> spotlightObject
+/// hs.spotlight:setCallback(fn) -> spotlightObject
 /// Method
 /// Set or remove the callback function for the Spotlight search object.
 ///

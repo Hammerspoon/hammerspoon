@@ -15,7 +15,7 @@
 #include "plaintext.h"
 #include "houdini.h"
 
-static int refTable = LUA_NOREF;
+static LSRefTable refTable = LUA_NOREF;
 
 typedef enum {
     GFM,
@@ -247,7 +247,7 @@ static luaL_Reg moduleLib[] = {
 
 int luaopen_hs_doc_markdown(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
-    refTable = [skin registerLibrary:moduleLib metaFunctions:nil] ;
+    refTable = [skin registerLibrary:"hs.doc.markdown" functions:moduleLib metaFunctions:nil] ;
 
     ghmd__init_md();
     ghmd__init_gfm();

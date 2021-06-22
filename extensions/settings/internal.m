@@ -4,7 +4,7 @@
 // establish a unique context for identifying our observers
 //static const char * const USERDATA_TAG = "hs.settings" ;
 static void *myKVOContext = &myKVOContext ; // See http://nshipster.com/key-value-observing/
-static int refTable = LUA_NOREF ;
+static LSRefTable refTable = LUA_NOREF ;
 
 @interface HSUserDefaultKVOWatcher : NSObject ;
 @property NSMutableDictionary *watchedKeys ;
@@ -27,16 +27,18 @@ static int refTable = LUA_NOREF ;
     
 //     [LuaSkin logWarn:[NSString stringWithFormat:@"in observeValueForKeyPath for %@ with %@", keyPath, change]] ;
     if (context == myKVOContext && _watchedKeys && _watchedKeys[keyPath]) {
-        NSMutableDictionary *fnCallbacks = _watchedKeys[keyPath] ;
-//         [LuaSkin logWarn:[NSString stringWithFormat:@"in callback for %@ with %@", keyPath, fnCallbacks]] ;
-        LuaSkin   *skin = [LuaSkin sharedWithState:NULL] ;
-        _lua_stackguard_entry(skin.L);
-        [fnCallbacks enumerateKeysAndObjectsUsingBlock:^(NSString *watcherID, NSNumber *refN, __unused BOOL *stop) {
-            [skin pushLuaRef:refTable ref:refN.intValue] ;
-            [skin pushNSObject:keyPath] ;
-            [skin protectedCallAndError:[NSString stringWithFormat:@"hs.settings:watcher %@ callback", watcherID] nargs:1 nresults:0];
-        }] ;
-        _lua_stackguard_exit(skin.L);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSMutableDictionary *fnCallbacks = self->_watchedKeys[keyPath] ;
+            //         [LuaSkin logWarn:[NSString stringWithFormat:@"in callback for %@ with %@", keyPath, fnCallbacks]] ;
+            LuaSkin   *skin = [LuaSkin sharedWithState:NULL] ;
+            _lua_stackguard_entry(skin.L);
+            [fnCallbacks enumerateKeysAndObjectsUsingBlock:^(NSString *watcherID, NSNumber *refN, __unused BOOL *stop) {
+                [skin pushLuaRef:refTable ref:refN.intValue] ;
+                [skin pushNSObject:keyPath] ;
+                [skin protectedCallAndError:[NSString stringWithFormat:@"hs.settings:watcher %@ callback", watcherID] nargs:1 nresults:0];
+            }] ;
+            _lua_stackguard_exit(skin.L);
+        });
     }
 }
 
@@ -56,12 +58,12 @@ static HSUserDefaultKVOWatcher *watcherManager ;
 ///    * boolean
 ///    * nil
 ///    * table (which may contain any of the same valid datatypes)
-///  * if no value is provided, it is assumed to be nil
 ///
 /// Returns:
 ///  * None
 ///
 /// Notes:
+///  * If no val parameter is provided, it is assumed to be nil
 ///  * This function cannot set dates or raw data types, see `hs.settings.setDate()` and `hs.settings.setData()`
 ///  * Assigning a nil value is equivalent to clearing the value with `hs.settings.clear`
 static int target_set(lua_State* L) {
@@ -225,7 +227,7 @@ static int target_getKeys(lua_State* L) {
     return 1;
 }
 
-/// hs.settings.watchKey(identifier, key, [fn | nil]) -> identifier | current value
+/// hs.settings.watchKey(identifier, key, [fn]) -> identifier | current value
 /// Function
 /// Get or set a watcher to invoke a callback when the specified settings key changes
 ///
@@ -312,7 +314,7 @@ static const luaL_Reg module_metaLib[] = {
 
 int luaopen_hs_settings_internal(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    refTable = [skin registerLibrary:settingslib metaFunctions:module_metaLib];
+    refTable = [skin registerLibrary:"hs.settings" functions:settingslib metaFunctions:module_metaLib];
 
     watcherManager = [[HSUserDefaultKVOWatcher alloc] init] ;
 

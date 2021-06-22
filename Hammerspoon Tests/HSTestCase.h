@@ -13,12 +13,14 @@
 #define RUN_LUA_TEST() XCTAssertTrue([self luaTestFromSelector:_cmd], @"Test failed: %@", NSStringFromSelector(_cmd));
 #define RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(timeout) [self twoPartTestName:_cmd withTimeout:timeout];
 
-#define SKIP_IN_TRAVIS() if(self.isTravis) { NSLog(@"Skipping %@ due to Travis", NSStringFromSelector(_cmd)) ; return; }
-#define SKIP_IN_XCODE_SERVER() if(self.isXcodeServer) { NSLog(@"Skipping %@ due to Xcode Server", NSStringFromSelector(_cmd)) ; return; }
+#define SKIP_IN_TRAVIS() if(self.isTravis) { NSLog(@"Skipping %@ due to Travis", NSStringFromSelector(_cmd)) ; XCTSkip("Test is unreliable in Travis"); }
+#define SKIP_IN_XCODE_SERVER() if(self.isXcodeServer) { NSLog(@"Skipping %@ due to Xcode Server", NSStringFromSelector(_cmd)) ; XCTSkip("Test is unreliable in Xcode Server"); }
+#define SKIP_IN_GITHUB_ACTIONS() if(self.isGitHubActions) { NSLog(@"Skipping %@ due to GitHub Actions", NSStringFromSelector(_cmd)) ; XCTSkip("Test is unreliable in GitHub Actions"); }
 
 @interface HSTestCase : XCTestCase
 @property (nonatomic) BOOL isTravis;
 @property (nonatomic) BOOL isXcodeServer;
+@property (nonatomic) BOOL isGitHubActions;
 
 /**
  Sets up the testing environment and loads a Lua file with require()

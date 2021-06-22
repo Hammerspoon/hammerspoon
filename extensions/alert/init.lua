@@ -30,6 +30,7 @@ module._visibleAlerts = {}
 ---    * textFont    - a string specifying the font to be used for the alert text, defaults to ".AppleSystemUIFont" which is a symbolic name representing the systems default user interface font.
 ---    * textSize    - a number specifying the font size to be used for the alert text, defaults to 27.
 ---    * textStyle   - an optional table, defaults to `nil`, specifying that a string message should be converted to an `hs.styledtext` object using the style elements specified in this table.  This table should conform to the key-value pairs as described in the documentation for the `hs.styledtext` module.  If this table does not contain a `font` key-value pair, one will be constructed from the `textFont` and `textSize` keys (or their defaults); likewise, if this table does not contain a `color` key-value pair, one will be constructed from the `textColor` key (or its default).
+---    * padding     - the number of pixels to reserve around each side of the text and/or image, defaults to textSize/2
 ---    * atScreenEdge   - 0: screen center (default); 1: top edge; 2: bottom edge . Note when atScreenEdge>0, the latest alert will overlay above the previous ones if multiple alerts visible on same edge; and when atScreenEdge=0, latest alert will show below previous visible ones without overlap.
 ---    * fadeInDuration  - a number in seconds specifying the fade in duration of the alert, defaults to 0.15
 ---    * fadeOutDuration - a number in seconds specifying the fade out duration of the alert, defaults to 0.15
@@ -46,6 +47,7 @@ module.defaultStyle = {
     atScreenEdge = 0,
     fadeInDuration = 0.15,
     fadeOutDuration = 0.15,
+    padding = nil,
 }
 
 local purgeAlert = function(UUID, duration)
@@ -70,7 +72,7 @@ local purgeAlert = function(UUID, duration)
     end
 end
 
-local showAlert = function(message, style, screenObj, duration)
+local showAlert = function(message, image, style, screenObj, duration)
     local thisAlertStyle = {}
     for k,v in pairs(module.defaultStyle) do thisAlertStyle[k] = v end
     if type(style) == "table" then
@@ -124,26 +126,41 @@ local showAlert = function(message, style, screenObj, duration)
     local UUID = uuid()
     alertEntry.UUID = UUID
 
+    local padding = thisAlertStyle.padding or textSize/2
     local strokeWidth = thisAlertStyle.strokeWidth -- strokeWidth should be used to adjust position and padding.
-    local textFrame = drawing.getTextDrawingSize(message, { font = textFont, size = textSize })
-    textFrame.w = math.ceil(textFrame.w) -- drawing.getTextDrawingSize may return a float value, and use it directly could cause some display problem, the last character of a line may disappear.
+
+    -- If no message is specified, don't reserve space for it
+    local textFrame
+    if message == "" then
+        textFrame = {h = 0, w = 0}
+    else
+        textFrame = drawing.getTextDrawingSize(message, { font = textFont, size = textSize })
+        textFrame.w = math.ceil(textFrame.w) -- drawing.getTextDrawingSize may return a float value, and use it directly could cause some display problem, the last character of a line may disappear.
+    end
+
+    -- Define the size of the drawing frame
     local drawingFrame = {
--- approximates, but it scales a *little* better than hard coded numbers for differing sizes...
---         x = screenFrame.x + (screenFrame.w - (textFrame.w + 26)) / 2,
-        x = screenFrame.x + (screenFrame.w - (textFrame.w + textSize  + strokeWidth)) / 2,
-        y = absoluteTop,
---         h = textFrame.h + 24,
---         w = textFrame.w + 26,
-        h = textFrame.h + textSize + strokeWidth,
-        w = textFrame.w + textSize + strokeWidth,
+        h = textFrame.h + padding * 2 + strokeWidth,
+        w = textFrame.w + padding * 2 + strokeWidth,
     }
+    if image then
+        -- Increase the size to make room for the image
+        drawingFrame.w = drawingFrame.w + image:size().w
+        drawingFrame.h = math.max(drawingFrame.h, image:size().h + padding * 2 + strokeWidth)
+        if message ~= "" then
+          --Add space for padding between the image and the message
+          drawingFrame.w = drawingFrame.w + padding
+        end
+    end
+
+    -- Use the size to set the position
+    drawingFrame.x = screenFrame.x + (screenFrame.w - drawingFrame.w) / 2
+
     if thisAlertStyle.atScreenEdge == 2 then
         drawingFrame.y = screenFrame.y + screenFrame.h - drawingFrame.h
+    else
+        drawingFrame.y = absoluteTop
     end
---     textFrame.x = drawingFrame.x + 13
---     textFrame.y = drawingFrame.y + 12
-    textFrame.x = drawingFrame.x + (drawingFrame.w - textFrame.w) / 2
-    textFrame.y = drawingFrame.y + (drawingFrame.h - textFrame.h) / 2
 
     table.insert(alertEntry.drawings, drawing.rectangle(drawingFrame)
                                             :setStroke(true)
@@ -154,6 +171,31 @@ local showAlert = function(message, style, screenObj, duration)
                                             :setRoundedRectRadii(thisAlertStyle.radius, thisAlertStyle.radius)
                                             :show(thisAlertStyle.fadeInDuration)
     )
+
+    -- Constraints for placing the text
+    local textMinX = drawingFrame.x
+    local textMaxWidth = drawingFrame.w
+
+    if image then
+        local iconFrame = {
+          x = drawingFrame.x + padding + strokeWidth / 2,
+          y = drawingFrame.y + (drawingFrame.h - image:size().h) / 2,
+          h = image:size().h,
+          w = image:size().w
+        }
+        table.insert(alertEntry.drawings, drawing.image(iconFrame, image)
+                                                :orderAbove(alertEntry.drawings[1])
+                                                :show(thisAlertStyle.fadeInDuration)
+        )
+
+        -- Shrink the space the text can draw in to account for the image
+        textMinX = textMinX + iconFrame.w + padding
+        textMaxWidth = textMaxWidth - iconFrame.w - padding
+    end
+
+    -- Draw the text in the center of the remaining space
+    textFrame.x = textMinX + (textMaxWidth - textFrame.w) / 2
+    textFrame.y = drawingFrame.y + (drawingFrame.h - textFrame.h) / 2
     table.insert(alertEntry.drawings, drawing.text(textFrame, message)
                                             :setTextFont(textFont)
                                             :setTextSize(textSize)
@@ -172,14 +214,13 @@ local showAlert = function(message, style, screenObj, duration)
     return UUID
 end
 
---- hs.alert.show(str, [style], [screen], [seconds]) -> uuid
+--- hs.alert.showWithImage(str, image, [style], [screen], [seconds]) -> uuid
 --- Function
---- Shows a message in large words briefly in the middle of the screen; does tostring() on its argument for convenience.
----
---- NOTE: For convenience, you can call this function as `hs.alert(...)`
+--- Shows an image and a message in large words briefly in the middle of the screen; does tostring() on its argument for convenience.
 ---
 --- Parameters:
 ---  * str     - The string or `hs.styledtext` object to display in the alert
+---  * image   - The image to display in the alert
 ---  * style   - an optional table containing one or more of the keys specified in [hs.alert.defaultStyle](#defaultStyle).  If `str` is already an `hs.styledtext` object, this argument is ignored.
 ---  * screen  - an optional `hs.screen` userdata object specifying the screen (monitor) to display the alert on.  Defaults to `hs.screen.mainScreen()` which corresponds to the screen with the currently focused window.
 ---  * seconds - The number of seconds to display the alert. Defaults to 2.  If seconds is specified and is not a number, displays the alert indefinately.
@@ -195,7 +236,7 @@ end
 ---    * if all of these conditions fail for a given argument, then an error is returned
 ---  * The reason for this logic is to support the creation of persistent alerts as was previously handled by the module: If you specify a non-number value for `seconds` you will need to store the string identifier returned by this function so that you can close it manually with `hs.alert.closeSpecific` when the alert should be removed.
 ---  * Any style element which is not specified in the `style` argument table will use the value currently defined in the [hs.alert.defaultStyle](#defaultStyle) table.
-module.show = function(message, ...)
+module.showWithImage = function(message, image, ...)
     local style, screenObj, duration
     for i,v in ipairs(table.pack(...)) do
         if type(v) == "table" and not style then
@@ -213,8 +254,29 @@ module.show = function(message, ...)
     end
     duration  = duration or 2.0
     screenObj = screenObj or screen.mainScreen()
-    return showAlert(message, style, screenObj, duration)
+    return showAlert(message, image, style, screenObj, duration)
 end
+
+--- hs.alert.show(str, [style], [screen], [seconds]) -> uuid
+--- Function
+--- Shows a message in large words briefly in the middle of the screen; does tostring() on its argument for convenience.
+---
+--- Parameters:
+---  * str     - The string or `hs.styledtext` object to display in the alert
+---  * style   - an optional table containing one or more of the keys specified in [hs.alert.defaultStyle](#defaultStyle).  If `str` is already an `hs.styledtext` object, this argument is ignored.
+---  * screen  - an optional `hs.screen` userdata object specifying the screen (monitor) to display the alert on.  Defaults to `hs.screen.mainScreen()` which corresponds to the screen with the currently focused window.
+---  * seconds - The number of seconds to display the alert. Defaults to 2.  If seconds is specified and is not a number, displays the alert indefinately.
+---
+--- Returns:
+---  * a string identifier for the alert.
+---
+--- Notes:
+---  * For convenience, you can call this function as `hs.alert(...)`
+---  * This function effectively calls `hs.alert.showWithImage(msg, nil, ...)`. As such, all the same rules apply regarding argument processing
+module.show = function(message, ...)
+    return module.showWithImage(message, nil, ...)
+end
+
 
 --- hs.alert.closeAll([seconds])
 --- Function

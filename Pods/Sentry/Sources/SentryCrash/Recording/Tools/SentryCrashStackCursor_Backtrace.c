@@ -31,6 +31,11 @@
 static bool
 advanceCursor(SentryCrashStackCursor *cursor)
 {
+    sentrycrash_async_backtrace_t *async_caller = cursor->state.current_async_caller;
+    if (async_caller) {
+        return sentrycrashsc_advanceAsyncCursor(cursor);
+    }
+
     SentryCrashStackCursor_Backtrace_Context *context
         = (SentryCrashStackCursor_Backtrace_Context *)cursor->context;
     int endDepth = context->backtraceLength - context->skippedEntries;
@@ -45,7 +50,7 @@ advanceCursor(SentryCrashStackCursor *cursor)
             return true;
         }
     }
-    return false;
+    return sentrycrashsc_tryAsyncChain(cursor, cursor->async_caller);
 }
 
 void

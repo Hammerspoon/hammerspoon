@@ -17,6 +17,9 @@ module.capslock = {}
 --- Function
 --- Checks the state of the caps lock via HID
 ---
+--- Parameters:
+---  * None
+---
 --- Returns:
 ---  * true if on, false if off
 module.capslock.get = function()
@@ -26,6 +29,9 @@ end
 --- hs.hid.capslock.toggle() -> bool
 --- Function
 --- Toggles the state of caps lock via HID
+---
+--- Parameters:
+---  * None
 ---
 --- Returns:
 ---  * true if on, false if off
@@ -60,8 +66,6 @@ module.led = {}
 --- hs.hid.led.set(name, state) -> bool
 --- Function
 --- Assigns HID LED to the desired state
---- Note that this function controls the LED state only,
---- to modify capslock state, use hs.hid.capslock.set
 ---
 --- Parameters:
 ---  * name  - LED name: "caps", "scroll" or "num"
@@ -69,6 +73,9 @@ module.led = {}
 ---
 --- Returns:
 ---  * true if success, false if error
+---
+--- Notes:
+---  * This function controls the LED state only, to modify capslock state, use hs.hid.capslock.set
 module.led.set = function(name, state)
     return module._led_set(name, state)
 end

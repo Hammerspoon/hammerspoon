@@ -54,21 +54,46 @@ SentryHttpTransport ()
     return self;
 }
 
-- (void)sendEvent:(SentryEvent *)event
+- (void)sendEvent:(SentryEvent *)event attachments:(NSArray<SentryAttachment *> *)attachments
 {
-    SentryEnvelope *eventEnvelope = [[SentryEnvelope alloc] initWithEvent:event];
-    [self sendEnvelope:eventEnvelope];
+    NSMutableArray<SentryEnvelopeItem *> *items = [self buildEnvelopeItems:event
+                                                               attachments:attachments];
+    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithId:event.eventId items:items];
+
+    [self sendEnvelope:envelope];
 }
 
-- (void)sendEvent:(SentryEvent *)event withSession:(SentrySession *)session
+- (void)sendEvent:(SentryEvent *)event
+      withSession:(SentrySession *)session
+      attachments:(NSArray<SentryAttachment *> *)attachments
 {
-    NSMutableArray<SentryEnvelopeItem *> *items = [NSMutableArray new];
+    NSMutableArray<SentryEnvelopeItem *> *items = [self buildEnvelopeItems:event
+                                                               attachments:attachments];
     [items addObject:[[SentryEnvelopeItem alloc] initWithSession:session]];
-    [items addObject:[[SentryEnvelopeItem alloc] initWithEvent:event]];
 
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithId:event.eventId items:items];
 
     [self sendEnvelope:envelope];
+}
+
+- (NSMutableArray<SentryEnvelopeItem *> *)buildEnvelopeItems:(SentryEvent *)event
+                                                 attachments:
+                                                     (NSArray<SentryAttachment *> *)attachments
+{
+    NSMutableArray<SentryEnvelopeItem *> *items = [NSMutableArray new];
+    [items addObject:[[SentryEnvelopeItem alloc] initWithEvent:event]];
+
+    for (SentryAttachment *attachment in attachments) {
+        SentryEnvelopeItem *item =
+            [[SentryEnvelopeItem alloc] initWithAttachment:attachment
+                                         maxAttachmentSize:self.options.maxAttachmentSize];
+        // The item is nil, when creating the envelopeItem failed.
+        if (nil != item) {
+            [items addObject:item];
+        }
+    }
+
+    return items;
 }
 
 - (void)sendUserFeedback:(SentryUserFeedback *)userFeedback
@@ -83,7 +108,7 @@ SentryHttpTransport ()
 
     if (envelope.items.count == 0) {
         [SentryLog logWithMessage:@"RateLimit is active for all envelope items."
-                         andLevel:kSentryLogLevelDebug];
+                         andLevel:kSentryLevelDebug];
         return;
     }
 
@@ -143,7 +168,6 @@ SentryHttpTransport ()
     [self.fileManager removeFileAtPath:envelopePath];
     self.isSending = NO;
     [self sendAllCachedEnvelopes];
-    return;
 }
 
 - (NSURLRequest *)createEnvelopeRequest:(SentryEnvelope *)envelope

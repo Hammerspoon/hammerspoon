@@ -28,17 +28,18 @@ local callbacks = {}
 ---   * host - A string containing the host requested (e.g. "www.hammerspoon.org")
 ---   * params - A table containing the key/value pairs of all the URL parameters
 ---   * fullURL - A string containing the full, original URL
+---   * senderPID - An integer containing the PID of the application that opened the URL, if available (otherwise -1)
 urlevent.httpCallback = nil
 
 -- Set up our top-level callback and register it with the Objective C part of the extension
-local function urlEventCallback(scheme, event, params, fullURL)
+local function urlEventCallback(scheme, event, params, fullURL, senderPID)
 	local bundleID = hs.processInfo["bundleID"]
 	local hsScheme = string.lower(string.sub(bundleID, (string.find(bundleID, "%.[^%.]*$")) + 1))
     if (scheme == "http" or scheme == "https" or scheme == "file") then
         if not urlevent.httpCallback then
             log.ef("Hammerspoon is configured for http(s):// URLs, but no http callback has been set")
         else
-            local ok, err = xpcall(function() return urlevent.httpCallback(scheme, event, params, fullURL) end, debug.traceback)
+            local ok, err = xpcall(function() return urlevent.httpCallback(scheme, event, params, fullURL, senderPID) end, debug.traceback)
             if not ok then
                 hs.showError(err)
             end
@@ -51,7 +52,7 @@ local function urlEventCallback(scheme, event, params, fullURL)
         if not callbacks[event] then
             log.wf("Received hs.urlevent event with no registered callback:"..event)
         else
-            local ok, err = xpcall(function() return callbacks[event](event, params) end, debug.traceback)
+            local ok, err = xpcall(function() return callbacks[event](event, params, senderPID) end, debug.traceback)
             if not ok then
                 hs.showError(err)
             end
@@ -77,6 +78,7 @@ urlevent.setCallback(urlEventCallback)
 ---  * The callback function should accept two parameters:
 ---   * eventName - A string containing the name of the event
 ---   * params - A table containing key/value string pairs containing any URL parameters that were specified in the URL
+---   * senderPID - An integer containing the PID of the sending application, if available (otherwise -1)
 ---  * Given the URL `hammerspoon://doThingA?value=1` The event name is `doThingA` and the callback's `params` argument will be a table containing `{["value"] = "1"}`
 function urlevent.bind(eventName, callback)
     callbacks[eventName] = callback

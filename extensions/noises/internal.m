@@ -16,7 +16,7 @@
 static const int kSampleRate = 44100;
 
 #define USERDATA_TAG "hs.noises"
-static int refTable;
+static LSRefTable refTable;
 #define get_listener_arg(L, idx) (__bridge Listener*)*((void**)luaL_checkudata(L, idx, USERDATA_TAG))
 
 typedef struct

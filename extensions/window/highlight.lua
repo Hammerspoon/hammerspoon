@@ -78,7 +78,7 @@ local function getColor(t) if type(t)~='table' or t.red or not t[1] then return 
 local function getScreens()
   local screens=screen.allScreens()
   if #screens==0 then log.w('Cannot get current screens') return end
-  sf=screens[1]:frame()
+  sf=screens[1]:fullFrame()
   for i=2,#screens do
     local fr=screens[i]:frame()
     if fr.x<sf.x then sf.x=fr.x end
@@ -170,7 +170,11 @@ local isolatesubs={
 
 local function setUiPrefs()
   local prevOverlay,prevFlash=hasOverlay,hasFlash
-  if frame then frame:delete() rt:delete() rl:delete() rb:delete() rr:delete() rflash:delete() end
+  if frame then
+    if next(frame) ~= nil then
+      frame:delete() rt:delete() rl:delete() rb:delete() rr:delete() rflash:delete()
+    end
+  end
   local ui=highlight.ui
   local f={x=-5,y=0,w=1,h=1}
   frame=drrect(f):setFill(false):setStroke(true):setStrokeWidth(ui.frameWidth):setBehavior(BEHAVIOR)
@@ -195,9 +199,6 @@ highlight.ui=setmetatable({},{
 --- Function
 --- Sets or clears the user override for "isolate" mode.
 ---
---- This function should be bound to a hotkey, e.g.:
---- `hs.hotkey.bind('ctrl-cmd','\','Isolate',hs.window.highlight.toggleIsolate)`
----
 --- Parameters:
 ---  * v - (optional) a boolean; if true, enable isolate mode; if false, disable isolate mode,
 ---    even when `windowfilterIsolate` passed to `.start()` would otherwise enable it; if omitted or nil,
@@ -206,6 +207,9 @@ highlight.ui=setmetatable({},{
 ---
 --- Returns:
 ---  * None
+---
+--- Notes:
+---  * This function should be bound to a hotkey, e.g.: `hs.hotkey.bind('ctrl-cmd','\','Isolate',hs.window.highlight.toggleIsolate)`
 function highlight.toggleIsolate(v)
   if not running then return end
   if v==nil and isolateUser==nil then v=not isolate end

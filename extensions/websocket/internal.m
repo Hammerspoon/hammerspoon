@@ -14,7 +14,7 @@ typedef struct _webSocketUserData {
 #define getWsUserData(L, idx) (__bridge HSWebSocketDelegate *)((webSocketUserData *)lua_touserdata(L, idx))->ws;
 static const char *WS_USERDATA_TAG = "hs.websocket";
 
-static int refTable;
+static LSRefTable refTable;
 
 @interface HSWebSocketDelegate: NSObject<SRWebSocketDelegate>
 @property int fn;
@@ -161,23 +161,32 @@ static int websocket_new(lua_State *L) {
     return 1;
 }
 
-/// hs.websocket:send(message) -> object
+/// hs.websocket:send(message[, isData]) -> object
 /// Method
-/// Sends a message to the websocket client
+/// Sends a message to the websocket client.
 ///
 /// Parameters:
-///  * message - A string containing the message to send
+///  * message - A string containing the message to send.
+///  * isData - An optional boolean that sends the message as binary data (defaults to true).
 ///
 /// Returns:
 ///  * The `hs.websocket` object
+///
+/// Notes:
+///  * Forcing a text representation by setting isData to `false` may alter the data if it
+///   contains invalid UTF8 character sequences (the default string behavior is to make
+///   sure everything is "printable" by converting invalid sequences into the Unicode
+///   Invalid Character sequence).
 static int websocket_send(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin checkArgs:LS_TUSERDATA, WS_USERDATA_TAG, LS_TSTRING, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, WS_USERDATA_TAG, LS_TSTRING, LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
     HSWebSocketDelegate* ws = getWsUserData(L, 1);
 
-    NSData *message = [skin toNSObjectAtIndex:2 withOptions: LS_NSLuaStringAsDataOnly];
-    [ws.webSocket send:message];
+    BOOL isData = (lua_gettop(L) > 2) ? (BOOL)(lua_toboolean(L, 3)) : YES ;
 
+    NSUInteger options = isData ? LS_NSLuaStringAsDataOnly : LS_NSPreserveLuaStringExactly;    
+    [ws.webSocket send:[skin toNSObjectAtIndex:2 withOptions:options]];
+    
     lua_pushvalue(L, 1);
     return 1;
 }
@@ -287,7 +296,7 @@ static const luaL_Reg wsMetalib[] = {
 int luaopen_hs_websocket_internal(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
 
-    refTable = [skin registerLibrary:websocketlib metaFunctions:metalib];
+    refTable = [skin registerLibrary:WS_USERDATA_TAG functions:websocketlib metaFunctions:metalib];
     [skin registerObject:WS_USERDATA_TAG objectFunctions:wsMetalib];
 
     return 1;

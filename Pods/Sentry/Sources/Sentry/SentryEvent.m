@@ -33,6 +33,13 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
+- (instancetype)initWithError:(NSError *)error
+{
+    self = [self initWithLevel:kSentryLevelError];
+    self.error = error;
+    return self;
+}
+
 - (NSDictionary<NSString *, id> *)serialize
 {
     if (nil == self.timestamp) {
@@ -125,7 +132,9 @@ NS_ASSUME_NONNULL_BEGIN
 
     [serializedData setValue:self.context forKey:@"contexts"];
 
-    [serializedData setValue:[self.message serialize] forKey:@"message"];
+    if (nil != self.message) {
+        [serializedData setValue:[self.message serialize] forKey:@"message"];
+    }
     [serializedData setValue:self.logger forKey:@"logger"];
     [serializedData setValue:self.serverName forKey:@"server_name"];
     [serializedData setValue:self.type forKey:@"type"];
@@ -141,7 +150,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
-- (NSMutableArray *_Nullable)serializeBreadcrumbs
+- (NSArray *_Nullable)serializeBreadcrumbs
 {
     NSMutableArray *crumbs = [NSMutableArray new];
     for (SentryBreadcrumb *crumb in self.breadcrumbs) {

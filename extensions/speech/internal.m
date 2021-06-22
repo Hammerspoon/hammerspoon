@@ -12,7 +12,7 @@
 // full version can be found at https://github.com/asmagill/hammerspoon_asm/tree/master/speech
 
 #define USERDATA_TAG "hs.speech"
-static int refTable = LUA_NOREF;
+static LSRefTable refTable = LUA_NOREF;
 
 #define get_objectFromUserdata(objType, L, idx) (objType*)*((void**)luaL_checkudata(L, idx, USERDATA_TAG))
 // #define get_structFromUserdata(objType, L, idx) ((objType *)luaL_checkudata(L, idx, USERDATA_TAG))
@@ -495,7 +495,7 @@ static int speaking(lua_State *L) {
     return 1;
 }
 
-/// hs.speech:setCallback(fn | nil) -> synthesizerObject
+/// hs.speech:setCallback(fn) -> synthesizerObject
 /// Method
 /// Sets or removes a callback function for the synthesizer.
 ///

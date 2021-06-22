@@ -4,7 +4,7 @@
 
 #define USERDATA_TAG "hs.distributednotifications"
 
-static int refTable = LUA_NOREF;
+static LSRefTable refTable = LUA_NOREF;
 
 typedef struct _distnot_t {
     void *watcher;
@@ -86,6 +86,9 @@ static int distnot_new(lua_State *L) {
 ///  * name - A string containing the name of the notification
 ///  * sender - An optional string containing the name of the sender of the notification (in the form `com.domain.application.foo`). Defaults to nil.
 ///  * userInfo - An optional table containing additional information to post with the notification. Defaults to nil.
+///
+/// Returns:
+///  * None
 static int distnot_post(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TSTRING | LS_TNIL | LS_TOPTIONAL, LS_TTABLE | LS_TNIL | LS_TOPTIONAL, LS_TBREAK];
@@ -211,7 +214,7 @@ static const luaL_Reg userdata_metaLib[] = {
 
 int luaopen_hs_distributednotifications_internal(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    refTable = [skin registerLibrary:distributednotificationslib metaFunctions:nil];
+    refTable = [skin registerLibrary:USERDATA_TAG functions:distributednotificationslib metaFunctions:nil];
     [skin registerObject:USERDATA_TAG objectFunctions:userdata_metaLib];
 
     return 1;

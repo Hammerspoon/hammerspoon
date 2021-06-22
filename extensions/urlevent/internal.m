@@ -5,7 +5,7 @@
 #import "../../Hammerspoon/MJAppDelegate.h"
 #import "../../Hammerspoon/MJDockIcon.h"
 
-static int refTable;
+static LSRefTable refTable;
 NSArray *defaultContentTypes = nil;
 
 // ----------------------- Objective C ---------------------
@@ -18,7 +18,7 @@ NSArray *defaultContentTypes = nil;
 
 - (void)handleStartupEvents;
 - (void)handleAppleEvent:(NSAppleEventDescriptor *)event withReplyEvent: (NSAppleEventDescriptor *)replyEvent;
-- (void)callbackWithURL:(NSString *)openUrl;
+- (void)callbackWithURL:(NSString *)openUrl senderPID:(pid_t)pid;
 - (void)gcWithState:(lua_State *)L;
 @end
 
@@ -80,7 +80,7 @@ static HSURLEventHandler *eventHandler;
     }
 
     if (_appDelegate.startupFile) {
-        [eventHandler callbackWithURL:_appDelegate.startupFile];
+        [eventHandler callbackWithURL:_appDelegate.startupFile senderPID:-1];
         _appDelegate.startupFile = nil;
     }
 }
@@ -89,10 +89,23 @@ static HSURLEventHandler *eventHandler;
     // This is a completely disgusting workaround - starting in macOS 10.15 for some reason the OS reveals our Dock icon even if it's hidden, before we receive an Apple Event, so let's reassert our expected state before we go any further.
     MJDockIconSetVisible(MJDockIconVisible());
 
-    [self callbackWithURL:[[event paramDescriptorForKeyword:keyDirectObject] stringValue]];
+    // get the process id for the application that sent the current Apple Event
+    NSAppleEventDescriptor *appleEventDescriptor = [[NSAppleEventManager sharedAppleEventManager] currentAppleEvent];
+    NSAppleEventDescriptor* processSerialDescriptor = [appleEventDescriptor attributeDescriptorForKeyword:keyAddressAttr];
+    NSAppleEventDescriptor* pidDescriptor = [processSerialDescriptor coerceToDescriptorType:typeKernelProcessID];
+
+    pid_t pid;
+
+    if (pidDescriptor) {
+        pid = *(pid_t *)[[pidDescriptor data] bytes];
+    } else {
+        pid = -1;
+    }
+
+    [self callbackWithURL:[[event paramDescriptorForKeyword:keyDirectObject] stringValue] senderPID:pid];
 }
 
-- (void)callbackWithURL:(NSString *)openUrl {
+- (void)callbackWithURL:(NSString *)openUrl senderPID:(pid_t)pid {
     LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     _lua_stackguard_entry(skin.L);
 
@@ -136,7 +149,8 @@ static HSURLEventHandler *eventHandler;
     [skin pushNSObject:[url host]];
     [skin pushNSObject:pairs];
     [skin pushNSObject:[url absoluteString]];
-    [skin protectedCallAndError:[NSString stringWithFormat:@"hs.urlevent callback for %@", url.absoluteString] nargs:4 nresults:0];
+    lua_pushinteger(skin.L, pid);
+    [skin protectedCallAndError:[NSString stringWithFormat:@"hs.urlevent callback for %@", url.absoluteString] nargs:5 nresults:0];
     _lua_stackguard_exit(skin.L);
 }
 @end
@@ -356,7 +370,7 @@ int luaopen_hs_urlevent_internal(lua_State *L) {
 
     urlevent_setup();
 
-    refTable = [skin registerLibrary:urleventlib metaFunctions:urlevent_gclib];
+    refTable = [skin registerLibrary:"hs.urlevent" functions:urleventlib metaFunctions:urlevent_gclib];
 
     return 1;
 }

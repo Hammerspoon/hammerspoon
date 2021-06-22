@@ -458,7 +458,7 @@ objectMT.currentRegion = function(self)
     return currentRegion
 end
 
---- hs.location:callback(fn | nil) -> locationObject
+--- hs.location:callback(fn) -> locationObject
 --- Method
 --- Sets or removes the callback function for this locationObject
 ---

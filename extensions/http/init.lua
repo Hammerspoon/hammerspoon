@@ -12,7 +12,7 @@ local fnutils = require("hs.fnutils")
 --- Function
 --- Sends an HTTP GET request to a URL
 ---
---- Parameters
+--- Parameters:
 ---  * url - A string containing the URL to retrieve
 ---  * headers - A table containing string keys and values representing the request headers, or nil to add no headers
 ---
@@ -34,7 +34,7 @@ end
 --- Function
 --- Sends an HTTP POST request to a URL
 ---
---- Parameters
+--- Parameters:
 ---  * url - A string containing the URL to submit to
 ---  * data - A string containing the request body, or nil to send no body
 ---  * headers - A table containing string keys and values representing the request headers, or nil to add no headers
@@ -65,6 +65,9 @@ end
 ---   * A string containing the response body
 ---   * A table containing the response headers
 ---
+--- Returns:
+---  * None
+---
 --- Notes:
 ---  * If authentication is required in order to download the request, the required credentials must be specified as part of the URL (e.g. "http://user:password@host.com/"). If authentication fails, or credentials are missing, the connection will attempt to continue without credentials.
 ---
@@ -85,6 +88,9 @@ end
 ---   * A number containing the HTTP response status
 ---   * A string containing the response body
 ---   * A table containing the response headers
+---
+--- Returns:
+---  * None
 ---
 --- Notes:
 ---  * If authentication is required in order to download the request, the required credentials must be specified as part of the URL (e.g. "http://user:password@host.com/"). If authentication fails, or credentials are missing, the connection will attempt to continue without credentials.

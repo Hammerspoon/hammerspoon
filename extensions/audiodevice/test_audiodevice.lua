@@ -1,6 +1,11 @@
 hs.audiodevice = require("hs.audiodevice")
 
 -- Test constructors/functions
+function testGetDefaultEffect()
+  assertIsUserdataOfType("hs.audiodevice", hs.audiodevice.defaultEffectDevice())
+  return success()
+end
+
 function testGetDefaultOutput()
   assertIsUserdataOfType("hs.audiodevice", hs.audiodevice.defaultOutputDevice())
   return success()
@@ -41,7 +46,13 @@ function testGetAllOutputDevices()
 end
 
 function testFindDeviceByName()
-  assertIsUserdataOfType("hs.audiodevice", hs.audiodevice.findDeviceByName("Built-in Output"))
+  local devices = hs.audiodevice.allOutputDevices()
+
+  local found = hs.audiodevice.findDeviceByName(devices[1]:name())
+
+  assertIsEqual(devices[1], found)
+  assertIsUserdataOfType("hs.audiodevice", found)
+
   return success()
 end
 
@@ -82,6 +93,15 @@ end
 -- Test hs.audiodevice methods
 function testToString()
   assertIsString(tostring(hs.audiodevice.defaultOutputDevice()))
+  return success()
+end
+
+function testSetDefaultEffect()
+  local beforeDevice = hs.audiodevice.defaultEffectDevice()
+  assertTrue(beforeDevice:setDefaultEffectDevice())
+  local afterDevice = hs.audiodevice.defaultEffectDevice()
+  assertIsEqual(beforeDevice, afterDevice)
+
   return success()
 end
 
@@ -156,8 +176,8 @@ end
 
 function testVolume()
   local device = hs.audiodevice.defaultOutputDevice()
-  originalVolume = device:volume()
-  wantVolume = 25
+  local originalVolume = device:volume()
+  local wantVolume = 25
 
   if (type(originalVolume) ~= "number") then
     print("Audiodevice does not support volume. Skipping test due to lack of hardware")
@@ -168,7 +188,7 @@ function testVolume()
   assertTrue(device:setVolume(0))
   assertTrue(device:setVolume(wantVolume))
 
-  assertIsAlmostEqual(wantVolume, device:volume(), 0.5)
+  assertIsAlmostEqual(wantVolume, device:volume(), 2)
 
   -- Be nice and put the volume back where we found it
   device:setVolume(originalVolume)
@@ -177,47 +197,47 @@ function testVolume()
 end
 
 function testInputVolume()
-local device = hs.audiodevice.defaultInputDevice()
-originalVolume = device:inputVolume()
-wantVolume = 25
+  local device = hs.audiodevice.defaultInputDevice()
+  local originalVolume = device:inputVolume()
+  local wantVolume = 25
 
-if (type(originalVolume) ~= "number") then
-print("Audiodevice does not support volume. Skipping test due to lack of hardware")
-return success()
-end
+  if (type(originalVolume) ~= "number") then
+    print("Audiodevice does not support volume. Skipping test due to lack of hardware")
+    return success()
+  end
 
--- Set the volume to 0 and test if we can set it to a high value
-assertTrue(device:setInputVolume(0))
-assertTrue(device:setInputVolume(wantVolume))
+  -- Set the volume to 0 and test if we can set it to a high value
+  assertTrue(device:setInputVolume(0))
+  assertTrue(device:setInputVolume(wantVolume))
 
-assertIsAlmostEqual(wantVolume, device:inputVolume(), 2)
+  assertIsAlmostEqual(wantVolume, device:inputVolume(), 2)
 
--- Be nice and put the volume back where we found it
-device:setInputVolume(originalVolume)
+  -- Be nice and put the volume back where we found it
+  device:setInputVolume(originalVolume)
 
-return success()
+  return success()
 end
 
 function testOutputVolume()
-local device = hs.audiodevice.defaultOutputDevice()
-originalVolume = device:outputVolume()
-wantVolume = 25
+  local device = hs.audiodevice.defaultOutputDevice()
+  local originalVolume = device:outputVolume()
+  local wantVolume = 25
 
-if (type(originalVolume) ~= "number") then
-print("Audiodevice does not support volume. Skipping test due to lack of hardware")
-return success()
-end
+  if (type(originalVolume) ~= "number") then
+    print("Audiodevice does not support volume. Skipping test due to lack of hardware")
+    return success()
+  end
 
--- Set the volume to 0 and test if we can set it to a high value
-assertTrue(device:setOutputVolume(0))
-assertTrue(device:setOutputVolume(wantVolume))
+  -- Set the volume to 0 and test if we can set it to a high value
+  assertTrue(device:setOutputVolume(0))
+  assertTrue(device:setOutputVolume(wantVolume))
 
-assertIsAlmostEqual(wantVolume, device:outputVolume(), 0.5)
+  assertIsAlmostEqual(wantVolume, device:outputVolume(), 2)
 
--- Be nice and put the volume back where we found it
-device:setOutputVolume(originalVolume)
+  -- Be nice and put the volume back where we found it
+  device:setOutputVolume(originalVolume)
 
-return success()
+  return success()
 end
 
 function testWatcher()
@@ -274,14 +294,14 @@ function testInputSupportsDataSources()
     assertTrue(input:supportsInputDataSources())
   end
 
-  local output = hs.audiodevice.findOutputByName("Built-in Output")
+  local output = hs.audiodevice.findOutputByName("Built-in Output") or hs.audiodevice.findOutputByName("Mac Pro Speakers")
   assertFalse(output:supportsInputDataSources())
 
   return success()
 end
 
 function testOutputSupportsDataSources()
-  local output = hs.audiodevice.findOutputByName("Built-in Output")
+  local output = hs.audiodevice.findOutputByName("Built-in Output") or hs.audiodevice.findOutputByName("Mac Pro Speakers")
   assertTrue(output:supportsOutputDataSources())
 
   local input = hs.audiodevice.findInputByName("Built-in Microphone")
@@ -307,7 +327,7 @@ function testCurrentInputDataSource()
 end
 
 function testCurrentOutputDataSource()
-  local device = hs.audiodevice.findOutputByName("Built-in Output")
+  local device = hs.audiodevice.findOutputByName("Built-in Output") or hs.audiodevice.findOutputByName("Mac Pro Speakers")
   local dataSource = device:currentOutputDataSource()
   assertIsUserdataOfType("hs.audiodevice.datasource", dataSource)
 
@@ -329,7 +349,7 @@ function testAllInputDataSources()
 end
 
 function testAllOutputDataSources()
-  local device = hs.audiodevice.findOutputByName("Built-in Output")
+  local device = hs.audiodevice.findOutputByName("Built-in Output") or hs.audiodevice.findOutputByName("Mac Pro Speakers")
   local sources = device:allOutputDataSources()
   assertIsTable(sources)
   assertGreaterThanOrEqualTo(1, #sources)
@@ -339,7 +359,7 @@ end
 
 -- hs.audiodevice.datasource methods
 function testDataSourceToString()
-  local device = hs.audiodevice.findOutputByName("Built-in Output")
+  local device = hs.audiodevice.findOutputByName("Built-in Output") or hs.audiodevice.findOutputByName("Mac Pro Speakers")
   local source = device:currentOutputDataSource()
   assertIsString(tostring(source))
 
@@ -347,7 +367,7 @@ function testDataSourceToString()
 end
 
 function testDataSourceName()
-  local outputDevice = hs.audiodevice.findOutputByName("Built-in Output")
+  local outputDevice = hs.audiodevice.findOutputByName("Built-in Output") or hs.audiodevice.findOutputByName("Mac Pro Speakers")
   local outputDataSource = outputDevice:currentOutputDataSource()
   assertIsString(outputDataSource:name())
 
@@ -363,7 +383,7 @@ function testDataSourceName()
 end
 
 function testDataSourceSetDefault()
-  local outputDevice = hs.audiodevice.findOutputByName("Built-in Output")
+  local outputDevice = hs.audiodevice.findOutputByName("Built-in Output") or hs.audiodevice.findOutputByName("Mac Pro Speakers")
   local outputDataSourceBefore = outputDevice:currentOutputDataSource()
   assertIsUserdataOfType("hs.audiodevice.datasource", outputDataSourceBefore:setDefault())
   local outputDataSourceAfter = outputDevice:currentOutputDataSource()

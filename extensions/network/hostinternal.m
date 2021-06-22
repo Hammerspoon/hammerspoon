@@ -7,7 +7,7 @@
 @import Darwin.POSIX.netdb ;
 
 #define USERDATA_TAG    "hs.network.host"
-static int              refTable          = LUA_NOREF;
+static LSRefTable       refTable          = LUA_NOREF;
 
 #define get_structFromUserdata(objType, L, idx) ((objType *)luaL_checkudata(L, idx, USERDATA_TAG))
 
@@ -19,6 +19,7 @@ typedef struct _hshost_t {
     CFHostInfoType resolveType ;
     int            selfRef ;
     BOOL           running ;
+    LSGCCanary         lsCanary;
 } hshost_t;
 
 static int pushCFHost(lua_State *L, CFHostRef theHost, CFHostInfoType resolveType) {
@@ -37,6 +38,7 @@ static int pushCFHost(lua_State *L, CFHostRef theHost, CFHostInfoType resolveTyp
     thePtr->resolveType = resolveType ;
     thePtr->selfRef     = LUA_NOREF ;
     thePtr->running     = NO ;
+    thePtr->lsCanary = [skin createGCCanary];
 
     luaL_getmetatable(L, USERDATA_TAG) ;
     lua_setmetatable(L, -2) ;
@@ -149,6 +151,9 @@ void handleCallback(__unused CFHostRef theHost, __unused CFHostInfoType typeInfo
         LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
         if (theRef->callbackRef != LUA_NOREF) {
             lua_State *L = [skin L] ;
+            if (![skin checkGCCanary:theRef->lsCanary]) {
+                return;
+            }
             _lua_stackguard_entry(L);
             int       argCount ;
             [skin pushLuaRef:refTable ref:theRef->callbackRef] ;
@@ -416,6 +421,7 @@ static int userdata_gc(lua_State* L) {
     theRef->callbackRef = [skin luaUnref:refTable ref:theRef->callbackRef] ;
     // in case __gc forced by reload
     theRef->selfRef = [skin luaUnref:refTable ref:theRef->selfRef] ;
+    [skin destroyGCCanary:&(theRef->lsCanary)];
 
     lua_pushcfunction(L, cancelResolution) ;
     lua_pushvalue(L, 1) ;

@@ -1,0 +1,101 @@
+name: Development Builds
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: Build and Sign
+
+    runs-on: macos-11.0
+
+    steps:
+      - name: Checkout Hammerspoon Code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Checkout Hammerspoon Secrets
+        uses: actions/checkout@v2
+        with:
+          repository: Hammerspoon/ci-secrets
+          path: ./ci-secrets
+      - name: Prepare build environment
+        run: ./scripts/github-ci-pre.sh
+      - name: Decrypt Secrets
+        env:
+          REPO_GPG_PASSPHRASE: ${{ secrets.REPO_GPG_PASSPHRASE }}
+        run: ./ci-secrets/crypto.sh decrypt
+      - name: Prepare keychain
+        env:
+          NIGHTLY_KEYCHAIN_PASSPHRASE: ${{ secrets.NIGHTLY_KEYCHAIN_PASSPHRASE }}
+        run: ./scripts/github-ci-nightly-keychain.sh
+      - name: Prepare secure tokens
+        run: /bin/cp ./ci-secrets/Cleartext/token* ../
+      - name: Remove Secrets checkout
+        run: /bin/rm -rf ./ci-secrets
+      - name: Get version number
+        id: version
+        run: |
+          echo ::set-output name=NIGHTLY_VERSION::$(git describe)
+      - name: Workaround xcodebuild not inheriting environment
+        run: touch ../is_github_actions
+      - name: Build
+        run: ./scripts/release.sh --nightly
+
+      - name: Upload build log on failure
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: nightly-build.log
+          path: build/Release-build.log
+
+      - name: Generate Release Notes
+        id: release_notes_generator
+        uses: mikepenz/release-changelog-builder-action@main
+        with:
+          configuration: ".github/workflows/release_notes_config.json"
+          toTag: "HEAD"
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Capture Release Notes
+        id: capture_release_notes
+        run: |
+          echo "${{ steps.release_notes_generator.outputs.changelog }}" >release_notes.txt
+      - name: Upload Release Notes
+        id: upload_release_notes
+        uses: actions/upload-artifact@v2
+        with:
+          name: Hammerspoon-release_notes-${{ steps.version.outputs.NIGHTLY_VERSION }}.txt
+          path: release_notes.txt
+
+      - name: Prepare artifacts
+        run: mv ../archive ./
+      - name: Upload artifacts App bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: Hammerspoon-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
+          path: archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/Hammerspoon-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
+      - name: Upload artifacts Debug symbols
+        uses: actions/upload-artifact@v2
+        with:
+          name: Hammerspoon-dSYM-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
+          path: archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/Hammerspoon-dSYM-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
+      - name: Upload artifacts HTML docs
+        uses: actions/upload-artifact@v2
+        with:
+          name: Hammerspoon-docs-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
+          path: archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/Hammerspoon-docs-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
+      - name: Upload artifacts Build log
+        uses: actions/upload-artifact@v2
+        with:
+          name: Release-build.log
+          path: archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/release-build.log
+      - name: IRC notification
+        uses: Gottox/irc-message-action@v2.1.0
+        with:
+          channel: '#hammerspoon'
+          nickname: 'HS_CI_DevBuild'
+          message: |
+            New development build: ${{ steps.version.outputs.NIGHTLY_VERSION }}

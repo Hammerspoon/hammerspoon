@@ -2,7 +2,7 @@
 @import LuaSkin ;
 
 static const char *USERDATA_TAG = "hs.sharing" ;
-static int        refTable = LUA_NOREF ;
+static LSRefTable  refTable = LUA_NOREF ;
 
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 
@@ -236,12 +236,12 @@ static int sharing_canPerformWith(lua_State *L) {
     return 1 ;
 }
 
-/// hs.sharing:callback(function | nil) -> sharingObject
+/// hs.sharing:callback(fn) -> sharingObject
 /// Method
 /// Set or clear the callback for the sharingObject.
 ///
 /// Parameters:
-///  * a function, or nil, to set or remove the callback for the sharingObject
+///  * fn - A function, or nil, to set or remove the callback for the sharingObject
 ///
 /// Returns:
 ///  * the sharingObject
@@ -542,7 +542,7 @@ static int pushHSSharingService(lua_State *L, id obj) {
     return 1;
 }
 
-id toHSSharingServiceFromLua(lua_State *L, int idx) {
+static id toHSSharingServiceFromLua(lua_State *L, int idx) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     HSSharingService *value ;
     if (luaL_testudata(L, idx, USERDATA_TAG)) {

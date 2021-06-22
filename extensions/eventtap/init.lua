@@ -10,6 +10,25 @@
 --- Create, modify and inspect events for `hs.eventtap`
 ---
 --- This module is based primarily on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
+---
+--- `hs.eventtap.event.newGesture` uses an external library by Calf Trail Software, LLC.
+---
+--- Touch
+--- Copyright (C) 2010 Calf Trail Software, LLC
+---
+--- This program is free software; you can redistribute it and/or
+--- modify it under the terms of the GNU General Public License
+--- as published by the Free Software Foundation; either version 2
+--- of the License, or (at your option) any later version.
+---
+--- This program is distributed in the hope that it will be useful,
+--- but WITHOUT ANY WARRANTY; without even the implied warranty of
+--- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+--- GNU General Public License for more details.
+---
+--- You should have received a copy of the GNU General Public License
+--- along with this program; if not, write to the Free Software
+--- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 local module   = require("hs.eventtap.internal")
 module.event   = require("hs.eventtap.event")
@@ -18,44 +37,6 @@ local keycodes = require("hs.keycodes")
 local timer    = require("hs.timer")
 
 -- private variables and methods -----------------------------------------
-
-local __tostring_for_tables = function(self)
-    local result = ""
-    local width = 0
-    for i,_ in fnutils.sortByKeys(self) do
-        if type(i) == "string" and width < i:len() then width = i:len() end
-    end
-    for i,v in fnutils.sortByKeys(self) do
-        if type(i) == "string" then
-            result = result..string.format("%-"..tostring(width).."s %d\n", i, v)
-        end
-    end
-    return result
-end
-
-local __index_for_types = function(object, key)
-    for i,_ in pairs(object) do
-        if type(i) == "string" then -- ignore numbered keys
-            if i:lower() == key then
-                print(debug.getinfo(2).short_src..":"..debug.getinfo(2).currentline..": type '"..key.."' is deprecated, use '"..i.."'")
-                return object[i]
-            end
-        end
-    end
-    return nil
-end
-
-local __index_for_props = function(object, key)
-    for i,_ in pairs(object) do
-        if type(i) == "string" then -- ignore numbered keys
-            if i:sub(1,1):upper()..i:sub(2,-1) == key then
-                print(debug.getinfo(2).short_src..":"..debug.getinfo(2).currentline..": property '"..key.."' is deprecated, use '"..i.."'")
-                return object[i]
-            end
-        end
-    end
-    return nil
-end
 
 local function getKeycode(s)
   local n
@@ -85,14 +66,8 @@ local function getMods(mods)
   return r
 end
 
--- note the tables backing these constants should be modified to only include the string -> number
--- assignments before they can be safely wrapped with ls.makeConstantsTable, but as there is a pull
--- outstanding which modifies these tables, this is being delayed to simplify merging.
-module.event.types      = setmetatable(module.event.types,      { __index    = __index_for_types,
-                                                                  __tostring = __tostring_for_tables })
-module.event.properties = setmetatable(module.event.properties, { __index    = __index_for_props,
-                                                                  __tostring = __tostring_for_tables })
-
+module.event.types        = ls.makeConstantsTable(module.event.types)
+module.event.properties   = ls.makeConstantsTable(module.event.properties)
 module.event.rawFlagMasks = ls.makeConstantsTable(module.event.rawFlagMasks)
 
 -- Public interface ------------------------------------------------------
@@ -265,7 +240,7 @@ module.middleClick = function(point, delay)
     module.otherClick(point, delay, 2)
 end
 
---- hs.eventtap.keyStroke(modifiers, character[, delay])
+--- hs.eventtap.keyStroke(modifiers, character[, delay, application])
 --- Function
 --- Generates and emits a single keystroke event pair for the supplied keyboard modifiers and character
 ---
@@ -273,6 +248,7 @@ end
 ---  * modifiers - A table containing the keyboard modifiers to apply ("fn", "ctrl", "alt", "cmd", "shift", or their Unicode equivalents)
 ---  * character - A string containing a character to be emitted
 ---  * delay - An optional delay (in microseconds) between key down and up event. Defaults to 200000 (i.e. 200ms)
+---  * application - An optional hs.application object to send the keystroke to
 ---
 --- Returns:
 ---  * None
@@ -281,14 +257,26 @@ end
 ---  * This function is ideal for sending single keystrokes with a modifier applied (e.g. sending ⌘-v to paste, with `hs.eventtap.keyStroke({"cmd"}, "v")`). If you want to emit multiple keystrokes for typing strings of text, see `hs.eventtap.keyStrokes()`
 ---
 ---  * Note that invoking this function with a table (empty or otherwise) for the `modifiers` argument will force the release of any modifier keys which have been explicitly created by [hs.eventtap.event.newKeyEvent](#newKeyEvent) and posted that are still in the "down" state. An explicit `nil` for this argument will not (i.e. the keystroke will inherit any currently "down" modifiers)
-function module.keyStroke(modifiers, character, delay)
-    if delay==nil then
-        delay=200000
+function module.keyStroke(modifiers, character, delay, application)
+    local targetApp = nil
+    local keyDelay = 200000
+
+    if type(delay) == "userdata" then
+        targetApp = delay
+    else
+        targetApp = application
     end
 
-    module.event.newKeyEvent(modifiers, character, true):post()
-    timer.usleep(delay)
-    module.event.newKeyEvent(modifiers, character, false):post()
+    if type(delay) == "number" then
+        keyDelay = delay
+    end
+
+    --print("targetApp: "..tostring(targetApp))
+    --print("keyDelay: "..tostring(keyDelay))
+
+    module.event.newKeyEvent(modifiers, character, true):post(targetApp)
+    timer.usleep(keyDelay)
+    module.event.newKeyEvent(modifiers, character, false):post(targetApp)
 end
 
 

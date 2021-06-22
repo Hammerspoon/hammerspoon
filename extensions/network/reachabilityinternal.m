@@ -7,7 +7,7 @@
 @import Darwin.POSIX.netdb ;
 
 #define USERDATA_TAG    "hs.network.reachability"
-static int              refTable          = LUA_NOREF;
+static LSRefTable       refTable          = LUA_NOREF;
 static dispatch_queue_t reachabilityQueue = nil ;
 
 #define get_structFromUserdata(objType, L, idx) ((objType *)luaL_checkudata(L, idx, USERDATA_TAG))
@@ -19,9 +19,11 @@ typedef struct _reachability_t {
     int                      callbackRef ;
     int                      selfRef ;
     BOOL                     watcherEnabled ;
+    LSGCCanary                   lsCanary;
 } reachability_t;
 
 static int pushSCNetworkReachability(lua_State *L, SCNetworkReachabilityRef theRef) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     reachability_t* thePtr = lua_newuserdata(L, sizeof(reachability_t)) ;
     memset(thePtr, 0, sizeof(reachability_t)) ;
 
@@ -29,6 +31,7 @@ static int pushSCNetworkReachability(lua_State *L, SCNetworkReachabilityRef theR
     thePtr->callbackRef     = LUA_NOREF ;
     thePtr->selfRef         = LUA_NOREF ;
     thePtr->watcherEnabled  = NO ;
+    thePtr->lsCanary     = [skin createGCCanary];
 
     luaL_getmetatable(L, USERDATA_TAG) ;
     lua_setmetatable(L, -2) ;
@@ -41,6 +44,9 @@ static void doReachabilityCallback(__unused SCNetworkReachabilityRef target, SCN
         if ((theRef->callbackRef != LUA_NOREF) && (theRef->selfRef != LUA_NOREF)) {
             LuaSkin   *skin = [LuaSkin sharedWithState:NULL] ;
             lua_State *L    = [skin L] ;
+            if (![skin checkGCCanary:theRef->lsCanary]) {
+                return;
+            }
             _lua_stackguard_entry(L);
             [skin pushLuaRef:refTable ref:theRef->callbackRef] ;
             [skin pushLuaRef:refTable ref:theRef->selfRef] ;
@@ -228,7 +234,7 @@ static int reachabilityStatusString(lua_State *L) {
     return 1 ;
 }
 
-/// hs.network.reachability:setCallback(function | nil) -> reachabilityObject
+/// hs.network.reachability:setCallback(function) -> reachabilityObject
 /// Method
 /// Set or remove the callback function for a reachability object
 ///
@@ -380,6 +386,7 @@ static int userdata_gc(lua_State* L) {
         SCNetworkReachabilitySetDispatchQueue(theRef->reachabilityObj, NULL);
     }
     theRef->selfRef = [skin luaUnref:refTable ref:theRef->selfRef] ;
+    [skin destroyGCCanary:&(theRef->lsCanary)];
 
     CFRelease(theRef->reachabilityObj) ;
     lua_pushnil(L) ;

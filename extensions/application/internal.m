@@ -4,7 +4,7 @@
 #import "HSuicore.h"
 
 static const char *USERDATA_TAG = "hs.application";
-static int refTable = LUA_NOREF;
+static LSRefTable refTable = LUA_NOREF;
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 
 static NSMutableSet *backgroundCallbacks ;
@@ -1254,7 +1254,7 @@ int luaopen_hs_application_internal(lua_State* L) {
     backgroundCallbacks = [NSMutableSet set];
 
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    refTable = [skin registerLibrary:moduleLib metaFunctions:module_metaLib];
+    refTable = [skin registerLibrary:USERDATA_TAG functions:moduleLib metaFunctions:module_metaLib];
     [skin registerObject:USERDATA_TAG objectFunctions:userdata_metaLib];
 
     [skin registerPushNSHelper:pushHSapplication         forClass:"HSapplication"];

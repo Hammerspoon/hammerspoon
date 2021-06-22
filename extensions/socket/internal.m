@@ -473,12 +473,10 @@ static int socket_write(lua_State *L) {
 /// Method
 /// Sets the read callback for the [`hs.socket`](#new) instance. Must be set to read data from the socket
 ///
-/// The callback receives 2 parameters:
-///  * data - The data read from the socket as a string
-///  * tag - The integer tag associated with the read call, which defaults to -1
-///
 /// Parameters:
-///  * fn - An optional callback function to process data read from the socket. `nil` or no argument clears the callback
+///  * fn - An optional callback function to process data read from the socket. `nil` or no argument clears the callback. The callback receives 2 parameters:
+///    * data - The data read from the socket as a string
+///    * tag - The integer tag associated with the read call, which defaults to -1
 ///
 /// Returns:
 ///  * The [`hs.socket`](#new) object
@@ -728,7 +726,7 @@ static const luaL_Reg userdata_metaLib[] = {
 
 int luaopen_hs_socket_internal(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    refTable = [skin registerLibrary:moduleLib metaFunctions:meta_gcLib];
+    refTable = [skin registerLibrary:USERDATA_TAG functions:moduleLib metaFunctions:meta_gcLib];
     [skin registerObject:USERDATA_TAG objectFunctions:userdata_metaLib];
 
     return 1;

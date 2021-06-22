@@ -6,7 +6,7 @@
 #define get_element(L, idx) *((AXUIElementRef*)lua_touserdata(L, idx))
 
 static const char* USERDATA_TAG = "hs.uielement";
-static int refTable = LUA_NOREF;
+static LSRefTable refTable = LUA_NOREF;
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 
 /// hs.uielement.focusedElement() -> element or nil
@@ -189,7 +189,7 @@ static const luaL_Reg userdata_metaLib[] = {
 
 int luaopen_hs_uielement_internal(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    refTable = [skin registerLibrary:moduleLib metaFunctions:module_metaLib];
+    refTable = [skin registerLibrary:USERDATA_TAG functions:moduleLib metaFunctions:module_metaLib];
     [skin registerObject:USERDATA_TAG objectFunctions:userdata_metaLib];
     [skin registerPushNSHelper:pushHSuielement         forClass:"HSuielement"];
     [skin registerLuaObjectHelper:toHSuielementFromLua forClass:"HSuielement"

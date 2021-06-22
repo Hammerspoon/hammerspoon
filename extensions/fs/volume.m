@@ -28,7 +28,7 @@
 // Common Code
 
 #define USERDATA_TAG "hs.fs.volume"
-static int refTable;
+static LSRefTable refTable;
 
 // Not so common code
 
@@ -79,8 +79,15 @@ typedef enum _event_t {
         case didRename:
             [tableArg setObject:[dict objectForKey:NSWorkspaceVolumeURLKey] forKey:@"path"];
             [tableArg setObject:[dict objectForKey:NSWorkspaceVolumeLocalizedNameKey] forKey:@"name"];
-            [tableArg setObject:[dict objectForKey:NSWorkspaceVolumeOldURLKey] forKey:@"oldPath"];
-            [tableArg setObject:[dict objectForKey:NSWorkspaceVolumeOldLocalizedNameKey] forKey:@"oldName"];
+
+            if ([dict objectForKey:NSWorkspaceVolumeOldURLKey]) {
+                [tableArg setObject:[dict objectForKey:NSWorkspaceVolumeOldURLKey] forKey:@"oldPath"];
+            }
+
+            if ([dict objectForKey:NSWorkspaceVolumeOldLocalizedNameKey]) {
+                [tableArg setObject:[dict objectForKey:NSWorkspaceVolumeOldLocalizedNameKey] forKey:@"oldName"];
+            }
+
             break;
 
         default:

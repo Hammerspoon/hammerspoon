@@ -62,6 +62,16 @@
     }
 }
 
+- (void)handleCatastrophe:(NSString *)message {
+    NSAlert *alert = [[NSAlert alloc] init];
+    alert.messageText = message;
+    alert.informativeText = @"Hammerspoon critical error.";
+    [alert addButtonWithTitle:@"Quit"];
+    [alert setAlertStyle:NSAlertStyleCritical];
+    [alert runModal];
+    exit(1);
+}
+
 - (void)logBreadcrumb:(NSString *)format, ... {
     va_list args;
     va_start(args, format);
@@ -72,4 +82,15 @@
     [SentrySDK addBreadcrumb:crumb];
 }
 
+- (void)logKnownBug:(NSString *)format, ... {
+    va_list args;
+    va_start(args, format);
+    NSString *message = [[NSString alloc] initWithFormat:format arguments:args];
+    NSLog(@"KNOWN BUG: %@", message);
+
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
+    event.message = [[SentryMessage alloc] initWithFormatted:message];
+
+    [SentrySDK captureEvent:event];
+}
 @end

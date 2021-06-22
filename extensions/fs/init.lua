@@ -13,7 +13,10 @@ module.xattr  = require("hs.fs.xattr")
 --- A wrapper to [hs.fs.xattr.get](#get) which returns non UTF-8 data as a hexadecimal dump provided by `hs.utf8.hexDump`.
 ---
 --- Parameters:
----  * see [hs.fs.xattr.get](#get)
+---  * `path`      - A string specifying the path to the file or directory to get the extended attribute from
+---  * `attribute` - A string specifying the name of the extended attribute to get the value of
+---  * `options`   - An optional table containing options as described in this module's documentation header. Defaults to {} (an empty array).
+---  * `position`  - An optional integer specifying the offset within the extended attribute. Defaults to 0. Setting this argument to a value other than 0 is only valid when `att  ribute` is "com.apple.ResourceFork".
 ---
 --- Returns:
 ---  * if the returned data does not conform to proper UTF-8 byte sequences, passes the string through `hs.utf8.hexDump` first.  Otherwise the return values follow the description for [hs.fs.xattr.get](#get) .
@@ -58,7 +61,7 @@ end
 ---   * NSURLVolumeNameKey - The volume's name
 ---   * NSURLVolumeLocalizedFormatDescriptionKey - Localized description of the volume
 --- * Not all keys will be present for all volumes
---- * The meanings of NSURLVolumeIsEjectableKey and NSURLVolumeIsRemovableKey are not generally what they sound like. If you want a simple test as to whether or not a volume is a removable drive (e.g. a USB hard disk), check for NSURLVolumeIsInternalKey being false (this is what Finder does)
+--- * The meanings of NSURLVolumeIsEjectableKey and NSURLVolumeIsRemovableKey are not generally useful for determining if a drive is removable in the modern sense (e.g. a USB drive) as much of this terminology dates back to when USB didn't exist and removable drives were things like Floppy/DVD drives. If you're trying to determine if a drive is not fixed into the computer, you may need to use a combination of these keys, but which exact combination you should use, is not consistent across macOS versions.
 local host = require("hs.host")
 module.volume.allVolumes = host.volumeInformation
 

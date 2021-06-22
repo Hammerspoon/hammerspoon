@@ -4,7 +4,7 @@
 @import SystemConfiguration.SCDynamicStoreCopyDHCPInfo ;
 
 #define USERDATA_TAG    "hs.network.configuration"
-static int              refTable          = LUA_NOREF;
+static LSRefTable       refTable          = LUA_NOREF;
 static dispatch_queue_t dynamicStoreQueue = nil ;
 
 #define get_structFromUserdata(objType, L, idx) ((objType *)luaL_checkudata(L, idx, USERDATA_TAG))
@@ -16,6 +16,7 @@ typedef struct _dynamicstore_t {
     int               callbackRef ;
     int               selfRef ;
     BOOL              watcherEnabled ;
+    LSGCCanary            lsCanary;
 } dynamicstore_t;
 
 static void doDynamicStoreCallback(__unused SCDynamicStoreRef store, CFArrayRef changedKeys, void *info) {
@@ -25,6 +26,9 @@ static void doDynamicStoreCallback(__unused SCDynamicStoreRef store, CFArrayRef 
         if ((thePtr->callbackRef != LUA_NOREF) && (thePtr->selfRef != LUA_NOREF)) {
             LuaSkin   *skin = [LuaSkin sharedWithState:NULL] ;
             lua_State *L    = [skin L] ;
+            if (![skin checkGCCanary:thePtr->lsCanary]) {
+                return;
+            }
             _lua_stackguard_entry(L);
             [skin pushLuaRef:refTable ref:thePtr->callbackRef] ;
             [skin pushLuaRef:refTable ref:thePtr->selfRef] ;
@@ -65,6 +69,7 @@ static int newStoreObject(lua_State *L) {
         thePtr->callbackRef    = LUA_NOREF ;
         thePtr->selfRef        = LUA_NOREF ;
         thePtr->watcherEnabled = NO ;
+        thePtr->lsCanary = [skin createGCCanary];
 
         luaL_getmetatable(L, USERDATA_TAG) ;
         lua_setmetatable(L, -2) ;
@@ -480,7 +485,7 @@ static int dynamicStoreProxies(lua_State *L) {
     return 1 ;
 }
 
-/// hs.network.configuration:setCallback(function | nil) -> storeObject
+/// hs.network.configuration:setCallback(function) -> storeObject
 /// Method
 /// Set or remove the callback function for a store object
 ///
@@ -649,6 +654,7 @@ static int userdata_gc(lua_State* L) {
         }
     }
     thePtr->selfRef = [skin luaUnref:refTable ref:thePtr->selfRef] ;
+    [skin destroyGCCanary:&(thePtr->lsCanary)];
 
     CFRelease(thePtr->storeObject) ;
     lua_pushnil(L) ;

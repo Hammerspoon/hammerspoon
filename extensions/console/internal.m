@@ -28,7 +28,7 @@
 - (void) reflectDefaults ;
 @end
 
-static int refTable = LUA_NOREF;
+static LSRefTable refTable = LUA_NOREF;
 
 /// hs.console.darkMode([state]) -> bool
 /// Function
@@ -67,10 +67,10 @@ static int consoleDarkMode(lua_State* L) {
 /// Get or set the color that regular output displayed in the Hammerspoon console is displayed with.
 ///
 /// Parameters:
-/// * color - an optional table containing color keys as described in `hs.drawing.color`
+///  * color - an optional table containing color keys as described in `hs.drawing.color`
 ///
 /// Returns:
-/// * the current color setting as a table
+///  * the current color setting as a table
 ///
 /// Notes:
 ///  * See the `hs.drawing.color` entry in the Dash documentation, or type `help.hs.drawing.color` in the Hammerspoon console to get more information on how to specify a color.
@@ -93,10 +93,10 @@ static int console_consolePrintColor(lua_State *L) {
 /// Get or set the font used in the Hammerspoon console.
 ///
 /// Parameters:
-/// * font - an optional string or table describing the font to use in the console. If a string is specified, then the default system font size will be used.  If a table is specified, it should contain a `name` key-value pair and a `size` key-value pair describing the font to be used.
+///  * font - an optional string or table describing the font to use in the console. If a string is specified, then the default system font size will be used.  If a table is specified, it should contain a `name` key-value pair and a `size` key-value pair describing the font to be used.
 ///
 /// Returns:
-/// * the current font setting as a table containing a `name` key and a `size` key.
+///  * the current font setting as a table containing a `name` key and a `size` key.
 ///
 /// Notes:
 ///  * See the `hs.drawing.color` entry in the Dash documentation, or type `help.hs.drawing.color` in the Hammerspoon console to get more information on how to specify a color.
@@ -119,10 +119,10 @@ static int console_consoleFont(lua_State *L) {
 /// Get or set the color that commands displayed in the Hammerspoon console are displayed with.
 ///
 /// Parameters:
-/// * color - an optional table containing color keys as described in `hs.drawing.color`
+///  * color - an optional table containing color keys as described in `hs.drawing.color`
 ///
 /// Returns:
-/// * the current color setting as a table
+///  * the current color setting as a table
 ///
 /// Notes:
 ///  * See the `hs.drawing.color` entry in the Dash documentation, or type `help.hs.drawing.color` in the Hammerspoon console to get more information on how to specify a color.
@@ -145,10 +145,10 @@ static int console_consoleCommandColor(lua_State *L) {
 /// Get or set the color that function results displayed in the Hammerspoon console are displayed with.
 ///
 /// Parameters:
-/// * color - an optional table containing color keys as described in `hs.drawing.color`
+///  * color - an optional table containing color keys as described in `hs.drawing.color`
 ///
 /// Returns:
-/// * the current color setting as a table
+///  * the current color setting as a table
 ///
 /// Notes:
 ///  * See the `hs.drawing.color` entry in the Dash documentation, or type `help.hs.drawing.color` in the Hammerspoon console to get more information on how to specify a color.
@@ -192,10 +192,10 @@ static int console_asWindow(lua_State *L) {
 /// Get or set the color for the background of the Hammerspoon Console's window.
 ///
 /// Parameters:
-/// * color - an optional table containing color keys as described in `hs.drawing.color`
+///  * color - an optional table containing color keys as described in `hs.drawing.color`
 ///
 /// Returns:
-/// * the current color setting as a table
+///  * the current color setting as a table
 ///
 /// Notes:
 ///  * See the `hs.drawing.color` entry in the Dash documentation, or type `help.hs.drawing.color` in the Hammerspoon console to get more information on how to specify a color.
@@ -217,10 +217,10 @@ static int console_backgroundColor(lua_State *L) {
 /// Get or set the color for the background of the Hammerspoon Console's output view.
 ///
 /// Parameters:
-/// * color - an optional table containing color keys as described in `hs.drawing.color`
+///  * color - an optional table containing color keys as described in `hs.drawing.color`
 ///
 /// Returns:
-/// * the current color setting as a table
+///  * the current color setting as a table
 ///
 /// Notes:
 ///  * See the `hs.drawing.color` entry in the Dash documentation, or type `help.hs.drawing.color` in the Hammerspoon console to get more information on how to specify a color.
@@ -242,10 +242,10 @@ static int console_outputBackgroundColor(lua_State *L) {
 /// Get or set the color for the background of the Hammerspoon Console's input field.
 ///
 /// Parameters:
-/// * color - an optional table containing color keys as described in `hs.drawing.color`
+///  * color - an optional table containing color keys as described in `hs.drawing.color`
 ///
 /// Returns:
-/// * the current color setting as a table
+///  * the current color setting as a table
 ///
 /// Notes:
 ///  * See the `hs.drawing.color` entry in the Dash documentation, or type `help.hs.drawing.color` in the Hammerspoon console to get more information on how to specify a color.
@@ -620,7 +620,7 @@ static const luaL_Reg extrasLib[] = {
 
 int luaopen_hs_console_internal(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    refTable      = [skin registerLibrary:extrasLib metaFunctions:nil];
+    refTable      = [skin registerLibrary:"hs.console" functions:extrasLib metaFunctions:nil];
 
     return 1;
 }

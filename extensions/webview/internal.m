@@ -8,7 +8,7 @@
 //   can we adjust context menu?
 //   can we choose native viewer over plugin if plugins enabled (e.g. not use Adobe for PDF)?
 
-static int           refTable ;
+static LSRefTable     refTable ;
 static WKProcessPool *HSWebViewProcessPool ;
 
 static NSMapTable    *delayTimers ;
@@ -106,6 +106,7 @@ void delayUntilViewStopsLoading(HSWebViewView *theView, dispatch_block_t block) 
         _allowKeyboardEntry = NO;
         _closeOnEscape      = NO;
         _darkMode           = NO;
+//        _lsCanary        = nil;
 
         // can't be set before the callback which acts on delegate methods is defined
         self.delegate       = self;
@@ -132,7 +133,12 @@ void delayUntilViewStopsLoading(HSWebViewView *theView, dispatch_block_t block) 
 - (void)windowWillClose:(__unused NSNotification *)notification {
     LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
     lua_State *L = [skin L] ;
+
+    if (![skin checkGCCanary:self.lsCanary]) {
+        return;
+    }
     _lua_stackguard_entry(L);
+
     if (_windowCallback != LUA_NOREF) {
         [skin pushLuaRef:refTable ref:_windowCallback] ;
         [skin pushNSObject:@"closing"] ;
@@ -575,6 +581,7 @@ void delayUntilViewStopsLoading(HSWebViewView *theView, dispatch_block_t block) 
         newWindow.parent             = parent ;
         newWindow.deleteOnClose      = YES ;
         newWindow.opaque             = parent.opaque ;
+        newWindow.lsCanary           = [skin createGCCanary];
 
         if (((HSWebViewWindow *)theView.window).windowCallback != LUA_NOREF) {
             [skin pushLuaRef:refTable ref:((HSWebViewWindow *)theView.window).windowCallback];
@@ -1313,7 +1320,7 @@ static int webview_allowNewWindows(lua_State *L) {
 /// Get or set whether or not invalid SSL server certificates that are approved by the ssl callback function are accepted as valid for browsing with the webview.
 ///
 /// Parameters:
-/// * `flag` - an optional boolean, default false, specifying whether or not an invalid SSL server certificate should be  accepted if it is approved by the ssl callback function.
+///  * `flag` - an optional boolean, default false, specifying whether or not an invalid SSL server certificate should be  accepted if it is approved by the ssl callback function.
 ///
 /// Returns:
 ///  * If a value is provided, then this method returns the webview object; otherwise the current value
@@ -1695,16 +1702,24 @@ static int webview_evaluateJavaScript(lua_State *L) {
         callbackRef = [skin luaRef:refTable] ;
     }
 
+    LSGCCanary lsCanary = [skin createGCCanary];
     [theView evaluateJavaScript:javascript
               completionHandler:^(id obj, NSError *error){
 
         if (callbackRef != LUA_NOREF) {
-            LuaSkin *blockSkin = [LuaSkin sharedWithState:L] ;
-            [blockSkin pushLuaRef:refTable ref:callbackRef] ;
-            [blockSkin pushNSObject:obj] ;
-            NSError_toLua([blockSkin L], error) ;
-            [blockSkin protectedCallAndError:@"hs.webview:evaluateJavaScript callback" nargs:2 nresults:0];
-            [blockSkin luaUnref:refTable ref:callbackRef] ;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                LuaSkin *blockSkin = [LuaSkin sharedWithState:L] ;
+                if (![blockSkin checkGCCanary:lsCanary]) {
+                    return;
+                }
+                [blockSkin pushLuaRef:refTable ref:callbackRef] ;
+                [blockSkin pushNSObject:obj] ;
+                NSError_toLua([blockSkin L], error) ;
+                [blockSkin protectedCallAndError:@"hs.webview:evaluateJavaScript callback" nargs:2 nresults:0];
+                [blockSkin luaUnref:refTable ref:callbackRef] ;
+
+                [skin destroyGCCanary:&lsCanary];
+            });
         }
     }] ;
 
@@ -1793,7 +1808,6 @@ static int webview_size(lua_State *L) {
 ///   * `plugInsEnabled`                        - plug-ins are enabled (default false)
 ///   * `developerExtrasEnabled`                - include "Inspect Element" in the context menu
 ///   * `suppressesIncrementalRendering`        - suppresses content rendering until fully loaded into memory (default false)
-///
 ///   * The following additional preferences may also be set under OS X 10.11 or later (they will be ignored with a warning printed if used under OS X 10.10):
 ///     * `applicationName`                       - a string specifying an application name to be listed at the end of the browser's USER-AGENT header.  Note that this is only appended to the default user agent string; if you set a custom one with [hs.webview:userAgent](#userAgent), this value is ignored.
 ///     * `allowsAirPlay`                         - a boolean specifying whether media playback within the webview can play through AirPlay devices.
@@ -1820,6 +1834,8 @@ static int webview_new(lua_State *L) {
                                                                         defer:YES];
 
     if (theWindow) {
+        theWindow.lsCanary = [skin createGCCanary];
+
         // Don't create until actually used...
         if (!HSWebViewProcessPool) HSWebViewProcessPool = [[WKProcessPool alloc] init] ;
 
@@ -3076,6 +3092,10 @@ static int userdata_gc(lua_State* L) {
         theView.UIDelegate         = nil ;
         theWindow.contentView      = nil ;
         theView                    = nil ;
+
+        LSGCCanary tmpLSUUID           = theWindow.lsCanary;
+        [skin destroyGCCanary:&tmpLSUUID];
+        theWindow.lsCanary      = tmpLSUUID;
 
         theWindow.delegate         = nil ;
         theWindow                  = nil;

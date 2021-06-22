@@ -16,6 +16,7 @@
 typedef struct _audiodevice_watcher_t {
     int callback;
     BOOL running;
+    LSGCCanary lsCanary;
 } audiodevice_watcher;
 
 const AudioObjectPropertySelector watchSelectors[] = {
@@ -25,7 +26,7 @@ const AudioObjectPropertySelector watchSelectors[] = {
     kAudioHardwarePropertyDefaultSystemOutputDevice,
 };
 
-static int refTable;
+static LSRefTable refTable;
 static audiodevice_watcher *theWatcher = nil;
 
 #pragma mark - Function definitions
@@ -46,11 +47,17 @@ OSStatus audiodevicewatcher_callback(AudioDeviceID deviceID, UInt32 numAddresses
 
         //NSLog(@"%i addresses to check", numAddresses);
         LuaSkin *skin = [LuaSkin sharedWithState:NULL];
-        _lua_stackguard_entry(skin.L);
+
         if (!theWatcher) {
             [skin logWarn:@"hs.audiodevice.watcher callback fired, but theWatcher is nil. This is a bug"];
             return;
         }
+
+        if (![skin checkGCCanary:theWatcher->lsCanary]) {
+            return;
+        }
+        _lua_stackguard_entry(skin.L);
+
         if (theWatcher->callback == LUA_NOREF) {
             [skin logWarn:@"hs.audiodevice.watcher callback fired, but there is no callback. This is a bug"];
         } else {
@@ -96,6 +103,7 @@ static int audiodevicewatcher_setCallback(lua_State *L) {
         memset(theWatcher, 0, sizeof(audiodevice_watcher));
         theWatcher->running = NO;
         theWatcher->callback = LUA_NOREF;
+        theWatcher->lsCanary = [skin createGCCanary];
     }
 
     theWatcher->callback = [skin luaUnref:refTable ref:theWatcher->callback];
@@ -215,6 +223,7 @@ static int audiodevicewatcher_gc(lua_State *L) {
     if (theWatcher) {
         audiodevicewatcher_stop(L);
         theWatcher->callback = [skin luaUnref:refTable ref:theWatcher->callback];
+        [skin destroyGCCanary:&(theWatcher->lsCanary)];
         free(theWatcher);
         theWatcher = nil;
     }
@@ -242,6 +251,6 @@ static const luaL_Reg metaLib[] = {
 
 int luaopen_hs_audiodevice_watcher(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    refTable = [skin registerLibrary:audiodevicewatcherLib metaFunctions:metaLib];
+    refTable = [skin registerLibrary:"hs.audiodevice.watcher" functions:audiodevicewatcherLib metaFunctions:metaLib];
     return 1;
 }

@@ -142,7 +142,8 @@ end
 --- Constructor
 --- Creates a new hs.geometry object
 ---
---- Parameters: see the module description at the top
+--- Parameters:
+---  * ... - see the module description at the top
 ---
 --- Returns:
 ---  * a newly created hs.geometry object

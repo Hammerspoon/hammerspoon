@@ -217,7 +217,7 @@ There is, however, a simple way to discover the true path of your Spoon on the f
 
 ```lua
 -- Get path to Spoon's init.lua script
-obj.spoonPath = hs.spoon.scriptPath()
+obj.spoonPath = hs.spoons.scriptPath()
 ```
 #### Assets
 
@@ -226,7 +226,7 @@ To access assets bundled with your Spoon, use the `hs.spoons.resourcePath()` fun
 ```lua
 
 -- Get path to a resource bundled with the Spoon
-obj.imagePath = hs.spoon.resourcePath("images/someImage.png")
+obj.imagePath = hs.spoons.resourcePath("images/someImage.png")
 ```
 
 #### Code
@@ -234,7 +234,7 @@ obj.imagePath = hs.spoon.resourcePath("images/someImage.png")
 You cannot use `require()` to load `.lua` files in a Spoon, instead you should use:
 
 ```lua
-dofile(hs.spoon.resourcePath("someCode.lua"))
+dofile(hs.spoons.resourcePath("someCode.lua"))
 ```
 
 and the `someCode.lua` file will be loaded and executed (and if it returns anything, you can capture those values from `dofile()`)

@@ -69,6 +69,27 @@ NSString *specMaskToString(int spec) {
     return [parts componentsJoinedByString:@" or "];
 }
 
+static NSString *getCallerFileName(void) {
+    NSString *executablePath  = [[NSBundle mainBundle] executablePath] ;
+    Dl_info  libraryInfo ;
+    NSArray  *csa = [NSThread callStackReturnAddresses] ;
+    NSString *fname, *prevFname ;
+    for (NSNumber *entry in csa) {
+        prevFname = fname ;
+        fname = nil ;
+        uintptr_t add = entry.unsignedLongValue ;
+        if (dladdr((const void *)add, &libraryInfo) != 0) {
+            fname = [NSString stringWithUTF8String:libraryInfo.dli_fname] ;
+            if ([fname isEqualToString:executablePath]) {
+                fname = prevFname ;
+                break ;
+            }
+            if (![fname containsString:@"LuaSkin"]) break ;
+        }
+    }
+    return fname ;
+}
+
 // Extension to LuaSkin class to allow private modification of the lua_State property
 @interface LuaSkin ()
 
@@ -86,6 +107,7 @@ NSString *specMaskToString(int spec) {
 @property (readonly, atomic)  NSMutableDictionary *registeredLuaObjectHelperTableMappings;
 @property (readonly, atomic)  NSMutableDictionary *retainedObjectsRefTableMappings ;
 
+@property (readwrite, assign, atomic) int debugLibraryRef ;
 @end
 
 // Extension to LuaSkin class for conversion support
@@ -140,12 +162,7 @@ static NSMutableSet *_sharedWarnings ;
     // self in a class method == the class itself
     LuaSkin *skin = [self sharedWithState:NULL] ;
 
-    Dl_info   libraryInfo ;
-    NSArray   *csa   = [NSThread callStackReturnAddresses] ;
-    NSNumber  *ret   = (csa.count > 1) ? csa[1] : nil ;
-    uintptr_t add    = ret ? ret.unsignedLongValue : 0ul ;
-    NSString  *fname = (ret && dladdr((const void *)add, &libraryInfo) != 0) ?
-                       [NSString stringWithUTF8String:libraryInfo.dli_fname] : nil ;
+    NSString  *fname = getCallerFileName() ;
 
     if (fname) {
         if (![_sharedWarnings containsObject:fname]) {
@@ -237,31 +254,48 @@ static NSMutableSet *_sharedWarnings ;
 #pragma mark - lua_State lifecycle
 
 - (void)createLuaState {
+    NSString *catastropheText = @"";
+
     NSLog(@"createLuaState");
     NSAssert((LuaSkin.mainLuaState == NULL), @"createLuaState called on a live Lua environment", nil);
+    self.uuid = [NSUUID UUID];
+    [self logBreadcrumb:[NSString stringWithFormat:@"createLuaState: %@", self.uuid]];
+
     LuaSkin.mainLuaState = luaL_newstate();
     luaL_openlibs(LuaSkin.mainLuaState);
 
+    lua_getglobal(LuaSkin.mainLuaState, "debug") ;
+    self.debugLibraryRef = luaL_ref(LuaSkin.mainLuaState, LUA_REGISTRYINDEX) ;
+
     NSString *luaSkinLua = [[NSBundle bundleForClass:[self class]] pathForResource:@"luaskin" ofType:@"lua"];
-    NSAssert((luaSkinLua != nil), @"createLuaState was unable to find luaskin.lua. Your installation may be damaged");
+    if (!luaSkinLua) {
+        catastropheText = @"createLuaState was unable to find luaskin.lua. Please re-install Hammerspoon";
+        goto catastrophe;
+    }
 
     luaopen_luaskin_internal(LuaSkin.mainLuaState) ; // load objectWrapper userdata methods and create _G["ls"]
 
     int loadresult = luaL_loadfile(LuaSkin.mainLuaState, luaSkinLua.fileSystemRepresentation); // extend _G["ls"]
     if (loadresult != 0) {
-        NSLog(@"createLuaState was unable to load luaskin.lua. Your installation may be damaged.");
-        exit(1);
+        catastropheText = @"createLuaState was unable to load luaskin.lua. Please re-install Hammerspoon";
+        goto catastrophe;
     }
 
     int luaresult = lua_pcall(LuaSkin.mainLuaState, 0, 0, 0);
     if (luaresult != LUA_OK) {
-        NSLog(@"createLuaState was unable to evaluate luaskin.lua. Your installation may be damaged.");
-        exit(1);
+        catastropheText = @"createLuaState was unable to evaluate luaskin.lua. Please re-install Hammerspoon";
+        goto catastrophe;
     }
+
+    return;
+
+catastrophe:
+    [self.delegate handleCatastrophe:catastropheText];
+    exit(1);
 }
 
 - (void)destroyLuaState {
-    NSLog(@"destroyLuaState");
+    [self logBreadcrumb:[NSString stringWithFormat:@"destroyLuaState: %@", self.uuid]];
     NSAssert((LuaSkin.mainLuaState != NULL), @"destroyLuaState called with no Lua environment", nil);
     if (LuaSkin.mainLuaState) {
         [self.retainedObjectsRefTableMappings enumerateKeysAndObjectsUsingBlock:^(NSNumber *refTableN, NSMutableDictionary *objectMappings, __unused BOOL *stop) {
@@ -270,10 +304,13 @@ static NSMutableSet *_sharedWarnings ;
                 for (id object in objectMappings.allValues) [self luaRelease:tmpRefTable forNSObject:object] ;
 
             } else {
-                NSLog(@"destroyLuaState - invalid retainedObject reference table entry:%@ = %@", refTableN, objectMappings) ;
+                [self logBreadcrumb:[NSString stringWithFormat:@"destroyLuaState - invalid retainedObject reference table entry: %@ = %@", refTableN, objectMappings]];
             }
         }] ;
         [self.retainedObjectsRefTableMappings           removeAllObjects] ;
+
+        luaL_unref(LuaSkin.mainLuaState, LUA_REGISTRYINDEX, self.debugLibraryRef) ;
+        self.debugLibraryRef = LUA_REFNIL ;
 
         lua_close(LuaSkin.mainLuaState);
         [self.registeredNSHelperFunctions               removeAllObjects] ;
@@ -296,13 +333,46 @@ static NSMutableSet *_sharedWarnings ;
     [self createLuaState];
 }
 
+- (BOOL)checkGCCanary:(LSGCCanary)canary {
+    if (!self.L) {
+        [self logBreadcrumb:@"LuaSkin nil lua_State detected"];
+        return NO;
+    }
+
+    NSString *NSlsCanary = [NSString stringWithCString:canary.uuid encoding:NSUTF8StringEncoding];
+    if (!NSlsCanary || ![self.uuid.UUIDString isEqualToString:NSlsCanary]) {
+        [self logWarn:@"LuaSkin has caught an attempt to operate on an object that has been garbage collected."];
+        return NO;
+    }
+
+    return YES;
+}
+
+- (LSGCCanary)createGCCanary {
+    LSGCCanary canary;
+    memset(canary.uuid, 0, LSUUIDLen);
+    strncpy(canary.uuid, "UNINITIALISED", 13);
+
+    const char *tmpUUID = [self.uuid.UUIDString cStringUsingEncoding:NSUTF8StringEncoding];
+    if (tmpUUID) {
+        strncpy(canary.uuid, tmpUUID, LSUUIDLen);
+    }
+
+    return canary;
+}
+
+- (void)destroyGCCanary:(LSGCCanary *)canary {
+    memset(canary->uuid, 0, LSUUIDLen);
+    strncpy(canary->uuid, "GC", 2);
+}
+
 #pragma mark - Methods for calling into Lua from C
 
 - (BOOL)protectedCallAndTraceback:(int)nargs nresults:(int)nresults {
     // At this point we are being called with nargs+1 items on the stack, but we need to shove our traceback handler below that
 
     // Get debug.traceback() onto the top of the stack
-    lua_getglobal(self.L, "debug");
+    lua_rawgeti(self.L, LUA_REGISTRYINDEX, self.debugLibraryRef);
     lua_getfield(self.L, -1, "traceback");
     lua_remove(self.L, -2);
 
@@ -353,7 +423,14 @@ static NSMutableSet *_sharedWarnings ;
 
 #pragma mark - Methods for registering libraries with Lua
 
-- (int)registerLibrary:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions {
+- (LSRefTable)registerLibrary:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions {
+    [self logWarn:@"This library is using an old registerLibrary method on LuaSkin"];
+    return [self registerLibrary:"Unknown" functions:functions metaFunctions:metaFunctions];
+}
+
+- (LSRefTable)registerLibrary:(const char * _Nonnull)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions {
+
+    NSAssert(libraryName != NULL, @"libraryName can not be NULL", nil);
     // Ensure we're not given a null function table
     NSAssert(functions != NULL, @"functions can not be NULL", nil);
 
@@ -377,13 +454,36 @@ static NSMutableSet *_sharedWarnings ;
         lua_setmetatable(self.L, -2);
     }
     lua_newtable(self.L);
+
+    NSString *fname = getCallerFileName() ;
+
+    // FIXME: Can this all be replaced just by using the libraryName argument?
+    if (fname) {
+        NSRange range = [fname rangeOfString:@"/hs/"] ;
+        if (range.location == NSNotFound) range = [fname rangeOfString:@"/LuaSkin"] ;
+        if (range.location != NSNotFound) {
+            NSUInteger startAt = range.location + 1 ;
+            if (startAt < fname.length) {
+                fname = [fname substringFromIndex:startAt] ;
+            }
+            if ([fname hasSuffix:@".so"]) fname = [fname substringToIndex:(fname.length - 3)] ;
+            fname = [fname stringByReplacingOccurrencesOfString:@"/" withString:@"."] ;
+        }
+        lua_pushstring(self.L, fname.UTF8String) ;
+    } else {
+        lua_pushstring(self.L, "** unable to determine source file **" ) ;
+    }
+    lua_setfield(self.L, -2, "__type") ;
+
     int tmpRefTable = luaL_ref(self.L, LUA_REGISTRYINDEX);
+    NSAssert(tmpRefTable != LUA_REFNIL, @"Unexpected LUA_REFNIL registering library: %@", fname);
+
     lua_pushinteger(self.L, tmpRefTable) ;
     lua_setfield(self.L, -2, "__refTable") ;
     return tmpRefTable;
 }
 
-- (int)registerLibraryWithObject:(const char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions objectFunctions:(const luaL_Reg *)objectFunctions {
+- (LSRefTable)registerLibraryWithObject:(const char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions objectFunctions:(const luaL_Reg *)objectFunctions {
 
     NSAssert(libraryName != NULL, @"libraryName can not be NULL", nil);
     NSAssert(functions != NULL, @"functions can not be NULL (%s)", libraryName);
@@ -391,9 +491,7 @@ static NSMutableSet *_sharedWarnings ;
 
     [self registerObject:libraryName objectFunctions:objectFunctions];
 
-    int moduleRefTable = [self registerLibrary:functions metaFunctions:metaFunctions];
-
-    return moduleRefTable;
+    return [self registerLibrary:libraryName functions:functions metaFunctions:metaFunctions];
 }
 
 - (void)registerObject:(const char *)objectName objectFunctions:(const luaL_Reg *)objectFunctions {
@@ -429,6 +527,9 @@ static NSMutableSet *_sharedWarnings ;
     NSAssert((refTable != LUA_NOREF && refTable != LUA_REFNIL), @"ERROR: LuaSkin::luaRef was passed a NOREF/REFNIL refTable", nil);
 
     if (lua_isnil(self.L, -1)) {
+        // Remove the nil from the stack
+        lua_remove(self.L, -1);
+
         return LUA_REFNIL;
     }
 
@@ -730,10 +831,6 @@ nextarg:
 
 - (BOOL)registerPushNSHelper:(pushNSHelperFunction)helperFN forClass:(const char *)cClassName {
     BOOL allGood = NO ;
-// this hackery assumes that this method is only called from within the luaopen_* function of a module and
-// attempts to compensate for a wrapper to "require"... I doubt anyone is actually using it anymore.
-    int level = (int)[[NSUserDefaults standardUserDefaults] integerForKey:@"HSLuaSkinRegisterRequireLevel"];
-    if (level == 0) level = 3 ;
 
     NSString *className = nil;
     @try {
@@ -749,11 +846,13 @@ nextarg:
                                                         cClassName,
                                                         self.registeredNSHelperLocations[className]]] ;
         } else {
-            luaL_where(self.L, level) ;
-            NSString *locationString = @(lua_tostring(self.L, -1)) ;
-            self.registeredNSHelperLocations[className] = locationString;
+            NSString *locationString = getCallerFileName() ;
+            if (locationString) {
+                self.registeredNSHelperLocations[className] = locationString;
+            } else {
+                self.registeredNSHelperLocations[className] = @"** unable to determine source file **" ;
+            }
             self.registeredNSHelperFunctions[className] = [NSValue valueWithPointer:(void *)helperFN];
-            lua_pop(self.L, 1) ;
             allGood = YES ;
         }
     } else {
@@ -835,10 +934,6 @@ nextarg:
 
 - (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(const char *)cClassName {
     BOOL allGood = NO ;
-// this hackery assumes that this method is only called from within the luaopen_* function of a module and
-// attempts to compensate for a wrapper to "require"... I doubt anyone is actually using it anymore.
-    int level = (int)[[NSUserDefaults standardUserDefaults] integerForKey:@"HSLuaSkinRegisterRequireLevel"];
-    if (level == 0) level = 3 ;
 
     NSString *className = nil;
     @try {
@@ -854,11 +949,13 @@ nextarg:
                                                         cClassName,
                                                         self.registeredLuaObjectHelperFunctions[className]]] ;
         } else {
-            luaL_where(self.L, level) ;
-            NSString *locationString = @(lua_tostring(self.L, -1)) ;
-            self.registeredLuaObjectHelperLocations[className] = locationString;
+            NSString *locationString = getCallerFileName() ;
+            if (locationString) {
+                self.registeredLuaObjectHelperLocations[className] = locationString;
+            } else {
+                self.registeredLuaObjectHelperLocations[className] = @"** unable to determine source file **" ;
+            }
             self.registeredLuaObjectHelperFunctions[className] = [NSValue valueWithPointer:(void *)helperFN];
-            lua_pop(self.L, 1) ;
             allGood = YES ;
         }
     } else {
@@ -1251,16 +1348,30 @@ nextarg:
     NSValue    *value    = obj;
     const char *objCType = [value objCType];
 
+    // @encode is a compiler directive that can give different results depending upon the
+    // architecture, so lets compare apples to apples:
+    static dispatch_once_t onceToken;
+    static const char *pointEncoding ;
+    static const char *sizeEncoding ;
+    static const char *rectEncoding ;
+    static const char *rangeEncoding ;
+    dispatch_once(&onceToken, ^{
+        pointEncoding = [[NSValue valueWithPoint:NSZeroPoint] objCType] ;
+        sizeEncoding  = [[NSValue valueWithSize:NSZeroSize] objCType] ;
+        rectEncoding  = [[NSValue valueWithRect:NSZeroRect] objCType] ;
+        rangeEncoding = [[NSValue valueWithRange:NSMakeRange(0,1)] objCType] ;
+    });
+
     // Ensure our Lua stack is large enough for the number of items being pushed
     [self growStack:3 withMessage:"pushNSValue"];
 
-    if (strcmp(objCType, @encode(NSPoint))==0) {
+    if (strcmp(objCType, pointEncoding)==0) {
         [self pushNSPoint:[value pointValue]] ;
-    } else if (strcmp(objCType, @encode(NSSize))==0) {
+    } else if (strcmp(objCType, sizeEncoding)==0) {
         [self  pushNSSize:[value sizeValue]] ;
-    } else if (strcmp(objCType, @encode(NSRect))==0) {
+    } else if (strcmp(objCType, rectEncoding)==0) {
         [self  pushNSRect:[value rectValue]] ;
-    } else if (strcmp(objCType, @encode(NSRange))==0) {
+    } else if (strcmp(objCType, rangeEncoding)==0) {
         NSRange holder = [value rangeValue] ;
         lua_newtable(self.L) ;
         lua_pushinteger(self.L, (lua_Integer)holder.location) ; lua_setfield(self.L, -2, "location") ;
@@ -1620,6 +1731,17 @@ nextarg:
 - (void)logWarn:(NSString *)theMessage       { [self logAtLevel:LS_LOG_WARN withMessage:theMessage] ; }
 - (void)logError:(NSString *)theMessage      { [self logAtLevel:LS_LOG_ERROR withMessage:theMessage] ; }
 - (void)logBreadcrumb:(NSString *)theMessage { [self logAtLevel:LS_LOG_BREADCRUMB withMessage:theMessage] ; }
+
+- (void)logKnownBug:(NSString *)message {
+    id theDelegate = self.delegate;
+
+    if (theDelegate &&  [theDelegate respondsToSelector:@selector(logKnownBug:)]) {
+        [theDelegate logKnownBug:message];
+    } else {
+        NSLog(@"(missing delegate):known bug: %@", message);
+    }
+
+}
 
 + (void)classLogAtLevel:(int)level withMessage:(NSString *)theMessage {
     if ([NSThread isMainThread]) {
