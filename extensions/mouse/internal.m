@@ -12,14 +12,14 @@ static void enum_callback(void *ctx, IOReturn res, void *sender, IOHIDDeviceRef 
     if (res != kIOReturnSuccess) {
         return;
     }
-    
+
     NSString *vendor = (__bridge NSString *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDManufacturerKey));
     NSString *product = (__bridge NSString *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductKey));
-    
+
     if (vendor == nil) {
         vendor = @"Unknown vendor";
     }
-    
+
     if (product == nil) {
         product = @"Unknown mouse";
     }
@@ -73,7 +73,7 @@ static void enum_callback(void *ctx, IOReturn res, void *sender, IOHIDDeviceRef 
     // Run a sub-runloop until the initial enumeration of mice is completed
     while (CFRunLoopRunInMode(RUNLOOPMODE, 0, TRUE) == kCFRunLoopRunHandledSource)
         // Do nothing
-    
+
     // Remove our callback and unschedule from the runloop
     IOHIDManagerRegisterDeviceMatchingCallback(hidman, NULL, NULL);
     IOHIDManagerUnscheduleFromRunLoop(hidman, CFRunLoopGetCurrent(), RUNLOOPMODE);
@@ -105,7 +105,7 @@ static void enum_callback(void *ctx, IOReturn res, void *sender, IOHIDDeviceRef 
 }
 
 // MARK:- HID parameters
--(BOOL)isScrollDirectionNatural {
+-(BOOL)getScrollDirectionNatural {
     return [[[NSUserDefaults standardUserDefaults] objectForKey:@"com.apple.swipescrolldirection"] boolValue];
 }
 
@@ -141,7 +141,7 @@ static void enum_callback(void *ctx, IOReturn res, void *sender, IOHIDDeviceRef 
     kern_return_t result = IORegistryEntrySetCFProperty(service, CFSTR(kIOHIDParametersKey), (__bridge CFDictionaryRef)newParameters);
 
     IOObjectRelease(service);
-    
+
     return result;
 }
 @end
@@ -189,7 +189,7 @@ static int mouse_count(lua_State* L) {
 static int mouse_names(lua_State* L) {
     LuaSkin *skin = LS_API(LS_TBREAK);
     HSmouse *mouseManager = [[HSmouse alloc] init];
-    
+
     [skin pushNSObject:mouseManager.names];
     return 1;
 }
@@ -209,12 +209,12 @@ static int mouse_names(lua_State* L) {
 static int mouse_absolutePosition(lua_State *L) {
     LuaSkin *skin = LS_API(LS_TTABLE|LS_TOPTIONAL, LS_TBREAK);
     HSmouse *mouseManager = [[HSmouse alloc] init];
-    
+
     if (lua_type(skin.L, 1) == LUA_TTABLE) {
         NSPoint point = [skin tableToPointAtIndex:1];
         mouseManager.absolutePosition = point;
     }
-    
+
     [skin pushNSPoint:mouseManager.absolutePosition];
     return 1;
 }
@@ -261,7 +261,7 @@ static int mouse_mouseAcceleration(lua_State *L) {
 static int mouse_scrollDirection(lua_State *L) {
     LuaSkin *skin = LS_API(LS_TBREAK);
     HSmouse *mouseManager = [[HSmouse alloc] init];
-    
+
     [skin pushNSObject:mouseManager.isScrollDirectionNatural ? @"natural" : @"normal"];
     return 1;
 }
