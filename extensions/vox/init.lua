@@ -8,6 +8,8 @@ local alert = require "hs.alert"
 local as = require "hs.applescript"
 local app = require "hs.application"
 
+local voxBundleId = "com.coppertino.Vox"
+
 -- Internal function to pass a command to Applescript.
 local function tell(cmd)
   local _cmd = 'tell application "vox" to ' .. cmd
@@ -306,7 +308,8 @@ end
 --- Returns:
 ---  * A boolean value indicating whether the vox application is running
 function vox.isRunning()
-  return app.get("VOX"):isRunning() ~= nil
+  local apps = app.applicationsForBundleID(voxBundleId)
+  return #apps > 0
 end
 
 return vox
