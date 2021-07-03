@@ -305,7 +305,7 @@ static int screen_setMode(lua_State* L) {
 ///  * This returns all displays to the gamma tables specified by the user's selected ColorSync display profiles
 static int screen_gammaRestore(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin checkArgs:LS_TBREAK];
+    [skin checkArgs:LS_TANY|LS_TOPTIONAL, LS_TBREAK];
 
     CGDisplayRestoreColorSyncSettings();
     [currentGammas removeAllObjects];
@@ -1343,9 +1343,9 @@ static int screen_accessibilitySettings(lua_State *L) {
     return 1;
 }
 
-static int screens_gc(lua_State* L __unused) {
+static int screens_gc(lua_State* L) {
     CGDisplayRemoveReconfigurationCallback(displayReconfigurationCallback, NULL);
-    screen_gammaRestore(nil);
+    screen_gammaRestore(L);
 
     return 0;
 }

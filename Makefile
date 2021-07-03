@@ -15,7 +15,7 @@ $(APPFILE): PRODUCT_DIR = $(shell xcodebuild -workspace Hammerspoon.xcworkspace 
 $(APPFILE): build $(shell find Hammerspoon -type f)
 	echo "Building CommandPost in $(CONFIGURATION) configuration"
 	rm -rf $@
-	xcodebuild -workspace Hammerspoon.xcworkspace -scheme $(SCHEME) -configuration $(CONFIGURATION) clean build | tee build/$(CONFIGURATION)-build.log | xcpretty -f `xcpretty-actions-formatter`
+	xcodebuild -workspace Hammerspoon.xcworkspace -scheme $(SCHEME) -configuration $(CONFIGURATION) clean build | tee build/$(CONFIGURATION)-build.log | xcbeautify
 	cp -R ${PRODUCT_DIR}/CommandPost.app $@
 	cp -R ${PRODUCT_DIR}/CommandPost.app.dSYM build/
 	cp -R ${PRODUCT_DIR}/LuaSkin.framework.dSYM build/
