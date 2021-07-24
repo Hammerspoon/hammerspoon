@@ -44,6 +44,7 @@ export HS_MODULES="application \
     pasteboard \
     pathwatcher \
     plist \
+    razer \
     screen \
     settings \
     serial \

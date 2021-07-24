@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 46;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -19,6 +19,30 @@
 		2273893624860C0E003EBC68 /* test_websocket.lua in Resources */ = {isa = PBXBuildFile; fileRef = 22738933248606A9003EBC68 /* test_websocket.lua */; };
 		22A6626025FC080200AA329E /* test_serial.lua in Resources */ = {isa = PBXBuildFile; fileRef = 22A6625F25FC07F700AA329E /* test_serial.lua */; };
 		22A6626225FC087000AA329E /* HSserial.m in Sources */ = {isa = PBXBuildFile; fileRef = 22A6626125FC087000AA329E /* HSserial.m */; };
+		22CB36C726ABF52C00457F6F /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
+		22CB36D026ABF57000457F6F /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 22CB36CE26ABF57000457F6F /* internal.m */; };
+		22CB36E926ABF93A00457F6F /* razercommon.h in Headers */ = {isa = PBXBuildFile; fileRef = 22CB36D326ABF93400457F6F /* razercommon.h */; };
+		22CB36EA26ABF93A00457F6F /* razerdevice.c in Sources */ = {isa = PBXBuildFile; fileRef = 22CB36D426ABF93400457F6F /* razerdevice.c */; };
+		22CB36EB26ABF93A00457F6F /* razerchromacommon.c in Sources */ = {isa = PBXBuildFile; fileRef = 22CB36D526ABF93400457F6F /* razerchromacommon.c */; };
+		22CB36EC26ABF93A00457F6F /* razeraccessory_driver.h in Headers */ = {isa = PBXBuildFile; fileRef = 22CB36D626ABF93400457F6F /* razeraccessory_driver.h */; };
+		22CB36ED26ABF93A00457F6F /* razermousedock_driver.c in Sources */ = {isa = PBXBuildFile; fileRef = 22CB36D726ABF93500457F6F /* razermousedock_driver.c */; };
+		22CB36EE26ABF93A00457F6F /* razerkbd_driver.c in Sources */ = {isa = PBXBuildFile; fileRef = 22CB36D826ABF93500457F6F /* razerkbd_driver.c */; };
+		22CB36EF26ABF93A00457F6F /* razerheadphone_driver.c in Sources */ = {isa = PBXBuildFile; fileRef = 22CB36D926ABF93500457F6F /* razerheadphone_driver.c */; };
+		22CB36F026ABF93A00457F6F /* razercommon.c in Sources */ = {isa = PBXBuildFile; fileRef = 22CB36DA26ABF93600457F6F /* razercommon.c */; };
+		22CB36F126ABF93A00457F6F /* razermousemat_driver.c in Sources */ = {isa = PBXBuildFile; fileRef = 22CB36DB26ABF93600457F6F /* razermousemat_driver.c */; };
+		22CB36F226ABF93A00457F6F /* razerheadphone_driver.h in Headers */ = {isa = PBXBuildFile; fileRef = 22CB36DC26ABF93600457F6F /* razerheadphone_driver.h */; };
+		22CB36F326ABF93A00457F6F /* razerkbd_driver.h in Headers */ = {isa = PBXBuildFile; fileRef = 22CB36DD26ABF93600457F6F /* razerkbd_driver.h */; };
+		22CB36F426ABF93A00457F6F /* razerkraken_driver.h in Headers */ = {isa = PBXBuildFile; fileRef = 22CB36DE26ABF93700457F6F /* razerkraken_driver.h */; };
+		22CB36F526ABF93A00457F6F /* razerchromacommon.h in Headers */ = {isa = PBXBuildFile; fileRef = 22CB36DF26ABF93700457F6F /* razerchromacommon.h */; };
+		22CB36F626ABF93A00457F6F /* razerkraken_driver.c in Sources */ = {isa = PBXBuildFile; fileRef = 22CB36E026ABF93700457F6F /* razerkraken_driver.c */; };
+		22CB36F726ABF93A00457F6F /* razerdevice.h in Headers */ = {isa = PBXBuildFile; fileRef = 22CB36E126ABF93800457F6F /* razerdevice.h */; };
+		22CB36F826ABF93A00457F6F /* razermouse_driver.h in Headers */ = {isa = PBXBuildFile; fileRef = 22CB36E226ABF93800457F6F /* razermouse_driver.h */; };
+		22CB36F926ABF93A00457F6F /* razeregpu_driver.h in Headers */ = {isa = PBXBuildFile; fileRef = 22CB36E326ABF93800457F6F /* razeregpu_driver.h */; };
+		22CB36FA26ABF93A00457F6F /* razeraccessory_driver.c in Sources */ = {isa = PBXBuildFile; fileRef = 22CB36E426ABF93800457F6F /* razeraccessory_driver.c */; };
+		22CB36FB26ABF93A00457F6F /* razermousedock_driver.h in Headers */ = {isa = PBXBuildFile; fileRef = 22CB36E526ABF93900457F6F /* razermousedock_driver.h */; };
+		22CB36FC26ABF93A00457F6F /* razermouse_driver.c in Sources */ = {isa = PBXBuildFile; fileRef = 22CB36E626ABF93900457F6F /* razermouse_driver.c */; };
+		22CB36FD26ABF93A00457F6F /* razermousemat_driver.h in Headers */ = {isa = PBXBuildFile; fileRef = 22CB36E726ABF93900457F6F /* razermousemat_driver.h */; };
+		22CB36FE26ABF93A00457F6F /* razeregpu_driver.c in Sources */ = {isa = PBXBuildFile; fileRef = 22CB36E826ABF93A00457F6F /* razeregpu_driver.c */; };
 		22DF5D2023B9A9D300C41AE6 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		22DF5D2823B9A9EA00C41AE6 /* watcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 22DF5D1A23B99C4D00C41AE6 /* watcher.m */; };
 		22E4D7FD1FA7488900C8CF5C /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
@@ -374,6 +398,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 22613FE81F297E0D00E05E11;
 			remoteInfo = dialog;
+		};
+		22CB36FF26AC140000457F6F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9445CA0319083251002568BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 22CB36C326ABF52C00457F6F;
+			remoteInfo = razer;
 		};
 		22DF5D2A23B9AA8C00C41AE6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1020,6 +1051,31 @@
 		22738934248606F0003EBC68 /* HSwebsocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSwebsocket.m; sourceTree = "<group>"; };
 		22A6625F25FC07F700AA329E /* test_serial.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_serial.lua; path = extensions/serial/test_serial.lua; sourceTree = "<group>"; };
 		22A6626125FC087000AA329E /* HSserial.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSserial.m; sourceTree = "<group>"; };
+		22CB36CD26ABF52C00457F6F /* librazer.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = librazer.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		22CB36CE26ABF57000457F6F /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/razer/internal.m; sourceTree = "<group>"; };
+		22CB36CF26ABF57000457F6F /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/razer/init.lua; sourceTree = "<group>"; };
+		22CB36D326ABF93400457F6F /* razercommon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = razercommon.h; path = extensions/razer/driver/razercommon.h; sourceTree = "<group>"; };
+		22CB36D426ABF93400457F6F /* razerdevice.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = razerdevice.c; path = extensions/razer/driver/razerdevice.c; sourceTree = "<group>"; };
+		22CB36D526ABF93400457F6F /* razerchromacommon.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = razerchromacommon.c; path = extensions/razer/driver/razerchromacommon.c; sourceTree = "<group>"; };
+		22CB36D626ABF93400457F6F /* razeraccessory_driver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = razeraccessory_driver.h; path = extensions/razer/driver/razeraccessory_driver.h; sourceTree = "<group>"; };
+		22CB36D726ABF93500457F6F /* razermousedock_driver.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = razermousedock_driver.c; path = extensions/razer/driver/razermousedock_driver.c; sourceTree = "<group>"; };
+		22CB36D826ABF93500457F6F /* razerkbd_driver.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = razerkbd_driver.c; path = extensions/razer/driver/razerkbd_driver.c; sourceTree = "<group>"; };
+		22CB36D926ABF93500457F6F /* razerheadphone_driver.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = razerheadphone_driver.c; path = extensions/razer/driver/razerheadphone_driver.c; sourceTree = "<group>"; };
+		22CB36DA26ABF93600457F6F /* razercommon.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = razercommon.c; path = extensions/razer/driver/razercommon.c; sourceTree = "<group>"; };
+		22CB36DB26ABF93600457F6F /* razermousemat_driver.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = razermousemat_driver.c; path = extensions/razer/driver/razermousemat_driver.c; sourceTree = "<group>"; };
+		22CB36DC26ABF93600457F6F /* razerheadphone_driver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = razerheadphone_driver.h; path = extensions/razer/driver/razerheadphone_driver.h; sourceTree = "<group>"; };
+		22CB36DD26ABF93600457F6F /* razerkbd_driver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = razerkbd_driver.h; path = extensions/razer/driver/razerkbd_driver.h; sourceTree = "<group>"; };
+		22CB36DE26ABF93700457F6F /* razerkraken_driver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = razerkraken_driver.h; path = extensions/razer/driver/razerkraken_driver.h; sourceTree = "<group>"; };
+		22CB36DF26ABF93700457F6F /* razerchromacommon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = razerchromacommon.h; path = extensions/razer/driver/razerchromacommon.h; sourceTree = "<group>"; };
+		22CB36E026ABF93700457F6F /* razerkraken_driver.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = razerkraken_driver.c; path = extensions/razer/driver/razerkraken_driver.c; sourceTree = "<group>"; };
+		22CB36E126ABF93800457F6F /* razerdevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = razerdevice.h; path = extensions/razer/driver/razerdevice.h; sourceTree = "<group>"; };
+		22CB36E226ABF93800457F6F /* razermouse_driver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = razermouse_driver.h; path = extensions/razer/driver/razermouse_driver.h; sourceTree = "<group>"; };
+		22CB36E326ABF93800457F6F /* razeregpu_driver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = razeregpu_driver.h; path = extensions/razer/driver/razeregpu_driver.h; sourceTree = "<group>"; };
+		22CB36E426ABF93800457F6F /* razeraccessory_driver.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = razeraccessory_driver.c; path = extensions/razer/driver/razeraccessory_driver.c; sourceTree = "<group>"; };
+		22CB36E526ABF93900457F6F /* razermousedock_driver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = razermousedock_driver.h; path = extensions/razer/driver/razermousedock_driver.h; sourceTree = "<group>"; };
+		22CB36E626ABF93900457F6F /* razermouse_driver.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = razermouse_driver.c; path = extensions/razer/driver/razermouse_driver.c; sourceTree = "<group>"; };
+		22CB36E726ABF93900457F6F /* razermousemat_driver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = razermousemat_driver.h; path = extensions/razer/driver/razermousemat_driver.h; sourceTree = "<group>"; };
+		22CB36E826ABF93A00457F6F /* razeregpu_driver.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = razeregpu_driver.c; path = extensions/razer/driver/razeregpu_driver.c; sourceTree = "<group>"; };
 		22DF5D1A23B99C4D00C41AE6 /* watcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = watcher.m; path = extensions/pasteboard/watcher.m; sourceTree = "<group>"; };
 		22DF5D2723B9A9D300C41AE6 /* libpasteboardwatcher.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libpasteboardwatcher.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		22E4D7F71FA7485A00C8CF5C /* internal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/midi/internal.m; sourceTree = SOURCE_ROOT; };
@@ -1514,6 +1570,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				22613FEC1F297E0D00E05E11 /* LuaSkin.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		22CB36C626ABF52C00457F6F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				22CB36C726ABF52C00457F6F /* LuaSkin.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2277,6 +2341,45 @@
 			name = gestures;
 			sourceTree = "<group>";
 		};
+		22CB36C226ABF49100457F6F /* razer */ = {
+			isa = PBXGroup;
+			children = (
+				22CB36D226ABF92900457F6F /* driver */,
+				22CB36CF26ABF57000457F6F /* init.lua */,
+				22CB36CE26ABF57000457F6F /* internal.m */,
+			);
+			name = razer;
+			sourceTree = "<group>";
+		};
+		22CB36D226ABF92900457F6F /* driver */ = {
+			isa = PBXGroup;
+			children = (
+				22CB36E426ABF93800457F6F /* razeraccessory_driver.c */,
+				22CB36D626ABF93400457F6F /* razeraccessory_driver.h */,
+				22CB36D526ABF93400457F6F /* razerchromacommon.c */,
+				22CB36DF26ABF93700457F6F /* razerchromacommon.h */,
+				22CB36DA26ABF93600457F6F /* razercommon.c */,
+				22CB36D326ABF93400457F6F /* razercommon.h */,
+				22CB36D426ABF93400457F6F /* razerdevice.c */,
+				22CB36E126ABF93800457F6F /* razerdevice.h */,
+				22CB36E826ABF93A00457F6F /* razeregpu_driver.c */,
+				22CB36E326ABF93800457F6F /* razeregpu_driver.h */,
+				22CB36D926ABF93500457F6F /* razerheadphone_driver.c */,
+				22CB36DC26ABF93600457F6F /* razerheadphone_driver.h */,
+				22CB36D826ABF93500457F6F /* razerkbd_driver.c */,
+				22CB36DD26ABF93600457F6F /* razerkbd_driver.h */,
+				22CB36E026ABF93700457F6F /* razerkraken_driver.c */,
+				22CB36DE26ABF93700457F6F /* razerkraken_driver.h */,
+				22CB36E626ABF93900457F6F /* razermouse_driver.c */,
+				22CB36E226ABF93800457F6F /* razermouse_driver.h */,
+				22CB36D726ABF93500457F6F /* razermousedock_driver.c */,
+				22CB36E526ABF93900457F6F /* razermousedock_driver.h */,
+				22CB36DB26ABF93600457F6F /* razermousemat_driver.c */,
+				22CB36E726ABF93900457F6F /* razermousemat_driver.h */,
+			);
+			name = driver;
+			sourceTree = "<group>";
+		};
 		22DF5D2923B9AA1E00C41AE6 /* pasteboardwatcher */ = {
 			isa = PBXGroup;
 			children = (
@@ -2867,6 +2970,7 @@
 				22DF5D2923B9AA1E00C41AE6 /* pasteboardwatcher */,
 				4F6B3F361B73EE0E00B2A4DE /* pathwatcher */,
 				4FDD9DC01ED30D89008F14D3 /* plist */,
+				22CB36C226ABF49100457F6F /* razer */,
 				4F6689E21C288B8900E48AF1 /* redshift */,
 				4F6B3F471B73EF8A00B2A4DE /* screen */,
 				4F6B3F561B73EFD700B2A4DE /* screenwatcher */,
@@ -3381,6 +3485,7 @@
 				4F9BA8C723DF3C6B006349F2 /* libuielementwatcher.dylib */,
 				22EEC62324926E5100BAE4DA /* libserial.dylib */,
 				D633A9E9247B9BF2005C88E2 /* libaxuielement.dylib */,
+				22CB36CD26ABF52C00457F6F /* librazer.dylib */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -3730,6 +3835,24 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		22CB36C826ABF52C00457F6F /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				22CB36F726ABF93A00457F6F /* razerdevice.h in Headers */,
+				22CB36F826ABF93A00457F6F /* razermouse_driver.h in Headers */,
+				22CB36EC26ABF93A00457F6F /* razeraccessory_driver.h in Headers */,
+				22CB36F226ABF93A00457F6F /* razerheadphone_driver.h in Headers */,
+				22CB36F526ABF93A00457F6F /* razerchromacommon.h in Headers */,
+				22CB36FD26ABF93A00457F6F /* razermousemat_driver.h in Headers */,
+				22CB36F426ABF93A00457F6F /* razerkraken_driver.h in Headers */,
+				22CB36FB26ABF93A00457F6F /* razermousedock_driver.h in Headers */,
+				22CB36E926ABF93A00457F6F /* razercommon.h in Headers */,
+				22CB36F926ABF93A00457F6F /* razeregpu_driver.h in Headers */,
+				22CB36F326ABF93A00457F6F /* razerkbd_driver.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4408,6 +4531,23 @@
 			name = dialog;
 			productName = alert;
 			productReference = 22613FF11F297E0D00E05E11 /* libdialog.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+		22CB36C326ABF52C00457F6F /* razer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 22CB36C926ABF52C00457F6F /* Build configuration list for PBXNativeTarget "razer" */;
+			buildPhases = (
+				22CB36C426ABF52C00457F6F /* Sources */,
+				22CB36C626ABF52C00457F6F /* Frameworks */,
+				22CB36C826ABF52C00457F6F /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = razer;
+			productName = alert;
+			productReference = 22CB36CD26ABF52C00457F6F /* librazer.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 		22DF5D1C23B9A9D300C41AE6 /* pasteboardwatcher */ = {
@@ -5504,6 +5644,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				22CB370026AC140000457F6F /* PBXTargetDependency */,
 				224BA33623D1EFB300487FDB /* PBXTargetDependency */,
 				22EEC62624926EAF00BAE4DA /* PBXTargetDependency */,
 				D633A9EF247B9C57005C88E2 /* PBXTargetDependency */,
@@ -6129,6 +6270,7 @@
 				22DF5D1C23B9A9D300C41AE6 /* pasteboardwatcher */,
 				4F6B3F281B73EDD100B2A4DE /* pathwatcher */,
 				4FDD9DC31ED30DC9008F14D3 /* plist */,
+				22CB36C326ABF52C00457F6F /* razer */,
 				4F6B3F3A1B73EF4B00B2A4DE /* screen */,
 				4F6B3F4B1B73EFC100B2A4DE /* screenwatcher */,
 				4F6B3F601B73F0E300B2A4DE /* settings */,
@@ -6273,7 +6415,6 @@
 		};
 		4F6D9E3523074BC6006CC3E4 /* Update version/build numbers */ = {
 			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -6412,6 +6553,25 @@
 			buildActionMask = 2147483647;
 			files = (
 				22613FF51F2A127E00E05E11 /* internal.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		22CB36C426ABF52C00457F6F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				22CB36F026ABF93A00457F6F /* razercommon.c in Sources */,
+				22CB36F626ABF93A00457F6F /* razerkraken_driver.c in Sources */,
+				22CB36FC26ABF93A00457F6F /* razermouse_driver.c in Sources */,
+				22CB36FE26ABF93A00457F6F /* razeregpu_driver.c in Sources */,
+				22CB36F126ABF93A00457F6F /* razermousemat_driver.c in Sources */,
+				22CB36EA26ABF93A00457F6F /* razerdevice.c in Sources */,
+				22CB36EF26ABF93A00457F6F /* razerheadphone_driver.c in Sources */,
+				22CB36ED26ABF93A00457F6F /* razermousedock_driver.c in Sources */,
+				22CB36EE26ABF93A00457F6F /* razerkbd_driver.c in Sources */,
+				22CB36D026ABF57000457F6F /* internal.m in Sources */,
+				22CB36EB26ABF93A00457F6F /* razerchromacommon.c in Sources */,
+				22CB36FA26ABF93A00457F6F /* razeraccessory_driver.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7218,6 +7378,11 @@
 			target = 22613FE81F297E0D00E05E11 /* dialog */;
 			targetProxy = 22613FF31F297E7F00E05E11 /* PBXContainerItemProxy */;
 		};
+		22CB370026AC140000457F6F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 22CB36C326ABF52C00457F6F /* razer */;
+			targetProxy = 22CB36FF26AC140000457F6F /* PBXContainerItemProxy */;
+		};
 		22DF5D2B23B9AA8C00C41AE6 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 22DF5D1C23B9A9D300C41AE6 /* pasteboardwatcher */;
@@ -7997,6 +8162,212 @@
 				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
 				SDKROOT = "$(inherited)";
 				STRIP_INSTALLED_PRODUCT = NO;
+			};
+			name = Release;
+		};
+		22CB36CA26ABF52C00457F6F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
+				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
+				CLANG_WARN_ASSIGN_ENUM = "$(inherited)";
+				CLANG_WARN_BOOL_CONVERSION = "$(inherited)";
+				CLANG_WARN_CONSTANT_CONVERSION = "$(inherited)";
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = "$(inherited)";
+				CLANG_WARN_EMPTY_BODY = "$(inherited)";
+				CLANG_WARN_ENUM_CONVERSION = "$(inherited)";
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = "$(inherited)";
+				CLANG_WARN_INT_CONVERSION = "$(inherited)";
+				CLANG_WARN_OBJC_EXPLICIT_OWNERSHIP_TYPE = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = "$(inherited)";
+				CLANG_WARN_OBJC_MISSING_PROPERTY_SYNTHESIS = "$(inherited)";
+				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = "$(inherited)";
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = "$(inherited)";
+				CLANG_WARN_UNREACHABLE_CODE = YES_AGGRESSIVE;
+				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = "$(inherited)";
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = "$(inherited)";
+				COMBINE_HIDPI_IMAGES = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_STRICT_OBJC_MSGSEND = "$(inherited)";
+				ENABLE_TESTABILITY = YES;
+				EXECUTABLE_PREFIX = lib;
+				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = "$(inherited)";
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_NEWLINE = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = "$(inherited)";
+				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = "$(inherited)";
+				GCC_WARN_ALLOW_INCOMPLETE_PROTOCOL = "$(inherited)";
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = "$(inherited)";
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = "$(inherited)";
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = "$(inherited)";
+				GCC_WARN_MISSING_PARENTHESES = "$(inherited)";
+				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = "$(inherited)";
+				GCC_WARN_PEDANTIC = "$(inherited)";
+				GCC_WARN_SHADOW = "$(inherited)";
+				GCC_WARN_SIGN_COMPARE = "$(inherited)";
+				GCC_WARN_STRICT_SELECTOR_MATCH = "$(inherited)";
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = "$(inherited)";
+				GCC_WARN_UNDECLARED_SELECTOR = "$(inherited)";
+				GCC_WARN_UNKNOWN_PRAGMAS = "$(inherited)";
+				GCC_WARN_UNUSED_FUNCTION = "$(inherited)";
+				GCC_WARN_UNUSED_LABEL = "$(inherited)";
+				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
+				GCC_WARN_UNUSED_VALUE = "$(inherited)";
+				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				OTHER_LDFLAGS = "$(inherited)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
+				SDKROOT = "$(inherited)";
+				STRIP_INSTALLED_PRODUCT = NO;
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/Headers/Public/**";
+			};
+			name = Debug;
+		};
+		22CB36CB26ABF52C00457F6F /* Profile */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
+				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
+				CLANG_WARN_ASSIGN_ENUM = "$(inherited)";
+				CLANG_WARN_BOOL_CONVERSION = "$(inherited)";
+				CLANG_WARN_CONSTANT_CONVERSION = "$(inherited)";
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = "$(inherited)";
+				CLANG_WARN_EMPTY_BODY = "$(inherited)";
+				CLANG_WARN_ENUM_CONVERSION = "$(inherited)";
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = "$(inherited)";
+				CLANG_WARN_INT_CONVERSION = "$(inherited)";
+				CLANG_WARN_OBJC_EXPLICIT_OWNERSHIP_TYPE = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = "$(inherited)";
+				CLANG_WARN_OBJC_MISSING_PROPERTY_SYNTHESIS = "$(inherited)";
+				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = "$(inherited)";
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = "$(inherited)";
+				CLANG_WARN_UNREACHABLE_CODE = YES_AGGRESSIVE;
+				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = "$(inherited)";
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = "$(inherited)";
+				COMBINE_HIDPI_IMAGES = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_STRICT_OBJC_MSGSEND = "$(inherited)";
+				ENABLE_TESTABILITY = YES;
+				EXECUTABLE_PREFIX = lib;
+				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = "$(inherited)";
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_NEWLINE = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = "$(inherited)";
+				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = "$(inherited)";
+				GCC_WARN_ALLOW_INCOMPLETE_PROTOCOL = "$(inherited)";
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = "$(inherited)";
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = "$(inherited)";
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = "$(inherited)";
+				GCC_WARN_MISSING_PARENTHESES = "$(inherited)";
+				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = "$(inherited)";
+				GCC_WARN_PEDANTIC = "$(inherited)";
+				GCC_WARN_SHADOW = "$(inherited)";
+				GCC_WARN_SIGN_COMPARE = "$(inherited)";
+				GCC_WARN_STRICT_SELECTOR_MATCH = "$(inherited)";
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = "$(inherited)";
+				GCC_WARN_UNDECLARED_SELECTOR = "$(inherited)";
+				GCC_WARN_UNKNOWN_PRAGMAS = "$(inherited)";
+				GCC_WARN_UNUSED_FUNCTION = "$(inherited)";
+				GCC_WARN_UNUSED_LABEL = "$(inherited)";
+				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
+				GCC_WARN_UNUSED_VALUE = "$(inherited)";
+				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				OTHER_LDFLAGS = "$(inherited)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
+				SDKROOT = "$(inherited)";
+				STRIP_INSTALLED_PRODUCT = NO;
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/Headers/Public/**";
+			};
+			name = Profile;
+		};
+		22CB36CC26ABF52C00457F6F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
+				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
+				CLANG_WARN_ASSIGN_ENUM = "$(inherited)";
+				CLANG_WARN_BOOL_CONVERSION = "$(inherited)";
+				CLANG_WARN_CONSTANT_CONVERSION = "$(inherited)";
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = "$(inherited)";
+				CLANG_WARN_EMPTY_BODY = "$(inherited)";
+				CLANG_WARN_ENUM_CONVERSION = "$(inherited)";
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = "$(inherited)";
+				CLANG_WARN_INT_CONVERSION = "$(inherited)";
+				CLANG_WARN_OBJC_EXPLICIT_OWNERSHIP_TYPE = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = "$(inherited)";
+				CLANG_WARN_OBJC_MISSING_PROPERTY_SYNTHESIS = "$(inherited)";
+				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = "$(inherited)";
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = "$(inherited)";
+				CLANG_WARN_UNREACHABLE_CODE = YES_AGGRESSIVE;
+				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = "$(inherited)";
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = "$(inherited)";
+				COMBINE_HIDPI_IMAGES = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_STRICT_OBJC_MSGSEND = "$(inherited)";
+				EXECUTABLE_PREFIX = lib;
+				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = "$(inherited)";
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_NEWLINE = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = "$(inherited)";
+				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = "$(inherited)";
+				GCC_WARN_ALLOW_INCOMPLETE_PROTOCOL = "$(inherited)";
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = "$(inherited)";
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = "$(inherited)";
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = "$(inherited)";
+				GCC_WARN_MISSING_PARENTHESES = "$(inherited)";
+				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = "$(inherited)";
+				GCC_WARN_PEDANTIC = "$(inherited)";
+				GCC_WARN_SHADOW = "$(inherited)";
+				GCC_WARN_SIGN_COMPARE = "$(inherited)";
+				GCC_WARN_STRICT_SELECTOR_MATCH = "$(inherited)";
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = "$(inherited)";
+				GCC_WARN_UNDECLARED_SELECTOR = "$(inherited)";
+				GCC_WARN_UNKNOWN_PRAGMAS = "$(inherited)";
+				GCC_WARN_UNUSED_FUNCTION = "$(inherited)";
+				GCC_WARN_UNUSED_LABEL = "$(inherited)";
+				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
+				GCC_WARN_UNUSED_VALUE = "$(inherited)";
+				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = "$(inherited)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
+				SDKROOT = "$(inherited)";
+				STRIP_INSTALLED_PRODUCT = NO;
+				"SYSTEM_HEADER_SEARCH_PATHS[arch=*]" = "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1/";
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/Headers/Public/**";
 			};
 			name = Release;
 		};
@@ -9031,10 +9402,7 @@
 					dynamic_lookup,
 				);
 				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = (
-					"$(SRCROOT)/Pods/**",
-					"$(SRCROOT)/Pods/Sentry/Sources/Sentry/include/",
-				);
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/** $(SRCROOT)/Pods/Sentry/Sources/Sentry/include/";
 				WARNING_CFLAGS = (
 					"-Wno-cstring-format-directive",
 					"-Wno-padded",
@@ -9097,11 +9465,7 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "Hammerspoon Tests/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.$(PRODUCT_NAME:rfc1034identifier)";
@@ -9126,11 +9490,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
 				INFOPLIST_FILE = HammerspoonUITests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = org.hammerspoon.HammerspoonUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -14680,11 +15040,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
 				INFOPLIST_FILE = HammerspoonUITests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = org.hammerspoon.HammerspoonUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -14702,11 +15058,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
 				INFOPLIST_FILE = HammerspoonUITests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = org.hammerspoon.HammerspoonUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -22582,10 +22934,7 @@
 					dynamic_lookup,
 				);
 				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = (
-					"$(SRCROOT)/Pods/**",
-					"$(SRCROOT)/Pods/Sentry/Sources/Sentry/include/",
-				);
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/** $(SRCROOT)/Pods/Sentry/Sources/Sentry/include/";
 				WARNING_CFLAGS = (
 					"-Wno-cstring-format-directive",
 					"-Wno-padded",
@@ -22651,10 +23000,7 @@
 					dynamic_lookup,
 				);
 				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = (
-					"$(SRCROOT)/Pods/**",
-					"$(SRCROOT)/Pods/Sentry/Sources/Sentry/include/",
-				);
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/** $(SRCROOT)/Pods/Sentry/Sources/Sentry/include/";
 				WARNING_CFLAGS = (
 					"-Wno-cstring-format-directive",
 					"-Wno-padded",
@@ -22893,11 +23239,7 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "Hammerspoon Tests/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.$(PRODUCT_NAME:rfc1034identifier)";
@@ -22924,11 +23266,7 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "Hammerspoon Tests/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.$(PRODUCT_NAME:rfc1034identifier)";
@@ -26274,6 +26612,16 @@
 				22613FEF1F297E0D00E05E11 /* Debug */,
 				4F0454A020F0EE7D00699F29 /* Profile */,
 				22613FF01F297E0D00E05E11 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		22CB36C926ABF52C00457F6F /* Build configuration list for PBXNativeTarget "razer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				22CB36CA26ABF52C00457F6F /* Debug */,
+				22CB36CB26ABF52C00457F6F /* Profile */,
+				22CB36CC26ABF52C00457F6F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

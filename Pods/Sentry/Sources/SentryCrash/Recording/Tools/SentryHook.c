@@ -52,7 +52,7 @@ sentrycrash__async_backtrace_decref(sentrycrash_async_backtrace_t *bt)
     }
     if (__atomic_fetch_add(&bt->refcount, -1, __ATOMIC_SEQ_CST) == 1) {
         sentrycrash__async_backtrace_decref(bt->async_caller);
-        free(bt);
+        //free(bt);
     }
 }
 
