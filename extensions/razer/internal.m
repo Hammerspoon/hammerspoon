@@ -26,10 +26,13 @@ static LSRefTable refTable = LUA_NOREF;
 
 @property (nonatomic, strong) id    ioHIDManager;
 
+@property CFMachPortRef             eventTap;
+
 @property NSNumber*                 internalDeviceId;
 @property NSNumber*                 productId;
 
 @property BOOL                      scrollWheelPressed;
+@property BOOL                      scrollWheelInProgress;
 
 @property int                       selfRefCount;
 @property int                       callbackRef;
@@ -52,15 +55,66 @@ static LSRefTable refTable = LUA_NOREF;
         _callbackToken              = nil;
         _selfRefCount               = 0;
         _scrollWheelPressed         = NO;
+        _scrollWheelInProgress      = NO;
     }
     return self;
 }
 
-#pragma mark - Event Tap for Scroll Wheeel
+#pragma mark - Event Tap for Scroll Wheel
 
-// kCGEventScrollWheel
+// We need to use an eventtap to stop the scroll wheel on the Razer Tartarus V2 from actually scrolling.
 
-// TODO: We need to use an eventtap to stop the scroll wheel on the Razer Tartarus V2 from actually scrolling.
+static CGEventRef eventTapCallback(CGEventTapProxy proxy,
+                           CGEventType type,
+                           CGEventRef event,
+                           void* refcon) {
+    
+    HSRazer *manager = (__bridge HSRazer *)refcon;
+    if (manager.scrollWheelInProgress) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+            manager.scrollWheelInProgress = NO;
+        });
+        return NULL;
+    } else {
+        return event;
+    }
+}
+
+- (void)setupEventTap
+{
+    // Currently we only support the Razer Tartarus V2
+    if (!([self.productId intValue] == USB_DEVICE_ID_RAZER_TARTARUS_V2)) {
+        NSLog(@"Only the Razer Tartarus V2 is currently supported.");
+        return;
+    }
+    
+    CGEventTapLocation location = kCGHIDEventTap;
+    
+    CGEventMask mask = CGEventMaskBit(kCGEventScrollWheel);
+    
+    self.eventTap = CGEventTapCreate(location,
+                                     kCGTailAppendEventTap,
+                                     kCGEventTapOptionDefault,
+                                     mask,
+                                     eventTapCallback,
+                                     (__bridge void*)(self));
+    
+    CFRunLoopSourceRef source = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, self.eventTap, 0);
+    CFRunLoopAddSource(CFRunLoopGetCurrent(), source, kCFRunLoopCommonModes);
+    CFRelease(source);
+
+    CGEventTapEnable(self.eventTap, true);
+}
+
+- (void)destroyEventTap
+{
+    if (self.eventTap){
+        if (CGEventTapIsEnabled(self.eventTap)) {
+          CGEventTapEnable(self.eventTap, false);
+        }
+        CFRelease(self.eventTap);
+    }
+}
 
 #pragma mark - IOKit C callbacks
 
@@ -275,10 +329,12 @@ static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValue
         // Scroll Wheel:
         case 56:
             if (pressed == 1){
+                manager.scrollWheelInProgress = YES;
                 buttonAction = @"up";
                 break;
             }
             else if (pressed == -1) {
+                manager.scrollWheelInProgress = YES;
                 buttonAction = @"down";
                 break;
             }
@@ -462,6 +518,9 @@ static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValue
             
             // Start the HID Manager:
             [self startHIDManager];
+            
+            // Setup Event Tap:
+            [self setupEventTap];
             
             closeAllRazerDevices(allDevices);
             return YES;
@@ -1046,6 +1105,9 @@ static int userdata_gc(lua_State* L) {
             // Stop HID Manager and perform garbage collection:
             [obj stopHIDManager];
             [obj doGC];
+            
+            // Stop the Event Tap:
+            [obj destroyEventTap];
             
             obj.callbackRef = [skin luaUnref:refTable ref:obj.callbackRef];
 

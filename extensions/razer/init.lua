@@ -3,7 +3,10 @@
 --- Razer device support.
 ---
 --- This module allows you to control the LEDs on 130 Razer peripherals.
---- It also allows you to trigger a callback on button presses on a Razer Tartarus V2.
+--- It also allows you to trigger a callback on button presses and scroll wheel when using a Razer Tartarus V2.
+--- Currently only the Razer Tartarus V2 is supported, however please [submit an issue](https://github.com/Hammerspoon/hammerspoon/issues) if you're interested in other Razer devices.
+---
+--- By default, the Razer Tartarus V2 triggers regular keyboard commands (i.e. pressing the "01" key will type "1"). You can use the `disableDefaultButtonLayout()` method to prevent this.
 ---
 --- This extension was thrown together by [Chris Hocking](https://github.com/latenitefilms).
 ---
