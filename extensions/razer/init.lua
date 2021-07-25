@@ -2,129 +2,217 @@
 ---
 --- Razer device support.
 ---
---- Special thanks to the [librazermacos](https://github.com/1kc/librazermacos) repo.
+--- This module allows you to control the LEDs on 130 Razer peripherals.
+--- It also allows you to trigger a callback on button presses on a Razer Tartarus V2.
+---
+--- This extension was thrown together by [Chris Hocking](https://github.com/latenitefilms).
+---
+--- Special thanks to the [librazermacos](https://github.com/1kc/librazermacos) project,
+--- which is a C library of [OpenRazer](https://github.com/openrazer/openrazer) drivers ported to macOS.
 
 local razer = require("hs.razer.internal")
 
---- hs.razer.remapKeys() -> none
+local log = require "hs.logger".new("razer")
+
+local razerObject = hs.getObjectMetatable("hs.razer")
+
+-- RAZER_TARTARUS_V2_PRODUCT_ID -> number
+-- Constant
+-- Razer Tartarus V2 Product ID.
+local RAZER_TARTARUS_V2_PRODUCT_ID = 0x022b
+
+--- hs.razer:disableDefaultButtonLayout() -> none
 --- Function
---- Remap the buttons on a Razer Tartarus V2 so they don't trigger standard shortcut keys.
+--- Remap the buttons on a Razer Tartarus V2 so they don't trigger their factory default shortcut keys.
 ---
 --- Parameters:
 ---  * None
 ---
 --- Returns:
 ---  * None
-function razer.remapKeys()
+function razerObject:disableDefaultButtonLayout()
+  if not self:productId() == RAZER_TARTARUS_V2_PRODUCT_ID then
+    log.ef("Currently only the Razer Tartarus V2 is supported.")
+    return
+  end
 
-  --[[{
-    "0x70000001E", -- [01] 1
-    "0x70000001F", -- [02] 2
-    "0x700000020", -- [03] 3
-    "0x700000021", -- [04] 4
-    "0x700000022", -- [05] 5
-    "0x70000002B", -- [06] tab
-    "0x700000014", -- [07] q
-    "0x70000001A", -- [08] w
-    "0x700000008", -- [09] e
-    "0x700000015", -- [10] r
-    "0x700000039", -- [11] caps lock
-    "0x700000004", -- [12] a
-    "0x700000016", -- [13] s
-    "0x700000007", -- [14] d
-    "0x700000009", -- [15] f
-    "0x7000000E1", -- [16] shift
-    "0x70000001D", -- [17] z
-    "0x70000001B", -- [18] x
-    "0x700000006", -- [19] c
-    "0x70000002C", -- [20] spacebar
-    "0x700000035", -- [MODE BUTTON] tilda
-    "0x700000052", -- [UP] up
-    "0x700000051", -- [DOWN] down
-    "0x700000050", -- [LEFT] left
-    "0x70000004F", -- [RIGHT] right
-  }]]
-
-  local command = [[hidutil property --matching '{"ProductID":0x022b}' --set '{"UserKeyMapping":
+  local command = [[hidutil property --matching '{"ProductID":]] .. string.format("0x%04x", RAZER_TARTARUS_V2_PRODUCT_ID) .. [[}' --set '{"UserKeyMapping":
    [{"HIDKeyboardModifierMappingSrc":0x70000001E,
-     "HIDKeyboardModifierMappingDst":0x100000000
+     "HIDKeyboardModifierMappingDst":0x100000001
    },
    {"HIDKeyboardModifierMappingSrc":0x70000001F,
-     "HIDKeyboardModifierMappingDst":0x100000000
+     "HIDKeyboardModifierMappingDst":0x100000002
    },
    {"HIDKeyboardModifierMappingSrc":0x700000020,
-     "HIDKeyboardModifierMappingDst":0x100000000
+     "HIDKeyboardModifierMappingDst":0x100000003
    },
    {"HIDKeyboardModifierMappingSrc":0x700000021,
-     "HIDKeyboardModifierMappingDst":0x100000000
+     "HIDKeyboardModifierMappingDst":0x100000004
    },
    {"HIDKeyboardModifierMappingSrc":0x700000022,
-     "HIDKeyboardModifierMappingDst":0x100000000
+     "HIDKeyboardModifierMappingDst":0x100000005
    },
    {"HIDKeyboardModifierMappingSrc":0x70000002B,
-     "HIDKeyboardModifierMappingDst":0x100000000
+     "HIDKeyboardModifierMappingDst":0x100000006
    },
    {"HIDKeyboardModifierMappingSrc":0x700000014,
-     "HIDKeyboardModifierMappingDst":0x100000000
+     "HIDKeyboardModifierMappingDst":0x100000007
    },
    {"HIDKeyboardModifierMappingSrc":0x70000001A,
-     "HIDKeyboardModifierMappingDst":0x100000000
+     "HIDKeyboardModifierMappingDst":0x100000008
    },
    {"HIDKeyboardModifierMappingSrc":0x700000008,
-     "HIDKeyboardModifierMappingDst":0x100000000
+     "HIDKeyboardModifierMappingDst":0x100000009
    },
    {"HIDKeyboardModifierMappingSrc":0x700000015,
-     "HIDKeyboardModifierMappingDst":0x100000000
+     "HIDKeyboardModifierMappingDst":0x100000010
    },
    {"HIDKeyboardModifierMappingSrc":0x700000039,
-     "HIDKeyboardModifierMappingDst":0x100000000
+     "HIDKeyboardModifierMappingDst":0x100000011
    },
    {"HIDKeyboardModifierMappingSrc":0x700000004,
-     "HIDKeyboardModifierMappingDst":0x100000000
+     "HIDKeyboardModifierMappingDst":0x100000012
    },
    {"HIDKeyboardModifierMappingSrc":0x700000016,
-     "HIDKeyboardModifierMappingDst":0x100000000
+     "HIDKeyboardModifierMappingDst":0x100000013
    },
    {"HIDKeyboardModifierMappingSrc":0x700000007,
-     "HIDKeyboardModifierMappingDst":0x100000000
+     "HIDKeyboardModifierMappingDst":0x100000014
    },
    {"HIDKeyboardModifierMappingSrc":0x700000009,
-     "HIDKeyboardModifierMappingDst":0x100000000
+     "HIDKeyboardModifierMappingDst":0x100000015
    },
    {"HIDKeyboardModifierMappingSrc":0x7000000E1,
-     "HIDKeyboardModifierMappingDst":0x100000000
+     "HIDKeyboardModifierMappingDst":0x100000016
    },
    {"HIDKeyboardModifierMappingSrc":0x70000001D,
-     "HIDKeyboardModifierMappingDst":0x100000000
+     "HIDKeyboardModifierMappingDst":0x100000017
    },
    {"HIDKeyboardModifierMappingSrc":0x70000001B,
-     "HIDKeyboardModifierMappingDst":0x100000000
+     "HIDKeyboardModifierMappingDst":0x100000018
    },
    {"HIDKeyboardModifierMappingSrc":0x700000006,
-     "HIDKeyboardModifierMappingDst":0x100000000
+     "HIDKeyboardModifierMappingDst":0x100000019
    },
    {"HIDKeyboardModifierMappingSrc":0x70000002C,
-     "HIDKeyboardModifierMappingDst":0x100000000
+     "HIDKeyboardModifierMappingDst":0x100000020
    },
    {"HIDKeyboardModifierMappingSrc":0x700000035,
-     "HIDKeyboardModifierMappingDst":0x100000000
+     "HIDKeyboardModifierMappingDst":0x100000021
    },
    {"HIDKeyboardModifierMappingSrc":0x700000052,
-     "HIDKeyboardModifierMappingDst":0x100000000
+     "HIDKeyboardModifierMappingDst":0x100000022
    },
    {"HIDKeyboardModifierMappingSrc":0x700000051,
-     "HIDKeyboardModifierMappingDst":0x100000000
+     "HIDKeyboardModifierMappingDst":0x100000023
    },
    {"HIDKeyboardModifierMappingSrc":0x700000050,
-     "HIDKeyboardModifierMappingDst":0x100000000
+     "HIDKeyboardModifierMappingDst":0x100000024
    },
    {"HIDKeyboardModifierMappingSrc":0x70000004F,
-     "HIDKeyboardModifierMappingDst":0x100000000
+     "HIDKeyboardModifierMappingDst":0x100000025
    }
    ]
   }']]
-  hs.execute(command)
+  local _, status = hs.execute(command)
+  return status
 end
 
+--- hs.razer:enableDefaultButtonLayout() -> none
+--- Function
+--- Remap the buttons on a Razer Tartarus V2 so they trigger their factory default shortcut keys.
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+function razerObject:enableDefaultButtonLayout()
+  if not self:productId() == RAZER_TARTARUS_V2_PRODUCT_ID then
+    log.ef("Currently only the Razer Tartarus V2 is supported.")
+    return
+  end
+
+  local command = [[hidutil property --matching '{"ProductID":]] .. string.format("0x%04x", RAZER_TARTARUS_V2_PRODUCT_ID) .. [[}' --set '{"UserKeyMapping":
+   [{"HIDKeyboardModifierMappingSrc":0x100000001,
+     "HIDKeyboardModifierMappingDst":0x70000001E
+   },
+   {"HIDKeyboardModifierMappingSrc":0x100000002,
+     "HIDKeyboardModifierMappingDst":0x70000001F
+   },
+   {"HIDKeyboardModifierMappingSrc":0x100000003,
+     "HIDKeyboardModifierMappingDst":0x700000020
+   },
+   {"HIDKeyboardModifierMappingSrc":0x100000004,
+     "HIDKeyboardModifierMappingDst":0x700000021
+   },
+   {"HIDKeyboardModifierMappingSrc":0x100000005,
+     "HIDKeyboardModifierMappingDst":0x700000022
+   },
+   {"HIDKeyboardModifierMappingSrc":0x100000006,
+     "HIDKeyboardModifierMappingDst":0x70000002B
+   },
+   {"HIDKeyboardModifierMappingSrc":0x100000007,
+     "HIDKeyboardModifierMappingDst":0x700000014
+   },
+   {"HIDKeyboardModifierMappingSrc":0x100000008,
+     "HIDKeyboardModifierMappingDst":0x70000001A
+   },
+   {"HIDKeyboardModifierMappingSrc":0x100000009,
+     "HIDKeyboardModifierMappingDst":0x700000008
+   },
+   {"HIDKeyboardModifierMappingSrc":0x100000010,
+     "HIDKeyboardModifierMappingDst":0x700000015
+   },
+   {"HIDKeyboardModifierMappingSrc":0x100000011,
+     "HIDKeyboardModifierMappingDst":0x700000039
+   },
+   {"HIDKeyboardModifierMappingSrc":0x100000012,
+     "HIDKeyboardModifierMappingDst":0x700000004
+   },
+   {"HIDKeyboardModifierMappingSrc":0x100000013,
+     "HIDKeyboardModifierMappingDst":0x700000016
+   },
+   {"HIDKeyboardModifierMappingSrc":0x100000014,
+     "HIDKeyboardModifierMappingDst":0x700000007
+   },
+   {"HIDKeyboardModifierMappingSrc":0x100000015,
+     "HIDKeyboardModifierMappingDst":0x700000009
+   },
+   {"HIDKeyboardModifierMappingSrc":0x100000016,
+     "HIDKeyboardModifierMappingDst":0x7000000E1
+   },
+   {"HIDKeyboardModifierMappingSrc":0x100000017,
+     "HIDKeyboardModifierMappingDst":0x70000001D
+   },
+   {"HIDKeyboardModifierMappingSrc":0x100000018,
+     "HIDKeyboardModifierMappingDst":0x70000001B
+   },
+   {"HIDKeyboardModifierMappingSrc":0x100000019,
+     "HIDKeyboardModifierMappingDst":0x700000006
+   },
+   {"HIDKeyboardModifierMappingSrc":0x100000020,
+     "HIDKeyboardModifierMappingDst":0x70000002C
+   },
+   {"HIDKeyboardModifierMappingSrc":0x100000021,
+     "HIDKeyboardModifierMappingDst":0x700000035
+   },
+   {"HIDKeyboardModifierMappingSrc":0x100000022,
+     "HIDKeyboardModifierMappingDst":0x700000052
+   },
+   {"HIDKeyboardModifierMappingSrc":0x100000023,
+     "HIDKeyboardModifierMappingDst":0x700000051
+   },
+   {"HIDKeyboardModifierMappingSrc":0x100000024,
+     "HIDKeyboardModifierMappingDst":0x700000050
+   },
+   {"HIDKeyboardModifierMappingSrc":0x100000025,
+     "HIDKeyboardModifierMappingDst":0x70000004F
+   }
+   ]
+  }']]
+  local _, status = hs.execute(command)
+  return status
+end
 
 return razer

@@ -48,45 +48,61 @@ static LSRefTable refTable = LUA_NOREF;
         _deviceCallbackRef          = LUA_NOREF;
         _callbackToken              = nil;
         _selfRefCount               = 0;
-                
-        // Create a HID device manager
-        self.ioHIDManager = CFBridgingRelease(IOHIDManagerCreate(kCFAllocatorDefault, kIOHIDManagerOptionNone));
-                
-        NSDictionary *matchTartarusV2   = @{ @(kIOHIDVendorIDKey): @0x1532, @(kIOHIDProductIDKey): @0x022b };
-        
-        IOHIDManagerSetDeviceMatchingMultiple((__bridge IOHIDManagerRef)self.ioHIDManager,
-                                              (__bridge CFArrayRef)@[matchTartarusV2]);
-
-        // Add our callbacks for relevant events
-        IOHIDManagerRegisterDeviceMatchingCallback((__bridge IOHIDManagerRef)self.ioHIDManager,
-                                                   HIDconnect,
-                                                   (__bridge void*)self);
-        IOHIDManagerRegisterDeviceRemovalCallback((__bridge IOHIDManagerRef)self.ioHIDManager,
-                                                  HIDdisconnect,
-                                                  (__bridge void*)self);
-        
-        IOHIDManagerRegisterInputValueCallback((__bridge IOHIDManagerRef)self.ioHIDManager, keyboardCallback, NULL);
-
-        // Start our HID manager
-        IOHIDManagerScheduleWithRunLoop((__bridge IOHIDManagerRef)self.ioHIDManager,
-                                        CFRunLoopGetMain(),
-                                        kCFRunLoopDefaultMode);
-        
-        IOHIDManagerOpen((__bridge IOHIDManagerRef)self.ioHIDManager, kIOHIDOptionsTypeNone);
-        
-        // NOTE: This gives Hammerspoon exclusive access to the Razer device, but requires `root` permissions
-        //       so it's not very helpful.
-        //IOHIDManagerOpen((__bridge IOHIDManagerRef)self.ioHIDManager, kIOHIDOptionsTypeSeizeDevice);
-        
-        CFRunLoopRun();
     }
     return self;
 }
 
 #pragma mark - IOKit C callbacks
 
-static void keyboardCallback(void* context, IOReturn result, void* sender, IOHIDValueRef value)
+- (void)setupHID
 {
+    // Create a HID device manager
+    self.ioHIDManager = CFBridgingRelease(IOHIDManagerCreate(kCFAllocatorDefault, kIOHIDManagerOptionNone));
+            
+    NSDictionary *matchTartarusV2   = @{ @(kIOHIDVendorIDKey): @USB_VENDOR_ID_RAZER, @(kIOHIDProductIDKey): self.productId };
+    
+    IOHIDManagerSetDeviceMatchingMultiple((__bridge IOHIDManagerRef)self.ioHIDManager,
+                                          (__bridge CFArrayRef)@[matchTartarusV2]);
+
+    // Add our callbacks for relevant events
+    IOHIDManagerRegisterDeviceMatchingCallback((__bridge IOHIDManagerRef)self.ioHIDManager,
+                                               HIDconnect,
+                                               (__bridge void*)self);
+    IOHIDManagerRegisterDeviceRemovalCallback((__bridge IOHIDManagerRef)self.ioHIDManager,
+                                              HIDdisconnect,
+                                              (__bridge void*)self);
+    
+    IOHIDManagerRegisterInputValueCallback((__bridge IOHIDManagerRef)self.ioHIDManager,
+                                           HIDcallback,
+                                           (__bridge void*)self);
+
+    // Start our HID manager
+    IOHIDManagerScheduleWithRunLoop((__bridge IOHIDManagerRef)self.ioHIDManager,
+                                    CFRunLoopGetMain(),
+                                    kCFRunLoopDefaultMode);
+    
+    IOHIDManagerOpen((__bridge IOHIDManagerRef)self.ioHIDManager, kIOHIDOptionsTypeNone);
+    
+    CFRunLoopRun();
+}
+
+static void HIDconnect(void *context, IOReturn result, void *sender, IOHIDDeviceRef device) {
+    NSLog(@"connect: %p:%p", context, (void *)device);
+}
+
+static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDeviceRef device) {
+    NSLog(@"disconnect: %p", (void *)device);
+}
+
+static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValueRef value)
+{
+    HSRazer *manager = (__bridge HSRazer *)context;
+    
+    if (!([manager.productId intValue] == USB_DEVICE_ID_RAZER_TARTARUS_V2)) {
+        NSLog(@"Only the Razer Tartarus V2 is currently supported.");
+        return;
+    }
+    
     IOHIDElementRef elem = IOHIDValueGetElement(value);
     uint32_t scancode = IOHIDElementGetUsage(elem);
     long pressed = IOHIDValueGetIntegerValue(value);
@@ -95,41 +111,8 @@ static void keyboardCallback(void* context, IOReturn result, void* sender, IOHID
         return;
     }
     
-    //printf("scancode: %d, pressed: %ld\n", scancode, pressed);
-    
+    // Process the button name:
     NSString *buttonName = @"";
-    /*
-    Button 01 = 30
-    Button 02 = 31
-    Button 03 = 32
-    Button 04 = 33
-    Button 05 = 34
-    Button 06 = 43
-    Button 07 = 20
-    Button 08 = 26
-    Button 09 = 8
-    Button 10 = 21
-    Button 11 = 57
-    Button 12 = 4
-    Button 13 = 22
-    Button 14 = 7
-    Button 15 = 9
-    Button 16 = 225
-    Button 17 = 29
-    Button 18 = 27
-    Button 19 = 6
-    Button 20 = 44
-    
-    Scroll Wheel = 56 (pressed: up=1, down=-1, pressed=0)
-    
-    Mode Button = 226
-    
-    Navigation Up = 82
-    Navigation Down = 81
-    Navigation Left = 80
-    Navigation Right = 79
-    */
-    
     switch(scancode) {
         case 30:
             buttonName = @"01";
@@ -209,17 +192,53 @@ static void keyboardCallback(void* context, IOReturn result, void* sender, IOHID
         case 79:
             buttonName = @"Right";
             break;
+        default:
+            NSLog(@"Unknown button pressed");
+            return;
     }
     
-    NSLog(@"%@", buttonName);
-}
+    // Process the button action:
+    NSString *buttonAction = @"";
+    switch(scancode) {
+        case 56:
+            if (pressed == 1){
+                buttonAction = @"up";
+                break;
+            }
+            else if (pressed == -1) {
+                buttonAction = @"down";
+                break;
+            }
+            else if (pressed == 0) {
+                buttonAction = @"pressed";
+                break;
+            }
+        default:
+            if (pressed == 1){
+                buttonAction = @"pressed";
+            }
+            else {
+                buttonAction = @"released";
+            }
+    }
+    
+    // Trigger the Lua callback:
+    if (manager.callbackRef != LUA_NOREF) {
+        LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+        
+        if (![skin checkGCCanary:manager.lsCanary]) {
+            return;
+        }
 
-static void HIDconnect(void *context, IOReturn result, void *sender, IOHIDDeviceRef device) {
-    NSLog(@"connect: %p:%p", context, (void *)device);
-}
-
-static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDeviceRef device) {
-    NSLog(@"disconnect: %p", (void *)device);
+        _lua_stackguard_entry(skin.L);
+        [skin pushLuaRef:refTable ref:manager.callbackRef];
+        [skin pushNSObject:manager];
+        [skin pushNSObject:@"received"];
+        [skin pushNSObject:buttonName];
+        [skin pushNSObject:buttonAction];
+        [skin protectedCallAndError:@"hs.razer:callback" nargs:4 nresults:0];
+        _lua_stackguard_exit(skin.L);
+    }
 }
 
 #pragma mark - Properties
@@ -235,10 +254,11 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
         NSNumber *productId = [NSNumber numberWithLongLong:device.productId];
         
         if ([internalDeviceId isEqualToNumber:internalDeviceId]) {
-            
-            
             self.internalDeviceId = internalDeviceId;
             self.productId = productId;
+            
+            // Setup our HID callbacks based on productId:
+            [self setupHID];
             
             closeAllRazerDevices(allDevices);
             return YES;
@@ -362,9 +382,10 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
         RazerDevice device = razerDevices[i];
         NSNumber *internalDeviceId = [NSNumber numberWithInt:device.internalDeviceId];
         if ([internalDeviceId isEqualToNumber:self.internalDeviceId]) {
-            ssize_t firmwareVersion = razer_attr_read_get_firmware_version(device.usbDevice, "");
+            ssize_t firmwareVersionMajor = razer_attr_read_get_firmware_version_major(device.usbDevice, "");
+            ssize_t firmwareVersionMinor = razer_attr_read_get_firmware_version_minor(device.usbDevice, "");
             closeAllRazerDevices(allDevices);
-            return [NSString stringWithFormat:@"%ld", firmwareVersion];
+            return [NSString stringWithFormat:@"v%ld.%ld", firmwareVersionMajor, firmwareVersionMinor];
         }
     }
     closeAllRazerDevices(allDevices);
@@ -440,8 +461,9 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
     return NO;
 }
 
-
 /*
+ TODO - THINGS TO EXPOSE:
+ 
  ssize_t razer_attr_write_set_logo(IOUSBDeviceInterface **usb_dev, const char *buf, int count);
  ssize_t razer_attr_write_mode_custom(IOUSBDeviceInterface **usb_dev, const char *buf, int count);
  ssize_t razer_attr_write_set_fn_toggle(IOUSBDeviceInterface **usb_dev, const char *buf, int count);
@@ -502,8 +524,8 @@ static int razer_new(lua_State *L) {
 ///  * The callback function should expect 4 arguments and should not return anything:
 ///    * `razerObject` - The serial port object that triggered the callback.
 ///    * `callbackType` - A string containing "opened", "closed", "received", "removed" or "error".
-///    * `message` - If the `callbackType` is "received", then this will be the data received as a string. If the `callbackType` is "error", this will be the error message as a string.
-///    * `hexadecimalString` - If the `callbackType` is "received", then this will be the data received as a hexadecimal string.
+///    * `buttonName` - The name of the button as a string.
+///    * `buttonAction` - A string containing "pressed", "released", "up" or "down".
 static int razer_callback(lua_State *L) {
     // Check Arguments:
     LuaSkin *skin = [LuaSkin sharedWithState:L];
@@ -536,7 +558,7 @@ static int razer_callback(lua_State *L) {
 ///  * None
 ///
 /// Returns:
-///  * A table containing the names of any connected serial port names as strings.
+///  * A table containing the `productId` and `internalDeviceId` of all connected Razer devices.
 static int razer_devices(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs: LS_TBREAK];
@@ -582,15 +604,15 @@ static int razer_internalDeviceId(lua_State *L) {
     return 1;
 }
 
-/// hs.razer:firmwareVersion() -> number
+/// hs.razer:firmwareVersion() -> string
 /// Method
-/// Returns the `firmwareVersion` of a `hs.razer` object.
+/// Returns the firmware version of a `hs.razer` object.
 ///
 /// Parameters:
 ///  * None
 ///
 /// Returns:
-///  * The `internalDeviceId` as a number.
+///  * The `firmwareVersion` as a string (for example. "v1.0").
 static int razer_firmwareVersion(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
@@ -600,15 +622,15 @@ static int razer_firmwareVersion(lua_State *L) {
     return 1;
 }
 
-/// hs.razer:ledStatus() -> number
+/// hs.razer:ledStatus() -> string
 /// Method
-/// Returns "red", "blue", "green" or nothing.
+/// Gets the LED status of a Razer device.
 ///
 /// Parameters:
 ///  * None
 ///
 /// Returns:
-///  * The `internalDeviceId` as a number.
+///  * Returns a string - "red", "blue", "green" or "off".
 static int razer_ledStatus(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
@@ -647,7 +669,7 @@ static int razer_productId(lua_State *L) {
 
 /// hs.razer:brightness() -> number
 /// Method
-/// Returns the `brightness` of a `hs.razer` object.
+/// Gets or sets the `brightness` of a `hs.razer` object.
 ///
 /// Parameters:
 ///  * None
@@ -656,7 +678,7 @@ static int razer_productId(lua_State *L) {
 ///  * The `brightness` as a number.
 static int razer_brightness(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK];
     HSRazer *razer = [skin toNSObjectAtIndex:1];
     
     if (lua_gettop(L) == 1) {

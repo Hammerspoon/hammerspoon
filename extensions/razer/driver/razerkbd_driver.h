@@ -155,4 +155,8 @@ ssize_t razer_attr_write_set_fn_toggle(IOUSBDeviceInterface **usb_dev, const cha
 ssize_t razer_attr_write_set_brightness(IOUSBDeviceInterface **usb_dev, ushort brightness, int count);
 ushort razer_attr_read_set_brightness(IOUSBDeviceInterface **usb_dev);
 ssize_t razer_attr_write_matrix_custom_frame(IOUSBDeviceInterface **usb_dev, const char *buf, int count);
+
+// Added by Chris:
+ssize_t razer_attr_read_get_firmware_version_major(IOUSBDeviceInterface **usb_dev, char *buf);
+ssize_t razer_attr_read_get_firmware_version_minor(IOUSBDeviceInterface **usb_dev, char *buf);
 #endif

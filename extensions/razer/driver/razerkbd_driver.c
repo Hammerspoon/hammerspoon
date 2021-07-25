@@ -258,13 +258,29 @@ ssize_t razer_attr_read_get_firmware_version(IOUSBDeviceInterface **usb_dev, cha
     struct razer_report report = razer_chroma_standard_get_firmware_version();
     struct razer_report response_report = razer_send_payload(usb_dev, &report);
     
-    // MODIFIED BY CHRIS:
-    //return sprintf(buf, "v%d.%d\n", response_report.arguments[0], response_report.arguments[1]);
+    return sprintf(buf, "v%d.%d\n", response_report.arguments[0], response_report.arguments[1]);
+}
+
+// Added by Chris:
+ssize_t razer_attr_read_get_firmware_version_major(IOUSBDeviceInterface **usb_dev, char *buf)
+{
+    struct razer_report report = razer_chroma_standard_get_firmware_version();
+    struct razer_report response_report = razer_send_payload(usb_dev, &report);
     
     unsigned char major = response_report.arguments[0];
     unsigned char minor = response_report.arguments[1];
     
     return major;
+}
+// Added by Chris:
+ssize_t razer_attr_read_get_firmware_version_minor(IOUSBDeviceInterface **usb_dev, char *buf)
+{
+    struct razer_report report = razer_chroma_standard_get_firmware_version();
+    struct razer_report response_report = razer_send_payload(usb_dev, &report);
+        
+    unsigned char minor = response_report.arguments[1];
+    
+    return minor;
 }
 
 /**
