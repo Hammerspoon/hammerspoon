@@ -9,6 +9,41 @@
 ---
 --- Special thanks to the [librazermacos](https://github.com/1kc/librazermacos) project,
 --- which is a C library of [OpenRazer](https://github.com/openrazer/openrazer) drivers ported to macOS.
+---
+--- Example usage with a Razer Tartarus V2:
+--- ```lua
+--- deviceId = hs.razer.devices()[1].internalDeviceId
+--- device = hs.razer.new(deviceId)
+--- if device then
+---   print(string.format("Device Connected: %s", device:deviceName()))
+---   if device:productId() == 0x022b then
+---     print("Disabling Default Button Layout...")
+---     device:disableDefaultButtonLayout()
+---   end
+---   print("Setting up a callback...")
+---   device:callback(function(obj, msg, buttonName, buttonAction)
+---     print(string.format("obj: %s, msg: %s, buttonName: %s, buttonAction: %s", obj, msg, buttonName, buttonAction))
+---   end)
+--- end
+--- ```
+
+--[[
+TEST CODE FOR RAZER TARTARUS V2:
+
+deviceId = hs.razer.devices()[1].internalDeviceId
+device = hs.razer.new(deviceId)
+if device then
+  print(string.format("Device Connected: %s", device:deviceName()))
+  if device:productId() == 0x022b then
+    print("Disabling Default Button Layout...")
+    device:disableDefaultButtonLayout()
+  end
+  print("Setting up a callback...")
+  device:callback(function(obj, msg, buttonName, buttonAction)
+    print(string.format("obj: %s, msg: %s, buttonName: %s, buttonAction: %s", obj, msg, buttonName, buttonAction))
+  end)
+end
+--]]
 
 local razer = require("hs.razer.internal")
 

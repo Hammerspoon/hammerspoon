@@ -2,17 +2,18 @@
 @import LuaSkin;
 
 #include <stdio.h>
-#import <Foundation/Foundation.h>
 
 #include "razerdevice.h"
 #include "razerkbd_driver.h"
+
+#import <Foundation/Foundation.h>
 
 #import <IOKit/hid/IOHIDManager.h>
 #import <IOKit/hid/IOHIDUsageTables.h>
 
 #import <IOKit/hidsystem/IOHIDParameter.h>
-#import <IOKit/hidsystem/IOHIDEventSystemClient.h>
 #import <IOKit/hidsystem/IOHIDServiceClient.h>
+#import <IOKit/hidsystem/IOHIDEventSystemClient.h>
 
 #define USERDATA_TAG  "hs.razer"
 static LSRefTable refTable = LUA_NOREF;
@@ -27,6 +28,8 @@ static LSRefTable refTable = LUA_NOREF;
 
 @property NSNumber*                 internalDeviceId;
 @property NSNumber*                 productId;
+
+@property BOOL                      scrollWheelPressed;
 
 @property int                       selfRefCount;
 @property int                       callbackRef;
@@ -48,14 +51,27 @@ static LSRefTable refTable = LUA_NOREF;
         _deviceCallbackRef          = LUA_NOREF;
         _callbackToken              = nil;
         _selfRefCount               = 0;
+        _scrollWheelPressed         = NO;
     }
     return self;
 }
+
+#pragma mark - Event Tap for Scroll Wheeel
+
+// kCGEventScrollWheel
+
+// TODO: We need to use an eventtap to stop the scroll wheel on the Razer Tartarus V2 from actually scrolling.
 
 #pragma mark - IOKit C callbacks
 
 - (void)setupHID
 {
+    // Currently we only support the Razer Tartarus V2
+    if (!([self.productId intValue] == USB_DEVICE_ID_RAZER_TARTARUS_V2)) {
+        NSLog(@"Only the Razer Tartarus V2 is currently supported.");
+        return;
+    }
+    
     // Create a HID device manager
     self.ioHIDManager = CFBridgingRelease(IOHIDManagerCreate(kCFAllocatorDefault, kIOHIDManagerOptionNone));
             
@@ -80,28 +96,84 @@ static LSRefTable refTable = LUA_NOREF;
     IOHIDManagerScheduleWithRunLoop((__bridge IOHIDManagerRef)self.ioHIDManager,
                                     CFRunLoopGetMain(),
                                     kCFRunLoopDefaultMode);
+}
+
+- (void)doGC {
+    if (!(__bridge IOHIDManagerRef)self.ioHIDManager) {
+        // Something is wrong and the manager doesn't exist, so just bail
+        return;
+    }
+
+    // Remove our callbacks
+    IOHIDManagerRegisterDeviceMatchingCallback((__bridge IOHIDManagerRef)self.ioHIDManager, NULL, (__bridge void*)self);
+    IOHIDManagerRegisterDeviceRemovalCallback((__bridge IOHIDManagerRef)self.ioHIDManager, NULL, (__bridge void*)self);
+
+    // Remove our HID manager from the runloop
+    IOHIDManagerUnscheduleFromRunLoop((__bridge IOHIDManagerRef)self.ioHIDManager, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
+
+    // Deallocate the HID manager
+    self.ioHIDManager = nil;
+}
+
+- (BOOL)startHIDManager {
+    if (!(__bridge IOHIDManagerRef)self.ioHIDManager) {
+        return NO;
+    }
     
-    IOHIDManagerOpen((__bridge IOHIDManagerRef)self.ioHIDManager, kIOHIDOptionsTypeNone);
-    
-    CFRunLoopRun();
+    IOReturn tIOReturn = IOHIDManagerOpen((__bridge IOHIDManagerRef)self.ioHIDManager, kIOHIDOptionsTypeNone);
+    return tIOReturn == kIOReturnSuccess;
+}
+
+- (BOOL)stopHIDManager {
+    if (!(__bridge IOHIDManagerRef)self.ioHIDManager) {
+        return YES;
+    }
+
+    IOReturn tIOReturn = IOHIDManagerClose((__bridge IOHIDManagerRef)self.ioHIDManager, kIOHIDOptionsTypeNone);
+    return tIOReturn == kIOReturnSuccess;
 }
 
 static void HIDconnect(void *context, IOReturn result, void *sender, IOHIDDeviceRef device) {
-    NSLog(@"connect: %p:%p", context, (void *)device);
+    HSRazer *manager = (__bridge HSRazer *)context;
+    // Trigger the Lua callback:
+    if (manager.callbackRef != LUA_NOREF) {
+        LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+        
+        if (![skin checkGCCanary:manager.lsCanary]) {
+            return;
+        }
+
+        _lua_stackguard_entry(skin.L);
+        [skin pushLuaRef:refTable ref:manager.callbackRef];
+        [skin pushNSObject:manager];
+        [skin pushNSObject:@"connected"];
+        [skin protectedCallAndError:@"hs.razer:callback" nargs:2 nresults:0];
+        _lua_stackguard_exit(skin.L);
+    }
 }
 
 static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDeviceRef device) {
-    NSLog(@"disconnect: %p", (void *)device);
+    HSRazer *manager = (__bridge HSRazer *)context;
+    // Trigger the Lua callback:
+    if (manager.callbackRef != LUA_NOREF) {
+        LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+        
+        if (![skin checkGCCanary:manager.lsCanary]) {
+            return;
+        }
+
+        _lua_stackguard_entry(skin.L);
+        [skin pushLuaRef:refTable ref:manager.callbackRef];
+        [skin pushNSObject:manager];
+        [skin pushNSObject:@"disconnected"];
+        [skin protectedCallAndError:@"hs.razer:callback" nargs:2 nresults:0];
+        _lua_stackguard_exit(skin.L);
+    }
 }
 
 static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValueRef value)
 {
     HSRazer *manager = (__bridge HSRazer *)context;
-    
-    if (!([manager.productId intValue] == USB_DEVICE_ID_RAZER_TARTARUS_V2)) {
-        NSLog(@"Only the Razer Tartarus V2 is currently supported.");
-        return;
-    }
     
     IOHIDElementRef elem = IOHIDValueGetElement(value);
     uint32_t scancode = IOHIDElementGetUsage(elem);
@@ -193,13 +265,14 @@ static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValue
             buttonName = @"Right";
             break;
         default:
-            NSLog(@"Unknown button pressed");
+            // Ignore everything else:
             return;
     }
     
     // Process the button action:
     NSString *buttonAction = @"";
     switch(scancode) {
+        // Scroll Wheel:
         case 56:
             if (pressed == 1){
                 buttonAction = @"up";
@@ -210,9 +283,17 @@ static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValue
                 break;
             }
             else if (pressed == 0) {
-                buttonAction = @"pressed";
-                break;
+                if (manager.scrollWheelPressed) {
+                    buttonAction = @"released";
+                    manager.scrollWheelPressed = NO;
+                    break;
+                } else {
+                    buttonAction = @"pressed";
+                    manager.scrollWheelPressed = YES;
+                    break;
+                }
             }
+        // Buttons:
         default:
             if (pressed == 1){
                 buttonAction = @"pressed";
@@ -243,6 +324,125 @@ static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValue
 
 #pragma mark - Properties
 
+- (NSString*)deviceName:(NSNumber *)productId
+{
+    switch([productId integerValue]) {
+        // Keyboards:
+        case USB_DEVICE_ID_RAZER_BLACKWIDOW_ULTIMATE_2012:
+            return @"Razer Blackwidow Ultimate (2012)";
+        case USB_DEVICE_ID_RAZER_BLACKWIDOW_STEALTH_EDITION:
+            return @"Razer Blackwidow Stealth Edition";
+        case USB_DEVICE_ID_RAZER_ANANSI:
+            return @"Razer Anansi";
+        case USB_DEVICE_ID_RAZER_NOSTROMO:
+            return @"Razer Nostromo";
+        case USB_DEVICE_ID_RAZER_ORBWEAVER:
+            return @"Razer Orbweaver";
+        case USB_DEVICE_ID_RAZER_BLACKWIDOW_ULTIMATE_2013:
+            return @"Razer Blackwidow Ultimate (2013)";
+        case USB_DEVICE_ID_RAZER_BLACKWIDOW_STEALTH:
+            return @"Razer Blackwidow Stealth";
+        case USB_DEVICE_ID_RAZER_TARTARUS:
+            return @"Razer Tartarus";
+        case USB_DEVICE_ID_RAZER_DEATHSTALKER_EXPERT:
+            return @"Razer Dealthstalker Expert";
+        case USB_DEVICE_ID_RAZER_BLACKWIDOW_CHROMA:
+            return @"Razer Blackwidow Chromo";
+        case USB_DEVICE_ID_RAZER_DEATHSTALKER_CHROMA:
+            return @"Razer Deathstalker Chroma";
+        case USB_DEVICE_ID_RAZER_BLADE_STEALTH:
+            return @"Razer Blade Stealth";
+        case USB_DEVICE_ID_RAZER_ORBWEAVER_CHROMA:
+            return @"Razer Orbweaver Chroma";
+        case USB_DEVICE_ID_RAZER_TARTARUS_CHROMA:
+            return @"Razer Tartarus Chroma";
+        case USB_DEVICE_ID_RAZER_BLACKWIDOW_CHROMA_TE:
+            return @"Razer Blackwidow Chroma TE";
+        case USB_DEVICE_ID_RAZER_BLADE_QHD:
+            return @"Razer Blade QHD";
+        case USB_DEVICE_ID_RAZER_BLADE_PRO_LATE_2016:
+            return @"Razer Blade Pro (Late 2016)";
+        case USB_DEVICE_ID_RAZER_BLACKWIDOW_OVERWATCH:
+            return @"Razer Blackwidow Overwatch";
+        case USB_DEVICE_ID_RAZER_BLACKWIDOW_ULTIMATE_2016:
+            return @"Razer Blackwidow Ultimate (2016)";
+        case USB_DEVICE_ID_RAZER_BLACKWIDOW_X_CHROMA:
+            return @"Razer Blackwidow X Chroma";
+        case USB_DEVICE_ID_RAZER_BLACKWIDOW_X_ULTIMATE:
+            return @"Razer Blackwidow X Ultimate";
+        case USB_DEVICE_ID_RAZER_BLACKWIDOW_X_CHROMA_TE:
+            return @"Razer Blackwidow X Chroma TE";
+        case USB_DEVICE_ID_RAZER_ORNATA_CHROMA:
+            return @"Razer Ornata Chroma";
+        case USB_DEVICE_ID_RAZER_ORNATA:
+            return @"Razer Ornata";
+        case USB_DEVICE_ID_RAZER_ORNATA_CHROMA_V2:
+            return @"Razer Ornata Chroma V2";
+        case USB_DEVICE_ID_RAZER_BLADE_STEALTH_LATE_2016:
+            return @"Razer Blade Stealth (Late 2016)";
+        case USB_DEVICE_ID_RAZER_BLACKWIDOW_CHROMA_V2:
+            return @"Razer Blackwidow Chroma V2";
+        case USB_DEVICE_ID_RAZER_BLACKWIDOW_V3:
+            return @"Razer Blackwidow V3";
+        case USB_DEVICE_ID_RAZER_BLADE_LATE_2016:
+            return @"Razer Blade (Late 2016)";
+        case USB_DEVICE_ID_RAZER_BLADE_PRO_2017:
+            return @"Razer Blade Pro (2017)";
+        case USB_DEVICE_ID_RAZER_HUNTSMAN_ELITE:
+            return @"Razer Huntsman Elite";
+        case USB_DEVICE_ID_RAZER_HUNTSMAN:
+            return @"Razer Huntsman";
+        case USB_DEVICE_ID_RAZER_BLACKWIDOW_ELITE:
+            return @"Razer Blackwidow Elite";
+        case USB_DEVICE_ID_RAZER_CYNOSA_CHROMA:
+            return @"Razer Cynosa Chroma";
+        case USB_DEVICE_ID_RAZER_TARTARUS_V2:
+            return @"Razer Tartarus V2";
+        case USB_DEVICE_ID_RAZER_BLADE_STEALTH_MID_2017:
+            return @"Razer Blade Stealth (Mid 2017)";
+        case USB_DEVICE_ID_RAZER_BLADE_PRO_2017_FULLHD:
+            return @"Razer Blade Pro (2017 Full HD)";
+        case USB_DEVICE_ID_RAZER_BLADE_STEALTH_LATE_2017:
+            return @"Razer Blade Stealth (Late 2017)";
+        case USB_DEVICE_ID_RAZER_BLADE_2018:
+            return @"Razer Blade (2018)";
+        case USB_DEVICE_ID_RAZER_BLACKWIDOW_LITE:
+            return @"Razer Blackwidow Lite";
+        case USB_DEVICE_ID_RAZER_BLACKWIDOW_ESSENTIAL:
+            return @"Razer Blackwidow Essential";
+        case USB_DEVICE_ID_RAZER_BLADE_STEALTH_2019:
+            return @"Razer Blade Stealth (2019)";
+        case USB_DEVICE_ID_RAZER_BLADE_2019_ADV:
+            return @"Razer Blade 2019 ADV";
+        case USB_DEVICE_ID_RAZER_BLADE_2018_BASE:
+            return @"Razer Blade (2018 Base)";
+        case USB_DEVICE_ID_RAZER_BLADE_2018_MERCURY:
+            return @"Razer Blade (2018 Mercury)";
+        case USB_DEVICE_ID_RAZER_BLACKWIDOW_2019:
+            return @"Razer Blackwidow (2019)";
+        case USB_DEVICE_ID_RAZER_HUNTSMAN_TE:
+            return @"Razer Huntsman TE";
+        case USB_DEVICE_ID_RAZER_BLADE_MID_2019_MERCURY:
+            return @"Razer Blade (Mid 2019 Mercury)";
+        case USB_DEVICE_ID_RAZER_BLADE_2019_BASE:
+            return @"Razer Blade (2019 Base)";
+        case USB_DEVICE_ID_RAZER_BLADE_STEALTH_LATE_2019:
+            return @"Razer Blade Stealth (Late 2019)";
+        case USB_DEVICE_ID_RAZER_BLADE_STUDIO_EDITION_2019:
+            return @"Razer Blade Studio Edition (2019)";
+        case USB_DEVICE_ID_RAZER_CYNOSA_V2:
+            return @"Razer Cynosa V2";
+        case USB_DEVICE_ID_RAZER_CYNOSA_LITE:
+            return @"Razer Cynosa Lite";
+        case USB_DEVICE_ID_RAZER_BLACKWIDOW_V3_TK:
+            return @"Razer Blackwidow V3 TK";
+        case USB_DEVICE_ID_RAZER_HUNTSMAN_MINI:
+            return @"Razer Huntsman Mini";
+        default:
+            return @"Unknown";
+    }
+}
+
 - (bool)isDeviceIDValid:(NSNumber *)deviceID
 {
     RazerDevices allDevices = getAllRazerDevices();
@@ -259,6 +459,9 @@ static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValue
             
             // Setup our HID callbacks based on productId:
             [self setupHID];
+            
+            // Start the HID Manager:
+            [self startHIDManager];
             
             closeAllRazerDevices(allDevices);
             return YES;
@@ -604,6 +807,25 @@ static int razer_internalDeviceId(lua_State *L) {
     return 1;
 }
 
+/// hs.razer:deviceName() -> number
+/// Method
+/// Returns the human readible device name of a `hs.razer` object.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The device name as a string or "Unknown" if not known.
+static int razer_deviceName(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    HSRazer *razer = [skin toNSObjectAtIndex:1];
+    NSNumber *productId = razer.productId;
+    NSString *deviceName = [razer deviceName:productId];
+    [skin pushNSObject:deviceName];
+    return 1;
+}
+
 /// hs.razer:firmwareVersion() -> string
 /// Method
 /// Returns the firmware version of a `hs.razer` object.
@@ -789,13 +1011,14 @@ static id toHSRazerFromLua(lua_State *L, int idx) {
 static int userdata_tostring(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     HSRazer *razer = [skin luaObjectAtIndex:1 toClass:"HSRazer"];
-    NSString *title = @"Razer Device";
+    NSNumber *productId = razer.productId;
+    NSString *deviceName = [razer deviceName:productId];
     BOOL isConnected = [razer isConnected];
     NSString *connected = @"Connected";
     if (!isConnected) {
         connected = @"Disconnected";
     }
-    [skin pushNSObject:[NSString stringWithFormat:@"%s: %@ - %@ (%p)", USERDATA_TAG, title, connected, lua_topointer(L, 1)]];
+    [skin pushNSObject:[NSString stringWithFormat:@"%s: %@ - %@ (%p)", USERDATA_TAG, deviceName, connected, lua_topointer(L, 1)]];
     return 1;
 }
 
@@ -819,6 +1042,11 @@ static int userdata_gc(lua_State* L) {
         obj.selfRefCount--;
         if (obj.selfRefCount == 0) {
             LuaSkin *skin = [LuaSkin sharedWithState:L];
+            
+            // Stop HID Manager and perform garbage collection:
+            [obj stopHIDManager];
+            [obj doGC];
+            
             obj.callbackRef = [skin luaUnref:refTable ref:obj.callbackRef];
 
             // Disconnect Callback:
@@ -847,6 +1075,7 @@ static int meta_gc(lua_State* L) {
 
 // Metatable for userdata objects:
 static const luaL_Reg userdata_metaLib[] = {
+    {"deviceName",                  razer_deviceName},
     {"ledStatus",                   razer_ledStatus},
     {"firmwareVersion",             razer_firmwareVersion},
     {"brightness",                  razer_brightness},
