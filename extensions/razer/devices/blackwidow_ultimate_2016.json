@@ -1,0 +1,21 @@
+{
+  "name": "Razer BlackWidow Ultimate 2016",
+  "productId": "0x0214",
+  "mainType": "keyboard",
+  "image": "https://assets.razerzone.com/eeimages/support/products/616/616_blackwidow_ultimate_2016.png",
+  "features": null,
+  "featuresConfig": [
+    {
+      "ripple": {
+          "rows": 6,
+          "cols": 22
+      }
+    },
+    {
+      "wheel": {
+          "rows": 6,
+          "cols": 22
+      }
+    }
+  ]
+}

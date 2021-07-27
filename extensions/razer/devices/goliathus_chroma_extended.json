@@ -1,0 +1,8 @@
+{
+  "name": "Razer Goliathus Chroma Extended",
+  "productId": "0x0C02",
+  "mainType": "mousemat",
+  "image": "https://assets.razerzone.com/eeimages/support/products/1395/1395_goliathusextended.png",
+  "features": null,
+  "featuresMissing": ["waveSimple"]
+}

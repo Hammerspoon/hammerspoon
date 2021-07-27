@@ -1,0 +1,22 @@
+{
+  "name": "Razer Ouroboros",
+  "productId": "0x0032",
+  "mainType": "mouse",
+  "image": "https://assets.razerzone.com/eeimages/support/products/26/26_ouroboros.png",
+  "features": null,
+  "featuresConfig": [
+    {
+      "mouseBrightness": {
+        "enabledMatrix": false,
+        "enabledLogo": false,
+        "enabledLeft": false,
+        "enabledRight": false
+      }
+    },
+    {
+      "dpi": {
+        "max": 8200
+      }
+    }
+  ]
+}

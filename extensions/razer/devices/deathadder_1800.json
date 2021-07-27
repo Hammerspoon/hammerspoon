@@ -1,0 +1,15 @@
+{
+  "name": "Razer DeathAdder 1800",
+  "productId": "0x0038",
+  "mainType": "mouse",
+  "image": "https://rzrwarranty.s3.amazonaws.com/a7daf40ad78c9584a693e310effa956019cdcd081391f93f71a7cd36d3dc577e.png",
+  "features": null,
+  "featuresMissing": ["mouseBrightness"],
+  "featuresConfig": [
+    {
+      "dpi": {
+        "max": 1800
+      }
+    }
+  ]
+}

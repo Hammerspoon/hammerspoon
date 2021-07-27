@@ -1,0 +1,23 @@
+{
+  "name": "Razer Viper Mini",
+  "productId": "0x008A",
+  "mainType": "mouse",
+  "image": "https://assets.razerzone.com/eeimages/support/products/1634/vipermini.png",
+  "features": null,
+  "featuresMissing": ["waveSimple"],
+  "featuresConfig": [
+    {
+      "mouseBrightness": {
+        "enabledMatrix": false,
+        "enabledScroll": false,
+        "enabledLeft": false,
+        "enabledRight": false
+      }
+    },
+    {
+      "dpi": {
+        "max": 8500
+      }
+    }
+  ]
+}

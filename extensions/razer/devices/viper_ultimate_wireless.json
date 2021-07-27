@@ -1,0 +1,22 @@
+{
+  "name": "Razer Viper Ultimate Wireless",
+  "productId": "0x007B",
+  "mainType": "mouse",
+  "image": "https://assets.razerzone.com/eeimages/support/products/1577/ee_photo.png",
+  "features": null,
+  "featuresConfig": [
+    {
+      "mouseBrightness": {
+        "enabledMatrix": false,
+        "enabledScroll": false,
+        "enabledLeft": false,
+        "enabledRight": false
+      }
+    },
+    {
+      "dpi": {
+        "max": 20000
+      }
+    }
+  ]
+}

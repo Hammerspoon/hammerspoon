@@ -1,0 +1,21 @@
+{
+  "name": "Razer Basilisk V2",
+  "productId": "0x0085",
+  "mainType": "mouse",
+  "image": "https://assets.razerzone.com/eeimages/support/products/1617/1617_basilisk-v2.png",
+  "features": null,
+  "featuresConfig": [
+    {
+      "dpi": {
+        "max": 20000
+      }
+    },
+    {
+      "mouseBrightness": {
+        "enabledMatrix": false,
+        "enabledLeft": false,
+        "enabledRight": false
+      }
+    }
+  ]
+}

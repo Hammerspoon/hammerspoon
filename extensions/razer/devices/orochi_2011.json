@@ -1,0 +1,15 @@
+{
+  "name": "Razer Orochi 2011",
+  "productId": "0x0013",
+  "mainType": "mouse",
+  "image": "https://assets.razerzone.com/eeimages/support/products/612/612_orochi_2015.png",
+  "features": null,
+  "featuresMissing": ["mouseBrightness"],
+  "featuresConfig": [
+    {
+      "dpi": {
+        "max": 4000
+      }
+    }
+  ]
+}

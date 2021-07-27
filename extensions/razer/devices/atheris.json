@@ -1,0 +1,15 @@
+{
+  "name": "Razer Atheris (Receiver)",
+  "productId": "0x0062",
+  "mainType": "mouse",
+  "image": "https://assets.razerzone.com/eeimages/support/products/1234/1234_atheris.png",
+  "features": null,
+  "featuresMissing": ["mouseBrightness"],
+  "featuresConfig": [
+    {
+      "dpi": {
+        "max": 7200
+      }
+    }
+  ]
+}

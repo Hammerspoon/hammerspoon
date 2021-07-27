@@ -1,0 +1,15 @@
+{
+  "name": "Razer Naga 2014",
+  "productId": "0x0040",
+  "mainType": "mouse",
+  "image": "https://assets.razerzone.com/eeimages/support/products/227/227_razer_naga_2014.png",
+  "features": null,
+  "featuresMissing": ["mouseBrightness"],
+  "featuresConfig": [
+    {
+      "dpi": {
+        "max": 8200
+      }
+    }
+  ]
+}

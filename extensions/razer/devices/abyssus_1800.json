@@ -1,0 +1,15 @@
+{
+  "name": "Razer Abyssus 1800",
+  "productId": "0x0020",
+  "mainType": "mouse",
+  "image": "https://assets.razerzone.com/eeimages/support/products/1277/1277_abyssus_2000.png",
+  "features": null,
+  "featuresMissing": ["mouseBrightness"],
+  "featuresConfig": [
+    {
+      "dpi": {
+        "max": 1800
+      }
+    }
+  ]
+}

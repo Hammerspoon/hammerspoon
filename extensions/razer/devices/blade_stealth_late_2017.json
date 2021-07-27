@@ -1,0 +1,21 @@
+{
+  "name": "Razer Blade Stealth (Late 2017)",
+  "productId": "0x0232",
+  "mainType": "keyboard",
+  "image": "https://assets.razerzone.com/eeimages/support/products/1213/1213_blade_stealth_2017_7500u.png",
+  "features": null,
+  "featuresConfig": [
+    {
+      "ripple": {
+          "rows": 6,
+          "cols": 16
+      }
+    },
+    {
+      "wheel": {
+          "rows": 6,
+          "cols": 16
+      }
+    }
+  ]
+}

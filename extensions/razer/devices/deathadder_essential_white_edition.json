@@ -1,0 +1,21 @@
+{
+  "name": "Razer DeathAdder Essential (White Edition)",
+  "productId": "0x0071",
+  "mainType": "mouse",
+  "image": "https://assets2.razerzone.com/images/da10m/carousel/razer-death-adder-gallery-25.png",
+  "features": null,
+  "featuresConfig": [
+    {
+      "mouseBrightness": {
+        "enabledMatrix": false,
+        "enabledLeft": false,
+        "enabledRight": false
+      }
+    },
+    {
+      "dpi": {
+        "max": 6400
+      }
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "name": "Razer DeathAdder V2 Mini",
+  "productId": "0x008C",
+  "mainType": "mouse",
+  "image": "https://assets.razerzone.com/eeimages/support/products/1692/deathadder-v2-mini.png",
+  "features": null,
+  "featuresConfig": [
+    {
+      "mouseBrightness": {
+        "enabledMatrix": false,
+        "enabledScroll": false,
+        "enabledLeft": false,
+        "enabledRight": false
+      }
+    },
+    {
+      "dpi": {
+        "max": 8500
+      }
+    }
+  ]
+}

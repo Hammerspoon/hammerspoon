@@ -1,0 +1,21 @@
+{
+  "name": "Razer BlackWidow V3 Tenkeyless",
+  "productId": "0x0a24",
+  "mainType": "keyboard",
+  "image": "https://assets.razerzone.com/eeimages/support/products/1709/1709-blackwidow-v3-tkl.png",
+  "features": null,
+  "featuresConfig": [
+    {
+      "ripple": {
+          "rows": 6,
+          "cols": 18
+      }
+    },
+    {
+      "wheel": {
+          "rows": 6,
+          "cols": 18
+      }
+    }
+  ]
+}

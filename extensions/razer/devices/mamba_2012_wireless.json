@@ -1,0 +1,22 @@
+{
+  "name": "Razer Mamba 2012 Wireless",
+  "productId": "0x0025",
+  "mainType": "mouse",
+  "image": "https://assets.razerzone.com/eeimages/support/products/192/192_mamba_2012.png",
+  "features": null,
+  "featuresConfig": [
+    {
+      "mouseBrightness": {
+        "enabledMatrix": false,
+        "enabledLogo": false,
+        "enabledLeft": false,
+        "enabledRight": false
+      }
+    },
+    {
+      "dpi": {
+        "max": 6400
+      }
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "name": "Razer Blade 15 (2019) Base Model",
+  "productId": "0x0246",
+  "mainType": "keyboard",
+  "image": "https://assets.razerzone.com/eeimages/support/products/1518/1518_blade15_mid2019-base.png",
+  "features": null,
+  "featuresMissing": ["ripple", "wheel"]
+}

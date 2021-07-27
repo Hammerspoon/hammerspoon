@@ -1,0 +1,22 @@
+{
+  "name": "Razer Naga Trinity",
+  "productId": "0x0067",
+  "mainType": "mouse",
+  "image": "https://assets.razerzone.com/eeimages/support/products/1251/1251_razer_naga_trinity.png",
+  "features": null,
+  "featuresConfig": [
+    {
+      "mouseBrightness": {
+        "enabledLogo": false,
+        "enabledScroll": false,
+        "enabledLeft": false,
+        "enabledRight": false
+      }
+    },
+    {
+      "dpi": {
+        "max": 16000
+      }
+    }
+  ]
+}

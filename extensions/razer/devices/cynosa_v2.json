@@ -1,0 +1,21 @@
+{
+  "name": "Razer Cynosa V2",
+  "productId": "0x025E",
+  "mainType": "keyboard",
+  "image": "https://assets.razerzone.com/eeimages/support/products/1694/1694-2.png",
+  "features": null,
+  "featuresConfig": [
+    {
+      "ripple": {
+          "rows": 6,
+          "cols": 22
+      }
+    },
+    {
+      "wheel": {
+          "rows": 6,
+          "cols": 22
+      }
+    }
+  ]
+}

@@ -213,3 +213,7 @@ cp -av "${BUILT_PRODUCTS_DIR}/liblsqlite3.dylib" "${HS_DST}/sqlite3/lsqlite3.so"
 
 # Special copier for hs.spoons templates directory
 cp -av "${SRCROOT}/extensions/spoons/templates" "${HS_DST}/spoons"
+
+# Special copier for hs.razer devices directory
+mkdir -pv "${HS_DST}/razer/devices"
+cp -av "${SRCROOT}/extensions/razer/devices" "${HS_DST}/razer"

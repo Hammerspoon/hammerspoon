@@ -1,0 +1,8 @@
+{
+  "name": "Razer BlackWidow Lite",
+  "productId": "0x0235",
+  "mainType": "keyboard",
+  "image": "https://assets.razerzone.com/eeimages/support/products/1456/1456_blackwidowlite_-_2.png",
+  "features": null,
+  "featuresMissing": ["ripple", "wheel"]
+}

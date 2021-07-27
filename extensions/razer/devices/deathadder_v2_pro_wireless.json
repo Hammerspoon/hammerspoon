@@ -1,0 +1,22 @@
+{
+  "name": "Razer DeathAdder V2 Pro Wireless",
+  "productId": "0x007D",
+  "mainType": "mouse",
+  "image": "https://assets.razerzone.com/eeimages/support/products/1714/comp_1_00000.png",
+  "features": null,
+  "featuresConfig": [
+    {
+      "dpi": {
+        "max": 20000
+      }
+    },
+    {
+      "mouseBrightness": {
+        "enabledMatrix": false,
+        "enabledLeft": false,
+        "enabledRight": false,
+        "enabledScroll": false
+      }
+    }
+  ]
+}

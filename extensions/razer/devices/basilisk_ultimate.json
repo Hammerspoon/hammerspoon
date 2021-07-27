@@ -1,0 +1,19 @@
+{
+  "name": "Razer Basilisk Ultimate",
+  "productId": "0x0086",
+  "mainType": "mouse",
+  "image": "https://assets.razerzone.com/eeimages/support/products/1590/1590_basilisk_ultimate.png",
+  "features": null,
+  "featuresConfig": [
+    {
+      "dpi": {
+        "max": 20000
+      }
+    },
+    {
+      "mouseBrightness": {
+        "enabledMatrix": false
+      }
+    }
+  ]
+}

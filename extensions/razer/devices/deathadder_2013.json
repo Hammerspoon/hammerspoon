@@ -1,0 +1,15 @@
+{
+  "name": "Razer DeathAdder 2013",
+  "productId": "0x0037",
+  "mainType": "mouse",
+  "image": "https://assets.razerzone.com/eeimages/support/products/561/561_deathadder_classic.png",
+  "features": null,
+  "featuresMissing": ["mouseBrightness"],
+  "featuresConfig": [
+    {
+      "dpi": {
+        "max": 6400
+      }
+    }
+  ]
+}

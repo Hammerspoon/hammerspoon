@@ -1,0 +1,20 @@
+{
+  "name": "Razer Mamba Elite",
+  "productId": "0x006C",
+  "mainType": "mouse",
+  "image": "https://assets.razerzone.com/eeimages/support/products/1390/1390_mamba_elite.png",
+  "features": null,
+  "featuresMissing": ["oldMouseEffects", "battery"],
+  "featuresConfig": [
+    {
+      "dpi": {
+        "max": 16000
+      }
+    },
+    {
+      "mouseBrightness": {
+        "enabledMatrix": false
+      }
+    }
+  ]
+}

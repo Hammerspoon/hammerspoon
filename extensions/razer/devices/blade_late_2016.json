@@ -1,0 +1,21 @@
+{
+  "name": "Razer Blade Late 2016",
+  "productId": "0x0224",
+  "mainType": "keyboard",
+  "image": "https://assets.razerzone.com/eeimages/support/products/736/736_blade_pro_2016.png",
+  "features": null,
+  "featuresConfig": [
+    {
+      "ripple": {
+          "rows": 6,
+          "cols": 16
+      }
+    },
+    {
+      "wheel": {
+          "rows": 6,
+          "cols": 16
+      }
+    }
+  ]
+}

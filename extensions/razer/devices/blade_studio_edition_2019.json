@@ -1,0 +1,21 @@
+{
+  "name": "Razer Blade Studio Edition 2019",
+  "productId": "0x024d",
+  "mainType": "keyboard",
+  "image": "https://assets.razerzone.com/eeimages/support/products/1575/1575_blade_15_late_2019_-_studio_edition-2.png",
+  "features": null,
+  "featuresConfig": [
+    {
+      "ripple": {
+          "rows": 6,
+          "cols": 16
+      }
+    },
+    {
+      "wheel": {
+          "rows": 6,
+          "cols": 16
+      }
+    }
+  ]
+}

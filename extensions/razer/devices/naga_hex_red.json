@@ -1,0 +1,15 @@
+{
+  "name": "Razer Naga Hex (Red)",
+  "productId": "0x0036",
+  "mainType": "mouse",
+  "image": "https://assets.razerzone.com/eeimages/products/12/razer-naga-hex-gallery-12.png",
+  "features": null,
+  "featuresMissing": ["mouseBrightness"],
+  "featuresConfig": [
+    {
+      "dpi": {
+        "max": 5600
+      }
+    }
+  ]
+}

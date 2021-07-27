@@ -1,0 +1,21 @@
+{
+  "name": "Razer Ornata Chroma",
+  "productId": "0x021E",
+  "mainType": "keyboard",
+  "image": "https://assets.razerzone.com/eeimages/support/products/727/727_ornata_chroma.png",
+  "features": null,
+  "featuresConfig": [
+    {
+      "ripple": {
+          "rows": 6,
+          "cols": 22
+      }
+    },
+    {
+      "wheel": {
+          "rows": 6,
+          "cols": 22
+      }
+    }
+  ]
+}

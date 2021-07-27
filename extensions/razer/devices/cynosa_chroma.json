@@ -1,0 +1,21 @@
+{
+  "name": "Razer Cynosa Chroma",
+  "productId": "0x022A",
+  "mainType": "keyboard",
+  "image": "https://assets.razerzone.com/eeimages/support/products/1256/1256_cynosa_chroma.png",
+  "features": null,
+  "featuresConfig": [
+    {
+      "ripple": {
+          "rows": 6,
+          "cols": 22
+      }
+    },
+    {
+      "wheel": {
+          "rows": 6,
+          "cols": 22
+      }
+    }
+  ]
+}

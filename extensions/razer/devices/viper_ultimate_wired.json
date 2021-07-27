@@ -1,0 +1,22 @@
+{
+  "name": "Razer Viper Ultimate Wired",
+  "productId": "0x007A",
+  "mainType": "mouse",
+  "image": "https://assets.razerzone.com/eeimages/support/products/1577/ee_photo.png",
+  "features": null,
+  "featuresConfig": [
+    {
+      "mouseBrightness": {
+        "enabledMatrix": false,
+        "enabledScroll": false,
+        "enabledLeft": false,
+        "enabledRight": false
+      }
+    },
+    {
+      "dpi": {
+        "max": 20000
+      }
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Razer Orochi 2013",
+  "productId": "0x0039",
+  "mainType": "mouse",
+  "image": "https://assets.razerzone.com/eeimages/support/products/612/612_orochi_2015.png",
+  "features": null,
+  "featuresMissing": ["mouseBrightness"],
+  "featuresConfig": [
+    {
+      "dpi": {
+        "max": 6400
+      }
+    }
+  ]
+}

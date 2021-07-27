@@ -1,0 +1,21 @@
+{
+  "name": "Razer Naga Left Handed Edition 2020",
+  "productId": "0x008D",
+  "mainType": "mouse",
+  "image": "https://assets.razerzone.com/eeimages/support/products/1704/product.png",
+  "features": null,
+  "featuresMissing": ["oldMouseEffects"],
+  "featuresConfig": [
+    {
+      "dpi": {
+        "max": 20000
+      }
+    },
+    {
+      "mouseBrightness": {
+        "enabledMatrix": false,
+        "enabledLeft": false
+      }
+    }
+  ]
+}

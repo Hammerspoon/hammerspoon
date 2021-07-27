@@ -20,6 +20,44 @@ static LSRefTable refTable = LUA_NOREF;
 
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 
+#pragma mark - Read data from devices JSON files
+
+NSMutableDictionary* devicesCache;
+
+static id getDevicesDictionaryFromJSON() {
+    if (!devicesCache) {
+        NSString *jsonFilePath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/extensions/hs/razer/devices"];
+        
+        NSArray* dirs = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:jsonFilePath
+                                                                            error:NULL];
+        NSMutableArray *jsonFiles = [[NSMutableArray alloc] init];
+        [dirs enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            NSString *filename = (NSString *)obj;
+            NSString *extension = [[filename pathExtension] lowercaseString];
+            if ([extension isEqualToString:@"json"]) {
+                [jsonFiles addObject:[jsonFilePath stringByAppendingPathComponent:filename]];
+            }
+        }];
+        
+        NSMutableDictionary *devices = [NSMutableDictionary dictionary];
+        
+        for (NSString *filePath in jsonFiles) {
+            NSData *JSONData = [NSData dataWithContentsOfFile:filePath options:NSDataReadingMappedIfSafe error:NULL];
+            
+            NSDictionary *JSONObject = [NSJSONSerialization
+                             JSONObjectWithData:JSONData
+                             options:NSJSONReadingAllowFragments
+                             error:NULL];
+            
+            NSString *productId = [JSONObject objectForKey:@"productId"];
+                        
+            [devices setObject:JSONObject forKey:productId];
+        }
+        devicesCache = devices;
+    }
+    return devicesCache;
+}
+
 #pragma mark - Support Functions and Classes
 
 @interface HSRazer : NSObject
@@ -30,6 +68,13 @@ static LSRefTable refTable = LUA_NOREF;
 
 @property NSNumber*                 internalDeviceId;
 @property NSNumber*                 productId;
+
+@property NSString*                 name;
+@property NSString*                 mainType;
+@property NSString*                 image;
+@property NSMutableArray*           features;
+@property NSMutableArray*           featuresConfig;
+@property NSMutableArray*           featuresMissing;
 
 @property BOOL                      scrollWheelPressed;
 @property BOOL                      scrollWheelInProgress;
@@ -380,123 +425,22 @@ static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValue
 
 #pragma mark - Properties
 
-- (NSString*)deviceName:(NSNumber *)productId
+- (NSMutableDictionary*)getDeviceDetails:(NSNumber *)productId
 {
-    switch([productId integerValue]) {
-        // Keyboards:
-        case USB_DEVICE_ID_RAZER_BLACKWIDOW_ULTIMATE_2012:
-            return @"Razer Blackwidow Ultimate (2012)";
-        case USB_DEVICE_ID_RAZER_BLACKWIDOW_STEALTH_EDITION:
-            return @"Razer Blackwidow Stealth Edition";
-        case USB_DEVICE_ID_RAZER_ANANSI:
-            return @"Razer Anansi";
-        case USB_DEVICE_ID_RAZER_NOSTROMO:
-            return @"Razer Nostromo";
-        case USB_DEVICE_ID_RAZER_ORBWEAVER:
-            return @"Razer Orbweaver";
-        case USB_DEVICE_ID_RAZER_BLACKWIDOW_ULTIMATE_2013:
-            return @"Razer Blackwidow Ultimate (2013)";
-        case USB_DEVICE_ID_RAZER_BLACKWIDOW_STEALTH:
-            return @"Razer Blackwidow Stealth";
-        case USB_DEVICE_ID_RAZER_TARTARUS:
-            return @"Razer Tartarus";
-        case USB_DEVICE_ID_RAZER_DEATHSTALKER_EXPERT:
-            return @"Razer Dealthstalker Expert";
-        case USB_DEVICE_ID_RAZER_BLACKWIDOW_CHROMA:
-            return @"Razer Blackwidow Chromo";
-        case USB_DEVICE_ID_RAZER_DEATHSTALKER_CHROMA:
-            return @"Razer Deathstalker Chroma";
-        case USB_DEVICE_ID_RAZER_BLADE_STEALTH:
-            return @"Razer Blade Stealth";
-        case USB_DEVICE_ID_RAZER_ORBWEAVER_CHROMA:
-            return @"Razer Orbweaver Chroma";
-        case USB_DEVICE_ID_RAZER_TARTARUS_CHROMA:
-            return @"Razer Tartarus Chroma";
-        case USB_DEVICE_ID_RAZER_BLACKWIDOW_CHROMA_TE:
-            return @"Razer Blackwidow Chroma TE";
-        case USB_DEVICE_ID_RAZER_BLADE_QHD:
-            return @"Razer Blade QHD";
-        case USB_DEVICE_ID_RAZER_BLADE_PRO_LATE_2016:
-            return @"Razer Blade Pro (Late 2016)";
-        case USB_DEVICE_ID_RAZER_BLACKWIDOW_OVERWATCH:
-            return @"Razer Blackwidow Overwatch";
-        case USB_DEVICE_ID_RAZER_BLACKWIDOW_ULTIMATE_2016:
-            return @"Razer Blackwidow Ultimate (2016)";
-        case USB_DEVICE_ID_RAZER_BLACKWIDOW_X_CHROMA:
-            return @"Razer Blackwidow X Chroma";
-        case USB_DEVICE_ID_RAZER_BLACKWIDOW_X_ULTIMATE:
-            return @"Razer Blackwidow X Ultimate";
-        case USB_DEVICE_ID_RAZER_BLACKWIDOW_X_CHROMA_TE:
-            return @"Razer Blackwidow X Chroma TE";
-        case USB_DEVICE_ID_RAZER_ORNATA_CHROMA:
-            return @"Razer Ornata Chroma";
-        case USB_DEVICE_ID_RAZER_ORNATA:
-            return @"Razer Ornata";
-        case USB_DEVICE_ID_RAZER_ORNATA_CHROMA_V2:
-            return @"Razer Ornata Chroma V2";
-        case USB_DEVICE_ID_RAZER_BLADE_STEALTH_LATE_2016:
-            return @"Razer Blade Stealth (Late 2016)";
-        case USB_DEVICE_ID_RAZER_BLACKWIDOW_CHROMA_V2:
-            return @"Razer Blackwidow Chroma V2";
-        case USB_DEVICE_ID_RAZER_BLACKWIDOW_V3:
-            return @"Razer Blackwidow V3";
-        case USB_DEVICE_ID_RAZER_BLADE_LATE_2016:
-            return @"Razer Blade (Late 2016)";
-        case USB_DEVICE_ID_RAZER_BLADE_PRO_2017:
-            return @"Razer Blade Pro (2017)";
-        case USB_DEVICE_ID_RAZER_HUNTSMAN_ELITE:
-            return @"Razer Huntsman Elite";
-        case USB_DEVICE_ID_RAZER_HUNTSMAN:
-            return @"Razer Huntsman";
-        case USB_DEVICE_ID_RAZER_BLACKWIDOW_ELITE:
-            return @"Razer Blackwidow Elite";
-        case USB_DEVICE_ID_RAZER_CYNOSA_CHROMA:
-            return @"Razer Cynosa Chroma";
-        case USB_DEVICE_ID_RAZER_TARTARUS_V2:
-            return @"Razer Tartarus V2";
-        case USB_DEVICE_ID_RAZER_BLADE_STEALTH_MID_2017:
-            return @"Razer Blade Stealth (Mid 2017)";
-        case USB_DEVICE_ID_RAZER_BLADE_PRO_2017_FULLHD:
-            return @"Razer Blade Pro (2017 Full HD)";
-        case USB_DEVICE_ID_RAZER_BLADE_STEALTH_LATE_2017:
-            return @"Razer Blade Stealth (Late 2017)";
-        case USB_DEVICE_ID_RAZER_BLADE_2018:
-            return @"Razer Blade (2018)";
-        case USB_DEVICE_ID_RAZER_BLACKWIDOW_LITE:
-            return @"Razer Blackwidow Lite";
-        case USB_DEVICE_ID_RAZER_BLACKWIDOW_ESSENTIAL:
-            return @"Razer Blackwidow Essential";
-        case USB_DEVICE_ID_RAZER_BLADE_STEALTH_2019:
-            return @"Razer Blade Stealth (2019)";
-        case USB_DEVICE_ID_RAZER_BLADE_2019_ADV:
-            return @"Razer Blade 2019 ADV";
-        case USB_DEVICE_ID_RAZER_BLADE_2018_BASE:
-            return @"Razer Blade (2018 Base)";
-        case USB_DEVICE_ID_RAZER_BLADE_2018_MERCURY:
-            return @"Razer Blade (2018 Mercury)";
-        case USB_DEVICE_ID_RAZER_BLACKWIDOW_2019:
-            return @"Razer Blackwidow (2019)";
-        case USB_DEVICE_ID_RAZER_HUNTSMAN_TE:
-            return @"Razer Huntsman TE";
-        case USB_DEVICE_ID_RAZER_BLADE_MID_2019_MERCURY:
-            return @"Razer Blade (Mid 2019 Mercury)";
-        case USB_DEVICE_ID_RAZER_BLADE_2019_BASE:
-            return @"Razer Blade (2019 Base)";
-        case USB_DEVICE_ID_RAZER_BLADE_STEALTH_LATE_2019:
-            return @"Razer Blade Stealth (Late 2019)";
-        case USB_DEVICE_ID_RAZER_BLADE_STUDIO_EDITION_2019:
-            return @"Razer Blade Studio Edition (2019)";
-        case USB_DEVICE_ID_RAZER_CYNOSA_V2:
-            return @"Razer Cynosa V2";
-        case USB_DEVICE_ID_RAZER_CYNOSA_LITE:
-            return @"Razer Cynosa Lite";
-        case USB_DEVICE_ID_RAZER_BLACKWIDOW_V3_TK:
-            return @"Razer Blackwidow V3 TK";
-        case USB_DEVICE_ID_RAZER_HUNTSMAN_MINI:
-            return @"Razer Huntsman Mini";
-        default:
-            return @"Unknown";
+    // Read JSON files:
+    NSMutableDictionary *devices = getDevicesDictionaryFromJSON();
+
+    // Convert the NSNumber productId to a hex string (if it doesn't work the first time, try making it uppercase):
+    NSString *productIdHexString = @"0x";
+    productIdHexString = [productIdHexString stringByAppendingString:[NSString stringWithFormat:@"%04llx", productId.unsignedLongLongValue]];
+    id device = [devices valueForKey:productIdHexString];
+    if (!device) {
+        productIdHexString = @"0x";
+        productIdHexString = [productIdHexString stringByAppendingString:[[NSString stringWithFormat:@"%04llx", productId.unsignedLongLongValue] uppercaseString]];
+        device = [devices valueForKey:productIdHexString];
     }
+    
+    return device;
 }
 
 - (bool)isDeviceIDValid:(NSNumber *)deviceID
@@ -510,8 +454,35 @@ static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValue
         NSNumber *productId = [NSNumber numberWithLongLong:device.productId];
         
         if ([internalDeviceId isEqualToNumber:internalDeviceId]) {
+            // Save internalDeviceId and productId to the Razer object:
             self.internalDeviceId = internalDeviceId;
             self.productId = productId;
+            
+            // Read data from the JSON files:
+            NSString *name = @"Unknown";
+            NSString *mainType = @"Unknown";
+            NSString *image= @"Unknown";
+            NSMutableArray *features = [NSMutableArray new];
+            NSMutableArray *featuresConfig = [NSMutableArray new];
+            NSMutableArray *featuresMissing = [NSMutableArray new];
+            
+            NSMutableDictionary* device = [self getDeviceDetails:productId];
+            if (device) {
+                name = [device valueForKey:@"name"];
+                mainType = [device valueForKey:@"mainType"];
+                image = [device valueForKey:@"image"];
+                features = [device valueForKey:@"features"];
+                featuresConfig = [device valueForKey:@"featuresConfig"];
+                featuresMissing = [device valueForKey:@"featuresMissing"];
+            }
+            
+            // Save data from JSON file to the Razer object:
+            self.name = name;
+            self.mainType = mainType;
+            self.image = image;
+            self.features = features;
+            self.featuresConfig = featuresConfig;
+            self.featuresMissing= featuresMissing;
             
             // Setup our HID callbacks based on productId:
             [self setupHID];
@@ -739,6 +710,26 @@ static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValue
 
 @end
 
+/// hs.razer.supportedDevices() -> table
+/// Function
+/// Returns a table of supported Razer devices.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A table of supported Razer devices.
+static int razer_supportedDevices(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs: LS_TBREAK];
+    
+    // Read JSON files:
+    NSMutableDictionary *devices = getDevicesDictionaryFromJSON();
+    
+    [skin pushNSObject:devices];
+    return 1;
+}
+
 /// hs.razer.new(internalDeviceId) -> razerObject
 /// Constructor
 /// Creates a new `hs.razer` object using the `internalDeviceId`.
@@ -866,22 +857,123 @@ static int razer_internalDeviceId(lua_State *L) {
     return 1;
 }
 
-/// hs.razer:deviceName() -> number
+/// hs.razer:name() -> string
 /// Method
-/// Returns the human readible device name of a `hs.razer` object.
+/// Returns the human readible device name of the Razer device.
 ///
 /// Parameters:
 ///  * None
 ///
 /// Returns:
-///  * The device name as a string or "Unknown" if not known.
-static int razer_deviceName(lua_State *L) {
+///  * The device name as a string.
+static int razer_name(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSRazer *razer = [skin toNSObjectAtIndex:1];
-    NSNumber *productId = razer.productId;
-    NSString *deviceName = [razer deviceName:productId];
-    [skin pushNSObject:deviceName];
+    [skin pushNSObject:razer.name];
+    return 1;
+}
+
+/// hs.razer:mainType() -> string
+/// Method
+/// Returns a string that defines the hardware type.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A string such as "keyboard", "mouse", "headphone", "mousemat", "accessory" or "egpu".
+static int razer_mainType(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    HSRazer *razer = [skin toNSObjectAtIndex:1];
+    [skin pushNSObject:razer.mainType];
+    return 1;
+}
+
+/// hs.razer:image() -> string
+/// Method
+/// Returns the URL as a string that points to an image of the Razer device.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * URL as a string
+static int razer_image(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    HSRazer *razer = [skin toNSObjectAtIndex:1];
+    [skin pushNSObject:razer.image];
+    return 1;
+}
+
+/// hs.razer:features() -> table
+/// Method
+/// Returns a table of features available for the Razer device.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A table
+///
+/// Notes:
+///  * This table might come back empty for some Razer devices.
+static int razer_features(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    HSRazer *razer = [skin toNSObjectAtIndex:1];
+    
+    NSMutableArray *features = razer.features;
+    if (features) {
+        [skin pushNSObject:features];
+    }
+    else
+    {
+        [skin pushNSObject:@{}];
+    }
+    
+    return 1;
+}
+
+/// hs.razer:featuresConfig() -> table
+/// Method
+/// Returns a table of feature configurations available for the Razer device.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A table
+///
+/// Notes:
+///  * This table might come back empty for some Razer devices.
+static int razer_featuresConfig(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    HSRazer *razer = [skin toNSObjectAtIndex:1];
+    [skin pushNSObject:razer.featuresConfig];
+    return 1;
+}
+
+/// hs.razer:featuresMissing() -> table
+/// Method
+/// Returns a table of feature missing for the Razer device.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A table
+///
+/// Notes:
+///  * This table might come back empty for some Razer devices.
+static int razer_featuresMissing(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    HSRazer *razer = [skin toNSObjectAtIndex:1];
+    [skin pushNSObject:razer.featuresMissing];
     return 1;
 }
 
@@ -1070,14 +1162,13 @@ static id toHSRazerFromLua(lua_State *L, int idx) {
 static int userdata_tostring(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     HSRazer *razer = [skin luaObjectAtIndex:1 toClass:"HSRazer"];
-    NSNumber *productId = razer.productId;
-    NSString *deviceName = [razer deviceName:productId];
+    NSString *name = razer.name;
     BOOL isConnected = [razer isConnected];
     NSString *connected = @"Connected";
     if (!isConnected) {
         connected = @"Disconnected";
     }
-    [skin pushNSObject:[NSString stringWithFormat:@"%s: %@ - %@ (%p)", USERDATA_TAG, deviceName, connected, lua_topointer(L, 1)]];
+    [skin pushNSObject:[NSString stringWithFormat:@"%s: %@ - %@ (%p)", USERDATA_TAG, name, connected, lua_topointer(L, 1)]];
     return 1;
 }
 
@@ -1137,7 +1228,12 @@ static int meta_gc(lua_State* L) {
 
 // Metatable for userdata objects:
 static const luaL_Reg userdata_metaLib[] = {
-    {"deviceName",                  razer_deviceName},
+    {"name",                        razer_name},
+    {"mainType",                    razer_mainType},
+    {"image",                       razer_image},
+    {"features",                    razer_features},
+    {"featuresConfig",              razer_featuresConfig},
+    {"featuresMissing",             razer_featuresMissing},
     {"ledStatus",                   razer_ledStatus},
     {"firmwareVersion",             razer_firmwareVersion},
     {"brightness",                  razer_brightness},
@@ -1154,8 +1250,9 @@ static const luaL_Reg userdata_metaLib[] = {
 
 // Functions for returned object when module loads:
 static luaL_Reg moduleLib[] = {
-    {"new",                 razer_new},
-    {"devices",             razer_devices},
+    {"supportedDevices",            razer_supportedDevices},
+    {"new",                         razer_new},
+    {"devices",                     razer_devices},
     {NULL,  NULL}
 };
 

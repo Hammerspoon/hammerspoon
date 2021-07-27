@@ -1,0 +1,31 @@
+{
+  "name": "Razer Abyssus V2",
+  "productId": "0x005B",
+  "mainType": "mouse",
+  "image": "https://assets.razerzone.com/eeimages/support/products/721/721_abyssusv2.png",
+  "featuresMissing": ["none", "waveSimple", "spectrum", "reactive", "breathe", "battery"],
+  "featuresConfig": [
+    {
+      "static": {
+        "enabledRed": false
+      }
+    },
+    {
+      "oldMouseEffects": {
+        "enabledScroll": false
+      }
+    },
+    {
+      "mouseBrightness": {
+        "enabledMatrix": false,
+        "enabledLeft": false,
+        "enabledRight": false
+      }
+    },
+    {
+      "dpi": {
+        "max": 5000
+      }
+    }
+  ]
+}

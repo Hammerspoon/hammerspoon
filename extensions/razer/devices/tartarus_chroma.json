@@ -1,0 +1,8 @@
+{
+  "name": "Razer Tartarus Chroma",
+  "productId": "0x0208",
+  "mainType": "keyboard",
+  "image": "https://assets.razerzone.com/eeimages/support/products/598/598_tartarus_chroma.png",
+  "features": null,
+  "featuresMissing": ["ripple", "wheel"]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Razer Imperator",
+  "productId": "0x002F",
+  "mainType": "mouse",
+  "image": "https://assets.razerzone.com/eeimages/support/products/215/215_imperator.png",
+  "features": null,
+  "featuresMissing": ["mouseBrightness"],
+  "featuresConfig": [
+    {
+      "dpi": {
+        "max": 6400
+      }
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Razer BlackWidow Elite",
+  "productId": "0x0228",
+  "mainType": "keyboard",
+  "image": "https://assets.razerzone.com/eeimages/support/products/1398/1398_blackwidowelite.png",
+  "features": null,
+  "featuresConfig": [
+    {
+      "ripple": {
+          "rows": 6,
+          "cols": 22
+      }
+    },
+    {
+      "wheel": {
+          "rows": 6,
+          "cols": 22
+      }
+    }
+  ]
+}

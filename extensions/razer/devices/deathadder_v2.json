@@ -1,0 +1,21 @@
+{
+  "name": "Razer DeathAdder V2",
+  "productId": "0x0084",
+  "mainType": "mouse",
+  "image": "https://assets.razerzone.com/eeimages/support/products/1612/1612_razerdeathadderv2.png",
+  "features": null,
+  "featuresConfig": [
+    {
+      "dpi": {
+        "max": 20000
+      }
+    },
+    {
+      "mouseBrightness": {
+        "enabledMatrix": false,
+        "enabledLeft": false,
+        "enabledRight": false
+      }
+    }
+  ]
+}

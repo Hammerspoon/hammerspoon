@@ -1,0 +1,15 @@
+{
+  "name": "Razer Mamba Wired",
+  "productId": "0x0044",
+  "mainType": "mouse",
+  "image": "https://assets.razerzone.com/eeimages/support/products/609/609_mamba_500x500.png",
+  "features": null,
+  "featuresMissing": ["mouseBrightness"],
+  "featuresConfig": [
+    {
+      "dpi": {
+        "max": 16000
+      }
+    }
+  ]
+}

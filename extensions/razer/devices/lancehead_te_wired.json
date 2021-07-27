@@ -1,0 +1,20 @@
+{
+  "name": "Razer Lancehead Tournament Edition",
+  "productId": "0x0060",
+  "mainType": "mouse",
+  "image": "https://assets.razerzone.com/eeimages/support/products/1203/1206_lanceheadte.png",
+  "features": null,
+  "featuresConfig": [
+    {
+      "mouseBrightness": {
+        "enabledMatrix": false,
+        "enabledScroll": false
+      }
+    },
+    {
+      "dpi": {
+        "max": 16000
+      }
+    }
+  ]
+}

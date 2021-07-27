@@ -1,0 +1,8 @@
+{
+  "name": "Razer Nostromo",
+  "productId": "0x0111",
+  "mainType": "keyboard",
+  "image": "https://assets.razerzone.com/eeimages/support/products/564/564_tartarus_classic.png",
+  "features": null,
+  "featuresMissing": ["ripple", "wheel"]
+}

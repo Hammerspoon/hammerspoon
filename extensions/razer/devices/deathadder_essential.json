@@ -1,0 +1,21 @@
+{
+  "name": "Razer DeathAdder Essential",
+  "productId": "0x006E",
+  "mainType": "mouse",
+  "image": "https://assets.razerzone.com/eeimages/support/products/1385/1385_deathadderessential.png",
+  "features": null,
+  "featuresConfig": [
+    {
+      "mouseBrightness": {
+        "enabledMatrix": false,
+        "enabledLeft": false,
+        "enabledRight": false
+      }
+    },
+    {
+      "dpi": {
+        "max": 6400
+      }
+    }
+  ]
+}

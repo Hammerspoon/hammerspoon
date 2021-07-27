@@ -1,0 +1,21 @@
+{
+  "name": "Razer BlackWidow Stealth",
+  "productId": "0x011B",
+  "mainType": "keyboard",
+  "image": "https://assets.razerzone.com/eeimages/products/17559/razer-blackwidow-gallery-01.png",
+  "features": null,
+  "featuresConfig": [
+    {
+      "ripple": {
+          "rows": 6,
+          "cols": 22
+      }
+    },
+    {
+      "wheel": {
+          "rows": 6,
+          "cols": 22
+      }
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Razer BlackWidow Chroma",
+  "productId": "0x0203",
+  "mainType": "keyboard",
+  "image": "https://assets.razerzone.com/eeimages/support/products/279/279_blackwidow_chroma.png",
+  "features": null,
+  "featuresConfig": [
+    {
+      "ripple": {
+          "rows": 6,
+          "cols": 22
+      }
+    },
+    {
+      "wheel": {
+          "rows": 6,
+          "cols": 22
+      }
+    }
+  ]
+}

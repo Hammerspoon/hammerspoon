@@ -1,0 +1,15 @@
+{
+  "name": "Razer DeathAdder 3.5G",
+  "productId": "0x0016",
+  "mainType": "mouse",
+  "image": "https://assets2.razerzone.com/images/da10m/carousel/razer-death-adder-gallery-04.png",
+  "features": null,
+  "featuresMissing": ["mouseBrightness"],
+  "featuresConfig": [
+    {
+      "dpi": {
+        "max": 3500
+      }
+    }
+  ]
+}

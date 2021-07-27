@@ -1,0 +1,15 @@
+{
+  "name": "Razer Mamba Wireless",
+  "productId": "0x0045",
+  "mainType": "mouse",
+  "image": "https://assets.razerzone.com/eeimages/support/products/1404/1404_mamba_wireless.png",
+  "features": null,
+  "featuresMissing": ["mouseBrightness"],
+  "featuresConfig": [
+    {
+      "dpi": {
+        "max": 16000
+      }
+    }
+  ]
+}

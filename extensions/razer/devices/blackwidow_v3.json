@@ -1,0 +1,21 @@
+{
+  "name": "Razer BlackWidow V3",
+  "productId": "0x024e",
+  "mainType": "keyboard",
+  "image": "https://assets.razerzone.com/eeimages/support/products/1718/1718-blackwidowv3.png",
+  "features": null,
+  "featuresConfig": [
+    {
+      "ripple": {
+          "rows": 6,
+          "cols": 22
+      }
+    },
+    {
+      "wheel": {
+          "rows": 6,
+          "cols": 22
+      }
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Razer Basilisk",
+  "productId": "0x0064",
+  "mainType": "mouse",
+  "image": "https://assets.razerzone.com/eeimages/support/products/1241/1241_basilisk.png",
+  "features": null,
+  "featuresConfig": [
+    {
+      "dpi": {
+        "max": 16000
+      }
+    },
+    {
+      "mouseBrightness": {
+        "enabledMatrix": false,
+        "enabledLeft": false,
+        "enabledRight": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Razer BlackWidow Chroma Tournament Edition",
+  "productId": "0x0209",
+  "mainType": "keyboard",
+  "image": "https://assets.razerzone.com/eeimages/support/products/571/571_blackwidow_tournament_edition_chroma.png",
+  "features": null,
+  "featuresConfig": [
+    {
+      "ripple": {
+          "rows": 6,
+          "cols": 22
+      }
+    },
+    {
+      "wheel": {
+          "rows": 6,
+          "cols": 22
+      }
+    }
+  ]
+}

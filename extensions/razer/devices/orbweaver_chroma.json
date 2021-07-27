@@ -1,0 +1,21 @@
+{
+  "name": "Razer Orbweaver Chroma",
+  "productId": "0x0207",
+  "mainType": "keyboard",
+  "image": "https://assets.razerzone.com/eeimages/support/products/607/607_orbweaver_chroma.png",
+  "features": null,
+  "featuresConfig": [
+    {
+      "ripple": {
+          "rows": 5,
+          "cols": 22
+      }
+    },
+    {
+      "wheel": {
+          "rows": 5,
+          "cols": 22
+      }
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "name": "Razer Orbweaver",
+  "productId": "0x0113",
+  "mainType": "keyboard",
+  "image": "https://assets.razerzone.com/eeimages/support/products/56/56_orbweaver.png",
+  "features": null,
+  "featuresMissing": ["ripple", "wheel"]
+}
