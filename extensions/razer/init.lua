@@ -48,6 +48,8 @@ if device then
 end
 --]]
 
+require("hs.drawing.color")
+
 local razer = require("hs.razer.internal")
 
 local log = require "hs.logger".new("razer")

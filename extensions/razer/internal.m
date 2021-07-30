@@ -517,7 +517,7 @@ static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValue
     return NO;
 }
 
-- (bool)writeMode:(NSString *)mode speed:(NSNumber *)speed
+- (bool)setKeyboardLightsMode:(NSString *)mode speed:(NSNumber *)speed direction:(NSString *)direction color:(NSColor *)color
 {
     RazerDevices allDevices = getAllRazerDevices();
     RazerDevice *razerDevices = allDevices.devices;
@@ -526,16 +526,26 @@ static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValue
         NSNumber *internalDeviceId = [NSNumber numberWithInt:device.internalDeviceId];
         if ([internalDeviceId isEqualToNumber:self.internalDeviceId]) {
             if ([mode isEqualToString:@"none"]){
-                razer_attr_write_mode_none(device.usbDevice, "", 0);
+                razer_attr_write_mode_none(device.usbDevice, "1", 1);
             }
             else if ([mode isEqualToString:@"spectrum"]){
-                razer_attr_write_mode_spectrum(device.usbDevice, "", 0);
+                razer_attr_write_mode_spectrum(device.usbDevice, "1", 1);
             }
             else if ([mode isEqualToString:@"reactive"]){
                 razer_attr_write_mode_reactive(device.usbDevice, "", 0);
             }
             else if ([mode isEqualToString:@"static"]){
-                razer_attr_write_mode_static(device.usbDevice, "", 0);
+                CGFloat redComponent = floor([color redComponent]);
+                NSInteger red = (NSInteger) redComponent * 255;
+                
+                CGFloat greenComponent = floor([color greenComponent]);
+                NSInteger green = (NSInteger) greenComponent * 255;
+                
+                CGFloat blueComponent = floor([color blueComponent]);
+                NSInteger blue = (NSInteger) blueComponent * 255;
+                
+                uint8_t buf[] = {red, green, blue};
+                razer_attr_write_mode_static(device.usbDevice, (char*)buf, 3);
             }
             else if ([mode isEqualToString:@"static_no_store"]){
                 razer_attr_write_mode_static_no_store(device.usbDevice, "", 0);
@@ -550,7 +560,15 @@ static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValue
                 razer_attr_write_mode_breath(device.usbDevice, "", 0);
             }
             else if ([mode isEqualToString:@"wave"]){
-                razer_attr_write_mode_wave(device.usbDevice, "", 0, [speed intValue]);
+                if (speed == nil){
+                    speed = @1;
+                }
+                if ([direction isEqualToString:@"right"]) {
+                    razer_attr_write_mode_wave(device.usbDevice, "2", 0, [speed intValue]);
+                }
+                else {
+                    razer_attr_write_mode_wave(device.usbDevice, "1", 0, [speed intValue]);
+                }
             }
             else if ([mode isEqualToString:@"macro"]){
                 razer_attr_write_mode_macro(device.usbDevice, "", 0);
@@ -710,25 +728,7 @@ static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValue
 
 @end
 
-/// hs.razer.supportedDevices() -> table
-/// Function
-/// Returns a table of supported Razer devices.
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * A table of supported Razer devices.
-static int razer_supportedDevices(lua_State *L) {
-    LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin checkArgs: LS_TBREAK];
-    
-    // Read JSON files:
-    NSMutableDictionary *devices = getDevicesDictionaryFromJSON();
-    
-    [skin pushNSObject:devices];
-    return 1;
-}
+#pragma mark - hs.razer: Functions
 
 /// hs.razer.new(internalDeviceId) -> razerObject
 /// Constructor
@@ -760,46 +760,6 @@ static int razer_new(lua_State *L) {
         razer = nil;
         lua_pushnil(L);
     }
-    return 1;
-}
-
-/// hs.razer:callback(callbackFn) -> razerObject
-/// Method
-/// Sets or removes a callback function for the `hs.razer` object.
-///
-/// Parameters:
-///  * `callbackFn` - a function to set as the callback for this `hs.razer` object.  If the value provided is `nil`, any currently existing callback function is removed.
-///
-/// Returns:
-///  * The `hs.razer` object
-///
-/// Notes:
-///  * The callback function should expect 4 arguments and should not return anything:
-///    * `razerObject` - The serial port object that triggered the callback.
-///    * `callbackType` - A string containing "opened", "closed", "received", "removed" or "error".
-///    * `buttonName` - The name of the button as a string.
-///    * `buttonAction` - A string containing "pressed", "released", "up" or "down".
-static int razer_callback(lua_State *L) {
-    // Check Arguments:
-    LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION | LS_TNIL, LS_TBREAK];
-
-    // Get Razer Object:
-    HSRazer *razer = [skin toNSObjectAtIndex:1];
-    
-    // Remove the existing callback:
-    razer.callbackRef = [skin luaUnref:refTable ref:razer.callbackRef];
-    if (razer.callbackToken != nil) {
-        razer.callbackToken = nil;
-    }
-
-    // Setup the new callback:
-    if (lua_type(L, 2) != LUA_TNIL) { // may be table with __call metamethod
-        lua_pushvalue(L, 2);
-        razer.callbackRef = [skin luaRef:refTable];
-    }
-
-    lua_pushvalue(L, 1);
     return 1;
 }
 
@@ -839,6 +799,88 @@ static int razer_devices(lua_State *L) {
     return 1;
 }
 
+/// hs.razer.supportedDevices() -> table
+/// Function
+/// Returns a table of supported Razer devices.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A table of supported Razer devices.
+///  * This information comes directly from the JSON files that are part of the [Razer macOS project](https://github.com/1kc/razer-macos).
+static int razer_supportedDevices(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs: LS_TBREAK];
+    
+    // Read JSON files:
+    NSMutableDictionary *devices = getDevicesDictionaryFromJSON();
+    
+    [skin pushNSObject:devices];
+    return 1;
+}
+
+#pragma mark - hs.razer: Common Methods
+
+/// hs.razer:callback(callbackFn) -> razerObject
+/// Method
+/// Sets or removes a callback function for the `hs.razer` object.
+///
+/// Parameters:
+///  * `callbackFn` - a function to set as the callback for this `hs.razer` object.  If the value provided is `nil`, any currently existing callback function is removed.
+///
+/// Returns:
+///  * The `hs.razer` object
+///
+/// Notes:
+///  * The callback feature currently only returns "recieved" messages from the Razer Tartarus V2.
+///  * The callback function should expect 4 arguments and should not return anything:
+///    * `razerObject` - The serial port object that triggered the callback.
+///    * `callbackType` - A string containing "opened", "closed", "received", "removed" or "error".
+///    * `buttonName` - The name of the button as a string.
+///    * `buttonAction` - A string containing "pressed", "released", "up" or "down".
+static int razer_callback(lua_State *L) {
+    // Check Arguments:
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION | LS_TNIL, LS_TBREAK];
+
+    // Get Razer Object:
+    HSRazer *razer = [skin toNSObjectAtIndex:1];
+    
+    // Remove the existing callback:
+    razer.callbackRef = [skin luaUnref:refTable ref:razer.callbackRef];
+    if (razer.callbackToken != nil) {
+        razer.callbackToken = nil;
+    }
+
+    // Setup the new callback:
+    if (lua_type(L, 2) != LUA_TNIL) { // may be table with __call metamethod
+        lua_pushvalue(L, 2);
+        razer.callbackRef = [skin luaRef:refTable];
+    }
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
+/// hs.razer:connected() -> boolean
+/// Method
+/// Is the Razer device still connected?
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A boolean
+static int razer_connected(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    HSRazer *razer = [skin toNSObjectAtIndex:1];
+    BOOL isConnected = [razer isConnected];
+    lua_pushboolean(L, isConnected);
+    return 1;
+}
+
 /// hs.razer:internalDeviceId() -> number
 /// Method
 /// Returns the `internalDeviceId` of a `hs.razer` object.
@@ -854,6 +896,24 @@ static int razer_internalDeviceId(lua_State *L) {
     HSRazer *razer = [skin toNSObjectAtIndex:1];
     NSNumber *internalDeviceId = razer.internalDeviceId;
     [skin pushNSObject:internalDeviceId];
+    return 1;
+}
+
+/// hs.razer:productId() -> number
+/// Method
+/// Returns the `productId` of a `hs.razer` object.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The `productId` as a number.
+static int razer_productId(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    HSRazer *razer = [skin toNSObjectAtIndex:1];
+    NSNumber *productId = razer.productId;
+    [skin pushNSObject:productId];
     return 1;
 }
 
@@ -926,12 +986,15 @@ static int razer_features(lua_State *L) {
     HSRazer *razer = [skin toNSObjectAtIndex:1];
     
     NSMutableArray *features = razer.features;
-    if (features) {
-        [skin pushNSObject:features];
+    NSLog(@"%@", features);
+    if (features == nil) {
+        NSLog(@"features");
+        [skin pushNSObject:@{}];
     }
     else
     {
-        [skin pushNSObject:@{}];
+        NSLog(@"no features");
+        [skin pushNSObject:features];
     }
     
     return 1;
@@ -995,16 +1058,18 @@ static int razer_firmwareVersion(lua_State *L) {
     return 1;
 }
 
-/// hs.razer:ledStatus() -> string
+#pragma mark - hs.razer: Keyboard Methods
+
+/// hs.razer:keyboardStatusLights() -> string
 /// Method
-/// Gets the LED status of a Razer device.
+/// Gets the Lights status of a Razer keyboard device.
 ///
 /// Parameters:
 ///  * None
 ///
 /// Returns:
 ///  * Returns a string - "red", "blue", "green" or "off".
-static int razer_ledStatus(lua_State *L) {
+static int razer_keyboardStatusLights(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSRazer *razer = [skin toNSObjectAtIndex:1];
@@ -1022,34 +1087,16 @@ static int razer_ledStatus(lua_State *L) {
     return 1;
 }
 
-/// hs.razer:productId() -> number
+/// hs.razer:keyboardBrightness(value) -> number | nil
 /// Method
-/// Returns the `productId` of a `hs.razer` object.
+/// Gets or sets the brightness of a Razer keyboard.
 ///
 /// Parameters:
-///  * None
+///  * value - The brightness value - a number between 0 (dark) and 100 (brightest)
 ///
 /// Returns:
-///  * The `productId` as a number.
-static int razer_productId(lua_State *L) {
-    LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
-    HSRazer *razer = [skin toNSObjectAtIndex:1];
-    NSNumber *productId = razer.productId;
-    [skin pushNSObject:productId];
-    return 1;
-}
-
-/// hs.razer:brightness() -> number
-/// Method
-/// Gets or sets the `brightness` of a `hs.razer` object.
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * The `brightness` as a number.
-static int razer_brightness(lua_State *L) {
+///  * The brightness as a number as `nil` if something goes wrong.
+static int razer_keyboardBrightness(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK];
     HSRazer *razer = [skin toNSObjectAtIndex:1];
@@ -1072,31 +1119,66 @@ static int razer_brightness(lua_State *L) {
     return 1;
 }
 
-/// hs.razer:connected() -> boolean
-/// Method
-/// Is the Razer device still connected?
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * A boolean
-static int razer_connected(lua_State *L) {
-    LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
-    HSRazer *razer = [skin toNSObjectAtIndex:1];
-    BOOL isConnected = [razer isConnected];
-    lua_pushboolean(L, isConnected);
-    return 1;
-}
+/*
+STATIC:
+   - Custom
+   - White
+   - Red
+   - Green
+   - Blue
 
-/// hs.razer:ledMode(mode, speed) -> boolean
+WAVE:
+   - Left/Right
+       - Turtle Speed
+       - Slowest Speed
+       - Slower Speed
+       - Slow Speed
+       - Normal Speed
+       - Fast Speed
+       - Faster Speed
+       - Fatest Speed
+       - Lightning Speed
+
+SPECTRUM:
+
+REACTIVE:
+   - Custom
+   - White
+   - Red
+   - Green
+   - Blue
+
+BREATHE:
+
+STARLIGHT:
+   - Custom Color
+       - Slow Speed
+       - Medium Speed
+       - Fast Speed
+
+RIPPLE:
+   - Custom Color
+   - Custom Dual Color
+   - Red
+   - Green
+   - Blue
+
+
+WHEEL:
+   - Slow Speed
+   - Medium Speed
+   - Fast Speed
+*/
+
+/// hs.razer:keyboardBacklights(mode, [speed], [direction], [color]) -> boolean
 /// Method
-/// Changes the LED mode.
+/// Changes the keyboard Lights mode.
 ///
 /// Parameters:
 ///  * mode - A string containing the mode you want to activate
-///  * [speed] - An optional speed if using "wave" mode
+///  * [speed] - An optional speed if using "wave" mode (defaults to 1)
+///  * [direction] - An optional direction - "left" or "right" as a string - if using "wave" mode (defaults to "left")
+///  * [color] - An optional `hs.drawing.color` value when using "static", "reactive", "starlight" and "ripple" modes (defaults to black)
 ///
 /// Returns:
 ///  * `true` if successful otherwise `false`
@@ -1114,19 +1196,18 @@ static int razer_connected(lua_State *L) {
 ///    * macro
 ///    * macro_effect
 ///    * pulsate
-static int razer_ledMode(lua_State *L) {
+///  * A speed value of 255 is extremely slow, and a 16 is extremely fast.
+static int razer_keyboardBacklights(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TNUMBER | LS_TOPTIONAL | LS_TNIL, LS_TSTRING | LS_TOPTIONAL | LS_TNIL, LS_TTABLE | LS_TOPTIONAL, LS_TBREAK];
     
-    HSRazer *razer = [skin toNSObjectAtIndex:1];
-    NSString *mode = [skin toNSObjectAtIndex:2];
-    NSNumber *speed = [skin toNSObjectAtIndex:3];
+    HSRazer *razer          = [skin toNSObjectAtIndex:1];
+    NSString *mode          = [skin toNSObjectAtIndex:2];
+    NSNumber *speed         = [skin toNSObjectAtIndex:3];
+    NSString *direction     = [skin toNSObjectAtIndex:4];
+    NSColor *color          = [skin luaObjectAtIndex:5 toClass:"NSColor"];
     
-    if (speed == nil){
-        speed = @1;
-    }
-    
-    BOOL result = [razer writeMode:mode speed:speed];
+    BOOL result = [razer setKeyboardLightsMode:mode speed:speed direction:direction color:color];
     lua_pushboolean(L, result);
     return 1;
 }
@@ -1228,20 +1309,27 @@ static int meta_gc(lua_State* L) {
 
 // Metatable for userdata objects:
 static const luaL_Reg userdata_metaLib[] = {
+    // Common:
+    {"internalDeviceId",            razer_internalDeviceId},
+    {"productId",                   razer_productId},
+    
+    {"callback",                    razer_callback},
+    {"connected",                   razer_connected},
+    {"firmwareVersion",             razer_firmwareVersion},
+        
     {"name",                        razer_name},
     {"mainType",                    razer_mainType},
     {"image",                       razer_image},
     {"features",                    razer_features},
     {"featuresConfig",              razer_featuresConfig},
     {"featuresMissing",             razer_featuresMissing},
-    {"ledStatus",                   razer_ledStatus},
-    {"firmwareVersion",             razer_firmwareVersion},
-    {"brightness",                  razer_brightness},
-    {"ledMode",                     razer_ledMode},
-    {"connected",                   razer_connected},
-    {"callback",                    razer_callback},
-    {"internalDeviceId",            razer_internalDeviceId},
-    {"productId",                   razer_productId},
+    
+    // Keyboard:
+    {"keyboardStatusLights",        razer_keyboardStatusLights},
+    {"keyboardBacklights",          razer_keyboardBacklights},
+    {"keyboardBrightness",          razer_keyboardBrightness},
+        
+    // Support:
     {"__tostring",                  userdata_tostring},
     {"__eq",                        userdata_eq},
     {"__gc",                        userdata_gc},
