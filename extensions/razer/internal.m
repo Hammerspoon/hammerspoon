@@ -114,11 +114,7 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
                            CGEventRef event,
                            void* refcon) {
     
-    if (!refcon) {
-        NSLog(@"It looks like the Razer object is already destoryed?");
-        return event;
-    }
-    
+    // TODO: This crashes when you trigger garbage collection - not sure why it's being called still?
     HSRazer *manager = (__bridge HSRazer *)refcon;
     if (manager.scrollWheelInProgress) {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
@@ -522,7 +518,7 @@ static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValue
     return NO;
 }
 
-- (bool)setKeyboardBacklights:(NSString *)mode speed:(NSNumber *)speed direction:(NSString *)direction color:(NSColor *)color secondaryColor:(NSColor *)secondaryColor
+- (bool)setKeyboardBacklights:(NSString *)mode speed:(NSNumber *)speed direction:(NSString *)direction color:(NSColor *)color secondaryColor:(NSColor *)secondaryColor customColors:(NSArray *)customColors
 {
     RazerDevices allDevices = getAllRazerDevices();
     RazerDevice *razerDevices = allDevices.devices;
@@ -645,56 +641,71 @@ static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValue
                 }
             }
             else if ([mode isEqualToString:@"macro"]){
+                // TODO: I'm not really sure what "macro" mode does?
                 razer_attr_write_mode_macro(device.usbDevice, "", 0);
             }
             else if ([mode isEqualToString:@"macro_effect"]){
+                // TODO: I'm not really sure what "macro effect" mode does?
                 razer_attr_write_mode_macro_effect(device.usbDevice, "", 0);
             }
             else if ([mode isEqualToString:@"pulsate"]){
-                razer_attr_write_mode_pulsate(device.usbDevice, "", 0);
+                razer_attr_write_mode_pulsate(device.usbDevice, "1", 1);
             }
             else if ([mode isEqualToString:@"custom"]){
-                /*
-                a = hs.razer.new(0)
-                a:keyboardBacklights("custom", nil, nil, hs.drawing.color.red)
-                */
-                
-                // TODO: This code currently isn't working as expected.
-                
-                NSLog(@"Triggering 'custom' mode");
-                                
-                CGFloat redComponent = floor([color redComponent]);
-                NSInteger red = (NSInteger) redComponent * 255;
-                
-                CGFloat greenComponent = floor([color greenComponent]);
-                NSInteger green = (NSInteger) greenComponent * 255;
-                
-                CGFloat blueComponent = floor([color blueComponent]);
-                NSInteger blue = (NSInteger) blueComponent * 255;
-                
-                /*
-                uint8_t row = 2;
-                uint8_t startColumn = 2;
-                uint8_t stopColumn = 2;
-                
-                uint8_t buf[] = {row, startColumn, stopColumn, red, green, blue};
-
-                razer_attr_write_matrix_custom_frame(device.usbDevice, (char*)buf, 6);
-                razer_attr_write_mode_custom(device.usbDevice, "1", 1);
-                */
-                
-                // TODO: For some reason, this code makes the first button change colour only:
-                for (int row = 1; row <= 4; row++)
-                {
-                    for (int column = 1; column <= 6; column++)
-                    {
-                        NSLog(@"%d", row);
-                        NSLog(@"%d", column);
-                        uint8_t buf[] = {row, column, column, red, green, blue};
-                        razer_attr_write_matrix_custom_frame(device.usbDevice, (char*)buf, 6);
-                        razer_attr_write_mode_custom(device.usbDevice, "1", 1);
-                    }
+                NSMutableArray *ripple = [self.featuresConfig valueForKey:@"ripple"];
+                if (!ripple) {
+                    NSLog(@"This device does not support custom backlights.");
+                    return NO;
                 }
+                                                
+                id numberOfRowsArray = [ripple valueForKey:@"rows"];
+                id numberOfColumsArray = [ripple valueForKey:@"cols"];
+                
+                NSInteger numberOfRows = [[numberOfRowsArray objectAtIndex:0] integerValue];
+                NSInteger numberOfColums = [[numberOfColumsArray objectAtIndex:0] integerValue];
+            
+                int colorsCount = 0;
+                
+                for (int row = 0; row < numberOfRows; row++)
+                {
+                    NSInteger bufferSize = 4 + numberOfColums * 3;
+                    
+                    uint8_t buf[bufferSize];
+                    
+                    buf[0] = row;
+                    buf[1] = 0;
+                    buf[2] = numberOfColums - 1;
+                                                        
+                    int count = 3;
+
+                    for (int column = 0; column < numberOfColums; column++)
+                    {
+                        NSInteger red = 0;
+                        NSInteger green = 0;
+                        NSInteger blue = 0;
+                        
+                        if ([customColors count] > colorsCount) {
+                            NSMutableDictionary *currentColor = customColors[colorsCount];
+                            if (currentColor) {
+                                red = [[currentColor valueForKey:@"red"] integerValue] * 255;
+                                green = [[currentColor valueForKey:@"green"] integerValue] * 255;
+                                blue = [[currentColor valueForKey:@"blue"] integerValue] * 255;
+                            }
+                        }
+                        colorsCount++;
+                        
+                        buf[count] = red;
+                        count++;
+                        buf[count] = green;
+                        count++;
+                        buf[count] = blue;
+                        count++;
+                    }
+                    
+                    razer_attr_write_matrix_custom_frame(device.usbDevice, (char*)buf, count);
+                }
+                
+                razer_attr_write_mode_custom(device.usbDevice, "1", 1);
             }
             else {
                 closeAllRazerDevices(allDevices);
@@ -1222,67 +1233,230 @@ static int razer_keyboardBrightness(lua_State *L) {
     return 1;
 }
 
-/// hs.razer:keyboardBacklights(mode, [speed], [direction], [color], [secondaryColor]) -> boolean
+/// hs.razer:keyboardBacklightsOff() -> boolean
 /// Method
-/// Changes the mode of the keyboard backlights.
+/// Turns all the keyboard backlights off.
 ///
 /// Parameters:
-///  * mode - A string containing the mode you want to activate (see notes below)
-///  * [speed] - An optional speed if using "wave" and "reactive" modes (defaults to 1)
-///  * [direction] - An optional direction ("left" or "right" as a string), if using "wave" mode (defaults to "left")
-///  * [color] - An optional `hs.drawing.color` value when using "static", "reactive" and "starlight" modes (defaults to black)
-///  * [secondaryColor] - An optional secondary `hs.drawing.color` value when "breath" mode (defaults to black)
+///  * None
+///
+/// Returns:
+///  * `true` if successful otherwise `false`
+static int razer_keyboardBacklightsOff(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    
+    HSRazer *razer = [skin toNSObjectAtIndex:1];
+    
+    BOOL result = [razer setKeyboardBacklights:@"none" speed:nil direction:nil color:nil secondaryColor:nil customColors:nil];
+    lua_pushboolean(L, result);
+    return 1;
+}
+
+/// hs.razer:keyboardBacklightsWave(speed, direction) -> boolean
+/// Method
+/// Changes the keyboard backlights to the wave mode.
+///
+/// Parameters:
+///  * speed - A number between 1 (fast) and 255 (slow)
+///  * direction - "left" or "right" as a string
+///
+/// Returns:
+///  * `true` if successful otherwise `false`
+static int razer_keyboardBacklightsWave(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TSTRING, LS_TBREAK];
+    
+    HSRazer *razer = [skin toNSObjectAtIndex:1];
+    NSNumber *speed = [skin toNSObjectAtIndex:2];
+    NSString *direction = [skin toNSObjectAtIndex:3];
+        
+    BOOL result = [razer setKeyboardBacklights:@"wave" speed:speed direction:direction color:nil secondaryColor:nil customColors:nil];
+    lua_pushboolean(L, result);
+    return 1;
+}
+
+/// hs.razer:keyboardBacklightsSpectrum() -> boolean
+/// Method
+/// Changes the keyboard backlights to the spectrum mode.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * `true` if successful otherwise `false`
+static int razer_keyboardBacklightsSpectrum(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    
+    HSRazer *razer = [skin toNSObjectAtIndex:1];
+    
+    BOOL result = [razer setKeyboardBacklights:@"spectrum" speed:nil direction:nil color:nil secondaryColor:nil customColors:nil];
+    lua_pushboolean(L, result);
+    return 1;
+}
+
+/// hs.razer:keyboardBacklightsReactive(speed, color) -> boolean
+/// Method
+/// Changes the keyboard backlights to the reactive mode.
+///
+/// Parameters:
+///  * speed - A number between 1 (fast) and 255 (slow)
+///  * color - A `hs.drawing.color` object
+///
+/// Returns:
+///  * `true` if successful otherwise `false`
+static int razer_keyboardBacklightsReactive(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TTABLE, LS_TBREAK];
+    
+    HSRazer *razer = [skin toNSObjectAtIndex:1];
+    NSNumber *speed = [skin toNSObjectAtIndex:2];
+    NSColor *color = [skin luaObjectAtIndex:3 toClass:"NSColor"];
+                
+    BOOL result = [razer setKeyboardBacklights:@"reactive" speed:speed direction:nil color:color secondaryColor:nil customColors:nil];
+    lua_pushboolean(L, result);
+    return 1;
+}
+
+/// hs.razer:keyboardBacklightsStatic(color) -> boolean
+/// Method
+/// Changes the keyboard backlights to the static mode.
+///
+/// Parameters:
+///  * color - A `hs.drawing.color` object
+///
+/// Returns:
+///  * `true` if successful otherwise `false`
+static int razer_keyboardBacklightsStatic(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBREAK];
+    
+    HSRazer *razer = [skin toNSObjectAtIndex:1];
+    NSColor *color = [skin luaObjectAtIndex:2 toClass:"NSColor"];
+                
+    BOOL result = [razer setKeyboardBacklights:@"static" speed:nil direction:nil color:color secondaryColor:nil customColors:nil];
+    lua_pushboolean(L, result);
+    return 1;
+}
+
+/// hs.razer:keyboardBacklightsStaticNoStore(color) -> boolean
+/// Method
+/// Changes the keyboard backlights to the static_no_store mode.
+///
+/// Parameters:
+///  * color - A `hs.drawing.color` object
+///
+/// Returns:
+///  * `true` if successful otherwise `false`
+static int razer_keyboardBacklightsStaticNoStore(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBREAK];
+    
+    HSRazer *razer = [skin toNSObjectAtIndex:1];
+    NSColor *color = [skin luaObjectAtIndex:2 toClass:"NSColor"];
+                
+    BOOL result = [razer setKeyboardBacklights:@"static_no_store" speed:nil direction:nil color:color secondaryColor:nil customColors:nil];
+    lua_pushboolean(L, result);
+    return 1;
+}
+
+/// hs.razer:keyboardBacklightsStarlight(speed, [color], [secondaryColor]) -> boolean
+/// Method
+/// Changes the keyboard backlights to the Starlight mode.
+///
+/// Parameters:
+///  * speed - A number between 1 (fast) and 255 (slow)
+///  * [color] - An optional `hs.drawing.color` value
+///  * [secondaryColor] - An optional secondary `hs.drawing.color`
 ///
 /// Returns:
 ///  * `true` if successful otherwise `false`
 ///
 /// Notes:
-///  * Supported modes include:
-///    * "none" - no parameters
-///    * "wave" - requires speed and direction.
-///    * "spectrum" - no parameters
-///    * "reactive" - requires speed and color.
-///    * "static" - requires color.
-///    * "static_no_store" - requires color.
-///    * "starlight" - requires speed and supports color and secondary color. If neither is supplied it will do random colors.
-///    * "breath" - no parameters
-///    * "macro"
-///    * "macro_effect"
-///    * "pulsate"
-///  * A speed value of 255 is extremely slow, and a 16 is extremely fast.
-static int razer_keyboardBacklights(lua_State *L) {
+///  * If neither `color` nor `secondaryColor` is provided, then random colors will be used.
+static int razer_keyboardBacklightsStarlight(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TNUMBER | LS_TOPTIONAL | LS_TNIL, LS_TSTRING | LS_TOPTIONAL | LS_TNIL, LS_TTABLE | LS_TOPTIONAL | LS_TNIL, LS_TTABLE | LS_TOPTIONAL | LS_TNIL, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TTABLE | LS_TOPTIONAL | LS_TNIL, LS_TTABLE | LS_TOPTIONAL | LS_TNIL, LS_TBREAK];
+    
+    HSRazer *razer = [skin toNSObjectAtIndex:1];
+    NSNumber *speed = [skin toNSObjectAtIndex:2];
+
+    NSColor *color;
+    NSColor *secondaryColor;
+    
+    if (lua_type(L, 3) == LUA_TTABLE) {
+        color = [skin luaObjectAtIndex:3 toClass:"NSColor"];
+    }
+    
+    if (lua_type(L, 4) == LUA_TTABLE) {
+        secondaryColor = [skin luaObjectAtIndex:4 toClass:"NSColor"];
+    }
+        
+    BOOL result = [razer setKeyboardBacklights:@"starlight" speed:speed direction:nil color:color secondaryColor:secondaryColor customColors:nil];
+    lua_pushboolean(L, result);
+    return 1;
+}
+
+/// hs.razer:keyboardBacklightsBreath() -> boolean
+/// Method
+/// Changes the keyboard backlights to the breath mode.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * `true` if successful otherwise `false`
+static int razer_keyboardBacklightsBreath(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     
     HSRazer *razer = [skin toNSObjectAtIndex:1];
     
-    NSString    *mode;
-    NSNumber    *speed;
-    NSString    *direction;
-    NSColor     *color;
-    NSColor     *secondaryColor;
+    BOOL result = [razer setKeyboardBacklights:@"breath" speed:nil direction:nil color:nil secondaryColor:nil customColors:nil];
+    lua_pushboolean(L, result);
+    return 1;
+}
 
-    if (lua_type(L, 2) == LUA_TSTRING) {
-        mode = [skin toNSObjectAtIndex:2];
-    }
+/// hs.razer:keyboardBacklightsPulsate() -> boolean
+/// Method
+/// Changes the keyboard backlights to the Pulsate mode.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * `true` if successful otherwise `false`
+static int razer_keyboardBacklightsPulsate(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    
+    HSRazer *razer = [skin toNSObjectAtIndex:1];
+    
+    BOOL result = [razer setKeyboardBacklights:@"pulsate" speed:nil direction:nil color:nil secondaryColor:nil customColors:nil];
+    lua_pushboolean(L, result);
+    return 1;
+}
 
-    if (lua_type(L, 3) == LUA_TNUMBER) {
-        speed = [skin toNSObjectAtIndex:3];
-    }
+/// hs.razer:keyboardBacklightsCustom(colors) -> boolean
+/// Method
+/// Changes the keyboard backlights to custom colours.
+///
+/// Parameters:
+///  * colors - A table of colors for each individual button on your device (i.e. if there's 20 buttons, you should have twenty colors in the table).
+///
+/// Returns:
+///  * `true` if successful otherwise `false`
+static int razer_keyboardBacklightsCustom(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBREAK];
     
-    if (lua_type(L, 4) == LUA_TSTRING) {
-        direction = [skin toNSObjectAtIndex:4];
-    }
+    HSRazer *razer = [skin toNSObjectAtIndex:1];
+    NSArray *colors = [skin toNSObjectAtIndex:2];
     
-    if (lua_type(L, 5) == LUA_TTABLE) {
-        color = [skin luaObjectAtIndex:5 toClass:"NSColor"];
-    }
+    NSLog(@"colors: %@", colors);
     
-    if (lua_type(L, 6) == LUA_TTABLE) {
-        secondaryColor = [skin luaObjectAtIndex:6 toClass:"NSColor"];
-    }
-        
-    BOOL result = [razer setKeyboardBacklights:mode speed:speed direction:direction color:color secondaryColor:secondaryColor];
+    BOOL result = [razer setKeyboardBacklights:@"custom" speed:nil direction:nil color:nil secondaryColor:nil customColors:colors];
     lua_pushboolean(L, result);
     return 1;
 }
@@ -1348,13 +1522,12 @@ static int userdata_gc(lua_State* L) {
         obj.selfRefCount--;
         if (obj.selfRefCount == 0) {
             LuaSkin *skin = [LuaSkin sharedWithState:L];
+            // Stop the Event Tap:
+            [obj destroyEventTap];
             
             // Stop HID Manager and perform garbage collection:
             [obj stopHIDManager];
             [obj doGC];
-            
-            // Stop the Event Tap:
-            [obj destroyEventTap];
             
             obj.callbackRef = [skin luaUnref:refTable ref:obj.callbackRef];
 
@@ -1385,30 +1558,40 @@ static int meta_gc(lua_State* L) {
 // Metatable for userdata objects:
 static const luaL_Reg userdata_metaLib[] = {
     // Common:
-    {"internalDeviceId",            razer_internalDeviceId},
-    {"productId",                   razer_productId},
+    {"internalDeviceId",                    razer_internalDeviceId},
+    {"productId",                           razer_productId},
     
-    {"callback",                    razer_callback},
-    {"connected",                   razer_connected},
-    {"firmwareVersion",             razer_firmwareVersion},
+    {"callback",                            razer_callback},
+    {"connected",                           razer_connected},
+    {"firmwareVersion",                     razer_firmwareVersion},
         
-    {"name",                        razer_name},
-    {"mainType",                    razer_mainType},
-    {"image",                       razer_image},
-    {"features",                    razer_features},
-    {"featuresConfig",              razer_featuresConfig},
-    {"featuresMissing",             razer_featuresMissing},
+    {"name",                                razer_name},
+    {"mainType",                            razer_mainType},
+    {"image",                               razer_image},
+    {"features",                            razer_features},
+    {"featuresConfig",                      razer_featuresConfig},
+    {"featuresMissing",                     razer_featuresMissing},
     
     // Keyboard:
-    {"keyboardStatusLights",        razer_keyboardStatusLights},
-    {"keyboardBacklights",          razer_keyboardBacklights},
-    {"keyboardBrightness",          razer_keyboardBrightness},
+    {"keyboardStatusLights",                razer_keyboardStatusLights},
+    {"keyboardBrightness",                  razer_keyboardBrightness},
+    
+    {"keyboardBacklightsOff",               razer_keyboardBacklightsOff},
+    {"keyboardBacklightsCustom",            razer_keyboardBacklightsCustom},
+    {"keyboardBacklightsWave",              razer_keyboardBacklightsWave},
+    {"keyboardBacklightsSpectrum",          razer_keyboardBacklightsSpectrum},
+    {"keyboardBacklightsReactive",          razer_keyboardBacklightsReactive},
+    {"keyboardBacklightsStatic",            razer_keyboardBacklightsStatic},
+    {"keyboardBacklightsStaticNoStore",     razer_keyboardBacklightsStaticNoStore},
+    {"keyboardBacklightsStarlight",         razer_keyboardBacklightsStarlight},
+    {"keyboardBacklightsBreath",            razer_keyboardBacklightsBreath},
+    {"keyboardBacklightsPulsate",           razer_keyboardBacklightsPulsate},
         
     // Support:
-    {"__tostring",                  userdata_tostring},
-    {"__eq",                        userdata_eq},
-    {"__gc",                        userdata_gc},
-    {NULL,                          NULL}
+    {"__tostring",                          userdata_tostring},
+    {"__eq",                                userdata_eq},
+    {"__gc",                                userdata_gc},
+    {NULL,                                  NULL}
 };
 
 // Functions for returned object when module loads:
