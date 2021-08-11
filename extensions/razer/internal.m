@@ -114,6 +114,11 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
                            CGEventRef event,
                            void* refcon) {
     
+    if (!refcon) {
+        NSLog(@"It looks like the Razer object is already destoryed?");
+        return event;
+    }
+    
     HSRazer *manager = (__bridge HSRazer *)refcon;
     if (manager.scrollWheelInProgress) {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
@@ -517,7 +522,7 @@ static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValue
     return NO;
 }
 
-- (bool)setKeyboardLightsMode:(NSString *)mode speed:(NSNumber *)speed direction:(NSString *)direction color:(NSColor *)color
+- (bool)setKeyboardBacklights:(NSString *)mode speed:(NSNumber *)speed direction:(NSString *)direction color:(NSColor *)color secondaryColor:(NSColor *)secondaryColor
 {
     RazerDevices allDevices = getAllRazerDevices();
     RazerDevice *razerDevices = allDevices.devices;
@@ -532,7 +537,22 @@ static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValue
                 razer_attr_write_mode_spectrum(device.usbDevice, "1", 1);
             }
             else if ([mode isEqualToString:@"reactive"]){
-                razer_attr_write_mode_reactive(device.usbDevice, "", 0);
+                CGFloat redComponent = floor([color redComponent]);
+                NSInteger red = (NSInteger) redComponent * 255;
+                
+                CGFloat greenComponent = floor([color greenComponent]);
+                NSInteger green = (NSInteger) greenComponent * 255;
+                
+                CGFloat blueComponent = floor([color blueComponent]);
+                NSInteger blue = (NSInteger) blueComponent * 255;
+                
+                if (speed == nil){
+                    speed = @1;
+                }
+                
+                uint8_t buf[] = {[speed intValue], red, green, blue};
+                
+                razer_attr_write_mode_reactive(device.usbDevice, (char*)buf, 4);
             }
             else if ([mode isEqualToString:@"static"]){
                 CGFloat redComponent = floor([color redComponent]);
@@ -548,16 +568,70 @@ static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValue
                 razer_attr_write_mode_static(device.usbDevice, (char*)buf, 3);
             }
             else if ([mode isEqualToString:@"static_no_store"]){
-                razer_attr_write_mode_static_no_store(device.usbDevice, "", 0);
-            }
-            else if ([mode isEqualToString:@"static_no_store"]){
-                razer_attr_write_mode_static_no_store(device.usbDevice, "", 0);
+                CGFloat redComponent = floor([color redComponent]);
+                NSInteger red = (NSInteger) redComponent * 255;
+                
+                CGFloat greenComponent = floor([color greenComponent]);
+                NSInteger green = (NSInteger) greenComponent * 255;
+                
+                CGFloat blueComponent = floor([color blueComponent]);
+                NSInteger blue = (NSInteger) blueComponent * 255;
+                
+                uint8_t buf[] = {red, green, blue};
+                razer_attr_write_mode_static_no_store(device.usbDevice, (char*)buf, 3);
             }
             else if ([mode isEqualToString:@"starlight"]){
-                razer_attr_write_mode_starlight(device.usbDevice, "", 0);
+                if (speed == nil){
+                    speed = @1;
+                }
+                
+                if (color && secondaryColor) {
+                    // Two colours:
+                    CGFloat redComponent = floor([color redComponent]);
+                    NSInteger red = (NSInteger) redComponent * 255;
+                    
+                    CGFloat greenComponent = floor([color greenComponent]);
+                    NSInteger green = (NSInteger) greenComponent * 255;
+                    
+                    CGFloat blueComponent = floor([color blueComponent]);
+                    NSInteger blue = (NSInteger) blueComponent * 255;
+                    
+                    CGFloat secondaryRedComponent = floor([secondaryColor redComponent]);
+                    NSInteger secondaryRed = (NSInteger) secondaryRedComponent * 255;
+                    
+                    CGFloat secondaryGreenComponent = floor([secondaryColor greenComponent]);
+                    NSInteger secondaryGreen = (NSInteger) secondaryGreenComponent * 255;
+                    
+                    CGFloat secondaryBlueComponent = floor([secondaryColor blueComponent]);
+                    NSInteger secondaryBlue = (NSInteger) secondaryBlueComponent * 255;
+                    
+                    uint8_t buf[] = {[speed intValue], red, green, blue, secondaryRed, secondaryGreen, secondaryBlue};
+                    
+                    razer_attr_write_mode_starlight(device.usbDevice, (char*)buf, 7);
+                }
+                else if (color) {
+                    // One colour:
+                    CGFloat redComponent = floor([color redComponent]);
+                    NSInteger red = (NSInteger) redComponent * 255;
+                    
+                    CGFloat greenComponent = floor([color greenComponent]);
+                    NSInteger green = (NSInteger) greenComponent * 255;
+                    
+                    CGFloat blueComponent = floor([color blueComponent]);
+                    NSInteger blue = (NSInteger) blueComponent * 255;
+                    
+                    uint8_t buf[] = {[speed intValue], red, green, blue};
+                    
+                    razer_attr_write_mode_starlight(device.usbDevice, (char*)buf, 4);
+                }
+                else {
+                    // Random:
+                    uint8_t buf[] = {[speed intValue]};
+                    razer_attr_write_mode_starlight(device.usbDevice, (char*)buf, 1);
+                }
             }
             else if ([mode isEqualToString:@"breath"]){
-                razer_attr_write_mode_breath(device.usbDevice, "", 0);
+                razer_attr_write_mode_breath(device.usbDevice, "1", 1);
             }
             else if ([mode isEqualToString:@"wave"]){
                 if (speed == nil){
@@ -578,6 +652,49 @@ static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValue
             }
             else if ([mode isEqualToString:@"pulsate"]){
                 razer_attr_write_mode_pulsate(device.usbDevice, "", 0);
+            }
+            else if ([mode isEqualToString:@"custom"]){
+                /*
+                a = hs.razer.new(0)
+                a:keyboardBacklights("custom", nil, nil, hs.drawing.color.red)
+                */
+                
+                // TODO: This code currently isn't working as expected.
+                
+                NSLog(@"Triggering 'custom' mode");
+                                
+                CGFloat redComponent = floor([color redComponent]);
+                NSInteger red = (NSInteger) redComponent * 255;
+                
+                CGFloat greenComponent = floor([color greenComponent]);
+                NSInteger green = (NSInteger) greenComponent * 255;
+                
+                CGFloat blueComponent = floor([color blueComponent]);
+                NSInteger blue = (NSInteger) blueComponent * 255;
+                
+                /*
+                uint8_t row = 2;
+                uint8_t startColumn = 2;
+                uint8_t stopColumn = 2;
+                
+                uint8_t buf[] = {row, startColumn, stopColumn, red, green, blue};
+
+                razer_attr_write_matrix_custom_frame(device.usbDevice, (char*)buf, 6);
+                razer_attr_write_mode_custom(device.usbDevice, "1", 1);
+                */
+                
+                // TODO: For some reason, this code makes the first button change colour only:
+                for (int row = 1; row <= 4; row++)
+                {
+                    for (int column = 1; column <= 6; column++)
+                    {
+                        NSLog(@"%d", row);
+                        NSLog(@"%d", column);
+                        uint8_t buf[] = {row, column, column, red, green, blue};
+                        razer_attr_write_matrix_custom_frame(device.usbDevice, (char*)buf, 6);
+                        razer_attr_write_mode_custom(device.usbDevice, "1", 1);
+                    }
+                }
             }
             else {
                 closeAllRazerDevices(allDevices);
@@ -711,20 +828,6 @@ static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValue
     closeAllRazerDevices(allDevices);
     return NO;
 }
-
-/*
- TODO - THINGS TO EXPOSE:
- 
- ssize_t razer_attr_write_set_logo(IOUSBDeviceInterface **usb_dev, const char *buf, int count);
- ssize_t razer_attr_write_mode_custom(IOUSBDeviceInterface **usb_dev, const char *buf, int count);
- ssize_t razer_attr_write_set_fn_toggle(IOUSBDeviceInterface **usb_dev, const char *buf, int count);
- ssize_t razer_attr_write_matrix_custom_frame(IOUSBDeviceInterface **usb_dev, const char *buf, int count);
- 
- ssize_t razer_attr_read_mode_game(IOUSBDeviceInterface **usb_dev, char *buf);
- ssize_t razer_attr_read_mode_macro_effect(IOUSBDeviceInterface **usb_dev, char *buf);
- ssize_t razer_attr_read_mode_pulsate(IOUSBDeviceInterface **usb_dev, char *buf);
- ssize_t razer_attr_read_set_logo(IOUSBDeviceInterface **usb_dev, char *buf, int count);
- */
 
 @end
 
@@ -1119,95 +1222,67 @@ static int razer_keyboardBrightness(lua_State *L) {
     return 1;
 }
 
-/*
-STATIC:
-   - Custom
-   - White
-   - Red
-   - Green
-   - Blue
-
-WAVE:
-   - Left/Right
-       - Turtle Speed
-       - Slowest Speed
-       - Slower Speed
-       - Slow Speed
-       - Normal Speed
-       - Fast Speed
-       - Faster Speed
-       - Fatest Speed
-       - Lightning Speed
-
-SPECTRUM:
-
-REACTIVE:
-   - Custom
-   - White
-   - Red
-   - Green
-   - Blue
-
-BREATHE:
-
-STARLIGHT:
-   - Custom Color
-       - Slow Speed
-       - Medium Speed
-       - Fast Speed
-
-RIPPLE:
-   - Custom Color
-   - Custom Dual Color
-   - Red
-   - Green
-   - Blue
-
-
-WHEEL:
-   - Slow Speed
-   - Medium Speed
-   - Fast Speed
-*/
-
-/// hs.razer:keyboardBacklights(mode, [speed], [direction], [color]) -> boolean
+/// hs.razer:keyboardBacklights(mode, [speed], [direction], [color], [secondaryColor]) -> boolean
 /// Method
-/// Changes the keyboard Lights mode.
+/// Changes the mode of the keyboard backlights.
 ///
 /// Parameters:
-///  * mode - A string containing the mode you want to activate
-///  * [speed] - An optional speed if using "wave" mode (defaults to 1)
-///  * [direction] - An optional direction - "left" or "right" as a string - if using "wave" mode (defaults to "left")
-///  * [color] - An optional `hs.drawing.color` value when using "static", "reactive", "starlight" and "ripple" modes (defaults to black)
+///  * mode - A string containing the mode you want to activate (see notes below)
+///  * [speed] - An optional speed if using "wave" and "reactive" modes (defaults to 1)
+///  * [direction] - An optional direction ("left" or "right" as a string), if using "wave" mode (defaults to "left")
+///  * [color] - An optional `hs.drawing.color` value when using "static", "reactive" and "starlight" modes (defaults to black)
+///  * [secondaryColor] - An optional secondary `hs.drawing.color` value when "breath" mode (defaults to black)
 ///
 /// Returns:
 ///  * `true` if successful otherwise `false`
 ///
 /// Notes:
 ///  * Supported modes include:
-///    * none
-///    * wave
-///    * spectrum
-///    * reactive
-///    * static
-///    * static_no_store
-///    * starlight
-///    * breath
-///    * macro
-///    * macro_effect
-///    * pulsate
+///    * "none" - no parameters
+///    * "wave" - requires speed and direction.
+///    * "spectrum" - no parameters
+///    * "reactive" - requires speed and color.
+///    * "static" - requires color.
+///    * "static_no_store" - requires color.
+///    * "starlight" - requires speed and supports color and secondary color. If neither is supplied it will do random colors.
+///    * "breath" - no parameters
+///    * "macro"
+///    * "macro_effect"
+///    * "pulsate"
 ///  * A speed value of 255 is extremely slow, and a 16 is extremely fast.
 static int razer_keyboardBacklights(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TNUMBER | LS_TOPTIONAL | LS_TNIL, LS_TSTRING | LS_TOPTIONAL | LS_TNIL, LS_TTABLE | LS_TOPTIONAL, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TNUMBER | LS_TOPTIONAL | LS_TNIL, LS_TSTRING | LS_TOPTIONAL | LS_TNIL, LS_TTABLE | LS_TOPTIONAL | LS_TNIL, LS_TTABLE | LS_TOPTIONAL | LS_TNIL, LS_TBREAK];
     
-    HSRazer *razer          = [skin toNSObjectAtIndex:1];
-    NSString *mode          = [skin toNSObjectAtIndex:2];
-    NSNumber *speed         = [skin toNSObjectAtIndex:3];
-    NSString *direction     = [skin toNSObjectAtIndex:4];
-    NSColor *color          = [skin luaObjectAtIndex:5 toClass:"NSColor"];
+    HSRazer *razer = [skin toNSObjectAtIndex:1];
     
-    BOOL result = [razer setKeyboardLightsMode:mode speed:speed direction:direction color:color];
+    NSString    *mode;
+    NSNumber    *speed;
+    NSString    *direction;
+    NSColor     *color;
+    NSColor     *secondaryColor;
+
+    if (lua_type(L, 2) == LUA_TSTRING) {
+        mode = [skin toNSObjectAtIndex:2];
+    }
+
+    if (lua_type(L, 3) == LUA_TNUMBER) {
+        speed = [skin toNSObjectAtIndex:3];
+    }
+    
+    if (lua_type(L, 4) == LUA_TSTRING) {
+        direction = [skin toNSObjectAtIndex:4];
+    }
+    
+    if (lua_type(L, 5) == LUA_TTABLE) {
+        color = [skin luaObjectAtIndex:5 toClass:"NSColor"];
+    }
+    
+    if (lua_type(L, 6) == LUA_TTABLE) {
+        secondaryColor = [skin luaObjectAtIndex:6 toClass:"NSColor"];
+    }
+        
+    BOOL result = [razer setKeyboardBacklights:mode speed:speed direction:direction color:color secondaryColor:secondaryColor];
     lua_pushboolean(L, result);
     return 1;
 }
