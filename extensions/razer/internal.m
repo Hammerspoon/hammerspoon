@@ -677,7 +677,6 @@ static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValue
                     buf[2] = numberOfColums - 1;
                                                         
                     int count = 3;
-
                     for (int column = 0; column < numberOfColums; column++)
                     {
                         NSInteger red = 0;
@@ -685,11 +684,16 @@ static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValue
                         NSInteger blue = 0;
                         
                         if ([customColors count] > colorsCount) {
-                            NSMutableDictionary *currentColor = customColors[colorsCount];
+                            NSColor *currentColor = customColors[colorsCount];
                             if (currentColor) {
-                                red = [[currentColor valueForKey:@"red"] integerValue] * 255;
-                                green = [[currentColor valueForKey:@"green"] integerValue] * 255;
-                                blue = [[currentColor valueForKey:@"blue"] integerValue] * 255;
+                                CGFloat redComponent = floor([currentColor redComponent]);
+                                red = (NSInteger) redComponent * 255;
+                                
+                                CGFloat greenComponent = floor([currentColor greenComponent]);
+                                green = (NSInteger) greenComponent * 255;
+                                
+                                CGFloat blueComponent = floor([currentColor blueComponent]);
+                                blue = (NSInteger) blueComponent * 255;
                             }
                         }
                         colorsCount++;
@@ -1452,11 +1456,17 @@ static int razer_keyboardBacklightsCustom(lua_State *L) {
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBREAK];
     
     HSRazer *razer = [skin toNSObjectAtIndex:1];
-    NSArray *colors = [skin toNSObjectAtIndex:2];
-    
-    NSLog(@"colors: %@", colors);
-    
-    BOOL result = [razer setKeyboardBacklights:@"custom" speed:nil direction:nil color:nil secondaryColor:nil customColors:colors];
+
+    NSMutableArray *colorArray = [NSMutableArray array];
+    lua_Integer i = 1;
+    while (lua_rawgeti(L, 2, i) != LUA_TNIL) {
+        [colorArray addObject:[skin luaObjectAtIndex:-1 toClass:"NSColor"]];        
+        lua_pop(L, 1);
+        i++;
+    }
+    lua_pop(L, 1); // the terminating nil
+
+    BOOL result = [razer setKeyboardBacklights:@"custom" speed:nil direction:nil color:nil secondaryColor:nil customColors:colorArray];
     lua_pushboolean(L, result);
     return 1;
 }
