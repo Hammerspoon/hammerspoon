@@ -1051,6 +1051,137 @@
 		22738934248606F0003EBC68 /* HSwebsocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSwebsocket.m; sourceTree = "<group>"; };
 		22A6625F25FC07F700AA329E /* test_serial.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_serial.lua; path = extensions/serial/test_serial.lua; sourceTree = "<group>"; };
 		22A6626125FC087000AA329E /* HSserial.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSserial.m; sourceTree = "<group>"; };
+		22C0AF5026C7201500A533D0 /* deathadder_elite.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = deathadder_elite.json; path = extensions/razer/devices/deathadder_elite.json; sourceTree = "<group>"; };
+		22C0AF5126C7201700A533D0 /* abyssus_essential.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = abyssus_essential.json; path = extensions/razer/devices/abyssus_essential.json; sourceTree = "<group>"; };
+		22C0AF5226C7201700A533D0 /* blade_stealth_late_2019.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blade_stealth_late_2019.json; path = extensions/razer/devices/blade_stealth_late_2019.json; sourceTree = "<group>"; };
+		22C0AF5326C7201700A533D0 /* orochi_chroma.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = orochi_chroma.json; path = extensions/razer/devices/orochi_chroma.json; sourceTree = "<group>"; };
+		22C0AF5426C7201800A533D0 /* deathstalker_expert.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = deathstalker_expert.json; path = extensions/razer/devices/deathstalker_expert.json; sourceTree = "<group>"; };
+		22C0AF5526C7201800A533D0 /* huntsman_mini.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = huntsman_mini.json; path = extensions/razer/devices/huntsman_mini.json; sourceTree = "<group>"; };
+		22C0AF5626C7201800A533D0 /* blade_pro_late_2016.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blade_pro_late_2016.json; path = extensions/razer/devices/blade_pro_late_2016.json; sourceTree = "<group>"; };
+		22C0AF5726C7201900A533D0 /* deathadder_v2_pro_wireless.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = deathadder_v2_pro_wireless.json; path = extensions/razer/devices/deathadder_v2_pro_wireless.json; sourceTree = "<group>"; };
+		22C0AF5826C7201900A533D0 /* blackwidow_ultimate_2012.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blackwidow_ultimate_2012.json; path = extensions/razer/devices/blackwidow_ultimate_2012.json; sourceTree = "<group>"; };
+		22C0AF5926C7201900A533D0 /* deathadder_essential.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = deathadder_essential.json; path = extensions/razer/devices/deathadder_essential.json; sourceTree = "<group>"; };
+		22C0AF5A26C7201A00A533D0 /* core_x_chroma.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = core_x_chroma.json; path = extensions/razer/devices/core_x_chroma.json; sourceTree = "<group>"; };
+		22C0AF5B26C7201A00A533D0 /* blade_2018.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blade_2018.json; path = extensions/razer/devices/blade_2018.json; sourceTree = "<group>"; };
+		22C0AF5C26C7201A00A533D0 /* viper_mini.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = viper_mini.json; path = extensions/razer/devices/viper_mini.json; sourceTree = "<group>"; };
+		22C0AF5D26C7201B00A533D0 /* blackwidow_chroma_te.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blackwidow_chroma_te.json; path = extensions/razer/devices/blackwidow_chroma_te.json; sourceTree = "<group>"; };
+		22C0AF5E26C7201B00A533D0 /* deathadder_v2_mini.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = deathadder_v2_mini.json; path = extensions/razer/devices/deathadder_v2_mini.json; sourceTree = "<group>"; };
+		22C0AF5F26C7201B00A533D0 /* ornata_v2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = ornata_v2.json; path = extensions/razer/devices/ornata_v2.json; sourceTree = "<group>"; };
+		22C0AF6026C7201C00A533D0 /* deathstalker_chroma.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = deathstalker_chroma.json; path = extensions/razer/devices/deathstalker_chroma.json; sourceTree = "<group>"; };
+		22C0AF6126C7201C00A533D0 /* base_station_v2_chroma.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = base_station_v2_chroma.json; path = extensions/razer/devices/base_station_v2_chroma.json; sourceTree = "<group>"; };
+		22C0AF6226C7201D00A533D0 /* tartarus.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = tartarus.json; path = extensions/razer/devices/tartarus.json; sourceTree = "<group>"; };
+		22C0AF6326C7201D00A533D0 /* mamba_2012_wired.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = mamba_2012_wired.json; path = extensions/razer/devices/mamba_2012_wired.json; sourceTree = "<group>"; };
+		22C0AF6426C7201D00A533D0 /* blackwidow_ultimate_2016.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blackwidow_ultimate_2016.json; path = extensions/razer/devices/blackwidow_ultimate_2016.json; sourceTree = "<group>"; };
+		22C0AF6526C7201E00A533D0 /* kraken_v2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = kraken_v2.json; path = extensions/razer/devices/kraken_v2.json; sourceTree = "<group>"; };
+		22C0AF6626C7201E00A533D0 /* blackwidow_essential.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blackwidow_essential.json; path = extensions/razer/devices/blackwidow_essential.json; sourceTree = "<group>"; };
+		22C0AF6726C7201E00A533D0 /* viper_8khz.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = viper_8khz.json; path = extensions/razer/devices/viper_8khz.json; sourceTree = "<group>"; };
+		22C0AF6826C7201F00A533D0 /* blade_stealth_mid_2017.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blade_stealth_mid_2017.json; path = extensions/razer/devices/blade_stealth_mid_2017.json; sourceTree = "<group>"; };
+		22C0AF6926C7201F00A533D0 /* blade_2018_base.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blade_2018_base.json; path = extensions/razer/devices/blade_2018_base.json; sourceTree = "<group>"; };
+		22C0AF6A26C7201F00A533D0 /* tartarus_v2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = tartarus_v2.json; path = extensions/razer/devices/tartarus_v2.json; sourceTree = "<group>"; };
+		22C0AF6B26C7202000A533D0 /* viper_ultimate_wired.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = viper_ultimate_wired.json; path = extensions/razer/devices/viper_ultimate_wired.json; sourceTree = "<group>"; };
+		22C0AF6C26C7202000A533D0 /* blade_stealth_late_2017.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blade_stealth_late_2017.json; path = extensions/razer/devices/blade_stealth_late_2017.json; sourceTree = "<group>"; };
+		22C0AF6D26C7202000A533D0 /* kraken_classic.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = kraken_classic.json; path = extensions/razer/devices/kraken_classic.json; sourceTree = "<group>"; };
+		22C0AF6E26C7202100A533D0 /* kraken_classic_alt.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = kraken_classic_alt.json; path = extensions/razer/devices/kraken_classic_alt.json; sourceTree = "<group>"; };
+		22C0AF6F26C7202100A533D0 /* blackwidow_x_ultimate.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blackwidow_x_ultimate.json; path = extensions/razer/devices/blackwidow_x_ultimate.json; sourceTree = "<group>"; };
+		22C0AF7026C7202200A533D0 /* deathadder_3500.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = deathadder_3500.json; path = extensions/razer/devices/deathadder_3500.json; sourceTree = "<group>"; };
+		22C0AF7126C7202200A533D0 /* huntsman_elite.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = huntsman_elite.json; path = extensions/razer/devices/huntsman_elite.json; sourceTree = "<group>"; };
+		22C0AF7226C7202200A533D0 /* basilisk.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = basilisk.json; path = extensions/razer/devices/basilisk.json; sourceTree = "<group>"; };
+		22C0AF7326C7202300A533D0 /* viper_ultimate_wireless.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = viper_ultimate_wireless.json; path = extensions/razer/devices/viper_ultimate_wireless.json; sourceTree = "<group>"; };
+		22C0AF7426C7202300A533D0 /* kraken_ultimate.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = kraken_ultimate.json; path = extensions/razer/devices/kraken_ultimate.json; sourceTree = "<group>"; };
+		22C0AF7526C7202300A533D0 /* huntsman_te.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = huntsman_te.json; path = extensions/razer/devices/huntsman_te.json; sourceTree = "<group>"; };
+		22C0AF7626C7202400A533D0 /* blackwidow_chroma_v2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blackwidow_chroma_v2.json; path = extensions/razer/devices/blackwidow_chroma_v2.json; sourceTree = "<group>"; };
+		22C0AF7726C7202400A533D0 /* abyssus_2000.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = abyssus_2000.json; path = extensions/razer/devices/abyssus_2000.json; sourceTree = "<group>"; };
+		22C0AF7826C7202400A533D0 /* atheris.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = atheris.json; path = extensions/razer/devices/atheris.json; sourceTree = "<group>"; };
+		22C0AF7926C7202500A533D0 /* naga_2014.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = naga_2014.json; path = extensions/razer/devices/naga_2014.json; sourceTree = "<group>"; };
+		22C0AF7A26C7202500A533D0 /* blackwidow_stealth_edition.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blackwidow_stealth_edition.json; path = extensions/razer/devices/blackwidow_stealth_edition.json; sourceTree = "<group>"; };
+		22C0AF7B26C7202600A533D0 /* abyssus.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = abyssus.json; path = extensions/razer/devices/abyssus.json; sourceTree = "<group>"; };
+		22C0AF7C26C7202600A533D0 /* lancehead_wireless_receiver.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = lancehead_wireless_receiver.json; path = extensions/razer/devices/lancehead_wireless_receiver.json; sourceTree = "<group>"; };
+		22C0AF7D26C7202600A533D0 /* blade_stealth_late_2016.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blade_stealth_late_2016.json; path = extensions/razer/devices/blade_stealth_late_2016.json; sourceTree = "<group>"; };
+		22C0AF7E26C7202700A533D0 /* deathadder_chroma.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = deathadder_chroma.json; path = extensions/razer/devices/deathadder_chroma.json; sourceTree = "<group>"; };
+		22C0AF7F26C7202700A533D0 /* mamba_elite.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = mamba_elite.json; path = extensions/razer/devices/mamba_elite.json; sourceTree = "<group>"; };
+		22C0AF8026C7202700A533D0 /* chroma_hdk.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = chroma_hdk.json; path = extensions/razer/devices/chroma_hdk.json; sourceTree = "<group>"; };
+		22C0AF8126C7202800A533D0 /* chroma_mug.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = chroma_mug.json; path = extensions/razer/devices/chroma_mug.json; sourceTree = "<group>"; };
+		22C0AF8226C7202800A533D0 /* mamba_2012_wireless.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = mamba_2012_wireless.json; path = extensions/razer/devices/mamba_2012_wireless.json; sourceTree = "<group>"; };
+		22C0AF8326C7202800A533D0 /* abyssus_v2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = abyssus_v2.json; path = extensions/razer/devices/abyssus_v2.json; sourceTree = "<group>"; };
+		22C0AF8426C7202900A533D0 /* goliathus_chroma.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = goliathus_chroma.json; path = extensions/razer/devices/goliathus_chroma.json; sourceTree = "<group>"; };
+		22C0AF8526C7202900A533D0 /* deathadder_2013.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = deathadder_2013.json; path = extensions/razer/devices/deathadder_2013.json; sourceTree = "<group>"; };
+		22C0AF8626C7202900A533D0 /* mamba_wireless_wired.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = mamba_wireless_wired.json; path = extensions/razer/devices/mamba_wireless_wired.json; sourceTree = "<group>"; };
+		22C0AF8726C7202A00A533D0 /* abyssus_1800.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = abyssus_1800.json; path = extensions/razer/devices/abyssus_1800.json; sourceTree = "<group>"; };
+		22C0AF8826C7202A00A533D0 /* imperator.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = imperator.json; path = extensions/razer/devices/imperator.json; sourceTree = "<group>"; };
+		22C0AF8926C7202B00A533D0 /* firefly_hyperflux.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = firefly_hyperflux.json; path = extensions/razer/devices/firefly_hyperflux.json; sourceTree = "<group>"; };
+		22C0AF8A26C7202B00A533D0 /* naga_lefthanded_2020.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = naga_lefthanded_2020.json; path = extensions/razer/devices/naga_lefthanded_2020.json; sourceTree = "<group>"; };
+		22C0AF8B26C7202B00A533D0 /* orochi_2013.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = orochi_2013.json; path = extensions/razer/devices/orochi_2013.json; sourceTree = "<group>"; };
+		22C0AF8C26C7202C00A533D0 /* nommo_chroma.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = nommo_chroma.json; path = extensions/razer/devices/nommo_chroma.json; sourceTree = "<group>"; };
+		22C0AF8D26C7202C00A533D0 /* orbweaver.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = orbweaver.json; path = extensions/razer/devices/orbweaver.json; sourceTree = "<group>"; };
+		22C0AF8E26C7202C00A533D0 /* blade_stealth_2019.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blade_stealth_2019.json; path = extensions/razer/devices/blade_stealth_2019.json; sourceTree = "<group>"; };
+		22C0AF8F26C7202D00A533D0 /* cynosa_v2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = cynosa_v2.json; path = extensions/razer/devices/cynosa_v2.json; sourceTree = "<group>"; };
+		22C0AF9026C7202D00A533D0 /* blade_late_2016.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blade_late_2016.json; path = extensions/razer/devices/blade_late_2016.json; sourceTree = "<group>"; };
+		22C0AF9126C7202D00A533D0 /* orochi_2011.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = orochi_2011.json; path = extensions/razer/devices/orochi_2011.json; sourceTree = "<group>"; };
+		22C0AF9226C7202E00A533D0 /* firefly_v2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = firefly_v2.json; path = extensions/razer/devices/firefly_v2.json; sourceTree = "<group>"; };
+		22C0AF9326C7202E00A533D0 /* blackwidow_v3_tk.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blackwidow_v3_tk.json; path = extensions/razer/devices/blackwidow_v3_tk.json; sourceTree = "<group>"; };
+		22C0AF9426C7202E00A533D0 /* deathadder_3_5g.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = deathadder_3_5g.json; path = extensions/razer/devices/deathadder_3_5g.json; sourceTree = "<group>"; };
+		22C0AF9526C7202F00A533D0 /* blade_studio_edition_2019.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blade_studio_edition_2019.json; path = extensions/razer/devices/blade_studio_edition_2019.json; sourceTree = "<group>"; };
+		22C0AF9626C7202F00A533D0 /* lancehead_wireless.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = lancehead_wireless.json; path = extensions/razer/devices/lancehead_wireless.json; sourceTree = "<group>"; };
+		22C0AF9726C7202F00A533D0 /* blackwidow_v3.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blackwidow_v3.json; path = extensions/razer/devices/blackwidow_v3.json; sourceTree = "<group>"; };
+		22C0AF9826C7203000A533D0 /* blade_2019_adv.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blade_2019_adv.json; path = extensions/razer/devices/blade_2019_adv.json; sourceTree = "<group>"; };
+		22C0AF9926C7203000A533D0 /* naga_hex_v2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = naga_hex_v2.json; path = extensions/razer/devices/naga_hex_v2.json; sourceTree = "<group>"; };
+		22C0AF9A26C7203100A533D0 /* viper.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = viper.json; path = extensions/razer/devices/viper.json; sourceTree = "<group>"; };
+		22C0AF9B26C7203100A533D0 /* ornata_chroma.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = ornata_chroma.json; path = extensions/razer/devices/ornata_chroma.json; sourceTree = "<group>"; };
+		22C0AF9C26C7203100A533D0 /* deathadder_1800.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = deathadder_1800.json; path = extensions/razer/devices/deathadder_1800.json; sourceTree = "<group>"; };
+		22C0AF9D26C7203200A533D0 /* blackwidow_overwatch.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blackwidow_overwatch.json; path = extensions/razer/devices/blackwidow_overwatch.json; sourceTree = "<group>"; };
+		22C0AF9E26C7203200A533D0 /* blade_qhd.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blade_qhd.json; path = extensions/razer/devices/blade_qhd.json; sourceTree = "<group>"; };
+		22C0AF9F26C7203200A533D0 /* naga_hex.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = naga_hex.json; path = extensions/razer/devices/naga_hex.json; sourceTree = "<group>"; };
+		22C0AFA026C7203300A533D0 /* basilisk_v2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = basilisk_v2.json; path = extensions/razer/devices/basilisk_v2.json; sourceTree = "<group>"; };
+		22C0AFA126C7203300A533D0 /* cynosa_chroma.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = cynosa_chroma.json; path = extensions/razer/devices/cynosa_chroma.json; sourceTree = "<group>"; };
+		22C0AFA226C7203300A533D0 /* lancehead_wired.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = lancehead_wired.json; path = extensions/razer/devices/lancehead_wired.json; sourceTree = "<group>"; };
+		22C0AFA326C7203400A533D0 /* blackwidow_elite.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blackwidow_elite.json; path = extensions/razer/devices/blackwidow_elite.json; sourceTree = "<group>"; };
+		22C0AFA426C7203400A533D0 /* blade_stealth.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blade_stealth.json; path = extensions/razer/devices/blade_stealth.json; sourceTree = "<group>"; };
+		22C0AFA526C7203500A533D0 /* blackwidow_x_chroma_te.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blackwidow_x_chroma_te.json; path = extensions/razer/devices/blackwidow_x_chroma_te.json; sourceTree = "<group>"; };
+		22C0AFA626C7203500A533D0 /* blackwidow_ultimate_2013.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blackwidow_ultimate_2013.json; path = extensions/razer/devices/blackwidow_ultimate_2013.json; sourceTree = "<group>"; };
+		22C0AFA726C7203500A533D0 /* diamondback_chroma.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = diamondback_chroma.json; path = extensions/razer/devices/diamondback_chroma.json; sourceTree = "<group>"; };
+		22C0AFA826C7203600A533D0 /* lancehead_wireless_wired.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = lancehead_wireless_wired.json; path = extensions/razer/devices/lancehead_wireless_wired.json; sourceTree = "<group>"; };
+		22C0AFA926C7203600A533D0 /* mouse_charging_dock.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = mouse_charging_dock.json; path = extensions/razer/devices/mouse_charging_dock.json; sourceTree = "<group>"; };
+		22C0AFAA26C7203600A533D0 /* lancehead_te_wired.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = lancehead_te_wired.json; path = extensions/razer/devices/lancehead_te_wired.json; sourceTree = "<group>"; };
+		22C0AFAB26C7203700A533D0 /* ouroboros.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = ouroboros.json; path = extensions/razer/devices/ouroboros.json; sourceTree = "<group>"; };
+		22C0AFAC26C7203700A533D0 /* basilisk_ultimate_receiver.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = basilisk_ultimate_receiver.json; path = extensions/razer/devices/basilisk_ultimate_receiver.json; sourceTree = "<group>"; };
+		22C0AFAD26C7203800A533D0 /* mamba_wireless.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = mamba_wireless.json; path = extensions/razer/devices/mamba_wireless.json; sourceTree = "<group>"; };
+		22C0AFAE26C7203800A533D0 /* nostromo.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = nostromo.json; path = extensions/razer/devices/nostromo.json; sourceTree = "<group>"; };
+		22C0AFAF26C7203800A533D0 /* chroma_base.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = chroma_base.json; path = extensions/razer/devices/chroma_base.json; sourceTree = "<group>"; };
+		22C0AFB026C7203900A533D0 /* blackwidow_chroma.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blackwidow_chroma.json; path = extensions/razer/devices/blackwidow_chroma.json; sourceTree = "<group>"; };
+		22C0AFB126C7203900A533D0 /* taipan.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = taipan.json; path = extensions/razer/devices/taipan.json; sourceTree = "<group>"; };
+		22C0AFB226C7203900A533D0 /* tartarus_chroma.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = tartarus_chroma.json; path = extensions/razer/devices/tartarus_chroma.json; sourceTree = "<group>"; };
+		22C0AFB326C7203A00A533D0 /* blade_2019_base.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blade_2019_base.json; path = extensions/razer/devices/blade_2019_base.json; sourceTree = "<group>"; };
+		22C0AFB426C7203A00A533D0 /* ornata.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = ornata.json; path = extensions/razer/devices/ornata.json; sourceTree = "<group>"; };
+		22C0AFB526C7203A00A533D0 /* kraken.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = kraken.json; path = extensions/razer/devices/kraken.json; sourceTree = "<group>"; };
+		22C0AFB626C7203B00A533D0 /* blackwidow_stealth.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blackwidow_stealth.json; path = extensions/razer/devices/blackwidow_stealth.json; sourceTree = "<group>"; };
+		22C0AFB726C7203B00A533D0 /* cynosa_lite.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = cynosa_lite.json; path = extensions/razer/devices/cynosa_lite.json; sourceTree = "<group>"; };
+		22C0AFB826C7203B00A533D0 /* naga_chroma.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = naga_chroma.json; path = extensions/razer/devices/naga_chroma.json; sourceTree = "<group>"; };
+		22C0AFB926C7203C00A533D0 /* blackwidow_x_chroma.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blackwidow_x_chroma.json; path = extensions/razer/devices/blackwidow_x_chroma.json; sourceTree = "<group>"; };
+		22C0AFBA26C7203C00A533D0 /* abyssus_elite_dva_edition.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = abyssus_elite_dva_edition.json; path = extensions/razer/devices/abyssus_elite_dva_edition.json; sourceTree = "<group>"; };
+		22C0AFBB26C7203D00A533D0 /* blackwidow_2019.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blackwidow_2019.json; path = extensions/razer/devices/blackwidow_2019.json; sourceTree = "<group>"; };
+		22C0AFBC26C7203D00A533D0 /* mouse_bungee_v3_chroma.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = mouse_bungee_v3_chroma.json; path = extensions/razer/devices/mouse_bungee_v3_chroma.json; sourceTree = "<group>"; };
+		22C0AFBD26C7203D00A533D0 /* mamba_wired.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = mamba_wired.json; path = extensions/razer/devices/mamba_wired.json; sourceTree = "<group>"; };
+		22C0AFBE26C7203E00A533D0 /* orbweaver_chroma.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = orbweaver_chroma.json; path = extensions/razer/devices/orbweaver_chroma.json; sourceTree = "<group>"; };
+		22C0AFBF26C7203E00A533D0 /* anansi.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = anansi.json; path = extensions/razer/devices/anansi.json; sourceTree = "<group>"; };
+		22C0AFC026C7203E00A533D0 /* nommo_pro.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = nommo_pro.json; path = extensions/razer/devices/nommo_pro.json; sourceTree = "<group>"; };
+		22C0AFC126C7203F00A533D0 /* firefly.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = firefly.json; path = extensions/razer/devices/firefly.json; sourceTree = "<group>"; };
+		22C0AFC226C7203F00A533D0 /* huntsman.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = huntsman.json; path = extensions/razer/devices/huntsman.json; sourceTree = "<group>"; };
+		22C0AFC326C7203F00A533D0 /* mamba_te_wired.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = mamba_te_wired.json; path = extensions/razer/devices/mamba_te_wired.json; sourceTree = "<group>"; };
+		22C0AFC426C7204000A533D0 /* deathadder_v2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = deathadder_v2.json; path = extensions/razer/devices/deathadder_v2.json; sourceTree = "<group>"; };
+		22C0AFC526C7204000A533D0 /* blade_2018_mercury.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blade_2018_mercury.json; path = extensions/razer/devices/blade_2018_mercury.json; sourceTree = "<group>"; };
+		22C0AFC626C7204100A533D0 /* naga_hex_red.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = naga_hex_red.json; path = extensions/razer/devices/naga_hex_red.json; sourceTree = "<group>"; };
+		22C0AFC726C7204100A533D0 /* deathadder_essential_white_edition.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = deathadder_essential_white_edition.json; path = extensions/razer/devices/deathadder_essential_white_edition.json; sourceTree = "<group>"; };
+		22C0AFC826C7204100A533D0 /* blade_mid_2019_mercury.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blade_mid_2019_mercury.json; path = extensions/razer/devices/blade_mid_2019_mercury.json; sourceTree = "<group>"; };
+		22C0AFC926C7204200A533D0 /* blade_pro_2017.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blade_pro_2017.json; path = extensions/razer/devices/blade_pro_2017.json; sourceTree = "<group>"; };
+		22C0AFCA26C7204200A533D0 /* deathadder_v2_pro_wired.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = deathadder_v2_pro_wired.json; path = extensions/razer/devices/deathadder_v2_pro_wired.json; sourceTree = "<group>"; };
+		22C0AFCB26C7204200A533D0 /* mamba_wireless_receiver.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = mamba_wireless_receiver.json; path = extensions/razer/devices/mamba_wireless_receiver.json; sourceTree = "<group>"; };
+		22C0AFCC26C7204300A533D0 /* naga_trinity.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = naga_trinity.json; path = extensions/razer/devices/naga_trinity.json; sourceTree = "<group>"; };
+		22C0AFCD26C7204300A533D0 /* blade_pro_2017_fullhd.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blade_pro_2017_fullhd.json; path = extensions/razer/devices/blade_pro_2017_fullhd.json; sourceTree = "<group>"; };
+		22C0AFCE26C7204400A533D0 /* kraken_kitty_edition.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = kraken_kitty_edition.json; path = extensions/razer/devices/kraken_kitty_edition.json; sourceTree = "<group>"; };
+		22C0AFCF26C7204400A533D0 /* naga_2012.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = naga_2012.json; path = extensions/razer/devices/naga_2012.json; sourceTree = "<group>"; };
+		22C0AFD026C7204400A533D0 /* blackwidow_lite.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = blackwidow_lite.json; path = extensions/razer/devices/blackwidow_lite.json; sourceTree = "<group>"; };
+		22C0AFD126C7204500A533D0 /* basilisk_ultimate.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = basilisk_ultimate.json; path = extensions/razer/devices/basilisk_ultimate.json; sourceTree = "<group>"; };
+		22C0AFD226C7204500A533D0 /* goliathus_chroma_extended.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = goliathus_chroma_extended.json; path = extensions/razer/devices/goliathus_chroma_extended.json; sourceTree = "<group>"; };
 		22CB36CD26ABF52C00457F6F /* librazer.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = librazer.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		22CB36CE26ABF57000457F6F /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/razer/internal.m; sourceTree = "<group>"; };
 		22CB36CF26ABF57000457F6F /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/razer/init.lua; sourceTree = "<group>"; };
@@ -2341,9 +2472,148 @@
 			name = gestures;
 			sourceTree = "<group>";
 		};
+		22C0AF4F26C7200000A533D0 /* devices */ = {
+			isa = PBXGroup;
+			children = (
+				22C0AF8726C7202A00A533D0 /* abyssus_1800.json */,
+				22C0AF7726C7202400A533D0 /* abyssus_2000.json */,
+				22C0AFBA26C7203C00A533D0 /* abyssus_elite_dva_edition.json */,
+				22C0AF5126C7201700A533D0 /* abyssus_essential.json */,
+				22C0AF8326C7202800A533D0 /* abyssus_v2.json */,
+				22C0AF7B26C7202600A533D0 /* abyssus.json */,
+				22C0AFBF26C7203E00A533D0 /* anansi.json */,
+				22C0AF7826C7202400A533D0 /* atheris.json */,
+				22C0AF6126C7201C00A533D0 /* base_station_v2_chroma.json */,
+				22C0AFAC26C7203700A533D0 /* basilisk_ultimate_receiver.json */,
+				22C0AFD126C7204500A533D0 /* basilisk_ultimate.json */,
+				22C0AFA026C7203300A533D0 /* basilisk_v2.json */,
+				22C0AF7226C7202200A533D0 /* basilisk.json */,
+				22C0AFBB26C7203D00A533D0 /* blackwidow_2019.json */,
+				22C0AF5D26C7201B00A533D0 /* blackwidow_chroma_te.json */,
+				22C0AF7626C7202400A533D0 /* blackwidow_chroma_v2.json */,
+				22C0AFB026C7203900A533D0 /* blackwidow_chroma.json */,
+				22C0AFA326C7203400A533D0 /* blackwidow_elite.json */,
+				22C0AF6626C7201E00A533D0 /* blackwidow_essential.json */,
+				22C0AFD026C7204400A533D0 /* blackwidow_lite.json */,
+				22C0AF9D26C7203200A533D0 /* blackwidow_overwatch.json */,
+				22C0AF7A26C7202500A533D0 /* blackwidow_stealth_edition.json */,
+				22C0AFB626C7203B00A533D0 /* blackwidow_stealth.json */,
+				22C0AF5826C7201900A533D0 /* blackwidow_ultimate_2012.json */,
+				22C0AFA626C7203500A533D0 /* blackwidow_ultimate_2013.json */,
+				22C0AF6426C7201D00A533D0 /* blackwidow_ultimate_2016.json */,
+				22C0AF9326C7202E00A533D0 /* blackwidow_v3_tk.json */,
+				22C0AF9726C7202F00A533D0 /* blackwidow_v3.json */,
+				22C0AFA526C7203500A533D0 /* blackwidow_x_chroma_te.json */,
+				22C0AFB926C7203C00A533D0 /* blackwidow_x_chroma.json */,
+				22C0AF6F26C7202100A533D0 /* blackwidow_x_ultimate.json */,
+				22C0AF6926C7201F00A533D0 /* blade_2018_base.json */,
+				22C0AFC526C7204000A533D0 /* blade_2018_mercury.json */,
+				22C0AF5B26C7201A00A533D0 /* blade_2018.json */,
+				22C0AF9826C7203000A533D0 /* blade_2019_adv.json */,
+				22C0AFB326C7203A00A533D0 /* blade_2019_base.json */,
+				22C0AF9026C7202D00A533D0 /* blade_late_2016.json */,
+				22C0AFC826C7204100A533D0 /* blade_mid_2019_mercury.json */,
+				22C0AFCD26C7204300A533D0 /* blade_pro_2017_fullhd.json */,
+				22C0AFC926C7204200A533D0 /* blade_pro_2017.json */,
+				22C0AF5626C7201800A533D0 /* blade_pro_late_2016.json */,
+				22C0AF9E26C7203200A533D0 /* blade_qhd.json */,
+				22C0AF8E26C7202C00A533D0 /* blade_stealth_2019.json */,
+				22C0AF7D26C7202600A533D0 /* blade_stealth_late_2016.json */,
+				22C0AF6C26C7202000A533D0 /* blade_stealth_late_2017.json */,
+				22C0AF5226C7201700A533D0 /* blade_stealth_late_2019.json */,
+				22C0AF6826C7201F00A533D0 /* blade_stealth_mid_2017.json */,
+				22C0AFA426C7203400A533D0 /* blade_stealth.json */,
+				22C0AF9526C7202F00A533D0 /* blade_studio_edition_2019.json */,
+				22C0AFAF26C7203800A533D0 /* chroma_base.json */,
+				22C0AF8026C7202700A533D0 /* chroma_hdk.json */,
+				22C0AF8126C7202800A533D0 /* chroma_mug.json */,
+				22C0AF5A26C7201A00A533D0 /* core_x_chroma.json */,
+				22C0AFA126C7203300A533D0 /* cynosa_chroma.json */,
+				22C0AFB726C7203B00A533D0 /* cynosa_lite.json */,
+				22C0AF8F26C7202D00A533D0 /* cynosa_v2.json */,
+				22C0AF9426C7202E00A533D0 /* deathadder_3_5g.json */,
+				22C0AF9C26C7203100A533D0 /* deathadder_1800.json */,
+				22C0AF8526C7202900A533D0 /* deathadder_2013.json */,
+				22C0AF7026C7202200A533D0 /* deathadder_3500.json */,
+				22C0AF7E26C7202700A533D0 /* deathadder_chroma.json */,
+				22C0AF5026C7201500A533D0 /* deathadder_elite.json */,
+				22C0AFC726C7204100A533D0 /* deathadder_essential_white_edition.json */,
+				22C0AF5926C7201900A533D0 /* deathadder_essential.json */,
+				22C0AF5E26C7201B00A533D0 /* deathadder_v2_mini.json */,
+				22C0AFCA26C7204200A533D0 /* deathadder_v2_pro_wired.json */,
+				22C0AF5726C7201900A533D0 /* deathadder_v2_pro_wireless.json */,
+				22C0AFC426C7204000A533D0 /* deathadder_v2.json */,
+				22C0AF6026C7201C00A533D0 /* deathstalker_chroma.json */,
+				22C0AF5426C7201800A533D0 /* deathstalker_expert.json */,
+				22C0AFA726C7203500A533D0 /* diamondback_chroma.json */,
+				22C0AF8926C7202B00A533D0 /* firefly_hyperflux.json */,
+				22C0AF9226C7202E00A533D0 /* firefly_v2.json */,
+				22C0AFC126C7203F00A533D0 /* firefly.json */,
+				22C0AFD226C7204500A533D0 /* goliathus_chroma_extended.json */,
+				22C0AF8426C7202900A533D0 /* goliathus_chroma.json */,
+				22C0AF7126C7202200A533D0 /* huntsman_elite.json */,
+				22C0AF5526C7201800A533D0 /* huntsman_mini.json */,
+				22C0AF7526C7202300A533D0 /* huntsman_te.json */,
+				22C0AFC226C7203F00A533D0 /* huntsman.json */,
+				22C0AF8826C7202A00A533D0 /* imperator.json */,
+				22C0AF6E26C7202100A533D0 /* kraken_classic_alt.json */,
+				22C0AF6D26C7202000A533D0 /* kraken_classic.json */,
+				22C0AFCE26C7204400A533D0 /* kraken_kitty_edition.json */,
+				22C0AF7426C7202300A533D0 /* kraken_ultimate.json */,
+				22C0AF6526C7201E00A533D0 /* kraken_v2.json */,
+				22C0AFB526C7203A00A533D0 /* kraken.json */,
+				22C0AFAA26C7203600A533D0 /* lancehead_te_wired.json */,
+				22C0AFA226C7203300A533D0 /* lancehead_wired.json */,
+				22C0AF7C26C7202600A533D0 /* lancehead_wireless_receiver.json */,
+				22C0AFA826C7203600A533D0 /* lancehead_wireless_wired.json */,
+				22C0AF9626C7202F00A533D0 /* lancehead_wireless.json */,
+				22C0AF6326C7201D00A533D0 /* mamba_2012_wired.json */,
+				22C0AF8226C7202800A533D0 /* mamba_2012_wireless.json */,
+				22C0AF7F26C7202700A533D0 /* mamba_elite.json */,
+				22C0AFC326C7203F00A533D0 /* mamba_te_wired.json */,
+				22C0AFBD26C7203D00A533D0 /* mamba_wired.json */,
+				22C0AFCB26C7204200A533D0 /* mamba_wireless_receiver.json */,
+				22C0AF8626C7202900A533D0 /* mamba_wireless_wired.json */,
+				22C0AFAD26C7203800A533D0 /* mamba_wireless.json */,
+				22C0AFBC26C7203D00A533D0 /* mouse_bungee_v3_chroma.json */,
+				22C0AFA926C7203600A533D0 /* mouse_charging_dock.json */,
+				22C0AFCF26C7204400A533D0 /* naga_2012.json */,
+				22C0AF7926C7202500A533D0 /* naga_2014.json */,
+				22C0AFB826C7203B00A533D0 /* naga_chroma.json */,
+				22C0AFC626C7204100A533D0 /* naga_hex_red.json */,
+				22C0AF9926C7203000A533D0 /* naga_hex_v2.json */,
+				22C0AF9F26C7203200A533D0 /* naga_hex.json */,
+				22C0AF8A26C7202B00A533D0 /* naga_lefthanded_2020.json */,
+				22C0AFCC26C7204300A533D0 /* naga_trinity.json */,
+				22C0AF8C26C7202C00A533D0 /* nommo_chroma.json */,
+				22C0AFC026C7203E00A533D0 /* nommo_pro.json */,
+				22C0AFAE26C7203800A533D0 /* nostromo.json */,
+				22C0AFBE26C7203E00A533D0 /* orbweaver_chroma.json */,
+				22C0AF8D26C7202C00A533D0 /* orbweaver.json */,
+				22C0AF9B26C7203100A533D0 /* ornata_chroma.json */,
+				22C0AF5F26C7201B00A533D0 /* ornata_v2.json */,
+				22C0AFB426C7203A00A533D0 /* ornata.json */,
+				22C0AF9126C7202D00A533D0 /* orochi_2011.json */,
+				22C0AF8B26C7202B00A533D0 /* orochi_2013.json */,
+				22C0AF5326C7201700A533D0 /* orochi_chroma.json */,
+				22C0AFAB26C7203700A533D0 /* ouroboros.json */,
+				22C0AFB126C7203900A533D0 /* taipan.json */,
+				22C0AFB226C7203900A533D0 /* tartarus_chroma.json */,
+				22C0AF6A26C7201F00A533D0 /* tartarus_v2.json */,
+				22C0AF6226C7201D00A533D0 /* tartarus.json */,
+				22C0AF6726C7201E00A533D0 /* viper_8khz.json */,
+				22C0AF5C26C7201A00A533D0 /* viper_mini.json */,
+				22C0AF6B26C7202000A533D0 /* viper_ultimate_wired.json */,
+				22C0AF7326C7202300A533D0 /* viper_ultimate_wireless.json */,
+				22C0AF9A26C7203100A533D0 /* viper.json */,
+			);
+			name = devices;
+			sourceTree = "<group>";
+		};
 		22CB36C226ABF49100457F6F /* razer */ = {
 			isa = PBXGroup;
 			children = (
+				22C0AF4F26C7200000A533D0 /* devices */,
 				22CB36D226ABF92900457F6F /* driver */,
 				22CB36CF26ABF57000457F6F /* init.lua */,
 				22CB36CE26ABF57000457F6F /* internal.m */,

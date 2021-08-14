@@ -114,8 +114,19 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
                            CGEventRef event,
                            void* refcon) {
     
-    // TODO: This crashes when you trigger garbage collection - not sure why it's being called still?
+    // Prevent a crash when doing garbage collection:
+    if (type == kCGEventTapDisabledByUserInput) {
+        return event;
+    }
+        
     HSRazer *manager = (__bridge HSRazer *)refcon;
+    
+    // Guard against this callback being delivered at a point where LuaSkin has been reset and our references wouldn't make sense anymore
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+    if (![skin checkGCCanary:manager->_lsCanary]) {
+        return event; // Allow the event to pass through unmodified
+    }
+        
     if (manager.scrollWheelInProgress) {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
             manager.scrollWheelInProgress = NO;
@@ -156,7 +167,7 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
 {
     if (self.eventTap){
         if (CGEventTapIsEnabled(self.eventTap)) {
-          CGEventTapEnable(self.eventTap, false);
+            CGEventTapEnable(self.eventTap, false);
         }
         CFRelease(self.eventTap);
     }
@@ -166,12 +177,6 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
 
 - (void)setupHID
 {
-    // Currently we only support the Razer Tartarus V2
-    if (!([self.productId intValue] == USB_DEVICE_ID_RAZER_TARTARUS_V2)) {
-        NSLog(@"Only the Razer Tartarus V2 is currently supported.");
-        return;
-    }
-    
     // Create a HID device manager
     self.ioHIDManager = CFBridgingRelease(IOHIDManagerCreate(kCFAllocatorDefault, kIOHIDManagerOptionNone));
             
@@ -274,6 +279,13 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
 static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValueRef value)
 {
     HSRazer *manager = (__bridge HSRazer *)context;
+
+    // Currently we only support the Razer Tartarus V2
+    // TODO: We should determine this from the JSON files:
+    if (!([manager.productId intValue] == USB_DEVICE_ID_RAZER_TARTARUS_V2)) {
+        NSLog(@"Only the Razer Tartarus V2 is currently supported.");
+        return;
+    }
     
     IOHIDElementRef elem = IOHIDValueGetElement(value);
     uint32_t scancode = IOHIDElementGetUsage(elem);
@@ -284,6 +296,7 @@ static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValue
     }
     
     // Process the button name:
+    // TODO: We should pull this from the JSON files:
     NSString *buttonName = @"";
     switch(scancode) {
         case 30:
@@ -518,7 +531,7 @@ static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValue
     return NO;
 }
 
-- (bool)setKeyboardBacklights:(NSString *)mode speed:(NSNumber *)speed direction:(NSString *)direction color:(NSColor *)color secondaryColor:(NSColor *)secondaryColor customColors:(NSArray *)customColors
+- (bool)setKeyboardBacklights:(NSString *)mode speed:(NSNumber *)speed direction:(NSString *)direction color:(NSColor *)color secondaryColor:(NSColor *)secondaryColor customColors:(NSMutableDictionary *)customColors
 {
     RazerDevices allDevices = getAllRazerDevices();
     RazerDevice *razerDevices = allDevices.devices;
@@ -664,7 +677,7 @@ static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValue
                 NSInteger numberOfRows = [[numberOfRowsArray objectAtIndex:0] integerValue];
                 NSInteger numberOfColums = [[numberOfColumsArray objectAtIndex:0] integerValue];
             
-                int colorsCount = 0;
+                int customColorsCount = 1;
                 
                 for (int row = 0; row < numberOfRows; row++)
                 {
@@ -682,22 +695,21 @@ static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValue
                         NSInteger red = 0;
                         NSInteger green = 0;
                         NSInteger blue = 0;
+                                                                                                
+                        NSColor *currentColor = customColors[@(customColorsCount)];
+                        customColorsCount++;
                         
-                        if ([customColors count] > colorsCount) {
-                            NSColor *currentColor = customColors[colorsCount];
-                            if (currentColor) {
-                                CGFloat redComponent = floor([currentColor redComponent]);
-                                red = (NSInteger) redComponent * 255;
-                                
-                                CGFloat greenComponent = floor([currentColor greenComponent]);
-                                green = (NSInteger) greenComponent * 255;
-                                
-                                CGFloat blueComponent = floor([currentColor blueComponent]);
-                                blue = (NSInteger) blueComponent * 255;
-                            }
+                        if (currentColor) {
+                            CGFloat redComponent = floor([currentColor redComponent]);
+                            red = (NSInteger) redComponent * 255;
+                            
+                            CGFloat greenComponent = floor([currentColor greenComponent]);
+                            green = (NSInteger) greenComponent * 255;
+                            
+                            CGFloat blueComponent = floor([currentColor blueComponent]);
+                            blue = (NSInteger) blueComponent * 255;
                         }
-                        colorsCount++;
-                        
+    
                         buf[count] = red;
                         count++;
                         buf[count] = green;
@@ -1086,7 +1098,7 @@ static int razer_image(lua_State *L) {
     return 1;
 }
 
-/// hs.razer:features() -> table
+/// hs.razer:features() -> table | nil
 /// Method
 /// Returns a table of features available for the Razer device.
 ///
@@ -1094,31 +1106,16 @@ static int razer_image(lua_State *L) {
 ///  * None
 ///
 /// Returns:
-///  * A table
-///
-/// Notes:
-///  * This table might come back empty for some Razer devices.
+///  * A table or `nil` if no features available for the Razer device.
 static int razer_features(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSRazer *razer = [skin toNSObjectAtIndex:1];
-    
-    NSMutableArray *features = razer.features;
-    NSLog(@"%@", features);
-    if (features == nil) {
-        NSLog(@"features");
-        [skin pushNSObject:@{}];
-    }
-    else
-    {
-        NSLog(@"no features");
-        [skin pushNSObject:features];
-    }
-    
+    [skin pushNSObject:razer.features];
     return 1;
 }
 
-/// hs.razer:featuresConfig() -> table
+/// hs.razer:featuresConfig() -> table | nil
 /// Method
 /// Returns a table of feature configurations available for the Razer device.
 ///
@@ -1126,7 +1123,7 @@ static int razer_features(lua_State *L) {
 ///  * None
 ///
 /// Returns:
-///  * A table
+///  * A table or `nil` if no feature configurations available for the Razer device.
 ///
 /// Notes:
 ///  * This table might come back empty for some Razer devices.
@@ -1138,18 +1135,15 @@ static int razer_featuresConfig(lua_State *L) {
     return 1;
 }
 
-/// hs.razer:featuresMissing() -> table
+/// hs.razer:featuresMissing() -> table | nil
 /// Method
-/// Returns a table of feature missing for the Razer device.
+/// Returns a table of features missing for the Razer device.
 ///
 /// Parameters:
 ///  * None
 ///
 /// Returns:
-///  * A table
-///
-/// Notes:
-///  * This table might come back empty for some Razer devices.
+///  * A table or `nil` if no feature missing data available for the Razer device.
 static int razer_featuresMissing(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
@@ -1226,7 +1220,7 @@ static int razer_keyboardBrightness(lua_State *L) {
     }
     else {
         // Set:
-        NSNumber *brightness = razer.brightness;
+        NSNumber *brightness = [skin toNSObjectAtIndex:2];
         BOOL result = [razer setBrightness:brightness];
         if (result){
             [skin pushNSObject:brightness];
@@ -1236,6 +1230,8 @@ static int razer_keyboardBrightness(lua_State *L) {
     }
     return 1;
 }
+
+#pragma mark - hs.razer: Keyboard Backlights Methods
 
 /// hs.razer:keyboardBacklightsOff() -> boolean
 /// Method
@@ -1253,8 +1249,10 @@ static int razer_keyboardBacklightsOff(lua_State *L) {
     HSRazer *razer = [skin toNSObjectAtIndex:1];
     
     BOOL result = [razer setKeyboardBacklights:@"none" speed:nil direction:nil color:nil secondaryColor:nil customColors:nil];
+    
+    lua_pushvalue(L, 1);
     lua_pushboolean(L, result);
-    return 1;
+    return 2;
 }
 
 /// hs.razer:keyboardBacklightsWave(speed, direction) -> boolean
@@ -1276,8 +1274,10 @@ static int razer_keyboardBacklightsWave(lua_State *L) {
     NSString *direction = [skin toNSObjectAtIndex:3];
         
     BOOL result = [razer setKeyboardBacklights:@"wave" speed:speed direction:direction color:nil secondaryColor:nil customColors:nil];
+    
+    lua_pushvalue(L, 1);
     lua_pushboolean(L, result);
-    return 1;
+    return 2;
 }
 
 /// hs.razer:keyboardBacklightsSpectrum() -> boolean
@@ -1296,8 +1296,10 @@ static int razer_keyboardBacklightsSpectrum(lua_State *L) {
     HSRazer *razer = [skin toNSObjectAtIndex:1];
     
     BOOL result = [razer setKeyboardBacklights:@"spectrum" speed:nil direction:nil color:nil secondaryColor:nil customColors:nil];
+    
+    lua_pushvalue(L, 1);
     lua_pushboolean(L, result);
-    return 1;
+    return 2;
 }
 
 /// hs.razer:keyboardBacklightsReactive(speed, color) -> boolean
@@ -1319,8 +1321,10 @@ static int razer_keyboardBacklightsReactive(lua_State *L) {
     NSColor *color = [skin luaObjectAtIndex:3 toClass:"NSColor"];
                 
     BOOL result = [razer setKeyboardBacklights:@"reactive" speed:speed direction:nil color:color secondaryColor:nil customColors:nil];
+    
+    lua_pushvalue(L, 1);
     lua_pushboolean(L, result);
-    return 1;
+    return 2;
 }
 
 /// hs.razer:keyboardBacklightsStatic(color) -> boolean
@@ -1340,8 +1344,10 @@ static int razer_keyboardBacklightsStatic(lua_State *L) {
     NSColor *color = [skin luaObjectAtIndex:2 toClass:"NSColor"];
                 
     BOOL result = [razer setKeyboardBacklights:@"static" speed:nil direction:nil color:color secondaryColor:nil customColors:nil];
+    
+    lua_pushvalue(L, 1);
     lua_pushboolean(L, result);
-    return 1;
+    return 2;
 }
 
 /// hs.razer:keyboardBacklightsStaticNoStore(color) -> boolean
@@ -1361,8 +1367,10 @@ static int razer_keyboardBacklightsStaticNoStore(lua_State *L) {
     NSColor *color = [skin luaObjectAtIndex:2 toClass:"NSColor"];
                 
     BOOL result = [razer setKeyboardBacklights:@"static_no_store" speed:nil direction:nil color:color secondaryColor:nil customColors:nil];
+    
+    lua_pushvalue(L, 1);
     lua_pushboolean(L, result);
-    return 1;
+    return 2;
 }
 
 /// hs.razer:keyboardBacklightsStarlight(speed, [color], [secondaryColor]) -> boolean
@@ -1375,6 +1383,7 @@ static int razer_keyboardBacklightsStaticNoStore(lua_State *L) {
 ///  * [secondaryColor] - An optional secondary `hs.drawing.color`
 ///
 /// Returns:
+///  * The `hs.razer` object.
 ///  * `true` if successful otherwise `false`
 ///
 /// Notes:
@@ -1398,8 +1407,10 @@ static int razer_keyboardBacklightsStarlight(lua_State *L) {
     }
         
     BOOL result = [razer setKeyboardBacklights:@"starlight" speed:speed direction:nil color:color secondaryColor:secondaryColor customColors:nil];
+    
+    lua_pushvalue(L, 1);
     lua_pushboolean(L, result);
-    return 1;
+    return 2;
 }
 
 /// hs.razer:keyboardBacklightsBreath() -> boolean
@@ -1418,8 +1429,10 @@ static int razer_keyboardBacklightsBreath(lua_State *L) {
     HSRazer *razer = [skin toNSObjectAtIndex:1];
     
     BOOL result = [razer setKeyboardBacklights:@"breath" speed:nil direction:nil color:nil secondaryColor:nil customColors:nil];
+    
+    lua_pushvalue(L, 1);
     lua_pushboolean(L, result);
-    return 1;
+    return 2;
 }
 
 /// hs.razer:keyboardBacklightsPulsate() -> boolean
@@ -1438,8 +1451,10 @@ static int razer_keyboardBacklightsPulsate(lua_State *L) {
     HSRazer *razer = [skin toNSObjectAtIndex:1];
     
     BOOL result = [razer setKeyboardBacklights:@"pulsate" speed:nil direction:nil color:nil secondaryColor:nil customColors:nil];
+    
+    lua_pushvalue(L, 1);
     lua_pushboolean(L, result);
-    return 1;
+    return 2;
 }
 
 /// hs.razer:keyboardBacklightsCustom(colors) -> boolean
@@ -1447,28 +1462,34 @@ static int razer_keyboardBacklightsPulsate(lua_State *L) {
 /// Changes the keyboard backlights to custom colours.
 ///
 /// Parameters:
-///  * colors - A table of colors for each individual button on your device (i.e. if there's 20 buttons, you should have twenty colors in the table).
+///  * colors - A table of `hs.drawing.color` objects for each individual button on your device (i.e. if there's 20 buttons, you should have twenty colors in the table).
 ///
 /// Returns:
 ///  * `true` if successful otherwise `false`
+///
+/// Notes:
+///  * Example usage: ```lua
+///   hs.razer.new(0):keyboardBacklightsCustom({hs.drawing.color.red})
+///   ```
 static int razer_keyboardBacklightsCustom(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBREAK];
     
     HSRazer *razer = [skin toNSObjectAtIndex:1];
+    
+    NSMutableDictionary *customColors = [NSMutableDictionary dictionary] ;
 
-    NSMutableArray *colorArray = [NSMutableArray array];
-    lua_Integer i = 1;
-    while (lua_rawgeti(L, 2, i) != LUA_TNIL) {
-        [colorArray addObject:[skin luaObjectAtIndex:-1 toClass:"NSColor"]];        
-        lua_pop(L, 1);
-        i++;
+    lua_pushnil(L); // first key
+    while (lua_next(L, 2) != 0) {
+        customColors[@(lua_tonumber(L, -2))] = [skin luaObjectAtIndex:-1 toClass:"NSColor"] ;
+        lua_pop(L, 1) ; // pop value but leave key on stack for `lua_next`
     }
-    lua_pop(L, 1); // the terminating nil
-
-    BOOL result = [razer setKeyboardBacklights:@"custom" speed:nil direction:nil color:nil secondaryColor:nil customColors:colorArray];
+        
+    BOOL result = [razer setKeyboardBacklights:@"custom" speed:nil direction:nil color:nil secondaryColor:nil customColors:customColors];
+    
+    lua_pushvalue(L, 1);
     lua_pushboolean(L, result);
-    return 1;
+    return 2;
 }
 
 #pragma mark - Lua<->NSObject Conversion Functions
@@ -1586,6 +1607,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {"keyboardStatusLights",                razer_keyboardStatusLights},
     {"keyboardBrightness",                  razer_keyboardBrightness},
     
+    // Keyboard Backlights:
     {"keyboardBacklightsOff",               razer_keyboardBacklightsOff},
     {"keyboardBacklightsCustom",            razer_keyboardBacklightsCustom},
     {"keyboardBacklightsWave",              razer_keyboardBacklightsWave},
