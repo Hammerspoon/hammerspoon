@@ -75,6 +75,8 @@ static id getDevicesDictionaryFromJSON() {
 @property NSMutableArray*           features;
 @property NSMutableArray*           featuresConfig;
 @property NSMutableArray*           featuresMissing;
+@property NSMutableArray*           buttonNames;
+@property NSNumber*                 scrollWheelID;
 
 @property BOOL                      scrollWheelPressed;
 @property BOOL                      scrollWheelInProgress;
@@ -118,10 +120,21 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
     if (type == kCGEventTapDisabledByUserInput) {
         return event;
     }
-        
+    
     HSRazer *manager = (__bridge HSRazer *)refcon;
     
-    // Guard against this callback being delivered at a point where LuaSkin has been reset and our references wouldn't make sense anymore
+    // Make sure the manager still exists:
+    if (manager == nil) {
+        return event;
+    }
+    
+    // Restart event tap if it times out:
+    if (type == kCGEventTapDisabledByTimeout) {
+        CGEventTapEnable(manager.eventTap, true);
+        return event;
+    }
+    
+    // Guard against this callback being delivered at a point where LuaSkin has been reset and our references wouldn't make sense anymore:
     LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     if (![skin checkGCCanary:manager->_lsCanary]) {
         return event; // Allow the event to pass through unmodified
@@ -139,9 +152,9 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
 
 - (void)setupEventTap
 {
-    // Currently we only support the Razer Tartarus V2
-    if (!([self.productId intValue] == USB_DEVICE_ID_RAZER_TARTARUS_V2)) {
-        NSLog(@"Only the Razer Tartarus V2 is currently supported.");
+    // Don't setup event tap if it's not supported by the device:
+    if (!self.buttonNames || [self.buttonNames count] == 0) {
+        NSLog(@"Razer device not supported.");
         return;
     }
     
@@ -279,11 +292,10 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
 static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValueRef value)
 {
     HSRazer *manager = (__bridge HSRazer *)context;
-
-    // Currently we only support the Razer Tartarus V2
-    // TODO: We should determine this from the JSON files:
-    if (!([manager.productId intValue] == USB_DEVICE_ID_RAZER_TARTARUS_V2)) {
-        NSLog(@"Only the Razer Tartarus V2 is currently supported.");
+    
+    // Don't trigger callback if it's not supported by the device:
+    if (!manager.buttonNames || [manager.buttonNames count] == 0) {
+        NSLog(@"Razer device not supported.");
         return;
     }
     
@@ -296,126 +308,46 @@ static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValue
     }
     
     // Process the button name:
-    // TODO: We should pull this from the JSON files:
-    NSString *buttonName = @"";
-    switch(scancode) {
-        case 30:
-            buttonName = @"01";
-            break;
-        case 31:
-            buttonName = @"02";
-            break;
-        case 32:
-            buttonName = @"03";
-            break;
-        case 33:
-            buttonName = @"04";
-            break;
-        case 34:
-            buttonName = @"05";
-            break;
-        case 43:
-            buttonName = @"06";
-            break;
-        case 20:
-            buttonName = @"07";
-            break;
-        case 26:
-            buttonName = @"08";
-            break;
-        case 8:
-            buttonName = @"09";
-            break;
-        case 21:
-            buttonName = @"10";
-            break;
-        case 57:
-            buttonName = @"11";
-            break;
-        case 4:
-            buttonName = @"12";
-            break;
-        case 22:
-            buttonName = @"13";
-            break;
-        case 7:
-            buttonName = @"14";
-            break;
-        case 9:
-            buttonName = @"15";
-            break;
-        case 225:
-            buttonName = @"16";
-            break;
-        case 29:
-            buttonName = @"17";
-            break;
-        case 27:
-            buttonName = @"18";
-            break;
-        case 6:
-            buttonName = @"19";
-            break;
-        case 44:
-            buttonName = @"20";
-            break;
-        case 56:
-            buttonName = @"Scroll Wheel";
-            break;
-        case 226:
-            buttonName = @"Mode";
-            break;
-        case 82:
-            buttonName = @"Up";
-            break;
-        case 81:
-            buttonName = @"Down";
-            break;
-        case 80:
-            buttonName = @"Left";
-            break;
-        case 79:
-            buttonName = @"Right";
-            break;
-        default:
-            // Ignore everything else:
-            return;
+    NSString *scancodeString = [NSString stringWithFormat:@"%d",scancode];
+    NSString *buttonName = [manager.buttonNames valueForKey:scancodeString];
+    
+    // Abort if there's no button name:
+    if (!buttonName) {
+        NSLog(@"No button name!");
+        return;
     }
     
     // Process the button action:
     NSString *buttonAction = @"";
-    switch(scancode) {
+    if (scancode == [manager.scrollWheelID intValue]) {
         // Scroll Wheel:
-        case 56:
-            if (pressed == 1){
-                manager.scrollWheelInProgress = YES;
-                buttonAction = @"up";
-                break;
-            }
-            else if (pressed == -1) {
-                manager.scrollWheelInProgress = YES;
-                buttonAction = @"down";
-                break;
-            }
-            else if (pressed == 0) {
-                if (manager.scrollWheelPressed) {
-                    buttonAction = @"released";
-                    manager.scrollWheelPressed = NO;
-                    break;
-                } else {
-                    buttonAction = @"pressed";
-                    manager.scrollWheelPressed = YES;
-                    break;
-                }
-            }
-        // Buttons:
-        default:
-            if (pressed == 1){
-                buttonAction = @"pressed";
-            }
-            else {
+        if (pressed == 1){
+            manager.scrollWheelInProgress = YES;
+            buttonAction = @"up";
+        }
+        else if (pressed == -1) {
+            manager.scrollWheelInProgress = YES;
+            buttonAction = @"down";
+        }
+        else if (pressed == 0) {
+            if (manager.scrollWheelPressed) {
                 buttonAction = @"released";
+                manager.scrollWheelPressed = NO;
+            } else {
+                buttonAction = @"pressed";
+                manager.scrollWheelPressed = YES;
             }
+        }
+    }
+    else
+    {
+        // Buttons:
+        if (pressed == 1){
+            buttonAction = @"pressed";
+        }
+        else {
+            buttonAction = @"released";
+        }
     }
     
     // Trigger the Lua callback:
@@ -479,6 +411,8 @@ static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValue
             NSMutableArray *features = [NSMutableArray new];
             NSMutableArray *featuresConfig = [NSMutableArray new];
             NSMutableArray *featuresMissing = [NSMutableArray new];
+            NSMutableArray *buttonNames = [NSMutableArray new];
+            NSNumber *scrollWheelID;
             
             NSMutableDictionary* device = [self getDeviceDetails:productId];
             if (device) {
@@ -488,6 +422,8 @@ static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValue
                 features = [device valueForKey:@"features"];
                 featuresConfig = [device valueForKey:@"featuresConfig"];
                 featuresMissing = [device valueForKey:@"featuresMissing"];
+                buttonNames = [device valueForKey:@"buttonNames"];
+                scrollWheelID = [device valueForKey:@"scrollWheelID"];
             }
             
             // Save data from JSON file to the Razer object:
@@ -496,7 +432,9 @@ static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValue
             self.image = image;
             self.features = features;
             self.featuresConfig = featuresConfig;
-            self.featuresMissing= featuresMissing;
+            self.featuresMissing = featuresMissing;
+            self.buttonNames = buttonNames;
+            self.scrollWheelID = scrollWheelID;
             
             // Setup our HID callbacks based on productId:
             [self setupHID];
@@ -1477,12 +1415,12 @@ static int razer_keyboardBacklightsCustom(lua_State *L) {
     
     HSRazer *razer = [skin toNSObjectAtIndex:1];
     
-    NSMutableDictionary *customColors = [NSMutableDictionary dictionary] ;
+    NSMutableDictionary *customColors = [NSMutableDictionary dictionary];
 
     lua_pushnil(L); // first key
     while (lua_next(L, 2) != 0) {
-        customColors[@(lua_tonumber(L, -2))] = [skin luaObjectAtIndex:-1 toClass:"NSColor"] ;
-        lua_pop(L, 1) ; // pop value but leave key on stack for `lua_next`
+        customColors[@(lua_tonumber(L, -2))] = [skin luaObjectAtIndex:-1 toClass:"NSColor"];
+        lua_pop(L, 1); // pop value but leave key on stack for `lua_next`
     }
         
     BOOL result = [razer setKeyboardBacklights:@"custom" speed:nil direction:nil color:nil secondaryColor:nil customColors:customColors];
@@ -1567,15 +1505,17 @@ static int userdata_gc(lua_State* L) {
                 //[obj.razer close];
                 obj.callbackToken = nil;
             }
-            obj = nil;
-
+            
+            // Kill the Canary:
             LSGCCanary tmplsCanary = obj.lsCanary;
             [skin destroyGCCanary:&tmplsCanary];
             obj.lsCanary = tmplsCanary;
+            
+            obj = nil;
         }
     }
     
-    // Remove the Metatable so future use of the variable in Lua won't think its valid
+    // Remove the Metatable so future use of the variable in Lua won't think its valid:
     lua_pushnil(L);
     lua_setmetatable(L, 1);
     return 0;
