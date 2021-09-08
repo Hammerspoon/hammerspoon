@@ -181,7 +181,7 @@ function razer.unitTests()
     -- ===========================================================================
     -- Setup callback:
     -- ===========================================================================
-    razer._unitTestDevice:callback(function(obj, buttonName, buttonAction)
+    razer._unitTestDevice:callback(function(_, buttonName, buttonAction)
         print(string.format("   - (%s - %s)", buttonName, buttonAction))
     end)
     print(" - [PASSED] Button Callback Enabled - press some buttons and scroll wheel to test")
