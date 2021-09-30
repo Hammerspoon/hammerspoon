@@ -89,7 +89,7 @@ static int crashKV(lua_State *L) {
     [SentrySDK configureScope:^(SentryScope * _Nonnull scope) {
         [scope setExtraValue:value forKey:key];
     }];
-     
+
     return 0;
 }
 

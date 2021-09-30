@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		223A9693211F0EFF00596A79 /* cpCache.icns in Resources */ = {isa = PBXBuildFile; fileRef = 223A9691211F0EFE00596A79 /* cpCache.icns */; };
 		224BA32A23D1ECA900487FDB /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 224BA32523D1E63A00487FDB /* internal.m */; };
 		224BA32C23D1ECA900487FDB /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		22613FEC1F297E0D00E05E11 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
@@ -26,6 +27,21 @@
 		226D1A5826CBD65D00F39598 /* HSRazerDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = 226D1A5626CBD65D00F39598 /* HSRazerDevice.h */; };
 		22738935248606F0003EBC68 /* HSwebsocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 22738934248606F0003EBC68 /* HSwebsocket.m */; };
 		2273893624860C0E003EBC68 /* test_websocket.lua in Resources */ = {isa = PBXBuildFile; fileRef = 22738933248606A9003EBC68 /* test_websocket.lua */; };
+		227C36C226200D4D00224F53 /* cpPlugin.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36C126200D4C00224F53 /* cpPlugin.icns */; };
+		227C36D126200DBE00224F53 /* cpTourBox.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36C326200DBB00224F53 /* cpTourBox.icns */; };
+		227C36D226200DBE00224F53 /* cpTouchBar.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36C426200DBB00224F53 /* cpTouchBar.icns */; };
+		227C36D326200DBE00224F53 /* cpSnippets.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36C526200DBB00224F53 /* cpSnippets.icns */; };
+		227C36D426200DBE00224F53 /* cpHUD.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36C626200DBB00224F53 /* cpHUD.icns */; };
+		227C36D526200DBE00224F53 /* cpTangent.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36C726200DBC00224F53 /* cpTangent.icns */; };
+		227C36D626200DBE00224F53 /* cpLoupedeck.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36C826200DBC00224F53 /* cpLoupedeck.icns */; };
+		227C36D726200DBE00224F53 /* cpLoupedeckPlus.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36C926200DBC00224F53 /* cpLoupedeckPlus.icns */; };
+		227C36D826200DBE00224F53 /* cpLoupedeckCT.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36CA26200DBC00224F53 /* cpLoupedeckCT.icns */; };
+		227C36D926200DBE00224F53 /* cpShortcuts.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36CB26200DBD00224F53 /* cpShortcuts.icns */; };
+		227C36DA26200DBE00224F53 /* cpPasteboard.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36CC26200DBD00224F53 /* cpPasteboard.icns */; };
+		227C36DB26200DBE00224F53 /* cpMIDI.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36CD26200DBD00224F53 /* cpMIDI.icns */; };
+		227C36DC26200DBE00224F53 /* cpLoupedeckLive.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36CE26200DBD00224F53 /* cpLoupedeckLive.icns */; };
+		227C36DD26200DBE00224F53 /* cpMonogram.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36CF26200DBE00224F53 /* cpMonogram.icns */; };
+		227C36DE26200DBE00224F53 /* cpStreamDeck.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36D026200DBE00224F53 /* cpStreamDeck.icns */; };
 		22A6626025FC080200AA329E /* test_serial.lua in Resources */ = {isa = PBXBuildFile; fileRef = 22A6625F25FC07F700AA329E /* test_serial.lua */; };
 		22A6626225FC087000AA329E /* HSserial.m in Sources */ = {isa = PBXBuildFile; fileRef = 22A6626125FC087000AA329E /* HSserial.m */; };
 		22DF5D2023B9A9D300C41AE6 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
@@ -80,7 +96,6 @@
 		4F3042FF21D4DEE300769310 /* test_inspect.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4F2C0C7121BB49E0008F32C1 /* test_inspect.lua */; };
 		4F30430221D5673A00769310 /* EDSunriseSet.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F30430021D5673A00769310 /* EDSunriseSet.h */; };
 		4F30430321D5673A00769310 /* EDSunriseSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F30430121D5673A00769310 /* EDSunriseSet.m */; };
-		4F3978841E89AE7200F30F05 /* Spoon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 4F3978831E89AE7200F30F05 /* Spoon.icns */; };
 		4F3D9D031C3302CB0082E864 /* HSChooser.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F3D9D011C3302CB0082E864 /* HSChooser.h */; };
 		4F3D9D041C3302CB0082E864 /* HSChooser.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F3D9D021C3302CB0082E864 /* HSChooser.m */; };
 		4F3D9D071C3314570082E864 /* HSChooserWindow.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F3D9D051C3314570082E864 /* HSChooserWindow.h */; };
@@ -113,7 +128,7 @@
 		4F5134591C2F315C00EFD6D4 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4F51345F1C2F317800EFD6D4 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F5134511C2EE08F00EFD6D4 /* internal.m */; };
 		4F5134641C30819000EFD6D4 /* chooser.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F5134631C30819000EFD6D4 /* chooser.h */; };
-		4F5B6E6B1E9E86BB003FC580 /* Hammerspoon.sdef in Resources */ = {isa = PBXBuildFile; fileRef = 4F5B6E6A1E9E86BB003FC580 /* Hammerspoon.sdef */; };
+		4F5B6E6B1E9E86BB003FC580 /* CommandPost.sdef in Resources */ = {isa = PBXBuildFile; fileRef = 4F5B6E6A1E9E86BB003FC580 /* CommandPost.sdef */; };
 		4F5B6E6E1E9E87CE003FC580 /* HSAppleScript.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F5B6E6D1E9E87CE003FC580 /* HSAppleScript.m */; };
 		4F6653E6238C36F100DEE120 /* HSStreamDeckDeviceOriginal.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6653E4238C36F100DEE120 /* HSStreamDeckDeviceOriginal.h */; };
 		4F6653E7238C36F100DEE120 /* HSStreamDeckDeviceOriginal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F6653E5238C36F100DEE120 /* HSStreamDeckDeviceOriginal.m */; };
@@ -165,7 +180,6 @@
 		4F85FED91CCA91AC00FBBAD7 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F85FECC1CCA8A2F00FBBAD7 /* internal.m */; };
 		4F8779D1200CD51200E9DB42 /* HSwindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F8779D0200CD51200E9DB42 /* HSwindow.m */; };
 		4F8779D3200CD63F00E9DB42 /* test_window.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4F8779D2200CD56F00E9DB42 /* test_window.lua */; };
-		4F8E84311B90EDBF00C25955 /* statusicon.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 4F8E84301B90EDBF00C25955 /* statusicon.pdf */; };
 		4F9618A41E24E60C0048F71D /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4F9618AB1E24E62B0048F71D /* lsqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F96189C1E24E5F70048F71D /* lsqlite3.c */; settings = {COMPILER_FLAGS = "-Wno-float-equal -Wno-unused-macros"; }; };
 		4F9618AF1E24ED650048F71D /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9618AE1E24ED650048F71D /* libsqlite3.tbd */; };
@@ -336,7 +350,7 @@
 		D68616171E04D6BA0058A4F2 /* matrix_internal.m in Sources */ = {isa = PBXBuildFile; fileRef = D68615F71E04D5990058A4F2 /* matrix_internal.m */; };
 		D68CE6231E9C450E00912154 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		D68CE6291E9C457400912154 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = D68CE61C1E9C44E200912154 /* internal.m */; };
-		D6943FE01EDBF1F50057BB26 /* hs.m in Sources */ = {isa = PBXBuildFile; fileRef = D6943FDE1EDBF1DE0057BB26 /* hs.m */; };
+		D6943FE01EDBF1F50057BB26 /* cmdpost.m in Sources */ = {isa = PBXBuildFile; fileRef = D6943FDE1EDBF1DE0057BB26 /* cmdpost.m */; };
 		D6943FE31EDBF2510057BB26 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6943FE11EDBF2510057BB26 /* CoreFoundation.framework */; };
 		D6943FE41EDBF2510057BB26 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6943FE21EDBF2510057BB26 /* Foundation.framework */; };
 		D6A212EE1DE38F5F00998C0B /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
@@ -367,6 +381,7 @@
 		D6FD568A1C0422B400BAE238 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		D6FD56901C0422DE00BAE238 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = D6FD56821C04228800BAE238 /* internal.m */; };
 		DAED28EC20B95E8F004602CB /* led.m in Sources */ = {isa = PBXBuildFile; fileRef = DAED28EB20B95E8E004602CB /* led.m */; };
+		E29DDE461E85524F00313995 /* dsa_pub.pem in Resources */ = {isa = PBXBuildFile; fileRef = E29DDE451E85524F00313995 /* dsa_pub.pem */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1022,6 +1037,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		223A9691211F0EFE00596A79 /* cpCache.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpCache.icns; sourceTree = "<group>"; };
 		224BA32523D1E63A00487FDB /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/websocket/internal.m; sourceTree = "<group>"; };
 		224BA33223D1ECA900487FDB /* libwebsocket.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libwebsocket.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		224BA33423D1EE6F00487FDB /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/websocket/init.lua; sourceTree = "<group>"; };
@@ -1044,6 +1060,21 @@
 		226D1A5626CBD65D00F39598 /* HSRazerDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSRazerDevice.h; path = extensions/razer/HSRazerDevice.h; sourceTree = "<group>"; };
 		22738933248606A9003EBC68 /* test_websocket.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_websocket.lua; path = extensions/websocket/test_websocket.lua; sourceTree = "<group>"; };
 		22738934248606F0003EBC68 /* HSwebsocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSwebsocket.m; sourceTree = "<group>"; };
+		227C36C126200D4C00224F53 /* cpPlugin.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpPlugin.icns; sourceTree = "<group>"; };
+		227C36C326200DBB00224F53 /* cpTourBox.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpTourBox.icns; sourceTree = "<group>"; };
+		227C36C426200DBB00224F53 /* cpTouchBar.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpTouchBar.icns; sourceTree = "<group>"; };
+		227C36C526200DBB00224F53 /* cpSnippets.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpSnippets.icns; sourceTree = "<group>"; };
+		227C36C626200DBB00224F53 /* cpHUD.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpHUD.icns; sourceTree = "<group>"; };
+		227C36C726200DBC00224F53 /* cpTangent.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpTangent.icns; sourceTree = "<group>"; };
+		227C36C826200DBC00224F53 /* cpLoupedeck.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpLoupedeck.icns; sourceTree = "<group>"; };
+		227C36C926200DBC00224F53 /* cpLoupedeckPlus.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpLoupedeckPlus.icns; sourceTree = "<group>"; };
+		227C36CA26200DBC00224F53 /* cpLoupedeckCT.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpLoupedeckCT.icns; sourceTree = "<group>"; };
+		227C36CB26200DBD00224F53 /* cpShortcuts.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpShortcuts.icns; sourceTree = "<group>"; };
+		227C36CC26200DBD00224F53 /* cpPasteboard.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpPasteboard.icns; sourceTree = "<group>"; };
+		227C36CD26200DBD00224F53 /* cpMIDI.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpMIDI.icns; sourceTree = "<group>"; };
+		227C36CE26200DBD00224F53 /* cpLoupedeckLive.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpLoupedeckLive.icns; sourceTree = "<group>"; };
+		227C36CF26200DBE00224F53 /* cpMonogram.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpMonogram.icns; sourceTree = "<group>"; };
+		227C36D026200DBE00224F53 /* cpStreamDeck.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpStreamDeck.icns; sourceTree = "<group>"; };
 		22A6625F25FC07F700AA329E /* test_serial.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_serial.lua; path = extensions/serial/test_serial.lua; sourceTree = "<group>"; };
 		22A6626125FC087000AA329E /* HSserial.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSserial.m; sourceTree = "<group>"; };
 		22DF5D1A23B99C4D00C41AE6 /* watcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = watcher.m; path = extensions/pasteboard/watcher.m; sourceTree = "<group>"; };
@@ -1107,7 +1138,6 @@
 		4F2DF3FA1F61AE6700742D08 /* streamdeck.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = streamdeck.h; path = extensions/streamdeck/streamdeck.h; sourceTree = "<group>"; };
 		4F30430021D5673A00769310 /* EDSunriseSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EDSunriseSet.h; path = extensions/location/EDSunriseSet.h; sourceTree = "<group>"; };
 		4F30430121D5673A00769310 /* EDSunriseSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = EDSunriseSet.m; path = extensions/location/EDSunriseSet.m; sourceTree = "<group>"; };
-		4F3978831E89AE7200F30F05 /* Spoon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Spoon.icns; sourceTree = "<group>"; };
 		4F3D9D011C3302CB0082E864 /* HSChooser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSChooser.h; path = extensions/chooser/HSChooser.h; sourceTree = "<group>"; };
 		4F3D9D021C3302CB0082E864 /* HSChooser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSChooser.m; path = extensions/chooser/HSChooser.m; sourceTree = "<group>"; };
 		4F3D9D051C3314570082E864 /* HSChooserWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSChooserWindow.h; path = extensions/chooser/HSChooserWindow.h; sourceTree = "<group>"; };
@@ -1155,7 +1185,7 @@
 		4F5134511C2EE08F00EFD6D4 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/chooser/internal.m; sourceTree = "<group>"; };
 		4F51345E1C2F315C00EFD6D4 /* libchooser.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libchooser.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F5134631C30819000EFD6D4 /* chooser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = chooser.h; path = extensions/chooser/chooser.h; sourceTree = "<group>"; };
-		4F5B6E6A1E9E86BB003FC580 /* Hammerspoon.sdef */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Hammerspoon.sdef; sourceTree = "<group>"; };
+		4F5B6E6A1E9E86BB003FC580 /* CommandPost.sdef */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = CommandPost.sdef; sourceTree = "<group>"; };
 		4F5B6E6C1E9E87CE003FC580 /* HSAppleScript.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HSAppleScript.h; sourceTree = "<group>"; };
 		4F5B6E6D1E9E87CE003FC580 /* HSAppleScript.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSAppleScript.m; sourceTree = "<group>"; };
 		4F64D8BD1B724C4B00FC4C65 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/alert/init.lua; sourceTree = "<group>"; };
@@ -1237,7 +1267,6 @@
 		4F85FED81CCA918D00FBBAD7 /* libdistributednotifications.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libdistributednotifications.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F8779D0200CD51200E9DB42 /* HSwindow.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HSwindow.m; sourceTree = "<group>"; };
 		4F8779D2200CD56F00E9DB42 /* test_window.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = test_window.lua; path = extensions/window/test_window.lua; sourceTree = "<group>"; };
-		4F8E84301B90EDBF00C25955 /* statusicon.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = statusicon.pdf; sourceTree = "<group>"; };
 		4F9618991E24E5F70048F71D /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/sqlite3/init.lua; sourceTree = "<group>"; };
 		4F96189C1E24E5F70048F71D /* lsqlite3.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; name = lsqlite3.c; path = extensions/sqlite3/lsqlite3.c; sourceTree = "<group>"; };
 		4F9618A91E24E60C0048F71D /* liblsqlite3.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = liblsqlite3.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1312,8 +1341,8 @@
 		4FD0ABFE1B74B9DE00A82496 /* libipc.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libipc.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FD0AC001B74BA1600A82496 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/ipc/init.lua; sourceTree = "<group>"; };
 		4FD0AC011B74BA1600A82496 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/ipc/internal.m; sourceTree = "<group>"; };
-		4FD0AC091B74BACD00A82496 /* hs */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = hs; sourceTree = BUILT_PRODUCTS_DIR; };
-		4FD0AC121B74BB2300A82496 /* hs.man */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = hs.man; path = extensions/ipc/cli/hs.man; sourceTree = "<group>"; };
+		4FD0AC091B74BACD00A82496 /* hs */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = hs; path = cmdpost; sourceTree = BUILT_PRODUCTS_DIR; };
+		4FD0AC121B74BB2300A82496 /* cmdpost.man */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = cmdpost.man; path = extensions/ipc/cli/cmdpost.man; sourceTree = "<group>"; };
 		4FD0AC211B74C58800A82496 /* libhttpserver.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libhttpserver.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FD0AC231B74C62200A82496 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/httpserver/init.lua; sourceTree = "<group>"; };
 		4FD0AC241B74C62200A82496 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/httpserver/internal.m; sourceTree = "<group>"; };
@@ -1393,12 +1422,12 @@
 		942E71A919B11176001BA156 /* MJAccessibilityUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJAccessibilityUtils.m; sourceTree = "<group>"; };
 		943BF0F019A4B43E0017F79D /* MJUserNotificationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJUserNotificationManager.h; sourceTree = "<group>"; };
 		943BF0F119A4B43E0017F79D /* MJUserNotificationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJUserNotificationManager.m; sourceTree = "<group>"; };
-		9445CA0B19083251002568BB /* Hammerspoon.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hammerspoon.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9445CA0B19083251002568BB /* CommandPost.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CommandPost.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		944A2D341989735300D8DC90 /* MJAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJAppDelegate.m; sourceTree = "<group>"; };
 		944A2D351989735300D8DC90 /* MainMenu.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainMenu.xib; sourceTree = "<group>"; };
 		944A2D3D1989737E00D8DC90 /* Credits.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
 		944A2D3F1989737E00D8DC90 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		944A2D401989737E00D8DC90 /* Hammerspoon-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Hammerspoon-Info.plist"; sourceTree = "<group>"; };
+		944A2D401989737E00D8DC90 /* CommandPost-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "CommandPost-Info.plist"; sourceTree = "<group>"; };
 		944A2D411989737E00D8DC90 /* Hammerspoon-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Hammerspoon-Prefix.pch"; sourceTree = "<group>"; };
 		944A2DA81989760400D8DC90 /* MJConsoleWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJConsoleWindowController.m; sourceTree = "<group>"; };
 		945B65AB198D2DDB002D2E30 /* MJLua.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJLua.m; sourceTree = "<group>"; };
@@ -1485,7 +1514,7 @@
 		D68CE61B1E9C44E200912154 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/host/locale/init.lua; sourceTree = "<group>"; };
 		D68CE61C1E9C44E200912154 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/host/locale/internal.m; sourceTree = "<group>"; };
 		D68CE6281E9C450E00912154 /* libhost_locale.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libhost_locale.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		D6943FDE1EDBF1DE0057BB26 /* hs.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = hs.m; path = extensions/ipc/cli/hs.m; sourceTree = "<group>"; };
+		D6943FDE1EDBF1DE0057BB26 /* cmdpost.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = cmdpost.m; path = extensions/ipc/cli/cmdpost.m; sourceTree = "<group>"; };
 		D6943FE11EDBF2510057BB26 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		D6943FE21EDBF2510057BB26 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D6A212E61DE38F3B00998C0B /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/spotlight/init.lua; sourceTree = "<group>"; };
@@ -1524,6 +1553,7 @@
 		D6FD568F1C0422B400BAE238 /* libconsole.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libconsole.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		DAED28EB20B95E8E004602CB /* led.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = led.m; path = extensions/hid/led.m; sourceTree = "<group>"; };
 		DE2547C1592A3EDD90D9815D /* Pods-Hammerspoon.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hammerspoon.release.xcconfig"; path = "Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon.release.xcconfig"; sourceTree = "<group>"; };
+		E29DDE451E85524F00313995 /* dsa_pub.pem */ = {isa = PBXFileReference; lastKnownFileType = text; path = dsa_pub.pem; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -3189,8 +3219,8 @@
 		4FD0AC101B74BB0600A82496 /* hs */ = {
 			isa = PBXGroup;
 			children = (
-				D6943FDE1EDBF1DE0057BB26 /* hs.m */,
-				4FD0AC121B74BB2300A82496 /* hs.man */,
+				D6943FDE1EDBF1DE0057BB26 /* cmdpost.m */,
+				4FD0AC121B74BB2300A82496 /* cmdpost.man */,
 			);
 			name = hs;
 			sourceTree = "<group>";
@@ -3341,7 +3371,7 @@
 		9445CA0C19083251002568BB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				9445CA0B19083251002568BB /* Hammerspoon.app */,
+				9445CA0B19083251002568BB /* CommandPost.app */,
 				D02F95241A00221C00E28BB2 /* Hammerspoon Tests.xctest */,
 				4FBE2CF91B7261A200407788 /* libapplication.dylib */,
 				4FBE2D101B72631600407788 /* libapplicationwatcher.dylib */,
@@ -3468,13 +3498,28 @@
 		944A2D481989739B00D8DC90 /* Extras */ = {
 			isa = PBXGroup;
 			children = (
-				4F3978831E89AE7200F30F05 /* Spoon.icns */,
-				4F8E84301B90EDBF00C25955 /* statusicon.pdf */,
+				227C36C626200DBB00224F53 /* cpHUD.icns */,
+				227C36C826200DBC00224F53 /* cpLoupedeck.icns */,
+				227C36CA26200DBC00224F53 /* cpLoupedeckCT.icns */,
+				227C36CE26200DBD00224F53 /* cpLoupedeckLive.icns */,
+				227C36C926200DBC00224F53 /* cpLoupedeckPlus.icns */,
+				227C36CD26200DBD00224F53 /* cpMIDI.icns */,
+				227C36CF26200DBE00224F53 /* cpMonogram.icns */,
+				227C36CC26200DBD00224F53 /* cpPasteboard.icns */,
+				227C36CB26200DBD00224F53 /* cpShortcuts.icns */,
+				227C36C526200DBB00224F53 /* cpSnippets.icns */,
+				227C36D026200DBE00224F53 /* cpStreamDeck.icns */,
+				227C36C726200DBC00224F53 /* cpTangent.icns */,
+				227C36C426200DBB00224F53 /* cpTouchBar.icns */,
+				227C36C326200DBB00224F53 /* cpTourBox.icns */,
+				227C36C126200D4C00224F53 /* cpPlugin.icns */,
+				223A9691211F0EFE00596A79 /* cpCache.icns */,
+				E29DDE451E85524F00313995 /* dsa_pub.pem */,
 				944A2D3D1989737E00D8DC90 /* Credits.rtf */,
 				944A2D3F1989737E00D8DC90 /* Images.xcassets */,
-				944A2D401989737E00D8DC90 /* Hammerspoon-Info.plist */,
+				944A2D401989737E00D8DC90 /* CommandPost-Info.plist */,
 				944A2D411989737E00D8DC90 /* Hammerspoon-Prefix.pch */,
-				4F5B6E6A1E9E86BB003FC580 /* Hammerspoon.sdef */,
+				4F5B6E6A1E9E86BB003FC580 /* CommandPost.sdef */,
 			);
 			name = Extras;
 			sourceTree = "<group>";
@@ -5409,9 +5454,9 @@
 			productReference = 4FD0ABFE1B74B9DE00A82496 /* libipc.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
-		4FD0AC081B74BACD00A82496 /* hs */ = {
+		4FD0AC081B74BACD00A82496 /* cmdpost */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4FD0AC0D1B74BACD00A82496 /* Build configuration list for PBXNativeTarget "hs" */;
+			buildConfigurationList = 4FD0AC0D1B74BACD00A82496 /* Build configuration list for PBXNativeTarget "cmdpost" */;
 			buildPhases = (
 				4FD0AC051B74BACD00A82496 /* Sources */,
 				4FD0AC061B74BACD00A82496 /* Frameworks */,
@@ -5421,7 +5466,7 @@
 			);
 			dependencies = (
 			);
-			name = hs;
+			name = cmdpost;
 			productName = hs;
 			productReference = 4FD0AC091B74BACD00A82496 /* hs */;
 			productType = "com.apple.product-type.tool";
@@ -5575,6 +5620,7 @@
 				4FA81F271B3F2A52000B5537 /* Copy LuaSkin.framework to build/bundle */,
 				4FBE2D161B7268DF00407788 /* Copy extensions to bundle */,
 				9445CA0919083251002568BB /* Resources */,
+				E2887C971E4B5BD200468A07 /* Copy CommandPost Files */,
 				E849AEC367EA9502A25B9A7C /* [CP] Embed Pods Frameworks */,
 				4F6D9E3523074BC6006CC3E4 /* Update version/build numbers */,
 				4F1CF8D91A47F583001C8AE7 /* Upload binary to Sentry */,
@@ -5585,6 +5631,9 @@
 			);
 			dependencies = (
 				226D1A5A26CBE9B800F39598 /* PBXTargetDependency */,
+				22613FF41F297E7F00E05E11 /* PBXTargetDependency */,
+				224BA33623D1EFB300487FDB /* PBXTargetDependency */,
+				22EEC62624926EAF00BAE4DA /* PBXTargetDependency */,
 				224BA33623D1EFB300487FDB /* PBXTargetDependency */,
 				22EEC62624926EAF00BAE4DA /* PBXTargetDependency */,
 				D633A9EF247B9C57005C88E2 /* PBXTargetDependency */,
@@ -5595,7 +5644,6 @@
 				D62F9ECC2320B90200FAE188 /* PBXTargetDependency */,
 				22E4D8051FA748E500C8CF5C /* PBXTargetDependency */,
 				4FCC42A71F6B800900485268 /* PBXTargetDependency */,
-				22613FF41F297E7F00E05E11 /* PBXTargetDependency */,
 				D64C85C81F4C272A004DFA1F /* PBXTargetDependency */,
 				D68CE62B1E9C45A800912154 /* PBXTargetDependency */,
 				4F9618AD1E24E63D0048F71D /* PBXTargetDependency */,
@@ -5676,7 +5724,7 @@
 			);
 			name = Hammerspoon;
 			productName = Hammerspoon;
-			productReference = 9445CA0B19083251002568BB /* Hammerspoon.app */;
+			productReference = 9445CA0B19083251002568BB /* CommandPost.app */;
 			productType = "com.apple.product-type.application";
 		};
 		B8524F28201A88CD00844F3D /* hid */ = {
@@ -6113,7 +6161,7 @@
 			attributes = {
 				CLASSPREFIX = HS;
 				LastUpgradeCheck = 1240;
-				ORGANIZATIONNAME = Hammerspoon;
+				ORGANIZATIONNAME = "LateNite Films";
 				TargetAttributes = {
 					4F20B5281C1F1C5B00F52437 = {
 						CreatedOnToolsVersion = 7.2;
@@ -6190,7 +6238,7 @@
 				4FD0AC171B74C58800A82496 /* httpserver */,
 				4F4CB4461B73B09C000EA9B6 /* image */,
 				4FD0ABF41B74B9DE00A82496 /* ipc */,
-				4FD0AC081B74BACD00A82496 /* hs */,
+				4FD0AC081B74BACD00A82496 /* cmdpost */,
 				4F6B3E9E1B73D6D300B2A4DE /* json */,
 				4F76944A1B74C96800536DE4 /* keycodes */,
 				4F6B3EB11B73DC4500B2A4DE /* location */,
@@ -6258,16 +6306,31 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F3978841E89AE7200F30F05 /* Spoon.icns in Resources */,
+				E29DDE461E85524F00313995 /* dsa_pub.pem in Resources */,
 				4FC09F7C19F99ECE007542A6 /* docs.json in Resources */,
-				4F8E84311B90EDBF00C25955 /* statusicon.pdf in Resources */,
 				944A2D451989737E00D8DC90 /* Images.xcassets in Resources */,
+				227C36D126200DBE00224F53 /* cpTourBox.icns in Resources */,
+				227C36DB26200DBE00224F53 /* cpMIDI.icns in Resources */,
+				227C36DD26200DBE00224F53 /* cpMonogram.icns in Resources */,
 				944A2D431989737E00D8DC90 /* Credits.rtf in Resources */,
+				227C36D426200DBE00224F53 /* cpHUD.icns in Resources */,
 				944A2D3A1989735300D8DC90 /* MainMenu.xib in Resources */,
 				949CDC001990759B00906CCE /* ConsoleWindow.xib in Resources */,
+				227C36D326200DBE00224F53 /* cpSnippets.icns in Resources */,
+				227C36D226200DBE00224F53 /* cpTouchBar.icns in Resources */,
 				949CDBFE1990747B00906CCE /* PreferencesWindow.xib in Resources */,
+				227C36DC26200DBE00224F53 /* cpLoupedeckLive.icns in Resources */,
+				227C36D626200DBE00224F53 /* cpLoupedeck.icns in Resources */,
+				227C36D726200DBE00224F53 /* cpLoupedeckPlus.icns in Resources */,
 				945B65B2198D31FC002D2E30 /* setup.lua in Resources */,
-				4F5B6E6B1E9E86BB003FC580 /* Hammerspoon.sdef in Resources */,
+				223A9693211F0EFF00596A79 /* cpCache.icns in Resources */,
+				227C36D826200DBE00224F53 /* cpLoupedeckCT.icns in Resources */,
+				227C36DE26200DBE00224F53 /* cpStreamDeck.icns in Resources */,
+				227C36D526200DBE00224F53 /* cpTangent.icns in Resources */,
+				227C36D926200DBE00224F53 /* cpShortcuts.icns in Resources */,
+				227C36C226200D4D00224F53 /* cpPlugin.icns in Resources */,
+				4F5B6E6B1E9E86BB003FC580 /* CommandPost.sdef in Resources */,
+				227C36DA26200DBE00224F53 /* cpPasteboard.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6323,7 +6386,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "if [ -e \"../is_github_actions\" ]; then\n  echo \"SKIPPING SENTRY UPLOAD: GitHub Actions does this separately\" | tee /dev/stderr\n  exit 0\nfi\n\nset -eux\n\nTOKENPATH=\"${HAMMERSPOON_TOKEN_PATH:-..}\"\n\nif [ -f \"${TOKENPATH}/token-sentry-auth\" -a \"${CONFIGURATION}\" == \"Release\" ] ; then\n  echo \"UPLOADING TO SENTRY\" | tee >/dev/stderr\n\n  set +x # <-- YOU SHOULD NEVER REMOVE THIS. THIS SHOULDN'T BE EXECUTED IN GITHUB ACTIONS, BUT LET'S BE SURE\n  source \"${TOKENPATH}/token-sentry-auth\"\n  set -x\n\n  export SENTRY_ORG=hammerspoon\n  export SENTRY_PROJECT=hammerspoon\n  export SENTRY_LOG_LEVEL=debug\n  export SENTRY_AUTH_TOKEN\n  ./scripts/sentry-cli upload-dif \"$DWARF_DSYM_FOLDER_PATH\" 2>&1 >/dev/null\n  if [ \"$?\" != \"0\" ]; then\n    echo \"SENTRY UPLOAD FAILED\" | tee /dev/stderr\n    exit 1\n  fi\nelse\n  echo \"SKIPPING SENTRY UPLOAD: No secret token found, or not a Release build\" | tee /dev/stderr\nfi\n";
+			shellScript = "set -eux\n\nTOKENPATH=\"${HAMMERSPOON_TOKEN_PATH:-..}\"\n\nif [ -f \"${TOKENPATH}/token-sentryX\" -a \"${CONFIGURATION}\" == \"Release\" ] ; then\n  echo \"UPLOADING TO SENTRY\"\n  source \"${TOKENPATH}/token-sentry\"\n  export SENTRY_ORG=commandpost\n  export SENTRY_PROJECT=commandpost\n  export SENTRY_LOG_LEVEL=debug\n  export SENTRY_AUTH_TOKEN\n  sentry-cli upload-dif \"$DWARF_DSYM_FOLDER_PATH\" 2>&1 >/dev/null\n  if [ \"$?\" != \"0\" ]; then\n    echo \"SENTRY UPLOAD FAILED\"\n    exit 1\n  fi\nelse\n  echo \"SKIPPING SENTRY UPLOAD: No secret token found, or not a Release build\"\nfi\n";
 		};
 		4F251E7F1A49D5BE00AB6103 /* Prepare secret header file */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -6369,7 +6432,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#Update build number with number of git commits if in release mode\nset -eux\n\n./scripts/update_version_build_numbers.sh\n";
+			shellScript = "#Update build number with number of git commits if in release mode\nset -eux\n\nTOKENPATH=\"${HAMMERSPOON_TOKEN_PATH:-..}\"\n\nif [ -f \"${TOKENPATH}/token-codesign\" -a \"${CONFIGURATION}\" == \"Release\" ]; then\n  buildNumber=$(git rev-list HEAD | wc -l | tr -d ' ')\n  /usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\"\nelse\n  echo \"No signing token found or not a Release build, skipping build number change\"\nfi\n";
 		};
 		4F7DB3571A5C513F00C22B03 /* Sign app/frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -6383,7 +6446,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -eux\n\nif [ -e \"../is_github_actions\" ]; then\n  echo \"SKIPPING SIGNING: GitHub Actions does this separately\" | tee /dev/stderr\n  exit 0\nfi\n\n# Some Instruments profiles are broken with the code signing stuff we currently do, so let's just skip signing entirely when we're Profiling\nif [ \"${CONFIGURATION}\" == \"Profile\" ]; then\n    echo \"SKIPPING SIGNING: Profile configuration works better with the app unsigned\" | tee /dev/stderr\n    exit 0\nfi\n\necho \"RUNNING SIGNING SCRIPT: ${SRCROOT}/scripts/sign_bundle.sh ${CODESIGNING_FOLDER_PATH} ${SRCROOT} ${CONFIGURATION}\" | tee /dev/stderr\n\"${SRCROOT}/scripts/sign_bundle.sh\" \"${CODESIGNING_FOLDER_PATH}\" \"${SRCROOT}\" \"${CONFIGURATION}\"\n";
+			shellScript = "set -eux\n\n# Some Instruments profiles are broken with the code signing stuff we currently do, so let's just skip signing entirely when we're Profiling\n\nif [ \"${CONFIGURATION}\" == \"Profile\" ]; then\n    exit 0\nfi\n\nTOKENPATH=\"${HAMMERSPOON_TOKEN_PATH:-..}\"\n\nif [ -f \"${TOKENPATH}/token-codesign\" ] ; then\n    echo \"SIGNING CODE\"\n    source \"${TOKENPATH}/token-codesign\"\n\n    if [ \"${CONFIGURATION}\" == \"Debug\" ]; then\n        CODESIGN_OPTS=\"--timestamp=none\"\n    elif [ \"${CONFIGURATION}\" == \"Release\" ]; then\n        CODESIGN_OPTS=\"--timestamp\"\n    else\n        CODESIGN_OPTS=\"\"\n    fi\n\n    LOCATION=\"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n\n    # sign Sparkle.framework if this is a release build\n    if [ -e \"${LOCATION}/Sparkle.framework/Versions/A\" ] ; then\n        codesign ${CODESIGN_OPTS} -o runtime --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/fileop\"\n        codesign ${CODESIGN_OPTS} -o runtime --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/Sparkle.framework/Versions/A/Resources/Autoupdate.app/Contents/MacOS/Autoupdate\"\n        codesign ${CODESIGN_OPTS} --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/Sparkle.framework/Versions/A\"\n    fi\n\n    # sign Hammerspoon Tests.xctest if this is a test build\n    if [ -e \"${BUILT_PRODUCTS_DIR}/${CONTENTS_FOLDER_PATH}/PlugIns/Hammerspoon Tests.xctest\" ] ; then\n        codesign ${CODESIGN_OPTS} --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${BUILT_PRODUCTS_DIR}/${CONTENTS_FOLDER_PATH}/PlugIns/Hammerspoon Tests.xctest\"\n    fi\n\n    # sign LuaSkin.framework\n    codesign ${CODESIGN_OPTS} --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/LuaSkin.framework/Versions/A\"\n\n    # sign the modules\n    find \"${CODESIGNING_FOLDER_PATH}\" -type f -name '*.so' -exec codesign ${CODESIGN_OPTS} --verbose --force --sign \"$CODESIGN_IDENTITY\" {} \\;\n\n    # sign the CLI app\n    codesign ${CODESIGN_OPTS} -o runtime --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${CODESIGNING_FOLDER_PATH}/Contents/Resources/extensions/hs/ipc/bin/cmdpost\"\n\n    # sign the Hammerspoon binary\n    ENTITLEMENTS=\"${SRCROOT}/Hammerspoon/Hammerspoon.entitlements\"\n    if [ \"${CONFIGURATION}\" == \"Debug\" ]; then\n        ENTITLEMENTS=\"${SRCROOT}/Hammerspoon/Hammerspoon-dev.entitlements\"\n    fi\n\ncodesign ${CODESIGN_OPTS} -o runtime --verbose --force --entitlements \"${ENTITLEMENTS}\" --sign \"$CODESIGN_IDENTITY\" \"${CODESIGNING_FOLDER_PATH}\"\nelse\n    echo \"SKIPPING CODE SIGNING\"\nfi\n";
 		};
 		4FA81F271B3F2A52000B5537 /* Copy LuaSkin.framework to build/bundle */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -6458,6 +6521,20 @@
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
+		};
+		E2887C971E4B5BD200468A07 /* Copy CommandPost Files */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy CommandPost Files";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -eux\necho Copying CommandPost Setup from Source to App Bundle...\ncp -R \"${SRCROOT}/../CommandPost/src/setup/\"* \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/\"\necho Copying CommandPost Extensions from Source to App Bundle...\ncp -R \"${SRCROOT}/../CommandPost/src/extensions/\"* \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/extensions/\"\necho Creating plugins folder within App Bundle...\nmkdir -p \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/plugins/\"\necho Copying CommandPost Plugins from Source to App Bundle...\ncp -R \"${SRCROOT}/../CommandPost/src/plugins/\"* \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/plugins/\"\nxattr -cr ${BUILT_PRODUCTS_DIR}\n";
 		};
 		E849AEC367EA9502A25B9A7C /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -6962,7 +7039,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D6943FE01EDBF1F50057BB26 /* hs.m in Sources */,
+				D6943FE01EDBF1F50057BB26 /* cmdpost.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7587,7 +7664,7 @@
 		};
 		4FD0AC161B74BD1300A82496 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 4FD0AC081B74BACD00A82496 /* hs */;
+			target = 4FD0AC081B74BACD00A82496 /* cmdpost */;
 			targetProxy = 4FD0AC151B74BD1300A82496 /* PBXContainerItemProxy */;
 		};
 		4FD0AC301B74C6BC00A82496 /* PBXTargetDependency */ = {
@@ -7997,7 +8074,7 @@
 				EXECUTABLE_PREFIX = lib;
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
-				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = "$(inherited)";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = "$(inherited)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = "$(inherited)";
 				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = "$(inherited)";
@@ -8031,7 +8108,7 @@
 			};
 			name = Debug;
 		};
-		22613FF01F297E0D00E05E11 /* Release */ = {
+		2270B92D2509C09700219D59 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
@@ -9354,7 +9431,7 @@
 				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 5635;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -9365,10 +9442,10 @@
 					"\"$(SDKROOT)/usr/include/libxml2\"",
 					"\"$(SDK_DIR)\"/usr/include/libxml2",
 				);
-				INFOPLIST_FILE = "Hammerspoon/Hammerspoon-Info.plist";
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.${PRODUCT_NAME:rfc1034identifier}";
-				PRODUCT_NAME = Hammerspoon;
+				INFOPLIST_FILE = "Hammerspoon/CommandPost-Info.plist";
+				MARKETING_VERSION = 1.2.11;
+				PRODUCT_BUNDLE_IDENTIFIER = org.latenitefilms.CommandPost;
+				PRODUCT_NAME = CommandPost;
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
 				STRIP_STYLE = all;
@@ -22952,7 +23029,7 @@
 				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 5635;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -22963,10 +23040,10 @@
 					"\"$(SDKROOT)/usr/include/libxml2\"",
 					"\"$(SDK_DIR)\"/usr/include/libxml2",
 				);
-				INFOPLIST_FILE = "Hammerspoon/Hammerspoon-Info.plist";
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.${PRODUCT_NAME:rfc1034identifier}";
-				PRODUCT_NAME = Hammerspoon;
+				INFOPLIST_FILE = "Hammerspoon/CommandPost-Info.plist";
+				MARKETING_VERSION = 1.2.11;
+				PRODUCT_BUNDLE_IDENTIFIER = org.latenitefilms.CommandPost;
+				PRODUCT_NAME = CommandPost;
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
 				STRIP_STYLE = all;
@@ -22984,7 +23061,7 @@
 				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 5635;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -22996,11 +23073,11 @@
 					"\"$(SDKROOT)/usr/include/libxml2\"",
 					"\"$(SDK_DIR)\"/usr/include/libxml2",
 				);
-				INFOPLIST_FILE = "Hammerspoon/Hammerspoon-Info.plist";
-				MARKETING_VERSION = 1.0;
+				INFOPLIST_FILE = "Hammerspoon/CommandPost-Info.plist";
+				MARKETING_VERSION = 1.2.11;
 				OTHER_CODE_SIGN_FLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.${PRODUCT_NAME:rfc1034identifier}";
-				PRODUCT_NAME = Hammerspoon;
+				PRODUCT_BUNDLE_IDENTIFIER = org.latenitefilms.CommandPost;
+				PRODUCT_NAME = CommandPost;
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
 				STRIP_STYLE = all;
@@ -26539,7 +26616,7 @@
 			buildConfigurations = (
 				22613FEF1F297E0D00E05E11 /* Debug */,
 				4F0454A020F0EE7D00699F29 /* Profile */,
-				22613FF01F297E0D00E05E11 /* Release */,
+				2270B92D2509C09700219D59 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
@@ -27094,7 +27171,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		4FD0AC0D1B74BACD00A82496 /* Build configuration list for PBXNativeTarget "hs" */ = {
+		4FD0AC0D1B74BACD00A82496 /* Build configuration list for PBXNativeTarget "cmdpost" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4FD0AC0E1B74BACD00A82496 /* Debug */,

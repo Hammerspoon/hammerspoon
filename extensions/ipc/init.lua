@@ -207,55 +207,55 @@ module.cliStatus = function(p, s)
 
     local silent = s or false
 
-    local bin_file = os.execute("[ -f \""..path.."/bin/hs\" ]")
-    local man_file = os.execute("[ -f \""..path.."/share/man/man1/hs.1\" ]")
-    local bin_link = os.execute("[ -L \""..path.."/bin/hs\" ]")
-    local man_link = os.execute("[ -L \""..path.."/share/man/man1/hs.1\" ]")
-    local bin_ours = os.execute("[ \""..path.."/bin/hs\" -ef \""..mod_path.."/bin/hs\" ]")
-    local man_ours = os.execute("[ \""..path.."/share/man/man1/hs.1\" -ef \""..mod_path.."/share/man/man1/hs.1\" ]")
+    local bin_file = os.execute("[ -f \""..path.."/bin/cmdpost\" ]")
+    local man_file = os.execute("[ -f \""..path.."/share/man/man1/cmdpost.1\" ]")
+    local bin_link = os.execute("[ -L \""..path.."/bin/cmdpost\" ]")
+    local man_link = os.execute("[ -L \""..path.."/share/man/man1/cmdpost.1\" ]")
+    local bin_ours = os.execute("[ \""..path.."/bin/cmdpost\" -ef \""..mod_path.."/bin/cmdpost\" ]")
+    local man_ours = os.execute("[ \""..path.."/share/man/man1/cmdpost.1\" -ef \""..mod_path.."/share/man/man1/cmdpost.1\" ]")
 
     local result = bin_file and man_file and bin_link and man_link and bin_ours and man_ours or false
     local broken = false
 
     if not bin_ours and bin_file then
         if not silent then
-            print([[cli installation problem: 'hs' is not ours.]])
+            print([[cli installation problem: 'cmdpost' is not ours.]])
         end
         broken = true
     end
     if not man_ours and man_file then
         if not silent then
-            print([[cli installation problem: 'hs.1' is not ours.]])
+            print([[cli installation problem: 'cmdpost.1' is not ours.]])
         end
         broken = true
     end
     if bin_file and not bin_link then
         if not silent then
-            print([[cli installation problem: 'hs' is an independant file won't be updated when Hammerspoon is.]])
+            print([[cli installation problem: 'cmdpost' is an independant file won't be updated when CommandPost is.]])
         end
         broken = true
     end
     if not bin_file and bin_link then
         if not silent then
-            print([[cli installation problem: 'hs' is a dangling link.]])
+            print([[cli installation problem: 'cmdpost' is a dangling link.]])
         end
         broken = true
     end
     if man_file and not man_link then
         if not silent then
-            print([[cli installation problem: man page for 'hs.1' is an independant file and won't be updated when Hammerspoon is.]])
+            print([[cli installation problem: man page for 'cmdpost.1' is an independant file and won't be updated when CommandPost is.]])
         end
         broken = true
     end
     if not man_file and man_link then
         if not silent then
-            print([[cli installation problem: man page for 'hs.1' is a dangling link.]])
+            print([[cli installation problem: man page for 'cmdpost.1' is a dangling link.]])
         end
         broken = true
     end
     if ((bin_file and bin_link) and not (man_file and man_link)) or ((man_file and man_link) and not (bin_file and bin_link)) then
         if not silent then
-            print([[cli installation problem: incomplete installation of 'hs' and 'hs.1'.]])
+            print([[cli installation problem: incomplete installation of 'cmdpost' and 'cmdpost.1'.]])
         end
         broken = true
     end
@@ -265,11 +265,11 @@ end
 
 --- hs.ipc.cliInstall([path][,silent]) -> bool
 --- Function
---- Installs the `hs` command line tool
+--- Installs the `cmdpost` command line tool
 ---
 --- Parameters:
 ---  * path - An optional string containing a path to install the tool in. Defaults to `/usr/local`
----  * silent - An optional boolean indicating whether or not to print errors to the Hammerspoon Console
+---  * silent - An optional boolean indicating whether or not to print errors to the CommandPost Error Log
 ---
 --- Returns:
 ---  * A boolean, true if the tool was successfully installed, otherwise false
@@ -281,8 +281,8 @@ module.cliInstall = function(p, s)
     local silent = s or false
     if module.cliStatus(path, true) == false then
         local mod_path = string.match(package.searchpath("hs.ipc",package.path), "^(.*)/init%.lua$")
-        os.execute("ln -s \""..mod_path.."/bin/hs\" \""..path.."/bin/\"")
-        os.execute("ln -s \""..mod_path.."/share/man/man1/hs.1\" \""..path.."/share/man/man1/\"")
+        os.execute("ln -s \""..mod_path.."/bin/cmdpost\" \""..path.."/bin/\"")
+        os.execute("ln -s \""..mod_path.."/share/man/man1/cmdpost.1\" \""..path.."/share/man/man1/\"")
     end
     return module.cliStatus(path, silent)
 end
@@ -293,18 +293,18 @@ end
 ---
 --- Parameters:
 ---  * path - An optional string containing a path to remove the tool from. Defaults to `/usr/local`
----  * silent - An optional boolean indicating whether or not to print errors to the Hammerspoon Console
+---  * silent - An optional boolean indicating whether or not to print errors to the CommandPost Error Log
 ---
 --- Returns:
 ---  * A boolean, true if the tool was successfully removed, otherwise false
 ---
 --- Notes:
----  * This function used to be very conservative and refuse to remove symlinks it wasn't sure about, but now it will unconditionally remove whatever it finds at `path/bin/hs` and `path/share/man/man1/hs.1`. This is more likely to be useful in situations where this command is actually needed (please open an Issue on GitHub if you disagree!)
+---  * This function used to be very conservative and refuse to remove symlinks it wasn't sure about, but now it will unconditionally remove whatever it finds at `path/bin/cmdpost` and `path/share/man/man1/cmdpost.1`. This is more likely to be useful in situations where this command is actually needed (please open an Issue on GitHub if you disagree!)
 module.cliUninstall = function(p, s)
     local path = p or "/usr/local"
     local silent = s or false
-    os.execute("rm \""..path.."/bin/hs\"")
-    os.execute("rm \""..path.."/share/man/man1/hs.1\"")
+    os.execute("rm \""..path.."/bin/cmdpost\"")
+    os.execute("rm \""..path.."/share/man/man1/cmdpost.1\"")
     return not module.cliStatus(path, silent)
 end
 
@@ -473,7 +473,7 @@ module.__defaultHandler = function(_, msgID, msg)
     end
 end
 
-module.__default = module.localPort("Hammerspoon", module.__defaultHandler)
+module.__default = module.localPort("CommandPost", module.__defaultHandler)
 
 -- Return Module Object --------------------------------------------------
 
