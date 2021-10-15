@@ -14,13 +14,13 @@ static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValue
             IOHIDElementRef elem = IOHIDValueGetElement(value);
             uint32_t scancode = IOHIDElementGetUsage(elem);
             long pressed = IOHIDValueGetIntegerValue(value);
-                
+
             if (scancode < 4 || scancode > 231) {
                 return;
             }
-            
+
             NSString *scancodeString = [NSString stringWithFormat:@"%d",scancode];
-                        
+
             [device deviceButtonPress:scancodeString pressed:pressed];
         }
     }
@@ -46,7 +46,7 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
 - (id)init {
     self = [super init];
     if (self) {
-        self.devices = [[NSMutableArray alloc] initWithCapacity:5];
+        self.devices = [[NSMutableArray alloc] initWithCapacity:1];
         self.discoveryCallbackRef = LUA_NOREF;
 
         // Create a HID device manager
@@ -59,7 +59,7 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
 
         NSDictionary *matchTartarusV2   =   @{vendorIDKey:  @USB_VID_RAZER,
                                               productIDKey: @USB_PID_RAZER_TARTARUS_V2};
-        
+
         IOHIDManagerSetDeviceMatchingMultiple((__bridge IOHIDManagerRef)self.ioHIDManager,
                                               (__bridge CFArrayRef)@[matchTartarusV2]);
 
@@ -67,7 +67,7 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
         IOHIDManagerRegisterDeviceMatchingCallback((__bridge IOHIDManagerRef)self.ioHIDManager,
                                                    HIDconnect,
                                                    (__bridge void*)self);
-        
+
         IOHIDManagerRegisterDeviceRemovalCallback((__bridge IOHIDManagerRef)self.ioHIDManager,
                                                   HIDdisconnect,
                                                   (__bridge void*)self);
@@ -75,7 +75,7 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
         IOHIDManagerRegisterInputValueCallback((__bridge IOHIDManagerRef)self.ioHIDManager,
                                                HIDcallback,
                                                (__bridge void*)self);
-        
+
         // Start our HID manager:
         IOHIDManagerScheduleWithRunLoop((__bridge IOHIDManagerRef)self.ioHIDManager,
                                         CFRunLoopGetCurrent(),
@@ -99,6 +99,11 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
 
     // Deallocate the HID manager:
     self.ioHIDManager = nil;
+
+    // Destroy any event taps:
+    for (HSRazerDevice *razerDevice in self.devices) {
+        [razerDevice destroyEventTap];
+    }
 }
 
 - (BOOL)startHIDManager {
@@ -118,15 +123,15 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
 - (HSRazerDevice*)deviceDidConnect:(IOHIDDeviceRef)device {
     /*
     Handy Resources:
-     
+
         - HID Device Property Keys
           https://developer.apple.com/documentation/iokit/iohidkeys_h_user-space/hid_device_property_keys
     */
-    
+
     NSNumber *vendorID              = (__bridge NSNumber *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDVendorIDKey));
     NSNumber *productID             = (__bridge NSNumber *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductIDKey));
     NSNumber *locationID            = (__bridge NSNumber *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDLocationIDKey));
-    
+
     // Make sure the vendor is Razer:
     if (vendorID.intValue != USB_VID_RAZER) {
         //NSLog(@"[hs.razer] deviceDidConnect from unknown vendor: %d", vendorID.intValue);
@@ -147,15 +152,15 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
                     alreadyRegistered = YES;
                 }
             }
-             
+
             if (!alreadyRegistered) {
                 //NSLog(@"[hs.razer] Razer Tartarus V2 detected.");
                 razerDevice = [[HSRazerTartarusV2Device alloc] initWithDevice:device manager:self];
-                
+
                 // Save the location ID for making sure we're communicating with the right hardware
                 // when changing LED backlights:
                 razerDevice.locationID = locationID;
-                
+
                 // Setup Event Tap:
                 [razerDevice setupEventTap];
                 break;
@@ -168,12 +173,12 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
         //NSLog(@"[hs.razer] deviceDidConnect: no HSRazerDevice was created, ignoring");
         return nil;
     }
-    
+
     [self.devices addObject:razerDevice];
 
     LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     razerDevice.lsCanary = [skin createGCCanary];
-    
+
     _lua_stackguard_entry(skin.L);
     if (self.discoveryCallbackRef == LUA_NOREF || self.discoveryCallbackRef == LUA_REFNIL) {
         [skin logWarn:@"hs.razer detected a device connecting, but no discovery callback has been set. See hs.razer.discoveryCallback()"];
