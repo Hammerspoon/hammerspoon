@@ -99,11 +99,6 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
 
     // Deallocate the HID manager:
     self.ioHIDManager = nil;
-
-    // Destroy any event taps:
-    for (HSRazerDevice *razerDevice in self.devices) {
-        [razerDevice destroyEventTap];
-    }
 }
 
 - (BOOL)startHIDManager {

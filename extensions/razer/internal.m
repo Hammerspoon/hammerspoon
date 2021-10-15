@@ -45,7 +45,7 @@ static int razer_init(lua_State *L) {
     return 0;
 }
 
-/// hs.razer.discoveryCallback(fn)
+/// hs.razer.discoveryCallback(fn) -> none
 /// Function
 /// Sets/clears a callback for reacting to device discovery events
 ///
@@ -58,8 +58,11 @@ static int razer_init(lua_State *L) {
 ///  * None
 static int razer_discoveryCallback(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin checkArgs:LS_TFUNCTION, LS_TBREAK];
+    [skin checkArgs:LS_TFUNCTION | LS_TNIL, LS_TBREAK];
 
+    if !(razerManager) {
+        razerManager = [[HSRazerManager alloc] init];
+    }
     razerManager.discoveryCallbackRef = [skin luaUnref:razerRefTable ref:razerManager.discoveryCallbackRef];
 
     if (lua_type(skin.L, 1) == LUA_TFUNCTION) {
@@ -69,7 +72,7 @@ static int razer_discoveryCallback(lua_State *L) {
     return 0;
 }
 
-/// hs.razer.numDevices()
+/// hs.razer.numDevices() -> number
 /// Function
 /// Gets the number of Razer devices connected
 ///
@@ -100,20 +103,20 @@ static int razer_getDevice(lua_State *L) {
     [skin checkArgs:LS_TNUMBER, LS_TBREAK];
 
     long deviceNumber = lua_tointeger(skin.L, 1) - 1;
-    
+
     if (deviceNumber > razerManager.devices.count) {
         lua_pushnil(L);
         return 1;
     }
-        
+
     HSRazerDevice *razer = razerManager.devices[deviceNumber];
-    
+
     if (razer) {
         [skin pushNSObject:razer];
     } else {
         lua_pushnil(L);
     }
-        
+
     return 1;
 }
 
@@ -131,10 +134,10 @@ static int razer_getDevice(lua_State *L) {
 static int razer_name(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
-    
+
     HSRazerDevice *razer    = [skin luaObjectAtIndex:1 toClass:"HSRazerDevice"];
     NSString *name          = razer.name;
-    
+
     [skin pushNSObject:name];
     return 1;
 }
@@ -185,10 +188,10 @@ static int razer_callback(lua_State *L) {
 static int razer_remapping(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
-    
+
     HSRazerDevice *razer    = [skin luaObjectAtIndex:1 toClass:"HSRazerDevice"];
     NSDictionary *remapping = razer.remapping;
-    
+
     [skin pushNSObject:remapping];
     return 1;
 }
@@ -205,10 +208,10 @@ static int razer_remapping(lua_State *L) {
 static int razer_productID(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
-    
+
     HSRazerDevice *razer    = [skin luaObjectAtIndex:1 toClass:"HSRazerDevice"];
     NSNumber *productID     = [NSNumber numberWithInt:razer.productID];
-    
+
     [skin pushNSObject:productID];
     return 1;
 }
@@ -229,9 +232,9 @@ static int razer_productID(lua_State *L) {
 static int razer_brightness(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK];
-    
+
     HSRazerDevice *razer = [skin luaObjectAtIndex:1 toClass:"HSRazerDevice"];
-    
+
     if (lua_gettop(L) == 1) {
         // Getter:
         HSRazerResult *result = [razer getBrightness];
@@ -248,14 +251,14 @@ static int razer_brightness(lua_State *L) {
     else {
         // Setter:
         NSNumber *brightness = [skin toNSObjectAtIndex:2];
-        
+
         if ([brightness intValue] < 0 || [brightness intValue] > 100) {
             lua_pushvalue(L, 1);
             lua_pushboolean(L, false);
             [skin pushNSObject:@"The brightness must be between 0 and 100."];
             return 3;
         }
-        
+
         HSRazerResult *result = [razer setBrightness:brightness];
         if ([result success]){
             lua_pushvalue(L, 1);
@@ -286,9 +289,9 @@ static int razer_brightness(lua_State *L) {
 static int razer_orangeStatusLight(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
-    
+
     HSRazerDevice *razer = [skin luaObjectAtIndex:1 toClass:"HSRazerDevice"];
-    
+
     if (lua_gettop(L) == 1) {
         // Getter:
         HSRazerResult *result = [razer getOrangeStatusLight];
@@ -305,7 +308,7 @@ static int razer_orangeStatusLight(lua_State *L) {
     else {
         // Setter:
         BOOL active = lua_toboolean(L, 2);
-        
+
         HSRazerResult *result = [razer setOrangeStatusLight:active];
         if ([result success]){
             lua_pushvalue(L, 1);
@@ -334,9 +337,9 @@ static int razer_orangeStatusLight(lua_State *L) {
 static int razer_greenStatusLight(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
-    
+
     HSRazerDevice *razer = [skin luaObjectAtIndex:1 toClass:"HSRazerDevice"];
-    
+
     if (lua_gettop(L) == 1) {
         // Getter:
         HSRazerResult *result = [razer getGreenStatusLight];
@@ -353,7 +356,7 @@ static int razer_greenStatusLight(lua_State *L) {
     else {
         // Setter:
         BOOL active = lua_toboolean(L, 2);
-        
+
         HSRazerResult *result = [razer setGreenStatusLight:active];
         if ([result success]){
             lua_pushvalue(L, 1);
@@ -382,9 +385,9 @@ static int razer_greenStatusLight(lua_State *L) {
 static int razer_blueStatusLight(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
-    
+
     HSRazerDevice *razer = [skin luaObjectAtIndex:1 toClass:"HSRazerDevice"];
-    
+
     if (lua_gettop(L) == 1) {
         // Getter:
         HSRazerResult *result = [razer getBlueStatusLight];
@@ -395,13 +398,13 @@ static int razer_blueStatusLight(lua_State *L) {
         } else {
             lua_pushvalue(L, 1);
             lua_pushnil(L);
-            [skin pushNSObject:[result errorMessage]];      
+            [skin pushNSObject:[result errorMessage]];
         }
     }
     else {
         // Setter:
         BOOL active = lua_toboolean(L, 2);
-        
+
         HSRazerResult *result = [razer setBlueStatusLight:active];
         if ([result success]){
             lua_pushvalue(L, 1);
@@ -432,12 +435,12 @@ static int razer_blueStatusLight(lua_State *L) {
 static int razer_backlightsStatic(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBREAK];
-    
+
     HSRazerDevice *razer    = [skin luaObjectAtIndex:1 toClass:"HSRazerDevice"];
     NSColor *color          = [skin luaObjectAtIndex:2 toClass:"NSColor"];
-      
+
     HSRazerResult *result   = [razer setBacklightToStaticColor:color];
-    
+
     lua_pushvalue(L, 1);
     lua_pushboolean(L, [result success]);
     [skin pushNSObject:[result errorMessage]];
@@ -458,11 +461,11 @@ static int razer_backlightsStatic(lua_State *L) {
 static int razer_backlightsOff(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
-    
+
     HSRazerDevice *razer    = [skin luaObjectAtIndex:1 toClass:"HSRazerDevice"];
-    
+
     HSRazerResult *result   = [razer setBacklightToOff];
-    
+
     lua_pushvalue(L, 1);
     lua_pushboolean(L, [result success]);
     [skin pushNSObject:[result errorMessage]];
@@ -484,27 +487,27 @@ static int razer_backlightsOff(lua_State *L) {
 static int razer_backlightsWave(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TSTRING, LS_TBREAK];
-    
+
     HSRazerDevice *razer    = [skin luaObjectAtIndex:1 toClass:"HSRazerDevice"];
     NSNumber *speed         = [skin toNSObjectAtIndex:2];
     NSString *direction     = [skin toNSObjectAtIndex:3];
-    
+
     if ([speed intValue] < 1 || [speed intValue] > 255) {
         lua_pushvalue(L, 1);
         lua_pushboolean(L, false);
         [skin pushNSObject:@"The speed must be between 1 and 255."];
         return 3;
     }
-    
+
     if (![direction isEqualToString:@"left"] && ![direction isEqualToString:@"right"]) {
        lua_pushvalue(L, 1);
        lua_pushboolean(L, false);
        [skin pushNSObject:@"The direction must be 'left' or 'right'."];
        return 3;
     }
-            
+
     HSRazerResult *result   = [razer setBacklightToWaveWithSpeed:speed direction:direction];
-    
+
     lua_pushvalue(L, 1);
     lua_pushboolean(L, [result success]);
     [skin pushNSObject:[result errorMessage]];
@@ -525,10 +528,10 @@ static int razer_backlightsWave(lua_State *L) {
 static int razer_backlightsSpectrum(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
-        
+
     HSRazerDevice *razer    = [skin luaObjectAtIndex:1 toClass:"HSRazerDevice"];
     HSRazerResult *result   = [razer setBacklightToSpectrum];
-    
+
     lua_pushvalue(L, 1);
     lua_pushboolean(L, [result success]);
     [skin pushNSObject:[result errorMessage]];
@@ -550,11 +553,11 @@ static int razer_backlightsSpectrum(lua_State *L) {
 static int razer_backlightsReactive(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TTABLE, LS_TBREAK];
-        
+
     HSRazerDevice *razer    = [skin luaObjectAtIndex:1 toClass:"HSRazerDevice"];
     NSNumber *speed         = [skin toNSObjectAtIndex:2];
     NSColor *color          = [skin luaObjectAtIndex:3 toClass:"NSColor"];
-    
+
     if ([speed intValue] < 1 || [speed intValue] > 4) {
         lua_pushvalue(L, 1);
         lua_pushboolean(L, false);
@@ -563,7 +566,7 @@ static int razer_backlightsReactive(lua_State *L) {
     }
 
     HSRazerResult *result = [razer setBacklightToReactiveWithColor:color speed:speed];
-    
+
     lua_pushvalue(L, 1);
     lua_pushboolean(L, [result success]);
     [skin pushNSObject:[result errorMessage]];
@@ -589,30 +592,30 @@ static int razer_backlightsReactive(lua_State *L) {
 static int razer_backlightsStarlight(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TTABLE | LS_TOPTIONAL | LS_TNIL, LS_TTABLE | LS_TOPTIONAL | LS_TNIL, LS_TBREAK];
-    
+
     HSRazerDevice *razer = [skin luaObjectAtIndex:1 toClass:"HSRazerDevice"];
     NSNumber *speed = [skin toNSObjectAtIndex:2];
-    
+
     if ([speed intValue] < 1 || [speed intValue] > 3) {
         lua_pushvalue(L, 1);
         lua_pushboolean(L, false);
         [skin pushNSObject:@"The speed must be between 1 and 3."];
         return 3;
     }
-        
+
     NSColor *color;
     NSColor *secondaryColor;
-    
+
     if (lua_type(L, 3) == LUA_TTABLE) {
         color = [skin luaObjectAtIndex:3 toClass:"NSColor"];
     }
-    
+
     if (lua_type(L, 4) == LUA_TTABLE) {
         secondaryColor = [skin luaObjectAtIndex:4 toClass:"NSColor"];
     }
-        
+
     HSRazerResult *result = [razer setBacklightToStarlightWithColor:color secondaryColor:secondaryColor speed:speed];
-    
+
     lua_pushvalue(L, 1);
     lua_pushboolean(L, [result success]);
     [skin pushNSObject:[result errorMessage]];
@@ -637,22 +640,22 @@ static int razer_backlightsStarlight(lua_State *L) {
 static int razer_backlightsBreathing(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE | LS_TOPTIONAL | LS_TNIL, LS_TTABLE | LS_TOPTIONAL | LS_TNIL, LS_TBREAK];
-    
+
     HSRazerDevice *razer = [skin luaObjectAtIndex:1 toClass:"HSRazerDevice"];
-    
+
     NSColor *color;
     NSColor *secondaryColor;
-    
+
     if (lua_type(L, 2) == LUA_TTABLE) {
         color = [skin luaObjectAtIndex:2 toClass:"NSColor"];
     }
-    
+
     if (lua_type(L, 3) == LUA_TTABLE) {
         secondaryColor = [skin luaObjectAtIndex:3 toClass:"NSColor"];
     }
-    
+
     HSRazerResult *result = [razer setBacklightToBreathingWithColor:color secondaryColor:secondaryColor];
-    
+
     lua_pushvalue(L, 1);
     lua_pushboolean(L, [result success]);
     [skin pushNSObject:[result errorMessage]];
@@ -679,9 +682,9 @@ static int razer_backlightsBreathing(lua_State *L) {
 static int razer_backlightsCustom(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBREAK];
-    
+
     HSRazerDevice *razer = [skin luaObjectAtIndex:1 toClass:"HSRazerDevice"];
-    
+
     NSMutableDictionary *customColors = [NSMutableDictionary dictionary];
 
     lua_pushnil(L); // first key
@@ -689,9 +692,9 @@ static int razer_backlightsCustom(lua_State *L) {
         customColors[@(lua_tonumber(L, -2))] = [skin luaObjectAtIndex:-1 toClass:"NSColor"];
         lua_pop(L, 1); // pop value but leave key on stack for `lua_next`
     }
-        
+
     HSRazerResult *result = [razer setBacklightToCustomWithColors:customColors];
-    
+
     lua_pushvalue(L, 1);
     lua_pushboolean(L, [result success]);
     [skin pushNSObject:[result errorMessage]];
@@ -754,6 +757,9 @@ static int razer_object_gc(lua_State* L) {
     if (theDevice) {
         theDevice.selfRefCount--;
         if (theDevice.selfRefCount == 0) {
+            // Destroy the event tap:
+            [theDevice destroyEventTap];
+
             theDevice.buttonCallbackRef = [skin luaUnref:razerRefTable ref:theDevice.buttonCallbackRef];
             theDevice = nil;
         }
@@ -770,13 +776,13 @@ static int razer_object_gc(lua_State* L) {
 static const luaL_Reg userdata_metaLib[] = {
     // Common:
     {"name",                                razer_name},
-    
+
     // Callback:
     {"callback",                            razer_callback},
-    
+
     // Brightness:
     {"brightness",                          razer_brightness},
-    
+
     // Backlights:
     {"backlightsOff",                       razer_backlightsOff},
     {"backlightsCustom",                    razer_backlightsCustom},
@@ -786,7 +792,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {"backlightsStatic",                    razer_backlightsStatic},
     {"backlightsStarlight",                 razer_backlightsStarlight},
     {"backlightsBreathing",                 razer_backlightsBreathing},
-    
+
     // Status Lights:
     {"orangeStatusLight",                   razer_orangeStatusLight},
     {"greenStatusLight",                    razer_greenStatusLight},
@@ -795,12 +801,12 @@ static const luaL_Reg userdata_metaLib[] = {
     // Private Functions:
     {"_remapping",                          razer_remapping},
     {"_productID",                          razer_productID},
-    
+
     // Helpers:
     {"__tostring",                          razer_object_tostring},
     {"__eq",                                razer_object_eq},
     {"__gc",                                razer_object_gc},
-    
+
     {NULL, NULL}
 };
 
