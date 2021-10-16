@@ -60,7 +60,7 @@ static int razer_discoveryCallback(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TFUNCTION | LS_TNIL, LS_TBREAK];
 
-    if !(razerManager) {
+    if (!razerManager) {
         razerManager = [[HSRazerManager alloc] init];
     }
     razerManager.discoveryCallbackRef = [skin luaUnref:razerRefTable ref:razerManager.discoveryCallbackRef];
