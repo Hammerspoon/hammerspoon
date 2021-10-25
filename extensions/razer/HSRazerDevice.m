@@ -31,7 +31,7 @@
         self.scrollWheelPressed         = NO;
         self.scrollWheelInProgress      = NO;
         self.scrollWheelInProgressCount = 0;
-        
+
         //NSLog(@"[hs.razer] Added new Razer device %p with IOKit device %p from manager %p", (__bridge void *)self, (void*)self.device, (__bridge void *)self.manager);
     }
     return self;
@@ -48,22 +48,22 @@
     //NSLog(@"Tartarus V2 deviceButtonPress!");
     //NSLog(@"scancode: %@", scancodeString);
     //NSLog(@"pressed: %ld", pressed);
-    
+
     // Abort if the device is no longer valid:
     if (!self.isValid) {
         //NSLog(@"[hs.razer] The Razer device is no longer valid.");
         return;
     }
-    
+
     // Get button name from device dictonary:
     NSString *buttonName = [self.buttonNames valueForKey:scancodeString];
-    
+
     // Abort if there's no button name:
     if (!buttonName) {
         //NSLog(@"[hs.razer] There's no button assigned for: %@", scancodeString);
         return;
     }
-    
+
     // Process the button action:
     NSString *buttonAction = @"";
     NSString *scrollWheelID = [NSString stringWithFormat:@"%d", self.scrollWheelID];
@@ -99,11 +99,11 @@
             buttonAction = @"released";
         }
     }
-    
+
     // Trigger the Lua callback:
     if (self.buttonCallbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin sharedWithState:NULL];
-        
+
         if (![skin checkGCCanary:self.lsCanary]) {
             return;
         }
@@ -116,7 +116,7 @@
         [skin protectedCallAndError:@"hs.razer:callback" nargs:3 nresults:0];
         _lua_stackguard_exit(skin.L);
     }
-    
+
 }
 
 #pragma mark - Event Tap for Scroll Wheel
@@ -127,37 +127,37 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
                            CGEventType type,
                            CGEventRef event,
                            void* refcon) {
-    
+
     //NSLog(@"[hs.razer] Event Tap Callback Triggered");
-    
+
     // Prevent a crash when doing garbage collection:
     if (type == kCGEventTapDisabledByUserInput) {
         //NSLog(@"[hs.razer] Aborting Event Tap Callback, because event tap disabled by user input.");
         return event;
     }
-    
+
     HSRazerDevice *manager = (__bridge HSRazerDevice *)refcon;
-    
+
     // Make sure the manager still exists:
     if (manager == nil) {
         //NSLog(@"[hs.razer] Aborting Event Tap Callback, because manager no longer exists.");
         return event; // Allow the event to pass through unmodified
     }
-    
+
     // Restart event tap if it times out:
     if (type == kCGEventTapDisabledByTimeout) {
         //NSLog(@"[hs.razer] Aborting Event Tap Callback, because event tap disabled by timeout.");
         CGEventTapEnable(manager.eventTap, true);
         return event; // Allow the event to pass through unmodified
     }
-    
+
     // Guard against this callback being delivered at a point where LuaSkin has been reset and our references wouldn't make sense anymore:
     LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     if (![skin checkGCCanary:manager.lsCanary]) {
         //NSLog(@"[hs.razer] Aborting Event Tap Callback, because canary test failed.");
         return event; // Allow the event to pass through unmodified
     }
-        
+
     if (manager.scrollWheelInProgress) {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
             manager.scrollWheelInProgressCount--;
@@ -178,25 +178,29 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
         NSLog(@"[hs.razer] The device does not have a scroll wheel ID, so aborting event tap setup.");
         return;
     }
-        
+
     //NSLog(@"[hs.razer] Setting up Event Tap.");
-    
+
     CGEventTapLocation location = kCGHIDEventTap;
-    
+
     CGEventMask mask = CGEventMaskBit(kCGEventScrollWheel);
-    
+
     self.eventTap = CGEventTapCreate(location,
                                      kCGTailAppendEventTap,
                                      kCGEventTapOptionDefault,
                                      mask,
                                      eventTapCallback,
                                      (__bridge void*)(self));
-    
-    CFRunLoopSourceRef source = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, self.eventTap, 0);
-    CFRunLoopAddSource(CFRunLoopGetCurrent(), source, kCFRunLoopCommonModes);
-    CFRelease(source);
 
-    CGEventTapEnable(self.eventTap, true);
+    if (!self.eventTap) {
+        NSLog(@"[hs.razer] Failed to create the event tap.");
+    } else {
+        CFRunLoopSourceRef source = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, self.eventTap, 0);
+        CFRunLoopAddSource(CFRunLoopGetCurrent(), source, kCFRunLoopCommonModes);
+        CFRelease(source);
+
+        CGEventTapEnable(self.eventTap, true);
+    }
 }
 
 - (void)destroyEventTap
@@ -344,21 +348,21 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
 #pragma mark - hs.razer: USB Device Methods
 
 - (IOUSBDeviceInterface**)getUSBRazerDevice {
-    
+
     //NSLog(@"[hs.razer] Getting Razer USB Device");
-    
+
     CFMutableDictionaryRef matchingDict = IOServiceMatching(kIOUSBDeviceClassName);
-    
+
     // Get all the USB devices:
     io_iterator_t iter;
     kern_return_t kReturn = IOServiceGetMatchingServices(kIOMasterPortDefault, matchingDict, &iter);
-    
+
     // Abort if something goes wrong:
     if (kReturn != kIOReturnSuccess) {
         //NSLog(@"[hs.razer] Failed to get any USB devices: %d", kReturn);
         return NULL;
     }
-    
+
     // Check each USB device to see if there's a match:
     io_service_t usbDevice;
     while ((usbDevice = IOIteratorNext(iter)))
@@ -371,20 +375,20 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
 
         // Clean up unnecessary object:
         IOObjectRelease(usbDevice);
-        
+
         // Skip the current USB device if can't create plugin:
         if ((kReturn != kIOReturnSuccess) || plugInInterface == NULL) {
             //NSLog(@"[hs.razer] Failed to create plugin: %d", kReturn);
             continue;
         }
-        
+
         // Create a new device interface:
         IOUSBDeviceInterface **dev = NULL;
         HRESULT hResult = (*plugInInterface)->QueryInterface(plugInInterface, CFUUIDGetUUIDBytes(kIOUSBDeviceInterfaceID), (LPVOID *)&dev);
 
         // Clean up unnecessary object:
         (*plugInInterface)->Release(plugInInterface);
-        
+
         // Skip the current USB device if can't create interface:
         if (hResult || !dev) {
             //NSLog(@"[hs.razer] Failed to create device interface: %d", (int)hResult);
@@ -393,7 +397,7 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
 
         // Clean up unnecessary object:
         kern_return_t kr;
-                
+
         // Make sure the location ID matches:
         UInt32 locationID;
         kr = (*dev)->GetLocationID(dev, &locationID);
@@ -401,7 +405,7 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
             //NSLog(@"[hs.razer] The location ID for the IOHID Device doesn't match the USB Device.");
             continue;
         }
-        
+
         // Make sure the vendor matches (just for safety):
         UInt16 vendor;
         kr = (*dev)->GetDeviceVendor(dev, &vendor);
@@ -409,7 +413,7 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
             //NSLog(@"[hs.razer] Vendor is not Razer: %hu", vendor);
             continue;
         }
-        
+
         // Make sure the product matches (just for safety):
         UInt16 product;
         kr = (*dev)->GetDeviceProduct(dev, &product);
@@ -417,7 +421,7 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
             //NSLog(@"[hs.razer] Product is not a Taratus V2: %hu", product);
             continue;
         }
-                
+
         // Open the device:
         kReturn = (*dev)->USBDeviceOpen(dev);
         if (kReturn != kIOReturnSuccess) {
@@ -425,15 +429,15 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
             (*dev)->Release(dev);
             continue;
          }
-        
+
         // Clean up unnecessary object:
         IOObjectRelease(iter);
-                
+
         // Party time! We found the Razer USB device.
         //NSLog(@"[hs.razer] Found a device!");
         return dev;
     }
-        
+
     // No device found:
     //NSLog(@"[hs.razer] No Razer USB Devices found that match IOHID Device.");
     return NULL;
@@ -442,27 +446,27 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
 - (HSRazerResult*)sendRazerReportToDeviceWithTransactionID:(int)transactionID commandClass:(int)commandClass commandID:(int)commandID arguments:(NSDictionary*)arguments {
     /*
     Handy Resources:
-     
+
         - Information on USB Packets:
           https://www.beyondlogic.org/usbnutshell/usb6.shtml
-     
+
         - AppleUSBDefinitions.h:
           https://lab.qaq.wiki/Lakr233/IOKit-deploy/-/blob/master/IOKit/usb/AppleUSBDefinitions.h
     */
-    
+
     // Setup the result we'll eventually return:
     HSRazerResult *result = [[HSRazerResult alloc] init];
-        
+
     // The wValue and wIndex fields allow parameters to be passed with the request:
     int wValue  = 0x300;    // wValue   = 16 bit parameter for request, low byte first.
     int wIndex  = 0x01;     // wIndex   = 16 bit parameter for request, low byte first.
-    
+
     // wLength is used the specify the number of bytes to be transferred should there be a data phase:
     int wLength = 90;       // wLength  = Length of data part of request, 16 bits, low byte first. A Razer Report is always 90 bytes.
-    
+
     // Setup an empty Razor Report:
     struct HSRazerReport report   = {0};            // Setup an empty Razer Report
-    
+
     // Determine the data size based on the amount of arguments provided:
     int dataSize = (int)[arguments count];
 
@@ -484,19 +488,19 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
             report.arguments[x] = [argument integerValue];
         }
     }
-      
+
     // Razer uses a CRC as a simple checksum to make sure the report data is correct and valid. You just XOR all the bytes.
     unsigned char crc = 0;
     unsigned char *crcReport = (unsigned char*)&report;
     for(unsigned int i = 2; i < 88; i++) { crc ^= crcReport[i]; }
     report.crc = crc;
-    
+
     // Parameter block for control requests, using a simple pointer for the data to be transferred:
     IOUSBDevRequest request;
 
     // The bmRequestType field will determine the direction of the request, type of request and designated recipient:
     request.bmRequestType           = kIOUSBDeviceRequestDirectionOut | kIOUSBDeviceRequestTypeClass | kIOUSBDeviceRequestRecipientValueInterface;
-        
+
     // The bRequest field determines the request being made:
     request.bRequest                = kIOUSBDeviceRequestSetConfiguration;
 
@@ -506,13 +510,13 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
 
     // wLength is used the specify the number of bytes to be transferred should there be a data phase:
     request.wLength                 = wLength;          // wLength  = Length of data part of request, 16 bits, low byte first.
-        
+
     // wData is the actual data to send:
     request.pData                   = (void*)&report;   // pData    = Pointer to data for request.
 
     // Get the Razer USB device:
     IOUSBDeviceInterface **razerDevice = self.getUSBRazerDevice;
-    
+
     // If no device could be found, abort:
     if (!razerDevice) {
         result.errorMessage = @"Failed to create a Razer device for the initial report.";
@@ -521,7 +525,7 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
 
     // Send the report to the device:
     IOReturn deviceRequestResult = (*razerDevice)->DeviceRequest(razerDevice, &request);
-    
+
     // Opps! Something has gone wrong:
     if (deviceRequestResult != kIOReturnSuccess) {
         // Close & Release the USB Device:
@@ -531,35 +535,35 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
         result.errorMessage = [NSString stringWithFormat:@"Failed to send Device Request: %d", deviceRequestResult];
         return result;
     }
-                
+
     // Wait for a response back...
     usleep(500); // Standard Device requests with a data stage must start to return data 500ms after the request.
-    
+
     // Parameter block for control requests, using a simple pointer for the data to be transferred:
     IOUSBDevRequest responseRequest;
-    
+
     // Setup an empty Razor Report for the response back:
     struct HSRazerReport responseReport       = {0};
-    
+
     // The bmRequestType field will determine the direction of the request, type of request and designated recipient:
     responseRequest.bmRequestType           = kIOUSBDeviceRequestDirectionIn | kIOUSBDeviceRequestTypeClass | kIOUSBDeviceRequestRecipientValueInterface;
-    
+
     // The bRequest field determines the request being made:
     responseRequest.bRequest                = kIOUSBDeviceRequestClearFeature;
-    
+
     // The wValue and wIndex fields allow parameters to be passed with the request:
     responseRequest.wValue                  = wValue;            // wValue   = 16 bit parameter for request, low byte first.
     responseRequest.wIndex                  = wIndex;            // wIndex   = 16 bit parameter for request, low byte first.
-            
+
     // wLength is used the specify the number of bytes to be transferred should there be a data phase:
     responseRequest.wLength                 = wLength;           // wLength  = Length of data part of request, 16 bits, low byte first.
-            
+
     // wData is the actual data to send:
     responseRequest.pData                   = &responseReport;   // pData    = Pointer to data for request.
 
     // Send the report to the device:
     IOReturn responseResult = (*razerDevice)->DeviceRequest(razerDevice, &responseRequest);
-    
+
     // Close & Release the USB Device:
     (*razerDevice)->USBDeviceClose(razerDevice);
     (*razerDevice)->Release(razerDevice);
@@ -579,9 +583,9 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
             // It seems that the Razer device sends back a "busy" response quite a bit, but
             // still successfully executes the command, so not sure what's going on there.
             // We'll just assume that "busy" actually means slightly delayed, but still successful.
-            
+
             //result.errorMessage = @"Razer device is busy.";
-            
+
             // Victory!
             result.success = YES;
         } else if (responseReport.status == 0x02) {
@@ -597,10 +601,10 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
             result.errorMessage = [NSString stringWithFormat:@"Unexpected status back from the Razer device: %c", responseReport.status];
         }
     }
-    
+
     // Put any useful arguments into the result:
     result.argumentTwo = responseReport.arguments[2];
-    
+
     // Something went wrong:
     return result;
 }
