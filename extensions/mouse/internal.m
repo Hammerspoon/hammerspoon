@@ -34,7 +34,7 @@ static void enum_callback(void *ctx, IOReturn res, void *sender, IOHIDDeviceRef 
 @property (readonly, getter=getNames) NSArray<NSString *> *names;
 @property (getter=getAbsolutePosition, setter=setAbsolutePosition:) NSPoint absolutePosition;
 @property (readonly, getter=getTrackingSpeed) double trackingSpeed;
-@property (getter=getScrollDirectionNatural) BOOL isScrollDirectionNatural;
+@property (readonly, getter=getScrollDirectionNatural) BOOL isScrollDirectionNatural;
 
 -(BOOL)hasInternalMouse;
 -(int)getCount;
