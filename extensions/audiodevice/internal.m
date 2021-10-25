@@ -33,7 +33,7 @@ static const AudioObjectPropertySelector watchSelectors[] = {
     kAudioDevicePropertyJackIsConnected,
     kAudioDevicePropertyDeviceHasChanged,
     kAudioDevicePropertyStereoPan,
-    kAudioHardwareServiceDeviceProperty_VirtualMasterVolume
+    kAudioHardwareServiceDeviceProperty_VirtualMainVolume
 };
 
 static LSRefTable refTable;
@@ -768,7 +768,7 @@ static int audiodevice_inputVolume(lua_State *L) {
     }
 
     AudioObjectPropertyAddress propertyAddress = {
-        kAudioHardwareServiceDeviceProperty_VirtualMasterVolume,
+        kAudioHardwareServiceDeviceProperty_VirtualMainVolume,
         kAudioObjectPropertyScopeInput,
         kAudioObjectPropertyElementMaster
     };
@@ -809,7 +809,7 @@ static int audiodevice_outputVolume(lua_State *L) {
     }
 
     AudioObjectPropertyAddress propertyAddress = {
-        kAudioHardwareServiceDeviceProperty_VirtualMasterVolume,
+        kAudioHardwareServiceDeviceProperty_VirtualMainVolume,
         kAudioObjectPropertyScopeOutput,
         kAudioObjectPropertyElementMaster
     };
@@ -853,7 +853,7 @@ static int audiodevice_volume(lua_State* L) {
     }
 
     AudioObjectPropertyAddress propertyAddress = {
-        kAudioHardwareServiceDeviceProperty_VirtualMasterVolume,
+        kAudioHardwareServiceDeviceProperty_VirtualMainVolume,
         scope,
         kAudioObjectPropertyElementMaster
     };
@@ -900,7 +900,7 @@ static int audiodevice_setInputVolume(lua_State *L) {
     UInt32 volumeSize = sizeof(Float32);
 
     AudioObjectPropertyAddress propertyAddress = {
-        kAudioHardwareServiceDeviceProperty_VirtualMasterVolume,
+        kAudioHardwareServiceDeviceProperty_VirtualMainVolume,
         kAudioObjectPropertyScopeInput,
         kAudioObjectPropertyElementMaster
     };
@@ -946,7 +946,7 @@ static int audiodevice_setOutputVolume(lua_State *L) {
     UInt32 volumeSize = sizeof(Float32);
 
     AudioObjectPropertyAddress propertyAddress = {
-        kAudioHardwareServiceDeviceProperty_VirtualMasterVolume,
+        kAudioHardwareServiceDeviceProperty_VirtualMainVolume,
         kAudioObjectPropertyScopeOutput,
         kAudioObjectPropertyElementMaster
     };
@@ -999,7 +999,7 @@ static int audiodevice_setvolume(lua_State* L) {
     }
 
     AudioObjectPropertyAddress propertyAddress = {
-        kAudioHardwareServiceDeviceProperty_VirtualMasterVolume,
+        kAudioHardwareServiceDeviceProperty_VirtualMainVolume,
         scope,
         kAudioObjectPropertyElementMaster
     };
@@ -1044,7 +1044,7 @@ static int audiodevice_balance(lua_State* L) {
     }
 
     AudioObjectPropertyAddress propertyAddress = {
-        kAudioHardwareServiceDeviceProperty_VirtualMasterBalance,
+        kAudioHardwareServiceDeviceProperty_VirtualMainBalance,
         scope,
         kAudioObjectPropertyElementMaster
     };
@@ -1097,8 +1097,7 @@ static int audiodevice_setbalance(lua_State* L) {
     }
 
     AudioObjectPropertyAddress propertyAddress = {
-        kAudioHardwareServiceDeviceProperty_VirtualMasterBalance,
-        scope,
+        kAudioHardwareServiceDeviceProperty_VirtualMainBalance,
         kAudioObjectPropertyElementMaster
     };
 
