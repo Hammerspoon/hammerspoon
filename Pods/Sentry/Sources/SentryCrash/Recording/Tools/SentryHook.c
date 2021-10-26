@@ -1,39 +1,14 @@
 #include "SentryHook.h"
+#include "SentryCrashMemory.h"
+#include "SentryCrashStackCursor.h"
 #include "fishhook.h"
 #include <dispatch/dispatch.h>
 #include <execinfo.h>
 #include <mach/mach.h>
 #include <pthread.h>
+#include <stdlib.h>
 
-// NOTE on accessing thread-locals across threads:
-// We save the async stacktrace as a thread local when dispatching async calls,
-// but the various crash handlers need to access these thread-locals across threads
-// sometimes, which we do here:
-// While `pthread_t` is an opaque type, the offset of `thread specific data` (tsd)
-// is fixed due to backwards compatibility.
-// See:
-// https://github.com/apple/darwin-libpthread/blob/c60d249cc84dfd6097a7e71c68a36b47cbe076d1/src/types_internal.h#L409-L432
-
-#if __LP64__
-#    define TSD_OFFSET 224
-#else
-#    define TSD_OFFSET 176
-#endif
-
-static pthread_key_t async_caller_key = 0;
-
-sentrycrash_async_backtrace_t *
-sentrycrash_get_async_caller_for_thread(SentryCrashThread thread)
-{
-    return NULL;
-
-    // TODO: Disabled because still experimental.
-    //    const pthread_t pthread = pthread_from_mach_thread_np((thread_t)thread);
-    //    void **tsd_slots = (void *)((uint8_t *)pthread + TSD_OFFSET);
-    //
-    //    return (sentrycrash_async_backtrace_t *)__atomic_load_n(
-    //        &tsd_slots[async_caller_key], __ATOMIC_SEQ_CST);
-}
+static bool hooks_active = true;
 
 void
 sentrycrash__async_backtrace_incref(sentrycrash_async_backtrace_t *bt)
@@ -45,15 +20,110 @@ sentrycrash__async_backtrace_incref(sentrycrash_async_backtrace_t *bt)
 }
 
 void
-sentrycrash__async_backtrace_decref(sentrycrash_async_backtrace_t *bt)
+sentrycrash_async_backtrace_decref(sentrycrash_async_backtrace_t *bt)
 {
     if (!bt) {
         return;
     }
     if (__atomic_fetch_add(&bt->refcount, -1, __ATOMIC_SEQ_CST) == 1) {
-        sentrycrash__async_backtrace_decref(bt->async_caller);
+        sentrycrash_async_backtrace_decref(bt->async_caller);
         free(bt);
     }
+}
+
+/**
+ * This is a poor-mans concurrent hashtable.
+ * We have N slots, using a simple FNV-like hashing function on the mach-thread id.
+ *
+ * *Writes* to a slot will only ever happen using the *current* thread. See
+ * the `set`/`unset` functions for SAFETY descriptions.
+ * *Reads* will mostly happen on the *current* thread as well, but might happen
+ * across threads through `sentrycrashsc_initWithMachineContext`. See the `get`
+ * function for possible UNSAFETY.
+ *
+ * We use a fixed number of slots and do not account for collisions, so a high
+ * number of threads might lead to loss of async caller information.
+ */
+
+#define SENTRY_MAX_ASYNC_THREADS (128 - 1)
+
+typedef struct {
+    SentryCrashThread thread;
+    sentrycrash_async_backtrace_t *backtrace;
+} sentrycrash_async_caller_slot_t;
+
+static sentrycrash_async_caller_slot_t sentry_async_callers[SENTRY_MAX_ASYNC_THREADS] = { 0 };
+
+static size_t
+sentrycrash__thread_idx(SentryCrashThread thread)
+{
+    // This uses the same magic numbers as FNV, but rather follows the simpler
+    // `(x * b + c) mod n` hashing scheme. Also note that `SentryCrashThread`
+    // is a typedef for a mach thread id, which is different from a `pthread_t`
+    // and should have a better distribution itself.
+    return (thread * 0x100000001b3 + 0xcbf29ce484222325) % SENTRY_MAX_ASYNC_THREADS;
+}
+
+sentrycrash_async_backtrace_t *
+sentrycrash_get_async_caller_for_thread(SentryCrashThread thread)
+{
+    if (!__atomic_load_n(&hooks_active, __ATOMIC_RELAXED)) {
+        return NULL;
+    }
+
+    size_t idx = sentrycrash__thread_idx(thread);
+    sentrycrash_async_caller_slot_t *slot = &sentry_async_callers[idx];
+    if (__atomic_load_n(&slot->thread, __ATOMIC_ACQUIRE) == thread) {
+        sentrycrash_async_backtrace_t *backtrace
+            = __atomic_load_n(&slot->backtrace, __ATOMIC_RELAXED);
+        // UNSAFETY WARNING: There is a tiny chance of use-after-free here.
+        // This call can happen across threads, and the thread that "owns" the
+        // slot can decref and free the backtrace before *this* thread gets a
+        // chance to incref.
+        // The only codepath where this happens across threads is as part of
+        // `sentrycrashsc_initWithMachineContext` which is always done after a
+        // `sentrycrashmc_suspendEnvironment` or as part of
+        // `sentrycrashreport_writeStandardReport` which does lack such a guard.
+        sentrycrash__async_backtrace_incref(backtrace);
+        return backtrace;
+    }
+    return NULL;
+}
+
+static void
+sentrycrash__set_async_caller(sentrycrash_async_backtrace_t *backtrace)
+{
+    SentryCrashThread thread = sentrycrashthread_self();
+
+    size_t idx = sentrycrash__thread_idx(thread);
+    sentrycrash_async_caller_slot_t *slot = &sentry_async_callers[idx];
+
+    SentryCrashThread expected = (SentryCrashThread)NULL;
+    bool success = __atomic_compare_exchange_n(
+        &slot->thread, &expected, thread, false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
+
+    // SAFETY: While multiple threads can race on a "set" call to the same slot,
+    // the cmpxchg makes sure that only one thread succeeds
+    if (success) {
+        __atomic_store_n(&slot->backtrace, backtrace, __ATOMIC_RELEASE);
+    }
+}
+
+static void
+sentrycrash__unset_async_caller(sentrycrash_async_backtrace_t *backtrace)
+{
+    SentryCrashThread thread = sentrycrashthread_self();
+
+    size_t idx = sentrycrash__thread_idx(thread);
+    sentrycrash_async_caller_slot_t *slot = &sentry_async_callers[idx];
+
+    // SAFETY: The condition makes sure that the current thread *owns* this slot.
+    if (__atomic_load_n(&slot->thread, __ATOMIC_ACQUIRE) == thread) {
+        __atomic_store_n(&slot->backtrace, NULL, __ATOMIC_RELAXED);
+        __atomic_store_n(&slot->thread, (SentryCrashThread)NULL, __ATOMIC_RELEASE);
+    }
+
+    sentrycrash_async_backtrace_decref(backtrace);
 }
 
 sentrycrash_async_backtrace_t *
@@ -64,14 +134,11 @@ sentrycrash__async_backtrace_capture(void)
 
     bt->len = backtrace(bt->backtrace, MAX_BACKTRACE_FRAMES);
 
-    sentrycrash_async_backtrace_t *caller = pthread_getspecific(async_caller_key);
-    sentrycrash__async_backtrace_incref(caller);
-    bt->async_caller = caller;
+    SentryCrashThread thread = sentrycrashthread_self();
+    bt->async_caller = sentrycrash_get_async_caller_for_thread(thread);
 
     return bt;
 }
-
-static bool hooks_active = true;
 
 static void (*real_dispatch_async)(dispatch_queue_t queue, dispatch_block_t block);
 
@@ -87,14 +154,13 @@ sentrycrash__hook_dispatch_async(dispatch_queue_t queue, dispatch_block_t block)
 
     return real_dispatch_async(queue, ^{
         // inside the async context, save the backtrace in a thread local for later consumption
-        pthread_setspecific(async_caller_key, bt);
+        sentrycrash__set_async_caller(bt);
 
         // call through to the original block
         block();
 
         // and decref our current backtrace
-        pthread_setspecific(async_caller_key, NULL);
-        sentrycrash__async_backtrace_decref(bt);
+        sentrycrash__unset_async_caller(bt);
     });
 }
 
@@ -127,14 +193,13 @@ sentrycrash__hook_dispatch_after(
 
     return real_dispatch_after(when, queue, ^{
         // inside the async context, save the backtrace in a thread local for later consumption
-        pthread_setspecific(async_caller_key, bt);
+        sentrycrash__set_async_caller(bt);
 
         // call through to the original block
         block();
 
         // and decref our current backtrace
-        pthread_setspecific(async_caller_key, NULL);
-        sentrycrash__async_backtrace_decref(bt);
+        sentrycrash__unset_async_caller(bt);
     });
 }
 
@@ -165,14 +230,13 @@ sentrycrash__hook_dispatch_barrier_async(dispatch_queue_t queue, dispatch_block_
 
     return real_dispatch_barrier_async(queue, ^{
         // inside the async context, save the backtrace in a thread local for later consumption
-        pthread_setspecific(async_caller_key, bt);
+        sentrycrash__set_async_caller(bt);
 
         // call through to the original block
         block();
 
         // and decref our current backtrace
-        pthread_setspecific(async_caller_key, NULL);
-        sentrycrash__async_backtrace_decref(bt);
+        sentrycrash__unset_async_caller(bt);
     });
 }
 
@@ -197,9 +261,6 @@ sentrycrash_install_async_hooks(void)
     __atomic_store_n(&hooks_active, true, __ATOMIC_RELAXED);
 
     if (__atomic_exchange_n(&hooks_installed, true, __ATOMIC_SEQ_CST)) {
-        return;
-    }
-    if (pthread_key_create(&async_caller_key, NULL) != 0) {
         return;
     }
 

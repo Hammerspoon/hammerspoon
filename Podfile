@@ -10,10 +10,10 @@ project 'Hammerspoon', 'Profile' => :debug
 target 'Hammerspoon' do
 pod 'ASCIImage', '1.0.0'
 pod 'CocoaLumberjack', '3.5.3'
-pod 'CocoaAsyncSocket', '7.6.4'
+pod 'CocoaAsyncSocket', '7.6.5'
 pod 'CocoaHTTPServer', :git => 'https://github.com/CommandPost/CocoaHTTPServer.git'
 pod 'PocketSocket/Client', '1.0.1'
-pod 'Sentry', :git => 'https://github.com/getsentry/sentry-cocoa.git', :tag => '7.0.1'
+pod 'Sentry', :git => 'https://github.com/getsentry/sentry-cocoa.git', :tag => '7.4.8'
 pod 'Sparkle', '1.26.0', :configurations => ['Release']
 pod 'MIKMIDI', '1.7.1'
 pod 'SocketRocket', '0.5.1'

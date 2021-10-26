@@ -158,6 +158,8 @@ struct timeval sentrycrashsysctl_timeval(int major_cmd, int minor_cmd);
  */
 struct timeval sentrycrashsysctl_timevalForName(const char *name);
 
+struct timeval sentrycrashsysctl_currentProcessStartTime(void);
+
 /** Get information about a process.
  *
  * @param pid The process ID.

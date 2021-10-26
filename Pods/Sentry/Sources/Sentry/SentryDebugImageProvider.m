@@ -1,4 +1,5 @@
-#import "SentryDebugMetaBuilder.h"
+#import "SentryDebugImageProvider.h"
+#import "SentryCrashDefaultBinaryImageProvider.h"
 #import "SentryCrashDynamicLinker.h"
 #import "SentryCrashUUIDConversion.h"
 #import "SentryDebugMeta.h"
@@ -7,15 +8,27 @@
 #import <Foundation/Foundation.h>
 
 @interface
-SentryDebugMetaBuilder ()
+SentryDebugImageProvider ()
 
 @property (nonatomic, strong) id<SentryCrashBinaryImageProvider> binaryImageProvider;
 
 @end
 
-@implementation SentryDebugMetaBuilder
+@implementation SentryDebugImageProvider
 
-- (id)initWithBinaryImageProvider:(id<SentryCrashBinaryImageProvider>)binaryImageProvider
+- (instancetype)init
+{
+
+    SentryCrashDefaultBinaryImageProvider *provider =
+        [[SentryCrashDefaultBinaryImageProvider alloc] init];
+
+    self = [self initWithBinaryImageProvider:provider];
+
+    return self;
+}
+
+/** Internal constructor for testing */
+- (instancetype)initWithBinaryImageProvider:(id<SentryCrashBinaryImageProvider>)binaryImageProvider
 {
     if (self = [super init]) {
         self.binaryImageProvider = binaryImageProvider;
@@ -23,7 +36,7 @@ SentryDebugMetaBuilder ()
     return self;
 }
 
-- (NSArray<SentryDebugMeta *> *)buildDebugMeta
+- (NSArray<SentryDebugMeta *> *)getDebugImages
 {
     NSMutableArray<SentryDebugMeta *> *debugMetaArray = [NSMutableArray new];
 
@@ -40,7 +53,7 @@ SentryDebugMetaBuilder ()
 - (SentryDebugMeta *)fillDebugMetaFrom:(SentryCrashBinaryImage)image
 {
     SentryDebugMeta *debugMeta = [[SentryDebugMeta alloc] init];
-    debugMeta.uuid = [SentryDebugMetaBuilder convertUUID:image.uuid];
+    debugMeta.uuid = [SentryDebugImageProvider convertUUID:image.uuid];
     debugMeta.type = @"apple";
 
     if (image.vmAddress > 0) {

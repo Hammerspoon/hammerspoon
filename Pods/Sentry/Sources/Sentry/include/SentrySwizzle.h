@@ -152,6 +152,9 @@ typedef void (*SentrySwizzleOriginalIMP)(void /* id, SEL, ... */);
 /// The selector of the swizzled method.
 @property (nonatomic, readonly) SEL selector;
 
+// A flag to check whether the original implementation was called.
+@property (nonatomic) BOOL originalCalled;
+
 @end
 
 /**
@@ -347,6 +350,20 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
 // and remove it later.
 #define _SentrySWArguments(arguments...) DEL, ##arguments
 
+#if TEST
+#    define _SentrySWReplacement(code...)                                                          \
+        @try {                                                                                     \
+            code                                                                                   \
+        } @finally {                                                                               \
+            if (!swizzleInfo.originalCalled)                                                       \
+                @throw([NSException exceptionWithName:@"SwizzlingError"                            \
+                                               reason:@"Original method not called"                \
+                                             userInfo:nil]);                                       \
+        }
+#else
+#    define _SentrySWReplacement(code...) code
+#endif
+
 #define _SentrySwizzleInstanceMethod(classToSwizzle, selector, SentrySWReturnType,                 \
     SentrySWArguments, SentrySWReplacement, SentrySwizzleMode, KEY)                                \
     [SentrySwizzle                                                                                 \
@@ -356,8 +373,8 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
                     SentrySWReturnType (*originalImplementation_)(                                 \
                         _SentrySWDel3Arg(__unsafe_unretained id, SEL, SentrySWArguments));         \
                     SEL selector_ = selector;                                                      \
-                    return ^SentrySWReturnType(_SentrySWDel2Arg(                                   \
-                        __unsafe_unretained id self, SentrySWArguments)) { SentrySWReplacement };  \
+                    return ^SentrySWReturnType(_SentrySWDel2Arg(__unsafe_unretained id self,       \
+                        SentrySWArguments)) { _SentrySWReplacement(SentrySWReplacement) };         \
                 }                                                                                  \
                          mode:SentrySwizzleMode                                                    \
                           key:KEY];
@@ -371,8 +388,8 @@ typedef NS_ENUM(NSUInteger, SentrySwizzleMode) {
                  SentrySWReturnType (*originalImplementation_)(                                    \
                      _SentrySWDel3Arg(__unsafe_unretained id, SEL, SentrySWArguments));            \
                  SEL selector_ = selector;                                                         \
-                 return ^SentrySWReturnType(_SentrySWDel2Arg(                                      \
-                     __unsafe_unretained id self, SentrySWArguments)) { SentrySWReplacement };     \
+                 return ^SentrySWReturnType(_SentrySWDel2Arg(__unsafe_unretained id self,          \
+                     SentrySWArguments)) { _SentrySWReplacement(SentrySWReplacement) };            \
              }];
 
 #define _SentrySWCallOriginal(arguments...)                                                        \

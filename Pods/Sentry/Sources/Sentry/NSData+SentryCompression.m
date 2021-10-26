@@ -7,7 +7,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation NSData (SentryCompression)
+@implementation
+NSData (SentryCompression)
 
 - (NSData *_Nullable)sentry_gzippedWithCompressionLevel:(NSInteger)compressionLevel
                                                   error:(NSError *_Nullable *_Nullable)error

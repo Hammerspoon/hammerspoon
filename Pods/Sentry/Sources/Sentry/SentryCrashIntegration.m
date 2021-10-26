@@ -3,13 +3,18 @@
 #import "SentryCrashInstallationReporter.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryEvent.h"
-#import "SentryFrameInAppLogic.h"
-#import "SentryHook.h"
 #import "SentryHub.h"
+#import "SentryInAppLogic.h"
 #import "SentryOutOfMemoryLogic.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySessionCrashedHandler.h"
+#import <SentryAppStateManager.h>
+#import <SentryClient+Private.h>
+#import <SentryCrashScopeObserver.h>
+#import <SentryDefaultCurrentDateProvider.h>
+#import <SentrySDK+Private.h>
+#import <SentrySysctl.h>
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -25,6 +30,7 @@ SentryCrashIntegration ()
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) SentryCrashAdapter *crashAdapter;
 @property (nonatomic, strong) SentrySessionCrashedHandler *crashedSessionHandler;
+@property (nonatomic, strong) SentryCrashScopeObserver *scopeObserver;
 
 @end
 
@@ -32,10 +38,9 @@ SentryCrashIntegration ()
 
 - (instancetype)init
 {
-    if (self = [super init]) {
-        self.crashAdapter = [[SentryCrashAdapter alloc] init];
-        self.dispatchQueueWrapper = [[SentryDispatchQueueWrapper alloc] init];
-    }
+    self = [self initWithCrashAdapter:[SentryCrashAdapter sharedInstance]
+              andDispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]];
+
     return self;
 }
 
@@ -43,9 +48,10 @@ SentryCrashIntegration ()
 - (instancetype)initWithCrashAdapter:(SentryCrashAdapter *)crashAdapter
              andDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
-    self = [self init];
-    self.crashAdapter = crashAdapter;
-    self.dispatchQueueWrapper = dispatchQueueWrapper;
+    if (self = [super init]) {
+        self.crashAdapter = crashAdapter;
+        self.dispatchQueueWrapper = dispatchQueueWrapper;
+    }
 
     return self;
 }
@@ -67,26 +73,47 @@ SentryCrashIntegration ()
 {
     self.options = options;
 
+    SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
+    SentryAppStateManager *appStateManager = [[SentryAppStateManager alloc]
+            initWithOptions:options
+               crashAdapter:self.crashAdapter
+                fileManager:fileManager
+        currentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
+                     sysctl:[[SentrySysctl alloc] init]];
     SentryOutOfMemoryLogic *logic =
-        [[SentryOutOfMemoryLogic alloc] initWithOptions:options crashAdapter:self.crashAdapter];
+        [[SentryOutOfMemoryLogic alloc] initWithOptions:options
+                                           crashAdapter:self.crashAdapter
+                                        appStateManager:appStateManager];
     self.crashedSessionHandler =
         [[SentrySessionCrashedHandler alloc] initWithCrashWrapper:self.crashAdapter
                                                  outOfMemoryLogic:logic];
 
+    self.scopeObserver =
+        [[SentryCrashScopeObserver alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs];
+
     [self startCrashHandler];
-    // TODO: enable with feature flag from SentryOptions because this is still experimental
-    //    sentrycrash_install_async_hooks();
+
+    if (options.stitchAsyncCode) {
+        [self.crashAdapter installAsyncHooks];
+    }
+
     [self configureScope];
 }
 
 - (void)startCrashHandler
 {
     void (^block)(void) = ^{
-        SentryFrameInAppLogic *frameInAppLogic =
-            [[SentryFrameInAppLogic alloc] initWithInAppIncludes:self.options.inAppIncludes
-                                                   inAppExcludes:self.options.inAppExcludes];
-        installation =
-            [[SentryCrashInstallationReporter alloc] initWithFrameInAppLogic:frameInAppLogic];
+        BOOL canSendReports = NO;
+        if (installation == nil) {
+            SentryInAppLogic *inAppLogic =
+                [[SentryInAppLogic alloc] initWithInAppIncludes:self.options.inAppIncludes
+                                                  inAppExcludes:self.options.inAppExcludes];
+
+            installation = [[SentryCrashInstallationReporter alloc] initWithInAppLogic:inAppLogic];
+
+            canSendReports = YES;
+        }
+
         [installation install];
 
         // We need to send the crashed event together with the crashed session in the same envelope
@@ -104,7 +131,17 @@ SentryCrashIntegration ()
         // This is a pragmatic and not the most optimal place for this logic.
         [self.crashedSessionHandler endCurrentSessionAsCrashedWhenCrashOrOOM];
 
-        [installation sendAllReports];
+        // We only need to send all reports on the first initialization of SentryCrash. If
+        // SenryCrash was deactivated there are no new reports to send. Furthermore, the
+        // g_reportsPath in SentryCrashReportsStore gets set when SentryCrash is installed. In
+        // production usage, this path is not supposed to change. When testing, this path can
+        // change, and therefore, the initial set g_reportsPath can be deleted. sendAllReports calls
+        // deleteAllReports, which fails it can't access g_reportsPath. We could fix SentryCrash or
+        // just not call sendAllReports as it doesn't make sense to call it twice as described
+        // above.
+        if (canSendReports) {
+            [installation sendAllReports];
+        }
     };
     [self.dispatchQueueWrapper dispatchOnce:&installationToken block:block];
 }
@@ -119,10 +156,9 @@ SentryCrashIntegration ()
             [handler setMonitoring:SentryCrashMonitorTypeNone];
             handler.onCrash = NULL;
         }
-        installation = nil;
         installationToken = 0;
     }
-    sentrycrash_deactivate_async_hooks();
+    [self.crashAdapter deactivateAsyncHooks];
 }
 
 - (void)configureScope
@@ -212,27 +248,20 @@ SentryCrashIntegration ()
 
             [outerScope setContextValue:appData forKey:@"app"];
 
-            [outerScope addScopeListener:^(SentryScope *_Nonnull scope) {
-                // The serialization of the scope and synching it to SentryCrash can use quite some
-                // CPU time. We want to make sure that this doesn't happen on the main thread. We
-                // accept the tradeoff that in case of a crash the scope might not be 100% up to
-                // date over blocking the main thread.
-                [self.dispatchQueueWrapper dispatchAsyncWithBlock:^{
-                    NSMutableDictionary<NSString *, id> *userInfo =
-                        [[NSMutableDictionary alloc] initWithDictionary:[scope serialize]];
+            NSMutableDictionary<NSString *, id> *userInfo =
+                [[NSMutableDictionary alloc] initWithDictionary:[outerScope serialize]];
+            // SentryCrashReportConverter.convertReportToEvent needs the release name and
+            // the dist of the SentryOptions in the UserInfo. When SentryCrash records a
+            // crash it writes the UserInfo into SentryCrashField_User of the report.
+            // SentryCrashReportConverter.initWithReport loads the contents of
+            // SentryCrashField_User into self.userContext and convertReportToEvent can map
+            // the release name and dist to the SentryEvent. Fixes GH-581
+            userInfo[@"release"] = self.options.releaseName;
+            userInfo[@"dist"] = self.options.dist;
 
-                    // SentryCrashReportConverter.convertReportToEvent needs the release name and
-                    // the dist of the SentryOptions in the UserInfo. When SentryCrash records a
-                    // crash it writes the UserInfo into SentryCrashField_User of the report.
-                    // SentryCrashReportConverter.initWithReport loads the contents of
-                    // SentryCrashField_User into self.userContext and convertReportToEvent can map
-                    // the release name and dist to the SentryEvent. Fixes GH-581
-                    userInfo[@"release"] = self.options.releaseName;
-                    userInfo[@"dist"] = self.options.dist;
+            [SentryCrash.sharedInstance setUserInfo:userInfo];
 
-                    [SentryCrash.sharedInstance setUserInfo:userInfo];
-                }];
-            }];
+            [outerScope addObserver:self.scopeObserver];
         }];
     }
 }

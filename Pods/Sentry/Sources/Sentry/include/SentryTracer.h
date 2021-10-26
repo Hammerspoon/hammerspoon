@@ -3,7 +3,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryHub, SentryTransactionContext;
+@class SentryHub, SentryTransactionContext, SentryTraceHeader, SentryTraceState;
 
 @interface SentryTracer : NSObject <SentrySpan>
 
@@ -28,47 +28,46 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, strong) NSDate *startTimestamp;
 
 /**
- * An arbitrary mapping of additional metadata of the span.
- */
-@property (nullable, readonly) NSDictionary<NSString *, id> *data;
-
-/**
  * Whether the span is finished.
  */
 @property (readonly) BOOL isFinished;
 
 /**
- * Init a SentryTransaction with given transaction context and hub and set other fields by default
+ * Indicates whether this tracer will be finished only if all children have been finished.
+ * If this property is YES and the finish function is called before all children are finished
+ * the tracer will automatically finish when the last child finishes.
+ */
+@property (readonly) BOOL waitForChildren;
+
+/**
+ * Retrieves a trace state from this tracer.
+ */
+@property (nonatomic, readonly) SentryTraceState *traceState;
+
+/**
+ * Init a SentryTracer with given transaction context and hub and set other fields by default
  *
  * @param transactionContext Transaction context
  * @param hub A hub to bind this transaction
  *
- * @return SentryTransaction
+ * @return SentryTracer
  */
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
                                        hub:(nullable SentryHub *)hub;
 
 /**
- * Starts a child span.
+ * Init a SentryTracer with given transaction context, hub and whether the tracer should wait
+ * for all children to finish before it finishes.
  *
- * @param operation Short code identifying the type of operation the span is measuring.
+ * @param transactionContext Transaction context
+ * @param hub A hub to bind this transaction
+ * @param waitForChildren Whether this tracer should wait all children to finish.
  *
- * @return SentrySpan
+ * @return SentryTracer
  */
-- (id<SentrySpan>)startChildWithOperation:(NSString *)operation
-    NS_SWIFT_NAME(startChild(operation:));
-
-/**
- * Starts a child span.
- *
- * @param operation Defines the child span operation.
- * @param description Define the child span description.
- *
- * @return SentrySpan
- */
-- (id<SentrySpan>)startChildWithOperation:(NSString *)operation
-                              description:(nullable NSString *)description
-    NS_SWIFT_NAME(startChild(operation:description:));
+- (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
+                                       hub:(nullable SentryHub *)hub
+                           waitForChildren:(BOOL)waitForChildren;
 
 /**
  * Starts a child span.
@@ -85,23 +84,14 @@ NS_ASSUME_NONNULL_BEGIN
     NS_SWIFT_NAME(startChild(parentId:operation:description:));
 
 /**
- * Sets an extra.
+ * A method to inform the tracer that a span finished.
  */
-- (void)setDataValue:(nullable id)value
-              forKey:(NSString *)key NS_SWIFT_NAME(setExtra(value:key:));
+- (void)spanFinished:(id<SentrySpan>)finishedSpan;
 
 /**
- * Finishes the transaction by setting the end time and capturing the transaction with binded hub.
+ * Get the tracer from a span.
  */
-- (void)finish;
-
-/**
- * Finishes the span by setting the end time and span status.
- *
- * @param status The status of this span
- */
-- (void)finishWithStatus:(SentrySpanStatus)status NS_SWIFT_NAME(finish(status:));
-
++ (nullable SentryTracer *)getTracer:(id<SentrySpan>)span;
 @end
 
 NS_ASSUME_NONNULL_END

@@ -14,16 +14,16 @@
 @interface
 SentryCrashReportSink ()
 
-@property (nonatomic, strong) SentryFrameInAppLogic *frameInAppLogic;
+@property (nonatomic, strong) SentryInAppLogic *inAppLogic;
 
 @end
 
 @implementation SentryCrashReportSink
 
-- (instancetype)initWithFrameInAppLogic:(SentryFrameInAppLogic *)frameInAppLogic
+- (instancetype)initWithInAppLogic:(SentryInAppLogic *)inAppLogic
 {
     if (self = [super init]) {
-        self.frameInAppLogic = frameInAppLogic;
+        self.inAppLogic = inAppLogic;
     }
     return self;
 }
@@ -45,7 +45,7 @@ SentryCrashReportSink ()
         for (NSDictionary *report in reports) {
             SentryCrashReportConverter *reportConverter =
                 [[SentryCrashReportConverter alloc] initWithReport:report
-                                                   frameInAppLogic:self.frameInAppLogic];
+                                                        inAppLogic:self.inAppLogic];
             if (nil != [SentrySDK.currentHub getClient]) {
                 SentryEvent *event = [reportConverter convertReportToEvent];
                 if (nil != event) {

@@ -2,7 +2,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation NSDate (SentryExtras)
+@implementation
+NSDate (SentryExtras)
 
 + (NSDateFormatter *)getIso8601Formatter
 {
@@ -18,6 +19,16 @@ NS_ASSUME_NONNULL_BEGIN
     return isoFormatter;
 }
 
+/**
+ * The NSDateFormatter only works with milliseconds resolution, even though NSDate has a higher
+ * precision. For more information checkout
+ * https://stackoverflow.com/questions/23684727/nsdateformatter-milliseconds-bug/23685280#23685280.
+ * The SDK can either send timestamps to Sentry a string as defined in RFC 3339 or a numeric
+ * (integer or float) value representing the number of seconds that have elapsed since the Unix
+ * epoch, see https://develop.sentry.dev/sdk/event-payloads/. Instead of appending micro and
+ * nanoseconds to the output of NSDateFormatter please use a numeric float instead, which can be
+ * retrieved with timeIntervalSince1970.
+ */
 + (NSDateFormatter *)getIso8601FormatterWithMillisecondPrecision
 {
     static NSDateFormatter *isoFormatter = nil;
@@ -43,6 +54,10 @@ NS_ASSUME_NONNULL_BEGIN
     }
 }
 
+/**
+ * Only works with milliseconds precision. For more details see
+ * getIso8601FormatterWithMillisecondPrecision.
+ */
 - (NSString *)sentry_toIso8601String
 {
     return [[self.class getIso8601FormatterWithMillisecondPrecision] stringFromDate:self];

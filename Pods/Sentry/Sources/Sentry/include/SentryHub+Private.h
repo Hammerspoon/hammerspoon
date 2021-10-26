@@ -1,10 +1,11 @@
 #import "SentryHub.h"
 
-@class SentryId, SentryScope;
+@class SentryId, SentryScope, SentryTransaction;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryHub (Private)
+@interface
+SentryHub (Private)
 
 - (void)captureCrashEvent:(SentryEvent *)event;
 
@@ -12,6 +13,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)closeCachedSessionWithTimestamp:(NSDate *_Nullable)timestamp;
 
+- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
+                                  bindToScope:(BOOL)bindToScope
+                              waitForChildren:(BOOL)waitForChildren
+                        customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext;
+
+- (SentryId *)captureTransaction:(SentryTransaction *)transaction withScope:(SentryScope *)scope;
 @end
 
 NS_ASSUME_NONNULL_END

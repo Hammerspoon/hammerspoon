@@ -39,6 +39,15 @@ SentryDispatchQueueWrapper ()
     });
 }
 
+- (void)dispatchOnMainQueue:(void (^)(void))block
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        @autoreleasepool {
+            block();
+        }
+    });
+}
+
 - (void)dispatchOnce:(dispatch_once_t *)predicate block:(void (^)(void))block
 {
     dispatch_once(predicate, block);

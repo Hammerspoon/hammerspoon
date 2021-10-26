@@ -12,6 +12,7 @@
 #import "SentryOptions.h"
 #import "SentryRateLimitCategoryMapper.h"
 #import "SentrySerialization.h"
+#import "SentryTraceState.h"
 
 @interface
 SentryHttpTransport ()
@@ -56,22 +57,43 @@ SentryHttpTransport ()
 
 - (void)sendEvent:(SentryEvent *)event attachments:(NSArray<SentryAttachment *> *)attachments
 {
-    NSMutableArray<SentryEnvelopeItem *> *items = [self buildEnvelopeItems:event
-                                                               attachments:attachments];
-    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithId:event.eventId items:items];
-
-    [self sendEnvelope:envelope];
+    [self sendEvent:event traceState:nil attachments:attachments];
 }
 
 - (void)sendEvent:(SentryEvent *)event
       withSession:(SentrySession *)session
       attachments:(NSArray<SentryAttachment *> *)attachments
 {
+    [self sendEvent:event withSession:session traceState:nil attachments:attachments];
+}
+
+- (void)sendEvent:(SentryEvent *)event
+       traceState:(SentryTraceState *)traceState
+      attachments:(NSArray<SentryAttachment *> *)attachments
+{
+    NSMutableArray<SentryEnvelopeItem *> *items = [self buildEnvelopeItems:event
+                                                               attachments:attachments];
+
+    SentryEnvelopeHeader *envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:event.eventId
+                                                                         traceState:traceState];
+    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader items:items];
+
+    [self sendEnvelope:envelope];
+}
+
+- (void)sendEvent:(SentryEvent *)event
+      withSession:(SentrySession *)session
+       traceState:(SentryTraceState *)traceState
+      attachments:(NSArray<SentryAttachment *> *)attachments
+{
     NSMutableArray<SentryEnvelopeItem *> *items = [self buildEnvelopeItems:event
                                                                attachments:attachments];
     [items addObject:[[SentryEnvelopeItem alloc] initWithSession:session]];
 
-    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithId:event.eventId items:items];
+    SentryEnvelopeHeader *envelopeHeader = [[SentryEnvelopeHeader alloc] initWithId:event.eventId
+                                                                         traceState:traceState];
+
+    SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithHeader:envelopeHeader items:items];
 
     [self sendEnvelope:envelope];
 }
