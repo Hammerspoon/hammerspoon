@@ -1,13 +1,13 @@
 {
   "name": "Sentry",
-  "version": "7.0.1",
+  "version": "7.4.8",
   "summary": "Sentry client for cocoa",
   "homepage": "https://github.com/getsentry/sentry-cocoa",
   "license": "mit",
   "authors": "Sentry",
   "source": {
     "git": "https://github.com/getsentry/sentry-cocoa.git",
-    "tag": "7.0.1"
+    "tag": "7.4.8"
   },
   "platforms": {
     "ios": "9.0",
@@ -32,7 +32,7 @@
     {
       "name": "Core",
       "source_files": [
-        "Sources/Sentry/**/*.{h,m}",
+        "Sources/Sentry/**/*.{h,m,c}",
         "Sources/SentryCrash/**/*.{h,m,mm,c,cpp}"
       ],
       "public_header_files": "Sources/Sentry/Public/*.h"

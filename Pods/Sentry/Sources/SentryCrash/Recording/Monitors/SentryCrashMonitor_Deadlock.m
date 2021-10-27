@@ -123,6 +123,7 @@ static NSTimeInterval g_watchdogInterval = 0;
 
     sentrycrashcm_handleException(crashContext);
     sentrycrashmc_resumeEnvironment();
+    sentrycrash_async_backtrace_decref(stackCursor.async_caller);
 
     SentryCrashLOG_DEBUG(@"Calling abort()");
     abort();

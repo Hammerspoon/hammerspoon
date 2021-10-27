@@ -1,6 +1,6 @@
 PODS:
   - ASCIImage (1.0.0)
-  - CocoaAsyncSocket (7.6.4)
+  - CocoaAsyncSocket (7.6.5)
   - CocoaHTTPServer (2.3):
     - CocoaAsyncSocket
     - CocoaLumberjack
@@ -12,21 +12,21 @@ PODS:
   - PocketSocket/Client (1.0.1):
     - PocketSocket/Core
   - PocketSocket/Core (1.0.1)
-  - Sentry (7.0.1):
-    - Sentry/Core (= 7.0.1)
-  - Sentry/Core (7.0.1)
+  - Sentry (7.4.8):
+    - Sentry/Core (= 7.4.8)
+  - Sentry/Core (7.4.8)
   - SocketRocket (0.5.1)
   - Sparkle (1.26.0)
 
 DEPENDENCIES:
   - ASCIImage (= 1.0.0)
-  - CocoaAsyncSocket (= 7.6.4)
+  - CocoaAsyncSocket (= 7.6.5)
   - CocoaHTTPServer (from `https://github.com/CommandPost/CocoaHTTPServer.git`)
   - CocoaLumberjack (= 3.5.3)
   - MIKMIDI (= 1.7.1)
   - ORSSerialPort (= 2.1.0)
   - PocketSocket/Client (= 1.0.1)
-  - Sentry (from `https://github.com/getsentry/sentry-cocoa.git`, tag `7.0.1`)
+  - Sentry (from `https://github.com/getsentry/sentry-cocoa.git`, tag `7.4.8`)
   - SocketRocket (= 0.5.1)
   - Sparkle (= 1.26.0)
 
@@ -46,7 +46,7 @@ EXTERNAL SOURCES:
     :git: https://github.com/CommandPost/CocoaHTTPServer.git
   Sentry:
     :git: https://github.com/getsentry/sentry-cocoa.git
-    :tag: 7.0.1
+    :tag: 7.4.8
 
 CHECKOUT OPTIONS:
   CocoaHTTPServer:
@@ -54,20 +54,20 @@ CHECKOUT OPTIONS:
     :git: https://github.com/CommandPost/CocoaHTTPServer.git
   Sentry:
     :git: https://github.com/getsentry/sentry-cocoa.git
-    :tag: 7.0.1
+    :tag: 7.4.8
 
 SPEC CHECKSUMS:
   ASCIImage: bcff9650deae86e0e0ac310145cc628948201ab8
-  CocoaAsyncSocket: 694058e7c0ed05a9e217d1b3c7ded962f4180845
+  CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   CocoaHTTPServer: 5624681fc3473d43b18202f635f9b3abb013b530
   CocoaLumberjack: 2f44e60eb91c176d471fdba43b9e3eae6a721947
   MIKMIDI: f53dca2f372e71183ecdd2b35c984c1c2cd11cbc
   ORSSerialPort: d2d5d131797453430c557ba8dc7dcbcae20ff2e5
   PocketSocket: 9c6867d66fb4f962af96b9b07f4b45bb561b2c2a
-  Sentry: ac2f6859f824f12e5bd2b7e52130b4ef81721283
+  Sentry: df92b78ba4ab86cf2a47ff4cdc07758a5ce18f03
   SocketRocket: d57c7159b83c3c6655745cd15302aa24b6bae531
   Sparkle: d56d028f4b0c123577825f5d1004f6140d77f90e
 
-PODFILE CHECKSUM: ace8f301c3d2576674fc8d2ac2c2be689013dbb2
+PODFILE CHECKSUM: 003b666825ebe5a6c643d448fcb3ddcc45f3986f
 
-COCOAPODS: 1.10.1
+COCOAPODS: 1.11.2

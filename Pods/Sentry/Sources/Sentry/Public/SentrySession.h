@@ -12,6 +12,9 @@ typedef NS_ENUM(NSUInteger, SentrySessionStatus) {
     kSentrySessionStatusAbnormal = 3,
 };
 
+/**
+ * The SDK uses SentrySession to inform Sentry about release and project associated project health.
+ */
 @interface SentrySession : NSObject <SentrySerializable, NSCopying>
 SENTRY_NO_INIT
 

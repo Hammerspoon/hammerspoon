@@ -1,5 +1,7 @@
 #import "SentrySamplingContext.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation SentrySamplingContext
 
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
@@ -19,3 +21,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

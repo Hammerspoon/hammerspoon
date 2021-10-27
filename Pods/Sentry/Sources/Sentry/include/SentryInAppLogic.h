@@ -26,11 +26,11 @@ NS_ASSUME_NONNULL_BEGIN
  * /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime/Contents/Resources/RuntimeRoot/System/Library/...
  *
  */
-@interface SentryFrameInAppLogic : NSObject
+@interface SentryInAppLogic : NSObject
 SENTRY_NO_INIT
 
 /**
- * Initializes SentryFrameInAppLogic with inAppIncludes and inAppExcludes.
+ * Initializes SentryInAppLogic with inAppIncludes and inAppExcludes.
  *
  * To work properly for Apple applications the inAppIncludes should contain the CFBundleExecutable,
  * which is the name of the bundle’s executable file.

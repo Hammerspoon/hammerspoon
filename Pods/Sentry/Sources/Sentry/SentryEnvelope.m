@@ -28,9 +28,29 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithId:(SentryId *_Nullable)eventId andSdkInfo:(SentrySdkInfo *_Nullable)sdkInfo
 {
+    return [self initWithId:eventId sdkInfo:sdkInfo traceState:nil];
+}
+
+- (instancetype)initWithId:(nullable SentryId *)eventId
+                traceState:(nullable SentryTraceState *)traceState
+{
+    SentrySdkInfo *sdkInfo = [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
+                                                      andVersion:SentryMeta.versionString];
+
+    self = [self initWithId:eventId sdkInfo:sdkInfo traceState:traceState];
+
+    return self;
+}
+
+- (instancetype)initWithId:(nullable SentryId *)eventId
+                   sdkInfo:(nullable SentrySdkInfo *)sdkInfo
+                traceState:(nullable SentryTraceState *)traceState
+{
+
     if (self = [super init]) {
         _eventId = eventId;
         _sdkInfo = sdkInfo;
+        _traceState = traceState;
     }
 
     return self;
@@ -150,7 +170,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithUserFeedback:(SentryUserFeedback *)userFeedback
 {
-
     NSError *error = nil;
     NSData *json = [NSJSONSerialization dataWithJSONObject:[userFeedback serialize]
                                                    options:0

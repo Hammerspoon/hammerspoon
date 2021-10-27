@@ -2,7 +2,8 @@
 #import "NSDate+SentryExtras.h"
 #import "NSDictionary+SentrySanitize.h"
 
-@implementation NSDictionary (SentrySanitize)
+@implementation
+NSDictionary (SentrySanitize)
 
 - (NSDictionary *)sentry_sanitize
 {

@@ -1,6 +1,6 @@
 #import "SentryDefines.h"
 
-@class SentryOptions, SentryCrashAdapter, SentryAppState, SentryFileManager;
+@class SentryOptions, SentryCrashAdapter, SentryAppState, SentryFileManager, SentryAppStateManager;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -8,13 +8,10 @@ NS_ASSUME_NONNULL_BEGIN
 SENTRY_NO_INIT
 
 - (instancetype)initWithOptions:(SentryOptions *)options
-                   crashAdapter:(SentryCrashAdapter *)crashAdatper;
+                   crashAdapter:(SentryCrashAdapter *)crashAdatper
+                appStateManager:(SentryAppStateManager *)appStateManager;
 
 - (BOOL)isOOM;
-
-#if SENTRY_HAS_UIKIT
-- (SentryAppState *)buildCurrentAppState;
-#endif
 
 @end
 

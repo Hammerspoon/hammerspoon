@@ -1,17 +1,17 @@
-#import "SentryFrameInAppLogic.h"
+#import "SentryInAppLogic.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface
-SentryFrameInAppLogic ()
+SentryInAppLogic ()
 
 @property (nonatomic, copy, readonly) NSArray<NSString *> *inAppIncludes;
 @property (nonatomic, copy, readonly) NSArray<NSString *> *inAppExcludes;
 
 @end
 
-@implementation SentryFrameInAppLogic
+@implementation SentryInAppLogic
 
 - (instancetype)initWithInAppIncludes:(NSArray<NSString *> *)inAppIncludes
                         inAppExcludes:(NSArray<NSString *> *)inAppExcludes

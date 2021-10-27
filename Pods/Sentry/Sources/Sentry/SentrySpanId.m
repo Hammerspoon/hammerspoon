@@ -77,6 +77,11 @@ static SentrySpanId *_empty = nil;
     return _empty;
 }
 
+- (id)copyWithZone:(nullable NSZone *)zone
+{
+    return [[SentrySpanId alloc] initWithValue:self.value];
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

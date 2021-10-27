@@ -2,7 +2,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryOptions (Private)
+@interface
+SentryOptions (Private)
 
 @property (nullable, nonatomic, copy, readonly) NSNumber *defaultTracesSampleRate;
 

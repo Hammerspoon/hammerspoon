@@ -34,6 +34,7 @@
 #include <net/if_dl.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #define CHECK_SYSCTL_NAME(TYPE, CALL)                                                              \
     if (0 != (CALL)) {                                                                             \
@@ -185,6 +186,27 @@ sentrycrashsysctl_timevalForName(const char *const name)
 
     if (0 != sysctlbyname(name, &value, &size, NULL, 0)) {
         SentryCrashLOG_ERROR("Could not get timeval value for %s: %s", name, strerror(errno));
+    }
+
+    return value;
+}
+
+struct timeval
+sentrycrashsysctl_currentProcessStartTime()
+{
+    size_t len = 4;
+    int mib[len];
+
+    sysctlnametomib("kern.proc.pid", mib, &len);
+    mib[3] = getpid();
+
+    struct timeval value = { 0 };
+    struct kinfo_proc kp;
+    size_t kpSize = sizeof(kp);
+    if (0 != sysctl(mib, 4, &kp, &kpSize, NULL, 0)) {
+        SentryCrashLOG_ERROR("Could not get current process start time: %s", strerror(errno));
+    } else {
+        value = kp.kp_proc.p_un.__p_starttime;
     }
 
     return value;

@@ -1,10 +1,7 @@
-#import "SentrySDK+Private.h"
 #import <Foundation/Foundation.h>
 #import <SentryAppState.h>
-#import <SentryClient+Private.h>
+#import <SentryAppStateManager.h>
 #import <SentryCrashAdapter.h>
-#import <SentryFileManager.h>
-#import <SentryHub.h>
 #import <SentryOptions.h>
 #import <SentryOutOfMemoryLogic.h>
 
@@ -17,17 +14,20 @@ SentryOutOfMemoryLogic ()
 
 @property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) SentryCrashAdapter *crashAdapter;
+@property (nonatomic, strong) SentryAppStateManager *appStateManager;
 
 @end
 
-@implementation SentryOutOfMemoryLogic : NSObject
+@implementation SentryOutOfMemoryLogic
 
 - (instancetype)initWithOptions:(SentryOptions *)options
                    crashAdapter:(SentryCrashAdapter *)crashAdatper
+                appStateManager:(SentryAppStateManager *)appStateManager
 {
     if (self = [super init]) {
         self.options = options;
         self.crashAdapter = crashAdatper;
+        self.appStateManager = appStateManager;
     }
     return self;
 }
@@ -39,10 +39,8 @@ SentryOutOfMemoryLogic ()
     }
 
 #if SENTRY_HAS_UIKIT
-    SentryFileManager *fileManager = [[[SentrySDK currentHub] getClient] fileManager];
-    SentryAppState *previousAppState = [fileManager readAppState];
-
-    SentryAppState *currentAppState = [self buildCurrentAppState];
+    SentryAppState *previousAppState = [self.appStateManager loadCurrentAppState];
+    SentryAppState *currentAppState = [self.appStateManager buildCurrentAppState];
 
     // If there is no previous app state, we can't do anything.
     if (nil == previousAppState) {
@@ -88,17 +86,5 @@ SentryOutOfMemoryLogic ()
     return NO;
 #endif
 }
-
-#if SENTRY_HAS_UIKIT
-- (SentryAppState *)buildCurrentAppState
-{
-    // Is the current process being traced or not? If it is a debugger is attached.
-    bool isDebugging = self.crashAdapter.isBeingTraced;
-
-    return [[SentryAppState alloc] initWithReleaseName:self.options.releaseName
-                                             osVersion:UIDevice.currentDevice.systemVersion
-                                           isDebugging:isDebugging];
-}
-#endif
 
 @end

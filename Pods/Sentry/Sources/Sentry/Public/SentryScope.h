@@ -122,6 +122,11 @@ NS_SWIFT_NAME(Scope)
 - (void)addAttachment:(SentryAttachment *)attachment;
 
 /**
+ * Clears all attachments in the scope.
+ */
+- (void)clearAttachments;
+
+/**
  * Clears the current Scope
  */
 - (void)clear;

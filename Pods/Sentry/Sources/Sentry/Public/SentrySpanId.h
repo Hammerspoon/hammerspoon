@@ -7,7 +7,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 
 NS_SWIFT_NAME(SpanId)
-@interface SentrySpanId : NSObject
+@interface SentrySpanId : NSObject <NSCopying>
 
 /**
  * Creates a SentrySpanId with a random 16 character Id.

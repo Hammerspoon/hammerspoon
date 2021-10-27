@@ -10,9 +10,9 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(CurrentDate)
 @interface SentryCurrentDate : NSObject
 
-+ (NSDate *_Nonnull)date;
++ (NSDate *)date;
 
-+ (void)setCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider;
++ (void)setCurrentDateProvider:(nullable id<SentryCurrentDateProvider>)currentDateProvider;
 
 @end
 

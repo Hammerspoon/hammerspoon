@@ -125,6 +125,7 @@ NSString *const GCDAsyncSocketSSLProtocolVersionMax = @"GCDAsyncSocketSSLProtoco
 NSString *const GCDAsyncSocketSSLSessionOptionFalseStart = @"GCDAsyncSocketSSLSessionOptionFalseStart";
 NSString *const GCDAsyncSocketSSLSessionOptionSendOneByteRecord = @"GCDAsyncSocketSSLSessionOptionSendOneByteRecord";
 NSString *const GCDAsyncSocketSSLCipherSuites = @"GCDAsyncSocketSSLCipherSuites";
+NSString *const GCDAsyncSocketSSLALPN = @"GCDAsyncSocketSSLALPN";
 #if !TARGET_OS_IPHONE
 NSString *const GCDAsyncSocketSSLDiffieHellmanParameters = @"GCDAsyncSocketSSLDiffieHellmanParameters";
 #endif
@@ -6951,6 +6952,7 @@ static OSStatus SSLWriteFunction(SSLConnectionRef connection, const void *data, 
 	//  7. GCDAsyncSocketSSLSessionOptionSendOneByteRecord
 	//  8. GCDAsyncSocketSSLCipherSuites
 	//  9. GCDAsyncSocketSSLDiffieHellmanParameters (Mac)
+    // 10. GCDAsyncSocketSSLALPN
 	//
 	// Deprecated (throw error):
 	// 10. kCFStreamSSLAllowsAnyRoot
@@ -7178,7 +7180,36 @@ static OSStatus SSLWriteFunction(SSLConnectionRef connection, const void *data, 
 		return;
 	}
 	#endif
-	
+
+    // 10. kCFStreamSSLCertificates
+    value = [tlsSettings objectForKey:GCDAsyncSocketSSLALPN];
+    if ([value isKindOfClass:[NSArray class]])
+    {
+        if (@available(iOS 11.0, macOS 10.13, tvOS 11.0, *))
+        {
+            CFArrayRef protocols = (__bridge CFArrayRef)((NSArray *) value);
+            status = SSLSetALPNProtocols(sslContext, protocols);
+            if (status != noErr)
+            {
+                [self closeWithError:[self otherError:@"Error in SSLSetALPNProtocols"]];
+                return;
+            }
+        }
+        else
+        {
+            NSAssert(NO, @"Security option unavailable - GCDAsyncSocketSSLALPN"
+                     @" - iOS 11.0, macOS 10.13 required");
+            [self closeWithError:[self otherError:@"Security option unavailable - GCDAsyncSocketSSLALPN"]];
+        }
+    }
+    else if (value)
+    {
+        NSAssert(NO, @"Invalid value for GCDAsyncSocketSSLALPN. Value must be of type NSArray.");
+        
+        [self closeWithError:[self otherError:@"Invalid value for GCDAsyncSocketSSLALPN."]];
+        return;
+    }
+    
 	// DEPRECATED checks
 	
 	// 10. kCFStreamSSLAllowsAnyRoot
