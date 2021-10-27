@@ -75,6 +75,7 @@ sentrycrashcm_reportUserException(const char *name, const char *reason, const ch
         context.stackCursor = &stackCursor;
 
         sentrycrashcm_handleException(&context);
+        sentrycrash_async_backtrace_decref(stackCursor.async_caller);
 
         if (logAllThreads) {
             sentrycrashmc_resumeEnvironment();

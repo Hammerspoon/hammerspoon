@@ -174,6 +174,8 @@
 #define SentryCrashField_User "user"
 #define SentryCrashField_ConsoleLog "console_log"
 
+#define SentryCrashField_Scope "sentry_sdk_scope"
+
 #pragma mark Incomplete
 #define SentryCrashField_Incomplete "incomplete"
 #define SentryCrashField_RecrashReport "recrash_report"

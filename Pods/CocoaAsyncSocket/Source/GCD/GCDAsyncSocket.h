@@ -42,6 +42,7 @@ extern NSString *const GCDAsyncSocketSSLProtocolVersionMax;
 extern NSString *const GCDAsyncSocketSSLSessionOptionFalseStart;
 extern NSString *const GCDAsyncSocketSSLSessionOptionSendOneByteRecord;
 extern NSString *const GCDAsyncSocketSSLCipherSuites;
+extern NSString *const GCDAsyncSocketSSLALPN;
 #if !TARGET_OS_IPHONE
 extern NSString *const GCDAsyncSocketSSLDiffieHellmanParameters;
 #endif

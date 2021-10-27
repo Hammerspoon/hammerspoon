@@ -173,7 +173,8 @@ removeObjectForKeyPath(id container, NSString *keyPath)
 
 #pragma mark - NSDictionary Category
 
-@implementation NSDictionary (DeepSearch)
+@implementation
+NSDictionary (DeepSearch)
 
 - (id)sentry_objectForDeepKey:(NSArray *)deepKey
 {
@@ -209,7 +210,8 @@ removeObjectForKeyPath(id container, NSString *keyPath)
 
 #pragma mark - NSArray Category
 
-@implementation NSArray (DeepSearch)
+@implementation
+NSArray (DeepSearch)
 
 - (id)sentry_objectForDeepKey:(NSArray *)deepKey
 {

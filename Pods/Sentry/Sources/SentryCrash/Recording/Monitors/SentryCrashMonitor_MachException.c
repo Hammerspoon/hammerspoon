@@ -340,6 +340,7 @@ handleExceptions(void *const userData)
         SentryCrashLOG_DEBUG("Crash handling complete. Restoring original handlers.");
         g_isHandlingCrash = false;
         sentrycrashmc_resumeEnvironment();
+        sentrycrash_async_backtrace_decref(g_stackCursor.async_caller);
     }
 
     SentryCrashLOG_DEBUG("Replying to mach exception message.");

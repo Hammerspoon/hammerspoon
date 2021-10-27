@@ -48,6 +48,7 @@ SentryStacktraceBuilder ()
             [frames addObject:frame];
         }
     }
+    sentrycrash_async_backtrace_decref(stackCursor.async_caller);
 
     NSArray<SentryFrame *> *framesCleared = [SentryFrameRemover removeNonSdkFrames:frames];
 

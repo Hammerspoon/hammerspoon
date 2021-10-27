@@ -1,4 +1,6 @@
 #import "SentrySDK.h"
+#import "PrivateSentrySDKOnly.h"
+#import "SentryAppStartMeasurement.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient+Private.h"
 #import "SentryCrash.h"
@@ -19,6 +21,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 static SentryHub *currentHub;
 static BOOL crashedLastRunCalled;
+static SentryAppStartMeasurement *sentrySDKappStartMeasurement;
+static NSObject *sentrySDKappStartMeasurementLock;
+
++ (void)initialize
+{
+    if (self == [SentrySDK class]) {
+        sentrySDKappStartMeasurementLock = [[NSObject alloc] init];
+    }
+}
 
 + (SentryHub *)currentHub
 {
@@ -30,8 +41,15 @@ static BOOL crashedLastRunCalled;
     }
 }
 
++ (nullable SentryOptions *)options
+{
+    @synchronized(self) {
+        return [[currentHub getClient] options];
+    }
+}
+
 /** Internal, only needed for testing. */
-+ (void)setCurrentHub:(SentryHub *)hub
++ (void)setCurrentHub:(nullable SentryHub *)hub
 {
     @synchronized(self) {
         currentHub = hub;
@@ -43,6 +61,11 @@ static BOOL crashedLastRunCalled;
     return currentHub.scope.span;
 }
 
++ (BOOL)isEnabled
+{
+    return currentHub != nil && [currentHub getClient] != nil;
+}
+
 + (BOOL)crashedLastRunCalled
 {
     return crashedLastRunCalled;
@@ -51,6 +74,29 @@ static BOOL crashedLastRunCalled;
 + (void)setCrashedLastRunCalled:(BOOL)value
 {
     crashedLastRunCalled = value;
+}
+
+/**
+ * Not public, only for internal use.
+ */
++ (void)setAppStartMeasurement:(nullable SentryAppStartMeasurement *)value
+{
+    @synchronized(sentrySDKappStartMeasurementLock) {
+        sentrySDKappStartMeasurement = value;
+    }
+    if (PrivateSentrySDKOnly.onAppStartMeasurementAvailable) {
+        PrivateSentrySDKOnly.onAppStartMeasurementAvailable(value);
+    }
+}
+
+/**
+ * Not public, only for internal use.
+ */
++ (nullable SentryAppStartMeasurement *)getAppStartMeasurement
+{
+    @synchronized(sentrySDKappStartMeasurementLock) {
+        return sentrySDKappStartMeasurement;
+    }
 }
 
 + (void)startWithOptions:(NSDictionary<NSString *, id> *)optionsDict

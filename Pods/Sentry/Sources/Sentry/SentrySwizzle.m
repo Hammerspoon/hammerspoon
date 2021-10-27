@@ -20,6 +20,9 @@ SentrySwizzleInfo ()
 - (SentrySwizzleOriginalIMP)getOriginalImplementation
 {
     NSAssert(_impProviderBlock, nil);
+
+    self.originalCalled = true;
+
     // Casting IMP to SentrySwizzleOriginalIMP to force user casting.
     return (SentrySwizzleOriginalIMP)_impProviderBlock();
 }
@@ -100,7 +103,7 @@ swizzle(Class classToSwizzle, SEL selector, SentrySwizzleImpFactoryBlock factory
     pthread_mutex_unlock(&gLock);
 }
 
-static NSMutableDictionary *
+static NSMutableDictionary<NSValue *, NSMutableSet<Class> *> *
 swizzledClassesDictionary()
 {
     static NSMutableDictionary *swizzledClasses;
@@ -109,10 +112,11 @@ swizzledClassesDictionary()
     return swizzledClasses;
 }
 
-static NSMutableSet *
+static NSMutableSet<Class> *
 swizzledClassesForKey(const void *key)
 {
-    NSMutableDictionary *classesDictionary = swizzledClassesDictionary();
+    NSMutableDictionary<NSValue *, NSMutableSet<Class> *> *classesDictionary
+        = swizzledClassesDictionary();
     NSValue *keyValue = [NSValue valueWithPointer:key];
     NSMutableSet *swizzledClasses = [classesDictionary objectForKey:keyValue];
     if (!swizzledClasses) {
@@ -133,7 +137,7 @@ swizzledClassesForKey(const void *key)
 
     @synchronized(swizzledClassesDictionary()) {
         if (key) {
-            NSSet *swizzledClasses = swizzledClassesForKey(key);
+            NSSet<Class> *swizzledClasses = swizzledClassesForKey(key);
             if (mode == SentrySwizzleModeOncePerClass) {
                 if ([swizzledClasses containsObject:classToSwizzle]) {
                     return NO;

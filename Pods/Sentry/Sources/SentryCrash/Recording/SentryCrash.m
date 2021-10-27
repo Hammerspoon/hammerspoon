@@ -35,6 +35,7 @@
 #import "SentryCrashMonitor_System.h"
 #import "SentryCrashReportFields.h"
 #import "SentryCrashSystemCapabilities.h"
+#import <NSData+Sentry.h>
 
 //#define SentryCrashLogger_LocalLevel TRACE
 #import "SentryCrashLogger.h"
@@ -161,10 +162,9 @@ getBasePath()
         NSError *error = nil;
         NSData *userInfoJSON = nil;
         if (userInfo != nil) {
-            userInfoJSON =
-                [self nullTerminated:[SentryCrashJSONCodec encode:userInfo
-                                                          options:SentryCrashJSONEncodeOptionSorted
-                                                            error:&error]];
+            userInfoJSON = [[SentryCrashJSONCodec encode:userInfo
+                                                 options:SentryCrashJSONEncodeOptionSorted
+                                                   error:&error] nullTerminated];
             if (error != NULL) {
                 SentryCrashLOG_ERROR(@"Could not serialize user info: %@", error);
                 return;
@@ -517,20 +517,6 @@ SYNTHESIZE_CRASH_STATE_PROPERTY(BOOL, crashedLastLaunch)
 {
     _printPreviousLog = shouldPrintPreviousLog;
     sentrycrash_setPrintPreviousLog(shouldPrintPreviousLog);
-}
-
-// ============================================================================
-#pragma mark - Utility -
-// ============================================================================
-
-- (NSMutableData *)nullTerminated:(NSData *)data
-{
-    if (data == nil) {
-        return NULL;
-    }
-    NSMutableData *mutable = [NSMutableData dataWithData:data];
-    [mutable appendBytes:"\0" length:1];
-    return mutable;
 }
 
 // ============================================================================

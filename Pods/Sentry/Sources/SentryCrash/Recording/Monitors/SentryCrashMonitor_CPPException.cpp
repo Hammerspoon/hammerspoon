@@ -80,6 +80,7 @@ void
 __cxa_throw(void *thrown_exception, std::type_info *tinfo, void (*dest)(void *))
 {
     if (g_captureNextStackTrace) {
+        sentrycrash_async_backtrace_decref(g_stackCursor.async_caller);
         sentrycrashsc_initSelfThread(&g_stackCursor, 1);
     }
 

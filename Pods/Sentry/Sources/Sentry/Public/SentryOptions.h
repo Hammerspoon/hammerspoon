@@ -116,7 +116,7 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL enableAutoSessionTracking;
 
 /**
- * Whether to enable to enable out of memory tracking or not. Default is YES.
+ * Whether to enable out of memory tracking or not. Default is YES.
  */
 @property (nonatomic, assign) BOOL enableOutOfMemoryTracking;
 
@@ -133,6 +133,16 @@ NS_SWIFT_NAME(Options)
  * This feature is enabled by default.
  */
 @property (nonatomic, assign) BOOL attachStacktrace;
+
+/**
+ * Attention: This is an experimental feature. Turning this feature on can have an impact on
+ * the grouping of your issues.
+ *
+ * When enabled, the SDK stitches stack traces of asynchronous code together.
+ *
+ * This feature is disabled by default.
+ */
+@property (nonatomic, assign) BOOL stitchAsyncCode;
 
 /**
  * Describes the Sentry SDK and its configuration used to capture and transmit an event.
@@ -158,6 +168,20 @@ NS_SWIFT_NAME(Options)
 @property (nonatomic, assign) BOOL sendDefaultPii;
 
 /**
+ * When enabled, the SDK tracks performance for UIViewController subclasses and HTTP requests
+ * automatically. It also measures the app start and slow and frozen frames. The default is
+ * <code>YES</code>. Note: Performance Monitoring must be enabled for this flag to take effect. See:
+ * https://docs.sentry.io/platforms/apple/performance/
+ */
+@property (nonatomic, assign) BOOL enableAutoPerformanceTracking;
+
+/**
+ * When enabled, the SDK adds breadcrumbs for HTTP requests and tracks performance for HTTP
+ * requests if auto performance tracking is enabled. The default is <code>YES</code>.
+ */
+@property (nonatomic, assign) BOOL enableNetworkTracking;
+
+/**
  * Indicates the percentage of the tracing data that is collected. Setting this to 0 or NIL discards
  * all trace data, 1.0 collects all trace data, 0.01 collects 1% of all trace data. The default is
  * 0. The value needs to be >= 0.0 and <= 1.0. When setting a value out of range  the SDK sets it to
@@ -171,6 +195,12 @@ NS_SWIFT_NAME(Options)
  * be >= 0.0 and <= 1.0 or NIL. When returning a value out of range the SDK uses the default of 0.
  */
 @property (nullable, nonatomic) SentryTracesSamplerCallback tracesSampler;
+
+/**
+ * If tracing should be enabled or not. Returns YES if either a tracesSampleRate > 0 and <=1 or a
+ * tracesSampler is set otherwise NO.
+ */
+@property (nonatomic, assign, readonly) BOOL isTracingEnabled;
 
 /**
  * A list of string prefixes of framework names that belong to the app. This option takes precedence
@@ -205,6 +235,13 @@ NS_SWIFT_NAME(Options)
  * Set as delegate on the NSURLSession used for all network data-transfer tasks performed by Sentry.
  */
 @property (nullable, nonatomic, weak) id<NSURLSessionDelegate> urlSessionDelegate;
+
+/**
+ * Controls if the `tracestate` header is attached to envelopes and HTTP client integrations.
+ *
+ * Note: this is an experimental API and will be removed without notice.
+ */
+@property (nonatomic) BOOL experimentalEnableTraceSampling;
 
 @end
 

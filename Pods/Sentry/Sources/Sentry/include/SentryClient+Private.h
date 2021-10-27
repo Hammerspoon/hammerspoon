@@ -5,7 +5,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryClient (Private)
+@interface
+SentryClient (Private)
 
 - (SentryFileManager *)fileManager;
 

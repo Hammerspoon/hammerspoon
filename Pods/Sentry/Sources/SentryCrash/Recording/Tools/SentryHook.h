@@ -20,8 +20,13 @@ struct sentrycrash_async_backtrace_s {
 
 /**
  * Returns the async caller of the current calling context, if any.
+ * The async stacktrace returned has an owned reference, so it needs to be freed using
+ * `sentrycrash_async_backtrace_decref`.
  */
 sentrycrash_async_backtrace_t *sentrycrash_get_async_caller_for_thread(SentryCrashThread);
+
+/** Decrements the refcount on the given `bt`. */
+void sentrycrash_async_backtrace_decref(sentrycrash_async_backtrace_t *bt);
 
 /**
  * Installs the various async hooks that sentry offers.

@@ -79,17 +79,23 @@ SentrySpanContext () {
         @"type" : SentrySpanContext.type,
         @"span_id" : self.spanId.sentrySpanIdString,
         @"trace_id" : self.traceId.sentryIdString,
-        @"tags" : _tags.copy
+        @"op" : self.operation
     }
                                                  .mutableCopy;
+
+    @synchronized(_tags) {
+        if (_tags.count > 0) {
+            mutabledictionary[@"tags"] = _tags.copy;
+        }
+    }
 
     // Since we guard for 'undecided', we'll
     // either send it if it's 'true' or 'false'.
     if (self.sampled != kSentrySampleDecisionUndecided)
         [mutabledictionary setValue:SentrySampleDecisionNames[self.sampled] forKey:@"sampled"];
 
-    if (self.operation != nil)
-        [mutabledictionary setValue:self.operation forKey:@"op"];
+    if (self.spanDescription != nil)
+        [mutabledictionary setValue:self.spanDescription forKey:@"description"];
 
     if (self.parentSpanId != nil)
         [mutabledictionary setValue:self.parentSpanId.sentrySpanIdString forKey:@"parent_span_id"];

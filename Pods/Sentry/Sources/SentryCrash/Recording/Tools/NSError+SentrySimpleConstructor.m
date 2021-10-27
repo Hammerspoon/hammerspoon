@@ -26,7 +26,8 @@
 
 #import "NSError+SentrySimpleConstructor.h"
 
-@implementation NSError (SentrySimpleConstructor)
+@implementation
+NSError (SentrySimpleConstructor)
 
 + (NSError *)sentryErrorWithDomain:(NSString *)domain
                               code:(NSInteger)code

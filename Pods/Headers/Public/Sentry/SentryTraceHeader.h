@@ -1,0 +1,1 @@
+../../../Sentry/Sources/Sentry/Public/SentryTraceHeader.h

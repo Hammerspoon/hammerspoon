@@ -349,7 +349,7 @@ static int chooserPlaceholder(lua_State *L) {
         if (!placeholderString) placeholderString = chooser.queryField.placeholderString ;
         [skin pushNSObject:placeholderString] ;
     } else {
-        chooser.queryField.placeholderAttributedString = [skin toNSObjectAtIndex:2];
+        chooser.queryField.placeholderAttributedString = [[NSAttributedString alloc] initWithString:[skin toNSObjectAtIndex:2]];
         lua_settop(L, 1);
     }
     return 1;
