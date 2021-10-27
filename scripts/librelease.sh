@@ -283,11 +283,16 @@ function assert_gatekeeper_acceptance() {
 
 function assert_entitlements() {
     echo "Ensuring Entitlements applied..."
-    TARGET=$(cat "${HAMMERSPOON_HOME}/Hammerspoon/Hammerspoon.entitlements")
-    APP=$(codesign --display --entitlements :- "${HAMMERSPOON_HOME}/build/Hammerspoon.app")
+    TARGET=$(cat "${HAMMERSPOON_HOME}/Hammerspoon/Hammerspoon.entitlements" | xmllint --c14n --format - 2>/dev/null)
+    APP=$(codesign --display --entitlements - --xml "${HAMMERSPOON_HOME}/build/Hammerspoon.app" | xmllint --c14n --format - 2>/dev/null)
 
     if [ "${TARGET}" != "${APP}" ]; then
-        fail "Entitlements did not apply correctly: ${APP}"
+        echo "***** EXPECTED ENTITLEMENTS:"
+        echo "${TARGET}"
+        echo "***** ACTUAL ENTITLEMENTS:"
+        echo "${APP}"
+        echo "*****"
+        fail "Entitlements did not apply correctly"
     fi
 }
 
@@ -357,6 +362,8 @@ function wait_for_notarization() {
             break
         elif [ "${OUTPUT}" == "Working" ]; then
             echo -n "."
+        elif [ "${OUTPUT}" == "No URL yet" ]; then
+            echo -n "_"
         else
             echo ""
             fail "Unknown output: ${OUTPUT}"
@@ -382,6 +389,10 @@ function check_notarization_status() {
 
     local NOTARIZATION_LOG_URL=""
     NOTARIZATION_LOG_URL=$(echo "${OUTPUT}" | grep "LogFileURL: " | awk '{ print $2 }')
+    if [ "${NOTARIZATION_LOG_URL}" == "" ]; then
+        echo "No URL yet"
+        return
+    fi
     echo "Fetching Notarization log: ${NOTARIZATION_LOG_URL}" >/dev/stderr
     local STATUS=""
     STATUS=$(curl "${NOTARIZATION_LOG_URL}")
