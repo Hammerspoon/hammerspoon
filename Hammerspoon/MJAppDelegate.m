@@ -41,6 +41,15 @@
     self.startupEvent = event;
 }
 
+#ifndef NO_INTENTS
+- (id)application:(NSApplication *)application handlerForIntent:(INIntent *)intent  API_AVAILABLE(macos(11.0)){
+    if ([intent isKindOfClass:[HSExecuteLuaIntent class]]) {
+        return ([[HSExecuteLuaIntentHandler alloc] init]);
+    }
+    return nil;
+}
+#endif
+
 - (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)fileAndPath {
     NSString *typeOfFile = [[NSWorkspace sharedWorkspace] typeOfFile:fileAndPath error:nil];
 
