@@ -461,10 +461,11 @@ def process_markdown(data):
                 dbg("Preparing template data for: %s" % item["def"])
                 item["def_gfm"] = strip_paragraph(md(item["def"]))
                 item["doc_gfm"] = md(item["doc"])
+                if "notes" in item:
+                    item["notes_gfm"] = md('\n'.join(item["notes"]))
                 if item_type in ["Function", "Constructor", "Method"]:
                     item["parameters_gfm"] = md('\n'.join(item["parameters"]))
                     item["returns_gfm"] = md('\n'.join(item["returns"]))
-                    item["notes_gfm"] = md('\n'.join(item["notes"]))
                 items[j] = item
         # Now do the same for the deprecated 'items' list
         for j in range(0, len(module["items"])):
@@ -607,7 +608,7 @@ def write_sql(filepath, data):
     cur.execute("VACUUM;")
 
 
-def write_templated_output(output_dir, template_dir, title, data, extension):
+def write_templated_output(output_dir, template_dir, title, source_url_base, data, extension):
     """Write out a templated version of the docs"""
     from jinja2 import Environment
 
@@ -661,21 +662,22 @@ def write_templated_output(output_dir, template_dir, title, data, extension):
                                 extension), "wb") as docfile:
             render = template.render(module=module,
                                      type_order=TYPE_NAMES,
-                                     type_desc=TYPE_DESC)
+                                     type_desc=TYPE_DESC,
+                                     source_url_base=source_url_base)
             docfile.write(render.encode("utf-8"))
             dbg("Wrote %s.%s" % (module["name"], extension))
 
     tmplfile.close()
 
 
-def write_html(output_dir, template_dir, title, data):
+def write_html(output_dir, template_dir, title, source_url_base, data):
     """Write out an HTML version of the docs"""
-    write_templated_output(output_dir, template_dir, title, data, "html")
+    write_templated_output(output_dir, template_dir, title, source_url_base, data, "html")
 
 
-def write_markdown(output_dir, template_dir, title, data):
+def write_markdown(output_dir, template_dir, source_url_base, title, data):
     """Write out a Markdown version of the docs"""
-    write_templated_output(output_dir, template_dir, title, data, "md")
+    write_templated_output(output_dir, template_dir, title, source_url_base, data, "md")
 
 
 def main():
@@ -719,6 +721,8 @@ def main():
     parser.add_argument("-l", "--lint", action="store_true",
                         dest="lint_mode", default=False,
                         help="Run in Lint mode. No docs will be built")
+    parser.add_argument("-u", "--source_url_base", action="store",
+                        dest="source_url_base", default = "https://github.com/Hammerspoon/hammerspoon/blob/master/")
     parser.add_argument("DIRS", nargs=argparse.REMAINDER,
                         help="Directories to search")
     arguments, leftovers = parser.parse_known_args()
@@ -764,11 +768,11 @@ def main():
     if arguments.html:
         write_html(arguments.output_dir + "/html/",
                    arguments.template_dir,
-                   arguments.title, results)
+                   arguments.title, arguments.source_url_base, results)
     if arguments.markdown:
         write_markdown(arguments.output_dir + "/markdown/",
                        arguments.template_dir,
-                       arguments.title, results)
+                       arguments.title, arguments.source_url_base, results)
 
 
 if __name__ == "__main__":
