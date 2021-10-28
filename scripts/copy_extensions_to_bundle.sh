@@ -48,6 +48,7 @@ export HS_MODULES="application \
     settings \
     serial \
     sharing \
+    shortcuts \
     socket \
     sound \
     speech \
