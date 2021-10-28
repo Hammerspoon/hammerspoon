@@ -154,6 +154,8 @@
 		4F7BB9D626447C640077A926 /* HShotkey.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F7BB9D526447C640077A926 /* HShotkey.m */; };
 		4F7F3B66272AF68100E05732 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4F7F3B6D272AF69D00E05732 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F7F3B60272AF57000E05732 /* internal.m */; };
+		4F7F3B71272B3E2900E05732 /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 4F7F3B70272B3E2900E05732 /* Intents.intentdefinition */; };
+		4F7F3B77272B3F3700E05732 /* HSExecuteLuaIntentHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F7F3B76272B3F3700E05732 /* HSExecuteLuaIntentHandler.m */; };
 		4F85FED31CCA918D00FBBAD7 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4F85FED91CCA91AC00FBBAD7 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F85FECC1CCA8A2F00FBBAD7 /* internal.m */; };
 		4F8779D1200CD51200E9DB42 /* HSwindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F8779D0200CD51200E9DB42 /* HSwindow.m */; };
@@ -1219,6 +1221,9 @@
 		4F7F3B60272AF57000E05732 /* internal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = internal.m; sourceTree = "<group>"; };
 		4F7F3B61272AF65F00E05732 /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; path = init.lua; sourceTree = "<group>"; };
 		4F7F3B6C272AF68100E05732 /* libshortcuts.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libshortcuts.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		4F7F3B70272B3E2900E05732 /* Intents.intentdefinition */ = {isa = PBXFileReference; lastKnownFileType = file.intentdefinition; path = Intents.intentdefinition; sourceTree = "<group>"; };
+		4F7F3B75272B3F3700E05732 /* HSExecuteLuaIntentHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HSExecuteLuaIntentHandler.h; sourceTree = "<group>"; };
+		4F7F3B76272B3F3700E05732 /* HSExecuteLuaIntentHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HSExecuteLuaIntentHandler.m; sourceTree = "<group>"; };
 		4F85FECB1CCA8A2F00FBBAD7 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/distributednotifications/init.lua; sourceTree = "<group>"; };
 		4F85FECC1CCA8A2F00FBBAD7 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/distributednotifications/internal.m; sourceTree = "<group>"; };
 		4F85FED81CCA918D00FBBAD7 /* libdistributednotifications.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libdistributednotifications.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -3457,6 +3462,7 @@
 				944A2D401989737E00D8DC90 /* Hammerspoon-Info.plist */,
 				944A2D411989737E00D8DC90 /* Hammerspoon-Prefix.pch */,
 				4F5B6E6A1E9E86BB003FC580 /* Hammerspoon.sdef */,
+				4F7F3B70272B3E2900E05732 /* Intents.intentdefinition */,
 			);
 			name = Extras;
 			sourceTree = "<group>";
@@ -3476,6 +3482,8 @@
 				945B65B1198D31FC002D2E30 /* setup.lua */,
 				4F9BA8D523DFAB03006349F2 /* HSuicore.h */,
 				4F9BA8D623DFAB03006349F2 /* HSuicore.m */,
+				4F7F3B75272B3F3700E05732 /* HSExecuteLuaIntentHandler.h */,
+				4F7F3B76272B3F3700E05732 /* HSExecuteLuaIntentHandler.m */,
 				942E71AB19B11288001BA156 /* Preferences Window */,
 				942050C219907AF700FC4839 /* Console Window */,
 				945B65B0198D304F002D2E30 /* Auxiliary */,
@@ -7017,6 +7025,7 @@
 				9409203119A5940600B9964E /* MJVersionUtils.m in Sources */,
 				944A2DA91989760400D8DC90 /* MJConsoleWindowController.m in Sources */,
 				4F9BA8D723DFAB03006349F2 /* HSuicore.m in Sources */,
+				4F7F3B77272B3F3700E05732 /* HSExecuteLuaIntentHandler.m in Sources */,
 				94A1E5481993AC5C003AEB26 /* MJFileUtils.m in Sources */,
 				4FEF59431B29A352002344A7 /* HSGrowingTextField.m in Sources */,
 				949B520319A5576E00ED4F02 /* MJDockIcon.m in Sources */,
@@ -7024,6 +7033,7 @@
 				D077B5BF1A001B5300369B30 /* variables.m in Sources */,
 				942E71AA19B11176001BA156 /* MJAccessibilityUtils.m in Sources */,
 				949B520619A55BF400ED4F02 /* MJMenuIcon.m in Sources */,
+				4F7F3B71272B3E2900E05732 /* Intents.intentdefinition in Sources */,
 				943BF0F219A4B43E0017F79D /* MJUserNotificationManager.m in Sources */,
 				4F5B6E6E1E9E87CE003FC580 /* HSAppleScript.m in Sources */,
 				9422ACBD19B6163800F06A90 /* MJConfigUtils.m in Sources */,
@@ -9143,6 +9153,7 @@
 					"\"$(SDK_DIR)\"/usr/include/libxml2",
 				);
 				INFOPLIST_FILE = "Hammerspoon/Hammerspoon-Info.plist";
+				INTENTS_CODEGEN_LANGUAGE = "Objective-C";
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = Hammerspoon;
@@ -22964,6 +22975,7 @@
 					"\"$(SDK_DIR)\"/usr/include/libxml2",
 				);
 				INFOPLIST_FILE = "Hammerspoon/Hammerspoon-Info.plist";
+				INTENTS_CODEGEN_LANGUAGE = "Objective-C";
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = Hammerspoon;
@@ -22996,6 +23008,7 @@
 					"\"$(SDK_DIR)\"/usr/include/libxml2",
 				);
 				INFOPLIST_FILE = "Hammerspoon/Hammerspoon-Info.plist";
+				INTENTS_CODEGEN_LANGUAGE = "Objective-C";
 				MARKETING_VERSION = 1.0;
 				OTHER_CODE_SIGN_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.${PRODUCT_NAME:rfc1034identifier}";

@@ -255,6 +255,10 @@
 			</array>
 		</dict>
 	</array>
+	<key>NSUserActivityTypes</key>
+	<array>
+		<string>HSExecuteLuaIntent</string>
+	</array>
 	<key>NSUserNotificationAlertStyle</key>
 	<string>alert</string>
 	<key>OSAScriptingDefinition</key>
