@@ -14,14 +14,18 @@
     int result = luaL_dostring(skin.L, intent.source.UTF8String);
 
     NSString *output = @"";
-    if (lua_gettop(skin.L) > 0) {
+    if (lua_gettop(skin.L) > 0 && lua_type(skin.L, 1) == LUA_TSTRING) {
         output = [NSString stringWithUTF8String:lua_tostring(skin.L, -1)];
         lua_pop(skin.L, 1);
     }
 
     if (result == LUA_OK) {
         NSLog(@"HSExecuteLuaIntent executed Lua correctly: %@", output);
-        completion([HSExecuteLuaIntentResponse successIntentResponseWithResult:output]);
+        HSExecuteLuaIntentResponse *response = [HSExecuteLuaIntentResponse successIntentResponseWithResult:output];
+        if (lua_gettop(skin.L) > 0) {
+            response.data = [skin toNSObjectAtIndex:1 withOptions:LS_NSLuaStringAsDataOnly];
+        }
+        completion(response);
     } else {
         NSLog(@"HSExecuteLuaIntent failed: %@", output);
         completion([HSExecuteLuaIntentResponse failureIntentResponseWithError:output]);
