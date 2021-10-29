@@ -5,6 +5,11 @@ if [ "$1" == "--nightly" ]; then
     NIGHTLY=1
 fi
 export NIGHTLY
+LOCAL=0
+if [ "$1" == "--local" ]; then
+    LOCAL=1
+fi
+export LOCAL
 
 set -eu
 set -o pipefail
@@ -17,13 +22,13 @@ fi
 
 # Store some variables for later
 VERSION_GITOPTS=""
-if [ "$NIGHTLY" == "0" ]; then
+if [ "$NIGHTLY" == "0" ] && [ "$LOCAL" == "0" ]; then
     VERSION_GITOPTS="--abbrev=0"
 fi
 VERSION="$(git describe $VERSION_GITOPTS)"
 export VERSION
 
-echo "Building $VERSION (isNightly: $NIGHTLY)"
+echo "Building $VERSION (isNightly: $NIGHTLY, isLocal: $LOCAL)"
 
 export CWD=$PWD
 export SCRIPT_NAME
@@ -57,10 +62,12 @@ source "${SCRIPT_HOME}/librelease.sh"
 assert
 build
 validate
+if [ "$LOCAL" == "0" ]; then
 notarize
+fi
 prepare_upload
 archive
-if [ "$NIGHTLY" == "0" ]; then
+if [ "$NIGHTLY" == "0" ] || [ "$LOCAL" == "0" ]; then
   localtest
   upload
   announce

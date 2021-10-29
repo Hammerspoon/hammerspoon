@@ -17,7 +17,7 @@ function assert() {
   export CODESIGN_AUTHORITY_TOKEN
   assert_gawk
   assert_xcbeautify
-  if [ "${NIGHTLY}" == "0" ]; then
+  if [ "${NIGHTLY}" == "0" ] && [ "${LOCAL}" == "0" ]; then
     assert_github_hub
   fi
   assert_github_release_token && GITHUB_TOKEN="$(cat "${GITHUB_TOKEN_FILE}")"
@@ -34,7 +34,7 @@ function assert() {
   assert_version_in_git_tags
   assert_version_not_in_github_releases
   assert_docs_bundle_complete
-  if [ "${NIGHTLY}" == "0" ]; then
+  if [ "${NIGHTLY}" == "0" ] && [ "${LOCAL}" == "0" ]; then
     assert_cocoapods_state
     assert_website_repo
   fi
@@ -182,7 +182,7 @@ function assert_version_in_xcode() {
 }
 
 function assert_version_in_git_tags() {
-  if [ "$NIGHTLY" == "1" ]; then
+  if [ "$NIGHTLY" == "1" ] || [ "$LOCAL" == "1" ]; then
       echo "Skipping git tag check in nightly build."
       return
   fi
@@ -208,7 +208,7 @@ function assert_version_in_git_tags() {
 }
 
 function assert_version_not_in_github_releases() {
-  if [ "$NIGHTLY" == "1" ]; then
+  if [ "$NIGHTLY" == "1" ] || [ "$LOCAL" == "1" ]; then
       echo "Skipping GitHub release check in nightly build."
       return
   fi
@@ -283,7 +283,12 @@ function assert_gatekeeper_acceptance() {
 
 function assert_entitlements() {
     echo "Ensuring Entitlements applied..."
-    TARGET=$(cat "${HAMMERSPOON_HOME}/Hammerspoon/Hammerspoon.entitlements" | xmllint --c14n --format - 2>/dev/null)
+    if [ "${LOCAL}" == "1" ]; then
+        ENTITLEMENTS_FILE="Hammerspoon-dev.entitlements"
+    else
+        ENTITLEMENTS_FILE="Hammerspoon.entitlements"
+    fi
+    TARGET=$(cat "${HAMMERSPOON_HOME}/Hammerspoon/${ENTITLEMENTS_FILE}" | xmllint --c14n --format - 2>/dev/null)
     APP=$(codesign --display --entitlements - --xml "${HAMMERSPOON_HOME}/build/Hammerspoon.app" | xmllint --c14n --format - 2>/dev/null)
 
     if [ "${TARGET}" != "${APP}" ]; then
@@ -317,7 +322,13 @@ function build_hammerspoon_app() {
 function sign_hammerspoon_app() {
     echo "Signing Hammerspoon.app..."
     pushd "${HAMMERSPOON_HOME}" >/dev/null
-    ./scripts/sign_bundle.sh ./build/Hammerspoon.app ./ Release
+    local BUILD_ENV=""
+    if [ "${LOCAL}" == "1" ]; then
+        BUILD_ENV="local"
+    else
+        BUILD_ENV="ignore"
+    fi
+    ./scripts/sign_bundle.sh ./build/Hammerspoon.app ./ "${BUILD_ENV}"
     popd >/dev/null
 }
 

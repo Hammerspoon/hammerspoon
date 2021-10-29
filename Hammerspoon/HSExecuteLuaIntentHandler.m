@@ -22,12 +22,12 @@
     if (result == LUA_OK) {
         NSLog(@"HSExecuteLuaIntent executed Lua correctly: %@", output);
         HSExecuteLuaIntentResponse *response = [HSExecuteLuaIntentResponse successIntentResponseWithResult:output];
-        if (lua_gettop(skin.L) > 0) {
-            NSLog(@"HSExecuteLuaIntent found additional return value of type: %d", lua_type(skin.L, 1));
-            NSData *outputData = [skin toNSObjectAtIndex:1 withOptions:LS_NSLuaStringAsDataOnly];
-            NSLog(@"HSExecuteLuaIntent fetched additional return value: %@", outputData);
-            response.data = [INFile fileWithData:outputData filename:@"" typeIdentifier:nil];
-        }
+//        if (lua_gettop(skin.L) > 0) {
+//            NSLog(@"HSExecuteLuaIntent found additional return value of type: %d", lua_type(skin.L, 1));
+//            NSData *outputData = [skin toNSObjectAtIndex:1 withOptions:LS_NSLuaStringAsDataOnly];
+//            NSLog(@"HSExecuteLuaIntent fetched additional return value: %@", outputData);
+//            response.data = [INFile fileWithData:outputData filename:@"" typeIdentifier:nil];
+//        }
         completion(response);
     } else {
         NSLog(@"HSExecuteLuaIntent failed: %@", output);
