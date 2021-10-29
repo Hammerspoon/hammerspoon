@@ -13,17 +13,16 @@
     LuaSkin *skin = [LuaSkin sharedWithState:nil];
     int result = luaL_dostring(skin.L, intent.source.UTF8String);
 
-    // FIXME: These should be returning more useful strings.
-    if (result != LUA_OK) {
-        const char *output = lua_tostring(skin.L, -1);
-        NSLog(@"HSExecuteLuaIntent executed Lua correctly: %s", output);
-        completion([HSExecuteLuaIntentResponse failureIntentResponseWithError:[NSString stringWithUTF8String:output]]);
+    NSString *output = @"";
+    if (lua_gettop(skin.L) > 0) {
+        output = [NSString stringWithUTF8String:lua_tostring(skin.L, -1)];
+    }
+
+    if (result == LUA_OK) {
+        NSLog(@"HSExecuteLuaIntent executed Lua correctly: %@", output);
+        completion([HSExecuteLuaIntentResponse failureIntentResponseWithError:output]);
     } else {
-        NSString *output = @"";
-        if (lua_gettop(skin.L) > 0) {
-            output = [NSString stringWithUTF8String:lua_tostring(skin.L, -1)];
-        }
-        NSLog(@"HSExecuteLuaIntent failed: %s", output);
+        NSLog(@"HSExecuteLuaIntent failed: %@", output);
         completion([HSExecuteLuaIntentResponse successIntentResponseWithResult:output]);
     }
 }
