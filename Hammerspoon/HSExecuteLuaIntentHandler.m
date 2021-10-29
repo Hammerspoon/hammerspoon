@@ -16,6 +16,7 @@
     NSString *output = @"";
     if (lua_gettop(skin.L) > 0) {
         output = [NSString stringWithUTF8String:lua_tostring(skin.L, -1)];
+        lua_pop(skin.L, 1);
     }
 
     if (result == LUA_OK) {
