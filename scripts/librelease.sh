@@ -328,7 +328,7 @@ function sign_hammerspoon_app() {
     else
         BUILD_ENV="ignore"
     fi
-    ./scripts/sign_bundle.sh ./build/Hammerspoon.app ./ "${BUILD_ENV}"
+    ./scripts/sign_bundle.sh ./build/Hammerspoon.app ./ Release "${BUILD_ENV}"
     popd >/dev/null
 }
 
