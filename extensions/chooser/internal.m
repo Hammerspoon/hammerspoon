@@ -345,11 +345,10 @@ static int chooserPlaceholder(lua_State *L) {
     HSChooser *chooser = [skin toNSObjectAtIndex:1];
 
     if (lua_gettop(L) == 1) {
-        NSObject *placeholderString = chooser.queryField.placeholderAttributedString ;
-        if (!placeholderString) placeholderString = chooser.queryField.placeholderString ;
+        NSObject *placeholderString = chooser.queryField.placeholderString ;
         [skin pushNSObject:placeholderString] ;
     } else {
-        chooser.queryField.placeholderAttributedString = [[NSAttributedString alloc] initWithString:[skin toNSObjectAtIndex:2]];
+        chooser.queryField.placeholderString = [skin toNSObjectAtIndex:2];
         lua_settop(L, 1);
     }
     return 1;

@@ -84,7 +84,7 @@
               {% endif %}
               <tr>
                 <th>Source</th>
-                <td><a href="https://github.com/Hammerspoon/hammerspoon/blob/master/{{ item.file }}#L{{ item.lineno }}">{{ item.file }}</a></td>
+                <td><a href="{{ source_url_base }}{{ item.file }}#L{{ item.lineno }}">{{ item.file }}</a></td>
               </tr>
             </table>
           </section>
