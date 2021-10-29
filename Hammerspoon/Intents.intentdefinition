@@ -184,20 +184,6 @@
 						<key>INIntentResponseParameterType</key>
 						<string>String</string>
 					</dict>
-					<dict>
-						<key>INIntentResponseParameterDisplayName</key>
-						<string>Data</string>
-						<key>INIntentResponseParameterDisplayNameID</key>
-						<string>xdbT0b</string>
-						<key>INIntentResponseParameterDisplayPriority</key>
-						<integer>3</integer>
-						<key>INIntentResponseParameterName</key>
-						<string>data</string>
-						<key>INIntentResponseParameterTag</key>
-						<integer>6</integer>
-						<key>INIntentResponseParameterType</key>
-						<string>File</string>
-					</dict>
 				</array>
 			</dict>
 			<key>INIntentTitle</key>

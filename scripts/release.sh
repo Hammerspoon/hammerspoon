@@ -1,14 +1,23 @@
 #!/bin/bash
 
+XCODE_SCHEME="Release"
+XCODE_CONFIGURATION="Release"
+
 NIGHTLY=0
+LOCAL=0
+
 if [ "$1" == "--nightly" ]; then
     NIGHTLY=1
 fi
-export NIGHTLY
-LOCAL=0
 if [ "$1" == "--local" ]; then
     LOCAL=1
+    XCODE_SCHEME="Hammerspoon"
+    XCODE_CONFIGURATION="Debug"
 fi
+
+export XCODE_SCHEME
+export XCODE_CONFIGURATION
+export NIGHTLY
 export LOCAL
 
 set -eu
@@ -39,7 +48,7 @@ export XCODE_BUILT_PRODUCTS_DIR
 SCRIPT_NAME="$(basename "$0")"
 SCRIPT_HOME="$(dirname "$(greadlink -f "$0")")"
 HAMMERSPOON_HOME="$(greadlink -f "${SCRIPT_HOME}/../")"
-XCODE_BUILT_PRODUCTS_DIR="$(xcodebuild -workspace Hammerspoon.xcworkspace -scheme 'Release' -configuration 'Release' -showBuildSettings | sort | uniq | grep ' BUILT_PRODUCTS_DIR =' | awk '{ print $3 }')"
+XCODE_BUILT_PRODUCTS_DIR="$(xcodebuild -workspace Hammerspoon.xcworkspace -scheme "${XCODE_SCHEME}" -configuration "${XCODE_CONFIGURATION}" -showBuildSettings | sort | uniq | grep ' BUILT_PRODUCTS_DIR =' | awk '{ print $3 }')"
 
 export TOKENPATH
 TOKENPATH="${HAMMERSPOON_HOME}/.."

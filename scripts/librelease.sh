@@ -52,7 +52,9 @@ function validate() {
 
   assert_valid_code_signature
   assert_valid_code_signing_entity
-  assert_gatekeeper_acceptance
+  if [ "${XCODE_SCHEME}" == "Release" ]; then
+    assert_gatekeeper_acceptance
+  fi
   assert_entitlements
 }
 
@@ -174,7 +176,7 @@ function assert_sentry_tokens() {
 # This is no longer used - version numbers are now added dynamically at build time
 function assert_version_in_xcode() {
   echo "Checking Xcode build version..."
-  XCODEVER="$(xcodebuild -target Hammerspoon -configuration Release -showBuildSettings 2>/dev/null | grep MARKETING_VERSION | awk '{ print $3 }')"
+  XCODEVER="$(xcodebuild -target Hammerspoon -configuration "${XCODE_CONFIGURATION}" -showBuildSettings 2>/dev/null | grep MARKETING_VERSION | awk '{ print $3 }')"
 
   if [ "$VERSION" != "$XCODEVER" ]; then
       fail "You asked for $VERSION to be released, but Xcode will build $XCODEVER"
@@ -307,7 +309,11 @@ function build_hammerspoon_app() {
   echo "Building Hammerspoon.app..."
   pushd "${HAMMERSPOON_HOME}" >/dev/null
   make clean
-  make release
+  if [ "${XCODE_SCHEME}" == "Release" ]; then
+    make release
+  else
+    make
+  fi
 #  git add Hammerspoon/Hammerspoon-Info.plist
 #  git commit Hammerspoon/Hammerspoon-Info.plist -m "Update build number for ${VERSION}"
   rm build/docs.json
@@ -328,7 +334,7 @@ function sign_hammerspoon_app() {
     else
         BUILD_ENV="ignore"
     fi
-    ./scripts/sign_bundle.sh ./build/Hammerspoon.app ./ Release "${BUILD_ENV}"
+    ./scripts/sign_bundle.sh ./build/Hammerspoon.app ./ "${XCODE_CONFIGURATION}" "${BUILD_ENV}"
     popd >/dev/null
 }
 
