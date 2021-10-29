@@ -20,10 +20,10 @@
 
     if (result == LUA_OK) {
         NSLog(@"HSExecuteLuaIntent executed Lua correctly: %@", output);
-        completion([HSExecuteLuaIntentResponse failureIntentResponseWithError:output]);
+        completion([HSExecuteLuaIntentResponse successIntentResponseWithResult:output]);
     } else {
         NSLog(@"HSExecuteLuaIntent failed: %@", output);
-        completion([HSExecuteLuaIntentResponse successIntentResponseWithResult:output]);
+        completion([HSExecuteLuaIntentResponse failureIntentResponseWithError:output]);
     }
 }
 

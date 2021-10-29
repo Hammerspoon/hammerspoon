@@ -43,9 +43,9 @@
 
 #ifndef NO_INTENTS
 - (id)application:(NSApplication *)application handlerForIntent:(INIntent *)intent  API_AVAILABLE(macos(11.0)){
-    NSLog(@"Checking for HSExecuteLuaIntent");
+    NSLog(@"handlerForIntent: Checking for HSExecuteLuaIntent");
     if ([intent isKindOfClass:[HSExecuteLuaIntent class]]) {
-        NSLog(@"Found HSExecuteLuaIntent, dispatching to handler");
+        NSLog(@"handlerForIntent: Found HSExecuteLuaIntent, dispatching to HSExecuteLuaIntentHandler");
         return ([[HSExecuteLuaIntentHandler alloc] init]);
     }
     return nil;
