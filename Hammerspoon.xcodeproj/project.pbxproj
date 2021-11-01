@@ -1257,14 +1257,14 @@
 		4FB74B392049A97D00B08851 /* test_task.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = test_task.lua; path = extensions/task/test_task.lua; sourceTree = "<group>"; };
 		4FB74B3A2049A9A600B08851 /* HStask.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HStask.m; sourceTree = "<group>"; };
 		4FBE2CE41B72543C00407788 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/applescript/init.lua; sourceTree = "<group>"; };
-		4FBE2CF91B7261A200407788 /* application.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; name = application.dylib; path = libapplication.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		4FBE2CF91B7261A200407788 /* libapplication.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libapplication.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FBE2CFC1B7261E500407788 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/application/init.lua; sourceTree = "<group>"; };
 		4FBE2CFD1B7261E500407788 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/application/internal.m; sourceTree = "<group>"; };
 		4FBE2D041B72630200407788 /* watcher.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = watcher.m; path = extensions/application/watcher.m; sourceTree = "<group>"; };
-		4FBE2D101B72631600407788 /* applicationwatcher.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; name = applicationwatcher.dylib; path = libapplicationwatcher.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		4FBE2D101B72631600407788 /* libapplicationwatcher.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libapplicationwatcher.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FC09F7B19F99ECE007542A6 /* docs.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = docs.json; path = build/docs.json; sourceTree = "<group>"; };
 		4FC93C9B1BCD2D8A0041B820 /* watcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = watcher.m; path = extensions/audiodevice/watcher.m; sourceTree = "<group>"; };
-		4FC93CA71BCD872D0041B820 /* audiodevicewatcher.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; name = audiodevicewatcher.dylib; path = libaudiodevicewatcher.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		4FC93CA71BCD872D0041B820 /* libaudiodevicewatcher.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libaudiodevicewatcher.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FCBAFCD23B0D941007BA1D0 /* libmath.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libmath.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FCBAFD223B0F7F1007BA1D0 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/math/internal.m; sourceTree = "<group>"; };
 		4FCBAFD423B0F805007BA1D0 /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/math/init.lua; sourceTree = "<group>"; };
@@ -1339,7 +1339,7 @@
 		4FDD9DC11ED30DA2008F14D3 /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/plist/init.lua; sourceTree = "<group>"; };
 		4FDD9DC21ED30DA2008F14D3 /* internal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/plist/internal.m; sourceTree = "<group>"; };
 		4FDD9DCC1ED30DC9008F14D3 /* libplist.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libplist.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		4FDE059F1B72984C00E9E8EE /* battery.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; name = battery.dylib; path = libbattery.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		4FDE059F1B72984C00E9E8EE /* libbattery.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libbattery.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FDE05A11B72987B00E9E8EE /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/battery/init.lua; sourceTree = "<group>"; };
 		4FDE05A21B72987B00E9E8EE /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/battery/internal.m; sourceTree = "<group>"; };
 		4FDE05AE1B72988C00E9E8EE /* libbatterywatcher.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libbatterywatcher.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1428,7 +1428,7 @@
 		D62F9EAD2320B81500FAE188 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/bonjour/internal.m; sourceTree = "<group>"; };
 		D62F9EBB2320B82100FAE188 /* libbonjour.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libbonjour.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		D62F9EC72320B86300FAE188 /* libbonjourservice.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libbonjourservice.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		D633A9E9247B9BF2005C88E2 /* axuielement.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; name = axuielement.dylib; path = libaxuielement.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		D633A9E9247B9BF2005C88E2 /* libaxuielement.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libaxuielement.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		D63FBD911D1CFB4E005255DD /* toolbar_internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = toolbar_internal.m; path = extensions/webview/toolbar_internal.m; sourceTree = "<group>"; };
 		D63FBD921D1CFB4E005255DD /* toolbar.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = toolbar.lua; path = extensions/webview/toolbar.lua; sourceTree = "<group>"; };
 		D64125581BA07CDE000FB5F8 /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/webview/init.lua; sourceTree = "<group>"; };
@@ -3353,11 +3353,11 @@
 			children = (
 				9445CA0B19083251002568BB /* Hammerspoon.app */,
 				D02F95241A00221C00E28BB2 /* Hammerspoon Tests.xctest */,
-				4FBE2CF91B7261A200407788 /* application.dylib */,
-				4FBE2D101B72631600407788 /* applicationwatcher.dylib */,
+				4FBE2CF91B7261A200407788 /* libapplication.dylib */,
+				4FBE2D101B72631600407788 /* libapplicationwatcher.dylib */,
 				4F70EED31B726D170025A7B3 /* libaudiodevice.dylib */,
 				4F70EEE91B7273700025A7B3 /* libbase64.dylib */,
-				4FDE059F1B72984C00E9E8EE /* battery.dylib */,
+				4FDE059F1B72984C00E9E8EE /* libbattery.dylib */,
 				4FDE05AE1B72988C00E9E8EE /* libbatterywatcher.dylib */,
 				4FDE05C71B72C22500E9E8EE /* libbrightness.dylib */,
 				4FDE05DC1B734EA600E9E8EE /* libcaffeinate.dylib */,
@@ -3400,7 +3400,7 @@
 				4F7694541B74C96800536DE4 /* libkeycodes.dylib */,
 				D64125641BA07CEA000FB5F8 /* libwebview.dylib */,
 				D64B03461BA954780006C468 /* libwebviewusercontent.dylib */,
-				4FC93CA71BCD872D0041B820 /* audiodevicewatcher.dylib */,
+				4FC93CA71BCD872D0041B820 /* libaudiodevicewatcher.dylib */,
 				D6F310E01BDF0E1700045CCD /* libdrawing_color.dylib */,
 				D6F310EF1BDF110500045CCD /* libstyledtext.dylib */,
 				4F9797C31BED0AC800719F3F /* libtask.dylib */,
@@ -3441,7 +3441,7 @@
 				22DF5D2723B9A9D300C41AE6 /* libpasteboardwatcher.dylib */,
 				4F9BA8C723DF3C6B006349F2 /* libuielementwatcher.dylib */,
 				22EEC62324926E5100BAE4DA /* libserial.dylib */,
-				D633A9E9247B9BF2005C88E2 /* axuielement.dylib */,
+				D633A9E9247B9BF2005C88E2 /* libaxuielement.dylib */,
 				4F7F3B6C272AF68100E05732 /* libshortcuts.dylib */,
 			);
 			name = Products;
@@ -5161,7 +5161,7 @@
 			);
 			name = application;
 			productName = alert;
-			productReference = 4FBE2CF91B7261A200407788 /* application.dylib */;
+			productReference = 4FBE2CF91B7261A200407788 /* libapplication.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 		4FBE2D051B72631600407788 /* applicationwatcher */ = {
@@ -5178,7 +5178,7 @@
 			);
 			name = applicationwatcher;
 			productName = alert;
-			productReference = 4FBE2D101B72631600407788 /* applicationwatcher.dylib */;
+			productReference = 4FBE2D101B72631600407788 /* libapplicationwatcher.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 		4FC93C9D1BCD872D0041B820 /* audiodevicewatcher */ = {
@@ -5195,7 +5195,7 @@
 			);
 			name = audiodevicewatcher;
 			productName = alert;
-			productReference = 4FC93CA71BCD872D0041B820 /* audiodevicewatcher.dylib */;
+			productReference = 4FC93CA71BCD872D0041B820 /* libaudiodevicewatcher.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 		4FCBAFC323B0D941007BA1D0 /* math */ = {
@@ -5485,7 +5485,7 @@
 			);
 			name = battery;
 			productName = alert;
-			productReference = 4FDE059F1B72984C00E9E8EE /* battery.dylib */;
+			productReference = 4FDE059F1B72984C00E9E8EE /* libbattery.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 		4FDE05A41B72988C00E9E8EE /* batterywatcher */ = {
@@ -5789,7 +5789,7 @@
 			);
 			name = axuielement;
 			productName = alert;
-			productReference = D633A9E9247B9BF2005C88E2 /* axuielement.dylib */;
+			productReference = D633A9E9247B9BF2005C88E2 /* libaxuielement.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 		D641255A1BA07CEA000FB5F8 /* webview */ = {

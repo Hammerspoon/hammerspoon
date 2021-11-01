@@ -44,7 +44,6 @@ USER_HEADER_SEARCH_PATHS = $(HEADER_SEARCH_PATHS)
 
 // Optimization Level
 GCC_OPTIMIZATION_LEVEL = 0
-GCC_OPTIMIZATION_LEVEL[config=Release] = s
 // Generate Position-Dependent Code
 GCC_DYNAMIC_NO_PIC = NO
 // No Common Blocks
