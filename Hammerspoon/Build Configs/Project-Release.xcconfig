@@ -1,0 +1,18 @@
+//
+//  Project-Release.xcconfig
+//  Hammerspoon
+//
+//  Created by Chris Jones on 31/10/2021.
+//  Copyright © 2021 Hammerspoon. All rights reserved.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+#include "Project-Base.xcconfig"
+
+// Build Active Architecture Only
+ONLY_ACTIVE_ARCH = NO
+
+// Enable Testability
+ENABLE_TESTABILITY = NO
