@@ -16,3 +16,6 @@ DYLIB_CURRENT_VERSION = 1
 // Executable prefix (this ends up being renamed by later scripts anyway)
 // FIXME: See if we can do away with this and just adjust the copy script?
 EXECUTABLE_PREFIX = lib
+
+// FIXME: Fix up hs.axuielement and remove this line
+WARNING_CLAGS =  $(inherited) -Wno-tautological-pointer-compare -Wno-bad-function-cast

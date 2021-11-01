@@ -131,7 +131,7 @@ static int colorPanelContinuous(lua_State *L) {
     [skin checkArgs:LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     NSColorPanel *cp = [NSColorPanel sharedColorPanel];
     if (lua_gettop(L) == 1) {
-        [cp setContinuous:(BOOL)lua_toboolean(L, 1)] ;
+        [cp setContinuous:(lua_toboolean(L, 1) ? YES : NO)] ;
     }
     lua_pushboolean(L, cp.continuous) ;
     return 1 ;
@@ -155,7 +155,7 @@ static int colorPanelShowsAlpha(lua_State *L) {
     [skin checkArgs:LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     NSColorPanel *cp = [NSColorPanel sharedColorPanel];
     if (lua_gettop(L) == 1) {
-        [cp setShowsAlpha:(BOOL)lua_toboolean(L, 1)] ;
+        [cp setShowsAlpha:(lua_toboolean(L, 1) ? YES : NO)] ;
     }
     lua_pushboolean(L, cp.showsAlpha) ;
     return 1 ;
@@ -698,7 +698,7 @@ static int textPrompt(lua_State *L) {
     NSString* defaultText = [skin toNSObjectAtIndex:3];
     NSString* buttonOne = [skin toNSObjectAtIndex:4];
     NSString* buttonTwo = [skin toNSObjectAtIndex:5];
-    BOOL secureField = (lua_type(L, 6) == LUA_TBOOLEAN) ? (BOOL)lua_toboolean(L, 6) : false;
+    BOOL secureField = (lua_type(L, 6) == LUA_TBOOLEAN) ? (lua_toboolean(L, 6) ? YES : NO) : false;
 
     NSAlert *alert = [[NSAlert alloc] init];
     [alert setMessageText:message];

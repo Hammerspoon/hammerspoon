@@ -17,6 +17,6 @@
 CODE_SIGN_ENTITLEMENTS = Hammerspoon/Hammerspoon.entitlements
 
 // Code Signing Identity
-CODE_SIGN_IDENTITY = "Developer ID Application"
+CODE_SIGN_IDENTITY = Developer ID Application
 DEVELOPMENT_TEAM = VQCYSNZB89
 
