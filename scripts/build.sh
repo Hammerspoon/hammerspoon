@@ -1,13 +1,15 @@
 #!/bin/bash
 # Hammerspoon build system
 
+# Check if we're in a CI system
+export IS_CI=${IS_CI:-0}
+
 # Set some defaults that we'll override based on command line arguments
 XCODE_SCHEME="Hammerspoon"
 XCODE_CONFIGURATION="Debug"
 XCCONFIG_FILE=""
 UPLOAD_DSYM=0
 DEBUG=0
-
 DOCS_JSON=1
 DOCS_MD=1
 DOCS_HTML=1
@@ -15,6 +17,7 @@ DOCS_SQL=1
 DOCS_DASH=1
 DOCS_LINT_ONLY=0
 
+# Print out friendly command line usage information
 function usage() {
     echo "Usage $0 COMMAND [OPTIONS]"
     echo "COMMANDS:"
@@ -48,22 +51,23 @@ function usage() {
     exit 2
 }
 
+# Fetch the COMMAND we should perform
 OPERATION=${1:-unknown};shift
-
 if [ "${OPERATION}" == "-h" ] || [ "${OPERATION}" == "--help" ]; then
     usage
 fi
-
 if [ "${OPERATION}" != "build" ] && [ "${OPERATION}" != "docs" ] && [ "${OPERATION}" != "installdeps" ] && [ "${OPERATION}" != "notarize" ] && [ "${OPERATION}" != "release" ] && [ "${OPERATION}" != "clean" ]; then
     usage
 fi;
 
+# Parse the rest of any arguments
 PARSED_ARGUMENTS=$(getopt ds:c:x:ujmtqal $*)
 if [ $? != 0 ]; then
     usage
 fi
 set -- $PARSED_ARGUMENTS
 
+# Translate the parsed arguments into our defaults
 for i
 do
     case "$i" in
@@ -148,67 +152,46 @@ if [ ${DEBUG} == 1 ]; then
     set -x
 fi
 
+# Enable lots of safety
 set -eu
 set -o pipefail
 
-exit 0
-
-
-XCODE_SCHEME="Release"
-XCODE_CONFIGURATION="Release"
-
-NIGHTLY=0
-LOCAL=0
-
-if [ "$1" == "--nightly" ]; then
-    NIGHTLY=1
-fi
-if [ "$1" == "--local" ]; then
-    LOCAL=1
-    XCODE_SCHEME="Hammerspoon"
-    XCODE_CONFIGURATION="Debug"
-fi
-
+# Export all the arguments we need later
 export XCODE_SCHEME
 export XCODE_CONFIGURATION
-export NIGHTLY
-export LOCAL
-
-set -eu
-set -o pipefail
+export XCCONFIG_FILE
+export UPLOAD_DSYM
+export DEBUG
+export DOCS_JSON
+export DOCS_MD
+export DOCS_HTML
+export DOCS_SQL
+export DOCS_DASH
+export DOCS_LINT_ONLY
 
 # Early sanity check that we have everything we need
 if [ "$(which greadlink)" == "" ]; then
-    echo "ERROR: Unable to find greadlink. Maybe 'brew install coreutils'?"
+    echo "ERROR: Unable to find greadlink. Maybe '$0 installdeps'?"
     exit 1
 fi
 
-# Store some variables for later
-VERSION_GITOPTS=""
-if [ "$NIGHTLY" == "0" ] && [ "$LOCAL" == "0" ]; then
-    VERSION_GITOPTS="--abbrev=0"
-fi
-VERSION="$(git describe $VERSION_GITOPTS)"
-export VERSION
-
-echo "Building $VERSION (isNightly: $NIGHTLY, isLocal: $LOCAL)"
-
+# Calculate some variables we need later
 export CWD=$PWD
 export SCRIPT_NAME
 export SCRIPT_HOME
 export HAMMERSPOON_HOME
 export XCODE_BUILT_PRODUCTS_DIR
-
 SCRIPT_NAME="$(basename "$0")"
 SCRIPT_HOME="$(dirname "$(greadlink -f "$0")")"
 HAMMERSPOON_HOME="$(greadlink -f "${SCRIPT_HOME}/../")"
-XCODE_BUILT_PRODUCTS_DIR="$(xcodebuild -workspace Hammerspoon.xcworkspace -scheme "${XCODE_SCHEME}" -configuration "${XCODE_CONFIGURATION}" -showBuildSettings | sort | uniq | grep ' BUILT_PRODUCTS_DIR =' | awk '{ print $3 }')"
+BUILD_HOME="${HAMMERSPOON_HOME}/build"
+HAMMERSPOON_BUNDLE="Hammerspoon.app"
+HAMMERSPOON_APP="${BUILD_HOME}/${HAMMERSPOON_BUNDLE}"
+XCODE_BUILT_PRODUCTS_DIR="$(xcodebuild -workspace Hammerspoon.xcworkspace -scheme "${XCODE_SCHEME}" -configuration "${XCODE_CONFIGURATION}" -destination "platform=macOS" -showBuildSettings | sort | uniq | grep ' BUILT_PRODUCTS_DIR =' | awk '{ print $3 }')"
+DOCS_SEARCH_DIRS=(${HAMMERSPOON_HOME}/Hammerspoon/ ${HAMMERSPOON_HOME}/extensions/)
 
 export TOKENPATH
 TOKENPATH="${HAMMERSPOON_HOME}/.."
-if [ -d ~/Desktop/hammerspoon-tokens ]; then
-  TOKENPATH="~/Desktop/hammerspoon-tokens"
-fi
 
 export CODESIGN_AUTHORITY_TOKEN_FILE="${TOKENPATH}/token-codesign-authority"
 export GITHUB_TOKEN_FILE="${TOKENPATH}/token-github-release"
@@ -220,7 +203,48 @@ export NOTARIZATION_TOKEN_FILE="${TOKENPATH}/token-notarization"
 
 # Import our function library
 # shellcheck source=scripts/librelease.sh disable=SC1091
-source "${SCRIPT_HOME}/librelease.sh"
+source "${SCRIPT_HOME}/libbuild.sh"
+
+# Make sure our build directory exists
+mkdir -p "${BUILD_HOME}"
+
+# Figure out which COMMAND we have been tasked with performing, and go do it
+case "${OPERATION}" in
+    "clean")
+        op_clean
+        ;;
+    "build")
+        op_build
+        ;;
+    "docs")
+        op_docs
+        ;;
+    "installdeps")
+        op_installdeps
+        ;;
+    "notarize")
+        op_notarize
+        ;;
+    "release")
+        op_release
+        ;;
+esac
+
+exit 0
+
+####################### OLD STUFF BELOW ##############################
+
+# Store some variables for later
+VERSION_GITOPTS=""
+if [ "$NIGHTLY" == "0" ] && [ "$LOCAL" == "0" ]; then
+    VERSION_GITOPTS="--abbrev=0"
+fi
+VERSION="$(git describe $VERSION_GITOPTS)"
+export VERSION
+
+echo "Building $VERSION (isNightly: $NIGHTLY, isLocal: $LOCAL)"
+
+
 
 assert
 build

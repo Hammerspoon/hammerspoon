@@ -1,5 +1,5 @@
 #!/bin/bash
-# Helper functions for Hammerspoon release.sh
+# Helper functions for Hammerspoon build.sh
 
 ############################## UTILITY FUNCTIONS ##############################
 
@@ -10,6 +10,65 @@ function fail() {
 
 ############################# TOP LEVEL FUNCTIONS #############################
 
+function op_clean() {
+    echo "Cleaning..."
+    rm -rf "${BUILD_HOME}"
+    rm -rf "${HAMMERSPOON_HOME}/LuaSkin.framework"
+}
+
+function op_build() {
+    echo "Checking build environment..."
+    op_build_assert
+
+    echo "Building..."
+    rm -rf "${HAMMERSPOON_APP}"
+
+    local XCB_OPTS="-q"
+    if [ ${IS_CI} == 1 ]; then
+        XCB_OPTS=""
+    fi
+
+    echo "-> xcodebuild -workspace Hammerspoon.xcworkspace -scheme ${XCODE_SCHEME} -configuration ${XCODE_CONFIGURATION} -destination "platform=macOS" clean build | tee ${BUILD_HOME}/${XCODE_CONFIGURATION}-build.log"
+    xcodebuild -workspace Hammerspoon.xcworkspace -scheme ${XCODE_SCHEME} -configuration ${XCODE_CONFIGURATION} -destination "platform=macOS" clean build | tee ${BUILD_HOME}/${XCODE_CONFIGURATION}-build.log | xcbeautify ${XCB_OPTS}
+    cp -R "${XCODE_BUILT_PRODUCTS_DIR}/${HAMMERSPOON_BUNDLE}" "${BUILD_HOME}/"
+    cp -R "${XCODE_BUILT_PRODUCTS_DIR}/${HAMMERSPOON_BUNDLE}.dSYM" "${BUILD_HOME}/"
+    cp -R "${XCODE_BUILT_PRODUCTS_DIR}/LuaSkin.framework.dSYM" "${BUILD_HOME}/"
+}
+
+function op_docs() {
+    echo "Checking docs environment..."
+    assert_docs_bundle_complete
+
+    if [ ${DOCS_LINT_ONLY} == 1 ]; then
+        "${HAMMERSPOON_HOME}/scripts/docs/bin/build_docs.py" -l ${DOCS_SEARCH_DIRS[*]}
+        echo "Docs lint OK"
+        return
+    fi
+
+    echo "Building docs..."
+
+}
+
+function installdeps() {
+    echo "INSTALLDEPS" 
+}
+
+function notarize() {
+    echo "NOTARIZE"
+}
+
+function release() {
+    echo "RELEASE"
+}
+
+############################## UTILITY FUNCTIONS ##############################
+function op_build_assert() {
+    assert_gawk
+    assert_xcbeautify
+    assert_cocoapods_state
+}
+
+### OLD STUFF BELOW
 function assert() {
   echo "******** CHECKING SANITY:"
 
