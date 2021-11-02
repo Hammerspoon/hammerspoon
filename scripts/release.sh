@@ -1,10 +1,24 @@
 #!/bin/bash
 
+XCODE_SCHEME="Release"
+XCODE_CONFIGURATION="Release"
+
 NIGHTLY=0
+LOCAL=0
+
 if [ "$1" == "--nightly" ]; then
     NIGHTLY=1
 fi
+if [ "$1" == "--local" ]; then
+    LOCAL=1
+    XCODE_SCHEME="Hammerspoon"
+    XCODE_CONFIGURATION="Debug"
+fi
+
+export XCODE_SCHEME
+export XCODE_CONFIGURATION
 export NIGHTLY
+export LOCAL
 
 set -eu
 set -o pipefail
@@ -17,13 +31,13 @@ fi
 
 # Store some variables for later
 VERSION_GITOPTS=""
-if [ "$NIGHTLY" == "0" ]; then
+if [ "$NIGHTLY" == "0" ] && [ "$LOCAL" == "0" ]; then
     VERSION_GITOPTS="--abbrev=0"
 fi
 VERSION="$(git describe $VERSION_GITOPTS)"
 export VERSION
 
-echo "Building $VERSION (isNightly: $NIGHTLY)"
+echo "Building $VERSION (isNightly: $NIGHTLY, isLocal: $LOCAL)"
 
 export CWD=$PWD
 export SCRIPT_NAME
@@ -34,7 +48,7 @@ export XCODE_BUILT_PRODUCTS_DIR
 SCRIPT_NAME="$(basename "$0")"
 SCRIPT_HOME="$(dirname "$(greadlink -f "$0")")"
 HAMMERSPOON_HOME="$(greadlink -f "${SCRIPT_HOME}/../")"
-XCODE_BUILT_PRODUCTS_DIR="$(xcodebuild -workspace Hammerspoon.xcworkspace -scheme 'Release' -configuration 'Release' -showBuildSettings | sort | uniq | grep ' BUILT_PRODUCTS_DIR =' | awk '{ print $3 }')"
+XCODE_BUILT_PRODUCTS_DIR="$(xcodebuild -workspace Hammerspoon.xcworkspace -scheme "${XCODE_SCHEME}" -configuration "${XCODE_CONFIGURATION}" -showBuildSettings | sort | uniq | grep ' BUILT_PRODUCTS_DIR =' | awk '{ print $3 }')"
 
 export TOKENPATH
 TOKENPATH="${HAMMERSPOON_HOME}/.."
@@ -57,10 +71,12 @@ source "${SCRIPT_HOME}/librelease.sh"
 assert
 build
 validate
+if [ "$LOCAL" == "0" ]; then
 notarize
+fi
 prepare_upload
 archive
-if [ "$NIGHTLY" == "0" ]; then
+if [ "$NIGHTLY" == "0" ] || [ "$LOCAL" == "0" ]; then
   localtest
   upload
   announce
