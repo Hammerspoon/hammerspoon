@@ -5587,8 +5587,6 @@
 				9445CA0919083251002568BB /* Resources */,
 				E849AEC367EA9502A25B9A7C /* [CP] Embed Pods Frameworks */,
 				4F6D9E3523074BC6006CC3E4 /* Update version/build numbers */,
-				4F1CF8D91A47F583001C8AE7 /* Upload binary to Sentry */,
-				4F7DB3571A5C513F00C22B03 /* Sign app/frameworks */,
 				4F6689E61C288FF800E48AF1 /* Assert no stray init.lua's in app bundle */,
 			);
 			buildRules = (
@@ -6321,20 +6319,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		4F1CF8D91A47F583001C8AE7 /* Upload binary to Sentry */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Upload binary to Sentry";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/bash;
-			shellScript = "if [ -e \"../is_github_actions\" ]; then\n  echo \"SKIPPING SENTRY UPLOAD: GitHub Actions does this separately\" | tee /dev/stderr\n  exit 0\nfi\n\nset -eux\n\nTOKENPATH=\"${HAMMERSPOON_TOKEN_PATH:-..}\"\n\nif [ -f \"${TOKENPATH}/token-sentry-auth\" -a \"${CONFIGURATION}\" == \"Release\" ] ; then\n  echo \"UPLOADING TO SENTRY\" | tee >/dev/stderr\n\n  set +x # <-- YOU SHOULD NEVER REMOVE THIS. THIS SHOULDN'T BE EXECUTED IN GITHUB ACTIONS, BUT LET'S BE SURE\n  source \"${TOKENPATH}/token-sentry-auth\"\n  set -x\n\n  export SENTRY_ORG=hammerspoon\n  export SENTRY_PROJECT=hammerspoon\n  export SENTRY_LOG_LEVEL=debug\n  export SENTRY_AUTH_TOKEN\n  ./scripts/sentry-cli upload-dif \"$DWARF_DSYM_FOLDER_PATH\" 2>&1 >/dev/null\n  if [ \"$?\" != \"0\" ]; then\n    echo \"SENTRY UPLOAD FAILED\" | tee /dev/stderr\n    exit 1\n  fi\nelse\n  echo \"SKIPPING SENTRY UPLOAD: No secret token found, or not a Release build\" | tee /dev/stderr\nfi\n";
-		};
 		4F251E7F1A49D5BE00AB6103 /* Prepare secret header file */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -6382,20 +6366,6 @@
 			shellPath = /bin/sh;
 			shellScript = "#Update build number with number of git commits if in release mode\nset -eux\n\n./scripts/update_version_build_numbers.sh\n";
 		};
-		4F7DB3571A5C513F00C22B03 /* Sign app/frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Sign app/frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "set -eux\nexit 0\nif [ -e \"../is_github_actions\" ]; then\n  echo \"SKIPPING SIGNING: GitHub Actions does this separately\" | tee /dev/stderr\n  exit 0\nfi\n\n# Some Instruments profiles are broken with the code signing stuff we currently do, so let's just skip signing entirely when we're Profiling\nif [ \"${CONFIGURATION}\" == \"Profile\" ]; then\n    echo \"SKIPPING SIGNING: Profile configuration works better with the app unsigned\" | tee /dev/stderr\n    exit 0\nfi\n\necho \"RUNNING SIGNING SCRIPT: ${SRCROOT}/scripts/sign_bundle.sh ${CODESIGNING_FOLDER_PATH} ${SRCROOT} ${CONFIGURATION} xcode\" | tee /dev/stderr\n\"${SRCROOT}/scripts/sign_bundle.sh\" \"${CODESIGNING_FOLDER_PATH}\" \"${SRCROOT}\" \"${CONFIGURATION}\" xcode\n";
-		};
 		4FA81F271B3F2A52000B5537 /* Copy LuaSkin.framework to build/bundle */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -6408,7 +6378,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -eux\nrsync -avr \"${BUILT_PRODUCTS_DIR}/LuaSkin.framework\" \"${SRCROOT}\"\nrsync -avr \"${BUILT_PRODUCTS_DIR}/LuaSkin.framework\" \"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\"";
+			shellScript = "set -eux\nrsync -avr \"${BUILT_PRODUCTS_DIR}/LuaSkin.framework\" \"${SRCROOT}\"\nrsync -avr \"${BUILT_PRODUCTS_DIR}/LuaSkin.framework\" \"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n";
 		};
 		4FBE2D161B7268DF00407788 /* Copy extensions to bundle */ = {
 			isa = PBXShellScriptBuildPhase;
