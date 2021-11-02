@@ -13,6 +13,19 @@
 
 static LSRefTable  refTable = LUA_NOREF ;
 
+/// hs.shortcuts.list() -> []
+/// Function
+/// Returns a list of available shortcuts
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A table of shortcuts, each being a table with the following keys:
+///   * name - The name of the shortcut
+///   * id - A unique ID for the shortcut
+///   * acceptsInput - A boolean indicating if the shortcut requires input
+///   * actionCount - A number relating to how many actions are in the shortcut
 static int shortcuts_list(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TBREAK];
@@ -34,6 +47,15 @@ static int shortcuts_list(lua_State *L) {
     return 1;
 }
 
+/// hs.shortcuts.run(name)
+/// Function
+/// Runs a shortcut in the Shortcuts app
+///
+/// Parameters:
+///  * name - A string containing the name of a shortcut
+///
+/// Returns:
+///  * None
 static int shortcuts_run(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TBREAK];
