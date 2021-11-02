@@ -2,8 +2,8 @@
 
 set -x
 
-if [ "$1" == "" ] || [ "$2" == "" ] || [ "$3" == "" ] || [ "$4" == "" ] ; then
-    echo "Usage: $0 BUNDLEPATH SOURCEROOT CONFIGURATION BUILD_ENV"
+if [ "$1" == "" ] || [ "$2" == "" ] || [ "$3" == "" ]; then
+    echo "Usage: $0 BUNDLEPATH SOURCEROOT CONFIGURATION"
     exit 1
 fi
 
@@ -12,7 +12,6 @@ set -eu
 BUNDLE_PATH="$1"
 SRCROOT="$2"
 CONFIGURATION="$3"
-BUILD_ENV="$4"
 
 CODESIGN="/usr/bin/codesign"
 TOKENPATH="${HAMMERSPOON_TOKEN_PATH:-..}"
@@ -54,7 +53,7 @@ if [ -f "${TOKENPATH}/token-codesign" ] ; then
 
     # sign the Hammerspoon binary
     ENTITLEMENTS="${SRCROOT}/Hammerspoon/Hammerspoon.entitlements"
-    if [ "${CONFIGURATION}" == "Debug" ] || [ "${BUILD_ENV}" == "local" ]; then
+    if [ "${CONFIGURATION}" == "Debug" ]; then
         ENTITLEMENTS="${SRCROOT}/Hammerspoon/Hammerspoon-dev.entitlements"
     fi
 
