@@ -6394,7 +6394,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -eux\n\nif [ -e \"../is_github_actions\" ]; then\n  echo \"SKIPPING SIGNING: GitHub Actions does this separately\" | tee /dev/stderr\n  exit 0\nfi\n\n# Some Instruments profiles are broken with the code signing stuff we currently do, so let's just skip signing entirely when we're Profiling\nif [ \"${CONFIGURATION}\" == \"Profile\" ]; then\n    echo \"SKIPPING SIGNING: Profile configuration works better with the app unsigned\" | tee /dev/stderr\n    exit 0\nfi\n\necho \"RUNNING SIGNING SCRIPT: ${SRCROOT}/scripts/sign_bundle.sh ${CODESIGNING_FOLDER_PATH} ${SRCROOT} ${CONFIGURATION} xcode\" | tee /dev/stderr\n\"${SRCROOT}/scripts/sign_bundle.sh\" \"${CODESIGNING_FOLDER_PATH}\" \"${SRCROOT}\" \"${CONFIGURATION}\" xcode\n";
+			shellScript = "set -eux\nexit 0\nif [ -e \"../is_github_actions\" ]; then\n  echo \"SKIPPING SIGNING: GitHub Actions does this separately\" | tee /dev/stderr\n  exit 0\nfi\n\n# Some Instruments profiles are broken with the code signing stuff we currently do, so let's just skip signing entirely when we're Profiling\nif [ \"${CONFIGURATION}\" == \"Profile\" ]; then\n    echo \"SKIPPING SIGNING: Profile configuration works better with the app unsigned\" | tee /dev/stderr\n    exit 0\nfi\n\necho \"RUNNING SIGNING SCRIPT: ${SRCROOT}/scripts/sign_bundle.sh ${CODESIGNING_FOLDER_PATH} ${SRCROOT} ${CONFIGURATION} xcode\" | tee /dev/stderr\n\"${SRCROOT}/scripts/sign_bundle.sh\" \"${CODESIGNING_FOLDER_PATH}\" \"${SRCROOT}\" \"${CONFIGURATION}\" xcode\n";
 		};
 		4FA81F271B3F2A52000B5537 /* Copy LuaSkin.framework to build/bundle */ = {
 			isa = PBXShellScriptBuildPhase;
