@@ -2,7 +2,9 @@
 #import <Carbon/Carbon.h>
 #import <CoreServices/CoreServices.h>
 #import <LuaSkin/LuaSkin.h>
+#define NO_INTENTS
 #import "../../Hammerspoon/MJAppDelegate.h"
+#undef NO_INTENTS
 #import "../../Hammerspoon/MJDockIcon.h"
 
 static LSRefTable refTable;
