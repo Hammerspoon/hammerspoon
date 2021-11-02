@@ -1,9 +1,7 @@
 @import Cocoa ;
 @import LuaSkin ;
 
-#define NO_INTENTS
 #import "MJAppDelegate.h"
-#undef NO_INTENTS
 
 #define USERDATA_TAG  "hs.dialog"
 static LSRefTable refTable = LUA_NOREF ;

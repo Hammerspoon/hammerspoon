@@ -17,7 +17,7 @@ function assert() {
   export CODESIGN_AUTHORITY_TOKEN
   assert_gawk
   assert_xcbeautify
-  if [ "${NIGHTLY}" == "0" ] && [ "${LOCAL}" == "0" ]; then
+  if [ "${NIGHTLY}" == "0" ]; then
     assert_github_hub
   fi
   assert_github_release_token && GITHUB_TOKEN="$(cat "${GITHUB_TOKEN_FILE}")"
@@ -34,7 +34,7 @@ function assert() {
   assert_version_in_git_tags
   assert_version_not_in_github_releases
   assert_docs_bundle_complete
-  if [ "${NIGHTLY}" == "0" ] && [ "${LOCAL}" == "0" ]; then
+  if [ "${NIGHTLY}" == "0" ]; then
     assert_cocoapods_state
     assert_website_repo
   fi
@@ -52,9 +52,7 @@ function validate() {
 
   assert_valid_code_signature
   assert_valid_code_signing_entity
-  if [ "${XCODE_SCHEME}" == "Release" ]; then
-    assert_gatekeeper_acceptance
-  fi
+  assert_gatekeeper_acceptance
   assert_entitlements
 }
 
@@ -176,7 +174,7 @@ function assert_sentry_tokens() {
 # This is no longer used - version numbers are now added dynamically at build time
 function assert_version_in_xcode() {
   echo "Checking Xcode build version..."
-  XCODEVER="$(xcodebuild -target Hammerspoon -configuration "${XCODE_CONFIGURATION}" -showBuildSettings 2>/dev/null | grep MARKETING_VERSION | awk '{ print $3 }')"
+  XCODEVER="$(xcodebuild -target Hammerspoon -configuration Release -showBuildSettings 2>/dev/null | grep MARKETING_VERSION | awk '{ print $3 }')"
 
   if [ "$VERSION" != "$XCODEVER" ]; then
       fail "You asked for $VERSION to be released, but Xcode will build $XCODEVER"
@@ -184,7 +182,7 @@ function assert_version_in_xcode() {
 }
 
 function assert_version_in_git_tags() {
-  if [ "$NIGHTLY" == "1" ] || [ "$LOCAL" == "1" ]; then
+  if [ "$NIGHTLY" == "1" ]; then
       echo "Skipping git tag check in nightly build."
       return
   fi
@@ -210,7 +208,7 @@ function assert_version_in_git_tags() {
 }
 
 function assert_version_not_in_github_releases() {
-  if [ "$NIGHTLY" == "1" ] || [ "$LOCAL" == "1" ]; then
+  if [ "$NIGHTLY" == "1" ]; then
       echo "Skipping GitHub release check in nightly build."
       return
   fi
@@ -285,12 +283,7 @@ function assert_gatekeeper_acceptance() {
 
 function assert_entitlements() {
     echo "Ensuring Entitlements applied..."
-    if [ "${LOCAL}" == "1" ]; then
-        ENTITLEMENTS_FILE="Hammerspoon-dev.entitlements"
-    else
-        ENTITLEMENTS_FILE="Hammerspoon.entitlements"
-    fi
-    TARGET=$(cat "${HAMMERSPOON_HOME}/Hammerspoon/${ENTITLEMENTS_FILE}" | xmllint --c14n --format - 2>/dev/null)
+    TARGET=$(cat "${HAMMERSPOON_HOME}/Hammerspoon/Hammerspoon.entitlements" | xmllint --c14n --format - 2>/dev/null)
     APP=$(codesign --display --entitlements - --xml "${HAMMERSPOON_HOME}/build/Hammerspoon.app" | xmllint --c14n --format - 2>/dev/null)
 
     if [ "${TARGET}" != "${APP}" ]; then
@@ -309,11 +302,7 @@ function build_hammerspoon_app() {
   echo "Building Hammerspoon.app..."
   pushd "${HAMMERSPOON_HOME}" >/dev/null
   make clean
-  if [ "${XCODE_SCHEME}" == "Release" ]; then
-    make release
-  else
-    make
-  fi
+  make release
 #  git add Hammerspoon/Hammerspoon-Info.plist
 #  git commit Hammerspoon/Hammerspoon-Info.plist -m "Update build number for ${VERSION}"
   rm build/docs.json
@@ -328,13 +317,7 @@ function build_hammerspoon_app() {
 function sign_hammerspoon_app() {
     echo "Signing Hammerspoon.app..."
     pushd "${HAMMERSPOON_HOME}" >/dev/null
-    local BUILD_ENV=""
-    if [ "${LOCAL}" == "1" ]; then
-        BUILD_ENV="local"
-    else
-        BUILD_ENV="ignore"
-    fi
-    ./scripts/sign_bundle.sh ./build/Hammerspoon.app ./ "${XCODE_CONFIGURATION}" "${BUILD_ENV}"
+    ./scripts/sign_bundle.sh ./build/Hammerspoon.app ./ Release
     popd >/dev/null
 }
 
