@@ -86,15 +86,25 @@ function op_docs() {
     fi
 }
 
-function installdeps() {
-    echo "INSTALLDEPS" 
+function op_installdeps() {
+    echo "Installing dependencies..." 
+    if [ ! $(which brew) ]; then
+        echo "Unable to continue without Homebrew installed, please see: https://brew.sh/"
+        exit 1
+    fi
+
+    echo "  Homebrew packages..."
+    brew install -q coreutils jq xcbeautify gawk
+
+    echo "  Python packages..."
+    /usr/bin/pip3 install -q --disable-pip-version-check -r "${HAMMERSPOON_HOME}/requirements.txt"
 }
 
-function notarize() {
+function op_notarize() {
     echo "NOTARIZE"
 }
 
-function release() {
+function op_release() {
     echo "RELEASE"
 }
 
@@ -103,6 +113,7 @@ function op_build_assert() {
     assert_gawk
     assert_xcbeautify
     assert_cocoapods_state
+    assert_docs_bundle_complete
 }
 
 ### OLD STUFF BELOW
