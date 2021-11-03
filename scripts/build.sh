@@ -15,6 +15,7 @@ DOCS_MD=1
 DOCS_HTML=1
 DOCS_SQL=1
 DOCS_DASH=1
+DOCS_LUASKIN=1
 DOCS_LINT_ONLY=0
 
 # Print out friendly command line usage information
@@ -41,12 +42,13 @@ function usage() {
     echo "DOCS OPTIONS:"
     echo "By default all docs are built. Only one of the following options can be supplied."
     echo "If more than one is present, only the last one will have an effect"
-    echo " -j             - Build only JSON documentation (Default: on)"
-    echo " -m             - Build only Markdown documentation (Default: on)"
-    echo " -t             - Build only HTML documentation (Default: on)"
-    echo " -q             - Build only SQLite documentation (Default: on)"
-    echo " -a             - Build only Dash documentation (Default: on)"
-    echo " -l             - Only lint docs, don't build (Default: off)"
+    echo " -j             - Build only JSON documentation"
+    echo " -m             - Build only Markdown documentation"
+    echo " -t             - Build only HTML documentation"
+    echo " -q             - Build only SQLite documentation"
+    echo " -a             - Build only Dash documentation"
+    echo " -k             - Build only LuaSkin documentation"
+    echo " -l             - Only lint docs, don't build anything"
 
     exit 2
 }
@@ -61,7 +63,7 @@ if [ "${OPERATION}" != "build" ] && [ "${OPERATION}" != "docs" ] && [ "${OPERATI
 fi;
 
 # Parse the rest of any arguments
-PARSED_ARGUMENTS=$(getopt ds:c:x:ujmtqal $*)
+PARSED_ARGUMENTS=$(getopt ds:c:x:ujmtqakl $*)
 if [ $? != 0 ]; then
     usage
 fi
@@ -92,6 +94,7 @@ do
             DOCS_HTML=0
             DOCS_SQL=0
             DOCS_DASH=0
+            DOCS_LUASKIN=0
             DOCS_LINT_ONLY=0
             shift;;
         -m)
@@ -99,6 +102,7 @@ do
             DOCS_HTML=0
             DOCS_SQL=0
             DOCS_DASH=0
+            DOCS_LUASKIN=0
             DOCS_LINT_ONLY=0
             shift;;
         -t)
@@ -106,6 +110,7 @@ do
             DOCS_MD=0
             DOCS_SQL=0
             DOCS_DASH=0
+            DOCS_LUASKIN=0
             DOCS_LINT_ONLY=0
             shift;;
         -q)
@@ -113,11 +118,21 @@ do
             DOCS_MD=0
             DOCS_HTML=0
             DOCS_DASH=0
+            DOCS_LUASKIN=0
             DOCS_LINT_ONLY=0
             shift;;
         -a)
-            # Dash requires JSON, SQLite and HTML
+            # Dash requires JSON, SQLite, LuaSkin and HTML
             DOCS_MD=0
+            DOCS_LINT_ONLY=0
+            shift;;
+        -k)
+            # LuaSkin requires nothing else
+            DOCS_JSON=0
+            DOCS_MD=0
+            DOCS_HTML=0
+            DOCS_SQL=0
+            DOCS_DASH=0
             DOCS_LINT_ONLY=0
             shift;;
         -l)
@@ -176,6 +191,7 @@ if [ "$(which greadlink)" == "" ]; then
 fi
 
 # Calculate some variables we need later
+echo "Gathing info..."
 export CWD=$PWD
 export SCRIPT_NAME
 export SCRIPT_HOME

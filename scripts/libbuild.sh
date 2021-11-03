@@ -45,8 +45,45 @@ function op_docs() {
         return
     fi
 
-    echo "Building docs..."
+    if [ ${DOCS_JSON} == 1 ]; then
+        echo "Building docs JSON..."
+        "${HAMMERSPOON_HOME}/scripts/docs/bin/build_docs.py" -o "${HAMMERSPOON_HOME}/build" --json ${DOCS_SEARCH_DIRS[*]}
+    fi
 
+    if [ ${DOCS_MD} == 1 ]; then
+        echo "Building docs Markdown..."
+        "${HAMMERSPOON_HOME}/scripts/docs/bin/build_docs.py" -o "${HAMMERSPOON_HOME}/build" --markdown ${DOCS_SEARCH_DIRS[*]}
+    fi
+
+    if [ ${DOCS_HTML} == 1 ]; then
+        echo "Building docs HTML..."
+        "${HAMMERSPOON_HOME}/scripts/docs/bin/build_docs.py" -o "${HAMMERSPOON_HOME}/build" --html ${DOCS_SEARCH_DIRS[*]}
+    fi
+
+    if [ ${DOCS_SQL} == 1 ]; then
+        echo "Building docs SQLite..."
+        "${HAMMERSPOON_HOME}/scripts/docs/bin/build_docs.py" -o "${HAMMERSPOON_HOME}/build" --sql ${DOCS_SEARCH_DIRS[*]}
+    fi
+
+    if [ ${DOCS_LUASKIN} == 1 ]; then
+        echo "Building docs LuaSkin..."
+        local LSDOCSDIR="${HAMMERSPOON_HOME}/build/html/LuaSkin"
+        mkdir -p "${LSDOCSDIR}"
+        headerdoc2html -u -o "${LSDOCSDIR}" "${HAMMERSPOON_HOME}/LuaSkin/LuaSkin/Skin.h"
+        resolveLinks "${LSDOCSDIR}"
+        mv "${LSDOCSDIR}"/Skin_h/* "${LSDOCSDIR}"
+        rmdir "${LSDOCSDIR}/Skin_h"
+    fi
+
+    if [ ${DOCS_DASH} == 1 ]; then
+        echo "Building docs Dash..."
+        local DASHDIR="${HAMMERSPOON_HOME}/build/Hammerspoon.docset"
+        rm -rf "${DASHDIR}"
+        cp -R "${HAMMERSPOON_HOME}/scripts/docs/templates/Hammerspoon.docset" "${DASHDIR}"
+        cp "${HAMMERSPOON_HOME}/build/docs.sqlite" "${DASHDIR}/Contents/Resources/docSet.dsidx"
+        cp "${HAMMERSPOON_HOME}"/build/html/* "${DASHDIR}/Contents/Resources/Documents/"
+        tar -cvf "${HAMMERSPOON_HOME}/build/Hammerspoon.tgz" -C "${HAMMERSPOON_HOME}/build" Hammerspoon.docset
+    fi
 }
 
 function installdeps() {
