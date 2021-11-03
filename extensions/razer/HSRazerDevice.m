@@ -2,7 +2,7 @@
 
 #include <IOKit/usb/IOUSBLib.h>
 
-double getSecondsSinceEpoch() {
+double getSecondsSinceEpoch(void) {
     struct timeval v;
     gettimeofday(&v, (struct timezone *) NULL);
     return v.tv_sec + v.tv_usec/1.0e6;
