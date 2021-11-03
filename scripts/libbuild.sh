@@ -319,8 +319,12 @@ function assert_version_not_in_github_releases() {
 }
 
 function assert_docs_bundle_complete() {
-  echo "Checking docs bundle..."
-  echo "WARNING: This check does nothing, if you have not met requirements.txt with pip/other, doc building will fail"
+  echo "Checking Python requirements.txt is satisfied..."
+  echo """import sys
+import pkg_resources
+from pkg_resources import DistributionNotFound, VersionConflict
+dependencies = open('${HAMMERSPOON_HOME}/requirements.txt', 'r').readlines()
+pkg_resources.require(dependencies)""" | /usr/bin/python3
 }
 
 function assert_cocoapods_state() {
