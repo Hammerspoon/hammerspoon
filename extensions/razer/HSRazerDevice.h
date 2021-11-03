@@ -3,6 +3,7 @@
 @import IOKit;
 @import IOKit.hid;
 @import LuaSkin;
+@import Darwin.POSIX.sys.time;
 
 #include <IOKit/usb/IOUSBLib.h>
 
@@ -50,14 +51,15 @@
 // Scroll Wheel:
 @property (nonatomic) int                   scrollWheelID;
 @property (nonatomic) BOOL                  scrollWheelPressed;
-@property (nonatomic) BOOL                  scrollWheelInProgress;
-@property (nonatomic) int                   scrollWheelInProgressCount;
+
+@property (nonatomic) double                lastScrollWheelEvent;
 
 @property LSGCCanary                        lsCanary;
 
 // Create & Destory the object:
 - (id)initWithDevice:(IOHIDDeviceRef)device manager:(id)manager;
 - (void)invalidate;
+
 
 // Event Taps:
 - (void)setupEventTap;

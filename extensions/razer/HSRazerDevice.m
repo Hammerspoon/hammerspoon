@@ -2,6 +2,12 @@
 
 #include <IOKit/usb/IOUSBLib.h>
 
+double getSecondsSinceEpoch() {
+    struct timeval v;
+    gettimeofday(&v, (struct timezone *) NULL);
+    return v.tv_sec + v.tv_usec/1.0e6;
+}
+
 // HSRazerResult:
 @implementation HSRazerResult
 - (id)init {
@@ -29,8 +35,7 @@
         // These defaults are not necessary, all base classes will override them, but if we miss something, these are chosen to try and provoke a crash where possible, so we notice the lack of an override.
         self.name                       = @"Unknown";
         self.scrollWheelPressed         = NO;
-        self.scrollWheelInProgress      = NO;
-        self.scrollWheelInProgressCount = 0;
+        self.lastScrollWheelEvent       = getSecondsSinceEpoch();
 
         //NSLog(@"[hs.razer] Added new Razer device %p with IOKit device %p from manager %p", (__bridge void *)self, (void*)self.device, (__bridge void *)self.manager);
     }
@@ -70,14 +75,12 @@
     if ([scancodeString isEqualToString:scrollWheelID]) {
         // Scroll Wheel:
         if (pressed == 1){
-            self.scrollWheelInProgressCount++;
-            self.scrollWheelInProgress = YES;
             buttonAction = @"up";
+            self.lastScrollWheelEvent = getSecondsSinceEpoch();
         }
         else if (pressed == -1) {
-            self.scrollWheelInProgressCount++;
-            self.scrollWheelInProgress = YES;
             buttonAction = @"down";
+            self.lastScrollWheelEvent = getSecondsSinceEpoch();
         }
         else if (pressed == 0) {
             if (self.scrollWheelPressed) {
@@ -157,15 +160,10 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
         //NSLog(@"[hs.razer] Aborting Event Tap Callback, because canary test failed.");
         return event; // Allow the event to pass through unmodified
     }
-
-    if (manager.scrollWheelInProgress) {
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-            manager.scrollWheelInProgressCount--;
-            if (manager.scrollWheelInProgressCount == 0) {
-                //NSLog(@"[hs.razer] Scroll Wheel no longer in progress");
-                manager.scrollWheelInProgress = NO;
-            }
-        });
+    
+    // Throw away the event if we recently scrolled with the Razer Device:
+    double currentTime = getSecondsSinceEpoch() - 0.1;
+    if (currentTime < manager.lastScrollWheelEvent) {
         return NULL;
     } else {
         return event;
