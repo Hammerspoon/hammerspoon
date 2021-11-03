@@ -6406,7 +6406,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -eux\n\nrm -f build/docs.json\nmake build/docs.json\n";
+			shellScript = "set -eux\n\n./scripts/build.sh docs -j\n";
 		};
 		4FD0AC2E1B74C66200A82496 /* Prepare HammerspoonCertTemplate.h */ = {
 			isa = PBXShellScriptBuildPhase;
