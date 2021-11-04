@@ -713,6 +713,7 @@
 				);
 				OTHER_LDFLAGS = "-lreadline";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
 				STRIP_INSTALLED_PRODUCT = NO;
 				WARNING_CFLAGS = "";
 			};
@@ -884,6 +885,7 @@
 				);
 				OTHER_LDFLAGS = "-lreadline";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
 				STRIP_INSTALLED_PRODUCT = NO;
 				WARNING_CFLAGS = "";
 			};
@@ -904,6 +906,7 @@
 				);
 				OTHER_LDFLAGS = "-lreadline";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
 				STRIP_INSTALLED_PRODUCT = NO;
 				WARNING_CFLAGS = "";
 			};

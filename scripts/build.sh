@@ -24,6 +24,7 @@ function usage() {
     echo "COMMANDS:"
     echo "  clean         - Erase build directory"
     echo "  build         - Build Hammerspoon.app"
+    echo "  validate      - Validate signature/gatekeeper/entitlements"
     echo "  docs          - Build documentation"
     echo "  installdeps   - Install all Hammerspoon build dependencies"
     echo "  notarize      - Notarize a Hammerspoon.app bundle with Apple (note that it must be signed first)"
@@ -58,7 +59,7 @@ OPERATION=${1:-unknown};shift
 if [ "${OPERATION}" == "-h" ] || [ "${OPERATION}" == "--help" ]; then
     usage
 fi
-if [ "${OPERATION}" != "build" ] && [ "${OPERATION}" != "docs" ] && [ "${OPERATION}" != "installdeps" ] && [ "${OPERATION}" != "notarize" ] && [ "${OPERATION}" != "release" ] && [ "${OPERATION}" != "clean" ]; then
+if [ "${OPERATION}" != "build" ] && [ "${OPERATION}" != "docs" ] && [ "${OPERATION}" != "installdeps" ] && [ "${OPERATION}" != "notarize" ] && [ "${OPERATION}" != "release" ] && [ "${OPERATION}" != "clean" ] && [ "${OPERATION}" != "validate" ]; then
     usage
 fi;
 
@@ -149,6 +150,7 @@ do
     esac
 done
 
+# If the user asked for debugging, print out some settings and enable bash tracing
 if [ ${DEBUG} == 1 ]; then
     echo "OPERATION is: ${OPERATION}"
     echo "XCODE_SCHEME is: ${XCODE_SCHEME}"
@@ -162,6 +164,7 @@ if [ ${DEBUG} == 1 ]; then
     echo "DOCS_HTML is: ${DOCS_HTML}"
     echo "DOCS_SQL is: ${DOCS_SQL}"
     echo "DOCS_DASH is: ${DOCS_DASH}"
+    echo "DOCS_LUASKIN is: ${DOCS_LUASKIN}"
     echo "DOCS_LINT_ONLY is: ${DOCS_LINT_ONLY}"
 
     set -x
@@ -202,14 +205,13 @@ SCRIPT_HOME="$(dirname "$(greadlink -f "$0")")"
 HAMMERSPOON_HOME="$(greadlink -f "${SCRIPT_HOME}/../")"
 BUILD_HOME="${HAMMERSPOON_HOME}/build"
 HAMMERSPOON_BUNDLE="Hammerspoon.app"
-HAMMERSPOON_APP="${BUILD_HOME}/${HAMMERSPOON_BUNDLE}"
+export HAMMERSPOON_APP="${BUILD_HOME}/${HAMMERSPOON_BUNDLE}"
 XCODE_BUILT_PRODUCTS_DIR="$(xcodebuild -workspace Hammerspoon.xcworkspace -scheme "${XCODE_SCHEME}" -configuration "${XCODE_CONFIGURATION}" -destination "platform=macOS" -showBuildSettings | sort | uniq | grep ' BUILT_PRODUCTS_DIR =' | awk '{ print $3 }')"
-DOCS_SEARCH_DIRS=(${HAMMERSPOON_HOME}/Hammerspoon/ ${HAMMERSPOON_HOME}/extensions/)
+export DOCS_SEARCH_DIRS=(${HAMMERSPOON_HOME}/Hammerspoon/ ${HAMMERSPOON_HOME}/extensions/)
 
+# Calculate private token variables
 export TOKENPATH
 TOKENPATH="${HAMMERSPOON_HOME}/.."
-
-export CODESIGN_AUTHORITY_TOKEN_FILE="${TOKENPATH}/token-codesign-authority"
 export GITHUB_TOKEN_FILE="${TOKENPATH}/token-github-release"
 export GITHUB_USER="hammerspoon"
 export GITHUB_REPO="hammerspoon"
@@ -224,6 +226,8 @@ source "${SCRIPT_HOME}/libbuild.sh"
 # Make sure our build directory exists
 mkdir -p "${BUILD_HOME}"
 
+echo ""
+
 # Figure out which COMMAND we have been tasked with performing, and go do it
 case "${OPERATION}" in
     "clean")
@@ -231,6 +235,9 @@ case "${OPERATION}" in
         ;;
     "build")
         op_build
+        ;;
+    "validate")
+        op_validate
         ;;
     "docs")
         op_docs
@@ -251,31 +258,31 @@ exit 0
 ####################### OLD STUFF BELOW ##############################
 
 # Store some variables for later
-VERSION_GITOPTS=""
-if [ "$NIGHTLY" == "0" ] && [ "$LOCAL" == "0" ]; then
-    VERSION_GITOPTS="--abbrev=0"
-fi
-VERSION="$(git describe $VERSION_GITOPTS)"
-export VERSION
+# VERSION_GITOPTS=""
+# if [ "$NIGHTLY" == "0" ] && [ "$LOCAL" == "0" ]; then
+#     VERSION_GITOPTS="--abbrev=0"
+# fi
+# VERSION="$(git describe $VERSION_GITOPTS)"
+# export VERSION
 
-echo "Building $VERSION (isNightly: $NIGHTLY, isLocal: $LOCAL)"
+# echo "Building $VERSION (isNightly: $NIGHTLY, isLocal: $LOCAL)"
 
 
 
-assert
-build
-validate
-if [ "$LOCAL" == "0" ]; then
-notarize
-fi
-prepare_upload
-archive
-if [ "$NIGHTLY" == "0" ] || [ "$LOCAL" == "0" ]; then
-  localtest
-  upload
-  announce
-fi
+# assert
+# build
+# validate
+# if [ "$LOCAL" == "0" ]; then
+# notarize
+# fi
+# prepare_upload
+# archive
+# if [ "$NIGHTLY" == "0" ] || [ "$LOCAL" == "0" ]; then
+#   localtest
+#   upload
+#   announce
+# fi
 
-echo "Appcast zip length is: ${ZIPLEN}"
+# echo "Appcast zip length is: ${ZIPLEN}"
 
-echo "Finished."
+# echo "Finished."

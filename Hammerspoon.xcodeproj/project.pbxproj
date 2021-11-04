@@ -170,7 +170,6 @@
 		4F9BA8C923DF3CBF006349F2 /* watcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F9BA8C823DF3CBE006349F2 /* watcher.m */; };
 		4F9BA8D023DF4E58006349F2 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FBE2CFD1B7261E500407788 /* internal.m */; };
 		4F9BA8D723DFAB03006349F2 /* HSuicore.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F9BA8D623DFAB03006349F2 /* HSuicore.m */; };
-		4F9F02BB1B3D9591009C32E5 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9F02B91B3D9568009C32E5 /* LuaSkin.framework */; };
 		4FA125882016739500F02FDF /* HSLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FA125872016739500F02FDF /* HSLogger.m */; };
 		4FB74B3B2049A9A600B08851 /* HStask.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FB74B3A2049A9A600B08851 /* HStask.m */; };
 		4FB74B3C2049AB8B00B08851 /* test_task.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FB74B392049A97D00B08851 /* test_task.lua */; };
@@ -246,6 +245,96 @@
 		4FEF4D4F1C5FA01100E3B939 /* HSaudiodevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FEF4D4E1C5FA01000E3B939 /* HSaudiodevice.m */; };
 		4FEF4D551C5FBC0F00E3B939 /* test_audiodevice.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FEF4D531C5FBA9800E3B939 /* test_audiodevice.lua */; };
 		4FEF59431B29A352002344A7 /* HSGrowingTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FEF59421B29A352002344A7 /* HSGrowingTextField.m */; };
+		4FF7395227344D740007074E /* libapplication.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FBE2CF91B7261A200407788 /* libapplication.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7395327344D740007074E /* libapplicationwatcher.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FBE2D101B72631600407788 /* libapplicationwatcher.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7395427344D740007074E /* libaudiodevice.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F70EED31B726D170025A7B3 /* libaudiodevice.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7395527344D740007074E /* libbase64.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F70EEE91B7273700025A7B3 /* libbase64.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7395627344D740007074E /* libbattery.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FDE059F1B72984C00E9E8EE /* libbattery.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7395727344D740007074E /* libbatterywatcher.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FDE05AE1B72988C00E9E8EE /* libbatterywatcher.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7395827344D740007074E /* libbrightness.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FDE05C71B72C22500E9E8EE /* libbrightness.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7395927344D740007074E /* libcaffeinate.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FDE05DC1B734EA600E9E8EE /* libcaffeinate.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7395A27344D740007074E /* libcaffeinatewatcher.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FDE05EF1B734EE600E9E8EE /* libcaffeinatewatcher.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7395B27344D740007074E /* libcrash.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F4CB3911B737953000EA9B6 /* libcrash.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7395C27344D740007074E /* libdockicon.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F4CB3A61B7385C5000EA9B6 /* libdockicon.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7395D27344D740007074E /* libfs.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F4CB3CC1B738F1E000EA9B6 /* libfs.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7395E27344D740007074E /* libhash.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F4CB3F31B73A3A1000EA9B6 /* libhash.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7395F27344D740007074E /* libhints.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F4CB4051B73A746000EA9B6 /* libhints.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7396027344D740007074E /* libhost.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F4CB4171B73AC1D000EA9B6 /* libhost.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7396127344D740007074E /* libhotkey.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F4CB4281B73AD0B000EA9B6 /* libhotkey.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7396227344D740007074E /* libhttp.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F4CB43C1B73AF7E000EA9B6 /* libhttp.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7396327344D740007074E /* libimage.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F4CB4501B73B09C000EA9B6 /* libimage.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7396427344D740007074E /* libjson.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F6B3EA81B73D6D300B2A4DE /* libjson.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7396527344D740007074E /* liblocation.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F6B3EBB1B73DC4500B2A4DE /* liblocation.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7396627344D740007074E /* libmenubar.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F6B3ED21B73E23800B2A4DE /* libmenubar.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7396727344D740007074E /* libmilight.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F6B3EE71B73E5AC00B2A4DE /* libmilight.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7396827344D740007074E /* libmouse.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F6B3EFB1B73E7C200B2A4DE /* libmouse.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7396927344D740007074E /* libnotify.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F6B3F0C1B73E98E00B2A4DE /* libnotify.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7396A27344D740007074E /* libpasteboard.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F6B3F211B73EBB500B2A4DE /* libpasteboard.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7396B27344D740007074E /* libpathwatcher.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F6B3F321B73EDD100B2A4DE /* libpathwatcher.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7396C27344D740007074E /* libscreen.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F6B3F441B73EF4B00B2A4DE /* libscreen.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7396D27344D740007074E /* libscreenwatcher.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F6B3F551B73EFC100B2A4DE /* libscreenwatcher.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7396E27344D740007074E /* libsettings.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F6B3F6A1B73F0E300B2A4DE /* libsettings.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7396F27344D740007074E /* libsound.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F6B3F7B1B73F44500B2A4DE /* libsound.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7397027344D740007074E /* libspaceswatcher.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FD0AB1D1B7484D700A82496 /* libspaceswatcher.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7397127344D740007074E /* libtimer.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FD0AB341B74867600A82496 /* libtimer.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7397227344D740007074E /* libuielement.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FD0AB461B749C8E00A82496 /* libuielement.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7397327344D740007074E /* liburlevent.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FD0AB5B1B749D7A00A82496 /* liburlevent.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7397427344D740007074E /* libusb.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FD0AB6E1B74A67500A82496 /* libusb.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7397527344D740007074E /* libusbwatcher.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FD0AB781B74A68900A82496 /* libusbwatcher.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7397627344D740007074E /* libwifi.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FD0AB961B74AE1900A82496 /* libwifi.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7397727344D740007074E /* libwifiwatcher.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FD0ABA01B74AE2800A82496 /* libwifiwatcher.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7397827344D740007074E /* libwindow.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FD0ABBB1B74AF4E00A82496 /* libwindow.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7397927344D740007074E /* libeventtap.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FD0ABD71B74B2C500A82496 /* libeventtap.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7397A27344D740007074E /* libeventtapevent.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FD0ABE11B74B2FA00A82496 /* libeventtapevent.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7397B27344D740007074E /* libipc.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FD0ABFE1B74B9DE00A82496 /* libipc.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7397C27344D740007074E /* libhttpserver.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FD0AC211B74C58800A82496 /* libhttpserver.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7397D27344D740007074E /* libkeycodes.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F7694541B74C96800536DE4 /* libkeycodes.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7397E27344D740007074E /* libwebview.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = D64125641BA07CEA000FB5F8 /* libwebview.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7397F27344D740007074E /* libwebviewusercontent.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = D64B03461BA954780006C468 /* libwebviewusercontent.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7398027344D740007074E /* libaudiodevicewatcher.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FC93CA71BCD872D0041B820 /* libaudiodevicewatcher.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7398127344D740007074E /* libdrawing_color.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = D6F310E01BDF0E1700045CCD /* libdrawing_color.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7398227344D740007074E /* libstyledtext.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = D6F310EF1BDF110500045CCD /* libstyledtext.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7398327344D740007074E /* libtask.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F9797C31BED0AC800719F3F /* libtask.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7398427344D740007074E /* libconsole.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = D6FD568F1C0422B400BAE238 /* libconsole.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7398527344D750007074E /* libspeech.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = D6BB4FB91C16959C000DC0A2 /* libspeech.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7398627344D750007074E /* libspeechlistener.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = D6BB4FC71C1695EC000DC0A2 /* libspeechlistener.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7398727344D750007074E /* libfsvolume.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F29C23D1C29E0A300B8A69D /* libfsvolume.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7398827344D750007074E /* libchooser.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F51345E1C2F315C00EFD6D4 /* libchooser.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7398927344D750007074E /* libnetworkconfiguration.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = D6477C141C5ED5D000F67BBC /* libnetworkconfiguration.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7398A27344D750007074E /* libnetworkreachability.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = D6477C2C1C5ED82200F67BBC /* libnetworkreachability.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7398B27344D750007074E /* libnetworkhost.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = D6477C3B1C5ED83C00F67BBC /* libnetworkhost.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7398C27344D750007074E /* libosascript.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4C3D55BB1C7F0A880023B633 /* libosascript.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7398D27344D750007074E /* libsocket.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4CD203B11C6D76E20089706D /* libsocket.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7398E27344D750007074E /* libsocketudp.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4CD96BDC1C73ABD2009FF648 /* libsocketudp.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7398F27344D750007074E /* libdoc.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = D64964831CCB32C70074540B /* libdoc.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7399027344D750007074E /* libdistributednotifications.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F85FED81CCA918D00FBBAD7 /* libdistributednotifications.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7399127344D750007074E /* libwebviewdatastore.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = D6B946521D139C7D00177E0C /* libwebviewdatastore.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7399227344D750007074E /* libwebviewtoolbar.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = D6B9465E1D139CC500177E0C /* libwebviewtoolbar.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7399327344D750007074E /* libnoises.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 6AE181271D36E90B0097211C /* libnoises.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7399427344D750007074E /* libsharing.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = D61F4A2F1DCFA67900AEE223 /* libsharing.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7399527344D750007074E /* libnetworkping.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = D6A318AA1DDD833100D9B328 /* libnetworkping.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7399627344D750007074E /* libspotlight.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = D6A212F31DE38F5F00998C0B /* libspotlight.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7399727344D750007074E /* libcanvas.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = D68616071E04D5D20058A4F2 /* libcanvas.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7399827344D750007074E /* libcanvasmatrix.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = D68616161E04D6630058A4F2 /* libcanvasmatrix.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7399927344D750007074E /* liblsqlite3.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F9618A91E24E60C0048F71D /* liblsqlite3.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7399A27344D750007074E /* libhost_locale.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = D68CE6281E9C450E00912154 /* libhost_locale.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7399B27344D750007074E /* libplist.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FDD9DCC1ED30DC9008F14D3 /* libplist.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7399C27344D750007074E /* libdialog.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 22613FF11F297E0D00E05E11 /* libdialog.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7399D27344D750007074E /* libfsxattr.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = D6E164DC1F4C262300B85D8A /* libfsxattr.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7399E27344D750007074E /* libstreamdeck.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F2DF3EA1F6046F300742D08 /* libstreamdeck.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7399F27344D750007074E /* libmidi.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 22E4D8021FA7488900C8CF5C /* libmidi.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF739A027344D750007074E /* libhid.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = B8524F31201A88CD00844F3D /* libhid.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF739A127344D750007074E /* libbonjour.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = D62F9EBB2320B82100FAE188 /* libbonjour.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF739A227344D750007074E /* libbonjourservice.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = D62F9EC72320B86300FAE188 /* libbonjourservice.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF739A327344D750007074E /* libmath.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FCBAFCD23B0D941007BA1D0 /* libmath.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF739A427344D750007074E /* libwebsocket.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 224BA33223D1ECA900487FDB /* libwebsocket.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF739A527344D750007074E /* libpasteboardwatcher.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 22DF5D2723B9A9D300C41AE6 /* libpasteboardwatcher.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF739A627344D750007074E /* libuielementwatcher.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F9BA8C723DF3C6B006349F2 /* libuielementwatcher.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF739A727344D750007074E /* libserial.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 22EEC62324926E5100BAE4DA /* libserial.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF739A827344D750007074E /* libaxuielement.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = D633A9E9247B9BF2005C88E2 /* libaxuielement.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF739A927344D750007074E /* libshortcuts.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F7F3B6C272AF68100E05732 /* libshortcuts.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF739AF273452760007074E /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FF739AE273452760007074E /* LuaSkin.framework */; };
+		4FF739B0273452760007074E /* LuaSkin.framework in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FF739AE273452760007074E /* LuaSkin.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		4FFB20FC23C5E01300811E77 /* HSStreamDeckDeviceXL.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFB20FA23C5E01300811E77 /* HSStreamDeckDeviceXL.h */; };
 		4FFB20FD23C5E01300811E77 /* HSStreamDeckDeviceXL.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FFB20FB23C5E01300811E77 /* HSStreamDeckDeviceXL.m */; };
 		4FFB210023CD14A500811E77 /* HSStreamDeckDeviceOriginalV2.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFB20FE23CD14A400811E77 /* HSStreamDeckDeviceOriginalV2.h */; };
@@ -1014,6 +1103,105 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
+		4FF7395127344D370007074E /* Copy Extension Dylibs */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				4FF7395227344D740007074E /* libapplication.dylib in Copy Extension Dylibs */,
+				4FF7395327344D740007074E /* libapplicationwatcher.dylib in Copy Extension Dylibs */,
+				4FF7395427344D740007074E /* libaudiodevice.dylib in Copy Extension Dylibs */,
+				4FF7395527344D740007074E /* libbase64.dylib in Copy Extension Dylibs */,
+				4FF7395627344D740007074E /* libbattery.dylib in Copy Extension Dylibs */,
+				4FF7395727344D740007074E /* libbatterywatcher.dylib in Copy Extension Dylibs */,
+				4FF7395827344D740007074E /* libbrightness.dylib in Copy Extension Dylibs */,
+				4FF7395927344D740007074E /* libcaffeinate.dylib in Copy Extension Dylibs */,
+				4FF7395A27344D740007074E /* libcaffeinatewatcher.dylib in Copy Extension Dylibs */,
+				4FF7395B27344D740007074E /* libcrash.dylib in Copy Extension Dylibs */,
+				4FF7395C27344D740007074E /* libdockicon.dylib in Copy Extension Dylibs */,
+				4FF7395D27344D740007074E /* libfs.dylib in Copy Extension Dylibs */,
+				4FF7395E27344D740007074E /* libhash.dylib in Copy Extension Dylibs */,
+				4FF7395F27344D740007074E /* libhints.dylib in Copy Extension Dylibs */,
+				4FF7396027344D740007074E /* libhost.dylib in Copy Extension Dylibs */,
+				4FF7396127344D740007074E /* libhotkey.dylib in Copy Extension Dylibs */,
+				4FF7396227344D740007074E /* libhttp.dylib in Copy Extension Dylibs */,
+				4FF7396327344D740007074E /* libimage.dylib in Copy Extension Dylibs */,
+				4FF7396427344D740007074E /* libjson.dylib in Copy Extension Dylibs */,
+				4FF7396527344D740007074E /* liblocation.dylib in Copy Extension Dylibs */,
+				4FF7396627344D740007074E /* libmenubar.dylib in Copy Extension Dylibs */,
+				4FF7396727344D740007074E /* libmilight.dylib in Copy Extension Dylibs */,
+				4FF7396827344D740007074E /* libmouse.dylib in Copy Extension Dylibs */,
+				4FF7396927344D740007074E /* libnotify.dylib in Copy Extension Dylibs */,
+				4FF7396A27344D740007074E /* libpasteboard.dylib in Copy Extension Dylibs */,
+				4FF7396B27344D740007074E /* libpathwatcher.dylib in Copy Extension Dylibs */,
+				4FF7396C27344D740007074E /* libscreen.dylib in Copy Extension Dylibs */,
+				4FF7396D27344D740007074E /* libscreenwatcher.dylib in Copy Extension Dylibs */,
+				4FF7396E27344D740007074E /* libsettings.dylib in Copy Extension Dylibs */,
+				4FF7396F27344D740007074E /* libsound.dylib in Copy Extension Dylibs */,
+				4FF7397027344D740007074E /* libspaceswatcher.dylib in Copy Extension Dylibs */,
+				4FF7397127344D740007074E /* libtimer.dylib in Copy Extension Dylibs */,
+				4FF7397227344D740007074E /* libuielement.dylib in Copy Extension Dylibs */,
+				4FF7397327344D740007074E /* liburlevent.dylib in Copy Extension Dylibs */,
+				4FF7397427344D740007074E /* libusb.dylib in Copy Extension Dylibs */,
+				4FF7397527344D740007074E /* libusbwatcher.dylib in Copy Extension Dylibs */,
+				4FF7397627344D740007074E /* libwifi.dylib in Copy Extension Dylibs */,
+				4FF7397727344D740007074E /* libwifiwatcher.dylib in Copy Extension Dylibs */,
+				4FF7397827344D740007074E /* libwindow.dylib in Copy Extension Dylibs */,
+				4FF7397927344D740007074E /* libeventtap.dylib in Copy Extension Dylibs */,
+				4FF7397A27344D740007074E /* libeventtapevent.dylib in Copy Extension Dylibs */,
+				4FF7397B27344D740007074E /* libipc.dylib in Copy Extension Dylibs */,
+				4FF7397C27344D740007074E /* libhttpserver.dylib in Copy Extension Dylibs */,
+				4FF7397D27344D740007074E /* libkeycodes.dylib in Copy Extension Dylibs */,
+				4FF7397E27344D740007074E /* libwebview.dylib in Copy Extension Dylibs */,
+				4FF7397F27344D740007074E /* libwebviewusercontent.dylib in Copy Extension Dylibs */,
+				4FF7398027344D740007074E /* libaudiodevicewatcher.dylib in Copy Extension Dylibs */,
+				4FF7398127344D740007074E /* libdrawing_color.dylib in Copy Extension Dylibs */,
+				4FF7398227344D740007074E /* libstyledtext.dylib in Copy Extension Dylibs */,
+				4FF7398327344D740007074E /* libtask.dylib in Copy Extension Dylibs */,
+				4FF7398427344D740007074E /* libconsole.dylib in Copy Extension Dylibs */,
+				4FF7398527344D750007074E /* libspeech.dylib in Copy Extension Dylibs */,
+				4FF7398627344D750007074E /* libspeechlistener.dylib in Copy Extension Dylibs */,
+				4FF7398727344D750007074E /* libfsvolume.dylib in Copy Extension Dylibs */,
+				4FF7398827344D750007074E /* libchooser.dylib in Copy Extension Dylibs */,
+				4FF7398927344D750007074E /* libnetworkconfiguration.dylib in Copy Extension Dylibs */,
+				4FF7398A27344D750007074E /* libnetworkreachability.dylib in Copy Extension Dylibs */,
+				4FF7398B27344D750007074E /* libnetworkhost.dylib in Copy Extension Dylibs */,
+				4FF7398C27344D750007074E /* libosascript.dylib in Copy Extension Dylibs */,
+				4FF7398D27344D750007074E /* libsocket.dylib in Copy Extension Dylibs */,
+				4FF7398E27344D750007074E /* libsocketudp.dylib in Copy Extension Dylibs */,
+				4FF7398F27344D750007074E /* libdoc.dylib in Copy Extension Dylibs */,
+				4FF7399027344D750007074E /* libdistributednotifications.dylib in Copy Extension Dylibs */,
+				4FF7399127344D750007074E /* libwebviewdatastore.dylib in Copy Extension Dylibs */,
+				4FF7399227344D750007074E /* libwebviewtoolbar.dylib in Copy Extension Dylibs */,
+				4FF7399327344D750007074E /* libnoises.dylib in Copy Extension Dylibs */,
+				4FF7399427344D750007074E /* libsharing.dylib in Copy Extension Dylibs */,
+				4FF7399527344D750007074E /* libnetworkping.dylib in Copy Extension Dylibs */,
+				4FF7399627344D750007074E /* libspotlight.dylib in Copy Extension Dylibs */,
+				4FF7399727344D750007074E /* libcanvas.dylib in Copy Extension Dylibs */,
+				4FF7399827344D750007074E /* libcanvasmatrix.dylib in Copy Extension Dylibs */,
+				4FF7399927344D750007074E /* liblsqlite3.dylib in Copy Extension Dylibs */,
+				4FF739B0273452760007074E /* LuaSkin.framework in Copy Extension Dylibs */,
+				4FF7399A27344D750007074E /* libhost_locale.dylib in Copy Extension Dylibs */,
+				4FF7399B27344D750007074E /* libplist.dylib in Copy Extension Dylibs */,
+				4FF7399C27344D750007074E /* libdialog.dylib in Copy Extension Dylibs */,
+				4FF7399D27344D750007074E /* libfsxattr.dylib in Copy Extension Dylibs */,
+				4FF7399E27344D750007074E /* libstreamdeck.dylib in Copy Extension Dylibs */,
+				4FF7399F27344D750007074E /* libmidi.dylib in Copy Extension Dylibs */,
+				4FF739A027344D750007074E /* libhid.dylib in Copy Extension Dylibs */,
+				4FF739A127344D750007074E /* libbonjour.dylib in Copy Extension Dylibs */,
+				4FF739A227344D750007074E /* libbonjourservice.dylib in Copy Extension Dylibs */,
+				4FF739A327344D750007074E /* libmath.dylib in Copy Extension Dylibs */,
+				4FF739A427344D750007074E /* libwebsocket.dylib in Copy Extension Dylibs */,
+				4FF739A527344D750007074E /* libpasteboardwatcher.dylib in Copy Extension Dylibs */,
+				4FF739A627344D750007074E /* libuielementwatcher.dylib in Copy Extension Dylibs */,
+				4FF739A727344D750007074E /* libserial.dylib in Copy Extension Dylibs */,
+				4FF739A827344D750007074E /* libaxuielement.dylib in Copy Extension Dylibs */,
+				4FF739A927344D750007074E /* libshortcuts.dylib in Copy Extension Dylibs */,
+			);
+			name = "Copy Extension Dylibs";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -1361,6 +1549,8 @@
 		4FEF4D531C5FBA9800E3B939 /* test_audiodevice.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_audiodevice.lua; path = extensions/audiodevice/test_audiodevice.lua; sourceTree = "<group>"; };
 		4FEF59411B29A352002344A7 /* HSGrowingTextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HSGrowingTextField.h; sourceTree = "<group>"; };
 		4FEF59421B29A352002344A7 /* HSGrowingTextField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSGrowingTextField.m; sourceTree = "<group>"; };
+		4FF73950273448B30007074E /* Archive-Export-Options.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Archive-Export-Options.plist"; sourceTree = "<group>"; };
+		4FF739AE273452760007074E /* LuaSkin.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = LuaSkin.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FFB20FA23C5E01300811E77 /* HSStreamDeckDeviceXL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = HSStreamDeckDeviceXL.h; path = extensions/streamdeck/HSStreamDeckDeviceXL.h; sourceTree = "<group>"; };
 		4FFB20FB23C5E01300811E77 /* HSStreamDeckDeviceXL.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = HSStreamDeckDeviceXL.m; path = extensions/streamdeck/HSStreamDeckDeviceXL.m; sourceTree = "<group>"; };
 		4FFB20FE23CD14A400811E77 /* HSStreamDeckDeviceOriginalV2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSStreamDeckDeviceOriginalV2.h; path = extensions/streamdeck/HSStreamDeckDeviceOriginalV2.h; sourceTree = "<group>"; };
@@ -2064,7 +2254,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F9F02BB1B3D9591009C32E5 /* LuaSkin.framework in Frameworks */,
+				4FF739AF273452760007074E /* LuaSkin.framework in Frameworks */,
 				394FD223913AE68B92126D37 /* libPods-Hammerspoon.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2819,6 +3009,7 @@
 		4F7F3B79272DE7D000E05732 /* Build Configs */ = {
 			isa = PBXGroup;
 			children = (
+				4FF73950273448B30007074E /* Archive-Export-Options.plist */,
 				4F7F3B7D272DE9F800E05732 /* Project-Base.xcconfig */,
 				4F0C1C78272F4F28002CA157 /* Project-Release.xcconfig */,
 				4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */,
@@ -3450,6 +3641,7 @@
 		9445CA0D19083251002568BB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4FF739AE273452760007074E /* LuaSkin.framework */,
 				22E4D8071FA74BDA00C8CF5C /* libMIKMIDI.a */,
 				D6943FE11EDBF2510057BB26 /* CoreFoundation.framework */,
 				D6943FE21EDBF2510057BB26 /* Foundation.framework */,
@@ -5584,6 +5776,7 @@
 				9445CA0819083251002568BB /* Frameworks */,
 				4FA81F271B3F2A52000B5537 /* Copy LuaSkin.framework to build/bundle */,
 				4FBE2D161B7268DF00407788 /* Copy extensions to bundle */,
+				4FF7395127344D370007074E /* Copy Extension Dylibs */,
 				9445CA0919083251002568BB /* Resources */,
 				E849AEC367EA9502A25B9A7C /* [CP] Embed Pods Frameworks */,
 				4F6D9E3523074BC6006CC3E4 /* Update version/build numbers */,
@@ -6378,7 +6571,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -eux\nrsync -avr \"${BUILT_PRODUCTS_DIR}/LuaSkin.framework\" \"${SRCROOT}\"\nrsync -avr \"${BUILT_PRODUCTS_DIR}/LuaSkin.framework\" \"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n";
+			shellScript = "set -eux\nexit 0\n#rsync -avr \"${BUILT_PRODUCTS_DIR}/LuaSkin.framework\" \"${SRCROOT}\" # FIXME: Do we still need this?\nrsync -avr \"${BUILT_PRODUCTS_DIR}/LuaSkin.framework\" \"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n";
 		};
 		4FBE2D161B7268DF00407788 /* Copy extensions to bundle */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -6392,7 +6585,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -eux\n\"${SRCROOT}/scripts/copy_extensions_to_bundle.sh\"\nxattr -cr ${BUILT_PRODUCTS_DIR}\n";
+			shellScript = "set -eux\nexit 0\n\"${SRCROOT}/scripts/copy_extensions_to_bundle.sh\"\nxattr -cr ${BUILT_PRODUCTS_DIR}\n";
 		};
 		4FC09F7A19F99E48007542A6 /* Compile docs.json */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -7933,6 +8126,15 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F7F3B7B272DE98800E05732 /* Hammerspoon-Profile.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Hammerspoon/Hammerspoon.entitlements;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/build/Hammerspoon/Build/Products/Debug",
+				);
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 			};
 			name = Profile;
 		};
@@ -8293,6 +8495,7 @@
 				GCC_NO_COMMON_BLOCKS = YES;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
 			};
 			name = Profile;
 		};
@@ -9508,6 +9711,7 @@
 				GCC_NO_COMMON_BLOCKS = YES;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
 			};
 			name = Debug;
 		};
@@ -9522,6 +9726,7 @@
 				GCC_NO_COMMON_BLOCKS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
 			};
 			name = Release;
 		};
@@ -9671,6 +9876,16 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F7F3B7A272DE83500E05732 /* Hammerspoon-Debug.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Hammerspoon/Hammerspoon.entitlements;
+				ENABLE_HARDENED_RUNTIME = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/build/Hammerspoon/Build/Products/Debug",
+				);
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 			};
 			name = Debug;
 		};
@@ -9678,6 +9893,16 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F7F3B7C272DE99200E05732 /* Hammerspoon-Release.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Hammerspoon/Hammerspoon.entitlements;
+				ENABLE_HARDENED_RUNTIME = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/build/Hammerspoon/Build/Products/Debug",
+				);
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 			};
 			name = Release;
 		};
