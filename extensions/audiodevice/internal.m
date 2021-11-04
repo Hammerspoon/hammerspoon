@@ -1903,7 +1903,7 @@ static const luaL_Reg dataSourceLib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_audiodevice_internal(lua_State* L) {
+int luaopen_hs_libaudiodevice(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:audiodeviceLib metaFunctions:nil objectFunctions:audiodevice_metalib];
     [skin registerObject:USERDATA_DATASOURCE_TAG objectFunctions:dataSourceLib];

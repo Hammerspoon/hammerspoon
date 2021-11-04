@@ -159,7 +159,7 @@ static const luaL_Reg meta_gcLib[] = {
     {NULL,      NULL}
 };
 
-int luaopen_hs_battery_watcher(lua_State* L) {
+int luaopen_hs_libbatterywatcher(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:batteryLib metaFunctions:meta_gcLib objectFunctions:battery_metalib];
 

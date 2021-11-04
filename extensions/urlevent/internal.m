@@ -367,7 +367,7 @@ static const luaL_Reg urlevent_gclib[] = {
 /* NOTE: The substring "hs_urlevent_internal" in the following function's name
          must match the require-path of this file, i.e. "hs.urlevent.internal". */
 
-int luaopen_hs_urlevent_internal(lua_State *L) {
+int luaopen_hs_liburlevent(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     urlevent_setup();

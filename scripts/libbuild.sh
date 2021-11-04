@@ -30,11 +30,12 @@ function op_build() {
 
     # Clean the temporary build folders
     echo "Cleaning temporary build folders..."
-    xcodebuild -workspace Hammerspoon.xcworkspace -scheme ${XCODE_SCHEME} -configuration ${XCODE_CONFIGURATION} -destination "platform=macOS" clean | xcbeautify ${XCB_OPTS}
+    # FIXME: Re-enable this
+#    xcodebuild -workspace Hammerspoon.xcworkspace -scheme ${XCODE_SCHEME} -configuration ${XCODE_CONFIGURATION} -destination "platform=macOS" clean | xcbeautify ${XCB_OPTS}
 
     # Build the app
     echo "-> xcodebuild -workspace Hammerspoon.xcworkspace -scheme ${XCODE_SCHEME} -configuration ${XCODE_CONFIGURATION} -destination \"platform=macOS\" -archivePath "${HAMMERSPOON_APP}.xcarchive" archive | tee ${BUILD_HOME}/${XCODE_CONFIGURATION}-build.log"
-    xcodebuild -workspace Hammerspoon.xcworkspace -scheme ${XCODE_SCHEME} -configuration ${XCODE_CONFIGURATION} -destination "platform=macOS" -archivePath "${HAMMERSPOON_APP}.xcarchive" clean archive | tee ${BUILD_HOME}/${XCODE_CONFIGURATION}-build.log | xcbeautify ${XCB_OPTS}
+    xcodebuild -workspace Hammerspoon.xcworkspace -scheme ${XCODE_SCHEME} -configuration ${XCODE_CONFIGURATION} -destination "platform=macOS" -archivePath "${HAMMERSPOON_APP}.xcarchive" archive | tee ${BUILD_HOME}/${XCODE_CONFIGURATION}-build.log | xcbeautify ${XCB_OPTS}
 
     # Export the app bundle from the archive
     xcodebuild -exportArchive -archivePath "${HAMMERSPOON_APP}.xcarchive" -exportOptionsPlist Hammerspoon/Build\ Configs/Archive-Export-Options.plist -exportPath "${BUILD_HOME}"

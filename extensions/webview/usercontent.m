@@ -335,7 +335,7 @@ static luaL_Reg moduleLib[] = {
 // };
 
 // NOTE: ** Make sure to change luaopen_..._internal **
-int luaopen_hs_webview_usercontent(lua_State* L) {
+int luaopen_hs_libwebviewusercontent(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     if (!NSClassFromString(@"WKWebView")) {
         [skin logError:[NSString stringWithFormat:@"%s requires WKWebView support, found in OS X 10.10 or newer", USERDATA_UCC_TAG]] ;

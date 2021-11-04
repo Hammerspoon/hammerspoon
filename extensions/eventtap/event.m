@@ -1793,7 +1793,7 @@ static int NSTouch_toLua(lua_State *L, id obj) {
 }
 
 
-int luaopen_hs_eventtap_event(lua_State* L) {
+int luaopen_hs_libeventtapevent(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin registerLibraryWithObject:EVENT_USERDATA_TAG functions:eventtapeventlib metaFunctions:meta_gcLib objectFunctions:eventtapevent_metalib];
 

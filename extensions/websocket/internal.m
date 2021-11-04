@@ -293,7 +293,7 @@ static const luaL_Reg wsMetalib[] = {
     {NULL, NULL} // This must end with an empty struct
 };
 
-int luaopen_hs_websocket_internal(lua_State* L) {
+int luaopen_hs_libwebsocket(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     refTable = [skin registerLibrary:WS_USERDATA_TAG functions:websocketlib metaFunctions:metalib];

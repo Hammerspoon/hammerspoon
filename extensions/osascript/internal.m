@@ -48,7 +48,7 @@ static const luaL_Reg scriptlib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_osascript_internal(lua_State* L) {
+int luaopen_hs_libosascript(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin registerLibrary:"hs.osascript" functions:scriptlib metaFunctions:nil];
 

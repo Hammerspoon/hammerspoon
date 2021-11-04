@@ -774,7 +774,7 @@ static const luaL_Reg httpserverObjectLib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_httpserver_internal(lua_State *L) {
+int luaopen_hs_libhttpserver(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibraryWithObject:"hs.httpserver" functions:httpserverLib metaFunctions:nil objectFunctions:httpserverObjectLib];
 

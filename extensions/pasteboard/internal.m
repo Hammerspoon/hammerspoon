@@ -1057,7 +1057,7 @@ static const luaL_Reg pasteboardLib[] = {
     {NULL,      NULL}
 };
 
-int luaopen_hs_pasteboard_internal(lua_State* L) {
+int luaopen_hs_libpasteboard(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin registerLibrary:"hs.pasteboard" functions:pasteboardLib metaFunctions:nil];
 

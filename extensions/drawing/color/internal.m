@@ -298,7 +298,7 @@ static luaL_Reg moduleLib[] = {
     {NULL,    NULL}
 };
 
-int luaopen_hs_drawing_color_internal(lua_State* L) {
+int luaopen_hs_libdrawing_color(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibrary:"hs.drawing" functions:moduleLib metaFunctions:nil] ; // or module_metaLib
     colorCollectionsTable = LUA_NOREF ;

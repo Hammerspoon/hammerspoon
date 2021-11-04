@@ -144,7 +144,7 @@ static const luaL_Reg crashlib[] = {
 /* NOTE: The substring "hs_crash_internal" in the following function's name
          must match the require-path of this file, i.e. "hs.crash.internal". */
 
-int luaopen_hs_crash_internal(lua_State *L) {
+int luaopen_hs_libcrash(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin registerLibrary:"hs.crash" functions:crashlib metaFunctions:nil];
 

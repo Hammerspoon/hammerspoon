@@ -1233,7 +1233,7 @@ static const luaL_Reg module_metaLib[] = {
 };
 
 // Initalise Module:
-int luaopen_hs_serial_internal(lua_State* L) {
+int luaopen_hs_libserial(lua_State* L) {
     // Register Module:
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibraryWithObject:USERDATA_TAG

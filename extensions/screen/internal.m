@@ -1423,7 +1423,7 @@ static const luaL_Reg metalib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_screen_internal(lua_State* L) {
+int luaopen_hs_libscreen(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     // Start off by initialising gamma related structures, populating them and registering appropriate callbacks

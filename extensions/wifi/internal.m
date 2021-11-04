@@ -710,7 +710,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_wifi_internal(lua_State* L) {
+int luaopen_hs_libwifi(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibraryWithObject:USERDATA_TAG
                                      functions:wifilib

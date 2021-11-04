@@ -888,7 +888,7 @@ static const luaL_Reg taskObjectLib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_task_internal(lua_State* L) {
+int luaopen_hs_libtask(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:taskLib metaFunctions:taskMetaLib objectFunctions:taskObjectLib];
 

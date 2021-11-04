@@ -330,7 +330,7 @@ static const luaL_Reg metaGcLib[] = {
 };
 
 // Called when loading the module. All necessary tables need to be registered here.
-int luaopen_hs_application_watcher(lua_State* L) {
+int luaopen_hs_libapplicationwatcher(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:appLib metaFunctions:metaGcLib objectFunctions:metaLib];
 

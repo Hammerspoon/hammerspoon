@@ -629,7 +629,7 @@ static const luaL_Reg metalib[] = {
     {NULL, NULL} // This must end with an empty struct
 };
 
-int luaopen_hs_http_internal(lua_State* L) {
+int luaopen_hs_libhttp(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     delegates = [[NSMutableArray alloc] init];

@@ -101,7 +101,7 @@ static const luaL_Reg metalib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_usb_internal(lua_State* L) {
+int luaopen_hs_libusb(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin registerLibrary:"hs.usb" functions:usblib metaFunctions:metalib];
 

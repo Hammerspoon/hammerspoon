@@ -168,7 +168,7 @@ static const luaL_Reg brightnessLib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_brightness_internal(lua_State* L) {
+int luaopen_hs_libbrightness(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin registerLibrary:"hs.brightness" functions:brightnessLib metaFunctions:nil];
 

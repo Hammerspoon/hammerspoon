@@ -815,7 +815,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {NULL,              NULL} // This must end with an empty struct
 };
 
-int luaopen_hs_socket_udp(lua_State *L) {
+int luaopen_hs_libsocketudp(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibrary:USERDATA_TAG functions:moduleLib metaFunctions:meta_gcLib];
     [skin registerObject:USERDATA_TAG objectFunctions:userdata_metaLib];

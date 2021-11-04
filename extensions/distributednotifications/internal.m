@@ -212,7 +212,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_distributednotifications_internal(lua_State* L) {
+int luaopen_hs_libdistributednotifications(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibrary:USERDATA_TAG functions:distributednotificationslib metaFunctions:nil];
     [skin registerObject:USERDATA_TAG objectFunctions:userdata_metaLib];

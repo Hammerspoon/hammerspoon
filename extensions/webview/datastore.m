@@ -512,7 +512,7 @@ static const luaL_Reg module_metaLib[] = {
 };
 
 // NOTE: ** Make sure to change luaopen_..._internal **
-int luaopen_hs_webview_datastore(lua_State* L) {
+int luaopen_hs_libwebviewdatastore(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     if (!NSClassFromString(@"WKWebsiteDataStore")) {
         [skin logError:[NSString stringWithFormat:@"%s requires WKWebsiteDataStore support, found in OS X 10.11 or newer", USERDATA_DS_TAG]] ;

@@ -494,7 +494,7 @@ static const luaL_Reg meta_gcLib[] = {
     {NULL,      NULL}
 };
 
-int luaopen_hs_timer_internal(lua_State* L) {
+int luaopen_hs_libtimer(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibrary:USERDATA_TAG functions:timerLib metaFunctions:meta_gcLib];
     [skin registerObject:USERDATA_TAG objectFunctions:timer_metalib];

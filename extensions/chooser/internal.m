@@ -904,7 +904,7 @@ static const luaL_Reg userdataLib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_chooser_internal(lua_State* L) {
+int luaopen_hs_libchooser(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibraryWithObject:USERDATA_TAG
                                      functions:chooserLib

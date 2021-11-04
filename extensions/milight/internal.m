@@ -216,7 +216,7 @@ static const luaL_Reg milight_objectlib[] = {
 /* NOTE: The substring "hs_milight_internal" in the following function's name
          must match the require-path of this file, i.e. "hs.milight.internal". */
 
-int luaopen_hs_milight_internal(lua_State *L) {
+int luaopen_hs_libmilight(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin registerLibraryWithObject:USERDATA_TAG functions:milightlib metaFunctions:nil objectFunctions:milight_objectlib];
 

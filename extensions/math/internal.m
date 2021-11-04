@@ -60,7 +60,7 @@ static const luaL_Reg mathLib[] = {
     {NULL,      NULL}
 };
 
-int luaopen_hs_math_internal(lua_State* L) {
+int luaopen_hs_libmath(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin registerLibrary:"hs.math" functions:mathLib metaFunctions:nil];
 

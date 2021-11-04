@@ -999,7 +999,7 @@ static const luaL_Reg module_metaLib[] = {
     {NULL,   NULL}
 };
 
-int luaopen_hs_location_internal(lua_State *L) {
+int luaopen_hs_liblocation(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
 
     // in case a reload skipped meta_gc for some reason (e.g. module got resurrected right

@@ -402,7 +402,7 @@ static const luaL_Reg module_metaLib[] = {
     {NULL,   NULL}
 };
 
-int luaopen_hs_host_locale_internal(lua_State* L) {
+int luaopen_hs_libhost_locale(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     refTable = [skin registerLibrary:USERDATA_TAG functions:moduleLib metaFunctions:module_metaLib] ;
 

@@ -888,6 +888,7 @@ void MJLuaInit(void) {
     }
 
     lua_pushstring(L, [[[NSBundle mainBundle] pathForResource:@"extensions" ofType:nil] fileSystemRepresentation]);
+    lua_pushstring(L, [[NSBundle mainBundle].privateFrameworksPath UTF8String]);
     lua_pushstring(L, [MJConfigFile UTF8String]);
     lua_pushstring(L, [MJConfigFileFullPath() UTF8String]);
     lua_pushstring(L, [MJConfigDir() UTF8String]);
@@ -895,7 +896,7 @@ void MJLuaInit(void) {
     lua_pushboolean(L, [[NSFileManager defaultManager] fileExistsAtPath: MJConfigFileFullPath()]);
     lua_pushboolean(L, [[NSUserDefaults standardUserDefaults] boolForKey:HSAutoLoadExtensions]);
 
-    if (lua_pcall(L, 7, 2, 0) != LUA_OK) {
+    if (lua_pcall(L, 8, 2, 0) != LUA_OK) {
         NSString *errorMessage = [NSString stringWithFormat:@"%s", lua_tostring(L, -1)] ;
         lua_pop(L, 1); // Pop the error message off the stack
         HSNSLOG(@"Error running setup.lua:%@", errorMessage);

@@ -1706,7 +1706,7 @@ static const luaL_Reg module_metaLib[] = {
 //
 // Initalise Module:
 //
-int luaopen_hs_midi_internal(lua_State* L) {
+int luaopen_hs_libmidi(lua_State* L) {
 
     //
     // Register Module:

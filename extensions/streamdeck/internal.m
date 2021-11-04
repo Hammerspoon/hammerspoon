@@ -372,7 +372,7 @@ static const luaL_Reg metalib[] = {
 };
 
 #pragma mark - Lua initialiser
-int luaopen_hs_streamdeck_internal(lua_State* L) {
+int luaopen_hs_libstreamdeck(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     streamDeckRefTable = [skin registerLibrary:USERDATA_TAG functions:streamdecklib metaFunctions:metalib];
     [skin registerObject:USERDATA_TAG objectFunctions:userdata_metaLib];

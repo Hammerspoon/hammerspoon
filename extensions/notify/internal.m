@@ -1492,7 +1492,7 @@ static const luaL_Reg module_metaLib[] = {
     {NULL,   NULL}
 };
 
-int luaopen_hs_notify_internal(lua_State* L) {
+int luaopen_hs_libnotify(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibraryWithObject:USERDATA_TAG
                                      functions:moduleLib

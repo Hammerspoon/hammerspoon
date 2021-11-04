@@ -1263,7 +1263,7 @@ static const luaL_Reg menubar_gclib[] = {
 /* NOTE: The substring "hs_menubar_internal" in the following function's name
          must match the require-path of this file, i.e. "hs.menubar.internal". */
 
-int luaopen_hs_menubar_internal(lua_State *L) {
+int luaopen_hs_libmenubar(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     menubar_setup();

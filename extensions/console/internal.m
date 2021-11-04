@@ -618,7 +618,7 @@ static const luaL_Reg extrasLib[] = {
 //     {NULL,   NULL}
 // };
 
-int luaopen_hs_console_internal(lua_State *L) {
+int luaopen_hs_libconsole(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable      = [skin registerLibrary:"hs.console" functions:extrasLib metaFunctions:nil];
 

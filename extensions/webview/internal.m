@@ -3202,7 +3202,7 @@ static const luaL_Reg module_metaLib[] = {
     {NULL,   NULL}
 };
 
-int luaopen_hs_webview_internal(lua_State* L) {
+int luaopen_hs_libwebview(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     if (!NSClassFromString(@"WKWebView")) {
         [skin logError:[NSString stringWithFormat:@"%s requires WKWebView support, found in OS X 10.10 or newer", USERDATA_TAG]] ;

@@ -428,7 +428,7 @@ static const luaL_Reg hotkey_objectlib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_hotkey_internal(lua_State* L) {
+int luaopen_hs_libhotkey(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     if (!hotkeys) {

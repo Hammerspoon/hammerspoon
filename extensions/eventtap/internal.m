@@ -492,7 +492,7 @@ static const luaL_Reg meta_gcLib[] = {
     {NULL,      NULL}
 };
 
-int luaopen_hs_eventtap_internal(lua_State* L) {
+int luaopen_hs_libeventtap(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:eventtaplib metaFunctions:meta_gcLib objectFunctions:eventtap_metalib];
 

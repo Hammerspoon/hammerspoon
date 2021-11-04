@@ -189,7 +189,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_uielement_watcher(lua_State *L) {
+int luaopen_hs_libuielementwatcher(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     refTable = [skin registerLibraryWithObject:USERDATA_TAG

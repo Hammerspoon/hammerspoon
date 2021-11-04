@@ -249,7 +249,7 @@ static const luaL_Reg metaLib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_audiodevice_watcher(lua_State* L) {
+int luaopen_hs_libaudiodevicewatcher(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibrary:"hs.audiodevice.watcher" functions:audiodevicewatcherLib metaFunctions:metaLib];
     return 1;

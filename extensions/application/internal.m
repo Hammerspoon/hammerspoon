@@ -1250,7 +1250,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_application_internal(lua_State* L) {
+int luaopen_hs_libapplication(lua_State* L) {
     backgroundCallbacks = [NSMutableSet set];
 
     LuaSkin *skin = [LuaSkin sharedWithState:L];

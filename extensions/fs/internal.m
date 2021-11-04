@@ -1186,7 +1186,7 @@ static const struct luaL_Reg fslib[] = {
     {NULL, NULL},
 };
 
-int luaopen_hs_fs_internal (lua_State *L) {
+int luaopen_hs_libfs (lua_State *L) {
     dir_create_meta (L);
     lock_create_meta (L);
     luaL_newlib (L, fslib);

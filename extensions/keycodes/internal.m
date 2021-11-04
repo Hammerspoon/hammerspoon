@@ -643,7 +643,7 @@ static const luaL_Reg keycodeslib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_keycodes_internal(lua_State* L) {
+int luaopen_hs_libkeycodes(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:keycodeslib metaFunctions:nil objectFunctions:callbacklib];
 
