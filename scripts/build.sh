@@ -188,6 +188,7 @@ export DOCS_DASH
 export DOCS_LINT_ONLY
 
 # Early sanity check that we have everything we need
+export PATH="$PATH:/opt/homebrew/bin"
 if [ "$(which greadlink)" == "" ]; then
     echo "ERROR: Unable to find greadlink. Maybe '$0 installdeps'?"
     exit 1
