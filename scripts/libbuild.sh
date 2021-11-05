@@ -61,6 +61,7 @@ function op_validate() {
       codesign -dvv "${HAMMERSPOON_APP}"
       fail "Invalid signature"
   fi
+  echo "  ✅ App bundle is signed"
 
   # Fetch the app bundle's relevant signature data
   local APP_SIGNATURE ; APP_SIGNATURE=$(codesign --display --verbose=4 "${HAMMERSPOON_APP}" 2>&1 | grep ^Authority | head -1)
@@ -69,21 +70,24 @@ function op_validate() {
   if [ "$SIGN_TEAM" != "$(echo ${APP_SIGNATURE} | sed -e 's/.*(\(.*\))/\1/')" ]; then
       fail "App is signed with the wrong key: $APP_SIGNATURE (expecting $SIGN_TEAM)"
   fi
+  echo "  ✅ Signing team is correct (${SIGN_TEAM})"
 
   # Check that the signing identity is correct (typically this should be "Developer ID Application")
   if [ "${SIGN_IDENTITY}" != "$(echo ${APP_SIGNATURE} | sed -e 's/.*=\(.*\):.*/\1/')" ]; then
       fail "App is signed with the wrong identity: $APP_SIGNATURE (expecting $SIGN_IDENTITY)"
   fi
+  echo "  ✅ Signing identity is correct (${SIGN_IDENTITY})"
 
   # Check that Gatekeepr accepts the app bundle
   if ! spctl --assess --type execute "${HAMMERSPOON_APP}" ; then
       spctl --verbose=4 --assess --type execute "${HAMMERSPOON_APP}"
       fail "Gatekeeper rejection:"
   fi
+  echo "  ✅ Gatekeeper accepts the app bundle"
 
   # Check that the app bundle has the expected entitlements
   local EXPECTED_ENTITLEMENTS ; EXPECTED_ENTITLEMENTS=$(xmllint --c14n --format "${HAMMERSPOON_HOME}/${ENTITLEMENTS_FILE}" 2>/dev/null)
-  local ACTUAL_ENTITLEMENTS ; ACTUAL_ENTITLEMENTS=$(codesign --display --entitlements - --xml "${HAMMERSPOON_APP}" | xmllint --c14n --format - 2>/dev/null)
+  local ACTUAL_ENTITLEMENTS ; ACTUAL_ENTITLEMENTS=$(codesign --display --entitlements - --xml "${HAMMERSPOON_APP}" 2>/dev/null | xmllint --c14n --format - 2>/dev/null)
 
   if [ "${EXPECTED_ENTITLEMENTS}" != "${ACTUAL_ENTITLEMENTS}" ]; then
       echo "***** EXPECTED ENTITLEMENTS (${ENTITLEMENTS_FILE}):"
@@ -93,8 +97,10 @@ function op_validate() {
       echo "*****"
       fail "Entitlements did not apply correctly"
   fi
+  echo "  ✅ Entitlements are as expected"
 
-  echo "${HAMMERSPOON_APP} is correctly signed/entitled"
+  echo ""
+  echo "  🎉 ${HAMMERSPOON_APP} is fully valid"
 }
 
 function op_docs() {
