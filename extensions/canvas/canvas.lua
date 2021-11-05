@@ -117,7 +117,7 @@
 
 local USERDATA_TAG = "hs.canvas"
 local module       = require("hs.libcanvas")
-module.matrix      = require("hs.canvas.matrix")
+module.matrix      = require("hs.canvas_matrix")
 
 -- include these so that their support functions are available to us
 require("hs.image")

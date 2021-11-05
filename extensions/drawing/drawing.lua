@@ -1,5 +1,5 @@
 -- hs.drawing is now fully deprecated and is unconditionally replaced by the hs.canvas wrapper.
-return require("hs.drawing.canvasWrapper")
+return require("hs.drawing_canvasWrapper")
 
 --- === hs.drawing ===
 ---

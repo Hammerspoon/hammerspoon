@@ -442,8 +442,9 @@ coroutine.applicationYield = hs.coroutineApplicationYield
     local iter, dir_obj = fs.dir(modpath.."/hs")
     local extension = iter(dir_obj)
     while extension do
-      if (extension ~= ".") and (extension ~= "..") then
-        hs._extensions[extension] = true
+      if (extension ~= ".") and (extension ~= "..") and (not extension:find("_")) then
+        print("  Lazy loading enabled for: "..extension:gsub("%.lua", ""))
+        hs._extensions[extension:gsub("%.lua", "")] = true
       end
       extension = iter(dir_obj)
     end
@@ -651,7 +652,7 @@ coroutine.applicationYield = hs.coroutineApplicationYield
   local hscrash = require("hs.crash")
 
   -- These three modules are so tightly coupled that we will unconditionally preload them
-  require("hs.application.internal")
+  require("hs.libapplication")
   require("hs.uielement")
   require("hs.window")
   require("hs.application")

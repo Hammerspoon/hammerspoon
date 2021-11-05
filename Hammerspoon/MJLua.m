@@ -232,6 +232,7 @@ static int push_hammerAppInfo(lua_State* L) {
                               @"resourcePath": @([[[NSBundle mainBundle] resourcePath] fileSystemRepresentation]),
                               @"bundlePath": @([[[NSBundle mainBundle] bundlePath] fileSystemRepresentation]),
                               @"executablePath": @([[[NSBundle mainBundle] executablePath] fileSystemRepresentation]),
+                              @"frameworksPath": @([[[NSBundle mainBundle] privateFrameworksPath] fileSystemRepresentation]),
                               @"processID": @(getpid()),
                               @"bundleID": [[NSBundle mainBundle] bundleIdentifier],
                               @"buildTime": @(__DATE__ ", " __TIME__),
@@ -888,7 +889,7 @@ void MJLuaInit(void) {
     }
 
     lua_pushstring(L, [[[NSBundle mainBundle] pathForResource:@"extensions" ofType:nil] fileSystemRepresentation]);
-    lua_pushstring(L, [[NSBundle mainBundle].privateFrameworksPath UTF8String]);
+    lua_pushstring(L, [[NSBundle mainBundle].privateFrameworksPath fileSystemRepresentation]);
     lua_pushstring(L, [MJConfigFile UTF8String]);
     lua_pushstring(L, [MJConfigFileFullPath() UTF8String]);
     lua_pushstring(L, [MJConfigDir() UTF8String]);

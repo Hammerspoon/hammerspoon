@@ -19,7 +19,7 @@ local submodules = {
 setmetatable(module, {
     __index = function(self, key)
         if submodules[key] then
-            self[key] = require(submodules[key])
+            self[key] = require("hs.network_"..key)
         end
         return rawget(self, key)
     end,

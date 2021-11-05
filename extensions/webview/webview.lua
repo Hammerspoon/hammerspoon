@@ -28,7 +28,7 @@ end
 
 local module       = require("hs.libwebview")
 module.usercontent = require("hs.libwebviewusercontent")
-module.toolbar     = require(USERDATA_TAG .. ".toolbar")
+module.toolbar     = require("hs.webview_toolbar")
 
 local objectMT     = hs.getObjectMetatable(USERDATA_TAG)
 

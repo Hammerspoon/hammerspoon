@@ -9,7 +9,7 @@ local host = require "hs.libhost"
 local fnutils = require "hs.fnutils"
 local timer   = require "hs.timer"
 
-host.locale = require "hs.host.locale"
+host.locale = require "hs.host_locale"
 
 local __tostring_for_tables = function(self)
     local result = ""

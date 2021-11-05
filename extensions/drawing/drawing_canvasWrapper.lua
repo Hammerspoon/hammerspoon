@@ -2,7 +2,7 @@
 local USERDATA_TAG = "hs.drawing"
 
 local module = {}
-module.color = require(USERDATA_TAG .. ".color")
+module.color = require(USERDATA_TAG .. "_color")
 
 local canvas       = require"hs.canvas"
 local styledtext   = require"hs.styledtext"

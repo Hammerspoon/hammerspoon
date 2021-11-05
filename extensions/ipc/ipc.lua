@@ -203,7 +203,8 @@ end
 ---  * A boolean, true if the `hs` command line tool is correctly installed, otherwise false
 module.cliStatus = function(p, s)
     local path = p or "/usr/local"
-    local mod_path = string.match(package.searchpath("hs.ipc",package.path), "^(.*)/init%.lua$")
+    local mod_path = hs.processInfo["frameworksPath"]
+    local resource_path = hs.processInfo["resourcePath"]
 
     local silent = s or false
 
@@ -211,8 +212,8 @@ module.cliStatus = function(p, s)
     local man_file = os.execute("[ -f \""..path.."/share/man/man1/hs.1\" ]")
     local bin_link = os.execute("[ -L \""..path.."/bin/hs\" ]")
     local man_link = os.execute("[ -L \""..path.."/share/man/man1/hs.1\" ]")
-    local bin_ours = os.execute("[ \""..path.."/bin/hs\" -ef \""..mod_path.."/bin/hs\" ]")
-    local man_ours = os.execute("[ \""..path.."/share/man/man1/hs.1\" -ef \""..mod_path.."/share/man/man1/hs.1\" ]")
+    local bin_ours = os.execute("[ \""..path.."/bin/hs\" -ef \""..mod_path.."hs/hs\" ]")
+    local man_ours = os.execute("[ \""..path.."/share/man/man1/hs.1\" -ef \""..resource_path.."/man/hs.man\" ]")
 
     local result = bin_file and man_file and bin_link and man_link and bin_ours and man_ours or false
     local broken = false
@@ -280,9 +281,10 @@ module.cliInstall = function(p, s)
     local path = p or "/usr/local"
     local silent = s or false
     if module.cliStatus(path, true) == false then
-        local mod_path = string.match(package.searchpath("hs.ipc",package.path), "^(.*)/init%.lua$")
-        os.execute("ln -s \""..mod_path.."/bin/hs\" \""..path.."/bin/\"")
-        os.execute("ln -s \""..mod_path.."/share/man/man1/hs.1\" \""..path.."/share/man/man1/\"")
+        local mod_path = hs.processInfo["frameworksPath"]
+        local resource_path = hs.processInfo["resourcePath"]
+        os.execute("ln -s \""..mod_path.."/hs/hs\" \""..path.."/bin/\"")
+        os.execute("ln -s \""..resource_path.."/man/hs.man\" \""..path.."/share/man/man1/hs.1\"")
     end
     return module.cliStatus(path, silent)
 end

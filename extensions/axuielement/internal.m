@@ -1286,8 +1286,8 @@ int luaopen_hs_libaxuielement(lua_State* L) {
                                  metaFunctions:nil
                                objectFunctions:userdata_metaLib] ;
 
-    luaopen_hs_axuielement_observer(L) ;     lua_setfield(L, -2, "observer") ;
-    luaopen_hs_axuielement_axtextmarker(L) ; lua_setfield(L, -2, "axtextmarker") ;
+    luaopen_hs_libaxuielementobserver(L) ;     lua_setfield(L, -2, "observer") ;
+    luaopen_hs_axuielement_axtextmarker(L) ; lua_setfield(L, -2, "axtextmarker") ; // FIXME: 2972
 
 // For reference, since the object __init wrapper in init.lua and the keys for elementSearch don't
 // actually use them in case the user wants to use an Application defined attribute or action not
