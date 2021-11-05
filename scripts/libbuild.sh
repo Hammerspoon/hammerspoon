@@ -164,7 +164,37 @@ function op_installdeps() {
 }
 
 function op_notarize() {
-    echo "NOTARIZE"
+    echo "⇒ Notarizing ${HAMMERSPOON_APP}..."
+    op_notarize_assert
+
+    echo "⇒ Zipping..."
+    local ZIP_PATH="${HAMMERSPOON_APP}.zip"
+    /usr/bin/ditto -c -k --keepParent "${HAMMERSPOON_APP}" "${ZIP_PATH}"
+
+    echo "⇒ Uploading to Apple Notary Service (may take many minutes)..."
+    local UPLOAD_OUTPUT=$(xcrun notarytool submit "${ZIP_PATH}" --keychain-profile "${KEYCHAIN_PROFILE}" --wait -f json)
+    local UPLOAD_ID=$(echo "${UPLOAD_OUTPUT}" | jq -r .id)
+    local UPLOAD_STATUS=$(echo "${UPLOAD_OUTPUT}" | jq -r .status)
+    local UPLOAD_MSG=$(echo "${UPLOAD_OUTPUT}" | jq -r .message)
+
+    echo " Fetching notarization log..."
+    xcrun notarytool log "${UPLOAD_ID}" --keychain-profile "${KEYCHAIN_PROFILE}" build/notarization-log.json
+
+    if [ "${UPLOAD_STATUS}" != "Accepted" ]; then
+        echo "Notarization upload is in an unexpected state: ${UPLOAD_STATUS} (${UPLOAD_MSG})"
+        echo "Upload log follows:"
+        cat build/notarization-log.json
+        fail "Unable to continue"
+    fi
+
+    echo "⇒ Stapling notarization ticket..."
+    xcrun stapler staple "${HAMMERSPOON_APP}"
+
+    echo "⇒ Validating notarization..."
+    if ! xcrun stapler validate "${HAMMERSPOON_APP}" ; then
+        fail "Notarization rejection"
+    fi
+    echo " ✅ Notarization successful!"
 }
 
 function op_release() {
@@ -194,6 +224,11 @@ function op_validate_assert() {
   if [ ! -e "${HAMMERSPOON_APP}" ]; then
     fail "Unable to validate ${HAMMERSPOON_APP}, it doesn't exist"
   fi
+}
+
+function op_notarize_assert() {
+  # FIXME: Figure out a way to assert that the keychain profile exists
+  return
 }
 
 ############################## ASSERTION HELPERS ###############################

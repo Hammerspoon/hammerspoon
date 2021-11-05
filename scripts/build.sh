@@ -9,6 +9,7 @@ XCODE_SCHEME="Hammerspoon"
 XCODE_CONFIGURATION="Debug"
 XCCONFIG_FILE=""
 UPLOAD_DSYM=0
+KEYCHAIN_PROFILE="HAMMERSPOON_BUILDSH"
 DEBUG=0
 DOCS_JSON=1
 DOCS_MD=1
@@ -50,6 +51,9 @@ function usage() {
     echo " -a             - Build only Dash documentation"
     echo " -k             - Build only LuaSkin documentation"
     echo " -l             - Only lint docs, don't build anything"
+    echo ""
+    echo "NOTARIZATION OPTIONS:"
+    echo " -y             - Keychain profile name (Default: HAMMERSPOON_BUILDSH)"
 
     exit 2
 }
@@ -64,7 +68,7 @@ if [ "${OPERATION}" != "build" ] && [ "${OPERATION}" != "docs" ] && [ "${OPERATI
 fi;
 
 # Parse the rest of any arguments
-PARSED_ARGUMENTS=$(getopt ds:c:x:ujmtqakl $*)
+PARSED_ARGUMENTS=$(getopt ds:c:x:ujmtqakly: $*)
 if [ $? != 0 ]; then
     usage
 fi
@@ -145,6 +149,9 @@ do
             DOCS_DASH=0
             DOCS_LINT_ONLY=1
             shift;;
+        -y)
+            KEYCHAIN_PROFILE=${2}; shift
+            shift;;
         --)
             shift; break;;
     esac
@@ -157,6 +164,7 @@ if [ ${DEBUG} == 1 ]; then
     echo "XCCODE_CONFIGURATION is: ${XCODE_CONFIGURATION}"
     echo "XCCONFIG_FILE is: ${XCCONFIG_FILE:-None}"
     echo "UPLOAD_DSYM is: ${UPLOAD_DSYM}"
+    echo "KEYCHAIN_PROFILE is: ${KEYCHAIN_PROFILE}"
     echo "DEBUG is: ${DEBUG}"
 
     echo "DOCS_JSON is: ${DOCS_JSON}"
@@ -179,6 +187,7 @@ export XCODE_SCHEME
 export XCODE_CONFIGURATION
 export XCCONFIG_FILE
 export UPLOAD_DSYM
+export KEYCHAIN_PROFILE
 export DEBUG
 export DOCS_JSON
 export DOCS_MD
