@@ -32,5 +32,10 @@ package.preload['hs.webview.datastore']     = function() return require("hs.libw
 package.preload['hs.webview.usercontent']   = function() return require("hs.libwebviewusercontent") end
 package.preload['hs.webview.toolbar']       = function() return require("hs.webview_toolbar") end
 package.preload['hs.wifi.watcher']          = function() return require("hs.libwifiwatcher") end
+package.preload['hs.window.filter']         = function() return require("hs.window_filter") end
+package.preload['hs.window.highlight']      = function() return require("hs.window_highlight") end
+package.preload['hs.window.layout']         = function() return require("hs.window_layout") end
+package.preload['hs.window.switcher']       = function() return require("hs.window_switcher") end
+package.preload['hs.window.tiling']         = function() return require("hs.window_tiling") end
 
 return require'hs._coresetup'.setup(...)

@@ -123,7 +123,7 @@ helperMT = {
 ---
 ---  * You can unregister these defaults if you wish to start with a clean slate with the following commands:
 ---    * `hs.doc.unregisterJSONFile(hs.docstrings_json_file)` -- to unregister the Hammerspoon API docs
----    * `hs.doc.unregisterJSONFile((hs.docstrings_json_file:gsub("/docs.json$","/extensions/hs/doc/lua.json")))` -- to unregister the Lua 5.3 Documentation.
+---    * `hs.doc.unregisterJSONFile((hs.docstrings_json_file:gsub("/docs.json$","/lua.json")))` -- to unregister the Lua 5.3 Documentation.
 module.registeredFiles = function(...)
     return setmetatable(_registeredFilesFunction(...), {
         __tostring = function(self)
@@ -250,7 +250,7 @@ end
 -- Return Module Object --------------------------------------------------
 
 module.registerJSONFile(hs.docstrings_json_file)
-module.registerJSONFile((hs.docstrings_json_file:gsub("/docs.json$","/extensions/hs/doc/lua.json")))
+module.registerJSONFile((hs.docstrings_json_file:gsub("/docs.json$","/lua.json")))
 
 -- we hide some debugging stuff in the metatable but we want to modify it here, and its considered bad style
 -- to do so while it's attached to something, so...

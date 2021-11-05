@@ -39,8 +39,8 @@ local USERDATA_TAG          = "hs.httpserver.hsminweb"
 local VERSION               = "0.0.5"
 
 local DEFAULT_ScriptTimeout = 30
-local scriptWrapper         = package.searchpath(USERDATA_TAG, package.path):match("^(/.*/).*%.lua$").."timeout3"
-local cgiluaCompat          = require(USERDATA_TAG:gsub("%.hsminweb", "") .. ".cgilua_compatibility_functions") -- FIXME: 2972
+local scriptWrapper         = hs.processInfo["resourcePath"].."/timeout3"
+local cgiluaCompat          = require("hs.cgilua_compatibility_functions")
 
 local module     = {}
 

@@ -702,7 +702,7 @@ static const luaL_Reg module_metaLib[] = {
     {NULL,   NULL}
 };
 
-int luaopen_hs_network_configurationinternal(lua_State* L) {
+int luaopen_hs_libnetworkconfiguration(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
 // Use this some of your functions return or act on a specific object unique to this module
     refTable = [skin registerLibraryWithObject:USERDATA_TAG

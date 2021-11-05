@@ -21,13 +21,7 @@ module.service     = require("hs.libbonjourservice")
 local browserMT = hs.getObjectMetatable(USERDATA_TAG)
 -- local serviceMT = hs.getObjectMetatable(USERDATA_TAG .. ".service")
 
-local basePath = package.searchpath(USERDATA_TAG, package.path)
-if basePath then
-    basePath = basePath:match("^(.+)/init.lua$")
-    if require"hs.fs".attributes(basePath .. "/docs.json") then
-        require"hs.doc".registerJSONFile(basePath .. "/docs.json")
-    end
-end
+require "hs.doc".registerJSONFile(hs.processInfo["resourcePath"] .. "/docs.json")
 
 local collectionPrevention = {}
 local task    = require("hs.task")
