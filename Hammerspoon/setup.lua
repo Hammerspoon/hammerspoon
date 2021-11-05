@@ -12,7 +12,6 @@ package.preload['hs.battery.watcher']       = function() return require("hs.libb
 package.preload['hs.bonjour.service']       = function() return require("hs.libbonjourservice") end
 package.preload['hs.caffeinate.watcher']    = function() return require("hs.libcaffeinatewatcher") end
 package.preload['hs.canvas.matrix']         = function() return require("hs.canvas_maxtrix") end
--- FIXME: 2972: hs.doc
 package.preload['hs.drawing.color']         = function() return require("hs.drawing_color") end
 package.preload['hs.fs.volume']             = function() return require("hs.libfsvolume") end
 package.preload['hs.fs.xattr']              = function() return require("hs.libfsxattr") end
