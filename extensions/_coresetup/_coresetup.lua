@@ -443,7 +443,7 @@ coroutine.applicationYield = hs.coroutineApplicationYield
     local extension = iter(dir_obj)
     while extension do
       if (extension ~= ".") and (extension ~= "..") and (not extension:find("_")) then
-        print("  Lazy loading enabled for: "..extension:gsub("%.lua", ""))
+        --print("  Lazy loading enabled for: "..extension:gsub("%.lua", ""))
         hs._extensions[extension:gsub("%.lua", "")] = true
       end
       extension = iter(dir_obj)
