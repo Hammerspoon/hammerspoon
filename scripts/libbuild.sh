@@ -165,6 +165,7 @@ function op_installdeps() {
 
 function op_notarize() {
     echo " Notarizing ${HAMMERSPOON_APP}..."
+    echo " (I hope that at some point you've done something like: xcrun notarytool store-credentials -v --apple-id your@apple.id --team-id VQCYSNZB89 --password app-specific-appleid-password)
     op_notarize_assert
 
     echo " Zipping..."
