@@ -13,12 +13,16 @@ function fail() {
 function op_clean() {
     echo "Cleaning..."
     rm -rf "${BUILD_HOME}"
-    rm -rf "${HAMMERSPOON_HOME}/LuaSkin.framework" # FIXME: Do we still need this?
 }
 
 function op_build() {
     echo "Checking build environment..."
     op_build_assert
+    if [ "${UPLOAD_DSYM}" == "1" ]; then
+        op_sentry_assert
+        echo "Importing Sentry token from: ${TOKENPATH}/token-sentry-auth"
+        source "${SENTRY_TOKEN_AUTH_FILE}"
+    fi
 
     echo "Building..."
     rm -rf "${HAMMERSPOON_APP}"
@@ -30,8 +34,7 @@ function op_build() {
 
     # Clean the temporary build folders
     echo "Cleaning temporary build folders..."
-    # FIXME: Re-enable this
-#    xcodebuild -workspace Hammerspoon.xcworkspace -scheme ${XCODE_SCHEME} -configuration ${XCODE_CONFIGURATION} -destination "platform=macOS" clean | xcbeautify ${XCB_OPTS}
+    xcodebuild -workspace Hammerspoon.xcworkspace -scheme ${XCODE_SCHEME} -configuration ${XCODE_CONFIGURATION} -destination "platform=macOS" clean | xcbeautify ${XCB_OPTS}
 
     # Build the app
     echo "-> xcodebuild -workspace Hammerspoon.xcworkspace -scheme ${XCODE_SCHEME} -configuration ${XCODE_CONFIGURATION} -destination \"platform=macOS\" -archivePath "${HAMMERSPOON_APP}.xcarchive" archive | tee ${BUILD_HOME}/${XCODE_CONFIGURATION}-build.log"
@@ -39,9 +42,18 @@ function op_build() {
 
     # Export the app bundle from the archive
     xcodebuild -exportArchive -archivePath "${HAMMERSPOON_APP}.xcarchive" -exportOptionsPlist Hammerspoon/Build\ Configs/Archive-Export-Options.plist -exportPath "${BUILD_HOME}"
-#    cp -R "${XCODE_BUILT_PRODUCTS_DIR}/${HAMMERSPOON_BUNDLE}" "${BUILD_HOME}/"
-#    cp -R "${XCODE_BUILT_PRODUCTS_DIR}/${HAMMERSPOON_BUNDLE}.dSYM" "${BUILD_HOME}/"
-#    cp -R "${XCODE_BUILT_PRODUCTS_DIR}/LuaSkin.framework.dSYM" "${BUILD_HOME}/"
+
+    # Upload dSYMs to Sentry if so desired
+    if [ "${UPLOAD_DSYM}" == "1" ]; then
+        export SENTRY_ORG=hammerspoon
+        export SENTRY_PROJECT=hammerspoon
+        export SENTRY_LOG_LEVEL=error
+        if [ "${DEBUG}" == "1" ]; then
+            SENTRY_LOG_LEVEL=debug
+        fi
+        export SENTRY_AUTH_TOKEN
+        "${HAMMERSPOON_HOME}/scripts/sentry-cli" upload-dif "${HAMMERSPOON_APP}.xcarchive/dSYMs/" 2>&1 | tee "${BUILD_HOME}/sentry-upload.log"
+    fi
 }
 
 function op_validate() {
@@ -165,7 +177,7 @@ function op_installdeps() {
 
 function op_notarize() {
     echo " Notarizing ${HAMMERSPOON_APP}..."
-    echo " (I hope that at some point you've done something like: xcrun notarytool store-credentials -v --apple-id your@apple.id --team-id VQCYSNZB89 --password app-specific-appleid-password)
+    echo " (I hope that at some point you've done something like: xcrun notarytool store-credentials -v --apple-id your@apple.id --team-id VQCYSNZB89 --password app-specific-appleid-password)"
     op_notarize_assert
 
     echo " Zipping..."
@@ -237,6 +249,12 @@ function op_validate_assert() {
 function op_notarize_assert() {
   # FIXME: Figure out a way to assert that the keychain profile exists
   return
+}
+
+function op_sentry_assert() {
+    if [ ! -f "${SENTRY_TOKEN_AUTH_FILE}" ]; then
+        fail "You do not have a Sentry auth tokens in ${SENTRY_TOKEN_AUTH_FILE}"
+    fi
 }
 
 ############################## ASSERTION HELPERS ###############################
