@@ -164,18 +164,25 @@ function op_installdeps() {
 }
 
 function op_notarize() {
-    echo "⇒ Notarizing ${HAMMERSPOON_APP}..."
+    echo " Notarizing ${HAMMERSPOON_APP}..."
     op_notarize_assert
 
-    echo "⇒ Zipping..."
+    echo " Zipping..."
     local ZIP_PATH="${HAMMERSPOON_APP}.zip"
     /usr/bin/ditto -c -k --keepParent "${HAMMERSPOON_APP}" "${ZIP_PATH}"
 
-    echo "⇒ Uploading to Apple Notary Service (may take many minutes)..."
-    local UPLOAD_OUTPUT=$(xcrun notarytool submit "${ZIP_PATH}" --keychain-profile "${KEYCHAIN_PROFILE}" --wait -f json)
-    local UPLOAD_ID=$(echo "${UPLOAD_OUTPUT}" | jq -r .id)
-    local UPLOAD_STATUS=$(echo "${UPLOAD_OUTPUT}" | jq -r .status)
-    local UPLOAD_MSG=$(echo "${UPLOAD_OUTPUT}" | jq -r .message)
+    echo " Uploading to Apple Notary Service (may take many minutes)..."
+    local UPLOAD_OUTPUT
+    UPLOAD_OUTPUT=$(xcrun notarytool submit "${ZIP_PATH}" --keychain-profile "${KEYCHAIN_PROFILE}" --wait -f json)
+
+    local UPLOAD_ID
+    UPLOAD_ID=$(echo "${UPLOAD_OUTPUT}" | jq -r .id)
+
+    local UPLOAD_STATUS
+    UPLOAD_STATUS=$(echo "${UPLOAD_OUTPUT}" | jq -r .status)
+
+    local UPLOAD_MSG
+    UPLOAD_MSG=$(echo "${UPLOAD_OUTPUT}" | jq -r .message)
 
     echo " Fetching notarization log..."
     xcrun notarytool log "${UPLOAD_ID}" --keychain-profile "${KEYCHAIN_PROFILE}" build/notarization-log.json
@@ -187,10 +194,10 @@ function op_notarize() {
         fail "Unable to continue"
     fi
 
-    echo "⇒ Stapling notarization ticket..."
+    echo " Stapling notarization ticket..."
     xcrun stapler staple "${HAMMERSPOON_APP}"
 
-    echo "⇒ Validating notarization..."
+    echo " Validating notarization..."
     if ! xcrun stapler validate "${HAMMERSPOON_APP}" ; then
         fail "Notarization rejection"
     fi
