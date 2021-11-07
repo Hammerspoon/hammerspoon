@@ -219,7 +219,7 @@ HAMMERSPOON_BUNDLE="Hammerspoon.app"
 export HAMMERSPOON_APP="${BUILD_HOME}/${HAMMERSPOON_BUNDLE}"
 export HAMMERSPOON_XCARCHIVE="${HAMMERSPOON_APP}.xcarchive"
 XCODE_BUILT_PRODUCTS_DIR="$(xcodebuild -workspace Hammerspoon.xcworkspace -scheme "${XCODE_SCHEME}" -configuration "${XCODE_CONFIGURATION}" -destination "platform=macOS" -showBuildSettings | sort | uniq | grep ' BUILT_PRODUCTS_DIR =' | awk '{ print $3 }')"
-export DOCS_SEARCH_DIRS=(${HAMMERSPOON_HOME}/Hammerspoon/ ${HAMMERSPOON_HOME}/extensions/)
+export DOCS_SEARCH_DIRS=("${HAMMERSPOON_HOME}/Hammerspoon/" "${HAMMERSPOON_HOME}/extensions/")
 
 # Calculate private token variables
 export TOKENPATH
@@ -269,35 +269,3 @@ case "${OPERATION}" in
 esac
 
 exit 0
-
-####################### OLD STUFF BELOW ##############################
-
-# Store some variables for later
-# VERSION_GITOPTS=""
-# if [ "$NIGHTLY" == "0" ] && [ "$LOCAL" == "0" ]; then
-#     VERSION_GITOPTS="--abbrev=0"
-# fi
-# VERSION="$(git describe $VERSION_GITOPTS)"
-# export VERSION
-
-# echo "Building $VERSION (isNightly: $NIGHTLY, isLocal: $LOCAL)"
-
-
-
-# assert
-# build
-# validate
-# if [ "$LOCAL" == "0" ]; then
-# notarize
-# fi
-# prepare_upload
-# archive
-# if [ "$NIGHTLY" == "0" ] || [ "$LOCAL" == "0" ]; then
-#   localtest
-#   upload
-#   announce
-# fi
-
-# echo "Appcast zip length is: ${ZIPLEN}"
-
-# echo "Finished."

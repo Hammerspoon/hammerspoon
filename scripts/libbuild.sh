@@ -21,24 +21,25 @@ function op_build() {
     if [ "${UPLOAD_DSYM}" == "1" ]; then
         op_sentry_assert
         echo "Importing Sentry token from: ${TOKENPATH}/token-sentry-auth"
+        # shellcheck disable=SC1090
         source "${SENTRY_TOKEN_AUTH_FILE}"
     fi
 
     echo "Building..."
     rm -rf "${HAMMERSPOON_APP}"
 
-    local XCB_OPTS="-q"
-    if [ ${IS_CI} == 1 ]; then
-        XCB_OPTS=""
+    local XCB_OPTS=(-q)
+    if [ "${IS_CI}" == "1" ] || [ "${DEBUG}" == "1" ]; then
+        XCB_OPTS=()
     fi
 
     # Clean the temporary build folders
     echo "Cleaning temporary build folders..."
-    xcodebuild -workspace Hammerspoon.xcworkspace -scheme ${XCODE_SCHEME} -configuration ${XCODE_CONFIGURATION} -destination "platform=macOS" clean | xcbeautify ${XCB_OPTS}
+    xcodebuild -workspace Hammerspoon.xcworkspace -scheme "${XCODE_SCHEME}" -configuration "${XCODE_CONFIGURATION}" -destination "platform=macOS" clean | xcbeautify "${XCB_OPTS[@]:-""}"
 
     # Build the app
     echo "-> xcodebuild -workspace Hammerspoon.xcworkspace -scheme ${XCODE_SCHEME} -configuration ${XCODE_CONFIGURATION} -destination \"platform=macOS\" -archivePath ${HAMMERSPOON_XCARCHIVE} archive | tee ${BUILD_HOME}/${XCODE_CONFIGURATION}-build.log"
-    xcodebuild -workspace Hammerspoon.xcworkspace -scheme ${XCODE_SCHEME} -configuration ${XCODE_CONFIGURATION} -destination "platform=macOS" -archivePath "${HAMMERSPOON_XCARCHIVE}" archive | tee ${BUILD_HOME}/${XCODE_CONFIGURATION}-build.log | xcbeautify ${XCB_OPTS}
+    xcodebuild -workspace Hammerspoon.xcworkspace -scheme "${XCODE_SCHEME}" -configuration "${XCODE_CONFIGURATION}" -destination "platform=macOS" -archivePath "${HAMMERSPOON_XCARCHIVE}" archive | tee "${BUILD_HOME}/${XCODE_CONFIGURATION}-build.log" | xcbeautify "${XCB_OPTS[@]:-""}"
 
     # Export the app bundle from the archive
     xcodebuild -exportArchive -archivePath "${HAMMERSPOON_XCARCHIVE}" -exportOptionsPlist Hammerspoon/Build\ Configs/Archive-Export-Options.plist -exportPath "${BUILD_HOME}"
@@ -79,13 +80,15 @@ function op_validate() {
   local APP_SIGNATURE ; APP_SIGNATURE=$(codesign --display --verbose=4 "${HAMMERSPOON_APP}" 2>&1 | grep ^Authority | head -1)
 
   # Check that the signing team is correct (this is the bit that looks like ABCDEF123G)
-  if [ "$SIGN_TEAM" != "$(echo ${APP_SIGNATURE} | sed -e 's/.*(\(.*\))/\1/')" ]; then
+  # shellcheck disable=SC2001
+  if [ "$SIGN_TEAM" != "$(echo "${APP_SIGNATURE}" | sed -e 's/.*(\(.*\))/\1/')" ]; then
       fail "App is signed with the wrong key: $APP_SIGNATURE (expecting $SIGN_TEAM)"
   fi
   echo "  ✅ Signing team is correct (${SIGN_TEAM})"
 
   # Check that the signing identity is correct (typically this should be "Developer ID Application")
-  if [ "${SIGN_IDENTITY}" != "$(echo ${APP_SIGNATURE} | sed -e 's/.*=\(.*\):.*/\1/')" ]; then
+  # shellcheck disable=SC2001
+  if [ "${SIGN_IDENTITY}" != "$(echo "${APP_SIGNATURE}" | sed -e 's/.*=\(.*\):.*/\1/')" ]; then
       fail "App is signed with the wrong identity: $APP_SIGNATURE (expecting $SIGN_IDENTITY)"
   fi
   echo "  ✅ Signing identity is correct (${SIGN_IDENTITY})"
@@ -118,33 +121,33 @@ function op_validate() {
 function op_docs() {
     op_docs_assert
 
-    if [ ${DOCS_LINT_ONLY} == 1 ]; then
-        "${HAMMERSPOON_HOME}/scripts/docs/bin/build_docs.py" -l ${DOCS_SEARCH_DIRS[*]}
+    if [ "${DOCS_LINT_ONLY}" == 1 ]; then
+        "${HAMMERSPOON_HOME}/scripts/docs/bin/build_docs.py" -l "${DOCS_SEARCH_DIRS[*]}"
         echo "Docs lint OK"
         return
     fi
 
-    if [ ${DOCS_JSON} == 1 ]; then
+    if [ "${DOCS_JSON}" == 1 ]; then
         echo "Building docs JSON..."
-        "${HAMMERSPOON_HOME}/scripts/docs/bin/build_docs.py" -o "${HAMMERSPOON_HOME}/build" --json ${DOCS_SEARCH_DIRS[*]}
+        "${HAMMERSPOON_HOME}/scripts/docs/bin/build_docs.py" -o "${HAMMERSPOON_HOME}/build" --json "${DOCS_SEARCH_DIRS[@]}"
     fi
 
-    if [ ${DOCS_MD} == 1 ]; then
+    if [ "${DOCS_MD}" == 1 ]; then
         echo "Building docs Markdown..."
-        "${HAMMERSPOON_HOME}/scripts/docs/bin/build_docs.py" -o "${HAMMERSPOON_HOME}/build" --markdown ${DOCS_SEARCH_DIRS[*]}
+        "${HAMMERSPOON_HOME}/scripts/docs/bin/build_docs.py" -o "${HAMMERSPOON_HOME}/build" --markdown "${DOCS_SEARCH_DIRS[@]}"
     fi
 
-    if [ ${DOCS_HTML} == 1 ]; then
+    if [ "${DOCS_HTML}" == 1 ]; then
         echo "Building docs HTML..."
-        "${HAMMERSPOON_HOME}/scripts/docs/bin/build_docs.py" -o "${HAMMERSPOON_HOME}/build" --html ${DOCS_SEARCH_DIRS[*]}
+        "${HAMMERSPOON_HOME}/scripts/docs/bin/build_docs.py" -o "${HAMMERSPOON_HOME}/build" --html "${DOCS_SEARCH_DIRS[@]}"
     fi
 
-    if [ ${DOCS_SQL} == 1 ]; then
+    if [ "${DOCS_SQL}" == 1 ]; then
         echo "Building docs SQLite..."
-        "${HAMMERSPOON_HOME}/scripts/docs/bin/build_docs.py" -o "${HAMMERSPOON_HOME}/build" --sql ${DOCS_SEARCH_DIRS[*]}
+        "${HAMMERSPOON_HOME}/scripts/docs/bin/build_docs.py" -o "${HAMMERSPOON_HOME}/build" --sql "${DOCS_SEARCH_DIRS[@]}"
     fi
 
-    if [ ${DOCS_DASH} == 1 ]; then
+    if [ "${DOCS_DASH}" == 1 ]; then
         echo "Building docs Dash..."
         local DASHDIR="${HAMMERSPOON_HOME}/build/Hammerspoon.docset"
         rm -rf "${DASHDIR}"
@@ -154,7 +157,7 @@ function op_docs() {
         tar -cvf "${HAMMERSPOON_HOME}/build/Hammerspoon.tgz" -C "${HAMMERSPOON_HOME}/build" Hammerspoon.docset
     fi
 
-    if [ ${DOCS_LUASKIN} == 1 ]; then
+    if [ "${DOCS_LUASKIN}" == 1 ]; then
         echo "Building docs LuaSkin..."
         local LSDOCSDIR="${HAMMERSPOON_HOME}/build/html/LuaSkin"
         mkdir -p "${LSDOCSDIR}"
@@ -339,21 +342,21 @@ pkg_resources.require(dependencies)" | /usr/bin/python3
 
 function assert_cocoapods_state() {
   echo "Checking Cocoapods state..."
-  pushd "${HAMMERSPOON_HOME}" >/dev/null
+  pushd "${HAMMERSPOON_HOME}" >/dev/null || fail "Unable to enter ${HAMMERSPOON_HOME}"
   if ! pod outdated >/dev/null 2>&1 ; then
     fail "cocoapods installation does not seem sane"
   fi
-  popd >/dev/null
+  popd >/dev/null || fail "Unknown"
 }
 
 ############################## UTILITY HELPERS ###############################
 function release_version() {
-    local VERSION ; VERSION=$(cd "${HAMMERSPOON_HOME}" ; git describe --abbrev=0)
+    local VERSION ; VERSION=$(cd "${HAMMERSPOON_HOME}" || fail "Unable to enter ${HAMMERSPOON_HOME}" ; git describe --abbrev=0)
     echo "${VERSION}"
 }
 
 function nightly_version() {
-    local VERSION ; VERSION=$(cd "${HAMMERSPOON_HOME}" ; git describe)
+    local VERSION ; VERSION=$(cd "${HAMMERSPOON_HOME}" || fail "Unable to enter ${HAMMERSPOON_HOME}" ; git describe)
     echo "${VERSION}"
 }
 
