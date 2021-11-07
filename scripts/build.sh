@@ -217,6 +217,7 @@ HAMMERSPOON_HOME="$(greadlink -f "${SCRIPT_HOME}/../")"
 BUILD_HOME="${HAMMERSPOON_HOME}/build"
 HAMMERSPOON_BUNDLE="Hammerspoon.app"
 export HAMMERSPOON_APP="${BUILD_HOME}/${HAMMERSPOON_BUNDLE}"
+export HAMMERSPOON_XCARCHIVE="${HAMMERSPOON_APP}.xcarchive"
 XCODE_BUILT_PRODUCTS_DIR="$(xcodebuild -workspace Hammerspoon.xcworkspace -scheme "${XCODE_SCHEME}" -configuration "${XCODE_CONFIGURATION}" -destination "platform=macOS" -showBuildSettings | sort | uniq | grep ' BUILT_PRODUCTS_DIR =' | awk '{ print $3 }')"
 export DOCS_SEARCH_DIRS=(${HAMMERSPOON_HOME}/Hammerspoon/ ${HAMMERSPOON_HOME}/extensions/)
 

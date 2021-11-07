@@ -37,11 +37,11 @@ function op_build() {
     xcodebuild -workspace Hammerspoon.xcworkspace -scheme ${XCODE_SCHEME} -configuration ${XCODE_CONFIGURATION} -destination "platform=macOS" clean | xcbeautify ${XCB_OPTS}
 
     # Build the app
-    echo "-> xcodebuild -workspace Hammerspoon.xcworkspace -scheme ${XCODE_SCHEME} -configuration ${XCODE_CONFIGURATION} -destination \"platform=macOS\" -archivePath "${HAMMERSPOON_APP}.xcarchive" archive | tee ${BUILD_HOME}/${XCODE_CONFIGURATION}-build.log"
-    xcodebuild -workspace Hammerspoon.xcworkspace -scheme ${XCODE_SCHEME} -configuration ${XCODE_CONFIGURATION} -destination "platform=macOS" -archivePath "${HAMMERSPOON_APP}.xcarchive" archive | tee ${BUILD_HOME}/${XCODE_CONFIGURATION}-build.log | xcbeautify ${XCB_OPTS}
+    echo "-> xcodebuild -workspace Hammerspoon.xcworkspace -scheme ${XCODE_SCHEME} -configuration ${XCODE_CONFIGURATION} -destination \"platform=macOS\" -archivePath "${HAMMERSPOON_XCARCHIVE}" archive | tee ${BUILD_HOME}/${XCODE_CONFIGURATION}-build.log"
+    xcodebuild -workspace Hammerspoon.xcworkspace -scheme ${XCODE_SCHEME} -configuration ${XCODE_CONFIGURATION} -destination "platform=macOS" -archivePath "${HAMMERSPOON_XCARCHIVE}" archive | tee ${BUILD_HOME}/${XCODE_CONFIGURATION}-build.log | xcbeautify ${XCB_OPTS}
 
     # Export the app bundle from the archive
-    xcodebuild -exportArchive -archivePath "${HAMMERSPOON_APP}.xcarchive" -exportOptionsPlist Hammerspoon/Build\ Configs/Archive-Export-Options.plist -exportPath "${BUILD_HOME}"
+    xcodebuild -exportArchive -archivePath "${HAMMERSPOON_XCARCHIVE}" -exportOptionsPlist Hammerspoon/Build\ Configs/Archive-Export-Options.plist -exportPath "${BUILD_HOME}"
 
     # Upload dSYMs to Sentry if so desired
     if [ "${UPLOAD_DSYM}" == "1" ]; then
@@ -52,7 +52,7 @@ function op_build() {
             SENTRY_LOG_LEVEL=debug
         fi
         export SENTRY_AUTH_TOKEN
-        "${HAMMERSPOON_HOME}/scripts/sentry-cli" upload-dif "${HAMMERSPOON_APP}.xcarchive/dSYMs/" 2>&1 | tee "${BUILD_HOME}/sentry-upload.log"
+        "${HAMMERSPOON_HOME}/scripts/sentry-cli" upload-dif "${HAMMERSPOON_XCARCHIVE}/dSYMs/" 2>&1 | tee "${BUILD_HOME}/sentry-upload.log"
     fi
 }
 
@@ -226,12 +226,12 @@ function op_archive() {
 
     # Archive the final zip, the xcarchive, and all the build/notarization/sentry logfiles
     cp -a "${HAMMERSPOON_APP}-${VERSION}.zip" "${ARCHIVE_PATH}/"
-    cp -a "${BUILD_HOME}/${HAMMERSPOON_BUNDLE}.xcarchive" "${ARCHIVE_PATH}/"
+    cp -a "${HAMMERSPOON_XCARCHIVE}" "${ARCHIVE_PATH}/"
     cp -a "${BUILD_HOME}"/*.log "${ARCHIVE_PATH}/"
     cp -a "${BUILD_HOME}"/*.plist "${ARCHIVE_PATH}/"
 
     # Dump dSYM UUIDs and archive them
-    find "${HAMMERSPOON_APP}.xcarchive" -name '*.dSYM' -exec dwarfdump -u {} \; >"${ARCHIVE_PATH}/dSYM_UUID.txt"
+    find "${HAMMERSPOON_XCARCHIVE}" -name '*.dSYM' -exec dwarfdump -u {} \; >"${ARCHIVE_PATH}/dSYM_UUID.txt"
 
     # Archive the docs
     mkdir -p "${ARCHIVE_PATH}/docs"
@@ -245,8 +245,6 @@ function op_release() {
     echo " Zipping..."
     local ZIP_PATH="${HAMMERSPOON_APP}.zip"
     create_zip "${HAMMERSPOON_APP}" "${ZIP_PATH}"
-
-
 }
 
 ############################## COMMAND ASSERTIONS ##############################
@@ -287,8 +285,8 @@ function op_archive_assert() {
         fail "Unable to archive: ${HAMMERSPOON_APP}-${VERSION}.zip is missing"
     fi
 
-    if [ ! -e "${BUILD_HOME}/${HAMMERSPOON_BUNDLE}.xcarchive" ]; then
-        fail "Unable to archive: ${BUILD_HOME}/${HAMMERSPOON_BUNDLE}.xcarchive is missing"
+    if [ ! -e "${HAMMERSPOON_XCARCHIVE}" ]; then
+        fail "Unable to archive: ${HAMMERSPOON_XCARCHIVE} is missing"
     fi
 
     if [ ! -e "${BUILD_HOME}/docs.json" ]; then
