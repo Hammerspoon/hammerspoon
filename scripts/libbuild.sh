@@ -37,7 +37,7 @@ function op_build() {
     xcodebuild -workspace Hammerspoon.xcworkspace -scheme ${XCODE_SCHEME} -configuration ${XCODE_CONFIGURATION} -destination "platform=macOS" clean | xcbeautify ${XCB_OPTS}
 
     # Build the app
-    echo "-> xcodebuild -workspace Hammerspoon.xcworkspace -scheme ${XCODE_SCHEME} -configuration ${XCODE_CONFIGURATION} -destination \"platform=macOS\" -archivePath "${HAMMERSPOON_XCARCHIVE}" archive | tee ${BUILD_HOME}/${XCODE_CONFIGURATION}-build.log"
+    echo "-> xcodebuild -workspace Hammerspoon.xcworkspace -scheme ${XCODE_SCHEME} -configuration ${XCODE_CONFIGURATION} -destination \"platform=macOS\" -archivePath ${HAMMERSPOON_XCARCHIVE} archive | tee ${BUILD_HOME}/${XCODE_CONFIGURATION}-build.log"
     xcodebuild -workspace Hammerspoon.xcworkspace -scheme ${XCODE_SCHEME} -configuration ${XCODE_CONFIGURATION} -destination "platform=macOS" -archivePath "${HAMMERSPOON_XCARCHIVE}" archive | tee ${BUILD_HOME}/${XCODE_CONFIGURATION}-build.log | xcbeautify ${XCB_OPTS}
 
     # Export the app bundle from the archive
@@ -330,11 +330,11 @@ function assert_xcbeautify() {
 
 function assert_docs_bundle_complete() {
   echo "Checking Python requirements.txt is satisfied..."
-  echo """import sys
+  echo "import sys
 import pkg_resources
 from pkg_resources import DistributionNotFound, VersionConflict
 dependencies = open('${HAMMERSPOON_HOME}/requirements.txt', 'r').readlines()
-pkg_resources.require(dependencies)""" | /usr/bin/python3
+pkg_resources.require(dependencies)" | /usr/bin/python3
 }
 
 function assert_cocoapods_state() {
