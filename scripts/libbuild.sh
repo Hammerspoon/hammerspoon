@@ -283,8 +283,21 @@ function op_notarize_assert() {
 }
 
 function op_archive_assert() {
-    # FIXME: TODO
-    return
+    if [ ! -e "${HAMMERSPOON_APP}-${VERSION}.zip" ]; then
+        fail "Unable to archive: ${HAMMERSPOON_APP}-${VERSION}.zip is missing"
+    fi
+
+    if [ ! -e "${BUILD_HOME}/${HAMMERSPOON_BUNDLE}.xcarchive" ]; then
+        fail "Unable to archive: ${BUILD_HOME}/${HAMMERSPOON_BUNDLE}.xcarchive is missing"
+    fi
+
+    if [ ! -e "${BUILD_HOME}/docs.json" ]; then
+        fail "Unable to archive: ${BUILD_HOME}/docs.json is missing"
+    fi
+
+    if [ ! -e "${BUILD_HOME}/html" ]; then
+        fail "Unable to archive: ${BUILD_HOME}/html is missing"
+    fi
 }
 
 function op_sentry_assert() {
