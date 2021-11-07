@@ -16,8 +16,8 @@ function op_clean() {
 }
 
 function op_build() {
-    echo "Checking build environment..."
     op_build_assert
+
     if [ "${UPLOAD_DSYM}" == "1" ]; then
         op_sentry_assert
         echo "Importing Sentry token from: ${TOKENPATH}/token-sentry-auth"
@@ -116,7 +116,6 @@ function op_validate() {
 }
 
 function op_docs() {
-    echo "Checking docs environment..."
     op_docs_assert
 
     if [ ${DOCS_LINT_ONLY} == 1 ]; then
@@ -145,16 +144,6 @@ function op_docs() {
         "${HAMMERSPOON_HOME}/scripts/docs/bin/build_docs.py" -o "${HAMMERSPOON_HOME}/build" --sql ${DOCS_SEARCH_DIRS[*]}
     fi
 
-    if [ ${DOCS_LUASKIN} == 1 ]; then
-        echo "Building docs LuaSkin..."
-        local LSDOCSDIR="${HAMMERSPOON_HOME}/build/html/LuaSkin"
-        mkdir -p "${LSDOCSDIR}"
-        headerdoc2html -u -o "${LSDOCSDIR}" "${HAMMERSPOON_HOME}/LuaSkin/LuaSkin/Skin.h"
-        resolveLinks "${LSDOCSDIR}"
-        mv "${LSDOCSDIR}"/Skin_h/* "${LSDOCSDIR}"
-        rmdir "${LSDOCSDIR}/Skin_h"
-    fi
-
     if [ ${DOCS_DASH} == 1 ]; then
         echo "Building docs Dash..."
         local DASHDIR="${HAMMERSPOON_HOME}/build/Hammerspoon.docset"
@@ -164,12 +153,22 @@ function op_docs() {
         cp "${HAMMERSPOON_HOME}"/build/html/* "${DASHDIR}/Contents/Resources/Documents/"
         tar -cvf "${HAMMERSPOON_HOME}/build/Hammerspoon.tgz" -C "${HAMMERSPOON_HOME}/build" Hammerspoon.docset
     fi
+
+    if [ ${DOCS_LUASKIN} == 1 ]; then
+        echo "Building docs LuaSkin..."
+        local LSDOCSDIR="${HAMMERSPOON_HOME}/build/html/LuaSkin"
+        mkdir -p "${LSDOCSDIR}"
+        headerdoc2html -u -o "${LSDOCSDIR}" "${HAMMERSPOON_HOME}/LuaSkin/LuaSkin/Skin.h"
+        resolveLinks "${LSDOCSDIR}"
+        mv "${LSDOCSDIR}"/Skin_h/* "${LSDOCSDIR}"
+        rmdir "${LSDOCSDIR}/Skin_h"
+    fi
 }
 
 function op_installdeps() {
     echo "Installing dependencies..." 
     echo "  Homebrew packages..."
-    brew install -q coreutils jq xcbeautify gawk cocoapods
+    brew install -q coreutils jq xcbeautify gawk cocoapods gh
 
     echo "  Python packages..."
     /usr/bin/pip3 install -q --disable-pip-version-check -r "${HAMMERSPOON_HOME}/requirements.txt"
@@ -182,20 +181,13 @@ function op_notarize() {
 
     echo " Zipping..."
     local ZIP_PATH="${HAMMERSPOON_APP}.zip"
-    /usr/bin/ditto -c -k --keepParent "${HAMMERSPOON_APP}" "${ZIP_PATH}"
+    create_zip "${HAMMERSPOON_APP}" "${ZIP_PATH}"
 
     echo " Uploading to Apple Notary Service (may take many minutes)..."
-    local UPLOAD_OUTPUT
-    UPLOAD_OUTPUT=$(xcrun notarytool submit "${ZIP_PATH}" --keychain-profile "${KEYCHAIN_PROFILE}" --wait -f json)
-
-    local UPLOAD_ID
-    UPLOAD_ID=$(echo "${UPLOAD_OUTPUT}" | jq -r .id)
-
-    local UPLOAD_STATUS
-    UPLOAD_STATUS=$(echo "${UPLOAD_OUTPUT}" | jq -r .status)
-
-    local UPLOAD_MSG
-    UPLOAD_MSG=$(echo "${UPLOAD_OUTPUT}" | jq -r .message)
+    local UPLOAD_OUTPUT ; UPLOAD_OUTPUT=$(xcrun notarytool submit "${ZIP_PATH}" --keychain-profile "${KEYCHAIN_PROFILE}" --wait -f json)
+    local UPLOAD_ID ; UPLOAD_ID=$(echo "${UPLOAD_OUTPUT}" | jq -r .id)
+    local UPLOAD_STATUS ; UPLOAD_STATUS=$(echo "${UPLOAD_OUTPUT}" | jq -r .status)
+    local UPLOAD_MSG ; UPLOAD_MSG=$(echo "${UPLOAD_OUTPUT}" | jq -r .message)
 
     echo " Fetching notarization log..."
     xcrun notarytool log "${UPLOAD_ID}" --keychain-profile "${KEYCHAIN_PROFILE}" build/notarization-log.json
@@ -214,15 +206,52 @@ function op_notarize() {
     if ! xcrun stapler validate "${HAMMERSPOON_APP}" ; then
         fail "Notarization rejection"
     fi
+
+    # Remove the zip we uploaded for Notarization
+    rm "${HAMMERSPOON_APP}.zip"
+
+    # At this stage we don't know if this is a full release build or a CI build, so prepare a notarized zip for both
+    create_zip "${HAMMERSPOON_APP}" "${HAMMERSPOON_APP}-$(release_version).zip"
+    create_zip "${HAMMERSPOON_APP}" "${HAMMERSPOON_APP}-$(nightly_version).zip"
+
     echo " ✅ Notarization successful!"
 }
 
+function op_archive() {
+    local VERSION ; VERSION="$(release_version)"
+    local ARCHIVE_PATH="${HAMMERSPOON_HOME}/../archive/${VERSION}"
+
+    echo "Archiving to ${ARCHIVE_PATH}..."
+    mkdir -p "${ARCHIVE_PATH}"
+
+    # Archive the final zip, the xcarchive, and all the build/notarization/sentry logfiles
+    cp -a "${HAMMERSPOON_APP}-${VERSION}.zip" "${ARCHIVE_PATH}/"
+    cp -a "${BUILD_HOME}/${HAMMERSPOON_BUNDLE}.xcarchive" "${ARCHIVE_PATH}/"
+    cp -a "${BUILD_HOME}"/*.log "${ARCHIVE_PATH}/"
+    cp -a "${BUILD_HOME}"/*.plist "${ARCHIVE_PATH}/"
+
+    # Dump dSYM UUIDs and archive them
+    find "${HAMMERSPOON_APP}.xcarchive" -name '*.dSYM' -exec dwarfdump -u {} \; >"${ARCHIVE_PATH}/dSYM_UUID.txt"
+
+    # Archive the docs
+    mkdir -p "${ARCHIVE_PATH}/docs"
+    cp -a "${BUILD_HOME}/docs.json" "${ARCHIVE_PATH}/docs/"
+    create_zip "${BUILD_HOME}/html" "${ARCHIVE_PATH}/docs/${VERSION}-docs.zip"
+}
+
 function op_release() {
-    echo "RELEASE"
+    op_release_assert
+
+    echo " Zipping..."
+    local ZIP_PATH="${HAMMERSPOON_APP}.zip"
+    create_zip "${HAMMERSPOON_APP}" "${ZIP_PATH}"
+
+
 }
 
 ############################## COMMAND ASSERTIONS ##############################
 function op_build_assert() {
+    echo "Checking build environment..."
     assert_gawk
     assert_xcbeautify
     assert_cocoapods_state
@@ -230,10 +259,12 @@ function op_build_assert() {
 }
 
 function op_docs_assert() {
+    echo "Checking docs environment..."
     assert_docs_bundle_complete
 }
 
 function op_installdeps_assert() {
+    echo "Checking environment..."
     if [ ! "$(which brew)" ]; then
         echo "Unable to continue without Homebrew installed, please see: https://brew.sh/"
         exit 1
@@ -251,10 +282,26 @@ function op_notarize_assert() {
   return
 }
 
+function op_archive_assert() {
+    # FIXME: TODO
+    return
+}
+
 function op_sentry_assert() {
     if [ ! -f "${SENTRY_TOKEN_AUTH_FILE}" ]; then
         fail "You do not have a Sentry auth tokens in ${SENTRY_TOKEN_AUTH_FILE}"
     fi
+}
+
+function op_release_assert() {
+#   assert_version_in_git_tags
+#   assert_version_not_in_github_releases
+#   assert_docs_bundle_complete
+#   if [ "${NIGHTLY}" == "0" ] && [ "${LOCAL}" == "0" ]; then
+#     assert_cocoapods_state
+#     assert_website_repo
+#   fi
+return
 }
 
 ############################## ASSERTION HELPERS ###############################
@@ -286,6 +333,23 @@ function assert_cocoapods_state() {
     fail "cocoapods installation does not seem sane"
   fi
   popd >/dev/null
+}
+
+############################## UTILITY HELPERS ###############################
+function release_version() {
+    local VERSION ; VERSION=$(cd "${HAMMERSPOON_HOME}" ; git describe --abbrev=0)
+    echo "${VERSION}"
+}
+
+function nightly_version() {
+    local VERSION ; VERSION=$(cd "${HAMMERSPOON_HOME}" ; git describe)
+    echo "${VERSION}"
+}
+
+function create_zip() {
+    local SRC ; SRC="${1}"
+    local DST ; DST="${2}"
+    /usr/bin/ditto -c -k --keepParent "${SRC}" "${DST}"
 }
 
 ### OLD STUFF BELOW
@@ -422,16 +486,6 @@ function assert_cocoapods_state() {
 #   fi
 # }
 
-# # This is no longer used - version numbers are now added dynamically at build time
-# function assert_version_in_xcode() {
-#   echo "Checking Xcode build version..."
-#   XCODEVER="$(xcodebuild -target Hammerspoon -configuration "${XCODE_CONFIGURATION}" -showBuildSettings 2>/dev/null | grep MARKETING_VERSION | awk '{ print $3 }')"
-
-#   if [ "$VERSION" != "$XCODEVER" ]; then
-#       fail "You asked for $VERSION to be released, but Xcode will build $XCODEVER"
-#   fi
-# }
-
 # function assert_version_in_git_tags() {
 #   if [ "$NIGHTLY" == "1" ] || [ "$LOCAL" == "1" ]; then
 #       echo "Skipping git tag check in nightly build."
@@ -494,191 +548,7 @@ function assert_cocoapods_state() {
 #   popd >/dev/null
 # }
 
-# ############################### BUILD FUNCTIONS ###############################
-
-# function build_hammerspoon_app() {
-#   echo "Building Hammerspoon.app..."
-#   pushd "${HAMMERSPOON_HOME}" >/dev/null
-#   make clean
-#   if [ "${XCODE_SCHEME}" == "Release" ]; then
-#     make release
-#   else
-#     make
-#   fi
-# #  git add Hammerspoon/Hammerspoon-Info.plist
-# #  git commit Hammerspoon/Hammerspoon-Info.plist -m "Update build number for ${VERSION}"
-#   rm build/docs.json
-#   make docs
-#   make build/html/LuaSkin
-#   popd >/dev/null
-#   if [ ! -e "${HAMMERSPOON_HOME}"/build/Hammerspoon.app ]; then
-#       fail "Looks like the build failed. sorry!"
-#   fi
-# }
-
-# function sign_hammerspoon_app() {
-#     echo "Signing Hammerspoon.app..."
-#     pushd "${HAMMERSPOON_HOME}" >/dev/null
-#     local BUILD_ENV=""
-#     if [ "${LOCAL}" == "1" ]; then
-#         BUILD_ENV="local"
-#     else
-#         BUILD_ENV="ignore"
-#     fi
-#     ./scripts/sign_bundle.sh ./build/Hammerspoon.app ./ "${XCODE_CONFIGURATION}" "${BUILD_ENV}"
-#     popd >/dev/null
-# }
-
-# ############################ NOTARIZATION FUNCTIONS ###########################
-
-# function assert_notarization_acceptance() {
-#     echo "Ensuring Notarization acceptance..."
-#     if ! xcrun stapler validate "${HAMMERSPOON_HOME}/build/Hammerspoon.app" ; then
-#         fail "Notarization rejection"
-#         exit 1
-#     fi
-# }
-
-# function upload_to_notary_service() {
-#     echo "Uploading to Apple Notarization Service..."
-#     pushd "${HAMMERSPOON_HOME}" >/dev/null
-#     mkdir -p "../archive/${VERSION}"
-#     local OUTPUT=""
-#     OUTPUT=$(xcrun altool --notarize-app \
-#                 --primary-bundle-id "org.hammerspoon.Hammerspoon" \
-#                 --file "build/Hammerspoon-${VERSION}.zip" \
-#                 --username "${NOTARIZATION_USERNAME}" \
-#                 --password "${NOTARIZATION_PASSWORD}" \
-#                 2>&1 | tee "../archive/${VERSION}/notarization-upload.log" \
-#     )
-#     if [ "$?" != "0" ]; then
-#         echo "$OUTPUT"
-#         fail "Notarization upload failed."
-#     fi
-#     NOTARIZATION_REQUEST_UUID=$(echo ${OUTPUT} | sed -e 's/.*RequestUUID = //')
-#     echo "Notarization request UUID: ${NOTARIZATION_REQUEST_UUID}"
-#     popd >/dev/null
-# }
-
-# function wait_for_notarization() {
-#     echo -n "Waiting for Notarization..."
-#     while true ; do
-#         local OUTPUT=""
-#         OUTPUT=$(check_notarization_status)
-#         if [ "${OUTPUT}" == "Success" ] ; then
-#             echo ""
-#             break
-#         elif [ "${OUTPUT}" == "Working" ]; then
-#             echo -n "."
-#         elif [ "${OUTPUT}" == "No URL yet" ]; then
-#             echo -n "_"
-#         else
-#             echo ""
-#             fail "Unknown output: ${OUTPUT}"
-#         fi
-#         sleep 60
-#     done
-#     echo ""
-# }
-
-# function check_notarization_status() {
-#     local OUTPUT=""
-#     OUTPUT=$(xcrun altool --notarization-info "${NOTARIZATION_REQUEST_UUID}" \
-#                 --username "${NOTARIZATION_USERNAME}" \
-#                 --password "${NOTARIZATION_PASSWORD}" \
-#                 2>&1 \
-#     )
-#     local RESULT=""
-#     RESULT=$(echo "${OUTPUT}" | grep "Status: " | sed -e 's/.*Status: //')
-#     if [ "${RESULT}" == "in progress" ]; then
-#         echo "Working"
-#         return
-#     fi
-
-#     local NOTARIZATION_LOG_URL=""
-#     NOTARIZATION_LOG_URL=$(echo "${OUTPUT}" | grep "LogFileURL: " | awk '{ print $2 }')
-#     if [ "${NOTARIZATION_LOG_URL}" == "" ]; then
-#         echo "No URL yet"
-#         return
-#     fi
-#     echo "Fetching Notarization log: ${NOTARIZATION_LOG_URL}" >/dev/stderr
-#     local STATUS=""
-#     STATUS=$(curl "${NOTARIZATION_LOG_URL}")
-#     RESULT=$(echo "${STATUS}" | jq -r .status)
-
-#     case "${RESULT}" in
-#         "Accepted")
-#             echo "Success"
-#             ;;
-#         "in progress")
-#             echo "Working"
-#             ;;
-#         *)
-#             echo "${STATUS}" | tee "../archive/${VERSION}/notarization.log"
-#             echo "Notarization failed: ${RESULT}"
-#             ;;
-#     esac
-# }
-
-# function staple_notarization() {
-#     echo "Stapling notarization to app bundle..."
-#     pushd "${HAMMERSPOON_HOME}/build" >/dev/null
-#     rm "Hammerspoon-${VERSION}.zip"
-#     xcrun stapler staple "Hammerspoon.app"
-#     popd >/dev/null
-# }
-
 # ############################ POST-BUILD FUNCTIONS #############################
-
-# function compress_hammerspoon_app() {
-#   echo "Compressing release..."
-#   pushd "${HAMMERSPOON_HOME}/build" >/dev/null
-#   zip -yqr "Hammerspoon-${VERSION}.zip" Hammerspoon.app/
-#   export ZIPLEN
-#   ZIPLEN="$(find . -name Hammerspoon-"${VERSION}".zip -ls | awk '{ print $7 }')"
-#   popd >/dev/null
-# }
-
-# function archive_hammerspoon_app() {
-#   echo "Archiving binary..."
-#   pushd "${HAMMERSPOON_HOME}/../" >/dev/null
-#   mkdir -p "archive/${VERSION}"
-#   cp -a "${HAMMERSPOON_HOME}/build/Hammerspoon-${VERSION}.zip" "archive/${VERSION}/"
-#   cp -a "${HAMMERSPOON_HOME}/build/release-build.log" "archive/${VERSION}/"
-#   popd >/dev/null
-# }
-
-# function archive_dSYMs() {
-#   echo "Archiving .dSYM files..."
-#   pushd "${HAMMERSPOON_HOME}/../" >/dev/null
-#   mkdir -p "archive/${VERSION}/dSYM"
-#   rsync -arx --include '*/' --include='*.dSYM/**' --exclude='*' "${XCODE_BUILT_PRODUCTS_DIR}/" "archive/${VERSION}/dSYM/"
-
-#   pushd "archive/${VERSION}" >/dev/null
-#     zip -yrq "Hammerspoon-dSYM-${VERSION}.zip" dSYM
-#   popd >/dev/null
-
-#   popd >/dev/null
-# }
-
-# function upload_dSYMs() {
-#   echo "Uploading .dSYM files to Sentry..."
-#   pushd "${HAMMERSPOON_HOME}/../" >/dev/null
-#   if [ ! -d "archive/${VERSION}/dSYM" ]; then
-#     echo "ERROR: dSYM archive does not exist yet, can't upload it to Sentry. You need to fix this"
-#   else
-#     export SENTRY_ORG=hammerspoon
-#     export SENTRY_PROJECT=hammerspoon
-#     export SENTRY_LOG_LEVEL=debug
-#     export SENTRY_AUTH_TOKEN
-#     cd "${HAMMERSPOON_HOME}"
-#     "${HAMMERSPOON_HOME}/scripts/sentry-cli" releases new -p hammerspoon ${VERSION}
-#     "${HAMMERSPOON_HOME}/scripts/sentry-cli" releases set-commits "${VERSION}" --auto
-#     "${HAMMERSPOON_HOME}/scripts/sentry-cli" upload-dif "archive/${VERSION}/dSYM/" >"../archive/${VERSION}/dSYM-upload.log" 2>&1
-#     "${HAMMERSPOON_HOME}/scripts/sentry-cli" releases finalize "${VERSION}"
-#   fi
-#   popd >/dev/null
-# }
 
 # function archive_docs() {
 #   echo "Archiving docs..."

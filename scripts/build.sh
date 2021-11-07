@@ -23,12 +23,13 @@ DOCS_LINT_ONLY=0
 function usage() {
     echo "Usage $0 COMMAND [OPTIONS]"
     echo "COMMANDS:"
+    echo "  installdeps   - Install all Hammerspoon build dependencies"
     echo "  clean         - Erase build directory"
     echo "  build         - Build Hammerspoon.app"
     echo "  validate      - Validate signature/gatekeeper/entitlements"
     echo "  docs          - Build documentation"
-    echo "  installdeps   - Install all Hammerspoon build dependencies"
     echo "  notarize      - Notarize a Hammerspoon.app bundle with Apple (note that it must be signed first)"
+    echo "  archive       - Archive the build/notarization artifacts"
     echo "  release       - Perform all the steps to upload a release"
     echo ""
     echo "GENERAL OPTIONS:"
@@ -63,7 +64,7 @@ OPERATION=${1:-unknown};shift
 if [ "${OPERATION}" == "-h" ] || [ "${OPERATION}" == "--help" ]; then
     usage
 fi
-if [ "${OPERATION}" != "build" ] && [ "${OPERATION}" != "docs" ] && [ "${OPERATION}" != "installdeps" ] && [ "${OPERATION}" != "notarize" ] && [ "${OPERATION}" != "release" ] && [ "${OPERATION}" != "clean" ] && [ "${OPERATION}" != "validate" ]; then
+if [ "${OPERATION}" != "build" ] && [ "${OPERATION}" != "docs" ] && [ "${OPERATION}" != "installdeps" ] && [ "${OPERATION}" != "notarize" ] && [ "${OPERATION}" != "archive" ] && [ "${OPERATION}" != "release" ] && [ "${OPERATION}" != "clean" ] && [ "${OPERATION}" != "validate" ]; then
     usage
 fi;
 
@@ -257,6 +258,9 @@ case "${OPERATION}" in
         ;;
     "notarize")
         op_notarize
+        ;;
+    "archive")
+        op_archive
         ;;
     "release")
         op_release
