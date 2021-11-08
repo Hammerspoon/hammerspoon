@@ -12,7 +12,7 @@ function fail() {
 
 function op_clean() {
     echo "Cleaning..."
-    rm -rf "${BUILD_HOME}"
+    ${RM} -rf "${BUILD_HOME}"
 }
 
 function op_build() {
@@ -26,7 +26,7 @@ function op_build() {
     fi
 
     echo "Building..."
-    rm -rf "${HAMMERSPOON_BUNDLE_PATH}"
+    ${RM} -rf "${HAMMERSPOON_BUNDLE_PATH}"
 
     local XCB_OPTS=(-q)
     if [ "${IS_CI}" == "1" ] || [ "${DEBUG}" == "1" ]; then
@@ -159,8 +159,8 @@ function op_docs() {
     if [ "${DOCS_DASH}" == 1 ]; then
         echo "Building docs Dash..."
         local DASHDIR="${BUILD_HOME}/Hammerspoon.docset"
-        rm -rf "${DASHDIR}"
-        rm -rf "${LSDOCSDIR}"
+        ${RM} -rf "${DASHDIR}"
+        ${RM} -rf "${LSDOCSDIR}"
         cp -R "${HAMMERSPOON_HOME}/scripts/docs/templates/Hammerspoon.docset" "${DASHDIR}"
         cp "${BUILD_HOME}/docs.sqlite" "${DASHDIR}/Contents/Resources/docSet.dsidx"
         cp "${HAMMERSPOON_HOME}"/build/html/* "${DASHDIR}/Contents/Resources/Documents/"
@@ -224,7 +224,7 @@ function op_notarize() {
     fi
 
     # Remove the zip we uploaded for Notarization
-    rm "${HAMMERSPOON_BUNDLE_PATH}.zip"
+    ${RM} "${HAMMERSPOON_BUNDLE_PATH}.zip"
 
     # At this stage we don't know if this is a full release build or a CI build, so prepare a notarized zip for both
     create_zip "${HAMMERSPOON_BUNDLE_PATH}" "${HAMMERSPOON_BUNDLE_PATH}-$(release_version).zip"
@@ -276,20 +276,20 @@ function op_release() {
     create_zip "${HAMMERSPOON_BUNDLE_PATH}" "${ZIP_PATH}"
 
     echo " Creating release on GitHub..."
-    gh release create "${VERSION}" "${HAMMERSPOON_BUNDLE_PATH}" -t "${VERSION}" # FIXME: Generate release notes and attach them here
+    gh release create "${VERSION}" "${ZIP_PATH}" --title "${VERSION}" --notes-file "${WEBSITE_HOME}/_posts/$(date "+%Y-%m-%d")-${VERSION}.md"
 
     echo " Uploading docs to website..."
     pushd "${WEBSITE_HOME}" >/dev/null || fail "Unable to access website repo at ${WEBSITE_HOME}"
     mkdir -p "docs/${VERSION}"
-    rm docs/*.html
-    rm -rf docs/LuaSkin
+    ${RM} docs/*.html
+    ${RM} -rf docs/LuaSkin
     cp -r "${BUILD_HOME}/html/" docs/
     cp -r "${BUILD_HOME}/html/" "docs/${VERSION}/"
     popd >/dev/null || fail "Unknown"
 
     echo " Creating PR for Dash docs..."
     pushd "${HAMMERSPOON_HOME}/../" >/dev/null || fail "Unable to access ${HAMMERSPOON_HOME}/../"
-    rm -rf dash
+    ${RM} -rf dash
     git clone -q git@github.com:Kapeli/Dash-User-Contributions.git dash
     cp "${BUILD_HOME}/Hammerspoon.tgz" dash/docsets/Hammerspoon/
     pushd "dash" >/dev/null || fail "Unable to access dash repo at: ${HAMMERSPOON_HOME}/../dash"
@@ -413,6 +413,12 @@ function op_sentry_assert() {
 }
 
 function op_release_assert() {
+    echo "Checking release notes exist..."
+    local RNOTES ; RNOTES="${WEBSITE_HOME}/_posts/$(date "+%Y-%m-%d")-${VERSION}.md"
+    if [ ! -f "${RNOTES}" ]; then
+        fail "Unable to find expected release notes: ${RNOTES}"
+    fi
+
     echo "Checking GitHub login status..."
     if ! gh auth status >/dev/null 2>&1 ; then
         echo " gh not logged in, trying with ${GITHUB_TOKEN_FILE}"

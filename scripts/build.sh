@@ -220,6 +220,7 @@ if [ "$(which greadlink)" == "" ]; then
     echo "ERROR: Unable to find greadlink. Maybe '$0 installdeps'?"
     exit 1
 fi
+export RM ; RM="$(gwhich grm) --one-file-system --preserve-root"
 
 # Calculate some variables we need later
 echo "Gathing info..."
