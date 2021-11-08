@@ -10,6 +10,7 @@ XCODE_CONFIGURATION="Debug"
 XCCONFIG_FILE=""
 UPLOAD_DSYM=0
 KEYCHAIN_PROFILE="HAMMERSPOON_BUILDSH"
+TWITTER_ACCOUNT="_hammerspoon"
 DEBUG=0
 DOCS_JSON=1
 DOCS_MD=1
@@ -33,28 +34,40 @@ function usage() {
     echo "  release       - Perform all the steps to upload a release"
     echo ""
     echo "GENERAL OPTIONS:"
-    echo " -h             - Show this help"
-    echo " -d             - Enable debugging"
+    echo "  -h             - Show this help"
+    echo "  -d             - Enable debugging"
     echo ""
     echo "BUILD OPTIONS:"
-    echo " -s             - Hammerspoon build scheme (Default: Hammerspoon)"
-    echo " -c             - Hammerspoon build configuration (Default: Debug)"
-    echo " -x             - Use build settings from a .xcconfig file (Default: None)"
-    echo " -u             - Upload debug symbols to crash reporting service (Default: No)"
+    echo "  -s             - Hammerspoon build scheme (Default: Hammerspoon)"
+    echo "  -c             - Hammerspoon build configuration (Default: Debug)"
+    echo "  -x             - Use build settings from a .xcconfig file (Default: None)"
+    echo "  -u             - Upload debug symbols to crash reporting service (Default: No)"
     echo ""
     echo "DOCS OPTIONS:"
     echo "By default all docs are built. Only one of the following options can be supplied."
     echo "If more than one is present, only the last one will have an effect"
-    echo " -j             - Build only JSON documentation"
-    echo " -m             - Build only Markdown documentation"
-    echo " -t             - Build only HTML documentation"
-    echo " -q             - Build only SQLite documentation"
-    echo " -a             - Build only Dash documentation"
-    echo " -k             - Build only LuaSkin documentation"
-    echo " -l             - Only lint docs, don't build anything"
+    echo "  -j             - Build only JSON documentation"
+    echo "  -m             - Build only Markdown documentation"
+    echo "  -t             - Build only HTML documentation"
+    echo "  -q             - Build only SQLite documentation"
+    echo "  -a             - Build only Dash documentation"
+    echo "  -k             - Build only LuaSkin documentation"
+    echo "  -l             - Only lint docs, don't build anything"
     echo ""
     echo "NOTARIZATION OPTIONS:"
-    echo " -y             - Keychain profile name (Default: HAMMERSPOON_BUILDSH)"
+    echo "Note: The keychain profile must be set up ahead of time using your developer Apple ID account and Team ID:"
+    echo "  xcrun notarytool store-credentials -v --apple-id APPLE_ID --team-id TEAM_ID --password APP_SPECIFIC_PASSWORD"
+    echo "  -y             - Keychain profile name (Default: HAMMERSPOON_BUILDSH)"
+    echo ""
+    echo "RELEASE OPTIONS:"
+    echo "  -w             - Twitter account to announce release with (Default: _hammerspoon)"
+    echo ""
+    echo "ENVIRONMENT VARIABLES:"
+    echo "  IS_CI          - Set to 1 to enable CI behaviours (Default: 0)"
+    echo "  GITHUB_USER    - GitHub user/organization to upload releases to (Default: Hammerspoon)"
+    echo "  GITHUB_REPO    - GitHub repository to upload releases to (Default: hammerspoon)"
+    echo "  SENTRY_ORG     - Sentry organization to upload debugging symbols to (Default: hammerspoon)"
+    echo "  SENTRY_PROJECT - Sentry project to upload debugging symbols to (Default hammerspoon)"
 
     exit 2
 }
@@ -69,7 +82,7 @@ if [ "${OPERATION}" != "build" ] && [ "${OPERATION}" != "docs" ] && [ "${OPERATI
 fi;
 
 # Parse the rest of any arguments
-PARSED_ARGUMENTS=$(getopt ds:c:x:ujmtqakly: $*)
+PARSED_ARGUMENTS=$(getopt ds:c:x:ujmtqakly:w: $*)
 if [ $? != 0 ]; then
     usage
 fi
@@ -153,6 +166,9 @@ do
         -y)
             KEYCHAIN_PROFILE=${2}; shift
             shift;;
+        -w)
+            TWITTER_ACCOUNT=${2}; shift
+            shift;;
         --)
             shift; break;;
     esac
@@ -189,6 +205,7 @@ export XCODE_CONFIGURATION
 export XCCONFIG_FILE
 export UPLOAD_DSYM
 export KEYCHAIN_PROFILE
+export TWITTER_ACCOUNT
 export DEBUG
 export DOCS_JSON
 export DOCS_MD
@@ -206,27 +223,24 @@ fi
 
 # Calculate some variables we need later
 echo "Gathing info..."
-export CWD=$PWD
-export SCRIPT_NAME
-export SCRIPT_HOME
-export HAMMERSPOON_HOME
-export XCODE_BUILT_PRODUCTS_DIR
-SCRIPT_NAME="$(basename "$0")"
-SCRIPT_HOME="$(dirname "$(greadlink -f "$0")")"
-HAMMERSPOON_HOME="$(greadlink -f "${SCRIPT_HOME}/../")"
-BUILD_HOME="${HAMMERSPOON_HOME}/build"
-HAMMERSPOON_BUNDLE="Hammerspoon.app"
-export HAMMERSPOON_APP="${BUILD_HOME}/${HAMMERSPOON_BUNDLE}"
-export HAMMERSPOON_XCARCHIVE="${HAMMERSPOON_APP}.xcarchive"
-XCODE_BUILT_PRODUCTS_DIR="$(xcodebuild -workspace Hammerspoon.xcworkspace -scheme "${XCODE_SCHEME}" -configuration "${XCODE_CONFIGURATION}" -destination "platform=macOS" -showBuildSettings | sort | uniq | grep ' BUILT_PRODUCTS_DIR =' | awk '{ print $3 }')"
+
+export SCRIPT_NAME ; SCRIPT_NAME="$(basename "$0")"
+export SCRIPT_HOME ; SCRIPT_HOME="$(dirname "$(greadlink -f "$0")")"
+export HAMMERSPOON_HOME ; HAMMERSPOON_HOME="$(greadlink -f "${SCRIPT_HOME}/../")"
+export WEBSITE_HOME ; WEBSITE_HOME="$(greadlink -f "${HAMMERSPOON_HOME}/../website")"
+export BUILD_HOME="${HAMMERSPOON_HOME}/build"
+
+export HAMMERSPOON_BUNDLE_NAME="Hammerspoon.app"
+export HAMMERSPOON_BUNDLE_PATH="${BUILD_HOME}/${HAMMERSPOON_BUNDLE_NAME}"
+export HAMMERSPOON_XCARCHIVE_PATH="${HAMMERSPOON_BUNDLE_PATH}.xcarchive"
+export XCODE_BUILT_PRODUCTS_DIR ; XCODE_BUILT_PRODUCTS_DIR="$(xcodebuild -workspace Hammerspoon.xcworkspace -scheme "${XCODE_SCHEME}" -configuration "${XCODE_CONFIGURATION}" -destination "platform=macOS" -showBuildSettings | sort | uniq | grep ' BUILT_PRODUCTS_DIR =' | awk '{ print $3 }')"
 export DOCS_SEARCH_DIRS=("${HAMMERSPOON_HOME}/Hammerspoon/" "${HAMMERSPOON_HOME}/extensions/")
 
 # Calculate private token variables
-export TOKENPATH
-TOKENPATH="${HAMMERSPOON_HOME}/.."
+export TOKENPATH ; TOKENPATH="$(greadlink -f "${HAMMERSPOON_HOME}/..")"
 export GITHUB_TOKEN_FILE="${TOKENPATH}/token-github-release"
-export GITHUB_USER="hammerspoon"
-export GITHUB_REPO="hammerspoon"
+export GITHUB_USER="${GITHUB_USER:-hammerspoon}"
+export GITHUB_REPO="${GITHUB_REPO:-hammerspoon}"
 export SENTRY_TOKEN_API_FILE="${TOKENPATH}/token-sentry-api"
 export SENTRY_TOKEN_AUTH_FILE="${TOKENPATH}/token-sentry-auth"
 export NOTARIZATION_TOKEN_FILE="${TOKENPATH}/token-notarization"
@@ -237,8 +251,6 @@ source "${SCRIPT_HOME}/libbuild.sh"
 
 # Make sure our build directory exists
 mkdir -p "${BUILD_HOME}"
-
-echo ""
 
 # Figure out which COMMAND we have been tasked with performing, and go do it
 case "${OPERATION}" in

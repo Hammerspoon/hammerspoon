@@ -26,7 +26,7 @@ function op_build() {
     fi
 
     echo "Building..."
-    rm -rf "${HAMMERSPOON_APP}"
+    rm -rf "${HAMMERSPOON_BUNDLE_PATH}"
 
     local XCB_OPTS=(-q)
     if [ "${IS_CI}" == "1" ] || [ "${DEBUG}" == "1" ]; then
@@ -38,46 +38,52 @@ function op_build() {
     xcodebuild -workspace Hammerspoon.xcworkspace -scheme "${XCODE_SCHEME}" -configuration "${XCODE_CONFIGURATION}" -destination "platform=macOS" clean | xcbeautify "${XCB_OPTS[@]:-""}"
 
     # Build the app
-    echo "-> xcodebuild -workspace Hammerspoon.xcworkspace -scheme ${XCODE_SCHEME} -configuration ${XCODE_CONFIGURATION} -destination \"platform=macOS\" -archivePath ${HAMMERSPOON_XCARCHIVE} archive | tee ${BUILD_HOME}/${XCODE_CONFIGURATION}-build.log"
-    xcodebuild -workspace Hammerspoon.xcworkspace -scheme "${XCODE_SCHEME}" -configuration "${XCODE_CONFIGURATION}" -destination "platform=macOS" -archivePath "${HAMMERSPOON_XCARCHIVE}" archive | tee "${BUILD_HOME}/${XCODE_CONFIGURATION}-build.log" | xcbeautify "${XCB_OPTS[@]:-""}"
+    echo "-> xcodebuild -workspace Hammerspoon.xcworkspace -scheme ${XCODE_SCHEME} -configuration ${XCODE_CONFIGURATION} -destination \"platform=macOS\" -archivePath ${HAMMERSPOON_XCARCHIVE_PATH} archive | tee ${BUILD_HOME}/${XCODE_CONFIGURATION}-build.log"
+    xcodebuild -workspace Hammerspoon.xcworkspace \
+               -scheme "${XCODE_SCHEME}" \
+               -configuration "${XCODE_CONFIGURATION}" \
+               -destination "platform=macOS" \
+               -archivePath "${HAMMERSPOON_XCARCHIVE_PATH}" \
+               archive | tee "${BUILD_HOME}/${XCODE_CONFIGURATION}-build.log" | xcbeautify "${XCB_OPTS[@]:-""}"
 
     # Export the app bundle from the archive
-    xcodebuild -exportArchive -archivePath "${HAMMERSPOON_XCARCHIVE}" -exportOptionsPlist Hammerspoon/Build\ Configs/Archive-Export-Options.plist -exportPath "${BUILD_HOME}"
+    xcodebuild -exportArchive -archivePath "${HAMMERSPOON_XCARCHIVE_PATH}" \
+               -exportOptionsPlist Hammerspoon/Build\ Configs/Archive-Export-Options.plist \
+               -exportPath "${BUILD_HOME}"
 
     # Upload dSYMs to Sentry if so desired
     if [ "${UPLOAD_DSYM}" == "1" ]; then
-        export SENTRY_ORG=hammerspoon
-        export SENTRY_PROJECT=hammerspoon
+        export SENTRY_ORG="${SENTRY_ORG:-hammerspoon}"
+        export SENTRY_PROJECT="${SENTRY_PROJECT:-hammerspoon}"
         export SENTRY_LOG_LEVEL=error
         if [ "${DEBUG}" == "1" ]; then
             SENTRY_LOG_LEVEL=debug
         fi
         export SENTRY_AUTH_TOKEN
-        "${HAMMERSPOON_HOME}/scripts/sentry-cli" upload-dif "${HAMMERSPOON_XCARCHIVE}/dSYMs/" 2>&1 | tee "${BUILD_HOME}/sentry-upload.log"
+        "${HAMMERSPOON_HOME}/scripts/sentry-cli" upload-dif "${HAMMERSPOON_XCARCHIVE_PATH}/dSYMs/" 2>&1 | tee "${BUILD_HOME}/sentry-upload.log"
     fi
 }
 
 function op_validate() {
-  echo "Validating ${HAMMERSPOON_APP}..."
+  echo "Validating ${HAMMERSPOON_BUNDLE_PATH}..."
   op_validate_assert
 
   # Obtain the relevant build settings
-  local BUILD_SETTINGS
-  BUILD_SETTINGS=$(xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release -configuration Release -showBuildSettings 2>&1 | grep -E " CODE_SIGN_IDENTITY|DEVELOPMENT_TEAM|CODE_SIGN_ENTITLEMENTS")
+  local BUILD_SETTINGS ; BUILD_SETTINGS=$(xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release -configuration Release -showBuildSettings 2>&1 | grep -E " CODE_SIGN_IDENTITY|DEVELOPMENT_TEAM|CODE_SIGN_ENTITLEMENTS")
 
   local SIGN_IDENTITY ; SIGN_IDENTITY=$(echo "${BUILD_SETTINGS}" | grep CODE_SIGN_IDENTITY | sed -e 's/.* = //')
   local SIGN_TEAM ; SIGN_TEAM=$(echo "${BUILD_SETTINGS}" | grep DEVELOPMENT_TEAM | sed -e 's/.* = //')
   local ENTITLEMENTS_FILE ; ENTITLEMENTS_FILE=$(echo "${BUILD_SETTINGS}" | grep CODE_SIGN_ENTITLEMENTS | sed -e 's/.* = //')
 
   # Validate that the app bundle has a correct signature at all
-  if ! codesign --verify "${HAMMERSPOON_APP}" ; then
-      codesign -dvv "${HAMMERSPOON_APP}"
+  if ! codesign --verify "${HAMMERSPOON_BUNDLE_PATH}" ; then
+      codesign -dvv "${HAMMERSPOON_BUNDLE_PATH}"
       fail "Invalid signature"
   fi
   echo "  ✅ App bundle is signed"
 
   # Fetch the app bundle's relevant signature data
-  local APP_SIGNATURE ; APP_SIGNATURE=$(codesign --display --verbose=4 "${HAMMERSPOON_APP}" 2>&1 | grep ^Authority | head -1)
+  local APP_SIGNATURE ; APP_SIGNATURE=$(codesign --display --verbose=4 "${HAMMERSPOON_BUNDLE_PATH}" 2>&1 | grep ^Authority | head -1)
 
   # Check that the signing team is correct (this is the bit that looks like ABCDEF123G)
   # shellcheck disable=SC2001
@@ -94,15 +100,15 @@ function op_validate() {
   echo "  ✅ Signing identity is correct (${SIGN_IDENTITY})"
 
   # Check that Gatekeepr accepts the app bundle
-  if ! spctl --assess --type execute "${HAMMERSPOON_APP}" ; then
-      spctl --verbose=4 --assess --type execute "${HAMMERSPOON_APP}"
+  if ! spctl --assess --type execute "${HAMMERSPOON_BUNDLE_PATH}" ; then
+      spctl --verbose=4 --assess --type execute "${HAMMERSPOON_BUNDLE_PATH}"
       fail "Gatekeeper rejection:"
   fi
   echo "  ✅ Gatekeeper accepts the app bundle"
 
   # Check that the app bundle has the expected entitlements
   local EXPECTED_ENTITLEMENTS ; EXPECTED_ENTITLEMENTS=$(xmllint --c14n --format "${HAMMERSPOON_HOME}/${ENTITLEMENTS_FILE}" 2>/dev/null)
-  local ACTUAL_ENTITLEMENTS ; ACTUAL_ENTITLEMENTS=$(codesign --display --entitlements - --xml "${HAMMERSPOON_APP}" 2>/dev/null | xmllint --c14n --format - 2>/dev/null)
+  local ACTUAL_ENTITLEMENTS ; ACTUAL_ENTITLEMENTS=$(codesign --display --entitlements - --xml "${HAMMERSPOON_BUNDLE_PATH}" 2>/dev/null | xmllint --c14n --format - 2>/dev/null)
 
   if [ "${EXPECTED_ENTITLEMENTS}" != "${ACTUAL_ENTITLEMENTS}" ]; then
       echo "***** EXPECTED ENTITLEMENTS (${ENTITLEMENTS_FILE}):"
@@ -115,49 +121,50 @@ function op_validate() {
   echo "  ✅ Entitlements are as expected"
 
   echo ""
-  echo "  🎉 ${HAMMERSPOON_APP} is fully valid"
+  echo "  🎉 ${HAMMERSPOON_BUNDLE_PATH} is fully valid"
 }
 
 function op_docs() {
     op_docs_assert
 
-    local LSDOCSDIR="${HAMMERSPOON_HOME}/build/html/LuaSkin"
+    local LSDOCSDIR="${BUILD_HOME}/html/LuaSkin"
+    local DOCSCRIPT="${HAMMERSPOON_HOME}/scripts/docs/bin/build_docs.py"
 
     if [ "${DOCS_LINT_ONLY}" == 1 ]; then
-        "${HAMMERSPOON_HOME}/scripts/docs/bin/build_docs.py" -l "${DOCS_SEARCH_DIRS[*]}"
+        "${DOCSCRIPT}" -l "${DOCS_SEARCH_DIRS[*]}"
         echo "Docs lint OK"
-        return
+        return # We return here because this option cannot be used with any of the subsequent ones
     fi
 
     if [ "${DOCS_JSON}" == 1 ]; then
         echo "Building docs JSON..."
-        "${HAMMERSPOON_HOME}/scripts/docs/bin/build_docs.py" -o "${HAMMERSPOON_HOME}/build" --json "${DOCS_SEARCH_DIRS[@]}"
+        "${DOCSCRIPT}" -o "${BUILD_HOME}" --json "${DOCS_SEARCH_DIRS[@]}"
     fi
 
     if [ "${DOCS_MD}" == 1 ]; then
         echo "Building docs Markdown..."
-        "${HAMMERSPOON_HOME}/scripts/docs/bin/build_docs.py" -o "${HAMMERSPOON_HOME}/build" --markdown "${DOCS_SEARCH_DIRS[@]}"
+        "${DOCSCRIPT}" -o "${BUILD_HOME}" --markdown "${DOCS_SEARCH_DIRS[@]}"
     fi
 
     if [ "${DOCS_HTML}" == 1 ]; then
         echo "Building docs HTML..."
-        "${HAMMERSPOON_HOME}/scripts/docs/bin/build_docs.py" -o "${HAMMERSPOON_HOME}/build" --html "${DOCS_SEARCH_DIRS[@]}"
+        "${DOCSCRIPT}" -o "${BUILD_HOME}" --html "${DOCS_SEARCH_DIRS[@]}"
     fi
 
     if [ "${DOCS_SQL}" == 1 ]; then
         echo "Building docs SQLite..."
-        "${HAMMERSPOON_HOME}/scripts/docs/bin/build_docs.py" -o "${HAMMERSPOON_HOME}/build" --sql "${DOCS_SEARCH_DIRS[@]}"
+        "${DOCSCRIPT}" -o "${BUILD_HOME}" --sql "${DOCS_SEARCH_DIRS[@]}"
     fi
 
     if [ "${DOCS_DASH}" == 1 ]; then
         echo "Building docs Dash..."
-        local DASHDIR="${HAMMERSPOON_HOME}/build/Hammerspoon.docset"
+        local DASHDIR="${BUILD_HOME}/Hammerspoon.docset"
         rm -rf "${DASHDIR}"
         rm -rf "${LSDOCSDIR}"
         cp -R "${HAMMERSPOON_HOME}/scripts/docs/templates/Hammerspoon.docset" "${DASHDIR}"
-        cp "${HAMMERSPOON_HOME}/build/docs.sqlite" "${DASHDIR}/Contents/Resources/docSet.dsidx"
+        cp "${BUILD_HOME}/docs.sqlite" "${DASHDIR}/Contents/Resources/docSet.dsidx"
         cp "${HAMMERSPOON_HOME}"/build/html/* "${DASHDIR}/Contents/Resources/Documents/"
-        tar -cvf "${HAMMERSPOON_HOME}/build/Hammerspoon.tgz" -C "${HAMMERSPOON_HOME}/build" Hammerspoon.docset >"${BUILD_HOME}/docset-tar.log" 2>&1
+        tar -cvf "${BUILD_HOME}/Hammerspoon.tgz" -C "${BUILD_HOME}" Hammerspoon.docset >"${BUILD_HOME}/docset-tar.log" 2>&1
     fi
 
     if [ "${DOCS_LUASKIN}" == 1 ]; then
@@ -175,20 +182,22 @@ function op_docs() {
 function op_installdeps() {
     echo "Installing dependencies..." 
     echo "  Homebrew packages..."
-    brew install -q coreutils jq xcbeautify gawk cocoapods gh
+    brew install -q coreutils jq xcbeautify gawk cocoapods gh || fail "Unable to install Homebrew dependencies"
 
     echo "  Python packages..."
-    /usr/bin/pip3 install -q --disable-pip-version-check -r "${HAMMERSPOON_HOME}/requirements.txt"
+    /usr/bin/pip3 install -q --disable-pip-version-check -r "${HAMMERSPOON_HOME}/requirements.txt" || fail "Unable to install Python dependencies"
+
+    echo "  Ruby packages..."
+    /usr/bin/gem install -q --silent t 2>/dev/null || fail "Unable to install Ruby dependencies"
 }
 
 function op_notarize() {
-    echo " Notarizing ${HAMMERSPOON_APP}..."
-    echo " (I hope that at some point you've done something like: xcrun notarytool store-credentials -v --apple-id your@apple.id --team-id VQCYSNZB89 --password app-specific-appleid-password)"
+    echo " Notarizing ${HAMMERSPOON_BUNDLE_PATH}..."
     op_notarize_assert
 
     echo " Zipping..."
-    local ZIP_PATH="${HAMMERSPOON_APP}.zip"
-    create_zip "${HAMMERSPOON_APP}" "${ZIP_PATH}"
+    local ZIP_PATH="${HAMMERSPOON_BUNDLE_PATH}.zip"
+    create_zip "${HAMMERSPOON_BUNDLE_PATH}" "${ZIP_PATH}"
 
     echo " Uploading to Apple Notary Service (may take many minutes)..."
     local UPLOAD_OUTPUT ; UPLOAD_OUTPUT=$(xcrun notarytool submit "${ZIP_PATH}" --keychain-profile "${KEYCHAIN_PROFILE}" --wait -f json)
@@ -197,7 +206,7 @@ function op_notarize() {
     local UPLOAD_MSG ; UPLOAD_MSG=$(echo "${UPLOAD_OUTPUT}" | jq -r .message)
 
     echo " Fetching notarization log..."
-    xcrun notarytool log "${UPLOAD_ID}" --keychain-profile "${KEYCHAIN_PROFILE}" build/notarization-log.json
+    xcrun notarytool log "${UPLOAD_ID}" --keychain-profile "${KEYCHAIN_PROFILE}" "${BUILD_HOME}/notarization-log.json"
 
     if [ "${UPLOAD_STATUS}" != "Accepted" ]; then
         echo "Notarization upload is in an unexpected state: ${UPLOAD_STATUS} (${UPLOAD_MSG})"
@@ -207,19 +216,19 @@ function op_notarize() {
     fi
 
     echo " Stapling notarization ticket..."
-    xcrun stapler staple "${HAMMERSPOON_APP}"
+    xcrun stapler staple "${HAMMERSPOON_BUNDLE_PATH}"
 
     echo " Validating notarization..."
-    if ! xcrun stapler validate "${HAMMERSPOON_APP}" ; then
+    if ! xcrun stapler validate "${HAMMERSPOON_BUNDLE_PATH}" ; then
         fail "Notarization rejection"
     fi
 
     # Remove the zip we uploaded for Notarization
-    rm "${HAMMERSPOON_APP}.zip"
+    rm "${HAMMERSPOON_BUNDLE_PATH}.zip"
 
     # At this stage we don't know if this is a full release build or a CI build, so prepare a notarized zip for both
-    create_zip "${HAMMERSPOON_APP}" "${HAMMERSPOON_APP}-$(release_version).zip"
-    create_zip "${HAMMERSPOON_APP}" "${HAMMERSPOON_APP}-$(nightly_version).zip"
+    create_zip "${HAMMERSPOON_BUNDLE_PATH}" "${HAMMERSPOON_BUNDLE_PATH}-$(release_version).zip"
+    create_zip "${HAMMERSPOON_BUNDLE_PATH}" "${HAMMERSPOON_BUNDLE_PATH}-$(nightly_version).zip"
 
     echo " ✅ Notarization successful!"
 }
@@ -232,13 +241,13 @@ function op_archive() {
     mkdir -p "${ARCHIVE_PATH}"
 
     # Archive the final zip, the xcarchive, and all the build/notarization/sentry logfiles
-    cp -a "${HAMMERSPOON_APP}-${VERSION}.zip" "${ARCHIVE_PATH}/"
-    cp -a "${HAMMERSPOON_XCARCHIVE}" "${ARCHIVE_PATH}/"
+    cp -a "${HAMMERSPOON_BUNDLE_PATH}-${VERSION}.zip" "${ARCHIVE_PATH}/"
+    cp -a "${HAMMERSPOON_XCARCHIVE_PATH}" "${ARCHIVE_PATH}/"
     cp -a "${BUILD_HOME}"/*.log "${ARCHIVE_PATH}/"
     cp -a "${BUILD_HOME}"/*.plist "${ARCHIVE_PATH}/"
 
     # Dump dSYM UUIDs and archive them
-    find "${HAMMERSPOON_XCARCHIVE}" -name '*.dSYM' -exec dwarfdump -u {} \; >"${ARCHIVE_PATH}/dSYM_UUID.txt"
+    find "${HAMMERSPOON_XCARCHIVE_PATH}" -name '*.dSYM' -exec dwarfdump -u {} \; >"${ARCHIVE_PATH}/dSYM_UUID.txt"
 
     # Archive the docs
     mkdir -p "${ARCHIVE_PATH}/docs"
@@ -247,11 +256,97 @@ function op_archive() {
 }
 
 function op_release() {
+    local VERSION ; VERSION="$(release_version)"
     op_release_assert
 
+    # We always do a local test of the signed/notarized build, to ensure it runs
+    echo "Opening Finder for a local test..."
+    open -R "${HAMMERSPOON_BUNDLE_PATH}"
+    echo -n "******** TEST THE BUILD PLEASE ('yes' to confirm it works):"
+    local REPLY=""
+    read -r REPLY
+
+    if [ "${REPLY}" != "yes" ]; then
+        fail "User rejected build"
+    fi
+
+    # Prepaer the release archive
     echo " Zipping..."
-    local ZIP_PATH="${HAMMERSPOON_APP}.zip"
-    create_zip "${HAMMERSPOON_APP}" "${ZIP_PATH}"
+    local ZIP_PATH="${HAMMERSPOON_BUNDLE_PATH}.zip"
+    create_zip "${HAMMERSPOON_BUNDLE_PATH}" "${ZIP_PATH}"
+
+    echo " Creating release on GitHub..."
+    gh release create "${VERSION}" "${HAMMERSPOON_BUNDLE_PATH}" -t "${VERSION}" # FIXME: Generate release notes and attach them here
+
+    echo " Uploading docs to website..."
+    pushd "${WEBSITE_HOME}" >/dev/null || fail "Unable to access website repo at ${WEBSITE_HOME}"
+    mkdir -p "docs/${VERSION}"
+    rm docs/*.html
+    rm -rf docs/LuaSkin
+    cp -r "${BUILD_HOME}/html/" docs/
+    cp -r "${BUILD_HOME}/html/" "docs/${VERSION}/"
+    popd >/dev/null || fail "Unknown"
+
+    echo " Creating PR for Dash docs..."
+    pushd "${HAMMERSPOON_HOME}/../" >/dev/null || fail "Unable to access ${HAMMERSPOON_HOME}/../"
+    rm -rf dash
+    git clone -q git@github.com:Kapeli/Dash-User-Contributions.git dash
+    cp "${BUILD_HOME}/Hammerspoon.tgz" dash/docsets/Hammerspoon/
+    pushd "dash" >/dev/null || fail "Unable to access dash repo at: ${HAMMERSPOON_HOME}/../dash"
+    git remote add hammerspoon git@github.com:hammerspoon/Dash-User-Contributions.git
+    cat >docsets/Hammerspoon/docset.json <<EOF
+    {
+       "name": "Hammerspoon",
+       "version": "${VERSION}",
+       "archive": "Hammerspoon.tgz",
+       "author": {
+           "name": "Hammerspoon Team",
+           "link": "https://www.hammerspoon.org/"
+       },
+       "aliases": [],
+       "specific_versions": [
+       ]
+   }
+EOF
+    git add docsets/Hammerspoon/Hammerspoon.tgz
+    git commit -qam "Update Hammerspoon docset to ${VERSION}"
+    git push -qfv hammerspoon master
+    gh pr create "Update Hammerspoon docset to ${VERSION}"
+    popd >/dev/null || fail "Unknown"
+    popd >/dev/null || fail "Unknown"
+
+    echo " Updating appcast.xml..."
+    pushd "${HAMMERSPOON_HOME}/" >/dev/null || fail "Unable to access ${HAMMERSPOON_HOME}/"
+    local BUILD_NUMBER ; BUILD_NUMBER=$(git rev-list "$(git symbolic-ref HEAD | sed -e 's,.*/\\(.*\\),\\1,')" --count)
+    local NEWCHUNK ; NEWCHUNK="<!-- __UPDATE_MARKER__ -->
+          <item>
+              <title>Version ${VERSION}</title>
+              <sparkle:releaseNotesLink>
+                  https://www.hammerspoon.org/releasenotes/${VERSION}.html
+              </sparkle:releaseNotesLink>
+              <pubDate>$(date +"%a, %e %b %Y %H:%M:%S %z")</pubDate>
+              <enclosure url=\"https://github.com/Hammerspoon/hammerspoon/releases/download/${VERSION}/Hammerspoon-${VERSION}.zip\"
+                  sparkle:version=\"${BUILD_NUMBER}\"
+                  sparkle:shortVersionString=\"${VERSION}\"
+                  length=\"${ZIPLEN}\"
+                  type=\"application/octet-stream\"
+              />
+              <sparkle:minimumSystemVersion>10.12</sparkle:minimumSystemVersion>
+          </item>
+  "
+    gawk -i inplace -v s="<!-- __UPDATE_MARKER__ -->" -v r="${NEWCHUNK}" '{gsub(s,r)}1' appcast.xml
+    git add appcast.xml
+    git commit -qam "Update appcast.xml for ${VERSION}"
+    git push
+    popd >/dev/null || fail "Unknown"
+
+    if [ "${TWITTER_ACCOUNT}" != "" ]; then
+        echo " Tweeting release..."
+        local CURRENT_T_ACCOUNT ; CURRENT_T_ACCOUNT=$(t accounts | grep -B1 active | head -1)
+        t set active "${TWITTER_ACCOUNT}"
+        t update "Just released ${VERSION} - https://www.hammerspoon.org/releasenotes/"
+        t set acctive "${CURRENT_T_ACCOUNT}"
+    fi
 }
 
 ############################## COMMAND ASSERTIONS ##############################
@@ -260,12 +355,18 @@ function op_build_assert() {
     assert_gawk
     assert_xcbeautify
     assert_cocoapods_state
-    assert_docs_bundle_complete
+    assert_docs_requirements
+
+    if [ "${XCODE_CONFIGURATION}" == "Release" ]; then
+        if [ ! -f "${SENTRY_TOKEN_API_FILE}" ]; then
+            fail "Release build requested, but no Sentry API token exists at: ${SENTRY_TOKEN_API_FILE}"
+        fi
+    fi
 }
 
 function op_docs_assert() {
     echo "Checking docs environment..."
-    assert_docs_bundle_complete
+    assert_docs_requirements
 }
 
 function op_installdeps_assert() {
@@ -277,8 +378,8 @@ function op_installdeps_assert() {
 }
 
 function op_validate_assert() {
-  if [ ! -e "${HAMMERSPOON_APP}" ]; then
-    fail "Unable to validate ${HAMMERSPOON_APP}, it doesn't exist"
+  if [ ! -e "${HAMMERSPOON_BUNDLE_PATH}" ]; then
+    fail "Unable to validate ${HAMMERSPOON_BUNDLE_PATH}, it doesn't exist"
   fi
 }
 
@@ -288,12 +389,12 @@ function op_notarize_assert() {
 }
 
 function op_archive_assert() {
-    if [ ! -e "${HAMMERSPOON_APP}-${VERSION}.zip" ]; then
-        fail "Unable to archive: ${HAMMERSPOON_APP}-${VERSION}.zip is missing"
+    if [ ! -e "${HAMMERSPOON_BUNDLE_PATH}-${VERSION}.zip" ]; then
+        fail "Unable to archive: ${HAMMERSPOON_BUNDLE_PATH}-${VERSION}.zip is missing"
     fi
 
-    if [ ! -e "${HAMMERSPOON_XCARCHIVE}" ]; then
-        fail "Unable to archive: ${HAMMERSPOON_XCARCHIVE} is missing"
+    if [ ! -e "${HAMMERSPOON_XCARCHIVE_PATH}" ]; then
+        fail "Unable to archive: ${HAMMERSPOON_XCARCHIVE_PATH} is missing"
     fi
 
     if [ ! -e "${BUILD_HOME}/docs.json" ]; then
@@ -312,30 +413,62 @@ function op_sentry_assert() {
 }
 
 function op_release_assert() {
-#   assert_version_in_git_tags
-#   assert_version_not_in_github_releases
-#   assert_docs_bundle_complete
-#   if [ "${NIGHTLY}" == "0" ] && [ "${LOCAL}" == "0" ]; then
-#     assert_cocoapods_state
-#     assert_website_repo
-#   fi
-return
+    echo "Checking GitHub login status..."
+    if ! gh auth status >/dev/null 2>&1 ; then
+        echo " gh not logged in, trying with ${GITHUB_TOKEN_FILE}"
+        # GitHub CLI client is not currently logged in, let's see if we have a token available and can fix it
+        if [ ! -f "${GITHUB_TOKEN_FILE}" ]; then
+            fail "You do not have a GitHub auth token in ${GITHUB_TOKEN_FILE}. Generate one with 'read:org, repo' permissions at: https://github.com/settings/tokens, or run 'gh auth login'"
+        fi
+        gh auth login --with-token <"${GITHUB_TOKEN_FILE}"
+
+        if ! gh auth status >/dev/null 2>&1 ; then
+            fail "Unable to login to GitHub with token in ${GITHUB_TOKEN_FILE}"
+        fi
+    fi
+
+    # Ensure we have a full tag for the release
+    echo "Checking release tag..."
+    pushd "${HAMMERSPOON_HOME}" >/dev/null || fail "Unable to access ${HAMMERSPOON_HOME}"
+    local TAGTYPE ; TAGTYPE="$(git cat-file -t "${VERSION}")"
+    if [ "${TAGTYPE}" != "tag" ]; then
+        fail "${VERSION} is not an annotated tag, it is either missing or is a lightweight tag. Use: git tag -a ${VERSION}"
+    fi
+    popd >/dev/null || fail "Unknown"
+
+    # Ensure this tag is not already released
+    if gh release view "${VERSION}" >/dev/null 2>&1 ; then
+        fail "${VERSION} already exists on GitHub, cannot re-release"
+    fi
+
+    # Check that the website repo is present, has no uncommitted changes, and is in-sync with upstream
+    pushd "${WEBSITE_HOME}" >/dev/null || fail "Website repo missing/inaccessible at: ${WEBSITE_HOME}"
+    if ! git diff-index --quiet HEAD -- ; then
+        fail "Website repo has uncommitted changes, please commit or stash them before releasing"
+    fi
+    git fetch origin
+    local DESYNC
+    DESYNC="$(git rev-list --left-right "@{upstream}"...HEAD)"
+    if [ "${DESYNC}" != "" ]; then
+        fail "Website repo is out of sync with GitHub, please sync before releasing"
+    fi
+    popd >/dev/null || fail "Unknown"
 }
 
 ############################## ASSERTION HELPERS ###############################
 function assert_gawk() {
   if [ "$(which gawk)" == "" ]; then
-    fail "gawk doesn't seem to be in your PATH. brew install gawk"
+    fail "gawk doesn't seem to be in your PATH. Try $0 installdeps"
   fi
 }
 
 function assert_xcbeautify() {
   if [ "$(which xcbeautify)" == "" ]; then
-    fail "xcbeautify is not in PATH. brew install xcbeautify"
+    fail "xcbeautify is not in PATH. Try $0 installdeps"
   fi
 }
 
-function assert_docs_bundle_complete() {
+function assert_docs_requirements() {
   echo "Checking Python requirements.txt is satisfied..."
   echo "import sys
 import pkg_resources
@@ -369,316 +502,3 @@ function create_zip() {
     local DST ; DST="${2}"
     /usr/bin/ditto -c -k --keepParent "${SRC}" "${DST}"
 }
-
-### OLD STUFF BELOW
-# function assert() {
-#   echo "******** CHECKING SANITY:"
-
-#   export GITHUB_TOKEN
-#   export CODESIGN_AUTHORITY_TOKEN
-#   assert_gawk
-#   assert_xcbeautify
-#   if [ "${NIGHTLY}" == "0" ] && [ "${LOCAL}" == "0" ]; then
-#     assert_github_hub
-#   fi
-#   assert_github_release_token && GITHUB_TOKEN="$(cat "${GITHUB_TOKEN_FILE}")"
-#   assert_codesign_authority_token && CODESIGN_AUTHORITY_TOKEN="$(cat "${CODESIGN_AUTHORITY_TOKEN_FILE}")"
-
-#   set +x # <-- THIS SET +X IS EXTREMELY IMPORTANT. NEVER REMOVE IT. DOING SO WILL MEAN A DEBUG RUN LEAKS TOKENS INTO LOGS WHICH MAY BE PUBLIC ON GITHUB
-#   assert_notarization_token && source "${NOTARIZATION_TOKEN_FILE}"
-#   # shellcheck source=../token-sentry-auth disable=SC1091
-#   assert_sentry_tokens && source "${SENTRY_TOKEN_AUTH_FILE}" ; source "${SENTRY_TOKEN_API_FILE}"
-#   # IF YOU CARE ABOUT DEBUGGING, YOU CAN UNCOMMENT THE FOLLOWING LINE
-#   # set -x
-
-#   #assert_version_in_xcode
-#   assert_version_in_git_tags
-#   assert_version_not_in_github_releases
-#   assert_docs_bundle_complete
-#   if [ "${NIGHTLY}" == "0" ] && [ "${LOCAL}" == "0" ]; then
-#     assert_cocoapods_state
-#     assert_website_repo
-#   fi
-# }
-
-# function notarize() {
-#   echo "******** NOTARIZING:"
-
-#   compress_hammerspoon_app
-#   upload_to_notary_service
-#   wait_for_notarization
-#   staple_notarization
-#   assert_notarization_acceptance
-# }
-
-# function localtest() {
-#   echo -n "******** TEST THE BUILD PLEASE ('yes' to confirm it works): "
-#   open -R build/Hammerspoon.app
-
-#   REPLY=""
-#   read -r REPLY
-
-#   if [ "${REPLY}" != "yes" ]; then
-#     echo "ERROR: User did not confirm testing, exiting."
-#     exit 1
-#   fi
-# }
-
-# function prepare_upload() {
-#   echo "******** PREPARING FOR UPLOAD:"
-
-#   compress_hammerspoon_app
-# }
-
-# function archive() {
-#   echo "******** ARCHIVING MATERIALS:"
-
-#   archive_hammerspoon_app
-#   archive_dSYMs
-#   archive_dSYM_UUIDs
-#   archive_docs
-# }
-
-# function upload() {
-#   echo "******** UPLOADING:"
-
-#   release_add_to_github
-#   release_upload_binary
-#   release_upload_docs
-#   release_submit_dash_docs
-#   release_update_appcast
-#   upload_dSYMs
-# }
-
-# function announce() {
-#   echo "******** TWEETING:"
-
-#   release_tweet
-# }
-
-# ############################### SANITY CHECKERS ###############################
-
-# function assert_github_hub() {
-#   echo "Checking hub(1) works..."
-#   pushd "${HAMMERSPOON_HOME}" >/dev/null
-#   if ! hub release </dev/null >/dev/null 2>&1 ; then
-#     fail "hub(1) doesn't seem to have access to the Hammerspoon repo"
-#   fi
-#   popd >/dev/null
-# }
-
-# function assert_github_release_token() {
-#   echo "Checking for GitHub release token..."
-#   if [ ! -f "${GITHUB_TOKEN_FILE}" ]; then
-#     fail "You do not have a github token in ${GITHUB_TOKEN_FILE}"
-#   fi
-#   GITHUB_TOKEN=$(cat "${GITHUB_TOKEN_FILE}")
-#   if ! github-release info >/dev/null 2>&1 ; then
-#     fail "Your github-release token doesn't seem to work"
-#   fi
-# }
-
-# function assert_codesign_authority_token() {
-#   echo "Checking for codesign authority token..."
-#   if [ ! -f "${CODESIGN_AUTHORITY_TOKEN_FILE}" ]; then
-#     fail "You do not have a code signing authority token in ${CODESIGN_AUTHORITY_TOKEN_FILE} (hint, it should look like 'Authority=Developer ID Application: Foo Bar (ABC123)'"
-#   fi
-# }
-
-# function assert_notarization_token() {
-#   echo "Checking for notarization token..."
-#   if [ ! -f "${NOTARIZATION_TOKEN_FILE}" ]; then
-#     fail "You do not have a notarization token in ${NOTARIZATION_TOKEN_FILE}"
-#   fi
-# }
-
-# function assert_sentry_tokens() {
-#   echo "Checking for Sentry auth token..."
-#   if [ ! -f "${SENTRY_TOKEN_AUTH_FILE}" ]; then
-#     fail "You do not have a Sentry auth tokens in ${SENTRY_TOKEN_AUTH_FILE}"
-#   fi
-
-#   echo "Checking for Sentry API token..."
-#   if [ ! -f "${SENTRY_TOKEN_API_FILE}" ]; then
-#     fail "You do not have a Sentry API token in ${SENTRY_TOKEN_API_FILE}"
-#   fi
-# }
-
-# function assert_version_in_git_tags() {
-#   if [ "$NIGHTLY" == "1" ] || [ "$LOCAL" == "1" ]; then
-#       echo "Skipping git tag check in nightly build."
-#       return
-#   fi
-
-#   echo "Checking git tag..."
-#   pushd "${HAMMERSPOON_HOME}" >/dev/null
-#   local TAGTYPE
-#   TAGTYPE="$(git cat-file -t "$VERSION")"
-#   if [ "$TAGTYPE" != "tag" ]; then
-#       fail "$VERSION is not an annotated tag, it's either missing or a lightweight tag"
-#   fi
-
-#   local GITVER
-#   GITVER="$(git tag | grep "$VERSION")"
-#   popd >/dev/null
-
-#   if [ "$VERSION" != "$GITVER" ]; then
-#       pushd "${HAMMERSPOON_HOME}" >/dev/null
-#       git tag
-#       popd >/dev/null
-#       fail "You asked for $VERSION to be released, but git does not know about it"
-#   fi
-# }
-
-# function assert_version_not_in_github_releases() {
-#   if [ "$NIGHTLY" == "1" ] || [ "$LOCAL" == "1" ]; then
-#       echo "Skipping GitHub release check in nightly build."
-#       return
-#   fi
-
-#   echo "Checking GitHub for pre-existing releases..."
-#   if github-release info -t "$VERSION" >/dev/null 2>&1 ; then
-#       github-release info -t "$VERSION"
-#       fail "github already seems to have version $VERSION"
-#   fi
-# }
-
-
-
-# function assert_website_repo() {
-#   echo "Checking website repo..."
-#   pushd "${HAMMERSPOON_HOME}/../" >/dev/null
-#   if [ ! -d website/.git ]; then
-#     fail "website repo does not exist. git clone git@github.com:Hammerspoon/hammerspoon.github.io.git"
-#   fi
-#   pushd website >/dev/null
-#   if ! git diff-index --quiet HEAD -- ; then
-#     fail "website repo has uncommitted changes"
-#   fi
-#   git fetch origin
-#   local DESYNC
-#   DESYNC=$(git rev-list --left-right "@{upstream}"...HEAD)
-#   if [ "${DESYNC}" != "" ]; then
-#     echo "$DESYNC"
-#     fail "website repo is not in sync with upstream"
-#   fi
-#   popd >/dev/null
-#   popd >/dev/null
-# }
-
-# ############################ POST-BUILD FUNCTIONS #############################
-
-# function archive_docs() {
-#   echo "Archiving docs..."
-#   pushd "${HAMMERSPOON_HOME}/../" >/dev/null
-#   mkdir -p "archive/${VERSION}/docs"
-#   cp -a "${HAMMERSPOON_HOME}/build/html" "archive/${VERSION}/docs/"
-
-#   pushd "archive/${VERSION}" >/dev/null
-#   zip -yrq "Hammerspoon-docs-${VERSION}.zip" docs
-#   popd >/dev/null
-
-#   popd >/dev/null
-# }
-
-# function archive_dSYM_UUIDs() {
-#   echo "Archiving dSYM UUIDs..."
-#   pushd "${HAMMERSPOON_HOME}/../archive/${VERSION}/dSYM/" >/dev/null
-#   find . -name '*.dSYM' -exec dwarfdump -u {} \; >../dSYM_UUID.txt
-#   popd >/dev/null
-# }
-
-# ############################# RELEASE FUNCTIONS ###############################
-
-# function release_add_to_github() {
-#   echo "Adding release..."
-#   github-release release --tag "$VERSION"
-# }
-
-# function release_upload_binary() {
-#   echo "Uploading binary..."
-#   github-release upload --tag "$VERSION" -n "Hammerspoon-${VERSION}.zip" -f "${HAMMERSPOON_HOME}/build/Hammerspoon-${VERSION}.zip"
-# }
-
-# function release_upload_docs() {
-#   echo "Uploading docs to github..."
-#   pushd "${HAMMERSPOON_HOME}/../" >/dev/null
-#   mv "${HAMMERSPOON_HOME}/build/html" "website/docs/${VERSION}"
-#   rm website/docs/*.html
-#   cp website/docs/"${VERSION}"/*.{html,css,json,js} website/docs/
-#   cp -r website/docs/"${VERSION}"/LuaSkin website/docs/
-#   pushd website >/dev/null
-#   git add --all "docs/"
-#   git commit -qam "Add docs for ${VERSION}"
-#   git push -q
-#   popd >/dev/null
-#   popd >/dev/null
-# }
-
-# function release_submit_dash_docs() {
-#   echo "Uploading docs to Dash..."
-#   pushd "${HAMMERSPOON_HOME}/../" >/dev/null
-#   rm -rf dash
-#   git clone -q git@github.com:Kapeli/Dash-User-Contributions.git dash
-#   cp "${HAMMERSPOON_HOME}/build/Hammerspoon.tgz" dash/docsets/Hammerspoon/
-#   pushd dash >/dev/null
-#   git remote add hammerspoon git@github.com:hammerspoon/Dash-User-Contributions.git
-#   cat > docsets/Hammerspoon/docset.json <<EOF
-#   {
-#       "name": "Hammerspoon",
-#       "version": "${VERSION}",
-#       "archive": "Hammerspoon.tgz",
-#       "author": {
-#           "name": "Hammerspoon Team",
-#           "link": "https://www.hammerspoon.org/"
-#       },
-#       "aliases": [],
-
-#       "specific_versions": [
-#       ]
-#   }
-# EOF
-#   git add docsets/Hammerspoon/Hammerspoon.tgz
-#   git commit -qam "Update Hammerspoon docset to ${VERSION}"
-#   git push -qfv hammerspoon master
-#   hub pull-request -f -m "Update Hammerspoon docset to ${VERSION}" -h hammerspoon:master || true
-#   popd >/dev/null
-#   popd >/dev/null
-# }
-
-# function release_update_appcast() {
-#   echo "Updating appcast.xml..."
-#   pushd "${HAMMERSPOON_HOME}/" >/dev/null
-#   local BUILD_NUMBER=$(git rev-list $(git symbolic-ref HEAD | sed -e 's,.*/\\(.*\\),\\1,') --count)
-#   local NEWCHUNK="<!-- __UPDATE_MARKER__ -->
-#         <item>
-#             <title>Version ${VERSION}</title>
-#             <sparkle:releaseNotesLink>
-#                 https://www.hammerspoon.org/releasenotes/${VERSION}.html
-#             </sparkle:releaseNotesLink>
-#             <pubDate>$(date +"%a, %e %b %Y %H:%M:%S %z")</pubDate>
-#             <enclosure url=\"https://github.com/Hammerspoon/hammerspoon/releases/download/${VERSION}/Hammerspoon-${VERSION}.zip\"
-#                 sparkle:version=\"${BUILD_NUMBER}\"
-#                 sparkle:shortVersionString=\"${VERSION}\"
-#                 length=\"${ZIPLEN}\"
-#                 type=\"application/octet-stream\"
-#             />
-#             <sparkle:minimumSystemVersion>10.12</sparkle:minimumSystemVersion>
-#         </item>
-# "
-#   gawk -i inplace -v s="<!-- __UPDATE_MARKER__ -->" -v r="${NEWCHUNK}" '{gsub(s,r)}1' appcast.xml
-#   git add appcast.xml
-#   git commit -qam "Update appcast.xml for ${VERSION}"
-#   git push
-#   popd >/dev/null
-# }
-
-# function release_tweet() {
-#   echo "Tweeting release..."
-#   local CURRENT
-#   CURRENT=$(t accounts | grep -B1 active | head -1)
-#   t set active _hammerspoon
-#   t update "Just released ${VERSION} - https://www.hammerspoon.org/releasenotes/"
-#   t set active "$CURRENT"
-# }
-
