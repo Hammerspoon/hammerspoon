@@ -121,6 +121,8 @@ function op_validate() {
 function op_docs() {
     op_docs_assert
 
+    local LSDOCSDIR="${HAMMERSPOON_HOME}/build/html/LuaSkin"
+
     if [ "${DOCS_LINT_ONLY}" == 1 ]; then
         "${HAMMERSPOON_HOME}/scripts/docs/bin/build_docs.py" -l "${DOCS_SEARCH_DIRS[*]}"
         echo "Docs lint OK"
@@ -151,21 +153,23 @@ function op_docs() {
         echo "Building docs Dash..."
         local DASHDIR="${HAMMERSPOON_HOME}/build/Hammerspoon.docset"
         rm -rf "${DASHDIR}"
+        rm -rf "${LSDOCSDIR}"
         cp -R "${HAMMERSPOON_HOME}/scripts/docs/templates/Hammerspoon.docset" "${DASHDIR}"
         cp "${HAMMERSPOON_HOME}/build/docs.sqlite" "${DASHDIR}/Contents/Resources/docSet.dsidx"
         cp "${HAMMERSPOON_HOME}"/build/html/* "${DASHDIR}/Contents/Resources/Documents/"
-        tar -cvf "${HAMMERSPOON_HOME}/build/Hammerspoon.tgz" -C "${HAMMERSPOON_HOME}/build" Hammerspoon.docset
+        tar -cvf "${HAMMERSPOON_HOME}/build/Hammerspoon.tgz" -C "${HAMMERSPOON_HOME}/build" Hammerspoon.docset >"${BUILD_HOME}/docset-tar.log" 2>&1
     fi
 
     if [ "${DOCS_LUASKIN}" == 1 ]; then
         echo "Building docs LuaSkin..."
-        local LSDOCSDIR="${HAMMERSPOON_HOME}/build/html/LuaSkin"
         mkdir -p "${LSDOCSDIR}"
-        headerdoc2html -u -o "${LSDOCSDIR}" "${HAMMERSPOON_HOME}/LuaSkin/LuaSkin/Skin.h"
-        resolveLinks "${LSDOCSDIR}"
+        headerdoc2html -u -o "${LSDOCSDIR}" "${HAMMERSPOON_HOME}/LuaSkin/LuaSkin/Skin.h" >"${BUILD_HOME}/luaskin-headerdoc.log" 2>&1
+        resolveLinks "${LSDOCSDIR}" >"${BUILD_HOME}/luaskin-resolveLinks.log" 2>&1
         mv "${LSDOCSDIR}"/Skin_h/* "${LSDOCSDIR}"
         rmdir "${LSDOCSDIR}/Skin_h"
     fi
+
+    echo "Docs built"
 }
 
 function op_installdeps() {
