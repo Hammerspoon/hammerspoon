@@ -246,6 +246,12 @@ export SENTRY_TOKEN_API_FILE="${TOKENPATH}/token-sentry-api"
 export SENTRY_TOKEN_AUTH_FILE="${TOKENPATH}/token-sentry-auth"
 export NOTARIZATION_TOKEN_FILE="${TOKENPATH}/token-notarization"
 
+# Calculate options for xcbeautify
+export XCB_OPTS=(-q)
+if [ "${IS_CI}" == "1" ] || [ "${DEBUG}" == "1" ]; then
+    XCB_OPTS=()
+fi
+
 # Import our function library
 # shellcheck source=scripts/librelease.sh disable=SC1091
 source "${SCRIPT_HOME}/libbuild.sh"

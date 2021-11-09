@@ -11,8 +11,11 @@ function fail() {
 ############################# TOP LEVEL COMMANDS #############################
 
 function op_clean() {
-    echo "Cleaning..."
+    echo "Cleaning build folder..."
     ${RM} -rf "${BUILD_HOME}"
+
+    echo "Cleaning temporary build folders..."
+    xcodebuild -workspace Hammerspoon.xcworkspace -scheme "${XCODE_SCHEME}" -configuration "${XCODE_CONFIGURATION}" -destination "platform=macOS" clean | xcbeautify "${XCB_OPTS[@]:-""}"
 }
 
 function op_build() {
@@ -27,15 +30,6 @@ function op_build() {
 
     echo "Building..."
     ${RM} -rf "${HAMMERSPOON_BUNDLE_PATH}"
-
-    local XCB_OPTS=(-q)
-    if [ "${IS_CI}" == "1" ] || [ "${DEBUG}" == "1" ]; then
-        XCB_OPTS=()
-    fi
-
-    # Clean the temporary build folders
-    echo "Cleaning temporary build folders..."
-    xcodebuild -workspace Hammerspoon.xcworkspace -scheme "${XCODE_SCHEME}" -configuration "${XCODE_CONFIGURATION}" -destination "platform=macOS" clean | xcbeautify "${XCB_OPTS[@]:-""}"
 
     # Build the app
     echo "-> xcodebuild -workspace Hammerspoon.xcworkspace -scheme ${XCODE_SCHEME} -configuration ${XCODE_CONFIGURATION} -destination \"platform=macOS\" -archivePath ${HAMMERSPOON_XCARCHIVE_PATH} archive | tee ${BUILD_HOME}/${XCODE_CONFIGURATION}-build.log"
