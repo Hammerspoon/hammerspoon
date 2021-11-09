@@ -43,12 +43,14 @@ function op_build() {
                -configuration "${XCODE_CONFIGURATION}" \
                -destination "platform=macOS" \
                -archivePath "${HAMMERSPOON_XCARCHIVE_PATH}" \
-               archive | tee "${BUILD_HOME}/${XCODE_CONFIGURATION}-build.log" | xcbeautify "${XCB_OPTS[@]:-""}"
+               "${BUILD_COMMAND}" | tee "${BUILD_HOME}/${XCODE_CONFIGURATION}-build.log" | xcbeautify "${XCB_OPTS[@]:-""}"
 
-    # Export the app bundle from the archive
-    xcodebuild -exportArchive -archivePath "${HAMMERSPOON_XCARCHIVE_PATH}" \
-               -exportOptionsPlist Hammerspoon/Build\ Configs/Archive-Export-Options.plist \
-               -exportPath "${BUILD_HOME}"
+    if [ "${BUILD_COMMAND}" == "archive" ]; then
+        # Export the app bundle from the archive
+        xcodebuild -exportArchive -archivePath "${HAMMERSPOON_XCARCHIVE_PATH}" \
+                   -exportOptionsPlist Hammerspoon/Build\ Configs/Archive-Export-Options.plist \
+                   -exportPath "${BUILD_HOME}"
+    fi
 
     # Upload dSYMs to Sentry if so desired
     if [ "${UPLOAD_DSYM}" == "1" ]; then
