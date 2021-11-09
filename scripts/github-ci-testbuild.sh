@@ -1,8 +1,9 @@
 #!/bin/bash
+# Build for testing
 
-set -e
+set -eu
 set -o pipefail
 
-mkdir -p artifacts
+export IS_CI=1
 
-xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release build-for-testing GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES | tee artifacts/build.log | xcbeautify
+./scripts/build.sh build -s Release -e -x "Hammerspoon/Build Configs/Hammerspoon-Test.xcconfig"

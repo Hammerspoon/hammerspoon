@@ -11,7 +11,6 @@
 
 #include "../../Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon.release.xcconfig"
 #include "Hammerspoon-Base.xcconfig"
-#include? "Hammerspoon-Downstream.xcconfig"
 
 // Code Signing Entitlements
 CODE_SIGN_ENTITLEMENTS = Hammerspoon/Hammerspoon.entitlements
@@ -20,3 +19,4 @@ CODE_SIGN_ENTITLEMENTS = Hammerspoon/Hammerspoon.entitlements
 CODE_SIGN_IDENTITY = Developer ID Application
 DEVELOPMENT_TEAM = VQCYSNZB89
 
+#include? "Hammerspoon-Downstream.xcconfig"

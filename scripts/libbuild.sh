@@ -31,6 +31,11 @@ function op_build() {
     echo "Building..."
     ${RM} -rf "${HAMMERSPOON_BUNDLE_PATH}"
 
+    local BUILD_COMMAND="archive"
+    if [ "${BUILD_FOR_TESTING}" == "1" ]; then
+        BUILD_COMMAND="build-for-testing"
+    fi
+
     # Build the app
     echo "-> xcodebuild -workspace Hammerspoon.xcworkspace -scheme ${XCODE_SCHEME} -configuration ${XCODE_CONFIGURATION} -destination \"platform=macOS\" -archivePath ${HAMMERSPOON_XCARCHIVE_PATH} archive | tee ${BUILD_HOME}/${XCODE_CONFIGURATION}-build.log"
     xcodebuild -workspace Hammerspoon.xcworkspace \
@@ -56,6 +61,18 @@ function op_build() {
         export SENTRY_AUTH_TOKEN
         "${HAMMERSPOON_HOME}/scripts/sentry-cli" upload-dif "${HAMMERSPOON_XCARCHIVE_PATH}/dSYMs/" 2>&1 | tee "${BUILD_HOME}/sentry-upload.log"
     fi
+}
+
+function op_test() {
+    op_test_assert
+
+    mkdir -p "${BUILD_HOME}/reports"
+
+    xcodebuild -workspace Hammerspoon.xcworkspace \
+               -scheme "${XCODE_SCHEME}" \
+               -configuration "${XCODE_CONFIGURATION}" \
+               -destination "platform=macOS" \
+               test-without-building 2>&1 | tee "${BUILD_HOME}/test.log" | xcbeautify "${XCB_OPTS[@]:-""}"
 }
 
 function op_validate() {
@@ -356,6 +373,11 @@ function op_build_assert() {
             fail "Release build requested, but no Sentry API token exists at: ${SENTRY_TOKEN_API_FILE}"
         fi
     fi
+}
+
+function op_test_assert() {
+    # Nothing to assert here for now
+    return
 }
 
 function op_docs_assert() {

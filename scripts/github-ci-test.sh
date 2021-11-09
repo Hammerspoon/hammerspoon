@@ -1,9 +1,17 @@
 #!/bin/bash
+# Run tests
+
+set -eu
+set -o pipefail
+
+export IS_CI=1
 
 mkdir -p artifacts
 mkdir -p build/reports
 
-xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release test-without-building 2>&1 | tee artifacts/test.log | xcbeautify
+./scripts/build.sh test -s Release
+
+mv build/test.log artifacts
 
 BUILD_ROOT="$(xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release -showBuildSettings | sort | uniq | grep " BUILD_ROOT =" | awk '{ print $3 }')"
 

@@ -1,7 +1,10 @@
 #!/bin/bash
+# Import build secrets
 
 set -eu
 set -o pipefail
+
+export IS_CI=1
 
 SECURITY="/usr/bin/security"
 KEYCHAIN="build.keychain"

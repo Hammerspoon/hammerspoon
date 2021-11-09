@@ -1,8 +1,10 @@
 #!/bin/bash
+# Lint and build docs
 
-set -e
+set -eu
 set -o pipefail
 
-make doclint
-make docs
-make build/html/LuaSkin
+export IS_CI=1
+
+./scripts/build.sh docs -l
+./scripts/build.sh docs

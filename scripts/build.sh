@@ -9,6 +9,7 @@ XCODE_SCHEME="Hammerspoon"
 XCODE_CONFIGURATION="Debug"
 XCCONFIG_FILE=""
 UPLOAD_DSYM=0
+BUILD_FOR_TESTING=0
 KEYCHAIN_PROFILE="HAMMERSPOON_BUILDSH"
 TWITTER_ACCOUNT="_hammerspoon"
 DEBUG=0
@@ -27,6 +28,7 @@ function usage() {
     echo "  installdeps   - Install all Hammerspoon build dependencies"
     echo "  clean         - Erase build directory"
     echo "  build         - Build Hammerspoon.app"
+    echo "  test          - Test Hammerspoon.app"
     echo "  validate      - Validate signature/gatekeeper/entitlements"
     echo "  docs          - Build documentation"
     echo "  notarize      - Notarize a Hammerspoon.app bundle with Apple (note that it must be signed first)"
@@ -42,6 +44,7 @@ function usage() {
     echo "  -c             - Hammerspoon build configuration (Default: Debug)"
     echo "  -x             - Use build settings from a .xcconfig file (Default: None)"
     echo "  -u             - Upload debug symbols to crash reporting service (Default: No)"
+    echo "  -e             - Build for testing"
     echo ""
     echo "DOCS OPTIONS:"
     echo "By default all docs are built. Only one of the following options can be supplied."
@@ -77,12 +80,12 @@ OPERATION=${1:-unknown};shift
 if [ "${OPERATION}" == "-h" ] || [ "${OPERATION}" == "--help" ]; then
     usage
 fi
-if [ "${OPERATION}" != "build" ] && [ "${OPERATION}" != "docs" ] && [ "${OPERATION}" != "installdeps" ] && [ "${OPERATION}" != "notarize" ] && [ "${OPERATION}" != "archive" ] && [ "${OPERATION}" != "release" ] && [ "${OPERATION}" != "clean" ] && [ "${OPERATION}" != "validate" ]; then
+if [ "${OPERATION}" != "build" ] && [ "${OPERATION}" != "test" ] && [ "${OPERATION}" != "docs" ] && [ "${OPERATION}" != "installdeps" ] && [ "${OPERATION}" != "notarize" ] && [ "${OPERATION}" != "archive" ] && [ "${OPERATION}" != "release" ] && [ "${OPERATION}" != "clean" ] && [ "${OPERATION}" != "validate" ]; then
     usage
 fi;
 
 # Parse the rest of any arguments
-PARSED_ARGUMENTS=$(getopt ds:c:x:ujmtqakly:w: $*)
+PARSED_ARGUMENTS=$(getopt ds:c:x:ujmtqakly:w:e $*)
 if [ $? != 0 ]; then
     usage
 fi
@@ -106,6 +109,9 @@ do
             shift;;
         -u)
             UPLOAD_DSYM=1
+            shift;;
+        -e)
+            BUILD_FOR_TESTING=1
             shift;;
         -j)
             # JSON can be built without any of the others
@@ -181,6 +187,7 @@ if [ ${DEBUG} == 1 ]; then
     echo "XCCODE_CONFIGURATION is: ${XCODE_CONFIGURATION}"
     echo "XCCONFIG_FILE is: ${XCCONFIG_FILE:-None}"
     echo "UPLOAD_DSYM is: ${UPLOAD_DSYM}"
+    echo "BUILD_FOR_TESTING is: ${BUILD_FOR_TESTING}"
     echo "KEYCHAIN_PROFILE is: ${KEYCHAIN_PROFILE}"
     echo "DEBUG is: ${DEBUG}"
 
@@ -204,6 +211,7 @@ export XCODE_SCHEME
 export XCODE_CONFIGURATION
 export XCCONFIG_FILE
 export UPLOAD_DSYM
+export BUILD_FOR_TESTING
 export KEYCHAIN_PROFILE
 export TWITTER_ACCOUNT
 export DEBUG
@@ -230,6 +238,7 @@ export SCRIPT_HOME ; SCRIPT_HOME="$(dirname "$(greadlink -f "$0")")"
 export HAMMERSPOON_HOME ; HAMMERSPOON_HOME="$(greadlink -f "${SCRIPT_HOME}/../")"
 export WEBSITE_HOME ; WEBSITE_HOME="$(greadlink -f "${HAMMERSPOON_HOME}/../website")"
 export BUILD_HOME="${HAMMERSPOON_HOME}/build"
+export CI_ARTIFACTS_HOME="${HAMMERSPOON_HOME}/artifacts"
 
 export HAMMERSPOON_BUNDLE_NAME="Hammerspoon.app"
 export HAMMERSPOON_BUNDLE_PATH="${BUILD_HOME}/${HAMMERSPOON_BUNDLE_NAME}"
@@ -258,6 +267,9 @@ source "${SCRIPT_HOME}/libbuild.sh"
 
 # Make sure our build directory exists
 mkdir -p "${BUILD_HOME}"
+if [ "${IS_CI}" == "1" ]; then
+    mkdir -p "${CI_ARTIFACTS_HOME}"
+fi
 
 # Figure out which COMMAND we have been tasked with performing, and go do it
 case "${OPERATION}" in
@@ -266,6 +278,9 @@ case "${OPERATION}" in
         ;;
     "build")
         op_build
+        ;;
+    "test")
+        op_test
         ;;
     "validate")
         op_validate
