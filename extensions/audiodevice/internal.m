@@ -9,6 +9,7 @@
 // FIXME: Remove this, #2982
 // Maintain build compatibility with macOS 11 until GitHub Actions has a macOS 12 build environment
 #ifndef MAC_OS_VERSION_12_0
+#warning Building with MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_VERSION_12_0
     #define kAudioHardwareServiceDeviceProperty_VirtualMainVolume kAudioHardwareServiceDeviceProperty_VirtualMasterVolume
     #define kAudioHardwareServiceDeviceProperty_VirtualMainBalance kAudioHardwareServiceDeviceProperty_VirtualMasterBalance
 #endif
