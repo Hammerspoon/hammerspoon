@@ -6,6 +6,13 @@
 @import Darwin.C.math;
 #import <LuaSkin/LuaSkin.h>
 
+// FIXME: Remove this, #2982
+// Maintain build compatibility with macOS 11 until GitHub Actions has a macOS 12 build environment
+#if (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_VERSION_12_0)
+    #define kAudioHardwareServiceDeviceProperty_VirtualMainVolume kAudioHardwareServiceDeviceProperty_VirtualMasterVolume
+    #define kAudioHardwareServiceDeviceProperty_VirtualMainBalance kAudioHardwareServiceDeviceProperty_VirtualMasterBalance
+#endif
+
 #pragma mark - Library defines
 
 static const char *USERDATA_TAG            = "hs.audiodevice";
