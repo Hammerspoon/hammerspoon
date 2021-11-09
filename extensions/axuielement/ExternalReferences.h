@@ -4,12 +4,15 @@
 // FIXME: Remove this, #2982
 // These are no longer needed as of macOS 12, but they are still necessary for building on macOS 11 until GitHub Actions adds macOS 12 build environments
 #if (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_VERSION_12_0)
+#warning Building with MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_VERSION_12_0
     typedef CFTypeRef AXTextMarkerRangeRef ;
     typedef CFTypeRef AXTextMarkerRef ;
     extern CFTypeID        AXTextMarkerGetTypeID(void) __attribute__((weak_import)) ;
     extern AXTextMarkerRef AXTextMarkerCreate(CFAllocatorRef allocator, const char* bytes, CFIndex length) __attribute__((weak_import)) ;
     extern CFIndex         AXTextMarkerGetLength(AXTextMarkerRef text_marker) __attribute__((weak_import)) ;
     extern const char*     AXTextMarkerGetBytePtr(AXTextMarkerRef text_marker) __attribute__((weak_import)) ;
+#else
+#warning Building with MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_VERSION_12_0
 #endif
 
 extern CFTypeID             AXTextMarkerRangeGetTypeID(void) __attribute__((weak_import)) ;
