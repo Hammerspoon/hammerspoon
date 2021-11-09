@@ -5875,7 +5875,6 @@
 				9445CA0719083251002568BB /* Sources */,
 				9445CA0819083251002568BB /* Frameworks */,
 				4FB852372735B02400462DD0 /* Embed Frameworks */,
-				4FBE2D161B7268DF00407788 /* DISABLED: Copy extensions to bundle */,
 				4FF7395127344D370007074E /* Copy Extension Dylibs */,
 				4FF739B1273481C90007074E /* Copy Extension Lua files */,
 				9445CA0919083251002568BB /* Resources */,
@@ -6663,20 +6662,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "#Update build number with number of git commits if in release mode\nset -eux\n\n./scripts/update_version_build_numbers.sh\n";
-		};
-		4FBE2D161B7268DF00407788 /* DISABLED: Copy extensions to bundle */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "DISABLED: Copy extensions to bundle";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "set -eux\nexit 0\n\"${SRCROOT}/scripts/copy_extensions_to_bundle.sh\"\nxattr -cr ${BUILT_PRODUCTS_DIR}\n";
 		};
 		4FC09F7A19F99E48007542A6 /* Compile docs.json */ = {
 			isa = PBXShellScriptBuildPhase;
