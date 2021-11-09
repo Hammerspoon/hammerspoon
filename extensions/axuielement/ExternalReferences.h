@@ -3,7 +3,7 @@
 
 // FIXME: Remove this, #2982
 // These are no longer needed as of macOS 12, but they are still necessary for building on macOS 11 until GitHub Actions adds macOS 12 build environments
-#if (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_VERSION_12_0)
+#ifndef MAC_OS_VERSION_12_0
 #warning Building with MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_VERSION_12_0
     typedef CFTypeRef AXTextMarkerRangeRef ;
     typedef CFTypeRef AXTextMarkerRef ;
