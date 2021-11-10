@@ -6,6 +6,9 @@ set -o pipefail
 
 export IS_CI=1
 
+# We can't even installdeps without greadlink existing, so grab that first
+brew install coreutils
+
 # Install build dependencies
 ./scripts/build.sh installdeps
 
