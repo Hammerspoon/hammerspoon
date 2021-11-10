@@ -201,7 +201,7 @@ function op_installdeps() {
     /usr/bin/pip3 install -q --disable-pip-version-check -r "${HAMMERSPOON_HOME}/requirements.txt" || fail "Unable to install Python dependencies"
 
     echo "  Ruby packages..."
-    /usr/bin/gem install --user -q --silent t trainer 2>/dev/null || fail "Unable to install Ruby dependencies"
+    /usr/bin/gem install --user -q --silent t 2>/dev/null || fail "Unable to install Ruby dependencies"
 }
 
 function op_notarize() {
