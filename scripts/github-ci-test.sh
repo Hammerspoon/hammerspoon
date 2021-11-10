@@ -1,7 +1,7 @@
 #!/bin/bash
 # Run tests
 
-set -eu
+set -eux
 set -o pipefail
 
 export IS_CI=1
