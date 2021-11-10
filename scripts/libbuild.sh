@@ -72,6 +72,7 @@ function op_test() {
 
     # We have to allow things to fail, because test runs may fail and we want the output
     set +e
+    set +o pipefail
 #xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release test-without-building
 
     xcodebuild -workspace Hammerspoon.xcworkspace \
@@ -81,6 +82,7 @@ function op_test() {
 
     # Re-enable error capture
     set -e
+    set -o pipefail
 }
 
 function op_validate() {
