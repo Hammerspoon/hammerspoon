@@ -225,10 +225,11 @@ export DOCS_LINT_ONLY
 # Early sanity check that we have everything we need
 export PATH="$PATH:/opt/homebrew/bin"
 if [ "$(which greadlink)" == "" ]; then
-    echo "ERROR: Unable to find greadlink. Maybe '$0 installdeps'?"
+    echo "ERROR: Unable to find greadlink. Please run `brew install coreutils` and then `$0 installdeps`"
     exit 1
 fi
-export RM ; RM="$(gwhich grm) --one-file-system --preserve-root"
+# This silly which dancing is to ensure we don't trip over a zsh alias for 'grm' to 'git rm'
+export RM ; RM="$(which -a grm | grep -v aliased | head -1) --one-file-system --preserve-root"
 
 # Calculate some variables we need later
 echo "Gathing info..."
