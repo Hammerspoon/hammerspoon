@@ -70,13 +70,17 @@ function op_test() {
 
     mkdir -p "${BUILD_HOME}/reports"
 
-xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release test-without-building
+    # We have to allow things to fail, because test runs may fail and we want the output
+    set +e
+#xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release test-without-building
 
-#    xcodebuild -workspace Hammerspoon.xcworkspace \
-#               -scheme "${XCODE_SCHEME}" \
-#               -configuration "${XCODE_CONFIGURATION}" \
-#               -destination "platform=macOS" \
-#               test-without-building 2>&1 | tee "${BUILD_HOME}/test.log" | xcbeautify ${XCB_OPTS[@]:-}
+    xcodebuild -workspace Hammerspoon.xcworkspace \
+               -scheme "${XCODE_SCHEME}" \
+               -configuration "${XCODE_CONFIGURATION}" \
+               test-without-building 2>&1 | tee "${BUILD_HOME}/test.log" | xcbeautify ${XCB_OPTS[@]:-}
+
+    # Re-enable error capture
+    set -e
 }
 
 function op_validate() {
