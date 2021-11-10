@@ -6,6 +6,9 @@ set -o pipefail
 
 export IS_CI=1
 
+# Remove the pre-installed Cocoapods binary
+rm /usr/local/bin/pod
+
 # We can't even installdeps without greadlink existing, so grab that first
 brew install coreutils
 
