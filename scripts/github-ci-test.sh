@@ -9,7 +9,7 @@ export IS_CI=1
 mkdir -p artifacts
 mkdir -p build/reports
 
-./scripts/build.sh test -s Release
+./scripts/build.sh test -d -s Release
 
 mv build/test.log artifacts
 

@@ -260,7 +260,6 @@ export NOTARIZATION_TOKEN_FILE="${TOKENPATH}/token-notarization"
 export XCB_OPTS=(-q)
 if [ "${IS_CI}" == "1" ] || [ "${DEBUG}" == "1" ]; then
     XCB_OPTS=()
-    DEBUG=1 # Temporarily(?) turn DEBUG on when we're IN_CI
 fi
 
 # Import our function library
