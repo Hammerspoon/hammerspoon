@@ -144,29 +144,29 @@ function op_docs() {
     local DOCSCRIPT="${HAMMERSPOON_HOME}/scripts/docs/bin/build_docs.py"
 
     if [ "${DOCS_LINT_ONLY}" == 1 ]; then
-        "${DOCSCRIPT}" -l "${DOCS_SEARCH_DIRS[*]}"
+        "${DOCSCRIPT}" -l ${DOCS_SEARCH_DIRS[*]}
         echo "Docs lint OK"
         return # We return here because this option cannot be used with any of the subsequent ones
     fi
 
     if [ "${DOCS_JSON}" == 1 ]; then
         echo "Building docs JSON..."
-        "${DOCSCRIPT}" -o "${BUILD_HOME}" --json "${DOCS_SEARCH_DIRS[@]}"
+        "${DOCSCRIPT}" -o "${BUILD_HOME}" --json ${DOCS_SEARCH_DIRS[@]}
     fi
 
     if [ "${DOCS_MD}" == 1 ]; then
         echo "Building docs Markdown..."
-        "${DOCSCRIPT}" -o "${BUILD_HOME}" --markdown "${DOCS_SEARCH_DIRS[@]}"
+        "${DOCSCRIPT}" -o "${BUILD_HOME}" --markdown ${DOCS_SEARCH_DIRS[@]}
     fi
 
     if [ "${DOCS_HTML}" == 1 ]; then
         echo "Building docs HTML..."
-        "${DOCSCRIPT}" -o "${BUILD_HOME}" --html "${DOCS_SEARCH_DIRS[@]}"
+        "${DOCSCRIPT}" -o "${BUILD_HOME}" --html ${DOCS_SEARCH_DIRS[@]}
     fi
 
     if [ "${DOCS_SQL}" == 1 ]; then
         echo "Building docs SQLite..."
-        "${DOCSCRIPT}" -o "${BUILD_HOME}" --sql "${DOCS_SEARCH_DIRS[@]}"
+        "${DOCSCRIPT}" -o "${BUILD_HOME}" --sql ${DOCS_SEARCH_DIRS[@]}
     fi
 
     if [ "${DOCS_DASH}" == 1 ]; then
