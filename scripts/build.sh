@@ -199,6 +199,8 @@ if [ ${DEBUG} == 1 ]; then
     echo "DOCS_LUASKIN is: ${DOCS_LUASKIN}"
     echo "DOCS_LINT_ONLY is: ${DOCS_LINT_ONLY}"
 
+    # Enable script tracing, with timestamps
+    export PS4='+\t '
     set -x
 fi
 
