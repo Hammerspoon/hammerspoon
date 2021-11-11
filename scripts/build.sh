@@ -234,7 +234,7 @@ fi
 export RM ; RM="$(which -a grm | grep -v aliased | head -1) --one-file-system --preserve-root"
 
 # Calculate some variables we need later
-echo "Gathing info..."
+echo "Gathering info..."
 
 export SCRIPT_NAME ; SCRIPT_NAME="$(basename "$0")"
 export SCRIPT_HOME ; SCRIPT_HOME="$(dirname "$(greadlink -f "$0")")"
