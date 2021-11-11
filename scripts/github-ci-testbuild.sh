@@ -10,4 +10,5 @@ mkdir -p artifacts
 
 ./scripts/build.sh build -s Release -d -e -x "Hammerspoon/Build Configs/Hammerspoon-Test.xcconfig"
 
-mv build/Release-build.log artifacts/build.log
+# Note that even though we're building with the Release scheme, the above build actually uses the Debug configuration, so the output log is Debug-build.log
+mv build/Debug-build.log artifacts/build.log
