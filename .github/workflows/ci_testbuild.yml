@@ -75,7 +75,7 @@ jobs:
           channel: '#hammerspoon'
           nickname: 'HSGHA'
           message: |
-            CI for ${{ github.event.pull_request.html_url } (${{ github.actor }}):
+            CI for ${{ github.event.pull_request.html_url }} (${{ github.actor }}):
               * ${{ github.event.pull_request.title }}
               * ${{ steps.test.outputs.test_result }}
 
