@@ -8,5 +8,5 @@
 ---
 --- Your functions/chunks can return text, which will be returned by the action in Shortcuts.
 
-local module = require("hs.shortcuts.internal")
+local module = require("hs.libshortcuts")
 return module
