@@ -459,7 +459,6 @@
 		4FF73A1627349AE60007074E /* location_geocoder.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = D66B763A1DD6FD1400CA12E6 /* location_geocoder.lua */; };
 		4FF73A17273539EE0007074E /* doc.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 4FD0ABCA1B74B1C500A82496 /* doc.lua */; };
 		4FF73A18273539EE0007074E /* builder.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = D67F1B3C1EA9D65E00FEB411 /* builder.lua */; };
-		4FF73A19273539EE0007074E /* makeLuaDocs.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 4FD0ABCC1B74B1C500A82496 /* makeLuaDocs.lua */; };
 		4FF73A1A273539EE0007074E /* httpserver.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 4FD0AC231B74C62200A82496 /* httpserver.lua */; };
 		4FF73A1B273539EE0007074E /* httpserver_hsminweb.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = D6B772991CCB544B00908A59 /* httpserver_hsminweb.lua */; };
 		4FF73A1C273539EE0007074E /* cgilua_compatibility_functions.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = D6B772981CCB544B00908A59 /* cgilua_compatibility_functions.lua */; };
@@ -1333,7 +1332,6 @@
 				4FF73A2C27359C2C0007074E /* window_tiling.lua in Copy Extension Lua files */,
 				4FF73A17273539EE0007074E /* doc.lua in Copy Extension Lua files */,
 				4FF73A18273539EE0007074E /* builder.lua in Copy Extension Lua files */,
-				4FF73A19273539EE0007074E /* makeLuaDocs.lua in Copy Extension Lua files */,
 				4FF73A1A273539EE0007074E /* httpserver.lua in Copy Extension Lua files */,
 				4FF73A1B273539EE0007074E /* httpserver_hsminweb.lua in Copy Extension Lua files */,
 				4FF73A1C273539EE0007074E /* cgilua_compatibility_functions.lua in Copy Extension Lua files */,
