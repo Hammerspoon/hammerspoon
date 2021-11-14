@@ -9526,7 +9526,7 @@
 					"\"$(SDK_DIR)\"/usr/include/libxml2",
 				);
 				INFOPLIST_FILE = "Hammerspoon/CommandPost-Info.plist";
-				MARKETING_VERSION = 1.2.16;
+				MARKETING_VERSION = 1.2.17;
 				PRODUCT_BUNDLE_IDENTIFIER = org.latenitefilms.CommandPost;
 				PRODUCT_NAME = CommandPost;
 				STRIP_INSTALLED_PRODUCT = NO;
@@ -23326,7 +23326,7 @@
 				);
 				INFOPLIST_FILE = "Hammerspoon/CommandPost-Info.plist";
 				INTENTS_CODEGEN_LANGUAGE = "Objective-C";
-				MARKETING_VERSION = 1.2.16;
+				MARKETING_VERSION = 1.2.17;
 				PRODUCT_BUNDLE_IDENTIFIER = org.latenitefilms.CommandPost;
 				PRODUCT_NAME = CommandPost;
 				STRIP_INSTALLED_PRODUCT = NO;
@@ -23360,7 +23360,7 @@
 				);
 				INFOPLIST_FILE = "Hammerspoon/CommandPost-Info.plist";
 				INTENTS_CODEGEN_LANGUAGE = "Objective-C";
-				MARKETING_VERSION = 1.2.16;
+				MARKETING_VERSION = 1.2.17;
 				OTHER_CODE_SIGN_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = org.latenitefilms.CommandPost;
 				PRODUCT_NAME = CommandPost;
