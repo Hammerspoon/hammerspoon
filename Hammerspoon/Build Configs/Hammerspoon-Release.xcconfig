@@ -19,4 +19,4 @@ CODE_SIGN_ENTITLEMENTS = Hammerspoon/Hammerspoon.entitlements
 CODE_SIGN_IDENTITY = Developer ID Application
 DEVELOPMENT_TEAM = VQCYSNZB89
 
-#include? "Hammerspoon-Downstream.xcconfig"
+#include? "../../../Hammerspoon-Downstream.xcconfig"

@@ -11,4 +11,4 @@
 
 #include "../../Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon.debug.xcconfig"
 #include "Hammerspoon-Base.xcconfig"
-#include? "Hammerspoon-Downstream.xcconfig"
+#include? "../../../Hammerspoon-Downstream.xcconfig"

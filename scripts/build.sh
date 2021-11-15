@@ -4,6 +4,9 @@
 # Check if we're in a CI system
 export IS_CI=${IS_CI:-0}
 
+# Make it easy to fork us
+export APP_NAME="${APP_NAME:-"Hammerspoon"}"
+
 # Set some defaults that we'll override based on command line arguments
 XCODE_SCHEME="Hammerspoon"
 XCODE_CONFIGURATION="Debug"
@@ -25,13 +28,13 @@ DOCS_LINT_ONLY=0
 function usage() {
     echo "Usage $0 COMMAND [OPTIONS]"
     echo "COMMANDS:"
-    echo "  installdeps   - Install all Hammerspoon build dependencies"
+    echo "  installdeps   - Install all ${APP_NAME} build dependencies"
     echo "  clean         - Erase build directory"
-    echo "  build         - Build Hammerspoon.app"
-    echo "  test          - Test Hammerspoon.app"
+    echo "  build         - Build ${APP_NAME}.app"
+    echo "  test          - Test ${APP_NAME}.app"
     echo "  validate      - Validate signature/gatekeeper/entitlements"
     echo "  docs          - Build documentation"
-    echo "  notarize      - Notarize a Hammerspoon.app bundle with Apple (note that it must be signed first)"
+    echo "  notarize      - Notarize a ${APP_NAME}.app bundle with Apple (note that it must be signed first)"
     echo "  archive       - Archive the build/notarization artifacts"
     echo "  release       - Perform all the steps to upload a release"
     echo ""
@@ -243,7 +246,7 @@ export WEBSITE_HOME ; WEBSITE_HOME="$(greadlink -f "${HAMMERSPOON_HOME}/../websi
 export BUILD_HOME="${HAMMERSPOON_HOME}/build"
 export CI_ARTIFACTS_HOME="${HAMMERSPOON_HOME}/artifacts"
 
-export HAMMERSPOON_BUNDLE_NAME="Hammerspoon.app"
+export HAMMERSPOON_BUNDLE_NAME="${APP_NAME}.app"
 export HAMMERSPOON_BUNDLE_PATH="${BUILD_HOME}/${HAMMERSPOON_BUNDLE_NAME}"
 export HAMMERSPOON_XCARCHIVE_PATH="${HAMMERSPOON_BUNDLE_PATH}.xcarchive"
 export XCODE_BUILT_PRODUCTS_DIR ; XCODE_BUILT_PRODUCTS_DIR="$(xcodebuild -workspace Hammerspoon.xcworkspace -scheme "${XCODE_SCHEME}" -configuration "${XCODE_CONFIGURATION}" -destination "platform=macOS" -showBuildSettings | sort | uniq | grep ' BUILT_PRODUCTS_DIR =' | awk '{ print $3 }')"
