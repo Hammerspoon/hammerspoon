@@ -35,8 +35,6 @@ STRIP_INSTALLED_PRODUCT = NO
 
 // Always Search User Paths (Deprecated)
 ALWAYS_SEARCH_USER_PATHS = NO
-// Framework Search Paths
-FRAMEWORK_SEARCH_PATHS = $(SRCROOT)/**
 // Header Search Paths
 HEADER_SEARCH_PATHS = $(SRCROOT)/Pods/** $(SRCROOT)/Pods/Sentry/Sources/Sentry/include
 // User Header Search Paths

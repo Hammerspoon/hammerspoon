@@ -8202,10 +8202,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F7F3B7B272DE98800E05732 /* Hammerspoon-Profile.xcconfig */;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/build/Hammerspoon/Build/Products/Debug",
-				);
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -9926,10 +9922,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F7F3B7A272DE83500E05732 /* Hammerspoon-Debug.xcconfig */;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/build/Hammerspoon/Build/Products/Debug",
-				);
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -9941,10 +9933,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F7F3B7C272DE99200E05732 /* Hammerspoon-Release.xcconfig */;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/build/Hammerspoon/Build/Products/Debug",
-				);
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",

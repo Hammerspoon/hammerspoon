@@ -16,6 +16,3 @@ WARNING_CFLAGS = -Weverything $(inherited)
 
 // Treat warnings as errors
 GCC_TREAT_WARNINGS_AS_ERRORS = YES
-
-// FIXME: This was found in some extensions, do any of them actually need it?
-//FRAMEWORK_SEARCH_PATHS = $(inherited) $(PROJECT_DIR)
