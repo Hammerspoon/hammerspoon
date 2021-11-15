@@ -272,6 +272,7 @@
 		4FEF4D4F1C5FA01100E3B939 /* HSaudiodevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FEF4D4E1C5FA01000E3B939 /* HSaudiodevice.m */; };
 		4FEF4D551C5FBC0F00E3B939 /* test_audiodevice.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FEF4D531C5FBA9800E3B939 /* test_audiodevice.lua */; };
 		4FEF59431B29A352002344A7 /* HSGrowingTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FEF59421B29A352002344A7 /* HSGrowingTextField.m */; };
+		4FF0610C2743190D00FB15D6 /* window_layout.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 4FB602EE1DDBB0A900FA751B /* window_layout.lua */; };
 		4FF7395227344D740007074E /* libapplication.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FBE2CF91B7261A200407788 /* libapplication.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		4FF7395327344D740007074E /* libapplicationwatcher.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FBE2D101B72631600407788 /* libapplicationwatcher.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		4FF7395427344D740007074E /* libaudiodevice.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F70EED31B726D170025A7B3 /* libaudiodevice.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -446,7 +447,6 @@
 		4FF73A06273498BA0007074E /* wifi.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 4FD0ABA61B74AE6A00A82496 /* wifi.lua */; };
 		4FF73A07273498BA0007074E /* window.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 4FD0ABBD1B74AF9900A82496 /* window.lua */; };
 		4FF73A08273498BA0007074E /* window_filter.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 4FD0ABC81B74B0EC00A82496 /* window_filter.lua */; };
-		4FF73A09273498BA0007074E /* window_layout.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 4FB602EE1DDBB0A900FA751B /* window_layout.lua */; };
 		4FF73A0A273498BA0007074E /* window_switcher.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 4F11989E1FF0412600D279D8 /* window_switcher.lua */; };
 		4FF73A0E27349AE60007074E /* canvas.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = D68615F51E04D5990058A4F2 /* canvas.lua */; };
 		4FF73A0F27349AE60007074E /* canvas_matrix.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = D68615F81E04D5990058A4F2 /* canvas_matrix.lua */; };
@@ -1328,6 +1328,7 @@
 			dstPath = extensions/hs;
 			dstSubfolderSpec = 7;
 			files = (
+				4FF0610C2743190D00FB15D6 /* window_layout.lua in Copy Extension Lua files */,
 				4FF73A2B27359C2C0007074E /* window_highlight.lua in Copy Extension Lua files */,
 				4FF73A2C27359C2C0007074E /* window_tiling.lua in Copy Extension Lua files */,
 				4FF73A17273539EE0007074E /* doc.lua in Copy Extension Lua files */,
@@ -1428,7 +1429,6 @@
 				4FF73A06273498BA0007074E /* wifi.lua in Copy Extension Lua files */,
 				4FF73A07273498BA0007074E /* window.lua in Copy Extension Lua files */,
 				4FF73A08273498BA0007074E /* window_filter.lua in Copy Extension Lua files */,
-				4FF73A09273498BA0007074E /* window_layout.lua in Copy Extension Lua files */,
 				4FF73A0A273498BA0007074E /* window_switcher.lua in Copy Extension Lua files */,
 				4FF739B327348B2C0007074E /* crash.lua in Copy Extension Lua files */,
 				4FF739B2273481EB0007074E /* _coresetup.lua in Copy Extension Lua files */,
