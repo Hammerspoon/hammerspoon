@@ -78,6 +78,7 @@ function op_test() {
     xcodebuild -workspace Hammerspoon.xcworkspace \
                -scheme "${XCODE_SCHEME}" \
                -configuration "${XCODE_CONFIGURATION}" \
+               -resultBundlePath "${BUILD_HOME}/TestResults" \
                test-without-building 2>&1 | tee "${BUILD_HOME}/test.log" | xcbeautify ${XCB_OPTS[@]:-}
 
     # Re-enable error capture

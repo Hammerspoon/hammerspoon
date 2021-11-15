@@ -37,14 +37,23 @@ jobs:
         with:
           name: build.log
           path: artifacts/build.log
+
       - name: Run tests
         id: test
         run: ./scripts/github-ci-test.sh
+
+      - name: Display test results nicely
+        if: always()
+        uses: kishikawakatsumi/xcresulttool@v1.1.0
+        with:
+          path: build/TestResults.xcresult
+
       - name: Upload test coverage
         uses: codecov/codecov-action@v1
         with:
           verbose: true
         if: always()
+
       - name: Upload artifacts (test log)
         if: always()
         uses: actions/upload-artifact@v2
