@@ -42,12 +42,6 @@ jobs:
         id: test
         run: ./scripts/github-ci-test.sh
 
-      - name: Display test results nicely
-        if: always()
-        uses: kishikawakatsumi/xcresulttool@v1.1.0
-        with:
-          path: build/TestResults.xcresult
-
       - name: Upload test coverage
         uses: codecov/codecov-action@v1
         with:
