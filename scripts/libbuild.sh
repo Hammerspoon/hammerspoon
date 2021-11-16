@@ -207,7 +207,7 @@ function op_installdeps() {
     brew install coreutils jq xcbeautify gawk cocoapods gh || fail "Unable to install Homebrew dependencies"
 
     echo "  Python packages..."
-    /usr/bin/pip3 install --disable-pip-version-check -r "${HAMMERSPOON_HOME}/requirements.txt" || fail "Unable to install Python dependencies"
+    /usr/bin/pip3 install --user --disable-pip-version-check -r "${HAMMERSPOON_HOME}/requirements.txt" || fail "Unable to install Python dependencies"
 
     echo "  Ruby packages..."
     /usr/bin/gem install --user t || fail "Unable to install Ruby dependencies"
