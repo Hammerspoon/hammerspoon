@@ -42,6 +42,7 @@ jobs:
         id: version
         run: |
           echo ::set-output name=NIGHTLY_VERSION::$(git describe)
+          echo ::set-output name=RELEASE_VERSION::$(git describe --abbrev=0)
       - name: Build
         run: ./scripts/build.sh build -s Release -c Release
       - name: Generate API docs
@@ -80,7 +81,7 @@ jobs:
           path: release_notes.txt
 
       - name: Prepare artifacts
-        run: mv ../archive ./ ; ls ./archive
+        run: mv ../archive ./ ; find ./archive
 
       - name: Upload artifacts App bundle
         uses: actions/upload-artifact@v2
