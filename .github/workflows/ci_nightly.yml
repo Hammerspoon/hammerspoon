@@ -46,7 +46,7 @@ jobs:
       - name: Notarize
         run: ./scripts/build.sh notarize
       - name: Validate signing/notarization
-        run: ./scripts/build.sh validate
+        run: ./scripts/build.sh validate -d
       - name: Archive build
         run: ./scripts/build.sh archive
 
