@@ -43,6 +43,8 @@ jobs:
           echo ::set-output name=NIGHTLY_VERSION::$(git describe)
       - name: Build
         run: ./scripts/build.sh build -s Release -c Release
+      - name: Generate API docs
+        run: ./scripts/build.sh docs
       - name: Notarize
         run: ./scripts/build.sh notarize
       - name: Validate signing/notarization
@@ -78,6 +80,7 @@ jobs:
 
       - name: Prepare artifacts
         run: mv ../archive ./ ; ls ./archive
+
       - name: Upload artifacts App bundle
         uses: actions/upload-artifact@v2
         with:
@@ -93,11 +96,19 @@ jobs:
         with:
           name: Hammerspoon-docs-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
           path: archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/Hammerspoon-docs-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
+      - name: Upload artifacts docs json
+        uses: actions/upload-artifact@v2
+        with:
+          name: Hammerspoon-docs-${{ steps.version.outputs.NIGHTLY_VERSION }}.json
+          path: archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/docs.json
+
       - name: Upload artifacts Build log
         uses: actions/upload-artifact@v2
         with:
           name: Release-build.log
           path: archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/release-build.log
+
+
       - name: IRC notification
         uses: Gottox/irc-message-action@v2.1.0
         with:
