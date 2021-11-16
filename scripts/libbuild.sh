@@ -204,13 +204,13 @@ function op_docs() {
 function op_installdeps() {
     echo "Installing dependencies..." 
     echo "  Homebrew packages..."
-    brew install -q coreutils jq xcbeautify gawk cocoapods gh || fail "Unable to install Homebrew dependencies"
+    brew install coreutils jq xcbeautify gawk cocoapods gh || fail "Unable to install Homebrew dependencies"
 
     echo "  Python packages..."
-    /usr/bin/pip3 install -q --disable-pip-version-check -r "${HAMMERSPOON_HOME}/requirements.txt" || fail "Unable to install Python dependencies"
+    /usr/bin/pip3 install --disable-pip-version-check -r "${HAMMERSPOON_HOME}/requirements.txt" || fail "Unable to install Python dependencies"
 
     echo "  Ruby packages..."
-    /usr/bin/gem install --user -q --silent t 2>/dev/null || fail "Unable to install Ruby dependencies"
+    /usr/bin/gem install --user t 2>/dev/null || fail "Unable to install Ruby dependencies"
 }
 
 function op_keychain_prep() {

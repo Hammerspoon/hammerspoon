@@ -290,7 +290,7 @@ if [ "${IS_CI}" == "1" ] || [ "${DEBUG}" == "1" ]; then
 fi
 
 # Import our function library
-# shellcheck source=scripts/librelease.sh disable=SC1091
+# shellcheck source=scripts/libbuild.sh disable=SC1091
 source "${SCRIPT_HOME}/libbuild.sh"
 
 # Make sure our build directory exists
