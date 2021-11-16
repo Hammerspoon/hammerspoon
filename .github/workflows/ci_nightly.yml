@@ -43,6 +43,12 @@ jobs:
           echo ::set-output name=NIGHTLY_VERSION::$(git describe)
       - name: Build
         run: ./scripts/build.sh build -s Release -c Release
+      - name: Notarize
+        run: ./scripts/build.sh notarize
+      - name: Validate signing/notarization
+        run: ./scripts/build.sh validate
+      - name: Archive build
+        run: ./scripts/build.sh archive
 
       - name: Upload build log on failure
         if: failure()
