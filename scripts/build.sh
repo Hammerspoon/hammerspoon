@@ -3,6 +3,8 @@
 
 # Check if we're in a CI system
 export IS_CI=${IS_CI:-0}
+# Check if we're doing a nightly build
+export IS_NIGHTLY=${IS_NIGHTLY:-0}
 
 # Make it easy to fork us
 export APP_NAME="${APP_NAME:-"Hammerspoon"}"

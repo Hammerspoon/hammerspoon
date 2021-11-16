@@ -303,7 +303,7 @@ function op_notarize() {
 }
 
 function op_archive() {
-    local VERSION ; VERSION="$(release_version)"
+    local VERSION ; VERSION="$(get_version)"
     local ARCHIVE_PATH="${HAMMERSPOON_HOME}/../archive/${VERSION}"
 
     echo "Archiving to ${ARCHIVE_PATH}..."
@@ -588,6 +588,14 @@ function assert_cocoapods_state() {
 }
 
 ############################## UTILITY HELPERS ###############################
+function get_version() {
+    if [ "${IS_NIGHTLY}" == "1" ]; then
+        nightly_version
+    else
+        release_version
+    fi
+}
+
 function release_version() {
     local VERSION ; VERSION=$(cd "${HAMMERSPOON_HOME}" || fail "Unable to enter ${HAMMERSPOON_HOME}" ; git describe --abbrev=0)
     echo "${VERSION}"

@@ -12,6 +12,7 @@ jobs:
     runs-on: macos-11.0
     env:
       IS_CI: 1
+      IS_NIGHTLY: 1
 
     steps:
       - name: Checkout Hammerspoon Code
