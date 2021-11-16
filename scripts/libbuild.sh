@@ -130,7 +130,9 @@ function op_validate() {
 
   # Check that the app bundle has the expected entitlements
   local EXPECTED_ENTITLEMENTS ; EXPECTED_ENTITLEMENTS=$(xmllint --c14n --format "${HAMMERSPOON_HOME}/${ENTITLEMENTS_FILE}" 2>/dev/null)
-  local ACTUAL_ENTITLEMENTS ; ACTUAL_ENTITLEMENTS=$(codesign --display --entitlements - --xml "${HAMMERSPOON_BUNDLE_PATH}" | xmllint --c14n --format -)
+  # FIXME: the ':-' syntax is deprecated, when we stop caring about building on <Monterey machines, this is the correct new line
+  #local ACTUAL_ENTITLEMENTS ; ACTUAL_ENTITLEMENTS=$(codesign --display --entitlements - --xml "${HAMMERSPOON_BUNDLE_PATH}" | xmllint --c14n --format -)
+  local ACTUAL_ENTITLEMENTS ; ACTUAL_ENTITLEMENTS=$(codesign --display --entitlements :- "${HAMMERSPOON_BUNDLE_PATH}" | xmllint --c14n --format -)
 
   if [ "${EXPECTED_ENTITLEMENTS}" != "${ACTUAL_ENTITLEMENTS}" ]; then
       echo "***** EXPECTED ENTITLEMENTS (${ENTITLEMENTS_FILE}):"
