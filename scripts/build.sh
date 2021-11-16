@@ -14,6 +14,8 @@ XCCONFIG_FILE=""
 UPLOAD_DSYM=0
 BUILD_FOR_TESTING=0
 KEYCHAIN_PROFILE="HAMMERSPOON_BUILDSH"
+P12_FILE=""
+NOTARIZATION_CREDS_FILE=""
 TWITTER_ACCOUNT="_hammerspoon"
 DEBUG=0
 DOCS_JSON=1
@@ -34,6 +36,7 @@ function usage() {
     echo "  test          - Test ${APP_NAME}.app"
     echo "  validate      - Validate signature/gatekeeper/entitlements"
     echo "  docs          - Build documentation"
+    echo "  keychain-prep - Prepare a new default Keychain with required secrets for signing/notarizing"
     echo "  notarize      - Notarize a ${APP_NAME}.app bundle with Apple (note that it must be signed first)"
     echo "  archive       - Archive the build/notarization artifacts"
     echo "  release       - Perform all the steps to upload a release"
@@ -45,7 +48,7 @@ function usage() {
     echo "BUILD OPTIONS:"
     echo "  -s             - Hammerspoon build scheme (Default: Hammerspoon)"
     echo "  -c             - Hammerspoon build configuration (Default: Debug)"
-    echo "  -x             - Use build settings from a .xcconfig file (Default: None)"
+    echo "  -x             - Use extra build settings from a .xcconfig file (Default: None)"
     echo "  -u             - Upload debug symbols to crash reporting service (Default: No)"
     echo "  -e             - Build for testing"
     echo ""
@@ -59,6 +62,19 @@ function usage() {
     echo "  -a             - Build only Dash documentation"
     echo "  -k             - Build only LuaSkin documentation"
     echo "  -l             - Only lint docs, don't build anything"
+    echo ""
+    echo "KEYCHAIN-PREP OPTIONS:"
+    echo "Note: This command is primarily for use in CI. For local builds, manually import your Apple signing certificate"
+    echo "       and see the suggested xcrun command in NOTARIZATION OPTIONS below"
+    echo "  -s             - Hammerspoon build scheme (Default: Hammerspoon)"
+    echo "  -c             - Hammerspoon build configuration (Default: Debug)"
+    echo "  -x             - Use extrabuild settings from a .xcconfig file (Default: None)"
+    echo "  -p             - Import a .p12 containing the signing certificate (usually issued by Apple)"
+    echo "  -o             - Import Notarization credentials file. This should contain your developer"
+    echo "                   Apple ID and an App Specific Password for it, in the format:"
+    echo "                    NOTARIZATION_USERNAME=\"foo@bar.com\""
+    echo "                    NOTARIZATION_PASSWORD=\"abcd-1234-efgh-5678\""
+    echo "  -y             - Keychain profile name for notarization credentials (Default: HAMMERSPOON_BUILDSH)"
     echo ""
     echo "NOTARIZATION OPTIONS:"
     echo "Note: The keychain profile must be set up ahead of time using your developer Apple ID account and Team ID:"
@@ -83,12 +99,12 @@ OPERATION=${1:-unknown};shift
 if [ "${OPERATION}" == "-h" ] || [ "${OPERATION}" == "--help" ]; then
     usage
 fi
-if [ "${OPERATION}" != "build" ] && [ "${OPERATION}" != "test" ] && [ "${OPERATION}" != "docs" ] && [ "${OPERATION}" != "installdeps" ] && [ "${OPERATION}" != "notarize" ] && [ "${OPERATION}" != "archive" ] && [ "${OPERATION}" != "release" ] && [ "${OPERATION}" != "clean" ] && [ "${OPERATION}" != "validate" ]; then
-    usage
-fi;
+#if [ "${OPERATION}" != "build" ] && [ "${OPERATION}" != "test" ] && [ "${OPERATION}" != "docs" ] && [ "${OPERATION}" != "installdeps" ] && [ "${OPERATION}" != "notarize" ] && [ "${OPERATION}" != "archive" ] && [ "${OPERATION}" != "release" ] && [ "${OPERATION}" != "clean" ] && [ "${OPERATION}" != "validate" ] && [ "${OPERATION}" != "keychain-prep" ] ; then
+#    usage
+#fi;
 
 # Parse the rest of any arguments
-PARSED_ARGUMENTS=$(getopt ds:c:x:ujmtqakly:w:e $*)
+PARSED_ARGUMENTS=$(getopt ds:c:x:ujmtqakly:w:ep:o: $*)
 if [ $? != 0 ]; then
     usage
 fi
@@ -174,6 +190,12 @@ do
             shift;;
         -y)
             KEYCHAIN_PROFILE=${2}; shift
+            shift;;
+        -p)
+            P12_FILE="${2}"; shift
+            shift;;
+        -o)
+            NOTARIZATION_CREDS_FILE="${2}"; shift
             shift;;
         -w)
             TWITTER_ACCOUNT=${2}; shift
@@ -297,6 +319,9 @@ case "${OPERATION}" in
     "installdeps")
         op_installdeps
         ;;
+    "keychain-prep")
+        op_keychain_prep
+        ;;
     "notarize")
         op_notarize
         ;;
@@ -305,6 +330,10 @@ case "${OPERATION}" in
         ;;
     "release")
         op_release
+        ;;
+    *)
+        echo "Unknown command: ${OPERATION}"
+        usage
         ;;
 esac
 

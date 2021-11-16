@@ -213,6 +213,51 @@ function op_installdeps() {
     /usr/bin/gem install --user -q --silent t 2>/dev/null || fail "Unable to install Ruby dependencies"
 }
 
+function op_keychain_prep() {
+    echo " Preparing keychain..."
+    op_keychain_prep_assert
+
+    local SECBIN="/usr/bin/security"
+    local KEYCHAIN="build.keychain"
+
+    # Note: This will fail if KEYCHAIN_PASSPHRASE isn't set in the environment.
+    #  This is explicitly undocumented because this really shouldn't be called anywhere other than CI
+    if [ "${P12_FILE}" != "" ]; then
+        echo " Creating new default keychain: ${KEYCHAIN}"
+        "${SECBIN}" create-keychain -p "${KEYCHAIN_PASSPHRASE}" "${KEYCHAIN}"
+        "${SECBIN}" default-keychain -s "${KEYCHAIN}"
+
+        echo " Unlocking keychain..."
+        "${SECBIN}" unlock-keychain -p "${KEYCHAIN_PASSPHRASE}" "${KEYCHAIN}"
+
+        echo " Importing signing certificate/key..."
+        "${SECBIN}" import "${P12_FILE}" -f pkcs12 -k "${KEYCHAIN}" -P "${KEYCHAIN_PASSPHRASE}" -T /usr/bin/codesign -x
+
+        echo " Removing keychain autolocking settings..."
+        "${SECBIN}" set-keychain-settings -t 1200
+
+        echo " Setting permissions for keychain..."
+        "${SECBIN}" -q set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "${KEYCHAIN_PASSPHRASE}" "${KEYCHAIN}"
+
+        echo " Listing keychains:"
+        "${SECBIN}" list-keychains -d user
+
+        echo " Dumping keychain identity:"
+        "${SECBIN}" find-identity -v
+    fi
+
+    if [ "${NOTARIZATION_CREDS_FILE}" != "" ]; then
+        source "${NOTARIZATION_CREDS_FILE}"
+
+        local SIGN_TEAM ; SIGN_TEAM=$(xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release -configuration Release -showBuildSettings 2>&1 | grep -E " DEVELOPMENT_TEAM" | sed -e 's/.* = //')
+
+        xcrun notarytool store-credentials --sync "${KEYCHAIN_PROFILE}" --apple-id "${NOTARIZATION_USERNAME}" --team-id "${SIGN_TEAM}" --password "${NOTARIZATION_PASSWORD}"
+
+        unset NOTARIZATION_USERNAME
+        unset NOTARIZATION_PASSWORD
+    fi
+}
+
 function op_notarize() {
     echo " Notarizing ${HAMMERSPOON_BUNDLE_PATH}..."
     op_notarize_assert
@@ -408,6 +453,27 @@ function op_validate_assert() {
   if [ ! -e "${HAMMERSPOON_BUNDLE_PATH}" ]; then
     fail "Unable to validate ${HAMMERSPOON_BUNDLE_PATH}, it doesn't exist"
   fi
+}
+
+function op_keychain_prep_assert() {
+    if [ "${IS_CI}" != "1" ]; then
+        echo "You almost certainly don't want to do this keychain preparation outside of CI"
+        echo "If you are absolutely sure that you do want to, export IS_CI=1"
+        echo " BE WARNED: If you force this to run and give it a P12 file, it will create a new default keychain on your Mac"
+        fail "Refusing to continue"
+    fi
+
+    if [ "${P12_FILE}" == "" ] && [ "${NOTARIZATION_CREDS_FILE}" == "" ]; then
+        fail "Can't prepare a keychain without either a P12 file or a Notarization Credentials file (or both)"
+    fi
+
+    if [ "${P12_FILE}" != "" ] && [ ! -e "${P12_FILE}" ]; then
+        fail "Unable to access P12 signing certificate: ${P12_FILE}"
+    fi
+
+    if [ "${NOTARIZATION_CREDS_FILE}" != "" ] && [ ! -e "${NOTARIZATION_CREDS_FILE}" ]; then
+        fail "Unable to access Notarization credentials file: ${NOTARIZATION_CREDS_FILE}"
+    fi
 }
 
 function op_notarize_assert() {

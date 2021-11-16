@@ -10,6 +10,8 @@ jobs:
     name: Build and Sign
 
     runs-on: macos-11.0
+    env:
+      IS_CI: 1
 
     steps:
       - name: Checkout Hammerspoon Code
@@ -29,8 +31,8 @@ jobs:
         run: ./ci-secrets/crypto.sh decrypt
       - name: Prepare keychain
         env:
-          NIGHTLY_KEYCHAIN_PASSPHRASE: ${{ secrets.NIGHTLY_KEYCHAIN_PASSPHRASE }}
-        run: ./scripts/github-ci-nightly-keychain.sh
+          KEYCHAIN_PASSPHRASE: ${{ secrets.NIGHTLY_KEYCHAIN_PASSPHRASE }}
+        run: ./scripts/build.sh keychain-prep -s Release -c Release -p ./ci-secrets/Cleartext/Hammerspoon-Nightly-Certificates.p12 -o ./ci-secrets/Cleartext/token-notarization
       - name: Prepare secure tokens
         run: /bin/cp ./ci-secrets/Cleartext/token* ../
       - name: Remove Secrets checkout
@@ -39,10 +41,8 @@ jobs:
         id: version
         run: |
           echo ::set-output name=NIGHTLY_VERSION::$(git describe)
-      - name: Workaround xcodebuild not inheriting environment
-        run: touch ../is_github_actions
       - name: Build
-        run: ./scripts/release.sh --nightly
+        run: ./scripts/build.sh build -s Release -c Release
 
       - name: Upload build log on failure
         if: failure()
@@ -71,7 +71,7 @@ jobs:
           path: release_notes.txt
 
       - name: Prepare artifacts
-        run: mv ../archive ./
+        run: mv ../archive ./ ; ls ./archive
       - name: Upload artifacts App bundle
         uses: actions/upload-artifact@v2
         with:
