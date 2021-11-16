@@ -210,7 +210,7 @@ function op_installdeps() {
     /usr/bin/pip3 install --disable-pip-version-check -r "${HAMMERSPOON_HOME}/requirements.txt" || fail "Unable to install Python dependencies"
 
     echo "  Ruby packages..."
-    /usr/bin/gem install --user t 2>/dev/null || fail "Unable to install Ruby dependencies"
+    /usr/bin/gem install --user t || fail "Unable to install Ruby dependencies"
 }
 
 function op_keychain_prep() {
