@@ -47,6 +47,15 @@ static int shortcuts_list(lua_State *L) {
     return 1;
 }
 
+/// hs.shortcuts.run(name)
+/// Function
+/// Execute a Shortcuts shortcut by name
+///
+/// Parameters:
+///  * name - A string containing the name of the Shortcut to execute
+///
+/// Returns:
+///  * None
 static int shortcuts_run(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TBREAK];
