@@ -1,0 +1,154 @@
+//
+//  Project-Base.xcconfig
+//  Hammerspoon
+//
+//  Created by Chris Jones on 30/10/2021.
+//  Copyright © 2021 Hammerspoon. All rights reserved.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+// Base SDK
+SDKROOT = macosx
+// macOS Deployment Target
+MACOSX_DEPLOYMENT_TARGET = 10.15
+// Build Active Architecture Only
+ONLY_ACTIVE_ARCH = YES
+
+// Debug Information Format
+DEBUG_INFORMATION_FORMAT = dwarf-with-dsym
+// Other Warning Flags
+WARNING_CFLAGS = -Wno-cstring-format-directive -Wno-padded -Wno-objc-missing-property-synthesis -Wno-auto-import -Wno-gnu-statement-expression -Wno-reserved-id-macro -Wno-gnu-zero-variadic-macro-arguments -Wno-objc-messaging-id
+// Other Linker Flags
+OTHER_LDFLAGS = -undefined dynamic_lookup
+// Enable Testability
+ENABLE_TESTABILITY = YES
+// Strip Debug Symbols During Copy
+COPY_PHASE_STRIP = NO
+// Strip Linked Product
+STRIP_INSTALLED_PRODUCT = NO
+// Treat warnings as errors
+// FIXME: We really ought to have this enabled
+//GCC_TREAT_WARNINGS_AS_ERRORS = YES
+
+
+// Always Search User Paths (Deprecated)
+ALWAYS_SEARCH_USER_PATHS = NO
+// Header Search Paths
+HEADER_SEARCH_PATHS = $(SRCROOT)/Pods/** $(SRCROOT)/Pods/Sentry/Sources/Sentry/include
+// User Header Search Paths
+USER_HEADER_SEARCH_PATHS = $(HEADER_SEARCH_PATHS)
+
+// Optimization Level
+GCC_OPTIMIZATION_LEVEL = 0
+// Generate Position-Dependent Code
+GCC_DYNAMIC_NO_PIC = NO
+// No Common Blocks
+GCC_NO_COMMON_BLOCKS = YES
+// Symbols Hidden by Default
+GCC_SYMBOLS_PRIVATE_EXTERN = NO
+
+// Combine HiDPI Images
+COMBINE_HIDPI_IMAGES = YES
+
+// C Language Dialect
+GCC_C_LANGUAGE_STANDARD = gnu99
+// C++ Language Dialect
+CLANG_CXX_LANGUAGE_STANDARD = gnu++0x
+// C++ Standard Library
+CLANG_CXX_LIBRARY = libc++
+// Enable Modules (C and Objective-C)
+CLANG_ENABLE_MODULES = YES
+// Enable Objective-C Exceptions
+GCC_ENABLE_OBJC_EXCEPTIONS = YES
+// Objective-C Automatic Reference Counting
+CLANG_ENABLE_OBJC_ARC = YES
+// Enable Strict Checking of objc_msgSend Calls
+ENABLE_STRICT_OBJC_MSGSEND = YES
+// Preprocessor Macros
+GCC_PREPROCESSOR_DEFINITIONS = DEBUG=1 $(inherited)
+
+// Pedantic Warnings
+GCC_WARN_PEDANTIC = YES
+// Block Capture of Autoreleasing
+CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES
+// Empty Loop Bodies
+CLANG_WARN_EMPTY_BODY = YES
+// Implicit Boolean Conversions
+CLANG_WARN_BOOL_CONVERSION = YES
+// Implicit Constant Conversions
+CLANG_WARN_CONSTANT_CONVERSION = YES
+// Implicit Conversion to 32 Bit Type
+GCC_WARN_64_TO_32_BIT_CONVERSION = YES
+// Implicit Enum Conversions
+CLANG_WARN_ENUM_CONVERSION = YES
+// Implicit Integer to Pointer Conversions
+CLANG_WARN_INT_CONVERSION = YES
+// Implicit Non-Literal Null Conversions
+CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES
+// Infinite Recursion
+CLANG_WARN_INFINITE_RECURSION = YES
+// Mismatched Return Type
+GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR
+// Strict Prototypes
+CLANG_WARN_STRICT_PROTOTYPES = YES
+// Suspicious Commas
+CLANG_WARN_COMMA = YES
+// Uninitialized Variables
+GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE
+// Unreachable Code
+CLANG_WARN_UNREACHABLE_CODE = YES_AGGRESSIVE
+// Unused Functions
+GCC_WARN_UNUSED_FUNCTION = YES
+// Unused Variables
+GCC_WARN_UNUSED_VARIABLE = YES
+// Range-based For Loops
+CLANG_WARN_RANGE_LOOP_ANALYSIS = YES
+// Suspicious Moves
+CLANG_WARN_SUSPICIOUS_MOVE = YES
+// Direct usage of 'isa'
+CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR
+// Duplicate Method Definitions
+CLANG_WARN__DUPLICATE_METHOD_MATCH = YES
+// Implicit Objective-C Literal Conversions
+CLANG_WARN_OBJC_LITERAL_CONVERSION = YES
+// Overriding Deprecated Objective-C Methods
+CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES
+// Undeclared Selector
+GCC_WARN_UNDECLARED_SELECTOR = YES
+// Unintentional Root Class
+CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR
+// Implicit retain of 'self' within blocks
+CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES
+// Missing Localizability
+CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES
+// Dead Store static analysis
+CLANG_ANALYZER_DEADCODE_DEADSTORES = NO
+// Floats used as loop counters
+CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = YES
+// Use of rand()
+CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = YES
+// Use of strcpy() & strcat
+CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = YES
+
+// Experimenting with extra build warnings
+// Hidden Local Variables
+// FIXME: This breaks on hs.doc's autolink dependency
+//GCC_WARN_SHADOW = YES
+
+// TODO: Try these at some point
+//GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES
+//CLANG_WARN_IMPLICIT_SIGN_CONVERSION = YES
+//GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES
+//GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES
+//GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES
+//GCC_WARN_ABOUT_MISSING_NEWLINE = YES
+//CLANG_WARN_ASSIGN_ENUM = YES
+//GCC_WARN_SIGN_COMPARE = YES
+//CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES
+//GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = YES
+//GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES
+//GCC_WARN_UNKNOWN_PRAGMAS = YES
+//GCC_WARN_UNUSED_LABEL = YES
+//GCC_WARN_UNUSED_PARAMETER = YES

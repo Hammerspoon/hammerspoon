@@ -1,0 +1,27 @@
+//
+//  LuaSkin-Release.xcconfig
+//  LuaSkin
+//
+//  Created by Chris Jones on 02/11/2021.
+//  Copyright © 2021 Hammerspoon. All rights reserved.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+#include "LuaSkin-Base.xcconfig"
+
+// Code Signing Identity
+CODE_SIGN_IDENTITY = Developer ID Application
+DEVELOPMENT_TEAM = VQCYSNZB89
+
+// Preprocessor Macros
+GCC_PREPROCESSOR_DEFINITIONS =
+
+// Build Active Architecture Only
+ONLY_ACTIVE_ARCH = NO
+// Enable Testability
+ENABLE_TESTABILITY = NO
+
+// Optimization Level
+GCC_OPTIMIZATION_LEVEL = s

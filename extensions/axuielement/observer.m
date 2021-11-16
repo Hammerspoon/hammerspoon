@@ -547,7 +547,7 @@ static const luaL_Reg module_metaLib[] = {
     {NULL,   NULL}
 } ;
 
-int luaopen_hs_axuielement_observer(lua_State* L) {
+int luaopen_hs_libaxuielementobserver(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     refTable = [skin registerLibraryWithObject:OBSERVER_TAG
                                      functions:moduleLib

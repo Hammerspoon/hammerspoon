@@ -1,5 +1,5 @@
 # Uncomment this line to define a global platform for your project
-platform :osx, '10.13'
+platform :osx, '10.15'
 
 inhibit_all_warnings!
 
@@ -26,7 +26,7 @@ post_install do |installer|
    target.build_configurations.each do |config|
      config.build_settings['ENABLE_NS_ASSERTIONS'] = 'YES'
      if ['10.6', '10.7', '10.8'].include? config.build_settings['MACOSX_DEPLOYMENT_TARGET']
-       config.build_settings['MACOSX_DEPLOYMENT_TARGET'] = '10.13'
+       config.build_settings['MACOSX_DEPLOYMENT_TARGET'] = '10.15'
      end
    end
   end

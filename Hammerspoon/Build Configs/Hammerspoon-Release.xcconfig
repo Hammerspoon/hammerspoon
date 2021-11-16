@@ -1,0 +1,22 @@
+//
+//  Hammerspoon-Release.xcconfig
+//  Hammerspoon
+//
+//  Created by Chris Jones on 30/10/2021.
+//  Copyright © 2021 Hammerspoon. All rights reserved.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+#include "../../Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon.release.xcconfig"
+#include "Hammerspoon-Base.xcconfig"
+
+// Code Signing Entitlements
+CODE_SIGN_ENTITLEMENTS = Hammerspoon/Hammerspoon.entitlements
+
+// Code Signing Identity
+CODE_SIGN_IDENTITY = Developer ID Application
+DEVELOPMENT_TEAM = VQCYSNZB89
+
+#include? "../../../Hammerspoon-Downstream.xcconfig"

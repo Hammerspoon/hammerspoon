@@ -1,21 +1,10 @@
 Hammerspoon is based on Mjolnir by Steven Degutis, which is based on Hydra by Steven Degutis.
 
-The extensions included in Hammerspoon were written by:
- * [Steven Degutis](https://github.com/sdegutis/)
- * [Aaron Magill](https://github.com/asmagill)
+Our maintainers are:
  * [Chris Jones](https://github.com/cmsj)
- * Peter van Dijk
- * Linell Bonnette
- * Kepler Project
- * Enrique García Cota
- * Szymon Kaliski
- * Brian Gilbert
- * Tristan Hume
- * Tyler Mandry
- * Alexander Yakushev
- * Jake Heinz
- * Till Klocke
- * Markus Engelbrecht
+ * [Aaron Magill](https://github.com/asmagill)
  * [Chris Hocking](https://github.com/latenitefilms)
+
+Lots of additional extensions/work has been provided by [various contributors](https://github.com/Hammerspoon/hammerspoon/graphs/contributors)
 
 The Hammerspon icon was provided by Juerd Waalboer.

@@ -1,0 +1,18 @@
+//
+//  Extensions-Ideal.xcconfig
+//  Hammerspoon
+//
+//  Created by Chris Jones on 31/10/2021.
+//  Copyright © 2021 Hammerspoon. All rights reserved.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+#include "Extensions-Base.xcconfig"
+
+// Add -Weverything to warning flags
+WARNING_CFLAGS = -Weverything $(inherited)
+
+// Treat warnings as errors
+GCC_TREAT_WARNINGS_AS_ERRORS = YES

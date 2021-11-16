@@ -30,5 +30,5 @@ extern const char *AXErrorAsString(AXError theError) ;
 extern int pushCFTypeToLua(lua_State *L, CFTypeRef theItem, LSRefTable refTable) ;
 extern CFTypeRef lua_toCFType(lua_State *L, int idx) ;
 
-int luaopen_hs_axuielement_observer(lua_State* L) ;
+int luaopen_hs_libaxuielementobserver(lua_State* L) ;
 int luaopen_hs_axuielement_axtextmarker(lua_State* L) ;
