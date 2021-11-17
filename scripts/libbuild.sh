@@ -317,6 +317,7 @@ function op_archive() {
 
     # Dump dSYM UUIDs and archive them
     find "${HAMMERSPOON_XCARCHIVE_PATH}" -name '*.dSYM' -exec dwarfdump -u {} \; >"${ARCHIVE_PATH}/dSYM_UUID.txt"
+    create_zip "${HAMMERSPOON_XCARCHIVE_PATH}/dSYMs" "${ARCHIVE_PATH}/${APP_NAME}-dSYM-${VERSION}.zip"
 
     # Archive the docs
     mkdir -p "${ARCHIVE_PATH}/docs"

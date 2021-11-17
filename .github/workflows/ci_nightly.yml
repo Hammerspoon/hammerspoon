@@ -87,7 +87,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: Hammerspoon-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
-          path: archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/Hammerspoon-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
+          path: archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/Hammerspoon.app-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
       - name: Upload artifacts Debug symbols
         uses: actions/upload-artifact@v2
         with:
@@ -97,18 +97,18 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: Hammerspoon-docs-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
-          path: archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/Hammerspoon-docs-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
+          path: archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/docs/${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
       - name: Upload artifacts docs json
         uses: actions/upload-artifact@v2
         with:
           name: Hammerspoon-docs-${{ steps.version.outputs.NIGHTLY_VERSION }}.json
-          path: archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/docs.json
+          path: archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/docs/docs.json
 
       - name: Upload artifacts Build log
         uses: actions/upload-artifact@v2
         with:
           name: Release-build.log
-          path: archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/release-build.log
+          path: archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/Release-build.log
 
 
       - name: IRC notification
