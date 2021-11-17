@@ -205,6 +205,7 @@ module.cliStatus = function(p, s)
     local path = p or "/usr/local"
     local mod_path = hs.processInfo["frameworksPath"]
     local resource_path = hs.processInfo["resourcePath"]
+    local frameworks_path = hs.processInfo["frameworksPath"]
 
     local silent = s or false
 
@@ -212,7 +213,7 @@ module.cliStatus = function(p, s)
     local man_file = os.execute("[ -f \""..path.."/share/man/man1/hs.1\" ]")
     local bin_link = os.execute("[ -L \""..path.."/bin/hs\" ]")
     local man_link = os.execute("[ -L \""..path.."/share/man/man1/hs.1\" ]")
-    local bin_ours = os.execute("[ \""..path.."/bin/hs\" -ef \""..mod_path.."hs/hs\" ]")
+    local bin_ours = os.execute("[ \""..path.."/bin/hs\" -ef \""..frameworks_path.."/hs/hs\" ]")
     local man_ours = os.execute("[ \""..path.."/share/man/man1/hs.1\" -ef \""..resource_path.."/man/hs.man\" ]")
 
     local result = bin_file and man_file and bin_link and man_link and bin_ours and man_ours or false
