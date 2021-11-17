@@ -77,7 +77,7 @@ jobs:
         id: upload_release_notes
         uses: actions/upload-artifact@v2
         with:
-          name: Hammerspoon-release_notes-${{ steps.version.outputs.NIGHTLY_VERSION }}.txt
+          name: Release_Notes-${{ steps.version.outputs.NIGHTLY_VERSION }}.txt
           path: release_notes.txt
 
       - name: Prepare artifacts
@@ -86,22 +86,22 @@ jobs:
       - name: Upload artifacts App bundle
         uses: actions/upload-artifact@v2
         with:
-          name: Hammerspoon-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
+          name: Hammerspoon.app-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
           path: archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/Hammerspoon.app-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
       - name: Upload artifacts Debug symbols
         uses: actions/upload-artifact@v2
         with:
-          name: Hammerspoon-dSYM-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
+          name: dSYM-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
           path: archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/Hammerspoon-dSYM-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
       - name: Upload artifacts HTML docs
         uses: actions/upload-artifact@v2
         with:
-          name: Hammerspoon-docs-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
-          path: archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/docs/${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
+          name: docs-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
+          path: archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/docs/${{ steps.version.outputs.NIGHTLY_VERSION }}-docs.zip
       - name: Upload artifacts docs json
         uses: actions/upload-artifact@v2
         with:
-          name: Hammerspoon-docs-${{ steps.version.outputs.NIGHTLY_VERSION }}.json
+          name: docs-${{ steps.version.outputs.NIGHTLY_VERSION }}.json
           path: archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/docs/docs.json
 
       - name: Upload artifacts Build log
