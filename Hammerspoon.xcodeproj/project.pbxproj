@@ -273,6 +273,7 @@
 		4FEF4D551C5FBC0F00E3B939 /* test_audiodevice.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FEF4D531C5FBA9800E3B939 /* test_audiodevice.lua */; };
 		4FEF59431B29A352002344A7 /* HSGrowingTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FEF59421B29A352002344A7 /* HSGrowingTextField.m */; };
 		4FF0610C2743190D00FB15D6 /* window_layout.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 4FB602EE1DDBB0A900FA751B /* window_layout.lua */; };
+		4FF061102747050A00FB15D6 /* deezer.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 4FF0610E274704F700FB15D6 /* deezer.lua */; };
 		4FF7395227344D740007074E /* libapplication.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FBE2CF91B7261A200407788 /* libapplication.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		4FF7395327344D740007074E /* libapplicationwatcher.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FBE2D101B72631600407788 /* libapplicationwatcher.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		4FF7395427344D740007074E /* libaudiodevice.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F70EED31B726D170025A7B3 /* libaudiodevice.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -1328,6 +1329,7 @@
 			dstPath = extensions/hs;
 			dstSubfolderSpec = 7;
 			files = (
+				4FF061102747050A00FB15D6 /* deezer.lua in Copy Extension Lua files */,
 				4FF0610C2743190D00FB15D6 /* window_layout.lua in Copy Extension Lua files */,
 				4FF73A2B27359C2C0007074E /* window_highlight.lua in Copy Extension Lua files */,
 				4FF73A2C27359C2C0007074E /* window_tiling.lua in Copy Extension Lua files */,
@@ -1793,6 +1795,7 @@
 		4FEF4D531C5FBA9800E3B939 /* test_audiodevice.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_audiodevice.lua; path = extensions/audiodevice/test_audiodevice.lua; sourceTree = "<group>"; };
 		4FEF59411B29A352002344A7 /* HSGrowingTextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HSGrowingTextField.h; sourceTree = "<group>"; };
 		4FEF59421B29A352002344A7 /* HSGrowingTextField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSGrowingTextField.m; sourceTree = "<group>"; };
+		4FF0610E274704F700FB15D6 /* deezer.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = deezer.lua; path = extensions/deezer/deezer.lua; sourceTree = "<group>"; };
 		4FF73950273448B30007074E /* Archive-Export-Options.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Archive-Export-Options.plist"; sourceTree = "<group>"; };
 		4FF73A212735944D0007074E /* lua.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = lua.json; path = extensions/doc/lua.json; sourceTree = "<group>"; };
 		4FF73A24273595340007074E /* timeout3 */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = timeout3; path = extensions/httpserver/timeout3; sourceTree = "<group>"; };
@@ -3295,6 +3298,7 @@
 				4F51344F1C2EE07700EFD6D4 /* chooser */,
 				D6FD56801C04226C00BAE238 /* console */,
 				4F4CB3921B7379D3000EA9B6 /* crash */,
+				4FF0610D274704B900FB15D6 /* deezer */,
 				22613FE31F297B3300E05E11 /* dialog */,
 				4F85FECA1CCA8A1400FBBAD7 /* distributednotifications */,
 				4FD0ABC91B74B1B000A82496 /* doc */,
@@ -3635,6 +3639,14 @@
 				4FEABA561BC7ABF8005E2CFB /* expose.lua */,
 			);
 			name = expose;
+			sourceTree = "<group>";
+		};
+		4FF0610D274704B900FB15D6 /* deezer */ = {
+			isa = PBXGroup;
+			children = (
+				4FF0610E274704F700FB15D6 /* deezer.lua */,
+			);
+			name = deezer;
 			sourceTree = "<group>";
 		};
 		6AE181151D36E8BE0097211C /* noises */ = {
