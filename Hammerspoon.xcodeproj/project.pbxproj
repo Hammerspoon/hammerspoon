@@ -274,6 +274,8 @@
 		4FEF59431B29A352002344A7 /* HSGrowingTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FEF59421B29A352002344A7 /* HSGrowingTextField.m */; };
 		4FF0610C2743190D00FB15D6 /* window_layout.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 4FB602EE1DDBB0A900FA751B /* window_layout.lua */; };
 		4FF061102747050A00FB15D6 /* deezer.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 4FF0610E274704F700FB15D6 /* deezer.lua */; };
+		4FF061152747A25C00FB15D6 /* tangent.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 4FF061132747A23700FB15D6 /* tangent.lua */; };
+		4FF061162747A25C00FB15D6 /* vox.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 4FF061142747A24600FB15D6 /* vox.lua */; };
 		4FF7395227344D740007074E /* libapplication.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FBE2CF91B7261A200407788 /* libapplication.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		4FF7395327344D740007074E /* libapplicationwatcher.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FBE2D101B72631600407788 /* libapplicationwatcher.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		4FF7395427344D740007074E /* libaudiodevice.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F70EED31B726D170025A7B3 /* libaudiodevice.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -1329,6 +1331,8 @@
 			dstPath = extensions/hs;
 			dstSubfolderSpec = 7;
 			files = (
+				4FF061152747A25C00FB15D6 /* tangent.lua in Copy Extension Lua files */,
+				4FF061162747A25C00FB15D6 /* vox.lua in Copy Extension Lua files */,
 				4FF061102747050A00FB15D6 /* deezer.lua in Copy Extension Lua files */,
 				4FF0610C2743190D00FB15D6 /* window_layout.lua in Copy Extension Lua files */,
 				4FF73A2B27359C2C0007074E /* window_highlight.lua in Copy Extension Lua files */,
@@ -1796,6 +1800,8 @@
 		4FEF59411B29A352002344A7 /* HSGrowingTextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HSGrowingTextField.h; sourceTree = "<group>"; };
 		4FEF59421B29A352002344A7 /* HSGrowingTextField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSGrowingTextField.m; sourceTree = "<group>"; };
 		4FF0610E274704F700FB15D6 /* deezer.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = deezer.lua; path = extensions/deezer/deezer.lua; sourceTree = "<group>"; };
+		4FF061132747A23700FB15D6 /* tangent.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = tangent.lua; path = extensions/tangent/tangent.lua; sourceTree = "<group>"; };
+		4FF061142747A24600FB15D6 /* vox.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = vox.lua; path = extensions/vox/vox.lua; sourceTree = "<group>"; };
 		4FF73950273448B30007074E /* Archive-Export-Options.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Archive-Export-Options.plist"; sourceTree = "<group>"; };
 		4FF73A212735944D0007074E /* lua.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = lua.json; path = extensions/doc/lua.json; sourceTree = "<group>"; };
 		4FF73A24273595340007074E /* timeout3 */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = timeout3; path = extensions/httpserver/timeout3; sourceTree = "<group>"; };
@@ -3359,12 +3365,14 @@
 				4F2DF3DC1F60468E00742D08 /* streamdeck */,
 				D6F310CB1BDF0DA300045CCD /* styledtext */,
 				4FD0AB281B74862600A82496 /* tabs */,
+				4FF061122747A21A00FB15D6 /* tangent */,
 				4F9797B41BECD98C00719F3F /* task */,
 				4FD0AB371B7486A300A82496 /* timer */,
 				4FD0AB491B749CCD00A82496 /* uielement */,
 				4FD0AB5E1B749DA300A82496 /* urlevent */,
 				4FD0AB7D1B74A6D700A82496 /* usb */,
 				4FD0AB8A1B74AC1800A82496 /* utf8 */,
+				4FF061112747A20900FB15D6 /* vox */,
 				D684BBFA1DFB728500B4D0B8 /* watchable */,
 				224BA33323D1ECF200487FDB /* websocket */,
 				D64125571BA07CA9000FB5F8 /* webview */,
@@ -3647,6 +3655,22 @@
 				4FF0610E274704F700FB15D6 /* deezer.lua */,
 			);
 			name = deezer;
+			sourceTree = "<group>";
+		};
+		4FF061112747A20900FB15D6 /* vox */ = {
+			isa = PBXGroup;
+			children = (
+				4FF061142747A24600FB15D6 /* vox.lua */,
+			);
+			name = vox;
+			sourceTree = "<group>";
+		};
+		4FF061122747A21A00FB15D6 /* tangent */ = {
+			isa = PBXGroup;
+			children = (
+				4FF061132747A23700FB15D6 /* tangent.lua */,
+			);
+			name = tangent;
 			sourceTree = "<group>";
 		};
 		6AE181151D36E8BE0097211C /* noises */ = {
