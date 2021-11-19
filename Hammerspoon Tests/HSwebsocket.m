@@ -12,9 +12,11 @@
 
 - (void)setUp {
     [super setUpWithRequire:@"test_websocket"];
+    [self runLua:@"startEchoServer()"];
 }
 
 - (void)tearDown {
+    [self runLua:@"stopEchoServer()"];
     [super tearDown];
 }
 
