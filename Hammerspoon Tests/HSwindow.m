@@ -46,6 +46,7 @@
 }
 
 - (void)testSnapshots {
+    SKIP_IN_GITHUB_ACTIONS()
     SKIP_IN_TRAVIS() // Added by @latenitefilms
     RUN_LUA_TEST()
 }
@@ -69,6 +70,7 @@
 }
 
 - (void)testMinimize {
+    SKIP_IN_GITHUB_ACTIONS()
     RUN_LUA_TEST()
 }
 
@@ -91,10 +93,12 @@
 }
 
 - (void)testFullscreen {
+    SKIP_IN_GITHUB_ACTIONS()
     RUN_LUA_TEST()
 }
 
 - (void)testFullscreenOne {
+    SKIP_IN_GITHUB_ACTIONS()
     SKIP_IN_TRAVIS()
     [self luaTestWithCheckAndTimeOut:5 setupCode:@"testFullscreenOneSetup()" checkCode:@"testFullscreenOneResult()"];
 }
