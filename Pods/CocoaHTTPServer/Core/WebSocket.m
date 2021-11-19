@@ -770,7 +770,7 @@ static inline NSUInteger WS_PAYLOAD_LENGTH(UInt8 frame)
 			NSString *msg = [[NSString alloc] initWithBytes:[data bytes] length:msgLength encoding:NSUTF8StringEncoding];
 			[self didReceiveMessage:msg];
 		}
-		if (nextOpCode == WS_OP_BINARY_FRAME)
+        else if (nextOpCode == WS_OP_BINARY_FRAME)
  		{
  			[self didReceiveData:data];
  		}
