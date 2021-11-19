@@ -2,7 +2,7 @@
 ---
 --- Share items with the macOS Sharing Services under the control of Hammerspoon.
 ---
---- This module will allow you to share Hammerspoon items with registered Sharing Services.  Some of the built-in sharing services include sharing through mail, Facebook, AirDrop, etc.  Other applications can add additional services as well.
+--- This module will allow you to share Hammerspoon items with registered Sharing Services.  Some of the built-in sharing services include sharing through mail, AirDrop, etc.  Other applications can add additional services as well.
 ---
 --- For most sharing services (this has not been tested with all), the user will be prompted with the standard sharing dialog showing what is to be shared and offered a chance to submit or cancel.
 ---
