@@ -388,7 +388,6 @@ static int http_urlParts(lua_State *L) {
       [skin pushNSObject:[theURL fragment]] ;           lua_setfield(L, -2, "fragment") ;
       [skin pushNSObject:[theURL host]] ;               lua_setfield(L, -2, "host") ;
       [skin pushNSObject:[theURL lastPathComponent]] ;  lua_setfield(L, -2, "lastPathComponent") ;
-      [skin pushNSObject:[theURL parameterString]] ;    lua_setfield(L, -2, "parameterString") ;
       [skin pushNSObject:[theURL password]] ;           lua_setfield(L, -2, "password") ;
       [skin pushNSObject:[theURL path]] ;               lua_setfield(L, -2, "path") ;
       [skin pushNSObject:[theURL pathComponents]] ;     lua_setfield(L, -2, "pathComponents") ;
