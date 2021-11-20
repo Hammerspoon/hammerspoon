@@ -517,6 +517,48 @@ static int audiodevice_uid(lua_State* L) {
     return 1;
 }
 
+/// hs.audiodevice:inUse() -> bool or nil
+/// Method
+/// Check if the audio device is in use
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * True if the audio device is in use, False if not. nil if an error occurred.
+static int audiodevice_inUse(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
+    audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
+    AudioDeviceID deviceId = audioDevice->deviceId;
+    OSStatus err;
+    UInt32 dataSize = 0;
+    int isUsed;
+
+    AudioObjectPropertyAddress prop = {
+        kAudioDevicePropertyDeviceIsRunningSomewhere,
+        kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMaster
+    };
+
+    err = AudioObjectGetPropertyDataSize(deviceId, &prop, 0, nil, &dataSize);
+    if (err != kAudioHardwareNoError) {
+        NSLog(@"getAudioDeviceIsUsed(): get data size error: %d", err);
+        lua_pushnil(L);
+        return 1;
+    }
+
+    err = AudioObjectGetPropertyData(deviceId, &prop, 0, nil, &dataSize, &isUsed);
+    if (err != kAudioHardwareNoError) {
+        NSLog(@"getAudioDeviceIsUsed(): get data error: %d", err);
+        lua_pushnil(L);
+        return 1;
+    }
+
+    lua_pushboolean(L, isUsed ? YES : NO);
+    return 1;
+}
+
 /// hs.audiodevice:inputMuted() -> bool or nil
 /// Method
 /// Get the Input mutedness state of the audio device
@@ -1863,6 +1905,7 @@ static const luaL_Reg audiodevice_metalib[] = {
     {"setMuted",                audiodevice_setmuted},
     {"setInputMuted",           audiodevice_setInputMuted},
     {"setOutputMuted",          audiodevice_setOutputMuted},
+    {"inUse",                   audiodevice_inUse},
     {"transportType",           audiodevice_transportType},
     {"jackConnected",           audiodevice_jackConnected},
     {"supportsInputDataSources",audiodevice_supportsInputDataSources},
