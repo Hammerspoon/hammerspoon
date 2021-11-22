@@ -276,6 +276,10 @@
 		4FF061102747050A00FB15D6 /* deezer.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 4FF0610E274704F700FB15D6 /* deezer.lua */; };
 		4FF061152747A25C00FB15D6 /* tangent.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 4FF061132747A23700FB15D6 /* tangent.lua */; };
 		4FF061162747A25C00FB15D6 /* vox.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 4FF061142747A24600FB15D6 /* vox.lua */; };
+		4FF0611E274AA7A200FB15D6 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FB852342735B02400462DD0 /* LuaSkin.framework */; };
+		4FF06125274AA7BA00FB15D6 /* libcamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FF06119274AA62300FB15D6 /* libcamera.m */; };
+		4FF06128274AA7E600FB15D6 /* libcamera.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FF06124274AA7A200FB15D6 /* libcamera.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF06129274AA7F400FB15D6 /* camera.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 4FF06118274AA61000FB15D6 /* camera.lua */; };
 		4FF7395227344D740007074E /* libapplication.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FBE2CF91B7261A200407788 /* libapplication.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		4FF7395327344D740007074E /* libapplicationwatcher.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FBE2D101B72631600407788 /* libapplicationwatcher.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		4FF7395427344D740007074E /* libaudiodevice.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F70EED31B726D170025A7B3 /* libaudiodevice.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -1021,6 +1025,13 @@
 			remoteGlobalIDString = 4FDE05E31B734EE600E9E8EE;
 			remoteInfo = caffeinatewatcher;
 		};
+		4FF06126274AA7D900FB15D6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9445CA0319083251002568BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4FF0611A274AA7A200FB15D6;
+			remoteInfo = camera;
+		};
 		6AE1812F1D36E9A30097211C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 9445CA0319083251002568BB /* Project object */;
@@ -1232,6 +1243,7 @@
 			dstPath = hs;
 			dstSubfolderSpec = 10;
 			files = (
+				4FF06128274AA7E600FB15D6 /* libcamera.dylib in Copy Extension Dylibs */,
 				4FF73A1D2735439B0007074E /* hs in Copy Extension Dylibs */,
 				4FF7395227344D740007074E /* libapplication.dylib in Copy Extension Dylibs */,
 				4FF7395327344D740007074E /* libapplicationwatcher.dylib in Copy Extension Dylibs */,
@@ -1331,6 +1343,7 @@
 			dstPath = extensions/hs;
 			dstSubfolderSpec = 7;
 			files = (
+				4FF06129274AA7F400FB15D6 /* camera.lua in Copy Extension Lua files */,
 				4FF061152747A25C00FB15D6 /* tangent.lua in Copy Extension Lua files */,
 				4FF061162747A25C00FB15D6 /* vox.lua in Copy Extension Lua files */,
 				4FF061102747050A00FB15D6 /* deezer.lua in Copy Extension Lua files */,
@@ -1802,6 +1815,9 @@
 		4FF0610E274704F700FB15D6 /* deezer.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = deezer.lua; path = extensions/deezer/deezer.lua; sourceTree = "<group>"; };
 		4FF061132747A23700FB15D6 /* tangent.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = tangent.lua; path = extensions/tangent/tangent.lua; sourceTree = "<group>"; };
 		4FF061142747A24600FB15D6 /* vox.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = vox.lua; path = extensions/vox/vox.lua; sourceTree = "<group>"; };
+		4FF06118274AA61000FB15D6 /* camera.lua */ = {isa = PBXFileReference; lastKnownFileType = text; path = camera.lua; sourceTree = "<group>"; };
+		4FF06119274AA62300FB15D6 /* libcamera.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = libcamera.m; sourceTree = "<group>"; };
+		4FF06124274AA7A200FB15D6 /* libcamera.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libcamera.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FF73950273448B30007074E /* Archive-Export-Options.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Archive-Export-Options.plist"; sourceTree = "<group>"; };
 		4FF73A212735944D0007074E /* lua.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = lua.json; path = extensions/doc/lua.json; sourceTree = "<group>"; };
 		4FF73A24273595340007074E /* timeout3 */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = timeout3; path = extensions/httpserver/timeout3; sourceTree = "<group>"; };
@@ -2495,6 +2511,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FB852842735B3C200462DD0 /* LuaSkin.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4FF0611D274AA7A200FB15D6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4FF0611E274AA7A200FB15D6 /* LuaSkin.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3300,6 +3324,7 @@
 				D62F9EAA2320B7F600FAE188 /* bonjour */,
 				4FDE05C81B72C23400E9E8EE /* brightness */,
 				4FDE05DD1B734EB400E9E8EE /* caffeinate */,
+				4FF06117274AA5EB00FB15D6 /* camera */,
 				D68615F21E04D5370058A4F2 /* canvas */,
 				4F51344F1C2EE07700EFD6D4 /* chooser */,
 				D6FD56801C04226C00BAE238 /* console */,
@@ -3673,6 +3698,16 @@
 			name = tangent;
 			sourceTree = "<group>";
 		};
+		4FF06117274AA5EB00FB15D6 /* camera */ = {
+			isa = PBXGroup;
+			children = (
+				4FF06118274AA61000FB15D6 /* camera.lua */,
+				4FF06119274AA62300FB15D6 /* libcamera.m */,
+			);
+			name = camera;
+			path = extensions/camera;
+			sourceTree = "<group>";
+		};
 		6AE181151D36E8BE0097211C /* noises */ = {
 			isa = PBXGroup;
 			children = (
@@ -3818,6 +3853,7 @@
 				22EEC62324926E5100BAE4DA /* libserial.dylib */,
 				D633A9E9247B9BF2005C88E2 /* libaxuielement.dylib */,
 				4F7F3B6C272AF68100E05732 /* libshortcuts.dylib */,
+				4FF06124274AA7A200FB15D6 /* libcamera.dylib */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -4576,6 +4612,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		4FDE05EB1B734EE600E9E8EE /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4FF0611F274AA7A200FB15D6 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -5884,6 +5927,23 @@
 			productReference = 4FDE05EF1B734EE600E9E8EE /* libcaffeinatewatcher.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
+		4FF0611A274AA7A200FB15D6 /* camera */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4FF06120274AA7A200FB15D6 /* Build configuration list for PBXNativeTarget "camera" */;
+			buildPhases = (
+				4FF0611B274AA7A200FB15D6 /* Sources */,
+				4FF0611D274AA7A200FB15D6 /* Frameworks */,
+				4FF0611F274AA7A200FB15D6 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = camera;
+			productName = alert;
+			productReference = 4FF06124274AA7A200FB15D6 /* libcamera.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
 		6AE1811E1D36E90B0097211C /* noises */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6AE181241D36E90B0097211C /* Build configuration list for PBXNativeTarget "noises" */;
@@ -5922,6 +5982,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				4FF06127274AA7D900FB15D6 /* PBXTargetDependency */,
 				4F7F3B6F272AF7E100E05732 /* PBXTargetDependency */,
 				224BA33623D1EFB300487FDB /* PBXTargetDependency */,
 				22EEC62624926EAF00BAE4DA /* PBXTargetDependency */,
@@ -6503,6 +6564,7 @@
 				4FDE05BD1B72C22500E9E8EE /* brightness */,
 				4FDE05D21B734EA600E9E8EE /* caffeinate */,
 				4FDE05E31B734EE600E9E8EE /* caffeinatewatcher */,
+				4FF0611A274AA7A200FB15D6 /* camera */,
 				D68615FE1E04D5D20058A4F2 /* canvas */,
 				D686160B1E04D6630058A4F2 /* canvasmatrix */,
 				4F5134541C2F315C00EFD6D4 /* chooser */,
@@ -7306,6 +7368,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4FF0611B274AA7A200FB15D6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4FF06125274AA7BA00FB15D6 /* libcamera.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		6AE1811F1D36E90B0097211C /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -7909,6 +7979,11 @@
 			isa = PBXTargetDependency;
 			target = 4FDE05E31B734EE600E9E8EE /* caffeinatewatcher */;
 			targetProxy = 4FDE05F51B73501800E9E8EE /* PBXContainerItemProxy */;
+		};
+		4FF06127274AA7D900FB15D6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4FF0611A274AA7A200FB15D6 /* camera */;
+			targetProxy = 4FF06126274AA7D900FB15D6 /* PBXContainerItemProxy */;
 		};
 		6AE181301D36E9A30097211C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -9924,6 +9999,30 @@
 			};
 			name = Release;
 		};
+		4FF06121274AA7A200FB15D6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		4FF06122274AA7A200FB15D6 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Profile;
+		};
+		4FF06123274AA7A200FB15D6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		6AE181251D36E90B0097211C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
@@ -11099,6 +11198,16 @@
 				4FDE05ED1B734EE600E9E8EE /* Debug */,
 				4F04549920F0EE7D00699F29 /* Profile */,
 				4FDE05EE1B734EE600E9E8EE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		4FF06120274AA7A200FB15D6 /* Build configuration list for PBXNativeTarget "camera" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4FF06121274AA7A200FB15D6 /* Debug */,
+				4FF06122274AA7A200FB15D6 /* Profile */,
+				4FF06123274AA7A200FB15D6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
