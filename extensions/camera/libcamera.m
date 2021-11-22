@@ -8,6 +8,7 @@
 static LSRefTable refTable;
 static const char *USERDATA_TAG = "hs.camera";
 
+
 #pragma mark - Devices watcher declarations
 typedef struct _deviceWatcher_t {
     int callback;
@@ -19,22 +20,44 @@ static id deviceWatcherAddedObserver = nil;
 static id deviceWatcherRemovedObserver = nil;
 
 
+#pragma mark - Device property watcher declarations
+static const CMIOObjectPropertySelector propertyWatchSelectors[] = {
+    kAudioDevicePropertyDeviceHasChanged,
+    kAudioDevicePropertyDeviceIsRunningSomewhere
+};
+
+
 #pragma mark - HSCamera declaration
 @interface HSCamera : NSObject
 @property(nonatomic) CMIODeviceID deviceId;
-@property(nonatomic, readonly, getter=getName) NSString *name;
-@property(nonatomic, readonly, getter=getUID) NSString *uid;
-@property(nonatomic) int selfRefCount;
+@property(nonatomic) NSString *name;
+@property(nonatomic) NSString *uid;
+@property(nonatomic, readonly, getter=getIsInUse) BOOL isInUse;
+@property(nonatomic) int propertyWatcherCallback;
+@property(nonatomic) BOOL propertyWatcherRunning;
+@property(nonatomic) CMIOObjectPropertyListenerBlock propertyWatcherBlock;
+@property(nonatomic) LSGCCanary canary;
 
-- (id)initWithDeviceID:(CMIODeviceID) deviceId;
-- (BOOL)isInUse;
+- (id)initWithDeviceID:(CMIODeviceID)deviceId;
+- (NSString *)getCameraName;
+- (NSString *)getCameraUID;
+- (void)wasRemoved;
+- (void)stopPropertyWatcher;
+- (void)startPropertyWatcher;
 @end
 
 
 #pragma mark - HSCameraManager declaration
 @interface HSCameraManager : NSObject
+@property(nonatomic) NSMutableArray<HSCamera *>* cameraCache;
+
 - (NSArray<HSCamera*>*) getCameras;
+- (HSCamera *)cameraForDeviceID:(CMIODeviceID)deviceId;
+- (void)deviceRemoved:(CMIODeviceID)deviceId;
+- (void)drainCache;
 @end
+
+static HSCameraManager *cameraManager = nil;
 
 
 #pragma mark - HSCamera implementation
@@ -42,13 +65,113 @@ static id deviceWatcherRemovedObserver = nil;
 - (id)initWithDeviceID:(CMIODeviceID) deviceId {
     self = [super init];
     if (self) {
+        NSLog(@"HSCamera init: %@ (%d)", self, deviceId);
+        LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+
         self.deviceId = deviceId;
-        self.selfRefCount = 0;
+        self.propertyWatcherCallback = LUA_NOREF;
+        self.propertyWatcherRunning = NO;
+        self.canary = [skin createGCCanary];
+        self.uid = [self getCameraUID];
+        self.name = [self getCameraName];
+
+        __weak HSCamera *weakSelf = self;
+        self.propertyWatcherBlock = ^(UInt32 numberAddresses, const CMIOObjectPropertyAddress *addresses) {
+            NSMutableArray *events = [[NSMutableArray alloc] init];
+
+            for (UInt32 i = 0; i < numberAddresses; i++) {
+                NSString *mSelector = (__bridge_transfer NSString *)UTCreateStringForOSType(addresses[i].mSelector);
+                NSString *mScope = (__bridge_transfer NSString *)UTCreateStringForOSType(addresses[i].mScope);
+                NSNumber *mElement = [NSNumber numberWithInt:addresses[i].mElement];
+                [events addObject:@{@"mSelector":mSelector, @"mScope":mScope, @"mElement":mElement}];
+            }
+
+            dispatch_async(dispatch_get_main_queue(), ^{
+                LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+                if (![skin checkGCCanary:weakSelf.canary]) {
+                    return;
+                }
+
+                _lua_stackguard_entry(skin.L);
+                if (self.propertyWatcherCallback == LUA_NOREF) {
+                    [skin logError:@"hs.camera property watcher fired, but no callback has been set"];
+                } else {
+                    for (NSDictionary *event in events) {
+                        [skin pushLuaRef:refTable ref:weakSelf.propertyWatcherCallback];
+                        [skin pushNSObject:weakSelf];
+                        [skin pushNSObject:event[@"mSelector"]];
+                        [skin pushNSObject:event[@"mScope"]];
+                        [skin pushNSObject:event[@"mElement"]];
+
+                        [skin protectedCallAndError:@"hs.camera:propertyWatcherCallback" nargs:4 nresults:0];
+                    }
+                }
+                _lua_stackguard_exit(skin.L);
+            });
+        };
     }
     return self;
 }
 
-- (NSString *)getUID {
+- (void)dealloc {
+    NSLog(@"HSCamera dealloc: %@", self);
+    [self wasRemoved];
+    [[LuaSkin sharedWithState:NULL] destroyGCCanary:&_canary];
+}
+
+- (void)wasRemoved {
+    [self stopPropertyWatcher];
+}
+
+- (void)startPropertyWatcher {
+    if (self.propertyWatcherRunning == YES) {
+        return;
+    }
+
+    CMIOObjectPropertyAddress propertyAddress = {
+        0,
+        kAudioObjectPropertyScopeWildcard,
+        kAudioObjectPropertyElementWildcard
+    };
+
+    const int numSelectors = sizeof(propertyWatchSelectors) / sizeof(propertyWatchSelectors[0]);
+
+    for (int i = 0; i < numSelectors; i++) {
+        propertyAddress.mSelector = propertyWatchSelectors[i];
+        CMIOObjectAddPropertyListenerBlock(self.deviceId,
+                                           &propertyAddress,
+                                           dispatch_get_main_queue(),
+                                           self.propertyWatcherBlock);
+    }
+
+    self.propertyWatcherRunning = YES;
+}
+
+- (void)stopPropertyWatcher {
+    if (self.propertyWatcherRunning == NO) {
+        return;
+    }
+
+    CMIOObjectPropertyAddress propertyAddress = {
+        0,
+        kAudioObjectPropertyScopeWildcard,
+        kAudioObjectPropertyElementWildcard
+    };
+
+    const int numSelectors = sizeof(propertyWatchSelectors) / sizeof(propertyWatchSelectors[0]);
+
+    for (int i = 0; i < numSelectors; i++) {
+        propertyAddress.mSelector = propertyWatchSelectors[i];
+        CMIOObjectRemovePropertyListenerBlock(self.deviceId,
+                                              &propertyAddress,
+                                              dispatch_get_main_queue(),
+                                              self.propertyWatcherBlock);
+    }
+
+    self.propertyWatcherRunning = NO;
+}
+
+- (NSString *)getCameraUID {
     LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     OSStatus err;
     UInt32 dataSize = 0;
@@ -60,7 +183,7 @@ static id deviceWatcherRemovedObserver = nil;
 
     err = CMIOObjectGetPropertyDataSize(self.deviceId, &prop, 0, nil, &dataSize);
     if (err != kCMIOHardwareNoError) {
-        [skin logError:[NSString stringWithFormat:@"getVideoDeviceUID(): get data size error: %d", err]];
+        [skin logError:[NSString stringWithFormat:@"getUID: Unable to get data size: %d", err]];
         return nil;
     }
 
@@ -68,16 +191,18 @@ static id deviceWatcherRemovedObserver = nil;
     err = CMIOObjectGetPropertyData(self.deviceId, &prop, 0, nil, dataSize, &dataUsed,
                                     &uidStringRef);
     if (err != kCMIOHardwareNoError) {
-        [skin logError:[NSString stringWithFormat:@"getVideoDeviceUID(): get data error: %d", err]];
+        [skin logError:[NSString stringWithFormat:@"getUID: Unable to get data: %d", err]];
         return nil;
     }
 
     return (__bridge_transfer NSString *)uidStringRef;
 }
 
-- (NSString *)getName {
+- (NSString *)getCameraName {
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     AVCaptureDevice *avDevice = [AVCaptureDevice deviceWithUniqueID:self.uid];
     if (!avDevice) {
+        [skin logWarn:[NSString stringWithFormat:@"Unable to get camera name for: %@", self.uid]];
         return nil;
     }
     return avDevice.localizedName;
@@ -112,6 +237,50 @@ static id deviceWatcherRemovedObserver = nil;
 
 #pragma mark - HSCameraManager implementation
 @implementation HSCameraManager
+- (id)init {
+    self = [super init];
+    if (self) {
+        self.cameraCache = [[NSMutableArray alloc] init];
+    }
+    return self;
+}
+
+- (void)dealloc {
+    self.cameraCache = nil;
+}
+
+- (HSCamera *)cameraForDeviceID:(CMIODeviceID)deviceId {
+    HSCamera *camera = nil;
+
+    // Check if we already have this device cached
+    for (HSCamera *device in self.cameraCache) {
+        if (device.deviceId == deviceId) {
+            // Found it, return the cached object
+            return device;
+        }
+    }
+
+    // We don't have this camera cached, so create a new object and cache it.
+    camera = [[HSCamera alloc] initWithDeviceID:deviceId];
+    [self.cameraCache addObject:camera];
+
+    return camera;
+}
+
+- (void)deviceRemoved:(CMIODeviceID)deviceId {
+    for (HSCamera *device in self.cameraCache) {
+        if (device.deviceId == deviceId) {
+            [device wasRemoved];
+            [self.cameraCache removeObject:device];
+            return;
+        }
+    }
+}
+
+- (void)drainCache {
+    self.cameraCache = [[NSMutableArray alloc] init];
+}
+
 - (NSArray<HSCamera*>*) getCameras {
     LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     NSMutableArray *cameras = [[NSMutableArray alloc] init];
@@ -146,7 +315,7 @@ static id deviceWatcherRemovedObserver = nil;
     // Prepare the array
     for (UInt32 i = 0; i < numCameras; i++) {
         CMIOObjectID cameraID = cameraList[i];
-        HSCamera *camera = [[HSCamera alloc] initWithDeviceID:cameraID];
+        HSCamera *camera = [cameraManager cameraForDeviceID:cameraID];
         [cameras addObject:camera];
     }
 
@@ -170,8 +339,7 @@ static int allCameras(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TBREAK];
 
-    HSCameraManager *cm = [[HSCameraManager alloc] init];
-    [skin pushNSObject:[cm getCameras]];
+    [skin pushNSObject:[cameraManager getCameras]];
     return 1;
 }
 
@@ -200,7 +368,7 @@ void deviceWatcherDoCallback(CMIODeviceID deviceId, NSString *event) {
     }
 
     [skin pushLuaRef:refTable ref:deviceWatcher->callback];
-    [skin pushNSObject:[[HSCamera alloc] initWithDeviceID:deviceId]];
+    [skin pushNSObject:[cameraManager cameraForDeviceID:deviceId]];
     [skin pushNSObject:event];
     [skin protectedCallAndError:@"hs.camera devices callback" nargs:2 nresults:0];
 
@@ -254,6 +422,7 @@ static int startWatcher(lua_State *L) {
             CMIODeviceID deviceId = device.connectionID;
             dispatch_async(dispatch_get_main_queue(), ^{
                 deviceWatcherDoCallback(deviceId, @"Removed");
+                [cameraManager deviceRemoved:deviceId];
             });
         }
     }];
@@ -273,8 +442,11 @@ static int startWatcher(lua_State *L) {
 /// Returns:
 ///  * None
 static int stopWatcher(lua_State *L) {
-    LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin checkArgs:LS_TBREAK];
+    // This is an ugly hack so we can call this from elsewhere without checkArgs exploding
+    if (L) {
+        LuaSkin *skin = [LuaSkin sharedWithState:L];
+        [skin checkArgs:LS_TBREAK];
+    }
 
     NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
     [center removeObserver:deviceWatcherAddedObserver
@@ -323,7 +495,7 @@ static int isWatcherRunning(lua_State *L) {
 ///  * The callback function arguments are:
 ///   * An hs.camera device object for the affected device
 ///   * A string, either "Added" or "Removed" depending on whether the device was added or removed from the system
-///  * For "Removed" events, most methods on the hs.camera device object will not function correctly anymore
+///  * For "Removed" events, most methods on the hs.camera device object will not function correctly anymore and the device object passed to the callback is likely to be useless. It is recommended you re-check `hs.camera.allCameras()` and keep records of the cameras you care about
 ///  * Passing nil will cause the watcher to stop if it is running
 static int setWatcherCallback(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
@@ -345,7 +517,7 @@ static int setWatcherCallback(lua_State *L) {
             deviceWatcher->callback = [skin luaRef:refTable];
             break;
         case LUA_TNIL:
-            stopWatcher(L);
+            stopWatcher(NULL);
             break;
         default:
             break;
@@ -384,9 +556,6 @@ static int camera_uid(lua_State *L) {
 ///
 /// Returns:
 ///  * A number containing the connection ID of the camera
-///
-/// Notes:
-///  * This ID is likely to be the only method that works on a device which has been removed
 static int camera_cID(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
@@ -432,10 +601,110 @@ static int camera_isinuse(lua_State *L) {
     return 1;
 }
 
+/// hs.camera:setPropertyWatcherCallback(fn) -> hs.camera object
+/// Method
+/// Sets or clears a callback for when the properties of an hs.camera object change
+///
+/// Parameters:
+///  * fn - A function to be called when properites of the camera change, or nil to clear a previously set callback. The function should accept the following parameters:
+///   * The hs.camera object that changed
+///   * A string describing the property that changed. Possible values are:
+///    * gone - The device's "in use" status changed (ie another app started using the camera, or stopped using it)
+///   * A string containing the scope of the event, this will likely always be "glob"
+///   * A number containing the element of the event, this will likely always be "0"
+///
+/// Returns:
+///  * The `hs.camera` object
+static int camera_propertyWatcherCallback(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION|LS_TNIL, LS_TBREAK];
+
+    HSCamera *camera = [skin toNSObjectAtIndex:1];
+    camera.propertyWatcherCallback = [skin luaUnref:refTable ref:camera.propertyWatcherCallback];
+
+    switch (lua_type(L, 2)) {
+        case LUA_TFUNCTION:
+            lua_pushvalue(L, 2);
+            camera.propertyWatcherCallback = [skin luaRef:refTable];
+            break;
+        case LUA_TNIL:
+            break;
+        default:
+            break;
+    }
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
+/// hs.camera:startPropertyWatcher()
+/// Method
+/// Starts the property watcher on a camera
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The `hs.camera` object
+static int camera_startPropertyWatcher(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
+    HSCamera *camera = [skin toNSObjectAtIndex:1];
+
+    if (camera.propertyWatcherCallback == LUA_NOREF) {
+        [skin logError:@"You must call hs.camera:setPropertyWatcherCallback() before hs.camera:startPropertyWatcher()"];
+        lua_pushnil(L);
+        return 1;
+    }
+
+    [camera startPropertyWatcher];
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
+/// hs.camera:stopPropertyWatcher()
+/// Method
+/// Stops the property watcher on a camera
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The `hs.camera` object
+static int camera_stopPropertyWatcher(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    HSCamera *camera = [skin toNSObjectAtIndex:1];
+
+    [camera stopPropertyWatcher];
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
+/// hs.camera:isPropertyWatcherRunning() -> bool
+/// Method
+/// Checks if the property watcher on a camera object is running
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A boolean, True if the property watcher is running, otherwise False
+static int camera_isPropertyWatcherRunning(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    HSCamera *camera = [skin toNSObjectAtIndex:1];
+
+    lua_pushboolean(L, camera.propertyWatcherRunning);
+    return 1;
+}
+
 #pragma mark - Lua<->NSObject Conversion Functions
 static int pushHSCamera(lua_State *L, id obj) {
     HSCamera *value = obj;
-    value.selfRefCount++;
     void** valuePtr = lua_newuserdata(L, sizeof(HSCamera *));
     *valuePtr = (__bridge_retained void *)value;
     luaL_getmetatable(L, USERDATA_TAG);
@@ -454,7 +723,7 @@ static id toHSCameraFromLua(lua_State *L, int idx) {
     return value;
 }
 
-#pragma mark - Hammerspoon Infrastructure
+#pragma mark - Core Lua metamethods
 static int hsCamera_tostring(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     HSCamera *camera = [skin toNSObjectAtIndex:1];
@@ -475,16 +744,6 @@ static int hsCamera_eq(lua_State *L) {
 }
 
 static int hsCamera_gc(lua_State *L) {
-    LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
-    HSCamera *camera = get_objectFromUserdata(__bridge_transfer HSCamera, L, 1, USERDATA_TAG);
-    if (camera) {
-        camera.selfRefCount--;
-        if (camera.selfRefCount == 0) {
-            camera = nil;
-        }
-    }
-
     lua_pushnil(L);
     lua_setmetatable(L, 1);
     return 0;
@@ -494,12 +753,18 @@ static int module_gc(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
 
     if (deviceWatcher) {
-        stopWatcher(L);
+        stopWatcher(NULL);
         deviceWatcher->callback = [skin luaUnref:refTable ref:deviceWatcher->callback];
         [skin destroyGCCanary:&(deviceWatcher->lsCanary)];
         free(deviceWatcher);
         deviceWatcher = nil;
     }
+
+    for (HSCamera *camera in cameraManager.cameraCache) {
+        [camera wasRemoved];
+    }
+    [cameraManager drainCache];
+    cameraManager = nil;
 
     return 0;
 }
@@ -510,6 +775,10 @@ static const luaL_Reg cameraDeviceLib[] = {
     {"connectionID", camera_cID},
     {"name", camera_name},
     {"isInUse", camera_isinuse},
+    {"setPropertyWatcherCallback", camera_propertyWatcherCallback},
+    {"startPropertyWatcher", camera_startPropertyWatcher},
+    {"stopPropertyWatcher", camera_stopPropertyWatcher},
+    {"isPropertyWatcherRunning", camera_isPropertyWatcherRunning},
 
     {"__tostring", hsCamera_tostring},
     {"__eq",       hsCamera_eq},
@@ -525,6 +794,9 @@ static const luaL_Reg cameraLib[] = {
     {"stopWatcher", stopWatcher},
     {"isWatcherRunning", isWatcherRunning},
 
+    {NULL, NULL}
+};
+static const luaL_Reg cameraLibMeta[] = {
     {"__gc", module_gc},
     {NULL, NULL}
 };
@@ -532,11 +804,12 @@ static const luaL_Reg cameraLib[] = {
 #pragma mark - Lua initialisation
 int luaopen_hs_libcamera(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    refTable = [skin registerLibraryWithObject:USERDATA_TAG
-                                     functions:cameraLib
-                                 metaFunctions:nil
-                               objectFunctions:cameraDeviceLib];
 
+    cameraManager = [[HSCameraManager alloc] init];
+
+    refTable = [skin registerLibrary:USERDATA_TAG functions:cameraLib metaFunctions:cameraLibMeta];
+
+    [skin registerObject:USERDATA_TAG objectFunctions:cameraDeviceLib];
     [skin registerPushNSHelper:pushHSCamera forClass:"HSCamera"];
     [skin registerLuaObjectHelper:toHSCameraFromLua forClass:"HSCamera" withUserdataMapping:USERDATA_TAG];
 
