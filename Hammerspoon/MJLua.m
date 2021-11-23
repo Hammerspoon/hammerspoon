@@ -1082,7 +1082,7 @@ NSString* MJLuaRunString(NSString* command) {
     const unsigned char* s = (const unsigned char *)lua_tolstring(L, -1, &len);
     NSString* str = [[NSString alloc] initWithData:[NSData dataWithBytes:s length:len] encoding:NSUTF8StringEncoding];
     if (str == nil) {
-        NSString *str = [skin getValidUTF8:s ofLength:len];
+        str = [skin getValidUTF8:s ofLength:len];
     }
     lua_pop(L, 1);
 
