@@ -1184,10 +1184,7 @@ nextarg:
     return YES;
 }
 
-- (NSString *)getValidUTF8AtIndex:(int)idx {
-    idx = lua_absindex(self.L, idx) ;
-    size_t sourceLength ;
-    unsigned char *src  = (unsigned char *)luaL_tolstring(self.L, idx, &sourceLength) ;
+- (NSString *)getValidUTF8:(const unsigned char *)src ofLength:(size_t)sourceLength {
     NSMutableData *dest = [[NSMutableData alloc] init] ;
 
     unsigned char nullChar[]    = { 0xE2, 0x88, 0x85 } ;
@@ -1217,10 +1214,19 @@ nextarg:
         }
     }
 
+    return [[NSString alloc] initWithData:dest encoding:NSUTF8StringEncoding];
+}
+
+- (NSString *)getValidUTF8AtIndex:(int)idx {
+    idx = lua_absindex(self.L, idx) ;
+    size_t sourceLength ;
+    unsigned char *src  = (unsigned char *)luaL_tolstring(self.L, idx, &sourceLength) ;
+
+    NSString *cleanedString = [self getValidUTF8:src ofLength:sourceLength];
     // we're done with src, so its safe to pop the stack of luaL_tolstring's value
     lua_pop(self.L, 1) ;
 
-    return [[NSString alloc] initWithData:dest encoding:NSUTF8StringEncoding] ;
+    return cleanedString;
 }
 
 - (BOOL)requireModule:(const char *)moduleName {
