@@ -260,6 +260,14 @@ function op_keychain_prep() {
     fi
 }
 
+function op_keychain_post() {
+    echo " Removing keychain..."
+    local SECBIN="/usr/bin/security"
+    local KEYCHAIN="build.keychain"
+
+    "${SECBIN}" delete-keychain -s "${KEYCHAIN}"
+}
+
 function op_notarize() {
     echo " Notarizing ${HAMMERSPOON_BUNDLE_PATH}..."
     op_notarize_assert
