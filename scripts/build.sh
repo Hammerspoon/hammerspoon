@@ -39,6 +39,7 @@ function usage() {
     echo "  validate      - Validate signature/gatekeeper/entitlements"
     echo "  docs          - Build documentation"
     echo "  keychain-prep - Prepare a new default Keychain with required secrets for signing/notarizing"
+    echo "  keychain-post - Remove Keychain secrets"
     echo "  notarize      - Notarize a ${APP_NAME}.app bundle with Apple (note that it must be signed first)"
     echo "  archive       - Archive the build/notarization artifacts"
     echo "  release       - Perform all the steps to upload a release"
@@ -78,6 +79,9 @@ function usage() {
     echo "                    NOTARIZATION_PASSWORD=\"abcd-1234-efgh-5678\""
     echo "  -y             - Keychain profile name for notarization credentials (Default: HAMMERSPOON_BUILDSH)"
     echo ""
+    echo "KEYCHAIN-POST OPTIONS:"
+    echo "Note: This command is primarily for use in CI. You should never run this locally, it will delete your keychain"
+    echo ""
     echo "NOTARIZATION OPTIONS:"
     echo "Note: The keychain profile must be set up ahead of time using your developer Apple ID account and Team ID:"
     echo "  xcrun notarytool store-credentials -v --apple-id APPLE_ID --team-id TEAM_ID --password APP_SPECIFIC_PASSWORD"
@@ -101,7 +105,7 @@ OPERATION=${1:-unknown};shift
 if [ "${OPERATION}" == "-h" ] || [ "${OPERATION}" == "--help" ]; then
     usage
 fi
-#if [ "${OPERATION}" != "build" ] && [ "${OPERATION}" != "test" ] && [ "${OPERATION}" != "docs" ] && [ "${OPERATION}" != "installdeps" ] && [ "${OPERATION}" != "notarize" ] && [ "${OPERATION}" != "archive" ] && [ "${OPERATION}" != "release" ] && [ "${OPERATION}" != "clean" ] && [ "${OPERATION}" != "validate" ] && [ "${OPERATION}" != "keychain-prep" ] ; then
+#if [ "${OPERATION}" != "build" ] && [ "${OPERATION}" != "test" ] && [ "${OPERATION}" != "docs" ] && [ "${OPERATION}" != "installdeps" ] && [ "${OPERATION}" != "notarize" ] && [ "${OPERATION}" != "archive" ] && [ "${OPERATION}" != "release" ] && [ "${OPERATION}" != "clean" ] && [ "${OPERATION}" != "validate" ] && [ "${OPERATION}" != "keychain-prep" ] && [ "${OPERATION}" != "keychain-post" ] ; then
 #    usage
 #fi;
 
@@ -323,6 +327,9 @@ case "${OPERATION}" in
         ;;
     "keychain-prep")
         op_keychain_prep
+        ;;
+    "keychain-post")
+        op_keychain_post
         ;;
     "notarize")
         op_notarize

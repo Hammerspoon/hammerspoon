@@ -49,6 +49,9 @@ jobs:
         run: ./scripts/build.sh docs
       - name: Notarize
         run: ./scripts/build.sh notarize
+      - name: Delete notarization/signing credentials
+        if: ${{ always() }}
+        run: ./scripts/build.sh keychain-post
       - name: Validate signing/notarization
         run: ./scripts/build.sh validate -d
       - name: Archive build
