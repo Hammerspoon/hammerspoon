@@ -940,7 +940,7 @@ local function makeScreens(self)
         self.log.df('screen %s',name)
       end
     end
-    for sid,screen in pairs(oscreens) do screens[sid]=screen end
+    for sid,scr in pairs(oscreens) do screens[sid]=scr end
   end
   for _,screen in pairs(screens) do
     screen.frame:move(10,10):setw(screen.frame.w-20):seth(screen.frame.h-20) -- margin
