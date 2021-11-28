@@ -917,6 +917,7 @@ local function makeScreens(self)
     end
   end
   if self.ui.includeOtherSpaces then
+    local oscreens={}
     for sid,screen in pairs(screens) do -- other spaces strip
       if not screen.isStrip then
         local f=screen.frame
@@ -933,12 +934,13 @@ local function makeScreens(self)
         local wf=windowfilter.copy(self.wf,'wf-'..self.__name..'-o'..sid):setDefaultFilter{}
           :setOverrideFilter{visible=true,currentSpace=false,allowScreens=sid,activeApplication=activeApplication}:keepActive()
         local name='other/'..screen.name
-        screens['o'..sid]={name=name,isStrip=true,wf=wf,windows={},totalOriginalArea=0,frame=othf,thumbnails=thumbnails,edge=edge,pos=pos,
+        oscreens['o'..sid]={name=name,isStrip=true,wf=wf,windows={},totalOriginalArea=0,frame=othf,thumbnails=thumbnails,edge=edge,pos=pos,
           bg=drawing.rectangle(othf):setFill(true):setFillColor(self.ui.otherSpacesStripBackgroundColor):setBehavior(BEHAVIOR)}
         screen.bg:setFrame(f)
         self.log.df('screen %s',name)
+      end
     end
-    end
+    for sid,screen in pairs(oscreens) do screens[sid]=screen end
   end
   for _,screen in pairs(screens) do
     screen.frame:move(10,10):setw(screen.frame.w-20):seth(screen.frame.h-20) -- margin
