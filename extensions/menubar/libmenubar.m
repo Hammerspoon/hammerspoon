@@ -751,19 +751,15 @@ static int menubarSetClickCallback(lua_State *L) {
 ///
 /// Parameters:
 ///  * `menuTable`:
-///      * If this argument is `nil`:
-///         * Removes any previously registered menu
-///      * If this argument is a table:
-///         * Sets the menu for this menubar item to the supplied table. The format of the table is documented below
-///      * If this argument is a function:
-///         * The function will be called each time the user clicks on the menubar item and the function should return a table that specifies the menu to be displayed. The table should be of the same format as described below. The function can optionally accept a single argument, which will be a table containing boolean values indicating which keyboard modifiers were held down when the menubar item was clicked; The possible keys are:
-///            * cmd
-///            * alt
-///            * shift
-///            * ctrl
-///            * fn
-///
-/// Table Format:
+///   * If this argument is `nil`: Removes any previously registered menu
+///   * If this argument is a table: Sets the menu for this menubar item to the supplied table. The format of the table is documented below
+///   * If this argument is a function: The function will be called each time the user clicks on the menubar item and the function should return a table that specifies the menu to be displayed. The table should be of the same format as described below. The function can optionally accept a single argument, which will be a table containing boolean values indicating which keyboard modifiers were held down when the menubar item was clicked; The possible keys are:
+///    * cmd
+///    * alt
+///    * shift
+///    * ctrl
+///    * fn
+///   * Table Format:
 /// ```
 ///    {
 ///        { title = "my menu item", fn = function() print("you clicked my menu item!") end },
@@ -773,23 +769,22 @@ static int menubarSetClickCallback(lua_State *L) {
 ///        { title = "checked item", checked = true },
 ///    }
 /// ```
-///  * The available keys for each menu item are (note that `title` is the only required key -- all other keys are optional):
-///      * `title`           - A string or `hs.styledtext` object to be displayed in the menu. If this is the special string `"-"` the item will be rendered as a menu separator.  This key can be set to the empty string (""), but it must be present.
-///      * `fn`              - A function to be executed when the menu item is clicked
-///         * The function will be called with two arguments. The first argument will be a table containing boolean values indicating which keyboard modifiers were held down when the menubar item was clicked (see `menuTable` parameter for possible keys) and the second is the table representing the item.
-///      * `checked`         - A boolean to indicate if the menu item should have a checkmark (by default) next to it or not. Defaults to false.
-///      * `state`           - a text value of "on", "off", or "mixed" indicating the menu item state.  "on" and "off" are equivalent to `checked` being true or false respectively, and "mixed" will have a dash (by default) beside it.
-///      * `disabled`        - A boolean to indicate if the menu item should be unselectable or not. Defaults to false (i.e. menu items are selectable by default)
-///      * `menu`            - a table, in the same format as above, which will be presented as a sub-menu for this menu item.
-///         * a menu item that is disabled and has a sub-menu will show the arrow at the right indicating that it has a sub-menu, but the items within the sub-menu will not be available, even if the sub-menu items are not disabled themselves.
-///         * a menu item with a sub-menu is also a clickable target, so it can also have an `fn` key.
-///      * `image`           - An image to display in the menu to the right of any state image or checkmark and to the left of the menu item title.  This image is not constrained by the size set with [hs.menubar:stateImageSize](#stateImageSize), so you should adjust it with `hs.image:setSize` if your image is extremely large or small.
-///      * `tooltip`         - A tool tip to display if you hover the cursor over a menu item for a few seconds.
-///      * `shortcut`        - A string containing a single character, which will be used as the keyboard shortcut for the menu item. Note that if you use a capital letter, the Shift key will be required to activate the shortcut.
-///      * `indent`          - An integer from 0 to 15 indicating how far to the right a menu item should be indented.  Defaults to 0.
-///      * `onStateImage`    - An image to display when `checked` is true or `state` is set to "on".  This image size is constrained to the size set by [hs.menubar:stateImageSize](#stateImageSize).  If this key is not set, a checkmark will be displayed for checked or "on" menu items.
-///      * `offStateImage`   - An image to display when `checked` is false or `state` is set to "off".  This image size is constrained to the size set by [hs.menubar:stateImageSize](#stateImageSize).  If this key is not set, no special marking appears next to the menu item.
-///      * `mixedStateImage` - An image to display when `state` is set to "mixed".  This image size is constrained to the size set by [hs.menubar:stateImageSize](#stateImageSize).  If this key is not set, a dash will be displayed for menu items with a state of "mixed".
+///   * The available keys for each menu item are (note that `title` is the only required key -- all other keys are optional):
+///    * `title`           - A string or `hs.styledtext` object to be displayed in the menu. If this is the special string `"-"` the item will be rendered as a menu separator.  This key can be set to the empty string (""), but it must be present.
+///    * `fn`              - A function to be executed when the menu item is clicked. The function will be called with two arguments. The first argument will be a table containing boolean values indicating which keyboard modifiers were held down when the menubar item was clicked (see `menuTable` parameter for possible keys) and the second is the table representing the item.
+///    * `checked`         - A boolean to indicate if the menu item should have a checkmark (by default) next to it or not. Defaults to false.
+///    * `state`           - a text value of "on", "off", or "mixed" indicating the menu item state.  "on" and "off" are equivalent to `checked` being true or false respectively, and "mixed" will have a dash (by default) beside it.
+///    * `disabled`        - A boolean to indicate if the menu item should be unselectable or not. Defaults to false (i.e. menu items are selectable by default)
+///    * `menu`            - a table, in the same format as above, which will be presented as a sub-menu for this menu item.
+///     * A menu item that is disabled and has a sub-menu will show the arrow at the right indicating that it has a sub-menu, but the items within the sub-menu will not be available, even if the sub-menu items are not disabled themselves.
+///     * A menu item with a sub-menu is also a clickable target, so it can also have an `fn` key.
+///    * `image`           - An image to display in the menu to the right of any state image or checkmark and to the left of the menu item title.  This image is not constrained by the size set with [hs.menubar:stateImageSize](#stateImageSize), so you should adjust it with `hs.image:setSize` if your image is extremely large or small.
+///    * `tooltip`         - A tool tip to display if you hover the cursor over a menu item for a few seconds.
+///    * `shortcut`        - A string containing a single character, which will be used as the keyboard shortcut for the menu item. Note that if you use a capital letter, the Shift key will be required to activate the shortcut.
+///    * `indent`          - An integer from 0 to 15 indicating how far to the right a menu item should be indented.  Defaults to 0.
+///    * `onStateImage`    - An image to display when `checked` is true or `state` is set to "on".  This image size is constrained to the size set by [hs.menubar:stateImageSize](#stateImageSize).  If this key is not set, a checkmark will be displayed for checked or "on" menu items.
+///    * `offStateImage`   - An image to display when `checked` is false or `state` is set to "off".  This image size is constrained to the size set by [hs.menubar:stateImageSize](#stateImageSize).  If this key is not set, no special marking appears next to the menu item.
+///    * `mixedStateImage` - An image to display when `state` is set to "mixed".  This image size is constrained to the size set by [hs.menubar:stateImageSize](#stateImageSize).  If this key is not set, a dash will be displayed for menu items with a state of "mixed".
 ///
 /// Returns:
 ///  * the menubaritem
