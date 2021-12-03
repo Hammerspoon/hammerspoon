@@ -67,7 +67,7 @@ static void remove_delegate(lua_State* L, connectionDelegate* delegate) {
     if (self.fn == LUA_NOREF) {
         return;
     }
-    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+    LuaSkin *skin = [LuaSkin sharedWithState:self.L];
     lua_State *L = skin.L;
     _lua_stackguard_entry(L);
 
@@ -85,7 +85,7 @@ static void remove_delegate(lua_State* L, connectionDelegate* delegate) {
     if (self.fn == LUA_NOREF){
         return;
     }
-    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+    LuaSkin *skin = [LuaSkin sharedWithState:self.L];
     _lua_stackguard_entry(skin.L);
 
     NSString* errorMessage = [NSString stringWithFormat:@"Connection failed: %@ - %@", [error localizedDescription], [[error userInfo] objectForKey:NSURLErrorFailingURLStringErrorKey]];
