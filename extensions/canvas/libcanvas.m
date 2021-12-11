@@ -1729,7 +1729,7 @@ static int userdata_gc(lua_State* L) ;
                 anItem = [skin toNSObjectAtIndex:-1] ;
                 lua_pop(L, 1) ;
             }
-            if (anItem && [anItem isKindOfClass:[NSColor class]] && [(NSColor *)anItem colorUsingColorSpaceName:NSCalibratedRGBColorSpace]) {
+            if (anItem && [anItem isKindOfClass:[NSColor class]] && [(NSColor *)anItem colorUsingColorSpace:[NSColorSpace deviceRGBColorSpace]]) {
                 [(NSMutableArray *)newValue addObject:anItem] ;
             } else {
                 [LuaSkin logWarn:[NSString stringWithFormat:@"%s:not a proper color at index %lu of fillGradientColor; using Black", USERDATA_TAG, idx + 1]] ;
