@@ -427,10 +427,11 @@ EOF
 
     if [ "${TWITTER_ACCOUNT}" != "" ]; then
         echo " Tweeting release..."
-        local CURRENT_T_ACCOUNT ; CURRENT_T_ACCOUNT=$(t accounts | grep -B1 active | head -1)
-        t set active "${TWITTER_ACCOUNT}"
-        t update "Just released ${VERSION} - https://www.hammerspoon.org/releasenotes/"
-        t set acctive "${CURRENT_T_ACCOUNT}"
+        local T_PATH=$(/usr/bin/gem contents t 2>/dev/null | grep "\/t$")
+        local CURRENT_T_ACCOUNT ; CURRENT_T_ACCOUNT=$("${T_PATH}" accounts | grep -B1 active | head -1)
+        "${T_PATH}" set active "${TWITTER_ACCOUNT}"
+        "${T_PATH}" update "Just released ${VERSION} - https://www.hammerspoon.org/releasenotes/"
+        "${T_PATH}" set active "${CURRENT_T_ACCOUNT}"
     fi
 }
 
