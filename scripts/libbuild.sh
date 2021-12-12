@@ -350,53 +350,56 @@ function op_release() {
 
     # Prepaer the release archive
     echo " Zipping..."
-    local ZIP_PATH="${HAMMERSPOON_BUNDLE_PATH}.zip"
+    # FIXME: HAMMERSPOON_BUNDLE_PATH here is not right, that gives us Hammerspoon.app-X.Y.Z.zip and we don't want the .app
+    local ZIP_PATH="${BUILD_HOME}/${APP_NAME}-${VERSION}.zip"
     create_zip "${HAMMERSPOON_BUNDLE_PATH}" "${ZIP_PATH}"
 
     echo " Creating release on GitHub..."
     gh release create "${VERSION}" "${ZIP_PATH}" --title "${VERSION}" --notes-file "${WEBSITE_HOME}/_posts/$(date "+%Y-%m-%d")-${VERSION}.md"
 
-    echo " Uploading docs to website..."
-    pushd "${WEBSITE_HOME}" >/dev/null || fail "Unable to access website repo at ${WEBSITE_HOME}"
-    mkdir -p "docs/${VERSION}"
-    ${RM} docs/*.html
-    ${RM} -rf docs/LuaSkin
-    cp -r "${BUILD_HOME}/html/" docs/
-    cp -r "${BUILD_HOME}/html/" "docs/${VERSION}/"
-    git add .
-    git commit -am "Add docs for ${VERSION}"
-    git push
-    popd >/dev/null || fail "Unknown"
-
-    echo " Creating PR for Dash docs..."
-    pushd "${HAMMERSPOON_HOME}/../" >/dev/null || fail "Unable to access ${HAMMERSPOON_HOME}/../"
-    ${RM} -rf dash
-    git clone -q git@github.com:Kapeli/Dash-User-Contributions.git dash
-    cp "${BUILD_HOME}/Hammerspoon.tgz" dash/docsets/Hammerspoon/
-    pushd "dash" >/dev/null || fail "Unable to access dash repo at: ${HAMMERSPOON_HOME}/../dash"
-    git remote add hammerspoon git@github.com:hammerspoon/Dash-User-Contributions.git
-    cat >docsets/Hammerspoon/docset.json <<EOF
-    {
-       "name": "Hammerspoon",
-       "version": "${VERSION}",
-       "archive": "Hammerspoon.tgz",
-       "author": {
-           "name": "Hammerspoon Team",
-           "link": "https://www.hammerspoon.org/"
-       },
-       "aliases": [],
-       "specific_versions": [
-       ]
-   }
-EOF
-    git add docsets/Hammerspoon/Hammerspoon.tgz
-    git commit -qam "Update Hammerspoon docset to ${VERSION}"
-    git push -qfv hammerspoon master
-    gh pr create -t "Update Hammerspoon docset to ${VERSION}"
-    popd >/dev/null || fail "Unknown"
-    popd >/dev/null || fail "Unknown"
+#    echo " Uploading docs to website..."
+#    pushd "${WEBSITE_HOME}" >/dev/null || fail "Unable to access website repo at ${WEBSITE_HOME}"
+#    mkdir -p "docs/${VERSION}"
+#    ${RM} docs/*.html
+#    ${RM} -rf docs/LuaSkin
+#    cp -r "${BUILD_HOME}/html/" docs/
+#    cp -r "${BUILD_HOME}/html/" "docs/${VERSION}/"
+#    git add .
+#    git commit -am "Add docs for ${VERSION}"
+#    git push
+#    popd >/dev/null || fail "Unknown"
+#
+#    echo " Creating PR for Dash docs..."
+#    pushd "${HAMMERSPOON_HOME}/../" >/dev/null || fail "Unable to access ${HAMMERSPOON_HOME}/../"
+#    ${RM} -rf dash
+#    git clone -q git@github.com:Kapeli/Dash-User-Contributions.git dash
+#    cp "${BUILD_HOME}/Hammerspoon.tgz" dash/docsets/Hammerspoon/
+#    pushd "dash" >/dev/null || fail "Unable to access dash repo at: ${HAMMERSPOON_HOME}/../dash"
+#    git remote add hammerspoon git@github.com:hammerspoon/Dash-User-Contributions.git
+#    cat >docsets/Hammerspoon/docset.json <<EOF
+#    {
+#       "name": "Hammerspoon",
+#       "version": "${VERSION}",
+#       "archive": "Hammerspoon.tgz",
+#       "author": {
+#           "name": "Hammerspoon Team",
+#           "link": "https://www.hammerspoon.org/"
+#       },
+#       "aliases": [],
+#       "specific_versions": [
+#       ]
+#   }
+#EOF
+#    git add docsets/Hammerspoon/Hammerspoon.tgz
+#    git commit -qam "Update Hammerspoon docset to ${VERSION}"
+#    git push -qfv hammerspoon master
+#    gh pr create --body "" --title "Update Hammerspoon docset to ${VERSION}"
+#    popd >/dev/null || fail "Unknown"
+#    popd >/dev/null || fail "Unknown"
 
     echo " Updating appcast.xml..."
+    eval $(stat -s "${ZIP_PATH}")
+    export ZIPLEN="${st_size}"
     pushd "${HAMMERSPOON_HOME}/" >/dev/null || fail "Unable to access ${HAMMERSPOON_HOME}/"
     local BUILD_NUMBER ; BUILD_NUMBER=$(git rev-list "$(git symbolic-ref HEAD | sed -e 's,.*/\\(.*\\),\\1,')" --count)
     local NEWCHUNK ; NEWCHUNK="<!-- __UPDATE_MARKER__ -->
@@ -418,6 +421,7 @@ EOF
     gawk -i inplace -v s="<!-- __UPDATE_MARKER__ -->" -v r="${NEWCHUNK}" '{gsub(s,r)}1' appcast.xml
     git add appcast.xml
     git commit -qam "Update appcast.xml for ${VERSION}"
+exit 0
     git push
     popd >/dev/null || fail "Unknown"
 
