@@ -363,6 +363,9 @@ function op_release() {
     ${RM} -rf docs/LuaSkin
     cp -r "${BUILD_HOME}/html/" docs/
     cp -r "${BUILD_HOME}/html/" "docs/${VERSION}/"
+    git add .
+    git commit -am "Add docs for ${VERSION}"
+    git push
     popd >/dev/null || fail "Unknown"
 
     echo " Creating PR for Dash docs..."
@@ -389,7 +392,7 @@ EOF
     git add docsets/Hammerspoon/Hammerspoon.tgz
     git commit -qam "Update Hammerspoon docset to ${VERSION}"
     git push -qfv hammerspoon master
-    gh pr create "Update Hammerspoon docset to ${VERSION}"
+    gh pr create -t "Update Hammerspoon docset to ${VERSION}"
     popd >/dev/null || fail "Unknown"
     popd >/dev/null || fail "Unknown"
 
