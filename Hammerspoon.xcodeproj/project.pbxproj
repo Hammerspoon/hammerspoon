@@ -227,6 +227,38 @@
 		4FBE2D111B72632800407788 /* libapplication_watcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FBE2D041B72630200407788 /* libapplication_watcher.m */; };
 		4FC09F7C19F99ECE007542A6 /* docs.json in Resources */ = {isa = PBXBuildFile; fileRef = 4FC09F7B19F99ECE007542A6 /* docs.json */; };
 		4FC93CA81BCD87440041B820 /* libaudiodevice_watcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FC93C9B1BCD2D8A0041B820 /* libaudiodevice_watcher.m */; settings = {COMPILER_FLAGS = "-std=c99"; }; };
+		4FCA05A0276767350089A5FC /* window_layout.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 4FB602EE1DDBB0A900FA751B /* window_layout.lua */; };
+		4FCA05A2276768DE0089A5FC /* init.lua in Copy hsdocs Files */ = {isa = PBXBuildFile; fileRef = 4FCA05912767645A0089A5FC /* init.lua */; };
+		4FCA05A3276768DE0089A5FC /* index.lp in Copy hsdocs Files */ = {isa = PBXBuildFile; fileRef = 4FCA05922767645A0089A5FC /* index.lp */; };
+		4FCA05A4276768DE0089A5FC /* gfm.lp in Copy hsdocs Files */ = {isa = PBXBuildFile; fileRef = 4FCA05932767645A0089A5FC /* gfm.lp */; };
+		4FCA05A5276768DE0089A5FC /* module.lp in Copy hsdocs Files */ = {isa = PBXBuildFile; fileRef = 4FCA05942767645A0089A5FC /* module.lp */; };
+		4FCA05A6276768DE0089A5FC /* index.md in Copy hsdocs Files */ = {isa = PBXBuildFile; fileRef = 4FCA05952767645A0089A5FC /* index.md */; };
+		4FCA05A7276768DE0089A5FC /* form.lp in Copy hsdocs Files */ = {isa = PBXBuildFile; fileRef = 4FCA059A2767645A0089A5FC /* form.lp */; };
+		4FCA05A8276768DE0089A5FC /* common.lp in Copy hsdocs Files */ = {isa = PBXBuildFile; fileRef = 4FCA059B2767645A0089A5FC /* common.lp */; };
+		4FCA05A9276768DE0089A5FC /* sample.lp in Copy hsdocs Files */ = {isa = PBXBuildFile; fileRef = 4FCA059C2767645A0089A5FC /* sample.lp */; };
+		4FCA05AA276768DE0089A5FC /* search.lp in Copy hsdocs Files */ = {isa = PBXBuildFile; fileRef = 4FCA059D2767645A0089A5FC /* search.lp */; };
+		4FCA05AC276769070089A5FC /* templates.md in Copy hsdocs minweb Files */ = {isa = PBXBuildFile; fileRef = 4FCA05972767645A0089A5FC /* templates.md */; };
+		4FCA05AD276769070089A5FC /* index.md in Copy hsdocs minweb Files */ = {isa = PBXBuildFile; fileRef = 4FCA05982767645A0089A5FC /* index.md */; };
+		4FCA05AE276769070089A5FC /* functions.md in Copy hsdocs minweb Files */ = {isa = PBXBuildFile; fileRef = 4FCA05992767645A0089A5FC /* functions.md */; };
+		4FCA05B127678B100089A5FC /* autolink.c in Sources */ = {isa = PBXBuildFile; fileRef = D64964601CCB32AE0074540B /* autolink.c */; };
+		4FCA05B227678B100089A5FC /* buffer.c in Sources */ = {isa = PBXBuildFile; fileRef = D64964621CCB32AE0074540B /* buffer.c */; };
+		4FCA05B327678B100089A5FC /* houdini_href_e.c in Sources */ = {isa = PBXBuildFile; fileRef = D64964641CCB32AE0074540B /* houdini_href_e.c */; };
+		4FCA05B427678B100089A5FC /* houdini_html_e.c in Sources */ = {isa = PBXBuildFile; fileRef = D64964651CCB32AE0074540B /* houdini_html_e.c */; };
+		4FCA05B627678B100089A5FC /* html.c in Sources */ = {isa = PBXBuildFile; fileRef = D64964681CCB32AE0074540B /* html.c */; };
+		4FCA05B727678B100089A5FC /* markdown.c in Sources */ = {isa = PBXBuildFile; fileRef = D649646A1CCB32AE0074540B /* markdown.c */; };
+		4FCA05B827678B100089A5FC /* markdown.m in Sources */ = {isa = PBXBuildFile; fileRef = D649646C1CCB32AE0074540B /* markdown.m */; };
+		4FCA05B927678B100089A5FC /* plaintext.c in Sources */ = {isa = PBXBuildFile; fileRef = D649646D1CCB32AE0074540B /* plaintext.c */; };
+		4FCA05BA27678B100089A5FC /* stack.c in Sources */ = {isa = PBXBuildFile; fileRef = D649646F1CCB32AE0074540B /* stack.c */; };
+		4FCA05BC27678B100089A5FC /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FB852342735B02400462DD0 /* LuaSkin.framework */; };
+		4FCA05BE27678B100089A5FC /* autolink.h in Headers */ = {isa = PBXBuildFile; fileRef = D64964611CCB32AE0074540B /* autolink.h */; };
+		4FCA05BF27678B100089A5FC /* buffer.h in Headers */ = {isa = PBXBuildFile; fileRef = D64964631CCB32AE0074540B /* buffer.h */; };
+		4FCA05C027678B100089A5FC /* houdini.h in Headers */ = {isa = PBXBuildFile; fileRef = D64964661CCB32AE0074540B /* houdini.h */; };
+		4FCA05C127678B100089A5FC /* html_blocks.h in Headers */ = {isa = PBXBuildFile; fileRef = D64964671CCB32AE0074540B /* html_blocks.h */; };
+		4FCA05C227678B100089A5FC /* html.h in Headers */ = {isa = PBXBuildFile; fileRef = D64964691CCB32AE0074540B /* html.h */; };
+		4FCA05C327678B100089A5FC /* markdown.h in Headers */ = {isa = PBXBuildFile; fileRef = D649646B1CCB32AE0074540B /* markdown.h */; };
+		4FCA05C427678B100089A5FC /* plaintext.h in Headers */ = {isa = PBXBuildFile; fileRef = D649646E1CCB32AE0074540B /* plaintext.h */; };
+		4FCA05C527678B100089A5FC /* stack.h in Headers */ = {isa = PBXBuildFile; fileRef = D64964701CCB32AE0074540B /* stack.h */; };
+		4FCA05CD27678B410089A5FC /* libmarkdown.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FCA05CA27678B100089A5FC /* libmarkdown.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		4FCBAFD323B0F7F1007BA1D0 /* libmath.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FCBAFD223B0F7F1007BA1D0 /* libmath.m */; };
 		4FCBAFD723B0FB95007BA1D0 /* HSmath.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FCBAFD623B0FB95007BA1D0 /* HSmath.m */; };
 		4FCBAFD923B1152F007BA1D0 /* test_math.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FCBAFD823B0FC04007BA1D0 /* test_math.lua */; };
@@ -272,7 +304,6 @@
 		4FEF4D4F1C5FA01100E3B939 /* HSaudiodevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FEF4D4E1C5FA01000E3B939 /* HSaudiodevice.m */; };
 		4FEF4D551C5FBC0F00E3B939 /* test_audiodevice.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FEF4D531C5FBA9800E3B939 /* test_audiodevice.lua */; };
 		4FEF59431B29A352002344A7 /* HSGrowingTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FEF59421B29A352002344A7 /* HSGrowingTextField.m */; };
-		4FF0610C2743190D00FB15D6 /* window_layout.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 4FB602EE1DDBB0A900FA751B /* window_layout.lua */; };
 		4FF061102747050A00FB15D6 /* deezer.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 4FF0610E274704F700FB15D6 /* deezer.lua */; };
 		4FF061152747A25C00FB15D6 /* tangent.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 4FF061132747A23700FB15D6 /* tangent.lua */; };
 		4FF061162747A25C00FB15D6 /* vox.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 4FF061142747A24600FB15D6 /* vox.lua */; };
@@ -521,15 +552,6 @@
 		D6477C151C5ED61500F67BBC /* libnetwork_configuration.m in Sources */ = {isa = PBXBuildFile; fileRef = D6477BFD1C5ED5A600F67BBC /* libnetwork_configuration.m */; };
 		D6477C221C5ED82200F67BBC /* libnetwork_reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = D6477C021C5ED5A600F67BBC /* libnetwork_reachability.m */; };
 		D6477C301C5ED83C00F67BBC /* libnetwork_host.m in Sources */ = {isa = PBXBuildFile; fileRef = D6477BFF1C5ED5A600F67BBC /* libnetwork_host.m */; };
-		D64964841CCB33120074540B /* autolink.c in Sources */ = {isa = PBXBuildFile; fileRef = D64964601CCB32AE0074540B /* autolink.c */; };
-		D64964851CCB33120074540B /* buffer.c in Sources */ = {isa = PBXBuildFile; fileRef = D64964621CCB32AE0074540B /* buffer.c */; };
-		D64964861CCB33120074540B /* houdini_href_e.c in Sources */ = {isa = PBXBuildFile; fileRef = D64964641CCB32AE0074540B /* houdini_href_e.c */; };
-		D64964871CCB33120074540B /* houdini_html_e.c in Sources */ = {isa = PBXBuildFile; fileRef = D64964651CCB32AE0074540B /* houdini_html_e.c */; };
-		D64964881CCB33120074540B /* html.c in Sources */ = {isa = PBXBuildFile; fileRef = D64964681CCB32AE0074540B /* html.c */; };
-		D64964891CCB33120074540B /* markdown.c in Sources */ = {isa = PBXBuildFile; fileRef = D649646A1CCB32AE0074540B /* markdown.c */; };
-		D649648A1CCB33120074540B /* markdown.m in Sources */ = {isa = PBXBuildFile; fileRef = D649646C1CCB32AE0074540B /* markdown.m */; };
-		D649648B1CCB33120074540B /* plaintext.c in Sources */ = {isa = PBXBuildFile; fileRef = D649646D1CCB32AE0074540B /* plaintext.c */; };
-		D649648C1CCB33120074540B /* stack.c in Sources */ = {isa = PBXBuildFile; fileRef = D649646F1CCB32AE0074540B /* stack.c */; };
 		D649648D1CCB33510074540B /* autolink.h in Headers */ = {isa = PBXBuildFile; fileRef = D64964611CCB32AE0074540B /* autolink.h */; };
 		D649648E1CCB33510074540B /* buffer.h in Headers */ = {isa = PBXBuildFile; fileRef = D64964631CCB32AE0074540B /* buffer.h */; };
 		D649648F1CCB33510074540B /* houdini.h in Headers */ = {isa = PBXBuildFile; fileRef = D64964661CCB32AE0074540B /* houdini.h */; };
@@ -870,6 +892,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 4FC93C9D1BCD872D0041B820;
 			remoteInfo = audiodevicewatcher;
+		};
+		4FCA05CB27678B330089A5FC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9445CA0319083251002568BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4FCA05AF27678B100089A5FC;
+			remoteInfo = markdown;
 		};
 		4FCBAFCF23B0D98F007BA1D0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1228,6 +1257,38 @@
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4FCA05A12767689C0089A5FC /* Copy hsdocs Files */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = extensions/hs/hsdocs;
+			dstSubfolderSpec = 7;
+			files = (
+				4FCA05A2276768DE0089A5FC /* init.lua in Copy hsdocs Files */,
+				4FCA05A3276768DE0089A5FC /* index.lp in Copy hsdocs Files */,
+				4FCA05A4276768DE0089A5FC /* gfm.lp in Copy hsdocs Files */,
+				4FCA05A5276768DE0089A5FC /* module.lp in Copy hsdocs Files */,
+				4FCA05A6276768DE0089A5FC /* index.md in Copy hsdocs Files */,
+				4FCA05A7276768DE0089A5FC /* form.lp in Copy hsdocs Files */,
+				4FCA05A8276768DE0089A5FC /* common.lp in Copy hsdocs Files */,
+				4FCA05A9276768DE0089A5FC /* sample.lp in Copy hsdocs Files */,
+				4FCA05AA276768DE0089A5FC /* search.lp in Copy hsdocs Files */,
+			);
+			name = "Copy hsdocs Files";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4FCA05AB276768EC0089A5FC /* Copy hsdocs minweb Files */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = extensions/hs/hsdocs/hsminweb;
+			dstSubfolderSpec = 7;
+			files = (
+				4FCA05AC276769070089A5FC /* templates.md in Copy hsdocs minweb Files */,
+				4FCA05AD276769070089A5FC /* index.md in Copy hsdocs minweb Files */,
+				4FCA05AE276769070089A5FC /* functions.md in Copy hsdocs minweb Files */,
+			);
+			name = "Copy hsdocs minweb Files";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4FD0AC071B74BACD00A82496 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1243,6 +1304,7 @@
 			dstPath = hs;
 			dstSubfolderSpec = 10;
 			files = (
+				4FCA05CD27678B410089A5FC /* libmarkdown.dylib in Copy Extension Dylibs */,
 				4FF06128274AA7E600FB15D6 /* libcamera.dylib in Copy Extension Dylibs */,
 				4FF73A1D2735439B0007074E /* hs in Copy Extension Dylibs */,
 				4FF7395227344D740007074E /* libapplication.dylib in Copy Extension Dylibs */,
@@ -1343,11 +1405,11 @@
 			dstPath = extensions/hs;
 			dstSubfolderSpec = 7;
 			files = (
+				4FCA05A0276767350089A5FC /* window_layout.lua in Copy Extension Lua files */,
 				4FF06129274AA7F400FB15D6 /* camera.lua in Copy Extension Lua files */,
 				4FF061152747A25C00FB15D6 /* tangent.lua in Copy Extension Lua files */,
 				4FF061162747A25C00FB15D6 /* vox.lua in Copy Extension Lua files */,
 				4FF061102747050A00FB15D6 /* deezer.lua in Copy Extension Lua files */,
-				4FF0610C2743190D00FB15D6 /* window_layout.lua in Copy Extension Lua files */,
 				4FF73A2B27359C2C0007074E /* window_highlight.lua in Copy Extension Lua files */,
 				4FF73A2C27359C2C0007074E /* window_tiling.lua in Copy Extension Lua files */,
 				4FF73A17273539EE0007074E /* doc.lua in Copy Extension Lua files */,
@@ -1703,7 +1765,7 @@
 		4F9BA8D623DFAB03006349F2 /* HSuicore.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HSuicore.m; sourceTree = "<group>"; };
 		4FA125872016739500F02FDF /* HSLogger.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HSLogger.m; sourceTree = "<group>"; };
 		4FA12589201673E400F02FDF /* HSLogger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HSLogger.h; sourceTree = "<group>"; };
-		4FB602EE1DDBB0A900FA751B /* window_layout.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = window_layout.lua; sourceTree = SOURCE_ROOT; };
+		4FB602EE1DDBB0A900FA751B /* window_layout.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = window_layout.lua; path = extensions/window/window_layout.lua; sourceTree = SOURCE_ROOT; };
 		4FB74B392049A97D00B08851 /* test_task.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = test_task.lua; path = extensions/task/test_task.lua; sourceTree = "<group>"; };
 		4FB74B3A2049A9A600B08851 /* HStask.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HStask.m; sourceTree = "<group>"; };
 		4FB852342735B02400462DD0 /* LuaSkin.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = LuaSkin.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1716,6 +1778,19 @@
 		4FC09F7B19F99ECE007542A6 /* docs.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = docs.json; path = build/docs.json; sourceTree = "<group>"; };
 		4FC93C9B1BCD2D8A0041B820 /* libaudiodevice_watcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libaudiodevice_watcher.m; path = extensions/audiodevice/libaudiodevice_watcher.m; sourceTree = "<group>"; };
 		4FC93CA71BCD872D0041B820 /* libaudiodevicewatcher.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libaudiodevicewatcher.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		4FCA05912767645A0089A5FC /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; path = init.lua; sourceTree = "<group>"; };
+		4FCA05922767645A0089A5FC /* index.lp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.lex; path = index.lp; sourceTree = "<group>"; };
+		4FCA05932767645A0089A5FC /* gfm.lp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.lex; path = gfm.lp; sourceTree = "<group>"; };
+		4FCA05942767645A0089A5FC /* module.lp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.lex; path = module.lp; sourceTree = "<group>"; };
+		4FCA05952767645A0089A5FC /* index.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = index.md; sourceTree = "<group>"; };
+		4FCA05972767645A0089A5FC /* templates.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = templates.md; sourceTree = "<group>"; };
+		4FCA05982767645A0089A5FC /* index.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = index.md; sourceTree = "<group>"; };
+		4FCA05992767645A0089A5FC /* functions.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = functions.md; sourceTree = "<group>"; };
+		4FCA059A2767645A0089A5FC /* form.lp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.lex; path = form.lp; sourceTree = "<group>"; };
+		4FCA059B2767645A0089A5FC /* common.lp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.lex; path = common.lp; sourceTree = "<group>"; };
+		4FCA059C2767645A0089A5FC /* sample.lp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.lex; path = sample.lp; sourceTree = "<group>"; };
+		4FCA059D2767645A0089A5FC /* search.lp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.lex; path = search.lp; sourceTree = "<group>"; };
+		4FCA05CA27678B100089A5FC /* libmarkdown.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libmarkdown.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FCBAFCD23B0D941007BA1D0 /* libmath.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libmath.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FCBAFD223B0F7F1007BA1D0 /* libmath.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libmath.m; path = extensions/math/libmath.m; sourceTree = "<group>"; };
 		4FCBAFD423B0F805007BA1D0 /* math.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = math.lua; path = extensions/math/math.lua; sourceTree = "<group>"; };
@@ -2341,6 +2416,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FB8528D2735B3F300462DD0 /* LuaSkin.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4FCA05BB27678B100089A5FC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4FCA05BC27678B100089A5FC /* LuaSkin.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3426,6 +3509,34 @@
 			name = application;
 			sourceTree = "<group>";
 		};
+		4FCA05902767645A0089A5FC /* hsdocs */ = {
+			isa = PBXGroup;
+			children = (
+				4FCA05912767645A0089A5FC /* init.lua */,
+				4FCA05922767645A0089A5FC /* index.lp */,
+				4FCA05932767645A0089A5FC /* gfm.lp */,
+				4FCA05942767645A0089A5FC /* module.lp */,
+				4FCA05952767645A0089A5FC /* index.md */,
+				4FCA05962767645A0089A5FC /* hsminweb */,
+				4FCA059A2767645A0089A5FC /* form.lp */,
+				4FCA059B2767645A0089A5FC /* common.lp */,
+				4FCA059C2767645A0089A5FC /* sample.lp */,
+				4FCA059D2767645A0089A5FC /* search.lp */,
+			);
+			name = hsdocs;
+			path = extensions/doc/hsdocs;
+			sourceTree = "<group>";
+		};
+		4FCA05962767645A0089A5FC /* hsminweb */ = {
+			isa = PBXGroup;
+			children = (
+				4FCA05972767645A0089A5FC /* templates.md */,
+				4FCA05982767645A0089A5FC /* index.md */,
+				4FCA05992767645A0089A5FC /* functions.md */,
+			);
+			path = hsminweb;
+			sourceTree = "<group>";
+		};
 		4FCBAFBF23B0D343007BA1D0 /* math */ = {
 			isa = PBXGroup;
 			children = (
@@ -3529,6 +3640,7 @@
 		4FD0ABC91B74B1B000A82496 /* doc */ = {
 			isa = PBXGroup;
 			children = (
+				4FCA05902767645A0089A5FC /* hsdocs */,
 				4FD0ABCA1B74B1C500A82496 /* doc.lua */,
 				D6BACEA923178EC900110E1E /* libdoc.m */,
 				D67F1B3C1EA9D65E00FEB411 /* builder.lua */,
@@ -3854,6 +3966,7 @@
 				D633A9E9247B9BF2005C88E2 /* libaxuielement.dylib */,
 				4F7F3B6C272AF68100E05732 /* libshortcuts.dylib */,
 				4FF06124274AA7A200FB15D6 /* libcamera.dylib */,
+				4FCA05CA27678B100089A5FC /* libmarkdown.dylib */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -4469,6 +4582,21 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4FCA05BD27678B100089A5FC /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4FCA05BE27678B100089A5FC /* autolink.h in Headers */,
+				4FCA05BF27678B100089A5FC /* buffer.h in Headers */,
+				4FCA05C027678B100089A5FC /* houdini.h in Headers */,
+				4FCA05C127678B100089A5FC /* html_blocks.h in Headers */,
+				4FCA05C227678B100089A5FC /* html.h in Headers */,
+				4FCA05C327678B100089A5FC /* markdown.h in Headers */,
+				4FCA05C427678B100089A5FC /* plaintext.h in Headers */,
+				4FCA05C527678B100089A5FC /* stack.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5569,6 +5697,23 @@
 			productReference = 4FC93CA71BCD872D0041B820 /* libaudiodevicewatcher.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
+		4FCA05AF27678B100089A5FC /* markdown */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4FCA05C627678B100089A5FC /* Build configuration list for PBXNativeTarget "markdown" */;
+			buildPhases = (
+				4FCA05B027678B100089A5FC /* Sources */,
+				4FCA05BB27678B100089A5FC /* Frameworks */,
+				4FCA05BD27678B100089A5FC /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = markdown;
+			productName = alert;
+			productReference = 4FCA05CA27678B100089A5FC /* libmarkdown.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
 		4FCBAFC323B0D941007BA1D0 /* math */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4FCBAFC923B0D941007BA1D0 /* Build configuration list for PBXNativeTarget "math" */;
@@ -5976,12 +6121,14 @@
 				9445CA0919083251002568BB /* Resources */,
 				E849AEC367EA9502A25B9A7C /* [CP] Embed Pods Frameworks */,
 				4F6D9E3523074BC6006CC3E4 /* Update version/build numbers */,
-				4F6689E61C288FF800E48AF1 /* Assert no stray init.lua's in app bundle */,
 				4FF73A1E2735449D0007074E /* Copy hs manpage */,
+				4FCA05A12767689C0089A5FC /* Copy hsdocs Files */,
+				4FCA05AB276768EC0089A5FC /* Copy hsdocs minweb Files */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				4FCA05CC27678B330089A5FC /* PBXTargetDependency */,
 				4FF06127274AA7D900FB15D6 /* PBXTargetDependency */,
 				4F7F3B6F272AF7E100E05732 /* PBXTargetDependency */,
 				224BA33623D1EFB300487FDB /* PBXTargetDependency */,
@@ -6594,6 +6741,7 @@
 				4F6B3E9E1B73D6D300B2A4DE /* json */,
 				4F76944A1B74C96800536DE4 /* keycodes */,
 				4F6B3EB11B73DC4500B2A4DE /* location */,
+				4FCA05AF27678B100089A5FC /* markdown */,
 				4FCBAFC323B0D941007BA1D0 /* math */,
 				4F6B3EC81B73E23800B2A4DE /* menubar */,
 				22E4D7F91FA7488900C8CF5C /* midi */,
@@ -6727,20 +6875,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "set -eux\n\n# Skip this on Profile builds\nif [ \"${CONFIGURATION}\" != \"Release\" ]; then\n  > Hammerspoon/secrets.h\n  exit 0\nfi\n\nTOKENPATH=\"${HAMMERSPOON_TOKEN_PATH:-..}\"\n\nif [ -f \"${TOKENPATH}/token-sentry-api\" ] ; then\n  source \"${TOKENPATH}/token-sentry-api\"\n  > Hammerspoon/secrets.h\n  echo \"#define SENTRY_API_URL \\\"${SENTRY_API_URL}\\\"\" >>Hammerspoon/secrets.h\nelse\n  > Hammerspoon/secrets.h\nfi\n";
-		};
-		4F6689E61C288FF800E48AF1 /* Assert no stray init.lua's in app bundle */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Assert no stray init.lua's in app bundle";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "if [ -f \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/init.lua\" ]; then\n  echo \"ERROR: At least one extension's init.lua has membership of the Hammerspoon.app target. While non-fatal, this should not be the case. Here is the first line of said init.lua file, which might help you find out which extension is at fault. Once you know, in Xcode, select View -> Utilities -> Show File Inspector and untick the file from the Hammerspoon target:\"\n  echo -n \"    \"\n  head -1 \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/init.lua\"\n  exit 1\nfi\n\nexit 0\n";
 		};
 		4F6D9E3523074BC6006CC3E4 /* Update version/build numbers */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -7198,6 +7332,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4FCA05B027678B100089A5FC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4FCA05B127678B100089A5FC /* autolink.c in Sources */,
+				4FCA05B227678B100089A5FC /* buffer.c in Sources */,
+				4FCA05B327678B100089A5FC /* houdini_href_e.c in Sources */,
+				4FCA05B427678B100089A5FC /* houdini_html_e.c in Sources */,
+				4FCA05B627678B100089A5FC /* html.c in Sources */,
+				4FCA05B727678B100089A5FC /* markdown.c in Sources */,
+				4FCA05B827678B100089A5FC /* markdown.m in Sources */,
+				4FCA05B927678B100089A5FC /* plaintext.c in Sources */,
+				4FCA05BA27678B100089A5FC /* stack.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4FCBAFC423B0D941007BA1D0 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -7525,16 +7675,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D64964841CCB33120074540B /* autolink.c in Sources */,
-				D64964851CCB33120074540B /* buffer.c in Sources */,
-				D64964861CCB33120074540B /* houdini_href_e.c in Sources */,
-				D64964871CCB33120074540B /* houdini_html_e.c in Sources */,
 				D6BACEAA23178ECA00110E1E /* libdoc.m in Sources */,
-				D64964881CCB33120074540B /* html.c in Sources */,
-				D64964891CCB33120074540B /* markdown.c in Sources */,
-				D649648A1CCB33120074540B /* markdown.m in Sources */,
-				D649648B1CCB33120074540B /* plaintext.c in Sources */,
-				D649648C1CCB33120074540B /* stack.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7869,6 +8010,11 @@
 			isa = PBXTargetDependency;
 			target = 4FC93C9D1BCD872D0041B820 /* audiodevicewatcher */;
 			targetProxy = 4FC93CAC1BCD87A60041B820 /* PBXContainerItemProxy */;
+		};
+		4FCA05CC27678B330089A5FC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4FCA05AF27678B100089A5FC /* markdown */;
+			targetProxy = 4FCA05CB27678B330089A5FC /* PBXContainerItemProxy */;
 		};
 		4FCBAFD023B0D98F007BA1D0 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -9655,6 +9801,30 @@
 			};
 			name = Release;
 		};
+		4FCA05C727678B100089A5FC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		4FCA05C827678B100089A5FC /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Profile;
+		};
+		4FCA05C927678B100089A5FC /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		4FCBAFCA23B0D941007BA1D0 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
@@ -10988,6 +11158,16 @@
 				4FC93CA51BCD872D0041B820 /* Debug */,
 				4F04549320F0EE7D00699F29 /* Profile */,
 				4FC93CA61BCD872D0041B820 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		4FCA05C627678B100089A5FC /* Build configuration list for PBXNativeTarget "markdown" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4FCA05C727678B100089A5FC /* Debug */,
+				4FCA05C827678B100089A5FC /* Profile */,
+				4FCA05C927678B100089A5FC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
