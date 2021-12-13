@@ -1148,6 +1148,7 @@ static int audiodevice_setbalance(lua_State* L) {
 
     AudioObjectPropertyAddress propertyAddress = {
         kAudioHardwareServiceDeviceProperty_VirtualMainBalance,
+        scope,
         kAudioObjectPropertyElementMaster
     };
 
