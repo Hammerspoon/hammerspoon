@@ -339,7 +339,7 @@ static int wifi_current_ssid(lua_State* L) {
 ///  * A table containing details about the interface.  The table will contain the following keys:
 ///    * active            - The interface has its corresponding network service enabled.
 ///    * activePHYMode     - The current active PHY mode for the interface.
-///    * bssid             - The current basic service set identifier (BSSID) for the interface.
+///    * bssid             - The current basic service set identifier (BSSID) for the interface. Note that for this key to be available, hs.location needs to have been started
 ///    * cachedScanResults - A table containing the networks currently in the scan cache for the WLAN interface.  See [hs.wifi.backgroundScan](#backgroundScan) for details on the table format.
 ///    * configuration     - A table containing the current configuration for the given WLAN interface.  This table will contain the following keys:
 ///      * networkProfiles                    - A table containing an array of known networks for the interface.  Entries in the array will each contain the following keys:
