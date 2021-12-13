@@ -27,7 +27,7 @@ local timer     = require"hs.timer"
 local host      = require"hs.host"
 local hotkey    = require"hs.hotkey"
 
-local documentRoot = package.searchpath("hs.doc.hsdocs", package.path):match("^(/.*/).*%.lua$")
+local documentRoot = package.searchpath("hs.hsdocs", package.path):match("^(/.*/).*%.lua$")
 
 local osVersion = host.operatingSystemVersion()
 
