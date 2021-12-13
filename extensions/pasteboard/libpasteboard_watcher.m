@@ -159,8 +159,7 @@ HSPasteboardTimer *createHSPasteboardTimer(int callbackRef, NSString *pbName) {
 ///  generalPBWatcher = hs.pasteboard.watcher.new(function(v) print(string.format("General Pasteboard Contents: %s", v)) end)
 ///  specialPBWatcher = hs.pasteboard.watcher.new(function(v) print(string.format("Special Pasteboard Contents: %s", v)) end, "special")
 ///  hs.pasteboard.writeObjects("This is on the general pasteboard.")
-///  hs.pasteboard.writeObjects("This is on the special pasteboard.", "special")
-///  ```
+///  hs.pasteboard.writeObjects("This is on the special pasteboard.", "special")```
 static int pasteboardwatcher_new(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TFUNCTION, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];

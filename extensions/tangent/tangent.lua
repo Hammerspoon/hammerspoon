@@ -1363,8 +1363,7 @@ end
 --- ```lua
 --- hs.tangent.sendDisplayText(
 ---     { "Single Height", "Double Height" }, {false, true}
---- )
---- ```
+--- )```
 function mod.sendDisplayText(messages, doubleHeight)
     --------------------------------------------------------------------------------
     -- DisplayText (0x86)

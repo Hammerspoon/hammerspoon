@@ -136,8 +136,7 @@ static int eventtap_event_newEventFromData(lua_State* L) {
 ///       b = require("hs.eventtap.event").newGesture("endRotate", -45)
 ///       a:post()
 ///       b:post()
-///   end)
-///   ```
+///   end)```
 static int eventtap_event_newGesture(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK] ;

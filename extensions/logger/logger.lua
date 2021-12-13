@@ -228,8 +228,7 @@ logger.defaultLogLevel = 'warning'
 --- Example:
 --- ```lua
 --- local log = hs.logger.new('mymodule','debug')
---- log.i('Initializing') -- will print "[mymodule] Initializing" to the console
---- ```
+--- log.i('Initializing') -- will print "[mymodule] Initializing" to the console```
 function logger.new(id,loglevel)
   if type(id)~='string' then error('id must be a string',2) end
   --  id=sformat('%10s','['..sformat('%.8s',id)..']')

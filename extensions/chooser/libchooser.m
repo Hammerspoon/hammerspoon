@@ -129,7 +129,7 @@ static int chooserIsVisible(lua_State *L) {
 ///  * If you're using a hs.styledtext object for text or subText choices, make sure you specify a color, otherwise your text could appear transparent depending on the bgDark setting.
 ///
 /// Example:
-///  ```
+///  ```lua
 /// local choices = {
 ///  {
 ///   ["text"] = "First Choice",
@@ -144,8 +144,7 @@ static int chooserIsVisible(lua_State *L) {
 ///    ["subText"] = "What a lot of choosing there is going on here!",
 ///    ["uuid"] = "III3"
 ///  },
-/// }
-///  ```
+/// }```
 static int chooserSetChoices(lua_State *L) {
     BOOL staticChoicesTypeCheckPass = NO;
 

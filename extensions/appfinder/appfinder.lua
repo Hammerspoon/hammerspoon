@@ -1,6 +1,6 @@
 --- === hs.appfinder ===
 ---
---- Easily find ```hs.application``` and ```hs.window``` objects
+--- Easily find `hs.application` and `hs.window` objects
 ---
 --- This module is *deprecated*; you can use `hs.window.find()`, `hs.window.get()`, `hs.application.find()`,
 --- `hs.application.get()`, `hs.application:findWindow()` and `hs.application:getWindow()` instead.
