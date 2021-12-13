@@ -760,15 +760,14 @@ static int menubarSetClickCallback(lua_State *L) {
 ///    * ctrl
 ///    * fn
 ///   * Table Format:
-/// ```
+/// ```lua
 ///    {
 ///        { title = "my menu item", fn = function() print("you clicked my menu item!") end },
 ///        { title = "-" },
 ///        { title = "other item", fn = some_function },
 ///        { title = "disabled item", disabled = true },
 ///        { title = "checked item", checked = true },
-///    }
-/// ```
+///    }```
 ///   * The available keys for each menu item are (note that `title` is the only required key -- all other keys are optional):
 ///    * `title`           - A string or `hs.styledtext` object to be displayed in the menu. If this is the special string `"-"` the item will be rendered as a menu separator.  This key can be set to the empty string (""), but it must be present.
 ///    * `fn`              - A function to be executed when the menu item is clicked. The function will be called with two arguments. The first argument will be a table containing boolean values indicating which keyboard modifiers were held down when the menubar item was clicked (see `menuTable` parameter for possible keys) and the second is the table representing the item.

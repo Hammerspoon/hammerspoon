@@ -103,7 +103,8 @@ layout.maximized = geometry.rect(0, 0, 1, 1)
 ---  * Only one of the rect arguments will apply to any matched windows. If you specify more than one, the first will win
 ---  * An example usage:
 ---
----     ```layout1 = {
+---     ```lua
+---       layout1 = {
 ---         {"Mail", nil, "Color LCD", hs.layout.maximized, nil, nil},
 ---         {"Safari", nil, "Thunderbolt Display", hs.layout.maximized, nil, nil},
 ---         {"iTunes", "iTunes", "Color LCD", hs.layout.maximized, nil, nil},

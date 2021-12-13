@@ -354,12 +354,11 @@ static int virtualSources(lua_State *L) {
 ///    * `devices` - A table containing the names of any physically connected MIDI devices as strings.
 ///    * `virtualDevices` - A table containing the names of any virtual MIDI devices as strings.
 ///  * Example Usage:
-///    ```
+///    ```lua
 ///    hs.midi.deviceCallback(function(devices, virtualDevices)
 ///         print(hs.inspect(devices))
 ///         print(hs.inspect(virtualDevices))
-///    end)
-///    ```
+///    end)```
 static int deviceCallback(lua_State *L) {
 
     //
@@ -600,7 +599,7 @@ static int midi_newVirtualSource(lua_State *L) {
 ///      * isVirtual           - `true` if Virtual MIDI Source otherwise `false`.
 ///
 ///  * Example Usage:
-///    ```
+///    ```lua
 ///    midiDevice = hs.midi.new(hs.midi.devices()[3])
 ///    midiDevice:callback(function(object, deviceName, commandType, description, metadata)
 ///               print("object: " .. tostring(object))
@@ -608,8 +607,7 @@ static int midi_newVirtualSource(lua_State *L) {
 ///               print("commandType: " .. commandType)
 ///               print("description: " .. description)
 ///               print("metadata: " .. hs.inspect(metadata))
-///               end)
-///    ```
+///               end)```
 static int midi_callback(lua_State *L) {
 
     //
@@ -1022,7 +1020,8 @@ static int midi_callback(lua_State *L) {
 ///
 /// Notes:
 ///  * Example Usage:
-///    ```midiDevice:sendSysex("f07e7f06 01f7")```
+///    ```lua
+///    midiDevice:sendSysex("f07e7f06 01f7")```
 static int midi_sendSysex(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TBREAK];
@@ -1080,7 +1079,7 @@ static int midi_sendSysex(lua_State *L) {
 ///      * channel             - The channel for the command. Must be a number between 0 and 16. Defaults to 0, which sends the command to All Channels.
 ///
 ///  * Example Usage:
-///     ```
+///     ```lua
 ///     midiDevice = hs.midi.new(hs.midi.devices()[1])
 ///     midiDevice:sendCommand("noteOn", {
 ///         ["note"] = 72,
@@ -1112,8 +1111,7 @@ static int midi_sendSysex(lua_State *L) {
 ///     midiDevice:sendCommand("pitchWheelChange", {
 ///         ["pitchChange"] = 3000,
 ///         ["channel"] = 0,
-///     })
-///     ```
+///     })```
 static int midi_sendCommand(lua_State *L) {
 
     LuaSkin *skin = [LuaSkin sharedWithState:L];
@@ -1354,7 +1352,7 @@ static int midi_sendCommand(lua_State *L) {
 ///
 /// Notes:
 ///  * Example Usage:
-///   ```
+///   ```lua
 ///   midiDevice = hs.midi.new(hs.midi.devices()[3])
 ///   midiDevice:callback(function(object, deviceName, commandType, description, metadata)
 ///                         print("object: " .. tostring(object))
@@ -1363,8 +1361,7 @@ static int midi_sendCommand(lua_State *L) {
 ///                         print("description: " .. description)
 ///                         print("metadata: " .. hs.inspect(metadata))
 ///                       end)
-///   midiDevice:identityRequest()
-///   ```
+///   midiDevice:identityRequest()```
 static int midi_identityRequest(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];

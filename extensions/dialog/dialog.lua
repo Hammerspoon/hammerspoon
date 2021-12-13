@@ -38,7 +38,8 @@ color.panel = module.color
 ---  * The optional values must be entered in order (i.e. you can't supply `style` without also supplying `buttonOne` and `buttonTwo`).
 ---  * [style] can be "warning", "informational" or "critical". If something other than these string values is given, it will use "informational".
 ---  * Example:
----      ```testCallbackFn = function(result) print("Callback Result: " .. result) end
+---      ```lua
+---      testCallbackFn = function(result) print("Callback Result: " .. result) end
 ---      hs.dialog.alert(100, 100, testCallbackFn, "Message", "Informative Text", "Button One", "Button Two", "NSCriticalAlertStyle")
 ---      hs.dialog.alert(200, 200, testCallbackFn, "Message", "Informative Text", "Single Button")```
 function module.alert(x, y, callback, ...)
