@@ -365,7 +365,7 @@ function op_release() {
     cp -r "${BUILD_HOME}/html/" docs/
     cp -r "${BUILD_HOME}/html/" "docs/${VERSION}/"
     git add .
-    git commit -am "Add docs for ${VERSION}"
+    git commit --allow-empty -am "Add docs for ${VERSION}"
     git push
     popd >/dev/null || fail "Unknown"
 
