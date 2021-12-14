@@ -265,7 +265,7 @@ function op_keychain_post() {
     local SECBIN="/usr/bin/security"
     local KEYCHAIN="build.keychain"
 
-    "${SECBIN}" delete-keychain -s "${KEYCHAIN}"
+    "${SECBIN}" delete-keychain "${KEYCHAIN}"
 }
 
 function op_notarize() {
