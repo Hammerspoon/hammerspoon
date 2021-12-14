@@ -278,7 +278,7 @@ export HAMMERSPOON_BUNDLE_NAME="${APP_NAME}.app"
 export HAMMERSPOON_BUNDLE_PATH="${BUILD_HOME}/${HAMMERSPOON_BUNDLE_NAME}"
 export HAMMERSPOON_XCARCHIVE_PATH="${HAMMERSPOON_BUNDLE_PATH}.xcarchive"
 export XCODE_BUILT_PRODUCTS_DIR ; XCODE_BUILT_PRODUCTS_DIR="$(xcodebuild -workspace Hammerspoon.xcworkspace -scheme "${XCODE_SCHEME}" -configuration "${XCODE_CONFIGURATION}" -destination "platform=macOS" -showBuildSettings | sort | uniq | grep ' BUILT_PRODUCTS_DIR =' | awk '{ print $3 }')"
-export DOCS_SEARCH_DIRS=("${HAMMERSPOON_HOME}/Hammerspoon/" "${HAMMERSPOON_HOME}/extensions/")
+export DOCS_SEARCH_DIRS=("Hammerspoon" "extensions/")
 
 # Calculate private token variables
 export TOKENPATH ; TOKENPATH="$(greadlink -f "${HAMMERSPOON_HOME}/..")"

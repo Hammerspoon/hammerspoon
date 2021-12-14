@@ -154,9 +154,12 @@ function op_docs() {
     local LSDOCSDIR="${BUILD_HOME}/html/LuaSkin"
     local DOCSCRIPT="${HAMMERSPOON_HOME}/scripts/docs/bin/build_docs.py"
 
+    pushd "${HAMMERSPOON_HOME}" >/dev/null || fail "Unable to access Hammerspoon repo at ${HAMMERSPOON_HOME}"
+
     if [ "${DOCS_LINT_ONLY}" == 1 ]; then
         "${DOCSCRIPT}" -l ${DOCS_SEARCH_DIRS[*]}
         echo "Docs lint OK"
+        popd >/dev/null || fail "Unknown"
         return # We return here because this option cannot be used with any of the subsequent ones
     fi
 
@@ -201,6 +204,7 @@ function op_docs() {
     fi
 
     echo "Docs built"
+    popd >/dev/null || fail "Unknown"
 }
 
 function op_installdeps() {
