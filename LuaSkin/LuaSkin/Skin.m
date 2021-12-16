@@ -341,10 +341,15 @@ catastrophe:
 
     NSString *NSlsCanary = [NSString stringWithCString:canary.uuid encoding:NSUTF8StringEncoding];
     if (!NSlsCanary || ![self.uuid.UUIDString isEqualToString:NSlsCanary]) {
-        [self logWarn:@"LuaSkin has caught an attempt to operate on an object that has been garbage collected. Please file an Issue on GitHub with the following information:"];
-        for (NSString *label in NSThread.callStackSymbols) {
-            [self logWarn:label];
+        NSLog(@"LuaSkin caught an attempt to operate on an object that has been garbage collected.");
+        for (NSString *stackSymbol in [NSThread callStackSymbols]) {
+            NSLog(@"Previous stack symbol: %@", stackSymbol);
         }
+        NSException* myException = [NSException
+                                    exceptionWithName:@"LuaGCCanaryMismatch"
+                                    reason:@"GC Canary changed"
+                                    userInfo:nil];
+        @throw myException;
         return NO;
     }
 
