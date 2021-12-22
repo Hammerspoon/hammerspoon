@@ -27,6 +27,7 @@ DOCS_SQL=1
 DOCS_DASH=1
 DOCS_LUASKIN=1
 DOCS_LINT_ONLY=0
+INSTALLDEPS_FULL=0
 
 # Print out friendly command line usage information
 function usage() {
@@ -65,6 +66,9 @@ function usage() {
     echo "  -a             - Build only Dash documentation"
     echo "  -k             - Build only LuaSkin documentation"
     echo "  -l             - Only lint docs, don't build anything"
+    echo ""
+    echo "INSTALLDEPS OPTIONS:"
+    echo "  -r             - Install full dependencies required to complete a public release"
     echo ""
     echo "KEYCHAIN-PREP OPTIONS:"
     echo "Note: This command is primarily for use in CI. For local builds, manually import your Apple signing certificate"
@@ -110,7 +114,7 @@ fi
 #fi;
 
 # Parse the rest of any arguments
-PARSED_ARGUMENTS=$(getopt ds:c:x:ujmtqakly:w:ep:o: $*)
+PARSED_ARGUMENTS=$(getopt ds:c:x:ujmtqakly:w:ep:o:r $*)
 if [ $? != 0 ]; then
     usage
 fi
@@ -206,6 +210,9 @@ do
         -w)
             TWITTER_ACCOUNT=${2}; shift
             shift;;
+        -r)
+            INSTALLDEPS_FULL=1
+            shift;;
         --)
             shift; break;;
     esac
@@ -254,6 +261,7 @@ export DOCS_HTML
 export DOCS_SQL
 export DOCS_DASH
 export DOCS_LINT_ONLY
+export INSTALLDEPS_FULL
 
 # Early sanity check that we have everything we need
 export PATH="$PATH:/opt/homebrew/bin"
