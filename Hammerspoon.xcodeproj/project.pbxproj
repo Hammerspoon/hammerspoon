@@ -133,7 +133,7 @@
 		4FA125882016739500F02FDF /* HSLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FA125872016739500F02FDF /* HSLogger.m */; };
 		4FB74B3B2049A9A600B08851 /* HStask.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FB74B3A2049A9A600B08851 /* HStask.m */; };
 		4FB74B3C2049AB8B00B08851 /* test_task.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FB74B392049A97D00B08851 /* test_task.lua */; };
-		4FB852362735B02400462DD0 /* LuaSkin.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4FB852342735B02400462DD0 /* LuaSkin.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		4FB852362735B02400462DD0 /* LuaSkin.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4FB852342735B02400462DD0 /* LuaSkin.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		4FB852382735B15200462DD0 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FB852342735B02400462DD0 /* LuaSkin.framework */; };
 		4FB852392735B23E00462DD0 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FB852342735B02400462DD0 /* LuaSkin.framework */; };
 		4FB8523A2735B24D00462DD0 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FB852342735B02400462DD0 /* LuaSkin.framework */; };
