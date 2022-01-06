@@ -659,7 +659,6 @@ static int preferencesDarkMode(lua_State* L) {
 ///      - This will now open a Dictionary containing all of the availible Hammerspoon AppleScript commands.
 ///  * Note that strings within the Lua code you pass from AppleScript can be delimited by `[[` and `]]` rather than normal quotes
 ///  * Example:
-///
 ///    ```lua
 ///    tell application "Hammerspoon"
 ///      execute lua code "hs.alert([[Hello from AppleScript]])"

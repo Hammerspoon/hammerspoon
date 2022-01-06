@@ -224,47 +224,38 @@ static HSWifiWatcherManager *manager ;
 ///
 /// Notes:
 ///  * For backwards compatibility, only "SSIDChange" is watched for by default, so existing code can continue to ignore the callback function arguments unless you add or change events with the [hs.wifi.watcher:watchingFor](#watchingFor).
-///
 ///  * The callback function should expect between 3 and 5 arguments, depending upon the events being watched.  The possible arguments are as follows:
-///
 ///    * `watcher`, "SSIDChange", `interface` - occurs when the associated network for the Wi-Fi interface changes
 ///      * `watcher`   - the watcher object itself
 ///      * `message`   - the message specifying the event, in this case "SSIDChange"
 ///      * `interface` - the name of the interface for which the event occured
 ///    * Use `hs.wifi.currentNetwork([interface])` to identify the new network, which may be nil when you leave a network.
-///
 ///    * `watcher`, "BSSIDChange", `interface` - occurs when the base station the Wi-Fi interface is connected to changes
 ///      * `watcher`   - the watcher object itself
 ///      * `message`   - the message specifying the event, in this case "BSSIDChange"
 ///      * `interface` - the name of the interface for which the event occured
-///
 ///    * `watcher`, "countryCodeChange", `interface` - occurs when the adopted country code of the Wi-Fi interface changes
 ///      * `watcher`   - the watcher object itself
 ///      * `message`   - the message specifying the event, in this case "countryCodeChange"
 ///      * `interface` - the name of the interface for which the event occured
-///
 ///    * `watcher`, "linkChange", `interface` - occurs when the link state for the Wi-Fi interface changes
 ///      * `watcher`   - the watcher object itself
 ///      * `message`   - the message specifying the event, in this case "linkChange"
 ///      * `interface` - the name of the interface for which the event occured
-///
 ///    * `watcher`, "linkQualityChange", `interface` - occurs when the RSSI or transmit rate for the Wi-Fi interface changes
 ///      * `watcher`   - the watcher object itself
 ///      * `message`   - the message specifying the event, in this case "linkQualityChange"
 ///      * `interface` - the name of the interface for which the event occured
 ///      * `rssi`      - the RSSI value for the currently associated network on the Wi-Fi interface
 ///      * `rate`      - the transmit rate for the currently associated network on the Wi-Fi interface
-///
 ///    * `watcher`, "modeChange", `interface` - occurs when the operating mode of the Wi-Fi interface changes
 ///      * `watcher`   - the watcher object itself
 ///      * `message`   - the message specifying the event, in this case "modeChange"
 ///      * `interface` - the name of the interface for which the event occured
-///
 ///    * `watcher`, "powerChange", `interface` - occurs when the power state of the Wi-Fi interface changes
 ///      * `watcher`   - the watcher object itself
 ///      * `message`   - the message specifying the event, in this case "powerChange"
 ///      * `interface` - the name of the interface for which the event occured
-///
 ///    * `watcher`, "scanCacheUpdated", `interface` - occurs when the scan cache of the Wi-Fi interface is updated with new information
 ///      * `watcher`   - the watcher object itself
 ///      * `message`   - the message specifying the event, in this case "scanCacheUpdated"
@@ -374,15 +365,16 @@ static int wifi_watcher_watchingFor(lua_State *L) {
 /// Constant
 /// A table containing the possible event types that this watcher can monitor for.
 ///
-/// The following events are available for monitoring:
-/// * "SSIDChange"                   - monitor when the associated network for the Wi-Fi interface changes
-/// * "BSSIDChange"                  - monitor when the base station the Wi-Fi interface is connected to changes
-/// * "countryCodeChange"            - monitor when the adopted country code of the Wi-Fi interface changes
-/// * "linkChange"                   - monitor when the link state for the Wi-Fi interface changes
-/// * "linkQualityChange"            - monitor when the RSSI or transmit rate for the Wi-Fi interface changes
-/// * "modeChange"                   - monitor when the operating mode of the Wi-Fi interface changes
-/// * "powerChange"                  - monitor when the power state of the Wi-Fi interface changes
-/// * "scanCacheUpdated"             - monitor when the scan cache of the Wi-Fi interface is updated with new information
+/// Notes:
+///  * The following events are available for monitoring:
+///   * "SSIDChange"                   - monitor when the associated network for the Wi-Fi interface changes
+///   * "BSSIDChange"                  - monitor when the base station the Wi-Fi interface is connected to changes
+///   * "countryCodeChange"            - monitor when the adopted country code of the Wi-Fi interface changes
+///   * "linkChange"                   - monitor when the link state for the Wi-Fi interface changes
+///   * "linkQualityChange"            - monitor when the RSSI or transmit rate for the Wi-Fi interface changes
+///   * "modeChange"                   - monitor when the operating mode of the Wi-Fi interface changes
+///   * "powerChange"                  - monitor when the power state of the Wi-Fi interface changes
+///   * "scanCacheUpdated"             - monitor when the scan cache of the Wi-Fi interface is updated with new information
 // /// * "virtualInterfaceStateChanged" - monitor when the state of a Wi-Fi virtual interface changes
 static int pushEventTypes(lua_State *L) {
     [[LuaSkin sharedWithState:L] pushNSObject:[watchableTypes allKeys]] ;

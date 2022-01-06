@@ -96,7 +96,6 @@ module.observer.notifications  = ls.makeConstantsTable(module.observer.notificat
 ---
 --- Notes:
 ---  * See also [hs.axuielement:elementAtPosition](#elementAtPosition) -- this function is a shortcut for `hs.axuielement.systemWideElement():elementAtPosition(...)`.
----
 ---  * This function does hit-testing based on window z-order (that is, layering). If one window is on top of another window, the returned accessibility object comes from whichever window is topmost at the specified location.
 module.systemElementAtPosition = function(...)
     return module.systemWideElement():elementAtPosition(...)
@@ -220,7 +219,6 @@ end
 ---
 --- Notes:
 ---  * this object will always exist as the last element in the table (e.g. at `table[#table]`) with its most immediate parent at `#table - 1`, etc. until the rootmost object for this element is reached at index position 1.
----
 ---  * an axuielement object representing an application or the system wide object is its own rootmost object and will return a table containing only itself (i.e. `#table` will equal 1)
 objectMT.path = function(self)
     local results, current = { self }, self
@@ -256,25 +254,19 @@ end
 --- Notes:
 ---  * the `criteria` argument must be one of the following:
 ---    * a single string, specifying the value the element's AXRole attribute must equal for a positive match
----
 ---    * an array table of strings specifying a list of possible values the element's AXRole attribute can equal for a positive match
----
 ---    * a table of key-value pairs specifying a more complex criteria. The table should be defined as follows:
 ---      * one or more of the following must be specified (though all specified must match):
 ---        * `attribute`              -- a string, or table of strings, specifying attributes that the element must support.
 ---        * `action`                 -- a string, or table of strings, specifying actions that the element must be able to perform.
 ---        * `parameterizedAttribute` -- a string, or table of strings, specifying parametrized attributes that the element must support.
----
 ---      * if the `attribute` key is specified, you can use one of the the following to specify a specific value the attribute must equal for a positive match. No more than one of these should be provided. If neither are present, then only the existence of the attributes specified by `attribute` are required.
 ---        * `value`                  -- a value, or table of values, that a specifeid attribute must equal. If it's a table, then only one of the values has to match the attribute value for a positive match. Note that if you specify more than one attribute with the `attribute` key, you must provide at least one value for each attribute in this table (order does not matter, but the match will fail if any atrribute does not match at least one value provided).
 ---        * `nilValue`               -- a boolean, specifying that the attributes must not have an assigned value (true) or may be assigned any value except nil (false). If the `value` key is specified, this key is ignored. Note that this applies to *all* of the attributes specified with the `attribute` key.
----
 ---      * the following are optional keys and are not required:
 ---        * `pattern`                -- a boolean, default false, specifying whether string matches for attribute values should be evaluated with `string.match` (true) or as exact matches (false). See the Lua manual, section 6.4.1 (`help.lua._man._6_4_1` in the Hammerspoon console). If the `value` key is not set, than this key is ignored.
 ---        * `invert`                 -- a boolean, default false, specifying inverted logic for the criteria result --- if this is true and the criteria matches, evaluate criteria as false; otherwise evaluate as true.
----
 ---    * an array table of one or more key-value tables as described immediately above; the element must be a positive match for all of the individual criteria tables specified (logical AND).
----
 ---  * This method is used by [hs.axuielement.searchCriteriaFunction](#searchCriteriaFunction) to create criteria functions compatible with [hs.axuielement:elementSearch](#elementSearch).
 objectMT.matchesCriteria = function(self, criteria)
     if type(criteria) == "string" then
@@ -421,8 +413,7 @@ end
 ---  * an elementSearchObject as described in [hs.axuielement:elementSearch](#elementSearch)
 ---
 --- Notes:
---- * The format of the `results` table passed to the callback for this method is primarily for debugging and exploratory purposes and may not be arranged for easy programatic evaluation.
----
+---  * The format of the `results` table passed to the callback for this method is primarily for debugging and exploratory purposes and may not be arranged for easy programatic evaluation.
 ---  * This method is syntactic sugar for `hs.axuielement:elementSearch(callback, { objectOnly = false, asTree = true, [depth = depth], [includeParents = withParents] })`. Please refer to [hs.axuielement:elementSearch](#elementSearch) for details about the returned object and callback arguments.
 objectMT.buildTree = function(self, callback, depth, withParents)
     return self:elementSearch(callback, nil, {
@@ -707,7 +698,6 @@ end
 ---  * `namedModifiers` - an optional table specifying key-value pairs that further modify or control the search. This table may contain 0 or more of the following keys:
 ---    * `count`          - an optional integer, default `math.huge`, specifying the maximum number of matches to collect before ending the search and invoking the callback. You can continue the search to find additional elements by invoking `elementSearchObject:next()` (described below in the `Returns` section) on the return value of this method, or on the results argument passed to the callback.
 ---    * `depth`          - an optional integer, default `math.huge`, specifying the maximum number of steps (descendants) from the initial accessibility element the search should visit. If you know that your desired element(s) are relatively close to your starting element, setting this to a lower value can significantly speed up the search.
----
 ---    * The following are also recognized, but may impact the speed of the search, the responsiveness of Hammerspoon, or the format of the results in ways that limit further filtering and are not recommended except when you know that you require them:
 ---      * `asTree`         - an optional boolean, default false, and ignored if `criteria` is specified and non-empty, `objectOnly` is true, or `count` is specified. This modifier specifies whether the search results should return as an array table of tables containing each element's details (false) or as a tree where in which the root node details are the key-value pairs of the returned table and descendant elements are likewise described in subtables attached to the attribute name they belong to (true). This format is primarily for debugging and exploratory purposes and may not be arranged for easy programatic evaluation.
 ---      * `includeParents` - a boolean, default false, specifying whether or not parent attributes (`AXParent` and `AXTopLevelUIElement`) should be examined during the search. Note that in most cases, setting this value to true will end up traversing the entire Accessibility structure for the target application and may significantly slow down the search.
@@ -721,7 +711,6 @@ end
 ---    * `elementSearchObject:matched()`        - returns an integer specifying the number of elements which have already been found that meet the specified criteria function.
 ---    * `elementSearchObject:runTime()`        - returns an integer specifying the number of seconds spent performing this search. Note that this is *not* an accurate measure of how much time a given search will always take because the time will be greatly affected by how much other activity is occurring within Hammerspoon and on the users computer. Resuming a cancelled search or a search which invoked the callback because it reached `count` items with the `next` method (descibed below) will cause this number to begin increasing again to provide a cumulative total of time spent performing the search; time between when the callback is invoked and the `next` method is invoked is not included.
 ---    * `elementSearchObject:visited()`        - returns an integer specifying the number of elements which have been examined during the search so far.
----
 ---    * If `asTree` is false or not specified, the following additional methods will be available:
 ---      * `elementSearchObject:filter(criteria, [callback]) -> filterObject`
 ---        * returns a new table containing elements in the search results that match the specified criteria.
@@ -732,15 +721,11 @@ end
 ---
 --- Notes:
 ---  * This method utilizes coroutines to keep Hammerspoon responsive, but may be slow to complete if `includeParents` is true, if you do not specify `depth`, or if you start from an element that has a lot of descendants (e.g. the application element for a web browser). This is dependent entirely upon how many active accessibility elements the target application defines and where you begin your search and cannot reliably be determined up front, so you may need to experiment to find the best balance for your specific requirements.
----
---- * The search performed is a breadth-first search, so in general earlier elements in the results table will be "closer" in the Accessibility hierarchy to the starting point than later elements.
----
---- * The `elementSearchObject` returned by this method and the results passed in as the second argument to the callback function are the same object -- you can use either one in your code depending upon which makes the most sense. Results that match the criteria function are added to the `elementSearchObject` as they are found, so if you examine the object/table returned by this method and determine that you have located the element or elements you require before the callback has been invoked, you can safely invoke the cancel method to end the search early.
----
---- * If `objectsOnly` is specified as false, it may take some time after `cancel` is invoked for the mapping of element attribute tables to the descendant elements in the results set -- this is a by product of the need to iterate through the results to match up all of the instances of each element to it's attribute table.
----
---- * [hs.axuielement:allDescendantElements](#allDescendantElements) is syntactic sugar for `hs.axuielement:elementSearch(callback, { [includeParents = withParents] })`
---- * [hs.axuielement:buildTree](#buildTree) is syntactic sugar for `hs.axuielement:elementSearch(callback, { objectOnly = false, asTree = true, [depth = depth], [includeParents = withParents] })`
+---  * The search performed is a breadth-first search, so in general earlier elements in the results table will be "closer" in the Accessibility hierarchy to the starting point than later elements.
+---  * The `elementSearchObject` returned by this method and the results passed in as the second argument to the callback function are the same object -- you can use either one in your code depending upon which makes the most sense. Results that match the criteria function are added to the `elementSearchObject` as they are found, so if you examine the object/table returned by this method and determine that you have located the element or elements you require before the callback has been invoked, you can safely invoke the cancel method to end the search early.
+---  * If `objectsOnly` is specified as false, it may take some time after `cancel` is invoked for the mapping of element attribute tables to the descendant elements in the results set -- this is a by product of the need to iterate through the results to match up all of the instances of each element to it's attribute table.
+---  * [hs.axuielement:allDescendantElements](#allDescendantElements) is syntactic sugar for `hs.axuielement:elementSearch(callback, { [includeParents = withParents] })`
+---  * [hs.axuielement:buildTree](#buildTree) is syntactic sugar for `hs.axuielement:elementSearch(callback, { objectOnly = false, asTree = true, [depth = depth], [includeParents = withParents] })`
 objectMT.elementSearch = function(self, callback, criteria, namedModifiers)
     local namedModifierDefaults = {
         includeParents = false,

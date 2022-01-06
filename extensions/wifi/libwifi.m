@@ -236,48 +236,43 @@ static int wifi_scan(lua_State* L) {
 ///
 /// Notes:
 ///  * If you pass in nil as the callback function, the scan occurs but no callback function is called.  This can be useful to update the `cachedScanResults` entry returned by [hs.wifi.interfaceDetails](#interfaceDetails).
-///
-/// * The callback function should expect one argument which will be a table if the scan was successful or a string containing an error message if it was not.  The table will be an array of available networks.  Each entry in the array will be a table containing the following keys:
-///    * beaconInterval         - The beacon interval (ms) for the network.
-///    * bssid                  - The basic service set identifier (BSSID) for the network.
-///    * countryCode            - The country code (ISO/IEC 3166-1:1997) for the network.
-///    * ibss                   - Whether or not the network is an IBSS (ad-hoc) network.
-///    * informationElementData - Information element data included in beacon or probe response frames as an array of integers.
-///    * noise                  - The aggregate noise measurement (dBm) for the network.
-///    * PHYModes               - A table containing the PHY Modes supported by the network.
-///    * rssi                   - The aggregate received signal strength indication (RSSI) measurement (dBm) for the network.
-///    * security               - A table containing the security types supported by the network.
-///    * ssid                   - The service set identifier (SSID) for the network, encoded as a string.
-///    * ssidData               - The service set identifier (SSID) for the network, returned as data (1-32 octets).
-///    * wlanChannel            - A table containing details about the channel the network is on. The table will contain the following keys:
-///      * band   - The channel band.
-///      * number - The channel number.
-///      * width  - The channel width.
+///  * The callback function should expect one argument which will be a table if the scan was successful or a string containing an error message if it was not.  The table will be an array of available networks.  Each entry in the array will be a table containing the following keys:
+///   * beaconInterval         - The beacon interval (ms) for the network.
+///   * bssid                  - The basic service set identifier (BSSID) for the network.
+///   * countryCode            - The country code (ISO/IEC 3166-1:1997) for the network.
+///   * ibss                   - Whether or not the network is an IBSS (ad-hoc) network.
+///   * informationElementData - Information element data included in beacon or probe response frames as an array of integers.
+///   * noise                  - The aggregate noise measurement (dBm) for the network.
+///   * PHYModes               - A table containing the PHY Modes supported by the network.
+///   * rssi                   - The aggregate received signal strength indication (RSSI) measurement (dBm) for the network.
+///   * security               - A table containing the security types supported by the network.
+///   * ssid                   - The service set identifier (SSID) for the network, encoded as a string.
+///   * ssidData               - The service set identifier (SSID) for the network, returned as data (1-32 octets).
+///   * wlanChannel            - A table containing details about the channel the network is on. The table will contain the following keys:
+///    * band   - The channel band.
+///    * number - The channel number.
+///    * width  - The channel width.
 ///
 /// Notes:
 ///  * The contents of the `informationElementData` field is returned as an array of integers, each array item representing a byte in the block of data for the element.
 ///    * You can convert this data into a Lua string by passing the array as an argument to `string.char(table.unpack(results.informationElementData))`, but note that this field contains arbitrary binary data and should **not** be treated or considered as a *displayable* string. It requires additional parsing, depending upon the specific information you need from the probe or beacon response.
 ///    * For debugging purposes, if you wish to view the contents of this field as a string, make sure to wrap `string.char(table.unpack(results.informationElementData))` with `hs.utf8.asciiOnly` or `hs.utf8.hexDump`, rather than just print the result directly.
 ///    * As an example using [hs.wifi.interfaceDetails](#interfaceDetails) whose `cachedScanResults` key is an array of entries identical to the argument passed to this constructor's callback function:
-///
 ///    ~~~
 ///    function dumpIED(interface)
 ///        local interface = interface or "en0"
 ///        local cleanupFunction = hs.utf8.hexDump -- or hs.utf8.asciiOnly if you prefer
-///
 ///        local cachedScanResults = hs.wifi.interfaceDetails(interface).cachedScanResults
 ///        if not cachedScanResults then
 ///            hs.wifi.availableNetworks() -- blocking, so only do if necessary
 ///            cachedScanResults = hs.wifi.interfaceDetails(interface).cachedScanResults
 ///        end
-///
 ///        for i, v in ipairs(cachedScanResults) do
 ///            print(v.ssid .. " on channel " .. v.wlanChannel.number .. " beacon data:")
 ///            print(cleanupFunction(string.char(table.unpack(v.informationElementData))))
 ///        end
 ///    end
 ///    ~~~
-///
 ///    * These precautions are in response to Hammerspoon Github Issue #859.  As binary data, even when cleaned up with the Console's UTF8 wrapper code, some valid UTF8 sequences have been found to cause crashes in the OSX CoreText API during rendering.  While some specific sequences have made the rounds on the Internet, the specific code analysis at http://www.theregister.co.uk/2015/05/27/text_message_unicode_ios_osx_vulnerability/ suggests a possible cause of the problem which may be triggered by other currently unknown sequences as well.  As the sequences aren't at present predictable, we can't add to the UTF8 wrapper already in place for the Hammerspoon console.
 static int wifi_scan_background(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;

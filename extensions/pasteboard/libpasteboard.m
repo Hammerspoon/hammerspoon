@@ -471,7 +471,6 @@ static int readArchivedDataForType(lua_State *L) {
 /// Notes:
 ///  * NSKeyedArchiver specifies an architecture-independent format that is often used in OS X applications to store and transmit objects between applications and when storing data to a file. It works by recording information about the object types and key-value pairs which make up the objects being stored.
 ///  * Only objects which have conversion functions built in to Hammerspoon can be converted.
-///
 ///  * A full list of NSObjects supported directly by Hammerspoon is planned in a future Wiki article.
 static int writeArchivedDataForType(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;

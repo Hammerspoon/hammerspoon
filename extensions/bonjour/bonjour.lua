@@ -252,7 +252,6 @@ end
 --- Notes:
 ---  * This list was generated from the output of `avahi-browse -b` and `avahi-browse -bk` from the avahi-daemon/stable,now 0.7-4+b1 armhf package under Raspbian GNU/Linux 10.
 ---  * This list is by no means complete and is provided solely for the purposes of providing examples. Additional service types can be discovered quite easily using Google or other search engines.
----
 ---  * You can view the contents of this table in the Hammerspoon Console by entering `require("hs.bonjour").serviceTypes` into the input field.
 module.serviceTypes = ls.makeConstantsTable({
     ["PulseAudio Sound Server"]                     = "_pulse-server._tcp.",
