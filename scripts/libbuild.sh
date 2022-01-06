@@ -593,6 +593,7 @@ function assert_xcbeautify() {
 }
 
 function assert_docs_requirements() {
+    # FIXME: This is overly broad - if all that's happening is linting or JSON generation, these requirements are not required
   echo "Checking Python requirements.txt is satisfied..."
   echo "import sys
 import pkg_resources

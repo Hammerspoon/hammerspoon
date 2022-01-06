@@ -266,7 +266,7 @@ export INSTALLDEPS_FULL
 # Early sanity check that we have everything we need
 export PATH="$PATH:/opt/homebrew/bin"
 if [ "$(which greadlink)" == "" ]; then
-    echo "ERROR: Unable to find greadlink. Please run `brew install coreutils` and then `$0 installdeps`"
+    echo "ERROR: Unable to find greadlink. Please run \"brew install coreutils\" and then `$0 installdeps`"
     exit 1
 fi
 # This silly which dancing is to ensure we don't trip over a zsh alias for 'grm' to 'git rm'
