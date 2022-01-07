@@ -2,8 +2,13 @@
 ---
 --- Open Sound Control (OSC) support.
 ---
---- Powered by F53OSC. Thrown together by @latenitefilms.
+--- This extension allows you to create both OSC Servers and Clients.
 ---
+--- This extension was thrown together by [Chris Hocking](https://github.com/latenitefilms) for [CommandPost](http://commandpost.io).
+---
+--- This extension uses [F53OSC](https://github.com/Figure53/F53OSC).
+---
+--- F53OSC LICENSE:
 --- Copyright (c) 2010-2020 Figure 53 LLC, https://figure53.com
 ---
 --- Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
