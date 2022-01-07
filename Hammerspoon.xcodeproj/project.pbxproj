@@ -15,6 +15,11 @@
 		22652B3E251C3914000FF14D /* IOHIDEventTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 22652B3C251C3914000FF14D /* IOHIDEventTypes.h */; };
 		22738935248606F0003EBC68 /* HSwebsocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 22738934248606F0003EBC68 /* HSwebsocket.m */; };
 		2273893624860C0E003EBC68 /* test_websocket.lua in Resources */ = {isa = PBXBuildFile; fileRef = 22738933248606A9003EBC68 /* test_websocket.lua */; };
+		227478232787F92E00DE6894 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FB852342735B02400462DD0 /* LuaSkin.framework */; };
+		2274782A2787F94100DE6894 /* libosc.m in Sources */ = {isa = PBXBuildFile; fileRef = 2274781B2787F8F800DE6894 /* libosc.m */; };
+		2274782B2787F9A000DE6894 /* osc.lua in Resources */ = {isa = PBXBuildFile; fileRef = 2274781C2787F8F800DE6894 /* osc.lua */; };
+		2274782E2787FA1500DE6894 /* libosc.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 227478292787F92E00DE6894 /* libosc.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		2274782F2787FA2800DE6894 /* osc.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 2274781C2787F8F800DE6894 /* osc.lua */; };
 		22A6626025FC080200AA329E /* test_serial.lua in Resources */ = {isa = PBXBuildFile; fileRef = 22A6625F25FC07F700AA329E /* test_serial.lua */; };
 		22A6626225FC087000AA329E /* HSserial.m in Sources */ = {isa = PBXBuildFile; fileRef = 22A6626125FC087000AA329E /* HSserial.m */; };
 		22DF5D2823B9A9EA00C41AE6 /* libpasteboard_watcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 22DF5D1A23B99C4D00C41AE6 /* libpasteboard_watcher.m */; };
@@ -605,6 +610,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 22613FE81F297E0D00E05E11;
 			remoteInfo = dialog;
+		};
+		2274782C2787F9DD00DE6894 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9445CA0319083251002568BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2274781F2787F92E00DE6894;
+			remoteInfo = osc;
 		};
 		22DF5D2A23B9AA8C00C41AE6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1304,6 +1316,7 @@
 			dstPath = hs;
 			dstSubfolderSpec = 10;
 			files = (
+				2274782E2787FA1500DE6894 /* libosc.dylib in Copy Extension Dylibs */,
 				4FCA05CD27678B410089A5FC /* libmarkdown.dylib in Copy Extension Dylibs */,
 				4FF06128274AA7E600FB15D6 /* libcamera.dylib in Copy Extension Dylibs */,
 				4FF73A1D2735439B0007074E /* hs in Copy Extension Dylibs */,
@@ -1405,6 +1418,7 @@
 			dstPath = extensions/hs;
 			dstSubfolderSpec = 7;
 			files = (
+				2274782F2787FA2800DE6894 /* osc.lua in Copy Extension Lua files */,
 				4FCA05A0276767350089A5FC /* window_layout.lua in Copy Extension Lua files */,
 				4FF06129274AA7F400FB15D6 /* camera.lua in Copy Extension Lua files */,
 				4FF061152747A25C00FB15D6 /* tangent.lua in Copy Extension Lua files */,
@@ -1531,6 +1545,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		221BCFD32787FFF1000EABD4 /* libF53OSC.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libF53OSC.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		224BA32523D1E63A00487FDB /* libwebsocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libwebsocket.m; path = extensions/websocket/libwebsocket.m; sourceTree = "<group>"; };
 		224BA33223D1ECA900487FDB /* libwebsocket.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libwebsocket.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		224BA33423D1EE6F00487FDB /* websocket.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = websocket.lua; path = extensions/websocket/websocket.lua; sourceTree = "<group>"; };
@@ -1543,6 +1558,9 @@
 		22652B3C251C3914000FF14D /* IOHIDEventTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOHIDEventTypes.h; path = extensions/eventtap/IOHIDEventTypes.h; sourceTree = "<group>"; };
 		22738933248606A9003EBC68 /* test_websocket.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_websocket.lua; path = extensions/websocket/test_websocket.lua; sourceTree = "<group>"; };
 		22738934248606F0003EBC68 /* HSwebsocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSwebsocket.m; sourceTree = "<group>"; };
+		2274781B2787F8F800DE6894 /* libosc.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libosc.m; path = extensions/osc/libosc.m; sourceTree = "<group>"; };
+		2274781C2787F8F800DE6894 /* osc.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = osc.lua; path = extensions/osc/osc.lua; sourceTree = "<group>"; };
+		227478292787F92E00DE6894 /* libosc.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libosc.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		22A6625F25FC07F700AA329E /* test_serial.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_serial.lua; path = extensions/serial/test_serial.lua; sourceTree = "<group>"; };
 		22A6626125FC087000AA329E /* HSserial.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSserial.m; sourceTree = "<group>"; };
 		22DF5D1A23B99C4D00C41AE6 /* libpasteboard_watcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libpasteboard_watcher.m; path = extensions/pasteboard/libpasteboard_watcher.m; sourceTree = "<group>"; };
@@ -2079,6 +2097,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FB8527D2735B39D00462DD0 /* LuaSkin.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		227478222787F92E00DE6894 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				227478232787F92E00DE6894 /* LuaSkin.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2866,6 +2892,15 @@
 			name = gestures;
 			sourceTree = "<group>";
 		};
+		2274781A2787F8CE00DE6894 /* osc */ = {
+			isa = PBXGroup;
+			children = (
+				2274781B2787F8F800DE6894 /* libosc.m */,
+				2274781C2787F8F800DE6894 /* osc.lua */,
+			);
+			name = osc;
+			sourceTree = "<group>";
+		};
 		22E4D7F61FA747FA00C8CF5C /* midi */ = {
 			isa = PBXGroup;
 			children = (
@@ -3453,6 +3488,7 @@
 				6AE181151D36E8BE0097211C /* noises */,
 				4F6B3F0F1B73E9BA00B2A4DE /* notify */,
 				4C3D55A81C7F05D00023B633 /* osascript */,
+				2274781A2787F8CE00DE6894 /* osc */,
 				4F6B3F241B73EBF000B2A4DE /* pasteboard */,
 				4F6B3F361B73EE0E00B2A4DE /* pathwatcher */,
 				4FDD9DC01ED30D89008F14D3 /* plist */,
@@ -3967,6 +4003,7 @@
 				4F7F3B6C272AF68100E05732 /* libshortcuts.dylib */,
 				4FF06124274AA7A200FB15D6 /* libcamera.dylib */,
 				4FCA05CA27678B100089A5FC /* libmarkdown.dylib */,
+				227478292787F92E00DE6894 /* libosc.dylib */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -3974,6 +4011,7 @@
 		9445CA0D19083251002568BB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				221BCFD32787FFF1000EABD4 /* libF53OSC.a */,
 				4FB852342735B02400462DD0 /* LuaSkin.framework */,
 				22E4D8071FA74BDA00C8CF5C /* libMIKMIDI.a */,
 				D6943FE11EDBF2510057BB26 /* CoreFoundation.framework */,
@@ -4270,6 +4308,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		22613FED1F297E0D00E05E11 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		227478242787F92E00DE6894 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -4980,6 +5025,23 @@
 			name = dialog;
 			productName = alert;
 			productReference = 22613FF11F297E0D00E05E11 /* libdialog.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+		2274781F2787F92E00DE6894 /* osc */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 227478252787F92E00DE6894 /* Build configuration list for PBXNativeTarget "osc" */;
+			buildPhases = (
+				227478202787F92E00DE6894 /* Sources */,
+				227478222787F92E00DE6894 /* Frameworks */,
+				227478242787F92E00DE6894 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = osc;
+			productName = alert;
+			productReference = 227478292787F92E00DE6894 /* libosc.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 		22DF5D1C23B9A9D300C41AE6 /* pasteboardwatcher */ = {
@@ -6128,6 +6190,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				2274782D2787F9DD00DE6894 /* PBXTargetDependency */,
 				4FCA05CC27678B330089A5FC /* PBXTargetDependency */,
 				4FF06127274AA7D900FB15D6 /* PBXTargetDependency */,
 				4F7F3B6F272AF7E100E05732 /* PBXTargetDependency */,
@@ -6789,6 +6852,7 @@
 				4FD0AB8C1B74AE1900A82496 /* wifi */,
 				4FD0AB971B74AE2800A82496 /* wifiwatcher */,
 				4FD0ABB11B74AF4E00A82496 /* window */,
+				2274781F2787F92E00DE6894 /* osc */,
 			);
 		};
 /* End PBXProject section */
@@ -6806,6 +6870,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2274782B2787F9A000DE6894 /* osc.lua in Resources */,
 				4FF73A252735954D0007074E /* timeout3 in Resources */,
 				4FF73A23273594730007074E /* lua.json in Resources */,
 				4FF73A2027358DDA0007074E /* HSChooserWindow.xib in Resources */,
@@ -6975,6 +7040,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				22613FF51F2A127E00E05E11 /* libdialog.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		227478202787F92E00DE6894 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2274782A2787F94100DE6894 /* libosc.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7806,6 +7879,11 @@
 			target = 22613FE81F297E0D00E05E11 /* dialog */;
 			targetProxy = 22613FF31F297E7F00E05E11 /* PBXContainerItemProxy */;
 		};
+		2274782D2787F9DD00DE6894 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2274781F2787F92E00DE6894 /* osc */;
+			targetProxy = 2274782C2787F9DD00DE6894 /* PBXContainerItemProxy */;
+		};
 		22DF5D2B23B9AA8C00C41AE6 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 22DF5D1C23B9A9D300C41AE6 /* pasteboardwatcher */;
@@ -8313,6 +8391,30 @@
 					"-Wno-documentation-unknown-command",
 					"$(inherited)",
 				);
+			};
+			name = Release;
+		};
+		227478262787F92E00DE6894 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		227478272787F92E00DE6894 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Profile;
+		};
+		227478282787F92E00DE6894 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
 		};
@@ -10738,6 +10840,16 @@
 				22613FEF1F297E0D00E05E11 /* Debug */,
 				4F0454A020F0EE7D00699F29 /* Profile */,
 				22613FF01F297E0D00E05E11 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		227478252787F92E00DE6894 /* Build configuration list for PBXNativeTarget "osc" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				227478262787F92E00DE6894 /* Debug */,
+				227478272787F92E00DE6894 /* Profile */,
+				227478282787F92E00DE6894 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
