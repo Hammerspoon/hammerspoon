@@ -829,7 +829,7 @@ static const luaL_Reg metalib[] = {
 
 #pragma mark - Lua Initialiser
 
-int luaopen_hs_razer_internal(lua_State* L) {
+int luaopen_hs_librazer(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     razerRefTable = [skin registerLibrary:USERDATA_TAG functions:razerlib metaFunctions:metalib];
     [skin registerObject:USERDATA_TAG objectFunctions:userdata_metaLib];

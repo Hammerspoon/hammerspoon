@@ -33,7 +33,7 @@ local timer         = require("hs.timer")
 local color         = require("hs.drawing.color")
 local console       = require("hs.console")
 
-local razer         = require("hs.razer.internal")
+local razer         = require("hs.librazer")
 
 local log           = require("hs.logger").new("razer")
 
