@@ -1,0 +1,14 @@
+//
+//  Hammerspoon-Debug.xcconfig
+//  Hammerspoon
+//
+//  Created by Chris Jones on 30/10/2021.
+//  Copyright © 2021 Hammerspoon. All rights reserved.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+#include "../../Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon.debug.xcconfig"
+#include "Hammerspoon-Base.xcconfig"
+#include? "../../../Hammerspoon-Downstream.xcconfig"

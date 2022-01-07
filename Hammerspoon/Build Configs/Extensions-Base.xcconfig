@@ -1,0 +1,24 @@
+//
+//  Extensions-Base.xcconfig
+//  Hammerspoon
+//
+//  Created by Chris Jones on 31/10/2021.
+//  Copyright © 2021 Hammerspoon. All rights reserved.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+// Dylib version info. Maybe we should bump these? But it doesn't really seem to matter
+DYLIB_COMPATIBILITY_VERSION = 1
+DYLIB_CURRENT_VERSION = 1
+
+// Executable prefix (this ends up being renamed by later scripts anyway)
+// FIXME: See if we can do away with this and just adjust the copy script?
+EXECUTABLE_PREFIX = lib
+
+// FIXME: Fix up hs.axuielement and remove this line
+WARNING_CLAGS =  $(inherited) -Wno-tautological-pointer-compare -Wno-bad-function-cast
+
+// Don't try and install the library in /usr/local/lib when archiving/exporting
+SKIP_INSTALL = YES

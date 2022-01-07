@@ -1,0 +1,123 @@
+name: Development Builds
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: Build and Sign
+
+    runs-on: macos-11.0
+    env:
+      IS_CI: 1
+      IS_NIGHTLY: 1
+
+    steps:
+      - name: Checkout Hammerspoon Code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Checkout Hammerspoon Secrets
+        uses: actions/checkout@v2
+        with:
+          repository: Hammerspoon/ci-secrets
+          path: ./ci-secrets
+      - name: Prepare build environment
+        run: ./scripts/github-ci-pre.sh
+      - name: Decrypt Secrets
+        env:
+          REPO_GPG_PASSPHRASE: ${{ secrets.REPO_GPG_PASSPHRASE }}
+        run: ./ci-secrets/crypto.sh decrypt
+      - name: Prepare keychain
+        env:
+          KEYCHAIN_PASSPHRASE: ${{ secrets.NIGHTLY_KEYCHAIN_PASSPHRASE }}
+        run: ./scripts/build.sh keychain-prep -s Release -c Release -p ./ci-secrets/Cleartext/Hammerspoon-Nightly-Certificates.p12 -o ./ci-secrets/Cleartext/token-notarization
+      - name: Prepare secure tokens
+        run: /bin/cp ./ci-secrets/Cleartext/token* ../
+      - name: Remove Secrets checkout
+        run: /bin/rm -rf ./ci-secrets
+      - name: Get version number
+        id: version
+        run: |
+          echo ::set-output name=NIGHTLY_VERSION::$(git describe)
+          echo ::set-output name=RELEASE_VERSION::$(git describe --abbrev=0)
+      - name: Build
+        run: ./scripts/build.sh build -s Release -c Release
+      - name: Generate API docs
+        run: ./scripts/build.sh docs
+      - name: Notarize
+        run: ./scripts/build.sh notarize
+      - name: Delete notarization/signing credentials
+        if: ${{ always() }}
+        run: ./scripts/build.sh keychain-post
+      - name: Validate signing/notarization
+        run: ./scripts/build.sh validate -d
+      - name: Archive build
+        run: ./scripts/build.sh archive
+
+      - name: Upload build log on failure
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: nightly-build.log
+          path: build/Release-build.log
+
+      - name: Generate Release Notes
+        id: release_notes_generator
+        uses: mikepenz/release-changelog-builder-action@main
+        with:
+          configuration: ".github/workflows/release_notes_config.json"
+          toTag: "HEAD"
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Capture Release Notes
+        id: capture_release_notes
+        run: |
+          echo "${{ steps.release_notes_generator.outputs.changelog }}" >release_notes.txt
+      - name: Upload Release Notes
+        id: upload_release_notes
+        uses: actions/upload-artifact@v2
+        with:
+          name: Release_Notes-${{ steps.version.outputs.NIGHTLY_VERSION }}.txt
+          path: release_notes.txt
+
+      - name: Prepare artifacts
+        run: mv ../archive ./ ; find ./archive
+
+      - name: Upload artifacts App bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: Hammerspoon.app-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
+          path: archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/Hammerspoon.app-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
+      - name: Upload artifacts Debug symbols
+        uses: actions/upload-artifact@v2
+        with:
+          name: dSYM-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
+          path: archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/Hammerspoon-dSYM-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
+      - name: Upload artifacts HTML docs
+        uses: actions/upload-artifact@v2
+        with:
+          name: docs-${{ steps.version.outputs.NIGHTLY_VERSION }}.zip
+          path: archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/docs/${{ steps.version.outputs.NIGHTLY_VERSION }}-docs.zip
+      - name: Upload artifacts docs json
+        uses: actions/upload-artifact@v2
+        with:
+          name: docs-${{ steps.version.outputs.NIGHTLY_VERSION }}.json
+          path: archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/docs/docs.json
+
+      - name: Upload artifacts Build log
+        uses: actions/upload-artifact@v2
+        with:
+          name: Release-build.log
+          path: archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/Release-build.log
+
+
+      - name: IRC notification
+        uses: Gottox/irc-message-action@v2.1.0
+        with:
+          channel: '#hammerspoon'
+          nickname: 'HS_CI_DevBuild'
+          message: |
+            New development build: ${{ steps.version.outputs.NIGHTLY_VERSION }}

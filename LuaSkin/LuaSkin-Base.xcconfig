@@ -1,0 +1,92 @@
+//
+//  LuaSkin-Base.xcconfig
+//  LuaSkin
+//
+//  Created by Chris Jones on 02/11/2021.
+//  Copyright © 2021 Hammerspoon. All rights reserved.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+// Base SDK
+SDKROOT = macosx
+// macOS Deployment Target
+MACOSX_DEPLOYMENT_TARGET = 10.15
+// Build Active Architecture Only
+ONLY_ACTIVE_ARCH = YES
+
+// Debug Information Format
+DEBUG_INFORMATION_FORMAT = dwarf-with-dsym
+// Enable Testability
+ENABLE_TESTABILITY = YES
+// Strip Debug Symbols During Copy
+COPY_PHASE_STRIP = NO
+// Strip Linked Product
+STRIP_INSTALLED_PRODUCT = NO
+
+// Always Search User Paths (Deprecated)
+ALWAYS_SEARCH_USER_PATHS = NO
+// Current Project Version
+CURRENT_PROJECT_VERSION = 1
+// Versioning Name Prefix
+VERSION_INFO_PREFIX =
+// Versioning System
+VERSIONING_SYSTEM = apple-generic
+
+// Optimization Level
+GCC_OPTIMIZATION_LEVEL = 0
+// Generate Position-Dependent Code
+GCC_DYNAMIC_NO_PIC = NO
+// No Common Blocks
+GCC_NO_COMMON_BLOCKS = YES
+// Symbols Hidden by Default
+GCC_SYMBOLS_PRIVATE_EXTERN = NO
+
+// Other Warning Flags
+WARNING_CFLAGS = -Weverything -Wno-cstring-format-directive -Wno-padded -Wno-auto-import -Wno-missing-variable-declarations -Wno-objc-missing-property-synthesis -Wno-cast-qual -Wno-gnu-zero-variadic-macro-arguments -Wno-objc-messaging-id
+
+// C Language Dialect
+GCC_C_LANGUAGE_STANDARD = gnu99
+// C++ Language Dialect
+CLANG_CXX_LANGUAGE_STANDARD = gnu++0x
+// C++ Standard Library
+CLANG_CXX_LIBRARY = libc++
+// Enable Modules (C and Objective-C)
+CLANG_ENABLE_MODULES = YES
+// Enable Objective-C Exceptions
+GCC_ENABLE_OBJC_EXCEPTIONS = YES
+// Objective-C Automatic Reference Counting
+CLANG_ENABLE_OBJC_ARC = YES
+// Enable Strict Checking of objc_msgSend Calls
+ENABLE_STRICT_OBJC_MSGSEND = YES
+// Preprocessor Macros
+GCC_PREPROCESSOR_DEFINITIONS = DEBUG=1 $(inherited)
+
+// Various warning things
+CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES
+CLANG_WARN_EMPTY_BODY = YES
+CLANG_WARN_BOOL_CONVERSION = YES
+CLANG_WARN_CONSTANT_CONVERSION = YES
+GCC_WARN_64_TO_32_BIT_CONVERSION = YES
+CLANG_WARN_ENUM_CONVERSION = YES
+CLANG_WARN_INT_CONVERSION = YES
+CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES
+CLANG_WARN_INFINITE_RECURSION = YES
+GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR
+CLANG_WARN_STRICT_PROTOTYPES = YES
+CLANG_WARN_COMMA = YES
+GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE
+CLANG_WARN_UNREACHABLE_CODE = YES
+GCC_WARN_UNUSED_FUNCTION = YES
+GCC_WARN_UNUSED_VARIABLE = YES
+CLANG_WARN_RANGE_LOOP_ANALYSIS = YES
+CLANG_WARN_SUSPICIOUS_MOVE = YES
+CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR
+CLANG_WARN__DUPLICATE_METHOD_MATCH = YES
+CLANG_WARN_OBJC_LITERAL_CONVERSION = YES
+CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES
+GCC_WARN_UNDECLARED_SELECTOR = YES
+CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR
+CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES
+CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES

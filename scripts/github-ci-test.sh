@@ -1,13 +1,27 @@
 #!/bin/bash
+# Run tests
+
+set -eux
+set -o pipefail
+
+export IS_CI=1
 
 mkdir -p artifacts
 mkdir -p build/reports
 
-xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release test-without-building 2>&1 | tee artifacts/test.log | xcbeautify
+./scripts/build.sh test -d -s Release
 
-BUILD_ROOT="$(xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release -showBuildSettings | sort | uniq | grep " BUILD_ROOT =" | awk '{ print $3 }')"
+mv build/test.log artifacts
 
-trainer --fail_build false -p "${BUILD_ROOT}/../../Logs/Test/" -o build/reports/
+#BUILD_ROOT="$(xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release -showBuildSettings | sort | uniq | grep " BUILD_ROOT =" | awk '{ print $3 }')"
+#trainer --fail_build false -p "${BUILD_ROOT}/../../Logs/Test/" -o build/reports/
+
+trainer --fail_build false -p "build/" -o build/reports/
+
+echo "Produced test reports:"
+ls build/reports/*.xml
+
+# FIXME: Can we do this a bit more gracefully?
 mv build/reports/*.xml build/reports/junit.xml
 
 RESULT=$(grep -A1 "Test Suite 'All tests'" artifacts/test.log | tail -1 | sed -e 's/^[ ]+//')

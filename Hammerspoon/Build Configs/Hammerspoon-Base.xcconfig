@@ -1,0 +1,47 @@
+//
+//  Hammerspoon-Base.xcconfig
+//  Hammerspoon
+//
+//  Created by Chris Jones on 30/10/2021.
+//  Copyright © 2021 Hammerspoon. All rights reserved.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+// Packaging
+INFOPLIST_FILE = Hammerspoon/Hammerspoon-Info.plist
+PRODUCT_NAME = Hammerspoon
+PRODUCT_BUNDLE_IDENTIFIER = org.hammerspoon.${PRODUCT_NAME:rfc1034identifier}
+WRAPPER_EXTENSION = app
+
+// Version information. This is expected to be overridden later based on git tag/commit
+CURRENT_PROJECT_VERSION = 1
+MARKETING_VERSION = 1.0
+
+// App Icon Name
+ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon
+
+// Header Search Paths
+HEADER_SEARCH_PATHS = $(inherited)/** "$(SDKROOT)/usr/include/libxml2" "$(SDK_DIR)"/usr/include/libxml2
+// User Header Search Paths
+USER_HEADER_SEARCH_PATHS = $(inherited)/**
+
+// Code Signing Entitlements
+CODE_SIGN_ENTITLEMENTS = Hammerspoon/Hammerspoon-dev.entitlements
+
+// Code Signing Identity
+CODE_SIGN_IDENTITY = -
+
+// Development Team
+DEVELOPMENT_TEAM =
+
+// Enable Hardened Runtime
+ENABLE_HARDENED_RUNTIME = YES
+
+// Prefix Header Stuff
+GCC_PRECOMPILE_PREFIX_HEADER = YES
+GCC_PREFIX_HEADER = Hammerspoon/Hammerspoon-Prefix.pch
+
+// SiriKit Intent (Shortcuts) generation language
+INTENTS_CODEGEN_LANGUAGE = Objective-C

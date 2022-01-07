@@ -6,7 +6,8 @@
 @end
 
 @interface HSCanvasView : NSView <NSDraggingDestination>
-@property int                 selfRef ;
+@property int                 selfRef ; // used during fadeOut to make sure collection doesn't interrupt
+@property int                 selfRefCount ;
 @property HSCanvasWindow     *wrapperWindow ;
 @property int                 mouseCallbackRef ;
 @property int                 draggingCallbackRef ;

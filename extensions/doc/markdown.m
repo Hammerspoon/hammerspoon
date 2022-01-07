@@ -245,7 +245,7 @@ static luaL_Reg moduleLib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_doc_markdown(lua_State* L) {
+int luaopen_hs_libmarkdown(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     refTable = [skin registerLibrary:"hs.doc.markdown" functions:moduleLib metaFunctions:nil] ;
 
