@@ -2,8 +2,6 @@
 ---
 --- Open Sound Control (OSC) support.
 ---
---- Currently this extension only acts as a OSC Server (not a client). If you're interested OSC Client support - please add an issue on Hammerspoon's GitHub.
----
 --- Powered by F53OSC. Thrown together by @latenitefilms.
 ---
 --- Copyright (c) 2010-2020 Figure 53 LLC, https://figure53.com
