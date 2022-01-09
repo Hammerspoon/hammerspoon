@@ -20,6 +20,112 @@ static NSImage *missingIconForFile ;
 
 static NSMutableSet *backgroundCallbacks ;
 
+#pragma mark NSImage to ASCII Conversion
+
+/*
+ This code is from [ASCII Converter](https://github.com/zonble/cocoaascii).
+ 
+ MIT License
+
+ Copyright (c) 2021 Weizhong Yang a.k.a zonble
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+ */
+
+NSString *stringForBrightness(CGFloat brightness) {
+    if (brightness < (19.0 / 255)) {
+        return @"&";
+    }
+    else if (brightness < (50.0 / 255)) {
+        return @"8";
+    }
+    else if (brightness < (75.0 / 255)) {
+        return @"0";
+    }
+    else if (brightness < (100.0 / 255)) {
+        return @"$";
+    }
+    else if (brightness < (130.0 / 255)) {
+        return @"2";
+    }
+    else if (brightness < (165.0 / 255)) {
+        return @"1";
+    }
+    else if (brightness < (180.0 / 255)) {
+        return @"|";
+    }
+    else if (brightness < (200.0 / 255)) {
+        return @";";
+    }
+    else if (brightness < (218.0 / 255)) {
+        return @":";
+    }
+    else if (brightness < (229.0 / 255)) {
+        return @"'";
+    }
+    return @" ";
+}
+
+@interface NSImage(ASCII)
+- (NSString *)asciiArtWithWidth:(NSInteger)width height:(NSInteger)height;
+@end
+
+@implementation NSImage (ASCII)
+
+- (NSString *)asciiArtWithWidth:(NSInteger)width height:(NSInteger)height
+{
+    if (!width || !height) {
+        return nil;
+    }
+
+    NSMutableString *string = [NSMutableString string];
+
+    NSBitmapImageRep *bitmapImage = [[NSBitmapImageRep alloc]
+            initWithBitmapDataPlanes:NULL
+                          pixelsWide:width
+                          pixelsHigh:height
+                       bitsPerSample:8
+                     samplesPerPixel:4
+                            hasAlpha:YES
+                            isPlanar:NO
+                      colorSpaceName:NSCalibratedRGBColorSpace
+                         bytesPerRow:0
+                        bitsPerPixel:0];
+    bitmapImage.size = NSMakeSize(width, height);
+
+    [NSGraphicsContext saveGraphicsState];
+    [NSGraphicsContext setCurrentContext:[NSGraphicsContext graphicsContextWithBitmapImageRep:bitmapImage]];
+    [self drawInRect:NSMakeRect(0, 0, width, height) fromRect:NSZeroRect operation:NSCompositeCopy fraction:1.0];
+    [NSGraphicsContext restoreGraphicsState];
+    for (NSInteger i = 0; i < height; i++) {
+        for (NSInteger j = 0; j < width; j++) {
+            NSColor *color = [bitmapImage colorAtX:j y:i];
+            NSColor *wColor = [color colorUsingColorSpaceName:NSDeviceWhiteColorSpace];
+            [string appendString:stringForBrightness([wColor whiteComponent])];
+        }
+        [string appendString:@"\n"];
+    }
+    return string;
+}
+
+@end
+
 #pragma mark - Module Constants
 
 /// hs.image.systemImageNames[]
@@ -1498,6 +1604,38 @@ static int copyImage(lua_State *L) {
     return 1 ;
 }
 
+/// hs.image:toASCII([width, height]) -> string
+/// Method
+/// Converts an image to an ASCII representation of the image in the form of a string.
+///
+/// Parameters:
+///  * width - An optional width in pixels (defaults to image width if nothing supplied).
+///  * height - An optional height in pixels (defaults to image height if nothing supplied).
+///
+/// Returns:
+///  * A string.
+static int toASCII(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TOPTIONAL, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK] ;
+
+    NSImage *theImage = [skin luaObjectAtIndex:1 toClass:"NSImage"] ;
+        
+    NSNumber *width = [skin toNSObjectAtIndex:2] ;
+    NSNumber *height = [skin toNSObjectAtIndex:3] ;
+    
+    if (!width) {
+        width = @(theImage.size.width);
+    } ;
+    if (!height) {
+        height = @(theImage.size.height);
+    } ;
+    
+    NSString *result = [theImage asciiArtWithWidth:[width longValue] height:[height longValue]];
+    [skin pushNSObject:result];
+
+    return 1;
+}
+
 #pragma mark - Conversion Extensions
 
 // [skin pushNSObject:NSImage]
@@ -1571,6 +1709,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {"saveToFile",        saveToFile},
     {"encodeAsURLString", encodeAsString},
     {"colorAt",			  colorAt},
+    {"toASCII",           toASCII},
 
     {"__tostring",        userdata_tostring},
     {"__eq",              userdata_eq},
