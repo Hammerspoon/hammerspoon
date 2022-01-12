@@ -896,7 +896,7 @@ end
 ---  * The `hs.window` object
 ---
 --- Notes:
----  * An example, which would make a window fill the top-left quarter of the screen: `win:moveToUnit'[0,0,50,50]'`
+---  * An example, which would make a window fill the top-left quarter of the screen: `win:moveToUnit'[0.0,0.0,0.5,0.5]'`
 function objectMT.moveToUnit(self, unit, duration)
   return self:setFrame(self:screen():fromUnitRect(unit),duration)
 end
