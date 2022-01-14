@@ -245,6 +245,8 @@ def process_docstrings(docstrings):
             modulename = find_module_for_item(list(docs.keys()), itemname)
             dbg("process_docstrings:   Assigning item to module: %s" %
                 modulename)
+            if modulename not in docs and os.environ.get("GITHUB_ACTIONS", default=None):
+                print("::error file=%s,line=%s,title='Unknown module'::Found a reference to module '%s', but that module has no definition anywhere" % (CHUNK_FILE, CHUNK_LINE, modulename))
             docs[modulename]["items"][itemname] = chunk
 
     return docs
