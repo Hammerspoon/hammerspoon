@@ -545,6 +545,14 @@ def write_annotations(filepath, data):
                                   ensure_ascii=False).encode('utf-8'))
 
 
+def emit_lints(lints):
+    """Print GitHub Actions messages to stderr for each of our docstrings lint errors"""
+    for lint in lints:
+        print("::error file=%s,line=%s,title=%s::%s" % (lint["file"], lint["line"], lint["title"], lint["message"]), file=sys.stderr)
+
+    if len(lints) > 0:
+        sys.exit(1)
+
 def write_json(filepath, data):
     """Write out a JSON version of the docs"""
     with open(filepath, "wb") as jsonfile:
@@ -761,6 +769,7 @@ def main():
         pass
     if arguments.lint_mode:
         write_annotations(arguments.output_dir + "/annotations.json", LINTS)
+        emit_lints(LINTS)
     if arguments.json:
         write_json(arguments.output_dir + "/docs.json", results)
         write_json_index(arguments.output_dir + "/docs_index.json", results)
