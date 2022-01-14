@@ -324,7 +324,7 @@ def process_module(modulename, raw_module):
                 params_index = chunk[CHUNK_DESC:].index("Parameters:")
                 desc_section = [x for x in chunk[CHUNK_DESC:][0:params_index] if x != '']
                 if len(desc_section) > 1:
-                    message = "Function/Method/Constructor description for %s should be a single line.\nOther content may belong in the Notes: section." % sig_without_return
+                    message = "Function/Method/Constructor description for %s should be a single line. Other content may belong in the Notes: section." % sig_without_return
                     warn(message)
                     LINTS.append({
                         "file": item["file"],
