@@ -240,10 +240,11 @@ static int push_hammerAppInfo(lua_State* L) {
     // Determine if we're running under Rosetta
     int isTranslated = 0;
     size_t size = sizeof(isTranslated);
-    if (sysctlbyname("sysctl.proctranslated", &isTranslated, &size, NULL, 0) == -1) {
+    if (sysctlbyname("sysctl.proc_translated", &isTranslated, &size, NULL, 0) == -1) {
         if (errno == ENOENT)
             isTranslated = 0;
         // Technically to reach here we have an error in the sysctl, but we'll ignore it
+        // isTranslated = -1;
     }
 
     NSDictionary *appInfo = @{
@@ -256,7 +257,7 @@ static int push_hammerAppInfo(lua_State* L) {
                               @"processID": @(getpid()),
                               @"bundleID": [[NSBundle mainBundle] bundleIdentifier],
                               @"arch": arch,
-                              @"isRosetta": [NSNumber numberWithBool: isTranslated],
+                              @"isRosetta": [NSNumber numberWithBool:isTranslated],
                               @"buildTime": @(__DATE__ ", " __TIME__),
 #ifdef DEBUG
                               @"debugBuild": @(YES),
