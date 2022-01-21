@@ -15,6 +15,7 @@ package.preload['hs.canvas.matrix']         = function() return require("hs.canv
 package.preload['hs.drawing.color']         = function() return require("hs.drawing_color") end
 package.preload['hs.doc.hsdocs']            = function() return require("hs.hsdocs") end
 package.preload['hs.doc.markdown']          = function() return require("hs.libmarkdown") end
+package.preload['hs.doc.builder']           = function() return require("hs.doc_builder") end
 package.preload['hs.fs.volume']             = function() return require("hs.libfsvolume") end
 package.preload['hs.fs.xattr']              = function() return require("hs.libfsxattr") end
 package.preload['hs.host.locale']           = function() return require("hs.host_locale") end
