@@ -447,6 +447,11 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
     // Report ID: 2
     // (little-endian) unsigned char, unsigned int
 
+    if ([options count] == 0) {
+        // The supplied options are empty, so abort!
+        return;
+    }
+    
     __block unsigned int ledStatus = 0;
     __block BOOL shouldSendReport = NO;
     
@@ -491,6 +496,11 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
 - (void)setJogLEDs:(NSDictionary*) options {
     // Report ID: 4
     // (little-endian) unsigned char, unsigned char
+    
+    if ([options count] == 0) {
+        // The supplied options are empty, so abort!
+        return;
+    }
 
     __block unsigned char ledStatus = 0;
     __block BOOL shouldSendReport = NO;
