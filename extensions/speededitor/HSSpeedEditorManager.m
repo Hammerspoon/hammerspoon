@@ -20,7 +20,7 @@ static void HIDReport(void* deviceRef, IOReturn result, void* sender, IOHIDRepor
         //
         // JOG WHEEL:
         //
-        // Report ID 03
+        // Report ID: 03
         // u8   - Report ID
         // u8   - Jog mode
         // le32 - Jog value (signed)
@@ -28,7 +28,7 @@ static void HIDReport(void* deviceRef, IOReturn result, void* sender, IOHIDRepor
         //
         
         if (reportLength != 7) {
-            NSLog(@"[hs.speededitor] Unexpected Jog Wheel Report Length.");
+            [LuaSkin logError:@"[hs.speededitor] Unexpected Jog Wheel Report Length."];
         } else {
             jogWheelReport result = *(jogWheelReport *) report;
             
@@ -46,13 +46,13 @@ static void HIDReport(void* deviceRef, IOReturn result, void* sender, IOHIDRepor
         // detection of the 'fast double press'. Every time the set of key being held
         // down changes, a new report is sent.
         //
-        // Report ID 04
+        // Report ID: 04
         // u8      - Report ID
         // le16[6] - Array of keys held down
         //
         
         if (reportLength != 13) {
-            NSLog(@"[hs.speededitor] Unexpected Button Report Length.");
+            [LuaSkin logError:@"[hs.speededitor] Unexpected Button Report Length."];
         } else {
             // Get a blank button state dictionary:
             NSMutableDictionary *currentButtonState = [NSMutableDictionary dictionaryWithDictionary:device.defaultButtonState];
@@ -72,24 +72,26 @@ static void HIDReport(void* deviceRef, IOReturn result, void* sender, IOHIDRepor
             [device deviceButtonUpdate:currentButtonState];
         }
     } else if (reportID == 7) {
-        // Report ID 07
+        //
+        // BATTERY STATUS:
+        //
+        // Report ID: 07
         // u8 - Report ID
         // u8 - Charging (1) / Not-charging (0)
         // u8 - Battery level (0-100)
         
-        //rid, bs, bl = struct.unpack('<BBB', report)
-        //return self.handler.battery(bool(bs), bl)
+        if (reportLength != 3) {
+            [LuaSkin logError:@"[hs.speededitor] Unexpected Battery Report Length."];
+        } else {
+            device.batteryCharging = report[1];
+            device.batteryLevel = [NSNumber numberWithChar:report[2]];
+        }
         
-        NSLog(@"Battery Level:");
-        NSLog(@"    - Charging (1 or 0): %hhu", report[0]);
-        NSLog(@"    - Level (0-100): %hhu", report[1]);
-    
     } else {
-        
+        // TODO: Add the report id to the LuaSkin error message:
+        [LuaSkin logError:@"[hs.speededitor] Unexpected Report ID."];
         NSLog(@"Unexpected Report ID: %u", reportID);
-        
     }
-    
 }
 
 static void HIDconnect(void *context, IOReturn result, void *sender, IOHIDDeviceRef device) {
@@ -209,6 +211,7 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
         return nil;
     }
     [deck authenticate];
+    
     [self.devices addObject:deck];
 
     LuaSkin *skin = [LuaSkin sharedWithState:NULL];

@@ -19,7 +19,7 @@ static int speededitor_gc(lua_State *L __unused) {
     return 0;
 }
 
-/// hs.speededitor.init(fn)
+/// hs.speededitor.init(fn) -> none
 /// Function
 /// Initialises the Speed Editor driver and sets a discovery callback
 ///
@@ -44,7 +44,7 @@ static int speededitor_init(lua_State *L) {
     return 0;
 }
 
-/// hs.speededitor.discoveryCallback(fn)
+/// hs.speededitor.discoveryCallback(fn) -> none
 /// Function
 /// Sets/clears a callback for reacting to device discovery events
 ///
@@ -68,7 +68,7 @@ static int speededitor_discoveryCallback(lua_State *L) {
     return 0;
 }
 
-/// hs.speededitor.numDevices()
+/// hs.speededitor.numDevices() -> number
 /// Function
 /// Gets the number of Speed Editor devices connected
 ///
@@ -85,7 +85,7 @@ static int speededitor_numDevices(lua_State *L) {
     return 1;
 }
 
-/// hs.speededitor.getDevice(num)
+/// hs.speededitor.getDevice(num) -> speedEditorObject
 /// Function
 /// Gets an hs.speededitor object for the specified device
 ///
@@ -102,7 +102,7 @@ static int speededitor_getDevice(lua_State *L) {
     return 1;
 }
 
-/// hs.speededitor:callback(fn)
+/// hs.speededitor:callback(fn) -> speedEditorObject
 /// Method
 /// Sets/clears the button callback function for a Speed Editor
 ///
@@ -129,16 +129,58 @@ static int speededitor_callback(lua_State *L) {
     return 1;
 }
 
+/// hs.speededitor:led(options) -> speedEditorObject
+/// Method
+/// Sets the status for the LED lights.
+///
+/// Parameters:
+///  * options - A table where the key is the button ID, and the value is a boolean to turn the LED on or off.
+///
+/// Returns:
+///  * The hs.speededitor device
+///
+///  Notes:
+///   * The possible keys for the options table should be:
+///   AUDIO ONLY, CAM1, CAM2, CAM3, CAM4, CAM5, CAM6, CAM7, CAM8, CAM9,
+///   CLOSE UP, CUT, DIS, JOG, LIVE OWR, SCRL, SHTL, SMTH CUT, SNAP, TRANS, VIDEO ONLY.
 static int speededitor_led(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBREAK];
+
+    HSSpeedEditorDevice *device = [skin luaObjectAtIndex:1 toClass:"HSSpeedEditorDevice"];
+    
+    NSDictionary *options = [skin toNSObjectAtIndex:2];
+    
+    [device setJogLEDs:options];
+    [device setLEDs:options];
+    
+    lua_pushvalue(skin.L, 1);
+    return 1;
+}
+
+/// hs.speededitor:battery() -> boolean, number
+/// Method
+/// Gets the battery status for the Speed Editor.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * `true` if charging, otherwise `false`
+///  * The battery level between 0 and 100. Returns -1 if not yet known.
+static int speededitor_battery(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
     HSSpeedEditorDevice *device = [skin luaObjectAtIndex:1 toClass:"HSSpeedEditorDevice"];
     
-    
-    
-    lua_pushvalue(skin.L, 1);
-    return 1;
+    NSNumber *batteryLevel = device.batteryLevel;
+    BOOL batteryCharging = device.batteryCharging;
+        
+    lua_pushboolean(skin.L, batteryCharging);
+    [skin pushNSObject:batteryLevel];
+        
+    return 2;
 }
 
 #pragma mark - Lua<->NSObject Conversion Functions
@@ -213,6 +255,7 @@ static int speededitor_object_gc(lua_State* L) {
 static const luaL_Reg userdata_metaLib[] = {
     {"callback",                speededitor_callback},
     {"led",                     speededitor_led},
+    {"battery",                 speededitor_battery},
     
     {"__tostring",              speededitor_object_tostring},
     {"__eq",                    speededitor_object_eq},

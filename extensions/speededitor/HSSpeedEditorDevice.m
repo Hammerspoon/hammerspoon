@@ -16,122 +16,166 @@
         self.callbackRef = LUA_NOREF;
         self.selfRefCount = 0;
         
+        self.firstTimeAuthenticating = YES;
+        
+        self.batteryCharging = NO;
+        self.batteryLevel = @-1;
+        
         self.ledLookup = @{
-            @"CLOSE_UP":        @(1 <<  0),
-            @"CUT":             @(1 <<  1),
-            @"DIS":             @(1 <<  2),
-            @"SMTH_CUT":        @(1 <<  3),
-            @"TRANS":           @(1 <<  4),
-            @"SNAP":            @(1 <<  5),
-            @"CAM7":            @(1 <<  6),
-            @"CAM8":            @(1 <<  7),
-            @"CAM9":            @(1 <<  8),
-            @"LIVE_OWR":        @(1 <<  9),
-            @"CAM4":            @(1 << 10),
-            @"CAM5":            @(1 << 11),
-            @"CAM6":            @(1 << 12),
-            @"VIDEO_ONLY":      @(1 << 13),
-            @"CAM1":            @(1 << 14),
-            @"CAM2":            @(1 << 15),
-            @"CAM3":            @(1 << 16),
-            @"AUDIO_ONLY":      @(1 << 17),
+            @"CLOSE UP":                @(1 <<  0),
+            @"CUT":                     @(1 <<  1),
+            @"DIS":                     @(1 <<  2),
+            @"SMTH CUT":                @(1 <<  3),
+            @"TRANS":                   @(1 <<  4),
+            @"SNAP":                    @(1 <<  5),
+            @"CAM 7":                   @(1 <<  6),
+            @"CAM 8":                   @(1 <<  7),
+            @"CAM 9":                   @(1 <<  8),
+            @"LIVE OWR":                @(1 <<  9),
+            @"CAM 4":                   @(1 << 10),
+            @"CAM 5":                   @(1 << 11),
+            @"CAM 6":                   @(1 << 12),
+            @"VIDEO ONLY":              @(1 << 13),
+            @"CAM 1":                   @(1 << 14),
+            @"CAM 2":                   @(1 << 15),
+            @"CAM 3":                   @(1 << 16),
+            @"AUDIO ONLY":              @(1 << 17),
         };
         
+        self.jogLEDLookup = @{
+            @"JOG":                     @(1 <<  0),
+            @"SHTL":                    @(1 <<  1),
+            @"SCRL":                    @(1 <<  2),
+        };
+        
+        self.jogModeLookup = @{
+            @"RELATIVE 0":              @0,        // Rela
+            @"ABSOLUTE CONTINUOUS":     @1,        // Send an "absolute" position (based on the position when mode was set) -4096 -> 4096 range ~ half a turn
+            @"RELATIVE 2":              @2,        // Same as mode 0 ?
+            @"ABSOLUTE DEADZERO":       @3,        // Same as mode 1 but with a small dead band around zero that maps to 0
+        };
+                
         self.buttonLookup = @{
-            @"SMART_INSRT":     @0x01,
-            @"APPND":           @0x02,
-            @"RIPL_OWR":        @0x03,
-            @"CLOSE_UP":        @0x04,
-            @"PLACE_ON_TOP":    @0x05,
-            @"SRC_OWR":         @0x06,
-            @"IN":              @0x07,
-            @"OUT":             @0x08,
-            @"TRIM_IN":         @0x09,
-            @"TRIM_OUT":        @0x0a,
-            @"ROLL":            @0x0b,
-            @"SLIP_SRC":        @0x0c,
-            @"SLIP_DEST":       @0x0d,
-            @"TRANS_DUR":       @0x0e,
-            @"CUT":             @0x0f,
-            @"DIS":             @0x10,
-            @"SMTH_CUT":        @0x11,
-            @"SOURCE":          @0x1a,
-            @"TIMELINE":        @0x1b,
-            @"SHTL":            @0x1c,
-            @"JOG":             @0x1d,
-            @"SCRL":            @0x1e,
-            @"ESC":             @0x31,
-            @"SYNC_BIN":        @0x1f,
-            @"AUDIO_LEVEL":     @0x2c,
-            @"FULL_VIEW":       @0x2d,
-            @"TRANS":           @0x22,
-            @"SPLIT":           @0x2f,
-            @"SNAP":            @0x2e,
-            @"RIPL_DEL":        @0x2b,
-            @"CAM1":            @0x33,
-            @"CAM2":            @0x34,
-            @"CAM3":            @0x35,
-            @"CAM4":            @0x36,
-            @"CAM5":            @0x37,
-            @"CAM6":            @0x38,
-            @"CAM7":            @0x39,
-            @"CAM8":            @0x3a,
-            @"CAM9":            @0x3b,
-            @"LIVE_OWR":        @0x30,
-            @"VIDEO_ONLY":      @0x25,
-            @"AUDIO_ONLY":      @0x26,
-            @"STOP_PLAY":       @0x3c
+            @"SMART INSRT":             @0x01,
+            @"APPND":                   @0x02,
+            @"RIPL OWR":                @0x03,
+            @"CLOSE UP":                @0x04,
+            @"PLACE ON TOP":            @0x05,
+            @"SRC_OWR":                 @0x06,
+            @"IN":                      @0x07,
+            @"OUT":                     @0x08,
+            @"TRIM IN":                 @0x09,
+            @"TRIM OUT":                @0x0a,
+            @"ROLL":                    @0x0b,
+            @"SLIP SRC":                @0x0c,
+            @"SLIP DEST":               @0x0d,
+            @"TRANS DUR":               @0x0e,
+            @"CUT":                     @0x0f,
+            @"DIS":                     @0x10,
+            @"SMTH CUT":                @0x11,
+            @"SOURCE":                  @0x1a,
+            @"TIMELINE":                @0x1b,
+            @"SHTL":                    @0x1c,
+            @"JOG":                     @0x1d,
+            @"SCRL":                    @0x1e,
+            @"ESC":                     @0x31,
+            @"SYNC BIN":                @0x1f,
+            @"AUDIO LEVEL":             @0x2c,
+            @"FULL VIEW":               @0x2d,
+            @"TRANS":                   @0x22,
+            @"SPLIT":                   @0x2f,
+            @"SNAP":                    @0x2e,
+            @"RIPL DEL":                @0x2b,
+            @"CAM 1":                   @0x33,
+            @"CAM 2":                   @0x34,
+            @"CAM 3":                   @0x35,
+            @"CAM 4":                   @0x36,
+            @"CAM 5":                   @0x37,
+            @"CAM 6":                   @0x38,
+            @"CAM 7":                   @0x39,
+            @"CAM 8":                   @0x3a,
+            @"CAM 9":                   @0x3b,
+            @"LIVE OWR":                @0x30,
+            @"VIDEO ONLY":              @0x25,
+            @"AUDIO ONLY":              @0x26,
+            @"STOP PLAY":               @0x3c
         };
         
         self.defaultButtonState = @{
-            @"SMART_INSRT":     @NO,
-            @"APPND":           @NO,
-            @"RIPL_OWR":        @NO,
-            @"CLOSE_UP":        @NO,
-            @"PLACE_ON_TOP":    @NO,
-            @"SRC_OWR":         @NO,
-            @"IN":              @NO,
-            @"OUT": @NO,
-            @"TRIM_IN": @NO,
-            @"TRIM_OUT": @NO,
-            @"ROLL": @NO,
-            @"SLIP_SRC": @NO,
-            @"SLIP_DEST": @NO,
-            @"TRANS_DUR": @NO,
-            @"CUT": @NO,
-            @"DIS": @NO,
-            @"SMTH_CUT": @NO,
-            @"SOURCE": @NO,
-            @"TIMELINE": @NO,
-            @"SHTL": @NO,
-            @"JOG": @NO,
-            @"SCRL": @NO,
-            @"ESC": @NO,
-            @"SYNC_BIN": @NO,
-            @"AUDIO_LEVEL": @NO,
-            @"FULL_VIEW": @NO,
-            @"TRANS": @NO,
-            @"SPLIT": @NO,
-            @"SNAP": @NO,
-            @"RIPL_DEL": @NO,
-            @"CAM1": @NO,
-            @"CAM2": @NO,
-            @"CAM3": @NO,
-            @"CAM4": @NO,
-            @"CAM5": @NO,
-            @"CAM6": @NO,
-            @"CAM7": @NO,
-            @"CAM8": @NO,
-            @"CAM9": @NO,
-            @"LIVE_OWR": @NO,
-            @"VIDEO_ONLY": @NO,
-            @"AUDIO_ONLY": @NO,
-            @"STOP_PLAY": @NO,
+            @"SMART INSRT":             @NO,
+            @"APPND":                   @NO,
+            @"RIPL OWR":                @NO,
+            @"CLOSE UP":                @NO,
+            @"PLACE ON TOP":            @NO,
+            @"SRC OWR":                 @NO,
+            @"IN":                      @NO,
+            @"OUT":                     @NO,
+            @"TRIM IN":                 @NO,
+            @"TRIM OUT":                @NO,
+            @"ROLL":                    @NO,
+            @"SLIP SRC":                @NO,
+            @"SLIP DEST":               @NO,
+            @"TRANS DUR":               @NO,
+            @"CUT":                     @NO,
+            @"DIS":                     @NO,
+            @"SMTH CUT":                @NO,
+            @"SOURCE":                  @NO,
+            @"TIMELINE":                @NO,
+            @"SHTL":                    @NO,
+            @"JOG":                     @NO,
+            @"SCRL":                    @NO,
+            @"ESC":                     @NO,
+            @"SYNC BIN":                @NO,
+            @"AUDIO LEVEL":             @NO,
+            @"FULL VIEW":               @NO,
+            @"TRANS":                   @NO,
+            @"SPLIT":                   @NO,
+            @"SNAP":                    @NO,
+            @"RIPL DEL":                @NO,
+            @"CAM 1":                   @NO,
+            @"CAM 2":                   @NO,
+            @"CAM 3":                   @NO,
+            @"CAM 4":                   @NO,
+            @"CAM 5":                   @NO,
+            @"CAM 6":                   @NO,
+            @"CAM 7":                   @NO,
+            @"CAM 8":                   @NO,
+            @"CAM 9":                   @NO,
+            @"LIVE OWR":                @NO,
+            @"VIDEO ONLY":              @NO,
+            @"AUDIO ONLY":              @NO,
+            @"STOP PLAY":               @NO,
         };
         
         self.buttonStateCache = [NSMutableDictionary dictionaryWithDictionary:self.defaultButtonState];
+        
+        self.defaultLEDCache = @{
+            @"CLOSE UP":                @NO,
+            @"CUT":                     @NO,
+            @"DIS":                     @NO,
+            @"SMTH CUT":                @NO,
+            @"TRANS":                   @NO,
+            @"SNAP":                    @NO,
+            @"CAM 7":                   @NO,
+            @"CAM 8":                   @NO,
+            @"CAM 9":                   @NO,
+            @"LIVE OWR":                @NO,
+            @"CAM 4":                   @NO,
+            @"CAM 5":                   @NO,
+            @"CAM 6":                   @NO,
+            @"VIDEO ONLY":              @NO,
+            @"CAM 1":                   @NO,
+            @"CAM 2":                   @NO,
+            @"CAM 3":                   @NO,
+            @"AUDIO ONLY":              @NO,
+            @"JOG":                     @NO,
+            @"SHTL":                    @NO,
+            @"SCRL":                    @NO,
+        };
+        
+        self.ledCache = [NSMutableDictionary dictionaryWithDictionary:self.defaultLEDCache];
 
-        NSLog(@"Added new Speed Editor device %p with IOKit device %p from manager %p", (__bridge void *)self, (void*)self.device, (__bridge void *)self.manager);
+        //NSLog(@"Added new Speed Editor device %p with IOKit device %p from manager %p", (__bridge void *)self, (void*)self.device, (__bridge void *)self.manager);
     }
     return self;
 }
@@ -168,12 +212,12 @@ uint64_t auth_odd[] = {
  
 uint64_t mask = 0xa79a63f585d37bf0;
  
-// Rotate the 64 bits 8 spaces to the left (or, rotate the 8 bytes 1 byte to the left)
+// Rotate the 64 bits 8 spaces to the left (or, rotate the 8 bytes 1 byte to the left):
 uint64_t rol8(uint64_t v){
     return ((v << 56) | (v >> 8));
 }
  
-// Rotate left n times
+// Rotate left n times:
 uint64_t rol8n(uint64_t v, uint8_t n){
     for (int i = 0; i < n; i++){
         v = rol8(v);
@@ -182,25 +226,25 @@ uint64_t rol8n(uint64_t v, uint8_t n){
 }
  
 uint64_t bmd_kbd_auth(uint64_t challenge){
-    // Mask off lower three bits, use as iteration count
+    // Mask off lower three bits, use as iteration count:
     uint8_t n = challenge & 7;
  
-    // Rotate challenge n times
+    // Rotate challenge n times:
     uint64_t v = rol8n(challenge, n);
     
     uint64_t k;
     
-    // Even parity of v[bit0] and (0x78 >> n)
+    // Even parity of v[bit0] and (0x78 >> n):
     if ( (v & 1) == ((0x78 >> n) & 1) ){
         k = auth_even[n];
     }
-    // Odd parity, xor with self rotated one last time
+    // Odd parity, xor with self rotated one last time:
     else {
         v = v ^ rol8(v);
         k = auth_odd[n];
     }
  
-    // Return v xored with (self rol8 bitmasked with mask) xored with k
+    // Return v xored with (self rol8 bitmasked with mask) xored with k:
     return v ^ (rol8(v) & mask) ^ k;
 }
 
@@ -208,13 +252,18 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
     //
     // The authentication is performed over SET_FEATURE/GET_FEATURE on Report ID 6.
     //
+    IOReturn result;
     
     //
     // Reset the authentication state machine:
     //
     uint8_t resetAuthState[] = {0x06,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
     NSData *resetAuthStateData = [NSData dataWithBytes:(const void *)resetAuthState length:10];
-    [self deviceWriteWithData:resetAuthStateData];
+    result = [self deviceWriteFeatureReportWithData:resetAuthStateData];
+    if (result != kIOReturnSuccess) {
+        [LuaSkin logError:@"[hs.speededitor] Failed to send report to reset the authentication state machine, so aborting."];
+        return;
+    }
     
     //
     // Read the keyboard challenge (for keyboard to authenticate app):
@@ -228,7 +277,7 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
     //
     const char* challengeResponseBytes = (const char*)[challengeResponse bytes];
     if (challengeResponseBytes[0] != 0x06 && challengeResponseBytes[1] != 0x00) {
-        NSLog(@"[hs.speededitor] Unexpected response from Speed Editor.");
+        [LuaSkin logError:@"[hs.speededitor] Unexpected initial response from Speed Editor, so aborting authentication."];
         return;
     }
     
@@ -237,7 +286,11 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
     //
     uint8_t sendChallenge[] = {0x06,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
     NSData *sendChallengeData = [NSData dataWithBytes:(const void *)sendChallenge length:10];
-    [self deviceWriteWithData:sendChallengeData];
+    result = [self deviceWriteFeatureReportWithData:sendChallengeData];
+    if (result != kIOReturnSuccess) {
+        [LuaSkin logError:@"[hs.speededitor] Failed to send report with our challenge, so aborting."];
+        return;
+    }
     
     //
     // Read the keyboard response:
@@ -249,7 +302,7 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
     //
     const char* challengeResponseTwoBytes = (const char*)[challengeResponseTwo bytes];
     if (challengeResponseTwoBytes[0] != 0x06 && challengeResponseTwoBytes[1] != 0x02) {
-        NSLog(@"[hs.speededitor] Unexpected response from Speed Editor when sending challenge.");
+        [LuaSkin logError:@"[hs.speededitor] Unexpected response from Speed Editor when sending challenge, so aborting authentication."];
         return;
     }
     
@@ -268,8 +321,12 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
     NSMutableData *authResponse = [NSMutableData dataWithLength:0];
     [authResponse appendBytes:reponseHeader length:2];
     [authResponse appendData:challengeReplyData];
-    [self deviceWriteWithData:authResponse];
-    
+    result = [self deviceWriteFeatureReportWithData:authResponse];
+    if (result != kIOReturnSuccess) {
+        [LuaSkin logError:@"[hs.speededitor] Failed to send report with our response to the challenge, so aborting."];
+        return;
+    }
+
     //
     // Read the Speed Editor status:
     //
@@ -280,46 +337,93 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
     //
     const char* challengeResponseThreeBytes = (const char*)[challengeResponseThree bytes];
     if (challengeResponseThreeBytes[0] != 0x06 && challengeResponseThreeBytes[1] != 0x04) {
-        NSLog(@"[hs.speededitor] The Speed Editor did not accept the challenge response.");
+        [LuaSkin logError:@"[hs.speededitor] The Speed Editor did not accept the challenge response, so aborting authentication."];
         return;
     }
+        
+    //
+    // Get the timeout (in seconds) from the response:
+    //
+    uint32_t timeout = challengeResponseThreeBytes[2] + (challengeResponseThreeBytes[3] << 8) + (challengeResponseThreeBytes[4] << 16);
+    if (!timeout) {
+        [LuaSkin logError:@"[hs.speededitor] The Speed Editor did not get an authentication timeout, so aborting authentication."];
+        return;
+    }
+    [self createAuthenticationTimerWithIntervalInSeconds:timeout];
     
     //
-    // Get the timeout from the response:
+    // Turn off all the LEDs if first time authenticating for a clean slate:
     //
+    if (self.firstTimeAuthenticating) {
+        [self turnOffAllLEDs];
+        self.firstTimeAuthenticating = NO;
+    }
     
-    /*
-    # I "think" what gets returned here is the timeout after which auth
-    # needs to be done again (returns 600 for me which is plausible)
-    return int.from_bytes(data[2:4], 'little')
-    */
-    
-    /*
-    NSMutableData *timeout = [NSMutableData dataWithData:challengeResponseThree];
-    [timeout replaceBytesInRange:NSMakeRange(0, 2) withBytes:NULL length:0];
-    
-    
-    char timeoutBuffer[3];
-    [challengeResponseThree getBytes:timeoutBuffer range:NSMakeRange(2, 3)];
-
-    int i;
-    sscanf(timeoutBuffer, "%d", &i);
-    
-    NSLog(@"timeout: %d", i); // 404005264 432657488
-     
-    */
 }
 
+//
+// Destroy the Authentication Timer:
+//
+- (void)destoryAuthenticationTimer {
+    if (self.authenticationTimer) {        
+        if (self.authenticationTimer.isValid) {
+            [self.authenticationTimer invalidate];
+        }
+        self.authenticationTimer = nil;
+    }
+}
+
+//
+// Create the Authentication Timer:
+//
+- (void)createAuthenticationTimerWithIntervalInSeconds:(uint32_t) timeout {
+    [self destoryAuthenticationTimer];
+    if (!timeout) {
+        timeout = 600; // Default to 600 seconds
+    }
+    timeout--; // Let's remove a second, just to be safe.
+    self.authenticationTimer = [NSTimer
+                                timerWithTimeInterval:timeout
+                                target:self
+                                selector:@selector(authenticationTimerCallback:)
+                                userInfo:nil
+                                repeats:NO];
+    [[NSRunLoop currentRunLoop] addTimer:self.authenticationTimer forMode:NSRunLoopCommonModes];
+}
+
+//
+// Authentication Timer Callback:
+//
+- (void)authenticationTimerCallback:(NSTimer *)timer {
+    [self authenticate];
+}
+
+//
+// Invalidate the Speed Editor object:
+//
 - (void)invalidate {
     self.isValid = NO;
+    [self destoryAuthenticationTimer];
+    
+    // Reset the caches:
+    self.buttonStateCache = [NSMutableDictionary dictionaryWithDictionary:self.defaultButtonState];
+    self.ledCache = [NSMutableDictionary dictionaryWithDictionary:self.defaultLEDCache];
 }
 
 //
-// Write data to the Speed Editor:
+// Write feature report to the Speed Editor:
 //
-- (IOReturn)deviceWriteWithData:(NSData *)report {
+- (IOReturn)deviceWriteFeatureReportWithData:(NSData *)report {
     const uint8_t *rawBytes = (const uint8_t*)report.bytes;
     return IOHIDDeviceSetReport(self.device, kIOHIDReportTypeFeature, rawBytes[0], rawBytes, report.length);
+}
+
+//
+// Write output report to the Speed Editor:
+//
+- (IOReturn)deviceWriteOutputReportWithData:(NSData *)report {
+    const uint8_t *rawBytes = (const uint8_t*)report.bytes;
+    return IOHIDDeviceSetReport(self.device, kIOHIDReportTypeOutput, rawBytes[0], rawBytes, report.length);
 }
 
 //
@@ -334,6 +438,123 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
     free(report);
     
     return data;
+}
+
+//
+// Set main button LEDs (everything except the Jog Wheel buttons):
+//
+- (void)setLEDs:(NSDictionary*) options {
+    // Report ID: 2
+    // (little-endian) unsigned char, unsigned int
+
+    __block unsigned int ledStatus = 0;
+    __block BOOL shouldSendReport = NO;
+    
+    [self.ledLookup enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+        if ([options objectForKey:key]) {
+            // We've been requested to turn on the LED:
+            shouldSendReport = YES;
+            NSNumber *enabled = [options valueForKey:key];
+            if ([enabled intValue] == 1) {
+                NSNumber *lookupValue = [self.ledLookup objectForKey:key];
+                ledStatus = ledStatus + [lookupValue intValue];
+                self.ledCache[key] = @YES;
+            } else {
+                self.ledCache[key] = @NO;
+            }
+        } else {
+            // Use the cached value:
+            if ([self.ledCache[key] isEqual:@YES]) {
+                NSNumber *lookupValue = [self.ledLookup objectForKey:key];
+                ledStatus = ledStatus + [lookupValue intValue];
+            }
+        }
+    }];
+    
+    if (shouldSendReport) {
+        uint8_t sendChallenge[] = {2};
+        NSMutableData *reportA = [NSMutableData dataWithBytes:(const void *)sendChallenge length:1];
+        NSMutableData *reportB = [NSMutableData dataWithBytes:&ledStatus length:4];
+        [reportA appendData:reportB];
+        
+        IOReturn result = [self deviceWriteOutputReportWithData:reportA];
+        if (result != kIOReturnSuccess) {
+            [LuaSkin logError:@"[hs.speededitor] Failed to send LED report."];
+            return;
+        }
+    }
+}
+
+//
+// Set the three jog wheel LEDs:
+//
+- (void)setJogLEDs:(NSDictionary*) options {
+    // Report ID: 4
+    // (little-endian) unsigned char, unsigned char
+
+    __block unsigned char ledStatus = 0;
+    __block BOOL shouldSendReport = NO;
+    
+    [options enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+        if ([self.jogLEDLookup objectForKey:key]) {
+            shouldSendReport = YES;
+            NSNumber *enabled = obj;
+            if ([enabled intValue] == 1) {
+                NSNumber *lookupValue = [self.jogLEDLookup objectForKey:key];
+                ledStatus = ledStatus + [lookupValue intValue];
+            }
+        }
+    }];
+    
+    if (shouldSendReport) {
+        uint8_t sendChallenge[] = {4, ledStatus};
+        NSData *report = [NSData dataWithBytes:(const void *)sendChallenge length:2];
+        IOReturn result = [self deviceWriteOutputReportWithData:report];
+        if (result != kIOReturnSuccess) {
+            [LuaSkin logError:@"[hs.speededitor] Failed to send Jog LED report."];
+            return;
+        }
+    }
+}
+
+//
+// Turn all the LEDs off:
+//
+- (void)turnOffAllLEDs {
+    NSDictionary *allOff = @{
+        @"CLOSE UP":                @NO,
+        @"CUT":                     @NO,
+        @"DIS":                     @NO,
+        @"SMTH CUT":                @NO,
+        @"TRANS":                   @NO,
+        @"SNAP":                    @NO,
+        @"CAM7":                    @NO,
+        @"CAM8":                    @NO,
+        @"CAM9":                    @NO,
+        @"LIVE OWR":                @NO,
+        @"CAM4":                    @NO,
+        @"CAM5":                    @NO,
+        @"CAM6":                    @NO,
+        @"VIDEO ONLY":              @NO,
+        @"CAM1":                    @NO,
+        @"CAM2":                    @NO,
+        @"CAM3":                    @NO,
+        @"AUDIO ONLY":              @NO,
+        @"JOG":                     @NO,
+        @"SHTL":                    @NO,
+        @"SCRL":                    @NO,
+    };
+    
+    [self setLEDs:allOff];
+    [self setJogLEDs:allOff];
+}
+
+- (void)setJogMode {
+    // Report ID: 3
+    // (little-endian) unsigned char, unsigned char, unsigned int, unsigned char
+    // 3, jogmode, 0, 255
+    
+    // TODO: Need to add method to set the jog mode.
 }
 
 //
@@ -352,11 +573,12 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
         return;
     }
 
+    // TODO: This should be taken from self.jogModeLookup instead.
     NSDictionary *modes = @{
-        [NSNumber numberWithInt:0]: @"RELATIVE_0",              // Relative
-        [NSNumber numberWithInt:1]: @"ABSOLUTE_CONTINUOUS",     // Send an "absolute" position (based on the position when mode was set) -4096 -> 4096 range ~ half a turn
-        [NSNumber numberWithInt:2]: @"RELATIVE_2",              // Same as mode 0 ?
-        [NSNumber numberWithInt:3]: @"ABSOLUTE_DEADZERO",       // Same as mode 1 but with a small dead band around zero that maps to 0
+        [NSNumber numberWithInt:0]: @"RELATIVE 0",              // Relative
+        [NSNumber numberWithInt:1]: @"ABSOLUTE CONTINUOUS",     // Send an "absolute" position (based on the position when mode was set) -4096 -> 4096 range ~ half a turn
+        [NSNumber numberWithInt:2]: @"RELATIVE 2",              // Same as mode 0 ?
+        [NSNumber numberWithInt:3]: @"ABSOLUTE DEADZERO",       // Same as mode 1 but with a small dead band around zero that maps to 0
     };
     
     NSString *currentMode = modes[mode];
