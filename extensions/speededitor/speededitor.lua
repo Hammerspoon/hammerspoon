@@ -1,0 +1,30 @@
+--- === hs.speededitor ===
+---
+--- Support for the Blackmagic DaVinci Resolve Speed Editor Keyboard.
+---
+--- This extension was thrown together by [Chris Hocking](https://github.com/latenitefilms) for [CommandPost](http://commandpost.io).
+---
+--- This extension would not be possible without Sylvain Munaut's [genius work](https://github.com/smunaut/blackmagic-misc)
+--- figuring out the authentication protocol.
+---
+--- This extension is based off [Chris Jones'](https://github.com/cmsj) [hs.streamdeck](http://www.hammerspoon.org/docs/hs.streamdeck.html) extension.
+---
+--- Special thanks to Morten Bentsen, Håvard Njåstad and Sondre Tungesvik Njåstad.
+---
+--- This extension uses some code based off Sylvain Munaut's Python Scripts under the following license:
+---
+--- Copyright 2021 Sylvain Munaut <tnt@246tNt.com>
+---
+--- Licensed under the Apache License, Version 2.0 (the "License");
+--- you may not use this file except in compliance with the License.
+--- You may obtain a copy of the License at
+---
+---     http://www.apache.org/licenses/LICENSE-2.0
+---
+--- Unless required by applicable law or agreed to in writing, software
+--- distributed under the License is distributed on an "AS IS" BASIS,
+--- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+--- See the License for the specific language governing permissions and
+--- limitations under the License.
+
+return require("hs.libspeededitor")
