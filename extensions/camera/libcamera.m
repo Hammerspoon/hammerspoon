@@ -208,7 +208,7 @@ static HSCameraManager *cameraManager = nil;
     return avDevice.localizedName;
 }
 
-- (BOOL)isInUse {
+- (BOOL)getIsInUse {
     LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     OSStatus err;
     UInt32 dataSize = 0;
