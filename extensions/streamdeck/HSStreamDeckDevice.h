@@ -49,17 +49,24 @@ typedef enum : NSUInteger {
 @property (nonatomic) int reportLength;
 @property (nonatomic) int reportHeaderLength;
 @property (nonatomic) int dataKeyOffset;
+@property (nonatomic) NSUInteger deviceReadOffset;
+@property (nonatomic) NSData *resetCommand;
+@property (nonatomic) NSData *setBrightnessCommand;
+@property (nonatomic) NSUInteger serialNumberCommand;
+@property (nonatomic) NSUInteger firmwareVersionCommand;
 
 @property (nonatomic) NSMutableArray *buttonStateCache;
 @property (nonatomic, readonly, getter=getSerialNumber) NSString *serialNumber;
+
 
 - (id)initWithDevice:(IOHIDDeviceRef)device manager:(id)manager;
 - (void)invalidate;
 - (void)initialiseCaches;
 
-- (IOReturn)deviceWriteSimpleReport:(uint8_t *)report reportLen:(int)reportLen;
+- (IOReturn)deviceWriteSimpleReport:(NSData *)command;
 - (IOReturn)deviceWrite:(NSData *)report;
 - (void)deviceWriteImage:(NSData *)data button:(int)button;
+- (void)deviceV2WriteImage:(NSData *)data button:(int)button;
 - (NSData *)deviceRead:(int)resultLength reportID:(CFIndex)reportID;
 
 - (int)transformKeyIndex:(int)sourceKey;
