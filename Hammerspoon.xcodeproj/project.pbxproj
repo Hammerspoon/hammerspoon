@@ -96,6 +96,8 @@
 		4F4F6EBF25DB1C7C000187FA /* test_json.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4F4F6EBE25DB1C7C000187FA /* test_json.lua */; };
 		4F51345F1C2F317800EFD6D4 /* libchooser.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F5134511C2EE08F00EFD6D4 /* libchooser.m */; };
 		4F5134641C30819000EFD6D4 /* chooser.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F5134631C30819000EFD6D4 /* chooser.h */; };
+		4F5560A1279F6A0300B91FD8 /* HSStreamDeckDeviceMk2.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F55609F279F6A0300B91FD8 /* HSStreamDeckDeviceMk2.h */; };
+		4F5560A2279F6A0300B91FD8 /* HSStreamDeckDeviceMk2.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F5560A0279F6A0300B91FD8 /* HSStreamDeckDeviceMk2.m */; };
 		4F5B6E6B1E9E86BB003FC580 /* Hammerspoon.sdef in Resources */ = {isa = PBXBuildFile; fileRef = 4F5B6E6A1E9E86BB003FC580 /* Hammerspoon.sdef */; };
 		4F5B6E6E1E9E87CE003FC580 /* HSAppleScript.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F5B6E6D1E9E87CE003FC580 /* HSAppleScript.m */; };
 		4F6653E6238C36F100DEE120 /* HSStreamDeckDeviceOriginal.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6653E4238C36F100DEE120 /* HSStreamDeckDeviceOriginal.h */; };
@@ -1688,6 +1690,8 @@
 		4F5134511C2EE08F00EFD6D4 /* libchooser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libchooser.m; path = extensions/chooser/libchooser.m; sourceTree = "<group>"; };
 		4F51345E1C2F315C00EFD6D4 /* libchooser.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libchooser.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F5134631C30819000EFD6D4 /* chooser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = chooser.h; path = extensions/chooser/chooser.h; sourceTree = "<group>"; };
+		4F55609F279F6A0300B91FD8 /* HSStreamDeckDeviceMk2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = HSStreamDeckDeviceMk2.h; path = extensions/streamdeck/HSStreamDeckDeviceMk2.h; sourceTree = "<group>"; };
+		4F5560A0279F6A0300B91FD8 /* HSStreamDeckDeviceMk2.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = HSStreamDeckDeviceMk2.m; path = extensions/streamdeck/HSStreamDeckDeviceMk2.m; sourceTree = "<group>"; };
 		4F5B6E6A1E9E86BB003FC580 /* Hammerspoon.sdef */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Hammerspoon.sdef; sourceTree = "<group>"; };
 		4F5B6E6C1E9E87CE003FC580 /* HSAppleScript.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HSAppleScript.h; sourceTree = "<group>"; };
 		4F5B6E6D1E9E87CE003FC580 /* HSAppleScript.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSAppleScript.m; sourceTree = "<group>"; };
@@ -2984,6 +2988,7 @@
 			isa = PBXGroup;
 			children = (
 				4F2DF3DD1F6046AD00742D08 /* streamdeck.lua */,
+				4F2DF3FA1F61AE6700742D08 /* streamdeck.h */,
 				4F2DF3DE1F6046AD00742D08 /* libstreamdeck.m */,
 				4F2DF3F21F605A9B00742D08 /* HSStreamDeckDevice.h */,
 				4F2DF3F31F605A9B00742D08 /* HSStreamDeckDevice.m */,
@@ -2995,6 +3000,8 @@
 				4FFB20FF23CD14A400811E77 /* HSStreamDeckDeviceOriginalV2.m */,
 				4FFB20FA23C5E01300811E77 /* HSStreamDeckDeviceXL.h */,
 				4FFB20FB23C5E01300811E77 /* HSStreamDeckDeviceXL.m */,
+				4F55609F279F6A0300B91FD8 /* HSStreamDeckDeviceMk2.h */,
+				4F5560A0279F6A0300B91FD8 /* HSStreamDeckDeviceMk2.m */,
 				4F2DF3EE1F605A4900742D08 /* HSStreamDeckManager.h */,
 				4F2DF3EF1F605A4900742D08 /* HSStreamDeckManager.m */,
 				4F2DF3F61F6170BE00742D08 /* NSImage+BMP.h */,
@@ -3005,7 +3012,6 @@
 				4F6653F52390351100DEE120 /* NSImage+JPEG.m */,
 				4F6653EC238C7A1200DEE120 /* NSImage+Rotated.h */,
 				4F6653ED238C7A1200DEE120 /* NSImage+Rotated.m */,
-				4F2DF3FA1F61AE6700742D08 /* streamdeck.h */,
 			);
 			name = streamdeck;
 			sourceTree = "<group>";
@@ -4403,6 +4409,7 @@
 				4F2DF3F41F605A9B00742D08 /* HSStreamDeckDevice.h in Headers */,
 				4F6653F62390351100DEE120 /* NSImage+JPEG.h in Headers */,
 				4F6653E6238C36F100DEE120 /* HSStreamDeckDeviceOriginal.h in Headers */,
+				4F5560A1279F6A0300B91FD8 /* HSStreamDeckDeviceMk2.h in Headers */,
 				4F2DF3F81F6170BE00742D08 /* NSImage+BMP.h in Headers */,
 				4F2DF3F01F605A4900742D08 /* HSStreamDeckManager.h in Headers */,
 				4FFB210023CD14A500811E77 /* HSStreamDeckDeviceOriginalV2.h in Headers */,
@@ -7152,6 +7159,7 @@
 				4FFB210123CD14A500811E77 /* HSStreamDeckDeviceOriginalV2.m in Sources */,
 				4FFB20FD23C5E01300811E77 /* HSStreamDeckDeviceXL.m in Sources */,
 				4F2DF3F51F605A9B00742D08 /* HSStreamDeckDevice.m in Sources */,
+				4F5560A2279F6A0300B91FD8 /* HSStreamDeckDeviceMk2.m in Sources */,
 				4F6653EB238C6B6600DEE120 /* HSStreamDeckDeviceMini.m in Sources */,
 				4F6653E7238C36F100DEE120 /* HSStreamDeckDeviceOriginal.m in Sources */,
 				4F2DF3F91F6170BE00742D08 /* NSImage+BMP.m in Sources */,
