@@ -58,8 +58,14 @@
         return nil;
     }
 
-    return [[NSString alloc] initWithData:[self deviceRead:32 reportID:0x06]
-                                 encoding:NSUTF8StringEncoding];
+    NSUInteger serialOffset = 1;
+    NSData *serialNumberDataRaw = [self deviceRead:32 reportID:0x06];
+    NSRange offset = NSMakeRange(serialOffset, serialNumberDataRaw.length - serialOffset);
+    NSData *serialNumberData = [serialNumberDataRaw subdataWithRange:offset];
+
+    NSString *serialNumber = [[NSString alloc] initWithData:serialNumberData
+                                                   encoding:NSUTF8StringEncoding];
+    return serialNumber;
 }
 
 - (NSString*)firmwareVersion {
@@ -67,8 +73,14 @@
         return @"INVALID DEVICE";
     }
 
-    return [[NSString alloc] initWithData:[self deviceRead:32 reportID:0x05]
-                                 encoding:NSUTF8StringEncoding];
+    NSUInteger fwOffset = 1;
+    NSData *firmwareVersionDataRaw = [self deviceRead:32 reportID:0x05];
+    NSRange offset = NSMakeRange(fwOffset, firmwareVersionDataRaw.length - fwOffset);
+    NSData *firmwareVersionData = [firmwareVersionDataRaw subdataWithRange:offset];
+
+    NSString *firmwareVersion =  [[NSString alloc] initWithData:firmwareVersionData
+                                                       encoding:NSUTF8StringEncoding];
+    return firmwareVersion;
 }
 
 - (void)deviceWriteImage:(NSData *)data button:(int)button {
