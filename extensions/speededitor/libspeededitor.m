@@ -167,12 +167,14 @@ static int speededitor_led(lua_State *L) {
 ///
 /// Returns:
 ///  * `true` if charging, otherwise `false`
-///  * The battery level between 0 and 100. Returns -1 if not yet known.
+///  * The battery level between 0 and 100.
 static int speededitor_battery(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
     HSSpeedEditorDevice *device = [skin luaObjectAtIndex:1 toClass:"HSSpeedEditorDevice"];
+    
+    [device getBatteryStatus];
     
     NSNumber *batteryLevel = device.batteryLevel;
     BOOL batteryCharging = device.batteryCharging;
@@ -181,6 +183,60 @@ static int speededitor_battery(lua_State *L) {
     [skin pushNSObject:batteryLevel];
         
     return 2;
+}
+
+/// hs.speededitor:serialNumber() -> string
+/// Method
+/// Gets the serial number for the Speed Editor.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The serial number as a string.
+///
+/// Notes:
+///  * The serial number is the unique identifier from the USB Device, and not the product serial number that's on the sticker on the back of the Speed Editor.
+static int speededitor_serialNumber(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
+    HSSpeedEditorDevice *device = [skin luaObjectAtIndex:1 toClass:"HSSpeedEditorDevice"];
+    
+    NSString *serialNumber = device.serialNumber;
+    
+    [skin pushNSObject:serialNumber];
+        
+    return 1;
+}
+
+/// hs.speededitor:jogMode(value) -> speedEditorObject
+/// Method
+/// Sets the Jog Mode for the Speed Editor
+///
+/// Parameters:
+///  * value - "RELATIVE 0", "ABSOLUTE CONTINUOUS", "RELATIVE 2" or "ABSOLUTE DEADZERO" as a string.
+///
+/// Returns:
+///  * The hs.speededitor device
+///
+///  Notes:
+///  * "RELATIVE 0" provide relative position (i.e. positive value if turning clock-wise and negative if turning anti-clockwise).
+///  * "RELATIVE 2" provide relative position (i.e. positive value if turning clock-wise and negative if turning anti-clockwise).
+///  * "ABSOLUTE CONTINUOUS" sends an "absolute" position (based on the position when mode was set) -4096 -> 4096 range ~ half a turn.
+///  * "ABSOLUTE DEADZERO" is the same as "RELATIVE 0" but with a small dead band around zero that maps to 0.
+static int speededitor_jogMode(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TBREAK];
+
+    HSSpeedEditorDevice *device = [skin luaObjectAtIndex:1 toClass:"HSSpeedEditorDevice"];
+        
+    NSString *jogMode = [skin toNSObjectAtIndex:2];
+    
+    [device setJogMode:jogMode];
+    
+    lua_pushvalue(skin.L, 1);
+    return 1;
 }
 
 #pragma mark - Lua<->NSObject Conversion Functions
@@ -213,9 +269,8 @@ static id toHSSpeedEditorDeviceFromLua(lua_State *L, int idx) {
 
 static int speededitor_object_tostring(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
-    //HSSpeedEditorDevice *obj = [skin luaObjectAtIndex:1 toClass:"HSSpeedEditorDevice"] ;
-    //NSString *title = [NSString stringWithFormat:@"%@, serial: %@", obj.deckType, obj.serialNumber];
-    NSString *title = @"Speed Editor";
+    HSSpeedEditorDevice *device = [skin luaObjectAtIndex:1 toClass:"HSSpeedEditorDevice"] ;
+    NSString *title = [NSString stringWithFormat:@"Speed Editor | serial: %@", device.serialNumber];
     [skin pushNSObject:[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, title, lua_topointer(L, 1)]] ;
     return 1 ;
 }
@@ -256,6 +311,8 @@ static const luaL_Reg userdata_metaLib[] = {
     {"callback",                speededitor_callback},
     {"led",                     speededitor_led},
     {"battery",                 speededitor_battery},
+    {"serialNumber",            speededitor_serialNumber},
+    {"jogMode",                 speededitor_jogMode},
     
     {"__tostring",              speededitor_object_tostring},
     {"__eq",                    speededitor_object_eq},

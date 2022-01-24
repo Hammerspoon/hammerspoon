@@ -7,9 +7,10 @@
 @end
 
 @implementation HSSpeedEditorDevice
-- (id)initWithDevice:(IOHIDDeviceRef)device manager:(id)manager {
+- (id)initWithDevice:(IOHIDDeviceRef)device manager:(id)manager serialNumber:serialNumber {
     self = [super init];
     if (self) {
+        self.serialNumber = serialNumber;
         self.device = device;
         self.isValid = YES;
         self.manager = manager;
@@ -49,12 +50,19 @@
         };
         
         self.jogModeLookup = @{
-            @"RELATIVE 0":              @0,        // Rela
-            @"ABSOLUTE CONTINUOUS":     @1,        // Send an "absolute" position (based on the position when mode was set) -4096 -> 4096 range ~ half a turn
-            @"RELATIVE 2":              @2,        // Same as mode 0 ?
-            @"ABSOLUTE DEADZERO":       @3,        // Same as mode 1 but with a small dead band around zero that maps to 0
+            @"RELATIVE 0":              @0,                         // Relative
+            @"ABSOLUTE CONTINUOUS":     @1,                         // Send an "absolute" position (based on the position when mode was set) -4096 -> 4096 range ~ half a turn
+            @"RELATIVE 2":              @2,                         // Same as mode 0 ?
+            @"ABSOLUTE DEADZERO":       @3,                         // Same as mode 1 but with a small dead band around zero that maps to 0
         };
-                
+        
+        self.jogModeReverseLookup = @{
+            [NSNumber numberWithInt:0]: @"RELATIVE 0",              // Relative
+            [NSNumber numberWithInt:1]: @"ABSOLUTE CONTINUOUS",     // Send an "absolute" position (based on the position when mode was set) -4096 -> 4096 range ~ half a turn
+            [NSNumber numberWithInt:2]: @"RELATIVE 2",              // Same as mode 0 ?
+            [NSNumber numberWithInt:3]: @"ABSOLUTE DEADZERO",       // Same as mode 1 but with a small dead band around zero that maps to 0
+        };
+
         self.buttonLookup = @{
             @"SMART INSRT":             @0x01,
             @"APPND":                   @0x02,
@@ -261,14 +269,14 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
     NSData *resetAuthStateData = [NSData dataWithBytes:(const void *)resetAuthState length:10];
     result = [self deviceWriteFeatureReportWithData:resetAuthStateData];
     if (result != kIOReturnSuccess) {
-        [LuaSkin logError:@"[hs.speededitor] Failed to send report to reset the authentication state machine, so aborting."];
+        [LuaSkin logError:@"[hs.speededitor] Failed to send report to reset the authentication state machine, so aborting authentication."];
         return;
     }
     
     //
     // Read the keyboard challenge (for keyboard to authenticate app):
     //
-    NSData *challengeResponse = [self deviceReadWithLength:10 reportID:6];
+    NSData *challengeResponse = [self deviceReadFeatureReportWithLength:10 reportID:6];
     NSMutableData *challenge = [NSMutableData dataWithData:challengeResponse];
     [challenge replaceBytesInRange:NSMakeRange(0, 2) withBytes:NULL length:0];
     
@@ -288,14 +296,14 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
     NSData *sendChallengeData = [NSData dataWithBytes:(const void *)sendChallenge length:10];
     result = [self deviceWriteFeatureReportWithData:sendChallengeData];
     if (result != kIOReturnSuccess) {
-        [LuaSkin logError:@"[hs.speededitor] Failed to send report with our challenge, so aborting."];
+        [LuaSkin logError:@"[hs.speededitor] Failed to send report with our challenge, so aborting authentication."];
         return;
     }
     
     //
     // Read the keyboard response:
     //
-    NSData *challengeResponseTwo = [self deviceReadWithLength:10 reportID:6];
+    NSData *challengeResponseTwo = [self deviceReadFeatureReportWithLength:10 reportID:6];
     
     //
     // Validate the response:
@@ -323,14 +331,14 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
     [authResponse appendData:challengeReplyData];
     result = [self deviceWriteFeatureReportWithData:authResponse];
     if (result != kIOReturnSuccess) {
-        [LuaSkin logError:@"[hs.speededitor] Failed to send report with our response to the challenge, so aborting."];
+        [LuaSkin logError:@"[hs.speededitor] Failed to send report with our response to the challenge, so aborting authentication."];
         return;
     }
 
     //
     // Read the Speed Editor status:
     //
-    NSData *challengeResponseThree = [self deviceReadWithLength:10 reportID:6];
+    NSData *challengeResponseThree = [self deviceReadFeatureReportWithLength:10 reportID:6];
     
     //
     // Validate the response:
@@ -427,9 +435,9 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
 }
 
 //
-// Read data from the Speed Editor:
+// Read Feature Report from the Speed Editor:
 //
-- (NSData *)deviceReadWithLength:(int)resultLength reportID:(CFIndex)reportID {
+- (NSData *)deviceReadFeatureReportWithLength:(int)resultLength reportID:(CFIndex)reportID {
     CFIndex reportLength = resultLength;
     uint8_t *report = malloc(reportLength);
 
@@ -441,11 +449,51 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
 }
 
 //
+// Read Input Report from the Speed Editor:
+//
+
+- (NSData *)deviceReadInputReportWithLength:(int)resultLength reportID:(CFIndex)reportID {
+    CFIndex reportLength = resultLength;
+    uint8_t *report = malloc(reportLength);
+
+    IOHIDDeviceGetReport(self.device, kIOHIDReportTypeFeature, reportID, report, &reportLength);
+    NSData *data = [NSData dataWithBytes:report length:reportLength];
+    free(report);
+    
+    return data;
+}
+
+//
+// Request the Battery Status:
+//
+- (void)getBatteryStatus {
+    //
+    // BATTERY STATUS:
+    //
+    // Report ID: 07
+    // u8 - Report ID
+    // u8 - Charging (1) / Not-charging (0)
+    // u8 - Battery level (0-100)
+    //
+    
+    int reportLength = 3;
+    CFIndex reportID = 7;
+    
+    NSData *data = [self deviceReadInputReportWithLength:reportLength reportID:reportID];
+    const char* dataAsBytes = (const char*)[data bytes];
+    
+    self.batteryCharging = dataAsBytes[1];
+    self.batteryLevel = [NSNumber numberWithChar:dataAsBytes[2]];
+}
+
+//
 // Set main button LEDs (everything except the Jog Wheel buttons):
 //
 - (void)setLEDs:(NSDictionary*) options {
+    //
     // Report ID: 2
     // (little-endian) unsigned char, unsigned int
+    //
 
     if ([options count] == 0) {
         // The supplied options are empty, so abort!
@@ -494,8 +542,10 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
 // Set the three jog wheel LEDs:
 //
 - (void)setJogLEDs:(NSDictionary*) options {
+    //
     // Report ID: 4
     // (little-endian) unsigned char, unsigned char
+    //
     
     if ([options count] == 0) {
         // The supplied options are empty, so abort!
@@ -559,12 +609,22 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
     [self setJogLEDs:allOff];
 }
 
-- (void)setJogMode {
+- (void)setJogMode:(NSString*) mode {
+    //
     // Report ID: 3
     // (little-endian) unsigned char, unsigned char, unsigned int, unsigned char
     // 3, jogmode, 0, 255
+    //
     
-    // TODO: Need to add method to set the jog mode.
+    unsigned char jogMode = [self.jogModeLookup[mode] unsignedCharValue];
+    
+    uint8_t sendChallenge[] = {3, jogMode, 0, 0, 0, 0, 255};
+    NSData *report = [NSData dataWithBytes:(const void *)sendChallenge length:7];
+    IOReturn result = [self deviceWriteOutputReportWithData:report];
+    if (result != kIOReturnSuccess) {
+        [LuaSkin logError:@"[hs.speededitor] Failed to send Jog Mode report."];
+        return;
+    }
 }
 
 //
@@ -583,15 +643,7 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
         return;
     }
 
-    // TODO: This should be taken from self.jogModeLookup instead.
-    NSDictionary *modes = @{
-        [NSNumber numberWithInt:0]: @"RELATIVE 0",              // Relative
-        [NSNumber numberWithInt:1]: @"ABSOLUTE CONTINUOUS",     // Send an "absolute" position (based on the position when mode was set) -4096 -> 4096 range ~ half a turn
-        [NSNumber numberWithInt:2]: @"RELATIVE 2",              // Same as mode 0 ?
-        [NSNumber numberWithInt:3]: @"ABSOLUTE DEADZERO",       // Same as mode 1 but with a small dead band around zero that maps to 0
-    };
-    
-    NSString *currentMode = modes[mode];
+    NSString *currentMode = self.jogModeReverseLookup[mode];
     
     //
     // Trigger Lua Callback:

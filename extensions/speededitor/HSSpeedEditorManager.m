@@ -79,6 +79,7 @@ static void HIDReport(void* deviceRef, IOReturn result, void* sender, IOHIDRepor
         // u8 - Report ID
         // u8 - Charging (1) / Not-charging (0)
         // u8 - Battery level (0-100)
+        //
         
         if (reportLength != 3) {
             [LuaSkin logError:@"[hs.speededitor] Unexpected Battery Report Length."];
@@ -189,7 +190,8 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
 - (HSSpeedEditorDevice*)deviceDidConnect:(IOHIDDeviceRef)device {
     NSNumber *vendorID = (__bridge NSNumber *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDVendorIDKey));
     NSNumber *productID = (__bridge NSNumber *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductIDKey));
-
+    NSString *serialNumber = (__bridge NSString *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDSerialNumberKey));
+    
     if (vendorID.intValue != USB_VID_BLACKMAGIC) {
         NSLog(@"deviceDidConnect from unknown vendor: %d", vendorID.intValue);
         return nil;
@@ -199,7 +201,7 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
 
     switch (productID.intValue) {
         case USB_PID_SPEED_EDITOR:
-            deck = [[HSSpeedEditorDevice alloc] initWithDevice:device manager:self];
+            deck = [[HSSpeedEditorDevice alloc] initWithDevice:device manager:self serialNumber:serialNumber];
             break;
 
         default:
@@ -210,6 +212,10 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
         NSLog(@"deviceDidConnect: no HSSpeedEditorDevice was created, ignoring");
         return nil;
     }
+    
+    //
+    // Authenticate the Speed Editor:
+    //
     [deck authenticate];
     
     [self.devices addObject:deck];
