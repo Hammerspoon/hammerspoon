@@ -538,6 +538,8 @@
 		949CDC001990759B00906CCE /* ConsoleWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 949CDBFF1990759B00906CCE /* ConsoleWindow.xib */; };
 		94A1E5481993AC5C003AEB26 /* MJFileUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A1E5471993AC5C003AEB26 /* MJFileUtils.m */; };
 		B8524F32201A896000844F3D /* libhid.m in Sources */ = {isa = PBXBuildFile; fileRef = B8524F25201A875600844F3D /* libhid.m */; };
+		BE28C754279E92D300D890D6 /* HSStreamDeckDeviceMk2.h in Headers */ = {isa = PBXBuildFile; fileRef = BE28C752279E92D300D890D6 /* HSStreamDeckDeviceMk2.h */; };
+		BE28C756279E92D300D890D6 /* HSStreamDeckDeviceMk2.m in Sources */ = {isa = PBXBuildFile; fileRef = BE28C753279E92D300D890D6 /* HSStreamDeckDeviceMk2.m */; };
 		D02F95291A00221C00E28BB2 /* HSrequire_all.m in Sources */ = {isa = PBXBuildFile; fileRef = D02F95281A00221C00E28BB2 /* HSrequire_all.m */; };
 		D077B5BF1A001B5300369B30 /* variables.m in Sources */ = {isa = PBXBuildFile; fileRef = D077B5BE1A001B5300369B30 /* variables.m */; };
 		D61F4A341DCFA6DB00AEE223 /* libsharing.m in Sources */ = {isa = PBXBuildFile; fileRef = D61F4A311DCFA6C600AEE223 /* libsharing.m */; };
@@ -1955,6 +1957,8 @@
 		B8524F24201A875600844F3D /* hid.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = hid.lua; path = extensions/hid/hid.lua; sourceTree = "<group>"; };
 		B8524F25201A875600844F3D /* libhid.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libhid.m; path = extensions/hid/libhid.m; sourceTree = "<group>"; };
 		B8524F31201A88CD00844F3D /* libhid.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libhid.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		BE28C752279E92D300D890D6 /* HSStreamDeckDeviceMk2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSStreamDeckDeviceMk2.h; path = extensions/streamdeck/HSStreamDeckDeviceMk2.h; sourceTree = "<group>"; };
+		BE28C753279E92D300D890D6 /* HSStreamDeckDeviceMk2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSStreamDeckDeviceMk2.m; path = extensions/streamdeck/HSStreamDeckDeviceMk2.m; sourceTree = "<group>"; };
 		D02F95241A00221C00E28BB2 /* Hammerspoon Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Hammerspoon Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D02F95271A00221C00E28BB2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D02F95281A00221C00E28BB2 /* HSrequire_all.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HSrequire_all.m; sourceTree = "<group>"; };
@@ -2936,6 +2940,8 @@
 				4F6653E9238C6B6600DEE120 /* HSStreamDeckDeviceMini.m */,
 				4F6653E4238C36F100DEE120 /* HSStreamDeckDeviceOriginal.h */,
 				4F6653E5238C36F100DEE120 /* HSStreamDeckDeviceOriginal.m */,
+				BE28C752279E92D300D890D6 /* HSStreamDeckDeviceMk2.h */,
+				BE28C753279E92D300D890D6 /* HSStreamDeckDeviceMk2.m */,
 				4FFB20FE23CD14A400811E77 /* HSStreamDeckDeviceOriginalV2.h */,
 				4FFB20FF23CD14A400811E77 /* HSStreamDeckDeviceOriginalV2.m */,
 				4FFB20FA23C5E01300811E77 /* HSStreamDeckDeviceXL.h */,
@@ -4335,6 +4341,7 @@
 				4F2DF3F41F605A9B00742D08 /* HSStreamDeckDevice.h in Headers */,
 				4F6653F62390351100DEE120 /* NSImage+JPEG.h in Headers */,
 				4F6653E6238C36F100DEE120 /* HSStreamDeckDeviceOriginal.h in Headers */,
+				BE28C754279E92D300D890D6 /* HSStreamDeckDeviceMk2.h in Headers */,
 				4F2DF3F81F6170BE00742D08 /* NSImage+BMP.h in Headers */,
 				4F2DF3F01F605A4900742D08 /* HSStreamDeckManager.h in Headers */,
 				4FFB210023CD14A500811E77 /* HSStreamDeckDeviceOriginalV2.h in Headers */,
@@ -7053,6 +7060,7 @@
 				4FFB210123CD14A500811E77 /* HSStreamDeckDeviceOriginalV2.m in Sources */,
 				4FFB20FD23C5E01300811E77 /* HSStreamDeckDeviceXL.m in Sources */,
 				4F2DF3F51F605A9B00742D08 /* HSStreamDeckDevice.m in Sources */,
+				BE28C756279E92D300D890D6 /* HSStreamDeckDeviceMk2.m in Sources */,
 				4F6653EB238C6B6600DEE120 /* HSStreamDeckDeviceMini.m in Sources */,
 				4F6653E7238C36F100DEE120 /* HSStreamDeckDeviceOriginal.m in Sources */,
 				4F2DF3F91F6170BE00742D08 /* NSImage+BMP.m in Sources */,

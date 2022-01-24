@@ -1,5 +1,5 @@
 //
-//  HSStreamDeckDeviceOriginalV2.h
+//  HSStreamDeckDeviceMk2.h
 //  streamdeck
 //
 //  Created by Chris Jones on 08/01/2020.
@@ -10,7 +10,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface HSStreamDeckDeviceOriginalV2 : HSStreamDeckDevice
+@interface HSStreamDeckDeviceMk2 : HSStreamDeckDevice
 
 @end
 
