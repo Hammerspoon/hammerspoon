@@ -523,7 +523,7 @@
 		4FF73A1527349AE60007074E /* location.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 4F6B3EBD1B73DC8400B2A4DE /* location.lua */; };
 		4FF73A1627349AE60007074E /* location_geocoder.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = D66B763A1DD6FD1400CA12E6 /* location_geocoder.lua */; };
 		4FF73A17273539EE0007074E /* doc.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 4FD0ABCA1B74B1C500A82496 /* doc.lua */; };
-		4FF73A18273539EE0007074E /* builder.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = D67F1B3C1EA9D65E00FEB411 /* builder.lua */; };
+		4FF73A18273539EE0007074E /* doc_builder.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = D67F1B3C1EA9D65E00FEB411 /* doc_builder.lua */; };
 		4FF73A1A273539EE0007074E /* httpserver.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 4FD0AC231B74C62200A82496 /* httpserver.lua */; };
 		4FF73A1B273539EE0007074E /* httpserver_hsminweb.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = D6B772991CCB544B00908A59 /* httpserver_hsminweb.lua */; };
 		4FF73A1C273539EE0007074E /* cgilua_compatibility_functions.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = D6B772981CCB544B00908A59 /* cgilua_compatibility_functions.lua */; };
@@ -1458,7 +1458,7 @@
 				4FF73A2B27359C2C0007074E /* window_highlight.lua in Copy Extension Lua files */,
 				4FF73A2C27359C2C0007074E /* window_tiling.lua in Copy Extension Lua files */,
 				4FF73A17273539EE0007074E /* doc.lua in Copy Extension Lua files */,
-				4FF73A18273539EE0007074E /* builder.lua in Copy Extension Lua files */,
+				4FF73A18273539EE0007074E /* doc_builder.lua in Copy Extension Lua files */,
 				4FF73A1A273539EE0007074E /* httpserver.lua in Copy Extension Lua files */,
 				4FF73A1B273539EE0007074E /* httpserver_hsminweb.lua in Copy Extension Lua files */,
 				4FF73A1C273539EE0007074E /* cgilua_compatibility_functions.lua in Copy Extension Lua files */,
@@ -2075,7 +2075,7 @@
 		D64B03381BA954660006C468 /* libwebview_usercontent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libwebview_usercontent.m; path = extensions/webview/libwebview_usercontent.m; sourceTree = "<group>"; };
 		D64B03461BA954780006C468 /* libwebviewusercontent.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libwebviewusercontent.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		D66B763A1DD6FD1400CA12E6 /* location_geocoder.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = location_geocoder.lua; path = extensions/location/location_geocoder.lua; sourceTree = "<group>"; };
-		D67F1B3C1EA9D65E00FEB411 /* builder.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = builder.lua; path = extensions/doc/builder.lua; sourceTree = "<group>"; };
+		D67F1B3C1EA9D65E00FEB411 /* doc_builder.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = doc_builder.lua; path = extensions/doc/doc_builder.lua; sourceTree = "<group>"; };
 		D684BBFB1DFB72BD00B4D0B8 /* watchable.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = watchable.lua; path = extensions/watchable/watchable.lua; sourceTree = "<group>"; };
 		D68615F31E04D5990058A4F2 /* Canvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Canvas.h; path = extensions/canvas/Canvas.h; sourceTree = "<group>"; };
 		D68615F41E04D5990058A4F2 /* imageAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = imageAdditions.m; path = extensions/canvas/imageAdditions.m; sourceTree = "<group>"; };
@@ -3739,7 +3739,7 @@
 				4FCA05902767645A0089A5FC /* hsdocs */,
 				4FD0ABCA1B74B1C500A82496 /* doc.lua */,
 				D6BACEA923178EC900110E1E /* libdoc.m */,
-				D67F1B3C1EA9D65E00FEB411 /* builder.lua */,
+				D67F1B3C1EA9D65E00FEB411 /* doc_builder.lua */,
 				D64964601CCB32AE0074540B /* autolink.c */,
 				D64964611CCB32AE0074540B /* autolink.h */,
 				D64964621CCB32AE0074540B /* buffer.c */,

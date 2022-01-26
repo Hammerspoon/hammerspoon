@@ -157,7 +157,7 @@ function op_docs() {
     pushd "${HAMMERSPOON_HOME}" >/dev/null || fail "Unable to access Hammerspoon repo at ${HAMMERSPOON_HOME}"
 
     if [ "${DOCS_LINT_ONLY}" == 1 ]; then
-        "${DOCSCRIPT}" -l ${DOCS_SEARCH_DIRS[*]}
+        "${DOCSCRIPT}" -l ${DOCS_SEARCH_DIRS[*]} || fail "Docs lint failed"
         echo "Docs lint OK"
         popd >/dev/null || fail "Unknown"
         return # We return here because this option cannot be used with any of the subsequent ones
