@@ -17,6 +17,18 @@
 		2273893624860C0E003EBC68 /* test_websocket.lua in Resources */ = {isa = PBXBuildFile; fileRef = 22738933248606A9003EBC68 /* test_websocket.lua */; };
 		22A6626025FC080200AA329E /* test_serial.lua in Resources */ = {isa = PBXBuildFile; fileRef = 22A6625F25FC07F700AA329E /* test_serial.lua */; };
 		22A6626225FC087000AA329E /* HSserial.m in Sources */ = {isa = PBXBuildFile; fileRef = 22A6626125FC087000AA329E /* HSserial.m */; };
+		22C9153327A108F000E650A2 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FB852342735B02400462DD0 /* LuaSkin.framework */; };
+		22C9154427A1091B00E650A2 /* HSRazerDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 2213843127A105DD0085CA24 /* HSRazerDevice.m */; };
+		22C9154527A1091B00E650A2 /* HSRazerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2213842D27A105DD0085CA24 /* HSRazerManager.m */; };
+		22C9154627A1091B00E650A2 /* HSRazerTartarusV2Device.m in Sources */ = {isa = PBXBuildFile; fileRef = 2213842C27A105DD0085CA24 /* HSRazerTartarusV2Device.m */; };
+		22C9154727A1091B00E650A2 /* librazer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2213842B27A105DD0085CA24 /* librazer.m */; };
+		22C9154827A1092A00E650A2 /* HSRazerDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = 2213843027A105DD0085CA24 /* HSRazerDevice.h */; };
+		22C9154927A1092A00E650A2 /* HSRazerManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2213843227A105DD0085CA24 /* HSRazerManager.h */; };
+		22C9154A27A1092A00E650A2 /* HSRazerTartarusV2Device.h in Headers */ = {isa = PBXBuildFile; fileRef = 2213842E27A105DD0085CA24 /* HSRazerTartarusV2Device.h */; };
+		22C9154B27A1092A00E650A2 /* razer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2213842F27A105DD0085CA24 /* razer.h */; };
+		22C9154E27A1095200E650A2 /* librazer.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 22C9154327A108F000E650A2 /* librazer.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		22C9154F27A1097A00E650A2 /* razer.lua in Resources */ = {isa = PBXBuildFile; fileRef = 2213842A27A105DD0085CA24 /* razer.lua */; };
+		22C9155027A1099700E650A2 /* razer.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 2213842A27A105DD0085CA24 /* razer.lua */; };
 		22DF5D2823B9A9EA00C41AE6 /* libpasteboard_watcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 22DF5D1A23B99C4D00C41AE6 /* libpasteboard_watcher.m */; };
 		22E4D8031FA748AC00C8CF5C /* libmidi.m in Sources */ = {isa = PBXBuildFile; fileRef = 22E4D7F71FA7485A00C8CF5C /* libmidi.m */; };
 		22EEC62424926E6E00BAE4DA /* libserial.m in Sources */ = {isa = PBXBuildFile; fileRef = 22EEC61724926E2100BAE4DA /* libserial.m */; };
@@ -605,6 +617,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 22613FE81F297E0D00E05E11;
 			remoteInfo = dialog;
+		};
+		22C9154C27A1094400E650A2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9445CA0319083251002568BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 22C9152527A108F000E650A2;
+			remoteInfo = razer;
 		};
 		22DF5D2A23B9AA8C00C41AE6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1304,6 +1323,7 @@
 			dstPath = hs;
 			dstSubfolderSpec = 10;
 			files = (
+				22C9154E27A1095200E650A2 /* librazer.dylib in Copy Extension Dylibs */,
 				4FCA05CD27678B410089A5FC /* libmarkdown.dylib in Copy Extension Dylibs */,
 				4FF06128274AA7E600FB15D6 /* libcamera.dylib in Copy Extension Dylibs */,
 				4FF73A1D2735439B0007074E /* hs in Copy Extension Dylibs */,
@@ -1405,6 +1425,7 @@
 			dstPath = extensions/hs;
 			dstSubfolderSpec = 7;
 			files = (
+				22C9155027A1099700E650A2 /* razer.lua in Copy Extension Lua files */,
 				4FCA05A0276767350089A5FC /* window_layout.lua in Copy Extension Lua files */,
 				4FF06129274AA7F400FB15D6 /* camera.lua in Copy Extension Lua files */,
 				4FF061152747A25C00FB15D6 /* tangent.lua in Copy Extension Lua files */,
@@ -1531,6 +1552,15 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2213842A27A105DD0085CA24 /* razer.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = razer.lua; path = extensions/razer/razer.lua; sourceTree = "<group>"; };
+		2213842B27A105DD0085CA24 /* librazer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = librazer.m; path = extensions/razer/librazer.m; sourceTree = "<group>"; };
+		2213842C27A105DD0085CA24 /* HSRazerTartarusV2Device.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSRazerTartarusV2Device.m; path = extensions/razer/HSRazerTartarusV2Device.m; sourceTree = "<group>"; };
+		2213842D27A105DD0085CA24 /* HSRazerManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSRazerManager.m; path = extensions/razer/HSRazerManager.m; sourceTree = "<group>"; };
+		2213842E27A105DD0085CA24 /* HSRazerTartarusV2Device.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSRazerTartarusV2Device.h; path = extensions/razer/HSRazerTartarusV2Device.h; sourceTree = "<group>"; };
+		2213842F27A105DD0085CA24 /* razer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = razer.h; path = extensions/razer/razer.h; sourceTree = "<group>"; };
+		2213843027A105DD0085CA24 /* HSRazerDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSRazerDevice.h; path = extensions/razer/HSRazerDevice.h; sourceTree = "<group>"; };
+		2213843127A105DD0085CA24 /* HSRazerDevice.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSRazerDevice.m; path = extensions/razer/HSRazerDevice.m; sourceTree = "<group>"; };
+		2213843227A105DD0085CA24 /* HSRazerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSRazerManager.h; path = extensions/razer/HSRazerManager.h; sourceTree = "<group>"; };
 		224BA32523D1E63A00487FDB /* libwebsocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libwebsocket.m; path = extensions/websocket/libwebsocket.m; sourceTree = "<group>"; };
 		224BA33223D1ECA900487FDB /* libwebsocket.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libwebsocket.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		224BA33423D1EE6F00487FDB /* websocket.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = websocket.lua; path = extensions/websocket/websocket.lua; sourceTree = "<group>"; };
@@ -1545,6 +1575,7 @@
 		22738934248606F0003EBC68 /* HSwebsocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSwebsocket.m; sourceTree = "<group>"; };
 		22A6625F25FC07F700AA329E /* test_serial.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_serial.lua; path = extensions/serial/test_serial.lua; sourceTree = "<group>"; };
 		22A6626125FC087000AA329E /* HSserial.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSserial.m; sourceTree = "<group>"; };
+		22C9154327A108F000E650A2 /* librazer.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = librazer.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		22DF5D1A23B99C4D00C41AE6 /* libpasteboard_watcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libpasteboard_watcher.m; path = extensions/pasteboard/libpasteboard_watcher.m; sourceTree = "<group>"; };
 		22DF5D2723B9A9D300C41AE6 /* libpasteboardwatcher.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libpasteboardwatcher.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		22E4D7F71FA7485A00C8CF5C /* libmidi.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = libmidi.m; path = extensions/midi/libmidi.m; sourceTree = SOURCE_ROOT; };
@@ -2079,6 +2110,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FB8527D2735B39D00462DD0 /* LuaSkin.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		22C9153227A108F000E650A2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				22C9153327A108F000E650A2 /* LuaSkin.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2836,6 +2875,22 @@
 			name = Pods;
 			sourceTree = "<group>";
 		};
+		2213841E27A105520085CA24 /* razer */ = {
+			isa = PBXGroup;
+			children = (
+				2213843027A105DD0085CA24 /* HSRazerDevice.h */,
+				2213843127A105DD0085CA24 /* HSRazerDevice.m */,
+				2213843227A105DD0085CA24 /* HSRazerManager.h */,
+				2213842D27A105DD0085CA24 /* HSRazerManager.m */,
+				2213842E27A105DD0085CA24 /* HSRazerTartarusV2Device.h */,
+				2213842C27A105DD0085CA24 /* HSRazerTartarusV2Device.m */,
+				2213842B27A105DD0085CA24 /* librazer.m */,
+				2213842F27A105DD0085CA24 /* razer.h */,
+				2213842A27A105DD0085CA24 /* razer.lua */,
+			);
+			name = razer;
+			sourceTree = "<group>";
+		};
 		224BA33323D1ECF200487FDB /* websocket */ = {
 			isa = PBXGroup;
 			children = (
@@ -3456,6 +3511,7 @@
 				4F6B3F241B73EBF000B2A4DE /* pasteboard */,
 				4F6B3F361B73EE0E00B2A4DE /* pathwatcher */,
 				4FDD9DC01ED30D89008F14D3 /* plist */,
+				2213841E27A105520085CA24 /* razer */,
 				4F6689E21C288B8900E48AF1 /* redshift */,
 				4F6B3F471B73EF8A00B2A4DE /* screen */,
 				4F6B3F6D1B73F15A00B2A4DE /* settings */,
@@ -3967,6 +4023,7 @@
 				4F7F3B6C272AF68100E05732 /* libshortcuts.dylib */,
 				4FF06124274AA7A200FB15D6 /* libcamera.dylib */,
 				4FCA05CA27678B100089A5FC /* libmarkdown.dylib */,
+				22C9154327A108F000E650A2 /* librazer.dylib */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -4273,6 +4330,17 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		22C9153427A108F000E650A2 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				22C9154827A1092A00E650A2 /* HSRazerDevice.h in Headers */,
+				22C9154927A1092A00E650A2 /* HSRazerManager.h in Headers */,
+				22C9154A27A1092A00E650A2 /* HSRazerTartarusV2Device.h in Headers */,
+				22C9154B27A1092A00E650A2 /* razer.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4980,6 +5048,23 @@
 			name = dialog;
 			productName = alert;
 			productReference = 22613FF11F297E0D00E05E11 /* libdialog.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+		22C9152527A108F000E650A2 /* razer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 22C9153F27A108F000E650A2 /* Build configuration list for PBXNativeTarget "razer" */;
+			buildPhases = (
+				22C9152627A108F000E650A2 /* Sources */,
+				22C9153227A108F000E650A2 /* Frameworks */,
+				22C9153427A108F000E650A2 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = razer;
+			productName = alert;
+			productReference = 22C9154327A108F000E650A2 /* librazer.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 		22DF5D1C23B9A9D300C41AE6 /* pasteboardwatcher */ = {
@@ -6128,6 +6213,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				22C9154D27A1094400E650A2 /* PBXTargetDependency */,
 				4FCA05CC27678B330089A5FC /* PBXTargetDependency */,
 				4FF06127274AA7D900FB15D6 /* PBXTargetDependency */,
 				4F7F3B6F272AF7E100E05732 /* PBXTargetDependency */,
@@ -6758,6 +6844,7 @@
 				22DF5D1C23B9A9D300C41AE6 /* pasteboardwatcher */,
 				4F6B3F281B73EDD100B2A4DE /* pathwatcher */,
 				4FDD9DC31ED30DC9008F14D3 /* plist */,
+				22C9152527A108F000E650A2 /* razer */,
 				4F6B3F3A1B73EF4B00B2A4DE /* screen */,
 				4F6B3F4B1B73EFC100B2A4DE /* screenwatcher */,
 				4F6B3F601B73F0E300B2A4DE /* settings */,
@@ -6815,6 +6902,7 @@
 				944A2D451989737E00D8DC90 /* Images.xcassets in Resources */,
 				944A2D431989737E00D8DC90 /* Credits.rtf in Resources */,
 				944A2D3A1989735300D8DC90 /* MainMenu.xib in Resources */,
+				22C9154F27A1097A00E650A2 /* razer.lua in Resources */,
 				949CDC001990759B00906CCE /* ConsoleWindow.xib in Resources */,
 				949CDBFE1990747B00906CCE /* PreferencesWindow.xib in Resources */,
 				945B65B2198D31FC002D2E30 /* setup.lua in Resources */,
@@ -6975,6 +7063,17 @@
 			buildActionMask = 2147483647;
 			files = (
 				22613FF51F2A127E00E05E11 /* libdialog.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		22C9152627A108F000E650A2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				22C9154427A1091B00E650A2 /* HSRazerDevice.m in Sources */,
+				22C9154527A1091B00E650A2 /* HSRazerManager.m in Sources */,
+				22C9154627A1091B00E650A2 /* HSRazerTartarusV2Device.m in Sources */,
+				22C9154727A1091B00E650A2 /* librazer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7806,6 +7905,11 @@
 			target = 22613FE81F297E0D00E05E11 /* dialog */;
 			targetProxy = 22613FF31F297E7F00E05E11 /* PBXContainerItemProxy */;
 		};
+		22C9154D27A1094400E650A2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 22C9152527A108F000E650A2 /* razer */;
+			targetProxy = 22C9154C27A1094400E650A2 /* PBXContainerItemProxy */;
+		};
 		22DF5D2B23B9AA8C00C41AE6 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 22DF5D1C23B9A9D300C41AE6 /* pasteboardwatcher */;
@@ -8303,6 +8407,36 @@
 			name = Debug;
 		};
 		22613FF01F297E0D00E05E11 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WARNING_CFLAGS = (
+					"-Weverything",
+					"-Wno-direct-ivar-access",
+					"-Wno-documentation-unknown-command",
+					"$(inherited)",
+				);
+			};
+			name = Release;
+		};
+		22C9154027A108F000E650A2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		22C9154127A108F000E650A2 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Profile;
+		};
+		22C9154227A108F000E650A2 /* Release */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
 			buildSettings = {
@@ -10738,6 +10872,16 @@
 				22613FEF1F297E0D00E05E11 /* Debug */,
 				4F0454A020F0EE7D00699F29 /* Profile */,
 				22613FF01F297E0D00E05E11 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		22C9153F27A108F000E650A2 /* Build configuration list for PBXNativeTarget "razer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				22C9154027A108F000E650A2 /* Debug */,
+				22C9154127A108F000E650A2 /* Profile */,
+				22C9154227A108F000E650A2 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
