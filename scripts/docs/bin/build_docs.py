@@ -245,6 +245,8 @@ def process_docstrings(docstrings):
             modulename = find_module_for_item(list(docs.keys()), itemname)
             dbg("process_docstrings:   Assigning item to module: %s" %
                 modulename)
+            if modulename not in docs and os.environ.get("GITHUB_ACTIONS", default=None):
+                print("::error file=%s,line=%s,title='Unknown module'::Found a reference to module '%s', but that module has no definition anywhere" % (CHUNK_FILE, CHUNK_LINE, modulename))
             docs[modulename]["items"][itemname] = chunk
 
     return docs
@@ -324,11 +326,11 @@ def process_module(modulename, raw_module):
                 params_index = chunk[CHUNK_DESC:].index("Parameters:")
                 desc_section = [x for x in chunk[CHUNK_DESC:][0:params_index] if x != '']
                 if len(desc_section) > 1:
-                    message = "Function description should be a single line. Other content may belong in Notes: %s" % sig_without_return
+                    message = "Function/Method/Constructor description for %s should be a single line. Other content may belong in the Notes: section." % sig_without_return
                     warn(message)
                     LINTS.append({
                         "file": item["file"],
-                        "line": int(item["lineno"]),
+                        "line": int(item["lineno"]) + 3,
                         "title": "Docstring function/method/constructor description should not be multiline",
                         "message": message,
                         "annotation_level": "failure"
@@ -544,6 +546,14 @@ def write_annotations(filepath, data):
                                   separators=(',', ': '),
                                   ensure_ascii=False).encode('utf-8'))
 
+
+def emit_lints(lints):
+    """Print GitHub Actions messages to stderr for each of our docstrings lint errors"""
+    for lint in lints:
+        print("::error file=%s,line=%s,title=%s::%s" % (lint["file"], lint["line"], lint["title"], lint["message"]), file=sys.stderr)
+
+    if len(lints) > 0:
+        sys.exit(1)
 
 def write_json(filepath, data):
     """Write out a JSON version of the docs"""
@@ -761,6 +771,7 @@ def main():
         pass
     if arguments.lint_mode:
         write_annotations(arguments.output_dir + "/annotations.json", LINTS)
+        emit_lints(LINTS)
     if arguments.json:
         write_json(arguments.output_dir + "/docs.json", results)
         write_json_index(arguments.output_dir + "/docs_index.json", results)
