@@ -65,7 +65,7 @@
 - (void)handleCatastrophe:(NSString *)message {
     NSAlert *alert = [[NSAlert alloc] init];
     alert.messageText = message;
-    alert.informativeText = @"Hammerspoon critical error.";
+    alert.informativeText = @"CommandPost critical error.";
     [alert addButtonWithTitle:@"Quit"];
     [alert setAlertStyle:NSAlertStyleCritical];
     [alert runModal];

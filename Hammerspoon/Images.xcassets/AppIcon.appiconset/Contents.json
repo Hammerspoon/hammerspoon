@@ -1,68 +1,68 @@
 {
   "images" : [
     {
-      "filename" : "16.png",
+      "size" : "16x16",
       "idiom" : "mac",
-      "scale" : "1x",
-      "size" : "16x16"
+      "filename" : "CommandPost_Icon_16.png",
+      "scale" : "1x"
     },
     {
-      "filename" : "32-1.png",
+      "size" : "16x16",
       "idiom" : "mac",
-      "scale" : "2x",
-      "size" : "16x16"
+      "filename" : "CommandPost_Icon_16@2x.png",
+      "scale" : "2x"
     },
     {
-      "filename" : "32.png",
+      "size" : "32x32",
       "idiom" : "mac",
-      "scale" : "1x",
-      "size" : "32x32"
+      "filename" : "CommandPost_Icon_32.png",
+      "scale" : "1x"
     },
     {
-      "filename" : "64.png",
+      "size" : "32x32",
       "idiom" : "mac",
-      "scale" : "2x",
-      "size" : "32x32"
+      "filename" : "CommandPost_Icon_32@2x.png",
+      "scale" : "2x"
     },
     {
-      "filename" : "128.png",
+      "size" : "128x128",
       "idiom" : "mac",
-      "scale" : "1x",
-      "size" : "128x128"
+      "filename" : "CommandPost_Icon_128.png",
+      "scale" : "1x"
     },
     {
-      "filename" : "256-1.png",
+      "size" : "128x128",
       "idiom" : "mac",
-      "scale" : "2x",
-      "size" : "128x128"
+      "filename" : "CommandPost_Icon_128@2x.png",
+      "scale" : "2x"
     },
     {
-      "filename" : "256.png",
+      "size" : "256x256",
       "idiom" : "mac",
-      "scale" : "1x",
-      "size" : "256x256"
+      "filename" : "CommandPost_Icon_256.png",
+      "scale" : "1x"
     },
     {
-      "filename" : "512-1.png",
+      "size" : "256x256",
       "idiom" : "mac",
-      "scale" : "2x",
-      "size" : "256x256"
+      "filename" : "CommandPost_Icon_256@2x.png",
+      "scale" : "2x"
     },
     {
-      "filename" : "512.png",
+      "size" : "512x512",
       "idiom" : "mac",
-      "scale" : "1x",
-      "size" : "512x512"
+      "filename" : "CommandPost_Icon_512.png",
+      "scale" : "1x"
     },
     {
-      "filename" : "1024.png",
+      "size" : "512x512",
       "idiom" : "mac",
-      "scale" : "2x",
-      "size" : "512x512"
+      "filename" : "CommandPost_Icon_512@2x.png",
+      "scale" : "2x"
     }
   ],
   "info" : {
-    "author" : "xcode",
-    "version" : 1
+    "version" : 1,
+    "author" : "xcode"
   }
 }
