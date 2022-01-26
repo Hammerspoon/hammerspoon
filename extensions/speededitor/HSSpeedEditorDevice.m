@@ -50,17 +50,17 @@
         };
         
         self.jogModeLookup = @{
-            @"RELATIVE 0":              @0,                         // Relative
-            @"ABSOLUTE CONTINUOUS":     @1,                         // Send an "absolute" position (based on the position when mode was set) -4096 -> 4096 range ~ half a turn
-            @"RELATIVE 2":              @2,                         // Same as mode 0 ?
-            @"ABSOLUTE DEADZERO":       @3,                         // Same as mode 1 but with a small dead band around zero that maps to 0
+            //@"RELATIVE 0":              @0,                       // Relative
+            @"JOG":                     @1,                         // Send an "absolute" position (based on the position when mode was set) -4096 -> 4096 range ~ half a turn
+            @"SHTL":                    @2,                         // Same as mode 0 ?
+            @"SCRL":                    @3,                         // Same as mode 1 but with a small dead band around zero that maps to 0
         };
         
         self.jogModeReverseLookup = @{
-            [NSNumber numberWithInt:0]: @"RELATIVE 0",              // Relative
-            [NSNumber numberWithInt:1]: @"ABSOLUTE CONTINUOUS",     // Send an "absolute" position (based on the position when mode was set) -4096 -> 4096 range ~ half a turn
-            [NSNumber numberWithInt:2]: @"RELATIVE 2",              // Same as mode 0 ?
-            [NSNumber numberWithInt:3]: @"ABSOLUTE DEADZERO",       // Same as mode 1 but with a small dead band around zero that maps to 0
+            //[NSNumber numberWithInt:0]: @"RELATIVE 0",            // Relative
+            [NSNumber numberWithInt:1]: @"JOG",                     // Send an "absolute" position (based on the position when mode was set) -4096 -> 4096 range ~ half a turn
+            [NSNumber numberWithInt:2]: @"SHTL",                    // Same as mode 0 ?
+            [NSNumber numberWithInt:3]: @"SCRL",                    // Same as mode 1 but with a small dead band around zero that maps to 0
         };
 
         self.buttonLookup = @{
@@ -360,10 +360,22 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
     [self createAuthenticationTimerWithIntervalInSeconds:timeout];
     
     //
-    // Turn off all the LEDs if first time authenticating for a clean slate:
+    // If this is the first time connecting...
     //
     if (self.firstTimeAuthenticating) {
+        //
+        // Turn off all the LEDs:
+        //
         [self turnOffAllLEDs];
+        
+        //
+        // Set the Jog Mode to SHTL:
+        //
+        [self setJogMode:@"SHTL"];
+        
+        //
+        // Only do this once:
+        //
         self.firstTimeAuthenticating = NO;
     }
     
@@ -396,7 +408,7 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
                                 selector:@selector(authenticationTimerCallback:)
                                 userInfo:nil
                                 repeats:NO];
-    [[NSRunLoop currentRunLoop] addTimer:self.authenticationTimer forMode:NSRunLoopCommonModes];
+    [[NSRunLoop mainRunLoop] addTimer:self.authenticationTimer forMode:NSRunLoopCommonModes];
 }
 
 //
@@ -555,11 +567,21 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
     __block unsigned char ledStatus = 0;
     __block BOOL shouldSendReport = NO;
     
-    [options enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-        if ([self.jogLEDLookup objectForKey:key]) {
+    [self.jogLEDLookup enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+        if ([options objectForKey:key]) {
+            // We've been requested to turn on the LED:
             shouldSendReport = YES;
-            NSNumber *enabled = obj;
+            NSNumber *enabled = [options valueForKey:key];
             if ([enabled intValue] == 1) {
+                NSNumber *lookupValue = [self.jogLEDLookup objectForKey:key];
+                ledStatus = ledStatus + [lookupValue intValue];
+                self.ledCache[key] = @YES;
+            } else {
+                self.ledCache[key] = @NO;
+            }
+        } else {
+            // Use the cached value:
+            if ([self.ledCache[key] isEqual:@YES]) {
                 NSNumber *lookupValue = [self.jogLEDLookup objectForKey:key];
                 ledStatus = ledStatus + [lookupValue intValue];
             }

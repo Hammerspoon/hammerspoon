@@ -2,6 +2,53 @@
 ---
 --- Support for the Blackmagic DaVinci Resolve Speed Editor Keyboard.
 ---
+--- Example Usage:
+--- ```lua
+--- speedEditor = nil
+---
+--- local callback = function(obj, buttonID, pressed, mode, value)
+---     if buttonID == "JOG WHEEL" then
+---         print("Jog Wheel Mode " .. mode .. ", value: " .. value)
+---     else
+---         -- If Jog Wheel button pressed, change jog wheel mode
+---         -- and activate the LED for that job wheel mode:
+---         if buttonID == "SHTL" or buttonID == "JOG" or buttonID == "SCRL" then
+---             speedEditor:jogMode(buttonID)
+---             speedEditor:led({
+---                 ["SHTL"] = buttonID == "SHTL",
+---                 ["JOG"] = buttonID == "JOG",
+---                 ["SCRL"] = buttonID == "SCRL"
+---             })
+---             return
+---         end
+---
+---         -- If a normal button is pressed:
+---         if pressed then
+---             print(buttonID .. " pressed")
+---             speedEditor:led({[buttonID] = true})
+---         else
+---             print(buttonID .. " released")
+---             hs.timer.doAfter(5, function()
+---                 speedEditor:led({[buttonID] = false})
+---             end)
+---         end
+---     end
+--- end
+---
+--- local discoveryCallback = function(connected, device)
+---     if connected then
+---         print("New Speed Editor Connected!")
+---         speedEditor = device
+---         speedEditor:led({["SHTL"] = true}) -- Defaults to SHTL jog mode
+---         speedEditor:callback(callback)
+---     else
+---         print("Speed Editor Disconnected")
+---     end
+--- end
+---
+--- hs.speededitor.init(discoveryCallback)
+--- ```
+---
 --- This extension was thrown together by [Chris Hocking](https://github.com/latenitefilms) for [CommandPost](http://commandpost.io).
 ---
 --- This extension would not be possible without Sylvain Munaut's [genius work](https://github.com/smunaut/blackmagic-misc)
@@ -9,9 +56,9 @@
 ---
 --- This extension is based off [Chris Jones'](https://github.com/cmsj) [hs.streamdeck](http://www.hammerspoon.org/docs/hs.streamdeck.html) extension.
 ---
---- Special thanks to Morten Bentsen, Håvard Njåstad and Sondre Tungesvik Njåstad.
+--- Special thanks to [David Peterson](https://github.com/randomeizer), Morten Bentsen, Håvard Njåstad and Sondre Tungesvik Njåstad.
 ---
---- This extension uses some code based off Sylvain Munaut's Python Scripts under the following license:
+--- This extension uses code based off Sylvain Munaut's [Python Scripts](https://github.com/smunaut/blackmagic-misc) under the following license:
 ---
 --- Copyright 2021 Sylvain Munaut <tnt@246tNt.com>
 ---

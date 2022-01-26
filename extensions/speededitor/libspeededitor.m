@@ -25,14 +25,14 @@ static int speededitor_gc(lua_State *L __unused) {
 ///
 /// Parameters:
 ///  * fn - A function that will be called when a Speed Editor is connected or disconnected. It should take the following arguments:
-///   * A boolean, true if a device was connected, false if a device was disconnected
-///   * An hs.speededitor object, being the device that was connected/disconnected
+///   * A boolean, `true` if a device was connected, `false` if a device was disconnected
+///   * An `hs.speededitor` object, being the device that was connected/disconnected
 ///
 /// Returns:
 ///  * None
 ///
 /// Notes:
-///  * This function must be called before any other parts of this module are used
+///  * This function must be called before any other parts of this module are used.
 static int speededitor_init(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TFUNCTION, LS_TBREAK];
@@ -90,15 +90,29 @@ static int speededitor_numDevices(lua_State *L) {
 /// Gets an hs.speededitor object for the specified device
 ///
 /// Parameters:
-///  * num - A number that should be within the bounds of the number of connected devices
+///  * num - A number that should be within the bounds of the number of connected devices.
 ///
 /// Returns:
-///  * An hs.speededitor object
+///  * An `hs.speededitor` object or `nil` if something goes wrong.
 static int speededitor_getDevice(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TNUMBER, LS_TBREAK];
     
-    [skin pushNSObject:speedEditorManager.devices[lua_tointeger(skin.L, 1) - 1]];
+    long deviceNumber = lua_tointeger(skin.L, 1) - 1;
+
+    if (deviceNumber > speedEditorManager.devices.count) {
+        lua_pushnil(L);
+        return 1;
+    }
+
+    HSSpeedEditorDevice *device = speedEditorManager.devices[deviceNumber];
+
+    if (device) {
+        [skin pushNSObject:device];
+    } else {
+        lua_pushnil(L);
+    }
+    
     return 1;
 }
 
@@ -219,16 +233,15 @@ static int speededitor_serialNumber(lua_State *L) {
 /// Sets the Jog Mode for the Speed Editor
 ///
 /// Parameters:
-///  * value - "RELATIVE 0", "ABSOLUTE CONTINUOUS", "RELATIVE 2" or "ABSOLUTE DEADZERO" as a string.
+///  * value - "SHTL", "JOG", "SCRL" as a string.
 ///
 /// Returns:
-///  * The hs.speededitor device
+///  * The `hs.speededitor` device or `nil` if a wrong value is supplied.
 ///
 ///  Notes:
-///  * "RELATIVE 0" provide relative position (i.e. positive value if turning clock-wise and negative if turning anti-clockwise).
-///  * "RELATIVE 2" provide relative position (i.e. positive value if turning clock-wise and negative if turning anti-clockwise).
-///  * "ABSOLUTE CONTINUOUS" sends an "absolute" position (based on the position when mode was set) -4096 -> 4096 range ~ half a turn.
-///  * "ABSOLUTE DEADZERO" is the same as "RELATIVE 0" but with a small dead band around zero that maps to 0.
+///  * "SHTL" provide relative position (i.e. positive value if turning clock-wise and negative if turning anti-clockwise).
+///  * "JOG" sends an "absolute" position (based on the position when mode was set) -4096 -> 4096 range ~ half a turn.
+///  * "SCRL" is the same as "RELATIVE 0" but with a small dead band around zero that maps to 0.
 static int speededitor_jogMode(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TBREAK];
@@ -236,6 +249,11 @@ static int speededitor_jogMode(lua_State *L) {
     HSSpeedEditorDevice *device = [skin luaObjectAtIndex:1 toClass:"HSSpeedEditorDevice"];
         
     NSString *jogMode = [skin toNSObjectAtIndex:2];
+    
+    if (![device.jogModeLookup objectForKey:jogMode]) {
+        lua_pushnil(skin.L);
+        return 1;
+    }
     
     [device setJogMode:jogMode];
     
