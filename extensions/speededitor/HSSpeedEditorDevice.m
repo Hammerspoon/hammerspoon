@@ -650,7 +650,7 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
     //
     [skin pushLuaRef:speedEditorRefTable ref:self.callbackRef];
     [skin pushNSObject:self];
-    [skin pushNSObject:@"JOG_WHEEL"];
+    [skin pushNSObject:@"JOG WHEEL"];
     lua_pushboolean(skin.L, 1);
     [skin pushNSObject:currentMode];
     [skin pushNSObject:value];

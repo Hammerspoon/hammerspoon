@@ -97,23 +97,27 @@ static int speededitor_numDevices(lua_State *L) {
 static int speededitor_getDevice(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TNUMBER, LS_TBREAK];
-
+    
     [skin pushNSObject:speedEditorManager.devices[lua_tointeger(skin.L, 1) - 1]];
     return 1;
 }
 
 /// hs.speededitor:callback(fn) -> speedEditorObject
 /// Method
-/// Sets/clears the button callback function for a Speed Editor
+/// Sets/clears the button and jog wheel callback function for a Speed Editor
 ///
 /// Parameters:
-///  * fn - A function to be called when a button is pressed/released on the Speed Editor. It should receive three arguments:
-///   * The hs.speededitor userdata object
-///   * A number containing the button that was pressed/released
-///   * A boolean indicating whether the button was pressed (true) or released (false)
+///  * fn - A function to be called when a button is pressed/released, or the jog wheel is rotated on the Speed Editor.
 ///
 /// Returns:
 ///  * The hs.speededitor device
+///  * The callback function should receive three arguments:
+///   * The `hs.speededitor` userdata object
+///   * A string containing the name of the button or "JOG WHEEL"
+///   * A boolean indicating whether the button was pressed (true) or released (false). Not relevant if a Jog Wheel action.
+///   * The Jog Wheel Mode (if not a button press)
+///   * The Job Wheel value (if not a button press)
+///  * Possible buttons are: "SMART INSRT", "APPND", "RIPL OWR", "CLOSE UP", "PLACE ON TOP", "SRC_OWR", "IN", "OUT", "TRIM IN", "TRIM OUT", "ROLL", "SLIP SRC", "SLIP DEST", "TRANS DUR", "CUT", "DIS", "SMTH CUT", "SOURCE", "TIMELINE", "SHTL", "JOG", "SCRL", "ESC", "SYNC BIN", "AUDIO LEVEL", "FULL VIEW", "TRANS", "SPLIT", "SNAP", "RIPL DEL", "CAM 1", "CAM 2", "CAM 3", "CAM 4", "CAM 5", "CAM 6", "CAM 7", "CAM 8", "CAM 9", "LIVE OWR", "VIDEO ONLY", "AUDIO ONLY" and "STOP PLAY".
 static int speededitor_callback(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION | LS_TNIL, LS_TBREAK];
