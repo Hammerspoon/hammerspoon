@@ -444,6 +444,7 @@ static int eventtap_gc(lua_State* L) {
         CFRunLoopRemoveSource(CFRunLoopGetMain(), eventtap->runloopsrc, kCFRunLoopCommonModes);
         CFRelease(eventtap->runloopsrc);
         CFRelease(eventtap->tap);
+        eventtap->tap = NULL;
     }
 
     eventtap->fn = [skin luaUnref:refTable ref:eventtap->fn];

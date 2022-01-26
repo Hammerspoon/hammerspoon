@@ -22,6 +22,9 @@
 #import <AppKit/AppKit.h>
 #import <libproc.h>
 #import <dlfcn.h>
+#import <sys/utsname.h>
+#import <sys/types.h>
+#import <sys/sysctl.h>
 
 @interface MJPreferencesWindowController ()
 - (void) reflectDefaults ;
@@ -226,6 +229,24 @@ static int core_reload(lua_State* L) {
 /// A table containing read-only information about the Hammerspoon application instance currently running.
 static int push_hammerAppInfo(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
+
+    // Fetch the CPU architecture in use
+    NSString *arch = @"Unknown";
+    struct utsname utsname;
+    if (uname(&utsname) == 0) {
+        arch = [NSString stringWithCString:utsname.machine encoding:NSUTF8StringEncoding];
+    }
+
+    // Determine if we're running under Rosetta
+    int isTranslated = 0;
+    size_t size = sizeof(isTranslated);
+    if (sysctlbyname("sysctl.proc_translated", &isTranslated, &size, NULL, 0) == -1) {
+        if (errno == ENOENT)
+            isTranslated = 0;
+        // Technically to reach here we have an error in the sysctl, but we'll ignore it
+        // isTranslated = -1;
+    }
+
     NSDictionary *appInfo = @{
                               @"version": [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"],
                               @"build": [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"],
@@ -235,6 +256,8 @@ static int push_hammerAppInfo(lua_State* L) {
                               @"frameworksPath": @([[[NSBundle mainBundle] privateFrameworksPath] fileSystemRepresentation]),
                               @"processID": @(getpid()),
                               @"bundleID": [[NSBundle mainBundle] bundleIdentifier],
+                              @"arch": arch,
+                              @"isRosetta": [NSNumber numberWithBool:isTranslated],
                               @"buildTime": @(__DATE__ ", " __TIME__),
 #ifdef DEBUG
                               @"debugBuild": @(YES),
