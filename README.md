@@ -1,3 +1,4 @@
+This is a test PR, do not merge.
 # Hammerspoon
 [![IRC](https://img.shields.io/badge/IRC-%23hammerspoon-1e72ff.svg?style=flat)](https://www.irccloud.com/invite?channel=%23hammerspoon&amp;hostname=irc.libera.chat&amp;port=6697&amp;ssl=1)
 [![CI](https://github.com/Hammerspoon/hammerspoon/workflows/CI/badge.svg)](https://github.com/Hammerspoon/hammerspoon/actions?query=workflow%3ACI)
