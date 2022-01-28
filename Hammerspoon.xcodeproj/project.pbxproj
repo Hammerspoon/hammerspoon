@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -7107,6 +7107,7 @@
 		};
 		4F6D9E3523074BC6006CC3E4 /* Update version/build numbers */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -7121,7 +7122,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#Update build number with number of git commits if in release mode\nset -eux\n\nTOKENPATH=\"${HAMMERSPOON_TOKEN_PATH:-..}\"\n\nif [ -f \"${TOKENPATH}/token-codesign\" -a \"${CONFIGURATION}\" == \"Release\" ]; then\n  buildNumber=$(git rev-list HEAD | wc -l | tr -d ' ')\n  /usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\"\nelse\n  echo \"No signing token found or not a Release build, skipping build number change\"\nfi\n";
+			shellScript = "#Update build number with number of git commits if in release mode\nset -eux\n\n./scripts/update_version_build_numbers.sh\n";
 		};
 		4FC09F7A19F99E48007542A6 /* Compile docs.json */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -8539,10 +8540,15 @@
 /* Begin XCBuildConfiguration section */
 		220A07012788F97D0068DEA2 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
 			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				PRODUCT_NAME = alert;
+				PRODUCT_NAME = dialog;
+				WARNING_CFLAGS = (
+					"-Weverything",
+					"-Wno-direct-ivar-access",
+					"-Wno-documentation-unknown-command",
+					"$(inherited)",
+				);
 			};
 			name = Release;
 		};
@@ -8574,7 +8580,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
 			buildSettings = {
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = dialog;
 				WARNING_CFLAGS = (
 					"-Weverything",
 					"-Wno-direct-ivar-access",
@@ -8776,7 +8782,10 @@
 			baseConfigurationReference = 4F7F3B7B272DE98800E05732 /* Hammerspoon-Profile.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = "Hammerspoon/CommandPost-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				MARKETING_VERSION = 1.2.17;
 				PRODUCT_BUNDLE_IDENTIFIER = org.latenitefilms.CommandPost;
 				PRODUCT_NAME = CommandPost;
@@ -8799,7 +8808,11 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "Hammerspoon Tests/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.$(PRODUCT_NAME:rfc1034identifier)";
@@ -8824,7 +8837,11 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
 				INFOPLIST_FILE = HammerspoonUITests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = org.hammerspoon.HammerspoonUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -8965,7 +8982,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
 			buildSettings = {
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = dialog;
 				WARNING_CFLAGS = (
 					"-Weverything",
 					"-Wno-direct-ivar-access",
@@ -9499,7 +9516,11 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
 				INFOPLIST_FILE = HammerspoonUITests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = org.hammerspoon.HammerspoonUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -9517,7 +9538,11 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
 				INFOPLIST_FILE = HammerspoonUITests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = org.hammerspoon.HammerspoonUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -10529,7 +10554,10 @@
 			baseConfigurationReference = 4F7F3B7A272DE83500E05732 /* Hammerspoon-Debug.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = "Hammerspoon/CommandPost-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				MARKETING_VERSION = 1.2.17;
 				PRODUCT_BUNDLE_IDENTIFIER = org.latenitefilms.CommandPost;
 				PRODUCT_NAME = CommandPost;
@@ -10542,7 +10570,10 @@
 			buildSettings = {
 				DEVELOPMENT_TEAM = A5HDJTY9X5;
 				INFOPLIST_FILE = "Hammerspoon/CommandPost-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				MARKETING_VERSION = 1.2.17;
 				PRODUCT_BUNDLE_IDENTIFIER = org.latenitefilms.CommandPost;
 				PRODUCT_NAME = CommandPost;
@@ -10581,7 +10612,11 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "Hammerspoon Tests/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.$(PRODUCT_NAME:rfc1034identifier)";
@@ -10608,7 +10643,11 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "Hammerspoon Tests/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.$(PRODUCT_NAME:rfc1034identifier)";
