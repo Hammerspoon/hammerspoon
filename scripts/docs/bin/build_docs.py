@@ -193,6 +193,7 @@ def get_section_from_chunk(chunk, sectionname):
                 break
             else:
                 section.append(line)
+                section.append("\n")
     return section
 
 
@@ -624,6 +625,20 @@ def write_templated_output(output_dir, template_dir, title, source_url_base, dat
     from jinja2 import Environment
 
     jinja = Environment(trim_blocks=True, lstrip_blocks=True)
+
+	########################################################
+	## ADDED BY CHRIS FOR COMMANDPOST:
+	########################################################
+    import jinja2
+    import markdown
+
+    md = markdown.Markdown(extensions=['meta'])
+
+    jinja = jinja2.Environment()
+    jinja.filters['markdown'] = lambda text: jinja2.Markup(md.convert(text))
+    jinja.trim_blocks = True
+    jinja.lstrip_blocks = True
+	########################################################
 
     # Make sure we have a valid output_dir
     if not os.path.isdir(output_dir):

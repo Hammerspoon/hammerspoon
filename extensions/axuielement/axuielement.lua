@@ -39,9 +39,9 @@
 ---    * The specific value required for a each parameterized attribute is different and is often application specific thus requiring some experimentation. Notes regarding identified parameter types and thoughts on some still being investigated will be provided in the Hammerspoon Wiki, hopefully shortly after this module becomes part of a Hammerspoon release.
 local USERDATA_TAG = "hs.axuielement"
 
-if not hs.accessibilityState(true) then
-    hs.luaSkinLog.ef("%s - module requires accessibility to be enabled; fix in SystemPreferences -> Privacy & Security", USERDATA_TAG)
-end
+--if not hs.accessibilityState(true) then
+--    hs.luaSkinLog.ef("%s - module requires accessibility to be enabled; fix in SystemPreferences -> Privacy & Security", USERDATA_TAG)
+--end
 
 local module       = require("hs.libaxuielement")
 

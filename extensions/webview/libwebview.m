@@ -690,8 +690,10 @@ void delayUntilViewStopsLoading(HSWebViewView *theView, dispatch_block_t block) 
     NSAlert *inputPanel = [[NSAlert alloc] init] ;
     [inputPanel addButtonWithTitle:@"OK"] ;
     [inputPanel addButtonWithTitle:@"Cancel"] ;
-    [inputPanel setMessageText:[NSString stringWithFormat:@"JavaScript Input for %@", frame.request.URL.host]] ;
-    [inputPanel setInformativeText:prompt] ;
+    // TWEAKED BY CHRIS FOR COMMANDPOST:
+    //[inputPanel setMessageText:[NSString stringWithFormat:@"JavaScript Input for %@", frame.request.URL.host]] ;
+    [inputPanel setMessageText:prompt];
+    //[inputPanel setInformativeText:prompt] ;
     NSTextField *input = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 200, 24)] ;
     input.stringValue = defaultText ;
     input.editable = YES ;
