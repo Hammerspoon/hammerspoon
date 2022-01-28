@@ -1,0 +1,23 @@
+{
+    "categories": [
+        {
+            "title": "## Fixed",
+            "labels": ["pr-fix"]
+        },
+        {
+            "title": "## Changed",
+            "labels": ["pr-change"]
+        },
+        {
+            "title": "## Added",
+            "labels": ["pr-feature"]
+        }
+    ],
+    "ignore_labels": [
+        "pr-maintenance"
+    ],
+    "pr_template": "- ${{TITLE}} [#${{NUMBER}}](${{URL}})",
+    "empty_template": "- None",
+    "template": "${{CHANGELOG}}\n## Other\n\n${{UNCATEGORIZED}}",
+    "sort": "ASC"
+}

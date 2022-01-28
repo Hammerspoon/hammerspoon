@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "9445CA0A19083251002568BB"
-               BuildableName = "CommandPost.app"
+               BuildableName = "Hammerspoon.app"
                BlueprintName = "Hammerspoon"
                ReferencedContainer = "container:Hammerspoon.xcodeproj">
             </BuildableReference>
@@ -48,7 +48,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "9445CA0A19083251002568BB"
-            BuildableName = "CommandPost.app"
+            BuildableName = "Hammerspoon.app"
             BlueprintName = "Hammerspoon"
             ReferencedContainer = "container:Hammerspoon.xcodeproj">
          </BuildableReference>
@@ -112,6 +112,7 @@
       debugDocumentVersioning = "YES"
       debugXPCServices = "NO"
       debugServiceExtension = "internal"
+      enableGPUValidationMode = "1"
       allowLocationSimulation = "YES"
       viewDebuggingEnabled = "No">
       <BuildableProductRunnable
@@ -119,7 +120,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "9445CA0A19083251002568BB"
-            BuildableName = "CommandPost.app"
+            BuildableName = "Hammerspoon.app"
             BlueprintName = "Hammerspoon"
             ReferencedContainer = "container:Hammerspoon.xcodeproj">
          </BuildableReference>
@@ -136,7 +137,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "9445CA0A19083251002568BB"
-            BuildableName = "CommandPost.app"
+            BuildableName = "Hammerspoon.app"
             BlueprintName = "Hammerspoon"
             ReferencedContainer = "container:Hammerspoon.xcodeproj">
          </BuildableReference>

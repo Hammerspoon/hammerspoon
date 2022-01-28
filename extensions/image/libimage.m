@@ -1498,123 +1498,6 @@ static int copyImage(lua_State *L) {
     return 1 ;
 }
 
-/// hs.image:getLoupedeckArray() -> table
-/// Method
-/// Translates an `hs.image` object into an RGB array string suitable for the Loupedeck CT device.
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * A string containing the RGB data
-static int getLoupedeckArray(lua_State* L) {
-    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
-
-    NSImage *image = [skin luaObjectAtIndex:1 toClass:"NSImage"] ;
-    
-    NSRect imageRect = NSMakeRect(0, 0, image.size.width, image.size.height);
-
-    CGImageRef inImage = [image CGImageForProposedRect:&imageRect context:NULL hints:nil];
-
-    // Get image width, height. We'll use the entire image.
-    size_t pixelsWide = CGImageGetWidth(inImage);
-    size_t pixelsHigh = CGImageGetHeight(inImage);
-
-    // Declare the number of bytes per row. Each pixel in the bitmap in this
-    // example is represented by 4 bytes; 8 bits each of red, green, blue, and
-    // alpha.
-    unsigned long bitmapBytesPerRow   = (pixelsWide * 4);
-    unsigned long bitmapByteCount     = (bitmapBytesPerRow * pixelsHigh);
-
-    // Use the generic RGB color space.
-    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-
-    if (colorSpace == NULL)
-    {
-        return luaL_error(L, "error allocating color space") ;
-    }
-
-    // Allocate memory for image data. This is the destination in memory
-    // where any drawing to the bitmap context will be rendered.
-    void *bitmapData = malloc( bitmapByteCount );
-    if (bitmapData == NULL)
-    {
-        CGColorSpaceRelease( colorSpace );
-        return luaL_error(L, "memory not allocated") ;
-    }
-
-    // Create the bitmap context. We want pre-multiplied ARGB, 8-bits
-    // per component. Regardless of what the source image format is
-    // (CMYK, Grayscale, and so on) it will be converted over to the format
-    // specified here by CGBitmapContextCreate.
-    CGContextRef context = CGBitmapContextCreate (bitmapData,
-                                    pixelsWide,
-                                    pixelsHigh,
-                                    8,      // bits per component
-                                    bitmapBytesPerRow,
-                                    colorSpace,
-                                    kCGImageAlphaPremultipliedFirst);
-    
-    // Make sure and release colorspace before returning
-    CGColorSpaceRelease( colorSpace );
-    
-    if (context == NULL)
-    {
-        free (bitmapData);
-        return luaL_error(L, "context not created") ;
-    }
-    
-    size_t w = CGImageGetWidth(inImage);
-    size_t h = CGImageGetHeight(inImage);
-    CGRect rect = {{0,0},{w,h}};
-
-    // Draw the image to the bitmap context. Once we draw, the memory
-    // allocated for the context for rendering will then contain the
-    // raw image data in the specified color space.
-    CGContextDrawImage(context, rect, inImage);
-
-    // Setup the output array which we'll eventually send to Lua-land:
-    NSMutableData *output = [NSMutableData dataWithCapacity: w * h * 2];
-    
-    // Now we can get a pointer to the image data associated with the bitmap
-    // context.
-    unsigned char* data = CGBitmapContextGetData (context);
-    if (data != NULL) {
-        for (unsigned y = 0; y < h; y++)
-        {
-            for (unsigned x = 0; x < w; x++)
-            {
-                //offset locates the pixel in the data from x,y.
-                //4 for 4 bytes of data per pixel, w is width of one row of data.
-                int offset = 4*((w*round(y))+round(x));
-                //int alpha =  data[offset];
-                int red = data[offset+1];
-                int green = data[offset+2];
-                int blue = data[offset+3];
-                
-                uint16_t color = ((red >> 3) & 0x1f) << 11 | (((green >> 2) & 0x3F) << 5) | ((blue >> 3) & 0x1F);
-                            
-                uint8_t little = color & 0xFF;
-                uint8_t big = (color >> 8 ) & 0xFF;
-                [output appendBytes:&little length:1];
-                [output appendBytes:&big length:1];
-            }
-        }
-    }
-    
-    // Free image data memory for the context
-    if (data) {
-            free(data);
-    }
-    if (context) {
-        CGContextRelease(context);
-    }
-    
-    [skin pushNSObject:output withOptions:LS_NSLuaStringAsDataOnly];
-    return 1;
-}
-
 #pragma mark - Conversion Extensions
 
 // [skin pushNSObject:NSImage]
@@ -1688,7 +1571,6 @@ static const luaL_Reg userdata_metaLib[] = {
     {"saveToFile",        saveToFile},
     {"encodeAsURLString", encodeAsString},
     {"colorAt",			  colorAt},
-    {"getLoupedeckArray", getLoupedeckArray},
 
     {"__tostring",        userdata_tostring},
     {"__eq",              userdata_eq},

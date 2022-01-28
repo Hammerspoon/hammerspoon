@@ -55,12 +55,12 @@
 - (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)fileAndPath {
     NSString *typeOfFile = [[NSWorkspace sharedWorkspace] typeOfFile:fileAndPath error:nil];
 
-    if ([typeOfFile isEqualToString:@"org.latenitefilms.commandpost.plugin"]) {
-        // This is a Plugin, so we will attempt to copy it to the Plugin directory
+    if ([typeOfFile isEqualToString:@"org.hammerspoon.hammerspoon.spoon"]) {
+        // This is a Spoon, so we will attempt to copy it to the Spoons directory
         NSError *fileError;
         BOOL success = NO;
         BOOL upgrade = NO;
-        NSString *spoonPath = [@"~/Library/Application Support/CommandPost/Plugins/" stringByExpandingTildeInPath];
+        NSString *spoonPath = [MJConfigDirAbsolute() stringByAppendingPathComponent:@"Spoons"];
         NSString *spoonName = [fileAndPath lastPathComponent];
         NSString *dstSpoonFullPath = [spoonPath stringByAppendingPathComponent:spoonName];
 
@@ -71,16 +71,16 @@
 
         NSFileManager *fileManager = [NSFileManager defaultManager];
 
-        // Remove any pre-existing copy of the Plugin
+        // Remove any pre-existing copy of the Spoon
         if ([fileManager fileExistsAtPath:dstSpoonFullPath]) {
-            NSLog(@"Plugin already exists at %@, removing the old version", dstSpoonFullPath);
+            NSLog(@"Spoon already exists at %@, removing the old version", dstSpoonFullPath);
             upgrade = YES;
             success = [fileManager removeItemAtPath:dstSpoonFullPath error:&fileError];
             if (!success) {
-                NSLog(@"Unable to remove existing Plugin (%@):%@", dstSpoonFullPath, fileError);
+                NSLog(@"Unable to remove existing Spoon (%@):%@", dstSpoonFullPath, fileError);
                 NSAlert *alert = [[NSAlert alloc] init];
                 [alert addButtonWithTitle:@"OK"];
-                [alert setMessageText:@"Error upgrading Plugin"];
+                [alert setMessageText:@"Error upgrading Spoon"];
                 [alert setInformativeText:[NSString stringWithFormat:@"%@\n\nSource: %@\nDest: %@", fileError.localizedDescription, fileAndPath, spoonPath]];
                 [alert setAlertStyle:NSAlertStyleCritical];
                 [alert runModal];
@@ -93,17 +93,16 @@
             NSLog(@"Unable to move %@ to %@: %@", fileAndPath, spoonPath, fileError);
             NSAlert *alert = [[NSAlert alloc] init];
             [alert addButtonWithTitle:@"OK"];
-            [alert setMessageText:@"Error installing Plugin"];
+            [alert setMessageText:@"Error installing Spoon"];
             [alert setInformativeText:[NSString stringWithFormat:@"%@\n\nSource: %@\nDest: %@", fileError.localizedDescription, fileAndPath, spoonPath]];
             [alert setAlertStyle:NSAlertStyleCritical];
             [alert runModal];
         } else {
             NSUserNotification *notification = [[NSUserNotification alloc] init];
-            notification.title = [NSString stringWithFormat:@"Plugin %@", upgrade ? @"upgraded" : @"installed"];
-            notification.informativeText = [NSString stringWithFormat:@"%@ is now available%@", spoonName, upgrade ? @", " : @""];
+            notification.title = [NSString stringWithFormat:@"Spoon %@", upgrade ? @"upgraded" : @"installed"];
+            notification.informativeText = [NSString stringWithFormat:@"%@ is now available%@", spoonName, upgrade ? @", reload your config" : @""];
             notification.soundName = NSUserNotificationDefaultSoundName;
             [[NSUserNotificationCenter defaultUserNotificationCenter] deliverNotification:notification];
-            MJLuaReplace(); // Reload CommandPost
         }
         return YES; // Note that we always return YES here because otherwise macOS tells the user that we can't open Spoons, which is ludicrous
     }
@@ -132,7 +131,6 @@
 
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-
     BOOL isTesting = NO;
 
     // User is holding down Command (0x37) & Option (0x3A) keys:
@@ -142,7 +140,7 @@
         [alert addButtonWithTitle:@"Continue"];
         [alert addButtonWithTitle:@"Delete Preferences"];
         [alert setMessageText:@"Do you want to delete the preferences?"];
-        [alert setInformativeText:@"Deleting the preferences will reset all application settings to their defaults."];
+        [alert setInformativeText:@"Deleting the preferences will reset all Hammerspoon settings (including everything that uses hs.settings) to their defaults."];
         [alert setAlertStyle:NSAlertStyleWarning];
 
         if ([alert runModal] == NSAlertSecondButtonReturn) {
@@ -200,13 +198,13 @@
         NSString* userMJConfigFile = [[NSUserDefaults standardUserDefaults] stringForKey:@"MJConfigFile"];
         if (userMJConfigFile) MJConfigFile = userMJConfigFile ;
 
-        // Ensure we have a Plugin directory
-        NSString *spoonsPath = [@"~/Library/Application Support/CommandPost/Plugins/" stringByExpandingTildeInPath]; //[MJConfigDir() stringByAppendingPathComponent:@"Spoons"];
+        // Ensure we have a Spoons directory
+        NSString *spoonsPath = [MJConfigDirAbsolute() stringByAppendingPathComponent:@"Spoons"];
         NSFileManager *fileManager = [NSFileManager defaultManager];
         BOOL spoonsPathIsDir;
         BOOL spoonsPathExists = [fileManager fileExistsAtPath:spoonsPath isDirectory:&spoonsPathIsDir];
 
-        NSLog(@"Determined Plugins path will be: %@ (exists: %@, isDir: %@)", spoonsPath, spoonsPathExists ? @"YES" : @"NO", spoonsPathIsDir ? @"YES" : @"NO");
+        NSLog(@"Determined Spoons path will be: %@ (exists: %@, isDir: %@)", spoonsPath, spoonsPathExists ? @"YES" : @"NO", spoonsPathIsDir ? @"YES" : @"NO");
 
         if (spoonsPathExists && !spoonsPathIsDir) {
             NSLog(@"ERROR: %@ exists, but is a file", spoonsPath);
@@ -214,7 +212,7 @@
         }
 
         if (!spoonsPathExists) {
-            NSLog(@"Creating Plugins directory at: %@", spoonsPath);
+            NSLog(@"Creating Spoons directory at: %@", spoonsPath);
             [[NSFileManager defaultManager] createDirectoryAtPath:spoonsPath withIntermediateDirectories:YES attributes:nil error:nil];
         }
     }
@@ -271,10 +269,9 @@
     [[MJConsoleWindowController singleton] setup];
     MJLuaCreate();
 
-    //if (!MJAccessibilityIsEnabled())
-        //[[MJPreferencesWindowController singleton] showWindow: nil];
+    if (!MJAccessibilityIsEnabled())
+        [[MJPreferencesWindowController singleton] showWindow: nil];
 }
-
 
 // Dragging & Dropping of Text to Dock Item
 -(void) processDockIconDraggedText:(NSPasteboard *)pboard userData:(NSString *)userData error:(NSString **)error {
@@ -306,13 +303,13 @@
     [[NSUserDefaults standardUserDefaults]
      registerDefaults: @{@"NSApplicationCrashOnExceptions": @YES,
                          MJShowDockIconKey: @NO,
-                         MJShowMenuIconKey: @NO,
+                         MJShowMenuIconKey: @YES,
                          HSAutoLoadExtensions: @YES,
                          HSUploadCrashDataKey: @YES,
                          HSAppleScriptEnabledKey: @NO,
                          HSOpenConsoleOnDockClickKey: @YES,
-                         HSPreferencesDarkModeKey: @YES,
-                         HSConsoleDarkModeKey: @YES,
+                         HSPreferencesDarkModeKey: @NO,
+                         HSConsoleDarkModeKey: @NO,
                          }];
 }
 
@@ -335,7 +332,7 @@
     @try {
         [[NSApplication sharedApplication] orderFrontStandardAboutPanel: nil];
     } @catch (NSException *exception) {
-        [[LuaSkin sharedWithState:NULL] logError:@"Unable to open About dialog. This may mean your CommandPost installation is corrupt. Please re-install it!"];
+        [LuaSkin logError:@"Unable to open About dialog. This may mean your Hammerspoon installation is corrupt. Please re-install it!"];
     }
 }
 
@@ -362,8 +359,8 @@
 - (void)showMjolnirMigrationNotification {
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:@"OK"];
-    [alert setMessageText:@"CommandPost crash detected"];
-    [alert setInformativeText:@"Your init.lua is loading Mjolnir modules and a previous launch crashed.\n\nCommandPost ships with updated versions of many of the Mjolnir modules, with both new features and many bug fixes.\n\nPlease consult our API documentation and migrate your config."];
+    [alert setMessageText:@"Hammerspoon crash detected"];
+    [alert setInformativeText:@"Your init.lua is loading Mjolnir modules and a previous launch crashed.\n\nHammerspoon ships with updated versions of many of the Mjolnir modules, with both new features and many bug fixes.\n\nPlease consult our API documentation and migrate your config."];
     [alert setAlertStyle:NSAlertStyleCritical];
     [alert runModal];
 }

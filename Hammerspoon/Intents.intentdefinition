@@ -24,7 +24,7 @@
 			<key>INIntentConfigurable</key>
 			<true/>
 			<key>INIntentDescription</key>
-			<string>Execute some Lua in CommandPost</string>
+			<string>Execute some Lua in Hammerspoon</string>
 			<key>INIntentDescriptionID</key>
 			<string>cqJRbd</string>
 			<key>INIntentIneligibleForSuggestions</key>
@@ -42,7 +42,7 @@
 					<key>INIntentParameterCombinationSupportsBackgroundExecution</key>
 					<true/>
 					<key>INIntentParameterCombinationTitle</key>
-					<string>Lua ${source}to execute in CommandPost</string>
+					<string>Lua ${source}to execute in Hammerspoon</string>
 					<key>INIntentParameterCombinationTitleID</key>
 					<string>e44TdA</string>
 					<key>INIntentParameterCombinationUpdatesLinked</key>

@@ -114,7 +114,7 @@
 
     NSRunningApplication *runningApp = [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
     if (!runningApp) {
-        //[skin logError:[NSString stringWithFormat:@"Unable to fetch NSRunningApplication for pid: %d", pid]];
+        [skin logError:[NSString stringWithFormat:@"Unable to fetch NSRunningApplication for pid: %d", pid]];
         return nil;
     }
 
