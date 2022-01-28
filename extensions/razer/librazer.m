@@ -102,7 +102,7 @@ static int razer_getDevice(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TNUMBER, LS_TBREAK];
 
-    long deviceNumber = lua_tointeger(skin.L, 1) - 1;
+    unsigned long deviceNumber = lua_tointeger(skin.L, 1) - 1;
 
     if (deviceNumber > razerManager.devices.count) {
         lua_pushnil(L);

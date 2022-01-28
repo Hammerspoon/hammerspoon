@@ -11,7 +11,7 @@ double getSecondsSinceEpoch(void) {
 // HSRazerResult:
 @implementation HSRazerResult
 - (id)init {
-    if (self = [super init]) {
+    if ((self = [super init])) {
         self.success = NO;
     }
     return self;
@@ -399,7 +399,7 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
         // Make sure the location ID matches:
         UInt32 locationID;
         kr = (*dev)->GetLocationID(dev, &locationID);
-        if (locationID != [self.locationID intValue]) {
+        if (locationID != [self.locationID unsignedIntValue]) {
             //NSLog(@"[hs.razer] The location ID for the IOHID Device doesn't match the USB Device.");
             continue;
         }
@@ -479,9 +479,9 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
     report.reserved               = 0x00;           // A reserved byte - always 0x00
 
     // Process the arguments:
-    for (int x = 0; x < [arguments count]; x++)
+    for (unsigned long x = 0; x < [arguments count]; x++)
     {
-        id argument = [arguments objectForKey:[NSNumber numberWithInt:x]];
+        id argument = [arguments objectForKey:[NSNumber numberWithUnsignedLong:x]];
         if (argument) {
             report.arguments[x] = [argument integerValue];
         }
