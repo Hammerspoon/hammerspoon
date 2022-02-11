@@ -84,7 +84,7 @@ static void enum_callback(void *ctx, IOReturn res, void *sender, IOHIDDeviceRef 
 }
 
 -(BOOL)hasInternalMouse {
-    return [self.names containsObject:@"Apple Internal Keyboard / Trackpad"];
+    return [self.names containsObject:@"Apple Inc.::Apple Internal Keyboard / Trackpad"];
 }
 
 -(int)getCount {
