@@ -1199,6 +1199,8 @@ static int userdata_gc(lua_State* L) {
 
 // Metatable Garbage Collection:
 static int meta_gc(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+
     if (watcherDeviceManager) {
         if (watcherDeviceManager.deviceCallbackRef != LUA_NOREF) {
             watcherDeviceManager.deviceCallbackRef = [skin luaUnref:refTable ref:watcherDeviceManager.deviceCallbackRef];
