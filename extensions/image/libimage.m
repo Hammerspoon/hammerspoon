@@ -1634,6 +1634,7 @@ static int toASCII(lua_State* L) {
     [skin pushNSObject:result];
 
     return 1;
+}
 
 /// hs.image:bitmapRepresentation([size], [gray]) -> imageObject
 /// Method
