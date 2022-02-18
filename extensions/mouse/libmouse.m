@@ -42,7 +42,6 @@ static void enum_callback(void *ctx, IOReturn res, void *sender, IOHIDDeviceRef 
 -(NSPoint)getAbsolutePosition;
 -(void)setAbsolutePosition:(NSPoint)absolutePosition;
 -(double)getTrackingSpeed;
--(BOOL)isScrollDirectionNatural;
 -(io_service_t)createIOHIDSystem;
 -(NSDictionary *)getIOHIDParamtersFromService:(io_service_t)service;
 -(NSDictionary *)getIOHIDParameters;
@@ -84,7 +83,13 @@ static void enum_callback(void *ctx, IOReturn res, void *sender, IOHIDDeviceRef 
 }
 
 -(BOOL)hasInternalMouse {
-    return [self.names containsObject:@"Apple Internal Keyboard / Trackpad"];
+    BOOL hasInternal = NO;
+    for (NSString *name in self.names) {
+        if ([name containsString:@"Apple Internal"]) {
+            hasInternal = YES;
+        }
+    }
+    return hasInternal;
 }
 
 -(int)getCount {
