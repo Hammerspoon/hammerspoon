@@ -125,7 +125,7 @@ static const char *portError(SInt32 code) {
         _remotePort    = NULL ;
         _localPort     = NULL ;
         _remoteName    = remoteName ;
-        _localName     = [[NSUUID UUID] UUIDString] ;
+        _localName     = [NSString stringWithFormat:@"hs %@", [[NSUUID UUID] UUIDString]] ;
 
         _useColors     = inColor ; [self updateColorStrings] ;
 
