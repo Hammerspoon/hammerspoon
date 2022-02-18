@@ -1073,7 +1073,7 @@ HSSerialPort *watcherDeviceManager;
 /// A callback that's triggered when a serial port is added or removed from the system.
 ///
 /// Parameters:
-///  * callbackFn - the callback function to trigger.
+///  * callbackFn - the callback function to trigger, or nil to remove the current callback
 ///
 /// Returns:
 ///  * None
@@ -1086,22 +1086,32 @@ static int serial_deviceCallback(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TFUNCTION | LS_TNIL, LS_TBREAK];
 
-    // Setup or Remove Callback Function:
+    // Handle the case where the user wants to remove a callback:
+    if (lua_type(skin.L, 1) == LUA_TNIL) {
+        if (!watcherDeviceManager) {
+            // None of this was ever initialised, so this is a no-op
+            return 0;
+        }
+
+        // Remove any existing callback
+        if (watcherDeviceManager.deviceCallbackRef != LUA_NOREF) {
+            watcherDeviceManager.deviceCallbackRef = [skin luaUnref:refTable ref:watcherDeviceManager.deviceCallbackRef];
+        }
+        [watcherDeviceManager unwatchDevices];
+        watcherDeviceManager = nil;
+
+        return 0;
+    }
+
+    // Handle the case where the user wants to set a callback:
     if (!watcherDeviceManager) {
         watcherDeviceManager = [[HSSerialPort alloc] init];
         watcherDeviceManager.lsCanary = [skin createGCCanary];
-    } else {
-        if (watcherDeviceManager.deviceCallbackRef != LUA_NOREF) [watcherDeviceManager unwatchDevices];
     }
-    watcherDeviceManager.deviceCallbackRef = [skin luaUnref:refTable ref:watcherDeviceManager.deviceCallbackRef];
-    if (lua_type(skin.L, 1) != LUA_TNIL) { // may be table with __call metamethod
-        watcherDeviceManager.deviceCallbackRef = [skin luaRef:refTable atIndex:1];
-        [watcherDeviceManager watchDevices];
-    }
-    else {
-        [watcherDeviceManager unwatchDevices];
-        watcherDeviceManager = nil;
-    }
+
+    watcherDeviceManager.deviceCallbackRef = [skin luaRef:refTable atIndex:1];
+    [watcherDeviceManager watchDevices];
+
     return 0;
 }
 
@@ -1189,6 +1199,15 @@ static int userdata_gc(lua_State* L) {
 
 // Metatable Garbage Collection:
 static int meta_gc(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+
+    if (watcherDeviceManager) {
+        if (watcherDeviceManager.deviceCallbackRef != LUA_NOREF) {
+            watcherDeviceManager.deviceCallbackRef = [skin luaUnref:refTable ref:watcherDeviceManager.deviceCallbackRef];
+        }
+        [watcherDeviceManager unwatchDevices];
+        watcherDeviceManager = nil;
+    }
     return 0;
 }
 

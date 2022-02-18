@@ -176,7 +176,7 @@ Spoon methods/variables/etc. should be documented using the same docstring forma
 ---
 --- Parameters:
 ---  * vendorID - A number containing the vendor ID of a USB device
----  * productID - A number containing the vendor ID of a USB device
+---  * productID - A number containing the product ID of a USB device
 ---  * name - An optional string containing the name of a USB device
 ---
 --- Returns:
