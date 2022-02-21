@@ -56,22 +56,17 @@ static int axtextmarker_newMarker(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
 
-    if (AXTextMarkerCreate != NULL) {
-        NSData *bytesAsData = [skin toNSObjectAtIndex:1 withOptions:LS_NSLuaStringAsDataOnly] ;
-        AXTextMarkerRef marker = AXTextMarkerCreate(kCFAllocatorDefault, bytesAsData.bytes, (CFIndex)bytesAsData.length) ;
-        if (marker) {
-            pushAXTextMarker(L, marker) ;
-            CFRelease(marker) ;
-        } else {
-            lua_pushnil(L) ;
-            lua_pushstring(L, "unable to create marker with specified data string") ;
-            return 2 ;
-        }
+    NSData *bytesAsData = [skin toNSObjectAtIndex:1 withOptions:LS_NSLuaStringAsDataOnly] ;
+    AXTextMarkerRef marker = AXTextMarkerCreate(kCFAllocatorDefault, bytesAsData.bytes, (CFIndex)bytesAsData.length) ;
+    if (marker) {
+        pushAXTextMarker(L, marker) ;
+        CFRelease(marker) ;
     } else {
         lua_pushnil(L) ;
-        lua_pushstring(L, "CF function AXTextMarkerCreate undefined") ;
+        lua_pushstring(L, "unable to create marker with specified data string") ;
         return 2 ;
     }
+
     return 1 ;
 }
 
@@ -132,13 +127,7 @@ static int axtextmarker_AXTextMarkerGetTypeID(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TBREAK] ;
 
-    if (AXTextMarkerGetTypeID != NULL) {
-        lua_pushinteger(L, (lua_Integer)AXTextMarkerGetTypeID()) ;
-    } else {
-        lua_pushnil(L) ;
-        lua_pushstring(L, "CF function AXTextMarkerGetTypeID undefined") ;
-        return 2 ;
-    }
+    lua_pushinteger(L, (lua_Integer)AXTextMarkerGetTypeID()) ;
     return 1 ;
 }
 
@@ -213,14 +202,8 @@ static int axtextmarker_markerBytes(lua_State *L) {
     [skin checkArgs:LS_TUSERDATA, AXTEXTMARKER_TAG, LS_TBREAK] ;
     AXTextMarkerRef marker = get_axtextmarkerref(L, 1, AXTEXTMARKER_TAG) ;
 
-    if (AXTextMarkerGetLength != NULL && AXTextMarkerGetBytePtr != NULL) {
-        CFIndex length = AXTextMarkerGetLength(marker) ;
-        lua_pushlstring(L, AXTextMarkerGetBytePtr(marker), (size_t)length) ;
-    } else {
-        lua_pushnil(L) ;
-        lua_pushstring(L, "CF function AXTextMarkerGetLength and/or AXTextMarkerGetBytePtr undefined") ;
-        return 2 ;
-    }
+    CFIndex length = AXTextMarkerGetLength(marker) ;
+    lua_pushlstring(L, AXTextMarkerGetBytePtr(marker), (size_t)length) ;
     return 1 ;
 }
 
@@ -241,13 +224,7 @@ static int axtextmarker_markerLength(lua_State *L) {
     [skin checkArgs:LS_TUSERDATA, AXTEXTMARKER_TAG, LS_TBREAK] ;
     AXTextMarkerRef marker = get_axtextmarkerref(L, 1, AXTEXTMARKER_TAG) ;
 
-    if (AXTextMarkerGetLength != NULL) {
-        lua_pushinteger(L, (lua_Integer)AXTextMarkerGetLength(marker)) ;
-    } else {
-        lua_pushnil(L) ;
-        lua_pushstring(L, "CF function AXTextMarkerGetLength undefined") ;
-        return 2 ;
-    }
+    lua_pushinteger(L, (lua_Integer)AXTextMarkerGetLength(marker)) ;
     return 1 ;
 }
 
