@@ -35,6 +35,9 @@
 
         self.serialNumberCommand = 0x06;
         self.firmwareVersionCommand = 0x05;
+
+        self.serialNumberReadOffset = 2;
+        self.firmwareReadOffset = 6;
     }
     return self;
 }

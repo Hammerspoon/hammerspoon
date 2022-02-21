@@ -42,7 +42,9 @@
         self.setBrightnessCommand = nil;
         self.serialNumberCommand = 0;
         self.firmwareVersionCommand = 0;
-        self.deviceReadOffset = 0;
+
+        self.firmwareReadOffset = 0;
+        self.serialNumberReadOffset = 0;
 
         serialNumberCache = nil;
         //NSLog(@"Added new Stream Deck device %p with IOKit device %p from manager %p", (__bridge void *)self, (void*)self.device, (__bridge void *)self.manager);
@@ -76,14 +78,14 @@
     return IOHIDDeviceSetReport(self.device, kIOHIDReportTypeFeature, rawBytes[0], rawBytes, report.length);
 }
 
-- (NSData *)deviceRead:(int)resultLength reportID:(CFIndex)reportID {
-    CFIndex reportLength = resultLength + self.deviceReadOffset;
+- (NSData *)deviceRead:(int)resultLength reportID:(CFIndex)reportID readOffset:(NSUInteger)readOffset {
+    CFIndex reportLength = resultLength + readOffset;
     uint8_t *report = malloc(reportLength);
 
     //NSLog(@"deviceRead: expecting resultLength %d, calculated report length %ld", resultLength, (long)reportLength);
 
     IOHIDDeviceGetReport(self.device, kIOHIDReportTypeFeature, reportID, report, &reportLength);
-    char *c_data = (char *)(report + self.deviceReadOffset);
+    char *c_data = (char *)(report + readOffset);
     NSData *dataRaw = [NSData dataWithBytes:c_data length:resultLength];
     free(report);
 
@@ -205,7 +207,7 @@
         return nil;
     }
 
-    NSData *serialNumberData = [self deviceRead:self.simpleReportLength reportID:self.serialNumberCommand];
+    NSData *serialNumberData = [self deviceRead:self.simpleReportLength reportID:self.serialNumberCommand readOffset:self.serialNumberReadOffset];
 
     NSString *serialNumber = [[NSString alloc] initWithData:serialNumberData
                                                    encoding:NSUTF8StringEncoding];
@@ -224,7 +226,7 @@
         [exception raise];
     }
 
-    NSString *firmwareVersion = [[NSString alloc] initWithData:[self deviceRead:self.simpleReportLength reportID:self.firmwareVersionCommand]
+    NSString *firmwareVersion = [[NSString alloc] initWithData:[self deviceRead:self.simpleReportLength reportID:self.firmwareVersionCommand readOffset:self.firmwareReadOffset]
                                                       encoding:NSUTF8StringEncoding];
     return firmwareVersion;
 }
