@@ -278,6 +278,7 @@ end
 ---
 --- Notes:
 ---  * If this function fails, it is likely that you have some old/broken symlinks. You can use `hs.ipc.cliUninstall()` to forcibly tidy them up
+---  * You may need to pre-create `/usr/local/bin` and `/usr/local/share/man/man1` in a terminal using sudo, and adjust permissions so your login user can write to them
 module.cliInstall = function(p, s)
     local path = p or "/usr/local"
     local silent = s or false
