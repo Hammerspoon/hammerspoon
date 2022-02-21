@@ -3177,7 +3177,7 @@ static int canvas_delete(lua_State *L) {
                     LS_TNUMBER | LS_TOPTIONAL,
                     LS_TBREAK] ;
 
-    HSCanvasView   *canvasView   = [skin luaObjectAtIndex:1 toClass:"HSCanvasView"] ;
+ //   HSCanvasView   *canvasView   = [skin luaObjectAtIndex:1 toClass:"HSCanvasView"] ;
 //     HSCanvasWindow *canvasWindow = canvasView.wrapperWindow ;
     if (warnedAboutDelete < 10) {
         warnedAboutDelete++ ;

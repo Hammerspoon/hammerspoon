@@ -327,9 +327,9 @@ void parse_table(lua_State *L, int idx, NSMenu *menu, NSSize stateBoxImageSize) 
             // Check if this item is checked/unchecked, defaulting to unchecked
             lua_getfield(L, -1, "checked");
             if (lua_isboolean(L, -1)) {
-                [menuItem setState:lua_toboolean(L, -1) ? NSOnState : NSOffState];
+                [menuItem setState:lua_toboolean(L, -1) ? NSControlStateValueOn : NSControlStateValueOff];
             } else {
-                [menuItem setState:NSOffState];
+                [menuItem setState:NSControlStateValueOff];
             }
             lua_pop(L, 1);
 
@@ -337,9 +337,9 @@ void parse_table(lua_State *L, int idx, NSMenu *menu, NSSize stateBoxImageSize) 
             lua_getfield(L, -1, "state");
             NSString *state = [skin toNSObjectAtIndex:-1] ;
             if ([state isKindOfClass:[NSString class]]) {
-                if ([state isEqualToString:@"on"])    [menuItem setState:NSOnState] ;
-                if ([state isEqualToString:@"off"])   [menuItem setState:NSOffState] ;
-                if ([state isEqualToString:@"mixed"]) [menuItem setState:NSMixedState] ;
+                if ([state isEqualToString:@"on"])    [menuItem setState:NSControlStateValueOn] ;
+                if ([state isEqualToString:@"off"])   [menuItem setState:NSControlStateValueOff] ;
+                if ([state isEqualToString:@"mixed"]) [menuItem setState:NSControlStateValueMixed] ;
             }
             lua_pop(L, 1);
 
