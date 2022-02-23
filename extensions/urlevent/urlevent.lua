@@ -31,6 +31,19 @@ local callbacks = {}
 ---   * senderPID - An integer containing the PID of the application that opened the URL, if available (otherwise -1)
 urlevent.httpCallback = nil
 
+--- hs.urlevent.mailtoCallback
+--- Variable
+--- A function that should handle mailto: URL events
+---
+--- Notes:
+---  * The function should handle four arguments:
+---   * scheme - A string containing the URL scheme (i.e. "http")
+---   * host - A string containing the host requested (e.g. "www.hammerspoon.org")
+---   * params - A table containing the key/value pairs of all the URL parameters
+---   * fullURL - A string containing the full, original URL -- will be bla
+---   * senderPID - An integer containing the PID of the application that opened the URL, if available (otherwise -1)
+urlevent.mailtoCallback = nil
+
 -- Set up our top-level callback and register it with the Objective C part of the extension
 local function urlEventCallback(scheme, event, params, fullURL, senderPID)
 	local bundleID = hs.processInfo["bundleID"]
@@ -40,6 +53,15 @@ local function urlEventCallback(scheme, event, params, fullURL, senderPID)
             log.ef("Hammerspoon is configured for http(s):// URLs, but no http callback has been set")
         else
             local ok, err = xpcall(function() return urlevent.httpCallback(scheme, event, params, fullURL, senderPID) end, debug.traceback)
+            if not ok then
+                hs.showError(err)
+            end
+        end
+    elseif (scheme == "mailto") then
+        if not urlevent.mailtoCallback then
+            log.ef("Hammerspoon is configured for mailto URLs, but no mailtoCallback has been set")
+        else
+            local ok, err = xpcall(function() return urlevent.mailtoCallback(scheme, event, params, fullURL, senderPID) end, debug.traceback)
             if not ok then
                 hs.showError(err)
             end
