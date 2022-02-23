@@ -37,11 +37,11 @@ urlevent.httpCallback = nil
 ---
 --- Notes:
 ---  * The function should handle four arguments:
----   * scheme - A string containing the URL scheme (i.e. "http")
----   * host - A string containing the host requested (e.g. "www.hammerspoon.org")
----   * params - A table containing the key/value pairs of all the URL parameters
----   * fullURL - A string containing the full, original URL -- will be bla
----   * senderPID - An integer containing the PID of the application that opened the URL, if available (otherwise -1)
+---   * scheme - A string containing the URI scheme (i.e. "mailto")
+---   * host - A string containing the host requested (typically nil)
+---   * params - A table containing the key/value pairs of all the URL parameters, typically empty
+---   * fullURL - A string containing the full, original URI
+---   * senderPID - An integer containing the PID of the application that opened the URI, if available (otherwise -1)
 urlevent.mailtoCallback = nil
 
 -- Set up our top-level callback and register it with the Objective C part of the extension
