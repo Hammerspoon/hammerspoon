@@ -71,6 +71,12 @@ jobs:
         with:
           version: ${{ steps.current_tag.outputs.TAGNAME }}
 
+      - name: Display calculated versions
+        run: |
+          echo "Current version: ${{ steps.current_tag.outputs.TAGNAME }}"
+          echo "Previous version: ${{ steps.previous_tag.outputs.TAGNAME  }}"
+          echo "Next version: ${{ steps.next_tag.outputs.patch  }}"
+
       - name: Create milestone
         uses: "WyriHaximus/github-action-create-milestone@v1"
         with:
