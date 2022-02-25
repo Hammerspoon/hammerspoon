@@ -358,6 +358,7 @@ function op_release() {
     echo " Zipping..."
     # FIXME: HAMMERSPOON_BUNDLE_PATH here is not right, that gives us Hammerspoon.app-X.Y.Z.zip and we don't want the .app
     local ZIP_PATH="${BUILD_HOME}/${APP_NAME}-${VERSION}.zip"
+    rm "${ZIP_PATH}"
     create_zip "${HAMMERSPOON_BUNDLE_PATH}" "${ZIP_PATH}"
 
     echo " Creating release on GitHub..."
@@ -382,6 +383,7 @@ function op_release() {
     cp "${BUILD_HOME}/Hammerspoon.tgz" dash/docsets/Hammerspoon/
     pushd "dash" >/dev/null || fail "Unable to access dash repo at: ${HAMMERSPOON_HOME}/../dash"
     git remote add hammerspoon git@github.com:hammerspoon/Dash-User-Contributions.git
+    git checkout -b "hammerspoon-${VERSION}"
     cat >docsets/Hammerspoon/docset.json <<EOF
     {
        "name": "Hammerspoon",
