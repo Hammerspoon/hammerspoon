@@ -57,13 +57,16 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Reattach to HEAD
+        run: /usr/bin/git checkout master
+
       - name: Get current tag name
         id: current_tag
-        run: echo "::set-output name=TAGNAME::$(git describe --abbrev=0)"
+        run: echo "::set-output name=TAGNAME::$(git describe --tags --abbrev=0)"
 
       - name: Get previous tag name
         id: previous_tag
-        run: echo "::set-output name=TAGNAME::$(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1))"
+        run: echo "::set-output name=TAGNAME::$(git describe --abbrev=0 HEAD^)"
 
       - name: Get next version
         id: next_tag
