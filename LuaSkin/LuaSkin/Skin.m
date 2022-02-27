@@ -347,7 +347,7 @@ catastrophe:
         }
         NSException* myException = [NSException
                                     exceptionWithName:@"LuaGCCanaryMismatch"
-                                    reason:@"GC Canary changed"
+                                    reason:[NSString stringWithFormat:@"GC Canary changed: Expected %@, found %@", self.uuid.UUIDString, NSlsCanary]
                                     userInfo:nil];
         @throw myException;
         return NO;
