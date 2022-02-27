@@ -195,7 +195,7 @@ static HSCameraManager *cameraManager = nil;
         return nil;
     }
 
-    return (__bridge_transfer NSString *)uidStringRef;
+    return (__bridge NSString *)uidStringRef;
 }
 
 - (NSString *)getCameraName {
@@ -213,7 +213,7 @@ static HSCameraManager *cameraManager = nil;
     OSStatus err;
     UInt32 dataSize = 0;
     UInt32 dataUsed = 0;
-    BOOL isInUse = NO;
+    UInt32 isInUse = 0;
 
     CMIOObjectPropertyAddress prop = {kCMIODevicePropertyDeviceIsRunningSomewhere,
                                       kCMIOObjectPropertyScopeWildcard,
