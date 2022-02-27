@@ -34,6 +34,7 @@ typedef enum : NSUInteger {
 @property (nonatomic) int selfRefCount;
 @property (nonatomic) int buttonCallbackRef;
 @property (nonatomic) BOOL isValid;
+@property (nonatomic) LSGCCanary lsCanary;
 
 @property (nonatomic) NSString *deckType;
 @property (nonatomic, readonly, getter=getKeyCount) int keyCount;

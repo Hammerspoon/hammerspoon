@@ -11,7 +11,12 @@ static HSStreamDeckManager *deckManager;
 LSRefTable streamDeckRefTable = LUA_NOREF;
 
 #pragma mark - Lua API
-static int streamdeck_gc(lua_State *L __unused) {
+static int streamdeck_gc(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    LSGCCanary tmpLSUUID = deckManager.lsCanary;
+    [skin destroyGCCanary:&tmpLSUUID];
+    deckManager.lsCanary = tmpLSUUID;
+
     [deckManager stopHIDManager];
     [deckManager doGC];
     return 0;
@@ -37,6 +42,7 @@ static int streamdeck_init(lua_State *L) {
 
     deckManager = [[HSStreamDeckManager alloc] init];
     deckManager.discoveryCallbackRef = [skin luaRef:streamDeckRefTable atIndex:1];
+    deckManager.lsCanary = [skin createGCCanary];
     [deckManager startHIDManager];
 
     return 0;
