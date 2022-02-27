@@ -16,10 +16,20 @@ static LSRefTable refTable = LUA_NOREF;
 @property int                selfRef ;
 @end
 
+static int callbackInProgress = 0;
+
 static CFDataRef ipc_callback(__unused CFMessagePortRef local, SInt32 msgid, CFDataRef data, void *info) {
     LuaSkin          *skin   = [LuaSkin sharedWithState:NULL];
     HSIPCMessagePort *port   = (__bridge HSIPCMessagePort *)info ;
     CFDataRef        outdata = NULL ;
+
+    if (callbackInProgress >= 5) {
+        // We are being called recursively and have reached 5 levels deep. Prevent any further or we will eventually crash
+        [skin logError:@"hs.ipc callback is being called recursively. Check your callback function, it is triggering further IPC messages. This message was triggered after reaching 5 recursive callbacks."];
+        return outdata;
+    }
+
+    callbackInProgress++;
 
     _lua_stackguard_entry(skin.L);
     if (port.callbackRef != LUA_NOREF) {
@@ -31,7 +41,7 @@ static CFDataRef ipc_callback(__unused CFMessagePortRef local, SInt32 msgid, CFD
         BOOL status = [skin protectedCallAndTraceback:3 nresults:1] ;
 
         luaL_tolstring(L, -1, NULL) ;                   // make sure it's a string
-        [skin logDebug:[NSString stringWithFormat:@"%s", lua_tostring(L, -1)]] ;
+        [skin logDebug:[NSString stringWithFormat:@"ipc_callback %@ debug: %s", (__bridge NSString *)CFMessagePortGetName(port.messagePort), lua_tostring(L, -1)]] ;
         NSMutableData *result = [[NSMutableData alloc] init] ;
         [result appendData:[skin toNSObjectAtIndex:-1 withOptions:LS_NSLuaStringAsDataOnly]] ;
         if (!status) {
@@ -43,6 +53,8 @@ static CFDataRef ipc_callback(__unused CFMessagePortRef local, SInt32 msgid, CFD
     } else {
         [skin logWarn:[NSString stringWithFormat:@"%s:callback - no callback function defined for %@", USERDATA_TAG, (__bridge NSString *)CFMessagePortGetName(port.messagePort)]] ;
     }
+
+    callbackInProgress--;
     _lua_stackguard_exit(skin.L);
     return outdata ;
 }
@@ -234,6 +246,8 @@ static int ipc_sendMessage(lua_State *L) {
 
     BOOL oneWay = lua_isboolean(L, -1) ? (BOOL)lua_toboolean(L, -1) : NO ;
 
+    [skin logDebug:[NSString stringWithFormat:@"ipc_sendMessage on %@", (__bridge NSString *)CFMessagePortGetName(port.messagePort)]] ;
+
     CFDataRef returnedData;
     SInt32 code = CFMessagePortSendRequest(
                                             port.messagePort,
@@ -383,6 +397,7 @@ static luaL_Reg moduleLib[] = {
 
 int luaopen_hs_libipc(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+    callbackInProgress = 0;
     refTable = [skin registerLibraryWithObject:USERDATA_TAG
                                      functions:moduleLib
                                  metaFunctions:nil    // or module_metaLib

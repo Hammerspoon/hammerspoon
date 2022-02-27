@@ -6,6 +6,7 @@ static char *USERDATA_TAG  = "hs.keycodes.callback" ;
 static LSRefTable refTable;
 
 static void pushkeycode(lua_State* L, int code, const char* key) {
+    //NSLog(@"PUSHKEYCODE: %d::%s", code, key);
     // t[key] = code
     lua_pushinteger(L, code);
     lua_setfield(L, -2, key);
@@ -54,7 +55,10 @@ int keycodes_cachemap(lua_State* L) {
                                chars) == noErr && realLength > 0) {
                 const char* name = [[NSString stringWithCharacters:chars length:1] UTF8String];
 
-                pushkeycode(L, relocatableKeyCodes[i], name);
+                // This is an ugly hack to work around an unexplained change in macOS12, where keycodes 93 and 94 are now included in kTISPropertyUnicodeKeyLayoutData
+                if (relocatableKeyCodes[i] != 93 && relocatableKeyCodes[i] != 94) {
+                    pushkeycode(L, relocatableKeyCodes[i], name);
+                }
             }
         }
     }
@@ -113,6 +117,8 @@ int keycodes_cachemap(lua_State* L) {
         CFRelease(currentKeyboard);
     }
 
+    //NSLog(@"PUSHKEYCODE: ********* PART 2 *******");
+
     pushkeycode(L, kVK_F1, "f1");
     pushkeycode(L, kVK_F2, "f2");
     pushkeycode(L, kVK_F3, "f3");
@@ -170,8 +176,7 @@ int keycodes_cachemap(lua_State* L) {
     pushkeycode(L, kVK_UpArrow, "up");
 
     pushkeycode(L, kVK_Command, "cmd");
-    // kVK_RightCommand first appeared in 10.12
-    pushkeycode(L, /* kVK_RightCommand */ 0x36, "rightcmd");
+    pushkeycode(L, kVK_RightCommand, "rightcmd");
     pushkeycode(L, kVK_Shift, "shift");
     pushkeycode(L, kVK_CapsLock, "capslock");
     pushkeycode(L, kVK_Option, "alt");

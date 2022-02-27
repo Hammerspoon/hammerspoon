@@ -38,6 +38,14 @@
 
         self.dataKeyOffset = 0;
 
+        self.resetCommand = nil;
+        self.setBrightnessCommand = nil;
+        self.serialNumberCommand = 0;
+        self.firmwareVersionCommand = 0;
+
+        self.firmwareReadOffset = 0;
+        self.serialNumberReadOffset = 0;
+
         serialNumberCache = nil;
         //NSLog(@"Added new Stream Deck device %p with IOKit device %p from manager %p", (__bridge void *)self, (void*)self.device, (__bridge void *)self.manager);
     }
@@ -55,13 +63,13 @@
     [self cacheSerialNumber];
 }
 
-- (IOReturn)deviceWriteSimpleReport:(uint8_t[])report reportLen:(int)reportLen {
+- (IOReturn)deviceWriteSimpleReport:(NSData *)command {
     if (self.simpleReportLength == 0) {
         [LuaSkin logError:@"Initialising Stream Deck device with no simple report length defined"];
         return kIOReturnInternalError;
     }
     NSMutableData *reportData = [NSMutableData dataWithLength:self.simpleReportLength];
-    [reportData replaceBytesInRange:NSMakeRange(0, reportLen) withBytes:report];
+    [reportData replaceBytesInRange:NSMakeRange(0, command.length) withBytes:command.bytes];
     return [self deviceWrite:reportData];
 }
 
@@ -70,16 +78,28 @@
     return IOHIDDeviceSetReport(self.device, kIOHIDReportTypeFeature, rawBytes[0], rawBytes, report.length);
 }
 
-- (NSData *)deviceRead:(int)resultLength reportID:(CFIndex)reportID {
-    CFIndex reportLength = resultLength + 5;
+- (NSData *)deviceRead:(int)resultLength reportID:(CFIndex)reportID readOffset:(NSUInteger)readOffset {
+    CFIndex reportLength = resultLength + readOffset;
     uint8_t *report = malloc(reportLength);
 
     //NSLog(@"deviceRead: expecting resultLength %d, calculated report length %ld", resultLength, (long)reportLength);
 
     IOHIDDeviceGetReport(self.device, kIOHIDReportTypeFeature, reportID, report, &reportLength);
-    char *c_data = (char *)(report + 5);
-    NSData *data = [NSData dataWithBytes:c_data length:resultLength];
+    char *c_data = (char *)(report + readOffset);
+    NSData *dataRaw = [NSData dataWithBytes:c_data length:resultLength];
     free(report);
+
+    NSMutableData *data = [NSMutableData dataWithLength:0];
+    [dataRaw enumerateByteRangesUsingBlock:^(const void * _Nonnull bytes, NSRange byteRange, BOOL * _Nonnull stop) {
+        NSUInteger copyLength = byteRange.length;
+        for (NSUInteger i = 0; i < byteRange.length; i++) {
+            if (((const uint8_t*)bytes)[i] == 0x00) {
+                copyLength = i + 1;
+                break;
+            }
+        }
+        [data appendBytes:bytes length:copyLength-1];
+    }];
 
     return data;
 }
@@ -121,18 +141,44 @@
 }
 
 - (BOOL)setBrightness:(int)brightness {
-    NSException *exception = [NSException exceptionWithName:@"HSStreamDeckDeviceUnimplemented"
-                                                     reason:@"setBrightness method not implemented"
-                                                   userInfo:nil];
-    [exception raise];
-    return NO;
+    if (!self.isValid) {
+        return NO;
+    }
+
+    if (!self.setBrightnessCommand) {
+        NSException *exception = [NSException exceptionWithName:@"HSStreamDeckDeviceUnimplemented"
+                                                         reason:@"setBrightness method not implemented"
+                                                       userInfo:nil];
+        [exception raise];
+        return NO;
+    }
+
+    NSMutableData *brightnessCommand = [self.setBrightnessCommand mutableCopy];
+    [brightnessCommand replaceBytesInRange:NSMakeRange(self.setBrightnessCommand.length - 1, 1) withBytes:&brightness];
+    IOReturn res = [self deviceWriteSimpleReport:brightnessCommand];
+
+    return res == kIOReturnSuccess;
 }
 
 - (void)reset {
-    NSException *exception = [NSException exceptionWithName:@"HSStreamDeckDeviceUnimplemented"
-                                                     reason:@"reset method not implemented"
-                                                   userInfo:nil];
-    [exception raise];
+    if (!self.isValid) {
+        return;
+    }
+
+    if (!self.resetCommand) {
+        NSException *exception = [NSException exceptionWithName:@"HSStreamDeckDeviceUnimplemented"
+                                                         reason:@"resetCommand bytes not set, or reset method not overridden"
+                                                       userInfo:nil];
+        [exception raise];
+        return;
+    }
+
+    IOReturn res = [self deviceWriteSimpleReport:self.resetCommand];
+    if (res != kIOReturnSuccess) {
+        NSLog(@"hs.streamdeck:reset() failed on %@ (%@)", self.deckType, self.serialNumber);
+    }
+
+
 }
 
 - (NSString*)getSerialNumber {
@@ -149,19 +195,40 @@
 }
 
 - (NSString *)cacheSerialNumber {
-    NSException *exception = [NSException exceptionWithName:@"HSStreamDeckDeviceUnimplemented"
-                                                     reason:@"cacheSerialNumber method not implemented"
-                                                   userInfo:nil];
-    [exception raise];
-    return nil;
+    if (!self.isValid) {
+        return nil;
+    }
+
+    if (self.serialNumberCommand == 0) {
+        NSException *exception = [NSException exceptionWithName:@"HSStreamDeckDeviceUnimplemented"
+                                                         reason:@"serialNumberCommand not set, or cacheSerialNumber method not overridden"
+                                                       userInfo:nil];
+        [exception raise];
+        return nil;
+    }
+
+    NSData *serialNumberData = [self deviceRead:self.simpleReportLength reportID:self.serialNumberCommand readOffset:self.serialNumberReadOffset];
+
+    NSString *serialNumber = [[NSString alloc] initWithData:serialNumberData
+                                                   encoding:NSUTF8StringEncoding];
+    return serialNumber;
 }
 
 - (NSString*)firmwareVersion {
-    NSException *exception = [NSException exceptionWithName:@"HSStreamDeckDeviceUnimplemented"
-                                                     reason:@"firmwareVersion method not implemented"
-                                                   userInfo:nil];
-    [exception raise];
-    return nil;
+    if (!self.isValid) {
+        return nil;
+    }
+
+    if (self.firmwareVersionCommand == 0) {
+        NSException *exception = [NSException exceptionWithName:@"HSStreamDeckDeviceUnimplemented"
+                                                         reason:@"firmwareVersionCOmmand not set, or firmwareVersion method not implemented"
+                                                       userInfo:nil];
+        [exception raise];
+    }
+
+    NSString *firmwareVersion = [[NSString alloc] initWithData:[self deviceRead:self.simpleReportLength reportID:self.firmwareVersionCommand readOffset:self.firmwareReadOffset]
+                                                      encoding:NSUTF8StringEncoding];
+    return firmwareVersion;
 }
 
 - (int)getKeyCount {
@@ -239,5 +306,62 @@
                                                      reason:@"deviceWriteImage method not implemented"
                                                    userInfo:nil];
     [exception raise];
+}
+
+- (void)deviceV2WriteImage:(NSData *)data button:(int)button {
+    uint8_t reportHeader[] = {0x02,   // Report ID
+                             0x07,   // Unknown (always seems to be 7)
+                             button - 1, // Deck button to set
+                             0x00,   // Final page bool
+                             0x00,   // Some kind of encoding of the length of the current page
+                             0x00,   // Some other kind of encoding of the current page length
+                             0x00,   // Some kind of encoding of the page number
+                             0x00    // Some other kind of encoding of the page number
+                            };
+
+    // The v2 Stream Decks needs images sent in slices no more than 1016 bytes + the report header
+    int maxPayloadLength = self.reportLength - self.reportHeaderLength;
+
+    int bytesRemaining = (int)data.length;
+    int bytesSent = 0;
+    int pageNumber = 0;
+    const uint8_t *imageBuf = data.bytes;
+
+    IOReturn result;
+
+    while (bytesRemaining > 0) {
+        int thisPageLength = MIN(bytesRemaining, maxPayloadLength);
+        bytesSent = pageNumber * maxPayloadLength;
+
+        // Set our current page number
+        reportHeader[6] = pageNumber & 0xFF;
+        reportHeader[7] = pageNumber >> 8;
+
+        // Set our current page length
+        reportHeader[4] = thisPageLength & 0xFF;
+        reportHeader[5] = thisPageLength >> 8;
+
+        // Set if we're the last page of data
+        if (bytesRemaining <= maxPayloadLength) reportHeader[3] = 1;
+
+        NSMutableData *report = [NSMutableData dataWithLength:self.reportLength];
+        [report replaceBytesInRange:NSMakeRange(0, self.reportHeaderLength)
+                          withBytes:reportHeader];
+        [report replaceBytesInRange:NSMakeRange(self.reportHeaderLength, thisPageLength)
+                          withBytes:imageBuf+bytesSent
+                             length:thisPageLength];
+
+        result = IOHIDDeviceSetReport(self.device,
+                                      kIOHIDReportTypeOutput,
+                                      reportHeader[0],
+                                      report.bytes,
+                                      (int)report.length);
+        if (result != kIOReturnSuccess) {
+            NSLog(@"WARNING: writing an image with hs.streamdeck encountered a failure on page %d: %d", pageNumber, result);
+        }
+
+        bytesRemaining = bytesRemaining - thisPageLength;
+        pageNumber++;
+    }
 }
 @end

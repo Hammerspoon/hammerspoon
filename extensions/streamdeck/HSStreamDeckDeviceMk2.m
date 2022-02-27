@@ -1,23 +1,23 @@
 //
-//  HSStreamDeckDeviceXL.m
+//  HSStreamDeckDeviceMk2.m
 //  streamdeck
 //
-//  Created by Chris Jones on 08/01/2020.
-//  Copyright © 2020 Hammerspoon. All rights reserved.
+//  Created by Chris Jones on 24/01/2022.
+//  Copyright © 2022 Hammerspoon. All rights reserved.
 //
 
-#import "HSStreamDeckDeviceXL.h"
+#import "HSStreamDeckDeviceMk2.h"
 
-@implementation HSStreamDeckDeviceXL
+@implementation HSStreamDeckDeviceMk2
 
 - (id)initWithDevice:(IOHIDDeviceRef)device manager:(id)manager {
     self = [super initWithDevice:device manager:manager];
     if (self) {
-        self.deckType = @"Elgato Stream Deck (XL)";
-        self.keyRows = 4;
-        self.keyColumns = 8;
-        self.imageWidth = 96;
-        self.imageHeight = 96;
+        self.deckType = @"Elgato Stream Deck (Mk2)";
+        self.keyRows = 3;
+        self.keyColumns = 5;
+        self.imageWidth = 72;
+        self.imageHeight = 72;
         self.imageCodec = STREAMDECK_CODEC_JPEG;
         self.imageFlipX = YES;
         self.imageFlipY = YES;

@@ -26,6 +26,18 @@
         self.reportLength = 8192;
         self.reportHeaderLength = 16;
         self.dataKeyOffset = 1;
+
+        uint8_t resetHeader[] = {0x0B, 0x63};
+        self.resetCommand = [NSData dataWithBytes:resetHeader length:2];
+
+        uint8_t brightnessHeader[] = {0x05, 0x55, 0xAA, 0xD1, 0x01, 0xFF};
+        self.setBrightnessCommand = [NSData dataWithBytes:brightnessHeader length:6];
+
+        self.serialNumberCommand = 0x3;
+        self.firmwareVersionCommand = 0x4;
+
+        self.serialNumberReadOffset = 5;
+        self.firmwareReadOffset = 5;
     }
     return self;
 }
@@ -48,44 +60,6 @@
 
     //NSLog(@"transformKeyIndex: source %d, midpoint %d, diff %d, trans %d", sourceKey, midpoint, diff, midpoint + diff);
     return midpoint + diff;
-}
-
-- (void)reset {
-    if (!self.isValid) {
-        return;
-    }
-
-    uint8_t resetHeader[] = {0x0B, 0x63};
-    [self deviceWriteSimpleReport:resetHeader reportLen:2];
-}
-
-- (BOOL)setBrightness:(int)brightness {
-    if (!self.isValid) {
-        return NO;
-    }
-
-    uint8_t brightnessHeader[] = {0x05, 0x55, 0xAA, 0xD1, 0x01, brightness};
-    IOReturn res = [self deviceWriteSimpleReport:brightnessHeader reportLen:6];
-
-    return res == kIOReturnSuccess;
-}
-
-- (NSString *)cacheSerialNumber {
-    if (!self.isValid) {
-        return nil;
-    }
-
-    return [[NSString alloc] initWithData:[self deviceRead:12 reportID:0x3]
-                                                   encoding:NSUTF8StringEncoding];
-}
-
-- (NSString*)firmwareVersion {
-    if (!self.isValid) {
-        return @"INVALID DEVICE";
-    }
-
-    return [[NSString alloc] initWithData:[self deviceRead:12 reportID:0x4]
-                                 encoding:NSUTF8StringEncoding];
 }
 
 - (void)deviceWriteImage:(NSData *)data button:(int)button {

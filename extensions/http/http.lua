@@ -23,7 +23,6 @@ local fnutils = require("hs.fnutils")
 ---
 --- Notes:
 ---  * If authentication is required in order to download the request, the required credentials must be specified as part of the URL (e.g. "http://user:password@host.com/"). If authentication fails, or credentials are missing, the connection will attempt to continue without credentials.
----
 ---  * This function is synchronous and will therefore block all other Lua execution while the request is in progress, you are encouraged to use the asynchronous functions
 ---  * If you attempt to connect to a local Hammerspoon server created with `hs.httpserver`, then Hammerspoon will block until the connection times out (60 seconds), return a failed result due to the timeout, and then the `hs.httpserver` callback function will be invoked (so any side effects of the function will occur, but it's results will be lost).  Use [hs.http.asyncGet](#asyncGet) to avoid this.
 http.get = function(url, headers)
@@ -46,11 +45,32 @@ end
 ---
 --- Notes:
 ---  * If authentication is required in order to download the request, the required credentials must be specified as part of the URL (e.g. "http://user:password@host.com/"). If authentication fails, or credentials are missing, the connection will attempt to continue without credentials.
----
 ---  * This function is synchronous and will therefore block all other Lua execution while the request is in progress, you are encouraged to use the asynchronous functions
 ---  * If you attempt to connect to a local Hammerspoon server created with `hs.httpserver`, then Hammerspoon will block until the connection times out (60 seconds), return a failed result due to the timeout, and then the `hs.httpserver` callback function will be invoked (so any side effects of the function will occur, but it's results will be lost).  Use [hs.http.asyncPost](#asyncPost) to avoid this.
 http.post = function(url, data, headers)
     return http.doRequest(url, "POST", data,headers)
+end
+
+--- hs.http.put(url, data, headers) -> int, string, table
+--- Function
+--- Sends an HTTP PUT request to a URL
+---
+--- Parameters:
+---  * url - A string containing the URL to submit to
+---  * data - A string containing the request body, or nil to send no body
+---  * headers - A table containing string keys and values representing the request headers, or nil to add no headers
+---
+--- Returns:
+---  * A number containing the HTTP response status
+---  * A string containing the response body
+---  * A table containing the response headers
+---
+--- Notes:
+---  * If authentication is required in order to download the request, the required credentials must be specified as part of the URL (e.g. "http://user:password@host.com/"). If authentication fails, or credentials are missing, the connection will attempt to continue without credentials.
+---  * This function is synchronous and will therefore block all other Lua execution while the request is in progress, you are encouraged to use the asynchronous functions
+---  * If you attempt to connect to a local Hammerspoon server created with `hs.httpserver`, then Hammerspoon will block until the connection times out (60 seconds), return a failed result due to the timeout, and then the `hs.httpserver` callback function will be invoked (so any side effects of the function will occur, but it's results will be lost).  Use [hs.http.asyncPost](#asyncPost) to avoid this.
+http.put = function(url, data, headers)
+    return http.doRequest(url, "PUT", data,headers)
 end
 
 --- hs.http.asyncGet(url, headers, callback)
@@ -70,7 +90,6 @@ end
 ---
 --- Notes:
 ---  * If authentication is required in order to download the request, the required credentials must be specified as part of the URL (e.g. "http://user:password@host.com/"). If authentication fails, or credentials are missing, the connection will attempt to continue without credentials.
----
 ---  * If the request fails, the callback function's first parameter will be negative and the second parameter will contain an error message. The third parameter will be nil
 http.asyncGet = function(url, headers, callback)
     http.doAsyncRequest(url, "GET", nil, headers, callback)
@@ -94,10 +113,32 @@ end
 ---
 --- Notes:
 ---  * If authentication is required in order to download the request, the required credentials must be specified as part of the URL (e.g. "http://user:password@host.com/"). If authentication fails, or credentials are missing, the connection will attempt to continue without credentials.
----
 ---  * If the request fails, the callback function's first parameter will be negative and the second parameter will contain an error message. The third parameter will be nil
 http.asyncPost = function(url, data, headers, callback)
     http.doAsyncRequest(url, "POST", data, headers, callback)
+end
+
+--- hs.http.asyncPut(url, data, headers, callback)
+--- Function
+--- Sends an HTTP PUT request asynchronously
+---
+--- Parameters:
+---  * url - A string containing the URL to submit to
+---  * data - A string containing the request body, or nil to send no body
+---  * headers - A table containing string keys and values representing the request headers, or nil to add no headers
+---  * callback - A function to be called when the request succeeds or fails. The function will be passed three parameters:
+---   * A number containing the HTTP response status
+---   * A string containing the response body
+---   * A table containing the response headers
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * If authentication is required in order to download the request, the required credentials must be specified as part of the URL (e.g. "http://user:password@host.com/"). If authentication fails, or credentials are missing, the connection will attempt to continue without credentials.
+---  * If the request fails, the callback function's first parameter will be negative and the second parameter will contain an error message. The third parameter will be nil
+http.asyncPut = function(url, data, headers, callback)
+    http.doAsyncRequest(url, "PUT", data, headers, callback)
 end
 
 --- hs.http.htmlEntities[]
