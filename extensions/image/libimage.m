@@ -1406,14 +1406,14 @@ static int encodeAsString(lua_State* L) {
         typeLabel = [skin toNSObjectAtIndex:3] ;
     } // else it's 1 and we no longer need to check
 
-    NSBitmapImageFileType fileType = NSPNGFileType ;
+    NSBitmapImageFileType fileType = NSBitmapImageFileTypePNG ;
 
-    if      ([typeLabel compare:@"PNG"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSPNGFileType  ; }
-    else if ([typeLabel compare:@"TIFF" options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSTIFFFileType ; }
-    else if ([typeLabel compare:@"BMP"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSBMPFileType  ; }
-    else if ([typeLabel compare:@"GIF"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSGIFFileType  ; }
-    else if ([typeLabel compare:@"JPEG" options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSJPEGFileType ; }
-    else if ([typeLabel compare:@"JPG"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSJPEGFileType ; }
+    if      ([typeLabel compare:@"PNG"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSBitmapImageFileTypePNG  ; }
+    else if ([typeLabel compare:@"TIFF" options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSBitmapImageFileTypeTIFF ; }
+    else if ([typeLabel compare:@"BMP"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSBitmapImageFileTypeBMP  ; }
+    else if ([typeLabel compare:@"GIF"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSBitmapImageFileTypeGIF  ; }
+    else if ([typeLabel compare:@"JPEG" options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSBitmapImageFileTypeJPEG ; }
+    else if ([typeLabel compare:@"JPG"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSBitmapImageFileTypeJPEG ; }
     else {
         return luaL_error(L, "invalid image type specified") ;
     }
