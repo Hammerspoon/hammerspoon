@@ -43,3 +43,4 @@ Our intentions for Hammerspoon broadly fall into these categories:
  * Ever wider coverage of system APIs in Extensions
  * Tighter integration between extensions
  * Smoother user experience
+
