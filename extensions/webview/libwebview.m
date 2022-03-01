@@ -1801,11 +1801,9 @@ static int webview_size(lua_State *L) {
 /// Parameters:
 ///  * `rect` - a rectangle specifying where the webviewObject should be displayed.
 ///  * `preferencesTable` - an optional table which can include one of more of the following keys:
-///   * `javaEnabled`                           - java is enabled (default false)
 ///   * `javaScriptEnabled`                     - JavaScript is enabled (default true)
 ///   * `javaScriptCanOpenWindowsAutomatically` - can JavaScript open windows without user intervention (default true)
 ///   * `minimumFontSize`                       - minimum font size (default 0.0)
-///   * `plugInsEnabled`                        - plug-ins are enabled (default false)
 ///   * `developerExtrasEnabled`                - include "Inspect Element" in the context menu
 ///   * `suppressesIncrementalRendering`        - suppresses content rendering until fully loaded into memory (default false)
 ///   * The following additional preferences may also be set under OS X 10.11 or later (they will be ignored with a warning printed if used under OS X 10.10):
@@ -1845,20 +1843,12 @@ static int webview_new(lua_State *L) {
         if (lua_type(L, 2) == LUA_TTABLE) {
             WKPreferences *myPreferences = [[WKPreferences alloc] init] ;
 
-            if (lua_getfield(L, 2, "javaEnabled") == LUA_TBOOLEAN)
-                myPreferences.javaEnabled = (BOOL)lua_toboolean(L, -1) ;
-            lua_pop(L, 1) ;
-
             if (lua_getfield(L, 2, "javaScriptEnabled") == LUA_TBOOLEAN)
                 myPreferences.javaScriptEnabled = (BOOL)lua_toboolean(L, -1) ;
             lua_pop(L, 1) ;
 
             if (lua_getfield(L, 2, "javaScriptCanOpenWindowsAutomatically") == LUA_TBOOLEAN)
                 myPreferences.javaScriptCanOpenWindowsAutomatically = (BOOL)lua_toboolean(L, -1) ;
-            lua_pop(L, 1) ;
-
-            if (lua_getfield(L, 2, "plugInsEnabled") == LUA_TBOOLEAN)
-                myPreferences.plugInsEnabled = (BOOL)lua_toboolean(L, -1) ;
             lua_pop(L, 1) ;
 
             if (lua_getfield(L, 2, "minimumFontSize") == LUA_TNUMBER)
