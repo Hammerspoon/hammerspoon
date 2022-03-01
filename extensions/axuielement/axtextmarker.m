@@ -168,10 +168,10 @@ static int axtextmarker_availabilityCheck(lua_State *L) {
     [skin checkArgs:LS_TBREAK] ;
 
     lua_newtable(L) ;
-    lua_pushboolean(L, (AXTextMarkerGetTypeID != NULL)) ;            lua_setfield(L, -2, "AXTextMarkerGetTypeID") ;
-    lua_pushboolean(L, (AXTextMarkerCreate != NULL)) ;               lua_setfield(L, -2, "AXTextMarkerCreate") ;
-    lua_pushboolean(L, (AXTextMarkerGetLength != NULL)) ;            lua_setfield(L, -2, "AXTextMarkerGetLength") ;
-    lua_pushboolean(L, (AXTextMarkerGetBytePtr != NULL)) ;           lua_setfield(L, -2, "AXTextMarkerGetBytePtr") ;
+    lua_pushboolean(L, true) ;            lua_setfield(L, -2, "AXTextMarkerGetTypeID") ;
+    lua_pushboolean(L, true) ;               lua_setfield(L, -2, "AXTextMarkerCreate") ;
+    lua_pushboolean(L, true) ;            lua_setfield(L, -2, "AXTextMarkerGetLength") ;
+    lua_pushboolean(L, true) ;           lua_setfield(L, -2, "AXTextMarkerGetBytePtr") ;
     lua_pushboolean(L, (AXTextMarkerRangeGetTypeID != NULL)) ;       lua_setfield(L, -2, "AXTextMarkerRangeGetTypeID") ;
     lua_pushboolean(L, (AXTextMarkerRangeCreate != NULL)) ;          lua_setfield(L, -2, "AXTextMarkerRangeCreate") ;
     lua_pushboolean(L, (AXTextMarkerRangeCopyStartMarker != NULL)) ; lua_setfield(L, -2, "AXTextMarkerRangeCopyStartMarker") ;
