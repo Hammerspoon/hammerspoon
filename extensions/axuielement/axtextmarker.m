@@ -203,7 +203,7 @@ static int axtextmarker_markerBytes(lua_State *L) {
     AXTextMarkerRef marker = get_axtextmarkerref(L, 1, AXTEXTMARKER_TAG) ;
 
     CFIndex length = AXTextMarkerGetLength(marker) ;
-    lua_pushlstring(L, AXTextMarkerGetBytePtr(marker), (size_t)length) ;
+    lua_pushlstring(L, (char *)AXTextMarkerGetBytePtr(marker), (size_t)length) ;
     return 1 ;
 }
 
