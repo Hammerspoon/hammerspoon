@@ -575,11 +575,8 @@ cleanup:
     NSImage *image = nil;
     CGWindowImageOption makeOpaque = keepTransparency ? kCGWindowImageDefault : kCGWindowImageShouldBeOpaque;
     CGRect windowRect = CGRectNull;
-    CFArrayRef targetWindow = CFArrayCreate(NULL, (const void **)(&windowID), 1, NULL);
-    CGImageRef windowImage = CGWindowListCreateImageFromArray(windowRect,
-                                                              targetWindow,
-                                                              kCGWindowImageBoundsIgnoreFraming | makeOpaque);
-    CFRelease(targetWindow);
+    CGImageRef windowImage = CGWindowListCreateImage(windowRect, kCGWindowListOptionIncludingWindow, windowID, kCGWindowImageBoundsIgnoreFraming | makeOpaque);
+
     if (windowImage) {
         image = [[NSImage alloc] initWithCGImage:windowImage size:windowRect.size];
         CFRelease(windowImage);

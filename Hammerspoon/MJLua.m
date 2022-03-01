@@ -522,10 +522,17 @@ static int automaticallyChecksForUpdates(lua_State *L) {
             // for any method which accepts the same signature list for the target.
                 [myInvocation setSelector:@selector(setAutomaticallyChecksForUpdates:)];
                 [myInvocation setArgument:&myBoolValue atIndex:2];
+                //[myInvocation setReturnValue:&myBoolValue];
                 [myInvocation invoke];
 
             }
-            lua_pushboolean(L, (BOOL)[sharedUpdater performSelector:@selector(automaticallyChecksForUpdates)]) ;
+            BOOL autoCheckUpdates = NO;
+            NSMethodSignature *autoCheckSignature = [NSClassFromString(@"SUUpdater") instanceMethodSignatureForSelector:@selector(automaticallyChecksForUpdates)];
+            NSInvocation *autoCheckInvocation = [NSInvocation invocationWithMethodSignature:autoCheckSignature];
+            [autoCheckInvocation setTarget:sharedUpdater];
+            [autoCheckInvocation setReturnValue:&autoCheckUpdates];
+            [autoCheckInvocation invoke];
+            lua_pushboolean(L, autoCheckUpdates) ;
 #pragma clang diagnostic pop
         } else {
             [skin logWarn:@"Sparkle Update framework not available for the running instance of Hammerspoon."] ;
