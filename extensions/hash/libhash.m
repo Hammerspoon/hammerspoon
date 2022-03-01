@@ -94,7 +94,10 @@ static int hash_sha512(lua_State *L) {
 /// Returns:
 ///  * A string containing the hash of the supplied data
 static int hash_md5(lua_State *L) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     return doHash(L, CC_MD5_DIGEST_LENGTH, CC_MD5);
+#pragma clang diagnostic pop
 }
 
 /// hs.hash.hmacSHA1(key, data) -> string
