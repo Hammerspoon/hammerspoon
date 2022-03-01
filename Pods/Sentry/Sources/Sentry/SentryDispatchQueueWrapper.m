@@ -3,14 +3,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryDispatchQueueWrapper ()
-
-@property (nonatomic, strong) dispatch_queue_t queue;
-
-@end
-
-@implementation SentryDispatchQueueWrapper
+@implementation SentryDispatchQueueWrapper {
+    // Don't use a normal property because on RN a user got a warning "Property with 'retain (or
+    // strong)' attribute must be of object type". A dispatch queue is since iOS 6.0 an NSObject so
+    // it should work with strong, but nevertheless, we use an instance variable to fix this
+    // warning.
+    dispatch_queue_t queue;
+}
 
 - (instancetype)init
 {
@@ -25,14 +24,14 @@ SentryDispatchQueueWrapper ()
 - (instancetype)initWithName:(const char *)name attributes:(dispatch_queue_attr_t)attributes;
 {
     if (self = [super init]) {
-        self.queue = dispatch_queue_create(name, attributes);
+        queue = dispatch_queue_create(name, attributes);
     }
     return self;
 }
 
 - (void)dispatchAsyncWithBlock:(void (^)(void))block
 {
-    dispatch_async(self.queue, ^{
+    dispatch_async(queue, ^{
         @autoreleasepool {
             block();
         }

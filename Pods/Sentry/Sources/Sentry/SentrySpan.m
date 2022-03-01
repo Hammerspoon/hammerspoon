@@ -99,16 +99,16 @@ SentrySpan ()
 
 - (void)finish
 {
-    self.timestamp = [SentryCurrentDate date];
-    if (self.transaction != nil) {
-        [self.transaction spanFinished:self];
-    }
+    [self finishWithStatus:kSentrySpanStatusOk];
 }
 
 - (void)finishWithStatus:(SentrySpanStatus)status
 {
     self.context.status = status;
-    [self finish];
+    self.timestamp = [SentryCurrentDate date];
+    if (self.transaction != nil) {
+        [self.transaction spanFinished:self];
+    }
 }
 
 - (SentryTraceHeader *)toTraceHeader

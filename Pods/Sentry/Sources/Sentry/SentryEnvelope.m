@@ -104,7 +104,7 @@ NS_ASSUME_NONNULL_BEGIN
         event.context = nil;
         event.sdk = nil;
         error = nil;
-        json = [SentrySerialization dataWithJSONObject:[event serialize] error:&error];
+        [SentrySerialization dataWithJSONObject:[event serialize] error:&error];
 
         // The context or the sdk was the problem for serialization. Add a breadcrumb that we are
         // dropping the context and the sdk.

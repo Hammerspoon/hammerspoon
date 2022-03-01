@@ -175,6 +175,13 @@ installSignalHandler()
                 sigaction(fatalSignals[i], &g_previousSignalHandlers[i], NULL);
             }
             goto failed;
+        } else {
+            // The previous handler was `SIG_IGN` -- restore the original handler so
+            // we don't override the `SIG_IGN` and report a crash when the application
+            // would have ignored the signal otherwise.
+            if (g_previousSignalHandlers[i].sa_handler == SIG_IGN) {
+                sigaction(fatalSignals[i], &g_previousSignalHandlers[i], NULL);
+            }
         }
     }
     SentryCrashLOG_DEBUG("Signal handlers installed.");

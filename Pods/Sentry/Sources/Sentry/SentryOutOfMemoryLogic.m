@@ -57,6 +57,12 @@ SentryOutOfMemoryLogic ()
         return NO;
     }
 
+    // This value can change when installing test builds using Xcode or when installing an app
+    // on a device using ad-hoc distribution.
+    if (![currentAppState.vendorId isEqualToString:previousAppState.vendorId]) {
+        return NO;
+    }
+
     // Restarting the app in development is a termination we can't catch and would falsely
     // report OOMs.
     if (previousAppState.isDebugging) {

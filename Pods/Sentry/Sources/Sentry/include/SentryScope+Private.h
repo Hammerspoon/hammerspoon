@@ -14,6 +14,9 @@ SentryScope (Private)
 
 @property (atomic, strong) SentryUser *_Nullable userObject;
 
+@property (atomic, strong)
+    NSMutableDictionary<NSString *, NSDictionary<NSString *, id> *> *contextDictionary;
+
 - (void)addObserver:(id<SentryScopeObserver>)observer;
 
 @end

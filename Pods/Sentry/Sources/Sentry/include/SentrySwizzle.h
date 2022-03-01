@@ -152,8 +152,10 @@ typedef void (*SentrySwizzleOriginalIMP)(void /* id, SEL, ... */);
 /// The selector of the swizzled method.
 @property (nonatomic, readonly) SEL selector;
 
+#if TEST
 // A flag to check whether the original implementation was called.
 @property (nonatomic) BOOL originalCalled;
+#endif
 
 @end
 

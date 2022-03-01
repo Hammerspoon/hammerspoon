@@ -94,15 +94,6 @@ SentryNSURLRequest ()
         self.HTTPBody = [data sentry_gzippedWithCompressionLevel:-1 error:error];
     }
 
-    // TODO: When the SDK inits, Client is created, then hub, then hub assigned
-    // to SentrySDK. That means there's no hub set yet on SentrySDK when this
-    // code runs (hub init closes pending sessions)
-    if ([SentrySDK.currentHub getClient].options.debug == YES) {
-        [SentryLog logWithMessage:[NSString stringWithFormat:@"Envelope request with data: %@",
-                                            [[NSString alloc] initWithData:data
-                                                                  encoding:NSUTF8StringEncoding]]
-                         andLevel:kSentryLevelDebug];
-    }
     return self;
 }
 

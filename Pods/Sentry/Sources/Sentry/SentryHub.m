@@ -167,7 +167,7 @@ SentryHub ()
     }
 }
 
-- (void)captureSession:(SentrySession *)session
+- (void)captureSession:(nullable SentrySession *)session
 {
     if (nil != session) {
         SentryClient *client = _client;
@@ -187,7 +187,7 @@ SentryHub ()
     }
 }
 
-- (SentrySession *)incrementSessionErrors
+- (nullable SentrySession *)incrementSessionErrors
 {
     SentrySession *sessionCopy = nil;
     @synchronized(_sessionLock) {

@@ -1,7 +1,5 @@
 #import "SentryFramesTracker.h"
 #import "SentryDisplayLinkWrapper.h"
-#import "SentryLog.h"
-#import "SentryOptions.h"
 #import <SentryScreenFrames.h>
 #include <stdatomic.h>
 

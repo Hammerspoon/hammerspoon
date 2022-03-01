@@ -261,7 +261,7 @@ bspatch.c and bsdiff.c, from bsdiff 4.3 &lt;http://www.daemonology.net/bsdiff/&g
 sais.c and sais.c, from sais-lite (2010/08/07) &lt;https://sites.google.com/site/yuta256/sais&gt;:
     Copyright (c) 2008-2010 Yuta Mori.
 
-SUDSAVerifier.m:
+SUSignatureVerifier.m:
     Copyright (c) 2011 Mark Hamlin.
 
 All rights reserved.

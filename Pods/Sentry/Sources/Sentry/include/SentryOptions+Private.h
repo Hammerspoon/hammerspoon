@@ -1,4 +1,4 @@
-#import <SentryOptions.h>
+#import "SentryOptions.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -10,6 +10,10 @@ SentryOptions (Private)
 - (BOOL)isValidSampleRate:(NSNumber *)sampleRate;
 
 - (BOOL)isValidTracesSampleRate:(NSNumber *)tracesSampleRate;
+
+@property (nonatomic, strong, readonly) NSSet<NSString *> *enabledIntegrations;
+
+- (void)removeEnabledIntegration:(NSString *)integration;
 
 @end
 

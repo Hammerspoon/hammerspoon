@@ -19,7 +19,7 @@ SentrySDK ()
 NS_ASSUME_NONNULL_BEGIN
 @implementation SentrySDK
 
-static SentryHub *currentHub;
+static SentryHub *_Nullable currentHub;
 static BOOL crashedLastRunCalled;
 static SentryAppStartMeasurement *sentrySDKappStartMeasurement;
 static NSObject *sentrySDKappStartMeasurementLock;

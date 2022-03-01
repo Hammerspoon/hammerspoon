@@ -3,15 +3,15 @@
 #import "SentryEvent.h"
 #import "SentryLog.h"
 #import "SentryOptions.h"
-#import "SentrySystemEventsBreadcrumbs.h"
+#import "SentrySystemEventBreadcrumbs.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 @interface
 SentryAutoBreadcrumbTrackingIntegration ()
 
-@property (nonatomic, weak) SentryOptions *options;
-
-@property (nonatomic, strong) SentryBreadcrumbTracker *tracker;
-@property (nonatomic, strong) SentrySystemEventsBreadcrumbs *system_events;
+@property (nonatomic, strong) SentryBreadcrumbTracker *breadcrumbTracker;
+@property (nonatomic, strong) SentrySystemEventBreadcrumbs *systemEventBreadcrumbs;
 
 @end
 
@@ -19,26 +19,39 @@ SentryAutoBreadcrumbTrackingIntegration ()
 
 - (void)installWithOptions:(nonnull SentryOptions *)options
 {
-    self.options = options;
-    [self enableAutomaticBreadcrumbTracking];
+    [self installWithOptions:options
+             breadcrumbTracker:[[SentryBreadcrumbTracker alloc] init]
+        systemEventBreadcrumbs:[[SentrySystemEventBreadcrumbs alloc] init]];
+}
+
+/**
+ * For testing.
+ */
+- (void)installWithOptions:(nonnull SentryOptions *)options
+         breadcrumbTracker:(SentryBreadcrumbTracker *)breadcrumbTracker
+    systemEventBreadcrumbs:(SentrySystemEventBreadcrumbs *)systemEventBreadcrumbs
+{
+    self.breadcrumbTracker = breadcrumbTracker;
+    [self.breadcrumbTracker start];
+
+    if (options.enableSwizzling) {
+        [self.breadcrumbTracker startSwizzle];
+    }
+
+    self.systemEventBreadcrumbs = systemEventBreadcrumbs;
+    [self.systemEventBreadcrumbs start];
 }
 
 - (void)uninstall
 {
-    if (nil != self.tracker) {
-        [self.tracker stop];
+    if (nil != self.breadcrumbTracker) {
+        [self.breadcrumbTracker stop];
     }
-    if (nil != self.system_events) {
-        [self.system_events stop];
+    if (nil != self.systemEventBreadcrumbs) {
+        [self.systemEventBreadcrumbs stop];
     }
-}
-
-- (void)enableAutomaticBreadcrumbTracking
-{
-    self.tracker = [SentryBreadcrumbTracker alloc];
-    [self.tracker start];
-    self.system_events = [SentrySystemEventsBreadcrumbs alloc];
-    [self.system_events start];
 }
 
 @end
+
+NS_ASSUME_NONNULL_END
