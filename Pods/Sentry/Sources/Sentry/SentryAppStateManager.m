@@ -48,8 +48,11 @@ SentryAppStateManager ()
     // Is the current process being traced or not? If it is a debugger is attached.
     bool isDebugging = self.crashAdapter.isBeingTraced;
 
+    NSString *vendorId = [UIDevice.currentDevice.identifierForVendor UUIDString];
+
     return [[SentryAppState alloc] initWithReleaseName:self.options.releaseName
                                              osVersion:UIDevice.currentDevice.systemVersion
+                                              vendorId:vendorId
                                            isDebugging:isDebugging
                                    systemBootTimestamp:self.sysctl.systemBootTimestamp];
 }
@@ -62,6 +65,11 @@ SentryAppStateManager ()
 - (void)storeCurrentAppState
 {
     [self.fileManager storeAppState:[self buildCurrentAppState]];
+}
+
+- (void)removeCurrentAppState
+{
+    [self.fileManager deleteAppState];
 }
 
 #endif

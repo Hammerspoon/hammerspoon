@@ -9,4 +9,9 @@
     return objc_getClassList(buffer, bufferCount);
 }
 
+- (void)countIterateClasses
+{
+    // Do nothing
+}
+
 @end

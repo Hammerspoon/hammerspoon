@@ -1,9 +1,7 @@
 #import "SentrySubClassFinder.h"
-#import "SentryDefines.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryLog.h"
 #import "SentryObjCRuntimeWrapper.h"
-#import <Foundation/Foundation.h>
 #import <objc/runtime.h>
 
 @interface
@@ -29,46 +27,46 @@ SentrySubClassFinder ()
 - (void)actOnSubclassesOf:(Class)parentClass block:(void (^)(Class))block
 {
     [self.dispatchQueue dispatchAsyncWithBlock:^{
-        int numClasses = [self.objcRuntimeWrapper getClassList:NULL bufferCount:0];
+        Class *classes = NULL;
+        int numClasses = -1;
+        int attemptsForGettingClasses = 2;
 
-        if (numClasses <= 0) {
+        // The number of classes may change between the two invocations of class_getSuperclass. If
+        // this or any other error happens, we retry once. We don't want to retry this in a loop
+        // because of the danger of an endless loop.
+        for (int i = 0; numClasses == -1 && i < attemptsForGettingClasses; i++) {
+            numClasses = [self getClassList:&classes];
+
+            if (numClasses < 0) {
+                free(classes);
+                classes = NULL;
+            }
+        }
+
+        if (numClasses < 0) {
             NSString *msg =
-                [NSString stringWithFormat:@"No classes found when retrieving class list for %@.",
-                          parentClass];
+                [NSString stringWithFormat:@"Not able to get subclasses for %@", parentClass];
             [SentryLog logWithMessage:msg andLevel:kSentryLevelError];
             return;
         }
 
-        int memSize = sizeof(Class) * numClasses;
-        Class *classes = (__unsafe_unretained Class *)malloc(memSize);
+        // Only for testing. We want to know in tests if the code iterated over the classes, because
+        // iterating in edge cases could lead to crashses. Ideally, we would wrap
+        // class_getSuperclass in the SentryObjCRuntimeWrapper and count its invocations. As
+        // class_getSuperclass is called in a tight loop doing so would slow down the code
+        // significantly. This is pragmatic workaround to find out in tests if the code iterated
+        // over the classes.
+        [self.objcRuntimeWrapper countIterateClasses];
 
-        if (classes == NULL && memSize) {
-            NSString *msg = [NSString
-                stringWithFormat:@"Couldn't allocate memory for retrieving class list for %@",
-                parentClass];
-            [SentryLog logWithMessage:msg andLevel:kSentryLevelError];
-            return;
-        }
-
-        // Don't assign the result getClassList again to numClasses because if a class is registered
-        // in the meantime our buffer would not be big enough and we would crash when iterating over
-        // the classes below.
-        int secondNumClasses = [self.objcRuntimeWrapper getClassList:classes
-                                                         bufferCount:numClasses];
-
-        // Only set the numClasses to secondNumClasses in the very unlikely case the number of
-        // classes decreased. If the number of classes increased, which can happen, we only iterate
-        // over the inital number of classes. We don't want to retry the whole process and are fine
-        // with possibly skipping a few newly added classes as they could anyway be added later in
-        // the lifetime of the app.
-        if (secondNumClasses < numClasses) {
-            numClasses = secondNumClasses;
-        }
-
-        // Storing the actual classes in an NSArray would call initialize of the class, which we
+        // Storing the actual classes in an NSArray would call initializer of the class, which we
         // must avoid as we are on a background thread here and dealing with UIViewControllers,
         // which assume they are running on the main thread. Therefore, we store the indexes instead
         // so we can search for the subclasses on a background thread.
+        // We can't use NSObject:isSubclassOfClass as not all classes in the runtime in classes
+        // inherit from NSObject and a call to isSubclassOfClass would call the initializer of the
+        // class, which we can't allow because of the problem with UIViewControllers mentioned
+        // above.
+
         NSMutableArray<NSNumber *> *indexesToSwizzle = [NSMutableArray new];
         for (NSInteger i = 0; i < numClasses; i++) {
             Class superClass = classes[i];
@@ -87,7 +85,7 @@ SentrySubClassFinder ()
                 superClass = class_getSuperclass(superClass);
             }
 
-            if (superClass != nil) {
+            if (superClass) {
                 [indexesToSwizzle addObject:@(i)];
             }
         }
@@ -100,6 +98,41 @@ SentrySubClassFinder ()
             free(classes);
         }];
     }];
+}
+
+- (int)getClassList:(Class **)classes
+{
+    int numClasses = [self.objcRuntimeWrapper getClassList:NULL bufferCount:0];
+
+    if (numClasses <= 0) {
+        return -1;
+    }
+
+    int memSize = sizeof(Class) * numClasses;
+    *classes = (__unsafe_unretained Class *)malloc(memSize);
+
+    if (classes == NULL && memSize) {
+        [SentryLog logWithMessage:@"Couldn't allocate memory when retrieving class list."
+                         andLevel:kSentryLevelError];
+        return -1;
+    }
+
+    // Don't assign the result getClassList again to numClasses because if a class is registered
+    // in the meantime our buffer would not be big enough and we would crash when iterating over
+    // the classes.
+    int secondNumClasses = [self.objcRuntimeWrapper getClassList:*classes bufferCount:numClasses];
+
+    // When the number of classes changes between the invocation of class_getSuperclass, we run the
+    // risk of accessing bad memory when iterating over all classes, also see
+    // https://github.com/getsentry/sentry-cocoa/issues/1634
+    if (secondNumClasses != numClasses) {
+        [SentryLog logWithMessage:@"Can't find subclasses, because the number of classes changed "
+                                  @"between invocations of class_getSuperclass."
+                         andLevel:kSentryLevelDebug];
+        return -1;
+    }
+
+    return numClasses;
 }
 
 @end

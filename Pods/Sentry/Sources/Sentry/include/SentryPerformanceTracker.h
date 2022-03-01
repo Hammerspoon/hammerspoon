@@ -30,6 +30,17 @@ NS_ASSUME_NONNULL_BEGIN
 - (SentrySpanId *)startSpanWithName:(NSString *)name operation:(NSString *)operation;
 
 /**
+ * Activate the span with `spanId`
+ * to create any call to startSpan as a child.
+ * If the there is no span with the fiven spanId
+ * block is executed anyway.
+ *
+ * @param spanId Id of the span to activate
+ * @param block Block to invoke while span is active
+ */
+- (void)activateSpan:(SentrySpanId *)spanId duringBlock:(void (^)(void))block;
+
+/**
  * Measure the given block execution.
  *
  * @param description The description of the span.
@@ -60,16 +71,6 @@ NS_ASSUME_NONNULL_BEGIN
  * Gets the active span id.
  */
 - (nullable SentrySpanId *)activeSpanId;
-
-/**
- * Push active span to the span stack.
- */
-- (void)pushActiveSpan:(SentrySpanId *)spanId;
-
-/**
- * Removes the top most span from span stack.
- */
-- (void)popActiveSpan;
 
 /**
  * Marks a span to be finished.

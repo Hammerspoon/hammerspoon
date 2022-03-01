@@ -241,7 +241,8 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
                   isCrashEvent:NO];
 }
 
-- (SentryTraceState *)getTraceStateWithEvent:(SentryEvent *)event withScope:(SentryScope *)scope
+- (nullable SentryTraceState *)getTraceStateWithEvent:(SentryEvent *)event
+                                            withScope:(SentryScope *)scope
 {
     id<SentrySpan> span;
     if ([event isKindOfClass:[SentryTransaction class]]) {
@@ -415,14 +416,7 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         event.environment = environment;
     }
 
-    NSMutableDictionary *sdk =
-        @{ @"name" : SentryMeta.sdkName, @"version" : SentryMeta.versionString }.mutableCopy;
-    if (nil != sdk && nil == event.sdk) {
-        if (event.extra[@"__sentry_sdk_integrations"]) {
-            [sdk setValue:event.extra[@"__sentry_sdk_integrations"] forKey:@"integrations"];
-        }
-        event.sdk = sdk;
-    }
+    [self setSdk:event];
 
     // We don't want to attach debug meta and stacktraces for transactions
     BOOL eventIsNotATransaction
@@ -506,6 +500,34 @@ NSString *const DropSessionLogMessage = @"Session has no release name. Won't sen
         }
     }
     return newEvent;
+}
+
+- (void)setSdk:(SentryEvent *)event
+{
+    // Every integration starts with "Sentry" and ends with "Integration". To keep the payload of
+    // the event small we remove both.
+    NSMutableArray<NSString *> *integrations = [NSMutableArray new];
+    for (NSString *integration in self.options.enabledIntegrations) {
+        NSString *withoutSentry = [integration stringByReplacingOccurrencesOfString:@"Sentry"
+                                                                         withString:@""];
+        NSString *trimmed = [withoutSentry stringByReplacingOccurrencesOfString:@"Integration"
+                                                                     withString:@""];
+        [integrations addObject:trimmed];
+    }
+
+    NSMutableDictionary *sdk = @{
+        @"name" : SentryMeta.sdkName,
+        @"version" : SentryMeta.versionString,
+        @"integrations" : integrations
+    }
+                                   .mutableCopy;
+
+    if (nil == event.sdk) {
+        if (event.extra[@"__sentry_sdk_integrations"]) {
+            [sdk setValue:event.extra[@"__sentry_sdk_integrations"] forKey:@"integrations"];
+        }
+        event.sdk = sdk;
+    }
 }
 
 - (void)setUserInfo:(NSDictionary *)userInfo withEvent:(SentryEvent *)event

@@ -356,31 +356,6 @@ getBasePath()
     sentrycrash_deleteReportWithID([reportID longValue]);
 }
 
-- (void)reportUserException:(NSString *)name
-                     reason:(NSString *)reason
-                   language:(NSString *)language
-                 lineOfCode:(NSString *)lineOfCode
-                 stackTrace:(NSArray *)stackTrace
-              logAllThreads:(BOOL)logAllThreads
-           terminateProgram:(BOOL)terminateProgram
-{
-    const char *cName = [name cStringUsingEncoding:NSUTF8StringEncoding];
-    const char *cReason = [reason cStringUsingEncoding:NSUTF8StringEncoding];
-    const char *cLanguage = [language cStringUsingEncoding:NSUTF8StringEncoding];
-    const char *cLineOfCode = [lineOfCode cStringUsingEncoding:NSUTF8StringEncoding];
-    NSError *error = nil;
-    NSData *jsonData = [SentryCrashJSONCodec encode:stackTrace options:0 error:&error];
-    if (jsonData == nil || error != nil) {
-        SentryCrashLOG_ERROR(@"Error encoding stack trace to JSON: %@", error);
-        // Don't return, since we can still record other useful information.
-    }
-    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    const char *cStackTrace = [jsonString cStringUsingEncoding:NSUTF8StringEncoding];
-
-    sentrycrash_reportUserException(
-        cName, cReason, cLanguage, cLineOfCode, cStackTrace, logAllThreads, terminateProgram);
-}
-
 // ============================================================================
 #pragma mark - Advanced API -
 // ============================================================================

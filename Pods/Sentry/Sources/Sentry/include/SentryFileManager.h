@@ -12,6 +12,8 @@ NS_SWIFT_NAME(SentryFileManager)
 @interface SentryFileManager : NSObject
 SENTRY_NO_INIT
 
+@property (nonatomic, readonly) NSString *sentryPath;
+
 - (nullable instancetype)initWithOptions:(SentryOptions *)options
                   andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
                                    error:(NSError **)error NS_DESIGNATED_INITIALIZER;

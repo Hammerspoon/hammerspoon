@@ -68,7 +68,7 @@ SentryHttpTransport ()
 }
 
 - (void)sendEvent:(SentryEvent *)event
-       traceState:(SentryTraceState *)traceState
+       traceState:(nullable SentryTraceState *)traceState
       attachments:(NSArray<SentryAttachment *> *)attachments
 {
     NSMutableArray<SentryEnvelopeItem *> *items = [self buildEnvelopeItems:event
@@ -145,7 +145,6 @@ SentryHttpTransport ()
 
 #pragma mark private methods
 
-// TODO: This has to move somewhere else, we are missing the whole beforeSend flow
 - (void)sendAllCachedEnvelopes
 {
     @synchronized(self) {
@@ -207,8 +206,6 @@ SentryHttpTransport ()
     [self.requestManager
                addRequest:request
         completionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
-            // TODO: How does beforeSend work here
-
             // If the response is not nil we had an internet connection.
             // We don't worry about errors here.
             if (nil != response) {

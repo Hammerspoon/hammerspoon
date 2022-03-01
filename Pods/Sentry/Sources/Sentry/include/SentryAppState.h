@@ -8,6 +8,7 @@ SENTRY_NO_INIT
 
 - (instancetype)initWithReleaseName:(NSString *)releaseName
                           osVersion:(NSString *)osVersion
+                           vendorId:(NSString *)vendorId
                         isDebugging:(BOOL)isDebugging
                 systemBootTimestamp:(NSDate *)systemBootTimestamp;
 
@@ -23,6 +24,8 @@ SENTRY_NO_INIT
 @property (readonly, nonatomic, copy) NSString *releaseName;
 
 @property (readonly, nonatomic, copy) NSString *osVersion;
+
+@property (readonly, nonatomic, copy) NSString *vendorId;
 
 @property (readonly, nonatomic, assign) BOOL isDebugging;
 

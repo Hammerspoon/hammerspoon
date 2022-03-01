@@ -20,9 +20,13 @@
 - (void)start
 {
     [self addEnabledCrumb];
+    [self trackApplicationUIKitNotifications];
+}
+
+- (void)startSwizzle
+{
     [self swizzleSendAction];
     [self swizzleViewDidAppear];
-    [self trackApplicationUIKitNotifications];
 }
 
 - (void)stop

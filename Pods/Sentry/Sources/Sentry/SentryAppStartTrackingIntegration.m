@@ -2,7 +2,9 @@
 #import "SentryAppStartTracker.h"
 #import "SentryDefaultCurrentDateProvider.h"
 #import "SentryLog.h"
+#import "SentryOptions+Private.h"
 #import <Foundation/Foundation.h>
+#import <PrivateSentrySDKOnly.h>
 #import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
 #import <SentryCrashAdapter.h>
@@ -25,18 +27,8 @@ SentryAppStartTrackingIntegration ()
 - (void)installWithOptions:(SentryOptions *)options
 {
 #if SENTRY_HAS_UIKIT
-    if (!options.enableAutoPerformanceTracking) {
-        [SentryLog
-            logWithMessage:@"AutoUIPerformanceTracking disabled. Will not track app start up time."
-                  andLevel:kSentryLevelDebug];
-        return;
-    }
-
-    if (!options.isTracingEnabled) {
-        [SentryLog
-            logWithMessage:
-                @"No tracesSampleRate and tracesSampler set. Will not track app start up time."
-                  andLevel:kSentryLevelDebug];
+    if (![self shouldBeEnabled:options]) {
+        [options removeEnabledIntegration:NSStringFromClass([self class])];
         return;
     }
 
@@ -64,6 +56,34 @@ SentryAppStartTrackingIntegration ()
                      andLevel:kSentryLevelDebug];
 #endif
 }
+
+#if SENTRY_HAS_UIKIT
+- (BOOL)shouldBeEnabled:(SentryOptions *)options
+{
+    // If the cocoa SDK is being used by a hybrid SDK,
+    // we install App start tracking and let the hybrid SDK decide what to do.
+    if (PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode) {
+        return YES;
+    }
+
+    if (!options.enableAutoPerformanceTracking) {
+        [SentryLog
+            logWithMessage:@"AutoUIPerformanceTracking disabled. Will not track app start up time."
+                  andLevel:kSentryLevelDebug];
+        return NO;
+    }
+
+    if (!options.isTracingEnabled) {
+        [SentryLog
+            logWithMessage:
+                @"No tracesSampleRate and tracesSampler set. Will not track app start up time."
+                  andLevel:kSentryLevelDebug];
+        return NO;
+    }
+
+    return YES;
+}
+#endif
 
 - (void)uninstall
 {

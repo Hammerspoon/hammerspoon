@@ -1205,6 +1205,14 @@ writeBinaryImage(
         writer->addUIntegerElement(writer, SentryCrashField_ImageMinorVersion, image.minorVersion);
         writer->addUIntegerElement(
             writer, SentryCrashField_ImageRevisionVersion, image.revisionVersion);
+        if (image.crashInfoMessage != NULL) {
+            writer->addStringElement(
+                writer, SentryCrashField_ImageCrashInfoMessage, image.crashInfoMessage);
+        }
+        if (image.crashInfoMessage2 != NULL) {
+            writer->addStringElement(
+                writer, SentryCrashField_ImageCrashInfoMessage2, image.crashInfoMessage2);
+        }
     }
     writer->endContainer(writer);
 }

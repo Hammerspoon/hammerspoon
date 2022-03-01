@@ -76,6 +76,10 @@ onBooleanElement(const char *const name, const bool value, void *const userData)
 {
     SentryCrash_AppState *state = userData;
 
+    if (name == NULL) {
+        return SentryCrashJSON_ERROR_INVALID_DATA;
+    }
+
     if (strcmp(name, kKeyCrashedLastLaunch) == 0) {
         state->crashedLastLaunch = value;
     }
@@ -87,6 +91,10 @@ static int
 onFloatingPointElement(const char *const name, const double value, void *const userData)
 {
     SentryCrash_AppState *state = userData;
+
+    if (name == NULL) {
+        return SentryCrashJSON_ERROR_INVALID_DATA;
+    }
 
     if (strcmp(name, kKeyActiveDurationSinceLastCrash) == 0) {
         state->activeDurationSinceLastCrash = value;
@@ -102,6 +110,10 @@ static int
 onIntegerElement(const char *const name, const int64_t value, void *const userData)
 {
     SentryCrash_AppState *state = userData;
+
+    if (name == NULL) {
+        return SentryCrashJSON_ERROR_INVALID_DATA;
+    }
 
     if (strcmp(name, kKeyFormatVersion) == 0) {
         if (value != kFormatVersion) {

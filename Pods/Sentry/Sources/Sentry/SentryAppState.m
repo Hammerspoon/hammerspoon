@@ -8,12 +8,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithReleaseName:(NSString *)releaseName
                           osVersion:(NSString *)osVersion
+                           vendorId:(NSString *)vendorId
                         isDebugging:(BOOL)isDebugging
                 systemBootTimestamp:(NSDate *)systemBootTimestamp
 {
     if (self = [super init]) {
         _releaseName = releaseName;
         _osVersion = osVersion;
+        _vendorId = vendorId;
         _isDebugging = isDebugging;
 
         // Round down to seconds as the precision of the serialization of the date is only
@@ -42,6 +44,13 @@ NS_ASSUME_NONNULL_BEGIN
             return nil;
         } else {
             _osVersion = osVersion;
+        }
+
+        id vendorId = [jsonObject valueForKey:@"vendor_id"];
+        if (vendorId == nil || ![vendorId isKindOfClass:[NSString class]]) {
+            return nil;
+        } else {
+            _vendorId = vendorId;
         }
 
         id isDebugging = [jsonObject valueForKey:@"is_debugging"];
@@ -83,6 +92,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     [data setValue:self.releaseName forKey:@"release_name"];
     [data setValue:self.osVersion forKey:@"os_version"];
+    [data setValue:self.vendorId forKey:@"vendor_id"];
     [data setValue:@(self.isDebugging) forKey:@"is_debugging"];
     [data setValue:[self.systemBootTimestamp sentry_toIso8601String]
             forKey:@"system_boot_timestamp"];

@@ -21,7 +21,11 @@ SentrySwizzleInfo ()
 {
     NSAssert(_impProviderBlock, nil);
 
-    self.originalCalled = true;
+#if TEST
+    @synchronized(self) {
+        self.originalCalled = true;
+    }
+#endif
 
     // Casting IMP to SentrySwizzleOriginalIMP to force user casting.
     return (SentrySwizzleOriginalIMP)_impProviderBlock();
@@ -127,7 +131,7 @@ swizzledClassesForKey(const void *key)
 }
 
 + (BOOL)swizzleInstanceMethod:(SEL)selector
-                      inClass:(Class)classToSwizzle
+                      inClass:(nonnull Class)classToSwizzle
                 newImpFactory:(SentrySwizzleImpFactoryBlock)factoryBlock
                          mode:(SentrySwizzleMode)mode
                           key:(const void *)key
