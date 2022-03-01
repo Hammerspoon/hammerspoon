@@ -3869,7 +3869,7 @@ static int cg_windowLevels(lua_State *L) {
 // delegates and blocks.
 
 static int pushHSCanvasView(lua_State *L, id obj) {
-    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+    //LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     HSCanvasView *value = obj;
     value.selfRefCount++ ;
 //     if (value.selfRef == LUA_NOREF) {
