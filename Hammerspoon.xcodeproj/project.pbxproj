@@ -7002,7 +7002,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -eux\n\n./scripts/build.sh docs -j\n";
+			shellScript = "set -eux\n\n/bin/mkdir -p ./build\n./scripts/docs/bin/build_docs.py -o ./build/ --json Hammerspoon extensions\n";
 		};
 		4FD0AC2E1B74C66200A82496 /* Prepare HammerspoonCertTemplate.h */ = {
 			isa = PBXShellScriptBuildPhase;
