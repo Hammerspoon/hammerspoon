@@ -1,10 +1,31 @@
 local modpath, frameworkspath, prettypath, fullpath, configdir, docstringspath, hasinitfile, autoload_extensions = ...
 
-package.path=configdir.."/?.lua"..";"..configdir.."/?/init.lua"..";"..configdir.."/Spoons/?.spoon/init.lua"..";"..package.path..";"..modpath.."/?.lua"..";"..modpath.."/?/init.lua"
-package.cpath=configdir.."/?.so"..";"..package.cpath..";"..frameworkspath.."/?.dylib"
+local userruntime = "~/.local/share/hammerspoon/site"
 
-print("-- package.path: "..package.path)
-print("-- package.cpath: "..package.cpath)
+local paths = {
+  configdir .. "/?.lua",
+  configdir .. "/?/init.lua",
+  configdir .. "/Spoons/?.spoon/init.lua",
+  package.path,
+  modpath .. "/?.lua",
+  modpath .. "/?/init.lua",
+  userruntime .. "/?.lua",
+  userruntime .. "/?/init.lua",
+}
+
+local cpaths = {
+  configdir .. "/?.so",
+  package.cpath,
+  frameworkspath .. "/?.dylib",
+  userruntime .. "/lib/?.dylib",
+  userruntime .. "/lib/?.so",
+}
+
+package.path = table.concat(paths, ";")
+package.cpath = table.concat(cpaths, ";")
+
+print("-- package.path: " .. package.path)
+print("-- package.cpath: " .. package.cpath)
 
 package.preload['hs.application.watcher']   = function() return require("hs.libapplicationwatcher") end
 package.preload['hs.audiodevice.watcher']   = function() return require("hs.libaudiodevicewatcher") end
