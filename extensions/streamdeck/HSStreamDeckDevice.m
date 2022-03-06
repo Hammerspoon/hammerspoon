@@ -118,6 +118,12 @@
 
     LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     _lua_stackguard_entry(skin.L);
+
+    if (![skin checkGCCanary:self.lsCanary]) {
+        _lua_stackguard_exit(skin.L);
+        return;
+    }
+
     if (self.buttonCallbackRef == LUA_NOREF || self.buttonCallbackRef == LUA_REFNIL) {
         [skin logError:@"hs.streamdeck received a button input, but no callback has been set. See hs.streamdeck:buttonCallback()"];
         return;

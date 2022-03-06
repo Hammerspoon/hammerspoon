@@ -24,6 +24,7 @@
 @property (nonatomic, strong) id ioHIDManager;
 @property (nonatomic, strong) NSMutableArray *devices;
 @property (nonatomic) int discoveryCallbackRef;
+@property LSGCCanary lsCanary;
 
 - (id)init;
 - (void)doGC;
