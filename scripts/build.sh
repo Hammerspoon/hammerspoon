@@ -90,6 +90,7 @@ function usage() {
     echo "Note: The keychain profile must be set up ahead of time using your developer Apple ID account and Team ID:"
     echo "  xcrun notarytool store-credentials -v --apple-id APPLE_ID --team-id TEAM_ID --password APP_SPECIFIC_PASSWORD"
     echo "  -y             - Keychain profile name (Default: HAMMERSPOON_BUILDSH)"
+    echo "  -z             - Path to a file to notarize (Default: build/Hammerspoon.app.zip"
     echo ""
     echo "RELEASE OPTIONS:"
     echo "  -w             - Twitter account to announce release with (Default: _hammerspoon)"
@@ -114,7 +115,7 @@ fi
 #fi;
 
 # Parse the rest of any arguments
-PARSED_ARGUMENTS=$(getopt ds:c:x:ujmtqakly:w:ep:o:r $*)
+PARSED_ARGUMENTS=$(getopt ds:c:x:ujmtqakly:z:w:ep:o:r $*)
 if [ $? != 0 ]; then
     usage
 fi
@@ -200,6 +201,9 @@ do
             shift;;
         -y)
             KEYCHAIN_PROFILE=${2}; shift
+            shift;;
+        -z)
+            NOTARIZATION_FILE=${2}; shift
             shift;;
         -p)
             P12_FILE="${2}"; shift
@@ -303,6 +307,7 @@ export GITHUB_REPO="${GITHUB_REPO:-hammerspoon}"
 export SENTRY_TOKEN_API_FILE="${TOKENPATH}/token-sentry-api"
 export SENTRY_TOKEN_AUTH_FILE="${TOKENPATH}/token-sentry-auth"
 export NOTARIZATION_TOKEN_FILE="${TOKENPATH}/token-notarization"
+export NOTARIZATION_FILE="${NOTARIZATION_FILE:-}"
 
 # Calculate options for xcbeautify
 export XCB_OPTS=(-q)
