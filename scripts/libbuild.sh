@@ -433,6 +433,17 @@ EOF
     git push
     popd >/dev/null || fail "Unknown"
 
+    echo " Updating Sentry release..."
+    export SENTRY_ORG="${SENTRY_ORG:-hammerspoon}"
+    export SENTRY_PROJECT="${SENTRY_PROJECT:-hammerspoon}"
+    export SENTRY_LOG_LEVEL=error
+    if [ "${DEBUG}" == "1" ]; then
+        SENTRY_LOG_LEVEL=debug
+    fi
+    export SENTRY_AUTH_TOKEN
+    "${HAMMERSPOON_HOME}/scripts/sentry-cli" releases set-commits --auto "${VERSION}" 2>&1 | tee "${BUILD_HOME}/sentry-release.log"
+    "${HAMMERSPOON_HOME}/scripts/sentry-cli" releases finalize "${VERSION}" 2>&1 | tee -a "${BUILD_HOME}/sentry-release.log"
+ 
     if [ "${TWITTER_ACCOUNT}" != "" ]; then
         echo " Tweeting release..."
         local T_PATH=$(/usr/bin/gem contents t 2>/dev/null | grep "\/t$")
