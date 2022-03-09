@@ -11,6 +11,7 @@ SentryOptions ()
 
 @property (nullable, nonatomic, copy, readonly) NSNumber *defaultSampleRate;
 @property (nullable, nonatomic, copy, readonly) NSNumber *defaultTracesSampleRate;
+@property (nonatomic, strong) NSMutableSet<NSString *> *disabledIntegrations;
 
 @end
 
@@ -22,7 +23,8 @@ SentryOptions ()
         @"SentryCrashIntegration", @"SentryFramesTrackingIntegration",
         @"SentryAutoBreadcrumbTrackingIntegration", @"SentryAutoSessionTrackingIntegration",
         @"SentryAppStartTrackingIntegration", @"SentryOutOfMemoryTrackingIntegration",
-        @"SentryPerformanceTrackingIntegration", @"SentryNetworkTrackingIntegration"
+        @"SentryPerformanceTrackingIntegration", @"SentryNetworkTrackingIntegration",
+        @"SentryFileIOTrackingIntegration"
     ];
 }
 
@@ -35,6 +37,7 @@ SentryOptions ()
         self.maxBreadcrumbs = defaultMaxBreadcrumbs;
         self.maxCacheItems = 30;
         self.integrations = SentryOptions.defaultIntegrations;
+        self.disabledIntegrations = [NSMutableSet new];
         _defaultSampleRate = @1;
         self.sampleRate = _defaultSampleRate;
         self.enableAutoSessionTracking = YES;
@@ -46,9 +49,12 @@ SentryOptions ()
         self.sendDefaultPii = NO;
         self.enableAutoPerformanceTracking = YES;
         self.enableNetworkTracking = YES;
+        self.enableFileIOTracking = NO;
+        self.enableNetworkBreadcrumbs = YES;
         _defaultTracesSampleRate = nil;
         self.tracesSampleRate = _defaultTracesSampleRate;
         _experimentalEnableTraceSampling = NO;
+        _enableSwizzling = YES;
 
         // Use the name of the bundle’s executable file as inAppInclude, so SentryInAppLogic
         // marks frames coming from there as inApp. With this approach, the SDK marks public
@@ -87,8 +93,7 @@ SentryOptions ()
                       didFailWithError:(NSError *_Nullable *_Nullable)error
 {
     if (self = [self init]) {
-        [self validateOptions:options didFailWithError:error];
-        if (nil != error && nil != *error) {
+        if (![self validateOptions:options didFailWithError:error]) {
             [SentryLog
                 logWithMessage:[NSString stringWithFormat:@"Failed to initialize: %@", *error]
                       andLevel:kSentryLevelError];
@@ -114,12 +119,13 @@ SentryOptions ()
 /**
  * Populates all `SentryOptions` values from `options` dict using fallbacks/defaults if needed.
  */
-- (void)validateOptions:(NSDictionary<NSString *, id> *)options
+- (BOOL)validateOptions:(NSDictionary<NSString *, id> *)options
        didFailWithError:(NSError *_Nullable *_Nullable)error
 {
-    if (nil != options[@"debug"]) {
-        self.debug = [options[@"debug"] boolValue];
-    }
+    NSPredicate *isNSString = [NSPredicate predicateWithBlock:^BOOL(
+        id object, NSDictionary *bindings) { return [object isKindOfClass:[NSString class]]; }];
+
+    [self setBool:options[@"debug"] block:^(BOOL value) { self->_debug = value; }];
 
     if ([options[@"diagnosticLevel"] isKindOfClass:[NSString class]]) {
         for (SentryLevel level = 0; level <= kSentryLevelFatal; level++) {
@@ -131,9 +137,8 @@ SentryOptions ()
     }
 
     NSString *dsn = @"";
-    if (nil != [options valueForKey:@"dsn"] &&
-        [[options valueForKey:@"dsn"] isKindOfClass:[NSString class]]) {
-        dsn = [options valueForKey:@"dsn"];
+    if (nil != options[@"dsn"] && [options[@"dsn"] isKindOfClass:[NSString class]]) {
+        dsn = options[@"dsn"];
     }
 
     self.parsedDsn = [[SentryDsn alloc] initWithString:dsn didFailWithError:error];
@@ -150,87 +155,79 @@ SentryOptions ()
         self.dist = options[@"dist"];
     }
 
-    if (nil != options[@"enabled"]) {
-        self.enabled = [options[@"enabled"] boolValue];
-    }
+    [self setBool:options[@"enabled"] block:^(BOOL value) { self->_enabled = value; }];
 
     if ([options[@"maxBreadcrumbs"] isKindOfClass:[NSNumber class]]) {
         self.maxBreadcrumbs = [options[@"maxBreadcrumbs"] unsignedIntValue];
     }
 
+    [self setBool:options[@"enableNetworkBreadcrumbs"]
+            block:^(BOOL value) { self->_enableNetworkBreadcrumbs = value; }];
+
     if ([options[@"maxCacheItems"] isKindOfClass:[NSNumber class]]) {
         self.maxCacheItems = [options[@"maxCacheItems"] unsignedIntValue];
     }
 
-    if (nil != options[@"beforeSend"]) {
+    if ([self isBlock:options[@"beforeSend"]]) {
         self.beforeSend = options[@"beforeSend"];
     }
 
-    if (nil != options[@"beforeBreadcrumb"]) {
+    if ([self isBlock:options[@"beforeBreadcrumb"]]) {
         self.beforeBreadcrumb = options[@"beforeBreadcrumb"];
     }
 
-    if (nil != options[@"onCrashedLastRun"]) {
+    if ([self isBlock:options[@"onCrashedLastRun"]]) {
         self.onCrashedLastRun = options[@"onCrashedLastRun"];
     }
 
-    if (nil != options[@"integrations"]) {
-        self.integrations = options[@"integrations"];
+    if ([options[@"integrations"] isKindOfClass:[NSArray class]]) {
+        self.integrations = [options[@"integrations"] filteredArrayUsingPredicate:isNSString];
     }
 
-    NSNumber *sampleRate = options[@"sampleRate"];
-    if (nil != sampleRate) {
-        self.sampleRate = sampleRate;
+    if ([options[@"sampleRate"] isKindOfClass:[NSNumber class]]) {
+        self.sampleRate = options[@"sampleRate"];
     }
 
-    if (nil != options[@"enableAutoSessionTracking"]) {
-        self.enableAutoSessionTracking = [options[@"enableAutoSessionTracking"] boolValue];
-    }
+    [self setBool:options[@"enableAutoSessionTracking"]
+            block:^(BOOL value) { self->_enableAutoSessionTracking = value; }];
 
-    if (nil != options[@"enableOutOfMemoryTracking"]) {
-        self.enableOutOfMemoryTracking = [options[@"enableOutOfMemoryTracking"] boolValue];
-    }
+    [self setBool:options[@"enableOutOfMemoryTracking"]
+            block:^(BOOL value) { self->_enableOutOfMemoryTracking = value; }];
 
-    if (nil != options[@"sessionTrackingIntervalMillis"]) {
+    if ([options[@"sessionTrackingIntervalMillis"] isKindOfClass:[NSNumber class]]) {
         self.sessionTrackingIntervalMillis =
             [options[@"sessionTrackingIntervalMillis"] unsignedIntValue];
     }
 
-    if (nil != options[@"attachStacktrace"]) {
-        self.attachStacktrace = [options[@"attachStacktrace"] boolValue];
-    }
+    [self setBool:options[@"attachStacktrace"]
+            block:^(BOOL value) { self->_attachStacktrace = value; }];
 
-    if (nil != options[@"stitchAsyncCode"]) {
-        self.stitchAsyncCode = [options[@"stitchAsyncCode"] boolValue];
-    }
+    [self setBool:options[@"stitchAsyncCode"]
+            block:^(BOOL value) { self->_stitchAsyncCode = value; }];
 
-    if (nil != options[@"maxAttachmentSize"]) {
+    if ([options[@"maxAttachmentSize"] isKindOfClass:[NSNumber class]]) {
         self.maxAttachmentSize = [options[@"maxAttachmentSize"] unsignedIntValue];
     }
 
-    if (nil != options[@"sendDefaultPii"]) {
-        self.sendDefaultPii = [options[@"sendDefaultPii"] boolValue];
+    [self setBool:options[@"sendDefaultPii"]
+            block:^(BOOL value) { self->_sendDefaultPii = value; }];
+
+    [self setBool:options[@"enableAutoPerformanceTracking"]
+            block:^(BOOL value) { self->_enableAutoPerformanceTracking = value; }];
+
+    [self setBool:options[@"enableNetworkTracking"]
+            block:^(BOOL value) { self->_enableNetworkTracking = value; }];
+
+    [self setBool:options[@"enableFileIOTracking"]
+            block:^(BOOL value) { self->_enableFileIOTracking = value; }];
+
+    if ([options[@"tracesSampleRate"] isKindOfClass:[NSNumber class]]) {
+        self.tracesSampleRate = options[@"tracesSampleRate"];
     }
 
-    if (nil != options[@"enableAutoPerformanceTracking"]) {
-        self.enableAutoPerformanceTracking = [options[@"enableAutoPerformanceTracking"] boolValue];
-    }
-
-    if (nil != options[@"enableNetworkTracking"]) {
-        self.enableNetworkTracking = [options[@"enableNetworkTracking"] boolValue];
-    }
-
-    NSNumber *tracesSampleRate = options[@"tracesSampleRate"];
-    if (nil != tracesSampleRate) {
-        self.tracesSampleRate = tracesSampleRate;
-    }
-
-    if (nil != options[@"tracesSampler"]) {
+    if ([self isBlock:options[@"tracesSampler"]]) {
         self.tracesSampler = options[@"tracesSampler"];
     }
-
-    NSPredicate *isNSString = [NSPredicate predicateWithBlock:^BOOL(
-        id object, NSDictionary *bindings) { return [object isKindOfClass:[NSString class]]; }];
 
     if ([options[@"inAppIncludes"] isKindOfClass:[NSArray class]]) {
         NSArray<NSString *> *inAppIncludes =
@@ -246,8 +243,24 @@ SentryOptions ()
         self.urlSessionDelegate = options[@"urlSessionDelegate"];
     }
 
-    if (options[@"experimentalEnableTraceSampling"] != nil) {
-        _experimentalEnableTraceSampling = [options[@"experimentalEnableTraceSampling"] boolValue];
+    [self setBool:options[@"experimentalEnableTraceSampling"]
+            block:^(BOOL value) { self->_experimentalEnableTraceSampling = value; }];
+
+    [self setBool:options[@"enableSwizzling"]
+            block:^(BOOL value) { self->_enableSwizzling = value; }];
+
+    if (nil != error && nil != *error) {
+        return NO;
+    } else {
+        return YES;
+    }
+}
+
+- (void)setBool:(id)value block:(void (^)(BOOL))block
+{
+    // Entries in the dictionary can be NSNull. Especially, on React-Native, this can happen.
+    if (value != nil && ![value isEqual:[NSNull null]]) {
+        block([value boolValue]);
     }
 }
 
@@ -299,6 +312,43 @@ SentryOptions ()
 {
     return (_tracesSampleRate != nil && [_tracesSampleRate doubleValue] > 0)
         || _tracesSampler != nil;
+}
+
+/**
+ * Checks if the passed in block is actually of type block. We can't check if the block matches a
+ * specific block without some complex objc runtime method calls and therefore we only check if its
+ * a block or not. Assigning a wrong block to the SentryOption blocks still could lead to crashes at
+ * runtime, but when someone uses the initWithDict they should better know what they are doing.
+ *
+ * Taken from https://gist.github.com/steipete/6ee378bd7d87f276f6e0
+ */
+- (BOOL)isBlock:(nullable id)block
+{
+    static Class blockClass;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        blockClass = [^{} class];
+        while ([blockClass superclass] != NSObject.class) {
+            blockClass = [blockClass superclass];
+        }
+    });
+
+    return [block isKindOfClass:blockClass];
+}
+
+- (NSSet<NSString *> *)enabledIntegrations
+{
+    NSMutableSet<NSString *> *enabledIntegrations =
+        [[NSMutableSet alloc] initWithArray:self.integrations];
+    for (NSString *integration in self.disabledIntegrations) {
+        [enabledIntegrations removeObject:integration];
+    }
+    return enabledIntegrations;
+}
+
+- (void)removeEnabledIntegration:(NSString *)integration
+{
+    [self.disabledIntegrations addObject:integration];
 }
 
 @end

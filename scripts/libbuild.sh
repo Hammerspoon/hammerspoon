@@ -365,7 +365,7 @@ function op_release() {
     echo " Zipping..."
     # FIXME: HAMMERSPOON_BUNDLE_PATH here is not right, that gives us Hammerspoon.app-X.Y.Z.zip and we don't want the .app
     local ZIP_PATH="${BUILD_HOME}/${APP_NAME}-${VERSION}.zip"
-    rm "${ZIP_PATH}"
+    rm -f "${ZIP_PATH}"
     create_zip "${HAMMERSPOON_BUNDLE_PATH}" "${ZIP_PATH}"
 
     echo " Creating release on GitHub..."
@@ -440,6 +440,17 @@ EOF
     git push
     popd >/dev/null || fail "Unknown"
 
+    echo " Updating Sentry release..."
+    export SENTRY_ORG="${SENTRY_ORG:-hammerspoon}"
+    export SENTRY_PROJECT="${SENTRY_PROJECT:-hammerspoon}"
+    export SENTRY_LOG_LEVEL=error
+    if [ "${DEBUG}" == "1" ]; then
+        SENTRY_LOG_LEVEL=debug
+    fi
+    export SENTRY_AUTH_TOKEN
+    "${HAMMERSPOON_HOME}/scripts/sentry-cli" releases set-commits --auto "${VERSION}" 2>&1 | tee "${BUILD_HOME}/sentry-release.log"
+    "${HAMMERSPOON_HOME}/scripts/sentry-cli" releases finalize "${VERSION}" 2>&1 | tee -a "${BUILD_HOME}/sentry-release.log"
+ 
     if [ "${TWITTER_ACCOUNT}" != "" ]; then
         echo " Tweeting release..."
         local T_PATH=$(/usr/bin/gem contents t 2>/dev/null | grep "\/t$")

@@ -4,4 +4,6 @@
 
 - (int)getClassList:(__unsafe_unretained Class *)buffer bufferCount:(int)bufferCount;
 
+- (void)countIterateClasses;
+
 @end

@@ -1,5 +1,6 @@
 #import "SentryInAppLogic.h"
 #import <Foundation/Foundation.h>
+#import <objc/runtime.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -41,6 +42,16 @@ SentryInAppLogic ()
     }
 
     return NO;
+}
+
+- (BOOL)isClassInApp:(Class)targetClass
+{
+    const char *imageName = class_getImageName(targetClass);
+    if (imageName == nil)
+        return NO;
+
+    NSString *classImageName = [NSString stringWithCString:imageName encoding:NSUTF8StringEncoding];
+    return [self isInApp:classImageName];
 }
 
 @end

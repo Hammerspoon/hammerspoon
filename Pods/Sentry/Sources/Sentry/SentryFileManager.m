@@ -275,7 +275,7 @@ SentryFileManager ()
     return [self readSession:self.crashedSessionFilePath];
 }
 
-- (SentrySession *)readSession:(NSString *)sessionFilePath
+- (nullable SentrySession *)readSession:(NSString *)sessionFilePath
 {
     [SentryLog
         logWithMessage:[NSString stringWithFormat:@"Reading from session: %@", sessionFilePath]

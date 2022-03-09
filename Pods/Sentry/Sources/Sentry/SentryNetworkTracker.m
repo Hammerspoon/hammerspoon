@@ -2,23 +2,18 @@
 #import "SentryBreadcrumb.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
-#import "SentryOptions+Private.h"
-#import "SentryOptions.h"
-#import "SentryPerformanceTracker.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
-#import "SentrySpan.h"
 #import "SentryTraceHeader.h"
 #import "SentryTraceState.h"
 #import "SentryTracer.h"
 #import <objc/runtime.h>
 
-static NSString *const SENTRY_NETWORK_REQUEST_TRACKER_SPAN = @"SENTRY_NETWORK_REQUEST_TRACKER_SPAN";
-
 @interface
 SentryNetworkTracker ()
 
-@property (nonatomic, assign) BOOL isEnabled;
+@property (nonatomic, assign) BOOL isNetworkTrackingEnabled;
+@property (nonatomic, assign) BOOL isNetworkBreadcrumbEnabled;
 
 @end
 
@@ -35,29 +30,38 @@ SentryNetworkTracker ()
 - (instancetype)init
 {
     if (self = [super init]) {
-        _isEnabled = NO;
+        _isNetworkTrackingEnabled = NO;
+        _isNetworkBreadcrumbEnabled = NO;
     }
     return self;
 }
 
-- (void)enable
+- (void)enableNetworkTracking
 {
     @synchronized(self) {
-        _isEnabled = YES;
+        _isNetworkTrackingEnabled = YES;
+    }
+}
+
+- (void)enableNetworkBreadcrumbs
+{
+    @synchronized(self) {
+        _isNetworkBreadcrumbEnabled = YES;
     }
 }
 
 - (void)disable
 {
     @synchronized(self) {
-        _isEnabled = NO;
+        _isNetworkBreadcrumbEnabled = NO;
+        _isNetworkTrackingEnabled = NO;
     }
 }
 
 - (void)urlSessionTaskResume:(NSURLSessionTask *)sessionTask
 {
     @synchronized(self) {
-        if (!self.isEnabled) {
+        if (!self.isNetworkTrackingEnabled) {
             return;
         }
     }
@@ -111,48 +115,71 @@ SentryNetworkTracker ()
         objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN, netSpan,
             OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
-
-    NSString *statePath = NSStringFromSelector(@selector(state));
-    [sessionTask addObserver:self
-                  forKeyPath:statePath
-                     options:NSKeyValueObservingOptionNew
-                     context:nil];
 }
 
-- (void)observeValueForKeyPath:(NSString *)keyPath
-                      ofObject:(id)object
-                        change:(NSDictionary<NSKeyValueChangeKey, id> *)change
-                       context:(void *)context
+- (void)urlSessionTask:(NSURLSessionTask *)sessionTask setState:(NSURLSessionTaskState)newState
 {
-
-    if (![keyPath isEqualToString:NSStringFromSelector(@selector(state))]) {
+    if (!self.isNetworkTrackingEnabled && !self.isNetworkBreadcrumbEnabled) {
         return;
     }
 
-    NSURLSessionTask *sessionTask = object;
-    if (sessionTask.state == NSURLSessionTaskStateRunning) {
+    if (![self isTaskSupported:sessionTask]) {
         return;
     }
+
+    if (newState == NSURLSessionTaskStateRunning) {
+        return;
+    }
+
+    NSURL *url = [[sessionTask currentRequest] URL];
+
+    if (url == nil)
+        return;
+
+    // Don't measure requests to Sentry's backend
+    NSURL *apiUrl = [NSURL URLWithString:SentrySDK.options.dsn];
+    if ([url.host isEqualToString:apiUrl.host] && [url.path containsString:apiUrl.path])
+        return;
 
     id<SentrySpan> netSpan;
     @synchronized(sessionTask) {
-        // It is crucial always to remove the observer, as it does not automatically remove itself
-        // when its object is deallocated. Therefore not removing the observer can result in a
-        // memory access exception. Theoretically, the state of the NSURLSessionTask could change
-        // concurrently. Even removing the observer in the synchronized block doesn't prevent us
-        // from potentially calling remove twice, which would lead to an NSRangeException.
-        // Therefore, we have to wrap the call into a try catch. See:
-        // https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/KeyValueObserving/Articles/KVOBasics.html#//apple_ref/doc/uid/20002252-178612
-        @try {
-            [sessionTask removeObserver:self forKeyPath:NSStringFromSelector(@selector(state))];
-        } @catch (NSException *__unused exception) {
-            // Safe to ignore
-        }
-
         netSpan = objc_getAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN);
         // We'll just go through once
         objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN, nil,
             OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+
+    if (sessionTask.state == NSURLSessionTaskStateRunning) {
+        [self addBreadcrumbForSessionTask:sessionTask];
+
+        NSInteger responseStatusCode = [self urlResponseStatusCode:sessionTask.response];
+
+        if (responseStatusCode != -1) {
+            NSNumber *statusCode = [NSNumber numberWithInteger:responseStatusCode];
+
+            if (netSpan != nil) {
+                [netSpan setTagValue:[NSString stringWithFormat:@"%@", statusCode]
+                              forKey:@"http.status_code"];
+            }
+        }
+    }
+
+    if (netSpan == nil) {
+        return;
+    }
+
+    [netSpan setDataValue:sessionTask.currentRequest.HTTPMethod forKey:@"method"];
+    [netSpan setDataValue:sessionTask.currentRequest.URL.path forKey:@"url"];
+    [netSpan setDataValue:@"fetch" forKey:@"type"];
+
+    [netSpan finishWithStatus:[self statusForSessionTask:sessionTask state:newState]];
+    [SentryLog logWithMessage:@"Finished HTTP span for sessionTask" andLevel:kSentryLevelDebug];
+}
+
+- (void)addBreadcrumbForSessionTask:(NSURLSessionTask *)sessionTask
+{
+    if (!self.isNetworkBreadcrumbEnabled) {
+        return;
     }
 
     SentryLevel breadcrumbLevel = sessionTask.error != nil ? kSentryLevelError : kSentryLevelInfo;
@@ -171,11 +198,6 @@ SentryNetworkTracker ()
 
     if (responseStatusCode != -1) {
         NSNumber *statusCode = [NSNumber numberWithInteger:responseStatusCode];
-
-        if (netSpan != nil) {
-            [netSpan setTagValue:[NSString stringWithFormat:@"%@", statusCode]
-                          forKey:@"http.status_code"];
-        }
         breadcrumbData[@"status_code"] = statusCode;
         breadcrumbData[@"reason"] =
             [NSHTTPURLResponse localizedStringForStatusCode:responseStatusCode];
@@ -183,17 +205,6 @@ SentryNetworkTracker ()
 
     breadcrumb.data = breadcrumbData;
     [SentrySDK addBreadcrumb:breadcrumb];
-
-    if (netSpan == nil) {
-        return;
-    }
-
-    [netSpan setDataValue:sessionTask.currentRequest.HTTPMethod forKey:@"method"];
-    [netSpan setDataValue:sessionTask.currentRequest.URL.path forKey:@"url"];
-    [netSpan setDataValue:@"fetch" forKey:@"type"];
-
-    [netSpan finishWithStatus:[self statusForSessionTask:sessionTask]];
-    [SentryLog logWithMessage:@"Finished HTTP span for sessionTask" andLevel:kSentryLevelDebug];
 }
 
 - (NSInteger)urlResponseStatusCode:(NSURLResponse *)response
@@ -204,9 +215,9 @@ SentryNetworkTracker ()
     return -1;
 }
 
-- (SentrySpanStatus)statusForSessionTask:(NSURLSessionTask *)task
+- (SentrySpanStatus)statusForSessionTask:(NSURLSessionTask *)task state:(NSURLSessionTaskState)state
 {
-    switch (task.state) {
+    switch (state) {
     case NSURLSessionTaskStateSuspended:
         return kSentrySpanStatusAborted;
     case NSURLSessionTaskStateCanceling:
@@ -265,7 +276,7 @@ SentryNetworkTracker ()
 - (nullable NSDictionary *)addTraceHeader:(nullable NSDictionary *)headers
 {
     @synchronized(self) {
-        if (!self.isEnabled) {
+        if (!self.isNetworkTrackingEnabled) {
             return headers;
         }
     }

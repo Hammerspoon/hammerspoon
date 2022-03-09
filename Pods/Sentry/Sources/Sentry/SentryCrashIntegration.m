@@ -23,6 +23,9 @@
 static dispatch_once_t installationToken = 0;
 static SentryCrashInstallationReporter *installation = nil;
 
+static NSString *const DEVICE_KEY = @"device";
+static NSString *const LOCALE_KEY = @"locale";
+
 @interface
 SentryCrashIntegration ()
 
@@ -159,6 +162,8 @@ SentryCrashIntegration ()
         installationToken = 0;
     }
     [self.crashAdapter deactivateAsyncHooks];
+
+    [NSNotificationCenter.defaultCenter removeObserver:self];
 }
 
 - (void)configureScope
@@ -229,10 +234,13 @@ SentryCrashIntegration ()
             [deviceData setValue:systemInfo[@"bootTime"] forKey:@"boot_time"];
             [deviceData setValue:systemInfo[@"timezone"] forKey:@"timezone"];
 
-            [outerScope setContextValue:deviceData forKey:@"device"];
+            NSString *locale =
+                [[NSLocale autoupdatingCurrentLocale] objectForKey:NSLocaleIdentifier];
+            [deviceData setValue:locale forKey:LOCALE_KEY];
+
+            [outerScope setContextValue:deviceData forKey:DEVICE_KEY];
 
             // APP
-
             NSMutableDictionary *appData = [NSMutableDictionary new];
             NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
 
@@ -264,6 +272,29 @@ SentryCrashIntegration ()
             [outerScope addObserver:self.scopeObserver];
         }];
     }
+
+    [NSNotificationCenter.defaultCenter addObserver:self
+                                           selector:@selector(currentLocaleDidChange)
+                                               name:NSCurrentLocaleDidChangeNotification
+                                             object:nil];
+}
+
+- (void)currentLocaleDidChange
+{
+    [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull scope) {
+        NSMutableDictionary<NSString *, id> *device;
+        if (scope.contextDictionary != nil && scope.contextDictionary[DEVICE_KEY] != nil) {
+            device = [[NSMutableDictionary alloc]
+                initWithDictionary:scope.contextDictionary[DEVICE_KEY]];
+        } else {
+            device = [NSMutableDictionary new];
+        }
+
+        NSString *locale = [[NSLocale autoupdatingCurrentLocale] objectForKey:NSLocaleIdentifier];
+        device[LOCALE_KEY] = locale;
+
+        [scope setContextValue:device forKey:DEVICE_KEY];
+    }];
 }
 
 @end

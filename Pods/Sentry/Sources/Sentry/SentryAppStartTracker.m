@@ -136,8 +136,13 @@ SentryAppStartTracker ()
 
     // With only running this once we know that the process is a new one when the following code is
     // executed.
+// We need to make sure the block runs on each test instead of only once
+#    if TEST
+    block();
+#    else
     static dispatch_once_t once;
     [self.dispatchQueue dispatchOnce:&once block:block];
+#    endif
 }
 
 /**

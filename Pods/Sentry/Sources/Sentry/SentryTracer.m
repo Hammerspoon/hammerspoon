@@ -223,7 +223,7 @@ static BOOL appStartMeasurementRead;
 
 - (void)finish
 {
-    [self finishWithStatus:kSentrySpanStatusUndefined];
+    [self finishWithStatus:kSentrySpanStatusOk];
 }
 
 - (void)finishWithStatus:(SentrySpanStatus)status
@@ -251,6 +251,12 @@ static BOOL appStartMeasurementRead;
 
 - (void)canBeFinished
 {
+    // Transaction already finished and captured.
+    // Sending another transaction and spans with
+    // the same SentryId would be an error.
+    if (self.rootSpan.isFinished)
+        return;
+
     if (!self.isWaitingForChildren || (_waitForChildren && [self hasUnfinishedChildren]))
         return;
 
@@ -262,6 +268,18 @@ static BOOL appStartMeasurementRead;
 {
     if (_hub == nil)
         return;
+
+    @synchronized(_children) {
+        for (id<SentrySpan> span in _children) {
+            if (!span.isFinished) {
+                [span finishWithStatus:kSentrySpanStatusDeadlineExceeded];
+
+                // Unfinished children should have the same
+                // end timestamp as their parent transaction
+                span.timestamp = self.timestamp;
+            }
+        }
+    }
 
     [_hub.scope useSpan:^(id<SentrySpan> _Nullable span) {
         if (span == self) {
@@ -280,15 +298,8 @@ static BOOL appStartMeasurementRead;
 
     NSArray<id<SentrySpan>> *spans;
     @synchronized(_children) {
-
         [_children addObjectsFromArray:appStartSpans];
-
-        spans = [_children
-            filteredArrayUsingPredicate:[NSPredicate
-                                            predicateWithBlock:^BOOL(id<SentrySpan> _Nullable span,
-                                                NSDictionary<NSString *, id> *_Nullable bindings) {
-                                                return span.isFinished;
-                                            }]];
+        spans = [_children copy];
     }
 
     if (appStartMeasurement != nil) {

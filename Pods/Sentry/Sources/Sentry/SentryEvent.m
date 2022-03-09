@@ -29,6 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
         self.eventId = [[SentryId alloc] init];
         self.level = level;
         self.platform = @"cocoa";
+        self.timestamp = [SentryCurrentDate date];
     }
     return self;
 }

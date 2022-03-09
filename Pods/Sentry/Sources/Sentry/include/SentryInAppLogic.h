@@ -56,6 +56,17 @@ SENTRY_NO_INIT
  */
 - (BOOL)isInApp:(nullable NSString *)imagePath;
 
+/**
+ * Determines if the class belongs to the app by getting its framework and checking with `isInApp:`.
+ *
+ * @param targetClass the class to check.
+ *
+ * @return YES if the targetClass belongs to a framework included in inAppIncludes.
+ * NO if targetClass does not belong to a framework in inAppIncludes or belongs to a framework in
+ * inAppExcludes.
+ */
+- (BOOL)isClassInApp:(Class)targetClass;
+
 @end
 
 NS_ASSUME_NONNULL_END

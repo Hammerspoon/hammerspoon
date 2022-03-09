@@ -106,6 +106,7 @@ SentryOutOfMemoryTracker ()
 {
 #if SENTRY_HAS_UIKIT
     [NSNotificationCenter.defaultCenter removeObserver:self];
+    [self.appStateManager removeCurrentAppState];
 #endif
 }
 

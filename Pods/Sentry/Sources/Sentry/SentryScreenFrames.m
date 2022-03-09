@@ -1,4 +1,3 @@
-#import <Foundation/Foundation.h>
 #import <SentryScreenFrames.h>
 
 #if SENTRY_HAS_UIKIT

@@ -384,6 +384,7 @@ SentryCrashReportConverter ()
     }
 
     [self enhanceValueFromNotableAddresses:exception];
+    [self enhanceValueFromCrashInfoMessage:exception];
     exception.mechanism = [self extractMechanismOfType:exceptionType];
 
     SentryThread *crashedThread = [self crashedThread];
@@ -435,6 +436,61 @@ SentryCrashReportConverter ()
         exception.value =
             [[[reasons array] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]
                 componentsJoinedByString:@" > "];
+    }
+}
+
+/**
+ * Get the message of fatalError, assert, and precondition to set it as the exception value if the
+ * crashInfo contains the message.
+ *
+ * Swift puts the messages of fatalError, assert, and precondition into the crashInfo of the
+ * libswiftCore.dylib. We found somewhat proof that the swift runtime uses __crash_info: fatalError
+ * (1) calls swift_reportError (2) calls reportOnCrash (3) which uses (4) the __crash_info (5). The
+ * documentation of Apple and Swift doesn't mention anything about where the __crash_info ends up.
+ * Trying fatalError, assert, and precondition on iPhone, iPhone simulator, and macOS all showed
+ * that the message ends up in the crashInfo of the libswiftCore.dylib. For example, on the
+ * simulator, other binary images also contain a crash_info_message with information about the
+ * stacktrace. We only care about the message of fatalError, assert, or precondition, and we already
+ * get the stacktrace from the threads, retrieving it from libswiftCore.dylib seems to be the most
+ * reliable option.
+ *
+ * Links:
+ *  1.
+ * https://github.com/apple/swift/blob/d1bb98b11ede375a1cee739f964b7d23b6657aaf/stdlib/public/runtime/Errors.cpp#L365-L377
+ *  2.
+ * https://github.com/apple/swift/blob/d1bb98b11ede375a1cee739f964b7d23b6657aaf/stdlib/public/runtime/Errors.cpp#L361
+ *  3.
+ * https://github.com/apple/swift/blob/d1bb98b11ede375a1cee739f964b7d23b6657aaf/stdlib/public/runtime/Errors.cpp#L269-L293
+ *  4.
+ * https://github.com/apple/swift/blob/d1bb98b11ede375a1cee739f964b7d23b6657aaf/stdlib/public/runtime/Errors.cpp#L264-L293
+ *  5.
+ * https://github.com/apple/swift/blob/d1bb98b11ede375a1cee739f964b7d23b6657aaf/include/swift/Runtime/Debug.h#L29-L58
+ */
+- (void)enhanceValueFromCrashInfoMessage:(SentryException *)exception
+{
+    NSMutableArray<NSString *> *crashInfoMessages = [NSMutableArray new];
+
+    NSPredicate *libSwiftCore =
+        [NSPredicate predicateWithBlock:^BOOL(id object, NSDictionary *bindings) {
+            NSDictionary *binaryImage = object;
+            return [binaryImage[@"name"] containsString:@"libswiftCore.dylib"];
+        }];
+    NSArray *libSwiftCoreBinaryImages =
+        [self.binaryImages filteredArrayUsingPredicate:libSwiftCore];
+
+    for (NSDictionary *binaryImage in libSwiftCoreBinaryImages) {
+        if (binaryImage[@"crash_info_message"] != nil) {
+            [crashInfoMessages addObject:binaryImage[@"crash_info_message"]];
+        }
+
+        if (binaryImage[@"crash_info_message2"] != nil) {
+            [crashInfoMessages addObject:binaryImage[@"crash_info_message2"]];
+        }
+    }
+
+    NSString *swiftCoreCrashInfo = crashInfoMessages.firstObject;
+    if (swiftCoreCrashInfo != nil) {
+        exception.value = swiftCoreCrashInfo;
     }
 }
 
