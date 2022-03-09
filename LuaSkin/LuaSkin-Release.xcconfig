@@ -26,5 +26,4 @@ ENABLE_TESTABILITY = NO
 // Optimization Level
 GCC_OPTIMIZATION_LEVEL = s
 
-#include? "../../Hammerspoon-Downstream.xcconfig"
 #include? "../../LuaSkin-Downstream.xcconfig"
