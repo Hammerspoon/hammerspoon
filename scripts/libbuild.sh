@@ -365,7 +365,7 @@ function op_release() {
     echo " Zipping..."
     # FIXME: HAMMERSPOON_BUNDLE_PATH here is not right, that gives us Hammerspoon.app-X.Y.Z.zip and we don't want the .app
     local ZIP_PATH="${BUILD_HOME}/${APP_NAME}-${VERSION}.zip"
-    rm "${ZIP_PATH}"
+    rm -f "${ZIP_PATH}"
     create_zip "${HAMMERSPOON_BUNDLE_PATH}" "${ZIP_PATH}"
 
     echo " Creating release on GitHub..."
