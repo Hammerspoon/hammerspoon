@@ -116,7 +116,7 @@ NSString *stringForBrightness(CGFloat brightness) {
     for (NSInteger i = 0; i < height; i++) {
         for (NSInteger j = 0; j < width; j++) {
             NSColor *color = [bitmapImage colorAtX:j y:i];
-            NSColor *wColor = [color colorUsingColorSpaceName:NSDeviceWhiteColorSpace];
+            NSColor *wColor = [color colorUsingColorSpace:[NSColorSpace deviceGrayColorSpace]];
             [string appendString:stringForBrightness([wColor whiteComponent])];
         }
         [string appendString:@"\n"];
