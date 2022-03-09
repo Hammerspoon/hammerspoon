@@ -3,7 +3,7 @@
 //
 //  Created by Siobhán Dougall on 1/17/11.
 //
-//  Copyright (c) 2011-2020 Figure 53 LLC, https://figure53.com
+//  Copyright (c) 2011-2022 Figure 53 LLC, https://figure53.com
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,7 @@
 //  THE SOFTWARE.
 //
 
+#import "F53OSCBrowser.h"
 #import "F53OSCParser.h"
 #import "F53OSCSocket.h"
 #import "F53OSCPacket.h"

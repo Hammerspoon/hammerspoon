@@ -7,7 +7,7 @@ PODS:
   - CocoaLumberjack (3.5.3):
     - CocoaLumberjack/Core (= 3.5.3)
   - CocoaLumberjack/Core (3.5.3)
-  - F53OSC (1.1.0)
+  - F53OSC (1.2.0)
   - MIKMIDI (1.7.1)
   - ORSSerialPort (2.1)
   - PocketSocket/Client (1.0.1):
@@ -24,7 +24,7 @@ DEPENDENCIES:
   - CocoaAsyncSocket (= 7.6.5)
   - CocoaHTTPServer (from `https://github.com/Hammerspoon/CocoaHTTPServer.git`)
   - CocoaLumberjack (= 3.5.3)
-  - F53OSC (from `https://github.com/Figure53/F53OSC.git`)
+  - F53OSC (from `https://github.com/Figure53/F53OSC.git`, tag `1.2.0`)
   - MIKMIDI (= 1.7.1)
   - ORSSerialPort (= 2.1.0)
   - PocketSocket/Client (= 1.0.1)
@@ -48,6 +48,7 @@ EXTERNAL SOURCES:
     :git: https://github.com/Hammerspoon/CocoaHTTPServer.git
   F53OSC:
     :git: https://github.com/Figure53/F53OSC.git
+    :tag: 1.2.0
   Sentry:
     :git: https://github.com/getsentry/sentry-cocoa.git
     :tag: 7.10.0
@@ -57,8 +58,8 @@ CHECKOUT OPTIONS:
     :commit: aa05e484e2f5c8b6454590ed06a97b2bf636a1ca
     :git: https://github.com/Hammerspoon/CocoaHTTPServer.git
   F53OSC:
-    :commit: 96ced2fde624a1e637dc74ba34ef19e7a40d0b75
     :git: https://github.com/Figure53/F53OSC.git
+    :tag: 1.2.0
   Sentry:
     :git: https://github.com/getsentry/sentry-cocoa.git
     :tag: 7.10.0
@@ -68,7 +69,7 @@ SPEC CHECKSUMS:
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   CocoaHTTPServer: 5624681fc3473d43b18202f635f9b3abb013b530
   CocoaLumberjack: 2f44e60eb91c176d471fdba43b9e3eae6a721947
-  F53OSC: 840520062de15f09c2bf64d9ab82f0b6594df920
+  F53OSC: 03b06a1da4cfc40d8841f8a5f4eacbc68ce8e289
   MIKMIDI: f53dca2f372e71183ecdd2b35c984c1c2cd11cbc
   ORSSerialPort: d2d5d131797453430c557ba8dc7dcbcae20ff2e5
   PocketSocket: 9c6867d66fb4f962af96b9b07f4b45bb561b2c2a
@@ -76,6 +77,6 @@ SPEC CHECKSUMS:
   SocketRocket: d57c7159b83c3c6655745cd15302aa24b6bae531
   Sparkle: 7f5f6d4328458515e23272f4138e610c1fa3e32d
 
-PODFILE CHECKSUM: 8f6f5eaa506e80d07c39ec7331db335bbf581e78
+PODFILE CHECKSUM: 108bda18859fb5c89d67556fa45c85749e7e4f9f
 
 COCOAPODS: 1.11.2
