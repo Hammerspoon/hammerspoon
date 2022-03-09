@@ -1,4 +1,3 @@
-jinja2
-mistune
-pygments
-markdown
+jinja2 ~= 3.0.3
+mistune ~= 2.0.0
+pygments ~= 2.11.2

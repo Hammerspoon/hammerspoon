@@ -1835,9 +1835,6 @@
 		4F70EEE91B7273700025A7B3 /* libbase64.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libbase64.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F70EEED1B7273B00025A7B3 /* base64.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = base64.lua; path = extensions/base64/base64.lua; sourceTree = "<group>"; };
 		4F70EEEE1B7273B00025A7B3 /* libbase64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libbase64.m; path = extensions/base64/libbase64.m; sourceTree = "<group>"; };
-		4F766E571C48F79C007B9D24 /* copy_extensions_to_bundle.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = copy_extensions_to_bundle.sh; path = scripts/copy_extensions_to_bundle.sh; sourceTree = "<group>"; };
-		4F766E581C48F79C007B9D24 /* librelease.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = librelease.sh; path = scripts/librelease.sh; sourceTree = "<group>"; };
-		4F766E591C48F79C007B9D24 /* release.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = release.sh; path = scripts/release.sh; sourceTree = "<group>"; };
 		4F7694541B74C96800536DE4 /* libkeycodes.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libkeycodes.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F7694581B74C9CA00536DE4 /* keycodes.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = keycodes.lua; path = extensions/keycodes/keycodes.lua; sourceTree = "<group>"; };
 		4F7694591B74C9CA00536DE4 /* libkeycodes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libkeycodes.m; path = extensions/keycodes/libkeycodes.m; sourceTree = "<group>"; };
@@ -1987,6 +1984,9 @@
 		4FDE05EF1B734EE600E9E8EE /* libcaffeinatewatcher.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libcaffeinatewatcher.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FDE05F11B734F0100E9E8EE /* libcaffeinate_watcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libcaffeinate_watcher.m; path = extensions/caffeinate/libcaffeinate_watcher.m; sourceTree = "<group>"; };
 		4FDE05F81B7356A400E9E8EE /* appfinder.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = appfinder.lua; path = extensions/appfinder/appfinder.lua; sourceTree = "<group>"; };
+		4FE15C1C27D8A5D100D37D27 /* libbuild.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = libbuild.sh; path = scripts/libbuild.sh; sourceTree = "<group>"; };
+		4FE15C1D27D8A5D100D37D27 /* build.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = build.sh; path = scripts/build.sh; sourceTree = "<group>"; };
+		4FE15C1E27D8A5DD00D37D27 /* build_docs.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = build_docs.py; path = scripts/docs/bin/build_docs.py; sourceTree = "<group>"; };
 		4FEA61501F06546200D71839 /* spoons.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = spoons.lua; path = extensions/spoons/spoons.lua; sourceTree = "<group>"; };
 		4FEABA561BC7ABF8005E2CFB /* expose.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = expose.lua; path = extensions/expose/expose.lua; sourceTree = "<group>"; };
 		4FEE39D81F0A697400935F90 /* HScrash.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HScrash.m; sourceTree = "<group>"; };
@@ -3491,10 +3491,10 @@
 		4F766E561C48F789007B9D24 /* scripts */ = {
 			isa = PBXGroup;
 			children = (
+				4FE15C1E27D8A5DD00D37D27 /* build_docs.py */,
+				4FE15C1D27D8A5D100D37D27 /* build.sh */,
+				4FE15C1C27D8A5D100D37D27 /* libbuild.sh */,
 				4FD427CB2621E7F000E8D95F /* update_version_build_numbers.sh */,
-				4F766E571C48F79C007B9D24 /* copy_extensions_to_bundle.sh */,
-				4F766E581C48F79C007B9D24 /* librelease.sh */,
-				4F766E591C48F79C007B9D24 /* release.sh */,
 			);
 			name = scripts;
 			sourceTree = "<group>";
