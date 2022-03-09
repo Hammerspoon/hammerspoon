@@ -530,8 +530,9 @@ static int automaticallyChecksForUpdates(lua_State *L) {
             NSMethodSignature *autoCheckSignature = [NSClassFromString(@"SUUpdater") instanceMethodSignatureForSelector:@selector(automaticallyChecksForUpdates)];
             NSInvocation *autoCheckInvocation = [NSInvocation invocationWithMethodSignature:autoCheckSignature];
             [autoCheckInvocation setTarget:sharedUpdater];
-            [autoCheckInvocation setReturnValue:&autoCheckUpdates];
+            [autoCheckInvocation setSelector:@selector(automaticallyChecksForUpdates)];
             [autoCheckInvocation invoke];
+            [autoCheckInvocation getReturnValue:&autoCheckUpdates];
             lua_pushboolean(L, autoCheckUpdates) ;
 #pragma clang diagnostic pop
         } else {
