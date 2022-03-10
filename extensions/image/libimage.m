@@ -1306,17 +1306,17 @@ static int colorAt(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBREAK] ;
 
-    // Source: https://stackoverflow.com/a/33485218/6925202
-    @autoreleasepool {
-    	NSImage *theImage = [skin luaObjectAtIndex:1 toClass:"NSImage"] ;
-    	NSPoint point  = [skin tableToPointAtIndex:2] ;
+    NSImage *theImage = [skin luaObjectAtIndex:1 toClass:"NSImage"] ;
+    NSPoint point  = [skin tableToPointAtIndex:2] ;
 
-		// Source: https://stackoverflow.com/a/48400410
-		[theImage lockFocus];
-		NSColor *pixelColor = NSReadPixel(point);
-		[theImage unlockFocus];
-        [skin pushNSObject:pixelColor];
-	}
+    NSColor *pixelColor = nil;
+    @autoreleasepool {
+        CGImageRef CGImage = [theImage CGImageForProposedRect:nil context:nil hints:nil];
+        NSBitmapImageRep *rep = [[NSBitmapImageRep alloc] initWithCGImage:CGImage];
+        pixelColor = [rep colorAtX:point.x y:point.y];
+    }
+
+    [skin pushNSObject:pixelColor];
 
     return 1;
 }
