@@ -1718,7 +1718,7 @@ static int webview_evaluateJavaScript(lua_State *L) {
                 [blockSkin protectedCallAndError:@"hs.webview:evaluateJavaScript callback" nargs:2 nresults:0];
                 [blockSkin luaUnref:refTable ref:callbackRef] ;
 
-                [skin destroyGCCanary:&lsCanary];
+                [skin destroyGCCanary:(LSGCCanary *)&lsCanary];
             });
         }
     }] ;
