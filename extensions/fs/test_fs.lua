@@ -299,6 +299,10 @@ function testVolumesValues()
       type(newPath) == "string" and newPath == "/Volumes/"..ramdiskRename) then
     return success()
   else
+    hs.crash.crashLog("path type: "..type(path))
+    hs.crash.crashLog("path: "..tostring(path))
+    hs.crash.crashLog("newPath type: "..type(newPath))
+    hs.crash.crashLog("newPath: "..tostring(newPath))
     return string.format("Waiting for success...")
   end
 end
@@ -318,7 +322,7 @@ function testVolumes()
     end
     if event == hs.fs.volume.didRename then
       -- NOTE: in this case, `info` is returned as a NSURL object:
-      newPath = info.path and info.path.filePath:match("(/Volumes/"..ramdiskRename..")/?$")
+      newPath = info.path and string.match(info.path.filePath, "(/Volumes/"..ramdiskRename..")/?$")
       if not newPath then return end
       hs.fs.volume.eject(newPath)
       volumeWatcher:stop()
