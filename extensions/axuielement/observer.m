@@ -218,7 +218,7 @@ static int axobserver_isRunning(lua_State *L) {
     return 1 ;
 }
 
-/// hs.axuielement.observer:callback([fn | nil]) -> observerObject | fn | nil
+/// hs.axuielement.observer:callback([fn]) -> observerObject | fn | nil
 /// Method
 /// Get or set the callback for the observer.
 ///
