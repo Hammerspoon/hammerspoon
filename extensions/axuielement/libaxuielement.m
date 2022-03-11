@@ -535,9 +535,9 @@ static int axuielement_performAction(lua_State *L) {
 /// Returns the accessibility object at the specified position on the screen. The top-left corner of the primary screen is 0, 0.
 ///
 /// Parameters:
-///  * `x` - the x coordinate of the screen location to tes
-///  * `y` - the y coordinate of the screen location to test
-///  * `pointTable` - the x and y coordinates of the screen location to test, provided as a point-table, like the one returned by `hs.mouse.getAbsolutePosition`. A point-table is a table with key-value pairs for keys `x` and `y`.
+///  * `x` - the x coordinate of the screen location to test. If this parameter is provided, then the `y` parameter must also be provided and the `pointTable` parameter must not be provided.
+///  * `y` - the y coordinate of the screen location to test. This parameter is required if the `x` parameter is provided.
+///  * `pointTable` - the x and y coordinates of the screen location to test provided as a point-table, like the one returned by `hs.mouse.getAbsolutePosition` (a point-table is a table with key-value pairs for keys `x` and `y`). If this parameter is provided, then separate `x` and `y` parameters must not also be present.
 ///
 /// Returns:
 ///  * an axuielementObject for the object at the specified coordinates, or nil and an error string if no object could be identified or an accessibility error occurred
