@@ -43,12 +43,14 @@ if not hs.accessibilityState(true) then
     hs.luaSkinLog.ef("%s - module requires accessibility to be enabled; fix in SystemPreferences -> Privacy & Security", USERDATA_TAG)
 end
 
-local module       = require("hs.libaxuielement")
+local module       = require(table.concat({ USERDATA_TAG:match("^([%w%._]+%.)([%w_]+)$") }, "lib"))
 
-require"hs.doc".registerJSONFile(hs.processInfo["resourcePath"].."/docs.json")
-
-local log  = require("hs.logger").new(USERDATA_TAG, require"hs.settings".get(USERDATA_TAG .. ".logLevel") or "warning")
-module.log = log
+-- settings with periods in them can't be watched via KVO with hs.settings.watchKey, so
+-- in general it's a good idea not to include periods
+-- local SETTINGS_TAG = USERDATA_TAG:gsub("%.", "_")
+-- local settings     = require("hs.settings")
+-- local log          = require("hs.logger").new(USERDATA_TAG, settings.get(SETTINGS_TAG .. "_logLevel") or "warning")
+-- module.log         = log
 
 local fnutils     = require("hs.fnutils")
 local application = require("hs.application")
