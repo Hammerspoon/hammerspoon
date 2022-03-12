@@ -21,8 +21,6 @@ module.service     = require("hs.libbonjourservice")
 local browserMT = hs.getObjectMetatable(USERDATA_TAG)
 -- local serviceMT = hs.getObjectMetatable(USERDATA_TAG .. ".service")
 
-require "hs.doc".registerJSONFile(hs.processInfo["resourcePath"] .. "/docs.json")
-
 local collectionPrevention = {}
 local task    = require("hs.task")
 local host    = require("hs.host")
