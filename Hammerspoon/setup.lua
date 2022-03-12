@@ -11,14 +11,15 @@ local paths = {
   modpath .. "/?/init.lua",
   userruntime .. "/?.lua",
   userruntime .. "/?/init.lua",
+  userruntime .. "/Spoons/?.spoon/init.lua",
 }
 
 local cpaths = {
   configdir .. "/?.so",
-  package.cpath,
-  frameworkspath .. "/?.dylib",
   userruntime .. "/lib/?.dylib",
   userruntime .. "/lib/?.so",
+  package.cpath,
+  frameworkspath .. "/?.dylib",
 }
 
 package.path = table.concat(paths, ";")
