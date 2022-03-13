@@ -327,9 +327,9 @@ void parse_table(lua_State *L, int idx, NSMenu *menu, NSSize stateBoxImageSize) 
             // Check if this item is checked/unchecked, defaulting to unchecked
             lua_getfield(L, -1, "checked");
             if (lua_isboolean(L, -1)) {
-                [menuItem setState:lua_toboolean(L, -1) ? NSOnState : NSOffState];
+                [menuItem setState:lua_toboolean(L, -1) ? NSControlStateValueOn : NSControlStateValueOff];
             } else {
-                [menuItem setState:NSOffState];
+                [menuItem setState:NSControlStateValueOff];
             }
             lua_pop(L, 1);
 
@@ -337,9 +337,9 @@ void parse_table(lua_State *L, int idx, NSMenu *menu, NSSize stateBoxImageSize) 
             lua_getfield(L, -1, "state");
             NSString *state = [skin toNSObjectAtIndex:-1] ;
             if ([state isKindOfClass:[NSString class]]) {
-                if ([state isEqualToString:@"on"])    [menuItem setState:NSOnState] ;
-                if ([state isEqualToString:@"off"])   [menuItem setState:NSOffState] ;
-                if ([state isEqualToString:@"mixed"]) [menuItem setState:NSMixedState] ;
+                if ([state isEqualToString:@"on"])    [menuItem setState:NSControlStateValueOn] ;
+                if ([state isEqualToString:@"off"])   [menuItem setState:NSControlStateValueOff] ;
+                if ([state isEqualToString:@"mixed"]) [menuItem setState:NSControlStateValueMixed] ;
             }
             lua_pop(L, 1);
 
@@ -604,11 +604,10 @@ static int menubarSetTitle(lua_State *L) {
         return luaL_error(L, "expected string, styled-text object, or nil") ;
     }
 
-    if (!titleText && !titleAText) [(__bridge NSStatusItem*)menuBarItem->menuBarItemObject setTitle:nil] ;
-//     [(__bridge NSStatusItem*)menuBarItem->menuBarItemObject setTitle:nil];
-//     [(__bridge NSStatusItem*)menuBarItem->menuBarItemObject setAttributedTitle:nil];
-    if (titleText) [(__bridge NSStatusItem*)menuBarItem->menuBarItemObject setTitle:titleText];
-    if (titleAText) [(__bridge NSStatusItem*)menuBarItem->menuBarItemObject setAttributedTitle:titleAText];
+    NSStatusItem *menuItem = (__bridge NSStatusItem*)menuBarItem->menuBarItemObject;
+    if (!titleText && !titleAText) menuItem.button.title = @"" ;
+    if (titleText) menuItem.button.title = titleText;
+    if (titleAText) menuItem.button.attributedTitle = titleAText;
 
     lua_settop(L, 1) ;
     return 1 ;
@@ -664,7 +663,7 @@ static int menubarSetIcon(lua_State *L) {
             [iconImage setTemplate:YES];
         }
     }
-    [(__bridge NSStatusItem*)menuBarItem->menuBarItemObject setImage:iconImage];
+    ((__bridge NSStatusItem*)menuBarItem->menuBarItemObject).button.image = iconImage;
 
 //    lua_pushboolean(L, 1); // it's more useful for chaining to return the menubar item, and we return nil if an error occurs, so unless you're doing something like `if result == true ...` instead of just `if result ...` the end result is the same
     lua_settop(L, 1) ;
@@ -689,7 +688,7 @@ static int menubarSetTooltip(lua_State *L) {
     menubaritem_t *menuBarItem = get_item_arg(L, 1);
     NSString *toolTipText = [skin toNSObjectAtIndex:2];
     lua_settop(L, 1); // FIXME: This seems unnecessary?
-    [(__bridge NSStatusItem*)menuBarItem->menuBarItemObject setToolTip:toolTipText];
+    ((__bridge NSStatusItem*)menuBarItem->menuBarItemObject).button.toolTip = toolTipText;
 
     lua_settop(L, 1) ;
     return 1 ;
@@ -723,8 +722,8 @@ static int menubarSetClickCallback(lua_State *L) {
     // Remove any existing click callback
     menuBarItem->click_fn = [skin luaUnref:refTable ref:menuBarItem->click_fn];
     if (menuBarItem->click_callback) {
-        [statusItem setTarget:nil];
-        [statusItem setAction:nil];
+        statusItem.button.target = nil;
+        statusItem.button.action = nil;
         HSMenubarItemClickDelegate *object = (__bridge_transfer HSMenubarItemClickDelegate *)menuBarItem->click_callback;
         menuBarItem->click_callback = NULL;
         object = nil;
@@ -737,8 +736,8 @@ static int menubarSetClickCallback(lua_State *L) {
         object.L = L;
         object.fn = menuBarItem->click_fn;
         menuBarItem->click_callback = (__bridge_retained void*) object;
-        [statusItem setTarget:object];
-        [statusItem setAction:@selector(click:)];
+        statusItem.button.target = object;
+        statusItem.button.action = @selector(click:);
     }
 
     lua_settop(L, 1) ;
@@ -980,12 +979,12 @@ static int menubar_removeFromMenuBar(lua_State *L) {
         NSStatusItem  *newStatusItem = [[NSStatusItem alloc] init] ;
 
         menuBarItem->menuBarItemObject = (__bridge_retained void*)newStatusItem;
-        [newStatusItem  setTarget:[oldStatusItem target]] ;
-        [newStatusItem  setAction:[oldStatusItem action]] ;
-        [newStatusItem    setMenu:[oldStatusItem menu]] ;
-        [newStatusItem   setTitle:[oldStatusItem title]] ;
-        [newStatusItem   setImage:[oldStatusItem image]] ;
-        [newStatusItem setToolTip:[oldStatusItem toolTip]] ;
+        newStatusItem.button.target  = oldStatusItem.button.target;
+        newStatusItem.button.action  = oldStatusItem.button.action;
+        newStatusItem.menu           = oldStatusItem.menu;
+        newStatusItem.button.title   = oldStatusItem.button.title;
+        newStatusItem.button.image   = oldStatusItem.button.image;
+        newStatusItem.button.toolTip = oldStatusItem.button.toolTip;
 
         [statusBar removeStatusItem:oldStatusItem];
         menuBarItem->removed = YES ;
@@ -1013,12 +1012,12 @@ static int menubar_returnToMenuBar(lua_State *L) {
 
         NSStatusItem  *newStatusItem   = [statusBar statusItemWithLength:NSVariableStatusItemLength];
         menuBarItem->menuBarItemObject = (__bridge_retained void*)newStatusItem;
-        [newStatusItem  setTarget:[oldStatusItem target]] ;
-        [newStatusItem  setAction:[oldStatusItem action]] ;
-        [newStatusItem    setMenu:[oldStatusItem menu]] ;
-        [newStatusItem   setTitle:[oldStatusItem title]] ;
-        [newStatusItem   setImage:[oldStatusItem image]] ;
-        [newStatusItem setToolTip:[oldStatusItem toolTip]] ;
+        newStatusItem.button.target  = oldStatusItem.button.target;
+        newStatusItem.button.action  = oldStatusItem.button.action;
+        newStatusItem.menu           = oldStatusItem.menu;
+        newStatusItem.button.title   = oldStatusItem.button.title;
+        newStatusItem.button.image   = oldStatusItem.button.image;
+        newStatusItem.button.toolTip = oldStatusItem.button.toolTip;
 
         menuBarItem->removed = NO ;
     }
@@ -1057,9 +1056,9 @@ static int menubarGetTitle(lua_State *L) {
     menubaritem_t *menuBarItem     = get_item_arg(L, 1);
 
     if ((lua_gettop(L) == 2) && lua_toboolean(L, 2)) {
-        [skin pushNSObject:[(__bridge NSStatusItem*)menuBarItem->menuBarItemObject attributedTitle]] ;
+        [skin pushNSObject:((__bridge NSStatusItem*)menuBarItem->menuBarItemObject).button.attributedTitle] ;
     } else {
-        [skin pushNSObject:[(__bridge NSStatusItem*)menuBarItem->menuBarItemObject title]] ;
+        [skin pushNSObject:((__bridge NSStatusItem*)menuBarItem->menuBarItemObject).button.title] ;
     }
     return 1 ;
 }
@@ -1108,7 +1107,7 @@ static int menubarPriority(lua_State *L) {
 static int menubarGetIcon(lua_State *L) {
     menubaritem_t *menuBarItem     = get_item_arg(L, 1);
 
-    NSImage* theImage = [(__bridge NSStatusItem*)menuBarItem->menuBarItemObject image] ;
+    NSImage* theImage = ((__bridge NSStatusItem*)menuBarItem->menuBarItemObject).button.image ;
 
     if (theImage) {
         LuaSkin *skin = [LuaSkin sharedWithState:L] ;
@@ -1212,7 +1211,7 @@ static int menubaritem_gc(lua_State *L) {
 }
 
 static int userdata_tostring(lua_State* L) {
-    NSString *title = [((__bridge NSStatusItem*)(get_item_arg(L, 1))->menuBarItemObject) title] ;
+    NSString *title = ((__bridge NSStatusItem*)(get_item_arg(L, 1))->menuBarItemObject).button.title ;
 
     lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, title, lua_topointer(L, 1)] UTF8String]) ;
     return 1 ;

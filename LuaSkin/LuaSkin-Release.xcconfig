@@ -25,3 +25,5 @@ ENABLE_TESTABILITY = NO
 
 // Optimization Level
 GCC_OPTIMIZATION_LEVEL = s
+
+#include? "../../LuaSkin-Downstream.xcconfig"

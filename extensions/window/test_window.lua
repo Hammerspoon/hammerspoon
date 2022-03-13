@@ -200,6 +200,7 @@ function testFullscreenOneResult()
   assertIsEqual(win:title(), "Hammerspoon Console")
   assertTrue(win:isFullScreen())
   win:setFullScreen(false)
+  assertFalse(win:isFullScreen())
 
   return success()
 end
@@ -216,6 +217,7 @@ function testFullscreenTwoResult()
   local win = hs.window.get("Hammerspoon Console")
   assertTrue(win:isFullScreen())
   win:setFullScreen(false)
+  assertFalse(win:isFullScreen())
 
   return success()
 end
