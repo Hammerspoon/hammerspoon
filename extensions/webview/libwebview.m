@@ -238,30 +238,37 @@ void delayUntilViewStopsLoading(HSWebViewView *theView, dispatch_block_t block) 
 #else
       __block HSWebViewWindow *bself = self;
 #endif
-      [[NSAnimationContext currentContext] setDuration:fadeTime];
-      [[NSAnimationContext currentContext] setCompletionHandler:^{
-          // unlikely that bself will go to nil after this starts, but this keeps the warnings down from [-Warc-repeated-use-of-weak]
-          HSWebViewWindow *mySelf = bself ;
-          if (mySelf) {
-              if (deleteWindow) {
-              LuaSkin *skin = [LuaSkin sharedWithState:L] ;
-//                   lua_State *L = [skin L] ;
-                  [mySelf close] ; // trigger callback, if set, then cleanup
-                  lua_pushcfunction(L, userdata_gc) ;
-                  [skin pushLuaRef:refTable ref:mySelf.udRef] ;
-                  // FIXME: Can we convert this lua_pcall() to a LuaSkin protectedCallAndError?
-                  if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
-                      [skin logBreadcrumb:[NSString stringWithFormat:@"%s:error invoking _gc for delete (with fade) method:%s", USERDATA_TAG, lua_tostring(L, -1)]] ;
-                      lua_pop(L, 1) ;
-                  }
-              } else {
-                  [mySelf orderOut:nil];
-                  [mySelf setAlphaValue:1.0];
-              }
-          }
-      }];
-      [[self animator] setAlphaValue:0.0];
+
+    LuaSkin *outerSkin = [LuaSkin sharedWithState:L];
+    LSGCCanary lsCanary = [outerSkin createGCCanary];
+    [[NSAnimationContext currentContext] setDuration:fadeTime];
+    [[NSAnimationContext currentContext] setCompletionHandler:^{
+        // unlikely that bself will go to nil after this starts, but this keeps the warnings down from [-Warc-repeated-use-of-weak]
+        HSWebViewWindow *mySelf = bself ;
+        if (mySelf) {
+            if (deleteWindow) {
+                LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+                if (![skin checkGCCanary:lsCanary]) {
+                    return;
+                }
+                //                   lua_State *L = [skin L] ;
+                [mySelf close] ; // trigger callback, if set, then cleanup
+                lua_pushcfunction(L, userdata_gc) ;
+                [skin pushLuaRef:refTable ref:mySelf.udRef] ;
+                // FIXME: Can we convert this lua_pcall() to a LuaSkin protectedCallAndError?
+                if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
+                    [skin logBreadcrumb:[NSString stringWithFormat:@"%s:error invoking _gc for delete (with fade) method:%s", USERDATA_TAG, lua_tostring(L, -1)]] ;
+                    lua_pop(L, 1) ;
+                }
+            } else {
+                [mySelf orderOut:nil];
+                [mySelf setAlphaValue:1.0];
+            }
+        }
+    }];
+    [[self animator] setAlphaValue:0.0];
     [NSAnimationContext endGrouping];
+    [outerSkin destroyGCCanary:(LSGCCanary*)&lsCanary];
 }
 @end
 
