@@ -22,4 +22,6 @@ extern CFArrayRef SLSCopySpacesForWindows(int cid, int selector, CFArrayRef wind
 
 // Not used in Yabai, but still potentially useful
 extern uint64_t SLSGetActiveSpace(int cid) ;
-extern bool SLSManagedDisplayIsAnimating(int cid, CFStringRef uuid) ;
+
+// no longer seems to work, even for regular space changes, so not using
+// extern bool SLSManagedDisplayIsAnimating(int cid, CFStringRef uuid) ;

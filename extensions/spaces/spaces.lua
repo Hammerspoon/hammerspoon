@@ -94,7 +94,7 @@ local getMissionControlGroup = function()
     if not (_missionControlGroup and _missionControlGroup:isValid()) then
         _missionControlGroup = nil
         local dockElement = getDockElement()
-        for i,v in ipairs(dockElement) do
+        for _,v in ipairs(dockElement) do
             if v.AXIdentifier == "mc" then
                 _missionControlGroup = v
                 break
@@ -159,6 +159,14 @@ local findSpacesSubgroup = function(targetIdentifier, screenID)
     return targetChild
 end
 
+local waitForMissionControl = function()
+    -- delay to make sure Mission Control has stabilized
+    local time = timer.secondsSinceEpoch()
+    while timer.secondsSinceEpoch() - time < module.MCwaitTime do
+        -- twiddle thumbs, calculate more digits of pi, whatever floats your boat...
+    end
+end
+
 -- Public interface ------------------------------------------------------
 
 --- hs.spaces.data_missionControlAXUIElementData(callback) -> None
@@ -173,7 +181,6 @@ end
 ---
 --- Notes:
 ---  * Like [hs.spaces.data_managedDisplaySpaces](#data_managedDisplaySpaces), this function is not required for general usage of this module; rather it is provided for those who wish to examine the internal data that makes this module possible more closely to see if there might be other information or functionality that they would like to explore.
----
 ---  * Getting Accessibility elements for Mission Control is somewhat tricky -- they only exist when the Mission Control display is visible, which is the exact time that you can't examine them. What this function does is trigger Mission Control and then builds a tree of the elements, capturing all of the properties and property values while the elements are valid, closes Mission Control, and then returns the results in a table by invoking the provided callback function.
 ---    * Note that the `hs.axuielement` objects within the table returned will be invalid by the time you can examine them -- this is why the attributes and values will also be contained in the resulting tree.
 ---    * Example usage: `hs.spaces.data_missionControlAXUIElementData(function(results) hs.console.clearConsole() ; print(hs.inspect(results)) end)`
@@ -193,12 +200,9 @@ module.data_missionControlAXUIElementData = function(callback)
     end
 
     -- delay to make sure Mission Control has stabilized
-    local time = timer.secondsSinceEpoch()
-    while timer.secondsSinceEpoch() - time < module.MCwaitTime do
-        -- twiddle thumbs, calculate more digits of pi, whatever floats your boat...
-    end
+    waitForMissionControl()
 
-    local tree
+    local tree -- luacheck:ignore
     tree = missionControlGroup:buildTree(function(_, results)
         tree = nil
         closeMissionControl()
@@ -212,9 +216,7 @@ end
 ---
 --- Notes:
 ---  * The above mentioned functions require that the Mission Control accessibility objects be fully formed before the necessary action can be triggered. This variable specifies how long to delay before performing the action to complete the function. Experimentation on my machine has found that 0.3 seconds provides sufficient time for reliable functionality.
----
 ---  * If you find that the above mentioned functions do not work reliably with your setup, you can try adjusting this variable upwards -- the down side is that the larger this value is, the longer the Mission Control display is visible before returning the user to what they were working on.
----
 ---  * Once you have found a value that works reliably on your system, you can use [hs.spaces.setDefaultMCwaitTime](#setDefaultMCwaitTime) to make it the default value for your system each time the `hs.spaces` module is loaded.
 module.MCwaitTime = settings.get(SETTINGS_TAG .. "_MCwaitTime") or 0.3
 
@@ -383,6 +385,8 @@ end
 --- Notes:
 ---  * the table returned has its __tostring metamethod set to `hs.inspect` to simplify inspecting the results when using the Hammerspoon Console.
 module.allSpaces = function(...)
+    local args = { ... }
+    assert(#args == 0, "expected no arguments")
     local results = {}
     for _, v in ipairs(screen.allScreens()) do
         local screenID = v:getUUID()
@@ -454,6 +458,8 @@ end
 --- Notes:
 ---  * the table returned has its __tostring metamethod set to `hs.inspect` to simplify inspecting the results when using the Hammerspoon Console.
 module.activeSpaces = function(...)
+    local args = { ... }
+    assert(#args == 0, "expected no arguments")
     local results = {}
     for _, v in ipairs(screen.allScreens()) do
         local screenID = v:getUUID()
@@ -481,9 +487,9 @@ end
 --- Notes:
 ---  * the space does not have to be currently active (visible) to determine which screen the space belongs to.
 module.spaceDisplay = function(...)
-    local args, spaceID = { ... }, nil
+    local args = { ... }
     assert(#args == 1, "expected 1 argument")
-    spaceID = args[1]
+    local spaceID = args[1]
     assert(math.type(spaceID) == "integer", "space id must be an integer")
 
     local managedDisplayData, errMsg = module.data_managedDisplaySpaces()
@@ -508,9 +514,9 @@ end
 --- Returns:
 ---  * the string "user" if the space is a regular user space, or "fullscreen" if the space is a fullscreen or tiled window pair. Returns nil and an error message if the space does not refer to a valid managed space.
 module.spaceType = function(...)
-    local args, spaceID = { ... }, nil
+    local args = { ... }
     assert(#args == 1, "expected 1 argument")
-    spaceID = args[1]
+    local spaceID = args[1]
     assert(math.type(spaceID) == "integer", "space id must be an integer")
 
     local managedDisplayData, errMsg = module.data_managedDisplaySpaces()
@@ -531,7 +537,7 @@ module.spaceType = function(...)
     return nil, "space not found in managed displays"
 end
 
--- documented in spacesObjc.m where the core logic of the function resides
+-- documented in libspaces.m where the core logic of the function resides
 local _moveWindowToSpace = module.moveWindowToSpace
 module.moveWindowToSpace = function(...)
     local args = { ... }
@@ -543,7 +549,7 @@ module.moveWindowToSpace = function(...)
     return _moveWindowToSpace(table.unpack(args))
 end
 
--- documented in spacesObjc.m where the core logic of the function resides
+-- documented in libspaces.m where the core logic of the function resides
 local _windowSpaces = module.windowSpaces
 module.windowSpaces = function(...)
     local args = { ... }
@@ -553,26 +559,7 @@ module.windowSpaces = function(...)
     return _windowSpaces(table.unpack(args))
 end
 
--- documented in spacesObjc.m where the core logic of the function resides
-local _displayIsAnimating = module.displayIsAnimating
-module.displayIsAnimating = function(...)
-    local args = { ... }
-    if #args > 0 then
-        if math.type(args[1]) == "integer" then
-            for _, v in ipairs(screen.allScreens) do
-                if v:id() == args[1] then
-                    args[1] = v:getUUID()
-                    break
-                end
-            end
-        elseif getmetatable(args[1]) == hs.getObjectMetatable("hs.screen") then
-            args[1] = args[1]:getUUID()
-        end
-    end
-    return _displayIsAnimating(table.unpack(args))
-end
-
--- documented in spacesObjc.m where the core logic of the function resides
+-- documented in libspaces.m where the core logic of the function resides
 local _windowsForSpace = module.windowsForSpace
 module.windowsForSpace = function(...)
     local results = { _windowsForSpace(...) }
@@ -611,11 +598,8 @@ end
 ---
 --- Notes:
 ---  * the table returned has its __tostring metamethod set to `hs.inspect` to simplify inspecting the results when using the Hammerspoon Console.
----
 ---  * This function works by opening up the Mission Control display and then grabbing the names from the Accessibility elements created. This is unavoidable. You can  minimize, but not entirely remove, the visual shift to the Mission Control display by by enabling "Reduce motion" in System Preferences -> Accessibility -> Display.
----
 ---  * If you intend to perform multiple actions which require the Mission Control display ([hs.spaces.missionControlSpaceNames](#missionControlSpaceNames), [hs.spaces.addSpaceToScreen](#addSpaceToScreen), [hs.spaces.removeSpace](#removeSpace), or [hs.spaces.gotoSpace](#gotoSpace)), you can pass in `false` as the final argument to prevent the automatic closure of the Mission Control display -- this will reduce the visual side-affects to one transition instead of many.
----
 ---  * This function attempts to use the localization strings for the Dock application to properly determine the Mission Control names. If you find that it doesn't provide the correct values for your system, please provide the following information when submitting an issue:
 ---    * the desktop or application name(s) as they appear at the top of the Mission Control screen when you invoke it manually (or with `hs.spaces.toggleMissionControl()` entered into the Hammerspoon console).
 ---    * the output from the following commands, issued in the Hammerspoon console:
@@ -668,7 +652,6 @@ end
 ---
 --- Notes:
 ---  * This function creates a new space by opening up the Mission Control display and then programmatically invoking the button to add a new space. This is unavoidable. You can  minimize, but not entirely remove, the visual shift to the Mission Control display by by enabling "Reduce motion" in System Preferences -> Accessibility -> Display.
----
 ---  * If you intend to perform multiple actions which require the Mission Control display (([hs.spaces.missionControlSpaceNames](#missionControlSpaceNames), [hs.spaces.addSpaceToScreen](#addSpaceToScreen), [hs.spaces.removeSpace](#removeSpace), or [hs.spaces.gotoSpace](#gotoSpace)), you can pass in `false` as the final argument to prevent the automatic closure of the Mission Control display -- this will reduce the visual side-affects to one transition instead of many.
 module.addSpaceToScreen = function(...)
     local args, screenID, closeMC = { ... }, nil, true
@@ -726,14 +709,12 @@ end
 ---
 --- Notes:
 ---  * This function changes to a space by opening up the Mission Control display and then programmatically invoking the button to activate the space. This is unavoidable. You can  minimize, but not entirely remove, the visual shift to the Mission Control display by by enabling "Reduce motion" in System Preferences -> Accessibility -> Display.
----
 ---  * The action of changing to a new space automatically closes the Mission Control display, so unlike ([hs.spaces.missionControlSpaceNames](#missionControlSpaceNames), [hs.spaces.addSpaceToScreen](#addSpaceToScreen), and [hs.spaces.removeSpace](#removeSpace), there is no flag you can specify to leave Mission Control visible. When possible, you should generally invoke this function last if you are performing multiple actions and want to minimize the amount of time the Mission Control display is visible and reduce the visual side affects.
----
 ---  * The Accessibility elements required to change to a space are not created until the Mission Control display is fully visible. Because of this, there is a built in delay when invoking this function that can be adjusted by changing the value of [hs.spaces.MCwaitTime](#MCwaitTime).
 module.gotoSpace = function(...)
-    local args, spaceID, screenID = { ... }, nil, nil
+    local args = { ... }
     assert(#args == 1, "expected 1 argument")
-    spaceID = args[1]
+    local spaceID = args[1]
     assert(math.type(spaceID) == "integer", "space id must be an integer")
 
     local screenUUID, screenID = module.spaceDisplay(spaceID), nil
@@ -763,10 +744,7 @@ module.gotoSpace = function(...)
     end
 
     -- delay to make sure Mission Control has stabilized
-    local time = timer.secondsSinceEpoch()
-    while timer.secondsSinceEpoch() - time < module.MCwaitTime do
-        -- twiddle thumbs, calculate more digits of pi, whatever floats your boat...
-    end
+    waitForMissionControl()
 
     local child = mcSpacesList[count]
     local status, errMsg2 = child:performAction("AXPress")
@@ -793,16 +771,13 @@ end
 --- Notes:
 ---  * You cannot remove a currently active space -- move to another one first with [hs.spaces.gotoSpace](#gotoSpace).
 ---  * If a screen has only one user space (i.e. not a full screen application window or tiled set), it cannot be removed.
----
 ---  * This function removes a space by opening up the Mission Control display and then programmatically invoking the button to remove the specified space. This is unavoidable. You can  minimize, but not entirely remove, the visual shift to the Mission Control display by by enabling "Reduce motion" in System Preferences -> Accessibility -> Display.
----
 ---  * If you intend to perform multiple actions which require the Mission Control display (([hs.spaces.missionControlSpaceNames](#missionControlSpaceNames), [hs.spaces.addSpaceToScreen](#addSpaceToScreen), [hs.spaces.removeSpace](#removeSpace), or [hs.spaces.gotoSpace](#gotoSpace)), you can pass in `false` as the final argument to prevent the automatic closure of the Mission Control display -- this will reduce the visual side-affects to one transition instead of many.
----
 ---  * The Accessibility elements required to change to a space are not created until the Mission Control display is fully visible. Because of this, there is a built in delay when invoking this function that can be adjusted by changing the value of [hs.spaces.MCwaitTime](#MCwaitTime).
 module.removeSpace = function(...)
-    local args, spaceID, closeMC = { ... }, nil, true
+    local args, closeMC = { ... }, true
     assert(#args > 0 and #args < 3, "expected between 1 and 2 arguments")
-    spaceID = args[1]
+    local spaceID = args[1]
     if #args > 1 then closeMC = args[2] end
 
     assert(type(closeMC) == "boolean", "close flag must be boolean")
@@ -819,10 +794,10 @@ module.removeSpace = function(...)
         end
     end
 
+    local spacesOnScreen = module.spacesForScreen(screenUUID)
     if module.spaceType(spaceID) == "user" then
-        local spacesOnScreen = module.spacesForScreen(screenID)
         local userCount = 0
-        for _, vSpace in ipairs(module.spacesForScreen(screenID)) do
+        for _, vSpace in ipairs(spacesOnScreen) do
             if module.spaceType(vSpace) == "user" then userCount = userCount + 1 end
         end
         if userCount == 1 then
@@ -835,7 +810,7 @@ module.removeSpace = function(...)
     end
 
     local count
-    for i, vSpace in ipairs(module.spacesForScreen(screenUUID)) do
+    for i, vSpace in ipairs(spacesOnScreen) do
         if spaceID == vSpace then
             count = i
             break
@@ -850,10 +825,7 @@ module.removeSpace = function(...)
     end
 
     -- delay to make sure Mission Control has stabilized
-    local time = timer.secondsSinceEpoch()
-    while timer.secondsSinceEpoch() - time < module.MCwaitTime do
-        -- twiddle thumbs, calculate more digits of pi, whatever floats your boat...
-    end
+    waitForMissionControl()
 
     local child = mcSpacesList[count]
     local status, errMsg2 = child:performAction("AXRemoveDesktop")
