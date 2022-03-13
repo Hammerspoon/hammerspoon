@@ -29,13 +29,13 @@ package.cpath = table.concat(cpaths, ";")
 print("-- package.path: " .. package.path)
 print("-- package.cpath: " .. package.cpath)
 
-local preload = function(m) return require(m) end
+local preload = function(m) return function() return require(m) end end
 package.preload['hs.application.watcher']   = preload 'hs.libapplicationwatcher'
 package.preload['hs.audiodevice.watcher']   = preload 'hs.libaudiodevicewatcher'
 package.preload['hs.battery.watcher']       = preload 'hs.libbatterywatcher'
 package.preload['hs.bonjour.service']       = preload 'hs.libbonjourservice'
 package.preload['hs.caffeinate.watcher']    = preload 'hs.libcaffeinatewatcher'
-package.preload['hs.canvas.matrix']         = preload 'hs.canvas_maxtrix'
+package.preload['hs.canvas.matrix']         = preload 'hs.canvas_matrix'
 package.preload['hs.drawing.color']         = preload 'hs.drawing_color'
 package.preload['hs.doc.hsdocs']            = preload 'hs.hsdocs'
 package.preload['hs.doc.markdown']          = preload 'hs.libmarkdown'
