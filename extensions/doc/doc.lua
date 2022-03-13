@@ -229,7 +229,7 @@ module.preloadSpoonDocs = function()
     end
     for _, v in ipairs(spoonPaths) do
         local dirPath = v:match("^(.+)/%?%.spoon/init%.lua$")
-        if dirPath and fs.dir(dirPath) then
+        if dirPath and (fs.attributes(dirPath) or {}).mode == "directory" then
             for file in fs.dir(dirPath) do
                 local name = file:match("^(.+)%.spoon$")
                 local spoonInit = name and package.searchpath(name, table.concat(spoonPaths, ";"))
