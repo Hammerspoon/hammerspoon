@@ -559,12 +559,15 @@ cleanup:
     CFArrayRef wins = CGWindowListCreate(kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements, kCGNullWindowID);
 
     if (wins) {
+        CFArrayRef windowDescs = CGWindowListCreateDescriptionFromArray(wins);
         windowIDs = [[NSMutableArray alloc] initWithCapacity:CFArrayGetCount(wins)];
-        for (int i = 0; i < CFArrayGetCount(wins); i++) {
-            int winid = (int)CFArrayGetValueAtIndex(wins, i);
-            [windowIDs addObject:[NSNumber numberWithInt:winid]];
+        for (CFIndex i = 0; i < CFArrayGetCount(wins); i++) {
+            CFDictionaryRef dict = CFArrayGetValueAtIndex(windowDescs, i);
+            CFNumberRef winid = CFDictionaryGetValue(dict, kCGWindowNumber);
+            [windowIDs addObject:(__bridge NSNumber *)winid];
         }
         CFRelease(wins);
+        CFRelease(windowDescs);
     } else {
         [LuaSkin logBreadcrumb:@"hs.window._orderedwinids CGWindowListCreate returned NULL"] ;
     }

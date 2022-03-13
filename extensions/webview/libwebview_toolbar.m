@@ -33,6 +33,7 @@ static NSArray *keysToKeepFromDefinitionDictionary ;
 @property            int                 selfRef;
 @property            int                 callbackRef;
 @property            BOOL                notifyToolbarChanges ;
+@property            NSInteger           toolbarStyle ;
 @property (weak)     NSWindow            *windowUsingToolbar ;
 @property (readonly) NSMutableOrderedSet *allowedIdentifiers ;
 @property (readonly) NSMutableOrderedSet *defaultIdentifiers ;
@@ -81,6 +82,10 @@ static NSMenu *createCoreSearchFieldMenu() {
         _itemDefDictionary     = [[NSMutableDictionary alloc] init] ;
         _fnRefDictionary       = [[NSMutableDictionary alloc] init] ;
         _enabledDictionary     = [[NSMutableDictionary alloc] init] ;
+        
+        if (@available(macOS 11.0, *)) {
+            _toolbarStyle      = NSWindowToolbarStyleAutomatic ;
+        }
 
         _callbackRef           = LUA_NOREF;
         _selfRef               = LUA_NOREF;
@@ -140,6 +145,10 @@ static NSMenu *createCoreSearchFieldMenu() {
         _notifyToolbarChanges  = original.notifyToolbarChanges ;
         _windowUsingToolbar    = nil ;
 
+        if (@available(macOS 11.0, *)) {
+            _toolbarStyle      = original.toolbarStyle ;
+        }
+        
         self.allowsUserCustomization = original.allowsUserCustomization ;
         self.allowsExtensionItems    = original.allowsExtensionItems ;
         self.autosavesConfiguration  = original.autosavesConfiguration ;
@@ -953,6 +962,12 @@ static int attachToolbar(lua_State *L) {
             theWindow.toolbar             = newToolbar ;
             newToolbar.windowUsingToolbar = theWindow ;
             newToolbar.visible            = YES ;
+            
+            // Update the toolbar style if available:
+            if (@available(macOS 11.0, *)) {
+                theWindow.toolbarStyle = newToolbar.toolbarStyle;
+            }
+            
         }
         lua_pushvalue(L, 1) ;
     } else {
@@ -1311,6 +1326,87 @@ static int displayMode(lua_State *L) {
                 [skin pushNSObject:[NSString stringWithFormat:@"** unrecognized displayMode (%tu)",
                                                               toolbar.displayMode]] ;
                 break ;
+        }
+    }
+    return 1 ;
+}
+
+/// hs.webview.toolbar:toolbarStyle([style]) -> toolbarObject
+/// Method
+/// Get or set the toolbar's style.
+///
+/// Parameters:
+///  * style - an optional string to set the style of the toolbar to "automatic", "expanded", "preference", "unified", or "unifiedCompact".
+///
+/// Returns:
+///  * if an argument is provided, returns the toolbar object; otherwise returns the current value
+///
+///  Notes:
+///   * This is only available for macOS 11.0+. Will return `nil` if getting on an earlier version of macOS.
+///   * `automatic` - A style indicating that the system determines the toolbar’s appearance and location.
+///   * `expanded` - A style indicating that the toolbar appears below the window title.
+///   * `preference` - A style indicating that the toolbar appears below the window title with toolbar items centered in the toolbar.
+///   * `unified` - A style indicating that the toolbar appears next to the window title.
+///   * `unifiedCompact` - A style indicating that the toolbar appears next to the window title and with reduced margins to allow more focus on the window’s contents.
+static int toolbarStyle(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
+    HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
+        
+    if (lua_gettop(L) == 2) {
+        if (@available(macOS 11.0, *))
+        {
+            NSString *type = [skin toNSObjectAtIndex:2] ;
+            BOOL valid = NO;
+            if ([type isEqualToString:@"automatic"]) {
+                valid = YES;
+                toolbar.toolbarStyle = NSWindowToolbarStyleAutomatic ;
+            } else if ([type isEqualToString:@"expanded"]) {
+                valid = YES;
+                toolbar.toolbarStyle = NSWindowToolbarStyleExpanded ;
+            } else if ([type isEqualToString:@"preference"]) {
+                valid = YES;
+                toolbar.toolbarStyle = NSWindowToolbarStylePreference ;
+            } else if ([type isEqualToString:@"unified"]) {
+                valid = YES;
+                toolbar.toolbarStyle = NSWindowToolbarStyleUnified ;
+            } else if ([type isEqualToString:@"unifiedCompact"]) {
+                valid = YES;
+                toolbar.toolbarStyle = NSWindowToolbarStyleUnifiedCompact ;
+            } else {
+                return luaL_error(L, "invalid toolbarStyle: '%s'", [type UTF8String]) ;
+            }
+            // Update the toolbar if it's already visible:
+            if (valid && toolbar.windowUsingToolbar) {
+                toolbar.windowUsingToolbar.toolbarStyle = toolbar.toolbarStyle;
+            }
+        }
+        lua_pushvalue(L, 1) ;
+    } else {
+        if (@available(macOS 11.0, *))
+        {
+            switch(toolbar.toolbarStyle) {
+                case NSWindowToolbarStyleAutomatic:
+                    [skin pushNSObject:@"automatic"] ;
+                    break ;
+                case NSWindowToolbarStyleExpanded:
+                    [skin pushNSObject:@"expanded"] ;
+                    break ;
+                case NSWindowToolbarStylePreference:
+                    [skin pushNSObject:@"preference"] ;
+                    break ;
+                case NSWindowToolbarStyleUnified:
+                    [skin pushNSObject:@"unified"] ;
+                    break ;
+                case NSWindowToolbarStyleUnifiedCompact:
+                    [skin pushNSObject:@"unifiedCompact"] ;
+                    break ;
+                default:
+                    [skin pushNSObject:[NSString stringWithFormat:@"** unrecognized toolbarStyle (%tu)", toolbar.windowUsingToolbar.toolbarStyle]] ;
+                    break ;
+            }
+        } else {
+            lua_pushnil(L);
         }
     }
     return 1 ;
@@ -2022,6 +2118,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {"identifier",         toolbarIdentifier},
     {"setCallback",        setCallback},
     {"displayMode",        displayMode},
+    {"toolbarStyle",       toolbarStyle},
     {"sizeMode",           sizeMode},
     {"visible",            visible},
     {"autosaves",          toolbarCanAutosave},

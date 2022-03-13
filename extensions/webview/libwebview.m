@@ -238,29 +238,36 @@ void delayUntilViewStopsLoading(HSWebViewView *theView, dispatch_block_t block) 
 #else
       __block HSWebViewWindow *bself = self;
 #endif
-      [[NSAnimationContext currentContext] setDuration:fadeTime];
-      [[NSAnimationContext currentContext] setCompletionHandler:^{
-          // unlikely that bself will go to nil after this starts, but this keeps the warnings down from [-Warc-repeated-use-of-weak]
-          HSWebViewWindow *mySelf = bself ;
-          if (mySelf) {
-              if (deleteWindow) {
-              LuaSkin *skin = [LuaSkin sharedWithState:L] ;
-//                   lua_State *L = [skin L] ;
-                  [mySelf close] ; // trigger callback, if set, then cleanup
-                  lua_pushcfunction(L, userdata_gc) ;
-                  [skin pushLuaRef:refTable ref:mySelf.udRef] ;
-                  // FIXME: Can we convert this lua_pcall() to a LuaSkin protectedCallAndError?
-                  if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
-                      [skin logBreadcrumb:[NSString stringWithFormat:@"%s:error invoking _gc for delete (with fade) method:%s", USERDATA_TAG, lua_tostring(L, -1)]] ;
-                      lua_pop(L, 1) ;
-                  }
-              } else {
-                  [mySelf orderOut:nil];
-                  [mySelf setAlphaValue:1.0];
-              }
-          }
-      }];
-      [[self animator] setAlphaValue:0.0];
+
+    LuaSkin *outerSkin = [LuaSkin sharedWithState:L];
+    LSGCCanary lsCanary = [outerSkin createGCCanary];
+    [[NSAnimationContext currentContext] setDuration:fadeTime];
+    [[NSAnimationContext currentContext] setCompletionHandler:^{
+        LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
+        if (![skin checkGCCanary:lsCanary]) {
+            return;
+        }
+        // unlikely that bself will go to nil after this starts, but this keeps the warnings down from [-Warc-repeated-use-of-weak]
+        HSWebViewWindow *mySelf = bself ;
+        if (mySelf) {
+            if (deleteWindow) {
+                //                   lua_State *L = [skin L] ;
+                [mySelf close] ; // trigger callback, if set, then cleanup
+                lua_pushcfunction(L, userdata_gc) ;
+                [skin pushLuaRef:refTable ref:mySelf.udRef] ;
+                // FIXME: Can we convert this lua_pcall() to a LuaSkin protectedCallAndError?
+                if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
+                    [skin logBreadcrumb:[NSString stringWithFormat:@"%s:error invoking _gc for delete (with fade) method:%s", USERDATA_TAG, lua_tostring(L, -1)]] ;
+                    lua_pop(L, 1) ;
+                }
+            } else {
+                [mySelf orderOut:nil];
+                [mySelf setAlphaValue:1.0];
+            }
+        }
+        [skin destroyGCCanary:(LSGCCanary*)&lsCanary];
+    }];
+    [[self animator] setAlphaValue:0.0];
     [NSAnimationContext endGrouping];
 }
 @end
@@ -1708,7 +1715,7 @@ static int webview_evaluateJavaScript(lua_State *L) {
 
         if (callbackRef != LUA_NOREF) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                LuaSkin *blockSkin = [LuaSkin sharedWithState:L] ;
+                LuaSkin *blockSkin = [LuaSkin sharedWithState:NULL] ;
                 if (![blockSkin checkGCCanary:lsCanary]) {
                     return;
                 }
@@ -1718,7 +1725,7 @@ static int webview_evaluateJavaScript(lua_State *L) {
                 [blockSkin protectedCallAndError:@"hs.webview:evaluateJavaScript callback" nargs:2 nresults:0];
                 [blockSkin luaUnref:refTable ref:callbackRef] ;
 
-                [skin destroyGCCanary:&lsCanary];
+                [skin destroyGCCanary:(LSGCCanary *)&lsCanary];
             });
         }
     }] ;
@@ -1801,11 +1808,9 @@ static int webview_size(lua_State *L) {
 /// Parameters:
 ///  * `rect` - a rectangle specifying where the webviewObject should be displayed.
 ///  * `preferencesTable` - an optional table which can include one of more of the following keys:
-///   * `javaEnabled`                           - java is enabled (default false)
 ///   * `javaScriptEnabled`                     - JavaScript is enabled (default true)
 ///   * `javaScriptCanOpenWindowsAutomatically` - can JavaScript open windows without user intervention (default true)
 ///   * `minimumFontSize`                       - minimum font size (default 0.0)
-///   * `plugInsEnabled`                        - plug-ins are enabled (default false)
 ///   * `developerExtrasEnabled`                - include "Inspect Element" in the context menu
 ///   * `suppressesIncrementalRendering`        - suppresses content rendering until fully loaded into memory (default false)
 ///   * The following additional preferences may also be set under OS X 10.11 or later (they will be ignored with a warning printed if used under OS X 10.10):
@@ -1845,20 +1850,12 @@ static int webview_new(lua_State *L) {
         if (lua_type(L, 2) == LUA_TTABLE) {
             WKPreferences *myPreferences = [[WKPreferences alloc] init] ;
 
-            if (lua_getfield(L, 2, "javaEnabled") == LUA_TBOOLEAN)
-                myPreferences.javaEnabled = (BOOL)lua_toboolean(L, -1) ;
-            lua_pop(L, 1) ;
-
             if (lua_getfield(L, 2, "javaScriptEnabled") == LUA_TBOOLEAN)
                 myPreferences.javaScriptEnabled = (BOOL)lua_toboolean(L, -1) ;
             lua_pop(L, 1) ;
 
             if (lua_getfield(L, 2, "javaScriptCanOpenWindowsAutomatically") == LUA_TBOOLEAN)
                 myPreferences.javaScriptCanOpenWindowsAutomatically = (BOOL)lua_toboolean(L, -1) ;
-            lua_pop(L, 1) ;
-
-            if (lua_getfield(L, 2, "plugInsEnabled") == LUA_TBOOLEAN)
-                myPreferences.plugInsEnabled = (BOOL)lua_toboolean(L, -1) ;
             lua_pop(L, 1) ;
 
             if (lua_getfield(L, 2, "minimumFontSize") == LUA_TNUMBER)
