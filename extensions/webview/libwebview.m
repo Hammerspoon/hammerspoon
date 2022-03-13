@@ -1715,7 +1715,7 @@ static int webview_evaluateJavaScript(lua_State *L) {
 
         if (callbackRef != LUA_NOREF) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                LuaSkin *blockSkin = [LuaSkin sharedWithState:L] ;
+                LuaSkin *blockSkin = [LuaSkin sharedWithState:NULL] ;
                 if (![blockSkin checkGCCanary:lsCanary]) {
                     return;
                 }
