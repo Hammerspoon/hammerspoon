@@ -243,14 +243,14 @@ void delayUntilViewStopsLoading(HSWebViewView *theView, dispatch_block_t block) 
     LSGCCanary lsCanary = [outerSkin createGCCanary];
     [[NSAnimationContext currentContext] setDuration:fadeTime];
     [[NSAnimationContext currentContext] setCompletionHandler:^{
+        LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
+        if (![skin checkGCCanary:lsCanary]) {
+            return;
+        }
         // unlikely that bself will go to nil after this starts, but this keeps the warnings down from [-Warc-repeated-use-of-weak]
         HSWebViewWindow *mySelf = bself ;
         if (mySelf) {
             if (deleteWindow) {
-                LuaSkin *skin = [LuaSkin sharedWithState:L] ;
-                if (![skin checkGCCanary:lsCanary]) {
-                    return;
-                }
                 //                   lua_State *L = [skin L] ;
                 [mySelf close] ; // trigger callback, if set, then cleanup
                 lua_pushcfunction(L, userdata_gc) ;
@@ -265,10 +265,10 @@ void delayUntilViewStopsLoading(HSWebViewView *theView, dispatch_block_t block) 
                 [mySelf setAlphaValue:1.0];
             }
         }
+        [skin destroyGCCanary:(LSGCCanary*)&lsCanary];
     }];
     [[self animator] setAlphaValue:0.0];
     [NSAnimationContext endGrouping];
-    [outerSkin destroyGCCanary:(LSGCCanary*)&lsCanary];
 }
 @end
 
