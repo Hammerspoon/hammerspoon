@@ -15,11 +15,12 @@ local paths = {
 }
 
 local cpaths = {
+  configdir .. "/?.dylib",
   configdir .. "/?.so",
-  userruntime .. "/lib/?.dylib",
-  userruntime .. "/lib/?.so",
   package.cpath,
   frameworkspath .. "/?.dylib",
+  userruntime .. "/lib/?.dylib",
+  userruntime .. "/lib/?.so",
 }
 
 package.path = table.concat(paths, ";")
