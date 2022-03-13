@@ -1380,8 +1380,8 @@ static int toolbarStyle(lua_State *L) {
             if (valid && toolbar.windowUsingToolbar) {
                 toolbar.windowUsingToolbar.toolbarStyle = toolbar.toolbarStyle;
             }
-            lua_pushvalue(L, 1) ;
         }
+        lua_pushvalue(L, 1) ;
     } else {
         if (@available(macOS 11.0, *))
         {
