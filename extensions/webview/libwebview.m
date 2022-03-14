@@ -1607,7 +1607,6 @@ static int webview_policyCallback(lua_State *L) {
 ///
 /// Parameters:
 ///  * `fn` - the function to be called to examine the SSL certificate to determine if an exception should be granted.  To disable the callback function, explicitly specify nil.  The callback function will accept two arguments and must return 1 argument which will determine if the action is approved or denied.  The first argument will be the webview this request originates from.  The second argument will be a table containing the protection space details and may include the following keys:
-///
 ///    * `port`                       - the port of the server with which communication for this request is occurring
 ///    * `receivesCredentialSecurely` - a boolean value indicating whether or not the credential can be sent to the server securely
 ///    * `authenticationMethod`       - a string indicating the authentication type, in this case "serverTrust".
@@ -1624,12 +1623,11 @@ static int webview_policyCallback(lua_State *L) {
 ///        * `type`            - a description of the data type for this value
 ///        * `value`           - the value
 ///
-///  * The callback function should return true if an exception should be granted for this certificate or false if it should be rejected.
-///
 /// Returns:
 ///  * The webview object
 ///
 /// Notes:
+///  * The callback function should return true if an exception should be granted for this certificate or false if it should be rejected.
 ///  * even if this callback returns `true`, the certificate will only be granted an exception if [hs.webview:examineInvalidCertificates](#examineInvalidCertificates) has also been set to `true`.
 ///  * once an invalid certificate has been granted an exception, the exception will remain in effect until the webview object is deleted.
 ///  * the callback is only invoked for invalid certificates -- if a certificate is valid, or once an exception has been granted, the callback will not (no longer) be called for that certificate.

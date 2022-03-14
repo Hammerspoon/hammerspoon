@@ -792,26 +792,6 @@ return require("hs.drawing_canvasWrapper")
 ---  * styledTextObject - an object created with the hs.styledtext module or its table representation (see `hs.styledtext`).
 ---  * textStyle - an optional table containing one or more of the following keys to set for the text of the drawing object (if textStyle is nil or missing, the `hs.drawing` defaults are used):
 ---
----  The following simplified style format is supported for use with `hs.drawing:setText` and `hs.drawing.setTextStyle`.
----
----  * theText   - the text which is to be displayed.
----  * textStyle - a table containing one or more of the following keys to set for the text of the drawing object (if textStyle is nil or missing, the `hs.drawing` defaults are used):
----    * font      - the name of the font to use (default: the system font)
----    * size      - the font point size to use (default: 27.0)
----    * color     - ignored, but accepted for compatibility with `hs.drawing:setTextStyle()`
----    * alignment - a string of one of the following indicating the texts alignment within the drawing objects frame:
----      * "left"      - the text is visually left aligned.
----      * "right"     - the text is visually right aligned.
----      * "center"    - the text is visually center aligned.
----      * "justified" - the text is justified
----      * "natural"   - (default) the natural alignment of the text’s script
----    * lineBreak - a string of one of the following indicating how to wrap text which exceeds the drawing object's frame:
----      * "wordWrap"       - (default) wrap at word boundaries, unless the word itself doesn’t fit on a single line
----      * "charWrap"       - wrap before the first character that doesn’t fit
----      * "clip"           - do not draw past the edge of the drawing object frame
----      * "truncateHead"   - the line is displayed so that the end fits in the frame and the missing text at the beginning of the line is indicated by an ellipsis
----      * "truncateTail"   - the line is displayed so that the beginning fits in the frame and the missing text at the end of the line is indicated by an ellipsis
----      * "truncateMiddle" - the line is displayed so that the beginning and end fit in the frame and the missing text in the middle is indicated by an ellipsis
 ---
 --- Returns:
 ---  * sizeTable - a table containing the Height and Width necessary to fully display the text drawing object, or nil if an error occurred
@@ -820,6 +800,25 @@ return require("hs.drawing_canvasWrapper")
 ---  * This function assumes the default values specified for any key which is not included in the provided textStyle.
 ---  * The size returned is an approximation and may return a width that is off by about 4 points.  Use the returned size as a minimum starting point. Sometimes using the "clip" or "truncateMiddle" lineBreak modes or "justified" alignment will fit, but its safest to add in your own buffer if you have the space in your layout.
 ---  * Multi-line text (separated by a newline or return) is supported.  The height will be for the multiple lines and the width returned will be for the longest line.
+---  * The following simplified style format is supported for use with `hs.drawing:setText` and `hs.drawing.setTextStyle`.
+---   * theText   - the text which is to be displayed.
+---   * textStyle - a table containing one or more of the following keys to set for the text of the drawing object (if textStyle is nil or missing, the `hs.drawing` defaults are used):
+---     * font      - the name of the font to use (default: the system font)
+---     * size      - the font point size to use (default: 27.0)
+---     * color     - ignored, but accepted for compatibility with `hs.drawing:setTextStyle()`
+---     * alignment - a string of one of the following indicating the texts alignment within the drawing objects frame:
+---       * "left"      - the text is visually left aligned.
+---       * "right"     - the text is visually right aligned.
+---       * "center"    - the text is visually center aligned.
+---       * "justified" - the text is justified
+---       * "natural"   - (default) the natural alignment of the text’s script
+---     * lineBreak - a string of one of the following indicating how to wrap text which exceeds the drawing object's frame:
+---       * "wordWrap"       - (default) wrap at word boundaries, unless the word itself doesn’t fit on a single line
+---       * "charWrap"       - wrap before the first character that doesn’t fit
+---       * "clip"           - do not draw past the edge of the drawing object frame
+---       * "truncateHead"   - the line is displayed so that the end fits in the frame and the missing text at the beginning of the line is indicated by an ellipsis
+---       * "truncateTail"   - the line is displayed so that the beginning fits in the frame and the missing text at the end of the line is indicated by an ellipsis
+---       * "truncateMiddle" - the line is displayed so that the beginning and end fit in the frame and the missing text in the middle is indicated by an ellipsis
 
 --- hs.drawing:wantsLayer([flag]) -> object or boolean
 --- Method

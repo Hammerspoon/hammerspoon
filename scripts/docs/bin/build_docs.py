@@ -178,21 +178,49 @@ def find_basename_from_itemname(itemname):
     return itemname.split(splitchar)[-1].split(' ')[0]
 
 
-def get_section_from_chunk(chunk, sectionname):
+def get_section_from_chunk(chunk, sectionname, item):
     """Extract a named section of a chunk"""
     section = []
     in_section = False
+    is_done = False
+    i = -1
 
+#    print("Looking for: "+sectionname)
     for line in chunk:
+        if is_done:
+            # Something in the previous iteration decided we should stop processing this chunk
+            break
+        i += 1
         if line == sectionname:
+            # We found the section we're looking for
             in_section = True
             continue
         if in_section:
-            if line == "":
-                # We've reached the end of the section
-                break
-            else:
+            for check_section_name in SECTION_NAMES:
+                # Check to see if we've hit another section
+                if line == check_section_name+":":
+                    # We've hit another section, signal the outer loop to stop
+                    is_done = True
+                    break
+            if not is_done:
+                # We're still in our section, so store the line
                 section.append(line)
+    if section[-1] == "":
+        # Sections usually end with a blank line, but we don't want it, so remove it
+        section.pop()
+    if "" in section:
+        # Having removed any final blank lines, there should be no further blank lines, but we found one
+        message = "%s has a blank line in %s" % (item["signature"], sectionname)
+        warn(message)
+        LINTS.append({
+            "file": item["file"],
+            "line": int(item["lineno"]) + 3,
+            "title": "Blank lines should not occur within sections",
+            "message": message,
+            "annotation_level": "failure"
+
+        })
+
     return section
 
 
@@ -295,7 +323,8 @@ def process_module(modulename, raw_module):
         for section in ["Parameters", "Returns", "Notes", "Examples"]:
             if section + ':' in chunk:
                 item[section.lower()] = get_section_from_chunk(chunk,
-                                                               section + ':')
+                                                               section + ':',
+                                                               item)
 
         item["stripped_doc"] = '\n'.join(strip_sections_from_chunk(chunk[CHUNK_DESC + 1:]))
         module[item["type"]].append(item)
