@@ -511,20 +511,8 @@ static int pushBuiltinSharingServices(lua_State *L) {
     [skin pushNSObject:NSSharingServiceNameAddToSafariReadingList] ;    lua_setfield(L, -2, "addToSafariReadingList") ;
     [skin pushNSObject:NSSharingServiceNameComposeEmail] ;              lua_setfield(L, -2, "composeEmail") ;
     [skin pushNSObject:NSSharingServiceNameComposeMessage] ;            lua_setfield(L, -2, "composeMessage") ;
-    [skin pushNSObject:NSSharingServiceNamePostImageOnFlickr] ;         lua_setfield(L, -2, "postImageOnFlickr") ;
-    [skin pushNSObject:NSSharingServiceNamePostOnFacebook] ;            lua_setfield(L, -2, "postOnFacebook") ;
-    [skin pushNSObject:NSSharingServiceNamePostOnLinkedIn] ;            lua_setfield(L, -2, "postOnLinkedIn") ;
-    [skin pushNSObject:NSSharingServiceNamePostOnSinaWeibo] ;           lua_setfield(L, -2, "postOnSinaWeibo") ;
-    [skin pushNSObject:NSSharingServiceNamePostOnTencentWeibo] ;        lua_setfield(L, -2, "postOnTencentWeibo") ;
-    [skin pushNSObject:NSSharingServiceNamePostOnTwitter] ;             lua_setfield(L, -2, "postOnTwitter") ;
-    [skin pushNSObject:NSSharingServiceNamePostVideoOnTudou] ;          lua_setfield(L, -2, "postVideoOnTudou") ;
-    [skin pushNSObject:NSSharingServiceNamePostVideoOnVimeo] ;          lua_setfield(L, -2, "postVideoOnVimeo") ;
-    [skin pushNSObject:NSSharingServiceNamePostVideoOnYouku] ;          lua_setfield(L, -2, "postVideoOnYouku") ;
     [skin pushNSObject:NSSharingServiceNameSendViaAirDrop] ;            lua_setfield(L, -2, "sendViaAirDrop") ;
     [skin pushNSObject:NSSharingServiceNameUseAsDesktopPicture] ;       lua_setfield(L, -2, "useAsDesktopPicture") ;
-    [skin pushNSObject:NSSharingServiceNameUseAsFacebookProfileImage] ; lua_setfield(L, -2, "useAsFacebookProfileImage") ;
-    [skin pushNSObject:NSSharingServiceNameUseAsLinkedInProfileImage] ; lua_setfield(L, -2, "useAsLinkedInProfileImage") ;
-    [skin pushNSObject:NSSharingServiceNameUseAsTwitterProfileImage] ;  lua_setfield(L, -2, "useAsTwitterProfileImage") ;
     return 1 ;
 }
 

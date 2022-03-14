@@ -9,6 +9,12 @@
 #import <Foundation/Foundation.h>
 #import "HSLogger.h"
 
+#ifdef SENTRY_API_URL
+#   pragma message "BUILD NOTE: Sentry API URL available"
+#else
+#   pragma message "BUILD NOTE: Sentry API URL unavailable"
+#endif
+
 @implementation HSLogger
 
 @synthesize L = _L ;

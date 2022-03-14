@@ -67,13 +67,13 @@ void PreferencesDarkModeSetEnabled(BOOL enabled) {
 }
 
 - (void)updateFeedbackDisplay:(NSNotification __unused *)notification {
-    [self.openAtLoginCheckbox setState:MJAutoLaunchGet() ? NSOnState : NSOffState];
-    [self.showDockIconCheckbox setState: MJDockIconVisible() ? NSOnState : NSOffState];
-    [self.showMenuIconCheckbox setState: MJMenuIconVisible() ? NSOnState : NSOffState];
-    [self.keepConsoleOnTopCheckbox setState: MJConsoleWindowAlwaysOnTop() ? NSOnState : NSOffState];
-    [self.uploadCrashDataCheckbox setState: HSUploadCrashData() ? NSOnState : NSOffState];
+    [self.openAtLoginCheckbox setState:MJAutoLaunchGet() ? NSControlStateValueOn : NSControlStateValueOff];
+    [self.showDockIconCheckbox setState: MJDockIconVisible() ? NSControlStateValueOn : NSControlStateValueOff];
+    [self.showMenuIconCheckbox setState: MJMenuIconVisible() ? NSControlStateValueOn : NSControlStateValueOff];
+    [self.keepConsoleOnTopCheckbox setState: MJConsoleWindowAlwaysOnTop() ? NSControlStateValueOn : NSControlStateValueOff];
+    [self.uploadCrashDataCheckbox setState: HSUploadCrashData() ? NSControlStateValueOn : NSControlStateValueOff];
 #ifndef SENTRY_API_URL
-    [self.uploadCrashDataCheckbox setState:NSOffState];
+    [self.uploadCrashDataCheckbox setState:NSControlStateValueOff];
     [self.uploadCrashDataCheckbox setEnabled:NO];
 #endif
 
@@ -97,11 +97,11 @@ void PreferencesDarkModeSetEnabled(BOOL enabled) {
 
     [[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(accessibilityChanged:) name:@"com.apple.accessibility.api" object:nil];
 
-    [self.openAtLoginCheckbox setState:MJAutoLaunchGet() ? NSOnState : NSOffState];
-    [self.showDockIconCheckbox setState: MJDockIconVisible() ? NSOnState : NSOffState];
-    [self.showMenuIconCheckbox setState: MJMenuIconVisible() ? NSOnState : NSOffState];
-    [self.keepConsoleOnTopCheckbox setState: MJConsoleWindowAlwaysOnTop() ? NSOnState : NSOffState];
-    [self.uploadCrashDataCheckbox setState: HSUploadCrashData() ? NSOnState : NSOffState];
+    [self.openAtLoginCheckbox setState:MJAutoLaunchGet() ? NSControlStateValueOn : NSControlStateValueOff];
+    [self.showDockIconCheckbox setState: MJDockIconVisible() ? NSControlStateValueOn : NSControlStateValueOff];
+    [self.showMenuIconCheckbox setState: MJMenuIconVisible() ? NSControlStateValueOn : NSControlStateValueOff];
+    [self.keepConsoleOnTopCheckbox setState: MJConsoleWindowAlwaysOnTop() ? NSControlStateValueOn : NSControlStateValueOff];
+    [self.uploadCrashDataCheckbox setState: HSUploadCrashData() ? NSControlStateValueOn : NSControlStateValueOff];
 
     if (NSClassFromString(@"SUUpdater")) {
         NSString *frameworkPath = [[[NSBundle bundleForClass:[self class]] privateFrameworksPath] stringByAppendingPathComponent:@"Sparkle.framework"];
@@ -116,12 +116,12 @@ void PreferencesDarkModeSetEnabled(BOOL enabled) {
         }
     } else {
         NSLog(@"SUUpdater doesn't exist, disabling updates checkbox in Preferences");
-        [self.updatesCheckbox setState:NSOffState];
+        [self.updatesCheckbox setState:NSControlStateValueOff];
         [self.updatesCheckbox setEnabled:NO];
     }
 
 #ifndef SENTRY_API_URL
-    [self.uploadCrashDataCheckbox setState:NSOffState];
+    [self.uploadCrashDataCheckbox setState:NSControlStateValueOff];
     [self.uploadCrashDataCheckbox setEnabled:NO];
 #endif
 
@@ -170,7 +170,7 @@ void PreferencesDarkModeSetEnabled(BOOL enabled) {
 }
 
 - (IBAction) toggleOpensAtLogin:(NSButton*)sender {
-    BOOL enabled = [sender state] == NSOnState;
+    BOOL enabled = [sender state] == NSControlStateValueOn;
     MJAutoLaunchSet(enabled);
 }
 
@@ -180,23 +180,23 @@ void PreferencesDarkModeSetEnabled(BOOL enabled) {
 }
 
 - (void) actuallyToggleShowDockIcon {
-    BOOL enabled = [self.showDockIconCheckbox state] == NSOnState;
+    BOOL enabled = [self.showDockIconCheckbox state] == NSControlStateValueOn;
     MJDockIconSetVisible(enabled);
     [self maybeWarnAboutDockMenuProblem];
 }
 
 - (IBAction) toggleMenuDockIcon:(NSButton*)sender {
-    BOOL enabled = [sender state] == NSOnState;
+    BOOL enabled = [sender state] == NSControlStateValueOn;
     MJMenuIconSetVisible(enabled);
     [self maybeWarnAboutDockMenuProblem];
 }
 
 - (IBAction) toggleKeepConsoleOnTop:(id)sender {
-    MJConsoleWindowSetAlwaysOnTop([sender state] == NSOnState);
+    MJConsoleWindowSetAlwaysOnTop([sender state] == NSControlStateValueOn);
 }
 
 - (IBAction) toggleUploadCrashData:(id)sender {
-    HSSetUploadCrashData([sender state] == NSOnState);
+    HSSetUploadCrashData([sender state] == NSControlStateValueOn);
 }
 
 - (IBAction) privacyPolicyClicked:(id)sender {
@@ -204,7 +204,7 @@ void PreferencesDarkModeSetEnabled(BOOL enabled) {
 }
 
 - (void) dockMenuProblemAlertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo {
-    BOOL skipNextTime = ([[alert suppressionButton] state] == NSOnState);
+    BOOL skipNextTime = ([[alert suppressionButton] state] == NSControlStateValueOn);
     [[NSUserDefaults standardUserDefaults] setBool:skipNextTime forKey:MJSkipDockMenuIconProblemAlertKey];
 }
 

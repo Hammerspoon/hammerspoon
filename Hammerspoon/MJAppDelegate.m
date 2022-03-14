@@ -278,7 +278,7 @@
 
 // Dragging & Dropping of Text to Dock Item
 -(void) processDockIconDraggedText:(NSPasteboard *)pboard userData:(NSString *)userData error:(NSString **)error {
-    NSString *pboardString = [pboard stringForType:NSStringPboardType];
+    NSString *pboardString = [pboard stringForType:NSPasteboardTypeString];
     textDroppedToDockIcon(pboardString);
 }
 

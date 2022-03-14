@@ -1729,7 +1729,7 @@ static int userdata_gc(lua_State* L) ;
                 anItem = [skin toNSObjectAtIndex:-1] ;
                 lua_pop(L, 1) ;
             }
-            if (anItem && [anItem isKindOfClass:[NSColor class]] && [(NSColor *)anItem colorUsingColorSpaceName:NSCalibratedRGBColorSpace]) {
+            if (anItem && [anItem isKindOfClass:[NSColor class]] && [(NSColor *)anItem colorUsingColorSpace:[NSColorSpace genericRGBColorSpace]]) {
                 [(NSMutableArray *)newValue addObject:anItem] ;
             } else {
                 [LuaSkin logWarn:[NSString stringWithFormat:@"%s:not a proper color at index %lu of fillGradientColor; using Black", USERDATA_TAG, idx + 1]] ;
@@ -3177,7 +3177,7 @@ static int canvas_delete(lua_State *L) {
                     LS_TNUMBER | LS_TOPTIONAL,
                     LS_TBREAK] ;
 
-    HSCanvasView   *canvasView   = [skin luaObjectAtIndex:1 toClass:"HSCanvasView"] ;
+ //   HSCanvasView   *canvasView   = [skin luaObjectAtIndex:1 toClass:"HSCanvasView"] ;
 //     HSCanvasWindow *canvasWindow = canvasView.wrapperWindow ;
     if (warnedAboutDelete < 10) {
         warnedAboutDelete++ ;
@@ -3869,7 +3869,7 @@ static int cg_windowLevels(lua_State *L) {
 // delegates and blocks.
 
 static int pushHSCanvasView(lua_State *L, id obj) {
-    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+    //LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     HSCanvasView *value = obj;
     value.selfRefCount++ ;
 //     if (value.selfRef == LUA_NOREF) {

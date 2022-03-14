@@ -111,12 +111,12 @@ NSString *stringForBrightness(CGFloat brightness) {
 
     [NSGraphicsContext saveGraphicsState];
     [NSGraphicsContext setCurrentContext:[NSGraphicsContext graphicsContextWithBitmapImageRep:bitmapImage]];
-    [self drawInRect:NSMakeRect(0, 0, width, height) fromRect:NSZeroRect operation:NSCompositeCopy fraction:1.0];
+    [self drawInRect:NSMakeRect(0, 0, width, height) fromRect:NSZeroRect operation:NSCompositingOperationCopy fraction:1.0];
     [NSGraphicsContext restoreGraphicsState];
     for (NSInteger i = 0; i < height; i++) {
         for (NSInteger j = 0; j < width; j++) {
             NSColor *color = [bitmapImage colorAtX:j y:i];
-            NSColor *wColor = [color colorUsingColorSpaceName:NSDeviceWhiteColorSpace];
+            NSColor *wColor = [color colorUsingColorSpace:[NSColorSpace deviceGrayColorSpace]];
             [string appendString:stringForBrightness([wColor whiteComponent])];
         }
         [string appendString:@"\n"];
@@ -1306,17 +1306,17 @@ static int colorAt(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBREAK] ;
 
-    // Source: https://stackoverflow.com/a/33485218/6925202
-    @autoreleasepool {
-    	NSImage *theImage = [skin luaObjectAtIndex:1 toClass:"NSImage"] ;
-    	NSPoint point  = [skin tableToPointAtIndex:2] ;
+    NSImage *theImage = [skin luaObjectAtIndex:1 toClass:"NSImage"] ;
+    NSPoint point  = [skin tableToPointAtIndex:2] ;
 
-		// Source: https://stackoverflow.com/a/48400410
-		[theImage lockFocus];
-		NSColor *pixelColor = NSReadPixel(point);
-		[theImage unlockFocus];
-        [skin pushNSObject:pixelColor];
-	}
+    NSColor *pixelColor = nil;
+    @autoreleasepool {
+        CGImageRef CGImage = [theImage CGImageForProposedRect:nil context:nil hints:nil];
+        NSBitmapImageRep *rep = [[NSBitmapImageRep alloc] initWithCGImage:CGImage];
+        pixelColor = [rep colorAtX:point.x y:point.y];
+    }
+
+    [skin pushNSObject:pixelColor];
 
     return 1;
 }
@@ -1406,14 +1406,14 @@ static int encodeAsString(lua_State* L) {
         typeLabel = [skin toNSObjectAtIndex:3] ;
     } // else it's 1 and we no longer need to check
 
-    NSBitmapImageFileType fileType = NSPNGFileType ;
+    NSBitmapImageFileType fileType = NSBitmapImageFileTypePNG ;
 
-    if      ([typeLabel compare:@"PNG"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSPNGFileType  ; }
-    else if ([typeLabel compare:@"TIFF" options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSTIFFFileType ; }
-    else if ([typeLabel compare:@"BMP"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSBMPFileType  ; }
-    else if ([typeLabel compare:@"GIF"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSGIFFileType  ; }
-    else if ([typeLabel compare:@"JPEG" options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSJPEGFileType ; }
-    else if ([typeLabel compare:@"JPG"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSJPEGFileType ; }
+    if      ([typeLabel compare:@"PNG"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSBitmapImageFileTypePNG  ; }
+    else if ([typeLabel compare:@"TIFF" options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSBitmapImageFileTypeTIFF ; }
+    else if ([typeLabel compare:@"BMP"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSBitmapImageFileTypeBMP  ; }
+    else if ([typeLabel compare:@"GIF"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSBitmapImageFileTypeGIF  ; }
+    else if ([typeLabel compare:@"JPEG" options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSBitmapImageFileTypeJPEG ; }
+    else if ([typeLabel compare:@"JPG"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSBitmapImageFileTypeJPEG ; }
     else {
         return luaL_error(L, "invalid image type specified") ;
     }
@@ -1499,14 +1499,14 @@ static int saveToFile(lua_State* L) {
         typeLabel = [skin toNSObjectAtIndex:4] ;
     } // else it's 2 and we no longer need to check
 
-    NSBitmapImageFileType fileType = NSPNGFileType ;
+    NSBitmapImageFileType fileType = NSBitmapImageFileTypePNG ;
 
-    if      ([typeLabel compare:@"PNG"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSPNGFileType  ; }
-    else if ([typeLabel compare:@"TIFF" options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSTIFFFileType ; }
-    else if ([typeLabel compare:@"BMP"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSBMPFileType  ; }
-    else if ([typeLabel compare:@"GIF"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSGIFFileType  ; }
-    else if ([typeLabel compare:@"JPEG" options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSJPEGFileType ; }
-    else if ([typeLabel compare:@"JPG"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSJPEGFileType ; }
+    if      ([typeLabel compare:@"PNG"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSBitmapImageFileTypePNG  ; }
+    else if ([typeLabel compare:@"TIFF" options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSBitmapImageFileTypeTIFF ; }
+    else if ([typeLabel compare:@"BMP"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSBitmapImageFileTypeBMP  ; }
+    else if ([typeLabel compare:@"GIF"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSBitmapImageFileTypeGIF  ; }
+    else if ([typeLabel compare:@"JPEG" options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSBitmapImageFileTypeJPEG ; }
+    else if ([typeLabel compare:@"JPG"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSBitmapImageFileTypeJPEG ; }
     else {
         return luaL_error(L, "hs.image:saveToFile:: invalid file type specified") ;
     }

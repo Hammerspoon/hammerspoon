@@ -48,7 +48,7 @@ static int colorAsRGB(lua_State *L) {
     [skin checkArgs:LS_TTABLE, LS_TBREAK] ;
     NSColor *theColor = [skin luaObjectAtIndex:1 toClass:"NSColor"] ;
 
-    NSColor *safeColor = [theColor colorUsingColorSpaceName:NSCalibratedRGBColorSpace] ;
+    NSColor *safeColor = [theColor colorUsingColorSpace:[NSColorSpace genericRGBColorSpace]]; ;
 
     if (safeColor) {
         lua_newtable(L) ;
@@ -57,7 +57,7 @@ static int colorAsRGB(lua_State *L) {
           lua_pushnumber(L, [safeColor blueComponent])  ; lua_setfield(L, -2, "blue") ;
           lua_pushnumber(L, [safeColor alphaComponent]) ; lua_setfield(L, -2, "alpha") ;
     } else {
-        lua_pushstring(L, [[NSString stringWithFormat:@"unable to convert colorspace from %@ to NSCalibratedRGBColorSpace", [theColor colorSpaceName]] UTF8String]) ;
+        lua_pushstring(L, [[NSString stringWithFormat:@"unable to convert colorspace %@ to NSCalibratedRGBColorSpace", theColor.colorSpace.description] UTF8String]) ;
     }
 
     return 1 ;
@@ -80,7 +80,7 @@ static int colorAsHSB(lua_State *L) {
     [skin checkArgs:LS_TTABLE, LS_TBREAK] ;
     NSColor *theColor = [skin luaObjectAtIndex:1 toClass:"NSColor"] ;
 
-    NSColor *safeColor = [theColor colorUsingColorSpaceName:NSCalibratedRGBColorSpace] ;
+    NSColor *safeColor = [theColor colorUsingColorSpace:[NSColorSpace genericRGBColorSpace]] ;
 
     if (safeColor) {
         lua_newtable(L) ;
@@ -89,7 +89,7 @@ static int colorAsHSB(lua_State *L) {
           lua_pushnumber(L, [safeColor brightnessComponent]) ; lua_setfield(L, -2, "brightness") ;
           lua_pushnumber(L, [safeColor alphaComponent])      ; lua_setfield(L, -2, "alpha") ;
     } else {
-        lua_pushstring(L, [[NSString stringWithFormat:@"unable to convert colorspace from %@ to NSCalibratedRGBColorSpace", [theColor colorSpaceName]] UTF8String]) ;
+        lua_pushstring(L, [[NSString stringWithFormat:@"unable to convert colorspace from %@ to NSCalibratedRGBColorSpace", theColor.colorSpace.description] UTF8String]) ;
     }
 
     return 1 ;
@@ -101,7 +101,7 @@ static int colorAsHSB(lua_State *L) {
 static int NSColor_tolua(lua_State *L, id obj) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     NSColor *theColor = obj ;
-    NSColor *safeColor = [theColor colorUsingColorSpaceName:NSCalibratedRGBColorSpace] ;
+    NSColor *safeColor = [theColor colorUsingColorSpace:[NSColorSpace genericRGBColorSpace]] ;
 
     if (safeColor) {
         lua_newtable(L) ;
@@ -123,7 +123,7 @@ static int NSColor_tolua(lua_State *L, id obj) {
           lua_setfield(L, -2, "image") ;
           lua_pushstring(L, "NSColor") ; lua_setfield(L, -2, "__luaSkinType") ;
     } else {
-        lua_pushstring(L, [[NSString stringWithFormat:@"unable to convert colorspace from %@ to NSCalibratedRGBColorSpace", [theColor colorSpaceName]] UTF8String]) ;
+        lua_pushstring(L, [[NSString stringWithFormat:@"unable to convert colorspace from %@ to NSCalibratedRGBColorSpace", theColor.colorSpace.description] UTF8String]) ;
     }
 
     return 1 ;
