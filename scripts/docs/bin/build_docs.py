@@ -208,7 +208,7 @@ def get_section_from_chunk(chunk, sectionname, item):
     if section[-1] == "":
         # Sections usually end with a blank line, but we don't want it, so remove it
         section.pop()
-    if "" in section:
+    if "" in section and sectionname not in ["Notes:", "Examples:"]:
         # Having removed any final blank lines, there should be no further blank lines, but we found one
         message = "%s has a blank line in %s" % (item["signature"], sectionname)
         warn(message)
