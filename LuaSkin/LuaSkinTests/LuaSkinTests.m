@@ -1117,4 +1117,19 @@ id luaObjectHelperTestFunction(lua_State *L, int idx) {
     XCTAssertTrue([result containsString:@"NSInvalidArgumentException"]);
 }
 
+- (void)testLuaThreadTracker {
+    XCTAssertEqual(0, self.skin.trackedThreads.count);
+
+    lua_State *L1 = lua_newthread(self.skin.L);
+    XCTAssertEqual(1, self.skin.trackedThreads.count);
+    XCTAssertTrue([LuaSkin luaThreadAlive:L1]);
+
+    // Remove L1 from the Lua stack, thus making it eligible for garbage collection
+    lua_pop(self.skin.L, 1);
+
+    luaL_dostring(self.skin.L, "collectgarbage(); collectgarbage()");
+    XCTAssertEqual(0, self.skin.trackedThreads.count);
+    XCTAssertFalse([LuaSkin luaThreadAlive:L1]);
+
+}
 @end
