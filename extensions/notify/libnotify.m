@@ -413,7 +413,6 @@ static int notification_scheduleNotification(lua_State* L) {
 /// Returns:
 ///  * The notification object
 ///  * This method allows you to unlock a dispatched notification so that it can be modified and resent.
-///
 ///  * if the notification was not created by this module, it will still be withdrawn if possible
 static int notification_withdraw(lua_State* L) {
     LuaSkin *skin  = [LuaSkin sharedWithState:L];
@@ -775,7 +774,7 @@ static int notification_getFunctionTag(lua_State* L) {
 /// Returns:
 ///  * The notification object, if shouldWithdraw is present; otherwise the current setting.
 ///
-/// Note:
+/// Notes:
 ///  * This method has no effect if the user has set Hammerspoon notifications to `Alert` in the Notification Center pane of System Preferences: clicking on either the action or other button will clear the notification automatically.
 ///  * If a notification which was created before your last reload (or restart) of Hammerspoon and is clicked upon before hs.notify has been loaded into memory, this setting will not be honored because the initial application delegate is not aware of this option and is set to automatically withdraw all notifications which are acted upon.
 ///
@@ -920,7 +919,7 @@ static int notification_setIdImage(lua_State *L) {
 /// Returns:
 ///  * The notification object, if an argument is present; otherwise the current value
 ///
-/// Note:
+/// Notes:
 ///  * This method has no effect unless the user has set Hammerspoon notifications to `Alert` in the Notification Center pane of System Preferences.
 ///  * [hs.notify:hasActionButton](#hasActionButton) must also be true or the "Reply" button will not be displayed.
 ///  * If this is set to true, the action button will be "Reply" even if you have set another one with [hs.notify:actionButtonTitle](#actionButtonTitle).
@@ -958,7 +957,7 @@ static int notification_hasReplyButton(lua_State *L) {
 /// Returns:
 ///  * The notification object, if an argument is present; otherwise the current value.
 ///
-/// Note:
+/// Notes:
 ///  * This method has no effect unless the user has set Hammerspoon notifications to `Alert` in the Notification Center pane of System Preferences.
 ///  * [hs.notify:additionalActions](#additionalActions) must also be used for this method to have any effect.
 ///  * **WARNING:** This method uses a private API. It could break at any time. Please file an issue if it does.
@@ -1000,7 +999,7 @@ static int notification_alwaysShowAdditionalActions(lua_State *L) {
 /// Returns:
 ///  * The notification object, if an argument is present; otherwise the current value.
 ///
-/// Note:
+/// Notes:
 ///  * While this setting applies to both Banner and Alert styles of notifications, it is functionally meaningless for Banner styles
 ///  * A value of 0 will disable auto-withdrawal
 ///
