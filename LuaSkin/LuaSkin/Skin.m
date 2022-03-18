@@ -181,6 +181,11 @@ static NSMutableSet *_sharedWarnings ;
     // self in a class method == the class itself
     LuaSkin *skin = [self sharedWithDelegate:nil] ;
     if (L) {
+        if (L != _mainLuaState && ![skin isThreadTracked:L]) {
+            NSLog(@"LuaSkin sharedWithState called with an un-tracked Lua thread");
+            NSException *myException = [NSException exceptionWithName:@"LuaThreadNotTracked" reason:@"LuaSkin sharedWithState called on an untracked Lua thread" userInfo:nil];
+            @throw myException;
+        }
         if (lua_status(L) != LUA_OK) {
             NSLog(@"GRAVE BUG: LUASKIN ATTEMPTING TO USE SUSPENDED OR DEAD LUATHREAD");
             for (NSString *stackSymbol in [NSThread callStackSymbols]) {
@@ -388,10 +393,12 @@ catastrophe:
 }
 
 - (void)trackThread:(lua_State *)L {
+    NSLog(@"Tracking new Lua thread: %p", L);
     [self.trackedThreads addPointer:L];
 }
 
 - (void)untrackThread:(lua_State *)L {
+    NSLog(@"Untracking Lua thread: %p", L);
     for (NSUInteger i = 0; i < self.trackedThreads.count; i++) {
         if ([self.trackedThreads pointerAtIndex:i] == L) {
             [self.trackedThreads removePointerAtIndex: i];

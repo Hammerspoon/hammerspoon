@@ -309,11 +309,14 @@ LUA_API lua_State *lua_newthread (lua_State *L) {
   luai_userstatethread(L, L1);
   stack_init(L1, L);  /* init stack */
   lua_unlock(L);
+
+  skin_track_thread(L1);
   return L1;
 }
 
 
 void luaE_freethread (lua_State *L, lua_State *L1) {
+  skin_untrack_thread(L1);
   LX *l = fromstate(L1);
   luaF_closeupval(L1, L1->stack);  /* close all upvalues */
   lua_assert(L1->openupval == NULL);

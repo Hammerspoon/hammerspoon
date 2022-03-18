@@ -12,6 +12,7 @@
 #include "lobject.h"
 #include "ltm.h"
 #include "lzio.h"
+#include "lthread_tracker.h"
 
 
 /*
