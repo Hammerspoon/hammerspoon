@@ -29,5 +29,9 @@ post_install do |installer|
        config.build_settings['MACOSX_DEPLOYMENT_TARGET'] = '10.15'
      end
    end
+   puts "Removing hard-coded architecture in #{target.name}"
+   target.build_configurations.each do |config|
+     config.build_settings.delete 'ARCHS'
+   end
   end
 end
