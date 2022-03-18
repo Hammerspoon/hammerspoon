@@ -1131,5 +1131,23 @@ id luaObjectHelperTestFunction(lua_State *L, int idx) {
     XCTAssertEqual(0, self.skin.trackedThreads.count);
     XCTAssertFalse([LuaSkin luaThreadAlive:L1]);
 
+    L1 = lua_newthread(self.skin.L);
+    [self.skin resetLuaState];
+    self.skin = [LuaSkin sharedWithState:NULL];
+    XCTAssertEqual(0, self.skin.trackedThreads.count);
+
+    // Now repeat the above tests after reloading Lua
+
+
+    L1 = lua_newthread(self.skin.L);
+    XCTAssertEqual(1, self.skin.trackedThreads.count);
+    XCTAssertTrue([LuaSkin luaThreadAlive:L1]);
+
+    // Remove L1 from the Lua stack, thus making it eligible for garbage collection
+    lua_pop(self.skin.L, 1);
+
+    luaL_dostring(self.skin.L, "collectgarbage(); collectgarbage()");
+    XCTAssertEqual(0, self.skin.trackedThreads.count);
+    XCTAssertFalse([LuaSkin luaThreadAlive:L1]);
 }
 @end
