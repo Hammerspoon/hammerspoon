@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4FAD367827E4F568007EC56F /* lthread_tracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FAD367727E4F568007EC56F /* lthread_tracker.m */; };
+		4FAD367A27E4F57C007EC56F /* lthread_tracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FAD367927E4F57C007EC56F /* lthread_tracker.h */; };
 		4FDC203D1E117F7500EDA72E /* luaskin.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FDC203C1E117F7500EDA72E /* luaskin.lua */; };
 		4FDD8E781C850AC800085D7A /* lsunit.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FDD8E771C850AC800085D7A /* lsunit.lua */; };
 		4FDD8E801C85A09600085D7A /* testinit.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FDD8E7F1C85A09600085D7A /* testinit.lua */; };
@@ -121,6 +123,8 @@
 /* Begin PBXFileReference section */
 		4F0C1C7D273143D0002CA157 /* LuaSkin-Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "LuaSkin-Base.xcconfig"; sourceTree = "<group>"; };
 		4F0C1C7E273143DF002CA157 /* LuaSkin-Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "LuaSkin-Release.xcconfig"; sourceTree = "<group>"; };
+		4FAD367727E4F568007EC56F /* lthread_tracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = lthread_tracker.m; path = "lua-5.4.3/src/lthread_tracker.m"; sourceTree = "<group>"; };
+		4FAD367927E4F57C007EC56F /* lthread_tracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = lthread_tracker.h; path = "lua-5.4.3/src/lthread_tracker.h"; sourceTree = "<group>"; };
 		4FDC203C1E117F7500EDA72E /* luaskin.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = luaskin.lua; sourceTree = "<group>"; };
 		4FDD8E771C850AC800085D7A /* lsunit.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = lsunit.lua; sourceTree = "<group>"; };
 		4FDD8E7F1C85A09600085D7A /* testinit.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = testinit.lua; sourceTree = "<group>"; };
@@ -292,6 +296,8 @@
 				4FE3903624AB5789006A304B /* lvm.h */,
 				4FE3904224AB578A006A304B /* lzio.c */,
 				4FE3902224AB5789006A304B /* lzio.h */,
+				4FAD367727E4F568007EC56F /* lthread_tracker.m */,
+				4FAD367927E4F57C007EC56F /* lthread_tracker.h */,
 			);
 			name = "lua-5.4.3";
 			sourceTree = "<group>";
@@ -426,6 +432,7 @@
 				4FE3905324AB578B006A304B /* lundump.h in Headers */,
 				4FE3905624AB578B006A304B /* lua.hpp in Headers */,
 				4FE3905B24AB578B006A304B /* llimits.h in Headers */,
+				4FAD367A27E4F57C007EC56F /* lthread_tracker.h in Headers */,
 				4FE3908824AB578B006A304B /* lfunc.h in Headers */,
 				4FE3906A24AB578B006A304B /* lstring.h in Headers */,
 				4FE3908A24AB578B006A304B /* luaconf.h in Headers */,
@@ -596,6 +603,7 @@
 				4FE3906624AB578B006A304B /* lapi.c in Sources */,
 				4FE3906B24AB578B006A304B /* lstate.c in Sources */,
 				4FE3907E24AB578B006A304B /* lparser.c in Sources */,
+				4FAD367827E4F568007EC56F /* lthread_tracker.m in Sources */,
 				4FE3908224AB578B006A304B /* lcorolib.c in Sources */,
 				4FE3905124AB578B006A304B /* lmathlib.c in Sources */,
 				4FE3906224AB578B006A304B /* ltablib.c in Sources */,

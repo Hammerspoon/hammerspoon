@@ -213,6 +213,8 @@ NSString *specMaskToString(int spec);
 
 @property (atomic) NSUUID *uuid;
 
+@property (atomic) NSPointerArray *trackedThreads;
+
 #pragma mark - Class lifecycle
 
 /*!
@@ -286,6 +288,10 @@ NSString *specMaskToString(int spec);
 - (BOOL)checkGCCanary:(LSGCCanary)canary;
 - (LSGCCanary)createGCCanary;
 - (void)destroyGCCanary:(LSGCCanary *)canary;
+
+- (void)trackThread:(lua_State *)L;
+- (void)untrackThread:(lua_State *)L;
+- (BOOL)isThreadTracked:(lua_State *)L;
 
 #pragma mark - Methods for calling into Lua from C
 

@@ -241,6 +241,8 @@ static NSMutableSet *_sharedWarnings ;
         _registeredLuaObjectHelperTableMappings    = [[NSMutableDictionary alloc] init];
         _retainedObjectsRefTableMappings           = [[NSMutableDictionary alloc] init];
 
+        _trackedThreads = nil;
+
         // Set the delegate before even instantiating Lua so we capture all logging attempts.
         if (delegate) {
             self.delegate = delegate;
@@ -259,6 +261,8 @@ static NSMutableSet *_sharedWarnings ;
     NSLog(@"createLuaState");
     NSAssert((LuaSkin.mainLuaState == NULL), @"createLuaState called on a live Lua environment", nil);
     self.uuid = [NSUUID UUID];
+    self.trackedThreads = [[NSPointerArray alloc] initWithOptions:NSPointerFunctionsOpaqueMemory];
+
     [self logBreadcrumb:[NSString stringWithFormat:@"createLuaState: %@", self.uuid]];
 
     LuaSkin.mainLuaState = luaL_newstate();
@@ -297,6 +301,8 @@ catastrophe:
 - (void)destroyLuaState {
     [self logBreadcrumb:[NSString stringWithFormat:@"destroyLuaState: %@", self.uuid]];
     NSAssert((LuaSkin.mainLuaState != NULL), @"destroyLuaState called with no Lua environment", nil);
+
+    self.trackedThreads = nil;
     if (LuaSkin.mainLuaState) {
         [self.retainedObjectsRefTableMappings enumerateKeysAndObjectsUsingBlock:^(NSNumber *refTableN, NSMutableDictionary *objectMappings, __unused BOOL *stop) {
             if ([refTableN isKindOfClass:[NSNumber class]] && [objectMappings isKindOfClass:[NSDictionary class]]) {
@@ -380,6 +386,30 @@ catastrophe:
     memset(canary->uuid, 0, LSUUIDLen);
     strncpy(canary->uuid, "GC", 2);
 }
+
+- (void)trackThread:(lua_State *)L {
+    [self.trackedThreads addPointer:L];
+}
+
+- (void)untrackThread:(lua_State *)L {
+    for (NSUInteger i = 0; i < self.trackedThreads.count; i++) {
+        if ([self.trackedThreads pointerAtIndex:i] == L) {
+            [self.trackedThreads removePointerAtIndex: i];
+        }
+    }
+}
+
+- (BOOL)isThreadTracked:(lua_State *)L {
+    BOOL isTracked = NO;
+    for (NSUInteger i = 0; i < self.trackedThreads.count; i++) {
+        if ([self.trackedThreads pointerAtIndex:i] == L) {
+            isTracked = YES;
+            break;
+        }
+    }
+    return isTracked;
+}
+
 
 #pragma mark - Methods for calling into Lua from C
 
