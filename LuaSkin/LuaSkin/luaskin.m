@@ -14,7 +14,10 @@ static void swapOutObjectInUserdata(lua_State *L, int idx, NSObject *obj, NSObje
 
     // change existing userdata: release old object and retain new one
     void** valuePtr = lua_touserdata(L, idx) ;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-but-set-variable"
     NSObject *holding = (__bridge_transfer NSObject *)(*valuePtr) ;
+#pragma clang diagnostic pop
     *valuePtr = (__bridge_retained void *)newObj ;
     holding = nil ;
 
@@ -303,7 +306,10 @@ static int obj_ud_eq(lua_State *L) {
 }
 
 static int obj_ud_gc(lua_State *L) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-but-set-variable"
     NSObject *obj = get_objectFromUserdata(__bridge_transfer NSObject, L, 1, LuaSkin_UD_TAG) ;
+#pragma clang diagnostic pop
     obj = nil ;
 
     // Remove the Metatable so future use of the variable in Lua won't think its valid
