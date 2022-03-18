@@ -289,8 +289,8 @@ NSString *specMaskToString(int spec);
 - (LSGCCanary)createGCCanary;
 - (void)destroyGCCanary:(LSGCCanary *)canary;
 
-- (void)trackLuaThread:(lua_State *)L;
-- (void)untrackLuaThread:(lua_State *)L;
+- (void)trackLuaThread:(void *)L;
+- (void)untrackLuaThread:(void *)L;
 - (BOOL)isLuaThreadTracked:(lua_State *)L;
 
 #pragma mark - Methods for calling into Lua from C
