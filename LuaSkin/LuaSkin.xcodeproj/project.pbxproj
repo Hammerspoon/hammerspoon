@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		4FAD367827E4F568007EC56F /* lthread_tracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FAD367727E4F568007EC56F /* lthread_tracker.m */; };
 		4FAD367A27E4F57C007EC56F /* lthread_tracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FAD367927E4F57C007EC56F /* lthread_tracker.h */; };
+		4FD782B627E50EF20069F49B /* lthread_tracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FAD367927E4F57C007EC56F /* lthread_tracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4FDC203D1E117F7500EDA72E /* luaskin.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FDC203C1E117F7500EDA72E /* luaskin.lua */; };
 		4FDD8E781C850AC800085D7A /* lsunit.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FDD8E771C850AC800085D7A /* lsunit.lua */; };
 		4FDD8E801C85A09600085D7A /* testinit.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FDD8E7F1C85A09600085D7A /* testinit.lua */; };
@@ -386,6 +387,7 @@
 				4FE3909324AB57DE006A304B /* ldebug.h in Headers */,
 				4FE390A424AB57DE006A304B /* lua.h in Headers */,
 				4FE390A224AB57DE006A304B /* ltable.h in Headers */,
+				4FD782B627E50EF20069F49B /* lthread_tracker.h in Headers */,
 				4FE3909824AB57DE006A304B /* llex.h in Headers */,
 				4FE3909D24AB57DE006A304B /* lopnames.h in Headers */,
 				4FE390A724AB57DE006A304B /* lualib.h in Headers */,

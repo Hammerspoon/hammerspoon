@@ -181,7 +181,7 @@ static NSMutableSet *_sharedWarnings ;
     // self in a class method == the class itself
     LuaSkin *skin = [self sharedWithDelegate:nil] ;
     if (L) {
-        if (L != _mainLuaState && ![skin isThreadTracked:L]) {
+        if (L != _mainLuaState && ![skin isLuaThreadTracked:L]) {
             NSLog(@"LuaSkin sharedWithState called with an un-tracked Lua thread");
             NSException *myException = [NSException exceptionWithName:@"LuaThreadNotTracked" reason:@"LuaSkin sharedWithState called on an untracked Lua thread" userInfo:nil];
             @throw myException;
@@ -392,13 +392,13 @@ catastrophe:
     strncpy(canary->uuid, "GC", 2);
 }
 
-- (void)trackThread:(lua_State *)L {
-    NSLog(@"Tracking new Lua thread: %p", L);
+- (void)trackLuaThread:(lua_State *)L {
+    NSLog(@"Tracking new Lua thread: %p", (void*)L);
     [self.trackedThreads addPointer:L];
 }
 
-- (void)untrackThread:(lua_State *)L {
-    NSLog(@"Untracking Lua thread: %p", L);
+- (void)untrackLuaThread:(lua_State *)L {
+    NSLog(@"Untracking Lua thread: %p", (void*)L);
     for (NSUInteger i = 0; i < self.trackedThreads.count; i++) {
         if ([self.trackedThreads pointerAtIndex:i] == L) {
             [self.trackedThreads removePointerAtIndex: i];
@@ -406,7 +406,7 @@ catastrophe:
     }
 }
 
-- (BOOL)isThreadTracked:(lua_State *)L {
+- (BOOL)isLuaThreadTracked:(lua_State *)L {
     BOOL isTracked = NO;
     for (NSUInteger i = 0; i < self.trackedThreads.count; i++) {
         if ([self.trackedThreads pointerAtIndex:i] == L) {
