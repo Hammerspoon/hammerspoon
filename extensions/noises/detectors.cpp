@@ -148,7 +148,10 @@ int Detectors::processChunk(const float *buffer) {
     m_framesSinceSpeech = 0;
   }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-but-set-variable"
   float debugMarker = 0.0002;
+#pragma clang diagnostic pop
   float matchiness = mainBand / ((lowerBand+upperBand)/2.0f);
   bool outOfShadow = m_framesSinceSpeech > kSpeechShadowTime;
   int immediateMatchFrame = kDelayMatch ? m_minFramesLong : m_minFrames;
