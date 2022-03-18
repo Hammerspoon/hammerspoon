@@ -67,6 +67,10 @@ static void remove_delegate(lua_State* L, connectionDelegate* delegate) {
     if (self.fn == LUA_NOREF) {
         return;
     }
+    if (![LuaSkin luaThreadAlive:self.L]) {
+        return;
+    }
+
     LuaSkin *skin = [LuaSkin sharedWithState:self.L];
     lua_State *L = skin.L;
     _lua_stackguard_entry(L);
@@ -85,6 +89,10 @@ static void remove_delegate(lua_State* L, connectionDelegate* delegate) {
     if (self.fn == LUA_NOREF){
         return;
     }
+    if (![LuaSkin luaThreadAlive:self.L]) {
+        return;
+    }
+
     LuaSkin *skin = [LuaSkin sharedWithState:self.L];
     _lua_stackguard_entry(skin.L);
 

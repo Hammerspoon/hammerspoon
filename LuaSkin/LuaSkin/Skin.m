@@ -182,10 +182,12 @@ static NSMutableSet *_sharedWarnings ;
     LuaSkin *skin = [self sharedWithDelegate:nil] ;
     if (L) {
         if (L != _mainLuaState && ![skin isLuaThreadTracked:L]) {
-            NSLog(@"LuaSkin sharedWithState called with an un-tracked Lua thread, returning the main Lua thread");
-            //NSException *myException = [NSException exceptionWithName:@"LuaThreadNotTracked" reason:@"LuaSkin sharedWithState called on an untracked Lua thread" userInfo:nil];
-            //@throw myException;
-            skin.L = _mainLuaState;
+            NSLog(@"GRAVE BUG: LUASKIN ATTEMPTING TO USE GARBAGE COLLECTED LUATHREAD");
+            for (NSString *stackSymbol in [NSThread callStackSymbols]) {
+                NSLog(@"Previous stack symbol: %@", stackSymbol);
+            }
+            NSException *myException = [NSException exceptionWithName:@"LuaThreadNotTracked" reason:@"LuaSkin sharedWithState called on an untracked Lua thread" userInfo:nil];
+            @throw myException;
         } else
         if (lua_status(L) != LUA_OK) {
             NSLog(@"GRAVE BUG: LUASKIN ATTEMPTING TO USE SUSPENDED OR DEAD LUATHREAD");
@@ -416,6 +418,11 @@ catastrophe:
         }
     }
     return isTracked;
+}
+
++ (BOOL)luaThreadAlive:(lua_State *)L {
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+    return [skin isLuaThreadTracked:L];
 }
 
 

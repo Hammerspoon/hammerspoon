@@ -289,6 +289,7 @@ NSString *specMaskToString(int spec);
 - (LSGCCanary)createGCCanary;
 - (void)destroyGCCanary:(LSGCCanary *)canary;
 
++ (BOOL)luaThreadAlive:(lua_State *)L;
 - (void)trackLuaThread:(void *)L;
 - (void)untrackLuaThread:(void *)L;
 - (BOOL)isLuaThreadTracked:(lua_State *)L;
