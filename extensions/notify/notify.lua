@@ -63,27 +63,25 @@ module.warnAboutMissingFunctionTag = true
 ---
 --- Parameters:
 ---  * fn - An optional function or function-tag, which will be called when the user interacts with notifications. The notification object will be passed as an argument to the function. If you leave this parameter out or specify nil, then no callback will be attached to the notification.
----  * attributes - An optional table for applying attributes to the notification. Possible keys are:
----
----   * alwaysPresent   - see [hs.notify:alwaysPresent](#alwaysPresent)
----   * autoWithdraw    - see [hs.notify:autoWithdraw](#autoWithdraw)
----   * contentImage    - see [hs.notify:contentImage](#contentImage)
----   * informativeText - see [hs.notify:informativeText](#informativeText)
----   * soundName       - see [hs.notify:soundName](#soundName)
----   * subTitle        - see [hs.notify:subTitle](#subTitle)
----   * title           - see [hs.notify:title](#title)
----   * setIdImage      - see [hs.notify:setIdImage](#setIdImage) -- note the border will automatically be set to false if assigned as an attribute in this table.
----
----  The following can also be set, but will only have an apparent effect on the notification when the user has set Hammerspoon's notification style to "Alert" in the Notification Center panel of System Preferences:
----
----   * actionButtonTitle           - see [hs.notify:actionButtonTitle](#actionButtonTitle)
----   * hasActionButton             - see [hs.notify:hasActionButton](#hasActionButton)
----   * otherButtonTitle            - see [hs.notify:otherButtonTitle](#otherButtonTitle)
----   * additionalActions           - see [hs.notify:additionalActions](#additionalActions)
----   * hasReplyButton              - see [hs.notify:hasReplyButton](#hasReplyButton)
----   * responsePlaceholder         - see [hs.notify:responsePlaceholder](#responsePlaceholder)
----   * alwaysShowAdditionalActions - see [hs.notify:alwaysShowAdditionalActions](#alwaysShowAdditionalActions)
----   * withdrawAfter               - see [hs.notify:withdrawAfter](#withdrawAfter)
+---  * attributes - An optional table for applying attributes to the notification.
+---   * Possible keys are:
+---    * alwaysPresent   - see [hs.notify:alwaysPresent](#alwaysPresent)
+---    * autoWithdraw    - see [hs.notify:autoWithdraw](#autoWithdraw)
+---    * contentImage    - see [hs.notify:contentImage](#contentImage)
+---    * informativeText - see [hs.notify:informativeText](#informativeText)
+---    * soundName       - see [hs.notify:soundName](#soundName)
+---    * subTitle        - see [hs.notify:subTitle](#subTitle)
+---    * title           - see [hs.notify:title](#title)
+---    * setIdImage      - see [hs.notify:setIdImage](#setIdImage) -- note the border will automatically be set to false if assigned as an attribute in this table.
+---   * The following can also be set, but will only have an apparent effect on the notification when the user has set Hammerspoon's notification style to "Alert" in the Notification Center panel of System Preferences:
+---    * actionButtonTitle           - see [hs.notify:actionButtonTitle](#actionButtonTitle)
+---    * hasActionButton             - see [hs.notify:hasActionButton](#hasActionButton)
+---    * otherButtonTitle            - see [hs.notify:otherButtonTitle](#otherButtonTitle)
+---    * additionalActions           - see [hs.notify:additionalActions](#additionalActions)
+---    * hasReplyButton              - see [hs.notify:hasReplyButton](#hasReplyButton)
+---    * responsePlaceholder         - see [hs.notify:responsePlaceholder](#responsePlaceholder)
+---    * alwaysShowAdditionalActions - see [hs.notify:alwaysShowAdditionalActions](#alwaysShowAdditionalActions)
+---    * withdrawAfter               - see [hs.notify:withdrawAfter](#withdrawAfter)
 ---
 --- Returns:
 ---  * A notification object

@@ -1064,9 +1064,8 @@ static int copyToolbar(lua_State *L) {
 /// Sets or removes the global callback function for the toolbar.
 ///
 /// Parameters:
-///  * fn - a function to set as the global callback for the toolbar, or nil to remove the global callback.
+///  * fn - a function to set as the global callback for the toolbar, or nil to remove the global callback. The function should expect three (four, if the item is a `searchfield` or `notifyOnChange` is true) arguments and return none: the toolbar object, "console" or the webview/chooser object the toolbar is attached to, and the toolbar item identifier that was clicked.
 ///
-///  The function should expect three (four, if the item is a `searchfield` or `notifyOnChange` is true) arguments and return none: the toolbar object, "console" or the webview/chooser object the toolbar is attached to, and the toolbar item identifier that was clicked.
 /// Returns:
 ///  * the toolbar object.
 ///
@@ -1341,13 +1340,13 @@ static int displayMode(lua_State *L) {
 /// Returns:
 ///  * if an argument is provided, returns the toolbar object; otherwise returns the current value
 ///
-///  Notes:
-///   * This is only available for macOS 11.0+. Will return `nil` if getting on an earlier version of macOS.
-///   * `automatic` - A style indicating that the system determines the toolbar’s appearance and location.
-///   * `expanded` - A style indicating that the toolbar appears below the window title.
-///   * `preference` - A style indicating that the toolbar appears below the window title with toolbar items centered in the toolbar.
-///   * `unified` - A style indicating that the toolbar appears next to the window title.
-///   * `unifiedCompact` - A style indicating that the toolbar appears next to the window title and with reduced margins to allow more focus on the window’s contents.
+/// Notes:
+///  * This is only available for macOS 11.0+. Will return `nil` if getting on an earlier version of macOS.
+///  * `automatic` - A style indicating that the system determines the toolbar’s appearance and location.
+///  * `expanded` - A style indicating that the toolbar appears below the window title.
+///  * `preference` - A style indicating that the toolbar appears below the window title with toolbar items centered in the toolbar.
+///  * `unified` - A style indicating that the toolbar appears next to the window title.
+///  * `unifiedCompact` - A style indicating that the toolbar appears next to the window title and with reduced margins to allow more focus on the window’s contents.
 static int toolbarStyle(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;

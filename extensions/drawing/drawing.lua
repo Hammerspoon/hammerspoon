@@ -792,7 +792,6 @@ return require("hs.drawing_canvasWrapper")
 ---  * styledTextObject - an object created with the hs.styledtext module or its table representation (see `hs.styledtext`).
 ---  * textStyle - an optional table containing one or more of the following keys to set for the text of the drawing object (if textStyle is nil or missing, the `hs.drawing` defaults are used):
 ---
----
 --- Returns:
 ---  * sizeTable - a table containing the Height and Width necessary to fully display the text drawing object, or nil if an error occurred
 ---

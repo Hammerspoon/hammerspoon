@@ -166,6 +166,7 @@ static int xattr_removexattr(lua_State *L) {
 /// Returns:
 ///  * If the attribute exists for the file or directory and contains data, returns the value of the attribute as a string of raw bytes which are not guaranteed to conform to proper UTF-8 byte sequences. If the attribute exist but does not have a value, returns the Lua boolean `true`.  If the attribute does not exist, returns nil. Throws a Lua error on failure with a description of the reason for the failure.
 ///
+/// Notes:
 ///  * See also [hs.fs.xattr.getHumanReadable](#getHumanReadable).
 static int xattr_getxattr(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
