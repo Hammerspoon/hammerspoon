@@ -149,7 +149,9 @@ int Detectors::processChunk(const float *buffer) {
   }
 
 #pragma clang diagnostic push
+#if __has_warning("-Wunused-but-set-variable")
 #pragma clang diagnostic ignored "-Wunused-but-set-variable"
+#endif
   float debugMarker = 0.0002;
 #pragma clang diagnostic pop
   float matchiness = mainBand / ((lowerBand+upperBand)/2.0f);
