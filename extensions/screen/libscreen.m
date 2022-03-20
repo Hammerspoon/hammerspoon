@@ -737,6 +737,36 @@ static int screen_getUUID(lua_State *L) {
     return 1;
 }
 
+/// hs.screen:getSerial() -> string or nil
+/// Method
+/// Gets the Serial Number of an `hs.screen` object
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  *  A string containing the serial unmber, or nil if an error occurred.
+static int screen_getSerial(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
+    NSScreen *screen = get_screen_arg(L, 1);
+    CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
+
+    NSString *serialNumber = nil;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    io_service_t service = CGDisplayIOServicePort(screen_id);
+#pragma clang diagnostic pop
+    if (service) {
+        NSDictionary *deviceInfo = (__bridge NSDictionary *)IODisplayCreateInfoDictionary(service, kIODisplayOnlyPreferredName);
+        NSLog(@"LOLOLOL: %@", deviceInfo);
+        serialNumber = [deviceInfo objectForKey:@kDisplaySerialNumber];
+    }
+    [skin pushNSObject:serialNumber];
+    return 1;
+}
+
 // CoreGraphics private APIs
 CG_EXTERN bool CGDisplayUsesForceToGray(void);
 CG_EXTERN void CGDisplayForceToGray(bool forceToGray);
@@ -1403,6 +1433,7 @@ static const luaL_Reg screen_objectlib[] = {
     {"getBrightness", screen_getBrightness},
     {"setBrightness", screen_setBrightness},
     {"getUUID", screen_getUUID},
+    {"getSerial", screen_getSerial},
     {"rotate", screen_rotate},
     {"setPrimary", screen_setPrimary},
     {"desktopImageURL", screen_desktopImageURL},
