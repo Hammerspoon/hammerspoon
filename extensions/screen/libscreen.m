@@ -761,7 +761,7 @@ static int screen_getDisplayInfo(lua_State *L) {
     if (service) {
         deviceInfo = (__bridge NSDictionary *)IODisplayCreateInfoDictionary(service, kIODisplayOnlyPreferredName);
     }
-    [skin pushNSObject:deviceInfo];
+    [skin pushNSObject:deviceInfo withOptions:LS_NSPreserveLuaStringExactly];
     return 1;
 }
 
