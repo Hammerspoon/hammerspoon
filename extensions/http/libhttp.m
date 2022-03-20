@@ -22,7 +22,6 @@ static id responseBodyToId(NSHTTPURLResponse *httpResponse, NSData *bodyData) {
 
 // Definition of the collection delegate to receive callbacks from NSUrlConnection
 @interface connectionDelegate : NSObject<NSURLConnectionDelegate>
-@property lua_State* L;
 @property int fn;
 @property(nonatomic, retain) NSMutableData* receivedData;
 @property(nonatomic, retain) NSHTTPURLResponse* httpResponse;
@@ -67,7 +66,7 @@ static void remove_delegate(lua_State* L, connectionDelegate* delegate) {
     if (self.fn == LUA_NOREF) {
         return;
     }
-    LuaSkin *skin = [LuaSkin sharedWithState:self.L];
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     lua_State *L = skin.L;
     _lua_stackguard_entry(L);
 
@@ -85,15 +84,15 @@ static void remove_delegate(lua_State* L, connectionDelegate* delegate) {
     if (self.fn == LUA_NOREF){
         return;
     }
-    LuaSkin *skin = [LuaSkin sharedWithState:self.L];
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     _lua_stackguard_entry(skin.L);
 
     NSString* errorMessage = [NSString stringWithFormat:@"Connection failed: %@ - %@", [error localizedDescription], [[error userInfo] objectForKey:NSURLErrorFailingURLStringErrorKey]];
     [skin pushLuaRef:refTable ref:self.fn];
-    lua_pushinteger(self.L, -1);
+    lua_pushinteger(skin.L, -1);
     [skin pushNSObject:errorMessage];
     [skin protectedCallAndError:@"hs.http connectionDelegate:didFailWithError" nargs:2 nresults:0];
-    remove_delegate(self.L, self);
+    remove_delegate(skin.L, self);
     _lua_stackguard_exit(skin.L);
 }
 
@@ -205,7 +204,6 @@ static int http_doAsyncRequest(lua_State* L){
     lua_pushvalue(L, 5);
 
     connectionDelegate* delegate = [[connectionDelegate alloc] init];
-    delegate.L = L;
     delegate.receivedData = [[NSMutableData alloc] init];
     delegate.fn = [skin luaRef:refTable];
 
