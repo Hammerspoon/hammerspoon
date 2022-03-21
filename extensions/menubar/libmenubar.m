@@ -101,7 +101,6 @@ typedef NS_ENUM(NSInteger, NSStatusBarItemPriority) {
 @end
 // Define a base object for our various callback handlers
 @interface HSMenubarCallbackObject : NSObject
-@property lua_State *L;
 @property int fn;
 @property int item;
 
@@ -304,7 +303,6 @@ void parse_table(lua_State *L, int idx, NSMenu *menu, NSSize stateBoxImageSize) 
                 // luaL_ref is going to create a reference to the item at the top of the stack and then pop it off. To avoid confusion, we're going to push the top item on top of itself, so luaL_ref leaves us where we are now
                 lua_pushvalue(L, -1);
                 delegate.fn = [skin luaRef:refTable];
-                delegate.L = L;
                 delegate.item = [skin luaRef:refTable atIndex:-2];
                 [menuItem setTarget:delegate];
                 [menuItem setAction:@selector(click:)];
@@ -733,7 +731,6 @@ static int menubarSetClickCallback(lua_State *L) {
         lua_pushvalue(L, 2);
         menuBarItem->click_fn = [skin luaRef:refTable];
         HSMenubarItemClickDelegate *object = [[HSMenubarItemClickDelegate alloc] init];
-        object.L = L;
         object.fn = menuBarItem->click_fn;
         menuBarItem->click_callback = (__bridge_retained void*) object;
         statusItem.button.target = object;
@@ -824,7 +821,6 @@ static int menubarSetMenu(lua_State *L) {
                 delegate = [[HSMenubarItemMenuDelegate alloc] init];
                 delegate.stateBoxImageSize = menuBarItem->stateBoxImageSize ;
 
-                delegate.L = L;
                 lua_pushvalue(L, 2);
                 delegate.fn = [skin luaRef:refTable];
                 [dynamicMenuDelegates addObject:delegate]; // store a strong reference to the delegate object, so ARC doesn't deallocate it until we are destroying the menu later

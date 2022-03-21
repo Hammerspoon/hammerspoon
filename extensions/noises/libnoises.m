@@ -39,7 +39,6 @@ typedef struct
 - (void)runCallbackWithEvent: (NSNumber*)evNumber;
 - (void)mainThreadCallback: (NSUInteger)evNumber;
 
-@property lua_State* L;
 @property int fn;
 @end
 
@@ -164,7 +163,7 @@ void AudioInputCallback(void * inUserData,  // Custom audio metadata
 - (void)runCallbackWithEvent: (NSNumber*)evNumber {
   if (self.fn != LUA_NOREF) {
       LuaSkin *skin = [LuaSkin sharedWithState:NULL];
-      lua_State* L = self.L;
+      lua_State* L = skin.L;
       _lua_stackguard_entry(L);
       [skin pushLuaRef:refTable ref:self.fn];
       lua_pushinteger(L, [evNumber intValue]);
@@ -251,7 +250,6 @@ static int listener_new(lua_State* L) {
 
   lua_pushvalue(L, 1);
   listener.fn = [skin luaRef:refTable];
-  listener.L = L;
   new_listener(L, listener);
   return 1;
 }
