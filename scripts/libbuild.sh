@@ -62,6 +62,9 @@ function op_build() {
         fi
         export SENTRY_AUTH_TOKEN
         "${HAMMERSPOON_HOME}/scripts/sentry-cli" upload-dif "${HAMMERSPOON_XCARCHIVE_PATH}/dSYMs/" 2>&1 | tee "${BUILD_HOME}/sentry-upload.log"
+
+        # COMMANDPOST SPECIFIC:
+        "${HAMMERSPOON_HOME}/scripts/sentry-cli" upload-dif "${BUILD_HOME}/../../CommandPost/src/extensions/hs/" 2>&1 | tee "${BUILD_HOME}/sentry-upload.log"
     fi
 }
 
@@ -208,7 +211,6 @@ function op_docs() {
 }
 
 function op_installdeps() {
-    echo "Installing dependencies..." 
     echo "  Homebrew packages..."
     brew install coreutils jq xcbeautify gawk cocoapods gh || fail "Unable to install Homebrew dependencies"
 
@@ -450,7 +452,6 @@ EOF
     export SENTRY_AUTH_TOKEN
     "${HAMMERSPOON_HOME}/scripts/sentry-cli" releases set-commits --auto "${VERSION}" 2>&1 | tee "${BUILD_HOME}/sentry-release.log"
     "${HAMMERSPOON_HOME}/scripts/sentry-cli" releases finalize "${VERSION}" 2>&1 | tee -a "${BUILD_HOME}/sentry-release.log"
- 
     if [ "${TWITTER_ACCOUNT}" != "" ]; then
         echo " Tweeting release..."
         local T_PATH=$(/usr/bin/gem contents t 2>/dev/null | grep "\/t$")
