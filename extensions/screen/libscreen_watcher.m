@@ -20,7 +20,6 @@ static LSRefTable refTable;
 // Not so common code
 
 @interface MJScreenWatcher : NSObject
-@property lua_State* L;
 @property int fn;
 @property BOOL includeActive;
 @end
@@ -97,7 +96,6 @@ static int screen_watcher_new(lua_State* L) {
     screenwatcher->fn = [skin luaRef:refTable];
 
     MJScreenWatcher* object = [[MJScreenWatcher alloc] init];
-    object.L = L;
     object.fn = screenwatcher->fn;
     object.includeActive = NO;
     screenwatcher->obj = (__bridge_retained void*)object;
