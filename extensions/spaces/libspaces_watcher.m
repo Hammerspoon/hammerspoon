@@ -1,7 +1,7 @@
-#import <Foundation/Foundation.h>
-#import <Cocoa/Cocoa.h>
-#import <CoreGraphics/CGWindow.h>
-#import <LuaSkin/LuaSkin.h>
+@import Foundation ;
+@import Cocoa ;
+@import CoreGraphics ;
+@import LuaSkin ;
 
 /// === hs.spaces.watcher ===
 ///
@@ -25,7 +25,7 @@ typedef struct _spacewatcher_t {
 
 @implementation SpaceWatcher
 - (id)initWithObject:(spacewatcher_t*)object {
-    if (self = [super init]) {
+    if ((self = [super init])) {
         self.object = object;
     }
     return self;
@@ -54,9 +54,10 @@ typedef struct _spacewatcher_t {
     for (NSMutableDictionary *thisWindow in windowsInSpace) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        if ([thisWindow objectForKey:(id)kCGWindowWorkspace]) {
-            currentSpace = [[thisWindow objectForKey:(id)kCGWindowWorkspace] intValue];
+        NSNumber *potentialID = [thisWindow objectForKey:(id)kCGWindowWorkspace] ;
 #pragma clang diagnostic pop
+        if (potentialID) {
+            currentSpace = [potentialID intValue];
             break;
         }
     }
@@ -178,7 +179,7 @@ static const luaL_Reg watcher_objectlib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_libspaceswatcher(lua_State* L) {
+int luaopen_hs_libspaces_watcher(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:watcherlib metaFunctions:nil objectFunctions:watcher_objectlib];
 

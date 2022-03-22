@@ -737,6 +737,34 @@ static int screen_getUUID(lua_State *L) {
     return 1;
 }
 
+/// hs.screen:getInfo() -> table or nil
+/// Method
+/// Gets a table of information about an `hs.screen` object
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  *  A table containing various information, or nil if an error occurred.
+static int screen_getDisplayInfo(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
+    NSScreen *screen = get_screen_arg(L, 1);
+    CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
+
+    NSDictionary *deviceInfo = nil;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    io_service_t service = CGDisplayIOServicePort(screen_id);
+#pragma clang diagnostic pop
+    if (service) {
+        deviceInfo = (__bridge NSDictionary *)IODisplayCreateInfoDictionary(service, kIODisplayOnlyPreferredName);
+    }
+    [skin pushNSObject:deviceInfo withOptions:LS_NSPreserveLuaStringExactly];
+    return 1;
+}
+
 // CoreGraphics private APIs
 CG_EXTERN bool CGDisplayUsesForceToGray(void);
 CG_EXTERN void CGDisplayForceToGray(bool forceToGray);
@@ -1403,6 +1431,7 @@ static const luaL_Reg screen_objectlib[] = {
     {"getBrightness", screen_getBrightness},
     {"setBrightness", screen_setBrightness},
     {"getUUID", screen_getUUID},
+    {"getInfo", screen_getDisplayInfo},
     {"rotate", screen_rotate},
     {"setPrimary", screen_setPrimary},
     {"desktopImageURL", screen_desktopImageURL},

@@ -43,13 +43,14 @@ if not hs.accessibilityState(true) then
     hs.luaSkinLog.ef("%s - module requires accessibility to be enabled; fix in SystemPreferences -> Privacy & Security", USERDATA_TAG)
 end
 
-local module       = require("hs.libaxuielement")
+local module       = require(table.concat({ USERDATA_TAG:match("^([%w%._]+%.)([%w_]+)$") }, "lib"))
 
-require"hs.doc".registerJSONFile(hs.processInfo["resourcePath"].."/docs.json")
-local basePath = package.searchpath(USERDATA_TAG, package.path)
-
-local log  = require("hs.logger").new(USERDATA_TAG, require"hs.settings".get(USERDATA_TAG .. ".logLevel") or "warning")
-module.log = log
+-- settings with periods in them can't be watched via KVO with hs.settings.watchKey, so
+-- in general it's a good idea not to include periods
+-- local SETTINGS_TAG = USERDATA_TAG:gsub("%.", "_")
+-- local settings     = require("hs.settings")
+-- local log          = require("hs.logger").new(USERDATA_TAG, settings.get(SETTINGS_TAG .. "_logLevel") or "warning")
+-- module.log         = log
 
 local fnutils     = require("hs.fnutils")
 local application = require("hs.application")
@@ -87,9 +88,9 @@ module.observer.notifications  = ls.makeConstantsTable(module.observer.notificat
 --- Returns the accessibility object at the specified position on the screen. The top-left corner of the primary screen is 0, 0.
 ---
 --- Parameters:
----  * `x` - the x coordinate of the screen location to test
----  * `y` - the y coordinate of the screen location to test
----  * `pointTable` - the x and y coordinates of the screen location to test, provided as a point-table, like the one returned by `hs.mouse.getAbsolutePosition`. A point-table is a table with key-value pairs for keys `x` and `y`.
+---  * `x` - the x coordinate of the screen location to test. If this parameter is provided, then the `y` parameter must also be provided and the `pointTable` parameter must not be provided.
+---  * `y` - the y coordinate of the screen location to test. This parameter is required if the `x` parameter is provided.
+---  * `pointTable` - the x and y coordinates of the screen location to test provided as a point-table, like the one returned by `hs.mouse.getAbsolutePosition` (a point-table is a table with key-value pairs for keys `x` and `y`). If this parameter is provided, then separate `x` and `y` parameters must not also be present.
 ---
 --- Returns:
 ---  * an axuielementObject for the object at the specified coordinates, or nil if no object could be identified.
@@ -241,6 +242,26 @@ tableCopyNoMT = function(t, seen)
     return copy
 end
 
+local compareStrings = function(a, b, pattern)
+    if pattern then
+        return a:match(b) and true or false
+    else
+        return a == b
+    end
+end
+
+local compareNumbers = function(a, b, comparisonOp)
+    local ans = false
+    if     comparisonOp == "==" then ans = a == b
+    elseif comparisonOp == "~=" then ans = a ~= b
+    elseif comparisonOp == "<"  then ans = a <  b
+    elseif comparisonOp == ">"  then ans = a >  b
+    elseif comparisonOp == "<=" then ans = a <= b
+    elseif comparisonOp == ">=" then ans = a >= b
+    end
+    return ans
+end
+
 --- hs.axuielement:matchesCriteria(criteria) -> boolean
 --- Method
 --- Returns true if the axuielementObject matches the specified criteria or false if it does not.
@@ -262,10 +283,20 @@ end
 ---        * `parameterizedAttribute` -- a string, or table of strings, specifying parametrized attributes that the element must support.
 ---      * if the `attribute` key is specified, you can use one of the the following to specify a specific value the attribute must equal for a positive match. No more than one of these should be provided. If neither are present, then only the existence of the attributes specified by `attribute` are required.
 ---        * `value`                  -- a value, or table of values, that a specifeid attribute must equal. If it's a table, then only one of the values has to match the attribute value for a positive match. Note that if you specify more than one attribute with the `attribute` key, you must provide at least one value for each attribute in this table (order does not matter, but the match will fail if any atrribute does not match at least one value provided).
+---          * when specifying a value which is itself a table with keys (e.g. frame, size, url, color, etc.) then you *must* provide the value or values as a table of tables, e.g. `{ { y = 22 } }`.
+---            * only those keys which are specified within the value are checked for equality (or pattern matching). Values which are present in the attribute's value but are not specified in the comparioson value are ignored (i.e. the previous example of `y = 22` would only check the `y` component of an AXFrame attribute -- the `x`, `h`, and `w` values would be ignored).
+---            * For value compoents which are numeric, e.g. `22` in the previous example, the default comparison is equality. You may change this with the `comparison` key described below in the optional keys.
+---            * For possible keys when trying to match a color, see the documentation for `hs.drawing.color`.
+---            * For possible keys when trying to match a URL, use `url = <string>` and/or `filePath = <string>`. The string for the specified table key will be compared in accordance with the `pattern` optional key described below.
+---          * when specifying a value which is itself a table of values (e.g. a list of axuielementObjects) you *must* provide the value or values as a table of tables, e.g. `{ { obj1, obj2 } }`.
+---            * Order of the elements provided in the comparison value does not matter -- this only tests for existence within the attributes value.
+---            * The test is for inclusion only -- the attribute's value may contain other elements as well, but must contain those specified within the comparison value.
 ---        * `nilValue`               -- a boolean, specifying that the attributes must not have an assigned value (true) or may be assigned any value except nil (false). If the `value` key is specified, this key is ignored. Note that this applies to *all* of the attributes specified with the `attribute` key.
 ---      * the following are optional keys and are not required:
 ---        * `pattern`                -- a boolean, default false, specifying whether string matches for attribute values should be evaluated with `string.match` (true) or as exact matches (false). See the Lua manual, section 6.4.1 (`help.lua._man._6_4_1` in the Hammerspoon console). If the `value` key is not set, than this key is ignored.
 ---        * `invert`                 -- a boolean, default false, specifying inverted logic for the criteria result --- if this is true and the criteria matches, evaluate criteria as false; otherwise evaluate as true.
+---        * `comparison`             -- a string, default "==", specifying the comparison to be used when comparing numeric values. Possible comparison strings are: "==" for equality, "<" for less than, "<=" for less than or equal to, ">" for greater than, ">=" for greater than or equal to, or "~=" for not equal to.
+---
 ---    * an array table of one or more key-value tables as described immediately above; the element must be a positive match for all of the individual criteria tables specified (logical AND).
 ---  * This method is used by [hs.axuielement.searchCriteriaFunction](#searchCriteriaFunction) to create criteria functions compatible with [hs.axuielement:elementSearch](#elementSearch).
 objectMT.matchesCriteria = function(self, criteria)
@@ -298,7 +329,9 @@ objectMT.matchesCriteria = function(self, criteria)
         nilValue               = true,
         pattern                = true,
         invert                 = true,
+        comparison             = true,
     }
+    local numericComparison = "=="
 
     for idx,thisCriteria in ipairs(criteria) do
         assert(
@@ -320,6 +353,13 @@ objectMT.matchesCriteria = function(self, criteria)
         end
         if thisCriteria.value then
             if type(thisCriteria.value) ~= "table" then thisCriteria.value = { thisCriteria.value } end
+        end
+        if thisCriteria.comparison then
+            assert(
+                fnutils.contains({ "==", "~=", "<", ">", "<=", ">=" }, thisCriteria.comparison),
+                "numericComparison must be ==, ~=, <, >, <=, or >="
+            )
+            numericComparison = thisCriteria.comparison
         end
     end
 
@@ -361,10 +401,45 @@ objectMT.matchesCriteria = function(self, criteria)
                 for _,v in ipairs(thisCriteria.attribute) do
                     local ans, found = aav[v], false
                     for _, v2 in ipairs(thisCriteria.value) do
-                        if type(v2) == "string" and type(ans) == "string" and thisCriteria.pattern then
-                            found = ans:match(v2) and true or false
-                        else
-                            found = ans == v2
+                        if type(v2) == type(ans) then
+                            if type(v2) == "string" then
+                                found = compareStrings(ans, v2, thisCriteria.pattern)
+                            elseif type(v2) == "number" then
+                                found = compareNumbers(ans, v2, numericComparison)
+                            elseif type(v2) == "table" then
+                                if #v2 > 0 then
+                                    for _, v2v in ipairs(v2) do
+                                        for _, ansV in ipairs(ans) do
+                                            if type(v2v) == type(ansV) then
+                                                if type(v2v) == "string" then
+                                                    found = compareStrings(ansV, v2v, thisCriteria.pattern)
+                                                elseif type(v2v) == "number" then
+                                                    found = compareNumbers(ansV, v2v, numericComparison)
+                                                else
+                                                    found = ansV == v2v
+                                                end
+                                            end
+                                            if found then break end
+                                        end
+                                        if not found then break end
+                                    end
+                                else
+                                    for v2k, v2v in pairs(v2) do
+                                        if type(v2v) == type(ans[v2k]) then
+                                            if type(v2v) == "string" then
+                                                found = compareStrings(ans[v2k], v2v, thisCriteria.pattern)
+                                            elseif type(v2v) == "number" then
+                                                found = compareNumbers(ans[v2k], v2v, numericComparison)
+                                            else
+                                                found = ans[v2k] == v2v
+                                            end
+                                        end
+                                        if not found then break end
+                                    end
+                                end
+                            else
+                                found = ans == v2
+                            end
                         end
                         if found then break end
                     end
@@ -413,7 +488,7 @@ end
 ---  * an elementSearchObject as described in [hs.axuielement:elementSearch](#elementSearch)
 ---
 --- Notes:
----  * The format of the `results` table passed to the callback for this method is primarily for debugging and exploratory purposes and may not be arranged for easy programatic evaluation.
+--- * The format of the `results` table passed to the callback for this method is primarily for debugging and exploratory purposes and may not be arranged for easy programatic evaluation.
 ---  * This method is syntactic sugar for `hs.axuielement:elementSearch(callback, { objectOnly = false, asTree = true, [depth = depth], [includeParents = withParents] })`. Please refer to [hs.axuielement:elementSearch](#elementSearch) for details about the returned object and callback arguments.
 objectMT.buildTree = function(self, callback, depth, withParents)
     return self:elementSearch(callback, nil, {
@@ -664,7 +739,7 @@ local elementSearchHamsterBF = function(elementSearchObject)
         local deTableValue
         deTableValue = function(val)
             if getmetatable(val) == objectMT then
-                return next(seen[val]) and seen[val] or val
+                return next(seen[val] or {}) and seen[val] or val
             elseif type(val) == "table" then
                 for k, v in pairs(val) do val[k] = deTableValue(v) end
             end
@@ -723,6 +798,7 @@ end
 ---  * This method utilizes coroutines to keep Hammerspoon responsive, but may be slow to complete if `includeParents` is true, if you do not specify `depth`, or if you start from an element that has a lot of descendants (e.g. the application element for a web browser). This is dependent entirely upon how many active accessibility elements the target application defines and where you begin your search and cannot reliably be determined up front, so you may need to experiment to find the best balance for your specific requirements.
 ---  * The search performed is a breadth-first search, so in general earlier elements in the results table will be "closer" in the Accessibility hierarchy to the starting point than later elements.
 ---  * The `elementSearchObject` returned by this method and the results passed in as the second argument to the callback function are the same object -- you can use either one in your code depending upon which makes the most sense. Results that match the criteria function are added to the `elementSearchObject` as they are found, so if you examine the object/table returned by this method and determine that you have located the element or elements you require before the callback has been invoked, you can safely invoke the cancel method to end the search early.
+---    * The exception to this is when `asTree` is true and `objectsOnly` is false and the search criteria is nil -- see [hs.axuielement:buildTree](#buildTree). In this case, the results passed to the callback will be equal to `elementSearchObject[1]`.
 ---  * If `objectsOnly` is specified as false, it may take some time after `cancel` is invoked for the mapping of element attribute tables to the descendant elements in the results set -- this is a by product of the need to iterate through the results to match up all of the instances of each element to it's attribute table.
 ---  * [hs.axuielement:allDescendantElements](#allDescendantElements) is syntactic sugar for `hs.axuielement:elementSearch(callback, { [includeParents = withParents] })`
 ---  * [hs.axuielement:buildTree](#buildTree) is syntactic sugar for `hs.axuielement:elementSearch(callback, { objectOnly = false, asTree = true, [depth = depth], [includeParents = withParents] })`
@@ -826,7 +902,7 @@ objectMT.elementSearch = function(self, callback, criteria, namedModifiers)
     if not namedModifiers.asTree then
         esoMT.__index.filter = elementSearchResultsFilter -- make sure to document that results table is *new* with only filter method carrying over
         esoMT.__index.next = function(_)
-            local nxtState = getmetatable(_)._nxtState
+            local nxtState = getmetatable(_)._state
             if not callback or nxtState.finished then
                 if nxtState.msg ~= "completed" then
                     nxtState.started  = os.time() - nxtState.finished
@@ -891,6 +967,30 @@ module.windowElement = function(obj)
     else
         return _windowElement(obj)
     end
+end
+
+--- hs.axuielement:childrenWithRole(role) -> table
+--- Method
+--- Returns a table containing only those immediate children of the element that perform the specified role.
+---
+--- Parameters:
+---  * `role` - a string specifying the role that the returned children must perform. Example values can be found in [hs.axuielement.roles](#roles).
+---
+--- Returns:
+---  * a table containing zero or more axuielementObjects.
+---
+--- Notes:
+---  * only the immediate children of the object are searched.
+objectMT.childrenWithRole = function(self, role)
+    assert(type(role) == "string", "expected string for role value")
+
+    local ans = {}
+    if self.AXChildren then
+        for _,v in ipairs(self) do
+            if v.AXRole == role then table.insert(ans, v) end
+        end
+    end
+    return ans
 end
 
 -- Return Module Object --------------------------------------------------
