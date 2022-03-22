@@ -130,7 +130,7 @@ static int speededitor_getDevice(lua_State *L) {
 ///   * A string containing the name of the button or "JOG WHEEL"
 ///   * A boolean indicating whether the button was pressed (true) or released (false). Not relevant if a Jog Wheel action.
 ///   * The Jog Wheel Mode (if not a button press)
-///   * The Job Wheel value (if not a button press)
+///   * The Jog Wheel value (if not a button press)
 ///  * Possible buttons are: "SMART INSRT", "APPND", "RIPL OWR", "CLOSE UP", "PLACE ON TOP", "SRC_OWR", "IN", "OUT", "TRIM IN", "TRIM OUT", "ROLL", "SLIP SRC", "SLIP DEST", "TRANS DUR", "CUT", "DIS", "SMTH CUT", "SOURCE", "TIMELINE", "SHTL", "JOG", "SCRL", "ESC", "SYNC BIN", "AUDIO LEVEL", "FULL VIEW", "TRANS", "SPLIT", "SNAP", "RIPL DEL", "CAM 1", "CAM 2", "CAM 3", "CAM 4", "CAM 5", "CAM 6", "CAM 7", "CAM 8", "CAM 9", "LIVE OWR", "VIDEO ONLY", "AUDIO ONLY" and "STOP PLAY".
 static int speededitor_callback(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
@@ -155,12 +155,10 @@ static int speededitor_callback(lua_State *L) {
 ///  * options - A table where the key is the button ID, and the value is a boolean to turn the LED on or off.
 ///
 /// Returns:
-///  * The hs.speededitor device
+///  * The hs.speededitor device.
 ///
-///  Notes:
-///   * The possible keys for the options table should be:
-///   AUDIO ONLY, CAM1, CAM2, CAM3, CAM4, CAM5, CAM6, CAM7, CAM8, CAM9,
-///   CLOSE UP, CUT, DIS, JOG, LIVE OWR, SCRL, SHTL, SMTH CUT, SNAP, TRANS, VIDEO ONLY.
+/// Notes:
+///   * The possible keys for the options table should be: AUDIO ONLY, CAM1, CAM2, CAM3, CAM4, CAM5, CAM6, CAM7, CAM8, CAM9, CLOSE UP, CUT, DIS, JOG, LIVE OWR, SCRL, SHTL, SMTH CUT, SNAP, TRANS, VIDEO ONLY.
 static int speededitor_led(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBREAK];
@@ -238,7 +236,7 @@ static int speededitor_serialNumber(lua_State *L) {
 /// Returns:
 ///  * The `hs.speededitor` device or `nil` if a wrong value is supplied.
 ///
-///  Notes:
+/// Notes:
 ///  * "SHTL" provide relative position (i.e. positive value if turning clock-wise and negative if turning anti-clockwise).
 ///  * "JOG" sends an "absolute" position (based on the position when mode was set) -4096 -> 4096 range ~ half a turn.
 ///  * "SCRL" is the same as "RELATIVE 0" but with a small dead band around zero that maps to 0.
