@@ -11,12 +11,11 @@
     extern AXTextMarkerRef AXTextMarkerCreate(CFAllocatorRef allocator, const char* bytes, CFIndex length) __attribute__((weak_import)) ;
     extern CFIndex         AXTextMarkerGetLength(AXTextMarkerRef text_marker) __attribute__((weak_import)) ;
     extern const char*     AXTextMarkerGetBytePtr(AXTextMarkerRef text_marker) __attribute__((weak_import)) ;
+    extern CFTypeID             AXTextMarkerRangeGetTypeID(void) __attribute__((weak_import)) ;
+    extern AXTextMarkerRangeRef AXTextMarkerRangeCreate(CFAllocatorRef allocator, AXTextMarkerRef start_marker, AXTextMarkerRef end_marker) __attribute__((weak_import)) ;
+    extern AXTextMarkerRef      AXTextMarkerRangeCopyStartMarker(AXTextMarkerRangeRef text_marker_range) __attribute__((weak_import)) ;
+    extern AXTextMarkerRef      AXTextMarkerRangeCopyEndMarker(AXTextMarkerRangeRef text_marker_range) __attribute__((weak_import)) ;
 #endif
-
-extern CFTypeID             AXTextMarkerRangeGetTypeID(void) __attribute__((weak_import)) ;
-extern AXTextMarkerRangeRef AXTextMarkerRangeCreate(CFAllocatorRef allocator, AXTextMarkerRef start_marker, AXTextMarkerRef end_marker) __attribute__((weak_import)) ;
-extern AXTextMarkerRef      AXTextMarkerRangeCopyStartMarker(AXTextMarkerRangeRef text_marker_range) __attribute__((weak_import)) ;
-extern AXTextMarkerRef      AXTextMarkerRangeCopyEndMarker(AXTextMarkerRangeRef text_marker_range) __attribute__((weak_import)) ;
 
 
 // In AppKit disassembly but not in header files

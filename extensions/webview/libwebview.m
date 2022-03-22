@@ -1508,7 +1508,6 @@ static int webview_navigationCallback(lua_State *L) {
 ///
 /// Parameters:
 ///  * `fn` - the function to be called to approve or deny web navigation activity.  To disable the callback function, explicitly specify nil.  The callback function will accept three or four arguments and must return 1 argument which will determine if the action is approved or denied.  The first argument will specify the type of policy request and will determine the second and third arguments as follows:
-///
 ///    * `navigationAction`: This applies to any connection to a server or service which supplies content for the webview and occurs before any connection has actually been made.
 ///      * the second argument will be the webview this request originates from.
 ///      * the third argument will be a table about the navigation action requested and may contain any of the following keys:
@@ -1521,7 +1520,6 @@ static int webview_navigationCallback(lua_State *L) {
 ///        * `modifierFlags`  - a table containing keys for the keyboard modifiers which were pressed when the navigation generating this policy request was generated.
 ///        * `navigationType` - a string indicating how the navigation was requested: `linkActivated`, `formSubmitted`, `backForward`, `reload`, `formResubmitted`, or `other`
 ///    * The callback function should return `true` if the navigation should proceed or false if it should be denied.
-///
 ///    * `navigationResponse`: This applies to any connection to a server or service which supplies content for the webview and occurs after the connection has been made but before it has been rendered in the webview.
 ///      * the second argument will be the webview this request originates from.
 ///      * the third argument will be a table about the response received and may contain any of the following keys:
@@ -1537,7 +1535,6 @@ static int webview_navigationCallback(lua_State *L) {
 ///          * `statusCodeDescription` - a localized description of the response code
 ///          * `allHeaderFields`       - a table containing the header fields and values provided in the response
 ///    * The callback function should return `true` if the navigation should proceed or false if it should be denied.
-///
 ///    * `newWindow`: This applies to any request to create a new window from a webview.  This includes JavaScript, the user selecting "Open in a new window", etc.
 ///      * the second argument will be the new webview this request is generating.
 ///      * the third argument will be a table about the navigation action requested.  See the description above for `navigationAction` for details about this parameter.
@@ -1551,7 +1548,6 @@ static int webview_navigationCallback(lua_State *L) {
 ///        * `h`                   - The height coordinate of the new window.
 ///        * `w`                   - The width coordinate of the new window.
 ///    * The callback function should return `true` if the new window should be created or false if it should not.
-///
 ///    * `authenticationChallenge`:  This applies to a web page which requires a log in credential for HTTPBasic or HTTPDigest authentication.
 ///      * the second argument will be the webview this request originates from.
 ///      * the third argument will be a table containing the challenge details and may contain any of the following keys:
@@ -1609,7 +1605,6 @@ static int webview_policyCallback(lua_State *L) {
 ///
 /// Parameters:
 ///  * `fn` - the function to be called to examine the SSL certificate to determine if an exception should be granted.  To disable the callback function, explicitly specify nil.  The callback function will accept two arguments and must return 1 argument which will determine if the action is approved or denied.  The first argument will be the webview this request originates from.  The second argument will be a table containing the protection space details and may include the following keys:
-///
 ///    * `port`                       - the port of the server with which communication for this request is occurring
 ///    * `receivesCredentialSecurely` - a boolean value indicating whether or not the credential can be sent to the server securely
 ///    * `authenticationMethod`       - a string indicating the authentication type, in this case "serverTrust".
@@ -1626,12 +1621,11 @@ static int webview_policyCallback(lua_State *L) {
 ///        * `type`            - a description of the data type for this value
 ///        * `value`           - the value
 ///
-///  * The callback function should return true if an exception should be granted for this certificate or false if it should be rejected.
-///
 /// Returns:
 ///  * The webview object
 ///
 /// Notes:
+///  * The callback function should return true if an exception should be granted for this certificate or false if it should be rejected.
 ///  * even if this callback returns `true`, the certificate will only be granted an exception if [hs.webview:examineInvalidCertificates](#examineInvalidCertificates) has also been set to `true`.
 ///  * once an invalid certificate has been granted an exception, the exception will remain in effect until the webview object is deleted.
 ///  * the callback is only invoked for invalid certificates -- if a certificate is valid, or once an exception has been granted, the callback will not (no longer) be called for that certificate.
@@ -2497,16 +2491,13 @@ static int webview_behavior(lua_State *L) {
 ///
 /// Parameters:
 ///  * `fn` - the function to be called when the webview window is moved or closed. Specify an explicit nil to clear the current callback.  The function should expect 2 or 3 arguments and return none.  The arguments will be one of the following:
-///
 ///    * "closing", webview - specifies that the webview window is being closed, either by the user or with the [hs.webview:delete](#delete) method.
 ///      * `action`  - in this case "closing", specifying that the webview window is being closed
 ///      * `webview` - the webview that is being closed
-///
 ///    * "focusChange", webview, state - indicates that the webview window has either become or stopped being the focused window
 ///      * `action`  - in this case "focusChange", specifying that the webview window is being closed
 ///      * `webview` - the webview that is being closed
 ///      * `state`   - a boolean, true if the webview has become the focused window, or false if it has lost focus
-///
 ///    * "frameChange", webview, frame - indicates that the webview window has been moved or resized
 ///      * `action`  - in this case "focusChange", specifying that the webview window is being closed
 ///      * `webview` - the webview that is being closed

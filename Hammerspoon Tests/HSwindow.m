@@ -56,6 +56,7 @@
 }
 
 - (void)testRoles {
+    SKIP_IN_GITHUB_ACTIONS()
     RUN_LUA_TEST()
 }
 
@@ -89,6 +90,7 @@
 }
 
 - (void)testClose {
+    SKIP_IN_GITHUB_ACTIONS()
     RUN_LUA_TEST()
 }
 

@@ -383,7 +383,7 @@
 		4FF7396D27344D740007074E /* libscreenwatcher.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F6B3F551B73EFC100B2A4DE /* libscreenwatcher.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		4FF7396E27344D740007074E /* libsettings.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F6B3F6A1B73F0E300B2A4DE /* libsettings.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		4FF7396F27344D740007074E /* libsound.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4F6B3F7B1B73F44500B2A4DE /* libsound.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		4FF7397027344D740007074E /* libspaceswatcher.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FD0AB1D1B7484D700A82496 /* libspaceswatcher.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF7397027344D740007074E /* libspaces_watcher.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FD0AB1D1B7484D700A82496 /* libspaces_watcher.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		4FF7397127344D740007074E /* libtimer.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FD0AB341B74867600A82496 /* libtimer.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		4FF7397227344D740007074E /* libuielement.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FD0AB461B749C8E00A82496 /* libuielement.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		4FF7397327344D740007074E /* liburlevent.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FD0AB5B1B749D7A00A82496 /* liburlevent.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -623,6 +623,10 @@
 		D6BACEAA23178ECA00110E1E /* libdoc.m in Sources */ = {isa = PBXBuildFile; fileRef = D6BACEA923178EC900110E1E /* libdoc.m */; };
 		D6BB4FBA1C1695BF000DC0A2 /* libspeech.m in Sources */ = {isa = PBXBuildFile; fileRef = D6BB4FA81C169539000DC0A2 /* libspeech.m */; };
 		D6BB4FC81C169605000DC0A2 /* libspeech_listener.m in Sources */ = {isa = PBXBuildFile; fileRef = D6BB4FA91C169539000DC0A2 /* libspeech_listener.m */; };
+		D6C32CC927DDD47F001AA22E /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FB852342735B02400462DD0 /* LuaSkin.framework */; };
+		D6C32CD227DDD68E001AA22E /* libspaces.m in Sources */ = {isa = PBXBuildFile; fileRef = D6C32CD027DDD68E001AA22E /* libspaces.m */; };
+		D6C32CD327DDD68E001AA22E /* private.h in Headers */ = {isa = PBXBuildFile; fileRef = D6C32CD127DDD68E001AA22E /* private.h */; };
+		D6C32CD627DDD811001AA22E /* libspaces.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = D6C32CCF27DDD47F001AA22E /* libspaces.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		D6E164DD1F4C264D00B85D8A /* libfs_xattr.m in Sources */ = {isa = PBXBuildFile; fileRef = D6E164D11F4C25FD00B85D8A /* libfs_xattr.m */; };
 		D6EE7C7F249B488C0053FB3A /* ExternalReferences.h in Headers */ = {isa = PBXBuildFile; fileRef = D6EE7C7D249B488B0053FB3A /* ExternalReferences.h */; };
 		D6EE7C80249B488C0053FB3A /* axtextmarker.m in Sources */ = {isa = PBXBuildFile; fileRef = D6EE7C7E249B488B0053FB3A /* axtextmarker.m */; };
@@ -1300,6 +1304,13 @@
 			remoteGlobalIDString = D6BB4FBB1C1695EC000DC0A2;
 			remoteInfo = speechlistener;
 		};
+		D6C32CD427DDD78F001AA22E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9445CA0319083251002568BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D6C32CC527DDD47F001AA22E;
+			remoteInfo = spaces;
+		};
 		D6FD56911C04230200BAE238 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 9445CA0319083251002568BB /* Project object */;
@@ -1371,6 +1382,7 @@
 				2274782E2787FA1500DE6894 /* libosc.dylib in Copy Extension Dylibs */,
 				22FA062427A1609E0039C37A /* librazer.dylib in Copy Extension Dylibs */,
 				226F960F27917DDA003DF60F /* libspeededitor.dylib in Copy Extension Dylibs */,
+				D6C32CD627DDD811001AA22E /* libspaces.dylib in Copy Extension Dylibs */,
 				4FCA05CD27678B410089A5FC /* libmarkdown.dylib in Copy Extension Dylibs */,
 				4FF06128274AA7E600FB15D6 /* libcamera.dylib in Copy Extension Dylibs */,
 				4FF73A1D2735439B0007074E /* cmdpost in Copy Extension Dylibs */,
@@ -1404,7 +1416,7 @@
 				4FF7396D27344D740007074E /* libscreenwatcher.dylib in Copy Extension Dylibs */,
 				4FF7396E27344D740007074E /* libsettings.dylib in Copy Extension Dylibs */,
 				4FF7396F27344D740007074E /* libsound.dylib in Copy Extension Dylibs */,
-				4FF7397027344D740007074E /* libspaceswatcher.dylib in Copy Extension Dylibs */,
+				4FF7397027344D740007074E /* libspaces_watcher.dylib in Copy Extension Dylibs */,
 				4FF7397127344D740007074E /* libtimer.dylib in Copy Extension Dylibs */,
 				4FF7397227344D740007074E /* libuielement.dylib in Copy Extension Dylibs */,
 				4FF7397327344D740007074E /* liburlevent.dylib in Copy Extension Dylibs */,
@@ -1903,7 +1915,7 @@
 		4FCBAFD823B0FC04007BA1D0 /* test_math.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = test_math.lua; path = extensions/math/test_math.lua; sourceTree = "<group>"; };
 		4FCC52CB1E1526A6007F93D0 /* test_brightness.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = test_brightness.lua; path = extensions/brightness/test_brightness.lua; sourceTree = "<group>"; };
 		4FCC52CD1E1527EF007F93D0 /* HSbrightness.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSbrightness.m; sourceTree = "<group>"; };
-		4FD0AB1D1B7484D700A82496 /* libspaceswatcher.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libspaceswatcher.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		4FD0AB1D1B7484D700A82496 /* libspaces_watcher.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libspaces_watcher.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FD0AB211B74856600A82496 /* spaces.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = spaces.lua; path = extensions/spaces/spaces.lua; sourceTree = "<group>"; };
 		4FD0AB231B74857D00A82496 /* libspaces_watcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libspaces_watcher.m; path = extensions/spaces/libspaces_watcher.m; sourceTree = "<group>"; };
 		4FD0AB291B74863000A82496 /* tabs.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = tabs.lua; path = extensions/tabs/tabs.lua; sourceTree = "<group>"; };
@@ -2154,6 +2166,9 @@
 		D6BB4FA91C169539000DC0A2 /* libspeech_listener.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libspeech_listener.m; path = extensions/speech/libspeech_listener.m; sourceTree = "<group>"; };
 		D6BB4FB91C16959C000DC0A2 /* libspeech.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libspeech.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		D6BB4FC71C1695EC000DC0A2 /* libspeechlistener.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libspeechlistener.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		D6C32CCF27DDD47F001AA22E /* libspaces.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libspaces.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		D6C32CD027DDD68E001AA22E /* libspaces.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libspaces.m; path = extensions/spaces/libspaces.m; sourceTree = "<group>"; };
+		D6C32CD127DDD68E001AA22E /* private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = private.h; path = extensions/spaces/private.h; sourceTree = "<group>"; };
 		D6E071681E04D9FC00C1046A /* drawing_canvasWrapper.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = drawing_canvasWrapper.lua; path = extensions/drawing/drawing_canvasWrapper.lua; sourceTree = "<group>"; };
 		D6E164D11F4C25FD00B85D8A /* libfs_xattr.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libfs_xattr.m; path = extensions/fs/libfs_xattr.m; sourceTree = "<group>"; };
 		D6E164DC1F4C262300B85D8A /* libfsxattr.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libfsxattr.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -2921,6 +2936,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FB8524C2735B2C100462DD0 /* LuaSkin.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D6C32CC827DDD47F001AA22E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D6C32CC927DDD47F001AA22E /* LuaSkin.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3727,6 +3750,8 @@
 		4FD0AB201B74855700A82496 /* spaces */ = {
 			isa = PBXGroup;
 			children = (
+				D6C32CD027DDD68E001AA22E /* libspaces.m */,
+				D6C32CD127DDD68E001AA22E /* private.h */,
 				4FD0AB211B74856600A82496 /* spaces.lua */,
 				4FD0AB231B74857D00A82496 /* libspaces_watcher.m */,
 			);
@@ -4082,7 +4107,7 @@
 				4F6B3F551B73EFC100B2A4DE /* libscreenwatcher.dylib */,
 				4F6B3F6A1B73F0E300B2A4DE /* libsettings.dylib */,
 				4F6B3F7B1B73F44500B2A4DE /* libsound.dylib */,
-				4FD0AB1D1B7484D700A82496 /* libspaceswatcher.dylib */,
+				4FD0AB1D1B7484D700A82496 /* libspaces_watcher.dylib */,
 				4FD0AB341B74867600A82496 /* libtimer.dylib */,
 				4FD0AB461B749C8E00A82496 /* libuielement.dylib */,
 				4FD0AB5B1B749D7A00A82496 /* liburlevent.dylib */,
@@ -4147,6 +4172,7 @@
 				227478292787F92E00DE6894 /* libosc.dylib */,
 				226F95FE27917D3B003DF60F /* libspeededitor.dylib */,
 				22FA061B27A160410039C37A /* librazer.dylib */,
+				D6C32CCF27DDD47F001AA22E /* libspaces.dylib */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -5141,6 +5167,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D6C32CCA27DDD47F001AA22E /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D6C32CD327DDD68E001AA22E /* private.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D6E164D81F4C262300B85D8A /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -6007,9 +6041,9 @@
 			productReference = 4FCBAFCD23B0D941007BA1D0 /* libmath.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
-		4FD0AB141B7484D700A82496 /* spaceswatcher */ = {
+		4FD0AB141B7484D700A82496 /* spaces_watcher */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4FD0AB1A1B7484D700A82496 /* Build configuration list for PBXNativeTarget "spaceswatcher" */;
+			buildConfigurationList = 4FD0AB1A1B7484D700A82496 /* Build configuration list for PBXNativeTarget "spaces_watcher" */;
 			buildPhases = (
 				4FD0AB151B7484D700A82496 /* Sources */,
 				4FD0AB161B7484D700A82496 /* Frameworks */,
@@ -6019,9 +6053,9 @@
 			);
 			dependencies = (
 			);
-			name = spaceswatcher;
+			name = spaces_watcher;
 			productName = alert;
-			productReference = 4FD0AB1D1B7484D700A82496 /* libspaceswatcher.dylib */;
+			productReference = 4FD0AB1D1B7484D700A82496 /* libspaces_watcher.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 		4FD0AB2A1B74867600A82496 /* timer */ = {
@@ -6411,6 +6445,7 @@
 				22613FF41F297E7F00E05E11 /* PBXTargetDependency */,
 				224BA33623D1EFB300487FDB /* PBXTargetDependency */,
 				22EEC62624926EAF00BAE4DA /* PBXTargetDependency */,
+				D6C32CD527DDD78F001AA22E /* PBXTargetDependency */,
 				4FCA05CC27678B330089A5FC /* PBXTargetDependency */,
 				4FF06127274AA7D900FB15D6 /* PBXTargetDependency */,
 				4F7F3B6F272AF7E100E05732 /* PBXTargetDependency */,
@@ -6865,6 +6900,23 @@
 			productReference = D6BB4FC71C1695EC000DC0A2 /* libspeechlistener.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
+		D6C32CC527DDD47F001AA22E /* spaces */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D6C32CCB27DDD47F001AA22E /* Build configuration list for PBXNativeTarget "spaces" */;
+			buildPhases = (
+				D6C32CC627DDD47F001AA22E /* Sources */,
+				D6C32CC827DDD47F001AA22E /* Frameworks */,
+				D6C32CCA27DDD47F001AA22E /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = spaces;
+			productName = alert;
+			productReference = D6C32CCF27DDD47F001AA22E /* libspaces.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
 		D6E164D31F4C262300B85D8A /* fsxattr */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = D6E164D91F4C262300B85D8A /* Build configuration list for PBXNativeTarget "fsxattr" */;
@@ -7053,6 +7105,7 @@
 				4F6B3F711B73F44500B2A4DE /* sound */,
 				226F95F427917D3B003DF60F /* speededitor */,
 				4FD0AB141B7484D700A82496 /* spaceswatcher */,
+				D6C32CC527DDD47F001AA22E /* spaces */,
 				D6BB4FAE1C16959C000DC0A2 /* speech */,
 				D6BB4FBB1C1695EC000DC0A2 /* speechlistener */,
 				D6A212EA1DE38F5F00998C0B /* spotlight */,
@@ -8108,6 +8161,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D6C32CC627DDD47F001AA22E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D6C32CD227DDD68E001AA22E /* libspaces.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D6E164D41F4C262300B85D8A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -8390,7 +8451,7 @@
 		};
 		4FD0AB1F1B74852B00A82496 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 4FD0AB141B7484D700A82496 /* spaceswatcher */;
+			target = 4FD0AB141B7484D700A82496 /* spaces_watcher */;
 			targetProxy = 4FD0AB1E1B74852B00A82496 /* PBXContainerItemProxy */;
 		};
 		4FD0AB361B74869600A82496 /* PBXTargetDependency */ = {
@@ -8617,6 +8678,11 @@
 			isa = PBXTargetDependency;
 			target = D6BB4FBB1C1695EC000DC0A2 /* speechlistener */;
 			targetProxy = D6BB4FCB1C16965C000DC0A2 /* PBXContainerItemProxy */;
+		};
+		D6C32CD527DDD78F001AA22E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D6C32CC527DDD47F001AA22E /* spaces */;
+			targetProxy = D6C32CD427DDD78F001AA22E /* PBXContainerItemProxy */;
 		};
 		D6FD56921C04230200BAE238 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -9462,6 +9528,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
+				LD_DYLIB_INSTALL_NAME = "$(DYLIB_INSTALL_NAME_BASE:standardizepath)/$(EXECUTABLE_PATH)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Profile;
@@ -10291,6 +10358,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
+				LD_DYLIB_INSTALL_NAME = "$(DYLIB_INSTALL_NAME_BASE:standardizepath)/$(EXECUTABLE_PATH)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -10299,6 +10367,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
+				LD_DYLIB_INSTALL_NAME = "$(DYLIB_INSTALL_NAME_BASE:standardizepath)/$(EXECUTABLE_PATH)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -11102,6 +11171,30 @@
 			};
 			name = Release;
 		};
+		D6C32CCC27DDD47F001AA22E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		D6C32CCD27DDD47F001AA22E /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Profile;
+		};
+		D6C32CCE27DDD47F001AA22E /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		D6E164DA1F4C262300B85D8A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
@@ -11659,7 +11752,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		4FD0AB1A1B7484D700A82496 /* Build configuration list for PBXNativeTarget "spaceswatcher" */ = {
+		4FD0AB1A1B7484D700A82496 /* Build configuration list for PBXNativeTarget "spaces_watcher" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4FD0AB1B1B7484D700A82496 /* Debug */,
@@ -12105,6 +12198,16 @@
 				D6BB4FC51C1695EC000DC0A2 /* Debug */,
 				4F0454CF20F0EE7D00699F29 /* Profile */,
 				D6BB4FC61C1695EC000DC0A2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D6C32CCB27DDD47F001AA22E /* Build configuration list for PBXNativeTarget "spaces" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D6C32CCC27DDD47F001AA22E /* Debug */,
+				D6C32CCD27DDD47F001AA22E /* Profile */,
+				D6C32CCE27DDD47F001AA22E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

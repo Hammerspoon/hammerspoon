@@ -399,7 +399,7 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
         // Make sure the location ID matches:
         UInt32 locationID;
         kr = (*dev)->GetLocationID(dev, &locationID);
-        if (locationID != [self.locationID unsignedIntValue]) {
+        if (kr != kIOReturnSuccess || locationID != [self.locationID unsignedIntValue]) {
             //NSLog(@"[hs.razer] The location ID for the IOHID Device doesn't match the USB Device.");
             continue;
         }
@@ -407,7 +407,7 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
         // Make sure the vendor matches (just for safety):
         UInt16 vendor;
         kr = (*dev)->GetDeviceVendor(dev, &vendor);
-        if (vendor != USB_VID_RAZER) {
+        if (kr != kIOReturnSuccess || vendor != USB_VID_RAZER) {
             //NSLog(@"[hs.razer] Vendor is not Razer: %hu", vendor);
             continue;
         }
@@ -415,7 +415,7 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
         // Make sure the product matches (just for safety):
         UInt16 product;
         kr = (*dev)->GetDeviceProduct(dev, &product);
-        if (product != self.productID) {
+        if (kr != kIOReturnSuccess || product != self.productID) {
             //NSLog(@"[hs.razer] Product is not a Taratus V2: %hu", product);
             continue;
         }

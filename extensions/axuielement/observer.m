@@ -223,7 +223,7 @@ static int axobserver_isRunning(lua_State *L) {
 /// Get or set the callback for the observer.
 ///
 /// Parameters:
-///  * `fn` - a function, specifying the callback to the observer will invoke when the assigned elements generate notifications. If `nil` is supplied, the existing callback function will be removed
+///  * `fn` - a function, or an explicit nil to remove, specifying the callback function the observer will invoke when the assigned elements generate notifications.
 ///
 /// Returns:
 ///  * If an argument is provided, the observerObject; otherwise the current value.
