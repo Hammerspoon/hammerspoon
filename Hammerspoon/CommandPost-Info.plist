@@ -275,6 +275,8 @@
 	<string>https://raw.githubusercontent.com/CommandPost/CommandPost/develop/appcast/appcast.xml</string>
 	<key>SUPublicDSAKeyFile</key>
 	<string>dsa_pub.pem</string>
+    <key>SUPublicEDKey</key>
+    <string>S1wC2URSE4x0agiMwDwigH8UJ6ATH0I3Cf8z0V1Lthk=</string>
 	<key>SUScheduledCheckInterval</key>
 	<integer>900</integer>
 	<key>UTExportedTypeDeclarations</key>
