@@ -603,7 +603,6 @@
 		D6EE7C7F249B488C0053FB3A /* ExternalReferences.h in Headers */ = {isa = PBXBuildFile; fileRef = D6EE7C7D249B488B0053FB3A /* ExternalReferences.h */; };
 		D6EE7C80249B488C0053FB3A /* axtextmarker.m in Sources */ = {isa = PBXBuildFile; fileRef = D6EE7C7E249B488B0053FB3A /* axtextmarker.m */; };
 		D6F310E11BDF0E5F00045CCD /* libdrawing_color.m in Sources */ = {isa = PBXBuildFile; fileRef = D6F310CD1BDF0DCC00045CCD /* libdrawing_color.m */; };
-		D6F310E41BDF109900045CCD /* drawing.h in Headers */ = {isa = PBXBuildFile; fileRef = D6F310E21BDF107D00045CCD /* drawing.h */; };
 		D6F310F01BDF113900045CCD /* libstyledtext.m in Sources */ = {isa = PBXBuildFile; fileRef = D6F310D11BDF0E0000045CCD /* libstyledtext.m */; };
 		D6FD56901C0422DE00BAE238 /* libconsole.m in Sources */ = {isa = PBXBuildFile; fileRef = D6FD56821C04228800BAE238 /* libconsole.m */; };
 		DAED28EC20B95E8F004602CB /* led.m in Sources */ = {isa = PBXBuildFile; fileRef = DAED28EB20B95E8E004602CB /* led.m */; };
@@ -2106,7 +2105,6 @@
 		D6F310D01BDF0E0000045CCD /* styledtext.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = styledtext.lua; path = extensions/styledtext/styledtext.lua; sourceTree = "<group>"; };
 		D6F310D11BDF0E0000045CCD /* libstyledtext.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libstyledtext.m; path = extensions/styledtext/libstyledtext.m; sourceTree = "<group>"; };
 		D6F310E01BDF0E1700045CCD /* libdrawing_color.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libdrawing_color.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		D6F310E21BDF107D00045CCD /* drawing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = drawing.h; path = extensions/drawing/drawing.h; sourceTree = "<group>"; };
 		D6F310EF1BDF110500045CCD /* libstyledtext.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libstyledtext.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		D6FD56811C04228800BAE238 /* console.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = console.lua; path = extensions/console/console.lua; sourceTree = "<group>"; };
 		D6FD56821C04228800BAE238 /* libconsole.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libconsole.m; path = extensions/console/libconsole.m; sourceTree = "<group>"; };
@@ -3065,7 +3063,6 @@
 				D6E071681E04D9FC00C1046A /* drawing_canvasWrapper.lua */,
 				D6F310CC1BDF0DCC00045CCD /* drawing_color.lua */,
 				D6F310CD1BDF0DCC00045CCD /* libdrawing_color.m */,
-				D6F310E21BDF107D00045CCD /* drawing.h */,
 			);
 			name = drawing;
 			sourceTree = "<group>";
@@ -5036,7 +5033,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D6F310E41BDF109900045CCD /* drawing.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
