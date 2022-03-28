@@ -26,12 +26,12 @@ static int speededitor_gc(lua_State *L) {
 
 /// hs.speededitor.init(fn) -> none
 /// Function
-/// Initialises the Speed Editor driver and sets a discovery callback
+/// Initialises the Speed Editor driver and sets a discovery callback.
 ///
 /// Parameters:
 ///  * fn - A function that will be called when a Speed Editor is connected or disconnected. It should take the following arguments:
-///   * A boolean, `true` if a device was connected, `false` if a device was disconnected
-///   * An `hs.speededitor` object, being the device that was connected/disconnected
+///   * A boolean, `true` if a device was connected, `false` if a device was disconnected.
+///   * An `hs.speededitor` object, being the device that was connected/disconnected.
 ///
 /// Returns:
 ///  * None
@@ -52,12 +52,12 @@ static int speededitor_init(lua_State *L) {
 
 /// hs.speededitor.discoveryCallback(fn) -> none
 /// Function
-/// Sets/clears a callback for reacting to device discovery events
+/// Sets/clears a callback for reacting to device discovery events.
 ///
 /// Parameters:
 ///  * fn - A function that will be called when a Speed Editor is connected or disconnected. It should take the following arguments:
-///   * A boolean, true if a device was connected, false if a device was disconnected
-///   * An hs.speededitor object, being the device that was connected/disconnected
+///   * A boolean, true if a device was connected, false if a device was disconnected.
+///   * An `hs.speededitor` object, being the device that was connected/disconnected.
 ///
 /// Returns:
 ///  * None
@@ -76,13 +76,13 @@ static int speededitor_discoveryCallback(lua_State *L) {
 
 /// hs.speededitor.numDevices() -> number
 /// Function
-/// Gets the number of Speed Editor devices connected
+/// Gets the number of Speed Editor devices connected.
 ///
 /// Parameters:
 ///  * None
 ///
 /// Returns:
-///  * A number containing the number of Gamepad devices attached to the system
+///  * A number containing the number of Speed Editor devices attached to the system.
 static int speededitor_numDevices(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TBREAK];
@@ -93,7 +93,7 @@ static int speededitor_numDevices(lua_State *L) {
 
 /// hs.speededitor.getDevice(num) -> speedEditorObject
 /// Function
-/// Gets an hs.speededitor object for the specified device
+/// Gets an `hs.speededitor` object for the specified device.
 ///
 /// Parameters:
 ///  * num - A number that should be within the bounds of the number of connected devices.
@@ -124,7 +124,7 @@ static int speededitor_getDevice(lua_State *L) {
 
 /// hs.speededitor:callback(fn) -> speedEditorObject
 /// Method
-/// Sets/clears the button and jog wheel callback function for a Speed Editor
+/// Sets/clears the button and jog wheel callback function for a Speed Editor.
 ///
 /// Parameters:
 ///  * fn - A function to be called when a button is pressed/released, or the jog wheel is rotated on the Speed Editor.
@@ -138,6 +138,7 @@ static int speededitor_getDevice(lua_State *L) {
 ///   * The Jog Wheel Mode (if not a button press)
 ///   * The Jog Wheel value (if not a button press)
 ///  * Possible buttons are: "SMART INSRT", "APPND", "RIPL OWR", "CLOSE UP", "PLACE ON TOP", "SRC_OWR", "IN", "OUT", "TRIM IN", "TRIM OUT", "ROLL", "SLIP SRC", "SLIP DEST", "TRANS DUR", "CUT", "DIS", "SMTH CUT", "SOURCE", "TIMELINE", "SHTL", "JOG", "SCRL", "ESC", "SYNC BIN", "AUDIO LEVEL", "FULL VIEW", "TRANS", "SPLIT", "SNAP", "RIPL DEL", "CAM 1", "CAM 2", "CAM 3", "CAM 4", "CAM 5", "CAM 6", "CAM 7", "CAM 8", "CAM 9", "LIVE OWR", "VIDEO ONLY", "AUDIO ONLY" and "STOP PLAY".
+///  * You can also use `hs.speededitor.buttonNames` to get a table of possible values.
 static int speededitor_callback(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION | LS_TNIL, LS_TBREAK];
@@ -164,7 +165,8 @@ static int speededitor_callback(lua_State *L) {
 ///  * The hs.speededitor device.
 ///
 /// Notes:
-///   * The possible keys for the options table should be: AUDIO ONLY, CAM1, CAM2, CAM3, CAM4, CAM5, CAM6, CAM7, CAM8, CAM9, CLOSE UP, CUT, DIS, JOG, LIVE OWR, SCRL, SHTL, SMTH CUT, SNAP, TRANS, VIDEO ONLY.
+///  * The possible keys for the options table should be: AUDIO ONLY, CAM1, CAM2, CAM3, CAM4, CAM5, CAM6, CAM7, CAM8, CAM9, CLOSE UP, CUT, DIS, JOG, LIVE OWR, SCRL, SHTL, SMTH CUT, SNAP, TRANS, VIDEO ONLY.
+///  * You can also use `hs.speededitor.ledNames` to get a table of possible values.
 static int speededitor_led(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBREAK];
@@ -234,7 +236,7 @@ static int speededitor_serialNumber(lua_State *L) {
 
 /// hs.speededitor:jogMode(value) -> speedEditorObject
 /// Method
-/// Sets the Jog Mode for the Speed Editor
+/// Sets the Jog Mode for the Speed Editor.
 ///
 /// Parameters:
 ///  * value - "SHTL", "JOG", "SCRL" as a string.
@@ -243,9 +245,10 @@ static int speededitor_serialNumber(lua_State *L) {
 ///  * The `hs.speededitor` device or `nil` if a wrong value is supplied.
 ///
 /// Notes:
+///  * You can use `hs.speededitor.jogModeNames` to get a table of possible values.
 ///  * "SHTL" provide relative position (i.e. positive value if turning clock-wise and negative if turning anti-clockwise).
 ///  * "JOG" sends an "absolute" position (based on the position when mode was set) -4096 -> 4096 range ~ half a turn.
-///  * "SCRL" is the same as "RELATIVE 0" but with a small dead band around zero that maps to 0.
+///  * "SCRL" is the same as "JOG" but with a small dead band around zero that maps to 0.
 static int speededitor_jogMode(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TBREAK];

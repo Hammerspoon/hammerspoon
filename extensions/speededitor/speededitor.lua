@@ -125,4 +125,40 @@ module.buttonNames = {
     "STOP PLAY",
 }
 
+--- hs.speededitor.ledNames
+--- Constant
+--- A table of the LED names used.
+module.ledNames = {
+    "AUDIO ONLY",
+    "CAM1",
+    "CAM2",
+    "CAM3",
+    "CAM4",
+    "CAM5",
+    "CAM6",
+    "CAM7",
+    "CAM8",
+    "CAM9",
+    "CLOSE UP",
+    "CUT",
+    "DIS",
+    "JOG",
+    "LIVE OWR",
+    "SCRL",
+    "SHTL",
+    "SMTH CUT",
+    "SNAP",
+    "TRANS",
+    "VIDEO ONLY"
+}
+
+--- hs.speededitor.jogModeNames
+--- Constant
+--- A table of the jog mode names used.
+module.jogModeNames = {
+    "SHTL",
+    "JOG",
+    "SCRL"
+}
+
 return module
