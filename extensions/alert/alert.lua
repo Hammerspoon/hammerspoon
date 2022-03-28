@@ -59,7 +59,10 @@ local purgeAlert = function(UUID, duration)
             for i2,v2 in ipairs(v.drawings) do
                 v2:hide(duration)
                 if duration > 0.0 then
-                    timer.doAfter(duration, function() v2:delete() end)
+                    timer.doAfter(duration, function() 
+                       v2:hide()
+                       v2 = nil
+                    end)
                 end
                 v.drawings[i2] = nil
             end
