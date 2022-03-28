@@ -322,6 +322,10 @@ static int speededitor_object_gc(lua_State* L) {
         theDevice.selfRefCount-- ;
         if (theDevice.selfRefCount == 0) {
             theDevice.callbackRef = [skin luaUnref:speedEditorRefTable ref:theDevice.callbackRef] ;
+
+            // Make sure we invalidate to prevent the authentication timer from triggering:
+            [theDevice invalidate];
+
             theDevice = nil ;
         }
     }
