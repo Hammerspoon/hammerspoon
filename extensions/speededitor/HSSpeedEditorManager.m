@@ -188,6 +188,20 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
 }
 
 - (HSSpeedEditorDevice*)deviceDidConnect:(IOHIDDeviceRef)device {
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+     _lua_stackguard_entry(skin.L);
+
+     if (![skin checkGCCanary:self.lsCanary]) {
+         _lua_stackguard_exit(skin.L);
+         return nil;
+     }
+
+     if (self.discoveryCallbackRef == LUA_NOREF || self.discoveryCallbackRef == LUA_REFNIL) {
+         [skin logWarn:@"hs.speededitor detected a device connecting, but no discovery callback has been set. See hs.speededitor.discoveryCallback()"];
+         _lua_stackguard_exit(skin.L);
+         return nil;
+     }
+
     NSNumber *vendorID = (__bridge NSNumber *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDVendorIDKey));
     NSNumber *productID = (__bridge NSNumber *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductIDKey));
     NSString *serialNumber = (__bridge NSString *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDSerialNumberKey));
@@ -218,18 +232,14 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
     //
     [deck authenticate];
     
+    deck.lsCanary = [skin createGCCanary];
+    
     [self.devices addObject:deck];
-
-    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
-    _lua_stackguard_entry(skin.L);
-    if (self.discoveryCallbackRef == LUA_NOREF || self.discoveryCallbackRef == LUA_REFNIL) {
-        [skin logWarn:@"hs.speededitor detected a device connecting, but no discovery callback has been set. See hs.speededitor.discoveryCallback()"];
-    } else {
-        [skin pushLuaRef:speedEditorRefTable ref:self.discoveryCallbackRef];
-        lua_pushboolean(skin.L, 1);
-        [skin pushNSObject:deck];
-        [skin protectedCallAndError:@"hs.speededitor:deviceDidConnect" nargs:2 nresults:0];
-    }
+    
+    [skin pushLuaRef:speedEditorRefTable ref:self.discoveryCallbackRef];
+    lua_pushboolean(skin.L, 1);
+    [skin pushNSObject:deck];
+    [skin protectedCallAndError:@"hs.speededitor:deviceDidConnect" nargs:2 nresults:0];
 
     //NSLog(@"Created Speed Editor device: %p", (__bridge void*)deviceId);
     //NSLog(@"Now have %lu devices", self.devices.count);
@@ -238,11 +248,18 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
 }
 
 - (void)deviceDidDisconnect:(IOHIDDeviceRef)device {
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+     _lua_stackguard_entry(skin.L);
+
+    if (![skin checkGCCanary:self.lsCanary]) {
+        _lua_stackguard_exit(skin.L);
+        return;
+    }
+    
     for (HSSpeedEditorDevice *deckDevice in self.devices) {
         if (deckDevice.device == device) {
             [deckDevice invalidate];
-            LuaSkin *skin = [LuaSkin sharedWithState:NULL];
-            _lua_stackguard_entry(skin.L);
+            
             if (self.discoveryCallbackRef == LUA_NOREF || self.discoveryCallbackRef == LUA_REFNIL) {
                 [skin logWarn:@"hs.speededitor detected a device disconnecting, but no callback has been set. See hs.speededitor.discoveryCallback()"];
             } else {
@@ -252,12 +269,17 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
                 [skin protectedCallAndError:@"hs.speededitor:deviceDidDisconnect" nargs:2 nresults:0];
             }
 
+            LSGCCanary tmpLSUUID = deckDevice.lsCanary;
+            [skin destroyGCCanary:&tmpLSUUID];
+            deckDevice.lsCanary = tmpLSUUID;
+            
             [self.devices removeObject:deckDevice];
             _lua_stackguard_exit(skin.L);
             return;
         }
     }
     NSLog(@"ERROR: A Speed Editor was disconnected that we didn't know about");
+    _lua_stackguard_exit(skin.L);
     return;
 }
 

@@ -69,7 +69,7 @@
             @"RIPL OWR":                @0x03,
             @"CLOSE UP":                @0x04,
             @"PLACE ON TOP":            @0x05,
-            @"SRC_OWR":                 @0x06,
+            @"SRC OWR":                 @0x06,
             @"IN":                      @0x07,
             @"OUT":                     @0x08,
             @"TRIM IN":                 @0x09,

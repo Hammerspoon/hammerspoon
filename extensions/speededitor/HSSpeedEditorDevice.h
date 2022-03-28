@@ -13,6 +13,7 @@
 @property (nonatomic) int selfRefCount;
 @property (nonatomic) int callbackRef;
 @property (nonatomic) BOOL isValid;
+@property (nonatomic) LSGCCanary lsCanary;
 
 @property (nonatomic) NSString *serialNumber;
 

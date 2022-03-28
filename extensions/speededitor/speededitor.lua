@@ -74,4 +74,55 @@
 --- See the License for the specific language governing permissions and
 --- limitations under the License.
 
-return require("hs.libspeededitor")
+local module = require("hs.libspeededitor")
+
+--- hs.speededitor.buttonNames
+--- Constant
+--- A table of the button names used.
+module.buttonNames = {
+    "SMART INSRT",
+    "APPND",
+    "RIPL OWR",
+    "CLOSE UP",
+    "PLACE ON TOP",
+    "SRC OWR",
+    "IN",
+    "OUT",
+    "TRIM IN",
+    "TRIM OUT",
+    "ROLL",
+    "SLIP SRC",
+    "SLIP DEST",
+    "TRANS DUR",
+    "CUT",
+    "DIS",
+    "SMTH CUT",
+    "SOURCE",
+    "TIMELINE",
+    "SHTL",
+    "JOG",
+    "SCRL",
+    "ESC",
+    "SYNC BIN",
+    "AUDIO LEVEL",
+    "FULL VIEW",
+    "TRANS",
+    "SPLIT",
+    "SNAP",
+    "RIPL DEL",
+    "CAM 1",
+    "CAM 2",
+    "CAM 3",
+    "CAM 4",
+    "CAM 5",
+    "CAM 6",
+    "CAM 7",
+    "CAM 8",
+    "CAM 9",
+    "LIVE OWR",
+    "VIDEO ONLY",
+    "AUDIO ONLY",
+    "STOP PLAY",
+}
+
+return module

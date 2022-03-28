@@ -13,7 +13,12 @@ static HSSpeedEditorManager *speedEditorManager;
 int speedEditorRefTable = LUA_NOREF;
 
 #pragma mark - Lua API
-static int speededitor_gc(lua_State *L __unused) {
+static int speededitor_gc(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    LSGCCanary tmpLSUUID = speedEditorManager.lsCanary;
+    [skin destroyGCCanary:&tmpLSUUID];
+    speedEditorManager.lsCanary = tmpLSUUID;
+    
     [speedEditorManager stopHIDManager];
     [speedEditorManager doGC];
     return 0;
@@ -39,6 +44,7 @@ static int speededitor_init(lua_State *L) {
 
     speedEditorManager = [[HSSpeedEditorManager alloc] init];
     speedEditorManager.discoveryCallbackRef = [skin luaRef:speedEditorRefTable atIndex:1];
+    speedEditorManager.lsCanary = [skin createGCCanary];
     [speedEditorManager startHIDManager];
 
     return 0;
