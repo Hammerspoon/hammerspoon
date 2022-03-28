@@ -955,6 +955,7 @@ void MJLuaInit(void) {
         }
         evalfn = [skin luaRef:refTable];
         completionsForWordFn = [skin luaRef:refTable];
+        [skin logBreadcrumb:@"setup.lua completed"];
     }
 }
 
