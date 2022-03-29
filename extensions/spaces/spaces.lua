@@ -53,7 +53,7 @@ local getDockExitTemplates = function()
     -- make a copy since preferredLanguages uses ls.makeConstantsTable for "friendly" display in console
     localesToSearch = table.move(localesToSearch, 1, #localesToSearch, 1, {})
     table.insert(localesToSearch, host.locale.current())
-    local path   = application("Dock"):path() .. "/Contents/Resources"
+    local path   = application.applicationsForBundleID("com.apple.dock")[1]:path() .. "/Contents/Resources"
 
     local locale = ""
     while #localesToSearch > 0 do
