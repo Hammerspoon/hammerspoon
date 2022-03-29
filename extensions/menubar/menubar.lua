@@ -12,6 +12,7 @@ require("hs.styledtext")
 -- protects tables of constants
 
 menubar.priorities = ls.makeConstantsTable(menubar.priorities)
+menubar.imagePositions = ls.makeConstantsTable(menubar.imagePositions)
 
 -- This is the wrapper for hs.menubar:setIcon(). It is documented in internal.m
 

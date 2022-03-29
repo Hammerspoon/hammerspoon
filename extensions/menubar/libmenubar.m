@@ -503,6 +503,7 @@ static int menubarNew(lua_State *L) {
     }
 
     if (statusItem) {
+        statusItem.button.imagePosition = NSImageLeading;
         menubaritem_t *menuBarItem = lua_newuserdata(L, sizeof(menubaritem_t));
         memset(menuBarItem, 0, sizeof(menubaritem_t));
 
@@ -552,6 +553,7 @@ static int menubarNewWithPriority(lua_State *L) {
                                                              withPriority:priority];
 
     if (statusItem) {
+        statusItem.button.imagePosition = NSImageLeading;
         menubaritem_t *menuBarItem = lua_newuserdata(L, sizeof(menubaritem_t));
         memset(menuBarItem, 0, sizeof(menubaritem_t));
 
@@ -569,6 +571,34 @@ static int menubarNewWithPriority(lua_State *L) {
         lua_pushnil(L);
     }
 
+    return 1;
+}
+
+/// hs.menubar:imagePosition([position]) -> menubaritem | current-value
+/// Method
+/// Get or set the position of a menubar image relative to its text title
+///
+/// Parameters:
+///  * position - Either one of the values in `hs.menubar.imagePositions` which will be set, or nothing to return the current position
+///
+/// Returns:
+///  * Either the menubar item, if its image position was changed, or the current value of the image position
+static int menubarImagePosition(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG,
+                    LS_TNUMBER | LS_TINTEGER | LS_TOPTIONAL,
+                    LS_TBREAK];
+    menubaritem_t *menuBarItem = get_item_arg(L, 1);
+
+    NSStatusItem *menuItem = (__bridge NSStatusItem*)menuBarItem->menuBarItemObject;
+    NSStatusBarButton *button = menuItem.button;
+
+    if (lua_gettop(L) == 2) {
+        button.imagePosition = (int)lua_tointeger(L, 2);
+        lua_settop(L, 1);
+    } else {
+        lua_pushinteger(L, button.imagePosition);
+    }
     return 1;
 }
 
@@ -1188,6 +1218,34 @@ static int pushPrioritiesTable(lua_State *L) {
     return 1 ;
 }
 
+/// hs.menubar.imagePositions[]
+/// Constant
+/// Pre-defined list of image positions for a menubar item
+///
+/// The constants defined are as follows:
+///  * none          - don't show the image
+///  * imageOnly     - only show the image, not the title
+///  * imageLeading  - show the image before the title
+///  * imageTrailing - show the image after the title
+///  * imageLeft     - show the image to the left of the title
+///  * imageRight    - show the image to the right of the title
+///  * imageBelow    - show the image below the title
+///  * imageAbove    - show the image above the title
+///  * imageOverlaps - show the image on top of the title
+static int pushImagePositionsTable(lua_State *L) {
+    lua_newtable(L);
+    lua_pushinteger(L, NSNoImage); lua_setfield(L, -2, "none");
+    lua_pushinteger(L, NSImageOnly); lua_setfield(L, -2, "imageOnly");
+    lua_pushinteger(L, NSImageLeading); lua_setfield(L, -2, "imageLeading");
+    lua_pushinteger(L, NSImageTrailing); lua_setfield(L, -2, "imageTrailing");
+    lua_pushinteger(L, NSImageLeft); lua_setfield(L, -2, "imageLeft");
+    lua_pushinteger(L, NSImageRight); lua_setfield(L, -2, "imageRight");
+    lua_pushinteger(L, NSImageBelow); lua_setfield(L, -2, "imageBelow");
+    lua_pushinteger(L, NSImageAbove); lua_setfield(L, -2, "imageAbove");
+    lua_pushinteger(L, NSImageOverlaps); lua_setfield(L, -2, "imageOverlaps");
+    return 1;
+}
+
 void menubar_setup(void) {
     if (!dynamicMenuDelegates) {
         dynamicMenuDelegates = [[NSMutableArray alloc] init];
@@ -1235,6 +1293,7 @@ static const luaL_Reg menubar_metalib[] = {
     {"stateImageSize",    menubarStateImageSize},
     {"_frame",            menubarFrame},
     {"priority",          menubarPriority},
+    {"imagePosition",     menubarImagePosition},
     {"isInMenubar",       menubar_isInMenubar},
     {"isInMenuBar",       menubar_isInMenubar},
 
@@ -1260,6 +1319,7 @@ int luaopen_hs_libmenubar(lua_State *L) {
     refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:menubarlib metaFunctions:menubar_gclib objectFunctions:menubar_metalib];
 
     pushPrioritiesTable(L) ; lua_setfield(L, -2, "priorities") ;
+    pushImagePositionsTable(L) ; lua_setfield(L, -2, "imagePositions");
 
     return 1;
 }
