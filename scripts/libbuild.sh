@@ -444,6 +444,11 @@ EOF
     popd >/dev/null || fail "Unknown"
 
     echo " Updating Sentry release..."
+    op_sentry_assert
+    echo "  Importing Sentry token from: ${TOKENPATH}/token-sentry-auth"
+    # shellcheck disable=SC1090
+    source "${SENTRY_TOKEN_AUTH_FILE}"
+
     export SENTRY_ORG="${SENTRY_ORG:-hammerspoon}"
     export SENTRY_PROJECT="${SENTRY_PROJECT:-hammerspoon}"
     export SENTRY_LOG_LEVEL=error

@@ -955,6 +955,8 @@ static int userdata_gc(lua_State* L) ;
     CGFloat alphaSetting = self.alphaValue ;
     [NSAnimationContext beginGrouping];
     __weak HSCanvasWindow *bself = self; // in ARC, __block would increase retain count
+    LSGCCanary canary = [skin createGCCanary];
+
     [[NSAnimationContext currentContext] setDuration:fadeTime];
     [[NSAnimationContext currentContext] setCompletionHandler:^{
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -962,8 +964,14 @@ static int userdata_gc(lua_State* L) ;
             HSCanvasWindow *mySelf = bself ;
             if (mySelf && (((HSCanvasView *)mySelf.contentView).selfRef != LUA_NOREF)) {
                 LuaSkin *bSkin = [LuaSkin sharedWithState:NULL] ;
+                _lua_stackguard_entry(bSkin.L);
                 HSCanvasView *myView = mySelf.contentView ;
-                myView.selfRef = [bSkin luaUnref:refTable ref:myView.selfRef] ;
+
+                if ([skin checkGCCanary:canary]) {
+                    myView.selfRef = [bSkin luaUnref:refTable ref:myView.selfRef] ;
+                }
+                [skin destroyGCCanary:(LSGCCanary *)&canary];
+                _lua_stackguard_exit(bSkin.L);
 
 //                 if (deleteCanvas) {
 //                     LuaSkin *skin = [LuaSkin sharedWithState:NULL] ;
