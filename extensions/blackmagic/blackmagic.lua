@@ -170,10 +170,13 @@ module.buttonNames = {
       "TRANS",
       "PIC IN PIC",
       "SWAP",
+      "VIDEO ONLY",
+      "AUDIO ONLY",
       "INSERT",
       "O WR",
       "REPL",
       "FIT TO FILL",
+      "RIPL DEL",
   }
 }
 

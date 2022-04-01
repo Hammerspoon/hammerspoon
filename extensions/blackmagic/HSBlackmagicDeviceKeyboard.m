@@ -43,14 +43,14 @@
         };
 
         self.buttonLookup = @{
-            @"SMART INSRT":             @0x01,
+            @"SMART INSRT":             @0x01, // Top Left
             @"APPND":                   @0x02,
             @"RIPL OWR":                @0x03,
             @"CLOSE UP":                @0x04,
             @"PLACE ON TOP":            @0x05,
             @"SRC OWR":                 @0x06,
 
-            @"IN":                      @0x07,
+            @"IN":                      @0x07, // Bottom Left
             @"OUT":                     @0x08,
             @"TRIM IN":                 @0x09,
             @"TRIM OUT":                @0x0a,
@@ -62,33 +62,36 @@
             @"DIS":                     @0x10,
             @"SMTH CUT":                @0x11,
             
-            @"TIME CODE":               @0x13,
+            @"TIME CODE":               @0x13, // Above Num Pad
             @"CAM":                     @0x14,
             @"DATE TIME":               @0x15,
             @"CLIP NAME":               @0x16,
             
-            @"TRIM EDTOR":              @0x17,
+            @"TRIM EDTOR":              @0x17, // Num Pad
             @"F TC":                    @0x18,
             @"DUR ENTER":               @0x19,
             @"00":                      @0x12,
             
-            @"SOURCE":                  @0x1a,
+            @"SOURCE":                  @0x1a, // Above Jog Wheel
             @"TIMELINE":                @0x1b,
             
-            @"SHTL":                    @0x1c,
+            @"SHTL":                    @0x1c, // Above Jog Wheel
             @"JOG":                     @0x1d,
             @"SCRL":                    @0x1e,
             
-            @"SYNC BIN":                @0x1f,
-            @"INSRT BLACK":             @0x20,
-            @"FREEZ":                   @0x21,
-            @"TRANS":                   @0x22,
-            @"PIC IN PIC":              @0x23,
-            @"SWAP":                    @0x24,
-            @"INSERT":                  @0x27,
-            @"O WR":                    @0x28,
-            @"REPL":                    @0x29,
-            @"FIT TO FILL":             @0x2A,
+            @"SYNC BIN":                @0x1f,  // F1
+            @"INSRT BLACK":             @0x20,  // F2
+            @"FREEZ":                   @0x21,  // F3
+            @"TRANS":                   @0x22,  // F4
+            @"PIC IN PIC":              @0x23,  // F5
+            @"SWAP":                    @0x24,  // F6
+            @"VIDEO ONLY":              @0x25,  // F7
+            @"AUDIO ONLY":              @0x26,  // F8
+            @"INSERT":                  @0x27,  // F9
+            @"O WR":                    @0x28,  // F10
+            @"REPL":                    @0x29,  // F11
+            @"FIT TO FILL":             @0x2A,  // F12
+            @"RIPL DEL":                @0x2B,  // Next to F12
         };
         
         self.defaultButtonState = @{
@@ -134,10 +137,13 @@
             @"TRANS":                   @NO,
             @"PIC IN PIC":              @NO,
             @"SWAP":                    @NO,
+            @"VIDEO ONLY":              @NO,
+            @"AUDIO ONLY":              @NO,
             @"INSERT":                  @NO,
             @"O WR":                    @NO,
             @"REPL":                    @NO,
             @"FIT TO FILL":             @NO,
+            @"RIPL DEL":                @NO,            
         };
         
         self.buttonStateCache = [NSMutableDictionary dictionaryWithDictionary:self.defaultButtonState];
