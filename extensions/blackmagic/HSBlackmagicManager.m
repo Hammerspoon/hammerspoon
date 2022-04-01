@@ -63,11 +63,12 @@ static void HIDReport(void* deviceRef, IOReturn result, void* sender, IOHIDRepor
                 NSNumber *currentValue = [device.buttonLookup valueForKeyPath:currentKey];
                 for(int i = 1; i < reportLength; i++) {
                     
+                    /*
                     LuaSkin *skin = [LuaSkin sharedWithState:NULL];
-                    
                     if (report[i] > 0 ) {
                         [skin logWarn:[NSString stringWithFormat:@"key: '%hhu'", report[i]]] ;
                     }
+                    */
                     
                     if (report[i] == [currentValue unsignedIntValue]) {
                         [currentButtonState setObject:@YES forKey:currentKey];
