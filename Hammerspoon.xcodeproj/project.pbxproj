@@ -10,8 +10,8 @@
 		223A9693211F0EFF00596A79 /* cpCache.icns in Resources */ = {isa = PBXBuildFile; fileRef = 223A9691211F0EFE00596A79 /* cpCache.icns */; };
 		224B922E27F6B846003F628E /* HSBlackmagicDeviceKeyboard.h in Headers */ = {isa = PBXBuildFile; fileRef = 224B922C27F6B846003F628E /* HSBlackmagicDeviceKeyboard.h */; };
 		224B922F27F6B846003F628E /* HSBlackmagicDeviceKeyboard.m in Sources */ = {isa = PBXBuildFile; fileRef = 224B922D27F6B846003F628E /* HSBlackmagicDeviceKeyboard.m */; };
-		224B923227F6D326003F628E /* HSBlackmagicDeviceSpeedEditor.h in Headers */ = {isa = PBXBuildFile; fileRef = 224B923027F6D326003F628E /* HSBlackmagicDeviceSpeedEditor.h */; };
 		224B923327F6D326003F628E /* HSBlackmagicDeviceSpeedEditor.m in Sources */ = {isa = PBXBuildFile; fileRef = 224B923127F6D326003F628E /* HSBlackmagicDeviceSpeedEditor.m */; };
+		224B923527F6F5C3003F628E /* HSBlackmagicDeviceSpeedEditor.h in Headers */ = {isa = PBXBuildFile; fileRef = 224B923427F6F5C3003F628E /* HSBlackmagicDeviceSpeedEditor.h */; };
 		224BA32A23D1ECA900487FDB /* libwebsocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 224BA32523D1E63A00487FDB /* libwebsocket.m */; };
 		22613FF51F2A127E00E05E11 /* libdialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 22613FE41F297B9B00E05E11 /* libdialog.m */; };
 		22652B39251C38AC000FF14D /* TouchEvents.c in Sources */ = {isa = PBXBuildFile; fileRef = 22652B37251C38AB000FF14D /* TouchEvents.c */; };
@@ -1627,10 +1627,10 @@
 		2213843227A105DD0085CA24 /* HSRazerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSRazerManager.h; path = extensions/razer/HSRazerManager.h; sourceTree = "<group>"; };
 		221BCFD32787FFF1000EABD4 /* libF53OSC.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libF53OSC.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		223A9691211F0EFE00596A79 /* cpCache.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpCache.icns; sourceTree = "<group>"; };
-		224B922C27F6B846003F628E /* HSBlackmagicDeviceKeyboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSBlackmagicDeviceKeyboard.h; path = extensions/speededitor/HSBlackmagicDeviceKeyboard.h; sourceTree = "<group>"; };
-		224B922D27F6B846003F628E /* HSBlackmagicDeviceKeyboard.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSBlackmagicDeviceKeyboard.m; path = extensions/speededitor/HSBlackmagicDeviceKeyboard.m; sourceTree = "<group>"; };
-		224B923027F6D326003F628E /* HSBlackmagicDeviceSpeedEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSBlackmagicDeviceSpeedEditor.h; path = extensions/speededitor/HSBlackmagicDeviceSpeedEditor.h; sourceTree = "<group>"; };
-		224B923127F6D326003F628E /* HSBlackmagicDeviceSpeedEditor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSBlackmagicDeviceSpeedEditor.m; path = extensions/speededitor/HSBlackmagicDeviceSpeedEditor.m; sourceTree = "<group>"; };
+		224B922C27F6B846003F628E /* HSBlackmagicDeviceKeyboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSBlackmagicDeviceKeyboard.h; path = extensions/blackmagic/HSBlackmagicDeviceKeyboard.h; sourceTree = "<group>"; };
+		224B922D27F6B846003F628E /* HSBlackmagicDeviceKeyboard.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSBlackmagicDeviceKeyboard.m; path = extensions/blackmagic/HSBlackmagicDeviceKeyboard.m; sourceTree = "<group>"; };
+		224B923127F6D326003F628E /* HSBlackmagicDeviceSpeedEditor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSBlackmagicDeviceSpeedEditor.m; path = extensions/blackmagic/HSBlackmagicDeviceSpeedEditor.m; sourceTree = "<group>"; };
+		224B923427F6F5C3003F628E /* HSBlackmagicDeviceSpeedEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSBlackmagicDeviceSpeedEditor.h; path = extensions/blackmagic/HSBlackmagicDeviceSpeedEditor.h; sourceTree = "<group>"; };
 		224BA32523D1E63A00487FDB /* libwebsocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libwebsocket.m; path = extensions/websocket/libwebsocket.m; sourceTree = "<group>"; };
 		224BA33223D1ECA900487FDB /* libwebsocket.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libwebsocket.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		224BA33423D1EE6F00487FDB /* websocket.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = websocket.lua; path = extensions/websocket/websocket.lua; sourceTree = "<group>"; };
@@ -1642,13 +1642,13 @@
 		22652B3B251C3913000FF14D /* IOHIDEventData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOHIDEventData.h; path = extensions/eventtap/IOHIDEventData.h; sourceTree = "<group>"; };
 		22652B3C251C3914000FF14D /* IOHIDEventTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOHIDEventTypes.h; path = extensions/eventtap/IOHIDEventTypes.h; sourceTree = "<group>"; };
 		226F95FE27917D3B003DF60F /* libblackmagic.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libblackmagic.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		226F960027917D63003DF60F /* HSBlackmagicManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSBlackmagicManager.m; path = extensions/speededitor/HSBlackmagicManager.m; sourceTree = "<group>"; };
-		226F960127917D63003DF60F /* libblackmagic.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libblackmagic.m; path = extensions/speededitor/libblackmagic.m; sourceTree = "<group>"; };
-		226F960227917D63003DF60F /* HSBlackmagicManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSBlackmagicManager.h; path = extensions/speededitor/HSBlackmagicManager.h; sourceTree = "<group>"; };
-		226F960327917D63003DF60F /* HSBlackmagicDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSBlackmagicDevice.h; path = extensions/speededitor/HSBlackmagicDevice.h; sourceTree = "<group>"; };
-		226F960427917D63003DF60F /* blackmagic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = blackmagic.h; path = extensions/speededitor/blackmagic.h; sourceTree = "<group>"; };
-		226F960527917D63003DF60F /* blackmagic.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = blackmagic.lua; path = extensions/speededitor/blackmagic.lua; sourceTree = "<group>"; };
-		226F960627917D63003DF60F /* HSBlackmagicDevice.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSBlackmagicDevice.m; path = extensions/speededitor/HSBlackmagicDevice.m; sourceTree = "<group>"; };
+		226F960027917D63003DF60F /* HSBlackmagicManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSBlackmagicManager.m; path = extensions/blackmagic/HSBlackmagicManager.m; sourceTree = "<group>"; };
+		226F960127917D63003DF60F /* libblackmagic.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libblackmagic.m; path = extensions/blackmagic/libblackmagic.m; sourceTree = "<group>"; };
+		226F960227917D63003DF60F /* HSBlackmagicManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSBlackmagicManager.h; path = extensions/blackmagic/HSBlackmagicManager.h; sourceTree = "<group>"; };
+		226F960327917D63003DF60F /* HSBlackmagicDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSBlackmagicDevice.h; path = extensions/blackmagic/HSBlackmagicDevice.h; sourceTree = "<group>"; };
+		226F960427917D63003DF60F /* blackmagic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = blackmagic.h; path = extensions/blackmagic/blackmagic.h; sourceTree = "<group>"; };
+		226F960527917D63003DF60F /* blackmagic.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = blackmagic.lua; path = extensions/blackmagic/blackmagic.lua; sourceTree = "<group>"; };
+		226F960627917D63003DF60F /* HSBlackmagicDevice.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSBlackmagicDevice.m; path = extensions/blackmagic/HSBlackmagicDevice.m; sourceTree = "<group>"; };
 		22738933248606A9003EBC68 /* test_websocket.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_websocket.lua; path = extensions/websocket/test_websocket.lua; sourceTree = "<group>"; };
 		22738934248606F0003EBC68 /* HSwebsocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSwebsocket.m; sourceTree = "<group>"; };
 		2274781B2787F8F800DE6894 /* libosc.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libosc.m; path = extensions/osc/libosc.m; sourceTree = "<group>"; };
@@ -3047,7 +3047,7 @@
 		226F95FF27917D4B003DF60F /* blackmagic */ = {
 			isa = PBXGroup;
 			children = (
-				224B923027F6D326003F628E /* HSBlackmagicDeviceSpeedEditor.h */,
+				224B923427F6F5C3003F628E /* HSBlackmagicDeviceSpeedEditor.h */,
 				224B923127F6D326003F628E /* HSBlackmagicDeviceSpeedEditor.m */,
 				224B922C27F6B846003F628E /* HSBlackmagicDeviceKeyboard.h */,
 				224B922D27F6B846003F628E /* HSBlackmagicDeviceKeyboard.m */,
@@ -4511,7 +4511,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				224B923227F6D326003F628E /* HSBlackmagicDeviceSpeedEditor.h in Headers */,
+				224B923527F6F5C3003F628E /* HSBlackmagicDeviceSpeedEditor.h in Headers */,
 				226F960B27917D63003DF60F /* blackmagic.h in Headers */,
 				224B922E27F6B846003F628E /* HSBlackmagicDeviceKeyboard.h in Headers */,
 				226F960A27917D63003DF60F /* HSBlackmagicDevice.h in Headers */,
