@@ -1,4 +1,4 @@
-#import "HSSpeedEditorManager.h"
+#import "HSBlackmagicManager.h"
 
 #pragma mark - Report Struct's
 
@@ -14,7 +14,7 @@ typedef struct __attribute__ ((__packed__)) batteryReport {
 static char *inputBuffer = NULL;
 
 static void HIDReport(void* deviceRef, IOReturn result, void* sender, IOHIDReportType type, uint32_t reportID, uint8_t *report,CFIndex reportLength) {
-    HSSpeedEditorDevice *device = (__bridge HSSpeedEditorDevice*)deviceRef;
+    HSBlackmagicDevice *device = (__bridge HSBlackmagicDevice*)deviceRef;
     
     if (reportID == 3) {
         //
@@ -28,7 +28,7 @@ static void HIDReport(void* deviceRef, IOReturn result, void* sender, IOHIDRepor
         //
         
         if (reportLength != 7) {
-            [LuaSkin logError:@"[hs.speededitor] Unexpected Jog Wheel Report Length."];
+            [LuaSkin logError:@"[hs.blackmagic] Unexpected Jog Wheel Report Length."];
         } else {
             jogWheelReport result = *(jogWheelReport *) report;
             
@@ -52,7 +52,7 @@ static void HIDReport(void* deviceRef, IOReturn result, void* sender, IOHIDRepor
         //
         
         if (reportLength != 13) {
-            [LuaSkin logError:@"[hs.speededitor] Unexpected Button Report Length."];
+            [LuaSkin logError:@"[hs.blackmagic] Unexpected Button Report Length."];
         } else {
             // Get a blank button state dictionary:
             NSMutableDictionary *currentButtonState = [NSMutableDictionary dictionaryWithDictionary:device.defaultButtonState];
@@ -62,6 +62,13 @@ static void HIDReport(void* deviceRef, IOReturn result, void* sender, IOHIDRepor
             for (NSString *currentKey in allKeys) {
                 NSNumber *currentValue = [device.buttonLookup valueForKeyPath:currentKey];
                 for(int i = 1; i < reportLength; i++) {
+                    
+                    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+                    
+                    if (report[i] > 0 ) {
+                        [skin logWarn:[NSString stringWithFormat:@"key: '%hhu'", report[i]]] ;
+                    }
+                    
                     if (report[i] == [currentValue unsignedIntValue]) {
                         [currentButtonState setObject:@YES forKey:currentKey];
                     }
@@ -82,7 +89,7 @@ static void HIDReport(void* deviceRef, IOReturn result, void* sender, IOHIDRepor
         //
         
         if (reportLength != 3) {
-            [LuaSkin logError:@"[hs.speededitor] Unexpected Battery Report Length."];
+            [LuaSkin logError:@"[hs.blackmagic] Unexpected Battery Report Length."];
         } else {
             device.batteryCharging = report[1];
             device.batteryLevel = [NSNumber numberWithChar:report[2]];
@@ -90,15 +97,15 @@ static void HIDReport(void* deviceRef, IOReturn result, void* sender, IOHIDRepor
         
     } else {
         // TODO: Add the report id to the LuaSkin error message:
-        [LuaSkin logError:@"[hs.speededitor] Unexpected Report ID."];
+        [LuaSkin logError:@"[hs.blackmagic] Unexpected Report ID."];
         NSLog(@"Unexpected Report ID: %u", reportID);
     }
 }
 
 static void HIDconnect(void *context, IOReturn result, void *sender, IOHIDDeviceRef device) {
     //NSLog(@"connect: %p:%p", context, (void *)device);
-    HSSpeedEditorManager *manager = (__bridge HSSpeedEditorManager *)context;
-    HSSpeedEditorDevice *deviceId = [manager deviceDidConnect:device];
+    HSBlackmagicManager *manager = (__bridge HSBlackmagicManager *)context;
+    HSBlackmagicDevice *deviceId = [manager deviceDidConnect:device];
     if (deviceId) {
         IOHIDDeviceRegisterInputReportCallback(device, (uint8_t*)inputBuffer, 1024, HIDReport, (void*)deviceId);
         //NSLog(@"Added value callback to new IOKit device %p for Deck Device %p", (void *)device, (__bridge void*)deviceId);
@@ -107,13 +114,13 @@ static void HIDconnect(void *context, IOReturn result, void *sender, IOHIDDevice
 
 static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDeviceRef device) {
     //NSLog(@"disconnect: %p", (void *)device);
-    HSSpeedEditorManager *manager = (__bridge HSSpeedEditorManager *)context;
+    HSBlackmagicManager *manager = (__bridge HSBlackmagicManager *)context;
     [manager deviceDidDisconnect:device];
     IOHIDDeviceRegisterInputValueCallback(device, NULL, NULL);
 }
 
 #pragma mark - Speed Editor Manager implementation
-@implementation HSSpeedEditorManager
+@implementation HSBlackmagicManager
 
 - (id)init {
     self = [super init];
@@ -133,8 +140,11 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
         NSDictionary *matchSpeedEditor   = @{vendorIDKey:  @USB_VID_BLACKMAGIC,
                                           productIDKey: @USB_PID_SPEED_EDITOR};
         
+        NSDictionary *matchKeyboard      = @{vendorIDKey:  @USB_VID_BLACKMAGIC,
+                                          productIDKey: @USB_PID_KEYBOARD};
+        
         IOHIDManagerSetDeviceMatchingMultiple((__bridge IOHIDManagerRef)self.ioHIDManager,
-                                              (__bridge CFArrayRef)@[matchSpeedEditor]);
+                                              (__bridge CFArrayRef)@[matchSpeedEditor, matchKeyboard]);
 
         // Add our callbacks for relevant events
         IOHIDManagerRegisterDeviceMatchingCallback((__bridge IOHIDManagerRef)self.ioHIDManager,
@@ -187,7 +197,7 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
     return tIOReturn == kIOReturnSuccess;
 }
 
-- (HSSpeedEditorDevice*)deviceDidConnect:(IOHIDDeviceRef)device {
+- (HSBlackmagicDevice*)deviceDidConnect:(IOHIDDeviceRef)device {
     LuaSkin *skin = [LuaSkin sharedWithState:NULL];
      _lua_stackguard_entry(skin.L);
 
@@ -197,7 +207,7 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
      }
 
      if (self.discoveryCallbackRef == LUA_NOREF || self.discoveryCallbackRef == LUA_REFNIL) {
-         [skin logWarn:@"hs.speededitor detected a device connecting, but no discovery callback has been set. See hs.speededitor.discoveryCallback()"];
+         [skin logWarn:@"hs.blackmagic detected a device connecting, but no discovery callback has been set. See hs.blackmagic.discoveryCallback()"];
          _lua_stackguard_exit(skin.L);
          return nil;
      }
@@ -205,25 +215,33 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
     NSNumber *vendorID = (__bridge NSNumber *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDVendorIDKey));
     NSNumber *productID = (__bridge NSNumber *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductIDKey));
     NSString *serialNumber = (__bridge NSString *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDSerialNumberKey));
+    NSNumber *primaryUsageKey = (__bridge NSNumber *)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDPrimaryUsageKey));
     
     if (vendorID.intValue != USB_VID_BLACKMAGIC) {
         NSLog(@"deviceDidConnect from unknown vendor: %d", vendorID.intValue);
         return nil;
     }
 
-    HSSpeedEditorDevice *deck = nil;
+    HSBlackmagicDevice *deck = nil;
 
     switch (productID.intValue) {
         case USB_PID_SPEED_EDITOR:
-            deck = [[HSSpeedEditorDevice alloc] initWithDevice:device manager:self serialNumber:serialNumber];
+            deck = [[HSBlackmagicDeviceSpeedEditor alloc] initWithDevice:device manager:self serialNumber:serialNumber];
             break;
-
+        case USB_PID_KEYBOARD:
+            //
+            // We only care about the HID device that has a 0 primary usage key:
+            //
+            if ([primaryUsageKey isEqualToNumber:[NSNumber numberWithInt:0]]) {
+                deck = [[HSBlackmagicDeviceKeyboard alloc] initWithDevice:device manager:self serialNumber:serialNumber];
+                break;
+            }
         default:
             NSLog(@"deviceDidConnect from unknown device: %d", productID.intValue);
             break;
     }
     if (!deck) {
-        NSLog(@"deviceDidConnect: no HSSpeedEditorDevice was created, ignoring");
+        NSLog(@"deviceDidConnect: no HSBlackmagicDevice was created, ignoring");
         return nil;
     }
     
@@ -236,10 +254,10 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
     
     [self.devices addObject:deck];
     
-    [skin pushLuaRef:speedEditorRefTable ref:self.discoveryCallbackRef];
+    [skin pushLuaRef:blackmagicRefTable ref:self.discoveryCallbackRef];
     lua_pushboolean(skin.L, 1);
     [skin pushNSObject:deck];
-    [skin protectedCallAndError:@"hs.speededitor:deviceDidConnect" nargs:2 nresults:0];
+    [skin protectedCallAndError:@"hs.blackmagic:deviceDidConnect" nargs:2 nresults:0];
 
     //NSLog(@"Created Speed Editor device: %p", (__bridge void*)deviceId);
     //NSLog(@"Now have %lu devices", self.devices.count);
@@ -256,17 +274,17 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
         return;
     }
     
-    for (HSSpeedEditorDevice *deckDevice in self.devices) {
+    for (HSBlackmagicDevice *deckDevice in self.devices) {
         if (deckDevice.device == device) {
             [deckDevice invalidate];
             
             if (self.discoveryCallbackRef == LUA_NOREF || self.discoveryCallbackRef == LUA_REFNIL) {
-                [skin logWarn:@"hs.speededitor detected a device disconnecting, but no callback has been set. See hs.speededitor.discoveryCallback()"];
+                [skin logWarn:@"hs.blackmagic detected a device disconnecting, but no callback has been set. See hs.blackmagic.discoveryCallback()"];
             } else {
-                [skin pushLuaRef:speedEditorRefTable ref:self.discoveryCallbackRef];
+                [skin pushLuaRef:blackmagicRefTable ref:self.discoveryCallbackRef];
                 lua_pushboolean(skin.L, 0);
                 [skin pushNSObject:deckDevice];
-                [skin protectedCallAndError:@"hs.speededitor:deviceDidDisconnect" nargs:2 nresults:0];
+                [skin protectedCallAndError:@"hs.blackmagic:deviceDidDisconnect" nargs:2 nresults:0];
             }
 
             LSGCCanary tmpLSUUID = deckDevice.lsCanary;
@@ -278,7 +296,7 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
             return;
         }
     }
-    NSLog(@"ERROR: A Speed Editor was disconnected that we didn't know about");
+    NSLog(@"ERROR: A Blackmagic device was disconnected that we didn't know about");
     _lua_stackguard_exit(skin.L);
     return;
 }

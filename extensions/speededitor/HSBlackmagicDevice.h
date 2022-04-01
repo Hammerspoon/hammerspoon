@@ -4,9 +4,9 @@
 @import IOKit.hid;
 @import LuaSkin;
 
-#import "speededitor.h"
+#import "blackmagic.h"
 
-@interface HSSpeedEditorDevice : NSObject {}
+@interface HSBlackmagicDevice : NSObject {}
 
 @property (nonatomic) IOHIDDeviceRef device;
 @property (nonatomic) id manager;
@@ -15,7 +15,9 @@
 @property (nonatomic) BOOL isValid;
 @property (nonatomic) LSGCCanary lsCanary;
 
+@property (nonatomic) NSString *deviceType;
 @property (nonatomic) NSString *serialNumber;
+@property (nonatomic) NSNumber *locationID;
 
 @property (nonatomic) BOOL batteryCharging;
 @property (nonatomic) NSNumber *batteryLevel;

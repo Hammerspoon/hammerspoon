@@ -1,12 +1,12 @@
-#import "HSSpeedEditorDevice.h"
+#import "HSBlackmagicDevice.h"
 
 #include <stdint.h>
 #include <stdio.h>
 
-@interface HSSpeedEditorDevice ()
+@interface HSBlackmagicDevice ()
 @end
 
-@implementation HSSpeedEditorDevice
+@implementation HSBlackmagicDevice
 - (id)initWithDevice:(IOHIDDeviceRef)device manager:(id)manager serialNumber:serialNumber {
     self = [super init];
     if (self) {
@@ -269,7 +269,7 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
     NSData *resetAuthStateData = [NSData dataWithBytes:(const void *)resetAuthState length:10];
     result = [self deviceWriteFeatureReportWithData:resetAuthStateData];
     if (result != kIOReturnSuccess) {
-        [LuaSkin logError:@"[hs.speededitor] Failed to send report to reset the authentication state machine, so aborting authentication."];
+        [LuaSkin logError:@"[hs.blackmagic] Failed to send report to reset the authentication state machine, so aborting authentication."];
         return;
     }
     
@@ -285,7 +285,7 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
     //
     const char* challengeResponseBytes = (const char*)[challengeResponse bytes];
     if (challengeResponseBytes[0] != 0x06 && challengeResponseBytes[1] != 0x00) {
-        [LuaSkin logError:@"[hs.speededitor] Unexpected initial response from Speed Editor, so aborting authentication."];
+        [LuaSkin logError:@"[hs.blackmagic] Unexpected initial response from Speed Editor, so aborting authentication."];
         return;
     }
     
@@ -296,7 +296,7 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
     NSData *sendChallengeData = [NSData dataWithBytes:(const void *)sendChallenge length:10];
     result = [self deviceWriteFeatureReportWithData:sendChallengeData];
     if (result != kIOReturnSuccess) {
-        [LuaSkin logError:@"[hs.speededitor] Failed to send report with our challenge, so aborting authentication."];
+        [LuaSkin logError:@"[hs.blackmagic] Failed to send report with our challenge, so aborting authentication."];
         return;
     }
     
@@ -310,7 +310,7 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
     //
     const char* challengeResponseTwoBytes = (const char*)[challengeResponseTwo bytes];
     if (challengeResponseTwoBytes[0] != 0x06 && challengeResponseTwoBytes[1] != 0x02) {
-        [LuaSkin logError:@"[hs.speededitor] Unexpected response from Speed Editor when sending challenge, so aborting authentication."];
+        [LuaSkin logError:@"[hs.blackmagic] Unexpected response from Speed Editor when sending challenge, so aborting authentication."];
         return;
     }
     
@@ -331,7 +331,7 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
     [authResponse appendData:challengeReplyData];
     result = [self deviceWriteFeatureReportWithData:authResponse];
     if (result != kIOReturnSuccess) {
-        [LuaSkin logError:@"[hs.speededitor] Failed to send report with our response to the challenge, so aborting authentication."];
+        [LuaSkin logError:@"[hs.blackmagic] Failed to send report with our response to the challenge, so aborting authentication."];
         return;
     }
 
@@ -345,7 +345,7 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
     //
     const char* challengeResponseThreeBytes = (const char*)[challengeResponseThree bytes];
     if (challengeResponseThreeBytes[0] != 0x06 && challengeResponseThreeBytes[1] != 0x04) {
-        [LuaSkin logError:@"[hs.speededitor] The Speed Editor did not accept the challenge response, so aborting authentication."];
+        [LuaSkin logError:@"[hs.blackmagic] The Speed Editor did not accept the challenge response, so aborting authentication."];
         return;
     }
         
@@ -354,7 +354,7 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
     //
     uint32_t timeout = challengeResponseThreeBytes[2] + (challengeResponseThreeBytes[3] << 8) + (challengeResponseThreeBytes[4] << 16);
     if (!timeout) {
-        [LuaSkin logError:@"[hs.speededitor] The Speed Editor did not get an authentication timeout, so aborting authentication."];
+        [LuaSkin logError:@"[hs.blackmagic] The Speed Editor did not get an authentication timeout, so aborting authentication."];
         return;
     }
     [self createAuthenticationTimerWithIntervalInSeconds:timeout];
@@ -544,7 +544,7 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
         
         IOReturn result = [self deviceWriteOutputReportWithData:reportA];
         if (result != kIOReturnSuccess) {
-            [LuaSkin logError:@"[hs.speededitor] Failed to send LED report."];
+            [LuaSkin logError:@"[hs.blackmagic] Failed to send LED report."];
             return;
         }
     }
@@ -593,7 +593,7 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
         NSData *report = [NSData dataWithBytes:(const void *)sendChallenge length:2];
         IOReturn result = [self deviceWriteOutputReportWithData:report];
         if (result != kIOReturnSuccess) {
-            [LuaSkin logError:@"[hs.speededitor] Failed to send Jog LED report."];
+            [LuaSkin logError:@"[hs.blackmagic] Failed to send Jog LED report."];
             return;
         }
     }
@@ -603,32 +603,8 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
 // Turn all the LEDs off:
 //
 - (void)turnOffAllLEDs {
-    NSDictionary *allOff = @{
-        @"CLOSE UP":                @NO,
-        @"CUT":                     @NO,
-        @"DIS":                     @NO,
-        @"SMTH CUT":                @NO,
-        @"TRANS":                   @NO,
-        @"SNAP":                    @NO,
-        @"CAM7":                    @NO,
-        @"CAM8":                    @NO,
-        @"CAM9":                    @NO,
-        @"LIVE OWR":                @NO,
-        @"CAM4":                    @NO,
-        @"CAM5":                    @NO,
-        @"CAM6":                    @NO,
-        @"VIDEO ONLY":              @NO,
-        @"CAM1":                    @NO,
-        @"CAM2":                    @NO,
-        @"CAM3":                    @NO,
-        @"AUDIO ONLY":              @NO,
-        @"JOG":                     @NO,
-        @"SHTL":                    @NO,
-        @"SCRL":                    @NO,
-    };
-    
-    [self setLEDs:allOff];
-    [self setJogLEDs:allOff];
+    [self setLEDs:self.defaultLEDCache];
+    [self setJogLEDs:self.defaultLEDCache];
 }
 
 - (void)setJogMode:(NSString*) mode {
@@ -644,7 +620,7 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
     NSData *report = [NSData dataWithBytes:(const void *)sendChallenge length:7];
     IOReturn result = [self deviceWriteOutputReportWithData:report];
     if (result != kIOReturnSuccess) {
-        [LuaSkin logError:@"[hs.speededitor] Failed to send Jog Mode report."];
+        [LuaSkin logError:@"[hs.blackmagic] Failed to send Jog Mode report."];
         return;
     }
 }
@@ -661,7 +637,7 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
     LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     _lua_stackguard_entry(skin.L);
     if (self.callbackRef == LUA_NOREF || self.callbackRef == LUA_REFNIL) {
-        [skin logError:@"hs.speededitor received a jog wheel input, but no callback has been set. See hs.speededitor:callback()"];
+        [skin logError:@"hs.blackmagic received a jog wheel input, but no callback has been set. See hs.blackmagic:callback()"];
         return;
     }
 
@@ -670,13 +646,13 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
     //
     // Trigger Lua Callback:
     //
-    [skin pushLuaRef:speedEditorRefTable ref:self.callbackRef];
+    [skin pushLuaRef:blackmagicRefTable ref:self.callbackRef];
     [skin pushNSObject:self];
     [skin pushNSObject:@"JOG WHEEL"];
     lua_pushboolean(skin.L, 1);
     [skin pushNSObject:currentMode];
     [skin pushNSObject:value];
-    [skin protectedCallAndError:@"hs.speededitor:callback" nargs:5 nresults:0];
+    [skin protectedCallAndError:@"hs.blackmagic:callback" nargs:5 nresults:0];
     
     _lua_stackguard_exit(skin.L);
 }
@@ -693,7 +669,7 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
     LuaSkin *skin = [LuaSkin sharedWithState:NULL];
     _lua_stackguard_entry(skin.L);
     if (self.callbackRef == LUA_NOREF || self.callbackRef == LUA_REFNIL) {
-        [skin logError:@"hs.speededitor received a button input, but no callback has been set. See hs.speededitor:callback()"];
+        [skin logError:@"hs.blackmagic received a button input, but no callback has been set. See hs.blackmagic:callback()"];
         return;
     }
 
@@ -710,11 +686,11 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
             //
             // Trigger Lua Callback:
             //
-            [skin pushLuaRef:speedEditorRefTable ref:self.callbackRef];
+            [skin pushLuaRef:blackmagicRefTable ref:self.callbackRef];
             [skin pushNSObject:self];
             [skin pushNSObject:currentKey];
             lua_pushboolean(skin.L, 1);
-            [skin protectedCallAndError:@"hs.speededitor:callback" nargs:3 nresults:0];
+            [skin protectedCallAndError:@"hs.blackmagic:callback" nargs:3 nresults:0];
         }
         else if ([beforeButtonState isEqual:@YES] && [afterButtonState isEqual:@NO]) {
             //
@@ -725,11 +701,11 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
             //
             // Trigger Lua Callback:
             //
-            [skin pushLuaRef:speedEditorRefTable ref:self.callbackRef];
+            [skin pushLuaRef:blackmagicRefTable ref:self.callbackRef];
             [skin pushNSObject:self];
             [skin pushNSObject:currentKey];
             lua_pushboolean(skin.L, 0);
-            [skin protectedCallAndError:@"hs.speededitor:callback" nargs:3 nresults:0];
+            [skin protectedCallAndError:@"hs.blackmagic:callback" nargs:3 nresults:0];
         }
     }
     

@@ -4,10 +4,13 @@
 
 @import LuaSkin;
 
-#import "HSSpeedEditorDevice.h"
-#import "speededitor.h"
+#import "HSBlackmagicDevice.h"
+#import "HSBlackmagicDeviceKeyboard.h"
+#import "HSBlackmagicDeviceSpeedEditor.h"
 
-@interface HSSpeedEditorManager : NSObject
+#import "blackmagic.h"
+
+@interface HSBlackmagicManager : NSObject
 @property (nonatomic, strong) id ioHIDManager;
 @property (nonatomic, strong) NSMutableArray *devices;
 @property (nonatomic) int discoveryCallbackRef;
@@ -17,7 +20,7 @@
 - (void)doGC;
 - (BOOL)startHIDManager;
 - (BOOL)stopHIDManager;
-- (HSSpeedEditorDevice*)deviceDidConnect:(IOHIDDeviceRef)device;
+- (HSBlackmagicDevice*)deviceDidConnect:(IOHIDDeviceRef)device;
 - (void)deviceDidDisconnect:(IOHIDDeviceRef)device;
 
 @end
