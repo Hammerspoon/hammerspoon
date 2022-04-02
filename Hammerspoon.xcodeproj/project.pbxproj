@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		220B882A27F8F954006C0B2B /* test_image.lua in Resources */ = {isa = PBXBuildFile; fileRef = 220B882927F8F954006C0B2B /* test_image.lua */; };
+		220B882C27F8F9A3006C0B2B /* HSimage.m in Sources */ = {isa = PBXBuildFile; fileRef = 220B882B27F8F9A3006C0B2B /* HSimage.m */; };
 		224BA32A23D1ECA900487FDB /* libwebsocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 224BA32523D1E63A00487FDB /* libwebsocket.m */; };
 		22613FF51F2A127E00E05E11 /* libdialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 22613FE41F297B9B00E05E11 /* libdialog.m */; };
 		22652B39251C38AC000FF14D /* TouchEvents.c in Sources */ = {isa = PBXBuildFile; fileRef = 22652B37251C38AB000FF14D /* TouchEvents.c */; };
@@ -1565,6 +1567,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		220B882927F8F954006C0B2B /* test_image.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_image.lua; path = extensions/image/test_image.lua; sourceTree = "<group>"; };
+		220B882B27F8F9A3006C0B2B /* HSimage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSimage.m; sourceTree = "<group>"; };
 		2213842A27A105DD0085CA24 /* razer.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = razer.lua; path = extensions/razer/razer.lua; sourceTree = "<group>"; };
 		2213842B27A105DD0085CA24 /* librazer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = librazer.m; path = extensions/razer/librazer.m; sourceTree = "<group>"; };
 		2213842C27A105DD0085CA24 /* HSRazerTartarusV2Device.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSRazerTartarusV2Device.m; path = extensions/razer/HSRazerTartarusV2Device.m; sourceTree = "<group>"; };
@@ -3155,6 +3159,7 @@
 		4F4CB4531B73B0C4000EA9B6 /* image */ = {
 			isa = PBXGroup;
 			children = (
+				220B882927F8F954006C0B2B /* test_image.lua */,
 				4F4CB4541B73B0D5000EA9B6 /* image.lua */,
 				4F4CB4551B73B0D5000EA9B6 /* libimage.m */,
 			);
@@ -4162,6 +4167,7 @@
 		D02F95251A00221C00E28BB2 /* Hammerspoon Tests */ = {
 			isa = PBXGroup;
 			children = (
+				220B882B27F8F9A3006C0B2B /* HSimage.m */,
 				4FDD8E511C83612C00085D7A /* HSalert.m */,
 				4FDD8E8E1C8DED1C00085D7A /* HSappfinder.m */,
 				4C403D631CBE5B9F00EE20ED /* HSapplication.m */,
@@ -6985,6 +6991,7 @@
 				4CE639141C772DC700BB7CD2 /* test_udpsocket.lua in Resources */,
 				4FCC52CF1E1528D4007F93D0 /* test_brightness.lua in Resources */,
 				4FEF4D551C5FBC0F00E3B939 /* test_audiodevice.lua in Resources */,
+				220B882A27F8F954006C0B2B /* test_image.lua in Resources */,
 				4C5BA6B71C85EB0400E68CA9 /* test_fs.lua in Resources */,
 				4C403D661CBE627200EE20ED /* test_application.lua in Resources */,
 				4F6CE1311C6B93A90016668E /* test_timer.lua in Resources */,
@@ -7748,6 +7755,7 @@
 				D02F95291A00221C00E28BB2 /* HSrequire_all.m in Sources */,
 				4C5BA6B51C85EAEB00E68CA9 /* HSfs.m in Sources */,
 				4F4F6DAA25DB1BB6000187FA /* HSjsonTests.m in Sources */,
+				220B882C27F8F9A3006C0B2B /* HSimage.m in Sources */,
 				4F6CE1341C6B93E10016668E /* HStimer.m in Sources */,
 				4CD64AA91C6F15F400EB6E39 /* HSsocket.m in Sources */,
 				4FEF4D4F1C5FA01100E3B939 /* HSaudiodevice.m in Sources */,
