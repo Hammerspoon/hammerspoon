@@ -5,20 +5,9 @@
 
 @implementation HSBlackmagicDeviceKeyboard
 - (id)initWithDevice:(IOHIDDeviceRef)device manager:(id)manager serialNumber:serialNumber {
-    self = [super init];
+    self = [super initWithDevice:device manager:manager serialNumber:serialNumber];
     if (self) {
         self.deviceType = @"Editor Keyboard";
-        self.serialNumber = serialNumber;
-        self.device = device;
-        self.isValid = YES;
-        self.manager = manager;
-        self.callbackRef = LUA_NOREF;
-        self.selfRefCount = 0;
-        
-        self.firstTimeAuthenticating = YES;
-        
-        self.batteryCharging = NO;
-        self.batteryLevel = @-1;
         
         self.ledLookup = @{};
         
@@ -29,17 +18,17 @@
         };
         
         self.jogModeLookup = @{
-            //@"RELATIVE 0":              @0,                       // Relative
-            @"JOG":                     @1,                         // Send an "absolute" position (based on the position when mode was set) -4096 -> 4096 range ~ half a turn
-            @"SHTL":                    @2,                         // Same as mode 0 ?
-            @"SCRL":                    @3,                         // Same as mode 1 but with a small dead band around zero that maps to 0
+            //@"MODE 1":                  @0,                   // Same as third mode.
+            @"ABSOLUTE":                @1,                     // Returns an “absolute” position, based on when the mode was set. It has a range of -4096 (left of 0) to 4096 (right of 0), which is half a turn. On the Editor Keyboard it has mechanical hard stops at -4096 and 4096.
+            @"RELATIVE":                @2,                     // Returns a “relative” position - a positive number if turning right, and a negative number if turning left. The faster you turn, the higher the number. One step is 360.
+            @"ABSOLUTE ZERO":           @3,                     // Returns an “absolute” position, based on when the mode was set. It has a range of -4096 (left of 0) to 4096 (right of 0), which is half a turn. It also has a small dead band aroundzero, which is also a mechanical stop on the Editor Keyboard.
         };
         
         self.jogModeReverseLookup = @{
-            //[NSNumber numberWithInt:0]: @"RELATIVE 0",            // Relative
-            [NSNumber numberWithInt:1]: @"JOG",                     // Send an "absolute" position (based on the position when mode was set) -4096 -> 4096 range ~ half a turn
-            [NSNumber numberWithInt:2]: @"SHTL",                    // Same as mode 0 ?
-            [NSNumber numberWithInt:3]: @"SCRL",                    // Same as mode 1 but with a small dead band around zero that maps to 0
+            //[NSNumber numberWithInt:0]: @"MODE 1",            // Same as third mode.
+            [NSNumber numberWithInt:1]: @"ABSOLUTE",            // Returns an “absolute” position, based on when the mode was set. It has a range of -4096 (left of 0) to 4096 (right of 0), which is half a turn. On the Editor Keyboard it has mechanical hard stops at -4096 and 4096.
+            [NSNumber numberWithInt:2]: @"RELATIVE",            // Returns a “relative” position - a positive number if turning right, and a negative number if turning left. The faster you turn, the higher the number. One step is 360.
+            [NSNumber numberWithInt:3]: @"ABSOLUTE ZERO",       // Returns an “absolute” position, based on when the mode was set. It has a range of -4096 (left of 0) to 4096 (right of 0), which is half a turn. It also has a small dead band aroundzero, which is also a mechanical stop on the Editor Keyboard.
         };
 
         self.buttonLookup = @{
@@ -151,8 +140,6 @@
         self.defaultLEDCache = @{};
         
         self.ledCache = [NSMutableDictionary dictionaryWithDictionary:self.defaultLEDCache];
-
-        //NSLog(@"Added new Speed Editor device %p with IOKit device %p from manager %p", (__bridge void *)self, (void*)self.device, (__bridge void *)self.manager);
     }
     return self;
 }

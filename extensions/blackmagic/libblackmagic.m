@@ -259,16 +259,16 @@ static int blackmagic_deviceType(lua_State *L) {
 /// Sets the Jog Mode for the Blackmagic device.
 ///
 /// Parameters:
-///  * value - "SHTL", "JOG", "SCRL" as a string.
+///  * value - "RELATIVE", "ABSOLUTE" and "ABSOLUTE ZERO" as a string.
 ///
 /// Returns:
 ///  * The `hs.blackmagic` device or `nil` if a wrong value is supplied.
 ///
 /// Notes:
-///  * You can use `hs.blackmagic.jogModeNames` to get a table of possible values.
-///  * "SHTL" provide relative position (i.e. positive value if turning clock-wise and negative if turning anti-clockwise).
-///  * "JOG" sends an "absolute" position (based on the position when mode was set) -4096 -> 4096 range ~ half a turn.
-///  * "SCRL" is the same as "JOG" but with a small dead band around zero that maps to 0.
+///  * You can use `hs.blackmagic.jogModeNames[deviceType]` to get a table of possible values.
+///  * "RELATIVE" - Returns a “relative” position - a positive number if turning right, and a negative number if turning left. The faster you turn, the higher the number. One step is 360.
+///  * "ABSOLUTE" - Returns an “absolute” position, based on when the mode was set. It has a range of -4096 (left of 0) to 4096 (right of 0). On the Editor Keyboard it has mechanical hard stops at -4096 and 4096, meaning you only use one half of the wheel.
+///  * "ABSOLUTE ZERO" - The same as "ABSOLUTE", but has a small dead zone around 0 - which mechincally "snaps" to zero on a Editor Keyboard.
 static int blackmagic_jogMode(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TBREAK];

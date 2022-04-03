@@ -13,7 +13,12 @@
 ---         -- If Jog Wheel button pressed, change jog wheel mode
 ---         -- and activate the LED for that job wheel mode:
 ---         if buttonID == "SHTL" or buttonID == "JOG" or buttonID == "SCRL" then
----             blackmagic:jogMode(buttonID)
+---             local jogMode
+---             if buttonID == "SHTL" then jogMode = "RELATIVE" end
+---             if buttonID == "JOG" then jogMode = "ABSOLUTE" end
+---             if buttonID == "SCRL" then jogMode = "ABSOLUTE ZERO" end
+---             blackmagic:jogMode(jogMode)
+---
 ---             blackmagic:led({
 ---                 ["SHTL"] = buttonID == "SHTL",
 ---                 ["JOG"] = buttonID == "JOG",
@@ -37,16 +42,17 @@
 ---
 --- local discoveryCallback = function(connected, device)
 ---     if connected then
----         print("New Blackmagic Device Connected!")
+---         print(string.format("Device Connected: %s - %s", device:deviceType(), device:serialNumber()))
 ---         blackmagic = device
 ---         blackmagic:led({["SHTL"] = true}) -- Defaults to SHTL jog mode
+---         blackmagic:jogMode("RELATIVE")
 ---         blackmagic:callback(callback)
 ---     else
----         print("Blackmagic Device Disconnected")
+---         print(string.format("Device Disconnected: %s - %s", device:deviceType(), device:serialNumber()))
 ---     end
 --- end
 ---
---- hs.speededitor.init(discoveryCallback)
+--- hs.blackmagic.init(discoveryCallback)
 --- ```
 ---
 --- This extension was thrown together by [Chris Hocking](https://github.com/latenitefilms) for [CommandPost](http://commandpost.io).
@@ -219,14 +225,14 @@ module.ledNames = {
 --- A table of the jog mode names used by each device type.
 module.jogModeNames = {
   ["Speed Editor"] = {
-      "SHTL",
-      "JOG",
-      "SCRL"
+      "ABSOLUTE",
+      "RELATIVE",
+      "ABSOLUTE DEADZONE"
   },
   ["Editor Keyboard"] = {
-      "SHTL",
-      "JOG",
-      "SCRL"
+      "ABSOLUTE",
+      "RELATIVE",
+      "ABSOLUTE DEADZONE"
   },
 }
 
