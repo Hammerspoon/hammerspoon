@@ -108,7 +108,12 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
     NSData *resetAuthStateData = [NSData dataWithBytes:(const void *)resetAuthState length:10];
     result = [self deviceWriteFeatureReportWithData:resetAuthStateData];
     if (result != kIOReturnSuccess) {
-        [LuaSkin logError:@"[hs.blackmagic] Failed to send report to reset the authentication state machine, so aborting authentication."];
+        [LuaSkin logError:@"[hs.blackmagic] Failed to send report to reset the authentication state machine, so aborting authentication. We'll try again in 60sec."];
+        
+        //
+        // Try again in a minute...
+        //
+        [self createAuthenticationTimerWithIntervalInSeconds:60];
         return;
     }
     
@@ -124,7 +129,12 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
     //
     const char* challengeResponseBytes = (const char*)[challengeResponse bytes];
     if (challengeResponseBytes[0] != 0x06 && challengeResponseBytes[1] != 0x00) {
-        [LuaSkin logError:@"[hs.blackmagic] Unexpected initial response from Speed Editor, so aborting authentication."];
+        [LuaSkin logError:@"[hs.blackmagic] Unexpected initial response from Speed Editor, so aborting authentication. We'll try again in 60sec."];
+        
+        //
+        // Try again in a minute...
+        //
+        [self createAuthenticationTimerWithIntervalInSeconds:60];
         return;
     }
     
@@ -135,7 +145,12 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
     NSData *sendChallengeData = [NSData dataWithBytes:(const void *)sendChallenge length:10];
     result = [self deviceWriteFeatureReportWithData:sendChallengeData];
     if (result != kIOReturnSuccess) {
-        [LuaSkin logError:@"[hs.blackmagic] Failed to send report with our challenge, so aborting authentication."];
+        [LuaSkin logError:@"[hs.blackmagic] Failed to send report with our challenge, so aborting authentication. We'll try again in 60sec."];
+        
+        //
+        // Try again in a minute...
+        //
+        [self createAuthenticationTimerWithIntervalInSeconds:60];
         return;
     }
     
@@ -149,7 +164,12 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
     //
     const char* challengeResponseTwoBytes = (const char*)[challengeResponseTwo bytes];
     if (challengeResponseTwoBytes[0] != 0x06 && challengeResponseTwoBytes[1] != 0x02) {
-        [LuaSkin logError:@"[hs.blackmagic] Unexpected response from Speed Editor when sending challenge, so aborting authentication."];
+        [LuaSkin logError:@"[hs.blackmagic] Unexpected response from Speed Editor when sending challenge, so aborting authentication. We'll try again in 60sec."];
+        
+        //
+        // Try again in a minute...
+        //
+        [self createAuthenticationTimerWithIntervalInSeconds:60];
         return;
     }
     
@@ -170,7 +190,12 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
     [authResponse appendData:challengeReplyData];
     result = [self deviceWriteFeatureReportWithData:authResponse];
     if (result != kIOReturnSuccess) {
-        [LuaSkin logError:@"[hs.blackmagic] Failed to send report with our response to the challenge, so aborting authentication."];
+        [LuaSkin logError:@"[hs.blackmagic] Failed to send report with our response to the challenge, so aborting authentication. We'll try again in 60sec."];
+        
+        //
+        // Try again in a minute...
+        //
+        [self createAuthenticationTimerWithIntervalInSeconds:60];
         return;
     }
 
@@ -184,7 +209,12 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
     //
     const char* challengeResponseThreeBytes = (const char*)[challengeResponseThree bytes];
     if (challengeResponseThreeBytes[0] != 0x06 && challengeResponseThreeBytes[1] != 0x04) {
-        [LuaSkin logError:@"[hs.blackmagic] The Speed Editor did not accept the challenge response, so aborting authentication."];
+        [LuaSkin logError:@"[hs.blackmagic] The Speed Editor did not accept the challenge response, so aborting authentication. We'll try again in 60sec."];
+        
+        //
+        // Try again in a minute...
+        //
+        [self createAuthenticationTimerWithIntervalInSeconds:60];
         return;
     }
         
@@ -193,7 +223,12 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
     //
     uint32_t timeout = challengeResponseThreeBytes[2] + (challengeResponseThreeBytes[3] << 8) + (challengeResponseThreeBytes[4] << 16);
     if (!timeout) {
-        [LuaSkin logError:@"[hs.blackmagic] The Speed Editor did not get an authentication timeout, so aborting authentication."];
+        [LuaSkin logError:@"[hs.blackmagic] The Speed Editor did not get an authentication timeout, so aborting authentication. We'll try again in 60sec."];
+        
+        //
+        // Try again in a minute...
+        //
+        [self createAuthenticationTimerWithIntervalInSeconds:60];
         return;
     }
     [self createAuthenticationTimerWithIntervalInSeconds:timeout];
@@ -302,7 +337,6 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
 //
 // Read Input Report from the Speed Editor:
 //
-
 - (NSData *)deviceReadInputReportWithLength:(int)resultLength reportID:(CFIndex)reportID {
     CFIndex reportLength = resultLength;
     uint8_t *report = malloc(reportLength);
