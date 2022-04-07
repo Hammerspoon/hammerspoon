@@ -15,6 +15,9 @@
 @property (nonatomic) BOOL isValid;
 @property (nonatomic) LSGCCanary lsCanary;
 
+@property (nonatomic) uint32_t retryAuthenticationInSeconds;
+@property (nonatomic) uint32_t defaultAuthenticationTimeout;
+
 @property (nonatomic) NSString *deviceType;
 @property (nonatomic) NSString *serialNumber;
 @property (nonatomic) NSNumber *locationID;
