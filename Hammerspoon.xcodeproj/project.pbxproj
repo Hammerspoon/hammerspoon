@@ -15,6 +15,28 @@
 		22652B3E251C3914000FF14D /* IOHIDEventTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 22652B3C251C3914000FF14D /* IOHIDEventTypes.h */; };
 		22738935248606F0003EBC68 /* HSwebsocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 22738934248606F0003EBC68 /* HSwebsocket.m */; };
 		2273893624860C0E003EBC68 /* test_websocket.lua in Resources */ = {isa = PBXBuildFile; fileRef = 22738933248606A9003EBC68 /* test_websocket.lua */; };
+		227478232787F92E00DE6894 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FB852342735B02400462DD0 /* LuaSkin.framework */; };
+		2274782A2787F94100DE6894 /* libosc.m in Sources */ = {isa = PBXBuildFile; fileRef = 2274781B2787F8F800DE6894 /* libosc.m */; };
+		2274782B2787F9A000DE6894 /* osc.lua in Resources */ = {isa = PBXBuildFile; fileRef = 2274781C2787F8F800DE6894 /* osc.lua */; };
+		2274782E2787FA1500DE6894 /* libosc.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 227478292787F92E00DE6894 /* libosc.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		2274782F2787FA2800DE6894 /* osc.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 2274781C2787F8F800DE6894 /* osc.lua */; };
+		227C36C226200D4D00224F53 /* cpPlugin.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36C126200D4C00224F53 /* cpPlugin.icns */; };
+		227C36D126200DBE00224F53 /* cpTourBox.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36C326200DBB00224F53 /* cpTourBox.icns */; };
+		227C36D226200DBE00224F53 /* cpTouchBar.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36C426200DBB00224F53 /* cpTouchBar.icns */; };
+		227C36D326200DBE00224F53 /* cpSnippets.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36C526200DBB00224F53 /* cpSnippets.icns */; };
+		227C36D426200DBE00224F53 /* cpHUD.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36C626200DBB00224F53 /* cpHUD.icns */; };
+		227C36D526200DBE00224F53 /* cpTangent.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36C726200DBC00224F53 /* cpTangent.icns */; };
+		227C36D626200DBE00224F53 /* cpLoupedeck.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36C826200DBC00224F53 /* cpLoupedeck.icns */; };
+		227C36D726200DBE00224F53 /* cpLoupedeckPlus.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36C926200DBC00224F53 /* cpLoupedeckPlus.icns */; };
+		227C36D826200DBE00224F53 /* cpLoupedeckCT.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36CA26200DBC00224F53 /* cpLoupedeckCT.icns */; };
+		227C36D926200DBE00224F53 /* cpShortcuts.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36CB26200DBD00224F53 /* cpShortcuts.icns */; };
+		227C36DA26200DBE00224F53 /* cpPasteboard.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36CC26200DBD00224F53 /* cpPasteboard.icns */; };
+		227C36DB26200DBE00224F53 /* cpMIDI.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36CD26200DBD00224F53 /* cpMIDI.icns */; };
+		227C36DC26200DBE00224F53 /* cpLoupedeckLive.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36CE26200DBD00224F53 /* cpLoupedeckLive.icns */; };
+		227C36DD26200DBE00224F53 /* cpMonogram.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36CF26200DBE00224F53 /* cpMonogram.icns */; };
+		227C36DE26200DBE00224F53 /* cpStreamDeck.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36D026200DBE00224F53 /* cpStreamDeck.icns */; };
+		2290EB2028011DF100CEA572 /* HSRazerOrbweaverDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 2290EB1E28011DF100CEA572 /* HSRazerOrbweaverDevice.m */; };
+		2290EB2128011DF100CEA572 /* HSRazerOrbweaverDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = 2290EB1F28011DF100CEA572 /* HSRazerOrbweaverDevice.h */; };
 		22A6626025FC080200AA329E /* test_serial.lua in Resources */ = {isa = PBXBuildFile; fileRef = 22A6625F25FC07F700AA329E /* test_serial.lua */; };
 		22A6626225FC087000AA329E /* HSserial.m in Sources */ = {isa = PBXBuildFile; fileRef = 22A6626125FC087000AA329E /* HSserial.m */; };
 		22C9153327A108F000E650A2 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FB852342735B02400462DD0 /* LuaSkin.framework */; };
@@ -1586,6 +1608,26 @@
 		22652B3C251C3914000FF14D /* IOHIDEventTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOHIDEventTypes.h; path = extensions/eventtap/IOHIDEventTypes.h; sourceTree = "<group>"; };
 		22738933248606A9003EBC68 /* test_websocket.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_websocket.lua; path = extensions/websocket/test_websocket.lua; sourceTree = "<group>"; };
 		22738934248606F0003EBC68 /* HSwebsocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSwebsocket.m; sourceTree = "<group>"; };
+		2274781B2787F8F800DE6894 /* libosc.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libosc.m; path = extensions/osc/libosc.m; sourceTree = "<group>"; };
+		2274781C2787F8F800DE6894 /* osc.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = osc.lua; path = extensions/osc/osc.lua; sourceTree = "<group>"; };
+		227478292787F92E00DE6894 /* libosc.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libosc.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		227C36C126200D4C00224F53 /* cpPlugin.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpPlugin.icns; sourceTree = "<group>"; };
+		227C36C326200DBB00224F53 /* cpTourBox.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpTourBox.icns; sourceTree = "<group>"; };
+		227C36C426200DBB00224F53 /* cpTouchBar.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpTouchBar.icns; sourceTree = "<group>"; };
+		227C36C526200DBB00224F53 /* cpSnippets.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpSnippets.icns; sourceTree = "<group>"; };
+		227C36C626200DBB00224F53 /* cpHUD.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpHUD.icns; sourceTree = "<group>"; };
+		227C36C726200DBC00224F53 /* cpTangent.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpTangent.icns; sourceTree = "<group>"; };
+		227C36C826200DBC00224F53 /* cpLoupedeck.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpLoupedeck.icns; sourceTree = "<group>"; };
+		227C36C926200DBC00224F53 /* cpLoupedeckPlus.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpLoupedeckPlus.icns; sourceTree = "<group>"; };
+		227C36CA26200DBC00224F53 /* cpLoupedeckCT.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpLoupedeckCT.icns; sourceTree = "<group>"; };
+		227C36CB26200DBD00224F53 /* cpShortcuts.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpShortcuts.icns; sourceTree = "<group>"; };
+		227C36CC26200DBD00224F53 /* cpPasteboard.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpPasteboard.icns; sourceTree = "<group>"; };
+		227C36CD26200DBD00224F53 /* cpMIDI.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpMIDI.icns; sourceTree = "<group>"; };
+		227C36CE26200DBD00224F53 /* cpLoupedeckLive.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpLoupedeckLive.icns; sourceTree = "<group>"; };
+		227C36CF26200DBE00224F53 /* cpMonogram.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpMonogram.icns; sourceTree = "<group>"; };
+		227C36D026200DBE00224F53 /* cpStreamDeck.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpStreamDeck.icns; sourceTree = "<group>"; };
+		2290EB1E28011DF100CEA572 /* HSRazerOrbweaverDevice.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSRazerOrbweaverDevice.m; path = extensions/razer/HSRazerOrbweaverDevice.m; sourceTree = "<group>"; };
+		2290EB1F28011DF100CEA572 /* HSRazerOrbweaverDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSRazerOrbweaverDevice.h; path = extensions/razer/HSRazerOrbweaverDevice.h; sourceTree = "<group>"; };
 		22A6625F25FC07F700AA329E /* test_serial.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_serial.lua; path = extensions/serial/test_serial.lua; sourceTree = "<group>"; };
 		22A6626125FC087000AA329E /* HSserial.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSserial.m; sourceTree = "<group>"; };
 		22C9154327A108F000E650A2 /* librazer.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = librazer.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -2903,6 +2945,8 @@
 		2213841E27A105520085CA24 /* razer */ = {
 			isa = PBXGroup;
 			children = (
+				2290EB1F28011DF100CEA572 /* HSRazerOrbweaverDevice.h */,
+				2290EB1E28011DF100CEA572 /* HSRazerOrbweaverDevice.m */,
 				2213843027A105DD0085CA24 /* HSRazerDevice.h */,
 				2213843127A105DD0085CA24 /* HSRazerDevice.m */,
 				2213843227A105DD0085CA24 /* HSRazerManager.h */,
@@ -4391,6 +4435,18 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		22FA061327A160410039C37A /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				22654EA727D43CCE004F8214 /* HSRazerDevice.h in Headers */,
+				22654EA827D43CCE004F8214 /* HSRazerManager.h in Headers */,
+				2290EB2128011DF100CEA572 /* HSRazerOrbweaverDevice.h in Headers */,
+				22654EA927D43CCE004F8214 /* HSRazerTartarusV2Device.h in Headers */,
+				22654EAA27D43CCE004F8214 /* razer.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7154,6 +7210,18 @@
 			buildActionMask = 2147483647;
 			files = (
 				22EEC62424926E6E00BAE4DA /* libserial.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		22FA060D27A160410039C37A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				22654EA327D43CB8004F8214 /* HSRazerDevice.m in Sources */,
+				22654EA427D43CB8004F8214 /* HSRazerManager.m in Sources */,
+				2290EB2028011DF100CEA572 /* HSRazerOrbweaverDevice.m in Sources */,
+				22654EA527D43CB8004F8214 /* HSRazerTartarusV2Device.m in Sources */,
+				22654EA627D43CB8004F8214 /* librazer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

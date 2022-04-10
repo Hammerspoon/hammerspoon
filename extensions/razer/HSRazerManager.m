@@ -160,6 +160,28 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
                 [razerDevice setupEventTap];
                 break;
             }
+        case USB_PID_RAZER_ORBWEAVER:
+            // We only want to register each device once, as they might have multiple
+            // HID objects for the same physical hardware:
+            alreadyRegistered = NO;
+            for (HSRazerDevice *checkDevice in self.devices) {
+                if (checkDevice.locationID == locationID) {
+                    alreadyRegistered = YES;
+                }
+            }
+
+            if (!alreadyRegistered) {
+                //NSLog(@"[hs.razer] Razer Tartarus V2 detected.");
+                razerDevice = [[HSRazerOrbweaverDevice alloc] initWithDevice:device manager:self];
+
+                // Save the location ID for making sure we're communicating with the right hardware
+                // when changing LED backlights:
+                razerDevice.locationID = locationID;
+
+                // Setup Event Tap:
+                [razerDevice setupEventTap];
+                break;
+            }
         default:
             //NSLog(@"[hs.razer] deviceDidConnect from unknown device: %d", productID.intValue);
             break;
