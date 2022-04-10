@@ -3189,7 +3189,7 @@ static int canvas_delete(lua_State *L) {
 //     HSCanvasWindow *canvasWindow = canvasView.wrapperWindow ;
     if (warnedAboutDelete < 10) {
         warnedAboutDelete++ ;
-        [skin logWarn:[NSString stringWithFormat:@"%s:delete - explicit delete is no longer required for canvas objects; garbage collection occurs automatically", USERDATA_TAG]] ;
+        //[skin logWarn:[NSString stringWithFormat:@"%s:delete - explicit delete is no longer required for canvas objects; garbage collection occurs automatically", USERDATA_TAG]] ;
     }
     canvas_hide(L) ;
     lua_pop(L, 1) ; // remove userdata pushed by hide

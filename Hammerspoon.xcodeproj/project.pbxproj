@@ -7,12 +7,35 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		223A9693211F0EFF00596A79 /* cpCache.icns in Resources */ = {isa = PBXBuildFile; fileRef = 223A9691211F0EFE00596A79 /* cpCache.icns */; };
+		224B922E27F6B846003F628E /* HSBlackmagicDeviceKeyboard.h in Headers */ = {isa = PBXBuildFile; fileRef = 224B922C27F6B846003F628E /* HSBlackmagicDeviceKeyboard.h */; };
+		224B922F27F6B846003F628E /* HSBlackmagicDeviceKeyboard.m in Sources */ = {isa = PBXBuildFile; fileRef = 224B922D27F6B846003F628E /* HSBlackmagicDeviceKeyboard.m */; };
+		224B923327F6D326003F628E /* HSBlackmagicDeviceSpeedEditor.m in Sources */ = {isa = PBXBuildFile; fileRef = 224B923127F6D326003F628E /* HSBlackmagicDeviceSpeedEditor.m */; };
+		224B923527F6F5C3003F628E /* HSBlackmagicDeviceSpeedEditor.h in Headers */ = {isa = PBXBuildFile; fileRef = 224B923427F6F5C3003F628E /* HSBlackmagicDeviceSpeedEditor.h */; };
 		224BA32A23D1ECA900487FDB /* libwebsocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 224BA32523D1E63A00487FDB /* libwebsocket.m */; };
 		22613FF51F2A127E00E05E11 /* libdialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 22613FE41F297B9B00E05E11 /* libdialog.m */; };
 		22652B39251C38AC000FF14D /* TouchEvents.c in Sources */ = {isa = PBXBuildFile; fileRef = 22652B37251C38AB000FF14D /* TouchEvents.c */; };
 		22652B3A251C38AC000FF14D /* TouchEvents.h in Headers */ = {isa = PBXBuildFile; fileRef = 22652B38251C38AB000FF14D /* TouchEvents.h */; };
 		22652B3D251C3914000FF14D /* IOHIDEventData.h in Headers */ = {isa = PBXBuildFile; fileRef = 22652B3B251C3913000FF14D /* IOHIDEventData.h */; };
 		22652B3E251C3914000FF14D /* IOHIDEventTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 22652B3C251C3914000FF14D /* IOHIDEventTypes.h */; };
+		22654EA327D43CB8004F8214 /* HSRazerDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 2213843127A105DD0085CA24 /* HSRazerDevice.m */; };
+		22654EA427D43CB8004F8214 /* HSRazerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2213842D27A105DD0085CA24 /* HSRazerManager.m */; };
+		22654EA527D43CB8004F8214 /* HSRazerTartarusV2Device.m in Sources */ = {isa = PBXBuildFile; fileRef = 2213842C27A105DD0085CA24 /* HSRazerTartarusV2Device.m */; };
+		22654EA627D43CB8004F8214 /* librazer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2213842B27A105DD0085CA24 /* librazer.m */; };
+		22654EA727D43CCE004F8214 /* HSRazerDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = 2213843027A105DD0085CA24 /* HSRazerDevice.h */; };
+		22654EA827D43CCE004F8214 /* HSRazerManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2213843227A105DD0085CA24 /* HSRazerManager.h */; };
+		22654EA927D43CCE004F8214 /* HSRazerTartarusV2Device.h in Headers */ = {isa = PBXBuildFile; fileRef = 2213842E27A105DD0085CA24 /* HSRazerTartarusV2Device.h */; };
+		22654EAA27D43CCE004F8214 /* razer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2213842F27A105DD0085CA24 /* razer.h */; };
+		22654EAD27D43D1F004F8214 /* razer.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 2213842A27A105DD0085CA24 /* razer.lua */; };
+		226F95F827917D3B003DF60F /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FB852342735B02400462DD0 /* LuaSkin.framework */; };
+		226F960727917D63003DF60F /* HSBlackmagicManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 226F960027917D63003DF60F /* HSBlackmagicManager.m */; };
+		226F960827917D63003DF60F /* libblackmagic.m in Sources */ = {isa = PBXBuildFile; fileRef = 226F960127917D63003DF60F /* libblackmagic.m */; };
+		226F960927917D63003DF60F /* HSBlackmagicManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 226F960227917D63003DF60F /* HSBlackmagicManager.h */; };
+		226F960A27917D63003DF60F /* HSBlackmagicDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = 226F960327917D63003DF60F /* HSBlackmagicDevice.h */; };
+		226F960B27917D63003DF60F /* blackmagic.h in Headers */ = {isa = PBXBuildFile; fileRef = 226F960427917D63003DF60F /* blackmagic.h */; };
+		226F960C27917D63003DF60F /* HSBlackmagicDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 226F960627917D63003DF60F /* HSBlackmagicDevice.m */; };
+		226F960F27917DDA003DF60F /* libblackmagic.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 226F95FE27917D3B003DF60F /* libblackmagic.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		226F961027917E06003DF60F /* blackmagic.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 226F960527917D63003DF60F /* blackmagic.lua */; };
 		22738935248606F0003EBC68 /* HSwebsocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 22738934248606F0003EBC68 /* HSwebsocket.m */; };
 		2273893624860C0E003EBC68 /* test_websocket.lua in Resources */ = {isa = PBXBuildFile; fileRef = 22738933248606A9003EBC68 /* test_websocket.lua */; };
 		227478232787F92E00DE6894 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FB852342735B02400462DD0 /* LuaSkin.framework */; };
@@ -39,21 +62,12 @@
 		2290EB2128011DF100CEA572 /* HSRazerOrbweaverDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = 2290EB1F28011DF100CEA572 /* HSRazerOrbweaverDevice.h */; };
 		22A6626025FC080200AA329E /* test_serial.lua in Resources */ = {isa = PBXBuildFile; fileRef = 22A6625F25FC07F700AA329E /* test_serial.lua */; };
 		22A6626225FC087000AA329E /* HSserial.m in Sources */ = {isa = PBXBuildFile; fileRef = 22A6626125FC087000AA329E /* HSserial.m */; };
-		22C9153327A108F000E650A2 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FB852342735B02400462DD0 /* LuaSkin.framework */; };
-		22C9154427A1091B00E650A2 /* HSRazerDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 2213843127A105DD0085CA24 /* HSRazerDevice.m */; };
-		22C9154527A1091B00E650A2 /* HSRazerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2213842D27A105DD0085CA24 /* HSRazerManager.m */; };
-		22C9154627A1091B00E650A2 /* HSRazerTartarusV2Device.m in Sources */ = {isa = PBXBuildFile; fileRef = 2213842C27A105DD0085CA24 /* HSRazerTartarusV2Device.m */; };
-		22C9154727A1091B00E650A2 /* librazer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2213842B27A105DD0085CA24 /* librazer.m */; };
-		22C9154827A1092A00E650A2 /* HSRazerDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = 2213843027A105DD0085CA24 /* HSRazerDevice.h */; };
-		22C9154927A1092A00E650A2 /* HSRazerManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2213843227A105DD0085CA24 /* HSRazerManager.h */; };
-		22C9154A27A1092A00E650A2 /* HSRazerTartarusV2Device.h in Headers */ = {isa = PBXBuildFile; fileRef = 2213842E27A105DD0085CA24 /* HSRazerTartarusV2Device.h */; };
-		22C9154B27A1092A00E650A2 /* razer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2213842F27A105DD0085CA24 /* razer.h */; };
-		22C9154E27A1095200E650A2 /* librazer.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 22C9154327A108F000E650A2 /* librazer.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		22C9154F27A1097A00E650A2 /* razer.lua in Resources */ = {isa = PBXBuildFile; fileRef = 2213842A27A105DD0085CA24 /* razer.lua */; };
-		22C9155027A1099700E650A2 /* razer.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 2213842A27A105DD0085CA24 /* razer.lua */; };
 		22DF5D2823B9A9EA00C41AE6 /* libpasteboard_watcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 22DF5D1A23B99C4D00C41AE6 /* libpasteboard_watcher.m */; };
 		22E4D8031FA748AC00C8CF5C /* libmidi.m in Sources */ = {isa = PBXBuildFile; fileRef = 22E4D7F71FA7485A00C8CF5C /* libmidi.m */; };
 		22EEC62424926E6E00BAE4DA /* libserial.m in Sources */ = {isa = PBXBuildFile; fileRef = 22EEC61724926E2100BAE4DA /* libserial.m */; };
+		22FA061227A160410039C37A /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FB852342735B02400462DD0 /* LuaSkin.framework */; };
+		22FA062427A1609E0039C37A /* librazer.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 22FA061B27A160410039C37A /* librazer.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		394FD223913AE68B92126D37 /* libPods-Hammerspoon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BC78AF8FE9DA0BD317A7528 /* libPods-Hammerspoon.a */; };
 		4C3D55BC1C7F0AA90023B633 /* libosascript.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C3D55AA1C7F05D00023B633 /* libosascript.m */; };
 		4C3D55BF1C7F17150023B633 /* NSAppleEventDescriptor+Parsing.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C3D55AE1C7F061D0023B633 /* NSAppleEventDescriptor+Parsing.h */; };
@@ -95,7 +109,6 @@
 		4F3042FF21D4DEE300769310 /* test_inspect.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4F2C0C7121BB49E0008F32C1 /* test_inspect.lua */; };
 		4F30430221D5673A00769310 /* EDSunriseSet.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F30430021D5673A00769310 /* EDSunriseSet.h */; };
 		4F30430321D5673A00769310 /* EDSunriseSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F30430121D5673A00769310 /* EDSunriseSet.m */; };
-		4F3978841E89AE7200F30F05 /* Spoon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 4F3978831E89AE7200F30F05 /* Spoon.icns */; };
 		4F3D9D031C3302CB0082E864 /* HSChooser.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F3D9D011C3302CB0082E864 /* HSChooser.h */; };
 		4F3D9D041C3302CB0082E864 /* HSChooser.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F3D9D021C3302CB0082E864 /* HSChooser.m */; };
 		4F3D9D071C3314570082E864 /* HSChooserWindow.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F3D9D051C3314570082E864 /* HSChooserWindow.h */; };
@@ -120,7 +133,7 @@
 		4F5134641C30819000EFD6D4 /* chooser.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F5134631C30819000EFD6D4 /* chooser.h */; };
 		4F5560A1279F6A0300B91FD8 /* HSStreamDeckDeviceMk2.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F55609F279F6A0300B91FD8 /* HSStreamDeckDeviceMk2.h */; };
 		4F5560A2279F6A0300B91FD8 /* HSStreamDeckDeviceMk2.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F5560A0279F6A0300B91FD8 /* HSStreamDeckDeviceMk2.m */; };
-		4F5B6E6B1E9E86BB003FC580 /* Hammerspoon.sdef in Resources */ = {isa = PBXBuildFile; fileRef = 4F5B6E6A1E9E86BB003FC580 /* Hammerspoon.sdef */; };
+		4F5B6E6B1E9E86BB003FC580 /* CommandPost.sdef in Resources */ = {isa = PBXBuildFile; fileRef = 4F5B6E6A1E9E86BB003FC580 /* CommandPost.sdef */; };
 		4F5B6E6E1E9E87CE003FC580 /* HSAppleScript.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F5B6E6D1E9E87CE003FC580 /* HSAppleScript.m */; };
 		4F6653E6238C36F100DEE120 /* HSStreamDeckDeviceOriginal.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6653E4238C36F100DEE120 /* HSStreamDeckDeviceOriginal.h */; };
 		4F6653E7238C36F100DEE120 /* HSStreamDeckDeviceOriginal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F6653E5238C36F100DEE120 /* HSStreamDeckDeviceOriginal.m */; };
@@ -159,7 +172,6 @@
 		4F85FED91CCA91AC00FBBAD7 /* libdistributednotifications.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F85FECC1CCA8A2F00FBBAD7 /* libdistributednotifications.m */; };
 		4F8779D1200CD51200E9DB42 /* HSwindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F8779D0200CD51200E9DB42 /* HSwindow.m */; };
 		4F8779D3200CD63F00E9DB42 /* test_window.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4F8779D2200CD56F00E9DB42 /* test_window.lua */; };
-		4F8E84311B90EDBF00C25955 /* statusicon.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 4F8E84301B90EDBF00C25955 /* statusicon.pdf */; };
 		4F9618AB1E24E62B0048F71D /* lsqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F96189C1E24E5F70048F71D /* lsqlite3.c */; settings = {COMPILER_FLAGS = "-Wno-float-equal -Wno-unused-macros"; }; };
 		4F9618AF1E24ED650048F71D /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9618AE1E24ED650048F71D /* libsqlite3.tbd */; };
 		4F9797C41BED0ADC00719F3F /* libtask.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F9797B61BECD9AD00719F3F /* libtask.m */; };
@@ -536,8 +548,8 @@
 		4FF73A1A273539EE0007074E /* httpserver.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 4FD0AC231B74C62200A82496 /* httpserver.lua */; };
 		4FF73A1B273539EE0007074E /* httpserver_hsminweb.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = D6B772991CCB544B00908A59 /* httpserver_hsminweb.lua */; };
 		4FF73A1C273539EE0007074E /* cgilua_compatibility_functions.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = D6B772981CCB544B00908A59 /* cgilua_compatibility_functions.lua */; };
-		4FF73A1D2735439B0007074E /* hs in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FD0AC091B74BACD00A82496 /* hs */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		4FF73A1F273544AD0007074E /* hs.man in Copy hs manpage */ = {isa = PBXBuildFile; fileRef = 4FD0AC121B74BB2300A82496 /* hs.man */; };
+		4FF73A1D2735439B0007074E /* cmdpost in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 4FD0AC091B74BACD00A82496 /* cmdpost */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FF73A1F273544AD0007074E /* cmdpost.man in Copy hs manpage */ = {isa = PBXBuildFile; fileRef = 4FD0AC121B74BB2300A82496 /* cmdpost.man */; };
 		4FF73A2027358DDA0007074E /* HSChooserWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F0676041C32AED90088C57C /* HSChooserWindow.xib */; };
 		4FF73A23273594730007074E /* lua.json in Resources */ = {isa = PBXBuildFile; fileRef = 4FF73A212735944D0007074E /* lua.json */; };
 		4FF73A252735954D0007074E /* timeout3 in Resources */ = {isa = PBXBuildFile; fileRef = 4FF73A24273595340007074E /* timeout3 */; };
@@ -604,7 +616,7 @@
 		D686160A1E04D61C0058A4F2 /* Canvas.h in Headers */ = {isa = PBXBuildFile; fileRef = D68615F31E04D5990058A4F2 /* Canvas.h */; };
 		D68616171E04D6BA0058A4F2 /* libcanvas_matrix.m in Sources */ = {isa = PBXBuildFile; fileRef = D68615F71E04D5990058A4F2 /* libcanvas_matrix.m */; };
 		D68CE6291E9C457400912154 /* libhost_locale.m in Sources */ = {isa = PBXBuildFile; fileRef = D68CE61C1E9C44E200912154 /* libhost_locale.m */; };
-		D6943FE01EDBF1F50057BB26 /* hs.m in Sources */ = {isa = PBXBuildFile; fileRef = D6943FDE1EDBF1DE0057BB26 /* hs.m */; };
+		D6943FE01EDBF1F50057BB26 /* cmdpost.m in Sources */ = {isa = PBXBuildFile; fileRef = D6943FDE1EDBF1DE0057BB26 /* cmdpost.m */; };
 		D6943FE31EDBF2510057BB26 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6943FE11EDBF2510057BB26 /* CoreFoundation.framework */; };
 		D6943FE41EDBF2510057BB26 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6943FE21EDBF2510057BB26 /* Foundation.framework */; };
 		D6A212F41DE38F8200998C0B /* libspotlight.m in Sources */ = {isa = PBXBuildFile; fileRef = D6A212E71DE38F3B00998C0B /* libspotlight.m */; };
@@ -628,6 +640,7 @@
 		D6F310F01BDF113900045CCD /* libstyledtext.m in Sources */ = {isa = PBXBuildFile; fileRef = D6F310D11BDF0E0000045CCD /* libstyledtext.m */; };
 		D6FD56901C0422DE00BAE238 /* libconsole.m in Sources */ = {isa = PBXBuildFile; fileRef = D6FD56821C04228800BAE238 /* libconsole.m */; };
 		DAED28EC20B95E8F004602CB /* led.m in Sources */ = {isa = PBXBuildFile; fileRef = DAED28EB20B95E8E004602CB /* led.m */; };
+		E29DDE461E85524F00313995 /* dsa_pub.pem in Resources */ = {isa = PBXBuildFile; fileRef = E29DDE451E85524F00313995 /* dsa_pub.pem */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -645,12 +658,26 @@
 			remoteGlobalIDString = 22613FE81F297E0D00E05E11;
 			remoteInfo = dialog;
 		};
-		22C9154C27A1094400E650A2 /* PBXContainerItemProxy */ = {
+		22654EAB27D43CF8004F8214 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 9445CA0319083251002568BB /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 22C9152527A108F000E650A2;
+			remoteGlobalIDString = 22FA060C27A160410039C37A;
 			remoteInfo = razer;
+		};
+		226F960D27917DCB003DF60F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9445CA0319083251002568BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 226F95F427917D3B003DF60F;
+			remoteInfo = speededitor;
+		};
+		2274782C2787F9DD00DE6894 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9445CA0319083251002568BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2274781F2787F92E00DE6894;
+			remoteInfo = osc;
 		};
 		22DF5D2A23B9AA8C00C41AE6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1357,11 +1384,13 @@
 			dstPath = hs;
 			dstSubfolderSpec = 10;
 			files = (
+				2274782E2787FA1500DE6894 /* libosc.dylib in Copy Extension Dylibs */,
+				22FA062427A1609E0039C37A /* librazer.dylib in Copy Extension Dylibs */,
+				226F960F27917DDA003DF60F /* libblackmagic.dylib in Copy Extension Dylibs */,
 				D6C32CD627DDD811001AA22E /* libspaces.dylib in Copy Extension Dylibs */,
-				22C9154E27A1095200E650A2 /* librazer.dylib in Copy Extension Dylibs */,
 				4FCA05CD27678B410089A5FC /* libmarkdown.dylib in Copy Extension Dylibs */,
 				4FF06128274AA7E600FB15D6 /* libcamera.dylib in Copy Extension Dylibs */,
-				4FF73A1D2735439B0007074E /* hs in Copy Extension Dylibs */,
+				4FF73A1D2735439B0007074E /* cmdpost in Copy Extension Dylibs */,
 				4FF7395227344D740007074E /* libapplication.dylib in Copy Extension Dylibs */,
 				4FF7395327344D740007074E /* libapplicationwatcher.dylib in Copy Extension Dylibs */,
 				4FF7395427344D740007074E /* libaudiodevice.dylib in Copy Extension Dylibs */,
@@ -1460,7 +1489,9 @@
 			dstPath = extensions/hs;
 			dstSubfolderSpec = 7;
 			files = (
-				22C9155027A1099700E650A2 /* razer.lua in Copy Extension Lua files */,
+				22654EAD27D43D1F004F8214 /* razer.lua in Copy Extension Lua files */,
+				2274782F2787FA2800DE6894 /* osc.lua in Copy Extension Lua files */,
+				226F961027917E06003DF60F /* blackmagic.lua in Copy Extension Lua files */,
 				4FCA05A0276767350089A5FC /* window_layout.lua in Copy Extension Lua files */,
 				4FF06129274AA7F400FB15D6 /* camera.lua in Copy Extension Lua files */,
 				4FF061152747A25C00FB15D6 /* tangent.lua in Copy Extension Lua files */,
@@ -1579,7 +1610,7 @@
 			dstPath = man;
 			dstSubfolderSpec = 7;
 			files = (
-				4FF73A1F273544AD0007074E /* hs.man in Copy hs manpage */,
+				4FF73A1F273544AD0007074E /* cmdpost.man in Copy hs manpage */,
 			);
 			name = "Copy hs manpage";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1596,6 +1627,12 @@
 		2213843027A105DD0085CA24 /* HSRazerDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSRazerDevice.h; path = extensions/razer/HSRazerDevice.h; sourceTree = "<group>"; };
 		2213843127A105DD0085CA24 /* HSRazerDevice.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSRazerDevice.m; path = extensions/razer/HSRazerDevice.m; sourceTree = "<group>"; };
 		2213843227A105DD0085CA24 /* HSRazerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSRazerManager.h; path = extensions/razer/HSRazerManager.h; sourceTree = "<group>"; };
+		221BCFD32787FFF1000EABD4 /* libF53OSC.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libF53OSC.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		223A9691211F0EFE00596A79 /* cpCache.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpCache.icns; sourceTree = "<group>"; };
+		224B922C27F6B846003F628E /* HSBlackmagicDeviceKeyboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSBlackmagicDeviceKeyboard.h; path = extensions/blackmagic/HSBlackmagicDeviceKeyboard.h; sourceTree = "<group>"; };
+		224B922D27F6B846003F628E /* HSBlackmagicDeviceKeyboard.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSBlackmagicDeviceKeyboard.m; path = extensions/blackmagic/HSBlackmagicDeviceKeyboard.m; sourceTree = "<group>"; };
+		224B923127F6D326003F628E /* HSBlackmagicDeviceSpeedEditor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSBlackmagicDeviceSpeedEditor.m; path = extensions/blackmagic/HSBlackmagicDeviceSpeedEditor.m; sourceTree = "<group>"; };
+		224B923427F6F5C3003F628E /* HSBlackmagicDeviceSpeedEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSBlackmagicDeviceSpeedEditor.h; path = extensions/blackmagic/HSBlackmagicDeviceSpeedEditor.h; sourceTree = "<group>"; };
 		224BA32523D1E63A00487FDB /* libwebsocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libwebsocket.m; path = extensions/websocket/libwebsocket.m; sourceTree = "<group>"; };
 		224BA33223D1ECA900487FDB /* libwebsocket.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libwebsocket.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		224BA33423D1EE6F00487FDB /* websocket.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = websocket.lua; path = extensions/websocket/websocket.lua; sourceTree = "<group>"; };
@@ -1606,6 +1643,14 @@
 		22652B38251C38AB000FF14D /* TouchEvents.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TouchEvents.h; path = extensions/eventtap/TouchEvents.h; sourceTree = "<group>"; };
 		22652B3B251C3913000FF14D /* IOHIDEventData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOHIDEventData.h; path = extensions/eventtap/IOHIDEventData.h; sourceTree = "<group>"; };
 		22652B3C251C3914000FF14D /* IOHIDEventTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOHIDEventTypes.h; path = extensions/eventtap/IOHIDEventTypes.h; sourceTree = "<group>"; };
+		226F95FE27917D3B003DF60F /* libblackmagic.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libblackmagic.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		226F960027917D63003DF60F /* HSBlackmagicManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSBlackmagicManager.m; path = extensions/blackmagic/HSBlackmagicManager.m; sourceTree = "<group>"; };
+		226F960127917D63003DF60F /* libblackmagic.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libblackmagic.m; path = extensions/blackmagic/libblackmagic.m; sourceTree = "<group>"; };
+		226F960227917D63003DF60F /* HSBlackmagicManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSBlackmagicManager.h; path = extensions/blackmagic/HSBlackmagicManager.h; sourceTree = "<group>"; };
+		226F960327917D63003DF60F /* HSBlackmagicDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSBlackmagicDevice.h; path = extensions/blackmagic/HSBlackmagicDevice.h; sourceTree = "<group>"; };
+		226F960427917D63003DF60F /* blackmagic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = blackmagic.h; path = extensions/blackmagic/blackmagic.h; sourceTree = "<group>"; };
+		226F960527917D63003DF60F /* blackmagic.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = blackmagic.lua; path = extensions/blackmagic/blackmagic.lua; sourceTree = "<group>"; };
+		226F960627917D63003DF60F /* HSBlackmagicDevice.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSBlackmagicDevice.m; path = extensions/blackmagic/HSBlackmagicDevice.m; sourceTree = "<group>"; };
 		22738933248606A9003EBC68 /* test_websocket.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_websocket.lua; path = extensions/websocket/test_websocket.lua; sourceTree = "<group>"; };
 		22738934248606F0003EBC68 /* HSwebsocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSwebsocket.m; sourceTree = "<group>"; };
 		2274781B2787F8F800DE6894 /* libosc.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libosc.m; path = extensions/osc/libosc.m; sourceTree = "<group>"; };
@@ -1630,7 +1675,6 @@
 		2290EB1F28011DF100CEA572 /* HSRazerOrbweaverDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSRazerOrbweaverDevice.h; path = extensions/razer/HSRazerOrbweaverDevice.h; sourceTree = "<group>"; };
 		22A6625F25FC07F700AA329E /* test_serial.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_serial.lua; path = extensions/serial/test_serial.lua; sourceTree = "<group>"; };
 		22A6626125FC087000AA329E /* HSserial.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSserial.m; sourceTree = "<group>"; };
-		22C9154327A108F000E650A2 /* librazer.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = librazer.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		22DF5D1A23B99C4D00C41AE6 /* libpasteboard_watcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libpasteboard_watcher.m; path = extensions/pasteboard/libpasteboard_watcher.m; sourceTree = "<group>"; };
 		22DF5D2723B9A9D300C41AE6 /* libpasteboardwatcher.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libpasteboardwatcher.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		22E4D7F71FA7485A00C8CF5C /* libmidi.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = libmidi.m; path = extensions/midi/libmidi.m; sourceTree = SOURCE_ROOT; };
@@ -1640,6 +1684,7 @@
 		22EEC61724926E2100BAE4DA /* libserial.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = libserial.m; path = extensions/serial/libserial.m; sourceTree = "<group>"; };
 		22EEC61824926E2100BAE4DA /* serial.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = serial.lua; path = extensions/serial/serial.lua; sourceTree = "<group>"; };
 		22EEC62324926E5100BAE4DA /* libserial.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libserial.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		22FA061B27A160410039C37A /* librazer.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = librazer.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C3D55A91C7F05D00023B633 /* osascript.lua */ = {isa = PBXFileReference; lastKnownFileType = text; path = osascript.lua; sourceTree = "<group>"; };
 		4C3D55AA1C7F05D00023B633 /* libosascript.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = libosascript.m; sourceTree = "<group>"; };
 		4C3D55AD1C7F05D00023B633 /* test_javascript.lua */ = {isa = PBXFileReference; lastKnownFileType = text; path = test_javascript.lua; sourceTree = "<group>"; };
@@ -1695,7 +1740,6 @@
 		4F2DF3FA1F61AE6700742D08 /* streamdeck.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = streamdeck.h; path = extensions/streamdeck/streamdeck.h; sourceTree = "<group>"; };
 		4F30430021D5673A00769310 /* EDSunriseSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EDSunriseSet.h; path = extensions/location/EDSunriseSet.h; sourceTree = "<group>"; };
 		4F30430121D5673A00769310 /* EDSunriseSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = EDSunriseSet.m; path = extensions/location/EDSunriseSet.m; sourceTree = "<group>"; };
-		4F3978831E89AE7200F30F05 /* Spoon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Spoon.icns; sourceTree = "<group>"; };
 		4F3D9D011C3302CB0082E864 /* HSChooser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSChooser.h; path = extensions/chooser/HSChooser.h; sourceTree = "<group>"; };
 		4F3D9D021C3302CB0082E864 /* HSChooser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSChooser.m; path = extensions/chooser/HSChooser.m; sourceTree = "<group>"; };
 		4F3D9D051C3314570082E864 /* HSChooserWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSChooserWindow.h; path = extensions/chooser/HSChooserWindow.h; sourceTree = "<group>"; };
@@ -1745,7 +1789,7 @@
 		4F5134631C30819000EFD6D4 /* chooser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = chooser.h; path = extensions/chooser/chooser.h; sourceTree = "<group>"; };
 		4F55609F279F6A0300B91FD8 /* HSStreamDeckDeviceMk2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = HSStreamDeckDeviceMk2.h; path = extensions/streamdeck/HSStreamDeckDeviceMk2.h; sourceTree = "<group>"; };
 		4F5560A0279F6A0300B91FD8 /* HSStreamDeckDeviceMk2.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = HSStreamDeckDeviceMk2.m; path = extensions/streamdeck/HSStreamDeckDeviceMk2.m; sourceTree = "<group>"; };
-		4F5B6E6A1E9E86BB003FC580 /* Hammerspoon.sdef */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Hammerspoon.sdef; sourceTree = "<group>"; };
+		4F5B6E6A1E9E86BB003FC580 /* CommandPost.sdef */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = CommandPost.sdef; sourceTree = "<group>"; };
 		4F5B6E6C1E9E87CE003FC580 /* HSAppleScript.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HSAppleScript.h; sourceTree = "<group>"; };
 		4F5B6E6D1E9E87CE003FC580 /* HSAppleScript.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSAppleScript.m; sourceTree = "<group>"; };
 		4F64D8BD1B724C4B00FC4C65 /* alert.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = alert.lua; path = extensions/alert/alert.lua; sourceTree = "<group>"; };
@@ -1836,7 +1880,6 @@
 		4F85FED81CCA918D00FBBAD7 /* libdistributednotifications.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libdistributednotifications.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F8779D0200CD51200E9DB42 /* HSwindow.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HSwindow.m; sourceTree = "<group>"; };
 		4F8779D2200CD56F00E9DB42 /* test_window.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = test_window.lua; path = extensions/window/test_window.lua; sourceTree = "<group>"; };
-		4F8E84301B90EDBF00C25955 /* statusicon.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = statusicon.pdf; sourceTree = "<group>"; };
 		4F9618991E24E5F70048F71D /* sqlite3.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = sqlite3.lua; path = extensions/sqlite3/sqlite3.lua; sourceTree = "<group>"; };
 		4F96189C1E24E5F70048F71D /* lsqlite3.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; name = lsqlite3.c; path = extensions/sqlite3/lsqlite3.c; sourceTree = "<group>"; };
 		4F9618A91E24E60C0048F71D /* liblsqlite3.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = liblsqlite3.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1923,8 +1966,8 @@
 		4FD0ABFE1B74B9DE00A82496 /* libipc.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libipc.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FD0AC001B74BA1600A82496 /* ipc.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ipc.lua; path = extensions/ipc/ipc.lua; sourceTree = "<group>"; };
 		4FD0AC011B74BA1600A82496 /* libipc.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libipc.m; path = extensions/ipc/libipc.m; sourceTree = "<group>"; };
-		4FD0AC091B74BACD00A82496 /* hs */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = hs; sourceTree = BUILT_PRODUCTS_DIR; };
-		4FD0AC121B74BB2300A82496 /* hs.man */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = hs.man; path = extensions/ipc/cli/hs.man; sourceTree = "<group>"; };
+		4FD0AC091B74BACD00A82496 /* cmdpost */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = cmdpost; sourceTree = BUILT_PRODUCTS_DIR; };
+		4FD0AC121B74BB2300A82496 /* cmdpost.man */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = cmdpost.man; path = extensions/ipc/cli/cmdpost.man; sourceTree = "<group>"; };
 		4FD0AC211B74C58800A82496 /* libhttpserver.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libhttpserver.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FD0AC231B74C62200A82496 /* httpserver.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = httpserver.lua; path = extensions/httpserver/httpserver.lua; sourceTree = "<group>"; };
 		4FD0AC241B74C62200A82496 /* libhttpserver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libhttpserver.m; path = extensions/httpserver/libhttpserver.m; sourceTree = "<group>"; };
@@ -2020,12 +2063,12 @@
 		942E71A919B11176001BA156 /* MJAccessibilityUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJAccessibilityUtils.m; sourceTree = "<group>"; };
 		943BF0F019A4B43E0017F79D /* MJUserNotificationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJUserNotificationManager.h; sourceTree = "<group>"; };
 		943BF0F119A4B43E0017F79D /* MJUserNotificationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJUserNotificationManager.m; sourceTree = "<group>"; };
-		9445CA0B19083251002568BB /* Hammerspoon.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hammerspoon.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9445CA0B19083251002568BB /* CommandPost.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CommandPost.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		944A2D341989735300D8DC90 /* MJAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJAppDelegate.m; sourceTree = "<group>"; };
 		944A2D351989735300D8DC90 /* MainMenu.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainMenu.xib; sourceTree = "<group>"; };
 		944A2D3D1989737E00D8DC90 /* Credits.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
 		944A2D3F1989737E00D8DC90 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		944A2D401989737E00D8DC90 /* Hammerspoon-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Hammerspoon-Info.plist"; sourceTree = "<group>"; };
+		944A2D401989737E00D8DC90 /* CommandPost-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "CommandPost-Info.plist"; sourceTree = "<group>"; };
 		944A2D411989737E00D8DC90 /* Hammerspoon-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Hammerspoon-Prefix.pch"; sourceTree = "<group>"; };
 		944A2DA81989760400D8DC90 /* MJConsoleWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJConsoleWindowController.m; sourceTree = "<group>"; };
 		945B65AB198D2DDB002D2E30 /* MJLua.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJLua.m; sourceTree = "<group>"; };
@@ -2112,7 +2155,7 @@
 		D68CE61B1E9C44E200912154 /* host_locale.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = host_locale.lua; path = extensions/host/locale/host_locale.lua; sourceTree = "<group>"; };
 		D68CE61C1E9C44E200912154 /* libhost_locale.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libhost_locale.m; path = extensions/host/locale/libhost_locale.m; sourceTree = "<group>"; };
 		D68CE6281E9C450E00912154 /* libhost_locale.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libhost_locale.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		D6943FDE1EDBF1DE0057BB26 /* hs.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = hs.m; path = extensions/ipc/cli/hs.m; sourceTree = "<group>"; };
+		D6943FDE1EDBF1DE0057BB26 /* cmdpost.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = cmdpost.m; path = extensions/ipc/cli/cmdpost.m; sourceTree = "<group>"; };
 		D6943FE11EDBF2510057BB26 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		D6943FE21EDBF2510057BB26 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D6A212E61DE38F3B00998C0B /* spotlight.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = spotlight.lua; path = extensions/spotlight/spotlight.lua; sourceTree = "<group>"; };
@@ -2153,6 +2196,7 @@
 		D6FD568F1C0422B400BAE238 /* libconsole.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libconsole.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		DAED28EB20B95E8E004602CB /* led.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = led.m; path = extensions/hid/led.m; sourceTree = "<group>"; };
 		DE2547C1592A3EDD90D9815D /* Pods-Hammerspoon.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hammerspoon.release.xcconfig"; path = "Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon.release.xcconfig"; sourceTree = "<group>"; };
+		E29DDE451E85524F00313995 /* dsa_pub.pem */ = {isa = PBXFileReference; lastKnownFileType = text; path = dsa_pub.pem; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2172,11 +2216,19 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		22C9153227A108F000E650A2 /* Frameworks */ = {
+		226F95F727917D3B003DF60F /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				22C9153327A108F000E650A2 /* LuaSkin.framework in Frameworks */,
+				226F95F827917D3B003DF60F /* LuaSkin.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		227478222787F92E00DE6894 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				227478232787F92E00DE6894 /* LuaSkin.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2201,6 +2253,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FB852542735B2E100462DD0 /* LuaSkin.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		22FA061127A160410039C37A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				22FA061227A160410039C37A /* LuaSkin.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2990,6 +3050,33 @@
 			name = gestures;
 			sourceTree = "<group>";
 		};
+		226F95FF27917D4B003DF60F /* blackmagic */ = {
+			isa = PBXGroup;
+			children = (
+				224B923427F6F5C3003F628E /* HSBlackmagicDeviceSpeedEditor.h */,
+				224B923127F6D326003F628E /* HSBlackmagicDeviceSpeedEditor.m */,
+				224B922C27F6B846003F628E /* HSBlackmagicDeviceKeyboard.h */,
+				224B922D27F6B846003F628E /* HSBlackmagicDeviceKeyboard.m */,
+				226F960327917D63003DF60F /* HSBlackmagicDevice.h */,
+				226F960627917D63003DF60F /* HSBlackmagicDevice.m */,
+				226F960227917D63003DF60F /* HSBlackmagicManager.h */,
+				226F960027917D63003DF60F /* HSBlackmagicManager.m */,
+				226F960527917D63003DF60F /* blackmagic.lua */,
+				226F960127917D63003DF60F /* libblackmagic.m */,
+				226F960427917D63003DF60F /* blackmagic.h */,
+			);
+			name = blackmagic;
+			sourceTree = "<group>";
+		};
+		2274781A2787F8CE00DE6894 /* osc */ = {
+			isa = PBXGroup;
+			children = (
+				2274781B2787F8F800DE6894 /* libosc.m */,
+				2274781C2787F8F800DE6894 /* osc.lua */,
+			);
+			name = osc;
+			sourceTree = "<group>";
+		};
 		22E4D7F61FA747FA00C8CF5C /* midi */ = {
 			isa = PBXGroup;
 			children = (
@@ -3529,6 +3616,7 @@
 				D687FC37247B92EE005FA3A5 /* axuielement */,
 				4F70EEEC1B72739D0025A7B3 /* base64 */,
 				4FDE05A01B72986200E9E8EE /* battery */,
+				226F95FF27917D4B003DF60F /* blackmagic */,
 				D62F9EAA2320B7F600FAE188 /* bonjour */,
 				4FDE05C81B72C23400E9E8EE /* brightness */,
 				4FDE05DD1B734EB400E9E8EE /* caffeinate */,
@@ -3578,6 +3666,7 @@
 				6AE181151D36E8BE0097211C /* noises */,
 				4F6B3F0F1B73E9BA00B2A4DE /* notify */,
 				4C3D55A81C7F05D00023B633 /* osascript */,
+				2274781A2787F8CE00DE6894 /* osc */,
 				4F6B3F241B73EBF000B2A4DE /* pasteboard */,
 				4F6B3F361B73EE0E00B2A4DE /* pathwatcher */,
 				4FDD9DC01ED30D89008F14D3 /* plist */,
@@ -3828,8 +3917,8 @@
 		4FD0AC101B74BB0600A82496 /* hs */ = {
 			isa = PBXGroup;
 			children = (
-				D6943FDE1EDBF1DE0057BB26 /* hs.m */,
-				4FD0AC121B74BB2300A82496 /* hs.man */,
+				D6943FDE1EDBF1DE0057BB26 /* cmdpost.m */,
+				4FD0AC121B74BB2300A82496 /* cmdpost.man */,
 			);
 			name = hs;
 			sourceTree = "<group>";
@@ -4001,7 +4090,7 @@
 		9445CA0C19083251002568BB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				9445CA0B19083251002568BB /* Hammerspoon.app */,
+				9445CA0B19083251002568BB /* CommandPost.app */,
 				D02F95241A00221C00E28BB2 /* Hammerspoon Tests.xctest */,
 				4FBE2CF91B7261A200407788 /* libapplication.dylib */,
 				4FBE2D101B72631600407788 /* libapplicationwatcher.dylib */,
@@ -4045,7 +4134,7 @@
 				4FD0ABD71B74B2C500A82496 /* libeventtap.dylib */,
 				4FD0ABE11B74B2FA00A82496 /* libeventtapevent.dylib */,
 				4FD0ABFE1B74B9DE00A82496 /* libipc.dylib */,
-				4FD0AC091B74BACD00A82496 /* hs */,
+				4FD0AC091B74BACD00A82496 /* cmdpost */,
 				4FD0AC211B74C58800A82496 /* libhttpserver.dylib */,
 				4F7694541B74C96800536DE4 /* libkeycodes.dylib */,
 				D64125641BA07CEA000FB5F8 /* libwebview.dylib */,
@@ -4095,7 +4184,9 @@
 				4F7F3B6C272AF68100E05732 /* libshortcuts.dylib */,
 				4FF06124274AA7A200FB15D6 /* libcamera.dylib */,
 				4FCA05CA27678B100089A5FC /* libmarkdown.dylib */,
-				22C9154327A108F000E650A2 /* librazer.dylib */,
+				227478292787F92E00DE6894 /* libosc.dylib */,
+				226F95FE27917D3B003DF60F /* libblackmagic.dylib */,
+				22FA061B27A160410039C37A /* librazer.dylib */,
 				D6C32CCF27DDD47F001AA22E /* libspaces.dylib */,
 			);
 			name = Products;
@@ -4104,6 +4195,7 @@
 		9445CA0D19083251002568BB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				221BCFD32787FFF1000EABD4 /* libF53OSC.a */,
 				4FB852342735B02400462DD0 /* LuaSkin.framework */,
 				22E4D8071FA74BDA00C8CF5C /* libMIKMIDI.a */,
 				D6943FE11EDBF2510057BB26 /* CoreFoundation.framework */,
@@ -4132,13 +4224,28 @@
 		944A2D481989739B00D8DC90 /* Extras */ = {
 			isa = PBXGroup;
 			children = (
-				4F3978831E89AE7200F30F05 /* Spoon.icns */,
-				4F8E84301B90EDBF00C25955 /* statusicon.pdf */,
+				227C36C626200DBB00224F53 /* cpHUD.icns */,
+				227C36C826200DBC00224F53 /* cpLoupedeck.icns */,
+				227C36CA26200DBC00224F53 /* cpLoupedeckCT.icns */,
+				227C36CE26200DBD00224F53 /* cpLoupedeckLive.icns */,
+				227C36C926200DBC00224F53 /* cpLoupedeckPlus.icns */,
+				227C36CD26200DBD00224F53 /* cpMIDI.icns */,
+				227C36CF26200DBE00224F53 /* cpMonogram.icns */,
+				227C36CC26200DBD00224F53 /* cpPasteboard.icns */,
+				227C36CB26200DBD00224F53 /* cpShortcuts.icns */,
+				227C36C526200DBB00224F53 /* cpSnippets.icns */,
+				227C36D026200DBE00224F53 /* cpStreamDeck.icns */,
+				227C36C726200DBC00224F53 /* cpTangent.icns */,
+				227C36C426200DBB00224F53 /* cpTouchBar.icns */,
+				227C36C326200DBB00224F53 /* cpTourBox.icns */,
+				227C36C126200D4C00224F53 /* cpPlugin.icns */,
+				223A9691211F0EFE00596A79 /* cpCache.icns */,
+				E29DDE451E85524F00313995 /* dsa_pub.pem */,
 				944A2D3D1989737E00D8DC90 /* Credits.rtf */,
 				944A2D3F1989737E00D8DC90 /* Images.xcassets */,
-				944A2D401989737E00D8DC90 /* Hammerspoon-Info.plist */,
+				944A2D401989737E00D8DC90 /* CommandPost-Info.plist */,
 				944A2D411989737E00D8DC90 /* Hammerspoon-Prefix.pch */,
-				4F5B6E6A1E9E86BB003FC580 /* Hammerspoon.sdef */,
+				4F5B6E6A1E9E86BB003FC580 /* CommandPost.sdef */,
 				4F7F3B70272B3E2900E05732 /* Intents.intentdefinition */,
 			);
 			name = Extras;
@@ -4406,14 +4513,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		22C9153427A108F000E650A2 /* Headers */ = {
+		226F95F927917D3B003DF60F /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				22C9154827A1092A00E650A2 /* HSRazerDevice.h in Headers */,
-				22C9154927A1092A00E650A2 /* HSRazerManager.h in Headers */,
-				22C9154A27A1092A00E650A2 /* HSRazerTartarusV2Device.h in Headers */,
-				22C9154B27A1092A00E650A2 /* razer.h in Headers */,
+				224B923527F6F5C3003F628E /* HSBlackmagicDeviceSpeedEditor.h in Headers */,
+				226F960B27917D63003DF60F /* blackmagic.h in Headers */,
+				224B922E27F6B846003F628E /* HSBlackmagicDeviceKeyboard.h in Headers */,
+				226F960A27917D63003DF60F /* HSBlackmagicDevice.h in Headers */,
+				226F960927917D63003DF60F /* HSBlackmagicManager.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		227478242787F92E00DE6894 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5143,21 +5258,38 @@
 			productReference = 22613FF11F297E0D00E05E11 /* libdialog.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
-		22C9152527A108F000E650A2 /* razer */ = {
+		226F95F427917D3B003DF60F /* blackmagic */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 22C9153F27A108F000E650A2 /* Build configuration list for PBXNativeTarget "razer" */;
+			buildConfigurationList = 226F95FA27917D3B003DF60F /* Build configuration list for PBXNativeTarget "blackmagic" */;
 			buildPhases = (
-				22C9152627A108F000E650A2 /* Sources */,
-				22C9153227A108F000E650A2 /* Frameworks */,
-				22C9153427A108F000E650A2 /* Headers */,
+				226F95F527917D3B003DF60F /* Sources */,
+				226F95F727917D3B003DF60F /* Frameworks */,
+				226F95F927917D3B003DF60F /* Headers */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = razer;
+			name = blackmagic;
 			productName = alert;
-			productReference = 22C9154327A108F000E650A2 /* librazer.dylib */;
+			productReference = 226F95FE27917D3B003DF60F /* libblackmagic.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+		2274781F2787F92E00DE6894 /* osc */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 227478252787F92E00DE6894 /* Build configuration list for PBXNativeTarget "osc" */;
+			buildPhases = (
+				227478202787F92E00DE6894 /* Sources */,
+				227478222787F92E00DE6894 /* Frameworks */,
+				227478242787F92E00DE6894 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = osc;
+			productName = alert;
+			productReference = 227478292787F92E00DE6894 /* libosc.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 		22DF5D1C23B9A9D300C41AE6 /* pasteboardwatcher */ = {
@@ -5209,6 +5341,23 @@
 			name = serial;
 			productName = alert;
 			productReference = 22EEC62324926E5100BAE4DA /* libserial.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+		22FA060C27A160410039C37A /* razer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 22FA061727A160410039C37A /* Build configuration list for PBXNativeTarget "razer" */;
+			buildPhases = (
+				22FA060D27A160410039C37A /* Sources */,
+				22FA061127A160410039C37A /* Frameworks */,
+				22FA061327A160410039C37A /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = razer;
+			productName = alert;
+			productReference = 22FA061B27A160410039C37A /* librazer.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 		4C3D55B01C7F0A880023B633 /* osascript */ = {
@@ -6113,9 +6262,9 @@
 			productReference = 4FD0ABFE1B74B9DE00A82496 /* libipc.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
-		4FD0AC081B74BACD00A82496 /* hs */ = {
+		4FD0AC081B74BACD00A82496 /* cmdpost */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4FD0AC0D1B74BACD00A82496 /* Build configuration list for PBXNativeTarget "hs" */;
+			buildConfigurationList = 4FD0AC0D1B74BACD00A82496 /* Build configuration list for PBXNativeTarget "cmdpost" */;
 			buildPhases = (
 				4FD0AC051B74BACD00A82496 /* Sources */,
 				4FD0AC061B74BACD00A82496 /* Frameworks */,
@@ -6125,9 +6274,9 @@
 			);
 			dependencies = (
 			);
-			name = hs;
+			name = cmdpost;
 			productName = hs;
-			productReference = 4FD0AC091B74BACD00A82496 /* hs */;
+			productReference = 4FD0AC091B74BACD00A82496 /* cmdpost */;
 			productType = "com.apple.product-type.tool";
 		};
 		4FD0AC171B74C58800A82496 /* httpserver */ = {
@@ -6297,6 +6446,7 @@
 				4FF7395127344D370007074E /* Copy Extension Dylibs */,
 				4FF739B1273481C90007074E /* Copy Extension Lua files */,
 				9445CA0919083251002568BB /* Resources */,
+				E2887C971E4B5BD200468A07 /* Copy CommandPost Files */,
 				E849AEC367EA9502A25B9A7C /* [CP] Embed Pods Frameworks */,
 				4F6D9E3523074BC6006CC3E4 /* Update version/build numbers */,
 				4FF73A1E2735449D0007074E /* Copy hs manpage */,
@@ -6306,8 +6456,13 @@
 			buildRules = (
 			);
 			dependencies = (
+				22654EAC27D43CF8004F8214 /* PBXTargetDependency */,
+				2274782D2787F9DD00DE6894 /* PBXTargetDependency */,
+				226F960E27917DCB003DF60F /* PBXTargetDependency */,
+				22613FF41F297E7F00E05E11 /* PBXTargetDependency */,
+				224BA33623D1EFB300487FDB /* PBXTargetDependency */,
+				22EEC62624926EAF00BAE4DA /* PBXTargetDependency */,
 				D6C32CD527DDD78F001AA22E /* PBXTargetDependency */,
-				22C9154D27A1094400E650A2 /* PBXTargetDependency */,
 				4FCA05CC27678B330089A5FC /* PBXTargetDependency */,
 				4FF06127274AA7D900FB15D6 /* PBXTargetDependency */,
 				4F7F3B6F272AF7E100E05732 /* PBXTargetDependency */,
@@ -6321,7 +6476,6 @@
 				D62F9ECC2320B90200FAE188 /* PBXTargetDependency */,
 				22E4D8051FA748E500C8CF5C /* PBXTargetDependency */,
 				4FCC42A71F6B800900485268 /* PBXTargetDependency */,
-				22613FF41F297E7F00E05E11 /* PBXTargetDependency */,
 				D64C85C81F4C272A004DFA1F /* PBXTargetDependency */,
 				D68CE62B1E9C45A800912154 /* PBXTargetDependency */,
 				4F9618AD1E24E63D0048F71D /* PBXTargetDependency */,
@@ -6402,7 +6556,7 @@
 			);
 			name = Hammerspoon;
 			productName = Hammerspoon;
-			productReference = 9445CA0B19083251002568BB /* Hammerspoon.app */;
+			productReference = 9445CA0B19083251002568BB /* CommandPost.app */;
 			productType = "com.apple.product-type.application";
 		};
 		B8524F28201A88CD00844F3D /* hid */ = {
@@ -6856,7 +7010,7 @@
 			attributes = {
 				CLASSPREFIX = HS;
 				LastUpgradeCheck = 1320;
-				ORGANIZATIONNAME = Hammerspoon;
+				ORGANIZATIONNAME = "LateNite Films";
 				TargetAttributes = {
 					4F20B5281C1F1C5B00F52437 = {
 						CreatedOnToolsVersion = 7.2;
@@ -6866,6 +7020,7 @@
 						CreatedOnToolsVersion = 7.0;
 					};
 					9445CA0A19083251002568BB = {
+						DevelopmentTeam = A5HDJTY9X5;
 						ProvisioningStyle = Manual;
 						SystemCapabilities = {
 							com.apple.HardenedRuntime = {
@@ -6903,6 +7058,7 @@
 				4F70EEDF1B7273700025A7B3 /* base64 */,
 				4FDE05951B72984C00E9E8EE /* battery */,
 				4FDE05A41B72988C00E9E8EE /* batterywatcher */,
+				226F95F427917D3B003DF60F /* blackmagic */,
 				D62F9EB12320B82100FAE188 /* bonjour */,
 				D62F9EBD2320B86300FAE188 /* bonjourservice */,
 				4FDE05BD1B72C22500E9E8EE /* brightness */,
@@ -6934,7 +7090,7 @@
 				4FD0AC171B74C58800A82496 /* httpserver */,
 				4F4CB4461B73B09C000EA9B6 /* image */,
 				4FD0ABF41B74B9DE00A82496 /* ipc */,
-				4FD0AC081B74BACD00A82496 /* hs */,
+				4FD0AC081B74BACD00A82496 /* cmdpost */,
 				4F6B3E9E1B73D6D300B2A4DE /* json */,
 				4F76944A1B74C96800536DE4 /* keycodes */,
 				4F6B3EB11B73DC4500B2A4DE /* location */,
@@ -6955,7 +7111,7 @@
 				22DF5D1C23B9A9D300C41AE6 /* pasteboardwatcher */,
 				4F6B3F281B73EDD100B2A4DE /* pathwatcher */,
 				4FDD9DC31ED30DC9008F14D3 /* plist */,
-				22C9152527A108F000E650A2 /* razer */,
+				22FA060C27A160410039C37A /* razer */,
 				4F6B3F3A1B73EF4B00B2A4DE /* screen */,
 				4F6B3F4B1B73EFC100B2A4DE /* screenwatcher */,
 				4F6B3F601B73F0E300B2A4DE /* settings */,
@@ -6965,8 +7121,8 @@
 				4CD203A31C6D76E20089706D /* socket */,
 				4CD96BD21C73ABD2009FF648 /* socketudp */,
 				4F6B3F711B73F44500B2A4DE /* sound */,
-				D6C32CC527DDD47F001AA22E /* spaces */,
 				4FD0AB141B7484D700A82496 /* spaces_watcher */,
+				D6C32CC527DDD47F001AA22E /* spaces */,
 				D6BB4FAE1C16959C000DC0A2 /* speech */,
 				D6BB4FBB1C1695EC000DC0A2 /* speechlistener */,
 				D6A212EA1DE38F5F00998C0B /* spotlight */,
@@ -6988,6 +7144,7 @@
 				4FD0AB8C1B74AE1900A82496 /* wifi */,
 				4FD0AB971B74AE2800A82496 /* wifiwatcher */,
 				4FD0ABB11B74AF4E00A82496 /* window */,
+				2274781F2787F92E00DE6894 /* osc */,
 			);
 		};
 /* End PBXProject section */
@@ -7005,20 +7162,36 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2274782B2787F9A000DE6894 /* osc.lua in Resources */,
+				E29DDE461E85524F00313995 /* dsa_pub.pem in Resources */,
 				4FF73A252735954D0007074E /* timeout3 in Resources */,
 				4FF73A23273594730007074E /* lua.json in Resources */,
 				4FF73A2027358DDA0007074E /* HSChooserWindow.xib in Resources */,
-				4F3978841E89AE7200F30F05 /* Spoon.icns in Resources */,
 				4FC09F7C19F99ECE007542A6 /* docs.json in Resources */,
-				4F8E84311B90EDBF00C25955 /* statusicon.pdf in Resources */,
 				944A2D451989737E00D8DC90 /* Images.xcassets in Resources */,
+				227C36D126200DBE00224F53 /* cpTourBox.icns in Resources */,
+				227C36DB26200DBE00224F53 /* cpMIDI.icns in Resources */,
+				227C36DD26200DBE00224F53 /* cpMonogram.icns in Resources */,
 				944A2D431989737E00D8DC90 /* Credits.rtf in Resources */,
+				227C36D426200DBE00224F53 /* cpHUD.icns in Resources */,
 				944A2D3A1989735300D8DC90 /* MainMenu.xib in Resources */,
 				22C9154F27A1097A00E650A2 /* razer.lua in Resources */,
 				949CDC001990759B00906CCE /* ConsoleWindow.xib in Resources */,
+				227C36D326200DBE00224F53 /* cpSnippets.icns in Resources */,
+				227C36D226200DBE00224F53 /* cpTouchBar.icns in Resources */,
 				949CDBFE1990747B00906CCE /* PreferencesWindow.xib in Resources */,
+				227C36DC26200DBE00224F53 /* cpLoupedeckLive.icns in Resources */,
+				227C36D626200DBE00224F53 /* cpLoupedeck.icns in Resources */,
+				227C36D726200DBE00224F53 /* cpLoupedeckPlus.icns in Resources */,
 				945B65B2198D31FC002D2E30 /* setup.lua in Resources */,
-				4F5B6E6B1E9E86BB003FC580 /* Hammerspoon.sdef in Resources */,
+				223A9693211F0EFF00596A79 /* cpCache.icns in Resources */,
+				227C36D826200DBE00224F53 /* cpLoupedeckCT.icns in Resources */,
+				227C36DE26200DBE00224F53 /* cpStreamDeck.icns in Resources */,
+				227C36D526200DBE00224F53 /* cpTangent.icns in Resources */,
+				227C36D926200DBE00224F53 /* cpShortcuts.icns in Resources */,
+				227C36C226200D4D00224F53 /* cpPlugin.icns in Resources */,
+				4F5B6E6B1E9E86BB003FC580 /* CommandPost.sdef in Resources */,
+				227C36DA26200DBE00224F53 /* cpPasteboard.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7141,6 +7314,20 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		E2887C971E4B5BD200468A07 /* Copy CommandPost Files */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy CommandPost Files";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -eux\necho Copying CommandPost Setup from Source to App Bundle...\ncp -R \"${SRCROOT}/../CommandPost/src/setup/\"* \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/\"\necho Copying CommandPost Extensions from Source to App Bundle...\ncp -R \"${SRCROOT}/../CommandPost/src/extensions/\"* \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/extensions/\"\necho Creating plugins folder within App Bundle...\nmkdir -p \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/plugins/\"\necho Copying CommandPost Plugins from Source to App Bundle...\ncp -R \"${SRCROOT}/../CommandPost/src/plugins/\"* \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/plugins/\"\nxattr -cr ${BUILT_PRODUCTS_DIR}\n";
+		};
 		E849AEC367EA9502A25B9A7C /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -7178,14 +7365,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		22C9152627A108F000E650A2 /* Sources */ = {
+		226F95F527917D3B003DF60F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				22C9154427A1091B00E650A2 /* HSRazerDevice.m in Sources */,
-				22C9154527A1091B00E650A2 /* HSRazerManager.m in Sources */,
-				22C9154627A1091B00E650A2 /* HSRazerTartarusV2Device.m in Sources */,
-				22C9154727A1091B00E650A2 /* librazer.m in Sources */,
+				224B923327F6D326003F628E /* HSBlackmagicDeviceSpeedEditor.m in Sources */,
+				226F960827917D63003DF60F /* libblackmagic.m in Sources */,
+				226F960727917D63003DF60F /* HSBlackmagicManager.m in Sources */,
+				224B922F27F6B846003F628E /* HSBlackmagicDeviceKeyboard.m in Sources */,
+				226F960C27917D63003DF60F /* HSBlackmagicDevice.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		227478202787F92E00DE6894 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2274782A2787F94100DE6894 /* libosc.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7681,7 +7877,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D6943FE01EDBF1F50057BB26 /* hs.m in Sources */,
+				D6943FE01EDBF1F50057BB26 /* cmdpost.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -8038,10 +8234,20 @@
 			target = 22613FE81F297E0D00E05E11 /* dialog */;
 			targetProxy = 22613FF31F297E7F00E05E11 /* PBXContainerItemProxy */;
 		};
-		22C9154D27A1094400E650A2 /* PBXTargetDependency */ = {
+		22654EAC27D43CF8004F8214 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 22C9152527A108F000E650A2 /* razer */;
-			targetProxy = 22C9154C27A1094400E650A2 /* PBXContainerItemProxy */;
+			target = 22FA060C27A160410039C37A /* razer */;
+			targetProxy = 22654EAB27D43CF8004F8214 /* PBXContainerItemProxy */;
+		};
+		226F960E27917DCB003DF60F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 226F95F427917D3B003DF60F /* blackmagic */;
+			targetProxy = 226F960D27917DCB003DF60F /* PBXContainerItemProxy */;
+		};
+		2274782D2787F9DD00DE6894 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2274781F2787F92E00DE6894 /* osc */;
+			targetProxy = 2274782C2787F9DD00DE6894 /* PBXContainerItemProxy */;
 		};
 		22DF5D2B23B9AA8C00C41AE6 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -8325,7 +8531,7 @@
 		};
 		4FD0AC161B74BD1300A82496 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 4FD0AC081B74BACD00A82496 /* hs */;
+			target = 4FD0AC081B74BACD00A82496 /* cmdpost */;
 			targetProxy = 4FD0AC151B74BD1300A82496 /* PBXContainerItemProxy */;
 		};
 		4FD0AC301B74C6BC00A82496 /* PBXTargetDependency */ = {
@@ -8506,6 +8712,20 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		220A07012788F97D0068DEA2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			buildSettings = {
+				PRODUCT_NAME = dialog;
+				WARNING_CFLAGS = (
+					"-Weverything",
+					"-Wno-direct-ivar-access",
+					"-Wno-documentation-unknown-command",
+					"$(inherited)",
+				);
+			};
+			name = Release;
+		};
 		224BA32F23D1ECA900487FDB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
@@ -8534,7 +8754,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
 			buildSettings = {
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = dialog;
 				WARNING_CFLAGS = (
 					"-Weverything",
 					"-Wno-direct-ivar-access",
@@ -8544,47 +8764,51 @@
 			};
 			name = Debug;
 		};
-		22613FF01F297E0D00E05E11 /* Release */ = {
+		226F95FB27917D3B003DF60F /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
-			buildSettings = {
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				WARNING_CFLAGS = (
-					"-Weverything",
-					"-Wno-direct-ivar-access",
-					"-Wno-documentation-unknown-command",
-					"$(inherited)",
-				);
-			};
-			name = Release;
-		};
-		22C9154027A108F000E650A2 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
 		};
-		22C9154127A108F000E650A2 /* Profile */ = {
+		226F95FC27917D3B003DF60F /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Profile;
 		};
-		22C9154227A108F000E650A2 /* Release */ = {
+		226F95FD27917D3B003DF60F /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				WARNING_CFLAGS = (
-					"-Weverything",
-					"-Wno-direct-ivar-access",
-					"-Wno-documentation-unknown-command",
-					"$(inherited)",
-				);
+			};
+			name = Release;
+		};
+		227478262787F92E00DE6894 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		227478272787F92E00DE6894 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Profile;
+		};
+		227478282787F92E00DE6894 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
 		};
@@ -8672,6 +8896,30 @@
 			};
 			name = Release;
 		};
+		22FA061827A160410039C37A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		22FA061927A160410039C37A /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Profile;
+		};
+		22FA061A27A160410039C37A /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		4C3D55B91C7F0A880023B633 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
@@ -8731,10 +8979,14 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F7F3B7B272DE98800E05732 /* Hammerspoon-Profile.xcconfig */;
 			buildSettings = {
+				INFOPLIST_FILE = "Hammerspoon/CommandPost-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MARKETING_VERSION = 1.2.17;
+				PRODUCT_BUNDLE_IDENTIFIER = org.latenitefilms.CommandPost;
+				PRODUCT_NAME = CommandPost;
 			};
 			name = Profile;
 		};
@@ -8763,7 +9015,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Hammerspoon.app/Contents/MacOS/Hammerspoon";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CommandPost.app/Contents/MacOS/CommandPost";
 				WARNING_CFLAGS = (
 					"-Wno-cstring-format-directive",
 					"-Wno-padded",
@@ -8928,7 +9180,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
 			buildSettings = {
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = dialog;
 				WARNING_CFLAGS = (
 					"-Weverything",
 					"-Wno-direct-ivar-access",
@@ -10502,10 +10754,14 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F7F3B7A272DE83500E05732 /* Hammerspoon-Debug.xcconfig */;
 			buildSettings = {
+				INFOPLIST_FILE = "Hammerspoon/CommandPost-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MARKETING_VERSION = 1.2.17;
+				PRODUCT_BUNDLE_IDENTIFIER = org.latenitefilms.CommandPost;
+				PRODUCT_NAME = CommandPost;
 			};
 			name = Debug;
 		};
@@ -10513,10 +10769,15 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F7F3B7C272DE99200E05732 /* Hammerspoon-Release.xcconfig */;
 			buildSettings = {
+				DEVELOPMENT_TEAM = A5HDJTY9X5;
+				INFOPLIST_FILE = "Hammerspoon/CommandPost-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MARKETING_VERSION = 1.2.17;
+				PRODUCT_BUNDLE_IDENTIFIER = org.latenitefilms.CommandPost;
+				PRODUCT_NAME = CommandPost;
 			};
 			name = Release;
 		};
@@ -10561,7 +10822,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Hammerspoon.app/Contents/MacOS/Hammerspoon";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CommandPost.app/Contents/MacOS/CommandPost";
 				WARNING_CFLAGS = (
 					"-Wno-cstring-format-directive",
 					"-Wno-padded",
@@ -10592,7 +10853,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Hammerspoon.app/Contents/MacOS/Hammerspoon";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CommandPost.app/Contents/MacOS/CommandPost";
 				WARNING_CFLAGS = (
 					"-Wno-cstring-format-directive",
 					"-Wno-padded",
@@ -11036,17 +11297,27 @@
 			buildConfigurations = (
 				22613FEF1F297E0D00E05E11 /* Debug */,
 				4F0454A020F0EE7D00699F29 /* Profile */,
-				22613FF01F297E0D00E05E11 /* Release */,
+				220A07012788F97D0068DEA2 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		22C9153F27A108F000E650A2 /* Build configuration list for PBXNativeTarget "razer" */ = {
+		226F95FA27917D3B003DF60F /* Build configuration list for PBXNativeTarget "blackmagic" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				22C9154027A108F000E650A2 /* Debug */,
-				22C9154127A108F000E650A2 /* Profile */,
-				22C9154227A108F000E650A2 /* Release */,
+				226F95FB27917D3B003DF60F /* Debug */,
+				226F95FC27917D3B003DF60F /* Profile */,
+				226F95FD27917D3B003DF60F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		227478252787F92E00DE6894 /* Build configuration list for PBXNativeTarget "osc" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				227478262787F92E00DE6894 /* Debug */,
+				227478272787F92E00DE6894 /* Profile */,
+				227478282787F92E00DE6894 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
@@ -11077,6 +11348,16 @@
 				22EEC62024926E5100BAE4DA /* Debug */,
 				22EEC62124926E5100BAE4DA /* Profile */,
 				22EEC62224926E5100BAE4DA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		22FA061727A160410039C37A /* Build configuration list for PBXNativeTarget "razer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				22FA061827A160410039C37A /* Debug */,
+				22FA061927A160410039C37A /* Profile */,
+				22FA061A27A160410039C37A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
@@ -11611,7 +11892,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		4FD0AC0D1B74BACD00A82496 /* Build configuration list for PBXNativeTarget "hs" */ = {
+		4FD0AC0D1B74BACD00A82496 /* Build configuration list for PBXNativeTarget "cmdpost" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4FD0AC0E1B74BACD00A82496 /* Debug */,
