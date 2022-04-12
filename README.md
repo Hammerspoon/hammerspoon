@@ -8,6 +8,8 @@
 
 **CommandPost-App** is a fork of [Hammerspoon](http://www.hammerspoon.org).
 
+This repo is only used for managing the Hammerspoon fork - any CommandPost issues should be made on the [main CommandPost repo](https://github.com/commandpost/commandpost).
+
 CommandPost is a completely **free** and **open source** Mac application that allows you to seriously speed up your creative editing process through powerful and customisable automation tools - it's basically [Automator](https://macosxautomation.com/automator/) for editors. It's currently focussed on Apple's [Final Cut Pro](http://apple.com/final-cut-pro/) - however the plan is to eventually add useful functionality for other tools we use on a daily basis, like [Adobe After Effects](http://www.adobe.com/au/products/aftereffects.html) and [mocha Pro](http://www.imagineersystems.com/products/mocha-pro/).
 
 It originally started off as a little proof of concept project to make finding the Final Cut Pro browser playhead easier for [Scott Simmons](http://www.scottsimmons.tv/) (you can read the origin story [here](https://latenitefilms.com/blog/final-cut-pro-hacks/)) – but has since grown into a HUGE collection of handy professional workflow tools and unique automation features to make editing within Final Cut Pro faster, easier and much more powerful. And this is just the beginning...
