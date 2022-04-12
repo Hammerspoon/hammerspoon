@@ -128,15 +128,21 @@
 
 - (HSRazerResult*)setBacklightToStaticColor:(NSColor*)color {
     
-    // Convert the colours into components:
-    CGFloat redComponent = floor([color redComponent]);
-    NSNumber *red = @(redComponent * 255);
+    // Split NSColor into RGB Components:
+    // SOURCE: https://developer.apple.com/library/archive/qa/qa1576/_index.html
+    CGFloat redFloatValue, greenFloatValue, blueFloatValue;
+    int redIntValue, greenIntValue, blueIntValue;
+        
+    NSColor *convertedColor = [color colorUsingColorSpace:[NSColorSpace genericRGBColorSpace]];
+    [convertedColor getRed:&redFloatValue green:&greenFloatValue blue:&blueFloatValue alpha:NULL];
     
-    CGFloat greenComponent = floor([color greenComponent]);
-    NSNumber *green = @(greenComponent * 255);
+    redIntValue = redFloatValue * 255.99999f;
+    greenIntValue = greenFloatValue * 255.99999f;
+    blueIntValue = blueFloatValue * 255.99999f;
     
-    CGFloat blueComponent = floor([color blueComponent]);
-    NSNumber *blue = @(blueComponent * 255);
+    NSNumber *red = [NSNumber numberWithInt:redIntValue];
+    NSNumber *green = [NSNumber numberWithInt:greenIntValue];
+    NSNumber *blue = [NSNumber numberWithInt:blueIntValue];
     
     // Setup Arguments:
     NSDictionary *arguments = @{
@@ -210,15 +216,21 @@
 }
 
 - (HSRazerResult*)setBacklightToReactiveWithColor:(NSColor*)color speed:(NSNumber*)speed {
-    // Convert the colours into components:
-    CGFloat redComponent = floor([color redComponent]);
-    NSNumber *red = @(redComponent * 255);
     
-    CGFloat greenComponent = floor([color greenComponent]);
-    NSNumber *green = @(greenComponent * 255);
+    // Split NSColor into RGB Components:
+    CGFloat redFloatValue, greenFloatValue, blueFloatValue;
+    int redIntValue, greenIntValue, blueIntValue;
+        
+    NSColor *convertedColor = [color colorUsingColorSpace:[NSColorSpace genericRGBColorSpace]];
+    [convertedColor getRed:&redFloatValue green:&greenFloatValue blue:&blueFloatValue alpha:NULL];
     
-    CGFloat blueComponent = floor([color blueComponent]);
-    NSNumber *blue = @(blueComponent * 255);
+    redIntValue = redFloatValue * 255.99999f;
+    greenIntValue = greenFloatValue * 255.99999f;
+    blueIntValue = blueFloatValue * 255.99999f;
+    
+    NSNumber *red = [NSNumber numberWithInt:redIntValue];
+    NSNumber *green = [NSNumber numberWithInt:greenIntValue];
+    NSNumber *blue = [NSNumber numberWithInt:blueIntValue];
     
     // Setup Arguments:
     NSDictionary *arguments = @{
@@ -242,25 +254,32 @@
         // Two colours:
         
         // Convert the colours into components:
-        CGFloat redComponent = floor([color redComponent]);
-        NSNumber *red = @(redComponent * 255);
+        CGFloat redFloatValue, greenFloatValue, blueFloatValue;
+        int redIntValue, greenIntValue, blueIntValue;
+            
+        NSColor *convertedColor = [color colorUsingColorSpace:[NSColorSpace genericRGBColorSpace]];
+        [convertedColor getRed:&redFloatValue green:&greenFloatValue blue:&blueFloatValue alpha:NULL];
         
-        CGFloat greenComponent = floor([color greenComponent]);
-        NSNumber *green = @(greenComponent * 255);
+        redIntValue = redFloatValue * 255.99999f;
+        greenIntValue = greenFloatValue * 255.99999f;
+        blueIntValue = blueFloatValue * 255.99999f;
         
-        CGFloat blueComponent = floor([color blueComponent]);
-        NSNumber *blue = @(blueComponent * 255);
+        NSNumber *red = [NSNumber numberWithInt:redIntValue];
+        NSNumber *green = [NSNumber numberWithInt:greenIntValue];
+        NSNumber *blue = [NSNumber numberWithInt:blueIntValue];
         
         // Convert the secondary colours into components:
-        CGFloat redSecondaryComponent = floor([secondaryColor redComponent]);
-        NSNumber *redSecondary = @(redSecondaryComponent * 255);
+        convertedColor = [secondaryColor colorUsingColorSpace:[NSColorSpace genericRGBColorSpace]];
+        [convertedColor getRed:&redFloatValue green:&greenFloatValue blue:&blueFloatValue alpha:NULL];
         
-        CGFloat greenSecondaryComponent = floor([secondaryColor greenComponent]);
-        NSNumber *greenSecondary = @(greenSecondaryComponent * 255);
+        redIntValue = redFloatValue * 255.99999f;
+        greenIntValue = greenFloatValue * 255.99999f;
+        blueIntValue = blueFloatValue * 255.99999f;
         
-        CGFloat blueSecondaryComponent = floor([secondaryColor blueComponent]);
-        NSNumber *blueSecondary = @(blueSecondaryComponent * 255);
-        
+        NSNumber *redSecondary = [NSNumber numberWithInt:redIntValue];
+        NSNumber *greenSecondary = [NSNumber numberWithInt:greenIntValue];
+        NSNumber *blueSecondary = [NSNumber numberWithInt:blueIntValue];
+                
         // Setup Arguments:
         NSDictionary *arguments = @{
             @0 : @0x01,             // Variable Storage
@@ -284,14 +303,19 @@
         // One colour:
 
         // Convert the colours into components:
-        CGFloat redComponent = floor([color redComponent]);
-        NSNumber *red = @(redComponent * 255);
+        CGFloat redFloatValue, greenFloatValue, blueFloatValue;
+        int redIntValue, greenIntValue, blueIntValue;
+            
+        NSColor *convertedColor = [color colorUsingColorSpace:[NSColorSpace genericRGBColorSpace]];
+        [convertedColor getRed:&redFloatValue green:&greenFloatValue blue:&blueFloatValue alpha:NULL];
         
-        CGFloat greenComponent = floor([color greenComponent]);
-        NSNumber *green = @(greenComponent * 255);
+        redIntValue = redFloatValue * 255.99999f;
+        greenIntValue = greenFloatValue * 255.99999f;
+        blueIntValue = blueFloatValue * 255.99999f;
         
-        CGFloat blueComponent = floor([color blueComponent]);
-        NSNumber *blue = @(blueComponent * 255);
+        NSNumber *red = [NSNumber numberWithInt:redIntValue];
+        NSNumber *green = [NSNumber numberWithInt:greenIntValue];
+        NSNumber *blue = [NSNumber numberWithInt:blueIntValue];
         
         // Setup Arguments:
         NSDictionary *arguments = @{
@@ -330,24 +354,31 @@
 - (HSRazerResult*)setBacklightToBreathingWithColor:(NSColor*)color secondaryColor:(NSColor*)secondaryColor {
     if (color && secondaryColor) { // Two colours:
         // Convert the colours into components:
-        CGFloat redComponent = floor([color redComponent]);
-        NSNumber *red = @(redComponent * 255);
+        CGFloat redFloatValue, greenFloatValue, blueFloatValue;
+        int redIntValue, greenIntValue, blueIntValue;
+            
+        NSColor *convertedColor = [color colorUsingColorSpace:[NSColorSpace genericRGBColorSpace]];
+        [convertedColor getRed:&redFloatValue green:&greenFloatValue blue:&blueFloatValue alpha:NULL];
         
-        CGFloat greenComponent = floor([color greenComponent]);
-        NSNumber *green = @(greenComponent * 255);
+        redIntValue = redFloatValue * 255.99999f;
+        greenIntValue = greenFloatValue * 255.99999f;
+        blueIntValue = blueFloatValue * 255.99999f;
         
-        CGFloat blueComponent = floor([color blueComponent]);
-        NSNumber *blue = @(blueComponent * 255);
+        NSNumber *red = [NSNumber numberWithInt:redIntValue];
+        NSNumber *green = [NSNumber numberWithInt:greenIntValue];
+        NSNumber *blue = [NSNumber numberWithInt:blueIntValue];
         
         // Convert the secondary colours into components:
-        CGFloat redSecondaryComponent = floor([secondaryColor redComponent]);
-        NSNumber *redSecondary = @(redSecondaryComponent * 255);
+        convertedColor = [secondaryColor colorUsingColorSpace:[NSColorSpace genericRGBColorSpace]];
+        [convertedColor getRed:&redFloatValue green:&greenFloatValue blue:&blueFloatValue alpha:NULL];
         
-        CGFloat greenSecondaryComponent = floor([secondaryColor greenComponent]);
-        NSNumber *greenSecondary = @(greenSecondaryComponent * 255);
+        redIntValue = redFloatValue * 255.99999f;
+        greenIntValue = greenFloatValue * 255.99999f;
+        blueIntValue = blueFloatValue * 255.99999f;
         
-        CGFloat blueSecondaryComponent = floor([secondaryColor blueComponent]);
-        NSNumber *blueSecondary = @(blueSecondaryComponent * 255);
+        NSNumber *redSecondary = [NSNumber numberWithInt:redIntValue];
+        NSNumber *greenSecondary = [NSNumber numberWithInt:greenIntValue];
+        NSNumber *blueSecondary = [NSNumber numberWithInt:blueIntValue];
         
         // Setup Arguments:
         NSDictionary *arguments = @{
@@ -370,14 +401,19 @@
     }
     else if (color) { // One colour:
         // Convert the colours into components:
-        CGFloat redComponent = floor([color redComponent]);
-        NSNumber *red = @(redComponent * 255);
+        CGFloat redFloatValue, greenFloatValue, blueFloatValue;
+        int redIntValue, greenIntValue, blueIntValue;
+            
+        NSColor *convertedColor = [color colorUsingColorSpace:[NSColorSpace genericRGBColorSpace]];
+        [convertedColor getRed:&redFloatValue green:&greenFloatValue blue:&blueFloatValue alpha:NULL];
         
-        CGFloat greenComponent = floor([color greenComponent]);
-        NSNumber *green = @(greenComponent * 255);
+        redIntValue = redFloatValue * 255.99999f;
+        greenIntValue = greenFloatValue * 255.99999f;
+        blueIntValue = blueFloatValue * 255.99999f;
         
-        CGFloat blueComponent = floor([color blueComponent]);
-        NSNumber *blue = @(blueComponent * 255);
+        NSNumber *red = [NSNumber numberWithInt:redIntValue];
+        NSNumber *green = [NSNumber numberWithInt:greenIntValue];
+        NSNumber *blue = [NSNumber numberWithInt:blueIntValue];
         
         // Setup Arguments:
         NSDictionary *arguments = @{
@@ -427,24 +463,35 @@
         int count = 5;
         for (int column = 0; column < self.backlightColumns; column++)
         {
-            NSNumber *red = 0;
-            NSNumber *green = 0;
-            NSNumber *blue = 0;
-                                                                                    
             NSColor *currentColor = customColors[@(customColorsCount++)];
             
-            CGFloat redComponent = floor([currentColor redComponent]);
-            red = @(redComponent * 255);
-            
-            CGFloat greenComponent = floor([currentColor greenComponent]);
-            green = @(greenComponent * 255);
-            
-            CGFloat blueComponent = floor([currentColor blueComponent]);
-            blue = @(blueComponent * 255);
-    
-            [arguments setObject:red    forKey:[NSNumber numberWithInt:count++]];
-            [arguments setObject:green  forKey:[NSNumber numberWithInt:count++]];
-            [arguments setObject:blue   forKey:[NSNumber numberWithInt:count++]];
+            if (currentColor) {
+                CGFloat redFloatValue, greenFloatValue, blueFloatValue;
+                int redIntValue, greenIntValue, blueIntValue;
+                    
+                NSColor *convertedColor = [currentColor colorUsingColorSpace:[NSColorSpace genericRGBColorSpace]];
+                [convertedColor getRed:&redFloatValue green:&greenFloatValue blue:&blueFloatValue alpha:NULL];
+                
+                redIntValue = redFloatValue * 255.99999f;
+                greenIntValue = greenFloatValue * 255.99999f;
+                blueIntValue = blueFloatValue * 255.99999f;
+                
+                NSNumber *red = [NSNumber numberWithInt:redIntValue];
+                NSNumber *green = [NSNumber numberWithInt:greenIntValue];
+                NSNumber *blue = [NSNumber numberWithInt:blueIntValue];
+        
+                [arguments setObject:red    forKey:[NSNumber numberWithInt:count++]];
+                [arguments setObject:green  forKey:[NSNumber numberWithInt:count++]];
+                [arguments setObject:blue   forKey:[NSNumber numberWithInt:count++]];
+            } else {
+                NSNumber *red = [NSNumber numberWithInt:0];
+                NSNumber *green = [NSNumber numberWithInt:0];
+                NSNumber *blue = [NSNumber numberWithInt:0];
+                
+                [arguments setObject:red    forKey:[NSNumber numberWithInt:count++]];
+                [arguments setObject:green  forKey:[NSNumber numberWithInt:count++]];
+                [arguments setObject:blue   forKey:[NSNumber numberWithInt:count++]];
+            }
         }
         
         // Send the report to the Razer USB Device:

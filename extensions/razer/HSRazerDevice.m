@@ -483,7 +483,7 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
     {
         id argument = [arguments objectForKey:[NSNumber numberWithUnsignedLong:x]];
         if (argument) {
-            report.arguments[x] = [argument integerValue];
+            report.arguments[x] = [argument unsignedCharValue];
         }
     }
 
