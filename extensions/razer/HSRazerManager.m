@@ -21,6 +21,8 @@ static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValue
 
             NSString *scancodeString = [NSString stringWithFormat:@"%d",scancode];
 
+            //NSLog("scancodeString: %@",scancodeString);
+            
             [device deviceButtonPress:scancodeString pressed:pressed];
         }
     }
@@ -59,9 +61,12 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
 
         NSDictionary *matchTartarusV2   =   @{vendorIDKey:  @USB_VID_RAZER,
                                               productIDKey: @USB_PID_RAZER_TARTARUS_V2};
+        
+        NSDictionary *matchOrbweaver    =   @{vendorIDKey:  @USB_VID_RAZER,
+                                              productIDKey: @USB_PID_RAZER_ORBWEAVER};
 
         IOHIDManagerSetDeviceMatchingMultiple((__bridge IOHIDManagerRef)self.ioHIDManager,
-                                              (__bridge CFArrayRef)@[matchTartarusV2]);
+                                              (__bridge CFArrayRef)@[matchTartarusV2, matchOrbweaver]);
 
         // Add our callbacks for relevant events:
         IOHIDManagerRegisterDeviceMatchingCallback((__bridge IOHIDManagerRef)self.ioHIDManager,

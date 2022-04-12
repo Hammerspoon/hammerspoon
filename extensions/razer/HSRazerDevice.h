@@ -19,6 +19,7 @@
 @property (nonatomic) BOOL                  orangeStatusLight;
 @property (nonatomic) BOOL                  greenStatusLight;
 @property (nonatomic) BOOL                  blueStatusLight;
+@property (nonatomic) BOOL                  yellowStatusLight;
 
 @property unsigned char                     argumentTwo;
 
@@ -47,6 +48,18 @@
 // Backlight Details:
 @property (nonatomic) int                   backlightRows;
 @property (nonatomic) int                   backlightColumns;
+
+// Does the devices support these methods?
+@property (nonatomic) BOOL                  supportsBacklightToOff;
+@property (nonatomic) BOOL                  supportsBacklightToStaticColor;
+@property (nonatomic) BOOL                  supportsBacklightToWave;
+@property (nonatomic) BOOL                  supportsBacklightToSpectrum;
+@property (nonatomic) BOOL                  supportsBacklightToReactive;
+@property (nonatomic) BOOL                  supportsBacklightToStarlight;
+@property (nonatomic) BOOL                  supportsBacklightToBreathing;
+@property (nonatomic) BOOL                  supportsBacklightToCustom;
+
+@property (nonatomic) BOOL                  supportsBacklightToMode;
 
 // Scroll Wheel:
 @property (nonatomic) int                   scrollWheelID;
@@ -78,6 +91,8 @@
 - (HSRazerResult*)setBacklightToBreathingWithColor:(NSColor*)color secondaryColor:(NSColor*)secondaryColor;
 - (HSRazerResult*)setBacklightToCustomWithColors:(NSMutableDictionary *)customColors;
 
+- (HSRazerResult*)setBacklightToMode:(NSString*)mode;
+
 // Brightness:
 - (HSRazerResult*)getBrightness;
 - (HSRazerResult*)setBrightness:(NSNumber *)brightness;
@@ -91,6 +106,9 @@
 
 - (HSRazerResult*)getBlueStatusLight;
 - (HSRazerResult*)setBlueStatusLight:(BOOL)active;
+
+- (HSRazerResult*)getYellowStatusLight;
+- (HSRazerResult*)setYellowStatusLight:(BOOL)active;
 
 // Hardware Communication:
 - (IOUSBDeviceInterface**)getUSBRazerDevice;
