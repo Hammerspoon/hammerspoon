@@ -40,7 +40,6 @@
 		2273893624860C0E003EBC68 /* test_websocket.lua in Resources */ = {isa = PBXBuildFile; fileRef = 22738933248606A9003EBC68 /* test_websocket.lua */; };
 		227478232787F92E00DE6894 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FB852342735B02400462DD0 /* LuaSkin.framework */; };
 		2274782A2787F94100DE6894 /* libosc.m in Sources */ = {isa = PBXBuildFile; fileRef = 2274781B2787F8F800DE6894 /* libosc.m */; };
-		2274782B2787F9A000DE6894 /* osc.lua in Resources */ = {isa = PBXBuildFile; fileRef = 2274781C2787F8F800DE6894 /* osc.lua */; };
 		2274782E2787FA1500DE6894 /* libosc.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 227478292787F92E00DE6894 /* libosc.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		2274782F2787FA2800DE6894 /* osc.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 2274781C2787F8F800DE6894 /* osc.lua */; };
 		227C36C226200D4D00224F53 /* cpPlugin.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36C126200D4C00224F53 /* cpPlugin.icns */; };
@@ -60,7 +59,6 @@
 		227C36DE26200DBE00224F53 /* cpStreamDeck.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36D026200DBE00224F53 /* cpStreamDeck.icns */; };
 		22A6626025FC080200AA329E /* test_serial.lua in Resources */ = {isa = PBXBuildFile; fileRef = 22A6625F25FC07F700AA329E /* test_serial.lua */; };
 		22A6626225FC087000AA329E /* HSserial.m in Sources */ = {isa = PBXBuildFile; fileRef = 22A6626125FC087000AA329E /* HSserial.m */; };
-		22C9154F27A1097A00E650A2 /* razer.lua in Resources */ = {isa = PBXBuildFile; fileRef = 2213842A27A105DD0085CA24 /* razer.lua */; };
 		22DF5D2823B9A9EA00C41AE6 /* libpasteboard_watcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 22DF5D1A23B99C4D00C41AE6 /* libpasteboard_watcher.m */; };
 		22E4D8031FA748AC00C8CF5C /* libmidi.m in Sources */ = {isa = PBXBuildFile; fileRef = 22E4D7F71FA7485A00C8CF5C /* libmidi.m */; };
 		22EEC62424926E6E00BAE4DA /* libserial.m in Sources */ = {isa = PBXBuildFile; fileRef = 22EEC61724926E2100BAE4DA /* libserial.m */; };
@@ -7155,7 +7153,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2274782B2787F9A000DE6894 /* osc.lua in Resources */,
 				E29DDE461E85524F00313995 /* dsa_pub.pem in Resources */,
 				4FF73A252735954D0007074E /* timeout3 in Resources */,
 				4FF73A23273594730007074E /* lua.json in Resources */,
@@ -7168,7 +7165,6 @@
 				944A2D431989737E00D8DC90 /* Credits.rtf in Resources */,
 				227C36D426200DBE00224F53 /* cpHUD.icns in Resources */,
 				944A2D3A1989735300D8DC90 /* MainMenu.xib in Resources */,
-				22C9154F27A1097A00E650A2 /* razer.lua in Resources */,
 				949CDC001990759B00906CCE /* ConsoleWindow.xib in Resources */,
 				227C36D326200DBE00224F53 /* cpSnippets.icns in Resources */,
 				227C36D226200DBE00224F53 /* cpTouchBar.icns in Resources */,
