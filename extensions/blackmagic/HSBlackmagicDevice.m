@@ -353,7 +353,7 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
     CFIndex reportLength = resultLength;
     uint8_t *report = malloc(reportLength);
 
-    IOHIDDeviceGetReport(self.device, kIOHIDReportTypeFeature, reportID, report, &reportLength);
+    IOHIDDeviceGetReport(self.device, kIOHIDReportTypeInput, reportID, report, &reportLength);
     NSData *data = [NSData dataWithBytes:report length:reportLength];
     free(report);
     
@@ -492,6 +492,9 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
     [self setJogLEDs:self.defaultLEDCache];
 }
 
+//
+// Set the Jog Mode:
+//
 - (void)setJogMode:(NSString*) mode {
     //
     // Report ID: 3
@@ -508,6 +511,31 @@ uint64_t bmd_kbd_auth(uint64_t challenge){
         [LuaSkin logError:@"[hs.blackmagic] Failed to send Jog Mode report."];
         return;
     }
+}
+
+//
+// Request the current Jog Mode:
+//
+- (void)getJogMode {
+    //
+    // JOG WHEEL:
+    //
+    // Report ID: 03
+    // u8   - Report ID
+    // u8   - Jog mode
+    // le32 - Jog value (signed)
+    // u8   - Unknown ?
+    //
+    
+    int reportLength = 7;
+    CFIndex reportID = 3;
+    
+    NSData *data = [self deviceReadInputReportWithLength:reportLength reportID:reportID];
+    const char* dataAsBytes = (const char*)[data bytes];
+    
+    NSNumber *jogMode = [NSNumber numberWithChar:dataAsBytes[1]];
+        
+    self.jogModeCache = self.jogModeReverseLookup[jogMode];
 }
 
 //
