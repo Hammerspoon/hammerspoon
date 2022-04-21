@@ -132,6 +132,70 @@ static int application_infoForBundleID(lua_State* L) {
     return 1;
 }
 
+/// hs.application.preferredLocalizationsForBundleID(bundleID) -> table or nil
+/// Function
+/// Gets an ordered list of preferred localizations contained in a bundle
+///
+/// Parameters:
+///  * bundleID - A string containing an application bundle identifier (e.g. "com.apple.Safari")
+///
+/// Returns:
+///  * A table containing language IDs for localizations in the bundle. The strings are ordered according to the user's language preferences and available localizations.
+static int application_preferredLocalizationsForBundleID(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TSTRING, LS_TBREAK];
+    [skin pushNSObject:[HSapplication preferredLocalizationsForBundleID:[skin toNSObjectAtIndex:1]]];
+    return 1;
+}
+
+/// hs.application.preferredLocalizationsForBundlePath(bundlePath) -> table or nil
+/// Function
+/// Gets an ordered list of preferred localizations contained in a bundle
+///
+/// Parameters:
+///  * bundlePath - A string containing the path to an application bundle (e.g. "/Applications/Safari.app")
+///
+/// Returns:
+///  * A table containing language IDs for localizations in the bundle. The strings are ordered according to the user's language preferences and available localizations.
+static int application_preferredLocalizationsForBundlePath(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TSTRING, LS_TBREAK];
+    [skin pushNSObject:[HSapplication preferredLocalizationsForBundlePath:[skin toNSObjectAtIndex:1]]];
+    return 1;
+}
+
+/// hs.application.localizationsForBundleID(bundleID) -> table or nil
+/// Function
+/// Gets a list of all the localizations contained in the bundle.
+///
+/// Parameters:
+///  * bundleID - A string containing an application bundle identifier (e.g. "com.apple.Safari")
+///
+/// Returns:
+///  * A table containing containing language IDs for all the localizations contained in the bundle.
+static int application_localizationsForBundleID(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TSTRING, LS_TBREAK];
+    [skin pushNSObject:[HSapplication localizationsForBundleID:[skin toNSObjectAtIndex:1]]];
+    return 1;
+}
+
+/// hs.application.localizationsForBundlePath(bundlePath) -> table or nil
+/// Function
+/// Gets a list of all the localizations contained in the bundle.
+///
+/// Parameters:
+///  * bundlePath - A string containing the path to an application bundle (e.g. "/Applications/Safari.app")
+///
+/// Returns:
+///  * A table containing containing language IDs for all the localizations contained in the bundle.
+static int application_localizationsForBundlePath(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TSTRING, LS_TBREAK];
+    [skin pushNSObject:[HSapplication localizationsForBundlePath:[skin toNSObjectAtIndex:1]]];
+    return 1;
+}
+
 /// hs.application.infoForBundlePath(bundlePath) -> table or nil
 /// Function
 /// Gets the metadata of an application from its path on disk
@@ -1196,6 +1260,10 @@ static const luaL_Reg moduleLib[] = {
     {"pathForBundleID", application_pathForBundleID},
     {"infoForBundleID", application_infoForBundleID},
     {"infoForBundlePath", application_infoForBundlePath},
+    {"preferredLocalizationsForBundleID", application_preferredLocalizationsForBundleID},
+    {"preferredLocalizationsForBundlePath", application_preferredLocalizationsForBundlePath},
+    {"localizationsForBundleID", application_localizationsForBundleID},
+    {"localizationsForBundlePath", application_localizationsForBundlePath},
     {"defaultAppForUTI", application_bundleForUTI},
     {"launchOrFocus", application_launchorfocus},
     {"launchOrFocusByBundleID", application_launchorfocusbybundleID},

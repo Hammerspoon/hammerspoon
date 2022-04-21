@@ -88,4 +88,9 @@
 - (void)testUTI {
     RUN_LUA_TEST()
 }
+
+- (void)testLocalizationFunctions {
+    RUN_LUA_TEST()
+}
+
 @end
