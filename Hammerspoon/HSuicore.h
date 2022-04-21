@@ -69,6 +69,10 @@
 +(NSString *)pathForBundleID:(NSString *)bundleID;
 +(NSDictionary *)infoForBundleID:(NSString *)bundleID;
 +(NSDictionary *)infoForBundlePath:(NSString *)bundlePath;
++(NSArray *)preferredLocalizationsForBundleID:(NSString *)bundleID;
++(NSArray *)preferredLocalizationsForBundlePath:(NSString *)bundlePath;
++(NSArray *)localizationsForBundlePath:(NSString *)bundlePath;
++(NSArray *)localizationsForBundleID:(NSString *)bundleID;
 
 // Class methods that return arrays of applications
 +(NSArray<HSapplication *>*)runningApplicationsWithState:(lua_State *)L;
