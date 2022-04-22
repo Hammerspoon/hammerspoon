@@ -13,92 +13,6 @@ static LSRefTable refTable;
 - (BOOL)popUpMenuPositioningItem:(id)arg1 atLocation:(struct CGPoint)arg2 inView:(id)arg3 appearance:(id)arg4;
 @end
 
-// modified from https://github.com/shergin/NSStatusBar-MISSINGOrder
-
-typedef NS_ENUM(NSInteger, NSStatusBarItemPriority) {
-    NSStatusBarItemPriorityDefault = 1000,
-    NSStatusBarItemPrioritySystem = 2147483645,
-    NSStatusBarItemPrioritySpotlight = 2147483646,
-    NSStatusBarItemPriorityNotificationCenter = 2147483647,
-};
-
-@interface NSStatusBar (MISSINGOrder)
-- (NSStatusItem *)statusItemWithLength:(CGFloat)length withPriority:(NSStatusBarItemPriority)priority;
-- (void)insertStatusItem:(NSStatusItem *)statusItem withPriority:(NSStatusBarItemPriority)priority;
-@end
-
-@implementation NSStatusBar (MISSINGOrder)
-- (void)insertStatusItem:(NSStatusItem *)statusItem withPriority:(NSStatusBarItemPriority)priority {
-    SEL insertStatusItemWithPrioritySelector = NSSelectorFromString(@"_insertStatusItem:withPriority:");
-    if ([self respondsToSelector:insertStatusItemWithPrioritySelector]) {
-        if (statusItem) {
-            [self removeStatusItem:statusItem];
-            // Perform `[self _insertStatusItem:statusItem withPriority:priority]`.
-            NSMethodSignature *signature  = [[self class] instanceMethodSignatureForSelector:insertStatusItemWithPrioritySelector];
-            NSInvocation *invocation      = [NSInvocation invocationWithMethodSignature:signature];
-            [invocation setTarget:self];
-            [invocation setSelector:insertStatusItemWithPrioritySelector];
-            [invocation setArgument:(void *)&statusItem atIndex:2];
-            [invocation setArgument:&priority atIndex:3];
-            [invocation invoke];
-        }
-    } else {
-        [LuaSkin logWarn:[NSString stringWithFormat:@"%s:_insertStatusItem:withPriority: unavailable in this version of OS X", USERDATA_TAG]] ;
-    }
-}
-
-- (NSStatusItem *)statusItemWithLength:(CGFloat)length withPriority:(NSStatusBarItemPriority)priority {
-    SEL statusItemWithLengthWithPrioritySelector = NSSelectorFromString(@"_statusItemWithLength:withPriority:");
-    NSStatusItem *statusItem;
-    if ([self respondsToSelector:statusItemWithLengthWithPrioritySelector]) {
-        // Perform `[self _statusItemWithLength:length withPriority:priority]`.
-        void *tempResultValuePtr;
-        NSMethodSignature *signature  = [[self class] instanceMethodSignatureForSelector:statusItemWithLengthWithPrioritySelector];
-        NSInvocation      *invocation = [NSInvocation invocationWithMethodSignature:signature];
-        [invocation setTarget:self];
-        [invocation setSelector:statusItemWithLengthWithPrioritySelector];
-        [invocation setArgument:&length atIndex:2];
-        [invocation setArgument:&priority atIndex:3];
-        [invocation invoke];
-        [invocation getReturnValue:&tempResultValuePtr];
-        statusItem = (__bridge NSStatusItem *)tempResultValuePtr;
-
-        [self insertStatusItem:statusItem withPriority:priority] ;
-    } else {
-        [LuaSkin logWarn:[NSString stringWithFormat:@"%s:_statusItemWithLength:withPriority: unavailable in this version of OS X", USERDATA_TAG]] ;
-    }
-
-    if (!statusItem) {
-        statusItem = [self statusItemWithLength:length];
-    }
-
-    return statusItem;
-}
-
-@end
-
-@interface NSStatusItem (MISSINGOrder)
-- (NSInteger)priority ;
-@end
-
-@implementation NSStatusItem (MISSINGOrder)
--(NSInteger)priority {
-    NSInteger result = 0 ;
-    SEL prioritySelector = NSSelectorFromString(@"_priority");
-    if ([self respondsToSelector:prioritySelector]) {
-        NSMethodSignature *signature  = [[self class] instanceMethodSignatureForSelector:prioritySelector] ;
-        NSInvocation      *invocation = [NSInvocation invocationWithMethodSignature:signature] ;
-        [invocation setTarget:self] ;
-        [invocation setSelector:prioritySelector] ;
-        [invocation invoke] ;
-        [invocation getReturnValue:&result] ;
-    }else {
-        [LuaSkin logWarn:[NSString stringWithFormat:@"%s:_priority unavailable in this version of OS X", USERDATA_TAG]] ;
-    }
-    return result ;
-}
-
-@end
 // Define a base object for our various callback handlers
 @interface HSMenubarCallbackObject : NSObject
 @property int fn;
@@ -478,12 +392,13 @@ static void geom_pushrect(lua_State* L, NSRect rect) {
 
 // ----------------------- API implementations ---------------------
 
-/// hs.menubar.new([inMenuBar]) -> menubaritem or nil
+/// hs.menubar.new([inMenuBar], [autosaveName]) -> menubaritem or nil
 /// Constructor
 /// Creates a new menu bar item object and optionally add it to the system menubar
 ///
 /// Parameters:
-///  * inMenuBar -- an optional parameter which defaults to true.  If it is true, the menubaritem is added to the system menubar, otherwise the menubaritem is hidden.
+///  * inMenuBar - an optional parameter which defaults to true.  If it is true, the menubaritem is added to the system menubar, otherwise the menubaritem is hidden.
+///  * autosaveName - an optional parameter allowing you to define an autosave name, so that macOS can restore the menubar position beween restarts.
 ///
 /// Returns:
 ///  * menubar item object to use with other API methods, or nil if it could not be created
@@ -494,12 +409,32 @@ static void geom_pushrect(lua_State* L, NSRect rect) {
 ///  * Calling this method with inMenuBar equal to false is equivalent to calling hs.menubar.new():removeFromMenuBar().
 ///  * A hidden menubaritem can be added to the system menubar by calling hs.menubar:returnToMenuBar() or used as a pop-up menu by calling hs.menubar:popupMenu().
 static int menubarNew(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs: LS_TBOOLEAN | LS_TOPTIONAL, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
+    
     NSStatusBar *statusBar = [NSStatusBar systemStatusBar];
     NSStatusItem *statusItem ;
     if (lua_isboolean(L, 1) && !lua_toboolean(L, 1)) {
         statusItem = [[NSStatusItem alloc] init] ;
     } else {
         statusItem = [statusBar statusItemWithLength:NSVariableStatusItemLength];
+    }
+    
+    if (lua_isstring(L, 2)) {
+        NSString *autosaveName = [skin toNSObjectAtIndex:2];
+        
+        // Get the last saved preferred position that was recorded
+        // when the menubar was deleted (i.e. during a reload).
+        NSString *preferredPositionString = @"NSStatusItem Preferred Position";
+        NSString *key = [NSString stringWithFormat:@"HS%@ %@", preferredPositionString, autosaveName];;
+        NSNumber *autosaveValue = [[NSUserDefaults standardUserDefaults] objectForKey:key];
+        
+        // Restore the last saved preferred position:
+        key = [NSString stringWithFormat:@"%@ %@", preferredPositionString, autosaveName];;
+        [[NSUserDefaults standardUserDefaults] setObject:autosaveValue forKey:key];
+        
+        // Set the autosaveName:
+        statusItem.autosaveName = autosaveName;
     }
 
     if (statusItem) {
@@ -528,49 +463,29 @@ static int menubarNew(lua_State *L) {
     return 1;
 }
 
-/// hs.menubar.newWithPriority(priority) -> menubaritem or nil
-/// Constructor
-/// Creates a new menu bar item object with the specified priority
+/// hs.menubar:autosaveName([name]) -> menubaritem | current-value
+/// Method
+/// Get or set the autosave name of the menubar.
 ///
 /// Parameters:
-///  * priority - an integer specifying the menubar item's priority.  A menubar item's position is determined by its priority value.
+///  * name - An optional string if you want to set the autosave name
 ///
 /// Returns:
-///  * menubar item object to use with other API methods, or nil if it could not be created
-///
-/// Notes:
-///  * Default priority levels can be found in the [hs.menubar.priorities](#priorities) table.
-///
-///  * This constructor uses undocumented methods in the NSStatusBar and NSStatusItem classes; because of this, we cannot guarantee that it will work with future versions of OS X.  This constructor has been written so that if the necessary private methods are not present, then a warning will be sent to the Hammerspoon console and the menubar item will be created in its default position -- the equivalent of using the [hs.menubar.new](#new) constructor instead of this one.
-static int menubarNewWithPriority(lua_State *L) {
-    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
-    [skin checkArgs:LS_TNUMBER | LS_TINTEGER,
-                    LS_TBREAK] ;
-
-    NSStatusBarItemPriority priority    = lua_tointeger(L, 1);
-    NSStatusBar             *statusBar  = [NSStatusBar systemStatusBar];
-    NSStatusItem            *statusItem = [statusBar statusItemWithLength:NSVariableStatusItemLength
-                                                             withPriority:priority];
-
-    if (statusItem) {
-        statusItem.button.imagePosition = NSImageLeading;
-        menubaritem_t *menuBarItem = lua_newuserdata(L, sizeof(menubaritem_t));
-        memset(menuBarItem, 0, sizeof(menubaritem_t));
-
-        menuBarItem->menuBarItemObject = (__bridge_retained void*)statusItem;
-        menuBarItem->click_callback = NULL;
-        menuBarItem->click_fn = LUA_NOREF;
-        menuBarItem->removed = NO ;
-
-        CGFloat defaultFromFont        = [[NSFont menuFontOfSize:0] pointSize] ;
-        menuBarItem->stateBoxImageSize = NSMakeSize(defaultFromFont, defaultFromFont) ;
-
-        luaL_getmetatable(L, USERDATA_TAG);
-        lua_setmetatable(L, -2);
+///  * Either the menubar item, if its autosave name was changed, or the current value of the autosave name
+static int menubar_autosaveName(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG,
+                    LS_TSTRING | LS_TOPTIONAL,
+                    LS_TBREAK];
+    menubaritem_t *menuBarItem = get_item_arg(L, 1);
+    NSStatusItem *menuItem = (__bridge NSStatusItem*)menuBarItem->menuBarItemObject;
+    
+    if (lua_gettop(L) == 2) {
+        menuItem.autosaveName = [skin toNSObjectAtIndex:2];
+        lua_settop(L, 1);
     } else {
-        lua_pushnil(L);
+        [skin pushNSObject:menuItem.autosaveName];
     }
-
     return 1;
 }
 
@@ -884,6 +799,21 @@ static int menubar_delete(lua_State *L) {
     NSStatusBar *statusBar = [NSStatusBar systemStatusBar];
     NSStatusItem *statusItem = (__bridge_transfer NSStatusItem*)menuBarItem->menuBarItemObject;
 
+    // If an autosaveName exists, let's store the preferred position
+    // so that we can restore it later after a reload.
+    NSString *autosaveName = statusItem.autosaveName;
+    if (autosaveName) {
+        // Get the current preferred position from preferences:
+        NSString *preferredPositionString = @"NSStatusItem Preferred Position";
+        NSString *key = [NSString stringWithFormat:@"%@ %@", preferredPositionString, autosaveName];;
+        NSNumber *autosaveValue = [[NSUserDefaults standardUserDefaults] objectForKey:key];
+        
+        // Save it again under a different key so that macOS doesn't
+        // automatically delete it during a Hammerspoon reload:
+        key = [NSString stringWithFormat:@"HS%@ %@", preferredPositionString, autosaveName];;
+        [[NSUserDefaults standardUserDefaults] setObject:autosaveValue forKey:key];
+    }
+    
     // Remove any click callbackery the menubar item has
     lua_pushcfunction(L, menubarSetClickCallback);
     lua_pushvalue(L, 1);
@@ -900,7 +830,7 @@ static int menubar_delete(lua_State *L) {
 
     menuBarItem->menuBarItemObject = NULL;
     menuBarItem = nil;
-
+    
     return 0;
 }
 
@@ -1089,38 +1019,6 @@ static int menubarGetTitle(lua_State *L) {
     return 1 ;
 }
 
-/// hs.menubar:priority([priority]) -> menubaritem | current-value
-/// Method
-/// Get or set a menubar item's priority
-///
-/// Parameters:
-///  * priority - an optional integer specifying the menubar item's priority.  A menubar item's position is determined by its priority value.
-///
-/// Returns:
-///  * if a priority is provided, then the menubaritem object is returned; otherwise the current priority value is returned.
-///
-/// Notes:
-///  * Default priority levels can be found in the [hs.menubar.priorities](#priorities) table.
-///
-///  * This method uses undocumented methods in the NSStatusBar and NSStatusItem classes, which appear to have been removed in macOS 10.15 (Catalina), so this method will no longer work correctly.
-static int menubarPriority(lua_State *L) {
-    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG,
-                    LS_TNUMBER | LS_TINTEGER | LS_TOPTIONAL,
-                    LS_TBREAK] ;
-    menubaritem_t *menuBarItem     = get_item_arg(L, 1);
-
-    if (lua_gettop(L) == 2) {
-        NSStatusBar   *statusBar       = [NSStatusBar systemStatusBar];
-        [statusBar insertStatusItem:(__bridge NSStatusItem*)menuBarItem->menuBarItemObject
-                       withPriority:lua_tointeger(L, 2)] ;
-        lua_pushvalue(L, 1) ;
-    } else {
-        lua_pushinteger(L, [(__bridge NSStatusItem*)menuBarItem->menuBarItemObject priority]) ;
-    }
-    return 1 ;
-}
-
 /// hs.menubar:icon() -> hs.image object
 /// Method
 /// Returns the current icon of the menubar item object.
@@ -1198,26 +1096,6 @@ static int menubarStateImageSize(lua_State *L) {
 
 // ----------------------- Lua/hs glue GAR ---------------------
 
-/// hs.menubar.priorities[]
-/// Constant
-/// Pre-defined list of priority levels which can be used for positioning menubar items.
-///
-/// The constants defined are as follows:
-///  * default            - the default priority -- to the left of existing menubar items
-///  * system             - the default priority for Apple system menubar icons (Wifi, Bluetooth, etc.)
-///  * spotlight          - the Spotlight menubar icon priority
-///  * notificationCenter - the Notification Center icon priority
-///
-/// You are not limited to these priorities, but the behavior is undefined if you specify a priority less than 0 or greater than 2147483647 (the `notificationCenter` priority).
-static int pushPrioritiesTable(lua_State *L) {
-    lua_newtable(L) ;
-    lua_pushinteger(L, NSStatusBarItemPriorityDefault) ;            lua_setfield(L, -2, "default") ;
-    lua_pushinteger(L, NSStatusBarItemPrioritySystem) ;             lua_setfield(L, -2, "system") ;
-    lua_pushinteger(L, NSStatusBarItemPrioritySpotlight) ;          lua_setfield(L, -2, "spotlight") ;
-    lua_pushinteger(L, NSStatusBarItemPriorityNotificationCenter) ; lua_setfield(L, -2, "notificationCenter") ;
-    return 1 ;
-}
-
 /// hs.menubar.imagePositions[]
 /// Constant
 /// Pre-defined list of image positions for a menubar item
@@ -1253,7 +1131,6 @@ void menubar_setup(void) {
 }
 
 static int menubar_gc(lua_State* __unused L) {
-    // TODO: Should we keep a registry of menubar items and clean them up here? They ought to have been __gc'd by this point.
     [dynamicMenuDelegates removeAllObjects];
     dynamicMenuDelegates = nil;
     return 0;
@@ -1273,7 +1150,6 @@ static int userdata_tostring(lua_State* L) {
 
 static const luaL_Reg menubarlib[] = {
     {"new", menubarNew},
-    {"newWithPriority", menubarNewWithPriority},
 
     {NULL, NULL}
 };
@@ -1292,10 +1168,10 @@ static const luaL_Reg menubar_metalib[] = {
     {"delete",            menubar_delete},
     {"stateImageSize",    menubarStateImageSize},
     {"_frame",            menubarFrame},
-    {"priority",          menubarPriority},
     {"imagePosition",     menubarImagePosition},
     {"isInMenubar",       menubar_isInMenubar},
     {"isInMenuBar",       menubar_isInMenubar},
+    {"autosaveName",      menubar_autosaveName},
 
     {"__tostring",        userdata_tostring},
     {"__gc",              menubaritem_gc},
@@ -1308,9 +1184,6 @@ static const luaL_Reg menubar_gclib[] = {
     {NULL, NULL}
 };
 
-/* NOTE: The substring "hs_menubar_internal" in the following function's name
-         must match the require-path of this file, i.e. "hs.menubar.internal". */
-
 int luaopen_hs_libmenubar(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
 
@@ -1318,7 +1191,6 @@ int luaopen_hs_libmenubar(lua_State *L) {
 
     refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:menubarlib metaFunctions:menubar_gclib objectFunctions:menubar_metalib];
 
-    pushPrioritiesTable(L) ; lua_setfield(L, -2, "priorities") ;
     pushImagePositionsTable(L) ; lua_setfield(L, -2, "imagePositions");
 
     return 1;
