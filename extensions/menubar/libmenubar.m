@@ -465,7 +465,8 @@ static int menubarNew(lua_State *L) {
 
 /// hs.menubar:autosaveName([name]) -> menubaritem | current-value
 /// Method
-/// Get or set the autosave name of the menubar.
+/// Get or set the autosave name of the menubar. By defining an autosave name, macOS can restore
+/// the menubar position after reloads.
 ///
 /// Parameters:
 ///  * name - An optional string if you want to set the autosave name
@@ -481,7 +482,21 @@ static int menubar_autosaveName(lua_State *L) {
     NSStatusItem *menuItem = (__bridge NSStatusItem*)menuBarItem->menuBarItemObject;
     
     if (lua_gettop(L) == 2) {
-        menuItem.autosaveName = [skin toNSObjectAtIndex:2];
+        NSString *autosaveName = [skin toNSObjectAtIndex:2];
+        
+        // Get the last saved preferred position that was recorded
+        // when the menubar was deleted (i.e. during a reload).
+        NSString *preferredPositionString = @"NSStatusItem Preferred Position";
+        NSString *key = [NSString stringWithFormat:@"HS%@ %@", preferredPositionString, autosaveName];;
+        NSNumber *autosaveValue = [[NSUserDefaults standardUserDefaults] objectForKey:key];
+        
+        // Restore the last saved preferred position:
+        key = [NSString stringWithFormat:@"%@ %@", preferredPositionString, autosaveName];;
+        [[NSUserDefaults standardUserDefaults] setObject:autosaveValue forKey:key];
+        
+        // Set the autosaveName:
+        menuItem.autosaveName = autosaveName;
+    
         lua_settop(L, 1);
     } else {
         [skin pushNSObject:menuItem.autosaveName];
