@@ -465,8 +465,7 @@ static int menubarNew(lua_State *L) {
 
 /// hs.menubar:autosaveName([name]) -> menubaritem | current-value
 /// Method
-/// Get or set the autosave name of the menubar. By defining an autosave name, macOS can restore
-/// the menubar position after reloads.
+/// Get or set the autosave name of the menubar. By defining an autosave name, macOS can restore the menubar position after reloads.
 ///
 /// Parameters:
 ///  * name - An optional string if you want to set the autosave name
