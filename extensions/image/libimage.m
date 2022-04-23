@@ -775,6 +775,11 @@ static int getExifFromPath(lua_State *L) {
 
     // SOURCE: https://stackoverflow.com/a/18301470
     NSURL *imageFileURL = [NSURL fileURLWithPath:imagePath];
+    if (!imageFileURL) {
+        lua_pushnil(L);
+        return 1 ;
+    }
+    
     CGImageSourceRef imageSource = CGImageSourceCreateWithURL((CFURLRef)imageFileURL, NULL);
     NSDictionary *treeDict;
     NSDictionary *exifTree;
@@ -784,7 +789,11 @@ static int getExifFromPath(lua_State *L) {
                              nil];
 
     CFDictionaryRef imageProperties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, ( CFDictionaryRef)options);
-    CFRelease(imageSource);
+    
+    if (imageSource) {
+        CFRelease(imageSource);
+    }
+    
     if (imageProperties) {
         treeDict = [NSDictionary dictionaryWithDictionary:(NSDictionary*)CFBridgingRelease(imageProperties)];
         exifTree = [treeDict objectForKey:@"{Exif}"];
