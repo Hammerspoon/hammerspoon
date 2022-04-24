@@ -370,8 +370,11 @@ module.spacesForScreen = function(...)
 
     local screensHaveSeparateSpaces = module.screensHaveSeparateSpaces()
     if not screensHaveSeparateSpaces then
-        if screenID == screen.mainScreen():getUUID() then
-            screenID = "Main"
+        for _,v in ipairs(screen.allScreens()) do
+            if screenID == v:getUUID() then
+                screenID = "Main"
+                break
+            end
         end
     end
 
@@ -458,8 +461,11 @@ module.activeSpaceOnScreen = function(...)
 
     local screensHaveSeparateSpaces = module.screensHaveSeparateSpaces()
     if not screensHaveSeparateSpaces then
-        if screenID == screen.mainScreen():getUUID() then
-            screenID = "Main"
+        for _,v in ipairs(screen.allScreens()) do
+            if screenID == v:getUUID() then
+                screenID = "Main"
+                break
+            end
         end
     end
 
