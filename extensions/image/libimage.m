@@ -775,6 +775,11 @@ static int getExifFromPath(lua_State *L) {
 
     // SOURCE: https://stackoverflow.com/a/18301470
     NSURL *imageFileURL = [NSURL fileURLWithPath:imagePath];
+    if (!imageFileURL) {
+        lua_pushnil(L);
+        return 1 ;
+    }
+    
     CGImageSourceRef imageSource = CGImageSourceCreateWithURL((CFURLRef)imageFileURL, NULL);
     NSDictionary *treeDict;
     NSDictionary *exifTree;
@@ -784,7 +789,11 @@ static int getExifFromPath(lua_State *L) {
                              nil];
 
     CFDictionaryRef imageProperties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, ( CFDictionaryRef)options);
-    CFRelease(imageSource);
+    
+    if (imageSource) {
+        CFRelease(imageSource);
+    }
+    
     if (imageProperties) {
         treeDict = [NSDictionary dictionaryWithDictionary:(NSDictionary*)CFBridgingRelease(imageProperties)];
         exifTree = [treeDict objectForKey:@"{Exif}"];
@@ -1304,7 +1313,7 @@ static int getImageSize(lua_State* L) {
 ///  * A `hs.drawing.color` object
 static int colorAt(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBREAK] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBREAK];
 
     NSImage *theImage = [skin luaObjectAtIndex:1 toClass:"NSImage"] ;
     NSPoint point  = [skin tableToPointAtIndex:2] ;
@@ -1313,9 +1322,13 @@ static int colorAt(lua_State* L) {
     @autoreleasepool {
         CGImageRef CGImage = [theImage CGImageForProposedRect:nil context:nil hints:nil];
         NSBitmapImageRep *rep = [[NSBitmapImageRep alloc] initWithCGImage:CGImage];
-        pixelColor = [rep colorAtX:point.x y:point.y];
+        NSSize imageSize = [theImage size];
+        NSSize bitmapSize = [rep size];
+        CGFloat xScale = bitmapSize.width / imageSize.width;
+        CGFloat yScale = bitmapSize.height / imageSize.height;
+        pixelColor = [rep colorAtX:(point.x * xScale) y:(point.y * yScale)];
     }
-
+    
     [skin pushNSObject:pixelColor];
 
     return 1;

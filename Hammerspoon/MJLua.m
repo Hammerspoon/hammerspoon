@@ -1110,19 +1110,10 @@ NSString* MJLuaRunString(NSString* command) {
     }
 
     size_t len;
-    const char* s = lua_tolstring(L, -1, &len);
+    const unsigned char* s = (const unsigned char *)lua_tolstring(L, -1, &len);
     NSString* str = [[NSString alloc] initWithData:[NSData dataWithBytes:s length:len] encoding:NSUTF8StringEncoding];
     if (str == nil) {
-      lua_pushcfunction(L, core_cleanUTF8) ;
-      lua_pushvalue(L, -2) ;
-      if (lua_pcall(L, 1, 1, 0) == LUA_OK) {
-          s = lua_tolstring(L, -1, &len);
-          str = [[NSString alloc] initWithData:[NSData dataWithBytes:s length:len] encoding:NSUTF8StringEncoding];
-          lua_pop(L, 1) ;
-      } else {
-          str = [[NSString alloc] initWithFormat:@"-- unable to clean for utf8 output: %s", lua_tostring(L, -1)] ;
-          lua_pop(L, 1) ;
-      }
+        str = [skin getValidUTF8:s ofLength:len];
     }
     lua_pop(L, 1);
 

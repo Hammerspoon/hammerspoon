@@ -759,7 +759,7 @@ static int audiodevice_setOutputMuted(lua_State* L) {
 ///  * True if the device's mutedness state was set, or False if it does not support muting
 ///
 /// Notes:
-///  * If a device is capable of both input and output, this method will prefer the output. See `:inputSetMuted()` and `:outputSetMuted()` for specific variants.
+///  * If a device is capable of both input and output, this method will prefer the output. See `:setInputMuted()` and `:setOutputMuted()` for specific variants.
 static int audiodevice_setmuted(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN, LS_TBREAK];
