@@ -191,7 +191,7 @@ module.watts = function()
     local amperage          = appleSmartBattery.Amperage
 
     if amperage and voltage then
-        return (amperage / voltage) / 1000000
+        return (amperage * voltage) / 1000000
     else
         return nil
     end
