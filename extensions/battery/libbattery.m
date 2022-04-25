@@ -1,10 +1,7 @@
-#import <Cocoa/Cocoa.h>
-#import <LuaSkin/LuaSkin.h>
-// #import <Carbon/Carbon.h>
-#import <IOKit/ps/IOPowerSources.h>
-#import <IOKit/ps/IOPSKeys.h>
-#import <IOKit/pwr_mgt/IOPM.h>
-#import <IOKit/pwr_mgt/IOPMLib.h>
+@import Cocoa ;
+@import LuaSkin ;
+@import IOKit.ps ;
+@import IOKit.pwr_mgt ;
 
 @import IOBluetooth;
 
@@ -33,276 +30,6 @@
 @property(nonatomic) unsigned char primaryInEar;
 @end
 
-// Helper functions to yank an object from a dictionary by key, and push it onto the LUA stack.
-// May be switched to use global NSObject_to_lua, if it ever actually lands in Hammerspoon
-// core; but since we're only needing a string, number, or boolean, and only at the top-level
-// of the dictionary object, this highly simplified version works just as well.
-static void NSObject_to_lua(lua_State* L, id obj) {
-    if (obj == nil || [obj isEqual: [NSNull null]]) { lua_pushnil(L); }
-    else if ([obj isKindOfClass: [NSNumber class]]) {
-        NSNumber* number = obj;
-        if (number == (id)kCFBooleanTrue)
-            lua_pushboolean(L, YES);
-        else if (number == (id)kCFBooleanFalse)
-            lua_pushboolean(L, NO);
-        else if (CFNumberIsFloatType((CFNumberRef)number))
-            lua_pushnumber(L, [number doubleValue]);
-        else
-            lua_pushinteger(L, [number intValue]);
-    } else if ([obj isKindOfClass: [NSString class]]) {
-        NSString* string = obj;
-        lua_pushstring(L, [string UTF8String]);
-    } else {
-        lua_pushstring(L, [[NSString stringWithFormat:@"<Object> : %@", obj] UTF8String]) ;
-    }
-}
-
-static int _push_dict_key_value(lua_State* L, NSDictionary* dict, NSString* key) {
-    id value = [dict objectForKey:key];
-    NSObject_to_lua(L, value);
-    return 1;
-}
-
-// Gets battery info from IOPM API.
-NSDictionary* get_iopm_battery_info(void) {
-    mach_port_t masterPort;
-    CFArrayRef batteryInfo;
-
-    if (kIOReturnSuccess == IOMasterPort(MACH_PORT_NULL, &masterPort) &&
-        kIOReturnSuccess == IOPMCopyBatteryInfo(masterPort, &batteryInfo) &&
-        CFArrayGetCount(batteryInfo))
-    {
-        CFDictionaryRef battery = CFDictionaryCreateCopy(NULL, CFArrayGetValueAtIndex(batteryInfo, 0));
-        CFRelease(batteryInfo);
-        return (__bridge_transfer NSDictionary*) battery;
-    }
-    return NULL;
-}
-
-// Get battery info from IOPS API.
-NSDictionary* get_iops_battery_info(void) {
-    CFTypeRef info = IOPSCopyPowerSourcesInfo();
-
-    if (info == NULL)
-        return NULL;
-
-
-    CFArrayRef list = IOPSCopyPowerSourcesList(info);
-
-    // Nothing we care about here...
-    if (list == NULL || !CFArrayGetCount(list)) {
-        if (list)
-            CFRelease(list);
-
-        CFRelease(info);
-        return NULL;
-    }
-
-    CFDictionaryRef battery = CFDictionaryCreateCopy(NULL, IOPSGetPowerSourceDescription(info, CFArrayGetValueAtIndex(list, 0)));
-
-    // Battery is released by ARC transfer.
-    CFRelease(list);
-    CFRelease(info);
-
-    return (__bridge_transfer NSDictionary* ) battery;
-}
-
-// Get battery info from IOPMPS Apple Smart Battery API.
-NSDictionary* get_iopmps_battery_info(void) {
-    io_registry_entry_t entry = 0;
-    entry = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceNameMatching("AppleSmartBattery"));
-    if (entry == IO_OBJECT_NULL)
-        return nil;
-
-    CFMutableDictionaryRef battery;
-    IORegistryEntryCreateCFProperties(entry, &battery, NULL, 0);
-    return (__bridge_transfer NSDictionary *) battery;
-}
-
-/// hs.battery.cycles() -> number
-/// Function
-/// Returns the number of discharge cycles of the battery
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * The number of cycles
-///
-/// Notes:
-///  * One cycle is a full discharge of the battery, followed by a full charge. This may also be an aggregate of many smaller discharge-then-charge cycles (e.g. 10 iterations of discharging the battery from 100% to 90% and then charging back to 100% each time, is considered to be one cycle)
-static int battery_cycles(lua_State *L) {
-    return _push_dict_key_value(L, get_iopm_battery_info(), @kIOBatteryCycleCountKey);
-}
-
-/// hs.battery.name() -> string
-/// Function
-/// Returns the name of the battery
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * A string containing the name of the battery
-static int battery_name(lua_State *L) {
-    return _push_dict_key_value(L, get_iops_battery_info(), @kIOPSNameKey);
-}
-
-/// hs.battery.maxCapacity() -> number
-/// Function
-/// Returns the maximum capacity of the battery in mAh
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * A number containing the observed maximum capacity of the battery in mAh
-///
-/// Notes:
-///  * This may exceed the value of `hs.battery.designCapacity()` due to small variations in the production chemistry vs the design
-static int battery_maxcapacity(lua_State *L) {
-    return _push_dict_key_value(L, get_iopm_battery_info(), @kIOBatteryCapacityKey);
-}
-
-/// hs.battery.capacity() -> number
-/// Function
-/// Returns the current capacity of the battery in mAh
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * A number containing the current capacity of the battery in mAh
-///
-/// Notes:
-///  * This is the measure of how charged the battery is, vs the value of `hs.battery.maxCapacity()`
-static int battery_capacity(lua_State *L) {
-    return _push_dict_key_value(L, get_iopm_battery_info(), @kIOBatteryCurrentChargeKey);
-}
-
-/// hs.battery.designCapacity() -> number
-/// Function
-/// Returns the design capacity of the battery in mAh.
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * A number containing the rated maximum capacity of the battery
-static int battery_designcapacity(lua_State *L) {
-    return _push_dict_key_value(L, get_iopmps_battery_info(), @kIOPMPSDesignCapacityKey);
-}
-
-/// hs.battery.voltage() -> number
-/// Function
-/// Returns the current voltage of the battery in mV
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * A number containing the current voltage of the battery
-static int battery_voltage(lua_State *L) {
-    return _push_dict_key_value(L, get_iopm_battery_info(), @kIOBatteryVoltageKey);
-}
-
-/// hs.battery.amperage() -> number
-/// Function
-/// Returns the amount of current flowing through the battery, in mAh
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * A number containing the amount of current flowing through the battery. The value may be:
-///   * Less than zero if the battery is being discharged (i.e. the computer is running on battery power)
-///   * Zero if the battery is being neither charged nor discharged
-///   * Greater than zero if the battery is being charged
-static int battery_amperage(lua_State *L) {
-    return _push_dict_key_value(L, get_iopm_battery_info(), @kIOBatteryAmperageKey);
-}
-
-/// hs.battery.watts() -> number
-/// Function
-/// Returns the power entering or leaving the battery, in W
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * A number containing the rate of energy conversion in the battery. The value may be:
-///   * Less than zero if the battery is being discharged (i.e. the computer is running on battery power)
-///   * Zero if the battery is being neither charged nor discharged
-///   * Greater than zero if the battery is being charged
-static int battery_watts(lua_State *L) {
-    NSDictionary* battery = get_iopm_battery_info();
-
-    NSNumber *amperage = [battery objectForKey:@kIOBatteryVoltageKey];
-    NSNumber *voltage = [battery objectForKey:@kIOBatteryAmperageKey];
-
-    if (amperage && voltage) {
-        double battery_wattage = ([amperage doubleValue] * [voltage doubleValue]) / 1000000;
-        lua_pushnumber(L, battery_wattage);
-    } else
-        lua_pushnil(L);
-
-    return 1;
-}
-
-/// hs.battery.health() -> string
-/// Function
-/// Returns the health status of the battery.
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * A string containing one of {Good, Fair, Poor}, as determined by the Apple Smart Battery controller
-static int battery_health(lua_State *L) {
-    return _push_dict_key_value(L, get_iops_battery_info(), @kIOPSBatteryHealthKey);
-}
-
-/// hs.battery.healthCondition() -> string or nil
-/// Function
-/// Returns the health condition status of the battery.
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * Nil if there are no health conditions to report, or a string containing either:
-///   * "Check Battery"
-///   * "Permanent Battery Failure"
-static int battery_healthcondition(lua_State *L) {
-    return _push_dict_key_value(L, get_iops_battery_info(), @kIOPSBatteryHealthConditionKey);
-}
-
-/// hs.battery.percentage() -> number
-/// Function
-/// Returns the current percentage of battery charge
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * A number containing the percentage of battery charge
-static int battery_percentage(lua_State *L) {
-    NSDictionary* battery = get_iops_battery_info();
-
-    // IOPS Gives the proper percentage reading, that the OS displays...
-    // IOPM... oddly enough... is a few percentage points off.
-    NSNumber *maxCapacity = [battery objectForKey:@kIOPSMaxCapacityKey];
-    NSNumber *currentCapacity = [battery objectForKey:@kIOPSCurrentCapacityKey];
-
-    if (maxCapacity && currentCapacity) {
-        double battery_percentage = ([currentCapacity doubleValue] / [maxCapacity doubleValue]) * 100;
-        lua_pushnumber(L, battery_percentage);
-    } else
-        lua_pushnil(L);
-
-    return 1;
-}
-
 /// hs.battery.timeRemaining() -> number
 /// Function
 /// Returns the battery life remaining, in minutes
@@ -325,126 +52,59 @@ static int battery_timeremaining(lua_State* L) {
     return 1;
 }
 
-/// hs.battery.timeToFullCharge() -> number
-/// Function
-/// Returns the time remaining for the battery to be fully charged, in minutes
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * A number containing the time (in minutes) remaining for the battery to be fully charged, or -1 if the remaining time is still being calculated
-static int battery_timetofullcharge(lua_State* L) {
-    return _push_dict_key_value(L, get_iops_battery_info(), @kIOPSTimeToFullChargeKey);
-}
-
-/// hs.battery.isCharging() -> boolean
-/// Function
-/// Returns the charging state of the battery
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * True if the battery is being charged, false if not
-static int battery_ischarging(lua_State* L) {
-    return _push_dict_key_value(L, get_iops_battery_info(), @kIOPSIsChargingKey);
-}
-
-/// hs.battery.isCharged() -> boolean
-/// Function
-/// Returns the charged state of the battery
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * True if the battery is charged, false if not
-static int battery_ischarged(lua_State* L) {
-    return _push_dict_key_value(L, get_iops_battery_info(), @kIOPSIsChargedKey);
-}
-
-/// hs.battery.isFinishingCharge() -> boolean or string
-/// Function
-/// Returns true if battery is finishing its charge
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * True if the battery is in its final charging state (i.e. trickle charging), false if not, or "n/a" if the battery is not charging at all
-static int battery_isfinishingcharge(lua_State* L) {
-    return _push_dict_key_value(L, get_iops_battery_info(), @kIOPSIsFinishingChargeKey);
-}
-
 /// hs.battery.powerSource() -> string
 /// Function
-/// Returns current source of power
+/// Returns the current source providing power
 ///
 /// Parameters:
 ///  * None
 ///
 /// Returns:
-///  * A string containing one of {AC Power, Battery Power, Off Line}.
-static int battery_powersource(lua_State* L) {
-    return _push_dict_key_value(L, get_iops_battery_info(), @kIOPSPowerSourceStateKey);
+///  * A string containing one of {AC Power, Battery Power, UPS Power}.
+static int battery_powerSource(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+    [skin checkArgs:LS_TBREAK] ;
+
+    CFTypeRef sourcesBlob = IOPSCopyPowerSourcesInfo() ;
+    if (sourcesBlob) {
+        [skin pushNSObject:(__bridge NSString *)IOPSGetProvidingPowerSourceType(sourcesBlob)] ;
+        CFRelease(sourcesBlob) ;
+        return 1 ;
+    } else {
+        lua_pushnil(L) ;
+        lua_pushstring(L, "error retrieving power sources info") ;
+        return 2 ;
+    }
 }
 
-/// hs.battery.psuSerial() -> integer
+/// hs.battery.warningLevel() -> string
 /// Function
-/// Returns the serial number of the attached power supply, if present
+/// Returns a string specifying the current battery warning state.
 ///
 /// Parameters:
 ///  * None
 ///
 /// Returns:
-///  * An integer containing the power supply's serial number, or 0 if no serial can be found
-static int battery_psuSerial(lua_State* L) {
-    int serial = 0;
-
-    CFDictionaryRef psuInfo = IOPSCopyExternalPowerAdapterDetails();
-    if (psuInfo) {
-        NSNumber *serialNumber = (__bridge NSNumber *)CFDictionaryGetValue(psuInfo, CFSTR(kIOPSPowerAdapterSerialNumberKey));
-        if (serialNumber) {
-            serial = [serialNumber intValue];
-        }
-        CFRelease(psuInfo);
-    }
-
-    lua_pushinteger(L, serial);
-    return 1;
-}
-
-/// hs.battery.psuSerialString() -> string
-/// Function
-/// Returns the serial string of the attached power supply, if present
+///  * a string specifying the current warning level state. The string will be one of "none", "low", or "critical".
 ///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * A string containing the power supply's serial, or an empty string if no serial can be found
-// This uses a private API definition
-#ifndef kIOPSPowerAdapterSerialStringKey
-#define kIOPSPowerAdapterSerialStringKey    "SerialString"
-#endif
-static int battery_psuSerialString(lua_State* L) {
-    LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin checkArgs:LS_TBREAK];
+/// Notes:
+///  * The meaning of the return strings is as follows:
+///    * "none" - indicates that the system is not in a low battery situation, or is currently attached to an AC power source.
+///    * "low"  - the system is in a low battery situation and can provide no more than 20 minutes of runtime. Note that this is a guess only; 20 minutes cannot be guaranteed and will be greatly influenced by what the computer is doing at the time, how many applications are running, screen brightness, etc.
+///    * "critical" - the system is in a very low battery situation and can provide no more than 10 minutes of runtime. Note that this is a guess only; 10 minutes cannot be guaranteed and will be greatly influenced by what the computer is doing at the time, how many applications are running, screen brightness, etc.
+static int battery_batteryWarningLevel(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+    [skin checkArgs:LS_TBREAK] ;
 
-    NSString *serial = @"";
-
-    CFDictionaryRef psuInfo = IOPSCopyExternalPowerAdapterDetails();
-    if (psuInfo) {
-        NSString *serialString = (__bridge NSString *)CFDictionaryGetValue(psuInfo, CFSTR(kIOPSPowerAdapterSerialStringKey));
-        if (serialString) {
-            serial = serialString;
-        }
-        CFRelease(psuInfo);
+    IOPSLowBatteryWarningLevel level = IOPSGetBatteryWarningLevel() ;
+    switch(level) {
+        case kIOPSLowBatteryWarningNone:  lua_pushstring(L, "none")     ; break ;
+        case kIOPSLowBatteryWarningEarly: lua_pushstring(L, "low")      ; break ;
+        case kIOPSLowBatteryWarningFinal: lua_pushstring(L, "critical") ; break ;
+        default:
+            lua_pushfstring(L, "** unrecognized warning level: %d", level) ;
     }
-
-    [skin pushNSObject:serial];
-    return 1;
+    return 1 ;
 }
 
 /// hs.battery.otherBatteryInfo() -> table
@@ -588,28 +248,107 @@ static int battery_private(lua_State *L) {
     return 1;
 }
 
+static int battery_externalAdapterDetails(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+    [skin checkArgs:LS_TBREAK] ;
+
+    CFDictionaryRef psuInfo = IOPSCopyExternalPowerAdapterDetails();
+    if (psuInfo) {
+        [skin pushNSObject:(__bridge_transfer NSArray *)psuInfo withOptions:LS_NSDescribeUnknownTypes] ;
+    } else {
+        lua_pushnil(L) ;
+    }
+    return 1 ;
+}
+
+static int battery_powerSources(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+    [skin checkArgs:LS_TBREAK] ;
+
+    CFTypeRef sourcesBlob = IOPSCopyPowerSourcesInfo() ;
+    if (sourcesBlob) {
+        CFArrayRef sourcesList = IOPSCopyPowerSourcesList(sourcesBlob) ;
+        if (sourcesList) {
+            lua_newtable(L) ;
+            for (CFIndex i = 0 ; i < CFArrayGetCount(sourcesList) ; i++) {
+                CFDictionaryRef powerSource = IOPSGetPowerSourceDescription(sourcesBlob, CFArrayGetValueAtIndex(sourcesList, i)) ;
+                if (powerSource) {
+                    [skin pushNSObject:(__bridge NSDictionary *)powerSource withOptions:LS_NSDescribeUnknownTypes] ;
+                } else {
+                    [skin pushNSObject:[NSString stringWithFormat:@"unable to get description of power source %ld", i + 1]] ;
+                }
+                lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+            }
+            CFRelease(sourcesList) ;
+            CFRelease(sourcesBlob) ;
+            return 1 ;
+        } else {
+            CFRelease(sourcesBlob) ;
+            lua_pushnil(L) ;
+            lua_pushstring(L, "error retrieving power sources list") ;
+            return 2 ;
+        }
+    } else {
+        lua_pushnil(L) ;
+        lua_pushstring(L, "error retrieving power sources info") ;
+        return 2 ;
+    }
+}
+
+static int battery_appleSmartBattery(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+    [skin checkArgs:LS_TBREAK] ;
+
+    io_service_t entry = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceNameMatching("AppleSmartBattery")) ;
+    if (entry) {
+        CFMutableDictionaryRef battery ;
+        IORegistryEntryCreateCFProperties(entry, &battery, NULL, 0) ;
+        [skin pushNSObject:(__bridge_transfer NSDictionary *)battery withOptions:LS_NSDescribeUnknownTypes] ;
+        IOObjectRelease(entry) ;
+        return 1 ;
+    } else {
+        lua_pushnil(L) ;
+        lua_pushstring(L, "unable to retrieve AppleSmartBattery IOService") ;
+        return 2 ;
+    }
+}
+
+static int battery_iopmBatteryInfo(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+    [skin checkArgs:LS_TBREAK] ;
+
+    mach_port_t masterPort;
+    CFArrayRef batteryInfo;
+
+    if (kIOReturnSuccess == IOMasterPort(MACH_PORT_NULL, &masterPort)) {
+        if (kIOReturnSuccess == IOPMCopyBatteryInfo(masterPort, &batteryInfo)) {
+            [skin pushNSObject:(__bridge_transfer NSArray *)batteryInfo] ;
+            return 1 ;
+        } else {
+            if (batteryInfo) CFRelease(batteryInfo) ;
+            lua_pushnil(L) ;
+            lua_pushstring(L, "unable to get IOPM Battery Info") ;
+            return 2 ;
+        }
+    } else {
+        lua_pushnil(L) ;
+        lua_pushstring(L, "unable to get IO Master Port") ;
+        return 2 ;
+    }
+}
+
 static const luaL_Reg battery_lib[] = {
-    {"cycles", battery_cycles},
-    {"name", battery_name},
-    {"maxCapacity", battery_maxcapacity},
-    {"capacity", battery_capacity},
-    {"designCapacity", battery_designcapacity},
-    {"percentage", battery_percentage},
-    {"voltage", battery_voltage},
-    {"amperage", battery_amperage},
-    {"watts", battery_watts},
-    {"health", battery_health},
-    {"healthCondition", battery_healthcondition},
-    {"timeRemaining", battery_timeremaining},
-    {"timeToFullCharge", battery_timetofullcharge},
-    {"isCharging", battery_ischarging},
-    {"isCharged", battery_ischarged},
-    {"isFinishingCharge", battery_isfinishingcharge},
-    {"powerSource", battery_powersource},
-    {"psuSerial", battery_psuSerial},
-    {"psuSerialString", battery_psuSerialString},
-    {"otherBatteryInfo", battery_others},
+    {"timeRemaining",               battery_timeremaining},
+    {"powerSource",                 battery_powerSource},
+    {"otherBatteryInfo",            battery_others},
     {"privateBluetoothBatteryInfo", battery_private},
+    {"warningLevel",                battery_batteryWarningLevel},
+
+    {"_adapterDetails",             battery_externalAdapterDetails},
+    {"_powerSources",               battery_powerSources},
+    {"_appleSmartBattery",          battery_appleSmartBattery},
+    {"_iopmBatteryInfo",            battery_iopmBatteryInfo},
+
     {NULL, NULL}
 };
 
