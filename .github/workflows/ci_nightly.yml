@@ -115,7 +115,7 @@ jobs:
 
 
       - name: IRC notification
-        uses: Gottox/irc-message-action@main
+        uses: Gottox/irc-message-action@v2.1.2
         with:
           channel: '#hammerspoon'
           nickname: 'HS_CI_DevBuild'
