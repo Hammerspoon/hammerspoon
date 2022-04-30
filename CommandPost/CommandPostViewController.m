@@ -98,7 +98,9 @@
 
 - (void)socket:(GCDAsyncSocket *)sock didAcceptNewSocket:(GCDAsyncSocket *)newSocket
 {
-    // This method is executed on the socketQueue (not the main thread)
+    //
+    // NOTE: This method is executed on the socketQueue (not the main thread)
+    //
     
     @synchronized(connectedSockets)
     {
@@ -123,7 +125,9 @@
 
 - (void)socket:(GCDAsyncSocket *)sock didWriteDataWithTag:(long)tag
 {
-    // This method is executed on the socketQueue (not the main thread)
+    //
+    // NOTE: This method is executed on the socketQueue (not the main thread)
+    //
         
     dispatch_async(dispatch_get_main_queue(), ^{
         @autoreleasepool {
@@ -136,66 +140,74 @@
 
 - (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
 {
-    // This method is executed on the socketQueue (not the main thread)
+    //
+    // NOTE: This method is executed on the socketQueue (not the main thread)
+    //
     
     dispatch_async(dispatch_get_main_queue(), ^{
         @autoreleasepool {
-            NSData *strData = [data subdataWithRange:NSMakeRange(0, [data length] - 2)];
-            NSString *message = [[NSString alloc] initWithData:strData encoding:NSUTF8StringEncoding];
-            if (message) {
-                [self addDebugMessage:[NSString stringWithFormat:@"didReadData: %@", message]];
-                
-                NSArray *messageArray = [message componentsSeparatedByString:@" "];
-                
-                NSString *command = [messageArray objectAtIndex:0];
-                NSString *value = [messageArray objectAtIndex:1];
-                
-                [self addDebugMessage:[NSString stringWithFormat:@"didReadData - command: %@", command]];
-                [self addDebugMessage:[NSString stringWithFormat:@"didReadData - value: %@", value]];
-        
-                if (!command) {
-                    [self addDebugMessage:@"didReadData - no valid command"];
-                    return;
-                }
-        
-                if (command && [command isEqualToString:@"PING"]) {
-                    //
-                    // PING
-                    //
-                    NSString *pong = @"PONG\r\n";
-                    NSData *pongData = [pong dataUsingEncoding:NSUTF8StringEncoding];
-                    [sock writeData:pongData withTimeout:-1 tag:0];
-                } else if ([command isEqualToString:@"INCR"]) {
-                    //
-                    // INCR f         - where f is number of frames
-                    //
-                    [self addDebugMessage:[NSString stringWithFormat:@"INCR REQUESTED: %@", value]];
-                    
-                    NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
-                    formatter.numberStyle = NSNumberFormatterDecimalStyle;
-                    NSNumber *frames = [formatter numberFromString:value];
-                    
-                    [self shiftTimelineInFrames:frames];
-                    
-                } else if ([command isEqualToString:@"DECR"]) {
-                    //
-                    // DECR f         - where f is number of frames
-                    //
-                    [self addDebugMessage:[NSString stringWithFormat:@"DECR REQUESTED: %@", value]];
-                } else if ([command isEqualToString:@"GOTO"]) {
-                    //
-                    // GOTO s         - where s is number of seconds
-                    //
-                    [self addDebugMessage:[NSString stringWithFormat:@"GOTO REQUESTED: %@", value]];
-                } else {
-                    [self addDebugMessage:@"didReadData - Unknown command"];
-                }
-            }
-            else
-            {
+            NSString *message = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+            if (!message) {
                 [self addDebugMessage:@"didReadData - Error converting received data into UTF-8 String"];
+                return;
             }
-        
+            
+            NSString *command = [message substringToIndex:4];;
+            if (!command) {
+                [self addDebugMessage:@"didReadData - Invalid command"];
+                return;
+            }
+            
+            [self addDebugMessage:[NSString stringWithFormat:@"didReadData message: %@", message]];
+            [self addDebugMessage:[NSString stringWithFormat:@"didReadData command: %@", message]];
+            
+            //
+            // Process Commands:
+            //
+            if ([command isEqualToString:@"PING"]) {
+                //
+                // PING
+                //
+                NSString *pong = @"PONG\r\n";
+                NSData *pongData = [pong dataUsingEncoding:NSUTF8StringEncoding];
+                [sock writeData:pongData withTimeout:-1 tag:0];
+            } else if ([command isEqualToString:@"INCR"]) {
+                //
+                // INCR f         - where f is number of frames
+                // 012345
+                
+                NSRange valueRange = NSMakeRange(5, [message length]);
+                NSString *value = [message substringWithRange:valueRange];
+                
+                [self addDebugMessage:[NSString stringWithFormat:@"INCR REQUESTED: %@", value]];
+                
+                NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
+                formatter.numberStyle = NSNumberFormatterDecimalStyle;
+                NSNumber *frames = [formatter numberFromString:value];
+                
+                [self shiftTimelineInFrames:frames];
+                
+            } else if ([command isEqualToString:@"DECR"]) {
+                //
+                // DECR f         - where f is number of frames
+                //
+                
+                NSRange valueRange = NSMakeRange(5, [message length]);
+                NSString *value = [message substringWithRange:valueRange];
+                
+                [self addDebugMessage:[NSString stringWithFormat:@"DECR REQUESTED: %@", value]];
+            } else if ([command isEqualToString:@"GOTO"]) {
+                //
+                // GOTO s         - where s is number of seconds
+                //
+                
+                NSRange valueRange = NSMakeRange(5, [message length]);
+                NSString *value = [message substringWithRange:valueRange];
+                
+                [self addDebugMessage:[NSString stringWithFormat:@"GOTO REQUESTED: %@", value]];
+            } else {
+                [self addDebugMessage:@"didReadData - Unknown command"];
+            }
         }
     });
 }
@@ -470,7 +482,14 @@
 //
 - (void)addDebugMessage:(NSString*) message {
     if (self && message) {
-        [self.debugTextBox.documentView insertText:[NSString stringWithFormat:@"%@\n", message]];
+        //
+        // Make sure we're running on the main thread:
+        //
+        dispatch_async(dispatch_get_main_queue(), ^{
+            @autoreleasepool {
+                [self.debugTextBox.documentView insertText:[NSString stringWithFormat:@"%@\n", message]];
+            }
+        });
     }
 }
 
