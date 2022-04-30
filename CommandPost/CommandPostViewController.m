@@ -81,15 +81,13 @@
 
 - (void)sendSocketMessage:(NSString*) message
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        @autoreleasepool {
-            [self addDebugMessage:[NSString stringWithFormat:@"sendSocketMessage: %@", message]];
-        }
-    });
+    // Add Debug Message:
+    [self addDebugMessage:[NSString stringWithFormat:@"sendSocketMessage: %@", message]];
     
     // Add in the correct ending:
     NSString *newMessage = [NSString stringWithFormat:@"%@\r\n", message];
     
+    // Send the message to all connected sockets:
     NSData *data = [newMessage dataUsingEncoding:NSUTF8StringEncoding];
     for (id socket in connectedSockets) {
         [socket writeData:data withTimeout:-1 tag:99];
@@ -102,19 +100,18 @@
     // NOTE: This method is executed on the socketQueue (not the main thread)
     //
     
+    // Add the new socket to connected sockets:
     @synchronized(connectedSockets)
     {
         [connectedSockets addObject:newSocket];
     }
     
+    // Get host name and port name from new socket:
     NSString *host = [newSocket connectedHost];
     UInt16 port = [newSocket connectedPort];
     
-    dispatch_async(dispatch_get_main_queue(), ^{
-        @autoreleasepool {
-            [self addDebugMessage:[NSString stringWithFormat:@"Accepted client %@:%hu", host, port]];
-        }
-    });
+    // Add Debug Message:
+    [self addDebugMessage:[NSString stringWithFormat:@"Accepted client %@:%hu", host, port]];
     
     // Send the success command:
     [self sendSocketMessage:@"DONE"];
@@ -129,12 +126,10 @@
     // NOTE: This method is executed on the socketQueue (not the main thread)
     //
         
-    dispatch_async(dispatch_get_main_queue(), ^{
-        @autoreleasepool {
-            [self addDebugMessage:[NSString stringWithFormat:@"didWriteDataWithTag: %ld", tag]];
-        }
-    });
+    // Add Debug Message:
+    [self addDebugMessage:[NSString stringWithFormat:@"didWriteDataWithTag: %ld", tag]];
     
+    // Read the data:
     [sock readDataToData:[GCDAsyncSocket CRLFData] withTimeout:-1 tag:0];
 }
 
@@ -216,12 +211,10 @@
 {
     if (sock != listenSocket)
     {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            @autoreleasepool {
-                [self addDebugMessage:@"socketDidDisconnect"];
-            }
-        });
-        
+        // Add Debug Message:
+        [self addDebugMessage:@"socketDidDisconnect"];
+
+        // Remove the disconnected socket from connected sockets:
         @synchronized(connectedSockets)
         {
             [connectedSockets removeObject:sock];
