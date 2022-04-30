@@ -10,6 +10,13 @@
 		<string>com.apple.FinalCut.WorkflowExtension</string>
 		<key>ProExtensionPrincipalViewControllerClass</key>
 		<string>CommandPostViewController</string>
+		<key>ProExtensionAttributes</key>
+		<dict>
+			<key>ContentViewMinimumWidth</key>
+			<integer>0</integer>
+			<key>ContentViewMinimumHeight</key>
+			<integer>0</integer>
+		</dict>
 	</dict>
 </dict>
 </plist>
