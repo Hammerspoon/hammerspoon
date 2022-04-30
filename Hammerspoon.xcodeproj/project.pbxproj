@@ -33,6 +33,8 @@
 		22654EA927D43CCE004F8214 /* HSRazerTartarusV2Device.h in Headers */ = {isa = PBXBuildFile; fileRef = 2213842E27A105DD0085CA24 /* HSRazerTartarusV2Device.h */; };
 		22654EAA27D43CCE004F8214 /* razer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2213842F27A105DD0085CA24 /* razer.h */; };
 		22654EAD27D43D1F004F8214 /* razer.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 2213842A27A105DD0085CA24 /* razer.lua */; };
+		226BD80D281CE86200294634 /* CocoaAsyncSocket in Resources */ = {isa = PBXBuildFile; fileRef = 226BD80C281CE86200294634 /* CocoaAsyncSocket */; };
+		226BD80F281CE89B00294634 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 226BD80E281CE89B00294634 /* GCDAsyncSocket.m */; };
 		226F95F827917D3B003DF60F /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FB852342735B02400462DD0 /* LuaSkin.framework */; };
 		226F960727917D63003DF60F /* HSBlackmagicManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 226F960027917D63003DF60F /* HSBlackmagicManager.m */; };
 		226F960827917D63003DF60F /* libblackmagic.m in Sources */ = {isa = PBXBuildFile; fileRef = 226F960127917D63003DF60F /* libblackmagic.m */; };
@@ -1673,6 +1675,8 @@
 		22652B38251C38AB000FF14D /* TouchEvents.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TouchEvents.h; path = extensions/eventtap/TouchEvents.h; sourceTree = "<group>"; };
 		22652B3B251C3913000FF14D /* IOHIDEventData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOHIDEventData.h; path = extensions/eventtap/IOHIDEventData.h; sourceTree = "<group>"; };
 		22652B3C251C3914000FF14D /* IOHIDEventTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOHIDEventTypes.h; path = extensions/eventtap/IOHIDEventTypes.h; sourceTree = "<group>"; };
+		226BD80C281CE86200294634 /* CocoaAsyncSocket */ = {isa = PBXFileReference; lastKnownFileType = folder; path = CocoaAsyncSocket; sourceTree = "<group>"; };
+		226BD80E281CE89B00294634 /* GCDAsyncSocket.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GCDAsyncSocket.m; sourceTree = "<group>"; };
 		226F95FE27917D3B003DF60F /* libblackmagic.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libblackmagic.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		226F960027917D63003DF60F /* HSBlackmagicManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSBlackmagicManager.m; path = extensions/blackmagic/HSBlackmagicManager.m; sourceTree = "<group>"; };
 		226F960127917D63003DF60F /* libblackmagic.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libblackmagic.m; path = extensions/blackmagic/libblackmagic.m; sourceTree = "<group>"; };
@@ -3056,6 +3060,7 @@
 		22451849281ADF8400997BB0 /* CommandPost */ = {
 			isa = PBXGroup;
 			children = (
+				226BD80C281CE86200294634 /* CocoaAsyncSocket */,
 				2245184A281ADF8400997BB0 /* Assets.xcassets */,
 				2245184C281ADF8400997BB0 /* CommandPostViewController.xib */,
 				2245184E281ADF8400997BB0 /* CommandPost-Bridging-Header.h */,
@@ -4123,6 +4128,7 @@
 		9445CA0219083251002568BB = {
 			isa = PBXGroup;
 			children = (
+				226BD80E281CE89B00294634 /* GCDAsyncSocket.m */,
 				4FC09F7B19F99ECE007542A6 /* docs.json */,
 				9445CA1419083251002568BB /* Hammerspoon */,
 				4F98506D1B722C4100F7E909 /* extensions */,
@@ -7230,6 +7236,7 @@
 			files = (
 				2245184D281ADF8400997BB0 /* CommandPostViewController.xib in Resources */,
 				2245184B281ADF8400997BB0 /* Assets.xcassets in Resources */,
+				226BD80D281CE86200294634 /* CocoaAsyncSocket in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7436,6 +7443,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				22451851281ADF8400997BB0 /* CommandPostViewController.m in Sources */,
+				226BD80F281CE89B00294634 /* GCDAsyncSocket.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

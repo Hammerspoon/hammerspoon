@@ -1,5 +1,35 @@
 #import "CommandPostViewController.h"
 
+/*
+ 
+ COMMANDPOST WORKFLOW EXTENSION - SOCKETS API
+ 
+ Commands that can be SENT to the Workflow Extension:
+
+ PING           - Send a ping
+ INCR f         - Increment by Frame        (where f is number of frames)
+ DECR f         - Decrement by Frame        (where f is number of frames)
+ GOTO s         - Goto Timeline Position    (where s is number of seconds)
+ 
+ Commands that can be RECEIVED from the Workflow Extension:
+ 
+ DONE           - Connection successful
+ PONG           - Recieve a pong
+ SEQC           - The active sequence has changed               (TBC)
+ RNGC           - The active sequence time range has changed    (TBC)
+ PLHD           - The playhead time has changed                 (TBC)
+ 
+ 
+ USEFUL LINKS:
+ 
+  * CMTime for Human Beings: https://dcordero.me/posts/cmtime-for-human-beings.html
+
+ */
+
+//
+// VIEW CONTROLLER:
+//
+
 @interface CommandPostViewController () <FCPXTimelineObserver>
 
 @property (weak) IBOutlet NSButton *doSomething;
@@ -8,111 +38,189 @@
 @property (weak) IBOutlet NSTextField *movePlayheadFramesTextBox;
 
 @property (weak) IBOutlet NSScrollView *debugTextBox;
+
 @end
 
 @implementation CommandPostViewController
 
-//
-// Converts CMTime object into a human-readible string:
-//
-- (NSString*)CMTimeString:(CMTime) time {
-    NSString *timeDescription = (NSString *)CFBridgingRelease(CMTimeCopyDescription(NULL, time));
-    return timeDescription;
-}
+#pragma mark SOCKETS SERVER
 
-//
-// Converts FCPXSequenceTimecodeFormat object into a human-readible string:
-//
-- (NSString*)fcpxSequenceTimecodeFormatString:(FCPXSequenceTimecodeFormat) timecodeFormat {
-    NSString *fcpxSequenceTimecodeFormatString;
-    if (timecodeFormat == kFCPXSequenceTimecodeFormat_DropFrame) {
-        fcpxSequenceTimecodeFormatString = @"DropFrame";
-    } else if (timecodeFormat == kFCPXSequenceTimecodeFormat_NonDropFrame) {
-        fcpxSequenceTimecodeFormatString = @"NonDropFrame";
-    } else if (timecodeFormat == kFCPXSequenceTimecodeFormat_Unspecified) {
-        fcpxSequenceTimecodeFormatString = @"Unspecified";
-    } else {
-        fcpxSequenceTimecodeFormatString = @"Unknown";
-    }
-    return fcpxSequenceTimecodeFormatString;
-}
-
-//
-// Converts FCPXObjectType object into a human-readible string:
-//
-- (NSString*)fcpxObjectTypeString:(FCPXObjectType) objectType {
-    NSString *fcpxObjectTypeString;
-    if (objectType == kFCPXObjectType_Event) {
-        fcpxObjectTypeString = @"Event";
-    } else if (objectType == kFCPXObjectType_Library) {
-        fcpxObjectTypeString = @"Library";
-    } else if (objectType == kFCPXObjectType_Project) {
-        fcpxObjectTypeString = @"Project";
-    } else if (objectType == kFCPXObjectType_Sequence) {
-        fcpxObjectTypeString = @"Sequence";
-    }
-    return fcpxObjectTypeString;
-}
-
-//
-// Adds a line to the Debug Textbox:
-//
-- (void)addDebugMessage:(NSString*) message {
-    [self.debugTextBox.documentView insertText:[NSString stringWithFormat:@"%@\n", message]];
-}
-
-//
-// Increment Button Pressed:
-//
-- (IBAction)incrementButton:(id)sender {
-    
-    // Get the current playhead time:
-    CMTime time = [self.host.timeline playheadTime];
-        
-    // Get the timeline:
-    FCPXTimeline *timeline = self.host.timeline;
-    
-    // Get the active sequence:
-    FCPXSequence *activeSequence = timeline.activeSequence;
-    
-    // Get frame duration for active sequence:
-    CMTime frameDuration = activeSequence.frameDuration;
-    
-    int howManyFramesToMove = self.movePlayheadFramesTextBox.intValue;
-
-    CMTime howManyFrames = CMTimeMultiply(frameDuration, howManyFramesToMove);
-    
-    CMTime newTime = CMTimeAdd(time, howManyFrames);
-    
-    [self.host.timeline movePlayheadTo:newTime];
-    
-    // Write a debug message:
-    [self addDebugMessage:@"incrementButton Pressed"];
-}
-
-//
-// Move Playhead Button Pressed:
-//
-- (IBAction)movePlayheadButtonPressed:(id)sender {
-    
-    int movePlayheadTextBoxValue = self.movePlayheadTextBox.intValue;
-    
-    [self addDebugMessage:[NSString stringWithFormat:@"movePlayheadTextBoxValue: %d", movePlayheadTextBoxValue]];
-    
-    CMTime newTime = CMTimeMakeWithSeconds(movePlayheadTextBoxValue, NSEC_PER_SEC);
-    
-    [self addDebugMessage:[NSString stringWithFormat:@"newTime: %@", [self CMTimeString:newTime]]];
-    
-    [self.host.timeline movePlayheadTo:newTime];
-    
-    // Write a debug message:
-    [self addDebugMessage:@"movePlayheadButtonPressed"];
-}
-
-- (void) awakeFromNib
+- (void) setupSocketServer
 {
-    [super awakeFromNib];
+    [self addDebugMessage:@"Setting up Socket Server..."];
     
+    //
+    // Ideally we run on a new dispatch queue, but leave
+    // the main queue code here for testing/problem-solving:
+    //
+    
+    //socketQueue = dispatch_get_main_queue();
+    socketQueue = dispatch_queue_create("socketQueue", NULL);
+    
+    // Setup new CocoaAsyncSocket object:
+    listenSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:socketQueue];
+    
+    // Setup an array to store all accepted client connections
+    connectedSockets = [[NSMutableArray alloc] initWithCapacity:1];
+    
+    // The socket port we want to use for communication:
+    UInt16 thePort = 43426;
+    
+    // Add some debug messaging:
+    [self addDebugMessage:[NSString stringWithFormat:@"Setting up Socket Server on port: %hu", thePort]];
+    
+    // Start Socket Server:
+    NSError *error = nil;
+    if (![listenSocket acceptOnPort:thePort error:&error]) {
+        NSString *errorMessage = [NSString stringWithFormat:@"Unable to bind port: %@", [error localizedDescription]];
+        [self addDebugMessage:errorMessage];
+    } else {
+        [self addDebugMessage:@"Socket server started"];
+    }
+}
+
+- (void)sendSocketMessage:(NSString*) message
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        @autoreleasepool {
+            [self addDebugMessage:[NSString stringWithFormat:@"sendSocketMessage: %@", message]];
+        }
+    });
+    
+    // Add in the correct ending:
+    NSString *newMessage = [NSString stringWithFormat:@"%@\r\n", message];
+    
+    NSData *data = [newMessage dataUsingEncoding:NSUTF8StringEncoding];
+    for (id socket in connectedSockets) {
+        [socket writeData:data withTimeout:-1 tag:99];
+    }
+}
+
+- (void)socket:(GCDAsyncSocket *)sock didAcceptNewSocket:(GCDAsyncSocket *)newSocket
+{
+    // This method is executed on the socketQueue (not the main thread)
+    
+    @synchronized(connectedSockets)
+    {
+        [connectedSockets addObject:newSocket];
+    }
+    
+    NSString *host = [newSocket connectedHost];
+    UInt16 port = [newSocket connectedPort];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        @autoreleasepool {
+            [self addDebugMessage:[NSString stringWithFormat:@"Accepted client %@:%hu", host, port]];
+        }
+    });
+    
+    // Send the success command:
+    [self sendSocketMessage:@"DONE"];
+    
+    // Read any data on the socket:
+    [newSocket readDataToData:[GCDAsyncSocket CRLFData] withTimeout:-1 tag:0];
+}
+
+- (void)socket:(GCDAsyncSocket *)sock didWriteDataWithTag:(long)tag
+{
+    // This method is executed on the socketQueue (not the main thread)
+        
+    dispatch_async(dispatch_get_main_queue(), ^{
+        @autoreleasepool {
+            [self addDebugMessage:[NSString stringWithFormat:@"didWriteDataWithTag: %ld", tag]];
+        }
+    });
+    
+    [sock readDataToData:[GCDAsyncSocket CRLFData] withTimeout:-1 tag:0];
+}
+
+- (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
+{
+    // This method is executed on the socketQueue (not the main thread)
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        @autoreleasepool {
+            NSData *strData = [data subdataWithRange:NSMakeRange(0, [data length] - 2)];
+            NSString *message = [[NSString alloc] initWithData:strData encoding:NSUTF8StringEncoding];
+            if (message) {
+                [self addDebugMessage:[NSString stringWithFormat:@"didReadData: %@", message]];
+                
+                NSArray *messageArray = [message componentsSeparatedByString:@" "];
+                
+                NSString *command = [messageArray objectAtIndex:0];
+                NSString *value = [messageArray objectAtIndex:1];
+                
+                [self addDebugMessage:[NSString stringWithFormat:@"didReadData - command: %@", command]];
+                [self addDebugMessage:[NSString stringWithFormat:@"didReadData - value: %@", value]];
+        
+                if (!command) {
+                    [self addDebugMessage:@"didReadData - no valid command"];
+                    return;
+                }
+        
+                if (command && [command isEqualToString:@"PING"]) {
+                    //
+                    // PING
+                    //
+                    NSString *pong = @"PONG\r\n";
+                    NSData *pongData = [pong dataUsingEncoding:NSUTF8StringEncoding];
+                    [sock writeData:pongData withTimeout:-1 tag:0];
+                } else if ([command isEqualToString:@"INCR"]) {
+                    //
+                    // INCR f         - where f is number of frames
+                    //
+                    [self addDebugMessage:[NSString stringWithFormat:@"INCR REQUESTED: %@", value]];
+                    
+                    NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
+                    formatter.numberStyle = NSNumberFormatterDecimalStyle;
+                    NSNumber *frames = [formatter numberFromString:value];
+                    
+                    [self shiftTimelineInFrames:frames];
+                    
+                } else if ([command isEqualToString:@"DECR"]) {
+                    //
+                    // DECR f         - where f is number of frames
+                    //
+                    [self addDebugMessage:[NSString stringWithFormat:@"DECR REQUESTED: %@", value]];
+                } else if ([command isEqualToString:@"GOTO"]) {
+                    //
+                    // GOTO s         - where s is number of seconds
+                    //
+                    [self addDebugMessage:[NSString stringWithFormat:@"GOTO REQUESTED: %@", value]];
+                } else {
+                    [self addDebugMessage:@"didReadData - Unknown command"];
+                }
+            }
+            else
+            {
+                [self addDebugMessage:@"didReadData - Error converting received data into UTF-8 String"];
+            }
+        
+        }
+    });
+}
+
+- (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err
+{
+    if (sock != listenSocket)
+    {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            @autoreleasepool {
+                [self addDebugMessage:@"socketDidDisconnect"];
+            }
+        });
+        
+        @synchronized(connectedSockets)
+        {
+            [connectedSockets removeObject:sock];
+        }
+    }
+}
+
+#pragma mark CONNECT TO FINAL CUT PRO
+
+- (void) connectToFinalCutPro
+{
     //
     // Connect to the Final Cut Pro host:
     //
@@ -133,11 +241,45 @@
     [self addDebugMessage:[NSString stringWithFormat:@"host bundleIdentifier: %@", self.host.bundleIdentifier]];
 }
 
-- (NSString*) nibName
+#pragma mark CONTROL FINAL CUT PRO
+
+//
+// Shift Timeline In Frames:
+//
+- (void) shiftTimelineInFrames:(NSNumber*) frames
 {
-    // Return the NIB name:
-    return @"CommandPostViewController";
+    // Get the current playhead time:
+    CMTime time = [self.host.timeline playheadTime];
+        
+    // Get the timeline:
+    FCPXTimeline *timeline = self.host.timeline;
+    
+    // Get the active sequence:
+    FCPXSequence *activeSequence = timeline.activeSequence;
+    
+    // Get frame duration for active sequence:
+    CMTime frameDuration = activeSequence.frameDuration;
+    
+    // Multiply the Frame Duration by how many frames to move:
+    CMTime howManyFrames = CMTimeMultiply(frameDuration, [frames intValue]);
+    
+    // Add the current playhead time with how many frames:
+    CMTime newTime = CMTimeAdd(time, howManyFrames);
+    
+    // Tell Final Cut Pro to move the playhead:
+    [self.host.timeline movePlayheadTo:newTime];
 }
+
+//
+// Go to Timeline Value in Seconds:
+//
+- (void) gotoTimelineValueInSeconds:(NSNumber*) seconds
+{
+    CMTime newTime = CMTimeMakeWithSeconds([seconds intValue], NSEC_PER_SEC);
+    [self.host.timeline movePlayheadTo:newTime];
+}
+
+#pragma mark FINAL CUT PRO OBSERVERS
 
 //
 // A callback method that gets invoked when there is a change in the current timeline sequence.
@@ -182,6 +324,10 @@
     // Write a debug message:
     NSString *debugMessage = [NSString stringWithFormat:@"activeSequenceChanged: %@", debugString];
     [self addDebugMessage:debugMessage];
+    
+    // Write message to Socket:
+    NSString *socketMessage = [NSString stringWithFormat:@"SEQC %@", debugString];
+    [self sendSocketMessage:socketMessage];
 }
 
 //
@@ -206,6 +352,10 @@
     // Write a debug message:
     NSString *debugMessage = [NSString stringWithFormat:@"playheadTimeChanged: %@", timeDescription];
     [self addDebugMessage:debugMessage];
+    
+    // Write message to Socket:
+    NSString *socketMessage = [NSString stringWithFormat:@"PLHD %@", timeDescription];
+    [self sendSocketMessage:socketMessage];
 }
 
 //
@@ -231,6 +381,69 @@
     // Write a debug message:
     NSString *debugMessage = [NSString stringWithFormat:@"sequenceTimeRangeChanged: start: %@ duration: %@", startDescription, durationDescription];
     [self addDebugMessage:debugMessage];
+    
+    // Write message to Socket:
+    NSString *socketMessage = [NSString stringWithFormat:@"RNGC %@ %@", startDescription, durationDescription];
+    [self sendSocketMessage:socketMessage];
+}
+
+# pragma mark FINAL CUT PRO HELPER FUNCTIONS
+
+//
+// Converts CMTime object into a human-readible string:
+//
+- (NSString*)CMTimeString:(CMTime) time {
+    NSString *timeDescription = (NSString *)CFBridgingRelease(CMTimeCopyDescription(NULL, time));
+    return timeDescription;
+}
+
+//
+// Converts FCPXSequenceTimecodeFormat object into a human-readible string:
+//
+- (NSString*)fcpxSequenceTimecodeFormatString:(FCPXSequenceTimecodeFormat) timecodeFormat {
+    NSString *fcpxSequenceTimecodeFormatString;
+    if (timecodeFormat == kFCPXSequenceTimecodeFormat_DropFrame) {
+        fcpxSequenceTimecodeFormatString = @"DropFrame";
+    } else if (timecodeFormat == kFCPXSequenceTimecodeFormat_NonDropFrame) {
+        fcpxSequenceTimecodeFormatString = @"NonDropFrame";
+    } else if (timecodeFormat == kFCPXSequenceTimecodeFormat_Unspecified) {
+        fcpxSequenceTimecodeFormatString = @"Unspecified";
+    } else {
+        fcpxSequenceTimecodeFormatString = @"Unknown";
+    }
+    return fcpxSequenceTimecodeFormatString;
+}
+
+//
+// Converts FCPXObjectType object into a human-readible string:
+//
+- (NSString*)fcpxObjectTypeString:(FCPXObjectType) objectType {
+    NSString *fcpxObjectTypeString;
+    if (objectType == kFCPXObjectType_Event) {
+        fcpxObjectTypeString = @"Event";
+    } else if (objectType == kFCPXObjectType_Library) {
+        fcpxObjectTypeString = @"Library";
+    } else if (objectType == kFCPXObjectType_Project) {
+        fcpxObjectTypeString = @"Project";
+    } else if (objectType == kFCPXObjectType_Sequence) {
+        fcpxObjectTypeString = @"Sequence";
+    }
+    return fcpxObjectTypeString;
+}
+
+# pragma mark VIEW CONTROLLER MANAGEMENT
+
+- (void) awakeFromNib
+{
+    [super awakeFromNib];
+    [self connectToFinalCutPro];
+    [self setupSocketServer];
+}
+
+- (NSString*) nibName
+{
+    // Return the NIB name:
+    return @"CommandPostViewController";
 }
 
 - (void)viewWillDisappear
@@ -249,6 +462,45 @@
     // Write a debug message:
     [self addDebugMessage:@"viewDidLoad"];
 }
+
+#pragma mark USER INTERFACE
+
+//
+// Adds a line to the Debug Textbox:
+//
+- (void)addDebugMessage:(NSString*) message {
+    if (self && message) {
+        [self.debugTextBox.documentView insertText:[NSString stringWithFormat:@"%@\n", message]];
+    }
+}
+
+//
+// Increment Button Pressed:
+//
+- (IBAction)incrementButton:(id)sender {
+    
+    // Goto Frame in the Textbox:
+    NSNumber *frames = [NSNumber numberWithInt:self.movePlayheadFramesTextBox.intValue];
+    [self shiftTimelineInFrames:frames];
+    
+    // Write a debug message:
+    [self addDebugMessage:@"incrementButton Pressed"];
+}
+
+//
+// Move Playhead Button Pressed:
+//
+- (IBAction)movePlayheadButtonPressed:(id)sender {
+    
+    // Goto Playhead Position from Seconds Value in Textbox:
+    NSNumber *seconds =[NSNumber numberWithInt:self.movePlayheadTextBox.intValue];
+    [self gotoTimelineValueInSeconds:seconds];
+        
+    // Write a debug message:
+    [self addDebugMessage:@"movePlayheadButtonPressed"];
+}
+
+#pragma mark MISC
 
 //
 // Attempt to commit pending edits, returning an error in the case of failure.

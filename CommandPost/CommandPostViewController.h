@@ -6,10 +6,17 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface CommandPostViewController : NSViewController
+@interface CommandPostViewController : NSViewController <GCDAsyncSocketDelegate>
+{
+    dispatch_queue_t socketQueue;
+    
+    GCDAsyncSocket *listenSocket;
+    NSMutableArray *connectedSockets;
+}
 
 @property id<FCPXHost>              host;
-@property (readonly) NSString       * hostInfoString;
+@property (readonly) NSString       *hostInfoString;
+@property GCDAsyncSocket            *socket;
 
 @end
 

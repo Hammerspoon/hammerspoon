@@ -8,16 +8,20 @@
 	<true/>
 	<key>com.apple.security.cs.disable-library-validation</key>
 	<true/>
-    <key>com.apple.security.scripting-targets</key>
-    <dict>
-        <key>com.apple.FinalCut</key>
-        <array>
-            <string>com.apple.FinalCut.library.inspection</string>
-        </array>
-        <key>com.apple.FinalCutTrial</key>
-        <array>
-            <string>com.apple.FinalCut.library.inspection</string>
-        </array>
-    </dict>
+	<key>com.apple.security.network.client</key>
+	<true/>
+	<key>com.apple.security.network.server</key>
+	<true/>
+	<key>com.apple.security.scripting-targets</key>
+	<dict>
+		<key>com.apple.FinalCut</key>
+		<array>
+			<string>com.apple.FinalCut.library.inspection</string>
+		</array>
+		<key>com.apple.FinalCutTrial</key>
+		<array>
+			<string>com.apple.FinalCut.library.inspection</string>
+		</array>
+	</dict>
 </dict>
 </plist>
