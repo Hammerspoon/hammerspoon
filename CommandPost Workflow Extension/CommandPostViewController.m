@@ -496,6 +496,19 @@
     });
 }
 
+//
+// Open website when you click "Learn More":
+//
+- (IBAction)learnMoreButton:(id)sender {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        @autoreleasepool {
+            NSURL *url = [NSURL URLWithString:@"https://help.commandpost.io/workflow-extension/"];
+            [[NSWorkspace sharedWorkspace] openURL:url];
+        }
+    });
+
+}
+
 #pragma mark MISC
 
 //
