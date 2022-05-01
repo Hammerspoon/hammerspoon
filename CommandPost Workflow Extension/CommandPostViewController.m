@@ -75,7 +75,7 @@
 - (void) startSocketServer
 {
     // Update status in Workflow Extension UI:
-    [self updateStatus:@"🟠 Starting Server..."];
+    [self updateStatus:@"🟠 Starting Server..." includeTimestamp:NO];
     
     // Setup a new dispatch queue for socket connection:
     socketQueue = dispatch_queue_create("socketQueue", NULL);
@@ -94,12 +94,12 @@
     if (![listenSocket acceptOnPort:thePort error:&error]) {
         // Update status in Workflow Extension UI:
         NSString *status = [NSString stringWithFormat:@"🔴 Socket Server Failed (Port: %hu)", thePort];
-        [self updateStatus:status];
+        [self updateStatus:status includeTimestamp:NO];
 
     } else {
         // Update status in Workflow Extension UI:
         NSString *status = [NSString stringWithFormat:@"🟠 Server Started (Port: %hu)", thePort];
-        [self updateStatus:status];
+        [self updateStatus:status includeTimestamp:NO];
     }
 }
 
@@ -161,7 +161,7 @@
     
     // Update status in Workflow Extension UI:
     NSString *status = [NSString stringWithFormat:@"🟢 Connected (Port: %hu)", port];
-    [self updateStatus:status];
+    [self updateStatus:status includeTimestamp:NO];
     
     // Send the success command:
     [self sendSocketMessage:@"DONE"];
@@ -195,14 +195,14 @@
     NSString *message = [[NSString alloc] initWithData:trimmedData encoding:NSUTF8StringEncoding];
     if (!message) {
         // Update status in Workflow Extension UI:
-        [self updateStatus:@"⛔️ Failed to convert into UTF-8"];
+        [self updateStatus:@"⛔️ Incoming data was invalid" includeTimestamp:NO];
         return;
     }
     
     // Get the command from the message:
     NSString *command = [message substringToIndex:4];;
     if (!command) {
-        [self updateStatus:@"⛔️ No command detected"];
+        [self updateStatus:@"⛔️ No command detected" includeTimestamp:NO];
         return;
     }
     
@@ -222,12 +222,17 @@
             NSArray *items = @[@"PING", @"INCR", @"DECR", @"GOTO"];
             unsigned long item = [items indexOfObject:command];
             switch (item) {
-                case 0:
+                case 0: {
                     //
                     // PING           - no additional attributes
                     //
                     [self sendSocketMessage:@"PONG"];
+                    
+                    // Update Status:
+                    [self updateStatus:@"🏓 Ping Received" includeTimestamp:YES];
+                    
                     break;
+                }
                 case 1: {
                     //
                     // INCR f         - where f is number of frames
@@ -258,7 +263,7 @@
                     // UNKNOWN COMMAND:
                     //
                     NSString *status = [NSString stringWithFormat:@"⛔️ Unknown Command: %@", command];
-                    [self updateStatus:status];
+                    [self updateStatus:status includeTimestamp:NO];
                     break;
                 }
             }
@@ -279,7 +284,7 @@
     if (sock != listenSocket)
     {
         // Update status:
-        [self updateStatus:@"🟠 Disconnected"];
+        [self updateStatus:@"🟠 Disconnected" includeTimestamp:NO];
 
         // Remove the disconnected socket from connected sockets:
         @synchronized(connectedSockets)
@@ -334,14 +339,13 @@
     [self.host.timeline movePlayheadTo:newTime];
     
     // Update Status:
-    CFAbsoluteTime timeInSeconds = CFAbsoluteTimeGetCurrent();
     NSString *status;
     if ([frames intValue] > 0) {
-        status = [NSString stringWithFormat:@"▶️ Move Playhead %@ (%f)", frames, timeInSeconds];
+        status = [NSString stringWithFormat:@"▶️ Move Playhead %@", frames];
     } else {
-        status = [NSString stringWithFormat:@"◀️ Move Playhead %@ (%f)", frames, timeInSeconds];
+        status = [NSString stringWithFormat:@"◀️ Move Playhead %@", frames];
     }
-    [self updateStatus:status];
+    [self updateStatus:status includeTimestamp:YES];
 }
 
 //
@@ -353,9 +357,8 @@
     [self.host.timeline movePlayheadTo:newTime];
     
     // Update Status:
-    CFAbsoluteTime timeInSeconds = CFAbsoluteTimeGetCurrent();
-    NSString *status = [NSString stringWithFormat:@"⏯ Goto %@ (%f)", seconds, timeInSeconds];
-    [self updateStatus:status];
+    NSString *status = [NSString stringWithFormat:@"⏯ Goto %@", seconds];
+    [self updateStatus:status includeTimestamp:YES];
 }
 
 #pragma mark FINAL CUT PRO OBSERVERS
@@ -538,11 +541,16 @@
 //
 // Update the Status Text in the Workflow Extension UI:
 //
-- (void)updateStatus:(NSString*) message {
+- (void)updateStatus:(NSString*) message includeTimestamp:(BOOL)includeTimestamp {
     dispatch_async(dispatch_get_main_queue(), ^{
         @autoreleasepool {
             if (self && message) {
-                self.statusTextField.stringValue = message;
+                NSString *newMessage = message;
+                if (includeTimestamp) {
+                    CFAbsoluteTime timeInSeconds = CFAbsoluteTimeGetCurrent();
+                    newMessage = [NSString stringWithFormat:@"%@ (%f)", message, timeInSeconds];
+                }
+                self.statusTextField.stringValue = newMessage;
             }
         }
     });
