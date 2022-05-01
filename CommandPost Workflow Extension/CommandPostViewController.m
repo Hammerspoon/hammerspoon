@@ -120,6 +120,9 @@
     }
 }
 
+//
+// Send a Socket Message to all the connected client sockets.
+//
 - (void)sendSocketMessage:(NSString*) message
 {
     // Add in the correct ending:
@@ -128,16 +131,17 @@
     // Send the message to all connected sockets:
     NSData *data = [newMessage dataUsingEncoding:NSUTF8StringEncoding];
     for (id socket in connectedSockets) {
-        [socket writeData:data withTimeout:-1 tag:99];
+        [socket writeData:data withTimeout:-1 tag:0];
     }
 }
 
+//
+// Triggered when a new client socket connection is accepted.
+//
+// NOTE: This method is executed on the socketQueue (not the main thread)
+//
 - (void)socket:(GCDAsyncSocket *)sock didAcceptNewSocket:(GCDAsyncSocket *)newSocket
 {
-    //
-    // NOTE: This method is executed on the socketQueue (not the main thread)
-    //
-    
     // Add the new socket to connected sockets:
     @synchronized(connectedSockets)
     {
@@ -158,85 +162,110 @@
     [newSocket readDataToData:[GCDAsyncSocket CRLFData] withTimeout:-1 tag:0];
 }
 
+//
+// Called when a socket has completed writing the requested data. Not called if there is an error.
+//
+// NOTE: This method is executed on the socketQueue (not the main thread)
+//
 - (void)socket:(GCDAsyncSocket *)sock didWriteDataWithTag:(long)tag
 {
-    //
-    // NOTE: This method is executed on the socketQueue (not the main thread)
-    //
-
-    // Read the data:
+    // Read any data on the socket:
     [sock readDataToData:[GCDAsyncSocket CRLFData] withTimeout:-1 tag:0];
 }
 
+//
+// Called when a socket has completed reading the requested data into memory. Not called if there is an error.
+//
+// NOTE: This method is executed on the socketQueue (not the main thread)
+//
 - (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
 {
-    //
-    // NOTE: This method is executed on the socketQueue (not the main thread)
-    //
+    // Strip off the end of the data:
+    NSData *trimmedData = [data subdataWithRange:NSMakeRange(0, [data length] - 2)];
+    
+    // Convert the data into a string:
+    NSString *message = [[NSString alloc] initWithData:trimmedData encoding:NSUTF8StringEncoding];
+    if (!message) {
+        // Update status in Workflow Extension UI:
+        [self updateStatus:@"⛔️ Failed to convert into UTF-8"];
+        return;
+    }
+    
+    // Get the command from the message:
+    NSString *command = [message substringToIndex:4];;
+    if (!command) {
+        [self updateStatus:@"⛔️ No command detected"];
+        return;
+    }
+    
+    // Get the value from the message:
+    NSString *value = nil;
+    if ([message length] > 4) {
+        NSRange valueRange = NSMakeRange(5, [message length] - 5);
+        value = [message substringWithRange:valueRange];
+    }
+
+    // Make sure we're running any UI stuff on the main thread:
     dispatch_async(dispatch_get_main_queue(), ^{
         @autoreleasepool {
-            
-            // Strip off the end of the data:
-            NSData *trimmedData = [data subdataWithRange:NSMakeRange(0, [data length] - 2)];
-            
-            // Convert the data into a string:
-            NSString *message = [[NSString alloc] initWithData:trimmedData encoding:NSUTF8StringEncoding];
-            if (!message) {
-                // Update status in Workflow Extension UI:
-                [self updateStatus:@"⛔️ Failed to convert into UTF-8"];
-                return;
-            }
-            
-            // Get the command from the message:
-            NSString *command = [message substringToIndex:4];;
-            if (!command) {
-                [self updateStatus:@"⛔️ No command detected"];
-                return;
-            }
-            
-            // Get the value from the message:
-            NSString *value = nil;
-            if ([message length] > 4) {
-                NSRange valueRange = NSMakeRange(5, [message length] - 5);
-                value = [message substringWithRange:valueRange];
-            }
-
             //
             // Process Commands:
             //
-            if ([command isEqualToString:@"PING"]) {
-                //
-                // PING           - no additional attributes
-                //
-                [self sendSocketMessage:@"PONG"];
-            } else if ([command isEqualToString:@"INCR"]) {
-                //
-                // INCR f         - where f is number of frames
-                //
-                NSNumber *frames = [self stringToNumber:value];
-                [self shiftTimelineInFrames:frames];
-            } else if ([command isEqualToString:@"DECR"]) {
-                //
-                // DECR f         - where f is number of frames
-                //
-                NSNumber *frames = [self stringToNumber:value];
-                NSNumber *reverseFrames = @(- frames.floatValue);
-                [self shiftTimelineInFrames:reverseFrames];
-            } else if ([command isEqualToString:@"GOTO"]) {
-                //
-                // GOTO s         - where s is number of seconds
-                //
-                NSNumber *seconds = [self stringToNumber:value];
-                [self gotoTimelineValueInSeconds:seconds];
-            } else {
-                // Update status:
-                NSString *status = [NSString stringWithFormat:@"⛔️ Unknown Command: %@", command];
-                [self updateStatus:status];
+            NSArray *items = @[@"PING", @"INCR", @"DECR", @"GOTO"];
+            unsigned long item = [items indexOfObject:command];
+            switch (item) {
+                case 0:
+                    //
+                    // PING           - no additional attributes
+                    //
+                    [self sendSocketMessage:@"PONG"];
+                    break;
+                case 1: {
+                    //
+                    // INCR f         - where f is number of frames
+                    //
+                    NSNumber *frames = [self stringToNumber:value];
+                    [self shiftTimelineInFrames:frames];
+                    break;
+                }
+                case 2: {
+                    //
+                    // DECR f         - where f is number of frames
+                    //
+                    NSNumber *frames = [self stringToNumber:value];
+                    NSNumber *reverseFrames = @(- frames.floatValue);
+                    [self shiftTimelineInFrames:reverseFrames];
+                    break;
+                }
+                case 3: {
+                    //
+                    // GOTO s         - where s is number of seconds
+                    //
+                    NSNumber *seconds = [self stringToNumber:value];
+                    [self gotoTimelineValueInSeconds:seconds];
+                    break;
+                }
+                default: {
+                    //
+                    // UNKNOWN COMMAND:
+                    //
+                    NSString *status = [NSString stringWithFormat:@"⛔️ Unknown Command: %@", command];
+                    [self updateStatus:status];
+                    break;
+                }
             }
         }
     });
+            
+    // Read any data on connected sockets:
+    for (id socket in connectedSockets) {
+        [socket readDataToData:[GCDAsyncSocket CRLFData] withTimeout:-1 tag:0];
+    }
 }
 
+//
+// Called when a socket disconnects with or without error.
+//
 - (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err
 {
     if (sock != listenSocket)
