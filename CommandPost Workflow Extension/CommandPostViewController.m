@@ -3,39 +3,43 @@
 /*
  
  COMMANDPOST WORKFLOW EXTENSION - SOCKETS API:
- 
+ =============================================
  
  Commands that can be SENT to the Workflow Extension:
-
+                      ----
+ 
  PING           - Send a ping
- INCR f         - Increment by Frame        (where f is number of frames)
- DECR f         - Decrement by Frame        (where f is number of frames)
- GOTO s         - Goto Timeline Position    (where s is number of seconds)
+ INCR f         - Increment by Frame                (where f is number of frames)
+ DECR f         - Decrement by Frame                (where f is number of frames)
+ GOTO s         - Goto Timeline Position            (where s is number of seconds)
  
  
  Commands that can be RECEIVED from the Workflow Extension:
+                      --------
  
  DONE           - Connection successful
- PONG           - Recieve a pong
- PLHD s         - The playhead time has changed                (where s is playhead position in seconds)
+ DEAD           - Server is shutting down
+ PONG           - Receive a pong
+ PLHD s         - The playhead time has changed     (where s is playhead position in seconds)
  
  SEQC sequenceName || startTime || duration || frameDuration || container || timecodeFormat || objectType
-    - The active sequence has changed
-      (sequenceName is a string)
-      (startTime in seconds)
-      (duration in seconds)
-      (frameDuration in seconds)
-      (container as a string)
-      (timecodeFormat as a string: DropFrame, NonDropFrame, Unspecified or Unknown)
-      (objectType as a string: Event, Library, Project, Sequence or Unknown)
+                - The active sequence has changed
+                                                    (sequenceName is a string)
+                                                    (startTime in seconds)
+                                                    (duration in seconds)
+                                                    (frameDuration in seconds)
+                                                    (container as a string)
+                                                    (timecodeFormat as a string: DropFrame, NonDropFrame, Unspecified or Unknown)
+                                                    (objectType as a string: Event, Library, Project, Sequence or Unknown)
  
  RNGC startTime || duration
-    - The active sequence time range has changed
-      (startTime in seconds)
-      (duration in seconds)
+                - The active sequence time range has changed
+                                                    (startTime in seconds)
+                                                    (duration in seconds)
  
  
  WORKFLOW EXTENSION API NOTES:
+ -----------------------------
  
   * FCPXLibrary      - url name
   * FCPXEvent        - UID name
@@ -44,6 +48,7 @@
 
  
  USEFUL LINKS:
+ -------------
  
   * CMTime for Human Beings: https://dcordero.me/posts/cmtime-for-human-beings.html
 
@@ -103,6 +108,9 @@
 //
 - (void) stopSocketServer
 {
+    // Tell all our clients we're about to die:
+    [self sendSocketMessage:@"DEAD"];
+    
     // Stop accepting connections:
     [listenSocket disconnect];
     
@@ -304,9 +312,6 @@
 //
 - (void) shiftTimelineInFrames:(NSNumber*) frames
 {
-    // Get the current playhead time:
-    CMTime time = [self.host.timeline playheadTime];
-        
     // Get the timeline:
     FCPXTimeline *timeline = self.host.timeline;
     
@@ -317,13 +322,26 @@
     CMTime frameDuration = activeSequence.frameDuration;
     
     // Multiply the Frame Duration by how many frames to move:
-    CMTime howManyFrames = CMTimeMultiply(frameDuration, [frames intValue]);
+    CMTime howManyFrames = CMTimeMultiply(frameDuration, [frames floatValue]);
+    
+    // Get the current playhead time:
+    CMTime time = [self.host.timeline playheadTime];
     
     // Add the current playhead time with how many frames:
     CMTime newTime = CMTimeAdd(time, howManyFrames);
     
     // Tell Final Cut Pro to move the playhead:
     [self.host.timeline movePlayheadTo:newTime];
+    
+    // Update Status:
+    CFAbsoluteTime timeInSeconds = CFAbsoluteTimeGetCurrent();
+    NSString *status;
+    if ([frames intValue] > 0) {
+        status = [NSString stringWithFormat:@"▶️ Move Playhead %@ (%f)", frames, timeInSeconds];
+    } else {
+        status = [NSString stringWithFormat:@"◀️ Move Playhead %@ (%f)", frames, timeInSeconds];
+    }
+    [self updateStatus:status];
 }
 
 //
@@ -333,6 +351,11 @@
 {
     CMTime newTime = CMTimeMakeWithSeconds([seconds intValue], NSEC_PER_SEC);
     [self.host.timeline movePlayheadTo:newTime];
+    
+    // Update Status:
+    CFAbsoluteTime timeInSeconds = CFAbsoluteTimeGetCurrent();
+    NSString *status = [NSString stringWithFormat:@"⏯ Goto %@ (%f)", seconds, timeInSeconds];
+    [self updateStatus:status];
 }
 
 #pragma mark FINAL CUT PRO OBSERVERS
