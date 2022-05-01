@@ -9,7 +9,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface CommandPostViewController : NSViewController <GCDAsyncSocketDelegate>
 {
     dispatch_queue_t socketQueue;
-    
     GCDAsyncSocket *listenSocket;
     NSMutableArray *connectedSockets;
 }

@@ -2,7 +2,8 @@
 
 /*
  
- COMMANDPOST WORKFLOW EXTENSION - SOCKETS API
+ COMMANDPOST WORKFLOW EXTENSION - SOCKETS API:
+ 
  
  Commands that can be SENT to the Workflow Extension:
 
@@ -11,14 +12,36 @@
  DECR f         - Decrement by Frame        (where f is number of frames)
  GOTO s         - Goto Timeline Position    (where s is number of seconds)
  
+ 
  Commands that can be RECEIVED from the Workflow Extension:
  
  DONE           - Connection successful
  PONG           - Recieve a pong
- SEQC           - The active sequence has changed               (TBC)
- RNGC           - The active sequence time range has changed    (TBC)
- PLHD           - The playhead time has changed                 (TBC)
+ PLHD s         - The playhead time has changed                (where s is playhead position in seconds)
  
+ SEQC sequenceName || startTime || duration || frameDuration || container || timecodeFormat || objectType
+    - The active sequence has changed
+      (sequenceName is a string)
+      (startTime in seconds)
+      (duration in seconds)
+      (frameDuration in seconds)
+      (container as a string)
+      (timecodeFormat as a string: DropFrame, NonDropFrame, Unspecified or Unknown)
+      (objectType as a string: Event, Library, Project, Sequence or Unknown)
+ 
+ RNGC startTime || duration
+    - The active sequence time range has changed
+      (startTime in seconds)
+      (duration in seconds)
+ 
+ 
+ WORKFLOW EXTENSION API NOTES:
+ 
+  * FCPXLibrary      - url name
+  * FCPXEvent        - UID name
+  * FCPXProject      - sequence UID name
+  * FCPXSequence     - duration, frameDuration, startTime, timecodeFormat, name
+
  
  USEFUL LINKS:
  
@@ -32,12 +55,8 @@
 
 @interface CommandPostViewController () <FCPXTimelineObserver>
 
-@property (weak) IBOutlet NSButton *doSomething;
-
-@property (weak) IBOutlet NSTextField *movePlayheadTextBox;
-@property (weak) IBOutlet NSTextField *movePlayheadFramesTextBox;
-
 @property (weak) IBOutlet NSScrollView *debugTextBox;
+@property (weak) IBOutlet NSTextField *statusTextField;
 
 @end
 
@@ -45,16 +64,15 @@
 
 #pragma mark SOCKETS SERVER
 
-- (void) setupSocketServer
+//
+// Start the Socket Server:
+//
+- (void) startSocketServer
 {
-    [self addDebugMessage:@"Setting up Socket Server..."];
+    // Update status in Workflow Extension UI:
+    [self updateStatus:@"🟠 Starting Server..."];
     
-    //
-    // Ideally we run on a new dispatch queue, but leave
-    // the main queue code here for testing/problem-solving:
-    //
-    
-    //socketQueue = dispatch_get_main_queue();
+    // Setup a new dispatch queue for socket connection:
     socketQueue = dispatch_queue_create("socketQueue", NULL);
     
     // Setup new CocoaAsyncSocket object:
@@ -66,24 +84,44 @@
     // The socket port we want to use for communication:
     UInt16 thePort = 43426;
     
-    // Add some debug messaging:
-    [self addDebugMessage:[NSString stringWithFormat:@"Setting up Socket Server on port: %hu", thePort]];
-    
     // Start Socket Server:
     NSError *error = nil;
     if (![listenSocket acceptOnPort:thePort error:&error]) {
-        NSString *errorMessage = [NSString stringWithFormat:@"Unable to bind port: %@", [error localizedDescription]];
-        [self addDebugMessage:errorMessage];
+        // Update status in Workflow Extension UI:
+        NSString *status = [NSString stringWithFormat:@"🔴 Socket Server Failed (Port: %hu)", thePort];
+        [self updateStatus:status];
+
     } else {
-        [self addDebugMessage:@"Socket server started"];
+        // Update status in Workflow Extension UI:
+        NSString *status = [NSString stringWithFormat:@"🟠 Server Started (Port: %hu)", thePort];
+        [self updateStatus:status];
+    }
+}
+
+//
+// Stop the Socket Server:
+//
+- (void) stopSocketServer
+{
+    // Stop accepting connections:
+    [listenSocket disconnect];
+    
+    // Stop any client connections:
+    @synchronized(connectedSockets)
+    {
+        NSUInteger i;
+        for (i = 0; i < [connectedSockets count]; i++)
+        {
+            // Call disconnect on the socket,
+            // which will invoke the socketDidDisconnect: method,
+            // which will remove the socket from the list.
+            [[connectedSockets objectAtIndex:i] disconnect];
+        }
     }
 }
 
 - (void)sendSocketMessage:(NSString*) message
 {
-    // Add Debug Message:
-    [self addDebugMessage:[NSString stringWithFormat:@"sendSocketMessage: %@", message]];
-    
     // Add in the correct ending:
     NSString *newMessage = [NSString stringWithFormat:@"%@\r\n", message];
     
@@ -106,12 +144,12 @@
         [connectedSockets addObject:newSocket];
     }
     
-    // Get host name and port name from new socket:
-    NSString *host = [newSocket connectedHost];
+    // Get port name from new socket:
     UInt16 port = [newSocket connectedPort];
     
-    // Add Debug Message:
-    [self addDebugMessage:[NSString stringWithFormat:@"Accepted client %@:%hu", host, port]];
+    // Update status in Workflow Extension UI:
+    NSString *status = [NSString stringWithFormat:@"🟢 Connected (Port: %hu)", port];
+    [self updateStatus:status];
     
     // Send the success command:
     [self sendSocketMessage:@"DONE"];
@@ -125,10 +163,7 @@
     //
     // NOTE: This method is executed on the socketQueue (not the main thread)
     //
-        
-    // Add Debug Message:
-    [self addDebugMessage:[NSString stringWithFormat:@"didWriteDataWithTag: %ld", tag]];
-    
+
     // Read the data:
     [sock readDataToData:[GCDAsyncSocket CRLFData] withTimeout:-1 tag:0];
 }
@@ -138,70 +173,65 @@
     //
     // NOTE: This method is executed on the socketQueue (not the main thread)
     //
-    
     dispatch_async(dispatch_get_main_queue(), ^{
         @autoreleasepool {
-            NSString *message = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+            
+            // Strip off the end of the data:
+            NSData *trimmedData = [data subdataWithRange:NSMakeRange(0, [data length] - 2)];
+            
+            // Convert the data into a string:
+            NSString *message = [[NSString alloc] initWithData:trimmedData encoding:NSUTF8StringEncoding];
             if (!message) {
-                [self addDebugMessage:@"didReadData - Error converting received data into UTF-8 String"];
+                // Update status in Workflow Extension UI:
+                [self updateStatus:@"⛔️ Failed to convert into UTF-8"];
                 return;
             }
             
+            // Get the command from the message:
             NSString *command = [message substringToIndex:4];;
             if (!command) {
-                [self addDebugMessage:@"didReadData - Invalid command"];
+                [self updateStatus:@"⛔️ No command detected"];
                 return;
             }
             
-            [self addDebugMessage:[NSString stringWithFormat:@"didReadData message: %@", message]];
-            [self addDebugMessage:[NSString stringWithFormat:@"didReadData command: %@", message]];
-            
+            // Get the value from the message:
+            NSString *value = nil;
+            if ([message length] > 4) {
+                NSRange valueRange = NSMakeRange(5, [message length] - 5);
+                value = [message substringWithRange:valueRange];
+            }
+
             //
             // Process Commands:
             //
             if ([command isEqualToString:@"PING"]) {
                 //
-                // PING
+                // PING           - no additional attributes
                 //
-                NSString *pong = @"PONG\r\n";
-                NSData *pongData = [pong dataUsingEncoding:NSUTF8StringEncoding];
-                [sock writeData:pongData withTimeout:-1 tag:0];
+                [self sendSocketMessage:@"PONG"];
             } else if ([command isEqualToString:@"INCR"]) {
                 //
                 // INCR f         - where f is number of frames
-                // 012345
-                
-                NSRange valueRange = NSMakeRange(5, [message length]);
-                NSString *value = [message substringWithRange:valueRange];
-                
-                [self addDebugMessage:[NSString stringWithFormat:@"INCR REQUESTED: %@", value]];
-                
-                NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
-                formatter.numberStyle = NSNumberFormatterDecimalStyle;
-                NSNumber *frames = [formatter numberFromString:value];
-                
+                //
+                NSNumber *frames = [self stringToNumber:value];
                 [self shiftTimelineInFrames:frames];
-                
             } else if ([command isEqualToString:@"DECR"]) {
                 //
                 // DECR f         - where f is number of frames
                 //
-                
-                NSRange valueRange = NSMakeRange(5, [message length]);
-                NSString *value = [message substringWithRange:valueRange];
-                
-                [self addDebugMessage:[NSString stringWithFormat:@"DECR REQUESTED: %@", value]];
+                NSNumber *frames = [self stringToNumber:value];
+                NSNumber *reverseFrames = @(- frames.floatValue);
+                [self shiftTimelineInFrames:reverseFrames];
             } else if ([command isEqualToString:@"GOTO"]) {
                 //
                 // GOTO s         - where s is number of seconds
                 //
-                
-                NSRange valueRange = NSMakeRange(5, [message length]);
-                NSString *value = [message substringWithRange:valueRange];
-                
-                [self addDebugMessage:[NSString stringWithFormat:@"GOTO REQUESTED: %@", value]];
+                NSNumber *seconds = [self stringToNumber:value];
+                [self gotoTimelineValueInSeconds:seconds];
             } else {
-                [self addDebugMessage:@"didReadData - Unknown command"];
+                // Update status:
+                NSString *status = [NSString stringWithFormat:@"⛔️ Unknown Command: %@", command];
+                [self updateStatus:status];
             }
         }
     });
@@ -211,8 +241,8 @@
 {
     if (sock != listenSocket)
     {
-        // Add Debug Message:
-        [self addDebugMessage:@"socketDidDisconnect"];
+        // Update status:
+        [self updateStatus:@"🟠 Disconnected"];
 
         // Remove the disconnected socket from connected sockets:
         @synchronized(connectedSockets)
@@ -236,14 +266,6 @@
     // Add a new timeline observer:
     //
     [host.timeline addTimelineObserver:self];
-    
-    // Write a debug message:
-    [self addDebugMessage:@"awakeFromNib"];
-    
-    // Write some debug messages about the host:
-    [self addDebugMessage:[NSString stringWithFormat:@"host name: %@", self.host.name]];
-    [self addDebugMessage:[NSString stringWithFormat:@"host versionString: %@", self.host.versionString]];
-    [self addDebugMessage:[NSString stringWithFormat:@"host bundleIdentifier: %@", self.host.bundleIdentifier]];
 }
 
 #pragma mark CONTROL FINAL CUT PRO
@@ -301,13 +323,8 @@
     NSString *name                              = activeSequence.name;
     
     CMTime startTime                            = activeSequence.startTime;
-    NSString *startTimeString                   = [self CMTimeString:startTime];
-    
     CMTime duration                             = activeSequence.duration;
-    NSString *durationString                    = [self CMTimeString:duration];
-    
     CMTime frameDuration                        = activeSequence.frameDuration;
-    NSString *frameDurationString               = [self CMTimeString:frameDuration];
         
     FCPXObject *container                       = activeSequence.container;
     NSString *containerString                   = container.debugDescription;
@@ -317,21 +334,19 @@
 
     FCPXObjectType objectType                   = activeSequence.objectType;
     NSString *fcpxObjectTypeString              = [self fcpxObjectTypeString:objectType];
-    
-    // FCPXLibrary      - url name
-    // FCPXEvent        - UID name
-    // FCPXProject      - sequence UID name
-    // FCPXSequence     - duration, frameDuration, startTime, timecodeFormat, name
-    
+        
     // Convert the parameters into something human readable:
-    NSString *debugString = [NSString stringWithFormat:@"%@ - %@ - %@ - %@ - %@ - %@ - %@", name, durationString, containerString, frameDurationString, startTimeString, fcpxSequenceTimecodeFormatString, fcpxObjectTypeString];
-    
-    // Write a debug message:
-    NSString *debugMessage = [NSString stringWithFormat:@"activeSequenceChanged: %@", debugString];
-    [self addDebugMessage:debugMessage];
+    NSString *combined = [NSString stringWithFormat:@"%@ || %f || %f || %f || %@ || %@ || %@",
+                             name,
+                             CMTimeGetSeconds(startTime),
+                             CMTimeGetSeconds(duration),
+                             CMTimeGetSeconds(frameDuration),
+                             containerString,
+                             fcpxSequenceTimecodeFormatString,
+                             fcpxObjectTypeString];
     
     // Write message to Socket:
-    NSString *socketMessage = [NSString stringWithFormat:@"SEQC %@", debugString];
+    NSString *socketMessage = [NSString stringWithFormat:@"SEQC %@", combined];
     [self sendSocketMessage:socketMessage];
 }
 
@@ -351,15 +366,8 @@
     // Get the current playhead time:
     CMTime time = [self.host.timeline playheadTime];
     
-    // Convert it to a string for debugging:
-    NSString *timeDescription = [self CMTimeString:time];
-        
-    // Write a debug message:
-    NSString *debugMessage = [NSString stringWithFormat:@"playheadTimeChanged: %@", timeDescription];
-    [self addDebugMessage:debugMessage];
-    
     // Write message to Socket:
-    NSString *socketMessage = [NSString stringWithFormat:@"PLHD %@", timeDescription];
+    NSString *socketMessage = [NSString stringWithFormat:@"PLHD %f", CMTimeGetSeconds(time)];
     [self sendSocketMessage:socketMessage];
 }
 
@@ -370,7 +378,6 @@
 // has for the sequence is in sync with what is presented in Final Cut Pro.
 //
 - (void)sequenceTimeRangeChanged {
-    
     // Get the timeline:
     FCPXTimeline *timeline = self.host.timeline;
     
@@ -379,23 +386,26 @@
     
     CMTime start = sequenceTimeRange.start;
     CMTime duration = sequenceTimeRange.duration;
-    
-    NSString *startDescription = [self CMTimeString:start];
-    NSString *durationDescription = [self CMTimeString:duration];
-   
-    // Write a debug message:
-    NSString *debugMessage = [NSString stringWithFormat:@"sequenceTimeRangeChanged: start: %@ duration: %@", startDescription, durationDescription];
-    [self addDebugMessage:debugMessage];
-    
+        
     // Write message to Socket:
-    NSString *socketMessage = [NSString stringWithFormat:@"RNGC %@ %@", startDescription, durationDescription];
+    NSString *socketMessage = [NSString stringWithFormat:@"RNGC %f || %f", CMTimeGetSeconds(start), CMTimeGetSeconds(duration)];
     [self sendSocketMessage:socketMessage];
 }
 
 # pragma mark FINAL CUT PRO HELPER FUNCTIONS
 
 //
-// Converts CMTime object into a human-readible string:
+// Converts a NSString into a NSNumber:
+//
+- (NSNumber*)stringToNumber:(NSString*) value {
+    NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
+    formatter.numberStyle = NSNumberFormatterDecimalStyle;
+    NSNumber *frames = [formatter numberFromString:value];
+    return frames;
+}
+
+//
+// Converts CMTime object into a human-readable string:
 //
 - (NSString*)CMTimeString:(CMTime) time {
     NSString *timeDescription = (NSString *)CFBridgingRelease(CMTimeCopyDescription(NULL, time));
@@ -403,7 +413,7 @@
 }
 
 //
-// Converts FCPXSequenceTimecodeFormat object into a human-readible string:
+// Converts FCPXSequenceTimecodeFormat object into a human-readable string:
 //
 - (NSString*)fcpxSequenceTimecodeFormatString:(FCPXSequenceTimecodeFormat) timecodeFormat {
     NSString *fcpxSequenceTimecodeFormatString;
@@ -420,7 +430,7 @@
 }
 
 //
-// Converts FCPXObjectType object into a human-readible string:
+// Converts FCPXObjectType object into a human-readable string:
 //
 - (NSString*)fcpxObjectTypeString:(FCPXObjectType) objectType {
     NSString *fcpxObjectTypeString;
@@ -432,6 +442,8 @@
         fcpxObjectTypeString = @"Project";
     } else if (objectType == kFCPXObjectType_Sequence) {
         fcpxObjectTypeString = @"Sequence";
+    } else {
+        fcpxObjectTypeString = @"Unknown";
     }
     return fcpxObjectTypeString;
 }
@@ -441,8 +453,12 @@
 - (void) awakeFromNib
 {
     [super awakeFromNib];
+    
+    // Connect to Final Cut Pro:
     [self connectToFinalCutPro];
-    [self setupSocketServer];
+    
+    // Start the Socket Server:
+    [self startSocketServer];
 }
 
 - (NSString*) nibName
@@ -453,63 +469,31 @@
 
 - (void)viewWillDisappear
 {
-    // Write a debug message:
-    [self addDebugMessage:@"viewWillDisappear"];
-    
-    // Remove the timeline observer:
+    // Probably not necessary, but for completeness, lets remove the timeline observer:
     [self.host.timeline removeTimelineObserver:self];
+    
+    // Again, probably not necessary, but lets stop the socket server:
+    [self stopSocketServer];
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
-    // Write a debug message:
-    [self addDebugMessage:@"viewDidLoad"];
 }
 
 #pragma mark USER INTERFACE
 
 //
-// Adds a line to the Debug Textbox:
+// Update the Status Text in the Workflow Extension UI:
 //
-- (void)addDebugMessage:(NSString*) message {
-    if (self && message) {
-        //
-        // Make sure we're running on the main thread:
-        //
-        dispatch_async(dispatch_get_main_queue(), ^{
-            @autoreleasepool {
-                [self.debugTextBox.documentView insertText:[NSString stringWithFormat:@"%@\n", message]];
+- (void)updateStatus:(NSString*) message {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        @autoreleasepool {
+            if (self && message) {
+                self.statusTextField.stringValue = message;
             }
-        });
-    }
-}
-
-//
-// Increment Button Pressed:
-//
-- (IBAction)incrementButton:(id)sender {
-    
-    // Goto Frame in the Textbox:
-    NSNumber *frames = [NSNumber numberWithInt:self.movePlayheadFramesTextBox.intValue];
-    [self shiftTimelineInFrames:frames];
-    
-    // Write a debug message:
-    [self addDebugMessage:@"incrementButton Pressed"];
-}
-
-//
-// Move Playhead Button Pressed:
-//
-- (IBAction)movePlayheadButtonPressed:(id)sender {
-    
-    // Goto Playhead Position from Seconds Value in Textbox:
-    NSNumber *seconds =[NSNumber numberWithInt:self.movePlayheadTextBox.intValue];
-    [self gotoTimelineValueInSeconds:seconds];
-        
-    // Write a debug message:
-    [self addDebugMessage:@"movePlayheadButtonPressed"];
+        }
+    });
 }
 
 #pragma mark MISC
@@ -527,8 +511,6 @@
 //
 - (BOOL)commitEditingAndReturnError:(NSError *__autoreleasing  _Nullable * _Nullable)error
 {
-    // Write a debug message:
-    [self addDebugMessage:@"commitEditingAndReturnError"];
     return YES;
 }
 

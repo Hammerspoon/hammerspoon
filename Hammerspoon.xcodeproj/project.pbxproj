@@ -20,6 +20,7 @@
 		224B923527F6F5C3003F628E /* HSBlackmagicDeviceSpeedEditor.h in Headers */ = {isa = PBXBuildFile; fileRef = 224B923427F6F5C3003F628E /* HSBlackmagicDeviceSpeedEditor.h */; };
 		224BA32A23D1ECA900487FDB /* libwebsocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 224BA32523D1E63A00487FDB /* libwebsocket.m */; };
 		22613FF51F2A127E00E05E11 /* libdialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 22613FE41F297B9B00E05E11 /* libdialog.m */; };
+		22615F33281E3301003ADBC6 /* WorkflowExtension.icns in Resources */ = {isa = PBXBuildFile; fileRef = 22615F32281E3301003ADBC6 /* WorkflowExtension.icns */; };
 		22652B39251C38AC000FF14D /* TouchEvents.c in Sources */ = {isa = PBXBuildFile; fileRef = 22652B37251C38AB000FF14D /* TouchEvents.c */; };
 		22652B3A251C38AC000FF14D /* TouchEvents.h in Headers */ = {isa = PBXBuildFile; fileRef = 22652B38251C38AB000FF14D /* TouchEvents.h */; };
 		22652B3D251C3914000FF14D /* IOHIDEventData.h in Headers */ = {isa = PBXBuildFile; fileRef = 22652B3B251C3913000FF14D /* IOHIDEventData.h */; };
@@ -1671,6 +1672,7 @@
 		22613FE41F297B9B00E05E11 /* libdialog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libdialog.m; path = extensions/dialog/libdialog.m; sourceTree = "<group>"; };
 		22613FE51F297B9B00E05E11 /* dialog.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = dialog.lua; path = extensions/dialog/dialog.lua; sourceTree = "<group>"; };
 		22613FF11F297E0D00E05E11 /* libdialog.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libdialog.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		22615F32281E3301003ADBC6 /* WorkflowExtension.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = WorkflowExtension.icns; sourceTree = "<group>"; };
 		22652B37251C38AB000FF14D /* TouchEvents.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = TouchEvents.c; path = extensions/eventtap/TouchEvents.c; sourceTree = "<group>"; };
 		22652B38251C38AB000FF14D /* TouchEvents.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TouchEvents.h; path = extensions/eventtap/TouchEvents.h; sourceTree = "<group>"; };
 		22652B3B251C3913000FF14D /* IOHIDEventData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOHIDEventData.h; path = extensions/eventtap/IOHIDEventData.h; sourceTree = "<group>"; };
@@ -3057,19 +3059,17 @@
 			name = razer;
 			sourceTree = "<group>";
 		};
-		22451849281ADF8400997BB0 /* CommandPost */ = {
+		22451849281ADF8400997BB0 /* CommandPost Workflow Extension */ = {
 			isa = PBXGroup;
 			children = (
-				226BD80C281CE86200294634 /* CocoaAsyncSocket */,
-				2245184A281ADF8400997BB0 /* Assets.xcassets */,
-				2245184C281ADF8400997BB0 /* CommandPostViewController.xib */,
+				22615F36281E3858003ADBC6 /* User Interface */,
+				22615F34281E3819003ADBC6 /* Assets */,
+				22615F35281E3836003ADBC6 /* Extras */,
 				2245184E281ADF8400997BB0 /* CommandPost-Bridging-Header.h */,
 				2245184F281ADF8400997BB0 /* CommandPostViewController.h */,
 				22451850281ADF8400997BB0 /* CommandPostViewController.m */,
-				22451852281ADF8400997BB0 /* Info.plist */,
-				22451853281ADF8400997BB0 /* CommandPost.entitlements */,
 			);
-			path = CommandPost;
+			path = "CommandPost Workflow Extension";
 			sourceTree = "<group>";
 		};
 		224BA33323D1ECF200487FDB /* websocket */ = {
@@ -3089,6 +3089,33 @@
 				22613FE41F297B9B00E05E11 /* libdialog.m */,
 			);
 			name = dialog;
+			sourceTree = "<group>";
+		};
+		22615F34281E3819003ADBC6 /* Assets */ = {
+			isa = PBXGroup;
+			children = (
+				2245184A281ADF8400997BB0 /* Assets.xcassets */,
+				22615F32281E3301003ADBC6 /* WorkflowExtension.icns */,
+			);
+			path = Assets;
+			sourceTree = "<group>";
+		};
+		22615F35281E3836003ADBC6 /* Extras */ = {
+			isa = PBXGroup;
+			children = (
+				22451853281ADF8400997BB0 /* CommandPost.entitlements */,
+				22451852281ADF8400997BB0 /* Info.plist */,
+				226BD80C281CE86200294634 /* CocoaAsyncSocket */,
+			);
+			path = Extras;
+			sourceTree = "<group>";
+		};
+		22615F36281E3858003ADBC6 /* User Interface */ = {
+			isa = PBXGroup;
+			children = (
+				2245184C281ADF8400997BB0 /* CommandPostViewController.xib */,
+			);
+			path = "User Interface";
 			sourceTree = "<group>";
 		};
 		22652B3F251C391E000FF14D /* gestures */ = {
@@ -4135,7 +4162,7 @@
 				4F766E561C48F789007B9D24 /* scripts */,
 				D02F95251A00221C00E28BB2 /* Hammerspoon Tests */,
 				4F20B52A1C1F1C5B00F52437 /* Hammerspoon UI Tests */,
-				22451849281ADF8400997BB0 /* CommandPost */,
+				22451849281ADF8400997BB0 /* CommandPost Workflow Extension */,
 				9445CA0D19083251002568BB /* Frameworks */,
 				9445CA0C19083251002568BB /* Products */,
 				0024EE4F07CEC6C274F32AB6 /* Pods */,
@@ -7235,6 +7262,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2245184D281ADF8400997BB0 /* CommandPostViewController.xib in Resources */,
+				22615F33281E3301003ADBC6 /* WorkflowExtension.icns in Resources */,
 				2245184B281ADF8400997BB0 /* Assets.xcassets in Resources */,
 				226BD80D281CE86200294634 /* CocoaAsyncSocket in Resources */,
 			);
@@ -8863,7 +8891,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_ENTITLEMENTS = CommandPost/CommandPost.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "CommandPost Workflow Extension/Extras/CommandPost.entitlements";
 				CODE_SIGN_IDENTITY = "Developer ID Application";
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -8897,7 +8925,7 @@
 					/usr/include,
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = CommandPost/Info.plist;
+				INFOPLIST_FILE = "CommandPost Workflow Extension/Extras/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = CommandPost;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 LateNite Films. All rights reserved.";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -8965,7 +8993,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_ENTITLEMENTS = CommandPost/CommandPost.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "CommandPost Workflow Extension/Extras/CommandPost.entitlements";
 				CODE_SIGN_IDENTITY = "Developer ID Application";
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -8993,7 +9021,7 @@
 					/usr/include,
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = CommandPost/Info.plist;
+				INFOPLIST_FILE = "CommandPost Workflow Extension/Extras/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = CommandPost;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 LateNite Films. All rights reserved.";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -9060,7 +9088,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_ENTITLEMENTS = CommandPost/CommandPost.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "CommandPost Workflow Extension/Extras/CommandPost.entitlements";
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
@@ -9087,7 +9115,7 @@
 					/usr/include,
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = CommandPost/Info.plist;
+				INFOPLIST_FILE = "CommandPost Workflow Extension/Extras/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = CommandPost;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 LateNite Films. All rights reserved.";
 				LD_RUNPATH_SEARCH_PATHS = (
