@@ -7,15 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		220B882A27F8F954006C0B2B /* test_image.lua in Resources */ = {isa = PBXBuildFile; fileRef = 220B882927F8F954006C0B2B /* test_image.lua */; };
+		220B882C27F8F9A3006C0B2B /* HSimage.m in Sources */ = {isa = PBXBuildFile; fileRef = 220B882B27F8F9A3006C0B2B /* HSimage.m */; };
 		223A9693211F0EFF00596A79 /* cpCache.icns in Resources */ = {isa = PBXBuildFile; fileRef = 223A9691211F0EFE00596A79 /* cpCache.icns */; };
+		2245184B281ADF8400997BB0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2245184A281ADF8400997BB0 /* Assets.xcassets */; };
+		2245184D281ADF8400997BB0 /* CommandPostViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2245184C281ADF8400997BB0 /* CommandPostViewController.xib */; };
+		22451851281ADF8400997BB0 /* CommandPostViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 22451850281ADF8400997BB0 /* CommandPostViewController.m */; };
+		22451856281ADF8400997BB0 /* CommandPost.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 22451848281ADF8400997BB0 /* CommandPost.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		224B922E27F6B846003F628E /* HSBlackmagicDeviceKeyboard.h in Headers */ = {isa = PBXBuildFile; fileRef = 224B922C27F6B846003F628E /* HSBlackmagicDeviceKeyboard.h */; };
 		224B922F27F6B846003F628E /* HSBlackmagicDeviceKeyboard.m in Sources */ = {isa = PBXBuildFile; fileRef = 224B922D27F6B846003F628E /* HSBlackmagicDeviceKeyboard.m */; };
 		224B923327F6D326003F628E /* HSBlackmagicDeviceSpeedEditor.m in Sources */ = {isa = PBXBuildFile; fileRef = 224B923127F6D326003F628E /* HSBlackmagicDeviceSpeedEditor.m */; };
 		224B923527F6F5C3003F628E /* HSBlackmagicDeviceSpeedEditor.h in Headers */ = {isa = PBXBuildFile; fileRef = 224B923427F6F5C3003F628E /* HSBlackmagicDeviceSpeedEditor.h */; };
-		220B882A27F8F954006C0B2B /* test_image.lua in Resources */ = {isa = PBXBuildFile; fileRef = 220B882927F8F954006C0B2B /* test_image.lua */; };
-		220B882C27F8F9A3006C0B2B /* HSimage.m in Sources */ = {isa = PBXBuildFile; fileRef = 220B882B27F8F9A3006C0B2B /* HSimage.m */; };
 		224BA32A23D1ECA900487FDB /* libwebsocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 224BA32523D1E63A00487FDB /* libwebsocket.m */; };
 		22613FF51F2A127E00E05E11 /* libdialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 22613FE41F297B9B00E05E11 /* libdialog.m */; };
+		22615F33281E3301003ADBC6 /* WorkflowExtension.icns in Resources */ = {isa = PBXBuildFile; fileRef = 22615F32281E3301003ADBC6 /* WorkflowExtension.icns */; };
 		22652B39251C38AC000FF14D /* TouchEvents.c in Sources */ = {isa = PBXBuildFile; fileRef = 22652B37251C38AB000FF14D /* TouchEvents.c */; };
 		22652B3A251C38AC000FF14D /* TouchEvents.h in Headers */ = {isa = PBXBuildFile; fileRef = 22652B38251C38AB000FF14D /* TouchEvents.h */; };
 		22652B3D251C3914000FF14D /* IOHIDEventData.h in Headers */ = {isa = PBXBuildFile; fileRef = 22652B3B251C3913000FF14D /* IOHIDEventData.h */; };
@@ -29,6 +34,8 @@
 		22654EA927D43CCE004F8214 /* HSRazerTartarusV2Device.h in Headers */ = {isa = PBXBuildFile; fileRef = 2213842E27A105DD0085CA24 /* HSRazerTartarusV2Device.h */; };
 		22654EAA27D43CCE004F8214 /* razer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2213842F27A105DD0085CA24 /* razer.h */; };
 		22654EAD27D43D1F004F8214 /* razer.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 2213842A27A105DD0085CA24 /* razer.lua */; };
+		226BD80D281CE86200294634 /* CocoaAsyncSocket in Resources */ = {isa = PBXBuildFile; fileRef = 226BD80C281CE86200294634 /* CocoaAsyncSocket */; };
+		226BD80F281CE89B00294634 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 226BD80E281CE89B00294634 /* GCDAsyncSocket.m */; };
 		226F95F827917D3B003DF60F /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FB852342735B02400462DD0 /* LuaSkin.framework */; };
 		226F960727917D63003DF60F /* HSBlackmagicManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 226F960027917D63003DF60F /* HSBlackmagicManager.m */; };
 		226F960827917D63003DF60F /* libblackmagic.m in Sources */ = {isa = PBXBuildFile; fileRef = 226F960127917D63003DF60F /* libblackmagic.m */; };
@@ -642,6 +649,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		22451854281ADF8400997BB0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9445CA0319083251002568BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 22451847281ADF8400997BB0;
+			remoteInfo = CommandPost;
+		};
 		224BA33523D1EFB300487FDB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 9445CA0319083251002568BB /* Project object */;
@@ -1324,6 +1338,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		22451857281ADF8400997BB0 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				22451856281ADF8400997BB0 /* CommandPost.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4FB852372735B02400462DD0 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1629,6 +1654,14 @@
 		2213843227A105DD0085CA24 /* HSRazerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSRazerManager.h; path = extensions/razer/HSRazerManager.h; sourceTree = "<group>"; };
 		221BCFD32787FFF1000EABD4 /* libF53OSC.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libF53OSC.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		223A9691211F0EFE00596A79 /* cpCache.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpCache.icns; sourceTree = "<group>"; };
+		22451848281ADF8400997BB0 /* CommandPost.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = CommandPost.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		2245184A281ADF8400997BB0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		2245184C281ADF8400997BB0 /* CommandPostViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CommandPostViewController.xib; sourceTree = "<group>"; };
+		2245184E281ADF8400997BB0 /* CommandPost-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "CommandPost-Bridging-Header.h"; sourceTree = "<group>"; };
+		2245184F281ADF8400997BB0 /* CommandPostViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CommandPostViewController.h; sourceTree = "<group>"; };
+		22451850281ADF8400997BB0 /* CommandPostViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CommandPostViewController.m; sourceTree = "<group>"; };
+		22451852281ADF8400997BB0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		22451853281ADF8400997BB0 /* CommandPost.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CommandPost.entitlements; sourceTree = "<group>"; };
 		224B922C27F6B846003F628E /* HSBlackmagicDeviceKeyboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSBlackmagicDeviceKeyboard.h; path = extensions/blackmagic/HSBlackmagicDeviceKeyboard.h; sourceTree = "<group>"; };
 		224B922D27F6B846003F628E /* HSBlackmagicDeviceKeyboard.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSBlackmagicDeviceKeyboard.m; path = extensions/blackmagic/HSBlackmagicDeviceKeyboard.m; sourceTree = "<group>"; };
 		224B923127F6D326003F628E /* HSBlackmagicDeviceSpeedEditor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSBlackmagicDeviceSpeedEditor.m; path = extensions/blackmagic/HSBlackmagicDeviceSpeedEditor.m; sourceTree = "<group>"; };
@@ -1639,10 +1672,13 @@
 		22613FE41F297B9B00E05E11 /* libdialog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libdialog.m; path = extensions/dialog/libdialog.m; sourceTree = "<group>"; };
 		22613FE51F297B9B00E05E11 /* dialog.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = dialog.lua; path = extensions/dialog/dialog.lua; sourceTree = "<group>"; };
 		22613FF11F297E0D00E05E11 /* libdialog.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libdialog.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		22615F32281E3301003ADBC6 /* WorkflowExtension.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = WorkflowExtension.icns; sourceTree = "<group>"; };
 		22652B37251C38AB000FF14D /* TouchEvents.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = TouchEvents.c; path = extensions/eventtap/TouchEvents.c; sourceTree = "<group>"; };
 		22652B38251C38AB000FF14D /* TouchEvents.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TouchEvents.h; path = extensions/eventtap/TouchEvents.h; sourceTree = "<group>"; };
 		22652B3B251C3913000FF14D /* IOHIDEventData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOHIDEventData.h; path = extensions/eventtap/IOHIDEventData.h; sourceTree = "<group>"; };
 		22652B3C251C3914000FF14D /* IOHIDEventTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOHIDEventTypes.h; path = extensions/eventtap/IOHIDEventTypes.h; sourceTree = "<group>"; };
+		226BD80C281CE86200294634 /* CocoaAsyncSocket */ = {isa = PBXFileReference; lastKnownFileType = folder; path = CocoaAsyncSocket; sourceTree = "<group>"; };
+		226BD80E281CE89B00294634 /* GCDAsyncSocket.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GCDAsyncSocket.m; sourceTree = "<group>"; };
 		226F95FE27917D3B003DF60F /* libblackmagic.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libblackmagic.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		226F960027917D63003DF60F /* HSBlackmagicManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSBlackmagicManager.m; path = extensions/blackmagic/HSBlackmagicManager.m; sourceTree = "<group>"; };
 		226F960127917D63003DF60F /* libblackmagic.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libblackmagic.m; path = extensions/blackmagic/libblackmagic.m; sourceTree = "<group>"; };
@@ -2198,6 +2234,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		22451845281ADF8400997BB0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		224BA32B23D1ECA900487FDB /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -3016,6 +3059,19 @@
 			name = razer;
 			sourceTree = "<group>";
 		};
+		22451849281ADF8400997BB0 /* CommandPost Workflow Extension */ = {
+			isa = PBXGroup;
+			children = (
+				22615F36281E3858003ADBC6 /* User Interface */,
+				22615F34281E3819003ADBC6 /* Assets */,
+				22615F35281E3836003ADBC6 /* Extras */,
+				2245184E281ADF8400997BB0 /* CommandPost-Bridging-Header.h */,
+				2245184F281ADF8400997BB0 /* CommandPostViewController.h */,
+				22451850281ADF8400997BB0 /* CommandPostViewController.m */,
+			);
+			path = "CommandPost Workflow Extension";
+			sourceTree = "<group>";
+		};
 		224BA33323D1ECF200487FDB /* websocket */ = {
 			isa = PBXGroup;
 			children = (
@@ -3033,6 +3089,33 @@
 				22613FE41F297B9B00E05E11 /* libdialog.m */,
 			);
 			name = dialog;
+			sourceTree = "<group>";
+		};
+		22615F34281E3819003ADBC6 /* Assets */ = {
+			isa = PBXGroup;
+			children = (
+				2245184A281ADF8400997BB0 /* Assets.xcassets */,
+				22615F32281E3301003ADBC6 /* WorkflowExtension.icns */,
+			);
+			path = Assets;
+			sourceTree = "<group>";
+		};
+		22615F35281E3836003ADBC6 /* Extras */ = {
+			isa = PBXGroup;
+			children = (
+				22451853281ADF8400997BB0 /* CommandPost.entitlements */,
+				22451852281ADF8400997BB0 /* Info.plist */,
+				226BD80C281CE86200294634 /* CocoaAsyncSocket */,
+			);
+			path = Extras;
+			sourceTree = "<group>";
+		};
+		22615F36281E3858003ADBC6 /* User Interface */ = {
+			isa = PBXGroup;
+			children = (
+				2245184C281ADF8400997BB0 /* CommandPostViewController.xib */,
+			);
+			path = "User Interface";
 			sourceTree = "<group>";
 		};
 		22652B3F251C391E000FF14D /* gestures */ = {
@@ -4072,12 +4155,14 @@
 		9445CA0219083251002568BB = {
 			isa = PBXGroup;
 			children = (
+				226BD80E281CE89B00294634 /* GCDAsyncSocket.m */,
 				4FC09F7B19F99ECE007542A6 /* docs.json */,
 				9445CA1419083251002568BB /* Hammerspoon */,
 				4F98506D1B722C4100F7E909 /* extensions */,
 				4F766E561C48F789007B9D24 /* scripts */,
 				D02F95251A00221C00E28BB2 /* Hammerspoon Tests */,
 				4F20B52A1C1F1C5B00F52437 /* Hammerspoon UI Tests */,
+				22451849281ADF8400997BB0 /* CommandPost Workflow Extension */,
 				9445CA0D19083251002568BB /* Frameworks */,
 				9445CA0C19083251002568BB /* Products */,
 				0024EE4F07CEC6C274F32AB6 /* Pods */,
@@ -4185,6 +4270,7 @@
 				226F95FE27917D3B003DF60F /* libblackmagic.dylib */,
 				22FA061B27A160410039C37A /* librazer.dylib */,
 				D6C32CCF27DDD47F001AA22E /* libspaces.dylib */,
+				22451848281ADF8400997BB0 /* CommandPost.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -5221,6 +5307,23 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		22451847281ADF8400997BB0 /* CommandPost */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2245185B281ADF8400997BB0 /* Build configuration list for PBXNativeTarget "CommandPost" */;
+			buildPhases = (
+				22451844281ADF8400997BB0 /* Sources */,
+				22451845281ADF8400997BB0 /* Frameworks */,
+				22451846281ADF8400997BB0 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CommandPost;
+			productName = CommandPost;
+			productReference = 22451848281ADF8400997BB0 /* CommandPost.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		224BA32723D1ECA900487FDB /* websocket */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 224BA32E23D1ECA900487FDB /* Build configuration list for PBXNativeTarget "websocket" */;
@@ -6449,6 +6552,7 @@
 				4FF73A1E2735449D0007074E /* Copy hs manpage */,
 				4FCA05A12767689C0089A5FC /* Copy hsdocs Files */,
 				4FCA05AB276768EC0089A5FC /* Copy hsdocs minweb Files */,
+				22451857281ADF8400997BB0 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
@@ -6550,6 +6654,7 @@
 				4F70EEDE1B726D730025A7B3 /* PBXTargetDependency */,
 				4FBE2D181B72699100407788 /* PBXTargetDependency */,
 				4FBE2D021B72624A00407788 /* PBXTargetDependency */,
+				22451855281ADF8400997BB0 /* PBXTargetDependency */,
 			);
 			name = Hammerspoon;
 			productName = Hammerspoon;
@@ -7006,9 +7111,13 @@
 			isa = PBXProject;
 			attributes = {
 				CLASSPREFIX = HS;
+				DefaultBuildSystemTypeForWorkspace = Latest;
 				LastUpgradeCheck = 1320;
 				ORGANIZATIONNAME = "LateNite Films";
 				TargetAttributes = {
+					22451847281ADF8400997BB0 = {
+						CreatedOnToolsVersion = 13.3.1;
+					};
 					4F20B5281C1F1C5B00F52437 = {
 						CreatedOnToolsVersion = 7.2;
 						TestTargetID = 9445CA0A19083251002568BB;
@@ -7142,11 +7251,23 @@
 				4FD0AB971B74AE2800A82496 /* wifiwatcher */,
 				4FD0ABB11B74AF4E00A82496 /* window */,
 				2274781F2787F92E00DE6894 /* osc */,
+				22451847281ADF8400997BB0 /* CommandPost */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		22451846281ADF8400997BB0 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2245184D281ADF8400997BB0 /* CommandPostViewController.xib in Resources */,
+				22615F33281E3301003ADBC6 /* WorkflowExtension.icns in Resources */,
+				2245184B281ADF8400997BB0 /* Assets.xcassets in Resources */,
+				226BD80D281CE86200294634 /* CocoaAsyncSocket in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4F20B5271C1F1C5B00F52437 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -7345,6 +7466,15 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		22451844281ADF8400997BB0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				22451851281ADF8400997BB0 /* CommandPostViewController.m in Sources */,
+				226BD80F281CE89B00294634 /* GCDAsyncSocket.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		224BA32823D1ECA900487FDB /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -8220,6 +8350,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		22451855281ADF8400997BB0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 22451847281ADF8400997BB0 /* CommandPost */;
+			targetProxy = 22451854281ADF8400997BB0 /* PBXContainerItemProxy */;
+		};
 		224BA33623D1EFB300487FDB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 224BA32723D1ECA900487FDB /* websocket */;
@@ -8719,6 +8854,297 @@
 					"-Wno-documentation-unknown-command",
 					"$(inherited)",
 				);
+			};
+			name = Release;
+		};
+		22451858281ADF8400997BB0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ADDITIONAL_SDKS = /Library/Developer/SDKs/WorkflowExtensionSDK.sdk;
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_ENTITLEMENTS = "CommandPost Workflow Extension/Extras/CommandPost.entitlements";
+				CODE_SIGN_IDENTITY = "Developer ID Application";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = A5HDJTY9X5;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					/Library/Frameworks,
+					"$(inherited)",
+				);
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					/usr/include,
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "CommandPost Workflow Extension/Extras/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = CommandPost;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 LateNite Films. All rights reserved.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					/usr/lib,
+					"$(inherited)",
+				);
+				MACH_O_TYPE = mh_execute;
+				MACOSX_DEPLOYMENT_TARGET = 12.3;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"-fapplication-extension",
+					"-e_ProExtensionMain",
+					"-lProExtension",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.latenitefilms.CommandPost.WorkflowExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "CommandPost/CommandPost-Bridging-Header.h";
+				WRAPPER_EXTENSION = appex;
+			};
+			name = Debug;
+		};
+		22451859281ADF8400997BB0 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ADDITIONAL_SDKS = /Library/Developer/SDKs/WorkflowExtensionSDK.sdk;
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_ENTITLEMENTS = "CommandPost Workflow Extension/Extras/CommandPost.entitlements";
+				CODE_SIGN_IDENTITY = "Developer ID Application";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = A5HDJTY9X5;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					/Library/Frameworks,
+					"$(inherited)",
+				);
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					/usr/include,
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "CommandPost Workflow Extension/Extras/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = CommandPost;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 LateNite Films. All rights reserved.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					/usr/lib,
+					"$(inherited)",
+				);
+				MACH_O_TYPE = mh_execute;
+				MACOSX_DEPLOYMENT_TARGET = 12.3;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = (
+					"-fapplication-extension",
+					"-e_ProExtensionMain",
+					"-lProExtension",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.latenitefilms.CommandPost.WorkflowExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "CommandPost/CommandPost-Bridging-Header.h";
+				WRAPPER_EXTENSION = appex;
+			};
+			name = Profile;
+		};
+		2245185A281ADF8400997BB0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ADDITIONAL_SDKS = /Library/Developer/SDKs/WorkflowExtensionSDK.sdk;
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_ENTITLEMENTS = "CommandPost Workflow Extension/Extras/CommandPost.entitlements";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = A5HDJTY9X5;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					/Library/Frameworks,
+					"$(inherited)",
+				);
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					/usr/include,
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "CommandPost Workflow Extension/Extras/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = CommandPost;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 LateNite Films. All rights reserved.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					/usr/lib,
+					"$(inherited)",
+				);
+				MACH_O_TYPE = mh_execute;
+				MACOSX_DEPLOYMENT_TARGET = 12.3;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = (
+					"-fapplication-extension",
+					"-e_ProExtensionMain",
+					"-lProExtension",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.latenitefilms.CommandPost.WorkflowExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "CommandPost/CommandPost-Bridging-Header.h";
+				WRAPPER_EXTENSION = appex;
 			};
 			name = Release;
 		};
@@ -11278,6 +11704,16 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		2245185B281ADF8400997BB0 /* Build configuration list for PBXNativeTarget "CommandPost" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				22451858281ADF8400997BB0 /* Debug */,
+				22451859281ADF8400997BB0 /* Profile */,
+				2245185A281ADF8400997BB0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		224BA32E23D1ECA900487FDB /* Build configuration list for PBXNativeTarget "websocket" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
