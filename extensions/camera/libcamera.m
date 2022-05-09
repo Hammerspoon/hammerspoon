@@ -448,6 +448,10 @@ static int stopWatcher(lua_State *L) {
         [skin checkArgs:LS_TBREAK];
     }
 
+    if (!deviceWatcher) {
+        return 0;
+    }
+
     NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
     [center removeObserver:deviceWatcherAddedObserver
                       name:AVCaptureDeviceWasConnectedNotification
@@ -474,7 +478,7 @@ static int isWatcherRunning(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TBREAK];
 
-    lua_pushboolean(L, deviceWatcher->running);
+    lua_pushboolean(L, deviceWatcher && deviceWatcher->running);
 
     return 1;
 }
