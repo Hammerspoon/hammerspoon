@@ -62,6 +62,7 @@
 
 @property (weak) IBOutlet NSScrollView *debugTextBox;
 @property (weak) IBOutlet NSTextField *statusTextField;
+@property (weak) IBOutlet NSTextField *statusHeadingTextField;
 
 @end
 
@@ -75,7 +76,8 @@
 - (void) startSocketServer
 {
     // Update status in Workflow Extension UI:
-    [self updateStatus:@"🟠 Starting Server..." includeTimestamp:NO];
+    [self updateStatusEmoji:@"🟠"];
+    [self updateStatus:@"Starting Server..." includeTimestamp:NO];
     
     // Setup a new dispatch queue for socket connection:
     socketQueue = dispatch_queue_create("socketQueue", NULL);
@@ -93,12 +95,14 @@
     NSError *error = nil;
     if (![listenSocket acceptOnPort:thePort error:&error]) {
         // Update status in Workflow Extension UI:
-        NSString *status = [NSString stringWithFormat:@"🔴 Socket Server Failed (Port: %hu)", thePort];
+        [self updateStatusEmoji:@"🔴"];
+        NSString *status = [NSString stringWithFormat:@"Socket Server Failed (Port: %hu)", thePort];
         [self updateStatus:status includeTimestamp:NO];
 
     } else {
         // Update status in Workflow Extension UI:
-        NSString *status = [NSString stringWithFormat:@"🟠 Server Started (Port: %hu)", thePort];
+        [self updateStatusEmoji:@"🟠"];
+        NSString *status = [NSString stringWithFormat:@"Server Started (Port: %hu)", thePort];
         [self updateStatus:status includeTimestamp:NO];
     }
 }
@@ -160,7 +164,8 @@
     UInt16 port = [newSocket connectedPort];
     
     // Update status in Workflow Extension UI:
-    NSString *status = [NSString stringWithFormat:@"🟢 Connected (Port: %hu)", port];
+    [self updateStatusEmoji:@"🟢"];
+    NSString *status = [NSString stringWithFormat:@"Connected (Port: %hu)", port];
     [self updateStatus:status includeTimestamp:NO];
     
     // Send the success command:
@@ -284,8 +289,9 @@
     if (sock != listenSocket)
     {
         // Update status:
-        [self updateStatus:@"🟠 Disconnected" includeTimestamp:NO];
-
+        [self updateStatusEmoji:@"🟠"];
+        [self updateStatus:@"Disconnected" includeTimestamp:NO];
+        
         // Remove the disconnected socket from connected sockets:
         @synchronized(connectedSockets)
         {
@@ -551,6 +557,19 @@
                     newMessage = [NSString stringWithFormat:@"%@ (%f)", message, timeInSeconds];
                 }
                 self.statusTextField.stringValue = newMessage;
+            }
+        }
+    });
+}
+
+//
+// Update the Status Text in the Workflow Extension UI:
+//
+- (void)updateStatusEmoji:(NSString*) emoji {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        @autoreleasepool {
+            if (self && emoji) {
+                self.statusHeadingTextField.stringValue = [NSString stringWithFormat:@"Status: %@", emoji];
             }
         }
     });
