@@ -359,7 +359,7 @@
 //
 - (void) gotoTimelineValueInSeconds:(NSNumber*) seconds
 {
-    CMTime newTime = CMTimeMakeWithSeconds([seconds intValue], NSEC_PER_SEC);
+    CMTime newTime = CMTimeMakeWithSeconds([seconds floatValue], NSEC_PER_SEC);
     [self.host.timeline movePlayheadTo:newTime];
     
     // Update Status:
