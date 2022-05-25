@@ -171,6 +171,11 @@
     // Send the success command:
     [self sendSocketMessage:@"DONE"];
     
+    // Trigger all the notifications:
+    [self activeSequenceChanged];
+    [self playheadTimeChanged];
+    [self sequenceTimeRangeChanged];
+    
     // Read any data on the socket:
     [newSocket readDataToData:[GCDAsyncSocket CRLFData] withTimeout:-1 tag:0];
 }
