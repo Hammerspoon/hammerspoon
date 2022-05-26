@@ -550,7 +550,7 @@
     [super viewWillDisappear];
     
     // Stop the Socket Server:
-    [self stopSocketServer];
+    //[self stopSocketServer];
 }
 
 #pragma mark USER INTERFACE
