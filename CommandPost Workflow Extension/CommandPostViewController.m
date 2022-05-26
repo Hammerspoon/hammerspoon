@@ -533,20 +533,6 @@
     return @"CommandPostViewController";
 }
 
-- (void)viewWillDisappear
-{
-    // Probably not necessary, but for completeness, lets remove the timeline observer:
-    [self.host.timeline removeTimelineObserver:self];
-    
-    // Again, probably not necessary, but lets stop the socket server:
-    [self stopSocketServer];
-}
-
-- (void)viewDidLoad
-{
-    [super viewDidLoad];
-}
-
 #pragma mark USER INTERFACE
 
 //
