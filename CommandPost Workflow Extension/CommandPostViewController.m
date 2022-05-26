@@ -80,13 +80,19 @@
     [self updateStatus:@"Starting Server..." includeTimestamp:NO];
     
     // Setup a new dispatch queue for socket connection:
-    socketQueue = dispatch_queue_create("socketQueue", NULL);
+    if (!socketQueue) {
+        socketQueue = dispatch_queue_create("socketQueue", NULL);
+    }
     
     // Setup new CocoaAsyncSocket object:
-    listenSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:socketQueue];
+    if (!listenSocket) {
+        listenSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:socketQueue];
+    }
     
     // Setup an array to store all accepted client connections
-    connectedSockets = [[NSMutableArray alloc] initWithCapacity:1];
+    if (!connectedSockets) {
+        connectedSockets = [[NSMutableArray alloc] initWithCapacity:1];
+    }
     
     // The socket port we want to use for communication:
     UInt16 thePort = 43426;
@@ -522,15 +528,29 @@
     
     // Connect to Final Cut Pro:
     [self connectToFinalCutPro];
-    
-    // Start the Socket Server:
-    [self startSocketServer];
 }
 
 - (NSString*) nibName
 {
     // Return the NIB name:
     return @"CommandPostViewController";
+}
+
+- (void)viewWillAppear
+{
+    [super viewWillAppear];
+    
+    // Start the Socket Server:
+    [self startSocketServer];
+}
+
+
+- (void)viewWillDisappear
+{
+    [super viewWillDisappear];
+    
+    // Stop the Socket Server:
+    [self stopSocketServer];
 }
 
 #pragma mark USER INTERFACE
