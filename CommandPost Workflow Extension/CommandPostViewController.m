@@ -60,6 +60,7 @@
 
 @interface CommandPostViewController () <FCPXTimelineObserver>
 
+@property (weak) IBOutlet NSScrollView *debugTextBox;
 @property (weak) IBOutlet NSTextField *statusTextField;
 @property (weak) IBOutlet NSTextField *statusHeadingTextField;
 
@@ -69,32 +70,6 @@
 
 #pragma mark SOCKETS SERVER
 
-- (void) connectToServer
-{
-    if (clientSocket && !clientSocket.isConnected) {
-        NSString *status = [NSString stringWithFormat:@"Connecting to server!"];
-        [self updateStatus:status includeTimestamp:NO];
-        
-        // The socket port we want to use for communication:
-        UInt16 thePort = 43426;
-        
-        // Start Socket Server:
-        NSError *error = nil;
-        
-        if (![clientSocket connectToHost:@"localhost" onPort:thePort error:&error]) {
-            // Update status in Workflow Extension UI:
-            [self updateStatusEmoji:@"🔴"];
-            NSString *status = [NSString stringWithFormat:@"%@", error.localizedDescription];
-            [self updateStatus:status includeTimestamp:NO];
-        } else {
-            // Update status in Workflow Extension UI:
-            [self updateStatusEmoji:@"🟠"];
-            NSString *status = [NSString stringWithFormat:@"Waiting for Server (Port: %hu)", thePort];
-            [self updateStatus:status includeTimestamp:NO];
-        }
-    }
-}
-
 //
 // Start the Socket Server:
 //
@@ -102,7 +77,7 @@
 {
     // Update status in Workflow Extension UI:
     [self updateStatusEmoji:@"🟠"];
-    [self updateStatus:@"Starting Socket Client..." includeTimestamp:NO];
+    [self updateStatus:@"Starting Server..." includeTimestamp:NO];
     
     // Setup a new dispatch queue for socket connection:
     if (!socketQueue) {
@@ -110,16 +85,31 @@
     }
     
     // Setup new CocoaAsyncSocket object:
-    if (!clientSocket) {
-        clientSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:socketQueue];
+    if (!listenSocket) {
+        listenSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:socketQueue];
     }
-        
-    [self connectToServer];
     
-    if (!retryTimer) {
-        retryTimer = [NSTimer scheduledTimerWithTimeInterval:1 repeats:YES block:^(NSTimer *timer) {
-            [self connectToServer];
-        }];
+    // Setup an array to store all accepted client connections
+    if (!connectedSockets) {
+        connectedSockets = [[NSMutableArray alloc] initWithCapacity:1];
+    }
+    
+    // The socket port we want to use for communication:
+    UInt16 thePort = 43426;
+    
+    // Start Socket Server:
+    NSError *error = nil;
+    if (![listenSocket acceptOnPort:thePort error:&error]) {
+        // Update status in Workflow Extension UI:
+        [self updateStatusEmoji:@"🔴"];
+        NSString *status = [NSString stringWithFormat:@"Socket Server Failed (Port: %hu)", thePort];
+        [self updateStatus:status includeTimestamp:NO];
+
+    } else {
+        // Update status in Workflow Extension UI:
+        [self updateStatusEmoji:@"🟠"];
+        NSString *status = [NSString stringWithFormat:@"Server Started (Port: %hu)", thePort];
+        [self updateStatus:status includeTimestamp:NO];
     }
 }
 
@@ -128,16 +118,24 @@
 //
 - (void) stopSocketServer
 {
-    if (retryTimer) {
-        [retryTimer invalidate];
-        retryTimer = nil;
-    }
-    
     // Tell all our clients we're about to die:
     [self sendSocketMessage:@"DEAD"];
     
-    // Disconnect the Socket:
-    //[clientSocket disconnect];
+    // Stop accepting connections:
+    [listenSocket disconnect];
+    
+    // Stop any client connections:
+    @synchronized(connectedSockets)
+    {
+        NSUInteger i;
+        for (i = 0; i < [connectedSockets count]; i++)
+        {
+            // Call disconnect on the socket,
+            // which will invoke the socketDidDisconnect: method,
+            // which will remove the socket from the list.
+            [[connectedSockets objectAtIndex:i] disconnect];
+        }
+    }
 }
 
 //
@@ -145,23 +143,32 @@
 //
 - (void)sendSocketMessage:(NSString*) message
 {
-    if (clientSocket && clientSocket.isConnected) {
-        // Add in the correct ending:
-        NSString *newMessage = [NSString stringWithFormat:@"%@\r\n", message];
-        
-        // Send the message to all connected sockets:
-        NSData *data = [newMessage dataUsingEncoding:NSUTF8StringEncoding];
-        
-        // Send the data:
-        [clientSocket writeData:data withTimeout:-1 tag:0];
+    // Add in the correct ending:
+    NSString *newMessage = [NSString stringWithFormat:@"%@\r\n", message];
+    
+    // Send the message to all connected sockets:
+    NSData *data = [newMessage dataUsingEncoding:NSUTF8StringEncoding];
+    for (id socket in connectedSockets) {
+        [socket writeData:data withTimeout:-1 tag:0];
     }
 }
 
 //
-// Connected to the Socket Server:
+// Triggered when a new client socket connection is accepted.
 //
-- (void)socket:(GCDAsyncSocket *)sock didConnectToHost:(NSString *)host port:(uint16_t)port
+// NOTE: This method is executed on the socketQueue (not the main thread)
+//
+- (void)socket:(GCDAsyncSocket *)sock didAcceptNewSocket:(GCDAsyncSocket *)newSocket
 {
+    // Add the new socket to connected sockets:
+    @synchronized(connectedSockets)
+    {
+        [connectedSockets addObject:newSocket];
+    }
+    
+    // Get port name from new socket:
+    UInt16 port = [newSocket connectedPort];
+    
     // Update status in Workflow Extension UI:
     [self updateStatusEmoji:@"🟢"];
     NSString *status = [NSString stringWithFormat:@"Connected (Port: %hu)", port];
@@ -176,9 +183,7 @@
     [self sequenceTimeRangeChanged];
     
     // Read any data on the socket:
-    if (sock && sock.isConnected) {
-        [sock readDataToData:[GCDAsyncSocket CRLFData] withTimeout:-1 tag:0];
-    }
+    [newSocket readDataToData:[GCDAsyncSocket CRLFData] withTimeout:-1 tag:0];
 }
 
 //
@@ -189,9 +194,7 @@
 - (void)socket:(GCDAsyncSocket *)sock didWriteDataWithTag:(long)tag
 {
     // Read any data on the socket:
-    if (sock && sock.isConnected) {
-        [sock readDataToData:[GCDAsyncSocket CRLFData] withTimeout:-1 tag:0];
-    }
+    [sock readDataToData:[GCDAsyncSocket CRLFData] withTimeout:-1 tag:0];
 }
 
 //
@@ -218,9 +221,6 @@
         [self updateStatus:@"⛔️ No command detected" includeTimestamp:NO];
         return;
     }
-    
-    NSString *status = [NSString stringWithFormat:@"✅ Command: %@", command];
-    [self updateStatus:status includeTimestamp:NO];
     
     // Get the value from the message:
     NSString *value = nil;
@@ -287,8 +287,8 @@
     });
             
     // Read any data on connected sockets:
-    if (clientSocket && clientSocket.isConnected) {
-        [clientSocket readDataToData:[GCDAsyncSocket CRLFData] withTimeout:-1 tag:0];
+    for (id socket in connectedSockets) {
+        [socket readDataToData:[GCDAsyncSocket CRLFData] withTimeout:-1 tag:0];
     }
 }
 
@@ -297,9 +297,18 @@
 //
 - (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err
 {
-    // Update status:
-    [self updateStatusEmoji:@"🟠"];
-    [self updateStatus:@"Disconnected" includeTimestamp:NO];
+    if (sock != listenSocket)
+    {
+        // Update status:
+        [self updateStatusEmoji:@"🟠"];
+        [self updateStatus:@"Disconnected" includeTimestamp:NO];
+        
+        // Remove the disconnected socket from connected sockets:
+        @synchronized(connectedSockets)
+        {
+            [connectedSockets removeObject:sock];
+        }
+    }
 }
 
 #pragma mark CONNECT TO FINAL CUT PRO
@@ -534,6 +543,7 @@
     // Start the Socket Server:
     [self startSocketServer];
 }
+
 
 - (void)viewWillDisappear
 {
