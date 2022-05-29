@@ -54,6 +54,38 @@
     return appInfo;
 }
 
++(NSArray *)preferredLocalizationsForBundleID:(NSString *)bundleID {
+    NSWorkspace *ws = [NSWorkspace sharedWorkspace];
+    NSString *appPath = [ws absolutePathForAppBundleWithIdentifier:bundleID];
+    return [HSapplication preferredLocalizationsForBundlePath:appPath];
+}
+
++(NSArray *)preferredLocalizationsForBundlePath:(NSString *)bundlePath {
+    NSArray *preferredLocalizations = nil;
+
+    NSBundle *app = [NSBundle bundleWithPath:bundlePath];
+    if (app) {
+        preferredLocalizations = app.preferredLocalizations;
+    }
+    return preferredLocalizations;
+}
+
++(NSArray *)localizationsForBundleID:(NSString *)bundleID {
+    NSWorkspace *ws = [NSWorkspace sharedWorkspace];
+    NSString *appPath = [ws absolutePathForAppBundleWithIdentifier:bundleID];
+    return [HSapplication localizationsForBundlePath:appPath];
+}
+
++(NSArray *)localizationsForBundlePath:(NSString *)bundlePath {
+    NSArray *localizations = nil;
+
+    NSBundle *app = [NSBundle bundleWithPath:bundlePath];
+    if (app) {
+        localizations = app.localizations;
+    }
+    return localizations;
+}
+
 +(NSArray<HSapplication *>*)runningApplicationsWithState:(lua_State *)L {
     NSMutableArray<HSapplication *> *apps = [[NSMutableArray alloc] init];
 

@@ -254,3 +254,22 @@ function testUTI()
   assertIsEqual("com.apple.Preview", bundle)
   return success()
 end
+
+function testLocalizationFunctions()
+  local appPath = "/Applications/Safari.app"
+  local bundleID = "com.apple.Safari"
+
+  local localizationsForBundleID = hs.application.localizationsForBundleID(bundleID)
+  assertIsTable(localizationsForBundleID)
+
+  local preferredLocalizationsForBundleID = hs.application.preferredLocalizationsForBundleID(bundleID)
+  assertIsTable(preferredLocalizationsForBundleID)
+
+  local localizationsForBundlePath = hs.application.localizationsForBundlePath(appPath)
+  assertIsTable(localizationsForBundlePath)
+
+  local preferredLocalizationsForBundlePath = hs.application.preferredLocalizationsForBundlePath(appPath)
+  assertIsTable(preferredLocalizationsForBundlePath)
+
+  return success()
+end

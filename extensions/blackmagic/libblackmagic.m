@@ -254,15 +254,16 @@ static int blackmagic_deviceType(lua_State *L) {
     return 1;
 }
 
-/// hs.blackmagic:jogMode(value) -> `hs.blackmagic`
+/// hs.blackmagic:jogMode([value]) -> `hs.blackmagic`, string
 /// Method
-/// Sets the Jog Mode for the Blackmagic device.
+/// Gets or Sets the Jog Mode for the Blackmagic device.
 ///
 /// Parameters:
-///  * value - "RELATIVE", "ABSOLUTE" and "ABSOLUTE ZERO" as a string.
+///  * value - an optional string of "RELATIVE", "ABSOLUTE" and "ABSOLUTE ZERO" if setting.
 ///
 /// Returns:
-///  * The `hs.blackmagic` device or `nil` if a wrong value is supplied.
+///  * The `hs.blackmagic` device
+///  * "RELATIVE", "ABSOLUTE" and "ABSOLUTE ZERO" as a string, or `nil` if something has gone wrong.
 ///
 /// Notes:
 ///  * You can use `hs.blackmagic.jogModeNames[deviceType]` to get a table of possible values.
@@ -271,21 +272,36 @@ static int blackmagic_deviceType(lua_State *L) {
 ///  * "ABSOLUTE ZERO" - The same as "ABSOLUTE", but has a small dead zone around 0 - which mechincally "snaps" to zero on a Editor Keyboard.
 static int blackmagic_jogMode(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
 
     HSBlackmagicDevice *device = [skin luaObjectAtIndex:1 toClass:"HSBlackmagicDevice"];
+    
+    NSString *jogMode;
+    
+    if (lua_type(L, 2) != LUA_TNONE) {
+        //
+        // Setting:
+        //
+        jogMode = [skin toNSObjectAtIndex:2];
         
-    NSString *jogMode = [skin toNSObjectAtIndex:2];
-    
-    if (![device.jogModeLookup objectForKey:jogMode]) {
-        lua_pushnil(skin.L);
-        return 1;
+        if (![device.jogModeLookup objectForKey:jogMode]) {
+            lua_pushvalue(skin.L, 1);
+            lua_pushnil(skin.L);
+            return 2;
+        }
+        
+        [device setJogMode:jogMode];
+    } else {
+        //
+        // Getting:
+        //
+        [device getJogMode];
+        jogMode = device.jogModeCache;
     }
-    
-    [device setJogMode:jogMode];
-    
+        
     lua_pushvalue(skin.L, 1);
-    return 1;
+    [skin pushNSObject:jogMode];
+    return 2;
 }
 
 #pragma mark - Lua<->NSObject Conversion Functions

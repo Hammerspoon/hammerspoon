@@ -25,6 +25,8 @@
 @property (nonatomic) BOOL batteryCharging;
 @property (nonatomic) NSNumber *batteryLevel;
 
+@property (nonatomic) NSString *jogModeCache;
+
 @property (nonatomic) BOOL firstTimeAuthenticating;
 
 @property NSTimer *authenticationTimer;
@@ -47,6 +49,7 @@
 - (void)authenticate;
 
 - (void)getBatteryStatus;
+- (void)getJogMode;
 
 - (void)setJogLEDs:(NSDictionary*) options;
 - (void)setLEDs:(NSDictionary*) options;

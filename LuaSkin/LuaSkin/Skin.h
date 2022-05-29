@@ -819,6 +819,7 @@ NSString *specMaskToString(int spec);
  */
 - (BOOL)isValidUTF8AtIndex:(int)idx ;
 
+- (NSString *)getValidUTF8:(const unsigned char *)src ofLength:(size_t)sourceLength;
 /*!
  @abstract Returns an NSString for the string at the specified index with invalid UTF8 byte sequences converted to the Unicode Invalid Character code.
 

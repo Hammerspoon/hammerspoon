@@ -35,7 +35,7 @@ _kMetaTable._k = setmetatable({}, {__mode = "k"})
 _kMetaTable._t = setmetatable({}, {__mode = "k"})
 _kMetaTable.__index = function(obj, key)
         if _kMetaTable._k[obj] then
-            if _kMetaTable._k[obj][key] then
+            if type(_kMetaTable._k[obj][key]) ~= "nil" then
                 return _kMetaTable._k[obj][key]
             else
                 for k,v in pairs(_kMetaTable._k[obj]) do
