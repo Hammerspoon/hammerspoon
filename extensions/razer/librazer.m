@@ -292,6 +292,13 @@ static int razer_orangeStatusLight(lua_State *L) {
 
     HSRazerDevice *razer = [skin luaObjectAtIndex:1 toClass:"HSRazerDevice"];
 
+    if (!razer.supportsOrangeStatusLight) {
+        lua_pushvalue(L, 1);
+        lua_pushnil(L);
+        [skin pushNSObject:@"Orange Status Light is not supported on this device."];
+        return 3;
+    }
+    
     if (lua_gettop(L) == 1) {
         // Getter:
         HSRazerResult *result = [razer getYellowStatusLight];
@@ -340,6 +347,13 @@ static int razer_yellowStatusLight(lua_State *L) {
 
     HSRazerDevice *razer = [skin luaObjectAtIndex:1 toClass:"HSRazerDevice"];
 
+    if (!razer.supportsYellowStatusLight) {
+        lua_pushvalue(L, 1);
+        lua_pushnil(L);
+        [skin pushNSObject:@"Yellow Status Light is not supported on this device."];
+        return 3;
+    }
+    
     if (lua_gettop(L) == 1) {
         // Getter:
         HSRazerResult *result = [razer getYellowStatusLight];
@@ -388,6 +402,13 @@ static int razer_greenStatusLight(lua_State *L) {
 
     HSRazerDevice *razer = [skin luaObjectAtIndex:1 toClass:"HSRazerDevice"];
 
+    if (!razer.supportsGreenStatusLight) {
+        lua_pushvalue(L, 1);
+        lua_pushnil(L);
+        [skin pushNSObject:@"Green Status Light is not supported on this device."];
+        return 3;
+    }
+    
     if (lua_gettop(L) == 1) {
         // Getter:
         HSRazerResult *result = [razer getGreenStatusLight];
@@ -435,6 +456,13 @@ static int razer_blueStatusLight(lua_State *L) {
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
 
     HSRazerDevice *razer = [skin luaObjectAtIndex:1 toClass:"HSRazerDevice"];
+    
+    if (!razer.supportsBlueStatusLight) {
+        lua_pushvalue(L, 1);
+        lua_pushnil(L);
+        [skin pushNSObject:@"Blue Status Light is not supported on this device."];
+        return 3;
+    }
 
     if (lua_gettop(L) == 1) {
         // Getter:
@@ -486,14 +514,14 @@ static int razer_backlightsMode(lua_State *L) {
 
     HSRazerDevice *razer    = [skin luaObjectAtIndex:1 toClass:"HSRazerDevice"];
     
-    NSString *mode = [skin toNSObjectAtIndex:2];
-        
     if (!razer.supportsBacklightToMode) {
         lua_pushvalue(L, 1);
         lua_pushboolean(L, NO);
         [skin pushNSObject:@"Backlights Mode is not supported on this device."];
         return 3;
     }
+    
+    NSString *mode = [skin toNSObjectAtIndex:2];
     
     if (![mode isEqualToString:@"static"] && ![mode isEqualToString:@"flashing"] && ![mode isEqualToString:@"fading"]) {
        lua_pushvalue(L, 1);
@@ -526,6 +554,14 @@ static int razer_backlightsStatic(lua_State *L) {
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBREAK];
 
     HSRazerDevice *razer    = [skin luaObjectAtIndex:1 toClass:"HSRazerDevice"];
+    
+    if (!razer.supportsBacklightToStaticColor) {
+        lua_pushvalue(L, 1);
+        lua_pushboolean(L, NO);
+        [skin pushNSObject:@"Backlights Static is not supported on this device."];
+        return 3;
+    }
+    
     NSColor *color          = [skin luaObjectAtIndex:2 toClass:"NSColor"];
 
     HSRazerResult *result   = [razer setBacklightToStaticColor:color];
@@ -552,6 +588,13 @@ static int razer_backlightsOff(lua_State *L) {
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
     HSRazerDevice *razer    = [skin luaObjectAtIndex:1 toClass:"HSRazerDevice"];
+    
+    if (!razer.supportsBacklightToOff) {
+        lua_pushvalue(L, 1);
+        lua_pushboolean(L, NO);
+        [skin pushNSObject:@"Backlights Off is not supported on this device."];
+        return 3;
+    }
 
     HSRazerResult *result   = [razer setBacklightToOff];
 
@@ -578,6 +621,14 @@ static int razer_backlightsWave(lua_State *L) {
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TSTRING, LS_TBREAK];
 
     HSRazerDevice *razer    = [skin luaObjectAtIndex:1 toClass:"HSRazerDevice"];
+    
+    if (!razer.supportsBacklightToWave) {
+        lua_pushvalue(L, 1);
+        lua_pushboolean(L, NO);
+        [skin pushNSObject:@"Backlights Wave is not supported on this device."];
+        return 3;
+    }
+    
     NSNumber *speed         = [skin toNSObjectAtIndex:2];
     NSString *direction     = [skin toNSObjectAtIndex:3];
 
@@ -619,6 +670,14 @@ static int razer_backlightsSpectrum(lua_State *L) {
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
     HSRazerDevice *razer    = [skin luaObjectAtIndex:1 toClass:"HSRazerDevice"];
+    
+    if (!razer.supportsBacklightToSpectrum) {
+        lua_pushvalue(L, 1);
+        lua_pushboolean(L, NO);
+        [skin pushNSObject:@"Backlights Spectrum is not supported on this device."];
+        return 3;
+    }
+    
     HSRazerResult *result   = [razer setBacklightToSpectrum];
 
     lua_pushvalue(L, 1);
@@ -644,6 +703,14 @@ static int razer_backlightsReactive(lua_State *L) {
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TTABLE, LS_TBREAK];
 
     HSRazerDevice *razer    = [skin luaObjectAtIndex:1 toClass:"HSRazerDevice"];
+    
+    if (!razer.supportsBacklightToReactive) {
+        lua_pushvalue(L, 1);
+        lua_pushboolean(L, NO);
+        [skin pushNSObject:@"Backlights Reactive is not supported on this device."];
+        return 3;
+    }
+    
     NSNumber *speed         = [skin toNSObjectAtIndex:2];
     NSColor *color          = [skin luaObjectAtIndex:3 toClass:"NSColor"];
 
@@ -683,6 +750,14 @@ static int razer_backlightsStarlight(lua_State *L) {
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TTABLE | LS_TOPTIONAL | LS_TNIL, LS_TTABLE | LS_TOPTIONAL | LS_TNIL, LS_TBREAK];
 
     HSRazerDevice *razer = [skin luaObjectAtIndex:1 toClass:"HSRazerDevice"];
+    
+    if (!razer.supportsBacklightToStarlight) {
+        lua_pushvalue(L, 1);
+        lua_pushboolean(L, NO);
+        [skin pushNSObject:@"Backlights Starlight is not supported on this device."];
+        return 3;
+    }
+    
     NSNumber *speed = [skin toNSObjectAtIndex:2];
 
     if ([speed intValue] < 1 || [speed intValue] > 3) {
@@ -731,6 +806,13 @@ static int razer_backlightsBreathing(lua_State *L) {
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE | LS_TOPTIONAL | LS_TNIL, LS_TTABLE | LS_TOPTIONAL | LS_TNIL, LS_TBREAK];
 
     HSRazerDevice *razer = [skin luaObjectAtIndex:1 toClass:"HSRazerDevice"];
+    
+    if (!razer.supportsBacklightToBreathing) {
+        lua_pushvalue(L, 1);
+        lua_pushboolean(L, NO);
+        [skin pushNSObject:@"Backlights Breathing is not supported on this device."];
+        return 3;
+    }
 
     NSColor *color;
     NSColor *secondaryColor;
@@ -773,6 +855,13 @@ static int razer_backlightsCustom(lua_State *L) {
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBREAK];
 
     HSRazerDevice *razer = [skin luaObjectAtIndex:1 toClass:"HSRazerDevice"];
+    
+    if (!razer.supportsBacklightToCustom) {
+        lua_pushvalue(L, 1);
+        lua_pushboolean(L, NO);
+        [skin pushNSObject:@"Backlights Custom is not supported on this device."];
+        return 3;
+    }
 
     NSMutableDictionary *customColors = [NSMutableDictionary dictionary];
 

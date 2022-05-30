@@ -31,6 +31,11 @@
         self.supportsBacklightToCustom          = YES;
         
         self.supportsBacklightToMode            = NO;
+        
+        self.supportsOrangeStatusLight          = YES;
+        self.supportsGreenStatusLight           = YES;
+        self.supportsBlueStatusLight            = YES;
+        self.supportsYellowStatusLight          = NO;
                 
         // A dictionary of button names. On the left is what is returned by IOHID, on the right is what we want to
         // label the buttons in Hammerspoon:

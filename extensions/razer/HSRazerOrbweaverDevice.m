@@ -23,6 +23,11 @@
         self.supportsBacklightToStarlight       = NO;
         self.supportsBacklightToBreathing       = NO;
         self.supportsBacklightToCustom          = NO;
+        
+        self.supportsOrangeStatusLight          = NO;
+        self.supportsGreenStatusLight           = YES;
+        self.supportsBlueStatusLight            = YES;
+        self.supportsYellowStatusLight          = YES;
 
         // A dictionary of button names. On the left is what is returned by IOHID, on the right is what we want to
         // label the buttons in Hammerspoon:
@@ -150,9 +155,9 @@
     if ([result success]) {
         int argumentTwo = [result argumentTwo];
         if (argumentTwo == 1) {
-            result.orangeStatusLight = YES;
+            result.greenStatusLight = YES;
         } else {
-            result.orangeStatusLight = NO;
+            result.greenStatusLight = NO;
         }
     }
 
@@ -193,9 +198,9 @@
     if ([result success]) {
         int argumentTwo = [result argumentTwo];
         if (argumentTwo == 1) {
-            result.greenStatusLight = YES;
+            result.blueStatusLight = YES;
         } else {
-            result.greenStatusLight = NO;
+            result.blueStatusLight = NO;
         }
     }
 
@@ -236,12 +241,58 @@
     if ([result success]) {
         int argumentTwo = [result argumentTwo];
         if (argumentTwo == 1) {
-            result.blueStatusLight = YES;
+            result.yellowStatusLight = YES;
         } else {
-            result.blueStatusLight = NO;
+            result.yellowStatusLight = NO;
         }
     }
 
+    return result;
+}
+
+#pragma mark - LED Brightness
+
+- (HSRazerResult*)getBrightness {
+    // Setup Arguments:
+    NSDictionary *arguments = @{
+        @0 : @0x01,         // Variable Storage
+        @1 : @0x05,         // LED ID
+        @2 : @0x00,         // Effect ID
+    };
+        
+    // Send the report to the Razer USB Device:
+    HSRazerResult* result = [self sendRazerReportToDeviceWithTransactionID:0xFF commandClass:0x03 commandID:0x83 arguments:arguments];
+    
+    // The brightness comes back on argument 2 as 0-255, so we convert it to 0-100 range:
+    if ([result success]) {
+        unsigned char argumentTwo = [result argumentTwo];
+        result.brightness = @(round(argumentTwo / 2.55));
+    }
+    
+    return result;
+}
+
+- (HSRazerResult*)setBrightness:(NSNumber *)brightness {
+    
+    // We get the brightness in a 0-100 range, and we need to convert it to 0-255:
+    brightness = @(round([brightness integerValue] * 2.55));
+    
+    // Setup Arguments:
+    NSDictionary *arguments = @{
+        @0 : @0x01,         // Variable Storage
+        @1 : @0x05,         // LED ID
+        @2 : brightness,    // Brightness Value
+    };
+        
+    // Send the report to the Razer USB Device:
+    HSRazerResult* result = [self sendRazerReportToDeviceWithTransactionID:0xFF commandClass:0x03 commandID:0x03 arguments:arguments];
+    
+    // The brightness comes back on argument 2 as 0-255, so we convert it to 0-100 range:
+    if ([result success]) {
+        unsigned char argumentTwo = [result argumentTwo];
+        result.brightness = @(round(argumentTwo / 2.55));
+    }
+    
     return result;
 }
 

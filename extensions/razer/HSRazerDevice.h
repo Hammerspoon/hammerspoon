@@ -61,6 +61,11 @@
 
 @property (nonatomic) BOOL                  supportsBacklightToMode;
 
+@property (nonatomic) BOOL                  supportsOrangeStatusLight;
+@property (nonatomic) BOOL                  supportsGreenStatusLight;
+@property (nonatomic) BOOL                  supportsBlueStatusLight;
+@property (nonatomic) BOOL                  supportsYellowStatusLight;
+
 // Scroll Wheel:
 @property (nonatomic) int                   scrollWheelID;
 @property (nonatomic) BOOL                  scrollWheelPressed;
@@ -136,7 +141,7 @@ union HSCommandID {
 struct HSRazerReport {
     unsigned char           status;                 // Always 0x00 for a New Command
     union HSTransactionID   transaction_id;         // Allows you to group requests if using multiple devices
-    unsigned short          remaining_packets;      // Remaning Packets (using Big Endian Byte Order)
+    unsigned short          remaining_packets;      // Remaining Packets (using Big Endian Byte Order)
     unsigned char           protocol_type;          // Always seems to be 0x00
     unsigned char           data_size;              // How many arguments used in the report
     unsigned char           command_class;          // The type of command being triggered
