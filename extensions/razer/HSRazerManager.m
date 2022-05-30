@@ -21,6 +21,8 @@ static void HIDcallback(void* context, IOReturn result, void* sender, IOHIDValue
 
             NSString *scancodeString = [NSString stringWithFormat:@"%d",scancode];
 
+            //NSLog("scancodeString: %@",scancodeString);
+            
             [device deviceButtonPress:scancodeString pressed:pressed];
         }
     }
@@ -59,9 +61,12 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
 
         NSDictionary *matchTartarusV2   =   @{vendorIDKey:  @USB_VID_RAZER,
                                               productIDKey: @USB_PID_RAZER_TARTARUS_V2};
+        
+        NSDictionary *matchOrbweaver    =   @{vendorIDKey:  @USB_VID_RAZER,
+                                              productIDKey: @USB_PID_RAZER_ORBWEAVER};
 
         IOHIDManagerSetDeviceMatchingMultiple((__bridge IOHIDManagerRef)self.ioHIDManager,
-                                              (__bridge CFArrayRef)@[matchTartarusV2]);
+                                              (__bridge CFArrayRef)@[matchTartarusV2, matchOrbweaver]);
 
         // Add our callbacks for relevant events:
         IOHIDManagerRegisterDeviceMatchingCallback((__bridge IOHIDManagerRef)self.ioHIDManager,
@@ -151,6 +156,28 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
             if (!alreadyRegistered) {
                 //NSLog(@"[hs.razer] Razer Tartarus V2 detected.");
                 razerDevice = [[HSRazerTartarusV2Device alloc] initWithDevice:device manager:self];
+
+                // Save the location ID for making sure we're communicating with the right hardware
+                // when changing LED backlights:
+                razerDevice.locationID = locationID;
+
+                // Setup Event Tap:
+                [razerDevice setupEventTap];
+                break;
+            }
+        case USB_PID_RAZER_ORBWEAVER:
+            // We only want to register each device once, as they might have multiple
+            // HID objects for the same physical hardware:
+            alreadyRegistered = NO;
+            for (HSRazerDevice *checkDevice in self.devices) {
+                if (checkDevice.locationID == locationID) {
+                    alreadyRegistered = YES;
+                }
+            }
+
+            if (!alreadyRegistered) {
+                //NSLog(@"[hs.razer] Razer Tartarus V2 detected.");
+                razerDevice = [[HSRazerOrbweaverDevice alloc] initWithDevice:device manager:self];
 
                 // Save the location ID for making sure we're communicating with the right hardware
                 // when changing LED backlights:

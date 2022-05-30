@@ -19,6 +19,7 @@
 @property (nonatomic) BOOL                  orangeStatusLight;
 @property (nonatomic) BOOL                  greenStatusLight;
 @property (nonatomic) BOOL                  blueStatusLight;
+@property (nonatomic) BOOL                  yellowStatusLight;
 
 @property unsigned char                     argumentTwo;
 
@@ -47,6 +48,23 @@
 // Backlight Details:
 @property (nonatomic) int                   backlightRows;
 @property (nonatomic) int                   backlightColumns;
+
+// Does the devices support these methods?
+@property (nonatomic) BOOL                  supportsBacklightToOff;
+@property (nonatomic) BOOL                  supportsBacklightToStaticColor;
+@property (nonatomic) BOOL                  supportsBacklightToWave;
+@property (nonatomic) BOOL                  supportsBacklightToSpectrum;
+@property (nonatomic) BOOL                  supportsBacklightToReactive;
+@property (nonatomic) BOOL                  supportsBacklightToStarlight;
+@property (nonatomic) BOOL                  supportsBacklightToBreathing;
+@property (nonatomic) BOOL                  supportsBacklightToCustom;
+
+@property (nonatomic) BOOL                  supportsBacklightToMode;
+
+@property (nonatomic) BOOL                  supportsOrangeStatusLight;
+@property (nonatomic) BOOL                  supportsGreenStatusLight;
+@property (nonatomic) BOOL                  supportsBlueStatusLight;
+@property (nonatomic) BOOL                  supportsYellowStatusLight;
 
 // Scroll Wheel:
 @property (nonatomic) int                   scrollWheelID;
@@ -78,6 +96,8 @@
 - (HSRazerResult*)setBacklightToBreathingWithColor:(NSColor*)color secondaryColor:(NSColor*)secondaryColor;
 - (HSRazerResult*)setBacklightToCustomWithColors:(NSMutableDictionary *)customColors;
 
+- (HSRazerResult*)setBacklightToMode:(NSString*)mode;
+
 // Brightness:
 - (HSRazerResult*)getBrightness;
 - (HSRazerResult*)setBrightness:(NSNumber *)brightness;
@@ -91,6 +111,9 @@
 
 - (HSRazerResult*)getBlueStatusLight;
 - (HSRazerResult*)setBlueStatusLight:(BOOL)active;
+
+- (HSRazerResult*)getYellowStatusLight;
+- (HSRazerResult*)setYellowStatusLight:(BOOL)active;
 
 // Hardware Communication:
 - (IOUSBDeviceInterface**)getUSBRazerDevice;
@@ -118,7 +141,7 @@ union HSCommandID {
 struct HSRazerReport {
     unsigned char           status;                 // Always 0x00 for a New Command
     union HSTransactionID   transaction_id;         // Allows you to group requests if using multiple devices
-    unsigned short          remaining_packets;      // Remaning Packets (using Big Endian Byte Order)
+    unsigned short          remaining_packets;      // Remaining Packets (using Big Endian Byte Order)
     unsigned char           protocol_type;          // Always seems to be 0x00
     unsigned char           data_size;              // How many arguments used in the report
     unsigned char           command_class;          // The type of command being triggered

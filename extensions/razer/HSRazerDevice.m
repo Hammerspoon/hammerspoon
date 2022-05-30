@@ -275,6 +275,14 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
     return [[HSRazerResult alloc] init];
 }
 
+- (HSRazerResult*)setBacklightToMode:(NSNumber*)mode {
+    NSException *exception = [NSException exceptionWithName:@"HSRazerDeviceUnimplemented"
+                                                     reason:@"setBacklightToMode method not implemented"
+                                                   userInfo:nil];
+    [exception raise];
+    return [[HSRazerResult alloc] init];
+}
+
 #pragma mark - hs.razer: Brightness Placeholders
 
 - (HSRazerResult*)getBrightness {
@@ -338,6 +346,22 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
 - (HSRazerResult*)setBlueStatusLight:(BOOL)active {
     NSException *exception = [NSException exceptionWithName:@"HSRazerDeviceUnimplemented"
                                                      reason:@"setBlueStatusLight method not implemented"
+                                                   userInfo:nil];
+    [exception raise];
+    return [[HSRazerResult alloc] init];
+}
+
+- (HSRazerResult*)getYellowStatusLight {
+    NSException *exception = [NSException exceptionWithName:@"HSRazerDeviceUnimplemented"
+                                                     reason:@"getYellowStatusLight method not implemented"
+                                                   userInfo:nil];
+    [exception raise];
+    return [[HSRazerResult alloc] init];
+}
+
+- (HSRazerResult*)setYellowStatusLight:(BOOL)active {
+    NSException *exception = [NSException exceptionWithName:@"HSRazerDeviceUnimplemented"
+                                                     reason:@"setYellowStatusLight method not implemented"
                                                    userInfo:nil];
     [exception raise];
     return [[HSRazerResult alloc] init];

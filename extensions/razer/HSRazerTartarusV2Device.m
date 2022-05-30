@@ -20,6 +20,23 @@
         // The ID of the scroll wheel. If supplied, this will enable the event tap which ignores scroll wheel movements:
         self.scrollWheelID      = 56;
         
+        // Which modes does this device support?
+        self.supportsBacklightToOff             = YES;
+        self.supportsBacklightToStaticColor     = YES;
+        self.supportsBacklightToWave            = YES;
+        self.supportsBacklightToSpectrum        = YES;
+        self.supportsBacklightToReactive        = YES;
+        self.supportsBacklightToStarlight       = YES;
+        self.supportsBacklightToBreathing       = YES;
+        self.supportsBacklightToCustom          = YES;
+        
+        self.supportsBacklightToMode            = NO;
+        
+        self.supportsOrangeStatusLight          = YES;
+        self.supportsGreenStatusLight           = YES;
+        self.supportsBlueStatusLight            = YES;
+        self.supportsYellowStatusLight          = NO;
+                
         // A dictionary of button names. On the left is what is returned by IOHID, on the right is what we want to
         // label the buttons in Hammerspoon:
         self.buttonNames        = @{

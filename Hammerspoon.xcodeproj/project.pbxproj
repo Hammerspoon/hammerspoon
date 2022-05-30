@@ -66,6 +66,8 @@
 		227C36DC26200DBE00224F53 /* cpLoupedeckLive.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36CE26200DBD00224F53 /* cpLoupedeckLive.icns */; };
 		227C36DD26200DBE00224F53 /* cpMonogram.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36CF26200DBE00224F53 /* cpMonogram.icns */; };
 		227C36DE26200DBE00224F53 /* cpStreamDeck.icns in Resources */ = {isa = PBXBuildFile; fileRef = 227C36D026200DBE00224F53 /* cpStreamDeck.icns */; };
+		2290EB2028011DF100CEA572 /* HSRazerOrbweaverDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 2290EB1E28011DF100CEA572 /* HSRazerOrbweaverDevice.m */; };
+		2290EB2128011DF100CEA572 /* HSRazerOrbweaverDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = 2290EB1F28011DF100CEA572 /* HSRazerOrbweaverDevice.h */; };
 		22A6626025FC080200AA329E /* test_serial.lua in Resources */ = {isa = PBXBuildFile; fileRef = 22A6625F25FC07F700AA329E /* test_serial.lua */; };
 		22A6626225FC087000AA329E /* HSserial.m in Sources */ = {isa = PBXBuildFile; fileRef = 22A6626125FC087000AA329E /* HSserial.m */; };
 		22DF5D2823B9A9EA00C41AE6 /* libpasteboard_watcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 22DF5D1A23B99C4D00C41AE6 /* libpasteboard_watcher.m */; };
@@ -1707,6 +1709,8 @@
 		227C36CE26200DBD00224F53 /* cpLoupedeckLive.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpLoupedeckLive.icns; sourceTree = "<group>"; };
 		227C36CF26200DBE00224F53 /* cpMonogram.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpMonogram.icns; sourceTree = "<group>"; };
 		227C36D026200DBE00224F53 /* cpStreamDeck.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = cpStreamDeck.icns; sourceTree = "<group>"; };
+		2290EB1E28011DF100CEA572 /* HSRazerOrbweaverDevice.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSRazerOrbweaverDevice.m; path = extensions/razer/HSRazerOrbweaverDevice.m; sourceTree = "<group>"; };
+		2290EB1F28011DF100CEA572 /* HSRazerOrbweaverDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSRazerOrbweaverDevice.h; path = extensions/razer/HSRazerOrbweaverDevice.h; sourceTree = "<group>"; };
 		22A6625F25FC07F700AA329E /* test_serial.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_serial.lua; path = extensions/serial/test_serial.lua; sourceTree = "<group>"; };
 		22A6626125FC087000AA329E /* HSserial.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSserial.m; sourceTree = "<group>"; };
 		22DF5D1A23B99C4D00C41AE6 /* libpasteboard_watcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libpasteboard_watcher.m; path = extensions/pasteboard/libpasteboard_watcher.m; sourceTree = "<group>"; };
@@ -3046,6 +3050,8 @@
 		2213841E27A105520085CA24 /* razer */ = {
 			isa = PBXGroup;
 			children = (
+				2290EB1F28011DF100CEA572 /* HSRazerOrbweaverDevice.h */,
+				2290EB1E28011DF100CEA572 /* HSRazerOrbweaverDevice.m */,
 				2213843027A105DD0085CA24 /* HSRazerDevice.h */,
 				2213843127A105DD0085CA24 /* HSRazerDevice.m */,
 				2213843227A105DD0085CA24 /* HSRazerManager.h */,
@@ -4643,6 +4649,7 @@
 			files = (
 				22654EA727D43CCE004F8214 /* HSRazerDevice.h in Headers */,
 				22654EA827D43CCE004F8214 /* HSRazerManager.h in Headers */,
+				2290EB2128011DF100CEA572 /* HSRazerOrbweaverDevice.h in Headers */,
 				22654EA927D43CCE004F8214 /* HSRazerTartarusV2Device.h in Headers */,
 				22654EAA27D43CCE004F8214 /* razer.h in Headers */,
 			);
@@ -7541,6 +7548,7 @@
 			files = (
 				22654EA327D43CB8004F8214 /* HSRazerDevice.m in Sources */,
 				22654EA427D43CB8004F8214 /* HSRazerManager.m in Sources */,
+				2290EB2028011DF100CEA572 /* HSRazerOrbweaverDevice.m in Sources */,
 				22654EA527D43CB8004F8214 /* HSRazerTartarusV2Device.m in Sources */,
 				22654EA627D43CB8004F8214 /* librazer.m in Sources */,
 			);
