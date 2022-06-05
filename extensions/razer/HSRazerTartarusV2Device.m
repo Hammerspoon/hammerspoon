@@ -13,6 +13,9 @@
         // HSRazerManger.m if you add a new Razer device to this extension.
         self.productID          = USB_PID_RAZER_TARTARUS_V2;
         
+        //  16 bit parameter for request, low byte first. Each device can have a different index.
+        self.index              = 0x01;
+        
         // Number of backlight rows and columns:
         self.backlightRows      = 4;
         self.backlightColumns   = 6;

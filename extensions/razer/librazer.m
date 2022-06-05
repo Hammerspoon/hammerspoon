@@ -275,9 +275,9 @@ static int razer_brightness(lua_State *L) {
 
 #pragma mark - hs.razer: Status Light Methods
 
-/// hs.razer:yellowStatusLight(value) -> razerObject, boolean | nil, string | nil
+/// hs.razer:orangeStatusLight(value) -> razerObject, boolean | nil, string | nil
 /// Method
-/// Gets or sets the yellow status light.
+/// Gets or sets the orange status light.
 ///
 /// Parameters:
 ///  * value - `true` for on, `false` for off`
@@ -301,10 +301,10 @@ static int razer_orangeStatusLight(lua_State *L) {
     
     if (lua_gettop(L) == 1) {
         // Getter:
-        HSRazerResult *result = [razer getYellowStatusLight];
+        HSRazerResult *result = [razer getOrangeStatusLight];
         if ([result success]) {
             lua_pushvalue(L, 1);
-            lua_pushboolean(L, [result yellowStatusLight]);
+            lua_pushboolean(L, [result orangeStatusLight]);
             lua_pushnil(L);
         } else {
             lua_pushvalue(L, 1);
@@ -983,7 +983,7 @@ static const luaL_Reg userdata_metaLib[] = {
     // Private Functions:
     {"_remapping",                          razer_remapping},
     {"_productID",                          razer_productID},
-
+    
     // Helpers:
     {"__tostring",                          razer_object_tostring},
     {"__eq",                                razer_object_eq},

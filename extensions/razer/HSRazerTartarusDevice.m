@@ -1,17 +1,17 @@
-#import "HSRazerOrbweaverDevice.h"
+#import "HSRazerTartarusDevice.h"
 
-@implementation HSRazerOrbweaverDevice
+@implementation HSRazerTartarusDevice
 
 - (id)initWithDevice:(IOHIDDeviceRef)device manager:(id)manager {
     self = [super initWithDevice:device manager:manager];
     if (self) {
         // The name of the Razer Device. This should match the actual product name (i.e. Razer Tartarus V2).
-        self.name               = @"Razer Orbweaver";
+        self.name               = @"Razer Tartarus";
 
         // The product ID of the Razer Device. This can be found in "About This Mac > System Report".
         // This should be a constant that's defined in razer.h, as you'll also need to manually update
         // HSRazerManger.m if you add a new Razer device to this extension.
-        self.productID          = USB_PID_RAZER_ORBWEAVER;
+        self.productID          = USB_PID_RAZER_TARTARUS;
         
         //  16 bit parameter for request, low byte first. Each device can have a different index.
         self.index              = 0x01;
@@ -35,38 +35,32 @@
         // A dictionary of button names. On the left is what is returned by IOHID, on the right is what we want to
         // label the buttons in Hammerspoon:
         self.buttonNames        = @{
-            @"53":  @"1",
-            @"30":  @"2",
-            @"31":  @"3",
-            @"32":  @"4",
-            @"33":  @"5",
+            @"43":  @"1",
+            @"20":  @"2",
+            @"26":  @"3",
+            @"8":   @"4",
+            @"21":  @"5",
             
-            @"43":  @"6",
-            @"20":  @"7",
-            @"26":  @"8",
-            @"8":   @"9",
-            @"21":  @"10",
+            @"57":  @"6",
+            @"4":   @"7",
+            @"22":  @"8",
+            @"7":   @"9",
+            @"9":   @"10",
                         
-            @"57":  @"11",
-            @"4":   @"12",
-            @"22":  @"13",
-            @"7":   @"14",
-            @"9":   @"15",
+            @"225":  @"11",
+            @"29":   @"12",
+            @"27":   @"13",
+            @"6":    @"14",
+            @"25":   @"15",
             
-            @"225": @"16",
-            @"29":  @"17",
-            @"27":  @"18",
-            @"6":   @"19",
-            @"25":  @"20",
+            @"44":   @"16",
                         
-            @"44":  @"21",
-                        
-            @"226": @"Mode",
+            @"226":  @"Mode",
             
-            @"82":  @"Up",
-            @"81":  @"Down",
-            @"80":  @"Left",
-            @"79":  @"Right"
+            @"82":   @"Up",
+            @"81":   @"Down",
+            @"80":   @"Left",
+            @"79":   @"Right"
         };
        
         // A dictionary of remapping values. On the left is "dummy" keys. On the right is actual HID Keyboard codes.
