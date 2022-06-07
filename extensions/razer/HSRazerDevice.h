@@ -22,6 +22,9 @@
 @property (nonatomic) BOOL                  yellowStatusLight;
 
 @property unsigned char                     argumentTwo;
+@property unsigned char                     argumentSix;
+@property unsigned char                     argumentSeven;
+@property unsigned char                     argumentEight;
 
 @end
 
@@ -40,6 +43,8 @@
 
 @property (nonatomic) NSString*             name;
 @property (nonatomic) int                   productID;
+
+@property (nonatomic) int                   index;
 
 // Remapping Details:
 @property (nonatomic) NSDictionary*         buttonNames;
