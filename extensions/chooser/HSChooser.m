@@ -38,6 +38,7 @@
         self.currentStaticChoices = nil;
         self.currentCallbackChoices = nil;
         self.filteredChoices = nil;
+        self.enableDefaultForQuery = NO;
 
         self.hideCallbackRef = LUA_NOREF;
         self.showCallbackRef = LUA_NOREF;
@@ -393,7 +394,19 @@
             [skin pushNSObject:choice];
             [skin protectedCallAndError:@"hs.chooser:completionCallback" nargs:1 nresults:0];
         }
-        
+
+        _lua_stackguard_exit(skin.L);
+    } else if (self.enableDefaultForQuery != NO) {
+        // No row remaining in choices, return just query
+        self.hasChosen = YES;
+        LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+        _lua_stackguard_entry(skin.L);
+        NSDictionary<NSString*, NSString*> *choice = @{@"text": self.queryField.stringValue};
+        [self hide];
+        [skin pushLuaRef:self.refTable ref:self.completionCallbackRef];
+        [skin pushNSObject:choice];
+        [skin protectedCallAndError:@"hs.chooser:completionCallback" nargs:1 nresults:0];
+
         _lua_stackguard_exit(skin.L);
     }
 }
