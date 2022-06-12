@@ -581,6 +581,43 @@ static int chooserSetBgDark(lua_State *L) {
     return 1;
 }
 
+/// hs.chooser:enableDefaultForQuery([]) -> hs.chooser object or boolean
+/// Method
+/// Gets/Sets whether the chooser should run the callback on a query when it does not match any on the list
+///
+/// Parameters:
+///  * enableDefaultForQuery - An optional boolean, true to return query string, false to not. If this parametr is omitted, the current configuration value will be returned
+///
+/// Returns:
+///  * the `hs.chooser` object if a value was set, or a boolean if no parameter was passed
+///
+/// Notes:
+///  * This should be used before a chooser has been displayed
+static int chooserSetEnableDefaultForQuery(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
+
+    HSChooser *chooser = [skin toNSObjectAtIndex:1];
+
+    switch (lua_type(L, 2)) {
+        case LUA_TBOOLEAN:
+            chooser.enableDefaultForQuery = lua_toboolean(L, 2);
+            lua_pushvalue(L, 1);
+            break;
+
+        case LUA_TNONE:
+            lua_pushboolean(L, chooser.enableDefaultForQuery);
+            return 1;
+
+        default:
+            NSLog(@"ERROR: Unknown type passed to hs.chooser:enableDefaultForQuery(). This should not be possible");
+            lua_pushnil(L);
+            break;
+    }
+
+    return 1;
+}
+
 /// hs.chooser:searchSubText([searchSubText]) -> hs.chooser object or boolean
 /// Method
 /// Gets/Sets whether the chooser should search in the sub-text of each item
@@ -894,6 +931,7 @@ static const luaL_Reg userdataLib[] = {
     {"bgDark", chooserSetBgDark},
     {"placeholderText", chooserPlaceholder},
     {"searchSubText", chooserSetSearchSubText},
+    {"enableDefaultForQuery", chooserSetEnableDefaultForQuery},
     {"width", chooserSetWidth},
     {"rows", chooserSetNumRows},
 
