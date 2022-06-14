@@ -1,29 +1,32 @@
-#import "HSRazerTartarusDevice.h"
+#import "HSRazerNostromoDevice.h"
 
-@implementation HSRazerTartarusDevice
+@implementation HSRazerNostromoDevice
 
 - (id)initWithDevice:(IOHIDDeviceRef)device manager:(id)manager {
     self = [super initWithDevice:device manager:manager];
     if (self) {
         // The name of the Razer Device. This should match the actual product name (i.e. Razer Tartarus V2).
-        self.name               = @"Razer Tartarus";
+        self.name               = @"Razer Nostromo";
 
         // The product ID of the Razer Device. This can be found in "About This Mac > System Report".
         // This should be a constant that's defined in razer.h, as you'll also need to manually update
         // HSRazerManger.m if you add a new Razer device to this extension.
-        self.productID          = USB_PID_RAZER_TARTARUS;
+        self.productID          = USB_PID_RAZER_NOSTROMO;
         
         //  16 bit parameter for request, low byte first. Each device can have a different index.
         self.index              = 0x01;
         
+        // The ID of the scroll wheel. If supplied, this will enable the event tap which ignores scroll wheel movements:
+        self.scrollWheelID      = 56;
+        
         // Which modes does this device support?
         self.supportsBacklightToMode            = YES;
-        
+
         // Which Status Lights does this device support?
         self.supportsGreenStatusLight           = YES;
+        self.supportsRedStatusLight             = YES;
         self.supportsBlueStatusLight            = YES;
-        self.supportsYellowStatusLight          = YES;
-
+    
         // A dictionary of button names. On the left is what is returned by IOHID, on the right is what we want to
         // label the buttons in Hammerspoon:
         self.buttonNames        = @{
@@ -39,20 +42,20 @@
             @"7":   @"9",
             @"9":   @"10",
                         
-            @"225":  @"11",
-            @"29":   @"12",
-            @"27":   @"13",
-            @"6":    @"14",
-            @"25":   @"15",
+            @"225": @"11",
+            @"29":  @"12",
+            @"27":  @"13",
+            @"6":   @"14",
+            @"44":  @"15",
+                                               
+            @"226": @"Mode",
             
-            @"44":   @"16",
-                        
-            @"226":  @"Mode",
+            @"56":  @"Scroll Wheel",
             
-            @"82":   @"Up",
-            @"81":   @"Down",
-            @"80":   @"Left",
-            @"79":   @"Right"
+            @"82":  @"Up",
+            @"81":  @"Down",
+            @"80":  @"Left",
+            @"79":  @"Right"
         };
        
         // A dictionary of remapping values. On the left is "dummy" keys. On the right is actual HID Keyboard codes.
@@ -110,7 +113,7 @@
 
 #pragma mark - Status Lights
 
-- (HSRazerResult*)setGreenStatusLight:(BOOL)active {
+- (HSRazerResult*)setRedStatusLight:(BOOL)active {
 
     unsigned char onOrOff = 0x00;
     if (active) {
@@ -128,12 +131,55 @@
     return [self sendRazerReportToDeviceWithTransactionID:0x00 commandClass:0x03 commandID:0x00 arguments:arguments];
 }
 
-- (HSRazerResult*)getGreenStatusLight {
+- (HSRazerResult*)getRedStatusLight {
 
     // Setup Arguments:
     NSDictionary *arguments = @{
         @0 : @0x00,         // Variable Storage
         @1 : @0x0C,         // LED ID
+        @2 : @0x00,         // Reserved
+    };
+
+    // Send the report to the Razer USB Device:
+    HSRazerResult* result = [self sendRazerReportToDeviceWithTransactionID:0x00 commandClass:0x03 commandID:0x80 arguments:arguments];
+
+    // The status comes back on argument two:
+    if ([result success]) {
+        int argumentTwo = [result argumentTwo];
+        if (argumentTwo == 1) {
+            result.redStatusLight = YES;
+        } else {
+            result.redStatusLight = NO;
+        }
+    }
+
+    return result;
+}
+
+- (HSRazerResult*)setGreenStatusLight:(BOOL)active {
+
+    unsigned char onOrOff = 0x00;
+    if (active) {
+        onOrOff = 0x01;
+    }
+
+    // Setup Arguments:
+    NSDictionary *arguments = @{
+        @0 : @0x00,         // Variable Storage
+        @1 : @0x0D,         // LED ID
+        @2 : @(onOrOff),    // Status Light Value
+    };
+
+    // Send the report to the Razer USB Device:
+    return [self sendRazerReportToDeviceWithTransactionID:0x00 commandClass:0x03 commandID:0x00 arguments:arguments];
+}
+
+- (HSRazerResult*)getGreenStatusLight {
+
+    // Setup Arguments:
+    NSDictionary *arguments = @{
+        @0 : @0x00,         // Variable Storage
+        @1 : @0x0D,         // LED ID
         @2 : @0x00,         // Reserved
     };
 
@@ -153,50 +199,8 @@
     return result;
 }
 
+
 - (HSRazerResult*)setBlueStatusLight:(BOOL)active {
-
-    unsigned char onOrOff = 0x00;
-    if (active) {
-        onOrOff = 0x01;
-    }
-
-    // Setup Arguments:
-    NSDictionary *arguments = @{
-        @0 : @0x00,         // Variable Storage
-        @1 : @0x0D,         // LED ID
-        @2 : @(onOrOff),    // Status Light Value
-    };
-
-    // Send the report to the Razer USB Device:
-    return [self sendRazerReportToDeviceWithTransactionID:0x00 commandClass:0x03 commandID:0x00 arguments:arguments];
-}
-
-- (HSRazerResult*)getBlueStatusLight {
-
-    // Setup Arguments:
-    NSDictionary *arguments = @{
-        @0 : @0x00,         // Variable Storage
-        @1 : @0x0D,         // LED ID
-        @2 : @0x00,         // Reserved
-    };
-
-    // Send the report to the Razer USB Device:
-    HSRazerResult* result = [self sendRazerReportToDeviceWithTransactionID:0x00 commandClass:0x03 commandID:0x80 arguments:arguments];
-
-    // The status comes back on argument two:
-    if ([result success]) {
-        int argumentTwo = [result argumentTwo];
-        if (argumentTwo == 1) {
-            result.blueStatusLight = YES;
-        } else {
-            result.blueStatusLight = NO;
-        }
-    }
-
-    return result;
-}
-
-- (HSRazerResult*)setYellowStatusLight:(BOOL)active {
 
     unsigned char onOrOff = 0x00;
     if (active) {
@@ -214,7 +218,7 @@
     return [self sendRazerReportToDeviceWithTransactionID:0x00 commandClass:0x03 commandID:0x00 arguments:arguments];
 }
 
-- (HSRazerResult*)getYellowStatusLight {
+- (HSRazerResult*)getBlueStatusLight {
     
     // Setup Arguments:
     NSDictionary *arguments = @{
@@ -230,9 +234,9 @@
     if ([result success]) {
         int argumentTwo = [result argumentTwo];
         if (argumentTwo == 1) {
-            result.yellowStatusLight = YES;
+            result.blueStatusLight = YES;
         } else {
-            result.yellowStatusLight = NO;
+            result.blueStatusLight = NO;
         }
     }
 

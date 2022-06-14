@@ -18,16 +18,8 @@
         
         // Which modes does this device support?
         self.supportsBacklightToMode            = YES;
-        self.supportsBacklightToOff             = NO;
-        self.supportsBacklightToStaticColor     = NO;
-        self.supportsBacklightToWave            = NO;
-        self.supportsBacklightToSpectrum        = NO;
-        self.supportsBacklightToReactive        = NO;
-        self.supportsBacklightToStarlight       = NO;
-        self.supportsBacklightToBreathing       = NO;
-        self.supportsBacklightToCustom          = NO;
         
-        self.supportsOrangeStatusLight          = NO;
+        // Which Status Lights does this device support?
         self.supportsGreenStatusLight           = YES;
         self.supportsBlueStatusLight            = YES;
         self.supportsYellowStatusLight          = YES;

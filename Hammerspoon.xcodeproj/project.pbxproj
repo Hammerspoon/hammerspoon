@@ -76,6 +76,10 @@
 		22A6626225FC087000AA329E /* HSserial.m in Sources */ = {isa = PBXBuildFile; fileRef = 22A6626125FC087000AA329E /* HSserial.m */; };
 		22DF5D2823B9A9EA00C41AE6 /* libpasteboard_watcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 22DF5D1A23B99C4D00C41AE6 /* libpasteboard_watcher.m */; };
 		22E4D8031FA748AC00C8CF5C /* libmidi.m in Sources */ = {isa = PBXBuildFile; fileRef = 22E4D7F71FA7485A00C8CF5C /* libmidi.m */; };
+		22E59E0F2852D6F00062292D /* HSRazerNostromoDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = 22E59E0D2852D6EF0062292D /* HSRazerNostromoDevice.h */; };
+		22E59E102852D6F00062292D /* HSRazerNostromoDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 22E59E0E2852D6EF0062292D /* HSRazerNostromoDevice.m */; };
+		22E59E132852FD270062292D /* HSRazerOrbweaverChromaDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 22E59E112852FD270062292D /* HSRazerOrbweaverChromaDevice.m */; };
+		22E59E142852FD270062292D /* HSRazerOrbweaverChromaDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = 22E59E122852FD270062292D /* HSRazerOrbweaverChromaDevice.h */; };
 		22EEC62424926E6E00BAE4DA /* libserial.m in Sources */ = {isa = PBXBuildFile; fileRef = 22EEC61724926E2100BAE4DA /* libserial.m */; };
 		22FA061227A160410039C37A /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FB852342735B02400462DD0 /* LuaSkin.framework */; };
 		22FA062427A1609E0039C37A /* librazer.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 22FA061B27A160410039C37A /* librazer.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -1727,6 +1731,10 @@
 		22E4D7F81FA7485A00C8CF5C /* midi.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = midi.lua; path = extensions/midi/midi.lua; sourceTree = SOURCE_ROOT; };
 		22E4D8021FA7488900C8CF5C /* libmidi.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libmidi.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		22E4D8071FA74BDA00C8CF5C /* libMIKMIDI.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libMIKMIDI.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		22E59E0D2852D6EF0062292D /* HSRazerNostromoDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSRazerNostromoDevice.h; path = extensions/razer/HSRazerNostromoDevice.h; sourceTree = "<group>"; };
+		22E59E0E2852D6EF0062292D /* HSRazerNostromoDevice.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSRazerNostromoDevice.m; path = extensions/razer/HSRazerNostromoDevice.m; sourceTree = "<group>"; };
+		22E59E112852FD270062292D /* HSRazerOrbweaverChromaDevice.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSRazerOrbweaverChromaDevice.m; path = extensions/razer/HSRazerOrbweaverChromaDevice.m; sourceTree = "<group>"; };
+		22E59E122852FD270062292D /* HSRazerOrbweaverChromaDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSRazerOrbweaverChromaDevice.h; path = extensions/razer/HSRazerOrbweaverChromaDevice.h; sourceTree = "<group>"; };
 		22EEC61724926E2100BAE4DA /* libserial.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = libserial.m; path = extensions/serial/libserial.m; sourceTree = "<group>"; };
 		22EEC61824926E2100BAE4DA /* serial.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = serial.lua; path = extensions/serial/serial.lua; sourceTree = "<group>"; };
 		22EEC62324926E5100BAE4DA /* libserial.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libserial.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -3058,21 +3066,25 @@
 		2213841E27A105520085CA24 /* razer */ = {
 			isa = PBXGroup;
 			children = (
-				2248D34128476C1300A379E3 /* HSRazerTartarusDevice.h */,
-				2248D34028476C1300A379E3 /* HSRazerTartarusDevice.m */,
-				2248D33C28460E4F00A379E3 /* HSRazerTartarusProDevice.h */,
-				2248D33D28460E4F00A379E3 /* HSRazerTartarusProDevice.m */,
-				2290EB1F28011DF100CEA572 /* HSRazerOrbweaverDevice.h */,
-				2290EB1E28011DF100CEA572 /* HSRazerOrbweaverDevice.m */,
+				2213842A27A105DD0085CA24 /* razer.lua */,
+				2213842F27A105DD0085CA24 /* razer.h */,
+				2213842B27A105DD0085CA24 /* librazer.m */,
 				2213843027A105DD0085CA24 /* HSRazerDevice.h */,
 				2213843127A105DD0085CA24 /* HSRazerDevice.m */,
 				2213843227A105DD0085CA24 /* HSRazerManager.h */,
 				2213842D27A105DD0085CA24 /* HSRazerManager.m */,
+				22E59E0D2852D6EF0062292D /* HSRazerNostromoDevice.h */,
+				22E59E0E2852D6EF0062292D /* HSRazerNostromoDevice.m */,
+				2290EB1F28011DF100CEA572 /* HSRazerOrbweaverDevice.h */,
+				2290EB1E28011DF100CEA572 /* HSRazerOrbweaverDevice.m */,
+				22E59E122852FD270062292D /* HSRazerOrbweaverChromaDevice.h */,
+				22E59E112852FD270062292D /* HSRazerOrbweaverChromaDevice.m */,
+				2248D34128476C1300A379E3 /* HSRazerTartarusDevice.h */,
+				2248D34028476C1300A379E3 /* HSRazerTartarusDevice.m */,
+				2248D33C28460E4F00A379E3 /* HSRazerTartarusProDevice.h */,
+				2248D33D28460E4F00A379E3 /* HSRazerTartarusProDevice.m */,
 				2213842E27A105DD0085CA24 /* HSRazerTartarusV2Device.h */,
 				2213842C27A105DD0085CA24 /* HSRazerTartarusV2Device.m */,
-				2213842B27A105DD0085CA24 /* librazer.m */,
-				2213842F27A105DD0085CA24 /* razer.h */,
-				2213842A27A105DD0085CA24 /* razer.lua */,
 			);
 			name = razer;
 			sourceTree = "<group>";
@@ -4662,8 +4674,10 @@
 				22654EA727D43CCE004F8214 /* HSRazerDevice.h in Headers */,
 				22654EA827D43CCE004F8214 /* HSRazerManager.h in Headers */,
 				2290EB2128011DF100CEA572 /* HSRazerOrbweaverDevice.h in Headers */,
+				22E59E142852FD270062292D /* HSRazerOrbweaverChromaDevice.h in Headers */,
 				2248D34328476C1300A379E3 /* HSRazerTartarusDevice.h in Headers */,
 				22654EA927D43CCE004F8214 /* HSRazerTartarusV2Device.h in Headers */,
+				22E59E0F2852D6F00062292D /* HSRazerNostromoDevice.h in Headers */,
 				2248D33E28460E4F00A379E3 /* HSRazerTartarusProDevice.h in Headers */,
 				22654EAA27D43CCE004F8214 /* razer.h in Headers */,
 			);
@@ -7562,7 +7576,9 @@
 			files = (
 				2248D34228476C1300A379E3 /* HSRazerTartarusDevice.m in Sources */,
 				22654EA327D43CB8004F8214 /* HSRazerDevice.m in Sources */,
+				22E59E102852D6F00062292D /* HSRazerNostromoDevice.m in Sources */,
 				22654EA427D43CB8004F8214 /* HSRazerManager.m in Sources */,
+				22E59E132852FD270062292D /* HSRazerOrbweaverChromaDevice.m in Sources */,
 				2290EB2028011DF100CEA572 /* HSRazerOrbweaverDevice.m in Sources */,
 				22654EA527D43CB8004F8214 /* HSRazerTartarusV2Device.m in Sources */,
 				22654EA627D43CB8004F8214 /* librazer.m in Sources */,

@@ -6,7 +6,10 @@
 
 #import "HSRazerDevice.h"
 
+#import "HSRazerNostromoDevice.h"
+
 #import "HSRazerOrbweaverDevice.h"
+#import "HSRazerOrbweaverChromaDevice.h"
 
 #import "HSRazerTartarusDevice.h"
 #import "HSRazerTartarusV2Device.h"

@@ -36,6 +36,24 @@ double getSecondsSinceEpoch(void) {
         self.name                       = @"Unknown";
         self.scrollWheelPressed         = NO;
         self.lastScrollWheelEvent       = getSecondsSinceEpoch();
+        
+        // Default Backlight Modes to Unsupported:
+        self.supportsBacklightToMode            = NO;
+        self.supportsBacklightToOff             = NO;
+        self.supportsBacklightToStaticColor     = NO;
+        self.supportsBacklightToWave            = NO;
+        self.supportsBacklightToSpectrum        = NO;
+        self.supportsBacklightToReactive        = NO;
+        self.supportsBacklightToStarlight       = NO;
+        self.supportsBacklightToBreathing       = NO;
+        self.supportsBacklightToCustom          = NO;
+        
+        // Default Status Lights to Unsupported:
+        self.supportsGreenStatusLight           = NO;
+        self.supportsRedStatusLight             = NO;
+        self.supportsBlueStatusLight            = NO;
+        self.supportsOrangeStatusLight          = NO;
+        self.supportsYellowStatusLight          = NO;
 
         //NSLog(@"[hs.razer] Added new Razer device %p with IOKit device %p from manager %p", (__bridge void *)self, (void*)self.device, (__bridge void *)self.manager);
     }
@@ -362,6 +380,22 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
 - (HSRazerResult*)setYellowStatusLight:(BOOL)active {
     NSException *exception = [NSException exceptionWithName:@"HSRazerDeviceUnimplemented"
                                                      reason:@"setYellowStatusLight method not implemented"
+                                                   userInfo:nil];
+    [exception raise];
+    return [[HSRazerResult alloc] init];
+}
+
+- (HSRazerResult*)getRedStatusLight {
+    NSException *exception = [NSException exceptionWithName:@"HSRazerDeviceUnimplemented"
+                                                     reason:@"getRedStatusLight method not implemented"
+                                                   userInfo:nil];
+    [exception raise];
+    return [[HSRazerResult alloc] init];
+}
+
+- (HSRazerResult*)setRedStatusLight:(BOOL)active {
+    NSException *exception = [NSException exceptionWithName:@"HSRazerDeviceUnimplemented"
+                                                     reason:@"setRedStatusLight method not implemented"
                                                    userInfo:nil];
     [exception raise];
     return [[HSRazerResult alloc] init];

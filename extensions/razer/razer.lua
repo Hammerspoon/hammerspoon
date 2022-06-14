@@ -2,12 +2,20 @@
 ---
 --- Razer device support.
 ---
---- This extension currently only supports the Razer Tartarus V2.
+--- This extension supports the following Razer keypad devices:
+---
+---  * Razer Nostromo
+---  * Razer Orbweaver
+---  * Razer Orbweaver Chroma
+---  * Razer Tartarus
+---  * Razer Tartarus Pro
+---  * Razer Tartarus V2
+---
 --- It allows you to trigger callbacks when you press buttons and use the
 --- scroll wheel, as well as allowing you to change the LED backlights
 --- on the buttons and scroll wheel, and control the three status lights.
 ---
---- By default, the Razer Tartarus V2 triggers regular keyboard commands
+--- By default, the Razer keypads triggers regular keyboard commands
 --- (i.e. pressing the "01" key will type "1"). However, you can use the
 --- `:defaultKeyboardLayout(false)` method to prevent this. This works by
 --- remapping the default shortcut keys to "dummy" keys, so that they
@@ -15,7 +23,7 @@
 ---
 --- Like the [`hs.streamdeck`](http://www.hammerspoon.org/docs/hs.streamdeck.html) extension, this extension has been
 --- designed to be modular, so it's possible for others to develop support
---- for other Razer devices later down the line, if there's interest.
+--- for additional Razer devices later down the line, if there's interest.
 ---
 --- This extension was thrown together by [Chris Hocking](https://github.com/latenitefilms) for [CommandPost](https://commandpost.io).
 ---
@@ -50,9 +58,6 @@ local execute       = hs.execute
 --- Returns:
 ---  * The `hs.razer` object.
 ---  * `true` if successful otherwise `false`
----
---- Notes:
----  * This feature currently only works on the Razer Tartarus V2.
 function razerObject:defaultKeyboardLayout(enabled)
   local productID = "0x" .. string.upper(string.format("%04x", self:_productID()))
   local remapping = self:_remapping()
@@ -94,6 +99,7 @@ end
 ---    Hammerspoon developers can test the extension outside
 ---    of the usual GitHub tests. It can also be used for
 ---    user troubleshooting.
+---  * This feature currently only works on the Razer Tartarus V2.
 function razer.unitTests()
 
   console.clearConsole()

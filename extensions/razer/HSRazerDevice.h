@@ -20,6 +20,7 @@
 @property (nonatomic) BOOL                  greenStatusLight;
 @property (nonatomic) BOOL                  blueStatusLight;
 @property (nonatomic) BOOL                  yellowStatusLight;
+@property (nonatomic) BOOL                  redStatusLight;
 
 @property unsigned char                     argumentTwo;
 @property unsigned char                     argumentSix;
@@ -70,6 +71,7 @@
 @property (nonatomic) BOOL                  supportsGreenStatusLight;
 @property (nonatomic) BOOL                  supportsBlueStatusLight;
 @property (nonatomic) BOOL                  supportsYellowStatusLight;
+@property (nonatomic) BOOL                  supportsRedStatusLight;
 
 // Scroll Wheel:
 @property (nonatomic) int                   scrollWheelID;
@@ -119,6 +121,9 @@
 
 - (HSRazerResult*)getYellowStatusLight;
 - (HSRazerResult*)setYellowStatusLight:(BOOL)active;
+
+- (HSRazerResult*)getRedStatusLight;
+- (HSRazerResult*)setRedStatusLight:(BOOL)active;
 
 // Hardware Communication:
 - (IOUSBDeviceInterface**)getUSBRazerDevice;

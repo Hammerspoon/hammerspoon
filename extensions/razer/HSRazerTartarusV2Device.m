@@ -32,43 +32,41 @@
         self.supportsBacklightToStarlight       = YES;
         self.supportsBacklightToBreathing       = YES;
         self.supportsBacklightToCustom          = YES;
-        
-        self.supportsBacklightToMode            = NO;
-        
+            
+        // Which Status Lights does this device support?
         self.supportsOrangeStatusLight          = YES;
         self.supportsGreenStatusLight           = YES;
         self.supportsBlueStatusLight            = YES;
-        self.supportsYellowStatusLight          = NO;
                 
         // A dictionary of button names. On the left is what is returned by IOHID, on the right is what we want to
         // label the buttons in Hammerspoon:
         self.buttonNames        = @{
-            @"30" : @"1",
-            @"31": @"2",
-            @"32": @"3",
-            @"33": @"4",
-            @"34": @"5",
-            @"43": @"6",
-            @"20": @"7",
-            @"26": @"8",
-            @"8": @"9",
-            @"21": @"10",
-            @"57": @"11",
-            @"4": @"12",
-            @"22": @"13",
-            @"7": @"14",
-            @"9": @"15",
+            @"30":  @"1",
+            @"31":  @"2",
+            @"32":  @"3",
+            @"33":  @"4",
+            @"34":  @"5",
+            @"43":  @"6",
+            @"20":  @"7",
+            @"26":  @"8",
+            @"8":   @"9",
+            @"21":  @"10",
+            @"57":  @"11",
+            @"4":   @"12",
+            @"22":  @"13",
+            @"7":   @"14",
+            @"9":   @"15",
             @"225": @"16",
-            @"29": @"17",
-            @"27": @"18",
-            @"6": @"19",
-            @"44": @"20",
-            @"56": @"Scroll Wheel",
+            @"29":  @"17",
+            @"27":  @"18",
+            @"6":   @"19",
+            @"44":  @"20",
+            @"56":  @"Scroll Wheel",
             @"226": @"Mode",
-            @"82": @"Up",
-            @"81": @"Down",
-            @"80": @"Left",
-            @"79": @"Right"
+            @"82":  @"Up",
+            @"81":  @"Down",
+            @"80":  @"Left",
+            @"79":  @"Right"
         };
         
         // A dictionary of remapping values. On the left is "dummy" keys. On the right is actual HID Keyboard codes.
@@ -209,22 +207,6 @@
         @0 : @0x01,         // Variable Storage
         @1 : @0x05,         // LED ID
         @2 : @0x03,         // Effect ID
-        @3 : @0x00,         // Reserved
-        @4 : @0x00,         // Reserved
-        @5 : @0x01,         // Reserved
-        @6 : @0x00,         // Reserved
-    };
-    
-    // Send the report to the Razer USB Device:
-    return [self sendRazerReportToDeviceWithTransactionID:0x1F commandClass:0x0F commandID:0x02 arguments:arguments];
-}
-
-- (HSRazerResult*)setBacklightToFire {
-    // Setup Arguments:
-    NSDictionary *arguments = @{
-        @0 : @0x01,         // Variable Storage
-        @1 : @0x05,         // LED ID
-        @2 : @0x06,         // Effect ID
         @3 : @0x00,         // Reserved
         @4 : @0x00,         // Reserved
         @5 : @0x01,         // Reserved

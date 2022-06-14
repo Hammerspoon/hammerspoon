@@ -495,6 +495,61 @@ static int razer_blueStatusLight(lua_State *L) {
     return 3;
 }
 
+/// hs.razer:redStatusLight(value) -> razerObject, boolean | nil, string | nil
+/// Method
+/// Gets or sets the red status light.
+///
+/// Parameters:
+///  * value - `true` for on, `false` for off`
+///
+/// Returns:
+///  * The `hs.razer` object.
+///  * `true` for on, `false` for off`, or `nil` if something has gone wrong
+///  * A plain text error message if not successful.
+static int razer_redStatusLight(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
+
+    HSRazerDevice *razer = [skin luaObjectAtIndex:1 toClass:"HSRazerDevice"];
+    
+    if (!razer.supportsRedStatusLight) {
+        lua_pushvalue(L, 1);
+        lua_pushnil(L);
+        [skin pushNSObject:@"Red Status Light is not supported on this device."];
+        return 3;
+    }
+
+    if (lua_gettop(L) == 1) {
+        // Getter:
+        HSRazerResult *result = [razer getRedStatusLight];
+        if ([result success]) {
+            lua_pushvalue(L, 1);
+            lua_pushboolean(L, [result redStatusLight]);
+            lua_pushnil(L);
+        } else {
+            lua_pushvalue(L, 1);
+            lua_pushnil(L);
+            [skin pushNSObject:[result errorMessage]];
+        }
+    }
+    else {
+        // Setter:
+        BOOL active = lua_toboolean(L, 2);
+
+        HSRazerResult *result = [razer setRedStatusLight:active];
+        if ([result success]){
+            lua_pushvalue(L, 1);
+            lua_pushboolean(L, active);
+            lua_pushnil(L);
+        } else {
+            lua_pushvalue(L, 1);
+            lua_pushnil(L);
+            [skin pushNSObject:[result errorMessage]];
+        }
+    }
+    return 3;
+}
+
 #pragma mark - hs.razer: Backlights Methods
 
 /// hs.razer:backlightsMode(mode) -> razerObject, boolean, string | nil
@@ -977,8 +1032,8 @@ static const luaL_Reg userdata_metaLib[] = {
     {"orangeStatusLight",                   razer_orangeStatusLight},
     {"greenStatusLight",                    razer_greenStatusLight},
     {"blueStatusLight",                     razer_blueStatusLight},
-
     {"yellowStatusLight",                   razer_yellowStatusLight},
+    {"redStatusLight",                      razer_redStatusLight},
     
     // Private Functions:
     {"_remapping",                          razer_remapping},

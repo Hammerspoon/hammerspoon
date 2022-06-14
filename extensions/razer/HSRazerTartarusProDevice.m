@@ -29,21 +29,14 @@
         self.supportsBacklightToCustom          = YES;
         
         //
-        // NOTE: Whilst Synapse 3 supports these effects, I believe they're done in
+        // NOTE: Whilst Synapse 3 supports more effects, I believe they're done in
         //       software, not hardware, unlike the Razer Tartarus V2.
         //
-        self.supportsBacklightToWave            = NO;
-        self.supportsBacklightToSpectrum        = NO;
-        self.supportsBacklightToReactive        = NO;
-        self.supportsBacklightToStarlight       = NO;
-        self.supportsBacklightToBreathing       = NO;
         
-        self.supportsBacklightToMode            = NO;
-        
+        // Which Status Lights does this device support?
         self.supportsOrangeStatusLight          = YES;
         self.supportsGreenStatusLight           = YES;
         self.supportsBlueStatusLight            = YES;
-        self.supportsYellowStatusLight          = NO;
                 
         // A dictionary of button names. On the left is what is returned by IOHID, on the right is what we want to
         // label the buttons in Hammerspoon:
