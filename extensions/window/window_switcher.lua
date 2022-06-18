@@ -229,7 +229,10 @@ local function exit(self)
 end
 
 local MODS_INTERVAL=0.05 -- recheck for (lack of) mod keys after this interval
-local function modsPressed() return checkMods(true)._raw>0 end
+local function modsPressed()
+  mods = checkMods(true)._raw
+  return mods>0 and mods ~= 65536 -- caps lock
+end
 local function show(self,dir)
   local windows,drawings,ui=self.windows,self.drawings,self.ui
   if not windows then
