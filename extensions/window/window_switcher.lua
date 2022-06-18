@@ -224,11 +224,11 @@ local function exit(self)
   --  if windows[selected]:application():bundleID()~='com.apple.finder' then
   --    windows[selected]:focus()
   --  else
-  timer.doAfter(0.15,function()windows[selected]:focus()end) -- el cap bugs out (desktop "floats" on top) if done directly
+  timer.doAfter(0.01,function()windows[selected]:focus()end) -- el cap bugs out (desktop "floats" on top) if done directly
   --  end
 end
 
-local MODS_INTERVAL=0.05 -- recheck for (lack of) mod keys after this interval
+local MODS_INTERVAL=0.01 -- recheck for (lack of) mod keys after this interval
 local function modsPressed() return checkMods(true)._raw>0 end
 local function show(self,dir)
   local windows,drawings,ui=self.windows,self.drawings,self.ui
@@ -258,7 +258,7 @@ local function show(self,dir)
       setFrames(nwindows,drawings,ui)
       drawings.lastn=nwindows
     end
-    self.drawDelayed=timer.doAfter(0.2,function()
+    self.drawDelayed=timer.doAfter(0.15,function()
       draw(windows,drawings,ui)
     end)
     self.modsTimer=timer.waitWhile(modsPressed,function()exit(self)end,MODS_INTERVAL)
