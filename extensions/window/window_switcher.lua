@@ -230,7 +230,7 @@ end
 
 local MODS_INTERVAL=0.05 -- recheck for (lack of) mod keys after this interval
 local function modsPressed()
-  mods = checkMods(true)._raw
+  local mods = checkMods(true)._raw
   return mods>0 and mods ~= 65536 -- caps lock
 end
 local function show(self,dir)
