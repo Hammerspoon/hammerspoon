@@ -141,8 +141,8 @@ function hints.displayHintsForDict(dict, prefixstring, showTitles, allowNonStand
           local suffixString = ""
           if showTitles then
             local win_title = win:title()
-            if hints.titleMaxSize > 1 and #win_title > hints.titleMaxSize then
-                local end_idx = math.max(0, hints.titleMaxSize-3)
+            if hints.titleMaxSize > 1 and utf8.len(win_title) > hints.titleMaxSize then
+                local end_idx = utf8.offset(win_title, math.max(0, hints.titleMaxSize-3))-1
                 win_title = string.sub(win_title, 1, end_idx) .. "..."
             end
             suffixString = ": "..win_title
@@ -236,6 +236,9 @@ function hints.windowHints(windows, callback, allowNonStandard)
     if app and app:bundleID() and isValidWindow(win, allowNonStandard) then
       if hints.style == "vimperator" then
         local appchar = string.upper(string.sub(app:title(), 1, 1))
+        if hintDict[appchar] == nil then
+          appchar = string.upper(string.sub(string.gsub(app:path(), "(%w+)/", ""), 2, 2))
+        end
         if hintDict[appchar] == nil then
           hintDict[appchar] = {}
         end
