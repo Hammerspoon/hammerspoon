@@ -8671,7 +8671,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F7F3B7B272DE98800E05732 /* Hammerspoon-Profile.xcconfig */;
 			buildSettings = {
-				DEVELOPMENT_TEAM = KLV5NKS8A2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -10443,7 +10442,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F7F3B7A272DE83500E05732 /* Hammerspoon-Debug.xcconfig */;
 			buildSettings = {
-				DEVELOPMENT_TEAM = KLV5NKS8A2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -10455,13 +10453,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F7F3B7C272DE99200E05732 /* Hammerspoon-Release.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "-";
-				DEVELOPMENT_TEAM = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = Release;
 		};
@@ -10522,7 +10517,6 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = KLV5NKS8A2;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
