@@ -396,7 +396,7 @@
         }
 
         _lua_stackguard_exit(skin.L);
-    } else if (self.enableDefaultForQuery != NO) {
+    } else if (self.enableDefaultForQuery != NO && self.completionCallbackRef != LUA_NOREF && self.completionCallbackRef != LUA_REFNIL) {
         // No row remaining in choices, return just query
         self.hasChosen = YES;
         LuaSkin *skin = [LuaSkin sharedWithState:NULL];
