@@ -1,8 +1,8 @@
 --- === hs.socket ===
 ---
---- Talk to custom protocols using asynchronous TCP sockets.
+--- Talk to custom protocols using asynchronous TCP sockets
 ---
---- For UDP sockets see [`hs.socket.udp`](./hs.socket.udp.html).
+--- For UDP sockets see [`hs.socket.udp`](./hs.socket.udp.html)
 ---
 --- `hs.socket` is implemented with [CocoaAsyncSocket](https://github.com/robbiehanson/CocoaAsyncSocket). CocoaAsyncSocket's [tagging features](https://github.com/robbiehanson/CocoaAsyncSocket/wiki/Intro_GCDAsyncSocket#reading--writing) provide a handy way to implement custom protocols.
 ---
@@ -61,9 +61,9 @@
 
 --- === hs.socket.udp ===
 ---
---- Talk to custom protocols using asynchronous UDP sockets.
+--- Talk to custom protocols using asynchronous UDP sockets
 ---
---- For TCP sockets see [`hs.socket`](./hs.socket.html).
+--- For TCP sockets see [`hs.socket`](./hs.socket.html)
 ---
 --- You can do a lot of neat trivial and non-trivial things with these. A simple ping ponger:
 --- ```lua
@@ -161,23 +161,17 @@ module.getLogLevel=log.getLogLevel
 
 --- hs.socket.timeout
 --- Variable
---- Timeout for the socket operations, in seconds.
+--- Timeout for the socket operations, in seconds. New [`hs.socket`](#new) objects will be created with this timeout value, but can individually change it with the [`setTimeout`](#setTimeout) method
 ---
---- Notes:
----  * New [`hs.socket`](#new) objects will be created with this timeout value, but can individually change it with the [`hs.socket:setTimeout`](#setTimeout) method.
----
----  * If the timeout value is negative, the operations will not use a timeout. The default value is `-1`.
+--- If the timeout value is negative, the operations will not use a timeout. The default value is -1
 ---
 module.timeout = -1
 
 --- hs.socket.udp.timeout
 --- Variable
---- Timeout for the socket operations, in seconds.
+--- Timeout for the socket operations, in seconds. New [`hs.socket.udp`](#new) objects will be created with this timeout value, but can individually change it with the [`setTimeout`](#setTimeout) method
 ---
---- Notes:
----  * New [`hs.socket.udp`](#new) objects will be created with this timeout value, but can individually change it with the [`hs.socket.udp:setTimeout`](#setTimeout) method.
----
----  * If the timeout value is negative, the operations will not use a timeout. The default value is `-1`.
+--- If the timeout value is negative, the operations will not use a timeout. The default value is -1
 ---
 module.udp.timeout = -1
 
@@ -187,17 +181,17 @@ module.udp.timeout = -1
 ---
 module.udp.parseAddress = module.parseAddress
 
---- hs.socket.server(port | path [, fn]) -> hs.socket object
+--- hs.socket.server(port|path[, fn]) -> hs.socket object
 --- Constructor
---- Creates a TCP socket, and binds it to either a port or path (Unix domain socket) for listening.
+--- Creates and binds an [`hs.socket`](#new) instance to a port or path (Unix domain socket) for listening
 ---
 --- Parameters:
----  * `port` - A port number [0-65535]. Ports [1-1023] are privileged. Port 0 allows the OS to select any available port.
----  * `path` - A string containing the path to the Unix domain socket.
----  * `fn` - An optional [callback function](#setCallback) for reading data from the socket, settable here for convenience.
+---  * port - A port number [0-65535]. Ports [1-1023] are privileged. Port 0 allows the OS to select any available port
+---  * path - A string containing the path to the Unix domain socket
+---  * fn - An optional [callback function](#setCallback) for reading data from the socket, settable here for convenience
 ---
 --- Returns:
----  * An [`hs.socket`](#new) object.
+---  * An [`hs.socket`](#new) object
 ---
 module.server = function(port, callback)
   local sock = module.new(callback)
@@ -207,14 +201,14 @@ end
 
 --- hs.socket.udp.server(port[, fn]) -> hs.socket.udp object
 --- Constructor
---- Creates a UDP socket, and binds it to a port for listening.
+--- Creates and binds an [`hs.socket.udp`](#new) instance to a port for listening
 ---
 --- Parameters:
----  * `port` - A port number [0-65535]. Ports [1-1023] are privileged. Port 0 allows the OS to select any available port.
----  * `fn` - An optional [callback function](#setCallback) for reading data from the socket, settable here for convenience.
+---  * port - A port number [0-65535]. Ports [1-1023] are privileged. Port 0 allows the OS to select any available port
+---  * fn - An optional [callback function](#setCallback) for reading data from the socket, settable here for convenience
 ---
 --- Returns:
----  * An [`hs.socket.udp`](#new) object.
+---  * An [`hs.socket.udp`](#new) object
 ---
 module.udp.server = function(port, callback)
   local sock = module.udp.new(callback)
