@@ -151,7 +151,7 @@ do
     -- menulets
     'Music Manager', 'Google Drive', 'Dropbox', '1Password mini', 'Colors for Hue', 'MacID',
     'CrashPlan menu bar', 'Flux', 'Jettison', 'Bartender', 'SystemPal', 'BetterSnapTool', 'Grandview', 'Radium',
-    'MenuMetersApp',
+    'MenuMetersApp', 'DemoPro',
   }
 
   windowfilter.ignoreInDefaultFilter = {}
