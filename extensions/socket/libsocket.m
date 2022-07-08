@@ -371,7 +371,7 @@ static int socket_disconnect(lua_State *L) {
 /// Read data from the socket.
 ///
 /// Parameters:
-///  * `delimiter` - Either a number of bytes to read, or a string delimiter such as "\n" or "\r\n". Data is read up to and including the delimiter.
+///  * `delimiter` - Either a number of bytes to read, or a string delimiter such as "\\n" or "\\r\\n". Data is read up to and including the delimiter.
 ///  * `tag` - An optional integer to assist with labeling reads. It is passed to the callback to assist with implementing [state machines](https://github.com/robbiehanson/CocoaAsyncSocket/wiki/Intro_GCDAsyncSocket#reading--writing) for processing complex protocols.
 ///
 /// Returns:
