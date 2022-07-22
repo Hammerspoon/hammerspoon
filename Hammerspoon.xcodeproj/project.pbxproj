@@ -6583,11 +6583,11 @@
 				9445CA0919083251002568BB /* Resources */,
 				E2887C971E4B5BD200468A07 /* Copy CommandPost Files */,
 				E849AEC367EA9502A25B9A7C /* [CP] Embed Pods Frameworks */,
+				22451857281ADF8400997BB0 /* Embed App Extensions */,
 				4F6D9E3523074BC6006CC3E4 /* Update version/build numbers */,
 				4FF73A1E2735449D0007074E /* Copy hs manpage */,
 				4FCA05A12767689C0089A5FC /* Copy hsdocs Files */,
 				4FCA05AB276768EC0089A5FC /* Copy hsdocs minweb Files */,
-				22451857281ADF8400997BB0 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
