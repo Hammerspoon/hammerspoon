@@ -271,12 +271,73 @@ static int mouse_scrollDirection(lua_State *L) {
     return 1;
 }
 
+/// hs.mouse.currentCursorType() -> string
+/// Function
+/// Gets the identifier of the current mouse cursor type.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A string.
+///
+///  Notes:
+///  * Possible values include: arrowCursor, contextualMenuCursor, closedHandCursor, crosshairCursor, disappearingItemCursor, dragCopyCursor, dragLinkCursor, IBeamCursor, operationNotAllowedCursor, pointingHandCursor, resizeDownCursor, resizeLeftCursor, resizeLeftRightCursor, resizeRightCursor, resizeUpCursor, resizeUpDownCursor, IBeamCursorForVerticalLayout or unknown if the cursor type cannot be determined.
+///  * This function can also return daVinciResolveHorizontalArrows, when hovering over mouse-draggable text-boxes in DaVinci Resolve. This is determined using the "hotspot" value of the cursor.
+static int mouse_currentCursorType(lua_State *L) {
+    LuaSkin *skin = LS_API(LS_TBREAK);
+    
+    NSString *value = @"unknown";
+    
+    NSCursor *currentCursor = [NSCursor currentSystemCursor];
+    
+    // Abort if the current cursor can't be detected:
+    if (currentCursor == nil) {
+        [skin pushNSObject:value];
+        return 1;
+    }
+    
+    NSImage *currentCursorImage = [currentCursor image];
+    NSData *currentCursorData = [currentCursorImage TIFFRepresentation];
+    
+    // NOTE: Whilst you can just compare [NSCursor currentCursor] values using ==, the same is not true for [NSCursor currentSystemCursor],
+    //       for some weird reason, hence why the only solution I could come up with was to compare the image data.
+    if ([currentCursorData isEqualToData:[[[NSCursor arrowCursor] image] TIFFRepresentation]]) { value = @"arrowCursor"; }
+    else if ([currentCursorData isEqualToData:[[[NSCursor contextualMenuCursor] image] TIFFRepresentation]]) { value = @"contextualMenuCursor"; }
+    else if ([currentCursorData isEqualToData:[[[NSCursor closedHandCursor] image] TIFFRepresentation]]) { value = @"closedHandCursor"; }
+    else if ([currentCursorData isEqualToData:[[[NSCursor crosshairCursor] image] TIFFRepresentation]]) { value = @"crosshairCursor"; }
+    else if ([currentCursorData isEqualToData:[[[NSCursor disappearingItemCursor] image] TIFFRepresentation]]) { value = @"disappearingItemCursor"; }
+    else if ([currentCursorData isEqualToData:[[[NSCursor dragCopyCursor] image] TIFFRepresentation]]) { value = @"dragCopyCursor"; }
+    else if ([currentCursorData isEqualToData:[[[NSCursor dragLinkCursor] image] TIFFRepresentation]]) { value = @"dragLinkCursor"; }
+    else if ([currentCursorData isEqualToData:[[[NSCursor IBeamCursor] image] TIFFRepresentation]]) { value = @"IBeamCursor"; }
+    else if ([currentCursorData isEqualToData:[[[NSCursor operationNotAllowedCursor] image] TIFFRepresentation]]) { value = @"operationNotAllowedCursor"; }
+    else if ([currentCursorData isEqualToData:[[[NSCursor pointingHandCursor] image] TIFFRepresentation]]) { value = @"pointingHandCursor"; }
+    else if ([currentCursorData isEqualToData:[[[NSCursor resizeDownCursor] image] TIFFRepresentation]]) { value = @"resizeDownCursor"; }
+    else if ([currentCursorData isEqualToData:[[[NSCursor resizeLeftCursor] image] TIFFRepresentation]]) { value = @"resizeLeftCursor"; }
+    else if ([currentCursorData isEqualToData:[[[NSCursor resizeLeftRightCursor] image] TIFFRepresentation]]) { value = @"resizeLeftRightCursor"; }
+    else if ([currentCursorData isEqualToData:[[[NSCursor resizeRightCursor] image] TIFFRepresentation]]) { value = @"resizeRightCursor"; }
+    else if ([currentCursorData isEqualToData:[[[NSCursor resizeUpCursor] image] TIFFRepresentation]]) { value = @"resizeUpCursor"; }
+    else if ([currentCursorData isEqualToData:[[[NSCursor resizeUpDownCursor] image] TIFFRepresentation]]) { value = @"resizeUpDownCursor"; }
+    else if ([currentCursorData isEqualToData:[[[NSCursor IBeamCursorForVerticalLayout] image] TIFFRepresentation]]) { value = @"IBeamCursorForVerticalLayout"; }
+    else {
+        // This is a very non-eloquent solution for detecting custom cursors:
+        NSPoint hotSpot = [currentCursor hotSpot];
+        if (hotSpot.x == 11 && hotSpot.y == 6) {
+            value = @"daVinciResolveHorizontalArrows";
+        }
+    }
+    
+    [skin pushNSObject:value];
+    return 1;
+}
+
 //Note to future authors, there is no function to use kIOHIDTrackpadAccelerationType because it doesn't appear to do anything on modern systems.
 
 static const luaL_Reg mouseLib[] = {
     {"absolutePosition", mouse_absolutePosition},
     {"trackingSpeed", mouse_mouseAcceleration},
     {"scrollDirection", mouse_scrollDirection},
+    {"currentCursorType", mouse_currentCursorType},
     {"count", mouse_count},
     {"names", mouse_names},
     {NULL, NULL}
