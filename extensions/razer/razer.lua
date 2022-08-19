@@ -8,6 +8,7 @@
 ---  * Razer Orbweaver
 ---  * Razer Orbweaver Chroma
 ---  * Razer Tartarus
+---  * Razer Tartarus Chroma
 ---  * Razer Tartarus Pro
 ---  * Razer Tartarus V2
 ---

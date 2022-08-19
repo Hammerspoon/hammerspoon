@@ -81,6 +81,8 @@
 		22E59E132852FD270062292D /* HSRazerOrbweaverChromaDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 22E59E112852FD270062292D /* HSRazerOrbweaverChromaDevice.m */; };
 		22E59E142852FD270062292D /* HSRazerOrbweaverChromaDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = 22E59E122852FD270062292D /* HSRazerOrbweaverChromaDevice.h */; };
 		22EEC62424926E6E00BAE4DA /* libserial.m in Sources */ = {isa = PBXBuildFile; fileRef = 22EEC61724926E2100BAE4DA /* libserial.m */; };
+		22F223EA28AEFB6D00FF081E /* HSRazerTartarusChromaDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = 22F223E828AEFB6D00FF081E /* HSRazerTartarusChromaDevice.h */; };
+		22F223EB28AEFB6D00FF081E /* HSRazerTartarusChromaDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 22F223E928AEFB6D00FF081E /* HSRazerTartarusChromaDevice.m */; };
 		22FA061227A160410039C37A /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FB852342735B02400462DD0 /* LuaSkin.framework */; };
 		22FA062427A1609E0039C37A /* librazer.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 22FA061B27A160410039C37A /* librazer.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		394FD223913AE68B92126D37 /* libPods-Hammerspoon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BC78AF8FE9DA0BD317A7528 /* libPods-Hammerspoon.a */; };
@@ -1738,6 +1740,8 @@
 		22EEC61724926E2100BAE4DA /* libserial.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = libserial.m; path = extensions/serial/libserial.m; sourceTree = "<group>"; };
 		22EEC61824926E2100BAE4DA /* serial.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = serial.lua; path = extensions/serial/serial.lua; sourceTree = "<group>"; };
 		22EEC62324926E5100BAE4DA /* libserial.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libserial.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		22F223E828AEFB6D00FF081E /* HSRazerTartarusChromaDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSRazerTartarusChromaDevice.h; path = extensions/razer/HSRazerTartarusChromaDevice.h; sourceTree = "<group>"; };
+		22F223E928AEFB6D00FF081E /* HSRazerTartarusChromaDevice.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSRazerTartarusChromaDevice.m; path = extensions/razer/HSRazerTartarusChromaDevice.m; sourceTree = "<group>"; };
 		22FA061B27A160410039C37A /* librazer.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = librazer.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C3D55A91C7F05D00023B633 /* osascript.lua */ = {isa = PBXFileReference; lastKnownFileType = text; path = osascript.lua; sourceTree = "<group>"; };
 		4C3D55AA1C7F05D00023B633 /* libosascript.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = libosascript.m; sourceTree = "<group>"; };
@@ -3081,6 +3085,8 @@
 				22E59E112852FD270062292D /* HSRazerOrbweaverChromaDevice.m */,
 				2248D34128476C1300A379E3 /* HSRazerTartarusDevice.h */,
 				2248D34028476C1300A379E3 /* HSRazerTartarusDevice.m */,
+				22F223E828AEFB6D00FF081E /* HSRazerTartarusChromaDevice.h */,
+				22F223E928AEFB6D00FF081E /* HSRazerTartarusChromaDevice.m */,
 				2248D33C28460E4F00A379E3 /* HSRazerTartarusProDevice.h */,
 				2248D33D28460E4F00A379E3 /* HSRazerTartarusProDevice.m */,
 				2213842E27A105DD0085CA24 /* HSRazerTartarusV2Device.h */,
@@ -4677,6 +4683,7 @@
 				22E59E142852FD270062292D /* HSRazerOrbweaverChromaDevice.h in Headers */,
 				2248D34328476C1300A379E3 /* HSRazerTartarusDevice.h in Headers */,
 				22654EA927D43CCE004F8214 /* HSRazerTartarusV2Device.h in Headers */,
+				22F223EA28AEFB6D00FF081E /* HSRazerTartarusChromaDevice.h in Headers */,
 				22E59E0F2852D6F00062292D /* HSRazerNostromoDevice.h in Headers */,
 				2248D33E28460E4F00A379E3 /* HSRazerTartarusProDevice.h in Headers */,
 				22654EAA27D43CCE004F8214 /* razer.h in Headers */,
@@ -7575,6 +7582,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2248D34228476C1300A379E3 /* HSRazerTartarusDevice.m in Sources */,
+				22F223EB28AEFB6D00FF081E /* HSRazerTartarusChromaDevice.m in Sources */,
 				22654EA327D43CB8004F8214 /* HSRazerDevice.m in Sources */,
 				22E59E102852D6F00062292D /* HSRazerNostromoDevice.m in Sources */,
 				22654EA427D43CB8004F8214 /* HSRazerManager.m in Sources */,
