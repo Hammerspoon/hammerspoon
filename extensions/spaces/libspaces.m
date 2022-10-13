@@ -131,26 +131,28 @@ static int spaces_windowsForSpace(lua_State *L) { // NOTE: wrapped in init.lua
     return 1 ;
 }
 
-/// hs.spaces.moveWindowToSpace(window, spaceID) -> true | nil, error
+/// hs.spaces.moveWindowToSpace(window, spaceID[, force]) -> true | nil, error
 /// Function
 /// Moves the window with the specified windowID to the space specified by spaceID.
 ///
 /// Parameters:
 ///  * `window`  - an integer specifying the ID of the window, or an `hs.window` object
 ///  * `spaceID` - an integer specifying the ID of the space
+///  * `force` - an optional boolean specifying whether the window should be tried to move even if the spaces aren't compatible
 ///
 /// Returns:
 ///  * true if the window was moved; otherwise nil and an error message.
 ///
 /// Notes:
-///  * a window can only be moved from a user space to another user space -- you cannot move the window of a full screen (or tiled) application to another space and you cannot move a window *to* the same space as a full screen application.
+///  * a window can only be moved from a user space to another user space -- you cannot move the window of a full screen (or tiled) application to another space. you also cannot move a window *to* the same space as a full screen application unless `force` is set to true and even then it works for floating windows only.
 static int spaces_moveWindowToSpace(lua_State *L) { // NOTE: wrapped in init.lua
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
-    [skin checkArgs:LS_TNUMBER | LS_TINTEGER, LS_TNUMBER | LS_TINTEGER, LS_TBREAK] ;
+    [skin checkArgs:LS_TNUMBER | LS_TINTEGER, LS_TNUMBER | LS_TINTEGER, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     uint32_t wid = (uint32_t)lua_tointeger(L, 1) ;
     uint64_t sid = (uint64_t)lua_tointeger(L, 2) ;
+    BOOL     force = (lua_gettop(L) > 2) ? (BOOL)(lua_toboolean(L, 3)) : NO ;
 
-    if (SLSSpaceGetType(g_connection, sid) != 0) {
+    if (SLSSpaceGetType(g_connection, sid) != 0 && force == NO) {
         lua_pushnil(L) ;
         lua_pushfstring(L, "target space ID %d does not refer to a user space", sid) ;
         return 2 ;
@@ -163,7 +165,7 @@ static int spaces_moveWindowToSpace(lua_State *L) { // NOTE: wrapped in init.lua
     if (spacesList) {
         if (![(__bridge NSArray *)spacesList containsObject:[NSNumber numberWithUnsignedLongLong:sid]]) {
             NSNumber *sourceSpace = [(__bridge NSArray *)spacesList firstObject] ;
-            if (SLSSpaceGetType(g_connection, sourceSpace.unsignedLongLongValue) != 0) {
+            if (SLSSpaceGetType(g_connection, sourceSpace.unsignedLongLongValue) != 0 && force == NO) {
                 lua_pushnil(L) ;
                 lua_pushfstring(L, "source space for windowID %d is not a user space", wid) ;
                 return 2 ;
