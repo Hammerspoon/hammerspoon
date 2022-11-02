@@ -223,7 +223,7 @@ static void extractHeadersFromStack(lua_State* L, int index, NSMutableURLRequest
 ///  * If enableRedirect is set to true, response body will be empty string. Http body will be dropped even though response has the body. This seems the limitation of 'connection:willSendRequest:redirectResponse' method.
 static int http_doAsyncRequest(lua_State* L){
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TSTRING|LS_TNIL, LS_TTABLE|LS_TNIL, LS_TFUNCTION, LS_TSTRING | LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
+    [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TSTRING|LS_TNIL, LS_TTABLE|LS_TNIL, LS_TFUNCTION, LS_TSTRING | LS_TBOOLEAN | LS_TOPTIONAL, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
 
     NSString* cachePolicy = nil;
     bool enableRedirect = true;
@@ -231,6 +231,9 @@ static int http_doAsyncRequest(lua_State* L){
         cachePolicy = [skin toNSObjectAtIndex:6];
     } else if (lua_type(L, 6) == LUA_TBOOLEAN) {
         enableRedirect = lua_toboolean(L, 6);
+    }
+    if (lua_type(L, 7) == LUA_TBOOLEAN) {
+        enableRedirect = lua_toboolean(L, 7);
     }
 
     NSMutableURLRequest* request = getRequestFromStack(L, cachePolicy);
