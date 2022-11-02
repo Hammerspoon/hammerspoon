@@ -18,7 +18,7 @@
                   length="9199426"
                   type="application/octet-stream"
               />
-              <sparkle:minimumSystemVersion>10.15</sparkle:minimumSystemVersion>
+              <sparkle:minimumSystemVersion>11.0</sparkle:minimumSystemVersion>
           </item>
   
           <item>
