@@ -12,7 +12,7 @@
 // Base SDK
 SDKROOT = macosx
 // macOS Deployment Target
-MACOSX_DEPLOYMENT_TARGET = 10.15
+MACOSX_DEPLOYMENT_TARGET = 11.0
 // Build Active Architecture Only
 ONLY_ACTIVE_ARCH = YES
 
