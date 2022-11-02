@@ -759,7 +759,7 @@ static int screen_getDisplayInfo(lua_State *L) {
     io_service_t service = CGDisplayIOServicePort(screen_id);
 #pragma clang diagnostic pop
     if (service) {
-        deviceInfo = (__bridge NSDictionary *)IODisplayCreateInfoDictionary(service, kIODisplayOnlyPreferredName);
+        deviceInfo = (__bridge_transfer NSDictionary *)IODisplayCreateInfoDictionary(service, kIODisplayOnlyPreferredName);
     }
     [skin pushNSObject:deviceInfo withOptions:LS_NSPreserveLuaStringExactly];
     return 1;

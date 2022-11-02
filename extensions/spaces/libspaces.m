@@ -166,6 +166,7 @@ static int spaces_moveWindowToSpace(lua_State *L) { // NOTE: wrapped in init.lua
             if (SLSSpaceGetType(g_connection, sourceSpace.unsignedLongLongValue) != 0) {
                 lua_pushnil(L) ;
                 lua_pushfstring(L, "source space for windowID %d is not a user space", wid) ;
+                CFRelease(spacesList);
                 return 2 ;
             }
             SLSMoveWindowsToManagedSpace(g_connection, (__bridge CFArrayRef)windows, sid) ;
