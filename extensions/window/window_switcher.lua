@@ -224,7 +224,7 @@ local function exit(self)
   --  if windows[selected]:application():bundleID()~='com.apple.finder' then
   --    windows[selected]:focus()
   --  else
-  timer.doAfter(0.01,function()windows[selected]:focus()end) -- el cap bugs out (desktop "floats" on top) if done directly
+  function()windows[selected]:focus()
   --  end
 end
 
