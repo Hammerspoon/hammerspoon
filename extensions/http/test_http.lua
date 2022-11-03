@@ -12,7 +12,7 @@ _G["callback"] = function(code, body, headers)
 end
 
 function testHttpDoAsyncRequestWithCachePolicyParamValues()
-  if (type(_G["respCode"]) == "number" and type(_G["respBody"]) == "string" and type(_G["respHeaders"]) == "table") then
+  if (type(_G["respCode"]) == "number" and type(_G["respBody"]) == "string" and type(_G["respHeaders"]) == "table" and _G["respCode"] > 0) then
     -- check return code
     assertIsEqual(200, _G["respCode"])
     assertGreaterThan(0, string.len(_G["respBody"]))
@@ -41,7 +41,7 @@ function testHttpDoAsyncRequestWithCachePolicyParam()
 end
 
 function testHttpDoAsyncRequestWithoutEnableRedirectAndCachePolicyParamValues()
-  if (type(_G["respCode"]) == "number" and type(_G["respBody"]) == "string" and type(_G["respHeaders"]) == "table") then
+  if (type(_G["respCode"]) == "number" and type(_G["respBody"]) == "string" and type(_G["respHeaders"]) == "table" and _G["respCode"] > 0) then
     -- check return code
     assertIsEqual(200, _G["respCode"])
     assertGreaterThan(0, string.len(_G["respBody"]))
@@ -69,7 +69,7 @@ function testHttpDoAsyncRequestWithoutEnableRedirectAndCachePolicyParam()
 end
 
 function testHttpDoAsyncRequestWithRedirectionValues()
-  if (type(_G["respCode"]) == "number" and type(_G["respBody"]) == "string" and type(_G["respHeaders"]) == "table") then
+  if (type(_G["respCode"]) == "number" and type(_G["respBody"]) == "string" and type(_G["respHeaders"]) == "table" and _G["respCode"] > 0) then
     -- check return code
     assertIsEqual(200, _G["respCode"])
     assertGreaterThan(0, string.len(_G["respBody"]))
@@ -98,7 +98,7 @@ function testHttpDoAsyncRequestWithRedirection()
 end
 
 function testHttpDoAsyncRequestWithoutRedirectionValues()
-  if (type(_G["respCode"]) == "number" and type(_G["respBody"]) == "string" and type(_G["respHeaders"]) == "table") then
+  if (type(_G["respCode"]) == "number" and type(_G["respBody"]) == "string" and type(_G["respHeaders"]) == "table" and _G["respCode"] > 0) then
     -- check return code
     assertIsEqual(301, _G["respCode"])
     return success()
