@@ -224,7 +224,7 @@ local function exit(self)
   --  if windows[selected]:application():bundleID()~='com.apple.finder' then
   --    windows[selected]:focus()
   --  else
-  function()windows[selected]:focus()
+  windows[selected]:focus()
   --  end
 end
 
