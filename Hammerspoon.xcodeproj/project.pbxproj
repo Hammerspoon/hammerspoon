@@ -6812,7 +6812,7 @@
 			isa = PBXProject;
 			attributes = {
 				CLASSPREFIX = HS;
-				LastUpgradeCheck = 1320;
+				LastUpgradeCheck = 1410;
 				ORGANIZATIONNAME = Hammerspoon;
 				TargetAttributes = {
 					4F20B5281C1F1C5B00F52437 = {
