@@ -65,12 +65,14 @@ jobs:
 
       - name: Send notification (Push)
         if: ${{ always() && github.event_name == 'push' && github.repository == 'hammerspoon/hammerspoon' }}
-        run: /usr/bin/curl -H "Content-Type: application/json" -d '{"secret": "${{ secrets.CI_WEBHOOK_SECRET }}", "message": "CI for ${{ github.event.compare }} (${{ github.event.head_commit.author.name }}):
+        run: |
+          /usr/bin/curl -H "Content-Type: application/json" -d '{"secret": "${{ secrets.CI_WEBHOOK_SECRET }}", "message": "CI for ${{ github.event.compare }} (${{ github.event.head_commit.author.name }}):
   * ${{ github.event.head_commit.message}}
   * ${{ steps.test.outputs.test_result }}"}' ${{ secrets.CI_WEBHOOK_URL }}
 
       - name: Send notification (PR)
         if: ${{ always() && github.event_name == 'pull_request' && github.repository == 'hammerspoon/hammerspoon' }}
-        run: /usr/bin/curl -H "Content-Type: application/json" -d '{"secret": "${{ secrets.CI_WEBHOOK_SECRET }}", "message": "CI for ${{ github.event.pull_request.html_url }} (${{ github.actor }})
+        run: |
+          /usr/bin/curl -H "Content-Type: application/json" -d '{"secret": "${{ secrets.CI_WEBHOOK_SECRET }}", "message": "CI for ${{ github.event.pull_request.html_url }} (${{ github.actor }})
   * ${{ github.event.pull_request.title }}
   * ${{ steps.test.outputs.test_result }}"}' ${{ secrets.CI_WEBHOOK_URL }}

@@ -114,4 +114,5 @@ jobs:
           path: archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/Release-build.log
 
       - name: Send notification
-        run: /usr/bin/curl -H "Content-Type: application/json" -d '{"secret": "${{ secrets.CI_WEBHOOK_SECRET }}", "message": "New development build: ${{ steps.version.outputs.NIGHTLY_VERSION }}"}' ${{ secrets.CI_WEBHOOK_URL }}
+        run: |
+          /usr/bin/curl -H "Content-Type: application/json" -d '{"secret": "${{ secrets.CI_WEBHOOK_SECRET }}", "message": "New development build: ${{ steps.version.outputs.NIGHTLY_VERSION }}"}' ${{ secrets.CI_WEBHOOK_URL }}
