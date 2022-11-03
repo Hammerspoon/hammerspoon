@@ -7,7 +7,7 @@ set -o pipefail
 export IS_CI=1
 
 # Select our Xcode version
-sudo xcode-select -s /Applications/Xcode_13.3.app
+sudo xcode-select -s /Applications/Xcode_14.1.app
 
 # Remove the pre-installed Cocoapods binary
 rm /usr/local/bin/pod
