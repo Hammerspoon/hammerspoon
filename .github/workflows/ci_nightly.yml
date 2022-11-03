@@ -113,11 +113,9 @@ jobs:
           name: Release-build.log
           path: archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/Release-build.log
 
-
-      - name: IRC notification
-        uses: Gottox/irc-message-action@v2.1.2
-        with:
-          channel: '#hammerspoon'
-          nickname: 'HS_CI_DevBuild'
-          message: |
-            New development build: ${{ steps.version.outputs.NIGHTLY_VERSION }}
+      - name: Send notification
+        uses: distributhor/workflow-webhook@v2
+        env:
+          webhook_url: ${{ secrets.CI_WEBHOOK_URL }}
+          webhook_secret: ${{ secrets.CI_WEBHOOK_SECRET }}
+          data: '{ "message": "New development build: ${{ steps.version.outputs.NIGHTLY_VERSION }}" }'
