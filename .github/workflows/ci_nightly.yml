@@ -115,4 +115,4 @@ jobs:
 
       - name: Send notification
         run: |
-          /usr/bin/curl -H "Content-Type: application/json" -d '{"secret": "${{ secrets.CI_WEBHOOK_SECRET }}", "repository": "hammerspoon", "workflow": "Dev Build", "message": "New development build: ${{ steps.version.outputs.NIGHTLY_VERSION }}"}' ${{ secrets.CI_WEBHOOK_URL }}
+          /usr/bin/curl -H "X-CI-WebHook: true" -H "Content-Type: application/json" -d '{"secret": "${{ secrets.CI_WEBHOOK_SECRET }}", "repository": "hammerspoon", "workflow": "Dev Build", "message": "New development build: ${{ steps.version.outputs.NIGHTLY_VERSION }}"}' ${{ secrets.CI_WEBHOOK_URL }}
