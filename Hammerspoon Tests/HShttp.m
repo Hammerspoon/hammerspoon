@@ -28,13 +28,19 @@
     RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(5)
 }
 
-- (void)testHttpDoAsyncRequestWithRedirectParamButNoCachePolicyParam {
-    RUN_LUA_TEST()
-}
-
-- (void)testHttpDoAsyncRequestWithNoEnableRedirectParam {
+- (void)testHttpDoAsyncRequestWithoutEnableRedirectAndCachePolicyParam {
     RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(5)
 }
+
+// There's no Lua counterpart for this yet
+//- (void)testHttpDoAsyncRequestWithRedirectParamButNoCachePolicyParam {
+//    RUN_LUA_TEST()
+//}
+
+// There's no Lua counterpart for this yet
+//- (void)testHttpDoAsyncRequestWithNoEnableRedirectParam {
+//    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(5)
+//}
 
 - (void)testHttpDoAsyncRequestWithRedirection {
     RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(5)
