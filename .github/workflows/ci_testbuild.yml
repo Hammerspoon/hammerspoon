@@ -63,23 +63,14 @@ jobs:
           name: test_results
           path: build/reports/junit.xml
 
-      - name: Send notification (Pull)
-        uses: distributhor/workflow-webhook@v2
+      - name: Send notification (Push)
         if: ${{ always() && github.event_name == 'push' && github.repository == 'hammerspoon/hammerspoon' }}
-        env:
-          webhook_url: ${{ secrets.CI_WEBHOOK_URL }}
-          webhook_secret: ${{ secrets.CI_WEBHOOK_SECRET }}
-          data: '{ "message": "CI for ${{ github.event.compare }} (${{ github.event.head_commit.author.name }}):
+        run: /usr/bin/curl -H "Content-Type: application/json" -d '{"secret": "${{ secrets.CI_WEBHOOK_SECRET }}", "message": "CI for ${{ github.event.compare }} (${{ github.event.head_commit.author.name }}):
   * ${{ github.event.head_commit.message}}
-  * ${{ steps.test.outputs.test_result }}" }'
+  * ${{ steps.test.outputs.test_result }}"}' ${{ secrets.CI_WEBHOOK_URL }}
 
       - name: Send notification (PR)
-        uses: distributhor/workflow-webhook@v2
         if: ${{ always() && github.event_name == 'pull_request' && github.repository == 'hammerspoon/hammerspoon' }}
-        env:
-          webhook_url: ${{ secrets.CI_WEBHOOK_URL }}
-          webhook_secret: ${{ secrets.CI_WEBHOOK_SECRET }}
-          data: '{ "message": "CI for ${{ github.event.pull_request.html_url }} (${{ github.actor }})
+        run: /usr/bin/curl -H "Content-Type: application/json" -d '{"secret": "${{ secrets.CI_WEBHOOK_SECRET }}", "message": "CI for ${{ github.event.pull_request.html_url }} (${{ github.actor }})
   * ${{ github.event.pull_request.title }}
-  * ${{ steps.test.outputs.test_result }}" }'
-
+  * ${{ steps.test.outputs.test_result }}"}' ${{ secrets.CI_WEBHOOK_URL }}

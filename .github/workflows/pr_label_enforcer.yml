@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Verify PR label
-        uses: jesusvasquez333/verify-pr-label-action@v1.3.1
+        uses: jesusvasquez333/verify-pr-label-action@v1.4.0
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
           valid-labels: 'pr-fix, pr-change, pr-feature, pr-maintenance'

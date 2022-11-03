@@ -114,8 +114,4 @@ jobs:
           path: archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/Release-build.log
 
       - name: Send notification
-        uses: distributhor/workflow-webhook@v2
-        env:
-          webhook_url: ${{ secrets.CI_WEBHOOK_URL }}
-          webhook_secret: ${{ secrets.CI_WEBHOOK_SECRET }}
-          data: '{ "message": "New development build: ${{ steps.version.outputs.NIGHTLY_VERSION }}" }'
+        run: /usr/bin/curl -H "Content-Type: application/json" -d '{"secret": "${{ secrets.CI_WEBHOOK_SECRET }}", "message": "New development build: ${{ steps.version.outputs.NIGHTLY_VERSION }}"}' ${{ secrets.CI_WEBHOOK_URL }}
