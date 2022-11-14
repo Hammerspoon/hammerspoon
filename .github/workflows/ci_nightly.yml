@@ -41,8 +41,8 @@ jobs:
       - name: Get version number
         id: version
         run: |
-          echo ::set-output name=NIGHTLY_VERSION::$(git describe)
-          echo ::set-output name=RELEASE_VERSION::$(git describe --abbrev=0)
+          echo "name=NIGHTLY_VERSION::$(git describe)" >> $GITHUB_OUTPUT
+          echo "name=RELEASE_VERSION::$(git describe --abbrev=0)" >> $GITHUB_OUTPUT
       - name: Build
         run: ./scripts/build.sh build -s Release -c Release
       - name: Generate API docs
