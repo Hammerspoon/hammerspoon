@@ -30,6 +30,8 @@
 @property(nonatomic, retain) NSString *fontName;
 @property(nonatomic) CGFloat fontSize;
 @property(nonatomic) BOOL searchSubText;
+@property(nonatomic) BOOL enableDefaultForQuery;
+
 @property(nonatomic) NSColor *fgColor;
 @property(nonatomic) NSColor *subTextColor;
 

@@ -100,7 +100,7 @@ objectMT.name=objectMT.title
 --- Notes:
 ---  * see also `hs.application.find`
 function application.get(hint)
-  return tpack(application.find(hint,true),nil)[1] -- just to be sure, discard extra results
+  return tpack(application.find(hint,false),nil)[1] -- just to be sure, discard extra results
 end
 
 --- hs.application.find(hint) -> hs.application object(s)

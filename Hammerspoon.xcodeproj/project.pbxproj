@@ -603,6 +603,9 @@
 		949CDC001990759B00906CCE /* ConsoleWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 949CDBFF1990759B00906CCE /* ConsoleWindow.xib */; };
 		94A1E5481993AC5C003AEB26 /* MJFileUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A1E5471993AC5C003AEB26 /* MJFileUtils.m */; };
 		B8524F32201A896000844F3D /* libhid.m in Sources */ = {isa = PBXBuildFile; fileRef = B8524F25201A875600844F3D /* libhid.m */; };
+		CE139CB028B24B6500743C90 /* HShttp.m in Sources */ = {isa = PBXBuildFile; fileRef = CE139CAF28B24B6500743C90 /* HShttp.m */; };
+		CE139CB128B24DAC00743C90 /* http.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4F4CB4421B73AFD2000EA9B6 /* http.lua */; };
+		CE139CB328B2539500743C90 /* test_http.lua in Resources */ = {isa = PBXBuildFile; fileRef = CE139CB228B2539500743C90 /* test_http.lua */; };
 		D02F95291A00221C00E28BB2 /* HSrequire_all.m in Sources */ = {isa = PBXBuildFile; fileRef = D02F95281A00221C00E28BB2 /* HSrequire_all.m */; };
 		D077B5BF1A001B5300369B30 /* variables.m in Sources */ = {isa = PBXBuildFile; fileRef = D077B5BE1A001B5300369B30 /* variables.m */; };
 		D61F4A341DCFA6DB00AEE223 /* libsharing.m in Sources */ = {isa = PBXBuildFile; fileRef = D61F4A311DCFA6C600AEE223 /* libsharing.m */; };
@@ -2144,6 +2147,8 @@
 		B8524F24201A875600844F3D /* hid.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = hid.lua; path = extensions/hid/hid.lua; sourceTree = "<group>"; };
 		B8524F25201A875600844F3D /* libhid.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libhid.m; path = extensions/hid/libhid.m; sourceTree = "<group>"; };
 		B8524F31201A88CD00844F3D /* libhid.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libhid.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		CE139CAF28B24B6500743C90 /* HShttp.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HShttp.m; sourceTree = "<group>"; };
+		CE139CB228B2539500743C90 /* test_http.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_http.lua; path = extensions/http/test_http.lua; sourceTree = "<group>"; };
 		D02F95241A00221C00E28BB2 /* Hammerspoon Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Hammerspoon Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D02F95271A00221C00E28BB2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D02F95281A00221C00E28BB2 /* HSrequire_all.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HSrequire_all.m; sourceTree = "<group>"; };
@@ -3392,6 +3397,7 @@
 		4F4CB4411B73AFC1000EA9B6 /* http */ = {
 			isa = PBXGroup;
 			children = (
+				CE139CB228B2539500743C90 /* test_http.lua */,
 				4F4CB4421B73AFD2000EA9B6 /* http.lua */,
 				4F4CB4431B73AFD2000EA9B6 /* libhttp.m */,
 			);
@@ -4464,6 +4470,7 @@
 				4FDD8E7B1C85A05700085D7A /* lsunit.lua */,
 				D02F95261A00221C00E28BB2 /* Supporting Files */,
 				4FDD8E7D1C85A06800085D7A /* testinit.lua */,
+				CE139CAF28B24B6500743C90 /* HShttp.m */,
 			);
 			path = "Hammerspoon Tests";
 			sourceTree = "<group>";
@@ -7357,6 +7364,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CE139CB128B24DAC00743C90 /* http.lua in Resources */,
 				4F7BB9D426447C390077A926 /* test_hotkey.lua in Resources */,
 				2273893624860C0E003EBC68 /* test_websocket.lua in Resources */,
 				4FCBAFD923B1152F007BA1D0 /* test_math.lua in Resources */,
@@ -7379,6 +7387,7 @@
 				4FDD8E7C1C85A05700085D7A /* lsunit.lua in Resources */,
 				4FDD8E7E1C85A06800085D7A /* testinit.lua in Resources */,
 				4FDD8E8B1C8C8BD200085D7A /* test_coresetup.lua in Resources */,
+				CE139CB328B2539500743C90 /* test_http.lua in Resources */,
 				4FEE39DB1F0A69D600935F90 /* test_crash.lua in Resources */,
 				4CB349F31C7F74EE006F0DE0 /* test_applescript.lua in Resources */,
 				4FB74B3C2049AB8B00B08851 /* test_task.lua in Resources */,
@@ -8169,6 +8178,7 @@
 			files = (
 				4FFF9FB525D89B3B00D2997C /* HSmouse.m in Sources */,
 				4FDD8E8F1C8DED1C00085D7A /* HSappfinder.m in Sources */,
+				CE139CB028B24B6500743C90 /* HShttp.m in Sources */,
 				6AE181321D39C8F10097211C /* HSnoises.m in Sources */,
 				4FCC52CE1E1527EF007F93D0 /* HSbrightness.m in Sources */,
 				22A6626225FC087000AA329E /* HSserial.m in Sources */,
@@ -9481,7 +9491,6 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -11288,7 +11297,6 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -11319,7 +11327,6 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
