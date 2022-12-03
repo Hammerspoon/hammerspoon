@@ -566,7 +566,13 @@ int main()
                 [alert addButtonWithTitle:@"Cancel"] ;
                 alert.messageText = @"Hammerspoon is not running" ;
                 alert.informativeText = @"Hammerspoon is not running. Would you like to launch it now?" ;
-                NSString *imagePath = [[NSWorkspace sharedWorkspace] absolutePathForAppBundleWithIdentifier:(__bridge NSString *)hammerspoonBundle];
+
+                NSString *imagePath = @"";
+                NSURL *url = [[NSWorkspace sharedWorkspace] URLForApplicationWithBundleIdentifier:(__bridge NSString *)hammerspoonBundle];
+                if (url) {
+                    imagePath = url.path;
+                }
+
                 alert.icon = [[NSWorkspace sharedWorkspace] iconForFile:imagePath] ;
                 alert.alertStyle = NSAlertStyleCritical ;
                 NSModalResponse response = [alert runModal] ;

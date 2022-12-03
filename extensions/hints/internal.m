@@ -63,7 +63,11 @@ static float hintIconAlpha = 0.95;
 }
 
 - (void)setIconFromBundleID:(NSString*)appBundle {
-    NSString *path = [[NSWorkspace sharedWorkspace] absolutePathForAppBundleWithIdentifier:appBundle];
+    NSString *path = @"";
+    NSURL *url = [[NSWorkspace sharedWorkspace] URLForApplicationWithBundleIdentifier:appBundle];
+    if (url) {
+        path = url.path;
+    }
     NSImage *theIcon = [[NSWorkspace sharedWorkspace] iconForFile:path];
     [self setIcon:theIcon];
 }
