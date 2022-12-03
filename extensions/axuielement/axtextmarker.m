@@ -100,21 +100,16 @@ static int axtextmarker_newRange(lua_State *L) {
     AXTextMarkerRef startMarker = get_axtextmarkerref(L, 1, AXTEXTMARKER_TAG) ;
     AXTextMarkerRef endMarker   = get_axtextmarkerref(L, 2, AXTEXTMARKER_TAG) ;
 
-    if (AXTextMarkerRangeCreate != NULL) {
-        AXTextMarkerRangeRef range = AXTextMarkerRangeCreate(kCFAllocatorDefault, startMarker, endMarker) ;
-        if (range) {
-            pushAXTextMarkerRange(L, range) ;
-            CFRelease(range) ;
-        } else {
-            lua_pushnil(L) ;
-            lua_pushstring(L, "invalid start or end marker for range") ;
-            return 2 ;
-        }
+    AXTextMarkerRangeRef range = AXTextMarkerRangeCreate(kCFAllocatorDefault, startMarker, endMarker) ;
+    if (range) {
+        pushAXTextMarkerRange(L, range) ;
+        CFRelease(range) ;
     } else {
         lua_pushnil(L) ;
-        lua_pushstring(L, "CF function AXTextMarkerRangeCreate undefined") ;
+        lua_pushstring(L, "invalid start or end marker for range") ;
         return 2 ;
     }
+
     return 1 ;
 }
 
@@ -140,13 +135,8 @@ static int axtextmarker_AXTextMarkerRangeGetTypeID(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TBREAK] ;
 
-    if (AXTextMarkerRangeGetTypeID != NULL) {
-        lua_pushinteger(L, (lua_Integer)AXTextMarkerRangeGetTypeID()) ;
-    } else {
-        lua_pushnil(L) ;
-        lua_pushstring(L, "CF function AXTextMarkerRangeGetTypeID undefined") ;
-        return 2 ;
-    }
+    lua_pushinteger(L, (lua_Integer)AXTextMarkerRangeGetTypeID()) ;
+
     return 1 ;
 }
 
@@ -172,10 +162,10 @@ static int axtextmarker_availabilityCheck(lua_State *L) {
     lua_pushboolean(L, true) ;               lua_setfield(L, -2, "AXTextMarkerCreate") ;
     lua_pushboolean(L, true) ;            lua_setfield(L, -2, "AXTextMarkerGetLength") ;
     lua_pushboolean(L, true) ;           lua_setfield(L, -2, "AXTextMarkerGetBytePtr") ;
-    lua_pushboolean(L, (AXTextMarkerRangeGetTypeID != NULL)) ;       lua_setfield(L, -2, "AXTextMarkerRangeGetTypeID") ;
-    lua_pushboolean(L, (AXTextMarkerRangeCreate != NULL)) ;          lua_setfield(L, -2, "AXTextMarkerRangeCreate") ;
-    lua_pushboolean(L, (AXTextMarkerRangeCopyStartMarker != NULL)) ; lua_setfield(L, -2, "AXTextMarkerRangeCopyStartMarker") ;
-    lua_pushboolean(L, (AXTextMarkerRangeCopyEndMarker != NULL)) ;   lua_setfield(L, -2, "AXTextMarkerRangeCopyEndMarker") ;
+    lua_pushboolean(L, true) ;       lua_setfield(L, -2, "AXTextMarkerRangeGetTypeID") ;
+    lua_pushboolean(L, true) ;          lua_setfield(L, -2, "AXTextMarkerRangeCreate") ;
+    lua_pushboolean(L, true) ; lua_setfield(L, -2, "AXTextMarkerRangeCopyStartMarker") ;
+    lua_pushboolean(L, true) ;   lua_setfield(L, -2, "AXTextMarkerRangeCopyEndMarker") ;
     return 1 ;
 }
 
@@ -242,21 +232,16 @@ static int axtextmarker_rangeStartMarker(lua_State *L) {
     [skin checkArgs:LS_TUSERDATA, AXTEXTMRKRNG_TAG, LS_TBREAK] ;
     AXTextMarkerRangeRef range = get_axtextmarkerrangeref(L, 1, AXTEXTMRKRNG_TAG) ;
 
-    if (AXTextMarkerRangeCopyStartMarker != NULL) {
-        AXTextMarkerRef marker = AXTextMarkerRangeCopyStartMarker(range) ;
-        if (marker) {
-            pushAXTextMarker(L, marker) ;
-            CFRelease(marker) ;
-        } else {
-            lua_pushnil(L) ;
-            lua_pushstring(L, "startMarker NULL for range") ;
-            return 2 ;
-        }
+    AXTextMarkerRef marker = AXTextMarkerRangeCopyStartMarker(range) ;
+    if (marker) {
+        pushAXTextMarker(L, marker) ;
+        CFRelease(marker) ;
     } else {
         lua_pushnil(L) ;
-        lua_pushstring(L, "CF function AXTextMarkerRangeCopyStartMarker undefined") ;
+        lua_pushstring(L, "startMarker NULL for range") ;
         return 2 ;
     }
+
     return 1 ;
 }
 
@@ -274,21 +259,16 @@ static int axtextmarker_rangeEndMarker(lua_State *L) {
     [skin checkArgs:LS_TUSERDATA, AXTEXTMRKRNG_TAG, LS_TBREAK] ;
     AXTextMarkerRangeRef range = get_axtextmarkerrangeref(L, 1, AXTEXTMRKRNG_TAG) ;
 
-    if (AXTextMarkerRangeCopyEndMarker != NULL) {
-        AXTextMarkerRef marker = AXTextMarkerRangeCopyEndMarker(range) ;
-        if (marker) {
-            pushAXTextMarker(L, marker) ;
-            CFRelease(marker) ;
-        } else {
-            lua_pushnil(L) ;
-            lua_pushstring(L, "endMarker NULL for range") ;
-            return 2 ;
-        }
+    AXTextMarkerRef marker = AXTextMarkerRangeCopyEndMarker(range) ;
+    if (marker) {
+        pushAXTextMarker(L, marker) ;
+        CFRelease(marker) ;
     } else {
         lua_pushnil(L) ;
-        lua_pushstring(L, "CF function AXTextMarkerRangeCopyEndMarker undefined") ;
+        lua_pushstring(L, "endMarker NULL for range") ;
         return 2 ;
     }
+
     return 1 ;
 }
 
