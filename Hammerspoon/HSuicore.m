@@ -59,7 +59,6 @@
 }
 
 +(NSArray *)preferredLocalizationsForBundleID:(NSString *)bundleID {
-    NSWorkspace *ws = [NSWorkspace sharedWorkspace];
     NSString *appPath = [HSapplication pathForBundleID:bundleID];
     return [HSapplication preferredLocalizationsForBundlePath:appPath];
 }
@@ -75,7 +74,6 @@
 }
 
 +(NSArray *)localizationsForBundleID:(NSString *)bundleID {
-    NSWorkspace *ws = [NSWorkspace sharedWorkspace];
     NSString *appPath = [HSapplication pathForBundleID:bundleID];
     return [HSapplication localizationsForBundlePath:appPath];
 }
