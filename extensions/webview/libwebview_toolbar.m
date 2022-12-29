@@ -463,7 +463,7 @@ static NSMenu *createCoreSearchFieldMenu() {
             if ([keyValue isKindOfClass:[NSImage class]]) {
                 item.image = keyValue ;
             } else {
-                [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be an hs.image obejct", USERDATA_TB_TAG, keyName, identifier]] ;
+                [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be an hs.image object", USERDATA_TB_TAG, keyName, identifier]] ;
                 [itemDefinition removeObjectForKey:keyName] ;
             }
 
