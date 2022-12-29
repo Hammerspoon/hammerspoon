@@ -281,7 +281,7 @@ __sunriset__( year, month, day, lon, lat, -35.0/60.0, 1, rise, set )
         altit -= sradius;
     
     /* Compute the diurnal arc that the Sun traverses to reach */
-    /* the specified altitide altit: */
+    /* the specified altitude altit: */
     {
         double cost;
         cost = ( sind(altit) - sind(lat) * sind(sdec) ) /
