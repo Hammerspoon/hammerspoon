@@ -171,7 +171,7 @@ static void ghmd__init_plaintext(void)
 /// Parameters:
 ///  * markdown - a string containing the input text encoded using markdown tags
 ///  * type     - an optional string specifying the conversion options and output type.  Defaults to "gfm".  The currently recognized types are:
-///    * "markdown"  - specfies that the output should be HTML with the standard GitHub/Markdown extensions enabled.
+///    * "markdown"  - specifies that the output should be HTML with the standard GitHub/Markdown extensions enabled.
 ///    * "gfm"       - specifies that the output should be HTML with additional GitHub extensions enabled.
 ///    * "plaintext" - specifies that the output should plain text with the standard GitHub/Markdown extensions enabled.
 ///
