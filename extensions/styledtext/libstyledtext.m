@@ -1358,7 +1358,7 @@ static int string_lower(lua_State *L) {
 
 /// hs.styledtext:sub(starts, [ends]) -> styledText object
 /// Method
-/// Returns a substring, including the style attributes, specified by the given indicies from the `hs.styledtext` object.  Mimics the Lua `string.sub` function.
+/// Returns a substring, including the style attributes, specified by the given indices from the `hs.styledtext` object.  Mimics the Lua `string.sub` function.
 ///
 /// Parameters:
 ///  * starts - the index position within the text of the `hs.styledtext` object indicating the beginning of the substring to return.  If this number is negative, it is counted backwards from the end of the object's text (i.e. -1 would be the last character position).
