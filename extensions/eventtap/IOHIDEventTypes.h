@@ -46,7 +46,7 @@
     @typedef IOHIDEventType
     @abstract The type of event represented by an IOHIDEventRef.
     @discussion It is possible that a single IOHIDEventRef can conform to
-    multiple event types through the use of sub events.  For futher information
+    multiple event types through the use of sub events.  For further information
     as to how to determine the type of event please reference IOHIDEventGetType 
     and IOHIDEventConformsTo.
     @constant kIOHIDEventTypeNULL
