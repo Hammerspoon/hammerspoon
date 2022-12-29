@@ -12,7 +12,7 @@ function testStartStop()
 
   -- being garbage collected while running should not crash
   -- who knows, leaving this running until GC might allow us
-  -- to test recieving some audio frames
+  -- to test receiving some audio frames
   listener:start()
 
   return success()
