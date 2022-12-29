@@ -705,7 +705,7 @@ static const char *perm2string (mode_t mode) {
     return perms;
 }
 
-/* permssions string */
+/* permissions string */
 static void push_st_perm (lua_State *L, STAT_STRUCT *info) {
     lua_pushstring (L, perm2string (info->st_mode));
 }
