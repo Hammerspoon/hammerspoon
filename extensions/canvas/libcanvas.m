@@ -3031,7 +3031,7 @@ static int canvas_alpha(lua_State *L) {
 ///  * The canvas object
 ///
 /// Notes:
-///  * If the canvas object and canvas2 are not at the same presentation level, this method will will move the canvas object as close to the desired relationship as possible without changing the canvas object's presentation level. See [hs.canvas.level](#level).
+///  * If the canvas object and canvas2 are not at the same presentation level, this method will move the canvas object as close to the desired relationship as possible without changing the canvas object's presentation level. See [hs.canvas.level](#level).
 static int canvas_orderAbove(lua_State *L) {
     return canvas_orderHelper(L, NSWindowAbove) ;
 }
@@ -3047,7 +3047,7 @@ static int canvas_orderAbove(lua_State *L) {
 ///  * The canvas object
 ///
 /// Notes:
-///  * If the canvas object and canvas2 are not at the same presentation level, this method will will move the canvas object as close to the desired relationship as possible without changing the canvas object's presentation level. See [hs.canvas.level](#level).
+///  * If the canvas object and canvas2 are not at the same presentation level, this method will move the canvas object as close to the desired relationship as possible without changing the canvas object's presentation level. See [hs.canvas.level](#level).
 static int canvas_orderBelow(lua_State *L) {
     return canvas_orderHelper(L, NSWindowBelow) ;
 }

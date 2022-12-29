@@ -2396,7 +2396,7 @@ static int webview_orderHelper(lua_State *L, NSWindowOrderingMode mode) {
 ///  * The webview object
 ///
 /// Notes:
-///  * If the webview object and webview2 are not at the same presentation level, this method will will move the webview object as close to the desired relationship without changing the webview object's presentation level. See [hs.webview.level](#level).
+///  * If the webview object and webview2 are not at the same presentation level, this method will move the webview object as close to the desired relationship without changing the webview object's presentation level. See [hs.webview.level](#level).
 static int webview_orderAbove(lua_State *L) {
     return webview_orderHelper(L, NSWindowAbove) ;
 }
@@ -2412,7 +2412,7 @@ static int webview_orderAbove(lua_State *L) {
 ///  * The webview object
 ///
 /// Notes:
-///  * If the webview object and webview2 are not at the same presentation level, this method will will move the webview object as close to the desired relationship without changing the webview object's presentation level. See [hs.webview.level](#level).
+///  * If the webview object and webview2 are not at the same presentation level, this method will move the webview object as close to the desired relationship without changing the webview object's presentation level. See [hs.webview.level](#level).
 static int webview_orderBelow(lua_State *L) {
     return webview_orderHelper(L, NSWindowBelow) ;
 }
