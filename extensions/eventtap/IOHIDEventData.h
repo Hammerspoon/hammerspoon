@@ -136,7 +136,7 @@ typedef struct _IOHIDSwipeEventData {
 /*!
  @typedef    IOHIDSystemQueueElement
  @abstract   Memory structure defining the layout of each event queue element
- @discussion The IOHIDEventQueueElement represents a portion of mememory in the
+ @discussion The IOHIDEventQueueElement represents a portion of memory in the
  new IOHIDEventQueue.  It is possible that a event queue element
  can contain multiple interpretations of a given event.  The first
  event is always considered the primary event.
@@ -146,7 +146,7 @@ typedef struct _IOHIDSwipeEventData {
  @field      deviceID    ID of the sending device
  @field      options     Options for further developement
  @field      eventCount  The number of events contained in this transaction
- @field      events      Beginning offset of contiguous mememory that contains the
+ @field      events      Beginning offset of contiguous memory that contains the
  pertinent event data
  */
 typedef struct _IOHIDSystemQueueElement {
