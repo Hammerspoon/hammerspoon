@@ -249,7 +249,7 @@ module.fontsForFamily = function(...)
                 end
             end
             if style ~= 0 then
-                table.insert(styleTable, string.format("** unrcognized font trait flags: %d", style))
+                table.insert(styleTable, string.format("** unrecognized font trait flags: %d", style))
             end
             v[4] = styleTable
         end
