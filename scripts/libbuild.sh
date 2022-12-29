@@ -121,7 +121,7 @@ function op_validate() {
   fi
   echo "  ✅ Signing identity is correct (${SIGN_IDENTITY})"
 
-  # Check that Gatekeepr accepts the app bundle
+  # Check that Gatekeeper accepts the app bundle
   if ! spctl --assess --type execute "${HAMMERSPOON_BUNDLE_PATH}" ; then
       spctl --verbose=4 --assess --type execute "${HAMMERSPOON_BUNDLE_PATH}"
       fail "Gatekeeper rejection:"
