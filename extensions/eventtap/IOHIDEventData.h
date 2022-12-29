@@ -146,7 +146,7 @@ typedef struct _IOHIDSwipeEventData {
  @field      deviceID    ID of the sending device
  @field      options     Options for further developement
  @field      eventCount  The number of events contained in this transaction
- @field      events      Begining offset of contiguous mememory that contains the
+ @field      events      Beginning offset of contiguous mememory that contains the
  pertinent event data
  */
 typedef struct _IOHIDSystemQueueElement {
