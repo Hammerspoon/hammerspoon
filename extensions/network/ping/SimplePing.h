@@ -26,7 +26,7 @@ typedef NS_ENUM(NSInteger, SimplePingAddressStyle) {
 /*! An object wrapper around the low-level BSD Sockets ping function.
  *  \details To use the class create an instance, set the delegate and call `-start`
  *      to start the instance on the current run loop.  If things go well you'll soon get the
- *      `-simplePing:didStartWithAddress:` delegate callback.  From there you can can call
+ *      `-simplePing:didStartWithAddress:` delegate callback.  From there you can call
  *      `-sendPingWithData:` to send a ping and you'll receive the
  *      `-simplePing:didReceivePingResponsePacket:sequenceNumber:` and
  *      `-simplePing:didReceiveUnexpectedPacket:` delegate callbacks as ICMP packets arrive.
