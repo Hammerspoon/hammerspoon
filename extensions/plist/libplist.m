@@ -22,7 +22,7 @@ static int plist_read(lua_State *L) {
 
 /// hs.plist.readString(value, [binary]) -> table | nil
 /// Function
-/// Interpretes a property list file within a string into a table.
+/// Interprets a property list file within a string into a table.
 ///
 /// Parameters:
 ///  * value  - The contents of the property list as a string
@@ -61,7 +61,7 @@ static int plist_readString(lua_State *L) {
 
 /// hs.plist.writeString(data, [binary]) -> string | nil
 /// Function
-/// Interpretes a property list file within a string into a table.
+/// Interprets a property list file within a string into a table.
 ///
 /// Parameters:
 ///  * data - A Lua table containing the data to write into a plist string
