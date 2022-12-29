@@ -111,7 +111,7 @@ enum {
     kIOHIDEventTypeSymbolicHotKey,
     kIOHIDEventTypePower,                   // 25
     kIOHIDEventTypeLED,
-    kIOHIDEventTypeFluidTouchGesture,       // This will eventually superseed Navagation and Dock swipes
+    kIOHIDEventTypeFluidTouchGesture,       // This will eventually superseed Navigation and Dock swipes
     kIOHIDEventTypeBoundaryScroll,
     kIOHIDEventTypeBiometric,
     kIOHIDEventTypeUnicode,                 // 30
@@ -373,7 +373,7 @@ enum {
     kIOHIDEventFieldNavigationSwipeProgress,
     kIOHIDEventFieldNavigationSwipePositionX,
     kIOHIDEventFieldNavigationSwipePositionY,
-    kIOHIDEventFieldNavagationSwipeFlavor,
+    kIOHIDEventFieldNavigationSwipeFlavor,
 };
 
 enum {
@@ -592,8 +592,8 @@ typedef uint16_t IOHIDGestureMotion;
     @constant kIOHIDGestureFlavorNotificationCenterSecondary
     @constant kIOHIDGestureFlavorDockPrimary
     @constant kIOHIDGestureFlavorDockSecondary
-    @constant kIOHIDGestureFlavorNavagationPrimary
-    @constant kIOHIDGestureFlavorNavagationSecondary
+    @constant kIOHIDGestureFlavorNavigationPrimary
+    @constant kIOHIDGestureFlavorNavigationSecondary
     @constant kIOHIDGestureFlavorControlCenterPrimary
     @constant kIOHIDGestureFlavorControlCenterSecondary
 */
@@ -603,8 +603,8 @@ enum {
     kIOHIDGestureFlavorNotificationCenterSecondary,
     kIOHIDGestureFlavorDockPrimary,
     kIOHIDGestureFlavorDockSecondary,
-    kIOHIDGestureFlavorNavagationPrimary,
-    kIOHIDGestureFlavorNavagationSecondary,
+    kIOHIDGestureFlavorNavigationPrimary,
+    kIOHIDGestureFlavorNavigationSecondary,
     kIOHIDGestureFlavorControlCenterPrimary,
     kIOHIDGestureFlavorControlCenterSecondary,
 };
