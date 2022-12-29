@@ -115,10 +115,10 @@ static int colorPanelCallback(lua_State *L) {
 
 /// hs.dialog.color.continuous([value]) -> boolean
 /// Function
-/// Set or display whether or not the callback should be continiously updated when a user drags a color slider or control.
+/// Set or display whether or not the callback should be continuously updated when a user drags a color slider or control.
 ///
 /// Parameters:
-///  * [value] - `true` if you want to continiously trigger the callback, otherwise `false`.
+///  * [value] - `true` if you want to continuously trigger the callback, otherwise `false`.
 ///
 /// Returns:
 ///  * `true` if continuous is enabled otherwise `false`
