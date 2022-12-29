@@ -1701,7 +1701,7 @@ static const luaL_Reg module_metaLib[] = {
 };
 
 //
-// Initalise Module:
+// Initialize Module:
 //
 int luaopen_hs_libmidi(lua_State* L) {
 
