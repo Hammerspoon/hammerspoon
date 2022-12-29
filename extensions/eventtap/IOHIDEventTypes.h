@@ -663,7 +663,7 @@ typedef uint32_t IOHIDDigitizerTransducerType;
     cumulative event state of the child digitizer events.
     <br>
     <b>Please Note:</b>
-    If you append a child digitizer event to a parent digitizer event, appropriate state will be transfered on to the parent.
+    If you append a child digitizer event to a parent digitizer event, appropriate state will be transferred on to the parent.
     @constant kIOHIDDigitizerEventRange Issued when the range state has changed.
     @constant kIOHIDDigitizerEventTouch Issued when the touch state has changed.
     @constant kIOHIDDigitizerEventPosition Issued when the position has changed.
