@@ -398,7 +398,7 @@ static void geom_pushrect(lua_State* L, NSRect rect) {
 ///
 /// Parameters:
 ///  * inMenuBar - an optional parameter which defaults to true.  If it is true, the menubaritem is added to the system menubar, otherwise the menubaritem is hidden.
-///  * autosaveName - an optional parameter allowing you to define an autosave name, so that macOS can restore the menubar position beween restarts.
+///  * autosaveName - an optional parameter allowing you to define an autosave name, so that macOS can restore the menubar position between restarts.
 ///
 /// Returns:
 ///  * menubar item object to use with other API methods, or nil if it could not be created
