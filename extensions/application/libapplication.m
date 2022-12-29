@@ -73,7 +73,7 @@ static int application_applicationforpid(lua_State* L) {
 /// Returns any running apps that have the given bundleID.
 ///
 /// Parameters:
-///  * bundleID - An OSX application bundle indentifier
+///  * bundleID - An OSX application bundle identifier
 ///
 /// Returns:
 ///  * A table of zero or more hs.application objects that match the given identifier
