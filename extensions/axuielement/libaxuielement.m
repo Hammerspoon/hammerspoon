@@ -932,7 +932,7 @@ static int axuielement_pushAttributesTable(lua_State *L) {
 ///  * you can view the contents of this table from the Hammerspoon console by typing in `hs.axuielement.parameterizedAttributes`
 ///  * Parameterized attributes are attributes that take an argument when querying the element. There is very little documentation available for most of these and application developers can implement their own for which we may never be able to get any documentation. This table contains parameterized attribute names that are defined within the Apple documentation and a few others that have been discovered.
 ///  * Documentation covering what has been discovered through experimentation about parameterized attributes is planned and should be added to the Hammerspoon wiki shortly after this module becomes part of a formal release.
-static int axuielement_pushParamaterizedAttributesTable(lua_State *L) {
+static int axuielement_pushParameterizedAttributesTable(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     lua_newtable(L) ;
     [skin pushNSObject:(__bridge NSString *)kAXAttributedStringForRangeParameterizedAttribute] ;  lua_setfield(L, -2, "attributedStringForRange") ;
@@ -1289,7 +1289,7 @@ int luaopen_hs_libaxuielement(lua_State* L) {
 // actually use them in case the user wants to use an Application defined attribute or action not
 // defined in the OS X headers.
     axuielement_pushAttributesTable(L) ;              lua_setfield(L, -2, "attributes") ;
-    axuielement_pushParamaterizedAttributesTable(L) ; lua_setfield(L, -2, "parameterizedAttributes") ;
+    axuielement_pushParameterizedAttributesTable(L) ; lua_setfield(L, -2, "parameterizedAttributes") ;
     axuielement_pushActionsTable(L) ;                 lua_setfield(L, -2, "actions") ;
 
 // ditto on these, since they are actually results, not query-able parameters or actionable
