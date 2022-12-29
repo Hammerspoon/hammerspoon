@@ -238,7 +238,7 @@ static int mouse_absolutePosition(lua_State *L) {
 ///  * This is represented in the System Preferences as the "Tracking speed" setting for mice
 ///  * Note that not all values will work, they should map to the steps defined in the System Preferences app, which are:
 ///    * 0.0, 0.125, 0.5, 0.6875, 0.875, 1.0, 1.5, 2.0, 2.5, 3.0
-///  * Note that changes to this value will not be noticed immedaitely by macOS
+///  * Note that changes to this value will not be noticed immediately by macOS
 static int mouse_mouseAcceleration(lua_State *L) {
     LuaSkin *skin = LS_API(LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK);
     HSmouse *mouseManager = [[HSmouse alloc] init];
