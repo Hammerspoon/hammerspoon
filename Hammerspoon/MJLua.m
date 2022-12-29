@@ -687,7 +687,7 @@ static int preferencesDarkMode(lua_State* L) {
 ///      - Open `/Applications/Utilities/Script Editor.app`
 ///      - Click `File > Open Dictionary...`
 ///      - Select Hammerspoon from the list of Applications
-///      - This will now open a Dictionary containing all of the availible Hammerspoon AppleScript commands.
+///      - This will now open a Dictionary containing all of the available Hammerspoon AppleScript commands.
 ///  * Note that strings within the Lua code you pass from AppleScript can be delimited by `[[` and `]]` rather than normal quotes
 ///  * Example:
 ///    ```lua
