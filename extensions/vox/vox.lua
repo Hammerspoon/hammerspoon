@@ -187,7 +187,7 @@ end
 --- Returns:
 ---  * None
 function vox.increaseVolume()
-  tell('increasvolume')
+  tell('increasevolume')
 end
 
 --- hs.vox.decreaseVolume()
