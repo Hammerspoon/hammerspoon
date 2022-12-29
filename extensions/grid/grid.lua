@@ -911,7 +911,7 @@ local function _start()
     for _,cell in ipairs(uielements[currentScreen].hints) do
       if (nx == cell.x and ny == cell.y) then return cell end
     end
-    -- no cell found, you'r going out of your screen!
+    -- no cell found, you're going out of your screen!
     return nil
   end
 
