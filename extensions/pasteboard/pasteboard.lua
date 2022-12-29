@@ -82,7 +82,7 @@ end
 ---              local contents = hs.pasteboard.getContents()
 ---              -- do what you want with contents
 ---          else
----              error("copy timeout") -- or whatever fallback you want when it timesout
+---              error("copy timeout") -- or whatever fallback you want when it times out
 ---          end
 ---      end)
 ---  ~~~
