@@ -2476,7 +2476,7 @@ static int canvas_draggingCallback(lua_State *L) {
 /// Get or set the accessibility subrole returned by `hs.canvas` objects.
 ///
 /// Parameters:
-///  * `subrole` - an optional string or explicit nil wihch specifies what accessibility subrole value should be returned when canvas objects are queried through the macOS accessibility framework. See Notes for a discussion of how this value is interpreted. Defaults to `nil`.
+///  * `subrole` - an optional string or explicit nil which specifies what accessibility subrole value should be returned when canvas objects are queried through the macOS accessibility framework. See Notes for a discussion of how this value is interpreted. Defaults to `nil`.
 ///
 /// Returns:
 ///  * If an argument is specified, returns the canvasObject; otherwise returns the current value.
