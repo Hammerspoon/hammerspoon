@@ -34,7 +34,7 @@ static int burnTheWorld(lua_State *L __unused) {
 ///
 /// Parameters:
 ///  * name - A string containing the name of the exception
-///  * message - A human readabke string explaining the exception
+///  * message - A human readable string explaining the exception
 ///
 /// Returns:
 ///  * None
