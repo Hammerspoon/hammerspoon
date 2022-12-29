@@ -167,7 +167,7 @@ static HSWifiWatcherManager *manager ;
 
 - (void)invokeCallbacksFor:(NSString *)message withDetails:(NSArray *)details {
     if (!watchableTypes[message]) {
-        [LuaSkin logError:[NSString stringWithFormat:@"%s:invokeCallbacksFor called with unrecognized lable:%@", USERDATA_TAG, message]] ;
+        [LuaSkin logError:[NSString stringWithFormat:@"%s:invokeCallbacksFor called with unrecognized label:%@", USERDATA_TAG, message]] ;
         return ;
     }
     [_watchers enumerateObjectsUsingBlock:^(HSWifiWatcher *aWatcher, __unused BOOL *stop) {
