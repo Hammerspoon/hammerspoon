@@ -193,7 +193,7 @@ static int dynamicStoreDHCPInfo(lua_State *L) {
 
 /// hs.network.configuration:computerName() -> name, encoding
 /// Method
-/// Returns the name of the computeras specified in the Sharing Preferences, and its string encoding
+/// Returns the name of the computer as specified in the Sharing Preferences, and its string encoding
 ///
 /// Parameters:
 ///  * None
