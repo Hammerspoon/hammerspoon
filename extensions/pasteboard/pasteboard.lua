@@ -74,7 +74,7 @@ end
 ---  * None
 ---
 --- Notes:
----  * This function can be used to capture the results of a copy operation issued programatically with `hs.application:selectMenuItem` or `hs.eventtap.keyStroke` without resorting to creating your own timers:
+---  * This function can be used to capture the results of a copy operation issued programmatically with `hs.application:selectMenuItem` or `hs.eventtap.keyStroke` without resorting to creating your own timers:
 ---  ~~~
 ---      hs.eventtap.keyStroke({"cmd"}, "c", 0) -- or whatever method you want to trigger the copy
 ---      hs.pasteboard.callbackWhenChanged(5, function(state)
