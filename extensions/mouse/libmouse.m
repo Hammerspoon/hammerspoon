@@ -229,7 +229,7 @@ static int mouse_absolutePosition(lua_State *L) {
 /// Gets/Sets the current system mouse tracking speed setting
 ///
 /// Parameters:
-///  * speed - An optional number containing the new tracking speed to set. If this is ommitted, the current setting is returned
+///  * speed - An optional number containing the new tracking speed to set. If this is omitted, the current setting is returned
 ///
 /// Returns:
 ///  * A number indicating the current tracking speed setting for mice
