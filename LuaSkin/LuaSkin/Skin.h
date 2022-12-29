@@ -97,7 +97,7 @@ typedef struct LSGCCanary {
  @typedef LS_NSConversionOptions
  @abstract Conversion options for @link pushNSObject:withOptions: @/link and @link toNSObjectAtIndex:withOptions: @/link
 
-   @constant LS_NSNone (used by both methods) no options specified, use default beahvior
+   @constant LS_NSNone (used by both methods) no options specified, use default behavior
    @constant LS_NSUnsignedLongLongPreserveBits (used by @link pushNSObject:withOptions: @/link) convert NSNumber that contains an unsigned long long to a lua_Integer (long long) rather than preserve the numerical magnitude with lua_Number (double).  Default is to preserve magnitude when the unsigned long long is greater than 0x7fffffffffffffff.
    @constant LS_NSDescribeUnknownTypes (used by both methods) when a data type or sub-type is unrecognized and does not match any defined converter, return a string describing the data (from [NSObject debugDescription] or luaL_tolstring, whichever is appropriate for the initial data type) instead of the default behavior of returing nil for the entire conversion. Not compatible with LS_NSIgnoreUnknownTypes.
    @constant LS_NSIgnoreUnknownTypes (used by both methods) when a date type or sub-type is unrecognized and does not match any defined converter, return a nil placeholder (from [NSNull null] or lua_pushnil, whichever is appropriate for the initial data type) for the data or sub-component instead of the default behavior of returing nil for the entire conversion. Not compatible with LS_NSDescribeUnknownTypes.
