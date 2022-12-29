@@ -828,7 +828,7 @@ static int menubar_delete(lua_State *L) {
         [[NSUserDefaults standardUserDefaults] setObject:autosaveValue forKey:key];
     }
     
-    // Remove any click callbackery the menubar item has
+    // Remove any click callback the menubar item has
     lua_pushcfunction(L, menubarSetClickCallback);
     lua_pushvalue(L, 1);
     lua_pushnil(L);
