@@ -39,7 +39,7 @@ extern "C" {
 enum mkd_autolink {
 	MKDA_NOT_AUTOLINK,	/* used internally when it is not an autolink*/
 	MKDA_NORMAL,		/* normal http/http/ftp/mailto/etc link */
-	MKDA_EMAIL,			/* e-mail link without explit mailto: */
+	MKDA_EMAIL,			/* e-mail link without explicit mailto: */
 };
 
 enum mkd_tableflags {
