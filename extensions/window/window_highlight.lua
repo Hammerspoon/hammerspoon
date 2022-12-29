@@ -231,7 +231,7 @@ local screenWatcher
 ---    whenever one of the allowed windows is focused; alternatively, you can just provide a list of application
 ---    names and a windowfilter will be created for you that enables isolate mode whenever one of these apps is focused;
 ---    if omitted or nil, isolate mode won't be toggled automatically, but you can still toggle it manually via
----    `hs.window.higlight.toggleIsolate()`
+---    `hs.window.highlight.toggleIsolate()`
 ---  * windowfilterOverlay - (optional) an `hs.window.filter` instance that determines which windows to consider
 ---    for "overlay" mode when focused; if omitted or nil, the default windowfilter will be used
 ---

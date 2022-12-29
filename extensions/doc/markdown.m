@@ -55,15 +55,15 @@ static void rndr_blockcode_github(struct buf *ob, const struct buf *text, const 
         }
 
 //         if (rb_block_given_p()) {
-//             VALUE hilight;
+//             VALUE highlight;
 //
-//             hilight = rb_yield_values(2,
+//             highlight = rb_yield_values(2,
 //                 geefem_str_new(text->data, text->size),
 //                 geefem_str_new(lang_name, lang_size));
 //
-//             if (!NIL_P(hilight)) {
-//                 Check_Type(hilight, T_STRING);
-//                 bufput(ob, RSTRING_PTR(hilight), RSTRING_LEN(hilight));
+//             if (!NIL_P(highlight)) {
+//                 Check_Type(highlight, T_STRING);
+//                 bufput(ob, RSTRING_PTR(highlight), RSTRING_LEN(highlight));
 //                 return;
 //             }
 //         }
