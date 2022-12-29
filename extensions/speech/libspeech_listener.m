@@ -17,7 +17,7 @@ static LSRefTable refTable = LUA_NOREF ;
 // We don't use the same trick as we do for synthesizer because a recognizer also exists in
 // the dictation scope (it's visual components) and, if we opened it because we're the only
 // listener, it will only go away when we explicitly remove *all* of our references to it.
-// This means agressive garbage collection or making sure all possible lua references
+// This means aggressive garbage collection or making sure all possible lua references
 // are in fact the same pointer to the reference, and not just pointers to the same reference.
 //
 // The positive is that it will actually remove the dictation displays when we "delete" it,
