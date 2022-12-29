@@ -1217,7 +1217,7 @@ static int eventtap_event_systemKey(lua_State* L) {
 ///    * `type`                       - a string specifying the type of touch. A "direct" touch will indicate a touchbar, while a trackpad will report "indirect".
 ///  * The following fields will be present when the touch is from a touchpad (`type` == "indirect")`
 ///   * `normalizedPosition`         - a point table specifying the `x` and `y` coordinates of the touch, each normalized to be a value between 0.0 and 1.0. `{ x = 0, y = 0 }` is the lower left corner of the touch device.
-///   * `previousNormalizedPosition` - a point table specifying the `x` and `y` coordinates of the previous position for this specific touch (as linked by `identity`) normalezed to values between 0.0 and 1.0.
+///   * `previousNormalizedPosition` - a point table specifying the `x` and `y` coordinates of the previous position for this specific touch (as linked by `identity`) normalized to values between 0.0 and 1.0.
 ///  * The following fields will be present when the touch is from the touchbar (`type` == "direct")`
 ///   * `location`                   - a point table specifying the `x` and `y` coordinates of the touch location within the touchbar.
 ///   * `previousLocation`           - a point table specifying the `x` and `y` coordinates of the previous location for this specific touch (as linked by `identity`) within the touchbar.
