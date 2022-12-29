@@ -38,7 +38,7 @@ Detectors::Detectors() {
 
   // === Tss Detection
   m_sensitivity = 5.0;
-  m_hysterisisFactor = 0.4;
+  m_hysteresisFactor = 0.4;
   m_minFrames = 20;
   m_minFramesLong = 100;
   m_lowPassWeight = kDefaultLowPassWeight;
@@ -159,8 +159,8 @@ int Detectors::processChunk(const float *buffer) {
   int immediateMatchFrame = kDelayMatch ? m_minFramesLong : m_minFrames;
   m_framesSinceMatch += 1;
   if(((matchiness >= m_sensitivity) ||
-      (m_consecutiveMatches > 0 && matchiness >= m_sensitivity*m_hysterisisFactor) ||
-      (m_consecutiveMatches > immediateMatchFrame && (mainBand/m_savedOtherBands) >= m_sensitivity*m_hysterisisFactor*0.5f))
+      (m_consecutiveMatches > 0 && matchiness >= m_sensitivity*m_hysteresisFactor) ||
+      (m_consecutiveMatches > immediateMatchFrame && (mainBand/m_savedOtherBands) >= m_sensitivity*m_hysteresisFactor*0.5f))
      && outOfShadow) {
     debugMarker = 0.01;
     // second one in double "tss" came earlier than trigger timer
