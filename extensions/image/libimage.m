@@ -1396,7 +1396,7 @@ static int croppedCopy(lua_State* L) {
 ///
 /// Parameters:
 ///  * scale - an optional boolean, default false, which indicates that the image size (which macOS represents as points) should be scaled to pixels.  For images that have Retina scale representations, this may result in an encoded image which is scaled down from the original source.
-///  * type  - optional case-insensitive string paramater specifying the bitmap image type for the encoded string (default PNG)
+///  * type  - optional case-insensitive string parameter specifying the bitmap image type for the encoded string (default PNG)
 ///    * PNG  - save in Portable Network Graphics (PNG) format
 ///    * TIFF - save in Tagged Image File Format (TIFF) format
 ///    * BMP  - save in Windows bitmap image (BMP) format
@@ -1487,7 +1487,7 @@ static int encodeAsString(lua_State* L) {
 /// Parameters:
 ///  * filename - the path and name of the file to save.
 ///  * scale    - an optional boolean, default false, which indicates that the image size (which macOS represents as points) should be scaled to pixels.  For images that have Retina scale representations, this may result in a saved image which is scaled down from the original source.
-///  * filetype - optional case-insensitive string paramater specifying the file type to save (default PNG)
+///  * filetype - optional case-insensitive string parameter specifying the file type to save (default PNG)
 ///    * PNG  - save in Portable Network Graphics (PNG) format
 ///    * TIFF - save in Tagged Image File Format (TIFF) format
 ///    * BMP  - save in Windows bitmap image (BMP) format

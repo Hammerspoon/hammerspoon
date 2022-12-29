@@ -585,7 +585,7 @@ static int axuielement_getElementAtPosition(lua_State *L) {
 ///
 /// Parameters:
 ///  * `attribute` - the name of the attribute, as specified by [hs.axuielement:parameterizedAttributeNames](#parameterizedAttributeNames).
-///  * `parameter` - the parameter required by the paramaterized attribute.
+///  * `parameter` - the parameter required by the parameterized attribute.
 ///
 /// Returns:
 ///  * the current value of the parameterized attribute, nil if the parameterized attribute has no value, or nil and an error string if an accessibility error occurred
@@ -931,7 +931,7 @@ static int axuielement_pushAttributesTable(lua_State *L) {
 ///  * this table is provided for reference only and is not intended to be comprehensive.
 ///  * you can view the contents of this table from the Hammerspoon console by typing in `hs.axuielement.parameterizedAttributes`
 ///  * Parameterized attributes are attributes that take an argument when querying the element. There is very little documentation available for most of these and application developers can implement their own for which we may never be able to get any documentation. This table contains parameterized attribute names that are defined within the Apple documentation and a few others that have been discovered.
-///  * Documentation covering what has been discovered through experimentation about paramterized attributes is planned and should be added to the Hammerspoon wiki shortly after this module becomes part of a formal release.
+///  * Documentation covering what has been discovered through experimentation about parameterized attributes is planned and should be added to the Hammerspoon wiki shortly after this module becomes part of a formal release.
 static int axuielement_pushParamaterizedAttributesTable(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     lua_newtable(L) ;

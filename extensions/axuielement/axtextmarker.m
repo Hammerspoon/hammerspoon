@@ -82,7 +82,7 @@ static int axtextmarker_newMarker(lua_State *L) {
 ///  * a new axTextMarkerRangeObject or nil and a string description if there was an error
 ///
 /// Notes:
-///  * this constructor can be used to create a range from axTextMarkerObjects obtained from an application to specify a new range for a paramterized attribute. As a simple example (it is hoped that more will be added to the Hammerspoon wiki shortly):
+///  * this constructor can be used to create a range from axTextMarkerObjects obtained from an application to specify a new range for a parameterized attribute. As a simple example (it is hoped that more will be added to the Hammerspoon wiki shortly):
 ///     ```lua
 ///     s = hs.axuielement.applicationElement(hs.application("Safari"))
 ///     -- for a window displaying the DuckDuckGo main search page, this gets the
