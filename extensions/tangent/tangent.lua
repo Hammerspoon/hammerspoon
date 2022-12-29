@@ -1738,7 +1738,7 @@ end
 function mod.connect(applicationName, systemPath, userPath)
 
     --------------------------------------------------------------------------------
-    -- Check Paramaters:
+    -- Check Parameters:
     --------------------------------------------------------------------------------
     if not applicationName or type(applicationName) ~= "string" then
         return nil, "applicationName is a required string."

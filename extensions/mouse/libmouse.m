@@ -43,7 +43,7 @@ static void enum_callback(void *ctx, IOReturn res, void *sender, IOHIDDeviceRef 
 -(void)setAbsolutePosition:(NSPoint)absolutePosition;
 -(double)getTrackingSpeed;
 -(io_service_t)createIOHIDSystem;
--(NSDictionary *)getIOHIDParamtersFromService:(io_service_t)service;
+-(NSDictionary *)getIOHIDParametersFromService:(io_service_t)service;
 -(NSDictionary *)getIOHIDParameters;
 -(kern_return_t)setTrackingSpeed:(double)trackingSpeed;
 @end
@@ -118,13 +118,13 @@ static void enum_callback(void *ctx, IOReturn res, void *sender, IOHIDDeviceRef 
     return IORegistryEntryFromPath(kIOMasterPortDefault, kIOServicePlane ":/IOResources/IOHIDSystem");
 }
 
--(NSDictionary *)getIOHIDParamtersFromService:(io_service_t)service {
+-(NSDictionary *)getIOHIDParametersFromService:(io_service_t)service {
     return CFBridgingRelease(IORegistryEntryCreateCFProperty(service, CFSTR(kIOHIDParametersKey), kCFAllocatorDefault, kNilOptions));
 }
 
 -(NSDictionary *)getIOHIDParameters {
     io_service_t service = [self createIOHIDSystem];
-    NSDictionary *parameters = [self getIOHIDParamtersFromService:service];
+    NSDictionary *parameters = [self getIOHIDParametersFromService:service];
     IOObjectRelease(service);
     return parameters;
 }
@@ -138,7 +138,7 @@ static void enum_callback(void *ctx, IOReturn res, void *sender, IOHIDDeviceRef 
 -(kern_return_t)setTrackingSpeed:(double)trackingSpeed {
     io_service_t service = [self createIOHIDSystem];
 
-    NSDictionary *parameters = [self getIOHIDParamtersFromService:service];
+    NSDictionary *parameters = [self getIOHIDParametersFromService:service];
 
     NSMutableDictionary *newParameters = [parameters mutableCopy];
     newParameters[@"HIDMouseAcceleration"] = @(trackingSpeed * MOUSE_TRACKING_FACTOR);
