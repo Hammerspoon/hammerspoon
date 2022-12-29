@@ -203,7 +203,7 @@ static int to_html(lua_State *L) {
         } else if ([modeString isEqualToString:@"plaintext"]) {
             mode = PLAINTEXT;
         } else {
-            return luaL_argerror(L, 2, [[NSString stringWithFormat:@"invalide mode, %@, specified", modeString] UTF8String]) ;
+            return luaL_argerror(L, 2, [[NSString stringWithFormat:@"invalid mode, %@, specified", modeString] UTF8String]) ;
         }
     }
 
