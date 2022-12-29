@@ -299,7 +299,7 @@ def process_module(modulename, raw_module):
     module["Variable"] = []
     module["Command"] = []
     module["Field"] = []
-    # NOTE: I don't like having the deprecated type, I think we should revist
+    # NOTE: I don't like having the deprecated type, I think we should revisit
     #       this later and find another way to annotate deprecations
     module["Deprecated"] = []
     for itemname in raw_module["items"]:
