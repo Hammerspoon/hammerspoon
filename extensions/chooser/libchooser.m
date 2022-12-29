@@ -27,7 +27,7 @@ static int chooserNew(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TFUNCTION, LS_TBREAK];
 
-    // Parse function arguents
+    // Parse function arguments
     lua_pushvalue(L, 1);
     int completionCallbackRef = [skin luaRef:refTable];
 
