@@ -91,7 +91,7 @@ static int expandErrno(lua_State *L) {
 /// Parameters:
 ///  * `path`      - A string specifying the path to the file or directory to set the extended attribute for
 ///  * `attribute` - A string specifying the name of the extended attribute to set
-///  * `value`     - A string containing the value to set the extended attribute to. This value is treated as a raw sequence of bytes and does not have to conform to propert UTF-8 byte sequences.
+///  * `value`     - A string containing the value to set the extended attribute to. This value is treated as a raw sequence of bytes and does not have to conform to property UTF-8 byte sequences.
 ///  * `options`   - An optional table containing options as described in this module's documentation header. Defaults to {} (an empty array).
 ///  * `position`  - An optional integer specifying the offset within the extended attribute. Defaults to 0. Setting this argument to a value other than 0 is only valid when `attribute` is "com.apple.ResourceFork".
 ///
