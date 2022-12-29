@@ -163,7 +163,7 @@ end
 ---    * "SCRIPT_NAME"       - A virtual path to the script being executed, used for self-referencing URLs.
 ---    * "SERVER_NAME"       - The server's hostname, DNS alias, or IP address as it would appear in self-referencing URLs.
 ---    * "SERVER_PORT"       - The port number to which the request was sent.
----    * "SERVER_PROTOCOL"   - The name and revision of the information protcol this request came in with. Format: protocol/revision
+---    * "SERVER_PROTOCOL"   - The name and revision of the information protocol this request came in with. Format: protocol/revision
 ---    * "SERVER_SOFTWARE"   - The name and version of the web server software answering the request (and running the gateway). Format: name/version
 ---
 --- * The HTTP Request header names are prefixed with "HTTP_", converted to all uppercase, and have all hyphens converted into underscores.  Common headers (converted to their CGI format) might include, but are not limited to:
