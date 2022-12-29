@@ -2487,10 +2487,10 @@ static int canvas_draggingCallback(lua_State *L) {
 ///  * If a non empty string is specified as the argument to this method, the string will be returned whenever the canvas object's containing window is queried for its accessibility subrole.
 ///  * The other possible values depend upon the value registerd with [hs.canvas.useCustomAccessibilitySubrole](#useCustomAccessibilitySubrole):
 ///    * If `useCustomAccessibilitySubrole` is set to true (the default):
-///      * If an explicit `nil` (the default) is specified fror this method, the string returned when the canvas object's accessibility is queried will be the default macOS subrole for the canvas's window with the string ".Hammerspoon` appended to it.
+///      * If an explicit `nil` (the default) is specified for this method, the string returned when the canvas object's accessibility is queried will be the default macOS subrole for the canvas's window with the string ".Hammerspoon` appended to it.
 ///      * If the empty string is specified (e.g. `""`), then the default macOS subrole for the canvas's window will be returned.
 ///    * If `useCustomAccessibilitySubrole` is set to false:
-///      * If an explicit `nil` (the default) is specified fror this method, then the default macOS subrole for the canvas's window will be returned.
+///      * If an explicit `nil` (the default) is specified for this method, then the default macOS subrole for the canvas's window will be returned.
 ///      * If the empty string is specified (e.g. `""`), the string returned when the canvas object's accessibility is queried will be the default macOS subrole for the canvas's window with the string ".Hammerspoon` appended to it.
 static int canvas_accessibilitySubrole(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
