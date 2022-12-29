@@ -1164,7 +1164,7 @@ static int audiodevice_setbalance(lua_State* L) {
 
 /// hs.audiodevice:isOutputDevice() -> boolean
 /// Method
-/// Determins if an audio device is an output device
+/// Determines if an audio device is an output device
 ///
 /// Parameters:
 ///  * None
@@ -1184,7 +1184,7 @@ static int audiodevice_isOutputDevice(lua_State *L) {
 
 /// hs.audiodevice:isInputDevice() -> boolean
 /// Method
-/// Determins if an audio device is an input device
+/// Determines if an audio device is an input device
 ///
 /// Parameters:
 ///  * None
