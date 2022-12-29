@@ -1148,7 +1148,7 @@ cleanup:
 ///
 /// Parameters:
 ///  * aScreen - an hs.screen object you wish to mirror
-///  * permament - an optional bool, true if this should be configured permanently, false if it should apply just for this login session. Defaults to false.
+///  * permanent - an optional bool, true if this should be configured permanently, false if it should apply just for this login session. Defaults to false.
 ///
 /// Returns:
 ///  * true if the operation succeeded, otherwise false
