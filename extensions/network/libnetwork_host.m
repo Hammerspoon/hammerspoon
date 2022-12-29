@@ -31,7 +31,7 @@ static int pushCFHost(lua_State *L, CFHostRef theHost, CFHostInfoType resolveTyp
 #pragma clang diagnostic ignored "-Wincompatible-pointer-types-discards-qualifiers"
 // CFRetain returns CFTypeRef (aka 'const void *'), while CFHostRef (aka 'struct __CFHost *'),
 // a noticeably non-constant type...
-// Probably an oversite on Apple's part since other CF type refs don't trigger a warning.
+// Probably an oversight on Apple's part since other CF type refs don't trigger a warning.
     thePtr->theHostObj  = CFRetain(theHost) ;
 #pragma clang diagnostic pop
     thePtr->callbackRef = LUA_NOREF ;
