@@ -256,7 +256,7 @@ __sunriset__( year, month, day, lon, lat, -35.0/60.0, 1, rise, set )
     tsouth,     /* Time when Sun is at south */
     sidtime;    /* Local sidereal time */
     
-    int rc = 0; /* Return cde from function - usually 0 */
+    int rc = 0; /* Return code from function - usually 0 */
     
     /* Compute d of 12h local mean solar time */
     d = days_since_2000_Jan_0(year,month,day) + 0.5 - lon/360.0;
