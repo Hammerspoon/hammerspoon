@@ -163,7 +163,7 @@ static int dynamicStoreKeys(lua_State *L) {
 /// Return the DHCP information for the specified service or the primary service if no parameter is specified.
 ///
 /// Parameters:
-///  * serviceID - an optional string contining the service ID of the interface for which to return DHCP info.  If this parameter is not provided, then the default (primary) service is queried.
+///  * serviceID - an optional string containing the service ID of the interface for which to return DHCP info.  If this parameter is not provided, then the default (primary) service is queried.
 ///
 /// Returns:
 ///  * a table containing DHCP information including lease time and DHCP options

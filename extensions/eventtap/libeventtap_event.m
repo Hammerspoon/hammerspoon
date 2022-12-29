@@ -1238,7 +1238,7 @@ static int eventtap_event_getTouches(lua_State *L) {
 
 /// hs.eventtap.event:getTouchDetails() -> table | nil
 /// Method
-/// Returns a table contining more information about some touch related events.
+/// Returns a table containing more information about some touch related events.
 ///
 /// Parameters:
 ///  * None
