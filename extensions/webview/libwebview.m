@@ -1088,7 +1088,7 @@ static int webview_navigationID(lua_State *L) {
 
 /// hs.webview:loading() -> boolean
 /// Method
-/// Returns a boolean value indicating whether or not the vebview is still loading content.
+/// Returns a boolean value indicating whether or not the webview is still loading content.
 ///
 /// Parameters:
 ///  * None
