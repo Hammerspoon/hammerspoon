@@ -272,7 +272,7 @@ end
 function hotkey.assignable(mods, key)
     local k = hotkey.new(mods, key, function() end)
     local prevLevel = hs.luaSkinLog.level
-    -- supress luaSkinLog error if binding fails
+    -- suppress luaSkinLog error if binding fails
     hs.luaSkinLog.level = 0
     local status = k._hk:enable()
     if status then k._hk:disable() end
