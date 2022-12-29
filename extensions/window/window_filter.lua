@@ -56,7 +56,7 @@
 -- The 'active' part abstracts hs.application.watcher and hs.uielement.watcher into a simple and coherent API
 -- for users who are interested in window events. Additionally, a lot of effort is spent on cleaning up
 -- the mess coming from osx events:
---   * reduntant events are never fired more than once
+--   * redundant events are never fired more than once
 --   * related events are fired in the correct order (e.g. the previous window is unfocused before the
 --     current one is focused)
 --   * 'missing' events are filled in (e.g. a focused window that gets destroyed for any reason emits unfocused first)
