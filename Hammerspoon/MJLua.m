@@ -433,7 +433,7 @@ static int core_microphoneState(lua_State* L) {
 /// Checks the Camera Permissions for Hammerspoon, and optionally allows you to prompt for permissions.
 ///
 /// Parameters:
-///  * shouldPrompt - an optional boolean value indicating if we should request camear access. Defaults to false.
+///  * shouldPrompt - an optional boolean value indicating if we should request camera access. Defaults to false.
 ///
 /// Returns:
 ///  * `true` or `false` indicating whether or not Camera access is enabled for Hammerspoon.
