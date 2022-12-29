@@ -146,7 +146,7 @@ Your `:bindHotkeys()` method now has all of the information it needs to bind hot
 
 While you might want to verify the contents of the table, it seems reasonable to be fairly limited in the extent, so long as you have documented the method well.
 
-The function `hs.spoons.bindHotkeysToSpec()` can do most of the hard work of the mappings for you. For exmaple, the following would allow binding of actions `show` and `hide` to `showMethod()` and `hideMethod()` respectively:
+The function `hs.spoons.bindHotkeysToSpec()` can do most of the hard work of the mappings for you. For example, the following would allow binding of actions `show` and `hide` to `showMethod()` and `hideMethod()` respectively:
 
 ```lua
 function MySpoon:bindHotKeys(mapping)
