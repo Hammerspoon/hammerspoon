@@ -245,7 +245,7 @@ pingObjectMT = {
 --- 5 packets transmitted, 5 packets received, 0.0 packet loss
 --- round-trip min/avg/max = 2.282/4.133/4.926 ms
 --- ~~~
----  * The numer of packets received will match the number that has currently been sent, not necessarily the value returned by [hs.network.ping:count](#count).
+---  * The number of packets received will match the number that has currently been sent, not necessarily the value returned by [hs.network.ping:count](#count).
     summary = basicPingSummary,
 
 --- hs.network.ping:cancel() -> none
