@@ -1607,7 +1607,7 @@ module.formattedDate    = HTTPformattedDate
 
 --- hs.httpserver.hsminweb.urlParts(url) -> table
 --- Function
---- Parse the specified URL into it's constituent parts.
+--- Parse the specified URL into its constituent parts.
 ---
 --- Parameters:
 ---  * url - the url to parse
