@@ -236,7 +236,7 @@ end
 
 --- hs.application.menuGlyphs
 --- Variable
---- A table containing UTF8 representations of the defined key glyphs used in Menus for keybaord shortcuts which are presented pictorially rather than as text (arrow keys, return key, etc.)
+--- A table containing UTF8 representations of the defined key glyphs used in Menus for keyboard shortcuts which are presented pictorially rather than as text (arrow keys, return key, etc.)
 ---
 --- These glyphs are indexed numerically where the numeric index matches a possible value for the AXMenuItemCmdGlyph key of an entry returned by `hs.application.getMenus`.  If the AXMenuItemCmdGlyph field is non-numeric, then no glyph is used in the presentation of the keyboard shortcut for a menu item.
 ---
