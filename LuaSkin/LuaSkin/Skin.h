@@ -189,7 +189,7 @@ NSString *specMaskToString(int spec);
 /*!
  @class LuaSkin
  @abstract Abstraction layer for common operations on Lua state objects
- @discussion LuaSkin was written for Hammerspoon (although it does not depend on any Hammerspoon functionality) to simplify our use of Lua. It includes a full, unmodified Lua distirbution, and provides an Objective C class that is capable of performing common operations such as creating/destroying a lua_State object, providing shared access to the object, Lua function argument type checking and bi-directional conversion of Lua objects and NSObject objects (with loadable plugins for your own converters)
+ @discussion LuaSkin was written for Hammerspoon (although it does not depend on any Hammerspoon functionality) to simplify our use of Lua. It includes a full, unmodified Lua distribution, and provides an Objective C class that is capable of performing common operations such as creating/destroying a lua_State object, providing shared access to the object, Lua function argument type checking and bi-directional conversion of Lua objects and NSObject objects (with loadable plugins for your own converters)
  */
 @interface LuaSkin : NSObject
 
