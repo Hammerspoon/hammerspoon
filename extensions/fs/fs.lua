@@ -16,7 +16,7 @@ module.xattr  = require("hs.libfsxattr")
 ---  * `path`      - A string specifying the path to the file or directory to get the extended attribute from
 ---  * `attribute` - A string specifying the name of the extended attribute to get the value of
 ---  * `options`   - An optional table containing options as described in this module's documentation header. Defaults to {} (an empty array).
----  * `position`  - An optional integer specifying the offset within the extended attribute. Defaults to 0. Setting this argument to a value other than 0 is only valid when `att  ribute` is "com.apple.ResourceFork".
+---  * `position`  - An optional integer specifying the offset within the extended attribute. Defaults to 0. Setting this argument to a value other than 0 is only valid when `attribute` is "com.apple.ResourceFork".
 ---
 --- Returns:
 ---  * if the returned data does not conform to proper UTF-8 byte sequences, passes the string through `hs.utf8.hexDump` first.  Otherwise the return values follow the description for [hs.fs.xattr.get](#get) .
