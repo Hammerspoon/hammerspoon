@@ -192,7 +192,7 @@ cgilua.splitpath    = cgilua.splitonlast -- compatibility with previous versions
 
 --- hs.httpserver.hsminweb.cgilua.splitfirst(path) -> path component, path remainder
 --- Function
---- Returns two strings with the "first directory" and the "remaining paht" of the given path string splitted on the first separator ("/" or "\").
+--- Returns two strings with the "first directory" and the "remaining path" of the given path string splitted on the first separator ("/" or "\").
 ---
 --- Parameters:
 ---  * path - the path to split
