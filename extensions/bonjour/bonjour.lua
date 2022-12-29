@@ -73,7 +73,7 @@ end
 ---    * if a service is discovered or advertising for the service is terminated, the arguments will be:
 ---      * the browserObject
 ---      * the string "domain"
----      * a boolean indicating whether the service is being advertised (true) or should be removed because advertisments for the service are being terminated (false)
+---      * a boolean indicating whether the service is being advertised (true) or should be removed because advertisements for the service are being terminated (false)
 ---      * the serviceObject for the specific advertisement (see `hs.bonjour.service`)
 ---      * a boolean indicating if more advertisements are expected (true) or if the macOS believes that there are no more advertisements to be discovered (false).
 ---    * if an error occurs, the callback arguments will be:
