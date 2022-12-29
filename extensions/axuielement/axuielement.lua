@@ -9,7 +9,7 @@
 --- Getting and Setting Attribute values:
 ---  * `object.attribute` is a shortcut for `object:attributeValue(attribute)`
 ---  * `object.attribute = value` is a shortcut for `object:setAttributeValue(attribute, value)`
----    * If detecting accessiblity errors that may occur is necessary, you must use the formal methods [hs.axuielement:attributeValue](#attributeValue) and [hs.axuielement:setAttributeValue](#setAttributeValue)
+---    * If detecting accessibility errors that may occur is necessary, you must use the formal methods [hs.axuielement:attributeValue](#attributeValue) and [hs.axuielement:setAttributeValue](#setAttributeValue)
 ---    * Note that setting an attribute value is not guaranteeed to work with either method:
 ---      * internal logic within the receiving application may decline to accept the newly assigned value
 ---      * an accessibility error may occur
@@ -18,7 +18,7 @@
 ---
 --- Iteration over Attributes:
 ---  * `for k,v in pairs(object) do ... end` is a shortcut for `for k,_ in ipairs(object:attributeNames()) do local v = object:attributeValue(k) ; ... end` or `for k,v in pairs(object:allAttributeValues()) do ... end` (though see note below)
----     * If detecting accessiblity errors that may occur is necessary, you must use one of the formal approaches [hs.axuielement:allAttributeValues](#allAttributeValues) or [hs.axuielement:attributeNames](#attributeNames) and [hs.axuielement:attributeValue](#attributeValue)
+---     * If detecting accessibility errors that may occur is necessary, you must use one of the formal approaches [hs.axuielement:allAttributeValues](#allAttributeValues) or [hs.axuielement:attributeNames](#attributeNames) and [hs.axuielement:attributeValue](#attributeValue)
 ---    * By default, [hs.axuielement:allAttributeValues](#allAttributeValues) will not include key-value pairs for which the attribute (key) exists for the element but has no assigned value (nil) at the present time. This is because the value of `nil` prevents the key from being retained in the table returned. See [hs.axuielement:allAttributeValues](#allAttributeValues) for details and a workaround.
 ---
 --- Iteration over Child Elements (AXChildren):
@@ -26,7 +26,7 @@
 ---    * Note that `object:attributeValue("AXChildren")` *may* return nil if the object does not have the `AXChildren` attribute; the shortcut does not have this limitation.
 ---  * `#object` is a shortcut for `#object:attributeValue("AXChildren")`
 ---  * `object[i]` is a shortcut for `object:attributeValue("AXChildren")[i]`
----    * If detecting accessiblity errors that may occur is necessary, you must use the formal method [hs.axuielement:attributeValue](#attributeValue) to get the "AXChildren" attribute.
+---    * If detecting accessibility errors that may occur is necessary, you must use the formal method [hs.axuielement:attributeValue](#attributeValue) to get the "AXChildren" attribute.
 ---
 --- Actions ([hs.axuielement:actionNames](#actionNames)):
 ---  * `object:do<action>()` is a shortcut for `object:performAction(action)`
@@ -161,7 +161,7 @@ objectMT.__newindex = function(self, key, value)
             local ok, err = self:setAttributeValue(v, value) -- luacheck: ignore
 -- undecided if this should generate an error when an accessibility error occurs. it's more "table" like if it
 -- doesn't; otoh table assignment never fail unless you try with a key of `nil` and then it *does* throw an
--- error... the docs above do say that you should use setAttributeValue if you care about accssibility errors,
+-- error... the docs above do say that you should use setAttributeValue if you care about accessibility errors,
 -- so unless/until someone complains I guess I'll leave the next line commented out
 --             if not ok then error(err, 2) end
             return

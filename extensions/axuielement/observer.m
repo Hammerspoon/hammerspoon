@@ -262,7 +262,7 @@ static int axobserver_callback(lua_State *L) {
 
 /// hs.axuielement.observer:addWatcher(element, notification) -> observerObject
 /// Method
-/// Registers the specified notification for the specified accesibility element with the observer.
+/// Registers the specified notification for the specified accessibility element with the observer.
 ///
 /// Parameters:
 ///  * `element`      - the `hs.axuielement` representing an accessibility element of the application the observer was created for.
