@@ -1050,7 +1050,7 @@ end
 ---  * password - An optional string that contains the server password, or an explicit `nil` to remove an existing password.
 ---
 --- Returns:
----  * the hsminwebTable object if a parameter is provided, or a boolean indicathing whether or not a password has been set if no parameter is specified.
+---  * the hsminwebTable object if a parameter is provided, or a boolean indicating whether or not a password has been set if no parameter is specified.
 ---
 --- Notes:
 ---  * the password, if set, is server wide and causes the server to use the Basic authentication scheme with an empty string for the username.
