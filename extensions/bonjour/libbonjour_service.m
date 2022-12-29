@@ -488,7 +488,7 @@ static int service_publish(lua_State *L) {
 /// Resolve the address and details for a discovered service.
 ///
 /// Parameters:
-///  * `timeout`  - an optional number, default 0.0, specifying the maximum number of seconds to attempt to resolve the details for this service. Specifying 0.0 means that the resolution should not timeout and that resolution should continue indefinately.
+///  * `timeout`  - an optional number, default 0.0, specifying the maximum number of seconds to attempt to resolve the details for this service. Specifying 0.0 means that the resolution should not timeout and that resolution should continue indefinitely.
 ///  * `callback` - an optional callback function which should expect 2 or 3 arguments and return none.
 ///    * on successfull resolution:
 ///      * the serviceObject userdata
