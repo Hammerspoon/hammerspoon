@@ -238,7 +238,7 @@ end
 --- Returns:
 ---  * if the hotkey combination is in use by a system function, returns a table containing the following keys:
 ---    * keycode - the numberic keycode for the hotkey
----    * mods    - a numeric representation of the modifier flags for the htokey
+---    * mods    - a numeric representation of the modifier flags for the hotkey
 ---    * enabled - a boolean indicating whether or not the key is currently enabled
 ---  * if the hotkey combination is not in use by the operating system, returns the boolean value `false`
 ---
