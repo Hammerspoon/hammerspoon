@@ -1225,7 +1225,7 @@ function App.new(app,appname,watcher)
   o:getAppWindows()
 end
 
--- events aren't "inserted" across apps (param name notwithsanding) so an active app should NOT :deactivate
+-- events aren't "inserted" across apps (param name notwithstanding) so an active app should NOT :deactivate
 -- another app, otherwise the latter's :unfocused will have a broken "inserted" chain with nothing to close it
 function App:getAppWindows()
   self:getCurrentSpaceAppWindows()
