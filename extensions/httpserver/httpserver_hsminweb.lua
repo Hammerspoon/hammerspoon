@@ -1084,7 +1084,7 @@ end
 ---
 --- Notes:
 ---  * Because the Hammerspoon http server processes incoming requests completely in memory, this method puts a limit on the maximum size for a POST or PUT request.
----  * If the request body excedes this size, `hs.httpserver` will respond with a status code of 405 for the method before this module ever receives the request.
+---  * If the request body exceeds this size, `hs.httpserver` will respond with a status code of 405 for the method before this module ever receives the request.
 objectMethods.maxBodySize = function(self, ...)
     local args = table.pack(...)
     assert(type(args[1]) == "nil" or (type(args[1]) == "number" and math.tointeger(args[1])), "argument must be an integer")
