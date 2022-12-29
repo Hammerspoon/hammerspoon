@@ -1088,7 +1088,7 @@ nextarg:
     return max ;
 }
 
-// countn returns the number of items of any key type in the table
+// countNatIndex returns the number of items of any key type in the table
 - (lua_Integer)countNatIndex:(int)idx {
     // Ensure our Lua stack is large enough for the number of items being pushed
     [self growStack:3 withMessage:"countNatIndex"];
