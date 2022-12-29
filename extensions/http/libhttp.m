@@ -75,7 +75,7 @@ static void remove_delegate(lua_State* L, connectionDelegate* delegate) {
     lua_pushinteger(L, (int)self.httpResponse.statusCode);
     [skin pushNSObject:responseBodyToId(self.httpResponse, self.receivedData)];
     [skin pushNSObject:self.httpResponse.allHeaderFields];
-    [skin protectedCallAndError:@"hs.http connectionDelefate:didFinishLoading" nargs:3 nresults:0];
+    [skin protectedCallAndError:@"hs.http connectionDelegate:didFinishLoading" nargs:3 nresults:0];
 
     remove_delegate(L, self);
     _lua_stackguard_exit(L);
@@ -116,7 +116,7 @@ static void remove_delegate(lua_State* L, connectionDelegate* delegate) {
         lua_pushinteger(L, (int)httpResponse.statusCode);
         [skin pushNSObject:responseBodyToId(self.httpResponse, self.receivedData)];
         [skin pushNSObject:httpResponse.allHeaderFields];
-        [skin protectedCallAndError:@"hs.http connectionDelefate:didFinishLoading during redirection" nargs:3 nresults:0];
+        [skin protectedCallAndError:@"hs.http connectionDelegate:didFinishLoading during redirection" nargs:3 nresults:0];
 
         remove_delegate(L, self);
         _lua_stackguard_exit(L);

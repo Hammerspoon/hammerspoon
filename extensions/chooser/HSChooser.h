@@ -87,7 +87,7 @@
 - (void)tableView:(NSTableView *)tableView didClickedRow:(NSInteger)row;
 - (void)didRightClickAtRow:(NSInteger)row;
 
-// NSTextFieldDelgate
+// NSTextFieldDelegate
 
 // Actions
 - (IBAction)queryDidPressEnter:(id)sender;
