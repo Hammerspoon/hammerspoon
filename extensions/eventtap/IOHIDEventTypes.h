@@ -659,7 +659,7 @@ typedef uint32_t IOHIDDigitizerTransducerType;
     @typedef IOHIDDigitizerEventMask
     @abstract Event mask detailing the events being dispatched by a digitizer.
     @discussion It is possible for digitizer events to contain child digitizer events, effectively, behaving as collections.  
-    In the collection case, the child event mask field referrence by kIOHIDEventFieldDigitizerChildEventMask will detail the 
+    In the collection case, the child event mask field reference by kIOHIDEventFieldDigitizerChildEventMask will detail the 
     cumulative event state of the child digitizer events.
     <br>
     <b>Please Note:</b>
