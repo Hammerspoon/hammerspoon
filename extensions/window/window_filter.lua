@@ -1049,7 +1049,7 @@ function Window:unhidden()
   if not self.isHidden then return log.vf('%s (%d) already unhidden',self.app.name,self.id) end
   self.isHidden=false
   self:emitEvent(windowfilter.windowUnhidden)
-  if not self.isMinimzed then self:visible(true) end
+  if not self.isMinimized then self:visible(true) end
   self:emitEndChain()
 end
 
