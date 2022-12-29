@@ -63,7 +63,7 @@ end
 
 --- hs.pasteboard.callbackWhenChanged([name], [timeout], callback) -> None
 --- Function
---- Invokes callback when the specified pasteoard has changed or the timeout is reached.
+--- Invokes callback when the specified pasteboard has changed or the timeout is reached.
 ---
 --- Parameters:
 ---  * `name`     - an optional string indicating the pasteboard name.  If nil or not present, defaults to the system pasteboard.
