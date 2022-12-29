@@ -185,7 +185,7 @@ static int browser_includesPeerToPeer(lua_State *L) {
 
 /// hs.bonjour:findBrowsableDomains(callback) -> browserObject
 /// Method
-/// Return a list of zero-conf and bonjour domains visibile to the users computer.
+/// Return a list of zero-conf and bonjour domains visible to the users computer.
 ///
 /// Parameters:
 ///  * `callback` - a function which will be invoked as visible domains are discovered. The function should accept the following parameters and return none:
