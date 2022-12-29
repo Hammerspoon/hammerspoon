@@ -62,7 +62,7 @@ local expose={setLogLevel=log.setLogLevel,getLogLevel=log.getLogLevel} --module
 local activeInstances={} -- these are updated in the background
 local modals={} -- modal hotkeys for selecting a hint; global state
 local activeInstance,fnreactivate -- function to reactivate the current instance (only 1 possible) after a space switch
-local modes,tap={} -- modes (minimize, close) for the current instance, and eventtap (glboals)
+local modes,tap={} -- modes (minimize, close) for the current instance, and eventtap (globals)
 local spacesWatcher,screenWatcher,screensChangedTimer,bgFitTimer -- global watchers
 local BG_FIT_INTERVAL=3
 local BEHAVIOR=17
