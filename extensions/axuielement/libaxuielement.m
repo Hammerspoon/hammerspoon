@@ -644,7 +644,7 @@ static int axuielement_setAttributeValue(lua_State *L) {
 
 /// hs.axuielement:asHSApplication() -> hs.application object | nil
 /// Method
-/// If the element referes to an application, return an `hs.application` object for the element.
+/// If the element refers to an application, return an `hs.application` object for the element.
 ///
 /// Parameters:
 ///  * None
@@ -679,7 +679,7 @@ static int axuielement_toHSApplication(lua_State *L) {
 
 /// hs.axuielement:asHSWindow() -> hs.window object | nil
 /// Method
-/// If the element referes to a window, return an `hs.window` object for the element.
+/// If the element refers to a window, return an `hs.window` object for the element.
 ///
 /// Parameters:
 ///  * None
