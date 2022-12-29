@@ -78,7 +78,7 @@ static LSRefTable refTable = LUA_NOREF;
 }
 
 //
-// Availible Devices:
+// Available Devices:
 //
 - (NSArray *)availableDevices { return self.midiDeviceManager.availableDevices; }
 
@@ -93,7 +93,7 @@ static LSRefTable refTable = LUA_NOREF;
 - (bool)setPhysicalDevice:(NSString *)deviceName
 {
     //
-    // Availible Devices:
+    // Available Devices:
     //
     NSArray *availableMIDIDevices = [_midiDeviceManager availableDevices];
     for (MIKMIDIDevice * device in availableMIDIDevices)
@@ -135,7 +135,7 @@ static LSRefTable refTable = LUA_NOREF;
 - (void)watchDevices
 {
     //
-    // Availible Devices:
+    // Available Devices:
     //
     @try {
         [_midiDeviceManager addObserver:self forKeyPath:@"availableDevices" options:NSKeyValueObservingOptionInitial context:midiKVOContext];
@@ -160,7 +160,7 @@ static LSRefTable refTable = LUA_NOREF;
 - (void)unwatchDevices
 {
     //
-    // Availible Devices:
+    // Available Devices:
     //
     @try {
         [_midiDeviceManager removeObserver:self forKeyPath:@"availableDevices" context:midiKVOContext] ;
@@ -256,7 +256,7 @@ static LSRefTable refTable = LUA_NOREF;
                 [skin pushLuaRef:refTable ref:_deviceCallbackRef] ;
 
                 //
-                // Availible Devices:
+                // Available Devices:
                 //
                 NSMutableArray *deviceNames = [[NSMutableArray alloc]init];
                 for (MIKMIDIDevice * device in self.availableDevices)
