@@ -455,7 +455,7 @@ static int midi_newVirtualSource(lua_State *L) {
 ///  * The `hs.midi` object
 ///
 /// Notes:
-///  * Most MIDI keyboards produce a `noteOn` when you press a key, then `noteOff` when you release. However, some MIDI keyboards will return a `noteOn` with 0 `velocity` instead of `noteOff`, so you will recieve two `noteOn` commands for every key press/release.
+///  * Most MIDI keyboards produce a `noteOn` when you press a key, then `noteOff` when you release. However, some MIDI keyboards will return a `noteOn` with 0 `velocity` instead of `noteOff`, so you will receive two `noteOn` commands for every key press/release.
 ///  * The callback function should expect 5 arguments and should not return anything:
 ///    * `object`       - The `hs.midi` object.
 ///    * `deviceName`   - The device name as a string.

@@ -1120,7 +1120,7 @@ function mod.callback(callbackFn)
         mod._callback = nil
         return true
     else
-        log.ef("Callback recieved an invalid type: %s", type(callbackFn))
+        log.ef("Callback received an invalid type: %s", type(callbackFn))
         return false
     end
 end
