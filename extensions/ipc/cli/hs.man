@@ -113,7 +113,7 @@ and the callback applied when you created the message port in Hammerspoon with
 .Ar hs.ipc.localPort
 does not respond with the proper string to an initial query with message id 900,
 .Nm
-will enter legacy mode. In legacy mode, output is collected until your code is completed rather then sent as generated and code errors cannot be programtically distinguished from code output. Documentating how to implement a fully bidirectional callback is beyond the scope of this man page. For now, refer to the built in handler defined in
+will enter legacy mode. In legacy mode, output is collected until your code is completed rather then sent as generated and code errors cannot be programtically distinguished from code output. Documenting how to implement a fully bidirectional callback is beyond the scope of this man page. For now, refer to the built in handler defined in
 .Pa /Applications/Hammerspoon.app/Contents/Resources/extensions/hs/ipc/init.lua
 if you require this for your custom handler.
 .Sh FILES
