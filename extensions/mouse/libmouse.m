@@ -210,7 +210,7 @@ static int mouse_names(lua_State* L) {
 ///  * A point table containing the absolute x and y co-ordinates of the mouse pointer
 ///
 /// Notes:
-///  * If no parameters are supplied, the current position will be returned. If a point table parameter is supplied, the mouse pointer poisition will be set and the new co-ordinates returned
+///  * If no parameters are supplied, the current position will be returned. If a point table parameter is supplied, the mouse pointer position will be set and the new co-ordinates returned
 static int mouse_absolutePosition(lua_State *L) {
     LuaSkin *skin = LS_API(LS_TTABLE|LS_TOPTIONAL, LS_TBREAK);
     HSmouse *mouseManager = [[HSmouse alloc] init];
