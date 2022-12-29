@@ -133,7 +133,7 @@ end
 
 --- hs.httpserver.hsminweb.cgilua.servervariable(varname) -> string
 --- Function
---- Returns a string with the value of the CGI environment variable correspoding to varname.
+--- Returns a string with the value of the CGI environment variable corresponding to varname.
 ---
 --- Parameters:
 ---  * varname - the name of the CGI variable to get the value of.
