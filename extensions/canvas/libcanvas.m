@@ -2324,7 +2324,7 @@ static int userdata_gc(lua_State* L) ;
 ///  * the current, possibly changed, value as a boolean
 ///
 /// Notes:
-///  * Under some conditions, it has been observed that Hammerspoon's `hs.window.filter` module will misidentify Canvas and Drawing objects as windows of the Hammerspoon application that it should consider when evaluating its filters. To eliminate this, `hs.canvas` objects (and previously `hs.drawing` objects, which are now deprecated and pass through to `hs.canvas`) were given a nonstandard accessibilty subrole to prevent them from being included. This has caused some issues with third party tools, like Yabai, which also use the accessibility subroles for determining what actions it may take with Hammerspoon windows.
+///  * Under some conditions, it has been observed that Hammerspoon's `hs.window.filter` module will misidentify Canvas and Drawing objects as windows of the Hammerspoon application that it should consider when evaluating its filters. To eliminate this, `hs.canvas` objects (and previously `hs.drawing` objects, which are now deprecated and pass through to `hs.canvas`) were given a nonstandard accessibility subrole to prevent them from being included. This has caused some issues with third party tools, like Yabai, which also use the accessibility subroles for determining what actions it may take with Hammerspoon windows.
 ///
 ///  * By passing `false` to this function, all canvas objects will revert to specifying the standard subrole for the containing windows by default and should work as expected with third party tools. Note that this may cause issues or slowdowns if you are also using `hs.window.filter`; a more permanent solution is being considered.
 ///
