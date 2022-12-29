@@ -264,7 +264,7 @@ pingObjectMT = {
 
 --- hs.network.ping:setCallback(fn) -> pingObject
 --- Method
---- Set or remoce the callback function for the pingObject.
+--- Set or remove the callback function for the pingObject.
 ---
 --- Parameters:
 ---  * `fn` - the function to set as the callback, or nil if you wish use the default callback.
