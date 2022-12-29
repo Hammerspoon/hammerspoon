@@ -307,7 +307,7 @@ end
 ---  * This table is provided as a variable so that you can change any representation if you feel you know of a better or more appropriate one for you usage at runtime.
 ---
 ---  * The glyphs provided are defined in the Carbon framework headers in the Menus.h file, located (as of 10.11) at /System/Library/Frameworks/Carbon.framework/Frameworks/HIToolbox.framework/Headers/Menus.h.
----  * The following constants are defined in Menus.h, but do not seem to correspond to a visible UTF8 character or well defined representation that I could discover.  If you believe that you know of a (preferably sanctioned by Apple) proper visual representation, please submit an issue detailing it at the Hammerspoon repository on Github.
+---  * The following constants are defined in Menus.h, but do not seem to correspond to a visible UTF8 character or well defined representation that I could discover.  If you believe that you know of a (preferably sanctioned by Apple) proper visual representation, please submit an issue detailing it at the Hammerspoon repository on GitHub.
 ---    * kMenuNullGlyph, 0x00, Null (always glyph 1)
 ---    * kMenuNonmarkingReturnGlyph, 0x0D, Nonmarking return key
 ---    * kMenuParagraphKoreanGlyph, 0x15, Unassigned (paragraph in Korean)
