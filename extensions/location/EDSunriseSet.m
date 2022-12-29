@@ -231,7 +231,7 @@ __sunriset__( year, month, day, lon, lat, -35.0/60.0, 1, rise, set )
 /*        *rise = where to store the rise time                        */
 /*        *set  = where to store the set  time                        */
 /*                Both times are relative to the specified altitude,  */
-/*                and thus this function can be used to comupte       */
+/*                and thus this function can be used to compute       */
 /*                various twilight times, as well as rise/set times   */
 /* Return value:  0 = sun rises/sets this day, times stored at        */
 /*                    *trise and *tset.                               */
