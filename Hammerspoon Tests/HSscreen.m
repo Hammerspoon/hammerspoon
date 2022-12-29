@@ -76,7 +76,7 @@
 }
 
 - (void)testGamma {
-    // FIXME: This should really be an async test which checks that the setGamme() happened. Right now we are just blindly assuming it happens.
+    // FIXME: This should really be an async test which checks that the setGamma() happened. Right now we are just blindly assuming it happens.
     RUN_LUA_TEST()
 }
 
