@@ -42,7 +42,7 @@ void delayUntilViewStopsLoading(HSWebViewView *theView, dispatch_block_t block) 
     NSTimer *newDelay = [NSTimer timerWithTimeInterval:0.001
                                                repeats:YES
                                                  block:^(NSTimer *timer) {
-        // make sure were wenen't queued in the runloop before the timer was invalidated by another "load" event
+        // make sure were weren't queued in the runloop before the timer was invalidated by another "load" event
         if (timer.valid) {
             if (!theView.loading) {
                 [theView stopLoading] ; // stop loading other resources
