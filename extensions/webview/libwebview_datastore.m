@@ -74,7 +74,7 @@ static int datastore_newDefaultDataStore(lua_State *L) {
 ///  * a datastoreObject
 ///
 /// Notes:
-///  * The datastore represented by this object will be initially empty.  You can use this function to create a non-persistent datastore that you wish to share among multiple `hs.webview` instances.  Once a datastore is created, you assign it to a `hs.webview` instance by including the `datastore` key in the `hs.webvew.new` constructor's preferences table and setting it equal to this key.  All webview instances created with this datastore object will share web caches, cookies, etc. but will still be isolated from the default datastore and it will be purged from memory when the webviews are deleted, or Hammerspoon is restarted.
+///  * The datastore represented by this object will be initially empty.  You can use this function to create a non-persistent datastore that you wish to share among multiple `hs.webview` instances.  Once a datastore is created, you assign it to a `hs.webview` instance by including the `datastore` key in the `hs.webview.new` constructor's preferences table and setting it equal to this key.  All webview instances created with this datastore object will share web caches, cookies, etc. but will still be isolated from the default datastore and it will be purged from memory when the webviews are deleted, or Hammerspoon is restarted.
 ///
 ///  * Using the `datastore` key in the webview's constructor differs from the `private` key -- use of the `private` key will override the `datastore` key and will create a separate non-persistent datastore for the webview instance.  See `hs.webview.new` for more information.
 static int datastore_newPrivateDataStore(lua_State *L) {
