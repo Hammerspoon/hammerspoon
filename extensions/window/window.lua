@@ -526,7 +526,7 @@ function objectMT.focus(self)
       desktopFocusWorkaroundTimer=timer.doAfter(0.3,function()
         -- 0.3s comes from https://github.com/Hammerspoon/hammerspoon/issues/581
         -- it'd be slightly less ugly to use a "space change completed" callback (as per issue above) rather than
-        -- a crude timer, althought that route is a lot more complicated
+        -- a crude timer, although that route is a lot more complicated
         self:becomeMain()
         desktopFocusWorkaroundTimer=nil --cleanup the timer
       end)
