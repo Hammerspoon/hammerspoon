@@ -2315,7 +2315,7 @@ static int userdata_gc(lua_State* L) ;
 
 /// hs.canvas.useCustomAccessibilitySubrole([state]) -> boolean
 /// Function
-/// Get or set whether or not canvas objects use a custom accessibility subrole for the contaning system window.
+/// Get or set whether or not canvas objects use a custom accessibility subrole for the containing system window.
 ///
 /// Parameters:
 ///  * `state` - an optional boolean, default true, specifying whether or not canvas containers should use a custom accessibility subrole.

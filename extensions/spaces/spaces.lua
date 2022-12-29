@@ -395,7 +395,7 @@ end
 
 --- hs.spaces.allSpaces() -> table | nil, error
 --- Function
---- Returns a Kay-Value table contining the IDs of all spaces for all screens.
+--- Returns a Kay-Value table containing the IDs of all spaces for all screens.
 ---
 --- Parameters:
 ---  * None
