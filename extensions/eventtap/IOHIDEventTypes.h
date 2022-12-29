@@ -111,7 +111,7 @@ enum {
     kIOHIDEventTypeSymbolicHotKey,
     kIOHIDEventTypePower,                   // 25
     kIOHIDEventTypeLED,
-    kIOHIDEventTypeFluidTouchGesture,       // This will eventually superseed Navigation and Dock swipes
+    kIOHIDEventTypeFluidTouchGesture,       // This will eventually superseded Navigation and Dock swipes
     kIOHIDEventTypeBoundaryScroll,
     kIOHIDEventTypeBiometric,
     kIOHIDEventTypeUnicode,                 // 30
