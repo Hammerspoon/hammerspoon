@@ -733,7 +733,7 @@ typedef uint16_t IOHIDEventPhaseBits;
 
 /*!
  @typedef IOHIDSymbolicHotKey
- @abstract Enumerted values for sending symbolic hot key events.
+ @abstract Enumerated values for sending symbolic hot key events.
  @constant kIOHIDSymbolicHotKeyDictionaryApp    This will get translated into a kCGSDictionaryAppHotKey by CG.
  @constant kIOHIDSymbolicHotKeyIronwoodApp      This will get translated into a kCGSIronwoodHotKey by CG.
  @constant kIOHIDSymbolicHotKeyDictationApp     This will get translated into a kCGSDictationHotKey by CG.
