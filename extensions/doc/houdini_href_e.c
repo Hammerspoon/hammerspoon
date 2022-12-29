@@ -22,7 +22,7 @@
  * have its native function (i.e. as an URL
  * component/separator) and hence needs no escaping.
  *
- * There are two exceptions: the chacters & (amp)
+ * There are two exceptions: the characters & (amp)
  * and ' (single quote) do not appear in the table.
  * They are meant to appear in the URL as components,
  * yet they require special HTML-entity escaping
