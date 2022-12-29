@@ -1607,13 +1607,13 @@ module.formattedDate    = HTTPformattedDate
 
 --- hs.httpserver.hsminweb.urlParts(url) -> table
 --- Function
---- Parse the specified URL into it's constituant parts.
+--- Parse the specified URL into it's constituent parts.
 ---
 --- Parameters:
 ---  * url - the url to parse
 ---
 --- Returns:
----  * a table containing the constituant parts of the provided url.  The table will contain one or more of the following key-value pairs:
+---  * a table containing the constituent parts of the provided url.  The table will contain one or more of the following key-value pairs:
 ---    * fragment           - the anchor name a URL refers to within an HTML document.  Appears after '#' at the end of a URL.  Note that not all web clients include this in an HTTP request since its normal purpose is to indicate where to scroll to within a page after the content has been retrieved.
 ---    * host               - the host name portion of the URL, if any
 ---    * lastPathComponent  - the last component of the path portion of the URL
