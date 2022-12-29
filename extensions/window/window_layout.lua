@@ -436,7 +436,7 @@ local function performPendingActions()
   -- tile remaining windows
   local toTile={}
   for win,command in pairs(winbuf) do
-    --    hs.assert(command.action==TILE or command.action==FIT,'(431) unexptected action: '..command.action,command)
+    --    hs.assert(command.action==TILE or command.action==FIT,'(431) unexpected action: '..command.action,command)
     local idx=command.irule..'.'..command.icmd
     if not toTile[idx] then toTile[idx]=command
     end
