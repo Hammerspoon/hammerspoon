@@ -484,7 +484,7 @@ objectMT.callback = function(self, ...)
         if type(fn) == "function" or type(fn) == "nil" then
             self._callbk = fn
         else
-            error("expeected a function or nil, found " .. type(fn), 2)
+            error("expected a function or nil, found " .. type(fn), 2)
         end
     else
         error("expected 1 argument, found " .. tostring(args.n), 2)

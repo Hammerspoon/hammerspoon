@@ -286,7 +286,7 @@ pingObjectMT = {
             elseif type(fn) == "nil" then
                 internals[self].callback = module._defaultCallback
             else
-                error("expeected a function or nil, found " .. type(fn), 2)
+                error("expected a function or nil, found " .. type(fn), 2)
             end
         else
             error("expected 1 argument, found " .. tostring(args.n), 2)
