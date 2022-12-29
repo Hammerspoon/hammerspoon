@@ -438,7 +438,7 @@ end
 ---  * a copy of the canvas
 ---
 --- Notes:
----  * The copy of the canvas will be identical in all respectes except:
+---  * The copy of the canvas will be identical in all respects except:
 ---    * The new canvas will not have a callback function assigned, even if the original canvas does.
 ---    * The new canvas will not initially be visible, even if the original is.
 ---  * The new canvas is an independent entity -- any subsequent changes to either canvas will not be reflected in the other canvas.
