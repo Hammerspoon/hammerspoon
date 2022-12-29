@@ -406,7 +406,7 @@ function objectMT.setFrameWithWorkarounds(self, f, duration) return setFrame(sel
 --- necessary to ensure the desired result.
 ---
 --- The default value is `false`, in order to avoid the possibly annoying or distracting window wiggling; set to `true` if you see
---- incorrect results in `:setFrame()` or downstream modules and don't mind the the wiggling.
+--- incorrect results in `:setFrame()` or downstream modules and don't mind the wiggling.
 window.setFrameCorrectness = false
 
 --- hs.window:setFrameInScreenBounds([rect][, duration]) -> hs.window object
