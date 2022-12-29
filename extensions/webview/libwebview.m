@@ -1458,7 +1458,7 @@ static int webview_html(lua_State *L) {
 /// Sets a callback for tracking a webview's navigation process.
 ///
 /// Parameters:
-///  * `fn` - the function to be called when the navigation status of a webview cahnges.  To disable the callback function, explicitly specify nil.  The function should expect 3 or 4 arguments and may optionally return 1.  The function arguments are defined as follows:
+///  * `fn` - the function to be called when the navigation status of a webview changes.  To disable the callback function, explicitly specify nil.  The function should expect 3 or 4 arguments and may optionally return 1.  The function arguments are defined as follows:
 ///    * `action`  - a string indicating the webview's current status.  It will be one of the following:
 ///      * `didStartProvisionalNavigation`                    - a request or action to change the contents of the main frame has occurred
 ///      * `didReceiveServerRedirectForProvisionalNavigation` - a server redirect was received for the main frame
