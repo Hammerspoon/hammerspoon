@@ -199,7 +199,7 @@ Any Spoons that are submitted to the official Spoons repository will have their 
 
 If you also want to generate HTML/Markdown versions of your documentation for your own purposes:
 
- * Clone [https://github.com/Hamerspoon/hammerspoon](https://github.com/Hammerspoon/hammerspoon)
+ * Clone [https://github.com/Hammerspoon/hammerspoon](https://github.com/Hammerspoon/hammerspoon)
  * Install the required Python dependencies (e.g. `pip install --user -r requirements.txt` in the Hammerspoon repo)
  * Then in your Spoon's directory, run:
 
