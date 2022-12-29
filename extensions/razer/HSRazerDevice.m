@@ -60,7 +60,7 @@ double getSecondsSinceEpoch(void) {
         return;
     }
 
-    // Get button name from device dictonary:
+    // Get button name from device dictionary:
     NSString *buttonName = [self.buttonNames valueForKey:scancodeString];
 
     // Abort if there's no button name:
