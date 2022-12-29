@@ -221,27 +221,27 @@ static int eventtap_event_newGesture(lua_State* L) {
                        nil];
     }
     else if ([gesture isEqualToString:@"beginRotate"]) {
-        NSNumber *rotatationValue = [skin toNSObjectAtIndex:2];
-        double rotatation = 0.0;
-        if (rotatationValue) {
-            rotatation = [rotatationValue floatValue];
+        NSNumber *rotationValue = [skin toNSObjectAtIndex:2];
+        double rotation = 0.0;
+        if (rotationValue) {
+            rotation = [rotationValue floatValue];
         }
         gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
                        @(kTLInfoSubtypeRotate), kTLInfoKeyGestureSubtype,
                        @(kIOHIDEventPhaseBegan), kTLInfoKeyGesturePhase,
-                       @(rotatation), kTLInfoKeyRotation,
+                       @(rotation), kTLInfoKeyRotation,
                        nil];
     }
     else if ([gesture isEqualToString:@"endRotate"]) {
-        NSNumber *rotatationValue = [skin toNSObjectAtIndex:2];
-        double rotatation = 45;
-        if (rotatationValue) {
-            rotatation = [rotatationValue floatValue];
+        NSNumber *rotationValue = [skin toNSObjectAtIndex:2];
+        double rotation = 45;
+        if (rotationValue) {
+            rotation = [rotationValue floatValue];
         }
         gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
                        @(kTLInfoSubtypeRotate), kTLInfoKeyGestureSubtype,
                        @(kIOHIDEventPhaseEnded), kTLInfoKeyGesturePhase,
-                       @(rotatation), kTLInfoKeyRotation,
+                       @(rotation), kTLInfoKeyRotation,
                        nil];
     }
     else
