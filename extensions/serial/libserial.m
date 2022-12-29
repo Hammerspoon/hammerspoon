@@ -1343,7 +1343,7 @@ static const luaL_Reg module_metaLib[] = {
     {NULL,   NULL}
 };
 
-// Initalise Module:
+// Initialize Module:
 int luaopen_hs_libserial(lua_State* L) {
     // Register Module:
     LuaSkin *skin = [LuaSkin sharedWithState:L];
