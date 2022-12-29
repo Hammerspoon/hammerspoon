@@ -521,7 +521,7 @@ end
 ---  * None
 ---
 --- Returns:
----  * a number represeting the angle in radians
+---  * a number representing the angle in radians
 function geometry.angle(t)
   return atan(t.y or t.h,t.x or t.w)
 end
@@ -534,7 +534,7 @@ end
 ---  * point - an hs.geometry object, or a table or string or parameter list to construct one; if a rect, uses the rect's center
 ---
 --- Returns:
----  * a number represeting the angle in radians
+---  * a number representing the angle in radians
 function geometry.angleTo(t,...)
   return geometry.angle(geometry.vector(t,...))
 end
