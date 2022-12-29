@@ -204,7 +204,7 @@ static int browser_includesPeerToPeer(lua_State *L) {
 /// Notes:
 ///  * This method returns domains which are visible to your machine; however, your machine may or may not be able to access or publish records within the returned domains. See  [hs.bonjour:findRegistrationDomains](#findRegistrationDomains)
 ///
-///  * For most non-coporate network users, it is likely that the callback will only be invoked once for the `local` domain. This is normal. Corporate networks or networks including Linux machines using additional domains defined with Avahi may see additional domains as well, though most Avahi installations now use only 'local' by default unless specifically configured to do otherwise.
+///  * For most non-corporate network users, it is likely that the callback will only be invoked once for the `local` domain. This is normal. Corporate networks or networks including Linux machines using additional domains defined with Avahi may see additional domains as well, though most Avahi installations now use only 'local' by default unless specifically configured to do otherwise.
 ///
 ///  * When `moreExpected` becomes false, it is the macOS's best guess as to whether additional records are available.
 ///    * Generally macOS is fairly accurate in this regard concerning domain searchs, so to reduce the impact on system resources, it is recommended that you use [hs.bonjour:stop](#stop) when this parameter is false
@@ -242,7 +242,7 @@ static int browser_searchForBrowsableDomains(lua_State *L) {
 /// Notes:
 ///  * This is the preferred method for accessing domains as it guarantees that the host machine can connect to services in the returned domains. Access to domains outside this list may be more limited. See also [hs.bonjour:findBrowsableDomains](#findBrowsableDomains)
 ///
-///  * For most non-coporate network users, it is likely that the callback will only be invoked once for the `local` domain. This is normal. Corporate networks or networks including Linux machines using additional domains defined with Avahi may see additional domains as well, though most Avahi installations now use only 'local' by default unless specifically configured to do otherwise.
+///  * For most non-corporate network users, it is likely that the callback will only be invoked once for the `local` domain. This is normal. Corporate networks or networks including Linux machines using additional domains defined with Avahi may see additional domains as well, though most Avahi installations now use only 'local' by default unless specifically configured to do otherwise.
 ///
 ///  * When `moreExpected` becomes false, it is the macOS's best guess as to whether additional records are available.
 ///    * Generally macOS is fairly accurate in this regard concerning domain searchs, so to reduce the impact on system resources, it is recommended that you use [hs.bonjour:stop](#stop) when this parameter is false
