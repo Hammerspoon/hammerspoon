@@ -182,7 +182,7 @@ static int axtextmarker_availabilityCheck(lua_State *L) {
 ///  *  a string containing the opaque binary data contained within the axTextMarkerObject
 ///
 /// Notes:
-///  * the string will likely contain invalid UTF8 code sequences or unprintable ascii values; to see the data in decimal or hexidecimal form you can use:
+///  * the string will likely contain invalid UTF8 code sequences or unprintable ascii values; to see the data in decimal or hexadecimal form you can use:
 ///     string.byte(hs.axuielement.axtextmarker:bytes(), 1, hs.axuielement.axtextmarker:length())
 ///     -- or
 ///     hs.utf8.hexDump(hs.axuielement.axtextmarker:bytes())
