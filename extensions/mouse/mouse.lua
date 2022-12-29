@@ -89,7 +89,7 @@ end
 ---  * None
 ---
 --- Returns:
----  * A point-table containing the relative x and y co-ordinates of the mouse pointer, or nil if an error occured
+---  * A point-table containing the relative x and y co-ordinates of the mouse pointer, or nil if an error occurred
 ---
 --- Notes:
 ---  * The co-ordinates returned by this function are relative to the top left pixel of the screen the mouse is on (see `hs.mouse.getAbsolutePosition` if you need the location in the full desktop space)

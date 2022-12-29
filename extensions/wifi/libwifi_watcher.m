@@ -228,43 +228,43 @@ static HSWifiWatcherManager *manager ;
 ///    * `watcher`, "SSIDChange", `interface` - occurs when the associated network for the Wi-Fi interface changes
 ///      * `watcher`   - the watcher object itself
 ///      * `message`   - the message specifying the event, in this case "SSIDChange"
-///      * `interface` - the name of the interface for which the event occured
+///      * `interface` - the name of the interface for which the event occurred
 ///    * Use `hs.wifi.currentNetwork([interface])` to identify the new network, which may be nil when you leave a network.
 ///    * `watcher`, "BSSIDChange", `interface` - occurs when the base station the Wi-Fi interface is connected to changes
 ///      * `watcher`   - the watcher object itself
 ///      * `message`   - the message specifying the event, in this case "BSSIDChange"
-///      * `interface` - the name of the interface for which the event occured
+///      * `interface` - the name of the interface for which the event occurred
 ///    * `watcher`, "countryCodeChange", `interface` - occurs when the adopted country code of the Wi-Fi interface changes
 ///      * `watcher`   - the watcher object itself
 ///      * `message`   - the message specifying the event, in this case "countryCodeChange"
-///      * `interface` - the name of the interface for which the event occured
+///      * `interface` - the name of the interface for which the event occurred
 ///    * `watcher`, "linkChange", `interface` - occurs when the link state for the Wi-Fi interface changes
 ///      * `watcher`   - the watcher object itself
 ///      * `message`   - the message specifying the event, in this case "linkChange"
-///      * `interface` - the name of the interface for which the event occured
+///      * `interface` - the name of the interface for which the event occurred
 ///    * `watcher`, "linkQualityChange", `interface` - occurs when the RSSI or transmit rate for the Wi-Fi interface changes
 ///      * `watcher`   - the watcher object itself
 ///      * `message`   - the message specifying the event, in this case "linkQualityChange"
-///      * `interface` - the name of the interface for which the event occured
+///      * `interface` - the name of the interface for which the event occurred
 ///      * `rssi`      - the RSSI value for the currently associated network on the Wi-Fi interface
 ///      * `rate`      - the transmit rate for the currently associated network on the Wi-Fi interface
 ///    * `watcher`, "modeChange", `interface` - occurs when the operating mode of the Wi-Fi interface changes
 ///      * `watcher`   - the watcher object itself
 ///      * `message`   - the message specifying the event, in this case "modeChange"
-///      * `interface` - the name of the interface for which the event occured
+///      * `interface` - the name of the interface for which the event occurred
 ///    * `watcher`, "powerChange", `interface` - occurs when the power state of the Wi-Fi interface changes
 ///      * `watcher`   - the watcher object itself
 ///      * `message`   - the message specifying the event, in this case "powerChange"
-///      * `interface` - the name of the interface for which the event occured
+///      * `interface` - the name of the interface for which the event occurred
 ///    * `watcher`, "scanCacheUpdated", `interface` - occurs when the scan cache of the Wi-Fi interface is updated with new information
 ///      * `watcher`   - the watcher object itself
 ///      * `message`   - the message specifying the event, in this case "scanCacheUpdated"
-///      * `interface` - the name of the interface for which the event occured
+///      * `interface` - the name of the interface for which the event occurred
 // ///
 // ///    * `watcher`, "virtualInterfaceStateChanged", `interface` - occurs when the state of a Wi-Fi virtual interface changes
 // ///      * `watcher`   - the watcher object itself
 // ///      * `message`   - the message specifying the event, in this case "virtualInterfaceStateChanged"
-// ///      * `interface` - the name of the interface for which the event occured
+// ///      * `interface` - the name of the interface for which the event occurred
 static int wifi_watcher_new(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TFUNCTION, LS_TBREAK] ;

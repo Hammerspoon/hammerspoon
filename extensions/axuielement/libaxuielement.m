@@ -31,7 +31,7 @@ const char *AXErrorAsString(AXError theError) {
         case kAXErrorNoValue:                           ans = "Requested value does not exist" ; break ;
         case kAXErrorParameterizedAttributeUnsupported: ans = "Parameterized attribute is not supported" ; break ;
         case kAXErrorNotEnoughPrecision:                ans = "Not enough precision" ; break ;
-        default:                                        ans = "Unrecognized error occured" ; break ;
+        default:                                        ans = "Unrecognized error occurred" ; break ;
     }
     return ans ;
 }

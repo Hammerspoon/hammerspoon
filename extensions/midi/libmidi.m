@@ -396,7 +396,7 @@ static int deviceCallback(lua_State *L) {
 ///  * deviceName - A string containing the device name of the MIDI device. A valid device name can be found by checking `hs.midi.devices()` and/or `hs.midi.virtualSources()`.
 ///
 /// Returns:
-///  * An `hs.midi` object or `nil` if an error occured.
+///  * An `hs.midi` object or `nil` if an error occurred.
 ///
 /// Notes:
 ///  * Example Usage:
@@ -423,7 +423,7 @@ static int midi_new(lua_State *L) {
 ///  * virtualSource - A string containing the virtual source name of the MIDI device. A valid virtual source name can be found by checking `hs.midi.virtualSources()`.
 ///
 /// Returns:
-///  * An `hs.midi` object or `nil` if an error occured.
+///  * An `hs.midi` object or `nil` if an error occurred.
 ///
 /// Notes:
 ///  * Example Usage:

@@ -160,7 +160,7 @@ static int change_dir (lua_State *L) {
 ///  * None
 ///
 /// Returns:
-///  * A string containing the current working directory, or if an error occured, nil and an error string
+///  * A string containing the current working directory, or if an error occurred, nil and an error string
 static int get_dir(lua_State * L) {
     char *path = NULL;
     /* Passing (NULL, 0) is not guaranteed to work. Use a temp buffer and size instead. */
@@ -943,7 +943,7 @@ static int hs_temporaryDirectory(lua_State *L) {
 ///  * path - the path to the file to return the UTI for.
 ///
 /// Returns:
-///  * a string containing the Uniform Type Identifier for the file location specified or nil if an error occured
+///  * a string containing the Uniform Type Identifier for the file location specified or nil if an error occurred
 static int hs_fileuti(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;

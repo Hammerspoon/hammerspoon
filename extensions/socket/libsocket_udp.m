@@ -152,7 +152,7 @@ static int socketudp_new(lua_State *L) {
 ///  * `fn` - An optional single-use callback function to execute after establishing the connection. The callback receives no parameters.
 ///
 /// Returns:
-///  * The [`hs.socket.udp`](#new) object, or `nil` if an error occured.
+///  * The [`hs.socket.udp`](#new) object, or `nil` if an error occurred.
 ///
 /// Notes:
 /// * By design, UDP is a connectionless protocol, and connecting is not needed.
@@ -197,7 +197,7 @@ static int socketudp_connect(lua_State *L) {
 ///  * `port` - A port number [0-65535]. Ports [1-1023] are privileged. Port 0 allows the OS to select any available port.
 ///
 /// Returns:
-///  * The [`hs.socket.udp`](#new) object, or `nil` if an error occured.
+///  * The [`hs.socket.udp`](#new) object, or `nil` if an error occurred.
 ///
 static int socketudp_listen(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
@@ -300,7 +300,7 @@ static BOOL socketudp_receiveContinuous(lua_State *L, BOOL readContinuous) {
 ///  * `fn` - Optionally supply the [read callback](#setCallback) here.
 ///
 /// Returns:
-///  * The [`hs.socket.udp`](#new) object, or `nil` if an error occured.
+///  * The [`hs.socket.udp`](#new) object, or `nil` if an error occurred.
 ///
 /// Notes:
 ///  * Results are passed to the [callback function](#setCallback), which must be set to use this method.
@@ -326,7 +326,7 @@ static int socketudp_receive(lua_State *L) {
 ///  * `fn` - Optionally supply the [read callback](#setCallback) here.
 ///
 /// Returns:
-///  * The [`hs.socket.udp`](#new) object, or `nil` if an error occured.
+///  * The [`hs.socket.udp`](#new) object, or `nil` if an error occurred.
 ///
 /// Notes:
 ///  * Results are passed to the [callback function](#setCallback), which must be set to use this method.
