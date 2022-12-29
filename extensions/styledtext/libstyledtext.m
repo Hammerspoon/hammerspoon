@@ -800,7 +800,7 @@ static int string_totable(lua_State *L) {
         lua_pushstring(L, "");
         lua_rawseti(L, -2, 1);
     } else {
-        // convert i and j into their obj-c equivalants
+        // convert i and j into their obj-c equivalents
         i = [[theMap objectForKey:[NSNumber numberWithInteger:i]] integerValue];
         j = [[theMap objectForKey:[NSNumber numberWithInteger:j]] integerValue];
         // finally convert to Objective-C's practice of 0 indexing and j as length, not index
@@ -818,7 +818,7 @@ static int string_totable(lua_State *L) {
                                                   longestEffectiveRange:&effectiveRange
                                                                 inRange:limitRange];
 
-                // convert starts and ends into their lua equivalants
+                // convert starts and ends into their lua equivalents
                 lua_Integer pS, pE;
                 pS = [[[[theMap allKeysForObject:
                                     [NSNumber numberWithInteger:(lua_Integer)(effectiveRange.location + 1)]]
@@ -938,7 +938,7 @@ static int string_tostring(lua_State *L) {
     if (i > j) {
         lua_pushstring(L, "");
     } else {
-        // convert i and j into their obj-c equivalants
+        // convert i and j into their obj-c equivalents
         i = [[theMap objectForKey:[NSNumber numberWithInteger:i]] integerValue];
         j = [[theMap objectForKey:[NSNumber numberWithInteger:j]] integerValue];
         // finally convert to Objective-C's practice of 0 indexing and j as length, not index
@@ -999,7 +999,7 @@ static int string_setStyleForRange(lua_State *L) {
     if (i > j) {
         [skin pushNSObject:[theString copy]]; // no change
     } else {
-        // convert i and j into their obj-c equivalants
+        // convert i and j into their obj-c equivalents
         i = [[theMap objectForKey:[NSNumber numberWithInteger:i]] integerValue];
         j = [[theMap objectForKey:[NSNumber numberWithInteger:j]] integerValue];
         // finally convert to Objective-C's practice of 0 indexing and j as length, not index
@@ -1118,7 +1118,7 @@ static int string_removeStyleForRange(lua_State *L) {
     if (i > j) {
         [skin pushNSObject:[theString copy]]; // no change
     } else {
-        // convert i and j into their obj-c equivalants
+        // convert i and j into their obj-c equivalents
         i = [[theMap objectForKey:[NSNumber numberWithInteger:i]] integerValue];
         j = [[theMap objectForKey:[NSNumber numberWithInteger:j]] integerValue];
         // finally convert to Objective-C's practice of 0 indexing and j as length, not index
@@ -1193,7 +1193,7 @@ static int string_replaceSubstringForRange(lua_State *L) {
     if (!insert && (i > j)) {
         return luaL_argerror(L, 3, "starts index must be < ends index");
     }
-    // convert i and j into their obj-c equivalants
+    // convert i and j into their obj-c equivalents
     i = [[theMap objectForKey:[NSNumber numberWithInteger:i]] integerValue];
     j = [[theMap objectForKey:[NSNumber numberWithInteger:j]] integerValue];
     // finally convert to Objective-C's practice of 0 indexing and j as length, not index
@@ -1427,7 +1427,7 @@ static int string_sub(lua_State *L) {
     if (i > j) {
         [skin pushNSObject:[[NSAttributedString alloc] initWithString:@""]];
     } else {
-        // convert i and j into their obj-c equivalants
+        // convert i and j into their obj-c equivalents
         i = [[theMap objectForKey:[NSNumber numberWithInteger:i]] integerValue];
         j = [[theMap objectForKey:[NSNumber numberWithInteger:j]] integerValue];
         // finally convert to Objective-C's practice of 0 indexing and j as length, not index
@@ -1482,7 +1482,7 @@ static id lua_toNSAttributedString(lua_State *L, int idx) {
                 NSUInteger len = ((lua_getfield(L, -1, "ends") == LUA_TNUMBER) ? ((NSUInteger)lua_tointeger(L, -1)) : ([theString length])) - loc;
                 lua_pop(L, 1);
 
-                // convert starts and ends into their obj-c equivalants
+                // convert starts and ends into their obj-c equivalents
                 loc = [[theMap objectForKey:[NSNumber numberWithUnsignedInteger:loc]] unsignedIntegerValue];
                 len = [[theMap objectForKey:[NSNumber numberWithUnsignedInteger:len]] unsignedIntegerValue];
 
