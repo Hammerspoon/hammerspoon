@@ -179,7 +179,7 @@ end
 
 --- hs.vox.increaseVolume()
 --- Function
---- Increases the palyer volume
+--- Increases the player volume
 ---
 --- Parameters:
 ---  * None
