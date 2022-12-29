@@ -760,7 +760,7 @@ local function makeUI()
       local x,x2 = frame.x+cell.w*(cx-1),frame.x+cell.w*(cx2-1)
       for hy=min(hintsh,sgr.h),1,-1 do
         local cy,cy2 = hy,hy+1
-        -- allow for grid heigth > # available hint rows
+        -- allow for grid height > # available hint rows
         if sgr.h>hintsh then cy=dist(cy,hintsh,sgr.h) cy2=dist(cy2,hintsh,sgr.h) end
         local y,y2 = frame.y+cell.h*(cy-1),frame.y+cell.h*(cy2-1)
         local elem = geom.new{x=x,y=y,x2=x2,y2=y2}

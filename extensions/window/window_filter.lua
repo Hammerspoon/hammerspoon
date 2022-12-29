@@ -51,7 +51,7 @@
 -- The pure filtering part alone should fulfill a lot of use cases
 -- * The root and default filters should be quite handy for users; the user is able to customize both, but ideally
 --   there should be ongoing maintenance on the list by the core maintainers
--- * Maybe an additional filter could be added for window geometry (e.g. minimum width/heigth/area)
+-- * Maybe an additional filter could be added for window geometry (e.g. minimum width/height/area)
 
 -- The 'active' part abstracts hs.application.watcher and hs.uielement.watcher into a simple and coherent API
 -- for users who are interested in window events. Additionally, a lot of effort is spent on cleaning up
