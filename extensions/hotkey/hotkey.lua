@@ -460,7 +460,7 @@ hotkey.modal.__index = hotkey.modal
 ---  * None
 ---
 --- Notes:
----  * This is a pre-existing function that you should override if you need to use it; the default implementation does nothing.
+---  * This is a preexisting function that you should override if you need to use it; the default implementation does nothing.
 function hotkey.modal:entered() -- luacheck: ignore
 end
 
@@ -475,7 +475,7 @@ end
 ---  * None
 ---
 --- Notes:
----  * This is a pre-existing function that you should override if you need to use it; the default implementation does nothing.
+---  * This is a preexisting function that you should override if you need to use it; the default implementation does nothing.
 function hotkey.modal:exited() -- luacheck: ignore
 end
 

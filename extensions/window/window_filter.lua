@@ -618,7 +618,7 @@ end
 ---  * the `hs.window.filter` object for method chaining
 ---
 --- Notes:
----  * every filter definition in `filters` will overwrite the pre-existing one for the relevant application, if present;
+---  * every filter definition in `filters` will overwrite the preexisting one for the relevant application, if present;
 ---    this also applies to the special default and override filters, if included
 function WF:setFilters(filters)
   if type(filters)~='table' then error('filters must be a table',2) end
