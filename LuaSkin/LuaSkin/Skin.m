@@ -1065,7 +1065,7 @@ nextarg:
 
 #pragma mark - Support Functions
 
-// maxn   returns the largest integer key in the table
+// maxNatIndex returns the largest integer key in the table
 - (lua_Integer)maxNatIndex:(int)idx {
     // Ensure our Lua stack is large enough for the number of items being pushed
     [self growStack:3 withMessage:"maxNatIndex"];
