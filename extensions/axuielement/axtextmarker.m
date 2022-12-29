@@ -8,7 +8,7 @@
 /// > // across thread or process boundaries, just for passing a position to an
 /// > // API that works with positions as opaque objects.
 ///
-/// This submodule allows Lua to represent these as userdata which can be passed in to parameterized attributes for the appliction from which they were retrieved. Examples are expected to be added to the Hammerspoon wiki soon.
+/// This submodule allows Lua to represent these as userdata which can be passed in to parameterized attributes for the application from which they were retrieved. Examples are expected to be added to the Hammerspoon wiki soon.
 ///
 /// As this submodule utilizes private and undocumented functions in the HIServices framework, if you receive an error using any of these functions or methods indicating an undefined CF function (the function or method will return nil and a string of the format "CF function AX... undefined"), please make sure to include the output of the following in any issue you submit to the Hammerspoon github page (enter these into the Hammerspoon console):
 ///
