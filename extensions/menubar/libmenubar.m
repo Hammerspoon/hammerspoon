@@ -753,7 +753,7 @@ static int menubarSetMenu(lua_State *L) {
     NSMenu *menu = nil;
     HSMenubarItemMenuDelegate *delegate = nil;
 
-    // We always need to start by erasing any pre-existing menu stuff
+    // We always need to start by erasing any preexisting menu stuff
     erase_all_menu_parts(L, statusItem);
 
     switch (lua_type(L, 2)) {

@@ -71,7 +71,7 @@
 
         NSFileManager *fileManager = [NSFileManager defaultManager];
 
-        // Remove any pre-existing copy of the Spoon
+        // Remove any preexisting copy of the Spoon
         if ([fileManager fileExistsAtPath:dstSpoonFullPath]) {
             NSLog(@"Spoon already exists at %@, removing the old version", dstSpoonFullPath);
             upgrade = YES;
