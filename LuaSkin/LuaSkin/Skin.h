@@ -558,7 +558,7 @@ NSString *specMaskToString(int spec);
 /*!
   @abstract Checks a list of Lua references for validity
 
-  @discussion This compares each argument against LUA_REFNIL and LUA_NOREF. If any of the supplied arguments contain either of those values, this method returns NO. It does not guarantee that the references are valid within the Lua environment, simply that they have not been explicitly invalited.
+  @discussion This compares each argument against LUA_REFNIL and LUA_NOREF. If any of the supplied arguments contain either of those values, this method returns NO. It does not guarantee that the references are valid within the Lua environment, simply that they have not been explicitly invalidated.
   @param firstRef - An integer containing a Lua reference. Followed by zero or more integers containing other Lua references. The final value MUST be LS_RBREAK.
   @return YES or NO indicating whether all of the supplied references are valid or not
  */
