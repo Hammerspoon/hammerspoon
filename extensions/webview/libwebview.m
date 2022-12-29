@@ -1119,7 +1119,7 @@ static int webview_loading(lua_State *L) {
 /// Notes:
 ///  * this method does not stop the loading of the primary content for the page at the specified URL
 ///  * if [hs.webview:loading](#loading) would return true, this method does nothing -- see notes:
-///    * The documentation from Apple is unclear and experimentation has shown that if this method is applied before the content of the specified URL has loaded, it can cause the webview to lock up; however it appears to stop the loading of addiional resources specified for the content (external script files, external style files, AJAX queries, etc.) and should be used in this context.
+///    * The documentation from Apple is unclear and experimentation has shown that if this method is applied before the content of the specified URL has loaded, it can cause the webview to lock up; however it appears to stop the loading of additional resources specified for the content (external script files, external style files, AJAX queries, etc.) and should be used in this context.
 static int webview_stopLoading(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
