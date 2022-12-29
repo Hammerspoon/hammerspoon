@@ -83,7 +83,7 @@ enum markdown_char_t {
 	MD_CHAR_LINK,
 	MD_CHAR_LANGLE,
 	MD_CHAR_ESCAPE,
-	MD_CHAR_ENTITITY,
+	MD_CHAR_ENTITY,
 	MD_CHAR_AUTOLINK_URL,
 	MD_CHAR_AUTOLINK_EMAIL,
 	MD_CHAR_AUTOLINK_WWW,
@@ -2511,7 +2511,7 @@ sd_markdown_new(
 
 	md->active_char['<'] = MD_CHAR_LANGLE;
 	md->active_char['\\'] = MD_CHAR_ESCAPE;
-	md->active_char['&'] = MD_CHAR_ENTITITY;
+	md->active_char['&'] = MD_CHAR_ENTITY;
 
 	if (extensions & MKDEXT_AUTOLINK) {
 		md->active_char[':'] = MD_CHAR_AUTOLINK_URL;
