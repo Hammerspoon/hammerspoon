@@ -350,7 +350,7 @@ tag_length(uint8_t *data, size_t size, enum mkd_autolink *autolink)
 		*autolink = MKDA_NOT_AUTOLINK;
 	}
 
-	/* looking for sometinhg looking like a tag end */
+	/* looking for something looking like a tag end */
 	while (i < size && data[i] != '>') i++;
 	if (i >= size) return 0;
 	return i + 1;
