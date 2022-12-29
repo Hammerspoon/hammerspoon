@@ -6,7 +6,7 @@ static LSRefTable refTable;
 
 #define get_objectFromUserdata(objType, L, idx) (objType *) * ((void **)luaL_checkudata(L, idx, USERDATA_TAG))
 
-// Lua treats strings (and therefore indexs within strings) as a sequence of bytes.  Objective-C's
+// Lua treats strings (and therefore indexes within strings) as a sequence of bytes.  Objective-C's
 // NSString and NSAttributedString treat them as a sequence of characters.  This works fine until
 // Unicode characters are involved.
 //
