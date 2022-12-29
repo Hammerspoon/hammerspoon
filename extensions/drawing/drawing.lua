@@ -512,7 +512,7 @@ return require("hs.drawing_canvasWrapper")
 ---    * shrinkToFit         - shrink the image, preserving the aspect ratio, to fit the drawing frame only if the image is larger than the drawing frame.
 ---    * scaleToFit          - shrink or expand the image to fully fill the drawing frame.  This does not preserve the aspect ratio.
 ---    * none                - perform no scaling or resizing of the image.
----    * scalePropertionally - shrink or expand the image to fully fill the drawing frame, preserving the aspect ration.
+---    * scaleProportionally - shrink or expand the image to fully fill the drawing frame, preserving the aspect ration.
 ---
 --- Returns:
 ---  * If a setting value is provided, the drawing object is returned; if no argument is provided, the current setting is returned.
