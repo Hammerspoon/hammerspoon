@@ -358,7 +358,7 @@ static int secureInputEnabled(lua_State *L) {
 ///  * None
 ///
 /// Returns:
-///  * Returns an array containing indicies starting from 1 up to the highest numbered button currently being pressed where the index is `true` if the button is currently pressed or `false` if it is not.
+///  * Returns an array containing indices starting from 1 up to the highest numbered button currently being pressed where the index is `true` if the button is currently pressed or `false` if it is not.
 ///  * Special hash tag synonyms for `left` (button 1), `right` (button 2), and `middle` (button 3) are also set to true if these buttons are currently being pressed.
 ///
 /// Notes:

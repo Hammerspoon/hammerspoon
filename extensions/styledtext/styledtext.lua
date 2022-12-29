@@ -83,14 +83,14 @@ local objectMetatable = hs.getObjectMetatable("hs.styledtext")
 
 --- hs.styledtext:byte([starts], [ends]) -> integer, ...
 --- Method
---- Returns the internal numerical representation of the characters in the `hs.styledtext` object specified by the given indicies.  Mimics the Lua `string.byte` function.
+--- Returns the internal numerical representation of the characters in the `hs.styledtext` object specified by the given indices.  Mimics the Lua `string.byte` function.
 ---
 --- Parameters:
 ---  * starts - an optional index position within the text of the `hs.styledtext` object indicating the beginning of the substring to return numerical values for.  Defaults to 1, the beginning of the objects text.  If this number is negative, it is counted backwards from the end of the object's text (i.e. -1 would be the last character position).
 ---  * ends   - an optional index position within the text of the `hs.styledtext` object indicating the end of the substring to return numerical values for.  Defaults to the value of `starts`.  If this number is negative, it is counted backwards from the end of the object's text.
 ---
 --- Returns:
----  * a list of integers representing the internal numeric representation of the characters in the `hs.styledtext` object specified by the given indicies.
+---  * a list of integers representing the internal numeric representation of the characters in the `hs.styledtext` object specified by the given indices.
 ---
 --- Notes:
 ---  * `starts` and `ends` follow the conventions of `i` and `j` for Lua's `string.sub` function.
@@ -98,7 +98,7 @@ objectMetatable.byte   = function(self, ...) return self:getString():byte(...) e
 
 --- hs.styledtext:find(pattern, [init, [plain]]) -> start, end, ... | nil
 --- Method
---- Returns the indicies of the first occurrence of the specified pattern in the text of the `hs.styledtext` object.  Mimics the Lua `string.find` function.
+--- Returns the indices of the first occurrence of the specified pattern in the text of the `hs.styledtext` object.  Mimics the Lua `string.find` function.
 ---
 --- Parameters:
 ---  * pattern  - a string containing the pattern to locate.  See the Lua manual, section 6.4.1 (`help.lua._man._6_4_1`) for more details.
