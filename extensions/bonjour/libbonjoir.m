@@ -207,7 +207,7 @@ static int browser_includesPeerToPeer(lua_State *L) {
 ///  * For most non-corporate network users, it is likely that the callback will only be invoked once for the `local` domain. This is normal. Corporate networks or networks including Linux machines using additional domains defined with Avahi may see additional domains as well, though most Avahi installations now use only 'local' by default unless specifically configured to do otherwise.
 ///
 ///  * When `moreExpected` becomes false, it is the macOS's best guess as to whether additional records are available.
-///    * Generally macOS is fairly accurate in this regard concerning domain searchs, so to reduce the impact on system resources, it is recommended that you use [hs.bonjour:stop](#stop) when this parameter is false
+///    * Generally macOS is fairly accurate in this regard concerning domain searches, so to reduce the impact on system resources, it is recommended that you use [hs.bonjour:stop](#stop) when this parameter is false
 //     * If any of your network interfaces are particularly slow or if a host on the network is slow to respond and you are concerned that additional records *may* still be forthcoming, you can use this flag to initiate additional logic or timers to determine how long to remain searching for additional domains.
 static int browser_searchForBrowsableDomains(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
@@ -245,7 +245,7 @@ static int browser_searchForBrowsableDomains(lua_State *L) {
 ///  * For most non-corporate network users, it is likely that the callback will only be invoked once for the `local` domain. This is normal. Corporate networks or networks including Linux machines using additional domains defined with Avahi may see additional domains as well, though most Avahi installations now use only 'local' by default unless specifically configured to do otherwise.
 ///
 ///  * When `moreExpected` becomes false, it is the macOS's best guess as to whether additional records are available.
-///    * Generally macOS is fairly accurate in this regard concerning domain searchs, so to reduce the impact on system resources, it is recommended that you use [hs.bonjour:stop](#stop) when this parameter is false
+///    * Generally macOS is fairly accurate in this regard concerning domain searches, so to reduce the impact on system resources, it is recommended that you use [hs.bonjour:stop](#stop) when this parameter is false
 //     * If any of your network interfaces are particularly slow or if a host on the network is slow to respond and you are concerned that additional records *may* still be forthcoming, you can use this flag to initiate additional logic or timers to determine how long to remain searching for additional domains.
 static int browser_searchForRegistrationDomains(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
