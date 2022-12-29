@@ -402,7 +402,7 @@ static int service_TXTRecordData(lua_State *L) {
 /// Get or set whether the service represented by the service object should be published or resolved over peer-to-peer Bluetooth and Wi-Fi, if available.
 ///
 /// Parameters:
-///  * `value` - an optional boolean, default false, specifying whether advertising and resoloving should occur over peer-to-peer Bluetooth and Wi-Fi, if available.
+///  * `value` - an optional boolean, default false, specifying whether advertising and resolving should occur over peer-to-peer Bluetooth and Wi-Fi, if available.
 ///
 /// Returns:
 ///  * if `value` is provided, returns the serviceObject; otherwise returns the current value.
