@@ -209,7 +209,7 @@ static int target_clear(lua_State* L) {
 ///
 /// Notes:
 ///  * Use `ipairs(hs.settings.getKeys())` to iterate over all available settings
-///  * Use `hs.settings.getKeys()["someKey"]` to test for the existance of a particular key
+///  * Use `hs.settings.getKeys()["someKey"]` to test for the existence of a particular key
 static int target_getKeys(lua_State* L) {
     LuaSkin * skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TBREAK] ;
