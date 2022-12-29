@@ -285,7 +285,7 @@ local function getColor(t) if type(t)~='table' or t.red or not t[1] then return 
 ---  * `hs.expose.ui.highlightThumbnailStrokeWidth = 8` - thumbnail frame thickness for candidate windows
 ---  * `hs.expose.ui.maxHintLetters = 2` - if necessary, hints longer than this will be disambiguated with digits
 ---  * `hs.expose.ui.fitWindowsMaxIterations = 30` -- lower is faster, but higher chance of overlapping thumbnails
----  * `hs.expose.ui.fitWindowsInBackground = false` -- improves responsivenss, but can affect the rest of the config
+---  * `hs.expose.ui.fitWindowsInBackground = false` -- improves responsiveness, but can affect the rest of the config
 
 -- TODO * `hs.expose.ui.fitWindowsMaxIterations = 3`
 -- TODO * `hs.expose.ui.showExtraKeys = true` -- show non-hint keybindings at the top of the screen
