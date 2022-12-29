@@ -215,7 +215,7 @@ end
 
 --- hs.doc.preloadSpoonDocs()
 --- Function
---- Locates all installed Spoon documentation files and and marks them for loading the next time the [hs.doc.help](#help) function is invoked.
+--- Locates all installed Spoon documentation files and marks them for loading the next time the [hs.doc.help](#help) function is invoked.
 ---
 --- Parameters:
 ---  * None
