@@ -132,7 +132,7 @@ int Detectors::processChunk(const float *buffer) {
     m_lowPassBuffer[i] = m_lowPassBuffer[i]*(1.0f-m_lowPassWeight) + newVal*m_lowPassWeight;
 
     // infinite values happen non-deterministically, probably due to glitchy audio input at start of recording
-    // but inifinities it could mess up things forever
+    // but infinities it could mess up things forever
     if(m_lowPassBuffer[i] >= numeric_limits<float>::infinity()) {
       std::fill(m_lowPassBuffer.begin(), m_lowPassBuffer.end(), 0.0f);
       return 0; // discard the frame, it's probably garbage
