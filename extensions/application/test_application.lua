@@ -13,7 +13,7 @@ function testInitWithPid()
   for _,app in pairs(apps) do
     local pidApp = hs.application.applicationForPID(app:pid())
     if pidApp == nil then
-      assertIsEqual(app:name(), nil) -- works in XCode now, but still not in GithubActions
+      assertIsEqual(app:name(), nil) -- works in XCode now, but still not in GitHubActions
     end
     assertIsEqual(app:name(), pidApp:name())
   end

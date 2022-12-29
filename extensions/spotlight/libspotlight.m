@@ -859,7 +859,7 @@ static int item_valueForAttribute(lua_State *L) {
 ///  * `userHome`                - Search the user’s home directory.
 ///
 /// Notes:
-///  * It is uncertain at this time if the `iCloud*` search scopes are actually useful within Hammerspoon as Hammerspoon is not a sandboxed application that uses the iCloud API fo document storage. Further information on your experiences with these scopes, if you use them, is welcome in the Hammerspoon Google Group or at the Hammerspoon Github web site.
+///  * It is uncertain at this time if the `iCloud*` search scopes are actually useful within Hammerspoon as Hammerspoon is not a sandboxed application that uses the iCloud API fo document storage. Further information on your experiences with these scopes, if you use them, is welcome in the Hammerspoon Google Group or at the Hammerspoon GitHub web site.
 static int push_searchScopes(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     lua_newtable(L) ;
