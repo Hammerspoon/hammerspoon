@@ -10,7 +10,7 @@
 ---  * `object.attribute` is a shortcut for `object:attributeValue(attribute)`
 ---  * `object.attribute = value` is a shortcut for `object:setAttributeValue(attribute, value)`
 ---    * If detecting accessibility errors that may occur is necessary, you must use the formal methods [hs.axuielement:attributeValue](#attributeValue) and [hs.axuielement:setAttributeValue](#setAttributeValue)
----    * Note that setting an attribute value is not guaranteeed to work with either method:
+---    * Note that setting an attribute value is not guaranteed to work with either method:
 ---      * internal logic within the receiving application may decline to accept the newly assigned value
 ---      * an accessibility error may occur
 ---      * the element may not be settable (surprisingly this does not return an error, even when [hs.axuielement:isAttributeSettable](#isAttributeSettable) returns false for the attribute specified)
