@@ -87,7 +87,7 @@ end
 --- Notes:
 ---  * macOS will indicate when it believes there are no more advertisements of the type specified by `type` in `domain` by marking the last argument to your callback function as false. This is a best guess and may not always be accurate if your network is slow or some servers on your network are particularly slow to respond.
 ---  * In addition, if you leave the browser running this method, you will get future updates when services are removed because of server shutdowns or added because of new servers being booted up.
----  * Leaving the browser running does consume some system resources though, so you will have to determine, based upon your specific requirements, if this is a concern for your specific task or not. To terminate the browser when you have rtrieved all of the information you reuqire, you can use the [hs.bonjour:stop](#stop) method.
+---  * Leaving the browser running does consume some system resources though, so you will have to determine, based upon your specific requirements, if this is a concern for your specific task or not. To terminate the browser when you have rtrieved all of the information you require, you can use the [hs.bonjour:stop](#stop) method.
 ---
 ---  * The special type "_services._dns-sd._udp." can be used to discover the types of services being advertised on your network. The `hs.bonjour.service` objects returned to the callback function cannot actually be resolved, but you can use the `hs.bonjour.service:name` method to create a list of services that are currently present and being advertised.
 ---    * this special type is used by the shortcut function [hs.bonjour.networkServices](#networkServices) for this specific purpose.
