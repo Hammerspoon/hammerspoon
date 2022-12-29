@@ -799,7 +799,7 @@ screensChangedTimer=timer.new(DISTANT_FUTURE,processScreensChanged):start()
 ---    * `true` - the screen must be currently present (attached and enabled)
 ---    * `false` - the screen must be currently absent
 ---    * an `hs.geometry` point (or constructor argument) - the screen must be present and in this specific
----      position in the current arragement (as per `hs.screen:position()`)
+---      position in the current arrangement (as per `hs.screen:position()`)
 ---
 --- Returns:
 ---  * the `hs.window.layout` object
