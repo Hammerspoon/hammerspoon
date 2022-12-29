@@ -652,7 +652,7 @@ end
 --- Allows customization of the modal resizing grid user interface
 ---
 --- This table contains variables that you can change to customize the look of the modal resizing grid.
---- The default values are shown in the right hand side of the assignements below.
+--- The default values are shown in the right hand side of the assignments below.
 ---
 --- To represent color values, you can use:
 ---  * a table {red=redN, green=greenN, blue=blueN, alpha=alphaN}

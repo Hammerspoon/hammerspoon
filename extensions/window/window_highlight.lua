@@ -35,7 +35,7 @@ local SETTING_ISOLATE_OVERRIDE='hs.window.highlight.isolate.override'
 --- Variable
 --- Allows customization of the highlight overlays and behaviour.
 ---
---- The default values are shown in the right hand side of the assignements below.
+--- The default values are shown in the right hand side of the assignments below.
 ---
 --- To represent color values, you can use:
 ---  * a table {red=redN, green=greenN, blue=blueN, alpha=alphaN}

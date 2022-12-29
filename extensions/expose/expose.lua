@@ -253,7 +253,7 @@ local function getColor(t) if type(t)~='table' or t.red or not t[1] then return 
 --- To have multiple expose instances with different behaviour/looks, use the `uiPrefs` parameter for the constructor;
 --- the passed keys and values will override those in this table for that particular instance.
 ---
---- The default values are shown in the right hand side of the assignements below.
+--- The default values are shown in the right hand side of the assignments below.
 ---
 --- To represent color values, you can use:
 ---  * a table {red=redN, green=greenN, blue=blueN, alpha=alphaN}
