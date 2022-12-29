@@ -337,7 +337,7 @@ local defineHotkeys = function()
         end)
     end)
 
--- because these would interfere with the search field, we let Javascript handle these, see search.lp
+-- because these would interfere with the search field, we let JavaScript handle these, see search.lp
 --    hk:bind({},          "return", nil, function() end)
 --    hk:bind({"shift"},   "return", nil, function() end)
 
