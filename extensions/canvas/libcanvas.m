@@ -2485,7 +2485,7 @@ static int canvas_draggingCallback(lua_State *L) {
 ///  * Most people will probably not need to use this method; See [hs.canvas.useCustomAccessibilitySubrole](#useCustomAccessibilitySubrole) for a discussion as to why this method may be of use when Hammerspoon is being controlled through the accessibility framework by other applications.
 ///
 ///  * If a non empty string is specified as the argument to this method, the string will be returned whenever the canvas object's containing window is queried for its accessibility subrole.
-///  * The other possible values depend upon the value registerd with [hs.canvas.useCustomAccessibilitySubrole](#useCustomAccessibilitySubrole):
+///  * The other possible values depend upon the value registered with [hs.canvas.useCustomAccessibilitySubrole](#useCustomAccessibilitySubrole):
 ///    * If `useCustomAccessibilitySubrole` is set to true (the default):
 ///      * If an explicit `nil` (the default) is specified for this method, the string returned when the canvas object's accessibility is queried will be the default macOS subrole for the canvas's window with the string ".Hammerspoon` appended to it.
 ///      * If the empty string is specified (e.g. `""`), then the default macOS subrole for the canvas's window will be returned.
