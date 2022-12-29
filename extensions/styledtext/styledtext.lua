@@ -151,7 +151,7 @@ objectMetatable.gmatch = function(self, ...) return self:getString():gmatch(...)
 ---  * separator - an optional string or `hs.styledtext` object to insert between repetitions.
 ---
 --- Returns:
----  * an `hs.styledtext` object which contains `n` repitions of the object, including `separator` between repetitions, if it is specified.
+---  * an `hs.styledtext` object which contains `n` repetitions of the object, including `separator` between repetitions, if it is specified.
 objectMetatable.rep    = function(self, n, sep)
     if n < 1 then return module.new("") end
     local i, result = 1, self:copy()
