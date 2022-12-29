@@ -84,7 +84,7 @@ To create such an extension:
   * Right click on an existing extension target in the "project and targets list" and choose `Duplicate`, which creates `extensionname copy` at the bottom of the list.
   * Rename the copy and drag it to the right place in the list (alphabetically)
   * Click on the target you just created, remove hs.alert's `extension.m` from the `Compile Sources` build phase, add in the `.m` files from your new module
-  * Check the `Link Binary With Libraries` section for any frameworks you need to add. Typically this will jsut mean `LuaSkin.framework`, plus any additional system frameworks you need to link against.
+  * Check the `Link Binary With Libraries` section for any frameworks you need to add. Typically this will just mean `LuaSkin.framework`, plus any additional system frameworks you need to link against.
   * Click on the `Hammerspoon` target (not the project), and in the `Target Dependencies` build phase, add the module target you just created
   * Click the menu item Product → Scheme → Manage Schemes, find `extensionname copy`, rename it and move it to the right place in the list of schemes
   * Add your `modulename.lua` to the "Copy Extension Lua Files" build phase on the Hammerspoon target, and your `modulename.dylib` to the "Copy Extension Dylibs" build phase
