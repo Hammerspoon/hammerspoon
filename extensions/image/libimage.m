@@ -1275,7 +1275,7 @@ static int getImageName(lua_State* L) {
 
 /// hs.image:size([size, [absolute]] ) -> imageObject | size
 /// Method
-/// Get or set the size of the image represented byt he hs.image object.
+/// Get or set the size of the image represented by the hs.image object.
 ///
 /// Parameters:
 ///  * `size`     - an optional table with 'h' and 'w' keys specifying the size for the image.
