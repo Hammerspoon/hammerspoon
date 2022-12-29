@@ -1470,7 +1470,7 @@ static int webview_html(lua_State *L) {
 ///    * `navID`   - a navigation identifier which can be used to link this event back to a specific request made by a `hs.webview:url`, `hs.webview:html`, or `hs.webview:reload` method.
 ///    * `error`   - a table which will only be provided when `action` is equal to `didFailNavigation` or `didFailProvisionalNavigation`.  If provided, it will contain at leas some of the following keys, possibly others as well:
 ///      * `code`        - a numerical value indicating the type of error code.  This will mostly be of use to developers or in debugging and may be removed in the future.
-///      * `domain`      - a string indcating the error domain of the error.  This will mostly be of use to developers or in debugging and may be removed in the future.
+///      * `domain`      - a string indicating the error domain of the error.  This will mostly be of use to developers or in debugging and may be removed in the future.
 ///      * `description` - a string describing the condition or problem that has occurred.
 ///      * `reason`      - if available, more information about what may have caused the problem to occur.
 ///
