@@ -137,7 +137,7 @@ module._tag_handler = function(tag, notification)
   end
 end
 
---- hs.notify.show(title, subTitle, information[, tag]) -> notfication
+--- hs.notify.show(title, subTitle, information[, tag]) -> notification
 --- Constructor
 --- Shorthand constructor to create and show simple notifications
 ---
