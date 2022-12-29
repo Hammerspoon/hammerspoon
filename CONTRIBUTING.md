@@ -95,7 +95,7 @@ To create such an extension:
 
 ### Documenting your extension
 
-Both Lua and Objective-C portions of an extension should contain in-line documention of all of the functions they expose to users of the extension.
+Both Lua and Objective-C portions of an extension should contain in-line documentation of all of the functions they expose to users of the extension.
 
 The format for docstrings should follow the standard described below. Note that for Lua files, the lines should begin with `---` and for Objective C files, the lines should begin with `///`.
 
