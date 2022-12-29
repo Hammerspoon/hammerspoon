@@ -208,7 +208,7 @@ static int browser_includesPeerToPeer(lua_State *L) {
 ///
 ///  * When `moreExpected` becomes false, it is the macOS's best guess as to whether additional records are available.
 ///    * Generally macOS is fairly accurate in this regard concerning domain searchs, so to reduce the impact on system resources, it is recommended that you use [hs.bonjour:stop](#stop) when this parameter is false
-//     * If any of your network interfaces are particularly slow or if a host on the network is slow to respond and you are concerend that additional records *may* still be forthcoming, you can use this flag to initiate additional logic or timers to determine how long to remain searching for additional domains.
+//     * If any of your network interfaces are particularly slow or if a host on the network is slow to respond and you are concerned that additional records *may* still be forthcoming, you can use this flag to initiate additional logic or timers to determine how long to remain searching for additional domains.
 static int browser_searchForBrowsableDomains(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION, LS_TBREAK] ;
@@ -246,7 +246,7 @@ static int browser_searchForBrowsableDomains(lua_State *L) {
 ///
 ///  * When `moreExpected` becomes false, it is the macOS's best guess as to whether additional records are available.
 ///    * Generally macOS is fairly accurate in this regard concerning domain searchs, so to reduce the impact on system resources, it is recommended that you use [hs.bonjour:stop](#stop) when this parameter is false
-//     * If any of your network interfaces are particularly slow or if a host on the network is slow to respond and you are concerend that additional records *may* still be forthcoming, you can use this flag to initiate additional logic or timers to determine how long to remain searching for additional domains.
+//     * If any of your network interfaces are particularly slow or if a host on the network is slow to respond and you are concerned that additional records *may* still be forthcoming, you can use this flag to initiate additional logic or timers to determine how long to remain searching for additional domains.
 static int browser_searchForRegistrationDomains(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION, LS_TBREAK] ;
