@@ -146,7 +146,7 @@ end
 ---   * 194 - Pink
 ---   * 210 - Fuchsia
 ---   * 226 - Lilac
----   * 240 - Lavendar
+---   * 240 - Lavender
 function milightObject:zoneColor(zone, value)
     return colorHelper(self, zone2cmdkey(zone, "on"), value)
 end
