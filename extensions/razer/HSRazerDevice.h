@@ -56,7 +56,7 @@
 
 @property LSGCCanary                        lsCanary;
 
-// Create & Destory the object:
+// Create & Destroy the object:
 - (id)initWithDevice:(IOHIDDeviceRef)device manager:(id)manager;
 - (void)invalidate;
 
