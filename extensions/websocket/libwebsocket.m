@@ -130,7 +130,7 @@ static LSRefTable refTable;
 ///
 /// Notes:
 ///  * The callback should accept two parameters.
-///  * The first paramater is a string with the following possible options:
+///  * The first parameter is a string with the following possible options:
 ///   * open - The websocket connection has been opened
 ///   * closed - The websocket connection has been closed
 ///   * fail - The websocket connection has failed

@@ -123,7 +123,7 @@ end
 ---
 ---  * The service will not be advertised until [hs.bonjour.service:publish](#publish) is invoked on the serviceObject returned.
 ---
----  * If you do not specify the `domain` paramter, your default domain, usually "local" will be used.
+---  * If you do not specify the `domain` parameter, your default domain, usually "local" will be used.
 module.service._new = module.service.new
 module.service.new = function(...)
     local args = table.pack(...)

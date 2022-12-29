@@ -1560,7 +1560,7 @@ function mod.sendHighlightControl(targetID, active)
     -- state: The state to set. 1 for highlighted, 0 for clear (Unsigned Int)
     --------------------------------------------------------------------------------
     if not isNumber(targetID) then
-        return false, "Missing or invalid paramater: targetID."
+        return false, "Missing or invalid parameter: targetID."
     end
     local state = active == true and 1 or 0
 
@@ -1593,7 +1593,7 @@ function mod.sendIndicateControl(targetID, active)
     -- state: The state to set. 1 for indicated, 0 for clear (Unsigned Int)
     --------------------------------------------------------------------------------
     if not isNumber(targetID) then
-        return false, "Missing or invalid paramater: targetID."
+        return false, "Missing or invalid parameter: targetID."
     end
     local state = active == true and 1 or 0
 
