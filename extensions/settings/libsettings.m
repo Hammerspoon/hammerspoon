@@ -281,7 +281,7 @@ static int output_watchers(lua_State *L) {
 
 static int meta_gc(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
-    [watcherManager.watchedKeys enumerateKeysAndObjectsUsingBlock:^(NSString *keyPath, NSMutableDictionary *watchers, __unused BOOL *outterStop) {
+    [watcherManager.watchedKeys enumerateKeysAndObjectsUsingBlock:^(NSString *keyPath, NSMutableDictionary *watchers, __unused BOOL *outerStop) {
         [[NSUserDefaults standardUserDefaults] removeObserver:watcherManager forKeyPath:keyPath context:myKVOContext] ;
         [watchers enumerateKeysAndObjectsUsingBlock:^(__unused NSString *watcherID, NSNumber *refN, __unused BOOL *innerStop) {
             [skin luaUnref:refTable ref:refN.intValue] ;
