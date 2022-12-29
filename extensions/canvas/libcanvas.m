@@ -3768,7 +3768,7 @@ static int pushCompositeTypes(lua_State *L) {
 /// * `transient`                 - The window floats in Spaces and is hidden by Exposé. This is the default behavior if windowLevel is not equal to NSNormalWindowLevel.
 /// * `stationary`                - The window is unaffected by Exposé; it stays visible and stationary, like the desktop window.
 ///
-/// The following have no effect on `hs.canvas` or `hs.drawing` objects, but are included for completness and are expected to be used by future additions.
+/// The following have no effect on `hs.canvas` or `hs.drawing` objects, but are included for completeness and are expected to be used by future additions.
 ///
 /// Only one of these may be active at a time:
 ///
