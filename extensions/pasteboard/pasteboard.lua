@@ -110,7 +110,7 @@ module.callbackWhenChanged = function(...)
               coroutine.applicationYield() -- luacheck: ignore
         end
         callback(module.changeCount(name) ~= count)
-        longTask = nil -- referncing here makes it an upvalue, so it won't be collected
+        longTask = nil -- referencing here makes it an upvalue, so it won't be collected
     end)
     longTask(timer.secondsSinceEpoch(), module.changeCount(name))
 end
