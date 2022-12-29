@@ -471,7 +471,7 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
     // Now fill it with data:
     report.status                 = 0x00;           // Always 0x00 for a New Command
     report.transaction_id.id      = transactionID;  // Allows you to group requests if using multiple devices
-    report.remaining_packets      = 0x00;           // Remaning Packets (using Big Endian Byte Order)
+    report.remaining_packets      = 0x00;           // Remaining Packets (using Big Endian Byte Order)
     report.protocol_type          = 0x00;           // Always seems to be 0x00
     report.data_size              = dataSize;       // How many arguments
     report.command_class          = commandClass;   // The type of command being triggered
