@@ -399,7 +399,7 @@ static int http_encodeForQuery(lua_State *L) {
 ///    * a missing key (e.g. '=value') will be represented as { "" = value }
 ///    * a missing value (e.g. 'key=') will be represented as { key = "" }
 ///    * a missing value with no = (e.g. 'key') will be represented as { key }
-///    * a missing key and value (e.g. '=') will be represente as { "" = "" }
+///    * a missing key and value (e.g. '=') will be represented as { "" = "" }
 ///    * an empty query item (e.g. a query ending in '&' or a query containing && between two other query items) will be represented as { "" }
 ///
 ///  * At present Hammerspoon does not provide a way to represent a URL as a true Objective-C object within the OS X API.  This affects the following keys:
