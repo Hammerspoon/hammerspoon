@@ -256,7 +256,7 @@ static int mouse_mouseAcceleration(lua_State *L) {
 
 /// hs.mouse.scrollDirection() -> string
 /// Function
-/// Gets the system-wide direction of scolling
+/// Gets the system-wide direction of scrolling
 ///
 /// Parameters:
 ///  * None
