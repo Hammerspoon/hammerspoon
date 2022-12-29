@@ -1292,7 +1292,7 @@ int luaopen_hs_libaxuielement(lua_State* L) {
     axuielement_pushParamaterizedAttributesTable(L) ; lua_setfield(L, -2, "parameterizedAttributes") ;
     axuielement_pushActionsTable(L) ;                 lua_setfield(L, -2, "actions") ;
 
-// ditto on these, since they are are actually results, not query-able parameters or actionable
+// ditto on these, since they are actually results, not query-able parameters or actionable
 // commands; however they can be used with elementSearch as values in the criteria to find such.
     axuielement_pushRolesTable(L) ;                   lua_setfield(L, -2, "roles") ;
     axuielement_pushSubrolesTable(L) ;                lua_setfield(L, -2, "subroles") ;
