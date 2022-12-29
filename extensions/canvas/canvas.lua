@@ -2,7 +2,7 @@
 ---
 --- A different approach to drawing in Hammerspoon
 ---
---- `hs.drawing` approaches graphical images as independant primitives, each "shape" being a separate drawing object based on the core primitives: ellipse, rectangle, point, line, text, etc.  This model works well with graphical elements that are expected to be managed individually and don't have complex clipping interactions, but does not scale well when more complex combinations or groups of drawing elements need to be moved or manipulated as a group, and only allows for simple inclusionary clipping regions.
+--- `hs.drawing` approaches graphical images as independent primitives, each "shape" being a separate drawing object based on the core primitives: ellipse, rectangle, point, line, text, etc.  This model works well with graphical elements that are expected to be managed individually and don't have complex clipping interactions, but does not scale well when more complex combinations or groups of drawing elements need to be moved or manipulated as a group, and only allows for simple inclusionary clipping regions.
 ---
 --- This module works by designating a canvas and then assigning a series of graphical primitives to the canvas.  Included in this assignment list are rules about how the individual elements interact with each other within the canvas (compositing and clipping rules), and direct modification of the canvas itself (move, resize, etc.) causes all of the assigned elements to be adjusted as a group.
 ---
@@ -43,7 +43,7 @@
 ---   * `arcRadii`            - Default `true`. Used by the `arc` and `ellipticalArc` types to specify whether or not line segments from the element's center to the start and end angles should be included in the element's visible portion.  This affects whether the object's stroke is a pie-shape or an arc with a chord from the start angle to the end angle.
 ---   * `arcClockwise`        - Default `true`.  Used by the `arc` and `ellipticalArc` types to specify whether the arc should be drawn from the start angle to the end angle in a clockwise (true) direction or in a counter-clockwise (false) direction.
 ---   * `canvas`                - Defaults to nil. A separate canvas object which is to be displayed as an element in this canvas.  The object must not currently belong to a visible window.  Assign nil to this property to release a previously assigned object for use elsewhere as an element or on its own.
----   * `canvasAlpha`           - Default `1.0`.  Specifies the alpha value to apply to the independant canvas element.
+---   * `canvasAlpha`           - Default `1.0`.  Specifies the alpha value to apply to the independent canvas element.
 ---   * `compositeRule`       - A string, default "sourceOver", specifying how this element should be combined with earlier elements of the canvas.  See [hs.canvas.compositeTypes](#compositeTypes) for a list of valid strings and their descriptions.
 ---   * `center`              - Default `{ x = "50%", y = "50%" }`.  Used by the `circle` and `arc` types to specify the center of the canvas element.  The `x` and `y` fields can be specified as numbers or as a string. When specified as a string, the value is treated as a percentage of the canvas size.  See the section on [percentages](#percentages) for more information.
 ---   * `clipToPath`          - Default `false`.   Specifies whether the clipping regions should be temporarily limited to the element's shape while rendering this element or not.  This can be used to produce crisper edges, as seen with `hs.drawing` but reduces stroke width granularity for widths less than 1.0 and causes occasional "missing" lines with the `segments` element type. Ignored for the `canvas`, `image`, `point`, and `text` types.
@@ -441,7 +441,7 @@ end
 ---  * The copy of the canvas will be identical in all respectes except:
 ---    * The new canvas will not have a callback function assigned, even if the original canvas does.
 ---    * The new canvas will not initially be visible, even if the original is.
----  * The new canvas is an independant entity -- any subsequent changes to either canvas will not be reflected in the other canvas.
+---  * The new canvas is an independent entity -- any subsequent changes to either canvas will not be reflected in the other canvas.
 ---
 ---  * This method allows you to display a canvas in multiple places or use it as a canvas element multiple times.
 canvasMT.copy = function(obj)

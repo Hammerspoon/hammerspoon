@@ -233,7 +233,7 @@ module.cliStatus = function(p, s)
     end
     if bin_file and not bin_link then
         if not silent then
-            print([[cli installation problem: 'hs' is an independant file won't be updated when Hammerspoon is.]])
+            print([[cli installation problem: 'hs' is an independent file won't be updated when Hammerspoon is.]])
         end
         broken = true
     end
@@ -245,7 +245,7 @@ module.cliStatus = function(p, s)
     end
     if man_file and not man_link then
         if not silent then
-            print([[cli installation problem: man page for 'hs.1' is an independant file and won't be updated when Hammerspoon is.]])
+            print([[cli installation problem: man page for 'hs.1' is an independent file and won't be updated when Hammerspoon is.]])
         end
         broken = true
     end

@@ -5,7 +5,7 @@ local owMT = debug.getregistry()[USERDATA_TAG]
 
 -- private variables and methods -----------------------------------------
 
--- copied from `hs.fnutils` to keep this file independant of Hammerspoon
+-- copied from `hs.fnutils` to keep this file independent of Hammerspoon
 -- sorts a key-value table by the keys and returns an iterator function usable by the lua `for` command
 local _sortByKeys = function(t, f)
   -- a default, simple comparison that treats keys as strings only if their types differ

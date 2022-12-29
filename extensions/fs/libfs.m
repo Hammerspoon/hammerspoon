@@ -966,7 +966,7 @@ static int hs_fileuti(lua_State *L) {
 /// Parameters:
 ///  * a string containing a file UTI, such as one returned by `hs.fs.fileUTI`.
 ///  * a string specifying the alternate format for the UTI.  This string may be one of the following:
-///     * `extension`  - as a file extension, commonly used for platform independant file sharing when file metadata can't be guaranteed to be cross-platform compatible.  Generally considered unreliable when other file type identification methods are available.
+///     * `extension`  - as a file extension, commonly used for platform independent file sharing when file metadata can't be guaranteed to be cross-platform compatible.  Generally considered unreliable when other file type identification methods are available.
 ///    * `mime`       - as a mime-type, commonly used by Internet applications like web browsers and email applications.
 ///    * `pasteboard` - as an NSPasteboard type (see `hs.pasteboard`).
 ///    * `ostype`     - four character file type, most common pre OS X, but still used in some legacy APIs.
