@@ -135,7 +135,7 @@ typedef NS_OPTIONS(NSUInteger, LS_NSConversionOptions) {
    @define LS_LOG_DEBUG for messages that are usually only of interest during debugging
    @define LS_LOG_INFO for messages that are informative
    @define LS_LOG_WARN for messages that contain warnings
-   @define LS_LOG_ERROR for messages that indicate an error has occured
+   @define LS_LOG_ERROR for messages that indicate an error has occurred
  */
 #define LS_LOG_BREADCRUMB 6
 #define LS_LOG_VERBOSE    5

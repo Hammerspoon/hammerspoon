@@ -26,7 +26,7 @@ static AXUIElementRef system_wide_element() {
 ///  * allWindows - Get all the windows, even those "below" the Dock window.
 ///
 /// Returns:
-///  * `true` is succesful otherwise `false` if an error occured.
+///  * `true` is succesful otherwise `false` if an error occurred.
 ///
 /// Notes:
 ///  * This allows you to get window information without Accessibility Permissions.
@@ -70,7 +70,7 @@ static int window_list(lua_State* L) {
 ///  * value - The number of seconds for the new timeout value.
 ///
 /// Returns:
-///  * `true` is succesful otherwise `false` if an error occured.
+///  * `true` is succesful otherwise `false` if an error occurred.
 static int window_timeout(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs: LS_TNUMBER, LS_TBREAK] ;
@@ -280,7 +280,7 @@ static int window__togglezoom(lua_State* L) {
 ///  * None
 ///
 /// Returns:
-///  * A rect-table containing the bounding frame of the zoom button, or nil if an error occured
+///  * A rect-table containing the bounding frame of the zoom button, or nil if an error occurred
 ///
 /// Notes:
 ///  * The co-ordinates in the rect-table (i.e. the `x` and `y` values) are in absolute co-ordinates, not relative to the window the button is part of, or the screen the window is on

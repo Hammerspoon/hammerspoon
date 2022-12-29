@@ -530,7 +530,7 @@ static LSRefTable refTable = LUA_NOREF;
 ///  * portName - A string containing the port name.
 ///
 /// Returns:
-///  * An `hs.serial` object or `nil` if an error occured.
+///  * An `hs.serial` object or `nil` if an error occurred.
 ///
 /// Notes:
 ///  * A valid port name can be found by checking `hs.serial.availablePortNames()`.
@@ -563,7 +563,7 @@ static int serial_newFromName(lua_State *L) {
 ///  * path - A string containing the path (i.e. "/dev/cu.usbserial").
 ///
 /// Returns:
-///  * An `hs.serial` object or `nil` if an error occured.
+///  * An `hs.serial` object or `nil` if an error occurred.
 ///
 /// Notes:
 ///  * A valid port name can be found by checking `hs.serial.availablePortPaths()`.

@@ -375,7 +375,7 @@ static int socket_disconnect(lua_State *L) {
 ///  * `tag` - An optional integer to assist with labeling reads. It is passed to the callback to assist with implementing [state machines](https://github.com/robbiehanson/CocoaAsyncSocket/wiki/Intro_GCDAsyncSocket#reading--writing) for processing complex protocols.
 ///
 /// Returns:
-///  * The [`hs.socket`](#new) object, or `nil` if an error occured.
+///  * The [`hs.socket`](#new) object, or `nil` if an error occurred.
 ///
 /// Notes:
 ///  * Results are passed to the socket's [callback function](#setCallback), which must be set to use this method.

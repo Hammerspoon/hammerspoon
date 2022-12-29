@@ -816,7 +816,7 @@ static int getExifFromPath(lua_State *L) {
 ///  * path - A string containing the path to an image file on disk
 ///
 /// Returns:
-///  * An `hs.image` object, or nil if an error occured
+///  * An `hs.image` object, or nil if an error occurred
 static int imageFromPath(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TBREAK];
@@ -855,7 +855,7 @@ static int imageFromPath(lua_State *L) {
 ///      * antialias - a boolean indicating whether or not the shape should be antialiased (defaults to true)
 ///
 /// Returns:
-///  * An `hs.image` object, or nil if an error occured
+///  * An `hs.image` object, or nil if an error occurred
 ///
 /// Notes:
 ///  * To use the ASCII diagram image support, see https://github.com/cparnot/ASCIImage and http://cocoamine.net/blog/2015/03/20/replacing-photoshop-with-nsstring/

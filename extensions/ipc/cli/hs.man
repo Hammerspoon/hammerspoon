@@ -124,7 +124,7 @@ if you require this for your custom handler.
 The most common error codes are as follows:
 .Bl -tag -width indent
 .It EX_DATAERR (65)
-A Hammerspoon or Lua error occured when attempting to execute code in a non-interactive mode.
+A Hammerspoon or Lua error occurred when attempting to execute code in a non-interactive mode.
 .It EX_NOINPUT (66)
 There was an error reading from stdin or
 .Pa /path/file
