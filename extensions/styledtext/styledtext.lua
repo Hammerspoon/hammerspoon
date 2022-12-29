@@ -198,7 +198,7 @@ end
 --- Returns an array containing fonts available for the specified font family or nil if no fonts for the specified family are present.
 ---
 --- Parameters:
----  * `familyName` - a string specifying the font family to return available fonts for. The strings should be one of the values returned by the [hs.styledtext.fontFamiles](#fontFamilies) function.
+---  * `familyName` - a string specifying the font family to return available fonts for. The strings should be one of the values returned by the [hs.styledtext.fontFamilies](#fontFamilies) function.
 ---
 --- Returns:
 ---  * a table containing an array of available fonts for the specified family. Each array entry will be a table, also as an array, in the following order:
