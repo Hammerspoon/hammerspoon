@@ -117,7 +117,7 @@ static int axtextmarker_newRange(lua_State *L) {
 // Function
 // Returns the CFTypeID for the AXTextMarkerRef type
 //
-// This is for debugging purposes and is not publicaly documented
+// This is for debugging purposes and is not publicly documented
 static int axtextmarker_AXTextMarkerGetTypeID(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TBREAK] ;
@@ -130,7 +130,7 @@ static int axtextmarker_AXTextMarkerGetTypeID(lua_State *L) {
 // Function
 // Returns the CFTypeID for the AXTextMarkerRangeRef type
 //
-// This is for debugging purposes and is not publicaly documented
+// This is for debugging purposes and is not publicly documented
 static int axtextmarker_AXTextMarkerRangeGetTypeID(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TBREAK] ;
