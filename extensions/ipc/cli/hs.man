@@ -40,7 +40,7 @@ Executes the specified code. May be specified more than once and the commands wi
 .Fl i
 and
 .Fl N
-unless they are also explicitely specified in the argument list.
+unless they are also explicitly specified in the argument list.
 .It Fl C
 Enable print cloning from the Hammerspoon Console to this instance. Disables
 .Fl P.
@@ -86,7 +86,7 @@ Specifies a file containing Hammerspoon code to load and execute. Must start wit
 .Fl N
 or
 .Fl i
-are also explicitely specified in the argument list. Any arguments which follow this are passed into the cli instance as custom arguments.
+are also explicitly specified in the argument list. Any arguments which follow this are passed into the cli instance as custom arguments.
 .It Fl h | Fl ?
 Displays a brief summary of the available command line arguments and exits.
 .El
