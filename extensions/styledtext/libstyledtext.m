@@ -14,52 +14,48 @@ static LSRefTable refTable;
 // Lua string and the values are the corresponding character positions in the NSString.
 NSDictionary *luaByteToObjCharMap(NSString *theString) {
     NSMutableDictionary *luaByteToObjChar = [[NSMutableDictionary alloc] init];
-    NSData *rawString                     = [theString dataUsingEncoding:NSUTF8StringEncoding];
 
-    if (rawString) {
-        NSUInteger luaPos  = 1; // for testing purposes, match what the lua equiv generates
-        NSUInteger objCPos = 0; // may switch back to 0 if ends up easier when using for real...
+    NSUInteger luaPos = 1 ;
+    for (NSUInteger i = 0 ; i < theString.length ; i++) {
+        NSString *utf16Char = [theString substringWithRange:NSMakeRange(i, 1)] ;
+        unichar utf16Unichar = [utf16Char characterAtIndex:0] ;
+        if (CFStringIsSurrogateHighCharacter(utf16Unichar)) {
+            utf16Char = [theString substringWithRange:NSMakeRange(i, 2)] ;
+        }
+        NSData     *utf8Data        = [utf16Char dataUsingEncoding:NSUTF8StringEncoding] ;
+        NSUInteger dataLength       = utf8Data.length ;
+        BOOL       surrogateHandled = (utf16Char.length == 1) ; // false only required if length = 2
 
-        while ((luaPos - 1) < [rawString length]) {
-            Byte thisByte;
-            [rawString getBytes:&thisByte range:NSMakeRange(luaPos - 1, 1)];
-            // we're taking some liberties and making assumptions here because the above conversion
-            // to NSData should make sure that what we have is valid UTF8, i.e. one of:
-            //    00..7F
-            //    C2..DF 80..BF
-            //    E0     A0..BF 80..BF
-            //    E1..EC 80..BF 80..BF
-            //    ED     80..9F 80..BF
-            //    EE..EF 80..BF 80..BF
-            //    F0     90..BF 80..BF 80..BF
-            //    F1..F3 80..BF 80..BF 80..BF
-            //    F4     80..8F 80..BF 80..BF
-            if ((thisByte >= 0x00 && thisByte <= 0x7F) || (thisByte >= 0xC0)) {
-                objCPos++;
+        for (NSUInteger j = 0 ; j < dataLength ; j++) {
+            // trick for high/low surrogate pairs
+            if (!surrogateHandled && j >= (dataLength / 2)) {
+                i++ ;
+                surrogateHandled = YES ;
             }
-            [luaByteToObjChar setObject:[NSNumber numberWithUnsignedInteger:objCPos]
+            [luaByteToObjChar setObject:[NSNumber numberWithUnsignedInteger:i + 1]
                                  forKey:[NSNumber numberWithUnsignedInteger:luaPos]];
-            luaPos++;
+            luaPos++ ;
         }
     }
+
     return luaByteToObjChar;
 }
 
 // // validate mapping function
-// static int luaToObjCMap(lua_State *L) {
-//     LuaSkin *skin = [LuaSkin sharedWithState:L];
-//     NSString *theString = [NSString stringWithUTF8String:lua_tostring(L, 1)];
-//     NSDictionary *theMap = luaByteToObjCharMap(theString);
-//     [skin pushNSObject:theMap];
-//     lua_newtable(L);
-//     for (NSNumber *entry in [theMap allValues]) {
-//         [skin pushNSObject:entry];
-//         [skin pushNSObject:[[theMap allKeysForObject:entry]
-//                                         sortedArrayUsingSelector: @selector(compare:)]];
-//         lua_settable(L, -3);
-//     }
-//     return 2;
-// }
+static int luaToObjCMap(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    NSString *theString = [NSString stringWithUTF8String:lua_tostring(L, 1)];
+    NSDictionary *theMap = luaByteToObjCharMap(theString);
+    [skin pushNSObject:theMap];
+    lua_newtable(L);
+    for (NSNumber *entry in [theMap allValues]) {
+        [skin pushNSObject:entry];
+        [skin pushNSObject:[[theMap allKeysForObject:entry]
+                                        sortedArrayUsingSelector: @selector(compare:)]];
+        lua_settable(L, -3);
+    }
+    return 2;
+}
 
 #pragma mark - NSAttributedString Constructors
 
@@ -1312,27 +1308,6 @@ static int registerFontByPath(lua_State *L) {
 
 #pragma mark - Methods to mimic Lua's string type as closely as possible
 
-/// hs.styledtext:len() -> integer
-/// Method
-/// Returns the length of the text of the `hs.styledtext` object.  Mimics the Lua `string.len` function.
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * an integer which is the length of the text of the `hs.styledtext` object.
-static int string_len(lua_State *L) {
-    LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
-    NSAttributedString *theString = get_objectFromUserdata(__bridge NSAttributedString, L, 1);
-
-    // Lua indexes strings by byte, objective-c by char
-    NSDictionary *theMap = luaByteToObjCharMap([theString string]);
-
-    lua_pushinteger(L, (lua_Integer)[theMap count]);
-    return 1;
-}
-
 /// hs.styledtext:upper() -> styledText object
 /// Method
 /// Returns a copy of the `hs.styledtext` object with all alpha characters converted to upper case.  Mimics the Lua `string.upper` function.
@@ -2307,15 +2282,16 @@ static int userdata_le(lua_State *L) {
     return 1;
 }
 
+/// hs.styledtext:len() -> integer
+/// Method
+/// Returns the length of the text of the `hs.styledtext` object.  Mimics the Lua `string.len` function.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * an integer which is the length of the text of the `hs.styledtext` object.
 static int userdata_len(lua_State *L) {
-    // Oddly, lua passes the userdata object as argument 1 *AND* argument 2 to this metamethod, so simply using
-    // the duplication of the string.length method above which checks for 1 and only 1 argument won't work.  I
-    // suppose we could point "len" to this one, since it ignores arguments other than the first, but I prefer
-    // proper data validation in functions/methods which get called by the user explicitly.
-    //     int x = lua_gettop(L);
-    //     lua_getglobal(L, "print");
-    //     for (int i = 1; i <= x; i++) { lua_pushvalue(L, i); }
-    //     lua_call(L, x, 0);
     NSAttributedString *theString = get_objectFromUserdata(__bridge NSAttributedString, L, 1);
 
     // Lua indexes strings by byte, objective-c by char
@@ -2353,7 +2329,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {"setString", string_replaceSubstringForRange},
     {"convert", string_convert},
 
-    {"len", string_len},
+    {"len", userdata_len},
     {"upper", string_upper},
     {"lower", string_lower},
     {"sub", string_sub},
@@ -2372,7 +2348,7 @@ static luaL_Reg moduleLib[] = {
     {"new", string_new},
     {"getStyledTextFromFile", getStyledTextFromFile},
     {"getStyledTextFromData", getStyledTextFromData},
-    //     {"luaToObjCMap"         , luaToObjCMap},
+    {"luaToObjCMap"         , luaToObjCMap},
 
     {"loadFont", registerFontByPath},
     {"convertFont", font_convertFont},
