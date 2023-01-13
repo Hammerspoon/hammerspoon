@@ -509,7 +509,7 @@ module = setmetatable(module, {
             return rawget(self, _)
         end
     end,
-    __call = function(self, ...)
+    __call = function(self, ...) -- luacheck: ignore
         return module.new(...)
     end
 })
