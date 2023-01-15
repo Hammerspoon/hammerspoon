@@ -377,7 +377,7 @@ void deviceWatcherDoCallback(CMIODeviceID deviceId, NSString *event) {
 
 /// hs.camera.startWatcher()
 /// Function
-/// Stops the camera devices watcher
+/// Starts the camera devices watcher
 ///
 /// Parameters:
 ///  * None
