@@ -85,7 +85,8 @@ local _dockElement
 local getDockElement = function()
     -- if the Dock is killed for some reason, its element will be invalid
     if not (_dockElement and _dockElement:isValid()) then
-        _dockElement = axuielement.applicationElement(application("Dock"))
+        local dockApp = hs.application.applicationsForBundleID("com.apple.dock")[1]
+        _dockElement = axuielement.applicationElement(dockApp)
     end
     return _dockElement
 end
