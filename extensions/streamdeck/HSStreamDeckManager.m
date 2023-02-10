@@ -174,7 +174,7 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
             break;
             
         case USB_PID_STREAMDECK_MINI_V2:
-            deck = [[HSStreamDeckDeviceMiniV2 alloc] initWithDevice:device manager:self];
+            deck = [[HSStreamDeckDeviceMini alloc] initWithDevice:device manager:self];
             break;
 
         case USB_PID_STREAMDECK_XL:
