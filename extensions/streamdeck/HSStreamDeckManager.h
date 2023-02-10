@@ -16,7 +16,6 @@
 #import "HSStreamDeckDeviceOriginal.h"
 #import "HSStreamDeckDeviceOriginalV2.h"
 #import "HSStreamDeckDeviceMini.h"
-#import "HSStreamDeckDeviceMiniV2.h"
 #import "HSStreamDeckDeviceXL.h"
 #import "HSStreamDeckDeviceMk2.h"
 #import "streamdeck.h"
