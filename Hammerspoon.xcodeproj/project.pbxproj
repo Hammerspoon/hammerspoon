@@ -9,8 +9,6 @@
 /* Begin PBXBuildFile section */
 		220B882A27F8F954006C0B2B /* test_image.lua in Resources */ = {isa = PBXBuildFile; fileRef = 220B882927F8F954006C0B2B /* test_image.lua */; };
 		220B882C27F8F9A3006C0B2B /* HSimage.m in Sources */ = {isa = PBXBuildFile; fileRef = 220B882B27F8F9A3006C0B2B /* HSimage.m */; };
-		223D23BD2994690C00867DEE /* HSStreamDeckDeviceMiniV2.h in Headers */ = {isa = PBXBuildFile; fileRef = 223D23BB2994690C00867DEE /* HSStreamDeckDeviceMiniV2.h */; };
-		223D23BE2994690C00867DEE /* HSStreamDeckDeviceMiniV2.m in Sources */ = {isa = PBXBuildFile; fileRef = 223D23BC2994690C00867DEE /* HSStreamDeckDeviceMiniV2.m */; };
 		224BA32A23D1ECA900487FDB /* libwebsocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 224BA32523D1E63A00487FDB /* libwebsocket.m */; };
 		22613FF51F2A127E00E05E11 /* libdialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 22613FE41F297B9B00E05E11 /* libdialog.m */; };
 		22652B39251C38AC000FF14D /* TouchEvents.c in Sources */ = {isa = PBXBuildFile; fileRef = 22652B37251C38AB000FF14D /* TouchEvents.c */; };
@@ -1583,8 +1581,6 @@
 		2213843027A105DD0085CA24 /* HSRazerDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSRazerDevice.h; path = extensions/razer/HSRazerDevice.h; sourceTree = "<group>"; };
 		2213843127A105DD0085CA24 /* HSRazerDevice.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSRazerDevice.m; path = extensions/razer/HSRazerDevice.m; sourceTree = "<group>"; };
 		2213843227A105DD0085CA24 /* HSRazerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSRazerManager.h; path = extensions/razer/HSRazerManager.h; sourceTree = "<group>"; };
-		223D23BB2994690C00867DEE /* HSStreamDeckDeviceMiniV2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSStreamDeckDeviceMiniV2.h; path = extensions/streamdeck/HSStreamDeckDeviceMiniV2.h; sourceTree = "<group>"; };
-		223D23BC2994690C00867DEE /* HSStreamDeckDeviceMiniV2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSStreamDeckDeviceMiniV2.m; path = extensions/streamdeck/HSStreamDeckDeviceMiniV2.m; sourceTree = "<group>"; };
 		224BA32523D1E63A00487FDB /* libwebsocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libwebsocket.m; path = extensions/websocket/libwebsocket.m; sourceTree = "<group>"; };
 		224BA33223D1ECA900487FDB /* libwebsocket.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libwebsocket.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		224BA33423D1EE6F00487FDB /* websocket.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = websocket.lua; path = extensions/websocket/websocket.lua; sourceTree = "<group>"; };
@@ -3028,8 +3024,6 @@
 				4F2DF3F31F605A9B00742D08 /* HSStreamDeckDevice.m */,
 				4F6653E8238C6B6600DEE120 /* HSStreamDeckDeviceMini.h */,
 				4F6653E9238C6B6600DEE120 /* HSStreamDeckDeviceMini.m */,
-				223D23BB2994690C00867DEE /* HSStreamDeckDeviceMiniV2.h */,
-				223D23BC2994690C00867DEE /* HSStreamDeckDeviceMiniV2.m */,
 				4F6653E4238C36F100DEE120 /* HSStreamDeckDeviceOriginal.h */,
 				4F6653E5238C36F100DEE120 /* HSStreamDeckDeviceOriginal.m */,
 				4FFB20FE23CD14A400811E77 /* HSStreamDeckDeviceOriginalV2.h */,
@@ -4451,7 +4445,6 @@
 				4F2DF3F41F605A9B00742D08 /* HSStreamDeckDevice.h in Headers */,
 				4F6653F62390351100DEE120 /* NSImage+JPEG.h in Headers */,
 				4F6653E6238C36F100DEE120 /* HSStreamDeckDeviceOriginal.h in Headers */,
-				223D23BD2994690C00867DEE /* HSStreamDeckDeviceMiniV2.h in Headers */,
 				4F5560A1279F6A0300B91FD8 /* HSStreamDeckDeviceMk2.h in Headers */,
 				4F2DF3F81F6170BE00742D08 /* NSImage+BMP.h in Headers */,
 				4F2DF3F01F605A4900742D08 /* HSStreamDeckManager.h in Headers */,
@@ -7233,7 +7226,6 @@
 				4FFB210123CD14A500811E77 /* HSStreamDeckDeviceOriginalV2.m in Sources */,
 				4FFB20FD23C5E01300811E77 /* HSStreamDeckDeviceXL.m in Sources */,
 				4F2DF3F51F605A9B00742D08 /* HSStreamDeckDevice.m in Sources */,
-				223D23BE2994690C00867DEE /* HSStreamDeckDeviceMiniV2.m in Sources */,
 				4F5560A2279F6A0300B91FD8 /* HSStreamDeckDeviceMk2.m in Sources */,
 				4F6653EB238C6B6600DEE120 /* HSStreamDeckDeviceMini.m in Sources */,
 				4F6653E7238C36F100DEE120 /* HSStreamDeckDeviceOriginal.m in Sources */,
