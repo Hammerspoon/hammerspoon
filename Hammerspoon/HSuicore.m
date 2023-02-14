@@ -35,12 +35,16 @@
 }
 
 +(NSString *)pathForBundleID:(NSString *)bundleID {
-    return [[NSWorkspace sharedWorkspace] absolutePathForAppBundleWithIdentifier:bundleID];
+    NSString *path = @"";
+    NSURL *url = [[NSWorkspace sharedWorkspace] URLForApplicationWithBundleIdentifier:bundleID];
+    if (url) {
+        path = url.path;
+    }
+    return path;
 }
 
 +(NSDictionary *)infoForBundleID:(NSString *)bundleID {
-    NSWorkspace *ws = [NSWorkspace sharedWorkspace];
-    NSString *appPath = [ws absolutePathForAppBundleWithIdentifier:bundleID];
+    NSString *appPath = [HSapplication pathForBundleID:bundleID];
     return [HSapplication infoForBundlePath:appPath];
 }
 
@@ -55,8 +59,7 @@
 }
 
 +(NSArray *)preferredLocalizationsForBundleID:(NSString *)bundleID {
-    NSWorkspace *ws = [NSWorkspace sharedWorkspace];
-    NSString *appPath = [ws absolutePathForAppBundleWithIdentifier:bundleID];
+    NSString *appPath = [HSapplication pathForBundleID:bundleID];
     return [HSapplication preferredLocalizationsForBundlePath:appPath];
 }
 
@@ -71,8 +74,7 @@
 }
 
 +(NSArray *)localizationsForBundleID:(NSString *)bundleID {
-    NSWorkspace *ws = [NSWorkspace sharedWorkspace];
-    NSString *appPath = [ws absolutePathForAppBundleWithIdentifier:bundleID];
+    NSString *appPath = [HSapplication pathForBundleID:bundleID];
     return [HSapplication localizationsForBundlePath:appPath];
 }
 

@@ -1077,7 +1077,13 @@ static int imageFromURL(lua_State *L) {
 static int imageFromApp(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TBREAK];
-    NSString *imagePath = [[NSWorkspace sharedWorkspace] absolutePathForAppBundleWithIdentifier:[skin toNSObjectAtIndex:1]];
+
+    NSString *imagePath = @"";
+    NSURL *url = [[NSWorkspace sharedWorkspace] URLForApplicationWithBundleIdentifier:[skin toNSObjectAtIndex:1]];
+    if (url) {
+        imagePath = url.path;
+    }
+
     NSImage *iconImage = imagePath ? [[NSWorkspace sharedWorkspace] iconForFile:imagePath] : missingIconForFile ;
 
     if (iconImage) {

@@ -7161,7 +7161,7 @@
 			attributes = {
 				CLASSPREFIX = HS;
 				DefaultBuildSystemTypeForWorkspace = Latest;
-				LastUpgradeCheck = 1320;
+				LastUpgradeCheck = 1420;
 				ORGANIZATIONNAME = "LateNite Films";
 				TargetAttributes = {
 					22451847281ADF8400997BB0 = {
@@ -7405,6 +7405,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		4F251E7F1A49D5BE00AB6103 /* Prepare secret header file */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -7438,6 +7439,7 @@
 		};
 		4FC09F7A19F99E48007542A6 /* Compile docs.json */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
