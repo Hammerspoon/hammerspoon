@@ -73,6 +73,8 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
                                           productIDKey: @USB_PID_STREAMDECK_ORIGINAL_V2};
         NSDictionary *matchMini       = @{vendorIDKey:  @USB_VID_ELGATO,
                                           productIDKey: @USB_PID_STREAMDECK_MINI};
+        NSDictionary *matchMiniV2       = @{vendorIDKey:  @USB_VID_ELGATO,
+                                          productIDKey: @USB_PID_STREAMDECK_MINI_V2};
         NSDictionary *matchXL         = @{vendorIDKey:  @USB_VID_ELGATO,
                                           productIDKey: @USB_PID_STREAMDECK_XL};
         NSDictionary *matchMk2        = @{vendorIDKey:  @USB_VID_ELGATO,
@@ -82,6 +84,7 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
                                               (__bridge CFArrayRef)@[matchOriginal,
                                                                      matchOriginalv2,
                                                                      matchMini,
+                                                                     matchMiniV2,
                                                                      matchXL,
                                                                      matchMk2]);
 
@@ -167,6 +170,10 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
             break;
 
         case USB_PID_STREAMDECK_MINI:
+            deck = [[HSStreamDeckDeviceMini alloc] initWithDevice:device manager:self];
+            break;
+            
+        case USB_PID_STREAMDECK_MINI_V2:
             deck = [[HSStreamDeckDeviceMini alloc] initWithDevice:device manager:self];
             break;
 
