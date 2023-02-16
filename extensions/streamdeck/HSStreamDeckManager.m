@@ -73,12 +73,14 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
                                           productIDKey: @USB_PID_STREAMDECK_ORIGINAL_V2};
         NSDictionary *matchMini       = @{vendorIDKey:  @USB_VID_ELGATO,
                                           productIDKey: @USB_PID_STREAMDECK_MINI};
-        NSDictionary *matchMiniV2       = @{vendorIDKey:  @USB_VID_ELGATO,
+        NSDictionary *matchMiniV2     = @{vendorIDKey:  @USB_VID_ELGATO,
                                           productIDKey: @USB_PID_STREAMDECK_MINI_V2};
         NSDictionary *matchXL         = @{vendorIDKey:  @USB_VID_ELGATO,
                                           productIDKey: @USB_PID_STREAMDECK_XL};
         NSDictionary *matchMk2        = @{vendorIDKey:  @USB_VID_ELGATO,
                                           productIDKey: @USB_PID_STREAMDECK_MK2};
+        NSDictionary *matchPlus       = @{vendorIDKey:  @USB_VID_ELGATO,
+                                          productIDKey: @USB_PID_STREAMDECK_PLUS};
 
         IOHIDManagerSetDeviceMatchingMultiple((__bridge IOHIDManagerRef)self.ioHIDManager,
                                               (__bridge CFArrayRef)@[matchOriginal,
@@ -86,7 +88,8 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
                                                                      matchMini,
                                                                      matchMiniV2,
                                                                      matchXL,
-                                                                     matchMk2]);
+                                                                     matchMk2,
+                                                                     matchPlus]);
 
         // Add our callbacks for relevant events
         IOHIDManagerRegisterDeviceMatchingCallback((__bridge IOHIDManagerRef)self.ioHIDManager,
@@ -189,6 +192,10 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
             deck = [[HSStreamDeckDeviceMk2 alloc] initWithDevice:device manager:self];
             break;
 
+        case USB_PID_STREAMDECK_PLUS:
+            deck = [[HSStreamDeckDevicePlus alloc] initWithDevice:device manager:self];
+            break;
+            
         default:
             NSLog(@"deviceDidConnect from unknown device: %d", productID.intValue);
             break;
