@@ -20,9 +20,11 @@
         self.isValid = YES;
         self.manager = manager;
         self.buttonCallbackRef = LUA_NOREF;
+        self.encoderCallbackRef = LUA_NOREF;
         self.selfRefCount = 0;
 
         self.buttonStateCache = [[NSMutableArray alloc] init];
+        self.encoderButtonStateCache = [[NSMutableArray alloc] init];
 
         // These defaults are not necessary, all base classes will override them, but if we miss something, these are chosen to try and provoke a crash where possible, so we notice the lack of an override.
         self.imageCodec = STREAMDECK_CODEC_UNKNOWN;
@@ -36,8 +38,15 @@
         self.reportLength = 0;
         self.reportHeaderLength = 0;
 
+        self.encoderColumns = 0;
+        self.encoderRows = 0;
+        
+        self.lcdStripWidth = 0;
+        self.lcdStripHeight = 0;
+        
         self.dataKeyOffset = 0;
-
+        self.dataEncoderOffset = 0;
+        
         self.resetCommand = nil;
         self.setBrightnessCommand = nil;
         self.serialNumberCommand = 0;
@@ -60,6 +69,11 @@
     for (int i = 0; i <= self.keyCount; i++) {
         [self.buttonStateCache setObject:@0 atIndexedSubscript:i];
     }
+    
+    for (int i = 0; i <= self.encoderCount; i++) {
+        [self.encoderButtonStateCache setObject:@0 atIndexedSubscript:i];
+    }
+    
     [self cacheSerialNumber];
 }
 
@@ -142,6 +156,78 @@
             self.buttonStateCache[button] = newButtonStates[button];
         }
     }
+
+    _lua_stackguard_exit(skin.L);
+}
+
+- (void)deviceDidSendEncoderInput:(NSArray*)newPressEncoderStates {
+    
+    if (!self.isValid) {
+        return;
+    }
+
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+    _lua_stackguard_entry(skin.L);
+
+    if (![skin checkGCCanary:self.lsCanary]) {
+        _lua_stackguard_exit(skin.L);
+        return;
+    }
+
+    if (self.encoderCallbackRef == LUA_NOREF || self.encoderCallbackRef == LUA_REFNIL) {
+        [skin logError:@"hs.streamdeck received an encoder button input, but no callback has been set. See hs.streamdeck:encoderCallback()"];
+        return;
+    }
+
+    //NSLog(@"buttonStateCache: %@", self.buttonStateCache);
+    //NSLog(@"newButtonStates: %@", newButtonStates);
+
+    for (int button=1; button <= self.encoderCount; button++) {
+        if (![self.encoderButtonStateCache[button] isEqual:newPressEncoderStates[button]]) {
+            [skin pushLuaRef:streamDeckRefTable ref:self.encoderCallbackRef];
+            [skin pushNSObject:self];
+            lua_pushinteger(skin.L, button);
+            lua_pushboolean(skin.L, ((NSNumber*)(newPressEncoderStates[button])).boolValue);
+            lua_pushboolean(skin.L, false);
+            lua_pushboolean(skin.L, false);
+            [skin protectedCallAndError:@"hs.streamdeck:encoderCallback" nargs:5 nresults:0];
+            self.encoderButtonStateCache[button] = newPressEncoderStates[button];
+        }
+        
+    }
+
+    _lua_stackguard_exit(skin.L);
+}
+
+- (void)deviceDidSendEncoderTurnWithButton:(NSNumber*)button turningLeft:(BOOL)turningLeft {
+    
+    if (!self.isValid) {
+        return;
+    }
+
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+    _lua_stackguard_entry(skin.L);
+
+    if (![skin checkGCCanary:self.lsCanary]) {
+        _lua_stackguard_exit(skin.L);
+        return;
+    }
+
+    if (self.encoderCallbackRef == LUA_NOREF || self.encoderCallbackRef == LUA_REFNIL) {
+        [skin logError:@"hs.streamdeck received an encoder button input, but no callback has been set. See hs.streamdeck:encoderCallback()"];
+        return;
+    }
+
+    //NSLog(@"buttonStateCache: %@", self.buttonStateCache);
+    //NSLog(@"newButtonStates: %@", newButtonStates);
+    
+    [skin pushLuaRef:streamDeckRefTable ref:self.encoderCallbackRef];
+    [skin pushNSObject:self];
+    lua_pushinteger(skin.L, [button intValue]);
+    lua_pushboolean(skin.L, false);
+    lua_pushboolean(skin.L, turningLeft);
+    lua_pushboolean(skin.L, !turningLeft);
+    [skin protectedCallAndError:@"hs.streamdeck:encoderCallback" nargs:5 nresults:0];
 
     _lua_stackguard_exit(skin.L);
 }
@@ -239,6 +325,10 @@
 
 - (int)getKeyCount {
     return self.keyColumns * self.keyRows;
+}
+
+- (int)getEncoderCount {
+    return self.encoderColumns * self.encoderRows;
 }
 
 - (void)clearImage:(int)button {

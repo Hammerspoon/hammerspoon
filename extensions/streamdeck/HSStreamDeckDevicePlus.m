@@ -25,7 +25,15 @@
         self.simpleReportLength = 32;
         self.reportLength = 1024;
         self.reportHeaderLength = 8;
+        
         self.dataKeyOffset = 4;
+        self.dataEncoderOffset = 5;
+        
+        self.encoderColumns = 4;
+        self.encoderRows = 1;
+        
+        self.lcdStripWidth = 800;
+        self.lcdStripHeight = 100;
 
         uint8_t resetHeader[] = {0x03, 0x02};
         self.resetCommand = [NSData dataWithBytes:resetHeader length:2];
