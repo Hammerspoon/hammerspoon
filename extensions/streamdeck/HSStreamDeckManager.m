@@ -12,24 +12,89 @@
 
 static char *inputBuffer = NULL;
 
-static void HIDReport(void* deviceRef, IOReturn result, void* sender, IOHIDReportType type, uint32_t reportID, uint8_t *report,CFIndex reportLength) {
+static void HIDReport(void* deviceRef, IOReturn result, void* sender, IOHIDReportType type, uint32_t reportID, uint8_t *report, CFIndex reportLength) {
     HSStreamDeckDevice *device = (__bridge HSStreamDeckDevice*)deviceRef;
-    NSMutableArray* buttonReport = [NSMutableArray arrayWithCapacity:device.keyCount+1];
+    
+    uint8_t inputType = report[1];
+    if (inputType == 0x00) {
+        // -------------
+        // BUTTON EVENT:
+        // -------------
+        NSMutableArray* buttonReport = [NSMutableArray arrayWithCapacity:device.keyCount+1];
 
-    // We need an unused button at slot zero - all our uses of these arrays are one-indexed
-    [buttonReport setObject:[NSNumber numberWithInt:0] atIndexedSubscript:0];
+        // We need an unused button at slot zero - all our uses of these arrays are one-indexed
+        [buttonReport setObject:[NSNumber numberWithInt:0] atIndexedSubscript:0];
 
-    for(int p=1; p <= device.keyCount; p++) {
-        [buttonReport setObject:@0 atIndexedSubscript:p];
+        for(int p=1; p <= device.keyCount; p++) {
+            [buttonReport setObject:@0 atIndexedSubscript:p];
+        }
+
+        uint8_t *start = report + device.dataKeyOffset;
+        for(int button=1; button <= device.keyCount; button ++) {
+            NSNumber* val = [NSNumber numberWithInt:start[button-1]];
+            int translatedButton = [device transformKeyIndex:button];
+            [buttonReport setObject:val atIndexedSubscript:translatedButton];
+        }
+        [device deviceDidSendInput:buttonReport];
+    } else if (inputType == 0x02) {
+        // ----------
+        // LCD EVENT:
+        // ----------
+        NSLog(@"[HSStreamDeckManager] It's a LCD Event!");
+        
+        uint8_t eventType = report[4];
+        if (eventType == 0x01) {
+            NSLog(@"[HSStreamDeckManager] LCD Short Press");
+        } else if (eventType == 0x02) {
+            NSLog(@"[HSStreamDeckManager] LCD Long Press");
+        } else if (eventType == 0x03) {
+            NSLog(@"[HSStreamDeckManager] LCD Swipe");
+        }
+        
+    } else if (inputType == 0x03) {
+        // --------------
+        // ENCODER EVENT:
+        // --------------
+        //NSLog(@"[HSStreamDeckManager] It's an Encoder Event!");
+        
+        uint8_t eventType = report[4];
+        if (eventType == 0x00) {
+            // ----------------------
+            // ENCODER PRESS/RELEASE:
+            // ----------------------
+            NSMutableArray* buttonReport = [NSMutableArray arrayWithCapacity:device.encoderCount+1];
+
+            // We need an unused button at slot zero - all our uses of these arrays are one-indexed
+            [buttonReport setObject:[NSNumber numberWithInt:0] atIndexedSubscript:0];
+
+            for(int p=1; p <= device.encoderCount; p++) {
+                [buttonReport setObject:@0 atIndexedSubscript:p];
+            }
+
+            uint8_t *start = report + device.dataEncoderOffset;
+            for(int button=1; button <= device.encoderCount; button ++) {
+                NSNumber* val = [NSNumber numberWithInt:start[button-1]];
+                int translatedButton = [device transformKeyIndex:button];
+                [buttonReport setObject:val atIndexedSubscript:translatedButton];
+            }
+            [device deviceDidSendEncoderInput:buttonReport];
+        } else if (eventType == 0x01) {
+            // -------------
+            // ENCODER TURN:
+            // -------------
+            uint8_t *start = report + device.dataEncoderOffset;
+            for(int button=1; button <= device.encoderCount; button ++) {
+                int value = start[button-1];
+                if (value > 0) {
+                    BOOL turningLeft = NO;
+                    if (value >= 200) {
+                        turningLeft = YES;
+                    }
+                    [device deviceDidSendEncoderTurnWithButton:[NSNumber numberWithInt:button] turningLeft:turningLeft];
+                }
+            }
+        }
     }
-
-    uint8_t *start = report + device.dataKeyOffset;
-    for(int button=1; button <= device.keyCount; button ++) {
-        NSNumber* val = [NSNumber numberWithInt:start[button-1]];
-        int translatedButton = [device transformKeyIndex:button];
-        [buttonReport setObject:val atIndexedSubscript:translatedButton];
-    }
-    [device deviceDidSendInput:buttonReport];
 }
 
 static void HIDconnect(void *context, IOReturn result, void *sender, IOHIDDeviceRef device) {

@@ -133,6 +133,35 @@ static int streamdeck_buttonCallback(lua_State *L) {
     return 1;
 }
 
+/// hs.streamdeck:encoderCallback(fn)
+/// Method
+/// Sets/clears the encoder button callback function for a deck
+///
+/// Parameters:
+///  * fn - A function to be called when an encoder button is pressed/released on the stream deck. It should receive three arguments:
+///   * The hs.streamdeck userdata object
+///   * A number containing the button that was pressed/released/rotated
+///   * A boolean indicating whether the button was pressed (true) or released (false)
+///   * A boolean indicating that the button was turned left
+///   * A boolean indicating that the button was turned right
+///
+/// Returns:
+///  * The hs.streamdeck device
+static int streamdeck_encoderCallback(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION | LS_TNIL, LS_TBREAK];
+
+    HSStreamDeckDevice *device = [skin luaObjectAtIndex:1 toClass:"HSStreamDeckDevice"];
+    device.encoderCallbackRef = [skin luaUnref:streamDeckRefTable ref:device.encoderCallbackRef];
+
+    if (lua_type(skin.L, 2) == LUA_TFUNCTION) {
+        device.encoderCallbackRef = [skin luaRef:streamDeckRefTable atIndex:2];
+    }
+
+    lua_pushvalue(skin.L, 1);
+    return 1;
+}
+
 /// hs.streamdeck:setBrightness(brightness)
 /// Method
 /// Sets the brightness of a deck
@@ -334,6 +363,7 @@ static int streamdeck_object_gc(lua_State* L) {
         theDevice.selfRefCount-- ;
         if (theDevice.selfRefCount == 0) {
             theDevice.buttonCallbackRef = [skin luaUnref:streamDeckRefTable ref:theDevice.buttonCallbackRef] ;
+            theDevice.encoderCallbackRef = [skin luaUnref:streamDeckRefTable ref:theDevice.encoderCallbackRef] ;
             theDevice = nil ;
         }
     }
@@ -350,6 +380,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {"firmwareVersion", streamdeck_firmwareVersion},
     {"buttonLayout", streamdeck_buttonLayout},
     {"buttonCallback", streamdeck_buttonCallback},
+    {"encoderCallback", streamdeck_encoderCallback},
     {"setButtonImage", streamdeck_setButtonImage},
     {"setButtonColor", streamdeck_setButtonColor},
     {"setBrightness", streamdeck_setBrightness},
