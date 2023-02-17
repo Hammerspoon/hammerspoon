@@ -108,7 +108,7 @@ static int streamdeck_getDevice(lua_State *L) {
 
 /// hs.streamdeck:buttonCallback(fn)
 /// Method
-/// Sets/clears the button callback function for a deck
+/// Sets/clears the button callback function for a Stream Deck device
 ///
 /// Parameters:
 ///  * fn - A function to be called when a button is pressed/released on the stream deck. It should receive three arguments:
@@ -135,10 +135,10 @@ static int streamdeck_buttonCallback(lua_State *L) {
 
 /// hs.streamdeck:encoderCallback(fn)
 /// Method
-/// Sets/clears the encoder button callback function for a deck
+/// Sets/clears the encoder button callback function for a Stream Deck device
 ///
 /// Parameters:
-///  * fn - A function to be called when an encoder button is pressed/released on the stream deck. It should receive three arguments:
+///  * fn - A function to be called when an encoder button is pressed/released on the Stream Deck. It should receive five arguments:
 ///   * The hs.streamdeck userdata object
 ///   * A number containing the button that was pressed/released/rotated
 ///   * A boolean indicating whether the button was pressed (true) or released (false)
@@ -156,6 +156,36 @@ static int streamdeck_encoderCallback(lua_State *L) {
 
     if (lua_type(skin.L, 2) == LUA_TFUNCTION) {
         device.encoderCallbackRef = [skin luaRef:streamDeckRefTable atIndex:2];
+    }
+
+    lua_pushvalue(skin.L, 1);
+    return 1;
+}
+
+/// hs.streamdeck:screenCallback(fn)
+/// Method
+/// Sets/clears the screen callback function for a Stream Deck device
+///
+/// Parameters:
+///  * fn - A function to be called when an screen is pressed/released/swiped on the Stream Deck. It should receive six arguments:
+///   * The hs.streamdeck userdata object
+///   * A string either containing "shortPress", "longPress" or "swipe"
+///   * The X position of where the screen was first touched
+///   * The Y position of where the screen was first touched
+///   * The X position of where the screen was last touched (if swiping)
+///   * The Y position of where the screen was last touched (if swiping)
+///
+/// Returns:
+///  * The hs.streamdeck device
+static int streamdeck_screenCallback(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION | LS_TNIL, LS_TBREAK];
+
+    HSStreamDeckDevice *device = [skin luaObjectAtIndex:1 toClass:"HSStreamDeckDevice"];
+    device.screenCallbackRef = [skin luaUnref:streamDeckRefTable ref:device.screenCallbackRef];
+
+    if (lua_type(skin.L, 2) == LUA_TFUNCTION) {
+        device.screenCallbackRef = [skin luaRef:streamDeckRefTable atIndex:2];
     }
 
     lua_pushvalue(skin.L, 1);
@@ -284,9 +314,9 @@ static int streamdeck_setButtonImage(lua_State *L) {
     return 1;
 }
 
-/// hs.streamdeck:setLCDImage(encoder, image)
+/// hs.streamdeck:setScreenImage(encoder, image)
 /// Method
-/// Sets the image of the LCD on the deck
+/// Sets the image of the screen on the Stream Deck
 ///
 /// Parameters:
 ///  * encoder - A number (from 1 to 4) describing which encoder to set the image for
@@ -294,7 +324,7 @@ static int streamdeck_setButtonImage(lua_State *L) {
 ///
 /// Returns:
 ///  * The hs.streamdeck object
-static int streamdeck_setLCDImage(lua_State *L) {
+static int streamdeck_setScreenImage(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TUSERDATA, "hs.image", LS_TBREAK];
 
@@ -386,6 +416,7 @@ static int streamdeck_object_gc(lua_State* L) {
         if (theDevice.selfRefCount == 0) {
             theDevice.buttonCallbackRef = [skin luaUnref:streamDeckRefTable ref:theDevice.buttonCallbackRef] ;
             theDevice.encoderCallbackRef = [skin luaUnref:streamDeckRefTable ref:theDevice.encoderCallbackRef] ;
+            theDevice.screenCallbackRef = [skin luaUnref:streamDeckRefTable ref:theDevice.screenCallbackRef] ;
             theDevice = nil ;
         }
     }
@@ -398,29 +429,33 @@ static int streamdeck_object_gc(lua_State* L) {
 
 #pragma mark - Lua object function definitions
 static const luaL_Reg userdata_metaLib[] = {
-    {"serialNumber", streamdeck_serialNumber},
-    {"firmwareVersion", streamdeck_firmwareVersion},
-    {"buttonLayout", streamdeck_buttonLayout},
-    {"buttonCallback", streamdeck_buttonCallback},
-    {"encoderCallback", streamdeck_encoderCallback},
-    {"setButtonImage", streamdeck_setButtonImage},
-    {"setLCDImage", streamdeck_setLCDImage},
-    {"setButtonColor", streamdeck_setButtonColor},
-    {"setBrightness", streamdeck_setBrightness},
-    {"reset", streamdeck_reset},
+    {"serialNumber",        streamdeck_serialNumber},
+    {"firmwareVersion",     streamdeck_firmwareVersion},
+    {"buttonLayout",        streamdeck_buttonLayout},
+    
+    {"buttonCallback",      streamdeck_buttonCallback},
+    {"encoderCallback",     streamdeck_encoderCallback},
+    {"screenCallback",      streamdeck_screenCallback},
+    
+    {"setButtonImage",      streamdeck_setButtonImage},
+    {"setScreenImage",      streamdeck_setScreenImage},
+    {"setButtonColor",      streamdeck_setButtonColor},
+    {"setBrightness",       streamdeck_setBrightness},
+    {"reset",               streamdeck_reset},
 
-    {"__tostring", streamdeck_object_tostring},
-    {"__eq", streamdeck_object_eq},
-    {"__gc", streamdeck_object_gc},
+    {"__tostring",          streamdeck_object_tostring},
+    {"__eq",                streamdeck_object_eq},
+    {"__gc",                streamdeck_object_gc},
+    
     {NULL, NULL}
 };
 
 #pragma mark - Lua Library function definitions
 static const luaL_Reg streamdecklib[] = {
-    {"init", streamdeck_init},
-    {"discoveryCallback", streamdeck_discoveryCallback},
-    {"numDevices", streamdeck_numDevices},
-    {"getDevice", streamdeck_getDevice},
+    {"init",                streamdeck_init},
+    {"discoveryCallback",   streamdeck_discoveryCallback},
+    {"numDevices",          streamdeck_numDevices},
+    {"getDevice",           streamdeck_getDevice},
 
     {NULL, NULL}
 };

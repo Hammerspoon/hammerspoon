@@ -32,8 +32,11 @@ typedef enum : NSUInteger {
 @property (nonatomic) IOHIDDeviceRef device;
 @property (nonatomic) id manager;
 @property (nonatomic) int selfRefCount;
+
 @property (nonatomic) int buttonCallbackRef;
 @property (nonatomic) int encoderCallbackRef;
+@property (nonatomic) int screenCallbackRef;
+
 @property (nonatomic) BOOL isValid;
 @property (nonatomic) LSGCCanary lsCanary;
 
@@ -105,5 +108,7 @@ typedef enum : NSUInteger {
 - (void)setImage:(NSImage*)image forButton:(int)button;
 
 - (void)setLCDImage:(NSImage*)image forEncoder:(int)encoder;;
+
+- (void)deviceDidSendScreenTouch:(NSString*)eventType startX:(int)startX startY:(int)startY endX:(int)endX endY:(int)endY;
 
 @end
