@@ -27,7 +27,7 @@ static int streamdeck_gc(lua_State *L) {
 /// Initialises the Stream Deck driver and sets a discovery callback
 ///
 /// Parameters:
-///  * fn - A function that will be called when a Streaming Deck is connected or disconnected. It should take the following arguments:
+///  * fn - A function that will be called when a Stream Deck is connected or disconnected. It should take the following arguments:
 ///   * A boolean, true if a device was connected, false if a device was disconnected
 ///   * An hs.streamdeck object, being the device that was connected/disconnected
 ///
@@ -53,7 +53,7 @@ static int streamdeck_init(lua_State *L) {
 /// Sets/clears a callback for reacting to device discovery events
 ///
 /// Parameters:
-///  * fn - A function that will be called when a Streaming Deck is connected or disconnected. It should take the following arguments:
+///  * fn - A function that will be called when a Stream Deck is connected or disconnected. It should take the following arguments:
 ///   * A boolean, true if a device was connected, false if a device was disconnected
 ///   * An hs.streamdeck object, being the device that was connected/disconnected
 ///
@@ -135,10 +135,10 @@ static int streamdeck_buttonCallback(lua_State *L) {
 
 /// hs.streamdeck:encoderCallback(fn)
 /// Method
-/// Sets/clears the encoder button callback function for a Stream Deck device
+/// Sets/clears the knob/encoder callback function for a Stream Deck Plus.
 ///
 /// Parameters:
-///  * fn - A function to be called when an encoder button is pressed/released on the Stream Deck. It should receive five arguments:
+///  * fn - A function to be called when an encoder button is pressed/released/rotated on a Stream Deck Plus. It should receive five arguments:
 ///   * The hs.streamdeck userdata object
 ///   * A number containing the button that was pressed/released/rotated
 ///   * A boolean indicating whether the button was pressed (true) or released (false)
@@ -164,10 +164,10 @@ static int streamdeck_encoderCallback(lua_State *L) {
 
 /// hs.streamdeck:screenCallback(fn)
 /// Method
-/// Sets/clears the screen callback function for a Stream Deck device
+/// Sets/clears the screen callback function for a Stream Deck Plus's touch screen (above the encoder knobs).
 ///
 /// Parameters:
-///  * fn - A function to be called when an screen is pressed/released/swiped on the Stream Deck. It should receive six arguments:
+///  * fn - A function to be called when a screen is pressed/released/swiped on a Stream Deck Plus. It should receive six arguments:
 ///   * The hs.streamdeck userdata object
 ///   * A string either containing "shortPress", "longPress" or "swipe"
 ///   * The X position of where the screen was first touched
@@ -194,7 +194,7 @@ static int streamdeck_screenCallback(lua_State *L) {
 
 /// hs.streamdeck:setBrightness(brightness)
 /// Method
-/// Sets the brightness of a deck
+/// Sets the brightness of a Stream Deck device
 ///
 /// Parameters:
 ///  * brightness - A whole number between 0 and 100 indicating the percentage brightness level to set
@@ -215,7 +215,7 @@ static int streamdeck_setBrightness(lua_State *L) {
 
 /// hs.streamdeck:reset()
 /// Method
-/// Resets a deck
+/// Resets a Stream Deck device
 ///
 /// Parameters:
 ///  * None
@@ -235,7 +235,7 @@ static int streamdeck_reset(lua_State *L) {
 
 /// hs.streamdeck:serialNumber()
 /// Method
-/// Gets the serial number of a deck
+/// Gets the serial number of a Stream Deck device
 ///
 /// Parameters:
 ///  * None
@@ -254,7 +254,7 @@ static int streamdeck_serialNumber(lua_State *L) {
 
 /// hs.streamdeck:firmwareVersion()
 /// Method
-/// Gets the firmware version of a deck
+/// Gets the firmware version of a Stream Deck device
 ///
 /// Parameters:
 ///  * None
@@ -273,7 +273,7 @@ static int streamdeck_firmwareVersion(lua_State *L) {
 
 /// hs.streamdeck:buttonLayout()
 /// Method
-/// Gets the layout of buttons the device has
+/// Gets the layout of buttons a Stream Deck device has
 ///
 /// Parameters:
 ///  * None
@@ -294,7 +294,7 @@ static int streamdeck_buttonLayout(lua_State *L) {
 
 /// hs.streamdeck:setButtonImage(button, image)
 /// Method
-/// Sets the image of a button on the deck
+/// Sets the image of a button on the Stream Deck device
 ///
 /// Parameters:
 ///  * button - A number (from 1 to 15) describing which button to set the image for
@@ -316,7 +316,7 @@ static int streamdeck_setButtonImage(lua_State *L) {
 
 /// hs.streamdeck:setScreenImage(encoder, image)
 /// Method
-/// Sets the image of the screen on the Stream Deck
+/// Sets the image of the screen on the Stream Deck device
 ///
 /// Parameters:
 ///  * encoder - A number (from 1 to 4) describing which encoder to set the image for
@@ -338,7 +338,7 @@ static int streamdeck_setScreenImage(lua_State *L) {
 
 /// hs.streamdeck:setButtonColor(button, color)
 /// Method
-/// Sets a button on the deck to the specified color
+/// Sets a button on the Stream Deck device to the specified color
 ///
 /// Parameters:
 ///  * button - A number (from 1 to 15) describing which button to set the color on
