@@ -74,6 +74,8 @@
 		2290EB2128011DF100CEA572 /* HSRazerOrbweaverDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = 2290EB1F28011DF100CEA572 /* HSRazerOrbweaverDevice.h */; };
 		22A6626025FC080200AA329E /* test_serial.lua in Resources */ = {isa = PBXBuildFile; fileRef = 22A6625F25FC07F700AA329E /* test_serial.lua */; };
 		22A6626225FC087000AA329E /* HSserial.m in Sources */ = {isa = PBXBuildFile; fileRef = 22A6626125FC087000AA329E /* HSserial.m */; };
+		22DC4FA8299E140100065BE1 /* HSStreamDeckDevicePlus.m in Sources */ = {isa = PBXBuildFile; fileRef = 22DC4FA6299E140100065BE1 /* HSStreamDeckDevicePlus.m */; };
+		22DC4FA9299E140100065BE1 /* HSStreamDeckDevicePlus.h in Headers */ = {isa = PBXBuildFile; fileRef = 22DC4FA7299E140100065BE1 /* HSStreamDeckDevicePlus.h */; };
 		22DF5D2823B9A9EA00C41AE6 /* libpasteboard_watcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 22DF5D1A23B99C4D00C41AE6 /* libpasteboard_watcher.m */; };
 		22E4D8031FA748AC00C8CF5C /* libmidi.m in Sources */ = {isa = PBXBuildFile; fileRef = 22E4D7F71FA7485A00C8CF5C /* libmidi.m */; };
 		22E59E0F2852D6F00062292D /* HSRazerNostromoDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = 22E59E0D2852D6EF0062292D /* HSRazerNostromoDevice.h */; };
@@ -1730,6 +1732,8 @@
 		2290EB1F28011DF100CEA572 /* HSRazerOrbweaverDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSRazerOrbweaverDevice.h; path = extensions/razer/HSRazerOrbweaverDevice.h; sourceTree = "<group>"; };
 		22A6625F25FC07F700AA329E /* test_serial.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_serial.lua; path = extensions/serial/test_serial.lua; sourceTree = "<group>"; };
 		22A6626125FC087000AA329E /* HSserial.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSserial.m; sourceTree = "<group>"; };
+		22DC4FA6299E140100065BE1 /* HSStreamDeckDevicePlus.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSStreamDeckDevicePlus.m; path = extensions/streamdeck/HSStreamDeckDevicePlus.m; sourceTree = "<group>"; };
+		22DC4FA7299E140100065BE1 /* HSStreamDeckDevicePlus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSStreamDeckDevicePlus.h; path = extensions/streamdeck/HSStreamDeckDevicePlus.h; sourceTree = "<group>"; };
 		22DF5D1A23B99C4D00C41AE6 /* libpasteboard_watcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libpasteboard_watcher.m; path = extensions/pasteboard/libpasteboard_watcher.m; sourceTree = "<group>"; };
 		22DF5D2723B9A9D300C41AE6 /* libpasteboardwatcher.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libpasteboardwatcher.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		22E4D7F71FA7485A00C8CF5C /* libmidi.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = libmidi.m; path = extensions/midi/libmidi.m; sourceTree = SOURCE_ROOT; };
@@ -3264,6 +3268,8 @@
 				4F2DF3DE1F6046AD00742D08 /* libstreamdeck.m */,
 				4F2DF3F21F605A9B00742D08 /* HSStreamDeckDevice.h */,
 				4F2DF3F31F605A9B00742D08 /* HSStreamDeckDevice.m */,
+				22DC4FA7299E140100065BE1 /* HSStreamDeckDevicePlus.h */,
+				22DC4FA6299E140100065BE1 /* HSStreamDeckDevicePlus.m */,
 				4F6653E8238C6B6600DEE120 /* HSStreamDeckDeviceMini.h */,
 				4F6653E9238C6B6600DEE120 /* HSStreamDeckDeviceMini.m */,
 				4F6653E4238C36F100DEE120 /* HSStreamDeckDeviceOriginal.h */,
@@ -4736,6 +4742,7 @@
 				4F6653F62390351100DEE120 /* NSImage+JPEG.h in Headers */,
 				4F6653E6238C36F100DEE120 /* HSStreamDeckDeviceOriginal.h in Headers */,
 				4F5560A1279F6A0300B91FD8 /* HSStreamDeckDeviceMk2.h in Headers */,
+				22DC4FA9299E140100065BE1 /* HSStreamDeckDevicePlus.h in Headers */,
 				4F2DF3F81F6170BE00742D08 /* NSImage+BMP.h in Headers */,
 				4F2DF3F01F605A4900742D08 /* HSStreamDeckManager.h in Headers */,
 				4FFB210023CD14A500811E77 /* HSStreamDeckDeviceOriginalV2.h in Headers */,
@@ -7655,6 +7662,7 @@
 				4F2DF3EB1F60471400742D08 /* libstreamdeck.m in Sources */,
 				4FFB210123CD14A500811E77 /* HSStreamDeckDeviceOriginalV2.m in Sources */,
 				4FFB20FD23C5E01300811E77 /* HSStreamDeckDeviceXL.m in Sources */,
+				22DC4FA8299E140100065BE1 /* HSStreamDeckDevicePlus.m in Sources */,
 				4F2DF3F51F605A9B00742D08 /* HSStreamDeckDevice.m in Sources */,
 				4F5560A2279F6A0300B91FD8 /* HSStreamDeckDeviceMk2.m in Sources */,
 				4F6653EB238C6B6600DEE120 /* HSStreamDeckDeviceMini.m in Sources */,

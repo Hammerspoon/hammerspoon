@@ -12,24 +12,103 @@
 
 static char *inputBuffer = NULL;
 
-static void HIDReport(void* deviceRef, IOReturn result, void* sender, IOHIDReportType type, uint32_t reportID, uint8_t *report,CFIndex reportLength) {
+static void HIDReport(void* deviceRef, IOReturn result, void* sender, IOHIDReportType type, uint32_t reportID, uint8_t *report, CFIndex reportLength) {
     HSStreamDeckDevice *device = (__bridge HSStreamDeckDevice*)deviceRef;
-    NSMutableArray* buttonReport = [NSMutableArray arrayWithCapacity:device.keyCount+1];
 
-    // We need an unused button at slot zero - all our uses of these arrays are one-indexed
-    [buttonReport setObject:[NSNumber numberWithInt:0] atIndexedSubscript:0];
+    uint8_t inputType = report[1];
+    if (inputType == 0x00) {
+        // -------------
+        // BUTTON EVENT:
+        // -------------
+        NSMutableArray* buttonReport = [NSMutableArray arrayWithCapacity:device.keyCount+1];
 
-    for(int p=1; p <= device.keyCount; p++) {
-        [buttonReport setObject:@0 atIndexedSubscript:p];
+        // We need an unused button at slot zero - all our uses of these arrays are one-indexed
+        [buttonReport setObject:[NSNumber numberWithInt:0] atIndexedSubscript:0];
+
+        for(int p=1; p <= device.keyCount; p++) {
+            [buttonReport setObject:@0 atIndexedSubscript:p];
+        }
+
+        uint8_t *start = report + device.dataKeyOffset;
+        for(int button=1; button <= device.keyCount; button ++) {
+            NSNumber* val = [NSNumber numberWithInt:start[button-1]];
+            int translatedButton = [device transformKeyIndex:button];
+            [buttonReport setObject:val atIndexedSubscript:translatedButton];
+        }
+        [device deviceDidSendInput:buttonReport];
+    } else if (inputType == 0x02) {
+        // ----------
+        // LCD EVENT:
+        // ----------
+        NSString *eventTypeString = @"Unknown";
+        uint16_t startX = ((uint16_t)report[6]) | (((uint16_t)report[7]) << 8);
+        uint16_t startY = ((uint16_t)report[8]) | (((uint16_t)report[9]) << 8);
+        uint16_t endX = 0;
+        uint16_t endY = 0;
+
+        uint8_t eventType = report[4];
+        if (eventType == 0x01) {
+            // ------------
+            // SHORT PRESS:
+            // ------------
+            eventTypeString = @"shortPress";
+        } else if (eventType == 0x02) {
+            // -----------
+            // LONG PRESS:
+            // -----------
+            eventTypeString = @"longPress";
+        } else if (eventType == 0x03) {
+            // ------
+            // SWIPE:
+            // ------
+            eventTypeString = @"swipe";
+            endX = ((uint16_t)report[10]) | (((uint16_t)report[11]) << 8);
+            endY = ((uint16_t)report[12]) | (((uint16_t)report[13]) << 8);
+        }
+
+        [device deviceDidSendScreenTouch:eventTypeString startX:startX startY:startY endX:endX endY:endY];
+    } else if (inputType == 0x03) {
+        // --------------
+        // ENCODER EVENT:
+        // --------------
+        uint8_t eventType = report[4];
+        if (eventType == 0x00) {
+            // ----------------------
+            // ENCODER PRESS/RELEASE:
+            // ----------------------
+            NSMutableArray* buttonReport = [NSMutableArray arrayWithCapacity:device.encoderCount+1];
+
+            // We need an unused button at slot zero - all our uses of these arrays are one-indexed
+            [buttonReport setObject:[NSNumber numberWithInt:0] atIndexedSubscript:0];
+
+            for(int p=1; p <= device.encoderCount; p++) {
+                [buttonReport setObject:@0 atIndexedSubscript:p];
+            }
+
+            uint8_t *start = report + device.dataEncoderOffset;
+            for(int button=1; button <= device.encoderCount; button ++) {
+                NSNumber* val = [NSNumber numberWithInt:start[button-1]];
+                int translatedButton = [device transformKeyIndex:button];
+                [buttonReport setObject:val atIndexedSubscript:translatedButton];
+            }
+            [device deviceDidSendEncoderInput:buttonReport];
+        } else if (eventType == 0x01) {
+            // -------------
+            // ENCODER TURN:
+            // -------------
+            uint8_t *start = report + device.dataEncoderOffset;
+            for(int button=1; button <= device.encoderCount; button ++) {
+                int value = start[button-1];
+                if (value > 0) {
+                    BOOL turningLeft = NO;
+                    if (value >= 200) {
+                        turningLeft = YES;
+                    }
+                    [device deviceDidSendEncoderTurnWithButton:[NSNumber numberWithInt:button] turningLeft:turningLeft];
+                }
+            }
+        }
     }
-
-    uint8_t *start = report + device.dataKeyOffset;
-    for(int button=1; button <= device.keyCount; button ++) {
-        NSNumber* val = [NSNumber numberWithInt:start[button-1]];
-        int translatedButton = [device transformKeyIndex:button];
-        [buttonReport setObject:val atIndexedSubscript:translatedButton];
-    }
-    [device deviceDidSendInput:buttonReport];
 }
 
 static void HIDconnect(void *context, IOReturn result, void *sender, IOHIDDeviceRef device) {
@@ -73,12 +152,14 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
                                           productIDKey: @USB_PID_STREAMDECK_ORIGINAL_V2};
         NSDictionary *matchMini       = @{vendorIDKey:  @USB_VID_ELGATO,
                                           productIDKey: @USB_PID_STREAMDECK_MINI};
-        NSDictionary *matchMiniV2       = @{vendorIDKey:  @USB_VID_ELGATO,
+        NSDictionary *matchMiniV2     = @{vendorIDKey:  @USB_VID_ELGATO,
                                           productIDKey: @USB_PID_STREAMDECK_MINI_V2};
         NSDictionary *matchXL         = @{vendorIDKey:  @USB_VID_ELGATO,
                                           productIDKey: @USB_PID_STREAMDECK_XL};
         NSDictionary *matchMk2        = @{vendorIDKey:  @USB_VID_ELGATO,
                                           productIDKey: @USB_PID_STREAMDECK_MK2};
+        NSDictionary *matchPlus       = @{vendorIDKey:  @USB_VID_ELGATO,
+                                          productIDKey: @USB_PID_STREAMDECK_PLUS};
 
         IOHIDManagerSetDeviceMatchingMultiple((__bridge IOHIDManagerRef)self.ioHIDManager,
                                               (__bridge CFArrayRef)@[matchOriginal,
@@ -86,7 +167,8 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
                                                                      matchMini,
                                                                      matchMiniV2,
                                                                      matchXL,
-                                                                     matchMk2]);
+                                                                     matchMk2,
+                                                                     matchPlus]);
 
         // Add our callbacks for relevant events
         IOHIDManagerRegisterDeviceMatchingCallback((__bridge IOHIDManagerRef)self.ioHIDManager,
@@ -172,7 +254,7 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
         case USB_PID_STREAMDECK_MINI:
             deck = [[HSStreamDeckDeviceMini alloc] initWithDevice:device manager:self];
             break;
-            
+
         case USB_PID_STREAMDECK_MINI_V2:
             deck = [[HSStreamDeckDeviceMini alloc] initWithDevice:device manager:self];
             break;
@@ -187,6 +269,10 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
 
         case USB_PID_STREAMDECK_MK2:
             deck = [[HSStreamDeckDeviceMk2 alloc] initWithDevice:device manager:self];
+            break;
+
+        case USB_PID_STREAMDECK_PLUS:
+            deck = [[HSStreamDeckDevicePlus alloc] initWithDevice:device manager:self];
             break;
 
         default:
