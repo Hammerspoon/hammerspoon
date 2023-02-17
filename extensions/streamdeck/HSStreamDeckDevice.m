@@ -501,8 +501,8 @@
 
     // Unconditionally resize the image
     NSImage *sourceImage = [image copy];
-    //NSSize newSize = NSMakeSize(self.lcdStripWidth, self.lcdStripHeight);
-    NSSize newSize = NSMakeSize(200, 100);
+    int encoderWidth = self.lcdStripWidth / self.encoderColumns;
+    NSSize newSize = NSMakeSize(encoderWidth, self.lcdStripHeight);
     renderImage = [[NSImage alloc] initWithSize: newSize];
     [renderImage lockFocus];
     [sourceImage setSize: newSize];

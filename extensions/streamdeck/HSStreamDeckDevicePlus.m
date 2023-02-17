@@ -1,5 +1,5 @@
 //
-//  HSStreamDeckDeviceMk2.m
+//  HSStreamDeckDevicePlus.m
 //  streamdeck
 //
 //  Created by Chris Hocking on 16/02/2023.
