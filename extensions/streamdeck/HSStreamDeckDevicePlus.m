@@ -34,6 +34,9 @@
         
         self.lcdStripWidth = 800;
         self.lcdStripHeight = 100;
+        
+        self.lcdReportLength = 1024;        
+        self.lcdReportHeaderLength = 16;
 
         uint8_t resetHeader[] = {0x03, 0x02};
         self.resetCommand = [NSData dataWithBytes:resetHeader length:2];

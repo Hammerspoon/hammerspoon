@@ -284,6 +284,28 @@ static int streamdeck_setButtonImage(lua_State *L) {
     return 1;
 }
 
+/// hs.streamdeck:setLCDImage(encoder, image)
+/// Method
+/// Sets the image of the LCD on the deck
+///
+/// Parameters:
+///  * encoder - A number (from 1 to 4) describing which encoder to set the image for
+///  * image - An hs.image object
+///
+/// Returns:
+///  * The hs.streamdeck object
+static int streamdeck_setLCDImage(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TUSERDATA, "hs.image", LS_TBREAK];
+
+    HSStreamDeckDevice *device = [skin luaObjectAtIndex:1 toClass:"HSStreamDeckDevice"];
+    
+    [device setLCDImage:[skin luaObjectAtIndex:3 toClass:"NSImage"] forEncoder:(int)lua_tointeger(skin.L, 2)];
+    
+    lua_pushvalue(skin.L, 1);
+    return 1;
+}
+
 /// hs.streamdeck:setButtonColor(button, color)
 /// Method
 /// Sets a button on the deck to the specified color
@@ -382,6 +404,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {"buttonCallback", streamdeck_buttonCallback},
     {"encoderCallback", streamdeck_encoderCallback},
     {"setButtonImage", streamdeck_setButtonImage},
+    {"setLCDImage", streamdeck_setLCDImage},
     {"setButtonColor", streamdeck_setButtonColor},
     {"setBrightness", streamdeck_setBrightness},
     {"reset", streamdeck_reset},
