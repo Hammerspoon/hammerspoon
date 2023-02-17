@@ -107,7 +107,7 @@ typedef enum : NSUInteger {
 - (void)setColor:(NSColor*)color forButton:(int)button;
 - (void)setImage:(NSImage*)image forButton:(int)button;
 
-- (void)setLCDImage:(NSImage*)image forEncoder:(int)encoder;;
+- (void)setLCDImage:(NSImage*)image forEncoder:(int)encoder;
 
 - (void)deviceDidSendScreenTouch:(NSString*)eventType startX:(int)startX startY:(int)startY endX:(int)endX endY:(int)endY;
 
