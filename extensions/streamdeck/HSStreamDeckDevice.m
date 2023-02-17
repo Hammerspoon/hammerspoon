@@ -19,8 +19,11 @@
         self.device = device;
         self.isValid = YES;
         self.manager = manager;
+        
         self.buttonCallbackRef = LUA_NOREF;
         self.encoderCallbackRef = LUA_NOREF;
+        self.screenCallbackRef = LUA_NOREF;
+        
         self.selfRefCount = 0;
 
         self.buttonStateCache = [[NSMutableArray alloc] init];
@@ -182,9 +185,6 @@
         return;
     }
 
-    //NSLog(@"buttonStateCache: %@", self.buttonStateCache);
-    //NSLog(@"newButtonStates: %@", newButtonStates);
-
     for (int button=1; button <= self.encoderCount; button++) {
         if (![self.encoderButtonStateCache[button] isEqual:newPressEncoderStates[button]]) {
             [skin pushLuaRef:streamDeckRefTable ref:self.encoderCallbackRef];
@@ -221,9 +221,6 @@
         return;
     }
 
-    //NSLog(@"buttonStateCache: %@", self.buttonStateCache);
-    //NSLog(@"newButtonStates: %@", newButtonStates);
-    
     [skin pushLuaRef:streamDeckRefTable ref:self.encoderCallbackRef];
     [skin pushNSObject:self];
     lua_pushinteger(skin.L, [button intValue]);
@@ -231,6 +228,37 @@
     lua_pushboolean(skin.L, turningLeft);
     lua_pushboolean(skin.L, !turningLeft);
     [skin protectedCallAndError:@"hs.streamdeck:encoderCallback" nargs:5 nresults:0];
+
+    _lua_stackguard_exit(skin.L);
+}
+
+- (void)deviceDidSendScreenTouch:(NSString*)eventType startX:(int)startX startY:(int)startY endX:(int)endX endY:(int)endY {
+    
+    if (!self.isValid) {
+        return;
+    }
+
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+    _lua_stackguard_entry(skin.L);
+
+    if (![skin checkGCCanary:self.lsCanary]) {
+        _lua_stackguard_exit(skin.L);
+        return;
+    }
+
+    if (self.screenCallbackRef == LUA_NOREF || self.screenCallbackRef == LUA_REFNIL) {
+        [skin logError:@"hs.streamdeck received an screen input, but no callback has been set. See hs.streamdeck:screenCallback()"];
+        return;
+    }
+    
+    [skin pushLuaRef:streamDeckRefTable ref:self.screenCallbackRef];
+    [skin pushNSObject:self];
+    [skin pushNSObject:eventType];
+    lua_pushinteger(skin.L, startX);
+    lua_pushinteger(skin.L, startY);
+    lua_pushinteger(skin.L, endX);
+    lua_pushinteger(skin.L, endY);
+    [skin protectedCallAndError:@"hs.streamdeck:screenCallback" nargs:6 nresults:0];
 
     _lua_stackguard_exit(skin.L);
 }

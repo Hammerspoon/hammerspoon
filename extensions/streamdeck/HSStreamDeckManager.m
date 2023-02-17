@@ -40,23 +40,37 @@ static void HIDReport(void* deviceRef, IOReturn result, void* sender, IOHIDRepor
         // ----------
         // LCD EVENT:
         // ----------
-        NSLog(@"[HSStreamDeckManager] It's a LCD Event!");
+        NSString *eventTypeString = @"Unknown";
+        uint16_t startX = ((uint16_t)report[6]) | (((uint16_t)report[7]) << 8);
+        uint16_t startY = ((uint16_t)report[8]) | (((uint16_t)report[9]) << 8);
+        uint16_t endX = 0;
+        uint16_t endY = 0;
         
         uint8_t eventType = report[4];
         if (eventType == 0x01) {
-            NSLog(@"[HSStreamDeckManager] LCD Short Press");
+            // ------------
+            // SHORT PRESS:
+            // ------------
+            eventTypeString = @"shortPress";
         } else if (eventType == 0x02) {
-            NSLog(@"[HSStreamDeckManager] LCD Long Press");
+            // -----------
+            // LONG PRESS:
+            // -----------
+            eventTypeString = @"longPress";
         } else if (eventType == 0x03) {
-            NSLog(@"[HSStreamDeckManager] LCD Swipe");
+            // ------
+            // SWIPE:
+            // ------
+            eventTypeString = @"swipe";
+            endX = ((uint16_t)report[10]) | (((uint16_t)report[11]) << 8);
+            endY = ((uint16_t)report[12]) | (((uint16_t)report[13]) << 8);
         }
         
+        [device deviceDidSendScreenTouch:eventTypeString startX:startX startY:startY endX:endX endY:endY];
     } else if (inputType == 0x03) {
         // --------------
         // ENCODER EVENT:
         // --------------
-        //NSLog(@"[HSStreamDeckManager] It's an Encoder Event!");
-        
         uint8_t eventType = report[4];
         if (eventType == 0x00) {
             // ----------------------
