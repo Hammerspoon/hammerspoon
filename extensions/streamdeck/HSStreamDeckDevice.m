@@ -37,6 +37,9 @@
         self.simpleReportLength = 0;
         self.reportLength = 0;
         self.reportHeaderLength = 0;
+        
+        self.lcdReportLength = 0;
+        self.lcdReportHeaderLength = 0;
 
         self.encoderColumns = 0;
         self.encoderRows = 0;
@@ -444,6 +447,137 @@
         [report replaceBytesInRange:NSMakeRange(0, self.reportHeaderLength)
                           withBytes:reportHeader];
         [report replaceBytesInRange:NSMakeRange(self.reportHeaderLength, thisPageLength)
+                          withBytes:imageBuf+bytesSent
+                             length:thisPageLength];
+
+        result = IOHIDDeviceSetReport(self.device,
+                                      kIOHIDReportTypeOutput,
+                                      reportHeader[0],
+                                      report.bytes,
+                                      (int)report.length);
+        if (result != kIOReturnSuccess) {
+            NSLog(@"WARNING: writing an image with hs.streamdeck encountered a failure on page %d: %d", pageNumber, result);
+        }
+
+        bytesRemaining = bytesRemaining - thisPageLength;
+        pageNumber++;
+    }
+}
+
+- (void)setLCDImage:(NSImage *)image forEncoder:(int)encoder {
+    if (!self.isValid) {
+        return;
+    }
+
+    NSImage *renderImage;
+
+    // Unconditionally resize the image
+    NSImage *sourceImage = [image copy];
+    //NSSize newSize = NSMakeSize(self.lcdStripWidth, self.lcdStripHeight);
+    NSSize newSize = NSMakeSize(200, 100);
+    renderImage = [[NSImage alloc] initWithSize: newSize];
+    [renderImage lockFocus];
+    [sourceImage setSize: newSize];
+    [[NSGraphicsContext currentContext] setImageInterpolation:NSImageInterpolationHigh];
+    [sourceImage drawAtPoint:NSZeroPoint fromRect:CGRectMake(0, 0, newSize.width, newSize.height) operation:NSCompositingOperationCopy fraction:1.0];
+    [renderImage unlockFocus];
+
+    if (![image isValid]) {
+        [LuaSkin logError:@"image is invalid"];
+    }
+    if (![renderImage isValid]) {
+        [LuaSkin logError:@"Invalid image passed to hs.streamdeck:setLCDImage() (renderImage)"];
+    //    return;
+    }
+
+    // Both of these functions are no-ops if there are no rotations or flips required, so we'll call them unconditionally
+    renderImage = [renderImage imageRotated:self.imageAngle];
+    renderImage = [renderImage flipImage:self.imageFlipX vert:self.imageFlipY];
+
+    NSData *data = nil;
+
+    switch (self.imageCodec) {
+        case STREAMDECK_CODEC_BMP:
+            data = [renderImage bmpData];
+            break;
+
+        case STREAMDECK_CODEC_JPEG:
+            data = [renderImage jpegData];
+            break;
+
+        case STREAMDECK_CODEC_UNKNOWN:
+            [LuaSkin logError:@"Unknown image codec for hs.streamdeck device"];
+            break;
+    }
+
+    // Writing the image to hardware is a device-specific operation, so hand it off to our subclasses
+    [self deviceLCDWriteImage:data forEncoder:encoder];
+}
+
+- (void)deviceLCDWriteImage:(NSData *)data forEncoder:(int)encoder {
+    
+    int encoderWidth = self.lcdStripWidth / self.encoderColumns;
+    
+    int left        = (encoderWidth * encoder) - encoderWidth;
+    int top         = 0;
+    int width       = encoderWidth;
+    int height      = self.lcdStripHeight;
+    
+    uint8_t reportHeader[] = {0x02,                             // 0: Report ID
+                             0x0c,                              // 1: Image Rectangle JPEG
+        
+                            left & 0xFF,                        // 2: Left - the least significant byte
+                            left >> 8,                          // 3: Left - the most significant byte
+        
+                            top & 0xFF,                         // 4: Top - the least significant byte
+                            top >> 8,                           // 5: Top - the most significant byte
+        
+                            width & 0xFF,                       // 6: Width - the least significant byte
+                            width >> 8,                         // 7: Width - the most significant byte
+        
+                            height & 0xFF,                      // 8: Height - the least significant byte
+                            height >> 8,                        // 9: Height - the most significant byte
+                                                         
+                            0x00,                               // 10: Is Last Page (1 or 0)?
+        
+                            0x00,                               // 11: Page Number - the least significant byte
+                            0x00,                               // 12: Page Number - the most significant byte
+        
+                            0x00,                               // 13: Payload Length - the least significant byte
+                            0x00,                               // 14: Payload Length - the most significant byte
+        
+                            0x00                                // 15: Padding
+                            };
+
+    // The v2 Stream Decks needs images sent in slices no more than 1024 bytes minus the report header (16 bytes)
+    int maxPayloadLength = self.lcdReportLength - self.lcdReportHeaderLength;
+
+    int bytesRemaining = (int)data.length;
+    int bytesSent = 0;
+    int pageNumber = 0;
+    const uint8_t *imageBuf = data.bytes;
+
+    IOReturn result;
+
+    while (bytesRemaining > 0) {
+        int thisPageLength = MIN(bytesRemaining, maxPayloadLength);
+        bytesSent = pageNumber * maxPayloadLength;
+
+        // Set our current page number
+        reportHeader[11] = pageNumber & 0xFF;
+        reportHeader[12] = pageNumber >> 8;
+
+        // Set our current page length
+        reportHeader[13] = thisPageLength & 0xFF;
+        reportHeader[14] = thisPageLength >> 8;
+
+        // Set if we're the last page of data
+        if (bytesRemaining <= maxPayloadLength) reportHeader[10] = 1;
+
+        NSMutableData *report = [NSMutableData dataWithLength:self.lcdReportLength];
+        [report replaceBytesInRange:NSMakeRange(0, self.lcdReportHeaderLength)
+                          withBytes:reportHeader];
+        [report replaceBytesInRange:NSMakeRange(self.lcdReportHeaderLength, thisPageLength)
                           withBytes:imageBuf+bytesSent
                              length:thisPageLength];
 

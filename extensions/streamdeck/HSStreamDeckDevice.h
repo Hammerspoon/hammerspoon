@@ -58,6 +58,10 @@ typedef enum : NSUInteger {
 @property (nonatomic) int simpleReportLength;
 @property (nonatomic) int reportLength;
 @property (nonatomic) int reportHeaderLength;
+
+@property (nonatomic) int lcdReportLength;
+@property (nonatomic) int lcdReportHeaderLength;
+
 @property (nonatomic) int dataKeyOffset;
 @property (nonatomic) int dataEncoderOffset;
 @property (nonatomic) NSUInteger firmwareReadOffset;
@@ -99,5 +103,7 @@ typedef enum : NSUInteger {
 - (void)clearImage:(int)button;
 - (void)setColor:(NSColor*)color forButton:(int)button;
 - (void)setImage:(NSImage*)image forButton:(int)button;
+
+- (void)setLCDImage:(NSImage*)image forEncoder:(int)encoder;;
 
 @end
