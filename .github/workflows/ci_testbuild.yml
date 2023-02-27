@@ -10,6 +10,8 @@ jobs:
   build:
     name: Build and Test
     runs-on: macos-12
+    permissions:
+      contents: read
     env:
       IS_CI: 1
 

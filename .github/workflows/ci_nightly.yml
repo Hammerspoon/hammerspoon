@@ -6,10 +6,29 @@ on:
       - master
 
 jobs:
+  config:
+    runs-on: "ubuntu-latest"
+    permissions:
+      contents: none
+    outputs:
+      has-secrets: ${{ steps.check.outputs.has-secrets }}
+    steps:
+      - name: "Check for secrets"
+        id: check
+        shell: bash
+        run: |
+          if [ -n "${{ (secrets.REPO_GPG_PASSPHRASE != '' && secrets.NIGHTLY_KEYCHAIN_PASSPHRASE != '') || '' }}" ]; then
+            echo "has-secrets=1" >> "$GITHUB_OUTPUT"
+          fi
+
   build:
+    needs: config
+    if: needs.config.outputs.has-secrets
     name: Build and Sign
 
     runs-on: macos-12
+    permissions:
+      contents: read
     env:
       IS_CI: 1
       IS_NIGHTLY: 1
@@ -114,5 +133,9 @@ jobs:
           path: archive/${{ steps.version.outputs.NIGHTLY_VERSION }}/Release-build.log
 
       - name: Send notification
+        if: env.CI_WEBHOOK_URL != '' && env.CI_WEBHOOK_SECRET != ''
+        env:
+          CI_WEBHOOK_URL: ${{ secrets.CI_WEBHOOK_URL }}
+          CI_WEBHOOK_SECRET: ${{ secrets.CI_WEBHOOK_SECRET }}
         run: |
-          /usr/bin/curl -H "X-CI-WebHook: true" -H "Content-Type: application/json" -d '{"secret": "${{ secrets.CI_WEBHOOK_SECRET }}", "repository": "hammerspoon", "workflow": "Dev Build", "message": "New development build: ${{ steps.version.outputs.NIGHTLY_VERSION }}"}' ${{ secrets.CI_WEBHOOK_URL }}
+          /usr/bin/curl -H "X-CI-WebHook: true" -H "Content-Type: application/json" -d '{"secret": "$CI_WEBHOOK_SECRET", "repository": "hammerspoon", "workflow": "Dev Build", "message": "New development build: ${{ steps.version.outputs.NIGHTLY_VERSION }}"}' $CI_WEBHOOK_URL
