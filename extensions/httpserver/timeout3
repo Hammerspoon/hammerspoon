@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# 2016-04-08 :: Modified from original to inclue the source URL for this script:
+# 2016-04-08 :: Modified from original to include the source URL for this script:
 #     http://www.bashcookbook.com/bashinfo/source/bash-4.0/examples/scripts/timeout3
 #
 # LICENSE.timeout3 source URL: http://www.bashcookbook.com/bashinfo/source/COPYING

@@ -179,7 +179,7 @@ end
 
 --- hs.vox.increaseVolume()
 --- Function
---- Increases the palyer volume
+--- Increases the player volume
 ---
 --- Parameters:
 ---  * None
@@ -187,7 +187,7 @@ end
 --- Returns:
 ---  * None
 function vox.increaseVolume()
-  tell('increasvolume')
+  tell('increasevolume')
 end
 
 --- hs.vox.decreaseVolume()

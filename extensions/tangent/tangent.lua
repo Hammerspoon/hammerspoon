@@ -1120,7 +1120,7 @@ function mod.callback(callbackFn)
         mod._callback = nil
         return true
     else
-        log.ef("Callback recieved an invalid type: %s", type(callbackFn))
+        log.ef("Callback received an invalid type: %s", type(callbackFn))
         return false
     end
 end
@@ -1560,7 +1560,7 @@ function mod.sendHighlightControl(targetID, active)
     -- state: The state to set. 1 for highlighted, 0 for clear (Unsigned Int)
     --------------------------------------------------------------------------------
     if not isNumber(targetID) then
-        return false, "Missing or invalid paramater: targetID."
+        return false, "Missing or invalid parameter: targetID."
     end
     local state = active == true and 1 or 0
 
@@ -1593,7 +1593,7 @@ function mod.sendIndicateControl(targetID, active)
     -- state: The state to set. 1 for indicated, 0 for clear (Unsigned Int)
     --------------------------------------------------------------------------------
     if not isNumber(targetID) then
-        return false, "Missing or invalid paramater: targetID."
+        return false, "Missing or invalid parameter: targetID."
     end
     local state = active == true and 1 or 0
 
@@ -1738,7 +1738,7 @@ end
 function mod.connect(applicationName, systemPath, userPath)
 
     --------------------------------------------------------------------------------
-    -- Check Paramaters:
+    -- Check Parameters:
     --------------------------------------------------------------------------------
     if not applicationName or type(applicationName) ~= "string" then
         return nil, "applicationName is a required string."

@@ -2315,7 +2315,7 @@ static int userdata_gc(lua_State* L) ;
 
 /// hs.canvas.useCustomAccessibilitySubrole([state]) -> boolean
 /// Function
-/// Get or set whether or not canvas objects use a custom accessibility subrole for the contaning system window.
+/// Get or set whether or not canvas objects use a custom accessibility subrole for the containing system window.
 ///
 /// Parameters:
 ///  * `state` - an optional boolean, default true, specifying whether or not canvas containers should use a custom accessibility subrole.
@@ -2324,7 +2324,7 @@ static int userdata_gc(lua_State* L) ;
 ///  * the current, possibly changed, value as a boolean
 ///
 /// Notes:
-///  * Under some conditions, it has been observed that Hammerspoon's `hs.window.filter` module will misidentify Canvas and Drawing objects as windows of the Hammerspoon application that it should consider when evaluating its filters. To eliminate this, `hs.canvas` objects (and previously `hs.drawing` objects, which are now deprecated and pass through to `hs.canvas`) were given a nonstandard accessibilty subrole to prevent them from being included. This has caused some issues with third party tools, like Yabai, which also use the accessibility subroles for determining what actions it may take with Hammerspoon windows.
+///  * Under some conditions, it has been observed that Hammerspoon's `hs.window.filter` module will misidentify Canvas and Drawing objects as windows of the Hammerspoon application that it should consider when evaluating its filters. To eliminate this, `hs.canvas` objects (and previously `hs.drawing` objects, which are now deprecated and pass through to `hs.canvas`) were given a nonstandard accessibility subrole to prevent them from being included. This has caused some issues with third party tools, like Yabai, which also use the accessibility subroles for determining what actions it may take with Hammerspoon windows.
 ///
 ///  * By passing `false` to this function, all canvas objects will revert to specifying the standard subrole for the containing windows by default and should work as expected with third party tools. Note that this may cause issues or slowdowns if you are also using `hs.window.filter`; a more permanent solution is being considered.
 ///
@@ -2476,7 +2476,7 @@ static int canvas_draggingCallback(lua_State *L) {
 /// Get or set the accessibility subrole returned by `hs.canvas` objects.
 ///
 /// Parameters:
-///  * `subrole` - an optional string or explicit nil wihch specifies what accessibility subrole value should be returned when canvas objects are queried through the macOS accessibility framework. See Notes for a discussion of how this value is interpreted. Defaults to `nil`.
+///  * `subrole` - an optional string or explicit nil which specifies what accessibility subrole value should be returned when canvas objects are queried through the macOS accessibility framework. See Notes for a discussion of how this value is interpreted. Defaults to `nil`.
 ///
 /// Returns:
 ///  * If an argument is specified, returns the canvasObject; otherwise returns the current value.
@@ -2485,12 +2485,12 @@ static int canvas_draggingCallback(lua_State *L) {
 ///  * Most people will probably not need to use this method; See [hs.canvas.useCustomAccessibilitySubrole](#useCustomAccessibilitySubrole) for a discussion as to why this method may be of use when Hammerspoon is being controlled through the accessibility framework by other applications.
 ///
 ///  * If a non empty string is specified as the argument to this method, the string will be returned whenever the canvas object's containing window is queried for its accessibility subrole.
-///  * The other possible values depend upon the value registerd with [hs.canvas.useCustomAccessibilitySubrole](#useCustomAccessibilitySubrole):
+///  * The other possible values depend upon the value registered with [hs.canvas.useCustomAccessibilitySubrole](#useCustomAccessibilitySubrole):
 ///    * If `useCustomAccessibilitySubrole` is set to true (the default):
-///      * If an explicit `nil` (the default) is specified fror this method, the string returned when the canvas object's accessibility is queried will be the default macOS subrole for the canvas's window with the string ".Hammerspoon` appended to it.
+///      * If an explicit `nil` (the default) is specified for this method, the string returned when the canvas object's accessibility is queried will be the default macOS subrole for the canvas's window with the string ".Hammerspoon` appended to it.
 ///      * If the empty string is specified (e.g. `""`), then the default macOS subrole for the canvas's window will be returned.
 ///    * If `useCustomAccessibilitySubrole` is set to false:
-///      * If an explicit `nil` (the default) is specified fror this method, then the default macOS subrole for the canvas's window will be returned.
+///      * If an explicit `nil` (the default) is specified for this method, then the default macOS subrole for the canvas's window will be returned.
 ///      * If the empty string is specified (e.g. `""`), the string returned when the canvas object's accessibility is queried will be the default macOS subrole for the canvas's window with the string ".Hammerspoon` appended to it.
 static int canvas_accessibilitySubrole(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
@@ -3031,7 +3031,7 @@ static int canvas_alpha(lua_State *L) {
 ///  * The canvas object
 ///
 /// Notes:
-///  * If the canvas object and canvas2 are not at the same presentation level, this method will will move the canvas object as close to the desired relationship as possible without changing the canvas object's presentation level. See [hs.canvas.level](#level).
+///  * If the canvas object and canvas2 are not at the same presentation level, this method will move the canvas object as close to the desired relationship as possible without changing the canvas object's presentation level. See [hs.canvas.level](#level).
 static int canvas_orderAbove(lua_State *L) {
     return canvas_orderHelper(L, NSWindowAbove) ;
 }
@@ -3047,7 +3047,7 @@ static int canvas_orderAbove(lua_State *L) {
 ///  * The canvas object
 ///
 /// Notes:
-///  * If the canvas object and canvas2 are not at the same presentation level, this method will will move the canvas object as close to the desired relationship as possible without changing the canvas object's presentation level. See [hs.canvas.level](#level).
+///  * If the canvas object and canvas2 are not at the same presentation level, this method will move the canvas object as close to the desired relationship as possible without changing the canvas object's presentation level. See [hs.canvas.level](#level).
 static int canvas_orderBelow(lua_State *L) {
     return canvas_orderHelper(L, NSWindowBelow) ;
 }
@@ -3768,7 +3768,7 @@ static int pushCompositeTypes(lua_State *L) {
 /// * `transient`                 - The window floats in Spaces and is hidden by Exposé. This is the default behavior if windowLevel is not equal to NSNormalWindowLevel.
 /// * `stationary`                - The window is unaffected by Exposé; it stays visible and stationary, like the desktop window.
 ///
-/// The following have no effect on `hs.canvas` or `hs.drawing` objects, but are included for completness and are expected to be used by future additions.
+/// The following have no effect on `hs.canvas` or `hs.drawing` objects, but are included for completeness and are expected to be used by future additions.
 ///
 /// Only one of these may be active at a time:
 ///

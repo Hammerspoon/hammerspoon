@@ -157,7 +157,7 @@ logger.printHistory=function(entries,lvl,flt,case)
     lvl=toLogLevel(lvl or 5)
     filt={}
     for _,e in ipairs(hist) do
-      if e.level<=lvl and (not flt or sfind(case and e.id or slower(e.id),flt,1,true) or sfind(case and e.mesage or slower(e.message),flt,1,true)) then
+      if e.level<=lvl and (not flt or sfind(case and e.id or slower(e.id),flt,1,true) or sfind(case and e.message or slower(e.message),flt,1,true)) then
         filt[#filt+1]=e
       end
     end

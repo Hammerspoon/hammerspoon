@@ -293,7 +293,7 @@ return require("hs.drawing_canvasWrapper")
 ---
 --- Notes:
 ---  * This method can be used to specify the area of the display where this drawing should be visible.  If any portion of the drawing extends beyond this rectangle, the image is clipped so that only the portion within this rectangle is visible.
----  * The rectangle defined by this method is independant of the drawing's actual frame -- if you move the drawing with [hs.drawing:setFrame](#setFrame) or [hs.drawing:setTopLeft](#setTopLeft), this rectangle retains its current value.
+---  * The rectangle defined by this method is independent of the drawing's actual frame -- if you move the drawing with [hs.drawing:setFrame](#setFrame) or [hs.drawing:setTopLeft](#setTopLeft), this rectangle retains its current value.
 ---
 ---  * This method does not work for image objects at present.
 
@@ -512,7 +512,7 @@ return require("hs.drawing_canvasWrapper")
 ---    * shrinkToFit         - shrink the image, preserving the aspect ratio, to fit the drawing frame only if the image is larger than the drawing frame.
 ---    * scaleToFit          - shrink or expand the image to fully fill the drawing frame.  This does not preserve the aspect ratio.
 ---    * none                - perform no scaling or resizing of the image.
----    * scalePropertionally - shrink or expand the image to fully fill the drawing frame, preserving the aspect ration.
+---    * scaleProportionally - shrink or expand the image to fully fill the drawing frame, preserving the aspect ration.
 ---
 --- Returns:
 ---  * If a setting value is provided, the drawing object is returned; if no argument is provided, the current setting is returned.

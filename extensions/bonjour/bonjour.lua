@@ -73,7 +73,7 @@ end
 ---    * if a service is discovered or advertising for the service is terminated, the arguments will be:
 ---      * the browserObject
 ---      * the string "domain"
----      * a boolean indicating whether the service is being advertised (true) or should be removed because advertisments for the service are being terminated (false)
+---      * a boolean indicating whether the service is being advertised (true) or should be removed because advertisements for the service are being terminated (false)
 ---      * the serviceObject for the specific advertisement (see `hs.bonjour.service`)
 ---      * a boolean indicating if more advertisements are expected (true) or if the macOS believes that there are no more advertisements to be discovered (false).
 ---    * if an error occurs, the callback arguments will be:
@@ -87,7 +87,7 @@ end
 --- Notes:
 ---  * macOS will indicate when it believes there are no more advertisements of the type specified by `type` in `domain` by marking the last argument to your callback function as false. This is a best guess and may not always be accurate if your network is slow or some servers on your network are particularly slow to respond.
 ---  * In addition, if you leave the browser running this method, you will get future updates when services are removed because of server shutdowns or added because of new servers being booted up.
----  * Leaving the browser running does consume some system resources though, so you will have to determine, based upon your specific requirements, if this is a concern for your specific task or not. To terminate the browser when you have rtrieved all of the infomration you reuqire, you can use the [hs.bonjour:stop](#stop) method.
+---  * Leaving the browser running does consume some system resources though, so you will have to determine, based upon your specific requirements, if this is a concern for your specific task or not. To terminate the browser when you have retrieved all of the information you require, you can use the [hs.bonjour:stop](#stop) method.
 ---
 ---  * The special type "_services._dns-sd._udp." can be used to discover the types of services being advertised on your network. The `hs.bonjour.service` objects returned to the callback function cannot actually be resolved, but you can use the `hs.bonjour.service:name` method to create a list of services that are currently present and being advertised.
 ---    * this special type is used by the shortcut function [hs.bonjour.networkServices](#networkServices) for this specific purpose.
@@ -123,7 +123,7 @@ end
 ---
 ---  * The service will not be advertised until [hs.bonjour.service:publish](#publish) is invoked on the serviceObject returned.
 ---
----  * If you do not specify the `domain` paramter, your default domain, usually "local" will be used.
+---  * If you do not specify the `domain` parameter, your default domain, usually "local" will be used.
 module.service._new = module.service.new
 module.service.new = function(...)
     local args = table.pack(...)
@@ -153,7 +153,7 @@ end
 ---
 ---  * Resolution of the service ip address, hostname, port, and current text records will not occur until [hs.bonjour.service:publish](#publish) is invoked on the serviceObject returned.
 ---
----  * The macOS API specifies that an empty domain string (i.e. specifying the `domain` parameter as "" or leaving it off completely) should result in using the default domain for the computer; in my experience this results in an error when attempting to resolve the serviceObject's ip addresses if I don't specify "local" explicitely. In general this shouldn't be an issue if you limit your use of remote serviceObjects to those returned by `hs.bonjour:findServices` as the domain of discovery will be included in the object for you automatically. If you do try to create these objects independantly yourself, be aware that attempting to use the "default domain" rather than specifying it explicitely will probably not work as expected.
+---  * The macOS API specifies that an empty domain string (i.e. specifying the `domain` parameter as "" or leaving it off completely) should result in using the default domain for the computer; in my experience this results in an error when attempting to resolve the serviceObject's ip addresses if I don't specify "local" explicitly. In general this shouldn't be an issue if you limit your use of remote serviceObjects to those returned by `hs.bonjour:findServices` as the domain of discovery will be included in the object for you automatically. If you do try to create these objects independently yourself, be aware that attempting to use the "default domain" rather than specifying it explicitly will probably not work as expected.
 module.service._remote = module.service.remote
 module.service.remote = function(...)
     local args = table.pack(...)
@@ -177,7 +177,7 @@ end
 ---  * None
 ---
 --- Notes:
----  * This function is a convienence wrapper to [hs.bonjour:findServices](#findServices) which collects the results from multiple callbacks made to `findServices` and returns them all at once to the callback function provided as an argument to this function.
+---  * This function is a convenience wrapper to [hs.bonjour:findServices](#findServices) which collects the results from multiple callbacks made to `findServices` and returns them all at once to the callback function provided as an argument to this function.
 ---
 ---  * Because this function collects the results of multiple callbacks before invoking its own callback, the `timeout` value specified indicates the maximum number of seconds to wait after the latest value received by `findServices` unless the macOS specifies that it believes there are no more service types to identify.
 ---    * This is a best guess made by the macOS which may not always be accurate if your local network is particularly slow or if there are machines on your network which are slow to respond.

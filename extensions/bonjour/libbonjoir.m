@@ -185,7 +185,7 @@ static int browser_includesPeerToPeer(lua_State *L) {
 
 /// hs.bonjour:findBrowsableDomains(callback) -> browserObject
 /// Method
-/// Return a list of zero-conf and bonjour domains visibile to the users computer.
+/// Return a list of zero-conf and bonjour domains visible to the users computer.
 ///
 /// Parameters:
 ///  * `callback` - a function which will be invoked as visible domains are discovered. The function should accept the following parameters and return none:
@@ -204,11 +204,11 @@ static int browser_includesPeerToPeer(lua_State *L) {
 /// Notes:
 ///  * This method returns domains which are visible to your machine; however, your machine may or may not be able to access or publish records within the returned domains. See  [hs.bonjour:findRegistrationDomains](#findRegistrationDomains)
 ///
-///  * For most non-coporate network users, it is likely that the callback will only be invoked once for the `local` domain. This is normal. Corporate networks or networks including Linux machines using additional domains defined with Avahi may see additional domains as well, though most Avahi installations now use only 'local' by default unless specifically configured to do otherwise.
+///  * For most non-corporate network users, it is likely that the callback will only be invoked once for the `local` domain. This is normal. Corporate networks or networks including Linux machines using additional domains defined with Avahi may see additional domains as well, though most Avahi installations now use only 'local' by default unless specifically configured to do otherwise.
 ///
 ///  * When `moreExpected` becomes false, it is the macOS's best guess as to whether additional records are available.
-///    * Generally macOS is fairly accurate in this regard concerning domain searchs, so to reduce the impact on system resources, it is recommended that you use [hs.bonjour:stop](#stop) when this parameter is false
-//     * If any of your network interfaces are particularly slow or if a host on the network is slow to respond and you are concerend that additional records *may* still be forthcoming, you can use this flag to initiate additional logic or timers to determine how long to remain searching for additional domains.
+///    * Generally macOS is fairly accurate in this regard concerning domain searches, so to reduce the impact on system resources, it is recommended that you use [hs.bonjour:stop](#stop) when this parameter is false
+//     * If any of your network interfaces are particularly slow or if a host on the network is slow to respond and you are concerned that additional records *may* still be forthcoming, you can use this flag to initiate additional logic or timers to determine how long to remain searching for additional domains.
 static int browser_searchForBrowsableDomains(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION, LS_TBREAK] ;
@@ -242,11 +242,11 @@ static int browser_searchForBrowsableDomains(lua_State *L) {
 /// Notes:
 ///  * This is the preferred method for accessing domains as it guarantees that the host machine can connect to services in the returned domains. Access to domains outside this list may be more limited. See also [hs.bonjour:findBrowsableDomains](#findBrowsableDomains)
 ///
-///  * For most non-coporate network users, it is likely that the callback will only be invoked once for the `local` domain. This is normal. Corporate networks or networks including Linux machines using additional domains defined with Avahi may see additional domains as well, though most Avahi installations now use only 'local' by default unless specifically configured to do otherwise.
+///  * For most non-corporate network users, it is likely that the callback will only be invoked once for the `local` domain. This is normal. Corporate networks or networks including Linux machines using additional domains defined with Avahi may see additional domains as well, though most Avahi installations now use only 'local' by default unless specifically configured to do otherwise.
 ///
 ///  * When `moreExpected` becomes false, it is the macOS's best guess as to whether additional records are available.
-///    * Generally macOS is fairly accurate in this regard concerning domain searchs, so to reduce the impact on system resources, it is recommended that you use [hs.bonjour:stop](#stop) when this parameter is false
-//     * If any of your network interfaces are particularly slow or if a host on the network is slow to respond and you are concerend that additional records *may* still be forthcoming, you can use this flag to initiate additional logic or timers to determine how long to remain searching for additional domains.
+///    * Generally macOS is fairly accurate in this regard concerning domain searches, so to reduce the impact on system resources, it is recommended that you use [hs.bonjour:stop](#stop) when this parameter is false
+//     * If any of your network interfaces are particularly slow or if a host on the network is slow to respond and you are concerned that additional records *may* still be forthcoming, you can use this flag to initiate additional logic or timers to determine how long to remain searching for additional domains.
 static int browser_searchForRegistrationDomains(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION, LS_TBREAK] ;
@@ -303,7 +303,7 @@ static int browser_searchForServices(lua_State *L) {
 ///  * This method should be invoked when you have identified the services or hosts you require to reduce the consumption of system resources.
 ///  * Invoking this method on an already idle browser will do nothing
 ///
-///  * In general, when your callback function for [hs.bonjour:findBrowsableDomains](#findBrowsableDomains), [hs.bonjour:findRegistrationDomains](#findRegistrationDomains), or [hs.bonjour:findServices](#findServices) receives false for the `moreExpected` paramter, you should invoke this method on the browserObject unless there are specific reasons not to. Possible reasons you might want to extend the life of the browserObject are documented within each method.
+///  * In general, when your callback function for [hs.bonjour:findBrowsableDomains](#findBrowsableDomains), [hs.bonjour:findRegistrationDomains](#findRegistrationDomains), or [hs.bonjour:findServices](#findServices) receives false for the `moreExpected` parameter, you should invoke this method on the browserObject unless there are specific reasons not to. Possible reasons you might want to extend the life of the browserObject are documented within each method.
 static int browser_stop(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;

@@ -53,7 +53,7 @@ bool hidled_set(uint32 usage, long target_value) {
         goto Oops;
     // how many devices in the set?
     CFIndex deviceIndex, deviceCount = CFSetGetCount(deviceCFSetRef);
-    // allocate a block of memory to extact the device refs from the set into
+    // allocate a block of memory to extract the device refs from the set into
     refs = malloc(sizeof(IOHIDDeviceRef) * deviceCount);
     if (!refs)
         goto Oops;

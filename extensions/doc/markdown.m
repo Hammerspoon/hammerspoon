@@ -2,7 +2,7 @@
 ///
 /// Markdown to HTML and plaintext conversion support used by hs.doc
 ///
-/// This module provides Github-Flavored-Markdown conversion support used by hs.doc.  This module is a Lua wrapper to the C code portion of the Ruby gem `github-markdown`, available at https://rubygems.org/gems/github-markdown/versions/0.6.9.
+/// This module provides GitHub-Flavored-Markdown conversion support used by hs.doc.  This module is a Lua wrapper to the C code portion of the Ruby gem `github-markdown`, available at https://rubygems.org/gems/github-markdown/versions/0.6.9.
 ///
 /// The Ruby gem `github-markdown` was chosen as the code base for this module because it is the tool used to generate the official Hammerspoon Dash docset.
 ///
@@ -55,15 +55,15 @@ static void rndr_blockcode_github(struct buf *ob, const struct buf *text, const 
         }
 
 //         if (rb_block_given_p()) {
-//             VALUE hilight;
+//             VALUE highlight;
 //
-//             hilight = rb_yield_values(2,
+//             highlight = rb_yield_values(2,
 //                 geefem_str_new(text->data, text->size),
 //                 geefem_str_new(lang_name, lang_size));
 //
-//             if (!NIL_P(hilight)) {
-//                 Check_Type(hilight, T_STRING);
-//                 bufput(ob, RSTRING_PTR(hilight), RSTRING_LEN(hilight));
+//             if (!NIL_P(highlight)) {
+//                 Check_Type(highlight, T_STRING);
+//                 bufput(ob, RSTRING_PTR(highlight), RSTRING_LEN(highlight));
 //                 return;
 //             }
 //         }
@@ -171,7 +171,7 @@ static void ghmd__init_plaintext(void)
 /// Parameters:
 ///  * markdown - a string containing the input text encoded using markdown tags
 ///  * type     - an optional string specifying the conversion options and output type.  Defaults to "gfm".  The currently recognized types are:
-///    * "markdown"  - specfies that the output should be HTML with the standard GitHub/Markdown extensions enabled.
+///    * "markdown"  - specifies that the output should be HTML with the standard GitHub/Markdown extensions enabled.
 ///    * "gfm"       - specifies that the output should be HTML with additional GitHub extensions enabled.
 ///    * "plaintext" - specifies that the output should plain text with the standard GitHub/Markdown extensions enabled.
 ///
@@ -203,7 +203,7 @@ static int to_html(lua_State *L) {
         } else if ([modeString isEqualToString:@"plaintext"]) {
             mode = PLAINTEXT;
         } else {
-            return luaL_argerror(L, 2, [[NSString stringWithFormat:@"invalide mode, %@, specified", modeString] UTF8String]) ;
+            return luaL_argerror(L, 2, [[NSString stringWithFormat:@"invalid mode, %@, specified", modeString] UTF8String]) ;
         }
     }
 

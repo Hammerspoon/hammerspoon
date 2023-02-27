@@ -31,7 +31,7 @@ const char *AXErrorAsString(AXError theError) {
         case kAXErrorNoValue:                           ans = "Requested value does not exist" ; break ;
         case kAXErrorParameterizedAttributeUnsupported: ans = "Parameterized attribute is not supported" ; break ;
         case kAXErrorNotEnoughPrecision:                ans = "Not enough precision" ; break ;
-        default:                                        ans = "Unrecognized error occured" ; break ;
+        default:                                        ans = "Unrecognized error occurred" ; break ;
     }
     return ans ;
 }
@@ -585,7 +585,7 @@ static int axuielement_getElementAtPosition(lua_State *L) {
 ///
 /// Parameters:
 ///  * `attribute` - the name of the attribute, as specified by [hs.axuielement:parameterizedAttributeNames](#parameterizedAttributeNames).
-///  * `parameter` - the parameter required by the paramaterized attribute.
+///  * `parameter` - the parameter required by the parameterized attribute.
 ///
 /// Returns:
 ///  * the current value of the parameterized attribute, nil if the parameterized attribute has no value, or nil and an error string if an accessibility error occurred
@@ -644,7 +644,7 @@ static int axuielement_setAttributeValue(lua_State *L) {
 
 /// hs.axuielement:asHSApplication() -> hs.application object | nil
 /// Method
-/// If the element referes to an application, return an `hs.application` object for the element.
+/// If the element refers to an application, return an `hs.application` object for the element.
 ///
 /// Parameters:
 ///  * None
@@ -679,7 +679,7 @@ static int axuielement_toHSApplication(lua_State *L) {
 
 /// hs.axuielement:asHSWindow() -> hs.window object | nil
 /// Method
-/// If the element referes to a window, return an `hs.window` object for the element.
+/// If the element refers to a window, return an `hs.window` object for the element.
 ///
 /// Parameters:
 ///  * None
@@ -719,7 +719,7 @@ static int axuielement_toHSWindow(lua_State *L) {
 ///
 /// Notes:
 ///  * To change the global timeout affecting all queries on elements which do not have a specific timeout set, use this method on the systemwide element (see [hs.axuielement.systemWideElement](#systemWideElement).
-///  * Changing the timeout value for an axuielement object only changes the value for that specific element -- other axuieleement objects that may refer to the identical accessibiity item are not affected.
+///  * Changing the timeout value for an axuielement object only changes the value for that specific element -- other axuieleement objects that may refer to the identical accessibility item are not affected.
 ///  * Setting the value to 0.0 resets the timeout -- if applied to the `systemWideElement`, the global default will be reset to its default value; if applied to another axuielement object, the timeout will be reset to the current global value as applied to the systemWideElement.
 static int axuielement_setTimeout(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
@@ -931,8 +931,8 @@ static int axuielement_pushAttributesTable(lua_State *L) {
 ///  * this table is provided for reference only and is not intended to be comprehensive.
 ///  * you can view the contents of this table from the Hammerspoon console by typing in `hs.axuielement.parameterizedAttributes`
 ///  * Parameterized attributes are attributes that take an argument when querying the element. There is very little documentation available for most of these and application developers can implement their own for which we may never be able to get any documentation. This table contains parameterized attribute names that are defined within the Apple documentation and a few others that have been discovered.
-///  * Documentation covering what has been discovered through experimentation about paramterized attributes is planned and should be added to the Hammerspoon wiki shortly after this module becomes part of a formal release.
-static int axuielement_pushParamaterizedAttributesTable(lua_State *L) {
+///  * Documentation covering what has been discovered through experimentation about parameterized attributes is planned and should be added to the Hammerspoon wiki shortly after this module becomes part of a formal release.
+static int axuielement_pushParameterizedAttributesTable(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     lua_newtable(L) ;
     [skin pushNSObject:(__bridge NSString *)kAXAttributedStringForRangeParameterizedAttribute] ;  lua_setfield(L, -2, "attributedStringForRange") ;
@@ -1289,10 +1289,10 @@ int luaopen_hs_libaxuielement(lua_State* L) {
 // actually use them in case the user wants to use an Application defined attribute or action not
 // defined in the OS X headers.
     axuielement_pushAttributesTable(L) ;              lua_setfield(L, -2, "attributes") ;
-    axuielement_pushParamaterizedAttributesTable(L) ; lua_setfield(L, -2, "parameterizedAttributes") ;
+    axuielement_pushParameterizedAttributesTable(L) ; lua_setfield(L, -2, "parameterizedAttributes") ;
     axuielement_pushActionsTable(L) ;                 lua_setfield(L, -2, "actions") ;
 
-// ditto on these, since they are are actually results, not query-able parameters or actionable
+// ditto on these, since they are actually results, not query-able parameters or actionable
 // commands; however they can be used with elementSearch as values in the criteria to find such.
     axuielement_pushRolesTable(L) ;                   lua_setfield(L, -2, "roles") ;
     axuielement_pushSubrolesTable(L) ;                lua_setfield(L, -2, "subroles") ;

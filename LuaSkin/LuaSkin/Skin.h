@@ -97,13 +97,13 @@ typedef struct LSGCCanary {
  @typedef LS_NSConversionOptions
  @abstract Conversion options for @link pushNSObject:withOptions: @/link and @link toNSObjectAtIndex:withOptions: @/link
 
-   @constant LS_NSNone (used by both methods) no options specified, use default beahvior
+   @constant LS_NSNone (used by both methods) no options specified, use default behavior
    @constant LS_NSUnsignedLongLongPreserveBits (used by @link pushNSObject:withOptions: @/link) convert NSNumber that contains an unsigned long long to a lua_Integer (long long) rather than preserve the numerical magnitude with lua_Number (double).  Default is to preserve magnitude when the unsigned long long is greater than 0x7fffffffffffffff.
-   @constant LS_NSDescribeUnknownTypes (used by both methods) when a data type or sub-type is unrecognized and does not match any defined converter, return a string describing the data (from [NSObject debugDescription] or luaL_tolstring, whichever is appropriate for the initial data type) instead of the default behavior of returing nil for the entire conversion. Not compatible with LS_NSIgnoreUnknownTypes.
-   @constant LS_NSIgnoreUnknownTypes (used by both methods) when a date type or sub-type is unrecognized and does not match any defined converter, return a nil placeholder (from [NSNull null] or lua_pushnil, whichever is appropriate for the initial data type) for the data or sub-component instead of the default behavior of returing nil for the entire conversion. Not compatible with LS_NSDescribeUnknownTypes.
+   @constant LS_NSDescribeUnknownTypes (used by both methods) when a data type or sub-type is unrecognized and does not match any defined converter, return a string describing the data (from [NSObject debugDescription] or luaL_tolstring, whichever is appropriate for the initial data type) instead of the default behavior of returning nil for the entire conversion. Not compatible with LS_NSIgnoreUnknownTypes.
+   @constant LS_NSIgnoreUnknownTypes (used by both methods) when a date type or sub-type is unrecognized and does not match any defined converter, return a nil placeholder (from [NSNull null] or lua_pushnil, whichever is appropriate for the initial data type) for the data or sub-component instead of the default behavior of returning nil for the entire conversion. Not compatible with LS_NSDescribeUnknownTypes.
    @constant LS_NSPreserveLuaStringExactly (used by @link toNSObjectAtIndex:withOptions: @/link) If a Lua string contains character byte sequences which cannot be converted to a proper UTF8 Unicode character, return the string as an NSData object instead of the default lossy behavior of converting invalid sequences into the Unicode Invalid Character code.  You should check your result to see if it is an NSString or an NSData object with the isKindOfClass: message if you select this option. Not compatible with LS_NSLuaStringAsDataOnly.
    @constant LS_NSLuaStringAsDataOnly (used by @link toNSObjectAtIndex:withOptions: @/link) A lua string is always returned as an NSData object instead of the default lossy behavior of converting invalid sequences into the Unicode Invalid Character code.  Not compatible with LS_NSPreserveLuaStringExactly.
-   @constant LS_NSAllowsSelfReference (used by @link toNSObjectAtIndex:withOptions: @/link) If a lua table contains a self reference (a table value which equals one of tables in which it is nested), allow the same self reference in the NSArray or NSDictionary object being created instead of the defualt behavior of returning nil for the entire conversion.  Note that this option will create an object which likely cannot be fully collected by ARC without additional code due to strong internal references.
+   @constant LS_NSAllowsSelfReference (used by @link toNSObjectAtIndex:withOptions: @/link) If a lua table contains a self reference (a table value which equals one of tables in which it is nested), allow the same self reference in the NSArray or NSDictionary object being created instead of the default behavior of returning nil for the entire conversion.  Note that this option will create an object which likely cannot be fully collected by ARC without additional code due to strong internal references.
    @constant LS_NSRawTables (used by @link toNSObjectAtIndex:withOptions: @/link) Always convert a Lua table to NSArray or NSDictionary, even if it contains a __luaSkinType field and a registered conversion function for the specified type exists.
    @constant LS_WithObjectWrapper (used by @link pushNSObject:withOptions: @/link) Push NSArray or NSDictionary as userdata instead of table to lua stack. Meta-methods allow Lua to (mostly) use this as it would a table, but reduces overhead by not requiring data to be duplicated and inserted into Lua VM. Defaults to read-only (i.e. attempts to add or remove table elements in Lua will fail).
    @constant LS_OW_ReadWrite (used by @link pushNSObject:withOptions: @/link) When combined with @link LS_WithObjectWrapper @/link, the virtual table can be modified from Lua by adding or removing elements (as long as doing so would not change the underlying NSObject type), and the corresponding NSObject will be updated to reflect the changes.
@@ -135,7 +135,7 @@ typedef NS_OPTIONS(NSUInteger, LS_NSConversionOptions) {
    @define LS_LOG_DEBUG for messages that are usually only of interest during debugging
    @define LS_LOG_INFO for messages that are informative
    @define LS_LOG_WARN for messages that contain warnings
-   @define LS_LOG_ERROR for messages that indicate an error has occured
+   @define LS_LOG_ERROR for messages that indicate an error has occurred
  */
 #define LS_LOG_BREADCRUMB 6
 #define LS_LOG_VERBOSE    5
@@ -159,7 +159,7 @@ NSString *specMaskToString(int spec);
 
 /*!
  @protocol LuaSkinDelegate
- @abstract Delegate method for passing control back to the parent environment for environment specific handling.  Curerntly only offers support for passing log messages back to the parent environment for display or processing.
+ @abstract Delegate method for passing control back to the parent environment for environment specific handling.  Currently only offers support for passing log messages back to the parent environment for display or processing.
  */
 @protocol LuaSkinDelegate <NSObject>
 
@@ -189,7 +189,7 @@ NSString *specMaskToString(int spec);
 /*!
  @class LuaSkin
  @abstract Abstraction layer for common operations on Lua state objects
- @discussion LuaSkin was written for Hammerspoon (although it does not depend on any Hammerspoon functionality) to simplify our use of Lua. It includes a full, unmodified Lua distirbution, and provides an Objective C class that is capable of performing common operations such as creating/destroing a lua_State object, providing shared access to the object, Lua function argument type checking and bi-directional conversion of Lua objects and NSObject objects (with loadable plugins for your own converters)
+ @discussion LuaSkin was written for Hammerspoon (although it does not depend on any Hammerspoon functionality) to simplify our use of Lua. It includes a full, unmodified Lua distribution, and provides an Objective C class that is capable of performing common operations such as creating/destroying a lua_State object, providing shared access to the object, Lua function argument type checking and bi-directional conversion of Lua objects and NSObject objects (with loadable plugins for your own converters)
  */
 @interface LuaSkin : NSObject
 
@@ -558,7 +558,7 @@ NSString *specMaskToString(int spec);
 /*!
   @abstract Checks a list of Lua references for validity
 
-  @discussion This compares each argument against LUA_REFNIL and LUA_NOREF. If any of the supplied arguments contain either of those values, this method returns NO. It does not guarantee that the references are valid within the Lua environment, simply that they have not been explicitly invalited.
+  @discussion This compares each argument against LUA_REFNIL and LUA_NOREF. If any of the supplied arguments contain either of those values, this method returns NO. It does not guarantee that the references are valid within the Lua environment, simply that they have not been explicitly invalidated.
   @param firstRef - An integer containing a Lua reference. Followed by zero or more integers containing other Lua references. The final value MUST be LS_RBREAK.
   @return YES or NO indicating whether all of the supplied references are valid or not
  */

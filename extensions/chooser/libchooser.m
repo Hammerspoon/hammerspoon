@@ -27,7 +27,7 @@ static int chooserNew(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TFUNCTION, LS_TBREAK];
 
-    // Parse function arguents
+    // Parse function arguments
     lua_pushvalue(L, 1);
     int completionCallbackRef = [skin luaRef:refTable];
 
@@ -586,7 +586,7 @@ static int chooserSetBgDark(lua_State *L) {
 /// Gets/Sets whether the chooser should run the callback on a query when it does not match any on the list
 ///
 /// Parameters:
-///  * enableDefaultForQuery - An optional boolean, true to return query string, false to not. If this parametr is omitted, the current configuration value will be returned
+///  * enableDefaultForQuery - An optional boolean, true to return query string, false to not. If this parameter is omitted, the current configuration value will be returned
 ///
 /// Returns:
 ///  * the `hs.chooser` object if a value was set, or a boolean if no parameter was passed

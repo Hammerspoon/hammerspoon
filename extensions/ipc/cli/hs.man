@@ -40,7 +40,7 @@ Executes the specified code. May be specified more than once and the commands wi
 .Fl i
 and
 .Fl N
-unless they are also explicitely specified in the argument list.
+unless they are also explicitly specified in the argument list.
 .It Fl C
 Enable print cloning from the Hammerspoon Console to this instance. Disables
 .Fl P.
@@ -86,7 +86,7 @@ Specifies a file containing Hammerspoon code to load and execute. Must start wit
 .Fl N
 or
 .Fl i
-are also explicitely specified in the argument list. Any arguments which follow this are passed into the cli instance as custom arguments.
+are also explicitly specified in the argument list. Any arguments which follow this are passed into the cli instance as custom arguments.
 .It Fl h | Fl ?
 Displays a brief summary of the available command line arguments and exits.
 .El
@@ -113,7 +113,7 @@ and the callback applied when you created the message port in Hammerspoon with
 .Ar hs.ipc.localPort
 does not respond with the proper string to an initial query with message id 900,
 .Nm
-will enter legacy mode. In legacy mode, output is collected until your code is completed rather then sent as generated and code errors cannot be programtically distinguished from code output. Documentating how to implement a fully bidirectional callback is beyond the scope of this man page. For now, refer to the built in handler defined in
+will enter legacy mode. In legacy mode, output is collected until your code is completed rather then sent as generated and code errors cannot be programmatically distinguished from code output. Documenting how to implement a fully bidirectional callback is beyond the scope of this man page. For now, refer to the built in handler defined in
 .Pa /Applications/Hammerspoon.app/Contents/Resources/extensions/hs/ipc/init.lua
 if you require this for your custom handler.
 .Sh FILES
@@ -124,7 +124,7 @@ if you require this for your custom handler.
 The most common error codes are as follows:
 .Bl -tag -width indent
 .It EX_DATAERR (65)
-A Hammerspoon or Lua error occured when attempting to execute code in a non-interactive mode.
+A Hammerspoon or Lua error occurred when attempting to execute code in a non-interactive mode.
 .It EX_NOINPUT (66)
 There was an error reading from stdin or
 .Pa /path/file

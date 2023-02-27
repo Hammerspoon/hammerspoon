@@ -116,7 +116,7 @@ static int pushParsedICMPPayload(lua_State *L, NSData *payloadData) {
 - (void)simplePing:(SimplePing *)pinger didStartWithAddress:(NSData *)address {
 
     // Clear the close-on-invalidate flag... otherwise a future stop on the object would
-    // cause all ping objects to stop stop at the same time.
+    // cause all ping objects to stop at the same time.
     CFOptionFlags sockopt = CFSocketGetSocketFlags(self.socket);
     sockopt &= ~kCFSocketCloseOnInvalidate;
     CFSocketSetSocketFlags(self.socket, sockopt);

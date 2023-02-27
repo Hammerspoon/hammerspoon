@@ -353,7 +353,7 @@ static int doc_registeredFiles(lua_State *L) {
 }
 
 // // Wasn't actually used by anything outside of this module, and now it's not necessary at all,
-// // but if we find out somone misses it, we can easily re-add it by uncommenting this and
+// // but if we find out someone misses it, we can easily re-add it by uncommenting this and
 // /// the entry in moduleLib below
 // //
 // /// hs.doc.validateJSONFile(jsonfile) -> status, message|table

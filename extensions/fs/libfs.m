@@ -160,7 +160,7 @@ static int change_dir (lua_State *L) {
 ///  * None
 ///
 /// Returns:
-///  * A string containing the current working directory, or if an error occured, nil and an error string
+///  * A string containing the current working directory, or if an error occurred, nil and an error string
 static int get_dir(lua_State * L) {
     char *path = NULL;
     /* Passing (NULL, 0) is not guaranteed to work. Use a temp buffer and size instead. */
@@ -705,7 +705,7 @@ static const char *perm2string (mode_t mode) {
     return perms;
 }
 
-/* permssions string */
+/* permissions string */
 static void push_st_perm (lua_State *L, STAT_STRUCT *info) {
     lua_pushstring (L, perm2string (info->st_mode));
 }
@@ -943,7 +943,7 @@ static int hs_temporaryDirectory(lua_State *L) {
 ///  * path - the path to the file to return the UTI for.
 ///
 /// Returns:
-///  * a string containing the Uniform Type Identifier for the file location specified or nil if an error occured
+///  * a string containing the Uniform Type Identifier for the file location specified or nil if an error occurred
 static int hs_fileuti(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
@@ -966,7 +966,7 @@ static int hs_fileuti(lua_State *L) {
 /// Parameters:
 ///  * a string containing a file UTI, such as one returned by `hs.fs.fileUTI`.
 ///  * a string specifying the alternate format for the UTI.  This string may be one of the following:
-///     * `extension`  - as a file extension, commonly used for platform independant file sharing when file metadata can't be guaranteed to be cross-platform compatible.  Generally considered unreliable when other file type identification methods are available.
+///     * `extension`  - as a file extension, commonly used for platform independent file sharing when file metadata can't be guaranteed to be cross-platform compatible.  Generally considered unreliable when other file type identification methods are available.
 ///    * `mime`       - as a mime-type, commonly used by Internet applications like web browsers and email applications.
 ///    * `pasteboard` - as an NSPasteboard type (see `hs.pasteboard`).
 ///    * `ostype`     - four character file type, most common pre OS X, but still used in some legacy APIs.
