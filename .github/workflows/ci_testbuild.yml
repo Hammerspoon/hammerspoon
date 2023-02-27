@@ -66,11 +66,11 @@ jobs:
       - name: Send notification (Push)
         if: ${{ always() && github.event_name == 'push' && github.repository == 'hammerspoon/hammerspoon' }}
         run: |
-          /usr/bin/curl -H "X-CI-WebHook: true" -H "Content-Type: application/json" -d '{"secret": "${{ secrets.CI_WEBHOOK_SECRET }}", "repository": "hammerspoon", "workflow": "CI (Push)", "message": "CI for ${{ github.event.compare }} (${{ github.event.head_commit.author.name }}):\n  * ${{ github.event.head_commit.message}}\n  * ${{ steps.test.outputs.test_result }}"}' ${{ secrets.CI_WEBHOOK_URL }}
+          /usr/bin/curl -H "X-CI-WebHook: true" -H "Content-Type: application/json" -d '{"secret": "${{ secrets.CI_WEBHOOK_SECRET }}", "repository": "hammerspoon", "workflow": "CI (Push)", "message": "CI for ${{ github.event.compare }} (${{ github.event.head_commit.author.name }}):\n  * ${{ github.event.head_commit.message}}\n  * ${{ steps.test.outputs.test_result }}"}' "${{ secrets.CI_WEBHOOK_URL }}"
 
       - name: Send notification (PR)
         if: ${{ always() && github.event_name == 'pull_request' && github.repository == 'hammerspoon/hammerspoon' && env.CI_WEBHOOK_URL != '' }}
         env:
           CI_WEBHOOK_URL: ${{ secrets.CI_WEBHOOK_URL }}
         run: |
-          /usr/bin/curl -H "X-CI-WebHook: true" -H "Content-Type: application/json" -d '{"secret": "${{ secrets.CI_WEBHOOK_SECRET }}", "repository": "hammerspoon", "workflow": "CI (PR)", "message": "CI for ${{ github.event.pull_request.html_url }} (${{ github.actor }})\n  * ${{ github.event.pull_request.title }}\n  * ${{ steps.test.outputs.test_result }}"}' $CI_WEBHOOK_URL
+          /usr/bin/curl -H "X-CI-WebHook: true" -H "Content-Type: application/json" -d '{"secret": "${{ secrets.CI_WEBHOOK_SECRET }}", "repository": "hammerspoon", "workflow": "CI (PR)", "message": "CI for ${{ github.event.pull_request.html_url }} (${{ github.actor }})\n  * ${{ github.event.pull_request.title }}\n  * ${{ steps.test.outputs.test_result }}"}' "${{ secrets.CI_WEBHOOK_URL }}"
