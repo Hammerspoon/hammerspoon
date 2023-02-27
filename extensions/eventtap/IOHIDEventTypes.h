@@ -373,7 +373,7 @@ enum {
     kIOHIDEventFieldNavigationSwipeProgress,
     kIOHIDEventFieldNavigationSwipePositionX,
     kIOHIDEventFieldNavigationSwipePositionY,
-    kIOHIDEventFieldNavigationSwipeFlavor,
+    kIOHIDEventFieldNavagationSwipeFlavor,
 };
 
 enum {
@@ -592,8 +592,8 @@ typedef uint16_t IOHIDGestureMotion;
     @constant kIOHIDGestureFlavorNotificationCenterSecondary
     @constant kIOHIDGestureFlavorDockPrimary
     @constant kIOHIDGestureFlavorDockSecondary
-    @constant kIOHIDGestureFlavorNavigationPrimary
-    @constant kIOHIDGestureFlavorNavigationSecondary
+    @constant kIOHIDGestureFlavorNavagationPrimary
+    @constant kIOHIDGestureFlavorNavagationSecondary
     @constant kIOHIDGestureFlavorControlCenterPrimary
     @constant kIOHIDGestureFlavorControlCenterSecondary
 */
@@ -603,8 +603,8 @@ enum {
     kIOHIDGestureFlavorNotificationCenterSecondary,
     kIOHIDGestureFlavorDockPrimary,
     kIOHIDGestureFlavorDockSecondary,
-    kIOHIDGestureFlavorNavigationPrimary,
-    kIOHIDGestureFlavorNavigationSecondary,
+    kIOHIDGestureFlavorNavagationPrimary,
+    kIOHIDGestureFlavorNavagationSecondary,
     kIOHIDGestureFlavorControlCenterPrimary,
     kIOHIDGestureFlavorControlCenterSecondary,
 };
