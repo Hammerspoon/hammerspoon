@@ -7,6 +7,7 @@
 @property NSColor *MJColorForCommand ;
 @property NSColor *MJColorForResult ;
 @property NSFont  *consoleFont ;
+@property NSNumber *maxConsoleOutputHistory ;
 
 + (instancetype) singleton;
 - (void) setup;
