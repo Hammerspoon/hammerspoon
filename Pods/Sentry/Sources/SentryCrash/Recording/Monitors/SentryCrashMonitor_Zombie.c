@@ -84,11 +84,20 @@ copyStringIvar(const void *self, const char *ivarName, char *buffer, int bufferL
                     SentryCrashLOG_DEBUG("sentrycrashobjc_copyStringContents %s failed", ivarName);
                 }
             }
-            else { SentryCrashLOG_DEBUG("sentrycrashobjc_isValidObject %s failed", ivarName); }
+            else
+            {
+                SentryCrashLOG_DEBUG("sentrycrashobjc_isValidObject %s failed", ivarName);
+            }
         }
-        else { SentryCrashLOG_DEBUG("sentrycrashobjc_ivarValue %s failed", ivarName); }
+        else
+        {
+            SentryCrashLOG_DEBUG("sentrycrashobjc_ivarValue %s failed", ivarName);
+        }
     }
-    else { SentryCrashLOG_DEBUG("sentrycrashobjc_ivarNamed %s failed", ivarName); }
+    else
+    {
+        SentryCrashLOG_DEBUG("sentrycrashobjc_ivarNamed %s failed", ivarName);
+    }
     return false;
 }
 

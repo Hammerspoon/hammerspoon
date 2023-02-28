@@ -40,6 +40,10 @@ SENTRY_NO_INIT
 
 @property (nonatomic, assign) BOOL wasTerminated;
 
+@property (nonatomic, assign) BOOL isANROngoing;
+
+@property (nonatomic, assign) BOOL isSDKRunning;
+
 @end
 
 NS_ASSUME_NONNULL_END

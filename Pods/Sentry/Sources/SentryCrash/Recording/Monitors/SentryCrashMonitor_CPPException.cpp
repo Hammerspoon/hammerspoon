@@ -29,7 +29,7 @@
 #include "SentryCrashStackCursor_SelfThread.h"
 #include "SentryCrashThread.h"
 
-//#define SentryCrashLogger_LocalLevel TRACE
+// #define SentryCrashLogger_LocalLevel TRACE
 #include "SentryCrashLogger.h"
 
 #include <cxxabi.h>
@@ -94,10 +94,23 @@ __cxa_throw(void *thrown_exception, std::type_info *tinfo, void (*dest)(void *))
 }
 }
 
+void
+sentrycrashcm_cppexception_callOriginalTerminationHandler(void)
+{
+    // Can be NULL as the return value of set_terminate can be a NULL pointer; see:
+    // https://en.cppreference.com/w/cpp/error/set_terminate
+    if (g_originalTerminateHandler != NULL) {
+        SentryCrashLOG_DEBUG("Calling original terminate handler.");
+        g_originalTerminateHandler();
+    }
+}
+
 static void
 CPPExceptionTerminate(void)
 {
-    sentrycrashmc_suspendEnvironment();
+    thread_act_array_t threads = NULL;
+    mach_msg_type_number_t numThreads = 0;
+    sentrycrashmc_suspendEnvironment(&threads, &numThreads);
     SentryCrashLOG_DEBUG("Trapped c++ exception");
     const char *name = NULL;
     std::type_info *tinfo = __cxxabiv1::__cxa_current_exception_type();
@@ -163,10 +176,9 @@ CPPExceptionTerminate(void)
         SentryCrashLOG_DEBUG("Detected NSException. Letting the current "
                              "NSException handler deal with it.");
     }
-    sentrycrashmc_resumeEnvironment();
+    sentrycrashmc_resumeEnvironment(threads, numThreads);
 
-    SentryCrashLOG_DEBUG("Calling original terminate handler.");
-    g_originalTerminateHandler();
+    sentrycrashcm_cppexception_callOriginalTerminationHandler();
 }
 
 // ============================================================================
@@ -195,6 +207,7 @@ setEnabled(bool isEnabled)
             g_originalTerminateHandler = std::set_terminate(CPPExceptionTerminate);
         } else {
             std::set_terminate(g_originalTerminateHandler);
+            g_originalTerminateHandler = NULL;
         }
         g_captureNextStackTrace = isEnabled;
     }

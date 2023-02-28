@@ -3,7 +3,7 @@
 @implementation
 NSData (Sentry)
 
-- (NSData *)nullTerminated
+- (NSData *)sentry_nullTerminated
 {
     if (self == nil) {
         return nil;

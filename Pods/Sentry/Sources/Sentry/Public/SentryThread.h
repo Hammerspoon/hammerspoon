@@ -5,7 +5,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SentryStacktrace;
 
-NS_SWIFT_NAME(Thread)
 @interface SentryThread : NSObject <SentrySerializable>
 SENTRY_NO_INIT
 
@@ -17,22 +16,27 @@ SENTRY_NO_INIT
 /**
  * Name (if available) of the thread
  */
-@property (nonatomic, copy) NSString *_Nullable name;
+@property (nullable, nonatomic, copy) NSString *name;
 
 /**
  * SentryStacktrace of the SentryThread
  */
-@property (nonatomic, strong) SentryStacktrace *_Nullable stacktrace;
+@property (nullable, nonatomic, strong) SentryStacktrace *stacktrace;
 
 /**
  * Did this thread crash?
  */
-@property (nonatomic, copy) NSNumber *_Nullable crashed;
+@property (nullable, nonatomic, copy) NSNumber *crashed;
 
 /**
  * Was it the current thread.
  */
-@property (nonatomic, copy) NSNumber *_Nullable current;
+@property (nullable, nonatomic, copy) NSNumber *current;
+
+/**
+ * Was it the main thread?
+ */
+@property (nullable, nonatomic, copy) NSNumber *isMain;
 
 /**
  * Initializes a SentryThread with its id

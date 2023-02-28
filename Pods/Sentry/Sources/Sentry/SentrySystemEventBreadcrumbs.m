@@ -1,50 +1,92 @@
 #import "SentrySystemEventBreadcrumbs.h"
 #import "SentryBreadcrumb.h"
+#import "SentryCurrentDateProvider.h"
+#import "SentryDependencyContainer.h"
 #import "SentryLog.h"
-#import "SentrySDK.h"
+#import "SentryNSNotificationCenterWrapper.h"
 
 // all those notifications are not available for tvOS
 #if TARGET_OS_IOS
 #    import <UIKit/UIKit.h>
 #endif
 
+@interface
+SentrySystemEventBreadcrumbs ()
+@property (nonatomic, weak) id<SentrySystemEventBreadcrumbsDelegate> delegate;
+@property (nonatomic, strong) SentryFileManager *fileManager;
+@property (nonatomic, strong) id<SentryCurrentDateProvider> currentDateProvider;
+@property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenterWrapper;
+@end
+
 @implementation SentrySystemEventBreadcrumbs
 
-- (void)start
+- (instancetype)initWithFileManager:(SentryFileManager *)fileManager
+             andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
+       andNotificationCenterWrapper:(SentryNSNotificationCenterWrapper *)notificationCenterWrapper
+{
+    if (self = [super init]) {
+        _fileManager = fileManager;
+        _currentDateProvider = currentDateProvider;
+        _notificationCenterWrapper = notificationCenterWrapper;
+    }
+    return self;
+}
+
+- (void)startWithDelegate:(id<SentrySystemEventBreadcrumbsDelegate>)delegate
 {
 #if TARGET_OS_IOS
     UIDevice *currentDevice = [UIDevice currentDevice];
-    [self start:currentDevice];
+    [self startWithDelegate:delegate currentDevice:currentDevice];
 #else
-    [SentryLog logWithMessage:@"NO iOS -> [SentrySystemEventsBreadcrumbs.start] does nothing."
-                     andLevel:kSentryLevelDebug];
+    SENTRY_LOG_DEBUG(@"NO iOS -> [SentrySystemEventsBreadcrumbs.start] does nothing.");
 #endif
 }
 
 - (void)stop
 {
 #if TARGET_OS_IOS
-    NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
-    [defaultCenter removeObserver:self];
+    // Remove the observers with the most specific detail possible, see
+    // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
+    [self.notificationCenterWrapper removeObserver:self name:UIKeyboardDidShowNotification];
+    [self.notificationCenterWrapper removeObserver:self name:UIKeyboardDidHideNotification];
+    [self.notificationCenterWrapper removeObserver:self
+                                              name:UIApplicationUserDidTakeScreenshotNotification];
+    [self.notificationCenterWrapper removeObserver:self
+                                              name:UIDeviceBatteryLevelDidChangeNotification];
+    [self.notificationCenterWrapper removeObserver:self
+                                              name:UIDeviceBatteryStateDidChangeNotification];
+    [self.notificationCenterWrapper removeObserver:self
+                                              name:UIDeviceOrientationDidChangeNotification];
+    [self.notificationCenterWrapper removeObserver:self
+                                              name:UIDeviceOrientationDidChangeNotification];
 #endif
+}
+
+- (void)dealloc
+{
+    // In dealloc it's safe to unsubscribe for all, see
+    // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
+    [self.notificationCenterWrapper removeObserver:self];
 }
 
 #if TARGET_OS_IOS
 /**
- * Only used for testing, call start() instead.
+ * Only used for testing, call startWithDelegate instead.
  */
-- (void)start:(UIDevice *)currentDevice
+- (void)startWithDelegate:(id<SentrySystemEventBreadcrumbsDelegate>)delegate
+            currentDevice:(nullable UIDevice *)currentDevice
 {
+    _delegate = delegate;
     if (currentDevice != nil) {
         [self initBatteryObserver:currentDevice];
         [self initOrientationObserver:currentDevice];
     } else {
-        [SentryLog logWithMessage:@"currentDevice is null, it won't be able to record breadcrumbs "
-                                  @"for device battery and orientation."
-                         andLevel:kSentryLevelDebug];
+        SENTRY_LOG_DEBUG(@"currentDevice is null, it won't be able to record breadcrumbs for "
+                         @"device battery and orientation.");
     }
     [self initKeyboardVisibilityObserver];
     [self initScreenshotObserver];
+    [self initTimezoneObserver];
 }
 #endif
 
@@ -55,18 +97,17 @@
         currentDevice.batteryMonitoringEnabled = YES;
     }
 
-    NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
-
     // Posted when the battery level changes.
-    [defaultCenter addObserver:self
-                      selector:@selector(batteryStateChanged:)
-                          name:UIDeviceBatteryLevelDidChangeNotification
-                        object:currentDevice];
+    [self.notificationCenterWrapper addObserver:self
+                                       selector:@selector(batteryStateChanged:)
+                                           name:UIDeviceBatteryLevelDidChangeNotification
+                                         object:currentDevice];
+
     // Posted when battery state changes.
-    [defaultCenter addObserver:self
-                      selector:@selector(batteryStateChanged:)
-                          name:UIDeviceBatteryStateDidChangeNotification
-                        object:currentDevice];
+    [self.notificationCenterWrapper addObserver:self
+                                       selector:@selector(batteryStateChanged:)
+                                           name:UIDeviceBatteryStateDidChangeNotification
+                                         object:currentDevice];
 }
 
 - (void)batteryStateChanged:(NSNotification *)notification
@@ -79,7 +120,7 @@
                                                              category:@"device.event"];
     crumb.type = @"system";
     crumb.data = batteryData;
-    [SentrySDK addBreadcrumb:crumb];
+    [_delegate addBreadcrumb:crumb];
 }
 
 - (NSMutableDictionary<NSString *, id> *)getBatteryStatus:(UIDevice *)currentDevice
@@ -101,7 +142,7 @@
         float w3cLevel = (currentLevel * 100);
         batteryData[@"level"] = @(w3cLevel);
     } else {
-        [SentryLog logWithMessage:@"batteryLevel is unknown." andLevel:kSentryLevelDebug];
+        SENTRY_LOG_DEBUG(@"batteryLevel is unknown.");
     }
 
     batteryData[@"plugged"] = @(isPlugged);
@@ -115,10 +156,10 @@
     }
 
     // Posted when the orientation of the device changes.
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(orientationChanged:)
-                                                 name:UIDeviceOrientationDidChangeNotification
-                                               object:currentDevice];
+    [self.notificationCenterWrapper addObserver:self
+                                       selector:@selector(orientationChanged:)
+                                           name:UIDeviceOrientationDidChangeNotification
+                                         object:currentDevice];
 }
 
 - (void)orientationChanged:(NSNotification *)notification
@@ -131,7 +172,7 @@
 
     // Ignore changes in device orientation if unknown, face up, or face down.
     if (!UIDeviceOrientationIsValidInterfaceOrientation(currentOrientation)) {
-        [SentryLog logWithMessage:@"currentOrientation is unknown." andLevel:kSentryLevelDebug];
+        SENTRY_LOG_DEBUG(@"currentOrientation is unknown.");
         return;
     }
 
@@ -141,23 +182,20 @@
         crumb.data = @{ @"position" : @"portrait" };
     }
     crumb.type = @"navigation";
-    [SentrySDK addBreadcrumb:crumb];
+    [_delegate addBreadcrumb:crumb];
 }
 
 - (void)initKeyboardVisibilityObserver
 {
-    NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
     // Posted immediately after the display of the keyboard.
-    [defaultCenter addObserver:self
-                      selector:@selector(systemEventTriggered:)
-                          name:UIKeyboardDidShowNotification
-                        object:nil];
+    [self.notificationCenterWrapper addObserver:self
+                                       selector:@selector(systemEventTriggered:)
+                                           name:UIKeyboardDidShowNotification];
 
     // Posted immediately after the dismissal of the keyboard.
-    [defaultCenter addObserver:self
-                      selector:@selector(systemEventTriggered:)
-                          name:UIKeyboardDidHideNotification
-                        object:nil];
+    [self.notificationCenterWrapper addObserver:self
+                                       selector:@selector(systemEventTriggered:)
+                                           name:UIKeyboardDidHideNotification];
 }
 
 - (void)systemEventTriggered:(NSNotification *)notification
@@ -166,17 +204,67 @@
                                                              category:@"device.event"];
     crumb.type = @"system";
     crumb.data = @{ @"action" : notification.name };
-    [SentrySDK addBreadcrumb:crumb];
+    [_delegate addBreadcrumb:crumb];
 }
 
 - (void)initScreenshotObserver
 {
     // it's only about the action, but not the SS itself
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(systemEventTriggered:)
-                                                 name:UIApplicationUserDidTakeScreenshotNotification
-                                               object:nil];
+    [self.notificationCenterWrapper addObserver:self
+                                       selector:@selector(systemEventTriggered:)
+                                           name:UIApplicationUserDidTakeScreenshotNotification];
 }
+
+- (void)initTimezoneObserver
+{
+    // Detect if the stored timezone is different from the current one;
+    // if so, then we also send a breadcrumb
+    NSNumber *_Nullable storedTimezoneOffset = [self.fileManager readTimezoneOffset];
+
+    if (storedTimezoneOffset == nil) {
+        [self updateStoredTimezone];
+    } else if (storedTimezoneOffset.doubleValue != self.currentDateProvider.timezoneOffset) {
+        [self timezoneEventTriggered:storedTimezoneOffset];
+    }
+
+    // Posted when the timezone of the device changed
+    [self.notificationCenterWrapper addObserver:self
+                                       selector:@selector(timezoneEventTriggered)
+                                           name:NSSystemTimeZoneDidChangeNotification];
+}
+
+- (void)timezoneEventTriggered
+{
+    [self timezoneEventTriggered:nil];
+}
+
+- (void)timezoneEventTriggered:(NSNumber *)storedTimezoneOffset
+{
+    if (storedTimezoneOffset == nil) {
+        storedTimezoneOffset = [self.fileManager readTimezoneOffset];
+    }
+
+    SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
+                                                             category:@"device.event"];
+
+    NSInteger offset = self.currentDateProvider.timezoneOffset;
+
+    crumb.type = @"system";
+    crumb.data = @{
+        @"action" : @"TIMEZONE_CHANGE",
+        @"previous_seconds_from_gmt" : storedTimezoneOffset,
+        @"current_seconds_from_gmt" : @(offset)
+    };
+    [_delegate addBreadcrumb:crumb];
+
+    [self updateStoredTimezone];
+}
+
+- (void)updateStoredTimezone
+{
+    [self.fileManager storeTimezoneOffset:self.currentDateProvider.timezoneOffset];
+}
+
 #endif
 
 @end

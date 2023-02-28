@@ -1,1 +1,1 @@
-../../../Sentry/Sources/Sentry/Public/SentryAppStartMeasurement.h
+../../../Sentry/Sources/Sentry/include/HybridPublic/SentryAppStartMeasurement.h

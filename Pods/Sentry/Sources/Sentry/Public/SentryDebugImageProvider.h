@@ -1,7 +1,7 @@
 #import "SentryDefines.h"
 #import <Foundation/Foundation.h>
 
-@class SentryDebugMeta;
+@class SentryDebugMeta, SentryThread, SentryFrame;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -11,6 +11,20 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryDebugImageProvider : NSObject
 
 - (instancetype)init;
+
+/**
+ * Returns a list of debug images that are being referenced in the given threads.
+ *
+ * @param threads A list of SentryThread that may or may not contains a stacktrace.
+ */
+- (NSArray<SentryDebugMeta *> *)getDebugImagesForThreads:(NSArray<SentryThread *> *)threads;
+
+/**
+ * Returns a list of debug images that are being referenced by the given frames.
+ *
+ * @param frames A list of stack frames.
+ */
+- (NSArray<SentryDebugMeta *> *)getDebugImagesForFrames:(NSArray<SentryFrame *> *)frames;
 
 /**
  * Returns the current list of debug images. Be aware that the SentryDebugMeta is actually

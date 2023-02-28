@@ -1,1 +1,1 @@
-../../../Sentry/Sources/Sentry/Public/SentrySdkInfo.h
+../../../Sentry/Sources/Sentry/include/SentrySdkInfo.h

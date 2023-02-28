@@ -126,6 +126,10 @@ SentryCrashJSONCodec ()
         self.callbacks = malloc(sizeof(*self.callbacks));
         // Unlikely malloc failure.
         NSAssert(self.callbacks != NULL, @"Could not allocate callbacks");
+        if (self.callbacks == NULL) {
+            NSLog(@"Could not allocate callbacks");
+            return NULL;
+        }
 
         self.callbacks->onBeginArray = onBeginArray;
         self.callbacks->onBeginObject = onBeginObject;
@@ -134,6 +138,7 @@ SentryCrashJSONCodec ()
         self.callbacks->onEndData = onEndData;
         self.callbacks->onFloatingPointElement = onFloatingPointElement;
         self.callbacks->onIntegerElement = onIntegerElement;
+        self.callbacks->onUIntegerElement = onUIntegerElement;
         self.callbacks->onNullElement = onNullElement;
         self.callbacks->onStringElement = onStringElement;
 
@@ -223,6 +228,15 @@ onIntegerElement(const char *const cName, const int64_t value, void *const userD
 {
     NSString *name = stringFromCString(cName);
     id element = [NSNumber numberWithLongLong:value];
+    SentryCrashJSONCodec *codec = (__bridge SentryCrashJSONCodec *)userData;
+    return onElement(codec, name, element);
+}
+
+static int
+onUIntegerElement(const char *const cName, const uint64_t value, void *const userData)
+{
+    NSString *name = stringFromCString(cName);
+    id element = [NSNumber numberWithUnsignedLongLong:value];
     SentryCrashJSONCodec *codec = (__bridge SentryCrashJSONCodec *)userData;
     return onElement(codec, name, element);
 }

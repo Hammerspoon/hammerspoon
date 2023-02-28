@@ -1,8 +1,11 @@
 #import "SentryAutoBreadcrumbTrackingIntegration.h"
 #import "SentryBreadcrumbTracker.h"
-#import "SentryEvent.h"
+#import "SentryDefaultCurrentDateProvider.h"
+#import "SentryDependencyContainer.h"
+#import "SentryFileManager.h"
 #import "SentryLog.h"
 #import "SentryOptions.h"
+#import "SentrySDK.h"
 #import "SentrySystemEventBreadcrumbs.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -17,11 +20,29 @@ SentryAutoBreadcrumbTrackingIntegration ()
 
 @implementation SentryAutoBreadcrumbTrackingIntegration
 
-- (void)installWithOptions:(nonnull SentryOptions *)options
+- (BOOL)installWithOptions:(SentryOptions *)options
 {
+    if (![super installWithOptions:options]) {
+        return NO;
+    }
+
     [self installWithOptions:options
-             breadcrumbTracker:[[SentryBreadcrumbTracker alloc] init]
-        systemEventBreadcrumbs:[[SentrySystemEventBreadcrumbs alloc] init]];
+             breadcrumbTracker:[[SentryBreadcrumbTracker alloc]
+                                   initWithSwizzleWrapper:[SentryDependencyContainer sharedInstance]
+                                                              .swizzleWrapper]
+        systemEventBreadcrumbs:
+            [[SentrySystemEventBreadcrumbs alloc]
+                         initWithFileManager:[SentryDependencyContainer sharedInstance].fileManager
+                      andCurrentDateProvider:[SentryDefaultCurrentDateProvider sharedInstance]
+                andNotificationCenterWrapper:[SentryDependencyContainer sharedInstance]
+                                                 .notificationCenterWrapper]];
+
+    return YES;
+}
+
+- (SentryIntegrationOption)integrationOptions
+{
+    return kIntegrationOptionEnableAutoBreadcrumbTracking;
 }
 
 /**
@@ -39,7 +60,7 @@ SentryAutoBreadcrumbTrackingIntegration ()
     }
 
     self.systemEventBreadcrumbs = systemEventBreadcrumbs;
-    [self.systemEventBreadcrumbs start];
+    [self.systemEventBreadcrumbs startWithDelegate:self];
 }
 
 - (void)uninstall
@@ -50,6 +71,11 @@ SentryAutoBreadcrumbTrackingIntegration ()
     if (nil != self.systemEventBreadcrumbs) {
         [self.systemEventBreadcrumbs stop];
     }
+}
+
+- (void)addBreadcrumb:(SentryBreadcrumb *)crumb
+{
+    [SentrySDK addBreadcrumb:crumb];
 }
 
 @end

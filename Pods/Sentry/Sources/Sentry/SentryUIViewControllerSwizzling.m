@@ -1,6 +1,7 @@
 #import "SentryUIViewControllerSwizzling.h"
 #import "SentryDefaultObjCRuntimeWrapper.h"
 #import "SentryLog.h"
+#import "SentryProcessInfoWrapper.h"
 #import "SentrySubClassFinder.h"
 #import "SentrySwizzle.h"
 #import "SentryUIViewControllerPerformanceTracker.h"
@@ -30,6 +31,10 @@ SentryUIViewControllerSwizzling ()
 
 @property (nonatomic, strong) SentryInAppLogic *inAppLogic;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
+@property (nonatomic, strong) id<SentryObjCRuntimeWrapper> objcRuntimeWrapper;
+@property (nonatomic, strong) SentrySubClassFinder *subClassFinder;
+@property (nonatomic, strong) NSMutableSet<NSString *> *imagesActedOnSubclassesOfUIViewControllers;
+@property (nonatomic, strong) SentryProcessInfoWrapper *processInfoWrapper;
 
 @end
 
@@ -37,23 +42,151 @@ SentryUIViewControllerSwizzling ()
 
 - (instancetype)initWithOptions:(SentryOptions *)options
                   dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
+             objcRuntimeWrapper:(id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper
+                 subClassFinder:(SentrySubClassFinder *)subClassFinder
+             processInfoWrapper:(SentryProcessInfoWrapper *)processInfoWrapper
 {
     if (self = [super init]) {
         self.inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
                                                             inAppExcludes:options.inAppExcludes];
         self.dispatchQueue = dispatchQueue;
+        self.objcRuntimeWrapper = objcRuntimeWrapper;
+        self.subClassFinder = subClassFinder;
+        self.imagesActedOnSubclassesOfUIViewControllers = [NSMutableSet new];
+        self.processInfoWrapper = processInfoWrapper;
     }
 
     return self;
 }
 
+// SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
+// fine and we accept this warning.
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow"
+
 - (void)start
 {
-    [self swizzleRootViewController];
+    id<SentryUIApplication> app = [self findApp];
+    if (app != nil) {
 
-    SentrySubClassFinder *subClassFinder = [[SentrySubClassFinder alloc]
-        initWithDispatchQueue:self.dispatchQueue
-           objcRuntimeWrapper:[[SentryDefaultObjCRuntimeWrapper alloc] init]];
+        // If an app targets, for example, iOS 13 or lower, the UIKit inits the initial/root view
+        // controller before the SentrySDK is initialized. Therefore, we manually call swizzle here
+        // not to lose auto-generated transactions for the initial view controller. As we use
+        // SentrySwizzleModeOncePerClassAndSuperclasses, we don't have to worry about swizzling
+        // twice. We could also use objc_getClassList to lookup sub classes of UIViewController, but
+        // the lookup can take around 60ms, which is not acceptable.
+        if (![self swizzleRootViewControllerFromUIApplication:app]) {
+            SENTRY_LOG_DEBUG(@"UIViewControllerSwizziling: Failed to find root UIViewController "
+                             @"from UIApplicationDelegate. Trying to use "
+                             @"UISceneWillConnectNotification notification.");
+
+            if (@available(iOS 13.0, tvOS 13.0, *)) {
+                [NSNotificationCenter.defaultCenter
+                    addObserver:self
+                       selector:@selector(swizzleRootViewControllerFromSceneDelegateNotification:)
+                           name:UISceneWillConnectNotification
+                         object:nil];
+            } else {
+                SENTRY_LOG_DEBUG(@"UIViewControllerSwizziling: iOS version older then 13. There is "
+                                 @"no UISceneWillConnectNotification notification. Could not find "
+                                 @"a rootViewController");
+            }
+        }
+
+        [self swizzleAllSubViewControllersInApp:app];
+    } else {
+        // If we can't find an UIApplication instance we may use the current process path as the
+        // image name. This mostly happens with SwiftUI projects.
+        NSString *processImage = self.processInfoWrapper.processPath;
+        if (processImage) {
+            [self swizzleUIViewControllersOfImage:processImage];
+        } else {
+            SENTRY_LOG_DEBUG(
+                @"UIViewControllerSwizziling: Did not found image name from current process. "
+                @"Skipping Swizzling of view controllers");
+        }
+    }
+
+    [self swizzleUIViewController];
+}
+
+- (id<SentryUIApplication>)findApp
+{
+    if (![UIApplication respondsToSelector:@selector(sharedApplication)]) {
+        SENTRY_LOG_DEBUG(
+            @"UIViewControllerSwizziling: UIApplication doesn't respond to sharedApplication.");
+        return nil;
+    }
+
+    UIApplication *app = [UIApplication performSelector:@selector(sharedApplication)];
+
+    if (app == nil) {
+        SENTRY_LOG_DEBUG(@"UIViewControllerSwizziling: UIApplication.sharedApplication is nil.");
+        return nil;
+    }
+
+    return app;
+}
+
+- (void)swizzleAllSubViewControllersInApp:(id<SentryUIApplication>)app
+{
+    if (app.delegate == nil) {
+        SENTRY_LOG_DEBUG(@"UIViewControllerSwizzling: App delegate is nil. Skipping swizzling "
+                         @"UIViewControllers in the app image.");
+        return;
+    }
+
+    [self swizzleUIViewControllersOfClassesInImageOf:[app.delegate class]];
+}
+
+- (void)swizzleUIViewControllersOfClassesInImageOf:(Class)class
+{
+    if (class == NULL) {
+        SENTRY_LOG_DEBUG(@"UIViewControllerSwizzling: class is NULL. Skipping swizzling of classes "
+                         @"in same image.");
+        return;
+    }
+
+    SENTRY_LOG_DEBUG(@"UIViewControllerSwizzling: Class to get the image name: %@", class);
+
+    const char *imageNameAsCharArray = [self.objcRuntimeWrapper class_getImageName:class];
+
+    if (imageNameAsCharArray == NULL) {
+        SENTRY_LOG_DEBUG(@"UIViewControllerSwizziling: Wasn't able to get image name of the class: "
+                         @"%@. Skipping swizzling of classes in same image.",
+            class);
+        return;
+    }
+
+    NSString *imageName = [NSString stringWithCString:imageNameAsCharArray
+                                             encoding:NSUTF8StringEncoding];
+
+    if (imageName == nil || imageName.length == 0) {
+        SENTRY_LOG_DEBUG(
+            @"UIViewControllerSwizziling: Wasn't able to get the app image name of the app "
+            @"delegate class: %@. Skipping swizzling of classes in same image.",
+            class);
+        return;
+    }
+
+    [self swizzleUIViewControllersOfImage:imageName];
+}
+
+- (void)swizzleUIViewControllersOfImage:(NSString *)imageName
+{
+    if ([imageName containsString:@"UIKitCore"]) {
+        SENTRY_LOG_DEBUG(@"UIViewControllerSwizziling: Skipping UIKitCore.");
+        return;
+    }
+
+    if ([self.imagesActedOnSubclassesOfUIViewControllers containsObject:imageName]) {
+        SENTRY_LOG_DEBUG(
+            @"UIViewControllerSwizziling: Already swizzled UIViewControllers in image: %@.",
+            imageName);
+        return;
+    }
+
+    [self.imagesActedOnSubclassesOfUIViewControllers addObject:imageName];
 
     // Swizzle all custom UIViewControllers. Cause loading all classes can take a few milliseconds,
     // the SubClassFinder does this on a background thread, which should be fine because the SDK
@@ -67,64 +200,11 @@ SentryUIViewControllerSwizzling ()
     // method to swizzle if the class doesn't implement it. It seems like adding an extra
     // initializer causes problems with the rules for initialization in Swift, see
     // https://docs.swift.org/swift-book/LanguageGuide/Initialization.html#ID216.
-    [subClassFinder
-        actOnSubclassesOf:[UIViewController class]
-                    block:^(Class class) { [self swizzleViewControllerSubClass:class]; }];
-
-    [self swizzleUIViewController];
-}
-
-// SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
-// fine and we accept this warning.
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wshadow"
-
-/**
- * If an app targets, for example, iOS 13 or lower, the UIKit inits the initial/root view controller
- * before the SentrySDK is initialized. Therefore, we manually call swizzle here not to lose
- * auto-generated transactions for the initial view controller. As we use
- * SentrySwizzleModeOncePerClassAndSuperclasses, we don't have to worry about swizzling twice. We
- * could also use objc_getClassList to lookup sub classes of UIViewController, but the lookup can
- * take around 60ms, which is not acceptable.
- */
-- (void)swizzleRootViewController
-{
-    if (![UIApplication respondsToSelector:@selector(sharedApplication)]) {
-        NSString *message = @"UIViewControllerSwizziling: UIApplication doesn't respont to "
-                            @"sharedApplication. Skipping swizzleRootViewController.";
-        [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
-        return;
-    }
-
-    UIApplication *app = [UIApplication performSelector:@selector(sharedApplication)];
-
-    if (app == nil) {
-        NSString *message = @"UIViewControllerSwizziling: UIApplication is nil. Skipping "
-                            @"swizzleRootViewController.";
-        [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
-        return;
-    }
-
-    if (![self swizzleRootViewControllerFromUIApplication:app]) {
-        NSString *message
-            = @"UIViewControllerSwizziling: Fail to find root UIViewController from "
-              @"UIApplicationDelegate. Trying to use UISceneWillConnectNotification notification.";
-        [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
-
-        if (@available(iOS 13.0, tvOS 13.0, macCatalyst 13.0, *)) {
-            [NSNotificationCenter.defaultCenter
-                addObserver:self
-                   selector:@selector(swizzleRootViewControllerFromSceneDelegateNotification:)
-                       name:UISceneWillConnectNotification
-                     object:nil];
-        } else {
-            message = @"UIViewControllerSwizziling: iOS version older then 13."
-                      @"There is no UISceneWillConnectNotification notification. Could not find a "
-                      @"rootViewController";
-
-            [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
-        }
-    }
+    [self.subClassFinder
+        actOnSubclassesOfViewControllerInImage:imageName
+                                         block:^(Class class) {
+                                             [self swizzleViewControllerSubClass:class];
+                                         }];
 }
 
 /**
@@ -134,7 +214,7 @@ SentryUIViewControllerSwizzling ()
  */
 - (void)swizzleRootViewControllerFromSceneDelegateNotification:(NSNotification *)notification
 {
-    if (@available(iOS 13.0, tvOS 13.0, macCatalyst 13.0, *)) {
+    if (@available(iOS 13.0, tvOS 13.0, *)) {
         if (![notification.name isEqualToString:UISceneWillConnectNotification])
             return;
 
@@ -144,19 +224,16 @@ SentryUIViewControllerSwizzling ()
 
         // The object of a UISceneWillConnectNotification should be a NSWindowScene
         if (![notification.object respondsToSelector:@selector(windows)]) {
-            NSString *message
-                = @"UIViewControllerSwizziling: Fail to find root UIViewController from "
-                  @"UISceneWillConnectNotification. Notification object has no windows property";
-            [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
+            SENTRY_LOG_DEBUG(
+                @"UIViewControllerSwizziling: Failed to find root UIViewController from "
+                @"UISceneWillConnectNotification. Notification object has no windows property");
             return;
         }
 
         id windows = [notification.object performSelector:@selector(windows)];
         if (![windows isKindOfClass:[NSArray class]]) {
-            NSString *message
-                = @"UIViewControllerSwizziling: Fail to find root UIViewController from "
-                  @"UISceneWillConnectNotification. Windows is not an array";
-            [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
+            SENTRY_LOG_DEBUG(@"UIViewControllerSwizziling: Failed to find root UIViewController "
+                             @"from UISceneWillConnectNotification. Windows is not an array");
             return;
         }
 
@@ -166,6 +243,10 @@ SentryUIViewControllerSwizzling ()
                 && ((UIWindow *)window).rootViewController != nil) {
                 [self
                     swizzleRootViewControllerAndDescendant:((UIWindow *)window).rootViewController];
+            } else {
+                SENTRY_LOG_DEBUG(@"UIViewControllerSwizziling: Failed to find root "
+                                 @"UIViewController from UISceneWillConnectNotification. Window is "
+                                 @"not a UIWindow class or the rootViewController is nil");
             }
         }
     }
@@ -174,33 +255,29 @@ SentryUIViewControllerSwizzling ()
 - (BOOL)swizzleRootViewControllerFromUIApplication:(id<SentryUIApplication>)app
 {
     if (app.delegate == nil) {
-        NSString *message = @"UIViewControllerSwizziling: UIApplicationDelegate is nil. Skipping "
-                            @"swizzleRootViewControllerFromAppDelegate.";
-        [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
+        SENTRY_LOG_DEBUG(@"UIViewControllerSwizziling: App delegate is nil. Skipping "
+                         @"swizzleRootViewControllerFromAppDelegate.");
         return NO;
     }
 
     // Check if delegate responds to window, which it doesn't have to.
     if (![app.delegate respondsToSelector:@selector(window)]) {
-        NSString *message = @"UIViewControllerSwizziling: UIApplicationDelegate.window is nil. "
-                            @"Skipping swizzleRootViewControllerFromAppDelegate.";
-        [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
+        SENTRY_LOG_DEBUG(@"UIViewControllerSwizziling: UIApplicationDelegate.window is nil. "
+                         @"Skipping swizzleRootViewControllerFromAppDelegate.");
         return NO;
     }
 
     if (app.delegate.window == nil) {
-        NSString *message = @"UIViewControllerSwizziling: UIApplicationDelegate.window is nil. "
-                            @"Skipping swizzleRootViewControllerFromAppDelegate.";
-        [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
+        SENTRY_LOG_DEBUG(@"UIViewControllerSwizziling: UIApplicationDelegate.window is nil. "
+                         @"Skipping swizzleRootViewControllerFromAppDelegate.");
         return NO;
     }
 
     UIViewController *rootViewController = app.delegate.window.rootViewController;
     if (rootViewController == nil) {
-        NSString *message = @"UIViewControllerSwizziling: "
-                            @"UIApplicationDelegate.window.rootViewController is nil. "
-                            @"Skipping swizzleRootViewControllerFromAppDelegate.";
-        [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
+        SENTRY_LOG_DEBUG(
+            @"UIViewControllerSwizziling: UIApplicationDelegate.window.rootViewController is nil. "
+            @"Skipping swizzleRootViewControllerFromAppDelegate.");
         return NO;
     }
 
@@ -211,15 +288,19 @@ SentryUIViewControllerSwizzling ()
 
 - (void)swizzleRootViewControllerAndDescendant:(UIViewController *)rootViewController
 {
-    NSArray<UIViewController *> *allViewControllers = rootViewController.descendantViewControllers;
+    NSArray<UIViewController *> *allViewControllers
+        = rootViewController.sentry_descendantViewControllers;
 
     for (UIViewController *viewController in allViewControllers) {
         Class viewControllerClass = [viewController class];
         if (viewControllerClass != nil) {
-            NSString *message = @"UIViewControllerSwizziling Calling swizzleRootViewController.";
-            [SentryLog logWithMessage:message andLevel:kSentryLevelDebug];
-
+            SENTRY_LOG_DEBUG(@"UIViewControllerSwizziling Calling swizzleRootViewController.");
             [self swizzleViewControllerSubClass:viewControllerClass];
+
+            // We can't get the image name with the app delegate class for some apps. Therefore, we
+            // use the rootViewController and its subclasses as a fallback.  The following method
+            // ensures we don't swizzle ViewControllers of UIKit.
+            [self swizzleUIViewControllersOfClassesInImageOf:viewControllerClass];
         }
     }
 }

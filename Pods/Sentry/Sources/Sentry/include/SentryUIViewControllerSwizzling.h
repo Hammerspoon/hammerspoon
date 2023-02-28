@@ -1,4 +1,5 @@
 #import "SentryDefines.h"
+#import "SentryObjCRuntimeWrapper.h"
 #import <Foundation/Foundation.h>
 
 #if SENTRY_HAS_UIKIT
@@ -6,7 +7,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryOptions, SentryDispatchQueueWrapper;
+@class SentryOptions, SentryDispatchQueueWrapper, SentrySubClassFinder, SentryProcessInfoWrapper;
 
 /**
  * This is a protocol to define which properties and methods the swizzler required from
@@ -26,7 +27,10 @@ NS_ASSUME_NONNULL_BEGIN
 SENTRY_NO_INIT
 
 - (instancetype)initWithOptions:(SentryOptions *)options
-                  dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue;
+                  dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
+             objcRuntimeWrapper:(id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper
+                 subClassFinder:(SentrySubClassFinder *)subClassFinder
+             processInfoWrapper:(SentryProcessInfoWrapper *)processInfoWrapper;
 
 - (void)start;
 

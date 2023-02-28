@@ -32,7 +32,7 @@
 #    include "SentryCrashMachineContext_Apple.h"
 #    include <stdlib.h>
 
-//#define SentryCrashLogger_LocalLevel TRACE
+// #define SentryCrashLogger_LocalLevel TRACE
 #    include "SentryCrashLogger.h"
 
 static const char *g_registerNames[] = { "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9",
