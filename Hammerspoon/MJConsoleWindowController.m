@@ -51,6 +51,7 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
     self.MJColorForCommand = [NSColor blackColor] ;
     self.MJColorForResult  = [NSColor colorWithCalibratedHue:0.54 saturation:1.0 brightness:0.7 alpha:1.0] ;
     self.consoleFont       = [NSFont fontWithName:@"Menlo" size:12.0] ;
+    self.maxConsoleOutputHistory = [NSNumber numberWithInt:16384];
 }
 
 - (NSString*) windowNibName {
@@ -139,9 +140,14 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
 
     NSDictionary* attrs = @{NSFontAttributeName: self.consoleFont, NSForegroundColorAttributeName: color};
     NSAttributedString* attrstr = [[NSAttributedString alloc] initWithString:str attributes:attrs];
-    [[self.outputView textStorage] performSelectorOnMainThread:@selector(appendAttributedString:)
-                                       withObject:attrstr
-                                    waitUntilDone:YES];
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSTextStorage *storage = self.outputView.textStorage;
+        [storage appendAttributedString:attrstr];
+        if (storage.length > self.maxConsoleOutputHistory.intValue) {
+            [storage deleteCharactersInRange:NSMakeRange(0, attrstr.length)];
+        }
+    });
 }
 
 - (NSString*) run:(NSString*)command {
