@@ -1,0 +1,6 @@
+module Sentry {
+  umbrella header "Sentry-umbrella.h"
+
+  export *
+  module * { export * }
+}
