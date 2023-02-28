@@ -139,9 +139,11 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
 
     NSDictionary* attrs = @{NSFontAttributeName: self.consoleFont, NSForegroundColorAttributeName: color};
     NSAttributedString* attrstr = [[NSAttributedString alloc] initWithString:str attributes:attrs];
-    [[self.outputView textStorage] performSelectorOnMainThread:@selector(appendAttributedString:)
-                                       withObject:attrstr
-                                    waitUntilDone:YES];
+    
+    [self.outputView.textStorage beginEditing];
+    [self.outputView.textStorage appendAttributedString:attrstr];
+    [self.outputView.textStorage endEditing];
+    [self.outputView didChangeText];
 }
 
 - (NSString*) run:(NSString*)command {
