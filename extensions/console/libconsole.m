@@ -97,6 +97,9 @@ static int console_consolePrintColor(lua_State *L) {
 ///
 /// Returns:
 ///  * the current maximum size of the console history
+///
+/// Notes:
+///  * A length value of zero will allow the history to grow infinitely
 static int console_maxOutputHistory(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
 

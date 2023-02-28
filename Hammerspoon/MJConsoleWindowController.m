@@ -144,7 +144,7 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
     dispatch_async(dispatch_get_main_queue(), ^{
         NSTextStorage *storage = self.outputView.textStorage;
         [storage appendAttributedString:attrstr];
-        if (storage.length > self.maxConsoleOutputHistory.intValue) {
+        if (storage.length > self.maxConsoleOutputHistory.intValue && self.maxConsoleOutputHistory.intValue > 0) {
             [storage deleteCharactersInRange:NSMakeRange(0, attrstr.length)];
         }
     });
