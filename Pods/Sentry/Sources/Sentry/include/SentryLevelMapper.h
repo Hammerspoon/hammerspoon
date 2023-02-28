@@ -1,17 +1,20 @@
-#import <Foundation/Foundation.h>
-
 #import "SentryDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SentryLevelMapper : NSObject
+FOUNDATION_EXPORT NSString *const kSentryLevelNameNone;
+FOUNDATION_EXPORT NSString *const kSentryLevelNameDebug;
+FOUNDATION_EXPORT NSString *const kSentryLevelNameInfo;
+FOUNDATION_EXPORT NSString *const kSentryLevelNameWarning;
+FOUNDATION_EXPORT NSString *const kSentryLevelNameError;
+FOUNDATION_EXPORT NSString *const kSentryLevelNameFatal;
 
 /**
  * Maps a string to a SentryLevel. If the passed string doesn't match any level this defaults to
  * the 'error' level. See https://develop.sentry.dev/sdk/event-payloads/#optional-attributes
  */
-+ (SentryLevel)levelWithString:(NSString *)string;
+SentryLevel sentryLevelForString(NSString *string);
 
-@end
+NSString *nameForSentryLevel(SentryLevel level);
 
 NS_ASSUME_NONNULL_END

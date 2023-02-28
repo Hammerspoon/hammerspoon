@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
     });
 }
 
-- (void)dispatchOnMainQueue:(void (^)(void))block
+- (void)dispatchAsyncOnMainQueue:(void (^)(void))block
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         @autoreleasepool {
@@ -47,10 +47,36 @@ NS_ASSUME_NONNULL_BEGIN
     });
 }
 
+- (void)dispatchSyncOnMainQueue:(void (^)(void))block
+{
+    if ([NSThread isMainThread]) {
+        block();
+    } else {
+        dispatch_sync(dispatch_get_main_queue(), block);
+    }
+}
+
+- (void)dispatchAfter:(NSTimeInterval)interval block:(dispatch_block_t)block
+{
+    dispatch_time_t delta = (int64_t)(interval * NSEC_PER_SEC);
+    dispatch_time_t when = dispatch_time(DISPATCH_TIME_NOW, delta);
+    dispatch_after(when, queue, ^{
+        @autoreleasepool {
+            block();
+        }
+    });
+}
+
+- (void)dispatchCancel:(dispatch_block_t)block
+{
+    dispatch_block_cancel(block);
+}
+
 - (void)dispatchOnce:(dispatch_once_t *)predicate block:(void (^)(void))block
 {
     dispatch_once(predicate, block);
 }
+
 @end
 
 NS_ASSUME_NONNULL_END

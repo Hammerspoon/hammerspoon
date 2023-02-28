@@ -39,9 +39,7 @@ SentryQueueableRequestManager ()
           initWithSession:self.session
                   request:request
         completionHandler:^(NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
-            [SentryLog logWithMessage:[NSString stringWithFormat:@"Queued requests: %@",
-                                                @(self.queue.operationCount - 1)]
-                             andLevel:kSentryLevelDebug];
+            SENTRY_LOG_DEBUG(@"Queued requests: %@", @(self.queue.operationCount - 1));
             if (completionHandler) {
                 completionHandler(response, error);
             }

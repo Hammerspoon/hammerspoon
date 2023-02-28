@@ -1,4 +1,4 @@
-#import "SentryRateLimitCategory.h"
+#import "SentryDataCategory.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -17,7 +17,7 @@ Check if a data category has reached a rate limit.
 
  @return BOOL YES if limit is reached, NO otherwise.
  */
-- (BOOL)isRateLimitActive:(SentryRateLimitCategory)category;
+- (BOOL)isRateLimitActive:(SentryDataCategory)category;
 
 /**
 Should be called for each HTTP response of the Sentry

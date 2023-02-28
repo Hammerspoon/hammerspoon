@@ -6,14 +6,7 @@
 //  Copyright © 2016 Sparkle Project. All rights reserved.
 //
 
-#if __has_feature(modules)
-#if __has_warning("-Watimport-in-framework-header")
-#pragma clang diagnostic ignored "-Watimport-in-framework-header"
-#endif
-@import Foundation;
-#else
 #import <Foundation/Foundation.h>
-#endif
 #import <Sparkle/SUExport.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -37,6 +30,12 @@ SU_EXPORT @interface SPUUpdaterSettings : NSObject
  * The regular update check interval.
  */
 @property (readonly, nonatomic) NSTimeInterval updateCheckInterval;
+
+/**
+ * Indicates whether or not automatically downloading updates is allowed to be turned on by the user.
+ * If this value is nil, the developer has not explicitly specified this option.
+ */
+@property (readonly, nonatomic, nullable) NSNumber *allowsAutomaticUpdatesOption;
 
 /**
  * Indicates whether or not automatically downloading updates is allowed to be turned on by the user.

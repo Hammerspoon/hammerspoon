@@ -12,10 +12,18 @@
 #import "SentryThread.h"
 #import <Foundation/Foundation.h>
 #include <execinfo.h>
+#include <pthread.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
+SentryCrashThread mainThreadID;
+
 @implementation SentryCrashDefaultMachineContextWrapper
+
++ (void)load
+{
+    mainThreadID = pthread_mach_thread_np(pthread_self());
+}
 
 - (void)fillContextForCurrentThread:(struct SentryCrashMachineContext *)context
 {
@@ -38,6 +46,11 @@ NS_ASSUME_NONNULL_BEGIN
          andBufLength:(int)bufLength;
 {
     sentrycrashthread_getThreadName(thread, buffer, bufLength);
+}
+
+- (BOOL)isMainThread:(SentryCrashThread)thread
+{
+    return thread == mainThreadID;
 }
 
 @end

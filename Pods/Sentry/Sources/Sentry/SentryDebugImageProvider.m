@@ -3,22 +3,24 @@
 #import "SentryCrashDynamicLinker.h"
 #import "SentryCrashUUIDConversion.h"
 #import "SentryDebugMeta.h"
+#import "SentryFrame.h"
 #import "SentryHexAddressFormatter.h"
+#import "SentryInternalDefines.h"
 #import "SentryLog.h"
+#import "SentryStacktrace.h"
+#import "SentryThread.h"
 #import <Foundation/Foundation.h>
 
 @interface
 SentryDebugImageProvider ()
 
 @property (nonatomic, strong) id<SentryCrashBinaryImageProvider> binaryImageProvider;
-
 @end
 
 @implementation SentryDebugImageProvider
 
 - (instancetype)init
 {
-
     SentryCrashDefaultBinaryImageProvider *provider =
         [[SentryCrashDefaultBinaryImageProvider alloc] init];
 
@@ -34,6 +36,49 @@ SentryDebugImageProvider ()
         self.binaryImageProvider = binaryImageProvider;
     }
     return self;
+}
+
+- (NSArray<SentryDebugMeta *> *)getDebugImagesForAddresses:(NSSet<NSString *> *)addresses
+{
+    NSMutableArray<SentryDebugMeta *> *result = [NSMutableArray array];
+
+    NSArray<SentryDebugMeta *> *binaryImages = [self getDebugImages];
+
+    for (SentryDebugMeta *sourceImage in binaryImages) {
+        if ([addresses containsObject:sourceImage.imageAddress]) {
+            [result addObject:sourceImage];
+        }
+    }
+
+    return result;
+}
+
+- (void)extractDebugImageAddressFromFrames:(NSArray<SentryFrame *> *)frames
+                                   intoSet:(NSMutableSet<NSString *> *)set
+{
+    for (SentryFrame *frame in frames) {
+        if (frame.imageAddress) {
+            [set addObject:frame.imageAddress];
+        }
+    }
+}
+
+- (NSArray<SentryDebugMeta *> *)getDebugImagesForFrames:(NSArray<SentryFrame *> *)frames
+{
+    NSMutableSet<NSString *> *imageAdresses = [[NSMutableSet alloc] init];
+    [self extractDebugImageAddressFromFrames:frames intoSet:imageAdresses];
+    return [self getDebugImagesForAddresses:imageAdresses];
+}
+
+- (NSArray<SentryDebugMeta *> *)getDebugImagesForThreads:(NSArray<SentryThread *> *)threads
+{
+    NSMutableSet<NSString *> *imageAdresses = [[NSMutableSet alloc] init];
+
+    for (SentryThread *thread in threads) {
+        [self extractDebugImageAddressFromFrames:thread.stacktrace.frames intoSet:imageAdresses];
+    }
+
+    return [self getDebugImagesForAddresses:imageAdresses];
 }
 
 - (NSArray<SentryDebugMeta *> *)getDebugImages
@@ -53,8 +98,8 @@ SentryDebugImageProvider ()
 - (SentryDebugMeta *)fillDebugMetaFrom:(SentryCrashBinaryImage)image
 {
     SentryDebugMeta *debugMeta = [[SentryDebugMeta alloc] init];
-    debugMeta.uuid = [SentryDebugImageProvider convertUUID:image.uuid];
-    debugMeta.type = @"apple";
+    debugMeta.debugID = [SentryDebugImageProvider convertUUID:image.uuid];
+    debugMeta.type = SentryDebugImageType;
 
     if (image.vmAddress > 0) {
         NSNumber *imageVmAddress = [NSNumber numberWithUnsignedLongLong:image.vmAddress];
@@ -67,7 +112,7 @@ SentryDebugImageProvider ()
     debugMeta.imageSize = @(image.size);
 
     if (nil != image.name) {
-        debugMeta.name = [[NSString alloc] initWithUTF8String:image.name];
+        debugMeta.codeFile = [[NSString alloc] initWithUTF8String:image.name];
     }
 
     return debugMeta;

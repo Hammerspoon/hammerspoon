@@ -1,1 +1,1 @@
-../../../Sentry/Sources/Sentry/Public/SentryScreenFrames.h
+../../../Sentry/Sources/Sentry/include/HybridPublic/SentryScreenFrames.h

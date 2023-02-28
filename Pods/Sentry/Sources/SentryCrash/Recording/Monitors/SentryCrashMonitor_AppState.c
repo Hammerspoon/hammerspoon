@@ -30,7 +30,7 @@
 #include "SentryCrashJSONCodec.h"
 #include "SentryCrashMonitorContext.h"
 
-//#define SentryCrashLogger_LocalLevel TRACE
+// #define SentryCrashLogger_LocalLevel TRACE
 #include "SentryCrashLogger.h"
 
 #include <errno.h>
@@ -49,6 +49,7 @@
 
 #define kKeyFormatVersion "version"
 #define kKeyCrashedLastLaunch "crashedLastLaunch"
+#define kKeyDurationFromCrashStateInitToLastCrash "durationFromCrashStateInitToLastCrash"
 #define kKeyActiveDurationSinceLastCrash "activeDurationSinceLastCrash"
 #define kKeyBackgroundDurationSinceLastCrash "backgroundDurationSinceLastCrash"
 #define kKeyLaunchesSinceLastCrash "launchesSinceLastCrash"
@@ -64,6 +65,8 @@ static const char *g_stateFilePath;
 
 /** Current state. */
 static SentryCrash_AppState g_state;
+
+static double g_crashstate_initialize_time;
 
 static volatile bool g_isEnabled = false;
 
@@ -94,6 +97,10 @@ onFloatingPointElement(const char *const name, const double value, void *const u
 
     if (name == NULL) {
         return SentryCrashJSON_ERROR_INVALID_DATA;
+    }
+
+    if (strcmp(name, kKeyDurationFromCrashStateInitToLastCrash) == 0) {
+        state->durationFromCrashStateInitToLastCrash = value;
     }
 
     if (strcmp(name, kKeyActiveDurationSinceLastCrash) == 0) {
@@ -128,6 +135,13 @@ onIntegerElement(const char *const name, const int64_t value, void *const userDa
 
     // FP value might have been written as a whole number.
     return onFloatingPointElement(name, value, userData);
+}
+
+static int
+onUIntegerElement(
+    __unused const char *const name, __unused const uint64_t value, __unused void *const userData)
+{
+    return SentryCrashJSON_OK;
 }
 
 static int
@@ -227,6 +241,7 @@ loadState(const char *const path)
     callbacks.onEndData = onEndData;
     callbacks.onFloatingPointElement = onFloatingPointElement;
     callbacks.onIntegerElement = onIntegerElement;
+    callbacks.onUIntegerElement = onUIntegerElement;
     callbacks.onNullElement = onNullElement;
     callbacks.onStringElement = onStringElement;
 
@@ -277,6 +292,22 @@ saveState(const char *const path)
         != SentryCrashJSON_OK) {
         goto done;
     }
+
+    // SentryCrash resets the app state when enabling it in setEnabled. To keep the value alive for
+    // the application's lifetime, we don't modify the g_state. Instead, we only save the value to
+    // the crash state file without setting it to g_state. When initializing the app state, the code
+    // reads the value from the file and keeps it in memory. The code uses the same pattern for
+    // CrashedLastLaunch. Ideally, we would refactor this, but we must be aware of possible side
+    // effects.
+    double durationFromCrashStateInitToLastCrash = 0;
+    if (g_state.crashedThisLaunch) {
+        durationFromCrashStateInitToLastCrash = timeSince(g_crashstate_initialize_time);
+    }
+    if ((result = sentrycrashjson_addFloatingPointElement(&JSONContext,
+             kKeyDurationFromCrashStateInitToLastCrash, durationFromCrashStateInitToLastCrash))
+        != SentryCrashJSON_OK) {
+        goto done;
+    }
     if ((result = sentrycrashjson_addFloatingPointElement(
              &JSONContext, kKeyActiveDurationSinceLastCrash, g_state.activeDurationSinceLastCrash))
         != SentryCrashJSON_OK) {
@@ -315,6 +346,7 @@ done:
 void
 sentrycrashstate_initialize(const char *const stateFilePath)
 {
+    g_crashstate_initialize_time = getCurentTime();
     g_stateFilePath = strdup(stateFilePath);
     memset(&g_state, 0, sizeof(g_state));
     loadState(g_stateFilePath);
@@ -343,6 +375,12 @@ sentrycrashstate_reset()
         return saveState(g_stateFilePath);
     }
     return false;
+}
+
+const char *
+sentrycrashstate_filePath(void)
+{
+    return g_stateFilePath;
 }
 
 void
@@ -411,7 +449,7 @@ sentrycrashstate_notifyAppCrash(void)
     }
 }
 
-const SentryCrash_AppState *const
+const SentryCrash_AppState *
 sentrycrashstate_currentState(void)
 {
     return &g_state;

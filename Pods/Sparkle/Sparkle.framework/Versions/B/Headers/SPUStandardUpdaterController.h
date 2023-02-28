@@ -6,14 +6,7 @@
 //  Copyright © 2016 Sparkle Project. All rights reserved.
 //
 
-#if __has_feature(modules)
-#if __has_warning("-Watimport-in-framework-header")
-#pragma clang diagnostic ignored "-Watimport-in-framework-header"
-#endif
-@import Foundation;
-#else
 #import <Foundation/Foundation.h>
-#endif
 #import <Sparkle/SUExport.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -38,6 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
   */
 SU_EXPORT @interface SPUStandardUpdaterController : NSObject
 {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wobjc-interface-ivars"
     /**
      * Interface builder outlet for the updater's delegate.
      */
@@ -47,6 +42,7 @@ SU_EXPORT @interface SPUStandardUpdaterController : NSObject
      * Interface builder outlet for the user driver's delegate.
      */
     IBOutlet __weak id<SPUStandardUserDriverDelegate> userDriverDelegate;
+#pragma clang diagnostic pop
 }
 
 /**

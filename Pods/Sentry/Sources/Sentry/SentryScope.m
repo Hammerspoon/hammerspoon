@@ -1,14 +1,17 @@
 #import "SentryScope.h"
-#import "SentryAttachment.h"
+#import "NSMutableDictionary+Sentry.h"
+#import "SentryAttachment+Private.h"
 #import "SentryBreadcrumb.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryEvent.h"
 #import "SentryGlobalEventProcessor.h"
+#import "SentryLevelMapper.h"
 #import "SentryLog.h"
 #import "SentryScopeObserver.h"
 #import "SentrySession.h"
 #import "SentrySpan.h"
 #import "SentryTracer.h"
+#import "SentryTransactionContext.h"
 #import "SentryUser.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -118,13 +121,17 @@ SentryScope ()
 
 #pragma mark Global properties
 
+- (void)add:(SentryBreadcrumb *)crumb
+{
+    [self addBreadcrumb:crumb];
+}
+
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb
 {
     if (self.maxBreadcrumbs < 1) {
         return;
     }
-    [SentryLog logWithMessage:[NSString stringWithFormat:@"Add breadcrumb: %@", crumb]
-                     andLevel:kSentryLevelDebug];
+    SENTRY_LOG_DEBUG(@"Add breadcrumb: %@", crumb);
     @synchronized(_breadcrumbArray) {
         [_breadcrumbArray addObject:crumb];
         if ([_breadcrumbArray count] > self.maxBreadcrumbs) {
@@ -132,7 +139,7 @@ SentryScope ()
         }
 
         for (id<SentryScopeObserver> observer in self.observers) {
-            [observer addBreadcrumb:crumb];
+            [observer addSerializedBreadcrumb:[crumb serialize]];
         }
     }
 }
@@ -377,10 +384,28 @@ SentryScope ()
     }
 }
 
+- (void)includeAttachment:(SentryAttachment *)attachment
+{
+    [self addAttachment:attachment];
+}
+
 - (void)addAttachment:(SentryAttachment *)attachment
 {
     @synchronized(_attachmentArray) {
         [_attachmentArray addObject:attachment];
+    }
+}
+
+- (void)addCrashReportAttachmentInPath:(NSString *)filePath
+{
+    if ([filePath.lastPathComponent isEqualToString:@"view-hierarchy.json"]) {
+        [self addAttachment:[[SentryAttachment alloc]
+                                  initWithPath:filePath
+                                      filename:@"view-hierarchy.json"
+                                   contentType:@"application/json"
+                                attachmentType:kSentryAttachmentTypeViewHierarchy]];
+    } else {
+        [self addAttachment:[[SentryAttachment alloc] initWithPath:filePath]];
     }
 }
 
@@ -419,7 +444,7 @@ SentryScope ()
 
     SentryLevel level = self.levelEnum;
     if (level != kSentryLevelNone) {
-        [serializedData setValue:SentryLevelNames[level] forKey:@"level"];
+        [serializedData setValue:nameForSentryLevel(level) forKey:@"level"];
     }
     NSArray *crumbs = [self serializeBreadcrumbs];
     if (crumbs.count > 0) {
@@ -443,12 +468,12 @@ SentryScope ()
 - (void)applyToSession:(SentrySession *)session
 {
     SentryUser *userObject = self.userObject;
-    if (nil != userObject) {
+    if (userObject != nil) {
         session.user = userObject.copy;
     }
 
     NSString *environment = self.environmentString;
-    if (nil != environment) {
+    if (environment != nil) {
         // TODO: Make sure environment set on options is applied to the
         // scope so it's available now
         session.environment = environment;
@@ -458,7 +483,7 @@ SentryScope ()
 - (SentryEvent *__nullable)applyToEvent:(SentryEvent *)event
                           maxBreadcrumb:(NSUInteger)maxBreadcrumbs
 {
-    if (nil == event.tags) {
+    if (event.tags == nil) {
         event.tags = [self tags];
     } else {
         NSMutableDictionary *newTags = [NSMutableDictionary new];
@@ -467,7 +492,7 @@ SentryScope ()
         event.tags = newTags;
     }
 
-    if (nil == event.extra) {
+    if (event.extra == nil) {
         event.extra = [self extras];
     } else {
         NSMutableDictionary *newExtra = [NSMutableDictionary new];
@@ -477,29 +502,29 @@ SentryScope ()
     }
 
     NSArray *fingerprints = [self fingerprints];
-    if (fingerprints.count > 0 && nil == event.fingerprint) {
+    if (fingerprints.count > 0 && event.fingerprint == nil) {
         event.fingerprint = fingerprints;
     }
 
-    if (nil == event.breadcrumbs) {
+    if (event.breadcrumbs == nil) {
         NSArray *breadcrumbs = [self breadcrumbs];
         event.breadcrumbs = [breadcrumbs
             subarrayWithRange:NSMakeRange(0, MIN(maxBreadcrumbs, [breadcrumbs count]))];
     }
 
     SentryUser *user = self.userObject.copy;
-    if (nil != user) {
+    if (user != nil) {
         event.user = user;
     }
 
     NSString *dist = self.distString;
-    if (nil != dist && nil == event.dist) {
+    if (dist != nil && event.dist == nil) {
         // dist can also be set via options but scope takes precedence.
         event.dist = dist;
     }
 
     NSString *environment = self.environmentString;
-    if (nil != environment && nil == event.environment) {
+    if (environment != nil && event.environment == nil) {
         // environment can also be set via options but scope takes
         // precedence.
         event.environment = environment;
@@ -512,13 +537,9 @@ SentryScope ()
         event.level = level;
     }
 
-    NSMutableDictionary *newContext;
-    if (nil == event.context) {
-        newContext = [self context].mutableCopy;
-    } else {
-        newContext = [NSMutableDictionary new];
-        [newContext addEntriesFromDictionary:[self context]];
-        [newContext addEntriesFromDictionary:event.context];
+    NSMutableDictionary *newContext = [self context].mutableCopy;
+    if (event.context != nil) {
+        [newContext mergeEntriesFromDictionary:event.context];
     }
 
     if (self.span != nil) {
@@ -531,9 +552,9 @@ SentryScope ()
         if (span != nil) {
             if (![event.type isEqualToString:SentryEnvelopeItemTypeTransaction] &&
                 [span isKindOfClass:[SentryTracer class]]) {
-                event.transaction = [(SentryTracer *)span name];
+                event.transaction = [[(SentryTracer *)span transactionContext] name];
             }
-            newContext[@"trace"] = [span.context serialize];
+            newContext[@"trace"] = [span serialize];
         }
     }
     event.context = newContext;

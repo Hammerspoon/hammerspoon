@@ -164,7 +164,10 @@ sentrycrashstring_isNullTerminatedUTF8String(const void *memory, int minLength, 
                 unlikely_if((*ptr & 0xc0) != 0x80) { return false; }
             }
         }
-        else unlikely_if(ch < 0x20 && !g_printableControlChars[ch]) { return false; }
+        else unlikely_if(ch < 0x20 && !g_printableControlChars[ch])
+        {
+            return false;
+        }
     }
     return false;
 }

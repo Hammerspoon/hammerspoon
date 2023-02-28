@@ -26,7 +26,7 @@
 
 #include "SentryCrashDebug.h"
 
-//#define SentryCrashLogger_LocalLevel TRACE
+// #define SentryCrashLogger_LocalLevel TRACE
 #include "SentryCrashLogger.h"
 
 #include <errno.h>
@@ -42,6 +42,12 @@ bool
 sentrycrashdebug_isBeingTraced(void)
 {
     struct kinfo_proc procInfo;
+
+    // Initialize the flags so that, if sysctl fails for some bizarre
+    // reason, we get a predictable result. (see
+    // https://developer.apple.com/library/archive/qa/qa1361/_index.html)
+    procInfo.kp_proc.p_flag = 0;
+
     size_t structSize = sizeof(procInfo);
     int mib[] = { CTL_KERN, KERN_PROC, KERN_PROC_PID, getpid() };
 

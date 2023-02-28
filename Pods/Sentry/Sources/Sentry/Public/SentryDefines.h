@@ -18,6 +18,12 @@
 #    define SENTRY_HAS_UIKIT 0
 #endif
 
+#if TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_MACCATALYST
+#    define SENTRY_HAS_METRIC_KIT 1
+#else
+#    define SENTRY_HAS_METRIC_KIT 0
+#endif
+
 #define SENTRY_NO_INIT                                                                             \
     -(instancetype)init NS_UNAVAILABLE;                                                            \
     +(instancetype) new NS_UNAVAILABLE;
@@ -32,7 +38,7 @@ typedef void (^SentryRequestFinished)(NSError *_Nullable error);
 
 /**
  * Block used for request operation finished, shouldDiscardEvent is YES if event
- * should be deleted regardless if an error ocured or not
+ * should be deleted regardless if an error occurred or not
  */
 typedef void (^SentryRequestOperationFinished)(
     NSHTTPURLResponse *_Nullable response, NSError *_Nullable error);
@@ -108,13 +114,27 @@ typedef NS_ENUM(NSUInteger, SentryLevel) {
 /**
  * Static internal helper to convert enum to string
  */
-static NSString *_Nonnull const SentryLevelNames[] = {
-    @"none",
-    @"debug",
-    @"info",
-    @"warning",
-    @"error",
-    @"fatal",
-};
+static DEPRECATED_MSG_ATTRIBUTE(
+    "Use nameForSentryLevel() instead.") NSString *_Nonnull const SentryLevelNames[]
+    = {
+          @"none",
+          @"debug",
+          @"info",
+          @"warning",
+          @"error",
+          @"fatal",
+      };
 
 static NSUInteger const defaultMaxBreadcrumbs = 100;
+
+/**
+ * Transaction name source
+ */
+typedef NS_ENUM(NSInteger, SentryTransactionNameSource) {
+    kSentryTransactionNameSourceCustom = 0,
+    kSentryTransactionNameSourceUrl,
+    kSentryTransactionNameSourceRoute,
+    kSentryTransactionNameSourceView,
+    kSentryTransactionNameSourceComponent,
+    kSentryTransactionNameSourceTask
+};
