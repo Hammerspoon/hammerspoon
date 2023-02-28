@@ -577,7 +577,7 @@ static void SocketReadCallback(CFSocketRef s, CFSocketCallBackType type, CFDataR
 }
 
 /*! Starts the send and receive infrastructure.
- *  \details This is called once we've successfully resolved `hostName` in to
+ *  \details This is called once we've successfully resolved `hostName` into
  *      `hostAddress`.  It's responsible for setting up the socket for sending and
  *      receiving pings.
  */

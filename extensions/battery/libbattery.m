@@ -109,7 +109,7 @@ static int battery_batteryWarningLevel(lua_State *L) {
 
 /// hs.battery.otherBatteryInfo() -> table
 /// Function
-/// Returns information about non-PSU batteries (e.g. bluetooth accessories)
+/// Returns information about non-PSU batteries (e.g. Bluetooth accessories)
 ///
 /// Parameters:
 ///  * None
@@ -184,7 +184,7 @@ lua_return:
 ///  * The table contains the following keys:
 ///    * vendorID - Numerical identifier for the vendor of the device (Apple's ID is 76)
 ///    * productID - Numerical identifier for the device
-///    * address - The bluetooth address of the device
+///    * address - The Bluetooth address of the device
 ///    * isApple - A string containing "YES" or "NO", depending on whether or not this is an Apple/Beats product, or a third party product
 ///    * name - A human readable string containing the name of the device
 ///    * batteryPercentSingle - For some devices this will contain the percentage of the battery (e.g. Beats headphones)

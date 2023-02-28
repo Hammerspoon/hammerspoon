@@ -681,7 +681,7 @@ int main()
                 }
                 fclose(fp) ;
             } else {
-                perror("error openning file:") ;
+                perror("error opening file:") ;
                 core.exitCode = EX_NOINPUT ;
             }
         }

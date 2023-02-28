@@ -58,7 +58,7 @@ end
 ---  * one or more hs.screen objects that match the supplied search criterion, or `nil` if none found
 ---
 --- Notes:
----  * for convenience you call call this as `hs.screen(hint)`
+---  * for convenience you call this as `hs.screen(hint)`
 ---
 --- Example:
 --- ```lua

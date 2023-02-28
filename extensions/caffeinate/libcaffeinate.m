@@ -218,7 +218,7 @@ static int caffeinate_systemSleep(lua_State *L __unused) {
 ///
 /// Notes:
 ///  * This is intended to simulate user activity, for example to prevent displays from sleeping, or to wake them up
-///  * It is not mandatory to re-use assertion IDs if you are calling this function mulitple times, but it is recommended that you do so if the calls are related
+///  * It is not mandatory to re-use assertion IDs if you are calling this function multiple times, but it is recommended that you do so if the calls are related
 static int caffeinate_declareUserActivity(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TNUMBER | LS_TINTEGER | LS_TNIL | LS_TOPTIONAL, LS_TBREAK]; // The LS_TNIL is so people can call foo = hs.caffeinate.declareUserActivity(foo) and not have it error out the first time

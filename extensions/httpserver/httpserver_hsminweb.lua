@@ -637,7 +637,7 @@ local webServerHandler = function(self, method, path, headers, body)
         if itBeCGI then
         -- do external script thing
 
--- this is a horrible horrible hack...
+-- this is a horrible, horrible, hack...
 -- look for an update to hs.httpserver because I really really really want to use hs.task for this, but we need chunked or delayed response support for that to work...
 
             local scriptTimeout = self._scriptTimeout or DEFAULT_ScriptTimeout
@@ -1050,7 +1050,7 @@ end
 ---  * password - An optional string that contains the server password, or an explicit `nil` to remove an existing password.
 ---
 --- Returns:
----  * the hsminwebTable object if a parameter is provided, or a boolean indicathing whether or not a password has been set if no parameter is specified.
+---  * the hsminwebTable object if a parameter is provided, or a boolean indicating whether or not a password has been set if no parameter is specified.
 ---
 --- Notes:
 ---  * the password, if set, is server wide and causes the server to use the Basic authentication scheme with an empty string for the username.
@@ -1084,7 +1084,7 @@ end
 ---
 --- Notes:
 ---  * Because the Hammerspoon http server processes incoming requests completely in memory, this method puts a limit on the maximum size for a POST or PUT request.
----  * If the request body excedes this size, `hs.httpserver` will respond with a status code of 405 for the method before this module ever receives the request.
+---  * If the request body exceeds this size, `hs.httpserver` will respond with a status code of 405 for the method before this module ever receives the request.
 objectMethods.maxBodySize = function(self, ...)
     local args = table.pack(...)
     assert(type(args[1]) == "nil" or (type(args[1]) == "number" and math.tointeger(args[1])), "argument must be an integer")
@@ -1607,13 +1607,13 @@ module.formattedDate    = HTTPformattedDate
 
 --- hs.httpserver.hsminweb.urlParts(url) -> table
 --- Function
---- Parse the specified URL into it's constituant parts.
+--- Parse the specified URL into its constituent parts.
 ---
 --- Parameters:
 ---  * url - the url to parse
 ---
 --- Returns:
----  * a table containing the constituant parts of the provided url.  The table will contain one or more of the following key-value pairs:
+---  * a table containing the constituent parts of the provided url.  The table will contain one or more of the following key-value pairs:
 ---    * fragment           - the anchor name a URL refers to within an HTML document.  Appears after '#' at the end of a URL.  Note that not all web clients include this in an HTTP request since its normal purpose is to indicate where to scroll to within a page after the content has been retrieved.
 ---    * host               - the host name portion of the URL, if any
 ---    * lastPathComponent  - the last component of the path portion of the URL

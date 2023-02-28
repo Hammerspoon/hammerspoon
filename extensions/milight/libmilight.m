@@ -63,9 +63,9 @@ int milight_cacheCommands(lua_State *L) {
     pushCommand(L, "orange", 0xA0);
     pushCommand(L, "red", 0xB0);
     pushCommand(L, "pink", 0xC0);
-    pushCommand(L, "fuscia", 0xD0);
+    pushCommand(L, "fuchsia", 0xD0);
     pushCommand(L, "lilac", 0xE0);
-    pushCommand(L, "lavendar", 0xF0);
+    pushCommand(L, "lavender", 0xF0);
 
     return 1;
 }

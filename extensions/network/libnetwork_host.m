@@ -31,7 +31,7 @@ static int pushCFHost(lua_State *L, CFHostRef theHost, CFHostInfoType resolveTyp
 #pragma clang diagnostic ignored "-Wincompatible-pointer-types-discards-qualifiers"
 // CFRetain returns CFTypeRef (aka 'const void *'), while CFHostRef (aka 'struct __CFHost *'),
 // a noticeably non-constant type...
-// Probably an oversite on Apple's part since other CF type refs don't trigger a warning.
+// Probably an oversight on Apple's part since other CF type refs don't trigger a warning.
     thePtr->theHostObj  = CFRetain(theHost) ;
 #pragma clang diagnostic pop
     thePtr->callbackRef = LUA_NOREF ;
@@ -48,13 +48,13 @@ static int pushCFHost(lua_State *L, CFHostRef theHost, CFHostInfoType resolveTyp
     return 1 ;
 }
 
-static int pushQueryResults(lua_State *L, BOOL syncronous, CFHostRef theHost, CFHostInfoType typeInfo) {
+static int pushQueryResults(lua_State *L, BOOL synchronous, CFHostRef theHost, CFHostInfoType typeInfo) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     Boolean available = false ;
-    int argCount = syncronous ? 1 : 2 ;
+    int argCount = synchronous ? 1 : 2 ;
     switch(typeInfo) {
         case kCFHostAddresses:
-            if (!syncronous) lua_pushstring(L, "addresses") ;
+            if (!synchronous) lua_pushstring(L, "addresses") ;
             CFArrayRef theAddresses = CFHostGetAddressing(theHost, &available);
             if (available && theAddresses) {
                 lua_newtable(L) ;
@@ -74,7 +74,7 @@ static int pushQueryResults(lua_State *L, BOOL syncronous, CFHostRef theHost, CF
             }
             break ;
         case kCFHostNames:
-            if (!syncronous) lua_pushstring(L, "names") ;
+            if (!synchronous) lua_pushstring(L, "names") ;
             CFArrayRef theNames = CFHostGetNames(theHost, &available);
             if (available && theNames) {
                 [skin pushNSObject:(__bridge NSArray *)theNames] ;
@@ -83,7 +83,7 @@ static int pushQueryResults(lua_State *L, BOOL syncronous, CFHostRef theHost, CF
             }
             break ;
         case kCFHostReachability:
-            if (!syncronous) lua_pushstring(L, "reachability") ;
+            if (!synchronous) lua_pushstring(L, "reachability") ;
             CFDataRef theAvailability = CFHostGetReachability(theHost, &available);
             if (available && theAvailability) {
 //                 SCNetworkConnectionFlags flags = *(SCNetworkConnectionFlags *)CFDataGetBytePtr(theAvailability) ;
@@ -217,14 +217,14 @@ static int commonConstructor(lua_State *L) {
 static int commonForHostName(lua_State *L, CFHostInfoType resolveType) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TFUNCTION | LS_TNIL | LS_TOPTIONAL, LS_TBREAK] ;
-    BOOL syncronous = lua_isnoneornil(L, 2) ;
+    BOOL synchronous = lua_isnoneornil(L, 2) ;
 
     CFHostRef theHost = CFHostCreateWithName(kCFAllocatorDefault, (__bridge CFStringRef)[skin toNSObjectAtIndex:1]);
 
     lua_pushcfunction(L, commonConstructor) ;
     pushCFHost(L, theHost, resolveType) ;
     CFRelease(theHost) ;
-    if (!syncronous) {
+    if (!synchronous) {
         lua_pushvalue(L, 2) ;
     } else {
         lua_pushnil(L) ;
@@ -236,7 +236,7 @@ static int commonForHostName(lua_State *L, CFHostInfoType resolveType) {
 static int commonForAddress(lua_State *L, CFHostInfoType resolveType) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING | LS_TNUMBER, LS_TFUNCTION | LS_TNIL | LS_TOPTIONAL, LS_TBREAK] ;
-    BOOL syncronous = lua_isnoneornil(L, 2) ;
+    BOOL synchronous = lua_isnoneornil(L, 2) ;
 
     luaL_checkstring(L, 1) ; // force number to be a string
     struct addrinfo *results = NULL ;
@@ -254,7 +254,7 @@ static int commonForAddress(lua_State *L, CFHostInfoType resolveType) {
     CFRelease(theSocket) ;
     CFRelease(theHost) ;
     freeaddrinfo(results) ;
-    if (!syncronous) {
+    if (!synchronous) {
         lua_pushvalue(L, 2) ;
     } else {
         lua_pushnil(L) ;

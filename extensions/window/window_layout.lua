@@ -26,7 +26,7 @@
 ---   windows are "consumed" and are excluded from the window pool for subsequent commands in this rule, and from subsequent rules
 --- * a **selector**, describing the sort order used to pick the first *maxn* windows from the window pool for this command;
 ---   it can be one of `focused` (pick *maxn* most recently focused windows), `frontmost` (pick the recent focused window if its
----   application is frontmost applicaion, otherwise the command will be skipped), `newest` (most recently created), `oldest`
+---   application is frontmost application, otherwise the command will be skipped), `newest` (most recently created), `oldest`
 ---   (least recently created), or `closest` (pick the *maxn* windows that are closest to the destination rect); if omitted,
 ---   defaults to `closest` for move, tile and fit, and `newest` for everything else
 --- * an `hs.geometry` *size* (only valid for tile and fit) indicating the desired optimal aspect ratio for the tiled windows;
@@ -436,7 +436,7 @@ local function performPendingActions()
   -- tile remaining windows
   local toTile={}
   for win,command in pairs(winbuf) do
-    --    hs.assert(command.action==TILE or command.action==FIT,'(431) unexptected action: '..command.action,command)
+    --    hs.assert(command.action==TILE or command.action==FIT,'(431) unexpected action: '..command.action,command)
     local idx=command.irule..'.'..command.icmd
     if not toTile[idx] then toTile[idx]=command
     end
@@ -799,7 +799,7 @@ screensChangedTimer=timer.new(DISTANT_FUTURE,processScreensChanged):start()
 ---    * `true` - the screen must be currently present (attached and enabled)
 ---    * `false` - the screen must be currently absent
 ---    * an `hs.geometry` point (or constructor argument) - the screen must be present and in this specific
----      position in the current arragement (as per `hs.screen:position()`)
+---      position in the current arrangement (as per `hs.screen:position()`)
 ---
 --- Returns:
 ---  * the `hs.window.layout` object

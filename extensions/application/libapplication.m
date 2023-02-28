@@ -73,7 +73,7 @@ static int application_applicationforpid(lua_State* L) {
 /// Returns any running apps that have the given bundleID.
 ///
 /// Parameters:
-///  * bundleID - An OSX application bundle indentifier
+///  * bundleID - An OSX application bundle identifier
 ///
 /// Returns:
 ///  * A table of zero or more hs.application objects that match the given identifier
@@ -172,7 +172,7 @@ static int application_preferredLocalizationsForBundlePath(lua_State* L) {
 ///  * bundleID - A string containing an application bundle identifier (e.g. "com.apple.Safari")
 ///
 /// Returns:
-///  * A table containing containing language IDs for all the localizations contained in the bundle.
+///  * A table containing language IDs for all the localizations contained in the bundle.
 static int application_localizationsForBundleID(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TBREAK];
@@ -188,7 +188,7 @@ static int application_localizationsForBundleID(lua_State* L) {
 ///  * bundlePath - A string containing the path to an application bundle (e.g. "/Applications/Safari.app")
 ///
 /// Returns:
-///  * A table containing containing language IDs for all the localizations contained in the bundle.
+///  * A table containing language IDs for all the localizations contained in the bundle.
 static int application_localizationsForBundlePath(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TBREAK];

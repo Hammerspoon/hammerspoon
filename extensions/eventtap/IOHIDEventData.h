@@ -110,7 +110,7 @@ typedef struct _IOHIDDigitizerEventData {
             IOFixed     y;                      // This value represents the angle between the X-Z and transducer-X planes. A positive Y Tilt is toward the user.
         } tilt;
         struct {                                // X Tilt and Y Tilt are used together to specify the tilt away from normal of a digitizer transducer. In its normal position, the values of X Tilt and Y Tilt for a transducer are both zero.
-            IOFixed  altitude;                  //The angle with the X-Y plane though a signed, semicicular range.  Positive values specify an angle downward and toward the positive Z axis. 
+            IOFixed  altitude;                  //The angle with the X-Y plane though a signed, semicircular range.  Positive values specify an angle downward and toward the positive Z axis. 
             IOFixed  azimuth;                   // Specifies the counter clockwise rotation of the cursor around the Z axis though a full circular range.
         } polar;
         struct {
@@ -136,7 +136,7 @@ typedef struct _IOHIDSwipeEventData {
 /*!
  @typedef    IOHIDSystemQueueElement
  @abstract   Memory structure defining the layout of each event queue element
- @discussion The IOHIDEventQueueElement represents a portion of mememory in the
+ @discussion The IOHIDEventQueueElement represents a portion of memory in the
  new IOHIDEventQueue.  It is possible that a event queue element
  can contain multiple interpretations of a given event.  The first
  event is always considered the primary event.
@@ -146,7 +146,7 @@ typedef struct _IOHIDSwipeEventData {
  @field      deviceID    ID of the sending device
  @field      options     Options for further developement
  @field      eventCount  The number of events contained in this transaction
- @field      events      Begining offset of contiguous mememory that contains the
+ @field      events      Beginning offset of contiguous memory that contains the
  pertinent event data
  */
 typedef struct _IOHIDSystemQueueElement {

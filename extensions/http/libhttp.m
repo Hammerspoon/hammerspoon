@@ -75,7 +75,7 @@ static void remove_delegate(lua_State* L, connectionDelegate* delegate) {
     lua_pushinteger(L, (int)self.httpResponse.statusCode);
     [skin pushNSObject:responseBodyToId(self.httpResponse, self.receivedData)];
     [skin pushNSObject:self.httpResponse.allHeaderFields];
-    [skin protectedCallAndError:@"hs.http connectionDelefate:didFinishLoading" nargs:3 nresults:0];
+    [skin protectedCallAndError:@"hs.http connectionDelegate:didFinishLoading" nargs:3 nresults:0];
 
     remove_delegate(L, self);
     _lua_stackguard_exit(L);
@@ -116,7 +116,7 @@ static void remove_delegate(lua_State* L, connectionDelegate* delegate) {
         lua_pushinteger(L, (int)httpResponse.statusCode);
         [skin pushNSObject:responseBodyToId(self.httpResponse, self.receivedData)];
         [skin pushNSObject:httpResponse.allHeaderFields];
-        [skin protectedCallAndError:@"hs.http connectionDelefate:didFinishLoading during redirection" nargs:3 nresults:0];
+        [skin protectedCallAndError:@"hs.http connectionDelegate:didFinishLoading during redirection" nargs:3 nresults:0];
 
         remove_delegate(L, self);
         _lua_stackguard_exit(L);
@@ -399,7 +399,7 @@ static int http_encodeForQuery(lua_State *L) {
 ///    * a missing key (e.g. '=value') will be represented as { "" = value }
 ///    * a missing value (e.g. 'key=') will be represented as { key = "" }
 ///    * a missing value with no = (e.g. 'key') will be represented as { key }
-///    * a missing key and value (e.g. '=') will be represente as { "" = "" }
+///    * a missing key and value (e.g. '=') will be represented as { "" = "" }
 ///    * an empty query item (e.g. a query ending in '&' or a query containing && between two other query items) will be represented as { "" }
 ///
 ///  * At present Hammerspoon does not provide a way to represent a URL as a true Objective-C object within the OS X API.  This affects the following keys:

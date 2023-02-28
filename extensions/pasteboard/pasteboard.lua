@@ -63,7 +63,7 @@ end
 
 --- hs.pasteboard.callbackWhenChanged([name], [timeout], callback) -> None
 --- Function
---- Invokes callback when the specified pasteoard has changed or the timeout is reached.
+--- Invokes callback when the specified pasteboard has changed or the timeout is reached.
 ---
 --- Parameters:
 ---  * `name`     - an optional string indicating the pasteboard name.  If nil or not present, defaults to the system pasteboard.
@@ -74,7 +74,7 @@ end
 ---  * None
 ---
 --- Notes:
----  * This function can be used to capture the results of a copy operation issued programatically with `hs.application:selectMenuItem` or `hs.eventtap.keyStroke` without resorting to creating your own timers:
+---  * This function can be used to capture the results of a copy operation issued programmatically with `hs.application:selectMenuItem` or `hs.eventtap.keyStroke` without resorting to creating your own timers:
 ---  ~~~
 ---      hs.eventtap.keyStroke({"cmd"}, "c", 0) -- or whatever method you want to trigger the copy
 ---      hs.pasteboard.callbackWhenChanged(5, function(state)
@@ -82,7 +82,7 @@ end
 ---              local contents = hs.pasteboard.getContents()
 ---              -- do what you want with contents
 ---          else
----              error("copy timeout") -- or whatever fallback you want when it timesout
+---              error("copy timeout") -- or whatever fallback you want when it times out
 ---          end
 ---      end)
 ---  ~~~
@@ -110,7 +110,7 @@ module.callbackWhenChanged = function(...)
               coroutine.applicationYield() -- luacheck: ignore
         end
         callback(module.changeCount(name) ~= count)
-        longTask = nil -- referncing here makes it an upvalue, so it won't be collected
+        longTask = nil -- referencing here makes it an upvalue, so it won't be collected
     end)
     longTask(timer.secondsSinceEpoch(), module.changeCount(name))
 end

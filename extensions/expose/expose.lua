@@ -62,7 +62,7 @@ local expose={setLogLevel=log.setLogLevel,getLogLevel=log.getLogLevel} --module
 local activeInstances={} -- these are updated in the background
 local modals={} -- modal hotkeys for selecting a hint; global state
 local activeInstance,fnreactivate -- function to reactivate the current instance (only 1 possible) after a space switch
-local modes,tap={} -- modes (minimize, close) for the current instance, and eventtap (glboals)
+local modes,tap={} -- modes (minimize, close) for the current instance, and eventtap (globals)
 local spacesWatcher,screenWatcher,screensChangedTimer,bgFitTimer -- global watchers
 local BG_FIT_INTERVAL=3
 local BEHAVIOR=17
@@ -253,7 +253,7 @@ local function getColor(t) if type(t)~='table' or t.red or not t[1] then return 
 --- To have multiple expose instances with different behaviour/looks, use the `uiPrefs` parameter for the constructor;
 --- the passed keys and values will override those in this table for that particular instance.
 ---
---- The default values are shown in the right hand side of the assignements below.
+--- The default values are shown in the right hand side of the assignments below.
 ---
 --- To represent color values, you can use:
 ---  * a table {red=redN, green=greenN, blue=blueN, alpha=alphaN}
@@ -285,7 +285,7 @@ local function getColor(t) if type(t)~='table' or t.red or not t[1] then return 
 ---  * `hs.expose.ui.highlightThumbnailStrokeWidth = 8` - thumbnail frame thickness for candidate windows
 ---  * `hs.expose.ui.maxHintLetters = 2` - if necessary, hints longer than this will be disambiguated with digits
 ---  * `hs.expose.ui.fitWindowsMaxIterations = 30` -- lower is faster, but higher chance of overlapping thumbnails
----  * `hs.expose.ui.fitWindowsInBackground = false` -- improves responsivenss, but can affect the rest of the config
+---  * `hs.expose.ui.fitWindowsInBackground = false` -- improves responsiveness, but can affect the rest of the config
 
 -- TODO * `hs.expose.ui.fitWindowsMaxIterations = 3`
 -- TODO * `hs.expose.ui.showExtraKeys = true` -- show non-hint keybindings at the top of the screen

@@ -78,7 +78,7 @@ static LSRefTable refTable = LUA_NOREF;
 }
 
 //
-// Availible Devices:
+// Available Devices:
 //
 - (NSArray *)availableDevices { return self.midiDeviceManager.availableDevices; }
 
@@ -93,7 +93,7 @@ static LSRefTable refTable = LUA_NOREF;
 - (bool)setPhysicalDevice:(NSString *)deviceName
 {
     //
-    // Availible Devices:
+    // Available Devices:
     //
     NSArray *availableMIDIDevices = [_midiDeviceManager availableDevices];
     for (MIKMIDIDevice * device in availableMIDIDevices)
@@ -135,7 +135,7 @@ static LSRefTable refTable = LUA_NOREF;
 - (void)watchDevices
 {
     //
-    // Availible Devices:
+    // Available Devices:
     //
     @try {
         [_midiDeviceManager addObserver:self forKeyPath:@"availableDevices" options:NSKeyValueObservingOptionInitial context:midiKVOContext];
@@ -160,7 +160,7 @@ static LSRefTable refTable = LUA_NOREF;
 - (void)unwatchDevices
 {
     //
-    // Availible Devices:
+    // Available Devices:
     //
     @try {
         [_midiDeviceManager removeObserver:self forKeyPath:@"availableDevices" context:midiKVOContext] ;
@@ -256,7 +256,7 @@ static LSRefTable refTable = LUA_NOREF;
                 [skin pushLuaRef:refTable ref:_deviceCallbackRef] ;
 
                 //
-                // Availible Devices:
+                // Available Devices:
                 //
                 NSMutableArray *deviceNames = [[NSMutableArray alloc]init];
                 for (MIKMIDIDevice * device in self.availableDevices)
@@ -395,7 +395,7 @@ static int deviceCallback(lua_State *L) {
 ///  * deviceName - A string containing the device name of the MIDI device. A valid device name can be found by checking `hs.midi.devices()` and/or `hs.midi.virtualSources()`.
 ///
 /// Returns:
-///  * An `hs.midi` object or `nil` if an error occured.
+///  * An `hs.midi` object or `nil` if an error occurred.
 ///
 /// Notes:
 ///  * Example Usage:
@@ -422,7 +422,7 @@ static int midi_new(lua_State *L) {
 ///  * virtualSource - A string containing the virtual source name of the MIDI device. A valid virtual source name can be found by checking `hs.midi.virtualSources()`.
 ///
 /// Returns:
-///  * An `hs.midi` object or `nil` if an error occured.
+///  * An `hs.midi` object or `nil` if an error occurred.
 ///
 /// Notes:
 ///  * Example Usage:
@@ -454,7 +454,7 @@ static int midi_newVirtualSource(lua_State *L) {
 ///  * The `hs.midi` object
 ///
 /// Notes:
-///  * Most MIDI keyboards produce a `noteOn` when you press a key, then `noteOff` when you release. However, some MIDI keyboards will return a `noteOn` with 0 `velocity` instead of `noteOff`, so you will recieve two `noteOn` commands for every key press/release.
+///  * Most MIDI keyboards produce a `noteOn` when you press a key, then `noteOff` when you release. However, some MIDI keyboards will return a `noteOn` with 0 `velocity` instead of `noteOff`, so you will receive two `noteOn` commands for every key press/release.
 ///  * The callback function should expect 5 arguments and should not return anything:
 ///    * `object`       - The `hs.midi` object.
 ///    * `deviceName`   - The device name as a string.
@@ -1699,7 +1699,7 @@ static const luaL_Reg module_metaLib[] = {
 };
 
 //
-// Initalise Module:
+// Initialize Module:
 //
 int luaopen_hs_libmidi(lua_State* L) {
 

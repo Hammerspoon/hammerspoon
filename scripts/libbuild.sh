@@ -124,7 +124,7 @@ function op_validate() {
   fi
   echo "  ✅ Signing identity is correct (${SIGN_IDENTITY})"
 
-  # Check that Gatekeepr accepts the app bundle
+  # Check that Gatekeeper accepts the app bundle
   if ! spctl --assess --type execute "${HAMMERSPOON_BUNDLE_PATH}" ; then
       spctl --verbose=4 --assess --type execute "${HAMMERSPOON_BUNDLE_PATH}"
       fail "Gatekeeper rejection:"
@@ -364,7 +364,7 @@ function op_release() {
         fail "User rejected build"
     fi
 
-    # Prepaer the release archive
+    # Prepare the release archive
     echo " Zipping..."
     # FIXME: HAMMERSPOON_BUNDLE_PATH here is not right, that gives us Hammerspoon.app-X.Y.Z.zip and we don't want the .app
     local ZIP_PATH="${BUILD_HOME}/${APP_NAME}-${VERSION}.zip"

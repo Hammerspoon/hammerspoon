@@ -652,7 +652,7 @@ end
 --- Allows customization of the modal resizing grid user interface
 ---
 --- This table contains variables that you can change to customize the look of the modal resizing grid.
---- The default values are shown in the right hand side of the assignements below.
+--- The default values are shown in the right hand side of the assignments below.
 ---
 --- To represent color values, you can use:
 ---  * a table {red=redN, green=greenN, blue=blueN, alpha=alphaN}
@@ -760,7 +760,7 @@ local function makeUI()
       local x,x2 = frame.x+cell.w*(cx-1),frame.x+cell.w*(cx2-1)
       for hy=min(hintsh,sgr.h),1,-1 do
         local cy,cy2 = hy,hy+1
-        -- allow for grid heigth > # available hint rows
+        -- allow for grid height > # available hint rows
         if sgr.h>hintsh then cy=dist(cy,hintsh,sgr.h) cy2=dist(cy2,hintsh,sgr.h) end
         local y,y2 = frame.y+cell.h*(cy-1),frame.y+cell.h*(cy2-1)
         local elem = geom.new{x=x,y=y,x2=x2,y2=y2}
@@ -911,7 +911,7 @@ local function _start()
     for _,cell in ipairs(uielements[currentScreen].hints) do
       if (nx == cell.x and ny == cell.y) then return cell end
     end
-    -- no cell found, you'r going out of your screen!
+    -- no cell found, you're going out of your screen!
     return nil
   end
 

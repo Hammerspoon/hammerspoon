@@ -17,12 +17,12 @@
  *	- The characters which are *not* safe to be in
  *	an URL because they are RESERVED characters.
  *
- * We asume (lazily) that any RESERVED char that
+ * We assume (lazily) that any RESERVED char that
  * appears inside an URL is actually meant to
  * have its native function (i.e. as an URL
  * component/separator) and hence needs no escaping.
  *
- * There are two exceptions: the chacters & (amp)
+ * There are two exceptions: the characters & (amp)
  * and ' (single quote) do not appear in the table.
  * They are meant to appear in the URL as components,
  * yet they require special HTML-entity escaping

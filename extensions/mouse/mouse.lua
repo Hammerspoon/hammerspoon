@@ -89,7 +89,7 @@ end
 ---  * None
 ---
 --- Returns:
----  * A point-table containing the relative x and y co-ordinates of the mouse pointer, or nil if an error occured
+---  * A point-table containing the relative x and y co-ordinates of the mouse pointer, or nil if an error occurred
 ---
 --- Notes:
 ---  * The co-ordinates returned by this function are relative to the top left pixel of the screen the mouse is on (see `hs.mouse.getAbsolutePosition` if you need the location in the full desktop space)
@@ -159,7 +159,7 @@ end
 ---  * None
 ---
 --- Returns:
----  * Returns an array containing indicies starting from 1 up to the highest numbered button currently being pressed where the index is `true` if the button is currently pressed or `false` if it is not.
+---  * Returns an array containing indices starting from 1 up to the highest numbered button currently being pressed where the index is `true` if the button is currently pressed or `false` if it is not.
 ---  * Special hash tag synonyms for `left` (button 1), `right` (button 2), and `middle` (button 3) are also set to true if these buttons are currently being pressed.
 ---
 --- Notes:

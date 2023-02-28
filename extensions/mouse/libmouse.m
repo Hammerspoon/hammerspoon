@@ -43,7 +43,7 @@ static void enum_callback(void *ctx, IOReturn res, void *sender, IOHIDDeviceRef 
 -(void)setAbsolutePosition:(NSPoint)absolutePosition;
 -(double)getTrackingSpeed;
 -(io_service_t)createIOHIDSystem;
--(NSDictionary *)getIOHIDParamtersFromService:(io_service_t)service;
+-(NSDictionary *)getIOHIDParametersFromService:(io_service_t)service;
 -(NSDictionary *)getIOHIDParameters;
 -(kern_return_t)setTrackingSpeed:(double)trackingSpeed;
 @end
@@ -118,13 +118,13 @@ static void enum_callback(void *ctx, IOReturn res, void *sender, IOHIDDeviceRef 
     return IORegistryEntryFromPath(kIOMasterPortDefault, kIOServicePlane ":/IOResources/IOHIDSystem");
 }
 
--(NSDictionary *)getIOHIDParamtersFromService:(io_service_t)service {
+-(NSDictionary *)getIOHIDParametersFromService:(io_service_t)service {
     return CFBridgingRelease(IORegistryEntryCreateCFProperty(service, CFSTR(kIOHIDParametersKey), kCFAllocatorDefault, kNilOptions));
 }
 
 -(NSDictionary *)getIOHIDParameters {
     io_service_t service = [self createIOHIDSystem];
-    NSDictionary *parameters = [self getIOHIDParamtersFromService:service];
+    NSDictionary *parameters = [self getIOHIDParametersFromService:service];
     IOObjectRelease(service);
     return parameters;
 }
@@ -138,7 +138,7 @@ static void enum_callback(void *ctx, IOReturn res, void *sender, IOHIDDeviceRef 
 -(kern_return_t)setTrackingSpeed:(double)trackingSpeed {
     io_service_t service = [self createIOHIDSystem];
 
-    NSDictionary *parameters = [self getIOHIDParamtersFromService:service];
+    NSDictionary *parameters = [self getIOHIDParametersFromService:service];
 
     NSMutableDictionary *newParameters = [parameters mutableCopy];
     newParameters[@"HIDMouseAcceleration"] = @(trackingSpeed * MOUSE_TRACKING_FACTOR);
@@ -210,7 +210,7 @@ static int mouse_names(lua_State* L) {
 ///  * A point table containing the absolute x and y co-ordinates of the mouse pointer
 ///
 /// Notes:
-///  * If no parameters are supplied, the current position will be returned. If a point table parameter is supplied, the mouse pointer poisition will be set and the new co-ordinates returned
+///  * If no parameters are supplied, the current position will be returned. If a point table parameter is supplied, the mouse pointer position will be set and the new co-ordinates returned
 static int mouse_absolutePosition(lua_State *L) {
     LuaSkin *skin = LS_API(LS_TTABLE|LS_TOPTIONAL, LS_TBREAK);
     HSmouse *mouseManager = [[HSmouse alloc] init];
@@ -229,7 +229,7 @@ static int mouse_absolutePosition(lua_State *L) {
 /// Gets/Sets the current system mouse tracking speed setting
 ///
 /// Parameters:
-///  * speed - An optional number containing the new tracking speed to set. If this is ommitted, the current setting is returned
+///  * speed - An optional number containing the new tracking speed to set. If this is omitted, the current setting is returned
 ///
 /// Returns:
 ///  * A number indicating the current tracking speed setting for mice
@@ -238,7 +238,7 @@ static int mouse_absolutePosition(lua_State *L) {
 ///  * This is represented in the System Preferences as the "Tracking speed" setting for mice
 ///  * Note that not all values will work, they should map to the steps defined in the System Preferences app, which are:
 ///    * 0.0, 0.125, 0.5, 0.6875, 0.875, 1.0, 1.5, 2.0, 2.5, 3.0
-///  * Note that changes to this value will not be noticed immedaitely by macOS
+///  * Note that changes to this value will not be noticed immediately by macOS
 static int mouse_mouseAcceleration(lua_State *L) {
     LuaSkin *skin = LS_API(LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK);
     HSmouse *mouseManager = [[HSmouse alloc] init];
@@ -256,7 +256,7 @@ static int mouse_mouseAcceleration(lua_State *L) {
 
 /// hs.mouse.scrollDirection() -> string
 /// Function
-/// Gets the system-wide direction of scolling
+/// Gets the system-wide direction of scrolling
 ///
 /// Parameters:
 ///  * None

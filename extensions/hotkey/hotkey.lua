@@ -237,8 +237,8 @@ end
 ---
 --- Returns:
 ---  * if the hotkey combination is in use by a system function, returns a table containing the following keys:
----    * keycode - the numberic keycode for the hotkey
----    * mods    - a numeric representation of the modifier flags for the htokey
+---    * keycode - the numeric keycode for the hotkey
+---    * mods    - a numeric representation of the modifier flags for the hotkey
 ---    * enabled - a boolean indicating whether or not the key is currently enabled
 ---  * if the hotkey combination is not in use by the operating system, returns the boolean value `false`
 ---
@@ -272,7 +272,7 @@ end
 function hotkey.assignable(mods, key)
     local k = hotkey.new(mods, key, function() end)
     local prevLevel = hs.luaSkinLog.level
-    -- supress luaSkinLog error if binding fails
+    -- suppress luaSkinLog error if binding fails
     hs.luaSkinLog.level = 0
     local status = k._hk:enable()
     if status then k._hk:disable() end
@@ -460,7 +460,7 @@ hotkey.modal.__index = hotkey.modal
 ---  * None
 ---
 --- Notes:
----  * This is a pre-existing function that you should override if you need to use it; the default implementation does nothing.
+---  * This is a preexisting function that you should override if you need to use it; the default implementation does nothing.
 function hotkey.modal:entered() -- luacheck: ignore
 end
 
@@ -475,7 +475,7 @@ end
 ---  * None
 ---
 --- Notes:
----  * This is a pre-existing function that you should override if you need to use it; the default implementation does nothing.
+---  * This is a preexisting function that you should override if you need to use it; the default implementation does nothing.
 function hotkey.modal:exited() -- luacheck: ignore
 end
 

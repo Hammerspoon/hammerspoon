@@ -78,7 +78,7 @@ double getSecondsSinceEpoch(void) {
         return;
     }
 
-    // Get button name from device dictonary:
+    // Get button name from device dictionary:
     NSString *buttonName = [self.buttonNames valueForKey:scancodeString];
 
     // Abort if there's no button name:
@@ -586,7 +586,7 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
     // Send the report to the device:
     IOReturn deviceRequestResult = (*razerDevice)->DeviceRequest(razerDevice, &request);
 
-    // Opps! Something has gone wrong:
+    // Oops! Something has gone wrong:
     if (deviceRequestResult != kIOReturnSuccess) {
         // Close & Release the USB Device:
         (*razerDevice)->USBDeviceClose(razerDevice);

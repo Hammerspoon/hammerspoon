@@ -386,7 +386,7 @@ rndr_raw_html(struct buf *ob, const struct buf *text, void *opaque)
 	struct html_renderopt *options = opaque;
 
 	/* HTML_ESCAPE overrides SKIP_HTML, SKIP_STYLE, SKIP_LINKS and SKIP_IMAGES
-	* It doens't see if there are any valid tags, just escape all of them. */
+	* It doesn't see if there are any valid tags, just escape all of them. */
 	if((options->flags & HTML_ESCAPE) != 0) {
 		escape_html(ob, text->data, text->size);
 		return 1;
