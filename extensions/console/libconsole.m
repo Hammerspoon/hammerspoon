@@ -100,6 +100,7 @@ static int console_consolePrintColor(lua_State *L) {
 ///
 /// Notes:
 ///  * A length value of zero will allow the history to grow infinitely
+///  * The default console history is 100,000 characters
 static int console_maxOutputHistory(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
 
