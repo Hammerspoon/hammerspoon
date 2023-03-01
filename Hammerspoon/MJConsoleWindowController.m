@@ -51,7 +51,7 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
     self.MJColorForCommand = [NSColor blackColor] ;
     self.MJColorForResult  = [NSColor colorWithCalibratedHue:0.54 saturation:1.0 brightness:0.7 alpha:1.0] ;
     self.consoleFont       = [NSFont fontWithName:@"Menlo" size:12.0] ;
-    self.maxConsoleOutputHistory = [NSNumber numberWithInt:16384];
+    self.maxConsoleOutputHistory = [NSNumber numberWithInt:100000];
 }
 
 - (NSString*) windowNibName {
