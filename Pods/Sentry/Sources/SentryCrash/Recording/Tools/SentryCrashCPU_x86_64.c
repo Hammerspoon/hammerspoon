@@ -33,7 +33,7 @@
 
 #    include <stdlib.h>
 
-//#define SentryCrashLogger_LocalLevel TRACE
+// #define SentryCrashLogger_LocalLevel TRACE
 #    include "SentryCrashLogger.h"
 
 static const char *g_registerNames[] = { "rax", "rbx", "rcx", "rdx", "rdi", "rsi", "rbp", "rsp",

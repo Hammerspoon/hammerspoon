@@ -1,10 +1,10 @@
-#import <Foundation/Foundation.h>
-
 #import "SentryDefines.h"
 
 @class SentrySession, SentryEnvelope, SentryAppState;
 
 NS_ASSUME_NONNULL_BEGIN
+
+static int const SENTRY_BAGGAGE_MAX_SIZE = 8192;
 
 @interface SentrySerialization : NSObject
 
@@ -13,6 +13,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSData *_Nullable)dataWithSession:(SentrySession *)session
                                error:(NSError *_Nullable *_Nullable)error;
+
++ (NSDictionary<NSString *, NSString *> *)decodeBaggage:(NSString *)baggage;
++ (NSString *)baggageEncodedDictionary:(NSDictionary *)dictionary;
 
 + (SentrySession *_Nullable)sessionWithData:(NSData *)sessionData;
 

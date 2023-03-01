@@ -32,7 +32,7 @@
 #    include "SentryCrashMachineContext_Apple.h"
 #    include <stdlib.h>
 
-//#define SentryCrashLogger_LocalLevel TRACE
+// #define SentryCrashLogger_LocalLevel TRACE
 #    include "SentryCrashLogger.h"
 
 #    define KSPACStrippingMask_ARM64e 0x0000000fffffffff

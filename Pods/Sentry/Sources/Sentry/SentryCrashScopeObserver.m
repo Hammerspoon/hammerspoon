@@ -1,3 +1,4 @@
+#import "SentryLevelMapper.h"
 #import <Foundation/Foundation.h>
 #import <NSData+Sentry.h>
 #import <SentryBreadcrumb.h>
@@ -7,11 +8,6 @@
 #import <SentryLog.h>
 #import <SentryScopeSyncC.h>
 #import <SentryUser.h>
-
-@interface
-SentryCrashScopeObserver ()
-
-@end
 
 @implementation SentryCrashScopeObserver
 
@@ -83,16 +79,15 @@ SentryCrashScopeObserver ()
         return;
     }
 
-    NSString *levelAsString = SentryLevelNames[level];
+    NSString *levelAsString = nameForSentryLevel(level);
     NSData *json = [self toJSONEncodedCString:levelAsString];
 
     sentrycrash_scopesync_setLevel([json bytes]);
 }
 
-- (void)addBreadcrumb:(SentryBreadcrumb *)crumb
+- (void)addSerializedBreadcrumb:(NSDictionary *)crumb
 {
-    NSDictionary *serialized = [crumb serialize];
-    NSData *json = [self toJSONEncodedCString:serialized];
+    NSData *json = [self toJSONEncodedCString:crumb];
     if (json == nil) {
         return;
     }
@@ -155,14 +150,13 @@ SentryCrashScopeObserver ()
                                     options:SentryCrashJSONEncodeOptionSorted
                                       error:&error];
         if (error != nil) {
-            NSString *message = [NSString stringWithFormat:@"Could not serialize %@", error];
-            [SentryLog logWithMessage:message andLevel:kSentryLevelError];
+            SENTRY_LOG_ERROR(@"Could not serialize %@", error);
             return nil;
         }
     }
 
     // C strings need to be null terminated
-    return [json nullTerminated];
+    return [json sentry_nullTerminated];
 }
 
 @end

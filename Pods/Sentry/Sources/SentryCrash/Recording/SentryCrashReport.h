@@ -63,15 +63,6 @@ void sentrycrashreport_setIntrospectMemory(bool shouldIntrospectMemory);
  */
 void sentrycrashreport_setDoNotIntrospectClasses(const char **doNotIntrospectClasses, int length);
 
-/** Set the function to call when writing the user section of the report.
- *  This allows the user to add more fields to the user section at the time of
- * the crash. Note: Only async-safe functions are allowed in the callback.
- *
- * @param userSectionWriteCallback The user section write callback.
- */
-void sentrycrashreport_setUserSectionWriteCallback(
-    const SentryCrashReportWriteCallback userSectionWriteCallback);
-
 // ============================================================================
 #pragma mark - Main API -
 // ============================================================================

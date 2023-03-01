@@ -1,20 +1,61 @@
 #import "SentryNSDataSwizzling.h"
+#import "SentryCrashDefaultMachineContextWrapper.h"
+#import "SentryCrashMachineContextWrapper.h"
+#import "SentryCrashStackEntryMapper.h"
+#import "SentryInAppLogic.h"
 #import "SentryNSDataTracker.h"
+#import "SentryOptions+Private.h"
+#import "SentryProcessInfoWrapper.h"
+#import "SentryStacktraceBuilder.h"
 #import "SentrySwizzle.h"
+#import "SentryThreadInspector.h"
 #import <SentryLog.h>
 #import <objc/runtime.h>
 
+@interface
+SentryNSDataSwizzling ()
+
+@property (nonatomic, strong) SentryNSDataTracker *dataTracker;
+
+@end
+
 @implementation SentryNSDataSwizzling
 
-+ (void)start
++ (SentryNSDataSwizzling *)shared
 {
-    [SentryNSDataTracker.sharedInstance enable];
-    [self swizzleNSData];
+    static SentryNSDataSwizzling *instance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{ instance = [[self alloc] init]; });
+    return instance;
 }
 
-+ (void)stop
+- (void)startWithOptions:(SentryOptions *)options
 {
-    [SentryNSDataTracker.sharedInstance disable];
+    self.dataTracker = [[SentryNSDataTracker alloc]
+        initWithThreadInspector:[self buildThreadInspectorForOptions:options]
+             processInfoWrapper:[[SentryProcessInfoWrapper alloc] init]];
+    [self.dataTracker enable];
+    [SentryNSDataSwizzling swizzleNSData];
+}
+
+- (void)stop
+{
+    [self.dataTracker disable];
+}
+
+- (SentryThreadInspector *)buildThreadInspectorForOptions:(SentryOptions *)options
+{
+    SentryInAppLogic *inAppLogic =
+        [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
+                                          inAppExcludes:options.inAppExcludes];
+    SentryCrashStackEntryMapper *crashStackEntryMapper =
+        [[SentryCrashStackEntryMapper alloc] initWithInAppLogic:inAppLogic];
+    SentryStacktraceBuilder *stacktraceBuilder =
+        [[SentryStacktraceBuilder alloc] initWithCrashStackEntryMapper:crashStackEntryMapper];
+    id<SentryCrashMachineContextWrapper> machineContextWrapper =
+        [[SentryCrashDefaultMachineContextWrapper alloc] init];
+    return [[SentryThreadInspector alloc] initWithStacktraceBuilder:stacktraceBuilder
+                                           andMachineContextWrapper:machineContextWrapper];
 }
 
 // SentrySwizzleInstanceMethod declaration shadows a local variable. The swizzling is working
@@ -27,7 +68,7 @@
     SentrySwizzleInstanceMethod(NSData.class, writeToFileAtomicallySelector,
         SentrySWReturnType(BOOL), SentrySWArguments(NSString * path, BOOL useAuxiliaryFile),
         SentrySWReplacement({
-            return [SentryNSDataTracker.sharedInstance
+            return [SentryNSDataSwizzling.shared.dataTracker
                 measureNSData:self
                   writeToFile:path
                    atomically:useAuxiliaryFile
@@ -42,7 +83,7 @@
         SentrySWReturnType(BOOL),
         SentrySWArguments(NSString * path, NSDataWritingOptions writeOptionsMask, NSError * *error),
         SentrySWReplacement({
-            return [SentryNSDataTracker.sharedInstance
+            return [SentryNSDataSwizzling.shared.dataTracker
                 measureNSData:self
                   writeToFile:path
                       options:writeOptionsMask
@@ -60,7 +101,7 @@
         SentrySWReturnType(NSData *),
         SentrySWArguments(NSString * path, NSDataReadingOptions options, NSError * *error),
         SentrySWReplacement({
-            return [SentryNSDataTracker.sharedInstance
+            return [SentryNSDataSwizzling.shared.dataTracker
                 measureNSDataFromFile:path
                               options:options
                                 error:error
@@ -75,7 +116,7 @@
     SEL initWithContentsOfFileSelector = NSSelectorFromString(@"initWithContentsOfFile:");
     SentrySwizzleInstanceMethod(NSData.class, initWithContentsOfFileSelector,
         SentrySWReturnType(NSData *), SentrySWArguments(NSString * path), SentrySWReplacement({
-            return [SentryNSDataTracker.sharedInstance
+            return [SentryNSDataSwizzling.shared.dataTracker
                 measureNSDataFromFile:path
                                method:^NSData *(
                                    NSString *filePath) { return SentrySWCallOriginal(filePath); }];
@@ -88,7 +129,7 @@
         SentrySWReturnType(NSData *),
         SentrySWArguments(NSURL * url, NSDataReadingOptions options, NSError * *error),
         SentrySWReplacement({
-            return [SentryNSDataTracker.sharedInstance
+            return [SentryNSDataSwizzling.shared.dataTracker
                 measureNSDataFromURL:url
                              options:options
                                error:error

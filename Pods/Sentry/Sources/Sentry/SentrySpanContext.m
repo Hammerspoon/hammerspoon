@@ -1,15 +1,9 @@
 #import "SentrySpanContext.h"
 #import "SentryId.h"
+#import "SentryLog.h"
 #import "SentrySpanId.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
-@interface
-SentrySpanContext () {
-    NSMutableDictionary<NSString *, NSString *> *_tags;
-}
-
-@end
 
 @implementation SentrySpanContext
 
@@ -33,75 +27,60 @@ SentrySpanContext () {
                       operation:(NSString *)operation
                         sampled:(SentrySampleDecision)sampled
 {
+    return [self initWithTraceId:traceId
+                          spanId:spanId
+                        parentId:parentId
+                       operation:operation
+                 spanDescription:nil
+                         sampled:sampled];
+}
+
+- (instancetype)initWithTraceId:(SentryId *)traceId
+                         spanId:(SentrySpanId *)spanId
+                       parentId:(nullable SentrySpanId *)parentId
+                      operation:(NSString *)operation
+                spanDescription:(nullable NSString *)description
+                        sampled:(SentrySampleDecision)sampled
+{
     if (self = [super init]) {
         _traceId = traceId;
         _spanId = spanId;
         _parentSpanId = parentId;
-        self.sampled = sampled;
-        self.operation = operation;
-        self.status = kSentrySpanStatusUndefined;
-        _tags = [[NSMutableDictionary alloc] init];
+        _sampled = sampled;
+        _operation = operation;
+        _spanDescription = description;
+
+        SENTRY_LOG_DEBUG(
+            @"Created span context with trace ID %@; span ID %@; parent span ID %@; operation %@",
+            traceId.sentryIdString, spanId.sentrySpanIdString, parentId.sentrySpanIdString,
+            operation);
     }
     return self;
-}
-
-+ (NSString *)type
-{
-    static NSString *type;
-    if (type == nil)
-        type = @"trace";
-    return type;
-}
-
-- (NSDictionary<NSString *, NSString *> *)tags
-{
-    @synchronized(_tags) {
-        return _tags.copy;
-    }
-}
-- (void)setTagValue:(NSString *)value forKey:(NSString *)key
-{
-    @synchronized(_tags) {
-        [_tags setValue:value forKey:key];
-    }
-}
-
-- (void)removeTagForKey:(NSString *)key
-{
-    @synchronized(_tags) {
-        [_tags removeObjectForKey:key];
-    }
 }
 
 - (NSDictionary<NSString *, id> *)serialize
 {
     NSMutableDictionary *mutabledictionary = @{
-        @"type" : SentrySpanContext.type,
+        @"type" : SENTRY_TRACE_TYPE,
         @"span_id" : self.spanId.sentrySpanIdString,
         @"trace_id" : self.traceId.sentryIdString,
         @"op" : self.operation
     }
                                                  .mutableCopy;
 
-    @synchronized(_tags) {
-        if (_tags.count > 0) {
-            mutabledictionary[@"tags"] = _tags.copy;
-        }
-    }
-
     // Since we guard for 'undecided', we'll
     // either send it if it's 'true' or 'false'.
-    if (self.sampled != kSentrySampleDecisionUndecided)
-        [mutabledictionary setValue:SentrySampleDecisionNames[self.sampled] forKey:@"sampled"];
+    if (self.sampled != kSentrySampleDecisionUndecided) {
+        [mutabledictionary setValue:nameForSentrySampleDecision(self.sampled) forKey:@"sampled"];
+    }
 
-    if (self.spanDescription != nil)
+    if (self.spanDescription != nil) {
         [mutabledictionary setValue:self.spanDescription forKey:@"description"];
+    }
 
-    if (self.parentSpanId != nil)
+    if (self.parentSpanId != nil) {
         [mutabledictionary setValue:self.parentSpanId.sentrySpanIdString forKey:@"parent_span_id"];
-
-    if (self.status != kSentrySpanStatusUndefined)
-        [mutabledictionary setValue:SentrySpanStatusNames[self.status] forKey:@"status"];
+    }
 
     return mutabledictionary;
 }

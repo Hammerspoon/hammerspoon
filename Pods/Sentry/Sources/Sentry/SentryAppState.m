@@ -1,4 +1,3 @@
-#import <Foundation/Foundation.h>
 #import <NSDate+SentryExtras.h>
 #import <SentryAppState.h>
 
@@ -25,6 +24,8 @@ NS_ASSUME_NONNULL_BEGIN
 
         _isActive = NO;
         _wasTerminated = NO;
+        _isANROngoing = NO;
+        _isSDKRunning = YES;
     }
     return self;
 }
@@ -82,6 +83,22 @@ NS_ASSUME_NONNULL_BEGIN
         } else {
             _wasTerminated = [wasTerminated boolValue];
         }
+
+        id isANROngoing = [jsonObject valueForKey:@"is_anr_ongoing"];
+        if (isANROngoing == nil || ![isANROngoing isKindOfClass:[NSNumber class]]) {
+            return nil;
+        } else {
+            _isANROngoing = [isANROngoing boolValue];
+        }
+
+        id isSDKRunning = [jsonObject valueForKey:@"is_sdk_running"];
+        if (isSDKRunning == nil || ![isSDKRunning isKindOfClass:[NSNumber class]]) {
+            // This property was added later so instead of returning nil,
+            // we're setting it to the default value.
+            _isSDKRunning = YES;
+        } else {
+            _isSDKRunning = [isSDKRunning boolValue];
+        }
     }
     return self;
 }
@@ -98,6 +115,8 @@ NS_ASSUME_NONNULL_BEGIN
             forKey:@"system_boot_timestamp"];
     [data setValue:@(self.isActive) forKey:@"is_active"];
     [data setValue:@(self.wasTerminated) forKey:@"was_terminated"];
+    [data setValue:@(self.isANROngoing) forKey:@"is_anr_ongoing"];
+    [data setValue:@(self.isSDKRunning) forKey:@"is_sdk_running"];
 
     return data;
 }

@@ -1,4 +1,4 @@
-#import <Foundation/Foundation.h>
+#import "SentryDefines.h"
 
 @class SentryEnvelope;
 
@@ -21,12 +21,14 @@ SENTRY_NO_INIT
  * a session is found the init flag is set to YES, the envelope is updated with keeping other
  * envelope items and headers, and the updated envelope is stored to the disk keeping its path.
  *
- * @param envelopeFilePath The path of the envelope that was deleted.
+ * @param envelope The envelope to delete
  * @param envelopesDirPath The path of the directory where the envelopes are stored.
  * @param envelopeFilePaths An array containing the file paths of envelopes to check if they contain
  * a session init.
+ *
+ * @return YES if the function migrated the session init. NO if not.
  */
-+ (void)migrateSessionInit:(NSString *)envelopeFilePath
++ (BOOL)migrateSessionInit:(SentryEnvelope *)envelope
           envelopesDirPath:(NSString *)envelopesDirPath
          envelopeFilePaths:(NSArray<NSString *> *)envelopeFilePaths;
 

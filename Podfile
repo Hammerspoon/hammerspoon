@@ -13,10 +13,10 @@ pod 'CocoaLumberjack', '3.5.3'
 pod 'CocoaAsyncSocket', '7.6.5'
 pod 'CocoaHTTPServer', :git => 'https://github.com/Hammerspoon/CocoaHTTPServer.git'
 pod 'PocketSocket/Client', '1.0.1'
-pod 'Sentry', :git => 'https://github.com/getsentry/sentry-cocoa.git', :tag => '7.10.0'
-pod 'Sparkle', '2.1.0', :configurations => ['Release']
+pod 'Sentry', :git => 'https://github.com/getsentry/sentry-cocoa.git', :tag => '8.2.0'
+pod 'Sparkle', '2.3.2', :configurations => ['Release']
 pod 'MIKMIDI', '1.7.1'
-pod 'SocketRocket', '0.5.1'
+pod 'SocketRocket', '0.6.0'
 pod 'ORSSerialPort', '2.1.0'
 pod 'F53OSC', :git => 'https://github.com/Figure53/F53OSC.git', :tag => '1.2.0'
 end

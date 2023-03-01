@@ -7,7 +7,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class SentryFrame;
 
-NS_SWIFT_NAME(Stacktrace)
 @interface SentryStacktrace : NSObject <SentrySerializable>
 SENTRY_NO_INIT
 
@@ -20,6 +19,11 @@ SENTRY_NO_INIT
  * Registers of the thread for additional information used on the server
  */
 @property (nonatomic, strong) NSDictionary<NSString *, NSString *> *registers;
+
+/**
+ * Indicates that this stack trace is a snapshot triggered by an external signal.
+ */
+@property (nonatomic, copy, nullable) NSNumber *snapshot;
 
 /**
  * Initialize a SentryStacktrace with frames and registers

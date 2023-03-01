@@ -36,6 +36,12 @@ SENTRY_NO_INIT
 @property (nonatomic, copy) NSNumber *_Nullable handled;
 
 /**
+ * An optional flag indicating a synthetic exception. For more info visit
+ * https://develop.sentry.dev/sdk/event-payloads/exception/#exception-mechanism.
+ */
+@property (nonatomic, copy, nullable) NSNumber *synthetic;
+
+/**
  * Fully qualified URL to an online help resource, possible
  * interpolated with error parameters
  */

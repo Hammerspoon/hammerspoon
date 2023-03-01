@@ -42,7 +42,7 @@ extern "C" {
  */
 #define SentryCrashJSON_SIZE_AUTOMATIC -1
 
-#define SentryCrashMAX_STRINGBUFFERSIZE 100000
+#define SentryCrashMAX_STRINGBUFFERSIZE 150000
 
 enum {
     /** Encoding or decoding: Everything completed without error */
@@ -160,6 +160,19 @@ int sentrycrashjson_addBooleanElement(
  */
 int sentrycrashjson_addIntegerElement(
     SentryCrashJSONEncodeContext *context, const char *name, int64_t value);
+
+/** Add an unsigned integer element.
+ *
+ * @param context The encoding context.
+ *
+ * @param name The element's name.
+ *
+ * @param value The element's value.
+ *
+ * @return SentryCrashJSON_OK if the process was successful.
+ */
+int sentrycrashjson_addUIntegerElement(
+    SentryCrashJSONEncodeContext *context, const char *name, uint64_t value);
 
 /** Add a floating point element.
  *
@@ -415,6 +428,19 @@ typedef struct SentryCrashJSONDecodeCallbacks {
      * @return SentryCrashJSON_OK if decoding should continue.
      */
     int (*onIntegerElement)(const char *name, int64_t value, void *userData);
+
+    /** Called when an unsigned integer element is decoded.
+     *
+     * @param name The element's name.
+     *
+     * @param value The element's value.
+     *
+     * @param userData Data that was specified when calling
+     * sentrycrashjson_decode().
+     *
+     * @return SentryCrashJSON_OK if decoding should continue.
+     */
+    int (*onUIntegerElement)(const char *name, uint64_t value, void *userData);
 
     /** Called when a null element is decoded.
      *
