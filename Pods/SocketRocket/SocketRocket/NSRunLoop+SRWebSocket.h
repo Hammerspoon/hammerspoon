@@ -9,7 +9,19 @@
 // of patent rights can be found in the PATENTS file in the same directory.
 //
 
-#import <SocketRocket/NSRunLoop+SRWebSocket.h>
-#import <SocketRocket/NSURLRequest+SRWebSocket.h>
-#import <SocketRocket/SRSecurityPolicy.h>
-#import <SocketRocket/SRWebSocket.h>
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface NSRunLoop (SRWebSocket)
+
+/**
+ Default run loop that will be used to schedule all instances of `SRWebSocket`.
+
+ @return An instance of `NSRunLoop`.
+ */
++ (NSRunLoop *)SR_networkRunLoop;
+
+@end
+
+NS_ASSUME_NONNULL_END

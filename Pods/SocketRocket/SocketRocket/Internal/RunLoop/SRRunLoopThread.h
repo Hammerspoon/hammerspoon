@@ -9,7 +9,16 @@
 // of patent rights can be found in the PATENTS file in the same directory.
 //
 
-#import <SocketRocket/NSRunLoop+SRWebSocket.h>
-#import <SocketRocket/NSURLRequest+SRWebSocket.h>
-#import <SocketRocket/SRSecurityPolicy.h>
-#import <SocketRocket/SRWebSocket.h>
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface SRRunLoopThread : NSThread
+
+@property (nonatomic, strong, readonly) NSRunLoop *runLoop;
+
++ (instancetype)sharedThread;
+
+@end
+
+NS_ASSUME_NONNULL_END
