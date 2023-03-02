@@ -292,6 +292,26 @@ static int streamdeck_buttonLayout(lua_State *L) {
     return 2;
 }
 
+/// hs.streamdeck:imageSize()
+/// Method
+/// Gets the width and height of the buttons in pixels
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * An table with keys `w` and `h` containing the width and height, respectively, of images expected by the Stream Deck
+static int streamdeck_imageSize(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
+    HSStreamDeckDevice *device = [skin luaObjectAtIndex:1 toClass:"HSStreamDeckDevice"];
+
+    NSSize size = NSMakeSize(device.imageWidth, device.imageHeight);
+    [skin pushNSSize:size];
+    return 1;
+}
+
 /// hs.streamdeck:setButtonImage(button, image)
 /// Method
 /// Sets the image of a button on the Stream Deck device
@@ -432,6 +452,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {"serialNumber",        streamdeck_serialNumber},
     {"firmwareVersion",     streamdeck_firmwareVersion},
     {"buttonLayout",        streamdeck_buttonLayout},
+    {"imageSize",           streamdeck_imageSize},
     
     {"buttonCallback",      streamdeck_buttonCallback},
     {"encoderCallback",     streamdeck_encoderCallback},
