@@ -3,7 +3,7 @@
 #import "SentrySpanProtocol.h"
 
 @class SentryEvent, SentryClient, SentryScope, SentrySession, SentryUser, SentryBreadcrumb,
-    SentryId, SentryUserFeedback, SentryTransactionContext;
+    SentryId, SentryUserFeedback, SentryEnvelope, SentryTransactionContext;
 
 NS_ASSUME_NONNULL_BEGIN
 @interface SentryHub : NSObject
@@ -37,6 +37,9 @@ SENTRY_NO_INIT
  * @param timestamp The timestamp to end the session with.
  */
 - (void)endSessionWithTimestamp:(NSDate *)timestamp;
+
+@property (nonatomic, strong)
+    NSMutableArray<NSObject<SentryIntegrationProtocol> *> *installedIntegrations;
 
 /**
  * Captures a manually created event and sends it to Sentry.
@@ -231,9 +234,9 @@ SENTRY_NO_INIT
 - (void)bindClient:(SentryClient *_Nullable)client;
 
 /**
- * Checks if integration is activated.
+ * Checks if integration is activated for bound client and returns it.
  */
-- (BOOL)hasIntegration:(NSString *)integrationName;
+- (id _Nullable)getIntegration:(NSString *)integrationName;
 
 /**
  * Checks if a specific Integration (`integrationClass`) has been installed.
@@ -250,18 +253,14 @@ SENTRY_NO_INIT
 - (void)setUser:(SentryUser *_Nullable)user;
 
 /**
- * Waits synchronously for the SDK to flush out all queued and cached items for up to the specified
- * timeout in seconds. If there is no internet connection, the function returns immediately. The SDK
- * doesn't dispose the client or the hub.
+ * The SDK reserves this method for hybrid SDKs, which use it to capture events.
  *
- * @param timeout The time to wait for the SDK to complete the flush.
+ * @discussion We increase the session error count if an envelope is passed in containing an
+ * event with event.level error or higher. Ideally, we would check the mechanism and/or exception
+ * list, like the Java and Python SDK do this, but this would require full deserialization of the
+ * event.
  */
-- (void)flush:(NSTimeInterval)timeout NS_SWIFT_NAME(flush(timeout:));
-
-/**
- * Calls flush with ``SentryOptions/shutdownTimeInterval``.
- */
-- (void)close;
+- (void)captureEnvelope:(SentryEnvelope *)envelope NS_SWIFT_NAME(capture(envelope:));
 
 @end
 

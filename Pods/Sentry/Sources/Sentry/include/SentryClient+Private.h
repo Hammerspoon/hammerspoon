@@ -1,34 +1,22 @@
 #import "SentryClient.h"
-#import "SentryDataCategory.h"
-#import "SentryDiscardReason.h"
+#import <Foundation/Foundation.h>
 
-@class SentryEnvelopeItem, SentryId, SentryAttachment, SentryThreadInspector, SentryEnvelope;
+@class SentryId;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol SentryClientAttachmentProcessor <NSObject>
-
-- (nullable NSArray<SentryAttachment *> *)processAttachments:
-                                              (nullable NSArray<SentryAttachment *> *)attachments
-                                                    forEvent:(SentryEvent *)event;
-
-@end
-
 @interface
-SentryClient ()
+SentryClient (Private)
 
-@property (nonatomic, strong)
-    NSMutableArray<id<SentryClientAttachmentProcessor>> *attachmentProcessors;
-@property (nonatomic, strong) SentryThreadInspector *threadInspector;
-@property (nonatomic, strong) SentryFileManager *fileManager;
+- (SentryFileManager *)fileManager;
 
 - (SentryId *)captureError:(NSError *)error
-                 withScope:(SentryScope *)scope
-    incrementSessionErrors:(SentrySession * (^)(void))sessionBlock;
+               withSession:(SentrySession *)session
+                 withScope:(SentryScope *)scope;
 
 - (SentryId *)captureException:(NSException *)exception
-                     withScope:(SentryScope *)scope
-        incrementSessionErrors:(SentrySession * (^)(void))sessionBlock;
+                   withSession:(SentrySession *)session
+                     withScope:(SentryScope *)scope;
 
 - (SentryId *)captureCrashEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
 
@@ -36,22 +24,10 @@ SentryClient ()
                     withSession:(SentrySession *)session
                       withScope:(SentryScope *)scope;
 
-- (SentryId *)captureEvent:(SentryEvent *)event
-                  withScope:(SentryScope *)scope
-    additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
-    NS_SWIFT_NAME(capture(event:scope:additionalEnvelopeItems:));
-
 /**
  * Needed by hybrid SDKs as react-native to synchronously store an envelope to disk.
  */
 - (void)storeEnvelope:(SentryEnvelope *)envelope;
-
-- (void)captureEnvelope:(SentryEnvelope *)envelope;
-
-- (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason;
-
-- (void)addAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
-- (void)removeAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
 
 @end
 

@@ -40,6 +40,10 @@ extern "C" {
 typedef struct SentryCrash_MonitorContext {
     /** Unique identifier for this event. */
     const char *eventID;
+    /**
+     If true, so reported user exception will have the current snapshot.
+     */
+    bool currentSnapshotUserReported;
 
     /** If true, the environment has crashed hard, and only async-safe
      *  functions should be used.
@@ -117,7 +121,7 @@ typedef struct SentryCrash_MonitorContext {
         /** The exception name. */
         const char *name;
 
-        /** The language the exception occurred in. */
+        /** The language the exception occured in. */
         const char *language;
 
         /** The line of code where the exception occurred. Can be NULL. */
@@ -192,16 +196,16 @@ typedef struct SentryCrash_MonitorContext {
         int cpuSubType;
         int binaryCPUType;
         int binaryCPUSubType;
+        const char *timezone;
         const char *processName;
         int processID;
         int parentProcessID;
         const char *deviceAppHash;
         const char *buildType;
-        uint64_t totalStorageSize;
-        uint64_t freeStorageSize;
+        uint64_t storageSize;
         uint64_t memorySize;
-        uint64_t freeMemorySize;
-        uint64_t usableMemorySize;
+        uint64_t freeMemory;
+        uint64_t usableMemory;
     } System;
 
     struct {

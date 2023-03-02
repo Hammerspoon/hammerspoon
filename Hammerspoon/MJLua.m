@@ -22,6 +22,8 @@
 #import <AppKit/AppKit.h>
 #import <libproc.h>
 #import <dlfcn.h>
+#import <AppKit/AppKit.h>
+#import <libproc.h>
 #import <sys/utsname.h>
 #import <sys/types.h>
 #import <sys/sysctl.h>
@@ -92,7 +94,6 @@ static int core_menuicon(lua_State* L) {
     lua_pushboolean(L, MJMenuIconVisible()) ;
     return 1;
 }
-
 
 // hs.dockIcon -- for historical reasons, this is actually handled by the hs.dockicon module, but a wrapper
 // in the lua portion of this (setup.lua) provides an interface to this module which follows the syntax
@@ -536,11 +537,11 @@ static int automaticallyChecksForUpdates(lua_State *L) {
             lua_pushboolean(L, autoCheckUpdates) ;
 #pragma clang diagnostic pop
         } else {
-            [skin logWarn:@"Sparkle Update framework not available for the running instance of Hammerspoon."] ;
+            //[skin logWarn:@"Sparkle Update framework not available for the running instance of CommandPost."] ;
             lua_pushboolean(L, NO) ;
         }
     } else {
-        [skin logWarn:@"Sparkle Update framework not available for the running instance of Hammerspoon."] ;
+        //[skin logWarn:@"Sparkle Update framework not available for the running instance of CommandPost."] ;
         lua_pushboolean(L, NO) ;
     }
     return 1 ;
@@ -577,10 +578,10 @@ static int checkForUpdates(lua_State *L) {
             [sharedUpdater performSelector:checkMethod withObject:nil] ;
 #pragma clang diagnostic pop
         } else {
-            [skin logWarn:@"Sparkle Update framework not available for the running instance of Hammerspoon."] ;
+            [skin logWarn:@"Sparkle Update framework not available for the running instance of CommandPost."] ;
         }
     } else {
-        [skin logWarn:@"Sparkle Update framework not available for the running instance of Hammerspoon."] ;
+        [skin logWarn:@"Sparkle Update framework not available for the running instance of CommandPost."] ;
     }
     return 0 ;
 }
@@ -817,6 +818,7 @@ static luaL_Reg corelib[] = {
     {"consoleOnTop", core_consoleontop},
     {"openAbout", core_openabout},
     {"menuIcon", core_menuicon},
+    {"allowAppleScript", core_appleScript},
     {"openPreferences", core_openpreferences},
     {"closePreferences", core_closepreferences},
     {"open", core_open},
@@ -911,8 +913,8 @@ void MJLuaInit(void) {
         HSNSLOG(@"Unable to load setup.lua from bundle. Terminating");
         NSAlert *alert = [[NSAlert alloc] init];
         [alert addButtonWithTitle:@"OK"];
-        [alert setMessageText:@"Hammerspoon installation is corrupted"];
-        [alert setInformativeText:@"Please re-install Hammerspoon"];
+        [alert setMessageText:@"CommandPost installation is corrupted"];
+        [alert setInformativeText:@"Please re-install CommandPost"];
         [alert setAlertStyle:NSAlertStyleCritical];
         [alert runModal];
         [[NSApplication sharedApplication] terminate: nil];
@@ -933,7 +935,7 @@ void MJLuaInit(void) {
         HSNSLOG(@"Error running setup.lua:%@", errorMessage);
         NSAlert *alert = [[NSAlert alloc] init];
         [alert addButtonWithTitle:@"OK"];
-        [alert setMessageText:@"Hammerspoon initialization failed"];
+        [alert setMessageText:@"CommandPost initialization failed"];
         [alert setInformativeText:errorMessage];
         [alert setAlertStyle:NSAlertStyleCritical];
         [alert runModal];

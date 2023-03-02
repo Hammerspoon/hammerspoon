@@ -28,8 +28,6 @@
 #include "SentryCrashThread.h"
 
 void sentrycrashccd_init(int pollingIntervalInSeconds);
-void sentrycrashccd_close(void);
-bool sentrycrashccd_hasThreadStarted(void);
 
 void sentrycrashccd_freeze(void);
 void sentrycrashccd_unfreeze(void);

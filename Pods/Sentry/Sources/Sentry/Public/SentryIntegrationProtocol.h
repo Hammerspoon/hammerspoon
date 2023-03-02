@@ -10,7 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Installs the integration and returns YES if successful.
  */
-- (BOOL)installWithOptions:(SentryOptions *)options;
+- (void)installWithOptions:(SentryOptions *)options;
 
 /**
  * Uninstalls the integration.

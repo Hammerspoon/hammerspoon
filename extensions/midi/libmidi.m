@@ -264,7 +264,6 @@ static LSRefTable refTable = LUA_NOREF;
                     if ([device name]) {
                         [deviceNames addObject:[device name]];
                     }
-
                 }
 
                 //
@@ -987,7 +986,6 @@ static int midi_callback(lua_State *L) {
                             break;
                         }
                     };
-
                     [skin protectedCallAndError:@"hs.midi callback" nargs:5 nresults:0];
                 }
             }

@@ -36,6 +36,24 @@ double getSecondsSinceEpoch(void) {
         self.name                       = @"Unknown";
         self.scrollWheelPressed         = NO;
         self.lastScrollWheelEvent       = getSecondsSinceEpoch();
+        
+        // Default Backlight Modes to Unsupported:
+        self.supportsBacklightToMode            = NO;
+        self.supportsBacklightToOff             = NO;
+        self.supportsBacklightToStaticColor     = NO;
+        self.supportsBacklightToWave            = NO;
+        self.supportsBacklightToSpectrum        = NO;
+        self.supportsBacklightToReactive        = NO;
+        self.supportsBacklightToStarlight       = NO;
+        self.supportsBacklightToBreathing       = NO;
+        self.supportsBacklightToCustom          = NO;
+        
+        // Default Status Lights to Unsupported:
+        self.supportsGreenStatusLight           = NO;
+        self.supportsRedStatusLight             = NO;
+        self.supportsBlueStatusLight            = NO;
+        self.supportsOrangeStatusLight          = NO;
+        self.supportsYellowStatusLight          = NO;
 
         //NSLog(@"[hs.razer] Added new Razer device %p with IOKit device %p from manager %p", (__bridge void *)self, (void*)self.device, (__bridge void *)self.manager);
     }
@@ -50,7 +68,7 @@ double getSecondsSinceEpoch(void) {
 #pragma mark - Button Callbacks
 
 - (void)deviceButtonPress:(NSString*)scancodeString pressed:(long)pressed {
-    //NSLog(@"Tartarus V2 deviceButtonPress!");
+    //NSLog(@"deviceButtonPress!");
     //NSLog(@"scancode: %@", scancodeString);
     //NSLog(@"pressed: %ld", pressed);
 
@@ -275,6 +293,14 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
     return [[HSRazerResult alloc] init];
 }
 
+- (HSRazerResult*)setBacklightToMode:(NSNumber*)mode {
+    NSException *exception = [NSException exceptionWithName:@"HSRazerDeviceUnimplemented"
+                                                     reason:@"setBacklightToMode method not implemented"
+                                                   userInfo:nil];
+    [exception raise];
+    return [[HSRazerResult alloc] init];
+}
+
 #pragma mark - hs.razer: Brightness Placeholders
 
 - (HSRazerResult*)getBrightness {
@@ -338,6 +364,38 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
 - (HSRazerResult*)setBlueStatusLight:(BOOL)active {
     NSException *exception = [NSException exceptionWithName:@"HSRazerDeviceUnimplemented"
                                                      reason:@"setBlueStatusLight method not implemented"
+                                                   userInfo:nil];
+    [exception raise];
+    return [[HSRazerResult alloc] init];
+}
+
+- (HSRazerResult*)getYellowStatusLight {
+    NSException *exception = [NSException exceptionWithName:@"HSRazerDeviceUnimplemented"
+                                                     reason:@"getYellowStatusLight method not implemented"
+                                                   userInfo:nil];
+    [exception raise];
+    return [[HSRazerResult alloc] init];
+}
+
+- (HSRazerResult*)setYellowStatusLight:(BOOL)active {
+    NSException *exception = [NSException exceptionWithName:@"HSRazerDeviceUnimplemented"
+                                                     reason:@"setYellowStatusLight method not implemented"
+                                                   userInfo:nil];
+    [exception raise];
+    return [[HSRazerResult alloc] init];
+}
+
+- (HSRazerResult*)getRedStatusLight {
+    NSException *exception = [NSException exceptionWithName:@"HSRazerDeviceUnimplemented"
+                                                     reason:@"getRedStatusLight method not implemented"
+                                                   userInfo:nil];
+    [exception raise];
+    return [[HSRazerResult alloc] init];
+}
+
+- (HSRazerResult*)setRedStatusLight:(BOOL)active {
+    NSException *exception = [NSException exceptionWithName:@"HSRazerDeviceUnimplemented"
+                                                     reason:@"setRedStatusLight method not implemented"
                                                    userInfo:nil];
     [exception raise];
     return [[HSRazerResult alloc] init];
@@ -456,11 +514,11 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
     HSRazerResult *result = [[HSRazerResult alloc] init];
 
     // The wValue and wIndex fields allow parameters to be passed with the request:
-    int wValue  = 0x300;    // wValue   = 16 bit parameter for request, low byte first.
-    int wIndex  = 0x01;     // wIndex   = 16 bit parameter for request, low byte first.
+    int wValue  = 0x300;        // wValue   = 16 bit parameter for request, low byte first.
+    int wIndex  = self.index;   // wIndex   = 16 bit parameter for request, low byte first. Each Razer device can have a different index (normally 0x01, but sometimes 0x02).
 
     // wLength is used the specify the number of bytes to be transferred should there be a data phase:
-    int wLength = 90;       // wLength  = Length of data part of request, 16 bits, low byte first. A Razer Report is always 90 bytes.
+    int wLength = 90;           // wLength  = Length of data part of request, 16 bits, low byte first. A Razer Report is always 90 bytes.
 
     // Setup an empty Razor Report:
     struct HSRazerReport report   = {0};            // Setup an empty Razer Report
@@ -483,7 +541,7 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
     {
         id argument = [arguments objectForKey:[NSNumber numberWithUnsignedLong:x]];
         if (argument) {
-            report.arguments[x] = [argument integerValue];
+            report.arguments[x] = [argument unsignedCharValue];
         }
     }
 
@@ -512,6 +570,10 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
     // wData is the actual data to send:
     request.pData                   = (void*)&report;   // pData    = Pointer to data for request.
 
+    // For debugging:
+    //NSData *debuggingData = [NSData dataWithBytes:&report length:sizeof(report)];
+    //NSLog(@"Sending to Razer: %@", debuggingData);
+
     // Get the Razer USB device:
     IOUSBDeviceInterface **razerDevice = self.getUSBRazerDevice;
 
@@ -537,6 +599,10 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
     // Wait for a response back...
     usleep(500); // Standard Device requests with a data stage must start to return data 500ms after the request.
 
+    //
+    // GET THE RESPONSE:
+    //
+    
     // Parameter block for control requests, using a simple pointer for the data to be transferred:
     IOUSBDevRequest responseRequest;
 
@@ -583,6 +649,8 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
             // We'll just assume that "busy" actually means slightly delayed, but still successful.
 
             //result.errorMessage = @"Razer device is busy.";
+            
+            //NSLog(@"Razer device is busy (status == 0x01), but we'll let it succeed anyway.");
 
             // Victory!
             result.success = YES;
@@ -599,10 +667,46 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
             result.errorMessage = [NSString stringWithFormat:@"Unexpected status back from the Razer device: %c", responseReport.status];
         }
     }
+    
+    // Debugging:
+    /*
+    NSData *debuggingResponse = [NSData dataWithBytes:&responseRequest length:sizeof(responseRequest)];
+    NSLog(@"Received from Razer: %@", debuggingResponse);
+    
+    NSLog(@"Size of Response: %lu", sizeof(responseRequest));
+    
+    NSLog(@"Response Result: 0x%02x", responseResult);
+        
+    NSLog(@"Result Success: %hhd", result.success);
+    NSLog(@"Result Error Message: %@", result.errorMessage);
+    
+    NSLog(@"Status: 0x%02x", responseReport.status);
+    
+    NSLog(@"Remaining Packets: 0x%02x == 0x%02x", responseReport.remaining_packets, report.remaining_packets);
+    NSLog(@"Command Class: 0x%02x == 0x%02x", responseReport.command_class, report.command_class);
+    NSLog(@"Command ID: 0x%02x == 0x%02x", responseReport.command_id.id, report.command_id.id);
+    NSLog(@"Command ID: 0x%02x == 0x%02x", responseReport.command_id.id, report.command_id.id);
+    
+    NSLog(@"Argument 0: 0x%02x", responseReport.arguments[0]);
+    NSLog(@"Argument 1: 0x%02x", responseReport.arguments[1]);
+    NSLog(@"Argument 2: 0x%02x", responseReport.arguments[2]);
+    NSLog(@"Argument 3: 0x%02x", responseReport.arguments[3]);
+    NSLog(@"Argument 4: 0x%02x", responseReport.arguments[4]);
+    NSLog(@"Argument 5: 0x%02x", responseReport.arguments[5]);
+    NSLog(@"Argument 6: 0x%02x", responseReport.arguments[6]);
+    NSLog(@"Argument 7: 0x%02x", responseReport.arguments[7]);
+    NSLog(@"Argument 8: 0x%02x", responseReport.arguments[8]);
+    NSLog(@"Argument 9: 0x%02x", responseReport.arguments[9]);
+    NSLog(@"Argument 10: 0x%02x", responseReport.arguments[10]);
+    */
 
     // Put any useful arguments into the result:
     result.argumentTwo = responseReport.arguments[2];
 
+    result.argumentSix = responseReport.arguments[6];
+    result.argumentSeven = responseReport.arguments[7];
+    result.argumentEight = responseReport.arguments[8];
+    
     // Something went wrong:
     return result;
 }

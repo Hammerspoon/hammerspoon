@@ -5,7 +5,16 @@
 @import LuaSkin;
 
 #import "HSRazerDevice.h"
+
+#import "HSRazerNostromoDevice.h"
+
+#import "HSRazerOrbweaverDevice.h"
+#import "HSRazerOrbweaverChromaDevice.h"
+
+#import "HSRazerTartarusDevice.h"
+#import "HSRazerTartarusChromaDevice.h"
 #import "HSRazerTartarusV2Device.h"
+#import "HSRazerTartarusProDevice.h"
 
 #import "razer.h"
 

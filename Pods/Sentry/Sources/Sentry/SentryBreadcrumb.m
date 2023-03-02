@@ -1,7 +1,6 @@
 #import "SentryBreadcrumb.h"
 #import "NSDate+SentryExtras.h"
 #import "NSDictionary+SentrySanitize.h"
-#import "SentryLevelMapper.h"
 
 @implementation SentryBreadcrumb
 
@@ -25,7 +24,7 @@
 {
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
 
-    [serializedData setValue:nameForSentryLevel(self.level) forKey:@"level"];
+    [serializedData setValue:SentryLevelNames[self.level] forKey:@"level"];
     [serializedData setValue:[self.timestamp sentry_toIso8601String] forKey:@"timestamp"];
     [serializedData setValue:self.category forKey:@"category"];
     [serializedData setValue:self.type forKey:@"type"];
@@ -78,11 +77,6 @@
     hash = hash * 23 + [self.message hash];
     hash = hash * 23 + [self.data hash];
     return hash;
-}
-
-- (NSString *)description
-{
-    return [NSString stringWithFormat:@"<%@: %p, %@>", [self class], self, [self serialize]];
 }
 
 @end
