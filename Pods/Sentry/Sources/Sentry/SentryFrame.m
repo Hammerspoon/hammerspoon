@@ -1,5 +1,4 @@
 #import "SentryFrame.h"
-#import "NSMutableDictionary+Sentry.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -28,8 +27,8 @@ NS_ASSUME_NONNULL_BEGIN
     [serializedData setValue:self.imageAddress forKey:@"image_addr"];
     [serializedData setValue:self.instructionAddress forKey:@"instruction_addr"];
     [serializedData setValue:self.platform forKey:@"platform"];
-    [serializedData setBoolValue:self.inApp forKey:@"in_app"];
-    [serializedData setBoolValue:self.stackStart forKey:@"stack_start"];
+    [serializedData setValue:self.inApp forKey:@"in_app"];
+    [serializedData setValue:self.stackStart forKey:@"stack_start"];
 
     return serializedData;
 }

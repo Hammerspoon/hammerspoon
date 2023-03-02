@@ -19,14 +19,14 @@ SentryConcurrentRateLimitsDictionary ()
     return self;
 }
 
-- (void)addRateLimit:(SentryDataCategory)category validUntil:(NSDate *)date
+- (void)addRateLimit:(SentryRateLimitCategory)category validUntil:(NSDate *)date
 {
     @synchronized(self.rateLimits) {
         self.rateLimits[@(category)] = date;
     }
 }
 
-- (NSDate *)getRateLimitForCategory:(SentryDataCategory)category
+- (NSDate *)getRateLimitForCategory:(SentryRateLimitCategory)category
 {
     @synchronized(self.rateLimits) {
         return self.rateLimits[@(category)];

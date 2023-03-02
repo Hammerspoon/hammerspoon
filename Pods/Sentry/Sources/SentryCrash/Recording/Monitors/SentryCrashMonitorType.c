@@ -38,6 +38,8 @@ static const struct {
     MONITORTYPE(SentryCrashMonitorTypeSignal),
     MONITORTYPE(SentryCrashMonitorTypeCPPException),
     MONITORTYPE(SentryCrashMonitorTypeNSException),
+    MONITORTYPE(SentryCrashMonitorTypeMainThreadDeadlock),
+    MONITORTYPE(SentryCrashMonitorTypeUserReported),
     MONITORTYPE(SentryCrashMonitorTypeSystem),
     MONITORTYPE(SentryCrashMonitorTypeApplicationState),
     MONITORTYPE(SentryCrashMonitorTypeZombie),

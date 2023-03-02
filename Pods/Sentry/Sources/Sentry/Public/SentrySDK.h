@@ -1,8 +1,10 @@
+#import <Foundation/Foundation.h>
+
 #import "SentryDefines.h"
 
 @protocol SentrySpan;
 
-@class SentryOptions, SentryEvent, SentryBreadcrumb, SentryScope, SentryUser, SentryId,
+@class SentryHub, SentryOptions, SentryEvent, SentryBreadcrumb, SentryScope, SentryUser, SentryId,
     SentryUserFeedback, SentryTransactionContext;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -26,10 +28,15 @@ SENTRY_NO_INIT
 @property (class, nonatomic, readonly) BOOL isEnabled;
 
 /**
- * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations. Make sure to
- * set a valid DSN.
+ * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations.
  */
-+ (void)startWithOptions:(SentryOptions *)options NS_SWIFT_NAME(start(options:));
++ (void)startWithOptions:(NSDictionary<NSString *, id> *)optionsDict
+    NS_SWIFT_NAME(start(options:));
+
+/**
+ * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations.
+ */
++ (void)startWithOptionsObject:(SentryOptions *)options NS_SWIFT_NAME(start(options:));
 
 /**
  * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations. Make sure to
@@ -69,7 +76,8 @@ SENTRY_NO_INIT
  * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
 + (SentryId *)captureEvent:(SentryEvent *)event
-            withScopeBlock:(void (^)(SentryScope *scope))block NS_SWIFT_NAME(capture(event:block:));
+            withScopeBlock:(void (^)(SentryScope *scope))block
+    NS_SWIFT_NAME(capture(event:block:));
 
 /**
  * Creates a transaction, binds it to the hub and returns the instance.
@@ -176,7 +184,8 @@ SENTRY_NO_INIT
  * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
 + (SentryId *)captureError:(NSError *)error
-            withScopeBlock:(void (^)(SentryScope *scope))block NS_SWIFT_NAME(capture(error:block:));
+            withScopeBlock:(void (^)(SentryScope *scope))block
+    NS_SWIFT_NAME(capture(error:block:));
 
 /**
  * Captures an exception event and sends it to Sentry.
@@ -260,7 +269,7 @@ SENTRY_NO_INIT
  *
  * @param crumb The Breadcrumb to add to the current Scope of the current Hub.
  */
-+ (void)addBreadcrumb:(SentryBreadcrumb *)crumb NS_SWIFT_NAME(addBreadcrumb(_:));
++ (void)addBreadcrumb:(SentryBreadcrumb *)crumb NS_SWIFT_NAME(addBreadcrumb(crumb:));
 
 /**
  * Use this method to modify the current Scope of the current Hub. The SDK uses the Scope to attach
@@ -280,7 +289,7 @@ SENTRY_NO_INIT
  *
  * @param user The user to set to the current Scope.
  */
-+ (void)setUser:(nullable SentryUser *)user;
++ (void)setUser:(SentryUser *_Nullable)user;
 
 /**
  * Starts a new SentrySession. If there's a running SentrySession, it ends it before starting the
@@ -302,17 +311,7 @@ SENTRY_NO_INIT
 + (void)crash;
 
 /**
- * Waits synchronously for the SDK to flush out all queued and cached items for up to the specified
- * timeout in seconds. If there is no internet connection, the function returns immediately. The SDK
- * doesn't dispose the client or the hub.
- *
- * @param timeout The time to wait for the SDK to complete the flush.
- */
-+ (void)flush:(NSTimeInterval)timeout NS_SWIFT_NAME(flush(timeout:));
-
-/**
- * Closes the SDK, uninstalls all the integrations, and calls flush with
- * ``SentryOptions/shutdownTimeInterval``.
+ * Closes the SDK and uninstalls all the integrations.
  */
 + (void)close;
 

@@ -24,12 +24,4 @@
     [self.processors addObject:newProcessor];
 }
 
-/**
- * Only for testing
- */
-- (void)removeAllProcessors
-{
-    [self.processors removeAllObjects];
-}
-
 @end

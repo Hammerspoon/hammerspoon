@@ -2,7 +2,7 @@
 #import "SentryDefines.h"
 #import <Foundation/Foundation.h>
 
-@class SentryEvent, SentryOptions, SentryCurrentDateProvider, SentryNSNotificationCenterWrapper;
+@class SentryEvent, SentryOptions, SentryCurrentDateProvider;
 
 /**
  * Tracks sessions for release health. For more info see:
@@ -13,9 +13,7 @@ NS_SWIFT_NAME(SessionTracker)
 SENTRY_NO_INIT
 
 - (instancetype)initWithOptions:(SentryOptions *)options
-            currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
-             notificationCenter:(SentryNSNotificationCenterWrapper *)notificationCenter;
-
+            currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider;
 - (void)start;
 - (void)stop;
 @end

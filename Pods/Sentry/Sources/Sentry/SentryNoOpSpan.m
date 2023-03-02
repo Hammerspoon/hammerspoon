@@ -19,11 +19,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init
 {
     if (self = [super init]) {
-        self.parentSpanId = nil;
-        self.operation = @"";
-        self.traceId = SentryId.empty;
-        self.sampled = kSentrySampleDecisionUndecided;
-        self.spanId = SentrySpanId.empty;
+        _context = [[SentrySpanContext alloc] initWithTraceId:SentryId.empty
+                                                       spanId:SentrySpanId.empty
+                                                     parentId:nil
+                                                    operation:@""
+                                                      sampled:kSentrySampleDecisionUndecided];
     }
     return self;
 }
@@ -64,14 +64,6 @@ NS_ASSUME_NONNULL_BEGIN
 {
 }
 
-- (void)setMeasurement:(NSString *)name value:(NSNumber *)value
-{
-}
-
-- (void)setMeasurement:(NSString *)name value:(NSNumber *)value unit:(SentryMeasurementUnit *)unit
-{
-}
-
 - (NSDictionary<NSString *, id> *)tags
 {
     return @{};
@@ -92,9 +84,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (SentryTraceHeader *)toTraceHeader
 {
-    return [[SentryTraceHeader alloc] initWithTraceId:self.traceId
-                                               spanId:self.spanId
-                                              sampled:self.sampled];
+    return [[SentryTraceHeader alloc] initWithTraceId:self.context.traceId
+                                               spanId:self.context.spanId
+                                              sampled:self.context.sampled];
 }
 
 - (NSDictionary *)serialize

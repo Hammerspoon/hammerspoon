@@ -27,7 +27,7 @@ SENTRY_NO_INIT
  */
 - (instancetype)initWithData:(NSData *)data
                     filename:(NSString *)filename
-                 contentType:(nullable NSString *)contentType;
+                 contentType:(NSString *)contentType;
 
 /**
  * Initializes an attachment with a path. Uses the last path compontent of the path as a filename
@@ -63,17 +63,17 @@ SENTRY_NO_INIT
  */
 - (instancetype)initWithPath:(NSString *)path
                     filename:(NSString *)filename
-                 contentType:(nullable NSString *)contentType;
+                 contentType:(NSString *)contentType;
 
 /**
  * The data of the attachment.
  */
-@property (readonly, nonatomic, strong, nullable) NSData *data;
+@property (readonly, nonatomic, strong) NSData *_Nullable data;
 
 /**
  * The path of the attachment.
  */
-@property (readonly, nonatomic, copy, nullable) NSString *path;
+@property (readonly, nonatomic, copy) NSString *_Nullable path;
 
 /**
  * The filename of the attachment to display in Sentry.
@@ -81,9 +81,9 @@ SENTRY_NO_INIT
 @property (readonly, nonatomic, copy) NSString *filename;
 
 /**
- * The content type of the attachment.
+ * The content type of the attachment. Default is "application/octet-stream".
  */
-@property (readonly, nonatomic, copy, nullable) NSString *contentType;
+@property (readonly, nonatomic, copy) NSString *contentType;
 
 @end
 

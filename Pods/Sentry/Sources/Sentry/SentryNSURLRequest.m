@@ -41,10 +41,14 @@ SentryNSURLRequest ()
     }
 
     if ([SentrySDK.currentHub getClient].options.debug == YES) {
-        SENTRY_LOG_DEBUG(@"Sending JSON -------------------------------");
-        SENTRY_LOG_DEBUG(
-            @"%@", [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]);
-        SENTRY_LOG_DEBUG(@"--------------------------------------------");
+        [SentryLog logWithMessage:@"Sending JSON -------------------------------"
+                         andLevel:kSentryLevelDebug];
+        [SentryLog logWithMessage:[NSString stringWithFormat:@"%@",
+                                            [[NSString alloc] initWithData:jsonData
+                                                                  encoding:NSUTF8StringEncoding]]
+                         andLevel:kSentryLevelDebug];
+        [SentryLog logWithMessage:@"--------------------------------------------"
+                         andLevel:kSentryLevelDebug];
     }
     return [self initStoreRequestWithDsn:dsn andData:jsonData didFailWithError:error];
 }
