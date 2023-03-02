@@ -3,12 +3,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NSString *nameForSentrySessionStatus(SentrySessionStatus status);
-
 @interface
-SentrySession ()
-
-@property (nonatomic) NSUInteger errors;
+SentrySession (Private)
 
 - (void)setFlagInit;
 

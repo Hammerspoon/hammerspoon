@@ -18,8 +18,6 @@ NS_ASSUME_NONNULL_BEGIN
             andBuffer:(char *const)buffer
          andBufLength:(int)bufLength;
 
-- (BOOL)isMainThread:(SentryCrashThread)thread;
-
 @end
 
 NS_ASSUME_NONNULL_END

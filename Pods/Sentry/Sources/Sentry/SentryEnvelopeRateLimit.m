@@ -1,6 +1,6 @@
 #import "SentryEnvelopeRateLimit.h"
-#import "SentryDataCategoryMapper.h"
 #import "SentryEnvelope.h"
+#import "SentryRateLimitCategoryMapper.h"
 #import "SentryRateLimits.h"
 #import <Foundation/Foundation.h>
 
@@ -10,7 +10,6 @@ NS_ASSUME_NONNULL_BEGIN
 SentryEnvelopeRateLimit ()
 
 @property (nonatomic, strong) id<SentryRateLimits> rateLimits;
-@property (nonatomic, weak) id<SentryEnvelopeRateLimitDelegate> delegate;
 
 @end
 
@@ -22,11 +21,6 @@ SentryEnvelopeRateLimit ()
         self.rateLimits = sentryRateLimits;
     }
     return self;
-}
-
-- (void)setDelegate:(id<SentryEnvelopeRateLimitDelegate>)delegate
-{
-    _delegate = delegate;
 }
 
 - (SentryEnvelope *)removeRateLimitedItems:(SentryEnvelope *)envelope
@@ -54,11 +48,10 @@ SentryEnvelopeRateLimit ()
     NSMutableArray<SentryEnvelopeItem *> *itemsToDrop = [NSMutableArray new];
 
     for (SentryEnvelopeItem *item in items) {
-        SentryDataCategory rateLimitCategory
-            = sentryDataCategoryForEnvelopItemType(item.header.type);
+        SentryRateLimitCategory rateLimitCategory =
+            [SentryRateLimitCategoryMapper mapEnvelopeItemTypeToCategory:item.header.type];
         if ([self.rateLimits isRateLimitActive:rateLimitCategory]) {
             [itemsToDrop addObject:item];
-            [self.delegate envelopeItemDropped:rateLimitCategory];
         }
     }
 

@@ -5,7 +5,7 @@
 @implementation
 UIViewController (Sentry)
 
-- (NSArray<UIViewController *> *)sentry_descendantViewControllers
+- (NSArray<UIViewController *> *)descendantViewControllers
 {
 
     // The implementation of UIViewController makes sure a parent can't be a child of his child.

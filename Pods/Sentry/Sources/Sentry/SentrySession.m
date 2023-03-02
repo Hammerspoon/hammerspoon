@@ -1,27 +1,10 @@
+#import "SentrySession.h"
 #import "NSDate+SentryExtras.h"
-#import "NSMutableDictionary+Sentry.h"
 #import "SentryCurrentDate.h"
 #import "SentryInstallation.h"
 #import "SentryLog.h"
-#import "SentrySession+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
-NSString *
-nameForSentrySessionStatus(SentrySessionStatus status)
-{
-    switch (status) {
-    case kSentrySessionStatusOk:
-        return @"ok";
-    case kSentrySessionStatusExited:
-        return @"exited";
-    case kSentrySessionStatusCrashed:
-        return @"crashed";
-        break;
-    case kSentrySessionStatusAbnormal:
-        return @"abnormal";
-    }
-}
 
 @implementation SentrySession
 
@@ -202,20 +185,41 @@ nameForSentrySessionStatus(SentrySessionStatus status)
         }
                                                   .mutableCopy;
 
-        [serializedData setBoolValue:_init forKey:@"init"];
+        if (nil != _init) {
+            [serializedData setValue:_init forKey:@"init"];
+        }
 
-        NSString *statusString = nameForSentrySessionStatus(_status);
+        NSString *statusString = nil;
+        switch (_status) {
+        case kSentrySessionStatusOk:
+            statusString = @"ok";
+            break;
+        case kSentrySessionStatusExited:
+            statusString = @"exited";
+            break;
+        case kSentrySessionStatusCrashed:
+            statusString = @"crashed";
+            break;
+        case kSentrySessionStatusAbnormal:
+            statusString = @"abnormal";
+            break;
+        default:
+            [SentryLog
+                logWithMessage:@"Missing string for SessionStatus when serializing SentrySession."
+                      andLevel:kSentryLevelWarning];
+            break;
+        }
 
-        if (statusString != nil) {
+        if (nil != statusString) {
             [serializedData setValue:statusString forKey:@"status"];
         }
 
         NSDate *timestamp = nil != _timestamp ? _timestamp : [SentryCurrentDate date];
         [serializedData setValue:[timestamp sentry_toIso8601String] forKey:@"timestamp"];
 
-        if (_duration != nil) {
+        if (nil != _duration) {
             [serializedData setValue:_duration forKey:@"duration"];
-        } else if (_init == nil) {
+        } else if (nil == _init) {
             NSTimeInterval secondsBetween = [_timestamp timeIntervalSinceDate:_started];
             [serializedData setValue:[NSNumber numberWithDouble:secondsBetween] forKey:@"duration"];
         }
@@ -223,13 +227,13 @@ nameForSentrySessionStatus(SentrySessionStatus status)
         // TODO: seq to be just unix time in mills?
         [serializedData setValue:@(_sequence) forKey:@"seq"];
 
-        if (_releaseName != nil || _environment != nil) {
+        if (nil != _releaseName || nil != _environment) {
             NSMutableDictionary *attrs = [[NSMutableDictionary alloc] init];
-            if (_releaseName != nil) {
+            if (nil != _releaseName) {
                 [attrs setValue:_releaseName forKey:@"release"];
             }
 
-            if (_environment != nil) {
+            if (nil != _environment) {
                 [attrs setValue:_environment forKey:@"environment"];
             }
             [serializedData setValue:attrs forKey:@"attrs"];

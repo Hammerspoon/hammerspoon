@@ -1,24 +1,17 @@
 #import "SentryDefaultObjCRuntimeWrapper.h"
+#import <Foundation/Foundation.h>
 #import <objc/runtime.h>
 
 @implementation SentryDefaultObjCRuntimeWrapper
 
-+ (instancetype)sharedInstance
+- (int)getClassList:(__unsafe_unretained Class *)buffer bufferCount:(int)bufferCount
 {
-    static SentryDefaultObjCRuntimeWrapper *instance = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{ instance = [[self alloc] init]; });
-    return instance;
+    return objc_getClassList(buffer, bufferCount);
 }
 
-- (const char **)copyClassNamesForImage:(const char *)image amount:(unsigned int *)outCount
+- (void)countIterateClasses
 {
-    return objc_copyClassNamesForImage(image, outCount);
-}
-
-- (const char *)class_getImageName:(Class)cls
-{
-    return class_getImageName(cls);
+    // Do nothing
 }
 
 @end

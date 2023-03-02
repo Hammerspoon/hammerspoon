@@ -6,13 +6,19 @@
 //  Copyright © 2016 Sparkle Project. All rights reserved.
 //
 
+#if __has_feature(modules)
+#if __has_warning("-Watimport-in-framework-header")
+#pragma clang diagnostic ignored "-Watimport-in-framework-header"
+#endif
+@import Foundation;
+#else
 #import <Foundation/Foundation.h>
+#endif
 #import <Sparkle/SUExport.h>
 #import <Sparkle/SPUUpdateCheck.h>
-#import <Sparkle/SPUUserUpdateState.h>
 
 @protocol SUVersionComparison;
-@class SPUUpdater, SUAppcast, SUAppcastItem, SPUUserUpdateState;
+@class SPUUpdater, SUAppcast, SUAppcastItem;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -237,23 +243,12 @@ SU_EXPORT extern NSString *const SUSystemProfilerPreferredLanguageKey;
 - (BOOL)updater:(SPUUpdater *)updater shouldProceedWithUpdate:(SUAppcastItem *)updateItem updateCheck:(SPUUpdateCheck)updateCheck error:(NSError * __autoreleasing *)error;
 
 /**
- Called when a user makes a choice to install, dismiss, or skip an update.
- 
- If the @c choice is `SPUUserUpdateChoiceDismiss` and @c state.stage is `SPUUserUpdateStageDownloaded` the downloaded update is kept
- around until the next time Sparkle reminds the user of the update.
- 
- If the @c choice is `SPUUserUpdateChoiceDismiss` and  @c state.stage is `SPUUserUpdateStageInstalling` the update is still set to install on application termination.
- 
- If the @c choice is `SPUUserUpdateChoiceSkip` the user will not be reminded in the future for this update unless they initiate an update check themselves.
- 
- If @c updateItem.isInformationOnlyUpdate is @c YES the @c choice cannot be `SPUUserUpdateChoiceInstall`.
+ Called when an update is skipped by the user.
  
  @param updater The updater instance.
- @param choice The choice (install, dismiss, or skip) the user made for this @c updateItem
- @param updateItem The appcast item corresponding to the update that the user made a choice on.
- @param state The current state for the update which includes if the update has already been downloaded or already installing.
+ @param item The appcast item corresponding to the update that the user skipped.
  */
-- (void)updater:(SPUUpdater *)updater userDidMakeChoice:(SPUUserUpdateChoice)choice forUpdate:(SUAppcastItem *)updateItem state:(SPUUserUpdateState *)state;
+- (void)updater:(SPUUpdater *)updater userDidSkipThisVersion:(SUAppcastItem *)item;
 
 /**
  Returns whether the release notes (if available) should be downloaded after an update is found and shown.
@@ -414,7 +409,7 @@ SU_EXPORT extern NSString *const SUSystemProfilerPreferredLanguageKey;
  
  @param updater The updater instance.
  @param item The appcast item corresponding to the update that is proposed to be installed.
- @param immediateInstallHandler The install handler for the delegate to immediately install the update. No UI interaction will be shown and the application will be relaunched after installation. This handler can only be used if @c YES is returned and the delegate handles installing the update. For Sparkle 2.3 onwards, this handler can be invoked multiple times in case the application cancels the termination request.
+ @param immediateInstallHandler The install handler to immediately install the update. No UI interaction will be shown and the application will be relaunched after installation.
  @return @c YES if the delegate will handle installing the update or @c NO if the updater should be given responsibility.
  */
 - (BOOL)updater:(SPUUpdater *)updater willInstallUpdateOnQuit:(SUAppcastItem *)item immediateInstallationBlock:(void (^)(void))immediateInstallHandler;
@@ -457,8 +452,6 @@ SU_EXPORT extern NSString *const SUSystemProfilerPreferredLanguageKey;
 /* Deprecated methods */
 
 - (BOOL)updaterMayCheckForUpdates:(SPUUpdater *)updater __deprecated_msg("Please use -[SPUUpdaterDelegate updater:mayPerformUpdateCheck:error:] instead.");
-
-- (void)updater:(SPUUpdater *)updater userDidSkipThisVersion:(SUAppcastItem *)item __deprecated_msg("Please use -[SPUUpdaterDelegate updater:userDidMakeChoice:forUpdate:state:] instead.");
 
 @end
 

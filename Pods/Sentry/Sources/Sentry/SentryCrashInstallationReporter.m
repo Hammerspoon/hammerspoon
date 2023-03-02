@@ -11,40 +11,39 @@ NS_ASSUME_NONNULL_BEGIN
 SentryCrashInstallationReporter ()
 
 @property (nonatomic, strong) SentryInAppLogic *inAppLogic;
-@property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
-@property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 
 @end
 
 @implementation SentryCrashInstallationReporter
 
 - (instancetype)initWithInAppLogic:(SentryInAppLogic *)inAppLogic
-                      crashWrapper:(SentryCrashWrapper *)crashWrapper
-                     dispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
 {
     if (self = [super initWithRequiredProperties:[NSArray new]]) {
         self.inAppLogic = inAppLogic;
-        self.crashWrapper = crashWrapper;
-        self.dispatchQueue = dispatchQueue;
     }
     return self;
 }
 
 - (id<SentryCrashReportFilter>)sink
 {
-    return [[SentryCrashReportSink alloc] initWithInAppLogic:self.inAppLogic
-                                                crashWrapper:self.crashWrapper
-                                               dispatchQueue:self.dispatchQueue];
+    return [[SentryCrashReportSink alloc] initWithInAppLogic:self.inAppLogic];
 }
 
-- (void)sendAllReportsWithCompletion:(nullable SentryCrashReportFilterCompletion)onCompletion
+- (void)sendAllReports
+{
+    [self sendAllReportsWithCompletion:NULL];
+}
+
+- (void)sendAllReportsWithCompletion:(SentryCrashReportFilterCompletion)onCompletion
 {
     [super
         sendAllReportsWithCompletion:^(NSArray *filteredReports, BOOL completed, NSError *error) {
             if (nil != error) {
-                SENTRY_LOG_ERROR(@"%@", error.localizedDescription);
+                [SentryLog logWithMessage:error.localizedDescription andLevel:kSentryLevelError];
             }
-            SENTRY_LOG_DEBUG(@"Sent %lu crash report(s)", (unsigned long)filteredReports.count);
+            [SentryLog logWithMessage:[NSString stringWithFormat:@"Sent %lu crash report(s)",
+                                                (unsigned long)filteredReports.count]
+                             andLevel:kSentryLevelDebug];
             if (completed && onCompletion) {
                 onCompletion(filteredReports, completed, error);
             }

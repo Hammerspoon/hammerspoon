@@ -37,6 +37,17 @@
 /** Max number of properties that can be defined for writing to the report */
 #define kMaxProperties 500
 
+typedef struct {
+    const char *key;
+    const char *value;
+} ReportField;
+
+typedef struct {
+    SentryCrashReportWriteCallback userCrashCallback;
+    int reportFieldsCount;
+    ReportField *reportFields[0];
+} CrashHandlerData;
+
 static CrashHandlerData *g_crashHandlerData;
 
 static void
@@ -188,11 +199,6 @@ SentryCrashInstallation ()
     return (CrashHandlerData *)self.crashHandlerDataBacking.mutableBytes;
 }
 
-- (CrashHandlerData *)g_crashHandlerData
-{
-    return g_crashHandlerData;
-}
-
 - (SentryCrashInstReportField *)reportFieldForProperty:(NSString *)propertyName
 {
     SentryCrashInstReportField *field = [self.fields objectForKey:propertyName];
@@ -289,18 +295,6 @@ SentryCrashInstallation ()
         g_crashHandlerData = self.crashHandlerData;
         handler.onCrash = crashCallback;
         [handler install];
-    }
-}
-
-- (void)uninstall
-{
-    SentryCrash *handler = [SentryCrash sharedInstance];
-    @synchronized(handler) {
-        if (g_crashHandlerData == self.crashHandlerData) {
-            g_crashHandlerData = NULL;
-            handler.onCrash = NULL;
-        }
-        [handler uninstall];
     }
 }
 
