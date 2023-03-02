@@ -1,10 +1,20 @@
 #import "SentryRandom.h"
 #import "SentrySampleDecision.h"
-#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryOptions, SentrySamplingContext;
+
+@interface SentryTracesSamplerDecision : NSObject
+
+@property (nonatomic, readonly) SentrySampleDecision decision;
+
+@property (nullable, nonatomic, strong, readonly) NSNumber *sampleRate;
+
+- (instancetype)initWithDecision:(SentrySampleDecision)decision
+                   forSampleRate:(nullable NSNumber *)sampleRate;
+
+@end
 
 @interface SentryTracesSampler : NSObject
 
@@ -29,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Determines whether a trace should be sampled based on the context and options.
  */
-- (SentrySampleDecision)sample:(SentrySamplingContext *)context;
+- (SentryTracesSamplerDecision *)sample:(SentrySamplingContext *)context;
 
 @end
 

@@ -1,15 +1,14 @@
-#import <Foundation/Foundation.h>
-
 #import "SentryDefines.h"
 
-@class SentryOptions, SentrySession, SentryEvent, SentryEnvelope, SentryScope, SentryFileManager,
-    SentryId, SentryUserFeedback, SentryTransaction;
+@class SentryOptions, SentrySession, SentryEvent, SentryScope, SentryFileManager, SentryId,
+    SentryUserFeedback, SentryTransaction;
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_SWIFT_NAME(Client)
 @interface SentryClient : NSObject
 SENTRY_NO_INIT
+
+@property (nonatomic, assign, readonly) BOOL isEnabled;
 
 @property (nonatomic, strong) SentryOptions *options;
 
@@ -111,7 +110,19 @@ SENTRY_NO_INIT
 
 - (void)captureSession:(SentrySession *)session NS_SWIFT_NAME(capture(session:));
 
-- (void)captureEnvelope:(SentryEnvelope *)envelope NS_SWIFT_NAME(capture(envelope:));
+/**
+ * Waits synchronously for the SDK to flush out all queued and cached items for up to the specified
+ * timeout in seconds. If there is no internet connection, the function returns immediately. The SDK
+ * doesn't dispose the client or the hub.
+ *
+ * @param timeout The time to wait for the SDK to complete the flush.
+ */
+- (void)flush:(NSTimeInterval)timeout NS_SWIFT_NAME(flush(timeout:));
+
+/**
+ * Disables the client and calls flush with ``SentryOptions/shutdownTimeInterval``.
+ */
+- (void)close;
 
 @end
 

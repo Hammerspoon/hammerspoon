@@ -29,7 +29,7 @@
 #include "SentryCrashMemory.h"
 #include "SentryCrashSystemCapabilities.h"
 
-//#define SentryCrashLogger_LocalLevel TRACE
+// #define SentryCrashLogger_LocalLevel TRACE
 #include "SentryCrashLogger.h"
 
 #include <dispatch/dispatch.h>

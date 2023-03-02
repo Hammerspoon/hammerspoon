@@ -63,6 +63,15 @@ int sentrycrashcrs_getReportCount(void);
  */
 int sentrycrashcrs_getReportIDs(int64_t *reportIDs, int count);
 
+/**
+ * Gets a report path for given Id.
+ *
+ * @param reportId The report's Id.
+ * @param pathBuffer A buffer to store the result. The buffer size must be equal or greater than
+ * `SentryCrashCRS_MAX_PATH_LENGTH`.
+ */
+void sentrycrashcrs_getCrashReportPathById(int64_t reportId, char *pathBuffer);
+
 /** Read a report.
  *
  * @param reportID The report's ID.
@@ -72,6 +81,20 @@ int sentrycrashcrs_getReportIDs(int64_t *reportIDs, int count);
  * the returned value.
  */
 char *sentrycrashcrs_readReport(int64_t reportID);
+
+/** Gets a report attachments directory for given report id.
+ *
+ * @param reportID The report's ID.
+ * @param pathBuffer A buffer to store the path.
+ */
+void sentrycrashcrs_getAttachmentsPath_forReportId(int64_t reportID, char *pathBuffer);
+
+/** Gets a report attachments directory for given report path;
+ *
+ * @param reportPath The path of the report.
+ * @param pathBuffer A buffer to store the path.
+ */
+void sentrycrashcrs_getAttachmentsPath_forReport(const char *reportPath, char *pathBuffer);
 
 /** Add a custom report to the store.
  *

@@ -8,6 +8,7 @@
 #import "SentryFrame.h"
 #import "SentryHexAddressFormatter.h"
 #import "SentryInAppLogic.h"
+#import "SentryInternalDefines.h"
 #import "SentryLog.h"
 #import "SentryMechanism.h"
 #import "SentryMechanismMeta.h"
@@ -106,8 +107,8 @@ SentryCrashReportConverter ()
             event.timestamp =
                 [NSDate sentry_fromIso8601String:self.report[@"report"][@"timestamp"]];
         }
-        event.debugMeta = [self convertDebugMeta];
         event.threads = [self convertThreads];
+        event.debugMeta = [self debugMetaForThreads:event.threads];
         event.exceptions = [self convertExceptions];
 
         event.dist = self.userContext[@"dist"];
@@ -141,11 +142,8 @@ SentryCrashReportConverter ()
 
         return event;
     } @catch (NSException *exception) {
-        NSString *errorMessage =
-            [NSString stringWithFormat:@"Could not convert report:%@", exception.description];
-        [SentryLog logWithMessage:errorMessage andLevel:kSentryLevelError];
+        SENTRY_LOG_ERROR(@"Could not convert report:%@", exception.description);
     }
-
     return nil;
 }
 
@@ -247,6 +245,8 @@ SentryCrashReportConverter ()
     thread.crashed = threadDictionary[@"crashed"];
     thread.current = threadDictionary[@"current_thread"];
     thread.name = threadDictionary[@"name"];
+    // We don't have access to the MachineContextWrapper but we know first thread is always the main
+    thread.isMain = [NSNumber numberWithBool:thread.threadId.intValue == 0];
     if (nil == thread.name) {
         thread.name = threadDictionary[@"dispatch_queue"];
     }
@@ -316,22 +316,41 @@ SentryCrashReportConverter ()
     return [self threadAtIndex:self.crashedThreadIndex];
 }
 
-- (NSArray<SentryDebugMeta *> *)convertDebugMeta
+- (SentryDebugMeta *)debugMetaFromBinaryImageDictionary:(NSDictionary *)sourceImage
 {
-    NSMutableArray<SentryDebugMeta *> *result = [NSMutableArray new];
-    for (NSDictionary *sourceImage in self.binaryImages) {
-        SentryDebugMeta *debugMeta = [[SentryDebugMeta alloc] init];
-        debugMeta.uuid = sourceImage[@"uuid"];
-        debugMeta.type = @"apple";
-        // We default to 0 on the server if not sent
-        if ([sourceImage[@"image_vmaddr"] integerValue] > 0) {
-            debugMeta.imageVmAddress = sentry_formatHexAddress(sourceImage[@"image_vmaddr"]);
-        }
-        debugMeta.imageAddress = sentry_formatHexAddress(sourceImage[@"image_addr"]);
-        debugMeta.imageSize = sourceImage[@"image_size"];
-        debugMeta.name = sourceImage[@"name"];
-        [result addObject:debugMeta];
+    SentryDebugMeta *debugMeta = [[SentryDebugMeta alloc] init];
+    debugMeta.debugID = sourceImage[@"uuid"];
+    debugMeta.type = SentryDebugImageType;
+    // We default to 0 on the server if not sent
+    if ([sourceImage[@"image_vmaddr"] integerValue] > 0) {
+        debugMeta.imageVmAddress = sentry_formatHexAddress(sourceImage[@"image_vmaddr"]);
     }
+    debugMeta.imageAddress = sentry_formatHexAddress(sourceImage[@"image_addr"]);
+    debugMeta.imageSize = sourceImage[@"image_size"];
+    debugMeta.codeFile = sourceImage[@"name"];
+    return debugMeta;
+}
+
+- (NSArray<SentryDebugMeta *> *)debugMetaForThreads:(NSArray<SentryThread *> *)threads
+{
+    NSMutableSet<NSString *> *imageNames = [[NSMutableSet alloc] init];
+
+    for (SentryThread *thread in threads) {
+        for (SentryFrame *frame in thread.stacktrace.frames) {
+            if (frame.imageAddress && ![imageNames containsObject:frame.imageAddress]) {
+                [imageNames addObject:frame.imageAddress];
+            }
+        }
+    }
+
+    NSMutableArray<SentryDebugMeta *> *result = [NSMutableArray new];
+
+    for (NSDictionary *sourceImage in self.binaryImages) {
+        if ([imageNames containsObject:sentry_formatHexAddress(sourceImage[@"image_addr"])]) {
+            [result addObject:[self debugMetaFromBinaryImageDictionary:sourceImage]];
+        }
+    }
+
     return result;
 }
 

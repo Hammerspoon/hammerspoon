@@ -13,9 +13,12 @@ PODS:
   - PocketSocket/Client (1.0.1):
     - PocketSocket/Core
   - PocketSocket/Core (1.0.1)
-  - Sentry (7.10.0):
-    - Sentry/Core (= 7.10.0)
-  - Sentry/Core (7.10.0)
+  - Sentry (8.2.0):
+    - Sentry/Core (= 8.2.0)
+    - SentryPrivate (= 8.2.0)
+  - Sentry/Core (8.2.0):
+    - SentryPrivate (= 8.2.0)
+  - SentryPrivate (8.2.0)
   - SocketRocket (0.6.0)
   - Sparkle (2.3.2)
 
@@ -28,7 +31,7 @@ DEPENDENCIES:
   - MIKMIDI (= 1.7.1)
   - ORSSerialPort (= 2.1.0)
   - PocketSocket/Client (= 1.0.1)
-  - Sentry (from `https://github.com/getsentry/sentry-cocoa.git`, tag `7.10.0`)
+  - Sentry (from `https://github.com/getsentry/sentry-cocoa.git`, tag `8.2.0`)
   - SocketRocket (= 0.6.0)
   - Sparkle (= 2.3.2)
 
@@ -40,6 +43,7 @@ SPEC REPOS:
     - MIKMIDI
     - ORSSerialPort
     - PocketSocket
+    - SentryPrivate
     - SocketRocket
     - Sparkle
 
@@ -51,7 +55,7 @@ EXTERNAL SOURCES:
     :tag: 1.2.0
   Sentry:
     :git: https://github.com/getsentry/sentry-cocoa.git
-    :tag: 7.10.0
+    :tag: 8.2.0
 
 CHECKOUT OPTIONS:
   CocoaHTTPServer:
@@ -62,7 +66,7 @@ CHECKOUT OPTIONS:
     :tag: 1.2.0
   Sentry:
     :git: https://github.com/getsentry/sentry-cocoa.git
-    :tag: 7.10.0
+    :tag: 8.2.0
 
 SPEC CHECKSUMS:
   ASCIImage: bcff9650deae86e0e0ac310145cc628948201ab8
@@ -73,10 +77,11 @@ SPEC CHECKSUMS:
   MIKMIDI: f53dca2f372e71183ecdd2b35c984c1c2cd11cbc
   ORSSerialPort: d2d5d131797453430c557ba8dc7dcbcae20ff2e5
   PocketSocket: 9c6867d66fb4f962af96b9b07f4b45bb561b2c2a
-  Sentry: 6ff0eac197e699126c024993eba40a7462e92941
+  Sentry: cf1d35c866266da58964fe7b62526bda93ffcb38
+  SentryPrivate: 2909bcc7b19a827b49e9bde0e56116b08d40dfdf
   SocketRocket: fccef3f9c5cedea1353a9ef6ada904fde10d6608
   Sparkle: b36a51855e81585a1c38e32e53101d36c00f4304
 
-PODFILE CHECKSUM: 73a3211f90fb9e688cdad8e1b297225fecf5dd53
+PODFILE CHECKSUM: 1c322fbe3fbe3d17864ff4589708d9a2e6f023bf
 
 COCOAPODS: 1.11.3

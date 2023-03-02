@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)setLevel:(enum SentryLevel)level;
 
-- (void)addBreadcrumb:(SentryBreadcrumb *)crumb;
+- (void)addSerializedBreadcrumb:(NSDictionary<NSString *, id> *)crumb;
 
 - (void)clearBreadcrumbs;
 
