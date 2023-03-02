@@ -17,7 +17,7 @@ PODS:
     - Sentry/Core (= 7.10.0)
   - Sentry/Core (7.10.0)
   - SocketRocket (0.5.1)
-  - Sparkle (2.1.0)
+  - Sparkle (2.3.2)
 
 DEPENDENCIES:
   - ASCIImage (= 1.0.0)
@@ -30,7 +30,7 @@ DEPENDENCIES:
   - PocketSocket/Client (= 1.0.1)
   - Sentry (from `https://github.com/getsentry/sentry-cocoa.git`, tag `7.10.0`)
   - SocketRocket (= 0.5.1)
-  - Sparkle (= 2.1.0)
+  - Sparkle (= 2.3.2)
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
@@ -75,8 +75,8 @@ SPEC CHECKSUMS:
   PocketSocket: 9c6867d66fb4f962af96b9b07f4b45bb561b2c2a
   Sentry: 6ff0eac197e699126c024993eba40a7462e92941
   SocketRocket: d57c7159b83c3c6655745cd15302aa24b6bae531
-  Sparkle: 7f5f6d4328458515e23272f4138e610c1fa3e32d
+  Sparkle: b36a51855e81585a1c38e32e53101d36c00f4304
 
-PODFILE CHECKSUM: f0dd625b8524726dd0df738caedd8e29de1a6a14
+PODFILE CHECKSUM: 4c1c830c48e1141c50544858fc8ca75e52c767bc
 
 COCOAPODS: 1.11.3

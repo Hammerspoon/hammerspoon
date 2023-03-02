@@ -9,14 +9,7 @@
 #ifndef SUAPPCASTITEM_H
 #define SUAPPCASTITEM_H
 
-#if __has_feature(modules)
-#if __has_warning("-Watimport-in-framework-header")
-#pragma clang diagnostic ignored "-Watimport-in-framework-header"
-#endif
-@import Foundation;
-#else
 #import <Foundation/Foundation.h>
-#endif
 
 #ifdef BUILDING_SPARKLE_TESTS
 // Ignore incorrect warning
@@ -27,9 +20,6 @@
 #else
 #import <Sparkle/SUExport.h>
 #endif
-
-@class SUSignatures;
-@class SPUAppcastItemState;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -65,8 +55,10 @@ SU_EXPORT @interface SUAppcastItem : NSObject<NSSecureCoding>
  This corresponds to the application update's @c CFBundleShortVersionString
  
  This is extracted from the @c <sparkle:shortVersionString> element,  or the @c sparkle:shortVersionString attribute from the @c <enclosure> element.
+ 
+ If no short version string is available, this falls back to the update's `versionString`.
  */
-@property (copy, readonly, nullable) NSString *displayVersionString;
+@property (copy, readonly) NSString *displayVersionString;
 
 /**
  The file URL to the update item if provided.
@@ -179,7 +171,7 @@ SU_EXPORT @interface SUAppcastItem : NSObject<NSSecureCoding>
  
  This version string should contain three period-separated components.
  
- Example: @c 10.12.0
+ Example: @c 10.13.0
  
  Use `minimumOperatingSystemVersionIsOK` property to test if the current running system passes this requirement.
  
@@ -199,7 +191,7 @@ SU_EXPORT @interface SUAppcastItem : NSObject<NSSecureCoding>
  
  This version string should contain three period-separated components.
  
- Example: @c 10.13.0
+ Example: @c 10.14.0
  
  Use `maximumOperatingSystemVersionIsOK` property  to test if the current running system passes this requirement.
  
@@ -340,6 +332,29 @@ SU_EXPORT @interface SUAppcastItem : NSObject<NSSecureCoding>
  This is extracted from the @c <sparkle:deltas> element.
  */
 @property (copy, readonly, nullable) NSDictionary<NSString *, SUAppcastItem *> *deltaUpdates;
+
+/**
+ The expected size of the Sparkle executable file before applying this delta update.
+ 
+ This attribute is used to test if the delta item can still be applied. If Sparkle's executable file has changed (e.g. from having an architecture stripped),
+ then the delta item cannot be applied.
+ 
+ This is extracted from the @c sparkle:deltaFromSparkleExecutableSize attribute from the @c <enclosure> element of a @c sparkle:deltas item.
+ This attribute is optional for delta update items.
+ */
+@property (nonatomic, readonly, nullable) NSNumber *deltaFromSparkleExecutableSize;
+
+/**
+ An expected set of Sparkle's locales present on disk before applying this delta update.
+ 
+ This attribute is used to test if the delta item can still be applied. If Sparkle's list of locales present on disk  (.lproj directories) do not contain any items from this set,
+ (e.g. from having localization files stripped) then the delta item cannot be applied. This set does not need to be a complete list of locales. Sparkle may even decide
+ to not process all them. 1-10 should be a decent amount.
+ 
+ This is extracted from the @c sparkle:deltaFromSparkleLocales attribute from the @c <enclosure> element of a @c sparkle:deltas item.
+ The locales extracted from this attribute are delimited by a comma (e.g. "en,ca,fr,hr,hu"). This attribute is optional for delta update items.
+ */
+@property (nonatomic, readonly, nullable) NSSet<NSString *> *deltaFromSparkleLocales;
 
 /**
  Indicates whether or not the update item is a delta update.
