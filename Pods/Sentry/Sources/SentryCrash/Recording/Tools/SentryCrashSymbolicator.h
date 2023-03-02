@@ -40,10 +40,6 @@ extern "C" {
  */
 bool sentrycrashsymbolicator_symbolicate(SentryCrashStackCursor *cursor);
 
-/** Same as ``sentrycrashsymbolicator_symbolicate`` but faster and async unsafe.
- */
-bool sentrycrashsymbolicator_symbolicate_async_unsafe(SentryCrashStackCursor *cursor);
-
 #ifdef __cplusplus
 }
 #endif

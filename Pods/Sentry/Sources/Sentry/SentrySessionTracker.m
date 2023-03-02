@@ -5,7 +5,6 @@
 #import "SentryHub+Private.h"
 #import "SentryInternalNotificationNames.h"
 #import "SentryLog.h"
-#import "SentryNSNotificationCenterWrapper.h"
 #import "SentrySDK+Private.h"
 
 #if SENTRY_HAS_UIKIT
@@ -21,8 +20,6 @@ SentrySessionTracker ()
 @property (nonatomic, strong) id<SentryCurrentDateProvider> currentDateProvider;
 @property (atomic, strong) NSDate *lastInForeground;
 @property (nonatomic, assign) BOOL wasDidBecomeActiveCalled;
-@property (nonatomic, assign) BOOL subscribedToNotifications;
-@property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenter;
 
 @end
 
@@ -30,13 +27,11 @@ SentrySessionTracker ()
 
 - (instancetype)initWithOptions:(SentryOptions *)options
             currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
-             notificationCenter:(SentryNSNotificationCenterWrapper *)notificationCenter;
 {
     if (self = [super init]) {
         self.options = options;
         self.currentDateProvider = currentDateProvider;
         self.wasDidBecomeActiveCalled = NO;
-        self.notificationCenter = notificationCenter;
     }
     return self;
 }
@@ -57,60 +52,53 @@ SentrySessionTracker ()
     // WillTerminate is called no matter if started from the background or launched into the
     // foreground.
 
+#if SENTRY_HAS_UIKIT
+    NSNotificationName didBecomeActiveNotificationName = UIApplicationDidBecomeActiveNotification;
+    NSNotificationName willResignActiveNotificationName = UIApplicationWillResignActiveNotification;
+    NSNotificationName willTerminateNotificationName = UIApplicationWillTerminateNotification;
+#elif TARGET_OS_OSX || TARGET_OS_MACCATALYST
+    NSNotificationName didBecomeActiveNotificationName = NSApplicationDidBecomeActiveNotification;
+    NSNotificationName willResignActiveNotificationName = NSApplicationWillResignActiveNotification;
+    NSNotificationName willTerminateNotificationName = NSApplicationWillTerminateNotification;
+#else
+    [SentryLog logWithMessage:@"NO UIKit -> SentrySessionTracker will not "
+                              @"track sessions automatically."
+                     andLevel:kSentryLevelDebug];
+#endif
+
 #if SENTRY_HAS_UIKIT || TARGET_OS_OSX || TARGET_OS_MACCATALYST
 
     // Call before subscribing to the notifications to avoid that didBecomeActive gets called before
     // ending the cached session.
     [self endCachedSession];
 
-    [self.notificationCenter
-        addObserver:self
-           selector:@selector(didBecomeActive)
-               name:SentryNSNotificationCenterWrapper.didBecomeActiveNotificationName];
+    [NSNotificationCenter.defaultCenter addObserver:self
+                                           selector:@selector(didBecomeActive)
+                                               name:didBecomeActiveNotificationName
+                                             object:nil];
 
-    [self.notificationCenter addObserver:self
-                                selector:@selector(didBecomeActive)
-                                    name:SentryHybridSdkDidBecomeActiveNotificationName];
+    [NSNotificationCenter.defaultCenter addObserver:self
+                                           selector:@selector(didBecomeActive)
+                                               name:SentryHybridSdkDidBecomeActiveNotificationName
+                                             object:nil];
 
-    [self.notificationCenter
-        addObserver:self
-           selector:@selector(willResignActive)
-               name:SentryNSNotificationCenterWrapper.willResignActiveNotificationName];
+    [NSNotificationCenter.defaultCenter addObserver:self
+                                           selector:@selector(willResignActive)
+                                               name:willResignActiveNotificationName
+                                             object:nil];
 
-    [self.notificationCenter
-        addObserver:self
-           selector:@selector(willTerminate)
-               name:SentryNSNotificationCenterWrapper.willTerminateNotificationName];
-#else
-    SENTRY_LOG_DEBUG(@"NO UIKit -> SentrySessionTracker will not track sessions automatically.");
+    [NSNotificationCenter.defaultCenter addObserver:self
+                                           selector:@selector(willTerminate)
+                                               name:willTerminateNotificationName
+                                             object:nil];
 #endif
 }
 
 - (void)stop
 {
 #if SENTRY_HAS_UIKIT || TARGET_OS_OSX || TARGET_OS_MACCATALYST
-    // Remove the observers with the most specific detail possible, see
-    // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
-    [self.notificationCenter
-        removeObserver:self
-                  name:SentryNSNotificationCenterWrapper.didBecomeActiveNotificationName];
-    [self.notificationCenter removeObserver:self
-                                       name:SentryHybridSdkDidBecomeActiveNotificationName];
-    [self.notificationCenter
-        removeObserver:self
-                  name:SentryNSNotificationCenterWrapper.willResignActiveNotificationName];
-    [self.notificationCenter
-        removeObserver:self
-                  name:SentryNSNotificationCenterWrapper.willTerminateNotificationName];
+    [NSNotificationCenter.defaultCenter removeObserver:self];
 #endif
-}
-
-- (void)dealloc
-{
-    [self stop];
-    // In dealloc it's safe to unsubscribe for all, see
-    // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
-    [self.notificationCenter removeObserver:self];
 }
 
 /**
@@ -135,15 +123,10 @@ SentrySessionTracker ()
  * SentryHybridSdkDidBecomeActiveNotification. There is no guarantee that this method is called once
  * or twice. We need to ensure that we execute it only once.
  *
- * This also works when using SwiftUI or Scenes, as UIKit posts a didBecomeActiveNotification
- * regardless of whether your app uses scenes, see
- * https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1622956-applicationdidbecomeactive.
- *
- * Hybrid SDKs must only post this notification if they are running in the foreground because the
- * auto session tracking logic doesn't support background tasks. Posting the notification from the
- * background would mess up the session stats. Hybrid SDKs must only post this notification if they
- * are running in the foreground because the auto session tracking logic doesn't support background
- * tasks. Posting the notification from the background would mess up the session stats.
+ * We can't start the session in this method because we don't know if a background task or a hybrid
+ * SDK initialized the SDK. Hybrid SDKs must only post this notification if they are running in the
+ * foreground because the auto session tracking logic doesn't support background tasks. Posting the
+ * notification from the background would mess up the session stats.
  */
 - (void)didBecomeActive
 {

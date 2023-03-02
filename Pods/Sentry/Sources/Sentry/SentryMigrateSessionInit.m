@@ -1,7 +1,9 @@
-#import "SentryMigrateSessionInit.h"
+#import <Foundation/Foundation.h>
+
 #import "SentryEnvelope.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryLog.h"
+#import "SentryMigrateSessionInit.h"
 #import "SentrySerialization.h"
 #import "SentrySession+Private.h"
 
@@ -9,34 +11,29 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentryMigrateSessionInit
 
-+ (BOOL)migrateSessionInit:(SentryEnvelope *)envelope
++ (void)migrateSessionInit:(NSString *)envelopeFilePath
           envelopesDirPath:(NSString *)envelopesDirPath
          envelopeFilePaths:(NSArray<NSString *> *)envelopeFilePaths;
 {
+    NSData *envelopeData = [[NSFileManager defaultManager] contentsAtPath:envelopeFilePath];
+    SentryEnvelope *envelope = [SentrySerialization envelopeWithData:envelopeData];
     if (nil == envelope) {
-        return NO;
+        return;
     }
 
     for (SentryEnvelopeItem *item in envelope.items) {
         if ([item.header.type isEqualToString:SentryEnvelopeItemTypeSession]) {
             SentrySession *session = [SentrySerialization sessionWithData:item.data];
             if (nil != session && [session.flagInit boolValue]) {
-                BOOL didSetInitFlag =
-                    [self setInitFlagOnNextEnvelopeWithSameSessionId:session
-                                                    envelopesDirPath:envelopesDirPath
-                                                   envelopeFilePaths:envelopeFilePaths];
-
-                if (didSetInitFlag) {
-                    return YES;
-                }
+                [self setInitFlagOnNextEnvelopeWithSameSessionId:session
+                                                envelopesDirPath:envelopesDirPath
+                                               envelopeFilePaths:envelopeFilePaths];
             }
         }
     }
-
-    return NO;
 }
 
-+ (BOOL)setInitFlagOnNextEnvelopeWithSameSessionId:(SentrySession *)session
++ (void)setInitFlagOnNextEnvelopeWithSameSessionId:(SentrySession *)session
                                   envelopesDirPath:(NSString *)envelopesDirPath
                                  envelopeFilePaths:(NSArray<NSString *> *)envelopeFilePaths
 {
@@ -46,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
         NSString *envelopePath = [envelopesDirPath stringByAppendingPathComponent:envelopeFilePath];
         NSData *envelopeData = [fileManager contentsAtPath:envelopePath];
 
-        // Some error occurred while getting the envelopeData
+        // Some error occured while getting the envelopeData
         if (nil == envelopeData) {
             continue;
         }
@@ -59,12 +56,10 @@ NS_ASSUME_NONNULL_BEGIN
                                                           envelopeFilePath:envelopePath];
 
             if (didSetInitFlag) {
-                return YES;
+                break;
             }
         }
     }
-
-    return NO;
 }
 
 + (BOOL)setInitFlagIfContainsSameSessionId:(NSUUID *)sessionId
