@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		220B882A27F8F954006C0B2B /* test_image.lua in Resources */ = {isa = PBXBuildFile; fileRef = 220B882927F8F954006C0B2B /* test_image.lua */; };
 		220B882C27F8F9A3006C0B2B /* HSimage.m in Sources */ = {isa = PBXBuildFile; fileRef = 220B882B27F8F9A3006C0B2B /* HSimage.m */; };
+		220E0B1A29B07EFA003B0BBD /* HSStreamDeckDevicePedal.h in Headers */ = {isa = PBXBuildFile; fileRef = 220E0B1829B07EFA003B0BBD /* HSStreamDeckDevicePedal.h */; };
+		220E0B1B29B07EFA003B0BBD /* HSStreamDeckDevicePedal.m in Sources */ = {isa = PBXBuildFile; fileRef = 220E0B1929B07EFA003B0BBD /* HSStreamDeckDevicePedal.m */; };
 		223A9693211F0EFF00596A79 /* cpCache.icns in Resources */ = {isa = PBXBuildFile; fileRef = 223A9691211F0EFE00596A79 /* cpCache.icns */; };
 		2245184B281ADF8400997BB0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2245184A281ADF8400997BB0 /* Assets.xcassets */; };
 		2245184D281ADF8400997BB0 /* CommandPostViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2245184C281ADF8400997BB0 /* CommandPostViewController.xib */; };
@@ -1660,6 +1662,8 @@
 /* Begin PBXFileReference section */
 		220B882927F8F954006C0B2B /* test_image.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_image.lua; path = extensions/image/test_image.lua; sourceTree = "<group>"; };
 		220B882B27F8F9A3006C0B2B /* HSimage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSimage.m; sourceTree = "<group>"; };
+		220E0B1829B07EFA003B0BBD /* HSStreamDeckDevicePedal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSStreamDeckDevicePedal.h; path = extensions/streamdeck/HSStreamDeckDevicePedal.h; sourceTree = "<group>"; };
+		220E0B1929B07EFA003B0BBD /* HSStreamDeckDevicePedal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSStreamDeckDevicePedal.m; path = extensions/streamdeck/HSStreamDeckDevicePedal.m; sourceTree = "<group>"; };
 		2213842A27A105DD0085CA24 /* razer.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = razer.lua; path = extensions/razer/razer.lua; sourceTree = "<group>"; };
 		2213842B27A105DD0085CA24 /* librazer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = librazer.m; path = extensions/razer/librazer.m; sourceTree = "<group>"; };
 		2213842C27A105DD0085CA24 /* HSRazerTartarusV2Device.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSRazerTartarusV2Device.m; path = extensions/razer/HSRazerTartarusV2Device.m; sourceTree = "<group>"; };
@@ -3280,6 +3284,8 @@
 				4FFB20FB23C5E01300811E77 /* HSStreamDeckDeviceXL.m */,
 				4F55609F279F6A0300B91FD8 /* HSStreamDeckDeviceMk2.h */,
 				4F5560A0279F6A0300B91FD8 /* HSStreamDeckDeviceMk2.m */,
+				220E0B1829B07EFA003B0BBD /* HSStreamDeckDevicePedal.h */,
+				220E0B1929B07EFA003B0BBD /* HSStreamDeckDevicePedal.m */,
 				4F2DF3EE1F605A4900742D08 /* HSStreamDeckManager.h */,
 				4F2DF3EF1F605A4900742D08 /* HSStreamDeckManager.m */,
 				4F2DF3F61F6170BE00742D08 /* NSImage+BMP.h */,
@@ -4748,6 +4754,7 @@
 				4FFB210023CD14A500811E77 /* HSStreamDeckDeviceOriginalV2.h in Headers */,
 				4F6653F2238C7BC600DEE120 /* NSImage+Flipped.h in Headers */,
 				4FFB20FC23C5E01300811E77 /* HSStreamDeckDeviceXL.h in Headers */,
+				220E0B1A29B07EFA003B0BBD /* HSStreamDeckDevicePedal.h in Headers */,
 				4F6653EA238C6B6600DEE120 /* HSStreamDeckDeviceMini.h in Headers */,
 				4F6653EE238C7A1200DEE120 /* NSImage+Rotated.h in Headers */,
 			);
@@ -7659,6 +7666,7 @@
 			files = (
 				4F6653F72390351100DEE120 /* NSImage+JPEG.m in Sources */,
 				4F6653EF238C7A1200DEE120 /* NSImage+Rotated.m in Sources */,
+				220E0B1B29B07EFA003B0BBD /* HSStreamDeckDevicePedal.m in Sources */,
 				4F2DF3EB1F60471400742D08 /* libstreamdeck.m in Sources */,
 				4FFB210123CD14A500811E77 /* HSStreamDeckDeviceOriginalV2.m in Sources */,
 				4FFB20FD23C5E01300811E77 /* HSStreamDeckDeviceXL.m in Sources */,

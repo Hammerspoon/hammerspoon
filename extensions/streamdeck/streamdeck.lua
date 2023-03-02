@@ -12,6 +12,7 @@
 ---  * Stream Deck Mini (V2)
 ---  * Stream Deck XL
 ---  * Stream Deck XL (Mk2)
+---  * Stream Deck Pedal
 ---
 --- This module would not have been possible without standing on the shoulders of others:
 ---  * https://github.com/OpenStreamDeck/StreamDeckSharp
