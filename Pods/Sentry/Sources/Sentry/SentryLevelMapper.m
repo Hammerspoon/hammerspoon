@@ -1,33 +1,28 @@
 #import "SentryLevelMapper.h"
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-NSString *const kSentryLevelNameNone = @"none";
-NSString *const kSentryLevelNameDebug = @"debug";
-NSString *const kSentryLevelNameInfo = @"info";
-NSString *const kSentryLevelNameWarning = @"warning";
-NSString *const kSentryLevelNameError = @"error";
-NSString *const kSentryLevelNameFatal = @"fatal";
+@implementation SentryLevelMapper
 
-SentryLevel
-sentryLevelForString(NSString *string)
++ (SentryLevel)levelWithString:(NSString *)string
 {
-    if ([string isEqualToString:kSentryLevelNameNone]) {
+    if ([string isEqualToString:SentryLevelNames[kSentryLevelNone]]) {
         return kSentryLevelNone;
     }
-    if ([string isEqualToString:kSentryLevelNameDebug]) {
+    if ([string isEqualToString:SentryLevelNames[kSentryLevelDebug]]) {
         return kSentryLevelDebug;
     }
-    if ([string isEqualToString:kSentryLevelNameInfo]) {
+    if ([string isEqualToString:SentryLevelNames[kSentryLevelInfo]]) {
         return kSentryLevelInfo;
     }
-    if ([string isEqualToString:kSentryLevelNameWarning]) {
+    if ([string isEqualToString:SentryLevelNames[kSentryLevelWarning]]) {
         return kSentryLevelWarning;
     }
-    if ([string isEqualToString:kSentryLevelNameError]) {
+    if ([string isEqualToString:SentryLevelNames[kSentryLevelError]]) {
         return kSentryLevelError;
     }
-    if ([string isEqualToString:kSentryLevelNameFatal]) {
+    if ([string isEqualToString:SentryLevelNames[kSentryLevelFatal]]) {
         return kSentryLevelFatal;
     }
 
@@ -35,23 +30,6 @@ sentryLevelForString(NSString *string)
     return kSentryLevelError;
 }
 
-NSString *
-nameForSentryLevel(SentryLevel level)
-{
-    switch (level) {
-    case kSentryLevelNone:
-        return kSentryLevelNameNone;
-    case kSentryLevelDebug:
-        return kSentryLevelNameDebug;
-    case kSentryLevelInfo:
-        return kSentryLevelNameInfo;
-    case kSentryLevelWarning:
-        return kSentryLevelNameWarning;
-    case kSentryLevelError:
-        return kSentryLevelNameError;
-    case kSentryLevelFatal:
-        return kSentryLevelNameFatal;
-    }
-}
+@end
 
 NS_ASSUME_NONNULL_END

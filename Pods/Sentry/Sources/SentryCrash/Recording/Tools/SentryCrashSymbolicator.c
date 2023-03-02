@@ -24,7 +24,6 @@
 
 #include "SentryCrashSymbolicator.h"
 #include "SentryCrashDynamicLinker.h"
-#import <stdio.h>
 
 /** Remove any pointer tagging from an instruction address
  * On armv7 the least significant bit of the pointer distinguishes
@@ -49,8 +48,8 @@
  */
 #define CALL_INSTRUCTION_FROM_RETURN_ADDRESS(A) (DETAG_INSTRUCTION_ADDRESS((A)) - 1)
 
-static bool
-symbolicate_internal(SentryCrashStackCursor *cursor, bool asyncUnsafe)
+bool
+sentrycrashsymbolicator_symbolicate(SentryCrashStackCursor *cursor)
 {
     if (cursor->stackEntry.address == SentryCrashSC_ASYNC_MARKER) {
         cursor->stackEntry.imageAddress = 0;
@@ -61,17 +60,8 @@ symbolicate_internal(SentryCrashStackCursor *cursor, bool asyncUnsafe)
     }
 
     Dl_info symbolsBuffer;
-
-    bool symbols_succeed = false;
-
-    if (asyncUnsafe) {
-        symbols_succeed = dladdr((void *)cursor->stackEntry.address, &symbolsBuffer) != 0;
-    } else {
-        symbols_succeed = sentrycrashdl_dladdr(
-            CALL_INSTRUCTION_FROM_RETURN_ADDRESS(cursor->stackEntry.address), &symbolsBuffer);
-    }
-
-    if (symbols_succeed) {
+    if (sentrycrashdl_dladdr(
+            CALL_INSTRUCTION_FROM_RETURN_ADDRESS(cursor->stackEntry.address), &symbolsBuffer)) {
         cursor->stackEntry.imageAddress = (uintptr_t)symbolsBuffer.dli_fbase;
         cursor->stackEntry.imageName = symbolsBuffer.dli_fname;
         cursor->stackEntry.symbolAddress = (uintptr_t)symbolsBuffer.dli_saddr;
@@ -84,16 +74,4 @@ symbolicate_internal(SentryCrashStackCursor *cursor, bool asyncUnsafe)
     cursor->stackEntry.symbolAddress = 0;
     cursor->stackEntry.symbolName = 0;
     return false;
-}
-
-bool
-sentrycrashsymbolicator_symbolicate(SentryCrashStackCursor *cursor)
-{
-    return symbolicate_internal(cursor, false);
-}
-
-bool
-sentrycrashsymbolicator_symbolicate_async_unsafe(SentryCrashStackCursor *cursor)
-{
-    return symbolicate_internal(cursor, true);
 }

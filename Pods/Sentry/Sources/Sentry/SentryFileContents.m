@@ -1,4 +1,5 @@
 #import "SentryFileContents.h"
+#import <Foundation/Foundation.h>
 
 @interface
 SentryFileContents ()

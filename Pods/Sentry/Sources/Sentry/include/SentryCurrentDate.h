@@ -12,11 +12,7 @@ NS_SWIFT_NAME(CurrentDate)
 
 + (NSDate *)date;
 
-+ (dispatch_time_t)dispatchTimeNow;
-
 + (void)setCurrentDateProvider:(nullable id<SentryCurrentDateProvider>)currentDateProvider;
-
-+ (nullable id<SentryCurrentDateProvider>)getCurrentDateProvider;
 
 @end
 

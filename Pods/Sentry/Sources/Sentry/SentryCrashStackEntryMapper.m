@@ -23,37 +23,32 @@ SentryCrashStackEntryMapper ()
     return self;
 }
 
-- (SentryFrame *)sentryCrashStackEntryToSentryFrame:(SentryCrashStackEntry)stackEntry
+- (SentryFrame *)mapStackEntryWithCursor:(SentryCrashStackCursor)stackCursor
 {
     SentryFrame *frame = [[SentryFrame alloc] init];
 
-    NSNumber *symbolAddress = @(stackEntry.symbolAddress);
+    NSNumber *symbolAddress = @(stackCursor.stackEntry.symbolAddress);
     frame.symbolAddress = sentry_formatHexAddress(symbolAddress);
 
-    NSNumber *instructionAddress = @(stackEntry.address);
+    NSNumber *instructionAddress = @(stackCursor.stackEntry.address);
     frame.instructionAddress = sentry_formatHexAddress(instructionAddress);
 
-    NSNumber *imageAddress = @(stackEntry.imageAddress);
+    NSNumber *imageAddress = @(stackCursor.stackEntry.imageAddress);
     frame.imageAddress = sentry_formatHexAddress(imageAddress);
 
-    if (stackEntry.symbolName != NULL) {
-        frame.function = [NSString stringWithCString:stackEntry.symbolName
+    if (stackCursor.stackEntry.symbolName != NULL) {
+        frame.function = [NSString stringWithCString:stackCursor.stackEntry.symbolName
                                             encoding:NSUTF8StringEncoding];
     }
 
-    if (stackEntry.imageName != NULL) {
-        NSString *imageName = [NSString stringWithCString:stackEntry.imageName
+    if (stackCursor.stackEntry.imageName != NULL) {
+        NSString *imageName = [NSString stringWithCString:stackCursor.stackEntry.imageName
                                                  encoding:NSUTF8StringEncoding];
         frame.package = imageName;
         frame.inApp = @([self.inAppLogic isInApp:imageName]);
     }
 
     return frame;
-}
-
-- (SentryFrame *)mapStackEntryWithCursor:(SentryCrashStackCursor)stackCursor
-{
-    return [self sentryCrashStackEntryToSentryFrame:stackCursor.stackEntry];
 }
 
 @end

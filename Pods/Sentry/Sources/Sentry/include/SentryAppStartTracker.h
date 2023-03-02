@@ -19,8 +19,7 @@ SENTRY_NO_INIT
 - (instancetype)initWithCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
                        dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                             appStateManager:(SentryAppStateManager *)appStateManager
-                                     sysctl:(SentrySysctl *)sysctl
-             enablePreWarmedAppStartTracing:(BOOL)enablePreWarmedAppStartTracing;
+                                     sysctl:(SentrySysctl *)sysctl;
 
 - (void)start;
 - (void)stop;

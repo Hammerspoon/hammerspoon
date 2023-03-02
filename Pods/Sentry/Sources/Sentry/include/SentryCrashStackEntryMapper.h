@@ -20,13 +20,6 @@ SENTRY_NO_INIT
  */
 - (SentryFrame *)mapStackEntryWithCursor:(SentryCrashStackCursor)stackCursor;
 
-/**
- * Maps a SentryCrashStackEntry to SentryFrame.
- *
- * @param stackEntry A stack entry retrieved from a thread.
- */
-- (SentryFrame *)sentryCrashStackEntryToSentryFrame:(SentryCrashStackEntry)stackEntry;
-
 @end
 
 NS_ASSUME_NONNULL_END

@@ -1,1 +1,1 @@
-../../../Sentry/Sources/Sentry/include/SentryObjCRuntimeWrapper.h
+../../../Sentry/Sources/Sentry/SentryObjCRuntimeWrapper.h

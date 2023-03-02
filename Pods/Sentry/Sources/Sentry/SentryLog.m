@@ -1,5 +1,4 @@
 #import "SentryLog.h"
-#import "SentryLevelMapper.h"
 #import "SentryLogOutput.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -26,33 +25,17 @@ static SentryLogOutput *logOutput;
     }
 
     if (isDebug && level != kSentryLevelNone && level >= diagnosticLevel) {
-        [logOutput log:[NSString stringWithFormat:@"[Sentry] [%@] %@", nameForSentryLevel(level),
-                                 message]];
+        [logOutput
+            log:[NSString stringWithFormat:@"Sentry - %@:: %@", SentryLevelNames[level], message]];
     }
 }
 
-// Internal and only needed for testing.
-+ (void)setLogOutput:(SentryLogOutput *)output
+/**
+ * Internal and only needed for testing.
+ */
++ (void)setLogOutput:(nullable SentryLogOutput *)output
 {
     logOutput = output;
-}
-
-// Internal and only needed for testing.
-+ (SentryLogOutput *)logOutput
-{
-    return logOutput;
-}
-
-// Internal and only needed for testing.
-+ (BOOL)isDebug
-{
-    return isDebug;
-}
-
-// Internal and only needed for testing.
-+ (SentryLevel)diagnosticLevel
-{
-    return diagnosticLevel;
 }
 
 @end

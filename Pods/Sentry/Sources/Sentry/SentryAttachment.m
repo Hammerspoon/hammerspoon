@@ -1,39 +1,26 @@
-#import "SentryAttachment+Private.h"
+#import "SentryAttachment.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
+
+NSString *const DefaultContentType = @"application/octet-stream";
 
 @implementation SentryAttachment
 
 - (instancetype)initWithData:(NSData *)data filename:(NSString *)filename
 {
-    return [self initWithData:data
-                     filename:filename
-                  contentType:nil
-               attachmentType:kSentryAttachmentTypeEventAttachment];
+    return [self initWithData:data filename:filename contentType:DefaultContentType];
 }
 
 - (instancetype)initWithData:(NSData *)data
                     filename:(NSString *)filename
-                 contentType:(nullable NSString *)contentType
-{
-    return [self initWithData:data
-                     filename:filename
-                  contentType:contentType
-               attachmentType:kSentryAttachmentTypeEventAttachment];
-}
-
-- (instancetype)initWithData:(NSData *)data
-                    filename:(NSString *)filename
-                 contentType:(nullable NSString *)contentType
-              attachmentType:(SentryAttachmentType)attachmentType
+                 contentType:(NSString *)contentType
 {
 
     if (self = [super init]) {
         _data = data;
         _filename = filename;
         _contentType = contentType;
-        _attachmentType = attachmentType;
     }
     return self;
 }
@@ -45,56 +32,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithPath:(NSString *)path filename:(NSString *)filename
 {
-    return [self initWithPath:path filename:filename contentType:nil];
+    return [self initWithPath:path filename:filename contentType:DefaultContentType];
 }
 
 - (instancetype)initWithPath:(NSString *)path
                     filename:(NSString *)filename
-                 contentType:(nullable NSString *)contentType
-{
-    return [self initWithPath:path
-                     filename:filename
-                  contentType:contentType
-               attachmentType:kSentryAttachmentTypeEventAttachment];
-}
-
-- (instancetype)initWithPath:(NSString *)path
-                    filename:(NSString *)filename
-                 contentType:(nullable NSString *)contentType
-              attachmentType:(SentryAttachmentType)attachmentType
+                 contentType:(NSString *)contentType
 {
     if (self = [super init]) {
         _path = path;
         _filename = filename;
         _contentType = contentType;
-        _attachmentType = attachmentType;
     }
     return self;
 }
 
 @end
-
-NSString *const kSentryAttachmentTypeNameEventAttachment = @"event.attachment";
-NSString *const kSentryAttachmentTypeNameViewHierarchy = @"event.view_hierarchy";
-
-NSString *
-nameForSentryAttachmentType(SentryAttachmentType attachmentType)
-{
-    switch (attachmentType) {
-    case kSentryAttachmentTypeViewHierarchy:
-        return kSentryAttachmentTypeNameViewHierarchy;
-    default:
-        return kSentryAttachmentTypeNameEventAttachment;
-    }
-}
-
-SentryAttachmentType
-typeForSentryAttachmentName(NSString *name)
-{
-    if ([name isEqualToString:kSentryAttachmentTypeNameViewHierarchy]) {
-        return kSentryAttachmentTypeViewHierarchy;
-    }
-    return kSentryAttachmentTypeEventAttachment;
-}
 
 NS_ASSUME_NONNULL_END
