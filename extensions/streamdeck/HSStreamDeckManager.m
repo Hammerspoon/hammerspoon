@@ -160,6 +160,8 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
                                           productIDKey: @USB_PID_STREAMDECK_MK2};
         NSDictionary *matchPlus       = @{vendorIDKey:  @USB_VID_ELGATO,
                                           productIDKey: @USB_PID_STREAMDECK_PLUS};
+        NSDictionary *matchPedal      = @{vendorIDKey:  @USB_VID_ELGATO,
+                                          productIDKey: @USB_PID_STREAMDECK_PEDAL};
 
         IOHIDManagerSetDeviceMatchingMultiple((__bridge IOHIDManagerRef)self.ioHIDManager,
                                               (__bridge CFArrayRef)@[matchOriginal,
@@ -168,7 +170,8 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
                                                                      matchMiniV2,
                                                                      matchXL,
                                                                      matchMk2,
-                                                                     matchPlus]);
+                                                                     matchPlus,
+                                                                     matchPedal]);
 
         // Add our callbacks for relevant events
         IOHIDManagerRegisterDeviceMatchingCallback((__bridge IOHIDManagerRef)self.ioHIDManager,
@@ -273,6 +276,10 @@ static void HIDdisconnect(void *context, IOReturn result, void *sender, IOHIDDev
 
         case USB_PID_STREAMDECK_PLUS:
             deck = [[HSStreamDeckDevicePlus alloc] initWithDevice:device manager:self];
+            break;
+        
+        case USB_PID_STREAMDECK_PEDAL:
+            deck = [[HSStreamDeckDevicePedal alloc] initWithDevice:device manager:self];
             break;
             
         default:
