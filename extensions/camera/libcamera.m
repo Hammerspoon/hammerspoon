@@ -377,7 +377,7 @@ void deviceWatcherDoCallback(CMIODeviceID deviceId, NSString *event) {
 
 /// hs.camera.startWatcher()
 /// Function
-/// Stops the camera devices watcher
+/// Starts the camera devices watcher
 ///
 /// Parameters:
 ///  * None
@@ -448,6 +448,10 @@ static int stopWatcher(lua_State *L) {
         [skin checkArgs:LS_TBREAK];
     }
 
+    if (!deviceWatcher) {
+        return 0;
+    }
+
     NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
     [center removeObserver:deviceWatcherAddedObserver
                       name:AVCaptureDeviceWasConnectedNotification
@@ -474,7 +478,7 @@ static int isWatcherRunning(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TBREAK];
 
-    lua_pushboolean(L, deviceWatcher->running);
+    lua_pushboolean(L, deviceWatcher && deviceWatcher->running);
 
     return 1;
 }
@@ -606,7 +610,7 @@ static int camera_isinuse(lua_State *L) {
 /// Sets or clears a callback for when the properties of an hs.camera object change
 ///
 /// Parameters:
-///  * fn - A function to be called when properites of the camera change, or nil to clear a previously set callback. The function should accept the following parameters:
+///  * fn - A function to be called when properties of the camera change, or nil to clear a previously set callback. The function should accept the following parameters:
 ///   * The hs.camera object that changed
 ///   * A string describing the property that changed. Possible values are:
 ///    * gone - The device's "in use" status changed (ie another app started using the camera, or stopped using it)

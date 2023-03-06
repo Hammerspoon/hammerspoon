@@ -463,7 +463,7 @@ static NSMenu *createCoreSearchFieldMenu() {
             if ([keyValue isKindOfClass:[NSImage class]]) {
                 item.image = keyValue ;
             } else {
-                [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be an hs.image obejct", USERDATA_TB_TAG, keyName, identifier]] ;
+                [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be an hs.image object", USERDATA_TB_TAG, keyName, identifier]] ;
                 [itemDefinition removeObjectForKey:keyName] ;
             }
 
@@ -697,7 +697,7 @@ static NSMenu *createCoreSearchFieldMenu() {
         [self fillinNewToolbarItem:toolbarItem] ;
     } else {
         // may happen on a reload if toolbar autosave contains id's that were added after the toolbar was created but haven't been created yet since the reload
-        [LuaSkin logInfo:[NSString stringWithFormat:@"%s:toolbar:itemForItemIdentifier:willBeInsertedIntoToolbar: invoked with non-existent identifier:%@", USERDATA_TB_TAG, identifier]] ;
+        [LuaSkin logInfo:[NSString stringWithFormat:@"%s:toolbar:itemForItemIdentifier:willBeInsertedIntoToolbar: invoked with nonexistent identifier:%@", USERDATA_TB_TAG, identifier]] ;
     }
     return toolbarItem ;
 }

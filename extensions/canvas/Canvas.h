@@ -62,15 +62,15 @@
 #define CLOSED     @[ @"arc", @"circle", @"ellipticalArc", @"oval", @"rectangle", @"segments" ]
 
 #define STROKE_JOIN_STYLES @{ \
-    @"miter" : @(NSMiterLineJoinStyle), \
-    @"round" : @(NSBevelLineJoinStyle), \
-    @"bevel" : @(NSBevelLineJoinStyle), \
+    @"miter" : @(NSLineJoinStyleMiter), \
+    @"round" : @(NSLineJoinStyleBevel), \
+    @"bevel" : @(NSLineJoinStyleBevel), \
 }
 
 #define STROKE_CAP_STYLES @{ \
-    @"butt"   : @(NSButtLineCapStyle), \
-    @"round"  : @(NSRoundLineCapStyle), \
-    @"square" : @(NSSquareLineCapStyle), \
+    @"butt"   : @(NSLineCapStyleButt), \
+    @"round"  : @(NSLineCapStyleRound), \
+    @"square" : @(NSLineCapStyleSquare), \
 }
 
 #define COMPOSITING_TYPES @{ \
@@ -90,8 +90,8 @@
 }
 
 #define WINDING_RULES @{ \
-    @"evenOdd" : @(NSEvenOddWindingRule), \
-    @"nonZero" : @(NSNonZeroWindingRule), \
+    @"evenOdd" : @(NSWindingRuleEvenOdd), \
+    @"nonZero" : @(NSWindingRuleNonZero), \
 }
 
 #define TEXTALIGNMENT_TYPES @{ \
@@ -103,7 +103,7 @@
 }
 
 #define TEXTWRAP_TYPES @{ \
-    @"wordWrap"       : @( NSLineBreakByWordWrapping), \
+    @"wordWrap"       : @(NSLineBreakByWordWrapping), \
     @"charWrap"       : @(NSLineBreakByCharWrapping), \
     @"clip"           : @(NSLineBreakByClipping), \
     @"truncateHead"   : @(NSLineBreakByTruncatingHead), \

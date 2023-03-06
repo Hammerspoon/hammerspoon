@@ -106,6 +106,8 @@ static LSRefTable refTable = LUA_NOREF;
 @property BOOL                      usesDTRDSRFlowControl;
 @property BOOL                      usesDCDOutputFlowControl;
 @property BOOL                      allowsNonStandardBaudRates;
+@property BOOL                      rts;
+@property BOOL                      dtr;
 
 @end
 
@@ -134,6 +136,8 @@ static LSRefTable refTable = LUA_NOREF;
         _usesDTRDSRFlowControl      = NO;
         _usesDCDOutputFlowControl   = NO;
         _allowsNonStandardBaudRates = NO;
+        _rts                        = NO;
+        _dtr                        = NO;
     }
     return self;
 }
@@ -230,7 +234,7 @@ static LSRefTable refTable = LUA_NOREF;
 
 - (void)serialPort:(ORSSerialPort *)serialPort didReceivePacket:(NSData *)packetData matchingDescriptor:(ORSSerialPacketDescriptor *)descriptor
 {
-    // TODO: Impliment `ORSSerialPacketDescriptor` functionality
+    // TODO: Implement `ORSSerialPacketDescriptor` functionality
 }
 
 - (void)serialPortWasRemovedFromSystem:(ORSSerialPort *)serialPort;
@@ -409,6 +413,8 @@ static LSRefTable refTable = LUA_NOREF;
         self.serialPort.usesRTSCTSFlowControl       = self.usesRTSCTSFlowControl;
         self.serialPort.usesDTRDSRFlowControl       = self.usesDTRDSRFlowControl;
         self.serialPort.usesDCDOutputFlowControl    = self.usesDCDOutputFlowControl;
+        self.serialPort.RTS                         = self.rts;
+        self.serialPort.DTR                         = self.dtr;
         [self.serialPort open];
     }
     return self.serialPort && self.serialPort.isOpen;
@@ -444,6 +450,22 @@ static LSRefTable refTable = LUA_NOREF;
     self.numberOfDataBits = numberOfDataBits;
     if ([self isOpen]) {
         self.serialPort.numberOfDataBits = numberOfDataBits;
+    }
+}
+
+- (void)changeRTS:(BOOL)rtsEnabled
+{
+    self.rts = rtsEnabled;
+    if ([self isOpen]) {
+        self.serialPort.RTS = rtsEnabled;
+    }
+}
+
+- (void)changeDTR:(BOOL)dtrEnabled
+{
+    self.dtr = dtrEnabled;
+    if ([self isOpen]) {
+        self.serialPort.DTR = dtrEnabled;
     }
 }
 
@@ -508,7 +530,7 @@ static LSRefTable refTable = LUA_NOREF;
 ///  * portName - A string containing the port name.
 ///
 /// Returns:
-///  * An `hs.serial` object or `nil` if an error occured.
+///  * An `hs.serial` object or `nil` if an error occurred.
 ///
 /// Notes:
 ///  * A valid port name can be found by checking `hs.serial.availablePortNames()`.
@@ -541,7 +563,7 @@ static int serial_newFromName(lua_State *L) {
 ///  * path - A string containing the path (i.e. "/dev/cu.usbserial").
 ///
 /// Returns:
-///  * An `hs.serial` object or `nil` if an error occured.
+///  * An `hs.serial` object or `nil` if an error occurred.
 ///
 /// Notes:
 ///  * A valid port name can be found by checking `hs.serial.availablePortPaths()`.
@@ -872,10 +894,12 @@ static int serial_parity(lua_State *L) {
 ///
 /// Returns:
 ///  * If a value is specified, then this method returns the serial port object. Otherwise this method returns a boolean.
+///
+/// Notes:
 ///  * The default value is `false`.
 static int serial_usesDCDOutputFlowControl(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
     HSSerialPort *serialPort = [skin toNSObjectAtIndex:1];
     if (lua_gettop(L) == 1) {
         // Get:
@@ -898,10 +922,12 @@ static int serial_usesDCDOutputFlowControl(lua_State *L) {
 ///
 /// Returns:
 ///  * If a value is specified, then this method returns the serial port object. Otherwise this method returns a boolean.
+///
+/// Notes:
 ///  * The default value is `false`.
 static int serial_usesDTRDSRFlowControl(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
     HSSerialPort *serialPort = [skin toNSObjectAtIndex:1];
     if (lua_gettop(L) == 1) {
         // Get:
@@ -924,10 +950,12 @@ static int serial_usesDTRDSRFlowControl(lua_State *L) {
 ///
 /// Returns:
 ///  * If a value is specified, then this method returns the serial port object. Otherwise this method returns a boolean.
+///
+/// Notes:
 ///  * The default value is `false`.
 static int serial_usesRTSCTSFlowControl(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
     HSSerialPort *serialPort = [skin toNSObjectAtIndex:1];
     if (lua_gettop(L) == 1) {
         // Get:
@@ -936,6 +964,64 @@ static int serial_usesRTSCTSFlowControl(lua_State *L) {
     } else {
         BOOL usesRTSCTSFlowControl = lua_toboolean(L, 2);
         [serialPort changeUsesRTSCTSFlowControl:usesRTSCTSFlowControl];
+        lua_pushvalue(L, 1);
+    }
+    return 1;
+}
+
+/// hs.serial:dtr([value]) -> boolean | serialPortObject
+/// Method
+/// Gets or sets the state of the serial port's DTR (Data Terminal Ready) pin.
+///
+/// Parameters:
+///  * value - An optional boolean.
+///
+/// Returns:
+///  * If a value is specified, then this method returns the serial port object. Otherwise this method returns a boolean.
+///
+/// Notes:
+///  * The default value is `false`.
+///  * Setting this to `true` is most likely required for Arduino devices prior to opening the serial port.
+static int serial_dtr(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
+    HSSerialPort *serialPort = [skin toNSObjectAtIndex:1];
+    if (lua_gettop(L) == 1) {
+        // Get:
+        BOOL dtrEnabled = serialPort.dtr;
+        lua_pushboolean(L, dtrEnabled);
+    } else {
+        BOOL dtrEnabled = lua_toboolean(L, 2);
+        [serialPort changeDTR:dtrEnabled];
+        lua_pushvalue(L, 1);
+    }
+    return 1;
+}
+
+/// hs.serial:rts([value]) -> boolean | serialPortObject
+/// Method
+/// Gets or sets the state of the serial port's RTS (Request to Send) pin.
+///
+/// Parameters:
+///  * value - An optional boolean.
+///
+/// Returns:
+///  * If a value is specified, then this method returns the serial port object. Otherwise this method returns a boolean.
+///
+/// Notes:
+///  * The default value is `false`.
+///  * Setting this to `true` is most likely required for Arduino devices prior to opening the serial port.
+static int serial_rts(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
+    HSSerialPort *serialPort = [skin toNSObjectAtIndex:1];
+    if (lua_gettop(L) == 1) {
+        // Get:
+        BOOL rtsEnabled = serialPort.rts;
+        lua_pushboolean(L, rtsEnabled);
+    } else {
+        BOOL rtsEnabled = lua_toboolean(L, 2);
+        [serialPort changeRTS:rtsEnabled];
         lua_pushvalue(L, 1);
     }
     return 1;
@@ -950,10 +1036,12 @@ static int serial_usesRTSCTSFlowControl(lua_State *L) {
 ///
 /// Returns:
 ///  * If a value is specified, then this method returns the serial port object. Otherwise this method returns a boolean.
+///
+/// Notes:
 ///  * The default value is `false`.
 static int serial_shouldEchoReceivedData(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
     HSSerialPort *serialPort = [skin toNSObjectAtIndex:1];
     if (lua_gettop(L) == 1) {
         // Get:
@@ -976,6 +1064,8 @@ static int serial_shouldEchoReceivedData(lua_State *L) {
 ///
 /// Returns:
 ///  * If a value is specified, then this method returns the serial port object. Otherwise this method returns the number of stop bits as a number.
+///
+/// Notes:
 ///  * The default value is 1.
 static int serial_numberOfStopBits(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
@@ -1227,6 +1317,8 @@ static const luaL_Reg userdata_metaLib[] = {
     {"shouldEchoReceivedData",      serial_shouldEchoReceivedData},
     {"usesRTSCTSFlowControl",       serial_usesRTSCTSFlowControl},
     {"usesDTRDSRFlowControl",       serial_usesDTRDSRFlowControl},
+    {"rts",                         serial_rts},
+    {"dtr",                         serial_dtr},
     {"usesDCDOutputFlowControl",    serial_usesDCDOutputFlowControl},
     {"__tostring",                  userdata_tostring},
     {"__eq",                        userdata_eq},
@@ -1251,7 +1343,7 @@ static const luaL_Reg module_metaLib[] = {
     {NULL,   NULL}
 };
 
-// Initalise Module:
+// Initialize Module:
 int luaopen_hs_libserial(lua_State* L) {
     // Register Module:
     LuaSkin *skin = [LuaSkin sharedWithState:L];

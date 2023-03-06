@@ -83,14 +83,14 @@ local objectMetatable = hs.getObjectMetatable("hs.styledtext")
 
 --- hs.styledtext:byte([starts], [ends]) -> integer, ...
 --- Method
---- Returns the internal numerical representation of the characters in the `hs.styledtext` object specified by the given indicies.  Mimics the Lua `string.byte` function.
+--- Returns the internal numerical representation of the characters in the `hs.styledtext` object specified by the given indices.  Mimics the Lua `string.byte` function.
 ---
 --- Parameters:
 ---  * starts - an optional index position within the text of the `hs.styledtext` object indicating the beginning of the substring to return numerical values for.  Defaults to 1, the beginning of the objects text.  If this number is negative, it is counted backwards from the end of the object's text (i.e. -1 would be the last character position).
 ---  * ends   - an optional index position within the text of the `hs.styledtext` object indicating the end of the substring to return numerical values for.  Defaults to the value of `starts`.  If this number is negative, it is counted backwards from the end of the object's text.
 ---
 --- Returns:
----  * a list of integers representing the internal numeric representation of the characters in the `hs.styledtext` object specified by the given indicies.
+---  * a list of integers representing the internal numeric representation of the characters in the `hs.styledtext` object specified by the given indices.
 ---
 --- Notes:
 ---  * `starts` and `ends` follow the conventions of `i` and `j` for Lua's `string.sub` function.
@@ -98,7 +98,7 @@ objectMetatable.byte   = function(self, ...) return self:getString():byte(...) e
 
 --- hs.styledtext:find(pattern, [init, [plain]]) -> start, end, ... | nil
 --- Method
---- Returns the indicies of the first occurrence of the specified pattern in the text of the `hs.styledtext` object.  Mimics the Lua `string.find` function.
+--- Returns the indices of the first occurrence of the specified pattern in the text of the `hs.styledtext` object.  Mimics the Lua `string.find` function.
 ---
 --- Parameters:
 ---  * pattern  - a string containing the pattern to locate.  See the Lua manual, section 6.4.1 (`help.lua._man._6_4_1`) for more details.
@@ -151,7 +151,7 @@ objectMetatable.gmatch = function(self, ...) return self:getString():gmatch(...)
 ---  * separator - an optional string or `hs.styledtext` object to insert between repetitions.
 ---
 --- Returns:
----  * an `hs.styledtext` object which contains `n` repitions of the object, including `separator` between repetitions, if it is specified.
+---  * an `hs.styledtext` object which contains `n` repetitions of the object, including `separator` between repetitions, if it is specified.
 objectMetatable.rep    = function(self, n, sep)
     if n < 1 then return module.new("") end
     local i, result = 1, self:copy()
@@ -198,7 +198,7 @@ end
 --- Returns an array containing fonts available for the specified font family or nil if no fonts for the specified family are present.
 ---
 --- Parameters:
----  * `familyName` - a string specifying the font family to return available fonts for. The strings should be one of the values returned by the [hs.styledtext.fontFamiles](#fontFamilies) function.
+---  * `familyName` - a string specifying the font family to return available fonts for. The strings should be one of the values returned by the [hs.styledtext.fontFamilies](#fontFamilies) function.
 ---
 --- Returns:
 ---  * a table containing an array of available fonts for the specified family. Each array entry will be a table, also as an array, in the following order:
@@ -249,7 +249,7 @@ module.fontsForFamily = function(...)
                 end
             end
             if style ~= 0 then
-                table.insert(styleTable, string.format("** unrcognized font trait flags: %d", style))
+                table.insert(styleTable, string.format("** unrecognized font trait flags: %d", style))
             end
             v[4] = styleTable
         end
@@ -508,6 +508,9 @@ module = setmetatable(module, {
         else
             return rawget(self, _)
         end
+    end,
+    __call = function(self, ...) -- luacheck: ignore
+        return module.new(...)
     end
 })
 

@@ -142,7 +142,7 @@ end
 ---
 --- Parameters:
 ---  * entries - (optional) the maximum number of entries to print; if omitted, all entries in the history will be printed
----  * level - (optional) the desired log level (see `hs.logger:setLogLevel()`); if omitted, defaults to `verbose`
+---  * level - (optional) the desired log level (see `hs.logger.setLogLevel()`); if omitted, defaults to `verbose`
 ---  * filter - (optional) a string to filter the entries (by logger id or message) via `string.find` plain matching
 ---  * caseSensitive - (optional) if true, filtering is case sensitive
 ---
@@ -157,7 +157,7 @@ logger.printHistory=function(entries,lvl,flt,case)
     lvl=toLogLevel(lvl or 5)
     filt={}
     for _,e in ipairs(hist) do
-      if e.level<=lvl and (not flt or sfind(case and e.id or slower(e.id),flt,1,true) or sfind(case and e.mesage or slower(e.message),flt,1,true)) then
+      if e.level<=lvl and (not flt or sfind(case and e.id or slower(e.id),flt,1,true) or sfind(case and e.message or slower(e.message),flt,1,true)) then
         filt[#filt+1]=e
       end
     end
@@ -222,7 +222,7 @@ logger.defaultLogLevel = 'warning'
 ---
 --- Notes:
 ---  * the logger instance created by this method is not a regular object, but a plain table with "static" functions;
----    therefore, do not use the colon syntax for so-called "methods" in this module (as in `mylogger:setLogLevel(3)`);
+---    therefore, do not use the colon syntax for so-called "methods" in this module (as in `mylogger.setLogLevel(3)`);
 ---    you must instead use the regular dot syntax: `mylogger.setLogLevel(3)`
 ---
 --- Example:
@@ -262,7 +262,7 @@ function logger.new(id,loglevel)
 end
 return logger
 
---- hs.logger:setLogLevel(loglevel)
+--- hs.logger.setLogLevel(loglevel)
 --- Method
 --- Sets the log level of the logger instance
 ---
@@ -272,7 +272,7 @@ return logger
 --- Returns:
 ---  * None
 
---- hs.logger:getLogLevel() -> number
+--- hs.logger.getLogLevel() -> number
 --- Method
 --- Gets the log level of the logger instance
 ---
@@ -286,7 +286,7 @@ return logger
 --- Field
 --- The log level of the logger instance, as a number between 0 and 5
 
---- hs.logger:e(...)
+--- hs.logger.e(...)
 --- Method
 --- Logs an error to the console
 ---
@@ -296,7 +296,7 @@ return logger
 --- Returns:
 ---  * None
 
---- hs.logger:ef(fmt,...)
+--- hs.logger.ef(fmt,...)
 --- Method
 --- Logs a formatted error to the console
 ---
@@ -307,7 +307,7 @@ return logger
 --- Returns:
 ---  * None
 
---- hs.logger:w(...)
+--- hs.logger.w(...)
 --- Method
 --- Logs a warning to the console
 ---
@@ -317,7 +317,7 @@ return logger
 --- Returns:
 ---  * None
 
---- hs.logger:wf(fmt,...)
+--- hs.logger.wf(fmt,...)
 --- Method
 --- Logs a formatted warning to the console
 ---
@@ -328,7 +328,7 @@ return logger
 --- Returns:
 ---  * None
 
---- hs.logger:i(...)
+--- hs.logger.i(...)
 --- Method
 --- Logs info to the console
 ---
@@ -338,7 +338,7 @@ return logger
 --- Returns:
 ---  * None
 
---- hs.logger:f(fmt,...)
+--- hs.logger.f(fmt,...)
 --- Method
 --- Logs formatted info to the console
 ---
@@ -349,7 +349,7 @@ return logger
 --- Returns:
 ---  * None
 
---- hs.logger:d(...)
+--- hs.logger.d(...)
 --- Method
 --- Logs debug info to the console
 ---
@@ -359,7 +359,7 @@ return logger
 --- Returns:
 ---  * None
 
---- hs.logger:df(fmt,...)
+--- hs.logger.df(fmt,...)
 --- Method
 --- Logs formatted debug info to the console
 ---
@@ -370,7 +370,7 @@ return logger
 --- Returns:
 ---  * None
 
---- hs.logger:v(...)
+--- hs.logger.v(...)
 --- Method
 --- Logs verbose info to the console
 ---
@@ -380,7 +380,7 @@ return logger
 --- Returns:
 ---  * None
 
---- hs.logger:vf(fmt,...)
+--- hs.logger.vf(fmt,...)
 --- Method
 --- Logs formatted verbose info to the console
 ---

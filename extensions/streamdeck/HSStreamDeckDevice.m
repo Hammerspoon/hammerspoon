@@ -19,10 +19,15 @@
         self.device = device;
         self.isValid = YES;
         self.manager = manager;
+        
         self.buttonCallbackRef = LUA_NOREF;
+        self.encoderCallbackRef = LUA_NOREF;
+        self.screenCallbackRef = LUA_NOREF;
+        
         self.selfRefCount = 0;
 
         self.buttonStateCache = [[NSMutableArray alloc] init];
+        self.encoderButtonStateCache = [[NSMutableArray alloc] init];
 
         // These defaults are not necessary, all base classes will override them, but if we miss something, these are chosen to try and provoke a crash where possible, so we notice the lack of an override.
         self.imageCodec = STREAMDECK_CODEC_UNKNOWN;
@@ -35,9 +40,19 @@
         self.simpleReportLength = 0;
         self.reportLength = 0;
         self.reportHeaderLength = 0;
+        
+        self.lcdReportLength = 0;
+        self.lcdReportHeaderLength = 0;
 
+        self.encoderColumns = 0;
+        self.encoderRows = 0;
+        
+        self.lcdStripWidth = 0;
+        self.lcdStripHeight = 0;
+        
         self.dataKeyOffset = 0;
-
+        self.dataEncoderOffset = 0;
+        
         self.resetCommand = nil;
         self.setBrightnessCommand = nil;
         self.serialNumberCommand = 0;
@@ -60,6 +75,11 @@
     for (int i = 0; i <= self.keyCount; i++) {
         [self.buttonStateCache setObject:@0 atIndexedSubscript:i];
     }
+    
+    for (int i = 0; i <= self.encoderCount; i++) {
+        [self.encoderButtonStateCache setObject:@0 atIndexedSubscript:i];
+    }
+    
     [self cacheSerialNumber];
 }
 
@@ -142,6 +162,103 @@
             self.buttonStateCache[button] = newButtonStates[button];
         }
     }
+
+    _lua_stackguard_exit(skin.L);
+}
+
+- (void)deviceDidSendEncoderInput:(NSArray*)newPressEncoderStates {
+    
+    if (!self.isValid) {
+        return;
+    }
+
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+    _lua_stackguard_entry(skin.L);
+
+    if (![skin checkGCCanary:self.lsCanary]) {
+        _lua_stackguard_exit(skin.L);
+        return;
+    }
+
+    if (self.encoderCallbackRef == LUA_NOREF || self.encoderCallbackRef == LUA_REFNIL) {
+        [skin logError:@"hs.streamdeck received an encoder button input, but no callback has been set. See hs.streamdeck:encoderCallback()"];
+        return;
+    }
+
+    for (int button=1; button <= self.encoderCount; button++) {
+        if (![self.encoderButtonStateCache[button] isEqual:newPressEncoderStates[button]]) {
+            [skin pushLuaRef:streamDeckRefTable ref:self.encoderCallbackRef];
+            [skin pushNSObject:self];
+            lua_pushinteger(skin.L, button);
+            lua_pushboolean(skin.L, ((NSNumber*)(newPressEncoderStates[button])).boolValue);
+            lua_pushboolean(skin.L, false);
+            lua_pushboolean(skin.L, false);
+            [skin protectedCallAndError:@"hs.streamdeck:encoderCallback" nargs:5 nresults:0];
+            self.encoderButtonStateCache[button] = newPressEncoderStates[button];
+        }
+        
+    }
+
+    _lua_stackguard_exit(skin.L);
+}
+
+- (void)deviceDidSendEncoderTurnWithButton:(NSNumber*)button turningLeft:(BOOL)turningLeft {
+    
+    if (!self.isValid) {
+        return;
+    }
+
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+    _lua_stackguard_entry(skin.L);
+
+    if (![skin checkGCCanary:self.lsCanary]) {
+        _lua_stackguard_exit(skin.L);
+        return;
+    }
+
+    if (self.encoderCallbackRef == LUA_NOREF || self.encoderCallbackRef == LUA_REFNIL) {
+        [skin logError:@"hs.streamdeck received an encoder button input, but no callback has been set. See hs.streamdeck:encoderCallback()"];
+        return;
+    }
+
+    [skin pushLuaRef:streamDeckRefTable ref:self.encoderCallbackRef];
+    [skin pushNSObject:self];
+    lua_pushinteger(skin.L, [button intValue]);
+    lua_pushboolean(skin.L, false);
+    lua_pushboolean(skin.L, turningLeft);
+    lua_pushboolean(skin.L, !turningLeft);
+    [skin protectedCallAndError:@"hs.streamdeck:encoderCallback" nargs:5 nresults:0];
+
+    _lua_stackguard_exit(skin.L);
+}
+
+- (void)deviceDidSendScreenTouch:(NSString*)eventType startX:(int)startX startY:(int)startY endX:(int)endX endY:(int)endY {
+    
+    if (!self.isValid) {
+        return;
+    }
+
+    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+    _lua_stackguard_entry(skin.L);
+
+    if (![skin checkGCCanary:self.lsCanary]) {
+        _lua_stackguard_exit(skin.L);
+        return;
+    }
+
+    if (self.screenCallbackRef == LUA_NOREF || self.screenCallbackRef == LUA_REFNIL) {
+        [skin logError:@"hs.streamdeck received an screen input, but no callback has been set. See hs.streamdeck:screenCallback()"];
+        return;
+    }
+    
+    [skin pushLuaRef:streamDeckRefTable ref:self.screenCallbackRef];
+    [skin pushNSObject:self];
+    [skin pushNSObject:eventType];
+    lua_pushinteger(skin.L, startX);
+    lua_pushinteger(skin.L, startY);
+    lua_pushinteger(skin.L, endX);
+    lua_pushinteger(skin.L, endY);
+    [skin protectedCallAndError:@"hs.streamdeck:screenCallback" nargs:6 nresults:0];
 
     _lua_stackguard_exit(skin.L);
 }
@@ -239,6 +356,10 @@
 
 - (int)getKeyCount {
     return self.keyColumns * self.keyRows;
+}
+
+- (int)getEncoderCount {
+    return self.encoderColumns * self.encoderRows;
 }
 
 - (void)clearImage:(int)button {
@@ -354,6 +475,137 @@
         [report replaceBytesInRange:NSMakeRange(0, self.reportHeaderLength)
                           withBytes:reportHeader];
         [report replaceBytesInRange:NSMakeRange(self.reportHeaderLength, thisPageLength)
+                          withBytes:imageBuf+bytesSent
+                             length:thisPageLength];
+
+        result = IOHIDDeviceSetReport(self.device,
+                                      kIOHIDReportTypeOutput,
+                                      reportHeader[0],
+                                      report.bytes,
+                                      (int)report.length);
+        if (result != kIOReturnSuccess) {
+            NSLog(@"WARNING: writing an image with hs.streamdeck encountered a failure on page %d: %d", pageNumber, result);
+        }
+
+        bytesRemaining = bytesRemaining - thisPageLength;
+        pageNumber++;
+    }
+}
+
+- (void)setLCDImage:(NSImage *)image forEncoder:(int)encoder {
+    if (!self.isValid) {
+        return;
+    }
+
+    NSImage *renderImage;
+
+    // Unconditionally resize the image
+    NSImage *sourceImage = [image copy];
+    int encoderWidth = self.lcdStripWidth / self.encoderColumns;
+    NSSize newSize = NSMakeSize(encoderWidth, self.lcdStripHeight);
+    renderImage = [[NSImage alloc] initWithSize: newSize];
+    [renderImage lockFocus];
+    [sourceImage setSize: newSize];
+    [[NSGraphicsContext currentContext] setImageInterpolation:NSImageInterpolationHigh];
+    [sourceImage drawAtPoint:NSZeroPoint fromRect:CGRectMake(0, 0, newSize.width, newSize.height) operation:NSCompositingOperationCopy fraction:1.0];
+    [renderImage unlockFocus];
+
+    if (![image isValid]) {
+        [LuaSkin logError:@"image is invalid"];
+    }
+    if (![renderImage isValid]) {
+        [LuaSkin logError:@"Invalid image passed to hs.streamdeck:setLCDImage() (renderImage)"];
+    //    return;
+    }
+
+    // Both of these functions are no-ops if there are no rotations or flips required, so we'll call them unconditionally
+    renderImage = [renderImage imageRotated:self.imageAngle];
+    renderImage = [renderImage flipImage:self.imageFlipX vert:self.imageFlipY];
+
+    NSData *data = nil;
+
+    switch (self.imageCodec) {
+        case STREAMDECK_CODEC_BMP:
+            data = [renderImage bmpData];
+            break;
+
+        case STREAMDECK_CODEC_JPEG:
+            data = [renderImage jpegData];
+            break;
+
+        case STREAMDECK_CODEC_UNKNOWN:
+            [LuaSkin logError:@"Unknown image codec for hs.streamdeck device"];
+            break;
+    }
+
+    // Writing the image to hardware is a device-specific operation, so hand it off to our subclasses
+    [self deviceLCDWriteImage:data forEncoder:encoder];
+}
+
+- (void)deviceLCDWriteImage:(NSData *)data forEncoder:(int)encoder {
+    
+    int encoderWidth = self.lcdStripWidth / self.encoderColumns;
+    
+    int left        = (encoderWidth * encoder) - encoderWidth;
+    int top         = 0;
+    int width       = encoderWidth;
+    int height      = self.lcdStripHeight;
+    
+    uint8_t reportHeader[] = {0x02,                             // 0: Report ID
+                             0x0c,                              // 1: Image Rectangle JPEG
+        
+                            left & 0xFF,                        // 2: Left - the least significant byte
+                            left >> 8,                          // 3: Left - the most significant byte
+        
+                            top & 0xFF,                         // 4: Top - the least significant byte
+                            top >> 8,                           // 5: Top - the most significant byte
+        
+                            width & 0xFF,                       // 6: Width - the least significant byte
+                            width >> 8,                         // 7: Width - the most significant byte
+        
+                            height & 0xFF,                      // 8: Height - the least significant byte
+                            height >> 8,                        // 9: Height - the most significant byte
+                                                         
+                            0x00,                               // 10: Is Last Page (1 or 0)?
+        
+                            0x00,                               // 11: Page Number - the least significant byte
+                            0x00,                               // 12: Page Number - the most significant byte
+        
+                            0x00,                               // 13: Payload Length - the least significant byte
+                            0x00,                               // 14: Payload Length - the most significant byte
+        
+                            0x00                                // 15: Padding
+                            };
+
+    // The v2 Stream Decks needs images sent in slices no more than 1024 bytes minus the report header (16 bytes)
+    int maxPayloadLength = self.lcdReportLength - self.lcdReportHeaderLength;
+
+    int bytesRemaining = (int)data.length;
+    int bytesSent = 0;
+    int pageNumber = 0;
+    const uint8_t *imageBuf = data.bytes;
+
+    IOReturn result;
+
+    while (bytesRemaining > 0) {
+        int thisPageLength = MIN(bytesRemaining, maxPayloadLength);
+        bytesSent = pageNumber * maxPayloadLength;
+
+        // Set our current page number
+        reportHeader[11] = pageNumber & 0xFF;
+        reportHeader[12] = pageNumber >> 8;
+
+        // Set our current page length
+        reportHeader[13] = thisPageLength & 0xFF;
+        reportHeader[14] = thisPageLength >> 8;
+
+        // Set if we're the last page of data
+        if (bytesRemaining <= maxPayloadLength) reportHeader[10] = 1;
+
+        NSMutableData *report = [NSMutableData dataWithLength:self.lcdReportLength];
+        [report replaceBytesInRange:NSMakeRange(0, self.lcdReportHeaderLength)
+                          withBytes:reportHeader];
+        [report replaceBytesInRange:NSMakeRange(self.lcdReportHeaderLength, thisPageLength)
                           withBytes:imageBuf+bytesSent
                              length:thisPageLength];
 

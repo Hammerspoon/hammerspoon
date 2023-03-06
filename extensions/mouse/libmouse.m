@@ -43,7 +43,7 @@ static void enum_callback(void *ctx, IOReturn res, void *sender, IOHIDDeviceRef 
 -(void)setAbsolutePosition:(NSPoint)absolutePosition;
 -(double)getTrackingSpeed;
 -(io_service_t)createIOHIDSystem;
--(NSDictionary *)getIOHIDParamtersFromService:(io_service_t)service;
+-(NSDictionary *)getIOHIDParametersFromService:(io_service_t)service;
 -(NSDictionary *)getIOHIDParameters;
 -(kern_return_t)setTrackingSpeed:(double)trackingSpeed;
 @end
@@ -118,13 +118,13 @@ static void enum_callback(void *ctx, IOReturn res, void *sender, IOHIDDeviceRef 
     return IORegistryEntryFromPath(kIOMasterPortDefault, kIOServicePlane ":/IOResources/IOHIDSystem");
 }
 
--(NSDictionary *)getIOHIDParamtersFromService:(io_service_t)service {
+-(NSDictionary *)getIOHIDParametersFromService:(io_service_t)service {
     return CFBridgingRelease(IORegistryEntryCreateCFProperty(service, CFSTR(kIOHIDParametersKey), kCFAllocatorDefault, kNilOptions));
 }
 
 -(NSDictionary *)getIOHIDParameters {
     io_service_t service = [self createIOHIDSystem];
-    NSDictionary *parameters = [self getIOHIDParamtersFromService:service];
+    NSDictionary *parameters = [self getIOHIDParametersFromService:service];
     IOObjectRelease(service);
     return parameters;
 }
@@ -138,7 +138,7 @@ static void enum_callback(void *ctx, IOReturn res, void *sender, IOHIDDeviceRef 
 -(kern_return_t)setTrackingSpeed:(double)trackingSpeed {
     io_service_t service = [self createIOHIDSystem];
 
-    NSDictionary *parameters = [self getIOHIDParamtersFromService:service];
+    NSDictionary *parameters = [self getIOHIDParametersFromService:service];
 
     NSMutableDictionary *newParameters = [parameters mutableCopy];
     newParameters[@"HIDMouseAcceleration"] = @(trackingSpeed * MOUSE_TRACKING_FACTOR);
@@ -210,7 +210,7 @@ static int mouse_names(lua_State* L) {
 ///  * A point table containing the absolute x and y co-ordinates of the mouse pointer
 ///
 /// Notes:
-///  * If no parameters are supplied, the current position will be returned. If a point table parameter is supplied, the mouse pointer poisition will be set and the new co-ordinates returned
+///  * If no parameters are supplied, the current position will be returned. If a point table parameter is supplied, the mouse pointer position will be set and the new co-ordinates returned
 static int mouse_absolutePosition(lua_State *L) {
     LuaSkin *skin = LS_API(LS_TTABLE|LS_TOPTIONAL, LS_TBREAK);
     HSmouse *mouseManager = [[HSmouse alloc] init];
@@ -229,7 +229,7 @@ static int mouse_absolutePosition(lua_State *L) {
 /// Gets/Sets the current system mouse tracking speed setting
 ///
 /// Parameters:
-///  * speed - An optional number containing the new tracking speed to set. If this is ommitted, the current setting is returned
+///  * speed - An optional number containing the new tracking speed to set. If this is omitted, the current setting is returned
 ///
 /// Returns:
 ///  * A number indicating the current tracking speed setting for mice
@@ -238,7 +238,7 @@ static int mouse_absolutePosition(lua_State *L) {
 ///  * This is represented in the System Preferences as the "Tracking speed" setting for mice
 ///  * Note that not all values will work, they should map to the steps defined in the System Preferences app, which are:
 ///    * 0.0, 0.125, 0.5, 0.6875, 0.875, 1.0, 1.5, 2.0, 2.5, 3.0
-///  * Note that changes to this value will not be noticed immedaitely by macOS
+///  * Note that changes to this value will not be noticed immediately by macOS
 static int mouse_mouseAcceleration(lua_State *L) {
     LuaSkin *skin = LS_API(LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK);
     HSmouse *mouseManager = [[HSmouse alloc] init];
@@ -256,7 +256,7 @@ static int mouse_mouseAcceleration(lua_State *L) {
 
 /// hs.mouse.scrollDirection() -> string
 /// Function
-/// Gets the system-wide direction of scolling
+/// Gets the system-wide direction of scrolling
 ///
 /// Parameters:
 ///  * None
@@ -271,12 +271,73 @@ static int mouse_scrollDirection(lua_State *L) {
     return 1;
 }
 
+/// hs.mouse.currentCursorType() -> string
+/// Function
+/// Gets the identifier of the current mouse cursor type.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A string.
+///
+/// Notes:
+///  * Possible values include: arrowCursor, contextualMenuCursor, closedHandCursor, crosshairCursor, disappearingItemCursor, dragCopyCursor, dragLinkCursor, IBeamCursor, operationNotAllowedCursor, pointingHandCursor, resizeDownCursor, resizeLeftCursor, resizeLeftRightCursor, resizeRightCursor, resizeUpCursor, resizeUpDownCursor, IBeamCursorForVerticalLayout or unknown if the cursor type cannot be determined.
+///  * This function can also return daVinciResolveHorizontalArrows, when hovering over mouse-draggable text-boxes in DaVinci Resolve. This is determined using the "hotspot" value of the cursor.
+static int mouse_currentCursorType(lua_State *L) {
+    LuaSkin *skin = LS_API(LS_TBREAK);
+    
+    NSString *value = @"unknown";
+    
+    NSCursor *currentCursor = [NSCursor currentSystemCursor];
+    
+    // Abort if the current cursor can't be detected:
+    if (currentCursor == nil) {
+        [skin pushNSObject:value];
+        return 1;
+    }
+    
+    NSImage *currentCursorImage = [currentCursor image];
+    NSData *currentCursorData = [currentCursorImage TIFFRepresentation];
+    
+    // NOTE: Whilst you can just compare [NSCursor currentCursor] values using ==, the same is not true for [NSCursor currentSystemCursor],
+    //       for some weird reason, hence why the only solution I could come up with was to compare the image data.
+    if ([currentCursorData isEqualToData:[[[NSCursor arrowCursor] image] TIFFRepresentation]]) { value = @"arrowCursor"; }
+    else if ([currentCursorData isEqualToData:[[[NSCursor contextualMenuCursor] image] TIFFRepresentation]]) { value = @"contextualMenuCursor"; }
+    else if ([currentCursorData isEqualToData:[[[NSCursor closedHandCursor] image] TIFFRepresentation]]) { value = @"closedHandCursor"; }
+    else if ([currentCursorData isEqualToData:[[[NSCursor crosshairCursor] image] TIFFRepresentation]]) { value = @"crosshairCursor"; }
+    else if ([currentCursorData isEqualToData:[[[NSCursor disappearingItemCursor] image] TIFFRepresentation]]) { value = @"disappearingItemCursor"; }
+    else if ([currentCursorData isEqualToData:[[[NSCursor dragCopyCursor] image] TIFFRepresentation]]) { value = @"dragCopyCursor"; }
+    else if ([currentCursorData isEqualToData:[[[NSCursor dragLinkCursor] image] TIFFRepresentation]]) { value = @"dragLinkCursor"; }
+    else if ([currentCursorData isEqualToData:[[[NSCursor IBeamCursor] image] TIFFRepresentation]]) { value = @"IBeamCursor"; }
+    else if ([currentCursorData isEqualToData:[[[NSCursor operationNotAllowedCursor] image] TIFFRepresentation]]) { value = @"operationNotAllowedCursor"; }
+    else if ([currentCursorData isEqualToData:[[[NSCursor pointingHandCursor] image] TIFFRepresentation]]) { value = @"pointingHandCursor"; }
+    else if ([currentCursorData isEqualToData:[[[NSCursor resizeDownCursor] image] TIFFRepresentation]]) { value = @"resizeDownCursor"; }
+    else if ([currentCursorData isEqualToData:[[[NSCursor resizeLeftCursor] image] TIFFRepresentation]]) { value = @"resizeLeftCursor"; }
+    else if ([currentCursorData isEqualToData:[[[NSCursor resizeLeftRightCursor] image] TIFFRepresentation]]) { value = @"resizeLeftRightCursor"; }
+    else if ([currentCursorData isEqualToData:[[[NSCursor resizeRightCursor] image] TIFFRepresentation]]) { value = @"resizeRightCursor"; }
+    else if ([currentCursorData isEqualToData:[[[NSCursor resizeUpCursor] image] TIFFRepresentation]]) { value = @"resizeUpCursor"; }
+    else if ([currentCursorData isEqualToData:[[[NSCursor resizeUpDownCursor] image] TIFFRepresentation]]) { value = @"resizeUpDownCursor"; }
+    else if ([currentCursorData isEqualToData:[[[NSCursor IBeamCursorForVerticalLayout] image] TIFFRepresentation]]) { value = @"IBeamCursorForVerticalLayout"; }
+    else {
+        // This is a very non-eloquent solution for detecting custom cursors:
+        NSPoint hotSpot = [currentCursor hotSpot];
+        if (hotSpot.x == 11 && hotSpot.y == 6) {
+            value = @"daVinciResolveHorizontalArrows";
+        }
+    }
+    
+    [skin pushNSObject:value];
+    return 1;
+}
+
 //Note to future authors, there is no function to use kIOHIDTrackpadAccelerationType because it doesn't appear to do anything on modern systems.
 
 static const luaL_Reg mouseLib[] = {
     {"absolutePosition", mouse_absolutePosition},
     {"trackingSpeed", mouse_mouseAcceleration},
     {"scrollDirection", mouse_scrollDirection},
+    {"currentCursorType", mouse_currentCursorType},
     {"count", mouse_count},
     {"names", mouse_names},
     {NULL, NULL}

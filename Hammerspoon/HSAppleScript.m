@@ -34,7 +34,7 @@ NSString* HSAppleScriptRunString(executeLua *self, NSString* command) {
 
     lua_pushstring(L, [command UTF8String]);
     if ([skin protectedCallAndTraceback:1 nresults:2] == NO) {
-        NSString *errMsg = [NSString stringWithFormat:@"hs.__apleScriptRunString callback error:%s", lua_tostring(L, -1)] ;
+        NSString *errMsg = [NSString stringWithFormat:@"hs.__appleScriptRunString callback error:%s", lua_tostring(L, -1)] ;
         [skin logError:errMsg];
         [self setScriptErrorNumber:-50];
         [self setScriptErrorString:errMsg];
@@ -45,7 +45,7 @@ NSString* HSAppleScriptRunString(executeLua *self, NSString* command) {
 
     NSString *str = [skin toNSObjectAtIndex:-1] ; // modern LuaSkin forces a string to be UTF8 clean if we don't give it options
     BOOL     good = lua_toboolean(L, -2) ;
-    lua_pop(L, 3) ; // "hs" and two results from hs.__apleScriptRunString: boolean, string
+    lua_pop(L, 3) ; // "hs" and two results from hs.__appleScriptRunString: boolean, string
     if (good) {
         _lua_stackguard_exit(L);
         return str;

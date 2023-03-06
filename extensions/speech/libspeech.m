@@ -19,7 +19,7 @@ static LSRefTable refTable = LUA_NOREF;
 
 #pragma mark - Support Functions
 
-// Lua treats strings (and therefore indexs within strings) as a sequence of bytes.  Objective-C's
+// Lua treats strings (and therefore indexes within strings) as a sequence of bytes.  Objective-C's
 // NSString and NSAttributedString treat them as a sequence of characters.  This works fine until
 // Unicode characters are involved.
 //
@@ -845,7 +845,7 @@ static int phoneticSymbols(lua_State *L) {
     return 1 ;
 }
 
-/// hs.speech:pitch([pitch]) -> synthsizerObject | pitch | nil
+/// hs.speech:pitch([pitch]) -> synthesizerObject | pitch | nil
 /// Method
 /// Gets or sets the base pitch for the synthesizer's voice.
 ///
@@ -887,7 +887,7 @@ static int pitchBase(lua_State *L) {
     return 1;
 }
 
-/// hs.speech:modulation([modulation]) -> synthsizerObject | modulation | nil
+/// hs.speech:modulation([modulation]) -> synthesizerObject | modulation | nil
 /// Method
 /// Gets or sets the pitch modulation for the synthesizer's voice.
 ///
@@ -929,7 +929,7 @@ static int pitchMod(lua_State *L) {
     return 1;
 }
 
-/// hs.speech:reset() -> synthsizerObject | nil
+/// hs.speech:reset() -> synthesizerObject | nil
 /// Method
 /// Reset a synthesizer back to its default state.
 ///

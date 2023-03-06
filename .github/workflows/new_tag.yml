@@ -17,13 +17,13 @@ jobs:
           fetch-depth: 0
       - name: Get current tag name
         id: current_tag
-        run: echo "::set-output name=TAGNAME::$(git describe --abbrev=0)"
+        run: echo "TAGNAME=$(git describe --abbrev=0)" >> $GITHUB_OUTPUT
       - name: Get previous tag name
         id: previous_tag
-        run: echo "::set-output name=TAGNAME::$(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1))"
+        run: echo "TAGNAME=$(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1))" >> $GITHUB_OUTPUT
       - name: Get date
         id: date
-        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+        run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
       - name: Generate
         id: generate
         uses: mikepenz/release-changelog-builder-action@main
@@ -62,11 +62,11 @@ jobs:
 
       - name: Get current tag name
         id: current_tag
-        run: echo "::set-output name=TAGNAME::$(git describe --tags --abbrev=0)"
+        run: echo "TAGNAME=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
 
       - name: Get previous tag name
         id: previous_tag
-        run: echo "::set-output name=TAGNAME::$(git describe --abbrev=0 HEAD^)"
+        run: echo "TAGNAME=$(git describe --abbrev=0 HEAD^)" >> $GITHUB_OUTPUT
 
       - name: Get next version
         id: next_tag

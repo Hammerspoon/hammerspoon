@@ -30,6 +30,8 @@
 @property(nonatomic, retain) NSString *fontName;
 @property(nonatomic) CGFloat fontSize;
 @property(nonatomic) BOOL searchSubText;
+@property(nonatomic) BOOL enableDefaultForQuery;
+
 @property(nonatomic) NSColor *fgColor;
 @property(nonatomic) NSColor *subTextColor;
 
@@ -85,7 +87,7 @@
 - (void)tableView:(NSTableView *)tableView didClickedRow:(NSInteger)row;
 - (void)didRightClickAtRow:(NSInteger)row;
 
-// NSTextFieldDelgate
+// NSTextFieldDelegate
 
 // Actions
 - (IBAction)queryDidPressEnter:(id)sender;

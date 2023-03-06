@@ -23,6 +23,7 @@ static id responseBodyToId(NSHTTPURLResponse *httpResponse, NSData *bodyData) {
 // Definition of the collection delegate to receive callbacks from NSUrlConnection
 @interface connectionDelegate : NSObject<NSURLConnectionDelegate>
 @property int fn;
+@property bool enableRedirect;
 @property(nonatomic, retain) NSMutableData* receivedData;
 @property(nonatomic, retain) NSHTTPURLResponse* httpResponse;
 @property(nonatomic, retain) NSURLConnection* connection;
@@ -74,7 +75,7 @@ static void remove_delegate(lua_State* L, connectionDelegate* delegate) {
     lua_pushinteger(L, (int)self.httpResponse.statusCode);
     [skin pushNSObject:responseBodyToId(self.httpResponse, self.receivedData)];
     [skin pushNSObject:self.httpResponse.allHeaderFields];
-    [skin protectedCallAndError:@"hs.http connectionDelefate:didFinishLoading" nargs:3 nresults:0];
+    [skin protectedCallAndError:@"hs.http connectionDelegate:didFinishLoading" nargs:3 nresults:0];
 
     remove_delegate(L, self);
     _lua_stackguard_exit(L);
@@ -94,6 +95,37 @@ static void remove_delegate(lua_State* L, connectionDelegate* delegate) {
     [skin protectedCallAndError:@"hs.http connectionDelegate:didFailWithError" nargs:2 nresults:0];
     remove_delegate(skin.L, self);
     _lua_stackguard_exit(skin.L);
+}
+
+- (NSURLRequest *)connection:(NSURLConnection *)connection
+             willSendRequest:(NSURLRequest *)request
+            redirectResponse:(NSURLResponse *)response {
+
+    if (self.fn == LUA_NOREF) {
+        return nil;
+    }
+
+    if ([response isKindOfClass:[NSHTTPURLResponse class]] && self.enableRedirect == false) {
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*)response;
+
+        LuaSkin *skin = [LuaSkin sharedWithState:NULL];
+        lua_State *L = skin.L;
+        _lua_stackguard_entry(L);
+
+        [skin pushLuaRef:refTable ref:self.fn];
+        lua_pushinteger(L, (int)httpResponse.statusCode);
+        [skin pushNSObject:responseBodyToId(self.httpResponse, self.receivedData)];
+        [skin pushNSObject:httpResponse.allHeaderFields];
+        [skin protectedCallAndError:@"hs.http connectionDelegate:didFinishLoading during redirection" nargs:3 nresults:0];
+
+        remove_delegate(L, self);
+        _lua_stackguard_exit(L);
+
+        [connection cancel];
+        return nil;
+    }
+
+    return request;
 }
 
 @end
@@ -166,7 +198,7 @@ static void extractHeadersFromStack(lua_State* L, int index, NSMutableURLRequest
     }
 }
 
-/// hs.http.doAsyncRequest(url, method, data, headers, callback, [cachePolicy])
+/// hs.http.doAsyncRequest(url, method, data, headers, callback, [cachePolicy|enableRedirect])
 /// Function
 /// Creates an HTTP request and executes it asynchronously
 ///
@@ -180,6 +212,7 @@ static void extractHeadersFromStack(lua_State* L, int index, NSMutableURLRequest
 ///   * body - A string containing the body of the response
 ///   * headers - A table containing the HTTP headers of the response
 ///  * cachePolicy - An optional string containing the cache policy ("protocolCachePolicy", "ignoreLocalCache", "ignoreLocalAndRemoteCache", "returnCacheOrLoad", "returnCacheDontLoad" or "reloadRevalidatingCache"). Defaults to `protocolCachePolicy`.
+///  * enableRedirect - An optional boolean to indicate whether to redirect the http request. Defaults to true.
 ///
 /// Returns:
 ///  * None
@@ -187,13 +220,20 @@ static void extractHeadersFromStack(lua_State* L, int index, NSMutableURLRequest
 /// Notes:
 ///  * If authentication is required in order to download the request, the required credentials must be specified as part of the URL (e.g. "http://user:password@host.com/"). If authentication fails, or credentials are missing, the connection will attempt to continue without credentials.
 ///  * If the Content-Type response header begins `text/` then the response body return value is a UTF8 string. Any other content type passes the response body, unaltered, as a stream of bytes.
+///  * If enableRedirect is set to true, response body will be empty string. Http body will be dropped even though response has the body. This seems the limitation of 'connection:willSendRequest:redirectResponse' method.
 static int http_doAsyncRequest(lua_State* L){
     LuaSkin *skin = [LuaSkin sharedWithState:L];
-    [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TSTRING|LS_TNIL, LS_TTABLE|LS_TNIL, LS_TFUNCTION, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
+    [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TSTRING|LS_TNIL, LS_TTABLE|LS_TNIL, LS_TFUNCTION, LS_TSTRING | LS_TBOOLEAN | LS_TOPTIONAL, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
 
     NSString* cachePolicy = nil;
+    bool enableRedirect = true;
     if (lua_type(L, 6) == LUA_TSTRING) {
         cachePolicy = [skin toNSObjectAtIndex:6];
+    } else if (lua_type(L, 6) == LUA_TBOOLEAN) {
+        enableRedirect = lua_toboolean(L, 6);
+    }
+    if (lua_type(L, 7) == LUA_TBOOLEAN) {
+        enableRedirect = lua_toboolean(L, 7);
     }
 
     NSMutableURLRequest* request = getRequestFromStack(L, cachePolicy);
@@ -204,6 +244,8 @@ static int http_doAsyncRequest(lua_State* L){
     lua_pushvalue(L, 5);
 
     connectionDelegate* delegate = [[connectionDelegate alloc] init];
+    delegate.enableRedirect = enableRedirect;
+
     delegate.receivedData = [[NSMutableData alloc] init];
     delegate.fn = [skin luaRef:refTable];
 
@@ -357,7 +399,7 @@ static int http_encodeForQuery(lua_State *L) {
 ///    * a missing key (e.g. '=value') will be represented as { "" = value }
 ///    * a missing value (e.g. 'key=') will be represented as { key = "" }
 ///    * a missing value with no = (e.g. 'key') will be represented as { key }
-///    * a missing key and value (e.g. '=') will be represente as { "" = "" }
+///    * a missing key and value (e.g. '=') will be represented as { "" = "" }
 ///    * an empty query item (e.g. a query ending in '&' or a query containing && between two other query items) will be represented as { "" }
 ///
 ///  * At present Hammerspoon does not provide a way to represent a URL as a true Objective-C object within the OS X API.  This affects the following keys:

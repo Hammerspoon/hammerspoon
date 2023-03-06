@@ -352,7 +352,7 @@ module.hammerspoon =  {
 -- NOTE: Make this last to ensure it doesn't cause collisions with other collections or functions
 for k,v in pairs(module.hammerspoon) do
     if module[k] then
-        print("++ hs.drawing.color."..tostring(k).." already exists -- skiping deprecated color path duplication for this color")
+        print("++ hs.drawing.color."..tostring(k).." already exists -- skipping deprecated color path duplication for this color")
     else
         module[k] = v
     end

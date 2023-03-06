@@ -231,7 +231,7 @@ __sunriset__( year, month, day, lon, lat, -35.0/60.0, 1, rise, set )
 /*        *rise = where to store the rise time                        */
 /*        *set  = where to store the set  time                        */
 /*                Both times are relative to the specified altitude,  */
-/*                and thus this function can be used to comupte       */
+/*                and thus this function can be used to compute       */
 /*                various twilight times, as well as rise/set times   */
 /* Return value:  0 = sun rises/sets this day, times stored at        */
 /*                    *trise and *tset.                               */
@@ -256,7 +256,7 @@ __sunriset__( year, month, day, lon, lat, -35.0/60.0, 1, rise, set )
     tsouth,     /* Time when Sun is at south */
     sidtime;    /* Local sidereal time */
     
-    int rc = 0; /* Return cde from function - usually 0 */
+    int rc = 0; /* Return code from function - usually 0 */
     
     /* Compute d of 12h local mean solar time */
     d = days_since_2000_Jan_0(year,month,day) + 0.5 - lon/360.0;
@@ -281,7 +281,7 @@ __sunriset__( year, month, day, lon, lat, -35.0/60.0, 1, rise, set )
         altit -= sradius;
     
     /* Compute the diurnal arc that the Sun traverses to reach */
-    /* the specified altitide altit: */
+    /* the specified altitude altit: */
     {
         double cost;
         cost = ( sind(altit) - sind(lat) * sind(sdec) ) /

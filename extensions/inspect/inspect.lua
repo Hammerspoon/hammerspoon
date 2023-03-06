@@ -38,7 +38,7 @@ local inspect ={
 inspect.KEY       = setmetatable({}, {__tostring = function() return 'inspect.KEY' end})
 inspect.METATABLE = setmetatable({}, {__tostring = function() return 'inspect.METATABLE' end})
 
--- Apostrophizes the string if it has quotes, but not aphostrophes
+-- Apostrophizes the string if it has quotes, but not apostrophes
 -- Otherwise, it returns a regular quoted string
 local function smartQuote(str)
   if str:match('"') and not str:match("'") then

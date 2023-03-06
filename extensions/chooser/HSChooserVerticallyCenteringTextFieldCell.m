@@ -35,7 +35,7 @@
     NSRect textRect = [attrString boundingRectWithSize: titleFrame.size
                                                options: NSStringDrawingTruncatesLastVisibleLine | NSStringDrawingUsesLineFragmentOrigin ];
 
-    /* If the height of the rendered text is less then the available height,
+    /* If the height of the rendered text is less than the available height,
      * we modify the titleRect to center the text vertically */
     if (textRect.size.height < titleFrame.size.height) {
         titleFrame.origin.y = theRect.origin.y + (theRect.size.height - textRect.size.height) / 2.0;

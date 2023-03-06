@@ -117,7 +117,7 @@ end
 ---  * Setting this property while a query is running stops the query and discards the current results. The receiver immediately starts a new query.
 ---  * Setting this property will increase CPU and memory usage while performing the Spotlight query.
 ---
----  * Thie method allows you to access results grouped by the values of specific attributes.  See `hs.spotlight.group` for more information on using and accessing grouped results.
+---  * This method allows you to access results grouped by the values of specific attributes.  See `hs.spotlight.group` for more information on using and accessing grouped results.
 ---  * Note that not all attributes can be used as a grouping attribute.  In such cases, the grouped result will contain all results and an attribute value of nil.
 local groupingAttributes = objectMT.groupingAttributes
 objectMT.groupingAttributes = function(self, ...)

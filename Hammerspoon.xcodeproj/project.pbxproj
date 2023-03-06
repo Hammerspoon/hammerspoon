@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		220B882A27F8F954006C0B2B /* test_image.lua in Resources */ = {isa = PBXBuildFile; fileRef = 220B882927F8F954006C0B2B /* test_image.lua */; };
 		220B882C27F8F9A3006C0B2B /* HSimage.m in Sources */ = {isa = PBXBuildFile; fileRef = 220B882B27F8F9A3006C0B2B /* HSimage.m */; };
+		220E0B1A29B07EFA003B0BBD /* HSStreamDeckDevicePedal.h in Headers */ = {isa = PBXBuildFile; fileRef = 220E0B1829B07EFA003B0BBD /* HSStreamDeckDevicePedal.h */; };
+		220E0B1B29B07EFA003B0BBD /* HSStreamDeckDevicePedal.m in Sources */ = {isa = PBXBuildFile; fileRef = 220E0B1929B07EFA003B0BBD /* HSStreamDeckDevicePedal.m */; };
 		224BA32A23D1ECA900487FDB /* libwebsocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 224BA32523D1E63A00487FDB /* libwebsocket.m */; };
 		22613FF51F2A127E00E05E11 /* libdialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 22613FE41F297B9B00E05E11 /* libdialog.m */; };
 		22652B39251C38AC000FF14D /* TouchEvents.c in Sources */ = {isa = PBXBuildFile; fileRef = 22652B37251C38AB000FF14D /* TouchEvents.c */; };
@@ -31,6 +33,8 @@
 		22C9154E27A1095200E650A2 /* librazer.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 22C9154327A108F000E650A2 /* librazer.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		22C9154F27A1097A00E650A2 /* razer.lua in Resources */ = {isa = PBXBuildFile; fileRef = 2213842A27A105DD0085CA24 /* razer.lua */; };
 		22C9155027A1099700E650A2 /* razer.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 2213842A27A105DD0085CA24 /* razer.lua */; };
+		22DC4FA8299E140100065BE1 /* HSStreamDeckDevicePlus.m in Sources */ = {isa = PBXBuildFile; fileRef = 22DC4FA6299E140100065BE1 /* HSStreamDeckDevicePlus.m */; };
+		22DC4FA9299E140100065BE1 /* HSStreamDeckDevicePlus.h in Headers */ = {isa = PBXBuildFile; fileRef = 22DC4FA7299E140100065BE1 /* HSStreamDeckDevicePlus.h */; };
 		22DF5D2823B9A9EA00C41AE6 /* libpasteboard_watcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 22DF5D1A23B99C4D00C41AE6 /* libpasteboard_watcher.m */; };
 		22E4D8031FA748AC00C8CF5C /* libmidi.m in Sources */ = {isa = PBXBuildFile; fileRef = 22E4D7F71FA7485A00C8CF5C /* libmidi.m */; };
 		22EEC62424926E6E00BAE4DA /* libserial.m in Sources */ = {isa = PBXBuildFile; fileRef = 22EEC61724926E2100BAE4DA /* libserial.m */; };
@@ -554,6 +558,9 @@
 		949CDC001990759B00906CCE /* ConsoleWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 949CDBFF1990759B00906CCE /* ConsoleWindow.xib */; };
 		94A1E5481993AC5C003AEB26 /* MJFileUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A1E5471993AC5C003AEB26 /* MJFileUtils.m */; };
 		B8524F32201A896000844F3D /* libhid.m in Sources */ = {isa = PBXBuildFile; fileRef = B8524F25201A875600844F3D /* libhid.m */; };
+		CE139CB028B24B6500743C90 /* HShttp.m in Sources */ = {isa = PBXBuildFile; fileRef = CE139CAF28B24B6500743C90 /* HShttp.m */; };
+		CE139CB128B24DAC00743C90 /* http.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4F4CB4421B73AFD2000EA9B6 /* http.lua */; };
+		CE139CB328B2539500743C90 /* test_http.lua in Resources */ = {isa = PBXBuildFile; fileRef = CE139CB228B2539500743C90 /* test_http.lua */; };
 		D02F95291A00221C00E28BB2 /* HSrequire_all.m in Sources */ = {isa = PBXBuildFile; fileRef = D02F95281A00221C00E28BB2 /* HSrequire_all.m */; };
 		D077B5BF1A001B5300369B30 /* variables.m in Sources */ = {isa = PBXBuildFile; fileRef = D077B5BE1A001B5300369B30 /* variables.m */; };
 		D61F4A341DCFA6DB00AEE223 /* libsharing.m in Sources */ = {isa = PBXBuildFile; fileRef = D61F4A311DCFA6C600AEE223 /* libsharing.m */; };
@@ -1569,6 +1576,8 @@
 /* Begin PBXFileReference section */
 		220B882927F8F954006C0B2B /* test_image.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_image.lua; path = extensions/image/test_image.lua; sourceTree = "<group>"; };
 		220B882B27F8F9A3006C0B2B /* HSimage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSimage.m; sourceTree = "<group>"; };
+		220E0B1829B07EFA003B0BBD /* HSStreamDeckDevicePedal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSStreamDeckDevicePedal.h; path = extensions/streamdeck/HSStreamDeckDevicePedal.h; sourceTree = "<group>"; };
+		220E0B1929B07EFA003B0BBD /* HSStreamDeckDevicePedal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSStreamDeckDevicePedal.m; path = extensions/streamdeck/HSStreamDeckDevicePedal.m; sourceTree = "<group>"; };
 		2213842A27A105DD0085CA24 /* razer.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = razer.lua; path = extensions/razer/razer.lua; sourceTree = "<group>"; };
 		2213842B27A105DD0085CA24 /* librazer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = librazer.m; path = extensions/razer/librazer.m; sourceTree = "<group>"; };
 		2213842C27A105DD0085CA24 /* HSRazerTartarusV2Device.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSRazerTartarusV2Device.m; path = extensions/razer/HSRazerTartarusV2Device.m; sourceTree = "<group>"; };
@@ -1593,6 +1602,8 @@
 		22A6625F25FC07F700AA329E /* test_serial.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_serial.lua; path = extensions/serial/test_serial.lua; sourceTree = "<group>"; };
 		22A6626125FC087000AA329E /* HSserial.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSserial.m; sourceTree = "<group>"; };
 		22C9154327A108F000E650A2 /* librazer.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = librazer.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		22DC4FA6299E140100065BE1 /* HSStreamDeckDevicePlus.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSStreamDeckDevicePlus.m; path = extensions/streamdeck/HSStreamDeckDevicePlus.m; sourceTree = "<group>"; };
+		22DC4FA7299E140100065BE1 /* HSStreamDeckDevicePlus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSStreamDeckDevicePlus.h; path = extensions/streamdeck/HSStreamDeckDevicePlus.h; sourceTree = "<group>"; };
 		22DF5D1A23B99C4D00C41AE6 /* libpasteboard_watcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libpasteboard_watcher.m; path = extensions/pasteboard/libpasteboard_watcher.m; sourceTree = "<group>"; };
 		22DF5D2723B9A9D300C41AE6 /* libpasteboardwatcher.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libpasteboardwatcher.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		22E4D7F71FA7485A00C8CF5C /* libmidi.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = libmidi.m; path = extensions/midi/libmidi.m; sourceTree = SOURCE_ROOT; };
@@ -2005,6 +2016,8 @@
 		B8524F24201A875600844F3D /* hid.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = hid.lua; path = extensions/hid/hid.lua; sourceTree = "<group>"; };
 		B8524F25201A875600844F3D /* libhid.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libhid.m; path = extensions/hid/libhid.m; sourceTree = "<group>"; };
 		B8524F31201A88CD00844F3D /* libhid.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libhid.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		CE139CAF28B24B6500743C90 /* HShttp.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HShttp.m; sourceTree = "<group>"; };
+		CE139CB228B2539500743C90 /* test_http.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_http.lua; path = extensions/http/test_http.lua; sourceTree = "<group>"; };
 		D02F95241A00221C00E28BB2 /* Hammerspoon Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Hammerspoon Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D02F95271A00221C00E28BB2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D02F95281A00221C00E28BB2 /* HSrequire_all.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HSrequire_all.m; sourceTree = "<group>"; };
@@ -3017,6 +3030,8 @@
 				4F2DF3DE1F6046AD00742D08 /* libstreamdeck.m */,
 				4F2DF3F21F605A9B00742D08 /* HSStreamDeckDevice.h */,
 				4F2DF3F31F605A9B00742D08 /* HSStreamDeckDevice.m */,
+				22DC4FA7299E140100065BE1 /* HSStreamDeckDevicePlus.h */,
+				22DC4FA6299E140100065BE1 /* HSStreamDeckDevicePlus.m */,
 				4F6653E8238C6B6600DEE120 /* HSStreamDeckDeviceMini.h */,
 				4F6653E9238C6B6600DEE120 /* HSStreamDeckDeviceMini.m */,
 				4F6653E4238C36F100DEE120 /* HSStreamDeckDeviceOriginal.h */,
@@ -3027,6 +3042,8 @@
 				4FFB20FB23C5E01300811E77 /* HSStreamDeckDeviceXL.m */,
 				4F55609F279F6A0300B91FD8 /* HSStreamDeckDeviceMk2.h */,
 				4F5560A0279F6A0300B91FD8 /* HSStreamDeckDeviceMk2.m */,
+				220E0B1829B07EFA003B0BBD /* HSStreamDeckDevicePedal.h */,
+				220E0B1929B07EFA003B0BBD /* HSStreamDeckDevicePedal.m */,
 				4F2DF3EE1F605A4900742D08 /* HSStreamDeckManager.h */,
 				4F2DF3EF1F605A4900742D08 /* HSStreamDeckManager.m */,
 				4F2DF3F61F6170BE00742D08 /* NSImage+BMP.h */,
@@ -3150,6 +3167,7 @@
 		4F4CB4411B73AFC1000EA9B6 /* http */ = {
 			isa = PBXGroup;
 			children = (
+				CE139CB228B2539500743C90 /* test_http.lua */,
 				4F4CB4421B73AFD2000EA9B6 /* http.lua */,
 				4F4CB4431B73AFD2000EA9B6 /* libhttp.m */,
 			);
@@ -4199,6 +4217,7 @@
 				4FDD8E7B1C85A05700085D7A /* lsunit.lua */,
 				D02F95261A00221C00E28BB2 /* Supporting Files */,
 				4FDD8E7D1C85A06800085D7A /* testinit.lua */,
+				CE139CAF28B24B6500743C90 /* HShttp.m */,
 			);
 			path = "Hammerspoon Tests";
 			sourceTree = "<group>";
@@ -4439,11 +4458,13 @@
 				4F6653F62390351100DEE120 /* NSImage+JPEG.h in Headers */,
 				4F6653E6238C36F100DEE120 /* HSStreamDeckDeviceOriginal.h in Headers */,
 				4F5560A1279F6A0300B91FD8 /* HSStreamDeckDeviceMk2.h in Headers */,
+				22DC4FA9299E140100065BE1 /* HSStreamDeckDevicePlus.h in Headers */,
 				4F2DF3F81F6170BE00742D08 /* NSImage+BMP.h in Headers */,
 				4F2DF3F01F605A4900742D08 /* HSStreamDeckManager.h in Headers */,
 				4FFB210023CD14A500811E77 /* HSStreamDeckDeviceOriginalV2.h in Headers */,
 				4F6653F2238C7BC600DEE120 /* NSImage+Flipped.h in Headers */,
 				4FFB20FC23C5E01300811E77 /* HSStreamDeckDeviceXL.h in Headers */,
+				220E0B1A29B07EFA003B0BBD /* HSStreamDeckDevicePedal.h in Headers */,
 				4F6653EA238C6B6600DEE120 /* HSStreamDeckDeviceMini.h in Headers */,
 				4F6653EE238C7A1200DEE120 /* NSImage+Rotated.h in Headers */,
 			);
@@ -6805,7 +6826,7 @@
 			isa = PBXProject;
 			attributes = {
 				CLASSPREFIX = HS;
-				LastUpgradeCheck = 1320;
+				LastUpgradeCheck = 1420;
 				ORGANIZATIONNAME = Hammerspoon;
 				TargetAttributes = {
 					4F20B5281C1F1C5B00F52437 = {
@@ -6976,6 +6997,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CE139CB128B24DAC00743C90 /* http.lua in Resources */,
 				4F7BB9D426447C390077A926 /* test_hotkey.lua in Resources */,
 				2273893624860C0E003EBC68 /* test_websocket.lua in Resources */,
 				4FCBAFD923B1152F007BA1D0 /* test_math.lua in Resources */,
@@ -6998,6 +7020,7 @@
 				4FDD8E7C1C85A05700085D7A /* lsunit.lua in Resources */,
 				4FDD8E7E1C85A06800085D7A /* testinit.lua in Resources */,
 				4FDD8E8B1C8C8BD200085D7A /* test_coresetup.lua in Resources */,
+				CE139CB328B2539500743C90 /* test_http.lua in Resources */,
 				4FEE39DB1F0A69D600935F90 /* test_crash.lua in Resources */,
 				4CB349F31C7F74EE006F0DE0 /* test_applescript.lua in Resources */,
 				4FB74B3C2049AB8B00B08851 /* test_task.lua in Resources */,
@@ -7015,6 +7038,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		4F251E7F1A49D5BE00AB6103 /* Prepare secret header file */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -7048,6 +7072,7 @@
 		};
 		4FC09F7A19F99E48007542A6 /* Compile docs.json */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -7211,9 +7236,11 @@
 			files = (
 				4F6653F72390351100DEE120 /* NSImage+JPEG.m in Sources */,
 				4F6653EF238C7A1200DEE120 /* NSImage+Rotated.m in Sources */,
+				220E0B1B29B07EFA003B0BBD /* HSStreamDeckDevicePedal.m in Sources */,
 				4F2DF3EB1F60471400742D08 /* libstreamdeck.m in Sources */,
 				4FFB210123CD14A500811E77 /* HSStreamDeckDeviceOriginalV2.m in Sources */,
 				4FFB20FD23C5E01300811E77 /* HSStreamDeckDeviceXL.m in Sources */,
+				22DC4FA8299E140100065BE1 /* HSStreamDeckDevicePlus.m in Sources */,
 				4F2DF3F51F605A9B00742D08 /* HSStreamDeckDevice.m in Sources */,
 				4F5560A2279F6A0300B91FD8 /* HSStreamDeckDeviceMk2.m in Sources */,
 				4F6653EB238C6B6600DEE120 /* HSStreamDeckDeviceMini.m in Sources */,
@@ -7739,6 +7766,7 @@
 			files = (
 				4FFF9FB525D89B3B00D2997C /* HSmouse.m in Sources */,
 				4FDD8E8F1C8DED1C00085D7A /* HSappfinder.m in Sources */,
+				CE139CB028B24B6500743C90 /* HShttp.m in Sources */,
 				6AE181321D39C8F10097211C /* HSnoises.m in Sources */,
 				4FCC52CE1E1527EF007F93D0 /* HSbrightness.m in Sources */,
 				22A6626225FC087000AA329E /* HSserial.m in Sources */,
@@ -8699,7 +8727,6 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -10497,7 +10524,6 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -10528,7 +10554,6 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";

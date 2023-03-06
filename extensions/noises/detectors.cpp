@@ -38,7 +38,7 @@ Detectors::Detectors() {
 
   // === Tss Detection
   m_sensitivity = 5.0;
-  m_hysterisisFactor = 0.4;
+  m_hysteresisFactor = 0.4;
   m_minFrames = 20;
   m_minFramesLong = 100;
   m_lowPassWeight = kDefaultLowPassWeight;
@@ -132,7 +132,7 @@ int Detectors::processChunk(const float *buffer) {
     m_lowPassBuffer[i] = m_lowPassBuffer[i]*(1.0f-m_lowPassWeight) + newVal*m_lowPassWeight;
 
     // infinite values happen non-deterministically, probably due to glitchy audio input at start of recording
-    // but inifinities it could mess up things forever
+    // but infinities it could mess up things forever
     if(m_lowPassBuffer[i] >= numeric_limits<float>::infinity()) {
       std::fill(m_lowPassBuffer.begin(), m_lowPassBuffer.end(), 0.0f);
       return 0; // discard the frame, it's probably garbage
@@ -159,8 +159,8 @@ int Detectors::processChunk(const float *buffer) {
   int immediateMatchFrame = kDelayMatch ? m_minFramesLong : m_minFrames;
   m_framesSinceMatch += 1;
   if(((matchiness >= m_sensitivity) ||
-      (m_consecutiveMatches > 0 && matchiness >= m_sensitivity*m_hysterisisFactor) ||
-      (m_consecutiveMatches > immediateMatchFrame && (mainBand/m_savedOtherBands) >= m_sensitivity*m_hysterisisFactor*0.5f))
+      (m_consecutiveMatches > 0 && matchiness >= m_sensitivity*m_hysteresisFactor) ||
+      (m_consecutiveMatches > immediateMatchFrame && (mainBand/m_savedOtherBands) >= m_sensitivity*m_hysteresisFactor*0.5f))
      && outOfShadow) {
     debugMarker = 0.01;
     // second one in double "tss" came earlier than trigger timer

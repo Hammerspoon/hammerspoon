@@ -10,7 +10,7 @@
       2. `my.modulename:foo(bar) -> string`
       3. `my.modulename.foo(bar, fn(int) -> int)`
       4. `my.modulename.foo = {}`
-   3. The second line is a single captitalized word, like "Variable" or "Function" or "Method" or "Constant" or "Field"
+   3. The second line is a single capitalized word, like "Variable" or "Function" or "Method" or "Constant" or "Field"
    4. The remaining lines describe the item
 5. Any comment that starts with 4 comment-characters is ignored
 7. Only files ending in `.lua` or `.m` are scanned

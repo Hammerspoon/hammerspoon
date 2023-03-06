@@ -245,7 +245,7 @@ pingObjectMT = {
 --- 5 packets transmitted, 5 packets received, 0.0 packet loss
 --- round-trip min/avg/max = 2.282/4.133/4.926 ms
 --- ~~~
----  * The numer of packets received will match the number that has currently been sent, not necessarily the value returned by [hs.network.ping:count](#count).
+---  * The number of packets received will match the number that has currently been sent, not necessarily the value returned by [hs.network.ping:count](#count).
     summary = basicPingSummary,
 
 --- hs.network.ping:cancel() -> none
@@ -264,7 +264,7 @@ pingObjectMT = {
 
 --- hs.network.ping:setCallback(fn) -> pingObject
 --- Method
---- Set or remoce the callback function for the pingObject.
+--- Set or remove the callback function for the pingObject.
 ---
 --- Parameters:
 ---  * `fn` - the function to set as the callback, or nil if you wish use the default callback.
@@ -286,7 +286,7 @@ pingObjectMT = {
             elseif type(fn) == "nil" then
                 internals[self].callback = module._defaultCallback
             else
-                error("expeected a function or nil, found " .. type(fn), 2)
+                error("expected a function or nil, found " .. type(fn), 2)
             end
         else
             error("expected 1 argument, found " .. tostring(args.n), 2)

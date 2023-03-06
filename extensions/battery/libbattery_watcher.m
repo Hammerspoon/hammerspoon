@@ -1,7 +1,6 @@
-#import <Cocoa/Cocoa.h>
-#import <LuaSkin/LuaSkin.h>
-#import <IOKit/ps/IOPowerSources.h>
-#import <IOKit/ps/IOPSKeys.h>
+@import Cocoa ;
+@import LuaSkin ;
+@import IOKit.ps ;
 
 /// === hs.battery.watcher ===
 ///

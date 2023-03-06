@@ -402,7 +402,7 @@ static int service_TXTRecordData(lua_State *L) {
 /// Get or set whether the service represented by the service object should be published or resolved over peer-to-peer Bluetooth and Wi-Fi, if available.
 ///
 /// Parameters:
-///  * `value` - an optional boolean, default false, specifying whether advertising and resoloving should occur over peer-to-peer Bluetooth and Wi-Fi, if available.
+///  * `value` - an optional boolean, default false, specifying whether advertising and resolving should occur over peer-to-peer Bluetooth and Wi-Fi, if available.
 ///
 /// Returns:
 ///  * if `value` is provided, returns the serviceObject; otherwise returns the current value.
@@ -434,7 +434,7 @@ static int service_includesPeerToPeer(lua_State *L) {
 /// Parameters:
 ///  * `allowRename` - an optional boolean, default true, specifying whether to automatically rename the service if the name and type combination is already being published in the service's domain. If renaming is allowed and a conflict occurs, the service name will have `-#` appended to it where `#` is an increasing integer starting at 2.
 ///  * `callback`    - an optional callback function which should expect 2 or 3 arguments and return none. The arguments to the callback function will be one of the following sets:
-///    * on successfull publishing:
+///    * on successful publishing:
 ///      * the serviceObject userdata
 ///      * the string "published"
 ///    * if an error occurs during publishing:
@@ -488,9 +488,9 @@ static int service_publish(lua_State *L) {
 /// Resolve the address and details for a discovered service.
 ///
 /// Parameters:
-///  * `timeout`  - an optional number, default 0.0, specifying the maximum number of seconds to attempt to resolve the details for this service. Specifying 0.0 means that the resolution should not timeout and that resolution should continue indefinately.
+///  * `timeout`  - an optional number, default 0.0, specifying the maximum number of seconds to attempt to resolve the details for this service. Specifying 0.0 means that the resolution should not timeout and that resolution should continue indefinitely.
 ///  * `callback` - an optional callback function which should expect 2 or 3 arguments and return none.
-///    * on successfull resolution:
+///    * on successful resolution:
 ///      * the serviceObject userdata
 ///      * the string "resolved"
 ///    * if an error occurs during resolution:

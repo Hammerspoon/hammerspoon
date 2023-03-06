@@ -398,7 +398,7 @@ static void geom_pushrect(lua_State* L, NSRect rect) {
 ///
 /// Parameters:
 ///  * inMenuBar - an optional parameter which defaults to true.  If it is true, the menubaritem is added to the system menubar, otherwise the menubaritem is hidden.
-///  * autosaveName - an optional parameter allowing you to define an autosave name, so that macOS can restore the menubar position beween restarts.
+///  * autosaveName - an optional parameter allowing you to define an autosave name, so that macOS can restore the menubar position between restarts.
 ///
 /// Returns:
 ///  * menubar item object to use with other API methods, or nil if it could not be created
@@ -753,7 +753,7 @@ static int menubarSetMenu(lua_State *L) {
     NSMenu *menu = nil;
     HSMenubarItemMenuDelegate *delegate = nil;
 
-    // We always need to start by erasing any pre-existing menu stuff
+    // We always need to start by erasing any preexisting menu stuff
     erase_all_menu_parts(L, statusItem);
 
     switch (lua_type(L, 2)) {
@@ -828,7 +828,7 @@ static int menubar_delete(lua_State *L) {
         [[NSUserDefaults standardUserDefaults] setObject:autosaveValue forKey:key];
     }
     
-    // Remove any click callbackery the menubar item has
+    // Remove any click callback the menubar item has
     lua_pushcfunction(L, menubarSetClickCallback);
     lua_pushvalue(L, 1);
     lua_pushnil(L);

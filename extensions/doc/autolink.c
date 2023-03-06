@@ -155,7 +155,7 @@ check_domain(uint8_t *data, size_t size, int allow_short)
 	if (allow_short) {
 		/* We don't need a valid domain in the strict sense (with
 		 * least one dot; so just make sure it's composed of valid
-		 * domain characters and return the length of the the valid
+		 * domain characters and return the length of the valid
 		 * sequence. */
 		return i;
 	} else {

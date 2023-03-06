@@ -7,4 +7,4 @@ Our maintainers are:
 
 Lots of additional extensions/work has been provided by [various contributors](https://github.com/Hammerspoon/hammerspoon/graphs/contributors)
 
-The Hammerspon icon was provided by Juerd Waalboer.
+The Hammerspoon icon was provided by Juerd Waalboer.

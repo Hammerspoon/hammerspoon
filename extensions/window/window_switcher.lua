@@ -58,7 +58,7 @@ end
 --- To have multiple switcher instances with different behaviour/looks, use the `uiPrefs` parameter for the constructor;
 --- the passed keys and values will override those in this table for that particular instance.
 ---
---- The default values are shown in the right hand side of the assignements below.
+--- The default values are shown in the right hand side of the assignments below.
 ---
 --- To represent color values, you can use:
 ---  * a table {red=redN, green=greenN, blue=blueN, alpha=alphaN}
@@ -229,7 +229,11 @@ local function exit(self)
 end
 
 local MODS_INTERVAL=0.01 -- recheck for (lack of) mod keys after this interval
-local function modsPressed() return checkMods(true)._raw>0 end
+local function modsPressed()
+  local mods = checkMods(true)._raw
+  return mods>0 and mods ~= 65536 -- caps lock
+end
+
 local function show(self,dir)
   local windows,drawings,ui=self.windows,self.drawings,self.ui
   if not windows then

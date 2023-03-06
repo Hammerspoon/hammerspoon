@@ -51,12 +51,12 @@
 -- The pure filtering part alone should fulfill a lot of use cases
 -- * The root and default filters should be quite handy for users; the user is able to customize both, but ideally
 --   there should be ongoing maintenance on the list by the core maintainers
--- * Maybe an additional filter could be added for window geometry (e.g. minimum width/heigth/area)
+-- * Maybe an additional filter could be added for window geometry (e.g. minimum width/height/area)
 
 -- The 'active' part abstracts hs.application.watcher and hs.uielement.watcher into a simple and coherent API
 -- for users who are interested in window events. Additionally, a lot of effort is spent on cleaning up
 -- the mess coming from osx events:
---   * reduntant events are never fired more than once
+--   * redundant events are never fired more than once
 --   * related events are fired in the correct order (e.g. the previous window is unfocused before the
 --     current one is focused)
 --   * 'missing' events are filled in (e.g. a focused window that gets destroyed for any reason emits unfocused first)
@@ -151,7 +151,7 @@ do
     -- menulets
     'Music Manager', 'Google Drive', 'Dropbox', '1Password mini', 'Colors for Hue', 'MacID',
     'CrashPlan menu bar', 'Flux', 'Jettison', 'Bartender', 'SystemPal', 'BetterSnapTool', 'Grandview', 'Radium',
-    'MenuMetersApp',
+    'MenuMetersApp', 'DemoPro',
   }
 
   windowfilter.ignoreInDefaultFilter = {}
@@ -609,7 +609,7 @@ end
 ---      and `hs.window.filter:rejectApp()`
 ---    - if the *value* is a table, it must contain the accept/reject rules for the app *as key/value pairs*; valid keys
 ---      and values are described in `hs.window.filter:setAppFilter()`
----    - the key can be one of the special strings `"default"` and `"override"`, which will will set the default and override
+---    - the key can be one of the special strings `"default"` and `"override"`, which will set the default and override
 ---      filter respectively
 ---    - the key can be the special string `"sortOrder"`; the value must be one of the `sortBy...` constants as per
 ---      `hs.window.filter:setSortOrder()`
@@ -618,7 +618,7 @@ end
 ---  * the `hs.window.filter` object for method chaining
 ---
 --- Notes:
----  * every filter definition in `filters` will overwrite the pre-existing one for the relevant application, if present;
+---  * every filter definition in `filters` will overwrite the preexisting one for the relevant application, if present;
 ---    this also applies to the special default and override filters, if included
 function WF:setFilters(filters)
   if type(filters)~='table' then error('filters must be a table',2) end
@@ -1049,7 +1049,7 @@ function Window:unhidden()
   if not self.isHidden then return log.vf('%s (%d) already unhidden',self.app.name,self.id) end
   self.isHidden=false
   self:emitEvent(windowfilter.windowUnhidden)
-  if not self.isMinimzed then self:visible(true) end
+  if not self.isMinimized then self:visible(true) end
   self:emitEndChain()
 end
 
@@ -1225,7 +1225,7 @@ function App.new(app,appname,watcher)
   o:getAppWindows()
 end
 
--- events aren't "inserted" across apps (param name notwithsanding) so an active app should NOT :deactivate
+-- events aren't "inserted" across apps (param name notwithstanding) so an active app should NOT :deactivate
 -- another app, otherwise the latter's :unfocused will have a broken "inserted" chain with nothing to close it
 function App:getAppWindows()
   self:getCurrentSpaceAppWindows()

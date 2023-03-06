@@ -124,7 +124,7 @@ static int razer_getDevice(lua_State *L) {
 
 /// hs.razer:name() -> string
 /// Method
-/// Returns the human readible device name of the Razer device.
+/// Returns the human readable device name of the Razer device.
 ///
 /// Parameters:
 ///  * None
