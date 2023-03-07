@@ -6,14 +6,7 @@
 //  Copyright © 2016 Sparkle Project. All rights reserved.
 //
 
-#if __has_feature(modules)
-#if __has_warning("-Watimport-in-framework-header")
-#pragma clang diagnostic ignored "-Watimport-in-framework-header"
-#endif
-@import Foundation;
-#else
 #import <Foundation/Foundation.h>
-#endif
 #import <Sparkle/SUExport.h>
 
 @protocol SUVersionComparison, SUVersionDisplay;
@@ -126,6 +119,23 @@ __deprecated_msg("Deprecated in Sparkle 2. See SPUUpdaterDelegate instead")
  \param updater The SUUpdater instance.
  */
 - (void)updaterDidNotFindUpdate:(SUUpdater *)updater;
+
+/*!
+  Called just before the scheduled update driver prompts the user to install an update.
+
+  \param updater The SUUpdater instance.
+
+  \return YES to allow the update prompt to be shown (the default behavior), or NO to suppress it.
+  */
+ - (BOOL)updaterShouldShowUpdateAlertForScheduledUpdate:(SUUpdater *)updater forItem:(SUAppcastItem *)item;
+
+ /*!
+  Called after the user dismisses the update alert.
+
+  \param updater The SUUpdater instance.
+  \param permanently YES if the alert will not appear again for this update; NO if it may reappear.
+  */
+ - (void)updater:(SUUpdater *)updater didDismissUpdateAlertPermanently:(BOOL)permanently forItem:(SUAppcastItem *)item;
 
 /*!
  Called immediately before downloading the specified update.

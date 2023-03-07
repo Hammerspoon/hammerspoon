@@ -3825,6 +3825,24 @@
 			};
 			name = Profile;
 		};
+		09C63D416D74C08185A967D37FDB701E /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 2DFCF710C9D6BDCE5850D34283ABC015 /* Sparkle.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_NS_ASSERTIONS = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
 		0AE172D8F2A4843BFACAD21A0ED26541 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -4026,24 +4044,6 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
 			};
 			name = Debug;
-		};
-		42F1106322AC19A5669D0BD5F9E1AC36 /* Profile */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = AB750EFEFD0E374DF078145FF41774B0 /* Sparkle.debug.xcconfig */;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				COMBINE_HIDPI_IMAGES = YES;
-				ENABLE_NS_ASSERTIONS = YES;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				SDKROOT = macosx;
-			};
-			name = Profile;
 		};
 		452084A909FB2BE5E0FE49FF45B3C647 /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -4250,24 +4250,6 @@
 			};
 			name = Profile;
 		};
-		668A294E1F6B031BA56B82AEB8D32578 /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 2DFCF710C9D6BDCE5850D34283ABC015 /* Sparkle.release.xcconfig */;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				COMBINE_HIDPI_IMAGES = YES;
-				ENABLE_NS_ASSERTIONS = YES;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				SDKROOT = macosx;
-			};
-			name = Release;
-		};
 		66E5BACDCAF8D4C5BBC686210266F232 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 2F81B128A47A275CAC99E8D10C9C73FB /* Pods-Hammerspoon.debug.xcconfig */;
@@ -4290,7 +4272,7 @@
 			};
 			name = Debug;
 		};
-		6C924B3D4B81D292F4C08DC60088998C /* Debug */ = {
+		6EB733D69A06B162F9AAE1C991CC4982 /* Profile */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = AB750EFEFD0E374DF078145FF41774B0 /* Sparkle.debug.xcconfig */;
 			buildSettings = {
@@ -4303,10 +4285,10 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				SDKROOT = macosx;
 			};
-			name = Debug;
+			name = Profile;
 		};
 		70103D49FA3421DD925ABF710681B39E /* Profile */ = {
 			isa = XCBuildConfiguration;
@@ -4726,6 +4708,24 @@
 			};
 			name = Release;
 		};
+		E72C4822CA1C45A67316373440F6076D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = AB750EFEFD0E374DF078145FF41774B0 /* Sparkle.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_NS_ASSERTIONS = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
 		F4F110A4B6D12223E15AF0059F34B732 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 446B4CF957F3C0C801C5F70DBA29E7D1 /* CocoaAsyncSocket.debug.xcconfig */;
@@ -4855,9 +4855,9 @@
 		DFD76CF3BA88B1E29302E27ACFBF9960 /* Build configuration list for PBXAggregateTarget "Sparkle" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				6C924B3D4B81D292F4C08DC60088998C /* Debug */,
-				42F1106322AC19A5669D0BD5F9E1AC36 /* Profile */,
-				668A294E1F6B031BA56B82AEB8D32578 /* Release */,
+				E72C4822CA1C45A67316373440F6076D /* Debug */,
+				6EB733D69A06B162F9AAE1C991CC4982 /* Profile */,
+				09C63D416D74C08185A967D37FDB701E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
