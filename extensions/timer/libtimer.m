@@ -38,6 +38,7 @@ static LSRefTable refTable;
     LuaSkin *skin = [LuaSkin sharedWithState:NULL];
 
     if (![skin checkGCCanary:self.lsCanary]) {
+        [self stop];
         return;
     }
 
@@ -70,7 +71,7 @@ static LSRefTable refTable;
 }
 
 - (BOOL)isRunning {
-    return CFRunLoopContainsTimer(CFRunLoopGetCurrent(), (__bridge CFRunLoopTimerRef)self.t, kCFRunLoopDefaultMode);
+    return CFRunLoopContainsTimer(CFRunLoopGetMain(), (__bridge CFRunLoopTimerRef)self.t, kCFRunLoopDefaultMode);
 }
 
 - (void)start {
@@ -80,7 +81,7 @@ static LSRefTable refTable;
     }
 
     [self setNextTrigger:self.interval];
-    [[NSRunLoop currentRunLoop] addTimer:self.t forMode:NSRunLoopCommonModes];
+    [[NSRunLoop mainRunLoop] addTimer:self.t forMode:NSRunLoopCommonModes];
 }
 
 - (void)stop {
