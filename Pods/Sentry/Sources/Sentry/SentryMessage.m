@@ -39,6 +39,11 @@ const NSUInteger MAX_STRING_LENGTH = 8192;
     return serializedData;
 }
 
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"<%@: %p, %@>", [self class], self, [self serialize]];
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

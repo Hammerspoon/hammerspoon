@@ -416,13 +416,6 @@ typedef enum { CPUFamilyUnknown, CPUFamilyArm, CPUFamilyX86, CPUFamilyX86_64 } C
     return [[stack objectForKey:@SentryCrashField_Overflow] boolValue];
 }
 
-- (BOOL)isDeadlock:(NSDictionary *)report
-{
-    NSDictionary *errorReport = [self errorReport:report];
-    NSString *crashType = [errorReport objectForKey:@SentryCrashField_Type];
-    return [@SentryCrashExcType_Deadlock isEqualToString:crashType];
-}
-
 - (NSString *)diagnoseCrash:(NSDictionary *)report
 {
     @try {
@@ -430,10 +423,6 @@ typedef enum { CPUFamilyUnknown, CPUFamilyArm, CPUFamilyX86, CPUFamilyX86_64 } C
             [[self lastInAppStackEntry:report] objectForKey:@SentryCrashField_SymbolName];
         NSDictionary *crashedThreadReport = [self crashedThreadReport:report];
         NSDictionary *errorReport = [self errorReport:report];
-
-        if ([self isDeadlock:report]) {
-            return [NSString stringWithFormat:@"Main thread deadlocked in %@", lastFunctionName];
-        }
 
         if ([self isStackOverflow:crashedThreadReport]) {
             return [NSString stringWithFormat:@"Stack overflow in %@", lastFunctionName];
@@ -469,8 +458,17 @@ typedef enum { CPUFamilyUnknown, CPUFamilyArm, CPUFamilyX86, CPUFamilyX86_64 } C
             if (address == 0) {
                 return @"Attempted to dereference null pointer.";
             }
-            return [NSString
-                stringWithFormat:@"Attempted to dereference garbage pointer %p.", (void *)address];
+
+            NSString *codeName = errorReport[@SentryCrashField_Mach][@SentryCrashField_CodeName];
+            if (codeName != nil) {
+                // Inspired by
+                // https://developer.apple.com/documentation/xcode/investigating-memory-access-crashes
+                return [NSString stringWithFormat:@"%@ at %p.", codeName, (void *)address];
+            } else {
+                return
+                    [NSString stringWithFormat:@"Attempted to dereference garbage pointer at %p.",
+                              (void *)address];
+            }
         }
 
         return nil;

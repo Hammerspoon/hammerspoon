@@ -1,6 +1,5 @@
 #import "SentryCrashExceptionApplication.h"
 #import "SentryCrash.h"
-#import "SentryDefines.h"
 #import "SentrySDK.h"
 
 @implementation SentryCrashExceptionApplication

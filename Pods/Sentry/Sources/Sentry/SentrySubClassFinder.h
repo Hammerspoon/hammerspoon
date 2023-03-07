@@ -13,16 +13,16 @@ SENTRY_NO_INIT
                    objcRuntimeWrapper:(id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper;
 
 /**
- * Fetch all subclasses of parentClass on a background thread and then act on them on the main
- * thread. As there is no straightforward way to get all sub-classes in Objective-C, the code first
- * retrieves all classes in the runtime, iterates over all classes, and checks for every class if
- * the parentClass is a parent. Cause loading all classes can take a few milliseconds, do this on a
- * background thread.
+ * Fetch all subclasses of UIViewController from given objc Image on a background thread and then
+ * act on them on the main thread. As there is no straightforward way to get all sub-classes in
+ * Objective-C, the code first retrieves all classes from the Image, iterates over all classes, and
+ * checks for every class if the parentClass is a UIViewController. Cause loading all classes can
+ * take a few milliseconds, do this on a background thread.
  *
- * @param parentClass The class to get all subclasses for.
+ * @param imageName The objc Image (library) to get all subclasses for.
  * @param block The block to execute for each subclass. This block runs on the main thread.
  */
-- (void)actOnSubclassesOf:(Class)parentClass block:(void (^)(Class))block;
+- (void)actOnSubclassesOfViewControllerInImage:(NSString *)imageName block:(void (^)(Class))block;
 
 @end
 

@@ -27,6 +27,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithDict:(NSDictionary *)dict
 {
+    return [self initWithDictInternal:dict orDefaults:nil];
+}
+
+- (instancetype)initWithDict:(NSDictionary *)dict orDefaults:(SentrySdkInfo *)info;
+{
+    return [self initWithDictInternal:dict orDefaults:info];
+}
+
+- (instancetype)initWithDictInternal:(NSDictionary *)dict orDefaults:(SentrySdkInfo *_Nullable)info;
+{
     NSString *name = @"";
     NSString *version = @"";
 
@@ -34,10 +44,14 @@ NS_ASSUME_NONNULL_BEGIN
         NSDictionary<NSString *, id> *sdkInfoDict = dict[@"sdk"];
         if ([sdkInfoDict[@"name"] isKindOfClass:[NSString class]]) {
             name = sdkInfoDict[@"name"];
+        } else if (info && info.name) {
+            name = info.name;
         }
 
         if ([sdkInfoDict[@"version"] isKindOfClass:[NSString class]]) {
             version = sdkInfoDict[@"version"];
+        } else if (info && info.version) {
+            version = info.version;
         }
     }
 

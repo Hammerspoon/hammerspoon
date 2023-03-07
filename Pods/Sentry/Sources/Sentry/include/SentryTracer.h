@@ -1,36 +1,30 @@
+#import "SentrySpan.h"
 #import "SentrySpanProtocol.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryHub, SentryTransactionContext, SentryTraceHeader, SentryTraceState;
+@class SentryHub, SentryTransactionContext, SentryTraceHeader, SentryTraceContext,
+    SentryNSTimerWrapper, SentryDispatchQueueWrapper, SentryTracer, SentryProfilesSamplerDecision,
+    SentryMeasurementValue;
 
-@interface SentryTracer : NSObject <SentrySpan>
+static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 
-/**
- *Span name.
- */
-@property (nonatomic, copy) NSString *name;
-
-/**
- * The context information of the span.
- */
-@property (nonatomic, readonly) SentrySpanContext *context;
+@protocol SentryTracerDelegate
 
 /**
- * The timestamp of which the span ended.
+ * Return the active span of given tracer.
+ * This function is used to determine which span will be used to create a new child.
  */
-@property (nullable, nonatomic, strong) NSDate *timestamp;
+- (nullable id<SentrySpan>)activeSpanForTracer:(SentryTracer *)tracer;
 
-/**
- * The start time of the span.
- */
-@property (nullable, nonatomic, strong) NSDate *startTimestamp;
+@end
 
-/**
- * Whether the span is finished.
- */
-@property (readonly) BOOL isFinished;
+@interface SentryTracer : SentrySpan
+
+@property (nonatomic, strong) SentryTransactionContext *transactionContext;
+
+@property (nullable, nonatomic, copy) void (^finishCallback)(SentryTracer *);
 
 /**
  * Indicates whether this tracer will be finished only if all children have been finished.
@@ -40,9 +34,21 @@ NS_ASSUME_NONNULL_BEGIN
 @property (readonly) BOOL waitForChildren;
 
 /**
- * Retrieves a trace state from this tracer.
+ * Retrieves a trace context from this tracer.
  */
-@property (nonatomic, readonly) SentryTraceState *traceState;
+@property (nonatomic, readonly) SentryTraceContext *traceContext;
+
+/*
+ All the spans that where created with this tracer but rootSpan.
+ */
+@property (nonatomic, readonly) NSArray<id<SentrySpan>> *children;
+
+/*
+ * A delegate that provides extra information for the transaction.
+ */
+@property (nullable, nonatomic, weak) id<SentryTracerDelegate> delegate;
+
+@property (nonatomic, readonly) NSDictionary<NSString *, SentryMeasurementValue *> *measurements;
 
 /**
  * Init a SentryTracer with given transaction context and hub and set other fields by default
@@ -70,14 +76,42 @@ NS_ASSUME_NONNULL_BEGIN
                            waitForChildren:(BOOL)waitForChildren;
 
 /**
- * Starts a child span.
+ * Init a SentryTracer with given transaction context, hub and whether the tracer should wait
+ * for all children to finish before it finishes.
  *
- * @param parentId The child span parent id.
- * @param operation The child span operation.
- * @param description The child span description.
+ * @param transactionContext Transaction context
+ * @param hub A hub to bind this transaction
+ * @param profilesSamplerDecision Whether to sample a profile corresponding to this transaction
+ * @param waitForChildren Whether this tracer should wait all children to finish.
+ * @param timerWrapper A writer around NSTimer, to make it testable
  *
- * @return SentrySpan
+ * @return SentryTracer
  */
+- (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
+                                       hub:(nullable SentryHub *)hub
+                   profilesSamplerDecision:
+                       (nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
+                           waitForChildren:(BOOL)waitForChildren
+                              timerWrapper:(nullable SentryNSTimerWrapper *)timerWrapper;
+
+/**
+ * Init a SentryTracer with given transaction context, hub and whether the tracer should wait
+ * for all children to finish before it finishes.
+ *
+ * @param transactionContext Transaction context
+ * @param hub A hub to bind this transaction
+ * @param profilesSamplerDecision Whether to sample a profile corresponding to this transaction
+ * @param idleTimeout The idle time to wait until to finish the transaction.
+ *
+ * @return SentryTracer
+ */
+- (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext
+                                       hub:(nullable SentryHub *)hub
+                   profilesSamplerDecision:
+                       (nullable SentryProfilesSamplerDecision *)profilesSamplerDecision
+                               idleTimeout:(NSTimeInterval)idleTimeout
+                      dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
+
 - (id<SentrySpan>)startChildWithParentId:(SentrySpanId *)parentId
                                operation:(NSString *)operation
                              description:(nullable NSString *)description
@@ -92,6 +126,9 @@ NS_ASSUME_NONNULL_BEGIN
  * Get the tracer from a span.
  */
 + (nullable SentryTracer *)getTracer:(id<SentrySpan>)span;
+
+- (void)dispatchIdleTimeout;
+
 @end
 
 NS_ASSUME_NONNULL_END

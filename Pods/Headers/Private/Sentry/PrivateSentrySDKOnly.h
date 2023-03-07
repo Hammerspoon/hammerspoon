@@ -1,1 +1,1 @@
-../../../Sentry/Sources/Sentry/Public/PrivateSentrySDKOnly.h
+../../../Sentry/Sources/Sentry/include/HybridPublic/PrivateSentrySDKOnly.h
