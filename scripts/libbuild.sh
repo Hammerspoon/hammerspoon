@@ -61,7 +61,8 @@ function op_build() {
             SENTRY_LOG_LEVEL=debug
         fi
         export SENTRY_AUTH_TOKEN
-        "${HAMMERSPOON_HOME}/scripts/sentry-cli" upload-dif "${HAMMERSPOON_XCARCHIVE_PATH}/dSYMs/" 2>&1 | tee "${BUILD_HOME}/sentry-upload.log"
+        "${HAMMERSPOON_HOME}/scripts/sentry-cli" debug-files upload "${HAMMERSPOON_XCARCHIVE_PATH}/dSYMs/" 2>&1 | tee "${BUILD_HOME}/sentry-upload.log"
+        "${HAMMERSPOON_HOME}/scripts/sentry-cli" debug-files upload "${HAMMERSPOON_HOME}/Pods/Sparkle/Symbols/" 2>&1 | tee -a "${BUILD_HOME}/sentry-upload.log"
     fi
 }
 
