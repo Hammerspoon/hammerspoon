@@ -7475,6 +7475,7 @@
 			);
 			name = "Prepare HammerspoonCertTemplate.h";
 			outputPaths = (
+				"$(SRCROOT)/extensions/httpserver/HammerspoonCertTemplate.h",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
