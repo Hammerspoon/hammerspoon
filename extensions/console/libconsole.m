@@ -103,6 +103,7 @@ static int console_consolePrintColor(lua_State *L) {
 ///  * The default console history is 100,000 characters
 static int console_maxOutputHistory(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TNUMBER|LS_TOPTIONAL, LS_TBREAK];
 
     if (lua_type(L, 1) != LUA_TNONE) {
         NSNumber *size = [NSNumber numberWithInt:(int)lua_tointeger(L, 1)];
