@@ -12,6 +12,11 @@
     return displayLink.timestamp;
 }
 
+- (CFTimeInterval)targetTimestamp API_AVAILABLE(ios(10.0), tvos(10.0))
+{
+    return displayLink.targetTimestamp;
+}
+
 - (void)linkWithTarget:(id)target selector:(SEL)sel
 {
     displayLink = [CADisplayLink displayLinkWithTarget:target selector:sel];

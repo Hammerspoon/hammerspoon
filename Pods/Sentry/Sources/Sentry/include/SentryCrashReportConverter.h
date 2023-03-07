@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Converts the report to an SentryEvent.
  *
- * @return The converted event or nil if an error occured during the conversion.
+ * @return The converted event or nil if an error occurred during the conversion.
  */
 - (SentryEvent *_Nullable)convertReportToEvent;
 

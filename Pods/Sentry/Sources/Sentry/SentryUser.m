@@ -29,6 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
             copy.email = self.email;
             copy.username = self.username;
             copy.ipAddress = self.ipAddress;
+            copy.segment = self.segment;
             copy.data = self.data.copy;
         }
     }
@@ -45,6 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
         [serializedData setValue:self.email forKey:@"email"];
         [serializedData setValue:self.username forKey:@"username"];
         [serializedData setValue:self.ipAddress forKey:@"ip_address"];
+        [serializedData setValue:self.segment forKey:@"segment"];
         [serializedData setValue:[self.data sentry_sanitize] forKey:@"data"];
     }
 
@@ -54,10 +56,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isEqual:(id _Nullable)other
 {
     @synchronized(self) {
-        if (other == self)
+        if (other == self) {
             return YES;
-        if (!other || ![[other class] isEqual:[self class]])
+        }
+        if (!other || ![[other class] isEqual:[self class]]) {
             return NO;
+        }
 
         return [self isEqualToUser:other];
     }
@@ -69,30 +73,43 @@ NS_ASSUME_NONNULL_BEGIN
         // We need to get some local copies of the properties, because they could be modified during
         // the if statements
 
-        if (self == user)
+        if (self == user) {
             return YES;
-        if (user == nil)
+        }
+        if (user == nil) {
             return NO;
+        }
 
         NSString *otherUserId = user.userId;
-        if (self.userId != otherUserId && ![self.userId isEqualToString:otherUserId])
+        if (self.userId != otherUserId && ![self.userId isEqualToString:otherUserId]) {
             return NO;
+        }
 
         NSString *otherEmail = user.email;
-        if (self.email != otherEmail && ![self.email isEqualToString:otherEmail])
+        if (self.email != otherEmail && ![self.email isEqualToString:otherEmail]) {
             return NO;
+        }
 
         NSString *otherUsername = user.username;
-        if (self.username != otherUsername && ![self.username isEqualToString:otherUsername])
+        if (self.username != otherUsername && ![self.username isEqualToString:otherUsername]) {
             return NO;
+        }
 
         NSString *otherIpAdress = user.ipAddress;
-        if (self.ipAddress != otherIpAdress && ![self.ipAddress isEqualToString:otherIpAdress])
+        if (self.ipAddress != otherIpAdress && ![self.ipAddress isEqualToString:otherIpAdress]) {
             return NO;
+        }
+
+        NSString *otherSegment = user.segment;
+        if (self.segment != otherSegment && ![self.segment isEqualToString:otherSegment]) {
+            return NO;
+        }
 
         NSDictionary<NSString *, id> *otherUserData = user.data;
-        if (self.data != otherUserData && ![self.data isEqualToDictionary:otherUserData])
+        if (self.data != otherUserData && ![self.data isEqualToDictionary:otherUserData]) {
             return NO;
+        }
+
         return YES;
     }
 }
@@ -106,6 +123,7 @@ NS_ASSUME_NONNULL_BEGIN
         hash = hash * 23 + [self.email hash];
         hash = hash * 23 + [self.username hash];
         hash = hash * 23 + [self.ipAddress hash];
+        hash = hash * 23 + [self.segment hash];
         hash = hash * 23 + [self.data hash];
 
         return hash;

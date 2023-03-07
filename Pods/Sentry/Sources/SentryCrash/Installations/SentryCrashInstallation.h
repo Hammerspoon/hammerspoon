@@ -26,7 +26,6 @@
 
 #import "SentryCrashReportFilter.h"
 #import "SentryCrashReportWriter.h"
-#import <Foundation/Foundation.h>
 
 /**
  * Crash system installation which handles backend-specific details.
@@ -49,6 +48,11 @@
  * install with everything needed for your particular backend.
  */
 - (void)install;
+
+/**
+ * Call this instead of `-[SentryCrash uninstall]`.
+ */
+- (void)uninstall;
 
 /** Convenience method to call -[SentryCrash sendAllReportsWithCompletion:].
  * This method will set the SentryCrash sink and then send all outstanding

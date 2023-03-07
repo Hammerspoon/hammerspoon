@@ -31,19 +31,17 @@
 #include "SentryCrashDebug.h"
 #include "SentryCrashMonitor_AppState.h"
 #include "SentryCrashMonitor_CPPException.h"
-#include "SentryCrashMonitor_Deadlock.h"
 #include "SentryCrashMonitor_MachException.h"
 #include "SentryCrashMonitor_NSException.h"
 #include "SentryCrashMonitor_Signal.h"
 #include "SentryCrashMonitor_System.h"
-#include "SentryCrashMonitor_User.h"
 #include "SentryCrashMonitor_Zombie.h"
 #include "SentryCrashSystemCapabilities.h"
 #include "SentryCrashThread.h"
 
 #include <memory.h>
 
-//#define SentryCrashLogger_LocalLevel TRACE
+// #define SentryCrashLogger_LocalLevel TRACE
 #include "SentryCrashLogger.h"
 
 // ============================================================================
@@ -74,10 +72,6 @@ static Monitor g_monitors[] = {
         .getAPI = sentrycrashcm_nsexception_getAPI,
     },
     {
-        .monitorType = SentryCrashMonitorTypeMainThreadDeadlock,
-        .getAPI = sentrycrashcm_deadlock_getAPI,
-    },
-    {
         .monitorType = SentryCrashMonitorTypeZombie,
         .getAPI = sentrycrashcm_zombie_getAPI,
     },
@@ -85,10 +79,6 @@ static Monitor g_monitors[] = {
     {
         .monitorType = SentryCrashMonitorTypeCPPException,
         .getAPI = sentrycrashcm_cppexception_getAPI,
-    },
-    {
-        .monitorType = SentryCrashMonitorTypeUserReported,
-        .getAPI = sentrycrashcm_user_getAPI,
     },
     {
         .monitorType = SentryCrashMonitorTypeSystem,
@@ -151,9 +141,15 @@ addContextualInfoToEvent(Monitor *monitor, struct SentryCrash_MonitorContext *ev
 }
 
 void
-sentrycrashcm_setEventCallback(void (*onEvent)(struct SentryCrash_MonitorContext *monitorContext))
+sentrycrashcm_setEventCallback(SentryCrashMonitorEventCallback onEvent)
 {
     g_onExceptionEvent = onEvent;
+}
+
+SentryCrashMonitorEventCallback
+sentrycrashcm_getEventCallback(void)
+{
+    return g_onExceptionEvent;
 }
 
 void
@@ -240,12 +236,8 @@ sentrycrashcm_handleException(struct SentryCrash_MonitorContext *context)
 
     g_onExceptionEvent(context);
 
-    if (context->currentSnapshotUserReported) {
-        g_handlingFatalException = false;
-    } else {
-        if (g_handlingFatalException && !g_crashedDuringExceptionHandling) {
-            SentryCrashLOG_DEBUG("Exception is fatal. Restoring original handlers.");
-            sentrycrashcm_setActiveMonitors(SentryCrashMonitorTypeNone);
-        }
+    if (g_handlingFatalException && !g_crashedDuringExceptionHandling) {
+        SentryCrashLOG_DEBUG("Exception is fatal. Restoring original handlers.");
+        sentrycrashcm_setActiveMonitors(SentryCrashMonitorTypeNone);
     }
 }

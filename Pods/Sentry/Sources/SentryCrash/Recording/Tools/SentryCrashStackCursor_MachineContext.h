@@ -31,6 +31,8 @@ extern "C" {
 
 #include "SentryCrashStackCursor.h"
 
+#define MAX_STACKTRACE_LENGTH 100
+
 /** Initialize a stack cursor for a machine context.
  *
  * @param cursor The stack cursor to initialize.

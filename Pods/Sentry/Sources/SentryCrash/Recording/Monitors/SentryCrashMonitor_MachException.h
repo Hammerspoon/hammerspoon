@@ -35,11 +35,18 @@ extern "C" {
 #endif
 
 #include "SentryCrashMonitor.h"
+#include <mach/mach.h>
 #include <stdbool.h>
 
 /** Access the Monitor API.
  */
 SentryCrashMonitorAPI *sentrycrashcm_machexception_getAPI(void);
+
+bool sentrycrashcm_isReservedThread(thread_t thread);
+
+/** Only needed for testing.
+ */
+bool sentrycrashcm_hasReservedThreads(void);
 
 #ifdef __cplusplus
 }

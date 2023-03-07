@@ -1,1 +1,0 @@
-../../../Sentry/Sources/Sentry/Public/SentryEnvelope.h
