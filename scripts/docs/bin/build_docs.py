@@ -492,6 +492,7 @@ def process_markdown(data):
                 item = items[j]
                 dbg("Preparing template data for: %s" % item["def"])
                 item["def_gfm"] = strip_paragraph(md(item["def"]))
+                item["desc_gfm"] = md(item["desc"])
                 item["doc_gfm"] = md(item["doc"])
                 if "notes" in item:
                     item["notes_gfm"] = md('\n'.join(item["notes"]))
