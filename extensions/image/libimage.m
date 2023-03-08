@@ -1202,6 +1202,10 @@ static int imageFromMediaFile(lua_State *L) {
         if (!error) {
             theImage = [[NSImage alloc] initWithCGImage:generatedImage size:NSZeroSize];
         } else [skin logError:[NSString stringWithFormat:@"Unable to generate image from video: %@", error]];
+
+        if (generatedImage) {
+            CFRelease(generatedImage);
+        }
     }
     CFRelease(UTI);
 
