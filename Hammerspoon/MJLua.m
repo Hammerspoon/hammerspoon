@@ -203,7 +203,8 @@ static int core_open(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TBREAK];
 
-    BOOL result = [[NSWorkspace sharedWorkspace] openFile:[skin toNSObjectAtIndex:1]];
+    NSURL *pathURL = [NSURL fileURLWithPath:[skin toNSObjectAtIndex:1]];
+    BOOL result = [NSWorkspace.sharedWorkspace openURL:pathURL];
 
     lua_pushboolean(L, result);
     return 1;

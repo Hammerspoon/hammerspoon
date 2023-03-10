@@ -1,0 +1,16 @@
+#import "SentryDiscardReason.h"
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+FOUNDATION_EXPORT NSString *const kSentryDiscardReasonNameBeforeSend;
+FOUNDATION_EXPORT NSString *const kSentryDiscardReasonNameEventProcessor;
+FOUNDATION_EXPORT NSString *const kSentryDiscardReasonNameSampleRate;
+FOUNDATION_EXPORT NSString *const kSentryDiscardReasonNameNetworkError;
+FOUNDATION_EXPORT NSString *const kSentryDiscardReasonNameQueueOverflow;
+FOUNDATION_EXPORT NSString *const kSentryDiscardReasonNameCacheOverflow;
+FOUNDATION_EXPORT NSString *const kSentryDiscardReasonNameRateLimitBackoff;
+
+NSString *nameForSentryDiscardReason(SentryDiscardReason reason);
+
+NS_ASSUME_NONNULL_END

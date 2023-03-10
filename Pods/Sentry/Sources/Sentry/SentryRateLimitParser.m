@@ -1,7 +1,7 @@
 #import "SentryRateLimitParser.h"
 #import "SentryCurrentDate.h"
+#import "SentryDataCategoryMapper.h"
 #import "SentryDateUtil.h"
-#import "SentryRateLimitCategoryMapper.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -57,30 +57,6 @@ SentryRateLimitParser ()
     return [numberFormatter numberFromString:string];
 }
 
-- (SentryRateLimitCategory)mapStringToCategory:(NSString *)category
-{
-    SentryRateLimitCategory result = kSentryRateLimitCategoryUnknown;
-    if ([category isEqualToString:@""]) {
-        result = kSentryRateLimitCategoryAll;
-    }
-    if ([category isEqualToString:@"default"]) {
-        result = kSentryRateLimitCategoryDefault;
-    }
-    if ([category isEqualToString:@"error"]) {
-        result = kSentryRateLimitCategoryError;
-    }
-    if ([category isEqualToString:@"session"]) {
-        result = kSentryRateLimitCategorySession;
-    }
-    if ([category isEqualToString:@"transaction"]) {
-        result = kSentryRateLimitCategoryTransaction;
-    }
-    if ([category isEqualToString:@"attachment"]) {
-        result = kSentryRateLimitCategoryAttachment;
-    }
-    return result;
-}
-
 - (NSArray<NSNumber *> *)parseCategories:(NSString *)categoriesAsString
 {
     // The categories are a semicolon separated list. If this parameter is empty
@@ -88,10 +64,11 @@ SentryRateLimitParser ()
     // category even if this parameter is empty.
     NSMutableArray<NSNumber *> *categories = [NSMutableArray new];
     for (NSString *categoryAsString in [categoriesAsString componentsSeparatedByString:@";"]) {
-        SentryRateLimitCategory category = [self mapStringToCategory:categoryAsString];
+        SentryDataCategory category = sentryDataCategoryForString(categoryAsString);
 
-        // Unknown categories must be ignored
-        if (category != kSentryRateLimitCategoryUnknown) {
+        // Unknown categories must be ignored. UserFeedback is not listed for rate limits, see
+        // https://develop.sentry.dev/sdk/rate-limiting/#definitions
+        if (category != kSentryDataCategoryUnknown && category != kSentryDataCategoryUserFeedback) {
             [categories addObject:@(category)];
         }
     }

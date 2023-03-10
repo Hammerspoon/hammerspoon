@@ -6,14 +6,7 @@
 //  Copyright © 2016 Sparkle Project. All rights reserved.
 //
 
-#if __has_feature(modules)
-#if __has_warning("-Watimport-in-framework-header")
-#pragma clang diagnostic ignored "-Watimport-in-framework-header"
-#endif
-@import Foundation;
-#else
 #import <Foundation/Foundation.h>
-#endif
 
 #import <Sparkle/SPUUserUpdateState.h>
 #import <Sparkle/SUExport.h>
@@ -226,8 +219,13 @@ SU_EXPORT @protocol SPUUserDriver <NSObject>
  * If the application hasn't been terminated, a quit event is sent to the running application before installing the update.
  * If the application or user delays or cancels termination, there may be an indefinite period of time before the application fully quits.
  * It is up to the implementor whether or not to decide to continue showing installation progress in this case.
+ *
+ * @param retryTerminatingApplication This handler gives a chance for the application to re-try sending a quit event to the running application before installing the update.
+ * The application may cancel or delay termination. This handler gives the user driver another chance to allow the user to try terminating the application again.
+ * If the application does not delay or cancel application termination, there is no need to invoke this handler. This handler may be invoked multiple times.
+ * Note this handler should not be invoked if @c applicationTerminated is already @c YES
  */
-- (void)showInstallingUpdateWithApplicationTerminated:(BOOL)applicationTerminated;
+- (void)showInstallingUpdateWithApplicationTerminated:(BOOL)applicationTerminated retryTerminatingApplication:(void (^)(void))retryTerminatingApplication;
 
 /**
  * Show the user that the update installation finished
@@ -238,7 +236,7 @@ SU_EXPORT @protocol SPUUserDriver <NSObject>
  * the updater's lifetime is tied to the application it is updating. This implementation must not try to reference
  * the old bundle prior to the installation, which will no longer be around.
  *
- * Before this point, `-showInstallingUpdateWithApplicationTerminated:` will be called.
+ * Before this point, `-showInstallingUpdateWithApplicationTerminated:retryTerminatingApplication:` will be called.
  *
  * @param relaunched Indicates if the update was relaunched.
  * @param acknowledgement Acknowledge to the updater that the finished installation was shown.
@@ -278,9 +276,11 @@ SU_EXPORT @protocol SPUUserDriver <NSObject>
 
 - (void)dismissUserInitiatedUpdateCheck __deprecated_msg("Transition to new UI appropriately when a new update is shown, when no update is found, or when an update error occurs.");
 
-- (void)showInstallingUpdate __deprecated_msg("Implement -showInstallingUpdateWithApplicationTerminated: instead.");
+- (void)showInstallingUpdate __deprecated_msg("Implement -showInstallingUpdateWithApplicationTerminated:retryTerminatingApplication: instead.");
 
-- (void)showSendingTerminationSignal __deprecated_msg("Implement -showInstallingUpdateWithApplicationTerminated: instead.");
+- (void)showSendingTerminationSignal __deprecated_msg("Implement -showInstallingUpdateWithApplicationTerminated:retryTerminatingApplication: instead.");
+
+- (void)showInstallingUpdateWithApplicationTerminated:(BOOL)applicationTerminated __deprecated_msg("Implement -showInstallingUpdateWithApplicationTerminated:retryTerminatingApplication: instead.");;
 
 @end
 

@@ -11,6 +11,13 @@
 @implementation HSExecuteLuaIntentHandler
 -(void)handleExecuteLua:(HSExecuteLuaIntent *)intent completion:(void (^)(HSExecuteLuaIntentResponse * _Nonnull))completion {
     LuaSkin *skin = [LuaSkin sharedWithState:nil];
+
+    if (!intent.source) {
+        NSLog(@"HSExecuteLuaIntent failed: called with no source");
+        completion([HSExecuteLuaIntentResponse failureIntentResponseWithError:@"No Lua source provided"]);
+        return;
+    }
+
     int result = luaL_dostring(skin.L, intent.source.UTF8String);
 
     NSString *output = @"";

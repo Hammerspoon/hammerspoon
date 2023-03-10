@@ -86,7 +86,7 @@ extern "C" {
 // SentryCrash: The original values wouldn't have worked. The slot shift and
 // mask were incorrect.
 #    define TAG_COUNT 8
-//#define TAG_SLOT_MASK 0xf
+// #define TAG_SLOT_MASK 0xf
 #    define TAG_SLOT_MASK 0x07
 
 #    if SUPPORT_MSB_TAGGED_POINTERS
@@ -96,7 +96,7 @@ extern "C" {
 #        define TAG_PAYLOAD_RSHIFT 4
 #    else
 #        define TAG_MASK 1
-//#   define TAG_SLOT_SHIFT 0
+// #   define TAG_SLOT_SHIFT 0
 #        define TAG_SLOT_SHIFT 1
 #        define TAG_PAYLOAD_LSHIFT 0
 #        define TAG_PAYLOAD_RSHIFT 4
@@ -136,10 +136,12 @@ enum {
 #    define WORD_SHIFT 3UL
 #    define WORD_MASK 7UL
 #    define WORD_BITS 64
+#    define FAST_DATA_MASK 0x00007ffffffffff8UL
 #else
 #    define WORD_SHIFT 2UL
 #    define WORD_MASK 3UL
 #    define WORD_BITS 32
+#    define FAST_DATA_MASK 0xfffffffcUL
 #endif
 
 // ======================================================================

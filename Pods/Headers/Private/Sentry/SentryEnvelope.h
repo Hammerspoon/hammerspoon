@@ -1,1 +1,1 @@
-../../../Sentry/Sources/Sentry/Public/SentryEnvelope.h
+../../../Sentry/Sources/Sentry/include/HybridPublic/SentryEnvelope.h

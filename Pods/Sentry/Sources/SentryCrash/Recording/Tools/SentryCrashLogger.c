@@ -204,38 +204,7 @@ flushLog(void)
     fflush(g_file);
 }
 
-bool
-sentrycrashlog_setLogFilename(const char *filename, bool overwrite)
-{
-    static FILE *file = NULL;
-    FILE *oldFile = file;
-    if (filename != NULL) {
-        file = fopen(filename, overwrite ? "wb" : "ab");
-        unlikely_if(file == NULL)
-        {
-            writeFmtToLog("SentryCrashLogger: Could not open %s: %s", filename, strerror(errno));
-            return false;
-        }
-    }
-    if (filename != g_logFilename) {
-        strncpy(g_logFilename, filename, sizeof(g_logFilename));
-    }
-
-    if (oldFile != NULL) {
-        fclose(oldFile);
-    }
-
-    setLogFD(file);
-    return true;
-}
-
 #endif
-
-bool
-sentrycrashlog_clearLogFile()
-{
-    return sentrycrashlog_setLogFilename(g_logFilename, true);
-}
 
 // ===========================================================================
 #pragma mark - C -

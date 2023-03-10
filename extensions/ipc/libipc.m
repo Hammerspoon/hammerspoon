@@ -233,7 +233,7 @@ static int ipc_sendMessage(lua_State *L) {
                     LS_TBREAK] ;
 
     HSIPCMessagePort *port = [skin toNSObjectAtIndex:1] ;
-    if (!CFMessagePortIsValid(port.messagePort)) { return luaL_error(L, "ipc port is no longer valid"); }
+    if (!CFMessagePortIsValid(port.messagePort)) { return luaL_error(L, "ipc port is no longer valid (early)"); }
     if (!CFMessagePortIsRemote(port.messagePort)) { return luaL_error(L, "not a remote port") ; }
 
     luaL_tolstring(L, 2, NULL) ; // make sure it's a string
@@ -249,6 +249,7 @@ static int ipc_sendMessage(lua_State *L) {
     [skin logDebug:[NSString stringWithFormat:@"ipc_sendMessage on %@", (__bridge NSString *)CFMessagePortGetName(port.messagePort)]] ;
 
     CFDataRef returnedData;
+    if (!CFMessagePortIsValid(port.messagePort)) { return luaL_error(L, "ipc port is no longer valid (late)"); }
     SInt32 code = CFMessagePortSendRequest(
                                             port.messagePort,
                                             (SInt32)msgID,
