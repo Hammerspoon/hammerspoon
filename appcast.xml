@@ -7,6 +7,21 @@
         <language>en</language>
 <!-- __UPDATE_MARKER__ -->
           <item>
+              <title>Version 0.9.98</title>
+              <sparkle:releaseNotesLink>
+                  https://www.hammerspoon.org/releasenotes/0.9.98.html
+              </sparkle:releaseNotesLink>
+              <pubDate>$(date +"%a, %e %b %Y %H:%M:%S %z")</pubDate>
+              <enclosure url=\"https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.98/Hammerspoon-0.9.98.zip\"
+                  sparkle:version=\"6805\"
+                  sparkle:shortVersionString=\"0.9.98\"
+                  length=\"9631700\"
+                  type=\"application/octet-stream\"
+              />
+              <sparkle:minimumSystemVersion>10.15</sparkle:minimumSystemVersion>
+          </item>
+  
+          <item>
               <title>Version 0.9.97</title>
               <sparkle:releaseNotesLink>
                   https://www.hammerspoon.org/releasenotes/0.9.97.html
