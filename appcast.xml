@@ -11,14 +11,14 @@
               <sparkle:releaseNotesLink>
                   https://www.hammerspoon.org/releasenotes/0.9.98.html
               </sparkle:releaseNotesLink>
-              <pubDate>$(date +"%a, %e %b %Y %H:%M:%S %z")</pubDate>
+              <pubDate>Sun, 12 Mar 2023 16:36:57 +0000</pubDate>
               <enclosure url=\"https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.98/Hammerspoon-0.9.98.zip\"
                   sparkle:version=\"6805\"
                   sparkle:shortVersionString=\"0.9.98\"
                   length=\"9631700\"
                   type=\"application/octet-stream\"
               />
-              <sparkle:minimumSystemVersion>10.15</sparkle:minimumSystemVersion>
+              <sparkle:minimumSystemVersion>11.0</sparkle:minimumSystemVersion>
           </item>
   
           <item>
