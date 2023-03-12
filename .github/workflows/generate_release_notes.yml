@@ -1,0 +1,35 @@
+name: Generate Release Notes
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Generate
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Hammerspoon Code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Generate Release Notes
+        id: release_notes_generator
+        uses: mikepenz/release-changelog-builder-action@main
+        with:
+          configuration: ".github/workflows/release_notes_config.json"
+          toTag: "HEAD"
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Capture Release Notes
+        id: capture_release_notes
+        run: |
+          echo "${{ steps.release_notes_generator.outputs.changelog }}" >release_notes.txt
+      - name: Upload Release Notes
+        id: upload_release_notes
+        uses: actions/upload-artifact@v2
+        with:
+          name: Release_Notes.txt
+          path: release_notes.txt
+
