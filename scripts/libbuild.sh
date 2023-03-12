@@ -384,35 +384,6 @@ function op_release() {
     git push
     popd >/dev/null || fail "Unknown"
 
-    echo " Creating PR for Dash docs..."
-    pushd "${HAMMERSPOON_HOME}/../" >/dev/null || fail "Unable to access ${HAMMERSPOON_HOME}/../"
-    ${RM} -rf dash
-    git clone -q git@github.com:Kapeli/Dash-User-Contributions.git dash
-    cp "${BUILD_HOME}/Hammerspoon.tgz" dash/docsets/Hammerspoon/
-    pushd "dash" >/dev/null || fail "Unable to access dash repo at: ${HAMMERSPOON_HOME}/../dash"
-    git remote add hammerspoon git@github.com:hammerspoon/Dash-User-Contributions.git
-    git checkout -b "hammerspoon-${VERSION}"
-    cat >docsets/Hammerspoon/docset.json <<EOF
-    {
-       "name": "Hammerspoon",
-       "version": "${VERSION}",
-       "archive": "Hammerspoon.tgz",
-       "author": {
-           "name": "Hammerspoon Team",
-           "link": "https://www.hammerspoon.org/"
-       },
-       "aliases": [],
-       "specific_versions": [
-       ]
-   }
-EOF
-    git add docsets/Hammerspoon/Hammerspoon.tgz
-    git commit -qam "Update Hammerspoon docset to ${VERSION}"
-    git push -qfv hammerspoon master
-    gh pr create --body "" --title "Update Hammerspoon docset to ${VERSION}"
-    popd >/dev/null || fail "Unknown"
-    popd >/dev/null || fail "Unknown"
-
     echo " Updating appcast.xml..."
     eval $(stat -s "${ZIP_PATH}")
     export ZIPLEN="${st_size}"
@@ -465,6 +436,37 @@ EOF
         "${T_PATH}" update "Just released ${VERSION} - https://www.hammerspoon.org/releasenotes/"
         "${T_PATH}" set active "${CURRENT_T_ACCOUNT}"
     fi
+
+    echo " Creating PR for Dash docs..."
+    pushd "${HAMMERSPOON_HOME}/../" >/dev/null || fail "Unable to access ${HAMMERSPOON_HOME}/../"
+    ${RM} -rf dash
+    git clone -q git@github.com:Kapeli/Dash-User-Contributions.git dash
+    cp "${BUILD_HOME}/Hammerspoon.tgz" dash/docsets/Hammerspoon/
+    pushd "dash" >/dev/null || fail "Unable to access dash repo at: ${HAMMERSPOON_HOME}/../dash"
+    git remote add hammerspoon git@github.com:hammerspoon/Dash-User-Contributions.git
+    git checkout -b "hammerspoon-${VERSION}"
+    cat >docsets/Hammerspoon/docset.json <<EOF
+    {
+       "name": "Hammerspoon",
+       "version": "${VERSION}",
+       "archive": "Hammerspoon.tgz",
+       "author": {
+           "name": "Hammerspoon Team",
+           "link": "https://www.hammerspoon.org/"
+       },
+       "aliases": [],
+       "specific_versions": [
+       ]
+   }
+EOF
+    git add docsets/Hammerspoon/Hammerspoon.tgz
+    git commit -qam "Update Hammerspoon docset to ${VERSION}"
+    git push -qfv hammerspoon master
+    gh repo set-default Kapeli/Dash-User-Contributions
+    gh pr create --body "" --title "Update Hammerspoon docset to ${VERSION}"
+    popd >/dev/null || fail "Unknown"
+    popd >/dev/null || fail "Unknown"
+
 }
 
 ############################## COMMAND ASSERTIONS ##############################
