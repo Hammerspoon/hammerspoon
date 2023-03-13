@@ -185,12 +185,7 @@ static int websocket_send(lua_State *L) {
     BOOL isData = (lua_gettop(L) > 2) ? (BOOL)(lua_toboolean(L, 3)) : YES ;
 
     NSUInteger options = isData ? LS_NSLuaStringAsDataOnly : LS_NSPreserveLuaStringExactly;
-    id data = [skin toNSObjectAtIndex:2 withOptions:options];
-    if (isData) {
-        [ws.webSocket sendData:data error:nil];
-    } else {
-        [ws.webSocket sendString:data error:nil];
-    }
+    [ws.webSocket send:[skin toNSObjectAtIndex:2 withOptions:options]];
     
     lua_pushvalue(L, 1);
     return 1;
