@@ -75,7 +75,7 @@ static LSRefTable refTable;
 
         [skin pushLuaRef:refTable ref:self.fn];
         [skin pushNSObject:@"fail"];
-        [skin pushNSObject:error];
+        [skin pushNSObject:error.localizedDescription];
 
         [skin protectedCallAndError:@"hs.websocket callback" nargs:2 nresults:0];
         _lua_stackguard_exit(skin.L);
