@@ -100,10 +100,10 @@ objectMT.name=objectMT.title
 --- Notes:
 ---  * see also `hs.application.find`
 function application.get(hint)
-  return tpack(application.find(hint,false),nil)[1] -- just to be sure, discard extra results
+  return tpack(application.find(hint,false,true),nil)[1] -- just to be sure, discard extra results
 end
 
---- hs.application.find(hint) -> hs.application object(s)
+--- hs.application.find(hint, exact, stringLiteral) -> hs.application object(s)
 --- Constructor
 --- Finds running applications
 ---
@@ -113,6 +113,8 @@ end
 ---    - a bundle ID string as per `hs.application:bundleID()`
 ---    - a string pattern that matches (via `string.find`) the application name as per `hs.application:name()` (for convenience, the matching will be done on lowercased strings)
 ---    - a string pattern that matches (via `string.find`) the application's window title per `hs.window:title()` (for convenience, the matching will be done on lowercased strings)
+---  * exact - a boolean, true to check application names for exact matches, false to use Lua's string:find() method. Defaults to false
+---  * stringLiteral - a boolean, true to interpret the hint string literally, false to interpret it as a Lua Pattern. Defaults to false.
 ---
 --- Returns:
 ---  * one or more hs.application objects for running applications that match the supplied search criterion, or `nil` if none found
@@ -136,7 +138,7 @@ end
 --- -- by window title
 --- hs.application'bash':name() --> Terminal
 local findSpotlightWarningGiven = false
-function application.find(hint,exact)
+function application.find(hint,exact,stringLiteral)
   if hint==nil then return end
   local typ=type(hint)
   if typ=='number' then return application.applicationForPID(hint)
@@ -146,7 +148,7 @@ function application.find(hint,exact)
   local apps=application.runningApplications()
 
   if exact then for _,a in ipairs(apps) do if a:name()==hint then r[#r+1]=a end end
-  else for _,a in ipairs(apps) do local aname=a:name() if aname and aname:lower():find(hint:lower()) then r[#r+1]=a end end end
+  else for _,a in ipairs(apps) do local aname=a:name() if aname and aname:lower():find(hint:lower(), 0, stringLiteral) then r[#r+1]=a end end end
 
   if spotlightEnabled then
       for _, v in ipairs(table.pack(realNameFor(hint, exact))) do
