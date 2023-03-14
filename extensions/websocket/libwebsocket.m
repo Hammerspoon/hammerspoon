@@ -131,15 +131,15 @@ static LSRefTable refTable;
 /// Notes:
 ///  * The callback should accept two parameters.
 ///  * The first parameter is a string with the following possible options:
-///   * open - The websocket connection has been opened
-///   * closed - The websocket connection has been closed
-///   * fail - The websocket connection has failed
-///   * received - The websocket has received a message
-///   * pong - A pong request has been received
+///    * open - The websocket connection has been opened
+///    * closed - The websocket connection has been closed
+///    * fail - The websocket connection has failed
+///    * received - The websocket has received a message
+///    * pong - A pong request has been received
 ///  * The second parameter is a string with the received message or an error message.
 ///  * Given a path '/mysock' and a port of 8000, the websocket URL is as follows:
-///   * ws://localhost:8000/mysock
-///   * wss://localhost:8000/mysock (if SSL enabled)
+///    * ws://localhost:8000/mysock
+///    * wss://localhost:8000/mysock (if SSL enabled)
 static int websocket_new(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TSTRING, LS_TFUNCTION, LS_TBREAK];
