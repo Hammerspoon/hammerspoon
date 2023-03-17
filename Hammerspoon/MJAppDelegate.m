@@ -243,6 +243,7 @@
             options.dsn = @SENTRY_API_URL;
             options.beforeSend = sentryWillUploadCrashReport;
             options.releaseName = NSBundle.mainBundle.infoDictionary[@"CFBundleShortVersionString"];
+            options.enableAppHangTracking = NO;
             options.debug = YES; // Enabled debug when first installing is always helpful
         }];
     }

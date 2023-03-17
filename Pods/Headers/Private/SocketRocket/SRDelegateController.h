@@ -1,1 +1,0 @@
-../../../SocketRocket/SocketRocket/Internal/Delegate/SRDelegateController.h

@@ -19,7 +19,7 @@ PODS:
   - Sentry/Core (8.3.0):
     - SentryPrivate (= 8.3.0)
   - SentryPrivate (8.3.0)
-  - SocketRocket (0.6.0)
+  - SocketRocket (0.5.1)
   - Sparkle (2.3.2)
 
 DEPENDENCIES:
@@ -32,7 +32,7 @@ DEPENDENCIES:
   - ORSSerialPort (= 2.1.0)
   - PocketSocket/Client (= 1.0.1)
   - Sentry (from `https://github.com/getsentry/sentry-cocoa.git`, tag `8.3.0`)
-  - SocketRocket (= 0.6.0)
+  - SocketRocket (= 0.5.1)
   - Sparkle (= 2.3.2)
 
 SPEC REPOS:
@@ -79,9 +79,9 @@ SPEC CHECKSUMS:
   PocketSocket: 9c6867d66fb4f962af96b9b07f4b45bb561b2c2a
   Sentry: 757565eb01e2a6ef6b26e897e4e47e8213e12f06
   SentryPrivate: 668d6ce46835769b32e61dc8b5c78ef0b6cdcef8
-  SocketRocket: fccef3f9c5cedea1353a9ef6ada904fde10d6608
+  SocketRocket: d57c7159b83c3c6655745cd15302aa24b6bae531
   Sparkle: b36a51855e81585a1c38e32e53101d36c00f4304
 
-PODFILE CHECKSUM: 5e3cf6e0fec00ad66fb404b8bfc29dd1a6af079f
+PODFILE CHECKSUM: c1da53d3710002d3c755a2d740c9eeb11f60ca65
 
 COCOAPODS: 1.11.3

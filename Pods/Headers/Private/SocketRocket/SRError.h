@@ -1,1 +1,0 @@
-../../../SocketRocket/SocketRocket/Internal/Utilities/SRError.h

@@ -1,1 +1,0 @@
-../../../SocketRocket/SocketRocket/NSURLRequest+SRWebSocket.h
