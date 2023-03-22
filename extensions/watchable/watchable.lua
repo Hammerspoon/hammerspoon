@@ -26,25 +26,29 @@ mt_object = {
     __newindex = function(self, index, value)
         local oldValue = mt_object.__values[self][index]
         mt_object.__values[self][index] = value
-        if oldValue ~= value then
-            local objectPath = mt_object.__objects[self]
-            if mt_object.__watchers[objectPath] then
-                if mt_object.__watchers[objectPath][index] then
-                    for _, v in pairs(mt_object.__watchers[objectPath][index]) do
-                        if v._active and v._callback then
+--         if oldValue ~= value then
+        local objectPath = mt_object.__objects[self]
+        if mt_object.__watchers[objectPath] then
+            if mt_object.__watchers[objectPath][index] then
+                for _, v in pairs(mt_object.__watchers[objectPath][index]) do
+                    if v._active and v._callback then
+                        if v._alwaysNotify or oldValue ~= value then
                             v._callback(v, objectPath, index, oldValue, value)
                         end
                     end
                 end
-                if mt_object.__watchers[objectPath]["*"] then
-                    for _, v in pairs(mt_object.__watchers[objectPath]["*"]) do
-                        if v._active and v._callback then
+            end
+            if mt_object.__watchers[objectPath]["*"] then
+                for _, v in pairs(mt_object.__watchers[objectPath]["*"]) do
+                    if v._active and v._callback then
+                        if v._alwaysNotify or oldValue ~= value then
                             v._callback(v, objectPath, index, oldValue, value)
                         end
                     end
                 end
             end
         end
+--         end
     end,
     __len = function(self)
         return #mt_object.__values[self]
@@ -52,7 +56,6 @@ mt_object = {
     __pairs = function(self) return pairs(mt_object.__values[self]) end,
     __tostring = function(self) return USERDATA_TAG .. " table for path " .. mt_object.__objects[self] end,
 }
--- mt_object.__metatable = mt_object.__index
 
 mt_watcher = {
     __name = USERDATA_TAG .. ".watcher",
@@ -67,6 +70,9 @@ mt_watcher = {
 ---
 --- Returns:
 ---  * the watchableObject
+---
+--- Notes:
+---  * Only pauses notifications for this specific watchableObject -- if other watchers are set for the path watched by this watcher, they will still receive notifications if enabled and not paused.
         pause = function(self) self._active = false ; return self end,
 --- hs.watchable:resume() -> watchableObject
 --- Method
@@ -77,6 +83,9 @@ mt_watcher = {
 ---
 --- Returns:
 ---  * the watchableObject
+---
+--- Notes:
+---  * Only resumes notifications for this specific watchableObject -- if other watchers are set for the path watched by this watcher are currently paused, they will remain paused.
         resume = function(self) self._active = true ; return self end,
 --- hs.watchable:release() -> nil
 --- Method
@@ -87,6 +96,9 @@ mt_watcher = {
 ---
 --- Returns:
 ---  * nil
+---
+--- Notes:
+---  * Only releases this specific watchableObject -- if other watchers are set for the path watched by this object, they remain bound.
         release = function(self)
             self._active = false
             if mt_object.__watchers[self._objPath][self._objKey] then -- may have already been removed by gc
@@ -97,29 +109,31 @@ mt_watcher = {
             setmetatable(self, nil)
             return nil
         end,
---- hs.watchable:callback(fn) -> watchableObject
+--- hs.watchable:callback([fn]) -> watchableObject | currentValue
 --- Method
 --- Change or remove the callback function for the watchableObject.
 ---
 --- Parameters:
----  * `fn` - a function, or an explicit nil to remove, specifying the new callback function to receive notifications for this watchableObject
+---  * `fn` - an optional function, or an explicit nil to remove, specifying the new callback function to receive notifications for this watchableObject
 ---
 --- Returns:
----  * the watchableObject
+---  * if a value is specified and is a function, an object with a __call metamethod, or an explicit nil, returns the watchableObject; otherwise returns the current callback.
 ---
 --- Notes:
 ---  * see [hs.watchable.watch](#watch) for a description of the arguments the callback function should expect.
         callback = function(self, ...)
             local args = table.pack(...)
             local callback = args[1]
-            if not callback and args.n == 0 then
+            if args.n == 0 then
+                return self._callback
+            elseif callback == nil then
                 self._callback = nil
                 return self
-            elseif type(callback) == "function" then
+            elseif type(callback) == "function" or (getmetatable(callback) or {}).__call then
                 self._callback = callback
                 return self
             else
-                error("callback must be a function", 2)
+                error("callback must be a function or object with a __call metamethod", 2)
             end
         end,
 --- hs.watchable:value([key]) -> currentValue
@@ -140,6 +154,27 @@ mt_watcher = {
             end
             local object = mt_object.__objects[self._objPath]
             return object and object[lookupKey]
+        end,
+--- hs.watchable:alwaysNotify([notify]) -> watchableObject | currentValue
+--- Method
+--- Get or set whether this watcher should be notified even when the new value is identical to the current value
+---
+--- Paramters:
+---  * `notify` - an optional boolean specifying whether or not the watchableObject should trigger a callback when the value of the watched path is set to its current value (i.e. it is set, but doesn't actually change value)
+---
+--- Returns:
+---  * if a boolean for `notify` is specified, returns the watchableObject; otherwise returns a boolean specifying whether or not a callback is initiated when the value of the path is set, but doesn't actually change value.
+        alwaysNotify = function(self, ...)
+            local args = table.pack(...)
+            local notify = args[1]
+            if args.n == 0 then
+                return self._alwaysNotify
+            elseif type(notify) == "boolean" then
+                self._alwaysNotify = notify
+                return self
+            else
+                error("notify must be a boolean", 2)
+            end
         end,
 --- hs.watchable:change([key], value) -> watchableObject
 --- Method
@@ -181,7 +216,6 @@ mt_watcher = {
     __gc = function(self) self.release(self) end,
     __tostring = function(self) return USERDATA_TAG .. ".watcher for path " .. self._path end,
 }
--- mt_watcher.__metatable = mt_watcher.__index
 
 -- Public interface ------------------------------------------------------
 
@@ -243,14 +277,14 @@ end
 ---  * It is possible to register a watcher for a path that has not been registered with [hs.watchable.new](#new) yet. Retrieving the current value with [hs.watchable:value](#value) in such a case will return nil.
 module.watch = function(path, key, callback)
     if type(path) ~= "string" then error ("path must be a string", 2) end
-    if type(key) == "function" or type(key) == "nil" then
+    if type(key) == "function" or type(key) == "nil" or (getmetatable(key) or {}).__call then
         callback = key
         local objPath, objKey = path:match("^(.+)%.([^%.]+)$")
         if not (objPath and objKey) then error ("malformed path; must be of the form 'path.key' or path and key must be separate arguments", 2) end
         path = objPath
         key = objKey
     end
-    if type(callback) ~= "function" and type(callback) ~= "nil" then error ("callback must be a function or nil", 2) end
+    if not (type(callback) == "function" or type(callback) == "nil" or (getmetatable(callback) or {}).__call) then error ("callback must be a function, object with a __call metamethod, or nil", 2) end
 
     local objPath, objKey = path, key
 
@@ -258,6 +292,7 @@ module.watch = function(path, key, callback)
         _path = objPath .. "." .. objKey,
         _objKey = objKey,
         _objPath = objPath,
+        _alwaysNotify = false,
         _active = true,
         _callback = callback,
     }, mt_watcher)
@@ -274,10 +309,14 @@ end
 -- for debugging, may remove in the future
 setmetatable(module, {
     __index = function(_, key)
-        return ({
-            mt_object  = mt_object,
-            mt_watcher = mt_watcher,
-        })[key] or nil -- the "or nil" isn't necessary but it makes our purpose clearer
+        if key == "_debug" then
+            return {
+                mt_object  = mt_object,
+                mt_watcher = mt_watcher,
+            }
+        else
+            return nil
+        end
     end,
 })
 
