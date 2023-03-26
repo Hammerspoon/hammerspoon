@@ -159,7 +159,7 @@ mt_watcher = {
 --- Method
 --- Get or set whether this watcher should be notified even when the new value is identical to the current value
 ---
---- Paramters:
+--- Parameters:
 ---  * `notify` - an optional boolean specifying whether or not the watchableObject should trigger a callback when the value of the watched path is set to its current value (i.e. it is set, but doesn't actually change value)
 ---
 --- Returns:
