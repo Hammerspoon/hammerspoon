@@ -9,6 +9,15 @@
 local module = require("hs.libbattery")
 local fnutils = require("hs.fnutils")
 
+local original_powerSources = module._powerSources
+module._powerSources = function(...)
+    local temp = original_powerSources(...)
+    if type(temp) == "table" and #temp == 0 then
+        temp = { {} }
+    end
+    return temp
+end
+
 -- private variables and methods -----------------------------------------
 
 local check_list = {
