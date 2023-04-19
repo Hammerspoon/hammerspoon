@@ -241,7 +241,7 @@ local function show(self,dir)
     self.windows=windows
   end
   local nwindows=#windows or 0
-  if nwindows==0 then self.log.i('no windows') return end
+  if nwindows==0 then exit(self) self.log.i('no windows') return end
   local selected=self.selected
   if not selected then -- fresh invocation, prep everything
     if nwindows>#drawings then -- need new drawings
