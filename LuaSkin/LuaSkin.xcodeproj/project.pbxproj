@@ -622,6 +622,18 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F0C1C7D273143D0002CA157 /* LuaSkin-Base.xcconfig */;
 			buildSettings = {
+				WARNING_CFLAGS = (
+					"-Weverything",
+					"-Wno-cstring-format-directive",
+					"-Wno-padded",
+					"-Wno-auto-import",
+					"-Wno-missing-variable-declarations",
+					"-Wno-objc-missing-property-synthesis",
+					"-Wno-cast-qual",
+					"-Wno-gnu-zero-variadic-macro-arguments",
+					"-Wno-objc-messaging-id",
+					"-Wno-declaration-after-statement",
+				);
 			};
 			name = Profile;
 		};
@@ -721,6 +733,18 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F0C1C7D273143D0002CA157 /* LuaSkin-Base.xcconfig */;
 			buildSettings = {
+				WARNING_CFLAGS = (
+					"-Weverything",
+					"-Wno-cstring-format-directive",
+					"-Wno-padded",
+					"-Wno-auto-import",
+					"-Wno-missing-variable-declarations",
+					"-Wno-objc-missing-property-synthesis",
+					"-Wno-cast-qual",
+					"-Wno-gnu-zero-variadic-macro-arguments",
+					"-Wno-objc-messaging-id",
+					"-Wno-declaration-after-statement",
+				);
 			};
 			name = Debug;
 		};
@@ -728,6 +752,18 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F0C1C7E273143DF002CA157 /* LuaSkin-Release.xcconfig */;
 			buildSettings = {
+				WARNING_CFLAGS = (
+					"-Weverything",
+					"-Wno-cstring-format-directive",
+					"-Wno-padded",
+					"-Wno-auto-import",
+					"-Wno-missing-variable-declarations",
+					"-Wno-objc-missing-property-synthesis",
+					"-Wno-cast-qual",
+					"-Wno-gnu-zero-variadic-macro-arguments",
+					"-Wno-objc-messaging-id",
+					"-Wno-declaration-after-statement",
+				);
 			};
 			name = Release;
 		};

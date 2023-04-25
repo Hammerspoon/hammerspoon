@@ -8693,6 +8693,17 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F7F3B7D272DE9F800E05732 /* Project-Base.xcconfig */;
 			buildSettings = {
+				WARNING_CFLAGS = (
+					"-Wno-cstring-format-directive",
+					"-Wno-padded",
+					"-Wno-objc-missing-property-synthesis",
+					"-Wno-auto-import",
+					"-Wno-gnu-statement-expression",
+					"-Wno-reserved-id-macro",
+					"-Wno-gnu-zero-variadic-macro-arguments",
+					"-Wno-objc-messaging-id",
+					"-Wno-declaration-after-statement",
+				);
 			};
 			name = Profile;
 		};
@@ -10456,6 +10467,17 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F7F3B7D272DE9F800E05732 /* Project-Base.xcconfig */;
 			buildSettings = {
+				WARNING_CFLAGS = (
+					"-Wno-cstring-format-directive",
+					"-Wno-padded",
+					"-Wno-objc-missing-property-synthesis",
+					"-Wno-auto-import",
+					"-Wno-gnu-statement-expression",
+					"-Wno-reserved-id-macro",
+					"-Wno-gnu-zero-variadic-macro-arguments",
+					"-Wno-objc-messaging-id",
+					"-Wno-declaration-after-statement",
+				);
 			};
 			name = Debug;
 		};
@@ -10463,6 +10485,17 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4F0C1C78272F4F28002CA157 /* Project-Release.xcconfig */;
 			buildSettings = {
+				WARNING_CFLAGS = (
+					"-Wno-cstring-format-directive",
+					"-Wno-padded",
+					"-Wno-objc-missing-property-synthesis",
+					"-Wno-auto-import",
+					"-Wno-gnu-statement-expression",
+					"-Wno-reserved-id-macro",
+					"-Wno-gnu-zero-variadic-macro-arguments",
+					"-Wno-objc-messaging-id",
+					"-Wno-declaration-after-statement",
+				);
 			};
 			name = Release;
 		};
