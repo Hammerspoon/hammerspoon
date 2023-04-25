@@ -586,6 +586,7 @@
 		D64B03371BA954290006C468 /* webview.h in Headers */ = {isa = PBXBuildFile; fileRef = D64B03361BA9541E0006C468 /* webview.h */; };
 		D64B03421BA954780006C468 /* webview.h in Headers */ = {isa = PBXBuildFile; fileRef = D64B03361BA9541E0006C468 /* webview.h */; };
 		D64B03471BA954A20006C468 /* libwebview_usercontent.m in Sources */ = {isa = PBXBuildFile; fileRef = D64B03381BA954660006C468 /* libwebview_usercontent.m */; };
+		D659EC7429F8468F00A7D103 /* docs.css in Copy hsdocs Files */ = {isa = PBXBuildFile; fileRef = D659EC7329F8468F00A7D103 /* docs.css */; };
 		D68616081E04D60A0058A4F2 /* imageAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = D68615F41E04D5990058A4F2 /* imageAdditions.m */; };
 		D68616091E04D60A0058A4F2 /* libcanvas.m in Sources */ = {isa = PBXBuildFile; fileRef = D68615F61E04D5990058A4F2 /* libcanvas.m */; };
 		D686160A1E04D61C0058A4F2 /* Canvas.h in Headers */ = {isa = PBXBuildFile; fileRef = D68615F31E04D5990058A4F2 /* Canvas.h */; };
@@ -1303,6 +1304,7 @@
 			dstPath = extensions/hs/hsdocs;
 			dstSubfolderSpec = 7;
 			files = (
+				D659EC7429F8468F00A7D103 /* docs.css in Copy hsdocs Files */,
 				4FCA05A2276768DE0089A5FC /* init.lua in Copy hsdocs Files */,
 				4FCA05A3276768DE0089A5FC /* index.lp in Copy hsdocs Files */,
 				4FCA05A4276768DE0089A5FC /* gfm.lp in Copy hsdocs Files */,
@@ -2068,6 +2070,7 @@
 		D64B03361BA9541E0006C468 /* webview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = webview.h; path = extensions/webview/webview.h; sourceTree = "<group>"; };
 		D64B03381BA954660006C468 /* libwebview_usercontent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libwebview_usercontent.m; path = extensions/webview/libwebview_usercontent.m; sourceTree = "<group>"; };
 		D64B03461BA954780006C468 /* libwebviewusercontent.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libwebviewusercontent.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		D659EC7329F8468F00A7D103 /* docs.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; name = docs.css; path = scripts/docs/templates/docs.css; sourceTree = "<group>"; };
 		D66B763A1DD6FD1400CA12E6 /* location_geocoder.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = location_geocoder.lua; path = extensions/location/location_geocoder.lua; sourceTree = "<group>"; };
 		D67F1B3C1EA9D65E00FEB411 /* doc_builder.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = doc_builder.lua; path = extensions/doc/doc_builder.lua; sourceTree = "<group>"; };
 		D684BBFB1DFB72BD00B4D0B8 /* watchable.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = watchable.lua; path = extensions/watchable/watchable.lua; sourceTree = "<group>"; };
@@ -3965,6 +3968,7 @@
 		9445CA0219083251002568BB = {
 			isa = PBXGroup;
 			children = (
+				D659EC7329F8468F00A7D103 /* docs.css */,
 				4FC09F7B19F99ECE007542A6 /* docs.json */,
 				9445CA1419083251002568BB /* Hammerspoon */,
 				4F98506D1B722C4100F7E909 /* extensions */,
