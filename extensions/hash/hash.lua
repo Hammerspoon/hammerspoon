@@ -22,7 +22,6 @@
 local USERDATA_TAG = "hs.hash"
 local module       = require(table.concat({ USERDATA_TAG:match("^([%w%._]+%.)([%w_]+)$") }, "lib"))
 local fnutils      = require("hs.fnutils")
-local fs           = require("hs.fs")
 
 -- Public interface ------------------------------------------------------
 
@@ -190,21 +189,21 @@ local fs           = require("hs.fs")
 --- Constant
 --- A tale containing the names of the hashing algorithms supported by this module.
 ---
---- At present, this module supports the following hash functions:
----
---- * CRC32      - Technically a checksum, not a hash, but often used for similar purposes, like verifying file integrity. Produces a 32bit value.
---- * MD5        - A message digest algorithm producing a 128bit hash value. MD5 is no longer consider secure for cryptographic purposes, but is still widely used to verify file integrity and other non cryptographic uses.
---- * SHA1       - A message digest algorithm producing a 160bit hash value. SHA-1 is no longer consider secure for cryptographic purposes, but is still widely used to verify file integrity and other non cryptographic uses.
---- * SHA256     - A cryptographic hash function that produces a 256bit hash value. While there has been some research into attack vectors on the SHA-2 family of algorithms, this is still considered sufficiently secure for many cryptographic purposes and for data validation and verification.
---- * SHA512     - A cryptographic hash function that produces a 512bit hash value. While there has been some research into attack vectors on the SHA-2 family of algorithms, this is still considered sufficiently secure for many cryptographic purposes and for data validation and verification.
---- * hmacMD5    - Combines the MD5 hash algorithm with a hash-based message authentication code, or pre-shared secret.
---- * hmacSHA1   - Combines the SHA1 hash algorithm with a hash-based message authentication code, or pre-shared secret.
---- * hmacSHA256 - Combines the SHA-2 256bit hash algorithm with a hash-based message authentication code, or pre-shared secret.
---- * hmacSHA512 - Combines the SHA-2 512bit hash algorithm with a hash-based message authentication code, or pre-shared secret.
---- * SHA3_224   - A SHA3 based cryptographic hash function that produces a 224bit hash value. The SHA3 family of algorithms use a different process than that which is used in the MD5, SHA1 and SHA2 families of algorithms and is considered the most cryptographically secure at present, though at the cost of additional computational complexity.
---- * SHA3_256   - A SHA3 based cryptographic hash function that produces a 256bit hash value. The SHA3 family of algorithms use a different process than that which is used in the MD5, SHA1 and SHA2 families of algorithms and is considered the most cryptographically secure at present, though at the cost of additional computational complexity.
---- * SHA3_384   - A SHA3 based cryptographic hash function that produces a 384bit hash value. The SHA3 family of algorithms use a different process than that which is used in the MD5, SHA1 and SHA2 families of algorithms and is considered the most cryptographically secure at present, though at the cost of additional computational complexity.
---- * SHA3_512   - A SHA3 based cryptographic hash function that produces a 512bit hash value. The SHA3 family of algorithms use a different process than that which is used in the MD5, SHA1 and SHA2 families of algorithms and is considered the most cryptographically secure at present, though at the cost of additional computational complexity.
+--- Notes:
+---  At present, this module supports the following hash functions:
+---  * `CRC32`      - Technically a checksum, not a hash, but often used for similar purposes, like verifying file integrity. Produces a 32bit value.
+---  * `MD5`        - A message digest algorithm producing a 128bit hash value. MD5 is no longer consider secure for cryptographic purposes, but is still widely used to verify file integrity and other non cryptographic uses.
+---  * `SHA1`       - A message digest algorithm producing a 160bit hash value. SHA-1 is no longer consider secure for cryptographic purposes, but is still widely used to verify file integrity and other non cryptographic uses.
+---  * `SHA256`     - A cryptographic hash function that produces a 256bit hash value. While there has been some research into attack vectors on the SHA-2 family of algorithms, this is still considered sufficiently secure for many cryptographic purposes and for data validation and verification.
+---  * `SHA512`     - A cryptographic hash function that produces a 512bit hash value. While there has been some research into attack vectors on the SHA-2 family of algorithms, this is still considered sufficiently secure for many cryptographic purposes and for data validation and verification.
+---  * `hmacMD5`    - Combines the MD5 hash algorithm with a hash-based message authentication code, or pre-shared secret.
+---  * `hmacSHA1`   - Combines the SHA1 hash algorithm with a hash-based message authentication code, or pre-shared secret.
+---  * `hmacSHA256` - Combines the SHA-2 256bit hash algorithm with a hash-based message authentication code, or pre-shared secret.
+---  * `hmacSHA512` - Combines the SHA-2 512bit hash algorithm with a hash-based message authentication code, or pre-shared secret.
+---  * `SHA3_224`   - A SHA3 based cryptographic hash function that produces a 224bit hash value. The SHA3 family of algorithms use a different process than that which is used in the MD5, SHA1 and SHA2 families of algorithms and is considered the most cryptographically secure at present, though at the cost of additional computational complexity.
+---  * `SHA3_256`   - A SHA3 based cryptographic hash function that produces a 256bit hash value. The SHA3 family of algorithms use a different process than that which is used in the MD5, SHA1 and SHA2 families of algorithms and is considered the most cryptographically secure at present, though at the cost of additional computational complexity.
+---  * `SHA3_384`   - A SHA3 based cryptographic hash function that produces a 384bit hash value. The SHA3 family of algorithms use a different process than that which is used in the MD5, SHA1 and SHA2 families of algorithms and is considered the most cryptographically secure at present, though at the cost of additional computational complexity.
+---  * `SHA3_512`   - A SHA3 based cryptographic hash function that produces a 512bit hash value. The SHA3 family of algorithms use a different process than that which is used in the MD5, SHA1 and SHA2 families of algorithms and is considered the most cryptographically secure at present, though at the cost of additional computational complexity.
 table.sort(module.types)
 module.types = ls.makeConstantsTable(module.types)
 
