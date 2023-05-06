@@ -280,7 +280,7 @@ end
 
 return setmetatable(module, {
     __index = function(_, key)
-        local realKey = key:match("^b(%w+)$") or key
+        local realKey = key:match("^b([%w_]+)$") or key
         if fnutils.contains(module.types, realKey) then
             return function(...)
                 local args   = { ... }

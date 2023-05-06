@@ -51,6 +51,8 @@ typedef struct dir_data {
 #define STAT_FUNC stat
 #define LSTAT_FUNC lstat
 
+static const char * const USERDATA_TAG = "hs.fs" ;
+
 /*
  ** Utility functions
  */
@@ -1156,7 +1158,7 @@ static int fs_urlFromPath(lua_State *L) {
     return 1 ;
 }
 
-/// hs.fs.fileListForPath(path, [options]) -> table
+/// hs.fs.fileListForPath(path, [options]) -> table, fileCount, dirCount
 /// Function
 /// Returns a table containing the paths to all of the files located at the specified path.
 ///
@@ -1172,7 +1174,7 @@ static int fs_urlFromPath(lua_State *L) {
 ///      * `except`         - a table of strings, default empty, specifying regular expression matches for files that match an `ignore` rule, but should be included anyways. For example, if this option is set to `{ "^\\.gitignore$" }`, then a file named `.gitignore` would be included, even though it would normally be excluded by the default `ignore` ruleset.
 ///
 /// Returns:
-///  * a table containing the paths to the files discovered at the specified path. Only files will be included -- directory names are not included in the resulting list. The table will be sorted as per the Objective-C NSString's `compare:` method.
+///  * a table containing the paths to the files discovered at the specified path. the number of files found, and the number of directories examined. Only files will be included in the results table-- directory names are not included in the resulting list. The table will be sorted as per the Objective-C NSString's `compare:` method.
 ///
 /// Notes:
 ///  * `ignore` and `except` options require the use of actual regular expressions, not the simplified pattern matching used by Lua. More details about the proper syntax for the strings to use in the tables of these options can be found at https://unicode-org.github.io/icu/userguide/strings/regexp.html.
