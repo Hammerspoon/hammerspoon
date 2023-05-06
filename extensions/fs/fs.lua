@@ -150,4 +150,13 @@ module.symlinkAttributes = function(...)
     end
 end
 
+--- hs.fs.defaultPathListExcludes -> table
+--- Variable
+--- A table containing the default list of patterns to ignore when using the [hs.fs.fileListForPath](#fileListForPath).
+---
+--- By default this table contains the single entry `{ "^\..*$" }` which is a regular expression matching all files that begin with a period.
+module.defaultPathListExcludes = {
+    "^\\..*$",
+}
+
 return module
