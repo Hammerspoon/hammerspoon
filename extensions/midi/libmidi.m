@@ -426,7 +426,7 @@ static int midi_new(lua_State *L) {
 ///
 /// Notes:
 ///  * Example Usage:
-///    `hs.midi.new(hs.midi.virtualSources()[1])`
+///    `hs.midi.newVirtualSource(hs.midi.virtualSources()[1])`
 static int midi_newVirtualSource(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;

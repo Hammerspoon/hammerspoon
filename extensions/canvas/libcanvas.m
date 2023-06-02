@@ -4025,7 +4025,7 @@ int luaopen_hs_libcanvas(lua_State* L) {
                                  metaFunctions:nil    // or module_metaLib
                                objectFunctions:userdata_metaLib];
 
-    languageDictionary = defineLanguageDictionary() ;
+    if (!languageDictionary) languageDictionary = defineLanguageDictionary() ;
 
     [skin registerPushNSHelper:pushHSCanvasView         forClass:"HSCanvasView"];
     [skin registerLuaObjectHelper:toHSCanvasViewFromLua forClass:"HSCanvasView"
