@@ -1,4 +1,4 @@
-<a href="http://commandpost.io/" ><img src="https://github.com/CommandPost/CommandPost-Website/blob/master/assets/images/CommandPost_512x512@2x.png" align="right"  width="15%" height="15%" /> </a>
+<a href="http://commandpost.io/" ><img src="https://commandpost.io/static/logo.png" align="right"  width="15%" height="15%" /> </a>
 
 # [CommandPost](http://commandpost.io/)
 [![Latest-Release](https://img.shields.io/github/v/release/CommandPost/CommandPost?include_prereleases)](https://github.com/CommandPost/CommandPost/releases) [![Platform](https://img.shields.io/badge/platform-MacOS-lightgrey.svg)](https://commandpost.io/#system-requirements) [![Website](https://img.shields.io/website?down_message=offline&up_message=online&url=https%3A%2F%2Fcommandpost.io)](https://commandpost.io/)
@@ -26,13 +26,13 @@ You can access the User Guide [here](http://help.commandpost.io/).
 
 ## Developer Guide:
 
-You can access the Developer Guide [here](http://dev.commandpost.io/). This includes information on Installation & Usage.  
+You can access the Developer Guide [here](http://dev.commandpost.io/). This includes information on Installation & Usage.
 [![Contributors](https://img.shields.io/github/contributors/CommandPost/CommandPost.svg)](https://github.com/CommandPost/CommandPost/graphs/contributors)
 
-You can participate in the translation [here](https://poeditor.com/join/project/QWvOQlF1Sy).  
+You can participate in the translation [here](https://poeditor.com/join/project/QWvOQlF1Sy).
 [![Join Translation](https://img.shields.io/badge/POEditor-translate-green.svg)](https://poeditor.com/join/project/QWvOQlF1Sy)
 
-You can also read our Developer Code of Conduct [here](https://github.com/CommandPost/CommandPost/blob/develop/CODE_OF_CONDUCT.md). The source is released under [MIT-License](http://opensource.org/licenses/MIT).  
+You can also read our Developer Code of Conduct [here](https://github.com/CommandPost/CommandPost/blob/develop/CODE_OF_CONDUCT.md). The source is released under [MIT-License](http://opensource.org/licenses/MIT).
 [![GitHub license](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/CommandPost/CommandPost/blob/develop/LICENSE.md)
 
 ## Sponsor:
