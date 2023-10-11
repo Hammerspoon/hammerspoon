@@ -219,13 +219,15 @@
 	<key>NSCameraUsageDescription</key>
 	<string>Some CommandPost extensions require access to the camera.</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright Chris Hocking &amp; David Peterson 2017-2021. Released under MIT license.</string>
+	<string>Copyright Chris Hocking &amp; David Peterson 2017-2023. Released under MIT license.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>Some CommandPost extensions (such as hs.location) require access to your location.</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Some CommandPost extensions (such as hs.noises) require access to the microphone.</string>
+	<key>NSAppDataUsageDescription</key>
+	<string>CommandPost needs to be able to read files contained in other applications containers. For example, CommandPost's reads the files within Keyboard Maestro's folder to get a list of macros, and within Final Cut Pro's folders to get a list of Share Destinations. You can click 'Allow' to approve permission for this session, or alternatively grant CommandPost 'Full Disk Access' in System Settings to avoid getting this request each time CommandPost restarts.</string>
 	<key>NSPrincipalClass</key>
 	<string>SentryCrashExceptionApplication</string>
 	<key>NSServices</key>
