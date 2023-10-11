@@ -166,6 +166,20 @@ end
 function spotify.getCurrentTrack()
   return tell('name of the current track')
 end
+
+--- hs.spotify.getCurrentTrackArtworkURL()
+--- Function
+--- Gets the artwork URL of the current track
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * A string containing the URL of the artwork for the current track, or nil if an error occurred
+function spotify.getCurrentTrackArtworkURL()
+  return tell('artwork url of current track')
+end
+
 --- hs.spotify.getCurrentTrackId()
 --- Function
 --- Gets the id of the current track
