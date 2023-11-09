@@ -18,7 +18,7 @@ DYLIB_CURRENT_VERSION = 1
 EXECUTABLE_PREFIX = lib
 
 // FIXME: Fix up hs.axuielement and remove this line
-WARNING_CLAGS =  $(inherited) -Wno-tautological-pointer-compare -Wno-bad-function-cast
+WARNING_CLAGS =  $(inherited) -Wno-tautological-pointer-compare -Wno-bad-function-cast -Wno-deprecated-non-prototype
 
 // Don't try and install the library in /usr/local/lib when archiving/exporting
 SKIP_INSTALL = YES
