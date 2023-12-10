@@ -599,6 +599,11 @@
 		D6A318AB1DDD836800D9B328 /* libnetwork_ping.m in Sources */ = {isa = PBXBuildFile; fileRef = D6A3189B1DDD830A00D9B328 /* libnetwork_ping.m */; };
 		D6A318AC1DDD836800D9B328 /* SimplePing.m in Sources */ = {isa = PBXBuildFile; fileRef = D6A3189D1DDD830A00D9B328 /* SimplePing.m */; };
 		D6A318AD1DDD837400D9B328 /* SimplePing.h in Headers */ = {isa = PBXBuildFile; fileRef = D6A3189C1DDD830A00D9B328 /* SimplePing.h */; };
+		D6A6C1122A05F3500018FC9B /* byte_order.h in Headers */ = {isa = PBXBuildFile; fileRef = D6A6C10D2A05F3500018FC9B /* byte_order.h */; };
+		D6A6C1132A05F3500018FC9B /* sha3.m in Sources */ = {isa = PBXBuildFile; fileRef = D6A6C10E2A05F3500018FC9B /* sha3.m */; };
+		D6A6C1142A05F3500018FC9B /* sha3.h in Headers */ = {isa = PBXBuildFile; fileRef = D6A6C10F2A05F3500018FC9B /* sha3.h */; };
+		D6A6C1152A05F3500018FC9B /* algorithms.m in Sources */ = {isa = PBXBuildFile; fileRef = D6A6C1102A05F3500018FC9B /* algorithms.m */; };
+		D6A6C1162A05F3500018FC9B /* algorithms.h in Headers */ = {isa = PBXBuildFile; fileRef = D6A6C1112A05F3500018FC9B /* algorithms.h */; };
 		D6B9464E1D139C7D00177E0C /* webview.h in Headers */ = {isa = PBXBuildFile; fileRef = D64B03361BA9541E0006C468 /* webview.h */; };
 		D6B946531D139CB800177E0C /* libwebview_datastore.m in Sources */ = {isa = PBXBuildFile; fileRef = D6B946431D139C4900177E0C /* libwebview_datastore.m */; };
 		D6B9465A1D139CC500177E0C /* webview.h in Headers */ = {isa = PBXBuildFile; fileRef = D64B03361BA9541E0006C468 /* webview.h */; };
@@ -2101,6 +2106,11 @@
 		D6A3189C1DDD830A00D9B328 /* SimplePing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SimplePing.h; path = extensions/network/ping/SimplePing.h; sourceTree = "<group>"; };
 		D6A3189D1DDD830A00D9B328 /* SimplePing.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SimplePing.m; path = extensions/network/ping/SimplePing.m; sourceTree = "<group>"; };
 		D6A318AA1DDD833100D9B328 /* libnetworkping.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libnetworkping.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		D6A6C10D2A05F3500018FC9B /* byte_order.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = byte_order.h; path = extensions/hash/byte_order.h; sourceTree = "<group>"; };
+		D6A6C10E2A05F3500018FC9B /* sha3.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = sha3.m; path = extensions/hash/sha3.m; sourceTree = "<group>"; };
+		D6A6C10F2A05F3500018FC9B /* sha3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sha3.h; path = extensions/hash/sha3.h; sourceTree = "<group>"; };
+		D6A6C1102A05F3500018FC9B /* algorithms.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = algorithms.m; path = extensions/hash/algorithms.m; sourceTree = "<group>"; };
+		D6A6C1112A05F3500018FC9B /* algorithms.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = algorithms.h; path = extensions/hash/algorithms.h; sourceTree = "<group>"; };
 		D6B772981CCB544B00908A59 /* cgilua_compatibility_functions.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = cgilua_compatibility_functions.lua; path = extensions/httpserver/cgilua_compatibility_functions.lua; sourceTree = "<group>"; };
 		D6B772991CCB544B00908A59 /* httpserver_hsminweb.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = httpserver_hsminweb.lua; path = extensions/httpserver/httpserver_hsminweb.lua; sourceTree = "<group>"; };
 		D6B946431D139C4900177E0C /* libwebview_datastore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libwebview_datastore.m; path = extensions/webview/libwebview_datastore.m; sourceTree = "<group>"; };
@@ -3131,6 +3141,11 @@
 		4F4CB3F41B73A3D9000EA9B6 /* hash */ = {
 			isa = PBXGroup;
 			children = (
+				D6A6C1112A05F3500018FC9B /* algorithms.h */,
+				D6A6C1102A05F3500018FC9B /* algorithms.m */,
+				D6A6C10D2A05F3500018FC9B /* byte_order.h */,
+				D6A6C10F2A05F3500018FC9B /* sha3.h */,
+				D6A6C10E2A05F3500018FC9B /* sha3.m */,
 				4F4CB3F51B73A4EC000EA9B6 /* hash.lua */,
 				4F4CB3F61B73A4EC000EA9B6 /* libhash.m */,
 			);
@@ -4500,6 +4515,9 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D6A6C1162A05F3500018FC9B /* algorithms.h in Headers */,
+				D6A6C1122A05F3500018FC9B /* byte_order.h in Headers */,
+				D6A6C1142A05F3500018FC9B /* sha3.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7284,6 +7302,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D6A6C1132A05F3500018FC9B /* sha3.m in Sources */,
+				D6A6C1152A05F3500018FC9B /* algorithms.m in Sources */,
 				4F4CB3F71B73A4EC000EA9B6 /* libhash.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

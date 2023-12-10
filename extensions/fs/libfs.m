@@ -51,6 +51,8 @@ typedef struct dir_data {
 #define STAT_FUNC stat
 #define LSTAT_FUNC lstat
 
+static const char * const USERDATA_TAG = "hs.fs" ;
+
 /*
  ** Utility functions
  */
@@ -1156,6 +1158,272 @@ static int fs_urlFromPath(lua_State *L) {
     return 1 ;
 }
 
+/// hs.fs.fileListForPath(path, [options]) -> table, fileCount, dirCount
+/// Function
+/// Returns a table containing the paths to all of the files located at the specified path.
+///
+/// Parameters:
+///  * `path`    - a string specifying the path to gather the files from. If this path specifies a file, then the return value is a table containing only this path. If the path specifies a directory, then the table contains the paths of all of the files found in the specified directory.
+///  * `options` - an optional table with one or more key-value pairs determining how and what files are to be included in the table returned.
+///    * The following keys are recognized:
+///      * `subdirs`        - a boolean, default false, indicating whether or not subdirectories should be descended into and examined for files as well.
+///      * `followSymlinks` - a boolean, default false, indicating whether or not symbolic links should be followed
+///      * `expandSymlinks` - a boolean, default false, specifying whether or not the real path of any files discovered after following a symbolic link should be included in the list (true) or whether the path added to the list should remain relative to the starting path (false).
+///      * `relativePath`   - a boolean, default false, specifying whether paths included in the result list should be relative to the starting path (true) or the full and complete path to the file (false).
+///      * `ignore`         - a table of strings, specifying regular expression matches for files to exclude from the result list. If not provided, this value will be inherited from the module's variable [hs.fs.defaultPathListExcludes](#defaultPathListExcludes) which, by defualt, is set to ignore all files beginning with a period (often called dot-files). To include all files, set this option equal to the empty table (i.e. `{}`).
+///      * `except`         - a table of strings, default empty, specifying regular expression matches for files that match an `ignore` rule, but should be included anyways. For example, if this option is set to `{ "^\\.gitignore$" }`, then a file named `.gitignore` would be included, even though it would normally be excluded by the default `ignore` ruleset.
+///
+/// Returns:
+///  * a table containing the paths to the files discovered at the specified path. the number of files found, and the number of directories examined. Only files will be included in the results table-- directory names are not included in the resulting list. The table will be sorted as per the Objective-C NSString's `compare:` method.
+///
+/// Notes:
+///  * `ignore` and `except` options require the use of actual regular expressions, not the simplified pattern matching used by Lua. More details about the proper syntax for the strings to use in the tables of these options can be found at https://unicode-org.github.io/icu/userguide/strings/regexp.html.
+///    * note that this function only checks to see if the regular expression returns a match for each filename found (not the path, just the filename component of the path). Any captures are ignored.
+static int fs_filesInPath(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L] ;
+    [skin checkArgs:LS_TSTRING,
+                    LS_TTABLE | LS_TOPTIONAL,
+                    LS_TBREAK] ;
+
+    NSString *path   = [skin toNSObjectAtIndex:1] ;
+
+    BOOL    subdirs        = NO ;
+    BOOL    followSymlinks = NO ;
+    BOOL    expandSymlinks = NO ;
+    BOOL    relativePath   = NO ;
+//     BOOL    objectWrapper  = NO ;
+    NSArray *ignore        = nil ;
+    NSArray *except        = nil ;
+
+    if (lua_type(L, 2) == LUA_TTABLE) {
+        lua_pushnil(L) ;
+        while (lua_next(L, 2) != 0) {
+            if (lua_type(L, -2) == LUA_TSTRING) {
+                const char *keyName = lua_tostring(L, -2) ;
+                if (!strcmp(keyName, "subdirs")) {
+                    if (lua_type(L, -1) == LUA_TBOOLEAN) {
+                        subdirs = (BOOL)(lua_toboolean(L, -1)) ;
+                    } else {
+                        return luaL_argerror(L, 2, "subdirs option expects boolean value") ;
+                    }
+                } else if (!strcmp(keyName, "followSymlinks")) {
+                    if (lua_type(L, -1) == LUA_TBOOLEAN) {
+                        followSymlinks = (BOOL)(lua_toboolean(L, -1)) ;
+                    } else {
+                        return luaL_argerror(L, 2, "followSymlinks option expects boolean value") ;
+                    }
+                } else if (!strcmp(keyName, "expandSymlinks")) {
+                    if (lua_type(L, -1) == LUA_TBOOLEAN) {
+                        expandSymlinks = (BOOL)(lua_toboolean(L, -1)) ;
+                    } else {
+                        return luaL_argerror(L, 2, "expandSymlinks option expects boolean value") ;
+                    }
+                } else if (!strcmp(keyName, "relativePath")) {
+                    if (lua_type(L, -1) == LUA_TBOOLEAN) {
+                        relativePath = (BOOL)(lua_toboolean(L, -1)) ;
+                    } else {
+                        return luaL_argerror(L, 2, "relativePath option expects boolean value") ;
+                    }
+// The speedup hoped for by this wasn't as impressive as desired; leaving the code in, though, in case we
+// decide we need it later anyways. Also see the return section at the bottom
+//                 } else if (!strcmp(keyName, "objectWrapper")) {
+//                     if (lua_type(L, -1) == LUA_TBOOLEAN) {
+//                         objectWrapper = (BOOL)(lua_toboolean(L, -1)) ;
+//                     } else {
+//                         return luaL_argerror(L, 2, "objectWrapper option expects boolean value") ;
+//                     }
+                } else if (!strcmp(keyName, "ignore")) {
+                    ignore = [skin toNSObjectAtIndex:-1] ;
+                    if ([ignore isKindOfClass:[NSArray class]]) {
+                        for (NSString *entry in ignore) {
+                            if ([entry isKindOfClass:[NSString class]]) continue ;
+                            return luaL_argerror(L, 2, "ignore option table entries must be strings") ;
+                        }
+                    } else {
+                        return luaL_argerror(L, 2, "ignore option expects table value") ;
+                    }
+                } else if (!strcmp(keyName, "except")) {
+                    except = [skin toNSObjectAtIndex:-1] ;
+                    if ([except isKindOfClass:[NSArray class]]) {
+                        for (NSString *entry in except) {
+                            if ([entry isKindOfClass:[NSString class]]) continue ;
+                            return luaL_argerror(L, 2, "except option table entries must be strings") ;
+                        }
+                    } else {
+                        return luaL_argerror(L, 2, "except option expects table value") ;
+                    }
+                } else {
+                    return luaL_argerror(L, 2, [[NSString stringWithFormat:@"option %s not recognized", keyName] UTF8String]) ;
+                }
+            } else {
+                return luaL_argerror(L, 2, "option table keys must be strings") ;
+            }
+            lua_pop(L, 1);
+        }
+    }
+
+    if (!except) except = [NSArray array] ;
+
+    if (!ignore) {
+        [skin requireModule:USERDATA_TAG] ; // put our module on top of the stack
+        lua_getfield(L, -1, "defaultPathListExcludes") ;
+        ignore = [skin toNSObjectAtIndex:-1] ;
+        lua_pop(L, 2) ;
+    }
+
+    NSMutableArray *excluders  = [NSMutableArray arrayWithCapacity:ignore.count] ;
+    NSMutableArray *exceptions = [NSMutableArray arrayWithCapacity:except.count] ;
+    for (NSUInteger i = 0 ; i < ignore.count ; i++) {
+        NSError *error = nil ;
+        NSRegularExpression *p = [NSRegularExpression regularExpressionWithPattern:ignore[i]
+                                                                           options:NSRegularExpressionUseUnicodeWordBoundaries
+                                                                             error:&error] ;
+        if (!error) {
+            [excluders addObject:p] ;
+        } else {
+            return luaL_argerror(L, 2, [[NSString stringWithFormat:@"invalid regex (%@) at index %lu of ignore option", error.localizedDescription, i + 1] UTF8String]) ;
+        }
+    }
+    for (NSUInteger i = 0 ; i < except.count ; i++) {
+        NSError *error = nil ;
+        NSRegularExpression *p = [NSRegularExpression regularExpressionWithPattern:except[i]
+                                                                           options:NSRegularExpressionUseUnicodeWordBoundaries
+                                                                             error:&error] ;
+        if (!error) {
+            [exceptions addObject:p] ;
+        } else {
+            return luaL_argerror(L, 2, [[NSString stringWithFormat:@"invalid regex (%@) at index %lu of except option", error.localizedDescription, i + 1] UTF8String]) ;
+        }
+    }
+
+    path = path.stringByExpandingTildeInPath.stringByResolvingSymlinksInPath ;
+    lua_Integer dirCount  = 0 ;
+
+    NSFileManager *fileManager = [NSFileManager defaultManager] ;
+    BOOL        isDirectory ;
+    BOOL        fileExists = [fileManager fileExistsAtPath:path isDirectory:&isDirectory] ;
+
+    // take care of the easy cases:
+    if (!fileExists) {
+        return luaL_argerror(L, 1, "path does not specify a reachable file or directory") ;
+    } else if (!isDirectory) {
+        [skin pushNSObject:@[ path ]] ;
+        lua_pushinteger(L, 1) ;
+        lua_pushinteger(L, 0) ;
+        return 3 ;
+    }
+
+    NSURL    *startingURL  = [NSURL fileURLWithPath:path isDirectory:YES] ;
+// stdlib realpath() instead?
+    NSString *startingPath = nil ;
+    [startingURL getResourceValue:&startingPath forKey:NSURLPathKey error:nil] ;
+
+    NSMutableArray *foundPaths      = [NSMutableArray array] ;
+    NSMutableArray *seenDirectories = [NSMutableArray array] ; // to prevent loops when links is true
+    NSMutableArray *directories     = [NSMutableArray arrayWithObject:@[ startingPath, startingPath ]] ;
+
+    while(directories.count > 0) {
+        NSArray *currentPathArray = directories[0] ;
+        [directories removeObjectAtIndex:0] ;
+        dirCount++ ;
+
+        NSString *thisDir     = currentPathArray[0] ;
+        NSString *symbolicDir = currentPathArray[1] ;
+
+        [seenDirectories addObject:thisDir] ;
+
+        NSURL                 *thisDirURL = [NSURL fileURLWithPath:thisDir isDirectory:YES] ;
+        NSDirectoryEnumerator *dirEnum    = [fileManager enumeratorAtURL:thisDirURL
+                                              includingPropertiesForKeys:@[
+                                                                             NSURLIsRegularFileKey,
+                                                                             NSURLIsSymbolicLinkKey,
+                                                                             NSURLIsDirectoryKey,
+                                                                             NSURLPathKey
+                                                                         ]
+                                                                 options: NSDirectoryEnumerationSkipsSubdirectoryDescendants
+                                                            errorHandler:nil] ;
+        for (__strong NSURL *fileURL in dirEnum) {
+            NSString *filePath = nil ;
+            [fileURL getResourceValue:&filePath forKey:NSURLPathKey error:nil] ;
+
+            NSNumber *isSymbolicLink = nil ;
+            [fileURL getResourceValue:&isSymbolicLink forKey:NSURLIsSymbolicLinkKey error:nil] ;
+
+            NSString *originalFilePath = [filePath copy] ;
+            NSString *fileName = originalFilePath.lastPathComponent ;
+
+            if (isSymbolicLink.boolValue) {
+                if (followSymlinks) {
+                    NSString *newPath = filePath.stringByResolvingSymlinksInPath ;
+                    if ([fileManager fileExistsAtPath:newPath]) {
+                        fileURL = [NSURL fileURLWithPath:newPath] ;
+                        [fileURL getResourceValue:&filePath forKey:NSURLPathKey error:nil] ;
+                    } else {
+                        [LuaSkin logWarn:[NSString stringWithFormat:@"%s.pathList - error resolving symbolic link %@", USERDATA_TAG, newPath]] ;
+                        continue ;
+                    }
+                } else {
+                    continue ;
+                }
+            }
+
+            BOOL keepGoing = YES ;
+
+            for (NSRegularExpression *test in excluders) {
+                NSUInteger matches = [test numberOfMatchesInString:fileName options:0 range:NSMakeRange(0, fileName.length)] ;
+                if (matches > 0) {
+                    keepGoing = NO ;
+                    break ;
+                }
+            }
+
+            for (NSRegularExpression *test in exceptions) {
+                NSUInteger matches = [test numberOfMatchesInString:fileName options:0 range:NSMakeRange(0, fileName.length)] ;
+                if (matches > 0) {
+                    keepGoing = YES ;
+                    break ;
+                }
+            }
+
+            if (!keepGoing) continue ;
+
+            NSNumber *isRegularFile = nil ;
+            [fileURL getResourceValue:&isRegularFile forKey:NSURLIsRegularFileKey error:nil] ;
+            if (isRegularFile.boolValue) {
+                if (!expandSymlinks) {
+                    filePath = [originalFilePath stringByReplacingOccurrencesOfString:thisDir
+                                                                           withString:symbolicDir
+                                                                              options:(NSAnchoredSearch | NSLiteralSearch)
+                                                                                range:NSMakeRange(0, originalFilePath.length)] ;
+                }
+                if (relativePath && [filePath hasPrefix:startingPath]) {
+                    [foundPaths addObject:[filePath substringFromIndex:startingPath.length + 1]] ; // include / before rest of path
+                } else {
+                    [foundPaths addObject:filePath] ;
+                }
+            } else if (subdirs) {
+                NSNumber *isThisDir = nil ;
+                [fileURL getResourceValue:&isThisDir forKey:NSURLIsDirectoryKey error:nil] ;
+                if (isThisDir.boolValue && ![seenDirectories containsObject:filePath]) {
+                    [directories addObject:@[ filePath, [NSString stringWithFormat:@"%@/%@", symbolicDir, fileName] ]] ;
+                }
+            }
+        }
+    }
+
+    // ensure consistent order
+    [foundPaths sortUsingSelector:@selector(compare:)] ;
+
+//     if (objectWrapper) {
+//         [skin pushNSObject:foundPaths withOptions:LS_WithObjectWrapper | LS_OW_ReadWrite] ;
+//     } else {
+        [skin pushNSObject:foundPaths] ;
+//     }
+    lua_pushinteger(L, (lua_Integer)foundPaths.count) ;
+    lua_pushinteger(L, dirCount) ;
+    return 3;
+}
+
 static const struct luaL_Reg fslib[] = {
     {"attributes", file_info},
     {"chdir", change_dir},
@@ -1183,6 +1451,7 @@ static const struct luaL_Reg fslib[] = {
     {"pathToBookmark", fs_pathToBookmark},
     {"pathFromBookmark", fs_pathFromBookmark},
     {"urlFromPath", fs_urlFromPath},
+    {"fileListForPath", fs_filesInPath},
     {NULL, NULL},
 };
 
