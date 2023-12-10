@@ -477,6 +477,7 @@ module.ping = function(server, ...)
                 icmp = icmp,
             }
             internals[self].callback(self, msg, seq, err)
+            if internals[self].allSent then basicPingCompletionFunction(self) end
         elseif msg == "receivedPacket" then
             local icmp, seq = ...
             internals[self].packets[seq + 1].recv = timer.secondsSinceEpoch()
@@ -496,9 +497,9 @@ module.ping = function(server, ...)
     internals[self].pingTimer  = timer.doEvery(interval, function()
         if not internals[self].paused then
             if internals[self].sentCount < internals[self].maxCount then
-                internals[self].pingObject:sendPayload()
                 internals[self].sentCount = internals[self].sentCount + 1
-                if internals[self].sentCount == internals[self].maxCount then internals[self].allSent = true end
+                internals[self].allSent = internals[self].sentCount == internals[self].maxCount
+                internals[self].pingObject:sendPayload()
             else
                 internals[self].pingTimer:stop()
                 internals[self].pingTimer = nil
