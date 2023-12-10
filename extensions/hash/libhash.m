@@ -53,7 +53,7 @@ static int doHashHMAC(lua_State *L, CCHmacAlgorithm algorithm, CC_LONG resultLen
 ///  * data - A string containing some data to hash
 ///
 /// Returns:
-///  * A string containing the hash of the supplied data
+///  * A string containing the hash of the supplied data, encoded as hexadecimal
 static int hash_sha1(lua_State *L) {
     return doHash(L, CC_SHA1_DIGEST_LENGTH, CC_SHA1);
 }
@@ -66,7 +66,7 @@ static int hash_sha1(lua_State *L) {
 ///  * data - A string containing some data to hash
 ///
 /// Returns:
-///  * A string containing the hash of the supplied data
+///  * A string containing the hash of the supplied data, encoded as hexadecimal
 static int hash_sha256(lua_State *L) {
     return doHash(L, CC_SHA256_DIGEST_LENGTH, CC_SHA256);
 }
@@ -79,7 +79,7 @@ static int hash_sha256(lua_State *L) {
 ///  * data - A string containing some data to hash
 ///
 /// Returns:
-///  * A string containing the hash of the supplied data
+///  * A string containing the hash of the supplied data, encoded as hexadecimal
 static int hash_sha512(lua_State *L) {
     return doHash(L, CC_SHA512_DIGEST_LENGTH, CC_SHA512);
 }
@@ -92,12 +92,103 @@ static int hash_sha512(lua_State *L) {
 ///  * data - A string containing some data to hash
 ///
 /// Returns:
-///  * A string containing the hash of the supplied data
+///  * A string containing the hash of the supplied data, encoded as hexadecimal
 static int hash_md5(lua_State *L) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     return doHash(L, CC_MD5_DIGEST_LENGTH, CC_MD5);
 #pragma clang diagnostic pop
+}
+
+/// hs.hash.bSHA1(data) -> data
+/// Function
+/// Calculates a binary SHA1 hash
+///
+/// Parameters:
+///  * data - A string containing some data to hash
+///
+/// Returns:
+///  * A string containing the binary hash of the supplied data
+static int hash_bsha1(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TSTRING, LS_TBREAK];
+
+    NSData *dataIn = [skin toNSObjectAtIndex:1 withOptions:LS_NSLuaStringAsDataOnly];
+
+    NSMutableData *macOut = [NSMutableData dataWithLength:CC_SHA1_DIGEST_LENGTH];
+    CC_SHA1(dataIn.bytes, (CC_LONG)dataIn.length, macOut.mutableBytes);
+
+    [skin pushNSObject:macOut];
+    return 1;
+}
+
+/// hs.hash.bSHA256(data) -> data
+/// Function
+/// Calculates a binary SHA256 hash
+///
+/// Parameters:
+///  * data - A string containing some data to hash
+///
+/// Returns:
+///  * A string containing the binary hash of the supplied data
+static int hash_bsha256(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TSTRING, LS_TBREAK];
+
+    NSData *dataIn = [skin toNSObjectAtIndex:1 withOptions:LS_NSLuaStringAsDataOnly];
+
+    NSMutableData *macOut = [NSMutableData dataWithLength:CC_SHA256_DIGEST_LENGTH];
+    CC_SHA256(dataIn.bytes, (CC_LONG)dataIn.length, macOut.mutableBytes);
+
+    [skin pushNSObject:macOut];
+    return 1;
+}
+
+/// hs.hash.bSHA512(data) -> data
+/// Function
+/// Calculates a binary SHA512 hash
+///
+/// Parameters:
+///  * data - A string containing some data to hash
+///
+/// Returns:
+///  * A string containing the binary hash of the supplied data
+static int hash_bsha512(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TSTRING, LS_TBREAK];
+
+    NSData *dataIn = [skin toNSObjectAtIndex:1 withOptions:LS_NSLuaStringAsDataOnly];
+
+    NSMutableData *macOut = [NSMutableData dataWithLength:CC_SHA512_DIGEST_LENGTH];
+    CC_SHA512(dataIn.bytes, (CC_LONG)dataIn.length, macOut.mutableBytes);
+
+    [skin pushNSObject:macOut];
+    return 1;
+}
+
+/// hs.hash.bMD5(data) -> data
+/// Function
+/// Calculates a binary MD5 hash
+///
+/// Parameters:
+///  * data - A string containing some data to hash
+///
+/// Returns:
+///  * A string containing the binary hash of the supplied data
+static int hash_bmd5(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TSTRING, LS_TBREAK];
+
+    NSData *dataIn = [skin toNSObjectAtIndex:1 withOptions:LS_NSLuaStringAsDataOnly];
+
+    NSMutableData *macOut = [NSMutableData dataWithLength:CC_MD5_DIGEST_LENGTH];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    CC_MD5(dataIn.bytes, (CC_LONG)dataIn.length, macOut.mutableBytes);
+#pragma clang diagnostic pop
+
+    [skin pushNSObject:macOut];
+    return 1;
 }
 
 /// hs.hash.hmacSHA1(key, data) -> string
@@ -161,6 +252,11 @@ static const luaL_Reg hashlib[] = {
     {"SHA256", hash_sha256},
     {"SHA512", hash_sha512},
     {"MD5", hash_md5},
+
+    {"bSHA1", hash_bsha1},
+    {"bSHA256", hash_bsha256},
+    {"bSHA512", hash_bsha512},
+    {"bMD5", hash_bmd5},
 
     {"hmacSHA1", hash_sha1_hmac},
     {"hmacSHA256", hash_sha256_hmac},

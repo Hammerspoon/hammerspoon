@@ -21,7 +21,7 @@ SentryDsn ()
     self = [super init];
     if (self) {
         _url = [self convertDsnString:dsnString didFailWithError:error];
-        if (nil != error && nil != *error) {
+        if (_url == nil) {
             return nil;
         }
     }

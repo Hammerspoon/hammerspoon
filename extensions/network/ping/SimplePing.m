@@ -577,7 +577,7 @@ static void SocketReadCallback(CFSocketRef s, CFSocketCallBackType type, CFDataR
 }
 
 /*! Starts the send and receive infrastructure.
- *  \details This is called once we've successfully resolved `hostName` in to
+ *  \details This is called once we've successfully resolved `hostName` into
  *      `hostAddress`.  It's responsible for setting up the socket for sending and
  *      receiving pings.
  */
@@ -764,7 +764,15 @@ static void HostResolveCallback(CFHostRef theHost, CFHostInfoType typeInfo, cons
 
 - (void)stopSocket {
     if (self.socket != NULL) {
+        int fd = CFSocketGetNative(self.socket);
+
+        if (CFSocketGetSocketFlags(self.socket) & kCFSocketCloseOnInvalidate) {
+            fd = -1; // No need to manually close the socket, it'll happen automatically
+        }
         CFSocketInvalidate(self.socket);
+        if (fd != -1) {
+            close(fd);
+        }
         self.socket = NULL;
     }
 }

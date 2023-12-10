@@ -22,7 +22,7 @@ jobs:
         run: echo "TAGNAME=$(git describe --abbrev=0)" >> $GITHUB_OUTPUT
       - name: Get previous tag name
         id: previous_tag
-        run: echo "TAGNAME=$(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1))" >> $GITHUB_OUTPUT
+        run: echo "TAGNAME=$(git describe --abbrev=0 ${{ steps.current_tag.outputs.TAGNAME}}^)" >> $GITHUB_OUTPUT
       - name: Get date
         id: date
         run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
@@ -57,6 +57,7 @@ jobs:
     permissions:
       contents: read
       issues: write
+    needs: generate-release-notes
     steps:
       - uses: actions/checkout@v2
         with:
@@ -71,7 +72,7 @@ jobs:
 
       - name: Get previous tag name
         id: previous_tag
-        run: echo "TAGNAME=$(git describe --abbrev=0 HEAD^)" >> $GITHUB_OUTPUT
+        run: echo "TAGNAME=$(git describe --abbrev=0 ${{ steps.current_tag.outputs.TAGNAME}}^)" >> $GITHUB_OUTPUT
 
       - name: Get next version
         id: next_tag
@@ -81,9 +82,9 @@ jobs:
 
       - name: Display calculated versions
         run: |
+          echo "Previous version: ${{ steps.previous_tag.outputs.TAGNAME }}"
           echo "Current version: ${{ steps.current_tag.outputs.TAGNAME }}"
-          echo "Previous version: ${{ steps.previous_tag.outputs.TAGNAME  }}"
-          echo "Next version: ${{ steps.next_tag.outputs.patch  }}"
+          echo "Next version: ${{ steps.next_tag.outputs.patch }}"
 
       - name: Create milestone
         uses: "WyriHaximus/github-action-create-milestone@v1"
@@ -96,7 +97,7 @@ jobs:
         uses: "Beakyn/gha-close-milestone@v1.1.1"
         with:
           repository: ${{ github.repository }}
-          milestone-title: ${{ steps.previous_tag.outputs.TAGNAME }}
+          milestone-title: ${{ steps.current_tag.outputs.TAGNAME }}
         env:
           GITHUB_TOKEN: "${{ github.token }}"
 

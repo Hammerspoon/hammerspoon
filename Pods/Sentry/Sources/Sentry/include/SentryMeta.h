@@ -7,12 +7,12 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Return a version string e.g: 1.2.3 (3)
  */
-@property (nonatomic, class, readonly, copy) NSString *versionString;
+@property (nonatomic, class, copy) NSString *versionString;
 
 /**
  * Return a string sentry-cocoa
  */
-@property (nonatomic, class, readonly, copy) NSString *sdkName;
+@property (nonatomic, class, copy) NSString *sdkName;
 
 @end
 

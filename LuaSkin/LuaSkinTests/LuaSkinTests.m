@@ -970,7 +970,7 @@ static int pushTestUserData(lua_State *L, id object) {
     lua_pushstring(self.skin.L, "hello\x81there");
     XCTAssertFalse([self.skin isValidUTF8AtIndex:-1]);
 
-    // FIXME: Thie should have lots more tests, including some that contain invalid UTF8
+    // FIXME: This should have lots more tests, including some that contain invalid UTF8
 }
 
 - (void) testMaxNatIndexAndCountNatIndex {

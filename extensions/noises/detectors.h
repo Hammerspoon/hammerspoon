@@ -47,7 +47,7 @@ protected:
 
   // Tss detection
   float m_sensitivity;
-  float m_hysterisisFactor;
+  float m_hysteresisFactor;
   float m_lowPassWeight;
   int m_minFrames;
   int m_minFramesLong;

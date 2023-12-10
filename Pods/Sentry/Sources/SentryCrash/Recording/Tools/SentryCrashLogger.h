@@ -237,17 +237,6 @@ void i_sentrycrashlog_logCBasic(const char *fmt, ...);
 #    pragma mark - API -
 // ============================================================================
 
-/** Set the filename to log to.
- *
- * @param filename The file to write to (NULL = write to stdout).
- *
- * @param overwrite If true, overwrite the log file.
- */
-bool sentrycrashlog_setLogFilename(const char *filename, bool overwrite);
-
-/** Clear the log file. */
-bool sentrycrashlog_clearLogFile(void);
-
 /** Tests if the logger would print at the specified level.
  *
  * @param LEVEL The level to test for. One of:

@@ -226,7 +226,7 @@ end
 ---  * image   - The image to display in the alert
 ---  * style   - an optional table containing one or more of the keys specified in [hs.alert.defaultStyle](#defaultStyle).  If `str` is already an `hs.styledtext` object, this argument is ignored.
 ---  * screen  - an optional `hs.screen` userdata object specifying the screen (monitor) to display the alert on.  Defaults to `hs.screen.mainScreen()` which corresponds to the screen with the currently focused window.
----  * seconds - The number of seconds to display the alert. Defaults to 2.  If seconds is specified and is not a number, displays the alert indefinately.
+---  * seconds - The number of seconds to display the alert. Defaults to 2.  If seconds is specified and is not a number, displays the alert indefinitely.
 ---
 --- Returns:
 ---  * a string identifier for the alert.
@@ -268,7 +268,7 @@ end
 ---  * str     - The string or `hs.styledtext` object to display in the alert
 ---  * style   - an optional table containing one or more of the keys specified in [hs.alert.defaultStyle](#defaultStyle).  If `str` is already an `hs.styledtext` object, this argument is ignored.
 ---  * screen  - an optional `hs.screen` userdata object specifying the screen (monitor) to display the alert on.  Defaults to `hs.screen.mainScreen()` which corresponds to the screen with the currently focused window.
----  * seconds - The number of seconds to display the alert. Defaults to 2.  If seconds is specified and is not a number, displays the alert indefinately.
+---  * seconds - The number of seconds to display the alert. Defaults to 2.  If seconds is specified and is not a number, displays the alert indefinitely.
 ---
 --- Returns:
 ---  * a string identifier for the alert.
@@ -309,7 +309,7 @@ end
 ---  * None
 ---
 --- Notes:
----  * Use this function to close an alert which is indefinate or close an alert with a long duration early.
+---  * Use this function to close an alert which is indefinite or close an alert with a long duration early.
 module.closeSpecific = function(UUID, duration)
     duration = duration and math.max(duration, 0.0) or module.defaultStyle.fadeOutDuration
     purgeAlert(UUID, duration)

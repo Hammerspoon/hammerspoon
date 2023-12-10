@@ -1,11 +1,12 @@
 # Hammerspoon
-[![IRC](https://img.shields.io/badge/IRC-%23hammerspoon-1e72ff.svg?style=flat)](https://www.irccloud.com/invite?channel=%23hammerspoon&amp;hostname=irc.libera.chat&amp;port=6697&amp;ssl=1)
 [![CI](https://github.com/Hammerspoon/hammerspoon/workflows/CI/badge.svg)](https://github.com/Hammerspoon/hammerspoon/actions?query=workflow%3ACI)
 [![codecov.io](https://codecov.io/github/Hammerspoon/hammerspoon/coverage.svg?branch=master)](https://codecov.io/github/Hammerspoon/hammerspoon?branch=master)
 [![Downloads current release](https://img.shields.io/github/downloads/Hammerspoon/hammerspoon/latest/total.svg)](https://github.com/Hammerspoon/hammerspoon/releases)
 [![Downloads all releases](https://img.shields.io/github/downloads/Hammerspoon/hammerspoon/total.svg?maxAge=2592000)](https://github.com/Hammerspoon/hammerspoon/releases)
 [![Latest tag](https://img.shields.io/github/tag/Hammerspoon/hammerspoon.svg)](https://github.com/Hammerspoon/hammerspoon/tags)
 [![Latest release](https://img.shields.io/github/release/Hammerspoon/hammerspoon.svg)](https://github.com/Hammerspoon/hammerspoon/releases/latest)
+
+Discord: [Click to join](https://discord.gg/vxchqkRbkR)
 
 ## What is Hammerspoon?
 

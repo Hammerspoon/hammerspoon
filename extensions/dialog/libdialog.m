@@ -115,10 +115,10 @@ static int colorPanelCallback(lua_State *L) {
 
 /// hs.dialog.color.continuous([value]) -> boolean
 /// Function
-/// Set or display whether or not the callback should be continiously updated when a user drags a color slider or control.
+/// Set or display whether or not the callback should be continuously updated when a user drags a color slider or control.
 ///
 /// Parameters:
-///  * [value] - `true` if you want to continiously trigger the callback, otherwise `false`.
+///  * [value] - `true` if you want to continuously trigger the callback, otherwise `false`.
 ///
 /// Returns:
 ///  * `true` if continuous is enabled otherwise `false`
@@ -577,9 +577,9 @@ static int webviewAlert(lua_State *L) {
 ///
 /// Notes:
 ///  * The optional values must be entered in order (i.e. you can't supply `style` without also supplying `buttonOne` and `buttonTwo`).
-///  * [style] can be "warning", "informational" or "critical". If something other than these string values is given, it will use "informational".
+///  * [style] can be "warning", "informational" or "critical". If something other than these string values is given, it will use "warning".
 ///  * Example:
-///      `hs.dialog.blockAlert("Message", "Informative Text", "Button One", "Button Two", "NSCriticalAlertStyle")`
+///      `hs.dialog.blockAlert("Message", "Informative Text", "Button One", "Button Two", "critical")`
 static int blockAlert(lua_State *L) {
 
 	NSString* defaultButton = @"OK";

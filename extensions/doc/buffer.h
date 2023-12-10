@@ -44,7 +44,7 @@ struct buf {
 	size_t unit;	/* reallocation unit size (0 = read-only buffer) */
 };
 
-/* CONST_BUF: global buffer from a string litteral */
+/* CONST_BUF: global buffer from a string literal */
 #define BUF_STATIC(string) \
 	{ (uint8_t *)string, sizeof string -1, sizeof string, 0, 0 }
 
@@ -52,7 +52,7 @@ struct buf {
 #define BUF_VOLATILE(strname) \
 	{ (uint8_t *)strname, strlen(strname), 0, 0, 0 }
 
-/* BUFPUTSL: optimized bufputs of a string litteral */
+/* BUFPUTSL: optimized bufputs of a string literal */
 #define BUFPUTSL(output, literal) \
 	bufput(output, literal, sizeof literal - 1)
 

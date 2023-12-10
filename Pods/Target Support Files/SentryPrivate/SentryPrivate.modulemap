@@ -1,0 +1,6 @@
+module SentryPrivate {
+  umbrella header "SentryPrivate-umbrella.h"
+
+  export *
+  module * { export * }
+}

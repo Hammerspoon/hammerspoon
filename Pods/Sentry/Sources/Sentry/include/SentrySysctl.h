@@ -14,6 +14,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (readonly) NSDate *processStartTimestamp;
 
+@property (readonly) NSDate *runtimeInitTimestamp;
+
+@property (readonly) NSDate *moduleInitializationTimestamp;
+
 @end
 
 NS_ASSUME_NONNULL_END

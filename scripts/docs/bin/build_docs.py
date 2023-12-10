@@ -46,8 +46,8 @@ LINKS = [
      "url": "https://github.com/Hammerspoon/hammerspoon/blob/master/SPOONS.md"},
     {"name": "Official Spoon repository",
      "url": "https://www.hammerspoon.org/Spoons"},
-    {"name": "IRC channel",
-     "url": "irc://irc.libera.chat/#hammerspoon"},
+    {"name": "Discord server",
+     "url": "https://discord.gg/vxchqkRbkR"},
     {"name": "Mailing list",
      "url": "https://groups.google.com/forum/#!forum/hammerspoon/"},
     {"name": "LuaSkin API docs",
@@ -299,7 +299,7 @@ def process_module(modulename, raw_module):
     module["Variable"] = []
     module["Command"] = []
     module["Field"] = []
-    # NOTE: I don't like having the deprecated type, I think we should revist
+    # NOTE: I don't like having the deprecated type, I think we should revisit
     #       this later and find another way to annotate deprecations
     module["Deprecated"] = []
     for itemname in raw_module["items"]:
@@ -492,6 +492,7 @@ def process_markdown(data):
                 item = items[j]
                 dbg("Preparing template data for: %s" % item["def"])
                 item["def_gfm"] = strip_paragraph(md(item["def"]))
+                item["desc_gfm"] = md(item["desc"])
                 item["doc_gfm"] = md(item["doc"])
                 if "notes" in item:
                     item["notes_gfm"] = md('\n'.join(item["notes"]))

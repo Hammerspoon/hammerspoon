@@ -221,7 +221,7 @@ static int ipc_isValid(lua_State *L) {
 ///  * oneWay      -  an optional boolean, default false, indicating whether or not to wait for a response.  It this is true, the second returned argument will be nil.
 ///
 /// Returns:
-///  * status   - a boolean indicathing whether or not the local port responded before the timeout (true) or if an error or timeout occurred waiting for the response (false)
+///  * status   - a boolean indicating whether or not the local port responded before the timeout (true) or if an error or timeout occurred waiting for the response (false)
 ///  * response - the response from the local port, usually a string, but may be nil if there was no response returned.  If status is false, will contain an error message describing the error.
 static int ipc_sendMessage(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
@@ -233,7 +233,7 @@ static int ipc_sendMessage(lua_State *L) {
                     LS_TBREAK] ;
 
     HSIPCMessagePort *port = [skin toNSObjectAtIndex:1] ;
-    if (!CFMessagePortIsValid(port.messagePort)) { return luaL_error(L, "ipc port is no longer valid"); }
+    if (!CFMessagePortIsValid(port.messagePort)) { return luaL_error(L, "ipc port is no longer valid (early)"); }
     if (!CFMessagePortIsRemote(port.messagePort)) { return luaL_error(L, "not a remote port") ; }
 
     luaL_tolstring(L, 2, NULL) ; // make sure it's a string
@@ -249,6 +249,7 @@ static int ipc_sendMessage(lua_State *L) {
     [skin logDebug:[NSString stringWithFormat:@"ipc_sendMessage on %@", (__bridge NSString *)CFMessagePortGetName(port.messagePort)]] ;
 
     CFDataRef returnedData;
+    if (!CFMessagePortIsValid(port.messagePort)) { return luaL_error(L, "ipc port is no longer valid (late)"); }
     SInt32 code = CFMessagePortSendRequest(
                                             port.messagePort,
                                             (SInt32)msgID,

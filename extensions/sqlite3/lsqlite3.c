@@ -1092,7 +1092,7 @@ static void db_sql_finalize_function(sqlite3_context *context) {
 /*
 ** Register a normal function
 ** Params: db, function name, number arguments, [ callback | step, finalize], user data
-** Returns: true on sucess
+** Returns: true on success
 **
 ** Normal function:
 ** Params: context, params

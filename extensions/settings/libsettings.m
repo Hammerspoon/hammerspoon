@@ -209,7 +209,7 @@ static int target_clear(lua_State* L) {
 ///
 /// Notes:
 ///  * Use `ipairs(hs.settings.getKeys())` to iterate over all available settings
-///  * Use `hs.settings.getKeys()["someKey"]` to test for the existance of a particular key
+///  * Use `hs.settings.getKeys()["someKey"]` to test for the existence of a particular key
 static int target_getKeys(lua_State* L) {
     LuaSkin * skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TBREAK] ;
@@ -281,7 +281,7 @@ static int output_watchers(lua_State *L) {
 
 static int meta_gc(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
-    [watcherManager.watchedKeys enumerateKeysAndObjectsUsingBlock:^(NSString *keyPath, NSMutableDictionary *watchers, __unused BOOL *outterStop) {
+    [watcherManager.watchedKeys enumerateKeysAndObjectsUsingBlock:^(NSString *keyPath, NSMutableDictionary *watchers, __unused BOOL *outerStop) {
         [[NSUserDefaults standardUserDefaults] removeObserver:watcherManager forKeyPath:keyPath context:myKVOContext] ;
         [watchers enumerateKeysAndObjectsUsingBlock:^(__unused NSString *watcherID, NSNumber *refN, __unused BOOL *innerStop) {
             [skin luaUnref:refTable ref:refN.intValue] ;

@@ -1,6 +1,5 @@
 #import "SentryDefines.h"
 #import "SentrySampleDecision.h"
-#import <Foundation/Foundation.h>
 
 @class SentryId, SentrySpanId;
 

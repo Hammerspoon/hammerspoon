@@ -6,7 +6,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryThread, SentryException, SentryStacktrace, SentryUser, SentryDebugMeta, SentryContext,
-    SentryBreadcrumb, SentryId, SentryMessage;
+    SentryBreadcrumb, SentryId, SentryMessage, SentryRequest;
 
 NS_SWIFT_NAME(Event)
 @interface SentryEvent : NSObject <SentrySerializable>
@@ -29,7 +29,7 @@ NS_SWIFT_NAME(Event)
 @property (nonatomic, copy) NSError *_Nullable error;
 
 /**
- * NSDate of when the event occured
+ * NSDate of when the event occurred
  */
 @property (nonatomic, strong) NSDate *_Nullable timestamp;
 
@@ -59,14 +59,14 @@ NS_SWIFT_NAME(Event)
 @property (nonatomic, copy) NSString *_Nullable serverName;
 
 /**
- * This property will be filled before the event is sent. Do not change it
- * otherwise you know what you are doing.
+ * This property will be filled before the event is sent.
+ * @warning This is maintained automatically, and shouldn't normally need to be modified.
  */
 @property (nonatomic, copy) NSString *_Nullable releaseName;
 
 /**
- * This property will be filled before the event is sent. Do not change it
- * otherwise you know what you are doing.
+ * This property will be filled before the event is sent.
+ * @warning This is maintained automatically, and shouldn't normally need to be modified.
  */
 @property (nonatomic, copy) NSString *_Nullable dist;
 
@@ -76,7 +76,7 @@ NS_SWIFT_NAME(Event)
 @property (nonatomic, copy) NSString *_Nullable environment;
 
 /**
- * The current transaction (state) on the crash
+ * The name of the transaction which caused this event.
  */
 @property (nonatomic, copy) NSString *_Nullable transaction;
 
@@ -96,9 +96,8 @@ NS_SWIFT_NAME(Event)
 @property (nonatomic, strong) NSDictionary<NSString *, id> *_Nullable extra;
 
 /**
- * Information about the sdk can be something like this. This will be set for
- * you Don't touch it if you not know what you are doing.
- *
+ * Information about the SDK. For example:
+ * @code
  * {
  *  version: "6.0.1",
  *  name: "sentry.cocoa",
@@ -106,6 +105,8 @@ NS_SWIFT_NAME(Event)
  *      "react-native"
  *  ]
  * }
+ * @endcode
+ * @warning This is automatically maintained and should not normally need to be modified.
  */
 @property (nonatomic, strong) NSDictionary<NSString *, id> *_Nullable sdk;
 
@@ -125,8 +126,8 @@ NS_SWIFT_NAME(Event)
 @property (nonatomic, strong) SentryUser *_Nullable user;
 
 /**
- * This object contains meta information, will be set automatically overwrite
- * only if you know what you are doing
+ * This object contains meta information.
+ * @warning This is maintained automatically, and shouldn't normally need to be modified.
  */
 @property (nonatomic, strong)
     NSDictionary<NSString *, NSDictionary<NSString *, id> *> *_Nullable context;
@@ -157,6 +158,11 @@ NS_SWIFT_NAME(Event)
  * occurred/will be sent
  */
 @property (nonatomic, strong) NSArray<SentryBreadcrumb *> *_Nullable breadcrumbs;
+
+/**
+ * Set the Http request information.
+ */
+@property (nonatomic, strong, nullable) SentryRequest *request;
 
 /**
  * Init an SentryEvent will set all needed fields by default

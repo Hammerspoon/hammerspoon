@@ -9,7 +9,7 @@ NS_SWIFT_NAME(User)
 /**
  * Optional: Id of the user
  */
-@property (atomic, copy) NSString *userId;
+@property (atomic, copy) NSString *_Nullable userId;
 
 /**
  * Optional: Email of the user
@@ -27,6 +27,11 @@ NS_SWIFT_NAME(User)
 @property (atomic, copy) NSString *_Nullable ipAddress;
 
 /**
+ * The user segment, for apps that divide users in user segments.
+ */
+@property (atomic, copy) NSString *_Nullable segment;
+
+/**
  * Optional: Additional data
  */
 @property (atomic, strong) NSDictionary<NSString *, id> *_Nullable data;
@@ -39,7 +44,6 @@ NS_SWIFT_NAME(User)
 - (instancetype)initWithUserId:(NSString *)userId;
 
 - (instancetype)init;
-+ (instancetype)new NS_UNAVAILABLE;
 
 - (BOOL)isEqual:(id _Nullable)other;
 

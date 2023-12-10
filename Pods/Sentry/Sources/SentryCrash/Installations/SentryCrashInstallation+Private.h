@@ -51,6 +51,17 @@
     IMPLEMENT_REPORT_VALUE_PROPERTY(NAME, NAMEUPPER, TYPE)                                         \
     IMPLEMENT_REPORT_KEY_PROPERTY(NAME, NAMEUPPER)
 
+typedef struct {
+    const char *key;
+    const char *value;
+} ReportField;
+
+typedef struct {
+    SentryCrashReportWriteCallback userCrashCallback;
+    int reportFieldsCount;
+    ReportField *reportFields[0];
+} CrashHandlerData;
+
 @interface
 SentryCrashInstallation ()
 
@@ -83,5 +94,8 @@ SentryCrashInstallation ()
 
 /** Make an absolute key paths from the specified paths. */
 - (NSArray *)makeKeyPaths:(NSArray *)keyPaths;
+
+/** Only needed for testing */
+- (CrashHandlerData *)g_crashHandlerData;
 
 @end

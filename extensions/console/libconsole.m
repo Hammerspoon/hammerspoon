@@ -88,6 +88,32 @@ static int console_consolePrintColor(lua_State *L) {
     return 1;
 }
 
+/// hs.console.maxOutputHistory([length]) -> number
+/// Function
+/// Get or set the max length of the Hammerspoon console's scrollback history.
+///
+/// Parameters:
+///  * length - an optional number containing the maximum size in bytes of the Hammerspoon console history.
+///
+/// Returns:
+///  * the current maximum size of the console history
+///
+/// Notes:
+///  * A length value of zero will allow the history to grow infinitely
+///  * The default console history is 100,000 characters
+static int console_maxOutputHistory(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TNUMBER|LS_TOPTIONAL, LS_TBREAK];
+
+    if (lua_type(L, 1) != LUA_TNONE) {
+        NSNumber *size = [NSNumber numberWithInt:(int)lua_tointeger(L, 1)];
+        MJConsoleWindowController.singleton.maxConsoleOutputHistory = size;
+    }
+
+    lua_pushinteger(L, MJConsoleWindowController.singleton.maxConsoleOutputHistory.intValue);
+    return 1;
+}
+
 /// hs.console.consoleFont([font]) -> fontTable
 /// Function
 /// Get or set the font used in the Hammerspoon console.
@@ -287,7 +313,7 @@ static int console_smartInsertDeleteEnabled(lua_State *L) {
 
 /// hs.console.getHistory() -> array
 /// Function
-/// Get the Hammerspoon console history as an array.
+/// Get the Hammerspoon console command history as an array.
 ///
 /// Parameters:
 ///  * None
@@ -373,7 +399,7 @@ static int console_getConsole(lua_State *L) {
 
 /// hs.console.setHistory(array) -> nil
 /// Function
-/// Set the Hammerspoon console history to the items specified in the given array.
+/// Set the Hammerspoon console command history to the items specified in the given array.
 ///
 /// Parameters:
 ///  * array - the list of commands to set the Hammerspoon console history to.
@@ -595,6 +621,7 @@ static const luaL_Reg extrasLib[] = {
     {"smartInsertDeleteEnabled", console_smartInsertDeleteEnabled},
     {"getHistory", console_getHistory},
     {"setHistory", console_setHistory},
+    {"maxOutputHistory", console_maxOutputHistory},
 
     {"getConsole", console_getConsole},
     {"setConsole", console_setConsole},

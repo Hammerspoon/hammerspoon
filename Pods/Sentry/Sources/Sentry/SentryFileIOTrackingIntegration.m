@@ -1,57 +1,30 @@
 #import "SentryFileIOTrackingIntegration.h"
 #import "SentryLog.h"
 #import "SentryNSDataSwizzling.h"
-#import "SentryOptions+Private.h"
 #import "SentryOptions.h"
 
 @implementation SentryFileIOTrackingIntegration
 
-- (void)installWithOptions:(SentryOptions *)options
+- (BOOL)installWithOptions:(SentryOptions *)options
 {
-    if ([self shouldBeDisabled:options]) {
-        [options removeEnabledIntegration:NSStringFromClass([self class])];
-        return;
+    if (![super installWithOptions:options]) {
+        return NO;
     }
 
-    [SentryNSDataSwizzling start];
+    [SentryNSDataSwizzling.shared startWithOptions:options];
+
+    return YES;
 }
 
-- (BOOL)shouldBeDisabled:(SentryOptions *)options
+- (SentryIntegrationOption)integrationOptions
 {
-    if (!options.enableSwizzling) {
-        [SentryLog logWithMessage:
-                       @"Not going to enable FileIOTracking because enableSwizzling is disabled."
-                         andLevel:kSentryLevelDebug];
-        return YES;
-    }
-
-    if (!options.isTracingEnabled) {
-        [SentryLog logWithMessage:@"Not going to enable FileIOTracking because tracing is disabled."
-                         andLevel:kSentryLevelDebug];
-        return YES;
-    }
-
-    if (!options.enableAutoPerformanceTracking) {
-        [SentryLog logWithMessage:@"Not going to enable FileIOTracking because "
-                                  @"enableAutoPerformanceTracking is disabled."
-                         andLevel:kSentryLevelDebug];
-        return YES;
-    }
-
-    if (!options.enableFileIOTracking) {
-        [SentryLog
-            logWithMessage:
-                @"Not going to enable FileIOTracking because enableFileIOTracking is disabled."
-                  andLevel:kSentryLevelDebug];
-        return YES;
-    }
-
-    return NO;
+    return kIntegrationOptionEnableSwizzling | kIntegrationOptionIsTracingEnabled
+        | kIntegrationOptionEnableAutoPerformanceTracing | kIntegrationOptionEnableFileIOTracing;
 }
 
 - (void)uninstall
 {
-    [SentryNSDataSwizzling stop];
+    [SentryNSDataSwizzling.shared stop];
 }
 
 @end

@@ -12,7 +12,7 @@
 // Base SDK
 SDKROOT = macosx
 // macOS Deployment Target
-MACOSX_DEPLOYMENT_TARGET = 10.15
+MACOSX_DEPLOYMENT_TARGET = 11.0
 // Build Active Architecture Only
 ONLY_ACTIVE_ARCH = YES
 
@@ -44,7 +44,7 @@ GCC_NO_COMMON_BLOCKS = YES
 GCC_SYMBOLS_PRIVATE_EXTERN = NO
 
 // Other Warning Flags
-WARNING_CFLAGS = -Weverything -Wno-cstring-format-directive -Wno-padded -Wno-auto-import -Wno-missing-variable-declarations -Wno-objc-missing-property-synthesis -Wno-cast-qual -Wno-gnu-zero-variadic-macro-arguments -Wno-objc-messaging-id
+WARNING_CFLAGS = -Weverything -Wno-cstring-format-directive -Wno-padded -Wno-auto-import -Wno-missing-variable-declarations -Wno-objc-missing-property-synthesis -Wno-cast-qual -Wno-gnu-zero-variadic-macro-arguments -Wno-objc-messaging-id -Wno-declaration-after-statement
 
 // C Language Dialect
 GCC_C_LANGUAGE_STANDARD = gnu99

@@ -47,7 +47,7 @@
 #include "SentryCrashUUIDConversion.h"
 #include "SentryScopeSyncC.h"
 
-//#define SentryCrashLogger_LocalLevel TRACE
+// #define SentryCrashLogger_LocalLevel TRACE
 #include "SentryCrashLogger.h"
 
 #include <errno.h>
@@ -106,7 +106,6 @@ typedef struct {
 
 static const char *g_userInfoJSON;
 static SentryCrash_IntrospectionRules g_introspectionRules;
-static SentryCrashReportWriteCallback g_userSectionWriteCallback;
 
 #pragma mark Callbacks
 
@@ -135,7 +134,7 @@ static void
 addUIntegerElement(
     const SentryCrashReportWriter *const writer, const char *const key, const uint64_t value)
 {
-    sentrycrashjson_addIntegerElement(getJsonContext(writer), key, (int64_t)value);
+    sentrycrashjson_addUIntegerElement(getJsonContext(writer), key, value);
 }
 
 static void
@@ -1252,9 +1251,9 @@ writeMemoryInfo(const SentryCrashReportWriter *const writer, const char *const k
         writer->addUIntegerElement(
             writer, SentryCrashField_Size, monitorContext->System.memorySize);
         writer->addUIntegerElement(
-            writer, SentryCrashField_Usable, monitorContext->System.usableMemory);
+            writer, SentryCrashField_Usable, monitorContext->System.usableMemorySize);
         writer->addUIntegerElement(
-            writer, SentryCrashField_Free, monitorContext->System.freeMemory);
+            writer, SentryCrashField_Free, monitorContext->System.freeMemorySize);
     }
     writer->endContainer(writer);
 }
@@ -1290,7 +1289,7 @@ writeError(const SentryCrashReportWriter *const writer, const char *const key,
                 writer->addStringElement(writer, SentryCrashField_CodeName, machCodeName);
             }
             writer->addUIntegerElement(
-                writer, SentryCrashField_Subcode, (unsigned)crash->mach.subcode);
+                writer, SentryCrashField_Subcode, (size_t)crash->mach.subcode);
         }
         writer->endContainer(writer);
 #endif
@@ -1319,9 +1318,6 @@ writeError(const SentryCrashReportWriter *const writer, const char *const key,
 
         // Gather specific info.
         switch (crash->crashType) {
-        case SentryCrashMonitorTypeMainThreadDeadlock:
-            writer->addStringElement(writer, SentryCrashField_Type, SentryCrashExcType_Deadlock);
-            break;
 
         case SentryCrashMonitorTypeMachException:
             writer->addStringElement(writer, SentryCrashField_Type, SentryCrashExcType_Mach);
@@ -1354,27 +1350,6 @@ writeError(const SentryCrashReportWriter *const writer, const char *const key,
             writer->addStringElement(writer, SentryCrashField_Type, SentryCrashExcType_Signal);
             break;
 
-        case SentryCrashMonitorTypeUserReported: {
-            writer->addStringElement(writer, SentryCrashField_Type, SentryCrashExcType_User);
-            writer->beginObject(writer, SentryCrashField_UserReported);
-            {
-                writer->addStringElement(writer, SentryCrashField_Name, crash->userException.name);
-                if (crash->userException.language != NULL) {
-                    writer->addStringElement(
-                        writer, SentryCrashField_Language, crash->userException.language);
-                }
-                if (crash->userException.lineOfCode != NULL) {
-                    writer->addStringElement(
-                        writer, SentryCrashField_LineOfCode, crash->userException.lineOfCode);
-                }
-                if (crash->userException.customStackTrace != NULL) {
-                    writer->addJSONElement(writer, SentryCrashField_Backtrace,
-                        crash->userException.customStackTrace, true);
-                }
-            }
-            writer->endContainer(writer);
-            break;
-        }
         case SentryCrashMonitorTypeSystem:
         case SentryCrashMonitorTypeApplicationState:
         case SentryCrashMonitorTypeZombie:
@@ -1626,8 +1601,6 @@ writeSystemInfo(const SentryCrashReportWriter *const writer, const char *const k
         writer->addIntegerElement(
             writer, SentryCrashField_BinaryCPUSubType, monitorContext->System.binaryCPUSubType);
         writer->addStringElement(
-            writer, SentryCrashField_TimeZone, monitorContext->System.timezone);
-        writer->addStringElement(
             writer, SentryCrashField_ProcessName, monitorContext->System.processName);
         writer->addIntegerElement(
             writer, SentryCrashField_ProcessID, monitorContext->System.processID);
@@ -1637,8 +1610,10 @@ writeSystemInfo(const SentryCrashReportWriter *const writer, const char *const k
             writer, SentryCrashField_DeviceAppHash, monitorContext->System.deviceAppHash);
         writer->addStringElement(
             writer, SentryCrashField_BuildType, monitorContext->System.buildType);
+        writer->addIntegerElement(writer, SentryCrashField_Total_Storage,
+            (int64_t)monitorContext->System.totalStorageSize);
         writer->addIntegerElement(
-            writer, SentryCrashField_Storage, (int64_t)monitorContext->System.storageSize);
+            writer, SentryCrashField_Free_Storage, (int64_t)monitorContext->System.freeStorageSize);
 
         writeMemoryInfo(writer, SentryCrashField_Memory, monitorContext);
         writeAppStats(writer, SentryCrashField_AppStats, monitorContext);
@@ -1777,13 +1752,6 @@ sentrycrashreport_writeStandardReport(
         } else {
             writer->beginObject(writer, SentryCrashField_User);
         }
-
-        if (g_userSectionWriteCallback != NULL) {
-            sentrycrashfu_flushBufferedWriter(&bufferedWriter);
-            if (monitorContext->currentSnapshotUserReported == false) {
-                g_userSectionWriteCallback(writer);
-            }
-        }
         writer->endContainer(writer);
         sentrycrashfu_flushBufferedWriter(&bufferedWriter);
 
@@ -1852,12 +1820,4 @@ sentrycrashreport_setDoNotIntrospectClasses(const char **doNotIntrospectClasses,
         }
         free(oldClasses);
     }
-}
-
-void
-sentrycrashreport_setUserSectionWriteCallback(
-    const SentryCrashReportWriteCallback userSectionWriteCallback)
-{
-    SentryCrashLOG_TRACE("Set userSectionWriteCallback to %p", userSectionWriteCallback);
-    g_userSectionWriteCallback = userSectionWriteCallback;
 }

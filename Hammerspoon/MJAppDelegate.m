@@ -71,7 +71,7 @@
 
         NSFileManager *fileManager = [NSFileManager defaultManager];
 
-        // Remove any pre-existing copy of the Spoon
+        // Remove any preexisting copy of the Spoon
         if ([fileManager fileExistsAtPath:dstSpoonFullPath]) {
             NSLog(@"Spoon already exists at %@, removing the old version", dstSpoonFullPath);
             upgrade = YES;
@@ -237,10 +237,12 @@
             return event;
         };
 
-        [SentrySDK startWithOptions:@{
-            @"dsn": @SENTRY_API_URL,
-            @"beforeSend": sentryWillUploadCrashReport,
-            @"release": [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]
+        [SentrySDK startWithConfigureOptions:^(SentryOptions *options) {
+            options.dsn = @SENTRY_API_URL;
+            options.beforeSend = sentryWillUploadCrashReport;
+            options.releaseName = NSBundle.mainBundle.infoDictionary[@"CFBundleShortVersionString"];
+            options.enableAppHangTracking = NO;
+            options.debug = YES; // Enabled debug when first installing is always helpful
         }];
     }
 #endif

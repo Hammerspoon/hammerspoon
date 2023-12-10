@@ -1,11 +1,24 @@
 #import "SentryNetworkTracker.h"
+#import "SentryBaggage.h"
 #import "SentryBreadcrumb.h"
+#import "SentryClient+Private.h"
+#import "SentryEvent.h"
+#import "SentryException.h"
+#import "SentryHttpStatusCodeRange+Private.h"
+#import "SentryHttpStatusCodeRange.h"
 #import "SentryHub+Private.h"
 #import "SentryLog.h"
+#import "SentryMechanism.h"
+#import "SentryNoOpSpan.h"
+#import "SentryRequest.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
+#import "SentrySerialization.h"
+#import "SentryStacktrace.h"
+#import "SentryThread.h"
+#import "SentryThreadInspector.h"
+#import "SentryTraceContext.h"
 #import "SentryTraceHeader.h"
-#import "SentryTraceState.h"
 #import "SentryTracer.h"
 #import <objc/runtime.h>
 
@@ -14,6 +27,7 @@ SentryNetworkTracker ()
 
 @property (nonatomic, assign) BOOL isNetworkTrackingEnabled;
 @property (nonatomic, assign) BOOL isNetworkBreadcrumbEnabled;
+@property (nonatomic, assign) BOOL isCaptureFailedRequestsEnabled;
 
 @end
 
@@ -32,6 +46,7 @@ SentryNetworkTracker ()
     if (self = [super init]) {
         _isNetworkTrackingEnabled = NO;
         _isNetworkBreadcrumbEnabled = NO;
+        _isCaptureFailedRequestsEnabled = NO;
     }
     return self;
 }
@@ -50,12 +65,42 @@ SentryNetworkTracker ()
     }
 }
 
+- (void)enableCaptureFailedRequests
+{
+    @synchronized(self) {
+        _isCaptureFailedRequestsEnabled = YES;
+    }
+}
+
 - (void)disable
 {
     @synchronized(self) {
         _isNetworkBreadcrumbEnabled = NO;
         _isNetworkTrackingEnabled = NO;
+        _isCaptureFailedRequestsEnabled = NO;
     }
+}
+
+- (BOOL)isTargetMatch:(NSURL *)URL withTargets:(NSArray *)targets
+{
+    for (id targetCheck in targets) {
+        if ([targetCheck isKindOfClass:[NSRegularExpression class]]) {
+            NSString *string = URL.absoluteString;
+            NSUInteger numberOfMatches =
+                [targetCheck numberOfMatchesInString:string
+                                             options:0
+                                               range:NSMakeRange(0, [string length])];
+            if (numberOfMatches > 0) {
+                return YES;
+            }
+        } else if ([targetCheck isKindOfClass:[NSString class]]) {
+            if ([URL.absoluteString containsString:targetCheck]) {
+                return YES;
+            }
+        }
+    }
+
+    return NO;
 }
 
 - (void)urlSessionTaskResume:(NSURLSessionTask *)sessionTask
@@ -76,13 +121,15 @@ SentryNetworkTracker ()
 
     NSURL *url = [[sessionTask currentRequest] URL];
 
-    if (url == nil)
+    if (url == nil) {
         return;
+    }
 
     // Don't measure requests to Sentry's backend
     NSURL *apiUrl = [NSURL URLWithString:SentrySDK.options.dsn];
-    if ([url.host isEqualToString:apiUrl.host] && [url.path containsString:apiUrl.path])
+    if ([url.host isEqualToString:apiUrl.host] && [url.path containsString:apiUrl.path]) {
         return;
+    }
 
     @synchronized(sessionTask) {
         if (sessionTask.state == NSURLSessionTaskStateCompleted
@@ -90,6 +137,7 @@ SentryNetworkTracker ()
             return;
         }
 
+        __block id<SentrySpan> span;
         __block id<SentrySpan> netSpan;
         netSpan = objc_getAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN);
 
@@ -98,8 +146,9 @@ SentryNetworkTracker ()
             return;
         }
 
-        [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
-            if (span != nil) {
+        [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable innerSpan) {
+            if (innerSpan != nil) {
+                span = innerSpan;
                 netSpan = [span
                     startChildWithOperation:SENTRY_NETWORK_REQUEST_OPERATION
                                 description:[NSString stringWithFormat:@"%@ %@",
@@ -109,8 +158,68 @@ SentryNetworkTracker ()
 
         // We only create a span if there is a transaction in the scope,
         // otherwise we have nothing else to do here.
-        if (netSpan == nil)
+        if (netSpan == nil || [netSpan isKindOfClass:[SentryNoOpSpan class]]) {
+            SENTRY_LOG_DEBUG(@"No transaction bound to scope. Won't track network operation.");
             return;
+        }
+
+        if ([sessionTask currentRequest] &&
+            [self isTargetMatch:sessionTask.currentRequest.URL
+                    withTargets:SentrySDK.options.tracePropagationTargets]) {
+            NSString *baggageHeader = @"";
+
+            SentryTracer *tracer = [SentryTracer getTracer:span];
+            if (tracer != nil) {
+                baggageHeader = [[tracer.traceContext toBaggage]
+                    toHTTPHeaderWithOriginalBaggage:
+                        [SentrySerialization
+                            decodeBaggage:sessionTask.currentRequest
+                                              .allHTTPHeaderFields[SENTRY_BAGGAGE_HEADER]]];
+            }
+
+            // First we check if the current request is mutable, so we could easily add a new
+            // header. Otherwise we try to change the current request for a new one with the extra
+            // header.
+            if ([sessionTask.currentRequest isKindOfClass:[NSMutableURLRequest class]]) {
+                NSMutableURLRequest *currentRequest
+                    = (NSMutableURLRequest *)sessionTask.currentRequest;
+                [currentRequest setValue:[netSpan toTraceHeader].value
+                      forHTTPHeaderField:SENTRY_TRACE_HEADER];
+
+                if (baggageHeader.length > 0) {
+                    [currentRequest setValue:baggageHeader
+                          forHTTPHeaderField:SENTRY_BAGGAGE_HEADER];
+                }
+            } else {
+                // Even though NSURLSessionTask doesn't have 'setCurrentRequest', some subclasses
+                // do. For those subclasses we replace the currentRequest with a mutable one with
+                // the additional trace header. Since NSURLSessionTask is a public class and can be
+                // override, we believe this is not considered a private api.
+                SEL setCurrentRequestSelector = NSSelectorFromString(@"setCurrentRequest:");
+                if ([sessionTask respondsToSelector:setCurrentRequestSelector]) {
+                    NSMutableURLRequest *newRequest = [sessionTask.currentRequest mutableCopy];
+
+                    [newRequest setValue:[netSpan toTraceHeader].value
+                        forHTTPHeaderField:SENTRY_TRACE_HEADER];
+
+                    if (baggageHeader.length > 0) {
+                        [newRequest setValue:baggageHeader
+                            forHTTPHeaderField:SENTRY_BAGGAGE_HEADER];
+                    }
+
+                    void (*func)(id, SEL, id param)
+                        = (void *)[sessionTask methodForSelector:setCurrentRequestSelector];
+                    func(sessionTask, setCurrentRequestSelector, newRequest);
+                }
+            }
+        } else {
+            SENTRY_LOG_DEBUG(@"Not adding trace_id and baggage headers for %@",
+                sessionTask.currentRequest.URL.absoluteString);
+        }
+
+        SENTRY_LOG_DEBUG(
+            @"SentryNetworkTracker automatically started HTTP span for sessionTask: %@",
+            netSpan.description);
 
         objc_setAssociatedObject(sessionTask, &SENTRY_NETWORK_REQUEST_TRACKER_SPAN, netSpan,
             OBJC_ASSOCIATION_RETAIN_NONATOMIC);
@@ -119,7 +228,8 @@ SentryNetworkTracker ()
 
 - (void)urlSessionTask:(NSURLSessionTask *)sessionTask setState:(NSURLSessionTaskState)newState
 {
-    if (!self.isNetworkTrackingEnabled && !self.isNetworkBreadcrumbEnabled) {
+    if (!self.isNetworkTrackingEnabled && !self.isNetworkBreadcrumbEnabled
+        && !self.isCaptureFailedRequestsEnabled) {
         return;
     }
 
@@ -133,13 +243,15 @@ SentryNetworkTracker ()
 
     NSURL *url = [[sessionTask currentRequest] URL];
 
-    if (url == nil)
+    if (url == nil) {
         return;
+    }
 
     // Don't measure requests to Sentry's backend
     NSURL *apiUrl = [NSURL URLWithString:SentrySDK.options.dsn];
-    if ([url.host isEqualToString:apiUrl.host] && [url.path containsString:apiUrl.path])
+    if ([url.host isEqualToString:apiUrl.host] && [url.path containsString:apiUrl.path]) {
         return;
+    }
 
     id<SentrySpan> netSpan;
     @synchronized(sessionTask) {
@@ -150,6 +262,8 @@ SentryNetworkTracker ()
     }
 
     if (sessionTask.state == NSURLSessionTaskStateRunning) {
+        [self captureFailedRequests:sessionTask];
+
         [self addBreadcrumbForSessionTask:sessionTask];
 
         NSInteger responseStatusCode = [self urlResponseStatusCode:sessionTask.response];
@@ -173,7 +287,118 @@ SentryNetworkTracker ()
     [netSpan setDataValue:@"fetch" forKey:@"type"];
 
     [netSpan finishWithStatus:[self statusForSessionTask:sessionTask state:newState]];
-    [SentryLog logWithMessage:@"Finished HTTP span for sessionTask" andLevel:kSentryLevelDebug];
+    SENTRY_LOG_DEBUG(@"SentryNetworkTracker finished HTTP span for sessionTask");
+}
+
+- (void)captureFailedRequests:(NSURLSessionTask *)sessionTask
+{
+    if (!self.isCaptureFailedRequestsEnabled) {
+        SENTRY_LOG_DEBUG(
+            @"captureFailedRequestsEnabled is disabled, not capturing HTTP Client errors.");
+        return;
+    }
+
+    // if request or response are null, we can't raise the event
+    if (sessionTask.currentRequest == nil || sessionTask.response == nil) {
+        SENTRY_LOG_DEBUG(@"Request or Response are null, not capturing HTTP Client errors.");
+        return;
+    }
+    // some properties are only available if the response is of the NSHTTPURLResponse type
+    // bail if not
+    if (![sessionTask.response isKindOfClass:[NSHTTPURLResponse class]]) {
+        SENTRY_LOG_DEBUG(@"Response isn't a known type, not capturing HTTP Client errors.");
+        return;
+    }
+    NSHTTPURLResponse *myResponse = (NSHTTPURLResponse *)sessionTask.response;
+    NSURLRequest *myRequest = sessionTask.currentRequest;
+    NSNumber *responseStatusCode = @(myResponse.statusCode);
+
+    if (![self containsStatusCode:myResponse.statusCode]) {
+        SENTRY_LOG_DEBUG(@"Response status code isn't within the allowed ranges, not capturing "
+                         @"HTTP Client errors.");
+        return;
+    }
+
+    if (![self isTargetMatch:myRequest.URL withTargets:SentrySDK.options.failedRequestTargets]) {
+        SENTRY_LOG_DEBUG(
+            @"Request url isn't within the request targets, not capturing HTTP Client errors.");
+        return;
+    }
+
+    NSString *message = [NSString
+        stringWithFormat:@"HTTP Client Error with status code: %ld", (long)myResponse.statusCode];
+
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
+
+    SentryThreadInspector *threadInspector = SentrySDK.currentHub.getClient.threadInspector;
+    NSArray<SentryThread *> *threads = [threadInspector getCurrentThreads];
+
+    // sessionTask.error isn't used because it's not about network errors but rather
+    // requests that are considered failed depending on the HTTP status code
+    SentryException *sentryException = [[SentryException alloc] initWithValue:message
+                                                                         type:@"HTTPClientError"];
+    sentryException.mechanism = [[SentryMechanism alloc] initWithType:@"HTTPClientError"];
+
+    for (SentryThread *thread in threads) {
+        if ([thread.current boolValue]) {
+            SentryStacktrace *sentryStacktrace = [thread stacktrace];
+            sentryStacktrace.snapshot = @(YES);
+
+            sentryException.stacktrace = sentryStacktrace;
+
+            break;
+        }
+    }
+
+    SentryRequest *request = [[SentryRequest alloc] init];
+
+    NSURL *url = [[sessionTask currentRequest] URL];
+
+    NSString *urlString = [NSString stringWithFormat:@"%@://%@%@", url.scheme, url.host, url.path];
+
+    request.url = urlString;
+    request.method = myRequest.HTTPMethod;
+    request.fragment = url.fragment;
+    request.queryString = url.query;
+    request.bodySize = [NSNumber numberWithLongLong:sessionTask.countOfBytesSent];
+    if (nil != myRequest.allHTTPHeaderFields) {
+        NSDictionary<NSString *, NSString *> *headers = myRequest.allHTTPHeaderFields.copy;
+        request.headers = headers;
+        request.cookies = headers[@"Cookie"];
+    }
+
+    event.exceptions = @[ sentryException ];
+    event.request = request;
+
+    NSMutableDictionary<NSString *, id> *context = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary<NSString *, id> *response = [[NSMutableDictionary alloc] init];
+
+    [response setValue:responseStatusCode forKey:@"status_code"];
+    if (nil != myResponse.allHeaderFields) {
+        NSDictionary<NSString *, NSString *> *headers = myResponse.allHeaderFields.copy;
+        [response setValue:headers forKey:@"headers"];
+        [response setValue:headers[@"Set-Cookie"] forKey:@"cookies"];
+    }
+    if (sessionTask.countOfBytesReceived != 0) {
+        [response setValue:[NSNumber numberWithLongLong:sessionTask.countOfBytesReceived]
+                    forKey:@"body_size"];
+    }
+
+    context[@"response"] = response;
+    event.context = context;
+
+    [SentrySDK captureEvent:event];
+}
+
+- (BOOL)containsStatusCode:(NSInteger)statusCode
+{
+    for (SentryHttpStatusCodeRange *range in SentrySDK.options.failedRequestStatusCodes) {
+        if ([range isInRange:statusCode]) {
+            return YES;
+        }
+    }
+
+    return NO;
 }
 
 - (void)addBreadcrumbForSessionTask:(NSURLSessionTask *)sessionTask
@@ -271,30 +496,6 @@ SentryNetworkTracker ()
         return kSentrySpanStatusDeadlineExceeded;
     }
     return kSentrySpanStatusUndefined;
-}
-
-- (nullable NSDictionary *)addTraceHeader:(nullable NSDictionary *)headers
-{
-    @synchronized(self) {
-        if (!self.isNetworkTrackingEnabled) {
-            return headers;
-        }
-    }
-
-    id<SentrySpan> span = SentrySDK.currentHub.scope.span;
-    if (span == nil) {
-        return headers;
-    }
-
-    NSMutableDictionary *result = [[NSMutableDictionary alloc] initWithDictionary:headers];
-    result[SENTRY_TRACE_HEADER] = [span toTraceHeader].value;
-
-    SentryTracer *tracer = [SentryTracer getTracer:span];
-    if (tracer != nil) {
-        result[SENTRY_TRACESTATE_HEADER] = [tracer.traceState toHTTPHeader];
-    }
-
-    return [[NSDictionary alloc] initWithDictionary:result];
 }
 
 @end

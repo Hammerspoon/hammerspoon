@@ -1,5 +1,4 @@
 #import "SentryDefaultCurrentDateProvider.h"
-#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -21,6 +20,16 @@ SentryDefaultCurrentDateProvider ()
 - (NSDate *_Nonnull)date
 {
     return [NSDate date];
+}
+
+- (dispatch_time_t)dispatchTimeNow
+{
+    return dispatch_time(DISPATCH_TIME_NOW, 0);
+}
+
+- (NSInteger)timezoneOffset
+{
+    return [NSTimeZone localTimeZone].secondsFromGMT;
 }
 
 @end

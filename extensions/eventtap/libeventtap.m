@@ -292,7 +292,7 @@ static int eventtap_isEnabled(lua_State* L) {
 ///     * _raw - a numeric representation of the numeric representation of all of the keyboard/modifier flags.
 ///
 /// Notes:
-///  * This is an instantaneous poll of the current keyboard modifiers for the most recently used keyboard, not a callback.  This is useful primarily in conjuction with other modules, such as `hs.menubar`, when a callback is already in progress or waiting for an event callback is not practical or possible.
+///  * This is an instantaneous poll of the current keyboard modifiers for the most recently used keyboard, not a callback.  This is useful primarily in conjunction with other modules, such as `hs.menubar`, when a callback is already in progress or waiting for an event callback is not practical or possible.
 ///  * the numeric value returned is useful if you need to detect device dependent flags or flags which we normally ignore because they are not present (or are accessible another way) on most keyboards.
 
 static int checkKeyboardModifiers(lua_State* L) {
@@ -358,11 +358,11 @@ static int secureInputEnabled(lua_State *L) {
 ///  * None
 ///
 /// Returns:
-///  * Returns an array containing indicies starting from 1 up to the highest numbered button currently being pressed where the index is `true` if the button is currently pressed or `false` if it is not.
+///  * Returns an array containing indices starting from 1 up to the highest numbered button currently being pressed where the index is `true` if the button is currently pressed or `false` if it is not.
 ///  * Special hash tag synonyms for `left` (button 1), `right` (button 2), and `middle` (button 3) are also set to true if these buttons are currently being pressed.
 ///
 /// Notes:
-///  * This is an instantaneous poll of the current mouse buttons, not a callback.  This is useful primarily in conjuction with other modules, such as `hs.menubar`, when a callback is already in progress or waiting for an event callback is not practical or possible.
+///  * This is an instantaneous poll of the current mouse buttons, not a callback.  This is useful primarily in conjunction with other modules, such as `hs.menubar`, when a callback is already in progress or waiting for an event callback is not practical or possible.
 static int checkMouseButtons(lua_State* L) {
     NSUInteger theButtons = [NSEvent pressedMouseButtons] ;
     NSInteger i = 0 ;

@@ -56,7 +56,7 @@
 
 @property LSGCCanary                        lsCanary;
 
-// Create & Destory the object:
+// Create & Destroy the object:
 - (id)initWithDevice:(IOHIDDeviceRef)device manager:(id)manager;
 - (void)invalidate;
 
@@ -118,7 +118,7 @@ union HSCommandID {
 struct HSRazerReport {
     unsigned char           status;                 // Always 0x00 for a New Command
     union HSTransactionID   transaction_id;         // Allows you to group requests if using multiple devices
-    unsigned short          remaining_packets;      // Remaning Packets (using Big Endian Byte Order)
+    unsigned short          remaining_packets;      // Remaining Packets (using Big Endian Byte Order)
     unsigned char           protocol_type;          // Always seems to be 0x00
     unsigned char           data_size;              // How many arguments used in the report
     unsigned char           command_class;          // The type of command being triggered
