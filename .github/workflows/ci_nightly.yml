@@ -34,6 +34,9 @@ jobs:
       IS_NIGHTLY: 1
 
     steps:
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: 15.0.1
       - name: Checkout Hammerspoon Code
         uses: actions/checkout@v2
         with:

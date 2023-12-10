@@ -16,6 +16,9 @@ jobs:
       IS_CI: 1
 
     steps:
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: 15.0.1
       - name: Checkout
         uses: actions/checkout@v2
         with:
