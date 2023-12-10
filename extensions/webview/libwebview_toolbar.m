@@ -82,7 +82,7 @@ static NSMenu *createCoreSearchFieldMenu() {
         _itemDefDictionary     = [[NSMutableDictionary alloc] init] ;
         _fnRefDictionary       = [[NSMutableDictionary alloc] init] ;
         _enabledDictionary     = [[NSMutableDictionary alloc] init] ;
-        
+
         if (@available(macOS 11.0, *)) {
             _toolbarStyle      = NSWindowToolbarStyleAutomatic ;
         }
@@ -148,7 +148,7 @@ static NSMenu *createCoreSearchFieldMenu() {
         if (@available(macOS 11.0, *)) {
             _toolbarStyle      = original.toolbarStyle ;
         }
-        
+
         self.allowsUserCustomization = original.allowsUserCustomization ;
         self.allowsExtensionItems    = original.allowsExtensionItems ;
         self.autosavesConfiguration  = original.autosavesConfiguration ;
@@ -695,9 +695,9 @@ static NSMenu *createCoreSearchFieldMenu() {
         }
         toolbarItem.enabled = flag ? [self validateToolbarItem:toolbarItem] : YES ;
         [self fillinNewToolbarItem:toolbarItem] ;
-    } else {
-        // may happen on a reload if toolbar autosave contains id's that were added after the toolbar was created but haven't been created yet since the reload
-        [LuaSkin logInfo:[NSString stringWithFormat:@"%s:toolbar:itemForItemIdentifier:willBeInsertedIntoToolbar: invoked with nonexistent identifier:%@", USERDATA_TB_TAG, identifier]] ;
+//     } else {
+//         // may happen on a reload if toolbar autosave contains id's that were added after the toolbar was created but haven't been created yet since the reload
+//         [LuaSkin logInfo:[NSString stringWithFormat:@"%s:toolbar:itemForItemIdentifier:willBeInsertedIntoToolbar: invoked with nonexistent identifier:%@", USERDATA_TB_TAG, identifier]] ;
     }
     return toolbarItem ;
 }
@@ -962,12 +962,12 @@ static int attachToolbar(lua_State *L) {
             theWindow.toolbar             = newToolbar ;
             newToolbar.windowUsingToolbar = theWindow ;
             newToolbar.visible            = YES ;
-            
+
             // Update the toolbar style if available:
             if (@available(macOS 11.0, *)) {
                 theWindow.toolbarStyle = newToolbar.toolbarStyle;
             }
-            
+
         }
         lua_pushvalue(L, 1) ;
     } else {
@@ -1351,7 +1351,7 @@ static int toolbarStyle(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
-        
+
     if (lua_gettop(L) == 2) {
         if (@available(macOS 11.0, *))
         {

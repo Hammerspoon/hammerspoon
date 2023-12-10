@@ -6,7 +6,7 @@ static const char *USERDATA_TAG = "hs.canvas" ;
 static LSRefTable refTable = LUA_NOREF;
 static BOOL defaultCustomSubRole = YES ;
 
-static int warnedAboutDelete = 0 ;
+// static int warnedAboutDelete = 0 ;
 
 // Can't have "static" or "constant" dynamic NSObjects like NSArray, so define in lua_open
 static NSDictionary *languageDictionary ;
@@ -3187,10 +3187,10 @@ static int canvas_delete(lua_State *L) {
 
  //   HSCanvasView   *canvasView   = [skin luaObjectAtIndex:1 toClass:"HSCanvasView"] ;
 //     HSCanvasWindow *canvasWindow = canvasView.wrapperWindow ;
-    if (warnedAboutDelete < 10) {
-        warnedAboutDelete++ ;
-        [skin logWarn:[NSString stringWithFormat:@"%s:delete - explicit delete is no longer required for canvas objects; garbage collection occurs automatically", USERDATA_TAG]] ;
-    }
+//     if (warnedAboutDelete < 10) {
+//         warnedAboutDelete++ ;
+//         [skin logWarn:[NSString stringWithFormat:@"%s:delete - explicit delete is no longer required for canvas objects; garbage collection occurs automatically", USERDATA_TAG]] ;
+//     }
     canvas_hide(L) ;
     lua_pop(L, 1) ; // remove userdata pushed by hide
 
