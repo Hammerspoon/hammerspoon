@@ -10142,7 +10142,7 @@
 		};
 		4FD0AB331B74867600A82496 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
