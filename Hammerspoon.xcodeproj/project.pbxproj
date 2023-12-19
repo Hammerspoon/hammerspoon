@@ -8525,7 +8525,7 @@
 		};
 		22613FEF1F297E0D00E05E11 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WARNING_CFLAGS = (
@@ -8539,7 +8539,7 @@
 		};
 		22613FF01F297E0D00E05E11 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WARNING_CFLAGS = (
@@ -8806,7 +8806,7 @@
 		};
 		4F04549220F0EE7D00699F29 /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -8822,7 +8822,7 @@
 		};
 		4F04549420F0EE7D00699F29 /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -8918,7 +8918,7 @@
 		};
 		4F0454A020F0EE7D00699F29 /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WARNING_CFLAGS = (
@@ -8972,7 +8972,7 @@
 		};
 		4F0454A720F0EE7D00699F29 /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -9556,7 +9556,7 @@
 		};
 		4F4CB3CA1B738F1E000EA9B6 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -9564,7 +9564,7 @@
 		};
 		4F4CB3CB1B738F1E000EA9B6 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -9876,7 +9876,7 @@
 		};
 		4F70EED11B726D170025A7B3 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -9884,7 +9884,7 @@
 		};
 		4F70EED21B726D170025A7B3 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -9892,7 +9892,7 @@
 		};
 		4F70EEE71B7273700025A7B3 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -9900,7 +9900,7 @@
 		};
 		4F70EEE81B7273700025A7B3 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -10438,7 +10438,7 @@
 		};
 		4FF06121274AA7A200FB15D6 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -10446,7 +10446,7 @@
 		};
 		4FF06122274AA7A200FB15D6 /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -10454,7 +10454,7 @@
 		};
 		4FF06123274AA7A200FB15D6 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

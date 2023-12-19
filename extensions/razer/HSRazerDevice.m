@@ -353,7 +353,7 @@ static CGEventRef eventTapCallback(CGEventTapProxy proxy,
 
     // Get all the USB devices:
     io_iterator_t iter;
-    kern_return_t kReturn = IOServiceGetMatchingServices(kIOMasterPortDefault, matchingDict, &iter);
+    kern_return_t kReturn = IOServiceGetMatchingServices(kIOMainPortDefault, matchingDict, &iter);
 
     // Abort if something goes wrong:
     if (kReturn != kIOReturnSuccess) {

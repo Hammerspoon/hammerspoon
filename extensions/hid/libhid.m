@@ -22,7 +22,7 @@ static int access_capslock(int op){
 	bool state = false;
 
 	mdict = IOServiceMatching(kIOHIDSystemClass);
-	ios = IOServiceGetMatchingService(kIOMasterPortDefault, (CFDictionaryRef) mdict);
+    ios = IOServiceGetMatchingService(kIOMainPortDefault, (CFDictionaryRef) mdict);
 	if (!ios)
 	{
 		// fprintf(stderr, "IOServiceGetMatchingService() failed: %x\n", kr);

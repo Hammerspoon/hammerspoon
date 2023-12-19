@@ -39,7 +39,7 @@ static int brightness_ambient(lua_State* L) {
     uint64_t values[outputs];
     uint64_t lux = -1;
 
-    serviceObject = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceMatching("AppleLMUController"));
+    serviceObject = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceMatching("AppleLMUController"));
     if (!serviceObject) {
         // M1 macs don't have such an IOService, so we have to use an undocumented class...
 
@@ -97,7 +97,7 @@ static int brightness_set(lua_State* L) {
         found = (err == kCGErrorSuccess) ;
     } else {
         io_iterator_t iterator;
-        kern_return_t result = IOServiceGetMatchingServices(kIOMasterPortDefault,
+        kern_return_t result = IOServiceGetMatchingServices(kIOMainPortDefault,
                                                             IOServiceMatching("IODisplayConnect"),
                                                             &iterator);
 
@@ -138,7 +138,7 @@ static int brightness_get(lua_State *L) {
         return 1 ;
     } else {
         io_iterator_t iterator;
-        kern_return_t result = IOServiceGetMatchingServices(kIOMasterPortDefault,
+        kern_return_t result = IOServiceGetMatchingServices(kIOMainPortDefault,
                                                             IOServiceMatching("IODisplayConnect"),
                                                             &iterator);
 

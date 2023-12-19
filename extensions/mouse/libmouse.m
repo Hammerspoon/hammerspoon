@@ -115,7 +115,7 @@ static void enum_callback(void *ctx, IOReturn res, void *sender, IOHIDDeviceRef 
 }
 
 -(io_service_t)createIOHIDSystem {
-    return IORegistryEntryFromPath(kIOMasterPortDefault, kIOServicePlane ":/IOResources/IOHIDSystem");
+    return IORegistryEntryFromPath(kIOMainPortDefault, kIOServicePlane ":/IOResources/IOHIDSystem");
 }
 
 -(NSDictionary *)getIOHIDParametersFromService:(io_service_t)service {
