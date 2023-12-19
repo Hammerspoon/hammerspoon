@@ -51,27 +51,57 @@ function testNew()
 end
 
 --
--- Test sending an echo:
+-- Test sending a binary echo:
 --
 local echoTestObj = nil
 local event = ""
 local message = ""
 
-function testEcho()
+function testEchoData()
   echoTestObj = websocket.new(ECHO_URL, function(e, m)
     event = e
     message = m
   end)
   requestTimer = doAfter(2, function()
     log("testEcho() sending test string")
-    echoTestObj:send(TEST_STRING)
+    echoTestObj:send(TEST_STRING, true)
     echoTestObj:close()
   end)
   return success()
 end
 
-function testEchoValues()
+function testEchoDataValues()
   if type(event) == "string" and event == "received" and type(message) == "string" and message == TEST_STRING then
+    echoTestObj = nil
+    event = ""
+    message = ""
+    return success()
+  else
+    return "Waiting for echo...'"..echoTestObj:status().."', "
+  end
+end
+
+--
+-- Test sending a text echo:
+--
+function testEchoText()
+  echoTestObj = websocket.new(ECHO_URL, function(e, m)
+    event = e
+    message = m
+  end)
+  requestTimer = doAfter(2, function()
+    log("testEcho() sending test string")
+    echoTestObj:send(TEST_STRING, false)
+    echoTestObj:close()
+  end)
+  return success()
+end
+
+function testEchoTextValues()
+  if type(event) == "string" and event == "received" and type(message) == "string" and message == TEST_STRING then
+    echoTestObj = nil
+    event = ""
+    message = ""
     return success()
   else
     return "Waiting for echo...'"..echoTestObj:status().."', "
