@@ -1,14 +1,17 @@
-#import "SentryCurrentDateProvider.h"
 #import "SentryDataCategory.h"
 #import "SentryDefines.h"
-#import "SentrySession.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol SentryFileManagerDelegate;
 
-@class SentryEvent, SentryOptions, SentryEnvelope, SentryFileContents, SentryAppState,
-    SentryDispatchQueueWrapper;
+@class SentryAppState;
+@class SentryDispatchQueueWrapper;
+@class SentryEvent;
+@class SentryEnvelope;
+@class SentryFileContents;
+@class SentryOptions;
+@class SentrySession;
 
 NS_SWIFT_NAME(SentryFileManager)
 @interface SentryFileManager : NSObject
@@ -20,12 +23,9 @@ SENTRY_NO_INIT
 @property (nonatomic, readonly) NSString *previousBreadcrumbsFilePathOne;
 @property (nonatomic, readonly) NSString *previousBreadcrumbsFilePathTwo;
 
-- (nullable instancetype)initWithOptions:(SentryOptions *)options
-                  andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
-                                   error:(NSError **)error;
+- (nullable instancetype)initWithOptions:(SentryOptions *)options error:(NSError **)error;
 
 - (nullable instancetype)initWithOptions:(SentryOptions *)options
-                  andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
                     dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                                    error:(NSError **)error NS_DESIGNATED_INITIALIZER;
 
@@ -46,29 +46,30 @@ SENTRY_NO_INIT
 
 + (BOOL)createDirectoryAtPath:(NSString *)path withError:(NSError **)error;
 
+/**
+ * Only used for teting.
+ */
 - (void)deleteAllEnvelopes;
+
 - (void)deleteAllFolders;
 
 - (void)deleteOldEnvelopeItems;
 
 /**
- * Get all envelopes sorted ascending by the timeIntervalSince1970 the envelope was stored and if
+ * Get all envelopes sorted ascending by the @c timeIntervalSince1970 the envelope was stored and if
  * two envelopes are stored at the same time sorted by the order they were stored.
  */
 - (NSArray<SentryFileContents *> *)getAllEnvelopes;
 
 /**
- * Gets the oldest stored envelope. For the order see getAllEnvelopes.
- *
- * @return SentryFileContens if there is an envelope and nil if there are no envelopes.
+ * Gets the oldest stored envelope. For the order see @c getAllEnvelopes.
+ * @return @c SentryFileContents if there is an envelope and @c nil if there are no envelopes.
  */
 - (SentryFileContents *_Nullable)getOldestEnvelope;
 
 - (void)removeFileAtPath:(NSString *)path;
 
 - (NSArray<NSString *> *)allFilesInFolder:(NSString *)path;
-
-- (NSString *)storeDictionary:(NSDictionary *)dictionary toPath:(NSString *)path;
 
 - (void)storeAppState:(SentryAppState *)appState;
 - (void)moveAppStateToPreviousAppState;

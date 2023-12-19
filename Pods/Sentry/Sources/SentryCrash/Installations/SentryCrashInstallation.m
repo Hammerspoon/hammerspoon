@@ -1,3 +1,4 @@
+// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashInstallation.m
 //
@@ -32,6 +33,7 @@
 #import "SentryCrashJSONCodecObjC.h"
 #import "SentryCrashLogger.h"
 #import "SentryCrashReportFilterBasic.h"
+#import "SentryDependencyContainer.h"
 #import <objc/runtime.h>
 
 /** Max number of properties that can be defined for writing to the report */
@@ -174,7 +176,7 @@ SentryCrashInstallation ()
 
 - (void)dealloc
 {
-    SentryCrash *handler = [SentryCrash sharedInstance];
+    SentryCrash *handler = SentryDependencyContainer.sharedInstance.crashReporter;
     @synchronized(handler) {
         if (g_crashHandlerData == self.crashHandlerData) {
             g_crashHandlerData = NULL;
@@ -191,31 +193,6 @@ SentryCrashInstallation ()
 - (CrashHandlerData *)g_crashHandlerData
 {
     return g_crashHandlerData;
-}
-
-- (SentryCrashInstReportField *)reportFieldForProperty:(NSString *)propertyName
-{
-    SentryCrashInstReportField *field = [self.fields objectForKey:propertyName];
-    if (field == nil) {
-        field = [SentryCrashInstReportField fieldWithIndex:self.nextFieldIndex];
-        self.nextFieldIndex++;
-        self.crashHandlerData->reportFieldsCount = self.nextFieldIndex;
-        self.crashHandlerData->reportFields[field.index] = field.field;
-        [self.fields setObject:field forKey:propertyName];
-    }
-    return field;
-}
-
-- (void)reportFieldForProperty:(NSString *)propertyName setKey:(id)key
-{
-    SentryCrashInstReportField *field = [self reportFieldForProperty:propertyName];
-    field.key = key;
-}
-
-- (void)reportFieldForProperty:(NSString *)propertyName setValue:(id)value
-{
-    SentryCrashInstReportField *field = [self reportFieldForProperty:propertyName];
-    field.value = value;
 }
 
 - (NSError *)validateProperties
@@ -282,10 +259,11 @@ SentryCrashInstallation ()
     }
 }
 
-- (void)install
+- (void)install:(NSString *)customCacheDirectory
 {
-    SentryCrash *handler = [SentryCrash sharedInstance];
+    SentryCrash *handler = SentryDependencyContainer.sharedInstance.crashReporter;
     @synchronized(handler) {
+        handler.basePath = customCacheDirectory;
         g_crashHandlerData = self.crashHandlerData;
         handler.onCrash = crashCallback;
         [handler install];
@@ -294,7 +272,7 @@ SentryCrashInstallation ()
 
 - (void)uninstall
 {
-    SentryCrash *handler = [SentryCrash sharedInstance];
+    SentryCrash *handler = SentryDependencyContainer.sharedInstance.crashReporter;
     @synchronized(handler) {
         if (g_crashHandlerData == self.crashHandlerData) {
             g_crashHandlerData = NULL;
@@ -326,7 +304,7 @@ SentryCrashInstallation ()
 
     sink = [SentryCrashReportFilterPipeline filterWithFilters:self.prependedFilters, sink, nil];
 
-    SentryCrash *handler = [SentryCrash sharedInstance];
+    SentryCrash *handler = SentryDependencyContainer.sharedInstance.crashReporter;
     handler.sink = sink;
     [handler sendAllReportsWithCompletion:onCompletion];
 }

@@ -1,3 +1,4 @@
+// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashC.h
 //
@@ -112,19 +113,31 @@ void sentrycrash_setCrashNotifyCallback(const SentryCrashReportWriteCallback onC
 void sentrycrash_setMaxReportCount(int maxReportCount);
 
 /**
+ * @typedef SaveAttachmentCallback
+ *
+ * This typedef defines a function pointer to a callback that will be called during crashes
+ * to request extra attachments to be saved.
+ *
+ * @param directoryPath The path to a directory where the view hierarchy should be saved.
+ */
+typedef void (*SaveAttachmentCallback)(const char *directoryPath);
+
+/**
  * Set the callback to be called at the end of a crash to make the app save a screenshot;
  *
- * @param callback function pointer that will be called with a give path.
+ * @param callback function pointer that will be called with a path to a directory where the screen
+ * shot should be saved.
  */
-void sentrycrash_setSaveScreenshots(void (*callback)(const char *));
+void sentrycrash_setSaveScreenshots(SaveAttachmentCallback callback);
 
 /**
  * Set the callback to be called at the end of a crash to make the app save the view hierarchy
  * descriptions;
  *
- * @param callback function pointer that will be called with a give path.
+ * @param callback function pointer that will be called with a path to a directory where the view
+ * hierarchy should be saved.
  */
-void sentrycrash_setSaveViewHierarchy(void (*callback)(const char *));
+void sentrycrash_setSaveViewHierarchy(SaveAttachmentCallback callback);
 
 /** Report a custom, user defined exception.
  * This can be useful when dealing with scripting languages.

@@ -2,8 +2,8 @@
 #import "SentryIntegrationProtocol.h"
 #import "SentrySpanProtocol.h"
 
-@class SentryEvent, SentryClient, SentryScope, SentrySession, SentryUser, SentryBreadcrumb,
-    SentryId, SentryUserFeedback, SentryTransactionContext;
+@class SentryEvent, SentryClient, SentryScope, SentryUser, SentryBreadcrumb, SentryId,
+    SentryUserFeedback, SentryTransactionContext;
 
 NS_ASSUME_NONNULL_BEGIN
 @interface SentryHub : NSObject
@@ -11,11 +11,6 @@ SENTRY_NO_INIT
 
 - (instancetype)initWithClient:(SentryClient *_Nullable)client
                       andScope:(SentryScope *_Nullable)scope;
-
-/**
- * Since there's no scope stack, single hub instance,  we keep the session here.
- */
-@property (nonatomic, readonly, strong) SentrySession *_Nullable session;
 
 /**
  * Starts a new SentrySession. If there's a running SentrySession, it ends it before starting the
@@ -33,26 +28,21 @@ SENTRY_NO_INIT
 
 /**
  * Ends the current session with the given timestamp.
- *
  * @param timestamp The timestamp to end the session with.
  */
 - (void)endSessionWithTimestamp:(NSDate *)timestamp;
 
 /**
  * Captures a manually created event and sends it to Sentry.
- *
  * @param event The event to send to Sentry.
- *
  * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
 - (SentryId *)captureEvent:(SentryEvent *)event NS_SWIFT_NAME(capture(event:));
 
 /**
  * Captures a manually created event and sends it to Sentry.
- *
  * @param event The event to send to Sentry.
  * @param scope The scope containing event metadata.
- *
  * @return The SentryId of the event or SentryId.empty if the event is not sent.
  */
 - (SentryId *)captureEvent:(SentryEvent *)event
@@ -60,10 +50,8 @@ SENTRY_NO_INIT
 
 /**
  * Creates a transaction, binds it to the hub and returns the instance.
- *
  * @param name The transaction name.
  * @param operation Short code identifying the type of operation the span is measuring.
- *
  * @return The created transaction.
  */
 - (id<SentrySpan>)startTransactionWithName:(NSString *)name
@@ -72,11 +60,9 @@ SENTRY_NO_INIT
 
 /**
  * Creates a transaction, binds it to the hub and returns the instance.
- *
  * @param name The transaction name.
  * @param operation Short code identifying the type of operation the span is measuring.
  * @param bindToScope Indicates whether the SDK should bind the new transaction to the scope.
- *
  * @return The created transaction.
  */
 - (id<SentrySpan>)startTransactionWithName:(NSString *)name
@@ -86,9 +72,7 @@ SENTRY_NO_INIT
 
 /**
  * Creates a transaction, binds it to the hub and returns the instance.
- *
  * @param transactionContext The transaction context.
- *
  * @return The created transaction.
  */
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
@@ -96,10 +80,8 @@ SENTRY_NO_INIT
 
 /**
  * Creates a transaction, binds it to the hub and returns the instance.
- *
  * @param transactionContext The transaction context.
  * @param bindToScope Indicates whether the SDK should bind the new transaction to the scope.
- *
  * @return The created transaction.
  */
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
@@ -108,11 +90,9 @@ SENTRY_NO_INIT
 
 /**
  * Creates a transaction, binds it to the hub and returns the instance.
- *
  * @param transactionContext The transaction context.
  * @param bindToScope Indicates whether the SDK should bind the new transaction to the scope.
  * @param customSamplingContext Additional information about the sampling context.
- *
  * @return The created transaction.
  */
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
@@ -122,10 +102,8 @@ SENTRY_NO_INIT
 
 /**
  * Creates a transaction, binds it to the hub and returns the instance.
- *
  * @param transactionContext The transaction context.
  * @param customSamplingContext Additional information about the sampling context.
- *
  * @return The created transaction.
  */
 - (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
@@ -134,67 +112,54 @@ SENTRY_NO_INIT
 
 /**
  * Captures an error event and sends it to Sentry.
- *
  * @param error The error to send to Sentry.
- *
- * @return The SentryId of the event or SentryId.empty if the event is not sent.
+ * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
  */
 - (SentryId *)captureError:(NSError *)error NS_SWIFT_NAME(capture(error:));
 
 /**
  * Captures an error event and sends it to Sentry.
- *
  * @param error The error to send to Sentry.
  * @param scope The scope containing event metadata.
- *
- * @return The SentryId of the event or SentryId.empty if the event is not sent.
+ * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
  */
 - (SentryId *)captureError:(NSError *)error
                  withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(error:scope:));
 
 /**
  * Captures an exception event and sends it to Sentry.
- *
  * @param exception The exception to send to Sentry.
- *
- * @return The SentryId of the event or SentryId.empty if the event is not sent.
+ * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
  */
 - (SentryId *)captureException:(NSException *)exception NS_SWIFT_NAME(capture(exception:));
 
 /**
  * Captures an exception event and sends it to Sentry.
- *
  * @param exception The exception to send to Sentry.
  * @param scope The scope containing event metadata.
- *
- * @return The SentryId of the event or SentryId.empty if the event is not sent.
+ * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
  */
 - (SentryId *)captureException:(NSException *)exception
                      withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(exception:scope:));
 
 /**
  * Captures a message event and sends it to Sentry.
- *
  * @param message The message to send to Sentry.
- *
- * @return The SentryId of the event or SentryId.empty if the event is not sent.
+ * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
  */
 - (SentryId *)captureMessage:(NSString *)message NS_SWIFT_NAME(capture(message:));
 
 /**
  * Captures a message event and sends it to Sentry.
- *
  * @param message The message to send to Sentry.
  * @param scope The scope containing event metadata.
- *
- * @return The SentryId of the event or SentryId.empty if the event is not sent.
+ * @return The @c SentryId of the event or @c SentryId.empty if the event is not sent.
  */
 - (SentryId *)captureMessage:(NSString *)message
                    withScope:(SentryScope *)scope NS_SWIFT_NAME(capture(message:scope:));
 
 /**
  * Captures a manually created user feedback and sends it to Sentry.
- *
  * @param userFeedback The user feedback to send to Sentry.
  */
 - (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
@@ -203,14 +168,12 @@ SENTRY_NO_INIT
 /**
  * Use this method to modify the Scope of the Hub. The SDK uses the Scope to attach
  * contextual data to events.
- *
  * @param callback The callback for configuring the Scope of the Hub.
  */
 - (void)configureScope:(void (^)(SentryScope *scope))callback;
 
 /**
  * Adds a breadcrumb to the Scope of the Hub.
- *
  * @param crumb The Breadcrumb to add to the Scope of the Hub.
  */
 - (void)addBreadcrumb:(SentryBreadcrumb *)crumb;
@@ -221,7 +184,7 @@ SENTRY_NO_INIT
 - (SentryClient *_Nullable)getClient;
 
 /**
- * Returns either the current scope and if nil a new one.
+ * Returns either the current scope or a new one if it was @c nil .
  */
 @property (nonatomic, readonly, strong) SentryScope *scope;
 
@@ -236,30 +199,35 @@ SENTRY_NO_INIT
 - (BOOL)hasIntegration:(NSString *)integrationName;
 
 /**
- * Checks if a specific Integration (`integrationClass`) has been installed.
- *
- * @return BOOL If instance of `integrationClass` exists within `SentryHub.installedIntegrations`.
+ * Checks if a specific Integration (@c integrationClass) has been installed.
+ * @return @c YES if instance of @c integrationClass exists within
+ * @c SentryHub.installedIntegrations
  */
 - (BOOL)isIntegrationInstalled:(Class)integrationClass;
 
 /**
  * Set user to the Scope of the Hub.
- *
  * @param user The user to set to the Scope.
  */
 - (void)setUser:(SentryUser *_Nullable)user;
 
 /**
+ * Reports to the ongoing UIViewController transaction
+ * that the screen contents are fully loaded and displayed,
+ * which will create a new span.
+ */
+- (void)reportFullyDisplayed;
+
+/**
  * Waits synchronously for the SDK to flush out all queued and cached items for up to the specified
  * timeout in seconds. If there is no internet connection, the function returns immediately. The SDK
  * doesn't dispose the client or the hub.
- *
  * @param timeout The time to wait for the SDK to complete the flush.
  */
 - (void)flush:(NSTimeInterval)timeout NS_SWIFT_NAME(flush(timeout:));
 
 /**
- * Calls flush with ``SentryOptions/shutdownTimeInterval``.
+ * Calls flush with @c SentryOptions/shutdownTimeInterval .
  */
 - (void)close;
 

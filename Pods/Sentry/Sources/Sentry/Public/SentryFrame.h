@@ -44,9 +44,14 @@ NS_SWIFT_NAME(Frame)
 @property (nonatomic, copy) NSString *_Nullable platform;
 
 /**
- * InstructionAddress of the frame
+ * InstructionAddress of the frame hex format
  */
 @property (nonatomic, copy) NSString *_Nullable instructionAddress;
+
+/**
+ * InstructionAddress of the frame
+ */
+@property (nonatomic) NSUInteger instruction;
 
 /**
  * User for react native, will be ignored for cocoa frames

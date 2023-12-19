@@ -1,5 +1,6 @@
 #import "SentryCrashExceptionApplication.h"
 #import "SentryCrash.h"
+#import "SentryDependencyContainer.h"
 #import "SentrySDK.h"
 
 @implementation SentryCrashExceptionApplication
@@ -10,8 +11,9 @@
 {
     [[NSUserDefaults standardUserDefaults]
         registerDefaults:@{ @"NSApplicationCrashOnExceptions" : @YES }];
-    if (nil != SentryCrash.sharedInstance.uncaughtExceptionHandler && nil != exception) {
-        SentryCrash.sharedInstance.uncaughtExceptionHandler(exception);
+    SentryCrash *crash = SentryDependencyContainer.sharedInstance.crashReporter;
+    if (nil != crash.uncaughtExceptionHandler && nil != exception) {
+        crash.uncaughtExceptionHandler(exception);
     }
     [super reportException:exception];
 }

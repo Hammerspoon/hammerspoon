@@ -16,5 +16,8 @@
 /* Class = "NSButtonCell"; title = "Include anonymous system profile"; ObjectID = "gz7-LM-gNf"; */
 "gz7-LM-gNf.title" = "Innifela nafnlausa kerfisskýrslu";
 
+/* Class = "NSButtonCell"; title = "Automatically download and install updates"; ObjectID = "AUc-33-qGN"; */
+"AUc-33-qGN.title" = "Sækja og innsetja uppfærslur sjálfkrafa";
+
 /* Class = "NSButtonCell"; title = "Check Automatically"; ObjectID = "OhZ-1K-DmA"; */
 "OhZ-1K-DmA.title" = "Kanna sjálfkrafa";

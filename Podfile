@@ -9,14 +9,14 @@ project 'Hammerspoon', 'Profile' => :debug
 
 target 'Hammerspoon' do
 pod 'ASCIImage', '1.0.0'
-pod 'CocoaLumberjack', '3.5.3'
+pod 'CocoaLumberjack', '3.8.2'
 pod 'CocoaAsyncSocket', '7.6.5'
 pod 'CocoaHTTPServer', :git => 'https://github.com/Hammerspoon/CocoaHTTPServer.git'
 pod 'PocketSocket/Client', '1.0.1'
-pod 'Sentry', :git => 'https://github.com/getsentry/sentry-cocoa.git', :tag => '8.3.0'
-pod 'Sparkle', '2.3.2', :configurations => ['Release']
+pod 'Sentry', :git => 'https://github.com/getsentry/sentry-cocoa.git', :tag => '8.17.2'
+pod 'Sparkle', '2.5.1', :configurations => ['Release']
 pod 'MIKMIDI', '1.7.1'
-pod 'SocketRocket', '0.5.1'
+pod 'SocketRocket', '0.7.0'
 pod 'ORSSerialPort', '2.1.0'
 end
 

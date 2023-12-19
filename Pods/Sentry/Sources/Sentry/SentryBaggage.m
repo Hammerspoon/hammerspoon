@@ -17,6 +17,7 @@
                     transaction:(nullable NSString *)transaction
                     userSegment:(nullable NSString *)userSegment
                      sampleRate:(nullable NSString *)sampleRate
+                        sampled:(nullable NSString *)sampled
 {
 
     if (self = [super init]) {
@@ -27,6 +28,7 @@
         _transaction = transaction;
         _userSegment = userSegment;
         _sampleRate = sampleRate;
+        _sampled = sampled;
     }
 
     return self;
@@ -63,6 +65,10 @@
 
     if (_sampleRate != nil) {
         [information setValue:_sampleRate forKey:@"sentry-sample_rate"];
+    }
+
+    if (_sampled != nil) {
+        [information setValue:_sampled forKey:@"sentry-sampled"];
     }
 
     return [SentrySerialization baggageEncodedDictionary:information];

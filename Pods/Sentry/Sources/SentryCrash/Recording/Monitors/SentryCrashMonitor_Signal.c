@@ -1,3 +1,4 @@
+// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashMonitor_Signal.c
 //
@@ -107,7 +108,6 @@ handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
 
         sentrycrashcm_handleException(crashContext);
         sentrycrashmc_resumeEnvironment(threads, numThreads);
-        sentrycrash_async_backtrace_decref(g_stackCursor.async_caller);
     }
 
     SentryCrashLOG_DEBUG("Re-raising signal for regular handlers to catch.");
@@ -120,7 +120,7 @@ handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
 // ============================================================================
 
 static bool
-installSignalHandler()
+installSignalHandler(void)
 {
     SentryCrashLOG_DEBUG("Installing signal handler.");
 
@@ -230,7 +230,7 @@ setEnabled(bool isEnabled)
 }
 
 static bool
-isEnabled()
+isEnabled(void)
 {
     return g_isEnabled;
 }
@@ -247,7 +247,7 @@ addContextualInfoToEvent(struct SentryCrash_MonitorContext *eventContext)
 #endif
 
 SentryCrashMonitorAPI *
-sentrycrashcm_signal_getAPI()
+sentrycrashcm_signal_getAPI(void)
 {
     static SentryCrashMonitorAPI api = {
 #if SentryCrashCRASH_HAS_SIGNAL

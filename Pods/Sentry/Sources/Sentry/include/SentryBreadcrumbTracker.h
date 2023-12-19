@@ -2,15 +2,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentrySwizzleWrapper;
+@protocol SentryBreadcrumbDelegate;
 
 @interface SentryBreadcrumbTracker : NSObject
-SENTRY_NO_INIT
 
-- (instancetype)initWithSwizzleWrapper:(SentrySwizzleWrapper *)swizzleWrapper;
-
-- (void)start;
+- (void)startWithDelegate:(id<SentryBreadcrumbDelegate>)delegate;
+#if SENTRY_HAS_UIKIT
 - (void)startSwizzle;
+#endif // SENTRY_HAS_UIKIT
 - (void)stop;
 
 @end

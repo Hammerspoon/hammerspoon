@@ -1,9 +1,11 @@
 #import "SentryScreenshot.h"
-#import "SentryDependencyContainer.h"
-#import "SentryDispatchQueueWrapper.h"
-#import "SentryUIApplication.h"
 
 #if SENTRY_HAS_UIKIT
+
+#    import "SentryCompiler.h"
+#    import "SentryDependencyContainer.h"
+#    import "SentryDispatchQueueWrapper.h"
+#    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
 
 @implementation SentryScreenshot
@@ -20,7 +22,7 @@
     return result;
 }
 
-- (void)saveScreenShots:(NSString *)path
+- (void)saveScreenShots:(NSString *)imagesDirectoryPath
 {
     // This function does not dispatch the screenshot to the main thread.
     // The caller should be aware of that.
@@ -31,7 +33,7 @@
         NSString *name = idx == 0
             ? @"screenshot.png"
             : [NSString stringWithFormat:@"screenshot-%li.png", (unsigned long)idx + 1];
-        NSString *fileName = [path stringByAppendingPathComponent:name];
+        NSString *fileName = [imagesDirectoryPath stringByAppendingPathComponent:name];
         [obj writeToFile:fileName atomically:YES];
     }];
 }
@@ -43,11 +45,21 @@
     NSMutableArray *result = [NSMutableArray arrayWithCapacity:windows.count];
 
     for (UIWindow *window in windows) {
-        UIGraphicsBeginImageContext(window.frame.size);
+        CGSize size = window.frame.size;
+        if (size.width == 0 || size.height == 0) {
+            // avoid API errors reported as e.g.:
+            // [Graphics] Invalid size provided to UIGraphicsBeginImageContext(): size={0, 0},
+            // scale=1.000000
+            continue;
+        }
+
+        UIGraphicsBeginImageContext(size);
 
         if ([window drawViewHierarchyInRect:window.bounds afterScreenUpdates:false]) {
             UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
-            if (img.size.width > 0 || img.size.height > 0) {
+            // this shouldn't happen now that we discard windows with either 0 height or 0 width,
+            // but still, we shouldn't send any images with either one.
+            if (LIKELY(img.size.width > 0 && img.size.height > 0)) {
                 NSData *bytes = UIImagePNGRepresentation(img);
                 if (bytes && bytes.length > 0) {
                     [result addObject:bytes];
@@ -62,4 +74,4 @@
 
 @end
 
-#endif
+#endif // SENTRY_HAS_UIKIT

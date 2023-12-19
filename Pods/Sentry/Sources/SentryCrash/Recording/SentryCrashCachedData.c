@@ -1,3 +1,4 @@
+// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashCachedData.c
 //
@@ -53,7 +54,7 @@ static _Atomic(int) g_semaphoreCount;
 static bool g_hasThreadStarted = false;
 
 static void
-updateThreadList()
+updateThreadList(void)
 {
     const task_t thisTask = mach_task_self();
     int oldThreadsCount = g_allThreadsCount;
@@ -166,7 +167,7 @@ sentrycrashccd_init(int pollingIntervalInSeconds)
 }
 
 void
-sentrycrashccd_close()
+sentrycrashccd_close(void)
 {
     if (g_hasThreadStarted == true) {
         g_hasThreadStarted = false;
@@ -181,7 +182,7 @@ sentrycrashccd_hasThreadStarted(void)
 }
 
 void
-sentrycrashccd_freeze()
+sentrycrashccd_freeze(void)
 {
     if (g_semaphoreCount++ <= 0) {
         // Sleep just in case the cached data thread is in the middle of an
@@ -191,7 +192,7 @@ sentrycrashccd_freeze()
 }
 
 void
-sentrycrashccd_unfreeze()
+sentrycrashccd_unfreeze(void)
 {
     if (--g_semaphoreCount < 0) {
         // Handle extra calls to unfreeze somewhat gracefully.

@@ -10,10 +10,10 @@
     return sentrycrashdl_imageCount();
 }
 
-- (SentryCrashBinaryImage)getBinaryImage:(NSInteger)index
+- (SentryCrashBinaryImage)getBinaryImage:(NSInteger)index isCrash:(BOOL)isCrash
 {
     SentryCrashBinaryImage image = { 0 };
-    sentrycrashdl_getBinaryImage((int)index, &image);
+    sentrycrashdl_getBinaryImage((int)index, &image, isCrash);
     return image;
 }
 

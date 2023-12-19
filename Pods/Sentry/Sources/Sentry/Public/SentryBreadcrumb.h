@@ -19,7 +19,7 @@ NS_SWIFT_NAME(Breadcrumb)
 @property (nonatomic, copy) NSString *category;
 
 /**
- * NSDate when the breadcrumb happened
+ * @c NSDate when the breadcrumb happened
  */
 @property (nonatomic, strong) NSDate *_Nullable timestamp;
 
@@ -40,11 +40,9 @@ NS_SWIFT_NAME(Breadcrumb)
 @property (nonatomic, strong) NSDictionary<NSString *, id> *_Nullable data;
 
 /**
- * Initializer for SentryBreadcrumb
- *
+ * Initializer for @c SentryBreadcrumb
  * @param level SentryLevel
  * @param category String
- * @return SentryBreadcrumb
  */
 - (instancetype)initWithLevel:(SentryLevel)level category:(NSString *)category;
 - (instancetype)init;

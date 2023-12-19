@@ -1,10 +1,9 @@
-#import "SentryDefines.h"
 #import "SentryHttpStatusCodeRange.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface
-SentryHttpStatusCodeRange (Private)
+SentryHttpStatusCodeRange ()
 
 - (BOOL)isInRange:(NSInteger)statusCode;
 

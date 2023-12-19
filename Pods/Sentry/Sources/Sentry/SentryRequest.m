@@ -21,7 +21,8 @@ NS_ASSUME_NONNULL_BEGIN
         }
         [serializedData setValue:self.cookies forKey:@"cookies"];
         [serializedData setValue:self.fragment forKey:@"fragment"];
-        if (nil != self.headers) {
+        if (self.headers != nil) {
+
             [serializedData setValue:[self.headers sentry_sanitize] forKey:@"headers"];
         }
         [serializedData setValue:self.method forKey:@"method"];

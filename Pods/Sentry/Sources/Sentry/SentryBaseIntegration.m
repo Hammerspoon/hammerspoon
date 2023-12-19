@@ -62,10 +62,12 @@ NS_ASSUME_NONNULL_BEGIN
         return NO;
     }
 
+#    if SENTRY_HAS_UIKIT
     if ((integrationOptions & kIntegrationOptionAttachScreenshot) && !options.attachScreenshot) {
         [self logWithOptionName:@"attachScreenshot"];
         return NO;
     }
+#    endif // SENTRY_HAS_UIKIT
 
     if ((integrationOptions & kIntegrationOptionEnableUserInteractionTracing)
         && !options.enableUserInteractionTracing) {

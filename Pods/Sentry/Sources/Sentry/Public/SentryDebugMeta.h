@@ -5,27 +5,25 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * This class is actually a DebugImage:
- * https://develop.sentry.dev/sdk/event-payloads/debugmeta/#debug-images and should be renamed to
- * SentryDebugImage in a future version.
- *
  * Contains information about a loaded library in the process and the memory address.
- *
  * @discussion Since 8.2.0, the SDK changed the debug image type from "apple" to "macho". For macho,
- * the SDK now sends ``debugID`` instead of ``uuid``, and ``codeFile`` instead of ``name``. For more
+ * the SDK now sends @c debugID instead of @c uuid , and @c codeFile instead of @c name . For more
  * information check https://develop.sentry.dev/sdk/event-payloads/debugmeta/#mach-o-images.
+ * @todo This class is actually a DebugImage:
+ * https://develop.sentry.dev/sdk/event-payloads/debugmeta/#debug-images and should be renamed to
+ * @c SentryDebugImage in a future version.
  */
 NS_SWIFT_NAME(DebugMeta)
 @interface SentryDebugMeta : NSObject <SentrySerializable>
 
 /**
- * The UUID of the image. Use ``debugID`` when using ``type`` "macho".
+ * The UUID of the image. Use @c debugID when using "macho" as the @c type .
  */
 @property (nonatomic, copy) NSString *_Nullable uuid;
 
 /**
- * Identifier of the dynamic library or executable. It is the value of the LC_UUID load command in
- * the Mach header, formatted as UUID.
+ * Identifier of the dynamic library or executable. It is the value of the @c LC_UUID load command
+ * in the Mach header, formatted as UUID.
  */
 @property (nonatomic, copy) NSString *_Nullable debugID;
 
@@ -35,9 +33,9 @@ NS_SWIFT_NAME(DebugMeta)
 @property (nonatomic, copy) NSString *_Nullable type;
 
 /**
- * Name of the image. Use ``codeFile`` when using ``type`` "macho".
+ * Name of the image. Use @c codeFile when using "macho" as the @c type .
  */
-@property (nonatomic, copy) NSString *_Nullable name;
+@property (nullable, nonatomic, copy) NSString *name;
 
 /**
  * The size of the image in virtual memory. If missing, Sentry will assume that the image spans up

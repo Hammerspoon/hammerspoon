@@ -1,3 +1,4 @@
+// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashDynamicLinker.c
 //
@@ -334,26 +335,26 @@ getCrashInfo(const struct mach_header *header, SentryCrashBinaryImage *buffer)
 }
 
 int
-sentrycrashdl_imageCount()
+sentrycrashdl_imageCount(void)
 {
     return (int)_dyld_image_count();
 }
 
 bool
-sentrycrashdl_getBinaryImage(int index, SentryCrashBinaryImage *buffer)
+sentrycrashdl_getBinaryImage(int index, SentryCrashBinaryImage *buffer, bool isCrash)
 {
     const struct mach_header *header = _dyld_get_image_header((unsigned)index);
     if (header == NULL) {
         return false;
     }
 
-    return sentrycrashdl_getBinaryImageForHeader(
-        (const void *)header, _dyld_get_image_name((unsigned)index), buffer);
+    const char *imageName = _dyld_get_image_name((unsigned)index);
+    return sentrycrashdl_getBinaryImageForHeader((const void *)header, imageName, buffer, isCrash);
 }
 
 bool
-sentrycrashdl_getBinaryImageForHeader(
-    const void *const header_ptr, const char *const image_name, SentryCrashBinaryImage *buffer)
+sentrycrashdl_getBinaryImageForHeader(const void *const header_ptr, const char *const image_name,
+    SentryCrashBinaryImage *buffer, bool isCrash)
 {
     const struct mach_header *header = (const struct mach_header *)header_ptr;
     uintptr_t cmdPtr = firstCmdAfterHeader(header);
@@ -412,7 +413,9 @@ sentrycrashdl_getBinaryImageForHeader(
     buffer->majorVersion = version >> 16;
     buffer->minorVersion = (version >> 8) & 0xff;
     buffer->revisionVersion = version & 0xff;
-    getCrashInfo(header, buffer);
+    if (isCrash) {
+        getCrashInfo(header, buffer);
+    }
 
     return true;
 }

@@ -1,5 +1,6 @@
 #import "SentryRetryAfterHeaderParser.h"
-#import "SentryCurrentDate.h"
+#import "SentryCurrentDateProvider.h"
+#import "SentryDependencyContainer.h"
 #import "SentryHttpDateParser.h"
 #import <Foundation/Foundation.h>
 
@@ -30,7 +31,8 @@ SentryRetryAfterHeaderParser ()
 
     NSInteger retryAfterSeconds = [retryAfterHeader integerValue];
     if (0 != retryAfterSeconds) {
-        return [[SentryCurrentDate date] dateByAddingTimeInterval:retryAfterSeconds];
+        return [[SentryDependencyContainer.sharedInstance.dateProvider date]
+            dateByAddingTimeInterval:retryAfterSeconds];
     }
 
     // parsing as double/seconds failed, try to parse as date

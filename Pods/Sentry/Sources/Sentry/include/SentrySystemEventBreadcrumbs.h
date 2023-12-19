@@ -1,40 +1,32 @@
-#import "SentryCurrentDateProvider.h"
 #import "SentryFileManager.h"
 #import <Foundation/Foundation.h>
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && SENTRY_HAS_UIKIT
+
 #    import <UIKit/UIKit.h>
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class SentryNSNotificationCenterWrapper;
 
-@protocol SentrySystemEventBreadcrumbsDelegate;
+@protocol SentryBreadcrumbDelegate;
 
 @interface SentrySystemEventBreadcrumbs : NSObject
 SENTRY_NO_INIT
 
 - (instancetype)initWithFileManager:(SentryFileManager *)fileManager
-             andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
        andNotificationCenterWrapper:(SentryNSNotificationCenterWrapper *)notificationCenterWrapper;
 
-- (void)startWithDelegate:(id<SentrySystemEventBreadcrumbsDelegate>)delegate;
+- (void)startWithDelegate:(id<SentryBreadcrumbDelegate>)delegate;
 
-#if TARGET_OS_IOS
-- (void)startWithDelegate:(id<SentrySystemEventBreadcrumbsDelegate>)delegate
+- (void)startWithDelegate:(id<SentryBreadcrumbDelegate>)delegate
             currentDevice:(nullable UIDevice *)currentDevice;
 - (void)timezoneEventTriggered;
-#endif
 
 - (void)stop;
 
 @end
 
-@protocol SentrySystemEventBreadcrumbsDelegate <NSObject>
-
-- (void)addBreadcrumb:(SentryBreadcrumb *)crumb;
-
-@end
-
 NS_ASSUME_NONNULL_END
+
+#endif // TARGET_OS_IOS && SENTRY_HAS_UIKIT

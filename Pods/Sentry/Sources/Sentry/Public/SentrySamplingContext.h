@@ -19,14 +19,12 @@ NS_SWIFT_NAME(SamplingContext)
 
 /**
  * Init a SentryTransactionSamplingContext.
- *
  * @param transactionContext The context of the transaction being sampled.
  */
 - (instancetype)initWithTransactionContext:(SentryTransactionContext *)transactionContext;
 
 /**
  * Init a SentryTransactionSamplingContext.
- *
  * @param transactionContext The context of the transaction being sampled.
  * @param customSamplingContext Custom data used for sampling.
  */

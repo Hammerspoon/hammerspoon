@@ -7,6 +7,7 @@ NSString *const kSentryDiscardReasonNameNetworkError = @"network_error";
 NSString *const kSentryDiscardReasonNameQueueOverflow = @"queue_overflow";
 NSString *const kSentryDiscardReasonNameCacheOverflow = @"cache_overflow";
 NSString *const kSentryDiscardReasonNameRateLimitBackoff = @"ratelimit_backoff";
+NSString *const kSentryDiscardReasonNameInsufficientData = @"insufficient_data";
 
 NSString *_Nonnull nameForSentryDiscardReason(SentryDiscardReason reason)
 {
@@ -25,5 +26,7 @@ NSString *_Nonnull nameForSentryDiscardReason(SentryDiscardReason reason)
         return kSentryDiscardReasonNameCacheOverflow;
     case kSentryDiscardReasonRateLimitBackoff:
         return kSentryDiscardReasonNameRateLimitBackoff;
+    case kSentryDiscardReasonInsufficientData:
+        return kSentryDiscardReasonNameInsufficientData;
     }
 }

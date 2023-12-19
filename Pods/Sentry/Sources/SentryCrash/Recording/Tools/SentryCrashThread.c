@@ -1,3 +1,4 @@
+// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashThread.c
 //
@@ -38,7 +39,7 @@
 #include <sys/sysctl.h>
 
 SentryCrashThread
-sentrycrashthread_self()
+sentrycrashthread_self(void)
 {
     thread_t thread_self = mach_thread_self();
     mach_port_deallocate(mach_task_self(), thread_self);

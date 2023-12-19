@@ -3,7 +3,47 @@
 #import "NSDictionary+SentrySanitize.h"
 #import "SentryLevelMapper.h"
 
+@interface
+SentryBreadcrumb ()
+@property (atomic, strong) NSDictionary<NSString *, id> *_Nullable unknown;
+@end
+
 @implementation SentryBreadcrumb
+
+- (instancetype)initWithDictionary:(NSDictionary *)dictionary
+{
+    if (self = [super init]) {
+        NSMutableDictionary *unknown = [NSMutableDictionary dictionary];
+        for (id key in dictionary) {
+            id value = [dictionary valueForKey:key];
+            if (value == nil) {
+                continue;
+            }
+            BOOL isString = [value isKindOfClass:[NSString class]];
+            BOOL isDictionary = [value isKindOfClass:[NSDictionary class]];
+
+            if ([key isEqualToString:@"level"] && isString) {
+                self.level = sentryLevelForString(value);
+            } else if ([key isEqualToString:@"timestamp"] && isString) {
+                self.timestamp = [NSDate sentry_fromIso8601String:value];
+            } else if ([key isEqualToString:@"category"] && isString) {
+                self.category = value;
+            } else if ([key isEqualToString:@"type"] && isString) {
+                self.type = value;
+            } else if ([key isEqualToString:@"message"] && isString) {
+                self.message = value;
+            } else if ([key isEqualToString:@"data"] && isDictionary) {
+                self.data = value;
+            } else {
+                unknown[key] = value;
+            }
+        }
+        if (unknown.count > 0) {
+            self.unknown = [unknown copy];
+        }
+    }
+    return self;
+}
 
 - (instancetype)initWithLevel:(enum SentryLevel)level category:(NSString *)category
 {
@@ -31,7 +71,12 @@
     [serializedData setValue:self.type forKey:@"type"];
     [serializedData setValue:self.message forKey:@"message"];
     [serializedData setValue:[self.data sentry_sanitize] forKey:@"data"];
-
+    NSDictionary<NSString *, id> *unknown = self.unknown;
+    if (unknown != nil) {
+        for (id key in unknown) {
+            [serializedData setValue:unknown[key] forKey:key];
+        }
+    }
     return serializedData;
 }
 
@@ -65,6 +110,9 @@
         return NO;
     if (self.data != breadcrumb.data && ![self.data isEqualToDictionary:breadcrumb.data])
         return NO;
+    if (self.unknown != breadcrumb.unknown
+        && ![self.unknown isEqualToDictionary:breadcrumb.unknown])
+        return NO;
     return YES;
 }
 
@@ -77,6 +125,7 @@
     hash = hash * 23 + [self.type hash];
     hash = hash * 23 + [self.message hash];
     hash = hash * 23 + [self.data hash];
+    hash = hash * 23 + [self.unknown hash];
     return hash;
 }
 

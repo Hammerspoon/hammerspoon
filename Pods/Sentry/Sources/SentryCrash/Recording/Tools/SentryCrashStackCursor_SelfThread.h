@@ -1,3 +1,4 @@
+// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashStackCursor_SelfThread.h
 //
@@ -40,6 +41,8 @@ extern "C" {
  * @param skipEntries The number of stack entries to skip.
  */
 void sentrycrashsc_initSelfThread(SentryCrashStackCursor *cursor, int skipEntries);
+
+void sentrycrashsc_setSwiftAsyncStitching(bool enabled);
 
 #ifdef __cplusplus
 }

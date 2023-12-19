@@ -8,6 +8,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable NSData *)fetchViewHierarchy;
 
+/**
+ * Save the current app view hierarchy in the given file path.
+ *
+ * @param filePath The full path where the view hierarchy should be saved.
+ */
 - (BOOL)saveViewHierarchy:(NSString *)filePath;
 @end
 

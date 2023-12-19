@@ -1,5 +1,6 @@
 #import "SentryClientReport.h"
-#import "SentryCurrentDate.h"
+#import "SentryCurrentDateProvider.h"
+#import "SentryDependencyContainer.h"
 #import <Foundation/Foundation.h>
 #import <SentryDiscardedEvent.h>
 
@@ -10,7 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithDiscardedEvents:(NSArray<SentryDiscardedEvent *> *)discardedEvents
 {
     if (self = [super init]) {
-        _timestamp = [SentryCurrentDate date];
+        _timestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
         _discardedEvents = discardedEvents;
     }
     return self;

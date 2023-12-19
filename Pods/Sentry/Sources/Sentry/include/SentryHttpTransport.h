@@ -6,7 +6,7 @@
 #import "SentryTransport.h"
 #import <Foundation/Foundation.h>
 
-@class SentryOptions, SentryDispatchQueueWrapper, SentryNSURLRequestBuilder, SentryReachability;
+@class SentryOptions, SentryDispatchQueueWrapper, SentryNSURLRequestBuilder;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -20,8 +20,7 @@ SENTRY_NO_INIT
           requestBuilder:(SentryNSURLRequestBuilder *)requestBuilder
               rateLimits:(id<SentryRateLimits>)rateLimits
        envelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
-    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-            reachability:(SentryReachability *)reachability;
+    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
 
 @end
 

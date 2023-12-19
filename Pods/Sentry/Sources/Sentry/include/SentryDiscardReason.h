@@ -11,10 +11,11 @@ typedef NS_ENUM(NSUInteger, SentryDiscardReason) {
     kSentryDiscardReasonNetworkError = 3,
     kSentryDiscardReasonQueueOverflow = 4,
     kSentryDiscardReasonCacheOverflow = 5,
-    kSentryDiscardReasonRateLimitBackoff = 6
+    kSentryDiscardReasonRateLimitBackoff = 6,
+    kSentryDiscardReasonInsufficientData = 7
 };
 
 static DEPRECATED_MSG_ATTRIBUTE(
     "Use nameForSentryDiscardReason() instead.") NSString *_Nonnull const SentryDiscardReasonNames[]
     = { @"before_send", @"event_processor", @"sample_rate", @"network_error", @"queue_overflow",
-          @"cache_overflow", @"ratelimit_backoff" };
+          @"cache_overflow", @"ratelimit_backoff", @"insufficient_data" };

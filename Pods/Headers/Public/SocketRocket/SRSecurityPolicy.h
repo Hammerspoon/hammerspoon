@@ -1,0 +1,1 @@
+../../../SocketRocket/SocketRocket/SRSecurityPolicy.h

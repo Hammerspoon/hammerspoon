@@ -1,1 +1,1 @@
-../../../CocoaLumberjack/Classes/CLI/CLIColor.h
+../../../CocoaLumberjack/Sources/CocoaLumberjack/include/CocoaLumberjack/CLIColor.h

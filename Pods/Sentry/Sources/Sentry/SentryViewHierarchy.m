@@ -1,15 +1,15 @@
 #import "SentryViewHierarchy.h"
-#import "SentryCrashFileUtils.h"
-#import "SentryCrashJSONCodec.h"
-#import "SentryDependencyContainer.h"
-#import "SentryLog.h"
-#import "SentryUIApplication.h"
-#import "UIView+Sentry.h"
-
-@import SentryPrivate;
 
 #if SENTRY_HAS_UIKIT
+
+#    import "SentryCrashFileUtils.h"
+#    import "SentryCrashJSONCodec.h"
+#    import "SentryDependencyContainer.h"
+#    import "SentryLog.h"
+#    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
+
+@import SentryPrivate;
 
 static int
 writeJSONDataToFile(const char *const data, const int length, void *const userData)
@@ -129,7 +129,7 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
     tryJson(sentrycrashjson_addFloatingPointElement(context, "alpha", view.alpha));
     tryJson(sentrycrashjson_addBooleanElement(context, "visible", !view.hidden));
 
-    if ([view.nextResponder isKindOfClass:[UIViewController self]]) {
+    if ([view.nextResponder isKindOfClass:[UIViewController class]]) {
         UIViewController *vc = (UIViewController *)view.nextResponder;
         if (vc.view == view) {
             const char *viewControllerClassName =
@@ -150,4 +150,4 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
 
 @end
 
-#endif
+#endif // SENTRY_HAS_UIKIT

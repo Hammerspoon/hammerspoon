@@ -1,1 +1,1 @@
-../../../CocoaLumberjack/Classes/Extensions/DDMultiFormatter.h
+../../../CocoaLumberjack/Sources/CocoaLumberjack/include/CocoaLumberjack/DDMultiFormatter.h

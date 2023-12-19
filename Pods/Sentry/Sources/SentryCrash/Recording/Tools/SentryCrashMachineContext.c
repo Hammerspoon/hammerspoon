@@ -1,3 +1,4 @@
+// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashMachineContext.c
 //
@@ -53,7 +54,6 @@ isStackOverflow(const SentryCrashMachineContext *const context)
         &stackCursor, SentryCrashSC_STACK_OVERFLOW_THRESHOLD, context);
     while (stackCursor.advanceCursor(&stackCursor)) { }
     bool rv = stackCursor.state.hasGivenUp;
-    sentrycrash_async_backtrace_decref(stackCursor.async_caller);
     return rv;
 }
 
@@ -92,7 +92,7 @@ getThreadList(SentryCrashMachineContext *context)
 }
 
 int
-sentrycrashmc_contextSize()
+sentrycrashmc_contextSize(void)
 {
     return sizeof(SentryCrashMachineContext);
 }
@@ -147,6 +147,14 @@ void
 sentrycrashmc_suspendEnvironment(
     thread_act_array_t *suspendedThreads, mach_msg_type_number_t *numSuspendedThreads)
 {
+    sentrycrashmc_suspendEnvironment_upToMaxSupportedThreads(
+        suspendedThreads, numSuspendedThreads, UINT32_MAX);
+}
+
+void
+sentrycrashmc_suspendEnvironment_upToMaxSupportedThreads(thread_act_array_t *suspendedThreads,
+    mach_msg_type_number_t *numSuspendedThreads, mach_msg_type_number_t maxSupportedThreads)
+{
 #if SentryCrashCRASH_HAS_THREADS_API
     SentryCrashLOG_DEBUG("Suspending environment.");
     kern_return_t kr;
@@ -155,6 +163,12 @@ sentrycrashmc_suspendEnvironment(
 
     if ((kr = task_threads(thisTask, suspendedThreads, numSuspendedThreads)) != KERN_SUCCESS) {
         SentryCrashLOG_ERROR("task_threads: %s", mach_error_string(kr));
+        return;
+    }
+
+    if (*numSuspendedThreads > maxSupportedThreads) {
+        *numSuspendedThreads = 0;
+        SentryCrashLOG_DEBUG("Too many threads to suspend. Aborting operation.");
         return;
     }
 

@@ -5,6 +5,10 @@
 #import <objc/runtime.h>
 #import <string.h>
 
+#if SENTRY_HAS_UIKIT
+#    import <UIKit/UIKit.h>
+#endif // SENTRY_HAS_UIKIT
+
 @interface
 SentrySubClassFinder ()
 
@@ -25,10 +29,11 @@ SentrySubClassFinder ()
     return self;
 }
 
+#if SENTRY_HAS_UIKIT
 - (void)actOnSubclassesOfViewControllerInImage:(NSString *)imageName block:(void (^)(Class))block;
 {
     [self.dispatchQueue dispatchAsyncWithBlock:^{
-        Class viewControllerClass = NSClassFromString(@"UIViewController");
+        Class viewControllerClass = [UIViewController class];
         if (viewControllerClass == nil) {
             SENTRY_LOG_DEBUG(@"UIViewController class not found.");
             return;
@@ -73,6 +78,7 @@ SentrySubClassFinder ()
         }];
     }];
 }
+#endif // SENTRY_HAS_UIKIT
 
 - (BOOL)isClass:(Class)childClass subClassOf:(Class)parentClass
 {

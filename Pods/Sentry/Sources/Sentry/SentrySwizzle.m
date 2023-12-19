@@ -112,7 +112,7 @@ swizzle(Class classToSwizzle, SEL selector, SentrySwizzleImpFactoryBlock factory
 }
 
 static NSMutableDictionary<NSValue *, NSMutableSet<Class> *> *
-swizzledClassesDictionary()
+swizzledClassesDictionary(void)
 {
     static NSMutableDictionary *swizzledClasses;
     static dispatch_once_t onceToken;

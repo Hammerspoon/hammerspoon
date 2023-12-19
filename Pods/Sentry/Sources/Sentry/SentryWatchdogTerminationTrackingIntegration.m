@@ -1,18 +1,20 @@
-#import "SentryDefines.h"
-#import "SentryScope+Private.h"
-#import <SentryAppState.h>
-#import <SentryAppStateManager.h>
-#import <SentryClient+Private.h>
-#import <SentryCrashWrapper.h>
-#import <SentryDependencyContainer.h>
-#import <SentryDispatchQueueWrapper.h>
-#import <SentryHub.h>
-#import <SentryOptions+Private.h>
-#import <SentrySDK+Private.h>
-#import <SentryWatchdogTerminationLogic.h>
-#import <SentryWatchdogTerminationScopeObserver.h>
-#import <SentryWatchdogTerminationTracker.h>
 #import <SentryWatchdogTerminationTrackingIntegration.h>
+
+#if SENTRY_HAS_UIKIT
+
+#    import "SentryScope+Private.h"
+#    import <SentryAppState.h>
+#    import <SentryAppStateManager.h>
+#    import <SentryClient+Private.h>
+#    import <SentryCrashWrapper.h>
+#    import <SentryDependencyContainer.h>
+#    import <SentryDispatchQueueWrapper.h>
+#    import <SentryHub.h>
+#    import <SentryOptions+Private.h>
+#    import <SentrySDK+Private.h>
+#    import <SentryWatchdogTerminationLogic.h>
+#    import <SentryWatchdogTerminationScopeObserver.h>
+#    import <SentryWatchdogTerminationTracker.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -103,20 +105,18 @@ SentryWatchdogTerminationTrackingIntegration ()
 
 - (void)anrDetected
 {
-#if SENTRY_HAS_UIKIT
     [self.appStateManager
         updateAppState:^(SentryAppState *appState) { appState.isANROngoing = YES; }];
-#endif
 }
 
 - (void)anrStopped
 {
-#if SENTRY_HAS_UIKIT
     [self.appStateManager
         updateAppState:^(SentryAppState *appState) { appState.isANROngoing = NO; }];
-#endif
 }
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif // SENTRY_HAS_UIKIT

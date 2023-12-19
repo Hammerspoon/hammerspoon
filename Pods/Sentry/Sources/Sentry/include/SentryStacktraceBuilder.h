@@ -13,6 +13,12 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryStacktraceBuilder : NSObject
 SENTRY_NO_INIT
 
+/**
+ * Whether the stack trace frames should be fully symbolicated
+ * or only contain instruction address and binary image.
+ */
+@property (nonatomic) BOOL symbolicate;
+
 - (id)initWithCrashStackEntryMapper:(SentryCrashStackEntryMapper *)crashStackEntryMapper;
 
 /**

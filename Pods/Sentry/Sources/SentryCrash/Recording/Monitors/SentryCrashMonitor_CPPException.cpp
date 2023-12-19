@@ -1,3 +1,4 @@
+// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashMonitor_CPPException.c
 //
@@ -80,7 +81,6 @@ void
 __cxa_throw(void *thrown_exception, std::type_info *tinfo, void (*dest)(void *))
 {
     if (g_captureNextStackTrace) {
-        sentrycrash_async_backtrace_decref(g_stackCursor.async_caller);
         sentrycrashsc_initSelfThread(&g_stackCursor, 1);
     }
 
@@ -186,7 +186,7 @@ CPPExceptionTerminate(void)
 // ============================================================================
 
 static void
-initialize()
+initialize(void)
 {
     static bool isInitialized = false;
     if (!isInitialized) {
@@ -214,13 +214,13 @@ setEnabled(bool isEnabled)
 }
 
 static bool
-isEnabled()
+isEnabled(void)
 {
     return g_isEnabled;
 }
 
 extern "C" SentryCrashMonitorAPI *
-sentrycrashcm_cppexception_getAPI()
+sentrycrashcm_cppexception_getAPI(void)
 {
     static SentryCrashMonitorAPI api = { .setEnabled = setEnabled, .isEnabled = isEnabled };
     return &api;

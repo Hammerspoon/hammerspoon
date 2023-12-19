@@ -1,3 +1,4 @@
+// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashMonitor_NSException.m
 //
@@ -30,6 +31,7 @@
 #include "SentryCrashMonitorContext.h"
 #import "SentryCrashStackCursor_Backtrace.h"
 #include "SentryCrashThread.h"
+#import "SentryDependencyContainer.h"
 
 // #define SentryCrashLogger_LocalLevel TRACE
 #import "SentryCrashLogger.h"
@@ -103,7 +105,6 @@ handleException(NSException *exception)
             SentryCrashLOG_DEBUG(@"Calling original exception handler.");
             g_previousUncaughtExceptionHandler(exception);
         }
-        sentrycrash_async_backtrace_decref(cursor.async_caller);
     }
 }
 
@@ -128,7 +129,8 @@ setEnabled(bool isEnabled)
 
             SentryCrashLOG_DEBUG(@"Setting new handler.");
             NSSetUncaughtExceptionHandler(&handleUncaughtException);
-            SentryCrash.sharedInstance.uncaughtExceptionHandler = &handleUncaughtException;
+            SentryDependencyContainer.sharedInstance.crashReporter.uncaughtExceptionHandler
+                = &handleUncaughtException;
         } else {
             SentryCrashLOG_DEBUG(@"Restoring original handler.");
             NSSetUncaughtExceptionHandler(g_previousUncaughtExceptionHandler);
@@ -137,13 +139,13 @@ setEnabled(bool isEnabled)
 }
 
 static bool
-isEnabled()
+isEnabled(void)
 {
     return g_isEnabled;
 }
 
 SentryCrashMonitorAPI *
-sentrycrashcm_nsexception_getAPI()
+sentrycrashcm_nsexception_getAPI(void)
 {
     static SentryCrashMonitorAPI api = { .setEnabled = setEnabled, .isEnabled = isEnabled };
     return &api;

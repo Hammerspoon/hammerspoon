@@ -1,18 +1,14 @@
 #import "SentrySampleDecision.h"
 
-NSString *const kSentrySampleDecisionNameUndecided = @"undecided";
-NSString *const kSentrySampleDecisionNameYes = @"true";
-NSString *const kSentrySampleDecisionNameNo = @"false";
-
-NSString *
-nameForSentrySampleDecision(SentrySampleDecision decision)
+NSNumber *
+valueForSentrySampleDecision(SentrySampleDecision decision)
 {
     switch (decision) {
     case kSentrySampleDecisionUndecided:
-        return kSentrySampleDecisionNameUndecided;
+        return nil;
     case kSentrySampleDecisionYes:
-        return kSentrySampleDecisionNameYes;
+        return @YES;
     case kSentrySampleDecisionNo:
-        return kSentrySampleDecisionNameNo;
+        return @NO;
     }
 }

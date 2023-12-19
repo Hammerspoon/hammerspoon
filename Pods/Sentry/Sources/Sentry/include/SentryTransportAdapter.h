@@ -19,10 +19,6 @@ SENTRY_NO_INIT
 - (instancetype)initWithTransport:(id<SentryTransport>)transport options:(SentryOptions *)options;
 
 - (void)sendEvent:(SentryEvent *)event
-      attachments:(NSArray<SentryAttachment *> *)attachments
-    NS_SWIFT_NAME(send(event:attachments:));
-
-- (void)sendEvent:(SentryEvent *)event
           session:(SentrySession *)session
       attachments:(NSArray<SentryAttachment *> *)attachments;
 

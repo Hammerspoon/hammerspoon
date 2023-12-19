@@ -1,11 +1,13 @@
 #import "SentryFileManager.h"
 #import "NSDate+SentryExtras.h"
 #import "SentryAppState.h"
+#import "SentryCurrentDateProvider.h"
 #import "SentryDataCategoryMapper.h"
 #import "SentryDependencyContainer.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryDsn.h"
 #import "SentryEnvelope.h"
+#import "SentryEnvelopeItemHeader.h"
 #import "SentryError.h"
 #import "SentryEvent.h"
 #import "SentryFileContents.h"
@@ -21,7 +23,6 @@ NSString *const EnvelopesPathComponent = @"envelopes";
 @interface
 SentryFileManager ()
 
-@property (nonatomic, strong) id<SentryCurrentDateProvider> currentDateProvider;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, copy) NSString *basePath;
 @property (nonatomic, copy) NSString *sentryPath;
@@ -45,23 +46,18 @@ SentryFileManager ()
 
 @implementation SentryFileManager
 
-- (nullable instancetype)initWithOptions:(SentryOptions *)options
-                  andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
-                                   error:(NSError **)error
+- (nullable instancetype)initWithOptions:(SentryOptions *)options error:(NSError **)error
 {
     return [self initWithOptions:options
-          andCurrentDateProvider:currentDateProvider
             dispatchQueueWrapper:SentryDependencyContainer.sharedInstance.dispatchQueueWrapper
                            error:error];
 }
 
 - (nullable instancetype)initWithOptions:(SentryOptions *)options
-                  andCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
                     dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                                    error:(NSError **)error
 {
     if (self = [super init]) {
-        self.currentDateProvider = currentDateProvider;
         self.dispatchQueue = dispatchQueueWrapper;
         [self createPathsWithOptions:options];
 
@@ -111,9 +107,10 @@ SentryFileManager ()
     //      need this because otherwise 10 would be sorted before 2 for example.
     // %@ = NSString
     // For example 978307200.000000-00001-3FE8C3AE-EB9C-4BEB-868C-14B8D47C33DD.json
-    return [NSString stringWithFormat:@"%f-%05lu-%@.json",
-                     [[self.currentDateProvider date] timeIntervalSince1970],
-                     (unsigned long)self.currentFileCounter++, [NSUUID UUID].UUIDString];
+    return [NSString
+        stringWithFormat:@"%f-%05lu-%@.json",
+        [[SentryDependencyContainer.sharedInstance.dateProvider date] timeIntervalSince1970],
+        (unsigned long)self.currentFileCounter++, [NSUUID UUID].UUIDString];
 }
 
 - (NSArray<SentryFileContents *> *)getAllEnvelopes
@@ -195,7 +192,8 @@ SentryFileManager ()
 
 - (void)deleteOldEnvelopesFromPath:(NSString *)envelopesPath
 {
-    NSTimeInterval now = [[self.currentDateProvider date] timeIntervalSince1970];
+    NSTimeInterval now =
+        [[SentryDependencyContainer.sharedInstance.dateProvider date] timeIntervalSince1970];
 
     for (NSString *path in [self allFilesInFolder:envelopesPath]) {
         NSString *fullPath = [envelopesPath stringByAppendingPathComponent:path];
@@ -217,8 +215,10 @@ SentryFileManager ()
 
 - (void)deleteAllEnvelopes
 {
-    for (NSString *path in [self allFilesInFolder:self.envelopesPath]) {
-        [self removeFileAtPath:[self.envelopesPath stringByAppendingPathComponent:path]];
+    [self removeFileAtPath:self.envelopesPath];
+    NSError *error;
+    if (![self createDirectoryIfNotExists:self.envelopesPath error:&error]) {
+        SENTRY_LOG_ERROR(@"Couldn't create envelopes path.");
     }
 }
 
@@ -252,11 +252,19 @@ SentryFileManager ()
 
 - (NSString *)storeEnvelope:(SentryEnvelope *)envelope
 {
+    NSData *envelopeData = [SentrySerialization dataWithEnvelope:envelope error:nil];
+
     @synchronized(self) {
-        NSString *result = [self storeData:[SentrySerialization dataWithEnvelope:envelope error:nil]
-                          toUniqueJSONPath:self.envelopesPath];
+        NSString *path =
+            [self.envelopesPath stringByAppendingPathComponent:[self uniqueAscendingJsonName]];
+        SENTRY_LOG_DEBUG(@"Writing envelope to path: %@", path);
+
+        if (![self writeData:envelopeData toPath:path]) {
+            SENTRY_LOG_WARN(@"Failed to store envelope.");
+        }
+
         [self handleEnvelopesLimit];
-        return result;
+        return path;
     }
 }
 
@@ -318,7 +326,7 @@ SentryFileManager ()
 
 - (void)storeSession:(SentrySession *)session sessionFilePath:(NSString *)sessionFilePath
 {
-    NSData *sessionData = [SentrySerialization dataWithSession:session error:nil];
+    NSData *sessionData = [SentrySerialization dataWithSession:session];
     SENTRY_LOG_DEBUG(@"Writing session: %@", sessionFilePath);
     @synchronized(self.currentSessionFilePath) {
         if (![self writeData:sessionData toPath:sessionFilePath]) {
@@ -416,18 +424,6 @@ SentryFileManager ()
     return [NSDate sentry_fromIso8601String:timestampString];
 }
 
-- (NSString *)storeData:(NSData *)data toUniqueJSONPath:(NSString *)path
-{
-    @synchronized(self) {
-        NSString *finalPath = [path stringByAppendingPathComponent:[self uniqueAscendingJsonName]];
-        SENTRY_LOG_DEBUG(@"Writing to file: %@", finalPath);
-        if (![self writeData:data toPath:finalPath]) {
-            SENTRY_LOG_WARN(@"Failed to store data.");
-        }
-        return finalPath;
-    }
-}
-
 - (BOOL)writeData:(NSData *)data toPath:(NSString *)path
 {
     NSError *error;
@@ -442,22 +438,12 @@ SentryFileManager ()
     return YES;
 }
 
-- (NSString *)storeDictionary:(NSDictionary *)dictionary toPath:(NSString *)path
-{
-    NSData *saveData = [SentrySerialization dataWithJSONObject:dictionary error:nil];
-    return nil != saveData ? [self storeData:saveData toUniqueJSONPath:path]
-                           : path; // TODO: Should we return null instead? Whoever is using this
-                                   // return value is being tricked.
-}
-
 - (void)storeAppState:(SentryAppState *)appState
 {
-    NSError *error = nil;
-    NSData *data = [SentrySerialization dataWithJSONObject:[appState serialize] error:&error];
+    NSData *data = [SentrySerialization dataWithJSONObject:[appState serialize]];
 
-    if (error != nil) {
-        SENTRY_LOG_ERROR(
-            @"Failed to store app state, because of an error in serialization: %@", error);
+    if (data == nil) {
+        SENTRY_LOG_ERROR(@"Failed to store app state, because of an error in serialization");
         return;
     }
 
@@ -623,7 +609,7 @@ SentryFileManager ()
 
 - (void)storeTimezoneOffset:(NSInteger)offset
 {
-    NSString *timezoneOffsetString = [NSString stringWithFormat:@"%zd", offset];
+    NSString *timezoneOffsetString = [NSString stringWithFormat:@"%ld", (long)offset];
     SENTRY_LOG_DEBUG(@"Persisting timezone offset: %@", timezoneOffsetString);
     @synchronized(self.timezoneOffsetFilePath) {
         if (![self writeData:[timezoneOffsetString dataUsingEncoding:NSUTF8StringEncoding]
@@ -653,8 +639,7 @@ SentryFileManager ()
 
 - (void)createPathsWithOptions:(SentryOptions *_Nonnull)options
 {
-    NSString *cachePath
-        = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES).firstObject;
+    NSString *cachePath = options.cacheDirectoryPath;
 
     SENTRY_LOG_DEBUG(@"SentryFileManager.cachePath: %@", cachePath);
 

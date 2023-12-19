@@ -7,8 +7,18 @@
 //
 
 #import <Foundation/Foundation.h>
+
+#if defined(BUILDING_SPARKLE_SOURCES_EXTERNALLY)
+// Ignore incorrect warning
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wquoted-include-in-framework-header"
+#import "SUExport.h"
+#import "SPUUserDriver.h"
+#pragma clang diagnostic pop
+#else
 #import <Sparkle/SUExport.h>
 #import <Sparkle/SPUUserDriver.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -100,7 +110,9 @@ SU_EXPORT @interface SPUUpdater : NSObject
  You usually do not need to call this method directly. If `automaticallyChecksForUpdates` is @c YES,
  Sparkle calls this method automatically according to its update schedule using the `updateCheckInterval`
  and the `lastUpdateCheckDate`. Therefore, you should typically only consider calling this method directly if you
- opt out of automatic update checks.
+ opt out of automatic update checks. Calling this method when updating your own bundle is invalid if Sparkle is configured
+ to ask the user's permission to check for updates automatically and `automaticallyChecksForUpdates` is `NO`.
+ If you want to reset the updater's cycle after an updater setting change, see `resetUpdateCycle` or `resetUpdateCycleAfterShortDelay` instead.
  
  This is meant for programmatically initating a check for updates in the background without the user initiating it.
  This check will not show UI if no new updates are found.
@@ -108,7 +120,7 @@ SU_EXPORT @interface SPUUpdater : NSObject
  If a new update is found, the updater's user driver may handle showing it at an appropriate (but not necessarily immediate) time.
  If you want control over when and how a new update is shown, please see https://sparkle-project.org/documentation/gentle-reminders/
  
- Note if automated updating is turned on, either a new update may be downloaded in the background to be installed silently,
+ Note if automated downloading/installing is turned on, either a new update may be downloaded in the background to be installed silently,
  or an already downloaded update may be shown.
  
  This will not find updates that the user has opted into skipping.
@@ -206,10 +218,14 @@ SU_EXPORT @interface SPUUpdater : NSObject
  
  By default, updates are not automatically downloaded.
  
+ By default starting from Sparkle 2.4, users are provided an option to opt in to automatically downloading and installing updates when they are asked if they want automatic update checks enabled.
+ The default value for this option is based on what the developer sets `SUAutomaticallyUpdate` in their Info.plist.
+ This is not done if `SUEnableAutomaticChecks` is set in the Info.plist however. Please check `automaticallyChecksForUpdates` property for more details.
+ 
  Note that the developer can disallow automatic downloading of updates from being enabled (via `SUAllowsAutomaticUpdates` Info.plist key).
  In this case, this property will return NO regardless of how this property is set.
  
- Prefer to set SUAutomaticallyUpdate directly in your Info.plist for setting the initial value.
+ Prefer to set `SUAutomaticallyUpdate` directly in your Info.plist for setting the initial value.
  
  Setting this property will persist in the host bundle's user defaults.
  Hence developers shouldn't maintain an additional user default for this property.
@@ -222,32 +238,59 @@ SU_EXPORT @interface SPUUpdater : NSObject
  The URL of the appcast used to download update information.
  
  If the updater's delegate implements `-[SPUUpdaterDelegate feedURLStringForUpdater:]`, this will return that feed URL.
- Otherwise if the feed URL has been set before, the feed URL returned will be retrieved from the host bundle's user defaults.
+ Otherwise if the feed URL has been set before using `-[SPUUpdater setFeedURL:]`, the feed URL returned will be retrieved from the host bundle's user defaults.
  Otherwise the feed URL in the host bundle's Info.plist will be returned.
  If no feed URL can be retrieved, returns nil.
  
  For setting a primary feed URL, please set the `SUFeedURL` property in your Info.plist.
- For setting an alternative feed URL, please prefer `-[SPUUpdaterDelegate feedURLStringForUpdater:]` over `-setFeedURL:`
+ For setting an alternative feed URL, please prefer `-[SPUUpdaterDelegate feedURLStringForUpdater:]` over `-setFeedURL:`.
+ Please see the documentation for `-setFeedURL:` for migrating away from that API.
  
  This property must be called on the main thread; calls from background threads will return nil.
  */
 @property (nonatomic, readonly, nullable) NSURL *feedURL;
 
 /**
- Set the URL of the appcast used to download update information. Using this method is discouraged.
+ Set the URL of the appcast used to download update information. This method is deprecated.
  
  Setting this property will persist in the host bundle's user defaults.
- To avoid this, you should consider implementing
+ To avoid this undesirable behavior, please consider implementing
  `-[SPUUpdaterDelegate feedURLStringForUpdater:]` instead of using this method.
  
- Passing nil will remove any feed URL that has been set in the host bundle's user defaults.
+ Calling `-clearFeedURLFromUserDefaults` will remove any feed URL that has been set in the host bundle's user defaults.
+ Passing nil to this method can also do this, but using `-clearFeedURLFromUserDefaults` is preferred.
+ To migrate away from using this API, you must clear and remove any feed URLs set in the user defaults through this API.
+ 
  If you do not need to alternate between multiple feeds, set the SUFeedURL in your Info.plist instead of invoking this method.
  
  For beta updates, you may consider migrating to `-[SPUUpdaterDelegate allowedChannelsForUpdater:]` in the future.
  
+ Updaters that update other developer's bundles should not call this method.
+ 
  This method must be called on the main thread; calls from background threads will have no effect.
  */
-- (void)setFeedURL:(nullable NSURL *)feedURL;
+- (void)setFeedURL:(nullable NSURL *)feedURL __deprecated_msg("Please call -[SPUUpdater clearFeedURLFromUserDefaults] to migrate away from using this API and transition to either specifying the feed URL in your Info.plist, using channels in Sparkle 2, or using -[SPUUpdaterDelegate feedURLStringForUpdater:] to specify the dynamic feed URL at runtime");
+
+/**
+ Clears any feed URL from the host bundle's user defaults that was set via `-setFeedURL:`
+ 
+ You should call this method if you have used `-setFeedURL:` in the past and want to stop using that API.
+ Otherwise for compatibility Sparkle will prefer to use the feed URL that was set in the user defaults over the one that was specified in the host bundle's Info.plist,
+ which is often undesirable (except for testing purposes).
+ 
+ If a feed URL is found stored in the host bundle's user defaults (from calling `-setFeedURL:`) before it gets cleared,
+ then that previously set URL is returned from this method.
+ 
+ This method should be called as soon as possible, after your application finished launching or right after the updater has been started
+ if you manually manage starting the updater.
+ 
+ Updaters that update other developer's bundles should not call this method.
+ 
+ This method must be called on the main thread.
+ 
+ @return A previously set feed URL in the host bundle's user defaults, if available, otherwise this returns `nil`
+ */
+- (nullable NSURL *)clearFeedURLFromUserDefaults;
 
 /**
  The host bundle that is being updated.
@@ -258,7 +301,7 @@ SU_EXPORT @interface SPUUpdater : NSObject
  The user agent used when checking for updates.
  
  By default the user agent string returned is in the format:
- $(BundleDisplayName)/$(BundleDisplayVersion) Sparkle/$(SparkleDisplayVersion)
+ `$(BundleDisplayName)/$(BundleDisplayVersion) Sparkle/$(SparkleDisplayVersion)`
  
  BundleDisplayVersion is derived from the main application's Info.plist's CFBundleShortVersionString.
  
@@ -292,15 +335,28 @@ SU_EXPORT @interface SPUUpdater : NSObject
 @property (nonatomic, readonly, copy, nullable) NSDate *lastUpdateCheckDate;
 
 /**
- Appropriately schedules or cancels the update checking timer according to the settings for the time interval and automatic checks.
-
- If you change the `updateCheckInterval` or `automaticallyChecksForUpdates` properties, the update cycle will be reset automatically after a short delay.
- The update cycle is also started automatically after the updater is started. In all these cases, this method should not be called directly.
+ Appropriately re-schedules the update checking timer according to the current updater settings.
  
- This call does not change the date of the next check, but only the internal timer.
+ This method should only be called in response to a user changing updater settings. This method may trigger a new update check to occur in the background if an updater setting such as the updater's feed or allowed channels has changed.
+ 
+ If the `updateCheckInterval` or `automaticallyChecksForUpdates` properties are changed, this method is automatically invoked after a short delay using `-resetUpdateCycleAfterShortDelay`. In these cases, manually resetting the update cycle is not necessary.
+ 
+ See also `-resetUpdateCycleAfterShortDelay` which gives the user a short delay before triggering a cycle reset.
  */
 - (void)resetUpdateCycle;
 
+/**
+ Appropriately re-schedules the update checking timer according to the current updater settings after a short cancellable delay.
+ 
+ This method calls `resetUpdateCycle` after a short delay to give the user a short amount of time to cancel changing an updater setting.
+ If this method is called again, any previous reset request that is still inflight will be cancelled.
+ 
+ For example, if the user changes the `automaticallyChecksForUpdates` setting to `YES`, but quickly undoes their change then
+ no cycle reset will be done.
+ 
+ If the `updateCheckInterval` or `automaticallyChecksForUpdates` properties are changed, this method is automatically invoked. In these cases, manually resetting the update cycle is not necessary.
+ */
+- (void)resetUpdateCycleAfterShortDelay;
 
 /**
  The system profile information that is sent when checking for updates.

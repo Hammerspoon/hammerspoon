@@ -1,16 +1,19 @@
 #import "SentryFramesTrackingIntegration.h"
-#import "PrivateSentrySDKOnly.h"
-#import "SentryFramesTracker.h"
-#import "SentryLog.h"
+
+#if SENTRY_HAS_UIKIT
+
+#    import "PrivateSentrySDKOnly.h"
+#    import "SentryDependencyContainer.h"
+#    import "SentryLog.h"
+
+#    import "SentryFramesTracker.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface
 SentryFramesTrackingIntegration ()
 
-#if SENTRY_HAS_UIKIT
 @property (nonatomic, strong) SentryFramesTracker *tracker;
-#endif
 
 @end
 
@@ -18,24 +21,15 @@ SentryFramesTrackingIntegration ()
 
 - (BOOL)installWithOptions:(SentryOptions *)options
 {
-#if SENTRY_HAS_UIKIT
     if (!PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode
         && ![super installWithOptions:options]) {
         return NO;
     }
 
-    self.tracker = [SentryFramesTracker sharedInstance];
+    self.tracker = SentryDependencyContainer.sharedInstance.framesTracker;
     [self.tracker start];
 
     return YES;
-#else
-    [SentryLog
-        logWithMessage:
-            @"NO UIKit -> SentryFramesTrackingIntegration will not track slow and frozen frames."
-              andLevel:kSentryLevelInfo];
-
-    return NO;
-#endif
 }
 
 - (SentryIntegrationOption)integrationOptions
@@ -50,13 +44,13 @@ SentryFramesTrackingIntegration ()
 
 - (void)stop
 {
-#if SENTRY_HAS_UIKIT
     if (nil != self.tracker) {
         [self.tracker stop];
     }
-#endif
 }
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif // SENTRY_HAS_UIKIT

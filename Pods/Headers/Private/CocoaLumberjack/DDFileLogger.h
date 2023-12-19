@@ -1,1 +1,1 @@
-../../../CocoaLumberjack/Classes/DDFileLogger.h
+../../../CocoaLumberjack/Sources/CocoaLumberjack/include/CocoaLumberjack/DDFileLogger.h

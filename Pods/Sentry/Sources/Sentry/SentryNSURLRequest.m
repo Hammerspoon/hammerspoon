@@ -29,14 +29,9 @@ SentryNSURLRequest ()
                                  didFailWithError:(NSError *_Nullable *_Nullable)error
 {
     NSDictionary *serialized = [event serialize];
-    NSData *jsonData = [SentrySerialization dataWithJSONObject:serialized error:error];
+    NSData *jsonData = [SentrySerialization dataWithJSONObject:serialized];
     if (nil == jsonData) {
-        if (error) {
-            // TODO: We're possibly overriding an error set by the actual
-            // code that failed ^
-            *error = NSErrorFromSentryError(
-                kSentryErrorJsonConversionError, @"Event cannot be converted to JSON");
-        }
+        SENTRY_LOG_ERROR(@"Event cannot be converted to JSON");
         return nil;
     }
 
@@ -70,7 +65,6 @@ SentryNSURLRequest ()
     return self;
 }
 
-// TODO: Get refactored out to be a single init method
 - (_Nullable instancetype)initEnvelopeRequestWithDsn:(SentryDsn *)dsn
                                              andData:(NSData *)data
                                     didFailWithError:(NSError *_Nullable *_Nullable)error
@@ -108,9 +102,6 @@ newAuthHeader(NSURL *url)
         appendFormat:@"%@,",
         newHeaderPart(@"sentry_client",
             [NSString stringWithFormat:@"%@/%@", SentryMeta.sdkName, SentryMeta.versionString])];
-    [string
-        appendFormat:@"%@,",
-        newHeaderPart(@"sentry_timestamp", @((NSInteger)[[NSDate date] timeIntervalSince1970]))];
     [string appendFormat:@"%@", newHeaderPart(@"sentry_key", url.user)];
     if (nil != url.password) {
         [string appendFormat:@",%@", newHeaderPart(@"sentry_secret", url.password)];

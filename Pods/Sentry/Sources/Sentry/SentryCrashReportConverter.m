@@ -5,8 +5,8 @@
 #import "SentryDebugMeta.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
+#import "SentryFormatter.h"
 #import "SentryFrame.h"
-#import "SentryHexAddressFormatter.h"
 #import "SentryInAppLogic.h"
 #import "SentryInternalDefines.h"
 #import "SentryLog.h"
@@ -462,27 +462,26 @@ SentryCrashReportConverter ()
  * Get the message of fatalError, assert, and precondition to set it as the exception value if the
  * crashInfo contains the message.
  *
- * Swift puts the messages of fatalError, assert, and precondition into the crashInfo of the
- * libswiftCore.dylib. We found somewhat proof that the swift runtime uses __crash_info: fatalError
- * (1) calls swift_reportError (2) calls reportOnCrash (3) which uses (4) the __crash_info (5). The
- * documentation of Apple and Swift doesn't mention anything about where the __crash_info ends up.
- * Trying fatalError, assert, and precondition on iPhone, iPhone simulator, and macOS all showed
- * that the message ends up in the crashInfo of the libswiftCore.dylib. For example, on the
- * simulator, other binary images also contain a crash_info_message with information about the
- * stacktrace. We only care about the message of fatalError, assert, or precondition, and we already
- * get the stacktrace from the threads, retrieving it from libswiftCore.dylib seems to be the most
- * reliable option.
+ * Swift puts the messages of fatalError, assert, and precondition into the @c crashInfo of the
+ * @c libswiftCore.dylib. We found somewhat proof that the swift runtime uses @c __crash_info:
+ * fatalError (1) calls @c swift_reportError (2) calls @c reportOnCrash (3) which uses (4) the
+ * @c __crash_info (5). The documentation of Apple and Swift doesn't mention anything about where
+ * the @c __crash_info ends up. Trying fatalError, assert, and precondition on iPhone, iPhone
+ * simulator, and macOS all showed that the message ends up in the crashInfo of the
+ * @c libswiftCore.dylib. For example, on the simulator, other binary images also contain a
+ * @c crash_info_message with information about the stacktrace. We only care about the message of
+ * fatalError, assert, or precondition, and we already get the stacktrace from the threads,
+ * retrieving it from @c libswiftCore.dylib seems to be the most reliable option.
  *
- * Links:
- *  1.
+ * @seealso
  * https://github.com/apple/swift/blob/d1bb98b11ede375a1cee739f964b7d23b6657aaf/stdlib/public/runtime/Errors.cpp#L365-L377
- *  2.
+ * @seealso
  * https://github.com/apple/swift/blob/d1bb98b11ede375a1cee739f964b7d23b6657aaf/stdlib/public/runtime/Errors.cpp#L361
- *  3.
+ * @seealso
  * https://github.com/apple/swift/blob/d1bb98b11ede375a1cee739f964b7d23b6657aaf/stdlib/public/runtime/Errors.cpp#L269-L293
- *  4.
+ * @seealso
  * https://github.com/apple/swift/blob/d1bb98b11ede375a1cee739f964b7d23b6657aaf/stdlib/public/runtime/Errors.cpp#L264-L293
- *  5.
+ * @seealso
  * https://github.com/apple/swift/blob/d1bb98b11ede375a1cee739f964b7d23b6657aaf/include/swift/Runtime/Debug.h#L29-L58
  */
 - (void)enhanceValueFromCrashInfoMessage:(SentryException *)exception

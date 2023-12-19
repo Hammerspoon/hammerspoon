@@ -1,1 +1,1 @@
-../../../CocoaLumberjack/Classes/Extensions/DDContextFilterLogFormatter.h
+../../../CocoaLumberjack/Sources/CocoaLumberjack/include/CocoaLumberjack/DDContextFilterLogFormatter.h

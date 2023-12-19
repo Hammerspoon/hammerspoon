@@ -1,13 +1,15 @@
 #import "SentryHttpTransport.h"
 #import "SentryClientReport.h"
-#import "SentryCurrentDate.h"
+#import "SentryCurrentDateProvider.h"
 #import "SentryDataCategoryMapper.h"
+#import "SentryDependencyContainer.h"
 #import "SentryDiscardReasonMapper.h"
 #import "SentryDiscardedEvent.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryDsn.h"
 #import "SentryEnvelope+Private.h"
 #import "SentryEnvelope.h"
+#import "SentryEnvelopeItemHeader.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryEnvelopeRateLimit.h"
 #import "SentryEvent.h"
@@ -17,13 +19,19 @@
 #import "SentryNSURLRequest.h"
 #import "SentryNSURLRequestBuilder.h"
 #import "SentryOptions.h"
-#import "SentryReachability.h"
 #import "SentrySerialization.h"
+
+#if !TARGET_OS_WATCH
+#    import "SentryReachability.h"
+#endif // !TARGET_OS_WATCH
 
 static NSTimeInterval const cachedEnvelopeSendDelay = 0.1;
 
 @interface
 SentryHttpTransport ()
+#if !TARGET_OS_WATCH
+    <SentryReachabilityObserver>
+#endif // !TARGET_OS_WATCH
 
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) id<SentryRequestManager> requestManager;
@@ -33,13 +41,16 @@ SentryHttpTransport ()
 @property (nonatomic, strong) SentryEnvelopeRateLimit *envelopeRateLimit;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) dispatch_group_t dispatchGroup;
-@property (nonatomic, strong) SentryReachability *reachability;
+
+#if TEST || TESTCI
+@property (nullable, nonatomic, strong) void (^startFlushCallback)(void);
+#endif
 
 /**
  * Relay expects the discarded events split by data category and reason; see
  * https://develop.sentry.dev/sdk/client-reports/#envelope-item-payload.
  * We could use nested dictionaries, but instead, we use a dictionary with key
- * `data-category:reason` and value `SentryDiscardedEvent` because it's easier to read and type.
+ * @c data-category:reason and value @c SentryDiscardedEvent because it's easier to read and type.
  */
 @property (nonatomic, strong)
     NSMutableDictionary<NSString *, SentryDiscardedEvent *> *discardedEvents;
@@ -63,7 +74,6 @@ SentryHttpTransport ()
               rateLimits:(id<SentryRateLimits>)rateLimits
        envelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
     dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-            reachability:(SentryReachability *)reachability
 {
     if (self = [super init]) {
         self.options = options;
@@ -79,37 +89,32 @@ SentryHttpTransport ()
         self.discardedEvents = [NSMutableDictionary new];
         [self.envelopeRateLimit setDelegate:self];
         [self.fileManager setDelegate:self];
-        self.reachability = reachability;
 
         [self sendAllCachedEnvelopes];
 
 #if !TARGET_OS_WATCH
-        __weak SentryHttpTransport *weakSelf = self;
-        [self.reachability monitorURL:[NSURL URLWithString:@"https://sentry.io"]
-                        usingCallback:^(BOOL connected, NSString *_Nonnull typeDescription) {
-                            if (weakSelf == nil) {
-                                SENTRY_LOG_DEBUG(@"WeakSelf is nil. Not doing anything.");
-                                return;
-                            }
-
-                            if (connected) {
-                                SENTRY_LOG_DEBUG(@"Internet connection is back.");
-                                [weakSelf sendAllCachedEnvelopes];
-                            } else {
-                                SENTRY_LOG_DEBUG(@"Lost internet connection.");
-                            }
-                        }];
-#endif
+        [SentryDependencyContainer.sharedInstance.reachability addObserver:self];
+#endif // !TARGET_OS_WATCH
     }
     return self;
 }
 
+#if !TARGET_OS_WATCH
+- (void)connectivityChanged:(BOOL)connected typeDescription:(nonnull NSString *)typeDescription
+{
+    if (connected) {
+        SENTRY_LOG_DEBUG(@"Internet connection is back.");
+        [self sendAllCachedEnvelopes];
+    } else {
+        SENTRY_LOG_DEBUG(@"Lost internet connection.");
+    }
+}
+
 - (void)dealloc
 {
-#if !TARGET_OS_WATCH
-    [self.reachability stopMonitoring];
-#endif
+    [SentryDependencyContainer.sharedInstance.reachability removeObserver:self];
 }
+#endif // !TARGET_OS_WATCH
 
 - (void)sendEnvelope:(SentryEnvelope *)envelope
 {
@@ -156,7 +161,14 @@ SentryHttpTransport ()
     }
 }
 
-- (BOOL)flush:(NSTimeInterval)timeout
+#if TEST || TESTCI
+- (void)setStartFlushCallback:(void (^)(void))callback
+{
+    _startFlushCallback = callback;
+}
+#endif
+
+- (SentryFlushResult)flush:(NSTimeInterval)timeout
 {
     // Calculate the dispatch time of the flush duration as early as possible to guarantee an exact
     // flush duration. Any code up to the dispatch_group_wait can take a couple of ms, adding up to
@@ -167,19 +179,24 @@ SentryHttpTransport ()
     // Double-Checked Locking to avoid acquiring unnecessary locks.
     if (_isFlushing) {
         SENTRY_LOG_DEBUG(@"Already flushing.");
-        return NO;
+        return kSentryFlushResultAlreadyFlushing;
     }
 
     @synchronized(self) {
         if (_isFlushing) {
             SENTRY_LOG_DEBUG(@"Already flushing.");
-            return NO;
+            return kSentryFlushResultAlreadyFlushing;
         }
 
         SENTRY_LOG_DEBUG(@"Start flushing.");
 
         _isFlushing = YES;
         dispatch_group_enter(self.dispatchGroup);
+#if TEST || TESTCI
+        if (self.startFlushCallback != nil) {
+            self.startFlushCallback();
+        }
+#endif
     }
 
     [self sendAllCachedEnvelopes];
@@ -192,10 +209,10 @@ SentryHttpTransport ()
 
     if (result == 0) {
         SENTRY_LOG_DEBUG(@"Finished flushing.");
-        return YES;
+        return kSentryFlushResultSuccess;
     } else {
         SENTRY_LOG_DEBUG(@"Flushing timed out.");
-        return NO;
+        return kSentryFlushResultTimedOut;
     }
 }
 
@@ -276,6 +293,9 @@ SentryHttpTransport ()
         [self deleteEnvelopeAndSendNext:envelopeFileContents.path];
         return;
     }
+
+    // We must set sentAt as close as possible to the transmission of the envelope to Sentry.
+    rateLimitedEnvelope.header.sentAt = SentryDependencyContainer.sharedInstance.dateProvider.date;
 
     NSError *requestError = nil;
     NSURLRequest *request = [self.requestBuilder createEnvelopeRequest:rateLimitedEnvelope

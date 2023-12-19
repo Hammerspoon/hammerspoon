@@ -8,4 +8,9 @@ public class SwiftDescriptor: NSObject {
         return String(describing: type(of: object))
     }
     
+    @objc
+    public static func getSwiftErrorDescription(_ error: Error) -> String? {
+        return String(describing: error)
+    }
+    
 }

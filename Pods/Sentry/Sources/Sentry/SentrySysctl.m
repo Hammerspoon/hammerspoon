@@ -7,19 +7,18 @@ static NSDate *moduleInitializationTimestamp;
 static NSDate *runtimeInit = nil;
 
 /**
- *
  * Constructor priority must be bounded between 101 and 65535 inclusive, see
  * https://gcc.gnu.org/onlinedocs/gcc-4.7.0/gcc/Function-Attributes.html and
  * https://gcc.gnu.org/onlinedocs/gcc-4.7.0/gcc/C_002b_002b-Attributes.html#C_002b_002b-Attributes
  * The constructor attribute causes the function to be called automatically before execution enters
- * main(). The lower the priority number, the sooner the constructor runs, which means 100 runs
- * before 101. As we want to be as close to main() as possible, we choose a high number.
+ * @c main() . The lower the priority number, the sooner the constructor runs, which means 100 runs
+ * before 101. As we want to be as close to @c main() as possible, we choose a high number.
  *
- * Previously, we used __DATA,__mod_init_func, which leads to compilation errors and runtime crashes
- * when enabling the address sanitizer.
+ * Previously, we used @c __DATA,__mod_init_func , which leads to compilation errors and runtime
+ * crashes when enabling the address sanitizer.
  */
 __used __attribute__((constructor(60000))) static void
-sentryModuleInitializationHook()
+sentryModuleInitializationHook(void)
 {
     moduleInitializationTimestamp = [NSDate date];
 }

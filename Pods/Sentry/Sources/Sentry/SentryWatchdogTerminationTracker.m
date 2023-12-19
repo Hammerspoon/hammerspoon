@@ -16,10 +16,6 @@
 #import <SentryWatchdogTerminationLogic.h>
 #import <SentryWatchdogTerminationTracker.h>
 
-#if SENTRY_HAS_UIKIT
-#    import <UIKit/UIKit.h>
-#endif
-
 @interface
 SentryWatchdogTerminationTracker ()
 
@@ -89,18 +85,18 @@ SentryWatchdogTerminationTracker ()
             [SentrySDK captureCrashEvent:event];
         }
     }];
-#else
+#else // !SENTRY_HAS_UIKIT
     SENTRY_LOG_INFO(
         @"NO UIKit -> SentryWatchdogTerminationTracker will not track Watchdog Terminations.");
     return;
-#endif
+#endif // SENTRY_HAS_UIKIT
 }
 
 - (void)stop
 {
 #if SENTRY_HAS_UIKIT
     [self.appStateManager stop];
-#endif
+#endif // SENTRY_HAS_UIKIT
 }
 
 @end

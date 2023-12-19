@@ -1,15 +1,22 @@
 #import "PrivatesHeader.h"
 
-NS_ASSUME_NONNULL_BEGIN
+#if SENTRY_UIKIT_AVAILABLE
 
-#if SENTRY_HAS_UIKIT
+NS_ASSUME_NONNULL_BEGIN
 
 /** An array of dictionaries that each contain a start and end timestamp for a rendered frame. */
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
 typedef NSArray<NSDictionary<NSString *, NSNumber *> *> SentryFrameInfoTimeSeries;
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
+/**
+ * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * configurations even when targeting iOS or tvOS platforms.
+ */
 @interface SentryScreenFrames : NSObject
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
+                                <NSCopying>
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 SENTRY_NO_INIT
 
 - (instancetype)initWithTotal:(NSUInteger)total frozen:(NSUInteger)frozen slow:(NSUInteger)slow;
@@ -50,6 +57,6 @@ SENTRY_NO_INIT
 
 @end
 
-#endif
-
 NS_ASSUME_NONNULL_END
+
+#endif // SENTRY_UIKIT_AVAILABLE
