@@ -1,5 +1,6 @@
 @import Cocoa ;
 @import LuaSkin ;
+@import Hammertime ;
 
 #import <stdlib.h>
 
@@ -16,10 +17,42 @@ static int math_randomFloat(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TBREAK];
 
-    uint32_t rand = arc4random();
-    double val = ((double)rand / UINT32_MAX);
+    Math *math = [[Math alloc] init];
+    lua_pushnumber(L, [math randomDouble]);
 
-    lua_pushnumber(L, val);
+    return 1;
+}
+
+/// hs.math.randomFloatFromRange(start, end) -> number
+/// Function
+/// Returns a random floating point number in the supplied range
+///
+/// Parameters:
+///  * start - Lower bound of the range
+///  * end - Upper bound of the range
+///
+/// Returns:
+///  * A random number
+static int math_randomFloatFromRange(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TNUMBER, LS_TNUMBER, LS_TBREAK];
+
+    Math *math = [[Math alloc] init];
+//    double start = lua_tonumber(L, 1);
+//    double end = lua_tonumber(L, 2);
+
+//    if (![math validateDoubleRangeWithStart:start end:end]) {
+//        [skin logError:@"hs.math.randomFloatFromRange: start must be <= end"];
+//        lua_pushnil(L);
+//        return 1;
+//    }
+
+    @try {
+        lua_pushnumber(L, [math randomDoubleInRangeWithStart:lua_tonumber(L, 1) end:lua_tonumber(L, 2)]);
+    } @catch (NSException *e){
+        [skin logError:e.reason];
+        lua_pushnil(L);
+    }
     return 1;
 }
 
@@ -28,8 +61,8 @@ static int math_randomFloat(lua_State* L) {
 /// Returns a random integer between the start and end parameters
 ///
 /// Parameters:
-///  * start - A number to start the range, must be greater than or equal to zero
-///  * end - A number to end the range, must be greater than zero and greater than `start`
+///  * start - Lower bound of the range
+///  * end - Upper bound of the range
 ///
 /// Returns:
 ///  * A randomly chosen integer between `start` and `end`
@@ -37,24 +70,24 @@ static int math_randomFromRange(lua_State* L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TNUMBER, LS_TNUMBER, LS_TBREAK] ;
 
+    Math *math = [[Math alloc] init];
     int start = (int)lua_tointeger(L, 1);
     int end = (int)lua_tointeger(L, 2);
 
-    if (start < 0 || end <= 0 || end <= start) {
-        [skin logError:[NSString stringWithFormat:@"Please check the docs for hs.math.randomForRange() - your range is not acceptable (%d -> %d)", start, end]];
+    if (![math validateIntRangeWithStart:start end:end]) {
+        [skin logError:@"hs.math.randomFromRange: start must be <= end"];
         lua_pushnil(L);
         return 1;
     }
 
-    int result = arc4random_uniform(end - start + 1) + start;
-
-    lua_pushinteger(L, result);
+    lua_pushinteger(L, [math randomIntInRangeWithStart:lua_tointeger(L, 1) end:lua_tointeger(L, 2)]);
     return 1;
 }
 
 // Functions for returned object when module loads
 static const luaL_Reg mathLib[] = {
     {"randomFloat",  math_randomFloat},
+    {"randomFloatFromRange", math_randomFloatFromRange},
     {"randomFromRange",  math_randomFromRange},
 
     {NULL,      NULL}
