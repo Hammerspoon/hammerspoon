@@ -1,56 +1,68 @@
-#import <Cocoa/Cocoa.h>
-#import <LuaSkin/LuaSkin.h>
+@import Cocoa;
+@import LuaSkin;
+@import Hammertime;
 
-// Source: https://gist.github.com/shpakovski/1902994
-
-// NSString *TransformStringWithFunction(NSString *string, SecTransformRef (*function)(CFTypeRef, CFErrorRef *)) {
-//     NSData *inputData = [string dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:NO];
-//     SecTransformRef transformRef = function(kSecBase64Encoding, NULL);
-//     SecTransformSetAttribute(transformRef, kSecTransformInputAttributeName, (CFTypeRef)inputData, NULL);
-//     CFDataRef outputDataRef = SecTransformExecute(transformRef, NULL);
-//     CFRelease(transformRef);
-//     return [[[NSString alloc] initWithData:(NSData *)outputDataRef encoding:NSUTF8StringEncoding] autorelease];
-// }
-
-NSData *TransformDataWithFunction(NSData *inputData, SecTransformRef (*function)(CFTypeRef, CFErrorRef *)) {
-    SecTransformRef transformRef = function(kSecBase64Encoding, NULL);
-    SecTransformSetAttribute(transformRef, kSecTransformInputAttributeName, (__bridge_retained CFTypeRef)inputData, NULL);
-    CFDataRef outputDataRef = SecTransformExecute(transformRef, NULL);
-    CFRelease(transformRef);
-    return [[NSData alloc] initWithData:(__bridge_transfer NSData *)outputDataRef];
-}
-
-// hs.base64.encode(val) -> str
-// Function
-// Returns the base64 encoding of the string provided.
+/// hs.base64.encode(val[,width]) -> str
+/// Function
+/// Encodes a given string to base64
+///
+/// Parameters:
+///  * val - A string to encode as base64
+///  * width - Optional line width to split the string into (usually 64 or 76)
+///
+/// Returns:
+///  * A string containing the base64 representation of the input string
 static int base64_encode(lua_State* L) {
-    [[LuaSkin sharedWithState:L] checkArgs:LS_TNUMBER | LS_TSTRING, LS_TBREAK] ;
-    NSUInteger sz ;
-    const char* data = luaL_tolstring(L, 1, &sz) ;
-    NSData* decodedStr = [[NSData alloc] initWithBytes:data length:sz] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TNUMBER | LS_TSTRING, LS_TNUMBER|LS_TOPTIONAL, LS_TBREAK];
+    Base64 *b64 = [[Base64 alloc] init];
 
-    NSData* encodedStr = TransformDataWithFunction(decodedStr, SecEncodeTransformCreate);
-    lua_pushlstring(L, [encodedStr bytes], [encodedStr length]) ;
+    NSUInteger sz ;
+    const char *data = luaL_tolstring(L, 1, &sz) ;
+    NSData *input = [[NSData alloc] initWithBytes:data length:sz] ;
+
+    NSString *output = nil;
+    if (lua_type(L, 2) == LUA_TNUMBER) {
+        output = [b64 encodeWithData:input width:lua_tointeger(L, 2)];
+    } else {
+        output = [b64 encodeWithData:input];
+    }
+    [skin pushNSObject:output];
+
     return 1;
 }
 
-//  hs.base64.decode(str) -> val
-// Function
-// Returns a Lua string representing the given base64 string.
+/// hs.base64.decode(str) -> val
+/// Function
+/// Decodes a given base64 string
+///
+/// Parameters:
+///  * str - A base64 encoded string
+///
+/// Returns:
+///  * A string containing the decoded data, or nil if it couldn't be decoded
 static int base64_decode(lua_State* L) {
-    [[LuaSkin sharedWithState:L] checkArgs:LS_TNUMBER | LS_TSTRING, LS_TBREAK] ;
-    NSUInteger sz ;
-    const char* data = luaL_tolstring(L, 1, &sz) ;
-    NSData* encodedStr = [[NSData alloc] initWithBytes:data length:sz] ;
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TNUMBER | LS_TSTRING, LS_TBREAK];
+    Base64 *b64 = [[Base64 alloc] init];
 
-    NSData* decodedStr = TransformDataWithFunction(encodedStr, SecDecodeTransformCreate);
-    lua_pushlstring(L, [decodedStr bytes], [decodedStr length]) ;
+    const char *data = lua_tostring(L, 1);
+    NSString *input = [NSString stringWithUTF8String:data];
+
+    @try {
+        NSData *output = [b64 decodeWithInput:input];
+        [skin pushNSObject:output];
+    } @catch (NSException *e) {
+        [skin logError:@"Unable to decode input"];
+        lua_pushnil(L);
+    }
+
     return 1;
 }
 
 static const luaL_Reg base64_lib[] = {
-    {"_encode", base64_encode},
-    {"_decode", base64_decode},
+    {"encode", base64_encode},
+    {"decode", base64_decode},
     {NULL,      NULL}
 };
 
