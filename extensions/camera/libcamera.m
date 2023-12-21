@@ -7,6 +7,8 @@
 static LSRefTable refTable;
 static const char *USERDATA_TAG = "hs.camera";
 
+//#pragma mark - Swift object userdata declaration
+// FIXME: This should move out somewhere more generic, it will be needed for other extensions
 typedef struct _HSuserData_t {
     int callbackRef;
     LSGCCanary lsCanary;
@@ -20,81 +22,6 @@ typedef struct _deviceWatcher_t {
 static deviceWatcher_t *deviceWatcher = nil;
 
 static CameraManager *cameraManager = nil;
-
-
-//- (void)startPropertyWatcher {
-//    if (self.propertyWatcherRunning == YES) {
-//        return;
-//    }
-//
-//    CMIOObjectPropertyAddress propertyAddress = {
-//        0,
-//        kAudioObjectPropertyScopeWildcard,
-//        kAudioObjectPropertyElementWildcard
-//    };
-//
-//    const int numSelectors = sizeof(propertyWatchSelectors) / sizeof(propertyWatchSelectors[0]);
-//
-//    for (int i = 0; i < numSelectors; i++) {
-//        propertyAddress.mSelector = propertyWatchSelectors[i];
-//        CMIOObjectAddPropertyListenerBlock(self.deviceId,
-//                                           &propertyAddress,
-//                                           dispatch_get_main_queue(),
-//                                           self.propertyWatcherBlock);
-//    }
-//
-//    self.propertyWatcherRunning = YES;
-//}
-//
-//- (void)stopPropertyWatcher {
-//    if (self.propertyWatcherRunning == NO) {
-//        return;
-//    }
-//
-//    CMIOObjectPropertyAddress propertyAddress = {
-//        0,
-//        kAudioObjectPropertyScopeWildcard,
-//        kAudioObjectPropertyElementWildcard
-//    };
-//
-//    const int numSelectors = sizeof(propertyWatchSelectors) / sizeof(propertyWatchSelectors[0]);
-//
-//    for (int i = 0; i < numSelectors; i++) {
-//        propertyAddress.mSelector = propertyWatchSelectors[i];
-//        CMIOObjectRemovePropertyListenerBlock(self.deviceId,
-//                                              &propertyAddress,
-//                                              dispatch_get_main_queue(),
-//                                              self.propertyWatcherBlock);
-//    }
-//
-//    self.propertyWatcherRunning = NO;
-//}
-
-//- (BOOL)getIsInUse {
-//    LuaSkin *skin = [LuaSkin sharedWithState:NULL];
-//    OSStatus err;
-//    UInt32 dataSize = 0;
-//    UInt32 dataUsed = 0;
-//    UInt32 isInUse = 0;
-//
-//    CMIOObjectPropertyAddress prop = {kCMIODevicePropertyDeviceIsRunningSomewhere,
-//                                      kCMIOObjectPropertyScopeWildcard,
-//                                      kCMIOObjectPropertyElementWildcard};
-//
-//    err = CMIOObjectGetPropertyDataSize(self.deviceId, &prop, 0, nil, &dataSize);
-//    if (err != kCMIOHardwareNoError) {
-//        [skin logError:[NSString stringWithFormat:@"getVideoDeviceIsUsed(): get data size error: %d", err]];
-//        return NO;
-//    }
-//
-//    err = CMIOObjectGetPropertyData(self.deviceId, &prop, 0, nil, dataSize, &dataUsed, &isInUse);
-//    if (err != kCMIOHardwareNoError) {
-//        [skin logError:[NSString stringWithFormat:@"getVideoDeviceIsUsed(): get data error: %d", err]];
-//        return NO;
-//    }
-//
-//    return isInUse;
-//}
 
 #pragma mark - Lua API
 /// hs.camera.allCameras() -> table
@@ -547,14 +474,14 @@ static id toCameraFromLua(lua_State *L, int idx) {
 }
 
 #pragma mark - Core Lua metamethods
-static int hsCamera_tostring(lua_State *L) {
+static int camera_tostring(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     Camera *camera = [skin toNSObjectAtIndex:1];
     [skin pushNSObject:[NSString stringWithFormat:@"%s: (%@:%@)", USERDATA_TAG, camera.uniqueID, camera.name]];
     return 1;
 }
 
-static int hsCamera_eq(lua_State *L) {
+static int camera_eq(lua_State *L) {
     if (luaL_testudata(L, 1, USERDATA_TAG) && luaL_testudata(L, 2, USERDATA_TAG)) {
         LuaSkin *skin = [LuaSkin sharedWithState:L] ;
         Camera *obj1 = [skin luaObjectAtIndex:1 toClass:"Camera"] ;
@@ -566,7 +493,7 @@ static int hsCamera_eq(lua_State *L) {
     return 1 ;
 }
 
-static int hsCamera_gc(lua_State *L) {
+static int camera_gc(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     Camera *camera = get_objectFromUserdata(__bridge_transfer Camera, L, 1, USERDATA_TAG);
@@ -584,6 +511,7 @@ static int hsCamera_gc(lua_State *L) {
         free(camera.userData);
         camera.userData = nil;
     }
+
     camera = nil;
 
     lua_pushnil(L);
@@ -622,9 +550,9 @@ static const luaL_Reg cameraDeviceLib[] = {
     {"stopPropertyWatcher", camera_stopPropertyWatcher},
     {"isPropertyWatcherRunning", camera_isPropertyWatcherRunning},
 
-    {"__tostring", hsCamera_tostring},
-    {"__eq",       hsCamera_eq},
-    {"__gc",       hsCamera_gc},
+    {"__tostring", camera_tostring},
+    {"__eq",       camera_eq},
+    {"__gc",       camera_gc},
     {NULL, NULL}
 };
 
