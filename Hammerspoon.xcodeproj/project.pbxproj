@@ -116,6 +116,9 @@
 		4F61CDAC2B32FE2500407260 /* Hammertime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F61CD872B32F58000407260 /* Hammertime.framework */; };
 		4F61CDB22B330C2200407260 /* Base64.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F61CDB12B330C2200407260 /* Base64.swift */; };
 		4F61CDB32B33102400407260 /* Hammertime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F61CD872B32F58000407260 /* Hammertime.framework */; };
+		4F61CDB92B3332C100407260 /* Camera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F61CDB82B3332C100407260 /* Camera.swift */; };
+		4F61CDBD2B334D7900407260 /* Hammertime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F61CD872B32F58000407260 /* Hammertime.framework */; };
+		4F61CDC32B33B8AE00407260 /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F61CDC22B33B8AE00407260 /* Globals.swift */; };
 		4F6653E6238C36F100DEE120 /* HSStreamDeckDeviceOriginal.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6653E4238C36F100DEE120 /* HSStreamDeckDeviceOriginal.h */; };
 		4F6653E7238C36F100DEE120 /* HSStreamDeckDeviceOriginal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F6653E5238C36F100DEE120 /* HSStreamDeckDeviceOriginal.m */; };
 		4F6653EA238C6B6600DEE120 /* HSStreamDeckDeviceMini.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6653E8238C6B6600DEE120 /* HSStreamDeckDeviceMini.h */; };
@@ -817,6 +820,13 @@
 			remoteInfo = Hammertime;
 		};
 		4F61CDB52B33102500407260 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9445CA0319083251002568BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4F61CD862B32F58000407260;
+			remoteInfo = Hammertime;
+		};
+		4F61CDBF2B334D7A00407260 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 9445CA0319083251002568BB /* Project object */;
 			proxyType = 1;
@@ -1788,6 +1798,8 @@
 		4F61CD972B32F58400407260 /* HammertimeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HammertimeTests.swift; sourceTree = "<group>"; };
 		4F61CDA82B32F8A500407260 /* Math.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Math.swift; sourceTree = "<group>"; };
 		4F61CDB12B330C2200407260 /* Base64.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Base64.swift; sourceTree = "<group>"; };
+		4F61CDB82B3332C100407260 /* Camera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.swift; sourceTree = "<group>"; };
+		4F61CDC22B33B8AE00407260 /* Globals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
 		4F64D8BD1B724C4B00FC4C65 /* alert.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = alert.lua; path = extensions/alert/alert.lua; sourceTree = "<group>"; };
 		4F6653E4238C36F100DEE120 /* HSStreamDeckDeviceOriginal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = HSStreamDeckDeviceOriginal.h; path = extensions/streamdeck/HSStreamDeckDeviceOriginal.h; sourceTree = "<group>"; };
 		4F6653E5238C36F100DEE120 /* HSStreamDeckDeviceOriginal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = HSStreamDeckDeviceOriginal.m; path = extensions/streamdeck/HSStreamDeckDeviceOriginal.m; sourceTree = "<group>"; };
@@ -2765,6 +2777,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FF0611E274AA7A200FB15D6 /* LuaSkin.framework in Frameworks */,
+				4F61CDBD2B334D7900407260 /* Hammertime.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3310,6 +3323,8 @@
 				4F61CD8A2B32F58200407260 /* Hammertime.docc */,
 				4F61CDA82B32F8A500407260 /* Math.swift */,
 				4F61CDB12B330C2200407260 /* Base64.swift */,
+				4F61CDB82B3332C100407260 /* Camera.swift */,
+				4F61CDC22B33B8AE00407260 /* Globals.swift */,
 			);
 			path = Hammertime;
 			sourceTree = "<group>";
@@ -6403,6 +6418,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				4F61CDC02B334D7A00407260 /* PBXTargetDependency */,
 			);
 			name = camera;
 			productName = alert;
@@ -7560,8 +7576,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F61CDB92B3332C100407260 /* Camera.swift in Sources */,
 				4F61CD8B2B32F58200407260 /* Hammertime.docc in Sources */,
 				4F61CDB22B330C2200407260 /* Base64.swift in Sources */,
+				4F61CDC32B33B8AE00407260 /* Globals.swift in Sources */,
 				4F61CDA92B32F8A500407260 /* Math.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -8367,6 +8385,11 @@
 			isa = PBXTargetDependency;
 			target = 4F61CD862B32F58000407260 /* Hammertime */;
 			targetProxy = 4F61CDB52B33102500407260 /* PBXContainerItemProxy */;
+		};
+		4F61CDC02B334D7A00407260 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4F61CD862B32F58000407260 /* Hammertime */;
+			targetProxy = 4F61CDBF2B334D7A00407260 /* PBXContainerItemProxy */;
 		};
 		4F6B3EAA1B73D70100B2A4DE /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
