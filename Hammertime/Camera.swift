@@ -8,6 +8,7 @@
 
 import Foundation
 import AVFoundation
+import CoreMediaIO
 import IOKit.audio
 
 let allCameraTypes:[AVCaptureDevice.DeviceType] = [
@@ -101,41 +102,74 @@ public typealias CameraManagerDiscoveryCallback = @convention(block) (Camera?, S
     }
 }
 
-public typealias CameraPropertyCallback = @convention(block) (Camera, Bool) -> Void
+public typealias CameraPropertyCallback = @convention(block) (Camera) -> Void
 
-// FIXME: Documentation
 @objc public class Camera : NSObject {
+    /// Underlying AVFoundation camera object we represent
     @objc var camera: AVCaptureDevice
+    /// Optional pointer storage for additional data that needs to be associated with instances of this class
+    @objc public var userData: UnsafeMutableRawPointer?
 
+    private var STATUS_PA = CMIOObjectPropertyAddress(
+        mSelector: CMIOObjectPropertySelector(kCMIODevicePropertyDeviceIsRunningSomewhere),
+        mScope: CMIOObjectPropertyScope(kCMIOObjectPropertyScopeWildcard),
+        mElement: CMIOObjectPropertyElement(kCMIOObjectPropertyElementWildcard)
+    )
+    /// Internal callback block for CoreMediaIO Object Property Listener
+    private var isInUseWatcherCallbackBlock: CMIOObjectPropertyListenerBlock?
+    /// True if our `isInUse` watcher is running
+    @objc public var isInUseWatcherRunning: Bool = false
+
+    // This is ugly and awful, but CoreMediaIO is the only reliable way to tell if a camera is in use
+    var connectionID: CMIOObjectID {
+        camera.value(forKey: "_connectionID")! as! CMIOObjectID
+    }
+
+    /// External callback to be called when a watched property changes
     @objc public var observerCallback: CameraPropertyCallback?
-    @objc public var callbackRef: Int32 = LUA_NOREF // FIXME: This is a smell, Hammertime shouldn't know about Lua
-    var isInUseObserver: NSKeyValueObservation? = nil
-
+    
+    /// Initialiser
+    /// - Parameter uniqueID: The UID of a camera object, as obtained from AVCaptureDevice.uniqueID
     @objc public init?(uniqueID: String) {
         guard let cameraDevice = AVCaptureDevice(uniqueID: uniqueID) else { return nil }
         self.camera = cameraDevice
     }
-
+    
+    /// The camera's unique ID
     @objc public var uniqueID: String {
         camera.uniqueID
     }
-
+    
+    /// The camera's model identifier
     @objc public var modelID: String {
         camera.modelID
     }
-
+    
+    /// Human readable name of the camera
     @objc public var name: String {
         camera.localizedName
     }
-
+    
+    /// The camera's manufacturer (often an empty string)
     @objc public var manufacturer: String {
         camera.manufacturer
     }
-
+    
+    /// True if someone is using the camera, otherwise False
     @objc public var isInUse: Bool {
-        camera.isInUseByAnotherApplication
+        // Code taken from: https://github.com/wouterdebie/onair/blob/master/Sources/onair/Camera.swift
+        // (although this is pretty much exactly how Hammerspoon's earlier versions did the same thing in Objective C)
+        var (dataSize, dataUsed) = (UInt32(0), UInt32(0))
+        if CMIOObjectGetPropertyDataSize(connectionID, &STATUS_PA, 0, nil, &dataSize) == OSStatus(kCMIOHardwareNoError) {
+            if let data = malloc(Int(dataSize)) {
+                CMIOObjectGetPropertyData(connectionID, &STATUS_PA, 0, nil, dataSize, &dataUsed, data)
+                return data.assumingMemoryBound(to: UInt8.self).pointee > 0
+            }
+        }
+        return false
     }
-
+    
+    /// Underlying interface by which the camera is connected
     @objc public var transportType: String {
         switch (camera.transportType) {
         case Int32(kIOAudioDeviceTransportTypeUSB):
@@ -150,26 +184,54 @@ public typealias CameraPropertyCallback = @convention(block) (Camera, Bool) -> V
             return "Wireless"
         case Int32(kIOAudioDeviceTransportTypeNetwork):
             return "Network"
+        case Int32(kIOAudioDeviceTransportTypeFireWire):
+            return "Firewire"
+        case Int32(kIOAudioDeviceTransportTypeOther):
+            return "Other"
+        case Int32(kIOAudioDeviceTransportTypeBluetooth):
+            return "Bluetooth"
+        case Int32(kIOAudioDeviceTransportTypeDisplayPort):
+            return "DisplayPort"
+        case Int32(kIOAudioDeviceTransportTypeHdmi):
+            return "HDMI"
+        case Int32(kIOAudioDeviceTransportTypeAVB):
+            return "AVB"
+        case Int32(kIOAudioDeviceTransportTypeThunderbolt):
+            return "Thunderbolt"
         default:
             return "Unknown kIOAudioDeviceTransportType \(camera.transportType). Please file a bug."
         }
     }
 
-    @objc public var isInUseWatcherRunning: Bool {
-        isInUseObserver != nil
-    }
-
+    /// Start watching `isInUse` for changes
     @objc public func startIsInUseWatcher() {
-        guard let observerCallback = self.observerCallback else { return }
-        if (isInUseObserver != nil) { return }
+        guard self.observerCallback != nil else { return }
+        if (isInUseWatcherRunning) { return }
 
-        isInUseObserver = observe(\.camera.isInUseByAnotherApplication, options: [], changeHandler: { object, _ in
-            observerCallback(self, self.camera.isInUseByAnotherApplication)
-        })
+        if (self.isInUseWatcherCallbackBlock == nil) {
+            self.isInUseWatcherCallbackBlock = { [weak self] (_, _) -> Void in
+                self?.observerCallback?(self!)
+            }
+        }
+
+        let result = CMIOObjectAddPropertyListenerBlock(connectionID, &STATUS_PA, DispatchQueue.main, self.isInUseWatcherCallbackBlock!)
+        if (result == kCMIOHardwareNoError) {
+            isInUseWatcherRunning = true
+        } else {
+            NSLog("Unable to add property listener block: \(result) (\(name))")
+        }
     }
-
+    
+    /// Stop watching `isInUse`
     @objc public func stopIsInUseWatcher() {
-        isInUseObserver?.invalidate()
-        isInUseObserver = nil
+        guard self.isInUseWatcherCallbackBlock != nil else { return }
+        if (!isInUseWatcherRunning) { return }
+
+        let result = CMIOObjectRemovePropertyListenerBlock(connectionID, &STATUS_PA, DispatchQueue.main, self.isInUseWatcherCallbackBlock!)
+        if (result == kCMIOHardwareNoError) {
+            isInUseWatcherRunning = false
+        } else {
+            NSLog("Unable to remove property listener block: \(result) (\(name))")
+        }
     }
 }

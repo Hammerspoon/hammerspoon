@@ -7,6 +7,10 @@
 static LSRefTable refTable;
 static const char *USERDATA_TAG = "hs.camera";
 
+typedef struct _HSuserData_t {
+    int callbackRef;
+    LSGCCanary lsCanary;
+} HSuserData_t;
 
 //#pragma mark - Devices watcher declarations
 typedef struct _deviceWatcher_t {
@@ -396,7 +400,6 @@ static int camera_isInUse(lua_State *L) {
 ///    * gone - The device's "in use" status changed (ie another app started using the camera, or stopped using it)
 ///   * (DEPRECATED) A string containing the scope of the event, this will likely always be "glob"
 ///   * (DEPRECATED) A number containing the element of the event, this will likely always be "0"
-///   * A boolean, true if the camera is now in use, otherwise false
 ///
 /// Returns:
 ///  * The `hs.camera` object
@@ -405,12 +408,14 @@ static int camera_propertyWatcherCallback(lua_State *L) {
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION|LS_TNIL, LS_TBREAK];
 
     Camera *camera = [skin toNSObjectAtIndex:1];
-    camera.callbackRef = [skin luaUnref:refTable ref:camera.callbackRef];
+    HSuserData_t *userData = camera.userData;
+
+    userData->callbackRef = [skin luaUnref:refTable ref:userData->callbackRef];
 
     switch (lua_type(L, 2)) {
         case LUA_TFUNCTION:
             lua_pushvalue(L, 2);
-            camera.callbackRef = [skin luaRef:refTable];
+            userData->callbackRef = [skin luaRef:refTable];
             break;
         case LUA_TNIL:
             [camera stopIsInUseWatcher];
@@ -437,27 +442,32 @@ static int camera_startPropertyWatcher(lua_State *L) {
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
     Camera *camera = [skin toNSObjectAtIndex:1];
+    HSuserData_t *userData = camera.userData;
 
-    if (camera.callbackRef == LUA_NOREF) {
+    if (userData->callbackRef == LUA_NOREF) {
         [skin logError:@"You must call hs.camera:setPropertyWatcherCallback() before hs.camera:startPropertyWatcher()"];
         lua_pushnil(L);
         return 1;
     }
 
-    camera.observerCallback = ^(Camera *camera, BOOL isInUse) {
+    camera.observerCallback = ^(Camera *device) {
         LuaSkin *skin = [LuaSkin sharedWithState:NULL];
-        // FIXME: There is no canary checking here, because we don't have anywhere to store the canary
+        HSuserData_t *userData = device.userData;
+
+        if (!userData || ![skin checkGCCanary:userData->lsCanary]) {
+            return;
+        }
+
         _lua_stackguard_entry(skin.L);
-        if (camera.callbackRef == LUA_NOREF) {
+        if (userData->callbackRef == LUA_NOREF) {
             [skin logError:@"hs.camera property watcher fired, but no Lua callback is currently set"];
         } else {
-            [skin pushLuaRef:refTable ref:camera.callbackRef];
-            [skin pushNSObject:camera];
+            [skin pushLuaRef:refTable ref:userData->callbackRef];
+            [skin pushNSObject:device];
             lua_pushstring(L, "gone");
             lua_pushstring(L, "glob");
             lua_pushinteger(L, 0);
-            lua_pushboolean(L, isInUse);
-            [skin protectedCallAndError:@"hs.camera:propertyWatcherCallback" nargs:5 nresults:0];
+            [skin protectedCallAndError:@"hs.camera:propertyWatcherCallback" nargs:4 nresults:0];
         }
         _lua_stackguard_exit(skin.L);
     };
@@ -507,7 +517,17 @@ static int camera_isPropertyWatcherRunning(lua_State *L) {
 
 #pragma mark - Lua<->NSObject Conversion Functions
 static int pushCamera(lua_State *L, id obj) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
     Camera *value = obj;
+
+    // Check if Camera needs an HSuserdata_t
+    if (!value.userData) {
+        HSuserData_t *userData = malloc(sizeof(HSuserData_t));
+        memset(userData, 0, sizeof(HSuserData_t));
+        userData->callbackRef = LUA_NOREF;
+        userData->lsCanary = [skin createGCCanary];
+        value.userData = userData;
+    }
     void** valuePtr = lua_newuserdata(L, sizeof(Camera *));
     *valuePtr = (__bridge_retained void*)value;
     luaL_getmetatable(L, USERDATA_TAG);
@@ -546,8 +566,26 @@ static int hsCamera_eq(lua_State *L) {
     return 1 ;
 }
 
-// FIXME: Should we stop the camera's inUse watcher here?
 static int hsCamera_gc(lua_State *L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    Camera *camera = get_objectFromUserdata(__bridge_transfer Camera, L, 1, USERDATA_TAG);
+
+    if (camera) {
+        if (camera.isInUseWatcherRunning) {
+            [camera stopIsInUseWatcher];
+        }
+    }
+
+    if (camera.userData) {
+        HSuserData_t *userData = camera.userData;
+        userData->callbackRef = [skin luaUnref:refTable ref:userData->callbackRef];
+        [skin destroyGCCanary:&(userData->lsCanary)];
+        free(camera.userData);
+        camera.userData = nil;
+    }
+    camera = nil;
+
     lua_pushnil(L);
     lua_setmetatable(L, 1);
     return 0;

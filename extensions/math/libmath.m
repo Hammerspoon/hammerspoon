@@ -63,8 +63,6 @@ static int math_randomFromRange(lua_State* L) {
     [skin checkArgs:LS_TNUMBER, LS_TNUMBER, LS_TBREAK] ;
 
     Math *math = [[Math alloc] init];
-    int start = (int)lua_tointeger(L, 1);
-    int end = (int)lua_tointeger(L, 2);
 
     @try {
         lua_pushinteger(L, [math randomIntInRangeWithStart:lua_tointeger(L, 1) end:lua_tointeger(L, 2)]);
