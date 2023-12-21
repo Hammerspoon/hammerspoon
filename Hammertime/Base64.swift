@@ -15,13 +15,11 @@ extension String {
     }
 }
 
-@objc
-public class Base64 : NSObject {
+@objc public class Base64 : NSObject {
     /// Encode bytes to a Base64 string
     /// - Parameter data: Some input bytes as a Data
     /// - Returns: String
-    @objc
-    public func encode(data: Data) -> String {
+    @objc public func encode(data: Data) -> String {
         return data.base64EncodedString()
     }
 
@@ -30,8 +28,7 @@ public class Base64 : NSObject {
     ///   - data: Some input bytes as a Data
     ///   - width: How wide the lines should be
     /// - Returns: String
-    @objc
-    public func encode(data: Data, width: Int) -> String {
+    @objc public func encode(data: Data, width: Int) -> String {
         let string = self.encode(data: data)
         let lines = string.splitByLength(every: width)
         return lines.joined(separator: "\n")
@@ -40,8 +37,7 @@ public class Base64 : NSObject {
     /// Decode a Base64 string to bytes
     /// - Parameter input: A Base64 encoded string
     /// - Returns: Output bytes as a Data
-    @objc
-    public func decode(input: String) -> Data {
+    @objc public func decode(input: String) -> Data {
         if let encoded = input.data(using: .utf8) {
             if let data = Data(base64Encoded: encoded, options: .ignoreUnknownCharacters) {
                 return data

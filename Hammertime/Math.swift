@@ -8,22 +8,22 @@
 
 import Foundation
 
-@objc
-public class Math : NSObject {
-    @objc
-    public func validateDoubleRange(start: Double, end: Double) -> Bool {
+@objc public class Math : NSObject {
+    func validateDoubleRange(start: Double, end: Double) -> Bool {
         return start <= end
     }
 
-    @objc
-    public func validateIntRange(start: Int, end: Int) -> Bool {
+    func validateFloatRange(start: Float, end: Float) -> Bool {
+        return start <= end
+    }
+
+    func validateIntRange(start: Int, end: Int) -> Bool {
         return start <= end
     }
 
     /// Returns a random Double between 0 and 1 (inclusive)
     /// - Returns: Double
-    @objc
-    public func randomDouble() -> Double {
+    @objc public func randomDouble() -> Double {
         return self.randomDoubleInRange(start: 0, end: 1)
     }
 
@@ -32,8 +32,8 @@ public class Math : NSObject {
     ///   - start: Lower bound of the range
     ///   - end: Upper bound of the range
     /// - Returns: Double
-    @objc
-    public func randomDoubleInRange(start: Double, end: Double) -> Double {
+    /// - Throws: `NSException` if start > end
+    @objc public func randomDoubleInRange(start: Double, end: Double) -> Double {
         if (!self.validateDoubleRange(start: start, end: end)) {
             NSException.raise(.rangeException, format: "start must be <= end", arguments: getVaList([""]))
         }
@@ -42,8 +42,7 @@ public class Math : NSObject {
 
     /// Returns a random Float between 0 and 1 (inclusive)
     /// - Returns: Float
-    @objc
-    public func randomFloat() -> Float {
+    @objc public func randomFloat() -> Float {
         return self.randomFloatInRange(start: 0, end: 1)
     }
     
@@ -52,8 +51,11 @@ public class Math : NSObject {
     ///   - start: Lower bound of the range
     ///   - end: Upper bound of the range
     /// - Returns: Float
-    @objc
-    public func randomFloatInRange(start: Float, end: Float) -> Float {
+    /// - Throws: `NSException` if start > end
+    @objc public func randomFloatInRange(start: Float, end: Float) -> Float {
+        if (!self.validateFloatRange(start: start, end: end)) {
+            NSException.raise(.rangeException, format: "start must be <= end", arguments: getVaList([""]))
+        }
         return Float.random(in: start...end)
     }
     
@@ -62,8 +64,11 @@ public class Math : NSObject {
     ///   - start: Lower bound of the range
     ///   - end: Upper bound of the range
     /// - Returns: Int
-    @objc
-    public func randomIntInRange(start: Int, end: Int) -> Int {
+    /// - Throws: `NSException` if start > end
+    @objc public func randomIntInRange(start: Int, end: Int) -> Int {
+        if (!self.validateIntRange(start: start, end: end)) {
+            NSException.raise(.rangeException, format: "start must be <= end", arguments: getVaList([""]))
+        }
         return Int.random(in: start...end)
     }
 }

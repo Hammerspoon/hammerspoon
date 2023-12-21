@@ -8,4 +8,5 @@
 
 import Foundation
 
+// FIXME: This shouldn't be in Hammertime.
 let LUA_NOREF:Int32 = -2
