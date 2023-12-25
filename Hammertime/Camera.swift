@@ -163,7 +163,9 @@ public typealias CameraPropertyCallback = @convention(block) (Camera) -> Void
         if CMIOObjectGetPropertyDataSize(connectionID, &STATUS_PA, 0, nil, &dataSize) == OSStatus(kCMIOHardwareNoError) {
             if let data = malloc(Int(dataSize)) {
                 CMIOObjectGetPropertyData(connectionID, &STATUS_PA, 0, nil, dataSize, &dataUsed, data)
-                return data.assumingMemoryBound(to: UInt8.self).pointee > 0
+                let output = data.assumingMemoryBound(to: UInt8.self).pointee > 0
+                free(data)
+                return output
             }
         }
         return false
