@@ -30,6 +30,10 @@
   RUN_LUA_TEST()
 }
 
+- (void)testRandomFloatFromRange {
+    RUN_LUA_TEST()
+}
+
 - (void)testRandomFromRange {
   RUN_LUA_TEST()
 }
