@@ -1,7 +1,8 @@
 #import "SentryRateLimitParser.h"
-#import "SentryCurrentDate.h"
+#import "SentryCurrentDateProvider.h"
 #import "SentryDataCategoryMapper.h"
 #import "SentryDateUtil.h"
+#import "SentryDependencyContainer.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -79,8 +80,8 @@ SentryRateLimitParser ()
 - (NSDate *)getLongerRateLimit:(NSDate *)existingRateLimit
          andRateLimitInSeconds:(NSNumber *)newRateLimitInSeconds
 {
-    NSDate *newDate =
-        [SentryCurrentDate.date dateByAddingTimeInterval:[newRateLimitInSeconds doubleValue]];
+    NSDate *newDate = [SentryDependencyContainer.sharedInstance.dateProvider.date
+        dateByAddingTimeInterval:[newRateLimitInSeconds doubleValue]];
     return [SentryDateUtil getMaximumDate:newDate andOther:existingRateLimit];
 }
 

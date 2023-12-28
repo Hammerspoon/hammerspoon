@@ -1,21 +1,22 @@
-#import "SentryInternalDefines.h"
-#import "SentryScope.h"
-#import <Foundation/Foundation.h>
-#import <SentryDebugMeta.h>
-#import <SentryDependencyContainer.h>
-#import <SentryEvent.h>
-#import <SentryException.h>
-#import <SentryFrame.h>
-#import <SentryHexAddressFormatter.h>
-#import <SentryInAppLogic.h>
-#import <SentryLog.h>
-#import <SentryMechanism.h>
 #import <SentryMetricKitIntegration.h>
-#import <SentrySDK+Private.h>
-#import <SentryStacktrace.h>
-#import <SentryThread.h>
 
 #if SENTRY_HAS_METRIC_KIT
+
+#    import "SentryInternalDefines.h"
+#    import "SentryScope.h"
+#    import <Foundation/Foundation.h>
+#    import <SentryDebugMeta.h>
+#    import <SentryDependencyContainer.h>
+#    import <SentryEvent.h>
+#    import <SentryException.h>
+#    import <SentryFormatter.h>
+#    import <SentryFrame.h>
+#    import <SentryInAppLogic.h>
+#    import <SentryLog.h>
+#    import <SentryMechanism.h>
+#    import <SentrySDK+Private.h>
+#    import <SentryStacktrace.h>
+#    import <SentryThread.h>
 
 /**
  * We need to check if MetricKit is available for compatibility on iOS 12 and below. As there are no
@@ -23,7 +24,7 @@
  */
 #    if __has_include(<MetricKit/MetricKit.h>)
 #        import <MetricKit/MetricKit.h>
-#    endif
+#    endif // __has_include(<MetricKit/MetricKit.h>)
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -202,7 +203,6 @@ SentryMetricKitIntegration ()
     if (callStackTree.callStackPerThread) {
         SentryEvent *event = [self createEvent:params];
 
-        event.timestamp = params.timeStampBegin;
         event.threads = [self convertToSentryThreads:callStackTree];
 
         SentryThread *crashedThread = event.threads[0];
@@ -225,16 +225,23 @@ SentryMetricKitIntegration ()
 }
 
 /**
- * If callStackPerThread is false, MetricKit organizes the stacktraces in a tree structure. See
+ * If @c callStackPerThread is @c NO , MetricKit organizes the stacktraces in a tree structure. See
  * https://developer.apple.com/videos/play/wwdc2020/10078/?time=224. The stacktrace consists of the
- * last sibbling leaf frame plus its ancestors.
+ * last sibling leaf frame plus its ancestors.
  *
  * The algorithm adds all frames to a list until it finds a leaf frame being the last sibling. Then
  * it reports that frame with its siblings and ancestors as a stacktrace.
  *
  * In the following example, the algorithm starts with frame 0, continues until frame 6, and reports
- * a stacktrace. Then it pops all sibling, goes back up to frame 3, and continues the search.
+ * a stacktrace. Then it pops all sibling frames, goes back up to frame 3, and continues the search.
  *
+ * It is worth noting that for the first stacktrace [0, 1, 3, 4, 5, 6] frame 2 is not included
+ * because the logic only includes direct siblings and direct ancestors. Frame 3 is an ancestors of
+ * [4,5,6], frame 1 of frame 3, but frame 2 is not a direct ancestors of [4,5,6]. It's the sibling
+ * of the direct ancestor frame 3. Although this might seem a bit illogical, that is what
+ * observations of MetricKit data unveiled.
+ *
+ * @code
  * | frame 0 |
  *      | frame 1 |
  *          | frame 2 |
@@ -249,6 +256,30 @@ SentryMetricKitIntegration ()
  *      | frame 11 |
  *          | frame 12 |
  *          | frame 13 |    -> stack trace consists of [10, 11, 12, 13]
+ * @endcode
+ *
+ * The above stacktrace turns into the following two trees.
+ * @code
+ *     0
+ *     |
+ *     1
+ *    / \   \
+ *   3   2  9
+ *   |   |
+ *   4   3
+ *   |   |
+ *   5   7
+ *   |   |
+ *   6   8
+ *
+ *     10
+ *      |
+ *     11
+ *      |
+ *     12
+ *      |
+ *     13
+ * @endcode
  */
 - (void)buildAndCaptureMXEventFor:(NSArray<SentryMXFrame *> *)rootFrames
                            params:(SentryMXExceptionParams *)params
@@ -281,9 +312,14 @@ SentryMetricKitIntegration ()
             if (noChildren && lastUnprocessedSibling) {
                 [self captureEventNotPerThread:stackTraceFrames params:params];
 
-                // Pop all siblings
-                for (int i = 0; i < parentFrame.subFrames.count; i++) {
+                if (parentFrame == nil) {
+                    // No parent frames
                     [stackTraceFrames removeLastObject];
+                } else {
+                    // Pop all sibling frames
+                    for (int i = 0; i < parentFrame.subFrames.count; i++) {
+                        [stackTraceFrames removeLastObject];
+                    }
                 }
             } else {
                 SentryMXFrame *nonProcessedSubFrame =
@@ -293,7 +329,7 @@ SentryMetricKitIntegration ()
                 // Keep adding sub frames
                 if (nonProcessedSubFrame != nil) {
                     [stackTraceFrames addObject:nonProcessedSubFrame];
-                } // Keep adding siblings
+                } // Keep adding sibling frames
                 else if (firstUnprocessedSibling != nil) {
                     [stackTraceFrames addObject:firstUnprocessedSibling];
                 } // Keep popping
@@ -320,7 +356,6 @@ SentryMetricKitIntegration ()
                           params:(SentryMXExceptionParams *)params
 {
     SentryEvent *event = [self createEvent:params];
-    event.timestamp = params.timeStampBegin;
 
     SentryThread *thread = [[SentryThread alloc] initWithThreadId:@0];
     thread.crashed = @(!params.handled);
@@ -339,6 +374,7 @@ SentryMetricKitIntegration ()
 - (SentryEvent *)createEvent:(SentryMXExceptionParams *)params
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:params.level];
+    event.timestamp = params.timeStampBegin;
 
     SentryException *exception = [[SentryException alloc] initWithValue:params.exceptionValue
                                                                    type:params.exceptionType];
@@ -385,9 +421,9 @@ SentryMetricKitIntegration ()
         SentryFrame *frame = [[SentryFrame alloc] init];
         frame.package = mxFrame.binaryName;
         frame.inApp = @([self.inAppLogic isInApp:mxFrame.binaryName]);
-        frame.instructionAddress = sentry_formatHexAddress(@(mxFrame.address));
-        NSNumber *imageAddress = @(mxFrame.address - mxFrame.offsetIntoBinaryTextSegment);
-        frame.imageAddress = sentry_formatHexAddress(imageAddress);
+        frame.instructionAddress = sentry_formatHexAddressUInt64(mxFrame.address);
+        uint64_t imageAddress = mxFrame.address - mxFrame.offsetIntoBinaryTextSegment;
+        frame.imageAddress = sentry_formatHexAddressUInt64(imageAddress);
 
         [frames addObject:frame];
     }
@@ -436,8 +472,8 @@ SentryMetricKitIntegration ()
         debugMeta.debugID = binaryUUID;
         debugMeta.codeFile = mxFrame.binaryName;
 
-        NSNumber *imageAddress = @(mxFrame.address - mxFrame.offsetIntoBinaryTextSegment);
-        debugMeta.imageAddress = sentry_formatHexAddress(imageAddress);
+        uint64_t imageAddress = mxFrame.address - mxFrame.offsetIntoBinaryTextSegment;
+        debugMeta.imageAddress = sentry_formatHexAddressUInt64(imageAddress);
 
         debugMetas[debugMeta.debugID] = debugMeta;
     }
@@ -449,33 +485,4 @@ SentryMetricKitIntegration ()
 
 NS_ASSUME_NONNULL_END
 
-#endif
-
-NS_ASSUME_NONNULL_BEGIN
-
-@implementation
-SentryEvent (MetricKit)
-
-- (BOOL)isMetricKitEvent
-{
-    if (self.exceptions == nil || self.exceptions.count != 1) {
-        return NO;
-    }
-
-    NSArray<NSString *> *metricKitMechanisms = @[
-        SentryMetricKitDiskWriteExceptionMechanism, SentryMetricKitCpuExceptionMechanism,
-        SentryMetricKitHangDiagnosticMechanism, @"MXCrashDiagnostic"
-    ];
-
-    SentryException *exception = self.exceptions[0];
-    if (exception.mechanism != nil &&
-        [metricKitMechanisms containsObject:exception.mechanism.type]) {
-        return YES;
-    } else {
-        return NO;
-    }
-}
-
-@end
-
-NS_ASSUME_NONNULL_END
+#endif // SENTRY_HAS_METRIC_KIT

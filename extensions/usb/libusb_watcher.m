@@ -199,7 +199,7 @@ static int usb_watcher_new(lua_State* L) {
 
     usbwatcher->fn = [skin luaRef:refTable];
     usbwatcher->running = NO;
-    usbwatcher->gNotifyPort = IONotificationPortCreate(kIOMasterPortDefault);
+    usbwatcher->gNotifyPort = IONotificationPortCreate(kIOMainPortDefault);
     usbwatcher->runLoopSource = IONotificationPortGetRunLoopSource(usbwatcher->gNotifyPort);
     usbwatcher->lsCanary = [skin createGCCanary];
 

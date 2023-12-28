@@ -1,7 +1,7 @@
 #import "NSDate+SentryExtras.h"
 #import "NSMutableDictionary+Sentry.h"
-#import "SentryCurrentDate.h"
-#import "SentryInstallation.h"
+#import "SentryCurrentDateProvider.h"
+#import "SentryDependencyContainer.h"
 #import "SentryLog.h"
 #import "SentrySession+Private.h"
 
@@ -31,23 +31,23 @@ nameForSentrySessionStatus(SentrySessionStatus status)
  * Default private constructor. We don't name it init to avoid the overlap with the default init of
  * NSObject, which is not available as we specified in the header with SENTRY_NO_INIT.
  */
-- (instancetype)initDefault
+- (instancetype)initDefault:(NSString *)distinctId
 {
     if (self = [super init]) {
         _sessionId = [NSUUID UUID];
-        _started = [SentryCurrentDate date];
+        _started = [SentryDependencyContainer.sharedInstance.dateProvider date];
         _status = kSentrySessionStatusOk;
         _sequence = 1;
         _errors = 0;
-        _distinctId = [SentryInstallation id];
+        _distinctId = distinctId;
     }
 
     return self;
 }
 
-- (instancetype)initWithReleaseName:(NSString *)releaseName
+- (instancetype)initWithReleaseName:(NSString *)releaseName distinctId:(NSString *)distinctId
 {
-    if (self = [self initDefault]) {
+    if (self = [self initDefault:distinctId]) {
         _init = @YES;
         _releaseName = releaseName;
     }
@@ -210,7 +210,9 @@ nameForSentrySessionStatus(SentrySessionStatus status)
             [serializedData setValue:statusString forKey:@"status"];
         }
 
-        NSDate *timestamp = nil != _timestamp ? _timestamp : [SentryCurrentDate date];
+        NSDate *timestamp = nil != _timestamp
+            ? _timestamp
+            : [SentryDependencyContainer.sharedInstance.dateProvider date];
         [serializedData setValue:[timestamp sentry_toIso8601String] forKey:@"timestamp"];
 
         if (_duration != nil) {
@@ -220,7 +222,6 @@ nameForSentrySessionStatus(SentrySessionStatus status)
             [serializedData setValue:[NSNumber numberWithDouble:secondsBetween] forKey:@"duration"];
         }
 
-        // TODO: seq to be just unix time in mills?
         [serializedData setValue:@(_sequence) forKey:@"seq"];
 
         if (_releaseName != nil || _environment != nil) {

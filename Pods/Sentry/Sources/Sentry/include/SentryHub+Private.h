@@ -1,15 +1,28 @@
 #import "SentryHub.h"
 
-@class SentryEnvelopeItem, SentryId, SentryScope, SentryTransaction, SentryDispatchQueueWrapper,
-    SentryEnvelope, SentryTracer, SentryNSTimerWrapper;
+@class SentryEnvelopeItem;
+@class SentryId;
+@class SentryScope;
+@class SentryTransaction;
+@class SentryDispatchQueueWrapper;
+@class SentryEnvelope;
+@class SentryNSTimerFactory;
+@class SentrySession;
+@class SentryTracer;
+@class SentryTracerConfiguration;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface
-SentryHub (Private)
+SentryHub ()
 
-@property (nonatomic, strong) NSArray<id<SentryIntegrationProtocol>> *installedIntegrations;
-@property (nonatomic, strong) NSSet<NSString *> *installedIntegrationNames;
+@property (nullable, nonatomic, strong) SentrySession *session;
+
+/**
+ * Every integration starts with "Sentry" and ends with "Integration". To keep the payload of the
+ * event small we remove both.
+ */
+- (NSMutableArray<NSString *> *)trimmedInstalledIntegrationNames;
 
 - (void)addInstalledIntegration:(id<SentryIntegrationProtocol>)integration name:(NSString *)name;
 - (void)removeAllIntegrations;
@@ -20,30 +33,12 @@ SentryHub (Private)
 
 - (void)captureCrashEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
 
-- (void)setSampleRandomValue:(NSNumber *)value;
-
 - (void)closeCachedSessionWithTimestamp:(NSDate *_Nullable)timestamp;
-
-- (id<SentrySpan>)startTransactionWithName:(NSString *)name
-                                nameSource:(SentryTransactionNameSource)source
-                                 operation:(NSString *)operation;
-
-- (id<SentrySpan>)startTransactionWithName:(NSString *)name
-                                nameSource:(SentryTransactionNameSource)source
-                                 operation:(NSString *)operation
-                               bindToScope:(BOOL)bindToScope;
-
-- (id<SentrySpan>)startTransactionWithContext:(SentryTransactionContext *)transactionContext
-                                  bindToScope:(BOOL)bindToScope
-                              waitForChildren:(BOOL)waitForChildren
-                        customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
-                                 timerWrapper:(nullable SentryNSTimerWrapper *)timerWrapper;
 
 - (SentryTracer *)startTransactionWithContext:(SentryTransactionContext *)transactionContext
                                   bindToScope:(BOOL)bindToScope
                         customSamplingContext:(NSDictionary<NSString *, id> *)customSamplingContext
-                                  idleTimeout:(NSTimeInterval)idleTimeout
-                         dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper;
+                                configuration:(SentryTracerConfiguration *)configuration;
 
 - (SentryId *)captureEvent:(SentryEvent *)event
                   withScope:(SentryScope *)scope

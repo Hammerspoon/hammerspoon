@@ -1,4 +1,5 @@
 #import "SentryCrashSysCtl.h"
+#import "SentryDependencyContainer.h"
 #import "SentrySysctl.h"
 #import <Foundation/Foundation.h>
 #import <SentryAppState.h>
@@ -22,8 +23,6 @@ SentryAppStateManager ()
 @property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryFileManager *fileManager;
-@property (nonatomic, strong) id<SentryCurrentDateProvider> currentDate;
-@property (nonatomic, strong) SentrySysctl *sysctl;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) SentryNSNotificationCenterWrapper *notificationCenterWrapper;
 @property (nonatomic) NSInteger startCount;
@@ -35,8 +34,6 @@ SentryAppStateManager ()
 - (instancetype)initWithOptions:(SentryOptions *)options
                    crashWrapper:(SentryCrashWrapper *)crashWrapper
                     fileManager:(SentryFileManager *)fileManager
-            currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
-                         sysctl:(SentrySysctl *)sysctl
            dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
       notificationCenterWrapper:(SentryNSNotificationCenterWrapper *)notificationCenterWrapper
 {
@@ -44,8 +41,6 @@ SentryAppStateManager ()
         self.options = options;
         self.crashWrapper = crashWrapper;
         self.fileManager = fileManager;
-        self.currentDate = currentDateProvider;
-        self.sysctl = sysctl;
         self.dispatchQueue = dispatchQueueWrapper;
         self.notificationCenterWrapper = notificationCenterWrapper;
         self.startCount = 0;
@@ -134,10 +129,9 @@ SentryAppStateManager ()
 
 /**
  * It is called when an app is receiving events / it is in the foreground and when we receive a
- * SentryHybridSdkDidBecomeActiveNotification.
- *
- * This also works when using SwiftUI or Scenes, as UIKit posts a didBecomeActiveNotification
- * regardless of whether your app uses scenes, see
+ * @c SentryHybridSdkDidBecomeActiveNotification.
+ * @discussion This also works when using SwiftUI or Scenes, as UIKit posts a
+ * @c didBecomeActiveNotification regardless of whether your app uses scenes, see
  * https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1622956-applicationdidbecomeactive.
  */
 - (void)didBecomeActive
@@ -185,13 +179,15 @@ SentryAppStateManager ()
     // Is the current process being traced or not? If it is a debugger is attached.
     bool isDebugging = self.crashWrapper.isBeingTraced;
 
-    NSString *vendorId = [UIDevice.currentDevice.identifierForVendor UUIDString];
+    UIDevice *device = [UIDevice currentDevice];
+    NSString *vendorId = [device.identifierForVendor UUIDString];
 
     return [[SentryAppState alloc] initWithReleaseName:self.options.releaseName
-                                             osVersion:UIDevice.currentDevice.systemVersion
+                                             osVersion:device.systemVersion
                                               vendorId:vendorId
                                            isDebugging:isDebugging
-                                   systemBootTimestamp:self.sysctl.systemBootTimestamp];
+                                   systemBootTimestamp:SentryDependencyContainer.sharedInstance
+                                                           .sysctlWrapper.systemBootTimestamp];
 }
 
 - (SentryAppState *)loadPreviousAppState

@@ -62,7 +62,7 @@ OSStatus audiodevice_callback(AudioDeviceID deviceID, UInt32 numAddresses, const
     AudioObjectPropertyAddress propertyAddress = {
         kAudioDevicePropertyDeviceUID,
         kAudioObjectPropertyScopeGlobal,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
     CFStringRef deviceUID;
     UInt32 propertySize = sizeof(CFStringRef);
@@ -127,7 +127,7 @@ static bool _check_audio_device_has_streams(AudioDeviceID deviceId, AudioObjectP
     AudioObjectPropertyAddress propertyAddress = {
         kAudioDevicePropertyStreams,
         scope,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
 
     if (AudioObjectGetPropertyDataSize(deviceId, &propertyAddress, 0, NULL, &dataSize) == noErr) {
@@ -226,7 +226,7 @@ static int audiodevice_alldevices(lua_State *L) {
             AudioObjectPropertyAddress propertyAddress = {
                 kAudioHardwarePropertyTranslateUIDToDevice,
                 kAudioObjectPropertyScopeGlobal,
-                kAudioObjectPropertyElementMaster
+                kAudioObjectPropertyElementMain
             };
 
             if ((AudioObjectGetPropertyDataSize(kAudioObjectSystemObject, &propertyAddress, sizeof(CFStringRef), &airplayDeviceUID, &dataSize) == noErr) && \
@@ -266,7 +266,7 @@ static int audiodevice_defaultoutputdevice(lua_State* L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioHardwarePropertyDefaultOutputDevice,
         kAudioObjectPropertyScopeGlobal,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
 
     AudioDeviceID deviceId;
@@ -297,7 +297,7 @@ static int audiodevice_defaultinputdevice(lua_State* L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioHardwarePropertyDefaultInputDevice,
         kAudioObjectPropertyScopeGlobal,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
 
     AudioDeviceID deviceId;
@@ -328,7 +328,7 @@ static int audiodevice_defaulteffectdevice(lua_State* L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioHardwarePropertyDefaultSystemOutputDevice,
         kAudioObjectPropertyScopeGlobal,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
 
     AudioDeviceID deviceId;
@@ -365,7 +365,7 @@ static int audiodevice_setdefaultoutputdevice(lua_State* L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioHardwarePropertyDefaultOutputDevice,
         kAudioObjectPropertyScopeGlobal,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
 
     UInt32 deviceIdSize = sizeof(AudioDeviceID);
@@ -398,7 +398,7 @@ static int audiodevice_setdefaulteffectdevice(lua_State *L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioHardwarePropertyDefaultSystemOutputDevice,
         kAudioObjectPropertyScopeGlobal,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
 
     UInt32 deviceIdSize = sizeof(AudioDeviceID);
@@ -431,7 +431,7 @@ static int audiodevice_setdefaultinputdevice(lua_State* L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioHardwarePropertyDefaultInputDevice,
         kAudioObjectPropertyScopeGlobal,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
 
     UInt32 deviceIdSize = sizeof(AudioDeviceID);
@@ -464,7 +464,7 @@ static int audiodevice_name(lua_State* L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioObjectPropertyName,
         kAudioObjectPropertyScopeGlobal,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
     CFStringRef deviceName;
     UInt32 propertySize = sizeof(CFStringRef);
@@ -498,7 +498,7 @@ static int audiodevice_uid(lua_State* L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioDevicePropertyDeviceUID,
         kAudioObjectPropertyScopeGlobal,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
     CFStringRef deviceUID;
     UInt32 propertySize = sizeof(CFStringRef);
@@ -539,7 +539,7 @@ static int audiodevice_inUse(lua_State *L) {
 
     AudioObjectPropertyAddress prop = {
         kAudioDevicePropertyDeviceIsRunningSomewhere,
-        kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMain
     };
 
     err = AudioObjectGetPropertyDataSize(deviceId, &prop, 0, nil, &dataSize);
@@ -584,7 +584,7 @@ static int audiodevice_inputMuted(lua_State *L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioDevicePropertyMute,
         scope,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
 
     if (AudioObjectHasProperty(deviceId, &propertyAddress) && (AudioObjectGetPropertyData(deviceId, &propertyAddress, 0, NULL, &mutedSize, &muted) == noErr)) {
@@ -620,7 +620,7 @@ static int audiodevice_outputMuted(lua_State *L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioDevicePropertyMute,
         scope,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
 
     if (AudioObjectHasProperty(deviceId, &propertyAddress) && (AudioObjectGetPropertyData(deviceId, &propertyAddress, 0, NULL, &mutedSize, &muted) == noErr)) {
@@ -663,7 +663,7 @@ static int audiodevice_muted(lua_State* L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioDevicePropertyMute,
         scope,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
 
     if (AudioObjectHasProperty(deviceId, &propertyAddress) && (AudioObjectGetPropertyData(deviceId, &propertyAddress, 0, NULL, &mutedSize, &muted) == noErr)) {
@@ -699,7 +699,7 @@ static int audiodevice_setInputMuted(lua_State* L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioDevicePropertyMute,
         scope,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
 
     if (AudioObjectHasProperty(deviceId, &propertyAddress) && (AudioObjectSetPropertyData(deviceId, &propertyAddress, 0, NULL, mutedSize, &muted) == noErr)) {
@@ -735,7 +735,7 @@ static int audiodevice_setOutputMuted(lua_State* L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioDevicePropertyMute,
         scope,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
 
     if (AudioObjectHasProperty(deviceId, &propertyAddress) && (AudioObjectSetPropertyData(deviceId, &propertyAddress, 0, NULL, mutedSize, &muted) == noErr)) {
@@ -779,7 +779,7 @@ static int audiodevice_setmuted(lua_State* L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioDevicePropertyMute,
         scope,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
 
     if (AudioObjectHasProperty(deviceId, &propertyAddress) && (AudioObjectSetPropertyData(deviceId, &propertyAddress, 0, NULL, mutedSize, &muted) == noErr)) {
@@ -820,7 +820,7 @@ static int audiodevice_inputVolume(lua_State *L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioHardwareServiceDeviceProperty_VirtualMainVolume,
         kAudioObjectPropertyScopeInput,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
 
     if (AudioObjectHasProperty(deviceId, &propertyAddress) && (AudioObjectGetPropertyData(deviceId, &propertyAddress, 0, NULL, &volumeSize, &volume) == noErr)) {
@@ -861,7 +861,7 @@ static int audiodevice_outputVolume(lua_State *L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioHardwareServiceDeviceProperty_VirtualMainVolume,
         kAudioObjectPropertyScopeOutput,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
 
     if (AudioObjectHasProperty(deviceId, &propertyAddress) && (AudioObjectGetPropertyData(deviceId, &propertyAddress, 0, NULL, &volumeSize, &volume) == noErr)) {
@@ -905,7 +905,7 @@ static int audiodevice_volume(lua_State* L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioHardwareServiceDeviceProperty_VirtualMainVolume,
         scope,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
 
     if (AudioObjectHasProperty(deviceId, &propertyAddress) && (AudioObjectGetPropertyData(deviceId, &propertyAddress, 0, NULL, &volumeSize, &volume) == noErr)) {
@@ -952,7 +952,7 @@ static int audiodevice_setInputVolume(lua_State *L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioHardwareServiceDeviceProperty_VirtualMainVolume,
         kAudioObjectPropertyScopeInput,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
 
     if (AudioObjectHasProperty(deviceId, &propertyAddress) && (AudioObjectSetPropertyData(deviceId, &propertyAddress, 0, NULL, volumeSize, &volume) == noErr)) {
@@ -998,7 +998,7 @@ static int audiodevice_setOutputVolume(lua_State *L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioHardwareServiceDeviceProperty_VirtualMainVolume,
         kAudioObjectPropertyScopeOutput,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
 
     if (AudioObjectHasProperty(deviceId, &propertyAddress) && (AudioObjectSetPropertyData(deviceId, &propertyAddress, 0, NULL, volumeSize, &volume) == noErr)) {
@@ -1051,7 +1051,7 @@ static int audiodevice_setvolume(lua_State* L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioHardwareServiceDeviceProperty_VirtualMainVolume,
         scope,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
 
     if (AudioObjectHasProperty(deviceId, &propertyAddress) && (AudioObjectSetPropertyData(deviceId, &propertyAddress, 0, NULL, volumeSize, &volume) == noErr)) {
@@ -1096,7 +1096,7 @@ static int audiodevice_balance(lua_State* L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioHardwareServiceDeviceProperty_VirtualMainBalance,
         scope,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
 
     if (AudioObjectHasProperty(deviceId, &propertyAddress) && (AudioObjectGetPropertyData(deviceId, &propertyAddress, 0, NULL, &balanceSize, &balance) == noErr)) {
@@ -1149,7 +1149,7 @@ static int audiodevice_setbalance(lua_State* L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioHardwareServiceDeviceProperty_VirtualMainBalance,
         scope,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
 
     if (AudioObjectHasProperty(deviceId, &propertyAddress) && (AudioObjectSetPropertyData(deviceId, &propertyAddress, 0, NULL, balanceSize, &balance) == noErr)) {
@@ -1224,7 +1224,7 @@ static int audiodevice_transportType(lua_State *L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioDevicePropertyTransportType,
         kAudioObjectPropertyScopeOutput,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
 
     if (AudioObjectHasProperty(deviceId, &propertyAddress) && (AudioObjectGetPropertyData(deviceId, &propertyAddress, 0, NULL, &transportTypeSize, &transportType) == noErr)) {
@@ -1303,7 +1303,7 @@ static int audiodevice_jackConnected(lua_State *L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioDevicePropertyJackIsConnected,
         scope,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
 
     if (AudioObjectGetPropertyData(deviceId, &propertyAddress, 0, NULL, &jackConnectedSize, &jackConnected) != noErr) {
@@ -1334,7 +1334,7 @@ static int audiodevice_supportsInputDataSources(lua_State *L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioDevicePropertyDataSources,
         kAudioObjectPropertyScopeInput,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
 
     lua_pushboolean(L, AudioObjectHasProperty(deviceId, &propertyAddress) ? true : false);
@@ -1361,7 +1361,7 @@ static int audiodevice_supportsOutputDataSources(lua_State *L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioDevicePropertyDataSources,
         kAudioObjectPropertyScopeOutput,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
 
     lua_pushboolean(L, AudioObjectHasProperty(deviceId, &propertyAddress) ? true : false);
@@ -1391,7 +1391,7 @@ static int audiodevice_currentInputDataSource(lua_State *L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioDevicePropertyDataSource,
         kAudioObjectPropertyScopeInput,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
 
     UInt32 dataSourceId = 0;
@@ -1428,7 +1428,7 @@ static int audiodevice_currentOutputDataSource(lua_State *L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioDevicePropertyDataSource,
         kAudioObjectPropertyScopeOutput,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
 
     UInt32 dataSourceId = 0;
@@ -1466,7 +1466,7 @@ static int audiodevice_allOutputDataSources(lua_State *L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioDevicePropertyDataSources,
         kAudioObjectPropertyScopeOutput,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
 
     if (AudioObjectGetPropertyDataSize(deviceId, &propertyAddress, 0, NULL, &datasourceListPropertySize) != noErr)
@@ -1519,7 +1519,7 @@ static int audiodevice_allInputDataSources(lua_State *L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioDevicePropertyDataSources,
         kAudioObjectPropertyScopeInput,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
 
     if (AudioObjectGetPropertyDataSize(deviceId, &propertyAddress, 0, NULL, &datasourceListPropertySize) != noErr)
@@ -1728,7 +1728,7 @@ static int audiodevice_tostring(lua_State* L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioObjectPropertyName,
         kAudioObjectPropertyScopeGlobal,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
 
     if (AudioObjectGetPropertyData(deviceId, &propertyAddress, 0, NULL, &propertySize, &deviceName) == noErr) {
@@ -1785,7 +1785,7 @@ NSString *get_datasource_name(AudioDeviceID hostDevice, UInt32 dataSource) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioDevicePropertyDataSourceNameForIDCFString,
         scope,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
 
     AudioValueTranslation avt;
@@ -1853,7 +1853,7 @@ static int datasource_setDefault(lua_State *L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioDevicePropertyDataSource,
         scope,
-        kAudioObjectPropertyElementMaster
+        kAudioObjectPropertyElementMain
     };
 
     AudioObjectSetPropertyData(dataSource->hostDevice, &propertyAddress, 0, NULL, sizeof(UInt32), &dataSource->dataSource);

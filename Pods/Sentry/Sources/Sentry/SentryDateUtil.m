@@ -1,5 +1,6 @@
 #import "SentryDateUtil.h"
-#import "SentryCurrentDate.h"
+#import "SentryCurrentDateProvider.h"
+#import "SentryDependencyContainer.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -15,7 +16,8 @@ SentryDateUtil ()
     if (date == nil)
         return NO;
 
-    NSComparisonResult result = [[SentryCurrentDate date] compare:date];
+    NSComparisonResult result =
+        [[SentryDependencyContainer.sharedInstance.dateProvider date] compare:date];
     return result == NSOrderedAscending;
 }
 

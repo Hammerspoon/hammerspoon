@@ -12,14 +12,14 @@
 // Base SDK
 SDKROOT = macosx
 // macOS Deployment Target
-MACOSX_DEPLOYMENT_TARGET = 11.0
+MACOSX_DEPLOYMENT_TARGET = 12.0
 // Build Active Architecture Only
 ONLY_ACTIVE_ARCH = YES
 
 // Debug Information Format
 DEBUG_INFORMATION_FORMAT = dwarf-with-dsym
 // Other Warning Flags
-WARNING_CFLAGS = -Wno-cstring-format-directive -Wno-padded -Wno-objc-missing-property-synthesis -Wno-auto-import -Wno-gnu-statement-expression -Wno-reserved-id-macro -Wno-gnu-zero-variadic-macro-arguments -Wno-objc-messaging-id
+WARNING_CFLAGS = -Wno-cstring-format-directive -Wno-padded -Wno-objc-missing-property-synthesis -Wno-auto-import -Wno-gnu-statement-expression -Wno-reserved-id-macro -Wno-gnu-zero-variadic-macro-arguments -Wno-objc-messaging-id -Wno-declaration-after-statement -Wno-deprecated-non-prototype
 // Other Linker Flags
 OTHER_LDFLAGS = -undefined dynamic_lookup
 // Enable Testability

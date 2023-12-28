@@ -106,7 +106,7 @@
 		4CD203B21C6D77750089706D /* libsocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CD203A21C6D75950089706D /* libsocket.m */; };
 		4CD64AA91C6F15F400EB6E39 /* HSsocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CD64AA81C6F15F400EB6E39 /* HSsocket.m */; };
 		4CD64AAB1C6F168700EB6E39 /* test_socket.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4CD64AAA1C6F168700EB6E39 /* test_socket.lua */; };
-		4CD96BD61C73ABD2009FF648 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
+		4CD96BD61C73ABD2009FF648 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
 		4CD96BDE1C73AC1C009FF648 /* libsocket_udp.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CD96BDD1C73AC1C009FF648 /* libsocket_udp.m */; };
 		4CE6390F1C76C7F500BB7CD2 /* socket.h in Headers */ = {isa = PBXBuildFile; fileRef = 4CE6390E1C76C7F500BB7CD2 /* socket.h */; };
 		4CE639101C76C7F500BB7CD2 /* socket.h in Headers */ = {isa = PBXBuildFile; fileRef = 4CE6390E1C76C7F500BB7CD2 /* socket.h */; };
@@ -635,6 +635,7 @@
 		D64B03371BA954290006C468 /* webview.h in Headers */ = {isa = PBXBuildFile; fileRef = D64B03361BA9541E0006C468 /* webview.h */; };
 		D64B03421BA954780006C468 /* webview.h in Headers */ = {isa = PBXBuildFile; fileRef = D64B03361BA9541E0006C468 /* webview.h */; };
 		D64B03471BA954A20006C468 /* libwebview_usercontent.m in Sources */ = {isa = PBXBuildFile; fileRef = D64B03381BA954660006C468 /* libwebview_usercontent.m */; };
+		D659EC7429F8468F00A7D103 /* docs.css in Copy hsdocs Files */ = {isa = PBXBuildFile; fileRef = D659EC7329F8468F00A7D103 /* docs.css */; };
 		D68616081E04D60A0058A4F2 /* imageAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = D68615F41E04D5990058A4F2 /* imageAdditions.m */; };
 		D68616091E04D60A0058A4F2 /* libcanvas.m in Sources */ = {isa = PBXBuildFile; fileRef = D68615F61E04D5990058A4F2 /* libcanvas.m */; };
 		D686160A1E04D61C0058A4F2 /* Canvas.h in Headers */ = {isa = PBXBuildFile; fileRef = D68615F31E04D5990058A4F2 /* Canvas.h */; };
@@ -647,6 +648,11 @@
 		D6A318AB1DDD836800D9B328 /* libnetwork_ping.m in Sources */ = {isa = PBXBuildFile; fileRef = D6A3189B1DDD830A00D9B328 /* libnetwork_ping.m */; };
 		D6A318AC1DDD836800D9B328 /* SimplePing.m in Sources */ = {isa = PBXBuildFile; fileRef = D6A3189D1DDD830A00D9B328 /* SimplePing.m */; };
 		D6A318AD1DDD837400D9B328 /* SimplePing.h in Headers */ = {isa = PBXBuildFile; fileRef = D6A3189C1DDD830A00D9B328 /* SimplePing.h */; };
+		D6A6C1122A05F3500018FC9B /* byte_order.h in Headers */ = {isa = PBXBuildFile; fileRef = D6A6C10D2A05F3500018FC9B /* byte_order.h */; };
+		D6A6C1132A05F3500018FC9B /* sha3.m in Sources */ = {isa = PBXBuildFile; fileRef = D6A6C10E2A05F3500018FC9B /* sha3.m */; };
+		D6A6C1142A05F3500018FC9B /* sha3.h in Headers */ = {isa = PBXBuildFile; fileRef = D6A6C10F2A05F3500018FC9B /* sha3.h */; };
+		D6A6C1152A05F3500018FC9B /* algorithms.m in Sources */ = {isa = PBXBuildFile; fileRef = D6A6C1102A05F3500018FC9B /* algorithms.m */; };
+		D6A6C1162A05F3500018FC9B /* algorithms.h in Headers */ = {isa = PBXBuildFile; fileRef = D6A6C1112A05F3500018FC9B /* algorithms.h */; };
 		D6B9464E1D139C7D00177E0C /* webview.h in Headers */ = {isa = PBXBuildFile; fileRef = D64B03361BA9541E0006C468 /* webview.h */; };
 		D6B946531D139CB800177E0C /* libwebview_datastore.m in Sources */ = {isa = PBXBuildFile; fileRef = D6B946431D139C4900177E0C /* libwebview_datastore.m */; };
 		D6B9465A1D139CC500177E0C /* webview.h in Headers */ = {isa = PBXBuildFile; fileRef = D64B03361BA9541E0006C468 /* webview.h */; };
@@ -1385,6 +1391,7 @@
 			dstPath = extensions/hs/hsdocs;
 			dstSubfolderSpec = 7;
 			files = (
+				D659EC7429F8468F00A7D103 /* docs.css in Copy hsdocs Files */,
 				4FCA05A2276768DE0089A5FC /* init.lua in Copy hsdocs Files */,
 				4FCA05A3276768DE0089A5FC /* index.lp in Copy hsdocs Files */,
 				4FCA05A4276768DE0089A5FC /* gfm.lp in Copy hsdocs Files */,
@@ -2207,6 +2214,7 @@
 		D64B03361BA9541E0006C468 /* webview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = webview.h; path = extensions/webview/webview.h; sourceTree = "<group>"; };
 		D64B03381BA954660006C468 /* libwebview_usercontent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libwebview_usercontent.m; path = extensions/webview/libwebview_usercontent.m; sourceTree = "<group>"; };
 		D64B03461BA954780006C468 /* libwebviewusercontent.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libwebviewusercontent.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		D659EC7329F8468F00A7D103 /* docs.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; name = docs.css; path = scripts/docs/templates/docs.css; sourceTree = "<group>"; };
 		D66B763A1DD6FD1400CA12E6 /* location_geocoder.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = location_geocoder.lua; path = extensions/location/location_geocoder.lua; sourceTree = "<group>"; };
 		D67F1B3C1EA9D65E00FEB411 /* doc_builder.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = doc_builder.lua; path = extensions/doc/doc_builder.lua; sourceTree = "<group>"; };
 		D684BBFB1DFB72BD00B4D0B8 /* watchable.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = watchable.lua; path = extensions/watchable/watchable.lua; sourceTree = "<group>"; };
@@ -2237,6 +2245,11 @@
 		D6A3189C1DDD830A00D9B328 /* SimplePing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SimplePing.h; path = extensions/network/ping/SimplePing.h; sourceTree = "<group>"; };
 		D6A3189D1DDD830A00D9B328 /* SimplePing.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SimplePing.m; path = extensions/network/ping/SimplePing.m; sourceTree = "<group>"; };
 		D6A318AA1DDD833100D9B328 /* libnetworkping.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libnetworkping.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		D6A6C10D2A05F3500018FC9B /* byte_order.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = byte_order.h; path = extensions/hash/byte_order.h; sourceTree = "<group>"; };
+		D6A6C10E2A05F3500018FC9B /* sha3.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = sha3.m; path = extensions/hash/sha3.m; sourceTree = "<group>"; };
+		D6A6C10F2A05F3500018FC9B /* sha3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sha3.h; path = extensions/hash/sha3.h; sourceTree = "<group>"; };
+		D6A6C1102A05F3500018FC9B /* algorithms.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = algorithms.m; path = extensions/hash/algorithms.m; sourceTree = "<group>"; };
+		D6A6C1112A05F3500018FC9B /* algorithms.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = algorithms.h; path = extensions/hash/algorithms.h; sourceTree = "<group>"; };
 		D6B772981CCB544B00908A59 /* cgilua_compatibility_functions.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = cgilua_compatibility_functions.lua; path = extensions/httpserver/cgilua_compatibility_functions.lua; sourceTree = "<group>"; };
 		D6B772991CCB544B00908A59 /* httpserver_hsminweb.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = httpserver_hsminweb.lua; path = extensions/httpserver/httpserver_hsminweb.lua; sourceTree = "<group>"; };
 		D6B946431D139C4900177E0C /* libwebview_datastore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libwebview_datastore.m; path = extensions/webview/libwebview_datastore.m; sourceTree = "<group>"; };
@@ -2363,7 +2376,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FB852502735B2D100462DD0 /* LuaSkin.framework in Frameworks */,
-				4CD96BD61C73ABD2009FF648 /* (null) in Frameworks */,
+				4CD96BD61C73ABD2009FF648 /* BuildFile in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3370,6 +3383,11 @@
 		4F4CB3F41B73A3D9000EA9B6 /* hash */ = {
 			isa = PBXGroup;
 			children = (
+				D6A6C1112A05F3500018FC9B /* algorithms.h */,
+				D6A6C1102A05F3500018FC9B /* algorithms.m */,
+				D6A6C10D2A05F3500018FC9B /* byte_order.h */,
+				D6A6C10F2A05F3500018FC9B /* sha3.h */,
+				D6A6C10E2A05F3500018FC9B /* sha3.m */,
 				4F4CB3F51B73A4EC000EA9B6 /* hash.lua */,
 				4F4CB3F61B73A4EC000EA9B6 /* libhash.m */,
 			);
@@ -4210,6 +4228,7 @@
 			isa = PBXGroup;
 			children = (
 				226BD80E281CE89B00294634 /* GCDAsyncSocket.m */,
+				D659EC7329F8468F00A7D103 /* docs.css */,
 				4FC09F7B19F99ECE007542A6 /* docs.json */,
 				9445CA1419083251002568BB /* Hammerspoon */,
 				4F98506D1B722C4100F7E909 /* extensions */,
@@ -4786,6 +4805,9 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D6A6C1162A05F3500018FC9B /* algorithms.h in Headers */,
+				D6A6C1122A05F3500018FC9B /* byte_order.h in Headers */,
+				D6A6C1142A05F3500018FC9B /* sha3.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6616,6 +6638,7 @@
 				4FF73A1E2735449D0007074E /* Copy hs manpage */,
 				4FCA05A12767689C0089A5FC /* Copy hsdocs Files */,
 				4FCA05AB276768EC0089A5FC /* Copy hsdocs minweb Files */,
+				32AE478F5CB502BD4652FB25 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -7417,6 +7440,24 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		32AE478F5CB502BD4652FB25 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon-resources.sh",
+				"${PODS_ROOT}/Sentry/Sources/Resources/PrivacyInfo.xcprivacy",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/PrivacyInfo.xcprivacy",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		4F251E7F1A49D5BE00AB6103 /* Prepare secret header file */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
@@ -7710,6 +7751,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D6A6C1132A05F3500018FC9B /* sha3.m in Sources */,
+				D6A6C1152A05F3500018FC9B /* algorithms.m in Sources */,
 				4F4CB3F71B73A4EC000EA9B6 /* libhash.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -9251,7 +9294,7 @@
 		};
 		22613FEF1F297E0D00E05E11 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = dialog;
 				WARNING_CFLAGS = (
@@ -9564,7 +9607,7 @@
 		};
 		4F04549220F0EE7D00699F29 /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -9580,7 +9623,7 @@
 		};
 		4F04549420F0EE7D00699F29 /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -9676,7 +9719,7 @@
 		};
 		4F0454A020F0EE7D00699F29 /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = dialog;
 				WARNING_CFLAGS = (
@@ -9730,7 +9773,7 @@
 		};
 		4F0454A720F0EE7D00699F29 /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -10314,7 +10357,7 @@
 		};
 		4F4CB3CA1B738F1E000EA9B6 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -10322,7 +10365,7 @@
 		};
 		4F4CB3CB1B738F1E000EA9B6 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -10634,7 +10677,7 @@
 		};
 		4F70EED11B726D170025A7B3 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -10642,7 +10685,7 @@
 		};
 		4F70EED21B726D170025A7B3 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -10650,7 +10693,7 @@
 		};
 		4F70EEE71B7273700025A7B3 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -10658,7 +10701,7 @@
 		};
 		4F70EEE81B7273700025A7B3 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -10900,7 +10943,7 @@
 		};
 		4FD0AB331B74867600A82496 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -11196,7 +11239,7 @@
 		};
 		4FF06121274AA7A200FB15D6 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -11204,7 +11247,7 @@
 		};
 		4FF06122274AA7A200FB15D6 /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -11212,7 +11255,7 @@
 		};
 		4FF06123274AA7A200FB15D6 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
+			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

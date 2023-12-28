@@ -1,11 +1,13 @@
-#import "SentryCurrentDateProvider.h"
 #import "SentryDefines.h"
 
-@class SentryDispatchQueueWrapper, SentryAppStateManager, SentrySysctl;
+#if SENTRY_HAS_UIKIT
+
+#    import "SentryCurrentDateProvider.h"
+
+@class SentryDispatchQueueWrapper;
+@class SentryAppStateManager;
 
 NS_ASSUME_NONNULL_BEGIN
-
-#if SENTRY_HAS_UIKIT
 
 /**
  * Tracks cold and warm app start time for iOS, tvOS, and Mac Catalyst. The logic for the different
@@ -16,17 +18,17 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryAppStartTracker : NSObject
 SENTRY_NO_INIT
 
-- (instancetype)initWithCurrentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
-                       dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-                            appStateManager:(SentryAppStateManager *)appStateManager
-                                     sysctl:(SentrySysctl *)sysctl
-             enablePreWarmedAppStartTracing:(BOOL)enablePreWarmedAppStartTracing;
+@property (nonatomic) BOOL isRunning;
+
+- (instancetype)initWithDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+                             appStateManager:(SentryAppStateManager *)appStateManager
+              enablePreWarmedAppStartTracing:(BOOL)enablePreWarmedAppStartTracing;
 
 - (void)start;
 - (void)stop;
 
 @end
 
-#endif
-
 NS_ASSUME_NONNULL_END
+
+#endif // SENTRY_HAS_UIKIT

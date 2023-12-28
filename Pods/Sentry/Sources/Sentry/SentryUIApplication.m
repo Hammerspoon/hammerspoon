@@ -1,8 +1,42 @@
 #import "SentryUIApplication.h"
+#import "SentryDependencyContainer.h"
+#import "SentryDispatchQueueWrapper.h"
+@import SentryPrivate;
+#import "SentryNSNotificationCenterWrapper.h"
 
 #if SENTRY_HAS_UIKIT
 
-@implementation SentryUIApplication
+#    import <UIKit/UIKit.h>
+
+@implementation SentryUIApplication {
+    UIApplicationState appState;
+}
+
+- (instancetype)init
+{
+    if (self = [super init]) {
+
+        [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+            addObserver:self
+               selector:@selector(didEnterBackground)
+                   name:UIApplicationDidEnterBackgroundNotification];
+
+        [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+            addObserver:self
+               selector:@selector(didBecomeActive)
+                   name:UIApplicationDidBecomeActiveNotification];
+        // We store the application state when the app is initialized
+        // and we keep track of its changes by the notifications
+        // this way we avoid calling sharedApplication in a background thread
+        appState = self.sharedApplication.applicationState;
+    }
+    return self;
+}
+
+- (void)dealloc
+{
+    [SentryDependencyContainer.sharedInstance.notificationCenterWrapper removeObserver:self];
+}
 
 - (UIApplication *)sharedApplication
 {
@@ -54,6 +88,166 @@
     return result;
 }
 
+- (NSArray<UIViewController *> *)relevantViewControllers
+{
+    NSArray<UIWindow *> *windows = [self windows];
+    if ([windows count] == 0) {
+        return nil;
+    }
+
+    NSMutableArray *result = [NSMutableArray array];
+
+    for (UIWindow *window in windows) {
+        NSArray<UIViewController *> *vcs = [self relevantViewControllerFromWindow:window];
+        if (vcs != nil) {
+            [result addObjectsFromArray:vcs];
+        }
+    }
+
+    return result;
+}
+
+- (nullable NSArray<NSString *> *)relevantViewControllersNames
+{
+    __block NSArray<NSString *> *result = nil;
+
+    void (^addViewNames)(void) = ^{
+        NSArray *viewControllers
+            = SentryDependencyContainer.sharedInstance.application.relevantViewControllers;
+        NSMutableArray *vcsNames = [[NSMutableArray alloc] initWithCapacity:viewControllers.count];
+        for (id vc in viewControllers) {
+            [vcsNames addObject:[SwiftDescriptor getObjectClassName:vc]];
+        }
+        result = [NSArray arrayWithArray:vcsNames];
+    };
+
+    [[SentryDependencyContainer.sharedInstance dispatchQueueWrapper]
+        dispatchSyncOnMainQueue:addViewNames
+                        timeout:0.01];
+
+    return result;
+}
+
+- (NSArray<UIViewController *> *)relevantViewControllerFromWindow:(UIWindow *)window
+{
+    UIViewController *rootViewController = window.rootViewController;
+    if (rootViewController == nil) {
+        return nil;
+    }
+
+    NSMutableArray<UIViewController *> *result =
+        [NSMutableArray<UIViewController *> arrayWithObject:rootViewController];
+    NSUInteger index = 0;
+
+    while (index < result.count) {
+        UIViewController *topVC = result[index];
+        // If the view controller is presenting another one, usually in a modal form.
+        if (topVC.presentedViewController != nil) {
+
+            if ([topVC.presentationController isKindOfClass:UIAlertController.class]) {
+                // If the view controller being presented is an Alert, we know that
+                // we reached the end of the view controller stack and the presenter is
+                // the top view controller.
+                break;
+            }
+
+            [result replaceObjectAtIndex:index withObject:topVC.presentedViewController];
+
+            continue;
+        }
+
+        // The top view controller is meant for navigation and not content
+        if ([self isContainerViewController:topVC]) {
+            NSArray<UIViewController *> *contentViewController =
+                [self relevantViewControllerFromContainer:topVC];
+            if (contentViewController != nil && contentViewController.count > 0) {
+                [result removeObjectAtIndex:index];
+                [result addObjectsFromArray:contentViewController];
+            } else {
+                break;
+            }
+            continue;
+        }
+
+        UIViewController *relevantChild = nil;
+        for (UIViewController *childVC in topVC.childViewControllers) {
+            // Sometimes a view controller is used as container for a navigation controller
+            // If the navigation is occupying the whole view controller we will consider this the
+            // case.
+            if ([self isContainerViewController:childVC]
+                && CGRectEqualToRect(childVC.view.frame, topVC.view.bounds)) {
+                relevantChild = childVC;
+                break;
+            }
+        }
+
+        if (relevantChild != nil) {
+            [result replaceObjectAtIndex:index withObject:relevantChild];
+            continue;
+        }
+
+        index++;
+    }
+
+    return result;
+}
+
+- (BOOL)isContainerViewController:(UIViewController *)viewController
+{
+    return [viewController isKindOfClass:UINavigationController.class] ||
+        [viewController isKindOfClass:UITabBarController.class] ||
+        [viewController isKindOfClass:UISplitViewController.class] ||
+        [viewController isKindOfClass:UIPageViewController.class];
+}
+
+- (nullable NSArray<UIViewController *> *)relevantViewControllerFromContainer:
+    (UIViewController *)containerVC
+{
+    if ([containerVC isKindOfClass:UINavigationController.class]) {
+        if ([(UINavigationController *)containerVC topViewController]) {
+            return @[ [(UINavigationController *)containerVC topViewController] ];
+        }
+        return nil;
+    }
+    if ([containerVC isKindOfClass:UITabBarController.class]) {
+        UITabBarController *tbController = (UITabBarController *)containerVC;
+        NSInteger selectedIndex = tbController.selectedIndex;
+        if (tbController.viewControllers.count > selectedIndex) {
+            return @[ [tbController.viewControllers objectAtIndex:selectedIndex] ];
+        } else {
+            return nil;
+        }
+    }
+    if ([containerVC isKindOfClass:UISplitViewController.class]) {
+        UISplitViewController *splitVC = (UISplitViewController *)containerVC;
+        if (splitVC.viewControllers.count > 0) {
+            return [splitVC viewControllers];
+        }
+    }
+    if ([containerVC isKindOfClass:UIPageViewController.class]) {
+        UIPageViewController *pageVC = (UIPageViewController *)containerVC;
+        if (pageVC.viewControllers.count > 0) {
+            return @[ [[pageVC viewControllers] objectAtIndex:0] ];
+        }
+    }
+    return nil;
+}
+
+- (UIApplicationState)applicationState
+{
+    return appState;
+}
+
+- (void)didEnterBackground
+{
+    appState = UIApplicationStateBackground;
+}
+
+- (void)didBecomeActive
+{
+    appState = UIApplicationStateActive;
+}
+
 @end
 
-#endif
+#endif // SENTRY_HAS_UIKIT

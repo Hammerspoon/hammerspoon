@@ -63,10 +63,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithEvent:(SentryEvent *)event
 {
-    NSError *error;
-    NSData *json = [SentrySerialization dataWithJSONObject:[event serialize] error:&error];
+    NSData *json = [SentrySerialization dataWithJSONObject:[event serialize]];
 
-    if (nil != error) {
+    if (nil == json) {
         // We don't know what caused the serialization to fail.
         SentryEvent *errorEvent = [[SentryEvent alloc] initWithLevel:kSentryLevelWarning];
 
@@ -83,7 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
 
         // We accept the risk that this simple serialization fails. Therefore we ignore the
         // error on purpose.
-        json = [SentrySerialization dataWithJSONObject:[errorEvent serialize] error:nil];
+        json = [SentrySerialization dataWithJSONObject:[errorEvent serialize]];
     }
 
     // event.type can be nil and the server infers error if there's a stack trace, otherwise
@@ -99,10 +98,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithSession:(SentrySession *)session
 {
-    NSData *json = [NSJSONSerialization dataWithJSONObject:[session serialize]
-                                                   options:0
-                                                     // TODO: handle error
-                                                     error:nil];
+    NSData *json = [NSJSONSerialization dataWithJSONObject:[session serialize] options:0 error:nil];
     return [self
         initWithHeader:[[SentryEnvelopeItemHeader alloc] initWithType:SentryEnvelopeItemTypeSession
                                                                length:json.length]

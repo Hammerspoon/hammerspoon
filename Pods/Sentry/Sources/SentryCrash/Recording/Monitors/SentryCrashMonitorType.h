@@ -1,3 +1,4 @@
+// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashMonitorType.h
 //
@@ -56,15 +57,12 @@ typedef enum {
     /* Keeps track of and injects application state. */
     SentryCrashMonitorTypeApplicationState = 0x80,
 
-    /* Keeps track of zombies, and injects the last zombie NSException. */
-    SentryCrashMonitorTypeZombie = 0x100,
 } SentryCrashMonitorType;
 
 #define SentryCrashMonitorTypeAll                                                                  \
     (SentryCrashMonitorTypeMachException | SentryCrashMonitorTypeSignal                            \
         | SentryCrashMonitorTypeCPPException | SentryCrashMonitorTypeNSException                   \
-        | SentryCrashMonitorTypeSystem | SentryCrashMonitorTypeApplicationState                    \
-        | SentryCrashMonitorTypeZombie)
+        | SentryCrashMonitorTypeSystem | SentryCrashMonitorTypeApplicationState)
 
 #define SentryCrashMonitorTypeDebuggerUnsafe                                                       \
     (SentryCrashMonitorTypeMachException | SentryCrashMonitorTypeSignal                            \
@@ -72,8 +70,6 @@ typedef enum {
 
 #define SentryCrashMonitorTypeAsyncSafe                                                            \
     (SentryCrashMonitorTypeMachException | SentryCrashMonitorTypeSignal)
-
-#define SentryCrashMonitorTypeOptional (SentryCrashMonitorTypeZombie)
 
 #define SentryCrashMonitorTypeAsyncUnsafe                                                          \
     (SentryCrashMonitorTypeAll & (~SentryCrashMonitorTypeAsyncSafe))
@@ -87,9 +83,8 @@ typedef enum {
  */
 #define SentryCrashMonitorTypeProductionSafe (SentryCrashMonitorTypeAll)
 
-/** Production safe monitors, minus the optional ones. */
-#define SentryCrashMonitorTypeProductionSafeMinimal                                                \
-    (SentryCrashMonitorTypeProductionSafe & (~SentryCrashMonitorTypeOptional))
+/** Production safe monitors */
+#define SentryCrashMonitorTypeProductionSafeMinimal (SentryCrashMonitorTypeProductionSafe)
 
 /** Monitors that are required for proper operation.
  * These add essential information to the reports, but do not trigger reporting.

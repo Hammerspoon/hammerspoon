@@ -1,13 +1,17 @@
 #import "SentryScreenshotIntegration.h"
-#import "SentryAttachment.h"
-#import "SentryCrashC.h"
-#import "SentryDependencyContainer.h"
-#import "SentryEvent+Private.h"
-#import "SentryHub+Private.h"
-#import "SentryMetricKitIntegration.h"
-#import "SentrySDK+Private.h"
 
 #if SENTRY_HAS_UIKIT
+
+#    import "SentryAttachment.h"
+#    import "SentryCrashC.h"
+#    import "SentryDependencyContainer.h"
+#    import "SentryEvent+Private.h"
+#    import "SentryHub+Private.h"
+#    import "SentrySDK+Private.h"
+
+#    if SENTRY_HAS_METRIC_KIT
+#        import "SentryMetricKitIntegration.h"
+#    endif // SENTRY_HAS_METRIC_KIT
 
 void
 saveScreenShot(const char *path)
@@ -52,7 +56,10 @@ saveScreenShot(const char *path)
     // We don't take screenshots if there is no exception/error.
     // We don't take screenshots if the event is a crash or metric kit event.
     if ((event.exceptions == nil && event.error == nil) || event.isCrashEvent
-        || event.isMetricKitEvent) {
+#    if SENTRY_HAS_METRIC_KIT
+        || [event isMetricKitEvent]
+#    endif // SENTRY_HAS_METRIC_KIT
+    ) {
         return attachments;
     }
 
@@ -76,4 +83,5 @@ saveScreenShot(const char *path)
 }
 
 @end
-#endif
+
+#endif // SENTRY_HAS_UIKIT

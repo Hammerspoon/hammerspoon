@@ -12,12 +12,12 @@
 #import <SentryAppStateManager.h>
 #import <SentryClient+Private.h>
 #import <SentryCrashScopeObserver.h>
-#import <SentryDefaultCurrentDateProvider.h>
 #import <SentryDependencyContainer.h>
 #import <SentrySDK+Private.h>
 #import <SentrySysctl.h>
 
 #if SENTRY_HAS_UIKIT
+#    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
 #endif
 
@@ -68,6 +68,7 @@ SentryCrashIntegration ()
 
     self.options = options;
 
+#if SENTRY_HAS_UIKIT
     SentryAppStateManager *appStateManager =
         [SentryDependencyContainer sharedInstance].appStateManager;
     SentryWatchdogTerminationLogic *logic =
@@ -77,15 +78,15 @@ SentryCrashIntegration ()
     self.crashedSessionHandler =
         [[SentrySessionCrashedHandler alloc] initWithCrashWrapper:self.crashAdapter
                                          watchdogTerminationLogic:logic];
+#else
+    self.crashedSessionHandler =
+        [[SentrySessionCrashedHandler alloc] initWithCrashWrapper:self.crashAdapter];
+#endif // SENTRY_HAS_UIKIT
 
     self.scopeObserver =
         [[SentryCrashScopeObserver alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs];
 
-    [self startCrashHandler];
-
-    if (options.stitchAsyncCode) {
-        [self.crashAdapter installAsyncHooks];
-    }
+    [self startCrashHandler:options.cacheDirectoryPath];
 
     [self configureScope];
 
@@ -97,7 +98,7 @@ SentryCrashIntegration ()
     return kIntegrationOptionEnableCrashHandler;
 }
 
-- (void)startCrashHandler
+- (void)startCrashHandler:(NSString *)cacheDirectory
 {
     void (^block)(void) = ^{
         BOOL canSendReports = NO;
@@ -114,7 +115,7 @@ SentryCrashIntegration ()
             canSendReports = YES;
         }
 
-        [installation install];
+        [installation install:cacheDirectory];
 
         // We need to send the crashed event together with the crashed session in the same envelope
         // to have proper statistics in release health. To achieve this we need both synchronously
@@ -161,8 +162,6 @@ SentryCrashIntegration ()
         installationToken = 0;
     }
 
-    [self.crashAdapter uninstallAsyncHooks];
-
     [NSNotificationCenter.defaultCenter removeObserver:self
                                                   name:NSCurrentLocaleDidChangeNotification
                                                 object:nil];
@@ -186,7 +185,7 @@ SentryCrashIntegration ()
         userInfo[@"release"] = self.options.releaseName;
         userInfo[@"dist"] = self.options.dist;
 
-        [SentryCrash.sharedInstance setUserInfo:userInfo];
+        [SentryDependencyContainer.sharedInstance.crashReporter setUserInfo:userInfo];
 
         [outerScope addObserver:self.scopeObserver];
     }];
@@ -202,7 +201,7 @@ SentryCrashIntegration ()
     // OS
     NSMutableDictionary *osData = [NSMutableDictionary new];
 
-#if TARGET_OS_OSX || TARGET_OS_MACCATALYST
+#if SENTRY_TARGET_MACOS
     [osData setValue:@"macOS" forKey:@"name"];
 #elif TARGET_OS_IOS
     [osData setValue:@"iOS" forKey:@"name"];
@@ -210,11 +209,13 @@ SentryCrashIntegration ()
     [osData setValue:@"tvOS" forKey:@"name"];
 #elif TARGET_OS_WATCH
     [osData setValue:@"watchOS" forKey:@"name"];
+#elif TARGET_OS_VISION
+    [osData setValue:@"visionOS" forKey:@"name"];
 #endif
 
     // For MacCatalyst the UIDevice returns the current version of MacCatalyst and not the
     // macOSVersion. Therefore we have to use NSProcessInfo.
-#if SENTRY_HAS_UIDEVICE && !TARGET_OS_MACCATALYST
+#if SENTRY_HAS_UIKIT && !TARGET_OS_MACCATALYST
     [osData setValue:[UIDevice currentDevice].systemVersion forKey:@"version"];
 #else
     NSOperatingSystemVersion version = [NSProcessInfo processInfo].operatingSystemVersion;
@@ -272,11 +273,18 @@ SentryCrashIntegration ()
     NSString *locale = [[NSLocale autoupdatingCurrentLocale] objectForKey:NSLocaleIdentifier];
     [deviceData setValue:locale forKey:LOCALE_KEY];
 
-#if SENTRY_HAS_UIDEVICE && !defined(TESTCI)
-    // Acessessing UIScreen.mainScreen fails when using SentryTestObserver.
-    // It's a bug with the iOS 15 and 16 simulator, it runs fine with iOS 14.
-    [deviceData setValue:@(UIScreen.mainScreen.bounds.size.height) forKey:@"screen_height_pixels"];
-    [deviceData setValue:@(UIScreen.mainScreen.bounds.size.width) forKey:@"screen_width_pixels"];
+// The UIWindowScene is unavailable on visionOS
+#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
+
+    NSArray<UIWindow *> *appWindows = SentryDependencyContainer.sharedInstance.application.windows;
+    if ([appWindows count] > 0) {
+        UIScreen *appScreen = appWindows.firstObject.screen;
+        if (appScreen != nil) {
+            [deviceData setValue:@(appScreen.bounds.size.height) forKey:@"screen_height_pixels"];
+            [deviceData setValue:@(appScreen.bounds.size.width) forKey:@"screen_width_pixels"];
+        }
+    }
+
 #endif
 
     [scope setContextValue:deviceData forKey:DEVICE_KEY];

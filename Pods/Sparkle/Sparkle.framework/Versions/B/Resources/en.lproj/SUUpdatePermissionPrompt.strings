@@ -20,5 +20,8 @@
 /* Class = "NSButtonCell"; title = "Include anonymous system profile"; ObjectID = "180"; */
 "gz7-LM-gNf.title" = "Include anonymous system profile";
 
+/* Class = "NSButtonCell"; title = "Automatically download and install updates"; ObjectID = "AUc-33-qGN"; */
+"AUc-33-qGN.title" = "Automatically download and install updates";
+
 /* Class = "NSTextFieldCell"; title = "Anonymous system profile information is used to help us plan future development work. Please contact us if you have any questions about this.\n\nThis is the information that would be sent:"; ObjectID = "183"; */
 "183.title" = "Anonymous system profile information is used to help us plan future development work. Please contact us if you have any questions about this.\n\nThis is the information that would be sent:";

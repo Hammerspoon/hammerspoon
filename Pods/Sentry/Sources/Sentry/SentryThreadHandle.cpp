@@ -44,9 +44,8 @@ namespace profiling {
     std::unique_ptr<ThreadHandle>
     ThreadHandle::current() noexcept
     {
-        const auto port = mach_thread_self();
-        SENTRY_PROF_LOG_KERN_RETURN(mach_port_deallocate(mach_task_self(), port));
-        return std::make_unique<ThreadHandle>(port);
+        const auto thread = pthread_mach_thread_np(pthread_self());
+        return std::make_unique<ThreadHandle>(thread);
     }
 
     std::vector<std::unique_ptr<ThreadHandle>>

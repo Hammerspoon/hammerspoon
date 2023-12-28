@@ -2,7 +2,7 @@
 #import "SentryDefines.h"
 #import <Foundation/Foundation.h>
 
-@class SentryThread, SentryStacktraceBuilder, SentryStacktrace;
+@class SentryThread, SentryStacktraceBuilder, SentryStacktrace, SentryOptions;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -11,6 +11,8 @@ SENTRY_NO_INIT
 
 - (id)initWithStacktraceBuilder:(SentryStacktraceBuilder *)stacktraceBuilder
        andMachineContextWrapper:(id<SentryCrashMachineContextWrapper>)machineContextWrapper;
+
+- (instancetype)initWithOptions:(SentryOptions *)options;
 
 - (nullable SentryStacktrace *)stacktraceForCurrentThreadAsyncUnsafe;
 
@@ -28,6 +30,8 @@ SENTRY_NO_INIT
  * The first thread in the result is always the main thread.
  */
 - (NSArray<SentryThread *> *)getCurrentThreadsWithStackTrace;
+
+- (nullable NSString *)getThreadName:(SentryCrashThread)thread;
 
 @end
 

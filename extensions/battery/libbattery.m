@@ -126,7 +126,7 @@ static int battery_others(lua_State*L) {
     CFMutableDictionaryRef  properties;
     NSMutableArray *batteryInfo = [NSMutableArray arrayWithCapacity:5];
 
-    kr = IOMasterPort(bootstrap_port, &masterPort);
+    kr = IOMainPort(bootstrap_port, &masterPort);
     if (kr != KERN_SUCCESS) {
         NSLog(@"IOMasterPort() failed: %x\n", kr);
         goto lua_return;
@@ -299,7 +299,7 @@ static int battery_appleSmartBattery(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TBREAK] ;
 
-    io_service_t entry = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceNameMatching("AppleSmartBattery")) ;
+    io_service_t entry = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceNameMatching("AppleSmartBattery")) ;
     if (entry) {
         CFMutableDictionaryRef battery ;
         IORegistryEntryCreateCFProperties(entry, &battery, NULL, 0) ;
@@ -320,7 +320,7 @@ static int battery_iopmBatteryInfo(lua_State *L) {
     mach_port_t masterPort;
     CFArrayRef batteryInfo;
 
-    if (kIOReturnSuccess == IOMasterPort(MACH_PORT_NULL, &masterPort)) {
+    if (kIOReturnSuccess == IOMainPort(MACH_PORT_NULL, &masterPort)) {
         if (kIOReturnSuccess == IOPMCopyBatteryInfo(masterPort, &batteryInfo)) {
             [skin pushNSObject:(__bridge_transfer NSArray *)batteryInfo] ;
             return 1 ;

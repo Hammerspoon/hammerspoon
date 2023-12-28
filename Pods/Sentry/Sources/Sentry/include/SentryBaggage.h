@@ -49,13 +49,19 @@ static NSString *const SENTRY_BAGGAGE_HEADER = @"baggage";
  */
 @property (nullable, nonatomic, readonly) NSString *sampleRate;
 
+/**
+ * Value indicating whether the trace was sampled.
+ */
+@property (nullable, nonatomic, strong) NSString *sampled;
+
 - (instancetype)initWithTraceId:(SentryId *)traceId
                       publicKey:(NSString *)publicKey
                     releaseName:(nullable NSString *)releaseName
                     environment:(nullable NSString *)environment
                     transaction:(nullable NSString *)transaction
                     userSegment:(nullable NSString *)userSegment
-                     sampleRate:(nullable NSString *)sampleRate;
+                     sampleRate:(nullable NSString *)sampleRate
+                        sampled:(nullable NSString *)sampled;
 
 - (NSString *)toHTTPHeader;
 - (NSString *)toHTTPHeaderWithOriginalBaggage:(NSDictionary *_Nullable)originalBaggage;

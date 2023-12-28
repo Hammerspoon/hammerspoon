@@ -3,16 +3,16 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * A wrapper around NSNotificationCenter functions for testability.
- *
- * Testing with NSNotificationCenter in CI leads to flaky tests for some classes. Therefore, we can
- * use a wrapper around NSNotificationCenter to not depend on it. Instead, we call the methods
- * NSNotificationCenter would call with Dynamic and ensure that sut properly subscribes to
- * NSNotificationCenter.
+ * A wrapper around @c NSNotificationCenter functions for testability.
+ * @discussion Testing with @c NSNotificationCenter in CI leads to flaky tests for some classes.
+ * Therefore, we can use a wrapper around @c NSNotificationCenter to not depend on it. Instead, we
+ * call the methods
+ * @c NSNotificationCenter would call with Dynamic and ensure that sut properly subscribes to
+ * @c NSNotificationCenter.
  */
 @interface SentryNSNotificationCenterWrapper : NSObject
 
-#if SENTRY_HAS_UIKIT || TARGET_OS_OSX || TARGET_OS_MACCATALYST
+#if SENTRY_HAS_UIKIT || SENTRY_TARGET_MACOS
 @property (nonatomic, readonly, copy, class) NSNotificationName didBecomeActiveNotificationName;
 @property (nonatomic, readonly, copy, class) NSNotificationName willResignActiveNotificationName;
 @property (nonatomic, readonly, copy, class) NSNotificationName willTerminateNotificationName;
@@ -21,17 +21,17 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)addObserver:(id)observer
            selector:(SEL)aSelector
                name:(NSNotificationName)aName
-             object:(id)anObject;
+             object:(nullable id)anObject;
 
 - (void)addObserver:(id)observer selector:(SEL)aSelector name:(NSNotificationName)aName;
 
-- (void)removeObserver:(id)observer name:(NSNotificationName)aName object:(id)anObject;
+- (void)removeObserver:(id)observer name:(NSNotificationName)aName object:(nullable id)anObject;
 
 - (void)removeObserver:(id)observer name:(NSNotificationName)aName;
 
 - (void)removeObserver:(id)observer;
 
-- (void)postNotificationName:(NSNotificationName)aName object:(id)anObject;
+- (void)postNotificationName:(NSNotificationName)aName object:(nullable id)anObject;
 
 NS_ASSUME_NONNULL_END
 

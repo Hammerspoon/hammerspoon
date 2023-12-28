@@ -4,36 +4,36 @@ PODS:
   - CocoaHTTPServer (2.3):
     - CocoaAsyncSocket
     - CocoaLumberjack
-  - CocoaLumberjack (3.5.3):
-    - CocoaLumberjack/Core (= 3.5.3)
-  - CocoaLumberjack/Core (3.5.3)
+  - CocoaLumberjack (3.8.2):
+    - CocoaLumberjack/Core (= 3.8.2)
+  - CocoaLumberjack/Core (3.8.2)
   - F53OSC (1.2.0)
   - MIKMIDI (1.7.1)
   - ORSSerialPort (2.1)
   - PocketSocket/Client (1.0.1):
     - PocketSocket/Core
   - PocketSocket/Core (1.0.1)
-  - Sentry (8.3.0):
-    - Sentry/Core (= 8.3.0)
-    - SentryPrivate (= 8.3.0)
-  - Sentry/Core (8.3.0):
-    - SentryPrivate (= 8.3.0)
-  - SentryPrivate (8.3.0)
-  - SocketRocket (0.5.1)
-  - Sparkle (2.3.2)
+  - Sentry (8.17.2):
+    - Sentry/Core (= 8.17.2)
+    - SentryPrivate (= 8.17.2)
+  - Sentry/Core (8.17.2):
+    - SentryPrivate (= 8.17.2)
+  - SentryPrivate (8.17.2)
+  - SocketRocket (0.7.0)
+  - Sparkle (2.5.1)
 
 DEPENDENCIES:
   - ASCIImage (= 1.0.0)
   - CocoaAsyncSocket (= 7.6.5)
   - CocoaHTTPServer (from `https://github.com/Hammerspoon/CocoaHTTPServer.git`)
-  - CocoaLumberjack (= 3.5.3)
+  - CocoaLumberjack (= 3.8.2)
   - F53OSC (from `https://github.com/Figure53/F53OSC.git`, tag `1.2.0`)
   - MIKMIDI (= 1.7.1)
   - ORSSerialPort (= 2.1.0)
   - PocketSocket/Client (= 1.0.1)
-  - Sentry (from `https://github.com/getsentry/sentry-cocoa.git`, tag `8.3.0`)
-  - SocketRocket (= 0.5.1)
-  - Sparkle (= 2.3.2)
+  - Sentry (from `https://github.com/getsentry/sentry-cocoa.git`, tag `8.17.2`)
+  - SocketRocket (= 0.7.0)
+  - Sparkle (= 2.5.1)
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
@@ -55,7 +55,7 @@ EXTERNAL SOURCES:
     :tag: 1.2.0
   Sentry:
     :git: https://github.com/getsentry/sentry-cocoa.git
-    :tag: 8.3.0
+    :tag: 8.17.2
 
 CHECKOUT OPTIONS:
   CocoaHTTPServer:
@@ -66,22 +66,22 @@ CHECKOUT OPTIONS:
     :tag: 1.2.0
   Sentry:
     :git: https://github.com/getsentry/sentry-cocoa.git
-    :tag: 8.3.0
+    :tag: 8.17.2
 
 SPEC CHECKSUMS:
   ASCIImage: bcff9650deae86e0e0ac310145cc628948201ab8
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   CocoaHTTPServer: 5624681fc3473d43b18202f635f9b3abb013b530
-  CocoaLumberjack: 2f44e60eb91c176d471fdba43b9e3eae6a721947
+  CocoaLumberjack: f8d89a516e7710fdb2e9b8f1560b16ec6040eef0
   F53OSC: 03b06a1da4cfc40d8841f8a5f4eacbc68ce8e289
   MIKMIDI: f53dca2f372e71183ecdd2b35c984c1c2cd11cbc
   ORSSerialPort: d2d5d131797453430c557ba8dc7dcbcae20ff2e5
   PocketSocket: 9c6867d66fb4f962af96b9b07f4b45bb561b2c2a
-  Sentry: 757565eb01e2a6ef6b26e897e4e47e8213e12f06
-  SentryPrivate: 668d6ce46835769b32e61dc8b5c78ef0b6cdcef8
-  SocketRocket: d57c7159b83c3c6655745cd15302aa24b6bae531
-  Sparkle: b36a51855e81585a1c38e32e53101d36c00f4304
+  Sentry: 64a9f9c3637af913adcf53deced05bbe452d1410
+  SentryPrivate: 024c6fed507ac39ae98e6d087034160f942920d5
+  SocketRocket: abac6f5de4d4d62d24e11868d7a2f427e0ef940d
+  Sparkle: ce9957501a2655dd4c8264312c6134ff478a777c
 
-PODFILE CHECKSUM: c1da53d3710002d3c755a2d740c9eeb11f60ca65
+PODFILE CHECKSUM: 83354398af7f16fd89b6ede49ecc4a802f6a8da5
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.14.3

@@ -16,6 +16,9 @@
 /* Class = "NSButtonCell"; title = "Include anonymous system profile"; ObjectID = "gz7-LM-gNf"; */
 "gz7-LM-gNf.title" = "Inkluder anonym systemprofil";
 
+/* Class = "NSButtonCell"; title = "Automatically download and install updates"; ObjectID = "AUc-33-qGN"; */
+"AUc-33-qGN.title" = "Last ned og installer automatisk";
+
 /* Class = "NSButtonCell"; title = "Check Automatically"; ObjectID = "OhZ-1K-DmA"; */
 "OhZ-1K-DmA.title" = "Søk automatisk";
 

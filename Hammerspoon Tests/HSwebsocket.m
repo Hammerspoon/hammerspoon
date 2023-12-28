@@ -24,7 +24,11 @@
     RUN_LUA_TEST()
 }
 
-- (void)testEcho {
+- (void)testEchoData {
+    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(8)
+}
+
+- (void)testEchoText {
     RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(8)
 }
 

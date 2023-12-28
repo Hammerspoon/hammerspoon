@@ -268,9 +268,9 @@ export DOCS_LINT_ONLY
 export INSTALLDEPS_FULL
 
 # Early sanity checks that we have everything we need, starting with Xcode as the default Developer path
+echo "Current Developer path is: $(xcode-select -p)"
 if [[ "$(xcode-select -p)" != *"Xcode"* ]]; then
     echo "ERROR: Your active Developer directory is not pointing at Xcode.app. You will need Xcode to build ${APP_NAME}."
-    echo "Current Developer path is: $(xcode-select -p)"
     echo "You can change this with: sudo xcode-select -s /path/to/Xcode.app"
     exit 1
 fi

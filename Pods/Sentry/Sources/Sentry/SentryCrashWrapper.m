@@ -1,12 +1,13 @@
 #import "SentryCrashWrapper.h"
 #import "SentryCrash.h"
+#import "SentryCrashBinaryImageCache.h"
 #import "SentryCrashMonitor_AppState.h"
 #import "SentryCrashMonitor_System.h"
-#import "SentryHook.h"
 #import <Foundation/Foundation.h>
 #import <SentryCrashCachedData.h>
 #import <SentryCrashDebug.h>
 #import <SentryCrashMonitor_System.h>
+#import <SentryDependencyContainer.h>
 #include <mach/mach.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -23,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)crashedLastLaunch
 {
-    return SentryCrash.sharedInstance.crashedLastLaunch;
+    return SentryDependencyContainer.sharedInstance.crashReporter.crashedLastLaunch;
 }
 
 - (NSTimeInterval)durationFromCrashStateInitToLastCrash
@@ -33,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSTimeInterval)activeDurationSinceLastCrash
 {
-    return SentryCrash.sharedInstance.activeDurationSinceLastCrash;
+    return SentryDependencyContainer.sharedInstance.crashReporter.activeDurationSinceLastCrash;
 }
 
 - (BOOL)isBeingTraced
@@ -51,21 +52,12 @@ NS_ASSUME_NONNULL_BEGIN
     return sentrycrashstate_currentState()->applicationIsInForeground;
 }
 
-- (void)installAsyncHooks
-{
-    sentrycrash_install_async_hooks();
-}
-
-- (void)uninstallAsyncHooks
-{
-    sentrycrash_deactivate_async_hooks();
-}
-
 - (NSDictionary *)systemInfo
 {
     static NSDictionary *sharedInfo = nil;
     static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{ sharedInfo = SentryCrash.sharedInstance.systemInfo; });
+    dispatch_once(&onceToken,
+        ^{ sharedInfo = SentryDependencyContainer.sharedInstance.crashReporter.systemInfo; });
     return sharedInfo;
 }
 
@@ -89,6 +81,16 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     return 0;
+}
+
+- (void)startBinaryImageCache
+{
+    sentrycrashbic_startCache();
+}
+
+- (void)stopBinaryImageCache
+{
+    sentrycrashbic_stopCache();
 }
 
 @end

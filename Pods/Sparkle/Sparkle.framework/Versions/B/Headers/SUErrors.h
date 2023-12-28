@@ -11,7 +11,7 @@
 
 #import <Foundation/Foundation.h>
 
-#if defined(BUILDING_SPARKLE_TOOL) || defined(BUILDING_SPARKLE_TESTS)
+#if defined(BUILDING_SPARKLE_SOURCES_EXTERNALLY)
 // Ignore incorrect warning
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wquoted-include-in-framework-header"
@@ -44,6 +44,7 @@ typedef NS_ENUM(OSStatus, SUError) {
     SUResumeAppcastError = 1004,
     SURunningTranslocated = 1005,
     SUWebKitTerminationError = 1006,
+    SUReleaseNotesError = 1007,
 
     // Download phase errors.
     SUTemporaryDirectoryError = 2000,

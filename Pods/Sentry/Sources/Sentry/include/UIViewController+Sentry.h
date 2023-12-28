@@ -19,4 +19,4 @@ UIViewController (Sentry)
 
 NS_ASSUME_NONNULL_END
 
-#endif
+#endif // SENTRY_HAS_UIKIT

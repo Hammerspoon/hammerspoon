@@ -68,6 +68,7 @@ namespace profiling {
         } else {
             current = getFrameAddress(&machineContext);
         }
+
         // Even if this bounds check passes, the frame pointer address could still be invalid if the
         // thread was suspended in an inconsistent state. The best we can do is to detect these
         // situations at symbolication time on the server and filter them out -- there's not an easy
@@ -76,6 +77,7 @@ namespace profiling {
         if (UNLIKELY(!isValidFrame(current, bounds))) {
             return 0;
         }
+
         bool reachedEndOfStack = false;
         while (depth < maxDepth) {
             const auto frame = reinterpret_cast<StackFrame *>(current);
@@ -92,6 +94,7 @@ namespace profiling {
                 break;
             }
         }
+
         if (LIKELY(reachedEndOfStackPtr != nullptr)) {
             *reachedEndOfStackPtr = reachedEndOfStack;
         }

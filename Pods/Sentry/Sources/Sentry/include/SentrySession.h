@@ -18,14 +18,12 @@ typedef NS_ENUM(NSUInteger, SentrySessionStatus) {
 @interface SentrySession : NSObject <SentrySerializable, NSCopying>
 SENTRY_NO_INIT
 
-- (instancetype)initWithReleaseName:(NSString *)releaseName;
+- (instancetype)initWithReleaseName:(NSString *)releaseName distinctId:(NSString *)distinctId;
 
 /**
- * Initializes SentrySession from a JSON object.
- *
- * @param jsonObject The jsonObject containing the session.
- *
- * @return The SentrySession or nil if the JSONObject contains an error.
+ * Initializes @c SentrySession from a JSON object.
+ * @param jsonObject The @c jsonObject containing the session.
+ * @return The @c SentrySession or @c nil if @c jsonObject contains an error.
  */
 - (nullable instancetype)initWithJSONObject:(NSDictionary *)jsonObject;
 
@@ -42,7 +40,7 @@ SENTRY_NO_INIT
 @property (nonatomic, readonly) NSUInteger sequence;
 @property (nonatomic, readonly, strong) NSString *distinctId;
 /**
-  We can't use init because it overlaps with NSObject.init
+ * We can't use @c init because it overlaps with @c NSObject.init .
  */
 @property (nonatomic, readonly, copy) NSNumber *_Nullable flagInit;
 @property (nonatomic, readonly, strong) NSDate *_Nullable timestamp;

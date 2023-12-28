@@ -1,3 +1,4 @@
+// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashMonitor_System.m
 //
@@ -36,13 +37,16 @@
 // #define SentryCrashLogger_LocalLevel TRACE
 #import "SentryCrashLogger.h"
 
+#import "SentryDefines.h"
+
 #import <CommonCrypto/CommonDigest.h>
 #import <Foundation/Foundation.h>
-#if SentryCrashCRASH_HAS_UIKIT
-#    import <UIKit/UIKit.h>
-#endif
 #include <mach-o/dyld.h>
 #include <mach/mach.h>
+
+#if SENTRY_HAS_UIKIT
+#    import <UIKit/UIKit.h>
+#endif // SENTRY_HAS_UIKIT
 
 typedef struct {
     const char *systemName;
@@ -241,7 +245,7 @@ uuidBytesToString(const uint8_t *uuidBytes)
  * @return Executable path.
  */
 static NSString *
-getExecutablePath()
+getExecutablePath(void)
 {
     NSBundle *mainBundle = [NSBundle mainBundle];
     NSDictionary *infoDict = [mainBundle infoDictionary];
@@ -255,7 +259,7 @@ getExecutablePath()
  * @return The UUID.
  */
 static const char *
-getAppUUID()
+getAppUUID(void)
 {
     const char *result = nil;
 
@@ -313,7 +317,7 @@ getCPUArchForCPUType(cpu_type_t cpuType, cpu_subtype_t subType)
 }
 
 static const char *
-getCurrentCPUArch()
+getCurrentCPUArch(void)
 {
     const char *result = getCPUArchForCPUType(sentrycrashsysctl_int32ForName("hw.cputype"),
         sentrycrashsysctl_int32ForName("hw.cpusubtype"));
@@ -329,7 +333,7 @@ getCurrentCPUArch()
  * @return YES if the device is jailbroken.
  */
 static bool
-isJailbroken()
+isJailbroken(void)
 {
     return sentrycrashdl_imageNamed("MobileSubstrate", false) != UINT32_MAX;
 }
@@ -339,7 +343,7 @@ isJailbroken()
  * @return YES if the app was built in debug mode.
  */
 static bool
-isDebugBuild()
+isDebugBuild(void)
 {
 #ifdef DEBUG
     return YES;
@@ -353,7 +357,7 @@ isDebugBuild()
  * @return YES if this is a simulator build.
  */
 static bool
-isSimulatorBuild()
+isSimulatorBuild(void)
 {
 #if TARGET_OS_SIMULATOR
     return YES;
@@ -373,7 +377,7 @@ sentrycrash_isSimulatorBuild(void)
  * @return App Store receipt for iOS, nil otherwise.
  */
 static NSString *
-getReceiptUrlPath()
+getReceiptUrlPath(void)
 {
 #if SentryCrashCRASH_HOST_IOS
     return [NSBundle mainBundle].appStoreReceiptURL.path;
@@ -388,16 +392,17 @@ getReceiptUrlPath()
  * @return The stringified hex representation of the hash for this device + app.
  */
 static const char *
-getDeviceAndAppHash()
+getDeviceAndAppHash(void)
 {
     NSMutableData *data = nil;
 
-#if SentryCrashCRASH_HAS_UIDEVICE
-    if ([[UIDevice currentDevice] respondsToSelector:@selector(identifierForVendor)]) {
+#if SENTRY_HAS_UIKIT
+    UIDevice *currentDevice = [UIDevice currentDevice];
+    if ([currentDevice respondsToSelector:@selector(identifierForVendor)]) {
         data = [NSMutableData dataWithLength:16];
-        [[UIDevice currentDevice].identifierForVendor getUUIDBytes:data.mutableBytes];
+        [currentDevice.identifierForVendor getUUIDBytes:data.mutableBytes];
     } else
-#endif
+#endif // SENTRY_HAS_UIKIT
     {
         data = [NSMutableData dataWithLength:6];
         sentrycrashsysctl_getMacAddress("en0", [data mutableBytes]);
@@ -436,7 +441,7 @@ getDeviceAndAppHash()
  * @return YES if this is a testing build.
  */
 static bool
-isTestBuild()
+isTestBuild(void)
 {
     return [getReceiptUrlPath().lastPathComponent isEqualToString:@"sandboxReceipt"];
 }
@@ -447,7 +452,7 @@ isTestBuild()
  * @return YES if there is an app store receipt.
  */
 static bool
-hasAppStoreReceipt()
+hasAppStoreReceipt(void)
 {
     NSString *receiptPath = getReceiptUrlPath();
     if (receiptPath == nil) {
@@ -463,13 +468,13 @@ hasAppStoreReceipt()
  * Check if the app has an embdded.mobileprovision file in the bundle.
  */
 static bool
-hasEmbeddedMobileProvision()
+hasEmbeddedMobileProvision(void)
 {
     return [[NSBundle mainBundle] pathForResource:@"embedded" ofType:@"mobileprovision"] != nil;
 }
 
 static const char *
-getBuildType()
+getBuildType(void)
 {
     if (isSimulatorBuild()) {
         return "simulator";
@@ -490,7 +495,7 @@ getBuildType()
 }
 
 static bytes
-getTotalStorageSize()
+getTotalStorageSize(void)
 {
     NSNumber *storageSize = [[[NSFileManager defaultManager]
         attributesOfFileSystemForPath:NSHomeDirectory()
@@ -499,7 +504,7 @@ getTotalStorageSize()
 }
 
 static bytes
-getFreeStorageSize()
+getFreeStorageSize(void)
 {
     NSNumber *storageSize = [[[NSFileManager defaultManager]
         attributesOfFileSystemForPath:NSHomeDirectory()
@@ -518,7 +523,7 @@ sentrycrashcm_system_freestorage_size(void)
 // ============================================================================
 
 static void
-initialize()
+initialize(void)
 {
     static bool isInitialized = false;
     if (!isInitialized) {
@@ -528,16 +533,18 @@ initialize()
         NSDictionary *infoDict = [mainBundle infoDictionary];
         const struct mach_header *header = _dyld_get_image_header(0);
 
-#if SentryCrashCRASH_HAS_UIDEVICE
-        g_systemData.systemName = cString([UIDevice currentDevice].systemName);
-        g_systemData.systemVersion = cString([UIDevice currentDevice].systemVersion);
-#else
-#    if SentryCrashCRASH_HOST_MAC
+#if SentryCrashCRASH_HOST_IOS
+        g_systemData.systemName = "iOS";
+#elif SentryCrashCRASH_HOST_TV
+        g_systemData.systemName = "tvOS";
+#elif SentryCrashCRASH_HOST_MAC
         g_systemData.systemName = "macOS";
-#    endif
-#    if SentryCrashCRASH_HOST_WATCH
+#elif SentryCrashCRASH_HOST_WATCH
         g_systemData.systemName = "watchOS";
-#    endif
+#else
+        g_systemData.systemName = "unknown";
+#endif
+
         NSOperatingSystemVersion version = { 0, 0, 0 };
         if (@available(macOS 10.10, *)) {
             version = [NSProcessInfo processInfo].operatingSystemVersion;
@@ -551,7 +558,7 @@ initialize()
                                       (int)version.minorVersion, (int)version.patchVersion];
         }
         g_systemData.systemVersion = cString(systemVersion);
-#endif
+
         if (isSimulatorBuild()) {
             g_systemData.machine
                 = cString([NSProcessInfo processInfo].environment[@"SIMULATOR_MODEL_IDENTIFIER"]);
@@ -607,7 +614,7 @@ setEnabled(bool isEnabled)
 }
 
 static bool
-isEnabled()
+isEnabled(void)
 {
     return g_isEnabled;
 }
@@ -652,7 +659,7 @@ addContextualInfoToEvent(SentryCrash_MonitorContext *eventContext)
 }
 
 SentryCrashMonitorAPI *
-sentrycrashcm_system_getAPI()
+sentrycrashcm_system_getAPI(void)
 {
     static SentryCrashMonitorAPI api = { .setEnabled = setEnabled,
         .isEnabled = isEnabled,

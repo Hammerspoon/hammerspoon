@@ -16,5 +16,8 @@
 /* Class = "NSButtonCell"; title = "Include anonymous system profile"; ObjectID = "gz7-LM-gNf"; */
 "gz7-LM-gNf.title" = "تضمين تقرير عن النظام دون ذكر معلومات عن المستخدم";
 
+/* Class = "NSButtonCell"; title = "Automatically download and install updates"; ObjectID = "AUc-33-qGN"; */
+"AUc-33-qGN.title" = "تنزيل التحديثات وتثبيتها تلقائيًا في المست";
+
 /* Class = "NSButtonCell"; title = "Check Automatically"; ObjectID = "OhZ-1K-DmA"; */
 "OhZ-1K-DmA.title" = "التحقق تلقائيًا";

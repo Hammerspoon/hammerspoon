@@ -6,7 +6,27 @@ local hotkey = require "hs.libhotkey"
 local keycodes = require "hs.keycodes"
 local alert = require'hs.alert'
 local log = require'hs.logger'.new('hotkey','info')
+
+--- hs.hotkey.setLogLevel(loglevel)
+--- Method
+--- Sets the log level of the hotkey logger instance
+---
+--- Parameters:
+---  * loglevel - can be 'nothing', 'error', 'warning', 'info', 'debug', or 'verbose'; or a corresponding number between 0 and 5
+---
+--- Returns:
+---  * None
 hotkey.setLogLevel=log.setLogLevel
+
+--- hs.hotkey.getLogLevel() -> number
+--- Method
+--- Gets the log level of the hotkey logger instance
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * The log level of the hotkey logger as a number between 0 and 5
 hotkey.getLogLevel=log.getLogLevel
 
 local tonumber,pairs,ipairs,type,tremove,tinsert,tconcat,tsort = tonumber,pairs,ipairs,type,table.remove,table.insert,table.concat,table.sort

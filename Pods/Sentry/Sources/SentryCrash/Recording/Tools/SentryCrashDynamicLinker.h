@@ -1,3 +1,4 @@
+// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashDynamicLinker.h
 //
@@ -62,7 +63,7 @@ int sentrycrashdl_imageCount(void);
  *
  * @return True if the image was successfully queried.
  */
-bool sentrycrashdl_getBinaryImage(int index, SentryCrashBinaryImage *buffer);
+bool sentrycrashdl_getBinaryImage(int index, SentryCrashBinaryImage *buffer, bool isCrash);
 
 /** Get information about a binary image based on mach_header.
  *
@@ -74,8 +75,8 @@ bool sentrycrashdl_getBinaryImage(int index, SentryCrashBinaryImage *buffer);
  *
  * @return True if the image was successfully queried.
  */
-bool sentrycrashdl_getBinaryImageForHeader(
-    const void *const header_ptr, const char *const image_name, SentryCrashBinaryImage *buffer);
+bool sentrycrashdl_getBinaryImageForHeader(const void *const header_ptr,
+    const char *const image_name, SentryCrashBinaryImage *buffer, bool isCrash);
 
 /** Find a loaded binary image with the specified name.
  *

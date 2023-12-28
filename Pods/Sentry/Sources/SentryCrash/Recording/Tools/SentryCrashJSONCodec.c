@@ -1,3 +1,4 @@
+// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashJSONCodec.c
 //
@@ -342,7 +343,7 @@ sentrycrashjson_addUIntegerElement(
     int result = sentrycrashjson_beginElement(context, name);
     unlikely_if(result != SentryCrashJSON_OK) { return result; }
     char buff[30];
-    sprintf(buff, "%" PRIu64, value);
+    snprintf(buff, sizeof(buff), "%" PRIu64, value);
     return addJSONData(context, buff, (int)strlen(buff));
 }
 

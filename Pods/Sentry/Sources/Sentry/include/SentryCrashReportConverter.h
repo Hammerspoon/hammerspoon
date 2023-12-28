@@ -11,8 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithReport:(NSDictionary *)report inAppLogic:(SentryInAppLogic *)inAppLogic;
 
 /**
- * Converts the report to an SentryEvent.
- *
+ * Converts the report to an @c SentryEvent.
  * @return The converted event or nil if an error occurred during the conversion.
  */
 - (SentryEvent *_Nullable)convertReportToEvent;

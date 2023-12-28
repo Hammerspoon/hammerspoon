@@ -5,8 +5,8 @@
 #import "SentryCrashStackCursor.h"
 #import "SentryCrashStackCursor_SelfThread.h"
 #import "SentryCrashThread.h"
+#import "SentryFormatter.h"
 #import "SentryFrame.h"
-#import "SentryHexAddressFormatter.h"
 #import "SentryStacktrace.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentryThread.h"
@@ -41,11 +41,11 @@ SentryCrashThread mainThreadID;
     return thread;
 }
 
-- (void)getThreadName:(const SentryCrashThread)thread
+- (BOOL)getThreadName:(const SentryCrashThread)thread
             andBuffer:(char *const)buffer
          andBufLength:(int)bufLength;
 {
-    sentrycrashthread_getThreadName(thread, buffer, bufLength);
+    return sentrycrashthread_getThreadName(thread, buffer, bufLength) == true;
 }
 
 - (BOOL)isMainThread:(SentryCrashThread)thread

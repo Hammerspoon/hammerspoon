@@ -1,10 +1,14 @@
 #import "SentryNSNotificationCenterWrapper.h"
 
-#if SENTRY_HAS_UIKIT
-#    import <UIKit/UIKit.h>
-#elif TARGET_OS_OSX || TARGET_OS_MACCATALYST
+#import "SentryDefines.h"
+
+#if SENTRY_TARGET_MACOS
 #    import <Cocoa/Cocoa.h>
 #endif
+
+#if SENTRY_HAS_UIKIT
+#    import <UIKit/UIKit.h>
+#endif // SENTRY_HAS_UIKIT
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -26,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
     return UIApplicationWillTerminateNotification;
 }
 
-#elif TARGET_OS_OSX || TARGET_OS_MACCATALYST
+#elif SENTRY_TARGET_MACOS
 + (NSNotificationName)didBecomeActiveNotificationName
 {
     return NSApplicationDidBecomeActiveNotification;
@@ -46,7 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)addObserver:(id)observer
            selector:(SEL)aSelector
                name:(NSNotificationName)aName
-             object:(id)anObject
+             object:(nullable id)anObject
 {
     [NSNotificationCenter.defaultCenter addObserver:observer
                                            selector:aSelector
@@ -67,7 +71,7 @@ NS_ASSUME_NONNULL_BEGIN
     [NSNotificationCenter.defaultCenter removeObserver:observer name:aName object:nil];
 }
 
-- (void)removeObserver:(id)observer name:(NSNotificationName)aName object:(id)anObject
+- (void)removeObserver:(id)observer name:(NSNotificationName)aName object:(nullable id)anObject
 {
     [NSNotificationCenter.defaultCenter removeObserver:observer name:aName object:anObject];
 }
@@ -77,7 +81,7 @@ NS_ASSUME_NONNULL_BEGIN
     [NSNotificationCenter.defaultCenter removeObserver:observer];
 }
 
-- (void)postNotificationName:(NSNotificationName)aName object:(id)anObject
+- (void)postNotificationName:(NSNotificationName)aName object:(nullable id)anObject
 {
     [NSNotificationCenter.defaultCenter postNotificationName:aName object:anObject];
 }

@@ -7,7 +7,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface
-SentryOptions (HybridSDKs)
+SentryOptions ()
 
 - (_Nullable instancetype)initWithDict:(NSDictionary<NSString *, id> *)options
                       didFailWithError:(NSError *_Nullable *_Nullable)error;

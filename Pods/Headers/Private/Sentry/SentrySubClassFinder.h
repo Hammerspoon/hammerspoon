@@ -1,1 +1,1 @@
-../../../Sentry/Sources/Sentry/SentrySubClassFinder.h
+../../../Sentry/Sources/Sentry/include/SentrySubClassFinder.h

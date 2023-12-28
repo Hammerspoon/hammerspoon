@@ -11,6 +11,10 @@ SENTRY_NO_INIT
 
 + (instancetype)sharedInstance;
 
+- (void)startBinaryImageCache;
+
+- (void)stopBinaryImageCache;
+
 - (BOOL)crashedLastLaunch;
 
 - (NSTimeInterval)durationFromCrashStateInitToLastCrash;
@@ -22,10 +26,6 @@ SENTRY_NO_INIT
 - (BOOL)isSimulatorBuild;
 
 - (BOOL)isApplicationInForeground;
-
-- (void)installAsyncHooks;
-
-- (void)uninstallAsyncHooks;
 
 - (NSDictionary *)systemInfo;
 

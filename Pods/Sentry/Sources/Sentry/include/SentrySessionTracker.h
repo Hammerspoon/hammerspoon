@@ -1,4 +1,3 @@
-#import "SentryCurrentDateProvider.h"
 #import "SentryDefines.h"
 #import <Foundation/Foundation.h>
 
@@ -13,7 +12,6 @@ NS_SWIFT_NAME(SessionTracker)
 SENTRY_NO_INIT
 
 - (instancetype)initWithOptions:(SentryOptions *)options
-            currentDateProvider:(id<SentryCurrentDateProvider>)currentDateProvider
              notificationCenter:(SentryNSNotificationCenterWrapper *)notificationCenter;
 
 - (void)start;

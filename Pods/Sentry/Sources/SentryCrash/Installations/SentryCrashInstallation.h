@@ -1,3 +1,4 @@
+// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashInstallation.h
 //
@@ -27,6 +28,8 @@
 #import "SentryCrashReportFilter.h"
 #import "SentryCrashReportWriter.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 /**
  * Crash system installation which handles backend-specific details.
  *
@@ -47,7 +50,7 @@
 /** Install this installation. Call this instead of -[SentryCrash install] to
  * install with everything needed for your particular backend.
  */
-- (void)install;
+- (void)install:(NSString *)customCacheDirectory;
 
 /**
  * Call this instead of `-[SentryCrash uninstall]`.
@@ -63,7 +66,7 @@
  *
  * @param onCompletion Called when sending is complete (nil = ignore).
  */
-- (void)sendAllReportsWithCompletion:(SentryCrashReportFilterCompletion)onCompletion;
+- (void)sendAllReportsWithCompletion:(nullable SentryCrashReportFilterCompletion)onCompletion;
 
 /** Add a filter that gets executed before all normal filters.
  * Prepended filters will be executed in the order in which they were added.
@@ -73,3 +76,5 @@
 - (void)addPreFilter:(id<SentryCrashReportFilter>)filter;
 
 @end
+
+NS_ASSUME_NONNULL_END

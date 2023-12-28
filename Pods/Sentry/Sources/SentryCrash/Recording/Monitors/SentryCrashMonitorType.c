@@ -1,3 +1,4 @@
+// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashMonitorType.c
 //
@@ -40,7 +41,6 @@ static const struct {
     MONITORTYPE(SentryCrashMonitorTypeNSException),
     MONITORTYPE(SentryCrashMonitorTypeSystem),
     MONITORTYPE(SentryCrashMonitorTypeApplicationState),
-    MONITORTYPE(SentryCrashMonitorTypeZombie),
 };
 static const int g_monitorTypesCount = sizeof(g_monitorTypes) / sizeof(*g_monitorTypes);
 

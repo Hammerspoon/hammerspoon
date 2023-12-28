@@ -1,1 +1,1 @@
-../../../CocoaLumberjack/Classes/DDAssertMacros.h
+../../../CocoaLumberjack/Sources/CocoaLumberjack/include/CocoaLumberjack/DDAssertMacros.h

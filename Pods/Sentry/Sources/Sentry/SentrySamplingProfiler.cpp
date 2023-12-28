@@ -16,40 +16,57 @@
 namespace sentry {
 namespace profiling {
     namespace {
+        struct SamplingThreadParams {
+            mach_port_t port;
+            clock_serv_t clock;
+            mach_timespec_t delaySpec;
+            std::shared_ptr<ThreadMetadataCache> cache;
+            std::function<void(const Backtrace &)> callback;
+            std::atomic_uint64_t &numSamples;
+            std::function<void()> onThreadStart;
+        };
+
         void
-        samplingThreadCleanup(void *buf)
+        freeReplyBuf(void *reply)
         {
-            free(buf);
+            free(reply);
+        }
+
+        void
+        deleteParams(void *params)
+        {
+            delete reinterpret_cast<SamplingThreadParams *>(params);
         }
 
         void *
-        samplingThreadMain(mach_port_t port, clock_serv_t clock, mach_timespec_t delaySpec,
-            std::shared_ptr<ThreadMetadataCache> cache,
-            std::function<void(const Backtrace &)> callback, std::atomic_uint64_t &numSamples,
-            std::function<void()> onThreadStart)
+        samplingThreadMain(void *arg)
         {
             SENTRY_PROF_LOG_ERROR_RETURN(pthread_setname_np("io.sentry.SamplingProfiler"));
-            const int maxSize = 512;
-            const auto bufRequest = reinterpret_cast<mig_reply_error_t *>(malloc(maxSize));
-            if (onThreadStart) {
-                onThreadStart();
+            const auto params = reinterpret_cast<SamplingThreadParams *>(arg);
+            if (params->onThreadStart != nullptr) {
+                params->onThreadStart();
             }
-            pthread_cleanup_push(samplingThreadCleanup, bufRequest);
+            const int maxSize = 512;
+            const auto replyBuf = reinterpret_cast<mig_reply_error_t *>(malloc(maxSize));
+            pthread_cleanup_push(freeReplyBuf, replyBuf);
+            pthread_cleanup_push(deleteParams, params);
             while (true) {
                 pthread_testcancel();
-                if (SENTRY_PROF_LOG_MACH_MSG_RETURN(mach_msg(&bufRequest->Head, MACH_RCV_MSG, 0,
-                        maxSize, port, MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL))
+                if (SENTRY_PROF_LOG_MACH_MSG_RETURN(mach_msg(&replyBuf->Head, MACH_RCV_MSG, 0,
+                        maxSize, params->port, MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL))
                     != MACH_MSG_SUCCESS) {
                     break;
                 }
-                if (SENTRY_PROF_LOG_KERN_RETURN(clock_alarm(clock, TIME_RELATIVE, delaySpec, port))
+                if (SENTRY_PROF_LOG_KERN_RETURN(
+                        clock_alarm(params->clock, TIME_RELATIVE, params->delaySpec, params->port))
                     != KERN_SUCCESS) {
                     break;
                 }
 
-                numSamples.fetch_add(1, std::memory_order_relaxed);
-                enumerateBacktracesForAllThreads(callback, cache);
+                params->numSamples.fetch_add(1, std::memory_order_relaxed);
+                enumerateBacktracesForAllThreads(params->callback, params->cache);
             }
+            pthread_cleanup_pop(1);
             pthread_cleanup_pop(1);
             return nullptr;
         }
@@ -101,26 +118,33 @@ namespace profiling {
                 "startSampling is no-op because SamplingProfiler failed to initialize");
             return;
         }
-        std::lock_guard<std::mutex> l(lock_);
+        std::lock_guard<std::mutex> l(isSamplingLock_);
         if (isSampling_) {
             return;
         }
         isSampling_ = true;
         numSamples_ = 0;
-        thread_ = std::thread(samplingThreadMain, port_, clock_, delaySpec_, cache_, callback_,
-            std::ref(numSamples_), onThreadStart);
-
-        int policy;
+        pthread_attr_t attr;
+        if (SENTRY_PROF_LOG_ERROR_RETURN(pthread_attr_init(&attr)) != 0) {
+            return;
+        }
         sched_param param;
-        const auto pthreadHandle = thread_.native_handle();
-        if (SENTRY_PROF_LOG_ERROR_RETURN(pthread_getschedparam(pthreadHandle, &policy, &param))
-            == 0) {
+        if (SENTRY_PROF_LOG_ERROR_RETURN(pthread_attr_getschedparam(&attr, &param)) == 0) {
             // A priority of 50 is higher than user input, according to:
             // https://chromium.googlesource.com/chromium/src/base/+/master/threading/platform_thread_mac.mm#302
             // Run at a higher priority than the main thread so that we can capture main thread
             // backtraces even when it's busy.
             param.sched_priority = 50;
-            SENTRY_PROF_LOG_ERROR_RETURN(pthread_setschedparam(pthreadHandle, policy, &param));
+            SENTRY_PROF_LOG_ERROR_RETURN(pthread_attr_setschedparam(&attr, &param));
+        }
+
+        const auto params = new SamplingThreadParams { port_, clock_, delaySpec_, cache_, callback_,
+            std::ref(numSamples_), std::move(onThreadStart) };
+        if (SENTRY_PROF_LOG_ERROR_RETURN(
+                pthread_create(&thread_, &attr, samplingThreadMain, params))
+            != 0) {
+            delete params;
+            return;
         }
 
         SENTRY_PROF_LOG_KERN_RETURN(clock_alarm(clock_, TIME_RELATIVE, delaySpec_, port_));
@@ -132,19 +156,19 @@ namespace profiling {
         if (!isInitialized_) {
             return;
         }
-        std::lock_guard<std::mutex> l(lock_);
+        std::lock_guard<std::mutex> l(isSamplingLock_);
         if (!isSampling_) {
             return;
         }
-        SENTRY_PROF_LOG_KERN_RETURN(pthread_cancel(thread_.native_handle()));
-        thread_.join();
+        SENTRY_PROF_LOG_ERROR_RETURN(pthread_cancel(thread_));
+        SENTRY_PROF_LOG_ERROR_RETURN(pthread_join(thread_, NULL));
         isSampling_ = false;
     }
 
     bool
     SamplingProfiler::isSampling()
     {
-        std::lock_guard<std::mutex> l(lock_);
+        std::lock_guard<std::mutex> l(isSamplingLock_);
         return isSampling_;
     }
 

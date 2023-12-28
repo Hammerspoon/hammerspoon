@@ -12,21 +12,21 @@ function testAvailablePortPaths()
 end
 
 function testNewFromName()
-  local obj = hs.serial.newFromName("Bluetooth-Incoming-Port")
+  local obj = hs.serial.newFromName(hs.serial.availablePortNames()[1])
   assertIsUserdataOfType("hs.serial", obj)
   assertTrue(#tostring(obj) > 0)
   return success()
 end
 
 function testNewFromPath()
-  local obj = hs.serial.newFromPath("/dev/cu.Bluetooth-Incoming-Port")
+  local obj = hs.serial.newFromPath(hs.serial.availablePortPaths()[1])
   assertIsUserdataOfType("hs.serial", obj)
   assertTrue(#tostring(obj) > 0)
   return success()
 end
 
 function testOpenAndClose()
-  local obj = hs.serial.newFromPath("/dev/cu.Bluetooth-Incoming-Port")
+  local obj = hs.serial.newFromPath(hs.serial.availablePortPaths()[1])
   assertIsUserdataOfType("hs.serial", obj)
   assertTrue(#tostring(obj) > 0)
 
@@ -51,7 +51,7 @@ function testOpenAndClose()
 end
 
 function testAttributes()
-  local obj = hs.serial.newFromPath("/dev/cu.Bluetooth-Incoming-Port")
+  local obj = hs.serial.newFromPath(hs.serial.availablePortPaths()[1])
   assertIsUserdataOfType("hs.serial", obj)
   assertTrue(#tostring(obj) > 0)
 

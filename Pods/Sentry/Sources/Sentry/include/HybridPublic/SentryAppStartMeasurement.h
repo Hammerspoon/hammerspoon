@@ -1,5 +1,7 @@
 #import "PrivatesHeader.h"
 
+#if SENTRY_UIKIT_AVAILABLE
+
 NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSUInteger, SentryAppStartType) {
@@ -8,6 +10,10 @@ typedef NS_ENUM(NSUInteger, SentryAppStartType) {
     SentryAppStartTypeUnknown,
 };
 
+/**
+ * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * configurations even when targeting iOS or tvOS platforms.
+ */
 @interface SentryAppStartMeasurement : NSObject
 SENTRY_NO_INIT
 
@@ -71,3 +77,5 @@ SENTRY_NO_INIT
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif // SENTRY_UIKIT_AVAILABLE

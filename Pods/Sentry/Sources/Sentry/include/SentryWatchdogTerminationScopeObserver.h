@@ -1,5 +1,8 @@
 #import "SentryDefines.h"
-#import "SentryScopeObserver.h"
+
+#if SENTRY_HAS_UIKIT
+
+#    import "SentryScopeObserver.h"
 
 @class SentryFileManager;
 
@@ -20,3 +23,5 @@ SENTRY_NO_INIT
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif // SENTRY_HAS_UIKIT

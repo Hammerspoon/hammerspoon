@@ -1,8 +1,13 @@
 #import "SentryThreadInspector.h"
+#import "SentryBinaryImageCache.h"
+#import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashStackCursor.h"
 #include "SentryCrashStackCursor_MachineContext.h"
+#import "SentryCrashStackEntryMapper.h"
 #include "SentryCrashSymbolicator.h"
 #import "SentryFrame.h"
+#import "SentryInAppLogic.h"
+#import "SentryOptions.h"
 #import "SentryStacktrace.h"
 #import "SentryStacktraceBuilder.h"
 #import "SentryThread.h"
@@ -42,7 +47,6 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
             entries++;
         }
     }
-    sentrycrash_async_backtrace_decref(stackCursor.async_caller);
 
     return entries;
 }
@@ -57,6 +61,23 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
         self.machineContextWrapper = machineContextWrapper;
     }
     return self;
+}
+
+- (instancetype)initWithOptions:(SentryOptions *)options
+{
+    SentryInAppLogic *inAppLogic =
+        [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
+                                          inAppExcludes:options.inAppExcludes];
+    SentryCrashStackEntryMapper *crashStackEntryMapper =
+        [[SentryCrashStackEntryMapper alloc] initWithInAppLogic:inAppLogic];
+    SentryStacktraceBuilder *stacktraceBuilder =
+        [[SentryStacktraceBuilder alloc] initWithCrashStackEntryMapper:crashStackEntryMapper];
+    stacktraceBuilder.symbolicate = options.debug;
+
+    id<SentryCrashMachineContextWrapper> machineContextWrapper =
+        [[SentryCrashDefaultMachineContextWrapper alloc] init];
+    return [self initWithStacktraceBuilder:stacktraceBuilder
+                  andMachineContextWrapper:machineContextWrapper];
 }
 
 - (SentryStacktrace *)stacktraceForCurrentThreadAsyncUnsafe
@@ -119,9 +140,19 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
         thread_act_array_t suspendedThreads = NULL;
         mach_msg_type_number_t numSuspendedThreads = 0;
 
-        sentrycrashmc_suspendEnvironment(&suspendedThreads, &numSuspendedThreads);
+        // SentryThreadInspector is crashing when there is too many threads.
+        // We add a limit of 70 threads because in test with up to 100 threads it seems fine.
+        // We are giving it an extra safety margin.
+        sentrycrashmc_suspendEnvironment_upToMaxSupportedThreads(
+            &suspendedThreads, &numSuspendedThreads, 70);
         // DANGER: Do not try to allocate memory in the heap or call Objective-C code in this
         // section Doing so when the threads are suspended may lead to deadlocks or crashes.
+
+        // If no threads was suspended we don't need to do anything.
+        // This may happen if there is more than max amount of threads (70).
+        if (numSuspendedThreads == 0) {
+            return threads;
+        }
 
         SentryThreadInfo threadsInfos[numSuspendedThreads];
 
@@ -171,17 +202,24 @@ getStackEntriesFromThread(SentryCrashThread thread, struct SentryCrashMachineCon
     return threads;
 }
 
-- (NSString *)getThreadName:(SentryCrashThread)thread
+- (nullable NSString *)getThreadName:(SentryCrashThread)thread
 {
-    char buffer[128];
+    int bufferLength = 128;
+    char buffer[bufferLength];
     char *const pBuffer = buffer;
-    [self.machineContextWrapper getThreadName:thread andBuffer:pBuffer andBufLength:128];
 
-    NSString *threadName = [NSString stringWithCString:pBuffer encoding:NSUTF8StringEncoding];
-    if (nil == threadName) {
-        threadName = @"";
+    BOOL didGetThreadNameSucceed = [self.machineContextWrapper getThreadName:thread
+                                                                   andBuffer:pBuffer
+                                                                andBufLength:bufferLength];
+
+    if (didGetThreadNameSucceed == YES) {
+        NSString *threadName = [NSString stringWithCString:pBuffer encoding:NSUTF8StringEncoding];
+        if (threadName.length > 0) {
+            return threadName;
+        }
     }
-    return threadName;
+
+    return nil;
 }
 
 @end

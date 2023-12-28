@@ -23,55 +23,55 @@ NS_SWIFT_NAME(Event)
 
 /**
  * The error of the event. This property adds convenience to access the error directly in
- * beforeSend. This property is not serialized. Instead when preparing the event the SentryClient
- * puts the error into exceptions.
+ * @c beforeSend. This property is not serialized. Instead when preparing the event the
+ * @c SentryClient puts the error and any underlying errors into exceptions.
  */
 @property (nonatomic, copy) NSError *_Nullable error;
 
 /**
- * NSDate of when the event occurred
+ * @c NSDate of when the event occurred.
  */
 @property (nonatomic, strong) NSDate *_Nullable timestamp;
 
 /**
- * NSDate of when the event started, mostly useful if event type transaction
+ * @c NSDate of when the event started, mostly useful if event type transaction.
  */
 @property (nonatomic, strong) NSDate *_Nullable startTimestamp;
 
 /**
- * SentryLevel of the event
+ * @c SentryLevel of the event.
  */
 @property (nonatomic) enum SentryLevel level;
 
 /**
- * Platform this will be used for symbolicating on the server should be "cocoa"
+ * This will be used for symbolicating on the server should be "cocoa".
  */
 @property (nonatomic, copy) NSString *platform;
 
 /**
- * Define the logger name
+ * Define the logger name.
  */
 @property (nonatomic, copy) NSString *_Nullable logger;
 
 /**
- * Define the server name
+ * Define the server name.
  */
 @property (nonatomic, copy) NSString *_Nullable serverName;
 
 /**
- * This property will be filled before the event is sent.
+ * @note This property will be filled before the event is sent.
  * @warning This is maintained automatically, and shouldn't normally need to be modified.
  */
 @property (nonatomic, copy) NSString *_Nullable releaseName;
 
 /**
- * This property will be filled before the event is sent.
+ * @note This property will be filled before the event is sent.
  * @warning This is maintained automatically, and shouldn't normally need to be modified.
  */
 @property (nonatomic, copy) NSString *_Nullable dist;
 
 /**
- * The environment used for this event
+ * The environment used for this event.
  */
 @property (nonatomic, copy) NSString *_Nullable environment;
 
@@ -81,17 +81,17 @@ NS_SWIFT_NAME(Event)
 @property (nonatomic, copy) NSString *_Nullable transaction;
 
 /**
- * The type of the event, null, default or transaction
+ * The type of the event, null, default or transaction.
  */
 @property (nonatomic, copy) NSString *_Nullable type;
 
 /**
- * Arbitrary key:value (string:string ) data that will be shown with the event
+ * Arbitrary key:value (string:string ) data that will be shown with the event.
  */
 @property (nonatomic, strong) NSDictionary<NSString *, NSString *> *_Nullable tags;
 
 /**
- * Arbitrary additional information that will be sent with the event
+ * Arbitrary additional information that will be sent with the event.
  */
 @property (nonatomic, strong) NSDictionary<NSString *, id> *_Nullable extra;
 
@@ -111,7 +111,7 @@ NS_SWIFT_NAME(Event)
 @property (nonatomic, strong) NSDictionary<NSString *, id> *_Nullable sdk;
 
 /**
- * Modules of the event
+ * Modules of the event.
  */
 @property (nonatomic, strong) NSDictionary<NSString *, NSString *> *_Nullable modules;
 
@@ -121,7 +121,7 @@ NS_SWIFT_NAME(Event)
 @property (nonatomic, strong) NSArray<NSString *> *_Nullable fingerprint;
 
 /**
- * Set the SentryUser for the event
+ * Set the @c SentryUser for the event.
  */
 @property (nonatomic, strong) SentryUser *_Nullable user;
 
@@ -133,56 +133,50 @@ NS_SWIFT_NAME(Event)
     NSDictionary<NSString *, NSDictionary<NSString *, id> *> *_Nullable context;
 
 /**
- * Contains SentryThread if an crash occurred of it's an user reported exception
+ * Contains @c SentryThread if a crash occurred or for a user reported exception.
  */
 @property (nonatomic, strong) NSArray<SentryThread *> *_Nullable threads;
 
 /**
- * General information about the SentryException, usually there is only one
- * exception in the array
+ * General information about the @c SentryException. Multiple exceptions indicate a chain of
+ * exceptions encountered, starting with the oldest at the beginning of the array.
  */
 @property (nonatomic, strong) NSArray<SentryException *> *_Nullable exceptions;
 
 /**
- * Separate SentryStacktrace that can be sent with the event, besides threads
+ * Separate @c SentryStacktrace that can be sent with the event, besides threads.
  */
 @property (nonatomic, strong) SentryStacktrace *_Nullable stacktrace;
 
 /**
- * Containing images loaded during runtime
+ * Containing images loaded during runtime.
  */
 @property (nonatomic, strong) NSArray<SentryDebugMeta *> *_Nullable debugMeta;
 
 /**
  * This contains all breadcrumbs available at the time when the event
- * occurred/will be sent
+ * occurred/will be sent.
  */
 @property (nonatomic, strong) NSArray<SentryBreadcrumb *> *_Nullable breadcrumbs;
 
 /**
- * Set the Http request information.
+ * Set the HTTP request information.
  */
 @property (nonatomic, strong, nullable) SentryRequest *request;
 
 /**
- * Init an SentryEvent will set all needed fields by default
- * @return SentryEvent
+ * Init an @c SentryEvent will set all needed fields by default.
  */
 - (instancetype)init;
 
 /**
- * Init an SentryEvent will set all needed fields by default
- * @param level SentryLevel
- * @return SentryEvent
+ * Init a @c SentryEvent with a @c SentryLevelError and set all needed fields by default.
  */
 - (instancetype)initWithLevel:(enum SentryLevel)level NS_DESIGNATED_INITIALIZER;
 
 /**
- * Initializes a SentryEvent with an NSError and sets the level to SentryLevelError.
- *
+ * Initializes a @c SentryEvent with an @c NSError and sets the level to @c SentryLevelError.
  * @param error The error of the event.
- *
- * @return The initialized SentryEvent.
  */
 - (instancetype)initWithError:(NSError *)error;
 

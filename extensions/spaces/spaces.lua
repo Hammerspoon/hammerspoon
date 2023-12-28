@@ -798,6 +798,10 @@ module.gotoSpace = function(...)
     waitForMissionControl()
 
     local child = mcSpacesList[count]
+    if child == nil then
+        return nil, 'child is nil'
+    end
+
     local status, errMsg2 = child:performAction("AXPress")
     if status then
         return true

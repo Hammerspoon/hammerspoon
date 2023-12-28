@@ -43,7 +43,7 @@ static int usb_attachedDevices(lua_State* L) {
         return 1;
     }
 
-    if (IOServiceGetMatchingServices(kIOMasterPortDefault, matchingDict, &iterator) != KERN_SUCCESS) {
+    if (IOServiceGetMatchingServices(kIOMainPortDefault, matchingDict, &iterator) != KERN_SUCCESS) {
         lua_pushnil(L);
         return 1;
     }

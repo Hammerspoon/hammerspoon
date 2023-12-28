@@ -1,6 +1,7 @@
 #import "SentryDisplayLinkWrapper.h"
 
 #if SENTRY_HAS_UIKIT
+
 #    import <UIKit/UIKit.h>
 
 @implementation SentryDisplayLinkWrapper {
@@ -30,4 +31,4 @@
 
 @end
 
-#endif
+#endif // SENTRY_HAS_UIKIT

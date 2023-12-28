@@ -41,6 +41,16 @@ SENTRY_NO_INIT
 @property (nullable, nonatomic, copy) NSString *spanDescription;
 
 /**
+ * The origin of the span indicates what created the span.
+ *
+ * @note Gets set by the SDK. It is not expected to be set manually by users. Although the protocol
+ * allows this value to be optional, we make it nonnullable as we always send the value.
+ *
+ * @see <https://develop.sentry.dev/sdk/performance/trace-origin>
+ */
+@property (nonatomic, copy) NSString *origin;
+
+/**
  * Describes the status of the Transaction.
  */
 @property (nonatomic) SentrySpanStatus status;
@@ -71,21 +81,15 @@ SENTRY_NO_INIT
 @property (nullable, nonatomic, strong) NSArray<SentryFrame *> *frames;
 
 /**
- * Init a SentrySpan with given transaction and context.
- *
+ * Init a @c SentrySpan with given transaction and context.
  * @param transaction The @c SentryTracer managing the transaction this span is associated with.
  * @param context This span context information.
- *
- * @return SentrySpan
  */
 - (instancetype)initWithTracer:(SentryTracer *)transaction context:(SentrySpanContext *)context;
 
 /**
- * Init a SentrySpan with given context.
- *
+ * Init a @c SentrySpan with given context.
  * @param context This span context information.
- *
- * @return SentrySpan
  */
 - (instancetype)initWithContext:(SentrySpanContext *)context;
 

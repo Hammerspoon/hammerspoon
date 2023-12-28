@@ -732,7 +732,6 @@ def write_html(output_dir, template_dir, title, source_url_base, data):
     write_templated_output(output_dir, template_dir, title, source_url_base, data, "html")
 
 
-
 def write_markdown(output_dir, template_dir, title, source_url_base, data):
     """Write out a Markdown version of the docs"""
     write_templated_output(output_dir, template_dir, title, source_url_base, data, "md")

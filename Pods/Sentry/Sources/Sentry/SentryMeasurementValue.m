@@ -23,7 +23,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSDictionary<NSString *, id> *)serialize
 {
-
     if (self.unit != nil) {
         return @{ @"value" : _value, @"unit" : _unit.unit };
     } else {

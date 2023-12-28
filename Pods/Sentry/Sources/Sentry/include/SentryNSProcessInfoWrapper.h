@@ -8,6 +8,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, readonly) NSString *processPath;
 @property (readonly) NSUInteger processorCount;
 
+#if TEST
+- (void)setProcessPath:(NSString *)path;
+#endif
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -32,7 +32,7 @@ SENTRY_NO_INIT
 @property (nonatomic, copy) NSString *_Nullable module;
 
 /**
- * An optional value which refers to a thread in `SentryEvent.threads`.
+ * An optional value which refers to a thread in @c SentryEvent.threads
  */
 @property (nonatomic, copy) NSNumber *_Nullable threadId;
 

@@ -9,8 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * The scope holds useful information that should be sent along with the event. For instance tags or
  * breadcrumbs are stored on the scope.
- *
- * For more information see:
+ * @see
  * https://docs.sentry.io/platforms/apple/enriching-events/scopes/#whats-a-scope-whats-a-hub
  */
 NS_SWIFT_NAME(Scope)
@@ -18,7 +17,6 @@ NS_SWIFT_NAME(Scope)
 
 /**
  * Returns current Span or Transaction.
- *
  * @return current Span or Transaction or null if transaction has not been set.
  */
 @property (nullable, nonatomic, strong) id<SentrySpan> span;
@@ -66,22 +64,22 @@ NS_SWIFT_NAME(Scope)
 - (void)removeExtraForKey:(NSString *)key NS_SWIFT_NAME(removeExtra(key:));
 
 /**
- * Set dist in the scope
+ * Set @c dist in the scope
  */
 - (void)setDist:(NSString *_Nullable)dist;
 
 /**
- * Set environment in the scope
+ * Set @c environment in the scope
  */
 - (void)setEnvironment:(NSString *_Nullable)environment;
 
 /**
- * Sets the fingerprint in the scope
+ * Sets the @c fingerprint in the scope
  */
 - (void)setFingerprint:(NSArray<NSString *> *_Nullable)fingerprint;
 
 /**
- * Sets the level in the scope
+ * Sets the @c level in the scope
  */
 - (void)setLevel:(enum SentryLevel)level;
 
@@ -118,7 +116,6 @@ NS_SWIFT_NAME(Scope)
 /**
  * Adds an attachment to the Scope's list of attachments. The SDK adds the attachment to every event
  * sent to Sentry.
- *
  * @param attachment The attachment to add to the Scope's list of attachments.
  */
 - (void)addAttachment:(SentryAttachment *)attachment NS_SWIFT_NAME(addAttachment(_:));
@@ -140,7 +137,6 @@ NS_SWIFT_NAME(Scope)
 
 /**
  * Mutates the current transaction atomically.
- *
  * @param callback the SentrySpanCallback.
  */
 - (void)useSpan:(SentrySpanCallback)callback;

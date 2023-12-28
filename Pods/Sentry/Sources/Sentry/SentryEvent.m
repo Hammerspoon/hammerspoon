@@ -2,11 +2,13 @@
 #import "NSDictionary+SentrySanitize.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient.h"
-#import "SentryCurrentDate.h"
+#import "SentryCurrentDateProvider.h"
 #import "SentryDebugMeta.h"
+#import "SentryDependencyContainer.h"
 #import "SentryEvent+Private.h"
 #import "SentryException.h"
 #import "SentryId.h"
+#import "SentryInternalDefines.h"
 #import "SentryLevelMapper.h"
 #import "SentryMessage.h"
 #import "SentryMeta.h"
@@ -14,6 +16,11 @@
 #import "SentryStacktrace.h"
 #import "SentryThread.h"
 #import "SentryUser.h"
+
+#if SENTRY_HAS_METRIC_KIT
+#    import "SentryMechanism.h"
+#    import "SentryMetricKitIntegration.h"
+#endif // SENTRY_HAS_METRIC_KIT
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -30,8 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
     if (self) {
         self.eventId = [[SentryId alloc] init];
         self.level = level;
-        self.platform = @"cocoa";
-        self.timestamp = [SentryCurrentDate date];
+        self.platform = SentryPlatformName;
+        self.timestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
     }
     return self;
 }
@@ -46,13 +53,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSDictionary<NSString *, id> *)serialize
 {
     if (nil == self.timestamp) {
-        self.timestamp = [SentryCurrentDate date];
+        self.timestamp = [SentryDependencyContainer.sharedInstance.dateProvider date];
     }
 
     NSMutableDictionary *serializedData = @{
         @"event_id" : self.eventId.sentryIdString,
         @"timestamp" : @(self.timestamp.timeIntervalSince1970),
-        @"platform" : @"cocoa",
+        @"platform" : SentryPlatformName,
     }
                                               .mutableCopy;
 
@@ -169,6 +176,30 @@ NS_ASSUME_NONNULL_BEGIN
     }
     return crumbs;
 }
+
+#if SENTRY_HAS_METRIC_KIT
+
+- (BOOL)isMetricKitEvent
+{
+    if (self.exceptions == nil || self.exceptions.count != 1) {
+        return NO;
+    }
+
+    NSArray<NSString *> *metricKitMechanisms = @[
+        SentryMetricKitDiskWriteExceptionMechanism, SentryMetricKitCpuExceptionMechanism,
+        SentryMetricKitHangDiagnosticMechanism, @"MXCrashDiagnostic"
+    ];
+
+    SentryException *exception = self.exceptions[0];
+    if (exception.mechanism != nil &&
+        [metricKitMechanisms containsObject:exception.mechanism.type]) {
+        return YES;
+    } else {
+        return NO;
+    }
+}
+
+#endif // SENTRY_HAS_METRIC_KIT
 
 @end
 

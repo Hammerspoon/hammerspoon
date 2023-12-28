@@ -16,6 +16,16 @@ SentryId ()
 
 static SentryId *_empty = nil;
 
++ (void)initialize
+{
+    if (self == [SentryId class]) {
+        // Initialize the empty here instead of using a lazy load approach in the getter to avoid
+        // using a lock to prevent data races. Empty is used at a couple of places in the SDK, so
+        // potentially minimizing the memory footprint doesn't apply.
+        _empty = [[SentryId alloc] initWithUUIDString:emptyUUIDString];
+    }
+}
+
 - (instancetype)init
 {
     return [self initWithUUID:[NSUUID UUID]];
@@ -84,9 +94,6 @@ static SentryId *_empty = nil;
 
 + (SentryId *)empty
 {
-    if (nil == _empty) {
-        _empty = [[SentryId alloc] initWithUUIDString:emptyUUIDString];
-    }
     return _empty;
 }
 

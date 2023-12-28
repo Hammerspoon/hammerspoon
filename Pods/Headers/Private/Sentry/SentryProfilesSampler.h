@@ -1,1 +1,1 @@
-../../../Sentry/Sources/Sentry/SentryProfilesSampler.h
+../../../Sentry/Sources/Sentry/include/SentryProfilesSampler.h

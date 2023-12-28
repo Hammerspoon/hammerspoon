@@ -1,3 +1,4 @@
+#import "SentryDefines.h"
 #import "SentryEvent.h"
 #import "SentryProfilingConditionals.h"
 #import <Foundation/Foundation.h>
@@ -24,5 +25,9 @@ SentryEvent ()
 @property (nonatomic) uint64_t startSystemTime;
 @property (nonatomic) uint64_t endSystemTime;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
+#if SENTRY_HAS_METRIC_KIT
+- (BOOL)isMetricKitEvent;
+#endif // SENTRY_HAS_METRIC_KIT
 
 @end

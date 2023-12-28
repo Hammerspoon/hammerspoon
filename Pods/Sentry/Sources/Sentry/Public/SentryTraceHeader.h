@@ -26,13 +26,9 @@ SENTRY_NO_INIT
 @property (nonatomic, readonly) SentrySampleDecision sampled;
 
 /**
- * Initialize a SentryTraceHeader with given trace id, span id and sample decision.
- *
  * @param traceId The trace id.
  * @param spanId The span id.
  * @param sampled The decision made to sample the trace related to this header.
- *
- * @return A SentryTraceHeader.
  */
 - (instancetype)initWithTraceId:(SentryId *)traceId
                          spanId:(SentrySpanId *)spanId

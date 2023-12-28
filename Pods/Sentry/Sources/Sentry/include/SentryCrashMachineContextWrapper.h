@@ -14,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (SentryCrashThread)getThread:(struct SentryCrashMachineContext *)context withIndex:(int)index;
 
-- (void)getThreadName:(const SentryCrashThread)thread
+- (BOOL)getThreadName:(const SentryCrashThread)thread
             andBuffer:(char *const)buffer
          andBufLength:(int)bufLength;
 

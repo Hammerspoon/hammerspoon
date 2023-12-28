@@ -196,6 +196,7 @@
 		4FEF596F1B29D0FB002344A7 /* Skin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = Skin.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		4FEF59701B29D0FB002344A7 /* Skin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = Skin.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		4FEF5A981B29E005002344A7 /* liblua.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblua.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		4FF625FB2B273D1E00C8E57C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D671D313231EDA6B0043822A /* luaskin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = luaskin.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -305,6 +306,7 @@
 				4FEF59511B29CE06002344A7 /* LuaSkin */,
 				4FEF595E1B29CE06002344A7 /* LuaSkinTests */,
 				4FEF59501B29CE06002344A7 /* Products */,
+				4FF625FA2B273D1E00C8E57C /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -356,6 +358,14 @@
 				4FEF59601B29CE06002344A7 /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		4FF625FA2B273D1E00C8E57C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4FF625FB2B273D1E00C8E57C /* Foundation.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -685,6 +695,7 @@
 				);
 				INFOPLIST_FILE = LuaSkinTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WARNING_CFLAGS = "";
@@ -837,6 +848,7 @@
 				);
 				INFOPLIST_FILE = LuaSkinTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WARNING_CFLAGS = "";
@@ -853,6 +865,7 @@
 				);
 				INFOPLIST_FILE = LuaSkinTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WARNING_CFLAGS = "";

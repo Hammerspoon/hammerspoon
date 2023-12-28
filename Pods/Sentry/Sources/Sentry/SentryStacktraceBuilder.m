@@ -6,6 +6,7 @@
 #import "SentryCrashSymbolicator.h"
 #import "SentryFrame.h"
 #import "SentryFrameRemover.h"
+#import "SentryLog.h"
 #import "SentryStacktrace.h"
 #import <dlfcn.h>
 
@@ -24,6 +25,7 @@ SentryStacktraceBuilder ()
 {
     if (self = [super init]) {
         self.crashStackEntryMapper = crashStackEntryMapper;
+        self.symbolicate = NO;
     }
     return self;
 }
@@ -40,11 +42,11 @@ SentryStacktraceBuilder ()
             // skip the marker frame
             continue;
         }
-        if (stackCursor.symbolicate(&stackCursor)) {
-            [frames addObject:[self.crashStackEntryMapper mapStackEntryWithCursor:stackCursor]];
+        if (self.symbolicate == false || stackCursor.symbolicate(&stackCursor)) {
+            frame = [self.crashStackEntryMapper mapStackEntryWithCursor:stackCursor];
+            [frames addObject:frame];
         }
     }
-    sentrycrash_async_backtrace_decref(stackCursor.async_caller);
 
     NSArray<SentryFrame *> *framesCleared = [SentryFrameRemover removeNonSdkFrames:frames];
 
@@ -105,6 +107,7 @@ SentryStacktraceBuilder ()
 
 - (nullable SentryStacktrace *)buildStacktraceForCurrentThreadAsyncUnsafe
 {
+    SENTRY_LOG_DEBUG(@"Building async-unsafe stack trace...");
     SentryCrashStackCursor stackCursor;
     sentrycrashsc_initSelfThread(&stackCursor, 0);
     stackCursor.symbolicate = sentrycrashsymbolicator_symbolicate_async_unsafe;

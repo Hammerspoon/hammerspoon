@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-#ifdef BUILDING_SPARKLE_DOWNLOADER_SERVICE
+#if defined(BUILDING_SPARKLE_SOURCES_EXTERNALLY)
 // Ignore incorrect warning
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wquoted-include-in-framework-header"

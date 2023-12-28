@@ -6,8 +6,8 @@
 SENTRY_EXTERN_C_BEGIN
 
 /**
- * Given a fractional amount of seconds in a @c double from a Cocoa API like @c -[NSDate @c
- * timeIntervalSinceDate:], return an integer representing the amount of nanoseconds.
+ * Given a fractional amount of seconds in a @c double from a Cocoa API like @c -[NSDate
+ * @c timeIntervalSinceDate:], return an integer representing the amount of nanoseconds.
  */
 uint64_t timeIntervalToNanoseconds(double seconds);
 
@@ -21,7 +21,8 @@ uint64_t getAbsoluteTime(void);
  * Check whether two timestamps provided as 64 bit unsigned integers are in normal
  * chronological order, as a convenience runtime check before using @c getDurationNs.
  * Equal timestamps are considered to be valid chronological order.
- * @return @c true if @c b>=a, otherwise return @c false.
+ * @return @c true if @c a<=b, otherwise return @c false.
+ * @note Negating the return value implies @c a>b .
  */
 bool orderedChronologically(uint64_t a, uint64_t b);
 

@@ -29,4 +29,4 @@ UIViewController (Sentry)
 
 @end
 
-#endif
+#endif // SENTRY_HAS_UIKIT

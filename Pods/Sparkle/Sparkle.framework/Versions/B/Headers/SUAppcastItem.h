@@ -11,7 +11,7 @@
 
 #import <Foundation/Foundation.h>
 
-#ifdef BUILDING_SPARKLE_TESTS
+#ifdef BUILDING_SPARKLE_SOURCES_EXTERNALLY
 // Ignore incorrect warning
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wquoted-include-in-framework-header"
@@ -45,7 +45,7 @@ SU_EXPORT @interface SUAppcastItem : NSObject<NSSecureCoding>
  
  This is extracted from the @c <sparkle:version> element, or the @c sparkle:version attribute from the @c <enclosure> element.
  */
-@property (copy, readonly) NSString *versionString;
+@property (nonatomic, copy, readonly) NSString *versionString;
 
 /**
  The human-readable display version of the update item if provided.
@@ -58,7 +58,7 @@ SU_EXPORT @interface SUAppcastItem : NSObject<NSSecureCoding>
  
  If no short version string is available, this falls back to the update's `versionString`.
  */
-@property (copy, readonly) NSString *displayVersionString;
+@property (nonatomic, copy, readonly) NSString *displayVersionString;
 
 /**
  The file URL to the update item if provided.
@@ -70,7 +70,7 @@ SU_EXPORT @interface SUAppcastItem : NSObject<NSSecureCoding>
  
  This is extracted from the @c url attribute in the @c <enclosure> element.
  */
-@property (readonly, nullable) NSURL *fileURL;
+@property (nonatomic, readonly, nullable) NSURL *fileURL;
 
 /**
  The content length of the download in bytes.
@@ -95,7 +95,7 @@ SU_EXPORT @interface SUAppcastItem : NSObject<NSSecureCoding>
  
  This is extracted from the @c <link> element.
  */
-@property (readonly, nullable) NSURL *infoURL;
+@property (nonatomic, readonly, nullable) NSURL *infoURL;
 
 /**
  Indicates whether or not the update item is only informational and has no download.
@@ -106,14 +106,14 @@ SU_EXPORT @interface SUAppcastItem : NSObject<NSSecureCoding>
  
  Otherwise this is determined based on the contents extracted from the @c <sparkle:informationalUpdate> element.
  */
-@property (getter=isInformationOnlyUpdate, readonly) BOOL informationOnlyUpdate;
+@property (nonatomic, getter=isInformationOnlyUpdate, readonly) BOOL informationOnlyUpdate;
 
 /**
  The title of the appcast item if provided.
  
  This is extracted from the @c <title> element.
  */
-@property (copy, readonly, nullable) NSString *title;
+@property (nonatomic, copy, readonly, nullable) NSString *title;
 
 /**
  The date string of the appcast item if provided.
@@ -123,7 +123,7 @@ SU_EXPORT @interface SUAppcastItem : NSObject<NSSecureCoding>
  
  This is extracted from the @c <pubDate> element.
  */
-@property (copy, readonly, nullable) NSString *dateString;
+@property (nonatomic, copy, readonly, nullable) NSString *dateString;
 
 /**
  The date constructed from the `dateString` property if provided.
@@ -132,7 +132,7 @@ SU_EXPORT @interface SUAppcastItem : NSObject<NSSecureCoding>
  
  This date is constructed using the  @c en_US locale.
  */
-@property (copy, readonly, nullable) NSDate *date;
+@property (nonatomic, copy, readonly, nullable) NSDate *date;
 
 /**
  The release notes URL of the appcast item if provided.
@@ -143,7 +143,7 @@ SU_EXPORT @interface SUAppcastItem : NSObject<NSSecureCoding>
  
  This is extracted from the @c <sparkle:releaseNotesLink> element.
  */
-@property (readonly, nullable) NSURL *releaseNotesURL;
+@property (nonatomic, readonly, nullable) NSURL *releaseNotesURL;
 
 /**
  The description of the appcast item if provided.
@@ -153,7 +153,22 @@ SU_EXPORT @interface SUAppcastItem : NSObject<NSSecureCoding>
  
  This is extracted from the @c <description> element.
  */
-@property (copy, readonly, nullable) NSString *itemDescription;
+@property (nonatomic, copy, readonly, nullable) NSString *itemDescription;
+
+/**
+ The format of the `itemDescription` for inline/embedded release notes if provided.
+ 
+ This may be:
+ - @c html
+ - @c plain-text
+ 
+ This is extracted from the @c sparkle:descriptionFormat attribute in the @c <description> element.
+ 
+ If the format is not provided in the @c <description> element of the appcast item, then this property may default to `html`.
+ 
+ If the @c <description> element of the appcast item is not available, this property is `nil`.
+ */
+@property (nonatomic, readonly, nullable) NSString *itemDescriptionFormat;
 
 /**
  The full release notes URL of the appcast item if provided.
@@ -164,7 +179,7 @@ SU_EXPORT @interface SUAppcastItem : NSObject<NSSecureCoding>
  
  This is extracted from the @c <sparkle:fullReleaseNotesLink> element.
  */
-@property (readonly, nullable) NSURL *fullReleaseNotesURL;
+@property (nonatomic, readonly, nullable) NSURL *fullReleaseNotesURL;
 
 /**
  The required minimum system operating version string for this update if provided.
@@ -177,7 +192,7 @@ SU_EXPORT @interface SUAppcastItem : NSObject<NSSecureCoding>
  
  This is extracted from the @c <sparkle:minimumSystemVersion> element.
  */
-@property (copy, readonly, nullable) NSString *minimumSystemVersion;
+@property (nonatomic, copy, readonly, nullable) NSString *minimumSystemVersion;
 
 /**
  Indicates whether or not the current running system passes the `minimumSystemVersion` requirement.
@@ -197,7 +212,7 @@ SU_EXPORT @interface SUAppcastItem : NSObject<NSSecureCoding>
  
  This is extracted from the @c <sparkle:maximumSystemVersion> element.
  */
-@property (copy, readonly, nullable) NSString *maximumSystemVersion;
+@property (nonatomic, copy, readonly, nullable) NSString *maximumSystemVersion;
 
 /**
  Indicates whether or not the current running system passes the `maximumSystemVersion` requirement.
@@ -248,7 +263,7 @@ SU_EXPORT @interface SUAppcastItem : NSObject<NSSecureCoding>
  
  Old applications must be using Sparkle 1.25 or later to support phased rollout intervals, otherwise they may assume updates are immediately available.
  */
-@property (copy, readonly, nullable) NSNumber* phasedRolloutInterval;
+@property (nonatomic, copy, readonly, nullable) NSNumber* phasedRolloutInterval;
 
 /**
  The minimum bundle version string this update requires for automatically downloading and installing updates if provided.
@@ -263,14 +278,14 @@ SU_EXPORT @interface SUAppcastItem : NSObject<NSSecureCoding>
  
  This is extracted from the @c <sparkle:minimumAutoupdateVersion> element.
  */
-@property (copy, readonly, nullable) NSString *minimumAutoupdateVersion;
+@property (nonatomic, copy, readonly, nullable) NSString *minimumAutoupdateVersion;
 
 /**
  Indicates whether or not the update item is a major upgrade.
  
  An update is a major upgrade if the application's bundle version doesn't meet the `minimumAutoupdateVersion` requirement.
  */
-@property (getter=isMajorUpgrade, readonly) BOOL majorUpgrade;
+@property (nonatomic, getter=isMajorUpgrade, readonly) BOOL majorUpgrade;
 
 /**
  Previously skipped upgrades by the user will be ignored if they skipped an update whose version precedes this version.
@@ -294,7 +309,7 @@ SU_EXPORT @interface SUAppcastItem : NSObject<NSSecureCoding>
  
  Old applications must be using Sparkle 2 or later to support the top-level @c <sparkle:criticalUpdate> element.
  */
-@property (getter=isCriticalUpdate, readonly) BOOL criticalUpdate;
+@property (nonatomic, getter=isCriticalUpdate, readonly) BOOL criticalUpdate;
 
 /**
  Specifies the operating system the download update is available for if provided.
@@ -310,14 +325,14 @@ SU_EXPORT @interface SUAppcastItem : NSObject<NSSecureCoding>
  
  This is extracted from the @c sparkle:os attribute in the @c <enclosure> element.
  */
-@property (copy, readonly, nullable) NSString *osString;
+@property (nonatomic, copy, readonly, nullable) NSString *osString;
 
 /**
  Indicates whether or not this update item is for macOS.
  
  This is determined from the `osString` property.
  */
-@property (getter=isMacOsUpdate, readonly) BOOL macOsUpdate;
+@property (nonatomic, getter=isMacOsUpdate, readonly) BOOL macOsUpdate;
 
 /**
  The delta updates for this update item.
@@ -331,7 +346,7 @@ SU_EXPORT @interface SUAppcastItem : NSObject<NSSecureCoding>
  
  This is extracted from the @c <sparkle:deltas> element.
  */
-@property (copy, readonly, nullable) NSDictionary<NSString *, SUAppcastItem *> *deltaUpdates;
+@property (nonatomic, copy, readonly, nullable) NSDictionary<NSString *, SUAppcastItem *> *deltaUpdates;
 
 /**
  The expected size of the Sparkle executable file before applying this delta update.
@@ -342,7 +357,7 @@ SU_EXPORT @interface SUAppcastItem : NSObject<NSSecureCoding>
  This is extracted from the @c sparkle:deltaFromSparkleExecutableSize attribute from the @c <enclosure> element of a @c sparkle:deltas item.
  This attribute is optional for delta update items.
  */
-@property (nonatomic, readonly, nullable) NSNumber *deltaFromSparkleExecutableSize;
+@property (nonatomic, nonatomic, readonly, nullable) NSNumber *deltaFromSparkleExecutableSize;
 
 /**
  An expected set of Sparkle's locales present on disk before applying this delta update.
@@ -354,21 +369,21 @@ SU_EXPORT @interface SUAppcastItem : NSObject<NSSecureCoding>
  This is extracted from the @c sparkle:deltaFromSparkleLocales attribute from the @c <enclosure> element of a @c sparkle:deltas item.
  The locales extracted from this attribute are delimited by a comma (e.g. "en,ca,fr,hr,hu"). This attribute is optional for delta update items.
  */
-@property (nonatomic, readonly, nullable) NSSet<NSString *> *deltaFromSparkleLocales;
+@property (nonatomic, nonatomic, readonly, nullable) NSSet<NSString *> *deltaFromSparkleLocales;
 
 /**
  Indicates whether or not the update item is a delta update.
  
  An update item is a delta update if it is in the `deltaUpdates` of another update item.
  */
-@property (getter=isDeltaUpdate, readonly) BOOL deltaUpdate;
+@property (nonatomic, getter=isDeltaUpdate, readonly) BOOL deltaUpdate;
 
 /**
  The dictionary representing the entire appcast item.
  
  This is useful for querying custom extensions or elements from the appcast item.
  */
-@property (readonly, copy) NSDictionary *propertiesDictionary;
+@property (nonatomic, readonly, copy) NSDictionary *propertiesDictionary;
 
 - (instancetype)init NS_UNAVAILABLE;
 

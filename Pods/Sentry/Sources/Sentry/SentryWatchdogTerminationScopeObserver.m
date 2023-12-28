@@ -1,7 +1,10 @@
 #import "SentryWatchdogTerminationScopeObserver.h"
-#import <SentryBreadcrumb.h>
-#import <SentryFileManager.h>
-#import <SentryLog.h>
+
+#if SENTRY_HAS_UIKIT
+
+#    import <SentryBreadcrumb.h>
+#    import <SentryFileManager.h>
+#    import <SentryLog.h>
 
 @interface
 SentryWatchdogTerminationScopeObserver ()
@@ -98,6 +101,11 @@ SentryWatchdogTerminationScopeObserver ()
 
 - (void)addSerializedBreadcrumb:(NSDictionary *)crumb
 {
+    if (![NSJSONSerialization isValidJSONObject:crumb]) {
+        SENTRY_LOG_ERROR(@"Breadcrumb is not a valid JSON object: %@", crumb);
+        return;
+    }
+
     NSError *error;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:crumb options:0 error:&error];
 
@@ -160,3 +168,5 @@ SentryWatchdogTerminationScopeObserver ()
 }
 
 @end
+
+#endif // SENTRY_HAS_UIKIT

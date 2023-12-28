@@ -5,8 +5,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryRequest : NSObject <SentrySerializable>
 
-// TODO: data, env
-
 /**
  * Optional: HTTP response body size.
  */

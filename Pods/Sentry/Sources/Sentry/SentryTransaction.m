@@ -85,7 +85,7 @@ SentryTransaction ()
     }
 
     if (self.trace) {
-        [serializedData setValue:self.trace.transactionContext.name forKey:@"transaction"];
+        serializedData[@"transaction"] = self.trace.transactionContext.name;
 
         serializedData[@"transaction_info"] =
             @{ @"source" : [self stringForNameSource:self.trace.transactionContext.nameSource] };

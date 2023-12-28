@@ -1,3 +1,4 @@
+// Adapted from: https://github.com/kstenerud/KSCrash
 //
 //  SentryCrashSystemCapabilities.h
 //
@@ -67,52 +68,16 @@
 #    define SentryCrashCRASH_HAS_STRNSTR 0
 #endif
 
-#if SentryCrashCRASH_HOST_IOS || SentryCrashCRASH_HOST_TV || SentryCrashCRASH_HOST_WATCH
-#    define SentryCrashCRASH_HAS_UIKIT 1
-#else
-#    define SentryCrashCRASH_HAS_UIKIT 0
-#endif
-
-#if SentryCrashCRASH_HOST_IOS || SentryCrashCRASH_HOST_TV
-#    define SentryCrashCRASH_HAS_UIAPPLICATION 1
-#else
-#    define SentryCrashCRASH_HAS_UIAPPLICATION 0
-#endif
-
 #if SentryCrashCRASH_HOST_WATCH
 #    define SentryCrashCRASH_HAS_NSEXTENSION 1
 #else
 #    define SentryCrashCRASH_HAS_NSEXTENSION 0
 #endif
 
-#if SentryCrashCRASH_HOST_IOS
-#    define SentryCrashCRASH_HAS_MESSAGEUI 1
-#else
-#    define SentryCrashCRASH_HAS_MESSAGEUI 0
-#endif
-
-#if SentryCrashCRASH_HOST_IOS || SentryCrashCRASH_HOST_TV
-#    define SentryCrashCRASH_HAS_UIDEVICE 1
-#else
-#    define SentryCrashCRASH_HAS_UIDEVICE 0
-#endif
-
 #if SentryCrashCRASH_HOST_IOS || SentryCrashCRASH_HOST_MAC || SentryCrashCRASH_HOST_TV
 #    define SentryCrashCRASH_HAS_ALERTVIEW 1
 #else
 #    define SentryCrashCRASH_HAS_ALERTVIEW 0
-#endif
-
-#if SentryCrashCRASH_HOST_IOS
-#    define SentryCrashCRASH_HAS_UIALERTVIEW 1
-#else
-#    define SentryCrashCRASH_HAS_UIALERTVIEW 0
-#endif
-
-#if SentryCrashCRASH_HOST_TV
-#    define SentryCrashCRASH_HAS_UIALERTCONTROLLER 1
-#else
-#    define SentryCrashCRASH_HAS_UIALERTCONTROLLER 0
 #endif
 
 #if SentryCrashCRASH_HOST_MAC

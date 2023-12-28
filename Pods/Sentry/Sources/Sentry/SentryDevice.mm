@@ -16,17 +16,19 @@
 
 #import "SentryDevice.h"
 #import <sys/sysctl.h>
-#if SENTRY_HAS_UIKIT
-#    import <UIKit/UIKit.h>
-#elif TARGET_OS_WATCH
+#if TARGET_OS_WATCH
 #    import <WatchKit/WatchKit.h>
 #endif
+
+#if SENTRY_HAS_UIKIT
+#    import <UIKit/UIKit.h>
+#endif // SENTRY_HAS_UIKIT
 
 namespace {
 /**
  * @brief Get an iOS hardware model name, or for mac devices, either the hardware model name or CPU
  * architecture of the device, depending on the option provided.
- * @note For an iOS CPU architecture name, `getArchitectureName` must be used.
+ * @note For an iOS CPU architecture name, @c getArchitectureName must be used.
  * @discussion The values returned are different between iOS and macOS depending on which option is
  * provided. Some examples of values returned on different devices:
  * @code
@@ -170,7 +172,7 @@ sentry_getOSName(void)
 #if TARGET_OS_MACCATALYST
     return @"Catalyst";
 #elif SENTRY_HAS_UIKIT
-    return UIDevice.currentDevice.systemName;
+    return [UIDevice currentDevice].systemName;
 #else
     return @"macOS";
 #endif // SENTRY_HAS_UIKIT
@@ -180,28 +182,14 @@ NSString *
 sentry_getOSVersion(void)
 {
 #if TARGET_OS_WATCH
-    return WKInterfaceDevice.currentDevice.systemVersion;
+    // This function is only used for profiling, and profiling don't run for watchOS
+    return @"";
 #elif SENTRY_HAS_UIKIT
-    return UIDevice.currentDevice.systemVersion;
+    return [UIDevice currentDevice].systemVersion;
 #else
-    // based off of
-    // https://github.com/lmirosevic/GBDeviceInfo/blob/98dd3c75bb0e1f87f3e0fd909e52dcf0da4aa47d/GBDeviceInfo/GBDeviceInfo_OSX.m#L107-L133
-    if ([[NSProcessInfo processInfo] respondsToSelector:@selector(operatingSystemVersion)]) {
-        const auto version = [[NSProcessInfo processInfo] operatingSystemVersion];
-        return [NSString stringWithFormat:@"%ld.%ld.%ld", (long)version.majorVersion,
-                         (long)version.minorVersion, (long)version.patchVersion];
-    } else {
-        SInt32 major, minor, patch;
-
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        Gestalt(gestaltSystemVersionMajor, &major);
-        Gestalt(gestaltSystemVersionMinor, &minor);
-        Gestalt(gestaltSystemVersionBugFix, &patch);
-#    pragma clang diagnostic pop
-
-        return [NSString stringWithFormat:@"%d.%d.%d", major, minor, patch];
-    }
+    const auto version = [[NSProcessInfo processInfo] operatingSystemVersion];
+    return [NSString stringWithFormat:@"%ld.%ld.%ld", (long)version.majorVersion,
+                     (long)version.minorVersion, (long)version.patchVersion];
 #endif // SENTRY_HAS_UIKIT
 }
 
