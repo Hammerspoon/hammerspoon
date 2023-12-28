@@ -27,6 +27,7 @@
 		224BA32A23D1ECA900487FDB /* libwebsocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 224BA32523D1E63A00487FDB /* libwebsocket.m */; };
 		22613FF51F2A127E00E05E11 /* libdialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 22613FE41F297B9B00E05E11 /* libdialog.m */; };
 		22615F33281E3301003ADBC6 /* WorkflowExtension.icns in Resources */ = {isa = PBXBuildFile; fileRef = 22615F32281E3301003ADBC6 /* WorkflowExtension.icns */; };
+		22627C1E2B3E3A1A0029A2F5 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 22627C1D2B3E3A1A0029A2F5 /* GCDAsyncSocket.m */; };
 		22652B39251C38AC000FF14D /* TouchEvents.c in Sources */ = {isa = PBXBuildFile; fileRef = 22652B37251C38AB000FF14D /* TouchEvents.c */; };
 		22652B3A251C38AC000FF14D /* TouchEvents.h in Headers */ = {isa = PBXBuildFile; fileRef = 22652B38251C38AB000FF14D /* TouchEvents.h */; };
 		22652B3D251C3914000FF14D /* IOHIDEventData.h in Headers */ = {isa = PBXBuildFile; fileRef = 22652B3B251C3913000FF14D /* IOHIDEventData.h */; };
@@ -41,7 +42,6 @@
 		22654EAA27D43CCE004F8214 /* razer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2213842F27A105DD0085CA24 /* razer.h */; };
 		22654EAD27D43D1F004F8214 /* razer.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 2213842A27A105DD0085CA24 /* razer.lua */; };
 		226BD80D281CE86200294634 /* CocoaAsyncSocket in Resources */ = {isa = PBXBuildFile; fileRef = 226BD80C281CE86200294634 /* CocoaAsyncSocket */; };
-		226BD80F281CE89B00294634 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 226BD80E281CE89B00294634 /* GCDAsyncSocket.m */; };
 		226F95F827917D3B003DF60F /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FB852342735B02400462DD0 /* LuaSkin.framework */; };
 		226F960727917D63003DF60F /* HSBlackmagicManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 226F960027917D63003DF60F /* HSBlackmagicManager.m */; };
 		226F960827917D63003DF60F /* libblackmagic.m in Sources */ = {isa = PBXBuildFile; fileRef = 226F960127917D63003DF60F /* libblackmagic.m */; };
@@ -106,7 +106,7 @@
 		4CD203B21C6D77750089706D /* libsocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CD203A21C6D75950089706D /* libsocket.m */; };
 		4CD64AA91C6F15F400EB6E39 /* HSsocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CD64AA81C6F15F400EB6E39 /* HSsocket.m */; };
 		4CD64AAB1C6F168700EB6E39 /* test_socket.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4CD64AAA1C6F168700EB6E39 /* test_socket.lua */; };
-		4CD96BD61C73ABD2009FF648 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
+		4CD96BD61C73ABD2009FF648 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		4CD96BDE1C73AC1C009FF648 /* libsocket_udp.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CD96BDD1C73AC1C009FF648 /* libsocket_udp.m */; };
 		4CE6390F1C76C7F500BB7CD2 /* socket.h in Headers */ = {isa = PBXBuildFile; fileRef = 4CE6390E1C76C7F500BB7CD2 /* socket.h */; };
 		4CE639101C76C7F500BB7CD2 /* socket.h in Headers */ = {isa = PBXBuildFile; fileRef = 4CE6390E1C76C7F500BB7CD2 /* socket.h */; };
@@ -1705,12 +1705,12 @@
 		22613FE51F297B9B00E05E11 /* dialog.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = dialog.lua; path = extensions/dialog/dialog.lua; sourceTree = "<group>"; };
 		22613FF11F297E0D00E05E11 /* libdialog.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libdialog.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		22615F32281E3301003ADBC6 /* WorkflowExtension.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = WorkflowExtension.icns; sourceTree = "<group>"; };
+		22627C1D2B3E3A1A0029A2F5 /* GCDAsyncSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDAsyncSocket.m; sourceTree = "<group>"; };
 		22652B37251C38AB000FF14D /* TouchEvents.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = TouchEvents.c; path = extensions/eventtap/TouchEvents.c; sourceTree = "<group>"; };
 		22652B38251C38AB000FF14D /* TouchEvents.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TouchEvents.h; path = extensions/eventtap/TouchEvents.h; sourceTree = "<group>"; };
 		22652B3B251C3913000FF14D /* IOHIDEventData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOHIDEventData.h; path = extensions/eventtap/IOHIDEventData.h; sourceTree = "<group>"; };
 		22652B3C251C3914000FF14D /* IOHIDEventTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOHIDEventTypes.h; path = extensions/eventtap/IOHIDEventTypes.h; sourceTree = "<group>"; };
 		226BD80C281CE86200294634 /* CocoaAsyncSocket */ = {isa = PBXFileReference; lastKnownFileType = folder; path = CocoaAsyncSocket; sourceTree = "<group>"; };
-		226BD80E281CE89B00294634 /* GCDAsyncSocket.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GCDAsyncSocket.m; sourceTree = "<group>"; };
 		226F95FE27917D3B003DF60F /* libblackmagic.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libblackmagic.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		226F960027917D63003DF60F /* HSBlackmagicManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSBlackmagicManager.m; path = extensions/blackmagic/HSBlackmagicManager.m; sourceTree = "<group>"; };
 		226F960127917D63003DF60F /* libblackmagic.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = libblackmagic.m; path = extensions/blackmagic/libblackmagic.m; sourceTree = "<group>"; };
@@ -2376,7 +2376,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FB852502735B2D100462DD0 /* LuaSkin.framework in Frameworks */,
-				4CD96BD61C73ABD2009FF648 /* BuildFile in Frameworks */,
+				4CD96BD61C73ABD2009FF648 /* (null) in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3127,6 +3127,7 @@
 				22615F36281E3858003ADBC6 /* User Interface */,
 				22615F34281E3819003ADBC6 /* Assets */,
 				22615F35281E3836003ADBC6 /* Extras */,
+				22627C1D2B3E3A1A0029A2F5 /* GCDAsyncSocket.m */,
 				2245184E281ADF8400997BB0 /* CommandPost-Bridging-Header.h */,
 				2245184F281ADF8400997BB0 /* CommandPostViewController.h */,
 				22451850281ADF8400997BB0 /* CommandPostViewController.m */,
@@ -4227,7 +4228,6 @@
 		9445CA0219083251002568BB = {
 			isa = PBXGroup;
 			children = (
-				226BD80E281CE89B00294634 /* GCDAsyncSocket.m */,
 				D659EC7329F8468F00A7D103 /* docs.css */,
 				4FC09F7B19F99ECE007542A6 /* docs.json */,
 				9445CA1419083251002568BB /* Hammerspoon */,
@@ -6643,10 +6643,10 @@
 			buildRules = (
 			);
 			dependencies = (
+				22613FF41F297E7F00E05E11 /* PBXTargetDependency */,
 				22654EAC27D43CF8004F8214 /* PBXTargetDependency */,
 				2274782D2787F9DD00DE6894 /* PBXTargetDependency */,
 				226F960E27917DCB003DF60F /* PBXTargetDependency */,
-				22613FF41F297E7F00E05E11 /* PBXTargetDependency */,
 				224BA33623D1EFB300487FDB /* PBXTargetDependency */,
 				22EEC62624926EAF00BAE4DA /* PBXTargetDependency */,
 				D6C32CD527DDD78F001AA22E /* PBXTargetDependency */,
@@ -7542,6 +7542,7 @@
 		};
 		E2887C971E4B5BD200468A07 /* Copy CommandPost Files */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -7556,6 +7557,7 @@
 		};
 		E849AEC367EA9502A25B9A7C /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -7579,8 +7581,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				22627C1E2B3E3A1A0029A2F5 /* GCDAsyncSocket.m in Sources */,
 				22451851281ADF8400997BB0 /* CommandPostViewController.m in Sources */,
-				226BD80F281CE89B00294634 /* GCDAsyncSocket.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

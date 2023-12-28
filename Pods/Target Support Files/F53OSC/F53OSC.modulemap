@@ -1,0 +1,6 @@
+module F53OSC {
+  umbrella header "F53OSC-umbrella.h"
+
+  export *
+  module * { export * }
+}
