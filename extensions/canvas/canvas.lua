@@ -402,7 +402,7 @@ end
 ---  * The center of the object is determined by getting the element's bounds with [hs.canvas:elementBounds](#elementBounds).
 ---  * If the third argument is a boolean value, the `point` argument is assumed to be the element's center and the boolean value is used as the `append` argument.
 ---
----  * This method uses [hs.canvas.matrix](MATRIX.md) to generate the rotation transformation and provides a wrapper for `hs.canvas.matrix.translate(x, y):rotate(angle):translate(-x, -y)` which is then assigned or appended to the element's existing `transformation` attribute.
+---  * This method uses [hs.canvas.matrix](./hs.canvas.matrix.html) to generate the rotation transformation and provides a wrapper for `hs.canvas.matrix.translate(x, y):rotate(angle):translate(-x, -y)` which is then assigned or appended to the element's existing `transformation` attribute.
 canvasMT.rotateElement = function(obj, index, angle, point, append)
     if type(point) == "boolean" then
         append, point = point, nil
