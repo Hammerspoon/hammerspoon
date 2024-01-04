@@ -2590,7 +2590,7 @@ static int canvas_getTextElementSize(lua_State *L) {
 /// Get or set the matrix transformation which is applied to every element in the canvas before being individually processed and added to the canvas.
 ///
 /// Parameters:
-///  * `matrix` - an optional table specifying the matrix table, as defined by the [hs.canvas.matrix](MATRIX.md) module, to be applied to every element of the canvas, or an explicit `nil` to reset the transformation to the identity matrix.
+///  * `matrix` - an optional table specifying the matrix table, as defined by the [hs.canvas.matrix](./hs.canvas.matrix.html) module, to be applied to every element of the canvas, or an explicit `nil` to reset the transformation to the identity matrix.
 ///
 /// Returns:
 ///  * if an argument is provided, returns the canvasObject, otherwise returns the current value
