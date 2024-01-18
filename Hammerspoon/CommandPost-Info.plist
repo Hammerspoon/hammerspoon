@@ -219,7 +219,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>Some CommandPost extensions require access to the camera.</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright Chris Hocking &amp; David Peterson 2017-2023. Released under MIT license.</string>
+	<string>Copyright Chris Hocking &amp; David Peterson 2017-2024. Released under MIT license.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>Some CommandPost extensions (such as hs.location) require access to your location.</string>
 	<key>NSMainNibFile</key>
