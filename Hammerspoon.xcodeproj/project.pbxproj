@@ -8970,6 +8970,12 @@
 			baseConfigurationReference = 4F0C1C79272F5EA7002CA157 /* Extensions-Ideal.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = dialog;
+				WARNING_CFLAGS = (
+					"-Weverything",
+					"-Wno-direct-ivar-access",
+					"-Wno-documentation-unknown-command",
+					"$(inherited)",
+				);
 			};
 			name = Release;
 		};
@@ -9293,6 +9299,12 @@
 			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = dialog;
+				WARNING_CFLAGS = (
+					"-Weverything",
+					"-Wno-direct-ivar-access",
+					"-Wno-documentation-unknown-command",
+					"$(inherited)",
+				);
 			};
 			name = Debug;
 		};
@@ -9712,6 +9724,12 @@
 			baseConfigurationReference = 4F0C1C77272F3EE9002CA157 /* Extensions-Base.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = dialog;
+				WARNING_CFLAGS = (
+					"-Weverything",
+					"-Wno-direct-ivar-access",
+					"-Wno-documentation-unknown-command",
+					"$(inherited)",
+				);
 			};
 			name = Profile;
 		};
