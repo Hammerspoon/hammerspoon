@@ -544,6 +544,7 @@ function hotkey.modal:enter()
   end
   for _,hk in ipairs(self.keys) do enable(hk,nil,true) end
   self:entered()
+  self.isActive = true
   return self
 end
 
@@ -564,6 +565,7 @@ function hotkey.modal:exit()
   if (self.k) then
     enable(self.k)
   end
+  self.isActive = false
   self:exited()
   log.d('Exited modal')
   return self
@@ -589,7 +591,7 @@ end
 --- Notes:
 ---  * If `key` is nil, no global hotkey will be registered (all other parameters will be ignored)
 function hotkey.modal.new(mods, key, message)
-  local m = setmetatable({keys = {}}, hotkey.modal)
+  local m = setmetatable({keys = {}, isActive=false}, hotkey.modal)
   if (key) then
     m.k = hotkey.bind(mods, key, message, function() m:enter() end)
   end
