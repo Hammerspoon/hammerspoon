@@ -102,8 +102,6 @@ public typealias CameraManagerDiscoveryCallback = @convention(block) (Camera?, S
     }
 }
 
-public typealias CameraPropertyCallback = @convention(block) (Camera) -> Void
-
 @objc public class Camera : NSObject {
     /// Underlying AVFoundation camera object we represent
     @objc var camera: AVCaptureDevice
@@ -115,8 +113,7 @@ public typealias CameraPropertyCallback = @convention(block) (Camera) -> Void
         mScope: CMIOObjectPropertyScope(kCMIOObjectPropertyScopeWildcard),
         mElement: CMIOObjectPropertyElement(kCMIOObjectPropertyElementWildcard)
     )
-    /// Internal callback block for CoreMediaIO Object Property Listener
-    private var isInUseWatcherCallbackBlock: CMIOObjectPropertyListenerBlock?
+
     /// True if our `isInUse` watcher is running
     @objc public var isInUseWatcherRunning: Bool = false
 
@@ -126,8 +123,11 @@ public typealias CameraPropertyCallback = @convention(block) (Camera) -> Void
     }
 
     /// External callback to be called when a watched property changes
-    @objc public var observerCallback: CameraPropertyCallback?
-    
+    @objc public var isInUseWatcherCallbackProc: CMIOObjectPropertyListenerProc = { _,_,_,_ -> OSStatus in
+        NSLog("Camera::isInUseWatcherCallbackProc called without initialisation")
+        return 0
+    }
+
     /// Initialiser
     /// - Parameter uniqueID: The UID of a camera object, as obtained from AVCaptureDevice.uniqueID
     @objc public init?(uniqueID: String) {
@@ -207,16 +207,12 @@ public typealias CameraPropertyCallback = @convention(block) (Camera) -> Void
 
     /// Start watching `isInUse` for changes
     @objc public func startIsInUseWatcher() {
-        guard self.observerCallback != nil else { return }
         if (isInUseWatcherRunning) { return }
 
-        if (self.isInUseWatcherCallbackBlock == nil) {
-            self.isInUseWatcherCallbackBlock = { [weak self] (_, _) -> Void in
-                self?.observerCallback?(self!)
-            }
-        }
-
-        let result = CMIOObjectAddPropertyListenerBlock(connectionID, &STATUS_PA, DispatchQueue.main, self.isInUseWatcherCallbackBlock!)
+        let result = CMIOObjectAddPropertyListener(connectionID,
+                                                   &STATUS_PA,
+                                                   self.isInUseWatcherCallbackProc,
+                                                   Unmanaged.passUnretained(self).toOpaque())
         if (result == kCMIOHardwareNoError) {
             isInUseWatcherRunning = true
         } else {
@@ -226,10 +222,12 @@ public typealias CameraPropertyCallback = @convention(block) (Camera) -> Void
     
     /// Stop watching `isInUse`
     @objc public func stopIsInUseWatcher() {
-        guard self.isInUseWatcherCallbackBlock != nil else { return }
         if (!isInUseWatcherRunning) { return }
 
-        let result = CMIOObjectRemovePropertyListenerBlock(connectionID, &STATUS_PA, DispatchQueue.main, self.isInUseWatcherCallbackBlock!)
+        let result = CMIOObjectRemovePropertyListener(connectionID,
+                                                      &STATUS_PA,
+                                                      self.isInUseWatcherCallbackProc,
+                                                      Unmanaged.passUnretained(self).toOpaque())
         if (result == kCMIOHardwareNoError) {
             isInUseWatcherRunning = false
         } else {

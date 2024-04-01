@@ -1,6 +1,7 @@
 @import Cocoa;
 @import LuaSkin;
 @import Hammertime;
+@import CoreMediaIO;
 
 #pragma mark - Module declarations
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
@@ -316,6 +317,30 @@ static int camera_isInUse(lua_State *L) {
     return 1;
 }
 
+OSStatus propertyWatcherProc(unsigned int connectionID, unsigned int numAddresses, const struct CMIOObjectPropertyAddress *addresses, void *clientData) {
+    LuaSkin *skin = [LuaSkin shared];
+    Camera *camera = (__bridge Camera *)clientData;
+    HSuserData_t *userData = camera.userData;
+
+    if (!userData || ![skin checkGCCanary:userData->lsCanary]) {
+        return 0;
+    }
+
+    _lua_stackguard_entry(skin.L);
+    if (userData->callbackRef == LUA_NOREF) {
+        [skin logError:@"hs.camera property watcher fired, but no Lua callback is currently set"];
+    } else {
+        [skin pushLuaRef:refTable ref:userData->callbackRef];
+        [skin pushNSObject:camera];
+        lua_pushstring(skin.L, "gone");
+        lua_pushstring(skin.L, "glob");
+        lua_pushinteger(skin.L, 0);
+        [skin protectedCallAndError:@"hs.camera:propertyWatcherCallback" nargs:4 nresults:0];
+    }
+    _lua_stackguard_exit(skin.L);
+    return 0;
+}
+
 /// hs.camera:setPropertyWatcherCallback(fn) -> hs.camera object
 /// Method
 /// Sets or clears a callback for when an hs.camera object starts or stops being used by another application
@@ -336,6 +361,9 @@ static int camera_propertyWatcherCallback(lua_State *L) {
 
     Camera *camera = [skin toNSObjectAtIndex:1];
     HSuserData_t *userData = camera.userData;
+
+    // Set our callback handler
+    camera.isInUseWatcherCallbackProc = propertyWatcherProc;
 
     userData->callbackRef = [skin luaUnref:refTable ref:userData->callbackRef];
 
@@ -376,28 +404,6 @@ static int camera_startPropertyWatcher(lua_State *L) {
         lua_pushnil(L);
         return 1;
     }
-
-    camera.observerCallback = ^(Camera *device) {
-        LuaSkin *skin = [LuaSkin sharedWithState:NULL];
-        HSuserData_t *userData = device.userData;
-
-        if (!userData || ![skin checkGCCanary:userData->lsCanary]) {
-            return;
-        }
-
-        _lua_stackguard_entry(skin.L);
-        if (userData->callbackRef == LUA_NOREF) {
-            [skin logError:@"hs.camera property watcher fired, but no Lua callback is currently set"];
-        } else {
-            [skin pushLuaRef:refTable ref:userData->callbackRef];
-            [skin pushNSObject:device];
-            lua_pushstring(L, "gone");
-            lua_pushstring(L, "glob");
-            lua_pushinteger(L, 0);
-            [skin protectedCallAndError:@"hs.camera:propertyWatcherCallback" nargs:4 nresults:0];
-        }
-        _lua_stackguard_exit(skin.L);
-    };
     [camera startIsInUseWatcher];
 
     lua_pushvalue(L, 1);
