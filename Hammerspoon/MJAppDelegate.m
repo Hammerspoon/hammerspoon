@@ -88,6 +88,7 @@
             }
         }
 
+
         success = [[NSFileManager defaultManager] moveItemAtPath:fileAndPath toPath:dstSpoonFullPath error:&fileError];
         if (!success) {
             NSLog(@"Unable to move %@ to %@: %@", fileAndPath, spoonPath, fileError);
@@ -127,6 +128,17 @@
     }
 
     return YES;
+}
+
+- (BOOL)application:(NSApplication *)application
+    continueUserActivity:(NSUserActivity *)userActivity
+      restorationHandler:(nonnull void (^)(NSArray<id<NSUserActivityRestoring>> *_Nullable))restorationHandler
+{
+  //NSLog(@"Open URL in NSUserActivityTypeBrowsingWeb");
+  if ([userActivity.activityType isEqualToString:NSUserActivityTypeBrowsingWeb]) {
+    [[NSWorkspace sharedWorkspace] openURL:userActivity.webpageURL];
+  }
+  return YES;
 }
 
 
