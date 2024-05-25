@@ -12,6 +12,14 @@ static int g_connection ;
 
 #pragma mark - Support Functions and Classes
 
+// https://github.com/koekeishiya/yabai/commit/7bacdd59bdf39b53012e024b442d61913095794e#diff-fab09245ac7f0bacbd4b3648bdd51eff6c41dc937f5dbaaf7459ff9ea70d3557R17-R27
+static bool workspace_is_macos_sonoma14_5_or_newer(void) {
+    NSOperatingSystemVersion os_version = [[NSProcessInfo processInfo] operatingSystemVersion];
+    if (os_version.majorVersion > 14) return true;
+    if (os_version.majorVersion == 14 && os_version.minorVersion >= 5) return true;
+    return false;
+}
+
 #pragma mark - Module Functions
 
 /// hs.spaces.screensHaveSeparateSpaces() -> bool
@@ -171,7 +179,15 @@ static int spaces_moveWindowToSpace(lua_State *L) { // NOTE: wrapped in init.lua
                 CFRelease(spacesList);
                 return 2 ;
             }
-            SLSMoveWindowsToManagedSpace(g_connection, (__bridge CFArrayRef)windows, sid) ;
+
+// https://github.com/koekeishiya/yabai/commit/98bbdbd1363f27d35f09338cded0de1ec010d830
+            if (workspace_is_macos_sonoma14_5_or_newer()) {
+                SLSSpaceSetCompatID(g_connection, sid, 0x79616265);
+                SLSSetWindowListWorkspace(g_connection, &wid, 1, 0x79616265);
+                SLSSpaceSetCompatID(g_connection, sid, 0x0);
+            } else {
+                SLSMoveWindowsToManagedSpace(g_connection, (__bridge CFArrayRef)windows, sid) ;
+            }
         }
         lua_pushboolean(L, true) ;
         CFRelease(spacesList) ;

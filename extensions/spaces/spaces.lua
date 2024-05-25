@@ -11,18 +11,7 @@
 ---
 --- It is recommended that you also enable "Displays have separate Spaces" in System Preferences -> Mission Control.
 ---
---- This module is a distillation of my previous `hs._asm.undocumented.spaces` module, changes inspired by reviewing the `Yabai` source, and some experimentation with `hs.axuielement`. If you require more sophisticated control, I encourage you to check out https://github.com/koekeishiya/yabai -- it does require some additional setup (changes to SIP, possibly edits to `sudoers`, etc.) but may be worth the extra steps for some power users.
-
--- TODO:
---    does this work if "Displays have Separate Spaces" isn't checked in System Preferences ->
---        Mission Control? What changes, and can we work around it?
---
---    need working hs.window.filter (or replacement) for pruning windows list and making use of other space windows
-
--- I think we're probably done with Yabai duplication -- basic functionality desired is present, minus window id pruning
--- +  yabai supports *some* stuff on M1 without injection... investigate
--- *      move window to space               -- according to M1 tracking issue
--- +      ids of windows on other spaces     -- partial; see hs.window.filter comment above
+--- Portions of this module are based on code and fixes discovered by the developers of Yabai (https://github.com/koekeishiya/yabai). This has been noted in the relevant places of the source code for this module if you wish more information. Yabai provides much functionality with regards to the manipulation of macOS Spaces and power users may want to consider utilizing Yabai as an adjunct to Hammerspoon.
 
 local USERDATA_TAG = "hs.spaces"
 local module       = require(table.concat({ USERDATA_TAG:match("^([%w%._]+%.)([%w_]+)$") }, "lib"))

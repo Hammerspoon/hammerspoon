@@ -13,6 +13,8 @@ extern CFArrayRef SLSCopyWindowsWithOptionsAndTags(int cid, uint32_t owner, CFAr
 extern void SLSMoveWindowsToManagedSpace(int cid, CFArrayRef window_list, uint64_t sid);
 extern CFArrayRef SLSCopySpacesForWindows(int cid, int selector, CFArrayRef window_list);
 
+extern CGError SLSSpaceSetCompatID(int cid, uint64_t sid, int workspace);
+extern CGError SLSSetWindowListWorkspace(int cid, uint32_t *window_list, int window_count, int workspace);
 // extern uint64_t SLSManagedDisplayGetCurrentSpace(int cid, CFStringRef uuid) ;
 // extern CFStringRef SLSCopyManagedDisplayForSpace(int cid, uint64_t sid);
 // extern CFStringRef SLSSpaceCopyName(int cid, uint64_t sid);
