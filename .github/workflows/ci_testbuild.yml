@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     name: Build and Test
-    runs-on: macos-13
+    runs-on: macos-14-large
     permissions:
       contents: read
     env:
@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: 15.0.1
+          xcode-version: 15.4
       - name: Checkout
         uses: actions/checkout@v2
         with:
