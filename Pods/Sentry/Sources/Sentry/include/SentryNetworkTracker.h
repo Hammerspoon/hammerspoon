@@ -6,6 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const SENTRY_NETWORK_REQUEST_OPERATION = @"http.client";
 static NSString *const SENTRY_NETWORK_REQUEST_TRACKER_SPAN = @"SENTRY_NETWORK_REQUEST_TRACKER_SPAN";
+static NSString *const SENTRY_NETWORK_REQUEST_START_DATE = @"SENTRY_NETWORK_REQUEST_START_DATE";
 static NSString *const SENTRY_NETWORK_REQUEST_TRACKER_BREADCRUMB
     = @"SENTRY_NETWORK_REQUEST_TRACKER_BREADCRUMB";
 
@@ -18,12 +19,14 @@ static NSString *const SENTRY_NETWORK_REQUEST_TRACKER_BREADCRUMB
 - (void)enableNetworkTracking;
 - (void)enableNetworkBreadcrumbs;
 - (void)enableCaptureFailedRequests;
+- (void)enableGraphQLOperationTracking;
 - (BOOL)isTargetMatch:(NSURL *)URL withTargets:(NSArray *)targets;
 - (void)disable;
 
 @property (nonatomic, readonly) BOOL isNetworkTrackingEnabled;
 @property (nonatomic, readonly) BOOL isNetworkBreadcrumbEnabled;
 @property (nonatomic, readonly) BOOL isCaptureFailedRequestsEnabled;
+@property (nonatomic, readonly) BOOL isGraphQLOperationTrackingEnabled;
 
 @end
 

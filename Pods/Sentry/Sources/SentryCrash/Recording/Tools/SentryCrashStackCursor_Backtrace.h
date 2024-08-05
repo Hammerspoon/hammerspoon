@@ -26,11 +26,11 @@
 #ifndef SentryCrashStackCursor_Backtrace_h
 #define SentryCrashStackCursor_Backtrace_h
 
+#import "SentryCrashStackCursor.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "SentryCrashStackCursor.h"
 
 /** Exposed for other internal systems to use.
  */

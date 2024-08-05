@@ -22,7 +22,7 @@ sentryBuildAppStartSpan(
                                             origin:SentryTraceOriginAutoAppStart
                                            sampled:tracer.sampled];
 
-    return [[SentrySpan alloc] initWithTracer:tracer context:context];
+    return [[SentrySpan alloc] initWithTracer:tracer context:context framesTracker:nil];
 }
 
 NSArray<SentrySpan *> *
@@ -74,11 +74,17 @@ sentryBuildAppStartSpans(SentryTracer *tracer, SentryAppStartMeasurement *appSta
         [appStartSpans addObject:runtimeInitSpan];
     }
 
-    SentrySpan *appInitSpan = sentryBuildAppStartSpan(
-        tracer, appStartSpan.spanId, operation, @"UIKit and Application Init");
+    SentrySpan *appInitSpan
+        = sentryBuildAppStartSpan(tracer, appStartSpan.spanId, operation, @"UIKit Init");
     [appInitSpan setStartTimestamp:appStartMeasurement.moduleInitializationTimestamp];
-    [appInitSpan setTimestamp:appStartMeasurement.didFinishLaunchingTimestamp];
+    [appInitSpan setTimestamp:appStartMeasurement.sdkStartTimestamp];
     [appStartSpans addObject:appInitSpan];
+
+    SentrySpan *didFinishLaunching
+        = sentryBuildAppStartSpan(tracer, appStartSpan.spanId, operation, @"Application Init");
+    [didFinishLaunching setStartTimestamp:appStartMeasurement.sdkStartTimestamp];
+    [didFinishLaunching setTimestamp:appStartMeasurement.didFinishLaunchingTimestamp];
+    [appStartSpans addObject:didFinishLaunching];
 
     SentrySpan *frameRenderSpan
         = sentryBuildAppStartSpan(tracer, appStartSpan.spanId, operation, @"Initial Frame Render");

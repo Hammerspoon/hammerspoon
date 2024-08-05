@@ -8,7 +8,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryNSTimerFactory, SentryDispatchQueueWrapper, SentryProfilesSamplerDecision;
+@class SentryDispatchQueueWrapper;
+@class SentryNSTimerFactory;
+@class SentrySamplerDecision;
 
 @interface SentryTracerConfiguration : NSObject
 
@@ -26,16 +28,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) BOOL waitForChildren;
 
-/**
- * A dispatch queue wrapper to intermediate between the tracer and dispatch calls.
- */
-@property (nonatomic, strong, nullable) SentryDispatchQueueWrapper *dispatchQueueWrapper;
-
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 /**
  * Whether to sample a profile corresponding to this transaction
  */
-@property (nonatomic, strong, nullable) SentryProfilesSamplerDecision *profilesSamplerDecision;
+@property (nonatomic, strong, nullable) SentrySamplerDecision *profilesSamplerDecision;
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED"
 
 /**

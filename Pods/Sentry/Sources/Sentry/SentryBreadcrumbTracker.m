@@ -12,9 +12,9 @@
 #import "SentrySwizzle.h"
 #import "SentrySwizzleWrapper.h"
 
-#if SENTRY_TARGET_MACOS
+#if SENTRY_TARGET_MACOS_HAS_UI
 #    import <Cocoa/Cocoa.h>
-#endif // SENTRY_TARGET_MACOS
+#endif // SENTRY_TARGET_MACOS_HAS_UI
 
 #if SENTRY_HAS_UIKIT
 #    import <UIKit/UIKit.h>
@@ -27,7 +27,7 @@ static NSString *const SentryBreadcrumbTrackerSwizzleSendAction
 
 @interface
 SentryBreadcrumbTracker ()
-#if !TARGET_OS_WATCH
+#if SENTRY_HAS_REACHABILITY
     <SentryReachabilityObserver>
 #endif // !TARGET_OS_WATCH
 
@@ -37,7 +37,7 @@ SentryBreadcrumbTracker ()
 
 @implementation SentryBreadcrumbTracker
 
-#if !TARGET_OS_WATCH
+#if SENTRY_HAS_REACHABILITY
 - (void)dealloc
 {
     [SentryDependencyContainer.sharedInstance.reachability removeObserver:self];
@@ -49,7 +49,7 @@ SentryBreadcrumbTracker ()
     _delegate = delegate;
     [self addEnabledCrumb];
     [self trackApplicationNotifications];
-#if !TARGET_OS_WATCH
+#if SENTRY_HAS_REACHABILITY
     [self trackNetworkConnectivityChanges];
 #endif // !TARGET_OS_WATCH
 }
@@ -71,7 +71,7 @@ SentryBreadcrumbTracker ()
         removeSwizzleSendActionForKey:SentryBreadcrumbTrackerSwizzleSendAction];
 #endif // SENTRY_HAS_UIKIT
     _delegate = nil;
-#if !TARGET_OS_WATCH
+#if SENTRY_HAS_REACHABILITY
     [self stopTrackNetworkConnectivityChanges];
 #endif // !TARGET_OS_WATCH
 }
@@ -81,7 +81,7 @@ SentryBreadcrumbTracker ()
 #if SENTRY_HAS_UIKIT
     NSNotificationName foregroundNotificationName = UIApplicationDidBecomeActiveNotification;
     NSNotificationName backgroundNotificationName = UIApplicationDidEnterBackgroundNotification;
-#elif SENTRY_TARGET_MACOS
+#elif SENTRY_TARGET_MACOS_HAS_UI
     NSNotificationName foregroundNotificationName = NSApplicationDidBecomeActiveNotification;
     // Will resign Active notification is the nearest one to
     // UIApplicationDidEnterBackgroundNotification
@@ -108,7 +108,7 @@ SentryBreadcrumbTracker ()
                 }];
 #endif // SENTRY_HAS_UIKIT
 
-#if SENTRY_HAS_UIKIT || SENTRY_TARGET_MACOS
+#if SENTRY_HAS_UIKIT || SENTRY_TARGET_MACOS_HAS_UI
     [NSNotificationCenter.defaultCenter addObserverForName:backgroundNotificationName
                                                     object:nil
                                                      queue:nil
@@ -130,10 +130,10 @@ SentryBreadcrumbTracker ()
                                                                     withDataKey:@"state"
                                                                   withDataValue:@"foreground"];
                                                 }];
-#endif // SENTRY_HAS_UIKIT || SENTRY_TARGET_MACOS
+#endif // SENTRY_HAS_UIKIT || SENTRY_TARGET_MACOS_HAS_UI
 }
 
-#if !TARGET_OS_WATCH
+#if SENTRY_HAS_REACHABILITY
 - (void)trackNetworkConnectivityChanges
 {
     [SentryDependencyContainer.sharedInstance.reachability addObserver:self];

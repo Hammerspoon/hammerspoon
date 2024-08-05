@@ -39,14 +39,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface SentryCrashInstallation : NSObject
 
-/** C Function to call during a crash report to give the callee an opportunity
- * to add to the report. NULL = ignore.
- *
- * WARNING: Only call async-safe functions from this function! DO NOT call
- * Objective-C methods!!!
- */
-@property (atomic, readwrite, assign) SentryCrashReportWriteCallback onCrash;
-
 /** Install this installation. Call this instead of -[SentryCrash install] to
  * install with everything needed for your particular backend.
  */
@@ -67,13 +59,6 @@ NS_ASSUME_NONNULL_BEGIN
  * @param onCompletion Called when sending is complete (nil = ignore).
  */
 - (void)sendAllReportsWithCompletion:(nullable SentryCrashReportFilterCompletion)onCompletion;
-
-/** Add a filter that gets executed before all normal filters.
- * Prepended filters will be executed in the order in which they were added.
- *
- * @param filter the filter to prepend.
- */
-- (void)addPreFilter:(id<SentryCrashReportFilter>)filter;
 
 @end
 

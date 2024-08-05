@@ -26,8 +26,7 @@
 #include "SentryCrashStackCursor_Backtrace.h"
 #include "SentryCrashCPU.h"
 
-// #define SentryCrashLogger_LocalLevel TRACE
-#include "SentryCrashLogger.h"
+#include "SentryAsyncSafeLog.h"
 
 static bool
 advanceCursor(SentryCrashStackCursor *cursor)

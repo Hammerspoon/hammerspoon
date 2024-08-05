@@ -1,3 +1,35 @@
+# [3.8.5 - Xcode 15.3 on Mar 8th, 2024](https://github.com/CocoaLumberjack/CocoaLumberjack/releases/tags/3.8.5)
+
+### Public
+
+- Fix build failure due to privacy manifest when using static linking with CocoaPods (#1408)
+- Allow custom mapping of `DDLogFlag` to `os_log_type_t`, fix default mapping for `DDLogFlagWarn` (#1410)
+
+
+# [3.8.4 - Xcode 15.2 on Feb 8th, 2024](https://github.com/CocoaLumberjack/CocoaLumberjack/releases/tags/3.8.4)
+
+### Public
+
+- Extend privacy manifest to fulfill validation criteria (#1403)
+- Fix crash when fetching registered classes (#1406)
+
+
+# [3.8.3 - Xcode 15.2 on Feb 5th, 2024](https://github.com/CocoaLumberjack/CocoaLumberjack/releases/tags/3.8.3)
+
+### Public
+
+- Add privacy manifest (#1403)
+- Update doc from DDLogLevelWarn to DDLogLevelWarning to match library (#1383)
+- Only cleanup files on configuration change if the manager is used by a file logger (#1398)
+- Fix #1386 again by adding a missing return and adjusting the preprocessor conditionals
+- Fix some C++ warnings
+
+### Internal
+
+- Update copyright for 2024 (#1400)
+- Improve asserts (#1385)
+
+
 # [3.8.2 - Xcode 15.0 on Oct 31st, 2023](https://github.com/CocoaLumberjack/CocoaLumberjack/releases/tag/3.8.2)
 
 ### Public

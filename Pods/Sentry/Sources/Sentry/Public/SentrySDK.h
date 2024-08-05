@@ -4,6 +4,7 @@
 
 @class SentryOptions, SentryEvent, SentryBreadcrumb, SentryScope, SentryUser, SentryId,
     SentryUserFeedback, SentryTransactionContext;
+@class SentryMetricsAPI;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -23,6 +24,8 @@ SENTRY_NO_INIT
  * Indicates whether the SentrySDK is enabled.
  */
 @property (class, nonatomic, readonly) BOOL isEnabled;
+
+@property (class, nonatomic, readonly) SentryMetricsAPI *metrics;
 
 /**
  * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations. Make sure to
@@ -254,6 +257,16 @@ SENTRY_NO_INIT
 @property (nonatomic, class, readonly) BOOL crashedLastRun;
 
 /**
+ * Checks if the SDK detected a start-up crash during SDK initialization.
+ *
+ * @note The SDK init waits synchronously for up to 5 seconds to flush out events if the app crashes
+ * within 2 seconds after the SDK init.
+ *
+ * @return @c YES if the SDK detected a start-up crash and @c NO if not.
+ */
+@property (nonatomic, class, readonly) BOOL detectedStartUpCrash;
+
+/**
  * Set user to the current Scope of the current Hub.
  * @param user The user to set to the current Scope.
  */
@@ -292,6 +305,19 @@ SENTRY_NO_INIT
  * https://docs.sentry.io/platforms/cocoa/performance/instrumentation/automatic-instrumentation/#time-to-full-display
  */
 + (void)reportFullyDisplayed;
+
+/**
+ * Pauses sending detected app hangs to Sentry.
+ *
+ * @discussion This method doesn't close the detection of app hangs. Instead, the app hang detection
+ * will ignore detected app hangs until you call @c resumeAppHangTracking.
+ */
++ (void)pauseAppHangTracking;
+
+/**
+ * Resumes sending detected app hangs to Sentry.
+ */
++ (void)resumeAppHangTracking;
 
 /**
  * Waits synchronously for the SDK to flush out all queued and cached items for up to the specified

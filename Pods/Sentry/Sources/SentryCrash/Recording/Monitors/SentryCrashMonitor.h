@@ -31,14 +31,14 @@
 #ifndef HDR_SentryCrashMonitor_h
 #define HDR_SentryCrashMonitor_h
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "SentryCrashMonitorType.h"
 #include "SentryCrashThread.h"
 
 #include <stdbool.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct SentryCrash_MonitorContext;
 

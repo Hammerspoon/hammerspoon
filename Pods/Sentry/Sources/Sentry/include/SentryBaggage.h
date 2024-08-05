@@ -54,6 +54,8 @@ static NSString *const SENTRY_BAGGAGE_HEADER = @"baggage";
  */
 @property (nullable, nonatomic, strong) NSString *sampled;
 
+@property (nullable, nonatomic, strong) NSString *replayId;
+
 - (instancetype)initWithTraceId:(SentryId *)traceId
                       publicKey:(NSString *)publicKey
                     releaseName:(nullable NSString *)releaseName
@@ -61,9 +63,9 @@ static NSString *const SENTRY_BAGGAGE_HEADER = @"baggage";
                     transaction:(nullable NSString *)transaction
                     userSegment:(nullable NSString *)userSegment
                      sampleRate:(nullable NSString *)sampleRate
-                        sampled:(nullable NSString *)sampled;
+                        sampled:(nullable NSString *)sampled
+                       replayId:(nullable NSString *)replayId;
 
-- (NSString *)toHTTPHeader;
 - (NSString *)toHTTPHeaderWithOriginalBaggage:(NSDictionary *_Nullable)originalBaggage;
 
 @end

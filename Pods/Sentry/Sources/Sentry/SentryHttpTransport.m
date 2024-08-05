@@ -1,6 +1,6 @@
 #import "SentryHttpTransport.h"
 #import "SentryClientReport.h"
-#import "SentryCurrentDateProvider.h"
+#import "SentryDataCategory.h"
 #import "SentryDataCategoryMapper.h"
 #import "SentryDependencyContainer.h"
 #import "SentryDiscardReasonMapper.h"
@@ -20,19 +20,19 @@
 #import "SentryNSURLRequestBuilder.h"
 #import "SentryOptions.h"
 #import "SentrySerialization.h"
+#import "SentrySwift.h"
 
 #if !TARGET_OS_WATCH
 #    import "SentryReachability.h"
 #endif // !TARGET_OS_WATCH
 
-static NSTimeInterval const cachedEnvelopeSendDelay = 0.1;
-
 @interface
 SentryHttpTransport ()
-#if !TARGET_OS_WATCH
+#if SENTRY_HAS_REACHABILITY
     <SentryReachabilityObserver>
 #endif // !TARGET_OS_WATCH
 
+@property (nonatomic, readonly) NSTimeInterval cachedEnvelopeSendDelay;
 @property (nonatomic, strong) SentryFileManager *fileManager;
 @property (nonatomic, strong) id<SentryRequestManager> requestManager;
 @property (nonatomic, strong) SentryNSURLRequestBuilder *requestBuilder;
@@ -42,9 +42,9 @@ SentryHttpTransport ()
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueue;
 @property (nonatomic, strong) dispatch_group_t dispatchGroup;
 
-#if TEST || TESTCI
+#if defined(TEST) || defined(TESTCI) || defined(DEBUG)
 @property (nullable, nonatomic, strong) void (^startFlushCallback)(void);
-#endif
+#endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
 
 /**
  * Relay expects the discarded events split by data category and reason; see
@@ -68,15 +68,17 @@ SentryHttpTransport ()
 @implementation SentryHttpTransport
 
 - (id)initWithOptions:(SentryOptions *)options
-             fileManager:(SentryFileManager *)fileManager
-          requestManager:(id<SentryRequestManager>)requestManager
-          requestBuilder:(SentryNSURLRequestBuilder *)requestBuilder
-              rateLimits:(id<SentryRateLimits>)rateLimits
-       envelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
-    dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
+    cachedEnvelopeSendDelay:(NSTimeInterval)cachedEnvelopeSendDelay
+                fileManager:(SentryFileManager *)fileManager
+             requestManager:(id<SentryRequestManager>)requestManager
+             requestBuilder:(SentryNSURLRequestBuilder *)requestBuilder
+                 rateLimits:(id<SentryRateLimits>)rateLimits
+          envelopeRateLimit:(SentryEnvelopeRateLimit *)envelopeRateLimit
+       dispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
 {
     if (self = [super init]) {
         self.options = options;
+        _cachedEnvelopeSendDelay = cachedEnvelopeSendDelay;
         self.requestManager = requestManager;
         self.requestBuilder = requestBuilder;
         self.fileManager = fileManager;
@@ -92,14 +94,14 @@ SentryHttpTransport ()
 
         [self sendAllCachedEnvelopes];
 
-#if !TARGET_OS_WATCH
+#if SENTRY_HAS_REACHABILITY
         [SentryDependencyContainer.sharedInstance.reachability addObserver:self];
 #endif // !TARGET_OS_WATCH
     }
     return self;
 }
 
-#if !TARGET_OS_WATCH
+#if SENTRY_HAS_REACHABILITY
 - (void)connectivityChanged:(BOOL)connected typeDescription:(nonnull NSString *)typeDescription
 {
     if (connected) {
@@ -139,6 +141,13 @@ SentryHttpTransport ()
 
 - (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason
 {
+    [self recordLostEvent:category reason:reason quantity:1];
+}
+
+- (void)recordLostEvent:(SentryDataCategory)category
+                 reason:(SentryDiscardReason)reason
+               quantity:(NSUInteger)quantity
+{
     if (!self.options.sendClientReports) {
         return;
     }
@@ -148,7 +157,6 @@ SentryHttpTransport ()
 
     @synchronized(self.discardedEvents) {
         SentryDiscardedEvent *event = self.discardedEvents[key];
-        NSUInteger quantity = 1;
         if (event != nil) {
             quantity = event.quantity + 1;
         }
@@ -161,12 +169,12 @@ SentryHttpTransport ()
     }
 }
 
-#if TEST || TESTCI
+#if defined(TEST) || defined(TESTCI) || defined(DEBUG)
 - (void)setStartFlushCallback:(void (^)(void))callback
 {
     _startFlushCallback = callback;
 }
-#endif
+#endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
 
 - (SentryFlushResult)flush:(NSTimeInterval)timeout
 {
@@ -192,14 +200,19 @@ SentryHttpTransport ()
 
         _isFlushing = YES;
         dispatch_group_enter(self.dispatchGroup);
-#if TEST || TESTCI
+#if defined(TEST) || defined(TESTCI) || defined(DEBUG)
         if (self.startFlushCallback != nil) {
             self.startFlushCallback();
         }
-#endif
+#endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
     }
 
-    [self sendAllCachedEnvelopes];
+    // We are waiting for the dispatch group below, which we leave in finished sending. As
+    // sendAllCachedEnvelopes does some IO, it could block the calling thread longer than the
+    // desired flush duration. Therefore, we dispatch the sendAllCachedEnvelopes async. Furthermore,
+    // when calling flush directly after captureEnvelope, it could happen that SDK doesn't store the
+    // envelope to disk, which happens async, before starting to flush.
+    [self.dispatchQueue dispatchAsyncWithBlock:^{ [self sendAllCachedEnvelopes]; }];
 
     intptr_t result = dispatch_group_wait(self.dispatchGroup, dispatchTimeout);
 
@@ -219,17 +232,21 @@ SentryHttpTransport ()
 /**
  * SentryEnvelopeRateLimitDelegate.
  */
-- (void)envelopeItemDropped:(SentryDataCategory)dataCategory
+- (void)envelopeItemDropped:(SentryEnvelopeItem *)envelopeItem
+               withCategory:(SentryDataCategory)dataCategory;
 {
     [self recordLostEvent:dataCategory reason:kSentryDiscardReasonRateLimitBackoff];
+    [self recordLostSpans:envelopeItem reason:kSentryDiscardReasonRateLimitBackoff];
 }
 
 /**
  * SentryFileManagerDelegate.
  */
-- (void)envelopeItemDeleted:(SentryDataCategory)dataCategory
+- (void)envelopeItemDeleted:(SentryEnvelopeItem *)envelopeItem
+               withCategory:(SentryDataCategory)dataCategory
 {
     [self recordLostEvent:dataCategory reason:kSentryDiscardReasonCacheOverflow];
+    [self recordLostSpans:envelopeItem reason:kSentryDiscardReasonCacheOverflow];
 }
 
 #pragma mark private methods
@@ -317,10 +334,12 @@ SentryHttpTransport ()
 {
     SENTRY_LOG_DEBUG(@"Deleting envelope and sending next.");
     [self.fileManager removeFileAtPath:envelopePath];
-    self.isSending = NO;
+    @synchronized(self) {
+        self.isSending = NO;
+    }
 
     __weak SentryHttpTransport *weakSelf = self;
-    [self.dispatchQueue dispatchAfter:cachedEnvelopeSendDelay
+    [self.dispatchQueue dispatchAfter:self.cachedEnvelopeSendDelay
                                 block:^{
                                     if (weakSelf == nil) {
                                         return;
@@ -381,6 +400,20 @@ SentryHttpTransport ()
         }
         SentryDataCategory category = sentryDataCategoryForEnvelopItemType(itemType);
         [self recordLostEvent:category reason:kSentryDiscardReasonNetworkError];
+        [self recordLostSpans:item reason:kSentryDiscardReasonNetworkError];
+    }
+}
+
+- (void)recordLostSpans:(SentryEnvelopeItem *)envelopeItem reason:(SentryDiscardReason)reason
+{
+    if ([SentryEnvelopeItemTypeTransaction isEqualToString:envelopeItem.header.type]) {
+        NSDictionary *transactionJson =
+            [SentrySerialization deserializeEventEnvelopeItem:envelopeItem.data];
+        if (transactionJson == nil) {
+            return;
+        }
+        NSArray *spans = transactionJson[@"spans"] ?: [NSArray array];
+        [self recordLostEvent:kSentryDataCategorySpan reason:reason quantity:spans.count + 1];
     }
 }
 

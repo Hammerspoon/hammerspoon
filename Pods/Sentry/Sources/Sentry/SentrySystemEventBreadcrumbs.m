@@ -1,11 +1,11 @@
 #import "SentrySystemEventBreadcrumbs.h"
 #import "SentryBreadcrumb.h"
 #import "SentryBreadcrumbDelegate.h"
-#import "SentryCurrentDateProvider.h"
 #import "SentryDefines.h"
 #import "SentryDependencyContainer.h"
 #import "SentryLog.h"
 #import "SentryNSNotificationCenterWrapper.h"
+#import "SentrySwift.h"
 
 #if TARGET_OS_IOS && SENTRY_HAS_UIKIT
 
@@ -102,8 +102,15 @@ SentrySystemEventBreadcrumbs ()
 - (void)batteryStateChanged:(NSNotification *)notification
 {
     // Notifications for battery level change are sent no more frequently than once per minute
-    NSMutableDictionary<NSString *, id> *batteryData = [self getBatteryStatus:notification.object];
-    batteryData[@"action"] = @"BATTERY_STATE_CHANGE";
+    UIDevice *currentDevice = notification.object;
+    // The object of an NSNotification may be nil.
+    if (currentDevice == nil) {
+        SENTRY_LOG_DEBUG(
+            @"UIDevice of NSNotification was nil. Won't create battery changed breadcrumb.");
+        return;
+    }
+
+    NSDictionary<NSString *, id> *batteryData = [self getBatteryStatus:notification.object];
 
     SentryBreadcrumb *crumb = [[SentryBreadcrumb alloc] initWithLevel:kSentryLevelInfo
                                                              category:@"device.event"];
@@ -112,7 +119,7 @@ SentrySystemEventBreadcrumbs ()
     [_delegate addBreadcrumb:crumb];
 }
 
-- (NSMutableDictionary<NSString *, id> *)getBatteryStatus:(UIDevice *)currentDevice
+- (NSDictionary<NSString *, id> *)getBatteryStatus:(UIDevice *)currentDevice
 {
     // borrowed and adapted from
     // https://github.com/apache/cordova-plugin-battery-status/blob/master/src/ios/CDVBattery.m
@@ -124,7 +131,8 @@ SentrySystemEventBreadcrumbs ()
         isPlugged = YES;
     }
     float currentLevel = [currentDevice batteryLevel];
-    NSMutableDictionary<NSString *, id> *batteryData = [NSMutableDictionary new];
+    NSMutableDictionary<NSString *, id> *batteryData =
+        [NSMutableDictionary dictionaryWithCapacity:3];
 
     // W3C spec says level must be null if it is unknown
     if ((currentState != UIDeviceBatteryStateUnknown) && (currentLevel != -1.0)) {
@@ -135,6 +143,8 @@ SentrySystemEventBreadcrumbs ()
     }
 
     batteryData[@"plugged"] = @(isPlugged);
+    batteryData[@"action"] = @"BATTERY_STATE_CHANGE";
+
     return batteryData;
 }
 
@@ -240,11 +250,15 @@ SentrySystemEventBreadcrumbs ()
     NSInteger offset = SentryDependencyContainer.sharedInstance.dateProvider.timezoneOffset;
 
     crumb.type = @"system";
-    crumb.data = @{
-        @"action" : @"TIMEZONE_CHANGE",
-        @"previous_seconds_from_gmt" : storedTimezoneOffset,
-        @"current_seconds_from_gmt" : @(offset)
-    };
+
+    NSMutableDictionary *dataDict =
+        [@{ @"action" : @"TIMEZONE_CHANGE", @"current_seconds_from_gmt" : @(offset) } mutableCopy];
+
+    if (storedTimezoneOffset != nil) {
+        dataDict[@"previous_seconds_from_gmt"] = storedTimezoneOffset;
+    }
+
+    crumb.data = dataDict;
     [_delegate addBreadcrumb:crumb];
 
     [self updateStoredTimezone];

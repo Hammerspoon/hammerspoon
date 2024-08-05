@@ -4,6 +4,8 @@
 // this the SDK breaks for MacOS.
 #import <Foundation/Foundation.h>
 
+// Required for capturing uncaught exceptions in macOS. For more info see
+// https://docs.sentry.io/platforms/apple/guides/macos/usage/#capturing-uncaught-exceptions-in-macos
 #if TARGET_OS_OSX
 #    import <AppKit/NSApplication.h>
 @interface SentryCrashExceptionApplication : NSApplication

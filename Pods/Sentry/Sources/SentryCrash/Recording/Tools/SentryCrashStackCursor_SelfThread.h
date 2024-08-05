@@ -26,11 +26,11 @@
 #ifndef SentryCrashStackCursor_SelfThread_h
 #define SentryCrashStackCursor_SelfThread_h
 
+#import "SentryCrashStackCursor.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "SentryCrashStackCursor.h"
 
 /** Initialize a stack cursor for the current thread.
  *  You may want to skip some entries to account for the trace immediately

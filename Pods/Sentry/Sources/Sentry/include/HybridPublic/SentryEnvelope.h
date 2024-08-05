@@ -8,8 +8,12 @@
 
 #endif
 
-@class SentryEvent, SentrySession, SentryId, SentryUserFeedback, SentryAttachment,
-    SentryTransaction, SentryClientReport, SentryEnvelopeItemHeader;
+@class SentryEvent;
+@class SentrySession;
+@class SentryId;
+@class SentryUserFeedback;
+@class SentryAttachment;
+@class SentryEnvelopeItemHeader;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -67,6 +71,8 @@ SENTRY_NO_INIT
  * minimized.
  */
 @property (nullable, nonatomic, copy) NSDate *sentAt;
+
++ (instancetype)empty;
 
 @end
 

@@ -1,3 +1,5 @@
+#import "SentryDefines.h"
+#import "SentryProfilingConditionals.h"
 #import "SentrySpan.h"
 #import "SentrySpanProtocol.h"
 #import "SentryTracerConfiguration.h"
@@ -5,11 +7,18 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryHub, SentryTransactionContext, SentryTraceHeader, SentryTraceContext,
-    SentryNSTimerFactory, SentryDispatchQueueWrapper, SentryTracer, SentryProfilesSamplerDecision,
-    SentryMeasurementValue;
+@class SentryDispatchQueueWrapper;
+@class SentryHub;
+@class SentryMeasurementValue;
+@class SentryNSTimerFactory;
+@class SentryTraceContext;
+@class SentryTraceHeader;
+@class SentryTracer;
+@class SentryTransactionContext;
 
 static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
+
+static const NSTimeInterval SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0;
 
 @protocol SentryTracerDelegate
 
@@ -32,6 +41,8 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 
 @property (nullable, nonatomic, copy) void (^finishCallback)(SentryTracer *);
 
+@property (nullable, nonatomic, copy) BOOL (^shouldIgnoreWaitForChildrenCallback)(id<SentrySpan>);
+
 /**
  * Retrieves a trace context from this tracer.
  */
@@ -48,14 +59,6 @@ static NSTimeInterval const SentryTracerDefaultTimeout = 3.0;
 @property (nullable, nonatomic, weak) id<SentryTracerDelegate> delegate;
 
 @property (nonatomic, readonly) NSDictionary<NSString *, SentryMeasurementValue *> *measurements;
-
-/**
- * When an app launch is traced, after building the app start spans, the tracer's start timestamp is
- * adjusted backwards to be the start of the first app start span. But, we still need to know the
- * real start time of the trace for other purposes. This property provides a place to keep it before
- * reassigning it.
- */
-@property (strong, nonatomic, readonly) NSDate *originalStartTimestamp;
 
 /**
  * Init a @c SentryTracer with given transaction context and hub and set other fields by default

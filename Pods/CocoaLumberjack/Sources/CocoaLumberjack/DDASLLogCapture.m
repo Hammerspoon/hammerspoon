@@ -1,6 +1,6 @@
 // Software License Agreement (BSD License)
 //
-// Copyright (c) 2010-2023, Deusty, LLC
+// Copyright (c) 2010-2024, Deusty, LLC
 // All rights reserved.
 //
 // Redistribution and use of this software in source and binary forms,
@@ -29,8 +29,8 @@
     #define DD_LEGACY_MACROS 0
 #endif
 
-static BOOL _cancel = YES;
-static DDLogLevel _captureLevel = DDLogLevelVerbose;
+static __auto_type _cancel = YES;
+static __auto_type _captureLevel = DDLogLevelVerbose;
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-implementations"
@@ -73,7 +73,7 @@ static DDLogLevel _captureLevel = DDLogLevelVerbose;
     asl_set_query(query, kDDASLKeyDDLog, kDDASLDDLogValue, ASL_QUERY_OP_NOT_EQUAL);
     
 #if !TARGET_OS_IPHONE || (defined(TARGET_SIMULATOR) && TARGET_SIMULATOR)
-    int processId = [[NSProcessInfo processInfo] processIdentifier];
+    __auto_type processId = [[NSProcessInfo processInfo] processIdentifier];
     char pid[16];
     snprintf(pid, sizeof(pid), "%d", processId);
     asl_set_query(query, ASL_KEY_PID, pid, ASL_QUERY_OP_EQUAL | ASL_QUERY_OP_NUMERIC);
@@ -81,14 +81,14 @@ static DDLogLevel _captureLevel = DDLogLevelVerbose;
 }
 
 + (void)aslMessageReceived:(aslmsg)msg {
-    const char* messageCString = asl_get( msg, ASL_KEY_MSG );
-    if ( messageCString == NULL )
+    __auto_type messageCString = asl_get(msg, ASL_KEY_MSG);
+    if (messageCString == NULL)
         return;
 
     DDLogFlag flag;
     BOOL async;
 
-    const char* levelCString = asl_get(msg, ASL_KEY_LEVEL);
+    __auto_type levelCString = asl_get(msg, ASL_KEY_LEVEL);
     switch (levelCString? atoi(levelCString) : 0) {
         // By default all NSLog's with a ASL_LEVEL_WARNING level
         case ASL_LEVEL_EMERG    :
@@ -109,25 +109,25 @@ static DDLogLevel _captureLevel = DDLogLevelVerbose;
     //  NSString * sender = [NSString stringWithCString:asl_get(msg, ASL_KEY_SENDER) encoding:NSUTF8StringEncoding];
     NSString *message = @(messageCString);
 
-    const char* secondsCString = asl_get( msg, ASL_KEY_TIME );
-    const char* nanoCString = asl_get( msg, ASL_KEY_TIME_NSEC );
-    NSTimeInterval seconds = secondsCString ? strtod(secondsCString, NULL) : [NSDate timeIntervalSinceReferenceDate] - NSTimeIntervalSince1970;
-    double nanoSeconds = nanoCString? strtod(nanoCString, NULL) : 0;
-    NSTimeInterval totalSeconds = seconds + (nanoSeconds / 1e9);
+    __auto_type secondsCString = asl_get(msg, ASL_KEY_TIME);
+    __auto_type nanoCString = asl_get(msg, ASL_KEY_TIME_NSEC);
+    __auto_type seconds = secondsCString ? strtod(secondsCString, NULL) : [NSDate timeIntervalSinceReferenceDate] - NSTimeIntervalSince1970;
+    __auto_type nanoSeconds = nanoCString? strtod(nanoCString, NULL) : 0;
+    __auto_type totalSeconds = seconds + (nanoSeconds / 1e9);
 
-    NSDate *timeStamp = [NSDate dateWithTimeIntervalSince1970:totalSeconds];
+    __auto_type timeStamp = [NSDate dateWithTimeIntervalSince1970:totalSeconds];
 
-    DDLogMessage *logMessage = [[DDLogMessage alloc] initWithMessage:message
-                                                               level:_captureLevel
-                                                                flag:flag
-                                                             context:0
-                                                                file:@"DDASLLogCapture"
-                                                            function:nil
-                                                                line:0
-                                                                 tag:nil
-                                                             options:DDLogMessageDontCopyMessage
-                                                           timestamp:timeStamp];
-    
+    __auto_type logMessage = [[DDLogMessage alloc] initWithMessage:message
+                                                             level:_captureLevel
+                                                              flag:flag
+                                                           context:0
+                                                              file:@"DDASLLogCapture"
+                                                          function:nil
+                                                              line:0
+                                                               tag:nil
+                                                           options:DDLogMessageDontCopyMessage
+                                                         timestamp:timeStamp];
+
     [DDLog log:async message:logMessage];
 }
 
@@ -144,7 +144,7 @@ static DDLogLevel _captureLevel = DDLogLevelVerbose;
             .tv_sec = 0
         };
         gettimeofday(&timeval, NULL);
-        unsigned long long startTime = (unsigned long long)timeval.tv_sec;
+        __auto_type startTime = (unsigned long long)timeval.tv_sec;
         __block unsigned long long lastSeenID = 0;
 
         /*
@@ -163,7 +163,7 @@ static DDLogLevel _captureLevel = DDLogLevelVerbose;
             // At least one message has been posted; build a search query.
             @autoreleasepool
             {
-                aslmsg query = asl_new(ASL_TYPE_QUERY);
+                __auto_type query = asl_new(ASL_TYPE_QUERY);
                 char stringValue[64];
 
                 if (lastSeenID > 0) {
@@ -178,8 +178,8 @@ static DDLogLevel _captureLevel = DDLogLevelVerbose;
 
                 // Iterate over new messages.
                 aslmsg msg;
-                aslresponse response = asl_search(NULL, query);
-                
+                __auto_type response = asl_search(NULL, query);
+
                 while ((msg = asl_next(response)))
                 {
                     [self aslMessageReceived:msg];

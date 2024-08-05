@@ -1,4 +1,7 @@
 #import "SentryLog.h"
+#import "SentryAsyncSafeLog.h"
+#import "SentryFileManager.h"
+#import "SentryInternalCDefines.h"
 #import "SentryLevelMapper.h"
 #import "SentryLogOutput.h"
 
@@ -14,17 +17,36 @@ static SentryLevel diagnosticLevel = kSentryLevelError;
 static SentryLogOutput *logOutput;
 static NSObject *logConfigureLock;
 
-+ (void)initialize
+void
+_sentry_initializeAsyncLogFile(void)
 {
-    logConfigureLock = [[NSObject alloc] init];
+    const char *asyncLogPath =
+        [[sentryApplicationSupportPath() stringByAppendingPathComponent:@"async.log"] UTF8String];
+
+    NSError *error;
+    if (!createDirectoryIfNotExists(sentryApplicationSupportPath(), &error)) {
+        SENTRY_LOG_ERROR(@"Failed to initialize directory for async log file: %@", error);
+        return;
+    }
+
+    if (SENTRY_LOG_ERRNO(
+            sentry_asyncLogSetFileName(asyncLogPath, true /* overwrite existing log */))
+        != 0) {
+        SENTRY_LOG_ERROR(
+            @"Could not open a handle to specified path for async logging %s", asyncLogPath);
+    };
 }
 
 + (void)configure:(BOOL)debug diagnosticLevel:(SentryLevel)level
 {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{ logConfigureLock = [[NSObject alloc] init]; });
     @synchronized(logConfigureLock) {
         isDebug = debug;
         diagnosticLevel = level;
     }
+
+    _sentry_initializeAsyncLogFile();
 }
 
 + (void)logWithMessage:(NSString *)message andLevel:(SentryLevel)level
@@ -40,10 +62,12 @@ static NSObject *logConfigureLock;
 }
 
 + (BOOL)willLogAtLevel:(SentryLevel)level
+    SENTRY_DISABLE_THREAD_SANITIZER(
+        "The SDK usually configures the log level and isDebug once when it starts. For tests, we "
+        "accept a data race causing some log messages of the wrong level over using a synchronized "
+        "block for this method, as it's called frequently in production.")
 {
-    @synchronized(logConfigureLock) {
-        return isDebug && level != kSentryLevelNone && level >= diagnosticLevel;
-    }
+    return isDebug && level != kSentryLevelNone && level >= diagnosticLevel;
 }
 
 // Internal and only needed for testing.

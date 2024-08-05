@@ -1,7 +1,7 @@
 #import "SentryNoOpSpan.h"
-#import "SentryId.h"
 #import "SentrySpanContext.h"
 #import "SentrySpanId.h"
+#import "SentrySwift.h"
 #import "SentryTraceHeader.h"
 
 NS_ASSUME_NONNULL_BEGIN

@@ -24,9 +24,9 @@
 //
 
 #include "SentryCrashCachedData.h"
+#include "SentryInternalCDefines.h"
 
-// #define SentryCrashLogger_LocalLevel TRACE
-#include "SentryCrashLogger.h"
+#include "SentryAsyncSafeLog.h"
 
 #include <errno.h>
 #include <mach/mach.h>
@@ -54,7 +54,7 @@ static _Atomic(int) g_semaphoreCount;
 static bool g_hasThreadStarted = false;
 
 static void
-updateThreadList(void)
+updateThreadList(void) SENTRY_DISABLE_THREAD_SANITIZER("Known data race to fix")
 {
     const task_t thisTask = mach_task_self();
     int oldThreadsCount = g_allThreadsCount;
@@ -67,7 +67,7 @@ updateThreadList(void)
     thread_act_array_t threads;
     kern_return_t kr;
     if ((kr = task_threads(thisTask, &threads, &allThreadsCount)) != KERN_SUCCESS) {
-        SentryCrashLOG_ERROR("task_threads: %s", mach_error_string(kr));
+        SENTRY_ASYNC_SAFE_LOG_ERROR("task_threads: %s", mach_error_string(kr));
         return;
     }
 
@@ -129,6 +129,7 @@ updateThreadList(void)
 
 static void *
 monitorCachedData(__unused void *const userData)
+    SENTRY_DISABLE_THREAD_SANITIZER("Known data race to fix")
 {
     static int quickPollCount = 4;
     usleep(1);
@@ -149,6 +150,7 @@ monitorCachedData(__unused void *const userData)
 
 void
 sentrycrashccd_init(int pollingIntervalInSeconds)
+    SENTRY_DISABLE_THREAD_SANITIZER("Known data race to fix")
 {
     if (g_hasThreadStarted == true) {
         return;
@@ -161,7 +163,7 @@ sentrycrashccd_init(int pollingIntervalInSeconds)
     int error = pthread_create(
         &g_cacheThread, &attr, &monitorCachedData, "SentryCrash Cached Data Monitor");
     if (error != 0) {
-        SentryCrashLOG_ERROR("pthread_create_suspended_np: %s", strerror(error));
+        SENTRY_ASYNC_SAFE_LOG_ERROR("pthread_create_suspended_np: %s", strerror(error));
     }
     pthread_attr_destroy(&attr);
 }
@@ -211,6 +213,7 @@ sentrycrashccd_getAllThreads(int *threadCount)
 
 const char *
 sentrycrashccd_getThreadName(SentryCrashThread thread)
+    SENTRY_DISABLE_THREAD_SANITIZER("Known data race to fix")
 {
     if (g_allThreadNames != NULL) {
         for (int i = 0; i < g_allThreadsCount; i++) {

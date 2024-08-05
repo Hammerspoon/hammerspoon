@@ -27,8 +27,6 @@
 #import "SentryGeo.h"
 #import "SentryHttpStatusCodeRange.h"
 #import "SentryHub.h"
-#import "SentryId.h"
-#import "SentryIntegrationProtocol.h"
 #import "SentryMeasurementUnit.h"
 #import "SentryMechanism.h"
 #import "SentryMechanismMeta.h"
@@ -52,6 +50,7 @@
 #import "SentryTransactionContext.h"
 #import "SentryUser.h"
 #import "SentryUserFeedback.h"
+#import "SentryWithoutUIKit.h"
 
 FOUNDATION_EXPORT double SentryVersionNumber;
 FOUNDATION_EXPORT const unsigned char SentryVersionString[];

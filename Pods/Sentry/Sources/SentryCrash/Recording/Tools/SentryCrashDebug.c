@@ -27,8 +27,7 @@
 
 #include "SentryCrashDebug.h"
 
-// #define SentryCrashLogger_LocalLevel TRACE
-#include "SentryCrashLogger.h"
+#include "SentryAsyncSafeLog.h"
 
 #include <errno.h>
 #include <string.h>
@@ -53,7 +52,7 @@ sentrycrashdebug_isBeingTraced(void)
     int mib[] = { CTL_KERN, KERN_PROC, KERN_PROC_PID, getpid() };
 
     if (sysctl(mib, sizeof(mib) / sizeof(*mib), &procInfo, &structSize, NULL, 0) != 0) {
-        SentryCrashLOG_ERROR("sysctl: %s", strerror(errno));
+        SENTRY_ASYNC_SAFE_LOG_ERROR("sysctl: %s", strerror(errno));
         return false;
     }
 

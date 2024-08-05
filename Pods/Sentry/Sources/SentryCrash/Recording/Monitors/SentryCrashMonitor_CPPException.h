@@ -26,11 +26,11 @@
 #ifndef HDR_SentryCrashMonitor_CPPException_h
 #define HDR_SentryCrashMonitor_CPPException_h
 
+#include "SentryCrashMonitor.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "SentryCrashMonitor.h"
 
 /** Access the Monitor API.
  */

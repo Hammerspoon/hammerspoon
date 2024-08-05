@@ -1,8 +1,7 @@
 #import <Foundation/Foundation.h>
 
-@interface
-NSLocale (Sentry)
+@interface SentryLocale : NSObject
 
-- (BOOL)sentry_timeIs24HourFormat;
++ (BOOL)timeIs24HourFormat;
 
 @end

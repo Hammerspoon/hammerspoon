@@ -61,28 +61,6 @@ namespace profiling {
             return (*it).metadata;
         }
     }
-
-    QueueMetadata
-    ThreadMetadataCache::metadataForQueue(std::uint64_t address) const
-    {
-        if (address == 0) {
-            return {};
-        }
-        const auto it = std::find_if(queueMetadataCache_.cbegin(), queueMetadataCache_.cend(),
-            [address](const QueueMetadata &metadata) { return metadata.address == address; });
-        if (it == queueMetadataCache_.cend()) {
-            return { 0, {} };
-        } else {
-            return (*it);
-        }
-    }
-
-    void
-    ThreadMetadataCache::setQueueMetadata(QueueMetadata metadata)
-    {
-        queueMetadataCache_.push_back(std::move(metadata));
-    }
-
 } // namespace profiling
 } // namespace sentry
 

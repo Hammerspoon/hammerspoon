@@ -18,6 +18,17 @@ NS_ASSUME_NONNULL_BEGIN
                   didFailWithError:error];
 }
 
+- (NSURLRequest *)createEnvelopeRequest:(SentryEnvelope *)envelope
+                                    url:(NSURL *)url
+                       didFailWithError:(NSError *_Nullable *_Nullable)error
+{
+    return [[SentryNSURLRequest alloc]
+        initEnvelopeRequestWithURL:url
+                           andData:[SentrySerialization dataWithEnvelope:envelope error:error]
+                        authHeader:nil
+                  didFailWithError:error];
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

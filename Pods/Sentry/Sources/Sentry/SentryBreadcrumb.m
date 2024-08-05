@@ -1,7 +1,8 @@
 #import "SentryBreadcrumb.h"
-#import "NSDate+SentryExtras.h"
-#import "NSDictionary+SentrySanitize.h"
+#import "SentryDateUtils.h"
 #import "SentryLevelMapper.h"
+#import "SentryNSDictionarySanitize.h"
+#import "SentrySwift.h"
 
 @interface
 SentryBreadcrumb ()
@@ -25,7 +26,7 @@ SentryBreadcrumb ()
             if ([key isEqualToString:@"level"] && isString) {
                 self.level = sentryLevelForString(value);
             } else if ([key isEqualToString:@"timestamp"] && isString) {
-                self.timestamp = [NSDate sentry_fromIso8601String:value];
+                self.timestamp = sentry_fromIso8601String(value);
             } else if ([key isEqualToString:@"category"] && isString) {
                 self.category = value;
             } else if ([key isEqualToString:@"type"] && isString) {
@@ -66,11 +67,11 @@ SentryBreadcrumb ()
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
 
     [serializedData setValue:nameForSentryLevel(self.level) forKey:@"level"];
-    [serializedData setValue:[self.timestamp sentry_toIso8601String] forKey:@"timestamp"];
+    [serializedData setValue:sentry_toIso8601String(self.timestamp) forKey:@"timestamp"];
     [serializedData setValue:self.category forKey:@"category"];
     [serializedData setValue:self.type forKey:@"type"];
     [serializedData setValue:self.message forKey:@"message"];
-    [serializedData setValue:[self.data sentry_sanitize] forKey:@"data"];
+    [serializedData setValue:sentry_sanitize(self.data) forKey:@"data"];
     NSDictionary<NSString *, id> *unknown = self.unknown;
     if (unknown != nil) {
         for (id key in unknown) {

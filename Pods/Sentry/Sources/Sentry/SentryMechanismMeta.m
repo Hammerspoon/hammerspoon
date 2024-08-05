@@ -1,5 +1,5 @@
 #import "SentryMechanismMeta.h"
-#import "NSDictionary+SentrySanitize.h"
+#import "SentryNSDictionarySanitize.h"
 #import "SentryNSError.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -16,8 +16,8 @@ NS_ASSUME_NONNULL_BEGIN
 {
     NSMutableDictionary<NSString *, id> *data = [NSMutableDictionary new];
 
-    data[@"signal"] = [self.signal sentry_sanitize];
-    data[@"mach_exception"] = [self.machException sentry_sanitize];
+    data[@"signal"] = sentry_sanitize(self.signal);
+    data[@"mach_exception"] = sentry_sanitize(self.machException);
     data[@"ns_error"] = [self.error serialize];
 
     return data;

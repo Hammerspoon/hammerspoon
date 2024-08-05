@@ -1,6 +1,7 @@
 #import "SentryBaseIntegration.h"
 #import "SentryCrashWrapper.h"
 #import "SentryLog.h"
+#import "SentrySwift.h"
 #import <Foundation/Foundation.h>
 #import <SentryDependencyContainer.h>
 #import <SentryOptions+Private.h>
@@ -140,6 +141,19 @@ NS_ASSUME_NONNULL_BEGIN
         [self logWithOptionName:@"attachViewHierarchy"];
         return NO;
     }
+
+    if (integrationOptions & kIntegrationOptionEnableReplay) {
+        if (@available(iOS 16.0, tvOS 16.0, *)) {
+            if (options.experimental.sessionReplay.errorSampleRate == 0
+                && options.experimental.sessionReplay.sessionSampleRate == 0) {
+                [self logWithOptionName:@"sessionReplaySettings"];
+                return NO;
+            }
+        } else {
+            [self logWithReason:@"Session replay requires iOS 16 or above"];
+            return NO;
+        }
+    }
 #endif
 
     if ((integrationOptions & kIntegrationOptionEnableCrashHandler)
@@ -163,6 +177,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (SentryIntegrationOption)integrationOptions
 {
     return kIntegrationOptionNone;
+}
+
+- (void)uninstall
+{
 }
 
 @end

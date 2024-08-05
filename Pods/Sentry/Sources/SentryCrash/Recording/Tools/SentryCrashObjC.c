@@ -31,7 +31,7 @@
 #include "SentryCrashMemory.h"
 #include "SentryCrashString.h"
 
-#include "SentryCrashLogger.h"
+#include "SentryAsyncSafeLog.h"
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED > 70000
 #    include <objc/NSObjCRuntime.h>

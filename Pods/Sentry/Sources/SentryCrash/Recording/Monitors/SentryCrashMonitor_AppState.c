@@ -31,8 +31,7 @@
 #include "SentryCrashJSONCodec.h"
 #include "SentryCrashMonitorContext.h"
 
-// #define SentryCrashLogger_LocalLevel TRACE
-#include "SentryCrashLogger.h"
+#include "SentryAsyncSafeLog.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -125,7 +124,7 @@ onIntegerElement(const char *const name, const int64_t value, void *const userDa
 
     if (strcmp(name, kKeyFormatVersion) == 0) {
         if (value != kFormatVersion) {
-            SentryCrashLOG_ERROR("Expected version 1 but got %" PRId64, value);
+            SENTRY_ASYNC_SAFE_LOG_ERROR("Expected version 1 but got %" PRId64, value);
             return SentryCrashJSON_ERROR_INVALID_DATA;
         }
     } else if (strcmp(name, kKeyLaunchesSinceLastCrash) == 0) {
@@ -230,7 +229,7 @@ loadState(const char *const path)
     char *data;
     int length;
     if (!sentrycrashfu_readEntireFile(path, &data, &length, 50000)) {
-        SentryCrashLOG_ERROR("%s: Could not load file", path);
+        SENTRY_ASYNC_SAFE_LOG_ERROR("%s: Could not load file", path);
         return false;
     }
 
@@ -253,7 +252,7 @@ loadState(const char *const path)
         data, (int)length, stringBuffer, sizeof(stringBuffer), &callbacks, &g_state, &errorOffset);
     free(data);
     if (result != SentryCrashJSON_OK) {
-        SentryCrashLOG_ERROR(
+        SENTRY_ASYNC_SAFE_LOG_ERROR(
             "%s, offset %d: %s", path, errorOffset, sentrycrashjson_stringForError(result));
         return false;
     }
@@ -271,7 +270,8 @@ saveState(const char *const path)
 {
     int fd = open(path, O_RDWR | O_CREAT | O_TRUNC, 0644);
     if (fd < 0) {
-        SentryCrashLOG_ERROR("Could not open file %s for writing: %s", path, strerror(errno));
+        SENTRY_ASYNC_SAFE_LOG_ERROR(
+            "Could not open file %s for writing: %s", path, strerror(errno));
         return false;
     }
 
@@ -334,7 +334,7 @@ saveState(const char *const path)
 done:
     close(fd);
     if (result != SentryCrashJSON_OK) {
-        SentryCrashLOG_ERROR("%s: %s", path, sentrycrashjson_stringForError(result));
+        SENTRY_ASYNC_SAFE_LOG_ERROR("%s: %s", path, sentrycrashjson_stringForError(result));
         return false;
     }
     return true;

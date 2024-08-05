@@ -26,12 +26,12 @@
 #ifndef SentryCrashSymbolicator_h
 #define SentryCrashSymbolicator_h
 
+#import "SentryCrashStackCursor.h"
+#include <stdbool.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "SentryCrashStackCursor.h"
-#include <stdbool.h>
 
 /** Symbolicate a stack cursor.
  *

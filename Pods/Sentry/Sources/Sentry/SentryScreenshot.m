@@ -10,11 +10,11 @@
 
 @implementation SentryScreenshot
 
-- (NSArray<NSData *> *)appScreenshots
+- (NSArray<NSData *> *)appScreenshotsFromMainThread
 {
     __block NSArray *result;
 
-    void (^takeScreenShot)(void) = ^{ result = [self takeScreenshots]; };
+    void (^takeScreenShot)(void) = ^{ result = [self appScreenshots]; };
 
     [[SentryDependencyContainer sharedInstance].dispatchQueueWrapper
         dispatchSyncOnMainQueue:takeScreenShot];
@@ -29,7 +29,7 @@
     // We did it this way because we use this function to save screenshots
     // during signal handling, and if we dispatch it to the main thread,
     // that is probably blocked by the crash event, we freeze the application.
-    [[self takeScreenshots] enumerateObjectsUsingBlock:^(NSData *obj, NSUInteger idx, BOOL *stop) {
+    [[self appScreenshots] enumerateObjectsUsingBlock:^(NSData *obj, NSUInteger idx, BOOL *stop) {
         NSString *name = idx == 0
             ? @"screenshot.png"
             : [NSString stringWithFormat:@"screenshot-%li.png", (unsigned long)idx + 1];
@@ -38,7 +38,7 @@
     }];
 }
 
-- (NSArray<NSData *> *)takeScreenshots
+- (NSArray<NSData *> *)appScreenshots
 {
     NSArray<UIWindow *> *windows = [SentryDependencyContainer.sharedInstance.application windows];
 

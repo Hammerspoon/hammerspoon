@@ -16,7 +16,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryTransportAdapter : NSObject
 SENTRY_NO_INIT
 
-- (instancetype)initWithTransport:(id<SentryTransport>)transport options:(SentryOptions *)options;
+- (instancetype)initWithTransports:(NSArray<id<SentryTransport>> *)transports
+                           options:(SentryOptions *)options;
 
 - (void)sendEvent:(SentryEvent *)event
           session:(SentrySession *)session
@@ -43,6 +44,10 @@ SENTRY_NO_INIT
 - (void)sendEnvelope:(SentryEnvelope *)envelope NS_SWIFT_NAME(send(envelope:));
 
 - (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason;
+
+- (void)recordLostEvent:(SentryDataCategory)category
+                 reason:(SentryDiscardReason)reason
+               quantity:(NSUInteger)quantity;
 
 - (void)flush:(NSTimeInterval)timeout;
 

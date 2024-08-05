@@ -183,7 +183,6 @@
 #pragma mark System
 #define SentryCrashField_AppStartTime "app_start_time"
 #define SentryCrashField_AppUUID "app_uuid"
-#define SentryCrashField_BootTime "boot_time"
 #define SentryCrashField_BundleID "CFBundleIdentifier"
 #define SentryCrashField_BundleName "CFBundleName"
 #define SentryCrashField_BundleShortVersion "CFBundleShortVersionString"
@@ -205,8 +204,6 @@
 #define SentryCrashField_ProcessID "process_id"
 #define SentryCrashField_ProcessName "process_name"
 #define SentryCrashField_Size "size"
-#define SentryCrashField_Total_Storage "total_storage"
-#define SentryCrashField_Free_Storage "free_storage"
 #define SentryCrashField_SystemName "system_name"
 #define SentryCrashField_SystemVersion "system_version"
 #define SentryCrashField_BuildType "build_type"

@@ -1,23 +1,31 @@
 #import "SentryDateUtil.h"
-#import "SentryCurrentDateProvider.h"
-#import "SentryDependencyContainer.h"
+#import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface
 SentryDateUtil ()
 
+@property (nonatomic, strong) SentryCurrentDateProvider *currentDateProvider;
+
 @end
 
 @implementation SentryDateUtil
 
-+ (BOOL)isInFuture:(NSDate *_Nullable)date
+- (instancetype)initWithCurrentDateProvider:(SentryCurrentDateProvider *)currentDateProvider
+{
+    if (self = [super init]) {
+        self.currentDateProvider = currentDateProvider;
+    }
+    return self;
+}
+
+- (BOOL)isInFuture:(NSDate *_Nullable)date
 {
     if (date == nil)
         return NO;
 
-    NSComparisonResult result =
-        [[SentryDependencyContainer.sharedInstance.dateProvider date] compare:date];
+    NSComparisonResult result = [[self.currentDateProvider date] compare:date];
     return result == NSOrderedAscending;
 }
 
@@ -36,6 +44,11 @@ SentryDateUtil ()
     } else {
         return second;
     }
+}
+
++ (long)millisecondsSince1970:(NSDate *)date
+{
+    return (long)([date timeIntervalSince1970] * 1000);
 }
 
 @end

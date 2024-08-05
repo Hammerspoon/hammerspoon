@@ -1,5 +1,4 @@
 #import "SentryNSURLRequest.h"
-#import "NSData+SentryCompression.h"
 #import "SentryClient.h"
 #import "SentryDsn.h"
 #import "SentryError.h"
@@ -7,20 +6,16 @@
 #import "SentryHub.h"
 #import "SentryLog.h"
 #import "SentryMeta.h"
+#import "SentryNSDataUtils.h"
+#import "SentryOptions.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
+#import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 NSString *const SentryServerVersionString = @"7";
 NSTimeInterval const SentryRequestTimeout = 15;
-
-@interface
-SentryNSURLRequest ()
-
-@property (nonatomic, strong) SentryDsn *dsn;
-
-@end
 
 @implementation SentryNSURLRequest
 
@@ -58,9 +53,11 @@ SentryNSURLRequest ()
         self.HTTPMethod = @"POST";
         [self setValue:authHeader forHTTPHeaderField:@"X-Sentry-Auth"];
         [self setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-        [self setValue:SentryMeta.sdkName forHTTPHeaderField:@"User-Agent"];
+        [self setValue:[NSString
+                           stringWithFormat:@"%@/%@", SentryMeta.sdkName, SentryMeta.versionString]
+            forHTTPHeaderField:@"User-Agent"];
         [self setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
-        self.HTTPBody = [data sentry_gzippedWithCompressionLevel:-1 error:error];
+        self.HTTPBody = sentry_gzippedWithCompressionLevel(data, -1, error);
     }
     return self;
 }
@@ -70,18 +67,34 @@ SentryNSURLRequest ()
                                     didFailWithError:(NSError *_Nullable *_Nullable)error
 {
     NSURL *apiURL = [dsn getEnvelopeEndpoint];
-    self = [super initWithURL:apiURL
+    NSString *authHeader = newAuthHeader(dsn.url);
+
+    return [self initEnvelopeRequestWithURL:apiURL
+                                    andData:data
+                                 authHeader:authHeader
+                           didFailWithError:error];
+}
+
+- (instancetype)initEnvelopeRequestWithURL:(NSURL *)url
+                                   andData:(NSData *)data
+                                authHeader:(nullable NSString *)authHeader
+                          didFailWithError:(NSError *_Nullable *_Nullable)error
+{
+    self = [super initWithURL:url
                   cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
               timeoutInterval:SentryRequestTimeout];
     if (self) {
-        NSString *authHeader = newAuthHeader(dsn.url);
-
         self.HTTPMethod = @"POST";
-        [self setValue:authHeader forHTTPHeaderField:@"X-Sentry-Auth"];
+
+        if (authHeader != nil) {
+            [self setValue:authHeader forHTTPHeaderField:@"X-Sentry-Auth"];
+        }
         [self setValue:@"application/x-sentry-envelope" forHTTPHeaderField:@"Content-Type"];
-        [self setValue:SentryMeta.sdkName forHTTPHeaderField:@"User-Agent"];
+        [self setValue:[NSString
+                           stringWithFormat:@"%@/%@", SentryMeta.sdkName, SentryMeta.versionString]
+            forHTTPHeaderField:@"User-Agent"];
         [self setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
-        self.HTTPBody = [data sentry_gzippedWithCompressionLevel:-1 error:error];
+        self.HTTPBody = sentry_gzippedWithCompressionLevel(data, -1, error);
     }
 
     return self;

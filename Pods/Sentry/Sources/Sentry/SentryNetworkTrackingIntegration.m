@@ -29,6 +29,10 @@
         [SentryNetworkTracker.sharedInstance enableCaptureFailedRequests];
     }
 
+    if (options.enableGraphQLOperationTracking) {
+        [SentryNetworkTracker.sharedInstance enableGraphQLOperationTracking];
+    }
+
     if (shouldEnableNetworkTracking || options.enableNetworkBreadcrumbs
         || options.enableCaptureFailedRequests) {
         [SentryNetworkTrackingIntegration swizzleURLSessionTask];

@@ -103,7 +103,8 @@ NS_SWIFT_NAME(Event)
  *  name: "sentry.cocoa",
  *  integrations: [
  *      "react-native"
- *  ]
+ *  ],
+ *  features: ["performanceV2"]
  * }
  * @endcode
  * @warning This is automatically maintained and should not normally need to be modified.

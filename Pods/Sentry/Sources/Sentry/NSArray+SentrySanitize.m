@@ -1,30 +1,29 @@
 #import "NSArray+SentrySanitize.h"
-#import "NSDate+SentryExtras.h"
-#import "NSDictionary+SentrySanitize.h"
+#import "SentryDateUtils.h"
+#import "SentryNSDictionarySanitize.h"
 
-@implementation
-NSArray (SentrySanitize)
+@implementation SentryArray
 
-- (NSArray *)sentry_sanitize
++ (NSArray *)sanitizeArray:(NSArray *)array;
 {
-    NSMutableArray *array = [NSMutableArray array];
-    for (id rawValue in self) {
-
+    NSMutableArray *result = [NSMutableArray array];
+    for (id rawValue in array) {
         if ([rawValue isKindOfClass:NSString.class]) {
-            [array addObject:rawValue];
+            [result addObject:rawValue];
         } else if ([rawValue isKindOfClass:NSNumber.class]) {
-            [array addObject:rawValue];
+            [result addObject:rawValue];
         } else if ([rawValue isKindOfClass:NSDictionary.class]) {
-            [array addObject:[(NSDictionary *)rawValue sentry_sanitize]];
+            [result addObject:sentry_sanitize((NSDictionary *)rawValue)];
         } else if ([rawValue isKindOfClass:NSArray.class]) {
-            [array addObject:[(NSArray *)rawValue sentry_sanitize]];
+            [result addObject:[SentryArray sanitizeArray:rawValue]];
         } else if ([rawValue isKindOfClass:NSDate.class]) {
-            [array addObject:[(NSDate *)rawValue sentry_toIso8601String]];
+            NSDate *date = (NSDate *)rawValue;
+            [result addObject:sentry_toIso8601String(date)];
         } else {
-            [array addObject:[rawValue description]];
+            [result addObject:[rawValue description]];
         }
     }
-    return array;
+    return result;
 }
 
 @end

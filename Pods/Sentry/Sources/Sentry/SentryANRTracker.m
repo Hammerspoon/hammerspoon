@@ -1,9 +1,9 @@
 #import "SentryANRTracker.h"
 #import "SentryCrashWrapper.h"
-#import "SentryCurrentDateProvider.h"
 #import "SentryDependencyContainer.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryLog.h"
+#import "SentrySwift.h"
 #import "SentryThreadWrapper.h"
 #import <stdatomic.h>
 

@@ -10,7 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Get a screenshot of every open window in the app.
  * @return An array of @c NSData instances containing PNG images.
  */
-- (nullable NSArray<NSData *> *)appScreenshots;
+- (NSArray<NSData *> *)appScreenshotsFromMainThread;
 
 /**
  * Save the current app screen shots in the given directory.
@@ -20,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)saveScreenShots:(NSString *)imagesDirectoryPath;
 
-- (NSArray<NSData *> *)takeScreenshots;
+- (NSArray<NSData *> *)appScreenshots;
 @end
 
 NS_ASSUME_NONNULL_END

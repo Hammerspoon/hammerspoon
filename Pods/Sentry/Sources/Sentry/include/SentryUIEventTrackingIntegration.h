@@ -3,7 +3,7 @@
 #if SENTRY_HAS_UIKIT
 
 #    import "SentryBaseIntegration.h"
-#    import "SentryIntegrationProtocol.h"
+#    import "SentrySwift.h"
 
 @interface SentryUIEventTrackingIntegration : SentryBaseIntegration <SentryIntegrationProtocol>
 

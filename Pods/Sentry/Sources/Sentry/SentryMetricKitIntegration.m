@@ -3,8 +3,10 @@
 #if SENTRY_HAS_METRIC_KIT
 
 #    import "SentryInternalDefines.h"
+#    import "SentryOptions.h"
 #    import "SentryScope.h"
 #    import <Foundation/Foundation.h>
+#    import <SentryAttachment.h>
 #    import <SentryDebugMeta.h>
 #    import <SentryDependencyContainer.h>
 #    import <SentryEvent.h>
@@ -49,6 +51,7 @@ SentryMetricKitIntegration ()
 @property (nonatomic, strong, nullable) SentryMXManager *metricKitManager;
 @property (nonatomic, strong) NSMeasurementFormatter *measurementFormatter;
 @property (nonatomic, strong) SentryInAppLogic *inAppLogic;
+@property (nonatomic, assign) BOOL attachDiagnosticAsAttachment;
 
 @end
 
@@ -68,6 +71,7 @@ SentryMetricKitIntegration ()
     self.measurementFormatter.unitOptions = NSMeasurementFormatterUnitOptionsProvidedUnit;
     self.inAppLogic = [[SentryInAppLogic alloc] initWithInAppIncludes:options.inAppIncludes
                                                         inAppExcludes:options.inAppExcludes];
+    self.attachDiagnosticAsAttachment = options.enableMetricKitRawPayload;
 
     return YES;
 }
@@ -106,7 +110,9 @@ SentryMetricKitIntegration ()
     params.exceptionMechanism = @"MXCrashDiagnostic";
     params.timeStampBegin = timeStampBegin;
 
-    [self captureMXEvent:callStackTree params:params];
+    [self captureMXEvent:callStackTree
+                  params:params
+          diagnosticJSON:[diagnostic JSONRepresentation]];
 }
 
 - (void)didReceiveCpuExceptionDiagnostic:(MXCPUExceptionDiagnostic *)diagnostic
@@ -141,7 +147,9 @@ SentryMetricKitIntegration ()
     params.exceptionMechanism = SentryMetricKitCpuExceptionMechanism;
     params.timeStampBegin = timeStampBegin;
 
-    [self captureMXEvent:callStackTree params:params];
+    [self captureMXEvent:callStackTree
+                  params:params
+          diagnosticJSON:[diagnostic JSONRepresentation]];
 }
 
 - (void)didReceiveDiskWriteExceptionDiagnostic:(MXDiskWriteExceptionDiagnostic *)diagnostic
@@ -166,7 +174,9 @@ SentryMetricKitIntegration ()
     params.exceptionMechanism = SentryMetricKitDiskWriteExceptionMechanism;
     params.timeStampBegin = timeStampBegin;
 
-    [self captureMXEvent:callStackTree params:params];
+    [self captureMXEvent:callStackTree
+                  params:params
+          diagnosticJSON:[diagnostic JSONRepresentation]];
 }
 
 - (void)didReceiveHangDiagnostic:(MXHangDiagnostic *)diagnostic
@@ -188,11 +198,14 @@ SentryMetricKitIntegration ()
     params.exceptionMechanism = SentryMetricKitHangDiagnosticMechanism;
     params.timeStampBegin = timeStampBegin;
 
-    [self captureMXEvent:callStackTree params:params];
+    [self captureMXEvent:callStackTree
+                  params:params
+          diagnosticJSON:[diagnostic JSONRepresentation]];
 }
 
 - (void)captureMXEvent:(SentryMXCallStackTree *)callStackTree
                 params:(SentryMXExceptionParams *)params
+        diagnosticJSON:(NSData *)diagnosticJSON
 {
     // When receiving MXCrashDiagnostic the callStackPerThread was always true. In that case, the
     // MXCallStacks of the MXCallStackTree were individual threads, all belonging to the process
@@ -216,10 +229,12 @@ SentryMetricKitIntegration ()
 
         // The crash event can be way from the past. We don't want to impact the current session.
         // Therefore we don't call captureCrashEvent.
-        [SentrySDK captureEvent:event];
+        [self captureEvent:event withDiagnosticJSON:diagnosticJSON];
     } else {
         for (SentryMXCallStack *callStack in callStackTree.callStacks) {
-            [self buildAndCaptureMXEventFor:callStack.callStackRootFrames params:params];
+            [self buildAndCaptureMXEventFor:callStack.callStackRootFrames
+                                     params:params
+                             diagnosticJSON:diagnosticJSON];
         }
     }
 }
@@ -283,6 +298,7 @@ SentryMetricKitIntegration ()
  */
 - (void)buildAndCaptureMXEventFor:(NSArray<SentryMXFrame *> *)rootFrames
                            params:(SentryMXExceptionParams *)params
+                   diagnosticJSON:(NSData *)diagnosticJSON
 {
     for (SentryMXFrame *rootFrame in rootFrames) {
         NSMutableArray<SentryMXFrame *> *stackTraceFrames = [NSMutableArray array];
@@ -310,7 +326,9 @@ SentryMetricKitIntegration ()
             BOOL noChildren = currentFrame.subFrames.count == 0;
 
             if (noChildren && lastUnprocessedSibling) {
-                [self captureEventNotPerThread:stackTraceFrames params:params];
+                [self captureEventNotPerThread:stackTraceFrames
+                                        params:params
+                                diagnosticJSON:diagnosticJSON];
 
                 if (parentFrame == nil) {
                     // No parent frames
@@ -354,6 +372,7 @@ SentryMetricKitIntegration ()
 
 - (void)captureEventNotPerThread:(NSArray<SentryMXFrame *> *)frames
                           params:(SentryMXExceptionParams *)params
+                  diagnosticJSON:(NSData *)diagnosticJSON
 {
     SentryEvent *event = [self createEvent:params];
 
@@ -368,7 +387,7 @@ SentryMetricKitIntegration ()
     event.threads = @[ thread ];
     event.debugMeta = [self extractDebugMetaFromMXFrames:frames];
 
-    [SentrySDK captureEvent:event];
+    [self captureEvent:event withDiagnosticJSON:diagnosticJSON];
 }
 
 - (SentryEvent *)createEvent:(SentryMXExceptionParams *)params
@@ -385,6 +404,21 @@ SentryMetricKitIntegration ()
     event.exceptions = @[ exception ];
 
     return event;
+}
+
+- (void)captureEvent:(SentryEvent *)event withDiagnosticJSON:(NSData *)diagnosticJSON
+{
+    if (self.attachDiagnosticAsAttachment) {
+        [SentrySDK captureEvent:event
+                 withScopeBlock:^(SentryScope *_Nonnull scope) {
+                     SentryAttachment *attachment =
+                         [[SentryAttachment alloc] initWithData:diagnosticJSON
+                                                       filename:@"MXDiagnosticPayload.json"];
+                     [scope addAttachment:attachment];
+                 }];
+    } else {
+        [SentrySDK captureEvent:event];
+    }
 }
 
 - (NSArray<SentryThread *> *)convertToSentryThreads:(SentryMXCallStackTree *)callStackTree

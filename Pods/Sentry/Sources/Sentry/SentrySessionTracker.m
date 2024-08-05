@@ -1,16 +1,17 @@
 #import "SentrySessionTracker.h"
 #import "SentryClient+Private.h"
 #import "SentryClient.h"
-#import "SentryCurrentDateProvider.h"
 #import "SentryDependencyContainer.h"
 #import "SentryFileManager.h"
 #import "SentryHub+Private.h"
 #import "SentryInternalNotificationNames.h"
 #import "SentryLog.h"
 #import "SentryNSNotificationCenterWrapper.h"
+#import "SentryOptions.h"
 #import "SentrySDK+Private.h"
+#import "SentrySwift.h"
 
-#if SENTRY_TARGET_MACOS
+#if SENTRY_TARGET_MACOS_HAS_UI
 #    import <Cocoa/Cocoa.h>
 #endif
 
@@ -54,7 +55,7 @@ SentrySessionTracker ()
     // WillTerminate is called no matter if started from the background or launched into the
     // foreground.
 
-#if SENTRY_HAS_UIKIT || SENTRY_TARGET_MACOS
+#if SENTRY_HAS_UIKIT || SENTRY_TARGET_MACOS_HAS_UI
 
     // Call before subscribing to the notifications to avoid that didBecomeActive gets called before
     // ending the cached session.
@@ -85,7 +86,7 @@ SentrySessionTracker ()
 
 - (void)stop
 {
-#if SENTRY_HAS_UIKIT || SENTRY_TARGET_MACOS
+#if SENTRY_HAS_UIKIT || SENTRY_TARGET_MACOS_HAS_UI
     // Remove the observers with the most specific detail possible, see
     // https://developer.apple.com/documentation/foundation/nsnotificationcenter/1413994-removeobserver
     [self.notificationCenter

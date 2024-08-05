@@ -1,27 +1,29 @@
 #import "NSMutableDictionary+Sentry.h"
 
-@implementation
-NSMutableDictionary (Sentry)
+@implementation SentryDictionary
 
-- (void)mergeEntriesFromDictionary:(NSDictionary *)otherDictionary
++ (void)mergeEntriesFromDictionary:(NSDictionary *)dictionary
+                    intoDictionary:(NSMutableDictionary *)destination
 {
-    [otherDictionary enumerateKeysAndObjectsUsingBlock:^(id otherKey, id otherObj, BOOL *stop) {
+    [dictionary enumerateKeysAndObjectsUsingBlock:^(id otherKey, id otherObj, BOOL *stop) {
         if ([otherObj isKindOfClass:NSDictionary.class] &&
-            [self[otherKey] isKindOfClass:NSDictionary.class]) {
-            NSMutableDictionary *mergedDict = ((NSDictionary *)self[otherKey]).mutableCopy;
-            [mergedDict mergeEntriesFromDictionary:(NSDictionary *)otherObj];
-            self[otherKey] = mergedDict;
+            [destination[otherKey] isKindOfClass:NSDictionary.class]) {
+            NSMutableDictionary *mergedDict = ((NSDictionary *)destination[otherKey]).mutableCopy;
+            [SentryDictionary mergeEntriesFromDictionary:otherObj intoDictionary:mergedDict];
+            destination[otherKey] = mergedDict;
             return;
         }
 
-        self[otherKey] = otherObj;
+        destination[otherKey] = otherObj;
     }];
 }
 
-- (void)setBoolValue:(nullable NSNumber *)value forKey:(NSString *)key
++ (void)setBoolValue:(nullable NSNumber *)value
+              forKey:(NSString *)key
+      intoDictionary:(NSMutableDictionary *)destination
 {
     if (value != nil) {
-        [self setValue:@([value boolValue]) forKey:key];
+        [destination setValue:@([value boolValue]) forKey:key];
     }
 }
 

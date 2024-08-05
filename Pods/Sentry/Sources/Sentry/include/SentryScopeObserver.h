@@ -31,6 +31,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)clear;
 
+@optional
+- (void)setCurrentScreen:(NSString *)currentScreen;
+
 @end
 
 NS_ASSUME_NONNULL_END

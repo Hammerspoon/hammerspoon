@@ -83,7 +83,7 @@ SU_EXPORT @interface SUUpdater : NSObject
 /*!
  Checks for updates, but does not display any UI unless an update is found.
 
- This is meant for programmatically initating a check for updates. That is,
+ This is meant for programmatically initiating a check for updates. That is,
  it will display no UI unless it actually finds an update, in which case it
  proceeds as usual.
 
@@ -160,7 +160,7 @@ SU_EXPORT @interface SUUpdater : NSObject
 /*!
  The user agent used when checking for and downloading updates.
 
- The default implementation can be overrided.
+ The default implementation can be overridden.
  */
 @property (nonatomic, copy) NSString *userAgentString;
 

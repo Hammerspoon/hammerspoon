@@ -10,17 +10,18 @@ NS_ASSUME_NONNULL_BEGIN
 @interface
 SentryTransportAdapter ()
 
-@property (nonatomic, strong) id<SentryTransport> transport;
+@property (nonatomic, strong) NSArray<id<SentryTransport>> *transports;
 @property (nonatomic, strong) SentryOptions *options;
 
 @end
 
 @implementation SentryTransportAdapter
 
-- (instancetype)initWithTransport:(id<SentryTransport>)transport options:(SentryOptions *)options
+- (instancetype)initWithTransports:(NSArray<id<SentryTransport>> *)transports
+                           options:(SentryOptions *)options
 {
     if (self = [super init]) {
-        self.transport = transport;
+        self.transports = transports;
         self.options = options;
     }
 
@@ -89,17 +90,32 @@ SentryTransportAdapter ()
 
 - (void)sendEnvelope:(SentryEnvelope *)envelope
 {
-    [self.transport sendEnvelope:envelope];
+    for (id<SentryTransport> transport in self.transports) {
+        [transport sendEnvelope:envelope];
+    }
 }
 
 - (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason
 {
-    [self.transport recordLostEvent:category reason:reason];
+    for (id<SentryTransport> transport in self.transports) {
+        [transport recordLostEvent:category reason:reason];
+    }
+}
+
+- (void)recordLostEvent:(SentryDataCategory)category
+                 reason:(SentryDiscardReason)reason
+               quantity:(NSUInteger)quantity
+{
+    for (id<SentryTransport> transport in self.transports) {
+        [transport recordLostEvent:category reason:reason quantity:quantity];
+    }
 }
 
 - (void)flush:(NSTimeInterval)timeout
 {
-    [self.transport flush:timeout];
+    for (id<SentryTransport> transport in self.transports) {
+        [transport flush:timeout];
+    }
 }
 
 - (NSMutableArray<SentryEnvelopeItem *> *)buildEnvelopeItems:(SentryEvent *)event

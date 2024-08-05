@@ -3,14 +3,12 @@
 #if SENTRY_HAS_UIKIT
 
 #    import "SentryBaseIntegration.h"
-#    import "SentryIntegrationProtocol.h"
+#    import "SentrySwift.h"
 #    import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryFramesTrackingIntegration : SentryBaseIntegration <SentryIntegrationProtocol>
-
-- (void)stop;
 
 @end
 

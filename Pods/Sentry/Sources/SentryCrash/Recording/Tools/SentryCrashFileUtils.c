@@ -27,8 +27,7 @@
 
 #include "SentryCrashFileUtils.h"
 
-// #define SentryCrashLogger_LocalLevel TRACE
-#include "SentryCrashLogger.h"
+#include "SentryAsyncSafeLog.h"
 
 #include <dirent.h>
 #include <errno.h>
@@ -74,7 +73,7 @@ dirContentsCount(const char *path)
     int count = 0;
     DIR *dir = opendir(path);
     if (dir == NULL) {
-        SentryCrashLOG_ERROR("Error reading directory %s: %s", path, strerror(errno));
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Error reading directory %s: %s", path, strerror(errno));
         return 0;
     }
 
@@ -97,7 +96,7 @@ dirContents(const char *path, char ***entries, int *count)
     }
     dir = opendir(path);
     if (dir == NULL) {
-        SentryCrashLOG_ERROR("Error reading directory %s: %s", path, strerror(errno));
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Error reading directory %s: %s", path, strerror(errno));
         goto done;
     }
 
@@ -107,7 +106,7 @@ dirContents(const char *path, char ***entries, int *count)
         int index = 0;
         while ((ent = readdir(dir))) {
             if (index >= entryCount) {
-                SentryCrashLOG_ERROR("Contents of %s have been mutated", path);
+                SENTRY_ASYNC_SAFE_LOG_ERROR("Contents of %s have been mutated", path);
                 goto done;
             }
             entryList[index] = strdup(ent->d_name);
@@ -145,7 +144,7 @@ deletePathContents(const char *path, bool deleteTopLevelPathAlso)
 {
     struct stat statStruct = { 0 };
     if (stat(path, &statStruct) != 0) {
-        SentryCrashLOG_ERROR("Could not stat %s: %s", path, strerror(errno));
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Could not stat %s: %s", path, strerror(errno));
         return false;
     }
     if (S_ISDIR(statStruct.st_mode)) {
@@ -175,7 +174,7 @@ deletePathContents(const char *path, bool deleteTopLevelPathAlso)
     } else if (S_ISREG(statStruct.st_mode)) {
         sentrycrashfu_removeFile(path, false);
     } else {
-        SentryCrashLOG_ERROR("Could not delete %s: Not a regular file.", path);
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Could not delete %s: Not a regular file.", path);
         return false;
     }
     return true;
@@ -203,7 +202,7 @@ sentrycrashfu_writeBytesToFD(const int fd, const char *const bytes, int length)
     while (length > 0) {
         int bytesWritten = (int)write(fd, pos, (unsigned)length);
         if (bytesWritten == -1) {
-            SentryCrashLOG_ERROR("Could not write to fd %d: %s", fd, strerror(errno));
+            SENTRY_ASYNC_SAFE_LOG_ERROR("Could not write to fd %d: %s", fd, strerror(errno));
             return false;
         }
         length -= bytesWritten;
@@ -219,7 +218,7 @@ sentrycrashfu_readBytesFromFD(const int fd, char *const bytes, int length)
     while (length > 0) {
         int bytesRead = (int)read(fd, pos, (unsigned)length);
         if (bytesRead == -1) {
-            SentryCrashLOG_ERROR("Could not write to fd %d: %s", fd, strerror(errno));
+            SENTRY_ASYNC_SAFE_LOG_ERROR("Could not write to fd %d: %s", fd, strerror(errno));
             return false;
         }
         length -= bytesRead;
@@ -239,13 +238,13 @@ sentrycrashfu_readEntireFile(const char *const path, char **data, int *length, i
 
     struct stat st;
     if (stat(path, &st) < 0) {
-        SentryCrashLOG_ERROR("Could not stat %s: %s", path, strerror(errno));
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Could not stat %s: %s", path, strerror(errno));
         goto done;
     }
 
     fd = open(path, O_RDONLY);
     if (fd < 0) {
-        SentryCrashLOG_ERROR("Could not open %s: %s", path, strerror(errno));
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Could not open %s: %s", path, strerror(errno));
         goto done;
     }
 
@@ -253,7 +252,7 @@ sentrycrashfu_readEntireFile(const char *const path, char **data, int *length, i
         bytesToRead = (int)st.st_size;
     } else if (bytesToRead > 0) {
         if (lseek(fd, -bytesToRead, SEEK_END) < 0) {
-            SentryCrashLOG_ERROR(
+            SENTRY_ASYNC_SAFE_LOG_ERROR(
                 "Could not seek to %d from end of %s: %s", -bytesToRead, path, strerror(errno));
             goto done;
         }
@@ -261,7 +260,7 @@ sentrycrashfu_readEntireFile(const char *const path, char **data, int *length, i
 
     mem = malloc((unsigned)bytesToRead + 1);
     if (mem == NULL) {
-        SentryCrashLOG_ERROR("Out of memory");
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Out of memory");
         goto done;
     }
 
@@ -299,7 +298,7 @@ sentrycrashfu_writeStringToFD(const int fd, const char *const string)
         while (bytesToWrite > 0) {
             int bytesWritten = (int)write(fd, pos, (unsigned)bytesToWrite);
             if (bytesWritten == -1) {
-                SentryCrashLOG_ERROR("Could not write to fd %d: %s", fd, strerror(errno));
+                SENTRY_ASYNC_SAFE_LOG_ERROR("Could not write to fd %d: %s", fd, strerror(errno));
                 return false;
             }
             bytesToWrite -= bytesWritten;
@@ -343,7 +342,7 @@ sentrycrashfu_readLineFromFD(const int fd, char *const buffer, const int maxLeng
     for (ch = buffer; ch < end; ch++) {
         int bytesRead = (int)read(fd, ch, 1);
         if (bytesRead < 0) {
-            SentryCrashLOG_ERROR("Could not read from fd %d: %s", fd, strerror(errno));
+            SENTRY_ASYNC_SAFE_LOG_ERROR("Could not read from fd %d: %s", fd, strerror(errno));
             return -1;
         } else if (bytesRead == 0 || *ch == '\n') {
             break;
@@ -362,7 +361,7 @@ sentrycrashfu_makePath(const char *absolutePath)
         if (*ptr == '/') {
             *ptr = '\0';
             if (mkdir(pathCopy, S_IRWXU) < 0 && errno != EEXIST) {
-                SentryCrashLOG_ERROR(
+                SENTRY_ASYNC_SAFE_LOG_ERROR(
                     "Could not create directory %s: %s", pathCopy, strerror(errno));
                 goto done;
             }
@@ -370,7 +369,7 @@ sentrycrashfu_makePath(const char *absolutePath)
         }
     }
     if (mkdir(pathCopy, S_IRWXU) < 0 && errno != EEXIST) {
-        SentryCrashLOG_ERROR("Could not create directory %s: %s", pathCopy, strerror(errno));
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Could not create directory %s: %s", pathCopy, strerror(errno));
         goto done;
     }
     isSuccessful = true;
@@ -385,7 +384,7 @@ sentrycrashfu_removeFile(const char *path, bool mustExist)
 {
     if (remove(path) < 0) {
         if (mustExist || errno != ENOENT) {
-            SentryCrashLOG_ERROR("Could not delete %s: %s", path, strerror(errno));
+            SENTRY_ASYNC_SAFE_LOG_ERROR("Could not delete %s: %s", path, strerror(errno));
         }
         return false;
     }
@@ -411,7 +410,8 @@ sentrycrashfu_openBufferedWriter(SentryCrashBufferedWriter *writer, const char *
     writer->position = 0;
     writer->fd = open(path, O_RDWR | O_CREAT | O_EXCL, 0644);
     if (writer->fd < 0) {
-        SentryCrashLOG_ERROR("Could not open crash report file %s: %s", path, strerror(errno));
+        SENTRY_ASYNC_SAFE_LOG_ERROR(
+            "Could not open crash report file %s: %s", path, strerror(errno));
         return false;
     }
     return true;
@@ -475,7 +475,7 @@ fillReadBuffer(SentryCrashBufferedReader *reader)
     }
     int bytesRead = (int)read(reader->fd, reader->buffer + reader->dataEndPos, (size_t)bytesToRead);
     if (bytesRead < 0) {
-        SentryCrashLOG_ERROR("Could not read: %s", strerror(errno));
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Could not read: %s", strerror(errno));
         return false;
     } else {
         reader->dataEndPos += bytesRead;
@@ -565,7 +565,7 @@ sentrycrashfu_openBufferedReader(SentryCrashBufferedReader *reader, const char *
     reader->dataEndPos = 0;
     reader->fd = open(path, O_RDONLY);
     if (reader->fd < 0) {
-        SentryCrashLOG_ERROR("Could not open file %s: %s", path, strerror(errno));
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Could not open file %s: %s", path, strerror(errno));
         return false;
     }
     fillReadBuffer(reader);

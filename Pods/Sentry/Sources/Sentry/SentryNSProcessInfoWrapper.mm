@@ -1,7 +1,7 @@
 #import "SentryNSProcessInfoWrapper.h"
 
 @implementation SentryNSProcessInfoWrapper {
-#if TEST
+#if defined(TEST) || defined(TESTCI) || defined(DEBUG)
     NSString *_executablePath;
 }
 - (void)setProcessPath:(NSString *)path
@@ -20,7 +20,7 @@
 #else
 }
 #    define SENTRY_BINARY_EXECUTABLE_PATH NSBundle.mainBundle.executablePath;
-#endif
+#endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
 
 + (SentryNSProcessInfoWrapper *)shared
 {

@@ -1,9 +1,11 @@
 #import "SentrySysctl.h"
 #import "SentryCrashSysCtl.h"
+#import "SentryTime.h"
 #include <stdio.h>
 #include <time.h>
 
 static NSDate *moduleInitializationTimestamp;
+static uint64_t runtimeInitSystemTimestamp;
 static NSDate *runtimeInit = nil;
 
 /**
@@ -27,8 +29,13 @@ sentryModuleInitializationHook(void)
 
 + (void)load
 {
-    // Invoked whenever this class is added to the Objective-C runtime.
     runtimeInit = [NSDate date];
+
+    // this will be used for launch profiles. those are started from SentryTracer.load, and while
+    // there's no guarantee on whether that or this load method will be called first, the difference
+    // in time has been observed to only be on the order of single milliseconds, not significant
+    // enough to make a difference in outcomes
+    runtimeInitSystemTimestamp = getAbsoluteTime();
 }
 
 - (NSDate *)runtimeInitTimestamp
@@ -46,6 +53,11 @@ sentryModuleInitializationHook(void)
 {
     struct timeval startTime = sentrycrashsysctl_currentProcessStartTime();
     return [NSDate dateWithTimeIntervalSince1970:startTime.tv_sec + startTime.tv_usec / 1E6];
+}
+
+- (uint64_t)runtimeInitSystemTimestamp
+{
+    return runtimeInitSystemTimestamp;
 }
 
 - (NSDate *)moduleInitializationTimestamp

@@ -1,5 +1,5 @@
 #import "SentryLevelMapper.h"
-
+#import "SentrySwift.h"
 NS_ASSUME_NONNULL_BEGIN
 
 NSString *const kSentryLevelNameNone = @"none";

@@ -1,7 +1,7 @@
 #import "SentryCrashReportConverter.h"
-#import "NSDate+SentryExtras.h"
 #import "SentryBreadcrumb.h"
 #import "SentryCrashStackCursor.h"
+#import "SentryDateUtils.h"
 #import "SentryDebugMeta.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
@@ -104,8 +104,7 @@ SentryCrashReportConverter ()
             event.timestamp = [NSDate
                 dateWithTimeIntervalSince1970:[self.report[@"report"][@"timestamp"] integerValue]];
         } else {
-            event.timestamp =
-                [NSDate sentry_fromIso8601String:self.report[@"report"][@"timestamp"]];
+            event.timestamp = sentry_fromIso8601String(self.report[@"report"][@"timestamp"]);
         }
         event.threads = [self convertThreads];
         event.debugMeta = [self debugMetaForThreads:event.threads];
@@ -172,7 +171,7 @@ SentryCrashReportConverter ()
                      category:storedCrumb[@"category"]];
             crumb.message = storedCrumb[@"message"];
             crumb.type = storedCrumb[@"type"];
-            crumb.timestamp = [NSDate sentry_fromIso8601String:storedCrumb[@"timestamp"]];
+            crumb.timestamp = sentry_fromIso8601String(storedCrumb[@"timestamp"]);
             crumb.data = storedCrumb[@"data"];
             [breadcrumbs addObject:crumb];
         }

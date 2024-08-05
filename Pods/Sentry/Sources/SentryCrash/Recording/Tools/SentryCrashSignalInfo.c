@@ -42,10 +42,7 @@ typedef struct {
     const int numCodes;
 } SentryCrashSignalInfo;
 
-#define ENUM_NAME_MAPPING(A)                                                                       \
-    {                                                                                              \
-        A, #A                                                                                      \
-    }
+#define ENUM_NAME_MAPPING(A) { A, #A }
 
 static const SentryCrashSignalCodeInfo g_sigIllCodes[] = {
 #ifdef ILL_NOOP
@@ -98,14 +95,8 @@ static const SentryCrashSignalCodeInfo g_sigSegVCodes[] = {
     ENUM_NAME_MAPPING(SEGV_ACCERR),
 };
 
-#define SIGNAL_INFO(SIGNAL, CODES)                                                                 \
-    {                                                                                              \
-        SIGNAL, #SIGNAL, CODES, sizeof(CODES) / sizeof(*CODES)                                     \
-    }
-#define SIGNAL_INFO_NOCODES(SIGNAL)                                                                \
-    {                                                                                              \
-        SIGNAL, #SIGNAL, 0, 0                                                                      \
-    }
+#define SIGNAL_INFO(SIGNAL, CODES) { SIGNAL, #SIGNAL, CODES, sizeof(CODES) / sizeof(*CODES) }
+#define SIGNAL_INFO_NOCODES(SIGNAL) { SIGNAL, #SIGNAL, 0, 0 }
 
 static const SentryCrashSignalInfo g_fatalSignalData[] = {
     SIGNAL_INFO_NOCODES(SIGABRT),
@@ -115,7 +106,8 @@ static const SentryCrashSignalInfo g_fatalSignalData[] = {
     SIGNAL_INFO_NOCODES(SIGPIPE),
     SIGNAL_INFO(SIGSEGV, g_sigSegVCodes),
     SIGNAL_INFO_NOCODES(SIGSYS),
-    SIGNAL_INFO(SIGTERM, g_sigTrapCodes),
+    SIGNAL_INFO(SIGTRAP, g_sigTrapCodes),
+    SIGNAL_INFO_NOCODES(SIGTERM),
 };
 static const int g_fatalSignalsCount = sizeof(g_fatalSignalData) / sizeof(*g_fatalSignalData);
 
@@ -130,6 +122,15 @@ static const int g_fatalSignals[] = {
     SIGSEGV,
     SIGSYS,
     SIGTRAP,
+
+    // SIGTERM can be caught and is usually sent by iOS and variants
+    // when Apple wants to try and gracefully shutdown the app
+    // before sending a SIGKILL (which can't be caught).
+    // Some areas this might happen are:
+    // - When the OS updates an app.
+    // - In some circumstances for Watchdog Events.
+    // - Resource overuse (CPU, Disk, ...).
+    SIGTERM,
 };
 
 const char *

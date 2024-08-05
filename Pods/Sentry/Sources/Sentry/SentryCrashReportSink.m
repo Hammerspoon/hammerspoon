@@ -50,6 +50,9 @@ SentryCrashReportSink ()
     if (durationFromCrashStateInitToLastCrash > 0
         && durationFromCrashStateInitToLastCrash <= SENTRY_APP_START_CRASH_DURATION_THRESHOLD) {
         SENTRY_LOG_WARN(@"Startup crash: detected.");
+
+        [SentrySDK setDetectedStartUpCrash:YES];
+
         [self sendReports:reports onCompletion:onCompletion];
 
         [SentrySDK flush:SENTRY_APP_START_CRASH_FLUSH_DURATION];

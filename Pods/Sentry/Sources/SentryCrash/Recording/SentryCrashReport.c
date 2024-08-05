@@ -43,13 +43,12 @@
 #include "SentryCrashStackCursor_Backtrace.h"
 #include "SentryCrashStackCursor_MachineContext.h"
 #include "SentryCrashString.h"
-#include "SentryCrashSystemCapabilities.h"
 #include "SentryCrashThread.h"
 #include "SentryCrashUUIDConversion.h"
+#include "SentryInternalCDefines.h"
 #include "SentryScopeSyncC.h"
 
-// #define SentryCrashLogger_LocalLevel TRACE
-#include "SentryCrashLogger.h"
+#include "SentryAsyncSafeLog.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -152,12 +151,12 @@ addTextFileElement(
 {
     const int fd = open(filePath, O_RDONLY);
     if (fd < 0) {
-        SentryCrashLOG_ERROR("Could not open file %s: %s", filePath, strerror(errno));
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Could not open file %s: %s", filePath, strerror(errno));
         return;
     }
 
     if (sentrycrashjson_beginStringElement(getJsonContext(writer), key) != SentryCrashJSON_OK) {
-        SentryCrashLOG_ERROR("Could not start string element");
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Could not start string element");
         goto done;
     }
 
@@ -167,7 +166,7 @@ addTextFileElement(
          bytesRead = (int)read(fd, buffer, sizeof(buffer))) {
         if (sentrycrashjson_appendStringElement(getJsonContext(writer), buffer, bytesRead)
             != SentryCrashJSON_OK) {
-            SentryCrashLOG_ERROR("Could not append string element");
+            SENTRY_ASYNC_SAFE_LOG_ERROR("Could not append string element");
             goto done;
         }
     }
@@ -584,7 +583,8 @@ writeUnknownObjectContents(const SentryCrashReportWriter *const writer, const ch
                     writeMemoryContents(writer, ivar->name, (uintptr_t)pointer, limit);
                     break;
                 default:
-                    SentryCrashLOG_DEBUG("%s: Unknown ivar type [%s]", ivar->name, ivar->type);
+                    SENTRY_ASYNC_SAFE_LOG_DEBUG(
+                        "%s: Unknown ivar type [%s]", ivar->name, ivar->type);
                 }
             }
         }
@@ -609,7 +609,6 @@ isRestrictedClass(const char *name)
 static bool
 writeObjCObject(const SentryCrashReportWriter *const writer, const uintptr_t address, int *limit)
 {
-#if SentryCrashCRASH_HAS_OBJC
     const void *object = (const void *)address;
     switch (sentrycrashobjc_objectType(object)) {
     case SentryCrashObjCTypeClass:
@@ -663,7 +662,6 @@ writeObjCObject(const SentryCrashReportWriter *const writer, const uintptr_t add
     case SentryCrashObjCTypeUnknown:
         break;
     }
-#endif
 
     return false;
 }
@@ -710,13 +708,11 @@ isValidPointer(const uintptr_t address)
         return false;
     }
 
-#if SentryCrashCRASH_HAS_OBJC
     if (sentrycrashobjc_isTaggedPointer((const void *)address)) {
         if (!sentrycrashobjc_isValidTaggedPointer((const void *)address)) {
             return false;
         }
     }
-#endif
 
     return true;
 }
@@ -730,11 +726,9 @@ isNotableAddress(const uintptr_t address)
 
     const void *object = (const void *)address;
 
-#if SentryCrashCRASH_HAS_OBJC
     if (sentrycrashobjc_objectType(object) != SentryCrashObjCTypeUnknown) {
         return true;
     }
-#endif
 
     if (isValidString(object)) {
         return true;
@@ -1076,7 +1070,7 @@ writeThread(const SentryCrashReportWriter *const writer, const char *const key,
 {
     bool isCrashedThread = sentrycrashmc_isCrashedContext(machineContext);
     SentryCrashThread thread = sentrycrashmc_getThreadFromContext(machineContext);
-    SentryCrashLOG_DEBUG(
+    SENTRY_ASYNC_SAFE_LOG_DEBUG(
         "Writing thread %x (index %d). is crashed: %d", thread, threadIndex, isCrashedThread);
 
     SentryCrashStackCursor stackCursor;
@@ -1138,7 +1132,7 @@ writeAllThreads(const SentryCrashReportWriter *const writer, const char *const k
     // Fetch info for all threads.
     writer->beginArray(writer, key);
     {
-        SentryCrashLOG_DEBUG("Writing %d threads.", threadCount);
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Writing %d threads.", threadCount);
         for (int i = 0; i < threadCount; i++) {
             SentryCrashThread thread = sentrycrashmc_getThreadAtIndex(context, i);
             if (thread == offendingThread) {
@@ -1248,7 +1242,7 @@ writeError(const SentryCrashReportWriter *const writer, const char *const key,
 {
     writer->beginObject(writer, key);
     {
-#if SentryCrashCRASH_HOST_APPLE
+#if SENTRY_HOST_APPLE
         writer->beginObject(writer, SentryCrashField_Mach);
         {
             const char *machExceptionName = sentrycrashmach_exceptionName(crash->mach.type);
@@ -1316,8 +1310,9 @@ writeError(const SentryCrashReportWriter *const writer, const char *const key,
                 writer->addStringElement(writer, SentryCrashField_Name, crash->NSException.name);
                 writer->addStringElement(
                     writer, SentryCrashField_UserInfo, crash->NSException.userInfo);
-                writeAddressReferencedByString(
-                    writer, SentryCrashField_ReferencedObject, crash->crashReason);
+                if (crash->crashReason != NULL) {
+                    writer->addStringElement(writer, SentryCrashField_Reason, crash->crashReason);
+                }
             }
             writer->endContainer(writer);
             break;
@@ -1328,7 +1323,7 @@ writeError(const SentryCrashReportWriter *const writer, const char *const key,
 
         case SentryCrashMonitorTypeSystem:
         case SentryCrashMonitorTypeApplicationState:
-            SentryCrashLOG_ERROR(
+            SENTRY_ASYNC_SAFE_LOG_ERROR(
                 "Crash monitor type 0x%x shouldn't be able to cause events!", crash->crashType);
             break;
         }
@@ -1420,7 +1415,7 @@ writeReportInfo(const SentryCrashReportWriter *const writer, const char *const k
 {
     writer->beginObject(writer, key);
     {
-        writer->addStringElement(writer, SentryCrashField_Version, SentryCrashCRASH_REPORT_VERSION);
+        writer->addStringElement(writer, SentryCrashField_Version, SENTRY_REPORT_VERSION);
         writer->addStringElement(writer, SentryCrashField_ID, reportID);
         writer->addStringElement(writer, SentryCrashField_ProcessName, processName);
         writer->addIntegerElement(writer, SentryCrashField_Timestamp, time(NULL));
@@ -1481,10 +1476,11 @@ sentrycrashreport_writeRecrashReport(
     static char tempPath[SentryCrashFU_MAX_PATH_LENGTH];
     strncpy(tempPath, path, sizeof(tempPath) - 10);
     strncpy(tempPath + strlen(tempPath) - 5, ".old", 5);
-    SentryCrashLOG_INFO("Writing recrash report to %s", path);
+    SENTRY_ASYNC_SAFE_LOG_INFO("Writing recrash report to %s", path);
 
     if (rename(path, tempPath) < 0) {
-        SentryCrashLOG_ERROR("Could not rename %s to %s: %s", path, tempPath, strerror(errno));
+        SENTRY_ASYNC_SAFE_LOG_ERROR(
+            "Could not rename %s to %s: %s", path, tempPath, strerror(errno));
     }
     if (!sentrycrashfu_openBufferedWriter(
             &bufferedWriter, path, writeBuffer, sizeof(writeBuffer))) {
@@ -1506,7 +1502,7 @@ sentrycrashreport_writeRecrashReport(
         writeRecrash(writer, SentryCrashField_RecrashReport, tempPath);
         sentrycrashfu_flushBufferedWriter(&bufferedWriter);
         if (remove(tempPath) < 0) {
-            SentryCrashLOG_ERROR("Could not remove %s: %s", tempPath, strerror(errno));
+            SENTRY_ASYNC_SAFE_LOG_ERROR("Could not remove %s: %s", tempPath, strerror(errno));
         }
         writeReportInfo(writer, SentryCrashField_Report, SentryCrashReportType_Minimal,
             monitorContext->eventID, monitorContext->System.processName);
@@ -1550,8 +1546,6 @@ writeSystemInfo(const SentryCrashReportWriter *const writer, const char *const k
         writer->addBooleanElement(
             writer, SentryCrashField_Jailbroken, monitorContext->System.isJailbroken);
         writer->addStringElement(
-            writer, SentryCrashField_BootTime, monitorContext->System.bootTime);
-        writer->addStringElement(
             writer, SentryCrashField_AppStartTime, monitorContext->System.appStartTime);
         writer->addStringElement(
             writer, SentryCrashField_ExecutablePath, monitorContext->System.executablePath);
@@ -1585,10 +1579,6 @@ writeSystemInfo(const SentryCrashReportWriter *const writer, const char *const k
             writer, SentryCrashField_DeviceAppHash, monitorContext->System.deviceAppHash);
         writer->addStringElement(
             writer, SentryCrashField_BuildType, monitorContext->System.buildType);
-        writer->addIntegerElement(writer, SentryCrashField_Total_Storage,
-            (int64_t)monitorContext->System.totalStorageSize);
-        writer->addIntegerElement(
-            writer, SentryCrashField_Free_Storage, (int64_t)monitorContext->System.freeStorageSize);
 
         writeMemoryInfo(writer, SentryCrashField_Memory, monitorContext);
         writeAppStats(writer, SentryCrashField_AppStats, monitorContext);
@@ -1602,10 +1592,7 @@ writeDebugInfo(const SentryCrashReportWriter *const writer, const char *const ke
 {
     writer->beginObject(writer, key);
     {
-        if (monitorContext->consoleLogPath != NULL) {
-            addTextLinesFromFile(
-                writer, SentryCrashField_ConsoleLog, monitorContext->consoleLogPath);
-        }
+        addTextLinesFromFile(writer, SentryCrashField_ConsoleLog, g_logFilename);
     }
     writer->endContainer(writer);
 }
@@ -1674,7 +1661,7 @@ void
 sentrycrashreport_writeStandardReport(
     const SentryCrash_MonitorContext *const monitorContext, const char *const path)
 {
-    SentryCrashLOG_INFO("Writing crash report to %s", path);
+    SENTRY_ASYNC_SAFE_LOG_INFO("Writing crash report to %s", path);
     char writeBuffer[1024];
     SentryCrashBufferedWriter bufferedWriter;
 
@@ -1743,7 +1730,7 @@ void
 sentrycrashreport_setUserInfoJSON(const char *const userInfoJSON)
 {
     static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-    SentryCrashLOG_TRACE("set userInfoJSON to %p", userInfoJSON);
+    SENTRY_ASYNC_SAFE_LOG_TRACE("set userInfoJSON to %p", userInfoJSON);
 
     pthread_mutex_lock(&mutex);
     if (g_userInfoJSON != NULL) {
@@ -1775,7 +1762,7 @@ sentrycrashreport_setDoNotIntrospectClasses(const char **doNotIntrospectClasses,
         newClassesLength = length;
         newClasses = malloc(sizeof(*newClasses) * (unsigned)newClassesLength);
         if (newClasses == NULL) {
-            SentryCrashLOG_ERROR("Could not allocate memory");
+            SENTRY_ASYNC_SAFE_LOG_ERROR("Could not allocate memory");
             return;
         }
 

@@ -31,11 +31,6 @@ SentryScope ()
 @property (atomic, strong) NSMutableDictionary<NSString *, id> *extraDictionary;
 
 /**
- * Contains the breadcrumbs which will be sent with the event
- */
-@property (atomic, strong) NSMutableArray<SentryBreadcrumb *> *breadcrumbArray;
-
-/**
  * This distribution of the application.
  */
 @property (atomic, copy) NSString *_Nullable distString;
@@ -50,11 +45,14 @@ SentryScope ()
  */
 @property (atomic) enum SentryLevel levelEnum;
 
-@property (atomic) NSInteger maxBreadcrumbs;
+@property (atomic) NSUInteger maxBreadcrumbs;
+@property (atomic) NSUInteger currentBreadcrumbIndex;
 
 @property (atomic, strong) NSMutableArray<SentryAttachment *> *attachmentArray;
 
 @property (nonatomic, retain) NSMutableArray<id<SentryScopeObserver>> *observers;
+
+@property (atomic, strong) NSMutableArray<SentryBreadcrumb *> *breadcrumbArray;
 
 @end
 
@@ -67,8 +65,9 @@ SentryScope ()
 - (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs
 {
     if (self = [super init]) {
-        self.maxBreadcrumbs = maxBreadcrumbs;
-        self.breadcrumbArray = [NSMutableArray new];
+        _maxBreadcrumbs = MAX(0, maxBreadcrumbs);
+        _currentBreadcrumbIndex = 0;
+        _breadcrumbArray = [[NSMutableArray alloc] initWithCapacity:_maxBreadcrumbs];
         self.tagDictionary = [NSMutableDictionary new];
         self.extraDictionary = [NSMutableDictionary new];
         self.contextDictionary = [NSMutableDictionary new];
@@ -92,7 +91,10 @@ SentryScope ()
         [_extraDictionary addEntriesFromDictionary:[scope extras]];
         [_tagDictionary addEntriesFromDictionary:[scope tags]];
         [_contextDictionary addEntriesFromDictionary:[scope context]];
-        [_breadcrumbArray addObjectsFromArray:[scope breadcrumbs]];
+        NSArray<SentryBreadcrumb *> *crumbs = [scope breadcrumbs];
+        _breadcrumbArray = [[NSMutableArray alloc] initWithCapacity:scope.maxBreadcrumbs];
+        _currentBreadcrumbIndex = crumbs.count;
+        [_breadcrumbArray addObjectsFromArray:crumbs];
         [_fingerprintArray addObjectsFromArray:[scope fingerprints]];
         [_attachmentArray addObjectsFromArray:[scope attachments]];
 
@@ -103,6 +105,7 @@ SentryScope ()
         self.environmentString = scope.environmentString;
         self.levelEnum = scope.levelEnum;
         self.span = scope.span;
+        self.replayId = scope.replayId;
     }
     return self;
 }
@@ -121,10 +124,15 @@ SentryScope ()
     }
     SENTRY_LOG_DEBUG(@"Add breadcrumb: %@", crumb);
     @synchronized(_breadcrumbArray) {
-        [_breadcrumbArray addObject:crumb];
-        if ([_breadcrumbArray count] > self.maxBreadcrumbs) {
-            [_breadcrumbArray removeObjectAtIndex:0];
-        }
+        // Use a ring buffer making adding breadcrumbs O(1).
+        // In a prior version, we added the new breadcrumb at the end of the array and used
+        // removeObjectAtIndex:0 when reaching the max breadcrumb amount. removeObjectAtIndex:0 is
+        // O(n) because it needs to reshift the whole array. So when the breadcrumbs array was full
+        // every add operation was O(n).
+
+        _breadcrumbArray[_currentBreadcrumbIndex] = crumb;
+
+        _currentBreadcrumbIndex = (_currentBreadcrumbIndex + 1) % _maxBreadcrumbs;
 
         for (id<SentryScopeObserver> observer in self.observers) {
             [observer addSerializedBreadcrumb:[crumb serialize]];
@@ -141,9 +149,11 @@ SentryScope ()
 
 - (void)useSpan:(SentrySpanCallback)callback
 {
+    id<SentrySpan> localSpan = nil;
     @synchronized(_spanLock) {
-        callback(_span);
+        localSpan = _span;
     }
+    callback(localSpan);
 }
 
 - (void)clear
@@ -152,9 +162,7 @@ SentryScope ()
     // references instead of self we remove all objects instead of creating new instances. Removing
     // all objects is usually O(n). This is acceptable as we don't expect a huge amount of elements
     // in the arrays or dictionaries, that would slow down the performance.
-    @synchronized(_breadcrumbArray) {
-        [_breadcrumbArray removeAllObjects];
-    }
+    [self clearBreadcrumbs];
     @synchronized(_tagDictionary) {
         [_tagDictionary removeAllObjects];
     }
@@ -185,6 +193,7 @@ SentryScope ()
 - (void)clearBreadcrumbs
 {
     @synchronized(_breadcrumbArray) {
+        _currentBreadcrumbIndex = 0;
         [_breadcrumbArray removeAllObjects];
 
         for (id<SentryScopeObserver> observer in self.observers) {
@@ -195,9 +204,20 @@ SentryScope ()
 
 - (NSArray<SentryBreadcrumb *> *)breadcrumbs
 {
+    NSMutableArray<SentryBreadcrumb *> *crumbs = [NSMutableArray new];
     @synchronized(_breadcrumbArray) {
-        return _breadcrumbArray.copy;
+        for (int i = 0; i < _maxBreadcrumbs; i++) {
+            // Crumbs use a ring buffer. We need to start at the current crumb to get the
+            // crumbs in the correct order.
+            NSInteger index = (_currentBreadcrumbIndex + i) % _maxBreadcrumbs;
+
+            if (index < _breadcrumbArray.count) {
+                [crumbs addObject:_breadcrumbArray[index]];
+            }
+        }
     }
+
+    return crumbs;
 }
 
 - (void)setContextValue:(NSDictionary<NSString *, id> *)value forKey:(NSString *)key
@@ -363,6 +383,18 @@ SentryScope ()
     }
 }
 
+- (void)setCurrentScreen:(nullable NSString *)currentScreen
+{
+    _currentScreen = currentScreen;
+
+    SEL setCurrentScreen = @selector(setCurrentScreen:);
+    for (id<SentryScopeObserver> observer in self.observers) {
+        if ([observer respondsToSelector:setCurrentScreen]) {
+            [observer setCurrentScreen:currentScreen];
+        }
+    }
+}
+
 - (void)setLevel:(enum SentryLevel)level
 {
     self.levelEnum = level;
@@ -426,6 +458,7 @@ SentryScope ()
     [serializedData setValue:[self.userObject serialize] forKey:@"user"];
     [serializedData setValue:self.distString forKey:@"dist"];
     [serializedData setValue:self.environmentString forKey:@"environment"];
+    [serializedData setValue:self.replayId forKey:@"replay_id"];
     if (self.fingerprints.count > 0) {
         [serializedData setValue:[self fingerprints] forKey:@"fingerprint"];
     }
@@ -527,7 +560,7 @@ SentryScope ()
 
     NSMutableDictionary *newContext = [self context].mutableCopy;
     if (event.context != nil) {
-        [newContext mergeEntriesFromDictionary:event.context];
+        [SentryDictionary mergeEntriesFromDictionary:event.context intoDictionary:newContext];
     }
 
     if (self.span != nil) {

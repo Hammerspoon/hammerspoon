@@ -4,6 +4,10 @@
 static NSString *const SentryDebugImageType = @"macho";
 static NSString *const SentryPlatformName = @"cocoa";
 
+#define SENTRY_DEFAULT_SAMPLE_RATE @1
+#define SENTRY_DEFAULT_TRACES_SAMPLE_RATE @0
+#define SENTRY_DEFAULT_PROFILES_SAMPLE_RATE @0
+
 /**
  * Abort in debug, and log a warning in production.
  */
@@ -36,7 +40,7 @@ static NSString *const SentryPlatformName = @"cocoa";
  */
 #define SENTRY_ASSERT_RETURN(cond, ...)                                                            \
     ({                                                                                             \
-        const auto __cond_result = (cond);                                                         \
+        BOOL __cond_result = (cond);                                                               \
         if (!__cond_result) {                                                                      \
             SENTRY_LOG_WARN(__VA_ARGS__);                                                          \
             NSAssert(NO, __VA_ARGS__);                                                             \
@@ -51,7 +55,7 @@ static NSString *const SentryPlatformName = @"cocoa";
  */
 #define SENTRY_CASSERT_RETURN(cond, ...)                                                           \
     ({                                                                                             \
-        const auto __cond_result = (cond);                                                         \
+        BOOL __cond_result = (cond);                                                               \
         if (!__cond_result) {                                                                      \
             SENTRY_LOG_WARN(__VA_ARGS__);                                                          \
             NSCAssert(NO, __VA_ARGS__);                                                            \

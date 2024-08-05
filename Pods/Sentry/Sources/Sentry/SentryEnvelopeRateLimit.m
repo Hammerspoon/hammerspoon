@@ -59,7 +59,7 @@ SentryEnvelopeRateLimit ()
             = sentryDataCategoryForEnvelopItemType(item.header.type);
         if ([self.rateLimits isRateLimitActive:rateLimitCategory]) {
             [itemsToDrop addObject:item];
-            [self.delegate envelopeItemDropped:rateLimitCategory];
+            [self.delegate envelopeItemDropped:item withCategory:rateLimitCategory];
         }
     }
 

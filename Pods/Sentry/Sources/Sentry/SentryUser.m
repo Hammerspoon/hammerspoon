@@ -1,5 +1,6 @@
 #import "SentryUser.h"
-#import "NSDictionary+SentrySanitize.h"
+#import "SentryGeo.h"
+#import "SentryNSDictionarySanitize.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,7 +32,10 @@ SentryUser ()
             } else if ([key isEqualToString:@"ip_address"] && isString) {
                 self.ipAddress = value;
             } else if ([key isEqualToString:@"segment"] && isString) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                 self.segment = value;
+#pragma clang diagnostic pop
             } else if ([key isEqualToString:@"data"] && isDictionary) {
                 self.data = value;
             } else {
@@ -68,7 +72,10 @@ SentryUser ()
         copy.email = self.email;
         copy.username = self.username;
         copy.ipAddress = self.ipAddress;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         copy.segment = self.segment;
+#pragma clang diagnostic pop
         copy.name = self.name;
         copy.geo = self.geo.copy;
         copy.data = self.data.copy;
@@ -86,10 +93,13 @@ SentryUser ()
     [serializedData setValue:self.email forKey:@"email"];
     [serializedData setValue:self.username forKey:@"username"];
     [serializedData setValue:self.ipAddress forKey:@"ip_address"];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [serializedData setValue:self.segment forKey:@"segment"];
+#pragma clang diagnostic pop
     [serializedData setValue:self.name forKey:@"name"];
     [serializedData setValue:[self.geo serialize] forKey:@"geo"];
-    [serializedData setValue:[self.data sentry_sanitize] forKey:@"data"];
+    [serializedData setValue:sentry_sanitize(self.data) forKey:@"data"];
     NSDictionary<NSString *, id> *unknown = self.unknown;
     if (unknown != nil) {
         for (id key in unknown) {
@@ -141,10 +151,13 @@ SentryUser ()
         return NO;
     }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     NSString *otherSegment = user.segment;
     if (self.segment != otherSegment && ![self.segment isEqualToString:otherSegment]) {
         return NO;
     }
+#pragma clang diagnostic pop
 
     NSString *otherName = user.name;
     if (self.name != otherName && ![self.name isEqualToString:otherName]) {
@@ -177,7 +190,10 @@ SentryUser ()
     hash = hash * 23 + [self.email hash];
     hash = hash * 23 + [self.username hash];
     hash = hash * 23 + [self.ipAddress hash];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     hash = hash * 23 + [self.segment hash];
+#pragma clang diagnostic pop
     hash = hash * 23 + [self.name hash];
     hash = hash * 23 + [self.geo hash];
     hash = hash * 23 + [self.data hash];

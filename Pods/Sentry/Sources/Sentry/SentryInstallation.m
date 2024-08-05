@@ -1,5 +1,7 @@
 #import "SentryInstallation.h"
 #import "SentryDefines.h"
+#import "SentryDependencyContainer.h"
+#import "SentryDispatchQueueWrapper.h"
 #import "SentryLog.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -8,6 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 SentryInstallation ()
 @property (class, nonatomic, readonly)
     NSMutableDictionary<NSString *, NSString *> *installationStringsByCacheDirectoryPaths;
+
 @end
 
 @implementation SentryInstallation
@@ -31,15 +34,18 @@ SentryInstallation ()
             return installationString;
         }
 
-        NSString *cachePath = cacheDirectoryPath;
-        NSString *installationFilePath = [cachePath stringByAppendingPathComponent:@"INSTALLATION"];
-        NSData *installationData = [NSData dataWithContentsOfFile:installationFilePath];
+        installationString =
+            [SentryInstallation idWithCacheDirectoryPathNonCached:cacheDirectoryPath];
 
-        if (nil == installationData) {
+        if (installationString == nil) {
             installationString = [NSUUID UUID].UUIDString;
+
             NSData *installationStringData =
                 [installationString dataUsingEncoding:NSUTF8StringEncoding];
             NSFileManager *fileManager = [NSFileManager defaultManager];
+
+            NSString *installationFilePath =
+                [SentryInstallation installationFilePath:cacheDirectoryPath];
 
             if (![fileManager createFileAtPath:installationFilePath
                                       contents:installationStringData
@@ -47,14 +53,36 @@ SentryInstallation ()
                 SENTRY_LOG_ERROR(
                     @"Failed to store installationID file at path %@", installationFilePath);
             }
-        } else {
-            installationString = [[NSString alloc] initWithData:installationData
-                                                       encoding:NSUTF8StringEncoding];
         }
 
         self.installationStringsByCacheDirectoryPaths[cacheDirectoryPath] = installationString;
         return installationString;
     }
+}
+
++ (nullable NSString *)idWithCacheDirectoryPathNonCached:(NSString *)cacheDirectoryPath
+{
+    NSString *installationFilePath = [SentryInstallation installationFilePath:cacheDirectoryPath];
+
+    NSData *installationData = [NSData dataWithContentsOfFile:installationFilePath];
+
+    if (installationData != nil) {
+        return [[NSString alloc] initWithData:installationData encoding:NSUTF8StringEncoding];
+    } else {
+        return nil;
+    }
+}
+
++ (void)cacheIDAsyncWithCacheDirectoryPath:(NSString *)cacheDirectoryPath
+{
+    [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncWithBlock:^{
+        [SentryInstallation idWithCacheDirectoryPath:cacheDirectoryPath];
+    }];
+}
+
++ (NSString *)installationFilePath:(NSString *)cacheDirectoryPath
+{
+    return [cacheDirectoryPath stringByAppendingPathComponent:@"INSTALLATION"];
 }
 
 @end

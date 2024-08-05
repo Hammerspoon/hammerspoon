@@ -1,6 +1,6 @@
 // Software License Agreement (BSD License)
 //
-// Copyright (c) 2010-2023, Deusty, LLC
+// Copyright (c) 2010-2024, Deusty, LLC
 // All rights reserved.
 //
 // Redistribution and use of this software in source and binary forms,
@@ -29,7 +29,7 @@
 @implementation CLIColor
 
 + (instancetype)colorWithCalibratedRed:(CGFloat)red green:(CGFloat)green blue:(CGFloat)blue alpha:(CGFloat)alpha {
-    CLIColor *color = [CLIColor new];
+    __auto_type color = [CLIColor new];
     color->_red     = red;
     color->_green   = green;
     color->_blue    = blue;

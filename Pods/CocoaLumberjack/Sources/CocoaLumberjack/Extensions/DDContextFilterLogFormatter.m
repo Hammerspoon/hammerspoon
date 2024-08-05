@@ -1,6 +1,6 @@
 // Software License Agreement (BSD License)
 //
-// Copyright (c) 2010-2023, Deusty, LLC
+// Copyright (c) 2010-2024, Deusty, LLC
 // All rights reserved.
 //
 // Redistribution and use of this software in source and binary forms,
@@ -171,7 +171,7 @@
 }
 
 - (BOOL)isInSet:(NSInteger)loggingContext {
-    BOOL result = NO;
+    __auto_type result = NO;
 
     pthread_mutex_lock(&_mutex);
     {

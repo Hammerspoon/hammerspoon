@@ -1,9 +1,8 @@
 #import "NSLocale+Sentry.h"
 
-@implementation
-NSLocale (Sentry)
+@implementation SentryLocale
 
-- (BOOL)sentry_timeIs24HourFormat
++ (BOOL)timeIs24HourFormat
 {
     NSDateFormatter *formatter = [NSDateFormatter new];
     [formatter setDateStyle:NSDateFormatterNoStyle];

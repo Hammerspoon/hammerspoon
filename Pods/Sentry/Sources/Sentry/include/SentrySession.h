@@ -1,5 +1,4 @@
 #import "SentryDefines.h"
-#import "SentrySerializable.h"
 
 @class SentryUser;
 
@@ -15,7 +14,7 @@ typedef NS_ENUM(NSUInteger, SentrySessionStatus) {
 /**
  * The SDK uses SentrySession to inform Sentry about release and project associated project health.
  */
-@interface SentrySession : NSObject <SentrySerializable, NSCopying>
+@interface SentrySession : NSObject <NSCopying>
 SENTRY_NO_INIT
 
 - (instancetype)initWithReleaseName:(NSString *)releaseName distinctId:(NSString *)distinctId;

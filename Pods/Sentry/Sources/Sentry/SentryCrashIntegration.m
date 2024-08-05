@@ -1,10 +1,13 @@
 #import "SentryCrashIntegration.h"
 #import "SentryCrashInstallationReporter.h"
+
+#include "SentryCrashMonitor_Signal.h"
 #import "SentryCrashWrapper.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryEvent.h"
 #import "SentryHub.h"
 #import "SentryInAppLogic.h"
+#import "SentryOptions.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
 #import "SentrySessionCrashedHandler.h"
@@ -86,7 +89,13 @@ SentryCrashIntegration ()
     self.scopeObserver =
         [[SentryCrashScopeObserver alloc] initWithMaxBreadcrumbs:options.maxBreadcrumbs];
 
-    [self startCrashHandler:options.cacheDirectoryPath];
+    BOOL enableSigtermReporting = NO;
+#if !TARGET_OS_WATCH
+    enableSigtermReporting = options.enableSigtermReporting;
+#endif // !TARGET_OS_WATCH
+
+    [self startCrashHandler:options.cacheDirectoryPath
+        enableSigtermReporting:enableSigtermReporting];
 
     [self configureScope];
 
@@ -99,6 +108,7 @@ SentryCrashIntegration ()
 }
 
 - (void)startCrashHandler:(NSString *)cacheDirectory
+    enableSigtermReporting:(BOOL)enableSigtermReporting
 {
     void (^block)(void) = ^{
         BOOL canSendReports = NO;
@@ -114,6 +124,8 @@ SentryCrashIntegration ()
 
             canSendReports = YES;
         }
+
+        sentrycrashcm_setEnableSigtermReporting(enableSigtermReporting);
 
         [installation install:cacheDirectory];
 
@@ -172,8 +184,6 @@ SentryCrashIntegration ()
     // We need to make sure to set always the scope to KSCrash so we have it in
     // case of a crash
     [SentrySDK.currentHub configureScope:^(SentryScope *_Nonnull outerScope) {
-        [SentryCrashIntegration enrichScope:outerScope crashWrapper:self.crashAdapter];
-
         NSMutableDictionary<NSString *, id> *userInfo =
             [[NSMutableDictionary alloc] initWithDictionary:[outerScope serialize]];
         // SentryCrashReportConverter.convertReportToEvent needs the release name and
@@ -194,116 +204,6 @@ SentryCrashIntegration ()
                                            selector:@selector(currentLocaleDidChange)
                                                name:NSCurrentLocaleDidChangeNotification
                                              object:nil];
-}
-
-+ (void)enrichScope:(SentryScope *)scope crashWrapper:(SentryCrashWrapper *)crashWrapper
-{
-    // OS
-    NSMutableDictionary *osData = [NSMutableDictionary new];
-
-#if SENTRY_TARGET_MACOS
-    [osData setValue:@"macOS" forKey:@"name"];
-#elif TARGET_OS_IOS
-    [osData setValue:@"iOS" forKey:@"name"];
-#elif TARGET_OS_TV
-    [osData setValue:@"tvOS" forKey:@"name"];
-#elif TARGET_OS_WATCH
-    [osData setValue:@"watchOS" forKey:@"name"];
-#elif TARGET_OS_VISION
-    [osData setValue:@"visionOS" forKey:@"name"];
-#endif
-
-    // For MacCatalyst the UIDevice returns the current version of MacCatalyst and not the
-    // macOSVersion. Therefore we have to use NSProcessInfo.
-#if SENTRY_HAS_UIKIT && !TARGET_OS_MACCATALYST
-    [osData setValue:[UIDevice currentDevice].systemVersion forKey:@"version"];
-#else
-    NSOperatingSystemVersion version = [NSProcessInfo processInfo].operatingSystemVersion;
-    NSString *systemVersion = [NSString stringWithFormat:@"%d.%d.%d", (int)version.majorVersion,
-                                        (int)version.minorVersion, (int)version.patchVersion];
-    [osData setValue:systemVersion forKey:@"version"];
-
-#endif
-
-    NSDictionary *systemInfo = [crashWrapper systemInfo];
-
-    // SystemInfo should only be nil when SentryCrash has not been installed
-    if (systemInfo != nil && systemInfo.count != 0) {
-        [osData setValue:systemInfo[@"osVersion"] forKey:@"build"];
-        [osData setValue:systemInfo[@"kernelVersion"] forKey:@"kernel_version"];
-        [osData setValue:systemInfo[@"isJailbroken"] forKey:@"rooted"];
-    }
-
-    [scope setContextValue:osData forKey:@"os"];
-
-    // SystemInfo should only be nil when SentryCrash has not been installed
-    if (systemInfo == nil || systemInfo.count == 0) {
-        return;
-    }
-
-    // DEVICE
-
-    NSMutableDictionary *deviceData = [NSMutableDictionary new];
-
-#if TARGET_OS_SIMULATOR
-    [deviceData setValue:@(YES) forKey:@"simulator"];
-#else
-    [deviceData setValue:@(NO) forKey:@"simulator"];
-#endif
-
-    NSString *family = [[systemInfo[@"systemName"]
-        componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] firstObject];
-
-#if TARGET_OS_MACCATALYST
-    // This would be iOS. Set it to macOS instead.
-    family = @"macOS";
-#endif
-
-    [deviceData setValue:family forKey:@"family"];
-    [deviceData setValue:systemInfo[@"cpuArchitecture"] forKey:@"arch"];
-    [deviceData setValue:systemInfo[@"machine"] forKey:@"model"];
-    [deviceData setValue:systemInfo[@"model"] forKey:@"model_id"];
-    [deviceData setValue:systemInfo[@"freeMemorySize"] forKey:SentryDeviceContextFreeMemoryKey];
-    [deviceData setValue:systemInfo[@"usableMemorySize"] forKey:@"usable_memory"];
-    [deviceData setValue:systemInfo[@"memorySize"] forKey:@"memory_size"];
-    [deviceData setValue:systemInfo[@"totalStorageSize"] forKey:@"storage_size"];
-    [deviceData setValue:systemInfo[@"freeStorageSize"] forKey:@"free_storage"];
-    [deviceData setValue:systemInfo[@"bootTime"] forKey:@"boot_time"];
-
-    NSString *locale = [[NSLocale autoupdatingCurrentLocale] objectForKey:NSLocaleIdentifier];
-    [deviceData setValue:locale forKey:LOCALE_KEY];
-
-// The UIWindowScene is unavailable on visionOS
-#if SENTRY_HAS_UIKIT && !TARGET_OS_VISION
-
-    NSArray<UIWindow *> *appWindows = SentryDependencyContainer.sharedInstance.application.windows;
-    if ([appWindows count] > 0) {
-        UIScreen *appScreen = appWindows.firstObject.screen;
-        if (appScreen != nil) {
-            [deviceData setValue:@(appScreen.bounds.size.height) forKey:@"screen_height_pixels"];
-            [deviceData setValue:@(appScreen.bounds.size.width) forKey:@"screen_width_pixels"];
-        }
-    }
-
-#endif
-
-    [scope setContextValue:deviceData forKey:DEVICE_KEY];
-
-    // APP
-    NSMutableDictionary *appData = [NSMutableDictionary new];
-    NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
-
-    [appData setValue:infoDict[@"CFBundleIdentifier"] forKey:@"app_identifier"];
-    [appData setValue:infoDict[@"CFBundleName"] forKey:@"app_name"];
-    [appData setValue:infoDict[@"CFBundleVersion"] forKey:@"app_build"];
-    [appData setValue:infoDict[@"CFBundleShortVersionString"] forKey:@"app_version"];
-
-    [appData setValue:systemInfo[@"appStartTime"] forKey:@"app_start_time"];
-    [appData setValue:systemInfo[@"deviceAppHash"] forKey:@"device_app_hash"];
-    [appData setValue:systemInfo[@"appID"] forKey:@"app_id"];
-    [appData setValue:systemInfo[@"buildType"] forKey:@"build_type"];
-
-    [scope setContextValue:appData forKey:@"app"];
 }
 
 - (void)currentLocaleDidChange

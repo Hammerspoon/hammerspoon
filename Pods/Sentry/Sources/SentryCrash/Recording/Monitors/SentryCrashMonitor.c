@@ -36,13 +36,12 @@
 #include "SentryCrashMonitor_NSException.h"
 #include "SentryCrashMonitor_Signal.h"
 #include "SentryCrashMonitor_System.h"
-#include "SentryCrashSystemCapabilities.h"
 #include "SentryCrashThread.h"
+#include "SentryInternalCDefines.h"
 
 #include <memory.h>
 
-// #define SentryCrashLogger_LocalLevel TRACE
-#include "SentryCrashLogger.h"
+#include "SentryAsyncSafeLog.h"
 
 // ============================================================================
 #pragma mark - Globals -
@@ -54,31 +53,25 @@ typedef struct {
 } Monitor;
 
 static Monitor g_monitors[] = {
-#if SentryCrashCRASH_HAS_MACH
+#if SENTRY_HAS_MACH
     {
         .monitorType = SentryCrashMonitorTypeMachException,
         .getAPI = sentrycrashcm_machexception_getAPI,
     },
 #endif
-#if SentryCrashCRASH_HAS_SIGNAL
+#if SENTRY_HAS_SIGNAL
     {
         .monitorType = SentryCrashMonitorTypeSignal,
         .getAPI = sentrycrashcm_signal_getAPI,
     },
 #endif
-#if SentryCrashCRASH_HAS_OBJC
     {
         .monitorType = SentryCrashMonitorTypeNSException,
         .getAPI = sentrycrashcm_nsexception_getAPI,
     },
-#endif
     {
         .monitorType = SentryCrashMonitorTypeCPPException,
         .getAPI = sentrycrashcm_cppexception_getAPI,
-    },
-    {
-        .monitorType = SentryCrashMonitorTypeSystem,
-        .getAPI = sentrycrashcm_system_getAPI,
     },
     {
         .monitorType = SentryCrashMonitorTypeApplicationState,
@@ -155,24 +148,19 @@ sentrycrashcm_setActiveMonitors(SentryCrashMonitorType monitorTypes)
         static bool hasWarned = false;
         if (!hasWarned) {
             hasWarned = true;
-            SentryCrashLOGBASIC_WARN("    ************************ Crash "
-                                     "Handler Notice ************************");
-            SentryCrashLOGBASIC_WARN("    *     App is running in a debugger. "
-                                     "Masking out unsafe monitors.     *");
-            SentryCrashLOGBASIC_WARN("    * This means that most crashes WILL "
-                                     "NOT BE RECORDED while debugging! *");
-            SentryCrashLOGBASIC_WARN("    "
-                                     "*****************************************"
-                                     "*****************************");
+            SENTRY_ASYNC_SAFE_LOG_WARN("App is running in a debugger. Masking out unsafe monitors. "
+                                       "This means that most crashes WILL "
+                                       "NOT BE RECORDED while debugging!");
         }
         monitorTypes &= SentryCrashMonitorTypeDebuggerSafe;
     }
     if (g_requiresAsyncSafety && (monitorTypes & SentryCrashMonitorTypeAsyncUnsafe)) {
-        SentryCrashLOG_DEBUG("Async-safe environment detected. Masking out unsafe monitors.");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG(
+            "Async-safe environment detected. Masking out unsafe monitors.");
         monitorTypes &= SentryCrashMonitorTypeAsyncSafe;
     }
 
-    SentryCrashLOG_DEBUG(
+    SENTRY_ASYNC_SAFE_LOG_DEBUG(
         "Changing active monitors from 0x%x tp 0x%x.", g_activeMonitors, monitorTypes);
 
     SentryCrashMonitorType activeMonitors = SentryCrashMonitorTypeNone;
@@ -187,7 +175,7 @@ sentrycrashcm_setActiveMonitors(SentryCrashMonitorType monitorTypes)
         }
     }
 
-    SentryCrashLOG_DEBUG("Active monitors are now 0x%x.", activeMonitors);
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Active monitors are now 0x%x.", activeMonitors);
     g_activeMonitors = activeMonitors;
 }
 
@@ -210,7 +198,8 @@ sentrycrashcm_notifyFatalExceptionCaptured(bool isAsyncSafeEnvironment)
     }
     g_handlingFatalException = true;
     if (g_crashedDuringExceptionHandling) {
-        SentryCrashLOG_INFO("Detected crash in the crash reporter. Uninstalling SentryCrash.");
+        SENTRY_ASYNC_SAFE_LOG_INFO(
+            "Detected crash in the crash reporter. Uninstalling SentryCrash.");
         sentrycrashcm_setActiveMonitors(SentryCrashMonitorTypeNone);
     }
     return g_crashedDuringExceptionHandling;
@@ -233,7 +222,7 @@ sentrycrashcm_handleException(struct SentryCrash_MonitorContext *context)
     g_onExceptionEvent(context);
 
     if (g_handlingFatalException && !g_crashedDuringExceptionHandling) {
-        SentryCrashLOG_DEBUG("Exception is fatal. Restoring original handlers.");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Exception is fatal. Restoring original handlers.");
         sentrycrashcm_setActiveMonitors(SentryCrashMonitorTypeNone);
     }
 }

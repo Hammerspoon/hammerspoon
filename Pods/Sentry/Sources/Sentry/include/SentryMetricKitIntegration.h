@@ -4,7 +4,6 @@
 
 #    import "SentryBaseIntegration.h"
 #    import "SentryEvent.h"
-#    import "SentryIntegrationProtocol.h"
 #    import "SentrySwift.h"
 #    import <Foundation/Foundation.h>
 

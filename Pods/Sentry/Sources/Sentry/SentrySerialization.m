@@ -1,30 +1,30 @@
 #import "SentrySerialization.h"
-#import "NSDate+SentryExtras.h"
 #import "SentryAppState.h"
+#import "SentryDateUtils.h"
 #import "SentryEnvelope+Private.h"
 #import "SentryEnvelopeAttachmentHeader.h"
 #import "SentryEnvelopeItemType.h"
 #import "SentryError.h"
-#import "SentryId.h"
 #import "SentryLevelMapper.h"
 #import "SentryLog.h"
 #import "SentrySdkInfo.h"
 #import "SentrySession.h"
+#import "SentrySwift.h"
 #import "SentryTraceContext.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation SentrySerialization
 
-+ (NSData *_Nullable)dataWithJSONObject:(NSDictionary *)dictionary
++ (NSData *_Nullable)dataWithJSONObject:(id)jsonObject
 {
-    if (![NSJSONSerialization isValidJSONObject:dictionary]) {
+    if (![NSJSONSerialization isValidJSONObject:jsonObject]) {
         SENTRY_LOG_ERROR(@"Dictionary is not a valid JSON object.");
         return nil;
     }
 
     NSError *error = nil;
-    NSData *data = [NSJSONSerialization dataWithJSONObject:dictionary options:0 error:&error];
+    NSData *data = [NSJSONSerialization dataWithJSONObject:jsonObject options:0 error:&error];
     if (error) {
         SENTRY_LOG_ERROR(@"Internal error while serializing JSON: %@", error);
     }
@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     NSDate *sentAt = envelope.header.sentAt;
     if (sentAt != nil) {
-        [serializedData setValue:[sentAt sentry_toIso8601String] forKey:@"sent_at"];
+        [serializedData setValue:sentry_toIso8601String(sentAt) forKey:@"sent_at"];
     }
     NSData *header = [SentrySerialization dataWithJSONObject:serializedData];
     if (nil == header) {
@@ -78,57 +78,6 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     return envelopeData;
-}
-
-+ (NSString *)baggageEncodedDictionary:(NSDictionary *)dictionary
-{
-    NSMutableArray *items = [[NSMutableArray alloc] initWithCapacity:dictionary.count];
-
-    NSMutableCharacterSet *allowedSet = [NSCharacterSet.alphanumericCharacterSet mutableCopy];
-    [allowedSet addCharactersInString:@"-_."];
-    NSInteger currentSize = 0;
-
-    for (id key in dictionary.allKeys) {
-        id value = dictionary[key];
-        NSString *keyDescription =
-            [[key description] stringByAddingPercentEncodingWithAllowedCharacters:allowedSet];
-        NSString *valueDescription =
-            [[value description] stringByAddingPercentEncodingWithAllowedCharacters:allowedSet];
-
-        NSString *item = [NSString stringWithFormat:@"%@=%@", keyDescription, valueDescription];
-        if (item.length + currentSize <= SENTRY_BAGGAGE_MAX_SIZE) {
-            currentSize += item.length
-                + 1; // +1 is to account for the comma that will be added for each extra itemapp
-            [items addObject:item];
-        }
-    }
-
-    return [[items sortedArrayUsingComparator:^NSComparisonResult(NSString *obj1, NSString *obj2) {
-        return [obj1 compare:obj2];
-    }] componentsJoinedByString:@","];
-}
-
-+ (NSDictionary<NSString *, NSString *> *)decodeBaggage:(NSString *)baggage
-{
-    if (baggage == nil || baggage.length == 0) {
-        return @{};
-    }
-
-    NSMutableDictionary *decoded = [[NSMutableDictionary alloc] init];
-
-    NSArray<NSString *> *properties = [baggage componentsSeparatedByString:@","];
-
-    for (NSString *property in properties) {
-        NSArray<NSString *> *parts = [property componentsSeparatedByString:@"="];
-        if (parts.count != 2) {
-            continue;
-        }
-        NSString *key = parts[0];
-        NSString *value = [parts[1] stringByRemovingPercentEncoding];
-        decoded[key] = value;
-    }
-
-    return decoded.copy;
 }
 
 + (SentryEnvelope *_Nullable)envelopeWithData:(NSData *)data
@@ -176,8 +125,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                              traceContext:traceContext];
 
                 if (headerDictionary[@"sent_at"] != nil) {
-                    envelopeHeader.sentAt =
-                        [NSDate sentry_fromIso8601String:headerDictionary[@"sent_at"]];
+                    envelopeHeader.sentAt = sentry_fromIso8601String(headerDictionary[@"sent_at"]);
                 }
             }
             break;
@@ -320,6 +268,16 @@ NS_ASSUME_NONNULL_BEGIN
     }
 
     return session;
+}
+
++ (NSData *)dataWithReplayRecording:(SentryReplayRecording *)replayRecording
+{
+    NSMutableData *recording = [NSMutableData data];
+    [recording appendData:[SentrySerialization
+                              dataWithJSONObject:[replayRecording headerForReplayRecording]]];
+    [recording appendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
+    [recording appendData:[SentrySerialization dataWithJSONObject:[replayRecording serialize]]];
+    return recording;
 }
 
 + (SentryAppState *_Nullable)appStateWithData:(NSData *)data

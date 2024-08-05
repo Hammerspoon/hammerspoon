@@ -3,7 +3,7 @@
 #import "SentryDiscardReason.h"
 
 @class SentrySession, SentryEnvelopeItem, SentryId, SentryAttachment, SentryThreadInspector,
-    SentryEnvelope;
+    SentryReplayEvent, SentryReplayRecording, SentryEnvelope;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -42,6 +42,11 @@ SentryClient ()
     additionalEnvelopeItems:(NSArray<SentryEnvelopeItem *> *)additionalEnvelopeItems
     NS_SWIFT_NAME(capture(event:scope:additionalEnvelopeItems:));
 
+- (void)captureReplayEvent:(SentryReplayEvent *)replayEvent
+           replayRecording:(SentryReplayRecording *)replayRecording
+                     video:(NSURL *)videoURL
+                 withScope:(SentryScope *)scope;
+
 - (void)captureSession:(SentrySession *)session NS_SWIFT_NAME(capture(session:));
 
 /**
@@ -52,6 +57,9 @@ SentryClient ()
 - (void)captureEnvelope:(SentryEnvelope *)envelope;
 
 - (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason;
+- (void)recordLostEvent:(SentryDataCategory)category
+                 reason:(SentryDiscardReason)reason
+               quantity:(NSUInteger)quantity;
 
 - (void)addAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;
 - (void)removeAttachmentProcessor:(id<SentryClientAttachmentProcessor>)attachmentProcessor;

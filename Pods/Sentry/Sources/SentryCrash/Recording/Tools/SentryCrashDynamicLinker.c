@@ -33,7 +33,7 @@
 #include <mach-o/nlist.h>
 #include <string.h>
 
-#include "SentryCrashLogger.h"
+#include "SentryAsyncSafeLog.h"
 #include "SentryCrashMemory.h"
 #include "SentryCrashPlatformSpecificDefines.h"
 
@@ -303,33 +303,33 @@ getCrashInfo(const struct mach_header *header, SentryCrashBinaryImage *buffer)
         return;
     }
 
-    SentryCrashLOG_TRACE("Found crash info section in binary: %s", buffer->name);
+    SENTRY_ASYNC_SAFE_LOG_TRACE("Found crash info section in binary: %s", buffer->name);
     const unsigned int minimalSize
         = offsetof(crash_info_t, reserved); // Include message and message2
     if (size < minimalSize) {
-        SentryCrashLOG_TRACE("Skipped reading crash info: section is too small");
+        SENTRY_ASYNC_SAFE_LOG_TRACE("Skipped reading crash info: section is too small");
         return;
     }
     if (!sentrycrashmem_isMemoryReadable(crashInfo, minimalSize)) {
-        SentryCrashLOG_TRACE("Skipped reading crash info: section memory is not readable");
+        SENTRY_ASYNC_SAFE_LOG_TRACE("Skipped reading crash info: section memory is not readable");
         return;
     }
     if (crashInfo->version != 4 && crashInfo->version != 5) {
-        SentryCrashLOG_TRACE(
+        SENTRY_ASYNC_SAFE_LOG_TRACE(
             "Skipped reading crash info: invalid version '%d'", crashInfo->version);
         return;
     }
     if (crashInfo->message == NULL && crashInfo->message2 == NULL) {
-        SentryCrashLOG_TRACE("Skipped reading crash info: both messages are null");
+        SENTRY_ASYNC_SAFE_LOG_TRACE("Skipped reading crash info: both messages are null");
         return;
     }
 
     if (isValidCrashInfoMessage(crashInfo->message)) {
-        SentryCrashLOG_TRACE("Found first message: %s", crashInfo->message);
+        SENTRY_ASYNC_SAFE_LOG_TRACE("Found first message: %s", crashInfo->message);
         buffer->crashInfoMessage = crashInfo->message;
     }
     if (isValidCrashInfoMessage(crashInfo->message2)) {
-        SentryCrashLOG_TRACE("Found second message: %s", crashInfo->message2);
+        SENTRY_ASYNC_SAFE_LOG_TRACE("Found second message: %s", crashInfo->message2);
         buffer->crashInfoMessage2 = crashInfo->message2;
     }
 }

@@ -28,13 +28,13 @@
 #ifndef HDR_SentryCrashMachineContext_h
 #define HDR_SentryCrashMachineContext_h
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "SentryCrashThread.h"
 #include <mach/mach.h>
 #include <stdbool.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /** Suspend the runtime environment.
  */

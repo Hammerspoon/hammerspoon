@@ -6,7 +6,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SentryViewHierarchy : NSObject
 
-- (nullable NSData *)fetchViewHierarchy;
+/**
+ Get the view hierarchy in a json format.
+ Always runs in the main thread.
+ */
+- (nullable NSData *)appViewHierarchyFromMainThread;
+
+/**
+ Get the view hierarchy in a json format.
+ */
+- (nullable NSData *)appViewHierarchy;
 
 /**
  * Save the current app view hierarchy in the given file path.

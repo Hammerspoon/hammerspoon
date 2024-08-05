@@ -21,7 +21,6 @@ namespace profiling {
 
     struct Backtrace {
         ThreadMetadata threadMetadata;
-        QueueMetadata queueMetadata;
         std::uint64_t absoluteTimestamp;
         std::vector<std::uintptr_t> addresses;
     };

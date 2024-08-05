@@ -1,1 +1,0 @@
-../../../Sentry/Sources/SentryCrash/Reporting/Tools/SentryCrashCString.h

@@ -18,6 +18,11 @@ NS_ASSUME_NONNULL_BEGIN
                                              andData:(NSData *)data
                                     didFailWithError:(NSError *_Nullable *_Nullable)error;
 
+- (instancetype)initEnvelopeRequestWithURL:(NSURL *)url
+                                   andData:(NSData *)data
+                                authHeader:(nullable NSString *)authHeader
+                          didFailWithError:(NSError *_Nullable *_Nullable)error;
+
 @end
 
 NS_ASSUME_NONNULL_END

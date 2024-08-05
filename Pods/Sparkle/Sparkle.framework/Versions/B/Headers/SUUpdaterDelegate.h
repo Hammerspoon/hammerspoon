@@ -156,7 +156,7 @@ __deprecated_msg("Deprecated in Sparkle 2. See SPUUpdaterDelegate instead")
 - (void)updater:(SUUpdater *)updater willDownloadUpdate:(SUAppcastItem *)item withRequest:(NSMutableURLRequest *)request;
 
 /*!
- Called immediately after succesfull download of the specified update.
+ Called immediately after successful download of the specified update.
  
  \param updater The SUUpdater instance.
  \param item The appcast item corresponding to the update that has been downloaded.
