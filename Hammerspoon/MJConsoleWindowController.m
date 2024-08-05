@@ -22,6 +22,8 @@ void ConsoleDarkModeSetEnabled(BOOL enabled) {
 @property (weak) IBOutlet NSTextField* inputField;
 @property NSMutableArray* preshownStdouts;
 @property NSDateFormatter *dateFormatter;
+@property NSMutableArray *outputBuffer;
+@property NSTimer *outputTimer;
 
 @end
 
@@ -40,6 +42,34 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
         NSLocale *enUSPOSIXLocale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
         [self.dateFormatter setLocale:enUSPOSIXLocale];
         [self.dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+
+        self.outputBuffer = [[NSMutableArray alloc] initWithCapacity:1000];
+
+        // Strings that we want to add to the console window are batched up in self.outputBuffer and this timer drains them
+        self.outputTimer = [NSTimer timerWithTimeInterval:0.2 repeats:YES block:^(NSTimer * _Nonnull timer) {
+            if (self.outputBuffer.count > 0) {
+                @autoreleasepool {
+                    NSTextStorage *storage = self.outputView.textStorage;
+                    [storage beginEditing];
+
+                    for (NSAttributedString *attrstr in self.outputBuffer) {
+                        int curLength = (int)storage.length;
+                        int maxLength = self.maxConsoleOutputHistory.intValue;
+                        int addLength = (int)attrstr.length;
+
+                        [storage appendAttributedString:attrstr];
+                        if (curLength > maxLength && maxLength > 0) {
+                            [storage deleteCharactersInRange:NSMakeRange(0, curLength - maxLength + addLength)];
+                        }
+                    }
+
+                    [self.outputBuffer removeAllObjects];
+                    [storage endEditing];
+                    [self.outputView scrollToEndOfDocument:self];
+                }
+            }
+        }];
+        [[NSRunLoop mainRunLoop] addTimer:self.outputTimer forMode:NSRunLoopCommonModes];
 
         [self initializeConsoleColorsAndFont] ;
     }
@@ -141,18 +171,8 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
     NSDictionary* attrs = @{NSFontAttributeName: self.consoleFont, NSForegroundColorAttributeName: color};
     NSAttributedString* attrstr = [[NSAttributedString alloc] initWithString:str attributes:attrs];
 
-    dispatch_async(dispatch_get_main_queue(), ^{
-        NSTextStorage *storage = self.outputView.textStorage;
-        int curLength = (int)storage.length;
-        int maxLength = self.maxConsoleOutputHistory.intValue;
-        int addLength = (int)attrstr.length;
-
-        [storage appendAttributedString:attrstr];
-        if (curLength > maxLength && maxLength > 0) {
-            [storage deleteCharactersInRange:NSMakeRange(0, curLength - maxLength + addLength)];
-        }
-        [self.outputView scrollToEndOfDocument:self];
-    });
+    // We don't actually append the string immediately, it goes into a buffer that drains on a timer (see above)
+    [self.outputBuffer addObject:attrstr];
 }
 
 - (NSString*) run:(NSString*)command {
