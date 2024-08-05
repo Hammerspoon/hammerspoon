@@ -52,8 +52,14 @@
 */
 #if !defined(LUAI_THROW)				/* { */
 
-#if defined(__cplusplus) && !defined(LUA_USE_LONGJMP)	/* { */
+#if defined(LUA_USE_OBJC_EXCEPTIONS)
+/* Requires additional Obj-C file to be compiled in to avoid forcing all of Lua to be compiled as Obj-C.
+ * lobjectivec_exceptions must be compiled as Obj-C.
+ * It is used to try to shelter Obj-C from the main Lua core.
+ */
+#include "lobjectivec_exceptions.h"
 
+#elif defined(__cplusplus) && !defined(LUA_USE_LONGJMP)    /* { */
 /* C++ exceptions */
 #define LUAI_THROW(L,c)		throw(c)
 #define LUAI_TRY(L,c,a) \
@@ -79,14 +85,17 @@
 #endif							/* } */
 
 
-
+/* LUA_USE_OBJC_EXCEPTIONS needs to define this struct in its header.
+ * So avoid redefining for that case, but define for every other case.
+ */
+#if !defined(LUA_USE_OBJC_EXCEPTIONS)
 /* chain list of long jump buffers */
 struct lua_longjmp {
   struct lua_longjmp *previous;
   luai_jmpbuf b;
   volatile int status;  /* error code */
 };
-
+#endif
 
 void luaD_seterrorobj (lua_State *L, int errcode, StkId oldtop) {
   switch (errcode) {
@@ -141,9 +150,16 @@ int luaD_rawrunprotected (lua_State *L, Pfunc f, void *ud) {
   lj.status = LUA_OK;
   lj.previous = L->errorJmp;  /* chain new error handler */
   L->errorJmp = &lj;
+#if defined(LUA_USE_OBJC_EXCEPTIONS)
+    /* Unfortunately, either the macro signature needed to change or this file has to be compiled as Obj-C.
+     * I'm not sure which is worse.
+     */
+    LUAI_TRY(L, &lj, f, ud);
+#else
   LUAI_TRY(L, &lj,
     (*f)(L, ud);
   );
+#endif
   L->errorJmp = lj.previous;  /* restore old error handler */
   L->nCcalls = oldnCcalls;
   return lj.status;

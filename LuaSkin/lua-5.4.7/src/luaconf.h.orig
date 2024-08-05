@@ -67,7 +67,6 @@
 #if defined(LUA_USE_MACOSX)
 #define LUA_USE_POSIX
 #define LUA_USE_DLOPEN		/* MacOS does not need -ldl */
-#define LUA_USE_OBJC_EXCEPTIONS
 #endif
 
 
@@ -224,57 +223,20 @@
 
 #else			/* }{ */
 
-//#define LUA_ROOT	"/usr/local/"
-//#define LUA_LDIR	LUA_ROOT "share/lua/" LUA_VDIR "/"
-//#define LUA_CDIR	LUA_ROOT "lib/lua/" LUA_VDIR "/"
-
-#define LUA_INTEL_ROOT  "/usr/local/"
-#define LUA_INTEL_LDIR  LUA_INTEL_ROOT "share/lua/" LUA_VDIR "/"
-#define LUA_INTEL_CDIR  LUA_INTEL_ROOT "lib/lua/" LUA_VDIR "/"
-
-#define LUA_ARM_ROOT    "/opt/homebrew/"
-#define LUA_ARM_LDIR    LUA_ARM_ROOT "share/lua/" LUA_VDIR "/"
-#define LUA_ARM_CDIR    LUA_ARM_ROOT "lib/lua/" LUA_VDIR "/"
-
+#define LUA_ROOT	"/usr/local/"
+#define LUA_LDIR	LUA_ROOT "share/lua/" LUA_VDIR "/"
+#define LUA_CDIR	LUA_ROOT "lib/lua/" LUA_VDIR "/"
 
 #if !defined(LUA_PATH_DEFAULT)
-#define LUA_INTEL_PATH_DEFAULT  \
-		LUA_INTEL_LDIR"?.lua;"  LUA_INTEL_LDIR"?/init.lua;" \
-		LUA_INTEL_CDIR"?.lua;"  LUA_INTEL_CDIR"?/init.lua"
-#define LUA_ARM_PATH_DEFAULT    \
-        LUA_ARM_LDIR"?.lua;"    LUA_ARM_LDIR"?/init.lua;" \
-        LUA_ARM_CDIR"?.lua;"    LUA_ARM_CDIR"?/init.lua"
-#define LUA_PATH_DEFAULT_TAIL   "./?.lua;" "./?/init.lua"
-
-#if defined(__aarch64__)
-    // On Apple Silicon we want to prioritise /opt/homebrew over /usr/local because it's more likely the
-    // user has things there, and also it avoids an error where they have migrated x86 homebrew from an
-    // older Mac, but we still want to include the /usr/local paths because they are still legitimate
-    // install locations on Apple Silicon.
-    #define LUA_PATH_DEFAULT LUA_ARM_PATH_DEFAULT ";" LUA_INTEL_PATH_DEFAULT ";" LUA_PATH_DEFAULT_TAIL
-#else
-    #define LUA_PATH_DEFAULT LUA_INTEL_PATH_DEFAULT ";" LUA_PATH_DEFAULT_TAIL
-#endif
-
+#define LUA_PATH_DEFAULT  \
+		LUA_LDIR"?.lua;"  LUA_LDIR"?/init.lua;" \
+		LUA_CDIR"?.lua;"  LUA_CDIR"?/init.lua;" \
+		"./?.lua;" "./?/init.lua"
 #endif
 
 #if !defined(LUA_CPATH_DEFAULT)
-#define LUA_INTEL_CPATH_DEFAULT \
-        LUA_INTEL_CDIR"?.so;" LUA_INTEL_CDIR"loadall.so"
-#define LUA_ARM_CPATH_DEFAULT \
-        LUA_ARM_CDIR"?.so;" LUA_ARM_CDIR"loadall.so"
-#define LUA_CPATH_DEFAULT_TAIL  "./?.so"
-
-#if defined(__aarch64__)
-    // On Apple Silicon we want to prioritise /opt/homebrew over /usr/local because it's more likely the
-    // user has things there, and also it avoids an error where they have migrated x86 homebrew from an
-    // older Mac, but we still want to include the /usr/local paths because they are still legitimate
-    // install locations on Apple Silicon.
-    #define LUA_CPATH_DEFAULT LUA_ARM_CPATH_DEFAULT ";" LUA_INTEL_CPATH_DEFAULT ";" LUA_CPATH_DEFAULT_TAIL
-#else
-    #define LUA_CPATH_DEFAULT LUA_INTEL_CPATH_DEFAULT ";" LUA_CPATH_DEFAULT_TAIL
-#endif
-
+#define LUA_CPATH_DEFAULT \
+		LUA_CDIR"?.so;" LUA_CDIR"loadall.so;" "./?.so"
 #endif
 
 #endif			/* } */
