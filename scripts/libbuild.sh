@@ -402,7 +402,7 @@ function op_release() {
                   length=\"${ZIPLEN}\"
                   type=\"application/octet-stream\"
               />
-              <sparkle:minimumSystemVersion>11.0</sparkle:minimumSystemVersion>
+              <sparkle:minimumSystemVersion>12.0</sparkle:minimumSystemVersion>
           </item>
   "
     gawk -i inplace -v s="<!-- __UPDATE_MARKER__ -->" -v r="${NEWCHUNK}" '{gsub(s,r)}1' appcast.xml
@@ -428,15 +428,6 @@ function op_release() {
     "${HAMMERSPOON_HOME}/scripts/sentry-cli" releases set-commits --auto "${VERSION}" 2>&1 | tee "${BUILD_HOME}/sentry-release.log"
     "${HAMMERSPOON_HOME}/scripts/sentry-cli" releases finalize "${VERSION}" 2>&1 | tee -a "${BUILD_HOME}/sentry-release.log"
  
-    if [ "${TWITTER_ACCOUNT}" != "" ]; then
-        echo " Tweeting release..."
-        local T_PATH=$(/usr/bin/gem contents t 2>/dev/null | grep "\/t$")
-        local CURRENT_T_ACCOUNT ; CURRENT_T_ACCOUNT=$("${T_PATH}" accounts | grep -B1 active | head -1)
-        "${T_PATH}" set active "${TWITTER_ACCOUNT}"
-        "${T_PATH}" update "Just released ${VERSION} - https://www.hammerspoon.org/releasenotes/"
-        "${T_PATH}" set active "${CURRENT_T_ACCOUNT}"
-    fi
-
     echo " Creating PR for Dash docs..."
     pushd "${HAMMERSPOON_HOME}/../" >/dev/null || fail "Unable to access ${HAMMERSPOON_HOME}/../"
     ${RM} -rf dash
