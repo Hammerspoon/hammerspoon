@@ -13,7 +13,7 @@
               </sparkle:releaseNotesLink>
               <pubDate>Tue,  6 Aug 2024 03:46:50 +0100</pubDate>
               <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/1.0.0/Hammerspoon-1.0.0.zip"
-                  sparkle:version="6865"
+                  sparkle:version="6864"
                   sparkle:shortVersionString="1.0.0"
                   length="9232752"
                   type="application/octet-stream"
