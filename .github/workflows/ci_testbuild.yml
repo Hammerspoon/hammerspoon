@@ -49,6 +49,12 @@ jobs:
         id: test
         run: ./scripts/github-ci-test.sh
 
+      - name: Report test results
+        uses: EnricoMi/publish-unit-test-result-action/macos@v2
+        if: always()
+        with:
+          files: ./build/reports/junit.xml
+
       - name: Upload test coverage
         uses: codecov/codecov-action@v4
         with:
