@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Checkout Hammerspoon Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Generate Release Notes
@@ -28,7 +28,7 @@ jobs:
           echo "${{ steps.release_notes_generator.outputs.changelog }}" >release_notes.txt
       - name: Upload Release Notes
         id: upload_release_notes
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: Release_Notes.txt
           path: release_notes.txt

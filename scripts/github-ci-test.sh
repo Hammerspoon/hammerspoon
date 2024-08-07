@@ -26,12 +26,12 @@ mv build/reports/*.xml build/reports/junit.xml
 
 RESULT=$(grep -A1 "Test Suite 'All tests'" artifacts/test.log | tail -1 | sed -e 's/^[ ]+//')
 
-echo "::set-output name=test_result::${RESULT}"
+echo "test_result=${RESULT}" >> $GITHUB_OUTPUT
 
 if [[ "${RESULT}" == *"0 failures"* ]]; then
-    echo "::set-output name=test_result_short::Passed"
+    echo "test_result_short=Passed" >> $GITHUB_OUTPUT
     exit 0
 else
-    echo "::set-output name=test_result_short::Failed"
+    echo "test_result_short=Failed" >> $GITHUB_OUTPUT
     exit 1
 fi

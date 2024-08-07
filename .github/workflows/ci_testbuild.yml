@@ -20,7 +20,7 @@ jobs:
         with:
           xcode-version: 15.4
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -31,7 +31,7 @@ jobs:
         run: ./scripts/github-ci-docs.sh
       - name: Upload artifacts (docstrings lint annotations)
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: annotations.json
           path: build/annotations.json
@@ -40,7 +40,7 @@ jobs:
         run: ./scripts/github-ci-testbuild.sh
       - name: Upload artifacts
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: build.log
           path: artifacts/build.log
@@ -50,20 +50,22 @@ jobs:
         run: ./scripts/github-ci-test.sh
 
       - name: Upload test coverage
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v4
         with:
-          verbose: true
+          verbose: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./build/reports/junit.xml
         if: always()
 
       - name: Upload artifacts (test log)
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: test.log
           path: artifacts/test.log
       - name: Upload artifacts (test results)
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: test_results
           path: build/reports/junit.xml
