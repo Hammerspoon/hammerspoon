@@ -1,3 +1,5 @@
+JUST TESTING CI. IGNORE.
+
 # Hammerspoon
 [![CI](https://github.com/Hammerspoon/hammerspoon/workflows/CI/badge.svg)](https://github.com/Hammerspoon/hammerspoon/actions?query=workflow%3ACI)
 [![codecov.io](https://codecov.io/github/Hammerspoon/hammerspoon/coverage.svg?branch=master)](https://codecov.io/github/Hammerspoon/hammerspoon?branch=master)
