@@ -44,6 +44,7 @@ jobs:
         uses: kishikawakatsumi/xcresulttool@v1
         with:
           path: build/TestResults.xcresult
+          upload-bundles: never
         if: always()
 
       - name: Report test coverage to Codecov
