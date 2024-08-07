@@ -5,6 +5,7 @@ set -eu
 set -o pipefail
 
 export IS_CI=1
+mkdir -p artifacts
 
 # Remove the pre-installed Cocoapods binary
 if [ -f /usr/local/bin/pod ]; then
@@ -17,5 +18,3 @@ brew bundle install
 # Install build dependencies
 ./scripts/build.sh installdeps
 
-# Install additional CI dependencies
-gem install trainer

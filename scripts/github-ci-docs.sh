@@ -8,3 +8,5 @@ export IS_CI=1
 
 ./scripts/build.sh docs -l
 ./scripts/build.sh docs
+
+cp build/annotations.json artifacts/
