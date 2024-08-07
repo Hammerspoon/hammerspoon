@@ -13,6 +13,7 @@ mkdir -p build/reports
 
 cp build/test.log artifacts
 cp -r build/TestResults.xcresult artifacts
+xcresultparser --output-format cobertura build/TestResults.xcresult >artifacts/coverage.xml
 
 RESULT=$(grep -A1 "Test Suite 'All tests'" artifacts/test.log | tail -1 | sed -e 's/^[ ]+//')
 

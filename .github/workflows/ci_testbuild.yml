@@ -46,13 +46,6 @@ jobs:
           path: build/TestResults.xcresult
         if: always()
 
-      - name: Convert test results for Codecov
-        if: always()
-        run: |
-          set -o pipefail && \
-            xcresultparser --output-format cobertura \
-            build/TestResults.xcresult > artifacts/coverage.xml
-
       - name: Report test coverage to Codecov
         if: always()
         uses: codecov/codecov-action@v4
