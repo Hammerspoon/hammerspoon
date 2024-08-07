@@ -1,6 +1,8 @@
 @import Cocoa ;
 @import LuaSkin ;
 
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
+
 #define NO_INTENTS
 #import "MJAppDelegate.h"
 #undef NO_INTENTS
@@ -355,16 +357,17 @@ static int chooseFileOrFolder(lua_State *L) {
     NSOpenPanel *panel = [NSOpenPanel openPanel];
 
     // Allowed File Types:
-    NSMutableArray *allowedFileTypes;
+    NSMutableArray *allowedContentTypes;
     if (lua_istable(L, 6)) {
-        allowedFileTypes = [[NSMutableArray alloc] init];
+        allowedContentTypes = [[NSMutableArray alloc] init];
         lua_pushnil(L);
         while (lua_next(L, 6) != 0) {
             NSString *item = [NSString stringWithUTF8String:luaL_checkstring(L, -1)];
-            [allowedFileTypes addObject:item];
+            UTType *contentType = [UTType typeWithIdentifier:item];
+            [allowedContentTypes addObject:contentType];
             lua_pop(L, 1);
         }
-        [panel setAllowedFileTypes:allowedFileTypes];
+        [panel setAllowedContentTypes:allowedContentTypes];
     }
 
     // Message:
