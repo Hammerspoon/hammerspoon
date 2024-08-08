@@ -1,3 +1,5 @@
+tap "a7ex/homebrew-formulae"
+
 brew "coreutils"
 brew "jq"
 brew "xcbeautify"
