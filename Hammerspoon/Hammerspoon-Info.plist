@@ -262,6 +262,7 @@
 	<key>NSUserActivityTypes</key>
 	<array>
 		<string>HSExecuteLuaIntent</string>
+		<string>NSUserActivityTypeBrowsingWeb</string>
 	</array>
 	<key>NSUserNotificationAlertStyle</key>
 	<string>alert</string>
