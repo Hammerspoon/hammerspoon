@@ -190,7 +190,7 @@ void create_task(task_userdata_t *userData) {
 ///  * arguments - An optional table of command line argument strings for the executable
 ///
 /// Returns:
-///  * An `hs.task` object
+///  * An `hs.task` object or nil if an error occurred
 ///
 /// Notes:
 ///  * The arguments are not processed via a shell, so you do not need to do any quoting or escaping. They are passed to the executable exactly as provided.
@@ -231,13 +231,27 @@ static int task_new(lua_State *L) {
     userData->launchPath = (__bridge_retained void *)[skin toNSObjectAtIndex:1];
     userData->inputData = nil;
 
+    NSArray *arguments = nil;
+
     if (lua_type(L, 3) == LUA_TTABLE) {
-        userData->arguments = (__bridge_retained void *)[skin toNSObjectAtIndex:3];
+        arguments = [skin toNSObjectAtIndex:3];
     } else if (lua_type(L, 4) == LUA_TTABLE) {
-        userData->arguments = (__bridge_retained void *)[skin toNSObjectAtIndex:4];
+        arguments = [skin toNSObjectAtIndex:4];
     } else {
-        userData->arguments = (__bridge_retained void *)[[NSArray alloc] init];
+        arguments = [[NSArray alloc] init];
     }
+
+    // Ensure all of our arguments are strings
+    for (id element in arguments) {
+        if (![element isKindOfClass:[NSString class]]) {
+            [skin logError:@"All arguments for hs.task.new must be strings"];
+            lua_pushnil(L);
+            return 1;
+        }
+    }
+
+    // Store the arguments
+    userData->arguments = (__bridge_retained void *)arguments;
 
     // Create and populate the NSTask object
     create_task(userData);
