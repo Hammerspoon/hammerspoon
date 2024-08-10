@@ -583,7 +583,12 @@ static int httpserver_start(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     HSHTTPServer *server = getUserData(L, 1);
 
-    if (server.fn == LUA_NOREF) {
+    if (server.wsCallback != LUA_NOREF) {
+        NSError *error = nil;
+        if (![server start:&error]) {
+            [skin logError:[NSString stringWithFormat:@"hs.httpserver:start() Unable to start object: %@", error]];
+        }
+    else if (server.fn == LUA_NOREF) {
         [skin logError:@"hs.httpserver:start() called with no callback set. You must call hs.httpserver:setCallback() first"];
     } else {
         NSError *error = nil;
