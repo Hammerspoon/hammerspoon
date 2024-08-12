@@ -1259,6 +1259,16 @@ nextarg:
 
         // check for registered helpers
 
+        // first check for exact class match
+        for (id key in self.registeredNSHelperFunctions) {
+            if ([obj isMemberOfClass: NSClassFromString(key)]) {
+                pushNSHelperFunction theFunc = (pushNSHelperFunction)[self.registeredNSHelperFunctions[key] pointerValue] ;
+                int resultAnswer = theFunc(self.L, obj) ;
+                if (resultAnswer > -1) return resultAnswer ;
+            }
+        }
+
+        // if we're still here, check for kind of class (i.e. possible superclass of object)
         for (id key in self.registeredNSHelperFunctions) {
             if ([obj isKindOfClass: NSClassFromString(key)]) {
                 pushNSHelperFunction theFunc = (pushNSHelperFunction)[self.registeredNSHelperFunctions[key] pointerValue] ;
