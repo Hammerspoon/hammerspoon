@@ -891,49 +891,49 @@ NSString *specMaskToString(int spec);
  @discussion This method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_VERBOSE @/link
  @param theMessage the message to log
  */
-- (void)logVerbose:(NSString *)theMessage ;
+- (void)logVerbose:(NSString *)theMessage, ... ;
 
 /*!
  @abstract Log the specified message with LS_LOG_DEBUG level
  @discussion This method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_DEBUG @/link
  @param theMessage the message to log
  */
-- (void)logDebug:(NSString *)theMessage ;
+- (void)logDebug:(NSString *)theMessage, ... ;
 
 /*!
  @abstract Log the specified message with LS_LOG_INFO level
  @discussion This method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_INFO @/link
  @param theMessage the message to log
  */
-- (void)logInfo:(NSString *)theMessage ;
+- (void)logInfo:(NSString *)theMessage, ... ;
 
 /*!
  @abstract Log the specified message with LS_LOG_WARN level
  @discussion This method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_WARN @/link
  @param theMessage the message to log
  */
-- (void)logWarn:(NSString *)theMessage ;
+- (void)logWarn:(NSString *)theMessage, ... ;
 
 /*!
  @abstract Log the specified message with LS_LOG_ERROR level
  @discussion This method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_ERROR @/link
  @param theMessage the message to log
  */
-- (void)logError:(NSString *)theMessage ;
+- (void)logError:(NSString *)theMessage, ... ;
 
 /*!
  @abstract Log the specified message with LS_LOG_BREADCRUMB level
  @discussion This method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_BREADCRUMB @/link
  @param theMessage the message to log
  */
-- (void)logBreadcrumb:(NSString *)theMessage ;
+- (void)logBreadcrumb:(NSString *)theMessage, ... ;
 
 /*!
  @abstract Log a known, but avoided issue via the log delegate, primarily to ensure it can be recorded in a crash reporting service
  @discussion If no delegate has been assigned, the message is logged to the system logs via NSLog.
  @param message The message to log
  */
-- (void)logKnownBug:(NSString *)message;
+- (void)logKnownBug:(NSString *)message, ... ;
 
 // FIXME: Should this be documented? Seems unnecessary to do so, at the moment
 + (void)classLogAtLevel:(int)level withMessage:(NSString *)theMessage;
@@ -950,7 +950,7 @@ NSString *specMaskToString(int spec);
  @discussion This class method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_VERBOSE @/link, but is safe to use from any thread, not just the main application thread.  If this method is invoked from a thread other than the main thread, it uses dispatch_async to submit the logging message to the main thread for proper handling by the delegate.
  @param theMessage the message to log
  */
-+ (void)logVerbose:(NSString *)theMessage ;
++ (void)logVerbose:(NSString *)theMessage, ... ;
 
 /*!
  @apiuid //apple_ref/doc/classmethodparam/LuaSkin/logDebug:/theMessage
@@ -958,7 +958,7 @@ NSString *specMaskToString(int spec);
  @discussion This class method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_DEBUG @/link, but is safe to use from any thread, not just the main application thread.  If this method is invoked from a thread other than the main thread, it uses dispatch_async to submit the logging message to the main thread for proper handling by the delegate.
  @param theMessage the message to log
  */
-+ (void)logDebug:(NSString *)theMessage ;
++ (void)logDebug:(NSString *)theMessage, ... ;
 
 /*!
  @apiuid //apple_ref/doc/classmethodparam/LuaSkin/logInfo:/theMessage
@@ -966,7 +966,7 @@ NSString *specMaskToString(int spec);
  @discussion This class method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_INFO @/link, but is safe to use from any thread, not just the main application thread.  If this method is invoked from a thread other than the main thread, it uses dispatch_async to submit the logging message to the main thread for proper handling by the delegate.
  @param theMessage the message to log
  */
-+ (void)logInfo:(NSString *)theMessage ;
++ (void)logInfo:(NSString *)theMessage, ... ;
 
 /*!
  @apiuid //apple_ref/doc/classmethodparam/LuaSkin/logWarn:/theMessage
@@ -974,7 +974,7 @@ NSString *specMaskToString(int spec);
  @discussion This class method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_WARN @/link, but is safe to use from any thread, not just the main application thread.  If this method is invoked from a thread other than the main thread, it uses dispatch_async to submit the logging message to the main thread for proper handling by the delegate.
  @param theMessage the message to log
  */
-+ (void)logWarn:(NSString *)theMessage ;
++ (void)logWarn:(NSString *)theMessage, ... ;
 
 /*!
  @apiuid //apple_ref/doc/classmethodparam/LuaSkin/logError:/theMessage
@@ -982,7 +982,7 @@ NSString *specMaskToString(int spec);
  @discussion This class method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_ERROR @/link, but is safe to use from any thread, not just the main application thread.  If this method is invoked from a thread other than the main thread, it uses dispatch_async to submit the logging message to the main thread for proper handling by the delegate.
  @param theMessage the message to log
  */
-+ (void)logError:(NSString *)theMessage ;
++ (void)logError:(NSString *)theMessage, ... ;
 
 /*!
  @apiuid //apple_ref/doc/classmethodparam/LuaSkin/logBreadcrumb:/theMessage
@@ -990,7 +990,7 @@ NSString *specMaskToString(int spec);
  @discussion This class method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_BREADCRUMB @/link, but is safe to use from any thread, not just the main application thread.  If this method is invoked from a thread other than the main thread, it uses dispatch_async to submit the logging message to the main thread for proper handling by the delegate.
  @param theMessage the message to log
  */
-+ (void)logBreadcrumb:(NSString *)theMessage ;
++ (void)logBreadcrumb:(NSString *)theMessage, ... ;
 
 #pragma clang diagnostic pop
 

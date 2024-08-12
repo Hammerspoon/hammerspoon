@@ -1756,14 +1756,57 @@ nextarg:
 }
 
 // shorthand
-- (void)logVerbose:(NSString *)theMessage    { [self logAtLevel:LS_LOG_VERBOSE withMessage:theMessage] ; }
-- (void)logDebug:(NSString *)theMessage      { [self logAtLevel:LS_LOG_DEBUG withMessage:theMessage] ; }
-- (void)logInfo:(NSString *)theMessage       { [self logAtLevel:LS_LOG_INFO withMessage:theMessage] ; }
-- (void)logWarn:(NSString *)theMessage       { [self logAtLevel:LS_LOG_WARN withMessage:theMessage] ; }
-- (void)logError:(NSString *)theMessage      { [self logAtLevel:LS_LOG_ERROR withMessage:theMessage] ; }
-- (void)logBreadcrumb:(NSString *)theMessage { [self logAtLevel:LS_LOG_BREADCRUMB withMessage:theMessage] ; }
 
-- (void)logKnownBug:(NSString *)message {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
+
+- (void)logVerbose:(NSString *)format, ... {
+    va_list args;
+    va_start(args, format);
+    NSString *theMessage = [[NSString alloc] initWithFormat:format arguments:args];
+    [self logAtLevel:LS_LOG_VERBOSE withMessage:theMessage] ;
+}
+
+- (void)logDebug:(NSString *)format, ... {
+    va_list args;
+    va_start(args, format);
+    NSString *theMessage = [[NSString alloc] initWithFormat:format arguments:args];
+    [self logAtLevel:LS_LOG_DEBUG withMessage:theMessage] ;
+}
+
+- (void)logInfo:(NSString *)format, ... {
+    va_list args;
+    va_start(args, format);
+    NSString *theMessage = [[NSString alloc] initWithFormat:format arguments:args];
+    [self logAtLevel:LS_LOG_INFO withMessage:theMessage] ;
+}
+
+- (void)logWarn:(NSString *)format, ... {
+    va_list args;
+    va_start(args, format);
+    NSString *theMessage = [[NSString alloc] initWithFormat:format arguments:args];
+    [self logAtLevel:LS_LOG_WARN withMessage:theMessage] ;
+}
+
+- (void)logError:(NSString *)format, ... {
+    va_list args;
+    va_start(args, format);
+    NSString *theMessage = [[NSString alloc] initWithFormat:format arguments:args];
+    [self logAtLevel:LS_LOG_ERROR withMessage:theMessage] ;
+}
+
+- (void)logBreadcrumb:(NSString *)format, ... {
+    va_list args;
+    va_start(args, format);
+    NSString *theMessage = [[NSString alloc] initWithFormat:format arguments:args];
+    [self logAtLevel:LS_LOG_BREADCRUMB withMessage:theMessage] ;
+}
+
+- (void)logKnownBug:(NSString *)format, ... {
+    va_list args;
+    va_start(args, format);
+    NSString *message = [[NSString alloc] initWithFormat:format arguments:args];
+
     id theDelegate = self.delegate;
 
     if (theDelegate &&  [theDelegate respondsToSelector:@selector(logKnownBug:)]) {
@@ -1773,6 +1816,8 @@ nextarg:
     }
 
 }
+
+#pragma clang diagnostic pop
 
 + (void)classLogAtLevel:(int)level withMessage:(NSString *)theMessage {
     if ([NSThread isMainThread]) {
@@ -1793,12 +1838,52 @@ nextarg:
     }
 }
 
-+ (void)logVerbose:(NSString *)theMessage    { [[self class] classLogAtLevel:LS_LOG_VERBOSE withMessage:theMessage]; }
-+ (void)logDebug:(NSString *)theMessage      { [[self class] classLogAtLevel:LS_LOG_DEBUG withMessage:theMessage]; }
-+ (void)logInfo:(NSString *)theMessage       { [[self class] classLogAtLevel:LS_LOG_INFO withMessage:theMessage]; }
-+ (void)logWarn:(NSString *)theMessage       { [[self class] classLogAtLevel:LS_LOG_WARN withMessage:theMessage]; }
-+ (void)logError:(NSString *)theMessage      { [[self class] classLogAtLevel:LS_LOG_ERROR withMessage:theMessage]; }
-+ (void)logBreadcrumb:(NSString *)theMessage { [[self class] classLogAtLevel:LS_LOG_BREADCRUMB withMessage:theMessage]; }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
+
++ (void)logVerbose:(NSString *)format, ... {
+    va_list args;
+    va_start(args, format);
+    NSString *theMessage = [[NSString alloc] initWithFormat:format arguments:args];
+    [self classLogAtLevel:LS_LOG_VERBOSE withMessage:theMessage] ;
+}
+
++ (void)logDebug:(NSString *)format, ... {
+    va_list args;
+    va_start(args, format);
+    NSString *theMessage = [[NSString alloc] initWithFormat:format arguments:args];
+    [self classLogAtLevel:LS_LOG_DEBUG withMessage:theMessage] ;
+}
+
++ (void)logInfo:(NSString *)format, ... {
+    va_list args;
+    va_start(args, format);
+    NSString *theMessage = [[NSString alloc] initWithFormat:format arguments:args];
+    [self classLogAtLevel:LS_LOG_INFO withMessage:theMessage] ;
+}
+
++ (void)logWarn:(NSString *)format, ... {
+    va_list args;
+    va_start(args, format);
+    NSString *theMessage = [[NSString alloc] initWithFormat:format arguments:args];
+    [self classLogAtLevel:LS_LOG_WARN withMessage:theMessage] ;
+}
+
++ (void)logError:(NSString *)format, ... {
+    va_list args;
+    va_start(args, format);
+    NSString *theMessage = [[NSString alloc] initWithFormat:format arguments:args];
+    [self classLogAtLevel:LS_LOG_ERROR withMessage:theMessage] ;
+}
+
++ (void)logBreadcrumb:(NSString *)format, ... {
+    va_list args;
+    va_start(args, format);
+    NSString *theMessage = [[NSString alloc] initWithFormat:format arguments:args];
+    [self classLogAtLevel:LS_LOG_BREADCRUMB withMessage:theMessage] ;
+}
+
+#pragma clang diagnostic pop
 
 - (NSString *)tracebackWithTag:(NSString *)theTag fromStackPos:(int)level{
     int topIndex         = lua_gettop(self.L) ;
