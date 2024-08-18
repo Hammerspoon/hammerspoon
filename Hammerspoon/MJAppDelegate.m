@@ -137,8 +137,9 @@
   //NSLog(@"Open URL in NSUserActivityTypeBrowsingWeb");
   if ([userActivity.activityType isEqualToString:NSUserActivityTypeBrowsingWeb]) {
     [[NSWorkspace sharedWorkspace] openURL:userActivity.webpageURL];
+    return YES;
   }
-  return YES;
+  return NO;
 }
 
 
