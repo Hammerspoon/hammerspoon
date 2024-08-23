@@ -583,8 +583,8 @@ static int httpserver_start(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L];
     HSHTTPServer *server = getUserData(L, 1);
 
-    if (server.fn == LUA_NOREF) {
-        [skin logError:@"hs.httpserver:start() called with no callback set. You must call hs.httpserver:setCallback() first"];
+    if (server.fn == LUA_NOREF && server.wsCallback == LUA_NOREF) {
+        [skin logError:@"hs.httpserver:start() called with no callback set. You must call `hs.httpserver:setCallback()` or `hs.httpserver:websocket()` first."];
     } else {
         NSError *error = nil;
         if (![server start:&error]) {
