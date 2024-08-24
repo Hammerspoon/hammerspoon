@@ -106,6 +106,7 @@ static int eventtap_event_newEventFromData(lua_State* L) {
 ///   * `endSwipeUp` - End a swipe up.
 ///   * `beginSwipeDown` - Begin a swipe down.
 ///   * `endSwipeDown` - End a swipe down.
+///   * `smartMagnify` - Performs smart mangify.
 ///
 /// Examples:
 ///   ```lua
@@ -218,6 +219,11 @@ static int eventtap_event_newGesture(lua_State* L) {
                        @(kTLInfoSubtypeMagnify), kTLInfoKeyGestureSubtype,
                        @(kIOHIDEventPhaseEnded), kTLInfoKeyGesturePhase,
                        @(magnification), kTLInfoKeyMagnification,
+                       nil];
+    }
+    else if ([gesture isEqualToString:@"smartMagnify"]) {
+        gestureDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                       @(kTLInfoSubtypeSmartMagnify), kTLInfoKeyGestureSubtype,
                        nil];
     }
     else if ([gesture isEqualToString:@"beginRotate"]) {
