@@ -239,7 +239,8 @@ SentryNetworkTracker ()
     SentryTraceContext *traceContext =
         [[SentryTraceContext alloc] initWithTraceId:propagationContext.traceId
                                             options:SentrySDK.currentHub.client.options
-                                        userSegment:SentrySDK.currentHub.scope.userObject.segment];
+                                        userSegment:SentrySDK.currentHub.scope.userObject.segment
+                                           replayId:SentrySDK.currentHub.scope.replayId];
 #pragma clang diagnostic pop
 
     [self addBaggageHeader:[traceContext toBaggage]

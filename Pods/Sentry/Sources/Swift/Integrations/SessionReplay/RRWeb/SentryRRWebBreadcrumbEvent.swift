@@ -4,7 +4,7 @@ import Foundation
 class SentryRRWebBreadcrumbEvent: SentryRRWebCustomEvent {
     init(timestamp: Date, category: String, message: String? = nil, level: SentryLevel = .none, data: [String: Any]? = nil) {
         
-        var payload: [String: Any] = ["type": "default", "category": category, "level": SentryLevelHelper.getNameFor(level.rawValue), "timestamp": timestamp.timeIntervalSince1970 ]
+        var payload: [String: Any] = ["type": "default", "category": category, "level": level.description, "timestamp": timestamp.timeIntervalSince1970 ]
 
         if let message = message {
             payload["message"] = message

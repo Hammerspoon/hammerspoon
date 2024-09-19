@@ -6,6 +6,17 @@ static NSString *const SentryPlatformName = @"cocoa";
 
 #define SENTRY_DEFAULT_SAMPLE_RATE @1
 #define SENTRY_DEFAULT_TRACES_SAMPLE_RATE @0
+
+/**
+ * The value we give when initializing the options object, and what it will be if a consumer never
+ * modifies it in their SDK config.
+ * */
+#define SENTRY_INITIAL_PROFILES_SAMPLE_RATE nil
+
+/**
+ * The default value we will give for profiles sample rate if an invalid value is supplied for the
+ * options property in config or returned from the sampler function.
+ */
 #define SENTRY_DEFAULT_PROFILES_SAMPLE_RATE @0
 
 /**

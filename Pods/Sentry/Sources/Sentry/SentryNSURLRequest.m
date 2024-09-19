@@ -95,6 +95,8 @@ NSTimeInterval const SentryRequestTimeout = 15;
             forHTTPHeaderField:@"User-Agent"];
         [self setValue:@"gzip" forHTTPHeaderField:@"Content-Encoding"];
         self.HTTPBody = sentry_gzippedWithCompressionLevel(data, -1, error);
+
+        SENTRY_LOG_DEBUG(@"Constructed request: %@", self);
     }
 
     return self;

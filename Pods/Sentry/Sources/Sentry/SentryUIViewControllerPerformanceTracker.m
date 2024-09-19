@@ -147,11 +147,14 @@ SentryUIViewControllerPerformanceTracker ()
                                            waitForFullDisplay:self.enableWaitForFullDisplay
                                          dispatchQueueWrapper:_dispatchQueueWrapper];
 
-    objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER, ttdTracker,
-        OBJC_ASSOCIATION_ASSIGN);
-    [ttdTracker startForTracer:(SentryTracer *)vcSpan];
+    if ([ttdTracker startForTracer:(SentryTracer *)vcSpan]) {
+        objc_setAssociatedObject(controller, &SENTRY_UI_PERFORMANCE_TRACKER_TTD_TRACKER, ttdTracker,
+            OBJC_ASSOCIATION_ASSIGN);
 
-    self.currentTTDTracker = ttdTracker;
+        self.currentTTDTracker = ttdTracker;
+    } else {
+        self.currentTTDTracker = nil;
+    }
 }
 
 - (void)reportFullyDisplayed

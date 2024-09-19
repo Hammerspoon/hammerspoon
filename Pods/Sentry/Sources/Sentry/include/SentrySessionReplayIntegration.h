@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Captures Replay. Used by the Hybrid SDKs.
  */
-- (void)captureReplay;
+- (BOOL)captureReplay;
 
 /**
  * Configure session replay with different breadcrumb converter

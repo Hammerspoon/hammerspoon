@@ -35,7 +35,7 @@ NSString *SRURLOrigin(NSURL *url)
     return origin;
 }
 
-extern BOOL SRURLRequiresSSL(NSURL *url)
+extern BOOL SRURLRequiresSSL(NSURL *_Nullable url)
 {
     NSString *scheme = url.scheme.lowercaseString;
     return ([scheme isEqualToString:@"wss"] || [scheme isEqualToString:@"https"]);

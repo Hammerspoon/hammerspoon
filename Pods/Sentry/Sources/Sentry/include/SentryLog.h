@@ -1,26 +1,6 @@
 #import "SentryDefines.h"
 #import "SentrySwift.h"
 
-@class SentryLogOutput;
-
-NS_ASSUME_NONNULL_BEGIN
-
-@interface SentryLog : NSObject
-SENTRY_NO_INIT
-
-+ (void)configure:(BOOL)debug diagnosticLevel:(SentryLevel)level;
-
-+ (void)logWithMessage:(NSString *)message andLevel:(SentryLevel)level;
-
-/**
- * @return @c YES if the current logging configuration will log statements at the current level,
- * @c NO if not.
- */
-+ (BOOL)willLogAtLevel:(SentryLevel)level;
-
-@end
-
-NS_ASSUME_NONNULL_END
 #define SENTRY_LOG(_SENTRY_LOG_LEVEL, ...)                                                         \
     if ([SentryLog willLogAtLevel:_SENTRY_LOG_LEVEL]) {                                            \
         [SentryLog logWithMessage:[NSString stringWithFormat:@"[%@:%d] %@",                        \
