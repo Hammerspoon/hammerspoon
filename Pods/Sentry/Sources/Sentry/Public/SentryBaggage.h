@@ -6,6 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const SENTRY_BAGGAGE_HEADER = @"baggage";
 
+NS_SWIFT_NAME(Baggage)
 @interface SentryBaggage : NSObject
 
 /*

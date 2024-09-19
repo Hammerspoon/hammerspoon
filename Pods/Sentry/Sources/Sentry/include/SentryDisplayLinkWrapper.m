@@ -27,6 +27,12 @@
 - (void)invalidate
 {
     [displayLink invalidate];
+    displayLink = nil;
+}
+
+- (BOOL)isRunning
+{
+    return displayLink != nil && !displayLink.isPaused;
 }
 
 @end

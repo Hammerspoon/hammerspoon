@@ -19,6 +19,7 @@
 #    if SENTRY_HAS_UIKIT
 #        import "SentryFramesTracker.h"
 #        import "SentryScreenFrames.h"
+#        import <UIKit/UIKit.h>
 #    endif // SENTRY_HAS_UIKIT
 
 #    pragma mark - Private
@@ -34,6 +35,16 @@ NSTimer *_Nullable _chunkTimer;
 
 /** @note: The session ID is reused for any profile sessions started in the same app session. */
 SentryId *_profileSessionID;
+
+/**
+ * To avoid sending small chunks at the end of profiles, we let the current chunk run to the full
+ * time after the call to stop the profiler is received.
+ * */
+BOOL _stopCalled;
+
+#    if SENTRY_HAS_UIKIT
+NSObject *_observerToken;
+#    endif // SENTRY_HAS_UIKIT
 
 void
 disableTimer()
@@ -90,6 +101,8 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
             return;
         }
 
+        _stopCalled = NO;
+
         static dispatch_once_t onceToken;
         dispatch_once(&onceToken, ^{ _profileSessionID = [[SentryId alloc] init]; });
         _threadUnsafe_gContinuousCurrentProfiler.profilerId = _profileSessionID;
@@ -101,6 +114,18 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
                                    object:nil
                                  userInfo:nil]];
     [self scheduleTimer];
+
+#    if SENTRY_HAS_UIKIT
+    _observerToken = [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+        addObserverForName:UIApplicationWillResignActiveNotification
+                    object:nil
+                     queue:nil
+                usingBlock:^(NSNotification *_Nonnull notification) {
+                    [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+                        removeObserver:_observerToken];
+                    [self stopTimerAndCleanup];
+                }];
+#    endif // SENTRY_HAS_UIKIT
 }
 
 + (BOOL)isCurrentlyProfiling
@@ -119,12 +144,7 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
             return;
         }
 
-        _sentry_threadUnsafe_transmitChunkEnvelope();
-        disableTimer();
-
-        [_threadUnsafe_gContinuousCurrentProfiler
-            stopForReason:SentryProfilerTruncationReasonNormal];
-        _threadUnsafe_gContinuousCurrentProfiler = nil;
+        _stopCalled = YES;
     }
 }
 
@@ -145,6 +165,8 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
     [SentryDependencyContainer.sharedInstance.dispatchQueueWrapper dispatchAsyncOnMainQueue:^{
         std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
         if (_chunkTimer != nil) {
+            SENTRY_LOG_WARN(@"There was already a timer in flight, but this codepath shouldn't be "
+                            @"taken if there is no profiler running.");
             return;
         }
 
@@ -159,14 +181,39 @@ _sentry_threadUnsafe_transmitChunkEnvelope(void)
 
 + (void)timerExpired
 {
-    std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
-    if (![_threadUnsafe_gContinuousCurrentProfiler isRunning]) {
-        SENTRY_LOG_WARN(@"Current profiler is not running. Sending whatever data it has left "
-                        @"and disabling the timer from running again.");
-        disableTimer();
+    {
+        std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
+        if (![_threadUnsafe_gContinuousCurrentProfiler isRunning]) {
+            SENTRY_LOG_WARN(@"Current profiler is not running. Sending whatever data it has left "
+                            @"and disabling the timer from running again.");
+            disableTimer();
+        }
+
+        _sentry_threadUnsafe_transmitChunkEnvelope();
+
+        if (!_stopCalled) {
+            return;
+        }
     }
 
-    _sentry_threadUnsafe_transmitChunkEnvelope();
+#    if SENTRY_HAS_UIKIT
+    if (_observerToken != nil) {
+        [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+            removeObserver:_observerToken];
+    }
+#    endif // SENTRY_HAS_UIKIT
+
+    [self stopTimerAndCleanup];
+}
+
++ (void)stopTimerAndCleanup
+{
+    std::lock_guard<std::mutex> l(_threadUnsafe_gContinuousProfilerLock);
+
+    disableTimer();
+
+    [_threadUnsafe_gContinuousCurrentProfiler stopForReason:SentryProfilerTruncationReasonNormal];
+    _threadUnsafe_gContinuousCurrentProfiler = nil;
 }
 
 #    pragma mark - Testing

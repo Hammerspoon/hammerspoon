@@ -33,9 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (NSData *_Nullable)dataWithEnvelope:(SentryEnvelope *)envelope
-                                error:(NSError *_Nullable *_Nullable)error
 {
-
     NSMutableData *envelopeData = [[NSMutableData alloc] init];
     NSMutableDictionary *serializedData = [NSMutableDictionary new];
     if (nil != envelope.header.eventId) {
@@ -150,9 +148,6 @@ NS_ASSUME_NONNULL_BEGIN
     NSUInteger endOfEnvelope = data.length - 1;
     for (NSInteger i = itemHeaderStart; i <= endOfEnvelope; ++i) {
         if (bytes[i] == '\n' || i == endOfEnvelope) {
-            if (endOfEnvelope == i) {
-                i++; // 0 byte attachment
-            }
 
             NSData *itemHeaderData =
                 [data subdataWithRange:NSMakeRange(itemHeaderStart, i - itemHeaderStart)];
@@ -210,15 +205,18 @@ NS_ASSUME_NONNULL_BEGIN
                 itemHeader = [[SentryEnvelopeItemHeader alloc] initWithType:type length:bodyLength];
             }
 
-            NSData *itemBody = [data subdataWithRange:NSMakeRange(i + 1, bodyLength)];
-#ifdef DEBUG
-            if ([SentryEnvelopeItemTypeEvent isEqual:type] ||
-                [SentryEnvelopeItemTypeSession isEqual:type]) {
-                NSString *event = [[NSString alloc] initWithData:itemBody
-                                                        encoding:NSUTF8StringEncoding];
-                SENTRY_LOG_DEBUG(@"Event %@", event);
+            if (endOfEnvelope == i) {
+                i++; // 0 byte attachment
             }
-#endif
+
+            if (bodyLength > 0 && data.length < (i + 1 + bodyLength)) {
+                SENTRY_LOG_ERROR(@"Envelope is corrupted or has invalid data. Trying to read %li "
+                                 @"bytes by skiping %li from a buffer of %li bytes.",
+                    (unsigned long)data.length, (unsigned long)bodyLength, (long)(i + 1));
+                return nil;
+            }
+
+            NSData *itemBody = [data subdataWithRange:NSMakeRange(i + 1, bodyLength)];
             SentryEnvelopeItem *envelopeItem = [[SentryEnvelopeItem alloc] initWithHeader:itemHeader
                                                                                      data:itemBody];
             [items addObject:envelopeItem];
@@ -297,16 +295,16 @@ NS_ASSUME_NONNULL_BEGIN
     return [[SentryAppState alloc] initWithJSONObject:appSateDictionary];
 }
 
-+ (NSDictionary *)deserializeEventEnvelopeItem:(NSData *)eventEnvelopeItemData
++ (NSDictionary *)deserializeDictionaryFromJsonData:(NSData *)data
 {
     NSError *error = nil;
-    NSDictionary *eventDictionary = [NSJSONSerialization JSONObjectWithData:eventEnvelopeItemData
+    NSDictionary *eventDictionary = [NSJSONSerialization JSONObjectWithData:data
                                                                     options:0
                                                                       error:&error];
     if (nil != error) {
         [SentryLog
             logWithMessage:[NSString
-                               stringWithFormat:@"Failed to deserialize envelope item data: %@",
+                               stringWithFormat:@"Failed to deserialize json item dictionary: %@",
                                error]
                   andLevel:kSentryLevelError];
     }

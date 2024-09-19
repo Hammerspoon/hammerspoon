@@ -89,10 +89,12 @@ sentry_manageTraceProfilerOnStartSDK(SentryOptions *options, SentryHub *hub)
     [self.metricProfiler start];
 
 #    if SENTRY_HAS_UIKIT
-    [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
-        addObserver:self
-           selector:@selector(backgroundAbort)
-               name:UIApplicationWillResignActiveNotification];
+    if (mode == SentryProfilerModeTrace) {
+        [SentryDependencyContainer.sharedInstance.notificationCenterWrapper
+            addObserver:self
+               selector:@selector(backgroundAbort)
+                   name:UIApplicationWillResignActiveNotification];
+    }
 #    endif // SENTRY_HAS_UIKIT
 
     return self;
