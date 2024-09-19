@@ -242,7 +242,11 @@ static int doc_help(lua_State *L) {
             NSMutableString *submodules = [[NSMutableString alloc] init] ;
             NSMutableString *items      = [[NSMutableString alloc] init] ;
             NSMutableArray *children = [[(NSDictionary *)pos allKeys] mutableCopy] ;
-            [children sortUsingFunction:docSortFunction context:NULL] ;
+
+            [children sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+                return docSortFunction((NSString *)obj1, (NSString *)obj2, NULL);
+            }];
+
             [children enumerateObjectsUsingBlock:^(NSString *entry, __unused NSUInteger idx, __unused BOOL *stop) {
                 if (!([entry hasPrefix:@"__"] && [entry hasSuffix:@"__"])) {
                     if (!pos[entry][@"__json__"] || !pos[entry][@"__json__"][@"type"] || [(NSString *)pos[entry][@"__json__"][@"type"] isEqualToString:@"Module"]) {
