@@ -7,6 +7,11 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SentryViewHierarchy : NSObject
 
 /**
+ * Whether we should add `accessibilityIdentifier` to the view hierarchy.
+ */
+@property (nonatomic) BOOL reportAccessibilityIdentifier;
+
+/**
  Get the view hierarchy in a json format.
  Always runs in the main thread.
  */

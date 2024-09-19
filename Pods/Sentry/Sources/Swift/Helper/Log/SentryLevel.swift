@@ -1,7 +1,10 @@
+@_implementationOnly import _SentryPrivate
 import Foundation
 
 @objc
 public enum SentryLevel: UInt {
+    static let levelNames = ["none", "debug", "info", "warning", "error", "fatal"]
+    
     @objc(kSentryLevelNone)
     case none = 0
     
@@ -20,4 +23,30 @@ public enum SentryLevel: UInt {
     
     @objc(kSentryLevelFatal)
     case fatal = 5
+}
+
+extension SentryLevel: CustomStringConvertible { 
+    public var description: String {
+        return SentryLevel.levelNames[Int(self.rawValue)]
+    }
+    
+    static func fromName(_ name: String) -> SentryLevel {
+        guard let index = SentryLevel.levelNames.firstIndex(of: name) else { return .error }
+        return SentryLevel(rawValue: UInt(index)) ?? .error
+    }
+}
+
+@objcMembers
+class SentryLevelHelper: NSObject {
+    static func nameForLevel(_  level: SentryLevel) -> String {
+        return level.description
+    }
+    
+    static func levelForName(_ name: String) -> SentryLevel {
+        .fromName(name)
+    }
+
+    static func breadcrumbLevel(_ breadcrumb: Breadcrumb) -> SentryLevel? {
+        SentryLevel(rawValue: sentry_breadcrumbLevel(breadcrumb))
+    }
 }

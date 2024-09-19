@@ -17,6 +17,8 @@ SentryOptions ()
 
 SENTRY_EXTERN BOOL sentry_isValidSampleRate(NSNumber *sampleRate);
 
+@property (nonatomic, assign) BOOL enableAppHangTrackingV2;
+
 @end
 
 NS_ASSUME_NONNULL_END

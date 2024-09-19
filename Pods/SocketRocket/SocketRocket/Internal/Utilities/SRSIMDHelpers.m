@@ -57,7 +57,7 @@ void SRMaskBytesSIMD(uint8_t *bytes, size_t length, uint8_t *maskKey) {
     size_t manualLength = length - manualStartOffset;
 
     uint8x32_t *vector = (uint8x32_t *)(bytes + alignmentBytes);
-    uint8x32_t maskVector = { };
+    uint8x32_t maskVector;
 
     memset_pattern4(&maskVector, maskKey, sizeof(uint8x32_t));
     maskVector = SRShiftVector(maskVector, alignmentBytes);

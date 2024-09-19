@@ -5,6 +5,7 @@
 #import "SentryCrashMonitor_AppState.h"
 #import "SentryCrashMonitor_System.h"
 #import "SentryScope.h"
+#import "SentryUIDeviceWrapper.h"
 #import <Foundation/Foundation.h>
 #import <SentryCrashCachedData.h>
 #import <SentryCrashDebug.h>
@@ -126,7 +127,8 @@ NS_ASSUME_NONNULL_BEGIN
     // For MacCatalyst the UIDevice returns the current version of MacCatalyst and not the
     // macOSVersion. Therefore we have to use NSProcessInfo.
 #if SENTRY_HAS_UIKIT && !TARGET_OS_MACCATALYST
-    [osData setValue:[UIDevice currentDevice].systemVersion forKey:@"version"];
+    [osData setValue:[SentryDependencyContainer.sharedInstance.uiDeviceWrapper getSystemVersion]
+              forKey:@"version"];
 #else
     NSOperatingSystemVersion version = [NSProcessInfo processInfo].operatingSystemVersion;
     NSString *systemVersion = [NSString stringWithFormat:@"%d.%d.%d", (int)version.majorVersion,

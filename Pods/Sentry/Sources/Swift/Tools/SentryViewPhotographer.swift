@@ -10,8 +10,7 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
     
     static let shared = SentryViewPhotographer()
     
-    //This is a list of UIView subclasses that will be ignored during redact process
-    private var redactBuilder = UIRedactBuilder()
+    private let redactBuilder = UIRedactBuilder()
         
     func image(view: UIView, options: SentryRedactOptions, onComplete: @escaping ScreenshotCallback ) {
         let image = UIGraphicsImageRenderer(size: view.bounds.size).image { _ in
@@ -36,13 +35,20 @@ class SentryViewPhotographer: NSObject, SentryViewScreenshotProvider {
     
     @objc(addIgnoreClasses:)
     func addIgnoreClasses(classes: [AnyClass]) {
-        redactBuilder.ignoreClasses += classes
+        redactBuilder.addIgnoreClasses(classes)
     }
 
     @objc(addRedactClasses:)
     func addRedactClasses(classes: [AnyClass]) {
-        redactBuilder.redactClasses += classes
+        redactBuilder.addRedactClasses(classes)
     }
+    
+#if TEST || TESTCI
+    func getRedactBuild() -> UIRedactBuilder {
+        redactBuilder
+    }
+#endif
+    
 }
 
 #endif // os(iOS) || os(tvOS)

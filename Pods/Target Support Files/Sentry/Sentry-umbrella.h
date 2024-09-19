@@ -12,6 +12,7 @@
 
 #import "Sentry.h"
 #import "SentryAttachment.h"
+#import "SentryBaggage.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient.h"
 #import "SentryCrashExceptionApplication.h"
@@ -46,6 +47,7 @@
 #import "SentrySpanStatus.h"
 #import "SentryStacktrace.h"
 #import "SentryThread.h"
+#import "SentryTraceContext.h"
 #import "SentryTraceHeader.h"
 #import "SentryTransactionContext.h"
 #import "SentryUser.h"

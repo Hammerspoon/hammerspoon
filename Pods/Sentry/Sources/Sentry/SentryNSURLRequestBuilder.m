@@ -14,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     return [[SentryNSURLRequest alloc]
         initEnvelopeRequestWithDsn:dsn
-                           andData:[SentrySerialization dataWithEnvelope:envelope error:error]
+                           andData:[SentrySerialization dataWithEnvelope:envelope]
                   didFailWithError:error];
 }
 
@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 {
     return [[SentryNSURLRequest alloc]
         initEnvelopeRequestWithURL:url
-                           andData:[SentrySerialization dataWithEnvelope:envelope error:error]
+                           andData:[SentrySerialization dataWithEnvelope:envelope]
                         authHeader:nil
                   didFailWithError:error];
 }

@@ -1,10 +1,9 @@
 #import "PrivatesHeader.h"
 
 #if COCOAPODS
-@class SentrySdkInfo, SentryTraceContext;
+@class SentrySdkInfo;
 #else
 #    import "SentrySdkInfo.h"
-#    import "SentryTraceContext.h"
 
 #endif
 
@@ -14,6 +13,7 @@
 @class SentryUserFeedback;
 @class SentryAttachment;
 @class SentryEnvelopeItemHeader;
+@class SentryTraceContext;
 
 NS_ASSUME_NONNULL_BEGIN
 

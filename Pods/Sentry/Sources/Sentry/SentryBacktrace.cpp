@@ -11,7 +11,12 @@
 #    include "SentryThreadMetadataCache.hpp"
 #    include "SentryThreadState.hpp"
 #    include "SentryTime.h"
-
+extern "C" {
+#    define restrict
+/** Allow importing C99 headers that use the restrict keyword, which isn't valid in C++ */
+#    include "SentryCrashMemory.h"
+#    undef restrict
+}
 #    include <cassert>
 #    include <cstring>
 #    include <dispatch/dispatch.h>
@@ -81,6 +86,9 @@ namespace profiling {
         bool reachedEndOfStack = false;
         while (depth < maxDepth) {
             const auto frame = reinterpret_cast<StackFrame *>(current);
+            if (!sentrycrashmem_isMemoryReadable(frame, sizeof(StackFrame))) {
+                break;
+            }
             if (LIKELY(skip == 0)) {
                 addresses[depth++] = getPreviousInstructionAddress(frame->returnAddress);
             } else {

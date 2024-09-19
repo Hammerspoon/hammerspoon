@@ -1,13 +1,13 @@
 {
   "name": "Sentry",
-  "version": "8.32.0",
+  "version": "8.36.0",
   "summary": "Sentry client for cocoa",
   "homepage": "https://github.com/getsentry/sentry-cocoa",
   "license": "mit",
   "authors": "Sentry",
   "source": {
     "git": "https://github.com/getsentry/sentry-cocoa.git",
-    "tag": "8.32.0"
+    "tag": "8.36.0"
   },
   "platforms": {
     "ios": "11.0",

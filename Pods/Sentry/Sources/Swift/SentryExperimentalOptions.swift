@@ -4,7 +4,7 @@ public class SentryExperimentalOptions: NSObject {
     /**
      * Settings to configure the session replay.
      */
-    public var sessionReplay = SentryReplayOptions(sessionSampleRate: 0, errorSampleRate: 0)
+    public var sessionReplay = SentryReplayOptions(sessionSampleRate: 0, onErrorSampleRate: 0)
     #endif
 
     func validateOptions(_ options: [String: Any]?) {
