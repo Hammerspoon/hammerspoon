@@ -9,6 +9,7 @@
 @class SentryDispatchQueueWrapper;
 @class SentryNSNotificationCenterWrapper;
 @class SentryScreenFrames;
+@class SentryFramesDelayResult;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -48,12 +49,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)start;
 - (void)stop;
 
-/*
- * Returns the frames delay for the passed time period. If the method can't calculate the frames
- * delay, it returns -1.
- */
-- (CFTimeInterval)getFramesDelay:(uint64_t)startSystemTimestamp
-              endSystemTimestamp:(uint64_t)endSystemTimestamp;
+- (SentryFramesDelayResult *)getFramesDelay:(uint64_t)startSystemTimestamp
+                         endSystemTimestamp:(uint64_t)endSystemTimestamp;
 
 - (void)addListener:(id<SentryFramesTrackerListener>)listener;
 

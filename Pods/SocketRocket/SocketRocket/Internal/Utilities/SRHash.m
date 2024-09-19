@@ -15,8 +15,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 NSData *SRSHA1HashFromString(NSString *string)
 {
+    const char *utf8String = string.UTF8String;
+    if (!utf8String) {
+        return [NSData data];
+    }
     size_t length = [string lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
-    return SRSHA1HashFromBytes(string.UTF8String, length);
+    return SRSHA1HashFromBytes(utf8String, length);
 }
 
 NSData *SRSHA1HashFromBytes(const char *bytes, size_t length)

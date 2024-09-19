@@ -1,4 +1,5 @@
 #import "SentryANRTracker.h"
+#import "SentryANRTrackerV2.h"
 #import "SentryBinaryImageCache.h"
 #import "SentryDispatchFactory.h"
 #import "SentryDispatchQueueWrapper.h"
@@ -198,11 +199,10 @@ static NSObject *sentryDependencyContainerLock;
     }
 }
 
-#if TARGET_OS_IOS
+#if SENTRY_HAS_UIKIT
 - (SentryUIDeviceWrapper *)uiDeviceWrapper SENTRY_DISABLE_THREAD_SANITIZER(
     "double-checked lock produce false alarms")
 {
-#    if SENTRY_HAS_UIKIT
     if (_uiDeviceWrapper == nil) {
         @synchronized(sentryDependencyContainerLock) {
             if (_uiDeviceWrapper == nil) {
@@ -211,14 +211,9 @@ static NSObject *sentryDependencyContainerLock;
         }
     }
     return _uiDeviceWrapper;
-#    else
-    SENTRY_LOG_DEBUG(
-        @"SentryDependencyContainer.uiDeviceWrapper only works with UIKit enabled. Ensure you're "
-        @"using the right configuration of Sentry that links UIKit.");
-    return nil;
-#    endif // SENTRY_HAS_UIKIT
 }
-#endif // TARGET_OS_IOS
+
+#endif // SENTRY_HAS_UIKIT
 
 #if SENTRY_UIKIT_AVAILABLE
 - (SentryScreenshot *)screenshot SENTRY_DISABLE_THREAD_SANITIZER(
@@ -301,6 +296,32 @@ static NSObject *sentryDependencyContainerLock;
 #    else
     SENTRY_LOG_DEBUG(
         @"SentryDependencyContainer.framesTracker only works with UIKit enabled. Ensure you're "
+        @"using the right configuration of Sentry that links UIKit.");
+    return nil;
+#    endif // SENTRY_HAS_UIKIT
+}
+
+- (SentryANRTrackerV2 *)getANRTrackerV2:(NSTimeInterval)timeout
+    SENTRY_DISABLE_THREAD_SANITIZER("double-checked lock produce false alarms")
+{
+#    if SENTRY_HAS_UIKIT
+    if (_anrTrackerV2 == nil) {
+        @synchronized(sentryDependencyContainerLock) {
+            if (_anrTrackerV2 == nil) {
+                _anrTrackerV2 =
+                    [[SentryANRTrackerV2 alloc] initWithTimeoutInterval:timeout
+                                                           crashWrapper:self.crashWrapper
+                                                   dispatchQueueWrapper:self.dispatchQueueWrapper
+                                                          threadWrapper:self.threadWrapper
+                                                          framesTracker:self.framesTracker];
+            }
+        }
+    }
+
+    return _anrTrackerV2;
+#    else
+    SENTRY_LOG_DEBUG(
+        @"SentryDependencyContainer.getANRTrackerV2 only works with UIKit enabled. Ensure you're "
         @"using the right configuration of Sentry that links UIKit.");
     return nil;
 #    endif // SENTRY_HAS_UIKIT

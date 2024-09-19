@@ -78,6 +78,19 @@
 
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
+- (NSString *)description
+{
+    NSMutableString *result = [NSMutableString
+        stringWithFormat:@"Total frames: %lu; slow frames: %lu; frozen frames: %lu",
+        (unsigned long)_total, (unsigned long)_slow, (unsigned long)_frozen];
+#    if SENTRY_TARGET_PROFILING_SUPPORTED
+    [result appendFormat:
+                @"\nslowFrameTimestamps: %@\nfrozenFrameTimestamps: %@\nframeRateTimestamps: %@",
+            _slowFrameTimestamps, _frozenFrameTimestamps, _frameRateTimestamps];
+#    endif // SENTRY_TARGET_PROFILING_SUPPORTED
+    return result;
+}
+
 @end
 
 #endif // SENTRY_UIKIT_AVAILABLE

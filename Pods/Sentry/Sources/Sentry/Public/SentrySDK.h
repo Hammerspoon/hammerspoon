@@ -5,6 +5,7 @@
 @class SentryOptions, SentryEvent, SentryBreadcrumb, SentryScope, SentryUser, SentryId,
     SentryUserFeedback, SentryTransactionContext;
 @class SentryMetricsAPI;
+@class UIView;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -332,6 +333,45 @@ SENTRY_NO_INIT
  * @c SentryOptions.shutdownTimeInterval .
  */
 + (void)close;
+
+#if SENTRY_TARGET_REPLAY_SUPPORTED
+
+/**
+ * @warning This is an experimental feature and may still have bugs.
+ *
+ * Marks this view to be redacted during replays.
+ */
++ (void)replayRedactView:(UIView *)view;
+
+/**
+ * @warning This is an experimental feature and may still have bugs.
+ *
+ * Marks this view to be ignored during redact step
+ * of session replay. All its content will be visible in the replay.
+ */
++ (void)replayIgnoreView:(UIView *)view;
+
+#endif
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+/**
+ * Start a new continuous profiling session if one is not already running.
+ * @note Unlike trace-based profiling, continuous profiling does not take into account @c
+ * SentryOptions.profilesSampleRate ; a call to this method will always start a profile if one is
+ * not already running. This includes app launch profiles configured with @c
+ * SentryOptions.enableAppLaunchProfiling .
+ * @warning Continuous profiling mode is experimental and may still contain bugs.
+ * @seealso https://docs.sentry.io/platforms/apple/guides/ios/profiling/#continuous-profiling
+ */
++ (void)startProfiler;
+
+/**
+ * Stop a continuous profiling session if there is one ongoing.
+ * @warning Continuous profiling mode is experimental and may still contain bugs.
+ * @seealso https://docs.sentry.io/platforms/apple/guides/ios/profiling/#continuous-profiling
+ */
++ (void)stopProfiler;
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end
 

@@ -182,7 +182,8 @@ static int associate(lua_State *L) {
 static int wifi_interfaces(lua_State *L) {
     LuaSkin *skin = [LuaSkin sharedWithState:L] ;
     [skin checkArgs:LS_TBREAK] ;
-    [skin pushNSObject:[CWWiFiClient interfaceNames]] ;
+    CWWiFiClient *sharedClient = [CWWiFiClient sharedWiFiClient] ;
+    [skin pushNSObject:[sharedClient interfaceNames]] ;
     return 1 ;
 }
 

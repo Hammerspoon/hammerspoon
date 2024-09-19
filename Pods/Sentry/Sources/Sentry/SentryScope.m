@@ -337,10 +337,12 @@ SentryScope ()
 
 - (void)setUser:(SentryUser *_Nullable)user
 {
-    self.userObject = user;
+    @synchronized(self) {
+        self.userObject = user;
 
-    for (id<SentryScopeObserver> observer in self.observers) {
-        [observer setUser:user];
+        for (id<SentryScopeObserver> observer in self.observers) {
+            [observer setUser:user];
+        }
     }
 }
 

@@ -54,8 +54,14 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
     return self;
 }
 
-- (void)startForTracer:(SentryTracer *)tracer
+- (BOOL)startForTracer:(SentryTracer *)tracer
 {
+    if (SentryDependencyContainer.sharedInstance.framesTracker.isRunning == NO) {
+        SENTRY_LOG_DEBUG(@"Skipping TTID/TTFD spans, because can't report them correctly when the "
+                         @"frames tracker isn't running.");
+        return NO;
+    }
+
     SENTRY_LOG_DEBUG(@"Starting initial display span");
     self.initialDisplaySpan = [tracer
         startChildWithOperation:SentrySpanOperationUILoadInitialDisplay
@@ -116,6 +122,8 @@ SentryTimeToDisplayTracker () <SentryFramesTrackerListener>
             stringWithFormat:@"%@ - Deadline Exceeded", self.fullDisplaySpan.spanDescription];
         [self addTimeToDisplayMeasurement:self.fullDisplaySpan name:@"time_to_full_display"];
     }];
+
+    return YES;
 }
 
 - (void)reportInitialDisplay

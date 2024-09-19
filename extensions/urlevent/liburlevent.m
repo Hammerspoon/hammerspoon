@@ -147,8 +147,8 @@ static HSURLEventHandler *eventHandler;
     }
 
     [skin pushLuaRef:refTable ref:self.fnCallback];
-    [skin pushNSObject:[url scheme]];
-    [skin pushNSObject:[url host]];
+    [skin pushNSObject:url.scheme.lowercaseString];
+    [skin pushNSObject:url.host.lowercaseString];
     [skin pushNSObject:pairs];
     [skin pushNSObject:[url absoluteString]];
     lua_pushinteger(skin.L, pid);

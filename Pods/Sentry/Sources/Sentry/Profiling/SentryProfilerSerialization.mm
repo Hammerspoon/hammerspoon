@@ -16,6 +16,7 @@
 #    import "SentryHub.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLog.h"
+#    import "SentryMeta.h"
 #    import "SentryMetricProfiler.h"
 #    import "SentryOptions.h"
 #    import "SentryProfileTimeseries.h"
@@ -259,6 +260,11 @@ sentry_serializedContinuousProfileChunk(SentryId *profileID, SentryId *chunkID,
     payload[@"environment"] = hub.scope.environmentString ?: hub.getClient.options.environment;
     payload[@"release"] = hub.getClient.options.releaseName;
     payload[@"platform"] = SentryPlatformName;
+
+    const auto clientInfo = [NSMutableDictionary dictionary];
+    clientInfo[@"name"] = SentryMeta.sdkName;
+    clientInfo[@"version"] = SentryMeta.versionString;
+    payload[@"client_sdk"] = clientInfo;
 
     // add the gathered metrics
     auto metrics = serializedMetrics;

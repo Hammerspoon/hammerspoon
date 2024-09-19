@@ -44,11 +44,6 @@ static const NSTimeInterval SENTRY_AUTO_TRANSACTION_MAX_DURATION = 500.0;
 @property (nullable, nonatomic, copy) BOOL (^shouldIgnoreWaitForChildrenCallback)(id<SentrySpan>);
 
 /**
- * Retrieves a trace context from this tracer.
- */
-@property (nonatomic, readonly) SentryTraceContext *traceContext;
-
-/**
  * All the spans that where created with this tracer but rootSpan.
  */
 @property (nonatomic, readonly) NSArray<id<SentrySpan>> *children;

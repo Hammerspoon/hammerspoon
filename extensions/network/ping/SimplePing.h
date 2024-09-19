@@ -7,6 +7,7 @@
  */
 
 @import Foundation;
+@import Darwin.POSIX.sys.types._sa_family_t;
 
 #include <AssertMacros.h>           // for __Check_Compile_Time
 

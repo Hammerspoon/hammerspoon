@@ -8,6 +8,7 @@ FOUNDATION_EXPORT double SentryVersionNumber;
 FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 
 #    import <Sentry/SentryAttachment.h>
+#    import <Sentry/SentryBaggage.h>
 #    import <Sentry/SentryBreadcrumb.h>
 #    import <Sentry/SentryClient.h>
 #    import <Sentry/SentryCrashExceptionApplication.h>
@@ -41,6 +42,7 @@ FOUNDATION_EXPORT const unsigned char SentryVersionString[];
 #    import <Sentry/SentrySpanStatus.h>
 #    import <Sentry/SentryStacktrace.h>
 #    import <Sentry/SentryThread.h>
+#    import <Sentry/SentryTraceContext.h>
 #    import <Sentry/SentryTraceHeader.h>
 #    import <Sentry/SentryTransactionContext.h>
 #    import <Sentry/SentryUser.h>
