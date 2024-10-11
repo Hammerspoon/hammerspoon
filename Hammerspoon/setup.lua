@@ -1,6 +1,6 @@
 local modpath, frameworkspath, prettypath, fullpath, configdir, docstringspath, hasinitfile, autoload_extensions = ...
 
-local userruntime = "~/.local/share/hammerspoon/site"
+local userruntime = os.getenv("HOME") .. "/.local/share/hammerspoon/site"
 
 local paths = {
   configdir .. "/?.lua",
