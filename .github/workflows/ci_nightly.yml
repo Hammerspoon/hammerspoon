@@ -26,7 +26,7 @@ jobs:
     if: needs.config.outputs.has-secrets
     name: Build and Sign
 
-    runs-on: macos-14
+    runs-on: macos-15
     permissions:
       contents: read
     env:

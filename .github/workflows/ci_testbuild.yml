@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     name: Build and Test
-    runs-on: macos-14
+    runs-on: macos-15
     permissions:
       contents: read
       checks: write
