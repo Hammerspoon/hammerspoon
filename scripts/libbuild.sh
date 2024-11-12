@@ -95,7 +95,7 @@ function op_validate() {
   local BUILD_SETTINGS ; BUILD_SETTINGS=$(xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release -configuration Release -showBuildSettings 2>&1 | grep -E " CODE_SIGN_IDENTITY|DEVELOPMENT_TEAM|CODE_SIGN_ENTITLEMENTS")
 
   local SIGN_IDENTITY ; SIGN_IDENTITY=$(echo "${BUILD_SETTINGS}" | grep CODE_SIGN_IDENTITY | sed -e 's/.* = //')
-  local SIGN_TEAM ; SIGN_TEAM=$(echo "${BUILD_SETTINGS}" | grep DEVELOPMENT_TEAM | sed -e 's/.* = //')
+  local SIGN_TEAM ; SIGN_TEAM=$(echo "${BUILD_SETTINGS}" | grep "DEVELOPMENT_TEAM = " | sed -e 's/.* = //')
   local ENTITLEMENTS_FILE ; ENTITLEMENTS_FILE=$(echo "${BUILD_SETTINGS}" | grep CODE_SIGN_ENTITLEMENTS | sed -e 's/.* = //')
 
   # Validate that the app bundle has a correct signature at all
