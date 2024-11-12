@@ -41,7 +41,7 @@ jobs:
         run: ./scripts/github-ci-test.sh
 
       - name: Report test results
-        uses: kishikawakatsumi/xcresulttool@v1
+        uses: slidoapp/xcresulttool@v3
         with:
           path: build/TestResults.xcresult
           upload-bundles: never
