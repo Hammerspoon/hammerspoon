@@ -255,6 +255,7 @@ function op_keychain_prep() {
 
         local SIGN_TEAM ; SIGN_TEAM=$(xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release -configuration Release -showBuildSettings 2>&1 | grep -E " DEVELOPMENT_TEAM" | sed -e 's/.* = //')
 
+        echo " Storing notarization credentials:"
         xcrun notarytool store-credentials --sync "${KEYCHAIN_PROFILE}" --apple-id "${NOTARIZATION_USERNAME}" --team-id "${SIGN_TEAM}" --password "${NOTARIZATION_PASSWORD}"
 
         unset NOTARIZATION_USERNAME
