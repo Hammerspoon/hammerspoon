@@ -241,7 +241,7 @@ function op_keychain_prep() {
         "${SECBIN}" set-keychain-settings -t 1200
 
         echo " Setting permissions for keychain... (logs suppressed)"
-        "${SECBIN}" -q set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "${KEYCHAIN_PASSPHRASE}" "${KEYCHAIN} >/dev/null 2>&1"
+        "${SECBIN}" -q set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "${KEYCHAIN_PASSPHRASE}" "${KEYCHAIN}" >/dev/null 2>&1
 
         echo " Listing keychains:"
         "${SECBIN}" list-keychains -d user
