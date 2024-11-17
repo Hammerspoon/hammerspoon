@@ -47,24 +47,6 @@ const char *sentrycrashmach_exceptionName(int64_t exceptionType);
  */
 const char *sentrycrashmach_kernelReturnCodeName(int64_t returnCode);
 
-/** Get the signal equivalent of a mach exception.
- *
- * @param exception The mach exception.
- *
- * @param code The mach exception code.
- *
- * @return The matching signal, or 0 if not found.
- */
-int sentrycrashmach_signalForMachException(int exception, int64_t code);
-
-/** Get the mach exception equivalent of a signal.
- *
- * @param signal The signal.
- *
- * @return The matching mach exception, or 0 if not found.
- */
-int sentrycrashmach_machExceptionForSignal(int signal);
-
 #ifdef __cplusplus
 }
 #endif

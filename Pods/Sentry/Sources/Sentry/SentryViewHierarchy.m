@@ -5,11 +5,11 @@
 #    import "SentryCrashFileUtils.h"
 #    import "SentryCrashJSONCodec.h"
 #    import "SentryDependencyContainer.h"
+#    import "SentryDispatchQueueWrapper.h"
 #    import "SentryLog.h"
+#    import "SentrySwift.h"
 #    import "SentryUIApplication.h"
 #    import <UIKit/UIKit.h>
-
-@import SentryPrivate;
 
 static int
 writeJSONDataToFile(const char *const data, const int length, void *const userData)
@@ -29,6 +29,14 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
 
 @implementation SentryViewHierarchy
 
+- (instancetype)init
+{
+    if (self = [super init]) {
+        self.reportAccessibilityIdentifier = YES;
+    }
+    return self;
+}
+
 - (BOOL)saveViewHierarchy:(NSString *)filePath
 {
     NSArray<UIWindow *> *windows = [SentryDependencyContainer.sharedInstance.application windows];
@@ -46,26 +54,28 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
     return result;
 }
 
-- (NSData *)fetchViewHierarchy
+- (NSData *)appViewHierarchyFromMainThread
 {
-    __block NSMutableData *result = [[NSMutableData alloc] init];
+    __block NSData *result;
 
-    void (^save)(void) = ^{
-        NSArray<UIWindow *> *windows =
-            [SentryDependencyContainer.sharedInstance.application windows];
+    void (^fetchViewHierarchy)(void) = ^{ result = [self appViewHierarchy]; };
 
-        if (![self processViewHierarchy:windows
-                            addFunction:writeJSONDataToMemory
-                               userData:(__bridge void *)(result)]) {
+    [[SentryDependencyContainer sharedInstance].dispatchQueueWrapper
+        dispatchSyncOnMainQueue:fetchViewHierarchy];
 
-            result = nil;
-        }
-    };
+    return result;
+}
 
-    if ([NSThread isMainThread]) {
-        save();
-    } else {
-        dispatch_sync(dispatch_get_main_queue(), save);
+- (NSData *)appViewHierarchy
+{
+    NSMutableData *result = [[NSMutableData alloc] init];
+    NSArray<UIWindow *> *windows = [SentryDependencyContainer.sharedInstance.application windows];
+
+    if (![self processViewHierarchy:windows
+                        addFunction:writeJSONDataToMemory
+                           userData:(__bridge void *)(result)]) {
+
+        result = nil;
     }
 
     return result;
@@ -117,7 +127,8 @@ writeJSONDataToMemory(const char *const data, const int length, void *const user
     tryJson(sentrycrashjson_addStringElement(
         context, "type", viewClassName, SentryCrashJSON_SIZE_AUTOMATIC));
 
-    if (view.accessibilityIdentifier && view.accessibilityIdentifier.length != 0) {
+    if (self.reportAccessibilityIdentifier && view.accessibilityIdentifier
+        && view.accessibilityIdentifier.length != 0) {
         tryJson(sentrycrashjson_addStringElement(context, "identifier",
             view.accessibilityIdentifier.UTF8String, SentryCrashJSON_SIZE_AUTOMATIC));
     }

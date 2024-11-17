@@ -1,11 +1,11 @@
 #import "SentryLevelMapper.h"
 #import <Foundation/Foundation.h>
-#import <NSData+Sentry.h>
 #import <SentryBreadcrumb.h>
 #import <SentryCrashJSONCodec.h>
 #import <SentryCrashJSONCodecObjC.h>
 #import <SentryCrashScopeObserver.h>
 #import <SentryLog.h>
+#import <SentryNSDataUtils.h>
 #import <SentryScopeSyncC.h>
 #import <SentryUser.h>
 
@@ -156,7 +156,7 @@
     }
 
     // C strings need to be null terminated
-    return [json sentry_nullTerminated];
+    return sentry_nullTerminated(json);
 }
 
 @end

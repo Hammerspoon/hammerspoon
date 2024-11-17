@@ -25,11 +25,11 @@
 // THE SOFTWARE.
 //
 
+#include "SentryAsyncSafeLog.h"
 #include "SentryCrashDate.h"
 #include "SentryCrashJSONCodec.h"
-#include "SentryCrashLogger.h"
 #include "SentryCrashReportFields.h"
-#include "SentryCrashSystemCapabilities.h"
+#include "SentryInternalCDefines.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -245,7 +245,8 @@ sentrycrashcrf_fixupCrashReport(const char *crashReport)
     int stringBufferLength = SentryCrashMAX_STRINGBUFFERSIZE;
     char *stringBuffer = malloc((unsigned)stringBufferLength);
     if (stringBuffer == NULL) {
-        SentryCrashLOG_ERROR("Failed to allocate string buffer of size %ul", stringBufferLength);
+        SENTRY_ASYNC_SAFE_LOG_ERROR(
+            "Failed to allocate string buffer of size %ul", stringBufferLength);
         return NULL;
     }
     int crashReportLength = (int)strlen(crashReport);
@@ -253,7 +254,7 @@ sentrycrashcrf_fixupCrashReport(const char *crashReport)
     char *fixedReport = malloc((unsigned)fixedReportLength);
     if (fixedReport == NULL) {
         free(stringBuffer);
-        SentryCrashLOG_ERROR(
+        SENTRY_ASYNC_SAFE_LOG_ERROR(
             "Failed to allocate fixed report buffer of size %ld", fixedReportLength);
         return NULL;
     }
@@ -273,7 +274,8 @@ sentrycrashcrf_fixupCrashReport(const char *crashReport)
     *fixupContext.outputPtr = '\0';
     free(stringBuffer);
     if (result != SentryCrashJSON_OK) {
-        SentryCrashLOG_ERROR("Could not decode report: %s", sentrycrashjson_stringForError(result));
+        SENTRY_ASYNC_SAFE_LOG_ERROR(
+            "Could not decode report: %s", sentrycrashjson_stringForError(result));
         free(fixedReport);
         return NULL;
     }

@@ -94,7 +94,8 @@
     NSString *message = [[NSString alloc] initWithFormat:format arguments:args];
     NSLog(@"KNOWN BUG: %@", message);
 
-    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
+    // FIXME: no idea why we can't use SentryLevel for this, but 4 currently means error. It may break at any future release of Sentry.
+    SentryEvent *event = [[SentryEvent alloc] initWithLevel:4];
     event.message = [[SentryMessage alloc] initWithFormatted:message];
 
     [SentrySDK captureEvent:event];

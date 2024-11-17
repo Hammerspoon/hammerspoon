@@ -1,6 +1,6 @@
 // Software License Agreement (BSD License)
 //
-// Copyright (c) 2010-2023, Deusty, LLC
+// Copyright (c) 2010-2024, Deusty, LLC
 // All rights reserved.
 //
 // Redistribution and use of this software in source and binary forms,
@@ -26,11 +26,11 @@ static const NSUInteger kDDMaxBufferSize = 1048576; // ~1 mB, f_iosize on iphone
 // f_bsize == "default", and f_iosize == "max"
 static inline NSUInteger p_DDGetDefaultBufferSizeBytesMax(const BOOL max) {
     struct statfs *mountedFileSystems = NULL;
-    int count = getmntinfo(&mountedFileSystems, 0);
+    __auto_type count = getmntinfo(&mountedFileSystems, 0);
 
     for (int i = 0; i < count; i++) {
-        struct statfs mounted = mountedFileSystems[i];
-        const char *name = mounted.f_mntonname;
+        __auto_type mounted = mountedFileSystems[i];
+        __auto_type name = mounted.f_mntonname;
 
         // We can use 2 as max here, since any length > 1 will fail the if-statement.
         if (strnlen(name, 2) == 1 && *name == '/') {
@@ -80,7 +80,7 @@ static NSUInteger DDGetDefaultBufferSizeBytes(void) {
 }
 
 - (void)dealloc {
-    dispatch_block_t block = ^{
+    __auto_type block = ^{
         [self lt_sendBufferedDataToFileLogger];
         self.fileLogger = nil;
     };
@@ -111,18 +111,18 @@ static NSUInteger DDGetDefaultBufferSizeBytes(void) {
 
 - (void)logMessage:(DDLogMessage *)logMessage {
     // Don't need to check for isOnInternalLoggerQueue, -lt_dataForMessage: will do it for us.
-    NSData *data = [_fileLogger lt_dataForMessage:logMessage];
+    __auto_type data = [_fileLogger lt_dataForMessage:logMessage];
 
     if (data.length == 0) {
         return;
     }
 
     [data enumerateByteRangesUsingBlock:^(const void * __nonnull bytes, NSRange byteRange, BOOL * __nonnull __unused stop) {
-        NSUInteger bytesLength = byteRange.length;
+        __auto_type bytesLength = byteRange.length;
 #ifdef NS_BLOCK_ASSERTIONS
         __unused
 #endif
-        NSInteger written = [_buffer write:bytes maxLength:bytesLength];
+        __auto_type written = [_buffer write:bytes maxLength:bytesLength];
         NSAssert(written > 0 && (NSUInteger)written == bytesLength, @"Failed to write to memory buffer.");
 
         _currentBufferSizeBytes += bytesLength;
@@ -137,7 +137,7 @@ static NSUInteger DDGetDefaultBufferSizeBytes(void) {
     // This method is public.
     // We need to execute the rolling on our logging thread/queue.
 
-    dispatch_block_t block = ^{
+    __auto_type block = ^{
         @autoreleasepool {
             [self lt_sendBufferedDataToFileLogger];
             [self.fileLogger flush];
@@ -150,10 +150,8 @@ static NSUInteger DDGetDefaultBufferSizeBytes(void) {
     if ([self.fileLogger isOnInternalLoggerQueue]) {
         block();
     } else {
-        dispatch_queue_t globalLoggingQueue = [DDLog loggingQueue];
         NSAssert(![self.fileLogger isOnGlobalLoggingQueue], @"Core architecture requirement failure");
-
-        dispatch_sync(globalLoggingQueue, ^{
+        dispatch_sync(DDLog.loggingQueue, ^{
             dispatch_sync(self.fileLogger.loggerQueue, block);
         });
     }

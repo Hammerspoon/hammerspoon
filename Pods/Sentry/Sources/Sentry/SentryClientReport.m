@@ -1,6 +1,6 @@
 #import "SentryClientReport.h"
-#import "SentryCurrentDateProvider.h"
 #import "SentryDependencyContainer.h"
+#import "SentrySwift.h"
 #import <Foundation/Foundation.h>
 #import <SentryDiscardedEvent.h>
 

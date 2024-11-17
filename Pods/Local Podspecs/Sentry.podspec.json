@@ -1,13 +1,13 @@
 {
   "name": "Sentry",
-  "version": "8.17.2",
+  "version": "8.36.0",
   "summary": "Sentry client for cocoa",
   "homepage": "https://github.com/getsentry/sentry-cocoa",
   "license": "mit",
   "authors": "Sentry",
   "source": {
     "git": "https://github.com/getsentry/sentry-cocoa.git",
-    "tag": "8.17.2"
+    "tag": "8.36.0"
   },
   "platforms": {
     "ios": "11.0",
@@ -23,7 +23,9 @@
   "pod_target_xcconfig": {
     "GCC_ENABLE_CPP_EXCEPTIONS": "YES",
     "CLANG_CXX_LANGUAGE_STANDARD": "c++14",
-    "CLANG_CXX_LIBRARY": "libc++"
+    "CLANG_CXX_LIBRARY": "libc++",
+    "APPLICATION_EXTENSION_API_ONLY": "YES",
+    "SWIFT_INCLUDE_PATHS": "${PODS_TARGET_SRCROOT}/Sources/Sentry/include"
   },
   "watchos": {
     "pod_target_xcconfig": {
@@ -33,34 +35,35 @@
   "default_subspecs": [
     "Core"
   ],
-  "dependencies": {
-    "SentryPrivate": [
-      "8.17.2"
-    ]
-  },
   "subspecs": [
     {
       "name": "Core",
       "source_files": [
         "Sources/Sentry/**/*.{h,hpp,m,mm,c,cpp}",
         "Sources/SentryCrash/**/*.{h,hpp,m,mm,c,cpp}",
-        "Sources/Swift/Sentry.swift"
+        "Sources/Swift/**/*.{swift,h,hpp,m,mm,c,cpp}"
       ],
+      "preserve_paths": "Sources/Sentry/include/module.modulemap",
       "public_header_files": "Sources/Sentry/Public/*.h",
-      "resources": "Sources/Resources/PrivacyInfo.xcprivacy"
+      "resource_bundles": {
+        "Sentry": "Sources/Resources/PrivacyInfo.xcprivacy"
+      }
     },
     {
       "name": "HybridSDK",
       "source_files": [
         "Sources/Sentry/**/*.{h,hpp,m,mm,c,cpp}",
         "Sources/SentryCrash/**/*.{h,hpp,m,mm,c,cpp}",
-        "Sources/Swift/Sentry.swift"
+        "Sources/Swift/**/*.{swift,h,hpp,m,mm,c,cpp}"
       ],
+      "preserve_paths": "Sources/Sentry/include/module.modulemap",
       "public_header_files": [
         "Sources/Sentry/Public/*.h",
         "Sources/Sentry/include/HybridPublic/*.h"
       ],
-      "resources": "Sources/Resources/PrivacyInfo.xcprivacy"
+      "resource_bundles": {
+        "Sentry": "Sources/Resources/PrivacyInfo.xcprivacy"
+      }
     }
   ],
   "swift_version": "5.5"

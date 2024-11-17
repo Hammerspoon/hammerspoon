@@ -10,6 +10,7 @@
 #define SUAppcastItem_Private_h
 
 #import <Foundation/Foundation.h>
+#import <Sparkle/SUAppcastItem.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -31,8 +31,6 @@ NSString *parseBacktraceSymbolsFunctionName(const char *symbol);
 @property (nonatomic, strong, readonly) NSMutableArray<NSDictionary<NSString *, id> *> *frames;
 @property (nonatomic, strong, readonly)
     NSMutableDictionary<NSString *, NSMutableDictionary *> *threadMetadata;
-@property (nonatomic, strong, readonly)
-    NSMutableDictionary<NSString *, NSDictionary *> *queueMetadata;
 
 /*
  * Maintain an index of unique frames to avoid duplicating large amounts of data. Every
@@ -78,6 +76,7 @@ NSString *parseBacktraceSymbolsFunctionName(const char *symbol);
 // All functions are safe to call from multiple threads concurrently
 - (void)mutate:(void (^)(SentryProfilerMutableState *))block;
 - (NSDictionary<NSString *, id> *)copyProfilingData;
+- (void)clear;
 @end
 
 NS_ASSUME_NONNULL_END

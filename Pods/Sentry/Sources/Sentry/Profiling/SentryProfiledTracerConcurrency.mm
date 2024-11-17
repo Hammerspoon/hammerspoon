@@ -2,10 +2,10 @@
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
 
-#    import "SentryId.h"
 #    import "SentryInternalDefines.h"
 #    import "SentryLog.h"
 #    import "SentryProfiler+Private.h"
+#    import "SentrySwift.h"
 #    include <mutex>
 
 #    if SENTRY_HAS_UIKIT
@@ -54,7 +54,7 @@ _unsafe_cleanUpProfiler(SentryProfiler *profiler, NSString *tracerKey)
 std::mutex _gStateLock;
 
 void
-trackProfilerForTracer(SentryProfiler *profiler, SentryId *internalTraceId)
+sentry_trackProfilerForTracer(SentryProfiler *profiler, SentryId *internalTraceId)
 {
     std::lock_guard<std::mutex> l(_gStateLock);
 
@@ -82,7 +82,7 @@ trackProfilerForTracer(SentryProfiler *profiler, SentryId *internalTraceId)
 }
 
 void
-discardProfilerForTracer(SentryId *internalTraceId)
+sentry_discardProfilerForTracer(SentryId *internalTraceId)
 {
     std::lock_guard<std::mutex> l(_gStateLock);
 
@@ -105,7 +105,7 @@ discardProfilerForTracer(SentryId *internalTraceId)
 #    endif // SENTRY_HAS_UIKIT
 }
 
-SentryProfiler *_Nullable profilerForFinishedTracer(SentryId *internalTraceId)
+SentryProfiler *_Nullable sentry_profilerForFinishedTracer(SentryId *internalTraceId)
 {
     std::lock_guard<std::mutex> l(_gStateLock);
 
@@ -123,8 +123,11 @@ SentryProfiler *_Nullable profilerForFinishedTracer(SentryId *internalTraceId)
     _unsafe_cleanUpProfiler(profiler, tracerKey);
 
 #    if SENTRY_HAS_UIKIT
-    profiler._screenFrameData =
+    profiler.screenFrameData =
         [SentryDependencyContainer.sharedInstance.framesTracker.currentFrames copy];
+    SENTRY_LOG_DEBUG(
+        @"Grabbing copy of frames tracker screen frames data to attach to profiler: %@.",
+        profiler.screenFrameData);
     if (_gProfilersToTracers.count == 0) {
         [SentryDependencyContainer.sharedInstance.framesTracker resetProfilingTimestamps];
     }
@@ -133,9 +136,9 @@ SentryProfiler *_Nullable profilerForFinishedTracer(SentryId *internalTraceId)
     return profiler;
 }
 
-#    if defined(TEST) || defined(TESTCI)
+#    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
 void
-resetConcurrencyTracking()
+sentry_resetConcurrencyTracking()
 {
     std::lock_guard<std::mutex> l(_gStateLock);
     [_gTracersToProfilers removeAllObjects];
@@ -143,11 +146,11 @@ resetConcurrencyTracking()
 }
 
 NSUInteger
-currentProfiledTracers()
+sentry_currentProfiledTracers()
 {
     std::lock_guard<std::mutex> l(_gStateLock);
     return [_gTracersToProfilers count];
 }
-#    endif // defined(TEST) || defined(TESTCI)
+#    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED

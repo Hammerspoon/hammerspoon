@@ -25,11 +25,11 @@ SentrySwizzleInfo ()
         return NULL;
     }
 
-#if TEST
+#if defined(TEST) || defined(TESTCI) || defined(DEBUG)
     @synchronized(self) {
         self.originalCalled = YES;
     }
-#endif
+#endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
 
     // Casting IMP to SentrySwizzleOriginalIMP to force user casting.
     return (SentrySwizzleOriginalIMP)_impProviderBlock();

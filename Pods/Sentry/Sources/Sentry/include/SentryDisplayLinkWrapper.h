@@ -17,8 +17,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)invalidate;
 
+- (BOOL)isRunning;
+
 @end
 
 NS_ASSUME_NONNULL_END
 
-#endif //
+#endif

@@ -10,8 +10,14 @@ typedef NS_ENUM(NSUInteger, SentryAppStartType) {
     SentryAppStartTypeUnknown,
 };
 
+// This is need for serialization in HybridSDKs
+@interface SentryAppStartTypeToString : NSObject
+SENTRY_NO_INIT
++ (NSString *_Nonnull)convert:(SentryAppStartType)type;
+@end
+
 /**
- * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
  * configurations even when targeting iOS or tvOS platforms.
  */
 @interface SentryAppStartMeasurement : NSObject
@@ -21,23 +27,13 @@ SENTRY_NO_INIT
  * Initializes SentryAppStartMeasurement with the given parameters.
  */
 - (instancetype)initWithType:(SentryAppStartType)type
-              appStartTimestamp:(NSDate *)appStartTimestamp
-                       duration:(NSTimeInterval)duration
-           runtimeInitTimestamp:(NSDate *)runtimeInitTimestamp
-    didFinishLaunchingTimestamp:(NSDate *)didFinishLaunchingTimestamp
-    DEPRECATED_MSG_ATTRIBUTE("Use "
-                             "initWithType:appStartTimestamp:duration:mainTimestamp:"
-                             "runtimeInitTimestamp:didFinishLaunchingTimestamp instead.");
-
-/**
- * Initializes SentryAppStartMeasurement with the given parameters.
- */
-- (instancetype)initWithType:(SentryAppStartType)type
                       isPreWarmed:(BOOL)isPreWarmed
                 appStartTimestamp:(NSDate *)appStartTimestamp
+       runtimeInitSystemTimestamp:(uint64_t)runtimeInitSystemTimestamp
                          duration:(NSTimeInterval)duration
              runtimeInitTimestamp:(NSDate *)runtimeInitTimestamp
     moduleInitializationTimestamp:(NSDate *)moduleInitializationTimestamp
+                sdkStartTimestamp:(NSDate *)sdkStartTimestamp
       didFinishLaunchingTimestamp:(NSDate *)didFinishLaunchingTimestamp;
 
 /**
@@ -49,7 +45,8 @@ SENTRY_NO_INIT
 
 /**
  * How long the app start took. From appStartTimestamp to when the SDK creates the
- * AppStartMeasurement, which is done when the OS posts UIWindowDidBecomeVisibleNotification.
+ * AppStartMeasurement, which is done when the OS posts UIWindowDidBecomeVisibleNotification and
+ * when `enablePerformanceV2` is enabled when the app draws it's first frame.
  */
 @property (readonly, nonatomic, assign) NSTimeInterval duration;
 
@@ -60,6 +57,12 @@ SENTRY_NO_INIT
 @property (readonly, nonatomic, strong) NSDate *appStartTimestamp;
 
 /**
+ * Similar to @c appStartTimestamp, but in number of nanoseconds, and retrieved with
+ * @c clock_gettime_nsec_np / @c mach_absolute_time if measured from module initialization time.
+ */
+@property (readonly, nonatomic, assign) uint64_t runtimeInitSystemTimestamp;
+
+/**
  * When the runtime was initialized / when SentryAppStartTracker is added to the Objective-C runtime
  */
 @property (readonly, nonatomic, strong) NSDate *runtimeInitTimestamp;
@@ -68,6 +71,11 @@ SENTRY_NO_INIT
  * When application main function is called.
  */
 @property (readonly, nonatomic, strong) NSDate *moduleInitializationTimestamp;
+
+/**
+ * When the SentrySDK start method is called.
+ */
+@property (readonly, nonatomic, strong) NSDate *sdkStartTimestamp;
 
 /**
  * When OS posts UIApplicationDidFinishLaunchingNotification.

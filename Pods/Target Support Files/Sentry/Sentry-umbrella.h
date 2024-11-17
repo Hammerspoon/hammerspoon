@@ -12,6 +12,7 @@
 
 #import "Sentry.h"
 #import "SentryAttachment.h"
+#import "SentryBaggage.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient.h"
 #import "SentryCrashExceptionApplication.h"
@@ -27,8 +28,6 @@
 #import "SentryGeo.h"
 #import "SentryHttpStatusCodeRange.h"
 #import "SentryHub.h"
-#import "SentryId.h"
-#import "SentryIntegrationProtocol.h"
 #import "SentryMeasurementUnit.h"
 #import "SentryMechanism.h"
 #import "SentryMechanismMeta.h"
@@ -48,10 +47,12 @@
 #import "SentrySpanStatus.h"
 #import "SentryStacktrace.h"
 #import "SentryThread.h"
+#import "SentryTraceContext.h"
 #import "SentryTraceHeader.h"
 #import "SentryTransactionContext.h"
 #import "SentryUser.h"
 #import "SentryUserFeedback.h"
+#import "SentryWithoutUIKit.h"
 
 FOUNDATION_EXPORT double SentryVersionNumber;
 FOUNDATION_EXPORT const unsigned char SentryVersionString[];

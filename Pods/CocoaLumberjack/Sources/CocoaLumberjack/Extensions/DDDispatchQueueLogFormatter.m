@@ -1,6 +1,6 @@
 // Software License Agreement (BSD License)
 //
-// Copyright (c) 2010-2023, Deusty, LLC
+// Copyright (c) 2010-2024, Deusty, LLC
 // All rights reserved.
 //
 // Redistribution and use of this software in source and binary forms,
@@ -134,13 +134,13 @@ static DDQualityOfServiceName _qos_name(NSUInteger qos) {
 - (NSString *)queueThreadLabelForLogMessage:(DDLogMessage *)logMessage {
     // As per the DDLogFormatter contract, this method is always invoked on the same thread/dispatch_queue
 
-    BOOL useQueueLabel = NO;
+    __auto_type useQueueLabel = NO;
     if (logMessage->_queueLabel) {
         useQueueLabel = YES;
 
         // If you manually create a thread, it's dispatch_queue will have one of the thread names below.
         // Since all such threads have the same name, we'd prefer to use the threadName or the machThreadID.
-        const NSArray *names = @[
+        const NSArray<NSString *> *names = @[
             @"com.apple.root.low-priority",
             @"com.apple.root.default-priority",
             @"com.apple.root.high-priority",
@@ -160,7 +160,7 @@ static DDQualityOfServiceName _qos_name(NSUInteger qos) {
     // Get the name of the queue, thread, or machID (whichever we are to use).
     NSString *queueThreadLabel;
     if (useQueueLabel || [logMessage->_threadName length] > 0) {
-        NSString *fullLabel = useQueueLabel ? logMessage->_queueLabel : logMessage->_threadName;
+        __auto_type fullLabel = useQueueLabel ? logMessage->_queueLabel : logMessage->_threadName;
 
         NSString *abrvLabel;
         pthread_mutex_lock(&_mutex);
@@ -178,9 +178,9 @@ static DDQualityOfServiceName _qos_name(NSUInteger qos) {
     // labelLength > maxQueueLength : truncate
     // labelLength < minQueueLength : padding
     //                              : exact
-    NSUInteger minQueueLength = self.minQueueLength;
-    NSUInteger maxQueueLength = self.maxQueueLength;
-    NSUInteger labelLength = [queueThreadLabel length];
+    __auto_type minQueueLength = self.minQueueLength;
+    __auto_type maxQueueLength = self.maxQueueLength;
+    __auto_type labelLength = [queueThreadLabel length];
     if (maxQueueLength > 0 && labelLength > maxQueueLength) {
         // Truncate
         return [queueThreadLabel substringToIndex:maxQueueLength];
@@ -196,8 +196,8 @@ static DDQualityOfServiceName _qos_name(NSUInteger qos) {
 }
 
 - (NSString *)formatLogMessage:(DDLogMessage *)logMessage {
-    NSString *timestamp = [self stringFromDate:logMessage->_timestamp];
-    NSString *queueThreadLabel = [self queueThreadLabelForLogMessage:logMessage];
+    __auto_type timestamp = [self stringFromDate:logMessage->_timestamp];
+    __auto_type queueThreadLabel = [self queueThreadLabelForLogMessage:logMessage];
 
     return [NSString stringWithFormat:@"%@ [%@ (QOS:%@)] %@", timestamp, queueThreadLabel, _qos_name(logMessage->_qos), logMessage->_message];
 }

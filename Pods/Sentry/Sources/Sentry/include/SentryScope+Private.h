@@ -5,6 +5,7 @@
 
 @class SentryAttachment;
 @class SentryPropagationContext;
+@class SentrySession;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -21,6 +22,10 @@ SentryScope ()
 @property (atomic, strong) SentryUser *_Nullable userObject;
 
 @property (atomic, strong) SentryPropagationContext *propagationContext;
+
+@property (nonatomic, nullable, copy) NSString *currentScreen;
+
+- (NSArray<SentryBreadcrumb *> *)breadcrumbs;
 
 /**
  * used to add values in event context.

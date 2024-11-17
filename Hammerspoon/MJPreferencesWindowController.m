@@ -67,16 +67,17 @@ void PreferencesDarkModeSetEnabled(BOOL enabled) {
 }
 
 - (void)updateFeedbackDisplay:(NSNotification __unused *)notification {
-    [self.openAtLoginCheckbox setState:MJAutoLaunchGet() ? NSControlStateValueOn : NSControlStateValueOff];
-    [self.showDockIconCheckbox setState: MJDockIconVisible() ? NSControlStateValueOn : NSControlStateValueOff];
-    [self.showMenuIconCheckbox setState: MJMenuIconVisible() ? NSControlStateValueOn : NSControlStateValueOff];
-    [self.keepConsoleOnTopCheckbox setState: MJConsoleWindowAlwaysOnTop() ? NSControlStateValueOn : NSControlStateValueOff];
-    [self.uploadCrashDataCheckbox setState: HSUploadCrashData() ? NSControlStateValueOn : NSControlStateValueOff];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.openAtLoginCheckbox setState:MJAutoLaunchGet() ? NSControlStateValueOn : NSControlStateValueOff];
+        [self.showDockIconCheckbox setState: MJDockIconVisible() ? NSControlStateValueOn : NSControlStateValueOff];
+        [self.showMenuIconCheckbox setState: MJMenuIconVisible() ? NSControlStateValueOn : NSControlStateValueOff];
+        [self.keepConsoleOnTopCheckbox setState: MJConsoleWindowAlwaysOnTop() ? NSControlStateValueOn : NSControlStateValueOff];
+        [self.uploadCrashDataCheckbox setState: HSUploadCrashData() ? NSControlStateValueOn : NSControlStateValueOff];
 #ifndef SENTRY_API_URL
-    [self.uploadCrashDataCheckbox setState:NSControlStateValueOff];
-    [self.uploadCrashDataCheckbox setEnabled:NO];
+        [self.uploadCrashDataCheckbox setState:NSControlStateValueOff];
+        [self.uploadCrashDataCheckbox setEnabled:NO];
 #endif
-
+    });
 }
 
 - (void) showWindow:(id)sender {

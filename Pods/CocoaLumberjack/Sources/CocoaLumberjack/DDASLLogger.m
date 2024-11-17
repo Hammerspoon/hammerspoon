@@ -1,6 +1,6 @@
 // Software License Agreement (BSD License)
 //
-// Copyright (c) 2010-2023, Deusty, LLC
+// Copyright (c) 2010-2024, Deusty, LLC
 // All rights reserved.
 //
 // Redistribution and use of this software in source and binary forms,
@@ -80,10 +80,10 @@ static DDASLLogger *sharedInstance;
         return;
     }
 
-    NSString * message = _logFormatter ? [_logFormatter formatLogMessage:logMessage] : logMessage->_message;
+    __auto_type message = _logFormatter ? [_logFormatter formatLogMessage:logMessage] : logMessage->_message;
 
     if (message) {
-        const char *msg = [message UTF8String];
+        __auto_type msg = [message UTF8String];
 
         size_t aslLogLevel;
         switch (logMessage->_flag) {
@@ -100,11 +100,11 @@ static DDASLLogger *sharedInstance;
         static char const *const level_strings[] = { "0", "1", "2", "3", "4", "5", "6", "7" };
 
         // NSLog uses the current euid to set the ASL_KEY_READ_UID.
-        uid_t const readUID = geteuid();
+        const __auto_type readUID = geteuid();
 
         char readUIDString[16];
 #ifndef NS_BLOCK_ASSERTIONS
-        size_t l = (size_t)snprintf(readUIDString, sizeof(readUIDString), "%d", readUID);
+        __auto_type l = (size_t)snprintf(readUIDString, sizeof(readUIDString), "%d", readUID);
 #else
         snprintf(readUIDString, sizeof(readUIDString), "%d", readUID);
 #endif
@@ -114,7 +114,7 @@ static DDASLLogger *sharedInstance;
         NSAssert(aslLogLevel < (sizeof(level_strings) / sizeof(level_strings[0])),
                  @"Unhandled ASL log level.");
 
-        aslmsg m = asl_new(ASL_TYPE_MSG);
+        __auto_type m = asl_new(ASL_TYPE_MSG);
         if (m != NULL) {
             if (asl_set(m, ASL_KEY_LEVEL, level_strings[aslLogLevel]) == 0 &&
                 asl_set(m, ASL_KEY_MSG, msg) == 0 &&

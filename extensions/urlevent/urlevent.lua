@@ -74,7 +74,7 @@ local function urlEventCallback(scheme, event, params, fullURL, senderPID)
         if not callbacks[event] then
             log.wf("Received hs.urlevent event with no registered callback:"..event)
         else
-            local ok, err = xpcall(function() return callbacks[event](event, params, senderPID) end, debug.traceback)
+            local ok, err = xpcall(function() return callbacks[event](event, params, senderPID, fullURL) end, debug.traceback)
             if not ok then
                 hs.showError(err)
             end
@@ -101,7 +101,8 @@ urlevent.setCallback(urlEventCallback)
 ---   * eventName - A string containing the name of the event
 ---   * params - A table containing key/value string pairs containing any URL parameters that were specified in the URL
 ---   * senderPID - An integer containing the PID of the sending application, if available (otherwise -1)
----  * Given the URL `commandpost://doThingA?value=1` The event name is `doThingA` and the callback's `params` argument will be a table containing `{["value"] = "1"}`
+---   * fullURL - A string containing the full, original URL
+---  * Given the URL `commandpost://doThingA?value=1` The event name is `doThingA` and the callback's `params` argument will be a table containing `{["value"] = "1"}` and `fullURL` will be `commandpost://doThingA?value=1`
 function urlevent.bind(eventName, callback)
     callbacks[eventName] = callback
 end

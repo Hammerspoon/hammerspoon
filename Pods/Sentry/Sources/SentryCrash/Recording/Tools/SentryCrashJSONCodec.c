@@ -41,16 +41,16 @@
 #pragma mark - Configuration -
 // ============================================================================
 
-/** Set to 1 if you're also compiling SentryCrashLogger and want to use it here
+/** Set to 1 if you're also compiling SentryAsyncSafeLog and want to use it here
  */
 #ifndef SentryCrashJSONCODEC_UseKSLogger
 #    define SentryCrashJSONCODEC_UseKSLogger 1
 #endif
 
 #if SentryCrashJSONCODEC_UseKSLogger
-#    include "SentryCrashLogger.h"
+#    include "SentryAsyncSafeLog.h"
 #else
-#    define SentryCrashLOG_DEBUG(FMT, ...)
+#    define SENTRY_ASYNC_SAFE_LOG_DEBUG(FMT, ...)
 #endif
 
 /** The work buffer size to use when escaping string values.
@@ -164,7 +164,7 @@ appendEscapedString(
         default:
             unlikely_if((unsigned char)*src < ' ')
             {
-                SentryCrashLOG_DEBUG("Invalid character 0x%02x in string: %s", *src, string);
+                SENTRY_ASYNC_SAFE_LOG_DEBUG("Invalid character 0x%02x in string: %s", *src, string);
                 return SentryCrashJSON_ERROR_INVALID_CHARACTER;
             }
             *dst++ = *src;
@@ -264,7 +264,7 @@ sentrycrashjson_beginElement(SentryCrashJSONEncodeContext *const context, const 
     if (context->isObject[context->containerLevel]) {
         unlikely_if(name == NULL)
         {
-            SentryCrashLOG_DEBUG("Name was null inside an object");
+            SENTRY_ASYNC_SAFE_LOG_DEBUG("Name was null inside an object");
             return SentryCrashJSON_ERROR_INVALID_DATA;
         }
         unlikely_if((result = addQuotedEscapedString(context, name, (int)strlen(name)))
@@ -917,7 +917,7 @@ writeUTF8(unsigned int character, char **dst)
     }
 
     // If we get here, the character cannot be converted to valid UTF-8.
-    SentryCrashLOG_DEBUG("Invalid unicode: 0x%04x", character);
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Invalid unicode: 0x%04x", character);
     return SentryCrashJSON_ERROR_INVALID_CHARACTER;
 }
 
@@ -927,7 +927,7 @@ decodeString(SentryCrashJSONDecodeContext *context, char *dstBuffer, int dstBuff
     *dstBuffer = '\0';
     unlikely_if(*context->bufferPtr != '\"')
     {
-        SentryCrashLOG_DEBUG("Expected '\"' but got '%c'", *context->bufferPtr);
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Expected '\"' but got '%c'", *context->bufferPtr);
         return SentryCrashJSON_ERROR_INVALID_CHARACTER;
     }
 
@@ -943,14 +943,14 @@ decodeString(SentryCrashJSONDecodeContext *context, char *dstBuffer, int dstBuff
     }
     unlikely_if(src >= context->bufferEnd)
     {
-        SentryCrashLOG_DEBUG("Premature end of data");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Premature end of data");
         return SentryCrashJSON_ERROR_INCOMPLETE;
     }
     const char *srcEnd = src;
     src = context->bufferPtr + 1;
     int length = (int)(srcEnd - src);
     if (length >= dstBufferLength) {
-        SentryCrashLOG_DEBUG("String is too long");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("String is too long");
         return SentryCrashJSON_ERROR_DATA_TOO_LONG;
     }
 
@@ -999,14 +999,14 @@ decodeString(SentryCrashJSONDecodeContext *context, char *dstBuffer, int dstBuff
             case 'u': {
                 unlikely_if(src + 5 > srcEnd)
                 {
-                    SentryCrashLOG_DEBUG("Premature end of data");
+                    SENTRY_ASYNC_SAFE_LOG_DEBUG("Premature end of data");
                     return SentryCrashJSON_ERROR_INCOMPLETE;
                 }
                 unsigned int accum = g_hexConversion[src[1]] << 12 | g_hexConversion[src[2]] << 8
                     | g_hexConversion[src[3]] << 4 | g_hexConversion[src[4]];
                 unlikely_if(accum > 0xffff)
                 {
-                    SentryCrashLOG_DEBUG(
+                    SENTRY_ASYNC_SAFE_LOG_DEBUG(
                         "Invalid unicode sequence: %c%c%c%c", src[1], src[2], src[3], src[4]);
                     return SentryCrashJSON_ERROR_INVALID_CHARACTER;
                 }
@@ -1014,7 +1014,7 @@ decodeString(SentryCrashJSONDecodeContext *context, char *dstBuffer, int dstBuff
                 // UTF-16 Trail surrogate on its own.
                 unlikely_if(accum >= 0xdc00 && accum <= 0xdfff)
                 {
-                    SentryCrashLOG_DEBUG("Unexpected trail surrogate: 0x%04x", accum);
+                    SENTRY_ASYNC_SAFE_LOG_DEBUG("Unexpected trail surrogate: 0x%04x", accum);
                     return SentryCrashJSON_ERROR_INVALID_CHARACTER;
                 }
 
@@ -1024,12 +1024,13 @@ decodeString(SentryCrashJSONDecodeContext *context, char *dstBuffer, int dstBuff
                     // Fetch trail surrogate.
                     unlikely_if(src + 11 > srcEnd)
                     {
-                        SentryCrashLOG_DEBUG("Premature end of data");
+                        SENTRY_ASYNC_SAFE_LOG_DEBUG("Premature end of data");
                         return SentryCrashJSON_ERROR_INCOMPLETE;
                     }
                     unlikely_if(src[5] != '\\' || src[6] != 'u')
                     {
-                        SentryCrashLOG_DEBUG("Expected \"\\u\" but got: \"%c%c\"", src[5], src[6]);
+                        SENTRY_ASYNC_SAFE_LOG_DEBUG(
+                            "Expected \"\\u\" but got: \"%c%c\"", src[5], src[6]);
                         return SentryCrashJSON_ERROR_INVALID_CHARACTER;
                     }
                     src += 6;
@@ -1038,7 +1039,7 @@ decodeString(SentryCrashJSONDecodeContext *context, char *dstBuffer, int dstBuff
                         | g_hexConversion[src[4]];
                     unlikely_if(accum2 < 0xdc00 || accum2 > 0xdfff)
                     {
-                        SentryCrashLOG_DEBUG("Invalid trail surrogate: 0x%04x", accum2);
+                        SENTRY_ASYNC_SAFE_LOG_DEBUG("Invalid trail surrogate: 0x%04x", accum2);
                         return SentryCrashJSON_ERROR_INVALID_CHARACTER;
                     }
                     // And combine 20 bit result.
@@ -1051,7 +1052,7 @@ decodeString(SentryCrashJSONDecodeContext *context, char *dstBuffer, int dstBuff
                 continue;
             }
             default:
-                SentryCrashLOG_DEBUG("Invalid control character '%c'", *src);
+                SENTRY_ASYNC_SAFE_LOG_DEBUG("Invalid control character '%c'", *src);
                 return SentryCrashJSON_ERROR_INVALID_CHARACTER;
             }
         }
@@ -1067,7 +1068,7 @@ decodeElement(const char *const name, SentryCrashJSONDecodeContext *context)
     SKIP_WHITESPACE(context);
     unlikely_if(context->bufferPtr >= context->bufferEnd)
     {
-        SentryCrashLOG_DEBUG("Premature end of data");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Premature end of data");
         return SentryCrashJSON_ERROR_INCOMPLETE;
     }
 
@@ -1093,7 +1094,7 @@ decodeElement(const char *const name, SentryCrashJSONDecodeContext *context)
             unlikely_if(context->bufferPtr >= context->bufferEnd) { break; }
             likely_if(*context->bufferPtr == ',') { context->bufferPtr++; }
         }
-        SentryCrashLOG_DEBUG("Premature end of data");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Premature end of data");
         return SentryCrashJSON_ERROR_INCOMPLETE;
     }
     case '{': {
@@ -1114,7 +1115,7 @@ decodeElement(const char *const name, SentryCrashJSONDecodeContext *context)
             unlikely_if(context->bufferPtr >= context->bufferEnd) { break; }
             unlikely_if(*context->bufferPtr != ':')
             {
-                SentryCrashLOG_DEBUG("Expected ':' but got '%c'", *context->bufferPtr);
+                SENTRY_ASYNC_SAFE_LOG_DEBUG("Expected ':' but got '%c'", *context->bufferPtr);
                 return SentryCrashJSON_ERROR_INVALID_CHARACTER;
             }
             context->bufferPtr++;
@@ -1125,7 +1126,7 @@ decodeElement(const char *const name, SentryCrashJSONDecodeContext *context)
             unlikely_if(context->bufferPtr >= context->bufferEnd) { break; }
             likely_if(*context->bufferPtr == ',') { context->bufferPtr++; }
         }
-        SentryCrashLOG_DEBUG("Premature end of data");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Premature end of data");
         return SentryCrashJSON_ERROR_INCOMPLETE;
     }
     case '\"': {
@@ -1138,14 +1139,15 @@ decodeElement(const char *const name, SentryCrashJSONDecodeContext *context)
     case 'f': {
         unlikely_if(context->bufferEnd - context->bufferPtr < 5)
         {
-            SentryCrashLOG_DEBUG("Premature end of data");
+            SENTRY_ASYNC_SAFE_LOG_DEBUG("Premature end of data");
             return SentryCrashJSON_ERROR_INCOMPLETE;
         }
         unlikely_if(!(context->bufferPtr[1] == 'a' && context->bufferPtr[2] == 'l'
             && context->bufferPtr[3] == 's' && context->bufferPtr[4] == 'e'))
         {
-            SentryCrashLOG_DEBUG("Expected \"false\" but got \"f%c%c%c%c\"", context->bufferPtr[1],
-                context->bufferPtr[2], context->bufferPtr[3], context->bufferPtr[4]);
+            SENTRY_ASYNC_SAFE_LOG_DEBUG("Expected \"false\" but got \"f%c%c%c%c\"",
+                context->bufferPtr[1], context->bufferPtr[2], context->bufferPtr[3],
+                context->bufferPtr[4]);
             return SentryCrashJSON_ERROR_INVALID_CHARACTER;
         }
         context->bufferPtr += 5;
@@ -1154,14 +1156,14 @@ decodeElement(const char *const name, SentryCrashJSONDecodeContext *context)
     case 't': {
         unlikely_if(context->bufferEnd - context->bufferPtr < 4)
         {
-            SentryCrashLOG_DEBUG("Premature end of data");
+            SENTRY_ASYNC_SAFE_LOG_DEBUG("Premature end of data");
             return SentryCrashJSON_ERROR_INCOMPLETE;
         }
         unlikely_if(!(context->bufferPtr[1] == 'r' && context->bufferPtr[2] == 'u'
             && context->bufferPtr[3] == 'e'))
         {
-            SentryCrashLOG_DEBUG("Expected \"true\" but got \"t%c%c%c\"", context->bufferPtr[1],
-                context->bufferPtr[2], context->bufferPtr[3]);
+            SENTRY_ASYNC_SAFE_LOG_DEBUG("Expected \"true\" but got \"t%c%c%c\"",
+                context->bufferPtr[1], context->bufferPtr[2], context->bufferPtr[3]);
             return SentryCrashJSON_ERROR_INVALID_CHARACTER;
         }
         context->bufferPtr += 4;
@@ -1170,14 +1172,14 @@ decodeElement(const char *const name, SentryCrashJSONDecodeContext *context)
     case 'n': {
         unlikely_if(context->bufferEnd - context->bufferPtr < 4)
         {
-            SentryCrashLOG_DEBUG("Premature end of data");
+            SENTRY_ASYNC_SAFE_LOG_DEBUG("Premature end of data");
             return SentryCrashJSON_ERROR_INCOMPLETE;
         }
         unlikely_if(!(context->bufferPtr[1] == 'u' && context->bufferPtr[2] == 'l'
             && context->bufferPtr[3] == 'l'))
         {
-            SentryCrashLOG_DEBUG("Expected \"null\" but got \"n%c%c%c\"", context->bufferPtr[1],
-                context->bufferPtr[2], context->bufferPtr[3]);
+            SENTRY_ASYNC_SAFE_LOG_DEBUG("Expected \"null\" but got \"n%c%c%c\"",
+                context->bufferPtr[1], context->bufferPtr[2], context->bufferPtr[3]);
             return SentryCrashJSON_ERROR_INVALID_CHARACTER;
         }
         context->bufferPtr += 4;
@@ -1188,7 +1190,7 @@ decodeElement(const char *const name, SentryCrashJSONDecodeContext *context)
         context->bufferPtr++;
         unlikely_if(!isdigit(*context->bufferPtr))
         {
-            SentryCrashLOG_DEBUG("Not a digit: '%c'", *context->bufferPtr);
+            SENTRY_ASYNC_SAFE_LOG_DEBUG("Not a digit: '%c'", *context->bufferPtr);
             return SentryCrashJSON_ERROR_INVALID_CHARACTER;
         }
         // Fall through
@@ -1218,7 +1220,7 @@ decodeElement(const char *const name, SentryCrashJSONDecodeContext *context)
 
         unlikely_if(context->bufferPtr >= context->bufferEnd)
         {
-            SentryCrashLOG_DEBUG("Premature end of data");
+            SENTRY_ASYNC_SAFE_LOG_DEBUG("Premature end of data");
             return SentryCrashJSON_ERROR_INCOMPLETE;
         }
 
@@ -1241,7 +1243,7 @@ decodeElement(const char *const name, SentryCrashJSONDecodeContext *context)
 
         unlikely_if(context->bufferPtr >= context->bufferEnd)
         {
-            SentryCrashLOG_DEBUG("Premature end of data");
+            SENTRY_ASYNC_SAFE_LOG_DEBUG("Premature end of data");
             return SentryCrashJSON_ERROR_INCOMPLETE;
         }
 
@@ -1251,7 +1253,7 @@ decodeElement(const char *const name, SentryCrashJSONDecodeContext *context)
         double value;
         int len = (int)(context->bufferPtr - start);
         if (len >= context->stringBufferLength) {
-            SentryCrashLOG_DEBUG("Number is too long.");
+            SENTRY_ASYNC_SAFE_LOG_DEBUG("Number is too long.");
             return SentryCrashJSON_ERROR_DATA_TOO_LONG;
         }
         strncpy(context->stringBuffer, start, len);
@@ -1263,7 +1265,7 @@ decodeElement(const char *const name, SentryCrashJSONDecodeContext *context)
         return context->callbacks->onFloatingPointElement(name, value, context->userData);
     }
     }
-    SentryCrashLOG_DEBUG("Invalid character '%c'", *context->bufferPtr);
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Invalid character '%c'", *context->bufferPtr);
     return SentryCrashJSON_ERROR_INVALID_CHARACTER;
 }
 
@@ -1335,7 +1337,7 @@ updateDecoder_readFile(struct JSONFromFileContext *context)
             unlikely_if(bytesRead < fillLength)
             {
                 if (bytesRead < 0) {
-                    SentryCrashLOG_ERROR(
+                    SENTRY_ASYNC_SAFE_LOG_ERROR(
                         "Error reading file %s: %s", context->sourceFilename, strerror(errno));
                 }
                 context->isEOF = true;

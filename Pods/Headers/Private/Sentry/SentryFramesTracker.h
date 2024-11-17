@@ -1,1 +1,1 @@
-../../../Sentry/Sources/Sentry/include/SentryFramesTracker.h
+../../../Sentry/Sources/Sentry/include/HybridPublic/SentryFramesTracker.h

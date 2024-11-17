@@ -68,6 +68,9 @@ symbolicate_internal(SentryCrashStackCursor *cursor, bool asyncUnsafe)
     if (asyncUnsafe) {
         symbols_succeed = dladdr((void *)cursor->stackEntry.address, &symbolsBuffer) != 0;
     } else {
+        // sentrycrashdl_dladdr isn't async safe, but we've been using it for
+        // crashes since the beginning. We plan on removing it with
+        // https://github.com/getsentry/sentry-cocoa/issues/2996.
         symbols_succeed = sentrycrashdl_dladdr(
             CALL_INSTRUCTION_FROM_RETURN_ADDRESS(cursor->stackEntry.address), &symbolsBuffer);
     }

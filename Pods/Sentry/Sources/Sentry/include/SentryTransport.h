@@ -19,11 +19,15 @@ NS_SWIFT_NAME(Transport)
 
 - (void)recordLostEvent:(SentryDataCategory)category reason:(SentryDiscardReason)reason;
 
+- (void)recordLostEvent:(SentryDataCategory)category
+                 reason:(SentryDiscardReason)reason
+               quantity:(NSUInteger)quantity;
+
 - (SentryFlushResult)flush:(NSTimeInterval)timeout;
 
-#if TEST || TESTCI
+#if defined(TEST) || defined(TESTCI) || defined(DEBUG)
 - (void)setStartFlushCallback:(void (^)(void))callback;
-#endif
+#endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
 
 @end
 

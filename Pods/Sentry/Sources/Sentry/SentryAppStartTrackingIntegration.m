@@ -4,6 +4,7 @@
 
 #    import "SentryAppStartTracker.h"
 #    import "SentryLog.h"
+#    import "SentryOptions.h"
 #    import <Foundation/Foundation.h>
 #    import <PrivateSentrySDKOnly.h>
 #    import <SentryAppStateManager.h>
@@ -33,7 +34,9 @@ SentryAppStartTrackingIntegration ()
     self.tracker = [[SentryAppStartTracker alloc]
           initWithDispatchQueueWrapper:[[SentryDispatchQueueWrapper alloc] init]
                        appStateManager:appStateManager
-        enablePreWarmedAppStartTracing:options.enablePreWarmedAppStartTracing];
+                         framesTracker:SentryDependencyContainer.sharedInstance.framesTracker
+        enablePreWarmedAppStartTracing:options.enablePreWarmedAppStartTracing
+                   enablePerformanceV2:options.enablePerformanceV2];
     [self.tracker start];
 
     return YES;

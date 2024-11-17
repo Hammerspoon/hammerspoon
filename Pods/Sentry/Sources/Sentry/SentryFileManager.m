@@ -1,8 +1,7 @@
 #import "SentryFileManager.h"
-#import "NSDate+SentryExtras.h"
 #import "SentryAppState.h"
-#import "SentryCurrentDateProvider.h"
 #import "SentryDataCategoryMapper.h"
+#import "SentryDateUtils.h"
 #import "SentryDependencyContainer.h"
 #import "SentryDispatchQueueWrapper.h"
 #import "SentryDsn.h"
@@ -10,15 +9,53 @@
 #import "SentryEnvelopeItemHeader.h"
 #import "SentryError.h"
 #import "SentryEvent.h"
-#import "SentryFileContents.h"
+#import "SentryInternalDefines.h"
 #import "SentryLog.h"
 #import "SentryMigrateSessionInit.h"
 #import "SentryOptions.h"
 #import "SentrySerialization.h"
+#import "SentrySwift.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 NSString *const EnvelopesPathComponent = @"envelopes";
+
+BOOL
+createDirectoryIfNotExists(NSString *path, NSError **error)
+{
+    if (![[NSFileManager defaultManager] createDirectoryAtPath:path
+                                   withIntermediateDirectories:YES
+                                                    attributes:nil
+                                                         error:error]) {
+        *error = NSErrorFromSentryErrorWithUnderlyingError(kSentryErrorFileIO,
+            [NSString stringWithFormat:@"Failed to create the directory at path %@.", path],
+            *error);
+        return NO;
+    }
+    return YES;
+}
+
+/**
+ * @warning This is called from a `@synchronized` context in instance methods, but doesn't require
+ * that when calling from other static functions. Make sure you pay attention to where this is used
+ * from.
+ */
+void
+_non_thread_safe_removeFileAtPath(NSString *path)
+{
+    NSError *error = nil;
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    if (![fileManager removeItemAtPath:path error:&error]) {
+        if (error.code == NSFileNoSuchFileError) {
+            SENTRY_LOG_DEBUG(@"No file to delete at %@", path);
+        } else {
+            SENTRY_LOG_ERROR(
+                @"Error occurred while deleting file at %@ because of %@", path, error);
+        }
+    } else {
+        SENTRY_LOG_DEBUG(@"Successfully deleted file at %@", path);
+    }
+}
 
 @interface
 SentryFileManager ()
@@ -65,12 +102,17 @@ SentryFileManager ()
         self.eventsPath = [self.sentryPath stringByAppendingPathComponent:@"events"];
         [self removeFileAtPath:self.eventsPath];
 
-        if (![self createDirectoryIfNotExists:self.sentryPath error:error]) {
+        if (!createDirectoryIfNotExists(self.sentryPath, error)) {
             return nil;
         }
-        if (![self createDirectoryIfNotExists:self.envelopesPath error:error]) {
+        if (!createDirectoryIfNotExists(self.envelopesPath, error)) {
             return nil;
         }
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+        if (!createDirectoryIfNotExists(sentryApplicationSupportPath(), error)) {
+            return nil;
+        }
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
         self.currentFileCounter = 0;
         self.maxEnvelopes = options.maxCacheItems;
@@ -156,7 +198,7 @@ SentryFileManager ()
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSData *content = [fileManager contentsAtPath:finalPath];
     if (nil != content) {
-        return [[SentryFileContents alloc] initWithPath:finalPath andContents:content];
+        return [[SentryFileContents alloc] initWithPath:finalPath contents:content];
     } else {
         return nil;
     }
@@ -167,27 +209,49 @@ SentryFileManager ()
 - (void)deleteOldEnvelopesFromAllSentryPaths
 {
     // First we find all directories in the base path, these are all the various hashed DSN paths
-    for (NSString *path in [self allFilesInFolder:self.basePath]) {
-        NSString *fullPath = [self.basePath stringByAppendingPathComponent:path];
-        NSDictionary *dict = [[NSFileManager defaultManager] attributesOfItemAtPath:fullPath
-                                                                              error:nil];
-        if (!dict || dict[NSFileType] != NSFileTypeDirectory) {
-            SENTRY_LOG_WARN(@"Could not get NSFileTypeDirectory from %@", fullPath);
-            continue;
-        }
-
-        // If the options don't have a DSN the sentry path doesn't contain a hash and the envelopes
-        // folder is stored in the base path.
-        NSString *envelopesPath;
-        if ([fullPath hasSuffix:EnvelopesPathComponent]) {
-            envelopesPath = fullPath;
-        } else {
-            envelopesPath = [fullPath stringByAppendingPathComponent:EnvelopesPathComponent];
-        }
+    for (NSString *filePath in [self allFilesInFolder:self.basePath]) {
+        NSString *envelopesPath = [self getEnvelopesPath:filePath];
 
         // Then we will remove all old items from the envelopes subdirectory
         [self deleteOldEnvelopesFromPath:envelopesPath];
     }
+}
+
+- (nullable NSString *)getEnvelopesPath:(NSString *)filePath
+{
+    NSString *fullPath = [self.basePath stringByAppendingPathComponent:filePath];
+
+    if ([fullPath hasSuffix:@".DS_Store"]) {
+        SENTRY_LOG_DEBUG(
+            @"Ignoring .DS_Store file when building envelopes path at path: %@", fullPath);
+        return nil;
+    }
+
+    NSError *error = nil;
+    NSDictionary *dict = [[NSFileManager defaultManager] attributesOfItemAtPath:fullPath
+                                                                          error:&error];
+    if (error != nil) {
+        SENTRY_LOG_WARN(
+            @"Could not get attributes of item at path: %@. Error: %@", fullPath, error);
+        return nil;
+    }
+
+    if (dict[NSFileType] != NSFileTypeDirectory) {
+        SENTRY_LOG_DEBUG(
+            @"Ignoring non directory when deleting old envelopes at path: %@", fullPath);
+        return nil;
+    }
+
+    // If the options don't have a DSN the sentry path doesn't contain a hash and the envelopes
+    // folder is stored in the base path.
+    NSString *envelopesPath;
+    if ([fullPath hasSuffix:EnvelopesPathComponent]) {
+        envelopesPath = fullPath;
+    } else {
+        envelopesPath = [fullPath stringByAppendingPathComponent:EnvelopesPathComponent];
+    }
+
+    return envelopesPath;
 }
 
 - (void)deleteOldEnvelopesFromPath:(NSString *)envelopesPath
@@ -217,7 +281,7 @@ SentryFileManager ()
 {
     [self removeFileAtPath:self.envelopesPath];
     NSError *error;
-    if (![self createDirectoryIfNotExists:self.envelopesPath error:&error]) {
+    if (!createDirectoryIfNotExists(self.envelopesPath, &error)) {
         SENTRY_LOG_ERROR(@"Couldn't create envelopes path.");
     }
 }
@@ -225,34 +289,30 @@ SentryFileManager ()
 - (NSArray<NSString *> *)allFilesInFolder:(NSString *)path
 {
     NSFileManager *fileManager = [NSFileManager defaultManager];
+    if (![fileManager fileExistsAtPath:path]) {
+        SENTRY_LOG_INFO(@"Returning empty files list, as folder doesn't exist at path: %@", path);
+        return @[];
+    }
+
     NSError *error = nil;
     NSArray<NSString *> *storedFiles = [fileManager contentsOfDirectoryAtPath:path error:&error];
-    if (nil != error) {
+    if (error != nil) {
         SENTRY_LOG_ERROR(@"Couldn't load files in folder %@: %@", path, error);
-        return [NSArray new];
+        return @[];
     }
     return [storedFiles sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
 }
 
 - (void)removeFileAtPath:(NSString *)path
 {
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSError *error = nil;
     @synchronized(self) {
-        SENTRY_LOG_DEBUG(@"Deleting %@", path);
-
-        if (![fileManager removeItemAtPath:path error:&error]) {
-            // We don't want to log an error if the file doesn't exist.
-            if (error.code != NSFileNoSuchFileError) {
-                SENTRY_LOG_ERROR(@"Couldn't delete file %@: %@", path, error);
-            }
-        }
+        _non_thread_safe_removeFileAtPath(path);
     }
 }
 
 - (NSString *)storeEnvelope:(SentryEnvelope *)envelope
 {
-    NSData *envelopeData = [SentrySerialization dataWithEnvelope:envelope error:nil];
+    NSData *envelopeData = [SentrySerialization dataWithEnvelope:envelope];
 
     @synchronized(self) {
         NSString *path =
@@ -304,7 +364,7 @@ SentryFileManager ()
                 continue;
             }
 
-            [_delegate envelopeItemDeleted:rateLimitCategory];
+            [_delegate envelopeItemDeleted:item withCategory:rateLimitCategory];
         }
 
         [self removeFileAtPath:envelopeFilePath];
@@ -388,7 +448,7 @@ SentryFileManager ()
 
 - (void)storeTimestampLastInForeground:(NSDate *)timestamp
 {
-    NSString *timestampString = [timestamp sentry_toIso8601String];
+    NSString *timestampString = sentry_toIso8601String(timestamp);
     SENTRY_LOG_DEBUG(@"Persisting lastInForeground: %@", timestampString);
     @synchronized(self.lastInForegroundFilePath) {
         if (![self writeData:[timestampString dataUsingEncoding:NSUTF8StringEncoding]
@@ -421,13 +481,13 @@ SentryFileManager ()
     }
     NSString *timestampString = [[NSString alloc] initWithData:lastInForegroundData
                                                       encoding:NSUTF8StringEncoding];
-    return [NSDate sentry_fromIso8601String:timestampString];
+    return sentry_fromIso8601String(timestampString);
 }
 
 - (BOOL)writeData:(NSData *)data toPath:(NSString *)path
 {
     NSError *error;
-    if (![self createDirectoryIfNotExists:self.sentryPath error:&error]) {
+    if (!createDirectoryIfNotExists(self.sentryPath, &error)) {
         SENTRY_LOG_ERROR(@"File I/O not available at path %@: %@", path, error);
         return NO;
     }
@@ -637,7 +697,7 @@ SentryFileManager ()
 
 #pragma mark private methods
 
-- (void)createPathsWithOptions:(SentryOptions *_Nonnull)options
+- (void)createPathsWithOptions:(SentryOptions *)options
 {
     NSString *cachePath = options.cacheDirectoryPath;
 
@@ -667,18 +727,95 @@ SentryFileManager ()
     self.envelopesPath = [self.sentryPath stringByAppendingPathComponent:EnvelopesPathComponent];
 }
 
-- (BOOL)createDirectoryIfNotExists:(NSString *)path error:(NSError **)error
+/**
+ * @note This method must be statically accessible because it will be called during app launch,
+ * before any instance of @c SentryFileManager exists, and so wouldn't be able to access this path
+ * from an objc property on it like the other paths.
+ */
+NSString *_Nullable sentryApplicationSupportPath(void)
 {
-    if (![[NSFileManager defaultManager] createDirectoryAtPath:path
-                                   withIntermediateDirectories:YES
-                                                    attributes:nil
-                                                         error:error]) {
-        *error = NSErrorFromSentryErrorWithUnderlyingError(kSentryErrorFileIO,
-            [NSString stringWithFormat:@"Failed to create the directory at path %@.", path],
-            *error);
+    static NSString *_Nullable sentryApplicationSupportPath = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(
+            NSApplicationSupportDirectory, NSUserDomainMask, YES);
+        NSString *applicationSupportDirectory = [paths firstObject];
+        if (applicationSupportDirectory == nil) {
+            SENTRY_LOG_WARN(@"No application support directory location reported.");
+            return;
+        }
+        sentryApplicationSupportPath =
+            [applicationSupportDirectory stringByAppendingPathComponent:@"io.sentry"];
+    });
+    return sentryApplicationSupportPath;
+}
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+
+NSURL *_Nullable sentryLaunchConfigFileURL = nil;
+
+NSURL *_Nullable launchProfileConfigFileURL(void)
+{
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSString *appSupportPath = sentryApplicationSupportPath();
+        if (appSupportPath == nil) {
+            SENTRY_LOG_WARN(@"No location available to write a launch profiling config.");
+            return;
+        }
+        sentryLaunchConfigFileURL = [NSURL
+            fileURLWithPath:[appSupportPath stringByAppendingPathComponent:@"profileLaunch"]];
+    });
+    return sentryLaunchConfigFileURL;
+}
+
+NSDictionary<NSString *, NSNumber *> *_Nullable appLaunchProfileConfiguration(void)
+{
+    NSURL *url = launchProfileConfigFileURL();
+    if (![[NSFileManager defaultManager] fileExistsAtPath:url.path]) {
+        return nil;
+    }
+
+    NSError *error;
+    NSDictionary<NSString *, NSNumber *> *config =
+        [NSDictionary<NSString *, NSNumber *> dictionaryWithContentsOfURL:url error:&error];
+    SENTRY_CASSERT(
+        error == nil, @"Encountered error trying to retrieve app launch profile config: %@", error);
+    return config;
+}
+
+BOOL
+appLaunchProfileConfigFileExists(void)
+{
+    NSString *path = launchProfileConfigFileURL().path;
+    if (path == nil) {
         return NO;
     }
-    return YES;
+
+    return access(path.UTF8String, F_OK) == 0;
+}
+
+void
+writeAppLaunchProfilingConfigFile(NSMutableDictionary<NSString *, NSNumber *> *config)
+{
+    NSError *error;
+    SENTRY_CASSERT([config writeToURL:launchProfileConfigFileURL() error:&error],
+        @"Failed to write launch profile config file: %@.", error);
+}
+
+void
+removeAppLaunchProfilingConfigFile(void)
+{
+    _non_thread_safe_removeFileAtPath(launchProfileConfigFileURL().path);
+}
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
+
+- (void)clearDiskState
+{
+    [self removeFileAtPath:self.basePath];
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+    [self removeFileAtPath:sentryApplicationSupportPath()];
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
 @end

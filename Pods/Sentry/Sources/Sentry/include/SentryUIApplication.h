@@ -23,11 +23,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) UIApplicationState applicationState;
 
 /**
- * Application shared UIApplication instance.
- */
-@property (nonatomic, readonly, nullable) UIApplication *sharedApplication;
-
-/**
  * All application open windows.
  */
 @property (nonatomic, readonly, nullable) NSArray<UIWindow *> *windows;

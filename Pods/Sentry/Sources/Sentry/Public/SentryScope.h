@@ -2,7 +2,7 @@
 #import "SentrySerializable.h"
 #import "SentrySpanProtocol.h"
 
-@class SentryUser, SentrySession, SentryOptions, SentryBreadcrumb, SentryAttachment;
+@class SentryUser, SentryOptions, SentryBreadcrumb, SentryAttachment;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -20,6 +20,16 @@ NS_SWIFT_NAME(Scope)
  * @return current Span or Transaction or null if transaction has not been set.
  */
 @property (nullable, nonatomic, strong) id<SentrySpan> span;
+
+/**
+ * The id of current session replay.
+ */
+@property (nullable, nonatomic, strong) NSString *replayId;
+
+/**
+ * Gets the dictionary of currently set tags.
+ */
+@property (nonatomic, readonly, copy) NSDictionary<NSString *, NSString *> *tags;
 
 - (instancetype)initWithMaxBreadcrumbs:(NSInteger)maxBreadcrumbs NS_DESIGNATED_INITIALIZER;
 - (instancetype)init;

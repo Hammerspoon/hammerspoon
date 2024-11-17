@@ -33,8 +33,7 @@
 #    include "SentryCrashMachineContext_Apple.h"
 #    include <stdlib.h>
 
-// #define SentryCrashLogger_LocalLevel TRACE
-#    include "SentryCrashLogger.h"
+#    include "SentryAsyncSafeLog.h"
 
 static const char *g_registerNames[] = { "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9",
     "r10", "r11", "ip", "sp", "lr", "pc", "cpsr" };
@@ -113,7 +112,7 @@ sentrycrashcpu_registerValue(const SentryCrashMachineContext *const context, con
         return context->machineContext.__ss.__cpsr;
     }
 
-    SentryCrashLOG_ERROR("Invalid register number: %d", regNumber);
+    SENTRY_ASYNC_SAFE_LOG_ERROR("Invalid register number: %d", regNumber);
     return 0;
 }
 
@@ -129,7 +128,7 @@ sentrycrashcpu_exceptionRegisterName(const int regNumber)
     if (regNumber < sentrycrashcpu_numExceptionRegisters()) {
         return g_exceptionRegisterNames[regNumber];
     }
-    SentryCrashLOG_ERROR("Invalid register number: %d", regNumber);
+    SENTRY_ASYNC_SAFE_LOG_ERROR("Invalid register number: %d", regNumber);
     return NULL;
 }
 
@@ -146,7 +145,7 @@ sentrycrashcpu_exceptionRegisterValue(
         return context->machineContext.__es.__far;
     }
 
-    SentryCrashLOG_ERROR("Invalid register number: %d", regNumber);
+    SENTRY_ASYNC_SAFE_LOG_ERROR("Invalid register number: %d", regNumber);
     return 0;
 }
 

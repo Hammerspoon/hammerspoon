@@ -10,7 +10,7 @@
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wvariadic-macros"
-#import "Sentry.h"
+#import "Sentry/Sentry.h"
 #pragma clang diagnostic pop
 
 #import "secrets.h"

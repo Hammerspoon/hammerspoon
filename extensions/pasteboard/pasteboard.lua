@@ -88,7 +88,9 @@ end
 ---  ~~~
 module.callbackWhenChanged = function(...)
     local name, timeout, callback = nil, 2.0, nil
-    for _, v in ipairs({...}) do
+    local args = {...}
+    for i = 1, #args do
+        local v = args[i]
         if type(v) == "number" then
             timeout = v
         elseif type(v) == "nil" or type(v) == "string" then

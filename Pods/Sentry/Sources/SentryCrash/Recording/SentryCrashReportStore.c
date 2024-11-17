@@ -26,8 +26,8 @@
 //
 
 #include "SentryCrashReportStore.h"
+#include "SentryAsyncSafeLog.h"
 #include "SentryCrashFileUtils.h"
-#include "SentryCrashLogger.h"
 
 #include <dirent.h>
 #include <errno.h>
@@ -103,7 +103,7 @@ getReportCount(void)
     int count = 0;
     DIR *dir = opendir(g_reportsPath);
     if (dir == NULL) {
-        SentryCrashLOG_ERROR("Could not open directory %s", g_reportsPath);
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Could not open directory %s", g_reportsPath);
         goto done;
     }
     struct dirent *ent;
@@ -126,7 +126,7 @@ getReportIDs(int64_t *reportIDs, int count)
     int index = 0;
     DIR *dir = opendir(g_reportsPath);
     if (dir == NULL) {
-        SentryCrashLOG_ERROR("Could not open directory %s", g_reportsPath);
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Could not open directory %s", g_reportsPath);
         goto done;
     }
 
@@ -257,16 +257,17 @@ sentrycrashcrs_addUserReport(const char *report, int reportLength)
 
     int fd = open(crashReportPath, O_WRONLY | O_CREAT, 0644);
     if (fd < 0) {
-        SentryCrashLOG_ERROR("Could not open file %s: %s", crashReportPath, strerror(errno));
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Could not open file %s: %s", crashReportPath, strerror(errno));
         goto done;
     }
 
     int bytesWritten = (int)write(fd, report, (unsigned)reportLength);
     if (bytesWritten < 0) {
-        SentryCrashLOG_ERROR("Could not write to file %s: %s", crashReportPath, strerror(errno));
+        SENTRY_ASYNC_SAFE_LOG_ERROR(
+            "Could not write to file %s: %s", crashReportPath, strerror(errno));
         goto done;
     } else if (bytesWritten < reportLength) {
-        SentryCrashLOG_ERROR("Expected to write %d bytes to file %s, but only wrote %d",
+        SENTRY_ASYNC_SAFE_LOG_ERROR("Expected to write %d bytes to file %s, but only wrote %d",
             crashReportPath, reportLength, bytesWritten);
     }
 

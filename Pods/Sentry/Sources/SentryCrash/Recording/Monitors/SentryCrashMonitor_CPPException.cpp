@@ -30,11 +30,11 @@
 #include "SentryCrashStackCursor_SelfThread.h"
 #include "SentryCrashThread.h"
 
-// #define SentryCrashLogger_LocalLevel TRACE
-#include "SentryCrashLogger.h"
+#include "SentryAsyncSafeLog.h"
 
 #include <cxxabi.h>
 #include <dlfcn.h>
+#include <exception>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -72,6 +72,7 @@ static SentryCrashStackCursor g_stackCursor;
 // ============================================================================
 
 typedef void (*cxa_throw_type)(void *, std::type_info *, void (*)(void *));
+typedef void (*cxa_rethrow_type)(void);
 
 extern "C" {
 void __cxa_throw(void *thrown_exception, std::type_info *tinfo, void (*dest)(void *))
@@ -92,6 +93,28 @@ __cxa_throw(void *thrown_exception, std::type_info *tinfo, void (*dest)(void *))
     orig_cxa_throw(thrown_exception, tinfo, dest);
     __builtin_unreachable();
 }
+
+void
+__sentry_cxa_throw(void *thrown_exception, std::type_info *tinfo, void (*dest)(void *))
+{
+    __cxa_throw(thrown_exception, tinfo, dest);
+}
+
+void
+__sentry_cxa_rethrow()
+{
+    if (g_captureNextStackTrace) {
+        sentrycrashsc_initSelfThread(&g_stackCursor, 1);
+    }
+
+    static cxa_rethrow_type orig_cxa_rethrow = NULL;
+    unlikely_if(orig_cxa_rethrow == NULL)
+    {
+        orig_cxa_rethrow = (cxa_rethrow_type)dlsym(RTLD_NEXT, "__cxa_rethrow");
+    }
+    orig_cxa_rethrow();
+    __builtin_unreachable();
+}
 }
 
 void
@@ -100,7 +123,7 @@ sentrycrashcm_cppexception_callOriginalTerminationHandler(void)
     // Can be NULL as the return value of set_terminate can be a NULL pointer; see:
     // https://en.cppreference.com/w/cpp/error/set_terminate
     if (g_originalTerminateHandler != NULL) {
-        SentryCrashLOG_DEBUG("Calling original terminate handler.");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Calling original terminate handler.");
         g_originalTerminateHandler();
     }
 }
@@ -111,7 +134,7 @@ CPPExceptionTerminate(void)
     thread_act_array_t threads = NULL;
     mach_msg_type_number_t numThreads = 0;
     sentrycrashmc_suspendEnvironment(&threads, &numThreads);
-    SentryCrashLOG_DEBUG("Trapped c++ exception");
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Trapped c++ exception");
     const char *name = NULL;
     std::type_info *tinfo = __cxxabiv1::__cxa_current_exception_type();
     if (tinfo != NULL) {
@@ -127,41 +150,46 @@ CPPExceptionTerminate(void)
         const char *description = descriptionBuff;
         descriptionBuff[0] = 0;
 
-        SentryCrashLOG_DEBUG("Discovering what kind of exception was thrown.");
-        g_captureNextStackTrace = false;
-        try {
-            throw;
-        } catch (std::exception &exc) {
-            strncpy(descriptionBuff, exc.what(), sizeof(descriptionBuff));
-        }
+        std::exception_ptr currException = std::current_exception();
+        if (currException == NULL) {
+            SENTRY_ASYNC_SAFE_LOG_DEBUG("Terminate without exception.");
+            sentrycrashsc_initSelfThread(&g_stackCursor, 0);
+        } else {
+            SENTRY_ASYNC_SAFE_LOG_DEBUG("Discovering what kind of exception was thrown.");
+            g_captureNextStackTrace = false;
+            try {
+                throw;
+            } catch (std::exception &exc) {
+                strncpy(descriptionBuff, exc.what(), sizeof(descriptionBuff));
+            }
 #define CATCH_VALUE(TYPE, PRINTFTYPE)                                                              \
-    catch (TYPE value)                                                                             \
-    {                                                                                              \
+    catch (TYPE value) {                                                                           \
         snprintf(descriptionBuff, sizeof(descriptionBuff), "%" #PRINTFTYPE, value);                \
     }
-        CATCH_VALUE(char, d)
-        CATCH_VALUE(short, d)
-        CATCH_VALUE(int, d)
-        CATCH_VALUE(long, ld)
-        CATCH_VALUE(long long, lld)
-        CATCH_VALUE(unsigned char, u)
-        CATCH_VALUE(unsigned short, u)
-        CATCH_VALUE(unsigned int, u)
-        CATCH_VALUE(unsigned long, lu)
-        CATCH_VALUE(unsigned long long, llu)
-        CATCH_VALUE(float, f)
-        CATCH_VALUE(double, f)
-        CATCH_VALUE(long double, Lf)
-        CATCH_VALUE(char *, s)
-        catch (...) { description = NULL; }
-        g_captureNextStackTrace = g_isEnabled;
+            CATCH_VALUE(char, d)
+            CATCH_VALUE(short, d)
+            CATCH_VALUE(int, d)
+            CATCH_VALUE(long, ld)
+            CATCH_VALUE(long long, lld)
+            CATCH_VALUE(unsigned char, u)
+            CATCH_VALUE(unsigned short, u)
+            CATCH_VALUE(unsigned int, u)
+            CATCH_VALUE(unsigned long, lu)
+            CATCH_VALUE(unsigned long long, llu)
+            CATCH_VALUE(float, f)
+            CATCH_VALUE(double, f)
+            CATCH_VALUE(long double, Lf)
+            CATCH_VALUE(char *, s)
+            catch (...) { description = NULL; }
+            g_captureNextStackTrace = g_isEnabled;
+        }
 
         // TODO: Should this be done here? Maybe better in the exception
         // handler?
         SentryCrashMC_NEW_CONTEXT(machineContext);
         sentrycrashmc_getContextForThread(sentrycrashthread_self(), machineContext, true);
 
-        SentryCrashLOG_DEBUG("Filling out context.");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Filling out context.");
         crashContext->crashType = SentryCrashMonitorTypeCPPException;
         crashContext->eventID = g_eventID;
         crashContext->registersAreValid = false;
@@ -173,8 +201,8 @@ CPPExceptionTerminate(void)
 
         sentrycrashcm_handleException(crashContext);
     } else {
-        SentryCrashLOG_DEBUG("Detected NSException. Letting the current "
-                             "NSException handler deal with it.");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Detected NSException. Letting the current "
+                                    "NSException handler deal with it.");
     }
     sentrycrashmc_resumeEnvironment(threads, numThreads);
 

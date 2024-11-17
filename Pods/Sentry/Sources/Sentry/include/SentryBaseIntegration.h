@@ -1,4 +1,3 @@
-#import "SentryOptions.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -23,7 +22,11 @@ typedef NS_OPTIONS(NSUInteger, SentryIntegrationOption) {
     kIntegrationOptionAttachViewHierarchy = 1 << 15,
     kIntegrationOptionEnableCrashHandler = 1 << 16,
     kIntegrationOptionEnableMetricKit = 1 << 17,
+    kIntegrationOptionEnableReplay = 1 << 18,
+    kIntegrationOptionEnableAppHangTrackingV2 = 1 << 19,
 };
+
+@class SentryOptions;
 
 @interface SentryBaseIntegration : NSObject
 
@@ -33,7 +36,7 @@ typedef NS_OPTIONS(NSUInteger, SentryIntegrationOption) {
 - (void)logWithReason:(NSString *)reason;
 - (BOOL)shouldBeEnabledWithOptions:(SentryOptions *)options;
 - (SentryIntegrationOption)integrationOptions;
-
+- (void)uninstall;
 @end
 
 NS_ASSUME_NONNULL_END

@@ -1,6 +1,8 @@
 #import <Foundation/Foundation.h>
 
-@class SentryId, SentrySpanId, SentryTraceContext, SentryTraceHeader;
+@class SentryId;
+@class SentrySpanId;
+@class SentryTraceHeader;
 
 NS_ASSUME_NONNULL_BEGIN
 

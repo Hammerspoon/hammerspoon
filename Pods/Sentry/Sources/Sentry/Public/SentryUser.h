@@ -1,5 +1,4 @@
 #import "SentryDefines.h"
-#import "SentryGeo.h"
 #import "SentrySerializable.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -31,8 +30,10 @@ NS_SWIFT_NAME(User)
 
 /**
  * The user segment, for apps that divide users in user segments.
+ * @deprecated This field will be removed in the next major version.
  */
-@property (atomic, copy) NSString *_Nullable segment;
+@property (atomic, copy) NSString *_Nullable segment DEPRECATED_MSG_ATTRIBUTE(
+    "This field is deprecated and will be removed in the next major update.");
 
 /**
  * Optional: Human readable name

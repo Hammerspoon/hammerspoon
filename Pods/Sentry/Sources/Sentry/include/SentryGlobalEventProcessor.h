@@ -15,6 +15,8 @@ SENTRY_NO_INIT
 
 - (void)addEventProcessor:(SentryEventProcessor)newProcessor;
 
+- (nullable SentryEvent *)reportAll:(SentryEvent *)event;
+
 @end
 
 NS_ASSUME_NONNULL_END

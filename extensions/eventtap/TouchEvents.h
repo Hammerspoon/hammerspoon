@@ -27,6 +27,7 @@ enum {
 	kTLInfoSubtypeMagnify = 0x08,
 	kTLInfoSubtypeGesture = 0x0B,
 	kTLInfoSubtypeSwipe = 0x10,
+	kTLInfoSubtypeSmartMagnify = 0x16,
 	kTLInfoSubtypeBeginGesture = 0x3D,
 	kTLInfoSubtypeEndGesture
 };

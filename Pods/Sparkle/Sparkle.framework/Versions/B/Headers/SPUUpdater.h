@@ -52,7 +52,7 @@ SU_EXPORT @interface SPUUpdater : NSObject
  
  Related: See `SPUStandardUpdaterController` which wraps a `SPUUpdater` instance and is suitable for instantiating inside of nib files.
  
- @param hostBundle The bundle that should be targetted for updating.
+ @param hostBundle The bundle that should be targeted for updating.
  @param applicationBundle The application bundle that should be waited for termination and relaunched (unless overridden). Usually this can be the same as hostBundle. This may differ when updating a plug-in or other non-application bundle.
  @param userDriver The user driver that Sparkle uses for user update interaction.
  @param delegate The delegate for `SPUUpdater`.
@@ -114,7 +114,7 @@ SU_EXPORT @interface SPUUpdater : NSObject
  to ask the user's permission to check for updates automatically and `automaticallyChecksForUpdates` is `NO`.
  If you want to reset the updater's cycle after an updater setting change, see `resetUpdateCycle` or `resetUpdateCycleAfterShortDelay` instead.
  
- This is meant for programmatically initating a check for updates in the background without the user initiating it.
+ This is meant for programmatically initiating a check for updates in the background without the user initiating it.
  This check will not show UI if no new updates are found.
  
  If a new update is found, the updater's user driver may handle showing it at an appropriate (but not necessarily immediate) time.
@@ -307,7 +307,7 @@ SU_EXPORT @interface SPUUpdater : NSObject
  
  Note if Sparkle is being used to update another application, the bundle information retrieved is from the main application performing the updating.
  
- This default implementation can be overrided.
+ This default implementation can be overridden.
  */
 @property (nonatomic, copy) NSString *userAgentString;
 

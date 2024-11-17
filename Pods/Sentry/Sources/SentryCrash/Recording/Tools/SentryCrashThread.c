@@ -28,10 +28,9 @@
 #include "SentryCrashThread.h"
 
 #include "SentryCrashMemory.h"
-#include "SentryCrashSystemCapabilities.h"
+#include "SentryInternalCDefines.h"
 
-// #define SentryCrashLogger_LocalLevel TRACE
-#include "SentryCrashLogger.h"
+#include "SentryAsyncSafeLog.h"
 
 #include <dispatch/dispatch.h>
 #include <mach/mach.h>

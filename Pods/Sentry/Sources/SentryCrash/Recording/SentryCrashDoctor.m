@@ -351,6 +351,11 @@ typedef enum { CPUFamilyUnknown, CPUFamilyArm, CPUFamilyX86, CPUFamilyX86_64 } C
     return NO;
 }
 
+- (BOOL)wasProgramTerminationRequested:(NSDictionary *)errorReport
+{
+    return [(errorReport[@SentryCrashField_Signal][@SentryCrashField_Signal]) intValue] == SIGTERM;
+}
+
 - (SentryCrashDoctorFunctionCall *)lastFunctionCall:(NSDictionary *)report
 {
     SentryCrashDoctorFunctionCall *function = [[SentryCrashDoctorFunctionCall alloc] init];
@@ -470,6 +475,10 @@ typedef enum { CPUFamilyUnknown, CPUFamilyArm, CPUFamilyX86, CPUFamilyX86_64 } C
                     [NSString stringWithFormat:@"Attempted to dereference garbage pointer at %p.",
                               (void *)address];
             }
+        }
+
+        if ([self wasProgramTerminationRequested:errorReport]) {
+            return @"Graceful OS termination requested.";
         }
 
         return nil;

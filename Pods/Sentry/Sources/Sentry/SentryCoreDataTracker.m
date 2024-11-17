@@ -8,10 +8,10 @@
 #import "SentryPredicateDescriptor.h"
 #import "SentrySDK+Private.h"
 #import "SentryScope+Private.h"
-#import "SentrySpanProtocol.h"
-@import SentryPrivate;
 #import "SentrySpan.h"
+#import "SentrySpanProtocol.h"
 #import "SentryStacktrace.h"
+#import "SentrySwift.h"
 #import "SentryThreadInspector.h"
 #import "SentryTraceOrigins.h"
 
@@ -48,9 +48,6 @@
         SENTRY_LOG_DEBUG(@"SentryCoreDataTracker automatically started a new span with "
                          @"description: %@, operation: %@",
             fetchSpan.description, fetchSpan.operation);
-    } else {
-        SENTRY_LOG_ERROR(
-            @"managedObjectContext:executeFetchRequest:error:originalImp: fetchSpan is nil.");
     }
 
     NSArray *result = original(request, error);

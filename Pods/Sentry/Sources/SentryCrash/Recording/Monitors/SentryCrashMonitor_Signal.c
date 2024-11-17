@@ -31,12 +31,11 @@
 #include "SentryCrashMonitorContext.h"
 #include "SentryCrashSignalInfo.h"
 #include "SentryCrashStackCursor_MachineContext.h"
-#include "SentryCrashSystemCapabilities.h"
+#include "SentryInternalCDefines.h"
 
-// #define SentryCrashLogger_LocalLevel TRACE
-#include "SentryCrashLogger.h"
+#include "SentryAsyncSafeLog.h"
 
-#if SentryCrashCRASH_HAS_SIGNAL
+#if SENTRY_HAS_SIGNAL
 
 #    include <errno.h>
 #    include <signal.h>
@@ -49,11 +48,12 @@
 // ============================================================================
 
 static volatile bool g_isEnabled = false;
+static bool g_isSigtermReportingEnabled = false;
 
 static SentryCrash_MonitorContext g_monitorContext;
 static SentryCrashStackCursor g_stackCursor;
 
-#    if SentryCrashCRASH_HAS_SIGNAL_STACK
+#    if SENTRY_HAS_SIGNAL_STACK
 /** Our custom signal stack. The signal handler will use this as its stack. */
 static stack_t g_signalStack = { 0 };
 #    endif
@@ -82,14 +82,14 @@ static char g_eventID[37];
 static void
 handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
 {
-    SentryCrashLOG_DEBUG("Trapped signal %d", sigNum);
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Trapped signal %d", sigNum);
     if (g_isEnabled) {
         thread_act_array_t threads = NULL;
         mach_msg_type_number_t numThreads = 0;
         sentrycrashmc_suspendEnvironment(&threads, &numThreads);
         sentrycrashcm_notifyFatalExceptionCaptured(false);
 
-        SentryCrashLOG_DEBUG("Filling out context.");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Filling out context.");
         SentryCrashMC_NEW_CONTEXT(machineContext);
         sentrycrashmc_getContextForSignal(userContext, machineContext);
         sentrycrashsc_initWithMachineContext(&g_stackCursor, MAX_STACKTRACE_LENGTH, machineContext);
@@ -110,7 +110,7 @@ handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
         sentrycrashmc_resumeEnvironment(threads, numThreads);
     }
 
-    SentryCrashLOG_DEBUG("Re-raising signal for regular handlers to catch.");
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Re-raising signal for regular handlers to catch.");
     // This is technically not allowed, but it works in OSX and iOS.
     raise(sigNum);
 }
@@ -122,25 +122,25 @@ handleSignal(int sigNum, siginfo_t *signalInfo, void *userContext)
 static bool
 installSignalHandler(void)
 {
-    SentryCrashLOG_DEBUG("Installing signal handler.");
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Installing signal handler.");
 
-#    if SentryCrashCRASH_HAS_SIGNAL_STACK
+#    if SENTRY_HAS_SIGNAL_STACK
 
     if (g_signalStack.ss_size == 0) {
-        SentryCrashLOG_DEBUG("Allocating signal stack area.");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Allocating signal stack area.");
         g_signalStack.ss_size = SIGSTKSZ;
         g_signalStack.ss_sp = malloc(g_signalStack.ss_size);
 
         if (g_signalStack.ss_sp == NULL) {
-            SentryCrashLOG_ERROR(
+            SENTRY_ASYNC_SAFE_LOG_ERROR(
                 "Failed to allocate signal stack area of size %ul", g_signalStack.ss_size);
             goto failed;
         }
     }
 
-    SentryCrashLOG_DEBUG("Setting signal stack area.");
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Setting signal stack area.");
     if (sigaltstack(&g_signalStack, NULL) != 0) {
-        SentryCrashLOG_ERROR("signalstack: %s", strerror(errno));
+        SENTRY_ASYNC_SAFE_LOG_ERROR("signalstack: %s", strerror(errno));
         goto failed;
     }
 #    endif
@@ -149,21 +149,26 @@ installSignalHandler(void)
     int fatalSignalsCount = sentrycrashsignal_numFatalSignals();
 
     if (g_previousSignalHandlers == NULL) {
-        SentryCrashLOG_DEBUG("Allocating memory to store previous signal handlers.");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Allocating memory to store previous signal handlers.");
         g_previousSignalHandlers
             = malloc(sizeof(*g_previousSignalHandlers) * (unsigned)fatalSignalsCount);
     }
 
     struct sigaction action = { { 0 } };
     action.sa_flags = SA_SIGINFO | SA_ONSTACK;
-#    if SentryCrashCRASH_HOST_APPLE && defined(__LP64__)
+#    if SENTRY_HOST_APPLE && defined(__LP64__)
     action.sa_flags |= SA_64REGSET;
 #    endif
     sigemptyset(&action.sa_mask);
     action.sa_sigaction = &handleSignal;
 
     for (int i = 0; i < fatalSignalsCount; i++) {
-        SentryCrashLOG_DEBUG("Assigning handler for signal %d", fatalSignals[i]);
+        if (fatalSignals[i] == SIGTERM && !g_isSigtermReportingEnabled) {
+            SENTRY_ASYNC_SAFE_LOG_DEBUG("SIGTERM handling disabled. Skipping assigning handler.");
+            continue;
+        }
+
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Assigning handler for signal %d", fatalSignals[i]);
         if (sigaction(fatalSignals[i], &action, &g_previousSignalHandlers[i]) != 0) {
             char sigNameBuff[30];
             const char *sigName = sentrycrashsignal_signalName(fatalSignals[i]);
@@ -171,7 +176,7 @@ installSignalHandler(void)
                 snprintf(sigNameBuff, sizeof(sigNameBuff), "%d", fatalSignals[i]);
                 sigName = sigNameBuff;
             }
-            SentryCrashLOG_ERROR("sigaction (%s): %s", sigName, strerror(errno));
+            SENTRY_ASYNC_SAFE_LOG_ERROR("sigaction (%s): %s", sigName, strerror(errno));
             // Try to reverse the damage
             for (i--; i >= 0; i--) {
                 sigaction(fatalSignals[i], &g_previousSignalHandlers[i], NULL);
@@ -186,31 +191,36 @@ installSignalHandler(void)
             }
         }
     }
-    SentryCrashLOG_DEBUG("Signal handlers installed.");
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Signal handlers installed.");
     return true;
 
 failed:
-    SentryCrashLOG_DEBUG("Failed to install signal handlers.");
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Failed to install signal handlers.");
     return false;
 }
 
 static void
 uninstallSignalHandler(void)
 {
-    SentryCrashLOG_DEBUG("Uninstalling signal handlers.");
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Uninstalling signal handlers.");
 
     const int *fatalSignals = sentrycrashsignal_fatalSignals();
     int fatalSignalsCount = sentrycrashsignal_numFatalSignals();
 
     for (int i = 0; i < fatalSignalsCount; i++) {
-        SentryCrashLOG_DEBUG("Restoring original handler for signal %d", fatalSignals[i]);
+        if (fatalSignals[i] == SIGTERM && !g_isSigtermReportingEnabled) {
+            SENTRY_ASYNC_SAFE_LOG_DEBUG("SIGTERM handling disabled. Skipping restoring handler.");
+            continue;
+        }
+
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Restoring original handler for signal %d", fatalSignals[i]);
         sigaction(fatalSignals[i], &g_previousSignalHandlers[i], NULL);
     }
 
-#    if SentryCrashCRASH_HAS_SIGNAL_STACK
+#    if SENTRY_HAS_SIGNAL_STACK
     g_signalStack = (stack_t) { 0 };
 #    endif
-    SentryCrashLOG_DEBUG("Signal handlers uninstalled.");
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Signal handlers uninstalled.");
 }
 
 static void
@@ -246,11 +256,19 @@ addContextualInfoToEvent(struct SentryCrash_MonitorContext *eventContext)
 
 #endif
 
+void
+sentrycrashcm_setEnableSigtermReporting(bool enabled)
+{
+#if SENTRY_HAS_SIGNAL
+    g_isSigtermReportingEnabled = enabled;
+#endif
+}
+
 SentryCrashMonitorAPI *
 sentrycrashcm_signal_getAPI(void)
 {
     static SentryCrashMonitorAPI api = {
-#if SentryCrashCRASH_HAS_SIGNAL
+#if SENTRY_HAS_SIGNAL
         .setEnabled = setEnabled,
         .isEnabled = isEnabled,
         .addContextualInfoToEvent = addContextualInfoToEvent

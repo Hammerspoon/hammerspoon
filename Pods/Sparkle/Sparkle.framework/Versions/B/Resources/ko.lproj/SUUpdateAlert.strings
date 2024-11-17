@@ -1,8 +1,8 @@
 /* Class = "NSWindow"; title = "Software Update"; ObjectID = "5"; */
-"5.title" = "Software Update";
+"5.title" = "소프트웨어 업데이트";
 
 /* Class = "NSTextFieldCell"; title = "Release Notes:"; ObjectID = "170"; */
-"170.title" = "배포 정보:";
+"170.title" = "릴리즈 노트:";
 
 /* Class = "NSButtonCell"; title = "Remind Me Later"; ObjectID = "171"; */
 "171.title" = "나중에";
@@ -14,4 +14,4 @@
 "173.title" = "업데이트 설치";
 
 /* Class = "NSButtonCell"; title = "Automatically download and install updates in the future"; ObjectID = "175"; */
-"175.title" = "나중에 업데이트 자동으로 다운로드 및 설치";
+"175.title" = "향후 업데이트 자동 다운로드 및 설치";

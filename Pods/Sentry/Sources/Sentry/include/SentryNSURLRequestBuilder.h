@@ -13,6 +13,10 @@ NS_ASSUME_NONNULL_BEGIN
                                     dsn:(SentryDsn *)dsn
                        didFailWithError:(NSError *_Nullable *_Nullable)error;
 
+- (NSURLRequest *)createEnvelopeRequest:(SentryEnvelope *)envelope
+                                    url:(NSURL *)url
+                       didFailWithError:(NSError *_Nullable *_Nullable)error;
+
 @end
 
 NS_ASSUME_NONNULL_END

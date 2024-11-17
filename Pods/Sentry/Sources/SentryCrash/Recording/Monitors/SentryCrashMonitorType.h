@@ -62,7 +62,7 @@ typedef enum {
 #define SentryCrashMonitorTypeAll                                                                  \
     (SentryCrashMonitorTypeMachException | SentryCrashMonitorTypeSignal                            \
         | SentryCrashMonitorTypeCPPException | SentryCrashMonitorTypeNSException                   \
-        | SentryCrashMonitorTypeSystem | SentryCrashMonitorTypeApplicationState)
+        | SentryCrashMonitorTypeApplicationState)
 
 #define SentryCrashMonitorTypeDebuggerUnsafe                                                       \
     (SentryCrashMonitorTypeMachException | SentryCrashMonitorTypeSignal                            \

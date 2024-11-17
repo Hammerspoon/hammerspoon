@@ -1,8 +1,7 @@
 #import "SentryRateLimitParser.h"
-#import "SentryCurrentDateProvider.h"
 #import "SentryDataCategoryMapper.h"
 #import "SentryDateUtil.h"
-#import "SentryDependencyContainer.h"
+#import "SentrySwift.h"
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -10,9 +9,19 @@ NS_ASSUME_NONNULL_BEGIN
 @interface
 SentryRateLimitParser ()
 
+@property (nonatomic, strong) SentryCurrentDateProvider *currentDateProvider;
+
 @end
 
 @implementation SentryRateLimitParser
+
+- (instancetype)initWithCurrentDateProvider:(SentryCurrentDateProvider *)currentDateProvider
+{
+    if (self = [super init]) {
+        self.currentDateProvider = currentDateProvider;
+    }
+    return self;
+}
 
 - (NSDictionary<NSNumber *, NSDate *> *)parse:(NSString *)header
 {
@@ -36,8 +45,24 @@ SentryRateLimitParser ()
         }
 
         for (NSNumber *category in [self parseCategories:parameters[1]]) {
-            rateLimits[category] = [self getLongerRateLimit:rateLimits[category]
-                                      andRateLimitInSeconds:rateLimitInSeconds];
+            SentryDataCategory dataCategory
+                = sentryDataCategoryForNSUInteger(category.integerValue);
+
+            // Namespaces should only be available for MetricBucket
+            if (dataCategory == kSentryDataCategoryMetricBucket && parameters.count > 4) {
+                NSString *namespacesAsString = parameters[4];
+
+                NSArray<NSString *> *namespaces =
+                    [namespacesAsString componentsSeparatedByString:@";"];
+                if (namespacesAsString.length == 0 || [namespaces containsObject:@"custom"]) {
+                    rateLimits[category] = [self getLongerRateLimit:rateLimits[category]
+                                              andRateLimitInSeconds:rateLimitInSeconds];
+                }
+
+            } else {
+                rateLimits[category] = [self getLongerRateLimit:rateLimits[category]
+                                          andRateLimitInSeconds:rateLimitInSeconds];
+            }
         }
     }
 
@@ -80,7 +105,7 @@ SentryRateLimitParser ()
 - (NSDate *)getLongerRateLimit:(NSDate *)existingRateLimit
          andRateLimitInSeconds:(NSNumber *)newRateLimitInSeconds
 {
-    NSDate *newDate = [SentryDependencyContainer.sharedInstance.dateProvider.date
+    NSDate *newDate = [self.currentDateProvider.date
         dateByAddingTimeInterval:[newRateLimitInSeconds doubleValue]];
     return [SentryDateUtil getMaximumDate:newDate andOther:existingRateLimit];
 }

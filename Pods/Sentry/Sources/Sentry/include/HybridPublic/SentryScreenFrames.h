@@ -10,7 +10,7 @@ typedef NSArray<NSDictionary<NSString *, NSNumber *> *> SentryFrameInfoTimeSerie
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 /**
- * @warning This feature is not available in @c Debug_without_UIKit and @c Release_without_UIKit
+ * @warning This feature is not available in @c DebugWithoutUIKit and @c ReleaseWithoutUIKit
  * configurations even when targeting iOS or tvOS platforms.
  */
 @interface SentryScreenFrames : NSObject

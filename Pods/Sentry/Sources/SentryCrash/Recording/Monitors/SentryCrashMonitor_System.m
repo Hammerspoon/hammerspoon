@@ -32,10 +32,9 @@
 #import "SentryCrashDynamicLinker.h"
 #import "SentryCrashMonitorContext.h"
 #import "SentryCrashSysCtl.h"
-#import "SentryCrashSystemCapabilities.h"
+#import "SentryInternalCDefines.h"
 
-// #define SentryCrashLogger_LocalLevel TRACE
-#import "SentryCrashLogger.h"
+#import "SentryLog.h"
 
 #import "SentryDefines.h"
 
@@ -75,8 +74,6 @@ typedef struct {
     int parentProcessID;
     const char *deviceAppHash;
     const char *buildType;
-    bytes totalStorageSize;
-    bytes freeStorageSize;
     bytes memorySize;
 } SystemData;
 
@@ -180,14 +177,14 @@ VMStats(vm_statistics_data_t *const vmStats, vm_size_t *const pageSize)
     const mach_port_t hostPort = mach_host_self();
 
     if ((kr = host_page_size(hostPort, pageSize)) != KERN_SUCCESS) {
-        SentryCrashLOG_ERROR(@"host_page_size: %s", mach_error_string(kr));
+        SENTRY_LOG_ERROR(@"host_page_size: %s", mach_error_string(kr));
         return false;
     }
 
     mach_msg_type_number_t hostSize = sizeof(*vmStats) / sizeof(natural_t);
     kr = host_statistics(hostPort, HOST_VM_INFO, (host_info_t)vmStats, &hostSize);
     if (kr != KERN_SUCCESS) {
-        SentryCrashLOG_ERROR(@"host_statistics: %s", mach_error_string(kr));
+        SENTRY_LOG_ERROR(@"host_statistics: %s", mach_error_string(kr));
         return false;
     }
 
@@ -379,7 +376,7 @@ sentrycrash_isSimulatorBuild(void)
 static NSString *
 getReceiptUrlPath(void)
 {
-#if SentryCrashCRASH_HOST_IOS
+#if SENTRY_HOST_IOS
     return [NSBundle mainBundle].appStoreReceiptURL.path;
 #endif
     return nil;
@@ -494,30 +491,6 @@ getBuildType(void)
     return "unknown";
 }
 
-static bytes
-getTotalStorageSize(void)
-{
-    NSNumber *storageSize = [[[NSFileManager defaultManager]
-        attributesOfFileSystemForPath:NSHomeDirectory()
-                                error:nil] objectForKey:NSFileSystemSize];
-    return storageSize.unsignedLongLongValue;
-}
-
-static bytes
-getFreeStorageSize(void)
-{
-    NSNumber *storageSize = [[[NSFileManager defaultManager]
-        attributesOfFileSystemForPath:NSHomeDirectory()
-                                error:nil] objectForKey:NSFileSystemFreeSize];
-    return storageSize.unsignedLongLongValue;
-}
-
-bytes
-sentrycrashcm_system_freestorage_size(void)
-{
-    return getFreeStorageSize();
-}
-
 // ============================================================================
 #pragma mark - API -
 // ============================================================================
@@ -526,80 +499,82 @@ static void
 initialize(void)
 {
     static bool isInitialized = false;
-    if (!isInitialized) {
-        isInitialized = true;
-
-        NSBundle *mainBundle = [NSBundle mainBundle];
-        NSDictionary *infoDict = [mainBundle infoDictionary];
-        const struct mach_header *header = _dyld_get_image_header(0);
-
-#if SentryCrashCRASH_HOST_IOS
-        g_systemData.systemName = "iOS";
-#elif SentryCrashCRASH_HOST_TV
-        g_systemData.systemName = "tvOS";
-#elif SentryCrashCRASH_HOST_MAC
-        g_systemData.systemName = "macOS";
-#elif SentryCrashCRASH_HOST_WATCH
-        g_systemData.systemName = "watchOS";
-#else
-        g_systemData.systemName = "unknown";
-#endif
-
-        NSOperatingSystemVersion version = { 0, 0, 0 };
-        if (@available(macOS 10.10, *)) {
-            version = [NSProcessInfo processInfo].operatingSystemVersion;
-        }
-        NSString *systemVersion;
-        if (version.patchVersion == 0) {
-            systemVersion = [NSString
-                stringWithFormat:@"%d.%d", (int)version.majorVersion, (int)version.minorVersion];
-        } else {
-            systemVersion = [NSString stringWithFormat:@"%d.%d.%d", (int)version.majorVersion,
-                                      (int)version.minorVersion, (int)version.patchVersion];
-        }
-        g_systemData.systemVersion = cString(systemVersion);
-
-        if (isSimulatorBuild()) {
-            g_systemData.machine
-                = cString([NSProcessInfo processInfo].environment[@"SIMULATOR_MODEL_IDENTIFIER"]);
-            g_systemData.model = "simulator";
-        } else {
-            // TODO: combine this into SentryDevice?
-#if SentryCrashCRASH_HOST_MAC
-            // MacOS has the machine in the model field, and no model
-            g_systemData.machine = stringSysctl("hw.model");
-#else
-            g_systemData.machine = stringSysctl("hw.machine");
-            g_systemData.model = stringSysctl("hw.model");
-#endif
-        }
-
-        g_systemData.kernelVersion = stringSysctl("kern.version");
-        g_systemData.osVersion = stringSysctl("kern.osversion");
-        g_systemData.isJailbroken = isJailbroken();
-        g_systemData.bootTime = dateSysctl("kern.boottime");
-        g_systemData.appStartTime = dateString(time(NULL));
-        g_systemData.executablePath = cString(getExecutablePath());
-        g_systemData.executableName = cString(infoDict[@"CFBundleExecutable"]);
-        g_systemData.bundleID = cString(infoDict[@"CFBundleIdentifier"]);
-        g_systemData.bundleName = cString(infoDict[@"CFBundleName"]);
-        g_systemData.bundleVersion = cString(infoDict[@"CFBundleVersion"]);
-        g_systemData.bundleShortVersion = cString(infoDict[@"CFBundleShortVersionString"]);
-        g_systemData.appID = getAppUUID();
-        g_systemData.cpuArchitecture = getCurrentCPUArch();
-        g_systemData.cpuType = sentrycrashsysctl_int32ForName("hw.cputype");
-        g_systemData.cpuSubType = sentrycrashsysctl_int32ForName("hw.cpusubtype");
-        g_systemData.binaryCPUType = header->cputype;
-        g_systemData.binaryCPUSubType = header->cpusubtype;
-        g_systemData.processName = cString([NSProcessInfo processInfo].processName);
-        g_systemData.processID = [NSProcessInfo processInfo].processIdentifier;
-        g_systemData.parentProcessID = getppid();
-        g_systemData.deviceAppHash = getDeviceAndAppHash();
-        g_systemData.buildType = getBuildType();
-        g_systemData.totalStorageSize = getTotalStorageSize();
-        g_systemData.freeStorageSize = getFreeStorageSize();
-        g_systemData.memorySize = sentrycrashsysctl_uint64ForName("hw.memsize");
+    if (isInitialized) {
+        return;
     }
+
+    isInitialized = true;
+
+    NSBundle *mainBundle = [NSBundle mainBundle];
+    NSDictionary *infoDict = [mainBundle infoDictionary];
+    const struct mach_header *header = _dyld_get_image_header(0);
+
+#if SENTRY_HOST_IOS
+    g_systemData.systemName = "iOS";
+#elif SENTRY_HOST_TV
+    g_systemData.systemName = "tvOS";
+#elif SENTRY_HOST_MAC
+    g_systemData.systemName = "macOS";
+#elif SENTRY_HOST_WATCH
+    g_systemData.systemName = "watchOS";
+#elif SENTRY_HOST_VISION
+    g_systemData.systemName = "visionOS";
+#else
+    g_systemData.systemName = "unknown";
+#endif
+
+    NSOperatingSystemVersion version = { 0, 0, 0 };
+    if (@available(macOS 10.10, *)) {
+        version = [NSProcessInfo processInfo].operatingSystemVersion;
+    }
+    NSString *systemVersion;
+    if (version.patchVersion == 0) {
+        systemVersion = [NSString
+            stringWithFormat:@"%d.%d", (int)version.majorVersion, (int)version.minorVersion];
+    } else {
+        systemVersion = [NSString stringWithFormat:@"%d.%d.%d", (int)version.majorVersion,
+                                  (int)version.minorVersion, (int)version.patchVersion];
+    }
+    g_systemData.systemVersion = cString(systemVersion);
+
+    if (isSimulatorBuild()) {
+        g_systemData.machine
+            = cString([NSProcessInfo processInfo].environment[@"SIMULATOR_MODEL_IDENTIFIER"]);
+        g_systemData.model = "simulator";
+    } else {
+        // TODO: combine this into SentryDevice?
+#if SENTRY_HOST_MAC
+        // MacOS has the machine in the model field, and no model
+        g_systemData.machine = stringSysctl("hw.model");
+#else
+        g_systemData.machine = stringSysctl("hw.machine");
+        g_systemData.model = stringSysctl("hw.model");
+#endif
+    }
+
+    g_systemData.kernelVersion = stringSysctl("kern.version");
+    g_systemData.osVersion = stringSysctl("kern.osversion");
+    g_systemData.isJailbroken = isJailbroken();
+    g_systemData.bootTime = dateSysctl("kern.boottime");
+    g_systemData.appStartTime = dateString(time(NULL));
+    g_systemData.executablePath = cString(getExecutablePath());
+    g_systemData.executableName = cString(infoDict[@"CFBundleExecutable"]);
+    g_systemData.bundleID = cString(infoDict[@"CFBundleIdentifier"]);
+    g_systemData.bundleName = cString(infoDict[@"CFBundleName"]);
+    g_systemData.bundleVersion = cString(infoDict[@"CFBundleVersion"]);
+    g_systemData.bundleShortVersion = cString(infoDict[@"CFBundleShortVersionString"]);
+    g_systemData.appID = getAppUUID();
+    g_systemData.cpuArchitecture = getCurrentCPUArch();
+    g_systemData.cpuType = sentrycrashsysctl_int32ForName("hw.cputype");
+    g_systemData.cpuSubType = sentrycrashsysctl_int32ForName("hw.cpusubtype");
+    g_systemData.binaryCPUType = header->cputype;
+    g_systemData.binaryCPUSubType = header->cpusubtype;
+    g_systemData.processName = cString([NSProcessInfo processInfo].processName);
+    g_systemData.processID = [NSProcessInfo processInfo].processIdentifier;
+    g_systemData.parentProcessID = getppid();
+    g_systemData.deviceAppHash = getDeviceAndAppHash();
+    g_systemData.buildType = getBuildType();
+    g_systemData.memorySize = sentrycrashsysctl_uint64ForName("hw.memsize");
 }
 
 static void
@@ -650,8 +625,6 @@ addContextualInfoToEvent(SentryCrash_MonitorContext *eventContext)
         COPY_REFERENCE(parentProcessID);
         COPY_REFERENCE(deviceAppHash);
         COPY_REFERENCE(buildType);
-        COPY_REFERENCE(totalStorageSize);
-        COPY_REFERENCE(freeStorageSize);
         COPY_REFERENCE(memorySize);
         eventContext->System.freeMemorySize = freeMemorySize();
         eventContext->System.usableMemorySize = usableMemorySize();

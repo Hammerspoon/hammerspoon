@@ -97,8 +97,8 @@ function op_validate() {
   # Obtain the relevant build settings
   local BUILD_SETTINGS ; BUILD_SETTINGS=$(xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release -configuration Release -showBuildSettings 2>&1 | grep -E " CODE_SIGN_IDENTITY|DEVELOPMENT_TEAM|CODE_SIGN_ENTITLEMENTS")
 
-  local SIGN_IDENTITY ; SIGN_IDENTITY=$(echo "${BUILD_SETTINGS}" | grep CODE_SIGN_IDENTITY | sed -e 's/.* = //')
-  local SIGN_TEAM ; SIGN_TEAM=$(echo "${BUILD_SETTINGS}" | grep DEVELOPMENT_TEAM | sed -e 's/.* = //')
+  local SIGN_IDENTITY ; SIGN_IDENTITY=$(echo "${BUILD_SETTINGS}" | grep "CODE_SIGN_IDENTITY = " | sed -e 's/.* = //')
+  local SIGN_TEAM ; SIGN_TEAM=$(echo "${BUILD_SETTINGS}" | grep "DEVELOPMENT_TEAM = " | sed -e 's/.* = //')
   local ENTITLEMENTS_FILE ; ENTITLEMENTS_FILE=$(echo "${BUILD_SETTINGS}" | grep CODE_SIGN_ENTITLEMENTS | sed -e 's/.* = //')
 
   # Validate that the app bundle has a correct signature at all
@@ -214,15 +214,10 @@ function op_docs() {
 function op_installdeps() {
     echo "Installing dependencies..."
     echo "  Homebrew packages..."
-    brew install coreutils jq xcbeautify gawk cocoapods gh || fail "Unable to install Homebrew dependencies"
+    brew bundle install || fail "Unable to install Homebrew dependencies"
 
     echo "  Python packages..."
     /usr/bin/pip3 install --user --disable-pip-version-check -r "${HAMMERSPOON_HOME}/requirements.txt" || fail "Unable to install Python dependencies"
-
-    if [ "${INSTALLDEPS_FULL}" == "1" ]; then
-        echo "  Ruby packages..."
-        /usr/bin/gem install --user t || fail "Unable to install Ruby dependencies"
-    fi
 }
 
 function op_keychain_prep() {
@@ -248,8 +243,8 @@ function op_keychain_prep() {
         echo " Removing keychain autolocking settings..."
         "${SECBIN}" set-keychain-settings -t 1200
 
-        echo " Setting permissions for keychain..."
-        "${SECBIN}" -q set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "${KEYCHAIN_PASSPHRASE}" "${KEYCHAIN}"
+        echo " Setting permissions for keychain... (logs suppressed)"
+        "${SECBIN}" -q set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "${KEYCHAIN_PASSPHRASE}" "${KEYCHAIN}" >/dev/null 2>&1
 
         echo " Listing keychains:"
         "${SECBIN}" list-keychains -d user
@@ -263,6 +258,7 @@ function op_keychain_prep() {
 
         local SIGN_TEAM ; SIGN_TEAM=$(xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release -configuration Release -showBuildSettings 2>&1 | grep -E " DEVELOPMENT_TEAM" | sed -e 's/.* = //')
 
+        echo " Storing notarization credentials:"
         xcrun notarytool store-credentials --sync "${KEYCHAIN_PROFILE}" --apple-id "${NOTARIZATION_USERNAME}" --team-id "${SIGN_TEAM}" --password "${NOTARIZATION_PASSWORD}"
 
         unset NOTARIZATION_USERNAME
@@ -405,7 +401,7 @@ function op_release() {
                   length=\"${ZIPLEN}\"
                   type=\"application/octet-stream\"
               />
-              <sparkle:minimumSystemVersion>11.0</sparkle:minimumSystemVersion>
+              <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
           </item>
   "
     gawk -i inplace -v s="<!-- __UPDATE_MARKER__ -->" -v r="${NEWCHUNK}" '{gsub(s,r)}1' appcast.xml
@@ -430,15 +426,6 @@ function op_release() {
     export SENTRY_AUTH_TOKEN
     "${HAMMERSPOON_HOME}/scripts/sentry-cli" releases set-commits --auto "${VERSION}" 2>&1 | tee "${BUILD_HOME}/sentry-release.log"
     "${HAMMERSPOON_HOME}/scripts/sentry-cli" releases finalize "${VERSION}" 2>&1 | tee -a "${BUILD_HOME}/sentry-release.log"
-
-    if [ "${TWITTER_ACCOUNT}" != "" ]; then
-        echo " Tweeting release..."
-        local T_PATH=$(/usr/bin/gem contents t 2>/dev/null | grep "\/t$")
-        local CURRENT_T_ACCOUNT ; CURRENT_T_ACCOUNT=$("${T_PATH}" accounts | grep -B1 active | head -1)
-        "${T_PATH}" set active "${TWITTER_ACCOUNT}"
-        "${T_PATH}" update "Just released ${VERSION} - https://www.hammerspoon.org/releasenotes/"
-        "${T_PATH}" set active "${CURRENT_T_ACCOUNT}"
-    fi
 
     echo " Creating PR for Dash docs..."
     pushd "${HAMMERSPOON_HOME}/../" >/dev/null || fail "Unable to access ${HAMMERSPOON_HOME}/../"

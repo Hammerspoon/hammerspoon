@@ -10,7 +10,8 @@ NS_ASSUME_NONNULL_BEGIN
 SENTRY_NO_INIT
 
 - (instancetype)initWithDispatchQueue:(SentryDispatchQueueWrapper *)dispatchQueue
-                   objcRuntimeWrapper:(id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper;
+                   objcRuntimeWrapper:(id<SentryObjCRuntimeWrapper>)objcRuntimeWrapper
+             swizzleClassNameExcludes:(NSSet<NSString *> *)swizzleClassNameExcludes;
 
 #if SENTRY_HAS_UIKIT
 /**

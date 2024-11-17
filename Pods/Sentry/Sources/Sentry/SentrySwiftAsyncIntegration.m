@@ -1,5 +1,6 @@
 #import "SentrySwiftAsyncIntegration.h"
 #import "SentryCrashStackCursor_SelfThread.h"
+#import "SentryOptions.h"
 
 @implementation SentrySwiftAsyncIntegration
 

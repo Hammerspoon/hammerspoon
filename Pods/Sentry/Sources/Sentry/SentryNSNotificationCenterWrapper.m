@@ -2,7 +2,7 @@
 
 #import "SentryDefines.h"
 
-#if SENTRY_TARGET_MACOS
+#if SENTRY_TARGET_MACOS_HAS_UI
 #    import <Cocoa/Cocoa.h>
 #endif
 
@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
     return UIApplicationWillTerminateNotification;
 }
 
-#elif SENTRY_TARGET_MACOS
+#elif SENTRY_TARGET_MACOS_HAS_UI
 + (NSNotificationName)didBecomeActiveNotificationName
 {
     return NSApplicationDidBecomeActiveNotification;
@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 #endif
 
-- (void)addObserver:(id)observer
+- (void)addObserver:(NSObject *)observer
            selector:(SEL)aSelector
                name:(NSNotificationName)aName
              object:(nullable id)anObject
@@ -58,7 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
                                              object:anObject];
 }
 
-- (void)addObserver:(id)observer selector:(SEL)aSelector name:(NSNotificationName)aName
+- (void)addObserver:(NSObject *)observer selector:(SEL)aSelector name:(NSNotificationName)aName
 {
     [NSNotificationCenter.defaultCenter addObserver:observer
                                            selector:aSelector
@@ -66,24 +66,37 @@ NS_ASSUME_NONNULL_BEGIN
                                              object:nil];
 }
 
-- (void)removeObserver:(id)observer name:(NSNotificationName)aName
+- (id<NSObject>)addObserverForName:(nullable NSNotificationName)name
+                            object:(nullable id)obj
+                             queue:(nullable NSOperationQueue *)queue
+                        usingBlock:(void (^)(NSNotification *notification))block
+{
+    return [NSNotificationCenter.defaultCenter addObserverForName:name
+                                                           object:obj
+                                                            queue:queue
+                                                       usingBlock:block];
+}
+
+- (void)removeObserver:(NSObject *)observer name:(NSNotificationName)aName
 {
     [NSNotificationCenter.defaultCenter removeObserver:observer name:aName object:nil];
 }
 
-- (void)removeObserver:(id)observer name:(NSNotificationName)aName object:(nullable id)anObject
+- (void)removeObserver:(NSObject *)observer
+                  name:(NSNotificationName)aName
+                object:(nullable id)anObject
 {
     [NSNotificationCenter.defaultCenter removeObserver:observer name:aName object:anObject];
 }
 
-- (void)removeObserver:(id)observer
+- (void)removeObserver:(id<NSObject>)observer
 {
     [NSNotificationCenter.defaultCenter removeObserver:observer];
 }
 
-- (void)postNotificationName:(NSNotificationName)aName object:(nullable id)anObject
+- (void)postNotification:(NSNotification *)notification
 {
-    [NSNotificationCenter.defaultCenter postNotificationName:aName object:anObject];
+    [NSNotificationCenter.defaultCenter postNotification:notification];
 }
 
 @end

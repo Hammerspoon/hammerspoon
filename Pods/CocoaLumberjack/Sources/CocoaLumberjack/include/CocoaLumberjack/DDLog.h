@@ -1,6 +1,6 @@
 // Software License Agreement (BSD License)
 //
-// Copyright (c) 2010-2023, Deusty, LLC
+// Copyright (c) 2010-2024, Deusty, LLC
 // All rights reserved.
 //
 // Redistribution and use of this software in source and binary forms,
@@ -969,7 +969,7 @@ __attribute__((deprecated("Use initializer taking unformatted message and args i
 {
     // Direct accessors to be used only for performance
     @public
-    id <DDLogFormatter> _logFormatter;
+    _Nullable id <DDLogFormatter> _logFormatter;
     dispatch_queue_t _loggerQueue;
 }
 
@@ -981,7 +981,7 @@ __attribute__((deprecated("Use initializer taking unformatted message and args i
 /**
  *  Return YES if the current logger uses a global queue for logging
  */
-@property (nonatomic, readonly, getter=isOnGlobalLoggingQueue)  BOOL onGlobalLoggingQueue;
+@property (nonatomic, readonly, getter=isOnGlobalLoggingQueue) BOOL onGlobalLoggingQueue;
 
 /**
  *  Return YES if the current logger uses the internal designated queue for logging
@@ -989,6 +989,22 @@ __attribute__((deprecated("Use initializer taking unformatted message and args i
 @property (nonatomic, readonly, getter=isOnInternalLoggerQueue) BOOL onInternalLoggerQueue;
 
 @end
+
+#define _DDAbstractLoggerSelectorMessage(msg) [NSStringFromSelector(_cmd) stringByAppendingString:@" " msg]
+// Note: we do not wrap these in any do {...} while 0 construct, because NSAssert does that for us.
+#define DDAbstractLoggerAssertOnGlobalLoggingQueue() \
+NSAssert([self isOnGlobalLoggingQueue], _DDAbstractLoggerSelectorMessage("must only be called on the global logging queue!"))
+#define DDAbstractLoggerAssertOnInternalLoggerQueue() \
+NSAssert([self isOnInternalLoggerQueue], _DDAbstractLoggerSelectorMessage("must only be called on the internal logger queue!"))
+#define DDAbstractLoggerAssertNotOnGlobalLoggingQueue() \
+    NSAssert(![self isOnGlobalLoggingQueue], _DDAbstractLoggerSelectorMessage("must not be called on the global logging queue!"))
+#define DDAbstractLoggerAssertNotOnInternalLoggerQueue() \
+    NSAssert(![self isOnGlobalLoggingQueue], _DDAbstractLoggerSelectorMessage("must not be called on the internal logger queue!"))
+
+#define DDAbstractLoggerAssertLockedPropertyAccess() \
+    DDAbstractLoggerAssertNotOnGlobalLoggingQueue(); \
+    NSAssert(![self isOnInternalLoggerQueue], @"MUST access ivar directly, NOT via self.* syntax.")
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark -

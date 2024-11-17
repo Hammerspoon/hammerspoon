@@ -1,1 +1,1 @@
-../../../Sentry/Sources/Sentry/include/SentrySwizzle.h
+../../../Sentry/Sources/Sentry/include/HybridPublic/SentrySwizzle.h

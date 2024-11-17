@@ -2,10 +2,11 @@
 
 #if SENTRY_HAS_UIKIT
 
-#    import "SentryCurrentDateProvider.h"
+#    import "SentrySwift.h"
 
 @class SentryDispatchQueueWrapper;
 @class SentryAppStateManager;
+@class SentryFramesTracker;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -22,7 +23,9 @@ SENTRY_NO_INIT
 
 - (instancetype)initWithDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
                              appStateManager:(SentryAppStateManager *)appStateManager
-              enablePreWarmedAppStartTracing:(BOOL)enablePreWarmedAppStartTracing;
+                               framesTracker:(SentryFramesTracker *)framesTracker
+              enablePreWarmedAppStartTracing:(BOOL)enablePreWarmedAppStartTracing
+                         enablePerformanceV2:(BOOL)enablePerformanceV2;
 
 - (void)start;
 - (void)stop;

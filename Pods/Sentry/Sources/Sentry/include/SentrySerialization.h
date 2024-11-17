@@ -1,24 +1,20 @@
 #import "SentryDefines.h"
 
-@class SentrySession, SentryEnvelope, SentryAppState;
+@class SentrySession, SentryEnvelope, SentryAppState, SentryReplayRecording;
 
 NS_ASSUME_NONNULL_BEGIN
 
-static int const SENTRY_BAGGAGE_MAX_SIZE = 8192;
-
 @interface SentrySerialization : NSObject
 
-+ (NSData *_Nullable)dataWithJSONObject:(NSDictionary *)dictionary;
++ (NSData *_Nullable)dataWithJSONObject:(id)jsonObject;
 
 + (NSData *_Nullable)dataWithSession:(SentrySession *)session;
 
-+ (NSDictionary<NSString *, NSString *> *)decodeBaggage:(NSString *)baggage;
-+ (NSString *)baggageEncodedDictionary:(NSDictionary *)dictionary;
-
 + (SentrySession *_Nullable)sessionWithData:(NSData *)sessionData;
 
-+ (NSData *_Nullable)dataWithEnvelope:(SentryEnvelope *)envelope
-                                error:(NSError *_Nullable *_Nullable)error;
++ (NSData *_Nullable)dataWithEnvelope:(SentryEnvelope *)envelope;
+
++ (NSData *)dataWithReplayRecording:(SentryReplayRecording *)replayRecording;
 
 + (SentryEnvelope *_Nullable)envelopeWithData:(NSData *)data;
 
@@ -27,7 +23,7 @@ static int const SENTRY_BAGGAGE_MAX_SIZE = 8192;
 /**
  * Retrieves the json object from an event envelope item data.
  */
-+ (NSDictionary *)deserializeEventEnvelopeItem:(NSData *)eventEnvelopeItemData;
++ (NSDictionary *)deserializeDictionaryFromJsonData:(NSData *)data;
 
 /**
  * Extract the level from data of an envelopte item containing an event. Default is the 'error'

@@ -1,4 +1,4 @@
-// This file is also compiled into iOS-SwiftUITests and doesn't have access to private Sentry API
+// This file is also compiled into iOS-Swift-UITests and doesn't have access to private Sentry API
 // there, so we add a few polyfills:
 #if __has_include("SentryDefines.h")
 #    import "SentryDefines.h"

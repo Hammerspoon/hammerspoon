@@ -29,7 +29,9 @@ SentryCrashStackEntryMapper ()
 {
     SentryFrame *frame = [[SentryFrame alloc] init];
 
-    frame.symbolAddress = sentry_formatHexAddressUInt64(stackEntry.symbolAddress);
+    if (stackEntry.symbolAddress != 0) {
+        frame.symbolAddress = sentry_formatHexAddressUInt64(stackEntry.symbolAddress);
+    }
 
     frame.instructionAddress = sentry_formatHexAddressUInt64(stackEntry.address);
 

@@ -3,7 +3,7 @@
 
 @protocol SentryEnvelopeRateLimitDelegate;
 
-@class SentryEnvelope;
+@class SentryEnvelope, SentryEnvelopeItem;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -23,7 +23,8 @@ NS_SWIFT_NAME(EnvelopeRateLimit)
 
 @protocol SentryEnvelopeRateLimitDelegate <NSObject>
 
-- (void)envelopeItemDropped:(SentryDataCategory)dataCategory;
+- (void)envelopeItemDropped:(SentryEnvelopeItem *)envelopeItem
+               withCategory:(SentryDataCategory)dataCategory;
 
 @end
 

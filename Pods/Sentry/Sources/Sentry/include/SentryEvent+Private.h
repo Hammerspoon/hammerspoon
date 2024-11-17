@@ -12,6 +12,11 @@ SentryEvent ()
 @property (nonatomic) BOOL isCrashEvent;
 
 /**
+ * This indicates whether this event represents an app hang.
+ */
+@property (nonatomic, readonly) BOOL isAppHangEvent;
+
+/**
  * We're storing serialized breadcrumbs to disk in JSON, and when we're reading them back (in
  * the case of OOM), we end up with the serialized breadcrumbs again. Instead of turning those
  * dictionaries into proper SentryBreadcrumb instances which then need to be serialized again in

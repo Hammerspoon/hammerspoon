@@ -76,6 +76,17 @@
 		2290EB2128011DF100CEA572 /* HSRazerOrbweaverDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = 2290EB1F28011DF100CEA572 /* HSRazerOrbweaverDevice.h */; };
 		22A6626025FC080200AA329E /* test_serial.lua in Resources */ = {isa = PBXBuildFile; fileRef = 22A6625F25FC07F700AA329E /* test_serial.lua */; };
 		22A6626225FC087000AA329E /* HSserial.m in Sources */ = {isa = PBXBuildFile; fileRef = 22A6626125FC087000AA329E /* HSserial.m */; };
+		22C9153327A108F000E650A2 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FB852342735B02400462DD0 /* LuaSkin.framework */; };
+		22C9154427A1091B00E650A2 /* HSRazerDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 2213843127A105DD0085CA24 /* HSRazerDevice.m */; };
+		22C9154527A1091B00E650A2 /* HSRazerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2213842D27A105DD0085CA24 /* HSRazerManager.m */; };
+		22C9154627A1091B00E650A2 /* HSRazerTartarusV2Device.m in Sources */ = {isa = PBXBuildFile; fileRef = 2213842C27A105DD0085CA24 /* HSRazerTartarusV2Device.m */; };
+		22C9154727A1091B00E650A2 /* librazer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2213842B27A105DD0085CA24 /* librazer.m */; };
+		22C9154827A1092A00E650A2 /* HSRazerDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = 2213843027A105DD0085CA24 /* HSRazerDevice.h */; };
+		22C9154927A1092A00E650A2 /* HSRazerManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2213843227A105DD0085CA24 /* HSRazerManager.h */; };
+		22C9154A27A1092A00E650A2 /* HSRazerTartarusV2Device.h in Headers */ = {isa = PBXBuildFile; fileRef = 2213842E27A105DD0085CA24 /* HSRazerTartarusV2Device.h */; };
+		22C9154B27A1092A00E650A2 /* razer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2213842F27A105DD0085CA24 /* razer.h */; };
+		22C9154E27A1095200E650A2 /* librazer.dylib in Copy Extension Dylibs */ = {isa = PBXBuildFile; fileRef = 22C9154327A108F000E650A2 /* librazer.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		22C9155027A1099700E650A2 /* razer.lua in Copy Extension Lua files */ = {isa = PBXBuildFile; fileRef = 2213842A27A105DD0085CA24 /* razer.lua */; };
 		22DC4FA8299E140100065BE1 /* HSStreamDeckDevicePlus.m in Sources */ = {isa = PBXBuildFile; fileRef = 22DC4FA6299E140100065BE1 /* HSStreamDeckDevicePlus.m */; };
 		22DC4FA9299E140100065BE1 /* HSStreamDeckDevicePlus.h in Headers */ = {isa = PBXBuildFile; fileRef = 22DC4FA7299E140100065BE1 /* HSStreamDeckDevicePlus.h */; };
 		22DF5D2823B9A9EA00C41AE6 /* libpasteboard_watcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 22DF5D1A23B99C4D00C41AE6 /* libpasteboard_watcher.m */; };
@@ -7547,9 +7558,14 @@
 			files = (
 			);
 			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon-resources.sh",
+				"${PODS_CONFIGURATION_BUILD_DIR}/CocoaLumberjack/CocoaLumberjackPrivacy.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/Sentry/Sentry.bundle",
 			);
 			name = "Copy CommandPost Files";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/CocoaLumberjackPrivacy.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Sentry.bundle",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;

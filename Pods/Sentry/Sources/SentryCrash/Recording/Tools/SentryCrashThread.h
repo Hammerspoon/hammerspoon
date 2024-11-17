@@ -28,12 +28,12 @@
 #ifndef HDR_SentryCrashThread_h
 #define HDR_SentryCrashThread_h
 
+#include <stdbool.h>
+#include <sys/types.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <stdbool.h>
-#include <sys/types.h>
 
 typedef uintptr_t SentryCrashThread;
 

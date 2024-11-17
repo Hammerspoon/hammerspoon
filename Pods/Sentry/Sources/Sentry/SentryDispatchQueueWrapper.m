@@ -16,7 +16,8 @@ NS_ASSUME_NONNULL_BEGIN
     return self;
 }
 
-- (instancetype)initWithName:(const char *)name attributes:(dispatch_queue_attr_t)attributes;
+- (instancetype)initWithName:(const char *)name
+                  attributes:(nullable dispatch_queue_attr_t)attributes;
 {
     if (self = [super init]) {
         _queue = dispatch_queue_create(name, attributes);
@@ -35,16 +36,20 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)dispatchAsyncOnMainQueue:(void (^)(void))block
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        @autoreleasepool {
-            block();
-        }
-    });
+    if ([NSThread isMainThread]) {
+        block();
+    } else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            @autoreleasepool {
+                block();
+            }
+        });
+    }
 }
 
-- (void)dispatchOnMainQueue:(void (^)(void))block
+- (void)dispatchSync:(void (^)(void))block
 {
-    [SentryThreadWrapper onMainThread:block];
+    dispatch_sync(_queue, block);
 }
 
 - (void)dispatchSyncOnMainQueue:(void (^)(void))block

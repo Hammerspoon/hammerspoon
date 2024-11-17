@@ -158,10 +158,6 @@ SentryNSDataTracker ()
         return nil;
     }
 
-    if ([self ignoreFile:path]) {
-        return nil;
-    }
-
     __block id<SentrySpan> ioSpan;
     [SentrySDK.currentHub.scope useSpan:^(id<SentrySpan> _Nullable span) {
         ioSpan = [span startChildWithOperation:operation

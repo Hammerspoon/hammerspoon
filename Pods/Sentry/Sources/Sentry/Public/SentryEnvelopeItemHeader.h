@@ -9,6 +9,10 @@ SENTRY_NO_INIT
 
 - (instancetype)initWithType:(NSString *)type
                       length:(NSUInteger)length
+                 contentType:(NSString *)contentType;
+
+- (instancetype)initWithType:(NSString *)type
+                      length:(NSUInteger)length
                    filenname:(NSString *)filename
                  contentType:(NSString *)contentType;
 

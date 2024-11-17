@@ -58,8 +58,8 @@ NS_ASSUME_NONNULL_BEGIN
     if (self.registers.count > 0) {
         [serializedData setValue:self.registers forKey:@"registers"];
     }
-    [serializedData setBoolValue:self.snapshot forKey:@"snapshot"];
 
+    [SentryDictionary setBoolValue:self.snapshot forKey:@"snapshot" intoDictionary:serializedData];
     return serializedData;
 }
 

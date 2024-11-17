@@ -241,12 +241,6 @@ SENTRY_NO_INIT
  */
 - (void)deleteReportWithID:(NSNumber *)reportID;
 
-/**
- * Only needed for testing.
- */
-- (void)setSentryNSNotificationCenterWrapper:
-    (SentryNSNotificationCenterWrapper *)notificationCenter;
-
 @end
 
 //! Project version number for SentryCrashFramework.

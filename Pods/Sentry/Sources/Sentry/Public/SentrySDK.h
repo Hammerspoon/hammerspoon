@@ -4,6 +4,8 @@
 
 @class SentryOptions, SentryEvent, SentryBreadcrumb, SentryScope, SentryUser, SentryId,
     SentryUserFeedback, SentryTransactionContext;
+@class SentryMetricsAPI;
+@class UIView;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -23,6 +25,8 @@ SENTRY_NO_INIT
  * Indicates whether the SentrySDK is enabled.
  */
 @property (class, nonatomic, readonly) BOOL isEnabled;
+
+@property (class, nonatomic, readonly) SentryMetricsAPI *metrics;
 
 /**
  * Inits and configures Sentry (SentryHub, SentryClient) and sets up all integrations. Make sure to
@@ -254,6 +258,16 @@ SENTRY_NO_INIT
 @property (nonatomic, class, readonly) BOOL crashedLastRun;
 
 /**
+ * Checks if the SDK detected a start-up crash during SDK initialization.
+ *
+ * @note The SDK init waits synchronously for up to 5 seconds to flush out events if the app crashes
+ * within 2 seconds after the SDK init.
+ *
+ * @return @c YES if the SDK detected a start-up crash and @c NO if not.
+ */
+@property (nonatomic, class, readonly) BOOL detectedStartUpCrash;
+
+/**
  * Set user to the current Scope of the current Hub.
  * @param user The user to set to the current Scope.
  */
@@ -294,6 +308,19 @@ SENTRY_NO_INIT
 + (void)reportFullyDisplayed;
 
 /**
+ * Pauses sending detected app hangs to Sentry.
+ *
+ * @discussion This method doesn't close the detection of app hangs. Instead, the app hang detection
+ * will ignore detected app hangs until you call @c resumeAppHangTracking.
+ */
++ (void)pauseAppHangTracking;
+
+/**
+ * Resumes sending detected app hangs to Sentry.
+ */
++ (void)resumeAppHangTracking;
+
+/**
  * Waits synchronously for the SDK to flush out all queued and cached items for up to the specified
  * timeout in seconds. If there is no internet connection, the function returns immediately. The SDK
  * doesn't dispose the client or the hub.
@@ -306,6 +333,45 @@ SENTRY_NO_INIT
  * @c SentryOptions.shutdownTimeInterval .
  */
 + (void)close;
+
+#if SENTRY_TARGET_REPLAY_SUPPORTED
+
+/**
+ * @warning This is an experimental feature and may still have bugs.
+ *
+ * Marks this view to be redacted during replays.
+ */
++ (void)replayRedactView:(UIView *)view;
+
+/**
+ * @warning This is an experimental feature and may still have bugs.
+ *
+ * Marks this view to be ignored during redact step
+ * of session replay. All its content will be visible in the replay.
+ */
++ (void)replayIgnoreView:(UIView *)view;
+
+#endif
+
+#if SENTRY_TARGET_PROFILING_SUPPORTED
+/**
+ * Start a new continuous profiling session if one is not already running.
+ * @note Unlike trace-based profiling, continuous profiling does not take into account @c
+ * SentryOptions.profilesSampleRate ; a call to this method will always start a profile if one is
+ * not already running. This includes app launch profiles configured with @c
+ * SentryOptions.enableAppLaunchProfiling .
+ * @warning Continuous profiling mode is experimental and may still contain bugs.
+ * @seealso https://docs.sentry.io/platforms/apple/guides/ios/profiling/#continuous-profiling
+ */
++ (void)startProfiler;
+
+/**
+ * Stop a continuous profiling session if there is one ongoing.
+ * @warning Continuous profiling mode is experimental and may still contain bugs.
+ * @seealso https://docs.sentry.io/platforms/apple/guides/ios/profiling/#continuous-profiling
+ */
++ (void)stopProfiler;
+#endif // SENTRY_TARGET_PROFILING_SUPPORTED
 
 @end
 

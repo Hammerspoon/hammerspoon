@@ -5,7 +5,7 @@
 "170.title" = "リリースノート:";
 
 /* Class = "NSButtonCell"; title = "Remind Me Later"; ObjectID = "171"; */
-"171.title" = "後で通知";
+"171.title" = "あとで通知";
 
 /* Class = "NSButtonCell"; title = "Skip This Version"; ObjectID = "172"; */
 "172.title" = "このバージョンはスキップ";

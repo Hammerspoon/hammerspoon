@@ -1,5 +1,5 @@
 #import "SentryRequest.h"
-#import "NSDictionary+SentrySanitize.h"
+#import "SentryNSDictionarySanitize.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
         [serializedData setValue:self.fragment forKey:@"fragment"];
         if (self.headers != nil) {
 
-            [serializedData setValue:[self.headers sentry_sanitize] forKey:@"headers"];
+            [serializedData setValue:sentry_sanitize(self.headers) forKey:@"headers"];
         }
         [serializedData setValue:self.method forKey:@"method"];
         [serializedData setValue:self.queryString forKey:@"query_string"];

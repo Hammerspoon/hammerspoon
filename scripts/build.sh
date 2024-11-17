@@ -18,7 +18,6 @@ BUILD_FOR_TESTING=0
 KEYCHAIN_PROFILE="HAMMERSPOON_BUILDSH"
 P12_FILE=""
 NOTARIZATION_CREDS_FILE=""
-TWITTER_ACCOUNT="_hammerspoon"
 DEBUG=0
 DOCS_JSON=1
 DOCS_MD=1
@@ -91,9 +90,6 @@ function usage() {
     echo "  xcrun notarytool store-credentials -v --apple-id APPLE_ID --team-id TEAM_ID --password APP_SPECIFIC_PASSWORD"
     echo "  -y             - Keychain profile name (Default: HAMMERSPOON_BUILDSH)"
     echo "  -z             - Path to a file to notarize (Default: build/Hammerspoon.app.zip"
-    echo ""
-    echo "RELEASE OPTIONS:"
-    echo "  -w             - Twitter account to announce release with (Default: _hammerspoon)"
     echo ""
     echo "ENVIRONMENT VARIABLES:"
     echo "  IS_CI          - Set to 1 to enable CI behaviours (Default: 0)"
@@ -211,9 +207,6 @@ do
         -o)
             NOTARIZATION_CREDS_FILE="${2}"; shift
             shift;;
-        -w)
-            TWITTER_ACCOUNT=${2}; shift
-            shift;;
         -r)
             INSTALLDEPS_FULL=1
             shift;;
@@ -257,7 +250,6 @@ export XCCONFIG_FILE
 export UPLOAD_DSYM
 export BUILD_FOR_TESTING
 export KEYCHAIN_PROFILE
-export TWITTER_ACCOUNT
 export DEBUG
 export DOCS_JSON
 export DOCS_MD

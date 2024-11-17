@@ -44,3 +44,5 @@ xcuserdata/
 *.xcscmblueprint
 
 .vscode
+
+Brewfile.lock.json

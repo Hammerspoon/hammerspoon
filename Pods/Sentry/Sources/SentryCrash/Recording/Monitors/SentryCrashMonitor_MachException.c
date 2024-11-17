@@ -30,13 +30,12 @@
 #include "SentryCrashID.h"
 #include "SentryCrashMonitorContext.h"
 #include "SentryCrashStackCursor_MachineContext.h"
-#include "SentryCrashSystemCapabilities.h"
 #include "SentryCrashThread.h"
+#include "SentryInternalCDefines.h"
 
-// #define SentryCrashLogger_LocalLevel TRACE
-#include "SentryCrashLogger.h"
+#include "SentryAsyncSafeLog.h"
 
-#if SentryCrashCRASH_HAS_MACH
+#if SENTRY_HAS_MACH
 
 #    include <mach/mach.h>
 #    include <pthread.h>
@@ -161,9 +160,9 @@ static char g_secondaryEventID[37];
 static void
 restoreExceptionPorts(void)
 {
-    SentryCrashLOG_DEBUG("Restoring original exception ports.");
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Restoring original exception ports.");
     if (g_previousExceptionPorts.count == 0) {
-        SentryCrashLOG_DEBUG("Original exception ports were already restored.");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Original exception ports were already restored.");
         return;
     }
 
@@ -172,15 +171,15 @@ restoreExceptionPorts(void)
 
     // Reinstall old exception ports.
     for (mach_msg_type_number_t i = 0; i < g_previousExceptionPorts.count; i++) {
-        SentryCrashLOG_TRACE("Restoring port index %d", i);
+        SENTRY_ASYNC_SAFE_LOG_TRACE("Restoring port index %d", i);
         kr = task_set_exception_ports(thisTask, g_previousExceptionPorts.masks[i],
             g_previousExceptionPorts.ports[i], g_previousExceptionPorts.behaviors[i],
             g_previousExceptionPorts.flavors[i]);
         if (kr != KERN_SUCCESS) {
-            SentryCrashLOG_ERROR("task_set_exception_ports: %s", mach_error_string(kr));
+            SENTRY_ASYNC_SAFE_LOG_ERROR("task_set_exception_ports: %s", mach_error_string(kr));
         }
     }
-    SentryCrashLOG_DEBUG("Exception ports restored.");
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Exception ports restored.");
     g_previousExceptionPorts.count = 0;
 }
 
@@ -252,7 +251,7 @@ machExceptionForSignal(int sigNum)
 #    pragma mark - Reserved threads -
 // ============================================================================
 /**
- * We only have reserved threads if SentryCrashCRASH_HAS_MACH.
+ * We only have reserved threads if SENTRY_HAS_MACH.
  */
 
 bool
@@ -267,7 +266,7 @@ sentrycrashcm_hasReservedThreads(void)
     return g_primaryMachThread != 0 && g_secondaryMachThread != 0;
 }
 
-#else // !SentryCrashCRASH_HAS_MACH
+#else // !SENTRY_HAS_MACH
 bool
 sentrycrashcm_isReservedThread(thread_t thread)
 {
@@ -280,9 +279,9 @@ sentrycrashcm_hasReservedThreads(void)
     return false;
 }
 
-#endif // SentryCrashCRASH_HAS_MACH
+#endif // SENTRY_HAS_MACH
 
-#if SentryCrashCRASH_HAS_MACH
+#if SENTRY_HAS_MACH
 
 // ============================================================================
 #    pragma mark - Handler -
@@ -302,13 +301,13 @@ handleExceptions(void *const userData)
     const char *threadName = (const char *)userData;
     pthread_setname_np(threadName);
     if (strcmp(threadName, kThreadSecondary) == 0) {
-        SentryCrashLOG_DEBUG("This is the secondary thread. Suspending.");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("This is the secondary thread. Suspending.");
         thread_suspend((thread_t)sentrycrashthread_self());
         eventID = g_secondaryEventID;
     }
 
     for (;;) {
-        SentryCrashLOG_DEBUG("Waiting for mach exception");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Waiting for mach exception");
 
         // Wait for a message.
         kern_return_t kr = mach_msg(&exceptionMessage.header, MACH_RCV_MSG, 0,
@@ -318,10 +317,10 @@ handleExceptions(void *const userData)
         }
 
         // Loop and try again on failure.
-        SentryCrashLOG_ERROR("mach_msg: %s", mach_error_string(kr));
+        SENTRY_ASYNC_SAFE_LOG_ERROR("mach_msg: %s", mach_error_string(kr));
     }
 
-    SentryCrashLOG_DEBUG("Trapped mach exception code 0x%llx, subcode 0x%llx",
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Trapped mach exception code 0x%llx, subcode 0x%llx",
         exceptionMessage.code[0], exceptionMessage.code[1]);
     if (g_isEnabled) {
         thread_act_array_t threads = NULL;
@@ -330,27 +329,28 @@ handleExceptions(void *const userData)
         g_isHandlingCrash = true;
         sentrycrashcm_notifyFatalExceptionCaptured(true);
 
-        SentryCrashLOG_DEBUG("Exception handler is installed. Continuing exception handling.");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG(
+            "Exception handler is installed. Continuing exception handling.");
 
         // Switch to the secondary thread if necessary, or uninstall the handler
         // to avoid a death loop.
         if (sentrycrashthread_self() == g_primaryMachThread) {
-            SentryCrashLOG_DEBUG("This is the primary exception thread. "
-                                 "Activating secondary thread.");
+            SENTRY_ASYNC_SAFE_LOG_DEBUG("This is the primary exception thread. "
+                                        "Activating secondary thread.");
             // TODO: This was put here to avoid a freeze. Does secondary thread
             // ever fire?
             restoreExceptionPorts();
             if (thread_resume(g_secondaryMachThread) != KERN_SUCCESS) {
-                SentryCrashLOG_DEBUG("Could not activate secondary thread.");
+                SENTRY_ASYNC_SAFE_LOG_DEBUG("Could not activate secondary thread.");
             }
         } else {
-            SentryCrashLOG_DEBUG("This is the secondary exception thread. "
-                                 "Restoring original exception ports.");
+            SENTRY_ASYNC_SAFE_LOG_DEBUG("This is the secondary exception thread. "
+                                        "Restoring original exception ports.");
             //            restoreExceptionPorts();
         }
 
         // Fill out crash information
-        SentryCrashLOG_DEBUG("Fetching machine state.");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Fetching machine state.");
         SentryCrashMC_NEW_CONTEXT(machineContext);
         SentryCrash_MonitorContext *crashContext = &g_monitorContext;
         crashContext->offendingMachineContext = machineContext;
@@ -358,7 +358,7 @@ handleExceptions(void *const userData)
         if (sentrycrashmc_getContextForThread(exceptionMessage.thread.name, machineContext, true)) {
             sentrycrashsc_initWithMachineContext(
                 &g_stackCursor, MAX_STACKTRACE_LENGTH, machineContext);
-            SentryCrashLOG_TRACE("Fault address %p, instruction address %p",
+            SENTRY_ASYNC_SAFE_LOG_TRACE("Fault address %p, instruction address %p",
                 sentrycrashcpu_faultAddress(machineContext),
                 sentrycrashcpu_instructionAddress(machineContext));
             if (exceptionMessage.exception == EXC_BAD_ACCESS) {
@@ -368,7 +368,7 @@ handleExceptions(void *const userData)
             }
         }
 
-        SentryCrashLOG_DEBUG("Filling out context.");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Filling out context.");
         crashContext->crashType = SentryCrashMonitorTypeMachException;
         crashContext->eventID = eventID;
         crashContext->registersAreValid = true;
@@ -387,12 +387,12 @@ handleExceptions(void *const userData)
 
         sentrycrashcm_handleException(crashContext);
 
-        SentryCrashLOG_DEBUG("Crash handling complete. Restoring original handlers.");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Crash handling complete. Restoring original handlers.");
         g_isHandlingCrash = false;
         sentrycrashmc_resumeEnvironment(threads, numThreads);
     }
 
-    SentryCrashLOG_DEBUG("Replying to mach exception message.");
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Replying to mach exception message.");
     // Send a reply saying "I didn't handle this exception".
     replyMessage.header = exceptionMessage.header;
     replyMessage.NDR = exceptionMessage.NDR;
@@ -409,9 +409,9 @@ handleExceptions(void *const userData)
 // ============================================================================
 
 static void
-uninstallExceptionHandler(void)
+uninstallExceptionHandler(void) SENTRY_DISABLE_THREAD_SANITIZER("Known data race to fix")
 {
-    SentryCrashLOG_DEBUG("Uninstalling mach exception handler.");
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Uninstalling mach exception handler.");
 
     // NOTE: Do not deallocate the exception port. If a secondary crash occurs
     // it will hang the process.
@@ -421,7 +421,7 @@ uninstallExceptionHandler(void)
     thread_t thread_self = (thread_t)sentrycrashthread_self();
 
     if (g_primaryPThread != 0 && g_primaryMachThread != thread_self) {
-        SentryCrashLOG_DEBUG("Canceling primary exception thread.");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Canceling primary exception thread.");
         if (g_isHandlingCrash) {
             thread_terminate(g_primaryMachThread);
         } else {
@@ -431,7 +431,7 @@ uninstallExceptionHandler(void)
         g_primaryPThread = 0;
     }
     if (g_secondaryPThread != 0 && g_secondaryMachThread != thread_self) {
-        SentryCrashLOG_DEBUG("Canceling secondary exception thread.");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Canceling secondary exception thread.");
         if (g_isHandlingCrash) {
             thread_terminate(g_secondaryMachThread);
         } else {
@@ -442,13 +442,13 @@ uninstallExceptionHandler(void)
     }
 
     g_exceptionPort = MACH_PORT_NULL;
-    SentryCrashLOG_DEBUG("Mach exception handlers uninstalled.");
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Mach exception handlers uninstalled.");
 }
 
 static bool
 installExceptionHandler(void)
 {
-    SentryCrashLOG_DEBUG("Installing mach exception handler.");
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Installing mach exception handler.");
 
     bool attributes_created = false;
     pthread_attr_t attr;
@@ -460,66 +460,66 @@ installExceptionHandler(void)
     exception_mask_t mask = EXC_MASK_BAD_ACCESS | EXC_MASK_BAD_INSTRUCTION | EXC_MASK_ARITHMETIC
         | EXC_MASK_SOFTWARE | EXC_MASK_BREAKPOINT;
 
-    SentryCrashLOG_DEBUG("Backing up original exception ports.");
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Backing up original exception ports.");
     kr = task_get_exception_ports(thisTask, mask, g_previousExceptionPorts.masks,
         &g_previousExceptionPorts.count, g_previousExceptionPorts.ports,
         g_previousExceptionPorts.behaviors, g_previousExceptionPorts.flavors);
     if (kr != KERN_SUCCESS) {
-        SentryCrashLOG_ERROR("task_get_exception_ports: %s", mach_error_string(kr));
+        SENTRY_ASYNC_SAFE_LOG_ERROR("task_get_exception_ports: %s", mach_error_string(kr));
         goto failed;
     }
 
     if (g_exceptionPort == MACH_PORT_NULL) {
-        SentryCrashLOG_DEBUG("Allocating new port with receive rights.");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Allocating new port with receive rights.");
         kr = mach_port_allocate(thisTask, MACH_PORT_RIGHT_RECEIVE, &g_exceptionPort);
         if (kr != KERN_SUCCESS) {
-            SentryCrashLOG_ERROR("mach_port_allocate: %s", mach_error_string(kr));
+            SENTRY_ASYNC_SAFE_LOG_ERROR("mach_port_allocate: %s", mach_error_string(kr));
             goto failed;
         }
 
-        SentryCrashLOG_DEBUG("Adding send rights to port.");
+        SENTRY_ASYNC_SAFE_LOG_DEBUG("Adding send rights to port.");
         kr = mach_port_insert_right(
             thisTask, g_exceptionPort, g_exceptionPort, MACH_MSG_TYPE_MAKE_SEND);
         if (kr != KERN_SUCCESS) {
-            SentryCrashLOG_ERROR("mach_port_insert_right: %s", mach_error_string(kr));
+            SENTRY_ASYNC_SAFE_LOG_ERROR("mach_port_insert_right: %s", mach_error_string(kr));
             goto failed;
         }
     }
 
-    SentryCrashLOG_DEBUG("Installing port as exception handler.");
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Installing port as exception handler.");
     kr = task_set_exception_ports(thisTask, mask, g_exceptionPort,
         (int)(EXCEPTION_DEFAULT | MACH_EXCEPTION_CODES), THREAD_STATE_NONE);
     if (kr != KERN_SUCCESS) {
-        SentryCrashLOG_ERROR("task_set_exception_ports: %s", mach_error_string(kr));
+        SENTRY_ASYNC_SAFE_LOG_ERROR("task_set_exception_ports: %s", mach_error_string(kr));
         goto failed;
     }
 
-    SentryCrashLOG_DEBUG("Creating secondary exception thread (suspended).");
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Creating secondary exception thread (suspended).");
     pthread_attr_init(&attr);
     attributes_created = true;
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
     error = pthread_create(&g_secondaryPThread, &attr, &handleExceptions, kThreadSecondary);
     if (error != 0) {
-        SentryCrashLOG_ERROR("pthread_create_suspended_np: %s", strerror(error));
+        SENTRY_ASYNC_SAFE_LOG_ERROR("pthread_create_suspended_np: %s", strerror(error));
         goto failed;
     }
     g_secondaryMachThread = pthread_mach_thread_np(g_secondaryPThread);
 
-    SentryCrashLOG_DEBUG("Creating primary exception thread.");
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Creating primary exception thread.");
     error = pthread_create(&g_primaryPThread, &attr, &handleExceptions, kThreadPrimary);
     if (error != 0) {
-        SentryCrashLOG_ERROR("pthread_create: %s", strerror(error));
+        SENTRY_ASYNC_SAFE_LOG_ERROR("pthread_create: %s", strerror(error));
         goto failed;
     }
     pthread_attr_destroy(&attr);
     g_primaryMachThread = pthread_mach_thread_np(g_primaryPThread);
 
-    SentryCrashLOG_DEBUG("Mach exception handler installed.");
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Mach exception handler installed.");
     g_isInstalled = true;
     return true;
 
 failed:
-    SentryCrashLOG_DEBUG("Failed to install mach exception handler.");
+    SENTRY_ASYNC_SAFE_LOG_DEBUG("Failed to install mach exception handler.");
     if (attributes_created) {
         pthread_attr_destroy(&attr);
     }
@@ -560,17 +560,17 @@ addContextualInfoToEvent(struct SentryCrash_MonitorContext *eventContext)
     }
 }
 
-#endif // SentryCrashCRASH_HAS_MACH
+#endif // SENTRY_HAS_MACH
 
 SentryCrashMonitorAPI *
 sentrycrashcm_machexception_getAPI(void)
 {
     static SentryCrashMonitorAPI api = {
-#if SentryCrashCRASH_HAS_MACH
+#if SENTRY_HAS_MACH
         .setEnabled = setEnabled,
         .isEnabled = isEnabled,
         .addContextualInfoToEvent = addContextualInfoToEvent
-#endif // SentryCrashCRASH_HAS_MACH
+#endif // SENTRY_HAS_MACH
     };
     return &api;
 }

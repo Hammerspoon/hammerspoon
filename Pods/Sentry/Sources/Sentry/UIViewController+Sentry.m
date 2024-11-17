@@ -2,26 +2,25 @@
 
 #if SENTRY_HAS_UIKIT
 
-@implementation
-UIViewController (Sentry)
+@implementation SentryViewController
 
-- (NSArray<UIViewController *> *)sentry_descendantViewControllers
++ (NSArray<UIViewController *> *)descendantsOfViewController:(UIViewController *)viewController;
 {
 
     // The implementation of UIViewController makes sure a parent can't be a child of his child.
     // Therefore, we can assume the parent child relationship is correct.
 
     NSMutableArray<UIViewController *> *allViewControllers = [NSMutableArray new];
-    [allViewControllers addObject:self];
+    [allViewControllers addObject:viewController];
 
     NSMutableArray<UIViewController *> *toAdd =
-        [NSMutableArray arrayWithArray:self.childViewControllers];
+        [NSMutableArray arrayWithArray:viewController.childViewControllers];
 
     while (toAdd.count > 0) {
-        UIViewController *viewController = [toAdd lastObject];
-        [allViewControllers addObject:viewController];
+        UIViewController *lastVC = [toAdd lastObject];
+        [allViewControllers addObject:lastVC];
         [toAdd removeLastObject];
-        [toAdd addObjectsFromArray:viewController.childViewControllers];
+        [toAdd addObjectsFromArray:lastVC.childViewControllers];
     }
 
     return allViewControllers;

@@ -19,7 +19,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface
 SentryUIEventTrackerTransactionMode ()
 
-@property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, assign) NSTimeInterval idleTimeout;
 @property (nullable, nonatomic, strong) NSMutableArray<SentryTracer *> *activeTransactions;
 
@@ -27,11 +26,9 @@ SentryUIEventTrackerTransactionMode ()
 
 @implementation SentryUIEventTrackerTransactionMode
 
-- (instancetype)initWithDispatchQueueWrapper:(SentryDispatchQueueWrapper *)dispatchQueueWrapper
-                                 idleTimeout:(NSTimeInterval)idleTimeout
+- (instancetype)initWithIdleTimeout:(NSTimeInterval)idleTimeout
 {
     if (self = [super init]) {
-        self.dispatchQueueWrapper = dispatchQueueWrapper;
         self.idleTimeout = idleTimeout;
         self.activeTransactions = [NSMutableArray new];
     }
@@ -91,7 +88,6 @@ SentryUIEventTrackerTransactionMode ()
                                             SentryTracerConfiguration *config) {
                               config.idleTimeout = self.idleTimeout;
                               config.waitForChildren = YES;
-                              config.dispatchQueueWrapper = self.dispatchQueueWrapper;
                           }]];
 
         SENTRY_LOG_DEBUG(@"Automatically started a new transaction with name: "

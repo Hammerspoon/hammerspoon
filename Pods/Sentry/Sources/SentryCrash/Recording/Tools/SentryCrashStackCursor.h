@@ -26,14 +26,13 @@
 #ifndef SentryCrashStackCursor_h
 #define SentryCrashStackCursor_h
 
+#include "SentryCrashMachineContext.h"
+#include <stdbool.h>
+#include <sys/types.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "SentryCrashMachineContext.h"
-
-#include <stdbool.h>
-#include <sys/types.h>
 
 #define SentryCrashSC_CONTEXT_SIZE 100
 
