@@ -144,6 +144,10 @@
     RUN_LUA_TEST()
 }
 
+- (void)testThru {
+    RUN_LUA_TEST()
+}
+
 - (void)testVolume {
     SKIP_IN_TRAVIS()
     RUN_LUA_TEST()
