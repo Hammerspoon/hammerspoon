@@ -106,7 +106,7 @@
 		4CD203B21C6D77750089706D /* libsocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CD203A21C6D75950089706D /* libsocket.m */; };
 		4CD64AA91C6F15F400EB6E39 /* HSsocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CD64AA81C6F15F400EB6E39 /* HSsocket.m */; };
 		4CD64AAB1C6F168700EB6E39 /* test_socket.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4CD64AAA1C6F168700EB6E39 /* test_socket.lua */; };
-		4CD96BD61C73ABD2009FF648 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
+		4CD96BD61C73ABD2009FF648 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		4CD96BDE1C73AC1C009FF648 /* libsocket_udp.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CD96BDD1C73AC1C009FF648 /* libsocket_udp.m */; };
 		4CE6390F1C76C7F500BB7CD2 /* socket.h in Headers */ = {isa = PBXBuildFile; fileRef = 4CE6390E1C76C7F500BB7CD2 /* socket.h */; };
 		4CE639101C76C7F500BB7CD2 /* socket.h in Headers */ = {isa = PBXBuildFile; fileRef = 4CE6390E1C76C7F500BB7CD2 /* socket.h */; };
@@ -2376,7 +2376,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FB852502735B2D100462DD0 /* LuaSkin.framework in Frameworks */,
-				4CD96BD61C73ABD2009FF648 /* BuildFile in Frameworks */,
+				4CD96BD61C73ABD2009FF648 /* (null) in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7549,14 +7549,9 @@
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon-resources.sh",
-				"${PODS_CONFIGURATION_BUILD_DIR}/CocoaLumberjack/CocoaLumberjackPrivacy.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/Sentry/Sentry.bundle",
 			);
 			name = "Copy CommandPost Files";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/CocoaLumberjackPrivacy.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Sentry.bundle",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -9056,7 +9051,7 @@
 				);
 				INFOPLIST_FILE = "CommandPost Workflow Extension/Extras/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = CommandPost;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 LateNite Films. All rights reserved.";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022-2024 LateNite Films. All rights reserved.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -9074,7 +9069,8 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-fapplication-extension",
-					"-e_ProExtensionMain",
+					"-e",
+					_ProExtensionMain,
 					"-lProExtension",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = org.latenitefilms.CommandPost.WorkflowExtension;
@@ -9152,7 +9148,7 @@
 				);
 				INFOPLIST_FILE = "CommandPost Workflow Extension/Extras/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = CommandPost;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 LateNite Films. All rights reserved.";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022-2024 LateNite Films. All rights reserved.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -9169,7 +9165,8 @@
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = (
 					"-fapplication-extension",
-					"-e_ProExtensionMain",
+					"-e",
+					_ProExtensionMain,
 					"-lProExtension",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = org.latenitefilms.CommandPost.WorkflowExtension;
@@ -9246,7 +9243,7 @@
 				);
 				INFOPLIST_FILE = "CommandPost Workflow Extension/Extras/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = CommandPost;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 LateNite Films. All rights reserved.";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022-2024 LateNite Films. All rights reserved.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -9263,7 +9260,8 @@
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = (
 					"-fapplication-extension",
-					"-e_ProExtensionMain",
+					"-e",
+					_ProExtensionMain,
 					"-lProExtension",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = org.latenitefilms.CommandPost.WorkflowExtension;
