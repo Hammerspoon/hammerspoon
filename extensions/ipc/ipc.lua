@@ -33,19 +33,52 @@ local MSG_ID = {
     CONSOLE    =  3,    -- cloned console output
 }
 
+-- avoid printReplacement to be reentrant
+-- otherwise errors might cascade into lots of recursive prints
+module.insidePrintInstances = {}
+
+module.print_enter = function(instance)
+  val = module.insidePrintInstances[instance] or 0
+  module.insidePrintInstances[instance] = val + 1
+end
+
+module.print_exit = function(instance)
+  -- make sure instance exists
+  if module.insidePrintInstances[instance] then
+    module.insidePrintInstances[instance] = module.insidePrintInstances[instance] - 1
+    if module.insidePrintInstances[instance] == 0 then
+      module.insidePrintInstances[instance] = nil
+    end
+  end
+end
+
+module.print_inside = function(instance)
+  val = module.insidePrintInstances[instance]
+  return val and val > 0
+end
+  
 local originalPrint = print
 local printReplacement = function(...)
     originalPrint(...)
-    for _,v in pairs(module.__registeredCLIInstances) do
+    for i,v in pairs(module.__registeredCLIInstances) do
+      originalPrint(string.format("to print instance [%s]", i))
         if v._cli.console and v.print and not v._cli.quietMode then
 --            v.print(...)
 -- make it more obvious what is console output versus the command line's
+
+          if module.print_inside(i) then
+            originalPrint(string.format("Instance of [%s] already recursing [%d] times, do not do ",
+                i, module.insidePrintInstances[i]))
+          else
+            module.print_enter(i)
             local things = table.pack(...)
             local stdout = (things.n > 0) and tostring(things[1]) or ""
             for i = 2, things.n do
-                stdout = stdout .. "\t" .. tostring(things[i])
+              stdout = stdout .. "\t" .. tostring(things[i])
             end
             v._cli.remote:sendMessage(stdout .. "\n", MSG_ID.CONSOLE)
+            module.print_exit(i)
+          end
         end
     end
 end
