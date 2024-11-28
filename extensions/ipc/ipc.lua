@@ -33,8 +33,10 @@ local MSG_ID = {
     CONSOLE    =  3,    -- cloned console output
 }
 
--- avoid printReplacement to be reentrant
+-- stop printReplacement from being reentrant
 -- otherwise errors might cascade into lots of recursive prints
+-- hammerspoon is single threaded, thus this does not need a semaphore
+-- otherwise we'll have to deal with a potential race condition
 module.insidePrintInstances = {}
 
 module.print_enter = function(instance)
@@ -46,6 +48,8 @@ module.print_exit = function(instance)
   -- make sure instance exists
   if module.insidePrintInstances[instance] then
     module.insidePrintInstances[instance] = module.insidePrintInstances[instance] - 1
+    -- make sure to delete the entry from the table to avoid
+    -- growing forever
     if module.insidePrintInstances[instance] == 0 then
       module.insidePrintInstances[instance] = nil
     end
@@ -53,6 +57,7 @@ module.print_exit = function(instance)
 end
 
 module.print_inside = function(instance)
+  -- return true if we are already inside printReplacement
   val = module.insidePrintInstances[instance]
   return val and val > 0
 end
@@ -60,24 +65,21 @@ end
 local originalPrint = print
 local printReplacement = function(...)
     originalPrint(...)
-    for i,v in pairs(module.__registeredCLIInstances) do
-      originalPrint(string.format("to print instance [%s]", i))
+    for id,v in pairs(module.__registeredCLIInstances) do
         if v._cli.console and v.print and not v._cli.quietMode then
---            v.print(...)
--- make it more obvious what is console output versus the command line's
-
-          if module.print_inside(i) then
-            originalPrint(string.format("Instance of [%s] already recursing [%d] times, do not do ",
-                i, module.insidePrintInstances[i]))
+          if module.print_inside(id) then
+            log.w(string.format("Instance of [%s] already recursing, refusing request.", id))
           else
-            module.print_enter(i)
+            module.print_enter(id)
+            --            v.print(...)
+            -- make it more obvious what is console output versus the command line's
             local things = table.pack(...)
             local stdout = (things.n > 0) and tostring(things[1]) or ""
             for i = 2, things.n do
               stdout = stdout .. "\t" .. tostring(things[i])
             end
             v._cli.remote:sendMessage(stdout .. "\n", MSG_ID.CONSOLE)
-            module.print_exit(i)
+            module.print_exit(id)
           end
         end
     end
