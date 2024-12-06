@@ -1162,6 +1162,94 @@ static int audiodevice_setbalance(lua_State* L) {
 
 }
 
+/// hs.audiodevice:thru() -> bool or nil
+/// Method
+/// Get the play through (low latency/direct monitoring) state of the audio device
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * True if the audio device has thru enabled, False if thru is disabled, nil if it does not support thru
+///
+/// Notes:
+///  * This method only works on devices that have hardware support (often microphones with a built-in headphone jack)
+///  * This setting corresponds to the "Thru" setting in Audio MIDI Setup
+static int audiodevice_thru(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
+    audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
+    AudioDeviceID deviceId = audioDevice->deviceId;
+    unsigned int scope;
+    UInt32 thru;
+    UInt32 thruSize = sizeof(UInt32);
+
+    if (isOutputDevice(deviceId)) {
+        scope = kAudioObjectPropertyScopeOutput;
+    } else {
+        scope = kAudioObjectPropertyScopeInput;
+    }
+
+    AudioObjectPropertyAddress propertyAddress = {
+        kAudioDevicePropertyPlayThru,
+        scope,
+        kAudioObjectPropertyElementMain
+    };
+
+    if (AudioObjectHasProperty(deviceId, &propertyAddress) && (AudioObjectGetPropertyData(deviceId, &propertyAddress, 0, NULL, &thruSize, &thru) == noErr)) {
+        lua_pushboolean(L, thru != 0);
+    } else {
+        lua_pushnil(L);
+    }
+
+    return 1;
+}
+
+/// hs.audiodevice:setThru(thru) -> bool
+/// Method
+/// Set the play through (low latency/direct monitoring) state of the audio device
+///
+/// Parameters:
+///  * thru -  A boolean value. True to enable thru, False to disable
+///
+/// Returns:
+///  * True if thru was set, False if the audio device does not support thru
+///
+/// Notes:
+///  * This method only works on devices that have hardware support (often microphones with a built-in headphone jack)
+///  * This setting corresponds to the "Thru" setting in Audio MIDI Setup
+static int audiodevice_setThru(lua_State* L) {
+    LuaSkin *skin = [LuaSkin sharedWithState:L];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN, LS_TBREAK];
+
+    audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
+    AudioDeviceID deviceId = audioDevice->deviceId;
+    unsigned int scope;
+    UInt32 thru = lua_toboolean(L, 2);
+    UInt32 thruSize = sizeof(UInt32);
+
+    if (isOutputDevice(deviceId)) {
+        scope = kAudioObjectPropertyScopeOutput;
+    } else {
+        scope = kAudioObjectPropertyScopeInput;
+    }
+
+    AudioObjectPropertyAddress propertyAddress = {
+        kAudioDevicePropertyPlayThru,
+        scope,
+        kAudioObjectPropertyElementMain
+    };
+
+    if (AudioObjectHasProperty(deviceId, &propertyAddress) && (AudioObjectSetPropertyData(deviceId, &propertyAddress, 0, NULL, thruSize, &thru) == noErr)) {
+        lua_pushboolean(L, TRUE);
+    } else {
+        lua_pushboolean(L, FALSE);
+    }
+
+    return 1;
+}
+
 /// hs.audiodevice:isOutputDevice() -> boolean
 /// Method
 /// Determines if an audio device is an output device
@@ -1900,6 +1988,8 @@ static const luaL_Reg audiodevice_metalib[] = {
     {"setVolume",               audiodevice_setvolume},
     {"balance",                 audiodevice_balance},
     {"setBalance",              audiodevice_setbalance},
+    {"thru",                    audiodevice_thru},
+    {"setThru",                 audiodevice_setThru},
     {"setInputVolume",          audiodevice_setInputVolume},
     {"setOutputVolume",         audiodevice_setOutputVolume},
     {"muted",                   audiodevice_muted},
