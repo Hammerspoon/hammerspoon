@@ -158,6 +158,21 @@ function testMute()
   return success()
 end
 
+function testThru()
+  local device = hs.audiodevice.defaultInputDevice()
+  local wasThru = device:thru()
+  if (type(wasThru) ~= "boolean") then
+    -- This device does not support thru. Not much we can do about it, so log it and move on
+    print("Audiodevice does not support thru, unable to test thru functionality. Skipping test due to lack of hardware")
+    return success()
+  end
+  device:setThru(not wasThru)
+  assertIsEqual(not wasThru, device:thru())
+  -- Be nice to whoever is running the test and restore the original state
+  device:setThru(wasThru)
+  return success()
+end
+
 function testJackConnected()
   local jackConnected = hs.audiodevice.defaultOutputDevice():jackConnected()
   if (type(jackConnected) ~= "boolean") then

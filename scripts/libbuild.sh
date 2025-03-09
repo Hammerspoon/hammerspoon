@@ -94,8 +94,8 @@ function op_validate() {
   # Obtain the relevant build settings
   local BUILD_SETTINGS ; BUILD_SETTINGS=$(xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release -configuration Release -showBuildSettings 2>&1 | grep -E " CODE_SIGN_IDENTITY|DEVELOPMENT_TEAM|CODE_SIGN_ENTITLEMENTS")
 
-  local SIGN_IDENTITY ; SIGN_IDENTITY=$(echo "${BUILD_SETTINGS}" | grep CODE_SIGN_IDENTITY | sed -e 's/.* = //')
-  local SIGN_TEAM ; SIGN_TEAM=$(echo "${BUILD_SETTINGS}" | grep DEVELOPMENT_TEAM | sed -e 's/.* = //')
+  local SIGN_IDENTITY ; SIGN_IDENTITY=$(echo "${BUILD_SETTINGS}" | grep "CODE_SIGN_IDENTITY = " | sed -e 's/.* = //')
+  local SIGN_TEAM ; SIGN_TEAM=$(echo "${BUILD_SETTINGS}" | grep "DEVELOPMENT_TEAM = " | sed -e 's/.* = //')
   local ENTITLEMENTS_FILE ; ENTITLEMENTS_FILE=$(echo "${BUILD_SETTINGS}" | grep CODE_SIGN_ENTITLEMENTS | sed -e 's/.* = //')
 
   # Validate that the app bundle has a correct signature at all
@@ -240,8 +240,8 @@ function op_keychain_prep() {
         echo " Removing keychain autolocking settings..."
         "${SECBIN}" set-keychain-settings -t 1200
 
-        echo " Setting permissions for keychain..."
-        "${SECBIN}" -q set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "${KEYCHAIN_PASSPHRASE}" "${KEYCHAIN}"
+        echo " Setting permissions for keychain... (logs suppressed)"
+        "${SECBIN}" -q set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "${KEYCHAIN_PASSPHRASE}" "${KEYCHAIN}" >/dev/null 2>&1
 
         echo " Listing keychains:"
         "${SECBIN}" list-keychains -d user
@@ -255,6 +255,7 @@ function op_keychain_prep() {
 
         local SIGN_TEAM ; SIGN_TEAM=$(xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release -configuration Release -showBuildSettings 2>&1 | grep -E " DEVELOPMENT_TEAM" | sed -e 's/.* = //')
 
+        echo " Storing notarization credentials:"
         xcrun notarytool store-credentials --sync "${KEYCHAIN_PROFILE}" --apple-id "${NOTARIZATION_USERNAME}" --team-id "${SIGN_TEAM}" --password "${NOTARIZATION_PASSWORD}"
 
         unset NOTARIZATION_USERNAME
@@ -397,7 +398,7 @@ function op_release() {
                   length=\"${ZIPLEN}\"
                   type=\"application/octet-stream\"
               />
-              <sparkle:minimumSystemVersion>12.0</sparkle:minimumSystemVersion>
+              <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
           </item>
   "
     gawk -i inplace -v s="<!-- __UPDATE_MARKER__ -->" -v r="${NEWCHUNK}" '{gsub(s,r)}1' appcast.xml

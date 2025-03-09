@@ -66,6 +66,17 @@ NS_ASSUME_NONNULL_BEGIN
                                              object:nil];
 }
 
+- (id<NSObject>)addObserverForName:(nullable NSNotificationName)name
+                            object:(nullable id)obj
+                             queue:(nullable NSOperationQueue *)queue
+                        usingBlock:(void (^)(NSNotification *notification))block
+{
+    return [NSNotificationCenter.defaultCenter addObserverForName:name
+                                                           object:obj
+                                                            queue:queue
+                                                       usingBlock:block];
+}
+
 - (void)removeObserver:(NSObject *)observer name:(NSNotificationName)aName
 {
     [NSNotificationCenter.defaultCenter removeObserver:observer name:aName object:nil];
@@ -78,7 +89,7 @@ NS_ASSUME_NONNULL_BEGIN
     [NSNotificationCenter.defaultCenter removeObserver:observer name:aName object:anObject];
 }
 
-- (void)removeObserver:(NSObject *)observer
+- (void)removeObserver:(id<NSObject>)observer
 {
     [NSNotificationCenter.defaultCenter removeObserver:observer];
 }

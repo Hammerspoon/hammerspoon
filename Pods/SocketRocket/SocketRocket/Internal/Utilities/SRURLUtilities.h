@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 // So instead, just map ws -> http and wss -> https.
 extern NSString *SRURLOrigin(NSURL *url);
 
-extern BOOL SRURLRequiresSSL(NSURL *url);
+extern BOOL SRURLRequiresSSL(NSURL *_Nullable url);
 
 // Extracts `user` and `password` from url (if available) into `Basic base64(user:password)`.
 extern NSString *_Nullable SRBasicAuthorizationHeaderFromURL(NSURL *url);

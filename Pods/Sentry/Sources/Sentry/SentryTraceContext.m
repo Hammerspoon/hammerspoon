@@ -92,6 +92,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithTraceId:(SentryId *)traceId
                         options:(SentryOptions *)options
                     userSegment:(nullable NSString *)userSegment
+                       replayId:(nullable NSString *)replayId;
 {
     return [[SentryTraceContext alloc] initWithTraceId:traceId
                                              publicKey:options.parsedDsn.url.user
@@ -101,7 +102,7 @@ NS_ASSUME_NONNULL_BEGIN
                                            userSegment:userSegment
                                             sampleRate:nil
                                                sampled:nil
-                                              replayId:nil];
+                                              replayId:replayId];
 }
 
 - (nullable instancetype)initWithDict:(NSDictionary<NSString *, id> *)dictionary

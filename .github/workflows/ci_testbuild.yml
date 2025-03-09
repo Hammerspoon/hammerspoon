@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     name: Build and Test
-    runs-on: macos-14
+    runs-on: macos-15
     permissions:
       contents: read
       checks: write
@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: 15.4
+          xcode-version: 16.1.0
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,7 +41,7 @@ jobs:
         run: ./scripts/github-ci-test.sh
 
       - name: Report test results
-        uses: kishikawakatsumi/xcresulttool@v1
+        uses: slidoapp/xcresulttool@v3.1.0
         with:
           path: build/TestResults.xcresult
           upload-bundles: never

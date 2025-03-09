@@ -37,7 +37,7 @@ CFHTTPMessageRef SRHTTPConnectMessageCreate(NSURLRequest *request,
 
     // Apply cookies if any have been provided
     if (cookies) {
-        NSDictionary<NSString *, NSString *> *messageCookies = [NSHTTPCookie requestHeaderFieldsWithCookies:cookies];
+        NSDictionary<NSString *, NSString *> *messageCookies = [NSHTTPCookie requestHeaderFieldsWithCookies:(NSArray<NSHTTPCookie*> *_Nonnull)cookies];
         [messageCookies enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSString * _Nonnull obj, BOOL * _Nonnull stop) {
             if (key.length && obj.length) {
                 CFHTTPMessageSetHeaderFieldValue(message, (__bridge CFStringRef)key, (__bridge CFStringRef)obj);

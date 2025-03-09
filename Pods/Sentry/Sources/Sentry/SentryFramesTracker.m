@@ -31,6 +31,8 @@ static CFTimeInterval const SentryPreviousFrameInitialValue = -1;
 @interface
 SentryFramesTracker ()
 
+@property (nonatomic, assign, readonly) BOOL isStarted;
+
 @property (nonatomic, strong, readonly) SentryDisplayLinkWrapper *displayLinkWrapper;
 @property (nonatomic, strong, readonly) SentryCurrentDateProvider *dateProvider;
 @property (nonatomic, strong, readonly) SentryDispatchQueueWrapper *dispatchQueueWrapper;
@@ -71,6 +73,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 {
     if (self = [super init]) {
         _isRunning = NO;
+        _isStarted = NO;
         _displayLinkWrapper = displayLinkWrapper;
         _dateProvider = dateProvider;
         _dispatchQueueWrapper = dispatchQueueWrapper;
@@ -92,19 +95,6 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 - (void)setDisplayLinkWrapper:(SentryDisplayLinkWrapper *)displayLinkWrapper
 {
     _displayLinkWrapper = displayLinkWrapper;
-}
-- (void)setPreviousFrameSystemTimestamp:(uint64_t)previousFrameSystemTimestamp
-    SENTRY_DISABLE_THREAD_SANITIZER("As you can only disable the thread sanitizer for methods, we "
-                                    "must manually create the setter here.")
-{
-    _previousFrameSystemTimestamp = previousFrameSystemTimestamp;
-}
-
-- (uint64_t)getPreviousFrameSystemTimestamp SENTRY_DISABLE_THREAD_SANITIZER(
-    "As you can only disable the thread sanitizer for methods, we must manually create the getter "
-    "here.")
-{
-    return _previousFrameSystemTimestamp;
 }
 
 - (void)resetFrames
@@ -132,6 +122,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 
 - (void)resetProfilingTimestampsInternal
 {
+    SENTRY_LOG_DEBUG(@"Resetting profiling GPU timeseries data.");
     self.frozenFrameTimestamps = [SentryMutableFrameInfoTimeSeries array];
     self.slowFrameTimestamps = [SentryMutableFrameInfoTimeSeries array];
     self.frameRateTimestamps = [SentryMutableFrameInfoTimeSeries array];
@@ -141,6 +132,12 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 
 - (void)start
 {
+    if (_isStarted) {
+        return;
+    }
+
+    _isStarted = YES;
+
     [self.notificationCenter
         addObserver:self
            selector:@selector(didBecomeActive)
@@ -183,6 +180,7 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
     if (self.previousFrameTimestamp == SentryPreviousFrameInitialValue) {
         self.previousFrameTimestamp = thisFrameTimestamp;
         self.previousFrameSystemTimestamp = thisFrameSystemTimestamp;
+        [self.delayedFramesTracker setPreviousFrameSystemTimestamp:thisFrameSystemTimestamp];
         [self reportNewFrame];
         return;
     }
@@ -244,8 +242,11 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 
     if (frameDuration > slowFrameThreshold(_currentFrameRate)) {
         [self.delayedFramesTracker recordDelayedFrame:self.previousFrameSystemTimestamp
+                             thisFrameSystemTimestamp:thisFrameSystemTimestamp
                                      expectedDuration:slowFrameThreshold(_currentFrameRate)
                                        actualDuration:frameDuration];
+    } else {
+        [self.delayedFramesTracker setPreviousFrameSystemTimestamp:thisFrameSystemTimestamp];
     }
 
     _totalFrames++;
@@ -298,13 +299,13 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
 }
 
-- (CFTimeInterval)getFramesDelay:(uint64_t)startSystemTimestamp
-              endSystemTimestamp:(uint64_t)endSystemTimestamp SENTRY_DISABLE_THREAD_SANITIZER()
+- (SentryFramesDelayResult *)getFramesDelay:(uint64_t)startSystemTimestamp
+                         endSystemTimestamp:(uint64_t)endSystemTimestamp
+    SENTRY_DISABLE_THREAD_SANITIZER()
 {
     return [self.delayedFramesTracker getFramesDelay:startSystemTimestamp
                                   endSystemTimestamp:endSystemTimestamp
                                            isRunning:_isRunning
-                        previousFrameSystemTimestamp:self.previousFrameSystemTimestamp
                                   slowFrameThreshold:slowFrameThreshold(_currentFrameRate)];
 }
 
@@ -331,6 +332,12 @@ slowFrameThreshold(uint64_t actualFramesPerSecond)
 
 - (void)stop
 {
+    if (!_isStarted) {
+        return;
+    }
+
+    _isStarted = NO;
+
     [self pause];
     [self.delayedFramesTracker resetDelayedFramesTimeStamps];
 

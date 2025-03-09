@@ -166,9 +166,10 @@ function windowfilter._showCandidates()
   local t={}
   for _,app in ipairs(running) do
     local appname = app:name()
+    local pid = app:pid()
     if appname and windowfilter.isGuiApp(appname) and #app:allWindows()==0
       and not windowfilter.ignoreInDefaultFilter[appname] and app:kind()>=0
-      and (not apps[appname] or not next(apps[appname].windows)) then
+      and (not apps[pid] or not next(apps[pid].windows)) then
       t[#t+1]=appname
     end
   end
@@ -277,9 +278,9 @@ function WF:isWindowAllowed(theWindow)
   --which allegedly is a window, but without id
   if not id then return end
   if activeInstances[self] then return self.windows[id] and true or false end
-  local appname,win=theWindow:application():name()
-  if apps[appname] then
-    for wid,w in pairs(apps[appname].windows) do
+  local pid,win=theWindow:application():pid()
+  if apps[pid] then
+    for wid,w in pairs(apps[pid].windows) do
       if wid==id then win=w break end
     end
   end
@@ -287,7 +288,7 @@ function WF:isWindowAllowed(theWindow)
     --    hs.assert(not global.watcher,'window not being tracked')
     self.log.d('window is not being tracked')
     win=Window.new(theWindow,id) --fixme
-    win.app={} win.app.name=appname
+    win.app={} win.app.name=theWindow:application():name()
     if self.trackSpacesFilters then
       win.isInCurrentSpace=false
       if not win.isVisible then win.isInCurrentSpace=true
@@ -1205,7 +1206,7 @@ function App:getFocused()
     if not self.windows[fwid] then
       -- windows on a different space aren't picked up by :allWindows() at first refresh
       log.df('%s (%d) was not registered',self.name,fwid)
-      appWindowEvent(fw,uiwatcher.windowCreated,nil,self.name)
+      appWindowEvent(fw,uiwatcher.windowCreated,nil,self.pid)
     end
     if not self.windows[fwid] then
       log.wf('%s (%d) is STILL not registered',self.name,fwid)
@@ -1215,13 +1216,13 @@ function App:getFocused()
   end
 end
 
-function App.new(app,appname,watcher)
-  local o = setmetatable({app=app,name=appname,watcher=watcher,windows={}},{__index=App})
+function App.new(app,appname,pid,watcher)
+  local o = setmetatable({app=app,name=appname,pid=pid,watcher=watcher,windows={}},{__index=App})
   if app:isHidden() then o.isHidden=true end
   -- TODO if a way is found to fecth *all* windows across spaces, add it here
   -- and remove .switchedToSpace, .forceRefreshOnSpaceChange
   log.f('new app %s registered',appname)
-  apps[appname] = o
+  apps[pid] = o
   o:getAppWindows()
 end
 
@@ -1261,7 +1262,7 @@ function App:getCurrentSpaceAppWindows(inserted)
   for _,win in ipairs(allWindows) do
     local id=win:id()
     if id then
-      if not self.windows[id] then appWindowEvent(win,uiwatcher.windowCreated,nil,self.name) end
+      if not self.windows[id] then appWindowEvent(win,uiwatcher.windowCreated,nil,self.pid) end
       gone[id]=nil
       arrived[id]=self.windows[id]
     end
@@ -1310,7 +1311,7 @@ function App:focusChanged(id,win)
   else
     if not self.windows[id] then
       log.df('%s (%d) is not registered yet',self.name,id)
-      appWindowEvent(win,uiwatcher.windowCreated,nil,self.name)
+      appWindowEvent(win,uiwatcher.windowCreated,nil,self.pid)
     end
     if self==active then
       if not self.windows[id] then log.wf('cannot process focus changed for app %s - %s (%d) not registered',self.name,win:role(),id)
@@ -1344,11 +1345,12 @@ function App:destroyed()
   for _,win in pairs(self.windows) do
     win:destroyed()
   end
-  apps[self.name]=nil
+  apps[self.pid]=nil
 end
 
-local function windowEvent(event,appname,id)
-  local app=apps[appname]
+local function windowEvent(event,pid,id)
+  local app = apps[pid]
+  local appname = app.name
   log.vf('%s (%s) <= %s (window event)',appname,id or '?',event)
   if not id then return log.df('%s: %s cannot be processed',appname,event) end
   if not app then return log.df('app %s is not registered!',appname) end
@@ -1371,8 +1373,9 @@ end
 local RETRY_DELAY,MAX_RETRIES = 0.2,5
 local windowWatcherDelayed={}
 
-appWindowEvent=function(win,event,_,appname,retry)
+appWindowEvent=function(win,event,_,pid,retry)
   if not win:isWindow() then return end
+  local appname = application.applicationForPID(pid):name()
   local role=win.subrole and win:subrole()
   if appname=='Hammerspoon' and (not role or role=='AXUnknown') then return end
   local id = win.id and win:id()
@@ -1382,26 +1385,26 @@ appWindowEvent=function(win,event,_,appname,retry)
     retry=(retry or 0)+1
     if not id then
       if retry>MAX_RETRIES then log.wf('%s: %s has no id',appname,role or (win.role and win:role()) or 'window')
-      else windowWatcherDelayed[win]=timer.doAfter(retry*RETRY_DELAY,function()appWindowEvent(win,event,_,appname,retry)end) end
+      else windowWatcherDelayed[win]=timer.doAfter(retry*RETRY_DELAY,function()appWindowEvent(win,event,_,pid,retry)end) end
       return
     end
-    if apps[appname].windows[id] then return log.df('%s (%d) already registered',appname,id) end
+    if apps[pid].windows[id] then return log.df('%s (%d) already registered',appname,id) end
     local watcher=win:newWatcher(function(_,watcherEvent)
-      windowEvent(watcherEvent,appname,id)
-    end, appname)
+      windowEvent(watcherEvent,pid,id)
+    end)
 -- pretty sure this is a NOP now since pid capture is no longer delayed
 --     if not watcher:pid() then
 --       log.wf('%s: %s has no watcher pid',appname,role or (win.role and win:role()))
 --       if retry>MAX_RETRIES then log.df('%s: %s has no watcher pid',appname,win.subrole and win:subrole() or (win.role and win:role()) or 'window')
 --       else
---         windowWatcherDelayed[win]=timer.doAfter(retry*RETRY_DELAY,function()appWindowEvent(win,event,_,appname,retry)end) end
+--         windowWatcherDelayed[win]=timer.doAfter(retry*RETRY_DELAY,function()appWindowEvent(win,event,_,pid,retry)end) end
 --       return
 --     end
-    Window.created(win,id,apps[appname],watcher)
+    Window.created(win,id,apps[pid],watcher)
     watcher:start({uiwatcher.elementDestroyed,uiwatcher.windowMoved,uiwatcher.windowResized
       ,uiwatcher.windowMinimized,uiwatcher.windowUnminimized,uiwatcher.titleChanged})
   elseif event==uiwatcher.focusedWindowChanged then
-    local app=apps[appname]
+    local app=apps[pid]
     if not app then return log.df('app %s is not registered!',appname) end
     app:focusChanged(id,win)
   end
@@ -1409,7 +1412,8 @@ end
 
 local function startAppWatcher(app,appname,retry,nologging,force)
   if not app or not appname then log.e('called startAppWatcher with no app') return end
-  if apps[appname] then return not nologging and log.df('app %s already registered',appname) end
+  local pid = app:pid()
+  if apps[pid] then return not nologging and log.df('app %s already registered',appname) end
   if app:kind()<0 or not windowfilter.isGuiApp(appname) then log.df('app %s has no GUI',appname) return end
   if not fnutils.contains(axuielement.applicationElement(app):attributeNames() or {}, "AXFocusedWindow") then
       log.df('app %s has no AXFocusedWindow element',appname)
@@ -1418,14 +1422,14 @@ local function startAppWatcher(app,appname,retry,nologging,force)
   retry=(retry or 0)+1
 
   if app:focusedWindow() or force then
-    pendingApps[appname]=nil --done
-    local watcher = app:newWatcher(appWindowEvent,appname)
+    pendingApps[pid]=nil --done
+    local watcher = app:newWatcher(appWindowEvent,pid)
     watcher:start({uiwatcher.windowCreated,uiwatcher.focusedWindowChanged})
-    App.new(app,appname,watcher)
+    App.new(app,appname,pid,watcher)
   else
     -- apps that start with an open window will often fail to be detected by the watcher if we
     -- start it too early, so we try `app:focusedWindow()` MAX_RETRIES times before giving up
-    pendingApps[appname] = timer.doAfter(retry*RETRY_DELAY,function()
+    pendingApps[pid] = timer.doAfter(retry*RETRY_DELAY,function()
         startAppWatcher(app,appname,retry,nologging, retry > MAX_RETRIES)
     end)
   end
@@ -1438,7 +1442,8 @@ local function appEvent(appname,event,app)
   if not appname then return end
   if event==appwatcher.launched then return startAppWatcher(app,appname)
   elseif event==appwatcher.launching then return end
-  local appo=apps[appname]
+  local pid = app:pid()
+  local appo=apps[pid]
   if event==appwatcher.activated then
     if appo then return appo:activated()
     else return startAppWatcher(app,appname,0,true) end
@@ -1452,7 +1457,7 @@ local function appEvent(appname,event,app)
     timer.doAfter(0.1*retry,function()appEvent(appname,event,app,retry)end)
     return
     --]]
-  elseif event==appwatcher.terminated then pendingApps[appname]=nil end
+  elseif event==appwatcher.terminated then pendingApps[pid]=nil end
   if not appo then return log.df('app %s is not registered!',appname) end
   if event==appwatcher.terminated then return appo:destroyed()
   elseif event==appwatcher.deactivated then return appo:deactivated()
