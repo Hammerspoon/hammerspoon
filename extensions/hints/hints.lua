@@ -116,10 +116,8 @@ function hints._dictSize(t)
   return 0 -- screenless window or something else
 end
 
-function hints.displayHintsForDict(dict, prefixstring, showTitles, allowNonStandard)
-  if showTitles == nil then
-    showTitles = hints._dictSize(hintDict) <= hints.showTitleThresh
-  end
+function hints.displayHintsForDict(dict, prefixstring, allowNonStandard)
+  showTitles = hints._dictSize(hintDict) <= hints.showTitleThresh
   for key, val in pairs(dict) do
     if type(val) == "userdata" and val:screen() then -- this is an onscreen window
       local win = val
@@ -154,7 +152,7 @@ function hints.displayHintsForDict(dict, prefixstring, showTitles, allowNonStand
         end
       end
     elseif type(val) == "table" then -- this is another window dict
-      hints.displayHintsForDict(val, prefixstring .. key, showTitles, allowNonStandard)
+      hints.displayHintsForDict(val, prefixstring .. key, allowNonStandard)
     end
   end
 end
@@ -250,7 +248,7 @@ function hints.windowHints(windows, callback, allowNonStandard)
   end
   takenPositions = {}
   if next(hintDict) ~= nil then
-    hints.displayHintsForDict(hintDict, "", nil, allowNonStandard)
+    hints.displayHintsForDict(hintDict, "", allowNonStandard)
     modalKey:enter()
   end
 end
