@@ -16,7 +16,7 @@ static void HIDReport(void* deviceRef, IOReturn result, void* sender, IOHIDRepor
     HSStreamDeckDevice *device = (__bridge HSStreamDeckDevice*)deviceRef;
     
     uint8_t inputType = report[1];
-    if (inputType == 0x00) {
+    if (inputType == 0x00 || inputType == 0x01) { // An `inputType` of `0x01` was observed for button 1 on a Stream Deck Mini (Model 20GAI9901).
         // -------------
         // BUTTON EVENT:
         // -------------
