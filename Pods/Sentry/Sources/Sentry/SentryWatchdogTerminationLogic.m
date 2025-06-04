@@ -2,15 +2,13 @@
 
 #if SENTRY_HAS_UIKIT
 
-#    import <Foundation/Foundation.h>
 #    import <SentryAppState.h>
 #    import <SentryAppStateManager.h>
 #    import <SentryCrashWrapper.h>
 #    import <SentryOptions.h>
 #    import <SentrySDK+Private.h>
 
-@interface
-SentryWatchdogTerminationLogic ()
+@interface SentryWatchdogTerminationLogic ()
 
 @property (nonatomic, strong) SentryOptions *options;
 @property (nonatomic, strong) SentryCrashWrapper *crashAdapter;
@@ -73,7 +71,7 @@ SentryWatchdogTerminationLogic ()
     }
 
     // Restarting the app in development is a termination we can't catch and would falsely
-    // report OOMs.
+    // report watchdog termiations.
     if (previousAppState.isDebugging) {
         return NO;
     }

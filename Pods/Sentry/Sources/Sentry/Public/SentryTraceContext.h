@@ -6,8 +6,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class SentryScope, SentryOptions, SentryTracer, SentryUser, SentryBaggage;
+@class SentryBaggage;
 @class SentryId;
+@class SentryOptions;
+@class SentryScope;
+@class SentryTracer;
+@class SentryUser;
 
 NS_SWIFT_NAME(TraceContext)
 @interface SentryTraceContext : NSObject <SentrySerializable>
@@ -44,9 +48,14 @@ NS_SWIFT_NAME(TraceContext)
 @property (nullable, nonatomic, readonly) NSString *userSegment;
 
 /**
- * Sample rate used for this trace.
+ * Serialized sample rate used for this trace.
  */
 @property (nullable, nonatomic, readonly) NSString *sampleRate;
+
+/**
+ * Serialized random value used to determine if the trace is sampled.
+ */
+@property (nullable, nonatomic, readonly) NSString *sampleRand;
 
 /**
  * Value indicating whether the trace was sampled.
@@ -68,6 +77,20 @@ NS_SWIFT_NAME(TraceContext)
                     transaction:(nullable NSString *)transaction
                     userSegment:(nullable NSString *)userSegment
                      sampleRate:(nullable NSString *)sampleRate
+                        sampled:(nullable NSString *)sampled
+                       replayId:(nullable NSString *)replayId;
+
+/**
+ * Initializes a SentryTraceContext with given properties.
+ */
+- (instancetype)initWithTraceId:(SentryId *)traceId
+                      publicKey:(NSString *)publicKey
+                    releaseName:(nullable NSString *)releaseName
+                    environment:(nullable NSString *)environment
+                    transaction:(nullable NSString *)transaction
+                    userSegment:(nullable NSString *)userSegment
+                     sampleRate:(nullable NSString *)sampleRate
+                     sampleRand:(nullable NSString *)sampleRand
                         sampled:(nullable NSString *)sampled
                        replayId:(nullable NSString *)replayId;
 

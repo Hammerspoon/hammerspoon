@@ -1,7 +1,6 @@
 #import "SentryClientReport.h"
 #import "SentryDependencyContainer.h"
 #import "SentrySwift.h"
-#import <Foundation/Foundation.h>
 #import <SentryDiscardedEvent.h>
 
 NS_ASSUME_NONNULL_BEGIN

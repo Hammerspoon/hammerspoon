@@ -8,20 +8,21 @@
 #import "SentryInstallation.h"
 #import "SentryInternalDefines.h"
 #import "SentryMeta.h"
-#import "SentryOptions.h"
+#import "SentryOptions+Private.h"
+#import "SentryPropagationContext.h"
 #import "SentrySDK+Private.h"
 #import "SentrySerialization.h"
-#import "SentrySessionReplayIntegration.h"
+#import "SentrySessionReplayIntegration+Private.h"
 #import "SentrySwift.h"
 #import "SentryThreadHandle.hpp"
 #import "SentryUser+Private.h"
 #import "SentryViewHierarchy.h"
 #import <SentryBreadcrumb.h>
 #import <SentryDependencyContainer.h>
+#import <SentryExtraPackages.h>
 #import <SentryFramesTracker.h>
 #import <SentryScope+Private.h>
 #import <SentryScreenshot.h>
-#import <SentrySessionReplayIntegration.h>
 #import <SentryUser.h>
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -61,8 +62,11 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (NSArray<SentryDebugMeta *> *)getDebugImagesCrashed:(BOOL)isCrash
 {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     return [[SentryDependencyContainer sharedInstance].debugImageProvider
         getDebugImagesCrashed:isCrash];
+#pragma clang diagnostic pop
 }
 
 + (nullable SentryAppStartMeasurement *)appStartMeasurement
@@ -186,9 +190,22 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
     return SentryMeta.versionString;
 }
 
++ (void)addSdkPackage:(nonnull NSString *)name version:(nonnull NSString *)version
+{
+    [SentryExtraPackages addPackageName:name version:version];
+}
+
 + (NSDictionary *)getExtraContext
 {
     return [SentryDependencyContainer.sharedInstance.extraContextProvider getExtraContext];
+}
+
++ (void)setTrace:(SentryId *)traceId spanId:(SentrySpanId *)spanId
+{
+    [SentrySDK.currentHub configureScope:^(SentryScope *scope) {
+        scope.propagationContext = [[SentryPropagationContext alloc] initWithTraceId:traceId
+                                                                              spanId:spanId];
+    }];
 }
 
 #if SENTRY_TARGET_PROFILING_SUPPORTED
@@ -218,7 +235,7 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (void)discardProfilerForTrace:(SentryId *)traceId;
 {
-    sentry_discardProfilerForTracer(traceId);
+    sentry_discardProfilerCorrelatedToTrace(traceId, SentrySDK.currentHub);
 }
 
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
@@ -272,8 +289,8 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (NSArray<NSData *> *)captureScreenshots
 {
-#if SENTRY_HAS_UIKIT
-    return [SentryDependencyContainer.sharedInstance.screenshot appScreenshots];
+#if SENTRY_TARGET_REPLAY_SUPPORTED
+    return [SentryDependencyContainer.sharedInstance.screenshot appScreenshotsData];
 #else
     SENTRY_LOG_DEBUG(
         @"PrivateSentrySDKOnly.captureScreenshots only works with UIKit enabled. Ensure you're "
@@ -313,6 +330,12 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 }
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
+
++ (UIView *)sessionReplayMaskingOverlay:(id<SentryRedactOptions>)options
+{
+    return [[SentryMaskingPreviewView alloc] initWithRedactOptions:options];
+}
+
 + (nullable SentrySessionReplayIntegration *)getReplayIntegration
 {
 
@@ -351,13 +374,31 @@ static BOOL _framesTrackingMeasurementHybridSDKMode = NO;
 
 + (void)addReplayIgnoreClasses:(NSArray<Class> *_Nonnull)classes
 {
-    [SentryViewPhotographer.shared addIgnoreClasses:classes];
+    [[PrivateSentrySDKOnly getReplayIntegration].viewPhotographer addIgnoreClasses:classes];
 }
 
 + (void)addReplayRedactClasses:(NSArray<Class> *_Nonnull)classes
 {
-    [SentryViewPhotographer.shared addRedactClasses:classes];
+    [[PrivateSentrySDKOnly getReplayIntegration].viewPhotographer addRedactClasses:classes];
 }
+
++ (void)setIgnoreContainerClass:(Class _Nonnull)containerClass
+{
+    [[PrivateSentrySDKOnly getReplayIntegration].viewPhotographer
+        setIgnoreContainerClass:containerClass];
+}
+
++ (void)setRedactContainerClass:(Class _Nonnull)containerClass
+{
+    [[PrivateSentrySDKOnly getReplayIntegration].viewPhotographer
+        setRedactContainerClass:containerClass];
+}
+
++ (void)setReplayTags:(NSDictionary<NSString *, id> *)tags
+{
+    [[PrivateSentrySDKOnly getReplayIntegration] setReplayTags:tags];
+}
+
 #endif
 
 @end

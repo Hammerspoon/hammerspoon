@@ -17,15 +17,15 @@ NS_ASSUME_NONNULL_BEGIN
  */
 SENTRY_EXTERN BOOL sentry_threadSanitizerIsPresent(void);
 
-#    if defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#    if defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 /**
- * Write a file to application support containing the profile data. This is an affordance for UI
+ * Write a file to the disk cache containing the profile data. This is an affordance for UI
  * tests to be able to validate the contents of a profile.
  */
-SENTRY_EXTERN void sentry_writeProfileFile(NSData *JSONData);
+SENTRY_EXTERN void sentry_writeProfileFile(NSData *JSONData, BOOL continuous);
 
-#    endif // defined(TEST) || defined(TESTCI) || defined(DEBUG)
+#    endif // defined(SENTRY_TEST) || defined(SENTRY_TEST_CI) || defined(DEBUG)
 
 NS_ASSUME_NONNULL_END
 

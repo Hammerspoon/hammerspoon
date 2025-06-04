@@ -58,7 +58,7 @@ static SentryCrashMonitorType g_monitoring = SentryCrashMonitorTypeProductionSaf
 static char g_lastCrashReportFilePath[SentryCrashFU_MAX_PATH_LENGTH];
 static void (*g_saveScreenShot)(const char *) = 0;
 static void (*g_saveViewHierarchy)(const char *) = 0;
-
+static void (*g_saveTransaction)(void) = 0;
 // ============================================================================
 #pragma mark - Utility -
 // ============================================================================
@@ -82,13 +82,14 @@ onCrash(struct SentryCrash_MonitorContext *monitorContext)
     } else {
         char crashReportFilePath[SentryCrashFU_MAX_PATH_LENGTH];
         sentrycrashcrs_getNextCrashReportPath(crashReportFilePath);
-        strncpy(g_lastCrashReportFilePath, crashReportFilePath, sizeof(g_lastCrashReportFilePath));
+        strlcpy(g_lastCrashReportFilePath, crashReportFilePath, sizeof(g_lastCrashReportFilePath));
         sentrycrashreport_writeStandardReport(monitorContext, crashReportFilePath);
         sentrySessionReplaySync_writeInfo();
     }
 
     // Report is saved to disk, now we try to take screenshots
-    // and view hierarchies.
+    // and view hierarchies, and try to save any ongoing transaction
+    // bound to the scope.
     // Depending on the state of the crash this may not work
     // because we gonna call into non async-signal safe code
     // but since the app is already in a crash state we don't
@@ -107,6 +108,10 @@ onCrash(struct SentryCrash_MonitorContext *monitorContext)
                 g_saveViewHierarchy(crashAttachmentsPath);
             }
         }
+    }
+
+    if (g_saveTransaction) {
+        g_saveTransaction();
     }
 }
 
@@ -202,6 +207,12 @@ sentrycrash_setSaveViewHierarchy(void (*callback)(const char *))
 }
 
 void
+sentrycrash_setSaveTransaction(void (*callback)(void))
+{
+    g_saveTransaction = callback;
+}
+
+void
 sentrycrash_notifyAppActive(bool isActive)
 {
     sentrycrashstate_notifyAppActive(isActive);
@@ -288,4 +299,18 @@ bool
 sentrycrash_hasSaveViewHierarchyCallback(void)
 {
     return g_saveViewHierarchy != NULL;
+}
+
+bool
+sentrycrash_hasSaveTransaction(void)
+{
+    return g_saveTransaction != NULL;
+}
+
+void
+sentrycrash_invokeSaveTransaction(void)
+{
+    if (g_saveTransaction) {
+        g_saveTransaction();
+    }
 }

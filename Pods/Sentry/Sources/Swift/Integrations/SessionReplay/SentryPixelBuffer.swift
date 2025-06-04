@@ -26,7 +26,11 @@ class SentryPixelBuffer {
     }
     
     func append(image: UIImage, presentationTime: CMTime) -> Bool {
-        guard let pixelBuffer = pixelBuffer else { return false }
+        SentryLog.debug("[Session Replay] Appending image to pixel buffer with presentation time: \(presentationTime)")
+        guard let pixelBuffer = pixelBuffer else { 
+            SentryLog.error("[Session Replay] Could not append image to pixel buffer, reason: pixel buffer is nil")
+            return false 
+        }
         
         CVPixelBufferLockBaseAddress(pixelBuffer, .readOnly)
         let pixelData = CVPixelBufferGetBaseAddress(pixelBuffer)
@@ -42,6 +46,7 @@ class SentryPixelBuffer {
                 space: rgbColorSpace,
                 bitmapInfo: CGImageAlphaInfo.noneSkipFirst.rawValue
             ) else {
+            SentryLog.error("[Session Replay] Failed to append image to pixel buffer, reason: could not create CGContext")
             return false
         }
 

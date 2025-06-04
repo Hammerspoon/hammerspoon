@@ -1,5 +1,6 @@
 import Foundation
 #if (os(iOS) || os(tvOS)) && !SENTRY_NO_UIKIT
+@_implementationOnly import _SentryPrivate
 import UIKit
 
 @objcMembers
@@ -34,39 +35,51 @@ class SentryTouchTracker: NSObject {
      * will ever have the same pointer.
      */
     private var trackedTouches = [UITouch: TouchInfo]()
+    private let dispatchQueue: SentryDispatchQueueWrapper
     private var touchId = 1
     private let dateProvider: SentryCurrentDateProvider
     private let scale: CGAffineTransform
     
-    init(dateProvider: SentryCurrentDateProvider, scale: Float) {
+    init(dateProvider: SentryCurrentDateProvider, scale: Float, dispatchQueue: SentryDispatchQueueWrapper) {
         self.dateProvider = dateProvider
         self.scale = CGAffineTransform(scaleX: CGFloat(scale), y: CGFloat(scale))
+        self.dispatchQueue = dispatchQueue
+    }
+    
+    convenience init(dateProvider: SentryCurrentDateProvider, scale: Float) {
+        // SentryTouchTracker has it own dispatch queue instead of using the one
+        // from Dependency container to avoid the bottleneck of sharing the same
+        // queue with the rest of the SDK.
+        self.init(dateProvider: dateProvider, scale: scale, dispatchQueue: SentryDispatchQueueWrapper())
     }
     
     func trackTouchFrom(event: UIEvent) {
         guard let touches = event.allTouches else { return }
-        for touch in touches {
-            guard touch.phase == .began || touch.phase == .ended || touch.phase == .moved || touch.phase == .cancelled else { continue }
-            let info = trackedTouches[touch] ?? TouchInfo(id: touchId++)
-            let position = touch.location(in: nil).applying(scale)
-            let newEvent = TouchEvent(x: position.x, y: position.y, timestamp: event.timestamp, phase: touch.phase.toRRWebTouchPhase())
-            
-            switch touch.phase {
-            case .began:
-                info.startEvent = newEvent
-            case .ended, .cancelled:
-                info.endEvent = newEvent
-            case .moved:
-                // If the distance between two points is smaller than 10 points, we don't record the second movement.
-                // iOS event polling is fast and will capture any movement; we don't need this granularity for replay.
-                if let last = info.moveEvents.last, touchesDelta(last.point, position) < 10 { continue }
-                info.moveEvents.append(newEvent)
-                debounceEvents(in: info)
-            default:
-                continue
+        let timestamp = event.timestamp
+        
+        dispatchQueue.dispatchAsync { [self] in
+            for touch in touches {
+                guard touch.phase == .began || touch.phase == .ended || touch.phase == .moved || touch.phase == .cancelled else { continue }
+                let info = trackedTouches[touch] ?? TouchInfo(id: touchId++)
+                let position = touch.location(in: nil).applying(scale)
+                let newEvent = TouchEvent(x: position.x, y: position.y, timestamp: timestamp, phase: touch.phase.toRRWebTouchPhase())
+                
+                switch touch.phase {
+                case .began:
+                    info.startEvent = newEvent
+                case .ended, .cancelled:
+                    info.endEvent = newEvent
+                case .moved:
+                    // If the distance between two points is smaller than 10 points, we don't record the second movement.
+                    // iOS event polling is fast and will capture any movement; we don't need this granularity for replay.
+                    if let last = info.moveEvents.last, touchesDelta(last.point, position) < 10 { continue }
+                    info.moveEvents.append(newEvent)
+                    self.debounceEvents(in: info)
+                default:
+                    continue
+                }
+                trackedTouches[touch] = info
             }
-            
-            trackedTouches[touch] = info
         }
     }
     
@@ -103,9 +116,12 @@ class SentryTouchTracker: NSObject {
 
         return abs(abAngle - bcAngle) < 0.05 || abs(abAngle - (2 * .pi - bcAngle)) < 0.05
     }
-  
+    
     func flushFinishedEvents() {
-        trackedTouches = trackedTouches.filter { $0.value.endEvent == nil }
+        SentryLog.debug("[Session Replay] Flushing finished events")
+        dispatchQueue.dispatchSync { [self] in
+            trackedTouches = trackedTouches.filter { $0.value.endEvent == nil }
+        }
     }
     
     func replayEvents(from: Date, until: Date) -> [SentryRRWebEvent] {
@@ -116,7 +132,12 @@ class SentryTouchTracker: NSObject {
         
         var result = [SentryRRWebEvent]()
         
-        for info in trackedTouches.values {
+        var touches = [TouchInfo]()
+        dispatchQueue.dispatchSync { [self] in
+            touches = Array(trackedTouches.values)
+        }
+        
+        for info in touches {
             if let infoStart = info.startEvent, infoStart.timestamp >= startTimeInterval && infoStart.timestamp <= endTimeInterval {
                 result.append(RRWebTouchEvent(timestamp: now.addingTimeInterval(infoStart.timestamp - uptime), touchId: info.id, x: Float(infoStart.x), y: Float(infoStart.y), phase: .start))
             }

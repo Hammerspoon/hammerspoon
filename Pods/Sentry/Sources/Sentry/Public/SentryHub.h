@@ -1,9 +1,22 @@
-#import "SentryDefines.h"
-#import "SentrySpanProtocol.h"
+#if __has_include(<Sentry/Sentry.h>)
+#    import <Sentry/SentryDefines.h>
+#elif __has_include(<SentryWithoutUIKit/Sentry.h>)
+#    import <SentryWithoutUIKit/SentryDefines.h>
+#else
+#    import <SentryDefines.h>
+#endif
+#import SENTRY_HEADER(SentrySpanProtocol)
 
-@class SentryEvent, SentryClient, SentryScope, SentryUser, SentryBreadcrumb, SentryId,
-    SentryUserFeedback, SentryTransactionContext;
+@class SentryBreadcrumb;
+@class SentryClient;
+@class SentryEvent;
+@class SentryFeedback;
+@class SentryId;
 @class SentryMetricsAPI;
+@class SentryScope;
+@class SentryTransactionContext;
+@class SentryUser;
+@class SentryUserFeedback;
 
 NS_ASSUME_NONNULL_BEGIN
 @interface SentryHub : NSObject
@@ -163,9 +176,16 @@ SENTRY_NO_INIT
 /**
  * Captures a manually created user feedback and sends it to Sentry.
  * @param userFeedback The user feedback to send to Sentry.
+ * @deprecated Use @c -[SentryHub @c captureFeedback:] .
  */
-- (void)captureUserFeedback:(SentryUserFeedback *)userFeedback
-    NS_SWIFT_NAME(capture(userFeedback:));
+- (void)captureUserFeedback:(SentryUserFeedback *)userFeedback NS_SWIFT_NAME(capture(userFeedback:))
+                                DEPRECATED_MSG_ATTRIBUTE("Use -[SentryHub captureFeedback:].");
+
+/**
+ * Captures a new-style user feedback and sends it to Sentry.
+ * @param feedback The user feedback to send to Sentry.
+ */
+- (void)captureFeedback:(SentryFeedback *)feedback;
 
 /**
  * Use this method to modify the Scope of the Hub. The SDK uses the Scope to attach

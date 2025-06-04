@@ -1,20 +1,15 @@
 #import "SentryBreadcrumb.h"
+#import "SentryBreadcrumb+Private.h"
 #import "SentryDateUtils.h"
 #import "SentryLevelMapper.h"
 #import "SentryNSDictionarySanitize.h"
 #import "SentrySwift.h"
-
-@interface
-SentryBreadcrumb ()
-@property (atomic, strong) NSDictionary<NSString *, id> *_Nullable unknown;
-@end
 
 @implementation SentryBreadcrumb
 
 - (instancetype)initWithDictionary:(NSDictionary *)dictionary
 {
     if (self = [super init]) {
-        NSMutableDictionary *unknown = [NSMutableDictionary dictionary];
         for (id key in dictionary) {
             id value = [dictionary valueForKey:key];
             if (value == nil) {
@@ -31,16 +26,13 @@ SentryBreadcrumb ()
                 self.category = value;
             } else if ([key isEqualToString:@"type"] && isString) {
                 self.type = value;
+            } else if ([key isEqualToString:@"origin"] && isString) {
+                self.origin = value;
             } else if ([key isEqualToString:@"message"] && isString) {
                 self.message = value;
             } else if ([key isEqualToString:@"data"] && isDictionary) {
                 self.data = value;
-            } else {
-                unknown[key] = value;
             }
-        }
-        if (unknown.count > 0) {
-            self.unknown = [unknown copy];
         }
     }
     return self;
@@ -70,14 +62,9 @@ SentryBreadcrumb ()
     [serializedData setValue:sentry_toIso8601String(self.timestamp) forKey:@"timestamp"];
     [serializedData setValue:self.category forKey:@"category"];
     [serializedData setValue:self.type forKey:@"type"];
+    [serializedData setValue:self.origin forKey:@"origin"];
     [serializedData setValue:self.message forKey:@"message"];
     [serializedData setValue:sentry_sanitize(self.data) forKey:@"data"];
-    NSDictionary<NSString *, id> *unknown = self.unknown;
-    if (unknown != nil) {
-        for (id key in unknown) {
-            [serializedData setValue:unknown[key] forKey:key];
-        }
-    }
     return serializedData;
 }
 
@@ -107,12 +94,11 @@ SentryBreadcrumb ()
         return NO;
     if (self.type != breadcrumb.type && ![self.type isEqualToString:breadcrumb.type])
         return NO;
+    if (self.origin != breadcrumb.origin && ![self.origin isEqualToString:breadcrumb.origin])
+        return NO;
     if (self.message != breadcrumb.message && ![self.message isEqualToString:breadcrumb.message])
         return NO;
     if (self.data != breadcrumb.data && ![self.data isEqualToDictionary:breadcrumb.data])
-        return NO;
-    if (self.unknown != breadcrumb.unknown
-        && ![self.unknown isEqualToDictionary:breadcrumb.unknown])
         return NO;
     return YES;
 }
@@ -124,9 +110,9 @@ SentryBreadcrumb ()
     hash = hash * 23 + [self.category hash];
     hash = hash * 23 + [self.timestamp hash];
     hash = hash * 23 + [self.type hash];
+    hash = hash * 23 + [self.origin hash];
     hash = hash * 23 + [self.message hash];
     hash = hash * 23 + [self.data hash];
-    hash = hash * 23 + [self.unknown hash];
     return hash;
 }
 

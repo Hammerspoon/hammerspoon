@@ -42,8 +42,7 @@ sentryGetIso8601FormatterWithMillisecondPrecision(void)
     return isoFormatter;
 }
 
-NSDate *
-sentry_fromIso8601String(NSString *string)
+NSDate *_Nullable sentry_fromIso8601String(NSString *string)
 {
     NSDate *date = [sentryGetIso8601FormatterWithMillisecondPrecision() dateFromString:string];
     if (nil == date) {

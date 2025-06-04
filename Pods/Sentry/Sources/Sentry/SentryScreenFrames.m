@@ -85,8 +85,8 @@
         (unsigned long)_total, (unsigned long)_slow, (unsigned long)_frozen];
 #    if SENTRY_TARGET_PROFILING_SUPPORTED
     [result appendFormat:
-                @"\nslowFrameTimestamps: %@\nfrozenFrameTimestamps: %@\nframeRateTimestamps: %@",
-            _slowFrameTimestamps, _frozenFrameTimestamps, _frameRateTimestamps];
+            @"\nslowFrameTimestamps: %@\nfrozenFrameTimestamps: %@\nframeRateTimestamps: %@",
+        _slowFrameTimestamps, _frozenFrameTimestamps, _frameRateTimestamps];
 #    endif // SENTRY_TARGET_PROFILING_SUPPORTED
     return result;
 }

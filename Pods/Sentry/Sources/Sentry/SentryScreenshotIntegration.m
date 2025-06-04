@@ -1,6 +1,6 @@
 #import "SentryScreenshotIntegration.h"
 
-#if SENTRY_HAS_UIKIT
+#if SENTRY_TARGET_REPLAY_SUPPORTED
 
 #    import "SentryAttachment.h"
 #    import "SentryCrashC.h"
@@ -22,8 +22,7 @@ saveScreenShot(const char *path)
     [SentryDependencyContainer.sharedInstance.screenshot saveScreenShots:reportPath];
 }
 
-@interface
-SentryScreenshotIntegration ()
+@interface SentryScreenshotIntegration ()
 
 @property (nonatomic, strong) SentryOptions *options;
 
@@ -60,15 +59,16 @@ SentryScreenshotIntegration ()
     [client removeAttachmentProcessor:self];
 }
 
-- (NSArray<SentryAttachment *> *)processAttachments:(NSArray<SentryAttachment *> *)attachments
-                                           forEvent:(nonnull SentryEvent *)event
+- (nonnull NSArray<SentryAttachment *> *)processAttachments:
+                                             (nonnull NSArray<SentryAttachment *> *)attachments
+                                                   forEvent:(nonnull SentryEvent *)event
 {
 
     // We don't take screenshots if there is no exception/error.
     // We don't take screenshots if the event is a metric kit event.
     // Screenshots are added via an alternate codepath for crashes, see
     // sentrycrash_setSaveScreenshots in SentryCrashC.c
-    if ((event.exceptions == nil && event.error == nil) || event.isCrashEvent
+    if ((event.exceptions == nil && event.error == nil) || event.isFatalEvent
 #    if SENTRY_HAS_METRIC_KIT
         || [event isMetricKitEvent]
 #    endif // SENTRY_HAS_METRIC_KIT
@@ -86,8 +86,8 @@ SentryScreenshotIntegration ()
         return attachments;
     }
 
-    NSArray *screenshot =
-        [SentryDependencyContainer.sharedInstance.screenshot appScreenshotsFromMainThread];
+    NSArray<NSData *> *screenshot =
+        [SentryDependencyContainer.sharedInstance.screenshot appScreenshotDatasFromMainThread];
 
     NSMutableArray *result =
         [NSMutableArray arrayWithCapacity:attachments.count + screenshot.count];

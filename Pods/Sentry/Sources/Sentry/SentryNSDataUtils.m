@@ -63,11 +63,4 @@ NSData *_Nullable sentry_nullTerminated(NSData *_Nullable data)
     return mutable;
 }
 
-NSUInteger
-sentry_crc32ofString(NSString *value)
-{
-    NSData *data = [value dataUsingEncoding:NSUTF8StringEncoding];
-    return crc32(0, data.bytes, (uInt)[data length]);
-}
-
 NS_ASSUME_NONNULL_END

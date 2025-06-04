@@ -1,6 +1,5 @@
 #import "SentryFrameRemover.h"
 #import "SentryFrame.h"
-#import <Foundation/Foundation.h>
 
 @implementation SentryFrameRemover
 

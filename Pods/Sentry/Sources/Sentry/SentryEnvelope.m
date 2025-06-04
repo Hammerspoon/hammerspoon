@@ -8,11 +8,11 @@
 #import "SentryEvent.h"
 #import "SentryLog.h"
 #import "SentryMessage.h"
-#import "SentryMeta.h"
 #import "SentryMsgPackSerializer.h"
 #import "SentrySdkInfo.h"
 #import "SentrySerialization.h"
 #import "SentrySession.h"
+#import "SentrySwift.h"
 #import "SentryTransaction.h"
 #import "SentryUserFeedback.h"
 
@@ -30,8 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithId:(nullable SentryId *)eventId
               traceContext:(nullable SentryTraceContext *)traceContext
 {
-    SentrySdkInfo *sdkInfo = [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
-                                                      andVersion:SentryMeta.versionString];
+    SentrySdkInfo *sdkInfo = [SentrySdkInfo global];
     self = [self initWithId:eventId sdkInfo:sdkInfo traceContext:traceContext];
     return self;
 }
@@ -95,6 +94,8 @@ NS_ASSUME_NONNULL_BEGIN
     // default. In any case in the envelope type it should be event. Except for transactions
     NSString *envelopeType = [event.type isEqualToString:SentryEnvelopeItemTypeTransaction]
         ? SentryEnvelopeItemTypeTransaction
+        : [event.type isEqualToString:SentryEnvelopeItemTypeFeedback]
+        ? SentryEnvelopeItemTypeFeedback
         : SentryEnvelopeItemTypeEvent;
 
     return [self initWithHeader:[[SentryEnvelopeItemHeader alloc] initWithType:envelopeType
@@ -161,7 +162,17 @@ NS_ASSUME_NONNULL_BEGIN
             return nil;
         }
 
+#if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
+        if ([NSProcessInfo.processInfo.arguments
+                containsObject:@"--io.sentry.base64-attachment-data"]) {
+            data = [[attachment.data base64EncodedStringWithOptions:0]
+                dataUsingEncoding:NSUTF8StringEncoding];
+        } else {
+            data = attachment.data;
+        }
+#else
         data = attachment.data;
+#endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
     } else if (nil != attachment.path) {
 
         NSError *error = nil;
@@ -186,7 +197,17 @@ NS_ASSUME_NONNULL_BEGIN
             return nil;
         }
 
+#if DEBUG || SENTRY_TEST || SENTRY_TEST_CI
+        if ([NSProcessInfo.processInfo.arguments
+                containsObject:@"--io.sentry.base64-attachment-data"]) {
+            data = [[[[NSFileManager defaultManager] contentsAtPath:attachment.path]
+                base64EncodedStringWithOptions:0] dataUsingEncoding:NSUTF8StringEncoding];
+        } else {
+            data = [[NSFileManager defaultManager] contentsAtPath:attachment.path];
+        }
+#else
         data = [[NSFileManager defaultManager] contentsAtPath:attachment.path];
+#endif // DEBUG || SENTRY_TEST || SENTRY_TEST_CI
     }
 
     if (data == nil) {

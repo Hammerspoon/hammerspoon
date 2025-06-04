@@ -132,6 +132,11 @@ nameForSentrySessionStatus(SentrySessionStatus status)
         if ([duration isKindOfClass:[NSNumber class]]) {
             _duration = duration;
         }
+
+        id abnormalMechanism = [jsonObject valueForKey:@"abnormal_mechanism"];
+        if ([abnormalMechanism isKindOfClass:[NSString class]]) {
+            _abnormalMechanism = abnormalMechanism;
+        }
     }
 
     return self;
@@ -238,6 +243,10 @@ nameForSentrySessionStatus(SentrySessionStatus status)
 
         [serializedData setValue:_distinctId forKey:@"did"];
 
+        if (_abnormalMechanism != nil) {
+            serializedData[@"abnormal_mechanism"] = _abnormalMechanism;
+        }
+
         return serializedData;
     }
 }
@@ -258,6 +267,7 @@ nameForSentrySessionStatus(SentrySessionStatus status)
         copy->_releaseName = _releaseName;
         copy.environment = self.environment;
         copy.user = self.user;
+        copy->_abnormalMechanism = _abnormalMechanism;
         copy->_init = _init;
     }
 

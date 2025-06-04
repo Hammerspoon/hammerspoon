@@ -21,13 +21,12 @@ typedef NS_ENUM(NSInteger, SentryANRTrackerState) {
     kSentryANRTrackerStopping
 };
 
-@interface
-SentryANRTrackerV2 ()
+@interface SentryANRTrackerV2 () <SentryANRTracker>
 
 @property (nonatomic, strong) SentryCrashWrapper *crashWrapper;
 @property (nonatomic, strong) SentryDispatchQueueWrapper *dispatchQueueWrapper;
 @property (nonatomic, strong) SentryThreadWrapper *threadWrapper;
-@property (nonatomic, strong) NSHashTable<id<SentryANRTrackerV2Delegate>> *listeners;
+@property (nonatomic, strong) NSHashTable<id<SentryANRTrackerDelegate>> *listeners;
 @property (nonatomic, strong) SentryFramesTracker *framesTracker;
 @property (nonatomic, assign) NSTimeInterval timeoutInterval;
 
@@ -57,6 +56,11 @@ SentryANRTrackerV2 ()
     return self;
 }
 
+- (id<SentryANRTracker>)asProtocol
+{
+    return self;
+}
+
 - (void)detectANRs
 {
     NSUUID *threadID = [NSUUID UUID];
@@ -73,12 +77,14 @@ SentryANRTrackerV2 ()
         state = kSentryANRTrackerRunning;
     }
 
-    SentryCurrentDateProvider *dateProvider = SentryDependencyContainer.sharedInstance.dateProvider;
+    id<SentryCurrentDateProvider> dateProvider
+        = SentryDependencyContainer.sharedInstance.dateProvider;
 
     BOOL reported = NO;
 
     NSInteger reportThreshold = 5;
     NSTimeInterval sleepInterval = self.timeoutInterval / reportThreshold;
+    uint64_t sleepIntervalInNanos = timeIntervalToNanoseconds(sleepInterval);
     uint64_t timeoutIntervalInNanos = timeIntervalToNanoseconds(self.timeoutInterval);
 
     uint64_t appHangStoppedInterval = timeIntervalToNanoseconds(sleepInterval * 2);
@@ -86,6 +92,7 @@ SentryANRTrackerV2 ()
         = nanosecondsToTimeInterval(appHangStoppedInterval) * 0.2;
 
     uint64_t lastAppHangStoppedSystemTime = dateProvider.systemTime - timeoutIntervalInNanos;
+    uint64_t lastAppHangStartedSystemTime = 0;
 
     // Canceling the thread can take up to sleepInterval.
     while (YES) {
@@ -135,9 +142,21 @@ SentryANRTrackerV2 ()
             if (appHangStopped) {
                 SENTRY_LOG_DEBUG(@"App hang stopped.");
 
+                // As we check every sleepInterval if the app is hanging, the app could already be
+                // hanging for almost the sleepInterval until we detect it and it could already
+                // stopped hanging almost a sleepInterval until we again detect it's not.
+                uint64_t appHangDurationNanos
+                    = timeoutIntervalInNanos + nowSystemTime - lastAppHangStartedSystemTime;
+                NSTimeInterval appHangDurationMinimum
+                    = nanosecondsToTimeInterval(appHangDurationNanos - sleepIntervalInNanos);
+                NSTimeInterval appHangDurationMaximum
+                    = nanosecondsToTimeInterval(appHangDurationNanos + sleepIntervalInNanos);
+
                 // The App Hang stopped, don't block the App Hangs thread or the main thread with
                 // calling ANRStopped listeners.
-                [self.dispatchQueueWrapper dispatchAsyncWithBlock:^{ [self ANRStopped]; }];
+                [self.dispatchQueueWrapper dispatchAsyncWithBlock:^{
+                    [self ANRStopped:appHangDurationMinimum to:appHangDurationMaximum];
+                }];
 
                 lastAppHangStoppedSystemTime = dateProvider.systemTime;
                 reported = NO;
@@ -173,6 +192,7 @@ SentryANRTrackerV2 ()
             SENTRY_LOG_WARN(@"App Hang detected: fully-blocking.");
 
             reported = YES;
+            lastAppHangStartedSystemTime = dateProvider.systemTime;
             [self ANRDetected:SentryANRTypeFullyBlocking];
         }
 
@@ -183,6 +203,7 @@ SentryANRTrackerV2 ()
             SENTRY_LOG_WARN(@"App Hang detected: non-fully-blocking.");
 
             reported = YES;
+            lastAppHangStartedSystemTime = dateProvider.systemTime;
             [self ANRDetected:SentryANRTypeNonFullyBlocking];
         }
     }
@@ -200,24 +221,27 @@ SentryANRTrackerV2 ()
         localListeners = [self.listeners allObjects];
     }
 
-    for (id<SentryANRTrackerV2Delegate> target in localListeners) {
+    for (id<SentryANRTrackerDelegate> target in localListeners) {
         [target anrDetectedWithType:type];
     }
 }
 
-- (void)ANRStopped
+- (void)ANRStopped:(NSTimeInterval)hangDurationMinimum to:(NSTimeInterval)hangDurationMaximum
 {
     NSArray *targets;
     @synchronized(self.listeners) {
         targets = [self.listeners allObjects];
     }
 
-    for (id<SentryANRTrackerV2Delegate> target in targets) {
-        [target anrStopped];
+    SentryANRStoppedResult *result =
+        [[SentryANRStoppedResult alloc] initWithMinDuration:hangDurationMinimum
+                                                maxDuration:hangDurationMaximum];
+    for (id<SentryANRTrackerDelegate> target in targets) {
+        [target anrStoppedWithResult:result];
     }
 }
 
-- (void)addListener:(id<SentryANRTrackerV2Delegate>)listener
+- (void)addListener:(id<SentryANRTrackerDelegate>)listener
 {
     @synchronized(self.listeners) {
         [self.listeners addObject:listener];
@@ -235,7 +259,7 @@ SentryANRTrackerV2 ()
     }
 }
 
-- (void)removeListener:(id<SentryANRTrackerV2Delegate>)listener
+- (void)removeListener:(id<SentryANRTrackerDelegate>)listener
 {
     @synchronized(self.listeners) {
         [self.listeners removeObject:listener];

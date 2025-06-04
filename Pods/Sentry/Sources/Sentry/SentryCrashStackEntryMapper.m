@@ -4,12 +4,10 @@
 #import "SentryFormatter.h"
 #import "SentryFrame.h"
 #import "SentryInAppLogic.h"
-#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentryCrashStackEntryMapper ()
+@interface SentryCrashStackEntryMapper ()
 
 @property (nonatomic, strong) SentryInAppLogic *inAppLogic;
 

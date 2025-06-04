@@ -69,7 +69,7 @@
         if (threadInfoStatus != KERN_SUCCESS) {
             if (error) {
                 *error = NSErrorFromSentryErrorWithKernelError(
-                    kSentryErrorKernel, @"task_threads reported an error.", taskThreadsStatus);
+                    kSentryErrorKernel, @"task_threads reported an error.", threadInfoStatus);
             }
             vm_deallocate(
                 mach_task_self(), reinterpret_cast<vm_address_t>(list), sizeof(*list) * count);

@@ -1,19 +1,37 @@
 #import "SentryDefines.h"
-#import "SentrySwift.h"
 
-#define SENTRY_LOG(_SENTRY_LOG_LEVEL, ...)                                                         \
-    if ([SentryLog willLogAtLevel:_SENTRY_LOG_LEVEL]) {                                            \
-        [SentryLog logWithMessage:[NSString stringWithFormat:@"[%@:%d] %@",                        \
-                                            [[[NSString stringWithUTF8String:__FILE__]             \
-                                                lastPathComponent] stringByDeletingPathExtension], \
-                                            __LINE__, [NSString stringWithFormat:__VA_ARGS__]]     \
-                         andLevel:_SENTRY_LOG_LEVEL];                                              \
-    }
-#define SENTRY_LOG_DEBUG(...) SENTRY_LOG(kSentryLevelDebug, __VA_ARGS__)
-#define SENTRY_LOG_INFO(...) SENTRY_LOG(kSentryLevelInfo, __VA_ARGS__)
-#define SENTRY_LOG_WARN(...) SENTRY_LOG(kSentryLevelWarning, __VA_ARGS__)
-#define SENTRY_LOG_ERROR(...) SENTRY_LOG(kSentryLevelError, __VA_ARGS__)
-#define SENTRY_LOG_FATAL(...) SENTRY_LOG(kSentryLevelFatal, __VA_ARGS__)
+#ifdef __cplusplus
+extern "C" {
+#endif
+bool debugEnabled(void);
+bool infoEnabled(void);
+bool warnEnabled(void);
+bool errorEnabled(void);
+bool fatalEnabled(void);
+void logDebug(const char file[], int line, NSString *format, ...);
+void logInfo(const char file[], int line, NSString *format, ...);
+void logWarn(const char file[], int line, NSString *format, ...);
+void logError(const char file[], int line, NSString *format, ...);
+void logFatal(const char file[], int line, NSString *format, ...);
+#ifdef __cplusplus
+}
+#endif
+
+#define SENTRY_LOG_DEBUG(...)                                                                      \
+    if (debugEnabled())                                                                            \
+        logDebug(__FILE__, __LINE__, __VA_ARGS__);
+#define SENTRY_LOG_INFO(...)                                                                       \
+    if (infoEnabled())                                                                             \
+        logInfo(__FILE__, __LINE__, __VA_ARGS__);
+#define SENTRY_LOG_WARN(...)                                                                       \
+    if (warnEnabled())                                                                             \
+        logWarn(__FILE__, __LINE__, __VA_ARGS__);
+#define SENTRY_LOG_ERROR(...)                                                                      \
+    if (errorEnabled())                                                                            \
+        logError(__FILE__, __LINE__, __VA_ARGS__);
+#define SENTRY_LOG_FATAL(...)                                                                      \
+    if (fatalEnabled())                                                                            \
+        logFatal(__FILE__, __LINE__, __VA_ARGS__);
 
 /**
  * If @c errno is set to a non-zero value after @c statement finishes executing,

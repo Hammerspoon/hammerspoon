@@ -11,6 +11,7 @@
 #        import "SentryFormatter.h"
 #        import "SentryTime.h"
 #    endif // SENTRY_HAS_UIKIT
+#    import "SentrySwift.h"
 
 namespace {
 /**

@@ -160,10 +160,11 @@ CPPExceptionTerminate(void)
             try {
                 throw;
             } catch (std::exception &exc) {
-                strncpy(descriptionBuff, exc.what(), sizeof(descriptionBuff));
+                strlcpy(descriptionBuff, exc.what(), sizeof(descriptionBuff));
             }
 #define CATCH_VALUE(TYPE, PRINTFTYPE)                                                              \
-    catch (TYPE value) {                                                                           \
+    catch (TYPE value)                                                                             \
+    {                                                                                              \
         snprintf(descriptionBuff, sizeof(descriptionBuff), "%" #PRINTFTYPE, value);                \
     }
             CATCH_VALUE(char, d)

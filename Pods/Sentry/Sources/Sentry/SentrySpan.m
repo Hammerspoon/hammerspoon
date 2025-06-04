@@ -16,7 +16,7 @@
 #import "SentryTime.h"
 #import "SentryTraceContext.h"
 #import "SentryTraceHeader.h"
-#import "SentryTracer.h"
+#import "SentryTracer+Private.h"
 
 #if SENTRY_HAS_UIKIT
 #    import <SentryFramesTracker.h>
@@ -33,8 +33,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface
-SentrySpan ()
+@interface SentrySpan ()
 @end
 
 @implementation SentrySpan {
@@ -43,7 +42,6 @@ SentrySpan ()
     NSObject *_stateLock;
     BOOL _isFinished;
     uint64_t _startSystemTime;
-    LocalMetricsAggregator *localMetricsAggregator;
 #if SENTRY_HAS_UIKIT
     NSUInteger initTotalFrames;
     NSUInteger initSlowFrames;
@@ -112,6 +110,13 @@ SentrySpan ()
         }
 #endif // SENTRY_TARGET_PROFILING_SUPPORTED
     }
+
+    if (context.parentSpanId == nil) {
+        SENTRY_LOG_DEBUG(@"Started root span with id %@", context.spanId.sentrySpanIdString);
+    } else {
+        SENTRY_LOG_DEBUG(@"Started span with id %@; parent id %@",
+            context.spanId.sentrySpanIdString, context.parentSpanId.sentrySpanIdString);
+    }
     return self;
 }
 
@@ -149,6 +154,14 @@ SentrySpan ()
 #endif // SENTRY_HAS_UIKIT
 
         _tracer = tracer;
+
+        if (context.parentSpanId == nil) {
+            SENTRY_LOG_DEBUG(@"Starting root span with tracer with profilerReferenceId %@",
+                tracer.profilerReferenceID.sentryIdString);
+        } else {
+            SENTRY_LOG_DEBUG(@"Starting span with tracer with profilerReferenceId %@",
+                tracer.profilerReferenceID.sentryIdString);
+        }
     }
     return self;
 }
@@ -258,7 +271,6 @@ SentrySpan ()
 
 #if SENTRY_HAS_UIKIT
     if (_framesTracker.isRunning) {
-
         CFTimeInterval framesDelay = [_framesTracker
                 getFramesDelay:_startSystemTime
             endSystemTimestamp:SentryDependencyContainer.sharedInstance.dateProvider.systemTime]
@@ -290,6 +302,10 @@ SentrySpan ()
             @"No tracer associated with span with id %@", self.spanId.sentrySpanIdString);
         return;
     }
+
+    SENTRY_LOG_DEBUG(@"Marking span %@ as finished in tracer %@ (profileReferenceId %@)",
+        _spanId.sentrySpanIdString, _tracer.traceId.sentryIdString,
+        _tracer.profilerReferenceID.sentryIdString);
     [self.tracer spanFinished:self];
 }
 
@@ -309,14 +325,6 @@ SentrySpan ()
 - (nullable SentryTraceContext *)traceContext
 {
     return self.tracer.traceContext;
-}
-
-- (LocalMetricsAggregator *)getLocalMetricsAggregator
-{
-    if (localMetricsAggregator == nil) {
-        localMetricsAggregator = [[LocalMetricsAggregator alloc] init];
-    }
-    return localMetricsAggregator;
 }
 
 - (NSDictionary *)serialize
@@ -358,10 +366,6 @@ SentrySpan ()
 
     [mutableDictionary setValue:@(self.startTimestamp.timeIntervalSince1970)
                          forKey:@"start_timestamp"];
-
-    if (localMetricsAggregator != nil) {
-        mutableDictionary[@"_metrics_summary"] = [localMetricsAggregator serialize];
-    }
 
     @synchronized(_data) {
         NSMutableDictionary *data = _data.mutableCopy;

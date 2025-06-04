@@ -2,21 +2,25 @@
 #import "SentryDataCategory.h"
 #import "SentryDiscardReason.h"
 
-@class SentrySession, SentryEnvelopeItem, SentryId, SentryAttachment, SentryThreadInspector,
-    SentryReplayEvent, SentryReplayRecording, SentryEnvelope;
+@class SentryAttachment;
+@class SentryEnvelope;
+@class SentryEnvelopeItem;
+@class SentryId;
+@class SentryReplayEvent;
+@class SentryReplayRecording;
+@class SentrySession;
+@class SentryThreadInspector;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol SentryClientAttachmentProcessor <NSObject>
 
-- (nullable NSArray<SentryAttachment *> *)processAttachments:
-                                              (nullable NSArray<SentryAttachment *> *)attachments
-                                                    forEvent:(SentryEvent *)event;
+- (NSArray<SentryAttachment *> *)processAttachments:(NSArray<SentryAttachment *> *)attachments
+                                           forEvent:(SentryEvent *)event;
 
 @end
 
-@interface
-SentryClient ()
+@interface SentryClient ()
 
 @property (nonatomic, strong)
     NSMutableArray<id<SentryClientAttachmentProcessor>> *attachmentProcessors;
@@ -31,11 +35,15 @@ SentryClient ()
                      withScope:(SentryScope *)scope
         incrementSessionErrors:(SentrySession * (^)(void))sessionBlock;
 
-- (SentryId *)captureCrashEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
+- (SentryId *)captureFatalEvent:(SentryEvent *)event withScope:(SentryScope *)scope;
 
-- (SentryId *)captureCrashEvent:(SentryEvent *)event
+- (SentryId *)captureFatalEvent:(SentryEvent *)event
                     withSession:(SentrySession *)session
                       withScope:(SentryScope *)scope;
+
+- (void)saveCrashTransaction:(SentryTransaction *)transaction
+                   withScope:(SentryScope *)scope
+    NS_SWIFT_NAME(saveCrashTransaction(transaction:scope:));
 
 - (SentryId *)captureEvent:(SentryEvent *)event
                   withScope:(SentryScope *)scope
