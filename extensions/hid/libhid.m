@@ -76,8 +76,13 @@ static int access_capslock(int op){
 			return (int) kr;
 		}
 		break;
+    default:
+        {
+            NSCAssert(NO, @"Unexpected CAPS_LOCK op passed to access_capslock: %i",op);
+            break;
+        }
 	}
-
+    
 	IOServiceClose(ioc);
 	return (bool) state;
 }
